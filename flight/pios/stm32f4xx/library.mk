@@ -16,15 +16,17 @@ LINKER_SCRIPTS_COMPAT	=  $(PIOS_DEVLIB)link_$(BOARD)_fw_memory.ld \
 
 # Compiler options implied by the F4xx
 CDEFS			+= -DSTM32F4XX
+ifneq ($(CHIPFAMILY),STM32F401xx)
+CDEFS			+= -DPIOS_TARGET_PROVIDES_FAST_HEAP
+CDEFS			+= -DSTM32F40_41xxx
+else
+CDEFS			+= -DSTM32F401xx
+endif
 CDEFS			+= -DSYSCLK_FREQ=$(SYSCLK_FREQ)
 CDEFS			+= -DHSE_VALUE=$(OSCILLATOR_FREQ)
 CDEFS 			+= -DUSE_STDPERIPH_DRIVER
 CDEFS			+= -DARM_MATH_CM4 -D__FPU_PRESENT=1
-ifneq ($(NOCCSRAM),YES)
-CDEFS			+= -DPIOS_TARGET_PROVIDES_FAST_HEAP
-else
-$(error NOCCSRAM) 
-endif
+
 ARCHFLAGS		+= -mcpu=cortex-m4 -march=armv7e-m -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 # PIOS device library source and includes
@@ -39,7 +41,11 @@ EXTRAINCDIRS		+= $(CMSIS_DEVICEDIR)/Include
 
 # ST Peripheral library
 PERIPHLIB		=  $(PIOS_DEVLIB)libraries/STM32F4xx_StdPeriph_Driver
-SRC			+= $(sort $(wildcard $(PERIPHLIB)/src/*.c))
+
+ALL_SPL_SOURCES = $(sort $(wildcard $(PERIPHLIB)/src/*.c))
+SPL_SOURCES = $(filter-out %stm32f4xx_fmc.c %stm32f4xx_sai.c %stm32f4xx_fsmc.c, $(ALL_SPL_SOURCES))
+SRC			+= $(SPL_SOURCES)
+
 EXTRAINCDIRS		+= $(PERIPHLIB)/inc
 
 # ST USB OTG library

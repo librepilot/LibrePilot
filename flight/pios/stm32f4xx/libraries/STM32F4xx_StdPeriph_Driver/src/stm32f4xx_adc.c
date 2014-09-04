@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_adc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    11-January-2013
+  * @version V1.3.0
+  * @date    08-November-2013
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC) peripheral:
   *           + Initialization and Configuration (in addition to ADC multi mode 
@@ -604,6 +604,10 @@ void ADC_TempSensorVrefintCmd(FunctionalState NewState)
 
 /**
   * @brief  Enables or disables the VBAT (Voltage Battery) channel.
+  * 
+  * @note   the Battery voltage measured is equal to VBAT/2 on STM32F40xx and 
+  *         STM32F41xx devices and equal to VBAT/4 on STM32F42xx and STM32F43xx devices 
+  *              
   * @param  NewState: new state of the VBAT channel.
   *          This parameter can be: ENABLE or DISABLE.
   * @retval None
@@ -849,7 +853,7 @@ FlagStatus ADC_GetSoftwareStartConvStatus(ADC_TypeDef* ADCx)
   assert_param(IS_ADC_ALL_PERIPH(ADCx));
   
   /* Check the status of SWSTART bit */
-  if ((ADCx->CR2 & ADC_CR2_JSWSTART) != (uint32_t)RESET)
+  if ((ADCx->CR2 & ADC_CR2_SWSTART) != (uint32_t)RESET)
   {
     /* SWSTART bit is set */
     bitstatus = SET;

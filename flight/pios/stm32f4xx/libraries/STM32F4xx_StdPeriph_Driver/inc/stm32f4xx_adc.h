@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_adc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    11-January-2013
+  * @version V1.3.0
+  * @date    08-November-2013
   * @brief   This file contains all the functions prototypes for the ADC firmware 
   *          library.
   ******************************************************************************
@@ -325,7 +325,14 @@ typedef struct
 #define ADC_Channel_17                              ((uint8_t)0x11)
 #define ADC_Channel_18                              ((uint8_t)0x12)
 
+#if defined (STM32F40_41xxx)
 #define ADC_Channel_TempSensor                      ((uint8_t)ADC_Channel_16)
+#endif /* STM32F40_41xxx */
+
+#if defined (STM32F427_437xx) || defined (STM32F429_439xx) || defined (STM32F401xx)
+#define ADC_Channel_TempSensor                      ((uint8_t)ADC_Channel_18)
+#endif /* STM32F427_437xx || STM32F429_439xx || STM32F401xx */
+
 #define ADC_Channel_Vrefint                         ((uint8_t)ADC_Channel_17)
 #define ADC_Channel_Vbat                            ((uint8_t)ADC_Channel_18)
 

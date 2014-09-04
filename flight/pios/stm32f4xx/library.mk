@@ -6,13 +6,13 @@
 PIOS_DEVLIB		:= $(dir $(lastword $(MAKEFILE_LIST)))
 
 # Hardcoded linker script names for now
-LINKER_SCRIPTS_APP	=  $(PIOS_DEVLIB)link_stm32f4xx_fw_memory.ld \
-			   $(PIOS_DEVLIB)link_stm32f4xx_sections.ld
-LINKER_SCRIPTS_BL	=  $(PIOS_DEVLIB)link_stm32f4xx_bl_memory.ld \
-			   $(PIOS_DEVLIB)link_stm32f4xx_sections.ld
+LINKER_SCRIPTS_APP	=  $(PIOS_DEVLIB)link_$(BOARD)_fw_memory.ld \
+			   $(PIOS_DEVLIB)link_$(BOARD)_sections.ld
+LINKER_SCRIPTS_BL	=  $(PIOS_DEVLIB)link_$(BOARD)_bl_memory.ld \
+			   $(PIOS_DEVLIB)link_$(BOARD)_sections.ld
 # _compat linker script are aimed at bootloader updater to guarantee to be compatible with earlier bootloaders.
-LINKER_SCRIPTS_COMPAT	=  $(PIOS_DEVLIB)link_stm32f4xx_fw_memory.ld \
-			   $(PIOS_DEVLIB)link_stm32f4xx_sections_compat.ld
+LINKER_SCRIPTS_COMPAT	=  $(PIOS_DEVLIB)link_$(BOARD)_fw_memory.ld \
+			   $(PIOS_DEVLIB)link_$(BOARD)_sections_compat.ld
 
 # Compiler options implied by the F4xx
 CDEFS			+= -DSTM32F4XX
@@ -20,7 +20,11 @@ CDEFS			+= -DSYSCLK_FREQ=$(SYSCLK_FREQ)
 CDEFS			+= -DHSE_VALUE=$(OSCILLATOR_FREQ)
 CDEFS 			+= -DUSE_STDPERIPH_DRIVER
 CDEFS			+= -DARM_MATH_CM4 -D__FPU_PRESENT=1
+ifneq ($(NOCCSRAM),YES)
 CDEFS			+= -DPIOS_TARGET_PROVIDES_FAST_HEAP
+else
+$(error NOCCSRAM) 
+endif
 ARCHFLAGS		+= -mcpu=cortex-m4 -march=armv7e-m -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 # PIOS device library source and includes

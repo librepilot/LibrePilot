@@ -1,14 +1,8 @@
 ################################
 # Targets to build osg and osgearth
 #
-# Produce a osg.tar.gz file and its md5 checksum file.
-# Currently osgearth will also produce a tar file.
-# TODO : osg distribution includes osgearth.
-#
-# No sample data is provided in the generated distribution files.
-#
 ################################
-# Dependencies:
+# Prerequisites:
 ################################
 #
 # Install development libraries for:
@@ -59,9 +53,9 @@ OSG_BUILD_CONF  := Release
 OSG_VERSION	 := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
 OSG_SRC_DIR	 := $(ROOT_DIR)/thirdparty/osg-$(OSG_VERSION)
-OSG_BUILD_DIR   := $(BUILD_DIR)/osg-$(OSG_VERSION)
-OSG_INSTALL_DIR := $(TOOLS_DIR)/osg-$(ARCH)-$(OSG_VERSION)
-OSG_TAR_FILE	:= $(OSG_BUILD_DIR)/osg-$(ARCH)-$(OSG_VERSION).tar
+OSG_BUILD_DIR   := $(BUILD_DIR)/thirdparty/osg-$(OSG_VERSION)-$(ARCH)
+OSG_INSTALL_DIR := $(BUILD_DIR)/thirdparty/install/osg-$(OSG_VERSION)-$(ARCH)
+OSG_TAR_FILE	:= $(BUILD_DIR)/thirdparty/osg-$(OSG_VERSION)-$(ARCH).tar
 
 ifeq ($(UNAME), Windows)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -127,22 +121,19 @@ OSGEARTH_BUILD_CONF  := Release
 OSGEARTH_VERSION	 := f5fb2ae
 OSGEARTH_GIT_BRANCH  := f5fb2ae
 OSGEARTH_SRC_DIR	 := $(ROOT_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)
-OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/osgearth-$(OSGEARTH_VERSION)
-OSGEARTH_INSTALL_DIR := $(TOOLS_DIR)/osgearth-$(ARCH)-$(OSGEARTH_VERSION)
-OSGEARTH_TAR_FILE	:= $(OSGEARTH_BUILD_DIR)/osgearth-$(ARCH)-$(OSGEARTH_VERSION).tar
+OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
+OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/thirdparty/install/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
+OSGEARTH_TAR_FILE	:= $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH).tar
 
 ifeq ($(UNAME), Windows)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_DIR)/bin;$$SYSTEMROOT/System32"
+	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin;$$SYSTEMROOT/System32"
 else
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
 	# for some reason Qt is not added to the path in make/tools.mk
-	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_DIR)/bin:$(PATH)
+	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 endif
-
-#LD_LIBRARY_PATH=$(OSG_DIR)/lib && \
-
 
 .PHONY: osgearth
 osgearth:
@@ -175,8 +166,6 @@ clone_osgearth:
 	$(V1) ( $(CD) $(OSGEARTH_SRC_DIR) && \
 		$(GIT) checkout $(OSGEARTH_GIT_BRANCH) ; \
 	)
-
-#
 
 .PHONY: clean_osgearth
 clean_osgearth:

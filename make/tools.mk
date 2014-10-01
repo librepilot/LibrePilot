@@ -70,6 +70,8 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-linux-x86-5.3.2.run
         QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-linux-x86-5.3.2.run.md5
         QT_SDK_ARCH := gcc
+        CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
+        CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
@@ -96,6 +98,8 @@ else ifeq ($(UNAME), Windows)
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60-windows.tar.bz2
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1-windows.tar.bz2
     MESAWIN_URL    := http://wiki.openpilot.org/download/attachments/18612236/mesawin.tar.gz
+    CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
+    CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-win32-x86.zip.md5
 endif
 
 GTEST_URL := http://wiki.openpilot.org/download/attachments/18612236/gtest-1.6.0.zip
@@ -112,6 +116,11 @@ OPENSSL_DIR     := $(TOOLS_DIR)/openssl-1.0.1e-win32
 UNCRUSTIFY_DIR  := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR     := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR       := $(TOOLS_DIR)/gtest-1.6.0
+ifeq ($(UNAME), Windows)
+    CMAKE_DIR   := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
+else
+    CMAKE_DIR   := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
+endif
 
 ifeq ($(UNAME), Windows)
     MINGW_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
@@ -904,6 +913,30 @@ export GTEST_DIR
 .PHONY: gtest_version
 gtest_version:
 	-$(V1) $(SED) -n "s/^PACKAGE_STRING='\(.*\)'/\1/p" < $(GTEST_DIR)/configure
+
+##############################
+#
+# CMake
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,cmake,$(CMAKE_DIR),$(CMAKE_URL),$(CMAKE_MD5_URL),$(notdir $(CMAKE_URL))))
+
+ifeq ($(shell [ -d "$(CMAKE_DIR)" ] && $(ECHO) "exists"), exists)
+    export CMAKE := "$(CMAKE_DIR)/bin/cmake"
+    export PATH := $(CMAKE_DIR)/bin:$(PATH)
+else
+    export CMAKE := "cmake"
+    # not installed, hope it's in the path...
+    #$(info $(EMPTY) WARNING     $(call toprel, $(CMAKE_DIR)) not found (make cmake_install), using system PATH)
+    export CMAKE := cmake
+endif
+
+all_sdk_version: cmake_version
+
+.PHONY: cmake_version
+cmake_version:
+	-$(V1) $(ECHO) "`$(CMAKE) --version`"
 
 
 

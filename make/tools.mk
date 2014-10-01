@@ -176,6 +176,7 @@ GIT			:= git
 CURL		:= curl
 TAR			:= tar
 UNZIP		:= unzip
+ZIP		:= gzip
 OPENSSL		:= openssl
 ANT			:= ant
 JAVAC		:= javac
@@ -274,6 +275,17 @@ endif
 
 define MD5_CHECK_TEMPLATE
 "`test -f \"$(1)\" && $(OPENSSL) dgst -md5 \"$(1)\" | $(CUT) -f2 -d' '`" $(2) "`$(CUT) -f1 -d' ' < \"$(1).md5\"`"
+endef
+
+##############################
+#
+# Cross-platform MD5 generation template
+#  $(1) = file name without quotes
+#
+##############################
+
+define MD5_GEN_TEMPLATE
+$(OPENSSL) dgst -md5 $(1) > $(1).md5
 endef
 
 ##############################

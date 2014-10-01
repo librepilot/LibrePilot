@@ -102,6 +102,9 @@ endif
 # Include tools installers
 include $(ROOT_DIR)/make/tools.mk
 
+# Include third party builders
+include $(ROOT_DIR)/make/osgearth.mk
+
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
     QT_SPEC = linux-g++
@@ -477,6 +480,8 @@ openpilotgcs_make:
 openpilotgcs_clean:
 	@$(ECHO) " CLEAN      $(call toprel, $(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF))"
 	$(V1) [ ! -d "$(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)" ] || $(RM) -r "$(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)"
+
+
 
 ################################
 #

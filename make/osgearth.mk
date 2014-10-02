@@ -135,12 +135,17 @@ else
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 endif
 
+# osgearth cmake script calls the osgversion executable to find the osg version
+# this makes it necessary to have osg in the pathes (bin and lib) to make sure the correct one is found
+# ideally this should not be necessary
+
 .PHONY: osgearth
 osgearth:
 	@$(ECHO) "Building osgEarth $(call toprel, $(OSGEARTH_SRC_DIR)) into $(call toprel, $(OSGEARTH_BUILD_DIR))"
 	$(V1) $(MKDIR) -p $(OSGEARTH_BUILD_DIR)
 	$(V1) ( $(CD) $(OSGEARTH_BUILD_DIR) && \
 		PATH=$(OSGEARTH_BUILD_PATH) && \
+		LD_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib && \
 		$(CMAKE) -G $(OSGEARTH_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSGEARTH_BUILD_CONF) \
 			-DOSG_DIR=$(OSG_INSTALL_DIR) -DINSTALL_TO_OSG_DIR=OFF \
 			-DCMAKE_INCLUDE_PATH=$(OSG_INSTALL_DIR)/include \

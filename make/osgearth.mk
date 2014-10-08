@@ -50,9 +50,9 @@
 ################################
 
 OSG_BUILD_CONF  := Release
-OSG_VERSION	 := 3.2.1
+OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
-OSG_SRC_DIR	 := $(ROOT_DIR)/thirdparty/osg-$(OSG_VERSION)
+OSG_SRC_DIR     := $(ROOT_DIR)/thirdparty/osg
 OSG_BUILD_DIR   := $(BUILD_DIR)/thirdparty/osg-$(OSG_VERSION)-$(ARCH)
 OSG_INSTALL_DIR := $(BUILD_DIR)/thirdparty/install/osg-$(OSG_VERSION)-$(ARCH)
 OSG_TAR_FILE	:= $(BUILD_DIR)/thirdparty/osg-$(OSG_VERSION)-$(ARCH).tar
@@ -90,13 +90,17 @@ prepare_osg: clone_osg
 
 .PHONY: clone_osg
 clone_osg:
-	$(V1) $(MKDIR) -p $(OSG_SRC_DIR)
-	@$(ECHO) "Cloning osg to $(call toprel, $(OSG_SRC_DIR))"
-	$(V1) $(GIT) clone git://github.com/openscenegraph/osg.git $(OSG_SRC_DIR)
-	@$(ECHO) "Checking out osg branch $(OSG_GIT_BRANCH)"
-	$(V1) ( $(CD) $(OSG_SRC_DIR) && \
-		$(GIT) checkout $(OSG_GIT_BRANCH) ; \
-	)
+	$(V1) if [ -d "$(OSG_SRC_DIR)" ]; then \
+		$(ECHO) "Checking out osg branch $(OSG_GIT_BRANCH)" ; \
+		( $(CD) $(OSG_SRC_DIR) && \
+			$(GIT) fetch origin $(OSG_GIT_BRANCH) && \
+			$(GIT) checkout $(OSG_GIT_BRANCH) ; \
+		); \
+	else \
+		$(ECHO) "Cloning osg branch $(OSG_GIT_BRANCH) to $(call toprel, $(OSG_SRC_DIR))" ; \
+		$(GIT) clone git://github.com/gwaldron/osg.git -b $(OSG_GIT_BRANCH) $(OSG_SRC_DIR) ; \
+	fi
+
 
 .PHONY: clean_osg
 clean_osg:
@@ -118,12 +122,13 @@ clean_all_osg: clean_osg
 ################################
 
 OSGEARTH_BUILD_CONF  := Release
-OSGEARTH_VERSION	 := f5fb2ae
-OSGEARTH_GIT_BRANCH  := f5fb2ae
 OSGEARTH_SRC_DIR	 := $(ROOT_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)
+OSGEARTH_VERSION     := 2.6
+OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
+OSGEARTH_SRC_DIR     := $(ROOT_DIR)/thirdparty/osgearth
 OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
 OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/thirdparty/install/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
-OSGEARTH_TAR_FILE	:= $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH).tar
+OSGEARTH_TAR_FILE    := $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH).tar
 
 ifeq ($(UNAME), Windows)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -164,13 +169,16 @@ prepare_osgearth: clone_osgearth
 
 .PHONY: clone_osgearth
 clone_osgearth:
-	$(V1) $(MKDIR) -p $(OSGEARTH_SRC_DIR)
-	@$(ECHO) "Cloning osgearth to $(call toprel, $(OSGEARTH_SRC_DIR))"
-	$(V1) $(GIT) clone git://github.com/gwaldron/osgearth.git $(OSGEARTH_SRC_DIR)
-	@$(ECHO) "Checking out osgearth branch $(OSGEARTH_GIT_BRANCH)"
-	$(V1) ( $(CD) $(OSGEARTH_SRC_DIR) && \
-		$(GIT) checkout $(OSGEARTH_GIT_BRANCH) ; \
-	)
+	$(V1) if [ -d "$(OSGEARTH_SRC_DIR)" ]; then \
+		$(ECHO) "Checking out osgearth branch $(OSGEARTH_GIT_BRANCH)" ; \
+		( $(CD) $(OSGEARTH_SRC_DIR) && \
+			$(GIT) fetch origin $(OSGEARTH_GIT_BRANCH) && \
+			$(GIT) checkout $(OSGEARTH_GIT_BRANCH) ; \
+		); \
+	else \
+		$(ECHO) "Cloning osgearth branch $(OSGEARTH_GIT_BRANCH) to $(call toprel, $(OSGEARTH_SRC_DIR))" ; \
+		$(GIT) clone git://github.com/gwaldron/osgearth.git -b $(OSGEARTH_GIT_BRANCH) $(OSGEARTH_SRC_DIR) ; \
+	fi
 
 .PHONY: clean_osgearth
 clean_osgearth:

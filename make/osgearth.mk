@@ -98,7 +98,7 @@ clone_osg:
 		); \
 	else \
 		$(ECHO) "Cloning osg branch $(OSG_GIT_BRANCH) to $(call toprel, $(OSG_SRC_DIR))" ; \
-		$(GIT) clone git://github.com/gwaldron/osg.git -b $(OSG_GIT_BRANCH) $(OSG_SRC_DIR) ; \
+		$(GIT) clone git://github.com/openscenegraph/osg.git -b $(OSG_GIT_BRANCH) $(OSG_SRC_DIR) ; \
 	fi
 
 
@@ -122,7 +122,6 @@ clean_all_osg: clean_osg
 ################################
 
 OSGEARTH_BUILD_CONF  := Release
-OSGEARTH_SRC_DIR	 := $(ROOT_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)
 OSGEARTH_VERSION     := 2.6
 OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/thirdparty/osgearth

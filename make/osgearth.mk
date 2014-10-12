@@ -111,8 +111,8 @@ clone_osg:
 clean_osg:
 	@$(ECHO) " CLEAN	  $(call toprel, $(OSG_BUILD_DIR))"
 	$(V1) [ ! -d "$(OSG_BUILD_DIR)" ] || $(RM) -r "$(OSG_BUILD_DIR)"
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSG_SDK_DIR))"
-	$(V1) [ ! -d "$(OSG_SDK_DIR)" ] || $(RM) -r "$(OSG_SDK_DIR)"
+	@$(ECHO) " CLEAN	  $(call toprel, $(OSG_INSTALL_DIR))"
+	$(V1) [ ! -d "$(OSG_INSTALL_DIR)" ] || $(RM) -r "$(OSG_INSTALL_DIR)"
 
 .PHONY: clean_all_osg
 clean_all_osg: clean_osg
@@ -188,8 +188,8 @@ clone_osgearth:
 clean_osgearth:
 	@$(ECHO) " CLEAN	  $(call toprel, $(OSGEARTH_BUILD_DIR))"
 	$(V1) [ ! -d "$(OSGEARTH_BUILD_DIR)" ] || $(RM) -r "$(OSGEARTH_BUILD_DIR)"
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSGEARTH_SDK_DIR))"
-	$(V1) [ ! -d "$(OSGEARTH_SDK_DIR)" ] || $(RM) -r "$(OSGEARTH_SDK_DIR)"
+	@$(ECHO) " CLEAN	  $(call toprel, $(OSGEARTH_INSTALL_DIR))"
+	$(V1) [ ! -d "$(OSGEARTH_INSTALL_DIR)" ] || $(RM) -r "$(OSGEARTH_INSTALL_DIR)"
 
 .PHONY: clean_all_osgearth
 clean_all_osgearth: clean_osgearth

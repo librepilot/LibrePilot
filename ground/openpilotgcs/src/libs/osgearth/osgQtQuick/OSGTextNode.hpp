@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_OSGTEXTNODE_H_
 #define _H_OSGQTQUICK_OSGTEXTNODE_H_
 
-#include <osgQtQuick/OSGNode>
+#include "osgQtQuick/OSGNode.hpp"
 
 #include <QColor>
 

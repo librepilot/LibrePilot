@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_NODEFILE_H_
 #define _H_OSGQTQUICK_NODEFILE_H_
 
-#include <osgQtQuick/OSGNode>
+#include "osgQtQuick/OSGNode.hpp"
 
 #include <QUrl>
 QT_BEGIN_NAMESPACE

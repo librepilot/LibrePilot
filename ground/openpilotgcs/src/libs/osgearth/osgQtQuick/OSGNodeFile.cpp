@@ -38,8 +38,8 @@ public:
 
     void asyncLoad(const QUrl &url) {
         OSGFileLoader *loader = new OSGFileLoader(url);
-        connect(loader, &OSGFileLoader::loaded, this, &Hidden::onLoaded);
-        connect(loader, &OSGFileLoader::finished, loader, &QObject::deleteLater);
+        connect(loader, SIGNAL(loaded(const QUrl&, osg::Node*)), this, SLOT(onLoaded(const QUrl&, osg::Node*)));
+        connect(loader, SIGNAL(finished), loader, SLOT(deleteLater));
         loader->start();
     }
 

@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_OSGVIEPORT_H_
 #define _H_OSGQTQUICK_OSGVIEPORT_H_
 
-#include <osgQtQuick/Export>
+#include "osgQtQuick/Export.hpp"
 
 #include <QQuickItem>
 

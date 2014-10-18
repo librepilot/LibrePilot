@@ -1,7 +1,7 @@
 #ifndef OSGQTQUICK_QUICKWINDOWVIEWER_HPP
 #define OSGQTQUICK_QUICKWINDOWVIEWER_HPP
 
-#include <osgQtQuick/Export>
+#include "osgQtQuick/Export.hpp"
 
 #include <QObject>
 

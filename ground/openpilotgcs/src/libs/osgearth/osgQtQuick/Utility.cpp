@@ -9,11 +9,12 @@
 #include <osgQt/QFontImplementation>
 
 // osgQtQuick qml types
-#include <osgQtQuick/OSGNode>
-#include <osgQtQuick/OSGGroup>
-#include <osgQtQuick/OSGNodeFile>
-#include <osgQtQuick/OSGTextNode>
-#include <osgQtQuick/OSGViewport>
+#include "osgQtQuick/OSGNode.hpp"
+#include "osgQtQuick/OSGGroup.hpp"
+#include "osgQtQuick/OSGNodeFile.hpp"
+#include "osgQtQuick/OSGTextNode.hpp"
+#include "osgQtQuick/OSGEarthNode.hpp"
+#include "osgQtQuick/OSGViewport.hpp"
 
 #include <QFont>
 

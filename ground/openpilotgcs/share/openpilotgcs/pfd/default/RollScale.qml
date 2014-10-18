@@ -6,7 +6,7 @@ Item {
     property variant sceneSize
     property real horizontCenter
 
-    onHorizontCenterChanged: console.log("horizont center:"+horizontCenter)
+    //onHorizontCenterChanged: console.log("horizont center:"+horizontCenter)
 
     SvgElementImage {
         id: rollscale

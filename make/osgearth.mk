@@ -32,7 +32,7 @@
 # $ make all_osg
 #
 # This will:
-# - clone the git repositories into the ./thirdparty directory
+# - clone the git repositories into the ./3rdparty directory
 # - build osg in the build directory, building steps are : cmake, make, make install
 # - osg is installed in the OP tools directory
 # - distribution files are created in the build directory
@@ -57,10 +57,10 @@
 OSG_BUILD_CONF  := Release
 OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
-OSG_SRC_DIR     := $(ROOT_DIR)/thirdparty/osg
-OSG_BUILD_DIR   := $(BUILD_DIR)/thirdparty/osg-$(OSG_VERSION)-$(ARCH)
-OSG_INSTALL_DIR := $(BUILD_DIR)/thirdparty/install/osg-$(OSG_VERSION)-$(ARCH)
-OSG_TAR_FILE	:= $(BUILD_DIR)/thirdparty/osg-$(OSG_VERSION)-$(ARCH).tar
+OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
+OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/osg-$(OSG_VERSION)-$(ARCH)
+OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/osg-$(OSG_VERSION)-$(ARCH)
+OSG_TAR_FILE	:= $(BUILD_DIR)/3rdparty/osg-$(OSG_VERSION)-$(ARCH).tar
 
 ifeq ($(UNAME), Windows)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -129,10 +129,10 @@ clean_all_osg: clean_osg
 OSGEARTH_BUILD_CONF  := Release
 OSGEARTH_VERSION     := 2.6
 OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
-OSGEARTH_SRC_DIR     := $(ROOT_DIR)/thirdparty/osgearth
-OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
-OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/thirdparty/install/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
-OSGEARTH_TAR_FILE    := $(BUILD_DIR)/thirdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH).tar
+OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
+OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
+OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
+OSGEARTH_TAR_FILE    := $(BUILD_DIR)/3rdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH).tar
 
 ifeq ($(UNAME), Windows)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"

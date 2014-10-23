@@ -74,10 +74,12 @@ void PIOS_SYS_Init(void)
         RCC_AHB1Periph_GPIOC |
         RCC_AHB1Periph_GPIOD |
         RCC_AHB1Periph_GPIOE |
+#ifdef STM32F40_41xxx
         RCC_AHB1Periph_GPIOF |
         RCC_AHB1Periph_GPIOG |
         RCC_AHB1Periph_GPIOH |
         RCC_AHB1Periph_GPIOI |
+#endif
         RCC_AHB1Periph_CRC |
         RCC_AHB1Periph_FLITF |
         RCC_AHB1Periph_SRAM1 |
@@ -169,10 +171,13 @@ void PIOS_SYS_Init(void)
     GPIO_Init(GPIOC, &GPIO_InitStructure);
     GPIO_Init(GPIOD, &GPIO_InitStructure);
     GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+#ifdef STM32F40_41xxx
     GPIO_Init(GPIOF, &GPIO_InitStructure);
     GPIO_Init(GPIOG, &GPIO_InitStructure);
     GPIO_Init(GPIOH, &GPIO_InitStructure);
     GPIO_Init(GPIOI, &GPIO_InitStructure);
+#endif
 }
 
 /**

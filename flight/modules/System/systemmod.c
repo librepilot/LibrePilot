@@ -101,9 +101,6 @@ static enum { STACKOVERFLOW_NONE = 0, STACKOVERFLOW_WARNING = 1, STACKOVERFLOW_C
 static bool mallocFailed;
 static HwSettingsData bootHwSettings;
 static FrameType_t bootFrameType;
-#if !defined(ARCH_POSIX) && !defined(ARCH_WIN32)
-static struct PIOS_FLASHFS_Stats fsStats;
-#endif
 
 // Private functions
 static void objectUpdatedCb(UAVObjEvent *ev);
@@ -541,7 +538,9 @@ static void updateStats()
     // Get Irq stack status
     stats.IRQStackRemaining = GetFreeIrqStackSize();
 
-#if !defined(ARCH_POSIX) && !defined(ARCH_WIN32)
+#if !defined(ARCH_POSIX) && !defined(ARCH_WIN32) && defined(PIOS_INCLUDE_FLASH_LOGFS_SETTINGS)
+    static struct PIOS_FLASHFS_Stats fsStats;
+
     if (pios_uavo_settings_fs_id) {
         PIOS_FLASHFS_GetStats(pios_uavo_settings_fs_id, &fsStats);
         stats.SysSlotsFree   = fsStats.num_free_slots;

@@ -34,7 +34,7 @@
 #include "debuglogentry.h"
 
 // global definitions
-
+#ifdef PIOS_INCLUDE_DEBUGLOG
 
 // Global variables
 extern uintptr_t pios_user_fs_id; // flash filesystem for logging
@@ -281,6 +281,7 @@ bool write_current_buffer()
     }
     return true;
 }
+#endif /* ifdef PIOS_INCLUDE_DEBUGLOG */
 /**
  * @}
  * @}

@@ -63,7 +63,15 @@ private slots:
         // Qt bug!?
         //QOpenGLContext::currentContext()->functions()->glUseProgram(0);
 
-        compositeViewer->frame();
+        // refresh all the views.
+        if (compositeViewer->getRunFrameScheme() == osgViewer::ViewerBase::CONTINUOUS ||
+                compositeViewer->checkNeedToDoFrame() )
+        {
+            compositeViewer->frame();
+        }
+        else {
+            qDebug() << "QuickWindowViewer::frame() - skipped frame";
+        }
     }
 
 private:
@@ -84,7 +92,7 @@ private:
         if (frameTimer >= 0) killTimer(frameTimer);
         if (window) {
             window->setClearBeforeRendering(false);
-            frameTimer = startTimer(10);
+            frameTimer = startTimer(20);
         }
     }
 

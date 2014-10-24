@@ -21,7 +21,6 @@
 #include "utils/svgimageprovider.h"
 
 #include <QDebug>
-#include <QMouseEvent>
 #include <QQmlEngine>
 #include <QQmlContext>
 
@@ -155,16 +154,6 @@ void PfdQmlGadgetWidget::setActualPositionUsed(bool arg)
         m_actualPositionUsed = arg;
         emit actualPositionUsedChanged(arg);
     }
-}
-
-void PfdQmlGadgetWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    // Reload the schene on the middle mouse button click.
-    if (event->button() == Qt::MiddleButton) {
-        setQmlFile(m_qmlFileName);
-    }
-
-    QQuickView::mouseReleaseEvent(event);
 }
 
 void PfdQmlGadgetWidget::setLatitude(double arg)

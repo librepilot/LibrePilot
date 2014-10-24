@@ -70,6 +70,8 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-linux-x86-5.3.1.run
         QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-linux-x86-5.3.1.run.md5
         QT_SDK_ARCH := gcc
+        OSG_URL        := http://wiki.openpilot.org/download/attachments/18612236/osg-3.2.1-i686.tar.gz
+        OSGEARTH_URL   := http://wiki.openpilot.org/download/attachments/18612236/osgearth-2.6-i686.tar.gz
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
@@ -112,6 +114,8 @@ OPENSSL_DIR     := $(TOOLS_DIR)/openssl-1.0.1e-win32
 UNCRUSTIFY_DIR  := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR     := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR       := $(TOOLS_DIR)/gtest-1.6.0
+OSG_DIR         := $(TOOLS_DIR)/osg-3.2.1-i686
+OSGEARTH_DIR    := $(TOOLS_DIR)/osgearth-2.6-i686
 
 ifeq ($(UNAME), Windows)
     MINGW_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
@@ -132,9 +136,9 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 
 BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += sdl nsis mesawin openssl 
+    BUILD_SDK_TARGETS += sdl nsis mesawin openssl
 endif
-ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
+ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg osgearth gtest uncrustify doxygen
 
 define GROUP_SDK_TEMPLATE
 .PHONY: $(1)_install $(1)_clean $(1)_distclean $(1)_version
@@ -904,6 +908,49 @@ export GTEST_DIR
 .PHONY: gtest_version
 gtest_version:
 	-$(V1) $(SED) -n "s/^PACKAGE_STRING='\(.*\)'/\1/p" < $(GTEST_DIR)/configure
+
+##############################
+#
+# osg
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+
+ifeq ($(shell [ -d "$(OSG_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSG_DIR := $(OSG_DIR)
+else
+    # not installed, hope it's in the path...
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSG_DIR)) not found (make osg_install), using system PATH)
+endif
+
+all_sdk_version: osg_version
+
+.PHONY: osg_version
+osg_version:
+	-$(V1) $(ECHO) "`osgversion`"
+
+##############################
+#
+# osgearth
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+
+ifeq ($(shell [ -d "$(OSGEARTH_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSGEARTH_DIR := $(OSGEARTH_DIR)
+else
+    # not installed, hope it's in the path...
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_DIR)) not found (make osgearth_install), using system PATH)
+endif
+
+all_sdk_version: osgearth_version
+
+.PHONY: osgearth_version
+osgearth_version:
+	-$(V1) $(ECHO) "`osgearth_version`"
+
 
 
 

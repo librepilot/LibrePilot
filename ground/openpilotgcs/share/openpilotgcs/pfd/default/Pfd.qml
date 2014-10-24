@@ -1,7 +1,8 @@
 import QtQuick 2.0
 
-Rectangle {
-    color: "#666666"
+Item {
+//Rectangle {
+//    color: "#666666"
 
     SvgElementImage {
         id: background
@@ -9,7 +10,7 @@ Rectangle {
         fillMode: Image.PreserveAspectFit
         anchors.fill: parent
         sceneSize: Qt.size(width, height)
-        
+
         Rectangle {
             width: Math.floor(parent.paintedHeight * 1.319)
             height: Math.floor(parent.paintedHeight - parent.paintedHeight * 0.008)
@@ -30,7 +31,7 @@ Rectangle {
 
             anchors.centerIn: parent
             clip: true
-           
+
             Loader {
                 id: worldLoader
                 anchors.fill: parent

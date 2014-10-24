@@ -26,7 +26,8 @@ public:
     };
 
     explicit OSGViewport(QQuickItem *parent = 0);
-    
+    virtual ~OSGViewport();
+
     void setDrawingMode(DrawingMode mode);
 
     osgQtQuick::OSGNode* sceneData();

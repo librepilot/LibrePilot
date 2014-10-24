@@ -64,6 +64,7 @@ OSGNodeFile::OSGNodeFile(QObject *parent) :
 
 OSGNodeFile::~OSGNodeFile()
 {
+    delete h;
 }
 
 const QUrl OSGNodeFile::source() const

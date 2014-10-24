@@ -347,6 +347,11 @@ OSGViewport::OSGViewport(QQuickItem *parent) :
     setAcceptedMouseButtons(Qt::AllButtons);
 }
 
+OSGViewport::~OSGViewport()
+{
+    delete h;
+}
+
 void OSGViewport::setDrawingMode(OSGViewport::DrawingMode mode)
 {
     if (h->drawingMode != mode) {

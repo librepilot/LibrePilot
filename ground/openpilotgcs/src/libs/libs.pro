@@ -1,7 +1,7 @@
-TEMPLATE  = subdirs
-CONFIG   += ordered
+TEMPLATE = subdirs
+CONFIG += ordered
 
-SUBDIRS   = \
+SUBDIRS = \
     version_info \
     qscispinbox\
     qtconcurrent \
@@ -11,6 +11,5 @@ SUBDIRS   = \
     utils \
     opmapcontrol \
     qwt \
-    sdlgamepad
-
-SUBDIRS +=
+    sdlgamepad \
+    osgearth

@@ -21,7 +21,7 @@
 
 namespace osgQtQuick {
 
-osg::Camera * createHUDCamera(double left, double right, double bottom, double top)
+osg::Camera *createHUDCamera(double left, double right, double bottom, double top)
 {
     osg::ref_ptr<osg::Camera> camera = new osg::Camera();
     camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
@@ -33,7 +33,7 @@ osg::Camera * createHUDCamera(double left, double right, double bottom, double t
     return camera.release();
 }
 
-osgText::Font * createFont(const std::string &name)
+osgText::Font *createFont(const std::string &name)
 {
     QFont font;
     if (!font.fromString(
@@ -45,12 +45,12 @@ osgText::Font * createFont(const std::string &name)
     return new osgText::Font(new osgQt::QFontImplementation(font));
 }
 
-osgText::Font * createFont(const QFont &font)
+osgText::Font *createFont(const QFont &font)
 {
     return new osgText::Font(new osgQt::QFontImplementation(font));
 }
 
-osgText::Text * createText(const osg::Vec3 &pos, const std::string &content, float size, osgText::Font *font)
+osgText::Text *createText(const osg::Vec3 &pos, const std::string &content, float size, osgText::Font *font)
 {
     osg::ref_ptr<osgText::Text> text = new osgText::Text();
     if (font) text->setFont(font);

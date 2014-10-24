@@ -61,7 +61,7 @@ private slots:
         if (!compositeViewer.valid()) return;
 
         // Qt bug!?
-        QOpenGLContext::currentContext()->functions()->glUseProgram(0);
+        //QOpenGLContext::currentContext()->functions()->glUseProgram(0);
 
         compositeViewer->frame();
     }
@@ -78,8 +78,8 @@ private:
         if (this->window) disconnect(this->window);
         this->window = window;
         if (viewer->parent() != window) viewer->setParent(window);
-        connect(window, SIGNAL(beforeRendering()),
-                this, SLOT(frame()));
+
+        connect(window, SIGNAL(beforeRendering()), this, SLOT(frame()), Qt::DirectConnection);
         // Запускаем постоянное обновление
         if (frameTimer >= 0) killTimer(frameTimer);
         if (window) {
@@ -93,6 +93,7 @@ private:
         compositeViewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
         // disable the default setting of viewer.done() by pressing Escape.
         compositeViewer->setKeyEventSetsDone(0);
+        compositeViewer->setQuitEventSetsDone(false);
         graphicsWindow = new osgViewer::GraphicsWindowEmbedded(0, 0,
                                                                window->width(),
                                                                window->height());

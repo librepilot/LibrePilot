@@ -285,7 +285,7 @@ public slots:
         if (mode == OSGViewport::Native) {
             QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
             view->getCamera()->setViewport(rect.x(),
-                                           quickItem->window()->height() - ( rect.y() + rect.height()),
+                                           quickItem->window()->height() - (rect.y() + rect.height()),
                                            rect.width(),
                                            rect.height());
             view->getCamera()->setProjectionMatrixAsPerspective(30.0f, static_cast<double>(rect.width())/static_cast<double>(rect.height()), 1.0f, 10000.0f );
@@ -327,10 +327,19 @@ private:
         view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
     }
 
-    void initFBO() {
-        QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
+
+    void acceptQuickItem() {
+        Q_ASSERT(quickItem);
+        qDebug() << "acceptQuickItem" << quickItem->window();
+        connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)),
+                this, SLOT(onWindowChanged(QQuickWindow*)));
+    }
+
+    void initFBO()
+    {
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+        QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
         QSize size(rect.size().toSize());
         fbo = new QOpenGLFramebufferObject(size, format);
         texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
@@ -344,11 +353,11 @@ private:
 
     void updateFBO()
     {
-        if (fbo) delete fbo;
         QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         QSize size(rect.size().toSize());
+        if (fbo) delete fbo;
         fbo = new QOpenGLFramebufferObject(size, format);
         if (texture) delete texture;
         texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
@@ -356,12 +365,6 @@ private:
         textureNode->setRect(0, quickItem->height(), quickItem->width(), -quickItem->height());
         textureNode->setTexture(texture);
         quickItem->update();
-    }
-
-    void acceptQuickItem() {
-        Q_ASSERT(quickItem);
-        connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)),
-                this, SLOT(onWindowChanged(QQuickWindow*)));
     }
 };
 
@@ -375,7 +378,11 @@ OSGViewport::Hidden::PreDraw::PreDraw(Hidden *h) : h(h) {
 void OSGViewport::Hidden::PreDraw::operator ()(osg::RenderInfo &/*renderInfo*/) const
 {
     if (!h->fbo) h->initFBO();
-    if (h->fbo) h->fbo->bind();
+    if (h->fbo) {
+        if (!h->fbo->bind()) {
+            qWarning() << "PreDraw - failed to bind fbo!";
+        }
+    }
 }
 
 /* ----------------------------------------------- struct Hidden::PostDraw --- */
@@ -385,7 +392,11 @@ OSGViewport::Hidden::PostDraw::PostDraw(Hidden *h) : h(h) {
 
 void OSGViewport::Hidden::PostDraw::operator ()(osg::RenderInfo &/*renderInfo*/) const
 {
-    if (h->fbo) h->fbo->bindDefault();
+    if (h->fbo) {
+        if (!h->fbo->bindDefault()) {
+            qWarning() << "PostDraw - failed to unbind fbo!";
+        }
+    }
 }
 
 /* ---------------------------------------------------- class OSGViewport --- */

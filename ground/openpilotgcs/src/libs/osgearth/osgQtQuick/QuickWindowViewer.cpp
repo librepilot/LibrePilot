@@ -132,6 +132,7 @@ QuickWindowViewer *QuickWindowViewer::instance(QQuickWindow *window)
     if (it != Hidden::viewers.end()) {
         viewer = it->second;
     } else {
+        // TODO if window is destroyed, the associated QuickWindowViewer should be destroyed too
         viewer = new QuickWindowViewer(window);
         Hidden::viewers.insert(std::make_pair(window, viewer));
     }

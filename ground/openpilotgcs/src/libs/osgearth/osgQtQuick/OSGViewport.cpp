@@ -173,6 +173,7 @@ public:
 
     Hidden(OSGViewport *quickItem) :
         QObject(quickItem),
+        window(0),
         quickItem(quickItem),
         drawingMode(OSGViewport::Buffer),
         sceneData(0),
@@ -261,6 +262,7 @@ public:
     OSGViewport::DrawingMode drawingMode;
 
     // Public Qt data
+    QQuickWindow *window;
     OSGViewport *quickItem;
 
     // Public OSG data
@@ -303,15 +305,20 @@ public slots:
 private slots:
 
     void onWindowChanged(QQuickWindow *window) {
-        if (QuickWindowViewer *qwv = QuickWindowViewer::instance(window)) {
+        // TODO if window is destroyed, the associated QuickWindowViewer should be destroyed too
+        QuickWindowViewer *qwv;
+        if (this->window && (qwv = QuickWindowViewer::instance(this->window))) {
+            disconnect(this->window);
+            qwv->compositeViewer()->removeView(view.get());
+        }
+        if (window && (qwv = QuickWindowViewer::instance(window))) {
             view->getCamera()->setGraphicsContext(qwv->graphicsContext());
             updateViewport();
             qwv->compositeViewer()->addView(view.get());
-            connect(window, SIGNAL(widthChanged(int)),
-                    this, SLOT(updateViewport()));
-            connect(window, SIGNAL(heightChanged(int)),
-                    this, SLOT(updateViewport()));
+            connect(window, SIGNAL(widthChanged(int)), this, SLOT(updateViewport()));
+            connect(window, SIGNAL(heightChanged(int)), this, SLOT(updateViewport()));
         }
+        this->window = window;
     }
 
     void onNodeChanged(osg::Node *node) {        

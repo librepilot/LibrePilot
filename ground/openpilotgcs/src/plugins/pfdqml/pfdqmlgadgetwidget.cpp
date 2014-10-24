@@ -19,14 +19,8 @@
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 #include "utils/svgimageprovider.h"
-#ifdef USE_OSG
-#include "osgearth.h"
-#endif
+
 #include <QDebug>
-#include <QSvgRenderer>
-#include <QGLWidget>
-#include <QFileInfo>
-#include <QDir>
 #include <QMouseEvent>
 #include <QQmlEngine>
 #include <QQmlContext>
@@ -94,9 +88,6 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
 
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
-#ifdef USE_OSG
-    qmlRegisterType<OsgEarthItem>("org.OpenPilot", 1, 0, "OsgEarth");
-#endif
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()

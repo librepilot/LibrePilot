@@ -16,11 +16,11 @@
 
 #include "pfdqmlplugin.h"
 #include "pfdqmlgadgetfactory.h"
-#include <QDebug>
-#include <QtPlugin>
-#include <QStringList>
 #include <extensionsystem/pluginmanager.h>
+#include <osgearth/osgearth.h>
 
+#include <QDebug>
+#include <QStringList>
 
 PfdQmlPlugin::PfdQmlPlugin()
 {
@@ -36,7 +36,11 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
-    mf = new PfdQmlGadgetFactory(this);
+
+    // TODO get rid of this call...
+    OsgEarth::initialize();
+
+    PfdQmlGadgetFactory *mf = new PfdQmlGadgetFactory(this);
     addAutoReleasedObject(mf);
 
     return true;

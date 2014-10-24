@@ -43,6 +43,8 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
 
+    qDebug() << "PfdQmlGadget - loading configuration :" << m->name();
+
     m_widget->setQmlFile(m->qmlFile());
 
     m_widget->setSpeedFactor(m->speedFactor());

@@ -1,20 +1,33 @@
 import QtQuick 2.0
-import org.OpenPilot 1.0
+import osgQtQuick 1.0
 
-OsgEarth {
-    id: earthView
+OSGViewport {
+    id: fullview
+    anchors.fill: parent
+    sceneData: terrainNode
+    //color: "transparent"
+    //opacity: 0.999
+    mode: OSGViewport.Buffer
 
-    sceneFile: qmlWidget.earthFile
-    fieldOfView: 90
+    OSGEarthNode {
+        id: terrainNode
+        source: qmlWidget.earthFile
+    }
 
-    yaw: AttitudeState.Yaw
-    pitch: AttitudeState.Pitch
-    roll: AttitudeState.Roll
+    OSGCamera {
+        id: camera
 
-    latitude: qmlWidget.actualPositionUsed ?
-                  GPSPositionSensor.Latitude/10000000.0 : qmlWidget.latitude
-    longitude: qmlWidget.actualPositionUsed ?
-                   GPSPositionSensor.Longitude/10000000.0 : qmlWidget.longitude
-    altitude: qmlWidget.actualPositionUsed ?
-                  GPSPositionSensor.Altitude : qmlWidget.altitude
+        fieldOfView: 90
+
+        yaw: AttitudeState.Yaw
+        pitch: AttitudeState.Pitch
+        roll: AttitudeState.Roll
+
+        latitude: qmlWidget.actualPositionUsed ?
+            GPSPositionSensor.Latitude / 10000000.0 : qmlWidget.latitude
+        longitude: qmlWidget.actualPositionUsed ?
+            GPSPositionSensor.Longitude / 10000000.0 : qmlWidget.longitude
+        altitude: qmlWidget.actualPositionUsed ?
+            GPSPositionSensor.Altitude : qmlWidget.altitude
+    }
 }

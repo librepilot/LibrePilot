@@ -12,6 +12,9 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/TrackballManipulator>
 
+#include <osgEarth/MapNode>
+#include <osgEarthUtil/EarthManipulator>
+#include <osgEarthUtil/AutoClipPlaneHandler>
 namespace osgQtQuick {
 
 // Copied from "GraphicsWindowQt.cpp" (osg module osgQt)
@@ -166,7 +169,11 @@ public:
         }
 
         sceneData = node;
+
         view->setSceneData( node ? node->node() : 0);
+
+        osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
+        view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
 
         if (node) {
             connect(node, SIGNAL(nodeChanged(osg::Node*)),
@@ -273,8 +280,7 @@ private slots:
 private:
     void initOSG() {
         view = new osgViewer::View();
-        view->addEventHandler( new osgViewer::StatsHandler );
-        view->setCameraManipulator( new osgGA::TrackballManipulator );
+        view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
     }
 
     void initFBO() {

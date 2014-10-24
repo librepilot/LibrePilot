@@ -2,7 +2,6 @@
 /downloads
 /tools
 /build
-/thirdparty
 
 # Exclude temporary and system files
 Thumbs.db
@@ -12,6 +11,7 @@ GRTAGS
 GSYMS
 GTAGS
 core
+*~
 
 # flight
 /flight/*.pnproj

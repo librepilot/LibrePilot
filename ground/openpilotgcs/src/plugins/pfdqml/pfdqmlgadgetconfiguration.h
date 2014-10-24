@@ -27,94 +27,13 @@ class PfdQmlGadgetConfiguration : public IUAVGadgetConfiguration {
 public:
     explicit PfdQmlGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
 
-    void setQmlFile(const QString &fileName)
-    {
-        m_qmlFile = fileName;
-    }
-    void setEarthFile(const QString &fileName)
-    {
-        m_earthFile = fileName;
-    }
-    void setOpenGLEnabled(bool flag)
-    {
-        m_openGLEnabled = flag;
-    }
-    void setTerrainEnabled(bool flag)
-    {
-        m_terrainEnabled = flag;
-    }
-    void setActualPositionUsed(bool flag)
-    {
-        m_actualPositionUsed = flag;
-    }
-    void setLatitude(double value)
-    {
-        m_latitude = value;
-    }
-    void setLongitude(double value)
-    {
-        m_longitude = value;
-    }
-    void setAltitude(double value)
-    {
-        m_altitude = value;
-    }
-    void setCacheOnly(bool flag)
-    {
-        m_cacheOnly = flag;
-    }
-    void setSpeedFactor(double factor)
-    {
-        m_speedFactor = factor;
-    }
-    void setAltitudeFactor(double factor)
-    {
-        m_altitudeFactor = factor;
-    }
-
     QString qmlFile() const
     {
         return m_qmlFile;
     }
-    QString earthFile() const
+    void setQmlFile(const QString &fileName)
     {
-        return m_earthFile;
-    }
-    bool openGLEnabled() const
-    {
-        return m_openGLEnabled;
-    }
-    bool terrainEnabled() const
-    {
-        return m_terrainEnabled;
-    }
-    bool actualPositionUsed() const
-    {
-        return m_actualPositionUsed;
-    }
-    double latitude() const
-    {
-        return m_latitude;
-    }
-    double longitude() const
-    {
-        return m_longitude;
-    }
-    double altitude() const
-    {
-        return m_altitude;
-    }
-    bool cacheOnly() const
-    {
-        return m_cacheOnly;
-    }
-    double speedFactor() const
-    {
-        return m_speedFactor;
-    }
-    double altitudeFactor() const
-    {
-        return m_altitudeFactor;
+        m_qmlFile = fileName;
     }
 
     QString speedUnit() const
@@ -122,9 +41,99 @@ public:
         return m_speedMap[m_speedFactor];
     }
 
+    double speedFactor() const
+    {
+        return m_speedFactor;
+    }
+    void setSpeedFactor(double factor)
+    {
+        m_speedFactor = factor;
+    }
+
     QString altitudeUnit() const
     {
         return m_altitudeMap[m_altitudeFactor];
+    }
+
+    double altitudeFactor() const
+    {
+        return m_altitudeFactor;
+    }
+    void setAltitudeFactor(double factor)
+    {
+        m_altitudeFactor = factor;
+    }
+
+    bool actualPositionUsed() const
+    {
+        return m_actualPositionUsed;
+    }
+    void setActualPositionUsed(bool flag)
+    {
+        m_actualPositionUsed = flag;
+    }
+
+    double latitude() const
+    {
+        return m_latitude;
+    }
+    void setLatitude(double value)
+    {
+        m_latitude = value;
+    }
+
+    double longitude() const
+    {
+        return m_longitude;
+    }
+    void setLongitude(double value)
+    {
+        m_longitude = value;
+    }
+
+    double altitude() const
+    {
+        return m_altitude;
+    }
+    void setAltitude(double value)
+    {
+        m_altitude = value;
+    }
+
+    bool openGLEnabled() const
+    {
+        return m_openGLEnabled;
+    }
+    void setOpenGLEnabled(bool flag)
+    {
+        m_openGLEnabled = flag;
+    }
+
+    bool terrainEnabled() const
+    {
+        return m_terrainEnabled;
+    }
+    void setTerrainEnabled(bool flag)
+    {
+        m_terrainEnabled = flag;
+    }
+
+    QString earthFile() const
+    {
+        return m_earthFile;
+    }
+    void setEarthFile(const QString &fileName)
+    {
+        m_earthFile = fileName;
+    }
+
+    void setCacheOnly(bool flag)
+    {
+        m_cacheOnly = flag;
+    }
+    bool cacheOnly() const
+    {
+        return m_cacheOnly;
     }
 
     QMapIterator<double, QString> speedMapIterator()
@@ -142,16 +151,20 @@ public:
 
 private:
     QString m_qmlFile; // The name of the dial's SVG source file
-    QString m_earthFile; // The name of osgearth terrain file
-    bool m_openGLEnabled;
-    bool m_terrainEnabled;
+
+    double m_speedFactor;
+    double m_altitudeFactor;
+
     bool m_actualPositionUsed;
     double m_latitude;
     double m_longitude;
     double m_altitude;
+
+    bool m_openGLEnabled;
+    bool m_terrainEnabled;
+    QString m_earthFile; // The name of osgearth terrain file
     bool m_cacheOnly;
-    double m_speedFactor;
-    double m_altitudeFactor;
+
     QMap<double, QString> m_speedMap;
     QMap<double, QString> m_altitudeMap;
 };

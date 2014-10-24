@@ -18,6 +18,8 @@
 #include "pfdqmlgadgetwidget.h"
 #include "pfdqmlgadgetconfiguration.h"
 
+#include <QDebug>
+
 PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent) :
     IUAVGadget(classId, parent),
     m_widget(widget)
@@ -41,28 +43,31 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
 
-    m_widget->setOpenGLEnabled(m->openGLEnabled());
     m_widget->setQmlFile(m->qmlFile());
-    m_widget->setEarthFile(m->earthFile());
-    m_widget->setTerrainEnabled(m->terrainEnabled());
-    m_widget->setActualPositionUsed(m->actualPositionUsed());
-    m_widget->setLatitude(m->latitude());
-    m_widget->setLongitude(m->longitude());
-    m_widget->setAltitude(m->altitude());
+
     m_widget->setSpeedFactor(m->speedFactor());
     m_widget->setSpeedUnit(m->speedUnit());
     m_widget->setAltitudeFactor(m->altitudeFactor());
     m_widget->setAltitudeUnit(m->altitudeUnit());
 
-    // setting OSGEARTH_CACHE_ONLY seems to work the most reliably
-    // between osgEarth versions I tried
-    if (m->cacheOnly()) {
-        qputenv("OSGEARTH_CACHE_ONLY", "true");
-    } else {
-#ifdef Q_OS_WIN32
-        qputenv("OSGEARTH_CACHE_ONLY", "");
-#else
-        unsetenv("OSGEARTH_CACHE_ONLY");
-#endif
-    }
+    m_widget->setActualPositionUsed(m->actualPositionUsed());
+    m_widget->setLatitude(m->latitude());
+    m_widget->setLongitude(m->longitude());
+    m_widget->setAltitude(m->altitude());
+
+    m_widget->setOpenGLEnabled(m->openGLEnabled());
+    m_widget->setEarthFile(m->earthFile());
+    m_widget->setTerrainEnabled(m->terrainEnabled());
+
+//    // setting OSGEARTH_CACHE_ONLY seems to work the most reliably
+//    // between osgEarth versions I tried
+//    if (m->cacheOnly()) {
+//        qputenv("OSGEARTH_CACHE_ONLY", "true");
+//    } else {
+//#ifdef Q_OS_WIN32
+//        qputenv("OSGEARTH_CACHE_ONLY", "");
+//#else
+//        unsetenv("OSGEARTH_CACHE_ONLY");
+//#endif
+//    }
 }

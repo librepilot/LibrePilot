@@ -24,26 +24,26 @@
 #endif
 #include <QDebug>
 #include <QSvgRenderer>
-#include <QtOpenGL/QGLWidget>
-#include <QtCore/qfileinfo.h>
-#include <QtCore/qdir.h>
+#include <QGLWidget>
+#include <QFileInfo>
+#include <QDir>
 #include <QMouseEvent>
-
 #include <QQmlEngine>
 #include <QQmlContext>
 
 PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     QQuickView(parent),
-    m_openGLEnabled(false),
-    m_terrainEnabled(false),
+    m_speedUnit("m/s"),
+    m_speedFactor(1.0),
+    m_altitudeUnit("m"),
+    m_altitudeFactor(1.0),
     m_actualPositionUsed(false),
     m_latitude(46.671478),
     m_longitude(10.158932),
     m_altitude(2000),
-    m_speedUnit("m/s"),
-    m_speedFactor(1.0),
-    m_altitudeUnit("m"),
-    m_altitudeFactor(1.0)
+    m_openGLEnabled(false),
+    m_terrainEnabled(false),
+    m_earthFile("")
 {
     setResizeMode(SizeRootObjectToView);
 
@@ -124,25 +124,6 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
     }
 }
 
-void PfdQmlGadgetWidget::setEarthFile(QString arg)
-{
-    if (m_earthFile != arg) {
-        m_earthFile = arg;
-        emit earthFileChanged(arg);
-    }
-}
-
-void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
-{
-    bool wasEnabled = terrainEnabled();
-
-    m_terrainEnabled = arg;
-
-    if (wasEnabled != terrainEnabled()) {
-        emit terrainEnabledChanged(terrainEnabled());
-    }
-}
-
 void PfdQmlGadgetWidget::setSpeedUnit(QString unit)
 {
     if (m_speedUnit != unit) {
@@ -173,12 +154,6 @@ void PfdQmlGadgetWidget::setAltitudeFactor(double factor)
         m_altitudeFactor = factor;
         emit altitudeFactorChanged(factor);
     }
-}
-
-void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
-{
-    Q_UNUSED(arg);
-    setTerrainEnabled(m_terrainEnabled);
 }
 
 // Switch between PositionState UAVObject position
@@ -223,5 +198,28 @@ void PfdQmlGadgetWidget::setAltitude(double arg)
     if (!qFuzzyCompare(m_altitude, arg)) {
         m_altitude = arg;
         emit altitudeChanged(arg);
+    }
+}
+void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
+{
+    m_openGLEnabled = arg;
+    // TODO ???
+    //setTerrainEnabled(m_terrainEnabled);
+}
+
+void PfdQmlGadgetWidget::setEarthFile(QString arg)
+{
+    if (m_earthFile != arg) {
+        m_earthFile = arg;
+        emit earthFileChanged(arg);
+    }
+}
+
+void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
+{
+    bool wasEnabled = terrainEnabled();
+    m_terrainEnabled = arg;
+    if (wasEnabled != terrainEnabled()) {
+        emit terrainEnabledChanged(terrainEnabled());
     }
 }

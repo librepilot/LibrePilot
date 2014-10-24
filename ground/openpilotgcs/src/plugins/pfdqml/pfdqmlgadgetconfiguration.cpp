@@ -48,18 +48,19 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         m_qmlFile            = qSettings->value("qmlFile").toString();
         m_qmlFile            = Utils::PathUtils().InsertDataPath(m_qmlFile);
 
-        m_earthFile          = qSettings->value("earthFile").toString();
-        m_earthFile          = Utils::PathUtils().InsertDataPath(m_earthFile);
+        m_speedFactor        = qSettings->value("speedFactor").toDouble();
+        m_altitudeFactor     = qSettings->value("altitudeFactor").toDouble();
 
-        m_openGLEnabled      = qSettings->value("openGLEnabled", true).toBool();
-        m_terrainEnabled     = qSettings->value("terrainEnabled").toBool();
         m_actualPositionUsed = qSettings->value("actualPositionUsed").toBool();
         m_latitude           = qSettings->value("latitude").toDouble();
         m_longitude          = qSettings->value("longitude").toDouble();
         m_altitude           = qSettings->value("altitude").toDouble();
+
+        m_openGLEnabled      = qSettings->value("openGLEnabled", true).toBool();
+        m_terrainEnabled     = qSettings->value("terrainEnabled").toBool();
+        m_earthFile          = qSettings->value("earthFile").toString();
+        m_earthFile          = Utils::PathUtils().InsertDataPath(m_earthFile);
         m_cacheOnly          = qSettings->value("cacheOnly").toBool();
-        m_speedFactor        = qSettings->value("speedFactor").toDouble();
-        m_altitudeFactor     = qSettings->value("altitudeFactor").toDouble();
     }
 }
 
@@ -72,16 +73,19 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
     PfdQmlGadgetConfiguration *m = new PfdQmlGadgetConfiguration(this->classId());
 
     m->m_qmlFile            = m_qmlFile;
-    m->m_openGLEnabled      = m_openGLEnabled;
-    m->m_earthFile          = m_earthFile;
-    m->m_terrainEnabled     = m_terrainEnabled;
+
+    m->m_speedFactor        = m_speedFactor;
+    m->m_altitudeFactor     = m_altitudeFactor;
+
     m->m_actualPositionUsed = m_actualPositionUsed;
     m->m_latitude           = m_latitude;
     m->m_longitude          = m_longitude;
     m->m_altitude           = m_altitude;
+
+    m->m_openGLEnabled      = m_openGLEnabled;
+    m->m_terrainEnabled     = m_terrainEnabled;
+    m->m_earthFile          = m_earthFile;
     m->m_cacheOnly          = m_cacheOnly;
-    m->m_speedFactor        = m_speedFactor;
-    m->m_altitudeFactor     = m_altitudeFactor;
 
     return m;
 }
@@ -93,18 +97,19 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
 void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
 {
     QString qmlFile   = Utils::PathUtils().RemoveDataPath(m_qmlFile);
-
     qSettings->setValue("qmlFile", qmlFile);
-    QString earthFile = Utils::PathUtils().RemoveDataPath(m_earthFile);
-    qSettings->setValue("earthFile", earthFile);
 
-    qSettings->setValue("openGLEnabled", m_openGLEnabled);
-    qSettings->setValue("terrainEnabled", m_terrainEnabled);
+    qSettings->setValue("speedFactor", m_speedFactor);
+    qSettings->setValue("altitudeFactor", m_altitudeFactor);
+
     qSettings->setValue("actualPositionUsed", m_actualPositionUsed);
     qSettings->setValue("latitude", m_latitude);
     qSettings->setValue("longitude", m_longitude);
     qSettings->setValue("altitude", m_altitude);
+
+    qSettings->setValue("openGLEnabled", m_openGLEnabled);
+    qSettings->setValue("terrainEnabled", m_terrainEnabled);
+    QString earthFile = Utils::PathUtils().RemoveDataPath(m_earthFile);
+    qSettings->setValue("earthFile", earthFile);
     qSettings->setValue("cacheOnly", m_cacheOnly);
-    qSettings->setValue("speedFactor", m_speedFactor);
-    qSettings->setValue("altitudeFactor", m_altitudeFactor);
 }

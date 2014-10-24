@@ -21,9 +21,7 @@
 #include <QQuickView>
 
 class PfdQmlGadgetWidget : public QQuickView {
-    Q_OBJECT Q_PROPERTY(QString earthFile READ earthFile WRITE setEarthFile NOTIFY earthFileChanged)
-    Q_PROPERTY(bool terrainEnabled READ terrainEnabled WRITE setTerrainEnabled NOTIFY terrainEnabledChanged)
-
+    Q_OBJECT
     Q_PROPERTY(bool actualPositionUsed READ actualPositionUsed WRITE setActualPositionUsed NOTIFY actualPositionUsedChanged)
 
     Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
@@ -36,19 +34,15 @@ class PfdQmlGadgetWidget : public QQuickView {
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
 
+    // terrain
+    Q_PROPERTY(bool terrainEnabled READ terrainEnabled WRITE setTerrainEnabled NOTIFY terrainEnabledChanged)
+    Q_PROPERTY(QString earthFile READ earthFile WRITE setEarthFile NOTIFY earthFileChanged)
+
 public:
     PfdQmlGadgetWidget(QWindow *parent = 0);
     ~PfdQmlGadgetWidget();
-    void setQmlFile(QString fn);
 
-    QString earthFile() const
-    {
-        return m_earthFile;
-    }
-    bool terrainEnabled() const
-    {
-        return m_terrainEnabled && m_openGLEnabled;
-    }
+    void setQmlFile(QString fn);
 
     QString speedUnit() const
     {
@@ -66,7 +60,6 @@ public:
     {
         return m_altitudeFactor;
     }
-
     bool actualPositionUsed() const
     {
         return m_actualPositionUsed;
@@ -83,56 +76,66 @@ public:
     {
         return m_altitude;
     }
+    bool openGLEnabled() const
+    {
+        return m_openGLEnabled;
+    }
+    bool terrainEnabled() const
+    {
+        return m_terrainEnabled && m_openGLEnabled;
+    }
+    QString earthFile() const
+    {
+        return m_earthFile;
+    }
 
 public slots:
-    void setEarthFile(QString arg);
-    void setTerrainEnabled(bool arg);
-
     void setSpeedUnit(QString unit);
     void setSpeedFactor(double factor);
     void setAltitudeUnit(QString unit);
     void setAltitudeFactor(double factor);
 
-    void setOpenGLEnabled(bool arg);
+    void setActualPositionUsed(bool arg);
 
     void setLatitude(double arg);
     void setLongitude(double arg);
     void setAltitude(double arg);
 
-    void setActualPositionUsed(bool arg);
+    void setOpenGLEnabled(bool arg);
+    void setEarthFile(QString arg);
+    void setTerrainEnabled(bool arg);
+
 
 signals:
-    void earthFileChanged(QString arg);
-    void terrainEnabledChanged(bool arg);
+    void speedUnitChanged(QString arg);
+    void speedFactorChanged(double arg);
+    void altitudeUnitChanged(QString arg);
+    void altitudeFactorChanged(double arg);
 
     void actualPositionUsedChanged(bool arg);
     void latitudeChanged(double arg);
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
 
-    void speedUnitChanged(QString arg);
-    void speedFactorChanged(double arg);
-    void altitudeUnitChanged(QString arg);
-    void altitudeFactorChanged(double arg);
-
-protected:
-    void mouseReleaseEvent(QMouseEvent *event);
+    void earthFileChanged(QString arg);
+    void terrainEnabledChanged(bool arg);
 
 private:
     QString m_qmlFileName;
-    QString m_earthFile;
-    bool m_openGLEnabled;
-    bool m_terrainEnabled;
+
+    QString m_speedUnit;
+    double m_speedFactor;
+    QString m_altitudeUnit;
+    double m_altitudeFactor;
 
     bool m_actualPositionUsed;
     double m_latitude;
     double m_longitude;
     double m_altitude;
 
-    QString m_speedUnit;
-    double m_speedFactor;
-    QString m_altitudeUnit;
-    double m_altitudeFactor;
+    bool m_openGLEnabled;
+    bool m_terrainEnabled;
+    QString m_earthFile;
 };
 
 #endif /* PFDQMLGADGETWIDGET_H_ */

@@ -15,7 +15,46 @@
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/EarthManipulator>
 #include <osgEarthUtil/AutoClipPlaneHandler>
+#include <osgEarthUtil/Sky>
+
 namespace osgQtQuick {
+
+template<class T>
+class FindTopMostNodeOfTypeVisitor : public osg::NodeVisitor
+{
+public:
+    FindTopMostNodeOfTypeVisitor():
+        osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
+        _foundNode(0)
+    {}
+
+    void apply(osg::Node& node)
+    {
+        T* result = dynamic_cast<T*>(&node);
+        if (result)
+        {
+            _foundNode = result;
+        }
+        else
+        {
+            traverse(node);
+        }
+    }
+
+    T* _foundNode;
+};
+
+
+template<class T>
+T* findTopMostNodeOfType(osg::Node* node)
+{
+    if (!node) return 0;
+
+    FindTopMostNodeOfTypeVisitor<T> fnotv;
+    node->accept(fnotv);
+
+    return fnotv._foundNode;
+}
 
 // Copied from "GraphicsWindowQt.cpp" (osg module osgQt)
 class QtKeyboardMap
@@ -174,6 +213,11 @@ public:
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
         view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+
+        osg::ref_ptr<osgEarth::Util::SkyNode> skyNode = findTopMostNodeOfType<osgEarth::Util::SkyNode>(sceneData->node());
+        if (skyNode) {
+            skyNode->attach(view, 0);
+        }
 
         if (node) {
             connect(node, SIGNAL(nodeChanged(osg::Node*)),

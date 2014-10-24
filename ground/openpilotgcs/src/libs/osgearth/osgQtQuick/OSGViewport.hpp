@@ -27,7 +27,7 @@ public:
 
     explicit OSGViewport(QQuickItem *parent = 0);
     
-    void setDarawingMode(DrawingMode mode);
+    void setDrawingMode(DrawingMode mode);
 
     osgQtQuick::OSGNode* sceneData();
     void setSceneData(osgQtQuick::OSGNode *node);
@@ -42,9 +42,9 @@ signals:
     void sceneDataChanged(osgQtQuick::OSGNode *node);
     void colorChanged(const QColor &color);
     void modeChanged(DrawingMode mode);
-    
+
 public slots:
-    
+
 protected:
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
     void mousePressEvent(QMouseEvent *event);

@@ -129,7 +129,6 @@ struct OSGViewport::Hidden : public QObject
 
 public:
 
-    // Конструктор
     Hidden(OSGViewport *quickItem) :
         QObject(quickItem),
         quickItem(quickItem),
@@ -146,7 +145,6 @@ public:
         acceptQuickItem();
     }
 
-    // Деструктор
     ~Hidden() {
 
     }
@@ -253,7 +251,6 @@ public slots:
 
 private slots:
 
-    // Обработка события смены окна для элемента
     void onWindowChanged(QQuickWindow *window) {
         if (QuickWindowViewer *qwv = QuickWindowViewer::instance(window)) {
             view->getCamera()->setGraphicsContext(qwv->graphicsContext());
@@ -350,7 +347,7 @@ OSGViewport::OSGViewport(QQuickItem *parent) :
     setAcceptedMouseButtons(Qt::AllButtons);
 }
 
-void OSGViewport::setDarawingMode(OSGViewport::DrawingMode mode)
+void OSGViewport::setDrawingMode(OSGViewport::DrawingMode mode)
 {
     if (h->drawingMode != mode) {
         h->drawingMode = mode;
@@ -450,7 +447,6 @@ void OSGViewport::mouseReleaseEvent(QMouseEvent *event)
 
 void OSGViewport::wheelEvent(QWheelEvent *event)
 {
-    //qDebug() << "wheel:" << event;
     h->view->getEventQueue()->mouseScroll(
                 event->orientation() == Qt::Vertical ?
                     (event->delta() > 0 ? osgGA::GUIEventAdapter::SCROLL_UP : osgGA::GUIEventAdapter::SCROLL_DOWN) :
@@ -493,10 +489,11 @@ void OSGViewport::keyReleaseEvent(QKeyEvent *event)
 
 QSGNode *OSGViewport::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
 {
+    Q_UNUSED(updatePaintNodeData);
+
     if (oldNode && oldNode != h->textureNode) {
         delete oldNode;
     }
-    Q_UNUSED(updatePaintNodeData);
 
     return h->textureNode;
 }

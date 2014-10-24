@@ -71,6 +71,7 @@ void registerTypes(const char *uri)
     qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
     qmlRegisterType<osgQtQuick::OSGViewport>(uri, maj, min, "OSGViewport");
 
+    qmlRegisterType<osgQtQuick::OSGEarthNode>(uri, maj, min, "OSGEarthNode");
 }
 
 } // namespace osgQtQuick

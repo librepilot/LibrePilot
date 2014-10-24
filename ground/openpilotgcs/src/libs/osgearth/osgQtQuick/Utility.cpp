@@ -14,6 +14,7 @@
 #include "osgQtQuick/OSGNodeFile.hpp"
 #include "osgQtQuick/OSGTextNode.hpp"
 #include "osgQtQuick/OSGEarthNode.hpp"
+#include "osgQtQuick/OSGCamera.hpp"
 #include "osgQtQuick/OSGViewport.hpp"
 
 #include <QFont>
@@ -71,6 +72,7 @@ void registerTypes(const char *uri)
     qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
     qmlRegisterType<osgQtQuick::OSGViewport>(uri, maj, min, "OSGViewport");
 
+    qmlRegisterType<osgQtQuick::OSGCamera>(uri, maj, min, "OSGCamera");
     qmlRegisterType<osgQtQuick::OSGEarthNode>(uri, maj, min, "OSGEarthNode");
 }
 

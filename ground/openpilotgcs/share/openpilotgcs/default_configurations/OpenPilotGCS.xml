@@ -1834,7 +1834,7 @@
           <altitude>2000</altitude>
           <altitudeFactor>1</altitudeFactor>
           <cacheOnly>false</cacheOnly>
-          <earthFile>%%DATAPATH%%pfd/default/readymap.earth</earthFile>
+          <earthFile>%%DATAPATH%%osgearh/readymap.earth</earthFile>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <openGLEnabled>true</openGLEnabled>
@@ -1851,13 +1851,15 @@
         <data>
           <actualPositionUsed>false</actualPositionUsed>
           <altitude>2000</altitude>
+          <altitudeFactor>1</altitudeFactor>
           <cacheOnly>false</cacheOnly>
-          <earthFile>%%DATAPATH%%pfd/default/readymap.earth</earthFile>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <openGLEnabled>true</openGLEnabled>
           <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
-          <terrainEnabled>false</terrainEnabled>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
         </data>
       </Terrain>
     </PfdQmlGadget>

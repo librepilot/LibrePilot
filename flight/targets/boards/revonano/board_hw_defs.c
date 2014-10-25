@@ -620,15 +620,14 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
 /*
  * I2C Adapters
  */
-void PIOS_I2C_mag_pressure_adapter_ev_irq_handler(void);
-void PIOS_I2C_mag_pressureadapter_er_irq_handler(void);
-void I2C1_EV_IRQHandler()
-__attribute__((alias("PIOS_I2C_mag_pressure_adapter_ev_irq_handler")));
-void I2C1_ER_IRQHandler()
-__attribute__((alias("PIOS_I2C_mag_pressure_adapter_er_irq_handler")));
-
-static const struct pios_i2c_adapter_cfg pios_i2c_mag_pressure_adapter_cfg = {
 void PIOS_I2C_pressure_adapter_ev_irq_handler(void);
+void PIOS_I2C_pressureadapter_er_irq_handler(void);
+void I2C3_EV_IRQHandler()
+__attribute__((alias("PIOS_I2C_pressure_adapter_ev_irq_handler")));
+void I2C3_ER_IRQHandler()
+__attribute__((alias("PIOS_I2C_pressure_adapter_er_irq_handler")));
+
+static const struct pios_i2c_adapter_cfg pios_i2c_pressure_adapter_cfg = {
     .regs     = I2C3,
     .remapSCL = GPIO_AF_I2C3,
     .remapSDA = GPIO_AF9_I2C3,
@@ -681,24 +680,24 @@ void PIOS_I2C_pressure_adapter_ev_irq_handler(void);
     },
 };
 
-uint32_t pios_i2c_mag_pressure_adapter_id;
-void PIOS_I2C_mag_pressure_adapter_ev_irq_handler(void)
+uint32_t pios_i2c_pressure_adapter_id;
+void PIOS_I2C_pressure_adapter_ev_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_I2C_EV_IRQ_Handler(pios_i2c_mag_pressure_adapter_id);
+    PIOS_I2C_EV_IRQ_Handler(pios_i2c_pressure_adapter_id);
 }
 
-void PIOS_I2C_mag_pressure_adapter_er_irq_handler(void)
+void PIOS_I2C_pressure_adapter_er_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_I2C_ER_IRQ_Handler(pios_i2c_mag_pressure_adapter_id);
+    PIOS_I2C_ER_IRQ_Handler(pios_i2c_pressure_adapter_id);
 }
 
 
 void PIOS_I2C_flexiport_adapter_ev_irq_handler(void);
 void PIOS_I2C_flexiport_adapter_er_irq_handler(void);
-void I2C2_EV_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_ev_irq_handler")));
-void I2C2_ER_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_er_irq_handler")));
+void I2C1_EV_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_ev_irq_handler")));
+void I2C1_ER_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_er_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_flexiport_adapter_cfg = {
     .regs     = I2C1,

@@ -92,55 +92,6 @@ void PIOS_ADC_DMC_irq_handler(void)
 
 #endif /* if defined(PIOS_INCLUDE_ADC) */
 
-#if defined(PIOS_INCLUDE_HMC5X83)
-#include "pios_hmc5x83.h"
-pios_hmc5x83_dev_t onboard_mag = 0;
-
-bool pios_board_internal_mag_handler()
-{
-    return PIOS_HMC5x83_IRQHandler(onboard_mag);
-}
-static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
-    .vector = pios_board_internal_mag_handler,
-    .line   = EXTI_Line7,
-    .pin    = {
-        .gpio = GPIOB,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_7,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_Mode  = GPIO_Mode_IN,
-            .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
-        },
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = EXTI9_5_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .exti                                      = {
-        .init                                  = {
-            .EXTI_Line    = EXTI_Line7, // matches above GPIO pin
-            .EXTI_Mode    = EXTI_Mode_Interrupt,
-            .EXTI_Trigger = EXTI_Trigger_Rising,
-            .EXTI_LineCmd = ENABLE,
-        },
-    },
-};
-
-static const struct pios_hmc5x83_cfg pios_hmc5x83_cfg = {
-    .exti_cfg  = &pios_exti_hmc5x83_cfg,
-    .M_ODR     = PIOS_HMC5x83_ODR_75,
-    .Meas_Conf = PIOS_HMC5x83_MEASCONF_NORMAL,
-    .Gain      = PIOS_HMC5x83_GAIN_1_9,
-    .Mode      = PIOS_HMC5x83_MODE_CONTINUOUS,
-    .Driver    = &PIOS_HMC5x83_I2C_DRIVER,
-};
-#endif /* PIOS_INCLUDE_HMC5X83 */
-
 /**
  * Configuration for the MS5611 chip
  */
@@ -244,10 +195,6 @@ uint32_t pios_com_overo_id     = 0;
 uint32_t pios_com_hkosd_id     = 0;
 
 uint32_t pios_com_vcp_id       = 0;
-
-#if defined(PIOS_INCLUDE_RFM22B)
-uint32_t pios_rfm22b_id        = 0;
-#endif
 
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
@@ -435,7 +382,6 @@ void PIOS_Board_Init(void)
     /* Set up pulse timers */
     PIOS_TIM_InitClock(&tim_1_cfg);
     PIOS_TIM_InitClock(&tim_3_cfg);
-    // PIOS_TIM_InitClock(&tim_4_cfg);
     PIOS_TIM_InitClock(&tim_5_cfg);
     PIOS_TIM_InitClock(&tim_9_cfg);
     PIOS_TIM_InitClock(&tim_10_cfg);
@@ -656,7 +602,8 @@ void PIOS_Board_Init(void)
 
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
-    HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
+    // HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
+    hwsettings_flexiport = HWSETTINGS_RM_FLEXIPORT_TELEMETRY;
     switch (hwsettings_flexiport) {
     case HWSETTINGS_RM_FLEXIPORT_DISABLED:
         break;
@@ -695,121 +642,6 @@ void PIOS_Board_Init(void)
         break;
     } /* hwsettings_rm_flexiport */
 
-
-    /* Initalize the RFM22B radio COM device. */
-#if defined(PIOS_INCLUDE_RFM22B)
-
-    /* Fetch the OPinkSettings object. */
-    OPLinkSettingsData oplinkSettings;
-    OPLinkSettingsGet(&oplinkSettings);
-
-    // Initialize out status object.
-    OPLinkStatusData oplinkStatus;
-    OPLinkStatusGet(&oplinkStatus);
-    oplinkStatus.BoardType     = bdinfo->board_type;
-    PIOS_BL_HELPER_FLASH_Read_Description(oplinkStatus.Description, OPLINKSTATUS_DESCRIPTION_NUMELEM);
-    PIOS_SYS_SerialNumberGetBinary(oplinkStatus.CPUSerial);
-    oplinkStatus.BoardRevision = bdinfo->board_rev;
-
-    /* Is the radio turned on? */
-    bool is_coordinator = (oplinkSettings.Coordinator == OPLINKSETTINGS_COORDINATOR_TRUE);
-    bool is_oneway = (oplinkSettings.OneWay == OPLINKSETTINGS_ONEWAY_TRUE);
-    bool ppm_mode  = (oplinkSettings.PPM == OPLINKSETTINGS_PPM_TRUE);
-    bool ppm_only  = (oplinkSettings.PPMOnly == OPLINKSETTINGS_PPMONLY_TRUE);
-    if (oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) {
-        /* Configure the RFM22B device. */
-        const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
-        if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg)) {
-            PIOS_Assert(0);
-        }
-
-        /* Configure the radio com interface */
-        uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_RX_BUF_LEN);
-        uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_TX_BUF_LEN);
-        PIOS_Assert(rx_buffer);
-        PIOS_Assert(tx_buffer);
-        if (PIOS_COM_Init(&pios_com_rf_id, &pios_rfm22b_com_driver, pios_rfm22b_id,
-                          rx_buffer, PIOS_COM_RFM22B_RF_RX_BUF_LEN,
-                          tx_buffer, PIOS_COM_RFM22B_RF_TX_BUF_LEN)) {
-            PIOS_Assert(0);
-        }
-        /* Set Telemetry to use OPLinkMini if no other telemetry is configured (USB always overrides anyway) */
-        if (!pios_com_telem_rf_id) {
-            pios_com_telem_rf_id = pios_com_rf_id;
-        }
-        oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
-
-        // Set the RF data rate on the modem to ~2X the selected buad rate because the modem is half duplex.
-        enum rfm22b_datarate datarate = RFM22_datarate_64000;
-        switch (oplinkSettings.ComSpeed) {
-        case OPLINKSETTINGS_COMSPEED_4800:
-            datarate = RFM22_datarate_9600;
-            break;
-        case OPLINKSETTINGS_COMSPEED_9600:
-            datarate = RFM22_datarate_19200;
-            break;
-        case OPLINKSETTINGS_COMSPEED_19200:
-            datarate = RFM22_datarate_32000;
-            break;
-        case OPLINKSETTINGS_COMSPEED_38400:
-            datarate = RFM22_datarate_64000;
-            break;
-        case OPLINKSETTINGS_COMSPEED_57600:
-            datarate = RFM22_datarate_100000;
-            break;
-        case OPLINKSETTINGS_COMSPEED_115200:
-            datarate = RFM22_datarate_192000;
-            break;
-        }
-
-        /* Set the radio configuration parameters. */
-        PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, oplinkSettings.ChannelSet, is_coordinator, is_oneway, ppm_mode, ppm_only);
-        PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
-
-        /* Set the PPM callback if we should be receiving PPM. */
-        if (ppm_mode) {
-            PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
-        }
-
-        /* Set the modem Tx poer level */
-        switch (oplinkSettings.MaxRFPower) {
-        case OPLINKSETTINGS_MAXRFPOWER_125:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_0);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_16:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_1);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_316:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_2);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_63:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_3);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_126:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_4);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_25:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_5);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_50:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_6);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_100:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_7);
-            break;
-        default:
-            // do nothing
-            break;
-        }
-
-        /* Reinitialize the modem. */
-        PIOS_RFM22B_Reinit(pios_rfm22b_id);
-    } else {
-        oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
-    }
-
-    OPLinkStatusSet(&oplinkStatus);
-#endif /* PIOS_INCLUDE_RFM22B */
 
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PWM)
 
@@ -897,7 +729,7 @@ void PIOS_Board_Init(void)
     };
     GPIO_Init(GPIOA, &gpioA8);
 
-    if (PIOS_I2C_Init(&pios_i2c_mag_pressure_adapter_id, &pios_i2c_mag_pressure_adapter_cfg)) {
+    if (PIOS_I2C_Init(&pios_i2c_pressure_adapter_id, &pios_i2c_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 
@@ -907,12 +739,8 @@ void PIOS_Board_Init(void)
     PIOS_ADC_Init(&pios_adc_cfg);
 #endif
 
-#if defined(PIOS_INCLUDE_HMC5X83)
-    onboard_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
-#endif
-
 #if defined(PIOS_INCLUDE_MS5611)
-    PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_mag_pressure_adapter_id);
+    PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_pressure_adapter_id);
 #endif
 
 #if defined(PIOS_INCLUDE_MPU6000)

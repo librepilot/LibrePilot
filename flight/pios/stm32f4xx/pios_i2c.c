@@ -773,13 +773,15 @@ static void i2c_adapter_reset_bus(struct pios_i2c_adapter *i2c_adapter)
 
     /* Bus signals are guaranteed to be high (ie. free) after this point */
     /* Initialize the GPIO pins to the peripheral function */
-    if (i2c_adapter->cfg->remap) {
+    if (i2c_adapter->cfg->remapSCL) {
         GPIO_PinAFConfig(i2c_adapter->cfg->scl.gpio,
                          __builtin_ctz(i2c_adapter->cfg->scl.init.GPIO_Pin),
-                         i2c_adapter->cfg->remap);
+                         i2c_adapter->cfg->remapSCL);
+    }
+    if (i2c_adapter->cfg->remapSDA) {
         GPIO_PinAFConfig(i2c_adapter->cfg->sda.gpio,
                          __builtin_ctz(i2c_adapter->cfg->sda.init.GPIO_Pin),
-                         i2c_adapter->cfg->remap);
+                         i2c_adapter->cfg->remapSDA);
     }
     GPIO_Init(i2c_adapter->cfg->scl.gpio, (GPIO_InitTypeDef *)&(i2c_adapter->cfg->scl.init)); // Struct is const, function signature not
     GPIO_Init(i2c_adapter->cfg->sda.gpio, (GPIO_InitTypeDef *)&(i2c_adapter->cfg->sda.init));

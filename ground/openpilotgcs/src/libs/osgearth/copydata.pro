@@ -5,15 +5,32 @@
 equals(copydata, 1) {
 
     linux {
-        # copy osg libraries
-        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_DIR/lib/.\") \
-            $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
+        !exists( $(OSG_DIR)/lib64 ) { 
 
-        # copy osgearth libraries
-        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSGEARTH_DIR/lib/.\") \
-            $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth/\") $$addNewline()
+            # copy osg libraries
+            data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
+            data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_DIR/lib/.\") \
+                $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
+
+            # copy osgearth libraries
+            data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth\") $$addNewline()
+            data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSGEARTH_DIR/lib/.\") \
+                $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth/\") $$addNewline()
+            message("Copy OSG and OSGEarth ***Linux32*** libraries")
+
+        } else {
+
+            # copy osg libraries
+            data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
+            data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_DIR/lib64/.\") \
+                $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
+
+            # copy osgearth libraries
+            data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth\") $$addNewline()
+            data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSGEARTH_DIR/lib64/.\") \
+                $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth/\") $$addNewline()
+            message("Copy OSG and OSGEarth ***Linux64*** libraries")
+        }
     }
 
     macx {

@@ -114,8 +114,16 @@ OPENSSL_DIR     := $(TOOLS_DIR)/openssl-1.0.1e-win32
 UNCRUSTIFY_DIR  := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR     := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR       := $(TOOLS_DIR)/gtest-1.6.0
-OSG_DIR         := $(TOOLS_DIR)/osg-3.2.1-i686
-OSGEARTH_DIR    := $(TOOLS_DIR)/osgearth-2.6-i686
+
+ifeq ($(UNAME), Linux)
+    ifeq ($(ARCH), x86_64)
+        OSG_DIR         := $(TOOLS_DIR)/osg-3.2.1-x86_64
+        OSGEARTH_DIR    := $(TOOLS_DIR)/osgearth-2.6-x86_64
+    else
+        OSG_DIR         := $(TOOLS_DIR)/osg-3.2.1-i686
+        OSGEARTH_DIR    := $(TOOLS_DIR)/osgearth-2.6-i686
+    endif
+endif
 
 ifeq ($(UNAME), Windows)
     MINGW_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)

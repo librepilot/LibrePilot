@@ -41,6 +41,8 @@ struct pios_flash_driver {
     int32_t (*erase_sector)(uintptr_t flash_id, uint32_t addr);
     int32_t (*write_data)(uintptr_t flash_id, uint32_t addr, uint8_t *data, uint16_t len);
     int32_t (*write_chunks)(uintptr_t flash_id, uint32_t addr, struct pios_flash_chunk chunks[], uint32_t num_chunks);
+    int32_t (*rewrite_data)(uintptr_t flash_id, uint32_t addr, uint8_t *data, uint16_t len);
+    int32_t (*rewrite_chunks)(uintptr_t flash_id, uint32_t addr, struct pios_flash_chunk chunks[], uint32_t num_chunks);
     int32_t (*read_data)(uintptr_t flash_id, uint32_t addr, uint8_t *data, uint16_t len);
 };
 

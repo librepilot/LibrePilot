@@ -54,6 +54,8 @@
 #
 ################################
 
+OSG_ROOT_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install
+
 OSG_BUILD_CONF  := Release
 OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
@@ -85,7 +87,7 @@ osg:
 		$(MAKE) && \
 		$(MAKE) install ; \
 	)
-	$(V1) $(TAR) cvf $(OSG_TAR_FILE) $(OSG_INSTALL_DIR)/*
+	$(V1) $(CD) $(OSG_ROOT_INSTALL_DIR) && $(TAR) cvf $(OSG_TAR_FILE) osg-$(OSG_VERSION)-$(ARCH)
 	$(V1) $(ZIP) -f $(OSG_TAR_FILE)
 	$(V1) $(call MD5_GEN_TEMPLATE,$(OSG_TAR_FILE).gz)
 
@@ -163,7 +165,7 @@ osgearth:
 		$(MAKE) && \
 		$(MAKE) install ; \
 	)
-	$(V1) $(TAR) cvf $(OSGEARTH_TAR_FILE) $(OSGEARTH_INSTALL_DIR)/*
+	$(V1) $(CD) $(OSG_ROOT_INSTALL_DIR) && $(TAR) cvf $(OSGEARTH_TAR_FILE) $(OSGEARTH_GIT_BRANCH)-$(ARCH)/*
 	$(V1) $(ZIP) -f $(OSGEARTH_TAR_FILE)
 	$(call MD5_GEN_TEMPLATE,$(OSGEARTH_TAR_FILE).gz)
 

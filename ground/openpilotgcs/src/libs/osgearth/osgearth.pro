@@ -43,7 +43,11 @@ message(Using osgEarth from here: $$OSGEARTH_DIR)
 INCLUDEPATH += $$OSG_DIR/include $$OSGEARTH_DIR/include  
 
 linux {
-    LIBS += -L$$OSG_DIR/lib -L$$OSGEARTH_DIR/lib
+    exists( $(OSG_DIR)/lib64 ) {
+        LIBS += -L$$OSG_DIR/lib64 -L$$OSGEARTH_DIR/lib64
+    } else {
+        LIBS += -L$$OSG_DIR/lib -L$$OSGEARTH_DIR/lib
+    }
 
     LIBS += -losg -losgUtil -losgViewer -losgQt -losgDB -lOpenThreads -losgGA -losgQt
     LIBS += -losgEarth -losgEarthFeatures -losgEarthUtil -losgEarthQt

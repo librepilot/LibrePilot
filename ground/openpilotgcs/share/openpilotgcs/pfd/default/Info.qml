@@ -432,12 +432,15 @@ Item {
         id: home_bg
         elementName: "home-bg"
         sceneSize: info.sceneSize
+        x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
+
+        opacity: qmlWidget.terrainEnabled ? 0.6 : 1
 
         states: State  {
              name: "fading"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -457,8 +460,8 @@ Item {
 
         states: State  {
              name: "fading_heading"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -487,8 +490,8 @@ Item {
 
         states: State  {
              name: "fading_distance"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -518,8 +521,8 @@ Item {
 
         states: State  {
              name: "fading_distance"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {

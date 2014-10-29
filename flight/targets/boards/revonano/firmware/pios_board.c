@@ -102,7 +102,6 @@ static const struct pios_ms5611_cfg pios_ms5611_cfg = {
 };
 #endif /* PIOS_INCLUDE_MS5611 */
 
-
 /**
  * Configuration for the MPU6000 chip
  */
@@ -318,25 +317,24 @@ void PIOS_Board_Init(void)
         PIOS_DEBUG_Assert(0);
     }
 #endif
-#if defined(PIOS_INCLUDE_FLASH)
-    /* Connect flash to the appropriate interface and configure it */
-
-#if 0
-    uintptr_t flash_id = 0;
-
-    // Initialize the external USER flash
-    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_id, 1)) {
-        PIOS_DEBUG_Assert(0);
-    }
-
-    if (PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, &flashfs_external_system_cfg, &pios_jedec_flash_driver, flash_id)) {
-        PIOS_DEBUG_Assert(0);
-    }
-
-    if (PIOS_FLASHFS_Logfs_Init(&pios_user_fs_id, &flashfs_external_user_cfg, &pios_jedec_flash_driver, flash_id)) {
+#ifdef PIOS_INCLUDE_I2C
+    if (PIOS_I2C_Init(&pios_i2c_pressure_adapter_id, &pios_i2c_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 #endif
+#if defined(PIOS_INCLUDE_FLASH)
+    /* Connect flash to the appropriate interface and configure it */
+
+    uintptr_t flash_id = 0;
+
+    // Initialize the external USER flash
+    if (PIOS_Flash_EEPROM_Init(&flash_id, &flash_main_chip_cfg, pios_i2c_pressure_adapter_id, 0x50)) {
+        PIOS_DEBUG_Assert(0);
+    }
+
+    if (PIOS_FLASHFS_Init(&pios_uavo_settings_fs_id, &flash_main_fs_cfg, &pios_EEPROM_flash_driver, flash_id)) {
+        PIOS_DEBUG_Assert(0);
+    }
 
 #endif /* if defined(PIOS_INCLUDE_FLASH) */
 
@@ -728,10 +726,6 @@ void PIOS_Board_Init(void)
         .GPIO_OType = GPIO_OType_OD,
     };
     GPIO_Init(GPIOA, &gpioA8);
-
-    if (PIOS_I2C_Init(&pios_i2c_pressure_adapter_id, &pios_i2c_pressure_adapter_cfg)) {
-        PIOS_DEBUG_Assert(0);
-    }
 
     PIOS_DELAY_WaitmS(50);
 

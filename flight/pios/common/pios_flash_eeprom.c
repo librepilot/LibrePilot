@@ -132,11 +132,10 @@ int32_t PIOS_Flash_EEPROM_ReadSinglePage(struct flash_eeprom_dev *flash_dev, uin
     if (address > 0xFFFF) {
         return -2;
     }
-    uint16_t address16    = address & 0xFFFF;
 
     uint8_t mem_address[] = {
-        (address16 & 0xff00) >> 8, // MSB
-        (address16 & 0xFF) // LSB
+        (address & 0xFF00) >> 8, // MSB
+        (address & 0xFF) // LSB
     };
 
     const struct pios_i2c_txn txn_list[] = {

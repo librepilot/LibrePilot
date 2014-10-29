@@ -1312,3 +1312,25 @@ void PIOS_WS2811_irq_handler(void)
     PIOS_WS2811_DMA_irq_handler();
 }
 #endif // PIOS_INCLUDE_WS2811
+
+
+#ifdef PIOS_INCLUDE_FLASH_OBJLIST
+#include <pios_flashfs_objlist.h>
+struct flashfs_cfg flash_main_fs_cfg = {
+    .table_magic     = 0x01020304,
+    .obj_magic       = 0x19293949,
+    .obj_table_start = 0,
+    .obj_table_end   = 0xC000, // spaces for 192 UAVOs
+    .sector_size     = 0xFF,
+    .chip_size       = 0x10000
+};
+#endif /* PIOS_INCLUDE_FLASH_OBJLIST */
+
+#ifdef PIOS_INCLUDE_FLASH_EEPROM
+#include <pios_flash_eeprom.h>
+struct pios_flash_eeprom_cfg flash_main_chip_cfg = {
+    .page_len   = 128,
+    .total_size = 0x10000,
+};
+// .i2c_address = 0x50,
+#endif /*  PIOS_INCLUDE_FLASH_EEPROM */

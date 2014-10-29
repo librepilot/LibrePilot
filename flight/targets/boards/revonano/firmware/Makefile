@@ -38,8 +38,8 @@ MODULES += Receiver
 MODULES += Actuator
 MODULES += GPS
 MODULES += TxPID
-MODULES += CameraStab
-MODULES += Battery
+#MODULES += CameraStab
+#MODULES += Battery
 MODULES += FirmwareIAP
 #MODULES += PathPlanner
 #MODULES += PathFollower
@@ -72,7 +72,10 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/instrumentation.c
     SRC += $(OPUAVTALK)/uavtalk.c
     SRC += $(OPUAVOBJ)/uavobjectmanager.c
+    SRC += $(OPUAVOBJ)/uavobjectpersistence.c
     SRC += $(OPUAVOBJ)/eventdispatcher.c
+    SRC += $(PIOSCOMMON)/pios_flash_eeprom.c
+    SRC += $(PIOSCOMMON)/pios_flashfs_objlist.c
 
     #ifeq ($(DEBUG), YES)
     SRC += $(OPSYSTEM)/dcc_stdio.c

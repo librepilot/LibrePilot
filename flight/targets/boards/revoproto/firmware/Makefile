@@ -77,7 +77,6 @@ ifndef TESTAPP
     SRC += $(OPUAVOBJ)/eventdispatcher.c
     SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
     SRC += $(PIOSCOMMON)/pios_flash_jedec.c
- 
 
     #ifeq ($(DEBUG), YES)
     SRC += $(OPSYSTEM)/dcc_stdio.c

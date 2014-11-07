@@ -57,11 +57,18 @@
 
 ################################
 #
+# common stuff
+#
+################################
+
+BUILD_CONF  := Release
+################################
+#
 # osg
 #
 ################################
 
-OSG_BUILD_CONF  := Release
+OSG_BUILD_CONF  := $(BUILD_CONF)
 OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
@@ -132,7 +139,7 @@ clean_all_osg: clean_osg
 #
 ################################
 
-OSGEARTH_BUILD_CONF  := Release
+OSGEARTH_BUILD_CONF  := $(BUILD_CONF)
 OSGEARTH_VERSION     := 2.6
 OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth

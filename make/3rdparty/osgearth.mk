@@ -2,13 +2,14 @@
 # Targets to build osg and osgearth
 #
 ################################
-# Prerequisites:
+# Linux prerequisites
 ################################
 #
-# Install development libraries for:
+# Install development libraries for:
 # - libtiff
 # - curl
-# - gdal, ...
+# - gdal
+# - ...
 #
 # $ sudo apt-get install libcurl4-openssl-dev libgdal-dev libtiff5-dev
 #
@@ -21,15 +22,18 @@
 # 1.10.1
 #
 # If using Qt 5.3.1, you'll need to workaround this issue : https://bugreports.qt-project.org/browse/QTBUG-39859
-# by editing the file : ./tools/qt-5.3.1/5.3/gcc/lib/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake
+# by editing the file : ./tool/qt-5.3.1/5.3/gcc/lib/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake
 # and commenting out this line : _qt5gui_find_extra_libs(EGL "EGL" "" "/usr/include/libdrm")
 #
-# From Laurent on fedora:
-# yum install libgta-devel poppler-glib-devel gtkglext-devel librsvg2-devel libtiff-devel libjpeg-turbo-devel
-# Little hack, added a symlink between tools/osg-xxx/lib64 --> tools/osg-xxx/lib
+################################
+# Windows prerequisites
+################################
+#
+# Windows versions of osg and osgearth require a lot of additional libraries to be build
+# See osgearth_dependencies_win.sh
 #
 ################################
-# Building:
+# Building
 ################################
 #
 # $ make all_osg
@@ -37,12 +41,12 @@
 # This will:
 # - clone the git repositories into the ./3rdparty directory
 # - build osg in the build directory, building steps are : cmake, make, make install
-# - osg is installed in the OP tools directory
-# - distribution files are created in the build directory
-# - TODO: distribution files are uploaded to the OP wiki download page
+# - intall osg (in the OP tools directory)
+# - create distribution files in the build directory
+# - TODO: upload distribution files to the OP wiki download page
 #
 ################################
-# Todo:
+# Todo
 # - install osgearth in osg (a minor issue in the osgearth cmake file prevents
 #   easy to fix then set INSTALL_TO_OSG_DIR=ON when running cmake on osgearth
 # - don't build osg deprecated code (if we don't use it...)
@@ -124,7 +128,7 @@ clean_all_osg: clean_osg
 
 ################################
 #
-# osgEarth
+# osgearth
 #
 ################################
 

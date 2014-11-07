@@ -21,9 +21,12 @@
 # 1.10.1
 #
 # If using Qt 5.3.1, you'll need to workaround this issue : https://bugreports.qt-project.org/browse/QTBUG-39859
-# by editing the file : ./tool/qt-5.3.1/5.3/gcc/lib/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake
+# by editing the file : ./tools/qt-5.3.1/5.3/gcc/lib/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake
 # and commenting out this line : _qt5gui_find_extra_libs(EGL "EGL" "" "/usr/include/libdrm")
 #
+# From Laurent on fedora:
+# yum install libgta-devel poppler-glib-devel gtkglext-devel librsvg2-devel libtiff-devel libjpeg-turbo-devel
+# Little hack, added a symlink between tools/osg-xxx/lib64 --> tools/osg-xxx/lib
 #
 ################################
 # Building:

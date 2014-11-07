@@ -109,17 +109,16 @@ clone_osg:
 		$(GIT) clone git://github.com/openscenegraph/osg.git -b $(OSG_GIT_BRANCH) $(OSG_SRC_DIR) ; \
 	fi
 
-
 .PHONY: clean_osg
 clean_osg:
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSG_BUILD_DIR))"
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(OSG_BUILD_DIR))
 	$(V1) [ ! -d "$(OSG_BUILD_DIR)" ] || $(RM) -r "$(OSG_BUILD_DIR)"
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSG_INSTALL_DIR))"
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(OSG_INSTALL_DIR))
 	$(V1) [ ! -d "$(OSG_INSTALL_DIR)" ] || $(RM) -r "$(OSG_INSTALL_DIR)"
 
 .PHONY: clean_all_osg
 clean_all_osg: clean_osg
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSG_SRC_DIR))"
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(OSG_SRC_DIR))
 	$(V1) [ ! -d "$(OSG_SRC_DIR)" ] || $(RM) -r "$(OSG_SRC_DIR)"
 
 
@@ -189,14 +188,14 @@ clone_osgearth:
 
 .PHONY: clean_osgearth
 clean_osgearth:
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSGEARTH_BUILD_DIR))"
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(OSGEARTH_BUILD_DIR))
 	$(V1) [ ! -d "$(OSGEARTH_BUILD_DIR)" ] || $(RM) -r "$(OSGEARTH_BUILD_DIR)"
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSGEARTH_INSTALL_DIR))"
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(OSGEARTH_INSTALL_DIR))
 	$(V1) [ ! -d "$(OSGEARTH_INSTALL_DIR)" ] || $(RM) -r "$(OSGEARTH_INSTALL_DIR)"
 
 .PHONY: clean_all_osgearth
 clean_all_osgearth: clean_osgearth
-	@$(ECHO) " CLEAN	  $(call toprel, $(OSGEARTH_SRC_DIR))"
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(OSGEARTH_SRC_DIR))
 	$(V1) [ ! -d "$(OSGEARTH_SRC_DIR)" ] || $(RM) -r "$(OSGEARTH_SRC_DIR)"
 
 ################################

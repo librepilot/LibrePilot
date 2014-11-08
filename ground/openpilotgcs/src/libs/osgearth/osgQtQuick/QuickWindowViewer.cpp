@@ -119,7 +119,6 @@ QuickWindowViewer::QuickWindowViewer(QQuickWindow *window) :
 QuickWindowViewer::~QuickWindowViewer()
 {
     Hidden::viewers.erase(h->window);
-    delete h;
 }
 
 osg::GraphicsContext *QuickWindowViewer::graphicsContext()

@@ -11,7 +11,7 @@ struct OSGNode::Hidden {
 OSGNode::OSGNode(QObject *parent) :
     QObject(parent),
     h(new Hidden)
-{    
+{
 }
 
 OSGNode::~OSGNode()

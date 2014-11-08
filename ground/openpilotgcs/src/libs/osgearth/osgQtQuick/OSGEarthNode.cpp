@@ -101,7 +101,6 @@ OSGEarthNode::OSGEarthNode(QObject *parent) :
 OSGEarthNode::~OSGEarthNode()
 {
     qDebug() << "OSGEarthNode - <destruct>";
-    // TODO delete rootNode?
     delete h;
 }
 

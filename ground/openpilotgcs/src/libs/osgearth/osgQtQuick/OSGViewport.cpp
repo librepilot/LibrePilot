@@ -381,7 +381,6 @@ OSGViewport::OSGViewport(QQuickItem *parent) :
 
 OSGViewport::~OSGViewport()
 {
-    delete h;
 }
 
 void OSGViewport::setDrawingMode(OSGViewport::DrawingMode mode)

@@ -2,6 +2,7 @@
 
 #include "OSGNode.hpp"
 #include "QuickWindowViewer.hpp"
+#include "Utility.hpp"
 
 #include <QQuickWindow>
 #include <QOpenGLFramebufferObject>
@@ -18,43 +19,6 @@
 #include <osgEarthUtil/Sky>
 
 namespace osgQtQuick {
-
-template<class T>
-class FindTopMostNodeOfTypeVisitor : public osg::NodeVisitor
-{
-public:
-    FindTopMostNodeOfTypeVisitor():
-        osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
-        _foundNode(0)
-    {}
-
-    void apply(osg::Node& node)
-    {
-        T* result = dynamic_cast<T*>(&node);
-        if (result)
-        {
-            _foundNode = result;
-        }
-        else
-        {
-            traverse(node);
-        }
-    }
-
-    T* _foundNode;
-};
-
-
-template<class T>
-T* findTopMostNodeOfType(osg::Node* node)
-{
-    if (!node) return 0;
-
-    FindTopMostNodeOfTypeVisitor<T> fnotv;
-    node->accept(fnotv);
-
-    return fnotv._foundNode;
-}
 
 // Copied from "GraphicsWindowQt.cpp" (osg module osgQt)
 class QtKeyboardMap

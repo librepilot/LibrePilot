@@ -11,6 +11,7 @@ namespace osg {
 
 class Vec3f;
 typedef Vec3f Vec3;
+class Node;
 class Camera;
 
 } // namespace osg
@@ -27,6 +28,8 @@ class QFont;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
+
+OSGQTQUICK_EXPORT template<class T> T* findTopMostNodeOfType(osg::Node* node);
 
 OSGQTQUICK_EXPORT osg::Camera* createHUDCamera(double left, double right,
                               double bottom, double top);

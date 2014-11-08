@@ -1,8 +1,11 @@
 #include "Utility.hpp"
 
+#include <osg/NodeCallback>
 #include <osg/Camera>
+#include <osg/io_utils>
 #include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
+#include <osgUtil/CullVisitor>
 #include <osgText/Font>
 #include <osgText/Text>
 #include <osgText/String>
@@ -17,9 +20,107 @@
 #include "osgQtQuick/OSGCamera.hpp"
 #include "osgQtQuick/OSGViewport.hpp"
 
+#include <osgEarth/CullingUtils>
+
 #include <QFont>
 
 namespace osgQtQuick {
+
+
+template<class T>
+class FindTopMostNodeOfTypeVisitor : public osg::NodeVisitor
+{
+public:
+    FindTopMostNodeOfTypeVisitor():
+        osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN),
+        _foundNode(0)
+    {}
+
+    void apply(osg::Node& node)
+    {
+        T* result = dynamic_cast<T*>(&node);
+        if (result)
+        {
+            _foundNode = result;
+        }
+        else
+        {
+            traverse(node);
+        }
+    }
+
+    T* _foundNode;
+};
+
+
+template<class T> T* findTopMostNodeOfType(osg::Node* node)
+{
+    if (!node) return 0;
+
+    FindTopMostNodeOfTypeVisitor<T> fnotv;
+    node->accept(fnotv);
+
+    return fnotv._foundNode;
+}
+
+class MyCullCallback : public osg::NodeCallback
+{
+public:
+    MyCullCallback() { }
+
+    virtual ~MyCullCallback() { }
+
+public:
+    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
+    {
+        osgUtil::CullVisitor* cv = osgEarth::Culling::asCullVisitor(nv);
+        if ( cv )
+        {
+            OSG_DEBUG << "****** Node:" << node << " " << node->getName() << std::endl;
+            OSG_DEBUG << "projection matrix: " << *(cv->getProjectionMatrix()) << std::endl;
+            OSG_DEBUG << "model view matrix: " << *(cv->getModelViewMatrix()) << std::endl;
+        }
+        osg::MatrixTransform *mt = dynamic_cast<osg::MatrixTransform*>( node );
+        if (mt) {
+            OSG_DEBUG << "matrix: " << mt->getMatrix() << std::endl;
+        }
+        traverse(node, nv);
+    }
+
+};
+
+class InsertCallbacksVisitor : public osg::NodeVisitor
+{
+public:
+    InsertCallbacksVisitor():osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
+    {
+    }
+    virtual void apply(osg::Node& node)
+    {
+        //node.setUpdateCallback(new UpdateCallback());
+        node.setCullCallback(new MyCullCallback());
+        traverse(node);
+    }
+    virtual void apply(osg::Geode& geode)
+    {
+//        geode.setUpdateCallback(new UpdateCallback());
+//        //note, it makes no sense to attach a cull callback to the node
+//        //at there are no nodes to traverse below the geode, only
+//        //drawables, and as such the Cull node callbacks is ignored.
+//        //If you wish to control the culling of drawables
+//        //then use a drawable cullback...
+//        for(unsigned int i=0;i<geode.getNumDrawables();++i)
+//        {
+//            geode.getDrawable(i)->setUpdateCallback(new DrawableUpdateCallback());
+//            geode.getDrawable(i)->setCullCallback(new DrawableCullCallback());
+//            geode.getDrawable(i)->setDrawCallback(new DrawableDrawCallback());
+//        }
+    }
+    virtual void apply(osg::Transform& node)
+    {
+        apply((osg::Node&) node);
+    }
+};
 
 osg::Camera *createHUDCamera(double left, double right, double bottom, double top)
 {

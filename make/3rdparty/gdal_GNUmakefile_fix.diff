@@ -1,0 +1,48 @@
+Index: GNUmakefile
+===================================================================
+--- GNUmakefile	(revision 22722)
++++ GNUmakefile	(copie de travail)
+@@ -1,13 +1,13 @@
+ 
+ include GDALmake.opt
+ 
+-GDAL_OBJ	=	$(GDAL_ROOT)/frmts/o/*.o \
+-			$(GDAL_ROOT)/gcore/*.o \
+-			$(GDAL_ROOT)/port/*.o \
+-			$(GDAL_ROOT)/alg/*.o
++GDAL_OBJ	=	./frmts/o/*.o \
++			./gcore/*.o \
++			./port/*.o \
++			./alg/*.o
+ 
+ ifeq ($(OGR_ENABLED),yes)
+-GDAL_OBJ += $(GDAL_ROOT)/ogr/ogrsf_frmts/o/*.o
++GDAL_OBJ += ./ogr/ogrsf_frmts/o/*.o
+ endif
+ 
+ include ./ogr/file.lst
+@@ -28,13 +28,8 @@
+ 	$(LD_SHARED) $(GDAL_SLIB_SONAME) $(GDAL_OBJ) $(GDAL_LIBS) $(LDFLAGS) $(LIBS) \
+ 		-o $(GDAL_SLIB)
+ 
+-$(GDAL_LIB):	$(GDAL_OBJ) GDALmake.opt
+-	rm -f libgdal.a
+-	$(AR) r $(GDAL_LIB) $(GDAL_OBJ)
+-	$(RANLIB) $(GDAL_LIB)
+-
+-$(GDAL_SLIB):	$(GDAL_OBJ) $(GDAL_LIB)
+-	$(LD_SHARED) $(GDAL_SLIB_SONAME) $(GDAL_OBJ) $(GDAL_LIBS) $(LDFLAGS) $(LIBS) \
++$(GDAL_SLIB):	$(GDAL_OBJ)
++	$(LD_SHARED) $(GDAL_SLIB_SONAME) $(GDAL_OBJ) $(LDFLAGS) $(LIBS) \
+ 		-o $(GDAL_SLIB)
+ 
+ $(LIBGDAL):	$(GDAL_OBJ:.o=.lo)
+@@ -47,7 +42,7 @@
+ endif
+ 
+ check-lib:	port-target core-target frmts-target ogr-target
+-	$(MAKE) $(LIBGDAL-yes)
++	$(MAKE) $(GDAL_SLIB)
+ 
+ port-target:
+ 	(cd port; $(MAKE))

@@ -30,7 +30,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     m_speedFactor(1.0),
     m_altitudeUnit("m"),
     m_altitudeFactor(1.0),
-    m_actualPositionUsed(false),
+    m_positionMode(Pfd::Predefined),
     m_latitude(46.671478),
     m_longitude(10.158932),
     m_altitude(2000),
@@ -52,6 +52,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         "PathDesired" <<
         "AltitudeHoldDesired" <<
         "GPSPositionSensor" <<
+        "HomeLocation" <<
         "GCSTelemetryStats" <<
         "SystemAlarms" <<
         "NedAccel" <<
@@ -146,13 +147,11 @@ void PfdQmlGadgetWidget::setAltitudeFactor(double factor)
     }
 }
 
-// Switch between PositionState UAVObject position
-// and pre-defined latitude/longitude/altitude properties
-void PfdQmlGadgetWidget::setActualPositionUsed(bool arg)
+void PfdQmlGadgetWidget::setPositionMode(Pfd::PositionMode arg)
 {
-    if (m_actualPositionUsed != arg) {
-        m_actualPositionUsed = arg;
-        emit actualPositionUsedChanged(arg);
+    if (m_positionMode != arg) {
+        m_positionMode = arg;
+        emit positionModeChanged(positionMode());
     }
 }
 

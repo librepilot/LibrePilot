@@ -52,7 +52,7 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setAltitudeFactor(m->altitudeFactor());
     m_widget->setAltitudeUnit(m->altitudeUnit());
 
-    m_widget->setActualPositionUsed(m->actualPositionUsed());
+    m_widget->setPositionMode(m->positionMode());
     m_widget->setLatitude(m->latitude());
     m_widget->setLongitude(m->longitude());
     m_widget->setAltitude(m->altitude());

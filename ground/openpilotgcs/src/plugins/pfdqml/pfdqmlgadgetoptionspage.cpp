@@ -55,8 +55,9 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->useOpenGL->setChecked(m_config->openGLEnabled());
     options_page->showTerrain->setChecked(m_config->terrainEnabled());
 
-    options_page->useActualLocation->setChecked(m_config->actualPositionUsed());
-    options_page->usePredefinedLocation->setChecked(!m_config->actualPositionUsed());
+    options_page->useGPSLocation->setChecked(m_config->positionMode() == Pfd::GPS);
+    options_page->useHomeLocation->setChecked(m_config->positionMode() == Pfd::Home);
+    options_page->usePredefinedLocation->setChecked(m_config->positionMode() == Pfd::Predefined);
     options_page->latitude->setText(QString::number(m_config->latitude()));
     options_page->longitude->setText(QString::number(m_config->longitude()));
     options_page->altitude->setText(QString::number(m_config->altitude()));
@@ -102,8 +103,15 @@ void PfdQmlGadgetOptionsPage::apply()
 #else
     m_config->setTerrainEnabled(false);
 #endif
-
-    m_config->setActualPositionUsed(options_page->useActualLocation->isChecked());
+    if (options_page->useGPSLocation->isChecked()) {
+        m_config->setPositionMode(Pfd::GPS);
+    }
+    else if (options_page->useHomeLocation->isChecked()) {
+        m_config->setPositionMode(Pfd::Home);
+    }
+    else {
+        m_config->setPositionMode(Pfd::Predefined);
+    }
     m_config->setLatitude(options_page->latitude->text().toDouble());
     m_config->setLongitude(options_page->longitude->text().toDouble());
     m_config->setAltitude(options_page->altitude->text().toDouble());

@@ -14,6 +14,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "pfdqml.h"
 #include "pfdqmlplugin.h"
 #include "pfdqmlgadgetfactory.h"
 #include <extensionsystem/pluginmanager.h>
@@ -39,6 +40,8 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
 
     // TODO get rid of this call...
     OsgEarth::initialize();
+
+    Pfd::declareQML();
 
     PfdQmlGadgetFactory *mf = new PfdQmlGadgetFactory(this);
     addAutoReleasedObject(mf);

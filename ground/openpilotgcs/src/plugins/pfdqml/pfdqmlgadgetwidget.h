@@ -17,18 +17,19 @@
 #ifndef PFDQMLGADGETWIDGET_H_
 #define PFDQMLGADGETWIDGET_H_
 
+#include "pfdqml.h"
 #include "pfdqmlgadgetconfiguration.h"
+
 #include <QQuickView>
 
 class PfdQmlGadgetWidget : public QQuickView {
     Q_OBJECT
-    Q_PROPERTY(bool actualPositionUsed READ actualPositionUsed WRITE setActualPositionUsed NOTIFY actualPositionUsedChanged)
-
     Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
     Q_PROPERTY(double speedFactor READ speedFactor WRITE setSpeedFactor NOTIFY speedFactorChanged)
     Q_PROPERTY(QString altitudeUnit READ altitudeUnit WRITE setAltitudeUnit NOTIFY altitudeUnitChanged)
     Q_PROPERTY(double altitudeFactor READ altitudeFactor WRITE setAltitudeFactor NOTIFY altitudeFactorChanged)
 
+    Q_PROPERTY(Pfd::PositionMode positionMode READ positionMode WRITE setPositionMode NOTIFY positionModeChanged)
     // pre-defined fallback position
     Q_PROPERTY(double latitude READ latitude WRITE setLatitude NOTIFY latitudeChanged)
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
@@ -60,9 +61,9 @@ public:
     {
         return m_altitudeFactor;
     }
-    bool actualPositionUsed() const
+    Pfd::PositionMode positionMode() const
     {
-        return m_actualPositionUsed;
+        return m_positionMode;
     }
     double latitude() const
     {
@@ -95,8 +96,7 @@ public slots:
     void setAltitudeUnit(QString unit);
     void setAltitudeFactor(double factor);
 
-    void setActualPositionUsed(bool arg);
-
+    void setPositionMode(Pfd::PositionMode arg);
     void setLatitude(double arg);
     void setLongitude(double arg);
     void setAltitude(double arg);
@@ -112,7 +112,7 @@ signals:
     void altitudeUnitChanged(QString arg);
     void altitudeFactorChanged(double arg);
 
-    void actualPositionUsedChanged(bool arg);
+    void positionModeChanged(Pfd::PositionMode arg);
     void latitudeChanged(double arg);
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
@@ -128,7 +128,7 @@ private:
     QString m_altitudeUnit;
     double m_altitudeFactor;
 
-    bool m_actualPositionUsed;
+    Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;

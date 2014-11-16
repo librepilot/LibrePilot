@@ -17,6 +17,7 @@
 #ifndef PFDQMLGADGETCONFIGURATION_H
 #define PFDQMLGADGETCONFIGURATION_H
 
+#include "pfdqml.h"
 #include <coreplugin/iuavgadgetconfiguration.h>
 #include <QMap>
 
@@ -64,13 +65,13 @@ public:
         m_altitudeFactor = factor;
     }
 
-    bool actualPositionUsed() const
+    Pfd::PositionMode positionMode() const
     {
-        return m_actualPositionUsed;
+        return m_positionMode;
     }
-    void setActualPositionUsed(bool flag)
+    void setPositionMode(Pfd::PositionMode positionMode)
     {
-        m_actualPositionUsed = flag;
+        m_positionMode = positionMode;
     }
 
     double latitude() const
@@ -155,7 +156,7 @@ private:
     double m_speedFactor;
     double m_altitudeFactor;
 
-    bool m_actualPositionUsed;
+    Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;

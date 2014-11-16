@@ -20,7 +20,16 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -44,7 +53,16 @@
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
@@ -134,6 +152,22 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="4" column="0">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
           <item row="0" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
             <property name="spacing">
@@ -165,13 +199,13 @@
            </layout>
           </item>
           <item row="1" column="0" colspan="2">
-           <widget class="QRadioButton" name="useActualLocation">
+           <widget class="QRadioButton" name="useGPSLocation">
             <property name="text">
-             <string>Use actual location</string>
+             <string>Use GPS location</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="3">
+          <item row="3" column="0" colspan="3">
            <widget class="QRadioButton" name="usePredefinedLocation">
             <property name="text">
              <string>Use pre-defined location:</string>
@@ -181,23 +215,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>16</width>
-              <height>16</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="3" column="1" colspan="3">
+          <item row="4" column="1" colspan="3">
            <layout class="QGridLayout" name="gridLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="label_3">
@@ -231,14 +249,14 @@
             </item>
            </layout>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="5" column="0" colspan="2">
            <widget class="QCheckBox" name="useOnlyCache">
             <property name="text">
              <string>Use only cache data</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
+          <item row="5" column="2">
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -251,10 +269,17 @@
             </property>
            </spacer>
           </item>
-          <item row="4" column="3">
+          <item row="5" column="3">
            <widget class="QPushButton" name="preSeedTerrain">
             <property name="text">
              <string>Pre seed terrain cache</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="useHomeLocation">
+            <property name="text">
+             <string>Use home location</string>
             </property>
            </widget>
           </item>

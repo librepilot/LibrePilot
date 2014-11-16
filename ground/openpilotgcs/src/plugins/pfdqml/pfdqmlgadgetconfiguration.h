@@ -170,4 +170,4 @@ private:
     QMap<double, QString> m_altitudeMap;
 };
 
-#endif // PfdQmlGADGETCONFIGURATION_H
+#endif // PFDQMLGADGETCONFIGURATION_H

@@ -1,5 +1,8 @@
 import QtQuick 2.0
 
+// TODO move sub components to a new 'pfd' subdirectory
+// TODO move pfd up and out of 'default" subdirectory
+
 Item {
 //Rectangle {
 //    color: "#666666"
@@ -14,7 +17,7 @@ Item {
         Rectangle {
             width: Math.floor(parent.paintedHeight * 1.319)
             height: Math.floor(parent.paintedHeight - parent.paintedHeight * 0.008)
-            
+
             color: "transparent"
             border.color: "white"
             border.width: Math.floor(parent.paintedHeight * 0.008)
@@ -33,6 +36,7 @@ Item {
             clip: true
 
             Loader {
+                // TODO might need focus true for keyboard events to propagate...
                 id: worldLoader
                 anchors.fill: parent
                 focus: true

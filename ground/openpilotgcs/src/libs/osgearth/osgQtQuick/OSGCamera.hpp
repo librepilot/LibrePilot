@@ -5,9 +5,13 @@
 
 #include <QObject>
 
-//namespace osg {
-//class Node;
-//} // namespace osg
+namespace osg {
+class Camera;
+} // namespace osg
+
+namespace osgViewer {
+class View;
+} // namespace osgViewer
 
 namespace osgQtQuick {
 
@@ -17,6 +21,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject
     Q_OBJECT
 
     Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
+
+    Q_PROPERTY(osgQtQuick::OSGNode* trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
 
     Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
     Q_PROPERTY(qreal pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
@@ -32,6 +38,9 @@ public:
     
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
+
+    OSGNode* trackNode();
+    void setTrackNode(OSGNode *node);
 
     qreal roll() const;
     void setRoll(qreal arg);
@@ -53,6 +62,8 @@ public:
 
 signals:
     void fieldOfViewChanged(qreal arg);
+
+    void trackNodeChanged(OSGNode *node);
 
     void rollChanged(qreal arg);
     void pitchChanged(qreal arg);

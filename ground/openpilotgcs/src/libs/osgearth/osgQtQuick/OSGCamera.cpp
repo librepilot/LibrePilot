@@ -1,13 +1,49 @@
 #include "OSGCamera.hpp"
 
+#include "OSGNode.hpp"
+
 #include <osg/Node>
 
 #include <QDebug>
 
 namespace osgQtQuick {
 
-struct OSGCamera::Hidden {
+struct OSGCamera::Hidden : public QObject
+{
+    Hidden(OSGCamera *parent) : QObject(parent), trackNode(NULL) {
+        fieldOfView = 90.0;
+        roll = pitch = yaw = 0.0;
+        latitude = longitude = altitude = 0.0;
+    }
+
+    ~Hidden()
+    {
+    }
+
+    bool acceptTrackNode(OSGNode *node)
+    {
+        qDebug() << "OSGCamera - acceptTrackNode" << node;
+        if (trackNode == node) {
+            return false;
+        }
+
+        if (trackNode) {
+            disconnect(trackNode);
+        }
+
+        trackNode = node;
+
+        if (trackNode) {
+            connect(trackNode, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onTrackNodeChanged(osg::Node*)));
+        }
+
+        return true;
+
+    }
+
     qreal fieldOfView;
+
+    OSGNode *trackNode;
 
     qreal roll;
     qreal pitch;
@@ -18,11 +54,15 @@ struct OSGCamera::Hidden {
     double altitude;
 
     //osg::ref_ptr<osg::Node> node;
+
+private slots:
+    void onTrackNodeChanged(osg::Node *node)
+    {
+    }
+
 };
 
-OSGCamera::OSGCamera(QObject *parent) :
-    QObject(parent),
-    h(new Hidden)
+OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
 {    
 }
 
@@ -52,6 +92,18 @@ void OSGCamera::setFieldOfView(qreal arg)
            }*/
 
         //updateFrame();
+    }
+}
+
+OSGNode *OSGCamera::trackNode()
+{
+    return h->trackNode;
+}
+
+void OSGCamera::setTrackNode(OSGNode *node)
+{
+    if (h->acceptTrackNode(node)) {
+        emit trackNodeChanged(node);
     }
 }
 

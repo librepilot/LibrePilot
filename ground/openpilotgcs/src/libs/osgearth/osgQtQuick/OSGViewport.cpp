@@ -245,10 +245,10 @@ private slots:
         }
         if (window && (qwv = QuickWindowViewer::instance(window))) {
             view->getCamera()->setGraphicsContext(qwv->graphicsContext());
-            updateViewport();
             qwv->compositeViewer()->addView(view.get());
             connect(window, SIGNAL(widthChanged(int)), this, SLOT(updateViewport()));
             connect(window, SIGNAL(heightChanged(int)), this, SLOT(updateViewport()));
+            updateViewport();
         }
         this->window = window;
     }
@@ -435,9 +435,10 @@ void OSGViewport::setMode(OSGViewport::DrawingMode mode)
 
 void OSGViewport::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
-    if (window()) h->updateViewport();
-
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
+    if (window()) {
+        h->updateViewport();
+    }
 }
 
 void OSGViewport::mousePressEvent(QMouseEvent *event)

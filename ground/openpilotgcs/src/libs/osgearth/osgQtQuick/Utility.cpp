@@ -1,5 +1,15 @@
 #include "Utility.hpp"
 
+// osgQtQuick qml types
+#include "OSGNode.hpp"
+#include "OSGGroup.hpp"
+#include "OSGNodeFile.hpp"
+#include "OSGTextNode.hpp"
+#include "OSGModelNode.hpp"
+#include "OSGSkyNode.hpp"
+#include "OSGCamera.hpp"
+#include "OSGViewport.hpp"
+
 #include <osg/NodeCallback>
 #include <osg/Camera>
 #include <osg/io_utils>
@@ -11,15 +21,6 @@
 #include <osgText/Text>
 #include <osgText/String>
 #include <osgQt/QFontImplementation>
-
-// osgQtQuick qml types
-#include "osgQtQuick/OSGNode.hpp"
-#include "osgQtQuick/OSGGroup.hpp"
-#include "osgQtQuick/OSGNodeFile.hpp"
-#include "osgQtQuick/OSGTextNode.hpp"
-#include "osgQtQuick/OSGEarthNode.hpp"
-#include "osgQtQuick/OSGCamera.hpp"
-#include "osgQtQuick/OSGViewport.hpp"
 
 #include <osgEarth/CullingUtils>
 
@@ -218,8 +219,9 @@ void registerTypes(const char *uri)
     qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
     qmlRegisterType<osgQtQuick::OSGViewport>(uri, maj, min, "OSGViewport");
 
+    qmlRegisterType<osgQtQuick::OSGModelNode>(uri, maj, min, "OSGModelNode");
+    qmlRegisterType<osgQtQuick::OSGSkyNode>(uri, maj, min, "OSGSkyNode");
     qmlRegisterType<osgQtQuick::OSGCamera>(uri, maj, min, "OSGCamera");
-    qmlRegisterType<osgQtQuick::OSGEarthNode>(uri, maj, min, "OSGEarthNode");
 }
 
 } // namespace osgQtQuick

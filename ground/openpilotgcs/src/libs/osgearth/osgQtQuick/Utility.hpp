@@ -1,7 +1,7 @@
 #ifndef OSGQTQUICK_UTILITY_HPP
 #define OSGQTQUICK_UTILITY_HPP
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
 #include <osg/NodeVisitor>
 

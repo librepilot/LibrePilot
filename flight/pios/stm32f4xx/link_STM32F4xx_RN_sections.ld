@@ -83,7 +83,7 @@ SECTIONS
     	_irq_stack_end = . ;
     	*(.irqstack)
     	_irq_stack_top = . ;
-	} > CCSRAM
+	} > SRAM
 
 
 	/*
@@ -132,14 +132,14 @@ SECTIONS
 
 	/*
 	 * 'Fast' memory goes in the CCM SRAM
-	 */
+	 
 	.fast (NOLOAD) :
 	{
 		_sfast = . ;
 		*(.fast)
 		_efast = . ;
 	} > CCSRAM
-
+*/
     /* Stabs debugging sections.  */
     .stab          0 : { *(.stab) }
     .stabstr       0 : { *(.stabstr) }

@@ -1,7 +1,8 @@
 #ifndef _H_OSGQTQUICK_NODEFILE_H_
 #define _H_OSGQTQUICK_NODEFILE_H_
 
-#include "osgQtQuick/OSGNode.hpp"
+#include "Export.hpp"
+#include "OSGNode.hpp"
 
 #include <QUrl>
 QT_BEGIN_NAMESPACE
@@ -15,6 +16,7 @@ class OSGQTQUICK_EXPORT OSGNodeFile : public OSGNode
     Q_OBJECT
 
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
 
 public:
     OSGNodeFile(QObject *parent = 0);
@@ -23,8 +25,12 @@ public:
     const QUrl source() const;
     void setSource(const QUrl &url);
 
+    bool async() const;
+    void setAsync(const bool async);
+
 signals:
     void sourceChanged(const QUrl &url);
+    void asyncChanged(const bool async);
 
 private:
     struct Hidden;

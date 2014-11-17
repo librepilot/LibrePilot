@@ -4,7 +4,7 @@
 
 #include <QUrl>
 #include <QThread>
-
+#include <QElapsedTimer>
 #include <QDebug>
 
 namespace osgQtQuick {
@@ -18,7 +18,20 @@ public:
     }
 
     void run() {
-        osg::Node *node = osgDB::readNodeFile(url.toString().toStdString());
+        load();
+    }
+
+    void load() {
+        QElapsedTimer t;
+        t.start();
+        qDebug() << "OSGFileLoader - reading URL" << url;
+        QString s = url.toString();
+        s = s.right(s.length() - QString("file://").length());
+        //qDebug() << "OSGFileLoader - file" << s;
+        // TODO use Options to control caching...
+        osg::Node *node = osgDB::readNodeFile(s.toStdString());
+        qDebug() << "OSGFileLoader - reading node" << node << "took" << t.elapsed();
+
         emit loaded(url, node);
     }
 
@@ -34,16 +47,23 @@ struct OSGNodeFile::Hidden: public QObject
     Q_OBJECT
 
 public:
-    Hidden(OSGNodeFile *parent) : QObject(parent), pub(parent) {}
+    Hidden(OSGNodeFile *parent) : QObject(parent), url(), async(true), pub(parent) {}
 
     void asyncLoad(const QUrl &url) {
         OSGFileLoader *loader = new OSGFileLoader(url);
         connect(loader, SIGNAL(loaded(const QUrl&, osg::Node*)), this, SLOT(onLoaded(const QUrl&, osg::Node*)));
-        connect(loader, SIGNAL(finished), loader, SLOT(deleteLater));
+        connect(loader, SIGNAL(finished()), loader, SLOT(deleteLater()));
         loader->start();
     }
 
+    void syncLoad(const QUrl &url) {
+        OSGFileLoader loader(url);
+        connect(&loader, SIGNAL(loaded(const QUrl&, osg::Node*)), this, SLOT(onLoaded(const QUrl&, osg::Node*)));
+        loader.load();
+    }
+
     QUrl url;
+    bool async;
     OSGNodeFile *pub;
 
 public slots:
@@ -73,13 +93,33 @@ const QUrl OSGNodeFile::source() const
 
 void OSGNodeFile::setSource(const QUrl &url)
 {
-    h->asyncLoad(url);
+    qDebug() << "OSGNodeFile - setSource" << url;
+    if (h->async) {
+        h->asyncLoad(url);
+    }
+    else {
+        h->syncLoad(url);
+    }
 //    if (h->url != url)
 //    {
 //        h->url = url;
 //        setNode(osgDB::readNodeFile(url.toString().toStdString()));
 //        emit sourceChanged(url);
 //    }
+}
+
+bool OSGNodeFile::async() const
+{
+    return h->async;
+}
+
+void OSGNodeFile::setAsync(const bool async)
+{
+    qDebug() << "OSGNodeFile - setAsync" << async;
+    if (h->async != async) {
+        h->async = async;
+        emit asyncChanged(async);
+    }
 }
 
 } // namespace osgQtQuick

@@ -8,6 +8,7 @@ OSGViewport {
     //color: "transparent"
     //opacity: 0.999
     mode: OSGViewport.Buffer
+    focus: true
 
     OSGEarthNode {
         id: terrainNode

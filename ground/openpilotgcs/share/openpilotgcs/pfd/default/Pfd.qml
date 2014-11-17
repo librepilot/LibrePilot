@@ -35,6 +35,7 @@ Item {
             Loader {
                 id: worldLoader
                 anchors.fill: parent
+                focus: true
                 source: qmlWidget.terrainEnabled ? "PfdTerrainView.qml" : "PfdWorldView.qml"
             }
 

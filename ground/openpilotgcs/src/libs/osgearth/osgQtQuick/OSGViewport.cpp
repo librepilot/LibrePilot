@@ -44,14 +44,27 @@ struct OSGViewport::Hidden : public QObject
     };
     friend struct PostDraw;
 
+    struct CameraUpdateCallback : public osg::NodeCallback
+    {
+    public:
+        CameraUpdateCallback(Hidden *h);
+
+        void operator()(osg::Node* node, osg::NodeVisitor* nv);
+
+        mutable Hidden *h;
+    };
+    friend class CameraUpdateCallback;
+
 public:
 
     Hidden(OSGViewport *quickItem) :
         QObject(quickItem),
+        drawingMode(OSGViewport::Buffer),
         window(0),
         quickItem(quickItem),
-        drawingMode(OSGViewport::Buffer),
         sceneData(0),
+        camera(0),
+        cameraDirty(false),
         mode(OSGViewport::Native),
         fbo(0),
         texture(0),
@@ -77,7 +90,9 @@ public:
 
     bool acceptSceneData(osgQtQuick::OSGNode *node)
     {
-        if (sceneData == node) return false;
+        if (sceneData == node) {
+            return false;
+        }
 
         if (sceneData) {
             disconnect(sceneData);
@@ -85,22 +100,32 @@ public:
 
         sceneData = node;
 
-        view->setSceneData( node ? node->node() : 0);
+        acceptNode(node->node());
 
-        osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
-        view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+        if (sceneData) {
+            connect(sceneData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onNodeChanged(osg::Node*)));
+        }
 
-        osg::ref_ptr<osgEarth::Util::SkyNode> skyNode = findTopMostNodeOfType<osgEarth::Util::SkyNode>(sceneData->node());
+        return true;
+    }
+
+    bool acceptNode(osg::Node *node)
+    {
+        osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
+        qDebug() << "Map Node" << mapNode;
+        if (mapNode) {
+//            view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
+            view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+        }
+
+        osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
+        qDebug() << "Sky Node" << skyNode;
         if (skyNode) {
             skyNode->attach(view, 0);
         }
 
-        if (node) {
-            connect(node, SIGNAL(nodeChanged(osg::Node*)),
-                    this, SLOT(onNodeChanged(osg::Node*)));
-        }
-
-        view->home();
+        qDebug() << "set scene data" << node;
+        view->setSceneData(node);
 
         return true;
     }
@@ -110,6 +135,7 @@ public:
 
         this->mode = mode;
         if (mode == OSGViewport::Buffer) {
+            qDebug() << "mode is now Buffer";
             if(!preDraw.valid()) {
                 preDraw = new PreDraw(this);
                 view->getCamera()->setPreDrawCallback(preDraw.get());
@@ -118,6 +144,34 @@ public:
                 postDraw = new PostDraw(this);
                 view->getCamera()->setPostDrawCallback(postDraw.get());
             }
+        }
+
+        return true;
+    }
+
+    bool acceptCamera(OSGCamera *camera) {
+        if (this->camera == camera) {
+            return false;
+        }
+
+        qDebug() << "accept camera";
+
+        if (this->camera) {
+            disconnect(this->camera);
+        }
+
+        this->camera = camera;
+
+        cameraDirty = true;
+
+        this->camera->installCamera(view);
+
+        // install camera update callback
+        view->getCamera()->addUpdateCallback(new CameraUpdateCallback(this));
+
+        if (this->camera) {
+            connect(this->camera, SIGNAL(attitudeChanged(qreal, qreal, qreal)), this, SLOT(onCameraDirty()));
+            connect(this->camera, SIGNAL(positionChanged(double, double, double)), this, SLOT(onCameraDirty()));
         }
 
         return true;
@@ -144,6 +198,9 @@ public:
     osg::ref_ptr<osgViewer::View> view;
 
     osgQtQuick::OSGNode *sceneData;
+
+    OSGCamera *camera;
+    bool cameraDirty;
 
     OSGViewport::DrawingMode mode;
 
@@ -196,17 +253,23 @@ private slots:
         this->window = window;
     }
 
-    void onNodeChanged(osg::Node *node) {        
+    void onNodeChanged(osg::Node *node)
+    {
+        qDebug() << "onNodeChanged";
         if (view.valid()) {
-            view->setSceneData(node);
-            view->home();
+            acceptNode(node);
         }
+    }
+
+    void onCameraDirty()
+    {
+        cameraDirty = true;
     }
 
 private:
     void initOSG() {
         view = new osgViewer::View();
-        view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
+        view->addEventHandler(new osgViewer::StatsHandler());
     }
 
 
@@ -281,6 +344,18 @@ void OSGViewport::Hidden::PostDraw::operator ()(osg::RenderInfo &/*renderInfo*/)
     }
 }
 
+/* struct Hidden::CameraUpdateCallback */
+
+OSGViewport::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h) {}
+
+void OSGViewport::Hidden::CameraUpdateCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
+{
+    if (h->cameraDirty) {
+        h->cameraDirty = false;
+        h->camera->updateCamera(h->view->getCamera());
+    }
+}
+
 /* ---------------------------------------------------- class OSGViewport --- */
 
 OSGViewport::OSGViewport(QQuickItem *parent) :
@@ -310,6 +385,18 @@ void OSGViewport::setSceneData(osgQtQuick::OSGNode *node)
 {
     if (h->acceptSceneData(node)) {
         emit sceneDataChanged(node);
+    }
+}
+
+OSGCamera* OSGViewport::camera()
+{
+    return h->camera;
+}
+
+void OSGViewport::setCamera(OSGCamera *camera)
+{
+    if (h->acceptCamera(camera)) {
+        emit cameraChanged(camera);
     }
 }
 

@@ -8,12 +8,14 @@
 namespace osgQtQuick {
 
 class OSGNode;
+class OSGCamera;
 
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickItem
 {
     Q_OBJECT
 
     Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    Q_PROPERTY(osgQtQuick::OSGCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(DrawingMode mode READ mode WRITE setMode NOTIFY modeChanged)
 
@@ -33,6 +35,9 @@ public:
     osgQtQuick::OSGNode* sceneData();
     void setSceneData(osgQtQuick::OSGNode *node);
 
+    OSGCamera* camera();
+    void setCamera(OSGCamera *camera);
+
     QColor color() const;
     void setColor(const QColor &color);
 
@@ -40,7 +45,8 @@ public:
     void setMode(DrawingMode mode);
 
 signals:
-    void sceneDataChanged(osgQtQuick::OSGNode *node);
+    void sceneDataChanged(OSGNode *node);
+    void cameraChanged(OSGCamera *camera);
     void colorChanged(const QColor &color);
     void modeChanged(DrawingMode mode);
 

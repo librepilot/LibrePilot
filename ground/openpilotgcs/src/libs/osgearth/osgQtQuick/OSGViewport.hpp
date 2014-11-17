@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_OSGVIEPORT_H_
 #define _H_OSGQTQUICK_OSGVIEPORT_H_
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
 #include <QQuickItem>
 
@@ -32,8 +32,8 @@ public:
 
     void setDrawingMode(DrawingMode mode);
 
-    osgQtQuick::OSGNode* sceneData();
-    void setSceneData(osgQtQuick::OSGNode *node);
+    OSGNode* sceneData();
+    void setSceneData(OSGNode *node);
 
     OSGCamera* camera();
     void setCamera(OSGCamera *camera);
@@ -61,8 +61,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    QSGNode* updatePaintNode(QSGNode *oldNode,
-                             UpdatePaintNodeData *updatePaintNodeData);
+    QSGNode* updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
 
 private:
     struct Hidden;

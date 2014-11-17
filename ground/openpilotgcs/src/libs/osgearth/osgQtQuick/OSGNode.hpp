@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_OSGNODE_H_
 #define _H_OSGQTQUICK_OSGNODE_H_
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
 #include <QObject>
 

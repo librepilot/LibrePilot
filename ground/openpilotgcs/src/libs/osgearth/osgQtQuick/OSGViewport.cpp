@@ -1,6 +1,7 @@
 #include "OSGViewport.hpp"
 
 #include "OSGNode.hpp"
+#include "OSGCamera.hpp"
 #include "QuickWindowViewer.hpp"
 #include "Utility.hpp"
 
@@ -9,12 +10,12 @@
 #include <QSGSimpleTextureNode>
 #include <QDebug>
 
+#include <osg/Node>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
-#include <osgGA/TrackballManipulator>
+#include <osgUtil/Optimizer>
 
 #include <osgEarth/MapNode>
-#include <osgEarthUtil/EarthManipulator>
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Sky>
 
@@ -70,14 +71,11 @@ public:
         texture(0),
         textureNode(0)
     {
-        // Создание сцены и вьювера
         initOSG();
-
         acceptQuickItem();
     }
 
     ~Hidden() {
-
     }
 
     QPointF mousePoint(QMouseEvent *event) {
@@ -88,7 +86,7 @@ public:
         return QPointF(x, y);
     }
 
-    bool acceptSceneData(osgQtQuick::OSGNode *node)
+    bool acceptSceneData(OSGNode *node)
     {
         if (sceneData == node) {
             return false;
@@ -197,7 +195,7 @@ public:
     // Public OSG data
     osg::ref_ptr<osgViewer::View> view;
 
-    osgQtQuick::OSGNode *sceneData;
+    OSGNode *sceneData;
 
     OSGCamera *camera;
     bool cameraDirty;
@@ -214,20 +212,28 @@ public:
     static QtKeyboardMap keyMap;
 
 public slots:
+
     void updateViewport() {
-        if (!quickItem->window()) return;
+        if (!quickItem->window()) {
+            qDebug() << "updateViewport - quick item has no window";
+            return;
+        }
         if (mode == OSGViewport::Native) {
             QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
             view->getCamera()->setViewport(rect.x(),
                                            quickItem->window()->height() - (rect.y() + rect.height()),
                                            rect.width(),
                                            rect.height());
-            view->getCamera()->setProjectionMatrixAsPerspective(30.0f, static_cast<double>(rect.width())/static_cast<double>(rect.height()), 1.0f, 10000.0f );
+            // TODO use FOV from OSGCamera
+            view->getCamera()->setProjectionMatrixAsPerspective(
+                    30.0f, static_cast<double>(rect.width())/static_cast<double>(rect.height()), 1.0f, 10000.0f );
         }
         if (mode == OSGViewport::Buffer) {
             QSize size(quickItem->boundingRect().size().toSize());
             view->getCamera()->setViewport(0, 0, size.width(), size.height());
-            view->getCamera()->setProjectionMatrixAsPerspective(30.0f, static_cast<double>(size.width())/static_cast<double>(size.height()), 1.0f, 10000.0f );
+            // TODO use FOV from OSGCamera
+            view->getCamera()->setProjectionMatrixAsPerspective(
+                    30.0f, static_cast<double>(size.width())/static_cast<double>(size.height()), 1.0f, 10000.0f );
             if (texture && texture->textureSize() != size) {
                 updateFBO();
             }
@@ -236,7 +242,8 @@ public slots:
 
 private slots:
 
-    void onWindowChanged(QQuickWindow *window) {
+    void onWindowChanged(QQuickWindow *window)
+    {
         // TODO if window is destroyed, the associated QuickWindowViewer should be destroyed too
         QuickWindowViewer *qwv;
         if (this->window && (qwv = QuickWindowViewer::instance(this->window))) {
@@ -270,6 +277,8 @@ private:
     void initOSG() {
         view = new osgViewer::View();
         view->addEventHandler(new osgViewer::StatsHandler());
+        //viewer->addEventHandler(new osgGA::StateSetManipulator());
+        //viewer->addEventHandler(new osgViewer::ThreadingHandler());
     }
 
 
@@ -302,9 +311,13 @@ private:
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         QSize size(rect.size().toSize());
-        if (fbo) delete fbo;
+        if (fbo) {
+            delete fbo;
+        }
         fbo = new QOpenGLFramebufferObject(size, format);
-        if (texture) delete texture;
+        if (texture) {
+            delete texture;
+        }
         texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
         textureNode = new QSGSimpleTextureNode();
         textureNode->setRect(0, quickItem->height(), quickItem->width(), -quickItem->height());
@@ -315,14 +328,15 @@ private:
 
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
-/* ----------------------------------------------- struct Hidden::PreDraw --- */
+/* struct Hidden::PreDraw */
 
-OSGViewport::Hidden::PreDraw::PreDraw(Hidden *h) : h(h) {
-}
+OSGViewport::Hidden::PreDraw::PreDraw(Hidden *h) : h(h) {}
 
 void OSGViewport::Hidden::PreDraw::operator ()(osg::RenderInfo &/*renderInfo*/) const
 {
-    if (!h->fbo) h->initFBO();
+    if (!h->fbo) {
+        h->initFBO();
+    }
     if (h->fbo) {
         if (!h->fbo->bind()) {
             qWarning() << "PreDraw - failed to bind fbo!";
@@ -330,10 +344,9 @@ void OSGViewport::Hidden::PreDraw::operator ()(osg::RenderInfo &/*renderInfo*/) 
     }
 }
 
-/* ----------------------------------------------- struct Hidden::PostDraw --- */
+/* struct Hidden::PostDraw */
 
-OSGViewport::Hidden::PostDraw::PostDraw(Hidden *h) : h(h) {
-}
+OSGViewport::Hidden::PostDraw::PostDraw(Hidden *h) : h(h) {}
 
 void OSGViewport::Hidden::PostDraw::operator ()(osg::RenderInfo &/*renderInfo*/) const
 {
@@ -356,7 +369,7 @@ void OSGViewport::Hidden::CameraUpdateCallback::operator()(osg::Node* node, osg:
     }
 }
 
-/* ---------------------------------------------------- class OSGViewport --- */
+/* class OSGViewport */
 
 OSGViewport::OSGViewport(QQuickItem *parent) :
     QQuickItem(parent), h(new Hidden(this))
@@ -376,12 +389,12 @@ void OSGViewport::setDrawingMode(OSGViewport::DrawingMode mode)
     }
 }
 
-osgQtQuick::OSGNode *OSGViewport::sceneData()
+OSGNode *OSGViewport::sceneData()
 {
     return h->sceneData;
 }
 
-void OSGViewport::setSceneData(osgQtQuick::OSGNode *node)
+void OSGViewport::setSceneData(OSGNode *node)
 {
     if (h->acceptSceneData(node)) {
         emit sceneDataChanged(node);
@@ -403,20 +416,12 @@ void OSGViewport::setCamera(OSGCamera *camera)
 QColor OSGViewport::color() const
 {
     const osg::Vec4 osgColor = h->view->getCamera()->getClearColor();
-    return QColor::fromRgbF(
-                osgColor.r(),
-                osgColor.g(),
-                osgColor.b(),
-                osgColor.a());
+    return QColor::fromRgbF(osgColor.r(), osgColor.g(), osgColor.b(), osgColor.a());
 }
 
 void OSGViewport::setColor(const QColor &color)
 {
-    osg::Vec4 osgColor(
-                color.redF(),
-                color.greenF(),
-                color.blueF(),
-                color.alphaF());
+    osg::Vec4 osgColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
     if (h->view->getCamera()->getClearColor() != osgColor) {
         h->view->getCamera()->setClearColor(osgColor);
         emit colorChanged(color);
@@ -430,7 +435,9 @@ OSGViewport::DrawingMode OSGViewport::mode() const
 
 void OSGViewport::setMode(OSGViewport::DrawingMode mode)
 {
-    if (h->acceptMode(mode)) emit modeChanged(mode);
+    if (h->acceptMode(mode)) {
+        emit modeChanged(mode);
+    }
 }
 
 void OSGViewport::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
@@ -504,15 +511,12 @@ void OSGViewport::keyPressEvent(QKeyEvent *event)
 
 void OSGViewport::keyReleaseEvent(QKeyEvent *event)
 {
-    if( event->isAutoRepeat() )
-    {
+    if (event->isAutoRepeat()) {
         event->ignore();
-    }
-    else
-    {
-        h->setKeyboardModifiers( event );
-        int value = h->keyMap.remapKey( event );
-        h->view->getEventQueue()->keyRelease( value );
+    } else {
+        h->setKeyboardModifiers(event);
+        int value = h->keyMap.remapKey(event);
+        h->view->getEventQueue()->keyRelease(value);
     }
 
     // this passes the event to the regular Qt key event processing,

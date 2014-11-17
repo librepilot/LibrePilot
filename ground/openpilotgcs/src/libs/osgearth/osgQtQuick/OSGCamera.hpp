@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_OSGCAMERA_H_
 #define _H_OSGQTQUICK_OSGCAMERA_H_
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
 #include <QObject>
 
@@ -15,7 +15,18 @@ class View;
 
 namespace osgQtQuick {
 
-// TODO split into Camera and CameraManipulator
+class OSGNode;
+
+// This class does too much:
+// - tracking a geo point and attitude
+// - tracking another node
+// camera should be simpler and provide only tracking
+// - tracking of a modelnode (for ModelView)
+// - tracking of a virtual node  (for PFD with Terrain)
+//
+// TODO
+// - expose track mode
+// - provide good default distance and attitude for tracker camera
 class OSGQTQUICK_EXPORT OSGCamera : public QObject
 {
     Q_OBJECT

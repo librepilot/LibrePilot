@@ -58,7 +58,10 @@ protected:
 
 private slots:
     void frame() {
-        if (!compositeViewer.valid()) return;
+        if (!compositeViewer.valid()) {
+            qCritical() << "invalid composite viewer!";
+            return;
+        }
 
         // Qt bug!?
         //QOpenGLContext::currentContext()->functions()->glUseProgram(0);
@@ -76,20 +79,35 @@ private slots:
 
 private:
     void acceptViewer(QuickWindowViewer *viewer) {
-        if (this->viewer == viewer) return;
+        if (this->viewer == viewer) {
+            return;
+        }
         this->viewer = viewer;
-        if (parent() != viewer) setParent(viewer);
+        if (parent() != viewer) {
+            setParent(viewer);
+        }
     }
 
     void acceptWindow(QQuickWindow *window) {
-        if (this->window == window) return;
-        if (this->window) disconnect(this->window);
+        if (this->window == window) {
+            return;
+        }
+
+        if (this->window) {
+            disconnect(this->window);
+        }
         this->window = window;
-        if (viewer->parent() != window) viewer->setParent(window);
+
+        if (viewer->parent() != window) {
+            viewer->setParent(window);
+        }
+
 
         connect(window, SIGNAL(beforeRendering()), this, SLOT(frame()), Qt::DirectConnection);
-        // Запускаем постоянное обновление
-        if (frameTimer >= 0) killTimer(frameTimer);
+
+        if (frameTimer >= 0) {
+            killTimer(frameTimer);
+        }
         if (window) {
             window->setClearBeforeRendering(false);
             frameTimer = startTimer(20);
@@ -102,9 +120,7 @@ private:
         // disable the default setting of viewer.done() by pressing Escape.
         compositeViewer->setKeyEventSetsDone(0);
         compositeViewer->setQuitEventSetsDone(false);
-        graphicsWindow = new osgViewer::GraphicsWindowEmbedded(0, 0,
-                                                               window->width(),
-                                                               window->height());
+        graphicsWindow = new osgViewer::GraphicsWindowEmbedded(0, 0, window->width(), window->height());
     }
 };
 

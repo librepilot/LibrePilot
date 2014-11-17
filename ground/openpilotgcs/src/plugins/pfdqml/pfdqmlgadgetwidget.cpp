@@ -95,6 +95,9 @@ PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
+    if (m_qmlFileName == fn) {
+        return;
+    }
     m_qmlFileName = fn;
 
     engine()->removeImageProvider("svg");
@@ -119,7 +122,7 @@ void PfdQmlGadgetWidget::setSpeedUnit(QString unit)
 {
     if (m_speedUnit != unit) {
         m_speedUnit = unit;
-        emit speedUnitChanged(unit);
+        emit speedUnitChanged(speedUnit());
     }
 }
 
@@ -127,7 +130,7 @@ void PfdQmlGadgetWidget::setSpeedFactor(double factor)
 {
     if (m_speedFactor != factor) {
         m_speedFactor = factor;
-        emit speedFactorChanged(factor);
+        emit speedFactorChanged(speedFactor());
     }
 }
 
@@ -135,7 +138,7 @@ void PfdQmlGadgetWidget::setAltitudeUnit(QString unit)
 {
     if (m_altitudeUnit != unit) {
         m_altitudeUnit = unit;
-        emit altitudeUnitChanged(unit);
+        emit altitudeUnitChanged(altitudeUnit());
     }
 }
 
@@ -143,7 +146,7 @@ void PfdQmlGadgetWidget::setAltitudeFactor(double factor)
 {
     if (m_altitudeFactor != factor) {
         m_altitudeFactor = factor;
-        emit altitudeFactorChanged(factor);
+        emit altitudeFactorChanged(altitudeFactor());
     }
 }
 
@@ -160,7 +163,7 @@ void PfdQmlGadgetWidget::setLatitude(double arg)
     // not sure qFuzzyCompare is accurate enough for geo coordinates
     if (m_latitude != arg) {
         m_latitude = arg;
-        emit latitudeChanged(arg);
+        emit latitudeChanged(latitude());
     }
 }
 
@@ -168,7 +171,7 @@ void PfdQmlGadgetWidget::setLongitude(double arg)
 {
     if (m_longitude != arg) {
         m_longitude = arg;
-        emit longitudeChanged(arg);
+        emit longitudeChanged(longitude());
     }
 }
 
@@ -176,7 +179,7 @@ void PfdQmlGadgetWidget::setAltitude(double arg)
 {
     if (!qFuzzyCompare(m_altitude, arg)) {
         m_altitude = arg;
-        emit altitudeChanged(arg);
+        emit altitudeChanged(altitude());
     }
 }
 void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
@@ -190,14 +193,16 @@ void PfdQmlGadgetWidget::setEarthFile(QString arg)
 {
     if (m_earthFile != arg) {
         m_earthFile = arg;
-        emit earthFileChanged(arg);
+        emit earthFileChanged(earthFile());
     }
 }
 
 void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
 {
     bool wasEnabled = terrainEnabled();
+
     m_terrainEnabled = arg;
+
     if (wasEnabled != terrainEnabled()) {
         emit terrainEnabledChanged(terrainEnabled());
     }

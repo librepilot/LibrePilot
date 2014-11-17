@@ -45,8 +45,6 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 
     qDebug() << "PfdQmlGadget - loading configuration :" << m->name();
 
-    m_widget->setQmlFile(m->qmlFile());
-
     m_widget->setSpeedFactor(m->speedFactor());
     m_widget->setSpeedUnit(m->speedUnit());
     m_widget->setAltitudeFactor(m->altitudeFactor());
@@ -58,8 +56,14 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setAltitude(m->altitude());
 
     m_widget->setOpenGLEnabled(m->openGLEnabled());
-    m_widget->setEarthFile(m->earthFile());
     m_widget->setTerrainEnabled(m->terrainEnabled());
+    if (m->terrainEnabled()) {
+        // TODO the test above is a kludge to avoid loading terrain when not needed
+        // need to look into qml and how property changes are notified
+        m_widget->setEarthFile(m->earthFile());
+    }
+
+    m_widget->setQmlFile(m->qmlFile());
 
 //    // setting OSGEARTH_CACHE_ONLY seems to work the most reliably
 //    // between osgEarth versions I tried

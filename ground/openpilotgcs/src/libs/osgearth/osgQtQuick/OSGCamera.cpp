@@ -131,7 +131,6 @@ qreal OSGCamera::roll() const
 
 void OSGCamera::setRoll(qreal arg)
 {
-    qDebug() << "ROLLING" << arg;
     if (!qFuzzyCompare(h->roll, arg)) {
         h->roll = arg;
         emit rollChanged(roll());

@@ -66,8 +66,9 @@ void OsgEarth::initialize()
 
 //    qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
-    // clear to remove system wide library pathes
+    // clear system wide library pathes
     libraryFilePathList.clear();
+    // and add our own plugin library path
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
     libraryFilePathList.push_back(GCSDirs::libraryPath("osgearth").toStdString());
 
@@ -85,7 +86,9 @@ void OsgEarth::initialize()
     }
 
     //osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
-    osgQt::initQtWindowingSystem();
+
+    // this line causes crashes on Windows!!!
+    //osgQt::initQtWindowingSystem();
 
     // force init of osgearth registry (without caching) to work around a deadlock
     osgEarth::Registry::instance();

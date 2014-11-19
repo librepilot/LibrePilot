@@ -54,14 +54,22 @@ linux {
         LIBS += -L$$OSG_DIR/lib64 -L$$OSGEARTH_DIR/lib64
     }
 
-    LIBS += -losg -losgUtil -losgViewer -losgQt -losgDB -lOpenThreads -losgGA -losgQt
-    LIBS += -losgEarth -losgEarthFeatures -losgEarthUtil -losgEarthQt
+    LIBS +=-lOpenThreads
+    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
+    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
 }
 
-#win32 {
-#    LIBS += -L$$MARBLE_SDK_DIR
-#    CONFIG(release, debug|release):LIBS += -llibmarblewidget
-#    CONFIG(debug, debug|release):LIBS += -llibmarblewidgetd
-#}
+win32 {
+    LIBS += -L$$OSG_DIR/lib -L$$OSGEARTH_DIR/lib
+
+    CONFIG(release, debug|release) {
+        LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt -lOpenThreads
+        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+    }
+    CONFIG(debug, debug|release) {
+        LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd -losgQtd -lOpenThreadsd
+        LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd -losgEarthQtd
+    }
+}
 
 include(copydata.pro)

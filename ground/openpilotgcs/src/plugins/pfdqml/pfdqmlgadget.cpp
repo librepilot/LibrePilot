@@ -60,8 +60,9 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     if (m->terrainEnabled()) {
         // TODO the test above is a kludge to avoid loading terrain when not needed
         // need to look into qml and how property changes are notified
-        m_widget->setEarthFile(m->earthFile());
+        m_widget->setTerrainFile(m->terrainFile());
     }
+    m_widget->setModelFile(m->modelFile());
 
     m_widget->setQmlFile(m->qmlFile());
 

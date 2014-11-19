@@ -36,7 +36,8 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     m_altitude(2000),
     m_openGLEnabled(false),
     m_terrainEnabled(false),
-    m_earthFile("")
+    m_terrainFile(""),
+    m_modelFile("")
 {
     setResizeMode(SizeRootObjectToView);
 
@@ -185,16 +186,6 @@ void PfdQmlGadgetWidget::setAltitude(double arg)
 void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
 {
     m_openGLEnabled = arg;
-    // TODO ???
-    //setTerrainEnabled(m_terrainEnabled);
-}
-
-void PfdQmlGadgetWidget::setEarthFile(QString arg)
-{
-    if (m_earthFile != arg) {
-        m_earthFile = arg;
-        emit earthFileChanged(earthFile());
-    }
 }
 
 void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
@@ -205,5 +196,23 @@ void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
 
     if (wasEnabled != terrainEnabled()) {
         emit terrainEnabledChanged(terrainEnabled());
+    }
+}
+
+void PfdQmlGadgetWidget::setTerrainFile(QString arg)
+{
+    if (m_terrainFile != arg) {
+        m_terrainFile = arg;
+        qDebug() << "setTerrainFile - emit" << terrainFile();
+        emit terrainFileChanged(terrainFile());
+    }
+}
+
+void PfdQmlGadgetWidget::setModelFile(QString arg)
+{
+    if (m_modelFile != arg) {
+        m_modelFile = arg;
+        qDebug() << "setModelFile - emit" << modelFile();
+        emit modelFileChanged(modelFile());
     }
 }

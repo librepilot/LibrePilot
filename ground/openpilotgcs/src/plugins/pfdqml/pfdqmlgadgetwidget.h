@@ -37,7 +37,8 @@ class PfdQmlGadgetWidget : public QQuickView {
 
     // terrain
     Q_PROPERTY(bool terrainEnabled READ terrainEnabled WRITE setTerrainEnabled NOTIFY terrainEnabledChanged)
-    Q_PROPERTY(QString earthFile READ earthFile WRITE setEarthFile NOTIFY earthFileChanged)
+    Q_PROPERTY(QString terrainFile READ terrainFile WRITE setTerrainFile NOTIFY terrainFileChanged)
+    Q_PROPERTY(QString modelFile READ modelFile WRITE setModelFile NOTIFY modelFileChanged)
 
 public:
     PfdQmlGadgetWidget(QWindow *parent = 0);
@@ -83,11 +84,15 @@ public:
     }
     bool terrainEnabled() const
     {
-        return m_terrainEnabled && m_openGLEnabled;
+        return m_terrainEnabled;
     }
-    QString earthFile() const
+    QString terrainFile() const
     {
-        return m_earthFile;
+        return m_terrainFile;
+    }
+    QString modelFile() const
+    {
+        return m_modelFile;
     }
 
 public slots:
@@ -102,8 +107,9 @@ public slots:
     void setAltitude(double arg);
 
     void setOpenGLEnabled(bool arg);
-    void setEarthFile(QString arg);
     void setTerrainEnabled(bool arg);
+    void setTerrainFile(QString arg);
+    void setModelFile(QString arg);
 
 
 signals:
@@ -117,8 +123,9 @@ signals:
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
 
-    void earthFileChanged(QString arg);
     void terrainEnabledChanged(bool arg);
+    void terrainFileChanged(QString arg);
+    void modelFileChanged(QString arg);
 
 private:
     QString m_qmlFileName;
@@ -135,7 +142,8 @@ private:
 
     bool m_openGLEnabled;
     bool m_terrainEnabled;
-    QString m_earthFile;
+    QString m_terrainFile;
+    QString m_modelFile;
 };
 
 #endif /* PFDQMLGADGETWIDGET_H_ */

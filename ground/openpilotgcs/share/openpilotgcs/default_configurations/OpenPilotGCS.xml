@@ -1874,6 +1874,7 @@
           <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
           <openGLEnabled>true</openGLEnabled>
           <positionMode>2</positionMode>
           <qmlFile>%%DATAPATH%%pfd/default/ModelView.qml</qmlFile>

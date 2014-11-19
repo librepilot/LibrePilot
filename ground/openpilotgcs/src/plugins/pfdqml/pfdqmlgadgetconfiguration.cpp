@@ -24,7 +24,7 @@
 PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent),
     m_qmlFile("Unknown"),
-    m_earthFile("Unknown"),
+    m_terrainFile("Unknown"),
     m_openGLEnabled(true),
     m_terrainEnabled(false),
     m_positionMode(Pfd::Predefined),
@@ -58,8 +58,10 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
 
         m_openGLEnabled      = qSettings->value("openGLEnabled", true).toBool();
         m_terrainEnabled     = qSettings->value("terrainEnabled").toBool();
-        m_earthFile          = qSettings->value("earthFile").toString();
-        m_earthFile          = Utils::PathUtils().InsertDataPath(m_earthFile);
+        m_terrainFile          = qSettings->value("earthFile").toString();
+        m_terrainFile          = Utils::PathUtils().InsertDataPath(m_terrainFile);
+        m_modelFile          = qSettings->value("modelFile").toString();
+        m_modelFile          = Utils::PathUtils().InsertDataPath(m_modelFile);
         m_cacheOnly          = qSettings->value("cacheOnly").toBool();
     }
 }
@@ -84,7 +86,7 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
 
     m->m_openGLEnabled      = m_openGLEnabled;
     m->m_terrainEnabled     = m_terrainEnabled;
-    m->m_earthFile          = m_earthFile;
+    m->m_terrainFile          = m_terrainFile;
     m->m_cacheOnly          = m_cacheOnly;
 
     return m;
@@ -109,7 +111,9 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
 
     qSettings->setValue("openGLEnabled", m_openGLEnabled);
     qSettings->setValue("terrainEnabled", m_terrainEnabled);
-    QString earthFile = Utils::PathUtils().RemoveDataPath(m_earthFile);
-    qSettings->setValue("earthFile", earthFile);
+    QString terrainFile = Utils::PathUtils().RemoveDataPath(m_terrainFile);
+    qSettings->setValue("terrainFile", terrainFile);
+    QString modelFile = Utils::PathUtils().RemoveDataPath(m_modelFile);
+    qSettings->setValue("modelFile", modelFile);
     qSettings->setValue("cacheOnly", m_cacheOnly);
 }

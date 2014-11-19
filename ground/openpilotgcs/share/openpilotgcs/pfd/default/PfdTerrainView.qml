@@ -19,7 +19,7 @@ OSGViewport {
 
     OSGNodeFile {
         id: terrainNode
-        source: qmlWidget.earthFile
+        source: qmlWidget.terrainFile
         async: false
     }
 

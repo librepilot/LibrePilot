@@ -21,7 +21,6 @@
 #include "uavobjectmanager.h"
 #include "uavdataobject.h"
 
-
 #include <QFileDialog>
 #include <QtAlgorithms>
 #include <QStringList>
@@ -50,7 +49,7 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->earthFile->setExpectedKind(Utils::PathChooser::File);
     options_page->earthFile->setPromptDialogFilter(tr("OsgEarth (*.earth)"));
     options_page->earthFile->setPromptDialogTitle(tr("Choose OsgEarth terrain file"));
-    options_page->earthFile->setPath(m_config->earthFile());
+    options_page->earthFile->setPath(m_config->terrainFile());
 
     options_page->useOpenGL->setChecked(m_config->openGLEnabled());
     options_page->showTerrain->setChecked(m_config->terrainEnabled());
@@ -95,7 +94,7 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 void PfdQmlGadgetOptionsPage::apply()
 {
     m_config->setQmlFile(options_page->qmlSourceFile->path());
-    m_config->setEarthFile(options_page->earthFile->path());
+    m_config->setTerrainFile(options_page->earthFile->path());
     m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
 
 #ifdef USE_OSG

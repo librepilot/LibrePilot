@@ -119,13 +119,22 @@ public:
         m_terrainEnabled = flag;
     }
 
-    QString earthFile() const
+    QString terrainFile() const
     {
-        return m_earthFile;
+        return m_terrainFile;
     }
-    void setEarthFile(const QString &fileName)
+    void setTerrainFile(const QString &fileName)
     {
-        m_earthFile = fileName;
+        m_terrainFile = fileName;
+    }
+
+    QString modelFile() const
+    {
+        return m_modelFile;
+    }
+    void setModelFile(const QString &fileName)
+    {
+        m_modelFile = fileName;
     }
 
     void setCacheOnly(bool flag)
@@ -163,7 +172,8 @@ private:
 
     bool m_openGLEnabled;
     bool m_terrainEnabled;
-    QString m_earthFile; // The name of osgearth terrain file
+    QString m_terrainFile; // The name of osgearth terrain file
+    QString m_modelFile; // The name of model file
     bool m_cacheOnly;
 
     QMap<double, QString> m_speedMap;

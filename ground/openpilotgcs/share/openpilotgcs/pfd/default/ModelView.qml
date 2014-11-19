@@ -19,7 +19,7 @@ OSGViewport {
 
     OSGNodeFile {
         id: terrainNode
-        source: qmlWidget.earthFile
+        source: qmlWidget.terrainFile
         async: false
     }
 
@@ -72,7 +72,7 @@ OSGViewport {
 
     OSGNodeFile {
         id: modelFileNode
-        source: "/home/filnet/OpenPilotOSG/build/openpilotgcs_release/share/openpilotgcs/models/multi/test_quad/test_quad_+.3ds"
+        source: qmlWidget.modelFile
         async: false
     }
 

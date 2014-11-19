@@ -6,7 +6,7 @@ DEFINES += OSGEARTH_LIBRARY
 QT += widgets opengl qml quick
 
 include(../../openpilotgcslibrary.pri)
-include(osgearth_dependencies.pri)
+include(../utils/utils.pri)
 
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter

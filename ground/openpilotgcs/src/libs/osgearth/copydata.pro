@@ -72,7 +72,9 @@ equals(copydata, 1) {
 
         # copy dependencies libraries
         data_copy.commands += $(COPY_FILE) $$targetPath(\"D:/Projects/OpenPilotTools/osgearth_dependencies/bin/\"*.dll) \
+            $$targetPath(\"$$GCS_APP_PATH/\") $$addNewline()
         data_copy.commands += $(COPY_FILE) $$targetPath(\"D:/Projects/OpenPilotTools/osgearth_dependencies/lib/\"*.dll) \
+            $$targetPath(\"$$GCS_APP_PATH/\") $$addNewline()
 
         # copy osg libraries
         data_copy.commands += $(COPY_FILE) $$targetPath(\"$$(OSG_DIR)/bin/\"*.dll) \

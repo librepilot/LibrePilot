@@ -112,7 +112,7 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
     qSettings->setValue("openGLEnabled", m_openGLEnabled);
     qSettings->setValue("terrainEnabled", m_terrainEnabled);
     QString terrainFile = Utils::PathUtils().RemoveDataPath(m_terrainFile);
-    qSettings->setValue("terrainFile", terrainFile);
+    qSettings->setValue("earthFile", terrainFile);
     QString modelFile = Utils::PathUtils().RemoveDataPath(m_modelFile);
     qSettings->setValue("modelFile", modelFile);
     qSettings->setValue("cacheOnly", m_cacheOnly);

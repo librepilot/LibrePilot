@@ -33,6 +33,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject
 
     Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
 
+    Q_PROPERTY(ManipulatorMode manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
+
     Q_PROPERTY(osgQtQuick::OSGNode* trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
 
     Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
@@ -43,12 +45,19 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
 
+    Q_ENUMS(ManipulatorMode)
+
 public:
+    enum ManipulatorMode { None, User, Earth, Track };
+
     explicit OSGCamera(QObject *parent = 0);
     ~OSGCamera();
     
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
+
+    ManipulatorMode manipulatorMode();
+    void setManipulatorMode(ManipulatorMode);
 
     OSGNode* trackNode();
     void setTrackNode(OSGNode *node);
@@ -72,10 +81,13 @@ public:
     void setAltitude(double arg);
 
     void installCamera(osgViewer::View *view);
+    void setViewport(osg::Camera *camera, int x, int y, int width, int height);
     void updateCamera(osg::Camera *camera);
 
 signals:
     void fieldOfViewChanged(qreal arg);
+
+    void manipulatorModeChanged(ManipulatorMode);
 
     void trackNodeChanged(OSGNode *node);
 

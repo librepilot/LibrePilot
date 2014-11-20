@@ -20,6 +20,7 @@
 
 #include <osgEarth/GeoData>
 #include <osgEarth/SpatialReference>
+#include <osgEarthUtil/EarthManipulator>
 
 #include <QDebug>
 
@@ -27,7 +28,11 @@ namespace osgQtQuick {
 
 struct OSGCamera::Hidden : public QObject
 {
-    Hidden(OSGCamera *parent) : QObject(parent), trackNode(NULL) {
+    Q_OBJECT
+
+public:
+
+    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL) {
         fieldOfView = 90.0;
         roll = pitch = yaw = 0.0;
         latitude = longitude = altitude = 0.0;
@@ -37,11 +42,23 @@ struct OSGCamera::Hidden : public QObject
     {
     }
 
+    bool acceptManipulatorMode(ManipulatorMode mode)
+    {
+        if (manipulatorMode == mode) {
+            return true;
+        }
+
+        manipulatorMode = mode;
+
+        return true;
+
+    }
+
     bool acceptTrackNode(OSGNode *node)
     {
         qDebug() << "OSGCamera - acceptTrackNode" << node;
         if (trackNode == node) {
-            return false;
+            return true;
         }
 
         if (trackNode) {
@@ -59,6 +76,8 @@ struct OSGCamera::Hidden : public QObject
     }
 
     qreal fieldOfView;
+
+    ManipulatorMode manipulatorMode;
 
     OSGNode *trackNode;
 
@@ -109,6 +128,18 @@ void OSGCamera::setFieldOfView(qreal arg)
            }*/
 
         //updateFrame();
+    }
+}
+
+OSGCamera::ManipulatorMode OSGCamera::manipulatorMode()
+{
+    return h->manipulatorMode;
+}
+
+void OSGCamera::setManipulatorMode(ManipulatorMode mode)
+{
+    if (h->acceptManipulatorMode(mode)) {
+        emit manipulatorModeChanged(manipulatorMode());
     }
 }
 
@@ -224,22 +255,43 @@ void OSGCamera::setAltitude(double arg)
 
 void OSGCamera::installCamera(osgViewer::View *view)
 {
-    if (h->trackNode) {
-        // setup tracking camera
-        osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator();
-        if (h->trackNode->node()) {
-            ntm->setTrackNode(h->trackNode->node());
-            //        //ntm->setAutoComputeHomePosition(true);
-            //        //ntm->computeHomePosition();
-            ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
-        }
-        view->setCameraManipulator(ntm);
-    }
-    else {
-        // camera is positioned using location and attitude
+    switch(h->manipulatorMode) {
+    case OSGCamera::None:
+        break;
+    case OSGCamera::User:
         // disable any installed camera manipulator
         view->setCameraManipulator(NULL);
+        break;
+    case OSGCamera::Earth:
+        view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
+        break;
+    case OSGCamera::Track:
+        if (h->trackNode) {
+            // setup tracking camera
+            osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator();
+            if (h->trackNode->node()) {
+                ntm->setTrackNode(h->trackNode->node());
+                //        //ntm->setAutoComputeHomePosition(true);
+                //        //ntm->computeHomePosition();
+                ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
+                ntm->setMinimumDistance(2, true);
+            }
+            view->setCameraManipulator(ntm);
+        }
+        else {
+            qWarning() << "no trackNode provided, cannot enter tracking mode!";
+        }
+        break;
+    default:
+        break;
     }
+}
+
+void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int height)
+{
+    camera->setViewport(x, y, width, height);
+    camera->setProjectionMatrixAsPerspective(
+            30.0f /*h->fieldOfView*/, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );
 }
 
 // From wikipedia : Latitude and longitude values can be based on different geodetic systems or datums, the most common being WGS 84, a global datum used by all GPS equipments
@@ -252,34 +304,26 @@ void OSGCamera::installCamera(osgViewer::View *view)
 // See http://webhelp.esri.com/arcpad/8.0/referenceguide/index.htm#gps_rangefinder/concept_gpsheight.htm
 void OSGCamera::updateCamera(osg::Camera *camera)
 {
-    //qDebug() << "updating camera";
-    // Camera position
+    if (h->manipulatorMode != User) {
+        return;
+    }
+
     // Altitude mode is absolute (absolute height above MSL/HAE)
     // HAE : Height above ellipsoid (HAE). This is the default.
     // MSL : Height above Mean Sea Level (MSL) if a geoid separation value is specified.
     // TODO handle the case where the terrain SRS is not "wgs84"
     // TODO check if position is not below terrain?
     // TODO compensate antenna height when source of position is GPS (i.e. subtract antenna height from altitude) ;)
+
+    // Camera position
     osg::Matrix cameraPosition;
+
     //qDebug() << "updating camera" << longitude() << latitude();
-    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-            longitude(), //osg::RadiansToDegrees(camera->longitude()),
-            latitude(), //osg::RadiansToDegrees(camera->latitude()),
-                                1000,
-                                osgEarth::ALTMODE_ABSOLUTE);
+    //osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"), longitude(), latitude(), 10, osgEarth::ALTMODE_RELATIVE);
+    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"), longitude(), latitude(), 1000, osgEarth::ALTMODE_ABSOLUTE);
     geoPoint.createLocalToWorld(cameraPosition);
 
-    //model->setPosition(geoPoint);
-
-
-//        osg::Quat q = osg::Quat(
-//                osg::DegreesToRadians(camera->roll()), osg::Vec3d(1, 0, 0),
-//                osg::DegreesToRadians(camera->pitch()), osg::Vec3d(0, 1, 0), osg::DegreesToRadians(camera->yaw()),
-//                osg::Vec3d(0, 0, 1));
-
-    //model->setLocalRotation(q);
-
-    // Camera orientation
+     // Camera orientation
     // By default the camera looks toward -Z, we must rotate it so it looks toward Y
     osg::Matrix cameraRotation;
     cameraRotation.makeRotate(osg::DegreesToRadians(90.0), osg::Vec3(1.0, 0.0, 0.0),
@@ -327,3 +371,4 @@ void OSGCamera::updateCamera(osg::Camera *camera)
 
 } // namespace osgQtQuick
 
+#include "OSGCamera.moc"

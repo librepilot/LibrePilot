@@ -220,20 +220,15 @@ public slots:
         }
         if (mode == OSGViewport::Native) {
             QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
-            view->getCamera()->setViewport(rect.x(),
-                                           quickItem->window()->height() - (rect.y() + rect.height()),
-                                           rect.width(),
-                                           rect.height());
-            // TODO use FOV from OSGCamera
-            view->getCamera()->setProjectionMatrixAsPerspective(
-                    30.0f, static_cast<double>(rect.width())/static_cast<double>(rect.height()), 1.0f, 10000.0f );
+            camera->setViewport(view->getCamera(), rect.x(), quickItem->window()->height() - (rect.y() + rect.height()),
+                    rect.width(), rect.height());
         }
         if (mode == OSGViewport::Buffer) {
             QSize size(quickItem->boundingRect().size().toSize());
-            view->getCamera()->setViewport(0, 0, size.width(), size.height());
-            // TODO use FOV from OSGCamera
-            view->getCamera()->setProjectionMatrixAsPerspective(
-                    30.0f, static_cast<double>(size.width())/static_cast<double>(size.height()), 1.0f, 10000.0f );
+//            if(view->getCamera()->getGraphicsContext()) {
+//                view->getCamera()->getGraphicsContext()->resized( 0, 0, size.width(), size.height() );
+//            }
+            camera->setViewport(view->getCamera(), 0, 0, size.width(), size.height());
             if (texture && texture->textureSize() != size) {
                 updateFBO();
             }

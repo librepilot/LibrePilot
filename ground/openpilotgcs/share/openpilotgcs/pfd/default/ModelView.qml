@@ -79,6 +79,7 @@ OSGViewport {
     OSGCamera {
         id: camera
         fieldOfView: 90
+        manipulatorMode: OSGCamera.Track
         trackNode: modelFileNode
     }
 }

@@ -101,10 +101,12 @@ private slots:
 
 OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
 {    
+    qDebug() << "OSGCamera - <init>";
 }
 
 OSGCamera::~OSGCamera()
 {
+    qDebug() << "OSGCamera - <destruct>";
     delete h;
 }
 
@@ -312,6 +314,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
 void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int height)
 {
+    qDebug() << "OSGCamera - setViewport" << camera;
     camera->setViewport(x, y, width, height);
     camera->setProjectionMatrixAsPerspective(
             h->fieldOfView, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );

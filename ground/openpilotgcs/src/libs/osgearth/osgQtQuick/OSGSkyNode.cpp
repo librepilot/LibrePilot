@@ -24,6 +24,7 @@ public:
 
     bool acceptSceneNode(OSGNode *node)
     {
+        qDebug() << "OSGSkyNode - acceptSceneNode" << node;
         if (sceneData == node) {
             return false;
         }
@@ -49,6 +50,7 @@ public:
 
     bool acceptNode(osg::Node *node)
     {
+        qDebug() << "OSGSkyNode - acceptNode" << node;
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (!mapNode) {
             qWarning() << "scene data does not contain a map node";
@@ -103,6 +105,7 @@ public:
 private slots:
 
     void onNodeChanged(osg::Node *node) {
+        qDebug() << "OSGSkyNode - onNodeChanged" << node;
         acceptNode(node);
     }
 

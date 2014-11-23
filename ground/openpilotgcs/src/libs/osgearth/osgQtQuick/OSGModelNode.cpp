@@ -172,11 +172,13 @@ private slots:
 
     void onModelNodeChanged(osg::Node *node)
     {
+        qDebug() << "OSGModelNode - onModelNodeChanged" << node;
         acceptModelNode(node);
     }
 
     void onSceneNodeChanged(osg::Node *node)
     {
+        qDebug() << "OSGModelNode - onSceneNodeChanged" << node;
         if (modelData) {
             acceptModelNode(modelData->node());
         }

@@ -270,6 +270,7 @@ void OSGCamera::setAltitude(double arg)
 
 void OSGCamera::installCamera(osgViewer::View *view)
 {
+    qDebug() << "OSGCamera - installCamera" << view;
     switch(h->manipulatorMode) {
     case OSGCamera::None:
         break;

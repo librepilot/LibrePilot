@@ -70,7 +70,7 @@ public:
 
     bool acceptModelNode(osg::Node *node)
     {
-        qDebug() << "OSGModelNode - acceptModelNode" << node;
+        qDebug() << "OSGModelNode acceptModelNode" << node;
         if (!sceneData) {
             qWarning() << "no scene data";
             return false;

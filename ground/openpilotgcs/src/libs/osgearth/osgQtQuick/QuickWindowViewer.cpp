@@ -73,7 +73,7 @@ private slots:
             compositeViewer->frame();
         }
         else {
-            qDebug() << "QuickWindowViewer::frame() - skipped frame";
+            qDebug() << "QuickWindowViewer - skipped frame";
         }
     }
 

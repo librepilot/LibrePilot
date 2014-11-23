@@ -88,7 +88,7 @@ public:
 
     bool acceptSceneData(OSGNode *node)
     {
-        qDebug() << "OSGViewport acceptSceneData" << node;
+        qDebug() << "OSGViewport - acceptSceneData" << node;
         if (sceneData == node) {
             return false;
         }
@@ -110,18 +110,17 @@ public:
 
     bool acceptNode(osg::Node *node)
     {
-        qDebug() << "OSGViewport acceptNode" << node;
+        qDebug() << "OSGViewport - acceptNode" << node;
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (mapNode) {
-            qDebug() << "OSGViewport acceptNode - found map node" << mapNode;
-//            view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
+            qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
         }
 
         osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
         if (skyNode) {
-            qDebug() << "OSGViewport acceptNode - found sky node" << skyNode;
+            qDebug() << "OSGViewport - acceptNode - found sky node" << skyNode;
             skyNode->attach(view, 0);
         }
 
@@ -131,7 +130,7 @@ public:
     }
 
     bool acceptMode(OSGViewport::DrawingMode mode) {
-        qDebug() << "OSGViewport acceptMode" << mode;
+        qDebug() << "OSGViewport - acceptMode" << mode;
         if (this->mode == mode) {
             return false;
         }
@@ -152,7 +151,7 @@ public:
     }
 
     bool acceptCamera(OSGCamera *camera) {
-        qDebug() << "OSGViewport acceptCamera" << camera;
+        qDebug() << "OSGViewport - acceptCamera" << camera;
         if (this->camera == camera) {
             return false;
         }
@@ -217,9 +216,9 @@ public:
 public slots:
 
     void updateViewport() {
-        qDebug() << "OSGViewport updateViewport";
+        qDebug() << "OSGViewport - updateViewport";
         if (!quickItem->window()) {
-            qDebug() << "OSGViewport updateViewport - quick item has no window";
+            qDebug() << "OSGViewport - updateViewport - quick item has no window";
             return;
         }
         if (mode == OSGViewport::Native) {
@@ -243,16 +242,16 @@ private slots:
 
     void onWindowChanged(QQuickWindow *window)
     {
-        qDebug() << "OSGViewport onWindowChanged" << window;
+        qDebug() << "OSGViewport - onWindowChanged" << window;
         // TODO if window is destroyed, the associated QuickWindowViewer should be destroyed too
         QuickWindowViewer *qwv;
         if (this->window && (qwv = QuickWindowViewer::instance(this->window))) {
-            qDebug() << "OSGViewport onWindowChanged" << "removing view";
+            qDebug() << "OSGViewport - onWindowChanged" << "removing view";
             disconnect(this->window);
             qwv->compositeViewer()->removeView(view.get());
         }
         if (window && (qwv = QuickWindowViewer::instance(window))) {
-            qDebug() << "OSGViewport onWindowChanged" << "adding view";
+            qDebug() << "OSGViewport - onWindowChanged" << "adding view";
             view->getCamera()->setGraphicsContext(qwv->graphicsContext());
             qwv->compositeViewer()->addView(view.get());
             connect(window, SIGNAL(widthChanged(int)), this, SLOT(updateViewport()));
@@ -264,7 +263,7 @@ private slots:
 
     void onNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGViewport onNodeChanged" << node;
+        qDebug() << "OSGViewport - onNodeChanged" << node;
         if (view.valid()) {
             acceptNode(node);
         }
@@ -286,14 +285,14 @@ private:
 
     void acceptQuickItem() {
         Q_ASSERT(quickItem);
-        qDebug() << "OSGViewport acceptQuickItem" << quickItem << quickItem->window();
+        qDebug() << "OSGViewport - acceptQuickItem" << quickItem << quickItem->window();
         connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)),
                 this, SLOT(onWindowChanged(QQuickWindow*)));
     }
 
     void initFBO()
     {
-        qDebug() << "OSGViewport initFBO";
+        qDebug() << "OSGViewport - initFBO";
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
@@ -310,7 +309,7 @@ private:
 
     void updateFBO()
     {
-        qDebug() << "OSGViewport updateFBO";
+        qDebug() << "OSGViewport - updateFBO";
         QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
@@ -448,6 +447,7 @@ void OSGViewport::setMode(OSGViewport::DrawingMode mode)
 
 void OSGViewport::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
 {
+    qDebug() << "OSGViewport - geometryChanged" << newGeometry << oldGeometry;
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
     if (window()) {
         h->updateViewport();
@@ -536,9 +536,9 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintN
 {
     Q_UNUSED(updatePaintNodeData);
 
-    qDebug() << "OSGViewport updatePaintNode" << oldNode << updatePaintNodeData;
+    qDebug() << "OSGViewport - updatePaintNode" << oldNode << updatePaintNodeData;
     if (oldNode && oldNode != h->textureNode) {
-        qDebug() << "OSGViewport deleting old node";
+        qDebug() << "OSGViewport - updatePaintNode deleting old node";
         delete oldNode;
     }
 

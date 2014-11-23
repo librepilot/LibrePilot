@@ -32,7 +32,7 @@ struct OSGCamera::Hidden : public QObject
 
 public:
 
-    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL) {
+    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL), trackerMode(NodeCenter) {
         fieldOfView = 90.0;
         roll = pitch = yaw = 0.0;
         latitude = longitude = altitude = 0.0;
@@ -80,6 +80,7 @@ public:
     ManipulatorMode manipulatorMode;
 
     OSGNode *trackNode;
+    TrackerMode trackerMode;
 
     qreal roll;
     qreal pitch;
@@ -152,6 +153,19 @@ void OSGCamera::setTrackNode(OSGNode *node)
 {
     if (h->acceptTrackNode(node)) {
         emit trackNodeChanged(node);
+    }
+}
+
+OSGCamera::TrackerMode OSGCamera::trackerMode() const
+{
+    return h->trackerMode;
+}
+
+void OSGCamera::setTrackerMode(TrackerMode mode)
+{
+    if (h->trackerMode != mode) {
+        h->trackerMode = mode;
+        emit trackerModeChanged(trackerMode());
     }
 }
 
@@ -266,16 +280,26 @@ void OSGCamera::installCamera(osgViewer::View *view)
         view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
         break;
     case OSGCamera::Track:
-        if (h->trackNode) {
+        if (h->trackNode && h->trackNode->node()) {
             // setup tracking camera
-            osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator();
-            if (h->trackNode->node()) {
-                ntm->setTrackNode(h->trackNode->node());
-                //        //ntm->setAutoComputeHomePosition(true);
-                //        //ntm->computeHomePosition();
+            osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
+                    osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
+            ntm->setTrackNode(h->trackNode->node());
+            switch(h->trackerMode) {
+            case NodeCenter:
                 ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
-                ntm->setMinimumDistance(2, true);
+                break;
+            case NodeCenterAndAzim:
+                ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_AZIM);
+                break;
+            case NodeCenterAndRotation:
+                ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+                break;
             }
+            //ntm->setRotationMode(h->trackRotationMode)
+            //ntm->setMinimumDistance(2, false);
+            //ntm->setAutoComputeHomePosition(true);
+            //ntm->setDistance(10);
             view->setCameraManipulator(ntm);
         }
         else {

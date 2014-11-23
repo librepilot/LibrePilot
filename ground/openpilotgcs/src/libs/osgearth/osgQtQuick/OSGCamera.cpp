@@ -314,7 +314,7 @@ void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int he
 {
     camera->setViewport(x, y, width, height);
     camera->setProjectionMatrixAsPerspective(
-            30.0f /*h->fieldOfView*/, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );
+            h->fieldOfView, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );
 }
 
 // From wikipedia : Latitude and longitude values can be based on different geodetic systems or datums, the most common being WGS 84, a global datum used by all GPS equipments

@@ -10,7 +10,7 @@ OSGViewport {
     //color: "transparent"
     //opacity: 0.999
     focus:true
-    //mode: OSGViewport.Native
+    mode: OSGViewport.Native
 
     OSGSkyNode {
         id: skyNode

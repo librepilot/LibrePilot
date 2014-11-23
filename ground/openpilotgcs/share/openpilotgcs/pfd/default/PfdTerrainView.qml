@@ -5,12 +5,12 @@ import osgQtQuick 1.0
 OSGViewport {
     id: fullview
     anchors.fill: parent
+    focus: true
     sceneData: skyNode
     camera: camera
     //color: "transparent"
     //opacity: 0.999
-    mode: OSGViewport.Buffer
-    focus: true
+    mode: OSGViewport.Native
 
     OSGSkyNode {
         id: skyNode
@@ -25,7 +25,7 @@ OSGViewport {
 
     OSGCamera {
         id: camera
-        fieldOfView: 90
+        fieldOfView: 30
         manipulatorMode: OSGCamera.User
 
         yaw: AttitudeState.Yaw
@@ -61,9 +61,9 @@ OSGViewport {
         function alt() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:
-                return GPSPositionSensor.Altitude / 10000000.0;
+                return GPSPositionSensor.Altitude;
             case Pfd.Home:
-                return HomeLocation.Altitude / 10000000.0;
+                return HomeLocation.Altitude;
             case Pfd.Predefined:
                 return qmlWidget.altitude;
             }

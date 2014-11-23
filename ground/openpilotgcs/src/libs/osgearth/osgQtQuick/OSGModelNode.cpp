@@ -234,7 +234,7 @@ qreal OSGModelNode::roll() const
 
 void OSGModelNode::setRoll(qreal arg)
 {
-    if (!qFuzzyCompare(h->roll, arg)) {
+    if (h->roll!= arg) {
         h->roll = arg;
         h->dirty = true;
         emit rollChanged(roll());
@@ -248,7 +248,7 @@ qreal OSGModelNode::pitch() const
 
 void OSGModelNode::setPitch(qreal arg)
 {
-    if (!qFuzzyCompare(h->pitch, arg)) {
+    if (h->pitch!= arg) {
         h->pitch = arg;
         h->dirty = true;
         emit pitchChanged(pitch());
@@ -262,7 +262,7 @@ qreal OSGModelNode::yaw() const
 
 void OSGModelNode::setYaw(qreal arg)
 {
-    if (!qFuzzyCompare(h->yaw, arg)) {
+    if (h->yaw!= arg) {
         h->yaw = arg;
         h->dirty = true;
         emit yawChanged(yaw());
@@ -305,7 +305,7 @@ double OSGModelNode::altitude() const
 
 void OSGModelNode::setAltitude(double arg)
 {
-    if (!qFuzzyCompare(h->altitude, arg)) {
+    if (h->altitude!= arg) {
         h->altitude = arg;
         h->dirty = true;
         emit altitudeChanged(altitude());

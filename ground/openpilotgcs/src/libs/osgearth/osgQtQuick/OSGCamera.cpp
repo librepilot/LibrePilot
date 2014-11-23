@@ -116,7 +116,7 @@ qreal OSGCamera::fieldOfView() const
 // ! Camera vertical field of view in degrees
 void OSGCamera::setFieldOfView(qreal arg)
 {
-    if (!qFuzzyCompare(h->fieldOfView, arg)) {
+    if (h->fieldOfView!= arg) {
         h->fieldOfView = arg;
         emit fieldOfViewChanged(fieldOfView());
 
@@ -176,7 +176,7 @@ qreal OSGCamera::roll() const
 
 void OSGCamera::setRoll(qreal arg)
 {
-    if (!qFuzzyCompare(h->roll, arg)) {
+    if (h->roll!= arg) {
         h->roll = arg;
         emit rollChanged(roll());
         emit attitudeChanged(h->roll, h->pitch, h->yaw);
@@ -190,7 +190,7 @@ qreal OSGCamera::pitch() const
 
 void OSGCamera::setPitch(qreal arg)
 {
-    if (!qFuzzyCompare(h->pitch, arg)) {
+    if (h->pitch!= arg) {
         h->pitch = arg;
         emit pitchChanged(pitch());
         emit attitudeChanged(h->roll, h->pitch, h->yaw);
@@ -204,7 +204,7 @@ qreal OSGCamera::yaw() const
 
 void OSGCamera::setYaw(qreal arg)
 {
-    if (!qFuzzyCompare(h->yaw, arg)) {
+    if (h->yaw!= arg) {
         h->yaw = arg;
         emit yawChanged(yaw());
         emit attitudeChanged(h->roll, h->pitch, h->yaw);
@@ -218,7 +218,6 @@ double OSGCamera::latitude() const
 
 void OSGCamera::setLatitude(double arg)
 {
-    // not sure qFuzzyCompare is accurate enough for geo coordinates
     if (h->latitude != arg) {
         h->latitude = arg;
         emit latitudeChanged(latitude());
@@ -247,7 +246,7 @@ double OSGCamera::altitude() const
 
 void OSGCamera::setAltitude(double arg)
 {
-    if (!qFuzzyCompare(h->altitude, arg)) {
+    if (h->altitude!= arg) {
         h->altitude = arg;
         emit altitudeChanged(altitude());
         emit positionChanged(h->latitude, h->longitude, h->altitude);

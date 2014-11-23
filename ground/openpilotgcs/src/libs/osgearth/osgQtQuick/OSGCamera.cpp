@@ -132,7 +132,7 @@ void OSGCamera::setFieldOfView(qreal arg)
     }
 }
 
-OSGCamera::ManipulatorMode OSGCamera::manipulatorMode()
+OSGCamera::ManipulatorMode OSGCamera::manipulatorMode() const
 {
     return h->manipulatorMode;
 }
@@ -144,7 +144,7 @@ void OSGCamera::setManipulatorMode(ManipulatorMode mode)
     }
 }
 
-OSGNode *OSGCamera::trackNode()
+OSGNode *OSGCamera::trackNode() const
 {
     return h->trackNode;
 }

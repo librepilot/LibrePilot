@@ -60,10 +60,10 @@ public:
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
 
-    ManipulatorMode manipulatorMode();
+    ManipulatorMode manipulatorMode() const;
     void setManipulatorMode(ManipulatorMode);
 
-    OSGNode* trackNode();
+    OSGNode* trackNode() const;
     void setTrackNode(OSGNode *node);
 
     TrackerMode trackerMode() const;

@@ -87,10 +87,10 @@ public:
 
         // construct the symbology
         osgEarth::Symbology::Style style;
-        style.getOrCreate<osgEarth::Symbology::ModelSymbol>()->setModel( node );
+        style.getOrCreate<osgEarth::Symbology::ModelSymbol>()->setModel(node);
 
         // make a ModelNode
-        modelNode = new osgEarth::Annotation::ModelNode( mapNode, style );
+        modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
 
         modelNode->addUpdateCallback(new NodeUpdateCallback(this));
 

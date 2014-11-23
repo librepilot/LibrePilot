@@ -140,7 +140,7 @@ public:
         dirty = false;
 
         osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                longitude, latitude, 1000, osgEarth::ALTMODE_ABSOLUTE);
+                longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
         modelNode->setPosition(geoPoint);
 
         osg::Quat q = osg::Quat(

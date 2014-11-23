@@ -342,9 +342,8 @@ void OSGCamera::updateCamera(osg::Camera *camera)
     // Camera position
     osg::Matrix cameraPosition;
 
-    //qDebug() << "updating camera" << longitude() << latitude();
-    //osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"), longitude(), latitude(), 10, osgEarth::ALTMODE_RELATIVE);
-    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"), longitude(), latitude(), 1000, osgEarth::ALTMODE_ABSOLUTE);
+    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
+            longitude(), latitude(), altitude(), osgEarth::ALTMODE_ABSOLUTE);
     geoPoint.createLocalToWorld(cameraPosition);
 
      // Camera orientation

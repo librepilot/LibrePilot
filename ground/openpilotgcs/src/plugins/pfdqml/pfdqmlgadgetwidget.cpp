@@ -161,7 +161,6 @@ void PfdQmlGadgetWidget::setPositionMode(Pfd::PositionMode arg)
 
 void PfdQmlGadgetWidget::setLatitude(double arg)
 {
-    // not sure qFuzzyCompare is accurate enough for geo coordinates
     if (m_latitude != arg) {
         m_latitude = arg;
         emit latitudeChanged(latitude());
@@ -178,7 +177,7 @@ void PfdQmlGadgetWidget::setLongitude(double arg)
 
 void PfdQmlGadgetWidget::setAltitude(double arg)
 {
-    if (!qFuzzyCompare(m_altitude, arg)) {
+    if (m_altitude!= arg) {
         m_altitude = arg;
         emit altitudeChanged(altitude());
     }

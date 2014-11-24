@@ -10,7 +10,7 @@ OSGViewport {
     camera: camera
     //color: "transparent"
     //opacity: 0.999
-    mode: OSGViewport.Native
+    drawingMode: OSGViewport.Buffer
 
     OSGSkyNode {
         id: skyNode

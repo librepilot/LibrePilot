@@ -17,7 +17,7 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickItem
     Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(DrawingMode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(DrawingMode drawingMode READ drawingMode WRITE setDrawingMode NOTIFY drawingModeChanged)
 
     Q_ENUMS(DrawingMode)
 
@@ -30,6 +30,7 @@ public:
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 
+    DrawingMode drawingMode() const;
     void setDrawingMode(DrawingMode mode);
 
     OSGNode* sceneData();
@@ -41,14 +42,11 @@ public:
     QColor color() const;
     void setColor(const QColor &color);
 
-    DrawingMode mode() const;
-    void setMode(DrawingMode mode);
-
 signals:
+    void drawingModeChanged(DrawingMode mode);
     void sceneDataChanged(OSGNode *node);
     void cameraChanged(OSGCamera *camera);
     void colorChanged(const QColor &color);
-    void modeChanged(DrawingMode mode);
 
 public slots:
 

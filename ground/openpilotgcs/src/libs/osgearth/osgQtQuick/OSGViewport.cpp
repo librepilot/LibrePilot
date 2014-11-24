@@ -58,15 +58,13 @@ struct OSGViewport::Hidden : public QObject
 
 public:
 
-    Hidden(OSGViewport *quickItem) :
-        QObject(quickItem),
-        drawingMode(OSGViewport::Buffer),
+    Hidden(OSGViewport *quickItem) : QObject(quickItem),
         window(0),
         quickItem(quickItem),
         sceneData(0),
         camera(0),
         cameraDirty(false),
-        mode(OSGViewport::Native),
+        drawingMode(OSGViewport::Native),
         fbo(0),
         texture(0),
         textureNode(0)
@@ -129,14 +127,15 @@ public:
         return true;
     }
 
-    bool acceptMode(OSGViewport::DrawingMode mode) {
-        qDebug() << "OSGViewport - acceptMode" << mode;
-        if (this->mode == mode) {
+    bool acceptDrawingMode(OSGViewport::DrawingMode mode) {
+        qDebug() << "OSGViewport - acceptDrawingMode" << mode;
+        if (drawingMode == mode) {
             return false;
         }
 
-        this->mode = mode;
-        if (mode == OSGViewport::Buffer) {
+        drawingMode = mode;
+
+        if (drawingMode == OSGViewport::Buffer) {
             if(!preDraw.valid()) {
                 preDraw = new PreDraw(this);
                 view->getCamera()->setPreDrawCallback(preDraw.get());
@@ -187,14 +186,9 @@ public:
         view->getEventQueue()->getCurrentEventState()->setModKeyMask( mask );
     }
 
-    // Public data
-    OSGViewport::DrawingMode drawingMode;
-
-    // Public Qt data
     QQuickWindow *window;
     OSGViewport *quickItem;
 
-    // Public OSG data
     osg::ref_ptr<osgViewer::View> view;
 
     OSGNode *sceneData;
@@ -202,7 +196,7 @@ public:
     OSGCamera *camera;
     bool cameraDirty;
 
-    OSGViewport::DrawingMode mode;
+    OSGViewport::DrawingMode drawingMode;
 
     QOpenGLFramebufferObject *fbo;
     QSGTexture *texture;
@@ -221,16 +215,18 @@ public slots:
             qDebug() << "OSGViewport - updateViewport - quick item has no window";
             return;
         }
-        if (mode == OSGViewport::Native) {
+        if (drawingMode == OSGViewport::Native) {
             QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
+            qDebug() << "OSGViewport - updateViewport" << rect;
             camera->setViewport(view->getCamera(), rect.x(), quickItem->window()->height() - (rect.y() + rect.height()),
                     rect.width(), rect.height());
         }
-        if (mode == OSGViewport::Buffer) {
+        if (drawingMode == OSGViewport::Buffer) {
             QSize size(quickItem->boundingRect().size().toSize());
 //            if(view->getCamera()->getGraphicsContext()) {
 //                view->getCamera()->getGraphicsContext()->resized( 0, 0, size.width(), size.height() );
 //            }
+            qDebug() << "OSGViewport - updateViewport" << size;
             camera->setViewport(view->getCamera(), 0, 0, size.width(), size.height());
             if (texture && texture->textureSize() != size) {
                 updateFBO();
@@ -387,10 +383,15 @@ OSGViewport::~OSGViewport()
     qDebug() << "OSGViewport - <destruct>";
 }
 
+OSGViewport::DrawingMode OSGViewport::drawingMode() const
+{
+    return h->drawingMode;
+}
+
 void OSGViewport::setDrawingMode(OSGViewport::DrawingMode mode)
 {
-    if (h->drawingMode != mode) {
-        h->drawingMode = mode;
+    if (h->acceptDrawingMode(mode)) {
+        emit drawingModeChanged(drawingMode());
     }
 }
 
@@ -430,18 +431,6 @@ void OSGViewport::setColor(const QColor &color)
     if (h->view->getCamera()->getClearColor() != osgColor) {
         h->view->getCamera()->setClearColor(osgColor);
         emit colorChanged(color);
-    }
-}
-
-OSGViewport::DrawingMode OSGViewport::mode() const
-{
-    return h->mode;
-}
-
-void OSGViewport::setMode(OSGViewport::DrawingMode mode)
-{
-    if (h->acceptMode(mode)) {
-        emit modeChanged(mode);
     }
 }
 

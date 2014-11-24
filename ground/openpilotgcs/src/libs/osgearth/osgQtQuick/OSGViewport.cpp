@@ -164,6 +164,7 @@ public:
         cameraDirty = true;
 
         this->camera->installCamera(view);
+        updateViewport();
 
         // install camera update callback
         view->getCamera()->addUpdateCallback(new CameraUpdateCallback(this));
@@ -211,6 +212,10 @@ public slots:
 
     void updateViewport() {
         qDebug() << "OSGViewport - updateViewport";
+        if (!camera) {
+            qDebug() << "OSGViewport - updateViewport - no camera";
+            return;
+        }
         if (!quickItem->window()) {
             qDebug() << "OSGViewport - updateViewport - quick item has no window";
             return;

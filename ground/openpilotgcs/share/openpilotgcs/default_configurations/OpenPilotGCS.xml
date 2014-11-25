@@ -1882,6 +1882,26 @@
           <terrainEnabled>true</terrainEnabled>
         </data>
       </ModelView>
+      <EarthView>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <altitude>2000</altitude>
+          <altitudeFactor>1</altitudeFactor>
+          <cacheOnly>false</cacheOnly>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <latitude>46.6715</latitude>
+          <longitude>10.1589</longitude>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <openGLEnabled>true</openGLEnabled>
+          <positionMode>1</positionMode>
+          <qmlFile>%%DATAPATH%%pfd/default/EarthView.qml</qmlFile>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+        </data>
+      </EarthView>
     </PfdQmlGadget>
     <QmlViewGadget>
       <default>

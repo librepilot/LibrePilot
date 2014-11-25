@@ -130,10 +130,12 @@ QuickWindowViewer::QuickWindowViewer(QQuickWindow *window) :
     QObject(window),
     h(new Hidden(this, window))
 {
+    qDebug() << "QuickWindowViewer - <init>";
 }
 
 QuickWindowViewer::~QuickWindowViewer()
 {
+    qDebug() << "QuickWindowViewer - <destruct>";
     Hidden::viewers.erase(h->window);
 }
 

@@ -107,7 +107,6 @@ OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
 OSGCamera::~OSGCamera()
 {
     qDebug() << "OSGCamera - <destruct>";
-    delete h;
 }
 
 qreal OSGCamera::fieldOfView() const
@@ -284,6 +283,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
     case OSGCamera::Track:
         if (h->trackNode && h->trackNode->node()) {
             // setup tracking camera
+            // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
             osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
                     osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
             ntm->setTrackNode(h->trackNode->node());
@@ -316,6 +316,10 @@ void OSGCamera::installCamera(osgViewer::View *view)
 void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int height)
 {
     qDebug() << "OSGCamera - setViewport" << camera;
+    if (width <= 0 || height <= 0) {
+        qWarning() << "OSGCamera - setViewport - invalid size " << width << "x" << height;
+        return;
+    }
     camera->setViewport(x, y, width, height);
     camera->setProjectionMatrixAsPerspective(
             h->fieldOfView, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );

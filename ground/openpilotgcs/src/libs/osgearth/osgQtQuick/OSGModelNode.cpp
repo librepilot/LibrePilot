@@ -31,6 +31,7 @@ struct OSGModelNode::Hidden : public QObject
     friend class NodeUpdateCallback;
 
 public:
+
     Hidden(OSGModelNode *parent) : QObject(parent), pub(parent), modelData(NULL), sceneData(NULL), dirty(false)
     {
         roll = pitch = yaw = 0.0;
@@ -54,9 +55,7 @@ public:
 
         modelData = NULL;
 
-        if (!acceptModelNode(node->node())) {
-            //return false;
-        }
+        acceptModelNode(node->node());
 
         modelData = node;
 
@@ -86,13 +85,16 @@ public:
         //const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
 
         // construct the symbology
-        osgEarth::Symbology::Style style;
-        style.getOrCreate<osgEarth::Symbology::ModelSymbol>()->setModel(node);
+        osgEarth::Symbology::ModelSymbol *modelSymbol = style.getOrCreate<osgEarth::Symbology::ModelSymbol>();
+        modelSymbol->setModel(node);
 
         // make a ModelNode
         modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
 
-        modelNode->addUpdateCallback(new NodeUpdateCallback(this));
+        if (!nodeUpdateCB.valid()) {
+            nodeUpdateCB = new NodeUpdateCallback(this);
+        }
+        modelNode->addUpdateCallback(nodeUpdateCB.get());
 
         mapNode->addChild(modelNode);
 
@@ -112,12 +114,6 @@ public:
             disconnect(sceneData);
         }
 
-        sceneData = NULL;
-
-        //if (!acceptNode(node->node())) {
-            //return false;
-        //}
-
         sceneData = node;
 
         if (sceneData) {
@@ -132,6 +128,7 @@ public:
         return true;
     }
 
+    // TODO model update gets jitter if camera is thrown (i.e animated)
     void updateNode()
     {
         if (!dirty) {
@@ -156,7 +153,11 @@ public:
     OSGNode *modelData;
     OSGNode *sceneData;
 
+    osgEarth::Symbology::Style style;
+
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
+
+    osg::observer_ptr<NodeUpdateCallback> nodeUpdateCB;
 
     qreal roll;
     qreal pitch;
@@ -179,7 +180,41 @@ private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGModelNode - onSceneNodeChanged" << node;
+        // TODO needs to be improved...
         if (modelData) {
+            if (modelNode) {
+                osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
+                if (mapNode) {
+                    mapNode->removeChild(modelNode);
+                }
+
+                if (nodeUpdateCB.valid()) {
+                    modelNode->removeUpdateCallback(nodeUpdateCB.get());
+                }
+                modelNode = NULL;
+
+                // establish the coordinate system we wish to use:
+                //const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
+
+                // construct the symbology
+                //            style = new osgEarth::Symbology::Style();
+
+                //            style->getOrCreate<osgEarth::Symbology::ModelSymbol>()->setModel(node);
+
+                // make a ModelNode
+                //            modelNode = new osgEarth::Annotation::ModelNode(mapNode, *style);
+
+                // TODO needs to be deleted at some point...
+                //            if (!nodeUpdateCB.isValid()) {
+                //                nodeUpdateCB = new NodeUpdateCallback(this);
+                //            }
+                //            modelNode->addUpdateCallback(nodeUpdateCB);
+
+                //            mapNode->addChild(modelNode);
+
+                //            pub->setNode(modelNode);
+            }
+
             acceptModelNode(modelData->node());
         }
     }
@@ -278,7 +313,6 @@ double OSGModelNode::latitude() const
 
 void OSGModelNode::setLatitude(double arg)
 {
-    // not sure qFuzzyCompare is accurate enough for geo coordinates
     if (h->latitude != arg) {
         h->latitude = arg;
         h->dirty = true;

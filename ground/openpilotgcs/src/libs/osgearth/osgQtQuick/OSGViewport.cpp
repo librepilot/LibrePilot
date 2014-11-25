@@ -64,7 +64,7 @@ public:
         sceneData(0),
         camera(0),
         cameraDirty(false),
-        drawingMode(OSGViewport::Native),
+        drawingMode(Native),
         fbo(0),
         texture(0),
         textureNode(0)
@@ -74,6 +74,17 @@ public:
     }
 
     ~Hidden() {
+        if (fbo) {
+            delete fbo;
+        }
+        if (texture) {
+            delete texture;
+        }
+        if (textureNode) {
+            delete textureNode;
+        }
+        window = NULL;
+        quickItem = NULL;
     }
 
     QPointF mousePoint(QMouseEvent *event) {
@@ -82,6 +93,16 @@ public:
         qreal x = 2.0 * (event->x() - quickItem->width() / 2) / quickItem->width();
         qreal y = 2.0 * (event->y() - quickItem->height() / 2) / quickItem->height();
         return QPointF(x, y);
+    }
+
+    void setKeyboardModifiers(QInputEvent* event)
+    {
+        int modkey = event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+        unsigned int mask = 0;
+        if ( modkey & Qt::ShiftModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+        if ( modkey & Qt::ControlModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+        if ( modkey & Qt::AltModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+        view->getEventQueue()->getCurrentEventState()->setModKeyMask( mask );
     }
 
     bool acceptSceneData(OSGNode *node)
@@ -177,14 +198,32 @@ public:
         return true;
     }
 
-    void setKeyboardModifiers(QInputEvent* event)
+    void updateFBO()
     {
-        int modkey = event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
-        unsigned int mask = 0;
-        if ( modkey & Qt::ShiftModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
-        if ( modkey & Qt::ControlModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-        if ( modkey & Qt::AltModifier ) mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
-        view->getEventQueue()->getCurrentEventState()->setModKeyMask( mask );
+        qDebug() << "OSGViewport - updateFBO";
+
+        if (textureNode) {
+            delete textureNode;
+        }
+        if (texture) {
+            delete texture;
+        }
+        if (fbo) {
+            delete fbo;
+        }
+
+        // TODO this generates OpenGL errors ...
+        // TODO ModelView exhibits some Z fighting
+        QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
+        QSize size(rect.size().toSize());
+        QOpenGLFramebufferObjectFormat format;
+        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+        fbo = new QOpenGLFramebufferObject(size, format);
+        texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
+        textureNode = new QSGSimpleTextureNode();
+        textureNode->setRect(0, quickItem->height(), quickItem->width(), -quickItem->height());
+        textureNode->setTexture(texture);
+        //        quickItem->update();
     }
 
     QQuickWindow *window;
@@ -212,12 +251,12 @@ public slots:
 
     void updateViewport() {
         qDebug() << "OSGViewport - updateViewport";
-        if (!camera) {
-            qDebug() << "OSGViewport - updateViewport - no camera";
-            return;
-        }
         if (!quickItem->window()) {
             qDebug() << "OSGViewport - updateViewport - quick item has no window";
+            return;
+        }
+        if (!camera) {
+            qDebug() << "OSGViewport - updateViewport - no camera";
             return;
         }
         if (drawingMode == OSGViewport::Native) {
@@ -233,8 +272,14 @@ public slots:
 //            }
             qDebug() << "OSGViewport - updateViewport" << size;
             camera->setViewport(view->getCamera(), 0, 0, size.width(), size.height());
-            if (texture && texture->textureSize() != size) {
-                updateFBO();
+            if (size.width() > 0 && size.height() > 0) {
+                if (!texture || texture->textureSize() != size) {
+                    //updateFBO();
+                    quickItem->update();
+                }
+            }
+            else {
+                qDebug() << "OSGViewport - updateViewport - invalid size";
             }
         }
     }
@@ -286,48 +331,14 @@ private:
 
     void acceptQuickItem() {
         Q_ASSERT(quickItem);
+
         qDebug() << "OSGViewport - acceptQuickItem" << quickItem << quickItem->window();
+
+        quickItem->setFlag(QQuickItem::ItemHasContents, true);
         connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)),
                 this, SLOT(onWindowChanged(QQuickWindow*)));
     }
 
-    void initFBO()
-    {
-        qDebug() << "OSGViewport - initFBO";
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
-        QSize size(rect.size().toSize());
-        fbo = new QOpenGLFramebufferObject(size, format);
-        texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
-        textureNode = new QSGSimpleTextureNode();
-        textureNode->setRect(0, quickItem->height(), quickItem->width(), -quickItem->height());
-        textureNode->setTexture(texture);
-        quickItem->setFlag(QQuickItem::ItemHasContents, true);
-        updateViewport();
-        quickItem->update();
-    }
-
-    void updateFBO()
-    {
-        qDebug() << "OSGViewport - updateFBO";
-        QRectF rect = quickItem->mapRectToItem(0, quickItem->boundingRect());
-        QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        QSize size(rect.size().toSize());
-        if (fbo) {
-            delete fbo;
-        }
-        fbo = new QOpenGLFramebufferObject(size, format);
-        if (texture) {
-            delete texture;
-        }
-        texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
-        textureNode = new QSGSimpleTextureNode();
-        textureNode->setRect(0, quickItem->height(), quickItem->width(), -quickItem->height());
-        textureNode->setTexture(texture);
-        quickItem->update();
-    }
 };
 
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
@@ -338,13 +349,13 @@ OSGViewport::Hidden::PreDraw::PreDraw(Hidden *h) : h(h) {}
 
 void OSGViewport::Hidden::PreDraw::operator ()(osg::RenderInfo &/*renderInfo*/) const
 {
-    if (!h->fbo) {
-        h->initFBO();
-    }
     if (h->fbo) {
         if (!h->fbo->bind()) {
             qWarning() << "PreDraw - failed to bind fbo!";
         }
+    }
+    else {
+        qCritical() << "PreDraw - no fbo!";
     }
 }
 
@@ -358,6 +369,9 @@ void OSGViewport::Hidden::PostDraw::operator ()(osg::RenderInfo &/*renderInfo*/)
         if (!h->fbo->bindDefault()) {
             qWarning() << "PostDraw - failed to unbind fbo!";
         }
+    }
+    else {
+        qCritical() << "PostDraw - no fbo!";
     }
 }
 
@@ -530,12 +544,17 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintN
 {
     Q_UNUSED(updatePaintNodeData);
 
-    qDebug() << "OSGViewport - updatePaintNode" << oldNode << updatePaintNodeData;
-    if (oldNode && oldNode != h->textureNode) {
-        qDebug() << "OSGViewport - updatePaintNode deleting old node";
-        delete oldNode;
+    if (h->drawingMode != Buffer) {
+        qWarning() << "OSGViewport - updatePaintNode - called in non Buffer mode";
+        return oldNode;
     }
 
+//    if (!h->textureNode) {
+//        h->textureNode = new QSGSimpleTextureNode();
+//    }
+    qDebug() << "OSGViewport - updatePaintNode - old node" << oldNode;
+    h->updateFBO();
+    qDebug() << "OSGViewport - updatePaintNode - new node" << h->textureNode;
     return h->textureNode;
 }
 

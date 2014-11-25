@@ -73,7 +73,8 @@ public:
         double hours = skyConf.value("hours", 12.0);
 
         //osgEarth::Util::SkyOptions *skyOptions = new osgEarth::Util::SkyOptions();
-        osgEarth::Util::SkyNode *skyNode = osgEarth::Util::SkyNode::create(mapNode);
+
+        skyNode = osgEarth::Util::SkyNode::create(mapNode);
 
         skyNode->setLighting(osg::StateAttribute::OFF);
         //skyNode->setAmbientBrightness(ambientBrightness);
@@ -82,6 +83,7 @@ public:
         //                    s_sky->attach(*i, 0);
         //rootNode->addChild(skyNode);
 
+        this->node = node;
         skyNode->addChild(node);
 
         // Ocean surface.
@@ -102,11 +104,17 @@ public:
 
     OSGNode *sceneData;
 
+    osg::ref_ptr<osgEarth::Util::SkyNode> skyNode;
+    osg::ref_ptr<osg::Node> node;
+
 private slots:
 
     void onNodeChanged(osg::Node *node) {
         qDebug() << "OSGSkyNode - onNodeChanged" << node;
-        acceptNode(node);
+        skyNode->removeChild(this->node);
+        this->node = node;
+        skyNode->addChild(this->node);
+        //acceptNode(node);
     }
 
 };

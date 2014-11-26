@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_gpio.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    08-November-2013
+  * @version V1.4.0
+  * @date    04-August-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the GPIO peripheral:           
   *           + Initialization and Configuration
@@ -63,7 +63,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -547,7 +547,7 @@ void GPIO_ToggleBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   *            @arg GPIO_AF_SPI2: Connect SPI2/I2S2 pins to AF5
   *            @arg GPIO_AF_SPI4: Connect SPI4 pins to AF5 
   *            @arg GPIO_AF_SPI5: Connect SPI5 pins to AF5 
-  *            @arg GPIO_AF_SPI6: Connect SPI6 pins to AF5       
+  *            @arg GPIO_AF_SPI6: Connect SPI6 pins to AF5
   *            @arg GPIO_AF_SAI1: Connect SAI1 pins to AF6 for STM32F42xxx/43xxx devices.       
   *            @arg GPIO_AF_SPI3: Connect SPI3/I2S3 pins to AF6
   *            @arg GPIO_AF_I2S3ext: Connect I2S3ext pins to AF7
@@ -567,11 +567,11 @@ void GPIO_ToggleBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
   *            @arg GPIO_AF_OTG_FS: Connect OTG_FS pins to AF10
   *            @arg GPIO_AF_OTG_HS: Connect OTG_HS pins to AF10
   *            @arg GPIO_AF_ETH: Connect ETHERNET pins to AF11
-  *            @arg GPIO_AF_FSMC: Connect FSMC pins to AF12   
+  *            @arg GPIO_AF_FSMC: Connect FSMC pins to AF12 
   *            @arg GPIO_AF_FMC: Connect FMC pins to AF12 for STM32F42xxx/43xxx devices.   
   *            @arg GPIO_AF_OTG_HS_FS: Connect OTG HS (configured in FS) pins to AF12
   *            @arg GPIO_AF_SDIO: Connect SDIO pins to AF12
-  *            @arg GPIO_AF_DCMI: Connect DCMI pins to AF13 
+  *            @arg GPIO_AF_DCMI: Connect DCMI pins to AF13
   *            @arg GPIO_AF_LTDC: Connect LTDC pins to AF14 for STM32F429xx/439xx devices. 
   *            @arg GPIO_AF_EVENTOUT: Connect EVENTOUT pins to AF15
   * @retval None

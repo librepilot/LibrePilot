@@ -99,25 +99,36 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
     if (m_qmlFileName == fn) {
         return;
     }
+    qDebug() << Q_FUNC_INFO << fn;
+
     m_qmlFileName = fn;
 
-    engine()->removeImageProvider("svg");
-    SvgImageProvider *svgProvider = new SvgImageProvider(fn);
-    engine()->addImageProvider("svg", svgProvider);
+    setSource(QUrl());
 
     engine()->clearComponentCache();
 
-    // it's necessary to allow qml side to query svg element position
-    engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
-    engine()->setBaseUrl(QUrl::fromLocalFile(fn));
+    if (!fn.isEmpty()) {
+        QUrl url = QUrl::fromLocalFile(fn);
 
-    qDebug() << Q_FUNC_INFO << fn;
-    setSource(QUrl::fromLocalFile(fn));
+        SvgImageProvider *svgProvider = new SvgImageProvider(fn);
+        engine()->addImageProvider("svg", svgProvider);
+
+        // it's necessary to allow qml side to query svg element position
+        engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
+        engine()->setBaseUrl(url);
+
+        setSource(url);
+    }
+    else {
+        engine()->removeImageProvider("svg");
+        engine()->rootContext()->setContextProperty("svgRenderer", NULL);
+    }
 
     foreach(const QQmlError &error, errors()) {
         qDebug() << error.description();
     }
 }
+
 
 void PfdQmlGadgetWidget::setSpeedUnit(QString unit)
 {
@@ -202,7 +213,7 @@ void PfdQmlGadgetWidget::setTerrainFile(QString arg)
 {
     if (m_terrainFile != arg) {
         m_terrainFile = arg;
-        qDebug() << "setTerrainFile - emit" << terrainFile();
+        qDebug() << "PfdQmlGadgetWidget - setTerrainFile " << terrainFile();
         emit terrainFileChanged(terrainFile());
     }
 }

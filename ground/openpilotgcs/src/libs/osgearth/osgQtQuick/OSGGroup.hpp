@@ -28,7 +28,6 @@ public slots:
     
 private:
     struct Hidden;
-    friend struct Hidden;
     Hidden *h;
 };
 

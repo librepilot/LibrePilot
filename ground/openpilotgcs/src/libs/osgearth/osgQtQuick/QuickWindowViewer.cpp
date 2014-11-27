@@ -23,8 +23,8 @@ struct QuickWindowViewer::Hidden: public QObject
 public:
     Hidden(QuickWindowViewer *viewer, QQuickWindow *window) :
         QObject(viewer),
-        viewer(0),
         window(0),
+        viewer(0),
         frameTimer(-1)
     {
         acceptViewer(viewer);
@@ -35,8 +35,9 @@ public:
     ~Hidden() {
     }
 
-    QuickWindowViewer *viewer;
     QQuickWindow *window;
+    QuickWindowViewer *viewer;
+
     osg::ref_ptr<osgViewer::CompositeViewer> compositeViewer;
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow;
 
@@ -59,7 +60,7 @@ protected:
 private slots:
     void frame() {
         if (!compositeViewer.valid()) {
-            qCritical() << "invalid composite viewer!";
+            qCritical() << "QuickWindowViewer - invalid composite viewer!";
             return;
         }
 
@@ -68,8 +69,7 @@ private slots:
 
         // refresh all the views.
         if (compositeViewer->getRunFrameScheme() == osgViewer::ViewerBase::CONTINUOUS ||
-                compositeViewer->checkNeedToDoFrame() )
-        {
+                compositeViewer->checkNeedToDoFrame()) {
             compositeViewer->frame();
         }
         else {
@@ -79,6 +79,7 @@ private slots:
 
 private:
     void acceptViewer(QuickWindowViewer *viewer) {
+        qDebug() << "QuickWindowViewer - accept viewer" << viewer;
         if (this->viewer == viewer) {
             return;
         }
@@ -89,6 +90,7 @@ private:
     }
 
     void acceptWindow(QQuickWindow *window) {
+        qDebug() << "QuickWindowViewer - accept window" << window;
         if (this->window == window) {
             return;
         }
@@ -96,6 +98,7 @@ private:
         if (this->window) {
             disconnect(this->window);
         }
+
         this->window = window;
 
         if (viewer->parent() != window) {
@@ -126,9 +129,7 @@ private:
 
 QuickWindowViewer::Hidden::ViewersMap QuickWindowViewer::Hidden::viewers;
 
-QuickWindowViewer::QuickWindowViewer(QQuickWindow *window) :
-    QObject(window),
-    h(new Hidden(this, window))
+QuickWindowViewer::QuickWindowViewer(QQuickWindow *window) : QObject(window), h(new Hidden(this, window))
 {
     qDebug() << "QuickWindowViewer - <init>";
 }

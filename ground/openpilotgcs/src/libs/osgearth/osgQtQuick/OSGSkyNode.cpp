@@ -14,7 +14,7 @@ struct OSGSkyNode::Hidden : public QObject
     Q_OBJECT
 
 public:
-    Hidden(OSGSkyNode *parent) : QObject(parent), pub(parent), sceneData(NULL)
+    Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL)
     {
     }
 
@@ -33,15 +33,9 @@ public:
             disconnect(sceneData);
         }
 
-        sceneData = NULL;
-
-        if (!acceptNode(node->node())) {
-            //return false;
-        }
-
         sceneData = node;
-
         if (sceneData) {
+            acceptNode(sceneData->node());
             connect(sceneData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onNodeChanged(osg::Node*)));
         }
 
@@ -51,24 +45,20 @@ public:
     bool acceptNode(osg::Node *node)
     {
         qDebug() << "OSGSkyNode - acceptNode" << node;
+
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (!mapNode) {
-            qWarning() << "scene data does not contain a map node";
+            qWarning() << "OSGSkyNode - scene data does not contain a map node";
             return false;
         }
         if (!mapNode->getMap()->isGeocentric()) {
-            qWarning() << "map node is not geocentric";
+            qWarning() << "OSGSkyNode - map node is not geocentric";
             return false;
         }
-        //dataManager = new osgEarth::QtGui::DataManager(mapNode);
 
-        //osg::Camera *camera = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);
-        //camera->addChild(sceneData);
-        //camera->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
-
+        // create sky node
         const osgEarth::Config& externals = mapNode->externalConfig();
 
-        // Sky model.
         osgEarth::Config skyConf = externals.child("sky");
         double hours = skyConf.value("hours", 12.0);
 
@@ -79,42 +69,29 @@ public:
         skyNode->setLighting(osg::StateAttribute::OFF);
         //skyNode->setAmbientBrightness(ambientBrightness);
         skyNode->setDateTime(osgEarth::DateTime(2011, 3, 6, hours));
-        //                for (osgEarth::QtGui::ViewVector::iterator i = views.begin(); i != views.end(); ++i)
-        //                    s_sky->attach(*i, 0);
-        //rootNode->addChild(skyNode);
 
-        this->node = node;
+        // Ocean
+        //if (externals.hasChild("ocean")) {
+        //s_ocean = osgEarth::Util::OceanNode::create(osgEarth::Util::OceanOptions(externals.child("ocean")), mapNode);
+        //if (s_ocean) root->addChild(s_ocean);
+
         skyNode->addChild(node);
 
-        // Ocean surface.
-        //                if (externals.hasChild("ocean")) {
-        //                    s_ocean = osgEarth::Util::OceanNode::create(osgEarth::Util::OceanOptions(externals.child("ocean")),
-        //                            mapNode);
-        //
-        //                    if (s_ocean)
-        //                        root->addChild(s_ocean);
-        //                }
-
-        pub->setNode(skyNode);
+        self->setNode(skyNode);
 
         return true;
     }
 
-    OSGSkyNode *pub;
+    OSGSkyNode *const self;
 
     OSGNode *sceneData;
-
     osg::ref_ptr<osgEarth::Util::SkyNode> skyNode;
-    osg::ref_ptr<osg::Node> node;
 
 private slots:
 
     void onNodeChanged(osg::Node *node) {
         qDebug() << "OSGSkyNode - onNodeChanged" << node;
-        skyNode->removeChild(this->node);
-        this->node = node;
-        skyNode->addChild(this->node);
-        //acceptNode(node);
+        acceptNode(node);
     }
 
 };

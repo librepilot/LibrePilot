@@ -45,7 +45,7 @@ public:
     bool acceptManipulatorMode(ManipulatorMode mode)
     {
         if (manipulatorMode == mode) {
-            return true;
+            return false;
         }
 
         manipulatorMode = mode;
@@ -58,7 +58,7 @@ public:
     {
         qDebug() << "OSGCamera - acceptTrackNode" << node;
         if (trackNode == node) {
-            return true;
+            return false;
         }
 
         if (trackNode) {
@@ -79,9 +79,11 @@ public:
 
     ManipulatorMode manipulatorMode;
 
+    // for NodeTrackerManipulator manipulator
     OSGNode *trackNode;
     TrackerMode trackerMode;
 
+    // for User manipulator
     qreal roll;
     qreal pitch;
     qreal yaw;
@@ -95,6 +97,7 @@ public:
 private slots:
     void onTrackNodeChanged(osg::Node *node)
     {
+        // TODO otherwise async load might break cameras...
     }
 
 };

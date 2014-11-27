@@ -63,7 +63,6 @@ protected:
 
 private:
     struct Hidden;
-    friend struct Hidden;
     Hidden *h;
 };
 

@@ -32,7 +32,7 @@ struct OSGModelNode::Hidden : public QObject
 
 public:
 
-    Hidden(OSGModelNode *parent) : QObject(parent), pub(parent), modelData(NULL), sceneData(NULL), dirty(false)
+    Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), dirty(false)
     {
         roll = pitch = yaw = 0.0;
         latitude = longitude = altitude = 0.0;
@@ -53,13 +53,10 @@ public:
             disconnect(modelData);
         }
 
-        modelData = NULL;
-
-        acceptModelNode(node->node());
-
         modelData = node;
 
         if (modelData) {
+            acceptModelNode(modelData->node());
             connect(modelData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onModelNodeChanged(osg::Node*)));
         }
 
@@ -70,7 +67,7 @@ public:
     bool acceptModelNode(osg::Node *node)
     {
         qDebug() << "OSGModelNode acceptModelNode" << node;
-        if (!sceneData) {
+        if (!sceneData || !sceneData->node()) {
             qWarning() << "no scene data";
             return false;
         }
@@ -98,7 +95,7 @@ public:
 
         mapNode->addChild(modelNode);
 
-        pub->setNode(modelNode);
+        self->setNode(modelNode);
 
         return true;
     }
@@ -117,12 +114,11 @@ public:
         sceneData = node;
 
         if (sceneData) {
+            // TODO find a better way
+            if (modelData && modelData->node()) {
+                acceptModelNode(modelData->node());
+            }
             connect(sceneData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onSceneNodeChanged(osg::Node*)));
-        }
-
-        // TODO find a better way
-        if (modelData) {
-            acceptModelNode(modelData->node());
         }
 
         return true;
@@ -131,7 +127,7 @@ public:
     // TODO model update gets jitter if camera is thrown (i.e animated)
     void updateNode()
     {
-        if (!dirty) {
+        if (!dirty || !modelNode.valid()) {
             return;
         }
         dirty = false;
@@ -148,7 +144,7 @@ public:
         modelNode->setLocalRotation(q);
     }
 
-    OSGModelNode *pub;
+    OSGModelNode *const self;
 
     OSGNode *modelData;
     OSGNode *sceneData;
@@ -157,7 +153,7 @@ public:
 
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
 
-    osg::observer_ptr<NodeUpdateCallback> nodeUpdateCB;
+    osg::ref_ptr<NodeUpdateCallback> nodeUpdateCB;
 
     qreal roll;
     qreal pitch;
@@ -182,39 +178,15 @@ private slots:
         qDebug() << "OSGModelNode - onSceneNodeChanged" << node;
         // TODO needs to be improved...
         if (modelData) {
-            if (modelNode) {
+            if (modelNode.valid()) {
                 osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
                 if (mapNode) {
                     mapNode->removeChild(modelNode);
                 }
-
                 if (nodeUpdateCB.valid()) {
                     modelNode->removeUpdateCallback(nodeUpdateCB.get());
                 }
-                modelNode = NULL;
-
-                // establish the coordinate system we wish to use:
-                //const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
-
-                // construct the symbology
-                //            style = new osgEarth::Symbology::Style();
-
-                //            style->getOrCreate<osgEarth::Symbology::ModelSymbol>()->setModel(node);
-
-                // make a ModelNode
-                //            modelNode = new osgEarth::Annotation::ModelNode(mapNode, *style);
-
-                // TODO needs to be deleted at some point...
-                //            if (!nodeUpdateCB.isValid()) {
-                //                nodeUpdateCB = new NodeUpdateCallback(this);
-                //            }
-                //            modelNode->addUpdateCallback(nodeUpdateCB);
-
-                //            mapNode->addChild(modelNode);
-
-                //            pub->setNode(modelNode);
             }
-
             acceptModelNode(modelData->node());
         }
     }

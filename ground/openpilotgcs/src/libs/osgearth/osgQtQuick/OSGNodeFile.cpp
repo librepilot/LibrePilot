@@ -33,7 +33,7 @@ public:
         //qDebug() << "OSGFileLoader - file" << s;
         // TODO use Options to control caching...
         osg::Node *node = osgDB::readNodeFile(s.toStdString());
-        qDebug() << "OSGFileLoader - reading node" << node << "took" << t.elapsed();
+        qDebug() << "OSGFileLoader - reading node" << node << "took" << t.elapsed() << "ms";
 
         emit loaded(url, node);
     }
@@ -50,7 +50,33 @@ struct OSGNodeFile::Hidden: public QObject
     Q_OBJECT
 
 public:
-    Hidden(OSGNodeFile *parent) : QObject(parent), url(), async(true), pub(parent) {}
+    Hidden(OSGNodeFile *parent) : QObject(parent), self(parent), url(), async(true) {}
+
+    bool acceptSource(QUrl url)
+    {
+        qDebug() << "OSGNodeFile - acceptSource" << url;
+        if (this->url == url) {
+            return false;
+        }
+
+        this->url = url;
+
+        if (async) {
+            asyncLoad(url);
+        }
+        else {
+            syncLoad(url);
+        }
+
+        return true;
+    }
+
+    OSGNodeFile *const self;
+
+    QUrl url;
+    bool async;
+
+private:
 
     void asyncLoad(const QUrl &url) {
         OSGFileLoader *loader = new OSGFileLoader(url);
@@ -65,23 +91,13 @@ public:
         loader.load();
     }
 
-    QUrl url;
-    bool async;
-    OSGNodeFile *pub;
-
 public slots:
     void onLoaded(const QUrl &url, osg::Node *node) {
-        pub->setNode(node);
-        if (this->url != url) {
-            this->url = url;
-            emit pub->sourceChanged(url);
-        }
+        self->setNode(node);
     }
 };
 
-OSGNodeFile::OSGNodeFile(QObject *parent) :
-    OSGNode(parent),
-    h(new Hidden(this))
+OSGNodeFile::OSGNodeFile(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {    
 }
 
@@ -97,18 +113,9 @@ const QUrl OSGNodeFile::source() const
 void OSGNodeFile::setSource(const QUrl &url)
 {
     qDebug() << "OSGNodeFile - setSource" << url;
-    if (h->async) {
-        h->asyncLoad(url);
+    if (h->acceptSource(url)) {
+        emit sourceChanged(source());
     }
-    else {
-        h->syncLoad(url);
-    }
-//    if (h->url != url)
-//    {
-//        h->url = url;
-//        setNode(osgDB::readNodeFile(url.toString().toStdString()));
-//        emit sourceChanged(url);
-//    }
 }
 
 bool OSGNodeFile::async() const

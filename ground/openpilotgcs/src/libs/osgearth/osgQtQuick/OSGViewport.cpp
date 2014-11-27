@@ -118,9 +118,8 @@ public:
 
         sceneData = node;
 
-        acceptNode(node->node());
-
         if (sceneData) {
+            acceptNode(sceneData->node());
             connect(sceneData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onNodeChanged(osg::Node*)));
         }
 
@@ -134,12 +133,14 @@ public:
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (mapNode) {
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
+            // TODO should not be done here
             view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
         }
 
         osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
         if (skyNode) {
             qDebug() << "OSGViewport - acceptNode - found sky node" << skyNode;
+            // TODO should not be done here
             skyNode->attach(view, 0);
         }
 
@@ -328,15 +329,13 @@ private:
         //viewer->addEventHandler(new osgViewer::ThreadingHandler());
     }
 
-
     void acceptQuickItem() {
         Q_ASSERT(quickItem);
 
         qDebug() << "OSGViewport - acceptQuickItem" << quickItem << quickItem->window();
 
         quickItem->setFlag(QQuickItem::ItemHasContents, true);
-        connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)),
-                this, SLOT(onWindowChanged(QQuickWindow*)));
+        connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
     }
 
 };
@@ -381,7 +380,7 @@ OSGViewport::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h
 
 void OSGViewport::Hidden::CameraUpdateCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
 {
-    if (h->cameraDirty) {
+    if (h->camera && h->cameraDirty) {
         h->cameraDirty = false;
         h->camera->updateCamera(h->view->getCamera());
     }

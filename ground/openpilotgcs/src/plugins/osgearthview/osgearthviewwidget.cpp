@@ -24,80 +24,9 @@
  */
 
 #include "osgearthviewwidget.h"
-#include <utils/stylehelper.h>
-#include <iostream>
-#include <QDebug>
-#include <QPainter>
-#include <QtOpenGL/QGLWidget>
-#include <cmath>
-#include <QtWidgets/QApplication>
-#include <QLabel>
-#include <QDebug>
-
-#include <QtCore/QTimer>
-#include <QtWidgets/QApplication>
-#include <QGridLayout>
-
-
-#include <osg/Notify>
-#include <osg/PositionAttitudeTransform>
-
-#include <osgUtil/Optimizer>
-#include <osgGA/StateSetManipulator>
-#include <osgGA/GUIEventHandler>
-#include <osgViewer/Viewer>
-#include <osgViewer/ViewerEventHandlers>
-
-#include <osgEarth/MapNode>
-#include <osgEarth/XmlUtils>
-#include <osgEarth/Viewpoint>
-
-#include <osgEarthSymbology/Color>
-
-#include <osgEarthAnnotation/AnnotationRegistry>
-#include <osgEarthAnnotation/AnnotationData>
-#include <osgEarthAnnotation/Decluttering>
-
-#include <osgEarthDrivers/kml/KML>
-#include <osgEarthDrivers/ocean_surface/OceanSurface>
-#include <osgEarthDrivers/cache_filesystem/FileSystemCache>
-
-#include <osgEarthUtil/EarthManipulator>
-#include <osgEarthUtil/AutoClipPlaneHandler>
-#include <osgEarthUtil/Controls>
-#include <osgEarthUtil/SkyNode>
-#include <osgEarthUtil/LatLongFormatter>
-#include <osgEarthUtil/MouseCoordsTool>
-#include <osgEarthUtil/ObjectLocator>
-
-using namespace osgEarth::Util;
-using namespace osgEarth::Util::Controls;
-using namespace osgEarth::Symbology;
-using namespace osgEarth::Drivers;
-using namespace osgEarth::Annotation;
-
-#include <osgViewer/CompositeViewer>
-#include <osgViewer/ViewerEventHandlers>
-
-#include <osgGA/TrackballManipulator>
-
-#include <osgDB/ReadFile>
-
-#include <osgQt/GraphicsWindowQt>
-
-#include <iostream>
-
 #include "ui_osgearthview.h"
 
-#include "utils/stylehelper.h"
-#include "utils/homelocationutil.h"
-#include "utils/worldmagmodel.h"
-#include "utils/coordinateconversions.h"
-#include "attitudestate.h"
-#include "homelocation.h"
-#include "positionstate.h"
-
-using namespace Utils;
+#include <QPainter>
 
 OsgEarthviewWidget::OsgEarthviewWidget(QWidget *parent) : QWidget(parent)
 {
@@ -113,6 +42,11 @@ OsgEarthviewWidget::OsgEarthviewWidget(QWidget *parent) : QWidget(parent)
 
 OsgEarthviewWidget::~OsgEarthviewWidget()
 {}
+
+void OsgEarthviewWidget::setSceneFile(QString sceneFile)
+{
+    m_widget->widget->setSceneFile(sceneFile);
+}
 
 void OsgEarthviewWidget::paintEvent(QPaintEvent *event)
 {}

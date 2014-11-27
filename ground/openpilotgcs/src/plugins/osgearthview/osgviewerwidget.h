@@ -1,4 +1,5 @@
 /********************************************************************************
+
  * @file       osgviewerwidget.h
  * @author     The OpenPilot Team Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
@@ -26,74 +27,97 @@
 #ifndef OSGVIEWERWIDGET_H
 #define OSGVIEWERWIDGET_H
 
-#include <QWidget>
-
 #include "osgearthviewgadgetconfiguration.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
+//#include "extensionsystem/pluginmanager.h"
+//#include "uavobjectmanager.h"
+//#include "uavobject.h"
 
 #include <QTimer>
-
-#include <osg/Notify>
-#include <osg/PositionAttitudeTransform>
-
-#include <osgDB/ReadFile>
-
-#include <osgGA/StateSetManipulator>
-#include <osgGA/TrackballManipulator>
-#include <osgGA/GUIEventHandler>
-
-#include <osgUtil/Optimizer>
-
-#include <osgViewer/CompositeViewer>
-#include <osgViewer/Viewer>
-#include <osgViewer/ViewerEventHandlers>
+#include <QThread>
+#include <QElapsedTimer>
+#include <QDebug>
 
 #include <osgEarth/MapNode>
-#include <osgEarth/XmlUtils>
-#include <osgEarth/Viewpoint>
-
-#include <osgEarthSymbology/Color>
-
-#include <osgEarthAnnotation/AnnotationRegistry>
-#include <osgEarthAnnotation/AnnotationData>
-#include <osgEarthAnnotation/Decluttering>
-
-#include <osgEarthDrivers/kml/KML>
-#include <osgEarthDrivers/ocean_surface/OceanSurface>
-#include <osgEarthDrivers/cache_filesystem/FileSystemCache>
 
 #include <osgEarthUtil/EarthManipulator>
-#include <osgEarthUtil/AutoClipPlaneHandler>
-#include <osgEarthUtil/Controls>
-#include <osgEarthUtil/SkyNode>
-#include <osgEarthUtil/LatLongFormatter>
-#include <osgEarthUtil/MouseCoordsTool>
 #include <osgEarthUtil/ObjectLocator>
 
-using namespace osgEarth::Util;
-using namespace osgEarth::Util::Controls;
-using namespace osgEarth::Symbology;
-using namespace osgEarth::Drivers;
-using namespace osgEarth::Annotation;
-
 #include <osgQt/GraphicsWindowQt>
+#include <osgEarthQt/ViewerWidget>
+#include <osgEarthQt/DataManager>
 
-#include <iostream>
+using namespace osgEarth::Util;
+using namespace osgEarth::QtGui;
 
-class OsgViewerWidget : public QWidget, public osgViewer::CompositeViewer {
+class MyViewerWidget : public ViewerWidget {
+    Q_OBJECT
+public:
+    MyViewerWidget(osg::Node* scene=0L) : ViewerWidget(scene)
+    {
+        qDebug() << "************ construct";
+    }
+
+    virtual ~MyViewerWidget() {
+        qDebug() << "************ delete";
+    }
+public slots:
+    void update() {
+        qDebug() << "************ update";
+        ViewerWidget::update();
+    }
+protected:
+    void paintEvent(QPaintEvent *event) {
+//        qDebug() << "************ paint";
+//        QElapsedTimer t;
+//        t.start();
+        ViewerWidget::paintEvent(event);
+//        qDebug() << "************ paint took" << t.elapsed();
+    }
+
+    void installFrameTimer() {
+        qDebug() << "************ install timer";
+        ViewerWidget::installFrameTimer();
+    }
+
+    void createViewer() {
+        qDebug() << "************ create viewer";
+        ViewerWidget::createViewer();
+    }
+
+};
+
+//class LoaderThread : public QThread
+//{
+//    Q_OBJECT
+//    void run() Q_DECL_OVERRIDE {
+//        osg::Node *sceneNode = loadScene(m_sceneFile);
+//        emit sceneLoaded(m_sceneFile, sceneNode);
+//    }
+//public:
+//    LoaderThread(QString &sceneFile, QObject *parent = 0) : QThread(parent), m_sceneFile(sceneFile) {}
+//
+//    QString& sceneFile()
+//    {
+//        return m_sceneFile;
+//    }
+//
+//signals:
+//    void sceneLoaded(QString sceneFile, osg::Node *sceneNode);
+//
+//private:
+//    osg::Node *loadScene(QString &sceneFile);
+//    QString m_sceneFile;
+//};
+
+class OsgViewerWidget : public QWidget {
     Q_OBJECT
 public:
     explicit OsgViewerWidget(QWidget *parent = 0);
     ~OsgViewerWidget();
-signals:
 
-public slots:
+    void setSceneFile(QString &sceneFile);
 
 protected:
-    void paintEvent(QPaintEvent *event);
-
     /* Create a osgQt::GraphicsWindowQt to add to the widget */
     QWidget *createViewWidget(osg::Camera *camera, osg::Node *scene);
 
@@ -103,13 +127,23 @@ protected:
     /* Get the model to render */
     osg::Node *createAirplane();
 
-private: /* Private variables */
+private slots:
+    void setScene(osg::Node *sceneNode);
+    void setLoadedScene(QString sceneFile, osg::Node *sceneNode);
+
+
+private:
+    QString m_sceneFile;
     QTimer _timer;
     EarthManipulator *manip;
     osgEarth::Util::ObjectLocatorNode *uavPos;
     osg::MatrixTransform *uavAttitudeAndScale;
+    osg::Group *rootNode;
+    osg::Node *sceneNode;
     osgEarth::MapNode *mapNode;
+    osgEarth::QtGui::DataManager *dataManager;
+    osgEarth::QtGui::ViewerWidget *viewerWidget;
+    osg::ref_ptr<osgViewer::ViewerBase> viewer;
 };
-
 
 #endif // OSGVIEWERWIDGET_H

@@ -1,42 +1,39 @@
 TEMPLATE = lib
 TARGET = OsgEarthviewGadget
 
-QT += opengl
+QT += widgets opengl
+#QT += declarative
+
 include(../../openpilotgcsplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(osgearthview_dependencies.pri)
-include(osg.pri)
-include(osgearth.pri)
+include(../../osgearth.pri)
 
-HEADERS += osgearthviewplugin.h \
-    osgviewerwidget.h
-HEADERS += osgearthviewgadget.h
-HEADERS += osgearthviewwidget.h
-HEADERS += osgearthviewgadgetfactory.h
-HEADERS += osgearthviewgadgetconfiguration.h
-HEADERS += osgearthviewgadgetoptionspage.h
+HEADERS += \
+    osgearthviewplugin.h \
+    osgviewerwidget.h \
+    osgearthviewgadget.h \
+    osgearthviewwidget.h \
+    osgearthviewgadgetfactory.h \
+    osgearthviewgadgetconfiguration.h \
+    osgearthviewgadgetoptionspage.h \
 
-SOURCES += osgearthviewplugin.cpp \
-    osgviewerwidget.cpp
-SOURCES += osgearthviewgadget.cpp
-SOURCES += osgearthviewwidget.cpp
-SOURCES += osgearthviewgadgetfactory.cpp
-SOURCES += osgearthviewgadgetconfiguration.cpp
-SOURCES += osgearthviewgadgetoptionspage.cpp
+SOURCES += \
+    osgearthviewplugin.cpp \
+    osgviewerwidget.cpp \
+    osgearthviewgadget.cpp \
+    osgearthviewwidget.cpp \
+    osgearthviewgadgetfactory.cpp \
+    osgearthviewgadgetconfiguration.cpp \
+    osgearthviewgadgetoptionspage.cpp \
 
-FORMS += osgearthviewgadgetoptionspage.ui \
+FORMS += \
+    osgearthviewgadgetoptionspage.ui \
     osgearthview.ui
 
 OTHER_FILES += OsgEarthviewGadget.pluginspec
+
 RESOURCES += osgearthview.qrc
 
-
-
-
-
-
-
-
-
-
+include(copydata.pro)
 

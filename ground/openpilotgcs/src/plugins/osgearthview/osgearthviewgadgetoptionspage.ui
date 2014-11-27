@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
      <property name="spacing">
@@ -34,12 +34,12 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>PFD SVG: </string>
+        <string>Scene</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="Utils::PathChooser" name="svgSourceFile" native="true">
+      <widget class="Utils::PathChooser" name="sceneFile" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -62,18 +62,21 @@
      <item>
       <widget class="QCheckBox" name="useOpenGL">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="text">
         <string>Use OpenGL for rendering</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="hqText">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>High Quality text (OpenGL)</string>
        </property>
@@ -85,11 +88,14 @@
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QCheckBox" name="smoothUpdates">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Smooth updates</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>

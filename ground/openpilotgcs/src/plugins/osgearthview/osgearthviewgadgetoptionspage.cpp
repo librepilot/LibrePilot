@@ -49,6 +49,12 @@ QWidget *OsgEarthviewGadgetOptionsPage::createPage(QWidget *parent)
     // main layout
     options_page->setupUi(optionsPageWidget);
 
+
+    options_page->sceneFile->setExpectedKind(Utils::PathChooser::File);
+    options_page->sceneFile->setPromptDialogFilter(tr("Earth scene file (*.earth)"));
+    options_page->sceneFile->setPromptDialogTitle(tr("Choose scene file"));
+    options_page->sceneFile->setPath(m_config->sceneFile());
+
     return optionsPageWidget;
 }
 
@@ -59,7 +65,9 @@ QWidget *OsgEarthviewGadgetOptionsPage::createPage(QWidget *parent)
  *
  */
 void OsgEarthviewGadgetOptionsPage::apply()
-{}
+{
+    m_config->setSceneFile(options_page->sceneFile->path());
+}
 
 
 void OsgEarthviewGadgetOptionsPage::finish()

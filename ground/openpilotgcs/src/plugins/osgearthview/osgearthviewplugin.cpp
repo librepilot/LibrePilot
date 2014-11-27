@@ -25,13 +25,30 @@
 
 #include "osgearthviewplugin.h"
 #include "osgearthviewgadgetfactory.h"
+
+#include "utils/gcsdirs.h"
+#include "utils/pathutils.h"
+#include <extensionsystem/pluginmanager.h>
+
+//#include <osg/Version>
+//#include <osgDB/Registry>
+//#include <osgQt/GraphicsWindowQt>
+
+//#include <osgEarth/Version>
+//#include <osgEarth/Cache>
+//#include <osgEarth/Registry>
+
 #include <QDebug>
 #include <QtPlugin>
 #include <QStringList>
-#include <extensionsystem/pluginmanager.h>
 
-#include <osgQt/GraphicsWindowQt>
+//#include <deque>
+//#include <string>
+//#include <stdlib.h>
 
+//#ifdef Q_WS_X11
+//#include <X11/Xlib.h>
+//#endif
 
 OsgEarthviewPlugin::OsgEarthviewPlugin()
 {
@@ -47,10 +64,57 @@ bool OsgEarthviewPlugin::initialize(const QStringList & args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
+
+#ifdef Q_WS_X11
+    // required for multi-threaded viewer on linux:
+    XInitThreads();
+#endif
+
+    qDebug() << "Using osg version :" << osgGetVersion();
+    qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
+
+//    qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
+    osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
+    // clear to remove system wide library pathes
+    libraryFilePathList.clear();
+    libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
+    libraryFilePathList.push_back(GCSDirs::libraryPath("osgearth").toStdString());
+
+    osgDB::FilePathList::iterator it = libraryFilePathList.begin();
+    while(it != libraryFilePathList.end()){
+        qDebug() << "OsgEarthviewPlugin::initialize - library file path:" << QString::fromStdString(*it);
+        it++;
+    }
+
+    osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
+    it = dataFilePathList.begin();
+    while(it != dataFilePathList.end()){
+        qDebug() << "OsgEarthviewPlugin::initialize - data file path:" << QString::fromStdString(*it);
+        it++;
+    }
+
+    //osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
+    osgQt::initQtWindowingSystem();
+
+    // force init of osgearth registry (without caching) to work around a deadlock
+    osgEarth::Registry::instance();
+
+    // enable caching
+    QString cachePath = Utils::PathUtils().GetStoragePath() + "osgearth/cache";
+    setenv("OSGEARTH_CACHE_PATH", cachePath.toUtf8().data(), 1);
+    osgEarth::CacheOptions options;
+    options.setDriver(osgEarth::Registry::instance()->getDefaultCacheDriverName());
+
+    osgEarth::Cache *cache = osgEarth::CacheFactory::create(options);
+    if (cache) {
+        osgEarth::Registry::instance()->setCache(cache);
+    } else {
+        qWarning() << "Failed to initialize cache";
+    }
+
+
     mf = new OsgEarthviewGadgetFactory(this);
     addAutoReleasedObject(mf);
-
-    osgQt::initQtWindowingSystem();
 
     return true;
 }

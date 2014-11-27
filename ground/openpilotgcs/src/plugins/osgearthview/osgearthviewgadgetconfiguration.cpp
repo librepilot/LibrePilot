@@ -30,12 +30,15 @@
  * Loads a saved configuration or defaults if non exist.
  *
  */
-OsgEarthviewGadgetConfiguration::OsgEarthviewGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
+OsgEarthviewGadgetConfiguration::OsgEarthviewGadgetConfiguration(QString classId, QSettings *settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent)
 {
-    Q_UNUSED(qSettings);
+    Q_UNUSED(settings);
     // if a saved configuration exists load it
-    if (qSettings != 0) {}
+    if (settings != 0) {
+        QString dialFile = settings->value("sceneFile").toString();
+        m_sceneFile = Utils::PathUtils().InsertDataPath(dialFile);
+    }
 }
 
 /**
@@ -45,7 +48,7 @@ OsgEarthviewGadgetConfiguration::OsgEarthviewGadgetConfiguration(QString classId
 IUAVGadgetConfiguration *OsgEarthviewGadgetConfiguration::clone()
 {
     OsgEarthviewGadgetConfiguration *m = new OsgEarthviewGadgetConfiguration(this->classId());
-
+    m->m_sceneFile = m_sceneFile;
     return m;
 }
 
@@ -53,4 +56,7 @@ IUAVGadgetConfiguration *OsgEarthviewGadgetConfiguration::clone()
  * Saves a configuration.
  *
  */
-void OsgEarthviewGadgetConfiguration::saveConfig(QSettings *qSettings) const {}
+void OsgEarthviewGadgetConfiguration::saveConfig(QSettings *settings) const {
+    QString sceneFile = Utils::PathUtils().RemoveDataPath(m_sceneFile);
+    settings->setValue("sceneFile", sceneFile);
+}

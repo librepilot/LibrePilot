@@ -34,12 +34,23 @@ using namespace Core;
 class OsgEarthviewGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit OsgEarthviewGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit OsgEarthviewGadgetConfiguration(QString classId, QSettings *settings = 0, QObject *parent = 0);
 
     void saveConfig(QSettings *settings) const;
     IUAVGadgetConfiguration *clone();
 
+    QString sceneFile()
+    {
+        return m_sceneFile;
+    }
+
+    void setSceneFile(QString sceneFile)
+    {
+        m_sceneFile = sceneFile;
+    }
+
 private:
+    QString m_sceneFile;
 };
 
 #endif // OSGEARTHVIEWGADGETCONFIGURATION_H

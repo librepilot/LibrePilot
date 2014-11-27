@@ -46,4 +46,6 @@ OsgEarthviewGadget::~OsgEarthviewGadget()
 void OsgEarthviewGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     OsgEarthviewGadgetConfiguration *m = qobject_cast<OsgEarthviewGadgetConfiguration *>(config);
+    m_widget->setSceneFile(m->sceneFile());
+
 }

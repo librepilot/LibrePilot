@@ -27,59 +27,6 @@
 #define OSGEARTHVIEWWIDGET_H_
 
 #include "osgviewerwidget.h"
-#include "osgearthviewgadgetconfiguration.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
-#include <QTimer>
-
-#include <osg/Notify>
-#include <osg/PositionAttitudeTransform>
-
-#include <osgDB/ReadFile>
-
-#include <osgGA/StateSetManipulator>
-#include <osgGA/TrackballManipulator>
-#include <osgGA/GUIEventHandler>
-
-#include <osgUtil/Optimizer>
-
-#include <osgViewer/CompositeViewer>
-#include <osgViewer/Viewer>
-#include <osgViewer/ViewerEventHandlers>
-
-#include <osgEarth/MapNode>
-#include <osgEarth/XmlUtils>
-#include <osgEarth/Viewpoint>
-
-#include <osgEarthSymbology/Color>
-
-#include <osgEarthAnnotation/AnnotationRegistry>
-#include <osgEarthAnnotation/AnnotationData>
-#include <osgEarthAnnotation/Decluttering>
-
-#include <osgEarthDrivers/kml/KML>
-#include <osgEarthDrivers/ocean_surface/OceanSurface>
-#include <osgEarthDrivers/cache_filesystem/FileSystemCache>
-
-#include <osgEarthUtil/EarthManipulator>
-#include <osgEarthUtil/AutoClipPlaneHandler>
-#include <osgEarthUtil/Controls>
-#include <osgEarthUtil/SkyNode>
-#include <osgEarthUtil/LatLongFormatter>
-#include <osgEarthUtil/MouseCoordsTool>
-#include <osgEarthUtil/ObjectLocator>
-
-using namespace osgEarth::Util;
-using namespace osgEarth::Util::Controls;
-using namespace osgEarth::Symbology;
-using namespace osgEarth::Drivers;
-using namespace osgEarth::Annotation;
-
-#include <osgQt/GraphicsWindowQt>
-
-#include <iostream>
 
 class Ui_OsgEarthview;
 
@@ -90,13 +37,15 @@ public:
     OsgEarthviewWidget(QWidget *parent = 0);
     ~OsgEarthviewWidget();
 
+    void setSceneFile(QString sceneFile);
+
 public slots:
 
-protected: /* Protected methods */
+protected:
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
 
-    OsgViewerWidget *viewWidget;
+    //OsgViewerWidget *viewWidget;
     Ui_OsgEarthview *m_widget;
 };
 #endif /* OSGEARTHVIEWWIDGET_H_ */

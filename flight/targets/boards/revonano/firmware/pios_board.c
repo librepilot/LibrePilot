@@ -146,7 +146,7 @@ static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .Smpl_rate_div_no_dlp = 0,
     // with dlp on output rate is 1000Hz
     .Smpl_rate_div_dlp    = 0,
-    .interrupt_cfg = PIOS_MPU9250_INT_CLR_ANYRD | PIOS_MPU9250_INT_LATCH_EN,
+    .interrupt_cfg = PIOS_MPU9250_INT_CLR_ANYRD,// | PIOS_MPU9250_INT_LATCH_EN,
     .interrupt_en  = PIOS_MPU9250_INTEN_DATA_RDY,
     .User_ctl      = PIOS_MPU9250_USERCTL_DIS_I2C | PIOS_MPU9250_USERCTL_I2C_MST_EN,
     .Pwr_mgmt_clk  = PIOS_MPU9250_PWRMGMT_PLL_X_CLK,

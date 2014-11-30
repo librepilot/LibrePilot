@@ -6,12 +6,16 @@
 ################################
 #
 # Install development libraries for:
-# - libtiff
+# - zlib
+# - jpeg
+# - png
+# - tiff
 # - curl
+# - geos
 # - gdal
-# - ...
 #
-# $ sudo apt-get install libcurl4-openssl-dev libgdal-dev libtiff5-dev
+# $ sudo apt-get install libtiff5-dev libcurl4-openssl-dev libgeos++-dev libgdal-dev
+# libpng-dev lipjpeg-dev 
 #
 # $ curl --version
 # curl 7.35.0 (i686-pc-linux-gnu) libcurl/7.35.0 OpenSSL/1.0.1f zlib/1.2.8 libidn/1.28 librtmp/2.3
@@ -61,7 +65,17 @@
 #
 ################################
 
-BUILD_CONF  := Release
+OSGEARTH_BUILD_CONF  := Release
+
+################################
+#
+# dependencies
+#
+################################
+
+#ifeq ($(UNAME), Windows)
+#	include $(ROOT_DIR)/make/3rdparty/osgearth_win.mk
+#endif
 
 ################################
 #
@@ -69,19 +83,19 @@ BUILD_CONF  := Release
 #
 ################################
 
-OSG_BUILD_CONF  := $(BUILD_CONF)
-OSG_ROOT_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install
 OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
+OSG_BUILD_CONF  := $(OSGEARTH_BUILD_CONF)
+OSG_NAME        := osg-$(OSG_VERSION)-$(ARCH)
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
-OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/osg-$(OSG_VERSION)-$(ARCH)
-OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/osg-$(OSG_VERSION)-$(ARCH)
-OSG_TAR_FILE	:= $(BUILD_DIR)/3rdparty/osg-$(OSG_VERSION)-$(ARCH).tar
+OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
+OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
 
 ifeq ($(UNAME), Windows)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSG_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$$SYSTEMROOT/System32"
+	OSG_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin"
+	# TODO : consider using THIRD_PARTY_DIR to lookup gdal, etc...
 else
 	OSG_CMAKE_GENERATOR := "Unix Makefiles"
 	# for some reason Qt is not added to the path in make/tools.mk
@@ -97,13 +111,17 @@ osg:
 		$(CMAKE) -G $(OSG_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSG_BUILD_CONF) \
 			-DBUILD_OPENTHREADS_WITH_QT=OFF \
 			-DOSG_PLUGIN_SEARCH_INSTALL_DIR_FOR_PLUGINS=OFF \
+			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osgearth_dependencies \
 			-DCMAKE_INSTALL_PREFIX=$(OSG_INSTALL_DIR) $(OSG_SRC_DIR) && \
 		$(MAKE) && \
 		$(MAKE) install ; \
 	)
-	$(V1) $(CD) $(OSG_ROOT_INSTALL_DIR) && $(TAR) cvf $(OSG_TAR_FILE) osg-$(OSG_VERSION)-$(ARCH)
-	$(V1) $(ZIP) -f $(OSG_TAR_FILE)
-	$(V1) $(call MD5_GEN_TEMPLATE,$(OSG_TAR_FILE).gz)
+
+.PHONY: package_osg
+package_osg:
+	$(V1) $(TAR) cf $(OSG_INSTALL_DIR).tar -C $(OSG_INSTALL_DIR)/.. $(OSG_NAME)
+	$(V1) $(ZIP) -f $(OSG_INSTALL_DIR).tar
+	$(V1) $(call MD5_GEN_TEMPLATE,$(OSG_INSTALL_DIR).tar.gz)
 
 .NOTPARALLEL:
 .PHONY: prepare_osg
@@ -141,18 +159,17 @@ clean_all_osg: clean_osg
 #
 ################################
 
-OSGEARTH_BUILD_CONF  := $(BUILD_CONF)
 OSGEARTH_VERSION     := 2.6
 OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
+OSGEARTH_NAME        := osgearth-$(OSGEARTH_VERSION)-$(ARCH)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
-OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
-OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/osgearth-$(OSGEARTH_VERSION)-$(ARCH)
-OSGEARTH_TAR_FILE    := $(BUILD_DIR)/3rdparty/osgearth-$(OSGEARTH_VERSION)-$(ARCH).tar
+OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
+OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
 
 ifeq ($(UNAME), Windows)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin;$$SYSTEMROOT/System32"
+	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin"
 else
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
 	# for some reason Qt is not added to the path in make/tools.mk
@@ -174,13 +191,17 @@ osgearth:
 			-DOSG_DIR=$(OSG_INSTALL_DIR) -DINSTALL_TO_OSG_DIR=OFF \
 			-DCMAKE_INCLUDE_PATH=$(OSG_INSTALL_DIR)/include \
 			-DCMAKE_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib \
-						-DCMAKE_INSTALL_PREFIX=$(OSGEARTH_INSTALL_DIR) $(OSGEARTH_SRC_DIR) && \
+			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osgearth_dependencies \
+			-DCMAKE_INSTALL_PREFIX=$(OSGEARTH_INSTALL_DIR) $(OSGEARTH_SRC_DIR) && \
 		$(MAKE) && \
 		$(MAKE) install ; \
 	)
-	$(V1) $(CD) $(OSG_ROOT_INSTALL_DIR) && $(TAR) cvf $(OSGEARTH_TAR_FILE) $(OSGEARTH_GIT_BRANCH)-$(ARCH)/*
-	$(V1) $(ZIP) -f $(OSGEARTH_TAR_FILE)
-	$(call MD5_GEN_TEMPLATE,$(OSGEARTH_TAR_FILE).gz)
+
+.PHONY: package_osgearth
+package_osgearth:
+	$(V1) $(TAR) cf $(OSGEARTH_INSTALL_DIR).tar -C $(OSGEARTH_INSTALL_DIR)/.. $(OSGEARTH_NAME)
+	$(V1) $(ZIP) -f $(OSGEARTH_INSTALL_DIR).tar
+	$(V1) $(call MD5_GEN_TEMPLATE,$(OSGEARTH_INSTALL_DIR).tar.gz)
 
 .NOTPARALLEL:
 .PHONY: prepare_osgearth
@@ -220,4 +241,81 @@ clean_all_osgearth: clean_osgearth
 .NOTPARALLEL:
 .PHONY: all_osg
 all_osg: prepare_osg prepare_osgearth osg osgearth
+
+
+
+
+
+
+
+
+
+################################
+#
+# osg and osgearth dependencies (win32 only)
+#
+################################
+
+HOST := mingw32
+
+DEP_SRC_DIR := $(ROOT_DIR)/3rdparty/osgearth_dependencies
+DEP_DL_DIR := $(DL_DIR)/osgearth
+DEP_INSTALL_DIR := $(OSGEARTH_INSTALL_DIR)/osgearth_dependencies
+
+ZLIB_URL := http://zlib.net/zlib-1.2.8.tar.gz
+ZLIB_DIR := $(DEP_SRC_DIR)/zlib-1.2.8
+
+LIBJPEG_URL := http://www.ijg.org/files/jpegsrc.v9a.tar.gz
+LIBJPEG_DIR := $(DEP_SRC_DIR)/jpeg-9a
+
+LIBPNG_URL := http://sourceforge.net/projects/libpng/files/libpng16/1.6.14/libpng-1.6.14.tar.gz
+LIBPNG_DIR := $(DEP_SRC_DIR)/libpng-1.6.14
+
+LIBTIFF_URL := ftp://ftp.remotesensing.org/pub/libtiff/tiff-4.0.3.tar.gz
+LIBTIFF_DIR := $(DEP_SRC_DIR)/tiff-4.0.3
+
+CURL_URL := http://curl.haxx.se/download/curl-7.38.0.tar.gz
+CURL_DIR := $(DEP_SRC_DIR)/curl-7.38.0
+
+PROJ4_URL := http://download.osgeo.org/proj/proj-4.8.0.tar.gz
+PROJ4_DIR := $(DEP_SRC_DIR)/proj-4.8.0
+PROJ4_DATUM_URL := http://download.osgeo.org/proj/proj-datumgrid-1.5.tar.gz
+PROJ4_DATUM_DIR := $(PROJ4_DIR)/nad
+
+GEOS_URL := http://download.osgeo.org/geos/geos-3.3.8.tar.bz2
+GEOS_DIR := $(DEP_SRC_DIR)/geos-3.3.8
+
+GDAL_URL := http://download.osgeo.org/gdal/1.10.1/gdal-1.10.1.tar.gz
+GDAL_DIR := $(DEP_SRC_DIR)/gdal-1.10.1
+
+##############################
+#
+# Cross platform download template
+#  $(1) = Package URL
+#  $(2) = dir name where the package is downloaded to
+#
+##############################
+
+define GET_TEMPLATE
+@$(ECHO) $(MSG_GETTING) $(1)
+	$(V1) ( \
+		$(MKDIR) -p "$(2)" && \
+		if [ ! -f "$(DL_DIR)/$(notdir $(2))" ]; then \
+			$(ECHO) $(MSG_DOWNLOADING) $(1) to $(2) && \
+			$(CURL) $(CURL_OPTIONS) -o "$(2)/$(notdir $(1))" "$(1)" ; \
+		fi; \
+	)
+endef
+
+.PHONY: xxx
+xxx:
+	$(call GET_TEMPLATE,$(ZLIB_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(LIBJPEG_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(LIBPNG_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(LIBTIFF_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(CURL_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(PROJ4_DATUM_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(PROJ4_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(GEOS_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(GDAL_URL),$(DEP_DL_DIR))
 

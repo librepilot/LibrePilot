@@ -154,7 +154,7 @@ static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .gyro_range    = PIOS_MPU9250_SCALE_2000_DEG,
     .filter        = PIOS_MPU9250_LOWPASS_256_HZ,
     .orientation   = PIOS_MPU9250_TOP_180DEG,
-    .fast_prescaler = PIOS_SPI_PRESCALER_64,
+    .fast_prescaler = PIOS_SPI_PRESCALER_4,
     .std_prescaler  = PIOS_SPI_PRESCALER_64,
     .max_downsample = 16,
 };

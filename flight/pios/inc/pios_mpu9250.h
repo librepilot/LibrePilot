@@ -117,64 +117,67 @@
 #define PIOS_MPU9250_PWRMGMT_PLL_Z_CLK        0X03
 #define PIOS_MPU9250_PWRMGMT_STOP_CLK         0X07
 
+#define PIOS_MPU9250_PWRMGMT2_DISABLE_GYRO    0x07
+#define PIOS_MPU9250_PWRMGMT2_DISABLE_ACCEL   0x38
+
 /* I2C */
-#define PIOS_MPU9250_I2C_MST_ENABLE			  0x80
-#define PIOS_MPU9250_I2C_SLV_ENABLE			  0x80
-#define PIOS_MPU9250_I2C_MST_CLOCK_400		  0x0D
-#define PIOS_MPU9250_I2C_MST_P_NSR			  0x10
-#define PIOS_MPU9250_EXT0_OUT				  0x01
+#define PIOS_MPU9250_I2C_MST_ENABLE           0x80
+#define PIOS_MPU9250_I2C_SLV_ENABLE           0x80
+#define PIOS_MPU9250_I2C_MST_CLOCK_400        0x0D
+#define PIOS_MPU9250_I2C_MST_P_NSR            0x10
+#define PIOS_MPU9250_EXT0_OUT                 0x01
 
 /* AK893 MAG registers */
 /* Read-only Register */
-#define PIOS_MPU9250_WIA					  0X00
-#define PIOS_MPU9250_INFO					  0X01
-#define PIOS_MPU9250_ST1					  0X02
-#define PIOS_MPU9250_HXL					  0X03
-#define PIOS_MPU9250_HXH					  0X04
-#define PIOS_MPU9250_HYL					  0X05
-#define PIOS_MPU9250_HYH					  0X06
-#define PIOS_MPU9250_HZL					  0X07
-#define PIOS_MPU9250_HZH					  0X08
-#define PIOS_MPU9250_ST2					  0X09
+#define PIOS_MPU9250_WIA                      0X00
+#define PIOS_MPU9250_INFO                     0X01
+#define PIOS_MPU9250_ST1                      0X02
+#define PIOS_MPU9250_HXL                      0X03
+#define PIOS_MPU9250_HXH                      0X04
+#define PIOS_MPU9250_HYL                      0X05
+#define PIOS_MPU9250_HYH                      0X06
+#define PIOS_MPU9250_HZL                      0X07
+#define PIOS_MPU9250_HZH                      0X08
+#define PIOS_MPU9250_ST2                      0X09
 /* Write/read Register */
-#define PIOS_MPU9250_CNTL1					  0X0A
-#define PIOS_MPU9250_CNTL2					  0X0B
-#define PIOS_MPU9250_ASTC					  0X0C
-#define PIOS_MPU9250_TS1					  0X0D
-#define PIOS_MPU9250_TS2					  0X0E
-#define PIOS_MPU9250_I2CDIS					  0X0F
+#define PIOS_MPU9250_CNTL1                    0X0A
+#define PIOS_MPU9250_CNTL2                    0X0B
+#define PIOS_MPU9250_ASTC                     0X0C
+#define PIOS_MPU9250_TS1                      0X0D
+#define PIOS_MPU9250_TS2                      0X0E
+#define PIOS_MPU9250_I2CDIS                   0X0F
 /* Read-only Register */
-#define PIOS_MPU9250_ASAX					  0X10
-#define PIOS_MPU9250_ASAY					  0X11
-#define PIOS_MPU9250_ASAZ					  0X12
+#define PIOS_MPU9250_ASAX                     0X10
+#define PIOS_MPU9250_ASAY                     0X11
+#define PIOS_MPU9250_ASAZ                     0X12
 
 /* IDs */
-#define PIOS_MPU9250_GYRO_ACC_ID			  0x71
-#define PIOS_MPU9250_MAG_ID					  0x48
+#define PIOS_MPU9250_GYRO_ACC_ID              0x71
+#define PIOS_MPU9250_MAG_ID                   0x48
 
-#define PIOS_MPU9250_MAG_DATA_RDY			  0x01
+#define PIOS_MPU9250_MAG_DATA_RDY             0x01
 #define PIOS_MPU9250_MAG_RESET                0x01
 #define PIOS_MPU9250_MAG_POWER_DOWN_MODE      0x00
-#define PIOS_MPU9250_MAG_SINGLE_MODE     	  0x01
+#define PIOS_MPU9250_MAG_SINGLE_MODE          0x01
 #define PIOS_MPU9250_MAG_CONTINUOUS_MODE1     0x02
 #define PIOS_MPU9250_MAG_CONTINUOUS_MODE2     0x06
-#define PIOS_MPU9250_MAG_FUSE_ROM_MODE     	  0x0F
+#define PIOS_MPU9250_MAG_FUSE_ROM_MODE        0x0F
 #define PIOS_MPU9250_MAG_OUTPUT_16BITS        0x10
-#define PIOS_MPU9250_MAG_I2C_ADDR			  0x0C
-#define PIOS_MPU9250_MAG_I2C_READ_FLAG		  0x80
-#define PIOS_MPU9250_MAG_ASA_NB_BYTE             3
-#define PIOS_MPU9250_MAG_ASAX_IDX                1
-#define PIOS_MPU9250_MAG_ASAY_IDX                2
-#define PIOS_MPU9250_MAG_ASAZ_IDX                3
+#define PIOS_MPU9250_MAG_I2C_ADDR             0x0C
+#define PIOS_MPU9250_MAG_I2C_READ_FLAG        0x80
+#define PIOS_MPU9250_MAG_ASA_NB_BYTE          3
+#define PIOS_MPU9250_MAG_ASAX_IDX             1
+#define PIOS_MPU9250_MAG_ASAY_IDX             2
+#define PIOS_MPU9250_MAG_ASAZ_IDX             3
 
-#define PIOS_MPU9250_MAG_OK						 0
-#define PIOS_MPU9250_ERR_MAG_SET_ADDR			-1
-#define PIOS_MPU9250_ERR_MAG_SET_REG			-2
-#define PIOS_MPU9250_ERR_MAG_SET_DO				-3
-#define PIOS_MPU9250_ERR_MAG_SET_TRIGGER		-4
-#define PIOS_MPU9250_ERR_MAG_READ_ID			-5
-#define PIOS_MPU9250_ERR_MAG_BAD_ID				-6
-#define PIOS_MPU9250_ERR_MAG_READ_ASA			-7
+#define PIOS_MPU9250_MAG_OK                   0
+#define PIOS_MPU9250_ERR_MAG_SET_ADDR         -1
+#define PIOS_MPU9250_ERR_MAG_SET_REG          -2
+#define PIOS_MPU9250_ERR_MAG_SET_DO           -3
+#define PIOS_MPU9250_ERR_MAG_SET_TRIGGER      -4
+#define PIOS_MPU9250_ERR_MAG_READ_ID          -5
+#define PIOS_MPU9250_ERR_MAG_BAD_ID           -6
+#define PIOS_MPU9250_ERR_MAG_READ_ASA         -7
 
 enum pios_mpu9250_range {
     PIOS_MPU9250_SCALE_250_DEG  = 0x00,
@@ -220,11 +223,10 @@ struct pios_mpu9250_data {
     int16_t mag_x;
     int16_t mag_y;
     int16_t mag_z;
-    int8_t mag_valid;
+    int8_t  mag_valid;
 #endif /* PIOS_MPU9250_MAG */
     int16_t temperature;
 };
-
 
 
 struct pios_mpu9250_cfg {

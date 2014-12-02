@@ -53,29 +53,30 @@ struct mpu9250_dev {
 };
 
 #ifdef PIOS_MPU9250_ACCEL
-#define PIOS_MPU9250_ACCEL_SAMPLES_BYTES    (6)
+#define PIOS_MPU9250_ACCEL_SAMPLES_BYTES (6)
 #else
-#define PIOS_MPU9250_ACCEL_SAMPLES_BYTES	(0)
+#define PIOS_MPU9250_ACCEL_SAMPLES_BYTES (0)
 #endif
 
 #ifdef PIOS_MPU9250_MAG
-#define PIOS_MPU9250_MAG_SAMPLES_BYTES		(8)
+#define PIOS_MPU9250_MAG_SAMPLES_BYTES   (8)
 #else
-#define PIOS_MPU9250_MAG_SAMPLES_BYTES		(0)
+#define PIOS_MPU9250_MAG_SAMPLES_BYTES   (0)
 #endif
 
-#define PIOS_MPU9250_GYRO_SAMPLES_BYTES		(6)
-#define PIOS_MPU9250_TEMP_SAMPLES_BYTES		(2)
+#define PIOS_MPU9250_GYRO_SAMPLES_BYTES  (6)
+#define PIOS_MPU9250_TEMP_SAMPLES_BYTES  (2)
 
-#define PIOS_MPU9250_SAMPLES_BYTES (PIOS_MPU9250_ACCEL_SAMPLES_BYTES + \
-									PIOS_MPU9250_GYRO_SAMPLES_BYTES + \
-									PIOS_MPU9250_TEMP_SAMPLES_BYTES + \
-									PIOS_MPU9250_MAG_SAMPLES_BYTES)
+#define PIOS_MPU9250_SAMPLES_BYTES \
+    (PIOS_MPU9250_ACCEL_SAMPLES_BYTES + \
+     PIOS_MPU9250_GYRO_SAMPLES_BYTES + \
+     PIOS_MPU9250_TEMP_SAMPLES_BYTES + \
+     PIOS_MPU9250_MAG_SAMPLES_BYTES)
 
 #ifdef PIOS_MPU9250_ACCEL
-#define PIOS_MPU9250_SENSOR_FIRST_REG PIOS_MPU9250_ACCEL_X_OUT_MSB
+#define PIOS_MPU9250_SENSOR_FIRST_REG    PIOS_MPU9250_ACCEL_X_OUT_MSB
 #else
-#define PIOS_MPU9250_SENSOR_FIRST_REG PIOS_MPU9250_TEMP_OUT_MSB
+#define PIOS_MPU9250_SENSOR_FIRST_REG    PIOS_MPU9250_TEMP_OUT_MSB
 #endif
 
 #if defined(PIOS_MPU9250_MAG) && !defined(PIOS_MPU9250_ACCEL)
@@ -104,13 +105,13 @@ typedef union {
         uint8_t Gyro_Z_l;
 #ifdef PIOS_MPU9250_MAG
         uint8_t st1;
-		uint8_t Mag_X_l;
-		uint8_t Mag_X_h;
-		uint8_t Mag_Y_l;
-		uint8_t Mag_Y_h;
-		uint8_t Mag_Z_l;
-		uint8_t Mag_Z_h;
-		uint8_t st2;
+        uint8_t Mag_X_l;
+        uint8_t Mag_X_h;
+        uint8_t Mag_Y_l;
+        uint8_t Mag_Y_h;
+        uint8_t Mag_Z_l;
+        uint8_t Mag_Z_h;
+        uint8_t st2;
 #endif
     } data;
 } mpu9250_data_t;
@@ -209,11 +210,9 @@ int32_t PIOS_MPU9250_Init(uint32_t spi_id, uint32_t slave_num, const struct pios
  */
 static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg)
 {
+    uint8_t power;
 
-	uint8_t power;
-	uint8_t fifo_store;
-
-	while (PIOS_MPU9250_Test() != 0) {
+    while (PIOS_MPU9250_Test() != 0) {
         ;
     }
 
@@ -224,10 +223,13 @@ static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg)
 
     PIOS_DELAY_WaitmS(100);
 
-
+    // Wake up the chip
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_PWR_MGMT_REG, 0) != 0) {
+        ;
+    }
     // Reset sensors and fifo
     while (PIOS_MPU9250_SetReg(PIOS_MPU9250_USER_CTRL_REG,
-    						   PIOS_MPU9250_USERCTL_DIS_I2C |
+                               PIOS_MPU9250_USERCTL_DIS_I2C |
                                PIOS_MPU9250_USERCTL_SIG_COND |
                                PIOS_MPU9250_USERCTL_FIFO_RST) != 0) {
         ;
@@ -243,18 +245,15 @@ static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg)
         ;
     }
 
-
     // FIFO storage by default, do not include accelerometer and external sense data.
-    power = 0x38;
-    fifo_store = cfg->Fifo_store;
+    power = PIOS_MPU9250_PWRMGMT2_DISABLE_ACCEL;
+
 #if defined(PIOS_MPU9250_ACCEL)
-    fifo_store |= PIOS_MPU9250_ACCEL_OUT;
-    power = 0;
+
+    power &= ~PIOS_MPU9250_PWRMGMT2_DISABLE_ACCEL;
 #endif
-#if defined(PIOS_MPU9250_MAG)
-    fifo_store |= PIOS_MPU9250_EXT0_OUT;
-#endif
-    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_FIFO_EN_REG, fifo_store) != 0) {
+
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_FIFO_EN_REG, cfg->Fifo_store) != 0) {
         ;
     }
     PIOS_MPU9250_SetReg(PIOS_MPU9250_PWR_MGMT2_REG, power);
@@ -432,29 +431,28 @@ static int32_t PIOS_MPU9250_GetReg(uint8_t reg)
  */
 static int32_t PIOS_MPU9250_SetReg(uint8_t reg, uint8_t data)
 {
-	int ret = 0;
+    int ret = 0;
 
     if (PIOS_MPU9250_ClaimBus(false) != 0) {
         return -1;
     }
 
     PIOS_SPI_TransferByte(dev->spi_id, 0x7f & reg);
-    //if (PIOS_SPI_TransferByte(dev->spi_id, 0x7f & reg) != 0) {
-    //    PIOS_MPU9250_ReleaseBus();
-    //    return -2;
-    //}
+    // if (PIOS_SPI_TransferByte(dev->spi_id, 0x7f & reg) != 0) {
+    // PIOS_MPU9250_ReleaseBus();
+    // return -2;
+    // }
 
     PIOS_SPI_TransferByte(dev->spi_id, data);
-    //if (PIOS_SPI_TransferByte(dev->spi_id, data) != 0) {
-    //    PIOS_MPU9250_ReleaseBus();
-    //    return -3;
-    //}
+    // if (PIOS_SPI_TransferByte(dev->spi_id, data) != 0) {
+    // PIOS_MPU9250_ReleaseBus();
+    // return -3;
+    // }
 
     PIOS_MPU9250_ReleaseBus();
 
     return ret;
 }
-
 
 
 /*
@@ -551,30 +549,30 @@ int32_t PIOS_MPU9250_Test(void)
  */
 static int32_t PIOS_MPU9250_Mag_GetReg(uint8_t reg)
 {
-	int32_t data;
+    int32_t data;
 
-	// Set the I2C slave address and read command.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_ADDR, PIOS_MPU9250_MAG_I2C_ADDR |
-							PIOS_MPU9250_MAG_I2C_READ_FLAG) != PIOS_MPU9250_MAG_OK) {
+    // Set the I2C slave address and read command.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_ADDR, PIOS_MPU9250_MAG_I2C_ADDR |
+                               PIOS_MPU9250_MAG_I2C_READ_FLAG) != PIOS_MPU9250_MAG_OK) {
         ;
     }
 
-	// Set the address of the register to read.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_REG, reg) != PIOS_MPU9250_MAG_OK) {
+    // Set the address of the register to read.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_REG, reg) != PIOS_MPU9250_MAG_OK) {
         ;
     }
 
-	// Trigger the byte transfer.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE) != PIOS_MPU9250_MAG_OK) {
+    // Trigger the byte transfer.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE) != PIOS_MPU9250_MAG_OK) {
         ;
     }
 
-	PIOS_DELAY_WaitmS(1);
+    PIOS_DELAY_WaitmS(1);
 
-	// Read result.
-	data = PIOS_MPU9250_GetReg(PIOS_MPU9250_I2C_SLV4_DI);
-	PIOS_DELAY_WaitmS(1);
-	return data;
+    // Read result.
+    data = PIOS_MPU9250_GetReg(PIOS_MPU9250_I2C_SLV4_DI);
+    PIOS_DELAY_WaitmS(1);
+    return data;
 }
 
 /**
@@ -584,26 +582,26 @@ static int32_t PIOS_MPU9250_Mag_GetReg(uint8_t reg)
  */
 static int32_t PIOS_MPU9250_Mag_SetReg(uint8_t reg, uint8_t data)
 {
-	// Set the I2C slave address.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_ADDR, PIOS_MPU9250_MAG_I2C_ADDR) != PIOS_MPU9250_MAG_OK) {
+    // Set the I2C slave address.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_ADDR, PIOS_MPU9250_MAG_I2C_ADDR) != PIOS_MPU9250_MAG_OK) {
         ;
     }
 
-	// Set the address of the register to write.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_REG, reg) != PIOS_MPU9250_MAG_OK) {
+    // Set the address of the register to write.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_REG, reg) != PIOS_MPU9250_MAG_OK) {
         ;
     }
 
-	// Set the byte to write.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_DO, data) != PIOS_MPU9250_MAG_OK) {
+    // Set the byte to write.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_DO, data) != PIOS_MPU9250_MAG_OK) {
         ;
     }
 
-	// Trigger the byte transfer.
-	while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE) != PIOS_MPU9250_MAG_OK) {
+    // Trigger the byte transfer.
+    while (PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE) != PIOS_MPU9250_MAG_OK) {
         ;
     }
-	PIOS_DELAY_WaitmS(1);
+    PIOS_DELAY_WaitmS(1);
     return PIOS_MPU9250_MAG_OK;
 }
 
@@ -615,10 +613,9 @@ static int32_t PIOS_MPU9250_Mag_SetReg(uint8_t reg, uint8_t data)
  */
 static int32_t PIOS_MPU9250_Mag_Sensitivity(void)
 {
+    int i;
 
-	int i;
-
-	/* Put mag in power down state before changing mode */
+    /* Put mag in power down state before changing mode */
     PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_POWER_DOWN_MODE);
     PIOS_DELAY_WaitmS(1);
 
@@ -626,35 +623,34 @@ static int32_t PIOS_MPU9250_Mag_Sensitivity(void)
     PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_FUSE_ROM_MODE);
     PIOS_DELAY_WaitmS(1);
 
-	if (PIOS_MPU9250_ClaimBus(false) != 0) {
-		return -1;
-	}
+    if (PIOS_MPU9250_ClaimBus(false) != 0) {
+        return -1;
+    }
 
     /* Set addres and read flag */
     PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_ADDR);
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_MAG_I2C_ADDR | PIOS_MPU9250_MAG_I2C_READ_FLAG);
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_MAG_I2C_ADDR | PIOS_MPU9250_MAG_I2C_READ_FLAG);
 
-	/* Set the address of the register to read. */
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_REG);
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_ASAX);
+    /* Set the address of the register to read. */
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_REG);
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_ASAX);
 
-	/* Trigger the byte transfer. */
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_CTRL);
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV_ENABLE | 0x3);
+    /* Trigger the byte transfer. */
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_CTRL);
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV_ENABLE | 0x3);
 
-	PIOS_DELAY_WaitmS(1);
+    PIOS_DELAY_WaitmS(1);
 
-	/* Read the mag data from SPI block */
-	for (i=0; i < 0x3; i++)
-	{
-		PIOS_SPI_TransferByte(dev->spi_id, (PIOS_MPU9250_EXT_SENS_DATA_00 | 0x80) + i);
-		dev->mag_sens_adj[i] = (float)(PIOS_SPI_TransferByte(dev->spi_id, 0x0) - 128)/256 + 1;
-	}
+    /* Read the mag data from SPI block */
+    for (i = 0; i < 0x3; i++) {
+        PIOS_SPI_TransferByte(dev->spi_id, (PIOS_MPU9250_EXT_SENS_DATA_00 | 0x80) + i);
+        dev->mag_sens_adj[i] = (float)(PIOS_SPI_TransferByte(dev->spi_id, 0x0) - 128) / 256 + 1;
+    }
 
-	PIOS_MPU9250_ReleaseBus();
+    PIOS_MPU9250_ReleaseBus();
 
 
-	/* Put mag in power down state before changing mode */
+    /* Put mag in power down state before changing mode */
     PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_POWER_DOWN_MODE);
 
     return PIOS_MPU9250_MAG_OK;
@@ -667,48 +663,48 @@ static int32_t PIOS_MPU9250_Mag_Sensitivity(void)
  */
 static int32_t PIOS_MPU9250_Mag_Init(void)
 {
-	// I2C multi-master init.
-	PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_MST_CTRL, PIOS_MPU9250_I2C_MST_P_NSR | PIOS_MPU9250_I2C_MST_CLOCK_400);
-	PIOS_DELAY_WaitmS(1);
+    // I2C multi-master init.
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_MST_CTRL, PIOS_MPU9250_I2C_MST_P_NSR | PIOS_MPU9250_I2C_MST_CLOCK_400);
+    PIOS_DELAY_WaitmS(1);
 
-	// Reset Mag.
-	PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL2, PIOS_MPU9250_MAG_RESET);
-	PIOS_DELAY_WaitmS(1);
+    // Reset Mag.
+    PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL2, PIOS_MPU9250_MAG_RESET);
+    PIOS_DELAY_WaitmS(1);
 
 
-	// read fuse ROM to get the sensitivity adjustment values.
-	if (PIOS_MPU9250_Mag_Sensitivity() != PIOS_MPU9250_MAG_OK) {
-		;
-	}
+    // read fuse ROM to get the sensitivity adjustment values.
+    if (PIOS_MPU9250_Mag_Sensitivity() != PIOS_MPU9250_MAG_OK) {
+        ;
+    }
 
-	// Confirm Mag ID.
-	while (false && (PIOS_MPU9250_Mag_Test() != PIOS_MPU9250_MAG_OK)) {
-		;
-	}
+    // Confirm Mag ID.
+    while (false && (PIOS_MPU9250_Mag_Test() != PIOS_MPU9250_MAG_OK)) {
+        ;
+    }
 
-	// Make sure no other registers will be triggered before entering continuous mode.
-	PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_CTRL, 0x0);
-	PIOS_DELAY_WaitmS(1);
-	PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_DO, 0x0);
-	PIOS_DELAY_WaitmS(1);
+    // Make sure no other registers will be triggered before entering continuous mode.
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV4_CTRL, 0x0);
+    PIOS_DELAY_WaitmS(1);
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_DO, 0x0);
+    PIOS_DELAY_WaitmS(1);
 
-	// Making sure register are accessible.
-	PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_OUTPUT_16BITS | PIOS_MPU9250_MAG_CONTINUOUS_MODE2);
-	PIOS_DELAY_WaitmS(1);
+    // Making sure register are accessible.
+    PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_OUTPUT_16BITS | PIOS_MPU9250_MAG_CONTINUOUS_MODE2);
+    PIOS_DELAY_WaitmS(1);
 
-	// Get ST1, the 6 mag data and ST2.
-	// This is to save 2 SPI access.
-	// Set the I2C slave address and read command.
-	PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_ADDR, PIOS_MPU9250_MAG_I2C_ADDR | PIOS_MPU9250_MAG_I2C_READ_FLAG);
+    // Get ST1, the 6 mag data and ST2.
+    // This is to save 2 SPI access.
+    // Set the I2C slave address and read command.
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_ADDR, PIOS_MPU9250_MAG_I2C_ADDR | PIOS_MPU9250_MAG_I2C_READ_FLAG);
 
-	// Set the address of the register to read.
-	PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_REG, PIOS_MPU9250_ST1);
+    // Set the address of the register to read.
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_REG, PIOS_MPU9250_ST1);
 
-	// Trigger the byte transfer.
-	PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE | 0x8);
-	PIOS_DELAY_WaitmS(1);
+    // Trigger the byte transfer.
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE | 0x8);
+    PIOS_DELAY_WaitmS(1);
 
-	return PIOS_MPU9250_MAG_OK;
+    return PIOS_MPU9250_MAG_OK;
 }
 
 /*
@@ -731,7 +727,6 @@ int32_t PIOS_MPU9250_Mag_ReadID()
  */
 static int32_t PIOS_MPU9250_Mag_Test(void)
 {
-
     /* Verify that ID matches */
     int32_t mpu9250_mag_id = PIOS_MPU9250_Mag_ReadID();
 
@@ -756,18 +751,18 @@ static int32_t PIOS_MPU9250_Mag_Test(void)
  */
 static bool PIOS_MPU9250_ReadMag(bool *woken)
 {
-	if (PIOS_MPU9250_ClaimBusISR(woken, true) != 0) {
-			return false;
-	}
-	// Trigger the byte transfer.
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_CTRL);
-	PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV_ENABLE | 0x8);
+    if (PIOS_MPU9250_ClaimBusISR(woken, true) != 0) {
+        return false;
+    }
+    // Trigger the byte transfer.
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_CTRL);
+    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV_ENABLE | 0x8);
 
-	PIOS_MPU9250_ReleaseBusISR(woken);
+    PIOS_MPU9250_ReleaseBusISR(woken);
 
-	return true;
+    return true;
 }
-#endif
+#endif /* if defined(PIOS_MPU9250_MAG) */
 
 
 /**
@@ -939,10 +934,10 @@ static bool PIOS_MPU9250_HandleData()
     data.temperature = GET_SENSOR_DATA(mpu9250_data, Temperature);
 
 #ifdef PIOS_MPU9250_MAG
-		data.mag_y = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
-		data.mag_x = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
-		data.mag_z = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
-		data.mag_valid = mpu9250_data.data.st1 & PIOS_MPU9250_MAG_DATA_RDY;
+    data.mag_y     = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+    data.mag_x     = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+    data.mag_z     = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
+    data.mag_valid = mpu9250_data.data.st1 & PIOS_MPU9250_MAG_DATA_RDY;
 #endif
 
     BaseType_t higherPriorityTaskWoken;
@@ -975,6 +970,7 @@ static bool PIOS_MPU9250_ReadFifo(bool *woken)
      * any read clears in the status register (PIOS_MPU9250_INT_CLR_ANYRD set in
      * interrupt config register) */
     int32_t result;
+
     if ((result = PIOS_MPU9250_GetInterruptStatusRegISR(woken)) < 0) {
         return false;
     }

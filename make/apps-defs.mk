@@ -98,8 +98,6 @@ SRC += $(MATHLIB)/pid.c
 CPPSRC += $(PIDLIB)/pidcontroldown.cpp
 
 ## PIOS Hardware (Common)
-SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
-SRC += $(PIOSCOMMON)/pios_flash_jedec.c
 SRC += $(PIOSCOMMON)/pios_debuglog.c
 endif
 

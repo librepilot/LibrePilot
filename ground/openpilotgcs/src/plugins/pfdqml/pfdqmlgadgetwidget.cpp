@@ -103,10 +103,6 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
 
     m_qmlFileName = fn;
 
-    setSource(QUrl());
-
-    engine()->clearComponentCache();
-
     if (!fn.isEmpty()) {
         QUrl url = QUrl::fromLocalFile(fn);
 
@@ -120,8 +116,12 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
         setSource(url);
     }
     else {
+        setSource(QUrl());
+
         engine()->removeImageProvider("svg");
         engine()->rootContext()->setContextProperty("svgRenderer", NULL);
+
+        engine()->clearComponentCache();
     }
 
     foreach(const QQmlError &error, errors()) {
@@ -200,11 +200,9 @@ void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
 
 void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
 {
-    bool wasEnabled = terrainEnabled();
-
-    m_terrainEnabled = arg;
-
-    if (wasEnabled != terrainEnabled()) {
+    if (m_terrainEnabled != arg) {
+        m_terrainEnabled = arg;
+        qDebug() << "PfdQmlGadgetWidget - setTerrainEnabled" << terrainEnabled();
         emit terrainEnabledChanged(terrainEnabled());
     }
 }
@@ -213,7 +211,7 @@ void PfdQmlGadgetWidget::setTerrainFile(QString arg)
 {
     if (m_terrainFile != arg) {
         m_terrainFile = arg;
-        qDebug() << "PfdQmlGadgetWidget - setTerrainFile " << terrainFile();
+        qDebug() << "PfdQmlGadgetWidget - setTerrainFile" << terrainFile();
         emit terrainFileChanged(terrainFile());
     }
 }
@@ -222,7 +220,7 @@ void PfdQmlGadgetWidget::setModelFile(QString arg)
 {
     if (m_modelFile != arg) {
         m_modelFile = arg;
-        qDebug() << "setModelFile - emit" << modelFile();
+        qDebug() << "PfdQmlGadgetWidget - setModelFile" << modelFile();
         emit modelFileChanged(modelFile());
     }
 }

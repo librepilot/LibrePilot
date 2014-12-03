@@ -214,7 +214,7 @@ int32_t PIOS_Flash_EEPROM_Read(struct flash_eeprom_dev *flash_dev, const uint32_
         return -2;
     }
     // split the operation into several page operations
-    uint8_t bytes_read     = 0;
+    uint8_t bytes_read = 0;
 
     const uint16_t page_len = flash_dev->cfg->page_len;
 
@@ -230,7 +230,7 @@ int32_t PIOS_Flash_EEPROM_Read(struct flash_eeprom_dev *flash_dev, const uint32_
         if (status < 0) {
             return status;
         }
-        uint16_t current_block_len  = len - bytes_read;
+        uint16_t current_block_len = len - bytes_read;
         uint16_t index_within_page = (address16 + bytes_read) % page_len;
         // prevent overflowing the page boundary
         current_block_len = MIN(page_len - index_within_page, current_block_len);

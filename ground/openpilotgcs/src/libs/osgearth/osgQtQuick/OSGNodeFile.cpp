@@ -99,10 +99,12 @@ public slots:
 
 OSGNodeFile::OSGNodeFile(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {    
+    qDebug() << "OSGNodeFile - <init>";
 }
 
 OSGNodeFile::~OSGNodeFile()
 {
+    qDebug() << "OSGNodeFile - <destruct>";
 }
 
 const QUrl OSGNodeFile::source() const

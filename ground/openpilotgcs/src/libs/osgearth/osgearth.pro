@@ -18,6 +18,7 @@ HEADERS += \
     osgQtQuick/Utility.hpp \
     osgQtQuick/OSGNode.hpp \
     osgQtQuick/OSGGroup.hpp \
+    osgQtQuick/OSGCubeNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGNodeFile.hpp \
     osgQtQuick/OSGModelNode.hpp \
@@ -31,6 +32,7 @@ SOURCES += \
     osgQtQuick/Utility.cpp \ 
     osgQtQuick/OSGNode.cpp \
     osgQtQuick/OSGGroup.cpp \
+    osgQtQuick/OSGCubeNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGNodeFile.cpp \
     osgQtQuick/OSGModelNode.cpp \

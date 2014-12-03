@@ -5,11 +5,6 @@
 #include "QuickWindowViewer.hpp"
 #include "Utility.hpp"
 
-#include <QQuickWindow>
-#include <QOpenGLFramebufferObject>
-#include <QSGSimpleTextureNode>
-#include <QDebug>
-
 #include <osg/Node>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
@@ -18,6 +13,12 @@
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Sky>
+
+#include <QQuickWindow>
+#include <QOpenGLFramebufferObject>
+#include <QSGSimpleTextureNode>
+#include <QDebug>
+#include <QThread>
 
 namespace osgQtQuick {
 
@@ -45,17 +46,6 @@ struct OSGViewport::Hidden : public QObject
     };
     friend struct PostDraw;
 
-    struct CameraUpdateCallback : public osg::NodeCallback
-    {
-    public:
-        CameraUpdateCallback(Hidden *h);
-
-        void operator()(osg::Node* node, osg::NodeVisitor* nv);
-
-        mutable Hidden *h;
-    };
-    friend class CameraUpdateCallback;
-
 public:
 
     Hidden(OSGViewport *quickItem) : QObject(quickItem),
@@ -63,7 +53,6 @@ public:
         quickItem(quickItem),
         sceneData(0),
         camera(0),
-        cameraDirty(false),
         drawingMode(Native),
         fbo(0),
         texture(0),
@@ -174,26 +163,14 @@ public:
     bool acceptCamera(OSGCamera *camera) {
         qDebug() << "OSGViewport - acceptCamera" << camera;
         if (this->camera == camera) {
-            return false;
-        }
-
-        if (this->camera) {
-            disconnect(this->camera);
+            return true;
         }
 
         this->camera = camera;
 
-        cameraDirty = true;
-
-        this->camera->installCamera(view);
-        updateViewport();
-
-        // install camera update callback
-        view->getCamera()->addUpdateCallback(new CameraUpdateCallback(this));
-
         if (this->camera) {
-            connect(this->camera, SIGNAL(attitudeChanged(qreal, qreal, qreal)), this, SLOT(onCameraDirty()));
-            connect(this->camera, SIGNAL(positionChanged(double, double, double)), this, SLOT(onCameraDirty()));
+            this->camera->installCamera(view);
+            updateViewport();
         }
 
         return true;
@@ -235,7 +212,6 @@ public:
     OSGNode *sceneData;
 
     OSGCamera *camera;
-    bool cameraDirty;
 
     OSGViewport::DrawingMode drawingMode;
 
@@ -300,10 +276,10 @@ private slots:
         if (window && (qwv = QuickWindowViewer::instance(window))) {
             qDebug() << "OSGViewport - onWindowChanged" << "adding view";
             view->getCamera()->setGraphicsContext(qwv->graphicsContext());
+            updateViewport();
             qwv->compositeViewer()->addView(view.get());
             connect(window, SIGNAL(widthChanged(int)), this, SLOT(updateViewport()));
             connect(window, SIGNAL(heightChanged(int)), this, SLOT(updateViewport()));
-            updateViewport();
         }
         this->window = window;
     }
@@ -314,11 +290,6 @@ private slots:
         if (view.valid()) {
             acceptNode(node);
         }
-    }
-
-    void onCameraDirty()
-    {
-        cameraDirty = true;
     }
 
 private:
@@ -371,18 +342,6 @@ void OSGViewport::Hidden::PostDraw::operator ()(osg::RenderInfo &/*renderInfo*/)
     }
     else {
         qCritical() << "PostDraw - no fbo!";
-    }
-}
-
-/* struct Hidden::CameraUpdateCallback */
-
-OSGViewport::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h) {}
-
-void OSGViewport::Hidden::CameraUpdateCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
-{
-    if (h->camera && h->cameraDirty) {
-        h->cameraDirty = false;
-        h->camera->updateCamera(h->view->getCamera());
     }
 }
 

@@ -9,7 +9,7 @@
 
 #include <osgGA/NodeTrackerManipulator>
 //#include <osgGA/KeySwitchMatrixManipulator>
-//#include <osgGA/TrackballManipulator>
+#include <osgGA/TrackballManipulator>
 //#include <osgGA/SphericalManipulator>
 //#include <osgGA/FlightManipulator>
 //#include <osgGA/DriveManipulator>
@@ -30,12 +30,27 @@ struct OSGCamera::Hidden : public QObject
 {
     Q_OBJECT
 
+    struct CameraUpdateCallback : public osg::NodeCallback
+    {
+    public:
+        CameraUpdateCallback(Hidden *h);
+        ~CameraUpdateCallback();
+
+        void operator()(osg::Node* node, osg::NodeVisitor* nv);
+
+        mutable Hidden *h;
+    };
+    friend class CameraUpdateCallback;
+
 public:
 
     Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL), trackerMode(NodeCenter) {
         fieldOfView = 90.0;
+        cameraDirty = false;
         roll = pitch = yaw = 0.0;
         latitude = longitude = altitude = 0.0;
+        cameraSizeDirty = false;
+        x = y = width = height = 0;
     }
 
     ~Hidden()
@@ -51,7 +66,6 @@ public:
         manipulatorMode = mode;
 
         return true;
-
     }
 
     bool acceptTrackNode(OSGNode *node)
@@ -72,7 +86,80 @@ public:
         }
 
         return true;
+    }
 
+    void installCamera(osg::Camera *camera) {
+        this->camera = camera;
+
+        // install camera update callback
+        // TODO will the CameraUpdateCallback be destroyed???
+
+        this->camera ->addUpdateCallback(new CameraUpdateCallback(this));
+
+        // TODO needed?
+        cameraDirty = true;
+    }
+
+    void updateCamera()
+    {
+        if (!camera.valid()) {
+            qWarning() << "OSGCamera - updateCamera invalid camera";
+        }
+        if (cameraSizeDirty) {
+            cameraSizeDirty = false;
+            updateCameraSize();
+        }
+        if (cameraDirty) {
+            cameraDirty = false;
+            if (manipulatorMode == User) {
+                updateCameraPosition();
+            }
+        }
+    }
+
+    void updateCameraSize()
+    {
+        qDebug() << "OSGCamera - updateCamera size";
+        //camera->getGraphicsContext()->resized(x, y, width, height);
+        camera->setViewport(x, y, width, height);
+        camera->setProjectionMatrixAsPerspective(
+               fieldOfView, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );
+    }
+
+    void updateCameraPosition()
+    {
+        qDebug() << "OSGCamera - updateCamera position";
+        // Altitude mode is absolute (absolute height above MSL/HAE)
+        // HAE : Height above ellipsoid (HAE). This is the default.
+        // MSL : Height above Mean Sea Level (MSL) if a geoid separation value is specified.
+        // TODO handle the case where the terrain SRS is not "wgs84"
+        // TODO check if position is not below terrain?
+        // TODO compensate antenna height when source of position is GPS (i.e. subtract antenna height from altitude) ;)
+
+        // Camera position
+        osg::Matrix cameraPosition;
+
+        osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
+                longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
+        geoPoint.createLocalToWorld(cameraPosition);
+
+        // Camera orientation
+        // By default the camera looks toward -Z, we must rotate it so it looks toward Y
+        osg::Matrix cameraRotation;
+        cameraRotation.makeRotate(osg::DegreesToRadians(90.0), osg::Vec3(1.0, 0.0, 0.0),
+                osg::DegreesToRadians(0.0),  osg::Vec3(0.0, 1.0, 0.0),
+                osg::DegreesToRadians(0.0),  osg::Vec3(0.0, 0.0, 1.0));
+
+        // Final camera matrix
+        osg::Matrix cameraMatrix = cameraRotation
+                * osg::Matrix::rotate(osg::DegreesToRadians(roll),   osg::Vec3(0.0, 1.0, 0.0))
+        * osg::Matrix::rotate(osg::DegreesToRadians(pitch), osg::Vec3(1.0, 0.0, 0.0))
+        * osg::Matrix::rotate(osg::DegreesToRadians(yaw),   osg::Vec3(0.0, 0.0, -1.0))
+        * cameraPosition;
+
+        // Inverse the camera's position and orientation matrix to obtain the view matrix
+        cameraMatrix = osg::Matrix::inverse(cameraMatrix);
+        camera->setViewMatrix(cameraMatrix);
     }
 
     qreal fieldOfView;
@@ -84,6 +171,8 @@ public:
     TrackerMode trackerMode;
 
     // for User manipulator
+    bool cameraDirty;
+
     qreal roll;
     qreal pitch;
     qreal yaw;
@@ -92,15 +181,37 @@ public:
     double longitude;
     double altitude;
 
-    //osg::ref_ptr<osg::Node> node;
+    bool cameraSizeDirty;
+    int x;
+    int y;
+    int width;
+    int height;
+
+    osg::observer_ptr<osg::Camera> camera;
 
 private slots:
     void onTrackNodeChanged(osg::Node *node)
     {
+        qDebug() << "OSGCamera - onTrackNodeChanged" << node;
         // TODO otherwise async load might break cameras...
     }
 
 };
+
+/* struct Hidden::CameraUpdateCallback */
+
+OSGCamera::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h) {
+    qDebug() << "OSGCamera - CameraUpdateCallback - <init>";
+}
+
+OSGCamera::Hidden::CameraUpdateCallback::~CameraUpdateCallback() {
+    qDebug() << "OSGCamera - CameraUpdateCallback - <destruct>";
+}
+
+void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
+{
+    h->updateCamera();
+}
 
 OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
 {    
@@ -182,8 +293,8 @@ void OSGCamera::setRoll(qreal arg)
 {
     if (h->roll!= arg) {
         h->roll = arg;
+        h->cameraDirty = true;
         emit rollChanged(roll());
-        emit attitudeChanged(h->roll, h->pitch, h->yaw);
     }
 }
 
@@ -196,8 +307,8 @@ void OSGCamera::setPitch(qreal arg)
 {
     if (h->pitch!= arg) {
         h->pitch = arg;
+        h->cameraDirty = true;
         emit pitchChanged(pitch());
-        emit attitudeChanged(h->roll, h->pitch, h->yaw);
     }
 }
 
@@ -210,8 +321,8 @@ void OSGCamera::setYaw(qreal arg)
 {
     if (h->yaw!= arg) {
         h->yaw = arg;
+        h->cameraDirty = true;
         emit yawChanged(yaw());
-        emit attitudeChanged(h->roll, h->pitch, h->yaw);
     }
 }
 
@@ -224,8 +335,8 @@ void OSGCamera::setLatitude(double arg)
 {
     if (h->latitude != arg) {
         h->latitude = arg;
+        h->cameraDirty = true;
         emit latitudeChanged(latitude());
-        emit positionChanged(h->latitude, h->longitude, h->altitude);
     }
 }
 
@@ -238,8 +349,8 @@ void OSGCamera::setLongitude(double arg)
 {
     if (h->longitude != arg) {
         h->longitude = arg;
+        h->cameraDirty = true;
         emit longitudeChanged(longitude());
-        emit positionChanged(h->latitude, h->longitude, h->altitude);
     }
 }
 
@@ -252,8 +363,8 @@ void OSGCamera::setAltitude(double arg)
 {
     if (h->altitude!= arg) {
         h->altitude = arg;
+        h->cameraDirty = true;
         emit altitudeChanged(altitude());
-        emit positionChanged(h->latitude, h->longitude, h->altitude);
     }
 }
 
@@ -273,8 +384,13 @@ void OSGCamera::setAltitude(double arg)
 void OSGCamera::installCamera(osgViewer::View *view)
 {
     qDebug() << "OSGCamera - installCamera" << view;
+
+    h->installCamera(view->getCamera());
+
     switch(h->manipulatorMode) {
     case OSGCamera::None:
+        view->setCameraManipulator(new osgGA::TrackballManipulator());
+//                osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
         break;
     case OSGCamera::User:
         // disable any installed camera manipulator
@@ -287,6 +403,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
         if (h->trackNode && h->trackNode->node()) {
             // setup tracking camera
             // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
+            // TODO who takes ownership?
             osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
                     osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
             ntm->setTrackNode(h->trackNode->node());
@@ -323,9 +440,14 @@ void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int he
         qWarning() << "OSGCamera - setViewport - invalid size " << width << "x" << height;
         return;
     }
-    camera->setViewport(x, y, width, height);
-    camera->setProjectionMatrixAsPerspective(
-            h->fieldOfView, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );
+    if (h->x != x || h->y != y || h->width != width || h->height != height) {
+        h->x = x;
+        h->y = y;
+        h->width = width;
+        h->height = height;
+        //    h->cameraSizeDirty = true;
+        h->updateCameraSize();
+    }
 }
 
 // From wikipedia : Latitude and longitude values can be based on different geodetic systems or datums, the most common being WGS 84, a global datum used by all GPS equipments
@@ -336,45 +458,6 @@ void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int he
 // user enter 120m and is wrong :)
 
 // See http://webhelp.esri.com/arcpad/8.0/referenceguide/index.htm#gps_rangefinder/concept_gpsheight.htm
-void OSGCamera::updateCamera(osg::Camera *camera)
-{
-    if (h->manipulatorMode != User) {
-        return;
-    }
-
-    // Altitude mode is absolute (absolute height above MSL/HAE)
-    // HAE : Height above ellipsoid (HAE). This is the default.
-    // MSL : Height above Mean Sea Level (MSL) if a geoid separation value is specified.
-    // TODO handle the case where the terrain SRS is not "wgs84"
-    // TODO check if position is not below terrain?
-    // TODO compensate antenna height when source of position is GPS (i.e. subtract antenna height from altitude) ;)
-
-    // Camera position
-    osg::Matrix cameraPosition;
-
-    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-            longitude(), latitude(), altitude(), osgEarth::ALTMODE_ABSOLUTE);
-    geoPoint.createLocalToWorld(cameraPosition);
-
-     // Camera orientation
-    // By default the camera looks toward -Z, we must rotate it so it looks toward Y
-    osg::Matrix cameraRotation;
-    cameraRotation.makeRotate(osg::DegreesToRadians(90.0), osg::Vec3(1.0, 0.0, 0.0),
-                              osg::DegreesToRadians(0.0),  osg::Vec3(0.0, 1.0, 0.0),
-                              osg::DegreesToRadians(0.0),  osg::Vec3(0.0, 0.0, 1.0));
-
-    // Final camera matrix
-    osg::Matrix cameraMatrix = cameraRotation
-                             * osg::Matrix::rotate(osg::DegreesToRadians(roll()),   osg::Vec3(0.0, 1.0, 0.0))
-                             * osg::Matrix::rotate(osg::DegreesToRadians(pitch()), osg::Vec3(1.0, 0.0, 0.0))
-                             * osg::Matrix::rotate(osg::DegreesToRadians(yaw()),   osg::Vec3(0.0, 0.0, -1.0))
-                             * cameraPosition;
-
-    // Inverse the camera's position and orientation matrix to obtain the view matrix
-    cameraMatrix = osg::Matrix::inverse(cameraMatrix);
-    camera->setViewMatrix(cameraMatrix);
-}
-
 //    osg::Camera *createCamera(int x, int y, int w, int h, const std::string & name = "", bool windowDecoration = false)
 //    {
 //        osg::DisplaySettings *ds = osg::DisplaySettings::instance().get();

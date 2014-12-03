@@ -89,7 +89,6 @@ public:
 
     void installCamera(osgViewer::View *view);
     void setViewport(osg::Camera *camera, int x, int y, int width, int height);
-    void updateCamera(osg::Camera *camera);
 
 signals:
     void fieldOfViewChanged(qreal arg);
@@ -106,9 +105,6 @@ signals:
     void latitudeChanged(double arg);
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
-
-    void attitudeChanged(qreal roll, qreal pitch, qreal yaw);
-    void positionChanged(double latitude, double longitude, double altitude);
 
 //    osg::Node* node();
 //    void setNode(osg::Node *node);

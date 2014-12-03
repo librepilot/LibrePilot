@@ -5,8 +5,8 @@ import osgQtQuick 1.0
 OSGViewport {
     id: fullview
     anchors.fill: parent
-    focus:true
-    sceneData: skyNode 
+    focus: true
+    sceneData: skyNode
     camera: camera
     //color: "transparent"
     //opacity: 0.999

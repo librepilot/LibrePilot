@@ -123,6 +123,7 @@ public:
         if (mapNode) {
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             // TODO should not be done here
+            // TODO will the AutoClipPlaneCullCallback be destroyed???
             view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
         }
 
@@ -147,6 +148,7 @@ public:
         drawingMode = mode;
 
         if (drawingMode == OSGViewport::Buffer) {
+            quickItem->setFlag(QQuickItem::ItemHasContents, true);
             if(!preDraw.valid()) {
                 preDraw = new PreDraw(this);
                 view->getCamera()->setPreDrawCallback(preDraw.get());
@@ -155,6 +157,9 @@ public:
                 postDraw = new PostDraw(this);
                 view->getCamera()->setPostDrawCallback(postDraw.get());
             }
+        }
+        else {
+            //quickItem->setFlag(QQuickItem::ItemHasContents, true);
         }
 
         return true;
@@ -180,9 +185,9 @@ public:
     {
         qDebug() << "OSGViewport - updateFBO";
 
-        if (textureNode) {
-            delete textureNode;
-        }
+//        if (textureNode) {
+//            delete textureNode;
+//        }
         if (texture) {
             delete texture;
         }
@@ -198,9 +203,13 @@ public:
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         fbo = new QOpenGLFramebufferObject(size, format);
         texture = quickItem->window()->createTextureFromId(fbo->texture(), size);
-        textureNode = new QSGSimpleTextureNode();
+        //textureNode = new QSGSimpleTextureNode();
+        if (!textureNode) {
+            textureNode = new QSGSimpleTextureNode();
+        }
         textureNode->setRect(0, quickItem->height(), quickItem->width(), -quickItem->height());
         textureNode->setTexture(texture);
+        textureNode->markDirty(QSGNode::DirtyGeometry);
         //        quickItem->update();
     }
 
@@ -295,6 +304,7 @@ private slots:
 private:
     void initOSG() {
         view = new osgViewer::View();
+        // TODO will the StatsHandler be destroyed???
         view->addEventHandler(new osgViewer::StatsHandler());
         //viewer->addEventHandler(new osgGA::StateSetManipulator());
         //viewer->addEventHandler(new osgViewer::ThreadingHandler());
@@ -305,7 +315,7 @@ private:
 
         qDebug() << "OSGViewport - acceptQuickItem" << quickItem << quickItem->window();
 
-        quickItem->setFlag(QQuickItem::ItemHasContents, true);
+        //quickItem->setFlag(QQuickItem::ItemHasContents, true);
         connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
     }
 
@@ -347,8 +357,7 @@ void OSGViewport::Hidden::PostDraw::operator ()(osg::RenderInfo &/*renderInfo*/)
 
 /* class OSGViewport */
 
-OSGViewport::OSGViewport(QQuickItem *parent) :
-    QQuickItem(parent), h(new Hidden(this))
+OSGViewport::OSGViewport(QQuickItem *parent) : QQuickItem(parent), h(new Hidden(this))
 {
     qDebug() << "OSGViewport - <init>";
     setAcceptHoverEvents(true);
@@ -415,7 +424,7 @@ void OSGViewport::geometryChanged(const QRectF &newGeometry, const QRectF &oldGe
 {
     qDebug() << "OSGViewport - geometryChanged" << newGeometry << oldGeometry;
     QQuickItem::geometryChanged(newGeometry, oldGeometry);
-    if (window()) {
+    if (window() && newGeometry != oldGeometry) {
         h->updateViewport();
     }
 }
@@ -504,7 +513,8 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintN
 
     if (h->drawingMode != Buffer) {
         qWarning() << "OSGViewport - updatePaintNode - called in non Buffer mode";
-        return oldNode;
+        //h->quickItem->setFlag(QQuickItem::ItemHasContents, false);
+        return NULL;
     }
 
 //    if (!h->textureNode) {

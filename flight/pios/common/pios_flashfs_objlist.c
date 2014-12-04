@@ -194,8 +194,10 @@ int32_t PIOS_FLASHFS_Format(uintptr_t fs_id)
  */
 static int32_t PIOS_FLASHFS_ClearObjectTableHeader(struct flashfs_dev *dev)
 {
-    if (dev->driver->erase_sector(dev->flash_id, 0) != 0) {
-        return -1;
+    for (int i = 0; i < 16; i++) {
+        if (dev->driver->erase_sector(dev->flash_id, 256 * i) != 0) {
+            return -1;
+        }
     }
 
     if (dev->driver->write_data(dev->flash_id, 0, (uint8_t *)&dev->cfg->table_magic, sizeof(dev->cfg->table_magic)) != 0) {
@@ -453,7 +455,6 @@ int32_t PIOS_FLASHFS_ObjLoad(uintptr_t fs_id, uint32_t obj_id, uint16_t obj_inst
     if (dev->driver->end_transaction(dev->flash_id) != 0) {
         return -1;
     }
-
     return 0;
 }
 

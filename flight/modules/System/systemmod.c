@@ -171,12 +171,18 @@ int32_t SystemModInitialize(void)
     return 0;
 }
 
+extern volatile int initTaskDone;
+
 MODULE_INITCALL(SystemModInitialize, 0);
 /**
  * System task, periodically executes every SYSTEM_UPDATE_PERIOD_MS
  */
 static void systemTask(__attribute__((unused)) void *parameters)
 {
+    while (!initTaskDone) {
+        vTaskDelay(10);
+    }
+
     /* create all modules thread */
     MODULE_TASKCREATE_ALL;
 

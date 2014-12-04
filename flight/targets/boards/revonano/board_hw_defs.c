@@ -1320,7 +1320,7 @@ struct flashfs_cfg flash_main_fs_cfg = {
     .obj_magic       = 0x19293949,
     .obj_table_start = 0x00000010,
     .obj_table_end   = 0x1000,
-    .sector_size     = 0xFF,
+    .sector_size     = 0x100,
     .chip_size       = 0x10000
 };
 #endif /* PIOS_INCLUDE_FLASH_OBJLIST */

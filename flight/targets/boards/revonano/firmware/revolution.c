@@ -114,6 +114,9 @@ int main()
 
     return 0;
 }
+
+
+volatile int initTaskDone = 0;
 /**
  * Initialisation task.
  *
@@ -126,6 +129,8 @@ void initTask(__attribute__((unused)) void *parameters)
 
     /* Initialize modules */
     MODULE_INITIALISE_ALL;
+
+    initTaskDone = 1;
 
     /* terminate this task */
     vTaskDelete(NULL);

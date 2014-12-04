@@ -236,7 +236,7 @@ int32_t PIOS_Flash_EEPROM_Read(struct flash_eeprom_dev *flash_dev, const uint32_
         current_block_len = MIN(page_len - index_within_page, current_block_len);
         status      = PIOS_Flash_EEPROM_ReadSinglePage(flash_dev, address + bytes_read, &buffer[bytes_read], current_block_len);
         bytes_read += current_block_len;
-        if (!status) {
+        if (status) {
             // error occurred during the write operation
             return status;
         }
@@ -282,7 +282,7 @@ int32_t PIOS_Flash_EEPROM_Write(struct flash_eeprom_dev *flash_dev, const uint32
         current_block_len = MIN(page_len - index_within_page, current_block_len);
         status = PIOS_Flash_EEPROM_WriteSinglePage(flash_dev, address + bytes_written, &buffer[bytes_written], current_block_len);
         bytes_written    += current_block_len;
-        if (!status) {
+        if (status) {
             // error occurred during the write operation
             return status;
         }
@@ -391,7 +391,6 @@ static int32_t PIOS_Flash_EEPROM_EraseSector(uintptr_t flash_id, uint32_t addr)
     }
     // Rewrite first block of bytes to invalidate the sector.
     const uint8_t buf[16] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-
     return PIOS_Flash_EEPROM_Write(flash_dev, addr, buf, sizeof(buf));
 }
 

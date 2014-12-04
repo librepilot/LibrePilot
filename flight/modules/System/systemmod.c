@@ -102,6 +102,8 @@ static bool mallocFailed;
 static HwSettingsData bootHwSettings;
 static FrameType_t bootFrameType;
 
+volatile int initTaskDone = 0;
+
 // Private functions
 static void objectUpdatedCb(UAVObjEvent *ev);
 static void checkSettingsUpdatedCb(UAVObjEvent *ev);
@@ -170,8 +172,6 @@ int32_t SystemModInitialize(void)
 
     return 0;
 }
-
-extern volatile int initTaskDone;
 
 MODULE_INITCALL(SystemModInitialize, 0);
 /**

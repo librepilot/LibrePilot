@@ -1,6 +1,6 @@
 <xml>
-    <object name="Mpu9250Settings" singleinstance="true" settings="true" category="Sensors">
-        <description>Settings for the @ref MPU9250 sensor used on revobone. Reboot the board for this to takes effect</description>
+    <object name="MPUGyroAccelSettings" singleinstance="true" settings="true" category="Sensors">
+        <description>Settings for the @ref MPU6000 and MPU9000 sensor series. Used in CC3D, Revolution and RevoBone. Reboot the board for this to takes effect</description>
         <field name="GyroScale" units="deg/s" type="enum" elements="1" defaultvalue="Scale_2000">
             <options>
                 <option>Scale_250</option>
@@ -18,7 +18,7 @@
             </options>
         </field>
 
-        <field name="FilterSetting" units="Hz" type="enum" elements="1" defaultvalue="Lowpass_256_Hz">
+        <field name="FilterSetting" units="Hz" type="enum" elements="1" defaultvalue="Lowpass_188_Hz">
             <options>
                 <option>Lowpass_256_Hz</option>
                 <option>Lowpass_188_Hz</option>
@@ -29,7 +29,6 @@
                 <option>Lowpass_5_Hz</option>
             </options>
         </field>
-                           
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>
         <telemetryflight acked="true" updatemode="onchange" period="0"/>

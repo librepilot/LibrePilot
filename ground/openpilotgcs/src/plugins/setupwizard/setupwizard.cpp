@@ -68,8 +68,8 @@ SetupWizard::SetupWizard(QWidget *parent) : QWizard(parent), VehicleConfiguratio
         m_actuatorSettings << actuatorChannelSettings();
     }
     setWizardStyle(QWizard::ModernStyle);
-    setMinimumSize(600, 600);
-    resize(600, 600);
+    setMinimumSize(780, 600);
+    resize(780, 600);
     createPages();
 }
 
@@ -170,7 +170,7 @@ int SetupWizard::nextId() const
     }
 
     case PAGE_BIAS_CALIBRATION:
-        if (getVehicleType() == VEHICLE_MULTI && getEscType() == ESC_RAPID) {
+        if (getVehicleType() == VEHICLE_MULTI) {
             return PAGE_ESC_CALIBRATION;
         } else {
             return PAGE_OUTPUT_CALIBRATION;
@@ -277,9 +277,6 @@ QString SetupWizard::getSummaryText()
         case SetupWizard::MULTI_ROTOR_QUAD_PLUS:
             summary.append(tr("Quadcopter +"));
             break;
-        case SetupWizard::MULTI_ROTOR_QUAD_H:
-            summary.append(tr("Quadcopter H"));
-            break;
         case SetupWizard::MULTI_ROTOR_HEXA:
             summary.append(tr("Hexacopter"));
             break;
@@ -353,14 +350,8 @@ QString SetupWizard::getSummaryText()
     case INPUT_SBUS:
         summary.append(tr("Futaba S.Bus"));
         break;
-    case INPUT_DSM2:
-        summary.append(tr("Spektrum satellite (DSM2)"));
-        break;
-    case INPUT_DSMX10:
-        summary.append(tr("Spektrum satellite (DSMX10BIT)"));
-        break;
-    case INPUT_DSMX11:
-        summary.append(tr("Spektrum satellite (DSMX11BIT)"));
+    case INPUT_DSM:
+        summary.append(tr("Spektrum Satellite"));
         break;
     default:
         summary.append(tr("Unknown"));
@@ -370,10 +361,10 @@ QString SetupWizard::getSummaryText()
     summary.append("<b>").append(tr("Speed Controller (ESC) type: ")).append("</b>");
     switch (getEscType()) {
     case ESC_STANDARD:
-        summary.append(tr("Standard ESC (50 Hz)"));
+        summary.append(tr("Standard ESC (%1 Hz)").arg(VehicleConfigurationHelper::LEGACY_ESC_FREQUENCY));
         break;
     case ESC_RAPID:
-        summary.append(tr("Rapid ESC (500 Hz)"));
+        summary.append(tr("Rapid ESC (%1 Hz)").arg(VehicleConfigurationHelper::RAPID_ESC_FREQUENCY));
         break;
     default:
         summary.append(tr("Unknown"));

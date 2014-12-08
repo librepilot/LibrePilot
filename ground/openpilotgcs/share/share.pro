@@ -3,7 +3,7 @@ include(../openpilotgcs.pri)
 TEMPLATE = subdirs
 SUBDIRS = openpilotgcs/translations
 
-DATACOLLECTIONS = dials models pfd osgearth sounds diagrams mapicons stylesheets default_configurations
+DATACOLLECTIONS = cloudconfig default_configurations dials models pfd sounds diagrams mapicons stylesheets osgearth
 
 equals(copydata, 1) {
     for(dir, DATACOLLECTIONS) {

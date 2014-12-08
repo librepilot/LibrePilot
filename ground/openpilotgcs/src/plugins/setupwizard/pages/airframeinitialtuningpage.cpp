@@ -1,11 +1,11 @@
 /**
  ******************************************************************************
  *
- * @file       airframestabfixedwingpage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @file       airframeinitialtuningpage.cpp
+ * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup
  * @{
- * @addtogroup AirframeStabFixedwingPage
+ * @addtogroup AirframeInitialTuningPage
  * @{
  * @brief
  *****************************************************************************/
@@ -31,6 +31,7 @@
 #include <QJsonArray>
 #include <QDir>
 #include "vehicletemplateexportdialog.h"
+#include "utils/pathutils.h"
 
 AirframeInitialTuningPage::AirframeInitialTuningPage(SetupWizard *wizard, QWidget *parent) :
     AbstractWizardPage(wizard, parent),
@@ -151,6 +152,23 @@ void AirframeInitialTuningPage::templateSelectionChanged()
     }
 }
 
+bool AirframeInitialTuningPage::airframeIsCompatible(int vehicleType, int vehicleSubType)
+{
+    if (vehicleType != getWizard()->getVehicleType()) {
+        return false;
+    }
+
+    int wizSubType = getWizard()->getVehicleSubType();
+    switch (vehicleType) {
+    case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
+    {
+        return wizSubType == VehicleConfigurationSource::MULTI_ROTOR_QUAD_X;
+    }
+    default:
+        return vehicleSubType == wizSubType;
+    }
+}
+
 void AirframeInitialTuningPage::loadValidFiles()
 {
     ui->templateList->clear();
@@ -159,7 +177,7 @@ void AirframeInitialTuningPage::loadValidFiles()
     }
     m_templates.clear();
 
-    QDir templateDir(QString("%1/%2/").arg(VehicleTemplateExportDialog::EXPORT_BASE_NAME).arg(m_dir));
+    QDir templateDir(QString("%1/%2/").arg(Utils::PathUtils().InsertDataPath("%%DATAPATH%%cloudconfig")).arg(m_dir));
     QStringList names;
     names << "*.optmpl";
     templateDir.setNameFilters(names);
@@ -173,9 +191,8 @@ void AirframeInitialTuningPage::loadValidFiles()
             QJsonParseError error;
             QJsonDocument templateDoc = QJsonDocument::fromJson(jsonData, &error);
             if (error.error == QJsonParseError::NoError) {
-                QJsonObject json    = templateDoc.object();
-                if (json["type"].toInt() == getWizard()->getVehicleType() &&
-                    json["subtype"].toInt() == getWizard()->getVehicleSubType()) {
+                QJsonObject json = templateDoc.object();
+                if (airframeIsCompatible(json["type"].toInt(), json["subtype"].toInt())) {
                     QString uuid = json["uuid"].toString();
                     if (!m_templates.contains(uuid)) {
                         m_templates[json["uuid"].toString()] = new QJsonObject(json);
@@ -192,16 +209,21 @@ void AirframeInitialTuningPage::loadValidFiles()
 
 void AirframeInitialTuningPage::setupTemplateList()
 {
-    QListWidgetItem *item = new QListWidgetItem(tr("Current Tuning"), ui->templateList);
+    QListWidgetItem *item;
 
-    item->setData(Qt::UserRole + 1, QVariant::fromValue((QJsonObject *)NULL));
     foreach(QString templ, m_templates.keys()) {
         QJsonObject *json = m_templates[templ];
 
         item = new QListWidgetItem(json->value("name").toString(), ui->templateList);
         item->setData(Qt::UserRole + 1, QVariant::fromValue(json));
     }
+    ui->templateList->sortItems(Qt::AscendingOrder);
+
+    item = new QListWidgetItem(tr("Current Tuning"));
+    item->setData(Qt::UserRole + 1, QVariant::fromValue((QJsonObject *)NULL));
+    ui->templateList->insertItem(0, item);
     ui->templateList->setCurrentRow(0);
+    // TODO Add generics to top under item Current tuning
 }
 
 QString AirframeInitialTuningPage::getTemplateKey(QJsonObject *templ)

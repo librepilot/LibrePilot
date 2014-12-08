@@ -1,4 +1,4 @@
-﻿#
+#
 # Project: OpenPilot
 # NSIS configuration file for OpenPilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2014.
@@ -193,10 +193,10 @@ SectionEnd
 
 ; Copy GCS resources
 Section "-Resources" InSecResources
+  SetOutPath "$INSTDIR\share\openpilotgcs\cloudconfig"
+  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\cloudconfig\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\default_configurations"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\default_configurations\*"
-  SetOutPath "$INSTDIR\share\openpilotgcs\stylesheets"
-  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\stylesheets\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\diagrams"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\diagrams\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\dials"
@@ -207,6 +207,8 @@ Section "-Resources" InSecResources
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\models\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\pfd"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\pfd\*"
+  SetOutPath "$INSTDIR\share\openpilotgcs\stylesheets"
+  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\stylesheets\*"
 SectionEnd
 
 ; Copy Notify plugin sound files

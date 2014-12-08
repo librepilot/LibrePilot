@@ -4,6 +4,8 @@
 
 equals(copydata, 1) {
 
+    OSG_VERSION = 3.2.1
+
     linux {
         !exists( $(OSG_DIR)/lib64 ) { 
 
@@ -82,7 +84,7 @@ equals(copydata, 1) {
 
         # copy osg plugins
         data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSG_DIR)/bin/osgPlugins-3.2.1\") \
+        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSG_DIR)/bin/osgPlugins-$${OSG_VERSION}\") \
             $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
 
         # copy osgearth libraries
@@ -91,7 +93,7 @@ equals(copydata, 1) {
 
         # copy osgearth plugins
         data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSGEARTH_DIR)/bin/osgPlugins-3.2.1\") \
+        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSGEARTH_DIR)/bin/osgPlugins-$${OSG_VERSION}\") \
             $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osgearth/\") $$addNewline()
 
     }

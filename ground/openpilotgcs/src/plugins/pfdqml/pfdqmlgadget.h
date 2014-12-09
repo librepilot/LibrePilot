@@ -33,18 +33,7 @@ public:
     PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent = 0);
     ~PfdQmlGadget();
 
-    QWidget *widget()
-    {
-        if (!m_container) {
-            m_container = QWidget::createWindowContainer(m_widget, m_parent);
-            m_container->setMinimumSize(64, 64);
-            m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-            // don't clear widget background before painting to avoid flickering
-            m_container->setAutoFillBackground(true);
-            m_container->setAttribute(Qt::WA_OpaquePaintEvent, false);
-        }
-        return m_container;
-    }
+    QWidget *widget();
 
     void loadConfiguration(IUAVGadgetConfiguration *config);
 

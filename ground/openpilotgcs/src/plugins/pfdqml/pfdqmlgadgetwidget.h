@@ -127,6 +127,9 @@ signals:
     void terrainFileChanged(QString arg);
     void modelFileChanged(QString arg);
 
+private slots:
+    void onStatusChanged(QQuickView::Status status);
+
 private:
     QString m_qmlFileName;
 

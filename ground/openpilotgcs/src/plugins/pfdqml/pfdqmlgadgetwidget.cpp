@@ -39,6 +39,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     m_terrainFile(""),
     m_modelFile("")
 {
+    qDebug() << "PfdQmlGadgetWidget - <init>";
     setResizeMode(SizeRootObjectToView);
 
     // setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
@@ -87,6 +88,10 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         }
     }
 
+    qDebug() << "is OpenGLContext persistent" << isPersistentOpenGLContext();
+    //window->setPersistentOpenGLContext(!window->isPersistentOpenGLContext());
+    qDebug() << "is SceneGraph persistent" << isPersistentSceneGraph();
+
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
 }
@@ -103,32 +108,57 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
 
     m_qmlFileName = fn;
 
-    if (!fn.isEmpty()) {
+    if (fn.isEmpty()) {
+        setSource(QUrl());
+
+        engine()->removeImageProvider("svg");
+        //engine()->rootContext()->setContextProperty("svgRenderer", NULL);
+
+        // calling clearComponentCache() causes crashes
+        // see https://bugreports.qt-project.org/browse/QTBUG-41465
+        //engine()->clearComponentCache();
+    }
+    else {
         QUrl url = QUrl::fromLocalFile(fn);
+
+        engine()->setBaseUrl(url);
 
         SvgImageProvider *svgProvider = new SvgImageProvider(fn);
         engine()->addImageProvider("svg", svgProvider);
 
         // it's necessary to allow qml side to query svg element position
         engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
-        engine()->setBaseUrl(url);
 
         setSource(url);
     }
-    else {
-        setSource(QUrl());
 
-        engine()->removeImageProvider("svg");
-        engine()->rootContext()->setContextProperty("svgRenderer", NULL);
-
-        engine()->clearComponentCache();
-    }
+    connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(onStatusChanged(QQuickView::Status)));
 
     foreach(const QQmlError &error, errors()) {
         qDebug() << error.description();
     }
 }
 
+void PfdQmlGadgetWidget::onStatusChanged(QQuickView::Status status)
+{
+    switch(status) {
+    case Null:
+        qDebug() << "PfdQmlGadgetWidget - status Null";
+        break;
+    case Ready:
+        qDebug() << "PfdQmlGadgetWidget - status Ready";
+        break;
+    case Loading:
+        qDebug() << "PfdQmlGadgetWidget - status Loading";
+        break;
+    case Error:
+        qDebug() << "PfdQmlGadgetWidget - status Error";
+        foreach(const QQmlError &error, errors()) {
+            qDebug() << error.description();
+        }
+        break;
+    }
+}
 
 void PfdQmlGadgetWidget::setSpeedUnit(QString unit)
 {

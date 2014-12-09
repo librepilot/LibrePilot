@@ -33,6 +33,9 @@ public:
 
 private:
     static bool initialized;
+
+    static void initializePathes();
+    static void initializeCache();
 };
 
 #endif // OSGEARTH_H

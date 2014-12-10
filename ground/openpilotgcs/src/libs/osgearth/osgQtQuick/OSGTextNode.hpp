@@ -17,7 +17,7 @@ class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode
 
 public:
     explicit OSGTextNode(QObject *parent = 0);
-    ~OSGTextNode();
+    virtual ~OSGTextNode();
     
     QString text() const;
     void setText(const QString &text);

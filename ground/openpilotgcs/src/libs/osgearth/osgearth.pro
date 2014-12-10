@@ -5,6 +5,9 @@ DEFINES += OSGEARTH_LIBRARY
 
 QT += widgets opengl qml quick
 
+# To make threaded gl check...
+QT += core-private gui-private
+
 include(../../openpilotgcslibrary.pri)
 include(../utils/utils.pri)
 
@@ -24,8 +27,7 @@ HEADERS += \
     osgQtQuick/OSGModelNode.hpp \
     osgQtQuick/OSGSkyNode.hpp \
     osgQtQuick/OSGCamera.hpp \
-    osgQtQuick/OSGViewport.hpp \
-    osgQtQuick/QuickWindowViewer.hpp
+    osgQtQuick/OSGViewport.hpp
 
 SOURCES += \
     osgearth.cpp \
@@ -38,8 +40,7 @@ SOURCES += \
     osgQtQuick/OSGModelNode.cpp \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \
-    osgQtQuick/OSGViewport.cpp \
-    osgQtQuick/QuickWindowViewer.cpp
+    osgQtQuick/OSGViewport.cpp
 
 OSG_DIR = $$clean_path($$(OSG_DIR))
 message(Using osg from here: $$OSG_DIR)

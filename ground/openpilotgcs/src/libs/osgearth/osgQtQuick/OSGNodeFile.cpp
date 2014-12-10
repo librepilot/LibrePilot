@@ -3,6 +3,7 @@
 #include <osgDB/ReadFile>
 
 #include <QUrl>
+#include <QOpenGLContext>
 #include <QThread>
 #include <QElapsedTimer>
 #include <QDebug>
@@ -32,6 +33,7 @@ public:
         s = s.replace("%5C", "/");
         //qDebug() << "OSGFileLoader - file" << s;
         // TODO use Options to control caching...
+        qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(s.toStdString());
         qDebug() << "OSGFileLoader - reading node" << node << "took" << t.elapsed() << "ms";
 
@@ -61,12 +63,6 @@ public:
 
         this->url = url;
 
-        if (async) {
-            asyncLoad(url);
-        }
-        else {
-            syncLoad(url);
-        }
 
         return true;
     }
@@ -76,7 +72,7 @@ public:
     QUrl url;
     bool async;
 
-private:
+//private:
 
     void asyncLoad(const QUrl &url) {
         OSGFileLoader *loader = new OSGFileLoader(url);
@@ -131,6 +127,17 @@ void OSGNodeFile::setAsync(const bool async)
     if (h->async != async) {
         h->async = async;
         emit asyncChanged(async);
+    }
+}
+
+void OSGNodeFile::realize()
+{
+    qDebug() << "OSGNodeFile - realize";
+    if (h->async) {
+        h->asyncLoad(h->url);
+    }
+    else {
+        h->syncLoad(h->url);
     }
 }
 

@@ -5,11 +5,11 @@ OSGViewport {
     id: fullview
     anchors.fill: parent
     focus: true
-    sceneData: cubeNode
-    camera: camera
     //color: "transparent"
     //opacity: 0.999
-    //drawingMode: OSGViewport.Buffer
+    updateMode: OSGViewport.Discrete
+    camera: camera
+    sceneData: cubeNode
 
     OSGCubeNode {
         id: cubeNode
@@ -18,6 +18,5 @@ OSGViewport {
     OSGCamera {
         id: camera
         fieldOfView: 90
-        //manipulatorMode: OSGCamera.Earth
     }
 }

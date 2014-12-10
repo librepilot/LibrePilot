@@ -20,13 +20,15 @@ class OSGQTQUICK_EXPORT OSGNodeFile : public OSGNode
 
 public:
     OSGNodeFile(QObject *parent = 0);
-    ~OSGNodeFile();
+    virtual ~OSGNodeFile();
 
     const QUrl source() const;
     void setSource(const QUrl &url);
 
     bool async() const;
     void setAsync(const bool async);
+
+    virtual void realize();
 
 signals:
     void sourceChanged(const QUrl &url);

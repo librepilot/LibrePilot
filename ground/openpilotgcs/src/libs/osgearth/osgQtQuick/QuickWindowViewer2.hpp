@@ -34,7 +34,6 @@ public:
 
 private:
     struct Hidden;
-    friend struct Hidden;
     Hidden *h;
 };
 

@@ -18,7 +18,7 @@ class OSGQTQUICK_EXPORT OSGGroup : public OSGNode
 
 public:
     explicit OSGGroup(QObject *parent = 0);
-    ~OSGGroup();
+    virtual ~OSGGroup();
     
     QQmlListProperty<OSGNode> child();
 

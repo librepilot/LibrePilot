@@ -67,19 +67,29 @@ public:
     bool acceptModelNode(osg::Node *node)
     {
         qDebug() << "OSGModelNode acceptModelNode" << node;
+        if (!node) {
+            qWarning() << "OSGModelNode - acceptModelNode - node is null";
+            return false;
+        }
+
         if (!sceneData || !sceneData->node()) {
-            qWarning() << "no scene data";
+            qWarning() << "OSGModelNode - acceptModelNode - no scene data";
             return false;
         }
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
         if (!mapNode) {
-            qWarning() << "scene data does not contain a map node";
+            qWarning() << "OSGModelNode - acceptModelNode - scene data does not contain a map node";
             return false;
         }
 
         // establish the coordinate system we wish to use:
         //const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
+
+//        osgEarth::Config conf("style");
+//        conf.set("auto_scale", true);
+//        osgEarth::Symbology::Style style(conf);
+        osgEarth::Symbology::Style style;
 
         // construct the symbology
         osgEarth::Symbology::ModelSymbol *modelSymbol = style.getOrCreate<osgEarth::Symbology::ModelSymbol>();
@@ -149,8 +159,6 @@ public:
     OSGNode *modelData;
     OSGNode *sceneData;
 
-    osgEarth::Symbology::Style style;
-
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
 
     osg::ref_ptr<NodeUpdateCallback> nodeUpdateCB;
@@ -187,7 +195,9 @@ private slots:
                     modelNode->removeUpdateCallback(nodeUpdateCB.get());
                 }
             }
-            acceptModelNode(modelData->node());
+            if (modelData->node()) {
+                acceptModelNode(modelData->node());
+            }
         }
     }
 
@@ -318,6 +328,11 @@ void OSGModelNode::setAltitude(double arg)
         h->dirty = true;
         emit altitudeChanged(altitude());
     }
+}
+
+void OSGModelNode::realize()
+{
+    h->modelData->realize();
 }
 
 } // namespace osgQtQuick

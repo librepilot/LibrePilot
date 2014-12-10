@@ -3,42 +3,35 @@
 
 #include "Export.hpp"
 
-#include <QQuickFramebufferObject>
+#include <QQuickItem>
 
 namespace osgQtQuick {
 
-class Renderer;
 class OSGNode;
 class OSGCamera;
 
-class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject
+class OSGQTQUICK_EXPORT OSGViewport : public QQuickItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(DrawingMode drawingMode READ drawingMode WRITE setDrawingMode NOTIFY drawingModeChanged)
 
-    Q_ENUMS(UpdateMode)
+    Q_ENUMS(DrawingMode)
 
 public:
-
-        // TODO rename to UpdateMode or something better
-        enum UpdateMode {
-            Continuous,
-            Discrete,
-            OnDemand
-        };
+    enum DrawingMode {
+        Native,
+        Buffer
+    };
 
     explicit OSGViewport(QQuickItem *parent = 0);
-    virtual virtual ~OSGViewport();
+    virtual ~OSGViewport();
 
-    UpdateMode updateMode() const;
-    void setUpdateMode(UpdateMode mode);
-
-    QColor color() const;
-    void setColor(const QColor &color);
+    DrawingMode drawingMode() const;
+    void setDrawingMode(DrawingMode mode);
 
     OSGNode* sceneData();
     void setSceneData(OSGNode *node);
@@ -46,19 +39,19 @@ public:
     OSGCamera* camera();
     void setCamera(OSGCamera *camera);
 
-    Renderer *createRenderer() const;
-
-    virtual void realize();
+    QColor color() const;
+    void setColor(const QColor &color);
 
 signals:
-    void updateModeChanged(UpdateMode mode);
-    void colorChanged(const QColor &color);
+    void drawingModeChanged(DrawingMode mode);
     void sceneDataChanged(OSGNode *node);
     void cameraChanged(OSGCamera *camera);
+    void colorChanged(const QColor &color);
 
 public slots:
 
 protected:
+    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);

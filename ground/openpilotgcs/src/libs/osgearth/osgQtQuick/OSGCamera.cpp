@@ -23,6 +23,8 @@
 #include <osgEarthUtil/EarthManipulator>
 
 #include <QDebug>
+#include <QThread>
+#include <QApplication>
 
 namespace osgQtQuick {
 
@@ -93,8 +95,7 @@ public:
 
         // install camera update callback
         // TODO will the CameraUpdateCallback be destroyed???
-
-        this->camera ->addUpdateCallback(new CameraUpdateCallback(this));
+        this->camera->addUpdateCallback(new CameraUpdateCallback(this));
 
         // TODO needed?
         cameraDirty = true;
@@ -120,15 +121,16 @@ public:
     void updateCameraSize()
     {
         qDebug() << "OSGCamera - updateCamera size";
-        //camera->getGraphicsContext()->resized(x, y, width, height);
+        camera->getGraphicsContext()->resized(x, y, width, height);
         camera->setViewport(x, y, width, height);
+        // TODO should be done only if fieldOfView has changed...
         camera->setProjectionMatrixAsPerspective(
                fieldOfView, static_cast<double>(width)/static_cast<double>(height), 1.0f, 10000.0f );
     }
 
     void updateCameraPosition()
     {
-        qDebug() << "OSGCamera - updateCamera position";
+        //qDebug() << "OSGCamera - updateCamera position";
         // Altitude mode is absolute (absolute height above MSL/HAE)
         // HAE : Height above ellipsoid (HAE). This is the default.
         // MSL : Height above Mean Sea Level (MSL) if a geoid separation value is specified.
@@ -233,6 +235,7 @@ void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView!= arg) {
         h->fieldOfView = arg;
+        h->cameraDirty = true;
         emit fieldOfViewChanged(fieldOfView());
 
         // it should be a queued call to OSGCameraRenderer instead
@@ -389,8 +392,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
     switch(h->manipulatorMode) {
     case OSGCamera::None:
-        view->setCameraManipulator(new osgGA::TrackballManipulator());
-//                osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
+        view->setCameraManipulator(new osgGA::TrackballManipulator(osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
         break;
     case OSGCamera::User:
         // disable any installed camera manipulator
@@ -435,7 +437,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
 void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int height)
 {
-    qDebug() << "OSGCamera - setViewport" << camera;
+    //qDebug() << "OSGCamera - setViewport" << camera << x << y << width << "x" << heigth;
     if (width <= 0 || height <= 0) {
         qWarning() << "OSGCamera - setViewport - invalid size " << width << "x" << height;
         return;

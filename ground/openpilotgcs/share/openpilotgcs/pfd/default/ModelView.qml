@@ -6,11 +6,11 @@ OSGViewport {
     id: fullview
     anchors.fill: parent
     focus: true
-    sceneData: skyNode
-    camera: camera
     //color: "transparent"
     //opacity: 0.999
-    drawingMode: OSGViewport.Native
+    updateMode: OSGViewport.Discrete
+    camera: camera
+    sceneData: skyNode
 
     OSGSkyNode {
         id: skyNode

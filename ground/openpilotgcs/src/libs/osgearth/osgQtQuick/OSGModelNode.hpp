@@ -29,7 +29,7 @@ class OSGQTQUICK_EXPORT OSGModelNode : public OSGNode
 
 public:
     OSGModelNode(QObject *parent = 0);
-    ~OSGModelNode();
+    virtual ~OSGModelNode();
 
     OSGNode* modelData();
     void setModelData(OSGNode *node);
@@ -54,6 +54,8 @@ public:
 
     double altitude() const;
     void setAltitude(double arg);
+
+    virtual void realize();
 
 signals:
     void modelDataChanged(OSGNode *node);

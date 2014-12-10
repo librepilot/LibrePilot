@@ -55,7 +55,7 @@ public:
     enum TrackerMode { NodeCenter, NodeCenterAndAzim, NodeCenterAndRotation };
 
     explicit OSGCamera(QObject *parent = 0);
-    ~OSGCamera();
+    virtual ~OSGCamera();
     
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);

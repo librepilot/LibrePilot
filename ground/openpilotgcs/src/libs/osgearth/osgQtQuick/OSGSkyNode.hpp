@@ -19,7 +19,7 @@ class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode
 
 public:
     OSGSkyNode(QObject *parent = 0);
-    ~OSGSkyNode();
+    virtual ~OSGSkyNode();
 
     OSGNode* sceneData();
     void setSceneData(OSGNode *node);

@@ -23,9 +23,19 @@ public:
 OSGCubeNode::OSGCubeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {    
     qDebug() << "OSGCubeNode - <init>";
+}
+
+OSGCubeNode::~OSGCubeNode()
+{
+    qDebug() << "OSGCubeNode - <destruct>";
+}
+
+void OSGCubeNode::realize()
+{
+    qDebug() << "OSGCubeNode - realize";
 
     // Declare a group to act as root node of a scene:
-    osg::Group* root = new osg::Group();
+    //osg::Group* root = new osg::Group();
 
     // Declare a box class (derived from shape class) instance
     // This constructor takes an osg::Vec3 to define the center
@@ -46,13 +56,8 @@ OSGCubeNode::OSGCubeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
     // Add the unit cube drawable to the geode:
     basicShapesGeode->addDrawable(unitCubeDrawable);
 
-    // Add the goede to the scene:
+    // Add the geode to the scene:
     setNode(basicShapesGeode);
-}
-
-OSGCubeNode::~OSGCubeNode()
-{
-    qDebug() << "OSGCubeNode - <destruct>";
 }
 
 } // namespace osgQtQuick

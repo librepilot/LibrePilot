@@ -71,7 +71,6 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setLongitude(m->longitude());
     m_widget->setAltitude(m->altitude());
 
-    m_widget->setOpenGLEnabled(m->openGLEnabled());
     m_widget->setTerrainEnabled(m->terrainEnabled());
     m_widget->setTerrainFile(m->terrainFile());
     m_widget->setModelFile(m->modelFile());

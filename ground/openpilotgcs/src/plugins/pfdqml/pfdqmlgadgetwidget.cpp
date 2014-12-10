@@ -34,7 +34,6 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     m_latitude(46.671478),
     m_longitude(10.158932),
     m_altitude(2000),
-    m_openGLEnabled(false),
     m_terrainEnabled(false),
     m_terrainFile(""),
     m_modelFile("")
@@ -222,10 +221,6 @@ void PfdQmlGadgetWidget::setAltitude(double arg)
         m_altitude = arg;
         emit altitudeChanged(altitude());
     }
-}
-void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
-{
-    m_openGLEnabled = arg;
 }
 
 void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)

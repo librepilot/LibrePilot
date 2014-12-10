@@ -42,7 +42,7 @@ class PfdQmlGadgetWidget : public QQuickView {
 
 public:
     PfdQmlGadgetWidget(QWindow *parent = 0);
-    ~PfdQmlGadgetWidget();
+    virtual ~PfdQmlGadgetWidget();
 
     void setQmlFile(QString fn);
 
@@ -77,10 +77,6 @@ public:
     double altitude() const
     {
         return m_altitude;
-    }
-    bool openGLEnabled() const
-    {
-        return m_openGLEnabled;
     }
     bool terrainEnabled() const
     {
@@ -143,7 +139,6 @@ private:
     double m_longitude;
     double m_altitude;
 
-    bool m_openGLEnabled;
     bool m_terrainEnabled;
     QString m_terrainFile;
     QString m_modelFile;

@@ -3,9 +3,8 @@ import QtQuick 2.0
 // TODO move sub components to a new 'pfd' subdirectory
 // TODO move pfd up and out of 'default" subdirectory
 
-Item {
-//Rectangle {
-//    color: "#666666"
+Rectangle {
+    color: "#515151"
 
     SvgElementImage {
         id: background

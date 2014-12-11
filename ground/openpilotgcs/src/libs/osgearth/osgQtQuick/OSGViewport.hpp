@@ -24,15 +24,15 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject
 
 public:
 
-        // TODO rename to UpdateMode or something better
-        enum UpdateMode {
-            Continuous,
-            Discrete,
-            OnDemand
-        };
+    // TODO rename to UpdateMode or something better
+    enum UpdateMode {
+        Continuous,
+        Discrete,
+        OnDemand
+    };
 
     explicit OSGViewport(QQuickItem *parent = 0);
-    virtual virtual ~OSGViewport();
+    virtual ~OSGViewport();
 
     UpdateMode updateMode() const;
     void setUpdateMode(UpdateMode mode);

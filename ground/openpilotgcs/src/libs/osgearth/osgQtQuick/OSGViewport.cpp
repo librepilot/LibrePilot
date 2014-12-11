@@ -88,8 +88,8 @@ public:
 
     private:
         Hidden *h;
-        boolean b;
-        boolean realized;
+        bool b;
+        bool realized;
     };
 
     friend class ViewportRenderer;

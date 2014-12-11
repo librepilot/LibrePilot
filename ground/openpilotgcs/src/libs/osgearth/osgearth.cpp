@@ -37,11 +37,13 @@
 #include <osgEarth/Cache>
 #include <osgEarth/Registry>
 
+#include <QtGui/private/qguiapplication_p.h>
+#include <QtGui/qpa/qplatformintegration.h>
 #include <QDebug>
 
 #include <deque>
 #include <string>
-#include <stdlib.h>
+//#include <stdlib.h>
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
@@ -49,6 +51,22 @@
 
 bool OsgEarth::initialized = false;
 
+/*
+
+Debugging tips
+
+Windows DIB issues:
+The environment variable QT_QPA_VERBOSE controls the debug level.
+It takes the form {<keyword1>:<level1>,<keyword2>:<level2>},
+where keyword is one of integration,  windows, backingstore and fonts.
+Level is an integer 0..9.
+
+OSG:
+export OSG_NOTIFY_LEVEL=DEBUG
+
+
+
+ */
 void OsgEarth::initialize()
 {
     if (initialized) {
@@ -64,10 +82,34 @@ void OsgEarth::initialize()
     qDebug() << "Using osg version :" << osgGetVersion();
     qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
 
-//    qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
+    bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
+    qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
+
+    initializePathes();
+
+    //osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
+    // this line causes crashes on Windows!!!
+    //osgQt::initQtWindowingSystem();
+
+    // force early initialization of osgEarth registry
+    // this important as doing it later (when OpenGL is already in use) might thrash some GL contextes
+    // TODO : this is done too early when no window is displayed which causes a windows to be briefly flashed on Linux
+    osgEarth::Registry::instance()->getCapabilities();
+
+    initializeCache();
+
+    // Register Qml types
+    osgQtQuick::registerTypes("osgQtQuick");
+}
+
+void OsgEarth::initializePathes()
+{
+    // initialize library file path list
+    //qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
-    // clear to remove system wide library pathes
+    // clear system wide library pathes
     libraryFilePathList.clear();
+    // and add our own plugin library path
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
     libraryFilePathList.push_back(GCSDirs::libraryPath("osgearth").toStdString());
 
@@ -77,32 +119,148 @@ void OsgEarth::initialize()
         it++;
     }
 
+    // initialize data file path list
     osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
     it = dataFilePathList.begin();
     while (it != dataFilePathList.end()) {
         qDebug() << "OsgEarthviewPlugin::initialize - data file path:" << QString::fromStdString(*it);
         it++;
     }
+}
 
-    //osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
-    osgQt::initQtWindowingSystem();
-
+void OsgEarth::initializeCache()
+{
     // force init of osgearth registry (without caching) to work around a deadlock
+    // TODO might not be necessary anymore because of the early call to getCapabilities()
     osgEarth::Registry::instance();
 
     // enable caching
+    // TODO try to use FileSystemCacheOptions instead of using OSGEARTH_CACHE_PATH env variables
     QString cachePath = Utils::PathUtils().GetStoragePath() + "osgearth/cache";
-    setenv("OSGEARTH_CACHE_PATH", cachePath.toUtf8().data(), 1);
-    osgEarth::CacheOptions options;
-    options.setDriver(osgEarth::Registry::instance()->getDefaultCacheDriverName());
+    qputenv("OSGEARTH_CACHE_PATH", cachePath.toLatin1());
 
-    osgEarth::Cache *cache = osgEarth::CacheFactory::create(options);
+    osgEarth::CacheOptions cacheOptions;
+    cacheOptions.setDriver(osgEarth::Registry::instance()->getDefaultCacheDriverName());
+
+    osgEarth::Cache *cache = osgEarth::CacheFactory::create(cacheOptions);
     if (cache) {
         osgEarth::Registry::instance()->setCache(cache);
     } else {
         qWarning() << "Failed to initialize cache";
     }
 
-    // Register Qml types
-    osgQtQuick::registerTypes("osgQtQuick");
+//    osgDB::SharedStateManager::ShareMode shareMode = osgDB::SharedStateManager::SHARE_NONE;// =osgDB::SharedStateManager::SHARE_ALL;
+//    shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_STATESETS) : shareMode;
+//    shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_TEXTURES) : shareMode;
+//    osgDB::Registry::instance()->getOrCreateSharedStateManager()->setShareMode(shareMode);
+
+//    osgDB::Options::CacheHintOptions cacheHintOptions = osgDB::Options::CACHE_NONE;
+//    cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_IMAGES);
+//    cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_NODES);
+//    if (osgDB::Registry::instance()->getOptions() == 0) {
+//        osgDB::Registry::instance()->setOptions(new osgDB::Options());
+//    }
+//    osgDB::Registry::instance()->getOptions()->setObjectCacheHint(cacheHintOptions);
+
 }
+
+/*
+
+Why not use setRenderTarget
+
+export OSG_MULTIMONITOR_MULTITHREAD_WIN32_NVIDIA_WORKAROUND=On
+export OSG_NOTIFY_LEVEL=DEBUG
+http://trac.openscenegraph.org/projects/osg//wiki/Support/TipsAndTricks
+
+Switch to 5.4 and use this :http://doc-snapshot.qt-project.org/qt5-5.4/qquickframebufferobject.html#details
+http://doc-snapshot.qt-project.org/qt5-5.4/qtquick-visualcanvas-scenegraph.html#scene-graph-and-rendering
+http://www.kdab.com/opengl-in-qt-5-1-part-1/
+
+THIS MENTIONS GLUT...
+http://www.multigesture.net/articles/how-to-compile-openscenegraph-2-x-using-mingw/
+http://www.mingw.org/category/wiki/opengl
+
+INTERESTING : http://qt-project.org/forums/viewthread/24535
+
+https://groups.google.com/forum/#!msg/osg-users/HDabWUVaR2w/C6rPKKeKoYkJ
+
+http://trac.openscenegraph.org/projects/osg/wiki/Community/OpenGL-ES
+
+http://upstream.rosalinux.ru/changelogs/openscenegraph/3.2.0/changelog.html
+
+MESA https://groups.google.com/forum/#!topic/osg-users/_2MqkA-wH1Q
+
+GL version https://groups.google.com/forum/#!topic/osg-users/UiyYQ0Fw7MQ
+
+http://trac.openscenegraph.org/projects/osg//wiki/Support/PlatformSpecifics/Mingw
+
+Qt & OpenGL
+http://blog.qt.digia.com/blog/2009/12/16/qt-graphics-and-performance-an-overview/
+http://blog.qt.digia.com/blog/2010/01/06/qt-graphics-and-performance-opengl/
+*/
+
+// BUGS
+// if resizing a gadget below the viewport, the viewport will stop shrinking at 64 pixel
+// but it is possible to continue resizing the gadget and the gadget decorator will disapear behing the GL view
+// will
+
+// Errors/Freeze/Crashes:
+
+// BLANK : Error: cannot draw stage due to undefined viewport.
+// ABNORMAL TERMINATION : createDIB: CreateDIBSection failed.
+
+/*
+CRASH
+osgQtQuick::OSGViewport : Update called for a item without content
+VERTEX glCompileShader "atmos_vertex_main" FAILED
+VERTEX glCompileShader "main(vert)" FAILED
+FRAGMENT glCompileShader "main(frag)" FAILED
+glLinkProgram "SimpleSky Scene Lighting" FAILED
+Program "SimpleSky Scene Lighting" infolog:
+Vertex info
+-----------
+An error occurred
+
+Fragment info
+-------------
+An error occurred
+
+[osgEarth]* [VirtualProgram] Program link failure!
+VERTEX glCompileShader "main(vert)" FAILED
+FRAGMENT glCompileShader "main(frag)" FAILED
+glLinkProgram "osgEarth.ModelNode" FAILED
+Program "osgEarth.ModelNode" infolog:
+Vertex info
+-----------
+An error occurred
+
+Fragment info
+-------------
+An error occurred
+
+[osgEarth]* [VirtualProgram] Program link failure!
+*/
+
+/*
+osgQtQuick::OSGViewport : Update called for a item without content
+VERTEX glCompileShader "atmos_vertex_main" FAILED
+VERTEX glCompileShader "main(vert)" FAILED
+FRAGMENT glCompileShader "main(frag)" FAILED
+glLinkProgram "SimpleSky Scene Lighting" FAILED
+Program "SimpleSky Scene Lighting" infolog:
+Vertex info
+-----------
+An error occurred
+
+Fragment info
+-------------
+An error occurred
+
+[osgEarth]* [VirtualProgram] Program link failure!
+Warning: detected OpenGL error 'out of memory' at After Renderer::compile
+terminate called after throwing an instance of 'std::bad_alloc'
+  what():  std::bad_alloc
+
+This application has requested the Runtime to terminate it in an unusual way.
+Please contact the application's support team for more information.
+*/

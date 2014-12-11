@@ -58,7 +58,8 @@ SOURCES += \
     svgimageprovider.cpp \
     hostosinfo.cpp \
     logfile.cpp \
-    crc.cpp
+    crc.cpp \
+    mustache.cpp
 
 SOURCES += xmlconfig.cpp
 
@@ -119,7 +120,8 @@ HEADERS += \
     svgimageprovider.h \
     hostosinfo.h \
     logfile.h \
-    crc.h
+    crc.h \
+    mustache.h
 
 HEADERS += xmlconfig.h
 

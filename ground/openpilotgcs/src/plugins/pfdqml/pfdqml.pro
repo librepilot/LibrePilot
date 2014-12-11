@@ -7,6 +7,7 @@ include(../../openpilotgcsplugin.pri)
 include(pfdqml_dependencies.pri)
 
 HEADERS += \
+    pfdqml.h \
     pfdqmlplugin.h \
     pfdqmlgadget.h \
     pfdqmlgadgetwidget.h \

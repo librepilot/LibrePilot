@@ -30,14 +30,15 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     m_speedFactor(1.0),
     m_altitudeUnit("m"),
     m_altitudeFactor(1.0),
-    m_actualPositionUsed(false),
+    m_positionMode(Pfd::Predefined),
     m_latitude(46.671478),
     m_longitude(10.158932),
     m_altitude(2000),
-    m_openGLEnabled(false),
     m_terrainEnabled(false),
-    m_earthFile("")
+    m_terrainFile(""),
+    m_modelFile("")
 {
+    qDebug() << "PfdQmlGadgetWidget - <init>";
     setResizeMode(SizeRootObjectToView);
 
     // setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
@@ -52,6 +53,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         "PathDesired" <<
         "AltitudeHoldDesired" <<
         "GPSPositionSensor" <<
+        "HomeLocation" <<
         "GCSTelemetryStats" <<
         "SystemAlarms" <<
         "NedAccel" <<
@@ -85,6 +87,10 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         }
     }
 
+    qDebug() << "is OpenGLContext persistent" << isPersistentOpenGLContext();
+    //window->setPersistentOpenGLContext(!window->isPersistentOpenGLContext());
+    qDebug() << "is SceneGraph persistent" << isPersistentSceneGraph();
+
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
 }
@@ -94,23 +100,62 @@ PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
+    if (m_qmlFileName == fn) {
+        return;
+    }
+    qDebug() << Q_FUNC_INFO << fn;
+
     m_qmlFileName = fn;
 
-    engine()->removeImageProvider("svg");
-    SvgImageProvider *svgProvider = new SvgImageProvider(fn);
-    engine()->addImageProvider("svg", svgProvider);
+    if (fn.isEmpty()) {
+        setSource(QUrl());
 
-    engine()->clearComponentCache();
+        engine()->removeImageProvider("svg");
+        //engine()->rootContext()->setContextProperty("svgRenderer", NULL);
 
-    // it's necessary to allow qml side to query svg element position
-    engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
-    engine()->setBaseUrl(QUrl::fromLocalFile(fn));
+        // calling clearComponentCache() causes crashes
+        // see https://bugreports.qt-project.org/browse/QTBUG-41465
+        //engine()->clearComponentCache();
+    }
+    else {
+        QUrl url = QUrl::fromLocalFile(fn);
 
-    qDebug() << Q_FUNC_INFO << fn;
-    setSource(QUrl::fromLocalFile(fn));
+        engine()->setBaseUrl(url);
+
+        SvgImageProvider *svgProvider = new SvgImageProvider(fn);
+        engine()->addImageProvider("svg", svgProvider);
+
+        // it's necessary to allow qml side to query svg element position
+        engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
+
+        setSource(url);
+    }
+
+    connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(onStatusChanged(QQuickView::Status)));
 
     foreach(const QQmlError &error, errors()) {
         qDebug() << error.description();
+    }
+}
+
+void PfdQmlGadgetWidget::onStatusChanged(QQuickView::Status status)
+{
+    switch(status) {
+    case Null:
+        qDebug() << "PfdQmlGadgetWidget - status Null";
+        break;
+    case Ready:
+        qDebug() << "PfdQmlGadgetWidget - status Ready";
+        break;
+    case Loading:
+        qDebug() << "PfdQmlGadgetWidget - status Loading";
+        break;
+    case Error:
+        qDebug() << "PfdQmlGadgetWidget - status Error";
+        foreach(const QQmlError &error, errors()) {
+            qDebug() << error.description();
+        }
+        break;
     }
 }
 
@@ -118,7 +163,7 @@ void PfdQmlGadgetWidget::setSpeedUnit(QString unit)
 {
     if (m_speedUnit != unit) {
         m_speedUnit = unit;
-        emit speedUnitChanged(unit);
+        emit speedUnitChanged(speedUnit());
     }
 }
 
@@ -126,7 +171,7 @@ void PfdQmlGadgetWidget::setSpeedFactor(double factor)
 {
     if (m_speedFactor != factor) {
         m_speedFactor = factor;
-        emit speedFactorChanged(factor);
+        emit speedFactorChanged(speedFactor());
     }
 }
 
@@ -134,7 +179,7 @@ void PfdQmlGadgetWidget::setAltitudeUnit(QString unit)
 {
     if (m_altitudeUnit != unit) {
         m_altitudeUnit = unit;
-        emit altitudeUnitChanged(unit);
+        emit altitudeUnitChanged(altitudeUnit());
     }
 }
 
@@ -142,26 +187,23 @@ void PfdQmlGadgetWidget::setAltitudeFactor(double factor)
 {
     if (m_altitudeFactor != factor) {
         m_altitudeFactor = factor;
-        emit altitudeFactorChanged(factor);
+        emit altitudeFactorChanged(altitudeFactor());
     }
 }
 
-// Switch between PositionState UAVObject position
-// and pre-defined latitude/longitude/altitude properties
-void PfdQmlGadgetWidget::setActualPositionUsed(bool arg)
+void PfdQmlGadgetWidget::setPositionMode(Pfd::PositionMode arg)
 {
-    if (m_actualPositionUsed != arg) {
-        m_actualPositionUsed = arg;
-        emit actualPositionUsedChanged(arg);
+    if (m_positionMode != arg) {
+        m_positionMode = arg;
+        emit positionModeChanged(positionMode());
     }
 }
 
 void PfdQmlGadgetWidget::setLatitude(double arg)
 {
-    // not sure qFuzzyCompare is accurate enough for geo coordinates
     if (m_latitude != arg) {
         m_latitude = arg;
-        emit latitudeChanged(arg);
+        emit latitudeChanged(latitude());
     }
 }
 
@@ -169,37 +211,41 @@ void PfdQmlGadgetWidget::setLongitude(double arg)
 {
     if (m_longitude != arg) {
         m_longitude = arg;
-        emit longitudeChanged(arg);
+        emit longitudeChanged(longitude());
     }
 }
 
 void PfdQmlGadgetWidget::setAltitude(double arg)
 {
-    if (!qFuzzyCompare(m_altitude, arg)) {
+    if (m_altitude!= arg) {
         m_altitude = arg;
-        emit altitudeChanged(arg);
-    }
-}
-void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
-{
-    m_openGLEnabled = arg;
-    // TODO ???
-    //setTerrainEnabled(m_terrainEnabled);
-}
-
-void PfdQmlGadgetWidget::setEarthFile(QString arg)
-{
-    if (m_earthFile != arg) {
-        m_earthFile = arg;
-        emit earthFileChanged(arg);
+        emit altitudeChanged(altitude());
     }
 }
 
 void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
 {
-    bool wasEnabled = terrainEnabled();
-    m_terrainEnabled = arg;
-    if (wasEnabled != terrainEnabled()) {
+    if (m_terrainEnabled != arg) {
+        m_terrainEnabled = arg;
+        qDebug() << "PfdQmlGadgetWidget - setTerrainEnabled" << terrainEnabled();
         emit terrainEnabledChanged(terrainEnabled());
+    }
+}
+
+void PfdQmlGadgetWidget::setTerrainFile(QString arg)
+{
+    if (m_terrainFile != arg) {
+        m_terrainFile = arg;
+        qDebug() << "PfdQmlGadgetWidget - setTerrainFile" << terrainFile();
+        emit terrainFileChanged(terrainFile());
+    }
+}
+
+void PfdQmlGadgetWidget::setModelFile(QString arg)
+{
+    if (m_modelFile != arg) {
+        m_modelFile = arg;
+        qDebug() << "PfdQmlGadgetWidget - setModelFile" << modelFile();
+        emit modelFileChanged(modelFile());
     }
 }

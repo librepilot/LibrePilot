@@ -1,22 +1,42 @@
 #ifndef _H_OSGQTQUICK_OSGCAMERA_H_
 #define _H_OSGQTQUICK_OSGCAMERA_H_
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
 #include <QObject>
 
-//namespace osg {
-//class Node;
-//} // namespace osg
+namespace osg {
+class Camera;
+} // namespace osg
+
+namespace osgViewer {
+class View;
+} // namespace osgViewer
 
 namespace osgQtQuick {
 
-// TODO split into Camera and CameraManipulator
+class OSGNode;
+
+// This class does too much:
+// - tracking a geo point and attitude
+// - tracking another node
+// camera should be simpler and provide only tracking
+// - tracking of a modelnode (for ModelView)
+// - tracking of a virtual node  (for PFD with Terrain)
+//
+// TODO
+// - expose track mode
+// - provide good default distance and attitude for tracker camera
 class OSGQTQUICK_EXPORT OSGCamera : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
+
+    Q_PROPERTY(ManipulatorMode manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
+
+    Q_PROPERTY(osgQtQuick::OSGNode* trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
+    Q_PROPERTY(TrackerMode trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
 
     Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
     Q_PROPERTY(qreal pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
@@ -26,12 +46,28 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
 
+    Q_ENUMS(ManipulatorMode)
+    Q_ENUMS(TrackerMode)
+
 public:
+    enum ManipulatorMode { None, User, Earth, Track };
+
+    enum TrackerMode { NodeCenter, NodeCenterAndAzim, NodeCenterAndRotation };
+
     explicit OSGCamera(QObject *parent = 0);
-    ~OSGCamera();
+    virtual ~OSGCamera();
     
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
+
+    ManipulatorMode manipulatorMode() const;
+    void setManipulatorMode(ManipulatorMode);
+
+    OSGNode* trackNode() const;
+    void setTrackNode(OSGNode *node);
+
+    TrackerMode trackerMode() const;
+    void setTrackerMode(TrackerMode);
 
     qreal roll() const;
     void setRoll(qreal arg);
@@ -51,8 +87,16 @@ public:
     double altitude() const;
     void setAltitude(double arg);
 
+    void installCamera(osgViewer::View *view);
+    void setViewport(osg::Camera *camera, int x, int y, int width, int height);
+
 signals:
     void fieldOfViewChanged(qreal arg);
+
+    void manipulatorModeChanged(ManipulatorMode);
+
+    void trackNodeChanged(OSGNode *node);
+    void trackerModeChanged(TrackerMode);
 
     void rollChanged(qreal arg);
     void pitchChanged(qreal arg);

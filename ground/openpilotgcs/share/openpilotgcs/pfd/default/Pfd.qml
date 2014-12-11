@@ -1,8 +1,10 @@
 import QtQuick 2.0
 
-Item {
-//Rectangle {
-    //color: qmlWidget.terrainEnabled ? "transparent" : "#666666"
+// TODO move sub components to a new 'pfd' subdirectory
+// TODO move pfd up and out of 'default" subdirectory
+
+Rectangle {
+    color: "#515151"
 
     SvgElementImage {
         id: background
@@ -10,19 +12,17 @@ Item {
         fillMode: Image.PreserveAspectFit
         anchors.fill: parent
         sceneSize: Qt.size(width, height)
-        
+
         Rectangle {
             width: Math.floor(parent.paintedHeight * 1.319)
             height: Math.floor(parent.paintedHeight - parent.paintedHeight * 0.008)
-            
-      
+
             color: "transparent"
-            border.color:  qmlWidget.terrainEnabled ? "blue" : "red"
+            border.color: "white"
             border.width: Math.floor(parent.paintedHeight * 0.008)
             radius: Math.floor(parent.paintedHeight * 0.01)
             anchors.centerIn: parent             
         }
-
 
         Item {
             id: sceneItem
@@ -32,13 +32,14 @@ Item {
             property variant viewportSize : Qt.size(width, height)
 
             anchors.centerIn: parent
-            clip:true
+            clip: true
 
             Loader {
+                // TODO might need focus true for keyboard events to propagate...
                 id: worldLoader
                 anchors.fill: parent
+                focus: true
                 source: qmlWidget.terrainEnabled ? "PfdTerrainView.qml" : "PfdWorldView.qml"
-                                   
             }
 
             HorizontCenter {
@@ -59,7 +60,7 @@ Item {
                 elementName: "sideslip-fixed"
                 sceneSize: sceneItem.viewportSize
 
-                x: scaledBounds.x * sceneItem.width            
+                x: scaledBounds.x * sceneItem.width
             }
 
             Compass {
@@ -96,9 +97,7 @@ Item {
             Warnings {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
-            } 
-      
+            }
         }
     }
 }
-

@@ -1,7 +1,7 @@
 #ifndef _H_OSGQTQUICK_OSGNODE_H_
 #define _H_OSGQTQUICK_OSGNODE_H_
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
 #include <QObject>
 
@@ -17,10 +17,12 @@ class OSGQTQUICK_EXPORT OSGNode : public QObject
 
 public:
     explicit OSGNode(QObject *parent = 0);
-    ~OSGNode();
+    virtual ~OSGNode();
     
-    osg::Node* node();
+    osg::Node* node() const;
     void setNode(osg::Node *node);
+
+    virtual void realize();
 
 signals:
     void nodeChanged(osg::Node *node);

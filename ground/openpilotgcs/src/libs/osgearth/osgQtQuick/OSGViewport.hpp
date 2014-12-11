@@ -1,53 +1,64 @@
 #ifndef _H_OSGQTQUICK_OSGVIEPORT_H_
 #define _H_OSGQTQUICK_OSGVIEPORT_H_
 
-#include "osgQtQuick/Export.hpp"
+#include "Export.hpp"
 
-#include <QQuickItem>
+#include <QQuickFramebufferObject>
 
 namespace osgQtQuick {
 
+class Renderer;
 class OSGNode;
+class OSGCamera;
 
-class OSGQTQUICK_EXPORT OSGViewport : public QQuickItem
+class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(DrawingMode mode READ mode WRITE setMode NOTIFY modeChanged)
+    Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
+    Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    Q_PROPERTY(osgQtQuick::OSGCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
 
-    Q_ENUMS(DrawingMode)
+    Q_ENUMS(UpdateMode)
 
 public:
-    enum DrawingMode {
-        Native,
-        Buffer
+
+    // TODO rename to UpdateMode or something better
+    enum UpdateMode {
+        Continuous,
+        Discrete,
+        OnDemand
     };
 
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 
-    void setDrawingMode(DrawingMode mode);
-
-    osgQtQuick::OSGNode* sceneData();
-    void setSceneData(osgQtQuick::OSGNode *node);
+    UpdateMode updateMode() const;
+    void setUpdateMode(UpdateMode mode);
 
     QColor color() const;
     void setColor(const QColor &color);
 
-    DrawingMode mode() const;
-    void setMode(DrawingMode mode);
+    OSGNode* sceneData();
+    void setSceneData(OSGNode *node);
+
+    OSGCamera* camera();
+    void setCamera(OSGCamera *camera);
+
+    Renderer *createRenderer() const;
+
+    virtual void realize();
 
 signals:
-    void sceneDataChanged(osgQtQuick::OSGNode *node);
+    void updateModeChanged(UpdateMode mode);
     void colorChanged(const QColor &color);
-    void modeChanged(DrawingMode mode);
+    void sceneDataChanged(OSGNode *node);
+    void cameraChanged(OSGCamera *camera);
 
 public slots:
 
 protected:
-    void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -55,12 +66,10 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    QSGNode* updatePaintNode(QSGNode *oldNode,
-                             UpdatePaintNodeData *updatePaintNodeData);
+    QSGNode* updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
 
 private:
     struct Hidden;
-    friend struct Hidden;
     Hidden *h;
 };
 

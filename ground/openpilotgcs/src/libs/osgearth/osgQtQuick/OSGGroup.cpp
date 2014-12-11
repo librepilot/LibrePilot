@@ -94,7 +94,6 @@ OSGGroup::OSGGroup(QObject *parent) :
 
 OSGGroup::~OSGGroup()
 {
-    delete h;
 }
 
 QQmlListProperty<OSGNode> OSGGroup::child()

@@ -15,9 +15,9 @@
 #endif
 
 #if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__) || defined( __MWERKS__)
-    #  if defined( OSG_LIBRARY_STATIC )
+    #  if defined( OSGEARTH_LIBRARY_STATIC )
     #    define OSGQTQUICK_EXPORT
-    #  elif defined( OSGQTQUICK_LIBRARY )
+    #  elif defined( OSGEARTH_LIBRARY )
     #    define OSGQTQUICK_EXPORT   __declspec(dllexport)
     #  else
     #    define OSGQTQUICK_EXPORT   __declspec(dllimport)

@@ -17,6 +17,7 @@
 #ifndef PFDQMLGADGETCONFIGURATION_H
 #define PFDQMLGADGETCONFIGURATION_H
 
+#include "pfdqml.h"
 #include <coreplugin/iuavgadgetconfiguration.h>
 #include <QMap>
 
@@ -64,13 +65,31 @@ public:
         m_altitudeFactor = factor;
     }
 
-    bool actualPositionUsed() const
+    bool terrainEnabled() const
     {
-        return m_actualPositionUsed;
+        return m_terrainEnabled;
     }
-    void setActualPositionUsed(bool flag)
+    void setTerrainEnabled(bool flag)
     {
-        m_actualPositionUsed = flag;
+        m_terrainEnabled = flag;
+    }
+
+    QString terrainFile() const
+    {
+        return m_terrainFile;
+    }
+    void setTerrainFile(const QString &fileName)
+    {
+        m_terrainFile = fileName;
+    }
+
+    Pfd::PositionMode positionMode() const
+    {
+        return m_positionMode;
+    }
+    void setPositionMode(Pfd::PositionMode positionMode)
+    {
+        m_positionMode = positionMode;
     }
 
     double latitude() const
@@ -100,33 +119,6 @@ public:
         m_altitude = value;
     }
 
-    bool openGLEnabled() const
-    {
-        return m_openGLEnabled;
-    }
-    void setOpenGLEnabled(bool flag)
-    {
-        m_openGLEnabled = flag;
-    }
-
-    bool terrainEnabled() const
-    {
-        return m_terrainEnabled;
-    }
-    void setTerrainEnabled(bool flag)
-    {
-        m_terrainEnabled = flag;
-    }
-
-    QString earthFile() const
-    {
-        return m_earthFile;
-    }
-    void setEarthFile(const QString &fileName)
-    {
-        m_earthFile = fileName;
-    }
-
     void setCacheOnly(bool flag)
     {
         m_cacheOnly = flag;
@@ -134,6 +126,42 @@ public:
     bool cacheOnly() const
     {
         return m_cacheOnly;
+    }
+
+    bool modelEnabled() const
+    {
+        return m_modelEnabled;
+    }
+    void setModelEnabled(bool flag)
+    {
+        m_modelEnabled = flag;
+    }
+
+    QString modelFile() const
+    {
+        return m_modelFile;
+    }
+    void setModelFile(const QString &fileName)
+    {
+        m_modelFile = fileName;
+    }
+
+    Pfd::ModelSelectionMode modelSelectionMode() const
+    {
+        return m_modelSelectionMode;
+    }
+    void setModelSelectionMode(Pfd::ModelSelectionMode modelSelectionMode)
+    {
+        m_modelSelectionMode = modelSelectionMode;
+    }
+
+    bool openGLEnabled() const
+    {
+        return m_openGLEnabled;
+    }
+    void setOpenGLEnabled(bool flag)
+    {
+        m_openGLEnabled = flag;
     }
 
     QMapIterator<double, QString> speedMapIterator()
@@ -155,18 +183,23 @@ private:
     double m_speedFactor;
     double m_altitudeFactor;
 
-    bool m_actualPositionUsed;
+    bool m_terrainEnabled;
+    QString m_terrainFile; // The name of osgearth terrain file
+    bool m_cacheOnly;
+
+    Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;
 
+    bool m_modelEnabled;
+    QString m_modelFile; // The name of model file
+    Pfd::ModelSelectionMode m_modelSelectionMode;
+
     bool m_openGLEnabled;
-    bool m_terrainEnabled;
-    QString m_earthFile; // The name of osgearth terrain file
-    bool m_cacheOnly;
 
     QMap<double, QString> m_speedMap;
     QMap<double, QString> m_altitudeMap;
 };
 
-#endif // PfdQmlGADGETCONFIGURATION_H
+#endif // PFDQMLGADGETCONFIGURATION_H

@@ -21,7 +21,6 @@
 #include "uavobjectmanager.h"
 #include "uavdataobject.h"
 
-
 #include <QFileDialog>
 #include <QtAlgorithms>
 #include <QStringList>
@@ -40,29 +39,13 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     // main layout
     options_page->setupUi(optionsPageWidget);
 
-    // Restore the contents from the settings:
+    // QML file chooser
     options_page->qmlSourceFile->setExpectedKind(Utils::PathChooser::File);
     options_page->qmlSourceFile->setPromptDialogFilter(tr("QML file (*.qml)"));
     options_page->qmlSourceFile->setPromptDialogTitle(tr("Choose QML file"));
     options_page->qmlSourceFile->setPath(m_config->qmlFile());
 
-    // Restore the contents from the settings:
-    options_page->earthFile->setExpectedKind(Utils::PathChooser::File);
-    options_page->earthFile->setPromptDialogFilter(tr("OsgEarth (*.earth)"));
-    options_page->earthFile->setPromptDialogTitle(tr("Choose OsgEarth terrain file"));
-    options_page->earthFile->setPath(m_config->earthFile());
-
-    options_page->useOpenGL->setChecked(m_config->openGLEnabled());
-    options_page->showTerrain->setChecked(m_config->terrainEnabled());
-
-    options_page->useActualLocation->setChecked(m_config->actualPositionUsed());
-    options_page->usePredefinedLocation->setChecked(!m_config->actualPositionUsed());
-    options_page->latitude->setText(QString::number(m_config->latitude()));
-    options_page->longitude->setText(QString::number(m_config->longitude()));
-    options_page->altitude->setText(QString::number(m_config->altitude()));
-    options_page->useOnlyCache->setChecked(m_config->cacheOnly());
-
-    // Setup units combos
+    // Speed Unit combo
     QMapIterator<double, QString> iter = m_config->speedMapIterator();
     while (iter.hasNext()) {
         iter.next();
@@ -70,12 +53,46 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     }
     options_page->speedUnitCombo->setCurrentIndex(options_page->speedUnitCombo->findData(m_config->speedFactor()));
 
+    // Altitude Unit combo
     iter = m_config->altitudeMapIterator();
     while (iter.hasNext()) {
         iter.next();
         options_page->altUnitCombo->addItem(iter.value(), iter.key());
     }
     options_page->altUnitCombo->setCurrentIndex(options_page->altUnitCombo->findData(m_config->altitudeFactor()));
+
+    // Terrain file chooser
+    options_page->earthFile->setExpectedKind(Utils::PathChooser::File);
+    options_page->earthFile->setPromptDialogFilter(tr("OsgEarth (*.earth)"));
+    options_page->earthFile->setPromptDialogTitle(tr("Choose OsgEarth terrain file"));
+    options_page->earthFile->setPath(m_config->terrainFile());
+
+    // Terrain check boxes
+    options_page->showTerrain->setChecked(m_config->terrainEnabled());
+
+    options_page->useGPSLocation->setChecked(m_config->positionMode() == Pfd::GPS);
+    options_page->useHomeLocation->setChecked(m_config->positionMode() == Pfd::Home);
+    options_page->usePredefinedLocation->setChecked(m_config->positionMode() == Pfd::Predefined);
+
+    options_page->useOnlyCache->setChecked(m_config->cacheOnly());
+
+    // Terrain position
+    options_page->latitude->setText(QString::number(m_config->latitude()));
+    options_page->longitude->setText(QString::number(m_config->longitude()));
+    options_page->altitude->setText(QString::number(m_config->altitude()));
+
+    // Model file chooser
+    options_page->modelFile->setExpectedKind(Utils::PathChooser::File);
+    options_page->modelFile->setPromptDialogFilter(tr("Model file"));
+    options_page->modelFile->setPromptDialogTitle(tr("Choose model file"));
+    options_page->modelFile->setPath(m_config->modelFile());
+
+    // Model check boxes
+    options_page->useAutomaticModel->setChecked(m_config->modelSelectionMode() == Pfd::Auto);
+    options_page->usePredefinedModel->setChecked(m_config->modelSelectionMode() == Pfd::Fixed);
+
+    // OpenGL
+    options_page->useOpenGL->setChecked(m_config->openGLEnabled());
 
 #ifndef USE_OSG
     options_page->showTerrain->setChecked(false);
@@ -94,7 +111,7 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 void PfdQmlGadgetOptionsPage::apply()
 {
     m_config->setQmlFile(options_page->qmlSourceFile->path());
-    m_config->setEarthFile(options_page->earthFile->path());
+    m_config->setTerrainFile(options_page->earthFile->path());
     m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
 
 #ifdef USE_OSG
@@ -102,8 +119,15 @@ void PfdQmlGadgetOptionsPage::apply()
 #else
     m_config->setTerrainEnabled(false);
 #endif
-
-    m_config->setActualPositionUsed(options_page->useActualLocation->isChecked());
+    if (options_page->useGPSLocation->isChecked()) {
+        m_config->setPositionMode(Pfd::GPS);
+    }
+    else if (options_page->useHomeLocation->isChecked()) {
+        m_config->setPositionMode(Pfd::Home);
+    }
+    else {
+        m_config->setPositionMode(Pfd::Predefined);
+    }
     m_config->setLatitude(options_page->latitude->text().toDouble());
     m_config->setLongitude(options_page->longitude->text().toDouble());
     m_config->setAltitude(options_page->altitude->text().toDouble());

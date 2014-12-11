@@ -7,7 +7,6 @@ SUBDIRS = \
     qtconcurrent \
     aggregation \
     extensionsystem \
-    glc_lib \
     utils \
     opmapcontrol \
     qwt \

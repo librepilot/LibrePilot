@@ -1,7 +1,8 @@
 #ifndef _H_OSGQTQUICK_OSGGROUP_H_
 #define _H_OSGQTQUICK_OSGGROUP_H_
 
-#include "osgQtQuick/OSGNode.hpp"
+#include "Export.hpp"
+#include "OSGNode.hpp"
 
 #include <QQmlListProperty>
 
@@ -17,7 +18,7 @@ class OSGQTQUICK_EXPORT OSGGroup : public OSGNode
 
 public:
     explicit OSGGroup(QObject *parent = 0);
-    ~OSGGroup();
+    virtual ~OSGGroup();
     
     QQmlListProperty<OSGNode> child();
 
@@ -27,7 +28,6 @@ public slots:
     
 private:
     struct Hidden;
-    friend struct Hidden;
     Hidden *h;
 };
 

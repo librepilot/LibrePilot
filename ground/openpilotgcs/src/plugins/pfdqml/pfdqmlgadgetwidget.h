@@ -102,11 +102,9 @@ public slots:
     void setLongitude(double arg);
     void setAltitude(double arg);
 
-    void setOpenGLEnabled(bool arg);
     void setTerrainEnabled(bool arg);
     void setTerrainFile(QString arg);
     void setModelFile(QString arg);
-
 
 signals:
     void speedUnitChanged(QString arg);

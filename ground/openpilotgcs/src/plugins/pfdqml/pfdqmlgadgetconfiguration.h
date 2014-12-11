@@ -65,6 +65,24 @@ public:
         m_altitudeFactor = factor;
     }
 
+    bool terrainEnabled() const
+    {
+        return m_terrainEnabled;
+    }
+    void setTerrainEnabled(bool flag)
+    {
+        m_terrainEnabled = flag;
+    }
+
+    QString terrainFile() const
+    {
+        return m_terrainFile;
+    }
+    void setTerrainFile(const QString &fileName)
+    {
+        m_terrainFile = fileName;
+    }
+
     Pfd::PositionMode positionMode() const
     {
         return m_positionMode;
@@ -101,31 +119,22 @@ public:
         m_altitude = value;
     }
 
-    bool openGLEnabled() const
+    void setCacheOnly(bool flag)
     {
-        return m_openGLEnabled;
+        m_cacheOnly = flag;
     }
-    void setOpenGLEnabled(bool flag)
+    bool cacheOnly() const
     {
-        m_openGLEnabled = flag;
-    }
-
-    bool terrainEnabled() const
-    {
-        return m_terrainEnabled;
-    }
-    void setTerrainEnabled(bool flag)
-    {
-        m_terrainEnabled = flag;
+        return m_cacheOnly;
     }
 
-    QString terrainFile() const
+    bool modelEnabled() const
     {
-        return m_terrainFile;
+        return m_modelEnabled;
     }
-    void setTerrainFile(const QString &fileName)
+    void setModelEnabled(bool flag)
     {
-        m_terrainFile = fileName;
+        m_modelEnabled = flag;
     }
 
     QString modelFile() const
@@ -137,13 +146,22 @@ public:
         m_modelFile = fileName;
     }
 
-    void setCacheOnly(bool flag)
+    Pfd::ModelSelectionMode modelSelectionMode() const
     {
-        m_cacheOnly = flag;
+        return m_modelSelectionMode;
     }
-    bool cacheOnly() const
+    void setModelSelectionMode(Pfd::ModelSelectionMode modelSelectionMode)
     {
-        return m_cacheOnly;
+        m_modelSelectionMode = modelSelectionMode;
+    }
+
+    bool openGLEnabled() const
+    {
+        return m_openGLEnabled;
+    }
+    void setOpenGLEnabled(bool flag)
+    {
+        m_openGLEnabled = flag;
     }
 
     QMapIterator<double, QString> speedMapIterator()
@@ -165,16 +183,20 @@ private:
     double m_speedFactor;
     double m_altitudeFactor;
 
+    bool m_terrainEnabled;
+    QString m_terrainFile; // The name of osgearth terrain file
+    bool m_cacheOnly;
+
     Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;
 
-    bool m_openGLEnabled;
-    bool m_terrainEnabled;
-    QString m_terrainFile; // The name of osgearth terrain file
+    bool m_modelEnabled;
     QString m_modelFile; // The name of model file
-    bool m_cacheOnly;
+    Pfd::ModelSelectionMode m_modelSelectionMode;
+
+    bool m_openGLEnabled;
 
     QMap<double, QString> m_speedMap;
     QMap<double, QString> m_altitudeMap;

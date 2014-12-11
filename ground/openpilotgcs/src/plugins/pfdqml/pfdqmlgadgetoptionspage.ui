@@ -96,28 +96,14 @@
         </layout>
        </item>
        <item>
-        <widget class="QCheckBox" name="useOpenGL">
-         <property name="text">
-          <string>Use OpenGL</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
         <layout class="QFormLayout" name="formLayout_2">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>Speed Unit:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Altitude Unit:</string>
            </property>
           </widget>
          </item>
@@ -128,6 +114,13 @@
              <width>150</width>
              <height>16777215</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Altitude Unit:</string>
            </property>
           </widget>
          </item>
@@ -151,24 +144,8 @@
          <property name="checkable">
           <bool>true</bool>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="4" column="0">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>16</width>
-              <height>16</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0" colspan="4">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0">
             <property name="spacing">
              <number>10</number>
@@ -182,7 +159,7 @@
             <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>OsgEarth file:</string>
+               <string>Terrain file:</string>
               </property>
              </widget>
             </item>
@@ -198,25 +175,35 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="0" colspan="2">
+          <item>
            <widget class="QRadioButton" name="useGPSLocation">
             <property name="text">
              <string>Use GPS location</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
+          <item>
+           <widget class="QRadioButton" name="useHomeLocation">
+            <property name="text">
+             <string>Use home location</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QRadioButton" name="usePredefinedLocation">
             <property name="text">
-             <string>Use pre-defined location:</string>
+             <string>Use this location:</string>
             </property>
             <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="4" column="1" colspan="3">
+          <item>
            <layout class="QGridLayout" name="gridLayout">
+            <property name="leftMargin">
+             <number>60</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
@@ -249,41 +236,113 @@
             </item>
            </layout>
           </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QCheckBox" name="useOnlyCache">
-            <property name="text">
-             <string>Use only cache data</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>74</width>
-              <height>24</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="5" column="3">
-           <widget class="QPushButton" name="preSeedTerrain">
-            <property name="text">
-             <string>Pre seed terrain cache</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QRadioButton" name="useHomeLocation">
-            <property name="text">
-             <string>Use home location</string>
-            </property>
-           </widget>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="useOnlyCache">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Use only cache data</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>74</width>
+                <height>24</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="preSeedTerrain">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Pre seed terrain cache</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="showModel">
+         <property name="title">
+          <string>Show Model</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QRadioButton" name="useAutomaticModel">
+            <property name="text">
+             <string>Use automatic model selection</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="usePredefinedModel">
+            <property name="text">
+             <string>Use this model:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <property name="bottomMargin">
+             <number>10</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Model file:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Utils::PathChooser" name="modelFile" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="useOpenGL">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Use OpenGL</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -309,7 +368,7 @@
   <customwidget>
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
-   <header>utils/pathchooser.h</header>
+   <header location="global">utils/pathchooser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

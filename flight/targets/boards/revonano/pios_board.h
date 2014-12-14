@@ -107,7 +107,7 @@
 // ------------------------
 // PIOS_WDG
 // ------------------------
-#define PIOS_WATCHDOG_TIMEOUT  250
+#define PIOS_WATCHDOG_TIMEOUT  500
 #define PIOS_WDG_REGISTER      RTC_BKP_DR4
 #define PIOS_WDG_ACTUATOR      0x0001
 #define PIOS_WDG_STABILIZATION 0x0002

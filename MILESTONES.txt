@@ -255,3 +255,8 @@ M: First Auto landing on a Heli using Revo
 C:
 D:
 V:
+
+M: First RevoNano flight on a multirotor
+C: Alessio Morale (a*morale)
+D: 6 December 2014
+V: 

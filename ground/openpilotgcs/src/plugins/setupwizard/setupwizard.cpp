@@ -40,6 +40,7 @@
 #include "pages/escpage.h"
 #include "pages/servopage.h"
 #include "pages/biascalibrationpage.h"
+#include "pages/esccalibrationpage.h"
 #include "pages/summarypage.h"
 #include "pages/savepage.h"
 #include "pages/notyetimplementedpage.h"
@@ -55,9 +56,11 @@
 
 SetupWizard::SetupWizard(QWidget *parent) : QWizard(parent), VehicleConfigurationSource(),
     m_controllerType(CONTROLLER_UNKNOWN),
-    m_vehicleType(VEHICLE_UNKNOWN), m_inputType(INPUT_UNKNOWN), m_escType(ESC_UNKNOWN),
-    m_servoType(SERVO_UNKNOWN), m_vehicleTemplate(NULL),
-    m_calibrationPerformed(false), m_restartNeeded(false), m_connectionManager(0)
+    m_vehicleType(VEHICLE_UNKNOWN), m_inputType(INPUT_UNKNOWN),
+    m_escType(ESC_UNKNOWN), m_servoType(SERVO_UNKNOWN),
+    m_airspeedType(AIRSPEED_DISABLED), m_gpsType(GPS_DISABLED),
+    m_vehicleTemplate(NULL), m_calibrationPerformed(false),
+    m_restartNeeded(false), m_connectionManager(NULL)
 {
     setWindowTitle(tr("OpenPilot Setup Wizard"));
     setOption(QWizard::IndependentPages, false);
@@ -65,8 +68,8 @@ SetupWizard::SetupWizard(QWidget *parent) : QWizard(parent), VehicleConfiguratio
         m_actuatorSettings << actuatorChannelSettings();
     }
     setWizardStyle(QWizard::ModernStyle);
-    setMinimumSize(600, 600);
-    resize(600, 600);
+    setMinimumSize(780, 600);
+    resize(780, 600);
     createPages();
 }
 
@@ -167,6 +170,13 @@ int SetupWizard::nextId() const
     }
 
     case PAGE_BIAS_CALIBRATION:
+        if (getVehicleType() == VEHICLE_MULTI) {
+            return PAGE_ESC_CALIBRATION;
+        } else {
+            return PAGE_OUTPUT_CALIBRATION;
+        }
+
+    case PAGE_ESC_CALIBRATION:
         return PAGE_OUTPUT_CALIBRATION;
 
     case PAGE_OUTPUT_CALIBRATION:
@@ -267,9 +277,6 @@ QString SetupWizard::getSummaryText()
         case SetupWizard::MULTI_ROTOR_QUAD_PLUS:
             summary.append(tr("Quadcopter +"));
             break;
-        case SetupWizard::MULTI_ROTOR_QUAD_H:
-            summary.append(tr("Quadcopter H"));
-            break;
         case SetupWizard::MULTI_ROTOR_HEXA:
             summary.append(tr("Hexacopter"));
             break;
@@ -343,14 +350,8 @@ QString SetupWizard::getSummaryText()
     case INPUT_SBUS:
         summary.append(tr("Futaba S.Bus"));
         break;
-    case INPUT_DSM2:
-        summary.append(tr("Spektrum satellite (DSM2)"));
-        break;
-    case INPUT_DSMX10:
-        summary.append(tr("Spektrum satellite (DSMX10BIT)"));
-        break;
-    case INPUT_DSMX11:
-        summary.append(tr("Spektrum satellite (DSMX11BIT)"));
+    case INPUT_DSM:
+        summary.append(tr("Spektrum Satellite"));
         break;
     default:
         summary.append(tr("Unknown"));
@@ -360,10 +361,10 @@ QString SetupWizard::getSummaryText()
     summary.append("<b>").append(tr("Speed Controller (ESC) type: ")).append("</b>");
     switch (getEscType()) {
     case ESC_STANDARD:
-        summary.append(tr("Standard ESC (50 Hz)"));
+        summary.append(tr("Standard ESC (%1 Hz)").arg(VehicleConfigurationHelper::LEGACY_ESC_FREQUENCY));
         break;
     case ESC_RAPID:
-        summary.append(tr("Rapid ESC (500 Hz)"));
+        summary.append(tr("Rapid ESC (%1 Hz)").arg(VehicleConfigurationHelper::RAPID_ESC_FREQUENCY));
         break;
     default:
         summary.append(tr("Unknown"));
@@ -441,6 +442,7 @@ void SetupWizard::createPages()
     setPage(PAGE_ESC, new EscPage(this));
     setPage(PAGE_SERVO, new ServoPage(this));
     setPage(PAGE_BIAS_CALIBRATION, new BiasCalibrationPage(this));
+    setPage(PAGE_ESC_CALIBRATION, new EscCalibrationPage(this));
     setPage(PAGE_OUTPUT_CALIBRATION, new OutputCalibrationPage(this));
     setPage(PAGE_SUMMARY, new SummaryPage(this));
     setPage(PAGE_SAVE, new SavePage(this));

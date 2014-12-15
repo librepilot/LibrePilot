@@ -38,6 +38,7 @@ MultiPage::~MultiPage()
 void MultiPage::initializePage(VehicleConfigurationSource *settings)
 {
     Q_UNUSED(settings);
+    setSelectedItem(SetupWizard::MULTI_ROTOR_QUAD_X);
 }
 
 bool MultiPage::validatePage(SelectionItem *selectedItem)
@@ -75,11 +76,6 @@ void MultiPage::setupSelection(Selection *selection)
                           "for FPV since the fore rotor tend to be in the way of the camera."),
                        "quad-plus",
                        SetupWizard::MULTI_ROTOR_QUAD_PLUS);
-
-    selection->addItem(tr("Quadcopter H"),
-                       tr("Quadcopter H, Blackout miniH"),
-                       "quad-h",
-                       SetupWizard::MULTI_ROTOR_QUAD_H);
 
     selection->addItem(tr("Hexacopter"),
                        tr("A multirotor with six motors, one motor in front."),

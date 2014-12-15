@@ -48,7 +48,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent), wasItMe(false)
+ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     ui = new Ui_OutputWidget();
     ui->setupUi(this);
@@ -100,13 +100,6 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     disconnect(this, SLOT(refreshWidgetsValues(UAVObject *)));
 
-    UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
-    UAVObject *obj = objManager->getObject(QString("ActuatorCommand"));
-    if (UAVObject::GetGcsTelemetryUpdateMode(obj->getMetadata()) == UAVObject::UPDATEMODE_ONCHANGE) {
-        this->setEnabled(false);
-    }
-    connect(obj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(disableIfNotMe(UAVObject *)));
-
     refreshWidgetsValues();
     updateEnableControls();
 }
@@ -148,7 +141,8 @@ void ConfigOutputWidget::runChannelTests(bool state)
 
     if (state && systemAlarms.Alarm[SystemAlarms::ALARM_ACTUATOR] != SystemAlarms::ALARM_OK) {
         QMessageBox mbox;
-        mbox.setText(QString(tr("The actuator module is in an error state. This can also occur because there are no inputs. Please fix these before testing outputs.")));
+        mbox.setText(QString(tr("The actuator module is in an error state. This can also occur because there are no inputs. "
+                                "Please fix these before testing outputs.")));
         mbox.setStandardButtons(QMessageBox::Ok);
         mbox.exec();
 
@@ -162,7 +156,8 @@ void ConfigOutputWidget::runChannelTests(bool state)
     // Confirm this is definitely what they want
     if (state) {
         QMessageBox mbox;
-        mbox.setText(QString(tr("This option will start your motors by the amount selected on the sliders regardless of transmitter. It is recommended to remove any blades from motors. Are you sure you want to do this?")));
+        mbox.setText(QString(tr("This option will start your motors by the amount selected on the sliders regardless of transmitter."
+                                "It is recommended to remove any blades from motors. Are you sure you want to do this?")));
         mbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         int retval = mbox.exec();
         if (retval != QMessageBox::Yes) {
@@ -176,7 +171,6 @@ void ConfigOutputWidget::runChannelTests(bool state)
     ActuatorCommand *obj = ActuatorCommand::GetInstance(getObjectManager());
     UAVObject::Metadata mdata = obj->getMetadata();
     if (state) {
-        wasItMe = true;
         accInitialData = mdata;
         UAVObject::SetFlightAccess(mdata, UAVObject::ACCESS_READONLY);
         UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_ONCHANGE);
@@ -184,8 +178,7 @@ void ConfigOutputWidget::runChannelTests(bool state)
         UAVObject::SetGcsTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_ONCHANGE);
         mdata.gcsTelemetryUpdatePeriod = 100;
     } else {
-        wasItMe = false;
-        mdata   = accInitialData; // Restore metadata
+        mdata = accInitialData; // Restore metadata
     }
     obj->setMetadata(mdata);
     obj->updated();
@@ -422,15 +415,4 @@ void ConfigOutputWidget::openHelp()
 void ConfigOutputWidget::stopTests()
 {
     ui->channelOutTest->setChecked(false);
-}
-
-void ConfigOutputWidget::disableIfNotMe(UAVObject *obj)
-{
-    if (UAVObject::GetGcsTelemetryUpdateMode(obj->getMetadata()) == UAVObject::UPDATEMODE_ONCHANGE) {
-        if (!wasItMe) {
-            this->setEnabled(false);
-        }
-    } else {
-        this->setEnabled(true);
-    }
 }

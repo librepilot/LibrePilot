@@ -33,7 +33,10 @@
 #include "openpilot.h"
 #include "gpspositionsensor.h"
 #include "gpsextendedstatus.h"
+#ifndef PIOS_GPS_MINIMAL
 #include "auxmagsensor.h"
+#endif
+
 #include "GPS.h"
 
 #define UBX_HW_VERSION_8 80000
@@ -343,11 +346,12 @@ struct UBX_MON_VER {
 // OP custom messages
 struct UBX_OP_SYSINFO {
     uint32_t flightTime;
-    uint16_t HeapRemaining;
-    uint16_t IRQStackRemaining;
-    uint16_t SystemModStackRemaining;
     uint16_t options;
-};
+    uint8_t  board_type;
+    uint8_t  board_revision;
+    uint8_t  commit_tag_name[26];
+    uint8_t  sha1sum[8];
+} __attribute__((packed));
 
 // OP custom messages
 struct UBX_OP_MAG {
@@ -365,11 +369,10 @@ typedef union {
     struct UBX_NAV_DOP     nav_dop;
     struct UBX_NAV_SOL     nav_sol;
     struct UBX_NAV_VELNED  nav_velned;
-    struct UBX_NAV_PVT     nav_pvt;
 #if !defined(PIOS_GPS_MINIMAL)
+    struct UBX_NAV_PVT     nav_pvt;
     struct UBX_NAV_TIMEUTC nav_timeutc;
     struct UBX_NAV_SVINFO  nav_svinfo;
-#endif
     // Ack Class
     struct UBX_ACK_ACK     ack_ack;
     struct UBX_ACK_NAK     ack_nak;
@@ -377,6 +380,7 @@ typedef union {
     struct UBX_MON_VER     mon_ver;
     struct UBX_OP_SYSINFO  op_sysinfo;
     struct UBX_OP_MAG op_mag;
+#endif
 } UBXPayload;
 
 struct UBXHeader {
@@ -400,7 +404,7 @@ extern struct UBX_ACK_NAK ubxLastNak;
 bool checksum_ubx_message(struct UBXPacket *);
 uint32_t parse_ubx_message(struct UBXPacket *, GPSPositionSensorData *);
 
-int parse_ubx_stream(uint8_t, char *, GPSPositionSensorData *, struct GPS_RX_STATS *);
+int parse_ubx_stream(uint8_t *rx, uint8_t len, char *, GPSPositionSensorData *, struct GPS_RX_STATS *);
 void load_mag_settings();
 
 #endif /* UBX_H */

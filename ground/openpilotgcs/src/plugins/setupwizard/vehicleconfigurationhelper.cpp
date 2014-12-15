@@ -43,11 +43,7 @@
 #include "airspeedsettings.h"
 #include <QtCore/qmath.h>
 #include <QJsonObject>
-
-const qint16 VehicleConfigurationHelper::LEGACY_ESC_FREQUENCE    = 50;
-const qint16 VehicleConfigurationHelper::RAPID_ESC_FREQUENCE     = 500;
-const qint16 VehicleConfigurationHelper::ANALOG_SERVO_FREQUENCE  = 50;
-const qint16 VehicleConfigurationHelper::DIGITAL_SERVO_FREQUENCE = 333;
+#include "auxmagsettings.h"
 
 VehicleConfigurationHelper::VehicleConfigurationHelper(VehicleConfigurationSource *configSource)
     : m_configSource(configSource), m_uavoManager(0),
@@ -102,6 +98,19 @@ bool VehicleConfigurationHelper::setupHardwareSettings(bool save)
     return result;
 }
 
+bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
+{
+    switch (m_configSource->getControllerType()) {
+    case VehicleConfigurationSource::CONTROLLER_CC:
+    case VehicleConfigurationSource::CONTROLLER_CC3D:
+        if (dataObj->getName() == "EKFConfiguration") {
+            return false;
+        }
+    default:
+        return true;
+    }
+}
+
 void VehicleConfigurationHelper::addModifiedObject(UAVDataObject *object, QString description)
 {
     m_modifiedObjects << new QPair<UAVDataObject *, QString>(object, description);
@@ -148,14 +157,8 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.CC_MainPort  = HwSettings::CC_MAINPORT_SBUS;
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_TELEMETRY;
             break;
-        case VehicleConfigurationSource::INPUT_DSMX10:
-            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSMX10BIT;
-            break;
-        case VehicleConfigurationSource::INPUT_DSMX11:
-            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSMX11BIT;
-            break;
-        case VehicleConfigurationSource::INPUT_DSM2:
-            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSM2;
+        case VehicleConfigurationSource::INPUT_DSM:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSM;
             break;
         default:
             break;
@@ -164,13 +167,16 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
     case VehicleConfigurationSource::CONTROLLER_REVO:
     case VehicleConfigurationSource::CONTROLLER_NANO:
     case VehicleConfigurationSource::CONTROLLER_DISCOVERYF4:
-        // Reset all ports
+        // Reset all ports to their defaults
         data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
-
-        // Default mainport to be active telemetry link
-        data.RM_MainPort  = HwSettings::RM_MAINPORT_TELEMETRY;
-
         data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+
+        // Revo uses inbuilt Modem do not set mainport to be active telemetry link for the Revo
+        if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            data.RM_MainPort = HwSettings::RM_MAINPORT_DISABLED;
+        } else {
+            data.RM_MainPort = HwSettings::RM_MAINPORT_TELEMETRY;
+        }
 
         switch (m_configSource->getInputType()) {
         case VehicleConfigurationSource::INPUT_PWM:
@@ -180,61 +186,62 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            // We have to set telemetry on flexport since s.bus needs the mainport.
-            data.RM_MainPort  = HwSettings::RM_MAINPORT_SBUS;
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+            data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
+            // We have to set telemetry on flexport since s.bus needs the mainport on all but Revo.
+            if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+            }
             break;
-        case VehicleConfigurationSource::INPUT_DSMX10:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSMX10BIT;
-            break;
-        case VehicleConfigurationSource::INPUT_DSMX11:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSMX11BIT;
-            break;
-        case VehicleConfigurationSource::INPUT_DSM2:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM2;
+        case VehicleConfigurationSource::INPUT_DSM:
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
             break;
         default:
             break;
         }
 
         if (m_configSource->getGpsType() != VehicleConfigurationSource::GPS_DISABLED) {
+            data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
+            data.GPSSpeed = HwSettings::GPSSPEED_57600;
+
+            if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
+            } else {
+                data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
+            }
+
             GPSSettings *gpsSettings = GPSSettings::GetInstance(m_uavoManager);
             Q_ASSERT(gpsSettings);
             GPSSettings::DataFields gpsData = gpsSettings->getData();
+            gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_DISABLED;
 
             switch (m_configSource->getGpsType()) {
             case VehicleConfigurationSource::GPS_NMEA:
-                data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
-                data.RM_MainPort     = HwSettings::RM_MAINPORT_GPS;
-                data.GPSSpeed        = HwSettings::GPSSPEED_57600;
                 gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_NMEA;
                 break;
             case VehicleConfigurationSource::GPS_UBX:
-                data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
-                data.RM_MainPort     = HwSettings::RM_MAINPORT_GPS;
-                data.GPSSpeed        = HwSettings::GPSSPEED_57600;
                 gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_UBX;
                 break;
             case VehicleConfigurationSource::GPS_PLATINUM:
-                data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
-                data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
-                data.GPSSpeed    = HwSettings::GPSSPEED_115200;
-                /*
-                   gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_UBLOX;
-                   AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
-                   AuxMagSettings::DataFields magsData = magSettings->getData();
-                   magsData.usage = AuxMagSettings::Both;
-                   magSettings->setData(magsData);
-                   addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
-                 */
+            {
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_CONFIGURE;
+                AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
+                Q_ASSERT(magSettings);
+                AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
+                magSettings->setData(magsData);
+                addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
                 break;
-            default:
-                data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 0;
+            }
+            case VehicleConfigurationSource::GPS_DISABLED:
+                // Should not be able to reach here
                 break;
             }
 
             gpsSettings->setData(gpsData);
             addModifiedObject(gpsSettings, tr("Writing GPS sensor settings"));
+        } else {
+            data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 0;
         }
 
         if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_FIXEDWING &&
@@ -285,7 +292,6 @@ void VehicleConfigurationHelper::applyVehicleConfiguration()
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
-        case VehicleConfigurationSource::MULTI_ROTOR_QUAD_H:
             setupQuadCopter();
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA:
@@ -318,6 +324,9 @@ void VehicleConfigurationHelper::applyVehicleConfiguration()
         case VehicleConfigurationSource::FIXED_WING_ELEVON:
             setupElevon();
             break;
+        case VehicleConfigurationSource::FIXED_WING_VTAIL:
+            setupVtail();
+            break;
         default:
             break;
         }
@@ -338,26 +347,26 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
 {
     ActuatorSettings *actSettings = ActuatorSettings::GetInstance(m_uavoManager);
 
-    qint16 escFrequence = LEGACY_ESC_FREQUENCE;
+    qint16 escFrequence = LEGACY_ESC_FREQUENCY;
 
     switch (m_configSource->getEscType()) {
     case VehicleConfigurationSource::ESC_STANDARD:
-        escFrequence = LEGACY_ESC_FREQUENCE;
+        escFrequence = LEGACY_ESC_FREQUENCY;
         break;
     case VehicleConfigurationSource::ESC_RAPID:
-        escFrequence = RAPID_ESC_FREQUENCE;
+        escFrequence = RAPID_ESC_FREQUENCY;
         break;
     default:
         break;
     }
 
-    qint16 servoFrequence = ANALOG_SERVO_FREQUENCE;
+    qint16 servoFrequence = ANALOG_SERVO_FREQUENCY;
     switch (m_configSource->getServoType()) {
     case VehicleConfigurationSource::SERVO_ANALOG:
-        servoFrequence = ANALOG_SERVO_FREQUENCE;
+        servoFrequence = ANALOG_SERVO_FREQUENCY;
         break;
     case VehicleConfigurationSource::SERVO_DIGITAL:
-        servoFrequence = DIGITAL_SERVO_FREQUENCE;
+        servoFrequence = DIGITAL_SERVO_FREQUENCY;
         break;
     default:
         break;
@@ -380,7 +389,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         data.MotorsSpinWhileArmed = ActuatorSettings::MOTORSSPINWHILEARMED_FALSE;
 
         for (quint16 i = 0; i < ActuatorSettings::CHANNELUPDATEFREQ_NUMELEM; i++) {
-            data.ChannelUpdateFreq[i] = LEGACY_ESC_FREQUENCE;
+            data.ChannelUpdateFreq[i] = LEGACY_ESC_FREQUENCY;
         }
 
         switch (m_configSource->getVehicleSubType()) {
@@ -400,7 +409,6 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             }
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
-        case VehicleConfigurationSource::MULTI_ROTOR_QUAD_H:
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
             data.ChannelUpdateFreq[0] = escFrequence;
             data.ChannelUpdateFreq[1] = escFrequence;
@@ -597,7 +605,7 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
     // Set Mixer types and values
     QString mixerTypePattern   = "Mixer%1Type";
     QString mixerVectorPattern = "Mixer%1Vector";
-    for (int i = 0; i < 10; i++) {
+    for (quint32 i = 0; i < ActuatorSettings::CHANNELADDR_NUMELEM; i++) {
         UAVObjectField *field = mSettings->getField(mixerTypePattern.arg(i + 1));
         Q_ASSERT(field);
         field->setValue(field->getOptions().at(channels[i].type));
@@ -627,8 +635,6 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         }
     }
 
-    MixerSettings *mixSettings = MixerSettings::GetInstance(m_uavoManager);
-
     // Save mixer values for sliders
     switch (m_configSource->getVehicleType()) {
     case VehicleConfigurationSource::VEHICLE_MULTI:
@@ -638,35 +644,30 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA:
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_H:
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_X:
-            mixSettings->setMixerValueRoll(100);
-            mixSettings->setMixerValuePitch(100);
-            mixSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll(100);
+            mSettings->setMixerValuePitch(100);
+            mSettings->setMixerValueYaw(100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
-            mixSettings->setMixerValueRoll(50);
-            mixSettings->setMixerValuePitch(50);
-            mixSettings->setMixerValueYaw(50);
+            mSettings->setMixerValueRoll(50);
+            mSettings->setMixerValuePitch(50);
+            mSettings->setMixerValueYaw(50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
-            mixSettings->setMixerValueRoll(100);
-            mixSettings->setMixerValuePitch(100);
-            mixSettings->setMixerValueYaw(50);
-            break;
-        case VehicleConfigurationSource::MULTI_ROTOR_QUAD_H:
-            mixSettings->setMixerValueRoll(50);
-            mixSettings->setMixerValuePitch(70);
-            mixSettings->setMixerValueYaw(50);
+            mSettings->setMixerValueRoll(100);
+            mSettings->setMixerValuePitch(100);
+            mSettings->setMixerValueYaw(50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_COAX_Y:
-            mixSettings->setMixerValueRoll(100);
-            mixSettings->setMixerValuePitch(50);
-            mixSettings->setMixerValueYaw(66);
+            mSettings->setMixerValueRoll(100);
+            mSettings->setMixerValuePitch(50);
+            mSettings->setMixerValueYaw(66);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_X:
-            mixSettings->setMixerValueRoll(100);
-            mixSettings->setMixerValuePitch(100);
-            mixSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll(100);
+            mSettings->setMixerValuePitch(100);
+            mSettings->setMixerValueYaw(100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_X:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_PLUS:
@@ -678,6 +679,10 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         break;
     }
     case VehicleConfigurationSource::VEHICLE_FIXEDWING:
+        mSettings->setMixerValueRoll(100);
+        mSettings->setMixerValuePitch(100);
+        mSettings->setMixerValueYaw(100);
+        break;
     case VehicleConfigurationSource::VEHICLE_HELI:
     case VehicleConfigurationSource::VEHICLE_SURFACE:
         // TODO: Implement mixer / sliders settings for other vehicle types?
@@ -725,10 +730,8 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
     case VehicleConfigurationSource::INPUT_SBUS:
         channelType = ManualControlSettings::CHANNELGROUPS_SBUS;
         break;
-    case VehicleConfigurationSource::INPUT_DSMX10:
-    case VehicleConfigurationSource::INPUT_DSMX11:
-    case VehicleConfigurationSource::INPUT_DSM2:
-        channelType = ManualControlSettings::CHANNELGROUPS_DSMMAINPORT;
+    case VehicleConfigurationSource::INPUT_DSM:
+        channelType = ManualControlSettings::CHANNELGROUPS_DSMFLEXIPORT;
         break;
     default:
         break;
@@ -739,12 +742,6 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
     cData.ChannelGroups[ManualControlSettings::CHANNELGROUPS_YAW] = channelType;
     cData.ChannelGroups[ManualControlSettings::CHANNELGROUPS_PITCH]      = channelType;
     cData.ChannelGroups[ManualControlSettings::CHANNELGROUPS_FLIGHTMODE] = channelType;
-
-    cData.ChannelNumber[ManualControlSettings::CHANNELGROUPS_THROTTLE]   = 1;
-    cData.ChannelNumber[ManualControlSettings::CHANNELGROUPS_ROLL]       = 2;
-    cData.ChannelNumber[ManualControlSettings::CHANNELGROUPS_YAW] = 3;
-    cData.ChannelNumber[ManualControlSettings::CHANNELGROUPS_PITCH]      = 4;
-    cData.ChannelNumber[ManualControlSettings::CHANNELGROUPS_FLIGHTMODE] = 5;
 
     mcSettings->setData(cData);
     addModifiedObject(mcSettings, tr("Writing manual control defaults"));
@@ -759,8 +756,8 @@ void VehicleConfigurationHelper::applyTemplateSettings()
         foreach(UAVObject * object, updatedObjects) {
             UAVDataObject *dataObj = dynamic_cast<UAVDataObject *>(object);
 
-            if (dataObj != NULL) {
-                addModifiedObject(dataObj, QString(tr("Writing template settings for %1")).arg(object->getName()));
+            if (dataObj != NULL && isApplicable(dataObj)) {
+                addModifiedObject(dataObj, tr("Writing template settings for %1").arg(object->getName()));
             }
         }
     }
@@ -942,7 +939,7 @@ void VehicleConfigurationHelper::setupTriCopter()
     // 2. Setup GUI data
     // 3. Apply changes
 
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
 
     channels[0].type      = MIXER_TYPE_MOTOR;
@@ -995,7 +992,7 @@ GUIConfigDataUnion VehicleConfigurationHelper::getGUIConfigData()
 
 void VehicleConfigurationHelper::setupQuadCopter()
 {
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
     SystemSettings::AirframeTypeOptions frame = SystemSettings::AIRFRAMETYPE_QUADX;
 
@@ -1076,44 +1073,6 @@ void VehicleConfigurationHelper::setupQuadCopter()
 
         break;
     }
-    case VehicleConfigurationSource::MULTI_ROTOR_QUAD_H:
-    {
-        frame = SystemSettings::AIRFRAMETYPE_QUADH;
-        channels[0].type      = MIXER_TYPE_MOTOR;
-        channels[0].throttle1 = 100;
-        channels[0].throttle2 = 0;
-        channels[0].roll      = 50;
-        channels[0].pitch     = 70;
-        channels[0].yaw = -50;
-
-        channels[1].type      = MIXER_TYPE_MOTOR;
-        channels[1].throttle1 = 100;
-        channels[1].throttle2 = 0;
-        channels[1].roll      = -50;
-        channels[1].pitch     = 70;
-        channels[1].yaw = 50;
-
-        channels[2].type      = MIXER_TYPE_MOTOR;
-        channels[2].throttle1 = 100;
-        channels[2].throttle2 = 0;
-        channels[2].roll      = -50;
-        channels[2].pitch     = -70;
-        channels[2].yaw = -50;
-
-        channels[3].type      = MIXER_TYPE_MOTOR;
-        channels[3].throttle1 = 100;
-        channels[3].throttle2 = 0;
-        channels[3].roll      = 50;
-        channels[3].pitch     = -70;
-        channels[3].yaw = 50;
-
-        guiSettings.multi.VTOLMotorNW = 1;
-        guiSettings.multi.VTOLMotorNE = 2;
-        guiSettings.multi.VTOLMotorSE = 3;
-        guiSettings.multi.VTOLMotorSW = 4;
-
-        break;
-    }
     default:
         break;
     }
@@ -1123,7 +1082,7 @@ void VehicleConfigurationHelper::setupQuadCopter()
 
 void VehicleConfigurationHelper::setupHexaCopter()
 {
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
     SystemSettings::AirframeTypeOptions frame = SystemSettings::AIRFRAMETYPE_HEXA;
 
@@ -1378,7 +1337,7 @@ void VehicleConfigurationHelper::setupHexaCopter()
 
 void VehicleConfigurationHelper::setupOctoCopter()
 {
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
     SystemSettings::AirframeTypeOptions frame = SystemSettings::AIRFRAMETYPE_OCTO;
 
@@ -1765,7 +1724,7 @@ void VehicleConfigurationHelper::setupOctoCopter()
 
 void VehicleConfigurationHelper::setupElevon()
 {
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
 
     // Motor (Chan 3)
@@ -1784,7 +1743,7 @@ void VehicleConfigurationHelper::setupElevon()
     channels[0].pitch     = -100;
     channels[0].yaw       = 0;
 
-    // Elevon Servo 1 (Chan 2)
+    // Elevon Servo 2 (Chan 2)
     channels[1].type      = MIXER_TYPE_SERVO;
     channels[1].throttle1 = 0;
     channels[1].throttle2 = 0;
@@ -1807,7 +1766,7 @@ void VehicleConfigurationHelper::setupDualAileron()
     // 2. Setup GUI data
     // 3. Apply changes
 
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
 
     // Motor (Chan 3)
@@ -1822,7 +1781,7 @@ void VehicleConfigurationHelper::setupDualAileron()
     channels[0].type      = MIXER_TYPE_SERVO;
     channels[0].throttle1 = 0;
     channels[0].throttle2 = 0;
-    channels[0].roll      = -100;
+    channels[0].roll      = 100;
     channels[0].pitch     = 0;
     channels[0].yaw       = 0;
 
@@ -1867,7 +1826,7 @@ void VehicleConfigurationHelper::setupAileron()
     // 2. Setup GUI data
     // 3. Apply changes
 
-    mixerChannelSettings channels[10];
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
 
     // Motor (Chan 3)
@@ -1909,4 +1868,64 @@ void VehicleConfigurationHelper::setupAileron()
 
     applyMixerConfiguration(channels);
     applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_FIXEDWING, guiSettings);
+}
+
+void VehicleConfigurationHelper::setupVtail()
+{
+    // Typical vehicle setup
+    // 1. Setup mixer data
+    // 2. Setup GUI data
+    // 3. Apply changes
+
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
+    GUIConfigDataUnion guiSettings = getGUIConfigData();
+
+    // Motor (Chan 3)
+    channels[2].type      = MIXER_TYPE_MOTOR;
+    channels[2].throttle1 = 100;
+    channels[2].throttle2 = 0;
+    channels[2].roll      = 0;
+    channels[2].pitch     = 0;
+    channels[2].yaw       = 0;
+
+    // Aileron Servo (Chan 1)
+    channels[0].type      = MIXER_TYPE_SERVO;
+    channels[0].throttle1 = 0;
+    channels[0].throttle2 = 0;
+    channels[0].roll      = 100;
+    channels[0].pitch     = 0;
+    channels[0].yaw       = 0;
+
+    // Aileron Servo 2 (Chan 6)
+    channels[5].type      = MIXER_TYPE_SERVO;
+    channels[5].throttle1 = 0;
+    channels[5].throttle2 = 0;
+    channels[5].roll      = 100;
+    channels[5].pitch     = 0;
+    channels[5].yaw       = 0;
+
+    // Right Vtail Servo (Chan 2)
+    channels[1].type      = MIXER_TYPE_SERVO;
+    channels[1].throttle1 = 0;
+    channels[1].throttle2 = 0;
+    channels[1].roll      = 0;
+    channels[1].pitch     = 100;
+    channels[1].yaw       = 100;
+
+    // Left Vtail Servo (Chan 4)
+    channels[3].type      = MIXER_TYPE_SERVO;
+    channels[3].throttle1 = 0;
+    channels[3].throttle2 = 0;
+    channels[3].roll      = 0;
+    channels[3].pitch     = -100;
+    channels[3].yaw       = 100;
+
+    guiSettings.fixedwing.FixedWingThrottle = 3;
+    guiSettings.fixedwing.FixedWingRoll1    = 1;
+    guiSettings.fixedwing.FixedWingRoll2    = 6;
+    guiSettings.fixedwing.FixedWingPitch1   = 4; // Vtail left (top view, nose up)
+    guiSettings.fixedwing.FixedWingPitch2   = 2; // Vtail right
+
+    applyMixerConfiguration(channels);
+    applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_FIXEDWINGVTAIL, guiSettings);
 }

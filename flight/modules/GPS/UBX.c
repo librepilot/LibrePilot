@@ -37,9 +37,12 @@
 #include "inc/UBX.h"
 #include "inc/GPS.h"
 #include <string.h>
+
+#ifndef PIOS_GPS_MINIMAL
 #include <auxmagsupport.h>
 
 static bool useMag = false;
+#endif
 static GPSPositionSensorSensorTypeOptions sensorType = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
 
 static bool usePvt = false;
@@ -54,43 +57,42 @@ typedef struct {
 } ubx_message_handler;
 
 // parsing functions, roughly ordered by reception rate (higher rate messages on top)
-static void parse_ubx_op_mag(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 
-static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_nav_posllh(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_nav_velned(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_nav_sol(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_nav_dop(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 #ifndef PIOS_GPS_MINIMAL
+static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_nav_timeutc(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_nav_svinfo(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 
 static void parse_ubx_op_sys(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
-#endif
+static void parse_ubx_op_mag(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
+
 static void parse_ubx_ack_ack(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 static void parse_ubx_ack_nak(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
 
 static void parse_ubx_mon_ver(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition);
-
+#endif
 
 const ubx_message_handler ubx_handler_table[] = {
-    { .msgClass = UBX_CLASS_OP_CUST, .msgID = UBX_ID_OP_MAG,      .handler = &parse_ubx_op_mag      },
-
-    { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_PVT,     .handler = &parse_ubx_nav_pvt     },
     { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_POSLLH,  .handler = &parse_ubx_nav_posllh  },
     { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_VELNED,  .handler = &parse_ubx_nav_velned  },
     { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_SOL,     .handler = &parse_ubx_nav_sol     },
     { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_DOP,     .handler = &parse_ubx_nav_dop     },
 #ifndef PIOS_GPS_MINIMAL
+    { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_PVT,     .handler = &parse_ubx_nav_pvt     },
+    { .msgClass = UBX_CLASS_OP_CUST, .msgID = UBX_ID_OP_MAG,      .handler = &parse_ubx_op_mag      },
     { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_SVINFO,  .handler = &parse_ubx_nav_svinfo  },
     { .msgClass = UBX_CLASS_NAV,     .msgID = UBX_ID_NAV_TIMEUTC, .handler = &parse_ubx_nav_timeutc },
 
     { .msgClass = UBX_CLASS_OP_CUST, .msgID = UBX_ID_OP_SYS,      .handler = &parse_ubx_op_sys      },
-#endif
     { .msgClass = UBX_CLASS_ACK,     .msgID = UBX_ID_ACK_ACK,     .handler = &parse_ubx_ack_ack     },
     { .msgClass = UBX_CLASS_ACK,     .msgID = UBX_ID_ACK_NAK,     .handler = &parse_ubx_ack_nak     },
 
     { .msgClass = UBX_CLASS_MON,     .msgID = UBX_ID_MON_VER,     .handler = &parse_ubx_mon_ver     },
+#endif
 };
 #define UBX_HANDLER_TABLE_SIZE NELEMENTS(ubx_handler_table)
 
@@ -105,8 +107,9 @@ struct UBX_ACK_NAK ubxLastNak;
 #define UBX_PVT_TIMEOUT (1000)
 // parse incoming character stream for messages in UBX binary format
 
-int parse_ubx_stream(uint8_t c, char *gps_rx_buffer, GPSPositionSensorData *GpsData, struct GPS_RX_STATS *gpsRxStats)
+int parse_ubx_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPositionSensorData *GpsData, struct GPS_RX_STATS *gpsRxStats)
 {
+    int ret = PARSER_INCOMPLETE; // message not (yet) complete
     enum proto_states {
         START,
         UBX_SY2,
@@ -119,83 +122,85 @@ int parse_ubx_stream(uint8_t c, char *gps_rx_buffer, GPSPositionSensorData *GpsD
         UBX_CHK2,
         FINISHED
     };
-
+    uint8_t c;
     static enum proto_states proto_state = START;
     static uint8_t rx_count = 0;
     struct UBXPacket *ubx   = (struct UBXPacket *)gps_rx_buffer;
 
-    switch (proto_state) {
-    case START: // detect protocol
-        if (c == UBX_SYNC1) { // first UBX sync char found
-            proto_state = UBX_SY2;
-        }
-        break;
-    case UBX_SY2:
-        if (c == UBX_SYNC2) { // second UBX sync char found
-            proto_state = UBX_CLASS;
-        } else {
-            proto_state = START; // reset state
-        }
-        break;
-    case UBX_CLASS:
-        ubx->header.class = c;
-        proto_state      = UBX_ID;
-        break;
-    case UBX_ID:
-        ubx->header.id   = c;
-        proto_state      = UBX_LEN1;
-        break;
-    case UBX_LEN1:
-        ubx->header.len  = c;
-        proto_state      = UBX_LEN2;
-        break;
-    case UBX_LEN2:
-        ubx->header.len += (c << 8);
-        if (ubx->header.len > sizeof(UBXPayload)) {
-            gpsRxStats->gpsRxOverflow++;
-            proto_state = START;
-        } else {
-            rx_count    = 0;
-            proto_state = UBX_PAYLOAD;
-        }
-        break;
-    case UBX_PAYLOAD:
-        if (rx_count < ubx->header.len) {
-            ubx->payload.payload[rx_count] = c;
-            if (++rx_count == ubx->header.len) {
-                proto_state = UBX_CHK1;
+    for (int i = 0; i < len; i++) {
+        c = rx[i];
+        switch (proto_state) {
+        case START: // detect protocol
+            if (c == UBX_SYNC1) { // first UBX sync char found
+                proto_state = UBX_SY2;
             }
-        } else {
-            gpsRxStats->gpsRxOverflow++;
-            proto_state = START;
+            break;
+        case UBX_SY2:
+            if (c == UBX_SYNC2) { // second UBX sync char found
+                proto_state = UBX_CLASS;
+            } else {
+                proto_state = START; // reset state
+            }
+            break;
+        case UBX_CLASS:
+            ubx->header.class = c;
+            proto_state      = UBX_ID;
+            break;
+        case UBX_ID:
+            ubx->header.id   = c;
+            proto_state      = UBX_LEN1;
+            break;
+        case UBX_LEN1:
+            ubx->header.len  = c;
+            proto_state      = UBX_LEN2;
+            break;
+        case UBX_LEN2:
+            ubx->header.len += (c << 8);
+            if (ubx->header.len > sizeof(UBXPayload)) {
+                gpsRxStats->gpsRxOverflow++;
+                proto_state = START;
+            } else {
+                rx_count    = 0;
+                proto_state = UBX_PAYLOAD;
+            }
+            break;
+        case UBX_PAYLOAD:
+            if (rx_count < ubx->header.len) {
+                ubx->payload.payload[rx_count] = c;
+                if (++rx_count == ubx->header.len) {
+                    proto_state = UBX_CHK1;
+                }
+            } else {
+                gpsRxStats->gpsRxOverflow++;
+                proto_state = START;
+            }
+            break;
+        case UBX_CHK1:
+            ubx->header.ck_a = c;
+            proto_state = UBX_CHK2;
+            break;
+        case UBX_CHK2:
+            ubx->header.ck_b = c;
+            if (checksum_ubx_message(ubx)) { // message complete and valid
+                parse_ubx_message(ubx, GpsData);
+                proto_state = FINISHED;
+            } else {
+                gpsRxStats->gpsRxChkSumError++;
+                proto_state = START;
+            }
+            break;
+        default: break;
         }
-        break;
-    case UBX_CHK1:
-        ubx->header.ck_a = c;
-        proto_state = UBX_CHK2;
-        break;
-    case UBX_CHK2:
-        ubx->header.ck_b = c;
-        if (checksum_ubx_message(ubx)) { // message complete and valid
-            parse_ubx_message(ubx, GpsData);
-            proto_state = FINISHED;
-        } else {
-            gpsRxStats->gpsRxChkSumError++;
+
+        if (proto_state == START) {
+            ret = (ret != PARSER_COMPLETE) ? PARSER_ERROR : PARSER_COMPLETE; // parser couldn't use this byte
+        } else if (proto_state == FINISHED) {
+            gpsRxStats->gpsRxReceived++;
             proto_state = START;
+            ret = PARSER_COMPLETE; // message complete & processed
         }
-        break;
-    default: break;
     }
-
-    if (proto_state == START) {
-        return PARSER_ERROR; // parser couldn't use this byte
-    } else if (proto_state == FINISHED) {
-        gpsRxStats->gpsRxReceived++;
-        proto_state = START;
-        return PARSER_COMPLETE; // message complete & processed
-    }
-
-    return PARSER_INCOMPLETE; // message not (yet) complete
+    return ret;
 }
 
 
@@ -331,7 +336,7 @@ static void parse_ubx_nav_velned(struct UBXPacket *ubx, GPSPositionSensorData *G
         }
     }
 }
-
+#if !defined(PIOS_GPS_MINIMAL)
 static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosition)
 {
     lastPvtTime = PIOS_DELAY_GetuS();
@@ -359,7 +364,7 @@ static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsP
     } else {
         GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
     }
-#if !defined(PIOS_GPS_MINIMAL)
+
     if (pvt->valid & PVT_VALID_VALIDTIME) {
         // Time is valid, set GpsTime
         GPSTimeData GpsTime;
@@ -373,10 +378,8 @@ static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsP
 
         GPSTimeSet(&GpsTime);
     }
-#endif
 }
 
-#if !defined(PIOS_GPS_MINIMAL)
 static void parse_ubx_nav_timeutc(struct UBXPacket *ubx, __attribute__((unused)) GPSPositionSensorData *GpsPosition)
 {
     if (usePvt) {
@@ -402,9 +405,7 @@ static void parse_ubx_nav_timeutc(struct UBXPacket *ubx, __attribute__((unused))
         return;
     }
 }
-#endif /* if !defined(PIOS_GPS_MINIMAL) */
 
-#if !defined(PIOS_GPS_MINIMAL)
 static void parse_ubx_nav_svinfo(struct UBXPacket *ubx, __attribute__((unused)) GPSPositionSensorData *GpsPosition)
 {
     uint8_t chan;
@@ -431,7 +432,6 @@ static void parse_ubx_nav_svinfo(struct UBXPacket *ubx, __attribute__((unused)) 
 
     GPSSatellitesSet(&svdata);
 }
-#endif /* if !defined(PIOS_GPS_MINIMAL) */
 
 static void parse_ubx_ack_ack(struct UBXPacket *ubx, __attribute__((unused)) GPSPositionSensorData *GpsPosition)
 {
@@ -457,22 +457,21 @@ static void parse_ubx_mon_ver(struct UBXPacket *ubx, __attribute__((unused)) GPS
                    ((ubxHwVersion >= 70000) ? GPSPOSITIONSENSOR_SENSORTYPE_UBX7 : GPSPOSITIONSENSOR_SENSORTYPE_UBX);
 }
 
-
-#if !defined(PIOS_GPS_MINIMAL)
 static void parse_ubx_op_sys(struct UBXPacket *ubx, __attribute__((unused)) GPSPositionSensorData *GpsPosition)
 {
     struct UBX_OP_SYSINFO *sysinfo = &ubx->payload.op_sysinfo;
     GPSExtendedStatusData data;
 
-    data.FlightTime           = sysinfo->flightTime;
-    data.HeapRemaining        = sysinfo->HeapRemaining;
-    data.IRQStackRemaining    = sysinfo->IRQStackRemaining;
-    data.SysModStackRemaining = sysinfo->SystemModStackRemaining;
+    data.FlightTime   = sysinfo->flightTime;
+    data.BoardType[0] = sysinfo->board_type;
+    data.BoardType[1] = sysinfo->board_revision;
+    memcpy(&data.FirmwareHash, &sysinfo->sha1sum, GPSEXTENDEDSTATUS_FIRMWAREHASH_NUMELEM);
+    memcpy(&data.FirmwareTag, &sysinfo->commit_tag_name, GPSEXTENDEDSTATUS_FIRMWARETAG_NUMELEM);
     data.Options = sysinfo->options;
     data.Status  = GPSEXTENDEDSTATUS_STATUS_GPSV9;
     GPSExtendedStatusSet(&data);
 }
-#endif
+
 static void parse_ubx_op_mag(struct UBXPacket *ubx, __attribute__((unused)) GPSPositionSensorData *GpsPosition)
 {
     if (!useMag) {
@@ -482,6 +481,7 @@ static void parse_ubx_op_mag(struct UBXPacket *ubx, __attribute__((unused)) GPSP
     float mags[3] = { mag->x, mag->y, mag->z };
     auxmagsupport_publish_samples(mags, AUXMAGSENSOR_STATUS_OK);
 }
+#endif /* if !defined(PIOS_GPS_MINIMAL) */
 
 
 // UBX message parser
@@ -527,6 +527,8 @@ uint32_t parse_ubx_message(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosi
     return id;
 }
 
+#if !defined(PIOS_GPS_MINIMAL)
+
 void load_mag_settings()
 {
     auxmagsupport_reload_settings();
@@ -540,4 +542,5 @@ void load_mag_settings()
         useMag = true;
     }
 }
+#endif
 #endif // PIOS_INCLUDE_GPS_UBX_PARSER

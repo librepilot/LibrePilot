@@ -12,27 +12,29 @@ struct OSGGroup::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGGroup *parent) : QObject(parent), pub(parent) {
+    Hidden(OSGGroup *parent) : QObject(parent), self(parent) {
         group = new osg::Group;
     }   
 
-    OSGGroup *pub;
+    OSGGroup *self;
+
     osg::ref_ptr<osg::Group> group;
-    QList<OSGNode*> child;
-    QMap<OSGNode*, osg::Node*> caced;
+
+    QList<OSGNode*> children;
+
+    QMap<OSGNode*, osg::Node*> cache;
 
     static void append_child(QQmlListProperty<OSGNode> *list, OSGNode *child)
     {
         OSGGroup *group = qobject_cast<OSGGroup*>(list->object);
         if (group && child) {
-            group->h->caced[child] = child->node();
-            group->h->child.append(child);
+            group->h->cache[child] = child->node();
+            group->h->children.append(child);
             if (child->node()) {
                 group->h->group->addChild(child->node());
                 emit group->nodeChanged(group->h->group);
             }
-            QObject::connect(child, SIGNAL(nodeChanged(osg::Node*)),
-                             group->h, SLOT(onNodeChanged(osg::Node*)));
+            QObject::connect(child, SIGNAL(nodeChanged(osg::Node*)), group->h, SLOT(onNodeChanged(osg::Node*)));
         }
     }
 
@@ -40,7 +42,7 @@ public:
     {
         OSGGroup *group = qobject_cast<OSGGroup*>(list->object);
         if (group) {
-            return group->h->child.size();
+            return group->h->children.size();
         }
 
         return 0;
@@ -49,8 +51,8 @@ public:
     static OSGNode* at_child(QQmlListProperty<OSGNode> *list, int index)
     {
         OSGGroup *group = qobject_cast<OSGGroup*>(list->object);
-        if (group && index >= 0 && index < group->h->child.size()) {
-            return group->h->child[index];
+        if (group && index >= 0 && index < group->h->children.size()) {
+            return group->h->children[index];
         }
 
         return 0;
@@ -60,28 +62,35 @@ public:
     {
         OSGGroup *group = qobject_cast<OSGGroup*>(list->object);
         if (group) {
-            while(!group->h->child.isEmpty())
+            while(!group->h->children.isEmpty())
             {
-                OSGNode *node = group->h->child.takeLast();
-                if (node->parent() == group) node->deleteLater();
-                if (!node->parent()) node->deleteLater();
+                OSGNode *node = group->h->children.takeLast();
+                if (node->parent() == group) {
+                    node->deleteLater();
+                }
+                if (!node->parent()) {
+                    node->deleteLater();
+                }
             }
             group->h->group->removeChild(0, group->h->group->getNumChildren());
-            group->h->caced.clear();
+            group->h->cache.clear();
         }
     }
 
 public slots:
-    // Учитываем возможность изменения узла
     void onNodeChanged(osg::Node *node) {
-        if (OSGNode *obj = qobject_cast<OSGNode*>(sender())) {
-            osg::Node *cacheNode = caced.value(obj, 0);
-            if (cacheNode) group->removeChild(cacheNode);
+        qDebug() << "OSGGroup - nodeChanged" << node;
+        OSGNode *obj = qobject_cast<OSGNode*>(sender());
+        if (obj) {
+            osg::Node *cacheNode = cache.value(obj, NULL);
+            if (cacheNode) {
+                group->removeChild(cacheNode);
+            }
             if (node) {
                 group->addChild(node);
             }
-            caced[obj] = node;
-            emit pub->nodeChanged(group.get());
+            cache[obj] = node;
+            emit self->nodeChanged(group.get());
         }
     }
 };
@@ -89,14 +98,16 @@ public slots:
 OSGGroup::OSGGroup(QObject *parent) :
     OSGNode(parent), h(new Hidden(this))
 {
+    qDebug() << "OSGGroup - <init>";
     setNode(h->group.get());
 }
 
 OSGGroup::~OSGGroup()
 {
+    qDebug() << "OSGGroup - <destruct>";
 }
 
-QQmlListProperty<OSGNode> OSGGroup::child()
+QQmlListProperty<OSGNode> OSGGroup::children()
 {
     return QQmlListProperty<OSGNode>(this, 0,
                                      &Hidden::append_child,

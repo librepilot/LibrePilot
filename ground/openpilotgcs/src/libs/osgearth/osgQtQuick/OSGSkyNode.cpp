@@ -66,7 +66,7 @@ public:
 
         skyNode = osgEarth::Util::SkyNode::create(mapNode);
 
-        skyNode->setLighting(osg::StateAttribute::OFF);
+        //skyNode->setLighting(osg::StateAttribute::OFF);
         //skyNode->setAmbientBrightness(ambientBrightness);
         skyNode->setDateTime(osgEarth::DateTime(2011, 3, 6, hours));
 

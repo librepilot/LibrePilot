@@ -12,20 +12,16 @@ class OSGQTQUICK_EXPORT OSGGroup : public OSGNode
 {
     Q_OBJECT
 
-    Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> child READ child)
+    Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
 
-    Q_CLASSINFO("DefaultProperty", "child")
+    Q_CLASSINFO("DefaultProperty", "children")
 
 public:
     explicit OSGGroup(QObject *parent = 0);
     virtual ~OSGGroup();
     
-    QQmlListProperty<OSGNode> child();
+    QQmlListProperty<OSGNode> children();
 
-signals:
-    
-public slots:
-    
 private:
     struct Hidden;
     Hidden *h;

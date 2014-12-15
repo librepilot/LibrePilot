@@ -86,21 +86,33 @@ OSGEARTH_BUILD_CONF  := Release
 OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
 OSG_BUILD_CONF  := $(OSGEARTH_BUILD_CONF)
-OSG_NAME        := osg-$(OSG_VERSION)-$(ARCH)
-OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
-OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
-OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
+OSG_BASE_NAME   := osg-$(OSG_VERSION)
 
-ifeq ($(UNAME), Windows)
+ifeq ($(UNAME), Linux)
+    ifeq ($(ARCH), x86_64)
+		OSG_NAME := $(OSG_BASE_NAME)-linux-x64
+    else
+		OSG_NAME := $(OSG_BASE_NAME)-linux-x86
+    endif
+	OSG_CMAKE_GENERATOR := "Unix Makefiles"
+	# for some reason Qt is not added to the path in make/tools.mk
+	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
+else ifeq ($(UNAME), Darwin)
+
+else ifeq ($(UNAME), Windows)
+	OSG_NAME := $(OSG_BASE_NAME)-$(QT_SDK_ARCH)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
 	OSG_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin"
 	# TODO : consider using THIRD_PARTY_DIR to lookup gdal, etc...
-else
-	OSG_CMAKE_GENERATOR := "Unix Makefiles"
-	# for some reason Qt is not added to the path in make/tools.mk
-	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
 endif
+
+OSG_NAME := $(OSG_NAME)-qt5.3.2
+OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
+OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
+OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
+
+#			-DOPENGL_INCLUDE_DIR=$(MINGW_DIR)/i686-w64-mingw32/include \
 
 .PHONY: osg
 osg:
@@ -109,7 +121,10 @@ osg:
 	$(V1) ( $(CD) $(OSG_BUILD_DIR) && \
 		PATH=$(OSG_BUILD_PATH) && \
 		$(CMAKE) -G $(OSG_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSG_BUILD_CONF) \
+			-DBUILD_OSG_APPLICATIONS=OFF \
+			-DBUILD_OSG_EXAMPLES=OFF \
 			-DBUILD_OPENTHREADS_WITH_QT=OFF \
+			-DOSG_GL3_AVAILABLE=OFF \
 			-DOSG_PLUGIN_SEARCH_INSTALL_DIR_FOR_PLUGINS=OFF \
 			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osgearth_dependencies \
 			-DCMAKE_INSTALL_PREFIX=$(OSG_INSTALL_DIR) $(OSG_SRC_DIR) && \
@@ -158,27 +173,41 @@ clean_all_osg: clean_osg
 # osgearth
 #
 ################################
+# TODO
+# fix Debug build
+# add option to not build the applications (in Debug mode in particular)
 
 OSGEARTH_VERSION     := 2.6
 OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
-OSGEARTH_NAME        := osgearth-$(OSGEARTH_VERSION)-$(ARCH)
-OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
-OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
-OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
-
-ifeq ($(UNAME), Windows)
-	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
-	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin"
-else
-	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
-	# for some reason Qt is not added to the path in make/tools.mk
-	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
-endif
+OSGEARTH_BASE_NAME   := osgearth-$(OSGEARTH_VERSION)
 
 # osgearth cmake script calls the osgversion executable to find the osg version
 # this makes it necessary to have osg in the pathes (bin and lib) to make sure the correct one is found
 # ideally this should not be necessary
+ifeq ($(UNAME), Linux)
+    ifeq ($(ARCH), x86_64)
+		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux64
+    else
+		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux32
+    endif
+	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
+	# for some reason Qt is not added to the path in make/tools.mk
+	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
+else ifeq ($(UNAME), Darwin)
+
+else ifeq ($(UNAME), Windows)
+	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
+	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
+	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
+	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin"
+endif
+
+OSGEARTH_NAME := $(OSGEARTH_NAME)-qt5.3.2
+OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
+OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
+OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
+
+#			-DOPENGL_INCLUDE_DIR=$(MINGW_DIR)/i686-w64-mingw32/include \
 
 .PHONY: osgearth
 osgearth:
@@ -188,7 +217,8 @@ osgearth:
 		PATH=$(OSGEARTH_BUILD_PATH) && \
 		LD_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib && \
 		$(CMAKE) -G $(OSGEARTH_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSGEARTH_BUILD_CONF) \
-			-DOSG_DIR=$(OSG_INSTALL_DIR) -DINSTALL_TO_OSG_DIR=OFF \
+			-DINSTALL_TO_OSG_DIR=OFF \
+			-DOSG_DIR=$(OSG_INSTALL_DIR) \
 			-DCMAKE_INCLUDE_PATH=$(OSG_INSTALL_DIR)/include \
 			-DCMAKE_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib \
 			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osgearth_dependencies \
@@ -255,8 +285,6 @@ all_osg: prepare_osg prepare_osgearth osg osgearth
 # osg and osgearth dependencies (win32 only)
 #
 ################################
-
-HOST := mingw32
 
 DEP_SRC_DIR := $(ROOT_DIR)/3rdparty/osgearth_dependencies
 DEP_DL_DIR := $(DL_DIR)/osgearth

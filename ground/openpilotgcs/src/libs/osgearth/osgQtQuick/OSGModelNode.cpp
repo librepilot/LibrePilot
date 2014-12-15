@@ -107,6 +107,8 @@ public:
 
         self->setNode(modelNode);
 
+        dirty = true;
+
         return true;
     }
 
@@ -147,11 +149,12 @@ public:
         modelNode->setPosition(geoPoint);
 
         osg::Quat q = osg::Quat(
-                osg::DegreesToRadians(roll), osg::Vec3d(1, 0, 0),
-                osg::DegreesToRadians(pitch), osg::Vec3d(0, 1, 0),
-                osg::DegreesToRadians(yaw), osg::Vec3d(0, 0, 1));
+                osg::DegreesToRadians(roll), osg::Vec3d(0, 1, 0),
+                osg::DegreesToRadians(pitch), osg::Vec3d(1, 0, 0),
+                osg::DegreesToRadians(yaw), osg::Vec3d(0, 0, -1));
 
         modelNode->setLocalRotation(q);
+
     }
 
     OSGModelNode *const self;
@@ -178,7 +181,20 @@ private slots:
     void onModelNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGModelNode - onModelNodeChanged" << node;
-        acceptModelNode(node);
+        if (modelData) {
+            if (modelNode.valid()) {
+                osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
+                if (mapNode) {
+                    mapNode->removeChild(modelNode);
+                }
+                if (nodeUpdateCB.valid()) {
+                    modelNode->removeUpdateCallback(nodeUpdateCB.get());
+                }
+            }
+            if (node) {
+                acceptModelNode(node);
+            }
+        }
     }
 
     void onSceneNodeChanged(osg::Node *node)
@@ -330,10 +346,6 @@ void OSGModelNode::setAltitude(double arg)
     }
 }
 
-void OSGModelNode::realize()
-{
-    h->modelData->realize();
-}
 
 } // namespace osgQtQuick
 

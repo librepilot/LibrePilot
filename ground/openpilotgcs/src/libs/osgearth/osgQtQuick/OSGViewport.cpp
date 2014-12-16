@@ -12,6 +12,7 @@
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Sky>
+#include <osgEarthUtil/LogarithmicDepthBuffer>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -98,6 +99,7 @@ public:
             frameTimer(-1),
             sceneData(0),
             camera(0),
+            logDepthBufferEnabled(false),
             realized(false)
     {
         initOSG();
@@ -169,7 +171,14 @@ public:
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             // TODO should not be done here
             // TODO will the AutoClipPlaneCullCallback be destroyed???
-            view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            if (!logDepthBufferEnabled) {
+                view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+                //mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            }
+            if (logDepthBufferEnabled) {
+                //logDepthBuffer.setUseFragDepth(true);
+                logDepthBuffer.install(view->getCamera());
+            }
         }
 
         osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
@@ -224,6 +233,8 @@ public:
     osg::ref_ptr<osgViewer::CompositeViewer> compositeViewer;
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow;
 
+    bool logDepthBufferEnabled;
+    osgEarth::Util::LogarithmicDepthBuffer logDepthBuffer;
 
     bool realized;
 
@@ -428,6 +439,19 @@ void OSGViewport::setCamera(OSGCamera *camera)
 {
     if (h->acceptCamera(camera)) {
         emit cameraChanged(camera);
+    }
+}
+
+bool OSGViewport::logarithmicDepthBuffer()
+{
+    return h->logDepthBufferEnabled;
+}
+
+void OSGViewport::setLogarithmicDepthBuffer(bool enabled)
+{
+    if (h->logDepthBufferEnabled != enabled) {
+        h->logDepthBufferEnabled = enabled;
+        emit logarithmicDepthBufferChanged(logarithmicDepthBuffer());
     }
 }
 

@@ -25,7 +25,7 @@ OSGViewport {
 
     OSGCamera {
         id: camera
-        fieldOfView: 30
+        fieldOfView: 90
         manipulatorMode: OSGCamera.User
 
         yaw: AttitudeState.Yaw

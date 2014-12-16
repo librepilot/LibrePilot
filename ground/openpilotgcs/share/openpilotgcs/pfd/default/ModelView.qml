@@ -9,6 +9,7 @@ OSGViewport {
     //color: "transparent"
     //opacity: 0.999
     updateMode: OSGViewport.Discrete
+    logarithmicDepthBuffer: true
     camera: camera
     sceneData: skyNode
 
@@ -25,7 +26,7 @@ OSGViewport {
 
     OSGModelNode {
         id: modelNode
-        modelData: modelFileNode
+        modelData: modelGroup
         sceneData: terrainNode
 
         yaw: AttitudeState.Yaw
@@ -70,6 +71,18 @@ OSGViewport {
         }
     }
 
+    OSGGroup {
+        id: modelGroup
+        children: [
+            modelTransformNode
+        ]
+    }
+
+    OSGTransformNode {
+        id: modelTransformNode
+        modelData: modelFileNode
+    }
+
     OSGNodeFile {
         id: modelFileNode
         source: qmlWidget.modelFile
@@ -78,8 +91,8 @@ OSGViewport {
 
     OSGCamera {
         id: camera
-        fieldOfView: 30
+        fieldOfView: 90
         manipulatorMode: OSGCamera.Track
-        trackNode: modelFileNode
+        trackNode: modelGroup
     }
 }

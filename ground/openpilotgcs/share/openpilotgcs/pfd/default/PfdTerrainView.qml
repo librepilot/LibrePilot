@@ -25,7 +25,7 @@ OSGViewport {
 
     OSGCamera {
         id: camera
-        fieldOfView: 30
+        fieldOfView: 90
         manipulatorMode: OSGCamera.User
 
         yaw: AttitudeState.Yaw
@@ -61,7 +61,7 @@ OSGViewport {
         function alt() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:
-                return GPSPositionSensor.Altitude;
+                return GPSPositionSensor.Altitude - GPSPositionSensor.GeoidSeparation; // - GPSPositionSensor.AntennaHeight
             case Pfd.Home:
                 return HomeLocation.Altitude;
             case Pfd.Predefined:

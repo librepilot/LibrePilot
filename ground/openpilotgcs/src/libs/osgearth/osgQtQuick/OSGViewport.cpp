@@ -12,6 +12,7 @@
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Sky>
+#include <osgEarthUtil/LogarithmicDepthBuffer>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -41,20 +42,18 @@ public:
         ViewportRenderer(Hidden *h) : h(h)
         {
             qDebug() << "ViewportRenderer - <init>";
-            b = false;
-            realized = false;
         }
 
         void synchronize(QQuickFramebufferObject * item) {
             // synchronize method is the only method allowed to access the Quick item (GUI thread is blocked)
-            if (!realized) {
+            if (!h->realized) {
                 qDebug() << "ViewportRenderer - synchronize" << item->window();
                 qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
                 item->window()->setClearBeforeRendering(false);
                 h->initCompositeViewer();
                 h->quickItem->realize();
                 h->camera->installCamera(h->view.get());
-                realized = true;
+                h->realized = true;
             }
             h->camera->setViewport(h->view->getCamera(), 0, 0, item->width(), item->height());
         }
@@ -69,13 +68,10 @@ public:
             return fbo;
         }
 
+        // render method is not allowed to access the Quick item (can be called on a render thread)
         void render() {
             //qDebug() << "ViewportRenderer - render" << QThread::currentThread() << QApplication::instance()->thread();
-            // render method is not allowed to access the Quick item (can be called on a render thread)
-            if (!b) {
-                b = true;
-                qDebug() << "ViewportRenderer - render" << QOpenGLContext::currentContext();
-            }
+            //qDebug() << "ViewportRenderer - render" << QOpenGLContext::currentContext();
 
             h->compositeViewer->frame();
             //h->quickItem->window()->resetOpenGLState();
@@ -89,7 +85,6 @@ public:
     private:
         Hidden *h;
         bool b;
-        bool realized;
     };
 
     friend class ViewportRenderer;
@@ -99,11 +94,16 @@ public:
             updateMode(Discrete),
             frameTimer(-1),
             sceneData(0),
-            camera(0)
+            camera(0),
+            logDepthBufferEnabled(false),
+            realized(false)
     {
-        initOSG();
-        acceptQuickItem();
-        acceptUpdateMode(updateMode);
+        qDebug() << "OSGViewport - quickItem" << quickItem << quickItem->window();
+        view = new osgViewer::View();
+        // TODO will the StatsHandler be destroyed???
+        view->addEventHandler(new osgViewer::StatsHandler());
+        //viewer->addEventHandler(new osgGA::StateSetManipulator());
+        //viewer->addEventHandler(new osgViewer::ThreadingHandler());
     }
 
     ~Hidden() {
@@ -170,7 +170,14 @@ public:
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             // TODO should not be done here
             // TODO will the AutoClipPlaneCullCallback be destroyed???
-            view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            if (!logDepthBufferEnabled) {
+                view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+                //mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            }
+            if (logDepthBufferEnabled) {
+                //logDepthBuffer.setUseFragDepth(true);
+                logDepthBuffer.install(view->getCamera());
+            }
         }
 
         osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
@@ -206,7 +213,6 @@ public:
 
         if (this->camera) {
             //this->camera->installCamera(view.get());
-            //updateViewport();
         }
 
         return true;
@@ -224,6 +230,11 @@ public:
     osg::ref_ptr<osgViewer::View> view;
     osg::ref_ptr<osgViewer::CompositeViewer> compositeViewer;
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow;
+
+    bool logDepthBufferEnabled;
+    osgEarth::Util::LogarithmicDepthBuffer logDepthBuffer;
+
+    bool realized;
 
     static QtKeyboardMap keyMap;
 
@@ -289,43 +300,12 @@ protected:
 
 private slots:
 
-    void onWindowChanged(QQuickWindow *window)
-    {
-        qDebug() << "OSGViewport - onWindowChanged" << window;
-//        if (this->window) {
-//            disconnect(quickItem);
-//        }
-//        this->window = window;
-//        if (this->window) {
-//            connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
-//        }
-    }
-
     void onNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGViewport - onNodeChanged" << node;
         if (view.valid()) {
             acceptNode(node);
         }
-    }
-
-private:
-
-    void initOSG() {
-        qDebug() << "OSGViewport - initOSG";
-        view = new osgViewer::View();
-        // TODO will the StatsHandler be destroyed???
-        view->addEventHandler(new osgViewer::StatsHandler());
-        //viewer->addEventHandler(new osgGA::StateSetManipulator());
-        //viewer->addEventHandler(new osgViewer::ThreadingHandler());
-    }
-
-    void acceptQuickItem() {
-        Q_ASSERT(quickItem);
-
-        qDebug() << "OSGViewport - acceptQuickItem" << quickItem << quickItem->window();
-
-        //connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
     }
 
 };
@@ -343,39 +323,6 @@ OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), 
 OSGViewport::~OSGViewport()
 {
     qDebug() << "OSGViewport - <destruct>";
-}
-
-QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
-{
-    return new Hidden::ViewportRenderer(h);
-}
-
-void OSGViewport::realize()
-{
-    qDebug() << "OSGViewport - realize";
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        OSGNode *node = qobject_cast<OSGNode *>(i.next());
-        if (node) {
-            node->realize();
-        }
-    }
-}
-
-// see https://bugreports.qt-project.org/browse/QTBUG-41073
-QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData)
-{
-    //qDebug() << "OSGViewport - updatePaintNode";
-    if (!node) {
-        node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
-        QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
-        if (n) {
-            // flip Y axis
-            n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-        }
-        return node;
-    }
-    return QQuickFramebufferObject::updatePaintNode(node, nodeData);
 }
 
 OSGViewport::UpdateMode OSGViewport::updateMode() const
@@ -427,6 +374,52 @@ void OSGViewport::setCamera(OSGCamera *camera)
     if (h->acceptCamera(camera)) {
         emit cameraChanged(camera);
     }
+}
+
+bool OSGViewport::logarithmicDepthBuffer()
+{
+    return h->logDepthBufferEnabled;
+}
+
+void OSGViewport::setLogarithmicDepthBuffer(bool enabled)
+{
+    if (h->logDepthBufferEnabled != enabled) {
+        h->logDepthBufferEnabled = enabled;
+        emit logarithmicDepthBufferChanged(logarithmicDepthBuffer());
+    }
+}
+
+QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
+{
+    return new Hidden::ViewportRenderer(h);
+}
+
+void OSGViewport::realize()
+{
+    qDebug() << "OSGViewport - realize";
+    QListIterator<QObject *> i(children());
+    while (i.hasNext()) {
+        OSGNode *node = qobject_cast<OSGNode *>(i.next());
+        if (node) {
+            node->realize();
+        }
+    }
+}
+
+// see https://bugreports.qt-project.org/browse/QTBUG-41073
+QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData)
+{
+    //qDebug() << "OSGViewport - updatePaintNode";
+    if (!node) {
+        node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
+        QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
+        if (n) {
+            // flip Y axis
+            n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
+        }
+        return node;
+    }
+    return QQuickFramebufferObject::updatePaintNode(node, nodeData);
 }
 
 void OSGViewport::mousePressEvent(QMouseEvent *event)

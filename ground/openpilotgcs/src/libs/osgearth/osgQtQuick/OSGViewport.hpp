@@ -19,6 +19,8 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject
     Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
+
 
     Q_ENUMS(UpdateMode)
 
@@ -46,6 +48,9 @@ public:
     OSGCamera* camera();
     void setCamera(OSGCamera *camera);
 
+    bool logarithmicDepthBuffer();
+    void setLogarithmicDepthBuffer(bool enabled);
+
     Renderer *createRenderer() const;
 
     virtual void realize();
@@ -55,6 +60,7 @@ signals:
     void colorChanged(const QColor &color);
     void sceneDataChanged(OSGNode *node);
     void cameraChanged(OSGCamera *camera);
+    void logarithmicDepthBufferChanged(bool enabled);
 
 public slots:
 

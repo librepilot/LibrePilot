@@ -46,7 +46,7 @@ struct OSGCamera::Hidden : public QObject
 
 public:
 
-    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL), trackerMode(NodeCenter) {
+    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL), trackerMode(NodeCenterAndAzim) {
         fieldOfView = 90.0;
         cameraDirty = false;
         roll = pitch = yaw = 0.0;
@@ -154,10 +154,9 @@ public:
 
         // Final camera matrix
         osg::Matrix cameraMatrix = cameraRotation
-                * osg::Matrix::rotate(osg::DegreesToRadians(roll),   osg::Vec3(0.0, 1.0, 0.0))
-        * osg::Matrix::rotate(osg::DegreesToRadians(pitch), osg::Vec3(1.0, 0.0, 0.0))
-        * osg::Matrix::rotate(osg::DegreesToRadians(yaw),   osg::Vec3(0.0, 0.0, -1.0))
-        * cameraPosition;
+                * osg::Matrix::rotate(osg::DegreesToRadians(roll), osg::Vec3(0.0, 1.0, 0.0))
+                * osg::Matrix::rotate(osg::DegreesToRadians(pitch), osg::Vec3(1.0, 0.0, 0.0))
+                * osg::Matrix::rotate(osg::DegreesToRadians(yaw), osg::Vec3(0.0, 0.0, -1.0)) * cameraPosition;
 
         // Inverse the camera's position and orientation matrix to obtain the view matrix
         cameraMatrix = osg::Matrix::inverse(cameraMatrix);
@@ -392,7 +391,8 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
     switch(h->manipulatorMode) {
     case OSGCamera::None:
-        view->setCameraManipulator(new osgGA::TrackballManipulator(osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
+        view->setCameraManipulator(new osgGA::TrackballManipulator(
+                osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
         break;
     case OSGCamera::User:
         // disable any installed camera manipulator
@@ -408,7 +408,6 @@ void OSGCamera::installCamera(osgViewer::View *view)
             // TODO who takes ownership?
             osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
                     osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
-            ntm->setTrackNode(h->trackNode->node());
             switch(h->trackerMode) {
             case NodeCenter:
                 ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
@@ -420,8 +419,10 @@ void OSGCamera::installCamera(osgViewer::View *view)
                 ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
                 break;
             }
+            ntm->setTrackNode(h->trackNode->node());
             //ntm->setRotationMode(h->trackRotationMode)
             //ntm->setMinimumDistance(2, false);
+            //ntm->setVerticalAxisFixed(false);
             //ntm->setAutoComputeHomePosition(true);
             //ntm->setDistance(10);
             view->setCameraManipulator(ntm);

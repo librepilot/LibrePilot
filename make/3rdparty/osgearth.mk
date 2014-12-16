@@ -302,6 +302,13 @@ LIBPNG_DIR := $(DEP_SRC_DIR)/libpng-1.6.14
 LIBTIFF_URL := ftp://ftp.remotesensing.org/pub/libtiff/tiff-4.0.3.tar.gz
 LIBTIFF_DIR := $(DEP_SRC_DIR)/tiff-4.0.3
 
+#FREETYPE_URL := http://sourceforge.net/projects/freetype/files/freetype2/2.5.3/freetype-2.5.3.tar.gz
+FREETYPE_URL := http://sourceforge.net/projects/gnuwin32/files/freetype/2.3.5-1/freetype-2.3.5-1-src.zip
+FREETYPE_DIR := $(DEP_SRC_DIR)/tiff-4.0.3
+
+#GLUT_URL := https://www.opengl.org/resources/libraries/glut/glut-3.7.tar.gz
+#GLUT_DIR := $(DEP_SRC_DIR)/glut-3.7
+
 CURL_URL := http://curl.haxx.se/download/curl-7.38.0.tar.gz
 CURL_DIR := $(DEP_SRC_DIR)/curl-7.38.0
 
@@ -341,6 +348,7 @@ xxx:
 	$(call GET_TEMPLATE,$(LIBJPEG_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(LIBPNG_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(LIBTIFF_URL),$(DEP_DL_DIR))
+	$(call GET_TEMPLATE,$(FREETYPE_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(CURL_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(PROJ4_DATUM_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(PROJ4_URL),$(DEP_DL_DIR))

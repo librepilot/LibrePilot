@@ -13,24 +13,29 @@
 # Environment
 ################################################################################
 
-ROOT_DIR=$PWD
+WORKING_DIR=$PWD
 
-DOWNLOAD_DIR=/d/Projects/OpenPilot/downloads
-SOURCE_DIR=/d/Projects/OpenPilot/3rdparty/osgearth_dependencies
-BUILD_DIR=/d/Projects/OpenPilot/build/3rdparty/osgearth_dependencies
+ROOT_DIR=/d/Projects/OpenPilot
+
+DOWNLOAD_DIR=$ROOT_DIR/downloads/osgearth
+SOURCE_DIR=$ROOT_DIR/3rdparty/osgearth_dependencies
+BUILD_DIR=$ROOT_DIR/build/3rdparty/osgearth_dependencies
 
 HOST=mingw32
 
-BUILD_ZLIB=0
-BUILD_LIBJPEG=0
-BUILD_LIBPNG=0
-BUILD_LIBTIFF=0
-BUILD_OPENSSL=0
+# list of libraries to build
+# other candidates include bzip2, libxml2, gif, geotiff, ssl, gl...
+BUILD_PKGCONFIG=1
+BUILD_ZLIB=1
+BUILD_LIBJPEG=1
+BUILD_LIBPNG=1
+BUILD_LIBTIFF=1
+BUILD_FREETYPE=1
+BUILD_OPENSSL=2
 BUILD_CURL=1
-BUILD_PROJ4=0
-BUILD_GEOS=0
-BUILD_GDAL=0
-# other candidates include libxml2, freetype, gif, geotiff, ssl, gl, pkgconfig...
+BUILD_PROJ4=1
+BUILD_GEOS=1
+BUILD_GDAL=1
 
 # TODO
 #  libcurl needs to be built with zlib and ssl support
@@ -43,12 +48,36 @@ mkdir -p $BUILD_DIR/include/
 mkdir -p $BUILD_DIR/lib/
 
 # make sure all libraries see each others
+export PATH=$BUILD_DIR/bin:$PATH
 export CPATH=$BUILD_DIR/include
 export LIBRARY_PATH=$BUILD_DIR/lib
+export PKG_CONFIG_PATH=$BUILD_DIR/lib/pkgconfig
 
 # reduce binary sizes by removing the -g option (not picked up by all libraries)
 export CFLAGS=-O2
 export CXXFLAGS=-O2
+
+################################################################################
+# pkg-config
+# required by libcurl, gdal, osg, osgearth
+################################################################################
+
+if [ "$BUILD_PKGCONFIG" -eq 1 ]; then
+
+echo "****************************************"
+echo "Building pkg-config..."
+echo "****************************************"
+
+cd $SOURCE_DIR
+tar xzf $DOWNLOAD_DIR/pkg-config-0.28.tar.gz -C .
+cd pkg-config-0.28
+
+./configure --prefix=$BUILD_DIR --build=$HOST \
+  --with-internal-glib
+make
+make install
+
+fi
 
 ################################################################################
 # ZLIB
@@ -137,6 +166,34 @@ cd tiff-4.0.3
 ./configure --prefix=$BUILD_DIR --build=$HOST
 make
 make install-strip
+
+fi
+
+################################################################################
+# FreeType
+################################################################################
+
+if [ "$BUILD_FREETYPE" -eq 1 ]; then
+
+echo "****************************************"
+echo "Building FreeType..."
+echo "****************************************"
+
+cd $SOURCE_DIR
+tar xzf $DOWNLOAD_DIR/freetype-2.5.3.tar.gz -C .
+cd freetype-2.5.3
+
+#unzip -q $DOWNLOAD_DIR/freetype-2.3.5-1-src.zip src/freetype/2.3.5/freetype-2.3.5/* -d $TEMP/freetype-2.3.5
+#cp -r $TEMP/freetype-2.3.5/src/freetype/2.3.5/freetype-2.3.5 ./
+#rm -rf $TEMP/freetype-2.3.5
+#cd freetype-2.3.5
+
+./configure --prefix=$BUILD_DIR
+make
+make install
+
+# hack for osg
+#mv $BUILD_DIR/include/freetype2 $BUILD_DIR/include/freetype
 
 fi
 
@@ -237,6 +294,7 @@ cd $SOURCE_DIR
 tar xjf $DOWNLOAD_DIR/geos-3.3.8.tar.bz2 -C .
 cd geos-3.3.8
 
+# TODO why --disable-inline?
 ./configure --prefix=$BUILD_DIR --build=$HOST \
   --enable-static=no --enable-shared=yes --disable-inline
 make
@@ -261,7 +319,7 @@ tar xzf $DOWNLOAD_DIR/gdal-1.10.1.tar.gz -C .
 cd gdal-1.10.1
 
 # fix GNUmakefile as described here http://trac.osgeo.org/gdal/wiki/BuildingWithMinGW
-patch < $ROOT_DIR/gdal_GNUmakefile_fix.diff
+patch < $WORKING_DIR/gdal_GNUmakefile_fix.diff
 
 ./configure --prefix=$BUILD_DIR --build=$HOST \
   --without-python --without-libtool \

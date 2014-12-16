@@ -42,19 +42,18 @@ public:
         {
             qDebug() << "ViewportRenderer - <init>";
             b = false;
-            realized = false;
         }
 
         void synchronize(QQuickFramebufferObject * item) {
             // synchronize method is the only method allowed to access the Quick item (GUI thread is blocked)
-            if (!realized) {
+            if (!h->realized) {
                 qDebug() << "ViewportRenderer - synchronize" << item->window();
                 qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
                 item->window()->setClearBeforeRendering(false);
                 h->initCompositeViewer();
                 h->quickItem->realize();
                 h->camera->installCamera(h->view.get());
-                realized = true;
+                h->realized = true;
             }
             h->camera->setViewport(h->view->getCamera(), 0, 0, item->width(), item->height());
         }
@@ -89,7 +88,6 @@ public:
     private:
         Hidden *h;
         bool b;
-        bool realized;
     };
 
     friend class ViewportRenderer;
@@ -99,7 +97,8 @@ public:
             updateMode(Discrete),
             frameTimer(-1),
             sceneData(0),
-            camera(0)
+            camera(0),
+            realized(false)
     {
         initOSG();
         acceptQuickItem();
@@ -224,6 +223,9 @@ public:
     osg::ref_ptr<osgViewer::View> view;
     osg::ref_ptr<osgViewer::CompositeViewer> compositeViewer;
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow;
+
+
+    bool realized;
 
     static QtKeyboardMap keyMap;
 

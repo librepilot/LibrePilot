@@ -14,6 +14,8 @@
 # - geos
 # - gdal
 #
+# $ sudo apt-get build-dep openscenegraph
+#
 # $ sudo apt-get install libtiff5-dev libcurl4-openssl-dev libgeos++-dev libgdal-dev
 # libpng-dev lipjpeg-dev 
 #
@@ -83,17 +85,17 @@ OSGEARTH_BUILD_CONF  := Release
 #
 ################################
 
-OSG_VERSION     := 3.3.2
+OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
 OSG_BUILD_CONF  := $(OSGEARTH_BUILD_CONF)
 OSG_BASE_NAME   := osg-$(OSG_VERSION)
 
 ifeq ($(UNAME), Linux)
-    ifeq ($(ARCH), x86_64)
+	ifeq ($(ARCH), x86_64)
 		OSG_NAME := $(OSG_BASE_NAME)-linux-x64
-    else
+	else
 		OSG_NAME := $(OSG_BASE_NAME)-linux-x86
-    endif
+	endif
 	OSG_CMAKE_GENERATOR := "Unix Makefiles"
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
@@ -111,8 +113,6 @@ OSG_NAME := $(OSG_NAME)-qt5.3.2
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
 OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
 OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
-
-#			-DOPENGL_INCLUDE_DIR=$(MINGW_DIR)/i686-w64-mingw32/include \
 
 .PHONY: osg
 osg:
@@ -185,11 +185,11 @@ OSGEARTH_BASE_NAME   := osgearth-$(OSGEARTH_VERSION)
 # this makes it necessary to have osg in the pathes (bin and lib) to make sure the correct one is found
 # ideally this should not be necessary
 ifeq ($(UNAME), Linux)
-    ifeq ($(ARCH), x86_64)
-		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux64
-    else
-		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux32
-    endif
+	ifeq ($(ARCH), x86_64)
+		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux-x64
+	else
+		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux-x86
+	endif
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
@@ -206,8 +206,6 @@ OSGEARTH_NAME := $(OSGEARTH_NAME)-qt5.3.2
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
 OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
 OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
-
-#			-DOPENGL_INCLUDE_DIR=$(MINGW_DIR)/i686-w64-mingw32/include \
 
 .PHONY: osgearth
 osgearth:

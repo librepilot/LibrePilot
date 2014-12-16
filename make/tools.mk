@@ -61,14 +61,14 @@ ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-linux.tar.bz2
         ARM_SDK_MD5_URL:= https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-linux.tar.bz2/+md5
-        QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-linux-x64-5.3.1.run
-        QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-linux-x64-5.3.1.run.md5
+        QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-linux-x64-5.3.2.run
+        QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-linux-x64-5.3.2.run.md5
         QT_SDK_ARCH := gcc_64
     else
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-linux.tar.bz2
         ARM_SDK_MD5_URL := https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-linux.tar.bz2/+md5
-        QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-linux-x86-5.3.1.run
-        QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-linux-x86-5.3.1.run.md5
+        QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-linux-x86-5.3.2.run
+        QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-linux-x86-5.3.2.run.md5
         QT_SDK_ARCH := gcc
         CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
         CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
@@ -89,8 +89,8 @@ else ifeq ($(UNAME), Darwin)
 else ifeq ($(UNAME), Windows)
     ARM_SDK_URL    := https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-win32.zip
     ARM_SDK_MD5_URL:= https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-win32.zip/+md5
-    QT_SDK_URL     := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-windows-x86-mingw482_opengl-5.3.1.exe
-    QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.1/qt-opensource-windows-x86-mingw482_opengl-5.3.1.exe.md5
+    QT_SDK_URL     := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe
+    QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.3/5.3.2/qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe.md5
     QT_SDK_ARCH    := mingw482_32
     NSIS_URL       := http://wiki.openpilot.org/download/attachments/18612236/nsis-2.46-unicode.tar.bz2
     SDL_URL        := http://wiki.openpilot.org/download/attachments/18612236/SDL-devel-1.2.15-mingw32.tar.gz
@@ -104,31 +104,36 @@ endif
 
 GTEST_URL := http://wiki.openpilot.org/download/attachments/18612236/gtest-1.6.0.zip
 
-# When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
-# When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/openpilotgcs/openpilotgcs.pri
-ARM_SDK_DIR     := $(TOOLS_DIR)/gcc-arm-none-eabi-4_8-2014q1
-QT_SDK_DIR      := $(TOOLS_DIR)/qt-5.3.1
-MINGW_DIR       := $(QT_SDK_DIR)/Tools/mingw48_32
-PYTHON_DIR      := $(QT_SDK_DIR)/Tools/mingw48_32/opt/bin
-NSIS_DIR        := $(TOOLS_DIR)/nsis-2.46-unicode
-SDL_DIR         := $(TOOLS_DIR)/SDL-1.2.15
-OPENSSL_DIR     := $(TOOLS_DIR)/openssl-1.0.1e-win32
-UNCRUSTIFY_DIR  := $(TOOLS_DIR)/uncrustify-0.60
-DOXYGEN_DIR     := $(TOOLS_DIR)/doxygen-1.8.3.1
-GTEST_DIR       := $(TOOLS_DIR)/gtest-1.6.0
-ifeq ($(UNAME), Windows)
-    CMAKE_DIR   := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
-else
-    CMAKE_DIR   := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
-endif
+ARM_SDK_DIR    := $(TOOLS_DIR)/gcc-arm-none-eabi-4_8-2014q1
+QT_SDK_DIR     := $(TOOLS_DIR)/qt-5.3.2
+UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
+DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
+GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 
-ifeq ($(UNAME), Windows)
-    MINGW_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
-    PYTHON_DIR  := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
-    NSIS_DIR    := $(TOOLS_DIR)/nsis-2.46-unicode
-    SDL_DIR     := $(TOOLS_DIR)/SDL-1.2.15
-    OPENSSL_DIR := $(TOOLS_DIR)/openssl-1.0.1e-win32
-    MESAWIN_DIR := $(TOOLS_DIR)/mesawin
+ifeq ($(UNAME), Linux)
+    CMAKE_DIR := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
+    ifeq ($(ARCH), x86_64)
+        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt5.3.2
+        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x64-qt5.3.2
+    else
+        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt5.3.2
+        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x86-qt5.3.2
+    endif
+else ifeq ($(UNAME), Darwin)
+    OSG_DIR      := TODO
+    OSGEARTH_DIR := TODO
+else ifeq ($(UNAME), Windows)
+    MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
+    # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
+    PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
+    NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
+    # When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/openpilotgcs/openpilotgcs.pri
+    SDL_DIR      := $(TOOLS_DIR)/SDL-1.2.15
+    OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
+    MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
+    CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
+    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw482_32-qt5.3.2
+    OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-mingw482_32-qt5.3.2
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -143,7 +148,7 @@ BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
     BUILD_SDK_TARGETS += sdl nsis mesawin openssl 
 endif
-ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
+ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg osgearth gtest uncrustify doxygen
 
 define GROUP_SDK_TEMPLATE
 .PHONY: $(1)_install $(1)_clean $(1)_distclean $(1)_version
@@ -389,12 +394,12 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 # Extract packages under tool directory
 	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.readme/1.0.0-0qt-project-url.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt/5.3.1ThirdPartySoftware_Listing.7z" | grep -v Extracting
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt/5.3.2ThirdPartySoftware_Listing.7z" | grep -v Extracting
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.readme/1.0.0-0readme.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.1-0qt5_essentials.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.1-0i686-4.8.2-release-posix-dwarf-rt_v3-rev3-runtime.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.1-0icu_52_1_mingw_builds_32_4_8_2_posix_dwarf.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.1-0qt5_addons.7z" | grep -v Extracting
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.2-0qt5_essentials.7z" | grep -v Extracting
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.2-0i686-4.8.2-release-posix-dwarf-rt_v3-rev3-runtime.7z" | grep -v Extracting
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.2-0icu_52_1_mingw_builds_32_4_8_2_posix_dwarf.7z" | grep -v Extracting
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.win32_mingw482/5.3.2-0qt5_addons.7z" | grep -v Extracting
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.tools.win32_mingw482/4.8.2i686-4.8.2-release-posix-dwarf-rt_v3-rev3.7z" | grep -v Extracting
 # Run patcher
 	@$(ECHO)
@@ -456,13 +461,13 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 # Extract packages under tool directory
 	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.readme/1.0.0-0qt-project-url.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt/5.3.1ThirdPartySoftware_Listing.7z" | grep -v Extracting
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt/5.3.2ThirdPartySoftware_Listing.7z" | grep -v Extracting
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.readme/1.0.0-0readme.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.1-0qt5_essentials.7z" | grep -v Extracting
-	$(V1) if [ -f "$(1)/qt.53.$(6)/5.3.1-0icu_52_1_ubuntu_11_10_64.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.1-0icu_52_1_ubuntu_11_10_64.7z" | grep -v Extracting; fi
-	$(V1) if [ -f "$(1)/qt.53.$(6)/5.3.1-0icu_52_1_ubuntu_11_10_32.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.1-0icu_52_1_ubuntu_11_10_32.7z" | grep -v Extracting; fi	
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.1-0qt5_addons.7z" | grep -v Extracting
-# go to OpenPilot/tools/5.3.1/gcc_64 and call patcher.sh
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.2-0qt5_essentials.7z" | grep -v Extracting
+	$(V1) if [ -f "$(1)/qt.53.$(6)/5.3.2-0icu_52_1_ubuntu_11_10_64.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.2-0icu_52_1_ubuntu_11_10_64.7z" | grep -v Extracting; fi
+	$(V1) if [ -f "$(1)/qt.53.$(6)/5.3.2-0icu_52_1_ubuntu_11_10_32.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.2-0icu_52_1_ubuntu_11_10_32.7z" | grep -v Extracting; fi	
+	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.53.$(6)/5.3.2-0qt5_addons.7z" | grep -v Extracting
+# go to OpenPilot/tools/5.3.2/gcc_64 and call patcher.sh
 	@$(ECHO)
 	@$(ECHO) "Running patcher in" $$(call toprel, $(QT_SDK_PREFIX))
 	$(V1) $(CD) $(QT_SDK_PREFIX)

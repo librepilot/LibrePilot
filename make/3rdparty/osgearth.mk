@@ -83,7 +83,7 @@ OSGEARTH_BUILD_CONF  := Release
 #
 ################################
 
-OSG_VERSION     := 3.2.1
+OSG_VERSION     := 3.3.2
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
 OSG_BUILD_CONF  := $(OSGEARTH_BUILD_CONF)
 OSG_BASE_NAME   := osg-$(OSG_VERSION)

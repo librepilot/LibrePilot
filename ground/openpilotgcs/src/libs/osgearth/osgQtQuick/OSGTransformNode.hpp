@@ -4,17 +4,18 @@
 #include "Export.hpp"
 #include "OSGNode.hpp"
 
+#include "QVector3D"
+
+// TODO derive from OSGGroup...
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
     Q_OBJECT
     // TODO rename to parentNode and modelNode
     Q_PROPERTY(osgQtQuick::OSGNode *modelData READ modelData WRITE setModelData NOTIFY modelDataChanged)
 
-// Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
-// Q_PROPERTY(qreal pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
-// Q_PROPERTY(qreal yaw READ yaw WRITE setYaw NOTIFY yawChanged)
-
-    Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
+    Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
+    Q_PROPERTY(QVector3D rotate READ rotate WRITE setRotate NOTIFY rotateChanged)
+    Q_PROPERTY(QVector3D translate READ translate WRITE setTranslate NOTIFY translateChanged)
 
 public:
     OSGTransformNode(QObject *parent = 0);
@@ -23,13 +24,21 @@ public:
     OSGNode *modelData();
     void setModelData(OSGNode *node);
 
-    double altitude() const;
-    void setAltitude(double arg);
+    QVector3D scale() const;
+    void setScale(QVector3D arg);
+
+    QVector3D rotate() const;
+    void setRotate(QVector3D arg);
+
+    QVector3D translate() const;
+    void setTranslate(QVector3D arg);
 
 signals:
     void modelDataChanged(OSGNode *node);
 
-    void altitudeChanged(double arg);
+    void scaleChanged(QVector3D arg);
+    void rotateChanged(QVector3D arg);
+    void translateChanged(QVector3D arg);
 
 private:
     struct Hidden;

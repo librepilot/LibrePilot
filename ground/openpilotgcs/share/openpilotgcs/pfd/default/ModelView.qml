@@ -81,6 +81,8 @@ OSGViewport {
     OSGTransformNode {
         id: modelTransformNode
         modelData: modelFileNode
+        scale: Qt.vector3d(0.1, 0.1, 0.1)
+        rotate.z: 180
     }
 
     OSGNodeFile {

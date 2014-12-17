@@ -141,7 +141,7 @@ static const struct pios_exti_cfg pios_exti_mpu9250_cfg __exti_config = {
 
 static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .exti_cfg   = &pios_exti_mpu9250_cfg,
-    .Fifo_store = PIOS_MPU9250_FIFO_TEMP_OUT | PIOS_MPU9250_FIFO_GYRO_X_OUT | PIOS_MPU9250_FIFO_GYRO_Y_OUT | PIOS_MPU9250_FIFO_GYRO_Z_OUT,
+    .Fifo_store = 0,
     // Clock at 8 khz
     .Smpl_rate_div_no_dlp = 0,
     // with dlp on output rate is 1000Hz
@@ -149,14 +149,14 @@ static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .interrupt_cfg  = PIOS_MPU9250_INT_CLR_ANYRD, // | PIOS_MPU9250_INT_LATCH_EN,
     .interrupt_en   = PIOS_MPU9250_INTEN_DATA_RDY,
     .User_ctl             = PIOS_MPU9250_USERCTL_DIS_I2C | PIOS_MPU9250_USERCTL_I2C_MST_EN,
-    .Pwr_mgmt_clk   = PIOS_MPU9250_PWRMGMT_PLL_X_CLK,
+    .Pwr_mgmt_clk   = PIOS_MPU9250_PWRMGMT_PLL_Z_CLK,
     .accel_range    = PIOS_MPU9250_ACCEL_8G,
     .gyro_range     = PIOS_MPU9250_SCALE_2000_DEG,
     .filter               = PIOS_MPU9250_LOWPASS_256_HZ,
     .orientation    = PIOS_MPU9250_TOP_180DEG,
     .fast_prescaler = PIOS_SPI_PRESCALER_4,
     .std_prescaler  = PIOS_SPI_PRESCALER_64,
-    .max_downsample = 16,
+    .max_downsample = 26,
 };
 #endif /* PIOS_INCLUDE_MPU9250 */
 

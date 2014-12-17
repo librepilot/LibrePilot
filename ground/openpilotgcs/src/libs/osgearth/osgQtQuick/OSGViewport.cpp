@@ -13,6 +13,7 @@
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Sky>
 #include <osgEarthUtil/LogarithmicDepthBuffer>
+#include <osgEarthUtil/LODBlending>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -176,6 +177,9 @@ public:
                 //logDepthBuffer.setUseFragDepth(true);
                 logDepthBuffer.install(view->getCamera());
             }
+
+            //lodBlending = new osgEarth::Util::LODBlending();
+            //mapNode->getTerrainEngine()->addEffect(lodBlending.get());
         }
 
         osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
@@ -231,6 +235,8 @@ public:
 
     bool logDepthBufferEnabled;
     osgEarth::Util::LogarithmicDepthBuffer logDepthBuffer;
+
+    //osg::ref_ptr<osgEarth::Util::LODBlending> lodBlending;
 
     bool realized;
 

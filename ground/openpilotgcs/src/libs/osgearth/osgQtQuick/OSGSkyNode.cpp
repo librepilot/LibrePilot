@@ -8,19 +8,15 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-
-struct OSGSkyNode::Hidden : public QObject
-{
+struct OSGSkyNode::Hidden : public QObject {
     Q_OBJECT
 
 public:
     Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL)
-    {
-    }
+    {}
 
     ~Hidden()
-    {
-    }
+    {}
 
     bool acceptSceneNode(OSGNode *node)
     {
@@ -36,7 +32,7 @@ public:
         sceneData = node;
         if (sceneData) {
             acceptNode(sceneData->node());
-            connect(sceneData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onNodeChanged(osg::Node*)));
+            connect(sceneData, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onNodeChanged(osg::Node *)));
         }
 
         return true;
@@ -57,25 +53,25 @@ public:
         }
 
         // create sky node
-        const osgEarth::Config& externals = mapNode->externalConfig();
+        const osgEarth::Config & externals = mapNode->externalConfig();
 
         osgEarth::Config skyConf = externals.child("sky");
         double hours = skyConf.value("hours", 12.0);
 
-        //osgEarth::Util::SkyOptions *skyOptions = new osgEarth::Util::SkyOptions();
+        // osgEarth::Util::SkyOptions *skyOptions = new osgEarth::Util::SkyOptions();
 
         skyNode = osgEarth::Util::SkyNode::create(mapNode);
 
-        skyNode->getSunLight()->setAmbient(osg::Vec4(0.8,0.8,0.8,1));
+        skyNode->getSunLight()->setAmbient(osg::Vec4(0.8, 0.8, 0.8, 1));
 
-        //skyNode->setLighting(osg::StateAttribute::OFF);
-        //skyNode->setAmbientBrightness(ambientBrightness);
+        // skyNode->setLighting(osg::StateAttribute::OFF);
+        // skyNode->setAmbientBrightness(ambientBrightness);
         skyNode->setDateTime(osgEarth::DateTime(2011, 3, 6, hours));
 
         // Ocean
-        //if (externals.hasChild("ocean")) {
-        //s_ocean = osgEarth::Util::OceanNode::create(osgEarth::Util::OceanOptions(externals.child("ocean")), mapNode);
-        //if (s_ocean) root->addChild(s_ocean);
+        // if (externals.hasChild("ocean")) {
+        // s_ocean = osgEarth::Util::OceanNode::create(osgEarth::Util::OceanOptions(externals.child("ocean")), mapNode);
+        // if (s_ocean) root->addChild(s_ocean);
 
         skyNode->addChild(node);
 
@@ -91,11 +87,11 @@ public:
 
 private slots:
 
-    void onNodeChanged(osg::Node *node) {
+    void onNodeChanged(osg::Node *node)
+    {
         qDebug() << "OSGSkyNode - onNodeChanged" << node;
         acceptNode(node);
     }
-
 };
 
 OSGSkyNode::OSGSkyNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
@@ -119,7 +115,6 @@ void OSGSkyNode::setSceneData(OSGNode *node)
         emit sceneDataChanged(node);
     }
 }
-
 } // namespace osgQtQuick
 
 #include "OSGSkyNode.moc"

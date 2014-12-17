@@ -44,7 +44,7 @@
 
 #include <deque>
 #include <string>
-//#include <stdlib.h>
+// #include <stdlib.h>
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
@@ -54,34 +54,34 @@ bool OsgEarth::initialized = false;
 
 /*
 
-Debugging tips
+   Debugging tips
 
-Windows DIB issues
+   Windows DIB issues
 
-The environment variable QT_QPA_VERBOSE controls the debug level.
-It takes the form {<keyword1>:<level1>,<keyword2>:<level2>},
-where keyword is one of integration,  windows, backingstore and fonts.
-Level is an integer 0..9.
+   The environment variable QT_QPA_VERBOSE controls the debug level.
+   It takes the form {<keyword1>:<level1>,<keyword2>:<level2>},
+   where keyword is one of integration,  windows, backingstore and fonts.
+   Level is an integer 0..9.
 
-OSG:
-export OSG_NOTIFY_LEVEL=DEBUG
+   OSG:
+   export OSG_NOTIFY_LEVEL=DEBUG
 
 
 
-StackHash failure
+   StackHash failure
 
-Here’s how 99 percent of Vista users can fix a StackHash failure. I’ll walk you through it step by step:
+   Here’s how 99 percent of Vista users can fix a StackHash failure. I’ll walk you through it step by step:
 
-Method A:
-—————
-1. Open your Start menu and click Control Panel
-2. Browse to “System Maintenance” then “System”
-3. In the left panel, select “Advanced System Settings” from the available links
-4. You should now see the System Properties Window, which will have three sections. The top section is labeled “Performance” and has a “Settings” button. Click this button.
-5. Select the “Data Execution Prevention” tab.
-6. Select the option which reads “Turn on DEP for all programs and services except those I select”
-7. Use the “Browse” button to locate the executable file for the application you were trying to start when you received the StackHash error, and click Open to add it to your exceptions list.
-8. Click Apply or OK to commit your changes.
+   Method A:
+   —————
+   1. Open your Start menu and click Control Panel
+   2. Browse to “System Maintenance” then “System”
+   3. In the left panel, select “Advanced System Settings” from the available links
+   4. You should now see the System Properties Window, which will have three sections. The top section is labeled “Performance” and has a “Settings” button. Click this button.
+   5. Select the “Data Execution Prevention” tab.
+   6. Select the option which reads “Turn on DEP for all programs and services except those I select”
+   7. Use the “Browse” button to locate the executable file for the application you were trying to start when you received the StackHash error, and click Open to add it to your exceptions list.
+   8. Click Apply or OK to commit your changes.
 
  */
 void OsgEarth::initialize()
@@ -101,9 +101,9 @@ void OsgEarth::initialize()
 
     initializePathes();
 
-    //osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
+    // osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
     // this line causes crashes on Windows!!!
-    //osgQt::initQtWindowingSystem();
+    // osgQt::initQtWindowingSystem();
 
     // force early initialization of osgEarth registry
     // this important as doing it later (when OpenGL is already in use) might thrash some GL contextes
@@ -124,8 +124,9 @@ void OsgEarth::initialize()
 void OsgEarth::initializePathes()
 {
     // initialize library file path list
-    //qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
+    // qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
+
     // clear system wide library pathes
     libraryFilePathList.clear();
     // and add our own plugin library path
@@ -156,6 +157,7 @@ void OsgEarth::initializeCache()
     // enable caching
     // TODO try to use FileSystemCacheOptions instead of using OSGEARTH_CACHE_PATH env variables
     QString cachePath = Utils::PathUtils().GetStoragePath() + "osgearth/cache";
+
     qputenv("OSGEARTH_CACHE_PATH", cachePath.toLatin1());
 
     osgEarth::CacheOptions cacheOptions;
@@ -168,55 +170,54 @@ void OsgEarth::initializeCache()
         qWarning() << "Failed to initialize cache";
     }
 
-//    osgDB::SharedStateManager::ShareMode shareMode = osgDB::SharedStateManager::SHARE_NONE;// =osgDB::SharedStateManager::SHARE_ALL;
-//    shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_STATESETS) : shareMode;
-//    shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_TEXTURES) : shareMode;
-//    osgDB::Registry::instance()->getOrCreateSharedStateManager()->setShareMode(shareMode);
+// osgDB::SharedStateManager::ShareMode shareMode = osgDB::SharedStateManager::SHARE_NONE;// =osgDB::SharedStateManager::SHARE_ALL;
+// shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_STATESETS) : shareMode;
+// shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_TEXTURES) : shareMode;
+// osgDB::Registry::instance()->getOrCreateSharedStateManager()->setShareMode(shareMode);
 
-//    osgDB::Options::CacheHintOptions cacheHintOptions = osgDB::Options::CACHE_NONE;
-//    cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_IMAGES);
-//    cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_NODES);
-//    if (osgDB::Registry::instance()->getOptions() == 0) {
-//        osgDB::Registry::instance()->setOptions(new osgDB::Options());
-//    }
-//    osgDB::Registry::instance()->getOptions()->setObjectCacheHint(cacheHintOptions);
-
+// osgDB::Options::CacheHintOptions cacheHintOptions = osgDB::Options::CACHE_NONE;
+// cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_IMAGES);
+// cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_NODES);
+// if (osgDB::Registry::instance()->getOptions() == 0) {
+// osgDB::Registry::instance()->setOptions(new osgDB::Options());
+// }
+// osgDB::Registry::instance()->getOptions()->setObjectCacheHint(cacheHintOptions);
 }
 
 /*
 
-Why not use setRenderTarget
+   Why not use setRenderTarget
 
-export OSG_MULTIMONITOR_MULTITHREAD_WIN32_NVIDIA_WORKAROUND=On
-export OSG_NOTIFY_LEVEL=DEBUG
-http://trac.openscenegraph.org/projects/osg//wiki/Support/TipsAndTricks
+   export OSG_MULTIMONITOR_MULTITHREAD_WIN32_NVIDIA_WORKAROUND=On
+   export OSG_NOTIFY_LEVEL=DEBUG
+   http://trac.openscenegraph.org/projects/osg//wiki/Support/TipsAndTricks
 
-Switch to 5.4 and use this :http://doc-snapshot.qt-project.org/qt5-5.4/qquickframebufferobject.html#details
-http://doc-snapshot.qt-project.org/qt5-5.4/qtquick-visualcanvas-scenegraph.html#scene-graph-and-rendering
-http://www.kdab.com/opengl-in-qt-5-1-part-1/
+   Switch to 5.4 and use this :http://doc-snapshot.qt-project.org/qt5-5.4/qquickframebufferobject.html#details
+   http://doc-snapshot.qt-project.org/qt5-5.4/qtquick-visualcanvas-scenegraph.html#scene-graph-and-rendering
+   http://www.kdab.com/opengl-in-qt-5-1-part-1/
 
-THIS MENTIONS GLUT...
-http://www.multigesture.net/articles/how-to-compile-openscenegraph-2-x-using-mingw/
-http://www.mingw.org/category/wiki/opengl
+   THIS MENTIONS GLUT...
+   http://www.multigesture.net/articles/how-to-compile-openscenegraph-2-x-using-mingw/
+   http://www.mingw.org/category/wiki/opengl
 
-INTERESTING : http://qt-project.org/forums/viewthread/24535
+   INTERESTING : http://qt-project.org/forums/viewthread/24535
 
-https://groups.google.com/forum/#!msg/osg-users/HDabWUVaR2w/C6rPKKeKoYkJ
+   https://groups.google.com/forum/#!msg/osg-users/HDabWUVaR2w/C6rPKKeKoYkJ
 
-http://trac.openscenegraph.org/projects/osg/wiki/Community/OpenGL-ES
+   http://trac.openscenegraph.org/projects/osg/wiki/Community/OpenGL-ES
 
-http://upstream.rosalinux.ru/changelogs/openscenegraph/3.2.0/changelog.html
+   http://upstream.rosalinux.ru/changelogs/openscenegraph/3.2.0/changelog.html
 
-MESA https://groups.google.com/forum/#!topic/osg-users/_2MqkA-wH1Q
+   MESA https://groups.google.com/forum/#!topic/osg-users/_2MqkA-wH1Q
 
-GL version https://groups.google.com/forum/#!topic/osg-users/UiyYQ0Fw7MQ
+   GL version https://groups.google.com/forum/#!topic/osg-users/UiyYQ0Fw7MQ
 
-http://trac.openscenegraph.org/projects/osg//wiki/Support/PlatformSpecifics/Mingw
+   http://trac.openscenegraph.org/projects/osg//wiki/Support/PlatformSpecifics/Mingw
 
-Qt & OpenGL
-http://blog.qt.digia.com/blog/2009/12/16/qt-graphics-and-performance-an-overview/
-http://blog.qt.digia.com/blog/2010/01/06/qt-graphics-and-performance-opengl/
-*/
+   Qt & OpenGL
+   http://blog.qt.digia.com/blog/2009/12/16/qt-graphics-and-performance-an-overview/
+   http://blog.qt.digia.com/blog/2010/01/06/qt-graphics-and-performance-opengl/
+ */
 
 // BUGS
 // if resizing a gadget below the viewport, the viewport will stop shrinking at 64 pixel
@@ -229,57 +230,57 @@ http://blog.qt.digia.com/blog/2010/01/06/qt-graphics-and-performance-opengl/
 // ABNORMAL TERMINATION : createDIB: CreateDIBSection failed.
 
 /*
-CRASH
-osgQtQuick::OSGViewport : Update called for a item without content
-VERTEX glCompileShader "atmos_vertex_main" FAILED
-VERTEX glCompileShader "main(vert)" FAILED
-FRAGMENT glCompileShader "main(frag)" FAILED
-glLinkProgram "SimpleSky Scene Lighting" FAILED
-Program "SimpleSky Scene Lighting" infolog:
-Vertex info
------------
-An error occurred
+   CRASH
+   osgQtQuick::OSGViewport : Update called for a item without content
+   VERTEX glCompileShader "atmos_vertex_main" FAILED
+   VERTEX glCompileShader "main(vert)" FAILED
+   FRAGMENT glCompileShader "main(frag)" FAILED
+   glLinkProgram "SimpleSky Scene Lighting" FAILED
+   Program "SimpleSky Scene Lighting" infolog:
+   Vertex info
+   -----------
+   An error occurred
 
-Fragment info
--------------
-An error occurred
+   Fragment info
+   -------------
+   An error occurred
 
-[osgEarth]* [VirtualProgram] Program link failure!
-VERTEX glCompileShader "main(vert)" FAILED
-FRAGMENT glCompileShader "main(frag)" FAILED
-glLinkProgram "osgEarth.ModelNode" FAILED
-Program "osgEarth.ModelNode" infolog:
-Vertex info
------------
-An error occurred
+   [osgEarth]* [VirtualProgram] Program link failure!
+   VERTEX glCompileShader "main(vert)" FAILED
+   FRAGMENT glCompileShader "main(frag)" FAILED
+   glLinkProgram "osgEarth.ModelNode" FAILED
+   Program "osgEarth.ModelNode" infolog:
+   Vertex info
+   -----------
+   An error occurred
 
-Fragment info
--------------
-An error occurred
+   Fragment info
+   -------------
+   An error occurred
 
-[osgEarth]* [VirtualProgram] Program link failure!
-*/
+   [osgEarth]* [VirtualProgram] Program link failure!
+ */
 
 /*
-osgQtQuick::OSGViewport : Update called for a item without content
-VERTEX glCompileShader "atmos_vertex_main" FAILED
-VERTEX glCompileShader "main(vert)" FAILED
-FRAGMENT glCompileShader "main(frag)" FAILED
-glLinkProgram "SimpleSky Scene Lighting" FAILED
-Program "SimpleSky Scene Lighting" infolog:
-Vertex info
------------
-An error occurred
+   osgQtQuick::OSGViewport : Update called for a item without content
+   VERTEX glCompileShader "atmos_vertex_main" FAILED
+   VERTEX glCompileShader "main(vert)" FAILED
+   FRAGMENT glCompileShader "main(frag)" FAILED
+   glLinkProgram "SimpleSky Scene Lighting" FAILED
+   Program "SimpleSky Scene Lighting" infolog:
+   Vertex info
+   -----------
+   An error occurred
 
-Fragment info
--------------
-An error occurred
+   Fragment info
+   -------------
+   An error occurred
 
-[osgEarth]* [VirtualProgram] Program link failure!
-Warning: detected OpenGL error 'out of memory' at After Renderer::compile
-terminate called after throwing an instance of 'std::bad_alloc'
-  what():  std::bad_alloc
+   [osgEarth]* [VirtualProgram] Program link failure!
+   Warning: detected OpenGL error 'out of memory' at After Renderer::compile
+   terminate called after throwing an instance of 'std::bad_alloc'
+   what():  std::bad_alloc
 
-This application has requested the Runtime to terminate it in an unusual way.
-Please contact the application's support team for more information.
-*/
+   This application has requested the Runtime to terminate it in an unusual way.
+   Please contact the application's support team for more information.
+ */

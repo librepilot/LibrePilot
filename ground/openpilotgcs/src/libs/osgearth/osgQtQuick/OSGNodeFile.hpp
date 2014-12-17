@@ -10,12 +10,8 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
-
-class OSGQTQUICK_EXPORT OSGNodeFile : public OSGNode
-{
-    Q_OBJECT
-
-    Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
+class OSGQTQUICK_EXPORT OSGNodeFile : public OSGNode {
+    Q_OBJECT Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
 
 public:
@@ -38,7 +34,6 @@ private:
     struct Hidden;
     Hidden *h;
 };
-
 } // namespace osgQtQuick
 
 #endif // _H_OSGQTQUICK_NODEFILE_H_

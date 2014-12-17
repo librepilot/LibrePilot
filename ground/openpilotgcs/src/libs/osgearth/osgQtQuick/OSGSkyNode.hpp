@@ -10,18 +10,14 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
-
-class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode
-{
-    Q_OBJECT
-
-    Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
 
 public:
     OSGSkyNode(QObject *parent = 0);
     virtual ~OSGSkyNode();
 
-    OSGNode* sceneData();
+    OSGNode *sceneData();
     void setSceneData(OSGNode *node);
 
 signals:
@@ -31,7 +27,6 @@ private:
     struct Hidden;
     Hidden *h;
 };
-
 } // namespace osgQtQuick
 
 #endif // _H_OSGQTQUICK_SKYNODE_H_

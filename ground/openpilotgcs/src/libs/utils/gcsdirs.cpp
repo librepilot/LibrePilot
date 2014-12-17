@@ -9,9 +9,11 @@ GCSDirs::GCSDirs()
     : d(0)
 {}
 
-QString GCSDirs::rootDir() {
+QString GCSDirs::rootDir()
+{
     // Figure out root : Up one from 'bin'
     QDir rootDir = QApplication::applicationDirPath();
+
     rootDir.cdUp();
     return rootDir.canonicalPath();
 }
@@ -19,6 +21,7 @@ QString GCSDirs::rootDir() {
 QString GCSDirs::libraryPath(QString provider)
 {
     QString libPath = rootDir();
+
 #ifdef Q_OS_MACX
     // TODO not correct...
     libPath += QLatin1String("/Plugins");
@@ -33,6 +36,7 @@ QString GCSDirs::libraryPath(QString provider)
 QString GCSDirs::pluginPath(QString provider)
 {
     QString pluginPath = rootDir();
+
 #ifdef Q_OS_MACX
     // TODO not correct...
     pluginPath += QLatin1String("/Plugins");
@@ -48,6 +52,7 @@ QString GCSDirs::pluginPath(QString provider)
 QString GCSDirs::sharePath(QString provider)
 {
     QString sharePath = rootDir();
+
 #ifdef Q_OS_MACX
     sharePath += QLatin1String("/Resources");
 #else

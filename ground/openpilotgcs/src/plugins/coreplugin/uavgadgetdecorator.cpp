@@ -57,6 +57,7 @@ UAVGadgetDecorator::~UAVGadgetDecorator()
 void UAVGadgetDecorator::loadConfiguration(int index)
 {
     IUAVGadgetConfiguration *config = m_configurations->at(index);
+
     loadConfiguration(config);
 }
 

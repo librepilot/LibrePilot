@@ -42,7 +42,7 @@ QWidget *PfdQmlGadget::widget()
         m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
         // don't clear widget background before painting to avoid flickering
         m_container->setAutoFillBackground(true);
-        //m_container->setAttribute(Qt::WA_OpaquePaintEvent, false);
+        // m_container->setAttribute(Qt::WA_OpaquePaintEvent, false);
     }
     return m_container;
 }
@@ -77,15 +77,15 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 
     m_widget->setQmlFile(m->qmlFile());
 
-//    // setting OSGEARTH_CACHE_ONLY seems to work the most reliably
-//    // between osgEarth versions I tried
-//    if (m->cacheOnly()) {
-//        qputenv("OSGEARTH_CACHE_ONLY", "true");
-//    } else {
-//#ifdef Q_OS_WIN32
-//        qputenv("OSGEARTH_CACHE_ONLY", "");
-//#else
-//        unsetenv("OSGEARTH_CACHE_ONLY");
-//#endif
-//    }
+//// setting OSGEARTH_CACHE_ONLY seems to work the most reliably
+//// between osgEarth versions I tried
+// if (m->cacheOnly()) {
+// qputenv("OSGEARTH_CACHE_ONLY", "true");
+// } else {
+// #ifdef Q_OS_WIN32
+// qputenv("OSGEARTH_CACHE_ONLY", "");
+// #else
+// unsetenv("OSGEARTH_CACHE_ONLY");
+// #endif
+// }
 }

@@ -124,11 +124,9 @@ void PfdQmlGadgetOptionsPage::apply()
 
     if (options_page->useGPSLocation->isChecked()) {
         m_config->setPositionMode(Pfd::GPS);
-    }
-    else if (options_page->useHomeLocation->isChecked()) {
+    } else if (options_page->useHomeLocation->isChecked()) {
         m_config->setPositionMode(Pfd::Home);
-    }
-    else {
+    } else {
         m_config->setPositionMode(Pfd::Predefined);
     }
     m_config->setLatitude(options_page->latitude->text().toDouble());
@@ -146,8 +144,7 @@ void PfdQmlGadgetOptionsPage::apply()
 
     if (options_page->useAutomaticModel->isChecked()) {
         m_config->setModelSelectionMode(Pfd::Auto);
-    }
-    else {
+    } else {
         m_config->setModelSelectionMode(Pfd::Fixed);
     }
 

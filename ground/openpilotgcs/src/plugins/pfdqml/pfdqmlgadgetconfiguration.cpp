@@ -55,8 +55,8 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         m_altitudeFactor     = qSettings->value("altitudeFactor").toDouble();
 
         m_terrainEnabled     = qSettings->value("terrainEnabled").toBool();
-        m_terrainFile          = qSettings->value("earthFile").toString();
-        m_terrainFile          = Utils::PathUtils().InsertDataPath(m_terrainFile);
+        m_terrainFile        = qSettings->value("earthFile").toString();
+        m_terrainFile        = Utils::PathUtils().InsertDataPath(m_terrainFile);
         m_cacheOnly          = qSettings->value("cacheOnly").toBool();
 
         m_positionMode       = static_cast<Pfd::PositionMode>(qSettings->value("positionMode").toUInt());
@@ -64,10 +64,10 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         m_longitude          = qSettings->value("longitude").toDouble();
         m_altitude           = qSettings->value("altitude").toDouble();
 
-        m_modelEnabled     = qSettings->value("modelEnabled").toBool();
+        m_modelEnabled       = qSettings->value("modelEnabled").toBool();
         m_modelFile          = qSettings->value("modelFile").toString();
         m_modelFile          = Utils::PathUtils().InsertDataPath(m_modelFile);
-        m_modelSelectionMode       = static_cast<Pfd::ModelSelectionMode>(qSettings->value("modelSelectionMode").toUInt());
+        m_modelSelectionMode = static_cast<Pfd::ModelSelectionMode>(qSettings->value("modelSelectionMode").toUInt());
 
         m_openGLEnabled      = qSettings->value("openGLEnabled", true).toBool();
     }
@@ -87,7 +87,7 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
     m->m_altitudeFactor     = m_altitudeFactor;
 
     m->m_terrainEnabled     = m_terrainEnabled;
-    m->m_terrainFile          = m_terrainFile;
+    m->m_terrainFile        = m_terrainFile;
     m->m_cacheOnly          = m_cacheOnly;
 
     m->m_positionMode       = m_positionMode;
@@ -95,9 +95,9 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
     m->m_longitude          = m_longitude;
     m->m_altitude           = m_altitude;
 
-    m->m_modelEnabled     = m_modelEnabled;
+    m->m_modelEnabled       = m_modelEnabled;
     m->m_modelFile          = m_modelFile;
-    m->m_modelSelectionMode          = m_modelSelectionMode;
+    m->m_modelSelectionMode = m_modelSelectionMode;
 
     m->m_openGLEnabled      = m_openGLEnabled;
 
@@ -110,7 +110,8 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
  */
 void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
 {
-    QString qmlFile   = Utils::PathUtils().RemoveDataPath(m_qmlFile);
+    QString qmlFile = Utils::PathUtils().RemoveDataPath(m_qmlFile);
+
     qSettings->setValue("qmlFile", qmlFile);
 
     qSettings->setValue("speedFactor", m_speedFactor);

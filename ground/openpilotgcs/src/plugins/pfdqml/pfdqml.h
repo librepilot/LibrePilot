@@ -20,17 +20,16 @@
 #include <QObject>
 #include <QtQml>
 
-class Pfd : public QObject
-{
-    Q_OBJECT
-    Q_ENUMS(PositionMode)
+class Pfd : public QObject {
+    Q_OBJECT Q_ENUMS(PositionMode)
     Q_ENUMS(ModelSelectionMode)
 
 public:
     enum PositionMode { GPS, Home, Predefined };
     enum ModelSelectionMode { Auto, Fixed };
 
-    static void declareQML() {
+    static void declareQML()
+    {
         qmlRegisterType<Pfd>("PfdQmlEnums", 1, 0, "Pfd");
     }
 };

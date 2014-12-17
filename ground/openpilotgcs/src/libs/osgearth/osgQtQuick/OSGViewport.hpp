@@ -6,19 +6,15 @@
 #include <QQuickFramebufferObject>
 
 namespace osgQtQuick {
-
 class Renderer;
 class OSGNode;
 class OSGCamera;
 
-class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject
-{
-    Q_OBJECT
-
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
+    Q_OBJECT Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode* sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
-    Q_PROPERTY(osgQtQuick::OSGCamera* camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    Q_PROPERTY(osgQtQuick::OSGCamera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
 
 
@@ -42,10 +38,10 @@ public:
     QColor color() const;
     void setColor(const QColor &color);
 
-    OSGNode* sceneData();
+    OSGNode *sceneData();
     void setSceneData(OSGNode *node);
 
-    OSGCamera* camera();
+    OSGCamera *camera();
     void setCamera(OSGCamera *camera);
 
     bool logarithmicDepthBuffer();
@@ -72,13 +68,12 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    QSGNode* updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
 
 private:
     struct Hidden;
     Hidden *h;
 };
-
 } // namespace osgQtQuick
 
 #endif // _H_OSGQTQUICK_OSGVIEPORT_H_

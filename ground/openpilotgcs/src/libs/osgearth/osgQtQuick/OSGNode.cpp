@@ -5,14 +5,12 @@
 #include <QListIterator>
 
 namespace osgQtQuick {
-
 struct OSGNode::Hidden {
     osg::ref_ptr<osg::Node> node;
 };
 
 OSGNode::OSGNode(QObject *parent) : QObject(parent), h(new Hidden)
-{
-}
+{}
 
 OSGNode::~OSGNode()
 {
@@ -42,5 +40,4 @@ void OSGNode::realize()
         }
     }
 }
-
 } // namespace osgQtQuick

@@ -14,17 +14,14 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-
-struct OSGModelNode::Hidden : public QObject
-{
+struct OSGModelNode::Hidden : public QObject {
     Q_OBJECT
 
-    struct NodeUpdateCallback : public osg::NodeCallback
-    {
-    public:
+    struct NodeUpdateCallback : public osg::NodeCallback {
+public:
         NodeUpdateCallback(Hidden *h);
 
-        void operator()(osg::Node* node, osg::NodeVisitor* nv);
+        void operator()(osg::Node *node, osg::NodeVisitor *nv);
 
         mutable Hidden *h;
     };
@@ -34,13 +31,12 @@ public:
 
     Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), dirty(false)
     {
-        roll = pitch = yaw = 0.0;
+        roll     = pitch = yaw = 0.0;
         latitude = longitude = altitude = 0.0;
     }
 
     ~Hidden()
-    {
-    }
+    {}
 
     bool acceptModelData(OSGNode *node)
     {
@@ -57,7 +53,7 @@ public:
 
         if (modelData) {
             acceptModelNode(modelData->node());
-            connect(modelData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onModelNodeChanged(osg::Node*)));
+            connect(modelData, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onModelNodeChanged(osg::Node *)));
         }
 
         return true;
@@ -84,11 +80,11 @@ public:
         }
 
         // establish the coordinate system we wish to use:
-        //const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
+        // const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
 
-//        osgEarth::Config conf("style");
-//        conf.set("auto_scale", true);
-//        osgEarth::Symbology::Style style(conf);
+// osgEarth::Config conf("style");
+// conf.set("auto_scale", true);
+// osgEarth::Symbology::Style style(conf);
         osgEarth::Symbology::Style style;
 
         // construct the symbology
@@ -97,6 +93,8 @@ public:
 
         // make a ModelNode
         modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
+
+        qDebug() << "*** " << modelNode->getBound().radius();
 
         if (!nodeUpdateCB.valid()) {
             nodeUpdateCB = new NodeUpdateCallback(this);
@@ -130,7 +128,7 @@ public:
             if (modelData && modelData->node()) {
                 acceptModelNode(modelData->node());
             }
-            connect(sceneData, SIGNAL(nodeChanged(osg::Node*)), this, SLOT(onSceneNodeChanged(osg::Node*)));
+            connect(sceneData, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onSceneNodeChanged(osg::Node *)));
         }
 
         return true;
@@ -145,16 +143,15 @@ public:
         dirty = false;
 
         osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
+                                    longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
         modelNode->setPosition(geoPoint);
 
         osg::Quat q = osg::Quat(
-                osg::DegreesToRadians(roll), osg::Vec3d(0, 1, 0),
-                osg::DegreesToRadians(pitch), osg::Vec3d(1, 0, 0),
-                osg::DegreesToRadians(yaw), osg::Vec3d(0, 0, -1));
+            osg::DegreesToRadians(roll), osg::Vec3d(0, 1, 0),
+            osg::DegreesToRadians(pitch), osg::Vec3d(1, 0, 0),
+            osg::DegreesToRadians(yaw), osg::Vec3d(0, 0, -1));
 
         modelNode->setLocalRotation(q);
-
     }
 
     OSGModelNode *const self;
@@ -166,15 +163,15 @@ public:
 
     osg::ref_ptr<NodeUpdateCallback> nodeUpdateCB;
 
-    qreal roll;
-    qreal pitch;
-    qreal yaw;
+    qreal  roll;
+    qreal  pitch;
+    qreal  yaw;
 
     double latitude;
     double longitude;
     double altitude;
 
-    bool dirty;
+    bool   dirty;
 
 private slots:
 
@@ -216,14 +213,13 @@ private slots:
             }
         }
     }
-
 };
 
 /* struct Hidden::NodeUpdateCallback */
 
 OSGModelNode::Hidden::NodeUpdateCallback::NodeUpdateCallback(Hidden *h) : h(h) {}
 
-void OSGModelNode::Hidden::NodeUpdateCallback::operator()(osg::Node* node, osg::NodeVisitor* nv)
+void OSGModelNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
     h->updateNode();
 }
@@ -269,8 +265,8 @@ qreal OSGModelNode::roll() const
 
 void OSGModelNode::setRoll(qreal arg)
 {
-    if (h->roll!= arg) {
-        h->roll = arg;
+    if (h->roll != arg) {
+        h->roll  = arg;
         h->dirty = true;
         emit rollChanged(roll());
     }
@@ -283,7 +279,7 @@ qreal OSGModelNode::pitch() const
 
 void OSGModelNode::setPitch(qreal arg)
 {
-    if (h->pitch!= arg) {
+    if (h->pitch != arg) {
         h->pitch = arg;
         h->dirty = true;
         emit pitchChanged(pitch());
@@ -297,8 +293,8 @@ qreal OSGModelNode::yaw() const
 
 void OSGModelNode::setYaw(qreal arg)
 {
-    if (h->yaw!= arg) {
-        h->yaw = arg;
+    if (h->yaw != arg) {
+        h->yaw   = arg;
         h->dirty = true;
         emit yawChanged(yaw());
     }
@@ -313,7 +309,7 @@ void OSGModelNode::setLatitude(double arg)
 {
     if (h->latitude != arg) {
         h->latitude = arg;
-        h->dirty = true;
+        h->dirty    = true;
         emit latitudeChanged(latitude());
     }
 }
@@ -327,7 +323,7 @@ void OSGModelNode::setLongitude(double arg)
 {
     if (h->longitude != arg) {
         h->longitude = arg;
-        h->dirty = true;
+        h->dirty     = true;
         emit longitudeChanged(longitude());
     }
 }
@@ -339,14 +335,12 @@ double OSGModelNode::altitude() const
 
 void OSGModelNode::setAltitude(double arg)
 {
-    if (h->altitude!= arg) {
+    if (h->altitude != arg) {
         h->altitude = arg;
-        h->dirty = true;
+        h->dirty    = true;
         emit altitudeChanged(altitude());
     }
 }
-
-
 } // namespace osgQtQuick
 
 #include "OSGModelNode.moc"

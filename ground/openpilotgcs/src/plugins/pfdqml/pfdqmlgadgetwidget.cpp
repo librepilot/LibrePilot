@@ -88,7 +88,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     }
 
     qDebug() << "is OpenGLContext persistent" << isPersistentOpenGLContext();
-    //window->setPersistentOpenGLContext(!window->isPersistentOpenGLContext());
+    // window->setPersistentOpenGLContext(!window->isPersistentOpenGLContext());
     qDebug() << "is SceneGraph persistent" << isPersistentSceneGraph();
 
     // to expose settings values
@@ -111,13 +111,12 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
         setSource(QUrl());
 
         engine()->removeImageProvider("svg");
-        //engine()->rootContext()->setContextProperty("svgRenderer", NULL);
+        // engine()->rootContext()->setContextProperty("svgRenderer", NULL);
 
         // calling clearComponentCache() causes crashes
         // see https://bugreports.qt-project.org/browse/QTBUG-41465
-        //engine()->clearComponentCache();
-    }
-    else {
+        // engine()->clearComponentCache();
+    } else {
         QUrl url = QUrl::fromLocalFile(fn);
 
         engine()->setBaseUrl(url);
@@ -140,7 +139,7 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
 
 void PfdQmlGadgetWidget::onStatusChanged(QQuickView::Status status)
 {
-    switch(status) {
+    switch (status) {
     case Null:
         qDebug() << "PfdQmlGadgetWidget - status Null";
         break;
@@ -217,7 +216,7 @@ void PfdQmlGadgetWidget::setLongitude(double arg)
 
 void PfdQmlGadgetWidget::setAltitude(double arg)
 {
-    if (m_altitude!= arg) {
+    if (m_altitude != arg) {
         m_altitude = arg;
         emit altitudeChanged(altitude());
     }

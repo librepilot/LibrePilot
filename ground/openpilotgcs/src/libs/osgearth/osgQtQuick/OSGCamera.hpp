@@ -14,7 +14,6 @@ class View;
 } // namespace osgViewer
 
 namespace osgQtQuick {
-
 class OSGNode;
 
 // This class does too much:
@@ -27,15 +26,12 @@ class OSGNode;
 // TODO
 // - expose track mode
 // - provide good default distance and attitude for tracker camera
-class OSGQTQUICK_EXPORT OSGCamera : public QObject
-{
-    Q_OBJECT
-
-    Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
+class OSGQTQUICK_EXPORT OSGCamera : public QObject {
+    Q_OBJECT Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
 
     Q_PROPERTY(ManipulatorMode manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
 
-    Q_PROPERTY(osgQtQuick::OSGNode* trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(TrackerMode trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
 
     Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
@@ -56,14 +52,14 @@ public:
 
     explicit OSGCamera(QObject *parent = 0);
     virtual ~OSGCamera();
-    
+
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
 
     ManipulatorMode manipulatorMode() const;
     void setManipulatorMode(ManipulatorMode);
 
-    OSGNode* trackNode() const;
+    OSGNode *trackNode() const;
     void setTrackNode(OSGNode *node);
 
     TrackerMode trackerMode() const;
@@ -106,15 +102,14 @@ signals:
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
 
-//    osg::Node* node();
-//    void setNode(osg::Node *node);
-//    void nodeChanged(osg::Node *node);
-    
+// osg::Node* node();
+// void setNode(osg::Node *node);
+// void nodeChanged(osg::Node *node);
+
 private:
     struct Hidden;
     Hidden *h;
 };
-
 } // namespace osgQtQuick
 
 #endif // _H_OSGQTQUICK_OSGCAMERA_H_

@@ -9,21 +9,21 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-
-class OSGFileLoader: public QThread
-{
+class OSGFileLoader : public QThread {
     Q_OBJECT
 
 public:
-    OSGFileLoader(const QUrl &url) : url(url) {
-    }
+    OSGFileLoader(const QUrl &url) : url(url) {}
 
-    void run() {
+    void run()
+    {
         load();
     }
 
-    void load() {
+    void load()
+    {
         QElapsedTimer t;
+
         t.start();
         qDebug() << "OSGFileLoader - reading URL" << url;
         QString s = url.toString();
@@ -31,7 +31,7 @@ public:
             s = s.right(s.length() - QString("file://").length());
         }
         s = s.replace("%5C", "/");
-        //qDebug() << "OSGFileLoader - file" << s;
+        // qDebug() << "OSGFileLoader - file" << s;
         // TODO use Options to control caching...
         qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(s.toStdString());
@@ -41,14 +41,13 @@ public:
     }
 
 signals:
-    void loaded(const QUrl& url, osg::Node *node);
+    void loaded(const QUrl & url, osg::Node *node);
 
 private:
     QUrl url;
 };
 
-struct OSGNodeFile::Hidden: public QObject
-{
+struct OSGNodeFile::Hidden : public QObject {
     Q_OBJECT
 
 public:
@@ -72,29 +71,34 @@ public:
     QUrl url;
     bool async;
 
-//private:
+// private:
 
-    void asyncLoad(const QUrl &url) {
+    void asyncLoad(const QUrl &url)
+    {
         OSGFileLoader *loader = new OSGFileLoader(url);
-        connect(loader, SIGNAL(loaded(const QUrl&, osg::Node*)), this, SLOT(onLoaded(const QUrl&, osg::Node*)));
+
+        connect(loader, SIGNAL(loaded(const QUrl &, osg::Node *)), this, SLOT(onLoaded(const QUrl &, osg::Node *)));
         connect(loader, SIGNAL(finished()), loader, SLOT(deleteLater()));
         loader->start();
     }
 
-    void syncLoad(const QUrl &url) {
+    void syncLoad(const QUrl &url)
+    {
         OSGFileLoader loader(url);
-        connect(&loader, SIGNAL(loaded(const QUrl&, osg::Node*)), this, SLOT(onLoaded(const QUrl&, osg::Node*)));
+
+        connect(&loader, SIGNAL(loaded(const QUrl &, osg::Node *)), this, SLOT(onLoaded(const QUrl &, osg::Node *)));
         loader.load();
     }
 
 public slots:
-    void onLoaded(const QUrl &url, osg::Node *node) {
+    void onLoaded(const QUrl &url, osg::Node *node)
+    {
         self->setNode(node);
     }
 };
 
 OSGNodeFile::OSGNodeFile(QObject *parent) : OSGNode(parent), h(new Hidden(this))
-{    
+{
     qDebug() << "OSGNodeFile - <init>";
 }
 
@@ -135,12 +139,10 @@ void OSGNodeFile::realize()
     qDebug() << "OSGNodeFile - realize";
     if (h->async) {
         h->asyncLoad(h->url);
-    }
-    else {
+    } else {
         h->syncLoad(h->url);
     }
 }
-
 } // namespace osgQtQuick
 
 #include "OSGNodeFile.moc"

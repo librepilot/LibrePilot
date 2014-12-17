@@ -170,10 +170,8 @@ public:
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             // TODO should not be done here
             // TODO will the AutoClipPlaneCullCallback be destroyed???
-            if (!logDepthBufferEnabled) {
-                view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
-                //mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
-            }
+            //view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
             if (logDepthBufferEnabled) {
                 //logDepthBuffer.setUseFragDepth(true);
                 logDepthBuffer.install(view->getCamera());

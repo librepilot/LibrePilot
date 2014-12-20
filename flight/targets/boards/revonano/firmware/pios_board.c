@@ -605,8 +605,7 @@ void PIOS_Board_Init(void)
 
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
-    // HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
-    hwsettings_flexiport = HWSETTINGS_RM_FLEXIPORT_TELEMETRY;
+    HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
     switch (hwsettings_flexiport) {
     case HWSETTINGS_RM_FLEXIPORT_DISABLED:
         break;

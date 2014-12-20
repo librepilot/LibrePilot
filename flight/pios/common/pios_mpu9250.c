@@ -900,6 +900,10 @@ static bool PIOS_MPU9250_HandleData()
 #endif
         data.gyro_y  = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
         data.gyro_x  = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
+#ifdef PIOS_MPU9250_MAG
+        data.mag_y     = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+        data.mag_x     = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+#endif
         break;
     case PIOS_MPU9250_TOP_90DEG:
         // -1 to bring it back to -32768 +32767 range
@@ -909,6 +913,10 @@ static bool PIOS_MPU9250_HandleData()
 #endif
         data.gyro_y  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
         data.gyro_x  = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
+#ifdef PIOS_MPU9250_MAG
+        data.mag_y     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
+        data.mag_x     = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+#endif
         break;
     case PIOS_MPU9250_TOP_180DEG:
 #ifdef PIOS_MPU9250_ACCEL
@@ -917,6 +925,10 @@ static bool PIOS_MPU9250_HandleData()
 #endif
         data.gyro_y  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
         data.gyro_x  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
+#ifdef PIOS_MPU9250_MAG
+        data.mag_y     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
+        data.mag_x     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
+#endif
         break;
     case PIOS_MPU9250_TOP_270DEG:
 #ifdef PIOS_MPU9250_ACCEL
@@ -925,6 +937,10 @@ static bool PIOS_MPU9250_HandleData()
 #endif
         data.gyro_y  = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
         data.gyro_x  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
+#ifdef PIOS_MPU9250_MAG
+        data.mag_y     = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+        data.mag_x     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
+#endif
         break;
     }
 #ifdef PIOS_MPU9250_ACCEL
@@ -934,8 +950,6 @@ static bool PIOS_MPU9250_HandleData()
     data.temperature = GET_SENSOR_DATA(mpu9250_data, Temperature);
 
 #ifdef PIOS_MPU9250_MAG
-    data.mag_y     = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
-    data.mag_x     = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
     data.mag_z     = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
     data.mag_valid = mpu9250_data.data.st1 & PIOS_MPU9250_MAG_DATA_RDY;
 #endif

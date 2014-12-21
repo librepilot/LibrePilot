@@ -74,6 +74,7 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
     switch (getWizard()->getControllerType()) {
     case SetupWizard::CONTROLLER_REVO:
     case SetupWizard::CONTROLLER_DISCOVERYF4:
+    case SetupWizard::CONTROLLER_NANO:
     {
         switch (selectedType) {
         case VehicleConfigurationSource::INPUT_PWM:

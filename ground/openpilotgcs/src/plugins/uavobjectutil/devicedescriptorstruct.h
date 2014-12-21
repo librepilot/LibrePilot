@@ -29,6 +29,11 @@ public:
         case 0x0904:
             return QString("DiscoveryF4");
 
+            break;
+        case 0x0905:
+            // Nano
+            return QString("Nano");
+
         default:
             return QString("");
         }

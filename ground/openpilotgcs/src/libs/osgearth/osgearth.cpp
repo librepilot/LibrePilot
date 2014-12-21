@@ -35,6 +35,7 @@
 
 #include <osgEarth/Version>
 #include <osgEarth/Cache>
+#include <osgEarth/Capabilities>
 #include <osgEarth/Registry>
 
 #include <QtGui/private/qguiapplication_p.h>
@@ -55,7 +56,8 @@ bool OsgEarth::initialized = false;
 
 Debugging tips
 
-Windows DIB issues:
+Windows DIB issues
+
 The environment variable QT_QPA_VERBOSE controls the debug level.
 It takes the form {<keyword1>:<level1>,<keyword2>:<level2>},
 where keyword is one of integration,  windows, backingstore and fonts.
@@ -65,6 +67,21 @@ OSG:
 export OSG_NOTIFY_LEVEL=DEBUG
 
 
+
+StackHash failure
+
+Here’s how 99 percent of Vista users can fix a StackHash failure. I’ll walk you through it step by step:
+
+Method A:
+—————
+1. Open your Start menu and click Control Panel
+2. Browse to “System Maintenance” then “System”
+3. In the left panel, select “Advanced System Settings” from the available links
+4. You should now see the System Properties Window, which will have three sections. The top section is labeled “Performance” and has a “Settings” button. Click this button.
+5. Select the “Data Execution Prevention” tab.
+6. Select the option which reads “Turn on DEP for all programs and services except those I select”
+7. Use the “Browse” button to locate the executable file for the application you were trying to start when you received the StackHash error, and click Open to add it to your exceptions list.
+8. Click Apply or OK to commit your changes.
 
  */
 void OsgEarth::initialize()
@@ -82,9 +99,6 @@ void OsgEarth::initialize()
     qDebug() << "Using osg version :" << osgGetVersion();
     qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
 
-    bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
-    qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
-
     initializePathes();
 
     //osg::DisplaySettings::instance()->setMinimumNumStencilBits(8);
@@ -94,12 +108,17 @@ void OsgEarth::initialize()
     // force early initialization of osgEarth registry
     // this important as doing it later (when OpenGL is already in use) might thrash some GL contextes
     // TODO : this is done too early when no window is displayed which causes a windows to be briefly flashed on Linux
-    osgEarth::Registry::instance()->getCapabilities();
+    osgEarth::Registry::capabilities();
 
     initializeCache();
 
     // Register Qml types
     osgQtQuick::registerTypes("osgQtQuick");
+
+    bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
+    qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
+
+    qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
 }
 
 void OsgEarth::initializePathes()

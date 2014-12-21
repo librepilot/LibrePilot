@@ -26,8 +26,7 @@
 #include <QStringList>
 
 PfdQmlGadgetOptionsPage::PfdQmlGadgetOptionsPage(PfdQmlGadgetConfiguration *config, QObject *parent) :
-    IOptionsPage(parent),
-    m_config(config)
+    IOptionsPage(parent), options_page(NULL), m_config(config)
 {}
 
 // creates options page widget (uses the UI file)
@@ -42,7 +41,7 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     // QML file chooser
     options_page->qmlSourceFile->setExpectedKind(Utils::PathChooser::File);
     options_page->qmlSourceFile->setPromptDialogFilter(tr("QML file (*.qml)"));
-    options_page->qmlSourceFile->setPromptDialogTitle(tr("Choose QML file"));
+    options_page->qmlSourceFile->setPromptDialogTitle(tr("Choose QML File"));
     options_page->qmlSourceFile->setPath(m_config->qmlFile());
 
     // Speed Unit combo
@@ -61,12 +60,6 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     }
     options_page->altUnitCombo->setCurrentIndex(options_page->altUnitCombo->findData(m_config->altitudeFactor()));
 
-    // Terrain file chooser
-    options_page->earthFile->setExpectedKind(Utils::PathChooser::File);
-    options_page->earthFile->setPromptDialogFilter(tr("OsgEarth (*.earth)"));
-    options_page->earthFile->setPromptDialogTitle(tr("Choose OsgEarth terrain file"));
-    options_page->earthFile->setPath(m_config->terrainFile());
-
     // Terrain check boxes
     options_page->showTerrain->setChecked(m_config->terrainEnabled());
 
@@ -76,6 +69,12 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 
     options_page->useOnlyCache->setChecked(m_config->cacheOnly());
 
+    // Terrain file chooser
+    options_page->earthFile->setExpectedKind(Utils::PathChooser::File);
+    options_page->earthFile->setPromptDialogFilter(tr("OsgEarth (*.earth)"));
+    options_page->earthFile->setPromptDialogTitle(tr("Choose Terrain File"));
+    options_page->earthFile->setPath(m_config->terrainFile());
+
     // Terrain position
     options_page->latitude->setText(QString::number(m_config->latitude()));
     options_page->longitude->setText(QString::number(m_config->longitude()));
@@ -83,8 +82,8 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 
     // Model file chooser
     options_page->modelFile->setExpectedKind(Utils::PathChooser::File);
-    options_page->modelFile->setPromptDialogFilter(tr("Model file"));
-    options_page->modelFile->setPromptDialogTitle(tr("Choose model file"));
+    options_page->modelFile->setPromptDialogFilter(tr("Model file (*.3ds)"));
+    options_page->modelFile->setPromptDialogTitle(tr("Choose Model File"));
     options_page->modelFile->setPath(m_config->modelFile());
 
     // Model check boxes
@@ -111,14 +110,18 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 void PfdQmlGadgetOptionsPage::apply()
 {
     m_config->setQmlFile(options_page->qmlSourceFile->path());
-    m_config->setTerrainFile(options_page->earthFile->path());
-    m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
+
+    m_config->setSpeedFactor(options_page->speedUnitCombo->itemData(options_page->speedUnitCombo->currentIndex()).toDouble());
+    m_config->setAltitudeFactor(options_page->altUnitCombo->itemData(options_page->altUnitCombo->currentIndex()).toDouble());
 
 #ifdef USE_OSG
     m_config->setTerrainEnabled(options_page->showTerrain->isChecked());
 #else
     m_config->setTerrainEnabled(false);
 #endif
+
+    m_config->setTerrainFile(options_page->earthFile->path());
+
     if (options_page->useGPSLocation->isChecked()) {
         m_config->setPositionMode(Pfd::GPS);
     }
@@ -133,8 +136,22 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setAltitude(options_page->altitude->text().toDouble());
     m_config->setCacheOnly(options_page->useOnlyCache->isChecked());
 
-    m_config->setSpeedFactor(options_page->speedUnitCombo->itemData(options_page->speedUnitCombo->currentIndex()).toDouble());
-    m_config->setAltitudeFactor(options_page->altUnitCombo->itemData(options_page->altUnitCombo->currentIndex()).toDouble());
+#ifdef USE_OSG
+    m_config->setModelEnabled(options_page->showModel->isChecked());
+#else
+    m_config->setModelEnabled(false);
+#endif
+
+    m_config->setModelFile(options_page->modelFile->path());
+
+    if (options_page->useAutomaticModel->isChecked()) {
+        m_config->setModelSelectionMode(Pfd::Auto);
+    }
+    else {
+        m_config->setModelSelectionMode(Pfd::Fixed);
+    }
+
+    m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
 }
 
 void PfdQmlGadgetOptionsPage::finish()

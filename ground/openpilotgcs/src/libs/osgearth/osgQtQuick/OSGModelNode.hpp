@@ -55,7 +55,6 @@ public:
     double altitude() const;
     void setAltitude(double arg);
 
-    virtual void realize();
 
 signals:
     void modelDataChanged(OSGNode *node);

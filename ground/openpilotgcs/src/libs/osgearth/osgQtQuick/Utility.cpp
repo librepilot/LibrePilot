@@ -4,6 +4,7 @@
 #include "OSGNode.hpp"
 #include "OSGGroup.hpp"
 #include "OSGNodeFile.hpp"
+#include "OSGTransformNode.hpp"
 #include "OSGCubeNode.hpp"
 #include "OSGTextNode.hpp"
 #include "OSGModelNode.hpp"
@@ -215,9 +216,10 @@ void registerTypes(const char *uri)
     // @uri osgQtQuick
     qmlRegisterType<osgQtQuick::OSGNode>(uri, maj, min, "OSGNode");
     qmlRegisterType<osgQtQuick::OSGGroup>(uri, maj, min, "OSGGroup");
-    qmlRegisterType<osgQtQuick::OSGCubeNode>(uri, maj, min, "OSGCubeNode");
     qmlRegisterType<osgQtQuick::OSGNodeFile>(uri, maj, min, "OSGNodeFile");
+    qmlRegisterType<osgQtQuick::OSGTransformNode>(uri, maj, min, "OSGTransformNode");
     qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
+    qmlRegisterType<osgQtQuick::OSGCubeNode>(uri, maj, min, "OSGCubeNode");
     qmlRegisterType<osgQtQuick::OSGViewport>(uri, maj, min, "OSGViewport");
 
     qmlRegisterType<osgQtQuick::OSGModelNode>(uri, maj, min, "OSGModelNode");

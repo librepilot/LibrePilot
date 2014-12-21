@@ -105,7 +105,7 @@ Item {
             text: ["NO GPS", "NO FIX", "FIX 2D", "FIX 3D"][GPSPositionSensor.Status]
             anchors.centerIn: parent
             font.pixelSize: Math.floor(parent.height*1.3)
-            font.family: "Arial"
+            font.family: pt_bold.name
             font.weight: Font.DemiBold
             color: "white"
         }
@@ -138,7 +138,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -159,7 +159,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -182,7 +182,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -208,7 +208,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -229,7 +229,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -251,7 +251,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -307,7 +307,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                    weight: Font.DemiBold
                }
@@ -334,7 +334,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                    weight: Font.DemiBold
                }
@@ -368,7 +368,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                    weight: Font.DemiBold
                }
@@ -405,7 +405,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1)
                 weight: Font.DemiBold
             }
@@ -474,7 +474,7 @@ Item {
             anchors.centerIn: parent
             color: "cyan"
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: parent.height * 1.2
             }
         }
@@ -505,7 +505,7 @@ Item {
             anchors.centerIn: parent
             color: "cyan"
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: parent.height * 1.2
             }
         }
@@ -536,7 +536,7 @@ Item {
             anchors.centerIn: parent
             color: "cyan"
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: parent.height * 1.2
             }
         }

@@ -409,7 +409,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -450,7 +450,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -495,7 +495,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -541,7 +541,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -815,7 +815,7 @@ Item {
              anchors.centerIn: parent
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
                  capitalization: Font.AllUppercase
@@ -901,7 +901,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -934,7 +934,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -965,7 +965,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -996,7 +996,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.2)
                  weight: Font.DemiBold
              }
@@ -1027,7 +1027,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -1058,7 +1058,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }

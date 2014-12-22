@@ -53,7 +53,7 @@
 #
 ################################
 # Todo
-# - install osgearth in osg (a minor issue in the osgearth cmake file prevents
+# - install osgearth in osg (a minor issue in the osgearth cmake file prevents it)
 #   easy to fix then set INSTALL_TO_OSG_DIR=ON when running cmake on osgearth
 # - don't build osg deprecated code (if we don't use it...)
 # - add targets to publish distribution files to OP wiki.
@@ -106,7 +106,6 @@ else ifeq ($(UNAME), Windows)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
 	OSG_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin"
-	# TODO : consider using THIRD_PARTY_DIR to lookup gdal, etc...
 endif
 
 OSG_NAME := $(OSG_NAME)-qt5.3.2

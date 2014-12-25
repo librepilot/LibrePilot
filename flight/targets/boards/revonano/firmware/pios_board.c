@@ -735,6 +735,8 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_MPU9250)
     PIOS_MPU9250_Init(pios_spi_gyro_id, 0, &pios_mpu9250_cfg);
     PIOS_MPU9250_CONFIG_Configure();
+    PIOS_MPU9250_MainRegister();
+    PIOS_MPU9250_MagRegister();
 #endif
 
 #ifdef PIOS_INCLUDE_WS2811

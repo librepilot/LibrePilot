@@ -31,6 +31,7 @@
 
 #ifndef PIOS_MPU9250_H
 #define PIOS_MPU9250_H
+#include <pios_sensors.h>
 
 /* MPU9250 Addresses */
 #define PIOS_MPU9250_SMPLRT_DIV_REG           0X19
@@ -210,25 +211,6 @@ enum pios_mpu9250_orientation { // clockwise rotation from board forward
     PIOS_MPU9250_TOP_270DEG = 0x03
 };
 
-struct pios_mpu9250_data {
-    int16_t gyro_x;
-    int16_t gyro_y;
-    int16_t gyro_z;
-#if defined(PIOS_MPU9250_ACCEL)
-    int16_t accel_x;
-    int16_t accel_y;
-    int16_t accel_z;
-#endif /* PIOS_MPU9250_ACCEL */
-#if defined(PIOS_MPU9250_MAG)
-    int16_t mag_x;
-    int16_t mag_y;
-    int16_t mag_z;
-    int8_t  mag_valid;
-#endif /* PIOS_MPU9250_MAG */
-    int16_t temperature;
-};
-
-
 struct pios_mpu9250_cfg {
     const struct pios_exti_cfg *exti_cfg; /* Pointer to the EXTI configuration */
 
@@ -253,12 +235,14 @@ struct pios_mpu9250_cfg {
 /* Public Functions */
 extern int32_t PIOS_MPU9250_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_mpu9250_cfg *new_cfg);
 extern int32_t PIOS_MPU9250_ConfigureRanges(enum pios_mpu9250_range gyroRange, enum pios_mpu9250_accel_range accelRange, enum pios_mpu9250_filter filterSetting);
-extern xQueueHandle PIOS_MPU9250_GetQueue();
 extern int32_t PIOS_MPU9250_ReadID();
-extern int32_t PIOS_MPU9250_Test();
-extern float PIOS_MPU9250_GetScale();
-extern float PIOS_MPU9250_GetAccelScale();
+extern void PIOS_MPU9250_MainRegister();
+extern void PIOS_MPU9250_MagRegister();
+
 extern bool PIOS_MPU9250_IRQHandler(void);
+
+extern const PIOS_SENSORS_Driver PIOS_MPU9250_Main_Driver;
+extern const PIOS_SENSORS_Driver PIOS_MPU9250_Mag_Driver;
 
 #endif /* PIOS_MPU9250_H */
 

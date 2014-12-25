@@ -30,10 +30,11 @@
  */
 
 #include "pios.h"
-#include "pios_mpu9250.h"
+#include <pios_mpu9250.h>
 #ifdef PIOS_INCLUDE_MPU9250
-
+#include <stdint.h>
 #include <pios_constants.h>
+#include <pios_sensors.h>
 /* Global Variables */
 
 enum pios_mpu9250_dev_magic {
@@ -41,9 +42,9 @@ enum pios_mpu9250_dev_magic {
 };
 
 struct mpu9250_dev {
-    uint32_t     spi_id;
-    uint32_t     slave_num;
-    xQueueHandle queue;
+    uint32_t spi_id;
+    uint32_t slave_num;
+    QueueHandle_t queue;
     const struct pios_mpu9250_cfg *cfg;
     enum pios_mpu9250_range gyro_range;
     enum pios_mpu9250_accel_range accel_range;
@@ -114,11 +115,16 @@ typedef union {
         uint8_t st2;
 #endif
     } data;
-} mpu9250_data_t;
-
+} __attribute__((__packed__)) mpu9250_data_t;
 
 #define GET_SENSOR_DATA(mpudataptr, sensor) (mpudataptr.data.sensor##_h << 8 | mpudataptr.data.sensor##_l)
 
+static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
+static PIOS_SENSORS_3Axis_SensorsWithTemp *mag_data   = 0;
+static volatile bool mag_ready = false;
+#define SENSOR_COUNT         2
+#define SENSOR_DATA_SIZE     (sizeof(PIOS_SENSORS_3Axis_SensorsWithTemp) + sizeof(Vector3i16) * SENSOR_COUNT)
+#define MAG_SENSOR_DATA_SIZE (sizeof(PIOS_SENSORS_3Axis_SensorsWithTemp) + sizeof(Vector3i16))
 // ! Global structure for this device device
 static struct mpu9250_dev *dev;
 volatile bool mpu9250_configured = false;
@@ -132,12 +138,56 @@ static int32_t PIOS_MPU9250_SetReg(uint8_t address, uint8_t buffer);
 static int32_t PIOS_MPU9250_GetReg(uint8_t address);
 static void PIOS_MPU9250_SetSpeed(const bool fast);
 static bool PIOS_MPU9250_HandleData();
-static bool PIOS_MPU9250_ReadFifo(bool *woken);
 static bool PIOS_MPU9250_ReadSensor(bool *woken);
+static int32_t PIOS_MPU9250_Test(void);
 #if defined(PIOS_MPU9250_MAG)
 static int32_t PIOS_MPU9250_Mag_Test(void);
 static int32_t PIOS_MPU9250_Mag_Init(void);
 #endif
+
+/* Driver Framework interfaces */
+// Gyro/accel interface
+bool PIOS_MPU9250_Main_driver_Test(uintptr_t context);
+void PIOS_MPU9250_Main_driver_Reset(uintptr_t context);
+void PIOS_MPU9250_Main_driver_get_scale(float *scales, uint8_t size, uintptr_t context);
+QueueHandle_t PIOS_MPU9250_Main_driver_get_queue(uintptr_t context);
+
+const PIOS_SENSORS_Driver PIOS_MPU9250_Main_Driver = {
+    .test      = PIOS_MPU9250_Main_driver_Test,
+    .poll      = NULL,
+    .fetch     = NULL,
+    .reset     = PIOS_MPU9250_Main_driver_Reset,
+    .get_queue = PIOS_MPU9250_Main_driver_get_queue,
+    .get_scale = PIOS_MPU9250_Main_driver_get_scale,
+    .is_polled = false,
+};
+
+// mag sensor interface
+bool PIOS_MPU9250_Mag_driver_Test(uintptr_t context);
+void PIOS_MPU9250_Mag_driver_Reset(uintptr_t context);
+void PIOS_MPU9250_Mag_driver_get_scale(float *scales, uint8_t size, uintptr_t context);
+void PIOS_MPU9250_Mag_driver_fetch(void *, uint8_t size, uintptr_t context);
+bool PIOS_MPU9250_Mag_driver_poll(uintptr_t context);
+
+const PIOS_SENSORS_Driver PIOS_MPU9250_Mag_Driver = {
+    .test      = PIOS_MPU9250_Mag_driver_Test,
+    .poll      = PIOS_MPU9250_Mag_driver_poll,
+    .fetch     = PIOS_MPU9250_Mag_driver_fetch,
+    .reset     = PIOS_MPU9250_Mag_driver_Reset,
+    .get_queue = NULL,
+    .get_scale = PIOS_MPU9250_Mag_driver_get_scale,
+    .is_polled = true,
+};
+
+void PIOS_MPU9250_MainRegister()
+{
+    PIOS_SENSORS_Register(&PIOS_MPU9250_Main_Driver, PIOS_SENSORS_TYPE_3AXIS_GYRO_ACCEL, 0);
+}
+
+void PIOS_MPU9250_MagRegister()
+{
+    PIOS_SENSORS_Register(&PIOS_MPU9250_Mag_Driver, PIOS_SENSORS_TYPE_3AXIS_MAG, 0);
+}
 /**
  * @brief Allocate a new device
  */
@@ -146,18 +196,20 @@ static struct mpu9250_dev *PIOS_MPU9250_alloc(const struct pios_mpu9250_cfg *cfg
     struct mpu9250_dev *mpu9250_dev;
 
     mpu9250_dev = (struct mpu9250_dev *)pios_malloc(sizeof(*mpu9250_dev));
-    if (!mpu9250_dev) {
-        return NULL;
-    }
+    PIOS_Assert(mpu9250_dev);
 
     mpu9250_dev->magic = PIOS_MPU9250_DEV_MAGIC;
 
-    mpu9250_dev->queue = xQueueCreate(cfg->max_downsample + 1, sizeof(struct pios_mpu9250_data));
-    if (mpu9250_dev->queue == NULL) {
-        vPortFree(mpu9250_dev);
-        return NULL;
-    }
+    mpu9250_dev->queue = xQueueCreate(cfg->max_downsample + 1, SENSOR_DATA_SIZE);
+    PIOS_Assert(mpu9250_dev->queue);
 
+    queue_data = (PIOS_SENSORS_3Axis_SensorsWithTemp *)pios_malloc(SENSOR_DATA_SIZE);
+    PIOS_Assert(queue_data);
+
+    queue_data->count = SENSOR_COUNT;
+
+    mag_data = (PIOS_SENSORS_3Axis_SensorsWithTemp *)pios_malloc(MAG_SENSOR_DATA_SIZE);
+    PIOS_Assert(mag_data);
     return mpu9250_dev;
 }
 
@@ -469,22 +521,7 @@ int32_t PIOS_MPU9250_ReadID()
     return mpu9250_id;
 }
 
-
-/**
- * \brief Reads the queue handle
- * \return Handle to the queue or null if invalid device
- */
-xQueueHandle PIOS_MPU9250_GetQueue()
-{
-    if (PIOS_MPU9250_Validate(dev) != 0) {
-        return (xQueueHandle)NULL;
-    }
-
-    return dev->queue;
-}
-
-
-float PIOS_MPU9250_GetScale()
+static float PIOS_MPU9250_GetScale()
 {
     switch (dev->gyro_range) {
     case PIOS_MPU9250_SCALE_250_DEG:
@@ -502,7 +539,7 @@ float PIOS_MPU9250_GetScale()
     return 0;
 }
 
-float PIOS_MPU9250_GetAccelScale()
+static float PIOS_MPU9250_GetAccelScale()
 {
     switch (dev->accel_range) {
     case PIOS_MPU9250_ACCEL_2G:
@@ -525,7 +562,7 @@ float PIOS_MPU9250_GetAccelScale()
  * \return 0 if test succeeded
  * \return non-zero value if test failed
  */
-int32_t PIOS_MPU9250_Test(void)
+static int32_t PIOS_MPU9250_Test(void)
 {
     /* Verify that ID matches */
     int32_t mpu9250_id = PIOS_MPU9250_ReadID();
@@ -764,98 +801,15 @@ static bool PIOS_MPU9250_ReadMag(bool *woken)
 }
 #endif /* if defined(PIOS_MPU9250_MAG) */
 
-
-/**
- * @brief Reads the contents of the MPU9250 Interrupt Status register from an ISR
- * @return The register value or -1 on failure to claim the bus
- */
-static int32_t PIOS_MPU9250_GetInterruptStatusRegISR(bool *woken)
-{
-    /* Interrupt Status register can be read at high SPI clock speed */
-    uint8_t data;
-
-    if (PIOS_MPU9250_ClaimBusISR(woken, false) != 0) {
-        return -1;
-    }
-    PIOS_SPI_TransferByte(dev->spi_id, (0x80 | PIOS_MPU9250_INT_STATUS_REG));
-    data = PIOS_SPI_TransferByte(dev->spi_id, 0);
-    PIOS_MPU9250_ReleaseBusISR(woken);
-    return data;
-}
-
-/**
- * @brief Resets the MPU9250 FIFO from an ISR
- * @param woken[in,out] If non-NULL, will be set to true if woken was false and a higher priority
- *                      task has is now eligible to run, else unchanged
- * @return  0 if operation was successful
- * @return -1 if unable to claim SPI bus
- * @return -2 if write to the device failed
- */
-static int32_t PIOS_MPU9250_ResetFifoISR(bool *woken)
-{
-    int32_t result = 0;
-
-    if (PIOS_MPU9250_ClaimBusISR(woken, false) != 0) {
-        return -1;
-    }
-    /* Reset FIFO. */
-    if (PIOS_SPI_TransferByte(dev->spi_id, 0x7f & PIOS_MPU9250_USER_CTRL_REG) != 0) {
-        result = -2;
-    } else if (PIOS_SPI_TransferByte(dev->spi_id, (dev->cfg->User_ctl | PIOS_MPU9250_USERCTL_FIFO_RST)) != 0) {
-        result = -2;
-    }
-    PIOS_MPU9250_ReleaseBusISR(woken);
-    return result;
-}
-
-/**
- * @brief Obtains the number of bytes in the FIFO. Call from ISR only.
- * @return the number of bytes in the FIFO
- * @param woken[in,out] If non-NULL, will be set to true if woken was false and a higher priority
- *                      task has is now eligible to run, else unchanged
- */
-static int32_t PIOS_MPU9250_FifoDepthISR(bool *woken)
-{
-    uint8_t mpu9250_send_buf[3] = { PIOS_MPU9250_FIFO_CNT_MSB | 0x80, 0, 0 };
-    uint8_t mpu9250_rec_buf[3];
-
-    if (PIOS_MPU9250_ClaimBusISR(woken, false) != 0) {
-        return -1;
-    }
-
-    if (PIOS_SPI_TransferBlock(dev->spi_id, &mpu9250_send_buf[0], &mpu9250_rec_buf[0], sizeof(mpu9250_send_buf), NULL) < 0) {
-        PIOS_MPU9250_ReleaseBusISR(woken);
-        return -1;
-    }
-
-    PIOS_MPU9250_ReleaseBusISR(woken);
-
-    return (mpu9250_rec_buf[1] << 8) | mpu9250_rec_buf[2];
-}
-
 /**
  * @brief EXTI IRQ Handler.  Read all the data from onboard buffer
  * @return a boolean to the EXTI IRQ Handler wrapper indicating if a
  *         higher priority task is now eligible to run
  */
-uint32_t mpu9250_irq = 0;
-int32_t mpu9250_count;
-uint32_t mpu9250_fifo_backup    = 0;
-
-uint8_t mpu9250_last_read_count = 0;
-uint32_t mpu9250_fails = 0;
-
-uint32_t mpu9250_interval_us;
-uint32_t mpu9250_time_us;
-uint32_t mpu9250_transfer_size;
 
 bool PIOS_MPU9250_IRQHandler(void)
 {
     bool woken = false;
-    static uint32_t timeval;
-
-    mpu9250_interval_us = PIOS_DELAY_DiffuS(timeval);
-    timeval = PIOS_DELAY_GetRaw();
 
     if (!mpu9250_configured) {
         return false;
@@ -866,19 +820,12 @@ bool PIOS_MPU9250_IRQHandler(void)
 #endif
 
     bool read_ok = false;
-    if (dev->cfg->User_ctl & PIOS_MPU9250_USERCTL_FIFO_EN) {
-        read_ok = PIOS_MPU9250_ReadFifo(&woken);
-    } else {
-        read_ok = PIOS_MPU9250_ReadSensor(&woken);
-    }
+    read_ok = PIOS_MPU9250_ReadSensor(&woken);
+
     if (read_ok) {
         bool woken2 = PIOS_MPU9250_HandleData();
         woken |= woken2;
     }
-
-    mpu9250_irq++;
-
-    mpu9250_time_us = PIOS_DELAY_DiffuS(timeval);
 
     return woken;
 }
@@ -888,74 +835,89 @@ static bool PIOS_MPU9250_HandleData()
     // Rotate the sensor to OP convention.  The datasheet defines X as towards the right
     // and Y as forward.  OP convention transposes this.  Also the Z is defined negatively
     // to our convention
+    if (!queue_data) {
+        return false;
+    }
 
-    static struct pios_mpu9250_data data;
-
+#ifdef PIOS_MPU9250_MAG
+    bool mag_valid = mpu9250_data.data.st1 & PIOS_MPU9250_MAG_DATA_RDY;
+#endif
     // Currently we only support rotations on top so switch X/Y accordingly
     switch (dev->cfg->orientation) {
     case PIOS_MPU9250_TOP_0DEG:
 #ifdef PIOS_MPU9250_ACCEL
-        data.accel_y = GET_SENSOR_DATA(mpu9250_data, Accel_X); // chip X
-        data.accel_x = GET_SENSOR_DATA(mpu9250_data, Accel_Y); // chip Y
+        queue_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Accel_X); // chip X
+        queue_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Accel_Y); // chip Y
 #endif
-        data.gyro_y  = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
-        data.gyro_x  = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
+        queue_data->sample[1].y = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
+        queue_data->sample[1].x = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
 #ifdef PIOS_MPU9250_MAG
-        data.mag_y     = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
-        data.mag_x     = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+        if (mag_valid) {
+            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+        }
 #endif
         break;
     case PIOS_MPU9250_TOP_90DEG:
         // -1 to bring it back to -32768 +32767 range
 #ifdef PIOS_MPU9250_ACCEL
-        data.accel_y = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_Y)); // chip Y
-        data.accel_x = GET_SENSOR_DATA(mpu9250_data, Accel_X); // chip X
+        queue_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_Y)); // chip Y
+        queue_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Accel_X); // chip X
 #endif
-        data.gyro_y  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
-        data.gyro_x  = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
+        queue_data->sample[1].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
+        queue_data->sample[1].x = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
 #ifdef PIOS_MPU9250_MAG
-        data.mag_y     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
-        data.mag_x     = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+        if (mag_valid) {
+            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
+            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+        }
+
 #endif
         break;
     case PIOS_MPU9250_TOP_180DEG:
 #ifdef PIOS_MPU9250_ACCEL
-        data.accel_y = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_X)); // chip X
-        data.accel_x = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_Y)); // chip Y
+        queue_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_X)); // chip X
+        queue_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_Y)); // chip Y
 #endif
-        data.gyro_y  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
-        data.gyro_x  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
+        queue_data->sample[1].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
+        queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
 #ifdef PIOS_MPU9250_MAG
-        data.mag_y     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
-        data.mag_x     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
+        if (mag_valid) {
+            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
+            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
+        }
 #endif
         break;
     case PIOS_MPU9250_TOP_270DEG:
 #ifdef PIOS_MPU9250_ACCEL
-        data.accel_y = GET_SENSOR_DATA(mpu9250_data, Accel_Y); // chip Y
-        data.accel_x = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_X)); // chip X
+        queue_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Accel_Y); // chip Y
+        queue_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_X)); // chip X
 #endif
-        data.gyro_y  = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
-        data.gyro_x  = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
+        queue_data->sample[1].y = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
+        queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
 #ifdef PIOS_MPU9250_MAG
-        data.mag_y     = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
-        data.mag_x     = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
+        if (mag_valid) {
+            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
+        }
 #endif
         break;
     }
 #ifdef PIOS_MPU9250_ACCEL
-    data.accel_z     = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_Z));
+    queue_data->sample[0].z = -1 - (GET_SENSOR_DATA(mpu9250_data, Accel_Z));
 #endif
-    data.gyro_z      = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Z));
-    data.temperature = GET_SENSOR_DATA(mpu9250_data, Temperature);
-
+    queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Z));
+    const int16_t temp = GET_SENSOR_DATA(mpu9250_data, Temperature);
+    queue_data->temperature = 3500 + ((float)(temp + 512)) * (1.0f / 3.4f);
 #ifdef PIOS_MPU9250_MAG
-    data.mag_z     = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
-    data.mag_valid = mpu9250_data.data.st1 & PIOS_MPU9250_MAG_DATA_RDY;
+    if (mag_valid) {
+        mag_data->sample[0].z = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
+        mag_ready = true;
+    }
 #endif
 
     BaseType_t higherPriorityTaskWoken;
-    xQueueSendToBackFromISR(dev->queue, (void *)&data, &higherPriorityTaskWoken);
+    xQueueSendToBackFromISR(dev->queue, queue_data, &higherPriorityTaskWoken);
     return higherPriorityTaskWoken == pdTRUE;
 }
 
@@ -968,73 +930,63 @@ static bool PIOS_MPU9250_ReadSensor(bool *woken)
     }
     if (PIOS_SPI_TransferBlock(dev->spi_id, &mpu9250_send_buf[0], &mpu9250_data.buffer[0], sizeof(mpu9250_data_t), NULL) < 0) {
         PIOS_MPU9250_ReleaseBusISR(woken);
-        mpu9250_fails++;
         return false;
     }
     PIOS_MPU9250_ReleaseBusISR(woken);
     return true;
 }
 
-static bool PIOS_MPU9250_ReadFifo(bool *woken)
+// Sensor driver implementation
+bool PIOS_MPU9250_Main_driver_Test(__attribute__((unused)) uintptr_t context)
 {
-    /* Temporary fix for OP-1049. Expected to be superceded for next major release
-     * by code changes for OP-1039.
-     * Read interrupt status register to check for FIFO overflow. Must be the
-     * first read after interrupt, in case the device is configured so that
-     * any read clears in the status register (PIOS_MPU9250_INT_CLR_ANYRD set in
-     * interrupt config register) */
-    int32_t result;
-
-    if ((result = PIOS_MPU9250_GetInterruptStatusRegISR(woken)) < 0) {
-        return false;
-    }
-    if (result & PIOS_MPU9250_INT_STATUS_FIFO_OVERFLOW) {
-        /* The FIFO has overflowed, so reset it,
-         * to enable sample sync to be recovered.
-         * If the reset fails, we are in trouble, but
-         * we keep trying on subsequent interrupts. */
-        PIOS_MPU9250_ResetFifoISR(woken);
-        /* Return and wait for the next new sample. */
-        return false;
-    }
-
-    /* Usual case - FIFO has not overflowed. */
-    mpu9250_count = PIOS_MPU9250_FifoDepthISR(woken);
-    if (mpu9250_count < PIOS_MPU9250_SAMPLES_BYTES) {
-        return false;
-    }
-
-    if (PIOS_MPU9250_ClaimBusISR(woken, true) != 0) {
-        return false;
-    }
-
-    const uint8_t mpu9250_send_buf[1 + PIOS_MPU9250_SAMPLES_BYTES] = { PIOS_MPU9250_FIFO_REG | 0x80 };
-
-    if (PIOS_SPI_TransferBlock(dev->spi_id, &mpu9250_send_buf[0], &mpu9250_data.buffer[0], sizeof(mpu9250_data_t), NULL) < 0) {
-        PIOS_MPU9250_ReleaseBusISR(woken);
-        mpu9250_fails++;
-        return false;
-    }
-
-    PIOS_MPU9250_ReleaseBusISR(woken);
-
-    // In the case where extras samples backed up grabbed an extra
-    if (mpu9250_count >= PIOS_MPU9250_SAMPLES_BYTES * 2) {
-        mpu9250_fifo_backup++;
-        if (PIOS_MPU9250_ClaimBusISR(woken, true) != 0) {
-            return false;
-        }
-
-        if (PIOS_SPI_TransferBlock(dev->spi_id, &mpu9250_send_buf[0], &mpu9250_data.buffer[0], sizeof(mpu9250_data_t), NULL) < 0) {
-            PIOS_MPU9250_ReleaseBusISR(woken);
-            mpu9250_fails++;
-            return false;
-        }
-
-        PIOS_MPU9250_ReleaseBusISR(woken);
-    }
-    return true;
+    return !PIOS_MPU9250_Test();
 }
+
+void PIOS_MPU9250_Main_driver_Reset(__attribute__((unused)) uintptr_t context)
+{
+    // TODO!
+    // PIOS_MPU9250_DummyReadGyros();
+}
+
+void PIOS_MPU9250_Main_driver_get_scale(float *scales, uint8_t size, __attribute__((unused)) uintptr_t contet)
+{
+    PIOS_Assert(size >= 2);
+    scales[0] = PIOS_MPU9250_GetScale();
+    scales[1] = PIOS_MPU9250_GetAccelScale();
+}
+
+QueueHandle_t PIOS_MPU9250_Main_driver_get_queue(__attribute__((unused)) uintptr_t context)
+{
+    return dev->queue;
+}
+
+
+/* PIOS sensor driver implementation */
+bool PIOS_MPU9250_Mag_driver_Test(__attribute__((unused)) uintptr_t context)
+{
+    return !PIOS_MPU9250_Test();
+}
+
+void PIOS_MPU9250_Mag_driver_Reset(__attribute__((unused)) uintptr_t context) {}
+
+void PIOS_MPU9250_Mag_driver_get_scale(float *scales, uint8_t size, __attribute__((unused))  uintptr_t context)
+{
+    PIOS_Assert(size > 0);
+    scales[0] = 1;
+}
+
+void PIOS_MPU9250_Mag_driver_fetch(void *data, uint8_t size, __attribute__((unused))  uintptr_t context)
+{
+    mag_ready = false;
+    PIOS_Assert(size > 0);
+    memcpy(data, mag_data, MAG_SENSOR_DATA_SIZE);
+}
+
+bool PIOS_MPU9250_Mag_driver_poll(__attribute__((unused)) uintptr_t context)
+{
+    return mag_ready;
+}
+
 #endif /* PIOS_INCLUDE_MPU9250 */
 
 /**

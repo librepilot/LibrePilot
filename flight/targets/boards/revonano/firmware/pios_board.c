@@ -728,15 +728,16 @@ void PIOS_Board_Init(void)
     PIOS_ADC_Init(&pios_adc_cfg);
 #endif
 
-#if defined(PIOS_INCLUDE_MS5611)
-    PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_pressure_adapter_id);
-#endif
-
 #if defined(PIOS_INCLUDE_MPU9250)
     PIOS_MPU9250_Init(pios_spi_gyro_id, 0, &pios_mpu9250_cfg);
     PIOS_MPU9250_CONFIG_Configure();
     PIOS_MPU9250_MainRegister();
     PIOS_MPU9250_MagRegister();
+#endif
+
+#if defined(PIOS_INCLUDE_MS5611)
+    PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_pressure_adapter_id);
+    PIOS_MS5611_Register();
 #endif
 
 #ifdef PIOS_INCLUDE_WS2811

@@ -283,8 +283,7 @@ static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg)
     // Reset sensors and fifo
     while (PIOS_MPU9250_SetReg(PIOS_MPU9250_USER_CTRL_REG,
                                PIOS_MPU9250_USERCTL_DIS_I2C |
-                               PIOS_MPU9250_USERCTL_SIG_COND |
-                               PIOS_MPU9250_USERCTL_FIFO_RST) != 0) {
+                               PIOS_MPU9250_USERCTL_SIG_COND) != 0) {
         ;
     }
     PIOS_DELAY_WaitmS(100);
@@ -332,6 +331,7 @@ static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg)
         return;
     }
 
+    PIOS_MPU9250_GetReg(PIOS_MPU9250_INT_STATUS_REG);
 
     mpu9250_configured = true;
 }
@@ -843,6 +843,7 @@ static bool PIOS_MPU9250_HandleData()
 #ifdef PIOS_MPU9250_MAG
     bool mag_valid = mpu9250_data.data.st1 & PIOS_MPU9250_MAG_DATA_RDY;
 #endif
+
     // Currently we only support rotations on top so switch X/Y accordingly
     switch (dev->cfg->orientation) {
     case PIOS_MPU9250_TOP_0DEG:
@@ -854,8 +855,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
-            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
+            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_Y) * dev->mag_sens_adj[1]; // chip Y
+            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_X) * dev->mag_sens_adj[0]; // chip X
         }
 #endif
         break;
@@ -869,8 +870,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
-            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_X); // chip X
+            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_X) * dev->mag_sens_adj[0]; // chip X
+            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)) * dev->mag_sens_adj[1]; // chip Y
         }
 
 #endif
@@ -884,8 +885,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
-            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)); // chip Y
+            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)) * dev->mag_sens_adj[1]; // chip Y
+            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)) * dev->mag_sens_adj[0]; // chip X
         }
 #endif
         break;
@@ -898,8 +899,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_Y); // chip Y
-            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)); // chip X
+            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)) * dev->mag_sens_adj[0]; // chip X
+            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_Y) * dev->mag_sens_adj[1]; // chip Y
         }
 #endif
         break;
@@ -909,7 +910,8 @@ static bool PIOS_MPU9250_HandleData()
 #endif
     queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Z));
     const int16_t temp = GET_SENSOR_DATA(mpu9250_data, Temperature);
-    queue_data->temperature = 3500 + ((float)(temp + 512)) * (1.0f / 3.4f);
+    queue_data->temperature = 2100 + ((float)(temp - PIOS_MPU9250_TEMP_OFFSET)) * (100.0f / PIOS_MPU9250_TEMP_SENSITIVITY);
+    mag_data->temperature   = queue_data->temperature;
 #ifdef PIOS_MPU9250_MAG
     if (mag_valid) {
         mag_data->sample[0].z = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
@@ -946,7 +948,11 @@ bool PIOS_MPU9250_Main_driver_Test(__attribute__((unused)) uintptr_t context)
 void PIOS_MPU9250_Main_driver_Reset(__attribute__((unused)) uintptr_t context)
 {
     // TODO!
-    // PIOS_MPU9250_DummyReadGyros();
+    if (PIOS_MPU9250_ClaimBus(true) != 0) {
+        return;
+    }
+    PIOS_MPU9250_GetReg(PIOS_MPU9250_INT_STATUS_REG);
+    PIOS_MPU9250_ReleaseBus();
 }
 
 void PIOS_MPU9250_Main_driver_get_scale(float *scales, uint8_t size, __attribute__((unused)) uintptr_t contet)

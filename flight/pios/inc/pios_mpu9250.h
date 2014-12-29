@@ -180,6 +180,8 @@
 #define PIOS_MPU9250_ERR_MAG_BAD_ID           -6
 #define PIOS_MPU9250_ERR_MAG_READ_ASA         -7
 
+#define PIOS_MPU9250_TEMP_OFFSET              0
+#define PIOS_MPU9250_TEMP_SENSITIVITY         321.0f
 enum pios_mpu9250_range {
     PIOS_MPU9250_SCALE_250_DEG  = 0x00,
     PIOS_MPU9250_SCALE_500_DEG  = 0x08,

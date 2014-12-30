@@ -621,7 +621,7 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
  * I2C Adapters
  */
 void PIOS_I2C_pressure_adapter_ev_irq_handler(void);
-void PIOS_I2C_pressureadapter_er_irq_handler(void);
+void PIOS_I2C_pressure_adapter_er_irq_handler(void);
 void I2C3_EV_IRQHandler()
 __attribute__((alias("PIOS_I2C_pressure_adapter_ev_irq_handler")));
 void I2C3_ER_IRQHandler()
@@ -765,9 +765,6 @@ void PIOS_I2C_flexiport_adapter_er_irq_handler(void)
     PIOS_I2C_ER_IRQ_Handler(pios_i2c_flexiport_adapter_id);
 }
 
-
-void PIOS_I2C_pressure_adapter_ev_irq_handler(void);
-void PIOS_I2C_pressure_adapter_er_irq_handler(void);
 
 #endif /* PIOS_INCLUDE_I2C */
 

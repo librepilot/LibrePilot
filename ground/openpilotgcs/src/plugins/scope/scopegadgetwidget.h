@@ -36,6 +36,7 @@
 #include "qwt/src/qwt_plot_curve.h"
 #include "qwt/src/qwt_scale_draw.h"
 #include "qwt/src/qwt_scale_widget.h"
+#include "qwt/src/qwt_plot_picker.h"
 
 #include <QTimer>
 #include <QTime>
@@ -143,7 +144,6 @@ private slots:
     void showOptionDialog();
 
 private:
-
     void preparePlot(PlotType plotType);
     void setupExamplePlot();
 
@@ -175,6 +175,7 @@ private:
 
     QMutex m_mutex;
     QwtLegend *m_plotLegend;
+    QwtPlotPicker *m_picker;
 
     int csvLoggingInsertHeader();
     int csvLoggingAddData();

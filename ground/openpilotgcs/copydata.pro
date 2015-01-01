@@ -149,9 +149,9 @@ GCS_LIBRARY_PATH
             Qt5MultimediaWidgets$${DS}.dll \
             Qt5Quick$${DS}.dll \
             Qt5Qml$${DS}.dll \
-            icuin52.dll \
-            icudt52.dll \
-            icuuc52.dll
+            icuin53.dll \
+            icudt53.dll \
+            icuuc53.dll
         # it is more robust to take the following DLLs from Qt rather than from MinGW
         QT_DLLS += \
             libgcc_s_dw2-1.dll \
@@ -259,8 +259,7 @@ GCS_LIBRARY_PATH
         QMAKE_EXTRA_TARGETS += data_copy
     }
 
-
-    macx{
+    macx {
         # NOTE: debug dylib can be copied as they will be cleaned out with packaging scripts
         # standard plugins directory (will copy just dylib, plugins.qmltypes and qmldir
         QT_QUICK2_PLUGINS = \
@@ -273,7 +272,7 @@ GCS_LIBRARY_PATH
         # those directories will be fully copied to dest
         QT_QUICK2_FULL_DIRS = \
             QtQuick/Controls \
-             QtQuick/Dialogs
+            QtQuick/Dialogs
 
         # create QtQuick dir (that will host all subdirs)
         data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_QT_QML_PATH/QtQuick\") $$addNewline()

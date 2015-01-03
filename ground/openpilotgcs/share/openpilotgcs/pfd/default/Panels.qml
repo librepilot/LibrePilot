@@ -23,9 +23,10 @@ Item {
     //
 
     property bool show_panels: false
-    property bool hide_display_rc: false
-    property bool hide_display_bat: false
-    property bool hide_display_oplm: false
+    property bool display_rc: false
+    property bool display_bat: false
+    property bool display_oplm: false
+    property bool display_sys: false
 
     function close_panels(){
         if (show_panels == true)
@@ -34,6 +35,7 @@ Item {
 
     function hide_display_rcinput(){
         show_panels = true;
+        display_oplm = false
         rc_input_bg.z = 10
         battery_bg.z = -1
         oplm_bg.z = -1
@@ -42,6 +44,7 @@ Item {
 
     function hide_display_battery(){
         show_panels = true;
+        display_oplm = false
         rc_input_bg.z = 10
         battery_bg.z = 20
         oplm_bg.z = -1
@@ -50,6 +53,7 @@ Item {
 
     function hide_display_oplink(){
         show_panels = true;
+        display_oplm = true
         rc_input_bg.z = 10
         battery_bg.z = 20
         oplm_bg.z = 30
@@ -58,6 +62,7 @@ Item {
 
     function hide_display_system(){
         show_panels = true;
+        display_oplm = false
         rc_input_bg.z = 10
         battery_bg.z = 20
         oplm_bg.z = 30
@@ -69,7 +74,10 @@ Item {
 
     property real smeter_angle
 
-    property real memory_free : SystemStats.HeapRemaining > 1024 ? SystemStats.HeapRemaining / 1024 : SystemStats.HeapRemaining 
+    property real memory_free : SystemStats.HeapRemaining > 1024 ? SystemStats.HeapRemaining / 1024 : SystemStats.HeapRemaining
+
+    // Needed to get correctly int8 value
+    property int cpuTemp : SystemStats.CPUTemp
 
     // Needed to get correctly int8 value, reset value (-127) on disconnect
     property int oplm0_db: telemetry_link == 1 ? OPLinkStatus.PairSignalStrengths_0 : -127
@@ -175,8 +183,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: close_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (close_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: close_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (close_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -202,8 +210,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: close_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) - (close_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: close_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) + (close_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -226,8 +234,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: rc_input_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (rc_input_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: rc_input_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (rc_input_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -247,8 +255,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: rc_input_labels; x: Math.floor(scaledBounds.x * sceneItem.width) - (rc_input_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: rc_input_labels; x: Math.floor(scaledBounds.x * sceneItem.width) + (rc_input_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -268,14 +276,14 @@ Item {
         MouseArea { 
              id: hidedisp_rcinput; 
              anchors.fill: parent; 
-             cursorShape: hide_display_bat == false && hide_display_oplm == false ? Qt.WhatsThisCursor : Qt.ArrowCursor  
-             onClicked: hide_display_bat == false && hide_display_oplm == false ? hide_display_rcinput() : 0
+             cursorShape: Qt.WhatsThisCursor 
+             onClicked: hide_display_rcinput()
         }
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: rc_input_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) - (rc_input_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: rc_input_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) + (rc_input_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -301,8 +309,8 @@ Item {
         
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: rc_throttle; x: Math.floor(scaledBounds.x * sceneItem.width) - (rc_input_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: rc_throttle; x: Math.floor(scaledBounds.x * sceneItem.width) + (rc_input_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -335,8 +343,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: rc_stick; x: Math.floor(scaledBounds.x * sceneItem.width) - (rc_input_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: rc_stick; x: Math.floor(scaledBounds.x * sceneItem.width) + (rc_input_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -359,8 +367,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -382,8 +390,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_volt; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_volt; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -404,7 +412,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -423,8 +431,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_amp; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_amp; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -445,7 +453,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -464,8 +472,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_milliamp; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_milliamp; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -490,7 +498,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -509,8 +517,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_estimated_flight_time; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_estimated_flight_time; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -536,7 +544,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -552,8 +560,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_labels; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_labels; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -579,8 +587,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: battery_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) - (battery_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: battery_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) + (battery_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -603,8 +611,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: oplm_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: oplm_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -623,8 +631,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: smeter_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: smeter_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -643,8 +651,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: smeter_scale; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: smeter_scale; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -663,8 +671,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: smeter_needle; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: smeter_needle; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -688,8 +696,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: smeter_mask; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: smeter_mask; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -708,8 +716,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: oplm_button_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: oplm_button_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -729,7 +737,7 @@ Item {
             property variant button_color: "button"+index+"_color"
 
             id: idButton_oplm
-            
+
             elementName: "oplm-button-" + index
             sceneSize: panels.sceneSize
 
@@ -744,15 +752,16 @@ Item {
 
             MouseArea { 
                  id: idButton_oplm_mousearea; 
-                 anchors.fill: parent; 
-                 cursorShape: Qt.PointingHandCursor
+                 anchors.fill: parent;
+                 visible: display_oplm == true ? 1 : 0 
+                 cursorShape: display_oplm == true ? Qt.PointingHandCursor  : Qt.ArrowCursor
                  onClicked: select_oplm(index)
             }
 
             states: State  {
                  name: "fading"
-                 when: show_panels !== true
-                 PropertyChanges  { target: idButton_oplm; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+                 when: show_panels == true
+                 PropertyChanges  { target: idButton_oplm; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
             }
  
             transitions: Transition  {
@@ -771,8 +780,8 @@ Item {
         z: oplm_bg.z+6
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: oplm_id_label; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: oplm_id_label; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -794,8 +803,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: oplm_id_text; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: oplm_id_text; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -809,7 +818,7 @@ Item {
              anchors.centerIn: parent
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
                  capitalization: Font.AllUppercase
@@ -833,8 +842,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: oplm_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) - (oplm_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: oplm_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) + (oplm_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -857,8 +866,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -878,8 +887,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_frametype; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_frametype; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -895,7 +904,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -911,8 +920,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_cpuloadtemp; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_cpuloadtemp; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -922,13 +931,13 @@ Item {
         } 
 
         Text {
-             // CC3D hack, Cputemp not working
-             text: SystemStats.CPULoad+"% - "+ 
-                   [String(SystemStats.CPUTemp).charCodeAt(0) == "64" ? "??" : String(SystemStats.CPUTemp).charCodeAt(0)] +"°C"
+             // Coptercontrol detect with mem free : Only display Cpu load, no temperature available.
+             text: SystemStats.CPULoad+"%"+
+                  [SystemStats.HeapRemaining < 3000 ? "" : " | "+cpuTemp+"°C"]
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -944,8 +953,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_memfree; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_memfree; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -959,7 +968,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -975,8 +984,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_fusion_algo; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_fusion_algo; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -986,12 +995,12 @@ Item {
         } 
 
         Text {
-             text: ["None", "Complementary", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "EKFOutdoor"][RevoSettings.FusionAlgorithm]
+             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][RevoSettings.FusionAlgorithm]
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
-                 pixelSize: Math.floor(parent.height * 1.2)
+                 family: pt_bold.name
+                 pixelSize: Math.floor(parent.height * 1.35)
                  weight: Font.DemiBold
              }
         } 
@@ -1006,8 +1015,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_mag_used; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_mag_used; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -1021,7 +1030,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -1037,8 +1046,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_gpstype; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_gpstype; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {
@@ -1052,7 +1061,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -1075,8 +1084,8 @@ Item {
 
         states: State  {
              name: "fading"
-             when: show_panels !== true
-             PropertyChanges  { target: system_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) - (system_bg.width * 0.85); }
+             when: show_panels == true
+             PropertyChanges  { target: system_mousearea; x: Math.floor(scaledBounds.x * sceneItem.width) + (system_bg.width * 0.85); }
         }
  
         transitions: Transition  {

@@ -1,7 +1,10 @@
 import QtQuick 2.0
 
+// TODO move sub components to a new 'pfd' subdirectory
+// TODO move pfd up and out of 'default" subdirectory
+
 Rectangle {
-    color: "#666666"
+    color: "#515151"
 
     SvgElementImage {
         id: background
@@ -9,11 +12,11 @@ Rectangle {
         fillMode: Image.PreserveAspectFit
         anchors.fill: parent
         sceneSize: Qt.size(width, height)
-        
+
         Rectangle {
             width: Math.floor(parent.paintedHeight * 1.319)
             height: Math.floor(parent.paintedHeight - parent.paintedHeight * 0.008)
-            
+
             color: "transparent"
             border.color: "white"
             border.width: Math.floor(parent.paintedHeight * 0.008)
@@ -24,16 +27,28 @@ Rectangle {
         Item {
             id: sceneItem
 
+            FontLoader {
+                id: pt_bold_narrow
+                source: "qrc:/pfdqml/fonts/PTN77F.ttf"
+            }
+
+            FontLoader {
+                id: pt_bold
+                source: "qrc:/pfdqml/fonts/PTS75F.ttf"
+            }
+
             width: Math.floor((parent.paintedHeight * 1.32) - (parent.paintedHeight * 0.013))
             height: Math.floor(parent.paintedHeight - parent.paintedHeight * 0.02)
             property variant viewportSize : Qt.size(width, height)
 
             anchors.centerIn: parent
             clip: true
-           
+
             Loader {
+                // TODO might need focus true for keyboard events to propagate...
                 id: worldLoader
                 anchors.fill: parent
+                focus: true
                 source: qmlWidget.terrainEnabled ? "PfdTerrainView.qml" : "PfdWorldView.qml"
             }
 

@@ -77,12 +77,6 @@ plugin_uavobjectbrowser.depends = plugin_coreplugin
 plugin_uavobjectbrowser.depends += plugin_uavobjects
 SUBDIRS += plugin_uavobjectbrowser
 
-# ModelView UAVGadget
-plugin_modelview.subdir = modelview
-plugin_modelview.depends = plugin_coreplugin
-plugin_modelview.depends += plugin_uavobjects
-SUBDIRS += plugin_modelview
-
 #Qt 4.8.0 / phonon may crash on Mac, fixed in Qt 4.8.1, QTBUG-23128
 macx:contains(QT_VERSION, ^4\\.8\\.0): CONFIG += disable_notify_plugin
 
@@ -205,15 +199,6 @@ plugin_uavobjectutil.subdir = uavobjectutil
 plugin_uavobjectutil.depends = plugin_coreplugin
 plugin_uavobjectutil.depends += plugin_uavobjects
 SUBDIRS += plugin_uavobjectutil
-
-# OSG Earth View plugin
-OSG {
-    plugin_osgearthview.subdir = osgearthview
-    plugin_osgearthview.depends = plugin_coreplugin
-    plugin_osgearthview.depends += plugin_uavobjects
-    plugin_osgearthview.depends += plugin_uavobjectwidgetutils
-    SUBDIRS += plugin_osgearthview
-}
 
 # Magic Waypoint gadget
 plugin_magicwaypoint.subdir = magicwaypoint

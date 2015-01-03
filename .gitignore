@@ -12,6 +12,7 @@ GRTAGS
 GSYMS
 GTAGS
 core
+*~
 
 # flight
 /flight/*.pnproj

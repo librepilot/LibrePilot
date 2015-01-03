@@ -105,7 +105,7 @@ Item {
             text: ["NO GPS", "NO FIX", "FIX 2D", "FIX 3D"][GPSPositionSensor.Status]
             anchors.centerIn: parent
             font.pixelSize: Math.floor(parent.height*1.3)
-            font.family: "Arial"
+            font.family: pt_bold.name
             font.weight: Font.DemiBold
             color: "white"
         }
@@ -138,7 +138,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -159,7 +159,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -182,7 +182,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -208,7 +208,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -229,7 +229,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -251,7 +251,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1.5)
                 weight: Font.DemiBold
             }
@@ -307,7 +307,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                    weight: Font.DemiBold
                }
@@ -334,7 +334,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                    weight: Font.DemiBold
                }
@@ -368,7 +368,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                    weight: Font.DemiBold
                }
@@ -405,7 +405,7 @@ Item {
             color: "cyan"
 
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: Math.floor(parent.height * 1)
                 weight: Font.DemiBold
             }
@@ -432,12 +432,15 @@ Item {
         id: home_bg
         elementName: "home-bg"
         sceneSize: info.sceneSize
+        x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
+
+        opacity: qmlWidget.terrainEnabled ? 0.6 : 1
 
         states: State  {
              name: "fading"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -457,8 +460,8 @@ Item {
 
         states: State  {
              name: "fading_heading"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -471,7 +474,7 @@ Item {
             anchors.centerIn: parent
             color: "cyan"
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: parent.height * 1.2
             }
         }
@@ -487,8 +490,8 @@ Item {
 
         states: State  {
              name: "fading_distance"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -502,7 +505,7 @@ Item {
             anchors.centerIn: parent
             color: "cyan"
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: parent.height * 1.2
             }
         }
@@ -518,8 +521,8 @@ Item {
 
         states: State  {
              name: "fading_distance"
-             when: TakeOffLocation.Status !== 0
-             PropertyChanges  { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) + home_bg.width; }
+             when: TakeOffLocation.Status == 0
+             PropertyChanges  { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
  
         transitions: Transition  {
@@ -533,7 +536,7 @@ Item {
             anchors.centerIn: parent
             color: "cyan"
             font {
-                family: "Arial"
+                family: pt_bold.name
                 pixelSize: parent.height * 1.2
             }
         }

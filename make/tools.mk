@@ -70,6 +70,8 @@ ifeq ($(UNAME), Linux)
         QT_SDK_ARCH := gcc
         CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
         CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
+        OSG_URL        := http://wiki.openpilot.org/download/attachments/18612236/osg-3.2.1-i686.tar.gz
+        OSGEARTH_URL   := http://wiki.openpilot.org/download/attachments/18612236/osgearth-2.6-i686.tar.gz
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
@@ -130,8 +132,8 @@ else ifeq ($(UNAME), Windows)
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
-    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw482_32-qt-5.4.0
-    OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-mingw482_32-qt-5.4.0
+    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.0
+    OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-mingw491_32-qt-5.4.0
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -144,7 +146,7 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 
 BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += sdl nsis mesawin openssl 
+    BUILD_SDK_TARGETS += sdl nsis mesawin openssl
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg osgearth gtest uncrustify doxygen
 
@@ -327,8 +329,6 @@ endef
 #
 ##############################
 
-
-
 define TOOL_INSTALL_TEMPLATE
 
 .PHONY: $(addprefix $(1)_, install clean distclean)
@@ -493,7 +493,6 @@ qt_sdk_distclean:
 
 endef
 
-
 ##############################
 #
 # Mac QT install template
@@ -571,13 +570,19 @@ endef
 # ARM SDK
 #
 ##############################
+
 ifeq ($(UNAME), Windows)
-#unfortunately zip package for this release is missing root directory, so adding / at the end of the path 
+
+# unfortunately zip package for this release is missing root directory, so adding / at the end of the path
 # so that template interpret last part as directory and use the full path
 $(eval $(call TOOL_INSTALL_TEMPLATE,arm_sdk,$(ARM_SDK_DIR)/,$(ARM_SDK_URL),$(ARM_SDK_MD5_URL),$(notdir $(ARM_SDK_URL))))
+
 else
+
 $(eval $(call TOOL_INSTALL_TEMPLATE,arm_sdk,$(ARM_SDK_DIR),$(ARM_SDK_URL),$(ARM_SDK_MD5_URL),$(notdir $(ARM_SDK_URL))))
+
 endif
+
 ifeq ($(shell [ -d "$(ARM_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export ARM_SDK_PREFIX := $(ARM_SDK_DIR)/bin/arm-none-eabi-
 else
@@ -944,11 +949,47 @@ else
     export CMAKE := cmake
 endif
 
-all_sdk_version: cmake_version
-
 .PHONY: cmake_version
 cmake_version:
 	-$(V1) $(ECHO) "`$(CMAKE) --version`"
+
+##############################
+#
+# osg
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+
+ifeq ($(shell [ -d "$(OSG_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSG_DIR := $(OSG_DIR)
+else
+    # not installed, hope it's in the path...
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSG_DIR)) not found (make osg_install), using system PATH)
+endif
+
+.PHONY: osg_version
+osg_version:
+	-$(V1) $(ECHO) "`osgversion`"
+
+##############################
+#
+# osgearth
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+
+ifeq ($(shell [ -d "$(OSGEARTH_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSGEARTH_DIR := $(OSGEARTH_DIR)
+else
+    # not installed, hope it's in the path...
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_DIR)) not found (make osgearth_install), using system PATH)
+endif
+
+.PHONY: osgearth_version
+osgearth_version:
+	-$(V1) $(ECHO) "`osgearth_version`"
 
 
 

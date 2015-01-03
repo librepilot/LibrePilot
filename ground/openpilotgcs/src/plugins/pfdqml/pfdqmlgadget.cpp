@@ -18,6 +18,9 @@
 #include "pfdqmlgadgetwidget.h"
 #include "pfdqmlgadgetconfiguration.h"
 
+#include <QWidget>
+#include <QDebug>
+
 PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent) :
     IUAVGadget(classId, parent),
     m_widget(widget)
@@ -31,6 +34,19 @@ PfdQmlGadget::~PfdQmlGadget()
     delete m_widget;
 }
 
+QWidget *PfdQmlGadget::widget()
+{
+    if (!m_container) {
+        m_container = QWidget::createWindowContainer(m_widget, m_parent);
+        m_container->setMinimumSize(64, 64);
+        m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        // don't clear widget background before painting to avoid flickering
+        m_container->setAutoFillBackground(true);
+        // m_container->setAttribute(Qt::WA_OpaquePaintEvent, false);
+    }
+    return m_container;
+}
+
 /*
    This is called when a configuration is loaded, and updates the plugin's settings.
    Careful: the plugin is already drawn before the loadConfiguration method is called the
@@ -41,28 +57,35 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
 
-    m_widget->setOpenGLEnabled(m->openGLEnabled());
-    m_widget->setQmlFile(m->qmlFile());
-    m_widget->setEarthFile(m->earthFile());
-    m_widget->setTerrainEnabled(m->terrainEnabled());
-    m_widget->setActualPositionUsed(m->actualPositionUsed());
-    m_widget->setLatitude(m->latitude());
-    m_widget->setLongitude(m->longitude());
-    m_widget->setAltitude(m->altitude());
+    qDebug() << "PfdQmlGadget - loading configuration :" << m->name();
+
+    m_widget->setQmlFile("");
+
     m_widget->setSpeedFactor(m->speedFactor());
     m_widget->setSpeedUnit(m->speedUnit());
     m_widget->setAltitudeFactor(m->altitudeFactor());
     m_widget->setAltitudeUnit(m->altitudeUnit());
 
-    // setting OSGEARTH_CACHE_ONLY seems to work the most reliably
-    // between osgEarth versions I tried
-    if (m->cacheOnly()) {
-        qputenv("OSGEARTH_CACHE_ONLY", "true");
-    } else {
-#ifdef Q_OS_WIN32
-        qputenv("OSGEARTH_CACHE_ONLY", "");
-#else
-        unsetenv("OSGEARTH_CACHE_ONLY");
-#endif
-    }
+    m_widget->setPositionMode(m->positionMode());
+    m_widget->setLatitude(m->latitude());
+    m_widget->setLongitude(m->longitude());
+    m_widget->setAltitude(m->altitude());
+
+    m_widget->setTerrainEnabled(m->terrainEnabled());
+    m_widget->setTerrainFile(m->terrainFile());
+    m_widget->setModelFile(m->modelFile());
+
+    m_widget->setQmlFile(m->qmlFile());
+
+//// setting OSGEARTH_CACHE_ONLY seems to work the most reliably
+//// between osgEarth versions I tried
+// if (m->cacheOnly()) {
+// qputenv("OSGEARTH_CACHE_ONLY", "true");
+// } else {
+// #ifdef Q_OS_WIN32
+// qputenv("OSGEARTH_CACHE_ONLY", "");
+// #else
+// unsetenv("OSGEARTH_CACHE_ONLY");
+// #endif
+// }
 }

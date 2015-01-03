@@ -15,7 +15,7 @@
  */
 
 #ifndef PFDQMLGADGET_H_
-#define PFDQMLQMLGADGET_H_
+#define PFDQMLGADGET_H_
 
 #include <coreplugin/iuavgadget.h>
 #include "pfdqmlgadgetwidget.h"
@@ -33,15 +33,8 @@ public:
     PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent = 0);
     ~PfdQmlGadget();
 
-    QWidget *widget()
-    {
-        if (!m_container) {
-            m_container = QWidget::createWindowContainer(m_widget, m_parent);
-            m_container->setMinimumSize(64, 64);
-            m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        }
-        return m_container;
-    }
+    QWidget *widget();
+
     void loadConfiguration(IUAVGadgetConfiguration *config);
 
 private:
@@ -51,4 +44,4 @@ private:
 };
 
 
-#endif // PFDQMLQMLGADGET_H_
+#endif // PFDQMLGADGET_H_

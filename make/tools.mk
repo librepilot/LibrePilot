@@ -111,11 +111,11 @@ GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 ifeq ($(UNAME), Linux)
     CMAKE_DIR := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
     ifeq ($(ARCH), x86_64)
-        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt5.3.2
-        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x64-qt5.3.2
+        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt-5.4.0
+        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x64-qt-5.4.0
     else
-        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt5.3.2
-        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x86-qt5.3.2
+        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt-5.4.0
+        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x86-qt-5.4.0
     endif
 else ifeq ($(UNAME), Darwin)
     OSG_DIR      := TODO
@@ -130,8 +130,8 @@ else ifeq ($(UNAME), Windows)
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
-    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw482_32-qt5.3.2
-    OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-mingw482_32-qt5.3.2
+    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw482_32-qt-5.4.0
+    OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-mingw482_32-qt-5.4.0
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)

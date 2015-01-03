@@ -70,7 +70,7 @@ Item {
                 anchors.centerIn: parent
                 text: formatTime(time_h) + ":" + formatTime(time_m) + ":" + formatTime(time_s)
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.8)
                     weight: Font.DemiBold
                 }
@@ -95,7 +95,7 @@ Item {
                 anchors.centerIn: parent
                 text: ["DISARMED","ARMING","ARMED"][FlightStatus.Armed]
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
                     weight: Font.DemiBold
                 }
@@ -120,7 +120,7 @@ Item {
                 anchors.centerIn: parent
                 text: "RC INPUT"
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
                     weight: Font.DemiBold
                 }
@@ -152,7 +152,7 @@ Item {
                 text: "MASTER CAUTION"
                 color: "white"
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
                     weight: Font.DemiBold
                 }
@@ -177,7 +177,7 @@ Item {
                 anchors.centerIn: parent
                 text: "AUTOPILOT"
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
                     weight: Font.DemiBold
                 }
@@ -203,7 +203,7 @@ Item {
                 text: ["MANUAL","STAB 1","STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6", "AUTOTUNE", "POS HOLD", "POS VFPV",
                        "POS VLOS", "POS VNSEW", "RTB", "LAND", "PATHPLAN", "POI", "AUTOCRUISE"][FlightStatus.FlightMode]
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
                     weight: Font.DemiBold
                 }
@@ -232,7 +232,7 @@ Item {
                 text: ["MANUAL"," "," ", " ", " ", " ", " ", " ",
                        "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrust_mode.toString()]
                 font {
-                    family: "Arial"
+                    family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
                     weight: Font.DemiBold
                 }

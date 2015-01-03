@@ -27,3 +27,6 @@ OTHER_FILES += PfdQml.pluginspec
 
 FORMS += pfdqmlgadgetoptionspage.ui
 
+RESOURCES += PfdResources.qrc
+
+

@@ -74,7 +74,10 @@ Item {
 
     property real smeter_angle
 
-    property real memory_free : SystemStats.HeapRemaining > 1024 ? SystemStats.HeapRemaining / 1024 : SystemStats.HeapRemaining 
+    property real memory_free : SystemStats.HeapRemaining > 1024 ? SystemStats.HeapRemaining / 1024 : SystemStats.HeapRemaining
+
+    // Needed to get correctly int8 value
+    property int cpuTemp : SystemStats.CPUTemp
 
     // Needed to get correctly int8 value, reset value (-127) on disconnect
     property int oplm0_db: telemetry_link == 1 ? OPLinkStatus.PairSignalStrengths_0 : -127
@@ -409,7 +412,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -450,7 +453,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -495,7 +498,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -541,7 +544,7 @@ Item {
                anchors.centerIn: parent
                color: "white"
                font {
-                   family: "Arial"
+                   family: pt_bold.name
                    pixelSize: Math.floor(parent.height * 0.6)
                }
             }
@@ -815,7 +818,7 @@ Item {
              anchors.centerIn: parent
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
                  capitalization: Font.AllUppercase
@@ -901,7 +904,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -928,13 +931,13 @@ Item {
         } 
 
         Text {
-             // CC3D hack, Cputemp not working
-             text: SystemStats.CPULoad+"% - "+ 
-                   [String(SystemStats.CPUTemp).charCodeAt(0) == "64" ? "??" : String(SystemStats.CPUTemp).charCodeAt(0)] +"°C"
+             // Coptercontrol detect with mem free : Only display Cpu load, no temperature available.
+             text: SystemStats.CPULoad+"%"+
+                  [SystemStats.HeapRemaining < 3000 ? "" : " | "+cpuTemp+"°C"]
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -965,7 +968,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -992,12 +995,12 @@ Item {
         } 
 
         Text {
-             text: ["None", "Complementary", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "EKFOutdoor"][RevoSettings.FusionAlgorithm]
+             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][RevoSettings.FusionAlgorithm]
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
-                 pixelSize: Math.floor(parent.height * 1.2)
+                 family: pt_bold.name
+                 pixelSize: Math.floor(parent.height * 1.35)
                  weight: Font.DemiBold
              }
         } 
@@ -1027,7 +1030,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }
@@ -1058,7 +1061,7 @@ Item {
              anchors.right: parent.right
              color: "white"
              font {
-                 family: "Arial"
+                 family: pt_bold.name
                  pixelSize: Math.floor(parent.height * 1.4)
                  weight: Font.DemiBold
              }

@@ -68,6 +68,8 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.4/5.4.0/qt-opensource-linux-x86-5.4.0.run
         QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.4/5.4.0/qt-opensource-linux-x86-5.4.0.run.md5
         QT_SDK_ARCH := gcc
+        CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
+        CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
         OSG_URL        := http://wiki.openpilot.org/download/attachments/18612236/osg-3.2.1-i686.tar.gz
         OSGEARTH_URL   := http://wiki.openpilot.org/download/attachments/18612236/osgearth-2.6-i686.tar.gz
     endif
@@ -96,6 +98,8 @@ else ifeq ($(UNAME), Windows)
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60-windows.tar.bz2
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1-windows.tar.bz2
     MESAWIN_URL    := http://wiki.openpilot.org/download/attachments/18612236/mesawin.tar.gz
+    CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
+    CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-win32-x86.zip.md5
 endif
 
 GTEST_URL := http://wiki.openpilot.org/download/attachments/18612236/gtest-1.6.0.zip
@@ -177,6 +181,7 @@ GIT			:= git
 CURL		:= curl
 TAR			:= tar
 UNZIP		:= unzip
+ZIP		:= gzip
 OPENSSL		:= openssl
 ANT			:= ant
 JAVAC		:= javac
@@ -279,6 +284,17 @@ endef
 
 ##############################
 #
+# Cross-platform MD5 generation template
+#  $(1) = file name without quotes
+#
+##############################
+
+define MD5_GEN_TEMPLATE
+$(OPENSSL) dgst -md5 $(1) > $(1).md5
+endef
+
+##############################
+#
 # Cross platform download template
 #  $(1) = Package URL
 #  $(2) = Package file
@@ -312,8 +328,6 @@ endef
 #  $(7) = optional extra clean recipes template
 #
 ##############################
-
-
 
 define TOOL_INSTALL_TEMPLATE
 
@@ -479,7 +493,6 @@ qt_sdk_distclean:
 
 endef
 
-
 ##############################
 #
 # Mac QT install template
@@ -557,13 +570,19 @@ endef
 # ARM SDK
 #
 ##############################
+
 ifeq ($(UNAME), Windows)
-#unfortunately zip package for this release is missing root directory, so adding / at the end of the path 
+
+# unfortunately zip package for this release is missing root directory, so adding / at the end of the path
 # so that template interpret last part as directory and use the full path
 $(eval $(call TOOL_INSTALL_TEMPLATE,arm_sdk,$(ARM_SDK_DIR)/,$(ARM_SDK_URL),$(ARM_SDK_MD5_URL),$(notdir $(ARM_SDK_URL))))
+
 else
+
 $(eval $(call TOOL_INSTALL_TEMPLATE,arm_sdk,$(ARM_SDK_DIR),$(ARM_SDK_URL),$(ARM_SDK_MD5_URL),$(notdir $(ARM_SDK_URL))))
+
 endif
+
 ifeq ($(shell [ -d "$(ARM_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export ARM_SDK_PREFIX := $(ARM_SDK_DIR)/bin/arm-none-eabi-
 else
@@ -914,6 +933,28 @@ gtest_version:
 
 ##############################
 #
+# CMake
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,cmake,$(CMAKE_DIR),$(CMAKE_URL),$(CMAKE_MD5_URL),$(notdir $(CMAKE_URL))))
+
+ifeq ($(shell [ -d "$(CMAKE_DIR)" ] && $(ECHO) "exists"), exists)
+    export CMAKE := "$(CMAKE_DIR)/bin/cmake"
+    export PATH := $(CMAKE_DIR)/bin:$(PATH)
+else
+    export CMAKE := "cmake"
+    # not installed, hope it's in the path...
+    #$(info $(EMPTY) WARNING     $(call toprel, $(CMAKE_DIR)) not found (make cmake_install), using system PATH)
+    export CMAKE := cmake
+endif
+
+.PHONY: cmake_version
+cmake_version:
+	-$(V1) $(ECHO) "`$(CMAKE) --version`"
+
+##############################
+#
 # osg
 #
 ##############################
@@ -949,7 +990,6 @@ endif
 .PHONY: osgearth_version
 osgearth_version:
 	-$(V1) $(ECHO) "`osgearth_version`"
-
 
 
 

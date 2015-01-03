@@ -927,8 +927,6 @@ else
     $(info $(EMPTY) WARNING     $(call toprel, $(OSG_DIR)) not found (make osg_install), using system PATH)
 endif
 
-all_sdk_version: osg_version
-
 .PHONY: osg_version
 osg_version:
 	-$(V1) $(ECHO) "`osgversion`"
@@ -947,8 +945,6 @@ else
     # not installed, hope it's in the path...
     $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_DIR)) not found (make osgearth_install), using system PATH)
 endif
-
-all_sdk_version: osgearth_version
 
 .PHONY: osgearth_version
 osgearth_version:

@@ -216,7 +216,8 @@ void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const 
 
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
-        out << QTime::currentTime().toString("hh:mm:ss.zzz ");
+
+        // out << QTime::currentTime().toString("hh:mm:ss.zzz ");
 
         switch (type) {
         case QtDebugMsg:

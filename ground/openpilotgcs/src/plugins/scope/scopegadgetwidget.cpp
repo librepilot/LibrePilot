@@ -82,12 +82,11 @@ ScopeGadgetWidget::ScopeGadgetWidget(QWidget *parent) : QwtPlot(parent),
 
     m_picker = new QwtPlotPicker(QwtPlot::xBottom,
                              QwtPlot::yLeft,
-                             QwtPlotPicker::CrossRubberBand,
+                             QwtPlotPicker::HLineRubberBand,
                              QwtPicker::ActiveOnly,
                              canvas());
     m_picker->setStateMachine(new QwtPickerDragPointMachine());
     m_picker->setRubberBandPen(QColor(Qt::darkMagenta));
-    m_picker->setRubberBand(QwtPicker::HLineRubberBand);
     m_picker->setTrackerPen(QColor(Qt::green));
 
     // Setup the timer that replots data

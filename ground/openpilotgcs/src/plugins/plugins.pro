@@ -134,10 +134,10 @@ plugin_gpsdisplay.depends += plugin_uavobjects
 SUBDIRS += plugin_gpsdisplay
 
 # QML viewer gadget
-plugin_qmlview.subdir = qmlview
-plugin_qmlview.depends = plugin_coreplugin
-plugin_qmlview.depends += plugin_uavobjects
-SUBDIRS += plugin_qmlview
+#plugin_qmlview.subdir = qmlview
+#plugin_qmlview.depends = plugin_coreplugin
+#plugin_qmlview.depends += plugin_uavobjects
+#SUBDIRS += plugin_qmlview
 
 # PathAction Editor gadget
 plugin_pathactioneditor.subdir = pathactioneditor

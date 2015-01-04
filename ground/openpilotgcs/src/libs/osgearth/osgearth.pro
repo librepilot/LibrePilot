@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET = OsgEarth
+TARGET = GCSOsgEarth
 
 DEFINES += OSGEARTH_LIBRARY
 

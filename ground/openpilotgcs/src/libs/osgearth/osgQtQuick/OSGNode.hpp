@@ -23,7 +23,7 @@ public:
     virtual void realize();
 
 signals:
-    void nodeChanged(osg::Node *node);
+    void nodeChanged(osg::Node *node) const;
 
 private:
     struct Hidden;

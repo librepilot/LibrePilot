@@ -62,7 +62,7 @@ OSGViewport {
         function alt() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:
-                return GPSPositionSensor.Altitude - GPSPositionSensor.GeoidSeparation; // - GPSPositionSensor.AntennaHeight
+                return GPSPositionSensor.Altitude // - GPSPositionSensor.GeoidSeparation; // - GPSPositionSensor.AntennaHeight
             case Pfd.Home:
                 return HomeLocation.Altitude;
             case Pfd.Predefined:

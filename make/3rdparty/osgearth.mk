@@ -332,7 +332,7 @@ define GET_TEMPLATE
 @$(ECHO) $(MSG_GETTING) $(1)
 	$(V1) ( \
 		$(MKDIR) -p "$(2)" && \
-		if [ ! -f "$(DL_DIR)/$(notdir $(2))" ]; then \
+		if [ ! -f "$(2)/$(notdir $(1))" ]; then \
 			$(ECHO) $(MSG_DOWNLOADING) $(1) to $(2) && \
 			$(CURL) $(CURL_OPTIONS) -o "$(2)/$(notdir $(1))" "$(1)" ; \
 		fi; \

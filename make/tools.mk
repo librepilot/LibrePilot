@@ -144,7 +144,7 @@ BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
     BUILD_SDK_TARGETS += sdl nsis mesawin openssl
 endif
-ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg osgearth gtest uncrustify doxygen
+ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg gtest uncrustify doxygen
 
 define GROUP_SDK_TEMPLATE
 .PHONY: $(1)_install $(1)_clean $(1)_distclean $(1)_version

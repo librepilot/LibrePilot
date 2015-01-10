@@ -62,7 +62,7 @@ OSGViewport {
         function alt() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:
-                return GPSPositionSensor.Altitude - GPSPositionSensor.GeoidSeparation; // - GPSPositionSensor.AntennaHeight
+                return GPSPositionSensor.Altitude // - GPSPositionSensor.GeoidSeparation; // - GPSPositionSensor.AntennaHeight
             case Pfd.Home:
                 return HomeLocation.Altitude;
             case Pfd.Predefined:
@@ -81,7 +81,8 @@ OSGViewport {
     OSGTransformNode {
         id: modelTransformNode
         modelData: modelFileNode
-        scale: Qt.vector3d(0.1, 0.1, 0.1)
+        // model dimensions are in mm, scale to meters
+        scale: Qt.vector3d(0.001, 0.001, 0.001)
         rotate.z: 180
     }
 

@@ -27,7 +27,6 @@ struct OSGCamera::Hidden : public QObject {
     struct CameraUpdateCallback : public osg::NodeCallback {
 public:
         CameraUpdateCallback(Hidden *h);
-        ~CameraUpdateCallback();
 
         void operator()(osg::Node *node, osg::NodeVisitor *nv);
 
@@ -42,7 +41,6 @@ public:
         fieldOfView = 90.0;
 
         cameraDirty = false;
-
         roll      = 0.0;
         pitch     = 0.0;
         yaw       = 0.0;
@@ -210,13 +208,9 @@ OSGCamera::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h)
     qDebug() << "OSGCamera - CameraUpdateCallback - <init>";
 }
 
-OSGCamera::Hidden::CameraUpdateCallback::~CameraUpdateCallback()
-{
-    qDebug() << "OSGCamera - CameraUpdateCallback - <destruct>";
-}
-
 void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
+    traverse(node, nv);
     h->updateCamera();
 }
 

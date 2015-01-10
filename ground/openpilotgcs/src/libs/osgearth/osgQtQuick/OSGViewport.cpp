@@ -14,6 +14,7 @@
 #include <osgEarthUtil/Sky>
 #include <osgEarthUtil/LogarithmicDepthBuffer>
 #include <osgEarthUtil/LODBlending>
+#include <osgEarthUtil/DetailTexture>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -44,17 +45,36 @@ public:
 
         void synchronize(QQuickFramebufferObject *item)
         {
+            // qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
             // synchronize method is the only method allowed to access the Quick item (GUI thread is blocked)
             if (!h->realized) {
                 qDebug() << "ViewportRenderer - synchronize" << item->window();
-                qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
                 item->window()->setClearBeforeRendering(false);
                 h->initCompositeViewer();
                 h->quickItem->realize();
                 h->camera->installCamera(h->view.get());
                 h->realized = true;
             }
+            // TODO don't do that for each frame!
             h->camera->setViewport(h->view->getCamera(), 0, 0, item->width(), item->height());
+            // TODO scene update should be done here
+        }
+
+        // render method is not allowed to access the Quick item (can be called on a render thread)
+        void render()
+        {
+            // qDebug() << "ViewportRenderer - render" << QThread::currentThread() << QApplication::instance()->thread();
+            // qDebug() << "ViewportRenderer - render" << QOpenGLContext::currentContext();
+
+            // TODO scene update should NOT be done here
+            h->compositeViewer->frame();
+
+            // h->quickItem->window()->resetOpenGLState();
+
+            if (h->updateMode == OSGViewport::Continuous) {
+                // trigger next update
+                update();
+            }
         }
 
         QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
@@ -66,21 +86,6 @@ public:
             QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width(), size.height(), format);
             qDebug() << "ViewportRenderer - createFramebufferObject - done" << fbo;
             return fbo;
-        }
-
-        // render method is not allowed to access the Quick item (can be called on a render thread)
-        void render()
-        {
-            // qDebug() << "ViewportRenderer - render" << QThread::currentThread() << QApplication::instance()->thread();
-            // qDebug() << "ViewportRenderer - render" << QOpenGLContext::currentContext();
-
-            h->compositeViewer->frame();
-            // h->quickItem->window()->resetOpenGLState();
-
-            if (h->updateMode == OSGViewport::Continuous) {
-                // trigger next update
-                update();
-            }
         }
 
 private:
@@ -190,6 +195,12 @@ private:
 
             // lodBlending = new osgEarth::Util::LODBlending();
             // mapNode->getTerrainEngine()->addEffect(lodBlending.get());
+
+//            osgEarth::Util::DetailTexture* detail = new osgEarth::Util::DetailTexture();
+//            //detail->setImage(osgDB::readImageFile("noise3.jpg"));
+//            detail->setIntensity(0.5f);
+//            //detail->setImageUnit(4);
+//            mapNode->getTerrainEngine()->addEffect(detail);
         }
 
         // TODO sky handling should not be done here
@@ -293,9 +304,6 @@ public slots:
 
         compositeViewer->addView(view.get());
 
-// if (window) {
-// window->setClearBeforeRendering(false);
-// }
         if (updateMode == OSGViewport::Discrete) {
             frameTimer = startTimer(10);
         }

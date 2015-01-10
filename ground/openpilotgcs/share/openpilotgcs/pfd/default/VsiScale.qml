@@ -69,9 +69,9 @@ Item {
 
         smooth: true
 
-        //rotate it around the center
+        //rotate it around the center : limit value to +/-6m/s
         transform: Rotation {
-            angle: -vert_velocity * 5
+            angle: vert_velocity > 6 ? -30 : vert_velocity < -6 ? 30 : -vert_velocity * 5
             origin.y : vsi_arrow.height / 2 
             origin.x : vsi_arrow.width * 3.15
         }

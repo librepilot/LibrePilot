@@ -221,6 +221,7 @@ OSGModelNode::Hidden::NodeUpdateCallback::NodeUpdateCallback(Hidden *h) : h(h) {
 
 void OSGModelNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
+    traverse(node, nv);
     h->updateNode();
 }
 

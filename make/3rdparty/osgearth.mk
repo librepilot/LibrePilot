@@ -35,8 +35,8 @@
 # Windows prerequisites
 ################################
 #
-# Windows versions of osg and osgearth require a lot of additional libraries to be build
-# See osgearth_dependencies_win.sh
+# Windows versions of osg and osgearth require many additional libraries to be build
+# See osg_win.sh
 #
 ################################
 # Building
@@ -61,23 +61,19 @@
 #
 ################################
 
+# TODO should be discovered
+QT_VERSION := 5.4.0
+
 ################################
 #
 # common stuff
 #
 ################################
 
-OSGEARTH_BUILD_CONF  := Release
+OSG_BUILD_CONF := Release
 
-################################
-#
-# dependencies
-#
-################################
-
-#ifeq ($(UNAME), Windows)
-#	include $(ROOT_DIR)/make/3rdparty/osgearth_win.mk
-#endif
+OSG_NAME_PREFIX :=
+OSG_NAME_SUFIX := -qt-$(QT_VERSION)
 
 ################################
 #
@@ -87,7 +83,6 @@ OSGEARTH_BUILD_CONF  := Release
 
 OSG_VERSION     := 3.2.1
 OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
-OSG_BUILD_CONF  := $(OSGEARTH_BUILD_CONF)
 OSG_BASE_NAME   := osg-$(OSG_VERSION)
 
 ifeq ($(UNAME), Linux)
@@ -100,7 +95,7 @@ ifeq ($(UNAME), Linux)
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
 else ifeq ($(UNAME), Darwin)
-
+	# TODO
 else ifeq ($(UNAME), Windows)
 	OSG_NAME := $(OSG_BASE_NAME)-$(QT_SDK_ARCH)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -108,7 +103,7 @@ else ifeq ($(UNAME), Windows)
 	OSG_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin"
 endif
 
-OSG_NAME := $(OSG_NAME)-qt-5.4.0
+OSG_NAME := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
 OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
 OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
@@ -125,7 +120,7 @@ osg:
 			-DBUILD_OPENTHREADS_WITH_QT=OFF \
 			-DOSG_GL3_AVAILABLE=OFF \
 			-DOSG_PLUGIN_SEARCH_INSTALL_DIR_FOR_PLUGINS=OFF \
-			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osgearth_dependencies \
+			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osg_dependencies \
 			-DCMAKE_INSTALL_PREFIX=$(OSG_INSTALL_DIR) $(OSG_SRC_DIR) && \
 		$(MAKE) && \
 		$(MAKE) install ; \
@@ -133,9 +128,13 @@ osg:
 
 .PHONY: package_osg
 package_osg:
-	$(V1) $(TAR) cf $(OSG_INSTALL_DIR).tar -C $(OSG_INSTALL_DIR)/.. $(OSG_NAME)
-	$(V1) $(ZIP) -f $(OSG_INSTALL_DIR).tar
-	$(V1) $(call MD5_GEN_TEMPLATE,$(OSG_INSTALL_DIR).tar.gz)
+	@$(ECHO) "Packaging $(call toprel, $(OSG_INSTALL_DIR)) into $(notdir $(OSG_INSTALL_DIR)).tar"
+	$(V1) ( \
+		$(CD) $(OSG_INSTALL_DIR)/.. && \
+		$(TAR) cf $(notdir $(OSG_INSTALL_DIR)).tar $(notdir $(OSG_INSTALL_DIR)) && \
+		$(ZIP) -f $(notdir $(OSG_INSTALL_DIR)).tar && \
+		$(call MD5_GEN_TEMPLATE,$(notdir $(OSG_INSTALL_DIR)).tar.gz) ; \
+	)
 
 .NOTPARALLEL:
 .PHONY: prepare_osg
@@ -179,6 +178,7 @@ clean_all_osg: clean_osg
 OSGEARTH_VERSION     := 2.6
 OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
 OSGEARTH_BASE_NAME   := osgearth-$(OSGEARTH_VERSION)
+OSGEARTH_BUILD_CONF  := $(OSG_BUILD_CONF)
 
 # osgearth cmake script calls the osgversion executable to find the osg version
 # this makes it necessary to have osg in the pathes (bin and lib) to make sure the correct one is found
@@ -193,7 +193,7 @@ ifeq ($(UNAME), Linux)
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 else ifeq ($(UNAME), Darwin)
-
+	# TODO
 else ifeq ($(UNAME), Windows)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -201,10 +201,12 @@ else ifeq ($(UNAME), Windows)
 	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin"
 endif
 
-OSGEARTH_NAME := $(OSGEARTH_NAME)-qt-5.4.0
+OSGEARTH_NAME := $(OSG_NAME_PREFIX)$(OSGEARTH_NAME)$(OSG_NAME_SUFIX)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
 OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
-OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
+# osgearth will be installed into osg (there is an offical option to do that but it seems broken on mingw)
+#OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
+OSGEARTH_INSTALL_DIR := $(OSG_INSTALL_DIR)
 
 .PHONY: osgearth
 osgearth:
@@ -218,7 +220,7 @@ osgearth:
 			-DOSG_DIR=$(OSG_INSTALL_DIR) \
 			-DCMAKE_INCLUDE_PATH=$(OSG_INSTALL_DIR)/include \
 			-DCMAKE_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib \
-			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osgearth_dependencies \
+			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osg_dependencies \
 			-DCMAKE_INSTALL_PREFIX=$(OSGEARTH_INSTALL_DIR) $(OSGEARTH_SRC_DIR) && \
 		$(MAKE) && \
 		$(MAKE) install ; \
@@ -226,9 +228,13 @@ osgearth:
 
 .PHONY: package_osgearth
 package_osgearth:
-	$(V1) $(TAR) cf $(OSGEARTH_INSTALL_DIR).tar -C $(OSGEARTH_INSTALL_DIR)/.. $(OSGEARTH_NAME)
-	$(V1) $(ZIP) -f $(OSGEARTH_INSTALL_DIR).tar
-	$(V1) $(call MD5_GEN_TEMPLATE,$(OSGEARTH_INSTALL_DIR).tar.gz)
+	@$(ECHO) "Packaging $(call toprel, $(OSGEARTH_INSTALL_DIR)) into $(notdir $(OSGEARTH_INSTALL_DIR)).tar"
+	$(V1) ( \
+		$(CD) $(OSGEARTH_INSTALL_DIR)/.. && \
+		$(TAR) cf $(notdir $(OSGEARTH_INSTALL_DIR)).tar $(notdir $(OSGEARTH_INSTALL_DIR)) && \
+		$(ZIP) -f $(notdir $(OSGEARTH_INSTALL_DIR)).tar && \
+		$(call MD5_GEN_TEMPLATE,$(notdir $(OSGEARTH_INSTALL_DIR)).tar.gz) ; \
+	)
 
 .NOTPARALLEL:
 .PHONY: prepare_osgearth
@@ -267,15 +273,22 @@ clean_all_osgearth: clean_osgearth
 
 .NOTPARALLEL:
 .PHONY: all_osg
-all_osg: prepare_osg prepare_osgearth osg osgearth
 
+ifeq ($(UNAME), Windows)
+all_osg: prepare_osg prepare_osgearth osg osgearth install_osg_win package_osg
+else
+all_osg: prepare_osg prepare_osgearth osg osgearth package_osg
+endif
 
+################################
+#
+# windows dependencies
+#
+################################
 
-
-
-
-
-
+#ifeq ($(UNAME), Windows)
+#	include $(ROOT_DIR)/make/3rdparty/osgearth_win.mk
+#endif
 
 ################################
 #
@@ -283,9 +296,9 @@ all_osg: prepare_osg prepare_osgearth osg osgearth
 #
 ################################
 
-DEP_SRC_DIR := $(ROOT_DIR)/3rdparty/osgearth_dependencies
-DEP_DL_DIR := $(DL_DIR)/osgearth
-DEP_INSTALL_DIR := $(OSGEARTH_INSTALL_DIR)/osgearth_dependencies
+DEP_SRC_DIR := $(ROOT_DIR)/3rdparty/osg_dependencies
+DEP_DL_DIR := $(DL_DIR)/osg
+DEP_INSTALL_DIR := $(OSGEARTH_INSTALL_DIR)/osg_dependencies
 
 ZLIB_URL := http://zlib.net/zlib-1.2.8.tar.gz
 ZLIB_DIR := $(DEP_SRC_DIR)/zlib-1.2.8
@@ -339,8 +352,8 @@ define GET_TEMPLATE
 	)
 endef
 
-.PHONY: xxx
-xxx:
+.PHONY: osg_win
+osg_win:
 	$(call GET_TEMPLATE,$(ZLIB_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(LIBJPEG_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(LIBPNG_URL),$(DEP_DL_DIR))
@@ -352,3 +365,7 @@ xxx:
 	$(call GET_TEMPLATE,$(GEOS_URL),$(DEP_DL_DIR))
 	$(call GET_TEMPLATE,$(GDAL_URL),$(DEP_DL_DIR))
 
+.PHONY: install_osg_win
+install_osg_win:
+	$(V1) $(CP) $(BUILD_DIR)/3rdparty/osg_dependencies/bin/*.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) $(BUILD_DIR)/3rdparty/osg_dependencies/lib/*.dll $(OSG_INSTALL_DIR)/bin/

@@ -71,7 +71,6 @@ ifeq ($(UNAME), Linux)
         CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
         CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
         OSG_URL        := http://wiki.openpilot.org/download/attachments/18612236/osg-3.2.1-i686.tar.gz
-        OSGEARTH_URL   := http://wiki.openpilot.org/download/attachments/18612236/osgearth-2.6-i686.tar.gz
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
@@ -114,10 +113,8 @@ ifeq ($(UNAME), Linux)
     CMAKE_DIR := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
     ifeq ($(ARCH), x86_64)
         OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt-5.4.0
-        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x64-qt-5.4.0
     else
         OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt-5.4.0
-        OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-linux-x86-qt-5.4.0
     endif
 else ifeq ($(UNAME), Darwin)
     OSG_DIR      := TODO
@@ -133,7 +130,6 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
     OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.0
-    OSGEARTH_DIR := $(TOOLS_DIR)/osgearth-2.6-mingw491_32-qt-5.4.0
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -973,24 +969,6 @@ endif
 osg_version:
 	-$(V1) $(ECHO) "`osgversion`"
 
-##############################
-#
-# osgearth
-#
-##############################
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
-
-ifeq ($(shell [ -d "$(OSGEARTH_DIR)" ] && $(ECHO) "exists"), exists)
-    export OSGEARTH_DIR := $(OSGEARTH_DIR)
-else
-    # not installed, hope it's in the path...
-    $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_DIR)) not found (make osgearth_install), using system PATH)
-endif
-
-.PHONY: osgearth_version
-osgearth_version:
-	-$(V1) $(ECHO) "`osgearth_version`"
 
 
 

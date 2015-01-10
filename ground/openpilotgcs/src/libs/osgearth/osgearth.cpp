@@ -131,7 +131,6 @@ void OsgEarth::initializePathes()
     libraryFilePathList.clear();
     // and add our own plugin library path
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
-    libraryFilePathList.push_back(GCSDirs::libraryPath("osgearth").toStdString());
 
     osgDB::FilePathList::iterator it = libraryFilePathList.begin();
     while (it != libraryFilePathList.end()) {

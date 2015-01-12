@@ -1582,7 +1582,7 @@
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <openGLEnabled>true</openGLEnabled>
-          <positionMode>1</positionMode>
+          <positionMode>0</positionMode>
           <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
           <speedFactor>1</speedFactor>
           <terrainEnabled>false</terrainEnabled>
@@ -1601,7 +1601,7 @@
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <openGLEnabled>true</openGLEnabled>
-          <positionMode>1</positionMode>
+          <positionMode>0</positionMode>
           <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1621,7 +1621,7 @@
           <longitude>10.1589</longitude>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
           <openGLEnabled>true</openGLEnabled>
-          <positionMode>1</positionMode>
+          <positionMode>0</positionMode>
           <qmlFile>%%DATAPATH%%pfd/default/ModelView.qml</qmlFile>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1641,7 +1641,7 @@
           <longitude>10.1589</longitude>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
           <openGLEnabled>true</openGLEnabled>
-          <positionMode>1</positionMode>
+          <positionMode>0</positionMode>
           <qmlFile>%%DATAPATH%%pfd/default/EarthView.qml</qmlFile>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>

@@ -60,6 +60,9 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     }
     options_page->altUnitCombo->setCurrentIndex(options_page->altUnitCombo->findData(m_config->altitudeFactor()));
 
+    // OpenGL
+    //options_page->useOpenGL->setChecked(m_config->openGLEnabled());
+
     // Terrain check boxes
     options_page->showTerrain->setChecked(m_config->terrainEnabled());
 
@@ -80,18 +83,16 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->longitude->setText(QString::number(m_config->longitude()));
     options_page->altitude->setText(QString::number(m_config->altitude()));
 
+    // Model check boxes
+    options_page->showModel->setChecked(m_config->modelEnabled());
+    options_page->useAutomaticModel->setChecked(m_config->modelSelectionMode() == Pfd::Auto);
+    options_page->usePredefinedModel->setChecked(m_config->modelSelectionMode() == Pfd::Fixed);
+
     // Model file chooser
     options_page->modelFile->setExpectedKind(Utils::PathChooser::File);
     options_page->modelFile->setPromptDialogFilter(tr("Model file (*.3ds)"));
     options_page->modelFile->setPromptDialogTitle(tr("Choose Model File"));
     options_page->modelFile->setPath(m_config->modelFile());
-
-    // Model check boxes
-    options_page->useAutomaticModel->setChecked(m_config->modelSelectionMode() == Pfd::Auto);
-    options_page->usePredefinedModel->setChecked(m_config->modelSelectionMode() == Pfd::Fixed);
-
-    // OpenGL
-    options_page->useOpenGL->setChecked(m_config->openGLEnabled());
 
 #ifndef USE_OSG
     options_page->showTerrain->setChecked(false);
@@ -114,12 +115,10 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setSpeedFactor(options_page->speedUnitCombo->itemData(options_page->speedUnitCombo->currentIndex()).toDouble());
     m_config->setAltitudeFactor(options_page->altUnitCombo->itemData(options_page->altUnitCombo->currentIndex()).toDouble());
 
+    //m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
+
 #ifdef USE_OSG
     m_config->setTerrainEnabled(options_page->showTerrain->isChecked());
-#else
-    m_config->setTerrainEnabled(false);
-#endif
-
     m_config->setTerrainFile(options_page->earthFile->path());
 
     if (options_page->useGPSLocation->isChecked()) {
@@ -134,12 +133,12 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setAltitude(options_page->altitude->text().toDouble());
     m_config->setCacheOnly(options_page->useOnlyCache->isChecked());
 
-#ifdef USE_OSG
-    m_config->setModelEnabled(options_page->showModel->isChecked());
 #else
-    m_config->setModelEnabled(false);
+    m_config->setTerrainEnabled(false);
 #endif
 
+#ifdef USE_OSG
+    m_config->setModelEnabled(options_page->showModel->isChecked());
     m_config->setModelFile(options_page->modelFile->path());
 
     if (options_page->useAutomaticModel->isChecked()) {
@@ -147,8 +146,10 @@ void PfdQmlGadgetOptionsPage::apply()
     } else {
         m_config->setModelSelectionMode(Pfd::Fixed);
     }
+#else
+    m_config->setModelEnabled(false);
+#endif
 
-    m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
 }
 
 void PfdQmlGadgetOptionsPage::finish()

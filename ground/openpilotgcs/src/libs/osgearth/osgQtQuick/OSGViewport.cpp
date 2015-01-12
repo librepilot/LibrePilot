@@ -8,6 +8,7 @@
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgUtil/Optimizer>
+#include <osgGa/StateSetManipulator>
 
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/AutoClipPlaneHandler>
@@ -106,9 +107,10 @@ private:
     {
         qDebug() << "OSGViewport - quickItem" << quickItem << quickItem->window();
         view = new osgViewer::View();
-        // TODO will the StatsHandler be destroyed???
+        // TODO will the handlers be destroyed???
         view->addEventHandler(new osgViewer::StatsHandler());
-        // viewer->addEventHandler(new osgGA::StateSetManipulator());
+        // b : Toggle Backface Culling, l : Toggle Lighting, t : Toggle Texturing, w : Cycle Polygon Mode
+        view->addEventHandler(new osgGA::StateSetManipulator());
         // viewer->addEventHandler(new osgViewer::ThreadingHandler());
     }
 

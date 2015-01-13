@@ -37,6 +37,8 @@ OSGViewport {
         longitude: lon()
         altitude: alt()
 
+        clampToTerrain: true
+
         function lat() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:

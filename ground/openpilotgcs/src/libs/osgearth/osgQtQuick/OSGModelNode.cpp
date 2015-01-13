@@ -5,6 +5,7 @@
 #include <osgEarth/MapNode>
 #include <osgEarth/GeoData>
 #include <osgEarth/SpatialReference>
+#include <osgEarth/ElevationQuery>
 
 #include <osgEarthSymbology/Style>
 #include <osgEarthSymbology/ModelSymbol>
@@ -141,17 +142,54 @@ public:
             return;
         }
         dirty = false;
+        modelNode->setPosition(clampToTerrain ? clampedPosition() : position());
+        modelNode->setLocalRotation(rotation());
+    }
 
+    osgEarth::GeoPoint position()
+    {
         osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
                                     longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
-        modelNode->setPosition(geoPoint);
+        return geoPoint;
+    }
 
+    osgEarth::GeoPoint clampedPosition()
+    {
+        osgEarth::GeoPoint geoPoint = position();
+
+        osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
+        if (!mapNode) {
+            qWarning() << "OSGModelNode - updatePositionClamped : scene data does not contain a map node";
+            return geoPoint;
+        }
+
+        // establish an elevation query interface based on the features' SRS.
+        osgEarth::ElevationQuery eq(mapNode->getMap());
+
+        double elevation;
+        if (eq.getElevation(geoPoint, elevation, 0.0)) {
+            // TODO need to notify intoTerrainChanged...
+            intoTerrain = ((altitude - modelNode->getBound().radius()) < elevation);
+            if (intoTerrain) {
+                qDebug() << "OSGModelNode - updatePositionClamped : clamping" << altitude - modelNode->getBound().radius() << "/" << elevation;
+                geoPoint = osgEarth::GeoPoint(osgEarth::SpatialReference::get("wgs84"), longitude, latitude,
+                                            elevation + modelNode->getBound().radius(), osgEarth::ALTMODE_ABSOLUTE);
+            }
+
+        }
+        else {
+            qDebug() << "OSGModelNode - updatePositionClamped : failed to get elevation";;
+        }
+        return geoPoint;
+    }
+
+    osg::Quat rotation()
+    {
         osg::Quat q = osg::Quat(
             osg::DegreesToRadians(roll), osg::Vec3d(0, 1, 0),
             osg::DegreesToRadians(pitch), osg::Vec3d(1, 0, 0),
             osg::DegreesToRadians(yaw), osg::Vec3d(0, 0, -1));
-
-        modelNode->setLocalRotation(q);
+        return q;
     }
 
     OSGModelNode *const self;
@@ -163,6 +201,8 @@ public:
 
     osg::ref_ptr<NodeUpdateCallback> nodeUpdateCB;
 
+    bool   dirty;
+
     qreal  roll;
     qreal  pitch;
     qreal  yaw;
@@ -171,7 +211,8 @@ public:
     double longitude;
     double altitude;
 
-    bool   dirty;
+    bool clampToTerrain;
+    bool intoTerrain;
 
 private slots:
 
@@ -342,6 +383,26 @@ void OSGModelNode::setAltitude(double arg)
         emit altitudeChanged(altitude());
     }
 }
+
+bool OSGModelNode::clampToTerrain() const
+{
+    return h->clampToTerrain;
+}
+
+void OSGModelNode::setClampToTerrain(bool arg)
+{
+    if (h->clampToTerrain != arg) {
+        h->clampToTerrain = arg;
+        h->dirty    = true;
+        emit clampToTerrainChanged(clampToTerrain());
+    }
+}
+
+bool OSGModelNode::intoTerrain() const
+{
+    return h->intoTerrain;
+}
+
 } // namespace osgQtQuick
 
 #include "OSGModelNode.moc"

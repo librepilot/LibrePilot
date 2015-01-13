@@ -38,8 +38,10 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
 
+#ifdef USE_OSG
     // TODO get rid of this call...
     OsgEarth::initialize();
+#endif
 
     Pfd::declareQML();
 

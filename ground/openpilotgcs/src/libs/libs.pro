@@ -10,5 +10,9 @@ SUBDIRS = \
     utils \
     opmapcontrol \
     qwt \
-    sdlgamepad \
-    osgearth
+    sdlgamepad
+
+OSG_DIR = $$(OSG_DIR)
+!isEmpty(OSG_DIR) {
+	SUBDIRS += osgearth
+}

@@ -24,6 +24,9 @@ class OSGQTQUICK_EXPORT OSGModelNode : public OSGNode {
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
 
+    Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
+    Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
+
 public:
     OSGModelNode(QObject *parent = 0);
     virtual ~OSGModelNode();
@@ -52,6 +55,10 @@ public:
     double altitude() const;
     void setAltitude(double arg);
 
+    bool clampToTerrain() const;
+    void setClampToTerrain(bool arg);
+
+    bool intoTerrain() const;
 
 signals:
     void modelDataChanged(OSGNode *node);
@@ -64,6 +71,9 @@ signals:
     void latitudeChanged(double arg);
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
+
+    void clampToTerrainChanged(bool arg);
+    void intoTerrainChanged(bool arg);
 
 private:
     struct Hidden;

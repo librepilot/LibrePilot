@@ -967,7 +967,8 @@ endif
 
 .PHONY: osg_version
 osg_version:
-	-$(V1) $(ECHO) "`osgversion`"
+	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgversion`"
+	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version`"
 
 
 

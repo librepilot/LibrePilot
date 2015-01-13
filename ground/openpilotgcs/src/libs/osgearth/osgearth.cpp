@@ -38,9 +38,12 @@
 #include <osgEarth/Capabilities>
 #include <osgEarth/Registry>
 
+#include <QDebug>
+
+#ifdef OSG_USE_QT_PRIVATE
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/qpa/qplatformintegration.h>
-#include <QDebug>
+#endif
 
 #include <deque>
 #include <string>
@@ -133,8 +136,10 @@ void OsgEarth::initialize()
     // Register Qml types
     osgQtQuick::registerTypes("osgQtQuick");
 
+#ifdef OSG_USE_QT_PRIVATE
     bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
-    qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
+    Debug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
+#endif
 
     qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
 }

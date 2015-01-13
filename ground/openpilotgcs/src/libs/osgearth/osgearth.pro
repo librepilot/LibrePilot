@@ -3,10 +3,12 @@ TARGET = GCSOsgEarth
 
 DEFINES += OSGEARTH_LIBRARY
 
-QT += widgets opengl qml quick
+#DEFINES += OSG_USE_QT_PRIVATE
 
-# To make threaded gl check...
-QT += core-private gui-private
+QT += widgets opengl qml quick
+contains(DEFINES, OSG_USE_QT_PRIVATE) {
+	QT += core-private gui-private
+}
 
 include(../../openpilotgcslibrary.pri)
 include(../utils/utils.pri)

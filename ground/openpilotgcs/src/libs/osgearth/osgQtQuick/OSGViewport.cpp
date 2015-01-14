@@ -8,7 +8,7 @@
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgUtil/Optimizer>
-#include <osgGa/StateSetManipulator>
+#include <osgGA/StateSetManipulator>
 
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/AutoClipPlaneHandler>

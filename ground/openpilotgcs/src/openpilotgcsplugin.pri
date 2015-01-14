@@ -44,8 +44,8 @@ contains(QT_CONFIG, reduce_exports):CONFIG += hGCS_symbols
 CONFIG += plugin plugin_with_soname
 
 !macx {
-    target.path = /$$GCS_LIBRARY_BASENAME/openpilotgcs/plugins/$$PROVIDER
+    target.path = /$$GCS_LIBRARY_BASENAME/plugins/$$PROVIDER
     pluginspec.files += $${TARGET}.pluginspec
-    pluginspec.path = /$$GCS_LIBRARY_BASENAME/openpilotgcs/plugins/$$PROVIDER
+    pluginspec.path = /$$GCS_LIBRARY_BASENAME/plugins/$$PROVIDER
     INSTALLS += target pluginspec
 }

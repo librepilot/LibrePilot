@@ -52,7 +52,7 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
 }
 
 isEmpty(GCS_LIBRARY_BASENAME) {
-    GCS_LIBRARY_BASENAME = lib
+    GCS_LIBRARY_BASENAME = lib/openpilotgcs
 }
 
 DEFINES += GCS_LIBRARY_BASENAME=\\\"$$GCS_LIBRARY_BASENAME\\\"
@@ -96,7 +96,7 @@ macx {
     copydata = 1
     copyqt = 1
 } else {
-    GCS_LIBRARY_PATH = $$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/openpilotgcs
+    GCS_LIBRARY_PATH = $$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME
     GCS_PLUGIN_PATH  = $$GCS_LIBRARY_PATH/plugins
     GCS_LIBEXEC_PATH = $$GCS_APP_PATH # FIXME
     GCS_DATA_PATH    = $$GCS_BUILD_TREE/share/openpilotgcs

@@ -22,7 +22,7 @@ macx {
 	    QMAKE_RPATHDIR += \'\$$ORIGIN\'/$$relative_path($$GCS_LIBRARY_PATH/osg, $$GCS_LIBRARY_PATH)
         include(rpath.pri)
 
-        target.path = /$$GCS_LIBRARY_BASENAME/openpilotgcs
+        target.path = /$$GCS_LIBRARY_BASENAME
     }
     INSTALLS += target
 }

@@ -306,19 +306,19 @@ inline QStringList getPluginPaths()
     QStringList rc;
     // Figure out root:  Up one from 'bin'
     QDir rootDir = QApplication::applicationDirPath();
-
     rootDir.cdUp();
     const QString rootDirPath = rootDir.canonicalPath();
+
     // 1) "plugins" (Win/Linux)
+    // Linux will also use RPATH (see openpilotgcsplugin.pri)
     QString pluginPath = rootDirPath;
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String(GCS_LIBRARY_BASENAME);
     pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String("openpilotgcs");
-    pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("plugins");
     rc.push_back(pluginPath);
-    // 2) "PlugIns" (OS X)
+
+    // 2) "Plugins" (OS X)
     pluginPath  = rootDirPath;
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String("Plugins");

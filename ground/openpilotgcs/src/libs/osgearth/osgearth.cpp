@@ -29,6 +29,7 @@
 
 #include "osgQtQuick/Utility.hpp"
 
+#include <osg/DisplaySettings>
 #include <osg/Version>
 #include <osgDB/Registry>
 #include <osgQt/GraphicsWindowQt>
@@ -119,6 +120,8 @@ void OsgEarth::initialize()
 
     qDebug() << "Using osg version :" << osgGetVersion();
     qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
+    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(16);
+    osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(8);
 
     initializePathes();
 

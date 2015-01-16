@@ -36,6 +36,8 @@ private:
 
     static void initializePathes();
     static void initializeCache();
+
+    static void displayInfo();
 };
 
 #endif // OSGEARTH_H

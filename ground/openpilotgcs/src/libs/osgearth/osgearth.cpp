@@ -118,8 +118,6 @@ void OsgEarth::initialize()
     XInitThreads();
 #endif
 
-    qDebug() << "Using osg version :" << osgGetVersion();
-    qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
     osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(16);
     osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(8);
 
@@ -139,12 +137,7 @@ void OsgEarth::initialize()
     // Register Qml types
     osgQtQuick::registerTypes("osgQtQuick");
 
-#ifdef OSG_USE_QT_PRIVATE
-    bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
-    Debug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
-#endif
-
-    qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
+    displayInfo();
 }
 
 void OsgEarth::initializePathes()
@@ -157,20 +150,6 @@ void OsgEarth::initializePathes()
     libraryFilePathList.clear();
     // and add our own plugin library path
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
-
-    osgDB::FilePathList::iterator it = libraryFilePathList.begin();
-    while (it != libraryFilePathList.end()) {
-        qDebug() << "OsgEarthviewPlugin::initialize - library file path:" << QString::fromStdString(*it);
-        it++;
-    }
-
-    // initialize data file path list
-    osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
-    it = dataFilePathList.begin();
-    while (it != dataFilePathList.end()) {
-        qDebug() << "OsgEarthviewPlugin::initialize - data file path:" << QString::fromStdString(*it);
-        it++;
-    }
 }
 
 void OsgEarth::initializeCache()
@@ -207,6 +186,41 @@ void OsgEarth::initializeCache()
 // osgDB::Registry::instance()->setOptions(new osgDB::Options());
 // }
 // osgDB::Registry::instance()->getOptions()->setObjectCacheHint(cacheHintOptions);
+}
+
+void OsgEarth::displayInfo()
+{
+    qDebug() << "Using osg version :" << osgGetVersion();
+    qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
+
+    // library file path list
+    osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
+    osgDB::FilePathList::iterator it = libraryFilePathList.begin();
+    while (it != libraryFilePathList.end()) {
+        qDebug() << "osg library file path:" << QString::fromStdString(*it);
+        it++;
+    }
+
+    // data file path list
+    osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
+    it = dataFilePathList.begin();
+    while (it != dataFilePathList.end()) {
+        qDebug() << "osg data file path:" << QString::fromStdString(*it);
+        it++;
+    }
+
+    qDebug() << "osg cache:" << qgetenv("OSGEARTH_CACHE_PATH");
+
+    qDebug() << "osg database threads:" << osg::DisplaySettings::instance()->getNumOfDatabaseThreadsHint();
+    qDebug() << "osg http database threads:" << osg::DisplaySettings::instance()->getNumOfHttpDatabaseThreadsHint();
+
+    qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
+
+#ifdef OSG_USE_QT_PRIVATE
+    bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
+    Debug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
+#endif
+
 }
 
 /*

@@ -76,7 +76,7 @@ Item {
     Item {
         id: compass_text_box
 
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "compass-text")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "compass-text")
 
         x: scaledBounds.x * sceneItem.width
         y: scaledBounds.y * sceneItem.height

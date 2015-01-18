@@ -4,7 +4,7 @@ Image {
     id: sceneItem
     property variant sceneSize
     property string elementName
-    property string svgFileName: "pfd.svg"
+    property string svgFileName: "pfd/pfd.svg"
     property int vSlice: 0
     property int vSliceCount: 0
     property int hSlice: 0

@@ -1,12 +1,12 @@
 import QtQuick 2.0
+import "pfd" as Pfd
 
-// TODO move sub components to a new 'pfd' subdirectory
 // TODO move pfd up and out of 'default" subdirectory
 
 Rectangle {
     color: "#515151"
 
-    SvgElementImage {
+    Pfd.SvgElementImage {
         id: background
         elementName: "pfd-window"
         fillMode: Image.PreserveAspectFit
@@ -44,23 +44,23 @@ Rectangle {
                 id: worldLoader
                 anchors.fill: parent
                 focus: true
-                source: qmlWidget.terrainEnabled ? "PfdTerrainView.qml" : "PfdWorldView.qml"
+                source: qmlWidget.terrainEnabled ? "pfd/PfdTerrainView.qml" : "pfd/PfdWorldView.qml"
             }
 
-            HorizontCenter {
+            Pfd.HorizontCenter {
                 id: horizontCenterItem
                 sceneSize: sceneItem.viewportSize
                 anchors.fill: parent
             }
 
-            RollScale {
+            Pfd.RollScale {
                 id: rollscale
                 sceneSize: sceneItem.viewportSize
                 horizontCenter: horizontCenterItem.horizontCenter
                 anchors.fill: parent
             }
 
-            SvgElementImage {
+            Pfd.SvgElementImage {
                 id: side_slip_fixed
                 elementName: "sideslip-fixed"
                 sceneSize: sceneItem.viewportSize
@@ -68,38 +68,38 @@ Rectangle {
                 x: scaledBounds.x * sceneItem.width
             }
 
-            Compass {
+            Pfd.Compass {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
             }
 
-            SpeedScale {
+            Pfd.SpeedScale {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
             }
 
-            AltitudeScale {
+            Pfd.AltitudeScale {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
             }
 
-            VsiScale {
+            Pfd.VsiScale {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
                 visible: qmlWidget.altitudeUnit != 0
             }
 
-            Info {
+            Pfd.Info {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
             }
 
-            Panels {
+            Pfd.Panels {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
             }
 
-            Warnings {
+            Pfd.Warnings {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
             }

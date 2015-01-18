@@ -138,7 +138,7 @@ OSGViewport {
         SvgElementImage {
             id: horizont_line
             elementName: "center-line"
-            
+
             opacity: 0.5
 
             //worldView is loaded with Loader, so background element is visible
@@ -157,7 +157,7 @@ OSGViewport {
             sceneSize: background.sceneSize
             anchors.centerIn: parent
             anchors.verticalCenterOffset: AttitudeState.Pitch*world.pitch1DegHeight
-            border: 1            
+            border: 1
             smooth: true
        }
     }

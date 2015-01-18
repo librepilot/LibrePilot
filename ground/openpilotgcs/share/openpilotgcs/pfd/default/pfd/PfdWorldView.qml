@@ -58,7 +58,7 @@ Item {
 
             sceneSize: background.sceneSize
             anchors.centerIn: parent
-            border: 1            
+            border: 1
             smooth: true
         }
     }

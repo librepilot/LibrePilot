@@ -4,7 +4,7 @@ Item {
     id: info
     property variant sceneSize
 
-                             // Uninitialised, Ok,   Warning, Critical, Error                      
+    // Uninitialised, Ok, Warning, Critical, Error
     property variant batColors : ["black", "green", "orange", "red", "red"]
 
     //
@@ -15,16 +15,16 @@ Item {
     property real posNorth_old
     property real total_distance
     property real total_distance_km
-   
+
     property bool init_dist: false
-    
-    property real home_heading: 180/3.1415 * Math.atan2(TakeOffLocation.East - PositionState.East, 
+
+    property real home_heading: 180/3.1415 * Math.atan2(TakeOffLocation.East - PositionState.East,
                                                         TakeOffLocation.North - PositionState.North)
 
     property real home_distance: Math.sqrt(Math.pow((TakeOffLocation.East - PositionState.East),2) +
                                            Math.pow((TakeOffLocation.North - PositionState.North),2))
 
-    property real wp_heading: 180/3.1415 * Math.atan2(PathDesired.End_East - PositionState.East, 
+    property real wp_heading: 180/3.1415 * Math.atan2(PathDesired.End_East - PositionState.East,
                                                       PathDesired.End_North - PositionState.North)
 
     property real wp_distance: Math.sqrt(Math.pow((PathDesired.End_East - PositionState.East),2) +
@@ -34,28 +34,28 @@ Item {
 
     property real home_eta: (home_distance > 0 && current_velocity > 0 ? Math.round(home_distance/current_velocity) : 0)
     property real home_eta_h: (home_eta > 0 ? Math.floor(home_eta / 3600) : 0 )
-    property real home_eta_m: (home_eta > 0 ? Math.floor((home_eta - home_eta_h*3600)/60) : 0) 
+    property real home_eta_m: (home_eta > 0 ? Math.floor((home_eta - home_eta_h*3600)/60) : 0)
     property real home_eta_s: (home_eta > 0 ? Math.floor(home_eta - home_eta_h*3600 - home_eta_m*60) : 0)
 
     property real wp_eta: (wp_distance > 0 && current_velocity > 0 ? Math.round(wp_distance/current_velocity) : 0)
     property real wp_eta_h: (wp_eta > 0 ? Math.floor(wp_eta / 3600) : 0 )
-    property real wp_eta_m: (wp_eta > 0 ? Math.floor((wp_eta - wp_eta_h*3600)/60) : 0) 
+    property real wp_eta_m: (wp_eta > 0 ? Math.floor((wp_eta - wp_eta_h*3600)/60) : 0)
     property real wp_eta_s: (wp_eta > 0 ? Math.floor(wp_eta - wp_eta_h*3600 - wp_eta_m*60) : 0)
 
-    function reset_distance(){
+    function reset_distance() {
         total_distance = 0;
     }
 
     function compute_distance(posEast,posNorth) {
-        if (total_distance == 0 && !init_dist){init_dist = "true"; posEast_old = posEast; posNorth_old = posNorth;}
+        if (total_distance == 0 && !init_dist) { init_dist = "true"; posEast_old = posEast; posNorth_old = posNorth; }
         if (posEast > posEast_old+3 || posEast < posEast_old-3 || posNorth > posNorth_old+3 || posNorth < posNorth_old-3) {
-        total_distance += Math.sqrt(Math.pow((posEast - posEast_old ),2) + Math.pow((posNorth - posNorth_old),2)); 
-        total_distance_km = total_distance / 1000;   
+           total_distance += Math.sqrt(Math.pow((posEast - posEast_old ),2) + Math.pow((posNorth - posNorth_old),2));
+           total_distance_km = total_distance / 1000;
 
-        posEast_old = posEast;
-        posNorth_old = posNorth;
-        return total_distance;
-        } 
+           posEast_old = posEast;
+           posNorth_old = posNorth;
+           return total_distance;
+        }
     }
 
     function formatTime(time) {
@@ -68,7 +68,7 @@ Item {
     }
 
     // End Functions
-    // 
+    //
     // Start Drawing
 
     SvgElementImage {
@@ -78,9 +78,9 @@ Item {
         width: parent.width
     }
 
-    // 
+    //
     // GPS Info (Top)
-    //  
+    //
 
     Repeater {
         id: satNumberBar
@@ -111,11 +111,10 @@ Item {
         }
     }
 
-    // 
     // Waypoint Info (Top)
     // Only visible when PathPlan is active (WP loaded)
 
-    SvgElementImage  {
+    SvgElementImage {
         sceneSize: info.sceneSize
         elementName: "waypoint-labels"
         width: scaledBounds.width * sceneItem.width
@@ -258,7 +257,6 @@ Item {
         }
     }
 
-    // 
     // Battery Info (Top)
     // Only visible when PathPlan not active and Battery module enabled
 
@@ -266,7 +264,7 @@ Item {
         id: topbattery_voltamp_bg
         sceneSize: info.sceneSize
         elementName: "topbattery-label-voltamp-bg"
-        
+
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
@@ -279,7 +277,7 @@ Item {
         }
     }
 
-    SvgElementImage  {
+    SvgElementImage {
         sceneSize: info.sceneSize
         elementName: "topbattery-labels"
         width: scaledBounds.width * sceneItem.width
@@ -292,7 +290,7 @@ Item {
         id: topbattery_volt
         sceneSize: info.sceneSize
         elementName: "topbattery-volt-text"
-        
+
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
@@ -376,11 +374,10 @@ Item {
         }
     }
 
-    // 
     // Default counter
     // Only visible when PathPlan not active
 
-    SvgElementImage  {
+    SvgElementImage {
         sceneSize: info.sceneSize
         elementName: "topbattery-total-distance-label"
         width: scaledBounds.width * sceneItem.width
@@ -437,17 +434,17 @@ Item {
 
         opacity: qmlWidget.terrainEnabled ? 0.6 : 1
 
-        states: State  {
+        states: State {
              name: "fading"
              when: TakeOffLocation.Status == 0
-             PropertyChanges  { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
+             PropertyChanges { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
- 
-        transitions: Transition  {
-        SequentialAnimation  {
-              PropertyAnimation  { property: "x"; duration: 800 }
-              }
-        } 
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; duration: 800 }
+            }
+        }
     }
 
     SvgElementPositionItem {
@@ -458,17 +455,18 @@ Item {
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        states: State  {
+        states: State {
              name: "fading_heading"
              when: TakeOffLocation.Status == 0
-             PropertyChanges  { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
+             PropertyChanges { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
- 
-        transitions: Transition  {
-        SequentialAnimation  {
-              PropertyAnimation  { property: "x"; duration: 800 }
-              }
-        } 
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; duration: 800 }
+            }
+        }
+
         Text {
             text: "  "+home_heading.toFixed(1)+"°"
             anchors.centerIn: parent
@@ -488,17 +486,17 @@ Item {
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        states: State  {
+        states: State {
              name: "fading_distance"
              when: TakeOffLocation.Status == 0
-             PropertyChanges  { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
+             PropertyChanges { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
- 
-        transitions: Transition  {
-        SequentialAnimation  {
-              PropertyAnimation  { property: "x"; duration: 800 }
-              }
-        } 
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; duration: 800 }
+            }
+        }
 
         Text {
             text: home_distance.toFixed(0)+" m"
@@ -519,17 +517,17 @@ Item {
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        states: State  {
+        states: State {
              name: "fading_distance"
              when: TakeOffLocation.Status == 0
-             PropertyChanges  { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
+             PropertyChanges { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
- 
-        transitions: Transition  {
-        SequentialAnimation  {
-              PropertyAnimation  { property: "x"; duration: 800 }
-              }
-        } 
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; duration: 800 }
+            }
+        }
 
         Text {
             text: formatTime(home_eta_h) + ":" + formatTime(home_eta_m) + ":" + formatTime(home_eta_s)

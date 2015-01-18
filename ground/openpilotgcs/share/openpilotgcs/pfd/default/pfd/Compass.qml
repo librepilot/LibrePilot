@@ -27,14 +27,13 @@ Item {
         id: compass_wheel
         elementName: "compass-wheel"
         sceneSize: sceneItem.sceneSize
+        smooth: true
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
         rotation: -AttitudeState.Yaw
         transformOrigin: Item.Center
-
-        smooth: true
     }
 
     SvgElementImage {
@@ -50,14 +49,15 @@ Item {
 
         rotation: -AttitudeState.Yaw + home_degrees
         transformOrigin: Item.Bottom
-        visible: TakeOffLocation.Status == 0
 
+        visible: TakeOffLocation.Status == 0
     }
 
     SvgElementImage {
         id: compass_waypoint // Double Purple arrow
         elementName: "compass-waypoint"
         sceneSize: sceneItem.sceneSize
+        smooth: true
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
@@ -67,11 +67,8 @@ Item {
         rotation: -AttitudeState.Yaw + course_degrees
         transformOrigin: Item.Center
 
-        smooth: true
         visible: PathDesired.End_East !== 0.0 && PathDesired.End_East !== 0.0
     }
-
-
 
     Item {
         id: compass_text_box

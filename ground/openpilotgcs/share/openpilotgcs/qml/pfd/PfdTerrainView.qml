@@ -1,6 +1,6 @@
 import QtQuick 2.0
-import PfdQmlEnums 1.0
 import osgQtQuick 1.0
+import PfdQmlEnums 1.0
 
 OSGViewport {
     id: fullview
@@ -61,7 +61,7 @@ OSGViewport {
         function alt() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:
-                return GPSPositionSensor.Altitude // - GPSPositionSensor.GeoidSeparation; // - GPSPositionSensor.AntennaHeight
+                return GPSPositionSensor.Altitude;
             case Pfd.Home:
                 return HomeLocation.Altitude;
             case Pfd.Predefined:

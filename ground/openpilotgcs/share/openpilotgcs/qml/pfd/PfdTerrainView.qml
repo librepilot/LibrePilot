@@ -12,6 +12,8 @@ OSGViewport {
     camera: camera
     sceneData: skyNode
 
+    property real horizontCenter : horizontCenterItem.horizontCenter
+
     OSGSkyNode {
         id: skyNode
         sceneData: terrainNode

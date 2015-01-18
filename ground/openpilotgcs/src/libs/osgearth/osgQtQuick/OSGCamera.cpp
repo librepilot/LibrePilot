@@ -378,10 +378,12 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
     switch (h->manipulatorMode) {
     case OSGCamera::None:
+        qDebug() << "OSGCamera - installCamera: use TrackballManipulator";
         view->setCameraManipulator(new osgGA::TrackballManipulator(
                                        osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
         break;
     case OSGCamera::User:
+        qDebug() << "OSGCamera - installCamera: no camera manipulator";
         // disable any installed camera manipulator
         view->setCameraManipulator(NULL);
         break;
@@ -389,6 +391,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
         view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
         break;
     case OSGCamera::Track:
+        qDebug() << "OSGCamera - installCamera: use NodeTrackerManipulator";
         if (h->trackNode && h->trackNode->node()) {
             // setup tracking camera
             // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
@@ -418,6 +421,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
         }
         break;
     default:
+        qWarning() << "OSGCamera - installCamera: should not reach here!";
         break;
     }
 }

@@ -95,7 +95,10 @@ ifeq ($(UNAME), Linux)
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
 else ifeq ($(UNAME), Darwin)
-	# TODO
+	OSG_NAME := $(OSG_BASE_NAME)-clang_64
+	OSG_CMAKE_GENERATOR := "Unix Makefiles"
+	OSG_WINDOWING_SYSTEM := "Cocoa"
+	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
 else ifeq ($(UNAME), Windows)
 	OSG_NAME := $(OSG_BASE_NAME)-$(QT_SDK_ARCH)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -116,7 +119,7 @@ osg:
 		PATH=$(OSG_BUILD_PATH) && \
 		$(CMAKE) -G $(OSG_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSG_BUILD_CONF) \
 			-DBUILD_OSG_APPLICATIONS=ON \
-			-DBUILD_OSG_EXAMPLES=ON \
+			-DBUILD_OSG_EXAMPLES=OFF \
 			-DBUILD_OPENTHREADS_WITH_QT=OFF \
 			-DOSG_GL3_AVAILABLE=OFF \
 			-DOSG_PLUGIN_SEARCH_INSTALL_DIR_FOR_PLUGINS=OFF \
@@ -193,7 +196,10 @@ ifeq ($(UNAME), Linux)
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 else ifeq ($(UNAME), Darwin)
-	# TODO
+	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-clang_64
+	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
+	OSG_WINDOWING_SYSTEM := "Cocoa"
+	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 else ifeq ($(UNAME), Windows)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"

@@ -1575,7 +1575,7 @@
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/Pfd.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>false</terrainEnabled>
@@ -1596,7 +1596,7 @@
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/Pfd.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1617,7 +1617,7 @@
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/ModelView.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/ModelView.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1638,7 +1638,7 @@
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/EarthView.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/EarthView.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>

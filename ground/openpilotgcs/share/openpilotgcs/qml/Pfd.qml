@@ -1,8 +1,6 @@
 import QtQuick 2.0
 import "pfd" as Pfd
 
-// TODO move pfd up and out of 'default" subdirectory
-
 Rectangle {
     color: "#515151"
 

@@ -129,6 +129,7 @@ osg:
 .PHONY: package_osg
 package_osg:
 	@$(ECHO) "Packaging $(call toprel, $(OSG_INSTALL_DIR)) into $(notdir $(OSG_INSTALL_DIR)).tar"
+	$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/OpenPilotReadme.txt $(OSG_INSTALL_DIR)/
 	$(V1) ( \
 		$(CD) $(OSG_INSTALL_DIR)/.. && \
 		$(TAR) cf $(notdir $(OSG_INSTALL_DIR)).tar $(notdir $(OSG_INSTALL_DIR)) && \

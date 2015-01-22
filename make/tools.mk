@@ -286,7 +286,7 @@ endef
 ##############################
 
 define MD5_GEN_TEMPLATE
-$(OPENSSL) dgst -md5 $(1) > $(1).md5
+$(OPENSSL) dgst -r -md5 $(1) > $(1).md5
 endef
 
 ##############################
@@ -965,7 +965,7 @@ endif
 osg_version:
 	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgversion`"
 	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version`"
-
+	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version --caps`"
 
 
 

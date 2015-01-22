@@ -117,8 +117,7 @@ ifeq ($(UNAME), Linux)
         OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt-5.4.0
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_DIR      := TODO
-    OSGEARTH_DIR := TODO
+    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-clang_64-qt-5.4.0
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri

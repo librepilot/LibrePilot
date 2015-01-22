@@ -63,6 +63,15 @@ linux {
     LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
 }
 
+
+macx {
+    LIBS += -L$$OSG_DIR/lib
+    LIBS +=-lOpenThreads
+    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
+    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt 
+    LIBS += -losgDB
+}
+
 win32 {
     LIBS += -L$$OSG_DIR/lib
 

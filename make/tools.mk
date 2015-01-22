@@ -64,7 +64,7 @@ ifeq ($(UNAME), Linux)
         QT_SDK_ARCH := gcc_64
         CMAKE_URL      :=
         CMAKE_MD5_URL  :=
-        OSG_URL        := http://bamboo.openpilot.org/browse/OSG-LL32-25/artifact/shared/OSG/osg-3.2.1-linux-x64-qt-5.4.0.tar.gz
+        OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-3.2.1-linux-x64-qt-5.4.0.tar.gz
     else
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-linux.tar.bz2
         ARM_SDK_MD5_URL := https://launchpad.net/gcc-arm-embedded/4.8/4.8-2014-q1-update/+download/gcc-arm-none-eabi-4_8-2014q1-20140314-linux.tar.bz2/+md5
@@ -73,7 +73,7 @@ ifeq ($(UNAME), Linux)
         QT_SDK_ARCH := gcc
         CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
         CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
-        OSG_URL        := http://bamboo.openpilot.org/browse/OSG-OSG-18/artifact/shared/OSG/osg-3.2.1-linux-x86-qt-5.4.0.tar.gz
+        OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-3.2.1-linux-x86-qt-5.4.0.tar.gz
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
@@ -105,7 +105,7 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_URL    := http://wiki.openpilot.org/download/attachments/18612236/mesawin.tar.gz
     CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
     CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-win32-x86.zip.md5
-    OSG_URL        := https://dl.dropboxusercontent.com/u/81626785/osg-3.2.1-mingw491_32-qt-5.4.0.tar.gz
+    OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-3.2.1-mingw491_32-qt-5.4.0.tar.gz
 endif
 
 GTEST_URL := http://wiki.openpilot.org/download/attachments/18612236/gtest-1.6.0.zip

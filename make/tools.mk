@@ -286,7 +286,7 @@ endef
 ##############################
 
 define MD5_GEN_TEMPLATE
-$(OPENSSL) dgst -md5 $(1) > $(1).md5
+$(OPENSSL) dgst -r -md5 $(1) > $(1).md5
 endef
 
 ##############################

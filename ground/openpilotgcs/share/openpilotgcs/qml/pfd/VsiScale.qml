@@ -22,12 +22,12 @@ Item {
         y: scaledBounds.y * sceneItem.height
 
         smooth: true
-        visible: VelocityDesired.Down !== 0.0 && FlightStatus.FlightMode > 7 
+        visible: VelocityDesired.Down !== 0.0 && FlightStatus.FlightMode > 7
 
         //rotate it around the center
         transform: Rotation {
             angle: -VelocityDesired.Down * 5
-            origin.y : vsi_waypoint.height / 2 
+            origin.y : vsi_waypoint.height / 2
             origin.x : vsi_waypoint.width * 33
         }
     }
@@ -72,7 +72,7 @@ Item {
         //rotate it around the center : limit value to +/-6m/s
         transform: Rotation {
             angle: vert_velocity > 6 ? -30 : vert_velocity < -6 ? 30 : -vert_velocity * 5
-            origin.y : vsi_arrow.height / 2 
+            origin.y : vsi_arrow.height / 2
             origin.x : vsi_arrow.width * 3.15
         }
     }

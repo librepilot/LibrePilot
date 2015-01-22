@@ -26,7 +26,7 @@ QString GCSDirs::libraryPath(QString provider)
     // TODO not correct...
     libPath += QLatin1String("/Plugins");
 #else
-    // GCS_LIBRARY_BASENAME is compiler define set by qmake
+    // GCS_LIBRARY_BASENAME is a compiler define set by qmake
     libPath += QLatin1Char('/') + QLatin1String(GCS_LIBRARY_BASENAME);
     libPath += QLatin1Char('/') + provider;
 #endif

@@ -10,12 +10,12 @@ Item {
         id: world
         smooth: true
 
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "horizon")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "horizon")
         width: Math.round(sceneItem.width*scaledBounds.width/2)*2
         height: Math.round(sceneItem.height*scaledBounds.height/2)*3
 
-        property double pitch1DegScaledHeight: (svgRenderer.scaledElementBounds("pfd.svg", "pitch-90").y -
-                                                svgRenderer.scaledElementBounds("pfd.svg", "pitch90").y)/180.0
+        property double pitch1DegScaledHeight: (svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch-90").y -
+                                                svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch90").y)/180.0
 
         property double pitch1DegHeight: sceneItem.height*pitch1DegScaledHeight
 
@@ -58,14 +58,14 @@ Item {
 
             sceneSize: background.sceneSize
             anchors.centerIn: parent
-            border: 1            
+            border: 1
             smooth: true
         }
     }
 
     Item {
         id: pitch_window
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "pitch-window")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch-window")
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)

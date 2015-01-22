@@ -21,7 +21,7 @@ Item {
 
         smooth: true
 
-        //rotate it around the center of horizon
+        // rotate it around the center of horizon
         transform: Rotation {
             angle: -AttitudeState.Roll
             origin.y : rollscale.height*2.4

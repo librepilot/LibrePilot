@@ -129,9 +129,16 @@ public:
             fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
     }
 
+//    void updateCameraFOV()
+//    {
+//        qDebug() << "OSGCamera - updateCamera FOV";
+//        camera->setProjectionMatrixAsPerspective(
+//            fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
+//    }
+
     void updateCameraPosition()
     {
-        // qDebug() << "OSGCamera - updateCamera position";
+        //qDebug() << "OSGCamera - updateCamera position";
 
         // Altitude mode is absolute (absolute height above MSL/HAE)
         // HAE : Height above ellipsoid (HAE). This is the default.
@@ -372,23 +379,27 @@ void OSGCamera::setAltitude(double arg)
 
 void OSGCamera::installCamera(osgViewer::View *view)
 {
-    qDebug() << "OSGCamera - installCamera" << view;
+    qDebug() << "OSGCamera - installCamera" << view << view->getCamera();
 
     h->installCamera(view->getCamera());
 
     switch (h->manipulatorMode) {
     case OSGCamera::None:
-        view->setCameraManipulator(new osgGA::TrackballManipulator(
-                                       osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
+        qDebug() << "OSGCamera - installCamera: use TrackballManipulator";
+        view->setCameraManipulator(new osgGA::TrackballManipulator());
+                                       //osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
         break;
     case OSGCamera::User:
+        qDebug() << "OSGCamera - installCamera: no camera manipulator";
         // disable any installed camera manipulator
         view->setCameraManipulator(NULL);
         break;
     case OSGCamera::Earth:
+        qDebug() << "OSGCamera - installCamera: use EarthManipulator";
         view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
         break;
     case OSGCamera::Track:
+        qDebug() << "OSGCamera - installCamera: use NodeTrackerManipulator";
         if (h->trackNode && h->trackNode->node()) {
             // setup tracking camera
             // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
@@ -418,6 +429,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
         }
         break;
     default:
+        qWarning() << "OSGCamera - installCamera: should not reach here!";
         break;
     }
 }

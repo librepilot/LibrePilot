@@ -14,7 +14,7 @@ Item {
 
         visible: qmlWidget.altitudeUnit != 0
 
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "altitude-window")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "altitude-window")
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
@@ -88,7 +88,7 @@ Item {
         elementName: "altitude-box"
         sceneSize: sceneItem.sceneSize
 
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "altitude-box")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "altitude-box")
 
         x: scaledBounds.x * sceneItem.width
         y: scaledBounds.y * sceneItem.height

@@ -1569,13 +1569,13 @@
       </default>
     </OPMapGadget>    
     <PfdQmlGadget>
-      <NoTerrain>
+      <PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/Pfd.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>false</terrainEnabled>
@@ -1589,14 +1589,14 @@
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
         </data>
-      </NoTerrain>
-      <Terrain>
+      </PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
+      <PFD>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/Pfd.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1610,14 +1610,14 @@
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
         </data>
-      </Terrain>
-      <ModelView>
+      </PFD>
+      <Model__PCT__20View>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/ModelView.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/ModelView.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1631,14 +1631,14 @@
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
         </data>
-      </ModelView>
-      <EarthView>
+      </Model__PCT__20View>
+      <Earth__PCT__20View>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <qmlFile>%%DATAPATH%%pfd/default/EarthView.qml</qmlFile>
+          <qmlFile>%%DATAPATH%%qml/EarthView.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
@@ -1652,7 +1652,7 @@
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
         </data>
-      </EarthView>
+      </Earth__PCT__20View>
     </PfdQmlGadget>
     <QmlViewGadget>
       <default>
@@ -2315,7 +2315,7 @@
           <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>Terrain</activeConfiguration>
+                <activeConfiguration>PFD</activeConfiguration>
               </gadget>
               <type>uavGadget</type>
           </side0>
@@ -2323,7 +2323,7 @@
             <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>ModelView</activeConfiguration>
+                <activeConfiguration>Model View</activeConfiguration>
              </gadget>
           <type>uavGadget</type>
             </side0>
@@ -2460,7 +2460,7 @@
             <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>NoTerrain</activeConfiguration>
+                <activeConfiguration>PFD (No Terrain)</activeConfiguration>
               </gadget>
               <type>uavGadget</type>
             </side0>

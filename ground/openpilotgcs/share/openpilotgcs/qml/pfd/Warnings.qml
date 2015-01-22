@@ -9,32 +9,32 @@ Item {
 
                               //  DisArmed , Arming, Armed
     property variant armColors : ["gray", "orange", "green"]
-               
-                      // All 'manual modes' are green, 'assisted' modes in cyan
-                      // "MANUAL","STAB 1","STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
-                      // "POS HOLD", "COURSE LOCK", "POS ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLANNER", "POI", "AUTOCRUISE"
 
-    property variant flightmodeColors : ["gray", "green", "green", "green", "green", "green", "green", 
+    // All 'manual modes' are green, 'assisted' modes in cyan
+    // "MANUAL","STAB 1","STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
+    // "POS HOLD", "COURSE LOCK", "POS ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLANNER", "POI", "AUTOCRUISE"
+
+    property variant flightmodeColors : ["gray", "green", "green", "green", "green", "green", "green",
                                          "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan"]
 
-                      // Manual,Rate,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
-                      // AltitudeHold,AltitudeVario,CruiseControl + Auto mode (VTOL/Wing pathfollower)
-                      // grey : 'disabled' modes
+    // Manual,Rate,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
+    // AltitudeHold,AltitudeVario,CruiseControl + Auto mode (VTOL/Wing pathfollower)
+    // grey : 'disabled' modes
 
-    property variant thrustmodeColors : ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey",  
+    property variant thrustmodeColors : ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey",
                                          "green", "green", "green", "cyan"]
 
-                      // SystemSettings.AirframeType 3 - 18 : VtolPathFollower, check ThrustControl
- 
-    property var thrust_mode: FlightStatus.FlightMode < 7 ? StabilizationDesired.StabilizationMode_Thrust : 
+    // SystemSettings.AirframeType 3 - 18 : VtolPathFollower, check ThrustControl
+
+    property var thrust_mode: FlightStatus.FlightMode < 7 ? StabilizationDesired.StabilizationMode_Thrust :
                               FlightStatus.FlightMode > 6 && SystemSettings.AirframeType > 2 && SystemSettings.AirframeType < 19
-                              && VtolPathFollowerSettings.ThrustControl == 1 ? 11 : 
-                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType < 3 ? 11: 0 
+                              && VtolPathFollowerSettings.ThrustControl == 1 ? 11 :
+                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType < 3 ? 11: 0
 
 
     property real flight_time: Math.round(SystemStats.FlightTime / 1000)
     property real time_h: (flight_time > 0 ? Math.floor(flight_time / 3600) : 0 )
-    property real time_m: (flight_time > 0 ? Math.floor((flight_time - time_h*3600)/60) : 0) 
+    property real time_m: (flight_time > 0 ? Math.floor((flight_time - time_h*3600)/60) : 0)
     property real time_s: (flight_time > 0 ? Math.floor(flight_time - time_h*3600 - time_m*60) : 0)
 
     function formatTime(time) {

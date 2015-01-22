@@ -12,7 +12,7 @@ Item {
 
         property string statusName : ["Disconnected","HandshakeReq","HandshakeAck","Connected"][GCSTelemetryStats.Status]
 
-        scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "gcstelemetry-Disconnected")
+        scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "gcstelemetry-Disconnected")
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
     }
@@ -38,7 +38,7 @@ Item {
 
         visible: GPSPositionSensor.Satellites > 0
 
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "gps-txt")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "gps-txt")
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
     }
@@ -60,7 +60,7 @@ Item {
 
         visible: FlightBatteryState.Voltage > 0 || FlightBatteryState.Current > 0
 
-        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd.svg", "battery-txt")
+        property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "battery-txt")
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
     }

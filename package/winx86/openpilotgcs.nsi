@@ -182,12 +182,12 @@ Section "Core files" InSecCore
   File "${PROJECT_ROOT}\GPLv3.txt"
 SectionEnd
 
-; Copy GCS plugins
-Section "-Plugins" InSecPlugins
+; Copy GCS libs
+Section "-Libs" InSecPlugins
   SectionIn RO
-  SetOutPath "$INSTDIR\lib\openpilotgcs\plugins"
-  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\plugins\*.dll"
-  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\plugins\*.pluginspec"
+  SetOutPath "$INSTDIR\lib\openpilotgcs"
+  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\*.dll"
+  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\*.pluginspec"
 SectionEnd
 
 ; Copy GCS resources
@@ -204,8 +204,10 @@ Section "-Resources" InSecResources
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\mapicons\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\models"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\models\*"
-  SetOutPath "$INSTDIR\share\openpilotgcs\pfd"
-  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\pfd\*"
+  SetOutPath "$INSTDIR\share\openpilotgcs\qml"
+  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\qml\*"
+  SetOutPath "$INSTDIR\share\openpilotgcs\osgearth"
+  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\osgearth\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\stylesheets"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\stylesheets\*"
 SectionEnd
@@ -368,6 +370,7 @@ Section "un.Maps cache" UnSecCache
   ; Remove maps cache
   SetShellVarContext current
   RMDir /r /rebootok "$APPDATA\OpenPilot\mapscache"
+  RMDir /r /rebootok "$APPDATA\OpenPilot\osgearth"
 SectionEnd
 
 Section "un.GCS Layout" UnSecConfig

@@ -84,7 +84,8 @@ public:
             QOpenGLFramebufferObjectFormat format;
             format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
             // format.setSamples(4);
-            QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width(), size.height(), format);
+            QSize dpr = 2; // FIXME: Should be devicePixelRatio();
+            QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
             qDebug() << "ViewportRenderer - createFramebufferObject - done" << fbo;
             return fbo;
         }

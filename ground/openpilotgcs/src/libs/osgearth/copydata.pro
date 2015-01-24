@@ -25,6 +25,7 @@ equals(copydata, 1) {
             PROVIDER = OpenPilot
         }
 
+        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_DIR/lib/\"*) $$targetPath(\"$$GCS_LIBRARY_PATH\") $$addNewline()
     }
 
     win32 {

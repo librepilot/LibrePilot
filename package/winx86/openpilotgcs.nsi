@@ -182,12 +182,20 @@ Section "Core files" InSecCore
   File "${PROJECT_ROOT}\GPLv3.txt"
 SectionEnd
 
-; Copy GCS libs
-Section "-Libs" InSecPlugins
+
+; Copy GCS plugins
+Section "-Plugins" InSecPlugins
   SectionIn RO
-  SetOutPath "$INSTDIR\lib\openpilotgcs"
-  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\*.dll"
-  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\*.pluginspec"
+  SetOutPath "$INSTDIR\lib\openpilotgcs\plugins"
+  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\plugins\*.dll"
+  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\plugins\*.pluginspec"
+SectionEnd
+
+; Copy OSG libs
+Section "-OsgLibs" InSecOsgLibs
+  SectionIn RO
+  SetOutPath "$INSTDIR\lib\openpilotgcs\osg"
+  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\osg\*.dll"
 SectionEnd
 
 ; Copy GCS resources

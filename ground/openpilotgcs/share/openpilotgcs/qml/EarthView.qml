@@ -15,6 +15,7 @@ OSGViewport {
     OSGSkyNode {
         id: skyNode
         sceneData: terrainNode
+        dateTime: new Date();
     }
 
     OSGNodeFile {

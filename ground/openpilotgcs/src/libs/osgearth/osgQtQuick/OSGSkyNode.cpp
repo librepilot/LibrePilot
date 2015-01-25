@@ -12,7 +12,7 @@ struct OSGSkyNode::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL)
+    Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL), dateTime()
     {}
 
     ~Hidden()
@@ -55,18 +55,14 @@ public:
         // create sky node
         const osgEarth::Config & externals = mapNode->externalConfig();
 
-        osgEarth::Config skyConf = externals.child("sky");
-        double hours = skyConf.value("hours", 12.0);
-
-        // osgEarth::Util::SkyOptions *skyOptions = new osgEarth::Util::SkyOptions();
-
         skyNode = osgEarth::Util::SkyNode::create(mapNode);
 
-        skyNode->getSunLight()->setAmbient(osg::Vec4(0.8, 0.8, 0.8, 1));
+        //skyNode->getSunLight()->setAmbient(osg::Vec4(0.8, 0.8, 0.8, 1));
 
         // skyNode->setLighting(osg::StateAttribute::OFF);
         // skyNode->setAmbientBrightness(ambientBrightness);
-        skyNode->setDateTime(osgEarth::DateTime(2011, 3, 6, hours));
+
+        acceptDateTime(dateTime);
 
         // Ocean
         // if (externals.hasChild("ocean")) {
@@ -80,10 +76,34 @@ public:
         return true;
     }
 
+    bool acceptDateTime(QDateTime dateTime)
+    {
+        qDebug() << "OSGSkyNode - acceptDateTime" << dateTime;
+
+        if (!dateTime.isValid()) {
+            qWarning() << "OSGSkyNode - acceptDateTime - invalid date/time" << dateTime;
+            return false;
+        }
+
+        this->dateTime = dateTime;
+
+        // TODO should be done in a node visitor...
+        if (skyNode) {
+            QDate date = dateTime.date();
+            QTime time = dateTime.time();
+            double hours = time.hour() + (double) time.minute() / 60.0 + (double) time.second() / 3600.0;
+            skyNode->setDateTime(osgEarth::DateTime(date.year(), date.month(), date.day(), hours));
+        }
+
+        return true;
+    }
+
     OSGSkyNode *const self;
 
     OSGNode *sceneData;
     osg::ref_ptr<osgEarth::Util::SkyNode> skyNode;
+
+    QDateTime dateTime;
 
 private slots:
 
@@ -115,6 +135,19 @@ void OSGSkyNode::setSceneData(OSGNode *node)
         emit sceneDataChanged(node);
     }
 }
+
+QDateTime OSGSkyNode::dateTime()
+{
+    return h->dateTime;
+}
+
+void OSGSkyNode::setDateTime(QDateTime arg)
+{
+    if (h->acceptDateTime(arg)) {
+        emit dateTimeChanged(dateTime());
+    }
+}
+
 } // namespace osgQtQuick
 
 #include "OSGSkyNode.moc"

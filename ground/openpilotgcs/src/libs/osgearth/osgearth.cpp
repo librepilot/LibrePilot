@@ -218,7 +218,7 @@ void OsgEarth::displayInfo()
 
 #ifdef OSG_USE_QT_PRIVATE
     bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
-    Debug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
+    qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
 #endif
 
 }

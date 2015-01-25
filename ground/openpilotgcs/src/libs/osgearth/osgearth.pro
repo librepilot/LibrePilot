@@ -3,7 +3,7 @@ TARGET = GCSOsgEarth
 
 DEFINES += OSGEARTH_LIBRARY
 
-#DEFINES += OSG_USE_QT_PRIVATE
+DEFINES += OSG_USE_QT_PRIVATE
 
 QT += widgets opengl qml quick
 contains(DEFINES, OSG_USE_QT_PRIVATE) {
@@ -61,6 +61,16 @@ linux {
     LIBS +=-lOpenThreads
     LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
     LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+}
+
+
+macx {
+    LIBS += -L$$OSG_DIR/lib
+
+	LIBS += -lOpenThreads
+    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
+    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+    LIBS += -losgDB
 }
 
 win32 {

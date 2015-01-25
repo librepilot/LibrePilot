@@ -80,12 +80,13 @@ public:
 
         QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
         {
-            qDebug() << "ViewportRenderer - createFramebufferObject" << size << QOpenGLContext::currentContext();
+            //qDebug() << "ViewportRenderer - createFramebufferObject" << size << QOpenGLContext::currentContext();
             QOpenGLFramebufferObjectFormat format;
             format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
             // format.setSamples(4);
-            QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width(), size.height(), format);
-            qDebug() << "ViewportRenderer - createFramebufferObject - done" << fbo;
+            int dpr = h->quickItem->window()->devicePixelRatio();
+            QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
+            //qDebug() << "ViewportRenderer - createFramebufferObject - done" << fbo;
             return fbo;
         }
 

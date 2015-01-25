@@ -124,8 +124,7 @@ ifeq ($(UNAME), Linux)
         OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt-5.4.0
     endif
 else ifeq ($(UNAME), Darwin)
-    CMAKE_DIR :=
-    OSG_DIR   := osg-3.2.1-clang_64-qt-5.4.0
+    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-clang_64-qt-5.4.0
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
@@ -972,8 +971,7 @@ endif
 osg_version:
 	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgversion`"
 	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version`"
-
-
+	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version --caps`"
 
 
 

@@ -4,7 +4,15 @@ import PfdQmlEnums 1.0
 
 OSGViewport {
     id: fullview
-    anchors.fill: parent
+    // anchors.fill: parent
+
+    // Factor for OSGview vertical offset
+    property double factor: 0.08
+
+    // Stretch height and apply offset
+    height: height * (1 + factor)
+    y: -height * factor
+
     focus: true
     //color: "transparent"
     //opacity: 0.999
@@ -28,7 +36,7 @@ OSGViewport {
 
     OSGCamera {
         id: camera
-        fieldOfView: 90
+        fieldOfView: 100
         manipulatorMode: OSGCamera.User
 
         yaw: AttitudeState.Yaw
@@ -114,7 +122,7 @@ OSGViewport {
         property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch-window-terrain")
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: Math.floor(scaledBounds.y * sceneItem.height) - fullview.y
         width: Math.floor(scaledBounds.width * sceneItem.width)
         height: Math.floor(scaledBounds.height * sceneItem.height)
 

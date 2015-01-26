@@ -308,7 +308,7 @@ public slots:
         compositeViewer->addView(view.get());
 
         if (updateMode == OSGViewport::Discrete) {
-            frameTimer = startTimer(10);
+            frameTimer = startTimer(20 /*, Qt::PreciseTimer*/);
         }
     }
 

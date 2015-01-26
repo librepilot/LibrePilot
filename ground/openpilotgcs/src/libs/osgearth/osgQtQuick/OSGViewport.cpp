@@ -52,7 +52,7 @@ public:
                 qDebug() << "ViewportRenderer - synchronize" << item->window();
                 item->window()->setClearBeforeRendering(false);
                 h->initCompositeViewer();
-                h->quickItem->realize();
+                h->self->realize();
                 h->camera->installCamera(h->view.get());
                 h->realized = true;
             }
@@ -70,7 +70,7 @@ public:
             // TODO scene update should NOT be done here
             h->compositeViewer->frame();
 
-            // h->quickItem->window()->resetOpenGLState();
+            // h->self->window()->resetOpenGLState();
 
             if (h->updateMode == OSGViewport::Continuous) {
                 // trigger next update
@@ -84,7 +84,7 @@ public:
             QOpenGLFramebufferObjectFormat format;
             format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
             // format.setSamples(4);
-            int dpr = h->quickItem->window()->devicePixelRatio();
+            int dpr = h->self->window()->devicePixelRatio();
             QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
             //qDebug() << "ViewportRenderer - createFramebufferObject - done" << fbo;
             return fbo;
@@ -98,7 +98,7 @@ private:
     friend class ViewportRenderer;
 
     Hidden(OSGViewport *quickItem) : QObject(quickItem),
-        quickItem(quickItem),
+        self(quickItem),
         updateMode(Discrete),
         frameTimer(-1),
         sceneData(0),
@@ -106,7 +106,7 @@ private:
         logDepthBufferEnabled(false),
         realized(false)
     {
-        qDebug() << "OSGViewport - quickItem" << quickItem << quickItem->window();
+        qDebug() << "OSGViewport - quickItem" << self;
         view = new osgViewer::View();
         // TODO will the handlers be destroyed???
         view->addEventHandler(new osgViewer::StatsHandler());
@@ -120,15 +120,15 @@ private:
         if (frameTimer >= 0) {
             killTimer(frameTimer);
         }
-        quickItem = NULL;
+        self = NULL;
     }
 
     QPointF mousePoint(QMouseEvent *event)
     {
-        // qreal x = 0.01 * (event->x() - quickItem->width() / 2);
-        // qreal y = 0.01 * (event->y() - quickItem->height() / 2);
-        qreal x = 2.0 * (event->x() - quickItem->width() / 2) / quickItem->width();
-        qreal y = 2.0 * (event->y() - quickItem->height() / 2) / quickItem->height();
+        // qreal x = 0.01 * (event->x() - self->width() / 2);
+        // qreal y = 0.01 * (event->y() - self->height() / 2);
+        qreal x = 2.0 * (event->x() - self->width() / 2) / self->width();
+        qreal y = 2.0 * (event->y() - self->height() / 2) / self->height();
 
         return QPointF(x, y);
     }
@@ -246,7 +246,7 @@ private:
         return true;
     }
 
-    OSGViewport *quickItem;
+    OSGViewport *self;
 
     OSGViewport::UpdateMode updateMode;
     int frameTimer;
@@ -317,8 +317,8 @@ protected:
     void timerEvent(QTimerEvent *event)
     {
         if (event->timerId() == frameTimer) {
-            if (quickItem) {
-                quickItem->update();
+            if (self) {
+                self->update();
             }
         }
         QObject::timerEvent(event);

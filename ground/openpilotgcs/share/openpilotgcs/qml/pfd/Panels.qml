@@ -31,6 +31,8 @@ Item {
     function close_panels(){
         if (show_panels == true)
             show_panels = false;
+        else
+            show_panels = true;
     }
 
     function hide_display_rcinput(){
@@ -172,7 +174,7 @@ Item {
     // Start Drawing
 
     //
-    // Close panel
+    // Close - Open panel
     //
 
     SvgElementImage {
@@ -196,15 +198,37 @@ Item {
     }
 
     SvgElementImage {
+        id: panel_open_icon
+        elementName: "panel-open-icon"
+        sceneSize: panels.sceneSize
+        y: Math.floor(scaledBounds.y * sceneItem.height)
+        z: close_bg.z+1        
+        opacity: show_panels == true ? 0 : 1
+
+        states: State {
+             name: "fading"
+             when: show_panels == true
+             PropertyChanges { target: panel_open_icon; x: Math.floor(scaledBounds.x * sceneItem.width) + (close_bg.width * 0.85); }
+        }
+
+        transitions: Transition {
+        SequentialAnimation {
+              PropertyAnimation { property: "x"; duration: 800 }
+              }
+        }
+    }
+
+    SvgElementImage {
         id: close_mousearea
         elementName: "close-panel-mousearea"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
+        z: close_bg.z+100 
 
         MouseArea {
              id: hidedisp_close;
              anchors.fill: parent;
-             cursorShape: show_panels == true ? Qt.WhatsThisCursor : Qt.ArrowCursor
+             cursorShape: Qt.PointingHandCursor 
              onClicked: close_panels()
         }
 
@@ -276,7 +300,7 @@ Item {
         MouseArea {
              id: hidedisp_rcinput;
              anchors.fill: parent;
-             cursorShape: Qt.WhatsThisCursor
+             cursorShape: Qt.PointingHandCursor
              onClicked: hide_display_rcinput()
         }
 
@@ -581,7 +605,7 @@ Item {
         MouseArea {
              id: hidedisp_battery;
              anchors.fill: parent;
-             cursorShape: Qt.WhatsThisCursor
+             cursorShape: Qt.PointingHandCursor
              onClicked: hide_display_battery()
         }
 
@@ -837,7 +861,7 @@ Item {
         MouseArea {
              id: hidedisp_oplm;
              anchors.fill: parent;
-             cursorShape: Qt.WhatsThisCursor
+             cursorShape: Qt.PointingHandCursor
              onClicked: hide_display_oplink()
         }
 
@@ -1079,7 +1103,7 @@ Item {
         MouseArea {
              id: hidedisp_system;
              anchors.fill: parent;
-             cursorShape: Qt.WhatsThisCursor
+             cursorShape: Qt.PointingHandCursor
              onClicked: hide_display_system()
         }
 

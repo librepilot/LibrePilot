@@ -221,11 +221,13 @@ Item {
              name: "fading"
              when: show_panels == true
              PropertyChanges { target: panel_open_icon; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
+             PropertyChanges { target: panel_open_icon; opacity: 0; }
         }
 
         transitions: Transition {
         SequentialAnimation {
               PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+              PropertyAnimation { property: "opacity"; duration: 500; }
               }
         }
     }
@@ -729,7 +731,7 @@ Item {
         sceneSize: panels.sceneSize
         //y: Math.floor(scaledBounds.y * sceneItem.height)
         width: smeter_scale.width * 1.09
-        anchors.horizontalCenter: smeter_scale
+        //anchors.horizontalCenter: smeter_scale
 
         z: oplm_bg.z+4
 

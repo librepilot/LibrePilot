@@ -119,12 +119,12 @@ GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 ifeq ($(UNAME), Linux)
     CMAKE_DIR := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
     ifeq ($(ARCH), x86_64)
-        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt-5.4.0
+        OSG_SDK_DIR := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt-5.4.0
     else
-        OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt-5.4.0
+        OSG_SDK_DIR := $(TOOLS_DIR)/osg-3.2.1-linux-x86-qt-5.4.0
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-clang_64-qt-5.4.0
+    OSG_SDK_DIR := $(TOOLS_DIR)/osg-3.2.1-clang_64-qt-5.4.0
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
@@ -135,7 +135,7 @@ else ifeq ($(UNAME), Windows)
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
-    OSG_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.0
+    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.0
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -968,20 +968,20 @@ cmake_version:
 #
 ##############################
 
-$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_SDK_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
 
-ifeq ($(shell [ -d "$(OSG_DIR)" ] && $(ECHO) "exists"), exists)
-    export OSG_DIR := $(OSG_DIR)
+ifeq ($(shell [ -d "$(OSG_SDK_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSG_SDK_DIR := $(OSG_SDK_DIR)
 else
     # not installed, hope it's in the path...
-    $(info $(EMPTY) WARNING     $(call toprel, $(OSG_DIR)) not found (make osg_install), using system PATH)
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSG_SDK_DIR)) not found (make osg_install), using system PATH)
 endif
 
 .PHONY: osg_version
 osg_version:
-	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgversion`"
-	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version`"
-	-$(V1) $(ECHO) "`$(OSG_DIR)/bin/osgearth_version --caps`"
+	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgversion`"
+	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version`"
+	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version --caps`"
 
 
 

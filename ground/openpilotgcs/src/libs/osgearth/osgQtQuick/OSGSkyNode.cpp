@@ -12,7 +12,7 @@ struct OSGSkyNode::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL), dateTime()
+    Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL), sunLightEnabled(true), dateTime()
     {}
 
     ~Hidden()
@@ -57,11 +57,7 @@ public:
 
         skyNode = osgEarth::Util::SkyNode::create(mapNode);
 
-        //skyNode->getSunLight()->setAmbient(osg::Vec4(0.8, 0.8, 0.8, 1));
-
-        // skyNode->setLighting(osg::StateAttribute::OFF);
-        // skyNode->setAmbientBrightness(ambientBrightness);
-
+        acceptSunLightEnabled(sunLightEnabled);
         acceptDateTime(dateTime);
 
         // Ocean
@@ -72,6 +68,22 @@ public:
         skyNode->addChild(node);
 
         self->setNode(skyNode);
+
+        return true;
+    }
+
+    bool acceptSunLightEnabled(bool enabled)
+    {
+        qDebug() << "OSGSkyNode - acceptSunLightEnabled" << enabled;
+
+        this->sunLightEnabled = enabled;
+
+        // TODO should be done in a node visitor...
+        if (skyNode) {
+            skyNode->setLighting(sunLightEnabled ? osg::StateAttribute::ON : osg::StateAttribute::OFF);
+            //skyNode->getSunLight()->setAmbient(osg::Vec4(0.8, 0.8, 0.8, 1));
+            //skyNode->setAmbientBrightness(ambientBrightness);
+        }
 
         return true;
     }
@@ -103,6 +115,7 @@ public:
     OSGNode *sceneData;
     osg::ref_ptr<osgEarth::Util::SkyNode> skyNode;
 
+    bool sunLightEnabled;
     QDateTime dateTime;
 
 private slots:
@@ -133,6 +146,18 @@ void OSGSkyNode::setSceneData(OSGNode *node)
 {
     if (h->acceptSceneNode(node)) {
         emit sceneDataChanged(node);
+    }
+}
+
+bool OSGSkyNode::sunLightEnabled()
+{
+    return h->sunLightEnabled;
+}
+
+void OSGSkyNode::setSunLightEnabled(bool arg)
+{
+    if (h->acceptSunLightEnabled(arg)) {
+        emit sunLightEnabledChanged(sunLightEnabled());
     }
 }
 

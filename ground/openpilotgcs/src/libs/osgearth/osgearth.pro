@@ -46,16 +46,16 @@ SOURCES += \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
 
-OSG_DIR = $$clean_path($$(OSG_DIR))
-message(Using osg from here: $$OSG_DIR)
+OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
+message(Using osg from here: $$OSG_SDK_DIR)
 
-INCLUDEPATH += $$OSG_DIR/include
+INCLUDEPATH += $$OSG_SDK_DIR/include
 
 linux {
-    !exists( $(OSG_DIR)/lib64 ) {
-        LIBS += -L$$OSG_DIR/lib
+    !exists( $(OSG_SDK_DIR)/lib64 ) {
+        LIBS += -L$$OSG_SDK_DIR/lib
     } else {
-        LIBS += -L$$OSG_DIR/lib64
+        LIBS += -L$$OSG_SDK_DIR/lib64
     }
 
     LIBS +=-lOpenThreads
@@ -65,16 +65,16 @@ linux {
 
 
 macx {
-    LIBS += -L$$OSG_DIR/lib
+    LIBS += -L$$OSG_SDK_DIR/lib
 
-	LIBS += -lOpenThreads
+    LIBS += -lOpenThreads
     LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
     LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
     LIBS += -losgDB
 }
 
 win32 {
-    LIBS += -L$$OSG_DIR/lib
+    LIBS += -L$$OSG_SDK_DIR/lib
 
     CONFIG(release, debug|release) {
         LIBS += -lOpenThreads

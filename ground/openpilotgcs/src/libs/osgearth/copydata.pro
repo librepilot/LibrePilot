@@ -7,10 +7,10 @@ equals(copydata, 1) {
     OSG_VERSION = 3.2.1
 
     linux {
-        !exists($(OSG_DIR)/lib64) {
-			OSG_LIB_DIR = $(OSG_DIR)/lib
+        !exists($(OSG_SDK_DIR)/lib64) {
+			OSG_LIB_DIR = $(OSG_SDK_DIR)/lib
         } else {
-			OSG_LIB_DIR = $(OSG_DIR)/lib64
+			OSG_LIB_DIR = $(OSG_SDK_DIR)/lib64
         }
 
         # copy osg libraries
@@ -25,7 +25,7 @@ equals(copydata, 1) {
             PROVIDER = OpenPilot
         }
 
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_DIR/lib/\"*) $$targetPath(\"$$GCS_LIBRARY_PATH\") $$addNewline()
+        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_SDK_DIR/lib/\"*) $$targetPath(\"$$GCS_LIBRARY_PATH\") $$addNewline()
     }
 
     win32 {
@@ -33,12 +33,12 @@ equals(copydata, 1) {
         CONFIG(debug, debug|release):DS = "d"
 
         # copy osg libraries
-        data_copy.commands += $(COPY_FILE) $$targetPath(\"$$(OSG_DIR)/bin/\"*.dll) \
+        data_copy.commands += $(COPY_FILE) $$targetPath(\"$$(OSG_SDK_DIR)/bin/\"*.dll) \
             $$targetPath(\"$$GCS_APP_PATH/\") $$addNewline()
 
         # copy osg plugins
         data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSG_DIR)/bin/osgPlugins-$${OSG_VERSION}\") \
+        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSG_SDK_DIR)/bin/osgPlugins-$${OSG_VERSION}\") \
             $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
     }
 

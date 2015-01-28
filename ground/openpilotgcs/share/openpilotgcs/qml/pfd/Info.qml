@@ -76,6 +76,7 @@ Item {
         sceneSize: info.sceneSize
         elementName: "info-bg"
         width: parent.width
+        opacity: qmlWidget.terrainEnabled ? 0 : 1
     }
 
     //
@@ -105,7 +106,7 @@ Item {
     SvgElementPositionItem {
         sceneSize: info.sceneSize
         elementName: "gps-mode-text"
-        smooth: true
+
         Text {
             property int satNumber : String(GPSPositionSensor.Satellites).charCodeAt(0)
 
@@ -117,6 +118,13 @@ Item {
             font.weight: Font.DemiBold
             color: "white"
         }
+    }
+
+    SvgElementImage {
+        sceneSize: info.sceneSize
+        elementName: "gps-icon"
+        width: scaledBounds.width * sceneItem.width
+        height: scaledBounds.height * sceneItem.height
     }
 
     // Waypoint Info (Top)

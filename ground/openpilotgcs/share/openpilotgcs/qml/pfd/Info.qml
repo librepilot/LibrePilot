@@ -76,30 +76,32 @@ Item {
         sceneSize: info.sceneSize
         elementName: "info-bg"
         width: parent.width
-        opacity: qmlWidget.terrainEnabled ? 0 : 1
+        opacity: qmlWidget.terrainEnabled ? 0.3 : 1
     }
 
     //
     // GPS Info (Top)
     //
 
-    property real bar_width: (info_bg.height + info_bg.width) / 137
+    property real bar_width: (info_bg.height + info_bg.width) / 110
 
     Repeater {
         id: satNumberBar
-        smooth: true
+        //smooth: true
         // hack, qml/js treats qint8 as a char, necessary to convert it back to integer value
         property int satNumber : String(GPSPositionSensor.Satellites).charCodeAt(0)
 
         model: 13
         Rectangle {
             property int minSatNumber : index
-            width: bar_width
-            x: (bar_width*6) + ((bar_width*2) * index)
-            height: bar_width * index * 0.7
-            y: (bar_width*9.8) - height
+            width: Math.round(bar_width)
+            radius: width / 4
+
+            x: Math.round((bar_width*4.5) + (bar_width * 1.6 * index))
+            height: bar_width * index * 0.6
+            y: (bar_width*8) - height
             color: "green"
-            visible: satNumberBar.satNumber >= minSatNumber
+            opacity: satNumberBar.satNumber >= minSatNumber ? 1 : 0.4
         }
     }
 
@@ -110,8 +112,8 @@ Item {
         Text {
             property int satNumber : String(GPSPositionSensor.Satellites).charCodeAt(0)
 
-            text: [satNumber > 5 ? " " + satNumber.toString() + "sats " : ""] + 
-                  ["NO GPS", "NO FIX", "-2D", "-3D"][GPSPositionSensor.Status] 
+            text: [satNumber > 5 ? " " + satNumber.toString() + "sats -" : ""] + 
+                  ["NO GPS", "NO FIX", "2D", "3D"][GPSPositionSensor.Status] 
             anchors.centerIn: parent
             font.pixelSize: parent.height*1.3
             font.family: pt_bold.name

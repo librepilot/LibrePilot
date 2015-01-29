@@ -112,7 +112,7 @@ Item {
         Text {
             property int satNumber : String(GPSPositionSensor.Satellites).charCodeAt(0)
 
-            text: [satNumber > 5 ? " " + satNumber.toString() + "sats -" : ""] + 
+            text: [satNumber > 5 ? " " + satNumber.toString() + " sats - " : ""] + 
                   ["NO GPS", "NO FIX", "2D", "3D"][GPSPositionSensor.Status] 
             anchors.centerIn: parent
             font.pixelSize: parent.height*1.3

@@ -12,7 +12,6 @@ SUBDIRS = \
     qwt \
     sdlgamepad
 
-OSG_SKD_DIR = $$(OSG_SKD_DIR)
-!isEmpty(OSG_SKD_DIR) {
-	SUBDIRS += osgearth
+exists( $(OSG_SDK_DIR) ) {
+    SUBDIRS += osgearth
 }

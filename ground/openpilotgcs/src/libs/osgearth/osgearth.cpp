@@ -71,22 +71,6 @@ bool OsgEarth::initialized = false;
    export OSG_NOTIFY_LEVEL=DEBUG
 
 
-
-   StackHash failure
-
-   Here’s how 99 percent of Vista users can fix a StackHash failure. I’ll walk you through it step by step:
-
-   Method A:
-   —————
-   1. Open your Start menu and click Control Panel
-   2. Browse to “System Maintenance” then “System”
-   3. In the left panel, select “Advanced System Settings” from the available links
-   4. You should now see the System Properties Window, which will have three sections. The top section is labeled “Performance” and has a “Settings” button. Click this button.
-   5. Select the “Data Execution Prevention” tab.
-   6. Select the option which reads “Turn on DEP for all programs and services except those I select”
-   7. Use the “Browse” button to locate the executable file for the application you were trying to start when you received the StackHash error, and click Open to add it to your exceptions list.
-   8. Click Apply or OK to commit your changes.
-
  */
 
 

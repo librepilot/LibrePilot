@@ -142,13 +142,15 @@ void OsgEarth::initialize()
 
 void OsgEarth::initializePathes()
 {
-    // initialize library file path list
-    // qDebug() << "OsgEarthviewPlugin::initialize - initializing osgDB registry";
-    osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
+    // clear and initialize data file path list
+    osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
+    dataFilePathList.clear();
+    dataFilePathList.push_back(GCSDirs::sharePath("osgearth").toStdString());
+    dataFilePathList.push_back(GCSDirs::sharePath("osgearth/data").toStdString());
 
-    // clear system wide library pathes
+    // clear and initialize library file path list
+    osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
     libraryFilePathList.clear();
-    // and add our own plugin library path
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
 }
 

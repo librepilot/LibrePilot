@@ -83,6 +83,8 @@ public:
             skyNode->setLighting(sunLightEnabled ? osg::StateAttribute::ON : osg::StateAttribute::OFF);
             //skyNode->getSunLight()->setAmbient(osg::Vec4(0.8, 0.8, 0.8, 1));
             //skyNode->setAmbientBrightness(ambientBrightness);
+            // temporarily raise ambient light to make dev easier...
+            skyNode->getSunLight()->setAmbient(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
         return true;

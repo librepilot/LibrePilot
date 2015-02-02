@@ -7,10 +7,10 @@ OSGViewport {
     // anchors.fill: parent
 
     // Factor for OSGview vertical offset
-    property double factor: 0.08
+    property double factor: 0.04
 
     // Stretch height and apply offset
-    height: height * (1 + factor)
+    ///height: height * (1 + factor)
     y: -height * factor
 
     focus: true

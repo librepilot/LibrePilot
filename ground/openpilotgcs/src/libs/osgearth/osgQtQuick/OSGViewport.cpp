@@ -15,7 +15,6 @@
 #include <osgEarthUtil/Sky>
 #include <osgEarthUtil/LogarithmicDepthBuffer>
 #include <osgEarthUtil/LODBlending>
-#include <osgEarthUtil/DetailTexture>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -189,8 +188,8 @@ private:
         if (mapNode) {
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             // TODO will the AutoClipPlaneCullCallback be destroyed???
-            // view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
-            mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+            //mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
             if (logDepthBufferEnabled) {
                 // logDepthBuffer.setUseFragDepth(true);
                 logDepthBuffer.install(view->getCamera());

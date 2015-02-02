@@ -188,10 +188,12 @@ private:
         if (mapNode) {
             qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
             // TODO will the AutoClipPlaneCullCallback be destroyed???
+            qDebug() << "OSGViewport - acceptNode : set AutoClipPlaneCullCallback on camera";
             view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
             //mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
             if (logDepthBufferEnabled) {
                 // logDepthBuffer.setUseFragDepth(true);
+                qDebug() << "OSGViewport - acceptNode : install logarithmic depth buffer";
                 logDepthBuffer.install(view->getCamera());
             }
 

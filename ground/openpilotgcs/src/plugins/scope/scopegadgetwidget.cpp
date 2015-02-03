@@ -81,10 +81,10 @@ ScopeGadgetWidget::ScopeGadgetWidget(QWidget *parent) : QwtPlot(parent),
     axisWidget(QwtPlot::xBottom)->setMargin(2);
 
     m_picker = new QwtPlotPicker(QwtPlot::xBottom,
-                             QwtPlot::yLeft,
-                             QwtPlotPicker::HLineRubberBand,
-                             QwtPicker::ActiveOnly,
-                             canvas());
+                                 QwtPlot::yLeft,
+                                 QwtPlotPicker::HLineRubberBand,
+                                 QwtPicker::ActiveOnly,
+                                 canvas());
     m_picker->setStateMachine(new QwtPickerDragPointMachine());
     m_picker->setRubberBandPen(QColor(Qt::darkMagenta));
     m_picker->setTrackerPen(QColor(Qt::green));

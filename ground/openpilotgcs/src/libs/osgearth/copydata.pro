@@ -14,9 +14,9 @@ equals(copydata, 1) {
         }
 
         # copy osg libraries
-        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
+        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_LIBRARY_PATH/osg\") $$addNewline()
         data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_LIB_DIR/.\") \
-            $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
+            $$targetPath(\"$$GCS_LIBRARY_PATH/osg/\") $$addNewline()
     }
 
     macx {
@@ -37,9 +37,9 @@ equals(copydata, 1) {
             $$targetPath(\"$$GCS_APP_PATH/\") $$addNewline()
 
         # copy osg plugins
-        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg\") $$addNewline()
+        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_LIBRARY_PATH/osg\") $$addNewline()
         data_copy.commands += $(COPY_DIR) $$targetPath(\"$$(OSG_SDK_DIR)/bin/osgPlugins-$${OSG_VERSION}\") \
-            $$targetPath(\"$$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME/osg/\") $$addNewline()
+            $$targetPath(\"$$GCS_LIBRARY_PATH/osg/\") $$addNewline()
     }
 
     # add make target

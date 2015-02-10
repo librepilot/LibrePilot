@@ -107,11 +107,14 @@ private:
     {
         qDebug() << "OSGViewport - quickItem" << self;
         view = new osgViewer::View();
+
         // TODO will the handlers be destroyed???
-        view->addEventHandler(new osgViewer::StatsHandler());
+        // add the state manipulator
+        view->addEventHandler(new osgGA::StateSetManipulator(view->getCamera()->getOrCreateStateSet()));
         // b : Toggle Backface Culling, l : Toggle Lighting, t : Toggle Texturing, w : Cycle Polygon Mode
-        view->addEventHandler(new osgGA::StateSetManipulator());
-        // viewer->addEventHandler(new osgViewer::ThreadingHandler());
+
+        // add the stats handler
+        view->addEventHandler(new osgViewer::StatsHandler);
     }
 
     ~Hidden()

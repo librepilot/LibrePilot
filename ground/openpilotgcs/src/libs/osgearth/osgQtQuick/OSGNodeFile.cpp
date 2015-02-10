@@ -1,6 +1,7 @@
 #include "OSGNodeFile.hpp"
 
 #include <osgDB/ReadFile>
+#include <osgUtil/Optimizer>
 
 #include <QUrl>
 #include <QOpenGLContext>
@@ -51,7 +52,7 @@ struct OSGNodeFile::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGNodeFile *parent) : QObject(parent), self(parent), url(), async(true) {}
+    Hidden(OSGNodeFile *parent) : QObject(parent), self(parent), url(), async(true), optimizeMode(None) {}
 
     bool acceptSource(QUrl url)
     {
@@ -70,6 +71,7 @@ public:
 
     QUrl url;
     bool async;
+    OptimizeMode optimizeMode;
 
 // private:
 
@@ -93,6 +95,11 @@ public:
 public slots:
     void onLoaded(const QUrl &url, osg::Node *node)
     {
+        if (optimizeMode != OSGNodeFile::None) {
+            qDebug() << "OSGNodeFile - optimize" << node << optimizeMode;
+            osgUtil::Optimizer optimizer;
+            optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
+        }
         self->setNode(node);
     }
 };
@@ -131,6 +138,20 @@ void OSGNodeFile::setAsync(const bool async)
     if (h->async != async) {
         h->async = async;
         emit asyncChanged(async);
+    }
+}
+
+OSGNodeFile::OptimizeMode OSGNodeFile::optimizeMode() const
+{
+    return h->optimizeMode;
+}
+
+void OSGNodeFile::setOptimizeMode(OptimizeMode mode)
+{
+    qDebug() << "OSGNodeFile - setOptimizeMode" << mode;
+    if (h->optimizeMode != mode) {
+        h->optimizeMode = mode;
+        emit optimizeModeChanged(optimizeMode());
     }
 }
 

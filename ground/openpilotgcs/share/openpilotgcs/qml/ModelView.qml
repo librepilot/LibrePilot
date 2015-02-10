@@ -92,6 +92,7 @@ OSGViewport {
         id: modelFileNode
         source: qmlWidget.modelFile
         async: false
+        optimizeMode: OSGNodeFile.OptimizeAndCheck
     }
 
     OSGCamera {

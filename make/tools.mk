@@ -135,7 +135,7 @@ else ifeq ($(UNAME), Windows)
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
-    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.0
+    OSG_SDK_DIR  := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.0
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)

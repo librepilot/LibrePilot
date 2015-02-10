@@ -1,6 +1,5 @@
 TEMPLATE = lib
 TARGET = GCSOsgEarth
-
 DEFINES += OSGEARTH_LIBRARY
 
 DEFINES += OSG_USE_QT_PRIVATE
@@ -15,6 +14,9 @@ include(../utils/utils.pri)
 
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
+
+OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
+message(Using osg from here: $$OSG_SDK_DIR)
 
 HEADERS += \
     osgearth_global.h \
@@ -45,9 +47,6 @@ SOURCES += \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
-
-OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
-message(Using osg from here: $$OSG_SDK_DIR)
 
 INCLUDEPATH += $$OSG_SDK_DIR/include
 

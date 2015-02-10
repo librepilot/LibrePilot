@@ -9,8 +9,8 @@ OSGViewport {
     //color: "transparent"
     //opacity: 0.999
     updateMode: OSGViewport.Discrete
-    camera: camera
     sceneData: skyNode
+    camera: camera
 
     OSGSkyNode {
         id: skyNode

@@ -8,8 +8,8 @@ OSGViewport {
     //color: "transparent"
     //opacity: 0.999
     updateMode: OSGViewport.Discrete
-    camera: camera
     sceneData: cubeNode
+    camera: camera
 
     OSGCubeNode {
         id: cubeNode

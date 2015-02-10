@@ -7,7 +7,6 @@
 #include <osg/Node>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
-#include <osgUtil/Optimizer>
 #include <osgGA/StateSetManipulator>
 
 #include <osgEarth/MapNode>
@@ -181,10 +180,6 @@ private:
             view->setSceneData(NULL);
             return true;
         }
-
-        // expose option to turn optimizer on/off
-        // osgUtil::Optimizer optimizer;
-        // optimizer.optimize(node);
 
         // TODO map handling should not be done here
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);

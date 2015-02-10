@@ -446,8 +446,7 @@ void OSGCamera::setViewport(osg::Camera *camera, int x, int y, int width, int he
         h->y      = y;
         h->width  = width;
         h->height = height;
-        // h->cameraSizeDirty = true;
-        h->updateCameraSize();
+        h->cameraSizeDirty = true;
     }
 }
 

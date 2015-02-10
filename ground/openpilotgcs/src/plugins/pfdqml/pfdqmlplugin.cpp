@@ -17,8 +17,12 @@
 #include "pfdqml.h"
 #include "pfdqmlplugin.h"
 #include "pfdqmlgadgetfactory.h"
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+
+#ifdef USE_OSG
 #include <osgearth/osgearth.h>
+#endif
 
 #include <QDebug>
 #include <QStringList>
@@ -40,7 +44,10 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
 
 #ifdef USE_OSG
     // TODO get rid of this call...
-    OsgEarth::initialize();
+    OsgEarth::registerQmlTypes();
+
+    ICore *core = Core::ICore::instance();
+    connect(core, SIGNAL(coreOpened()), this, SLOT(coreOpened()));
 #endif
 
     Pfd::declareQML();
@@ -49,6 +56,14 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
     addAutoReleasedObject(mf);
 
     return true;
+}
+
+void PfdQmlPlugin::coreOpened()
+{
+#ifdef USE_OSG
+    // TODO get rid of this call...
+    OsgEarth::initialize();
+#endif
 }
 
 void PfdQmlPlugin::extensionsInitialized()

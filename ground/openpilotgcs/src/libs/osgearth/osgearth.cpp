@@ -54,6 +54,7 @@
 #include <X11/Xlib.h>
 #endif
 
+bool OsgEarth::registered = false;
 bool OsgEarth::initialized = false;
 
 /*
@@ -90,12 +91,27 @@ Two, you can try to use the AutoClipPlaneHandler. You can install it automatical
 If none of that works, you can try parenting your helicopter with an osg::Camera in NESTED mode,
 which will separate the clip plane calculations of the helicopter from those of the earth. *
  */
+void OsgEarth::registerQmlTypes()
+{
+    // TOOO not thread safe...
+    if (registered) {
+        return;
+    }
+    registered = true;
+
+    // Register Qml types
+    osgQtQuick::registerTypes("osgQtQuick");
+}
+
 void OsgEarth::initialize()
 {
+    // TOOO not thread safe...
     if (initialized) {
         return;
     }
     initialized = true;
+
+    qDebug() << "Initializing osgearth...";
 
 #ifdef Q_WS_X11
     // required for multi-threaded viewer on linux:
@@ -117,9 +133,6 @@ void OsgEarth::initialize()
     osgEarth::Registry::capabilities();
 
     initializeCache();
-
-    // Register Qml types
-    osgQtQuick::registerTypes("osgQtQuick");
 
     displayInfo();
 }

@@ -32,6 +32,9 @@ public:
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorString);
     void shutdown();
+
+private slots:
+    void coreOpened();
 };
 
 #endif /* PFDQMLPLUGIN_H_ */

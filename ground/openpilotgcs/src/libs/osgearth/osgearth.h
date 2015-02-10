@@ -28,10 +28,13 @@
 #include "osgearth_global.h"
 
 class OSGEARTH_LIB_EXPORT OsgEarth {
+
 public:
+    static void registerQmlTypes();
     static void initialize();
 
 private:
+    static bool registered;
     static bool initialized;
 
     static void initializePathes();

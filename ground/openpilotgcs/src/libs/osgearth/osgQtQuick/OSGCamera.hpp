@@ -5,10 +5,6 @@
 
 #include <QObject>
 
-namespace osg {
-class Camera;
-} // namespace osg
-
 namespace osgViewer {
 class View;
 } // namespace osgViewer
@@ -84,7 +80,7 @@ public:
     void setAltitude(double arg);
 
     void installCamera(osgViewer::View *view);
-    void setViewport(osg::Camera *camera, int x, int y, int width, int height);
+    void setViewport(int x, int y, int width, int height);
 
 signals:
     void fieldOfViewChanged(qreal arg);

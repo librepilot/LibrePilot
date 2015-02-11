@@ -52,9 +52,9 @@ public:
                 h->initCompositeViewer();
                 h->self->realize();
                 h->camera->installCamera(h->view.get());
-                h->camera->setViewport(0, 0, item->width(), item->height());
                 h->realized = true;
             }
+            h->camera->setViewport(0, 0, item->width(), item->height());
             // TODO scene update should be done here
         }
 

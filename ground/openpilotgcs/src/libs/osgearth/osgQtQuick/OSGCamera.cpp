@@ -61,6 +61,7 @@ public:
 
     bool acceptManipulatorMode(ManipulatorMode mode)
     {
+        qDebug() << "OSGCamera - acceptManipulatorMode" << mode;
         if (manipulatorMode == mode) {
             return false;
         }
@@ -121,7 +122,7 @@ public:
 
     void updateCameraSize()
     {
-        qDebug() << "OSGCamera - updateCamera size";
+        qDebug() << "OSGCamera - updateCamera size" << x << y << width << height << fieldOfView;
         camera->getGraphicsContext()->resized(x, y, width, height);
         camera->setViewport(x, y, width, height);
         // TODO should be done only if fieldOfView has changed...
@@ -217,8 +218,8 @@ OSGCamera::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h)
 
 void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
-    traverse(node, nv);
     h->updateCamera();
+    traverse(node, nv);
 }
 
 OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
@@ -241,7 +242,7 @@ void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView != arg) {
         h->fieldOfView = arg;
-        h->cameraDirty = true;
+        h->cameraSizeDirty = true;
         emit fieldOfViewChanged(fieldOfView());
 
         // it should be a queued call to OSGCameraRenderer instead

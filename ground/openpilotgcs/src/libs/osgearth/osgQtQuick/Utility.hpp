@@ -75,8 +75,9 @@ T *findTopMostNodeOfType(osg::Node *node)
     return fnotv._foundNode;
 }
 
-OSGQTQUICK_EXPORT osg::Camera *createHUDCamera(double left, double right,
-                                               double bottom, double top);
+OSGQTQUICK_EXPORT void insertCallbacks(osg::Node *node);
+
+OSGQTQUICK_EXPORT osg::Camera *createHUDCamera(double left, double right, double bottom, double top);
 
 OSGQTQUICK_EXPORT osgText::Font *createFont(const std::string &name);
 OSGQTQUICK_EXPORT osgText::Font *createFont(const QFont &font);

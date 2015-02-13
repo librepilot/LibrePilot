@@ -15,6 +15,7 @@
 #include <osg/NodeCallback>
 #include <osg/Camera>
 #include <osg/io_utils>
+#include <osgViewer/Viewer>
 #include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
 #include <osgUtil/CullVisitor>
@@ -30,11 +31,11 @@
 #include <QKeyEvent>
 
 namespace osgQtQuick {
-class MyCullCallback : public osg::NodeCallback {
+class CullCallback : public osg::NodeCallback {
 public:
-    MyCullCallback() {}
+    CullCallback() {}
 
-    virtual ~MyCullCallback() {}
+    virtual ~CullCallback() {}
 
 public:
     virtual void operator()(osg::Node *node, osg::NodeVisitor *nv)
@@ -61,7 +62,7 @@ public:
     virtual void apply(osg::Node & node)
     {
         // node.setUpdateCallback(new UpdateCallback());
-        node.setCullCallback(new MyCullCallback());
+        node.setCullCallback(new CullCallback());
         traverse(node);
     }
     virtual void apply(osg::Geode & geode)
@@ -84,6 +85,11 @@ public:
         apply((osg::Node &)node);
     }
 };
+
+void insertCallbacks(osg::Node *node) {
+    InsertCallbacksVisitor icv;
+    node->accept(icv);
+}
 
 osg::Camera *createHUDCamera(double left, double right, double bottom, double top)
 {

@@ -43,14 +43,15 @@ public:
             qDebug() << "ViewportRenderer - <init>";
         }
 
+        // This function is the only place when it is safe for the renderer and the item to read and write each others members.
         void synchronize(QQuickFramebufferObject *item)
         {
             // qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
-            // synchronize method is the only method allowed to access the Quick item (GUI thread is blocked)
+            //qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
             if (!h->realized) {
                 qDebug() << "ViewportRenderer - synchronize" << item->window();
                 item->window()->setClearBeforeRendering(false);
-                h->initCompositeViewer();
+                h->initViewer();
                 h->self->realize();
                 h->camera->installCamera(h->view.get());
                 h->realized = true;
@@ -59,7 +60,8 @@ public:
             // TODO scene update should be done here
         }
 
-        // render method is not allowed to access the Quick item (can be called on a render thread)
+        // This function is called when the FBO should be rendered into.
+        // The framebuffer is bound at this point and the glViewport has been set up to match the FBO size.
         void render()
         {
             // qDebug() << "ViewportRenderer - render" << QThread::currentThread() << QApplication::instance()->thread();
@@ -68,8 +70,8 @@ public:
             // needed to properly render models without terrain (Qt bug?)
             QOpenGLContext::currentContext()->functions()->glUseProgram(0);
 
-            // TODO scene update should NOT be done here
-            h->compositeViewer->frame();
+                // TODO scene update should NOT be done here
+                h->viewer->frame();
 
             // h->self->window()->resetOpenGLState();
 
@@ -258,7 +260,7 @@ private:
     OSGCamera *camera;
 
     osg::ref_ptr<osgViewer::View> view;
-    osg::ref_ptr<osgViewer::CompositeViewer> compositeViewer;
+    osg::ref_ptr<osgViewer::CompositeViewer> viewer;
     osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow;
 
     bool logDepthBufferEnabled;
@@ -272,15 +274,15 @@ private:
 
 public slots:
 
-    void initCompositeViewer()
+    void initViewer()
     {
-        qDebug() << "OSGViewport - initCompositeViewer";
-        compositeViewer = new osgViewer::CompositeViewer();
-        compositeViewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
+        qDebug() << "OSGViewport - initViewer";
+        viewer = new osgViewer::CompositeViewer();
+        viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
 
         // disable the default setting of viewer.done() by pressing Escape.
-        compositeViewer->setKeyEventSetsDone(0);
-        // compositeViewer->setQuitEventSetsDone(false);
+        viewer->setKeyEventSetsDone(0);
+        // viewer->setQuitEventSetsDone(false);
 
         osg::DisplaySettings *ds = osg::DisplaySettings::instance().get();
         osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits(ds);
@@ -307,7 +309,7 @@ public slots:
 
         view->getCamera()->setGraphicsContext(graphicsWindow);
 
-        compositeViewer->addView(view.get());
+        viewer->addView(view.get());
 
         if (updateMode == OSGViewport::Discrete) {
             frameTimer = startTimer(20 /*, Qt::PreciseTimer*/);

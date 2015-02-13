@@ -19,6 +19,7 @@
 #include <QQuickWindow>
 #include <QOpenGLFramebufferObject>
 #include <QSGSimpleTextureNode>
+#include <QOpenGLFunctions>
 
 #include <QDebug>
 
@@ -63,6 +64,9 @@ public:
         {
             // qDebug() << "ViewportRenderer - render" << QThread::currentThread() << QApplication::instance()->thread();
             // qDebug() << "ViewportRenderer - render" << QOpenGLContext::currentContext();
+
+            // needed to properly render models without terrain (Qt bug?)
+            QOpenGLContext::currentContext()->functions()->glUseProgram(0);
 
             // TODO scene update should NOT be done here
             h->compositeViewer->frame();

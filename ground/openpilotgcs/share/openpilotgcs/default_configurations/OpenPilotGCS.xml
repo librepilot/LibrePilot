@@ -1632,6 +1632,27 @@
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
         </data>
       </Model__PCT__20View>
+      <Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/ModelView.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>false</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <positionMode>0</positionMode>
+          <latitude>46.6715</latitude>
+          <longitude>10.1589</longitude>
+          <altitude>2000</altitude>
+          <cacheOnly>false</cacheOnly>
+          <modelEnabled>true</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+        </data>
+      </Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
       <Earth__PCT__20View>
         <configInfo>
           <locked>false</locked>

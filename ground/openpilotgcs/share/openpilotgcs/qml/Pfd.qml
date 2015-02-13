@@ -38,7 +38,6 @@ Rectangle {
             clip: true
 
             Loader {
-                // TODO might need focus true for keyboard events to propagate...
                 id: worldLoader
                 anchors.fill: parent
                 focus: true

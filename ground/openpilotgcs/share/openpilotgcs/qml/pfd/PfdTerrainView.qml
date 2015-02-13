@@ -3,8 +3,12 @@ import osgQtQuick 1.0
 import PfdQmlEnums 1.0
 
 OSGViewport {
-    id: fullview
     // anchors.fill: parent
+    focus: true
+    sceneData: skyNode
+    camera: camera
+
+    property real horizontCenter : horizontCenterItem.horizontCenter
 
     // Factor for OSGview vertical offset
     property double factor: 0.04
@@ -12,15 +16,6 @@ OSGViewport {
     // Stretch height and apply offset
     ///height: height * (1 + factor)
     y: -height * factor
-
-    focus: true
-    //color: "transparent"
-    //opacity: 0.999
-    updateMode: OSGViewport.Discrete
-    camera: camera
-    sceneData: skyNode
-
-    property real horizontCenter : horizontCenterItem.horizontCenter
 
     OSGSkyNode {
         id: skyNode
@@ -98,7 +93,6 @@ OSGViewport {
 
         property double pitch1DegHeight: sceneItem.height*pitch1DegScaledHeight
 
-        color: "red"
 
         transform: [
             Translate {

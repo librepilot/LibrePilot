@@ -1,4 +1,4 @@
-#include "OSGNodeFile.hpp"
+#include "OSGFileNode.hpp"
 
 #include <osgDB/ReadFile>
 #include <osgUtil/Optimizer>
@@ -48,15 +48,15 @@ private:
     QUrl url;
 };
 
-struct OSGNodeFile::Hidden : public QObject {
+struct OSGFileNode::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGNodeFile *parent) : QObject(parent), self(parent), url(), async(true), optimizeMode(None) {}
+    Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(true), optimizeMode(None) {}
 
     bool acceptSource(QUrl url)
     {
-        qDebug() << "OSGNodeFile - acceptSource" << url;
+        qDebug() << "OSGFileNode - acceptSource" << url;
         if (this->url == url) {
             return false;
         }
@@ -67,7 +67,7 @@ public:
         return true;
     }
 
-    OSGNodeFile *const self;
+    OSGFileNode *const self;
 
     QUrl url;
     bool async;
@@ -95,8 +95,8 @@ public:
 public slots:
     void onLoaded(const QUrl &url, osg::Node *node)
     {
-        if (optimizeMode != OSGNodeFile::None) {
-            qDebug() << "OSGNodeFile - optimize" << node << optimizeMode;
+        if (optimizeMode != OSGFileNode::None) {
+            qDebug() << "OSGFileNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
             optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
         }
@@ -104,60 +104,60 @@ public slots:
     }
 };
 
-OSGNodeFile::OSGNodeFile(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGFileNode::OSGFileNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGNodeFile - <init>";
+    qDebug() << "OSGFileNode - <init>";
 }
 
-OSGNodeFile::~OSGNodeFile()
+OSGFileNode::~OSGFileNode()
 {
-    qDebug() << "OSGNodeFile - <destruct>";
+    qDebug() << "OSGFileNode - <destruct>";
 }
 
-const QUrl OSGNodeFile::source() const
+const QUrl OSGFileNode::source() const
 {
     return h->url;
 }
 
-void OSGNodeFile::setSource(const QUrl &url)
+void OSGFileNode::setSource(const QUrl &url)
 {
-    qDebug() << "OSGNodeFile - setSource" << url;
+    qDebug() << "OSGFileNode - setSource" << url;
     if (h->acceptSource(url)) {
         emit sourceChanged(source());
     }
 }
 
-bool OSGNodeFile::async() const
+bool OSGFileNode::async() const
 {
     return h->async;
 }
 
-void OSGNodeFile::setAsync(const bool async)
+void OSGFileNode::setAsync(const bool async)
 {
-    qDebug() << "OSGNodeFile - setAsync" << async;
+    qDebug() << "OSGFileNode - setAsync" << async;
     if (h->async != async) {
         h->async = async;
         emit asyncChanged(async);
     }
 }
 
-OSGNodeFile::OptimizeMode OSGNodeFile::optimizeMode() const
+OSGFileNode::OptimizeMode OSGFileNode::optimizeMode() const
 {
     return h->optimizeMode;
 }
 
-void OSGNodeFile::setOptimizeMode(OptimizeMode mode)
+void OSGFileNode::setOptimizeMode(OptimizeMode mode)
 {
-    qDebug() << "OSGNodeFile - setOptimizeMode" << mode;
+    qDebug() << "OSGFileNode - setOptimizeMode" << mode;
     if (h->optimizeMode != mode) {
         h->optimizeMode = mode;
         emit optimizeModeChanged(optimizeMode());
     }
 }
 
-void OSGNodeFile::realize()
+void OSGFileNode::realize()
 {
-    qDebug() << "OSGNodeFile - realize";
+    qDebug() << "OSGFileNode - realize";
     if (h->async) {
         h->asyncLoad(h->url);
     } else {
@@ -166,4 +166,4 @@ void OSGNodeFile::realize()
 }
 } // namespace osgQtQuick
 
-#include "OSGNodeFile.moc"
+#include "OSGFileNode.moc"

@@ -3,7 +3,7 @@
 // osgQtQuick qml types
 #include "OSGNode.hpp"
 #include "OSGGroup.hpp"
-#include "OSGNodeFile.hpp"
+#include "OSGFileNode.hpp"
 #include "OSGTransformNode.hpp"
 #include "OSGCubeNode.hpp"
 #include "OSGTextNode.hpp"
@@ -222,7 +222,7 @@ void registerTypes(const char *uri)
     // @uri osgQtQuick
     qmlRegisterType<osgQtQuick::OSGNode>(uri, maj, min, "OSGNode");
     qmlRegisterType<osgQtQuick::OSGGroup>(uri, maj, min, "OSGGroup");
-    qmlRegisterType<osgQtQuick::OSGNodeFile>(uri, maj, min, "OSGNodeFile");
+    qmlRegisterType<osgQtQuick::OSGFileNode>(uri, maj, min, "OSGFileNode");
     qmlRegisterType<osgQtQuick::OSGTransformNode>(uri, maj, min, "OSGTransformNode");
     qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
     qmlRegisterType<osgQtQuick::OSGCubeNode>(uri, maj, min, "OSGCubeNode");

@@ -12,15 +12,14 @@ OSGViewport {
     OSGSkyNode {
         id: skyNode
         sceneData: terrainNode
-        sunLightEnabled: true
         dateTime: new Date();
     }
 
-    OSGNodeFile {
+    OSGFileNode {
         id: terrainNode
         source: qmlWidget.terrainFile
         async: false
-        optimizeMode: OSGNodeFile.OptimizeAndCheck
+        optimizeMode: OSGFileNode.OptimizeAndCheck
     }
 
     OSGModelNode {
@@ -86,11 +85,11 @@ OSGViewport {
         scale: Qt.vector3d(0.001, 0.001, 0.001)
     }
 
-    OSGNodeFile {
+    OSGFileNode {
         id: modelFileNode
         source: qmlWidget.modelFile
         async: false
-        optimizeMode: OSGNodeFile.OptimizeAndCheck
+        optimizeMode: OSGFileNode.OptimizeAndCheck
     }
 
     OSGCamera {

@@ -28,7 +28,7 @@ HEADERS += \
     osgQtQuick/OSGTransformNode.hpp \
     osgQtQuick/OSGCubeNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
-    osgQtQuick/OSGNodeFile.hpp \
+    osgQtQuick/OSGFileNode.hpp \
     osgQtQuick/OSGModelNode.hpp \
     osgQtQuick/OSGSkyNode.hpp \
     osgQtQuick/OSGCamera.hpp \
@@ -42,7 +42,7 @@ SOURCES += \
     osgQtQuick/OSGTransformNode.cpp \
     osgQtQuick/OSGCubeNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
-    osgQtQuick/OSGNodeFile.cpp \
+    osgQtQuick/OSGFileNode.cpp \
     osgQtQuick/OSGModelNode.cpp \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \

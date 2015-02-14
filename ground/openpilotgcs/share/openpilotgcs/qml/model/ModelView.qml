@@ -14,11 +14,11 @@ OSGViewport {
         rotate: Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw)
     }
 
-    OSGNodeFile {
+    OSGFileNode {
         id: fileNode
         source: qmlWidget.modelFile
         async: false
-        optimizeMode: OSGNodeFile.OptimizeAndCheck
+        optimizeMode: OSGFileNode.OptimizeAndCheck
     }
 
     OSGCamera {

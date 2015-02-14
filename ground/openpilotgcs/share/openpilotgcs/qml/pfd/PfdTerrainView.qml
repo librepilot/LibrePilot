@@ -23,7 +23,7 @@ OSGViewport {
         dateTime: new Date();
     }
 
-    OSGNodeFile {
+    OSGFileNode {
         id: terrainNode
         source: qmlWidget.terrainFile
         async: false

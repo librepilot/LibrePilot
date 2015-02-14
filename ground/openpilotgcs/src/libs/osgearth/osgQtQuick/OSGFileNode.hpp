@@ -1,5 +1,5 @@
-#ifndef _H_OSGQTQUICK_NODEFILE_H_
-#define _H_OSGQTQUICK_NODEFILE_H_
+#ifndef _H_OSGQTQUICK_FILENODE_H_
+#define _H_OSGQTQUICK_FILENODE_H_
 
 #include "Export.hpp"
 #include "OSGNode.hpp"
@@ -10,7 +10,7 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGNodeFile : public OSGNode {
+class OSGQTQUICK_EXPORT OSGFileNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
     Q_PROPERTY(OptimizeMode optimizeMode READ optimizeMode WRITE setOptimizeMode NOTIFY optimizeModeChanged)
@@ -20,8 +20,8 @@ class OSGQTQUICK_EXPORT OSGNodeFile : public OSGNode {
 public:
     enum OptimizeMode { None, Optimize, OptimizeAndCheck };
 
-    OSGNodeFile(QObject *parent = 0);
-    virtual ~OSGNodeFile();
+    OSGFileNode(QObject *parent = 0);
+    virtual ~OSGFileNode();
 
     const QUrl source() const;
     void setSource(const QUrl &url);
@@ -45,4 +45,4 @@ private:
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_NODEFILE_H_
+#endif // _H_OSGQTQUICK_FILENODE_H_

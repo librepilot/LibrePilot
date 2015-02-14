@@ -26,7 +26,7 @@ struct OSGCamera::Hidden : public QObject {
 
     struct CameraUpdateCallback : public osg::NodeCallback {
 public:
-        CameraUpdateCallback(Hidden *h);
+        CameraUpdateCallback(Hidden *h) : h(h) {}
 
         void operator()(osg::Node *node, osg::NodeVisitor *nv);
 
@@ -40,16 +40,9 @@ public:
     {
         fieldOfView = 90.0;
 
-        cameraDirty = false;
-        roll      = 0.0;
-        pitch     = 0.0;
-        yaw       = 0.0;
+        dirty = false;
 
-        latitude  = 0.0;
-        longitude = 0.0;
-        altitude  = 0.0;
-
-        cameraSizeDirty = false;
+        sizeDirty = false;
         x      = 0;
         y      = 0;
         width  = 0;
@@ -100,7 +93,7 @@ public:
         this->camera->addUpdateCallback(new CameraUpdateCallback(this));
 
         // TODO needed?
-        cameraDirty = true;
+        dirty = true;
     }
 
     void updateCamera()
@@ -108,12 +101,12 @@ public:
         if (!camera.valid()) {
             qWarning() << "OSGCamera - updateCamera invalid camera";
         }
-        if (cameraSizeDirty) {
-            cameraSizeDirty = false;
+        if (sizeDirty) {
+            sizeDirty = false;
             updateCameraSize();
         }
-        if (cameraDirty) {
-            cameraDirty = false;
+        if (dirty) {
+            dirty = false;
             if (manipulatorMode == User) {
                 updateCameraPosition();
             }
@@ -152,7 +145,7 @@ public:
         osg::Matrix cameraPosition;
 
         osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                                    longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
+                                    position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
 
         geoPoint.createLocalToWorld(cameraPosition);
 
@@ -165,9 +158,9 @@ public:
 
         // Final camera matrix
         osg::Matrix cameraMatrix = cameraRotation
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(roll), osg::Vec3(0.0, 1.0, 0.0))
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(pitch), osg::Vec3(1.0, 0.0, 0.0))
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(yaw), osg::Vec3(0.0, 0.0, -1.0)) * cameraPosition;
+                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.x()), osg::Vec3(1.0, 0.0, 0.0))
+                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.y()), osg::Vec3(0.0, 1.0, 0.0))
+                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.z()), osg::Vec3(0.0, 0.0, 1.0)) * cameraPosition;
 
         // Inverse the camera's position and orientation matrix to obtain the view matrix
         cameraMatrix = osg::Matrix::inverse(cameraMatrix);
@@ -183,17 +176,12 @@ public:
     TrackerMode trackerMode;
 
     // for User manipulator
-    bool   cameraDirty;
+    bool   dirty;
 
-    qreal  roll;
-    qreal  pitch;
-    qreal  yaw;
+    QVector3D attitude;
+    QVector3D position;
 
-    double latitude;
-    double longitude;
-    double altitude;
-
-    bool   cameraSizeDirty;
+    bool   sizeDirty;
     int    x;
     int    y;
     int    width;
@@ -210,11 +198,6 @@ private slots:
 };
 
 /* struct Hidden::CameraUpdateCallback */
-
-OSGCamera::Hidden::CameraUpdateCallback::CameraUpdateCallback(Hidden *h) : h(h)
-{
-    qDebug() << "OSGCamera - CameraUpdateCallback - <init>";
-}
 
 void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
@@ -242,7 +225,7 @@ void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView != arg) {
         h->fieldOfView = arg;
-        h->cameraSizeDirty = true;
+        h->sizeDirty = true;
         emit fieldOfViewChanged(fieldOfView());
 
         // it should be a queued call to OSGCameraRenderer instead
@@ -294,87 +277,31 @@ void OSGCamera::setTrackerMode(TrackerMode mode)
     }
 }
 
-qreal OSGCamera::roll() const
+QVector3D OSGCamera::attitude() const
 {
-    return h->roll;
+    return h->attitude;
 }
 
-void OSGCamera::setRoll(qreal arg)
+void OSGCamera::setAttitude(QVector3D arg)
 {
-    if (h->roll != arg) {
-        h->roll = arg;
-        h->cameraDirty = true;
-        emit rollChanged(roll());
+    if (h->attitude != arg) {
+        h->attitude = arg;
+        h->dirty = true;
+        emit attitudeChanged(attitude());
     }
 }
 
-qreal OSGCamera::pitch() const
+QVector3D OSGCamera::position() const
 {
-    return h->pitch;
+    return h->position;
 }
 
-void OSGCamera::setPitch(qreal arg)
+void OSGCamera::setPosition(QVector3D arg)
 {
-    if (h->pitch != arg) {
-        h->pitch = arg;
-        h->cameraDirty = true;
-        emit pitchChanged(pitch());
-    }
-}
-
-qreal OSGCamera::yaw() const
-{
-    return h->yaw;
-}
-
-void OSGCamera::setYaw(qreal arg)
-{
-    if (h->yaw != arg) {
-        h->yaw = arg;
-        h->cameraDirty = true;
-        emit yawChanged(yaw());
-    }
-}
-
-double OSGCamera::latitude() const
-{
-    return h->latitude;
-}
-
-void OSGCamera::setLatitude(double arg)
-{
-    if (h->latitude != arg) {
-        h->latitude    = arg;
-        h->cameraDirty = true;
-        emit latitudeChanged(latitude());
-    }
-}
-
-double OSGCamera::longitude() const
-{
-    return h->longitude;
-}
-
-void OSGCamera::setLongitude(double arg)
-{
-    if (h->longitude != arg) {
-        h->longitude   = arg;
-        h->cameraDirty = true;
-        emit longitudeChanged(longitude());
-    }
-}
-
-double OSGCamera::altitude() const
-{
-    return h->altitude;
-}
-
-void OSGCamera::setAltitude(double arg)
-{
-    if (h->altitude != arg) {
-        h->altitude    = arg;
-        h->cameraDirty = true;
-        emit altitudeChanged(altitude());
+    if (h->position != arg) {
+        h->position = arg;
+        h->dirty = true;
+        emit positionChanged(position());
     }
 }
 
@@ -447,7 +374,7 @@ void OSGCamera::setViewport(int x, int y, int width, int height)
         h->y      = y;
         h->width  = width;
         h->height = height;
-        h->cameraSizeDirty = true;
+        h->sizeDirty = true;
     }
 }
 

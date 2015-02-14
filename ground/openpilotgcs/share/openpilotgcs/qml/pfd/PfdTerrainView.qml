@@ -34,13 +34,8 @@ OSGViewport {
         fieldOfView: 100
         manipulatorMode: OSGCamera.User
 
-        yaw: AttitudeState.Yaw
-        pitch: AttitudeState.Pitch
-        roll: AttitudeState.Roll
-
-        latitude: lat()
-        longitude: lon()
-        altitude: alt()
+        attitude: Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw)
+		position: Qt.vector3d(lat(), lon(), alt())
 
         function lat() {
             switch(qmlWidget.positionMode) {

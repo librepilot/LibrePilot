@@ -4,6 +4,7 @@
 #include "Export.hpp"
 
 #include <QObject>
+#include <QVector3D>
 
 namespace osgViewer {
 class View;
@@ -30,13 +31,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject {
     Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(TrackerMode trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
 
-    Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
-    Q_PROPERTY(qreal pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
-    Q_PROPERTY(qreal yaw READ yaw WRITE setYaw NOTIFY yawChanged)
-
-    Q_PROPERTY(double latitude READ latitude WRITE setLatitude NOTIFY latitudeChanged)
-    Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
-    Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
+    Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
+    Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
 
     Q_ENUMS(ManipulatorMode)
     Q_ENUMS(TrackerMode)
@@ -61,23 +57,11 @@ public:
     TrackerMode trackerMode() const;
     void setTrackerMode(TrackerMode);
 
-    qreal roll() const;
-    void setRoll(qreal arg);
+    QVector3D attitude() const;
+    void setAttitude(QVector3D arg);
 
-    qreal pitch() const;
-    void setPitch(qreal arg);
-
-    qreal yaw() const;
-    void setYaw(qreal arg);
-
-    double latitude() const;
-    void setLatitude(double arg);
-
-    double longitude() const;
-    void setLongitude(double arg);
-
-    double altitude() const;
-    void setAltitude(double arg);
+    QVector3D position() const;
+    void setPosition(QVector3D arg);
 
     void installCamera(osgViewer::View *view);
     void setViewport(int x, int y, int width, int height);
@@ -90,17 +74,8 @@ signals:
     void trackNodeChanged(OSGNode *node);
     void trackerModeChanged(TrackerMode);
 
-    void rollChanged(qreal arg);
-    void pitchChanged(qreal arg);
-    void yawChanged(qreal arg);
-
-    void latitudeChanged(double arg);
-    void longitudeChanged(double arg);
-    void altitudeChanged(double arg);
-
-// osg::Node* node();
-// void setNode(osg::Node *node);
-// void nodeChanged(osg::Node *node);
+    void attitudeChanged(QVector3D arg);
+    void positionChanged(QVector3D arg);
 
 private:
     struct Hidden;

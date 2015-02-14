@@ -10,9 +10,19 @@ namespace osgQtQuick {
 struct OSGTransformNode::Hidden : public QObject {
     Q_OBJECT
 
+    struct NodeUpdateCallback : public osg::NodeCallback {
+    public:
+        NodeUpdateCallback(Hidden *h) : h(h) {}
+
+        void operator()(osg::Node *node, osg::NodeVisitor *nv);
+
+        mutable Hidden *h;
+    };
+    friend class NodeUpdateCallback;
+
 public:
 
-    Hidden(OSGTransformNode *parent) : QObject(parent), self(parent), modelData(NULL)
+    Hidden(OSGTransformNode *parent) : QObject(parent), self(parent), modelData(NULL), dirty(false)
     {}
 
     ~Hidden()
@@ -68,6 +78,21 @@ public:
 
         transform = new osg::PositionAttitudeTransform();
 
+        transform->addUpdateCallback(new NodeUpdateCallback(this));
+
+        dirty = true;
+        updateNode();
+
+        return transform.get();
+    }
+
+    void updateNode()
+    {
+        if (!dirty || !transform.valid()) {
+            return;
+        }
+        dirty = false;
+
         // scale
         if ((scale.x() != 0.0) || (scale.y() != 0.0) || (scale.z() != 0.0)) {
             transform->setScale(osg::Vec3d(scale.x(), scale.y(), scale.z()));
@@ -85,7 +110,6 @@ public:
         // translate
         transform->setPosition(osg::Vec3d(translate.x(), translate.y(), translate.z()));
 
-        return transform.get();
     }
 
     OSGTransformNode *const self;
@@ -93,6 +117,8 @@ public:
     OSGNode *modelData;
 
     osg::ref_ptr<osg::PositionAttitudeTransform> transform;
+
+    bool   dirty;
 
     QVector3D scale;
     QVector3D rotate;
@@ -106,6 +132,14 @@ private slots:
         acceptNode(node);
     }
 };
+
+/* struct Hidden::NodeUpdateCallback */
+
+void OSGTransformNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
+{
+    h->updateNode();
+    traverse(node, nv);
+}
 
 OSGTransformNode::OSGTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
@@ -138,7 +172,7 @@ void OSGTransformNode::setScale(QVector3D arg)
 {
     if (h->scale != arg) {
         h->scale = arg;
-        qDebug() << "OSGTransformNode - scale changed" << arg;
+        h->dirty = true;
         emit scaleChanged(scale());
     }
 }
@@ -152,7 +186,7 @@ void OSGTransformNode::setRotate(QVector3D arg)
 {
     if (h->rotate != arg) {
         h->rotate = arg;
-        qDebug() << "OSGTransformNode - rotate changed" << arg;
+        h->dirty = true;
         emit rotateChanged(rotate());
     }
 }
@@ -166,7 +200,7 @@ void OSGTransformNode::setTranslate(QVector3D arg)
 {
     if (h->translate != arg) {
         h->translate = arg;
-        qDebug() << "OSGTransformNode - translate changed" << arg;
+        h->dirty = true;
         emit translateChanged(translate());
     }
 }

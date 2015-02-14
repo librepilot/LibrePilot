@@ -2346,7 +2346,7 @@
               <gadget>
                 <activeConfiguration>Model View</activeConfiguration>
              </gadget>
-          <type>uavGadget</type>
+              <type>uavGadget</type>
             </side0>
             <side1>
               <classId>SystemHealthGadget</classId>

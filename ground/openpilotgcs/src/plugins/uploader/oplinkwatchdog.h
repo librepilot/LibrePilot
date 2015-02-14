@@ -1,13 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       rebootpage.cpp
+ * @file       oplinkwatchdog.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @addtogroup
+ * @addtogroup [Group]
  * @{
- * @addtogroup RebootPage
+ * @addtogroup OPLinkWatchdog
  * @{
- * @brief
+ * @brief [Brief]
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,43 +25,46 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "rebootpage.h"
-#include "ui_rebootpage.h"
+#ifndef OPLINKWATCHDOG_H
+#define OPLINKWATCHDOG_H
 
-RebootPage::RebootPage(SetupWizard *wizard, QWidget *parent) :
-    AbstractWizardPage(wizard, parent),
-    ui(new Ui::RebootPage), m_toggl(false)
-{
-    ui->setupUi(this);
-    ui->yellowLabel->setVisible(false);
-    ui->redLabel->setVisible(true);
-}
+#include <QTimer>
 
-RebootPage::~RebootPage()
-{
-    disconnect(&m_timer, SIGNAL(timeout()), this, SLOT(toggleLabel()));
-    m_timer.stop();
-    delete ui;
-}
+class OPLinkStatus;
+class OPLinkWatchdog : public QObject {
+    Q_OBJECT
+public:
+    enum OPLinkType {
+        OPLINK_MINI,
+        OPLINK_REVOLUTION,
+        OPLINK_UNKNOWN
+    };
 
-void RebootPage::initializePage()
-{
-    if (!m_timer.isActive()) {
-        connect(&m_timer, SIGNAL(timeout()), this, SLOT(toggleLabel()));
-        m_timer.setInterval(500);
-        m_timer.setSingleShot(false);
-        m_timer.start();
+    OPLinkWatchdog();
+    ~OPLinkWatchdog();
+    bool isConnected() const
+    {
+        return m_isConnected;
     }
-}
+    OPLinkWatchdog::OPLinkType opLinkType() const
+    {
+        return m_opLinkType;
+    }
 
-bool RebootPage::validatePage()
-{
-    return true;
-}
+signals:
+    void connected();
+    void opLinkMiniConnected();
+    void opLinkRevolutionConnected();
+    void disconnected();
 
-void RebootPage::toggleLabel()
-{
-    m_toggl = !m_toggl;
-    ui->yellowLabel->setVisible(m_toggl);
-    ui->redLabel->setVisible(!m_toggl);
-}
+private slots:
+    void onOPLinkStatusUpdate();
+    void onTimeout();
+
+private:
+    bool m_isConnected;
+    OPLinkType m_opLinkType;
+    QTimer *m_watchdog;
+    OPLinkStatus *m_opLinkStatus;
+};
+#endif // OPLINKWATCHDOG_H

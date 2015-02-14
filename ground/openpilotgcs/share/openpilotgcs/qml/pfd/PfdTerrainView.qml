@@ -3,6 +3,7 @@ import osgQtQuick 1.0
 import PfdQmlEnums 1.0
 
 OSGViewport {
+    id: fullview
     // anchors.fill: parent
     focus: true
     sceneData: skyNode

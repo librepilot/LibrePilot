@@ -19,8 +19,8 @@ struct OSGModelNode::Hidden : public QObject {
     Q_OBJECT
 
     struct NodeUpdateCallback : public osg::NodeCallback {
-public:
-        NodeUpdateCallback(Hidden *h);
+    public:
+        NodeUpdateCallback(Hidden *h) : h(h) {}
 
         void operator()(osg::Node *node, osg::NodeVisitor *nv);
 
@@ -32,8 +32,6 @@ public:
 
     Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), dirty(false)
     {
-        roll     = pitch = yaw = 0.0;
-        latitude = longitude = altitude = 0.0;
     }
 
     ~Hidden()
@@ -97,10 +95,10 @@ public:
 
         qDebug() << "*** " << modelNode->getBound().radius();
 
-        if (!nodeUpdateCB.valid()) {
-            nodeUpdateCB = new NodeUpdateCallback(this);
+        if (!nodeUpdateCallback.valid()) {
+            nodeUpdateCallback = new NodeUpdateCallback(this);
         }
-        modelNode->addUpdateCallback(nodeUpdateCB.get());
+        modelNode->addUpdateCallback(nodeUpdateCallback.get());
 
         mapNode->addChild(modelNode);
 
@@ -142,20 +140,20 @@ public:
             return;
         }
         dirty = false;
-        modelNode->setPosition(clampToTerrain ? clampedPosition() : position());
-        modelNode->setLocalRotation(rotation());
+        modelNode->setPosition(clampToTerrain ? clampedPositionGeoPoint() : positionGeoPoint());
+        modelNode->setLocalRotation(localRotation());
     }
 
-    osgEarth::GeoPoint position()
+    osgEarth::GeoPoint positionGeoPoint()
     {
         osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                                    longitude, latitude, altitude, osgEarth::ALTMODE_ABSOLUTE);
+                                    position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
         return geoPoint;
     }
 
-    osgEarth::GeoPoint clampedPosition()
+    osgEarth::GeoPoint clampedPositionGeoPoint()
     {
-        osgEarth::GeoPoint geoPoint = position();
+        osgEarth::GeoPoint geoPoint = positionGeoPoint();
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
         if (!mapNode) {
@@ -169,11 +167,11 @@ public:
         double elevation;
         if (eq.getElevation(geoPoint, elevation, 0.0)) {
             // TODO need to notify intoTerrainChanged...
-            intoTerrain = ((altitude - modelNode->getBound().radius()) < elevation);
+            intoTerrain = ((position.z() - modelNode->getBound().radius()) < elevation);
             if (intoTerrain) {
-                qDebug() << "OSGModelNode - updatePositionClamped : clamping" << altitude - modelNode->getBound().radius() << "/" << elevation;
-                geoPoint = osgEarth::GeoPoint(osgEarth::SpatialReference::get("wgs84"), longitude, latitude,
-                                            elevation + modelNode->getBound().radius(), osgEarth::ALTMODE_ABSOLUTE);
+                qDebug() << "OSGModelNode - updatePositionClamped : clamping" << position.z() - modelNode->getBound().radius() << "/" << elevation;
+                geoPoint = osgEarth::GeoPoint(osgEarth::SpatialReference::get("wgs84"), position.x(), position.y(),
+                        position.z() + modelNode->getBound().radius(), osgEarth::ALTMODE_ABSOLUTE);
             }
 
         }
@@ -183,12 +181,12 @@ public:
         return geoPoint;
     }
 
-    osg::Quat rotation()
+    osg::Quat localRotation()
     {
         osg::Quat q = osg::Quat(
-            osg::DegreesToRadians(roll), osg::Vec3d(0, 1, 0),
-            osg::DegreesToRadians(pitch), osg::Vec3d(1, 0, 0),
-            osg::DegreesToRadians(yaw), osg::Vec3d(0, 0, -1));
+            osg::DegreesToRadians(attitude.x()), osg::Vec3d(1, 0, 0),
+            osg::DegreesToRadians(attitude.y()), osg::Vec3d(0, 1, 0),
+            osg::DegreesToRadians(attitude.z()), osg::Vec3d(0, 0, 1));
         return q;
     }
 
@@ -198,20 +196,16 @@ public:
     OSGNode *sceneData;
 
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
-
-    osg::ref_ptr<NodeUpdateCallback> nodeUpdateCB;
+    //osg::ref_ptr<osg::Node> cameraNode;
+    osg::ref_ptr<NodeUpdateCallback> nodeUpdateCallback;
 
     bool   dirty;
 
-    qreal  roll;
-    qreal  pitch;
-    qreal  yaw;
-
-    double latitude;
-    double longitude;
-    double altitude;
-
     bool clampToTerrain;
+
+    QVector3D attitude;
+    QVector3D position;
+
     bool intoTerrain;
 
 private slots:
@@ -225,8 +219,8 @@ private slots:
                 if (mapNode) {
                     mapNode->removeChild(modelNode);
                 }
-                if (nodeUpdateCB.valid()) {
-                    modelNode->removeUpdateCallback(nodeUpdateCB.get());
+                if (nodeUpdateCallback.valid()) {
+                    modelNode->removeUpdateCallback(nodeUpdateCallback.get());
                 }
             }
             if (node) {
@@ -245,8 +239,8 @@ private slots:
                 if (mapNode) {
                     mapNode->removeChild(modelNode);
                 }
-                if (nodeUpdateCB.valid()) {
-                    modelNode->removeUpdateCallback(nodeUpdateCB.get());
+                if (nodeUpdateCallback.valid()) {
+                    modelNode->removeUpdateCallback(nodeUpdateCallback.get());
                 }
             }
             if (modelData->node()) {
@@ -258,12 +252,10 @@ private slots:
 
 /* struct Hidden::NodeUpdateCallback */
 
-OSGModelNode::Hidden::NodeUpdateCallback::NodeUpdateCallback(Hidden *h) : h(h) {}
-
 void OSGModelNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
-    traverse(node, nv);
     h->updateNode();
+    traverse(node, nv);
 }
 
 OSGModelNode::OSGModelNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
@@ -300,90 +292,6 @@ void OSGModelNode::setSceneData(OSGNode *node)
     }
 }
 
-qreal OSGModelNode::roll() const
-{
-    return h->roll;
-}
-
-void OSGModelNode::setRoll(qreal arg)
-{
-    if (h->roll != arg) {
-        h->roll  = arg;
-        h->dirty = true;
-        emit rollChanged(roll());
-    }
-}
-
-qreal OSGModelNode::pitch() const
-{
-    return h->pitch;
-}
-
-void OSGModelNode::setPitch(qreal arg)
-{
-    if (h->pitch != arg) {
-        h->pitch = arg;
-        h->dirty = true;
-        emit pitchChanged(pitch());
-    }
-}
-
-qreal OSGModelNode::yaw() const
-{
-    return h->yaw;
-}
-
-void OSGModelNode::setYaw(qreal arg)
-{
-    if (h->yaw != arg) {
-        h->yaw   = arg;
-        h->dirty = true;
-        emit yawChanged(yaw());
-    }
-}
-
-double OSGModelNode::latitude() const
-{
-    return h->latitude;
-}
-
-void OSGModelNode::setLatitude(double arg)
-{
-    if (h->latitude != arg) {
-        h->latitude = arg;
-        h->dirty    = true;
-        emit latitudeChanged(latitude());
-    }
-}
-
-double OSGModelNode::longitude() const
-{
-    return h->longitude;
-}
-
-void OSGModelNode::setLongitude(double arg)
-{
-    if (h->longitude != arg) {
-        h->longitude = arg;
-        h->dirty     = true;
-        emit longitudeChanged(longitude());
-    }
-}
-
-double OSGModelNode::altitude() const
-{
-    return h->altitude;
-}
-
-void OSGModelNode::setAltitude(double arg)
-{
-    if (h->altitude != arg) {
-        h->altitude = arg;
-        h->dirty    = true;
-        emit altitudeChanged(altitude());
-    }
-}
-
 bool OSGModelNode::clampToTerrain() const
 {
     return h->clampToTerrain;
@@ -395,6 +303,34 @@ void OSGModelNode::setClampToTerrain(bool arg)
         h->clampToTerrain = arg;
         h->dirty    = true;
         emit clampToTerrainChanged(clampToTerrain());
+    }
+}
+
+QVector3D OSGModelNode::attitude() const
+{
+    return h->attitude;
+}
+
+void OSGModelNode::setAttitude(QVector3D arg)
+{
+    if (h->attitude != arg) {
+        h->attitude = arg;
+        h->dirty = true;
+        emit attitudeChanged(attitude());
+    }
+}
+
+QVector3D OSGModelNode::position() const
+{
+    return h->position;
+}
+
+void OSGModelNode::setPosition(QVector3D arg)
+{
+    if (h->position != arg) {
+        h->position = arg;
+        h->dirty = true;
+        emit positionChanged(position());
     }
 }
 

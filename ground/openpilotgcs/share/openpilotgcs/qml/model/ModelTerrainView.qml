@@ -26,16 +26,10 @@ OSGViewport {
         id: modelNode
         modelData: modelGroup
         sceneData: terrainNode
-
-        yaw: AttitudeState.Yaw
-        pitch: AttitudeState.Pitch
-        roll: AttitudeState.Roll
-
-        latitude: lat()
-        longitude: lon()
-        altitude: alt()
-
         clampToTerrain: true
+
+        attitude: Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw)
+		position: Qt.vector3d(lat(), lon(), alt())
 
         function lat() {
             switch(qmlWidget.positionMode) {

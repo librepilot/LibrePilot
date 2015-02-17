@@ -38,6 +38,7 @@
 #include <osgEarth/Cache>
 #include <osgEarth/Capabilities>
 #include <osgEarth/Registry>
+#include <osgEarthDrivers/cache_filesystem/FileSystemCache>
 
 #include <QDebug>
 
@@ -128,7 +129,7 @@ void OsgEarth::initialize()
     // osgQt::initQtWindowingSystem();
 
     // force early initialization of osgEarth registry
-    // this important as doing it later (when OpenGL is already in use) might thrash some GL contextes
+    // this important as doing it later (when OpenGL is already in use) might thrash some GL contexts
     // TODO : this is done too early when no window is displayed which causes a windows to be briefly flashed on Linux
     osgEarth::Registry::capabilities();
 
@@ -153,24 +154,24 @@ void OsgEarth::initializePathes()
 
 void OsgEarth::initializeCache()
 {
-    // force init of osgearth registry (without caching) to work around a deadlock
-    // TODO might not be necessary anymore because of the early call to getCapabilities()
-    osgEarth::Registry::instance();
-
-    // enable caching
-    // TODO try to use FileSystemCacheOptions instead of using OSGEARTH_CACHE_PATH env variables
     QString cachePath = Utils::PathUtils().GetStoragePath() + "osgearth/cache";
 
-    qputenv("OSGEARTH_CACHE_PATH", cachePath.toLatin1());
+    osgEarth::Drivers::FileSystemCacheOptions cacheOptions;
+    cacheOptions.rootPath() = cachePath.toStdString();
 
-    osgEarth::CacheOptions cacheOptions;
-    cacheOptions.setDriver(osgEarth::Registry::instance()->getDefaultCacheDriverName());
+    osg::ref_ptr<osgEarth::Cache> cache = osgEarth::CacheFactory::create(cacheOptions);
+    if (cache->isOK()) {
+        unsigned int policyUsage = osgEarth::CachePolicy::USAGE_READ_WRITE;
+        //policyUsage |= osgEarth::CachePolicy::USAGE_CACHE_ONLY;
 
-    osgEarth::Cache *cache = osgEarth::CacheFactory::create(cacheOptions);
-    if (cache) {
-        osgEarth::Registry::instance()->setCache(cache);
+        osgEarth::Registry::instance()->setCache(cache.get());
+
+        // The default cache policy used when no policy is set elsewhere
+        osgEarth::Registry::instance()->setDefaultCachePolicy(osgEarth::CachePolicy(osgEarth::CachePolicy::Usage(policyUsage)));
+        // The override cache policy (overrides all others if set)
+        //osgEarth::Registry::instance()->setOverrideCachePolicy(osgEarth::CachePolicy(osgEarth::CachePolicy::Usage(policyUsage)));
     } else {
-        qWarning() << "Failed to initialize cache";
+        qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }
 
 // osgDB::SharedStateManager::ShareMode shareMode = osgDB::SharedStateManager::SHARE_NONE;// =osgDB::SharedStateManager::SHARE_ALL;

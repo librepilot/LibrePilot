@@ -4,7 +4,7 @@
 #include "Export.hpp"
 #include "OSGNode.hpp"
 
-#include "QVector3D"
+#include <QVector3D>
 
 // TODO derive from OSGGroup...
 namespace osgQtQuick {

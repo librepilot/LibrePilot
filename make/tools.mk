@@ -980,7 +980,6 @@ endif
 .PHONY: osg_version
 osg_version:
 	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgversion`"
-	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version`"
 	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version --caps`"
 
 

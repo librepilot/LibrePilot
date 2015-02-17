@@ -56,8 +56,7 @@ QString GCSDirs::sharePath(QString provider)
 #ifdef Q_OS_MACX
     sharePath += QLatin1String("/Resources");
 #else
-    // GCS_LIBRARY_BASENAME is a compiler define set by qmake
-    sharePath += QLatin1String("/share");
+    sharePath += QLatin1String("/share/openpilotgcs");
     sharePath += QLatin1Char('/') + provider;
 #endif
     return sharePath;

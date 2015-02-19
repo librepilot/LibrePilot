@@ -20,9 +20,33 @@
 #include "pfdqml.h"
 #include "pfdqmlgadgetconfiguration.h"
 
+#define USE_WIDGET 1
+
+#ifdef USE_WIDGET
+#include <QQuickWidget>
+
+/*
+ * Note: QQuickWidget is an alternative to using QQuickView and QWidget::createWindowContainer().
+ * The restrictions on stacking order do not apply, making QQuickWidget the more flexible alternative,
+ * behaving more like an ordinary widget. This comes at the expense of performance.
+ * Unlike QQuickWindow and QQuickView, QQuickWidget involves rendering into OpenGL framebuffer objects.
+ * This will naturally carry a minor performance hit.
+ *
+ * Note: Using QQuickWidget disables the threaded render loop on all platforms.
+ * This means that some of the benefits of threaded rendering, for example Animator classes
+ * and vsync driven animations, will not be available.
+ *
+ * Note: Avoid calling winId() on a QQuickWidget. This function triggers the creation of a native window,
+ * resulting in reduced performance and possibly rendering glitches.
+ * The entire purpose of QQuickWidget is to render Quick scenes without a separate native window,
+ * hence making it a native widget should always be avoided.
+ */
+class PfdQmlGadgetWidget : public QQuickWidget {
+#else
 #include <QQuickView>
 
-class PfdQmlGadgetWidget : public QQuickView {
+    class PfdQmlGadgetWidget : public QQuickView {
+#endif
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
     Q_PROPERTY(double speedFactor READ speedFactor WRITE setSpeedFactor NOTIFY speedFactorChanged)
     Q_PROPERTY(QString altitudeUnit READ altitudeUnit WRITE setAltitudeUnit NOTIFY altitudeUnitChanged)
@@ -40,7 +64,11 @@ class PfdQmlGadgetWidget : public QQuickView {
     Q_PROPERTY(QString modelFile READ modelFile WRITE setModelFile NOTIFY modelFileChanged)
 
 public:
+#ifdef USE_WIDGET
+    PfdQmlGadgetWidget(QWidget *parent = 0);
+#else
     PfdQmlGadgetWidget(QWindow *parent = 0);
+#endif
     virtual ~PfdQmlGadgetWidget();
 
     void setQmlFile(QString fn);
@@ -121,8 +149,11 @@ signals:
     void modelFileChanged(QString arg);
 
 private slots:
+#ifdef USE_WIDGET
+    void onStatusChanged(QQuickWidget::Status status);
+#else
     void onStatusChanged(QQuickView::Status status);
-
+#endif
 private:
     QString m_qmlFileName;
 

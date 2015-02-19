@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = PfdQml
 
-QT += svg opengl qml quick
+QT += svg qml quick quickwidgets
 
 include(../../openpilotgcsplugin.pri)
 include(pfdqml_dependencies.pri)

@@ -31,8 +31,11 @@ PfdQmlGadgetFactory::~PfdQmlGadgetFactory()
 
 Core::IUAVGadget *PfdQmlGadgetFactory::createGadget(QWidget *parent)
 {
+#ifdef USE_WIDGET
+    PfdQmlGadgetWidget *gadgetWidget = new PfdQmlGadgetWidget(parent);
+#else
     PfdQmlGadgetWidget *gadgetWidget = new PfdQmlGadgetWidget();
-
+#endif
     return new PfdQmlGadget(QString("PfdQmlGadget"), gadgetWidget, parent);
 }
 

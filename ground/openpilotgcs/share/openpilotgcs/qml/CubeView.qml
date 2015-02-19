@@ -1,22 +1,20 @@
 import QtQuick 2.4
 import osgQtQuick 1.0
 
-OSGViewport {
-    id: fullview
-    anchors.fill: parent
-    focus: true
-    //color: "transparent"
-    //opacity: 0.999
-    updateMode: OSGViewport.Discrete
-    sceneData: cubeNode
-    camera: camera
+Item {
+    OSGViewport {
+        anchors.fill: parent
+        focus: true
+        sceneData: cubeNode
+        camera: camera
 
-    OSGCubeNode {
-        id: cubeNode
-    }
+        OSGCubeNode {
+            id: cubeNode
+        }
 
-    OSGCamera {
-        id: camera
-        fieldOfView: 90
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+        }
     }
 }

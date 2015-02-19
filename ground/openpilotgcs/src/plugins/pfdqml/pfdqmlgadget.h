@@ -38,8 +38,10 @@ public:
     void loadConfiguration(IUAVGadgetConfiguration *config);
 
 private:
+#ifndef USE_WIDGET
     QWidget *m_container;
     QWidget *m_parent;
+#endif
     PfdQmlGadgetWidget *m_widget;
 };
 

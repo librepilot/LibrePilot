@@ -101,6 +101,7 @@
 #include <QtWidgets/QApplication>
 #include <QMainWindow>
 #include <QSplashScreen>
+#include <QSurfaceFormat>
 
 namespace {
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
@@ -463,6 +464,10 @@ int main(int argc, char * *argv)
 
     // low level init
     systemInit();
+
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setSwapInterval(0);
+    QSurfaceFormat::setDefaultFormat(format);
 
     // create application
     SharedTools::QtSingleApplication app(APP_NAME, argc, argv);

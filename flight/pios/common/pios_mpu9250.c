@@ -209,6 +209,7 @@ static struct mpu9250_dev *PIOS_MPU9250_alloc(const struct pios_mpu9250_cfg *cfg
     queue_data->count = SENSOR_COUNT;
 
     mag_data = (PIOS_SENSORS_3Axis_SensorsWithTemp *)pios_malloc(MAG_SENSOR_DATA_SIZE);
+    mag_data->count   = 1;
     PIOS_Assert(mag_data);
     return mpu9250_dev;
 }
@@ -951,8 +952,8 @@ void PIOS_MPU9250_Main_driver_Reset(__attribute__((unused)) uintptr_t context)
 void PIOS_MPU9250_Main_driver_get_scale(float *scales, uint8_t size, __attribute__((unused)) uintptr_t contet)
 {
     PIOS_Assert(size >= 2);
-    scales[0] = PIOS_MPU9250_GetScale();
-    scales[1] = PIOS_MPU9250_GetAccelScale();
+    scales[0] = PIOS_MPU9250_GetAccelScale();
+    scales[1] = PIOS_MPU9250_GetScale();
 }
 
 QueueHandle_t PIOS_MPU9250_Main_driver_get_queue(__attribute__((unused)) uintptr_t context)

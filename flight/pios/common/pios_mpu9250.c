@@ -682,7 +682,12 @@ static int32_t PIOS_MPU9250_Mag_Sensitivity(void)
     /* Read the mag data from SPI block */
     for (i = 0; i < 0x3; i++) {
         PIOS_SPI_TransferByte(dev->spi_id, (PIOS_MPU9250_EXT_SENS_DATA_00 | 0x80) + i);
-        dev->mag_sens_adj[i] = (float)(PIOS_SPI_TransferByte(dev->spi_id, 0x0) - 128) / 256 + 1;
+        int32_t ret = PIOS_SPI_TransferByte(dev->spi_id, 0x0);
+        if (ret < 0) {
+            PIOS_MPU9250_ReleaseBus();
+            return -1;
+        }
+        dev->mag_sens_adj[i] = 1.0f; // 1.0f + ((float)((uint8_t)ret - 128)) / 256.0f;
     }
 
     PIOS_MPU9250_ReleaseBus();
@@ -914,7 +919,7 @@ static bool PIOS_MPU9250_HandleData()
     mag_data->temperature   = queue_data->temperature;
 #ifdef PIOS_MPU9250_MAG
     if (mag_valid) {
-        mag_data->sample[0].z = GET_SENSOR_DATA(mpu9250_data, Mag_Z); // chip Z
+        mag_data->sample[0].z = GET_SENSOR_DATA(mpu9250_data, Mag_Z) * dev->mag_sens_adj[2]; // chip Z
         mag_ready = true;
     }
 #endif

@@ -24,10 +24,10 @@ Item {
     property variant thrustmodeColors : ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey",
                                          "green", "green", "green", "cyan"]
 
-    // SystemSettings.AirframeType 3 - 18 : VtolPathFollower, check ThrustControl
+    // SystemSettings.AirframeType 3 - 17 : VtolPathFollower, check ThrustControl
 
     property var thrust_mode: FlightStatus.FlightMode < 7 ? StabilizationDesired.StabilizationMode_Thrust :
-                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType > 2 && SystemSettings.AirframeType < 19
+                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType > 2 && SystemSettings.AirframeType < 18
                               && VtolPathFollowerSettings.ThrustControl == 1 ? 11 :
                               FlightStatus.FlightMode > 6 && SystemSettings.AirframeType < 3 ? 11: 0
 
@@ -38,7 +38,7 @@ Item {
     property real time_s: (flight_time > 0 ? Math.floor(flight_time - time_h*3600 - time_m*60) : 0)
 
     function formatTime(time) {
-        if (time === 0)
+        if (time == 0)
             return "00"
         if (time < 10)
             return "0" + time;

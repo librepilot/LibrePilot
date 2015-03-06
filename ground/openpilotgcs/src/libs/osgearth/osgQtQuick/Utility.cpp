@@ -214,6 +214,127 @@ int QtKeyboardMap::remapKey(QKeyEvent *event)
     return itr->second;
 }
 
+QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits)
+{
+    QSurfaceFormat format(QSurfaceFormat::defaultFormat());
+
+    format.setRedBufferSize(traits->red);
+    format.setGreenBufferSize(traits->green);
+    format.setBlueBufferSize(traits->blue);
+    format.setAlphaBufferSize(traits->alpha);
+    format.setDepthBufferSize(traits->depth);
+    format.setStencilBufferSize(traits->stencil);
+
+    //format.setSampleBuffers(traits->sampleBuffers);
+    format.setSamples(traits->samples);
+
+//        format.setAlpha(traits->alpha > 0);
+//        format.setDepth(traits->depth > 0);
+//        format.setStencil(traits->stencil > 0);
+
+    format.setStereo(traits->quadBufferStereo ? 1 : 0);
+
+    format.setSwapBehavior(traits->doubleBuffer ? QSurfaceFormat::DoubleBuffer : QSurfaceFormat::SingleBuffer);
+    format.setSwapInterval(traits->vsync ? 1 : 0);
+
+    return format;
+}
+
+void formatToTraits(const QSurfaceFormat& format, osg::GraphicsContext::Traits *traits)
+{
+    traits->red = format.redBufferSize();
+    traits->green = format.greenBufferSize();
+    traits->blue = format.blueBufferSize();
+    traits->alpha = format.hasAlpha() ? format.alphaBufferSize() : 0;
+    traits->depth = format.depthBufferSize();
+    traits->stencil = format.stencilBufferSize();
+
+    //traits->sampleBuffers = format.sampleBuffers() ? 1 : 0;
+    traits->samples = format.samples();
+
+    traits->quadBufferStereo = format.stereo();
+
+    traits->doubleBuffer = format.swapBehavior() == QSurfaceFormat::DoubleBuffer;
+    traits->vsync = format.swapInterval() >= 1;
+}
+
+
+void formatInfo(const QSurfaceFormat& format)
+{
+    qDebug().nospace() << "version   : " << format.majorVersion() << "." << format.minorVersion();
+
+    qDebug().nospace() << "profile   : " << formatProfileName(format.profile());
+
+    qDebug().nospace() << "redBufferSize     : " << format.redBufferSize();
+    qDebug().nospace() << "greenBufferSize   : " << format.greenBufferSize();
+    qDebug().nospace() << "blueBufferSize    : " << format.blueBufferSize();
+    qDebug().nospace() << "alphaBufferSize   : " << format.alphaBufferSize();
+    qDebug().nospace() << "depthBufferSize   : " << format.depthBufferSize();
+    qDebug().nospace() << "stencilBufferSize : " << format.stencilBufferSize();
+
+    //qDebug().nospace() << "sampleBuffers" << format.sampleBuffers();
+    qDebug().nospace() << "samples : " << format.samples();
+
+    qDebug().nospace() << "stereo : " << format.stereo();
+
+    qDebug().nospace() << "swapBehavior : " << formatSwapBehaviorName(format.swapBehavior());
+    qDebug().nospace() << "swapInterval : " << format.swapInterval();
+}
+
+void traitsInfo(const osg::GraphicsContext::Traits *traits)
+{
+    unsigned int major, minor;
+    qDebug().nospace() << "versionContext : " << traits->getContextVersion(major, minor);
+    qDebug().nospace() << "version        : " << major << "." << minor;
+
+    //qDebug().nospace() << "profile   : " << formatProfileName(format.profile());
+
+    qDebug().nospace() << "red     : " << traits->red;
+    qDebug().nospace() << "green   : " << traits->green;
+    qDebug().nospace() << "blue    : " << traits->blue;
+    qDebug().nospace() << "alpha   : " << traits->alpha;
+    qDebug().nospace() << "depth   : " << traits->depth;
+    qDebug().nospace() << "stencil : " << traits->stencil;
+
+    qDebug().nospace() << "sampleBuffers : " << traits->sampleBuffers;
+    qDebug().nospace() << "samples       : " << traits->samples;
+
+    //qDebug().nospace() << "stereo : " << traits->stereo();
+
+    qDebug().nospace() << "vsync : " << traits->vsync;
+
+    //qDebug().nospace() << "swapMethod : " << traits->swapMethod;
+    //qDebug().nospace() << "swapInterval : " << traits->swapInterval();
+}
+
+QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile)
+{
+    switch(profile) {
+    case QSurfaceFormat::NoProfile:
+        return "No profile";
+    case QSurfaceFormat::CoreProfile:
+        return "Core profile";
+    case QSurfaceFormat::CompatibilityProfile:
+        return "Compatibility profile>";
+    }
+    return "<Unknown profile>";
+}
+
+QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior)
+{
+    switch(swapBehavior) {
+    case QSurfaceFormat::DefaultSwapBehavior:
+        return "Default";
+    case QSurfaceFormat::SingleBuffer:
+        return "Single buffer";
+    case QSurfaceFormat::DoubleBuffer:
+        return "Double buffer";
+    case QSurfaceFormat::TripleBuffer:
+        return "Triple buffer";
+    }
+    return "<Unknown swap behavior>";
+}
+
 void registerTypes(const char *uri)
 {
     // Q_ASSERT(uri == QLatin1String("osgQtQuick"));

@@ -4,8 +4,10 @@
 #include "Export.hpp"
 
 #include <osg/NodeVisitor>
+#include <osg/GraphicsContext>
 
 #include <QtGlobal>
+#include <QSurfaceFormat>
 
 #include <string>
 #include <map>
@@ -86,6 +88,13 @@ OSGQTQUICK_EXPORT osgText::Text *createText(const osg::Vec3 &pos,
                                             const std::string &content,
                                             float size,
                                             osgText::Font *font = 0);
+
+OSGQTQUICK_EXPORT QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits);
+OSGQTQUICK_EXPORT void formatToTraits(const QSurfaceFormat& format, osg::GraphicsContext::Traits *traits);
+OSGQTQUICK_EXPORT void formatInfo(const QSurfaceFormat& format);
+OSGQTQUICK_EXPORT void traitsInfo(const osg::GraphicsContext::Traits *traits);
+OSGQTQUICK_EXPORT QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile);
+OSGQTQUICK_EXPORT QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
 
 OSGQTQUICK_EXPORT void registerTypes(const char *uri);
 } // namespace osgQtQuick

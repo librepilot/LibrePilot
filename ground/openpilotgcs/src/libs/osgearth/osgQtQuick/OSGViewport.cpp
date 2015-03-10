@@ -284,8 +284,24 @@ public slots:
         viewer->setKeyEventSetsDone(0);
         // viewer->setQuitEventSetsDone(false);
 
+        osg::GraphicsContext::Traits *traits = getTraits();
+
+        osgViewer::GraphicsWindowEmbedded *graphicsWindow = new osgViewer::GraphicsWindowEmbedded(traits);
+
+        view->getCamera()->setGraphicsContext(graphicsWindow);
+
+        viewer->addView(view.get());
+
+        if (updateMode == OSGViewport::Discrete) {
+            qDebug() << "OSGViewport - initViewer - starting timer";
+            frameTimer = startTimer(16 /*, Qt::PreciseTimer*/);
+        }
+    }
+
+    osg::GraphicsContext::Traits *getTraits()
+    {
         osg::DisplaySettings *ds = osg::DisplaySettings::instance().get();
-        osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits(ds);
+        osg::GraphicsContext::Traits *traits = new osg::GraphicsContext::Traits(ds);
 
         traits->readDISPLAY();
         if (traits->displayNum < 0) {
@@ -297,23 +313,18 @@ public slots:
         traits->y       = 0;
         traits->width   = 100; // window->width();
         traits->height  = 100; // window->height();
-        traits->doubleBuffer = true;
+
         traits->alpha   = ds->getMinimumNumAlphaBits();
         traits->stencil = ds->getMinimumNumStencilBits();
         traits->sampleBuffers = ds->getMultiSamples();
         traits->samples = ds->getNumMultiSamples();
+
+        traits->doubleBuffer = false;//ds->getDoubleBuffer();
+        traits->vsync = false;
         // traits->sharedContext = gc;
         // traits->inheritedWindowData = new osgQt::GraphicsWindowQt::WindowData(this);
 
-        graphicsWindow = new osgViewer::GraphicsWindowEmbedded(traits);
-
-        view->getCamera()->setGraphicsContext(graphicsWindow);
-
-        viewer->addView(view.get());
-
-        if (updateMode == OSGViewport::Discrete) {
-            frameTimer = startTimer(20 /*, Qt::PreciseTimer*/);
-        }
+        return traits;
     }
 
 protected:

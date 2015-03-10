@@ -150,7 +150,7 @@ void OsgEarth::initializePathes()
 
     // clear and initialize library file path list
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
-    libraryFilePathList.clear();
+    //libraryFilePathList.clear();
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
 }
 

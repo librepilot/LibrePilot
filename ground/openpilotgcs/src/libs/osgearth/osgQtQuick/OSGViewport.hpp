@@ -58,8 +58,6 @@ signals:
     void cameraChanged(OSGCamera *camera);
     void logarithmicDepthBufferChanged(bool enabled);
 
-public slots:
-
 protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

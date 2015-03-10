@@ -133,7 +133,7 @@ void OsgEarth::initialize()
     // force early initialization of osgEarth registry
     // this important as doing it later (when OpenGL is already in use) might thrash some GL contexts
     // TODO : this is done too early when no window is displayed which causes a windows to be briefly flashed on Linux
-    osgEarth::Registry::capabilities();
+    //osgEarth::Registry::capabilities();
 
     initializeCache();
 

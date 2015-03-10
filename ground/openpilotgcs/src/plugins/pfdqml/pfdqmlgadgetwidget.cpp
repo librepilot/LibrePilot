@@ -119,9 +119,9 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
         engine()->removeImageProvider("svg");
         // engine()->rootContext()->setContextProperty("svgRenderer", NULL);
 
-        // calling clearComponentCache() causes crashes
-        // see https://bugreports.qt-project.org/browse/QTBUG-41465
-        // engine()->clearComponentCache();
+        // calling clearComponentCache() causes crashes (see https://bugreports.qt-project.org/browse/QTBUG-41465)
+        // but not doing it causes almost systematic crashes when switching PFD gadget to "Model View (Without Terrain)" configuration
+        engine()->clearComponentCache();
     } else {
         QUrl url = QUrl::fromLocalFile(fn);
 

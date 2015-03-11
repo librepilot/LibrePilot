@@ -211,12 +211,12 @@ void OsgEarth::displayInfo()
         it++;
     }
 
-    qDebug() << "osg cache:" << qgetenv("OSGEARTH_CACHE_PATH");
+    //qDebug() << "osg cache:" << qgetenv("OSGEARTH_CACHE_PATH");
 
     qDebug() << "osg database threads:" << osg::DisplaySettings::instance()->getNumOfDatabaseThreadsHint();
     qDebug() << "osg http database threads:" << osg::DisplaySettings::instance()->getNumOfHttpDatabaseThreadsHint();
 
-    qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
+    //qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
 
 #ifdef OSG_USE_QT_PRIVATE
     bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
@@ -225,103 +225,40 @@ void OsgEarth::displayInfo()
 
 }
 
-/*
+void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
+{
+    QString msg(message);
 
-   Why not use setRenderTarget
+    // right trim message...
+    int n = msg.size() - 1;
+    for (; n >= 0; --n) {
+        if (!msg.at(n).isSpace()) {
+            break;
+        }
+    }
+    msg = msg.left(n + 1);
 
-   export OSG_MULTIMONITOR_MULTITHREAD_WIN32_NVIDIA_WORKAROUND=On
-   export OSG_NOTIFY_LEVEL=DEBUG
-   http://trac.openscenegraph.org/projects/osg//wiki/Support/TipsAndTricks
-
-   Switch to 5.4 and use this :http://doc-snapshot.qt-project.org/qt5-5.4/qquickframebufferobject.html#details
-   http://doc-snapshot.qt-project.org/qt5-5.4/qtquick-visualcanvas-scenegraph.html#scene-graph-and-rendering
-   http://www.kdab.com/opengl-in-qt-5-1-part-1/
-
-   THIS MENTIONS GLUT...
-   http://www.multigesture.net/articles/how-to-compile-openscenegraph-2-x-using-mingw/
-   http://www.mingw.org/category/wiki/opengl
-
-   INTERESTING : http://qt-project.org/forums/viewthread/24535
-
-   https://groups.google.com/forum/#!msg/osg-users/HDabWUVaR2w/C6rPKKeKoYkJ
-
-   http://trac.openscenegraph.org/projects/osg/wiki/Community/OpenGL-ES
-
-   http://upstream.rosalinux.ru/changelogs/openscenegraph/3.2.0/changelog.html
-
-   MESA https://groups.google.com/forum/#!topic/osg-users/_2MqkA-wH1Q
-
-   GL version https://groups.google.com/forum/#!topic/osg-users/UiyYQ0Fw7MQ
-
-   http://trac.openscenegraph.org/projects/osg//wiki/Support/PlatformSpecifics/Mingw
-
-   Qt & OpenGL
-   http://blog.qt.digia.com/blog/2009/12/16/qt-graphics-and-performance-an-overview/
-   http://blog.qt.digia.com/blog/2010/01/06/qt-graphics-and-performance-opengl/
- */
-
-// BUGS
-// if resizing a gadget below the viewport, the viewport will stop shrinking at 64 pixel
-// but it is possible to continue resizing the gadget and the gadget decorator will disapear behing the GL view
-// will
-
-// Errors/Freeze/Crashes:
-
-// BLANK : Error: cannot draw stage due to undefined viewport.
-// ABNORMAL TERMINATION : createDIB: CreateDIBSection failed.
-
-/*
-   CRASH
-   osgQtQuick::OSGViewport : Update called for a item without content
-   VERTEX glCompileShader "atmos_vertex_main" FAILED
-   VERTEX glCompileShader "main(vert)" FAILED
-   FRAGMENT glCompileShader "main(frag)" FAILED
-   glLinkProgram "SimpleSky Scene Lighting" FAILED
-   Program "SimpleSky Scene Lighting" infolog:
-   Vertex info
-   -----------
-   An error occurred
-
-   Fragment info
-   -------------
-   An error occurred
-
-   [osgEarth]* [VirtualProgram] Program link failure!
-   VERTEX glCompileShader "main(vert)" FAILED
-   FRAGMENT glCompileShader "main(frag)" FAILED
-   glLinkProgram "osgEarth.ModelNode" FAILED
-   Program "osgEarth.ModelNode" infolog:
-   Vertex info
-   -----------
-   An error occurred
-
-   Fragment info
-   -------------
-   An error occurred
-
-   [osgEarth]* [VirtualProgram] Program link failure!
- */
-
-/*
-   osgQtQuick::OSGViewport : Update called for a item without content
-   VERTEX glCompileShader "atmos_vertex_main" FAILED
-   VERTEX glCompileShader "main(vert)" FAILED
-   FRAGMENT glCompileShader "main(frag)" FAILED
-   glLinkProgram "SimpleSky Scene Lighting" FAILED
-   Program "SimpleSky Scene Lighting" infolog:
-   Vertex info
-   -----------
-   An error occurred
-
-   Fragment info
-   -------------
-   An error occurred
-
-   [osgEarth]* [VirtualProgram] Program link failure!
-   Warning: detected OpenGL error 'out of memory' at After Renderer::compile
-   terminate called after throwing an instance of 'std::bad_alloc'
-   what():  std::bad_alloc
-
-   This application has requested the Runtime to terminate it in an unusual way.
-   Please contact the application's support team for more information.
- */
+    switch(severity) {
+    case osg::ALWAYS:
+        qDebug().noquote() << "[OSG]" << msg;
+        break;
+    case osg::FATAL:
+        qCritical().noquote() << "[OSG FATAL]" << msg;
+        break;
+    case osg::WARN:
+        qWarning().noquote() << "[OSG WARN]" << msg;
+        break;
+    case osg::NOTICE:
+        qDebug().noquote() << "[OSG NOTICE]" << msg;
+        break;
+    case osg::INFO:
+        qDebug().noquote() << "[OSG]" << msg;
+        break;
+    case osg::DEBUG_INFO:
+        qDebug().noquote() << "[OSG DEBUG INFO]" << msg;
+        break;
+    case osg::DEBUG_FP:
+        qDebug().noquote() << "[OSG DEBUG FP]" << msg;
+        break;
+    }
+}

@@ -261,9 +261,9 @@ void formatToTraits(const QSurfaceFormat& format, osg::GraphicsContext::Traits *
 
 void formatInfo(const QSurfaceFormat& format)
 {
-    qDebug().nospace() << "version   : " << format.majorVersion() << "." << format.minorVersion();
-
-    qDebug().nospace() << "profile   : " << formatProfileName(format.profile());
+    qDebug().nospace() << "surface ----------------------------------------";
+    qDebug().nospace() << "version : " << format.majorVersion() << "." << format.minorVersion();
+    qDebug().nospace() << "profile : " << formatProfileName(format.profile());
 
     qDebug().nospace() << "redBufferSize     : " << format.redBufferSize();
     qDebug().nospace() << "greenBufferSize   : " << format.greenBufferSize();
@@ -284,10 +284,13 @@ void formatInfo(const QSurfaceFormat& format)
 void traitsInfo(const osg::GraphicsContext::Traits *traits)
 {
     unsigned int major, minor;
-    qDebug().nospace() << "versionContext : " << traits->getContextVersion(major, minor);
-    qDebug().nospace() << "version        : " << major << "." << minor;
+    traits->getContextVersion(major, minor);
 
-    //qDebug().nospace() << "profile   : " << formatProfileName(format.profile());
+    qDebug().nospace() << "traits  ----------------------------------------";
+    qDebug().nospace() << "gl version        : " << major << "." << minor;
+    qDebug().nospace() << "glContextVersion     : " << QString::fromStdString(traits->glContextVersion.c_str());
+    qDebug().nospace() << "glContextFlags       : " << QString("%1").arg(traits->glContextFlags);
+    qDebug().nospace() << "glContextProfileMask : " << QString("%1").arg(traits->glContextProfileMask);
 
     qDebug().nospace() << "red     : " << traits->red;
     qDebug().nospace() << "green   : " << traits->green;
@@ -299,7 +302,9 @@ void traitsInfo(const osg::GraphicsContext::Traits *traits)
     qDebug().nospace() << "sampleBuffers : " << traits->sampleBuffers;
     qDebug().nospace() << "samples       : " << traits->samples;
 
-    //qDebug().nospace() << "stereo : " << traits->stereo();
+    qDebug().nospace() << "pbuffer : " << traits->pbuffer;
+    qDebug().nospace() << "quadBufferStereo : " << traits->quadBufferStereo;
+    qDebug().nospace() << "doubleBuffer : " << traits->doubleBuffer;
 
     qDebug().nospace() << "vsync : " << traits->vsync;
 

@@ -24,7 +24,7 @@ osg::Node *OSGNode::node() const
 
 void OSGNode::setNode(osg::Node *node)
 {
-    if (h->node != node) {
+    if (h->node.get() != node) {
         h->node = node;
         emit nodeChanged(node);
     }

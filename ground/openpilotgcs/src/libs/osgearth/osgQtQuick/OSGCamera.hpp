@@ -28,6 +28,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject {
 
     Q_PROPERTY(ManipulatorMode manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
 
+    Q_PROPERTY(osgQtQuick::OSGNode * node READ node WRITE setNode NOTIFY nodeChanged)
+
     Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(TrackerMode trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
 
@@ -38,7 +40,7 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject {
     Q_ENUMS(TrackerMode)
 
 public:
-    enum ManipulatorMode { None, User, Earth, Track };
+    enum ManipulatorMode { Default, Earth, Track, User };
 
     enum TrackerMode { NodeCenter, NodeCenterAndAzim, NodeCenterAndRotation };
 
@@ -54,6 +56,9 @@ public:
 
     ManipulatorMode manipulatorMode() const;
     void setManipulatorMode(ManipulatorMode);
+
+    OSGNode *node() const;
+    void setNode(OSGNode *node);
 
     OSGNode *trackNode() const;
     void setTrackNode(OSGNode *node);
@@ -74,6 +79,8 @@ signals:
     void fieldOfViewChanged(qreal arg);
 
     void manipulatorModeChanged(ManipulatorMode);
+
+    void nodeChanged(OSGNode *node);
 
     void trackNodeChanged(OSGNode *node);
     void trackerModeChanged(TrackerMode);

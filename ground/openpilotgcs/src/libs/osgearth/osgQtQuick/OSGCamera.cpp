@@ -36,7 +36,7 @@ public:
 
 public:
 
-    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(None), trackNode(NULL), trackerMode(NodeCenterAndAzim)
+    Hidden(OSGCamera *parent) : QObject(parent), node(NULL), manipulatorMode(Default), trackNode(NULL), trackerMode(NodeCenterAndAzim)
     {
         fieldOfView = 90.0;
 
@@ -60,6 +60,26 @@ public:
         }
 
         manipulatorMode = mode;
+
+        return true;
+    }
+
+    bool acceptNode(OSGNode *node)
+    {
+        qDebug() << "OSGCamera - acceptNode" << node;
+        if (this->node == node) {
+            return false;
+        }
+
+        if (this->node) {
+            disconnect(this->node);
+        }
+
+        this->node = node;
+
+        if (this->node) {
+            connect(this->node, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onNodeChanged(osg::Node *)));
+        }
 
         return true;
     }
@@ -92,50 +112,42 @@ public:
         // TODO will the CameraUpdateCallback be destroyed???
         this->camera->addUpdateCallback(new CameraUpdateCallback(this));
 
+        camera->setProjectionMatrixAsPerspective(fieldOfView, 1.0f, 1.0f, 10000.0f);
+
         // TODO needed?
         dirty = true;
     }
 
-    void updateCamera()
-    {
-        if (!camera.valid()) {
-            qWarning() << "OSGCamera - updateCamera invalid camera";
-        }
-        if (sizeDirty) {
-            sizeDirty = false;
-            updateCameraSize();
-        }
-        if (dirty) {
-            dirty = false;
-            if (manipulatorMode == User) {
-                updateCameraPosition();
-            }
-        }
-    }
-
     void updateCameraSize()
     {
+        if (!sizeDirty || !camera.valid()) {
+            return;
+        }
+        sizeDirty = false;
         qDebug() << "OSGCamera - updateCamera size" << x << y << width << height << fieldOfView;
         camera->getGraphicsContext()->resized(x, y, width, height);
         camera->setViewport(x, y, width, height);
-        // TODO should be done only if fieldOfView has changed...
-        camera->setProjectionMatrixAsPerspective(
-            fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
     }
 
-//    void updateCameraFOV()
-//    {
-//        qDebug() << "OSGCamera - updateCamera FOV";
+    void updateCameraFOV()
+    {
+        qDebug() << "OSGCamera - updateCamera FOV";
 //        camera->setProjectionMatrixAsPerspective(
-//            fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
-//    }
+//                fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
+        }
 
     void updateCameraPosition()
     {
-        //qDebug() << "OSGCamera - updateCamera position";
+        if (manipulatorMode != User) {
+            return;
+        }
+        if (!dirty || !camera.valid()) {
+            return;
+        }
+        dirty = false;
 
         // Altitude mode is absolute (absolute height above MSL/HAE)
-        // HAE : Height above ellipsoid (HAE). This is the default.
+        // HAE : Height above ellipsoid. This is the default.
         // MSL : Height above Mean Sea Level (MSL) if a geoid separation value is specified.
         // TODO handle the case where the terrain SRS is not "wgs84"
         // TODO check if position is not below terrain?
@@ -171,9 +183,12 @@ public:
 
     ManipulatorMode manipulatorMode;
 
-    // for NodeTrackerManipulator manipulator
-    OSGNode     *trackNode;
+    // to compute home position
+    OSGNode     *node;
+
+    // for NodeTrackerManipulator
     TrackerMode trackerMode;
+    OSGNode     *trackNode;
 
     // for User manipulator
     bool   dirty;
@@ -190,6 +205,12 @@ public:
     osg::observer_ptr<osg::Camera> camera;
 
 private slots:
+    void onNodeChanged(osg::Node *node)
+    {
+        qDebug() << "OSGCamera - onNodeChanged" << node;
+        // TODO otherwise async load might break cameras...
+    }
+
     void onTrackNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGCamera - onTrackNodeChanged" << node;
@@ -201,7 +222,9 @@ private slots:
 
 void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
-    h->updateCamera();
+    h->updateCameraSize();
+    h->updateCameraPosition();
+
     traverse(node, nv);
 }
 
@@ -249,6 +272,18 @@ void OSGCamera::setManipulatorMode(ManipulatorMode mode)
 {
     if (h->acceptManipulatorMode(mode)) {
         emit manipulatorModeChanged(manipulatorMode());
+    }
+}
+
+OSGNode *OSGCamera::node() const
+{
+    return h->node;
+}
+
+void OSGCamera::setNode(OSGNode *node)
+{
+    if (h->acceptNode(node)) {
+        emit nodeChanged(node);
     }
 }
 
@@ -311,20 +346,25 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
     h->installCamera(view->getCamera());
 
+    osgGA::CameraManipulator *cm = NULL;
+
     switch (h->manipulatorMode) {
-    case OSGCamera::None:
+    case OSGCamera::Default: {
         qDebug() << "OSGCamera - installCamera: use TrackballManipulator";
-        view->setCameraManipulator(new osgGA::TrackballManipulator());
-                                       //osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS));
+        osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
+        // Set the minimum distance of the eye point from the center before the center is pushed forward.
+        //tm->setMinimumDistance(1, true);
+        cm = tm;
         break;
+    }
     case OSGCamera::User:
         qDebug() << "OSGCamera - installCamera: no camera manipulator";
         // disable any installed camera manipulator
-        view->setCameraManipulator(NULL);
+        cm = NULL;
         break;
     case OSGCamera::Earth:
         qDebug() << "OSGCamera - installCamera: use EarthManipulator";
-        view->setCameraManipulator(new osgEarth::Util::EarthManipulator());
+        cm = new osgEarth::Util::EarthManipulator();
         break;
     case OSGCamera::Track:
         qDebug() << "OSGCamera - installCamera: use NodeTrackerManipulator";
@@ -351,15 +391,23 @@ void OSGCamera::installCamera(osgViewer::View *view)
             // ntm->setVerticalAxisFixed(false);
             // ntm->setAutoComputeHomePosition(true);
             // ntm->setDistance(10);
-            view->setCameraManipulator(ntm);
+            cm = ntm;
         } else {
-            qWarning() << "no trackNode provided, cannot enter tracking mode!";
+            qWarning() << "OSGCamera - installCamera: no track node provided.";
+            cm = NULL;
         }
         break;
     default:
         qWarning() << "OSGCamera - installCamera: should not reach here!";
         break;
     }
+    view->setCameraManipulator(cm, false);
+    if (cm && h->node && h->node->node()) {
+        // set node used to auto compute home position
+        // needs to be done after setting the manipulator on the view as the view will set its scene as the node
+        cm->setNode(h->node->node());
+    }
+    view->home();
 }
 
 void OSGCamera::setViewport(int x, int y, int width, int height)
@@ -378,40 +426,6 @@ void OSGCamera::setViewport(int x, int y, int width, int height)
     }
 }
 
-// From wikipedia : Latitude and longitude values can be based on different geodetic systems or datums, the most common being WGS 84, a global datum used by all GPS equipments
-// http://en.wikipedia.org/wiki/Geographic_coordinate_system
-// Revo uses WGS84 for homelocation, Gps altitude + Geoid separation
-// here my altitude is 120m ASL, homelocation stored in Revo is 170m, my Geoid is 50m
-// On map if you set Home, message tell user is WGS84
-// user enter 120m and is wrong :)
-
-// See http://webhelp.esri.com/arcpad/8.0/referenceguide/index.htm#gps_rangefinder/concept_gpsheight.htm
-// osg::Camera *createCamera(int x, int y, int w, int h, const std::string & name = "", bool windowDecoration = false)
-// {
-// osg::DisplaySettings *ds = osg::DisplaySettings::instance().get();
-// osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
-//
-// traits->windowName = name;
-// traits->windowDecoration = windowDecoration;
-// traits->x       = x;
-// traits->y       = y;
-// traits->width   = w;
-// traits->height  = h;
-// traits->doubleBuffer = true;
-// traits->alpha   = ds->getMinimumNumAlphaBits();
-// traits->stencil = ds->getMinimumNumStencilBits();
-// traits->sampleBuffers = ds->getMultiSamples();
-// traits->samples = ds->getNumMultiSamples();
-//
-// osg::ref_ptr<osg::Camera> camera = new osg::Camera;
-// camera->setGraphicsContext(new osgQt::GraphicsWindowQt(traits.get()));
-//
-// camera->setClearColor(osg::Vec4(0.2, 0.2, 0.6, 1.0));
-// camera->setViewport(new osg::Viewport(0, 0, traits->width, traits->height));
-// camera->setProjectionMatrixAsPerspective(
-// 30.0f, static_cast<double>(traits->width) / static_cast<double>(traits->height), 1.0f, 10000.0f);
-// return camera.release();
-// }
 } // namespace osgQtQuick
 
 #include "OSGCamera.moc"

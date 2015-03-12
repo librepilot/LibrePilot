@@ -31,6 +31,7 @@
 
 #include <osg/DisplaySettings>
 #include <osg/Version>
+#include <osg/Notify>
 #include <osgDB/Registry>
 #include <osgQt/GraphicsWindowQt>
 

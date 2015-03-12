@@ -356,7 +356,7 @@ public slots:
 
         if (updateMode == OSGViewport::Discrete) {
             qDebug() << "OSGViewport - initViewer - starting timer";
-            frameTimer = startTimer(16 /*, Qt::PreciseTimer*/);
+            frameTimer = startTimer(33 , Qt::PreciseTimer);
         }
     }
 

@@ -65,6 +65,8 @@ OSGViewport {
         }
     }
 
+	// this group is needed as the target for the camera
+	// using modelTransformNode leads to strange camera behavior (the reason is not clear why)
     OSGGroup {
         id: modelGroup
         children: [
@@ -90,6 +92,9 @@ OSGViewport {
         id: camera
         fieldOfView: 90
         manipulatorMode: OSGCamera.Track
+        // use model to compute camera home position
+        node: modelGroup
+        // model will be tracked
         trackNode: modelGroup
     }
 }

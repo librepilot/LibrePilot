@@ -13,7 +13,6 @@
 #include <osgEarthUtil/AutoClipPlaneHandler>
 #include <osgEarthUtil/Sky>
 #include <osgEarthUtil/LogarithmicDepthBuffer>
-#include <osgEarthUtil/LODBlending>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -41,37 +40,40 @@ public:
         ViewportRenderer(Hidden *h) : h(h)
         {
             qDebug() << "ViewportRenderer - <init>";
+            h->info("ViewportRenderer - <init>");
+            requestRedraw = true;
         }
 
         // This function is the only place when it is safe for the renderer and the item to read and write each others members.
         void synchronize(QQuickFramebufferObject *item)
         {
-            // qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
-            //qDebug() << "ViewportRenderer - synchronize" << QOpenGLContext::currentContext();
+            //qDebug() << "ViewportRenderer - synchronize" << item;
+            h->info("ViewportRenderer - synchronize");
             if (!h->realized) {
-                qDebug() << "ViewportRenderer - synchronize" << item->window();
-                item->window()->setClearBeforeRendering(false);
-                h->initViewer();
+                //qDebug() << "ViewportRenderer - synchronize" << item;
                 h->self->realize();
-                h->camera->installCamera(h->view.get());
+                h->initViewer();
                 h->realized = true;
+
+                //osgDB::writeNodeFile(*(h->self->sceneData()->node()), "saved.osg");
             }
             h->camera->setViewport(0, 0, item->width(), item->height());
             // TODO scene update should be done here
+
+            // needed to properly render models without terrain (Qt bug?)
+            QOpenGLContext::currentContext()->functions()->glUseProgram(0);
         }
 
         // This function is called when the FBO should be rendered into.
         // The framebuffer is bound at this point and the glViewport has been set up to match the FBO size.
         void render()
         {
-            // qDebug() << "ViewportRenderer - render" << QThread::currentThread() << QApplication::instance()->thread();
-            // qDebug() << "ViewportRenderer - render" << QOpenGLContext::currentContext();
 
-            // needed to properly render models without terrain (Qt bug?)
-            QOpenGLContext::currentContext()->functions()->glUseProgram(0);
-
+            if (checkNeedToDoFrame()) {
                 // TODO scene update should NOT be done here
                 h->viewer->frame();
+                requestRedraw = false;
+            }
 
             // h->self->window()->resetOpenGLState();
 
@@ -79,6 +81,16 @@ public:
                 // trigger next update
                 update();
             }
+        }
+
+        bool checkNeedToDoFrame() {
+//            if (requestRedraw) {
+//                return true;
+//            }
+//            if (getDatabasePager()->requiresUpdateSceneGraph() || getDatabasePager()->getRequestsInProgress()) {
+//                return true;
+//            }
+            return true;
         }
 
         QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
@@ -96,6 +108,7 @@ public:
 private:
         Hidden *h;
         bool b;
+        bool requestRedraw;
     };
 
     friend class ViewportRenderer;
@@ -117,8 +130,29 @@ private:
         view->addEventHandler(new osgGA::StateSetManipulator(view->getCamera()->getOrCreateStateSet()));
         // b : Toggle Backface Culling, l : Toggle Lighting, t : Toggle Texturing, w : Cycle Polygon Mode
 
+        // add the thread model handler
+        //view->addEventHandler(new osgViewer::ThreadingHandler);
+
+        // add the window size toggle handler
+        //view->addEventHandler(new osgViewer::WindowSizeHandler);
+
         // add the stats handler
         view->addEventHandler(new osgViewer::StatsHandler);
+
+        // add the help handler
+        //view->addEventHandler(new osgViewer::HelpHandler(arguments.getApplicationUsage()));
+
+        // add the record camera path handler
+        ///view->addEventHandler(new osgViewer::RecordCameraPathHandler);
+
+        // add the LOD Scale handler
+        //view->addEventHandler(new osgViewer::LODScaleHandler);
+
+        // add the screen capture handler
+        //view->addEventHandler(new osgViewer::ScreenCaptureHandler);
+
+        connect(quickItem, SIGNAL(windowChanged(QQuickWindow*)), this, SLOT(onWindowChanged(QQuickWindow*)));
+
     }
 
     ~Hidden()
@@ -128,6 +162,17 @@ private:
         }
         self = NULL;
     }
+
+public slots:
+    void onWindowChanged(QQuickWindow *window) {
+        qDebug() << "OSGViewport - onWindowChanged" << window;
+        if (window) {
+            window->setClearBeforeRendering(false);
+            formatInfo(window->format());
+        }
+    }
+
+public:
 
     QPointF mousePoint(QMouseEvent *event)
     {
@@ -250,6 +295,16 @@ private:
         return true;
     }
 
+    void info(QString msg) {
+//        qDebug() << "-----------------------------------------------------";
+//        qDebug().noquote() << msg;
+//        qDebug() << "-----------------------------------------------------";
+//        qDebug() << "current thread     :" << QThread::currentThread();;
+//        qDebug() << "application thread :" << QApplication::instance()->thread();
+//        qDebug() << "current context    :" << QOpenGLContext::currentContext();
+//        qDebug() << "-----------------------------------------------------";
+    }
+
     OSGViewport *self;
 
     OSGViewport::UpdateMode updateMode;
@@ -284,12 +339,20 @@ public slots:
         // viewer->setQuitEventSetsDone(false);
 
         osg::GraphicsContext::Traits *traits = getTraits();
+        traitsInfo(traits);
 
         osgViewer::GraphicsWindowEmbedded *graphicsWindow = new osgViewer::GraphicsWindowEmbedded(traits);
 
         view->getCamera()->setGraphicsContext(graphicsWindow);
 
         viewer->addView(view.get());
+
+        if (camera) {
+            camera->installCamera(view.get());
+        }
+        else {
+            qWarning() << "OSGViewport - initViewer - no camera!";
+        }
 
         if (updateMode == OSGViewport::Discrete) {
             qDebug() << "OSGViewport - initViewer - starting timer";

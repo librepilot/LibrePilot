@@ -93,6 +93,13 @@ Two, you can try to use the AutoClipPlaneHandler. You can install it automatical
 If none of that works, you can try parenting your helicopter with an osg::Camera in NESTED mode,
 which will separate the clip plane calculations of the helicopter from those of the earth. *
  */
+
+class OSGEARTH_LIB_EXPORT QtNotifyHandler : public osg::NotifyHandler
+{
+public:
+    void notify(osg::NotifySeverity severity, const char *message);
+};
+
 void OsgEarth::registerQmlTypes()
 {
     // TOOO not thread safe...

@@ -1,5 +1,7 @@
 #include "OSGViewport.hpp"
 
+#include "../osgearth.h"
+
 #include "OSGNode.hpp"
 #include "OSGCamera.hpp"
 #include "Utility.hpp"
@@ -51,6 +53,7 @@ public:
             h->info("ViewportRenderer - synchronize");
             if (!h->realized) {
                 //qDebug() << "ViewportRenderer - synchronize" << item;
+                OsgEarth::initialize();
                 h->self->realize();
                 h->initViewer();
                 h->realized = true;

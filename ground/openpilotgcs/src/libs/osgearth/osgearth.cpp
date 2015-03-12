@@ -100,7 +100,7 @@ void OsgEarth::registerQmlTypes()
     }
     registered = true;
 
-    initialize();
+    //initialize();
 
     // Register Qml types
     osgQtQuick::registerTypes("osgQtQuick");

@@ -10,7 +10,7 @@ Item {
     property real est_time_s: (est_flight_time > 0 ? Math.floor(est_flight_time - est_time_h*3600 - est_time_m*60) : 0)
 
     function formatTime(time) {
-        if (time === 0)
+        if (time == 0)
             return "00"
         if (time < 10)
             return "0" + time;

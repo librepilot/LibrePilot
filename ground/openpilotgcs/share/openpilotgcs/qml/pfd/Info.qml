@@ -59,7 +59,7 @@ Item {
     }
 
     function formatTime(time) {
-        if (time === 0)
+        if (time == 0)
             return "00"
         if (time < 10)
             return "0" + time;

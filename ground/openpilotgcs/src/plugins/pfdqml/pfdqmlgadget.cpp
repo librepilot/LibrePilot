@@ -33,9 +33,7 @@ PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget 
 
 PfdQmlGadget::~PfdQmlGadget()
 {
-#ifndef USE_WIDGET
     delete m_widget;
-#endif
 }
 
 QWidget *PfdQmlGadget::widget()

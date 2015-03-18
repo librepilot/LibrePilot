@@ -151,7 +151,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             break;
         case VehicleConfigurationSource::INPUT_PPM:
             if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT ||
-                m_configSource->getEscType() == VehicleConfigurationSource::ESC_RAPID) {
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_SYNCHED) {
                 data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PPM_PIN8ONESHOT;
             } else {
                 data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PPMNOONESHOT;
@@ -377,15 +377,12 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         bankMode     = ActuatorSettings::BANKMODE_PWM;
         break;
     case VehicleConfigurationSource::ESC_RAPID:
-        if ((m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_CC ||
-             m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_CC3D) &&
-            m_configSource->getInputType() == VehicleConfigurationSource::INPUT_PWM) {
-            bankMode     = ActuatorSettings::BANKMODE_PWM;
-            escFrequence = RAPID_ESC_FREQUENCY;
-        } else {
-            bankMode     = ActuatorSettings::BANKMODE_PWMSYNC;
-            escFrequence = PWMSYNC_ESC_FREQUENCY;
-        }
+        bankMode     = ActuatorSettings::BANKMODE_PWM;
+        escFrequence = RAPID_ESC_FREQUENCY;
+        break;
+    case VehicleConfigurationSource::ESC_SYNCHED:
+        bankMode     = ActuatorSettings::BANKMODE_PWMSYNC;
+        escFrequence = PWMSYNC_ESC_FREQUENCY;
         break;
     case VehicleConfigurationSource::ESC_ONESHOT:
         bankMode     = ActuatorSettings::BANKMODE_ONESHOT125;
@@ -782,17 +779,15 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
             mSettings->setMixerValueRoll(100);
             mSettings->setMixerValuePitch(100);
             mSettings->setMixerValueYaw(100);
-            // Set curve2 range from -0.926 to 1 : take in account 4% offset in Throttle input
-            // 0.5 / 0.54 = 0.926
             maxThrottle = 1;
-            minThrottle = -0.926;
+            minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL:
             mSettings->setMixerValueRoll(100);
             mSettings->setMixerValuePitch(100);
             mSettings->setMixerValueYaw(100);
             maxThrottle = 0.8;
-            minThrottle = -0.8;
+            minThrottle = 0;
             break;
         default:
             break;
@@ -1930,7 +1925,7 @@ void VehicleConfigurationHelper::setupDualAileron()
     channels[3].throttle2 = 0;
     channels[3].roll      = 0;
     channels[3].pitch     = 0;
-    channels[3].yaw       = 100;
+    channels[3].yaw       = -100;
 
     guiSettings.fixedwing.FixedWingThrottle = 3;
     guiSettings.fixedwing.FixedWingRoll1    = 1;
@@ -1982,7 +1977,7 @@ void VehicleConfigurationHelper::setupAileron()
     channels[3].throttle2 = 0;
     channels[3].roll      = 0;
     channels[3].pitch     = 0;
-    channels[3].yaw       = 100;
+    channels[3].yaw       = -100;
 
     guiSettings.fixedwing.FixedWingThrottle = 3;
     guiSettings.fixedwing.FixedWingRoll1    = 1;
@@ -2033,7 +2028,7 @@ void VehicleConfigurationHelper::setupVtail()
     channels[1].throttle2 = 0;
     channels[1].roll      = 0;
     channels[1].pitch     = 100;
-    channels[1].yaw       = 100;
+    channels[1].yaw       = -100;
 
     // Left Vtail Servo (Chan 4)
     channels[3].type      = MIXER_TYPE_SERVO;
@@ -2041,7 +2036,7 @@ void VehicleConfigurationHelper::setupVtail()
     channels[3].throttle2 = 0;
     channels[3].roll      = 0;
     channels[3].pitch     = -100;
-    channels[3].yaw       = 100;
+    channels[3].yaw       = -100;
 
     guiSettings.fixedwing.FixedWingThrottle = 3;
     guiSettings.fixedwing.FixedWingRoll1    = 1;
@@ -2079,8 +2074,8 @@ void VehicleConfigurationHelper::setupCar()
 
     // Motor (Chan 2)
     channels[1].type      = MIXER_TYPE_REVERSABLEMOTOR;
-    channels[1].throttle1 = 0;
-    channels[1].throttle2 = 100;
+    channels[1].throttle1 = 100;
+    channels[1].throttle2 = 0;
     channels[1].roll      = 0;
     channels[1].pitch     = 0;
     channels[1].yaw       = 0;
@@ -2104,16 +2099,16 @@ void VehicleConfigurationHelper::setupTank()
 
     // Left Motor (Chan 1)
     channels[0].type      = MIXER_TYPE_REVERSABLEMOTOR;
-    channels[0].throttle1 = 0;
-    channels[0].throttle2 = 100;
+    channels[0].throttle1 = 100;
+    channels[0].throttle2 = 0;
     channels[0].roll      = 0;
     channels[0].pitch     = 0;
     channels[0].yaw       = 100;
 
     // Right Motor (Chan 2)
     channels[1].type      = MIXER_TYPE_REVERSABLEMOTOR;
-    channels[1].throttle1 = 0;
-    channels[1].throttle2 = 100;
+    channels[1].throttle1 = 100;
+    channels[1].throttle2 = 0;
     channels[1].roll      = 0;
     channels[1].pitch     = 0;
     channels[1].yaw       = -100;
@@ -2143,7 +2138,7 @@ void VehicleConfigurationHelper::setupMotorcycle()
     channels[0].pitch     = 0;
     channels[0].yaw       = 100;
 
-    // Motor (Chan 2) : Curve1, no reverse
+    // Motor (Chan 2)
     channels[1].type      = MIXER_TYPE_MOTOR;
     channels[1].throttle1 = 100;
     channels[1].throttle2 = 0;

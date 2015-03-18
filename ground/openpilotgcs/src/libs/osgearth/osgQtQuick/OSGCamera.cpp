@@ -36,7 +36,7 @@ public:
 
 public:
 
-    Hidden(OSGCamera *parent) : QObject(parent), node(NULL), manipulatorMode(Default), trackNode(NULL), trackerMode(NodeCenterAndAzim)
+    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(Default), node(NULL), trackerMode(NodeCenterAndAzim), trackNode(NULL)
     {
         fieldOfView = 90.0;
 

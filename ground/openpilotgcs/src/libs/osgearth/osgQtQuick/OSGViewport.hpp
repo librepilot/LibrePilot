@@ -22,6 +22,8 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
 
 public:
 
+    friend class ViewportRenderer;
+
     // TODO rename to UpdateMode or something better
     enum UpdateMode {
         Continuous,

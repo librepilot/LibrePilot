@@ -37,84 +37,6 @@ struct OSGViewport::Hidden : public QObject {
 
 public:
 
-    class ViewportRenderer : public QQuickFramebufferObject::Renderer {
-public:
-        ViewportRenderer(Hidden *h) : h(h)
-        {
-            qDebug() << "ViewportRenderer - <init>";
-            h->info("ViewportRenderer - <init>");
-            requestRedraw = true;
-        }
-
-        // This function is the only place when it is safe for the renderer and the item to read and write each others members.
-        void synchronize(QQuickFramebufferObject *item)
-        {
-            //qDebug() << "ViewportRenderer - synchronize" << item;
-            h->info("ViewportRenderer - synchronize");
-            if (!h->realized) {
-                //qDebug() << "ViewportRenderer - synchronize" << item;
-                OsgEarth::initialize();
-                h->self->realize();
-                h->initViewer();
-                h->realized = true;
-
-                //osgDB::writeNodeFile(*(h->self->sceneData()->node()), "saved.osg");
-            }
-            h->camera->setViewport(0, 0, item->width(), item->height());
-            // TODO scene update should be done here
-
-            // needed to properly render models without terrain (Qt bug?)
-            QOpenGLContext::currentContext()->functions()->glUseProgram(0);
-        }
-
-        // This function is called when the FBO should be rendered into.
-        // The framebuffer is bound at this point and the glViewport has been set up to match the FBO size.
-        void render()
-        {
-
-            if (checkNeedToDoFrame()) {
-                // TODO scene update should NOT be done here
-                h->viewer->frame();
-                requestRedraw = false;
-            }
-
-            // h->self->window()->resetOpenGLState();
-
-            if (h->updateMode == OSGViewport::Continuous) {
-                // trigger next update
-                update();
-            }
-        }
-
-        bool checkNeedToDoFrame() {
-//            if (requestRedraw) {
-//                return true;
-//            }
-//            if (getDatabasePager()->requiresUpdateSceneGraph() || getDatabasePager()->getRequestsInProgress()) {
-//                return true;
-//            }
-            return true;
-        }
-
-        QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
-        {
-            //qDebug() << "ViewportRenderer - createFramebufferObject" << size << QOpenGLContext::currentContext();
-            QOpenGLFramebufferObjectFormat format;
-            format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-            //format.setSamples(4);
-            int dpr = h->self->window()->devicePixelRatio();
-            QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
-            //qDebug() << "ViewportRenderer - createFramebufferObject - done" << fbo;
-            return fbo;
-        }
-
-private:
-        Hidden *h;
-        bool b;
-        bool requestRedraw;
-    };
-
-    friend class ViewportRenderer;
 
     Hidden(OSGViewport *quickItem) : QObject(quickItem),
         self(quickItem),
@@ -125,7 +47,7 @@ private:
         logDepthBufferEnabled(false),
         realized(false)
     {
-        qDebug() << "OSGViewport - quickItem" << self;
+        qDebug() << "OSGViewport::Hidden - <init>" << self;
         view = new osgViewer::View();
 
         // TODO will the handlers be destroyed???
@@ -329,7 +251,6 @@ public:
 
     static QtKeyboardMap keyMap;
 
-public slots:
 
     void initViewer()
     {
@@ -416,12 +337,108 @@ private slots:
     }
 };
 
+////////////////////////////////////////
+// Renderer
+////////////////////////////////////////
+
+class ViewportRenderer : public QQuickFramebufferObject::Renderer {
+
+public:
+
+    ViewportRenderer(OSGViewport::Hidden *h) : h(h)
+    {
+        qDebug() << "ViewportRenderer - <init>";
+        h->info("ViewportRenderer - <init>");
+
+        OsgEarth::initialize();
+
+        if (!h->realized) {
+            h->self->realize();
+            h->initViewer();
+            h->realized = true;
+        }
+        else {
+            // needed when PFD gadget is reparented
+            // in that case a new glcontext and renderer are created...
+            //h->resetViewer();
+        }
+
+        requestRedraw = true;
+    }
+
+    ~ViewportRenderer()
+    {
+        qDebug() << "ViewportRenderer - <destruct>";
+        // this gets called before timer is killed
+        // TODO need to kill timer here or handle in someother proper way
+    }
+
+    // This function is the only place when it is safe for the renderer and the item to read and write each others members.
+    void synchronize(QQuickFramebufferObject *item)
+    {
+        h->camera->setViewport(0, 0, item->width(), item->height());
+        // TODO scene update should be done here
+    }
+
+    // This function is called when the FBO should be rendered into.
+    // The framebuffer is bound at this point and the glViewport has been set up to match the FBO size.
+    void render()
+    {
+        //qDebug() << "ViewportRenderer - render";
+        //h->info("ViewportRenderer - render");
+
+        // needed to properly render models without terrain (Qt bug?)
+        QOpenGLContext::currentContext()->functions()->glUseProgram(0);
+
+        if (checkNeedToDoFrame()) {
+            // TODO scene update should NOT be done here
+            h->viewer->frame();
+            requestRedraw = false;
+        }
+
+        if (h->updateMode == OSGViewport::Continuous) {
+            // trigger next update
+            update();
+        }
+    }
+
+    QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
+    {
+        qDebug() << "ViewportRenderer - createFramebufferObject" << size;
+
+        QOpenGLFramebufferObjectFormat format;
+        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+        //format.setSamples(4);
+        int dpr = h->self->window()->devicePixelRatio();
+        QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
+        return fbo;
+    }
+
+private:
+    bool checkNeedToDoFrame()
+    {
+//            if (requestRedraw) {
+//                return true;
+//            }
+//            if (getDatabasePager()->requiresUpdateSceneGraph() || getDatabasePager()->getRequestsInProgress()) {
+//                return true;
+//            }
+        return true;
+    }
+
+    OSGViewport::Hidden *h;
+    bool requestRedraw;
+};
+
+////////////////////////////////////////
+// OSGViewport
+////////////////////////////////////////
+
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
 OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGViewport - <init>";
-    // setClearBeforeRendering(false);
+    qDebug() << "OSGViewport - <destruct>";
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
 }
@@ -499,7 +516,8 @@ void OSGViewport::setLogarithmicDepthBuffer(bool enabled)
 
 QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
 {
-    return new Hidden::ViewportRenderer(h);
+    qDebug() << "OSGViewport - createRenderer";
+    return new ViewportRenderer(h);
 }
 
 void OSGViewport::realize()
@@ -519,6 +537,7 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
 {
     // qDebug() << "OSGViewport - updatePaintNode";
     if (!node) {
+        qDebug() << "OSGViewport - updatePaintNode - set transform";
         node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
         QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
         if (n) {

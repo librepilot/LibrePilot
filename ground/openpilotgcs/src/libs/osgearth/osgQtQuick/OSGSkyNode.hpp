@@ -17,6 +17,7 @@ class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
 
     Q_PROPERTY(bool sunLightEnabled READ sunLightEnabled WRITE setSunLightEnabled NOTIFY sunLightEnabledChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(double minimumAmbientLight READ minimumAmbientLight WRITE setMinimumAmbientLight NOTIFY minimumAmbientLightChanged)
 
 public:
     OSGSkyNode(QObject *parent = 0);
@@ -31,11 +32,15 @@ public:
     QDateTime dateTime();
     void setDateTime(QDateTime arg);
 
+    double minimumAmbientLight();
+    void setMinimumAmbientLight(double arg);
+
 signals:
     void sceneDataChanged(OSGNode *node);
 
-    bool sunLightEnabledChanged(bool arg);
+    void sunLightEnabledChanged(bool arg);
     void dateTimeChanged(QDateTime arg);
+    void minimumAmbientLightChanged(double arg);
 
 private:
     struct Hidden;

@@ -438,7 +438,7 @@ QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
 OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGViewport - <destruct>";
+    qDebug() << "OSGViewport - <init>";
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
 }

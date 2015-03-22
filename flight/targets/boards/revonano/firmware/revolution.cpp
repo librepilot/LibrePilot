@@ -31,7 +31,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-
+extern "C" {
 #include "inc/openpilot.h"
 #include <uavobjectsinit.h>
 
@@ -45,6 +45,8 @@
 #if INCLUDE_TEST_TASKS
 static uint8_t sdcard_available;
 #endif
+char Buffer[1024];
+uint32_t Cache;
 
 /* Function Prototypes */
 #if INCLUDE_TEST_TASKS
@@ -72,6 +74,7 @@ static void initTask(void *parameters);
 
 /* Prototype of generated InitModules() function */
 extern void InitModules(void);
+}
 
 /**
  * OpenPilot Main function:
@@ -114,7 +117,6 @@ int main()
 
     return 0;
 }
-
 /**
  * Initialisation task.
  *

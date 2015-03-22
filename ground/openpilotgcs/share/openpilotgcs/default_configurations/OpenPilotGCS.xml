@@ -1591,6 +1591,7 @@
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>0</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
       <PFD>
@@ -1615,6 +1616,7 @@
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </PFD>
       <Model__PCT__20View>
@@ -1639,6 +1641,7 @@
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </Model__PCT__20View>
       <Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
@@ -1663,6 +1666,7 @@
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
       <Earth__PCT__20View>
@@ -1687,6 +1691,7 @@
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </Earth__PCT__20View>
     </PfdQmlGadget>

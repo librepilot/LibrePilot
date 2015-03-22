@@ -124,7 +124,7 @@ public:
     }
     QString backgroundImageFile() const
     {
-        return m_modelFile;
+        return m_backgroundImageFile;
     }
 
 public slots:

@@ -15,8 +15,21 @@ Item {
     OSGViewport {
         anchors.fill: parent
         focus: true
-        sceneData: transformNode
+        sceneData: sceneNode
         camera: camera
+
+        OSGGroup {
+            id: sceneNode
+            children: [
+                transformNode,
+                backgroundNode
+            ]
+        }
+
+        OSGBackgroundNode {
+            id: backgroundNode
+            imageFile: qmlWidget.backgroundImageFile
+        }
 
         OSGTransformNode {
             id: transformNode

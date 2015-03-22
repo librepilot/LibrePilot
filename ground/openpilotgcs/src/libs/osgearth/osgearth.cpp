@@ -56,7 +56,7 @@
 #include <X11/Xlib.h>
 #endif
 
-bool OsgEarth::registered = false;
+bool OsgEarth::registered  = false;
 bool OsgEarth::initialized = false;
 
 /*
@@ -78,24 +78,23 @@ bool OsgEarth::initialized = false;
 
 
 /*
-Z-fighting can happen with coincident polygons, but it can also happen when the Z buffer has insufficient resolution
-to represent the data in the scene. In the case where you are close up to an object (the helicopter)
-and also viewing a far-off object (the earth) the Z buffer has to stretch to accommodate them both.
-This can result in loss of precision and Z fighting.
+   Z-fighting can happen with coincident polygons, but it can also happen when the Z buffer has insufficient resolution
+   to represent the data in the scene. In the case where you are close up to an object (the helicopter)
+   and also viewing a far-off object (the earth) the Z buffer has to stretch to accommodate them both.
+   This can result in loss of precision and Z fighting.
 
-Assuming you are not messing around with the near/far computations, and assuming you don't have any other objects
-in the scene that are farther off than the earth, there are a couple things you can try.
+   Assuming you are not messing around with the near/far computations, and assuming you don't have any other objects
+   in the scene that are farther off than the earth, there are a couple things you can try.
 
-One, adjust the near/far ratio of the camera. Look at osgearth_viewer.cpp to see how.
+   One, adjust the near/far ratio of the camera. Look at osgearth_viewer.cpp to see how.
 
-Two, you can try to use the AutoClipPlaneHandler. You can install it automatically by running osgearth_viewer --autoclip.
+   Two, you can try to use the AutoClipPlaneHandler. You can install it automatically by running osgearth_viewer --autoclip.
 
-If none of that works, you can try parenting your helicopter with an osg::Camera in NESTED mode,
-which will separate the clip plane calculations of the helicopter from those of the earth. *
+   If none of that works, you can try parenting your helicopter with an osg::Camera in NESTED mode,
+   which will separate the clip plane calculations of the helicopter from those of the earth. *
  */
 
-class OSGEARTH_LIB_EXPORT QtNotifyHandler : public osg::NotifyHandler
-{
+class OSGEARTH_LIB_EXPORT QtNotifyHandler : public osg::NotifyHandler {
 public:
     void notify(osg::NotifySeverity severity, const char *message);
 };
@@ -108,7 +107,7 @@ void OsgEarth::registerQmlTypes()
     }
     registered = true;
 
-    //initialize();
+    // initialize();
 
     // Register Qml types
     osgQtQuick::registerTypes("osgQtQuick");
@@ -141,7 +140,7 @@ void OsgEarth::initialize()
     // force early initialization of osgEarth registry
     // this important as doing it later (when OpenGL is already in use) might thrash some GL contexts
     // TODO : this is done too early when no window is displayed which causes a windows to be briefly flashed on Linux
-    //osgEarth::Registry::capabilities();
+    // osgEarth::Registry::capabilities();
 
     initializeCache();
 
@@ -152,13 +151,14 @@ void OsgEarth::initializePathes()
 {
     // clear and initialize data file path list
     osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
+
     dataFilePathList.clear();
     dataFilePathList.push_back(GCSDirs::sharePath("osgearth").toStdString());
     dataFilePathList.push_back(GCSDirs::sharePath("osgearth/data").toStdString());
 
     // clear and initialize library file path list
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
-    //libraryFilePathList.clear();
+    // libraryFilePathList.clear();
     libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
 }
 
@@ -167,6 +167,7 @@ void OsgEarth::initializeCache()
     QString cachePath = Utils::PathUtils().GetStoragePath() + "osgearth/cache";
 
     osgEarth::Drivers::FileSystemCacheOptions cacheOptions;
+
     cacheOptions.rootPath() = cachePath.toStdString();
 
     osg::ref_ptr<osgEarth::Cache> cache = osgEarth::CacheFactory::create(cacheOptions);
@@ -180,7 +181,7 @@ void OsgEarth::initializeCache()
         // The default cache policy used when no policy is set elsewhere
         osgEarth::Registry::instance()->setDefaultCachePolicy(cachePolicy);
         // The override cache policy (overrides all others if set)
-        //osgEarth::Registry::instance()->setOverrideCachePolicy(cachePolicy);
+        // osgEarth::Registry::instance()->setOverrideCachePolicy(cachePolicy);
     } else {
         qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }
@@ -220,18 +221,17 @@ void OsgEarth::displayInfo()
         it++;
     }
 
-    //qDebug() << "osg cache:" << qgetenv("OSGEARTH_CACHE_PATH");
+    // qDebug() << "osg cache:" << qgetenv("OSGEARTH_CACHE_PATH");
 
     qDebug() << "osg database threads:" << osg::DisplaySettings::instance()->getNumOfDatabaseThreadsHint();
     qDebug() << "osg http database threads:" << osg::DisplaySettings::instance()->getNumOfHttpDatabaseThreadsHint();
 
-    //qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
+    // qDebug() << "Platform supports GLSL:" << osgEarth::Registry::capabilities().supportsGLSL();
 
 #ifdef OSG_USE_QT_PRIVATE
     bool threadedOpenGL = QGuiApplicationPrivate::platform_integration->hasCapability(QPlatformIntegration::ThreadedOpenGL);
     qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
 #endif
-
 }
 
 void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
@@ -240,6 +240,7 @@ void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
 
     // right trim message...
     int n = msg.size() - 1;
+
     for (; n >= 0; --n) {
         if (!msg.at(n).isSpace()) {
             break;
@@ -247,7 +248,7 @@ void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
     }
     msg = msg.left(n + 1);
 
-    switch(severity) {
+    switch (severity) {
     case osg::ALWAYS:
         qDebug().noquote() << "[OSG]" << msg;
         break;

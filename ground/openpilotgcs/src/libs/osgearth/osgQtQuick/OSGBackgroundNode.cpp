@@ -8,7 +8,6 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-
 struct OSGBackgroundNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -61,11 +60,11 @@ void OSGBackgroundNode::realize()
 
     qDebug() << "OSGBackgroundNode - reading image file" << h->url.path();
     osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-    osg::ref_ptr<osg::Image> image = osgDB::readImageFile(h->url.path().toStdString());
+    osg::ref_ptr<osg::Image> image   = osgDB::readImageFile(h->url.path().toStdString());
     texture->setImage(image.get());
 
     osg::ref_ptr<osg::Drawable> quad = osg::createTexturedQuadGeometry(
-            osg::Vec3(), osg::Vec3(1.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 1.0f, 0.0f));
+        osg::Vec3(), osg::Vec3(1.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 1.0f, 0.0f));
     quad->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get());
 
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
@@ -80,7 +79,7 @@ void OSGBackgroundNode::realize()
     camera->setProjectionMatrix(osg::Matrix::ortho2D(0.0, 1.0, 0.0, 1.0));
     camera->addChild(geode.get());
 
-    osg::StateSet* ss = camera->getOrCreateStateSet();
+    osg::StateSet *ss = camera->getOrCreateStateSet();
     ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     ss->setAttributeAndModes(new osg::Depth(osg::Depth::LEQUAL, 1.0, 1.0));
 

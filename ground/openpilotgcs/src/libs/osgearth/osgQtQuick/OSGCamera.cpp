@@ -40,13 +40,13 @@ public:
     {
         fieldOfView = 90.0;
 
-        dirty = false;
+        dirty     = false;
 
         sizeDirty = false;
-        x      = 0;
-        y      = 0;
-        width  = 0;
-        height = 0;
+        x = 0;
+        y = 0;
+        width     = 0;
+        height    = 0;
     }
 
     ~Hidden()
@@ -132,9 +132,9 @@ public:
     void updateCameraFOV()
     {
         qDebug() << "OSGCamera - updateCamera FOV";
-//        camera->setProjectionMatrixAsPerspective(
-//                fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
-        }
+// camera->setProjectionMatrixAsPerspective(
+// fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
+    }
 
     void updateCameraPosition()
     {
@@ -191,16 +191,16 @@ public:
     OSGNode     *trackNode;
 
     // for User manipulator
-    bool   dirty;
+    bool dirty;
 
     QVector3D attitude;
     QVector3D position;
 
-    bool   sizeDirty;
-    int    x;
-    int    y;
-    int    width;
-    int    height;
+    bool sizeDirty;
+    int  x;
+    int  y;
+    int  width;
+    int  height;
 
     osg::observer_ptr<osg::Camera> camera;
 
@@ -248,7 +248,7 @@ void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView != arg) {
         h->fieldOfView = arg;
-        h->sizeDirty = true;
+        h->sizeDirty   = true;
         emit fieldOfViewChanged(fieldOfView());
 
         // it should be a queued call to OSGCameraRenderer instead
@@ -321,7 +321,7 @@ void OSGCamera::setAttitude(QVector3D arg)
 {
     if (h->attitude != arg) {
         h->attitude = arg;
-        h->dirty = true;
+        h->dirty    = true;
         emit attitudeChanged(attitude());
     }
 }
@@ -335,7 +335,7 @@ void OSGCamera::setPosition(QVector3D arg)
 {
     if (h->position != arg) {
         h->position = arg;
-        h->dirty = true;
+        h->dirty    = true;
         emit positionChanged(position());
     }
 }
@@ -349,11 +349,12 @@ void OSGCamera::installCamera(osgViewer::View *view)
     osgGA::CameraManipulator *cm = NULL;
 
     switch (h->manipulatorMode) {
-    case OSGCamera::Default: {
+    case OSGCamera::Default:
+    {
         qDebug() << "OSGCamera - installCamera: use TrackballManipulator";
         osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
         // Set the minimum distance of the eye point from the center before the center is pushed forward.
-        //tm->setMinimumDistance(1, true);
+        // tm->setMinimumDistance(1, true);
         cm = tm;
         break;
     }
@@ -418,14 +419,13 @@ void OSGCamera::setViewport(int x, int y, int width, int height)
         return;
     }
     if (h->x != x || h->y != y || h->width != width || h->height != height) {
-        h->x      = x;
-        h->y      = y;
-        h->width  = width;
-        h->height = height;
+        h->x         = x;
+        h->y         = y;
+        h->width     = width;
+        h->height    = height;
         h->sizeDirty = true;
     }
 }
-
 } // namespace osgQtQuick
 
 #include "OSGCamera.moc"

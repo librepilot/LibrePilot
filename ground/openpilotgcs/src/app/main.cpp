@@ -315,6 +315,7 @@ inline QStringList getPluginPaths()
     QStringList rc;
     // Figure out root:  Up one from 'bin'
     QDir rootDir = QApplication::applicationDirPath();
+
     rootDir.cdUp();
     const QString rootDirPath = rootDir.canonicalPath();
 

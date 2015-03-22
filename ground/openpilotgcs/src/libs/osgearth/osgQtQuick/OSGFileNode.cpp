@@ -27,7 +27,7 @@ public:
 
         t.start();
         qDebug() << "OSGFileLoader - reading node file" << url.path();
-        //qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
+        // qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(url.path().toStdString());
         qDebug() << "OSGFileLoader - reading node" << node << "took" << t.elapsed() << "ms";
 

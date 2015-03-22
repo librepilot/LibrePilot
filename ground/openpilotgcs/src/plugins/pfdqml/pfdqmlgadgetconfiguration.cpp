@@ -51,37 +51,37 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
 
     // if a saved configuration exists load it
     if (qSettings != 0) {
-        m_qmlFile            = qSettings->value("qmlFile").toString();
-        m_qmlFile            = Utils::PathUtils().InsertDataPath(m_qmlFile);
+        m_qmlFile             = qSettings->value("qmlFile").toString();
+        m_qmlFile             = Utils::PathUtils().InsertDataPath(m_qmlFile);
 
-        m_speedFactor        = qSettings->value("speedFactor").toDouble();
-        m_altitudeFactor     = qSettings->value("altitudeFactor").toDouble();
+        m_speedFactor         = qSettings->value("speedFactor").toDouble();
+        m_altitudeFactor      = qSettings->value("altitudeFactor").toDouble();
 
         // terrain
-        m_terrainEnabled     = qSettings->value("terrainEnabled").toBool();
-        m_terrainFile        = qSettings->value("earthFile").toString();
-        m_terrainFile        = Utils::PathUtils().InsertDataPath(m_terrainFile);
-        m_cacheOnly          = qSettings->value("cacheOnly").toBool();
+        m_terrainEnabled      = qSettings->value("terrainEnabled").toBool();
+        m_terrainFile         = qSettings->value("earthFile").toString();
+        m_terrainFile         = Utils::PathUtils().InsertDataPath(m_terrainFile);
+        m_cacheOnly           = qSettings->value("cacheOnly").toBool();
 
-        m_positionMode       = static_cast<Pfd::PositionMode>(qSettings->value("positionMode").toUInt());
-        m_latitude           = qSettings->value("latitude").toDouble();
-        m_longitude          = qSettings->value("longitude").toDouble();
-        m_altitude           = qSettings->value("altitude").toDouble();
+        m_positionMode        = static_cast<Pfd::PositionMode>(qSettings->value("positionMode").toUInt());
+        m_latitude            = qSettings->value("latitude").toDouble();
+        m_longitude           = qSettings->value("longitude").toDouble();
+        m_altitude            = qSettings->value("altitude").toDouble();
 
         // sky
-        m_timeMode       = static_cast<Pfd::TimeMode>(qSettings->value("timeMode").toUInt());
-        m_dateTime = qSettings->value("dateTime").toDateTime();
-        m_minAmbientLight = qSettings->value("minAmbientLight").toDouble();
+        m_timeMode            = static_cast<Pfd::TimeMode>(qSettings->value("timeMode").toUInt());
+        m_dateTime            = qSettings->value("dateTime").toDateTime();
+        m_minAmbientLight     = qSettings->value("minAmbientLight").toDouble();
 
         // model
-        m_modelEnabled       = qSettings->value("modelEnabled").toBool();
-        m_modelSelectionMode = static_cast<Pfd::ModelSelectionMode>(qSettings->value("modelSelectionMode").toUInt());
-        m_modelFile          = qSettings->value("modelFile").toString();
-        m_modelFile          = Utils::PathUtils().InsertDataPath(m_modelFile);
+        m_modelEnabled        = qSettings->value("modelEnabled").toBool();
+        m_modelSelectionMode  = static_cast<Pfd::ModelSelectionMode>(qSettings->value("modelSelectionMode").toUInt());
+        m_modelFile           = qSettings->value("modelFile").toString();
+        m_modelFile           = Utils::PathUtils().InsertDataPath(m_modelFile);
 
         // background image
-        m_backgroundImageFile          = qSettings->value("backgroundImageFile").toString();
-        m_backgroundImageFile          = Utils::PathUtils().InsertDataPath(m_backgroundImageFile);
+        m_backgroundImageFile = qSettings->value("backgroundImageFile").toString();
+        m_backgroundImageFile = Utils::PathUtils().InsertDataPath(m_backgroundImageFile);
     }
 }
 
@@ -93,30 +93,30 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
 {
     PfdQmlGadgetConfiguration *m = new PfdQmlGadgetConfiguration(this->classId());
 
-    m->m_qmlFile            = m_qmlFile;
+    m->m_qmlFile             = m_qmlFile;
 
-    m->m_speedFactor        = m_speedFactor;
-    m->m_altitudeFactor     = m_altitudeFactor;
+    m->m_speedFactor         = m_speedFactor;
+    m->m_altitudeFactor      = m_altitudeFactor;
 
     // terrain
-    m->m_terrainEnabled     = m_terrainEnabled;
-    m->m_terrainFile        = m_terrainFile;
-    m->m_cacheOnly          = m_cacheOnly;
+    m->m_terrainEnabled      = m_terrainEnabled;
+    m->m_terrainFile         = m_terrainFile;
+    m->m_cacheOnly           = m_cacheOnly;
 
-    m->m_positionMode       = m_positionMode;
-    m->m_latitude           = m_latitude;
-    m->m_longitude          = m_longitude;
-    m->m_altitude           = m_altitude;
+    m->m_positionMode        = m_positionMode;
+    m->m_latitude            = m_latitude;
+    m->m_longitude           = m_longitude;
+    m->m_altitude            = m_altitude;
 
     // sky
-    m->m_timeMode = m_timeMode;
-    m->m_dateTime = m_dateTime;
-    m->m_minAmbientLight = m_minAmbientLight;
+    m->m_timeMode            = m_timeMode;
+    m->m_dateTime            = m_dateTime;
+    m->m_minAmbientLight     = m_minAmbientLight;
 
     // model
-    m->m_modelEnabled       = m_modelEnabled;
-    m->m_modelSelectionMode = m_modelSelectionMode;
-    m->m_modelFile          = m_modelFile;
+    m->m_modelEnabled        = m_modelEnabled;
+    m->m_modelSelectionMode  = m_modelSelectionMode;
+    m->m_modelFile           = m_modelFile;
 
     // background image
     m->m_backgroundImageFile = m_backgroundImageFile;
@@ -159,7 +159,7 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
     QString modelFile = Utils::PathUtils().RemoveDataPath(m_modelFile);
     qSettings->setValue("modelFile", modelFile);
 
-    //  background image
+    // background image
     QString backgroundImageFile = Utils::PathUtils().RemoveDataPath(m_backgroundImageFile);
     qSettings->setValue("backgroundImageFile", backgroundImageFile);
 }

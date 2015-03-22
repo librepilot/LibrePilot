@@ -100,7 +100,7 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 
     // Background image chooser
     options_page->backgroundImageFile->setExpectedKind(Utils::PathChooser::File);
-    //options_page->backgroundImageFile->setPromptDialogFilter(tr("Image file"));
+    // options_page->backgroundImageFile->setPromptDialogFilter(tr("Image file"));
     options_page->backgroundImageFile->setPromptDialogTitle(tr("Choose Background Image File"));
     options_page->backgroundImageFile->setPath(m_config->backgroundImageFile());
 
@@ -110,7 +110,7 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
 #endif
 
     QObject::connect(options_page->actualizeDateTimeButton, SIGNAL(clicked()),
-            this, SLOT(actualizeDateTime()));
+                     this, SLOT(actualizeDateTime()));
 
     return optionsPageWidget;
 }
@@ -153,9 +153,9 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setDateTime(dateTime);
     m_config->setMinAmbientLight(options_page->minAmbientLightSpinBox->value());
 
-#else
+#else // ifdef USE_OSG
     m_config->setTerrainEnabled(false);
-#endif
+#endif // ifdef USE_OSG
 
 #ifdef USE_OSG
     m_config->setModelEnabled(options_page->showModel->isChecked());
@@ -170,7 +170,6 @@ void PfdQmlGadgetOptionsPage::apply()
 #else
     m_config->setModelEnabled(false);
 #endif
-
 }
 
 void PfdQmlGadgetOptionsPage::finish()
@@ -179,5 +178,7 @@ void PfdQmlGadgetOptionsPage::finish()
 void PfdQmlGadgetOptionsPage::actualizeDateTime()
 {
     QDateTime dateTime = QDateTime::currentDateTime();
+
     options_page->dateEdit->setDate(dateTime.date());
-    options_page->timeEdit->setTime(dateTime.time());}
+    options_page->timeEdit->setTime(dateTime.time());
+}

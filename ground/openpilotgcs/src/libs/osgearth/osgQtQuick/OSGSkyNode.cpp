@@ -81,7 +81,7 @@ public:
 
         // TODO should be done in a node visitor...
         if (skyNode) {
-            //skyNode->setLighting(sunLightEnabled ? osg::StateAttribute::ON : osg::StateAttribute::OFF);
+            // skyNode->setLighting(sunLightEnabled ? osg::StateAttribute::ON : osg::StateAttribute::OFF);
         }
 
         return true;
@@ -100,9 +100,9 @@ public:
 
         // TODO should be done in a node visitor...
         if (skyNode) {
-            QDate date = dateTime.date();
-            QTime time = dateTime.time();
-            double hours = time.hour() + (double) time.minute() / 60.0 + (double) time.second() / 3600.0;
+            QDate date   = dateTime.date();
+            QTime time   = dateTime.time();
+            double hours = time.hour() + (double)time.minute() / 60.0 + (double)time.second() / 3600.0;
             skyNode->setDateTime(osgEarth::DateTime(date.year(), date.month(), date.day(), hours));
         }
 
@@ -119,7 +119,7 @@ public:
         if (skyNode) {
             double d = minimumAmbientLight;
             skyNode->getSunLight()->setAmbient(osg::Vec4(d, d, d, 1.0f));
-            //skyNode->setMinimumAmbient(osg::Vec4f(0.8f, 0.8f, 0.8f, 1.0f));
+            // skyNode->setMinimumAmbient(osg::Vec4f(0.8f, 0.8f, 0.8f, 1.0f));
         }
 
         return true;
@@ -127,12 +127,12 @@ public:
 
     OSGSkyNode *const self;
 
-    OSGNode *sceneData;
+    OSGNode   *sceneData;
     osg::ref_ptr<osgEarth::Util::SkyNode> skyNode;
 
-    bool sunLightEnabled;
+    bool      sunLightEnabled;
     QDateTime dateTime;
-    double minimumAmbientLight;
+    double    minimumAmbientLight;
 
 private slots:
 
@@ -200,7 +200,6 @@ void OSGSkyNode::setMinimumAmbientLight(double arg)
         emit minimumAmbientLightChanged(minimumAmbientLight());
     }
 }
-
 } // namespace osgQtQuick
 
 #include "OSGSkyNode.moc"

@@ -11,7 +11,7 @@ struct OSGTransformNode::Hidden : public QObject {
     Q_OBJECT
 
     struct NodeUpdateCallback : public osg::NodeCallback {
-    public:
+public:
         NodeUpdateCallback(Hidden *h) : h(h) {}
 
         void operator()(osg::Node *node, osg::NodeVisitor *nv);
@@ -96,20 +96,19 @@ public:
         // scale
         if ((scale.x() != 0.0) || (scale.y() != 0.0) || (scale.z() != 0.0)) {
             transform->setScale(osg::Vec3d(scale.x(), scale.y(), scale.z()));
-            //transform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
+            // transform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
             transform->getOrCreateStateSet()->setMode(GL_RESCALE_NORMAL, osg::StateAttribute::ON);
         }
 
         // rotate
         osg::Quat q = osg::Quat(
-                osg::DegreesToRadians(rotate.x()), osg::Vec3d(1, 0, 0),
-                osg::DegreesToRadians(rotate.y()), osg::Vec3d(0, 1, 0),
-                osg::DegreesToRadians(rotate.z()), osg::Vec3d(0, 0, 1));
+            osg::DegreesToRadians(rotate.x()), osg::Vec3d(1, 0, 0),
+            osg::DegreesToRadians(rotate.y()), osg::Vec3d(0, 1, 0),
+            osg::DegreesToRadians(rotate.z()), osg::Vec3d(0, 0, 1));
         transform->setAttitude(q);
 
         // translate
         transform->setPosition(osg::Vec3d(translate.x(), translate.y(), translate.z()));
-
     }
 
     OSGTransformNode *const self;
@@ -118,7 +117,7 @@ public:
 
     osg::ref_ptr<osg::PositionAttitudeTransform> transform;
 
-    bool   dirty;
+    bool dirty;
 
     QVector3D scale;
     QVector3D rotate;
@@ -186,7 +185,7 @@ void OSGTransformNode::setRotate(QVector3D arg)
 {
     if (h->rotate != arg) {
         h->rotate = arg;
-        h->dirty = true;
+        h->dirty  = true;
         emit rotateChanged(rotate());
     }
 }
@@ -200,11 +199,10 @@ void OSGTransformNode::setTranslate(QVector3D arg)
 {
     if (h->translate != arg) {
         h->translate = arg;
-        h->dirty = true;
+        h->dirty     = true;
         emit translateChanged(translate());
     }
 }
-
 } // namespace osgQtQuick
 
 #include "OSGTransformNode.moc"

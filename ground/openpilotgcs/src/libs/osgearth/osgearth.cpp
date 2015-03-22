@@ -171,15 +171,16 @@ void OsgEarth::initializeCache()
 
     osg::ref_ptr<osgEarth::Cache> cache = osgEarth::CacheFactory::create(cacheOptions);
     if (cache->isOK()) {
-        unsigned int policyUsage = osgEarth::CachePolicy::USAGE_READ_WRITE;
-        //policyUsage |= osgEarth::CachePolicy::USAGE_CACHE_ONLY;
-
+        // set cache
         osgEarth::Registry::instance()->setCache(cache.get());
 
+        // set cache policy
+        const osgEarth::CachePolicy cachePolicy(osgEarth::CachePolicy::USAGE_READ_WRITE);
+
         // The default cache policy used when no policy is set elsewhere
-        osgEarth::Registry::instance()->setDefaultCachePolicy(osgEarth::CachePolicy(osgEarth::CachePolicy::Usage(policyUsage)));
+        osgEarth::Registry::instance()->setDefaultCachePolicy(cachePolicy);
         // The override cache policy (overrides all others if set)
-        //osgEarth::Registry::instance()->setOverrideCachePolicy(osgEarth::CachePolicy(osgEarth::CachePolicy::Usage(policyUsage)));
+        //osgEarth::Registry::instance()->setOverrideCachePolicy(cachePolicy);
     } else {
         qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }

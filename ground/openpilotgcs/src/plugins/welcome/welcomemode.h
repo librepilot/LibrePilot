@@ -41,7 +41,6 @@ class QNetworkReply;
 QT_END_NAMESPACE
 
 namespace Welcome {
-
 class WELCOME_EXPORT WelcomeMode : public Core::IMode {
     Q_OBJECT Q_PROPERTY(QString versionString READ versionString CONSTANT)
     Q_PROPERTY(QString newVersionText READ newVersionText NOTIFY newVersionTextChanged)

@@ -25,10 +25,6 @@ PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget 
     IUAVGadget(classId, parent),
     m_widget(widget)
 {
-#ifndef USE_WIDGET
-    m_container = NULL;
-    m_parent    = parent;
-#endif
 }
 
 PfdQmlGadget::~PfdQmlGadget()
@@ -38,19 +34,7 @@ PfdQmlGadget::~PfdQmlGadget()
 
 QWidget *PfdQmlGadget::widget()
 {
-#ifdef USE_WIDGET
     return m_widget;
-#else
-    if (!m_container) {
-        m_container = QWidget::createWindowContainer(m_widget, m_parent);
-        m_container->setMinimumSize(64, 64);
-        m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        // don't clear widget background before painting to avoid flickering
-        m_container->setAutoFillBackground(true);
-        // m_container->setAttribute(Qt::WA_OpaquePaintEvent, false);
-    }
-    return m_container;
-#endif
 }
 
 /*

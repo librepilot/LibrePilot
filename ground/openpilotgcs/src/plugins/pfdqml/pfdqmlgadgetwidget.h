@@ -20,9 +20,6 @@
 #include "pfdqml.h"
 #include "pfdqmlgadgetconfiguration.h"
 
-#define USE_WIDGET 1
-
-#ifdef USE_WIDGET
 #include <QQuickWidget>
 
 /*
@@ -42,11 +39,6 @@
  * hence making it a native widget should always be avoided.
  */
 class PfdQmlGadgetWidget : public QQuickWidget {
-#else
-#include <QQuickView>
-
-    class PfdQmlGadgetWidget : public QQuickView {
-#endif
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
     Q_PROPERTY(double speedFactor READ speedFactor WRITE setSpeedFactor NOTIFY speedFactorChanged)
     Q_PROPERTY(QString altitudeUnit READ altitudeUnit WRITE setAltitudeUnit NOTIFY altitudeUnitChanged)
@@ -69,11 +61,7 @@ class PfdQmlGadgetWidget : public QQuickWidget {
     Q_PROPERTY(QString backgroundImageFile READ backgroundImageFile WRITE setBackgroundImageFile NOTIFY backgroundImageFileChanged)
 
 public:
-#ifdef USE_WIDGET
     PfdQmlGadgetWidget(QWidget *parent = 0);
-#else
-    PfdQmlGadgetWidget(QWindow *parent = 0);
-#endif
     virtual ~PfdQmlGadgetWidget();
 
     void setQmlFile(QString fn);
@@ -183,11 +171,8 @@ signals:
     void backgroundImageFileChanged(QString arg);
 
 private slots:
-#ifdef USE_WIDGET
     void onStatusChanged(QQuickWidget::Status status);
-#else
-    void onStatusChanged(QQuickView::Status status);
-#endif
+
 private:
     QString m_qmlFileName;
 

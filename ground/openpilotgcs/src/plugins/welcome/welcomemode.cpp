@@ -59,7 +59,6 @@ using namespace ExtensionSystem;
 using namespace Utils;
 
 namespace Welcome {
-
 WelcomeMode::WelcomeMode() :
     m_widget(NULL),
     m_priority(Core::Constants::P_MODE_WELCOME),
@@ -82,8 +81,7 @@ WelcomeMode::WelcomeMode() :
 }
 
 WelcomeMode::~WelcomeMode()
-{
-}
+{}
 
 QString WelcomeMode::name() const
 {

@@ -24,13 +24,8 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 
-#ifdef USE_WIDGET
 PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
     QQuickWidget(parent),
-#else
-PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
-    QQuickView(parent),
-#endif
     m_speedUnit("m/s"),
     m_speedFactor(1.0),
     m_altitudeUnit("m"),
@@ -95,7 +90,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         }
     }
 
-#ifndef USE_WIDGET
+#if 0
     qDebug() << "is OpenGLContext persistent" << isPersistentOpenGLContext();
     // window->setPersistentOpenGLContext(!window->isPersistentOpenGLContext());
     qDebug() << "is SceneGraph persistent" << isPersistentSceneGraph();
@@ -104,11 +99,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
 
-#ifdef USE_WIDGET
     connect(this, SIGNAL(statusChanged(QQuickWidget::Status)), this, SLOT(onStatusChanged(QQuickWidget::Status)));
-#else
-    connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(onStatusChanged(QQuickView::Status)));
-#endif
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
@@ -149,11 +140,7 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
     }
 }
 
-#ifdef USE_WIDGET
 void PfdQmlGadgetWidget::onStatusChanged(QQuickWidget::Status status)
-#else
-void PfdQmlGadgetWidget::onStatusChanged(QQuickView::Status status)
-#endif
 {
     switch (status) {
     case Null:

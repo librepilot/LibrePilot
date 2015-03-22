@@ -1580,13 +1580,16 @@
           <speedFactor>1</speedFactor>
           <terrainEnabled>false</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
           <positionMode>0</positionMode>
           <altitude>2000</altitude>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
-          <cacheOnly>false</cacheOnly>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>false</modelEnabled>
-          <modelSelectionMode>1</modelSelectionMode>
+          <modelSelectionMode>0</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
         </data>
       </PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
@@ -1601,11 +1604,14 @@
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
           <positionMode>0</positionMode>
           <altitude>2000</altitude>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
-          <cacheOnly>false</cacheOnly>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
@@ -1622,11 +1628,14 @@
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
           <positionMode>0</positionMode>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <altitude>2000</altitude>
-          <cacheOnly>false</cacheOnly>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
@@ -1643,11 +1652,14 @@
           <speedFactor>1</speedFactor>
           <terrainEnabled>false</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
           <positionMode>0</positionMode>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <altitude>2000</altitude>
-          <cacheOnly>false</cacheOnly>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
@@ -1664,11 +1676,14 @@
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
           <positionMode>0</positionMode>
           <latitude>46.6715</latitude>
           <longitude>10.1589</longitude>
           <altitude>2000</altitude>
-          <cacheOnly>false</cacheOnly>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>

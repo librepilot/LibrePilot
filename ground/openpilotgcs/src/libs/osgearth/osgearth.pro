@@ -30,6 +30,7 @@ HEADERS += \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
     osgQtQuick/OSGModelNode.hpp \
+    osgQtQuick/OSGBackgroundNode.hpp \
     osgQtQuick/OSGSkyNode.hpp \
     osgQtQuick/OSGCamera.hpp \
     osgQtQuick/OSGViewport.hpp
@@ -44,6 +45,7 @@ SOURCES += \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
     osgQtQuick/OSGModelNode.cpp \
+    osgQtQuick/OSGBackgroundNode.cpp \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp

@@ -8,6 +8,7 @@
 #include "OSGCubeNode.hpp"
 #include "OSGTextNode.hpp"
 #include "OSGModelNode.hpp"
+#include "OSGBackgroundNode.hpp"
 #include "OSGSkyNode.hpp"
 #include "OSGCamera.hpp"
 #include "OSGViewport.hpp"
@@ -356,6 +357,7 @@ void registerTypes(const char *uri)
 
     qmlRegisterType<osgQtQuick::OSGModelNode>(uri, maj, min, "OSGModelNode");
     qmlRegisterType<osgQtQuick::OSGSkyNode>(uri, maj, min, "OSGSkyNode");
+    qmlRegisterType<osgQtQuick::OSGBackgroundNode>(uri, maj, min, "OSGBackgroundNode");
     qmlRegisterType<osgQtQuick::OSGCamera>(uri, maj, min, "OSGCamera");
 }
 } // namespace osgQtQuick

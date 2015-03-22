@@ -21,7 +21,18 @@ OSGViewport {
     OSGSkyNode {
         id: skyNode
         sceneData: terrainNode
-        dateTime: new Date();
+            dateTime: getDateTime()
+            minimumAmbientLight: qmlWidget.minimumAmbientLight
+
+            function getDateTime() {
+                switch(qmlWidget.timeMode) {
+                case Pfd.Local:
+                    return new Date();
+                case Pfd.PredefinedTime:
+                    return qmlWidget.dateTime;
+                }
+            }
+
     }
 
     OSGFileNode {

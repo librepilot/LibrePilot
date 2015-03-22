@@ -52,16 +52,21 @@ class PfdQmlGadgetWidget : public QQuickWidget {
     Q_PROPERTY(QString altitudeUnit READ altitudeUnit WRITE setAltitudeUnit NOTIFY altitudeUnitChanged)
     Q_PROPERTY(double altitudeFactor READ altitudeFactor WRITE setAltitudeFactor NOTIFY altitudeFactorChanged)
 
+    // terrain
+    Q_PROPERTY(bool terrainEnabled READ terrainEnabled WRITE setTerrainEnabled NOTIFY terrainEnabledChanged)
+    Q_PROPERTY(QString terrainFile READ terrainFile WRITE setTerrainFile NOTIFY terrainFileChanged)
+
     Q_PROPERTY(Pfd::PositionMode positionMode READ positionMode WRITE setPositionMode NOTIFY positionModeChanged)
-    // pre-defined fallback position
     Q_PROPERTY(double latitude READ latitude WRITE setLatitude NOTIFY latitudeChanged)
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
 
-    // terrain
-    Q_PROPERTY(bool terrainEnabled READ terrainEnabled WRITE setTerrainEnabled NOTIFY terrainEnabledChanged)
-    Q_PROPERTY(QString terrainFile READ terrainFile WRITE setTerrainFile NOTIFY terrainFileChanged)
+    Q_PROPERTY(Pfd::TimeMode timeMode READ timeMode WRITE setTimeMode NOTIFY timeModeChanged)
+    Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(double minimumAmbientLight READ minimumAmbientLight WRITE setMinimumAmbientLight NOTIFY minimumAmbientLightChanged)
+
     Q_PROPERTY(QString modelFile READ modelFile WRITE setModelFile NOTIFY modelFileChanged)
+    Q_PROPERTY(QString backgroundImageFile READ backgroundImageFile WRITE setBackgroundImageFile NOTIFY backgroundImageFileChanged)
 
 public:
 #ifdef USE_WIDGET
@@ -89,6 +94,14 @@ public:
     {
         return m_altitudeFactor;
     }
+    bool terrainEnabled() const
+    {
+        return m_terrainEnabled;
+    }
+    QString terrainFile() const
+    {
+        return m_terrainFile;
+    }
     Pfd::PositionMode positionMode() const
     {
         return m_positionMode;
@@ -105,15 +118,23 @@ public:
     {
         return m_altitude;
     }
-    bool terrainEnabled() const
+    Pfd::TimeMode timeMode() const
     {
-        return m_terrainEnabled;
+        return m_timeMode;
     }
-    QString terrainFile() const
+    QDateTime dateTime()
     {
-        return m_terrainFile;
+        return m_dateTime;
+    }
+    double minimumAmbientLight()
+    {
+        return m_minAmbientLight;
     }
     QString modelFile() const
+    {
+        return m_modelFile;
+    }
+    QString backgroundImageFile() const
     {
         return m_modelFile;
     }
@@ -124,14 +145,20 @@ public slots:
     void setAltitudeUnit(QString unit);
     void setAltitudeFactor(double factor);
 
+    void setTerrainEnabled(bool arg);
+    void setTerrainFile(const QString &arg);
+
     void setPositionMode(Pfd::PositionMode arg);
     void setLatitude(double arg);
     void setLongitude(double arg);
     void setAltitude(double arg);
 
-    void setTerrainEnabled(bool arg);
-    void setTerrainFile(QString arg);
-    void setModelFile(QString arg);
+    void setTimeMode(Pfd::TimeMode arg);
+    void setDateTime(QDateTime arg);
+    void setMinimumAmbientLight(double arg);
+
+    void setModelFile(const QString &arg);
+    void setBackgroundImageFile(const QString &arg);
 
 signals:
     void speedUnitChanged(QString arg);
@@ -139,14 +166,21 @@ signals:
     void altitudeUnitChanged(QString arg);
     void altitudeFactorChanged(double arg);
 
+    void terrainEnabledChanged(bool arg);
+    void terrainFileChanged(QString arg);
+
     void positionModeChanged(Pfd::PositionMode arg);
     void latitudeChanged(double arg);
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
 
-    void terrainEnabledChanged(bool arg);
-    void terrainFileChanged(QString arg);
+    void timeModeChanged(Pfd::TimeMode arg);
+    void dateTimeChanged(QDateTime arge);
+    void minimumAmbientLightChanged(double arg);
+
     void modelFileChanged(QString arg);
+
+    void backgroundImageFileChanged(QString arg);
 
 private slots:
 #ifdef USE_WIDGET
@@ -162,14 +196,21 @@ private:
     QString m_altitudeUnit;
     double m_altitudeFactor;
 
+    bool m_terrainEnabled;
+    QString m_terrainFile;
+
     Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;
 
-    bool m_terrainEnabled;
-    QString m_terrainFile;
+    Pfd::TimeMode m_timeMode;
+    QDateTime m_dateTime;
+    double m_minAmbientLight;
+
     QString m_modelFile;
+
+    QString m_backgroundImageFile;
 };
 
 #endif /* PFDQMLGADGETWIDGET_H_ */

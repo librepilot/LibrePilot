@@ -60,9 +60,6 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     }
     options_page->altUnitCombo->setCurrentIndex(options_page->altUnitCombo->findData(m_config->altitudeFactor()));
 
-    // OpenGL
-    //options_page->useOpenGL->setChecked(m_config->openGLEnabled());
-
     // Terrain check boxes
     options_page->showTerrain->setChecked(m_config->terrainEnabled());
 
@@ -83,6 +80,13 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->longitude->setText(QString::number(m_config->longitude()));
     options_page->altitude->setText(QString::number(m_config->altitude()));
 
+    // Sky options
+    options_page->useLocalTime->setChecked(m_config->timeMode() == Pfd::Local);
+    options_page->usePredefinedTime->setChecked(m_config->timeMode() == Pfd::PredefinedTime);
+    options_page->dateEdit->setDate(m_config->dateTime().date());
+    options_page->timeEdit->setTime(m_config->dateTime().time());
+    options_page->minAmbientLightSpinBox->setValue(m_config->minAmbientLight());
+
     // Model check boxes
     options_page->showModel->setChecked(m_config->modelEnabled());
     options_page->useAutomaticModel->setChecked(m_config->modelSelectionMode() == Pfd::Auto);
@@ -94,10 +98,19 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->modelFile->setPromptDialogTitle(tr("Choose Model File"));
     options_page->modelFile->setPath(m_config->modelFile());
 
+    // Background image chooser
+    options_page->backgroundImageFile->setExpectedKind(Utils::PathChooser::File);
+    //options_page->backgroundImageFile->setPromptDialogFilter(tr("Image file"));
+    options_page->backgroundImageFile->setPromptDialogTitle(tr("Choose Background Image File"));
+    options_page->backgroundImageFile->setPath(m_config->backgroundImageFile());
+
 #ifndef USE_OSG
     options_page->showTerrain->setChecked(false);
     options_page->showTerrain->setVisible(false);
 #endif
+
+    QObject::connect(options_page->actualizeDateTimeButton, SIGNAL(clicked()),
+            this, SLOT(actualizeDateTime()));
 
     return optionsPageWidget;
 }
@@ -115,8 +128,6 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setSpeedFactor(options_page->speedUnitCombo->itemData(options_page->speedUnitCombo->currentIndex()).toDouble());
     m_config->setAltitudeFactor(options_page->altUnitCombo->itemData(options_page->altUnitCombo->currentIndex()).toDouble());
 
-    //m_config->setOpenGLEnabled(options_page->useOpenGL->isChecked());
-
 #ifdef USE_OSG
     m_config->setTerrainEnabled(options_page->showTerrain->isChecked());
     m_config->setTerrainFile(options_page->earthFile->path());
@@ -133,6 +144,15 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setAltitude(options_page->altitude->text().toDouble());
     m_config->setCacheOnly(options_page->useOnlyCache->isChecked());
 
+    if (options_page->useLocalTime->isChecked()) {
+        m_config->setTimeMode(Pfd::Local);
+    } else {
+        m_config->setTimeMode(Pfd::PredefinedTime);
+    }
+    QDateTime dateTime(options_page->dateEdit->date(), options_page->timeEdit->time());
+    m_config->setDateTime(dateTime);
+    m_config->setMinAmbientLight(options_page->minAmbientLightSpinBox->value());
+
 #else
     m_config->setTerrainEnabled(false);
 #endif
@@ -146,6 +166,7 @@ void PfdQmlGadgetOptionsPage::apply()
     } else {
         m_config->setModelSelectionMode(Pfd::Fixed);
     }
+    m_config->setBackgroundImageFile(options_page->backgroundImageFile->path());
 #else
     m_config->setModelEnabled(false);
 #endif
@@ -154,3 +175,9 @@ void PfdQmlGadgetOptionsPage::apply()
 
 void PfdQmlGadgetOptionsPage::finish()
 {}
+
+void PfdQmlGadgetOptionsPage::actualizeDateTime()
+{
+    QDateTime dateTime = QDateTime::currentDateTime();
+    options_page->dateEdit->setDate(dateTime.date());
+    options_page->timeEdit->setTime(dateTime.time());}

@@ -43,6 +43,9 @@ public:
     void apply();
     void finish();
 
+private slots:
+    void actualizeDateTime();
+
 private:
     Ui::PfdQmlGadgetOptionsPage *options_page;
     PfdQmlGadgetConfiguration *m_config;

@@ -35,13 +35,17 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     m_speedFactor(1.0),
     m_altitudeUnit("m"),
     m_altitudeFactor(1.0),
+    m_terrainEnabled(false),
+    m_terrainFile(""),
     m_positionMode(Pfd::Predefined),
     m_latitude(46.671478),
     m_longitude(10.158932),
     m_altitude(2000),
-    m_terrainEnabled(false),
-    m_terrainFile(""),
-    m_modelFile("")
+    m_timeMode(Pfd::Local),
+    m_dateTime(QDateTime()),
+    m_minAmbientLight(0.03),
+    m_modelFile(""),
+    m_backgroundImageFile("")
 {
     qDebug() << "PfdQmlGadgetWidget - <init>";
     setResizeMode(SizeRootObjectToView);
@@ -99,6 +103,12 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
 
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
+
+#ifdef USE_WIDGET
+    connect(this, SIGNAL(statusChanged(QQuickWidget::Status)), this, SLOT(onStatusChanged(QQuickWidget::Status)));
+#else
+    connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(onStatusChanged(QQuickView::Status)));
+#endif
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
@@ -117,30 +127,22 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
         setSource(QUrl());
 
         engine()->removeImageProvider("svg");
-        // engine()->rootContext()->setContextProperty("svgRenderer", NULL);
+        //engine()->rootContext()->setContextProperty("svgRenderer", NULL);
 
         // calling clearComponentCache() causes crashes (see https://bugreports.qt-project.org/browse/QTBUG-41465)
         // but not doing it causes almost systematic crashes when switching PFD gadget to "Model View (Without Terrain)" configuration
         engine()->clearComponentCache();
     } else {
-        QUrl url = QUrl::fromLocalFile(fn);
-
-        engine()->setBaseUrl(url);
-
         SvgImageProvider *svgProvider = new SvgImageProvider(fn);
         engine()->addImageProvider("svg", svgProvider);
 
         // it's necessary to allow qml side to query svg element position
         engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
 
+        QUrl url = QUrl::fromLocalFile(fn);
+        engine()->setBaseUrl(url);
         setSource(url);
     }
-
-#ifdef USE_WIDGET
-    connect(this, SIGNAL(statusChanged(QQuickWidget::Status)), this, SLOT(onStatusChanged(QQuickWidget::Status)));
-#else
-    connect(this, SIGNAL(statusChanged(QQuickView::Status)), this, SLOT(onStatusChanged(QQuickView::Status)));
-#endif
 
     foreach(const QQmlError &error, errors()) {
         qDebug() << error.description();
@@ -204,6 +206,24 @@ void PfdQmlGadgetWidget::setAltitudeFactor(double factor)
     }
 }
 
+void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
+{
+    if (m_terrainEnabled != arg) {
+        m_terrainEnabled = arg;
+        qDebug() << "PfdQmlGadgetWidget - setTerrainEnabled" << terrainEnabled();
+        emit terrainEnabledChanged(terrainEnabled());
+    }
+}
+
+void PfdQmlGadgetWidget::setTerrainFile(const QString &arg)
+{
+    if (m_terrainFile != arg) {
+        m_terrainFile = arg;
+        qDebug() << "PfdQmlGadgetWidget - setTerrainFile" << terrainFile();
+        emit terrainFileChanged(terrainFile());
+    }
+}
+
 void PfdQmlGadgetWidget::setPositionMode(Pfd::PositionMode arg)
 {
     if (m_positionMode != arg) {
@@ -236,29 +256,44 @@ void PfdQmlGadgetWidget::setAltitude(double arg)
     }
 }
 
-void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
+void PfdQmlGadgetWidget::setTimeMode(Pfd::TimeMode arg)
 {
-    if (m_terrainEnabled != arg) {
-        m_terrainEnabled = arg;
-        qDebug() << "PfdQmlGadgetWidget - setTerrainEnabled" << terrainEnabled();
-        emit terrainEnabledChanged(terrainEnabled());
+    if (m_timeMode != arg) {
+        m_timeMode = arg;
+        emit timeModeChanged(timeMode());
     }
 }
 
-void PfdQmlGadgetWidget::setTerrainFile(QString arg)
+void PfdQmlGadgetWidget::setDateTime(QDateTime arg)
 {
-    if (m_terrainFile != arg) {
-        m_terrainFile = arg;
-        qDebug() << "PfdQmlGadgetWidget - setTerrainFile" << terrainFile();
-        emit terrainFileChanged(terrainFile());
+    if (m_dateTime != arg) {
+        m_dateTime = arg;
+        emit dateTimeChanged(dateTime());
     }
 }
 
-void PfdQmlGadgetWidget::setModelFile(QString arg)
+void PfdQmlGadgetWidget::setMinimumAmbientLight(double arg)
+{
+    if (m_minAmbientLight != arg) {
+        m_minAmbientLight = arg;
+        emit minimumAmbientLightChanged(minimumAmbientLight());
+    }
+}
+
+void PfdQmlGadgetWidget::setModelFile(const QString &arg)
 {
     if (m_modelFile != arg) {
         m_modelFile = arg;
         qDebug() << "PfdQmlGadgetWidget - setModelFile" << modelFile();
         emit modelFileChanged(modelFile());
+    }
+}
+
+void PfdQmlGadgetWidget::setBackgroundImageFile(const QString &arg)
+{
+    if (m_backgroundImageFile != arg) {
+        m_backgroundImageFile = arg;
+        qDebug() << "PfdQmlGadgetWidget - setBackgroundImageFile" << backgroundImageFile();
+        emit backgroundImageFileChanged(backgroundImageFile());
     }
 }

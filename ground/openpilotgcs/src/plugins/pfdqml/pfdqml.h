@@ -22,11 +22,13 @@
 
 class Pfd : public QObject {
     Q_OBJECT Q_ENUMS(PositionMode)
+    Q_ENUMS(TimeMode)
     Q_ENUMS(ModelSelectionMode)
 
 public:
     enum PositionMode { GPS, Home, Predefined };
     enum ModelSelectionMode { Auto, Fixed };
+    enum TimeMode { Local, PredefinedTime };
 
     static void declareQML()
     {

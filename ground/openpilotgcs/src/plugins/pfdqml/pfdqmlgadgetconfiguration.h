@@ -19,7 +19,9 @@
 
 #include "pfdqml.h"
 #include <coreplugin/iuavgadgetconfiguration.h>
+
 #include <QMap>
+#include <QDateTime>
 
 using namespace Core;
 
@@ -128,6 +130,33 @@ public:
         return m_cacheOnly;
     }
 
+    Pfd::TimeMode timeMode() const
+    {
+        return m_timeMode;
+    }
+    void setTimeMode(Pfd::TimeMode timeMode)
+    {
+        m_timeMode = timeMode;
+    }
+
+    QDateTime dateTime() const
+    {
+        return m_dateTime;
+    }
+    void setDateTime(QDateTime &dateTime)
+    {
+        m_dateTime = dateTime;
+    }
+
+    double minAmbientLight() const
+    {
+        return m_minAmbientLight;
+    }
+    void setMinAmbientLight(double minAmbientLight)
+    {
+        m_minAmbientLight = minAmbientLight;
+    }
+
     bool modelEnabled() const
     {
         return m_modelEnabled;
@@ -155,13 +184,13 @@ public:
         m_modelSelectionMode = modelSelectionMode;
     }
 
-    bool openGLEnabled() const
+    QString backgroundImageFile() const
     {
-        return m_openGLEnabled;
+        return m_backgroundImageFile;
     }
-    void setOpenGLEnabled(bool flag)
+    void setBackgroundImageFile(const QString &fileName)
     {
-        m_openGLEnabled = flag;
+        m_backgroundImageFile = fileName;
     }
 
     QMapIterator<double, QString> speedMapIterator()
@@ -186,6 +215,9 @@ private:
     bool m_terrainEnabled;
     QString m_terrainFile; // The name of osgearth terrain file
     bool m_cacheOnly;
+    Pfd::TimeMode m_timeMode;
+    QDateTime m_dateTime;
+    double m_minAmbientLight;
 
     Pfd::PositionMode m_positionMode;
     double m_latitude;
@@ -196,7 +228,7 @@ private:
     QString m_modelFile; // The name of model file
     Pfd::ModelSelectionMode m_modelSelectionMode;
 
-    bool m_openGLEnabled;
+    QString m_backgroundImageFile;
 
     QMap<double, QString> m_speedMap;
     QMap<double, QString> m_altitudeMap;

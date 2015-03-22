@@ -65,6 +65,7 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 
     qDebug() << "PfdQmlGadget - loading configuration :" << m->name();
 
+    // clear widget
     m_widget->setQmlFile("");
 
     m_widget->setSpeedFactor(m->speedFactor());
@@ -72,14 +73,26 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setAltitudeFactor(m->altitudeFactor());
     m_widget->setAltitudeUnit(m->altitudeUnit());
 
+    // terrain
+    m_widget->setTerrainEnabled(m->terrainEnabled());
+    m_widget->setTerrainFile(m->terrainFile());
+
     m_widget->setPositionMode(m->positionMode());
     m_widget->setLatitude(m->latitude());
     m_widget->setLongitude(m->longitude());
     m_widget->setAltitude(m->altitude());
 
-    m_widget->setTerrainEnabled(m->terrainEnabled());
-    m_widget->setTerrainFile(m->terrainFile());
+    // sky
+    m_widget->setTimeMode(m->timeMode());
+    m_widget->setDateTime(m->dateTime());
+    m_widget->setMinimumAmbientLight(m->minAmbientLight());
+
+    // model
     m_widget->setModelFile(m->modelFile());
 
+    // background image
+    m_widget->setBackgroundImageFile(m->backgroundImageFile());
+
+    // go!
     m_widget->setQmlFile(m->qmlFile());
 }

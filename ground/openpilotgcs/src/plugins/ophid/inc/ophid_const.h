@@ -27,9 +27,8 @@
 
 #ifndef OPHID_CONST_H
 #define OPHID_CONST_H
-#include "QtDebug"
 
-// #define OPHID_DEBUG_ON 1
+#include <QDebug>
 
 #ifdef OPHID_DEBUG_ON
 #define OPHID_DEBUG(fmt, args ...)   qDebug("[DEBUG] "fmt,##args)
@@ -42,7 +41,6 @@
 #define OPHID_ERROR(fmt, args ...)
 #define OPHID_WARNING(fmt, args ...)
 #endif
-
 
 // USB
 #define USB_MAX_DEVICES         10

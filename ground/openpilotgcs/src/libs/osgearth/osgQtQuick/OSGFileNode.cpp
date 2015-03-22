@@ -95,7 +95,7 @@ public:
 public slots:
     void onLoaded(const QUrl &url, osg::Node *node)
     {
-        if (optimizeMode != OSGFileNode::None) {
+        if (node && optimizeMode != OSGFileNode::None) {
             qDebug() << "OSGFileNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
             optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);

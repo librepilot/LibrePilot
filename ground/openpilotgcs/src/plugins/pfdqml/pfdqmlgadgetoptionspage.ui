@@ -136,7 +136,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -263,8 +263,6 @@
                   </layout>
                  </item>
                 </layout>
-                <zorder>label_2</zorder>
-                <zorder>useGPSLocation</zorder>
                 <zorder>useGPSLocation</zorder>
                 <zorder>useHomeLocation</zorder>
                 <zorder>usePredefinedLocation</zorder>
@@ -485,7 +483,7 @@
              <item>
               <widget class="QLabel" name="label_9">
                <property name="text">
-                <string>Minumum ambient light:</string>
+                <string>Minimum ambient light:</string>
                </property>
               </widget>
              </item>
@@ -495,10 +493,10 @@
                 <double>1.000000000000000</double>
                </property>
                <property name="singleStep">
-                <double>0.100000000000000</double>
+                <double>0.010000000000000</double>
                </property>
                <property name="value">
-                <double>0.400000000000000</double>
+                <double>0.030000000000000</double>
                </property>
               </widget>
              </item>

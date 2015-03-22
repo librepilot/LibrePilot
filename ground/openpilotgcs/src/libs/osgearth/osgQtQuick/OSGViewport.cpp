@@ -37,7 +37,6 @@ struct OSGViewport::Hidden : public QObject {
 
 public:
 
-
     Hidden(OSGViewport *quickItem) : QObject(quickItem),
         self(quickItem),
         updateMode(Discrete),
@@ -263,7 +262,7 @@ public:
         // viewer->setQuitEventSetsDone(false);
 
         osg::GraphicsContext::Traits *traits = getTraits();
-        traitsInfo(traits);
+        //traitsInfo(traits);
 
         osgViewer::GraphicsWindowEmbedded *graphicsWindow = new osgViewer::GraphicsWindowEmbedded(traits);
 

@@ -93,7 +93,7 @@ public:
         // make a ModelNode
         modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
 
-        qDebug() << "*** " << modelNode->getBound().radius();
+        qDebug() << "OSGModelNode - acceptModelNode - model radius:" << modelNode->getBound().radius();
 
         if (!nodeUpdateCallback.valid()) {
             nodeUpdateCallback = new NodeUpdateCallback(this);

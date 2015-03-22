@@ -24,8 +24,7 @@
 PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent) :
     IUAVGadget(classId, parent),
     m_widget(widget)
-{
-}
+{}
 
 PfdQmlGadget::~PfdQmlGadget()
 {

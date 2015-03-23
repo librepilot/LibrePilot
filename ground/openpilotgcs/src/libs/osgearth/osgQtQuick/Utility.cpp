@@ -261,6 +261,16 @@ void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits 
     traits->vsync = format.swapInterval() >= 1;
 }
 
+void openGLContextInfo(QOpenGLContext *context) {
+    qDebug() << "opengl context -----------------------------------------------------";
+    qDebug() << "context :" << context->nativeHandle() << "(" << context << ")";
+    formatInfo(context->format());
+    QOpenGLContext *shareContext = context->shareContext();
+    if (shareContext) {
+        qDebug() << "opengl share context -----------------------------------------------------";
+        openGLContextInfo(shareContext);
+    }
+}
 
 void formatInfo(const QSurfaceFormat & format)
 {

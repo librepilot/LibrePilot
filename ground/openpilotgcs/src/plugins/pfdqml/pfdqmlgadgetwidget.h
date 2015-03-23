@@ -22,23 +22,7 @@
 
 #include <QQuickWidget>
 
-/*
- * Note: QQuickWidget is an alternative to using QQuickView and QWidget::createWindowContainer().
- * The restrictions on stacking order do not apply, making QQuickWidget the more flexible alternative,
- * behaving more like an ordinary widget. This comes at the expense of performance.
- * Unlike QQuickWindow and QQuickView, QQuickWidget involves rendering into OpenGL framebuffer objects.
- * This will naturally carry a minor performance hit.
- *
- * Note: Using QQuickWidget disables the threaded render loop on all platforms.
- * This means that some of the benefits of threaded rendering, for example Animator classes
- * and vsync driven animations, will not be available.
- *
- * Note: Avoid calling winId() on a QQuickWidget. This function triggers the creation of a native window,
- * resulting in reduced performance and possibly rendering glitches.
- * The entire purpose of QQuickWidget is to render Quick scenes without a separate native window,
- * hence making it a native widget should always be avoided.
- */
-class PfdQmlGadgetWidget : public QQuickWidget {
+class PfdQmlProperties : public QObject {
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
     Q_PROPERTY(double speedFactor READ speedFactor WRITE setSpeedFactor NOTIFY speedFactorChanged)
     Q_PROPERTY(QString altitudeUnit READ altitudeUnit WRITE setAltitudeUnit NOTIFY altitudeUnitChanged)
@@ -61,91 +45,42 @@ class PfdQmlGadgetWidget : public QQuickWidget {
     Q_PROPERTY(QString backgroundImageFile READ backgroundImageFile WRITE setBackgroundImageFile NOTIFY backgroundImageFileChanged)
 
 public:
-    PfdQmlGadgetWidget(QWidget *parent = 0);
-    virtual ~PfdQmlGadgetWidget();
+    PfdQmlProperties(QObject *parent = 0);
+    virtual ~PfdQmlProperties();
 
-    void setQmlFile(QString fn);
-
-    QString speedUnit() const
-    {
-        return m_speedUnit;
-    }
-    double speedFactor() const
-    {
-        return m_speedFactor;
-    }
-    QString altitudeUnit() const
-    {
-        return m_altitudeUnit;
-    }
-    double altitudeFactor() const
-    {
-        return m_altitudeFactor;
-    }
-    bool terrainEnabled() const
-    {
-        return m_terrainEnabled;
-    }
-    QString terrainFile() const
-    {
-        return m_terrainFile;
-    }
-    Pfd::PositionMode positionMode() const
-    {
-        return m_positionMode;
-    }
-    double latitude() const
-    {
-        return m_latitude;
-    }
-    double longitude() const
-    {
-        return m_longitude;
-    }
-    double altitude() const
-    {
-        return m_altitude;
-    }
-    Pfd::TimeMode timeMode() const
-    {
-        return m_timeMode;
-    }
-    QDateTime dateTime()
-    {
-        return m_dateTime;
-    }
-    double minimumAmbientLight()
-    {
-        return m_minAmbientLight;
-    }
-    QString modelFile() const
-    {
-        return m_modelFile;
-    }
-    QString backgroundImageFile() const
-    {
-        return m_backgroundImageFile;
-    }
-
-public slots:
+    QString speedUnit() const;
     void setSpeedUnit(QString unit);
+    double speedFactor() const;
     void setSpeedFactor(double factor);
+    QString altitudeUnit() const;
     void setAltitudeUnit(QString unit);
+    double altitudeFactor() const;
     void setAltitudeFactor(double factor);
 
+    bool terrainEnabled() const;
     void setTerrainEnabled(bool arg);
+    QString terrainFile() const;
     void setTerrainFile(const QString &arg);
 
+    Pfd::PositionMode positionMode() const;
     void setPositionMode(Pfd::PositionMode arg);
+    double latitude() const;
     void setLatitude(double arg);
+    double longitude() const;
     void setLongitude(double arg);
+    double altitude() const;
     void setAltitude(double arg);
 
+    Pfd::TimeMode timeMode() const;
     void setTimeMode(Pfd::TimeMode arg);
+    QDateTime dateTime() const;
     void setDateTime(QDateTime arg);
+    double minimumAmbientLight() const;
     void setMinimumAmbientLight(double arg);
 
+    QString modelFile() const;
     void setModelFile(const QString &arg);
+    QString backgroundImageFile() const;
     void setBackgroundImageFile(const QString &arg);
 
 signals:
@@ -167,15 +102,9 @@ signals:
     void minimumAmbientLightChanged(double arg);
 
     void modelFileChanged(QString arg);
-
     void backgroundImageFileChanged(QString arg);
 
-private slots:
-    void onStatusChanged(QQuickWidget::Status status);
-
 private:
-    QString m_qmlFileName;
-
     QString m_speedUnit;
     double m_speedFactor;
     QString m_altitudeUnit;
@@ -196,6 +125,41 @@ private:
     QString m_modelFile;
 
     QString m_backgroundImageFile;
+};
+
+/*
+ * Note: QQuickWidget is an alternative to using QQuickView and QWidget::createWindowContainer().
+ * The restrictions on stacking order do not apply, making QQuickWidget the more flexible alternative,
+ * behaving more like an ordinary widget. This comes at the expense of performance.
+ * Unlike QQuickWindow and QQuickView, QQuickWidget involves rendering into OpenGL framebuffer objects.
+ * This will naturally carry a minor performance hit.
+ *
+ * Note: Using QQuickWidget disables the threaded render loop on all platforms.
+ * This means that some of the benefits of threaded rendering, for example Animator classes
+ * and vsync driven animations, will not be available.
+ *
+ * Note: Avoid calling winId() on a QQuickWidget. This function triggers the creation of a native window,
+ * resulting in reduced performance and possibly rendering glitches.
+ * The entire purpose of QQuickWidget is to render Quick scenes without a separate native window,
+ * hence making it a native widget should always be avoided.
+ */
+class PfdQmlGadgetWidget : public QQuickWidget {
+    Q_OBJECT
+
+public:
+    PfdQmlGadgetWidget(QWidget *parent = 0);
+    virtual ~PfdQmlGadgetWidget();
+
+    void loadConfiguration(PfdQmlGadgetConfiguration *config);
+
+private slots:
+    void onStatusChanged(QQuickWidget::Status status);
+
+private:
+    void setQmlFile(QString);
+
+    PfdQmlProperties *m_pfdQmlProperties;
+    QString m_qmlFileName;
 };
 
 #endif /* PFDQMLGADGETWIDGET_H_ */

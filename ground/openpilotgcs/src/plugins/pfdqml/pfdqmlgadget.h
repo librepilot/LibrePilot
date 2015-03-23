@@ -17,18 +17,17 @@
 #ifndef PFDQMLGADGET_H_
 #define PFDQMLGADGET_H_
 
-#include <coreplugin/iuavgadget.h>
-#include "pfdqmlgadgetwidget.h"
+#include "pfdqmlgadget.h"
 
-class IUAVGadget;
-class QWidget;
-class QString;
+#include <coreplugin/iuavgadget.h>
+
 class PfdQmlGadgetWidget;
 
 using namespace Core;
 
 class PfdQmlGadget : public Core::IUAVGadget {
     Q_OBJECT
+
 public:
     PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent = 0);
     virtual ~PfdQmlGadget();

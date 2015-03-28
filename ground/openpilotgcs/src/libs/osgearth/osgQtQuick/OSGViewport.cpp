@@ -151,7 +151,9 @@ public:
         qDebug() << "OSGViewport - acceptNode" << node;
         if (!node) {
             qWarning() << "OSGViewport - acceptNode - node is null";
-            view->setSceneData(NULL);
+            if (view.valid()) {
+                view->setSceneData(NULL);
+            }
             return true;
         }
 

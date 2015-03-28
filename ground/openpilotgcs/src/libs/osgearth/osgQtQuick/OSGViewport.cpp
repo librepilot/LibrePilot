@@ -183,10 +183,15 @@ public:
             qDebug() << "OSGViewport - acceptNode : set AutoClipPlaneCullCallback on camera";
             view->getCamera()->setCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
             // mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
+
+            // install log depth buffer if requested
             if (logDepthBufferEnabled) {
+                logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
+            }
+            if (logDepthBuffer) {
                 qDebug() << "OSGViewport - acceptNode : install logarithmic depth buffer";
                 // logDepthBuffer.setUseFragDepth(true);
-                logDepthBuffer.install(view->getCamera());
+                logDepthBuffer->install(view->getCamera());
             }
 
             // lodBlending = new osgEarth::Util::LODBlending();
@@ -263,7 +268,7 @@ public:
     osg::ref_ptr<osgViewer::View> view;
 
     bool logDepthBufferEnabled;
-    osgEarth::Util::LogarithmicDepthBuffer logDepthBuffer;
+    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
 
     // osg::ref_ptr<osgEarth::Util::LODBlending> lodBlending;
 

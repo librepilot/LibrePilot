@@ -265,7 +265,7 @@ protected:
     QOffscreenSurface *_surface;
 };
 
-GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) : _realized(false)
+GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) : _realized(false), _glContext(NULL), _surface(NULL)
 {
     _traits = traits;
 

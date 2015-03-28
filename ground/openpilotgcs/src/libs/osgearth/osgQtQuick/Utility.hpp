@@ -24,6 +24,10 @@ class Text;
 class Font;
 } // namespace osgText
 
+namespace osgEarth {
+class Capabilities;
+} // namespace osgEarth
+
 QT_BEGIN_NAMESPACE
 class QFont;
 class QKeyEvent;
@@ -93,6 +97,7 @@ OSGQTQUICK_EXPORT QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Trai
 OSGQTQUICK_EXPORT void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits *traits);
 OSGQTQUICK_EXPORT void formatInfo(const QSurfaceFormat & format);
 OSGQTQUICK_EXPORT void traitsInfo(const osg::GraphicsContext::Traits *traits);
+OSGQTQUICK_EXPORT void capabilitiesInfo(const osgEarth::Capabilities & caps);
 OSGQTQUICK_EXPORT QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile);
 OSGQTQUICK_EXPORT QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
 

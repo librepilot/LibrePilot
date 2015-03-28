@@ -58,41 +58,6 @@
 bool OsgEarth::registered  = false;
 bool OsgEarth::initialized = false;
 
-/*
-
-   Debugging tips
-
-   Windows DIB issues
-
-   The environment variable QT_QPA_VERBOSE controls the debug level.
-   It takes the form {<keyword1>:<level1>,<keyword2>:<level2>},
-   where keyword is one of integration,  windows, backingstore and fonts.
-   Level is an integer 0..9.
-
-   OSG:
-   export OSG_NOTIFY_LEVEL=DEBUG
-
-
- */
-
-
-/*
-   Z-fighting can happen with coincident polygons, but it can also happen when the Z buffer has insufficient resolution
-   to represent the data in the scene. In the case where you are close up to an object (the helicopter)
-   and also viewing a far-off object (the earth) the Z buffer has to stretch to accommodate them both.
-   This can result in loss of precision and Z fighting.
-
-   Assuming you are not messing around with the near/far computations, and assuming you don't have any other objects
-   in the scene that are farther off than the earth, there are a couple things you can try.
-
-   One, adjust the near/far ratio of the camera. Look at osgearth_viewer.cpp to see how.
-
-   Two, you can try to use the AutoClipPlaneHandler. You can install it automatically by running osgearth_viewer --autoclip.
-
-   If none of that works, you can try parenting your helicopter with an osg::Camera in NESTED mode,
-   which will separate the clip plane calculations of the helicopter from those of the earth. *
- */
-
 class OSGEARTH_LIB_EXPORT QtNotifyHandler : public osg::NotifyHandler {
 public:
     void notify(osg::NotifySeverity severity, const char *message);

@@ -112,9 +112,7 @@ osgText::Font *createFont(const std::string &name)
 {
     QFont font;
 
-    if (!font.fromString(
-            QString::fromStdString(
-                osgDB::getNameLessExtension(name)))) {
+    if (!font.fromString(QString::fromStdString(osgDB::getNameLessExtension(name)))) {
         return 0;
     }
 
@@ -285,36 +283,37 @@ void formatInfo(const QSurfaceFormat & format)
     qDebug().nospace() << "swapInterval : " << format.swapInterval();
 }
 
-void traitsInfo(const osg::GraphicsContext::Traits *traits)
+void traitsInfo(const osg::GraphicsContext::Traits &traits)
 {
     unsigned int major, minor;
 
-    traits->getContextVersion(major, minor);
+    traits.getContextVersion(major, minor);
 
     qDebug().nospace() << "traits  ----------------------------------------";
     qDebug().nospace() << "gl version        : " << major << "." << minor;
-    qDebug().nospace() << "glContextVersion     : " << QString::fromStdString(traits->glContextVersion.c_str());
-    qDebug().nospace() << "glContextFlags       : " << QString("%1").arg(traits->glContextFlags);
-    qDebug().nospace() << "glContextProfileMask : " << QString("%1").arg(traits->glContextProfileMask);
+    qDebug().nospace() << "glContextVersion     : " << QString::fromStdString(traits.glContextVersion);
+    qDebug().nospace() << "glContextFlags       : " << QString("%1").arg(traits.glContextFlags);
+    qDebug().nospace() << "glContextProfileMask : " << QString("%1").arg(traits.glContextProfileMask);
 
-    qDebug().nospace() << "red     : " << traits->red;
-    qDebug().nospace() << "green   : " << traits->green;
-    qDebug().nospace() << "blue    : " << traits->blue;
-    qDebug().nospace() << "alpha   : " << traits->alpha;
-    qDebug().nospace() << "depth   : " << traits->depth;
-    qDebug().nospace() << "stencil : " << traits->stencil;
+    qDebug().nospace() << "red     : " << traits.red;
+    qDebug().nospace() << "green   : " << traits.green;
+    qDebug().nospace() << "blue    : " << traits.blue;
+    qDebug().nospace() << "alpha   : " << traits.alpha;
+    qDebug().nospace() << "depth   : " << traits.depth;
+    qDebug().nospace() << "stencil : " << traits.stencil;
 
-    qDebug().nospace() << "sampleBuffers : " << traits->sampleBuffers;
-    qDebug().nospace() << "samples       : " << traits->samples;
+    qDebug().nospace() << "sampleBuffers : " << traits.sampleBuffers;
+    qDebug().nospace() << "samples       : " << traits.samples;
 
-    qDebug().nospace() << "pbuffer : " << traits->pbuffer;
-    qDebug().nospace() << "quadBufferStereo : " << traits->quadBufferStereo;
-    qDebug().nospace() << "doubleBuffer : " << traits->doubleBuffer;
+    qDebug().nospace() << "pbuffer : " << traits.pbuffer;
+    qDebug().nospace() << "quadBufferStereo : " << traits.quadBufferStereo;
+    qDebug().nospace() << "doubleBuffer : " << traits.doubleBuffer;
 
-    qDebug().nospace() << "vsync : " << traits->vsync;
+    qDebug().nospace() << "vsync : " << traits.vsync;
 
-    // qDebug().nospace() << "swapMethod : " << traits->swapMethod;
-    // qDebug().nospace() << "swapInterval : " << traits->swapInterval();
+    // qDebug().nospace() << "swapMethod : " << traits.swapMethod;
+    // qDebug().nospace() << "swapInterval : " << traits.swapInterval();
+}
 
 void capabilitiesInfo(const osgEarth::Capabilities &caps)
 {

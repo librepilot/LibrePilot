@@ -141,17 +141,15 @@ void OsgEarth::initialize()
 
 void OsgEarth::initializePathes()
 {
-    // clear and initialize data file path list
+    // initialize data file path list
     osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
 
-    dataFilePathList.clear();
-    dataFilePathList.push_back(GCSDirs::sharePath("osgearth").toStdString());
-    dataFilePathList.push_back(GCSDirs::sharePath("osgearth/data").toStdString());
+    dataFilePathList.push_front(GCSDirs::sharePath("osgearth").toStdString());
+    dataFilePathList.push_front(GCSDirs::sharePath("osgearth/data").toStdString());
 
-    // clear and initialize library file path list
+    // initialize library file path list
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
-    // libraryFilePathList.clear();
-    libraryFilePathList.push_back(GCSDirs::libraryPath("osg").toStdString());
+    libraryFilePathList.push_front(GCSDirs::libraryPath("osg").toStdString());
 }
 
 void OsgEarth::initializeCache()

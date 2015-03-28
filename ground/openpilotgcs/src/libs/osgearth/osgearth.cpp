@@ -50,11 +50,6 @@
 
 #include <deque>
 #include <string>
-// #include <stdlib.h>
-
-#ifdef Q_WS_X11
-#include <X11/Xlib.h>
-#endif
 
 bool OsgEarth::registered  = false;
 bool OsgEarth::initialized = false;
@@ -122,11 +117,6 @@ void OsgEarth::initialize()
     initialized = true;
 
     qDebug() << "Initializing osgearth...";
-
-#ifdef Q_WS_X11
-    // required for multi-threaded viewer on linux:
-    XInitThreads();
-#endif
 
     osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(16);
     osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(8);

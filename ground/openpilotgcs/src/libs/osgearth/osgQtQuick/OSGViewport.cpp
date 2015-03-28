@@ -393,7 +393,9 @@ public:
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.
     void synchronize(QQuickFramebufferObject *item)
     {
-        h->camera->setViewport(0, 0, item->width(), item->height());
+        if (h->camera) {
+            h->camera->setViewport(0, 0, item->width(), item->height());
+        }
         // TODO scene update should be done here
     }
 

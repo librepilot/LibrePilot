@@ -39,6 +39,9 @@ private:
     static void initializePathes();
     static void initializeCache();
 
+    // Sets the WindowingSystem to Qt.
+    static void initWindowingSystem();
+
     static void displayInfo();
 };
 

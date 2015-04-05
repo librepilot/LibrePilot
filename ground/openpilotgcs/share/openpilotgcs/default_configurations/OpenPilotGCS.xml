@@ -1695,18 +1695,6 @@
         </data>
       </Earth__PCT__20View>
     </PfdQmlGadget>
-    <QmlViewGadget>
-      <default>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <dialFile>Unknown</dialFile>
-          <useOpenGLFlag>true</useOpenGLFlag>
-        </data>
-      </default>
-    </QmlViewGadget>
     <ScopeGadget>
       <Accel>
         <configInfo>

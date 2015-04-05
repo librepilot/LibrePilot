@@ -811,9 +811,9 @@ ifeq ($(UNAME), Windows)
 $(eval $(call TOOL_INSTALL_TEMPLATE,openssl,$(OPENSSL_DIR),$(OPENSSL_URL),,$(notdir $(OPENSSL_URL))))
 
 ifeq ($(shell [ -d "$(OPENSSL_DIR)" ] && $(ECHO) "exists"), exists)
-    export OPENSSL := "$(OPENSSL_DIR)/bin/openssl"    
+    export OPENSSL := $(OPENSSL_DIR)/bin/openssl
     export OPENSSL_CONF := $(OPENSSL_DIR)/bin/openssl.cfg
-    export OPENSSL_DIR := "$(OPENSSL_DIR)"
+    export OPENSSL_DIR
 else
     # not installed, hope it's in the path...
     # $(info $(EMPTY) WARNING     $(call toprel, $(OPENSSL_DIR)) not found (make openssl_install), using system PATH)

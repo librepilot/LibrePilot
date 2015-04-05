@@ -1,36 +1,10 @@
 include(openpilotgcs.pri)
 
-TEMPLATE = subdirs
+TEMPLATE = aux
 
 # Copy Qt runtime libraries into the build directory (to run or package)
 equals(copyqt, 1) {
-
-    # Copy QtQuick2 complete directories
-    # Some of these directories have a lot of files
-    # Easier to copy everything
-    QT_QUICK2_DIRS = QtQuick/Controls \
-                     QtQuick/Dialogs \
-                     QtQuick/Layouts \
-                     QtQuick/LocalStorage \
-                     QtQuick/Particles.2 \
-                     QtQuick/PrivateWidgets \
-                     QtQuick/Window.2 \
-                     QtQuick/XmlListModel \
-                     QtQuick.2
-
-    # create QtQuick directory
-    data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_QT_QML_PATH/QtQuick\") $$addNewline()
-
-    for(dir, QT_QUICK2_DIRS) {
-        data_copy.commands += @rm -rf $$targetPath(\"$$GCS_QT_QML_PATH/$$dir\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$[QT_INSTALL_QML]/$$dir\") $$targetPath(\"$$GCS_QT_QML_PATH/$$dir\") $$addNewline()
-    }
-
-    data_copy.target = FORCE
-    QMAKE_EXTRA_TARGETS += data_copy
-
     linux {
-
         QT_LIBS = \
             libQt5Core.so.5 \
             libQt5Gui.so.5 \
@@ -58,24 +32,11 @@ equals(copyqt, 1) {
             libicui18n.so.53 \
             libicuuc.so.53 \
             libicudata.so.53
-
-        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_QT_LIBRARY_PATH\") $$addNewline()
         for(lib, QT_LIBS) {
-            data_copy.commands += $(COPY_FILE) $$targetPath(\"$$[QT_INSTALL_LIBS]/$$lib\") $$targetPath(\"$$GCS_QT_LIBRARY_PATH/$$lib\") $$addNewline()
+            addCopyFileTarget($${lib},$$[QT_INSTALL_LIBS],$${GCS_QT_LIBRARY_PATH})
         }
 
-        # create Qt plugin directories
-        QT_PLUGIN_DIRS = \
-            iconengines \
-            imageformats \
-            platforms \
-            mediaservice \
-            sqldrivers
-        for(dir, QT_PLUGIN_DIRS) {
-            data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_QT_PLUGINS_PATH/$$dir\") $$addNewline()
-        }
-
-        QT_PLUGIN_LIBS = \
+        QT_PLUGINS = \
             iconengines/libqsvgicon.so \
             imageformats/libqgif.so \
             imageformats/libqico.so \
@@ -87,9 +48,6 @@ equals(copyqt, 1) {
             mediaservice/libgstmediaplayer.so \
             platforms/libqxcb.so \
             sqldrivers/libqsqlite.so
-        for(lib, QT_PLUGIN_LIBS) {
-            data_copy.commands += $(COPY_FILE) $$targetPath(\"$$[QT_INSTALL_PLUGINS]/$$lib\") $$targetPath(\"$$GCS_QT_PLUGINS_PATH/$$lib\") $$addNewline()
-        }
     }
 
     win32 {
@@ -112,7 +70,6 @@ equals(copyqt, 1) {
             Qt5Script$${DS}.dll \
             Qt5Concurrent$${DS}.dll \
             Qt5PrintSupport$${DS}.dll \
-            Qt5OpenGL$${DS}.dll \
             Qt5SerialPort$${DS}.dll \
             Qt5Multimedia$${DS}.dll \
             Qt5MultimediaWidgets$${DS}.dll \
@@ -128,23 +85,25 @@ equals(copyqt, 1) {
             libstdc++-6.dll \
             libwinpthread-1.dll
         for(dll, QT_DLLS) {
-            data_copy.commands += $(COPY_FILE) $$targetPath(\"$$[QT_INSTALL_BINS]/$$dll\") $$targetPath(\"$$GCS_APP_PATH/$$dll\") $$addNewline()
+            addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
         }
 
-        # create Qt plugin directories
-        QT_PLUGIN_DIRS = \
-            iconengines \
-            imageformats \
-            platforms \
-            mediaservice \
-            sqldrivers \
-            opengl32_32
-        for(dir, QT_PLUGIN_DIRS) {
-            data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_APP_PATH/$$dir\") $$addNewline()
+        # copy OpenSSL DLLs
+        OPENSSL_DLLS = \
+            ssleay32.dll \
+            libeay32.dll
+        for(dll, OPENSSL_DLLS) {
+            addCopyFileTarget($${dll},$${OPENSSL_DIR},$${GCS_APP_PATH})
         }
 
-        # copy Qt plugin DLLs
-        QT_PLUGIN_DLLS = \
+        # copy OpenGL DLL
+        OPENGL_DLLS = \
+            opengl32_32/opengl32.dll
+        for(dll, OPENGL_DLLS) {
+            addCopyFileTarget($${dll},$${MESAWIN_DIR},$${GCS_APP_PATH})
+        }
+
+        QT_PLUGINS = \
             iconengines/qsvgicon$${DS}.dll \
             imageformats/qgif$${DS}.dll \
             imageformats/qico$${DS}.dll \
@@ -155,23 +114,26 @@ equals(copyqt, 1) {
             platforms/qwindows$${DS}.dll \
             mediaservice/dsengine$${DS}.dll \
             sqldrivers/qsqlite$${DS}.dll
-        for(dll, QT_PLUGIN_DLLS) {
-            data_copy.commands += $(COPY_FILE) $$targetPath(\"$$[QT_INSTALL_PLUGINS]/$$dll\") $$targetPath(\"$$GCS_APP_PATH/$$dll\") $$addNewline()
-        }
+    }
 
-        # copy OpenSSL DLLs
-        OPENSSL_DLLS = \
-            ssleay32.dll \
-            libeay32.dll
-        for(dll, OPENSSL_DLLS) {
-            data_copy.commands += $(COPY_FILE) $$targetPath(\"$${OPENSSL_DIR}/$$dll\") $$targetPath(\"$$GCS_APP_PATH/$$dll\") $$addNewline()
-        }
+    for(plugin, QT_PLUGINS) {
+        addCopyFileTarget($${plugin},$$[QT_INSTALL_PLUGINS],$${GCS_QT_PLUGINS_PATH})
+    }
 
-        # copy OpenGL DLL
-        OPENGL_DLLS = \
-            opengl32_32/opengl32.dll
-        for(dll, OPENGL_DLLS) {
-            data_copy.commands += $(COPY_FILE) $$targetPath(\"$${MESAWIN_DIR}/$$dll\") $$targetPath(\"$$GCS_APP_PATH/$$dll\") $$addNewline()
-        }
+    # Copy QtQuick2 complete directories
+    # Some of these directories have a lot of files
+    # Easier to copy everything
+    QT_QUICK2_DIRS = \
+        QtQuick/Controls \
+        QtQuick/Dialogs \
+        QtQuick/Layouts \
+        QtQuick/LocalStorage \
+        QtQuick/Particles.2 \
+        QtQuick/PrivateWidgets \
+        QtQuick/Window.2 \
+        QtQuick/XmlListModel \
+        QtQuick.2
+    for(dir, QT_QUICK2_DIRS) {
+        addCopyDirTarget($${dir},$$[QT_INSTALL_QML],$${GCS_QT_QML_PATH})
     }
 }

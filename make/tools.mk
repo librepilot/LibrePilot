@@ -62,8 +62,6 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run.md5
         QT_SDK_ARCH := gcc_64
-        CMAKE_URL      :=
-        CMAKE_MD5_URL  :=
         OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-3.2.1-linux-x64-qt-5.4.1.tar.gz
     else
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
@@ -71,8 +69,6 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt-project.org/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt-project.org/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run.md5
         QT_SDK_ARCH := gcc
-        CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
-        CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-Linux-i386.tar.gz.md5
         OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-3.2.1-linux-x86-qt-5.4.1.tar.gz
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
@@ -88,8 +84,6 @@ else ifeq ($(UNAME), Darwin)
     QT_SDK_INSTALLER_DAT := /Volumes/qt-opensource-mac-x64-clang-5.4.1/qt-opensource-mac-x64-clang-5.4.1.app/Contents/Resources/installer.dat
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
-    CMAKE_URL      :=
-    CMAKE_MD5_URL  :=
     OSG_URL        :=
 else ifeq ($(UNAME), Windows)
     ARM_SDK_URL    := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-win32.zip
@@ -105,6 +99,7 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_URL    := http://wiki.openpilot.org/download/attachments/18612236/mesawin.tar.gz
     CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
     CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-win32-x86.zip.md5
+    MSYS_URL       := https://wiki.openpilot.org/download/attachments/5472258/MSYS-1.0.11.zip
     OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-3.2.1-mingw491_32-qt-5.4.1.tar.gz
 endif
 
@@ -117,7 +112,6 @@ DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 
 ifeq ($(UNAME), Linux)
-    CMAKE_DIR := $(TOOLS_DIR)/cmake-2.8.12.2-Linux-i386
     ifeq ($(ARCH), x86_64)
         OSG_SDK_DIR := $(TOOLS_DIR)/osg-3.2.1-linux-x64-qt-5.4.1
     else
@@ -135,6 +129,7 @@ else ifeq ($(UNAME), Windows)
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
+    MSYS_DIR     := $(TOOLS_DIR)/msys
     OSG_SDK_DIR  := $(TOOLS_DIR)/osg-3.2.1-mingw491_32-qt-5.4.1
 endif
 
@@ -183,7 +178,7 @@ GIT			:= git
 CURL		:= curl
 TAR			:= tar
 UNZIP		:= unzip
-ZIP		:= gzip
+ZIP			:= gzip
 OPENSSL		:= openssl
 ANT			:= ant
 JAVAC		:= javac
@@ -961,6 +956,28 @@ endif
 .PHONY: cmake_version
 cmake_version:
 	-$(V1) $(ECHO) "`$(CMAKE) --version`"
+
+##############################
+#
+# MSYS
+#
+##############################
+
+ifeq ($(UNAME), Windows)
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,msys,$(MSYS_DIR),$(MSYS_URL),,$(notdir $(MSYS_URL))))
+
+ifeq ($(shell [ -d "$(MSYS_DIR)" ] && $(ECHO) "exists"), exists)
+    export MSYS_DIR := $(MSYS_DIR)
+else
+    # not installed, hope it's in the path...
+    #$(info $(EMPTY) WARNING     $(call toprel, $(MSYS_DIR)) not found (make msys_install), using system PATH)
+endif
+
+.PHONY: msys_version
+msys_version:
+
+endif
 
 ##############################
 #

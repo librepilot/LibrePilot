@@ -260,7 +260,8 @@ void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits 
     traits->vsync = format.swapInterval() >= 1;
 }
 
-void openGLContextInfo(QOpenGLContext *context) {
+void openGLContextInfo(QOpenGLContext *context)
+{
     qDebug() << "opengl context -----------------------------------------------------";
     qDebug() << "context :" << context->nativeHandle() << "(" << context << ")";
     formatInfo(context->format());
@@ -329,88 +330,38 @@ void capabilitiesInfo(const osgEarth::Capabilities &caps)
 {
     qDebug().nospace() << "capabilities  ----------------------------------------";
 
-    qDebug().nospace() << "vendor : " << QString::fromStdString(caps.getVendor());
-    qDebug().nospace() << "version : " << QString::fromStdString(caps.getVersion());
-    qDebug().nospace() << "renderer : " << QString::fromStdString(caps.getRenderer());
+    qDebug().nospace() << "Vendor : " << QString::fromStdString(caps.getVendor());
+    qDebug().nospace() << "Version : " << QString::fromStdString(caps.getVersion());
+    qDebug().nospace() << "Renderer : " << QString::fromStdString(caps.getRenderer());
 
     qDebug().nospace() << "GLSL supported : " << caps.supportsGLSL();
     qDebug().nospace() << "GLSL version   : " << caps.getGLSLVersionInt();
 
     qDebug().nospace() << "GLES : " << caps.isGLES();
 
+    qDebug().nospace() << "Num Processors : " << caps.getNumProcessors();
 
-//
-///** maximum # of texture units exposed in the fixed-function pipeline */
-// int getMaxFFPTextureUnits() const { return _maxFFPTextureUnits; }
-//
-///** maximum # of texture image units exposed in a GPU fragment shader */
-// int getMaxGPUTextureUnits() const { return _maxGPUTextureUnits; }
-//
-///** maximum # of texture coordinate indices available in a GPU fragment shader */
-// int getMaxGPUTextureCoordSets() const { return _maxGPUTextureCoordSets; }
-//
-///** maximum # of vertex attributes available in a shader */
-// int getMaxGPUAttribs() const { return _maxGPUAttribs; }
-//
-///** maximum supported size (in pixels) of a texture */
-// int getMaxTextureSize() const { return _maxTextureSize; }
-//
-///** maximum texture size that doesn't cause a slowdown (vendor-specific) */
-// int getMaxFastTextureSize() const { return _maxFastTextureSize; }
-//
-///** maximum number of openGL lights */
-// int getMaxLights() const { return _maxLights; }
-//
-///** bits in depth buffer */
-// int getDepthBufferBits() const { return _depthBits; }
-//
-///** whether the GPU supports texture arrays */
-// bool supportsTextureArrays() const { return _supportsTextureArrays; }
-//
-///** whether the GPU supports OpenGL 3D textures */
-// bool supportsTexture3D() const { return _supportsTexture3D; }
-//
-///** whether the GPU supports OpenGL multi-texturing */
-// bool supportsMultiTexture() const { return _supportsMultiTexture; }
-//
-///** whether the GPU supports OpenGL stencil wrapping extensions */
-// bool supportsStencilWrap() const { return _supportsStencilWrap; }
-//
-///** whether the GPU supports OpenGL the two-sided stenciling extension */
-// bool supportsTwoSidedStencil() const { return _supportsTwoSidedStencil; }
-//
-///** whether the GPU support the texture2dLod() function */
-// bool supportsTexture2DLod() const { return _supportsTexture2DLod; }
-//
-///** whether the GPU properly supports updating an existing texture with a new mipmapped image */
-// bool supportsMipmappedTextureUpdates() const { return _supportsMipmappedTextureUpdates; }
-//
-///** whether the GPU supports DEPTH_PACKED_STENCIL buffer */
-// bool supportsDepthPackedStencilBuffer() const { return _supportsDepthPackedStencilBuffer; }
-//
-///** whether the GPU supporst occlusion query */
-// bool supportsOcclusionQuery() const { return _supportsOcclusionQuery; }
-//
-///** whether the GPU supports DrawInstanced rendering */
-// bool supportsDrawInstanced() const { return _supportsDrawInstanced; }
-//
-///** whether the GPU supports Uniform Buffer Objects */
-// bool supportsUniformBufferObjects() const { return _supportsUniformBufferObjects; }
-//
-///** whether the GPU can handle non-power-of-two textures. */
-// bool supportsNonPowerOfTwoTextures() const { return _supportsNonPowerOfTwoTextures; }
-//
-///** maximum size of a uniform buffer block, in bytes */
-// int getMaxUniformBlockSize() const { return _maxUniformBlockSize; }
-//
-///** whether to prefer display lists over VBOs for static geometry. */
-// bool preferDisplayListsForStaticGeometry() const { return _preferDLforStaticGeom; }
-//
-///** number of logical CPUs available. */
-// int getNumProcessors() const { return _numProcessors; }
-//
-///** whether the GPU supports writing to the depth fragment */
-// bool supportsFragDepthWrite() const { return _supportsFragDepthWrite; }
+    qDebug().nospace() << "MaxFFPTextureUnits : " << caps.getMaxFFPTextureUnits();
+    qDebug().nospace() << "MaxGPUTextureUnits : " << caps.getMaxGPUTextureUnits();
+    qDebug().nospace() << "MaxGPUAttribs : " << caps.getMaxGPUAttribs();
+    qDebug().nospace() << "MaxTextureSize : " << caps.getMaxTextureSize();
+    qDebug().nospace() << "MaxLights : " << caps.getMaxLights();
+    qDebug().nospace() << "DepthBufferBits : " << caps.getDepthBufferBits();
+    qDebug().nospace() << "TextureArrays : " << caps.supportsTextureArrays();
+    qDebug().nospace() << "Texture3D : " << caps.supportsTexture3D();
+    qDebug().nospace() << "MultiTexture : " << caps.supportsMultiTexture();
+    qDebug().nospace() << "StencilWrap : " << caps.supportsStencilWrap();
+    qDebug().nospace() << "TwoSidedStencil : " << caps.supportsTwoSidedStencil();
+    qDebug().nospace() << "Texture2DLod : " << caps.supportsTexture2DLod();
+    qDebug().nospace() << "MipmappedTextureUpdates : " << caps.supportsMipmappedTextureUpdates();
+    qDebug().nospace() << "DepthPackedStencilBuffer : " << caps.supportsDepthPackedStencilBuffer();
+    qDebug().nospace() << "OcclusionQuery : " << caps.supportsOcclusionQuery();
+    qDebug().nospace() << "DrawInstanced : " << caps.supportsDrawInstanced();
+    qDebug().nospace() << "UniformBufferObjects : " << caps.supportsUniformBufferObjects();
+    qDebug().nospace() << "NonPowerOfTwoTextures : " << caps.supportsNonPowerOfTwoTextures();
+    qDebug().nospace() << "MaxUniformBlockSize : " << caps.getMaxUniformBlockSize();
+    qDebug().nospace() << "PreferDisplayListsForStaticGeometry : " << caps.preferDisplayListsForStaticGeometry();
+    qDebug().nospace() << "FragDepthWrite : " << caps.supportsFragDepthWrite();
 }
 
 QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile)

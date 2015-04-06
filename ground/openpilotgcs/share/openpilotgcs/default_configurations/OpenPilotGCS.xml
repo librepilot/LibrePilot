@@ -1590,7 +1590,7 @@
           <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>0</modelSelectionMode>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
@@ -1615,7 +1615,7 @@
           <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </PFD>
@@ -1640,7 +1640,7 @@
           <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </Model__PCT__20View>
@@ -1665,7 +1665,7 @@
           <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
@@ -1690,7 +1690,7 @@
           <minAmbientLight>0.03</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</modelFile>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </Earth__PCT__20View>

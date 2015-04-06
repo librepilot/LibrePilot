@@ -204,6 +204,8 @@ Section "-Resources" InSecResources
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\cloudconfig\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\default_configurations"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\default_configurations\*"
+  SetOutPath "$INSTDIR\share\openpilotgcs\backgrounds"
+  File /r "${GCS_BUILD_TREE}\share\openpilotgcs\backgrounds\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\diagrams"
   File /r "${GCS_BUILD_TREE}\share\openpilotgcs\diagrams\*"
   SetOutPath "$INSTDIR\share\openpilotgcs\dials"

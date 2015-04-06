@@ -1604,7 +1604,7 @@
           <altitudeFactor>1</altitudeFactor>
           <speedFactor>1</speedFactor>
           <terrainEnabled>true</terrainEnabled>
-          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
           <cacheOnly>false</cacheOnly>
           <positionMode>0</positionMode>
           <altitude>2000</altitude>
@@ -2352,7 +2352,7 @@
             <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>Model View</activeConfiguration>
+                <activeConfiguration>Model View (No Terrain)</activeConfiguration>
              </gadget>
               <type>uavGadget</type>
             </side0>

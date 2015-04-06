@@ -97,8 +97,8 @@ void OsgEarth::initialize()
     initializeCache();
 
     // force early initialization of osgEarth capabilities
-    // this important as doing it later (when OpenGL is already in use) might thrash some GL contexts
-    // TODO : this is done too early when no window is displayed which causes a windows to be briefly flashed on Linux
+    // Doing this too early (before main window is displayed) causes rendering glitches (black holes)
+    // Not sure why... See OSGViewport for when it is called (late...)
     osgEarth::Registry::capabilities();
 
     displayInfo();
@@ -236,6 +236,19 @@ public:
     GraphicsWindowQt(osg::GraphicsContext::Traits *traits);
     virtual ~GraphicsWindowQt();
 
+    virtual bool isSameKindAs(const Object* object) const
+    {
+        return dynamic_cast<const GraphicsWindowQt*>(object) != 0;
+    }
+    virtual const char* libraryName() const
+    {
+        return "osgViewerXYZ";
+    }
+    virtual const char* className() const
+    {
+        return "GraphicsWindowQt";
+    }
+
     virtual bool setWindowRectangleImplementation(int x, int y, int width, int height);
     virtual void getWindowRectangle(int & x, int & y, int & width, int & height);
     virtual bool setWindowDecorationImplementation(bool windowDecoration);
@@ -267,6 +280,7 @@ protected:
 
 GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) : _realized(false), _glContext(NULL), _surface(NULL)
 {
+    qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
     _traits = traits;
 
     // update by WindowData
@@ -291,6 +305,7 @@ GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) : _real
 
 GraphicsWindowQt::~GraphicsWindowQt()
 {
+    qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
     close();
 }
 
@@ -340,11 +355,13 @@ bool GraphicsWindowQt::valid() const
     if (_glContext) {
         return _glContext->isValid();
     }
-    return true;
+    const QOpenGLContext *currentContext = QOpenGLContext::currentContext();
+    return (currentContext && currentContext->isValid());
 }
 
 bool GraphicsWindowQt::realizeImplementation()
 {
+    qDebug() << "GraphicsWindowQt::realizeImplementation";
     // save the current context
     // note: this will save only Qt-based contexts
 
@@ -408,10 +425,12 @@ void GraphicsWindowQt::closeImplementation()
     _realized = false;
     if (_glContext) {
         delete _glContext;
+        _glContext = NULL;
     }
     if (_surface) {
         _surface->destroy();
         delete _surface;
+        _surface = NULL;
     }
 }
 
@@ -425,7 +444,7 @@ void GraphicsWindowQt::runOperations()
 // if (QGLContext::currentContext() != _widget->context())
 // _widget->makeCurrent();
 //
-    qDebug() << "GraphicsWindowQt::runOperations";
+    //qDebug() << "GraphicsWindowQt::runOperations";
     GraphicsWindow::runOperations();
 }
 
@@ -433,8 +452,11 @@ bool GraphicsWindowQt::makeCurrentImplementation()
 {
     if (_glContext) {
         qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
-        _glContext->makeCurrent(_surface);
+        if (!_glContext->makeCurrent(_surface)) {
+            qWarning() << "GraphicsWindowQt::makeCurrentImplementation : failed to make context current";
+        }
     }
+    //qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << QOpenGLContext::currentContext();
     return true;
 }
 
@@ -546,6 +568,5 @@ private:
 
 void OsgEarth::initWindowingSystem()
 {
-    // graphicswindow_QtQuick();
     osg::GraphicsContext::setWindowingSystemInterface(QtWindowingSystem::getInterface());
 }

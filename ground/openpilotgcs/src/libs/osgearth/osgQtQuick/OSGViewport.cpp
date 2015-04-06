@@ -66,7 +66,6 @@ public:
         logDepthBuffer(NULL)
     {
         qDebug() << "OSGViewport::Hidden - <init>" << self;
-        OsgEarth::initialize();
         view = createView();
         connect(quickItem, SIGNAL(windowChanged(QQuickWindow *)), this, SLOT(onWindowChanged(QQuickWindow *)));
     }

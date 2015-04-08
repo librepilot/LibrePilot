@@ -677,11 +677,6 @@ void PIOS_Board_Init(void)
 
         PIOS_Board_configure_ppm(&pios_ppm_cfg);
 
-        // enable pwm on the remaining channels
-        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMPWM) {
-            PIOS_Board_configure_pwm(&pios_pwm_ppm_cfg);
-        }
-
         break;
 #endif /* PIOS_INCLUDE_PPM */
     case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
@@ -701,19 +696,6 @@ void PIOS_Board_Init(void)
     }
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_GCS] = pios_gcsrcvr_rcvr_id;
 #endif /* PIOS_INCLUDE_GCSRCVR */
-
-#if defined(PIOS_INCLUDE_OPLINKRCVR)
-    {
-        OPLinkReceiverInitialize();
-        uint32_t pios_oplinkrcvr_id;
-        PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id);
-        uint32_t pios_oplinkrcvr_rcvr_id;
-        if (PIOS_RCVR_Init(&pios_oplinkrcvr_rcvr_id, &pios_oplinkrcvr_rcvr_driver, pios_oplinkrcvr_id)) {
-            PIOS_Assert(0);
-        }
-        pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK] = pios_oplinkrcvr_rcvr_id;
-    }
-#endif /* PIOS_INCLUDE_OPLINKRCVR */
 
 #ifndef PIOS_ENABLE_DEBUG_PINS
     // pios_servo_cfg points to the correct configuration based on input port settings

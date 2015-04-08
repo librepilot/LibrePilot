@@ -970,7 +970,6 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM5,  1, A, 0),
     TIM_SERVO_CHANNEL_CONFIG(TIM5,  2, A, 1),
     // PWM pins on FlexiIO(receiver) port
-
     TIM_SERVO_CHANNEL_CONFIG(TIM2,  3, B, 10),
     TIM_SERVO_CHANNEL_CONFIG(TIM3,  4, B, 1),
     TIM_SERVO_CHANNEL_CONFIG(TIM3,  3, B, 0),
@@ -1067,17 +1066,6 @@ const struct pios_pwm_cfg pios_pwm_cfg = {
     },
     .channels     = pios_tim_rcvrport_all_channels,
     .num_channels = NELEMENTS(pios_tim_rcvrport_all_channels),
-};
-// this configures outputs 2-6 as pwm inputs
-const struct pios_pwm_cfg pios_pwm_ppm_cfg = {
-    .tim_ic_init         = {
-        .TIM_ICPolarity  = TIM_ICPolarity_Rising,
-        .TIM_ICSelection = TIM_ICSelection_DirectTI,
-        .TIM_ICPrescaler = TIM_ICPSC_DIV1,
-        .TIM_ICFilter    = 0x0,
-    },
-    .channels     = &pios_tim_rcvrport_all_channels[1],
-    .num_channels = NELEMENTS(pios_tim_rcvrport_all_channels) - 1,
 };
 
 #endif /* if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PPM) */
@@ -1204,69 +1192,6 @@ const struct pios_ws2811_pin_cfg pios_ws2811_pin_cfg[] = {
         .gpio     = GPIOB,
         .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_0,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT2] = {
-        .gpio     = GPIOB,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_1,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT3] = {
-        .gpio     = GPIOA,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_3,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT4] = {
-        .gpio     = GPIOA,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_2,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT5] = {
-        .gpio     = GPIOA,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_1,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT6] = {
-        .gpio     = GPIOA,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_0,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_FLEXIPIN3] = {
-        .gpio     = GPIOB,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_12,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_FLEXIPIN4] = {
-        .gpio     = GPIOB,
-        .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_13,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,

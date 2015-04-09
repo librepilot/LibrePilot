@@ -272,16 +272,58 @@ public:
     virtual void requestWarpPointer(float x, float y);
 
 protected:
+    void init();
 
+    bool _initialized;
+    bool _valid;
     bool _realized;
+    bool _closing;
+
+    bool _owned;
+
     QOpenGLContext *_glContext;
     QOffscreenSurface *_surface;
 };
 
-GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) : _realized(false), _glContext(NULL), _surface(NULL)
+GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
+        _initialized(false),
+        _valid(false),
+        _realized(false),
+        _closing(false),
+        _owned(false),
+        _glContext(NULL),
+        _surface(NULL)
 {
     qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
     _traits = traits;
+
+    init();
+
+    if (valid())
+    {
+        setState(new osg::State);
+        getState()->setGraphicsContext(this);
+
+        if (_traits.valid() && _traits->sharedContext.valid()) {
+            getState()->setContextID(_traits->sharedContext->getState()->getContextID());
+            incrementContextIDUsageCount(getState()->getContextID());
+        }
+        else {
+            getState()->setContextID(osg::GraphicsContext::createNewContextID());
+        }
+    }
+}
+
+GraphicsWindowQt::~GraphicsWindowQt()
+{
+    qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
+    close();
+}
+
+void GraphicsWindowQt::init()
+{
+    qDebug() << "GraphicsWindowQt::init";
+    if (_closing || _initialized) return;
 
     // update by WindowData
     // WindowData* windowData = _traits.get() ? dynamic_cast<WindowData*>(_traits->inheritedWindowData.get()) : 0;
@@ -290,23 +332,9 @@ GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) : _real
     // if ( !parent )
     // parent = windowData ? windowData->_parent : NULL;
 
-    // initialize State
-    setState(new osg::State);
-    getState()->setGraphicsContext(this);
+    _initialized = true;
 
-    // initialize contextID
-    if (_traits.valid() && _traits->sharedContext.valid()) {
-        getState()->setContextID(_traits->sharedContext->getState()->getContextID());
-        incrementContextIDUsageCount(getState()->getContextID());
-    } else {
-        getState()->setContextID(osg::GraphicsContext::createNewContextID());
-    }
-}
-
-GraphicsWindowQt::~GraphicsWindowQt()
-{
-    qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
-    close();
+    _valid = _initialized;
 }
 
 bool GraphicsWindowQt::setWindowRectangleImplementation(int x, int y, int width, int height)
@@ -352,11 +380,7 @@ void GraphicsWindowQt::setCursor(MouseCursor cursor)
 
 bool GraphicsWindowQt::valid() const
 {
-    if (_glContext) {
-        return _glContext->isValid();
-    }
-    const QOpenGLContext *currentContext = QOpenGLContext::currentContext();
-    return (currentContext && currentContext->isValid());
+    return _valid;
 }
 
 bool GraphicsWindowQt::realizeImplementation()
@@ -365,9 +389,18 @@ bool GraphicsWindowQt::realizeImplementation()
     // save the current context
     // note: this will save only Qt-based contexts
 
-    const QOpenGLContext *savedContext = QOpenGLContext::currentContext();
+    if (_realized) return true;
 
-    if (!savedContext) {
+    if (!_initialized)
+    {
+        init();
+        if (!_initialized) return false;
+    }
+
+    QOpenGLContext *currentContext = QOpenGLContext::currentContext();
+
+    if (!currentContext) {
+        _owned = true;
         _glContext = new QOpenGLContext();
         _glContext->create();
         _surface   = new QOffscreenSurface();
@@ -375,63 +408,49 @@ bool GraphicsWindowQt::realizeImplementation()
         _surface->create();
         osgQtQuick::formatInfo(_surface->format());
     }
-// const QGLContext *savedContext = QGLContext::currentContext();
-//
+    else {
+        _glContext = currentContext;
+    }
 //// initialize GL context for the widget
 // if ( !valid() )
 // _widget->glInit();
-//
-//// make current
-// _realized = true;
-// bool result = makeCurrent();
-// _realized = false;
-//
-//// fail if we do not have current context
-// if ( !result )
-// {
-// if ( savedContext )
-// const_cast< QGLContext* >( savedContext )->makeCurrent();
-//
-// OSG_WARN << "Window realize: Can make context current.";
-// return false;
-// }
-//
+
+    // make current
     _realized = true;
-//
+    bool result = makeCurrent();
+    _realized = false;
+
+    // fail if we do not have current context
+    if (!result) {
+        // if ( savedContext )
+        // const_cast< QGLContext* >( savedContext )->makeCurrent();
+        //
+        qWarning() << "GraphicsWindowQt realize: Can make context current.";
+        return false;
+    }
+
+    _realized = true;
+
 //// make sure the event queue has the correct window rectangle size and input range
 // getEventQueue()->syncWindowRectangleWithGraphcisContext();
-//
-//// make this window's context not current
-//// note: this must be done as we will probably make the context current from another thread
-////       and it is not allowed to have one context current in two threads
-// if( !releaseContext() )
-// OSG_WARN << "Window realize: Can not release context.";
-//
+
+    // make this window's context not current
+    // note: this must be done as we will probably make the context current from another thread
+    //       and it is not allowed to have one context current in two threads
+    if (!releaseContext()) {
+        qWarning() << "Window realize: Can not release context.";
+    }
+
 //// restore previous context
 // if ( savedContext )
 // const_cast< QGLContext* >( savedContext )->makeCurrent();
-//
+
     return true;
 }
 
 bool GraphicsWindowQt::isRealizedImplementation() const
 {
     return _realized;
-}
-
-void GraphicsWindowQt::closeImplementation()
-{
-    qDebug() << "GraphicsWindowQt::closeImplementation";
-    _realized = false;
-    if (_glContext) {
-        delete _glContext;
-        _glContext = NULL;
-    }
-    if (_surface) {
-        _surface->destroy();
-        delete _surface;
-        _surface = NULL;
-    }
 }
 
 void GraphicsWindowQt::runOperations()
@@ -450,23 +469,57 @@ void GraphicsWindowQt::runOperations()
 
 bool GraphicsWindowQt::makeCurrentImplementation()
 {
-    if (_glContext) {
-        qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
+    if (!_realized) {
+        qWarning() << "GraphicsWindowQt::makeCurrentImplementation() - not realized; cannot make current.";
+        return false;
+    }
+    if (_owned && _glContext) {
+        //qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
         if (!_glContext->makeCurrent(_surface)) {
             qWarning() << "GraphicsWindowQt::makeCurrentImplementation : failed to make context current";
+            return false;
         }
     }
-    //qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << QOpenGLContext::currentContext();
+    if (_glContext != QOpenGLContext::currentContext()) {
+        qWarning() << "GraphicsWindowQt::makeCurrentImplementation : context is not current";
+        return false;
+    }
     return true;
 }
 
 bool GraphicsWindowQt::releaseContextImplementation()
 {
-    if (_glContext) {
+    if (_glContext != QOpenGLContext::currentContext()) {
+        qWarning() << "GraphicsWindowQt::releaseContextImplementation : context is not current";
+        return false;
+    }
+    if (_owned && _glContext) {
         qDebug() << "GraphicsWindowQt::releaseContextImplementation";
         _glContext->doneCurrent();
     }
     return true;
+}
+
+void GraphicsWindowQt::closeImplementation()
+{
+    qDebug() << "GraphicsWindowQt::closeImplementation";
+    _closing    = true;
+    _initialized = false;
+    _valid       = false;
+    _realized    = false;
+    if (_glContext) {
+        if (_owned) {
+            delete _glContext;
+        }
+        _glContext = NULL;
+    }
+    if (_surface) {
+        if (_owned) {
+            _surface->destroy();
+            delete _surface;
+        }
+        _surface = NULL;
+    }
 }
 
 void GraphicsWindowQt::swapBuffersImplementation()

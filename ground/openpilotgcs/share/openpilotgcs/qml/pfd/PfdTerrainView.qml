@@ -46,40 +46,62 @@ OSGViewport {
         fieldOfView: 100
         manipulatorMode: OSGCamera.User
 
-        attitude: Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw)
-        position: Qt.vector3d(lon(), lat(), alt())
+        attitude: uavAttitude()
+        position: uavPosition()
 
-        function lat() {
+        function uavAttitude() {
+            return Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw);
+        }
+
+        function uavPosition() {
             switch(qmlWidget.positionMode) {
             case Pfd.GPS:
-                return GPSPositionSensor.Latitude / 10000000.0;
+                return uavGPSPosition();
             case Pfd.Home:
-                return HomeLocation.Latitude / 10000000.0;
+                return uavHomePosition();
             case Pfd.Predefined:
-                return qmlWidget.latitude;
+                return uavPredefinedPosition();
             }
         }
 
-        function lon() {
-            switch(qmlWidget.positionMode) {
-            case Pfd.GPS:
-                return GPSPositionSensor.Longitude / 10000000.0;
-            case Pfd.Home:
-                return HomeLocation.Longitude / 10000000.0;
-            case Pfd.Predefined:
-                return qmlWidget.longitude;
+        function uavGPSPosition() {
+            switch(GPSPositionSensor.Status) {
+            case 0: // NoGPS
+            case 1: // NoFix
+                return uavDefaultPosition();
+            case 2: // Fix2D
+            case 3: // Fix3D
+                return uavActualGPSPosition();
+            default:
+                return uavDefaultPosition();
             }
         }
 
-        function alt() {
-            switch(qmlWidget.positionMode) {
-            case Pfd.GPS:
-                return GPSPositionSensor.Altitude;
-            case Pfd.Home:
-                return HomeLocation.Altitude;
-            case Pfd.Predefined:
-                return qmlWidget.altitude;
-            }
+        function uavActualGPSPosition() {
+            return Qt.vector3d(
+                GPSPositionSensor.Longitude / 10000000.0,
+                GPSPositionSensor.Latitude / 10000000.0,
+                GPSPositionSensor.Altitude);
+        }
+
+        function uavHomePosition() {
+            return (HomeLocation.Set == 1) ? uavActualHomePosition() : uavDefaultPosition();
+        }
+
+        function uavActualHomePosition() {
+            return Qt.vector3d(
+                HomeLocation.Longitude / 10000000.0,
+                HomeLocation.Latitude / 10000000.0,
+                HomeLocation.Altitude);
+        }
+
+        function uavPredefinedPosition() {
+            return Qt.vector3d(qmlWidget.longitued, qmlWidget.latitude, qmlWidget.altitude);
+        }
+
+        function uavDefaultPosition() {
+            // https://www.google.com.au/maps/search/c+hotel+corfu/@39.6571126,19.8044632,356m/data=!3m1!1e3
+            return Qt.vector3d(19.805158, 39.657380, 100);
         }
 
     }

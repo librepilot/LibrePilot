@@ -1569,7 +1569,7 @@
       </default>
     </OPMapGadget>    
     <PfdQmlGadget>
-      <PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
+      <PFD>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
@@ -1589,12 +1589,37 @@
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
           <modelEnabled>false</modelEnabled>
-          <modelSelectionMode>0</modelSelectionMode>
+          <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
-      </PFD__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
-      <PFD>
+      </PFD>
+      <PFD__PCT__20__PCT__28ReadyMap__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/Pfd.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <positionMode>0</positionMode>
+          <altitude>2000</altitude>
+          <latitude>46.6715</latitude>
+          <longitude>10.1589</longitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.80</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </PFD__PCT__20__PCT__28ReadyMap__PCT__29>
+      <PFD__PCT__20__PCT__28ArcGis__PCT__29>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
@@ -1618,33 +1643,8 @@
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
-      </PFD>
+      </PFD__PCT__20__PCT__28ArcGis__PCT__29>
       <Model__PCT__20View>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <qmlFile>%%DATAPATH%%qml/ModelView.qml</qmlFile>
-          <altitudeFactor>1</altitudeFactor>
-          <speedFactor>1</speedFactor>
-          <terrainEnabled>true</terrainEnabled>
-          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
-          <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <altitude>2000</altitude>
-          <timeMode>0</timeMode>
-          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <minAmbientLight>0.80</minAmbientLight>
-          <modelEnabled>true</modelEnabled>
-          <modelSelectionMode>1</modelSelectionMode>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
-          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
-        </data>
-      </Model__PCT__20View>
-      <Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
@@ -1668,7 +1668,57 @@
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
-      </Model__PCT__20View__PCT__20__PCT__28No__PCT__20Terrain__PCT__29>
+      </Model__PCT__20View>
+      <Model__PCT__20View__PCT__20__PCT__28ReadyMap__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/ModelView.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <positionMode>0</positionMode>
+          <latitude>46.6715</latitude>
+          <longitude>10.1589</longitude>
+          <altitude>2000</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.80</minAmbientLight>
+          <modelEnabled>true</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </Model__PCT__20View__PCT__20__PCT__28ReadyMap__PCT__29>
+      <Model__PCT__20View__PCT__20__PCT__28ArcGis__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/ModelView.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <positionMode>0</positionMode>
+          <latitude>46.6715</latitude>
+          <longitude>10.1589</longitude>
+          <altitude>2000</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.80</minAmbientLight>
+          <modelEnabled>true</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </Model__PCT__20View__PCT__20__PCT__28ArcGis__PCT__29>
       <Earth__PCT__20View>
         <configInfo>
           <locked>false</locked>
@@ -2344,7 +2394,7 @@
           <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>PFD</activeConfiguration>
+                <activeConfiguration>PFD (ArcGis)</activeConfiguration>
               </gadget>
               <type>uavGadget</type>
           </side0>
@@ -2352,7 +2402,7 @@
             <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>Model View (No Terrain)</activeConfiguration>
+                <activeConfiguration>Model View</activeConfiguration>
              </gadget>
               <type>uavGadget</type>
             </side0>

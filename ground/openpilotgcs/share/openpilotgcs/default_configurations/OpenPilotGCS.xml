@@ -1587,7 +1587,7 @@
           <longitude>10.1589</longitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <minAmbientLight>0.03</minAmbientLight>
+          <minAmbientLight>0.80</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>0</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
@@ -1612,7 +1612,7 @@
           <longitude>10.1589</longitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <minAmbientLight>0.03</minAmbientLight>
+          <minAmbientLight>0.80</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
@@ -1637,7 +1637,7 @@
           <altitude>2000</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <minAmbientLight>0.03</minAmbientLight>
+          <minAmbientLight>0.80</minAmbientLight>
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
@@ -1662,7 +1662,7 @@
           <altitude>2000</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <minAmbientLight>0.03</minAmbientLight>
+          <minAmbientLight>0.80</minAmbientLight>
           <modelEnabled>true</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
@@ -1687,7 +1687,7 @@
           <altitude>2000</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <minAmbientLight>0.03</minAmbientLight>
+          <minAmbientLight>0.80</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelSelectionMode>1</modelSelectionMode>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>

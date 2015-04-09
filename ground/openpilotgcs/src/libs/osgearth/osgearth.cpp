@@ -236,15 +236,15 @@ public:
     GraphicsWindowQt(osg::GraphicsContext::Traits *traits);
     virtual ~GraphicsWindowQt();
 
-    virtual bool isSameKindAs(const Object* object) const
+    virtual bool isSameKindAs(const Object *object) const
     {
-        return dynamic_cast<const GraphicsWindowQt*>(object) != 0;
+        return dynamic_cast<const GraphicsWindowQt *>(object) != 0;
     }
-    virtual const char* libraryName() const
+    virtual const char *libraryName() const
     {
         return "osgViewerXYZ";
     }
-    virtual const char* className() const
+    virtual const char *className() const
     {
         return "GraphicsWindowQt";
     }
@@ -286,29 +286,27 @@ protected:
 };
 
 GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
-        _initialized(false),
-        _valid(false),
-        _realized(false),
-        _closing(false),
-        _owned(false),
-        _glContext(NULL),
-        _surface(NULL)
+    _initialized(false),
+    _valid(false),
+    _realized(false),
+    _closing(false),
+    _owned(false),
+    _glContext(NULL),
+    _surface(NULL)
 {
     qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
     _traits = traits;
 
     init();
 
-    if (valid())
-    {
+    if (valid()) {
         setState(new osg::State);
         getState()->setGraphicsContext(this);
 
         if (_traits.valid() && _traits->sharedContext.valid()) {
             getState()->setContextID(_traits->sharedContext->getState()->getContextID());
             incrementContextIDUsageCount(getState()->getContextID());
-        }
-        else {
+        } else {
             getState()->setContextID(osg::GraphicsContext::createNewContextID());
         }
     }
@@ -323,7 +321,9 @@ GraphicsWindowQt::~GraphicsWindowQt()
 void GraphicsWindowQt::init()
 {
     qDebug() << "GraphicsWindowQt::init";
-    if (_closing || _initialized) return;
+    if (_closing || _initialized) {
+        return;
+    }
 
     // update by WindowData
     // WindowData* windowData = _traits.get() ? dynamic_cast<WindowData*>(_traits->inheritedWindowData.get()) : 0;
@@ -389,26 +389,28 @@ bool GraphicsWindowQt::realizeImplementation()
     // save the current context
     // note: this will save only Qt-based contexts
 
-    if (_realized) return true;
+    if (_realized) {
+        return true;
+    }
 
-    if (!_initialized)
-    {
+    if (!_initialized) {
         init();
-        if (!_initialized) return false;
+        if (!_initialized) {
+            return false;
+        }
     }
 
     QOpenGLContext *currentContext = QOpenGLContext::currentContext();
 
     if (!currentContext) {
-        _owned = true;
+        _owned     = true;
         _glContext = new QOpenGLContext();
         _glContext->create();
         _surface   = new QOffscreenSurface();
         _surface->setFormat(_glContext->format());
         _surface->create();
         osgQtQuick::formatInfo(_surface->format());
-    }
-    else {
+    } else {
         qDebug() << "GraphicsWindowQt::realizeImplementation - using current context";
         _glContext = currentContext;
     }
@@ -438,7 +440,7 @@ bool GraphicsWindowQt::realizeImplementation()
 
     // make this window's context not current
     // note: this must be done as we will probably make the context current from another thread
-    //       and it is not allowed to have one context current in two threads
+    // and it is not allowed to have one context current in two threads
     if (!releaseContext()) {
         qWarning() << "Window realize: Can not release context.";
     }
@@ -465,7 +467,7 @@ void GraphicsWindowQt::runOperations()
 // if (QGLContext::currentContext() != _widget->context())
 // _widget->makeCurrent();
 //
-    //qDebug() << "GraphicsWindowQt::runOperations";
+    // qDebug() << "GraphicsWindowQt::runOperations";
     GraphicsWindow::runOperations();
 }
 
@@ -476,7 +478,7 @@ bool GraphicsWindowQt::makeCurrentImplementation()
         return false;
     }
     if (_owned && _glContext) {
-        //qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
+        // qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
         if (!_glContext->makeCurrent(_surface)) {
             qWarning() << "GraphicsWindowQt::makeCurrentImplementation : failed to make context current";
             return false;
@@ -505,9 +507,9 @@ bool GraphicsWindowQt::releaseContextImplementation()
 void GraphicsWindowQt::closeImplementation()
 {
     qDebug() << "GraphicsWindowQt::closeImplementation";
-    _closing    = true;
+    _closing     = true;
     _initialized = false;
-    _valid       = false;
+    _valid = false;
     _realized    = false;
     if (_glContext) {
         if (_owned) {
@@ -548,8 +550,7 @@ class QtWindowingSystem : public osg::GraphicsContext::WindowingSystemInterface 
 public:
 
     QtWindowingSystem()
-    {
-    }
+    {}
 
     ~QtWindowingSystem()
     {

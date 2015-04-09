@@ -409,11 +409,13 @@ bool GraphicsWindowQt::realizeImplementation()
         osgQtQuick::formatInfo(_surface->format());
     }
     else {
+        qDebug() << "GraphicsWindowQt::realizeImplementation - using current context";
         _glContext = currentContext;
     }
-//// initialize GL context for the widget
-// if ( !valid() )
-// _widget->glInit();
+
+    //// initialize GL context for the widget
+    // if ( !valid() )
+    // _widget->glInit();
 
     // make current
     _realized = true;

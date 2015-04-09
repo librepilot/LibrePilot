@@ -64,9 +64,9 @@ defineTest(addCopyDirTarget) {
     $${dir}.target    = $$dest
     $${dir}.depends   = $$src
 
-    $${dir}.commands += @rm -rf \"$$targetPath($$dest)\" $$addNewline()
+    $${dir}.commands  = @rm -rf \"$$targetPath($$dest)\" $$addNewline()
     # create directory. Better would be an order only dependency
-    $${dir}.commands  = -@$(MKDIR) \"$$targetPath($$dirname(dest))\" $$addNewline()
+    $${dir}.commands += -@$(MKDIR) \"$$targetPath($$dirname(dest))\" $$addNewline()
     $${dir}.commands += $(COPY_DIR) \"$$targetPath($$src)\" \"$$targetPath($$dest)\"
 
     QMAKE_EXTRA_TARGETS += $$dir

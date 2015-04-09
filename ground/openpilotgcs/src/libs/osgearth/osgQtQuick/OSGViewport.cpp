@@ -421,6 +421,9 @@ public:
     {
         // qDebug() << "ViewportRenderer - render";
         // h->info("ViewportRenderer - render");
+        if (!h->viewer.valid()) {
+            return;
+        }
 
         // needed to properly render models without terrain (Qt bug?)
         QOpenGLContext::currentContext()->functions()->glUseProgram(0);

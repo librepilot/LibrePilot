@@ -12,17 +12,17 @@ OSGViewport {
     OSGSkyNode {
         id: skyNode
         sceneData: terrainNode
-            dateTime: getDateTime()
-            minimumAmbientLight: qmlWidget.minimumAmbientLight
+        dateTime: getDateTime()
+        minimumAmbientLight: qmlWidget.minimumAmbientLight
 
-            function getDateTime() {
-                switch(qmlWidget.timeMode) {
-                case Pfd.Local:
-                    return new Date();
-                case Pfd.PredefinedTime:
-                    return qmlWidget.dateTime;
-                }
+        function getDateTime() {
+            switch(qmlWidget.timeMode) {
+            case Pfd.Local:
+                return new Date();
+            case Pfd.PredefinedTime:
+                return qmlWidget.dateTime;
             }
+        }
 
     }
 
@@ -99,8 +99,8 @@ OSGViewport {
 
     }
 
-	// this group is needed as the target for the camera
-	// using modelTransformNode leads to strange camera behavior (the reason is not clear why)
+    // this group is needed as the target for the camera
+    // using modelTransformNode leads to strange camera behavior (the reason is not clear why)
     OSGGroup {
         id: modelGroup
         children: [

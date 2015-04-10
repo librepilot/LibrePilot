@@ -352,8 +352,7 @@ void PIOS_Board_Init(void)
     if (PIOS_IAP_ReadBootCmd(0) == PIOS_IAP_CLEAR_FLASH_CMD_0 &&
         PIOS_IAP_ReadBootCmd(1) == PIOS_IAP_CLEAR_FLASH_CMD_1 &&
         PIOS_IAP_ReadBootCmd(2) == PIOS_IAP_CLEAR_FLASH_CMD_2) {
-        // todo: EEprom ERASE
-        // PIOS_FLASHFS_Format(pios_uavo_settings_fs_id);
+        PIOS_FLASHFS_Format(pios_uavo_settings_fs_id);
         PIOS_IAP_WriteBootCmd(0, 0);
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);

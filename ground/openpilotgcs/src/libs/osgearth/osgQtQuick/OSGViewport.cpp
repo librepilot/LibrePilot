@@ -72,10 +72,16 @@ public:
 
     ~Hidden()
     {
+        qDebug() << "OSGViewport::Hidden - <destruct>";
         if (frameTimer >= 0) {
             killTimer(frameTimer);
         }
-        self = NULL;
+        self   = NULL;
+        view   = NULL;
+        viewer = NULL;
+        if (logDepthBuffer) {
+            delete logDepthBuffer;
+        }
     }
 
 public slots:
@@ -388,9 +394,8 @@ public:
         qDebug() << "ViewportRenderer - <init>";
         h->info("ViewportRenderer - <init>");
 
-        OsgEarth::initialize();
-
         if (!h->realized) {
+            // OsgEarth::initialize();
             h->self->realize();
             h->initViewer();
             h->realized = true;
@@ -477,6 +482,7 @@ QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), h(new Hidden(this))
 {
     qDebug() << "OSGViewport - <init>";
+    OsgEarth::initialize();
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
 }

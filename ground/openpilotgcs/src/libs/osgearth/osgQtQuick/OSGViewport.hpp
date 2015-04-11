@@ -49,7 +49,7 @@ public:
     bool logarithmicDepthBuffer();
     void setLogarithmicDepthBuffer(bool enabled);
 
-    Renderer *createRenderer() const;
+    virtual Renderer *createRenderer() const;
 
     virtual void realize();
 

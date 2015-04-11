@@ -173,10 +173,6 @@ public:
     OSGNode *sceneData;
 
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
-    // osg::ref_ptr<osg::Node> cameraNode;
-    osg::ref_ptr<NodeUpdateCallback> nodeUpdateCallback;
-
-    bool dirty;
 
     bool clampToTerrain;
 
@@ -185,6 +181,10 @@ public:
 
     bool intoTerrain;
 
+    // handle attitude/position/etc independently
+    bool dirty;
+
+    osg::observer_ptr<NodeUpdateCallback> nodeUpdateCallback;
 private slots:
 
     void onModelNodeChanged(osg::Node *node)

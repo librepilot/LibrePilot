@@ -31,10 +31,9 @@ PfdQmlProperties::PfdQmlProperties(QObject *parent) : QObject(parent),
     m_altitudeFactor(1.0),
     m_terrainEnabled(false),
     m_terrainFile(""),
-    m_positionMode(Pfd::Predefined),
-    m_latitude(46.671478),
-    m_longitude(10.158932),
-    m_altitude(2000),
+    m_latitude(39.657380),
+    m_longitude(19.805158),
+    m_altitude(100),
     m_timeMode(Pfd::Local),
     m_dateTime(QDateTime()),
     m_minAmbientLight(0.03),
@@ -123,18 +122,6 @@ void PfdQmlProperties::setTerrainFile(const QString &arg)
     }
 }
 
-Pfd::PositionMode PfdQmlProperties::positionMode() const
-{
-    return m_positionMode;
-}
-
-void PfdQmlProperties::setPositionMode(Pfd::PositionMode arg)
-{
-    if (m_positionMode != arg) {
-        m_positionMode = arg;
-        emit positionModeChanged(positionMode());
-    }
-}
 
 double PfdQmlProperties::latitude() const
 {
@@ -318,7 +305,6 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
     m_pfdQmlProperties->setTerrainEnabled(config->terrainEnabled());
     m_pfdQmlProperties->setTerrainFile(config->terrainFile());
 
-    m_pfdQmlProperties->setPositionMode(config->positionMode());
     m_pfdQmlProperties->setLatitude(config->latitude());
     m_pfdQmlProperties->setLongitude(config->longitude());
     m_pfdQmlProperties->setAltitude(config->altitude());

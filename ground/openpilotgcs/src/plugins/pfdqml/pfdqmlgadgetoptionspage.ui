@@ -74,7 +74,7 @@
           <enum>QLayout::SetMaximumSize</enum>
          </property>
          <property name="bottomMargin">
-          <number>10</number>
+          <number>0</number>
          </property>
          <item>
           <widget class="QLabel" name="label">
@@ -184,89 +184,57 @@
               </item>
               <item>
                <widget class="QGroupBox" name="groupBox_2">
+                <property name="toolTip">
+                 <string>This location will be used if no GPS fix or Home location are available</string>
+                </property>
+                <property name="whatsThis">
+                 <string/>
+                </property>
                 <property name="title">
-                 <string>Location</string>
+                 <string>Default Location</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
                  <item>
-                  <widget class="QRadioButton" name="useGPSLocation">
-                   <property name="text">
-                    <string>Use GPS location</string>
+                  <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <property name="spacing">
+                    <number>6</number>
                    </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="useHomeLocation">
-                   <property name="text">
-                    <string>Use home location</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="usePredefinedLocation">
-                   <property name="text">
-                    <string>Use this location:</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QGridLayout" name="gridLayout">
                    <property name="leftMargin">
-                    <number>60</number>
+                    <number>0</number>
                    </property>
-                   <item row="0" column="0">
+                   <item>
                     <widget class="QLabel" name="label_3">
                      <property name="text">
                       <string>Latitude:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
-                    <widget class="QLineEdit" name="altitude"/>
-                   </item>
-                   <item row="0" column="1">
+                   <item>
                     <widget class="QLineEdit" name="latitude"/>
                    </item>
-                   <item row="1" column="0">
+                   <item>
                     <widget class="QLabel" name="label_4">
                      <property name="text">
                       <string>Longitude:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="1">
+                   <item>
                     <widget class="QLineEdit" name="longitude"/>
                    </item>
-                   <item row="2" column="0">
+                   <item>
                     <widget class="QLabel" name="label_5">
                      <property name="text">
                       <string>Altitude:</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="2">
-                    <spacer name="horizontalSpacer">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
+                   <item>
+                    <widget class="QLineEdit" name="altitude"/>
                    </item>
                   </layout>
                  </item>
                 </layout>
-                <zorder>useGPSLocation</zorder>
-                <zorder>useHomeLocation</zorder>
-                <zorder>usePredefinedLocation</zorder>
-                <zorder></zorder>
                </widget>
               </item>
               <item>
@@ -274,7 +242,7 @@
                 <item>
                  <widget class="QCheckBox" name="useOnlyCache">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="text">
                    <string>Use only cache data</string>
@@ -311,6 +279,19 @@
               </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>121</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -532,19 +513,6 @@
          </widget>
         </widget>
        </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>121</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
     </widget>
@@ -560,54 +528,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>usePredefinedLocation</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>latitude</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>167</x>
-     <y>188</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>260</x>
-     <y>222</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>usePredefinedLocation</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>longitude</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>181</x>
-     <y>188</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>282</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>usePredefinedLocation</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>altitude</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>207</x>
-     <y>188</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>308</x>
-     <y>288</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -32,7 +32,6 @@ class PfdQmlProperties : public QObject {
     Q_PROPERTY(bool terrainEnabled READ terrainEnabled WRITE setTerrainEnabled NOTIFY terrainEnabledChanged)
     Q_PROPERTY(QString terrainFile READ terrainFile WRITE setTerrainFile NOTIFY terrainFileChanged)
 
-    Q_PROPERTY(Pfd::PositionMode positionMode READ positionMode WRITE setPositionMode NOTIFY positionModeChanged)
     Q_PROPERTY(double latitude READ latitude WRITE setLatitude NOTIFY latitudeChanged)
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
@@ -62,8 +61,6 @@ public:
     QString terrainFile() const;
     void setTerrainFile(const QString &arg);
 
-    Pfd::PositionMode positionMode() const;
-    void setPositionMode(Pfd::PositionMode arg);
     double latitude() const;
     void setLatitude(double arg);
     double longitude() const;
@@ -92,7 +89,6 @@ signals:
     void terrainEnabledChanged(bool arg);
     void terrainFileChanged(QString arg);
 
-    void positionModeChanged(Pfd::PositionMode arg);
     void latitudeChanged(double arg);
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
@@ -113,7 +109,6 @@ private:
     bool m_terrainEnabled;
     QString m_terrainFile;
 
-    Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;

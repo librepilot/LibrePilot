@@ -85,14 +85,6 @@ public:
         m_terrainFile = fileName;
     }
 
-    Pfd::PositionMode positionMode() const
-    {
-        return m_positionMode;
-    }
-    void setPositionMode(Pfd::PositionMode positionMode)
-    {
-        m_positionMode = positionMode;
-    }
 
     double latitude() const
     {
@@ -215,14 +207,14 @@ private:
     bool m_terrainEnabled;
     QString m_terrainFile; // The name of osgearth terrain file
     bool m_cacheOnly;
-    Pfd::TimeMode m_timeMode;
-    QDateTime m_dateTime;
-    double m_minAmbientLight;
 
-    Pfd::PositionMode m_positionMode;
     double m_latitude;
     double m_longitude;
     double m_altitude;
+
+    Pfd::TimeMode m_timeMode;
+    QDateTime m_dateTime;
+    double m_minAmbientLight;
 
     bool m_modelEnabled;
     QString m_modelFile; // The name of model file

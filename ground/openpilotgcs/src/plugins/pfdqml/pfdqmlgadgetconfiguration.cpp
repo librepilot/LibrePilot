@@ -32,7 +32,6 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
     m_timeMode(Pfd::Local),
     m_dateTime(QDateTime()),
     m_minAmbientLight(0),
-    m_positionMode(Pfd::Predefined),
     m_latitude(0),
     m_longitude(0),
     m_altitude(0),
@@ -63,7 +62,6 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         m_terrainFile         = Utils::PathUtils().InsertDataPath(m_terrainFile);
         m_cacheOnly           = qSettings->value("cacheOnly").toBool();
 
-        m_positionMode        = static_cast<Pfd::PositionMode>(qSettings->value("positionMode").toUInt());
         m_latitude            = qSettings->value("latitude").toDouble();
         m_longitude           = qSettings->value("longitude").toDouble();
         m_altitude            = qSettings->value("altitude").toDouble();
@@ -103,7 +101,6 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
     m->m_terrainFile         = m_terrainFile;
     m->m_cacheOnly           = m_cacheOnly;
 
-    m->m_positionMode        = m_positionMode;
     m->m_latitude            = m_latitude;
     m->m_longitude           = m_longitude;
     m->m_altitude            = m_altitude;
@@ -143,7 +140,6 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
     qSettings->setValue("earthFile", terrainFile);
     qSettings->setValue("cacheOnly", m_cacheOnly);
 
-    qSettings->setValue("positionMode", static_cast<uint>(m_positionMode));
     qSettings->setValue("latitude", m_latitude);
     qSettings->setValue("longitude", m_longitude);
     qSettings->setValue("altitude", m_altitude);

@@ -63,12 +63,6 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     // Terrain check boxes
     options_page->showTerrain->setChecked(m_config->terrainEnabled());
 
-    options_page->useGPSLocation->setChecked(m_config->positionMode() == Pfd::GPS);
-    options_page->useHomeLocation->setChecked(m_config->positionMode() == Pfd::Home);
-    options_page->usePredefinedLocation->setChecked(m_config->positionMode() == Pfd::Predefined);
-
-    options_page->useOnlyCache->setChecked(m_config->cacheOnly());
-
     // Terrain file chooser
     options_page->earthFile->setExpectedKind(Utils::PathChooser::File);
     options_page->earthFile->setPromptDialogFilter(tr("OsgEarth (*.earth)"));
@@ -79,6 +73,8 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->latitude->setText(QString::number(m_config->latitude()));
     options_page->longitude->setText(QString::number(m_config->longitude()));
     options_page->altitude->setText(QString::number(m_config->altitude()));
+
+    options_page->useOnlyCache->setChecked(m_config->cacheOnly());
 
     // Sky options
     options_page->useLocalTime->setChecked(m_config->timeMode() == Pfd::Local);
@@ -132,13 +128,6 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setTerrainEnabled(options_page->showTerrain->isChecked());
     m_config->setTerrainFile(options_page->earthFile->path());
 
-    if (options_page->useGPSLocation->isChecked()) {
-        m_config->setPositionMode(Pfd::GPS);
-    } else if (options_page->useHomeLocation->isChecked()) {
-        m_config->setPositionMode(Pfd::Home);
-    } else {
-        m_config->setPositionMode(Pfd::Predefined);
-    }
     m_config->setLatitude(options_page->latitude->text().toDouble());
     m_config->setLongitude(options_page->longitude->text().toDouble());
     m_config->setAltitude(options_page->altitude->text().toDouble());

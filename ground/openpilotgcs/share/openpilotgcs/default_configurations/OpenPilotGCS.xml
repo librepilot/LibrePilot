@@ -1581,10 +1581,9 @@
           <terrainEnabled>false</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <altitude>2000</altitude>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1606,10 +1605,9 @@
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <altitude>2000</altitude>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1631,10 +1629,9 @@
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <altitude>2000</altitude>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1656,10 +1653,9 @@
           <terrainEnabled>false</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <altitude>2000</altitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1681,10 +1677,9 @@
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <altitude>2000</altitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1706,10 +1701,9 @@
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <altitude>2000</altitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1731,10 +1725,9 @@
           <terrainEnabled>true</terrainEnabled>
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <positionMode>0</positionMode>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <altitude>2000</altitude>
+          <latitude>39.657380</latitude>
+          <longitude>19.805158</longitude>
+          <altitude>100</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>

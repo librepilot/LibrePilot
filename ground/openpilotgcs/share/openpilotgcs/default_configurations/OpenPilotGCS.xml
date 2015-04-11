@@ -2532,7 +2532,7 @@
             <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>PFD (No Terrain)</activeConfiguration>
+                <activeConfiguration>PFD</activeConfiguration>
               </gadget>
               <type>uavGadget</type>
             </side0>

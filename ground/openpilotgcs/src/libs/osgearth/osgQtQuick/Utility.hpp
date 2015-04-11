@@ -6,6 +6,8 @@
 #include <osg/NodeVisitor>
 #include <osg/GraphicsContext>
 
+#include <osgEarth/GeoData>
+
 #include <QtGlobal>
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
@@ -27,6 +29,7 @@ class Font;
 
 namespace osgEarth {
 class Capabilities;
+class MapNode;
 } // namespace osgEarth
 
 QT_BEGIN_NAMESPACE
@@ -93,6 +96,9 @@ OSGQTQUICK_EXPORT osgText::Text *createText(const osg::Vec3 &pos,
                                             const std::string &content,
                                             float size,
                                             osgText::Font *font = 0);
+
+OSGQTQUICK_EXPORT osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
+OSGQTQUICK_EXPORT osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEarth::MapNode *mapNode, bool &clamped);
 
 OSGQTQUICK_EXPORT QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits);
 OSGQTQUICK_EXPORT void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits *traits);

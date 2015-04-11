@@ -28,6 +28,9 @@
 
 #include <osgEarth/Capabilities>
 #include <osgEarth/CullingUtils>
+#include <osgEarth/MapNode>
+#include <osgEarth/SpatialReference>
+#include <osgEarth/ElevationQuery>
 
 #include <QFont>
 #include <QKeyEvent>
@@ -214,6 +217,41 @@ int QtKeyboardMap::remapKey(QKeyEvent *event)
         return int(*(event->text().toLatin1().data()));
     }
     return itr->second;
+}
+
+osgEarth::GeoPoint toGeoPoint(const QVector3D &position)
+{
+    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
+            position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
+
+    return geoPoint;
+}
+
+osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEarth::MapNode *mapNode, bool &clamped)
+{
+    osgEarth::GeoPoint geoPoint = toGeoPoint(position);
+
+    if (!mapNode) {
+        qWarning() << "Utility - clampGeoPoint : scene data does not contain a map node";
+        return geoPoint;
+    }
+
+    // establish an elevation query interface based on the features' SRS.
+    osgEarth::ElevationQuery eq(mapNode->getMap());
+    //qDebug() << "Map SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
+
+    double elevation;
+    if (eq.getElevation(geoPoint, elevation, 0.0)) {
+        clamped = ((geoPoint.z() - offset) < elevation);
+        if (clamped) {
+            qDebug() << "Utility - clampGeoPoint : clamping" << geoPoint.z() - offset << "/" << elevation;
+            geoPoint.z() = elevation + offset;
+        }
+    } else {
+        qDebug() << "Utility - clampGeoPoint : failed to get elevation";
+    }
+
+    return geoPoint;
 }
 
 QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits)

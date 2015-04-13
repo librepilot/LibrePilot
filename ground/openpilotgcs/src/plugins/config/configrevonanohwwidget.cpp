@@ -49,9 +49,11 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
 
     addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
 
+    forceConnectedState();
+
     addWidgetBinding("HwSettings", "RM_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "RM_MainPort", m_ui->cbMain);
-    addWidgetBinding("HwSettings", "RM_RcvrPort", m_ui->cbRcvr);
+    addWidgetBinding("HwSettings", "RM_RcvrPort", m_ui->cbRcvr, 0, 1, true);
 
     addWidgetBinding("HwSettings", "USB_HIDPort", m_ui->cbUSBHIDFunction);
     addWidgetBinding("HwSettings", "USB_VCPPort", m_ui->cbUSBVCPFunction);
@@ -72,12 +74,10 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
 
     connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
     setupCustomCombos();
     enableControls(true);
     populateWidgets();
     refreshWidgetsValues();
-    forceConnectedState();
     m_refreshing = false;
 }
 

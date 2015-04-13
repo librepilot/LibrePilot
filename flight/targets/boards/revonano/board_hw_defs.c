@@ -971,30 +971,17 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM5,  2, A, 1),
     // PWM pins on FlexiIO(receiver) port
     TIM_SERVO_CHANNEL_CONFIG(TIM2,  3, B, 10),
+    TIM_SERVO_CHANNEL_CONFIG(TIM3,  3, B, 0),
+    TIM_SERVO_CHANNEL_CONFIG(TIM3,  2, A, 7),
+    TIM_SERVO_CHANNEL_CONFIG(TIM3,  1, A, 6),
+    TIM_SERVO_CHANNEL_CONFIG(TIM2,  1, A, 5),
     TIM_SERVO_CHANNEL_CONFIG(TIM3,  4, B, 1),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3,  3, B, 0),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3,  2, A, 7),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3,  1, A, 6),
-    TIM_SERVO_CHANNEL_CONFIG(TIM2,  1, A, 5),
 };
-static const struct pios_tim_channel pios_tim_servoport_all_ppm_pins[] = {
-    // TIMER, CHANNEL, GPIO, PIN
-    TIM_SERVO_CHANNEL_CONFIG(TIM1,  3, A, 10),
-    TIM_SERVO_CHANNEL_CONFIG(TIM2,  2, B, 3),
-    TIM_SERVO_CHANNEL_CONFIG(TIM10, 1, B, 8),
-    TIM_SERVO_CHANNEL_CONFIG(TIM11, 1, B, 9),
-    TIM_SERVO_CHANNEL_CONFIG(TIM5,  1, A, 0),
-    TIM_SERVO_CHANNEL_CONFIG(TIM5,  2, A, 1),
-    // PWM pins on FlexiIO(receiver) port
-    TIM_SERVO_CHANNEL_CONFIG(TIM2,  3, B, 10),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3,  3, B, 0),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3,  2, A, 7),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3,  1, A, 6),
-    TIM_SERVO_CHANNEL_CONFIG(TIM2,  1, A, 5),
-};
+
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT        6
-#define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN_PPM 11
-#define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN     12
+#define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN     (NELEMENTS(pios_tim_servoport_all_pins))
+#define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN_PPM (PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN - 1)
+
 
 const struct pios_servo_cfg pios_servo_cfg_out = {
     .tim_oc_init          = {
@@ -1022,7 +1009,7 @@ const struct pios_servo_cfg pios_servo_cfg_out_in_ppm = {
         .TIM_OCIdleState  = TIM_OCIdleState_Reset,
         .TIM_OCNIdleState = TIM_OCNIdleState_Reset,
     },
-    .channels     = pios_tim_servoport_all_ppm_pins,
+    .channels     = pios_tim_servoport_all_pins,
     .num_channels = PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN_PPM,
 };
 // All servo outputs, servo inputs ch1-6 Outputs
@@ -1084,7 +1071,7 @@ static const struct pios_ppm_cfg pios_ppm_cfg = {
         .TIM_Channel     = TIM_Channel_4,
     },
     /* Use only the second channel for ppm */
-    .channels     = &pios_tim_rcvrport_all_channels[1],
+    .channels     = &pios_tim_servoport_all_pins[PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN - 1],
     .num_channels = 1,
 };
 

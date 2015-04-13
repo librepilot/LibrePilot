@@ -354,10 +354,14 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
     if (utilMngr) {
         int board = utilMngr->getBoardModel();
         // Setup labels and combos for banks according to board type
-        if ((board & 0xff00) == 0x0900) {
+        if (board == 0x0903) {
             // Revolution family of boards 6 timer banks
             bankLabels << "1 (1-2)" << "2 (3)" << "3 (4)" << "4 (5-6)" << "5 (7-8)" << "6 (9-10)";
             channelBanks << 1 << 1 << 2 << 3 << 4 << 4 << 5 << 5 << 6 << 6;
+        } else if (board == 0x0905) {
+            // Revolution Nano
+            bankLabels << "1 (1)" << "2 (2,7,11)" << "3 (3)" << "4 (4)" << "5 (5-6)" << "6 (8-10,12)";
+            channelBanks << 1 << 2 << 3 << 4 << 5 << 5 << 2 << 6 << 6 << 6 << 2 << 6;
         }
     }
 

@@ -54,7 +54,7 @@ public:
 
     bool acceptManipulatorMode(ManipulatorMode mode)
     {
-        qDebug() << "OSGCamera - acceptManipulatorMode" << mode;
+        //qDebug() << "OSGCamera::acceptManipulatorMode" << mode;
         if (manipulatorMode == mode) {
             return false;
         }
@@ -66,7 +66,7 @@ public:
 
     bool acceptNode(OSGNode *node)
     {
-        qDebug() << "OSGCamera - acceptNode" << node;
+        qDebug() << "OSGCamera::acceptNode" << node;
         if (this->node == node) {
             return false;
         }
@@ -86,7 +86,7 @@ public:
 
     bool acceptTrackNode(OSGNode *node)
     {
-        qDebug() << "OSGCamera - acceptTrackNode" << node;
+        qDebug() << "OSGCamera::acceptTrackNode" << node;
         if (trackNode == node) {
             return false;
         }
@@ -124,16 +124,16 @@ public:
             return;
         }
         sizeDirty = false;
-        qDebug() << "OSGCamera - updateCamera size" << x << y << width << height << fieldOfView;
+        //qDebug() << "OSGCamera::updateCamera size" << x << y << width << height << fieldOfView;
         camera->getGraphicsContext()->resized(x, y, width, height);
         camera->setViewport(x, y, width, height);
     }
 
     void updateCameraFOV()
     {
-        qDebug() << "OSGCamera - updateCamera FOV";
-// camera->setProjectionMatrixAsPerspective(
-// fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
+        //qDebug() << "OSGCamera::updateCamera FOV";
+        // camera->setProjectionMatrixAsPerspective(
+        // fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
     }
 
     void updateCameraPosition()
@@ -207,14 +207,14 @@ public:
 private slots:
     void onNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGCamera - onNodeChanged" << node;
-        // TODO otherwise async load might break cameras...
+        qDebug() << "OSGCamera::onNodeChanged" << node;
+        qWarning() << "needs to be implemented";
     }
 
     void onTrackNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGCamera - onTrackNodeChanged" << node;
-        // TODO otherwise async load might break cameras...
+        qDebug() << "OSGCamera::onTrackNodeChanged" << node;
+        qWarning() << "needs to be implemented";
     }
 };
 
@@ -230,12 +230,12 @@ void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::N
 
 OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGCamera - <init>";
+    qDebug() << "OSGCamera::OSGCamera";
 }
 
 OSGCamera::~OSGCamera()
 {
-    qDebug() << "OSGCamera - <destruct>";
+    qDebug() << "OSGCamera::~OSGCamera";
 }
 
 qreal OSGCamera::fieldOfView() const
@@ -342,7 +342,7 @@ void OSGCamera::setPosition(QVector3D arg)
 
 void OSGCamera::installCamera(osgViewer::View *view)
 {
-    qDebug() << "OSGCamera - installCamera" << view << view->getCamera();
+    qDebug() << "OSGCamera::installCamera" << view << view->getCamera();
 
     h->installCamera(view->getCamera());
 
@@ -351,7 +351,7 @@ void OSGCamera::installCamera(osgViewer::View *view)
     switch (h->manipulatorMode) {
     case OSGCamera::Default:
     {
-        qDebug() << "OSGCamera - installCamera: use TrackballManipulator";
+        //qDebug() << "OSGCamera::installCamera: use TrackballManipulator";
         osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
         // Set the minimum distance of the eye point from the center before the center is pushed forward.
         // tm->setMinimumDistance(1, true);
@@ -359,16 +359,16 @@ void OSGCamera::installCamera(osgViewer::View *view)
         break;
     }
     case OSGCamera::User:
-        qDebug() << "OSGCamera - installCamera: no camera manipulator";
+        //qDebug() << "OSGCamera::installCamera: no camera manipulator";
         // disable any installed camera manipulator
         cm = NULL;
         break;
     case OSGCamera::Earth:
-        qDebug() << "OSGCamera - installCamera: use EarthManipulator";
+        //qDebug() << "OSGCamera::installCamera: use EarthManipulator";
         cm = new osgEarth::Util::EarthManipulator();
         break;
     case OSGCamera::Track:
-        qDebug() << "OSGCamera - installCamera: use NodeTrackerManipulator";
+        //qDebug() << "OSGCamera::installCamera: use NodeTrackerManipulator";
         if (h->trackNode && h->trackNode->node()) {
             // setup tracking camera
             // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
@@ -394,14 +394,15 @@ void OSGCamera::installCamera(osgViewer::View *view)
             // ntm->setDistance(10);
             cm = ntm;
         } else {
-            qWarning() << "OSGCamera - installCamera: no track node provided.";
+            qWarning() << "OSGCamera::installCamera: no track node provided.";
             cm = NULL;
         }
         break;
     default:
-        qWarning() << "OSGCamera - installCamera: should not reach here!";
+        qWarning() << "OSGCamera::installCamera: should not reach here!";
         break;
     }
+
     view->setCameraManipulator(cm, false);
     if (cm && h->node && h->node->node()) {
         // set node used to auto compute home position
@@ -413,9 +414,9 @@ void OSGCamera::installCamera(osgViewer::View *view)
 
 void OSGCamera::setViewport(int x, int y, int width, int height)
 {
-    // qDebug() << "OSGCamera - setViewport" << x << y << width << "x" << heigth;
+    // qDebug() << "OSGCamera::setViewport" << x << y << width << "x" << heigth;
     if (width <= 0 || height <= 0) {
-        qWarning() << "OSGCamera - setViewport - invalid size " << width << "x" << height;
+        qWarning() << "OSGCamera::setViewport - invalid size " << width << "x" << height;
         return;
     }
     if (h->x != x || h->y != y || h->width != width || h->height != height) {

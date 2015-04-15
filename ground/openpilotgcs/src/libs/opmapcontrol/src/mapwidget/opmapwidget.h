@@ -33,11 +33,7 @@
 #include "../core/languagetype.h"
 #include "../core/diagnostics.h"
 #include "configuration.h"
-#include <QObject>
-#include <QtOpenGL/QGLWidget>
 #include "waypointitem.h"
-#include "QtSvg/QGraphicsSvgItem"
-#include "QGraphicsView"
 #include "uavitem.h"
 #include "gpsitem.h"
 #include "homeitem.h"
@@ -45,6 +41,11 @@
 #include "waypointline.h"
 #include "waypointcircle.h"
 #include "waypointitem.h"
+
+#include <QObject>
+#include "QtSvg/QGraphicsSvgItem"
+#include "QGraphicsView"
+
 namespace mapcontrol {
 class UAVItem;
 class GPSItem;

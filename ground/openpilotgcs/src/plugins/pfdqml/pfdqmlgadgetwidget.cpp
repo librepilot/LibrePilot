@@ -283,7 +283,8 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", m_pfdQmlProperties);
 
-    connect(this, SIGNAL(statusChanged(QQuickWidget::Status)), this, SLOT(onStatusChanged(QQuickWidget::Status)));
+    connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
+    connect(this, &QQuickWidget::sceneGraphError, this, &PfdQmlGadgetWidget::onSceneGraphError);
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
@@ -378,4 +379,9 @@ void PfdQmlGadgetWidget::onStatusChanged(QQuickWidget::Status status)
         }
         break;
     }
+}
+
+void PfdQmlGadgetWidget::onSceneGraphError(QQuickWindow::SceneGraphError error, const QString &message)
+{
+    qWarning() << QString("Scenegraph error %1: %2").arg(error).arg(message);
 }

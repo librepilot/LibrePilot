@@ -21,6 +21,7 @@
 #include "pfdqmlgadgetconfiguration.h"
 
 #include <QQuickWidget>
+#include <QQuickWindow>
 
 class PfdQmlProperties : public QObject {
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
@@ -149,6 +150,7 @@ public:
 
 private slots:
     void onStatusChanged(QQuickWidget::Status status);
+    void onSceneGraphError(QQuickWindow::SceneGraphError error, const QString &message);
 
 private:
     void setQmlFile(QString);

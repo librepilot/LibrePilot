@@ -100,8 +100,8 @@ bool VehicleConfigurationHelper::setupHardwareSettings(bool save)
 
 bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
 {
-    return true;
-}
+        return true;
+    }
 
 void VehicleConfigurationHelper::addModifiedObject(UAVDataObject *object, QString description)
 {
@@ -582,6 +582,7 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
 
         switch (m_configSource->getControllerType()) {
         case VehicleConfigurationSource::CONTROLLER_REVO:
+        case VehicleConfigurationSource::CONTROLLER_NANO:
         {
             RevoCalibration *revolutionCalibration = RevoCalibration::GetInstance(m_uavoManager);
             Q_ASSERT(revolutionCalibration);

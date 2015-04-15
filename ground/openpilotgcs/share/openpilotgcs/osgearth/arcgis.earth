@@ -3,6 +3,7 @@
 <map name="ArcGIS World Imagery" type="geocentric" version="2">
 
     <options>
+        <!--overlay_resolution_ratio="1.0"/-->
         <terrain first_lod="0"/>
     </options>
 

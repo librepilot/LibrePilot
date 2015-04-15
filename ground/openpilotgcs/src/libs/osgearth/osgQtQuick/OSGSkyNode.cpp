@@ -22,7 +22,7 @@ public:
 
     bool acceptSceneNode(OSGNode *node)
     {
-        qDebug() << "OSGSkyNode - acceptSceneNode" << node;
+        qDebug() << "OSGSkyNode::acceptSceneNode" << node;
         if (sceneData == node) {
             return false;
         }
@@ -32,6 +32,7 @@ public:
         }
 
         sceneData = node;
+
         if (sceneData) {
             acceptNode(sceneData->node());
             connect(sceneData, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onNodeChanged(osg::Node *)));
@@ -42,7 +43,7 @@ public:
 
     bool acceptNode(osg::Node *node)
     {
-        qDebug() << "OSGSkyNode - acceptNode" << node;
+        qDebug() << "OSGSkyNode::acceptNode" << node;
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (!mapNode) {
@@ -100,7 +101,7 @@ public:
 
     bool acceptSunLightEnabled(bool enabled)
     {
-        qDebug() << "OSGSkyNode - acceptSunLightEnabled" << enabled;
+        //qDebug() << "OSGSkyNode::acceptSunLightEnabled" << enabled;
 
         this->sunLightEnabled = enabled;
 
@@ -114,7 +115,7 @@ public:
 
     bool acceptDateTime(QDateTime dateTime)
     {
-        qDebug() << "OSGSkyNode - acceptDateTime" << dateTime;
+        //qDebug() << "OSGSkyNode::acceptDateTime" << dateTime;
 
         if (!dateTime.isValid()) {
             qWarning() << "OSGSkyNode - acceptDateTime - invalid date/time" << dateTime;
@@ -136,7 +137,7 @@ public:
 
     bool acceptMinimumAmbientLight(double minimumAmbientLight)
     {
-        qDebug() << "OSGSkyNode - acceptMinimumAmbientLight" << minimumAmbientLight;
+        //qDebug() << "OSGSkyNode::acceptMinimumAmbientLight" << minimumAmbientLight;
 
         this->minimumAmbientLight = minimumAmbientLight;
 
@@ -163,19 +164,19 @@ private slots:
 
     void onNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGSkyNode - onNodeChanged" << node;
+        qDebug() << "OSGSkyNode::onNodeChanged" << node;
         acceptNode(node);
     }
 };
 
 OSGSkyNode::OSGSkyNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGSkyNode - <init>";
+    qDebug() << "OSGSkyNode::OSGSkyNode";
 }
 
 OSGSkyNode::~OSGSkyNode()
 {
-    qDebug() << "OSGSkyNode - <destruct>";
+    qDebug() << "OSGSkyNode::~OSGSkyNode";
 }
 
 OSGNode *OSGSkyNode::sceneData()

@@ -5,6 +5,8 @@
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/Sky>
 
+//#include <osgEarthDrivers/sky_silverlining/SilverLiningOptions>
+
 #include <QDebug>
 
 namespace osgQtQuick {
@@ -53,15 +55,17 @@ public:
         }
 
         // create sky node
-        const osgEarth::Config & externals = mapNode->externalConfig();
-
-        skyNode = osgEarth::Util::SkyNode::create(mapNode);
+        skyNode = createSimpleSky(mapNode);
+        // skyNode = createSilverLiningSky(mapNode);
 
         acceptSunLightEnabled(sunLightEnabled);
         acceptDateTime(dateTime);
         acceptMinimumAmbientLight(minimumAmbientLight);
 
+        // skyNode->setStarsVisible(false);
+
         // Ocean
+        // const osgEarth::Config & externals = mapNode->externalConfig();
         // if (externals.hasChild("ocean")) {
         // s_ocean = osgEarth::Util::OceanNode::create(osgEarth::Util::OceanOptions(externals.child("ocean")), mapNode);
         // if (s_ocean) root->addChild(s_ocean);
@@ -72,6 +76,27 @@ public:
 
         return true;
     }
+
+    osgEarth::Util::SkyNode *createSimpleSky(osgEarth::MapNode *mapNode)
+    {
+        return osgEarth::Util::SkyNode::create(mapNode);
+    }
+
+/*
+    osgEarth::Util::SkyNode *createSilverLiningSky(osgEarth::MapNode *mapNode)
+    {
+        osgEarth::Drivers::SilverLining::SilverLiningOptions skyOptions;
+        skyOptions.user() = "OpenPilot";
+        skyOptions.licenseCode() = "1f02040d24000f0e18";
+        skyOptions.resourcePath() = "D:/Projects/OpenPilot/3rdparty/SilverLining-SDK-FullSource/Resources";
+        skyOptions.drawClouds() = true;
+        skyOptions.cloudsMaxAltitude() = 10000.0;
+
+        osgEarth::Util::SkyNode *skyNode = osgEarth::Util::SkyNode::create(skyOptions, mapNode);
+
+        return skyNode;
+    }
+*/
 
     bool acceptSunLightEnabled(bool enabled)
     {

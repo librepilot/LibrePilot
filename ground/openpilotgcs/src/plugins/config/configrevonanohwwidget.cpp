@@ -78,6 +78,7 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
     enableControls(true);
     populateWidgets();
     refreshWidgetsValues();
+    setDirty(false);
     m_refreshing = false;
 }
 

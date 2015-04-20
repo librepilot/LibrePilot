@@ -74,7 +74,7 @@
   *-----------------------------------------------------------------------------
   *        VDD(V)                                 | 3.3
   *-----------------------------------------------------------------------------
-  *        Main regulator output voltage          | Scale2 mode
+  *        Main regulator output voltage          | Scale1 mode
   *-----------------------------------------------------------------------------
   *        Flash Latency(WS)                      | 3
   *-----------------------------------------------------------------------------
@@ -375,7 +375,7 @@ static void SetSysClock(void)
     /* Select regulator voltage output Scale 2 mode, System frequency up to 144 MHz */
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
     PWR->CR &= (uint32_t)~(PWR_CR_VOS);
-
+    PWR->CR |= PWR_CR_VOS_0 | PWR_CR_VOS_1;
     /* HCLK = SYSCLK / 1*/
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
       

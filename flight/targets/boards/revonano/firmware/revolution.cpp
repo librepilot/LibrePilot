@@ -41,23 +41,6 @@ extern "C" {
 /* Global Variables */
 
 /* Local Variables */
-#define INCLUDE_TEST_TASKS  0
-#if INCLUDE_TEST_TASKS
-static uint8_t sdcard_available;
-#endif
-char Buffer[1024];
-uint32_t Cache;
-
-/* Function Prototypes */
-#if INCLUDE_TEST_TASKS
-static void TaskTick(void *pvParameters);
-static void TaskTesting(void *pvParameters);
-static void TaskHIDTest(void *pvParameters);
-static void TaskServos(void *pvParameters);
-static void TaskSDCard(void *pvParameters);
-#endif
-int32_t CONSOLE_Parse(uint8_t port, char c);
-void OP_ADC_NotifyChange(uint32_t pin, uint32_t pin_value);
 
 /* Prototype of PIOS_Board_Init() function */
 extern void PIOS_Board_Init(void);

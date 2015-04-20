@@ -284,17 +284,17 @@ extern uint32_t pios_packet_handler;
 // -------------------------
 #define PIOS_DMA_PIN_CONFIG                                                 \
     {                                                                       \
-        { GPIOB, GPIO_Pin_1, ADC_Channel_9, false},/* FLEXI-IO PIN 4     */ \
-        { GPIOB, GPIO_Pin_0, ADC_Channel_8, false},/* FLEXI-IO PIN 5     */ \
-        { GPIOA, GPIO_Pin_7, ADC_Channel_7, false},/* FLEXI-IO PIN 6     */ \
-        { GPIOA, GPIO_Pin_6, ADC_Channel_6, false},/* FLEXI-IO PIN 7     */ \
-        { GPIOA, GPIO_Pin_5, ADC_Channel_5, false},/* FLEXI-IO PIN 8     */ \
+        { GPIOB, GPIO_Pin_1, ADC_Channel_9, false }, /* FLEXI-IO PIN 4     */ \
+        { GPIOB, GPIO_Pin_0, ADC_Channel_8, false }, /* FLEXI-IO PIN 5     */ \
+        { GPIOA, GPIO_Pin_7, ADC_Channel_7, false }, /* FLEXI-IO PIN 6     */ \
+        { GPIOA, GPIO_Pin_6, ADC_Channel_6, false }, /* FLEXI-IO PIN 7     */ \
+        { GPIOA, GPIO_Pin_5, ADC_Channel_5, false }, /* FLEXI-IO PIN 8     */ \
                                                                             \
-        { GPIOA, GPIO_Pin_0, ADC_Channel_0, false},/* SERVO PIN 5        */ \
-        { GPIOA, GPIO_Pin_1, ADC_Channel_1, false},/* SERVO PIN 6        */ \
+        { GPIOA, GPIO_Pin_0, ADC_Channel_0, false }, /* SERVO PIN 5        */ \
+        { GPIOA, GPIO_Pin_1, ADC_Channel_1, false }, /* SERVO PIN 6        */ \
                                                                             \
-        { NULL, 0, ADC_Channel_Vrefint, false},     /* Voltage reference  */ \
-        { NULL, 0, ADC_Channel_TempSensor, false},  /* Temperature sensor */ \
+        { NULL, 0, ADC_Channel_Vrefint, false }, /* Voltage reference  */ \
+        { NULL, 0, ADC_Channel_TempSensor, false }, /* Temperature sensor */ \
     }
 
 /* we have to do all this to satisfy the PIOS_ADC_MAX_SAMPLES define in pios_adc.h */

@@ -860,8 +860,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = GET_SENSOR_DATA(mpu9250_data, Gyro_Y); // chip Y
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_Y) * dev->mag_sens_adj[1]; // chip Y
-            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_X) * dev->mag_sens_adj[0]; // chip X
+            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_Y) * dev->mag_sens_adj[1]; // chip Y
+            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_X) * dev->mag_sens_adj[0]; // chip X
         }
 #endif
         break;
@@ -875,8 +875,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = GET_SENSOR_DATA(mpu9250_data, Gyro_X); // chip X
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_X) * dev->mag_sens_adj[0]; // chip X
-            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)) * dev->mag_sens_adj[1]; // chip Y
+            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_X) * dev->mag_sens_adj[0]; // chip X
+            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)) * dev->mag_sens_adj[1]; // chip Y
         }
 
 #endif
@@ -890,8 +890,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Y)); // chip Y
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)) * dev->mag_sens_adj[1]; // chip Y
-            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)) * dev->mag_sens_adj[0]; // chip X
+            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_Y)) * dev->mag_sens_adj[1]; // chip Y
+            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)) * dev->mag_sens_adj[0]; // chip X
         }
 #endif
         break;
@@ -904,8 +904,8 @@ static bool PIOS_MPU9250_HandleData()
         queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_X)); // chip X
 #ifdef PIOS_MPU9250_MAG
         if (mag_valid) {
-            mag_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)) * dev->mag_sens_adj[0]; // chip X
-            mag_data->sample[0].y = GET_SENSOR_DATA(mpu9250_data, Mag_Y) * dev->mag_sens_adj[1]; // chip Y
+            mag_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu9250_data, Mag_X)) * dev->mag_sens_adj[0]; // chip X
+            mag_data->sample[0].x = GET_SENSOR_DATA(mpu9250_data, Mag_Y) * dev->mag_sens_adj[1]; // chip Y
         }
 #endif
         break;

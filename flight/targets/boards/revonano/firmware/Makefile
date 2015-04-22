@@ -32,8 +32,7 @@ USE_DSP_LIB ?= NO
 # List of mandatory modules to include
 MODULES += Sensors
 MODULES += StateEstimation
-#MODULES += Altitude/revolution
-#MODULES += Airspeed
+MODULES += Airspeed
 
 MODULES += Stabilization
 MODULES += ManualControl
@@ -41,8 +40,8 @@ MODULES += Receiver
 MODULES += Actuator
 MODULES += GPS
 MODULES += TxPID
-#MODULES += CameraStab
-#MODULES += Battery
+MODULES += CameraStab
+MODULES += Battery
 MODULES += FirmwareIAP
 MODULES += PathPlanner
 MODULES += PathFollower

@@ -203,8 +203,8 @@ extern uint32_t pios_packet_handler;
 // TIM2,3,4,5,6,7,12,13,14
 
 // Calculated as SYSCLK / APBPresc * (APBPre == 1 ? 1 : 2)
-// Default APB1 Prescaler = 4
-#define PIOS_PERIPHERAL_APB1_CLOCK (PIOS_SYSCLK / 2)
+// Default APB1 Prescaler = 2
+#define PIOS_PERIPHERAL_APB1_CLOCK PIOS_SYSCLK
 
 // Peripherals belonging to APB2
 // SDIO			|EXTI				|SYSCFG			|SPI1
@@ -212,7 +212,7 @@ extern uint32_t pios_packet_handler;
 // USART1,6
 // TIM1,8,9,10,11
 //
-// Default APB2 Prescaler = 2
+// Default APB2 Prescaler = 1
 //
 #define PIOS_PERIPHERAL_APB2_CLOCK   PIOS_SYSCLK
 

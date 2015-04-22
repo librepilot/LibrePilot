@@ -47,12 +47,12 @@ static void PIOS_USART_TxStart(uint32_t usart_id, uint16_t tx_bytes_avail);
 static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 
 const struct pios_com_driver pios_usart_com_driver = {
-    .set_baud      = PIOS_USART_ChangeBaud,
+    .set_baud   = PIOS_USART_ChangeBaud,
     .set_ctrl_line = PIOS_USART_SetCtrlLine,
-    .tx_start      = PIOS_USART_TxStart,
-    .rx_start      = PIOS_USART_RxStart,
-    .bind_tx_cb    = PIOS_USART_RegisterTxCallback,
-    .bind_rx_cb    = PIOS_USART_RegisterRxCallback,
+    .tx_start   = PIOS_USART_TxStart,
+    .rx_start   = PIOS_USART_RxStart,
+    .bind_tx_cb = PIOS_USART_RegisterTxCallback,
+    .bind_rx_cb = PIOS_USART_RegisterRxCallback,
 };
 
 enum pios_usart_dev_magic {
@@ -197,6 +197,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
         PIOS_USART_SetCtrlLine((uint32_t)usart_dev, COM_CTRL_LINE_DTR_MASK, 0);
     }
 
+    USART_OverSampling8Cmd(usart_dev->cfg->regs, ENABLE);
     /* Configure the USART */
     USART_Init(usart_dev->cfg->regs, (USART_InitTypeDef *)&usart_dev->cfg->init);
 

@@ -19,12 +19,12 @@ public:
 // see http://trac.openscenegraph.org/projects/osg//wiki/Support/Tutorials/TransformsAndStates
 OSGCubeNode::OSGCubeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGCubeNode - <init>";
+    qDebug() << "OSGCubeNode::OSGCubeNode";
 }
 
 OSGCubeNode::~OSGCubeNode()
 {
-    qDebug() << "OSGCubeNode - <destruct>";
+    qDebug() << "OSGCubeNode::~OSGCubeNode";
 }
 
 void OSGCubeNode::realize()

@@ -65,14 +65,14 @@ public:
         logDepthBufferEnabled(false),
         logDepthBuffer(NULL)
     {
-        qDebug() << "OSGViewport::Hidden - <init>" << self;
+        qDebug() << "OSGViewport::Hidden";
         view = createView();
         connect(quickItem, SIGNAL(windowChanged(QQuickWindow *)), this, SLOT(onWindowChanged(QQuickWindow *)));
     }
 
     ~Hidden()
     {
-        qDebug() << "OSGViewport::Hidden - <destruct>";
+        qDebug() << "OSGViewport::~Hidden";
         if (frameTimer >= 0) {
             killTimer(frameTimer);
         }
@@ -87,7 +87,7 @@ public:
 public slots:
     void onWindowChanged(QQuickWindow *window)
     {
-        qDebug() << "OSGViewport - onWindowChanged" << window;
+        qDebug() << "OSGViewport::onWindowChanged" << window;
         if (window) {
             // window->setClearBeforeRendering(false);
         }
@@ -124,7 +124,7 @@ public:
 
     bool acceptSceneData(OSGNode *node)
     {
-        qDebug() << "OSGViewport - acceptSceneData" << node;
+        qDebug() << "OSGViewport::acceptSceneData" << node;
         if (sceneData == node) {
             return true;
         }
@@ -157,10 +157,10 @@ public:
         // TODO map handling should not be done here
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (mapNode) {
-            qDebug() << "OSGViewport - acceptNode - found map node" << mapNode;
+            qDebug() << "OSGViewport::attach - found map node" << mapNode;
 
             // install AutoClipPlaneCullCallback : computes near/far planes based on scene geometry
-            qDebug() << "OSGViewport - acceptNode : set AutoClipPlaneCullCallback on camera";
+            qDebug() << "OSGViewport::attach - set AutoClipPlaneCullCallback on camera";
             // TODO will the AutoClipPlaneCullCallback be destroyed ?
             // TODO does it need to be added to the map node or to the view ?
             // mapNode->addCullCallback(new osgEarth::Util::AutoClipPlaneCullCallback(mapNode));
@@ -189,7 +189,7 @@ public:
         // TODO sky handling should not be done here
         osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
         if (skyNode) {
-            qDebug() << "OSGViewport - acceptNode - found sky node" << skyNode;
+            //qDebug() << "OSGViewport::attach - found sky node" << skyNode;
             skyNode->attach(view.get(), 0);
         }
 
@@ -200,7 +200,7 @@ public:
 
     bool acceptUpdateMode(OSGViewport::UpdateMode mode)
     {
-        qDebug() << "OSGViewport - acceptUpdateMode" << mode;
+        //qDebug() << "OSGViewport::acceptUpdateMode" << mode;
         if (updateMode == mode) {
             return true;
         }
@@ -212,7 +212,7 @@ public:
 
     bool acceptCamera(OSGCamera *camera)
     {
-        qDebug() << "OSGViewport - acceptCamera" << camera;
+        qDebug() << "OSGViewport::acceptCamera" << camera;
         if (this->camera == camera) {
             return true;
         }
@@ -260,7 +260,7 @@ public:
 
     void initViewer()
     {
-        qDebug() << "OSGViewport - initViewer";
+        qDebug() << "OSGViewport::openViewer";
 
         viewer = new osgViewer::CompositeViewer();
         viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
@@ -391,7 +391,7 @@ public:
 
     ViewportRenderer(OSGViewport::Hidden *h) : h(h)
     {
-        qDebug() << "ViewportRenderer - <init>";
+        qDebug() << "ViewportRenderer::ViewportRenderer";
         h->info("ViewportRenderer - <init>");
 
         if (!h->realized) {
@@ -406,7 +406,7 @@ public:
 
     ~ViewportRenderer()
     {
-        qDebug() << "ViewportRenderer - <destruct>";
+        qDebug() << "ViewportRenderer::~ViewportRenderer";
         // this gets called before timer is killed
         // TODO need to kill timer here or handle in someother proper way
     }
@@ -447,7 +447,7 @@ public:
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
     {
-        qDebug() << "ViewportRenderer - createFramebufferObject" << size;
+        qDebug() << "ViewportRenderer::createFramebufferObject" << size;
 
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
@@ -481,7 +481,7 @@ QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
 OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGViewport - <init>";
+    qDebug() << "OSGViewport::OSGViewport";
     OsgEarth::initialize();
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
@@ -489,7 +489,7 @@ OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), 
 
 OSGViewport::~OSGViewport()
 {
-    qDebug() << "OSGViewport - <destruct>";
+    qDebug() << "OSGViewport::~OSGViewport";
 }
 
 OSGViewport::UpdateMode OSGViewport::updateMode() const
@@ -560,13 +560,13 @@ void OSGViewport::setLogarithmicDepthBuffer(bool enabled)
 
 QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
 {
-    qDebug() << "OSGViewport - createRenderer";
+    qDebug() << "OSGViewport::createRenderer";
     return new ViewportRenderer(h);
 }
 
 void OSGViewport::realize()
 {
-    qDebug() << "OSGViewport - realize";
+    qDebug() << "OSGViewport::realize";
     QListIterator<QObject *> i(children());
     while (i.hasNext()) {
         OSGNode *node = qobject_cast<OSGNode *>(i.next());
@@ -579,9 +579,9 @@ void OSGViewport::realize()
 // see https://bugreports.qt-project.org/browse/QTBUG-41073
 QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData)
 {
-    // qDebug() << "OSGViewport - updatePaintNode";
+    // qDebug() << "OSGViewport::updatePaintNode";
     if (!node) {
-        qDebug() << "OSGViewport - updatePaintNode - set transform";
+        qDebug() << "OSGViewport::updatePaintNode - set transform";
         node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
         QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
         if (n) {

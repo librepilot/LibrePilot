@@ -82,7 +82,7 @@ public:
 public slots:
     void onNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGGroup - nodeChanged" << node;
+        qDebug() << "OSGGroup::nodeChanged" << node;
         OSGNode *obj = qobject_cast<OSGNode *>(sender());
         if (obj) {
             osg::Node *cacheNode = cache.value(obj, NULL);
@@ -101,13 +101,13 @@ public slots:
 OSGGroup::OSGGroup(QObject *parent) :
     OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGGroup - <init>";
+    qDebug() << "OSGGroup::OSGGroup";
     setNode(h->group.get());
 }
 
 OSGGroup::~OSGGroup()
 {
-    qDebug() << "OSGGroup - <destruct>";
+    qDebug() << "OSGGroup::~OSGGroup";
 }
 
 QQmlListProperty<OSGNode> OSGGroup::children()

@@ -16,7 +16,7 @@ public:
 
     bool acceptImageFile(QUrl url)
     {
-        qDebug() << "OSGBackgroundNode - acceptImageFile" << url;
+        //qDebug() << "OSGBackgroundNode::acceptImageFile" << url;
         if (this->url == url) {
             return false;
         }
@@ -33,12 +33,12 @@ public:
 
 OSGBackgroundNode::OSGBackgroundNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGBackgroundNode - <init>";
+    //qDebug() << "OSGBackgroundNode::OSGBackgroundNode";
 }
 
 OSGBackgroundNode::~OSGBackgroundNode()
 {
-    qDebug() << "OSGBackgroundNode - <destruct>";
+    //qDebug() << "OSGBackgroundNode::~OSGBackgroundNode";
 }
 
 const QUrl OSGBackgroundNode::imageFile() const
@@ -48,7 +48,7 @@ const QUrl OSGBackgroundNode::imageFile() const
 
 void OSGBackgroundNode::setImageFile(const QUrl &url)
 {
-    qDebug() << "OSGBackgroundNode - setSource" << url;
+    //qDebug() << "OSGBackgroundNode::setImageFile" << url;
     if (h->acceptImageFile(url)) {
         emit imageFileChanged(imageFile());
     }

@@ -47,11 +47,11 @@ public:
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (!mapNode) {
-            qWarning() << "OSGSkyNode - scene data does not contain a map node";
+            qWarning() << "OSGSkyNode::acceptNode - scene data does not contain a map node";
             return false;
         }
         if (!mapNode->getMap()->isGeocentric()) {
-            qWarning() << "OSGSkyNode - map node is not geocentric";
+            qWarning() << "OSGSkyNode::acceptNode - map node is not geocentric";
             return false;
         }
 
@@ -118,7 +118,7 @@ public:
         //qDebug() << "OSGSkyNode::acceptDateTime" << dateTime;
 
         if (!dateTime.isValid()) {
-            qWarning() << "OSGSkyNode - acceptDateTime - invalid date/time" << dateTime;
+            qWarning() << "OSGSkyNode::acceptDateTime - invalid date/time" << dateTime;
             return false;
         }
 

@@ -26,10 +26,10 @@ public:
         QElapsedTimer t;
 
         t.start();
-        qDebug() << "OSGFileLoader - reading node file" << url.path();
+        qDebug() << "OSGFileLoader::load - reading node file" << url.path();
         // qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(url.path().toStdString());
-        qDebug() << "OSGFileLoader - reading node" << node << "took" << t.elapsed() << "ms";
+        //qDebug() << "OSGFileLoader::load - reading node" << node << "took" << t.elapsed() << "ms";
 
         emit loaded(url, node);
     }
@@ -49,7 +49,8 @@ public:
 
     bool acceptSource(QUrl url)
     {
-        qDebug() << "OSGFileNode - acceptSource" << url;
+        //qDebug() << "OSGFileNode::acceptSource" << url;
+
         if (this->url == url) {
             return false;
         }
@@ -88,8 +89,9 @@ public:
 public slots:
     void onLoaded(const QUrl &url, osg::Node *node)
     {
+        qDebug() << "OSGFileNode::acceptNode" << node;
         if (node && optimizeMode != OSGFileNode::None) {
-            qDebug() << "OSGFileNode - optimize" << node << optimizeMode;
+            //qDebug() << "OSGFileNode::acceptNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
             optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
         }
@@ -99,12 +101,12 @@ public slots:
 
 OSGFileNode::OSGFileNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGFileNode - <init>";
+    qDebug() << "OSGFileNode::OSGFileNode";
 }
 
 OSGFileNode::~OSGFileNode()
 {
-    qDebug() << "OSGFileNode - <destruct>";
+    qDebug() << "OSGFileNode::~OSGFileNode";
 }
 
 const QUrl OSGFileNode::source() const
@@ -114,7 +116,7 @@ const QUrl OSGFileNode::source() const
 
 void OSGFileNode::setSource(const QUrl &url)
 {
-    qDebug() << "OSGFileNode - setSource" << url;
+    qDebug() << "OSGFileNode::setSource" << url;
     if (h->acceptSource(url)) {
         emit sourceChanged(source());
     }
@@ -127,7 +129,7 @@ bool OSGFileNode::async() const
 
 void OSGFileNode::setAsync(const bool async)
 {
-    qDebug() << "OSGFileNode - setAsync" << async;
+    //qDebug() << "OSGFileNode::setAsync" << async;
     if (h->async != async) {
         h->async = async;
         emit asyncChanged(async);
@@ -141,7 +143,7 @@ OSGFileNode::OptimizeMode OSGFileNode::optimizeMode() const
 
 void OSGFileNode::setOptimizeMode(OptimizeMode mode)
 {
-    qDebug() << "OSGFileNode - setOptimizeMode" << mode;
+    //qDebug() << "OSGFileNode::setOptimizeMode" << mode;
     if (h->optimizeMode != mode) {
         h->optimizeMode = mode;
         emit optimizeModeChanged(optimizeMode());

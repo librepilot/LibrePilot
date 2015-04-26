@@ -36,6 +36,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject {
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
 
+    Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
+
     Q_ENUMS(ManipulatorMode)
     Q_ENUMS(TrackerMode)
 
@@ -72,6 +74,9 @@ public:
     QVector3D position() const;
     void setPosition(QVector3D arg);
 
+    bool logarithmicDepthBuffer();
+    void setLogarithmicDepthBuffer(bool enabled);
+
     void installCamera(osgViewer::View *view);
     void setViewport(int x, int y, int width, int height);
 
@@ -87,6 +92,8 @@ signals:
 
     void attitudeChanged(QVector3D arg);
     void positionChanged(QVector3D arg);
+
+    void logarithmicDepthBufferChanged(bool enabled);
 
 private:
     struct Hidden;

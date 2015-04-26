@@ -15,6 +15,7 @@
 #include <osgEarth/GeoData>
 #include <osgEarth/SpatialReference>
 #include <osgEarthUtil/EarthManipulator>
+#include <osgEarthUtil/LogarithmicDepthBuffer>
 
 #include <QDebug>
 #include <QThread>
@@ -36,7 +37,11 @@ public:
 
 public:
 
-    Hidden(OSGCamera *parent) : QObject(parent), manipulatorMode(Default), node(NULL), trackerMode(NodeCenterAndAzim), trackNode(NULL)
+    Hidden(OSGCamera *parent) :
+            QObject(parent), manipulatorMode(Default), node(NULL),
+            trackerMode(NodeCenterAndAzim), trackNode(NULL),
+            logDepthBufferEnabled(false), logDepthBuffer(NULL)
+
     {
         fieldOfView = 90.0;
 
@@ -47,10 +52,17 @@ public:
         y = 0;
         width     = 0;
         height    = 0;
+
+        cameraUpdateCallback = new CameraUpdateCallback(this);
     }
 
     ~Hidden()
-    {}
+    {
+        if (logDepthBuffer) {
+            delete logDepthBuffer;
+            logDepthBuffer = NULL;
+        }
+    }
 
     bool acceptManipulatorMode(ManipulatorMode mode)
     {
@@ -131,7 +143,7 @@ public:
 
     void updateCameraFOV()
     {
-        //qDebug() << "OSGCamera::updateCamera FOV";
+        //qDebug() << "OSGCamera::updateCameraFOV";
         // camera->setProjectionMatrixAsPerspective(
         // fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
     }
@@ -208,13 +220,13 @@ private slots:
     void onNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGCamera::onNodeChanged" << node;
-        qWarning() << "needs to be implemented";
+        qWarning() << "OSGCamera::onNodeChanged - needs to be implemented";
     }
 
     void onTrackNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGCamera::onTrackNodeChanged" << node;
-        qWarning() << "needs to be implemented";
+        qWarning() << "OSGCamera::onTrackNodeChanged - needs to be implemented";
     }
 };
 

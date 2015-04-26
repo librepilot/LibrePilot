@@ -232,23 +232,23 @@ osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEar
     osgEarth::GeoPoint geoPoint = toGeoPoint(position);
 
     if (!mapNode) {
-        qWarning() << "Utility - clampGeoPoint : scene data does not contain a map node";
+        qWarning() << "Utility::clampGeoPoint - scene data does not contain a map node";
         return geoPoint;
     }
 
     // establish an elevation query interface based on the features' SRS.
     osgEarth::ElevationQuery eq(mapNode->getMap());
-    //qDebug() << "Map SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
+    //qDebug() << "Utility::clampGeoPoint - SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
 
     double elevation;
     if (eq.getElevation(geoPoint, elevation, 0.0)) {
         clamped = ((geoPoint.z() - offset) < elevation);
         if (clamped) {
-            qDebug() << "Utility - clampGeoPoint : clamping" << geoPoint.z() - offset << "/" << elevation;
+            qDebug() << "Utility::clampGeoPoint - clamping" << geoPoint.z() - offset << "/" << elevation;
             geoPoint.z() = elevation + offset;
         }
     } else {
-        qDebug() << "Utility - clampGeoPoint : failed to get elevation";
+        qDebug() << "Utility::clampGeoPoint - failed to get elevation";
     }
 
     return geoPoint;

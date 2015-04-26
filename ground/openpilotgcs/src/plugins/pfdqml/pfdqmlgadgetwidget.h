@@ -81,6 +81,8 @@ public:
     QString backgroundImageFile() const;
     void setBackgroundImageFile(const QString &arg);
 
+    Q_INVOKABLE void resetConsumedEnergy();
+
 signals:
     void speedUnitChanged(QString arg);
     void speedFactorChanged(double arg);

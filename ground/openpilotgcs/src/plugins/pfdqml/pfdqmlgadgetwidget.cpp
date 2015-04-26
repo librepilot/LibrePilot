@@ -18,6 +18,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+#include "flightbatterysettings.h"
 #include "utils/svgimageprovider.h"
 
 #include <QDebug>
@@ -225,6 +226,18 @@ void PfdQmlProperties::setBackgroundImageFile(const QString &arg)
         m_backgroundImageFile = arg;
         emit backgroundImageFileChanged(backgroundImageFile());
     }
+}
+
+void PfdQmlProperties::resetConsumedEnergy()
+{
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    UAVObjectManager *uavoManager = pm->getObject<UAVObjectManager>();
+    Q_ASSERT(uavoManager);
+
+    FlightBatterySettings *batterySettings = FlightBatterySettings::GetInstance(uavoManager);
+
+    batterySettings->setResetConsumedEnergy(true);
+    batterySettings->setData(batterySettings->getData());
 }
 
 PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :

@@ -97,7 +97,7 @@
 
 #define PIOS_SENSOR_RATE 500.0f
 
-// #define PIOS_INCLUDE_WS2811
+#define PIOS_INCLUDE_WS2811
 
 /* #define PIOS_INCLUDE_HCSR04 */
 

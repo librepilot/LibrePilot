@@ -696,6 +696,19 @@ void PIOS_Board_Init(void)
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_GCS] = pios_gcsrcvr_rcvr_id;
 #endif /* PIOS_INCLUDE_GCSRCVR */
 
+#ifdef PIOS_INCLUDE_WS2811
+#include <pios_ws2811.h>
+    HwSettingsWS2811LED_OutOptions ws2811_pin_settings;
+    HwSettingsWS2811LED_OutGet(&ws2811_pin_settings);
+
+    // No other choices but servo pin 1 on nano
+    if (ws2811_pin_settings != HWSETTINGS_WS2811LED_OUT_DISABLED) {
+        pios_tim_servoport_all_pins[0] = dummmy_timer; // free timer 1
+        PIOS_WS2811_Init(&pios_ws2811_cfg, &pios_ws2811_pin_cfg[0]);
+    }
+#endif // PIOS_INCLUDE_WS2811
+
+
 #ifndef PIOS_ENABLE_DEBUG_PINS
     // pios_servo_cfg points to the correct configuration based on input port settings
     PIOS_Servo_Init(pios_servo_cfg);
@@ -720,16 +733,6 @@ void PIOS_Board_Init(void)
     PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_pressure_adapter_id);
     PIOS_MS5611_Register();
 #endif
-
-#ifdef PIOS_INCLUDE_WS2811
-#include <pios_ws2811.h>
-    HwSettingsWS2811LED_OutOptions ws2811_pin_settings;
-    HwSettingsWS2811LED_OutGet(&ws2811_pin_settings);
-
-    if (ws2811_pin_settings != HWSETTINGS_WS2811LED_OUT_DISABLED && ws2811_pin_settings < NELEMENTS(pios_ws2811_pin_cfg)) {
-        PIOS_WS2811_Init(&pios_ws2811_cfg, &pios_ws2811_pin_cfg[ws2811_pin_settings]);
-    }
-#endif // PIOS_INCLUDE_WS2811
 
 #ifdef PIOS_INCLUDE_ADC
     uint8_t adc_config[HWSETTINGS_ADCROUTING_NUMELEM];

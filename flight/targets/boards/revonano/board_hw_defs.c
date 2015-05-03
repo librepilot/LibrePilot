@@ -961,7 +961,10 @@ static const struct pios_tim_clock_cfg tim_3_cfg = {
  */
 #include <pios_servo_priv.h>
 #include <pios_servo_config.h>
-static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
+static const struct pios_tim_channel dummmy_timer =
+    TIM_SERVO_CHANNEL_CONFIG(TIM9, 1, E, 5); // dummy unused timer + gpio. Hack to free tim1
+
+static struct pios_tim_channel pios_tim_servoport_all_pins[] = {
     // TIMER, CHANNEL, GPIO, PIN
     TIM_SERVO_CHANNEL_CONFIG(TIM1,  3, A, 10),
     TIM_SERVO_CHANNEL_CONFIG(TIM2,  2, B, 3),
@@ -1176,9 +1179,9 @@ void DMA2_Stream1_IRQHandler(void) __attribute__((alias("PIOS_WS2811_irq_handler
 // pins will be reconfigured as _OUT so the alternate function is disabled.
 const struct pios_ws2811_pin_cfg pios_ws2811_pin_cfg[] = {
     [HWSETTINGS_WS2811LED_OUT_SERVOOUT1] = {
-        .gpio     = GPIOB,
+        .gpio     = GPIOA,
         .gpioInit =                        {
-            .GPIO_Pin   = GPIO_Pin_0,
+            .GPIO_Pin   = GPIO_Pin_10,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,

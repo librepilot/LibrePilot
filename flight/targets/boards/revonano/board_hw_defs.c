@@ -61,6 +61,9 @@
 #define FLEXI_USART_RX_PIN               GPIO_Pin_7
 #define FLEXI_USART_TX_GPIO              GPIOB
 #define FLEXI_USART_TX_PIN               GPIO_Pin_6
+// ReceiverPort pin 3
+#define FLEXI_USART_DTR_GPIO             GPIOB
+#define FLEXI_USART_DTR_PIN              GPIO_Pin_10
 
 
 #if defined(PIOS_INCLUDE_LED)
@@ -457,6 +460,15 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+    .dtr                                       = {
+        .gpio = FLEXI_USART_DTR_GPIO,
+        .init = {
+            .GPIO_Pin   = FLEXI_USART_DTR_PIN,
+            .GPIO_Speed = GPIO_Speed_25MHz,
+            .GPIO_Mode  = GPIO_Mode_OUT,
+            .GPIO_OType = GPIO_OType_PP,
         },
     },
 };

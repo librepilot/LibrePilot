@@ -3,7 +3,12 @@ include(../shared/qtsingleapplication/qtsingleapplication.pri)
 
 TEMPLATE = app
 TARGET = $$GCS_APP_TARGET
-DESTDIR = $$GCS_APP_PATH
+macx {
+    # .app is 3 levels above the executable
+    DESTDIR = $$GCS_APP_PATH/../../..
+} else {
+    DESTDIR = $$GCS_APP_PATH
+}
 
 QT += xml widgets
 

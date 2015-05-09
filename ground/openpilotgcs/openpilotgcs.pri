@@ -98,12 +98,6 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
-isEmpty(GCS_LIBRARY_BASENAME) {
-    GCS_LIBRARY_BASENAME = lib
-}
-
-DEFINES += GCS_LIBRARY_BASENAME=\\\"$$GCS_LIBRARY_BASENAME\\\"
-
 equals(TEST, 1) {
     QT +=testlib
     DEFINES += WITH_TESTS
@@ -140,7 +134,6 @@ macx {
     GCS_PLUGIN_PATH  = $$GCS_LIBRARY_PATH
     GCS_QT_QML_PATH = $$GCS_PATH/Imports
     GCS_DATA_PATH    = $$GCS_PATH/Resources
-    GCS_DATA_BASENAME = Resources
     GCS_DOC_PATH     = $$GCS_DATA_PATH/doc
     copydata = 1
     copyqt = 1
@@ -148,10 +141,9 @@ macx {
     GCS_APP_TARGET = openpilotgcs
     GCS_PATH         = $$GCS_BUILD_TREE
     GCS_APP_PATH     = $$GCS_PATH/bin
-    GCS_LIBRARY_PATH = $$GCS_PATH/$$GCS_LIBRARY_BASENAME/openpilotgcs
+    GCS_LIBRARY_PATH = $$GCS_PATH/lib/openpilotgcs
     GCS_PLUGIN_PATH  = $$GCS_LIBRARY_PATH/plugins
     GCS_DATA_PATH    = $$GCS_PATH/share/openpilotgcs
-    GCS_DATA_BASENAME = share/openpilotgcs
     GCS_DOC_PATH     = $$GCS_PATH/share/doc
 
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1
@@ -184,9 +176,6 @@ macx {
         }
     }
 }
-
-
-DEFINES += GCS_DATA_BASENAME=\\\"$$GCS_DATA_BASENAME\\\"
 
 
 INCLUDEPATH += \

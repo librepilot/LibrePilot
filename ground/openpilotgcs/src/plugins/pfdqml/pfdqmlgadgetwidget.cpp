@@ -412,6 +412,12 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
     qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
 
+    QuickWidgetProxy *tmp = NULL;
+    if (m_quickWidgetProxy) {
+        tmp = m_quickWidgetProxy;
+        m_quickWidgetProxy = NULL;
+    }
+
     if (!m_quickWidgetProxy) {
         init();
     }
@@ -456,6 +462,12 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
     // go!
     setQmlFile(config->qmlFile());
 
+    // deleting and recreating the PfdQmlGadgetWidget is workaround to avoid crashes in osgearth when
+    // switching between configurations. Please remove this workaround once osgearth is stabilized
+    if (tmp) {
+        layout()->removeWidget(tmp->widget());
+        delete tmp;
+    }
     layout()->addWidget(m_quickWidgetProxy->widget());
 }
 

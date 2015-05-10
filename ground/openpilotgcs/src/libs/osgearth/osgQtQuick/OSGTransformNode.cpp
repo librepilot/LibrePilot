@@ -67,6 +67,9 @@ public:
 
         self->setNode(transform);
 
+        dirty = true;
+        updateNode();
+
         return true;
     }
 
@@ -79,9 +82,6 @@ public:
         transform = new osg::PositionAttitudeTransform();
 
         transform->addUpdateCallback(new NodeUpdateCallback(this));
-
-        dirty = true;
-        updateNode();
 
         return transform.get();
     }

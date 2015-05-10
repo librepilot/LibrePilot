@@ -85,7 +85,7 @@ JoystickControl::~JoystickControl()
 void JoystickControl::enableOpenGL(bool flag)
 {
     if (flag) {
-        setViewport(new QOpenGLWidget());//QGLFormat(QGL::SampleBuffers)));
+        setViewport(new QOpenGLWidget()); // QGLFormat(QGL::SampleBuffers)));
     } else {
         setViewport(new QWidget);
     }

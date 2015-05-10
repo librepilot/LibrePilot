@@ -234,6 +234,7 @@ void PfdQmlProperties::resetConsumedEnergy()
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *uavoManager = pm->getObject<UAVObjectManager>();
+
     Q_ASSERT(uavoManager);
 
     FlightBatterySettings *batterySettings = FlightBatterySettings::GetInstance(uavoManager);
@@ -264,8 +265,8 @@ QuickWidgetProxy::QuickWidgetProxy(PfdQmlGadgetWidget *parent) : QObject(parent)
 
     m_quickWidget = NULL;
 
-    m_container = NULL;
-    m_quickView = NULL;
+    m_container   = NULL;
+    m_quickView   = NULL;
 
     if (m_widget) {
         m_quickWidget = new QQuickWidget(parent);
@@ -274,8 +275,7 @@ QuickWidgetProxy::QuickWidgetProxy(PfdQmlGadgetWidget *parent) : QObject(parent)
         void (PfdQmlGadgetWidget::*f)(QQuickWidget::Status) = &PfdQmlGadgetWidget::onStatusChanged;
         connect(m_quickWidget, &QQuickWidget::statusChanged, parent, f);
         connect(m_quickWidget, &QQuickWidget::sceneGraphError, parent, &PfdQmlGadgetWidget::onSceneGraphError);
-    }
-    else {
+    } else {
         m_quickView = new QQuickView();
         m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
         m_container = QWidget::createWindowContainer(m_quickView, parent);
@@ -303,8 +303,7 @@ QWidget *QuickWidgetProxy::widget()
 {
     if (m_widget) {
         return m_quickWidget;
-    }
-    else {
+    } else {
         return m_container;
     }
 }
@@ -313,8 +312,7 @@ QQmlEngine *QuickWidgetProxy::engine() const
 {
     if (m_widget) {
         return m_quickWidget->engine();
-    }
-    else {
+    } else {
         return m_quickView->engine();
     }
 }
@@ -323,8 +321,7 @@ void QuickWidgetProxy::setSource(const QUrl &url)
 {
     if (m_widget) {
         m_quickWidget->setSource(url);
-    }
-    else {
+    } else {
         m_quickView->setSource(url);
     }
 }
@@ -332,12 +329,11 @@ void QuickWidgetProxy::setSource(const QUrl &url)
 QList<QQmlError> QuickWidgetProxy::errors() const
 {
     if (m_widget) {
-         return m_quickWidget->errors();
-     }
-     else {
-         return m_quickView->errors();
-     }
- }
+        return m_quickWidget->errors();
+    } else {
+        return m_quickView->errors();
+    }
+}
 
 PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
     QWidget(parent), m_quickWidgetProxy(NULL), m_pfdQmlProperties(new PfdQmlProperties(this)), m_qmlFileName()
@@ -346,8 +342,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
-{
-}
+{}
 
 void PfdQmlGadgetWidget::init()
 {
@@ -404,8 +399,8 @@ void PfdQmlGadgetWidget::init()
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", m_pfdQmlProperties);
 
-//    connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
-//    connect(this, &QQuickWidget::sceneGraphError, this, &PfdQmlGadgetWidget::onSceneGraphError);
+// connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
+// connect(this, &QQuickWidget::sceneGraphError, this, &PfdQmlGadgetWidget::onSceneGraphError);
 }
 
 void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
@@ -428,12 +423,12 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
     // TODO this is a work around... some OSG Quick items don't yet handle properties updates well
 
     // clear widget
-    //setQmlFile("");
+    // setQmlFile("");
 
     // no need to go further is Qml file is empty
-    //if (config->qmlFile().isEmpty()) {
-    //   return;
-    //}
+    // if (config->qmlFile().isEmpty()) {
+    // return;
+    // }
 
     m_pfdQmlProperties->setSpeedFactor(config->speedFactor());
     m_pfdQmlProperties->setSpeedUnit(config->speedUnit());
@@ -473,9 +468,9 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
-//    if (m_qmlFileName == fn) {
-//        return;
-//    }
+// if (m_qmlFileName == fn) {
+// return;
+// }
     qDebug() << Q_FUNC_INFO << fn;
 
     m_qmlFileName = fn;

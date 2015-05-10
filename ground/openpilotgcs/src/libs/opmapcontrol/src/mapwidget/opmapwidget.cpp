@@ -212,7 +212,7 @@ void OPMapWidget::SetUseOpenGL(const bool &value)
 {
     useOpenGL = value;
     if (useOpenGL) {
-        setViewport(new QOpenGLWidget());//QGLFormat(QGL::SampleBuffers)));
+        setViewport(new QOpenGLWidget()); // QGLFormat(QGL::SampleBuffers)));
     } else {
         setupViewport(new QWidget());
     }

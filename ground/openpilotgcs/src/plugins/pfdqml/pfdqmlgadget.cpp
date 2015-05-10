@@ -37,5 +37,6 @@ QWidget *PfdQmlGadget::widget()
 void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
+
     m_qmlGadgetWidget->loadConfiguration(m);
 }

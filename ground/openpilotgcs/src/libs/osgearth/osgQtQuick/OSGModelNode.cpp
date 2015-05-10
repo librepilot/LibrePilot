@@ -90,7 +90,7 @@ public:
         // make a ModelNode
         modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
 
-        //qDebug() << "OSGModelNode::acceptModelNode - model radius:" << modelNode->getBound().radius();
+        // qDebug() << "OSGModelNode::acceptModelNode - model radius:" << modelNode->getBound().radius();
 
         if (!nodeUpdateCallback.valid()) {
             nodeUpdateCallback = new NodeUpdateCallback(this);
@@ -138,19 +138,14 @@ public:
         }
         dirty = false;
         if (clampToTerrain) {
-            osgEarth::MapNode *mapNode  = osgEarth::MapNode::findMapNode(sceneData->node());
+            osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
             if (mapNode) {
-
-
-
                 double offset = modelNode->getBound().radius();
                 modelNode->setPosition(clampGeoPoint(position, offset, mapNode, intoTerrain));
-            }
-            else {
+            } else {
                 qWarning() << "OSGModelNode::updateNode - scene data does not contain a map node";
             }
-        }
-        else {
+        } else {
             modelNode->setPosition(osgQtQuick::toGeoPoint(position));
         }
         modelNode->setLocalRotation(localRotation());
@@ -184,6 +179,7 @@ public:
     bool dirty;
 
     osg::observer_ptr<NodeUpdateCallback> nodeUpdateCallback;
+
 private slots:
 
     void onModelNodeChanged(osg::Node *node)

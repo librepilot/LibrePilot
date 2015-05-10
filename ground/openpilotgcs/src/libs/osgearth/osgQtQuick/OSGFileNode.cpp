@@ -29,7 +29,7 @@ public:
         qDebug() << "OSGFileLoader::load - reading node file" << url.path();
         // qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(url.path().toStdString());
-        //qDebug() << "OSGFileLoader::load - reading node" << node << "took" << t.elapsed() << "ms";
+        // qDebug() << "OSGFileLoader::load - reading node" << node << "took" << t.elapsed() << "ms";
 
         emit loaded(url, node);
     }
@@ -44,12 +44,15 @@ private:
 struct OSGFileNode::Hidden : public QObject {
     Q_OBJECT
 
+private:
+    OSGFileNode * const self;
+
 public:
     Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(true), optimizeMode(None) {}
 
     bool acceptSource(QUrl url)
     {
-        //qDebug() << "OSGFileNode::acceptSource" << url;
+        // qDebug() << "OSGFileNode::acceptSource" << url;
 
         if (this->url == url) {
             return false;
@@ -57,24 +60,28 @@ public:
 
         this->url = url;
 
+        if (url.isValid()) {
+            realize();
+        } else {
+            qWarning() << "OSGFileNode::acceptNode - invalid url" << url;
+            self->setNode(NULL);
+        }
 
         return true;
     }
-
-    OSGFileNode *const self;
 
     QUrl url;
     bool async;
     OptimizeMode optimizeMode;
 
-// private:
+private:
 
     void asyncLoad(const QUrl &url)
     {
         OSGFileLoader *loader = new OSGFileLoader(url);
 
-        connect(loader, SIGNAL(loaded(const QUrl &, osg::Node *)), this, SLOT(onLoaded(const QUrl &, osg::Node *)));
-        connect(loader, SIGNAL(finished()), loader, SLOT(deleteLater()));
+        connect(loader, &OSGFileLoader::loaded, this, &Hidden::onLoaded);
+        connect(loader, &OSGFileLoader::finished, loader, &OSGFileLoader::deleteLater);
         loader->start();
     }
 
@@ -82,20 +89,36 @@ public:
     {
         OSGFileLoader loader(url);
 
-        connect(&loader, SIGNAL(loaded(const QUrl &, osg::Node *)), this, SLOT(onLoaded(const QUrl &, osg::Node *)));
+        connect(&loader, &OSGFileLoader::loaded, this, &Hidden::onLoaded);
         loader.load();
     }
 
-public slots:
-    void onLoaded(const QUrl &url, osg::Node *node)
+    void realize()
+    {
+        qDebug() << "OSGFileNode::realize";
+        if (async) {
+            asyncLoad(url);
+        } else {
+            syncLoad(url);
+        }
+    }
+
+    bool acceptNode(osg::Node *node)
     {
         qDebug() << "OSGFileNode::acceptNode" << node;
         if (node && optimizeMode != OSGFileNode::None) {
-            //qDebug() << "OSGFileNode::acceptNode - optimize" << node << optimizeMode;
+            // qDebug() << "OSGFileNode::acceptNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
             optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
         }
         self->setNode(node);
+        return true;
+    }
+
+private slots:
+    void onLoaded(const QUrl &url, osg::Node *node)
+    {
+        acceptNode(node);
     }
 };
 
@@ -129,7 +152,7 @@ bool OSGFileNode::async() const
 
 void OSGFileNode::setAsync(const bool async)
 {
-    //qDebug() << "OSGFileNode::setAsync" << async;
+    // qDebug() << "OSGFileNode::setAsync" << async;
     if (h->async != async) {
         h->async = async;
         emit asyncChanged(async);
@@ -143,7 +166,7 @@ OSGFileNode::OptimizeMode OSGFileNode::optimizeMode() const
 
 void OSGFileNode::setOptimizeMode(OptimizeMode mode)
 {
-    //qDebug() << "OSGFileNode::setOptimizeMode" << mode;
+    // qDebug() << "OSGFileNode::setOptimizeMode" << mode;
     if (h->optimizeMode != mode) {
         h->optimizeMode = mode;
         emit optimizeModeChanged(optimizeMode());
@@ -152,12 +175,7 @@ void OSGFileNode::setOptimizeMode(OptimizeMode mode)
 
 void OSGFileNode::realize()
 {
-    qDebug() << "OSGFileNode - realize";
-    if (h->async) {
-        h->asyncLoad(h->url);
-    } else {
-        h->syncLoad(h->url);
-    }
+    // realize();
 }
 } // namespace osgQtQuick
 

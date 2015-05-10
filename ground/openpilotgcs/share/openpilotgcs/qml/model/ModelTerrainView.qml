@@ -7,7 +7,6 @@ OSGViewport {
     focus: true
     sceneData: skyNode
     camera: camera
-    logarithmicDepthBuffer: true
 
     OSGSkyNode {
         id: skyNode
@@ -35,9 +34,9 @@ OSGViewport {
 
     OSGModelNode {
         id: modelNode
-        modelData: modelGroup
-        sceneData: terrainNode
         clampToTerrain: true
+        modelData: modelTransformNode
+        sceneData: terrainNode
 
         attitude: uavAttitude()
         position: uavPosition()
@@ -78,15 +77,6 @@ OSGViewport {
 
     }
 
-    // this group is needed as the target for the camera
-    // using modelTransformNode leads to strange camera behavior (the reason is not clear why)
-    OSGGroup {
-        id: modelGroup
-        children: [
-            modelTransformNode
-        ]
-    }
-
     OSGTransformNode {
         id: modelTransformNode
         modelData: modelFileNode
@@ -104,10 +94,11 @@ OSGViewport {
     OSGCamera {
         id: camera
         fieldOfView: 90
+        logarithmicDepthBuffer: true
         manipulatorMode: OSGCamera.Track
         // use model to compute camera home position
-        node: modelGroup
+        node: modelTransformNode
         // model will be tracked
-        trackNode: modelGroup
+        trackNode: modelTransformNode
     }
 }

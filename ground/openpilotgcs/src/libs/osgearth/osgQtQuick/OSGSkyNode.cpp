@@ -5,7 +5,7 @@
 #include <osgEarth/MapNode>
 #include <osgEarthUtil/Sky>
 
-//#include <osgEarthDrivers/sky_silverlining/SilverLiningOptions>
+// #include <osgEarthDrivers/sky_silverlining/SilverLiningOptions>
 
 #include <QDebug>
 
@@ -97,11 +97,11 @@ public:
 
         return skyNode;
     }
-*/
+ */
 
     bool acceptSunLightEnabled(bool enabled)
     {
-        //qDebug() << "OSGSkyNode::acceptSunLightEnabled" << enabled;
+        // qDebug() << "OSGSkyNode::acceptSunLightEnabled" << enabled;
 
         this->sunLightEnabled = enabled;
 
@@ -115,7 +115,7 @@ public:
 
     bool acceptDateTime(QDateTime dateTime)
     {
-        //qDebug() << "OSGSkyNode::acceptDateTime" << dateTime;
+        qDebug() << "OSGSkyNode::acceptDateTime" << dateTime;
 
         if (!dateTime.isValid()) {
             qWarning() << "OSGSkyNode::acceptDateTime - invalid date/time" << dateTime;
@@ -137,7 +137,7 @@ public:
 
     bool acceptMinimumAmbientLight(double minimumAmbientLight)
     {
-        //qDebug() << "OSGSkyNode::acceptMinimumAmbientLight" << minimumAmbientLight;
+        // qDebug() << "OSGSkyNode::acceptMinimumAmbientLight" << minimumAmbientLight;
 
         this->minimumAmbientLight = minimumAmbientLight;
 

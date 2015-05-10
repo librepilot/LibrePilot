@@ -38,10 +38,9 @@ public:
 public:
 
     Hidden(OSGCamera *parent) :
-            QObject(parent), manipulatorMode(Default), node(NULL),
-            trackerMode(NodeCenterAndAzim), trackNode(NULL),
-            logDepthBufferEnabled(false), logDepthBuffer(NULL)
-
+        QObject(parent), manipulatorMode(Default), node(NULL),
+        trackerMode(NodeCenterAndAzim), trackNode(NULL),
+        logDepthBufferEnabled(false), logDepthBuffer(NULL)
     {
         fieldOfView = 90.0;
 
@@ -53,6 +52,7 @@ public:
         width     = 0;
         height    = 0;
 
+        // TODO create callback only if needed
         cameraUpdateCallback = new CameraUpdateCallback(this);
     }
 
@@ -66,7 +66,7 @@ public:
 
     bool acceptManipulatorMode(ManipulatorMode mode)
     {
-        //qDebug() << "OSGCamera::acceptManipulatorMode" << mode;
+        // qDebug() << "OSGCamera::acceptManipulatorMode" << mode;
         if (manipulatorMode == mode) {
             return false;
         }
@@ -116,18 +116,126 @@ public:
         return true;
     }
 
-    void installCamera(osg::Camera *camera)
+    void attachCamera(osg::Camera *camera)
     {
+        qDebug() << "OSGCamera::attach" << camera;
+
         this->camera = camera;
 
-        // install camera update callback
-        // TODO will the CameraUpdateCallback be destroyed???
-        this->camera->addUpdateCallback(new CameraUpdateCallback(this));
+        // TODO install callback only if needed
+        camera->addUpdateCallback(cameraUpdateCallback);
 
-        camera->setProjectionMatrixAsPerspective(fieldOfView, 1.0f, 1.0f, 10000.0f);
+        // install log depth buffer if requested
+        if (logDepthBufferEnabled) {
+            qDebug() << "OSGViewport::attach - install logarithmic depth buffer";
+            logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
+            // logDepthBuffer.setUseFragDepth(true);
+            logDepthBuffer->install(camera);
+        }
 
-        // TODO needed?
-        dirty = true;
+        dirty     = true;
+        sizeDirty = true;
+        updateCameraSize();
+    }
+
+    void detachCamera(osg::Camera *camera)
+    {
+        qDebug() << "OSGCamera::detach" << camera;
+
+        if (camera != this->camera) {
+            qWarning() << "OSGCamera::detach - camera not attached" << camera;
+            return;
+        }
+        this->camera = NULL;
+
+        camera->removeUpdateCallback(cameraUpdateCallback);
+
+        if (logDepthBuffer) {
+            logDepthBuffer->uninstall(camera);
+            delete logDepthBuffer;
+            logDepthBuffer = NULL;
+        }
+
+        // reset viewport
+        x = y = width = height = -1;
+    }
+
+    void attachManipulator(osgViewer::View *view)
+    {
+        qDebug() << "OSGCamera::attachManipulator" << view;
+
+        osgGA::CameraManipulator *cm = NULL;
+
+        switch (manipulatorMode) {
+        case OSGCamera::Default:
+        {
+            qDebug() << "OSGCamera::attachManipulator - use TrackballManipulator";
+            osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
+            // Set the minimum distance of the eye point from the center before the center is pushed forward.
+            // tm->setMinimumDistance(1, true);
+            cm = tm;
+            break;
+        }
+        case OSGCamera::User:
+            qDebug() << "OSGCamera::attachManipulator - no camera manipulator";
+            // disable any installed camera manipulator
+            cm = NULL;
+            break;
+        case OSGCamera::Earth:
+            qDebug() << "OSGCamera::attachManipulator - use EarthManipulator";
+            cm = new osgEarth::Util::EarthManipulator();
+            break;
+        case OSGCamera::Track:
+            qDebug() << "OSGCamera::attachManipulator - use NodeTrackerManipulator";
+            if (trackNode && trackNode->node()) {
+                // setup tracking camera
+                // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
+                // TODO who takes ownership?
+                osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
+                    osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
+                switch (trackerMode) {
+                case NodeCenter:
+                    ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
+                    break;
+                case NodeCenterAndAzim:
+                    ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_AZIM);
+                    break;
+                case NodeCenterAndRotation:
+                    ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
+                    break;
+                }
+                ntm->setTrackNode(trackNode->node());
+                // ntm->setRotationMode(trackRotationMode)
+                // ntm->setMinimumDistance(2, false);
+                ntm->setVerticalAxisFixed(false);
+                // ntm->setAutoComputeHomePosition(true);
+                // ntm->setDistance(100);
+                cm = ntm;
+            } else {
+                qWarning() << "OSGCamera::attachManipulator - no track node provided.";
+                cm = NULL;
+            }
+            break;
+        default:
+            qWarning() << "OSGCamera::attachManipulator - should not reach here!";
+            break;
+        }
+
+        view->setCameraManipulator(cm, false);
+        if (cm && node && node->node()) {
+            qDebug() << "OSGCamera::attachManipulator - camera node" << node;
+            // set node used to auto compute home position
+            // needs to be done after setting the manipulator on the view as the view will set its scene as the node
+            cm->setNode(node->node());
+        }
+        view->home();
+    }
+
+    void detachManipulator(osgViewer::View *view)
+    {
+        qDebug() << "OSGCamera::detachManipulator" << view;
+
+        view->setCameraManipulator(NULL, false);
     }
 
     void updateCameraSize()
@@ -136,16 +244,18 @@ public:
             return;
         }
         sizeDirty = false;
-        //qDebug() << "OSGCamera::updateCamera size" << x << y << width << height << fieldOfView;
+
+        // qDebug() << "OSGCamera::updateCamera size" << x << y << width << height << fieldOfView;
         camera->getGraphicsContext()->resized(x, y, width, height);
         camera->setViewport(x, y, width, height);
+        updateCameraFOV();
     }
 
     void updateCameraFOV()
     {
-        //qDebug() << "OSGCamera::updateCameraFOV";
-        // camera->setProjectionMatrixAsPerspective(
-        // fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
+        // qDebug() << "OSGCamera::updateCameraFOV";
+        camera->setProjectionMatrixAsPerspective(
+            fieldOfView, static_cast<double>(width) / static_cast<double>(height), 1.0f, 10000.0f);
     }
 
     void updateCameraPosition()
@@ -202,6 +312,8 @@ public:
     TrackerMode trackerMode;
     OSGNode     *trackNode;
 
+    bool logDepthBufferEnabled;
+
     // for User manipulator
     bool dirty;
 
@@ -214,7 +326,10 @@ public:
     int  width;
     int  height;
 
-    osg::observer_ptr<osg::Camera> camera;
+    osg::ref_ptr<osg::Camera> camera;
+    osg::ref_ptr<CameraUpdateCallback> cameraUpdateCallback;
+
+    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
 
 private slots:
     void onNodeChanged(osg::Node *node)
@@ -239,6 +354,8 @@ void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::N
 
     traverse(node, nv);
 }
+
+/* class OSGCamera */
 
 OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
 {
@@ -352,86 +469,40 @@ void OSGCamera::setPosition(QVector3D arg)
     }
 }
 
-void OSGCamera::installCamera(osgViewer::View *view)
+bool OSGCamera::logarithmicDepthBuffer()
 {
-    qDebug() << "OSGCamera::installCamera" << view << view->getCamera();
+    return h->logDepthBufferEnabled;
+}
 
-    h->installCamera(view->getCamera());
-
-    osgGA::CameraManipulator *cm = NULL;
-
-    switch (h->manipulatorMode) {
-    case OSGCamera::Default:
-    {
-        //qDebug() << "OSGCamera::installCamera: use TrackballManipulator";
-        osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
-        // Set the minimum distance of the eye point from the center before the center is pushed forward.
-        // tm->setMinimumDistance(1, true);
-        cm = tm;
-        break;
+void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
+{
+    if (h->logDepthBufferEnabled != enabled) {
+        h->logDepthBufferEnabled = enabled;
+        emit logarithmicDepthBufferChanged(logarithmicDepthBuffer());
     }
-    case OSGCamera::User:
-        //qDebug() << "OSGCamera::installCamera: no camera manipulator";
-        // disable any installed camera manipulator
-        cm = NULL;
-        break;
-    case OSGCamera::Earth:
-        //qDebug() << "OSGCamera::installCamera: use EarthManipulator";
-        cm = new osgEarth::Util::EarthManipulator();
-        break;
-    case OSGCamera::Track:
-        //qDebug() << "OSGCamera::installCamera: use NodeTrackerManipulator";
-        if (h->trackNode && h->trackNode->node()) {
-            // setup tracking camera
-            // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
-            // TODO who takes ownership?
-            osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
-                osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
-            switch (h->trackerMode) {
-            case NodeCenter:
-                ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
-                break;
-            case NodeCenterAndAzim:
-                ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_AZIM);
-                break;
-            case NodeCenterAndRotation:
-                ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-                break;
-            }
-            ntm->setTrackNode(h->trackNode->node());
-            // ntm->setRotationMode(h->trackRotationMode)
-            // ntm->setMinimumDistance(2, false);
-            // ntm->setVerticalAxisFixed(false);
-            // ntm->setAutoComputeHomePosition(true);
-            // ntm->setDistance(10);
-            cm = ntm;
-        } else {
-            qWarning() << "OSGCamera::installCamera: no track node provided.";
-            cm = NULL;
-        }
-        break;
-    default:
-        qWarning() << "OSGCamera::installCamera: should not reach here!";
-        break;
-    }
+}
 
-    view->setCameraManipulator(cm, false);
-    if (cm && h->node && h->node->node()) {
-        // set node used to auto compute home position
-        // needs to be done after setting the manipulator on the view as the view will set its scene as the node
-        cm->setNode(h->node->node());
-    }
-    view->home();
+void OSGCamera::attachView(osgViewer::View *view)
+{
+    h->attachCamera(view->getCamera());
+    h->attachManipulator(view);
+}
+
+void OSGCamera::detachView(osgViewer::View *view)
+{
+    h->detachManipulator(view);
+    h->detachCamera(view->getCamera());
 }
 
 void OSGCamera::setViewport(int x, int y, int width, int height)
 {
     // qDebug() << "OSGCamera::setViewport" << x << y << width << "x" << heigth;
     if (width <= 0 || height <= 0) {
-        qWarning() << "OSGCamera::setViewport - invalid size " << width << "x" << height;
+        qWarning() << "OSGCamera::setViewport - invalid size" << width << "x" << height;
         return;
     }
     if (h->x != x || h->y != y || h->width != width || h->height != height) {
+        qWarning() << "OSGCamera::setViewport" << width << "x" << height;
         h->x         = x;
         h->y         = y;
         h->width     = width;

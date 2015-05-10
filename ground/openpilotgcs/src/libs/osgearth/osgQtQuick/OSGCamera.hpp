@@ -77,7 +77,9 @@ public:
     bool logarithmicDepthBuffer();
     void setLogarithmicDepthBuffer(bool enabled);
 
-    void installCamera(osgViewer::View *view);
+    void attachView(osgViewer::View *view);
+    void detachView(osgViewer::View *view);
+
     void setViewport(int x, int y, int width, int height);
 
 signals:

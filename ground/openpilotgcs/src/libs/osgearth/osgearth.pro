@@ -64,7 +64,6 @@ linux {
     LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
 }
 
-
 macx {
     LIBS += -L$$OSG_SDK_DIR/lib
 

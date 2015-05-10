@@ -18,25 +18,24 @@
 #include "pfdqmlgadgetwidget.h"
 #include "pfdqmlgadgetconfiguration.h"
 
-#include <QWidget>
-
-PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent) :
-    IUAVGadget(classId, parent), m_widget(widget)
-{}
+PfdQmlGadget::PfdQmlGadget(QString classId, QWidget *parent) :
+    IUAVGadget(classId, parent)
+{
+    m_qmlGadgetWidget = new PfdQmlGadgetWidget(parent);
+}
 
 PfdQmlGadget::~PfdQmlGadget()
 {
-    delete m_widget;
+    delete m_qmlGadgetWidget;
 }
 
 QWidget *PfdQmlGadget::widget()
 {
-    return m_widget;
+    return m_qmlGadgetWidget;
 }
 
 void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
-
-    m_widget->loadConfiguration(m);
+    m_qmlGadgetWidget->loadConfiguration(m);
 }

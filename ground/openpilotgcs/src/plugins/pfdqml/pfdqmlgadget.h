@@ -29,7 +29,7 @@ class PfdQmlGadget : public Core::IUAVGadget {
     Q_OBJECT
 
 public:
-    PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent = 0);
+    PfdQmlGadget(QString classId, QWidget *parent = 0);
     virtual ~PfdQmlGadget();
 
     QWidget *widget();
@@ -37,8 +37,7 @@ public:
     void loadConfiguration(IUAVGadgetConfiguration *config);
 
 private:
-    PfdQmlGadgetWidget *m_widget;
+    PfdQmlGadgetWidget *m_qmlGadgetWidget;
 };
-
 
 #endif // PFDQMLGADGET_H_

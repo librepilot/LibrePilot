@@ -403,6 +403,7 @@ bool GraphicsWindowQt::realizeImplementation()
     QOpenGLContext *currentContext = QOpenGLContext::currentContext();
 
     if (!currentContext) {
+        qDebug() << "GraphicsWindowQt::realizeImplementation - creating owned context";
         _owned     = true;
         _glContext = new QOpenGLContext();
         _glContext->create();
@@ -429,7 +430,7 @@ bool GraphicsWindowQt::realizeImplementation()
         // if ( savedContext )
         // const_cast< QGLContext* >( savedContext )->makeCurrent();
         //
-        qWarning() << "GraphicsWindowQt realize: Can make context current.";
+        qWarning() << "GraphicsWindowQt::realizeImplementation - can not make context current.";
         return false;
     }
 
@@ -442,7 +443,7 @@ bool GraphicsWindowQt::realizeImplementation()
     // note: this must be done as we will probably make the context current from another thread
     // and it is not allowed to have one context current in two threads
     if (!releaseContext()) {
-        qWarning() << "Window realize: Can not release context.";
+        qWarning() << "GraphicsWindowQt::realizeImplementation - can not release context.";
     }
 
 //// restore previous context
@@ -511,19 +512,18 @@ void GraphicsWindowQt::closeImplementation()
     _initialized = false;
     _valid = false;
     _realized    = false;
-    if (_glContext) {
-        if (_owned) {
+    if (_owned) {
+        if (_glContext) {
+            qDebug() << "GraphicsWindowQt::closeImplementation - deleting owned context";
             delete _glContext;
         }
-        _glContext = NULL;
-    }
-    if (_surface) {
-        if (_owned) {
+        if (_surface) {
             _surface->destroy();
             delete _surface;
         }
-        _surface = NULL;
     }
+    _glContext = NULL;
+    _surface = NULL;
 }
 
 void GraphicsWindowQt::swapBuffersImplementation()

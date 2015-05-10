@@ -20,8 +20,12 @@
 #include "pfdqml.h"
 #include "pfdqmlgadgetconfiguration.h"
 
+#include <QWidget>
 #include <QQuickWidget>
-#include <QQuickWindow>
+#include <QQuickView>
+
+class PfdQmlGadgetWidget;
+class QQmlEngine;
 
 class PfdQmlProperties : public QObject {
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
@@ -126,22 +130,29 @@ private:
 };
 
 /*
- * Note: QQuickWidget is an alternative to using QQuickView and QWidget::createWindowContainer().
- * The restrictions on stacking order do not apply, making QQuickWidget the more flexible alternative,
- * behaving more like an ordinary widget. This comes at the expense of performance.
- * Unlike QQuickWindow and QQuickView, QQuickWidget involves rendering into OpenGL framebuffer objects.
- * This will naturally carry a minor performance hit.
- *
- * Note: Using QQuickWidget disables the threaded render loop on all platforms.
- * This means that some of the benefits of threaded rendering, for example Animator classes
- * and vsync driven animations, will not be available.
- *
- * Note: Avoid calling winId() on a QQuickWidget. This function triggers the creation of a native window,
- * resulting in reduced performance and possibly rendering glitches.
- * The entire purpose of QQuickWidget is to render Quick scenes without a separate native window,
- * hence making it a native widget should always be avoided.
+ * Very crude proxy that allows to switch between QQuickView and QQuickWindow are runtime
  */
-class PfdQmlGadgetWidget : public QQuickWidget {
+class QuickWidgetProxy : public QObject {
+public:
+    QuickWidgetProxy(PfdQmlGadgetWidget *parent = 0);
+    virtual ~QuickWidgetProxy();
+
+    QWidget *widget();
+
+    void setSource(const QUrl &url);
+    QQmlEngine *engine() const;
+    QList<QQmlError> errors() const;
+
+private:
+    bool m_widget;
+
+    QQuickWidget *m_quickWidget;
+
+    QWidget *m_container;
+    QQuickView *m_quickView;
+};
+
+class PfdQmlGadgetWidget : public QWidget {
     Q_OBJECT
 
 public:
@@ -150,12 +161,32 @@ public:
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
 
-private slots:
+public slots:
     void onStatusChanged(QQuickWidget::Status status);
+    void onStatusChanged(QQuickView::Status status);
     void onSceneGraphError(QQuickWindow::SceneGraphError error, const QString &message);
 
 private:
+    void init();
+
     void setQmlFile(QString);
+
+    void setSource(const QUrl &url)
+    {
+        m_quickWidgetProxy->setSource(url);
+    }
+
+    QQmlEngine *engine() const
+    {
+        return m_quickWidgetProxy->engine();
+    }
+
+    QList<QQmlError> errors() const
+    {
+        return m_quickWidgetProxy->errors();
+    }
+
+    QuickWidgetProxy *m_quickWidgetProxy;
 
     PfdQmlProperties *m_pfdQmlProperties;
     QString m_qmlFileName;

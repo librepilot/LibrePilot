@@ -21,9 +21,11 @@
 #include "flightbatterysettings.h"
 #include "utils/svgimageprovider.h"
 
-#include <QDebug>
+#include <QLayout>
+#include <QStackedLayout>
 #include <QQmlEngine>
 #include <QQmlContext>
+#include <QDebug>
 
 PfdQmlProperties::PfdQmlProperties(QObject *parent) : QObject(parent),
     m_speedUnit("m/s"),
@@ -240,10 +242,116 @@ void PfdQmlProperties::resetConsumedEnergy()
     batterySettings->setData(batterySettings->getData());
 }
 
-PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
-    QQuickWidget(parent), m_pfdQmlProperties(new PfdQmlProperties(this)), m_qmlFileName()
+/*
+ * Note: QQuickWidget is an alternative to using QQuickView and QWidget::createWindowContainer().
+ * The restrictions on stacking order do not apply, making QQuickWidget the more flexible alternative,
+ * behaving more like an ordinary widget. This comes at the expense of performance.
+ * Unlike QQuickWindow and QQuickView, QQuickWidget involves rendering into OpenGL framebuffer objects.
+ * This will naturally carry a minor performance hit.
+ *
+ * Note: Using QQuickWidget disables the threaded render loop on all platforms.
+ * This means that some of the benefits of threaded rendering, for example Animator classes
+ * and vsync driven animations, will not be available.
+ *
+ * Note: Avoid calling winId() on a QQuickWidget. This function triggers the creation of a native window,
+ * resulting in reduced performance and possibly rendering glitches.
+ * The entire purpose of QQuickWidget is to render Quick scenes without a separate native window,
+ * hence making it a native widget should always be avoided.
+ */
+QuickWidgetProxy::QuickWidgetProxy(PfdQmlGadgetWidget *parent) : QObject(parent)
 {
-    setResizeMode(SizeRootObjectToView);
+    m_widget = true;
+
+    m_quickWidget = NULL;
+
+    m_container = NULL;
+    m_quickView = NULL;
+
+    if (m_widget) {
+        m_quickWidget = new QQuickWidget(parent);
+        m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+        void (PfdQmlGadgetWidget::*f)(QQuickWidget::Status) = &PfdQmlGadgetWidget::onStatusChanged;
+        connect(m_quickWidget, &QQuickWidget::statusChanged, parent, f);
+        connect(m_quickWidget, &QQuickWidget::sceneGraphError, parent, &PfdQmlGadgetWidget::onSceneGraphError);
+    }
+    else {
+        m_quickView = new QQuickView();
+        m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
+        m_container = QWidget::createWindowContainer(m_quickView, parent);
+        m_container->setMinimumSize(64, 64);
+        m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+
+        void (PfdQmlGadgetWidget::*f)(QQuickView::Status) = &PfdQmlGadgetWidget::onStatusChanged;
+        connect(m_quickView, &QQuickView::statusChanged, parent, f);
+        connect(m_quickView, &QQuickView::sceneGraphError, parent, &PfdQmlGadgetWidget::onSceneGraphError);
+    }
+}
+
+QuickWidgetProxy::~QuickWidgetProxy()
+{
+    if (m_quickWidget) {
+        delete m_quickWidget;
+    }
+    if (m_quickView) {
+        delete m_quickView;
+        delete m_container;
+    }
+}
+
+QWidget *QuickWidgetProxy::widget()
+{
+    if (m_widget) {
+        return m_quickWidget;
+    }
+    else {
+        return m_container;
+    }
+}
+
+QQmlEngine *QuickWidgetProxy::engine() const
+{
+    if (m_widget) {
+        return m_quickWidget->engine();
+    }
+    else {
+        return m_quickView->engine();
+    }
+}
+
+void QuickWidgetProxy::setSource(const QUrl &url)
+{
+    if (m_widget) {
+        m_quickWidget->setSource(url);
+    }
+    else {
+        m_quickView->setSource(url);
+    }
+}
+
+QList<QQmlError> QuickWidgetProxy::errors() const
+{
+    if (m_widget) {
+         return m_quickWidget->errors();
+     }
+     else {
+         return m_quickView->errors();
+     }
+ }
+
+PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
+    QWidget(parent), m_quickWidgetProxy(NULL), m_pfdQmlProperties(new PfdQmlProperties(this)), m_qmlFileName()
+{
+    setLayout(new QStackedLayout());
+}
+
+PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
+{
+}
+
+void PfdQmlGadgetWidget::init()
+{
+    m_quickWidgetProxy = new QuickWidgetProxy(this);
 
     QStringList objectsToExport;
     objectsToExport <<
@@ -289,26 +397,37 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
     }
 
 #if 0
-    qDebug() << "PfdQmlGadgetWidget - OpenGLContext persistent" << isPersistentOpenGLContext();
-    qDebug() << "PfdQmlGadgetWidget - SceneGraph persistent" << isPersistentSceneGraph();
+    qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent OpenGL context" << isPersistentOpenGLContext();
+    qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent scene graph" << isPersistentSceneGraph();
 #endif
 
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", m_pfdQmlProperties);
 
-    connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
-    connect(this, &QQuickWidget::sceneGraphError, this, &PfdQmlGadgetWidget::onSceneGraphError);
+//    connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
+//    connect(this, &QQuickWidget::sceneGraphError, this, &PfdQmlGadgetWidget::onSceneGraphError);
 }
-
-PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
-{}
 
 void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
-    qDebug() << "PfdQmlGadgetWidget - loading configuration :" << config->name();
+    qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
+
+    if (!m_quickWidgetProxy) {
+        init();
+    }
+
+    // here we first clear the Qml file
+    // then set all the properties
+    // and finally set the desired Qml file
+    // TODO this is a work around... some OSG Quick items don't yet handle properties updates well
 
     // clear widget
-    setQmlFile("");
+    //setQmlFile("");
+
+    // no need to go further is Qml file is empty
+    //if (config->qmlFile().isEmpty()) {
+    //   return;
+    //}
 
     m_pfdQmlProperties->setSpeedFactor(config->speedFactor());
     m_pfdQmlProperties->setSpeedUnit(config->speedUnit());
@@ -336,13 +455,15 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
     // go!
     setQmlFile(config->qmlFile());
+
+    layout()->addWidget(m_quickWidgetProxy->widget());
 }
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
-    if (m_qmlFileName == fn) {
-        return;
-    }
+//    if (m_qmlFileName == fn) {
+//        return;
+//    }
     qDebug() << Q_FUNC_INFO << fn;
 
     m_qmlFileName = fn;
@@ -376,16 +497,37 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
 void PfdQmlGadgetWidget::onStatusChanged(QQuickWidget::Status status)
 {
     switch (status) {
-    case Null:
+    case QQuickWidget::Null:
         qDebug() << "PfdQmlGadgetWidget - status Null";
         break;
-    case Ready:
+    case QQuickWidget::Ready:
         qDebug() << "PfdQmlGadgetWidget - status Ready";
         break;
-    case Loading:
+    case QQuickWidget::Loading:
         qDebug() << "PfdQmlGadgetWidget - status Loading";
         break;
-    case Error:
+    case QQuickWidget::Error:
+        qDebug() << "PfdQmlGadgetWidget - status Error";
+        foreach(const QQmlError &error, errors()) {
+            qWarning() << error.description();
+        }
+        break;
+    }
+}
+
+void PfdQmlGadgetWidget::onStatusChanged(QQuickView::Status status)
+{
+    switch (status) {
+    case QQuickView::Null:
+        qDebug() << "PfdQmlGadgetWidget - status Null";
+        break;
+    case QQuickView::Ready:
+        qDebug() << "PfdQmlGadgetWidget - status Ready";
+        break;
+    case QQuickView::Loading:
+        qDebug() << "PfdQmlGadgetWidget - status Loading";
+        break;
+    case QQuickView::Error:
         qDebug() << "PfdQmlGadgetWidget - status Error";
         foreach(const QQmlError &error, errors()) {
             qWarning() << error.description();

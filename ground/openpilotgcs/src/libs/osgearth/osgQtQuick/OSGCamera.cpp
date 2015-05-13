@@ -51,9 +51,6 @@ public:
         y = 0;
         width     = 0;
         height    = 0;
-
-        // TODO create callback only if needed
-        cameraUpdateCallback = new CameraUpdateCallback(this);
     }
 
     ~Hidden()
@@ -122,7 +119,7 @@ public:
 
         this->camera = camera;
 
-        // TODO install callback only if needed
+        cameraUpdateCallback = new CameraUpdateCallback(this);
         camera->addUpdateCallback(cameraUpdateCallback);
 
         // install log depth buffer if requested
@@ -148,7 +145,10 @@ public:
         }
         this->camera = NULL;
 
-        camera->removeUpdateCallback(cameraUpdateCallback);
+        if (cameraUpdateCallback.valid()) {
+            camera->removeUpdateCallback(cameraUpdateCallback);
+            cameraUpdateCallback = NULL;
+        }
 
         if (logDepthBuffer) {
             logDepthBuffer->uninstall(camera);
@@ -157,7 +157,7 @@ public:
         }
 
         // reset viewport
-        x = y = width = height = -1;
+        x = y = width = height = 0;
     }
 
     void attachManipulator(osgViewer::View *view)

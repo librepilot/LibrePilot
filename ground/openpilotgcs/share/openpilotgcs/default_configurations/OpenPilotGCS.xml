@@ -1582,7 +1582,7 @@
           <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <minAmbientLight>0.8</minAmbientLight>
           <modelEnabled>false</modelEnabled>
           <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
@@ -1607,7 +1607,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1631,7 +1631,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1655,7 +1655,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1679,7 +1679,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1703,7 +1703,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1727,7 +1727,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>
@@ -1751,7 +1751,7 @@
           <cacheOnly>false</cacheOnly>
           <latitude>39.6576</latitude>
           <longitude>19.8046</longitude>
-          <altitude>88</altitude>
+          <altitude>90</altitude>
           <timeMode>0</timeMode>
           <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
           <minAmbientLight>0.80</minAmbientLight>

@@ -116,16 +116,6 @@ public slots:
 
 public:
 
-    QPointF mousePoint(QMouseEvent *event)
-    {
-        // qreal x = 0.01 * (event->x() - self->width() / 2);
-        // qreal y = 0.01 * (event->y() - self->height() / 2);
-        qreal x = 2.0 * (event->x() - self->width() / 2) / self->width();
-        qreal y = 2.0 * (event->y() - self->height() / 2) / self->height();
-
-        return QPointF(x, y);
-    }
-
     bool acceptSceneData(OSGNode *node)
     {
         qDebug() << "OSGViewport::acceptSceneData" << node;
@@ -652,6 +642,17 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
     return QQuickFramebufferObject::updatePaintNode(node, nodeData);
 }
 
+
+QPointF OSGViewport::mousePoint(QMouseEvent *event)
+{
+    // qreal x = 0.01 * (event->x() - self->width() / 2);
+    // qreal y = 0.01 * (event->y() - self->height() / 2);
+    qreal x = 2.0 * (event->x() - width() / 2) / width();
+    qreal y = 2.0 * (event->y() - height() / 2) / height();
+
+    return QPointF(x, y);
+}
+
 void OSGViewport::mousePressEvent(QMouseEvent *event)
 {
     int button = 0;
@@ -664,7 +665,7 @@ void OSGViewport::mousePressEvent(QMouseEvent *event)
     default: button = 0; break;
     }
     setKeyboardModifiers(event);
-    QPointF pos = h->mousePoint(event);
+    QPointF pos = mousePoint(event);
     if (h->view.valid()) {
         h->view.get()->getEventQueue()->mouseButtonPress(pos.x(), pos.y(), button);
     }
@@ -692,7 +693,7 @@ void OSGViewport::setKeyboardModifiers(QInputEvent *event)
 void OSGViewport::mouseMoveEvent(QMouseEvent *event)
 {
     setKeyboardModifiers(event);
-    QPointF pos = h->mousePoint(event);
+    QPointF pos = mousePoint(event);
     if (h->view.valid()) {
         h->view.get()->getEventQueue()->mouseMotion(pos.x(), pos.y());
     }
@@ -710,7 +711,7 @@ void OSGViewport::mouseReleaseEvent(QMouseEvent *event)
     default: button = 0; break;
     }
     setKeyboardModifiers(event);
-    QPointF pos = h->mousePoint(event);
+    QPointF pos = mousePoint(event);
     if (h->view.valid()) {
         h->view.get()->getEventQueue()->mouseButtonRelease(pos.x(), pos.y(), button);
     }

@@ -336,13 +336,17 @@ QList<QQmlError> QuickWidgetProxy::errors() const
 }
 
 PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
-    QWidget(parent), m_quickWidgetProxy(NULL), m_pfdQmlProperties(new PfdQmlProperties(this)), m_qmlFileName()
+    QWidget(parent), m_quickWidgetProxy(NULL), m_pfdQmlProperties(NULL), m_qmlFileName()
 {
     setLayout(new QStackedLayout());
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
-{}
+{
+    if (m_pfdQmlProperties) {
+        delete m_pfdQmlProperties;
+    }
+}
 
 void PfdQmlGadgetWidget::init()
 {
@@ -397,6 +401,7 @@ void PfdQmlGadgetWidget::init()
 #endif
 
     // to expose settings values
+    m_pfdQmlProperties = new PfdQmlProperties(this);
     engine()->rootContext()->setContextProperty("qmlWidget", m_pfdQmlProperties);
 
 // connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
@@ -407,10 +412,13 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
     qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
 
-    QuickWidgetProxy *tmp = NULL;
+    QuickWidgetProxy *oldQuickWidgetProxy = NULL;
+    PfdQmlProperties *oldPfdQmlProperties = NULL;
     if (m_quickWidgetProxy) {
-        tmp = m_quickWidgetProxy;
+        oldQuickWidgetProxy = m_quickWidgetProxy;
+        oldPfdQmlProperties = m_pfdQmlProperties;
         m_quickWidgetProxy = NULL;
+        m_pfdQmlProperties = NULL;
     }
 
     if (!m_quickWidgetProxy) {
@@ -459,9 +467,10 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
     // deleting and recreating the PfdQmlGadgetWidget is workaround to avoid crashes in osgearth when
     // switching between configurations. Please remove this workaround once osgearth is stabilized
-    if (tmp) {
-        layout()->removeWidget(tmp->widget());
-        delete tmp;
+    if (oldQuickWidgetProxy) {
+        layout()->removeWidget(oldQuickWidgetProxy->widget());
+        delete oldQuickWidgetProxy;
+        delete oldPfdQmlProperties;
     }
     layout()->addWidget(m_quickWidgetProxy->widget());
 }

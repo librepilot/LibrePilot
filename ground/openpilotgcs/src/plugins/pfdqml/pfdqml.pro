@@ -8,6 +8,7 @@ include(pfdqml_dependencies.pri)
 
 HEADERS += \
     pfdqml.h \
+    pfdqmlcontext.h \
     pfdqmlplugin.h \
     pfdqmlgadget.h \
     pfdqmlgadgetwidget.h \
@@ -16,6 +17,7 @@ HEADERS += \
     pfdqmlgadgetoptionspage.h
 
 SOURCES += \
+    pfdqmlcontext.cpp \
     pfdqmlplugin.cpp \
     pfdqmlgadget.cpp \
     pfdqmlgadgetfactory.cpp \

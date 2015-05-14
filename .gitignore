@@ -65,6 +65,7 @@ ground/openpilotgcs/.settings
 /.metadata
 /.settings
 /.pydevproject
+/workspace
 
 # Ignore Eclipse temp folder, git plugin based?
 RemoteSystemsTempFiles

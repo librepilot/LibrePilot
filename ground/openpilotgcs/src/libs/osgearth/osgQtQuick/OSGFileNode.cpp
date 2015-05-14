@@ -48,7 +48,7 @@ private:
     OSGFileNode * const self;
 
 public:
-    Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(true), optimizeMode(None) {}
+    Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(false), optimizeMode(None) {}
 
     bool acceptSource(QUrl url)
     {

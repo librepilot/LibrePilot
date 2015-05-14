@@ -174,7 +174,7 @@ public:
             // TODO will the AutoClipPlaneCullCallback be destroyed ?
             // TODO does it need to be added to the map node or to the view ?
             cullCallback = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);
-            mapNode->addCullCallback(cullCallback);
+            view->getCamera()->addCullCallback(cullCallback);
         }
 
         // TODO sky handling should not be done here
@@ -199,7 +199,7 @@ public:
 
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(view->getSceneData());
         if (mapNode) {
-            mapNode->removeCullCallback(cullCallback);
+            view->getCamera()->removeCullCallback(cullCallback);
             cullCallback = NULL;
         }
 
@@ -488,6 +488,8 @@ public:
     {
         // qDebug() << "ViewportRenderer::synchronize";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::synchronize");
+
+        // need to split frame() open and do the synchronization here (calling update callbacks, etc...)
     }
 
     // This function is called when the FBO should be rendered into.

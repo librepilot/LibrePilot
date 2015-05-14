@@ -23,6 +23,7 @@ equals(copyqt, 1) {
                   libQt5Multimedia.so.5 \
                   libQt5MultimediaWidgets.so.5 \
                   libQt5Quick.so.5 \
+                  libQt5QuickWidgets.so.5 \
                   libQt5Qml.so.5 \
                   libQt5DBus.so.5 \
                   libQt5QuickParticles.so.5 \
@@ -70,15 +71,15 @@ equals(copyqt, 1) {
                   Qt5Multimedia$${DS}.dll \
                   Qt5MultimediaWidgets$${DS}.dll \
                   Qt5Quick$${DS}.dll \
+                  Qt5QuickWidgets$${DS}.dll \
                   Qt5Qml$${DS}.dll \
                   icuin53.dll \
                   icudt53.dll \
                   icuuc53.dll
         # it is more robust to take the following DLLs from Qt rather than from MinGW
-        QT_DLLS += \
-            libgcc_s_dw2-1.dll \
-            libstdc++-6.dll \
-            libwinpthread-1.dll
+        QT_DLLS += libgcc_s_dw2-1.dll \
+                   libstdc++-6.dll \
+                   libwinpthread-1.dll
         for(dll, QT_DLLS) {
             addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
         }

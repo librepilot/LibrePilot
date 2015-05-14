@@ -35,6 +35,7 @@
 #include <coreplugin/imode.h>
 
 QT_BEGIN_NAMESPACE
+class QuickWidgetProxy;
 class QWidget;
 class QUrl;
 class QNetworkReply;
@@ -83,7 +84,7 @@ public slots:
     void triggerAction(const QString &actionId);
 
 private:
-    QWidget *m_widget;
+    QuickWidgetProxy *m_quickWidgetProxy;
     int m_priority;
     QString m_newVersionText;
 

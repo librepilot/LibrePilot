@@ -38,6 +38,7 @@
 #include <utils/styledbar.h>
 #include <utils/welcomemodetreewidget.h>
 #include <utils/iwelcomepage.h>
+#include <utils/quickwidgetproxy.h>
 
 #include <QDesktopServices>
 
@@ -60,7 +61,7 @@ using namespace Utils;
 
 namespace Welcome {
 WelcomeMode::WelcomeMode() :
-    m_widget(NULL),
+    m_quickWidgetProxy(NULL),
     m_priority(Core::Constants::P_MODE_WELCOME),
     m_newVersionText("")
 {
@@ -100,14 +101,13 @@ int WelcomeMode::priority() const
 
 QWidget *WelcomeMode::widget()
 {
-    if (!m_widget) {
-        QQuickWidget *qWidget = new QQuickWidget();
-        qWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-        qWidget->engine()->rootContext()->setContextProperty("welcomePlugin", this);
-        qWidget->setSource(QUrl("qrc:/welcome/qml/main.qml"));
-        m_widget = qWidget;
+    if (!m_quickWidgetProxy) {
+        m_quickWidgetProxy = new QuickWidgetProxy();
+        //qWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+        m_quickWidgetProxy->engine()->rootContext()->setContextProperty("welcomePlugin", this);
+        m_quickWidgetProxy->setSource(QUrl("qrc:/welcome/qml/main.qml"));
     }
-    return m_widget;
+    return m_quickWidgetProxy->widget();
 }
 
 const char *WelcomeMode::uniqueModeName() const

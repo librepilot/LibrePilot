@@ -95,7 +95,7 @@ public slots:
         if (window) {
             // window->setClearBeforeRendering(false);
             connect(window, &QQuickWindow::sceneGraphInitialized, this, &Hidden::onSceneGraphInitialized, Qt::DirectConnection);
-            // connect(window, &QQuickWindow::sceneGraphAboutToStop, this, &Hidden::onSceneGraphAboutToStop, Qt::DirectConnection);
+            connect(window, &QQuickWindow::sceneGraphAboutToStop, this, &Hidden::onSceneGraphAboutToStop, Qt::DirectConnection);
             connect(window, &QQuickWindow::sceneGraphInvalidated, this, &Hidden::onSceneGraphInvalidated, Qt::DirectConnection);
         } else {
             if (this->window) {
@@ -213,7 +213,7 @@ public:
         qDebug() << "OSGViewport::onSceneGraphInitialized";
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInitialized");
 
-        initializeResources();
+        //initializeResources();
     }
 
     void onSceneGraphAboutToStop()
@@ -227,7 +227,7 @@ public:
         qDebug() << "OSGViewport::onSceneGraphInvalidated";
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInvalidated");
 
-        releaseResources();
+        //releaseResources();
     }
 
     void initializeResources()
@@ -416,7 +416,7 @@ public:
         traits->sampleBuffers = ds->getMultiSamples();
         traits->samples = ds->getNumMultiSamples();
 
-        traits->doubleBuffer = ds->getDoubleBuffer();
+        traits->doubleBuffer = false; //ds->getDoubleBuffer();
         traits->vsync   = false;
         // traits->sharedContext = gc;
         // traits->inheritedWindowData = new osgQt::GraphicsWindowQt::WindowData(this);
@@ -473,14 +473,19 @@ public:
     ViewportRenderer(OSGViewport::Hidden *h) : h(h)
     {
         qDebug() << "ViewportRenderer::ViewportRenderer";
-        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
+        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
+
+        h->initializeResources();
+
         requestRedraw = false;
     }
 
     ~ViewportRenderer()
     {
         qDebug() << "ViewportRenderer::~ViewportRenderer";
-        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
+        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
+
+        h->releaseResources();
     }
 
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.

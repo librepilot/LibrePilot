@@ -27,6 +27,7 @@
 class PfdQmlGadgetWidget;
 class QQmlEngine;
 
+// TODO rename to PfdQmlContext
 class PfdQmlProperties : public QObject {
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
     Q_PROPERTY(double speedFactor READ speedFactor WRITE setSpeedFactor NOTIFY speedFactorChanged)

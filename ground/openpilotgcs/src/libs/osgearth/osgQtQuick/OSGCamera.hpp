@@ -26,12 +26,17 @@ class OSGNode;
 class OSGQTQUICK_EXPORT OSGCamera : public QObject {
     Q_OBJECT Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
 
+    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+
     Q_PROPERTY(ManipulatorMode manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
 
     Q_PROPERTY(osgQtQuick::OSGNode * node READ node WRITE setNode NOTIFY nodeChanged)
 
     Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(TrackerMode trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
+
+    Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
+    Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
 
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
@@ -56,6 +61,9 @@ public:
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
 
+    OSGNode *sceneData();
+    void setSceneData(OSGNode *node);
+
     ManipulatorMode manipulatorMode() const;
     void setManipulatorMode(ManipulatorMode);
 
@@ -67,6 +75,11 @@ public:
 
     TrackerMode trackerMode() const;
     void setTrackerMode(TrackerMode);
+
+    bool clampToTerrain() const;
+    void setClampToTerrain(bool arg);
+
+    bool intoTerrain() const;
 
     QVector3D attitude() const;
     void setAttitude(QVector3D arg);
@@ -85,12 +98,17 @@ public:
 signals:
     void fieldOfViewChanged(qreal arg);
 
+    void sceneDataChanged(OSGNode *node);
+
     void manipulatorModeChanged(ManipulatorMode);
 
     void nodeChanged(OSGNode *node);
 
     void trackNodeChanged(OSGNode *node);
     void trackerModeChanged(TrackerMode);
+
+    void clampToTerrainChanged(bool arg);
+    void intoTerrainChanged(bool arg);
 
     void attitudeChanged(QVector3D arg);
     void positionChanged(QVector3D arg);

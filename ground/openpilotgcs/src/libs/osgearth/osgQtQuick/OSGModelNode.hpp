@@ -15,11 +15,10 @@ class OSGQTQUICK_EXPORT OSGModelNode : public OSGNode {
     Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
 
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
+    Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
 
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
-
-    Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
 
 public:
     OSGModelNode(QObject *parent = 0);
@@ -28,11 +27,13 @@ public:
     OSGNode *modelData();
     void setModelData(OSGNode *node);
 
+    OSGNode *sceneData();
+    void setSceneData(OSGNode *node);
+
     bool clampToTerrain() const;
     void setClampToTerrain(bool arg);
 
-    OSGNode *sceneData();
-    void setSceneData(OSGNode *node);
+    bool intoTerrain() const;
 
     QVector3D attitude() const;
     void setAttitude(QVector3D arg);
@@ -40,18 +41,15 @@ public:
     QVector3D position() const;
     void setPosition(QVector3D arg);
 
-    bool intoTerrain() const;
-
 signals:
     void modelDataChanged(OSGNode *node);
     void sceneDataChanged(OSGNode *node);
 
     void clampToTerrainChanged(bool arg);
+    void intoTerrainChanged(bool arg);
 
     void attitudeChanged(QVector3D arg);
     void positionChanged(QVector3D arg);
-
-    void intoTerrainChanged(bool arg);
 
 private:
     struct Hidden;

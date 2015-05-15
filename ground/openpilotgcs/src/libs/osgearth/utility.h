@@ -98,7 +98,7 @@ osgText::Text *createText(const osg::Vec3 &pos,
                                             osgText::Font *font = 0);
 
 osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
-osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEarth::MapNode *mapNode, bool &clamped);
+bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode);
 
 QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits);
 void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits *traits);

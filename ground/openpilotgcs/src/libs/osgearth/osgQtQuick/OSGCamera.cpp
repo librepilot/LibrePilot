@@ -2,6 +2,8 @@
 
 #include "OSGNode.hpp"
 
+#include "../utility.h"
+
 #include <osg/Camera>
 #include <osg/Matrix>
 #include <osg/Node>
@@ -38,9 +40,9 @@ public:
 public:
 
     Hidden(OSGCamera *parent) :
-        QObject(parent), manipulatorMode(Default), node(NULL),
+        QObject(parent), sceneData(NULL), manipulatorMode(Default), node(NULL),
         trackerMode(NodeCenterAndAzim), trackNode(NULL),
-        logDepthBufferEnabled(false), logDepthBuffer(NULL)
+        logDepthBufferEnabled(false), logDepthBuffer(NULL), clampToTerrain(false)
     {
         fieldOfView = 90.0;
 
@@ -59,6 +61,26 @@ public:
             delete logDepthBuffer;
             logDepthBuffer = NULL;
         }
+    }
+
+    bool acceptSceneData(OSGNode *node)
+    {
+        qDebug() << "OSGCamera::acceptSceneData" << node;
+        if (sceneData == node) {
+            return true;
+        }
+
+        if (sceneData) {
+            disconnect(sceneData);
+        }
+
+        sceneData = node;
+
+        if (sceneData) {
+            //connect(sceneData, &OSGNode::nodeChanged, this, &Hidden::onSceneDataChanged);
+        }
+
+        return true;
     }
 
     bool acceptManipulatorMode(ManipulatorMode mode)
@@ -138,7 +160,7 @@ public:
 
         // install log depth buffer if requested
         if (logDepthBufferEnabled) {
-            qDebug() << "OSGViewport::attach - install logarithmic depth buffer";
+            qDebug() << "OSGCamera::attach - install logarithmic depth buffer";
             logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
             // logDepthBuffer.setUseFragDepth(true);
             logDepthBuffer->install(camera);
@@ -290,11 +312,19 @@ public:
         // TODO compensate antenna height when source of position is GPS (i.e. subtract antenna height from altitude) ;)
 
         // Camera position
+        osgEarth::GeoPoint geoPoint = osgQtQuick::toGeoPoint(position);
+        if (clampToTerrain) {
+            if (sceneData) {
+                osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
+                if (mapNode) {
+                    intoTerrain = clampGeoPoint(geoPoint, 0.5f, mapNode);
+                } else {
+                    qWarning() << "OSGCamera::updateNode - scene data does not contain a map node";
+                }
+            }
+        }
+
         osg::Matrix cameraPosition;
-
-        osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                                    position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
-
         geoPoint.createLocalToWorld(cameraPosition);
 
         // Camera orientation
@@ -317,6 +347,8 @@ public:
 
     qreal fieldOfView;
 
+    OSGNode      *sceneData;
+
     ManipulatorMode manipulatorMode;
 
     // to compute home position
@@ -327,9 +359,13 @@ public:
     OSGNode     *trackNode;
 
     bool logDepthBufferEnabled;
+    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
 
     // for User manipulator
     bool dirty;
+
+    bool clampToTerrain;
+    bool intoTerrain;
 
     QVector3D attitude;
     QVector3D position;
@@ -342,8 +378,6 @@ public:
 
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<CameraUpdateCallback> cameraUpdateCallback;
-
-    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
 
 private slots:
     void onNodeChanged(osg::Node *node)
@@ -406,6 +440,18 @@ void OSGCamera::setFieldOfView(qreal arg)
     }
 }
 
+OSGNode *OSGCamera::sceneData()
+{
+    return h->sceneData;
+}
+
+void OSGCamera::setSceneData(OSGNode *node)
+{
+    if (h->acceptSceneData(node)) {
+        emit sceneDataChanged(node);
+    }
+}
+
 OSGCamera::ManipulatorMode OSGCamera::manipulatorMode() const
 {
     return h->manipulatorMode;
@@ -453,6 +499,25 @@ void OSGCamera::setTrackerMode(TrackerMode mode)
         h->trackerMode = mode;
         emit trackerModeChanged(trackerMode());
     }
+}
+
+bool OSGCamera::clampToTerrain() const
+{
+    return h->clampToTerrain;
+}
+
+void OSGCamera::setClampToTerrain(bool arg)
+{
+    if (h->clampToTerrain != arg) {
+        h->clampToTerrain = arg;
+        h->dirty = true;
+        emit clampToTerrainChanged(clampToTerrain());
+    }
+}
+
+bool OSGCamera::intoTerrain() const
+{
+    return h->intoTerrain;
 }
 
 QVector3D OSGCamera::attitude() const

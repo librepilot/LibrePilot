@@ -229,19 +229,18 @@ osgEarth::GeoPoint toGeoPoint(const QVector3D &position)
     return geoPoint;
 }
 
-osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEarth::MapNode *mapNode, bool &clamped)
+bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode)
 {
-    osgEarth::GeoPoint geoPoint = toGeoPoint(position);
-
     if (!mapNode) {
-        qWarning() << "Utility::clampGeoPoint - scene data does not contain a map node";
-        return geoPoint;
+        qWarning() << "Utility::clampGeoPoint - null map node";
+        return false;
     }
 
     // establish an elevation query interface based on the features' SRS.
     osgEarth::ElevationQuery eq(mapNode->getMap());
     // qDebug() << "Utility::clampGeoPoint - SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
 
+    bool clamped = false;
     double elevation;
     if (eq.getElevation(geoPoint, elevation, 0.0)) {
         clamped = ((geoPoint.z() - offset) < elevation);
@@ -253,7 +252,7 @@ osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEar
         qDebug() << "Utility::clampGeoPoint - failed to get elevation";
     }
 
-    return geoPoint;
+    return clamped;
 }
 
 QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits)

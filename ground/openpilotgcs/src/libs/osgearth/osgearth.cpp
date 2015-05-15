@@ -23,19 +23,18 @@
  */
 
 #include "osgearth.h"
+#include "qtwindowingsystem.h"
+
+#include "osgQtQuick/Utility.hpp"
 
 #include "utils/gcsdirs.h"
 #include "utils/pathutils.h"
-
-#include "osgQtQuick/Utility.hpp"
 
 #include <osg/DisplaySettings>
 #include <osg/GraphicsContext>
 #include <osg/Version>
 #include <osg/Notify>
-#include <osg/DeleteHandler>
 #include <osgDB/Registry>
-#include <osgViewer/GraphicsWindow>
 
 #include <osgEarth/Version>
 #include <osgEarth/Cache>
@@ -43,8 +42,6 @@
 #include <osgEarth/Registry>
 #include <osgEarthDrivers/cache_filesystem/FileSystemCache>
 
-#include <QOpenGLContext>
-#include <QOffscreenSurface>
 #include <QDebug>
 
 #ifdef OSG_USE_QT_PRIVATE
@@ -53,7 +50,6 @@
 #endif
 
 #include <deque>
-#include <string>
 
 bool OsgEarth::registered  = false;
 bool OsgEarth::initialized = false;
@@ -85,7 +81,7 @@ void OsgEarth::initialize()
     }
     initialized = true;
 
-    qDebug() << "Initializing osgearth...";
+    qDebug() << "OsgEarth::initialize - initializing osgearth...";
 
     osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(16);
     osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(8);
@@ -229,398 +225,6 @@ void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
         break;
     }
 }
-
-// TODO no need to derive from GraphicsWindow (derive directly from GraphicsContext instead)
-class OSGEARTH_LIB_EXPORT GraphicsWindowQt : public osgViewer::GraphicsWindow {
-public:
-    GraphicsWindowQt(osg::GraphicsContext::Traits *traits);
-    virtual ~GraphicsWindowQt();
-
-    virtual bool isSameKindAs(const Object *object) const
-    {
-        return dynamic_cast<const GraphicsWindowQt *>(object) != 0;
-    }
-    virtual const char *libraryName() const
-    {
-        return "osgViewerXYZ";
-    }
-    virtual const char *className() const
-    {
-        return "GraphicsWindowQt";
-    }
-
-    virtual bool setWindowRectangleImplementation(int x, int y, int width, int height);
-    virtual void getWindowRectangle(int & x, int & y, int & width, int & height);
-    virtual bool setWindowDecorationImplementation(bool windowDecoration);
-    virtual bool getWindowDecoration() const;
-    virtual void grabFocus();
-    virtual void grabFocusIfPointerInWindow();
-    virtual void raiseWindow();
-    virtual void setWindowName(const std::string & name);
-    virtual std::string getWindowName();
-    virtual void useCursor(bool cursorOn);
-    virtual void setCursor(MouseCursor cursor);
-    virtual bool valid() const;
-    virtual bool realizeImplementation();
-    virtual bool isRealizedImplementation() const;
-    virtual void closeImplementation();
-    virtual bool makeCurrentImplementation();
-    virtual bool releaseContextImplementation();
-    virtual void swapBuffersImplementation();
-    virtual void runOperations();
-
-    virtual void requestWarpPointer(float x, float y);
-
-protected:
-    void init();
-
-    bool _initialized;
-    bool _valid;
-    bool _realized;
-    bool _closing;
-
-    bool _owned;
-
-    QOpenGLContext *_glContext;
-    QOffscreenSurface *_surface;
-};
-
-GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
-    _initialized(false),
-    _valid(false),
-    _realized(false),
-    _closing(false),
-    _owned(false),
-    _glContext(NULL),
-    _surface(NULL)
-{
-    qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
-    _traits = traits;
-
-    init();
-
-    if (valid()) {
-        setState(new osg::State);
-        getState()->setGraphicsContext(this);
-
-        if (_traits.valid() && _traits->sharedContext.valid()) {
-            getState()->setContextID(_traits->sharedContext->getState()->getContextID());
-            incrementContextIDUsageCount(getState()->getContextID());
-        } else {
-            getState()->setContextID(osg::GraphicsContext::createNewContextID());
-        }
-    }
-}
-
-GraphicsWindowQt::~GraphicsWindowQt()
-{
-    qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
-    close();
-}
-
-void GraphicsWindowQt::init()
-{
-    qDebug() << "GraphicsWindowQt::init";
-    if (_closing || _initialized) {
-        return;
-    }
-
-    // update by WindowData
-    // WindowData* windowData = _traits.get() ? dynamic_cast<WindowData*>(_traits->inheritedWindowData.get()) : 0;
-    // if ( !_widget )
-    // _widget = windowData ? windowData->_widget : NULL;
-    // if ( !parent )
-    // parent = windowData ? windowData->_parent : NULL;
-
-    _initialized = true;
-
-    _valid = _initialized;
-}
-
-bool GraphicsWindowQt::setWindowRectangleImplementation(int x, int y, int width, int height)
-{
-    return true;
-}
-
-void GraphicsWindowQt::getWindowRectangle(int & x, int & y, int & width, int & height)
-{}
-
-bool GraphicsWindowQt::setWindowDecorationImplementation(bool windowDecoration)
-{
-    return false;
-}
-
-bool GraphicsWindowQt::getWindowDecoration() const
-{
-    return false;
-}
-
-void GraphicsWindowQt::grabFocus()
-{}
-
-void GraphicsWindowQt::grabFocusIfPointerInWindow()
-{}
-
-void GraphicsWindowQt::raiseWindow()
-{}
-
-void GraphicsWindowQt::setWindowName(const std::string & name)
-{}
-
-std::string GraphicsWindowQt::getWindowName()
-{
-    return "";
-}
-
-void GraphicsWindowQt::useCursor(bool cursorOn)
-{}
-
-void GraphicsWindowQt::setCursor(MouseCursor cursor)
-{}
-
-bool GraphicsWindowQt::valid() const
-{
-    return _valid;
-}
-
-bool GraphicsWindowQt::realizeImplementation()
-{
-    qDebug() << "GraphicsWindowQt::realizeImplementation";
-    // save the current context
-    // note: this will save only Qt-based contexts
-
-    if (_realized) {
-        return true;
-    }
-
-    if (!_initialized) {
-        init();
-        if (!_initialized) {
-            return false;
-        }
-    }
-
-    QOpenGLContext *currentContext = QOpenGLContext::currentContext();
-
-    if (!currentContext) {
-        qDebug() << "GraphicsWindowQt::realizeImplementation - creating owned context";
-        _owned     = true;
-        _glContext = new QOpenGLContext();
-        _glContext->create();
-        _surface   = new QOffscreenSurface();
-        _surface->setFormat(_glContext->format());
-        _surface->create();
-        osgQtQuick::formatInfo(_surface->format());
-    } else {
-        qDebug() << "GraphicsWindowQt::realizeImplementation - using current context";
-        _glContext = currentContext;
-    }
-
-    //// initialize GL context for the widget
-    // if ( !valid() )
-    // _widget->glInit();
-
-    // make current
-    _realized = true;
-    bool result = makeCurrent();
-    _realized = false;
-
-    // fail if we do not have current context
-    if (!result) {
-        // if ( savedContext )
-        // const_cast< QGLContext* >( savedContext )->makeCurrent();
-        //
-        qWarning() << "GraphicsWindowQt::realizeImplementation - can not make context current.";
-        return false;
-    }
-
-    _realized = true;
-
-//// make sure the event queue has the correct window rectangle size and input range
-// getEventQueue()->syncWindowRectangleWithGraphcisContext();
-
-    // make this window's context not current
-    // note: this must be done as we will probably make the context current from another thread
-    // and it is not allowed to have one context current in two threads
-    if (!releaseContext()) {
-        qWarning() << "GraphicsWindowQt::realizeImplementation - can not release context.";
-    }
-
-//// restore previous context
-// if ( savedContext )
-// const_cast< QGLContext* >( savedContext )->makeCurrent();
-
-    return true;
-}
-
-bool GraphicsWindowQt::isRealizedImplementation() const
-{
-    return _realized;
-}
-
-void GraphicsWindowQt::runOperations()
-{
-    // While in graphics thread this is last chance to do something useful before
-    // graphics thread will execute its operations.
-// if (_widget->getNumDeferredEvents() > 0)
-// _widget->processDeferredEvents();
-//
-// if (QGLContext::currentContext() != _widget->context())
-// _widget->makeCurrent();
-//
-    // qDebug() << "GraphicsWindowQt::runOperations";
-    GraphicsWindow::runOperations();
-}
-
-bool GraphicsWindowQt::makeCurrentImplementation()
-{
-    if (!_realized) {
-        qWarning() << "GraphicsWindowQt::makeCurrentImplementation() - not realized; cannot make current.";
-        return false;
-    }
-    if (_owned && _glContext) {
-        // qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
-        if (!_glContext->makeCurrent(_surface)) {
-            qWarning() << "GraphicsWindowQt::makeCurrentImplementation : failed to make context current";
-            return false;
-        }
-    }
-    if (_glContext != QOpenGLContext::currentContext()) {
-        qWarning() << "GraphicsWindowQt::makeCurrentImplementation : context is not current";
-        return false;
-    }
-    return true;
-}
-
-bool GraphicsWindowQt::releaseContextImplementation()
-{
-    if (_glContext != QOpenGLContext::currentContext()) {
-        qWarning() << "GraphicsWindowQt::releaseContextImplementation : context is not current";
-        return false;
-    }
-    if (_owned && _glContext) {
-        qDebug() << "GraphicsWindowQt::releaseContextImplementation";
-        _glContext->doneCurrent();
-    }
-    return true;
-}
-
-void GraphicsWindowQt::closeImplementation()
-{
-    qDebug() << "GraphicsWindowQt::closeImplementation";
-    _closing     = true;
-    _initialized = false;
-    _valid = false;
-    _realized    = false;
-    if (_owned) {
-        if (_glContext) {
-            qDebug() << "GraphicsWindowQt::closeImplementation - deleting owned context";
-            delete _glContext;
-        }
-        if (_surface) {
-            _surface->destroy();
-            delete _surface;
-        }
-    }
-    _glContext = NULL;
-    _surface = NULL;
-}
-
-void GraphicsWindowQt::swapBuffersImplementation()
-{
-// _widget->swapBuffers();
-//
-//// FIXME: the processDeferredEvents should really be executed in a GUI (main) thread context but
-//// I couln't find any reliable way to do this. For now, lets hope non of *GUI thread only operations* will
-//// be executed in a QGLWidget::event handler. On the other hand, calling GUI only operations in the
-//// QGLWidget event handler is an indication of a Qt bug.
-// if (_widget->getNumDeferredEvents() > 0)
-// _widget->processDeferredEvents();
-//
-//// We need to call makeCurrent here to restore our previously current context
-//// which may be changed by the processDeferredEvents function.
-// if (QGLContext::currentContext() != _widget->context())
-// _widget->makeCurrent();
-}
-
-void GraphicsWindowQt::requestWarpPointer(float x, float y)
-{}
-
-class QtWindowingSystem : public osg::GraphicsContext::WindowingSystemInterface {
-public:
-
-    QtWindowingSystem()
-    {}
-
-    ~QtWindowingSystem()
-    {
-        if (osg::Referenced::getDeleteHandler()) {
-            osg::Referenced::getDeleteHandler()->setNumFramesToRetainObjects(0);
-            osg::Referenced::getDeleteHandler()->flushAll();
-        }
-    }
-
-    // Access the Qt windowing system through this singleton class.
-    static QtWindowingSystem *getInterface()
-    {
-        static QtWindowingSystem *qtInterface = new QtWindowingSystem;
-
-        return qtInterface;
-    }
-
-    // Return the number of screens present in the system
-    virtual unsigned int getNumScreens(const osg::GraphicsContext::ScreenIdentifier & /*si*/)
-    {
-        qWarning() << "osgQt: getNumScreens() not implemented yet.";
-        return 0;
-    }
-
-    // Return the resolution of specified screen
-    // (0,0) is returned if screen is unknown
-    virtual void getScreenSettings(const osg::GraphicsContext::ScreenIdentifier & /*si*/, osg::GraphicsContext::ScreenSettings & /*resolution*/)
-    {
-        qWarning() << "osgQt: getScreenSettings() not implemented yet.";
-    }
-
-    // Set the resolution for given screen
-    virtual bool setScreenSettings(const osg::GraphicsContext::ScreenIdentifier & /*si*/, const osg::GraphicsContext::ScreenSettings & /*resolution*/)
-    {
-        qWarning() << "osgQt: setScreenSettings() not implemented yet.";
-        return false;
-    }
-
-    // Enumerates available resolutions
-    virtual void enumerateScreenSettings(const osg::GraphicsContext::ScreenIdentifier & /*screenIdentifier*/, osg::GraphicsContext::ScreenSettingsList & /*resolution*/)
-    {
-        qWarning() << "osgQt: enumerateScreenSettings() not implemented yet.";
-    }
-
-    // Create a graphics context with given traits
-    virtual osg::GraphicsContext *createGraphicsContext(osg::GraphicsContext::Traits *traits)
-    {
-        // if (traits->pbuffer)
-        // {
-        // OSG_WARN << "osgQt: createGraphicsContext - pbuffer not implemented yet.";
-        // return NULL;
-        // }
-        // else
-        // {
-        osg::ref_ptr< GraphicsWindowQt > gc = new GraphicsWindowQt(traits);
-
-        if (gc->valid()) {
-            return gc.release();
-        } else {
-            return NULL;
-        }
-        // }
-    }
-
-private:
-
-    // No implementation for these
-    QtWindowingSystem(const QtWindowingSystem &);
-    QtWindowingSystem & operator=(const QtWindowingSystem &);
-};
 
 void OsgEarth::initWindowingSystem()
 {

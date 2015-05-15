@@ -34,6 +34,8 @@
 
 #include <QFont>
 #include <QKeyEvent>
+#include <QCoreApplication>
+#include <QThread>
 
 namespace osgQtQuick {
 class CullCallback : public osg::NodeCallback {
@@ -307,6 +309,7 @@ void openGLContextInfo(QOpenGLContext *context, const char *at)
         qDebug() << "share context :" << context->shareContext();
         // formatInfo(context->format());
     }
+    qDebug() << "thread        :" << QThread::currentThread() << " / " << QCoreApplication::instance()->thread();
     qDebug() << "--------------------------------------------------------------------";
 }
 

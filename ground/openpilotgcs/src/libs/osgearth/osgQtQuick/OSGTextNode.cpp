@@ -1,6 +1,6 @@
 #include "OSGTextNode.hpp"
 
-#include "Utility.hpp"
+#include "../utility.h"
 
 #include <osgText/Text>
 #include <osg/Geode>

@@ -1,5 +1,6 @@
 #include "OSGModelNode.hpp"
-#include "Utility.hpp"
+
+#include "../utility.h"
 
 #include <osg/Quat>
 

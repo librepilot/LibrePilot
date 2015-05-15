@@ -23,9 +23,9 @@
  */
 
 #include "osgearth.h"
-#include "qtwindowingsystem.h"
 
-#include "osgQtQuick/Utility.hpp"
+#include "utility.h"
+#include "qtwindowingsystem.h"
 
 #include "utils/gcsdirs.h"
 #include "utils/pathutils.h"

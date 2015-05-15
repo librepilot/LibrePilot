@@ -20,16 +20,17 @@ message(Using osg from here: $$OSG_SDK_DIR)
 
 HEADERS += \
     osgearth_global.h \
+    utility.h \
     qtwindowingsystem.h \
     osgearth.h
 
 SOURCES += \
+    utility.cpp \
     qtwindowingsystem.cpp \
     osgearth.cpp
 
 HEADERS += \
     osgQtQuick/Export.hpp \
-    osgQtQuick/Utility.hpp \
     osgQtQuick/OSGNode.hpp \
     osgQtQuick/OSGGroup.hpp \
     osgQtQuick/OSGTransformNode.hpp \
@@ -43,7 +44,6 @@ HEADERS += \
     osgQtQuick/OSGViewport.hpp
 
 SOURCES += \
-    osgQtQuick/Utility.cpp \
     osgQtQuick/OSGNode.cpp \
     osgQtQuick/OSGGroup.cpp \
     osgQtQuick/OSGTransformNode.cpp \

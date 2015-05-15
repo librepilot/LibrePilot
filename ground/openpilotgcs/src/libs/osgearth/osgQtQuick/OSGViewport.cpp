@@ -1,10 +1,10 @@
 #include "OSGViewport.hpp"
 
 #include "../osgearth.h"
+#include "../utility.h"
 
 #include "OSGNode.hpp"
 #include "OSGCamera.hpp"
-#include "Utility.hpp"
 
 #include <osg/Node>
 #include <osg/DeleteHandler>

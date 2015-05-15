@@ -1,7 +1,7 @@
-#ifndef OSGQTQUICK_UTILITY_HPP
-#define OSGQTQUICK_UTILITY_HPP
+#ifndef OSGEARTH_UTILITY_H
+#define OSGEARTH_UTILITY_H
 
-#include "Export.hpp"
+#include "osgearth_global.h"
 
 #include <osg/NodeVisitor>
 #include <osg/GraphicsContext>
@@ -85,33 +85,33 @@ T *findTopMostNodeOfType(osg::Node *node)
     return fnotv._foundNode;
 }
 
-OSGQTQUICK_EXPORT void insertCallbacks(osg::Node *node);
+void insertCallbacks(osg::Node *node);
 
-OSGQTQUICK_EXPORT osg::Camera *createHUDCamera(double left, double right, double bottom, double top);
+osg::Camera *createHUDCamera(double left, double right, double bottom, double top);
 
-OSGQTQUICK_EXPORT osgText::Font *createFont(const std::string &name);
-OSGQTQUICK_EXPORT osgText::Font *createFont(const QFont &font);
+osgText::Font *createFont(const std::string &name);
+osgText::Font *createFont(const QFont &font);
 
-OSGQTQUICK_EXPORT osgText::Text *createText(const osg::Vec3 &pos,
+osgText::Text *createText(const osg::Vec3 &pos,
                                             const std::string &content,
                                             float size,
                                             osgText::Font *font = 0);
 
-OSGQTQUICK_EXPORT osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
-OSGQTQUICK_EXPORT osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEarth::MapNode *mapNode, bool &clamped);
+osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
+osgEarth::GeoPoint clampGeoPoint(const QVector3D &position, float offset, osgEarth::MapNode *mapNode, bool &clamped);
 
-OSGQTQUICK_EXPORT QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits);
-OSGQTQUICK_EXPORT void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits *traits);
+QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits);
+void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits *traits);
 
-OSGQTQUICK_EXPORT void formatInfo(const QSurfaceFormat & format);
-OSGQTQUICK_EXPORT void traitsInfo(const osg::GraphicsContext::Traits & traits);
-OSGQTQUICK_EXPORT void capabilitiesInfo(const osgEarth::Capabilities & caps);
-OSGQTQUICK_EXPORT void openGLContextInfo(QOpenGLContext *context, const char *at);
+void formatInfo(const QSurfaceFormat & format);
+void traitsInfo(const osg::GraphicsContext::Traits & traits);
+void capabilitiesInfo(const osgEarth::Capabilities & caps);
+void openGLContextInfo(QOpenGLContext *context, const char *at);
 
-OSGQTQUICK_EXPORT QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile);
-OSGQTQUICK_EXPORT QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
+QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile);
+QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
 
-OSGQTQUICK_EXPORT void registerTypes(const char *uri);
+void registerTypes(const char *uri);
 } // namespace osgQtQuick
 
-#endif // OSGQTQUICK_UTILITY_HPP
+#endif // OSGEARTH_UTILITY_H

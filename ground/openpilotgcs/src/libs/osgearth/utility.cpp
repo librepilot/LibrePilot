@@ -1,17 +1,17 @@
-#include "Utility.hpp"
+#include "utility.h"
 
 // osgQtQuick qml types
-#include "OSGNode.hpp"
-#include "OSGGroup.hpp"
-#include "OSGFileNode.hpp"
-#include "OSGTransformNode.hpp"
-#include "OSGCubeNode.hpp"
-#include "OSGTextNode.hpp"
-#include "OSGModelNode.hpp"
-#include "OSGBackgroundNode.hpp"
-#include "OSGSkyNode.hpp"
-#include "OSGCamera.hpp"
-#include "OSGViewport.hpp"
+#include "osgQtQuick/OSGNode.hpp"
+#include "osgQtQuick/OSGGroup.hpp"
+#include "osgQtQuick/OSGFileNode.hpp"
+#include "osgQtQuick/OSGTransformNode.hpp"
+#include "osgQtQuick/OSGCubeNode.hpp"
+#include "osgQtQuick/OSGTextNode.hpp"
+#include "osgQtQuick/OSGModelNode.hpp"
+#include "osgQtQuick/OSGBackgroundNode.hpp"
+#include "osgQtQuick/OSGSkyNode.hpp"
+#include "osgQtQuick/OSGCamera.hpp"
+#include "osgQtQuick/OSGViewport.hpp"
 
 #include <osg/NodeCallback>
 #include <osg/Camera>

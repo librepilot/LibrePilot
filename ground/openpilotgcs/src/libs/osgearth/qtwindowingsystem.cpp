@@ -24,8 +24,7 @@
 
 #include "qtwindowingsystem.h"
 
-#include "osgQtQuick/Export.hpp"
-#include "osgQtQuick/Utility.hpp"
+#include "utility.h"
 
 #include <osg/DeleteHandler>
 #include <osgViewer/GraphicsWindow>

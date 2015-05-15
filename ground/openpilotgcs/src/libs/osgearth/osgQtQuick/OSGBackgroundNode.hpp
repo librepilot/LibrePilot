@@ -20,8 +20,6 @@ public:
     const QUrl imageFile() const;
     void setImageFile(const QUrl &url);
 
-    virtual void realize();
-
 signals:
     void imageFileChanged(const QUrl &url);
 

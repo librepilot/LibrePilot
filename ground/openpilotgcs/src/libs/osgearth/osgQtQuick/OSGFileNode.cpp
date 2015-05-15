@@ -173,10 +173,6 @@ void OSGFileNode::setOptimizeMode(OptimizeMode mode)
     }
 }
 
-void OSGFileNode::realize()
-{
-    // realize();
-}
 } // namespace osgQtQuick
 
 #include "OSGFileNode.moc"

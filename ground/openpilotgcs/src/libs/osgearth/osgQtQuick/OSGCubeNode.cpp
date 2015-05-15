@@ -59,11 +59,6 @@ OSGCubeNode::~OSGCubeNode()
 {
     qDebug() << "OSGCubeNode::~OSGCubeNode";
 }
-
-void OSGCubeNode::realize()
-{
-    // realize();
-}
 } // namespace osgQtQuick
 
 #include "OSGCubeNode.moc"

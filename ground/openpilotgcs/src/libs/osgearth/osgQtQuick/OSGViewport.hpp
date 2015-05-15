@@ -5,6 +5,10 @@
 
 #include <QQuickFramebufferObject>
 
+namespace osgViewer {
+class View;
+}
+
 namespace osgQtQuick {
 class Renderer;
 class OSGNode;
@@ -47,7 +51,8 @@ public:
     virtual Renderer *createRenderer() const;
     virtual void releaseResources();
 
-    virtual void realize();
+    virtual bool attach(osgViewer::View *view);
+    virtual bool detach(osgViewer::View *view);
 
 signals:
     void updateModeChanged(UpdateMode mode);

@@ -12,8 +12,6 @@ public:
     OSGCubeNode(QObject *parent = 0);
     virtual ~OSGCubeNode();
 
-    virtual void realize();
-
 private:
     struct Hidden;
     Hidden *h;

@@ -30,14 +30,27 @@ void OSGNode::setNode(osg::Node *node)
     }
 }
 
-void OSGNode::realize()
+bool OSGNode::attach(osgViewer::View *view)
 {
     QListIterator<QObject *> i(children());
     while (i.hasNext()) {
         OSGNode *node = qobject_cast<OSGNode *>(i.next());
         if (node) {
-            node->realize();
+            node->attach(view);
         }
     }
+    return true;
+}
+
+bool OSGNode::detach(osgViewer::View *view)
+{
+    QListIterator<QObject *> i(children());
+    while (i.hasNext()) {
+        OSGNode *node = qobject_cast<OSGNode *>(i.next());
+        if (node) {
+            node->detach(view);
+        }
+    }
+    return true;
 }
 } // namespace osgQtQuick

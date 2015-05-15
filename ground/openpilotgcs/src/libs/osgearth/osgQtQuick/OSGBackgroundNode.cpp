@@ -87,11 +87,6 @@ void OSGBackgroundNode::setImageFile(const QUrl &url)
         emit imageFileChanged(imageFile());
     }
 }
-
-void OSGBackgroundNode::realize()
-{
-    // realize();
-}
 } // namespace osgQtQuick
 
 #include "OSGBackgroundNode.moc"

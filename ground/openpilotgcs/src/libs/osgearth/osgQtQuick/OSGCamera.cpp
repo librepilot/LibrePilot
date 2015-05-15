@@ -113,6 +113,20 @@ public:
         return true;
     }
 
+    bool attach(osgViewer::View *view)
+    {
+        attachCamera(view->getCamera());
+        attachManipulator(view);
+        return true;
+    }
+
+    bool detach(osgViewer::View *view)
+    {
+        detachManipulator(view);
+        detachCamera(view->getCamera());
+        return true;
+    }
+
     void attachCamera(osg::Camera *camera)
     {
         qDebug() << "OSGCamera::attach" << camera;
@@ -482,18 +496,6 @@ void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
     }
 }
 
-void OSGCamera::attachView(osgViewer::View *view)
-{
-    h->attachCamera(view->getCamera());
-    h->attachManipulator(view);
-}
-
-void OSGCamera::detachView(osgViewer::View *view)
-{
-    h->detachManipulator(view);
-    h->detachCamera(view->getCamera());
-}
-
 void OSGCamera::setViewport(int x, int y, int width, int height)
 {
     // qDebug() << "OSGCamera::setViewport" << x << y << width << "x" << heigth;
@@ -509,6 +511,18 @@ void OSGCamera::setViewport(int x, int y, int width, int height)
         h->height    = height;
         h->sizeDirty = true;
     }
+}
+
+bool OSGCamera::attach(osgViewer::View *view)
+{
+    h->attach(view);
+    return true;
+}
+
+bool OSGCamera::detach(osgViewer::View *view)
+{
+    h->detach(view);
+    return true;
 }
 } // namespace osgQtQuick
 

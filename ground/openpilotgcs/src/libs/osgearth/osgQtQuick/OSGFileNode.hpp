@@ -32,8 +32,6 @@ public:
     OptimizeMode optimizeMode() const;
     void setOptimizeMode(OptimizeMode);
 
-    virtual void realize();
-
 signals:
     void sourceChanged(const QUrl &url);
     void asyncChanged(const bool async);

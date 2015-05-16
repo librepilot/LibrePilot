@@ -7,6 +7,10 @@
 #include <QDateTime>
 #include <QUrl>
 
+namespace osgViewer {
+class View;
+}
+
 QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
@@ -34,6 +38,9 @@ public:
 
     double minimumAmbientLight();
     void setMinimumAmbientLight(double arg);
+
+    virtual bool attach(osgViewer::View *view);
+    virtual bool detach(osgViewer::View *view);
 
 signals:
     void sceneDataChanged(OSGNode *node);

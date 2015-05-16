@@ -177,13 +177,6 @@ public:
             view->getCamera()->addCullCallback(cullCallback);
         }
 
-        // TODO sky handling should not be done here
-        osgEarth::Util::SkyNode *skyNode = osgQtQuick::findTopMostNodeOfType<osgEarth::Util::SkyNode>(node);
-        if (skyNode) {
-            // qDebug() << "OSGViewport::attach - found sky node" << skyNode;
-            skyNode->attach(view, 0);
-        }
-
         view->setSceneData(node);
 
         return true;

@@ -1,5 +1,7 @@
 #include "OSGSkyNode.hpp"
 
+#include <osgViewer/View>
+
 #include <osgEarth/Config>
 #include <osgEarth/DateTime>
 #include <osgEarth/MapNode>
@@ -151,6 +153,22 @@ public:
         return true;
     }
 
+    bool attach(osgViewer::View *view)
+    {
+        if (!skyNode.valid()) {
+            qWarning() << "OSGSkyNode::attach - invalid sky node" << skyNode;
+            return false;
+        }
+        skyNode->attach(view, 0);
+        return true;
+    }
+
+    bool detach(osgViewer::View *view)
+    {
+        qWarning() << "OSGSkyNode::detach - not implemented" << skyNode;
+        return true;
+    }
+
     OSGSkyNode *const self;
 
     OSGNode   *sceneData;
@@ -225,6 +243,16 @@ void OSGSkyNode::setMinimumAmbientLight(double arg)
     if (h->acceptMinimumAmbientLight(arg)) {
         emit minimumAmbientLightChanged(minimumAmbientLight());
     }
+}
+
+bool OSGSkyNode::attach(osgViewer::View *view)
+{
+    return h->attach(view);
+}
+
+bool OSGSkyNode::detach(osgViewer::View *view)
+{
+    return h->detach(view);
 }
 } // namespace osgQtQuick
 

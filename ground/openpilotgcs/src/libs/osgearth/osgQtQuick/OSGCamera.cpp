@@ -580,14 +580,12 @@ void OSGCamera::setViewport(int x, int y, int width, int height)
 
 bool OSGCamera::attach(osgViewer::View *view)
 {
-    h->attach(view);
-    return true;
+    return h->attach(view);
 }
 
 bool OSGCamera::detach(osgViewer::View *view)
 {
-    h->detach(view);
-    return true;
+    return h->detach(view);
 }
 } // namespace osgQtQuick
 

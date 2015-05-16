@@ -8,7 +8,7 @@
 
 namespace osgViewer {
 class View;
-} // namespace osgViewer
+}
 
 namespace osgQtQuick {
 class OSGNode;

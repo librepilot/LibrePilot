@@ -44,6 +44,8 @@ OSGViewport {
     OSGCamera {
         id: camera
         fieldOfView: 100
+        sceneData: terrainNode
+        clampToTerrain: true
         manipulatorMode: OSGCamera.User
 
         attitude: uavAttitude()

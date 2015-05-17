@@ -146,8 +146,8 @@ public:
         // TODO should be done in a node visitor...
         if (skyNode) {
             double d = minimumAmbientLight;
-            skyNode->getSunLight()->setAmbient(osg::Vec4(d, d, d, 1.0f));
-            // skyNode->setMinimumAmbient(osg::Vec4f(0.8f, 0.8f, 0.8f, 1.0f));
+            //skyNode->getSunLight()->setAmbient(osg::Vec4(d, d, d, 1.0f));
+            skyNode->setMinimumAmbient(osg::Vec4(d, d, d, 1.0f));
         }
 
         return true;
@@ -165,7 +165,7 @@ public:
 
     bool detach(osgViewer::View *view)
     {
-        qWarning() << "OSGSkyNode::detach - not implemented" << skyNode;
+        qWarning() << "OSGSkyNode::detach - not implemented";
         return true;
     }
 

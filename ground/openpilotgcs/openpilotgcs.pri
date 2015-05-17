@@ -126,8 +126,18 @@ isEmpty(TOOLS_DIR) {
     isEmpty(TOOLS_DIR):TOOLS_DIR = $$clean_path($$ROOT_DIR/tools)
 }
 
+# Set the default name of the application
+isEmpty(GCS_SMALL_NAME):GCS_SMALL_NAME = openpilotgcs
+
+isEmpty(GCS_BIG_NAME) {
+    GCS_BIG_NAME = "OpenPilot GCS"
+} else {
+    # Requote for safety and because of QTBUG-46224
+    GCS_BIG_NAME = "$$GCS_BIG_NAME"
+}
+
 macx {
-    GCS_APP_TARGET   = "OpenPilot GCS"
+    GCS_APP_TARGET   = $$GCS_BIG_NAME
     GCS_PATH = $$GCS_BUILD_TREE/$${GCS_APP_TARGET}.app/Contents
     GCS_APP_PATH = $$GCS_PATH/MacOS
     GCS_LIBRARY_PATH = $$GCS_PATH/Plugins
@@ -138,12 +148,12 @@ macx {
     copydata = 1
     copyqt = 1
 } else {
-    GCS_APP_TARGET = openpilotgcs
+    GCS_APP_TARGET = $$GCS_SMALL_NAME
     GCS_PATH         = $$GCS_BUILD_TREE
     GCS_APP_PATH     = $$GCS_PATH/bin
-    GCS_LIBRARY_PATH = $$GCS_PATH/lib/$$GCS_APP_TARGET
+    GCS_LIBRARY_PATH = $$GCS_PATH/lib/$$GCS_SMALL_NAME
     GCS_PLUGIN_PATH  = $$GCS_LIBRARY_PATH/plugins
-    GCS_DATA_PATH    = $$GCS_PATH/share/$$GCS_APP_TARGET
+    GCS_DATA_PATH    = $$GCS_PATH/share/$$GCS_SMALL_NAME
     GCS_DOC_PATH     = $$GCS_PATH/share/doc
 
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1

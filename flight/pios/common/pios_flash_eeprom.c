@@ -173,32 +173,25 @@ int32_t PIOS_Flash_EEPROM_WriteSinglePage(struct flash_eeprom_dev *flash_dev, co
     uint8_t i2c_addr = flash_dev->i2c_address;
     uint32_t bus     = flash_dev->i2c_adapter;
 
-
     if (address > 0xFFFF) {
         return -2;
     }
-    uint16_t address16    = address & 0xFFFF;
+    uint16_t address16 = address & 0xFFFF;
 
-    uint8_t mem_address[] = {
-        (address16 & 0xff00) >> 8, // MSB
-        (address16 & 0xFF) // LSB
-    };
+    uint8_t tmp[len + 2];
+    tmp[0] = (address16 & 0xFF00) >> 8; // MSB
+    tmp[1] = (address16 & 0xFF); // LSB
+
+
+    memcpy(&tmp[2], buffer, len);
 
     const struct pios_i2c_txn txn_list[] = {
         {
             .info = __func__,
             .addr = i2c_addr,
             .rw   = PIOS_I2C_TXN_WRITE,
-            .len  = 2,
-            .buf  = mem_address,
-        }
-        ,
-        {
-            .info = __func__,
-            .addr = i2c_addr,
-            .rw   = PIOS_I2C_TXN_WRITE,
-            .len  = len,
-            .buf  = (uint8_t *)buffer,
+            .len  = len + 2,
+            .buf  = tmp,
         }
     };
 
@@ -223,21 +216,21 @@ int32_t PIOS_Flash_EEPROM_Read(struct flash_eeprom_dev *flash_dev, const uint32_
     // split the operation into several page operations
     uint8_t bytes_read     = 0;
 
-    const uint8_t page_len = flash_dev->cfg->page_len;
+    const uint16_t page_len = flash_dev->cfg->page_len;
 
     while (bytes_read < len) {
         // all is fine, wait until memory is not busy
         int32_t status;
         while ((status = PIOS_Flash_EEPROM_Busy(flash_dev)) == 1) {
 #ifdef PIOS_INCLUDE_FREERTOS
-            vTaskDelay(1);
+            vTaskDelay(0);
 #endif
         }
         // An error occurred while probing the status, return and report
         if (status < 0) {
             return status;
         }
-        uint8_t current_block_len  = len - bytes_read;
+        uint16_t current_block_len  = len - bytes_read;
         uint16_t index_within_page = (address16 + bytes_read) % page_len;
         // prevent overflowing the page boundary
         current_block_len = MIN(page_len - index_within_page, current_block_len);
@@ -248,6 +241,7 @@ int32_t PIOS_Flash_EEPROM_Read(struct flash_eeprom_dev *flash_dev, const uint32_
             return status;
         }
     }
+
     return 0;
 }
 

@@ -121,7 +121,6 @@ int32_t PIOS_FLASHFS_Init(uintptr_t *fs_id, const struct flashfs_cfg *cfg, const
 
     // Check for valid object table or create one
     uint32_t object_table_magic;
-    uint32_t magic_fail_count = 0;
     bool magic_good = false;
     *fs_id = (uintptr_t)dev;
 
@@ -130,18 +129,13 @@ int32_t PIOS_FLASHFS_Init(uintptr_t *fs_id, const struct flashfs_cfg *cfg, const
             return -1;
         }
         if (object_table_magic != dev->cfg->table_magic) {
-            if (magic_fail_count++ > MAX_BADMAGIC) {
-                if (PIOS_FLASHFS_Format(*fs_id) != 0) {
-                    return -1;
-                }
-#if defined(PIOS_LED_HEARTBEAT)
-                PIOS_LED_Toggle(PIOS_LED_HEARTBEAT);
-#endif /* PIOS_LED_HEARTBEAT */
-                magic_fail_count = 0;
-                magic_good = true;
-            } else {
-                PIOS_DELAY_WaituS(1000);
+            if (PIOS_FLASHFS_Format(*fs_id) != 0) {
+                return -1;
             }
+#if defined(PIOS_LED_HEARTBEAT)
+            PIOS_LED_Toggle(PIOS_LED_HEARTBEAT);
+#endif /* PIOS_LED_HEARTBEAT */
+            magic_good = true;
         } else {
             magic_good = true;
         }
@@ -182,21 +176,15 @@ int32_t PIOS_FLASHFS_Format(uintptr_t fs_id)
         return -1;
     }
 
-    if (!dev->driver->start_transaction(dev->flash_id)) {
+    if (dev->driver->start_transaction(dev->flash_id)) {
         return -1;
-    }
-
-
-    if (dev->driver->erase_chip) {
-        if (dev->driver->erase_chip(dev->flash_id) != 0) {
-            dev->driver->end_transaction(dev->flash_id);
-            return -1;
-        }
     }
 
     if (PIOS_FLASHFS_ClearObjectTableHeader(dev) != 0) {
+        dev->driver->end_transaction(dev->flash_id);
         return -1;
     }
+    dev->driver->end_transaction(dev->flash_id);
     return 0;
 }
 
@@ -227,7 +215,7 @@ static int32_t PIOS_FLASHFS_ClearObjectTableHeader(struct flashfs_dev *dev)
  * @brief Get the address of an object
  * @param obj UAVObjHandle for that object
  * @parma instId Instance id for that object
- * @return address if successful, -1 if not found
+ * @return address if successful, -1 if not found, -2 if failure occurred while reading
  */
 static int32_t PIOS_FLASHFS_GetObjAddress(struct flashfs_dev *dev, uint32_t objId, uint16_t instId)
 {
@@ -238,7 +226,7 @@ static int32_t PIOS_FLASHFS_GetObjAddress(struct flashfs_dev *dev, uint32_t objI
     while (addr < dev->cfg->obj_table_end) {
         // Read the instance data
         if (dev->driver->read_data(dev->flash_id, addr, (uint8_t *)&header, sizeof(header)) != 0) {
-            return -1;
+            return -2;
         }
         if (header.objMagic != dev->cfg->obj_magic) {
             break; // stop searching once hit first non-object header

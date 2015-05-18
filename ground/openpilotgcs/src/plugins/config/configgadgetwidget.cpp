@@ -36,6 +36,7 @@
 #include "configrevohwwidget.h"
 #include "configoplinkwidget.h"
 #include "configrevowidget.h"
+#include "configrevonanohwwidget.h"
 #include "defaultattitudewidget.h"
 #include "defaulthwsettingswidget.h"
 #include "uavobjectutilmanager.h"

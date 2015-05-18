@@ -132,6 +132,7 @@ HEADERS += \
     $$UAVOBJECT_SYNTHETICS/waypoint.h \
     $$UAVOBJECT_SYNTHETICS/waypointactive.h \
     $$UAVOBJECT_SYNTHETICS/mpu6000settings.h \
+    $$UAVOBJECT_SYNTHETICS/mpu9250settings.h \
     $$UAVOBJECT_SYNTHETICS/takeofflocation.h \
     $$UAVOBJECT_SYNTHETICS/auxmagsensor.h \
     $$UAVOBJECT_SYNTHETICS/auxmagsettings.h \
@@ -245,6 +246,7 @@ SOURCES += \
     $$UAVOBJECT_SYNTHETICS/waypoint.cpp \
     $$UAVOBJECT_SYNTHETICS/waypointactive.cpp \
     $$UAVOBJECT_SYNTHETICS/mpu6000settings.cpp \
+    $$UAVOBJECT_SYNTHETICS/mpu9250settings.cpp \
     $$UAVOBJECT_SYNTHETICS/takeofflocation.cpp \
     $$UAVOBJECT_SYNTHETICS/auxmagsensor.cpp \
     $$UAVOBJECT_SYNTHETICS/auxmagsettings.cpp \

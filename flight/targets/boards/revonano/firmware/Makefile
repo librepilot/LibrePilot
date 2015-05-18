@@ -27,7 +27,7 @@ include $(ROOT_DIR)/make/firmware-defs.mk
 USE_DSP_LIB ?= NO
 
 # List of mandatory modules to include
-#MODULES += Sensors
+MODULES += Sensors
 #MODULES += StateEstimation
 MODULES += Altitude/revolution
 #MODULES += Airspeed

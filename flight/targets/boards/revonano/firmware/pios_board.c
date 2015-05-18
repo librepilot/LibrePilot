@@ -103,18 +103,18 @@ static const struct pios_ms5611_cfg pios_ms5611_cfg = {
 #endif /* PIOS_INCLUDE_MS5611 */
 
 /**
- * Configuration for the MPU6000 chip
+ * Configuration for the MPU9250 chip
  */
-#if defined(PIOS_INCLUDE_MPU6000)
-#include "pios_mpu6000.h"
-#include "pios_mpu6000_config.h"
-static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
-    .vector = PIOS_MPU6000_IRQHandler,
-    .line   = EXTI_Line4,
+#if defined(PIOS_INCLUDE_MPU9250)
+#include "pios_mpu9250.h"
+#include "pios_mpu9250_config.h"
+static const struct pios_exti_cfg pios_exti_mpu9250_cfg __exti_config = {
+    .vector = PIOS_MPU9250_IRQHandler,
+    .line   = EXTI_Line15,
     .pin    = {
-        .gpio = GPIOC,
+        .gpio = GPIOA,
         .init = {
-            .GPIO_Pin   = GPIO_Pin_4,
+            .GPIO_Pin   = GPIO_Pin_15,
             .GPIO_Speed = GPIO_Speed_100MHz,
             .GPIO_Mode  = GPIO_Mode_IN,
             .GPIO_OType = GPIO_OType_OD,
@@ -123,7 +123,7 @@ static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
     },
     .irq                                       = {
         .init                                  = {
-            .NVIC_IRQChannel    = EXTI4_IRQn,
+            .NVIC_IRQChannel    = EXTI15_10_IRQn,
             .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
             .NVIC_IRQChannelSubPriority        = 0,
             .NVIC_IRQChannelCmd = ENABLE,
@@ -131,7 +131,7 @@ static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
     },
     .exti                                      = {
         .init                                  = {
-            .EXTI_Line    = EXTI_Line4, // matches above GPIO pin
+            .EXTI_Line    = EXTI_Line15, // matches above GPIO pin
             .EXTI_Mode    = EXTI_Mode_Interrupt,
             .EXTI_Trigger = EXTI_Trigger_Rising,
             .EXTI_LineCmd = ENABLE,
@@ -139,23 +139,27 @@ static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
     },
 };
 
-static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
-    .exti_cfg   = &pios_exti_mpu6000_cfg,
-    .Fifo_store = PIOS_MPU6000_FIFO_TEMP_OUT | PIOS_MPU6000_FIFO_GYRO_X_OUT | PIOS_MPU6000_FIFO_GYRO_Y_OUT | PIOS_MPU6000_FIFO_GYRO_Z_OUT,
-    // Clock at 8 khz, downsampled by 12 for 666Hz
-    .Smpl_rate_div_no_dlp = 11,
-    // with dlp on output rate is 500Hz
-    .Smpl_rate_div_dlp    = 1,
-    .interrupt_cfg = PIOS_MPU6000_INT_CLR_ANYRD,
-    .interrupt_en  = PIOS_MPU6000_INTEN_DATA_RDY,
-    .User_ctl             = PIOS_MPU6000_USERCTL_FIFO_EN | PIOS_MPU6000_USERCTL_DIS_I2C,
-    .Pwr_mgmt_clk  = PIOS_MPU6000_PWRMGMT_PLL_X_CLK,
-    .accel_range   = PIOS_MPU6000_ACCEL_8G,
-    .gyro_range    = PIOS_MPU6000_SCALE_2000_DEG,
-    .filter               = PIOS_MPU6000_LOWPASS_256_HZ,
-    .orientation   = PIOS_MPU6000_TOP_180DEG
+static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
+    .exti_cfg   = &pios_exti_mpu9250_cfg,
+    .Fifo_store = PIOS_MPU9250_FIFO_TEMP_OUT | PIOS_MPU9250_FIFO_GYRO_X_OUT | PIOS_MPU9250_FIFO_GYRO_Y_OUT | PIOS_MPU9250_FIFO_GYRO_Z_OUT,
+    // Clock at 8 khz
+    .Smpl_rate_div_no_dlp = 0,
+    // with dlp on output rate is 1000Hz
+    .Smpl_rate_div_dlp    = 0,
+    .interrupt_cfg = PIOS_MPU9250_INT_CLR_ANYRD | PIOS_MPU9250_INT_LATCH_EN,
+    .interrupt_en  = PIOS_MPU9250_INTEN_DATA_RDY,
+    .User_ctl      = PIOS_MPU9250_USERCTL_DIS_I2C | PIOS_MPU9250_USERCTL_I2C_MST_EN,
+    .Pwr_mgmt_clk  = PIOS_MPU9250_PWRMGMT_PLL_X_CLK,
+    .accel_range   = PIOS_MPU9250_ACCEL_8G,
+    .gyro_range    = PIOS_MPU9250_SCALE_2000_DEG,
+    .filter        = PIOS_MPU9250_LOWPASS_256_HZ,
+    .orientation   = PIOS_MPU9250_TOP_180DEG,
+    .fast_prescaler = PIOS_SPI_PRESCALER_64,
+    .std_prescaler  = PIOS_SPI_PRESCALER_64,
+    .max_downsample = 16,
 };
-#endif /* PIOS_INCLUDE_MPU6000 */
+#endif /* PIOS_INCLUDE_MPU9250 */
+
 
 /* One slot per selectable receiver group.
  *  eg. PWM, PPM, GCS, SPEKTRUM1, SPEKTRUM2, SBUS
@@ -737,9 +741,9 @@ void PIOS_Board_Init(void)
     PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_pressure_adapter_id);
 #endif
 
-#if defined(PIOS_INCLUDE_MPU6000)
-    PIOS_MPU6000_Init(pios_spi_gyro_id, 0, &pios_mpu6000_cfg);
-    PIOS_MPU6000_CONFIG_Configure();
+#if defined(PIOS_INCLUDE_MPU9250)
+    PIOS_MPU9250_Init(pios_spi_gyro_id, 0, &pios_mpu9250_cfg);
+    PIOS_MPU9250_CONFIG_Configure();
 #endif
 
 #ifdef PIOS_INCLUDE_WS2811

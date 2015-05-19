@@ -1,4 +1,5 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC2
+Release Notes - OpenPilot - Version RELEASE-15.05 NANO-RC2
+New hardware support - the Revolution Nano.
 Fully autonomous flight is now possible with autotakeoff and landing as flight modes available to path plans.  
 An all new implementation of altitude vario provides improved altitude maintenance and smoother flight.
 A new RateTrainer mode for beginners and aerial photography make it easier to learn this mode my limiting the pitch and roll extents.
@@ -7,11 +8,11 @@ It is now easier to takeoff with an improved axislock on yaw implementation.
 Full speed flight just got faster with new motor constraints that maintain your ability to enact roll without requiring a upper throttle limit.
 Setup on GPS just got easier. See the wiki for details.
 New control protocols and support for due telemtry and OSD programing have been added.
-CC3D is no longer supported.
+CC3D is no longer supported. Upgrade to the Revolution Nano for better flight characteristics and Revolution features.
 
 The full list of bugfixes in this release is accessible here:
 
-Release Notes - OpenPilot - Version RELEASE-15.05 RC2
+Release Notes - OpenPilot - Version RELEASE-15.05 NANO-RC2
 
 ** Bug
     * [OP-1691] - PIOS_DELAY_WaitmS() in RFM22B causes jitter

@@ -296,7 +296,8 @@ void PfdQmlContext::apply(QQmlContext *context)
         "SystemSettings" <<
         "RevoSettings" <<
         "MagState" <<
-        "FlightBatterySettings";
+        "FlightBatterySettings" <<
+        "ReceiverStatus";
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();

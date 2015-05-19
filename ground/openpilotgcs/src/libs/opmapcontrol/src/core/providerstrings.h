@@ -60,17 +60,8 @@ public:
     /// </summary>
 
 
-    // Yahoo version strings
-    QString VersionYahooMap;
-    QString VersionYahooSatellite;
-    QString VersionYahooLabels;
-
     // BingMaps
     QString VersionBingMaps;
-
-    // YandexMap
-    QString VersionYandexMap;
-
 
     /// <summary>
     /// Bing Maps Customer Identification, more info here

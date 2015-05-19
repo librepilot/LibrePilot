@@ -132,7 +132,7 @@ void VtolBrakeController::SettingsUpdated(void)
     controlNE.UpdateParameters(vtolPathFollowerSettings->BrakeHorizontalVelPID.Kp,
                                vtolPathFollowerSettings->BrakeHorizontalVelPID.Ki,
                                vtolPathFollowerSettings->BrakeHorizontalVelPID.Kd,
-                               vtolPathFollowerSettings->BrakeHorizontalVelPID.ILimit,
+                               vtolPathFollowerSettings->BrakeHorizontalVelPID.Beta,
                                dT,
                                10.0f * vtolPathFollowerSettings->HorizontalVelMax); // avoid constraining initial fast entry into brake
     controlNE.UpdatePositionalParameters(vtolPathFollowerSettings->HorizontalPosP);
@@ -192,6 +192,21 @@ void VtolBrakeController::UpdateVelocityDesired()
             controlNE.UpdatePositionSetpoint(positionState.North, positionState.East);
             if (!mManualThrust) {
                 controlDown.UpdatePositionSetpoint(positionState.Down);
+            }
+
+
+            FlightStatusFlightModeAssistOptions flightModeAssist;
+            FlightStatusFlightModeAssistGet(&flightModeAssist);
+            if (flightModeAssist != FLIGHTSTATUS_FLIGHTMODEASSIST_NONE) {
+                // Notify manualcommand via setting hold state in flightstatus assistedcontrolstate
+                FlightStatusAssistedControlStateOptions assistedControlFlightMode;
+                FlightStatusAssistedControlStateGet(&assistedControlFlightMode);
+                // sanity check that we are in brake state according to flight status, which means
+                // we are being used for gpsassist
+                if (assistedControlFlightMode == FLIGHTSTATUS_ASSISTEDCONTROLSTATE_BRAKE) {
+                    assistedControlFlightMode = FLIGHTSTATUS_ASSISTEDCONTROLSTATE_HOLD;
+                    FlightStatusAssistedControlStateSet(&assistedControlFlightMode);
+                }
             }
         }
 

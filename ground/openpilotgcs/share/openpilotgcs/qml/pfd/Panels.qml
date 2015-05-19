@@ -38,6 +38,7 @@ Item {
     function hide_display_rcinput(){
         show_panels = true;
         display_oplm = false
+        display_bat = false
         rc_input_bg.z = 10
         battery_bg.z = -1
         oplm_bg.z = -1
@@ -47,6 +48,7 @@ Item {
     function hide_display_battery(){
         show_panels = true;
         display_oplm = false
+        display_bat = true
         rc_input_bg.z = 10
         battery_bg.z = 20
         oplm_bg.z = -1
@@ -56,6 +58,7 @@ Item {
     function hide_display_oplink(){
         show_panels = true;
         display_oplm = true
+        display_bat = false
         rc_input_bg.z = 10
         battery_bg.z = 20
         oplm_bg.z = 30
@@ -65,6 +68,7 @@ Item {
     function hide_display_system(){
         show_panels = true;
         display_oplm = false
+        display_bat = false
         rc_input_bg.z = 10
         battery_bg.z = 20
         oplm_bg.z = 30
@@ -237,7 +241,11 @@ Item {
         elementName: "close-panel-mousearea"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: close_bg.z+100 
+        z: close_bg.z+100
+
+        TooltipArea {
+            text: show_panels == true ? "Close panels" : "Open panels"
+        }
 
         MouseArea {
              id: hidedisp_close;
@@ -310,6 +318,10 @@ Item {
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
         z: rc_input_bg.z+1
+
+        TooltipArea {
+            text: "RC panel"
+        }
 
         MouseArea {
              id: hidedisp_rcinput;
@@ -523,10 +535,16 @@ Item {
         Rectangle {
             anchors.fill: parent
 
+            TooltipArea {
+               text: "Reset consumed energy"
+               visible: display_bat == true ? 1 : 0
+            }
+
             MouseArea { 
                id: reset_panel_consumed_energy_mouseArea; 
                anchors.fill: parent;
-               cursorShape: Qt.PointingHandCursor; 
+               cursorShape: Qt.PointingHandCursor;
+               visible: display_bat == true ? 1 : 0
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
@@ -576,10 +594,16 @@ Item {
             anchors.fill: parent
             //color: panels.batColors[SystemAlarms.Alarm_Battery]
 
+            TooltipArea {
+               text: "Reset consumed energy"
+               visible: display_bat == true ? 1 : 0
+            }
+
             MouseArea { 
                id: reset_panel_consumed_energy_mouseArea2; 
                anchors.fill: parent;
                cursorShape: Qt.PointingHandCursor; 
+               visible: display_bat == true ? 1 : 0
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
@@ -629,6 +653,10 @@ Item {
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
         z: battery_bg.z+6
+
+        TooltipArea {
+            text: "Battery panel"
+        }
 
         MouseArea {
              id: hidedisp_battery;
@@ -810,8 +838,8 @@ Item {
             MouseArea {
                  id: idButton_oplm_mousearea;
                  anchors.fill: parent;
+                 cursorShape: Qt.PointingHandCursor;
                  visible: display_oplm == true ? 1 : 0
-                 cursorShape: display_oplm == true ? Qt.PointingHandCursor  : Qt.ArrowCursor
                  onClicked: select_oplm(index)
             }
 
@@ -885,11 +913,69 @@ Item {
     }
 
     SvgElementImage {
+        id: rx_quality_label
+        elementName: "rx-quality-label"
+        sceneSize: panels.sceneSize
+        y: Math.floor(scaledBounds.y * sceneItem.height)
+        z: oplm_bg.z+8
+
+        states: State {
+             name: "fading"
+             when: show_panels == true
+             PropertyChanges { target: rx_quality_label; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
+        }
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
+        }
+    }
+
+    SvgElementPositionItem {
+        id: rx_quality_text
+        sceneSize: panels.sceneSize
+        elementName: "rx-quality-text"
+        z: oplm_bg.z+9
+
+        width: scaledBounds.width * sceneItem.width
+        height: scaledBounds.height * sceneItem.height
+        y: scaledBounds.y * sceneItem.height
+
+        states: State {
+             name: "fading"
+             when: show_panels == true
+             PropertyChanges { target: rx_quality_text; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
+        }
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
+        }
+
+        Text {
+             text: ReceiverStatus.Quality > 0 ? ReceiverStatus.Quality+"%" : "?? %"
+             anchors.centerIn: parent
+             color: "white"
+             font {
+                 family: pt_bold.name
+                 pixelSize: Math.floor(parent.height * 1.4)
+                 weight: Font.DemiBold
+             }
+        }
+    }
+
+    SvgElementImage {
         id: oplm_mousearea
         elementName: "oplm-panel-mousearea"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
         z: oplm_bg.z
+
+        TooltipArea {
+            text: "Link panel"
+        }
 
         MouseArea {
              id: hidedisp_oplm;
@@ -1132,6 +1218,10 @@ Item {
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
         z: system_bg.z+1
+
+        TooltipArea {
+            text: "System panel"
+        }
 
         MouseArea {
              id: hidedisp_system;

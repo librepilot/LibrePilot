@@ -28,14 +28,8 @@ OTHER_FILES += UAVObjects.pluginspec
 UAVOBJ_XML_DIR = $${ROOT_DIR}/shared/uavobjectdefinition
 UAVOBJ_ROOT_DIR = $${ROOT_DIR}
 
-CONFIG(debug, debug|release) {
-    BUILD_CONF = debug
-} else {
-    BUILD_CONF = release
-}
-
 win32 {
-    UAVOBJGENERATOR = ../../../../uavobjgenerator/$${BUILD_CONF}/uavobjgenerator.exe
+    UAVOBJGENERATOR = ../../../../uavobjgenerator/uavobjgenerator.exe
 } else {
     UAVOBJGENERATOR = ../../../../uavobjgenerator/uavobjgenerator
 }
@@ -132,6 +126,7 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/hwsettings.xml \
     $${UAVOBJ_XML_DIR}/gcsreceiver.xml \
     $${UAVOBJ_XML_DIR}/receiveractivity.xml \
+    $${UAVOBJ_XML_DIR}/receiverstatus.xml \
     $${UAVOBJ_XML_DIR}/attitudesettings.xml \
     $${UAVOBJ_XML_DIR}/txpidsettings.xml \
     $${UAVOBJ_XML_DIR}/cameradesired.xml \

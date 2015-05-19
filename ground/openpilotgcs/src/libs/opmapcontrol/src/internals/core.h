@@ -44,9 +44,7 @@
 #include "rectlatlng.h"
 #include "../internals/projections/lks94projection.h"
 #include "../internals/projections/mercatorprojection.h"
-#include "../internals/projections/mercatorprojectionyandex.h"
 #include "../internals/projections/platecarreeprojection.h"
-#include "../internals/projections/platecarreeprojectionpergo.h"
 #include "../core/geodecoderstatus.h"
 #include "../core/opmaps.h"
 #include "../core/diagnostics.h"
@@ -266,7 +264,7 @@ public:
 
     void OnMapClose(); // TODO had as slot
 
-    GeoCoderStatusCode::Types SetCurrentPositionByKeywords(QString const & keys);
+    QString SetCurrentPositionByKeywords(QString const & keys);
 
     RectLatLng CurrentViewArea();
 

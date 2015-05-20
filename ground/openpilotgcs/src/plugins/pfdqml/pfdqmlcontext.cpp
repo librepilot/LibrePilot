@@ -277,11 +277,11 @@ void PfdQmlContext::apply(QQmlContext *context)
         "VelocityDesired" <<
         "PathDesired" <<
         "GPSPositionSensor" <<
+        "GPSSatellites" <<
         "HomeLocation" <<
         "GCSTelemetryStats" <<
         "SystemAlarms" <<
         "NedAccel" <<
-        "FlightBatteryState" <<
         "ActuatorDesired" <<
         "TakeOffLocation" <<
         "PathPlan" <<
@@ -297,6 +297,7 @@ void PfdQmlContext::apply(QQmlContext *context)
         "RevoSettings" <<
         "MagState" <<
         "FlightBatterySettings" <<
+        "FlightBatteryState" <<
         "ReceiverStatus";
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();

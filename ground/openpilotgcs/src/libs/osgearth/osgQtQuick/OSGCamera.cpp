@@ -218,9 +218,13 @@ public:
             cm = NULL;
             break;
         case OSGCamera::Earth:
+        {
             qDebug() << "OSGCamera::attachManipulator - use EarthManipulator";
-            cm = new osgEarth::Util::EarthManipulator();
+            osgEarth::Util::EarthManipulator *em = new osgEarth::Util::EarthManipulator();
+            em->getSettings()->setThrowingEnabled(true);
+            cm = em;
             break;
+        }
         case OSGCamera::Track:
             qDebug() << "OSGCamera::attachManipulator - use NodeTrackerManipulator";
             if (trackNode && trackNode->node()) {

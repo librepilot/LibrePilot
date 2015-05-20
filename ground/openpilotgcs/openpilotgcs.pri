@@ -79,6 +79,33 @@ defineTest(addCopyDirTarget) {
     return(true)
 }
 
+defineTest(addCopyAllDirTarget) {
+    dir  = copyalldirtarget
+    src  = $$1
+    dest = $$2
+
+    $${dir}.target    = $$dest
+    $${dir}.depends   = $$src
+    # Windows does not update directory timestamp if files are modified
+    win32: $${dir}.depends += FORCE
+
+    $${dir}.commands  = @rm -rf \"$$dest\" $$addNewline()
+    # create directory. Better would be an order only dependency
+    $${dir}.commands += -@$(MKDIR) \"$$dirname(dest)\" $$addNewline()
+    $${dir}.commands += $(COPY_DIR) \"$$src\" \"$$dest\"
+
+    QMAKE_EXTRA_TARGETS += $$dir
+    POST_TARGETDEPS += $$eval($${dir}.target)
+
+    export($${dir}.target)
+    export($${dir}.depends)
+    export($${dir}.commands)
+    export(QMAKE_EXTRA_TARGETS)
+    export(POST_TARGETDEPS)
+
+    return(true)
+}
+
 # For use in custom compilers which just copy files
 win32:i_flag = i
 defineReplace(stripSrcDir) {

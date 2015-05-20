@@ -6,22 +6,12 @@ equals(copydata, 1) {
     OSG_VERSION = 3.3.8
 
     linux {
-        !exists($(OSG_SDK_DIR)/lib64) {
-			OSG_LIB_DIR = $(OSG_SDK_DIR)/lib
-        } else {
-			OSG_LIB_DIR = $(OSG_SDK_DIR)/lib64
-        }
-
         # copy osg libraries
-        data_copy.commands += -@$(MKDIR) $$targetPath(\"$$GCS_LIBRARY_PATH/osg\") $$addNewline()
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_LIB_DIR/.\") \
-            $$targetPath(\"$$GCS_LIBRARY_PATH/osg/\") $$addNewline()
-
-        # add make target
-        POST_TARGETDEPS += copydata
-
-        data_copy.target = copydata
-        QMAKE_EXTRA_TARGETS += data_copy
+        exists($(OSG_SDK_DIR)/lib64) {
+	        addCopyAllDirTarget($${OSG_SDK_DIR}/lib64,$${GCS_LIBRARY_PATH}/osg)
+        } else {
+	        addCopyAllDirTarget($${OSG_SDK_DIR}/lib,$${GCS_LIBRARY_PATH}/osg)
+        }
     }
 
     macx {

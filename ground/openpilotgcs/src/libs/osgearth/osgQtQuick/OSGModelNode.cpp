@@ -3,6 +3,7 @@
 #include "../utility.h"
 
 #include <osg/Quat>
+#include <osgViewer/View>
 
 #include <osgEarth/MapNode>
 #include <osgEarth/GeoData>
@@ -105,6 +106,17 @@ public:
 
         dirty = true;
 
+        return true;
+    }
+
+    bool attach(osgViewer::View *view)
+    {
+        return true;
+
+    }
+    bool detach(osgViewer::View *view)
+    {
+        qWarning() << "OSGSkyNode::detach - not implemented";
         return true;
     }
 
@@ -316,6 +328,16 @@ void OSGModelNode::setPosition(QVector3D arg)
         h->dirty    = true;
         emit positionChanged(position());
     }
+}
+
+bool OSGModelNode::attach(osgViewer::View *view)
+{
+    return h->attach(view);
+}
+
+bool OSGModelNode::detach(osgViewer::View *view)
+{
+    return h->detach(view);
 }
 } // namespace osgQtQuick
 

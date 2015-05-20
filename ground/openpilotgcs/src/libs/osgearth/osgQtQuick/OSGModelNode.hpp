@@ -7,6 +7,10 @@
 #include <QVector3D>
 #include <QUrl>
 
+namespace osgViewer {
+class View;
+}
+
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGModelNode : public OSGNode {
     Q_OBJECT
@@ -40,6 +44,9 @@ public:
 
     QVector3D position() const;
     void setPosition(QVector3D arg);
+
+    virtual bool attach(osgViewer::View *view);
+    virtual bool detach(osgViewer::View *view);
 
 signals:
     void modelDataChanged(OSGNode *node);

@@ -177,6 +177,8 @@ public:
             view->getCamera()->addCullCallback(cullCallback);
         }
 
+        view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
+
         view->setSceneData(node);
 
         return true;

@@ -3,7 +3,7 @@
 #
 equals(copydata, 1) {
 
-    OSG_VERSION = 3.2.1
+    OSG_VERSION = 3.3.8
 
     linux {
         !exists($(OSG_SDK_DIR)/lib64) {

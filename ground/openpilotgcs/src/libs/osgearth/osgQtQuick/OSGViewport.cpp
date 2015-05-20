@@ -9,6 +9,7 @@
 #include <osg/Node>
 #include <osg/DeleteHandler>
 #include <osg/GLObjects>
+#include <osg/ApplicationUsage>
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
@@ -236,6 +237,9 @@ public:
             start();
             // osgDB::writeNodeFile(*(h->self->sceneData()->node()), "saved.osg");
         }
+//        osg::ref_ptr<osg::ApplicationUsage> applicationUsage;
+//        viewer->getUsage(*applicationUsage);
+//        qDebug() << QString::fromStdString(applicationUsage->getDescription());
 //        else {
 //            view->getCamera()->setGraphicsContext(createGraphicsContext());
 //            view->getCamera()->getGraphicsContext()->realize();

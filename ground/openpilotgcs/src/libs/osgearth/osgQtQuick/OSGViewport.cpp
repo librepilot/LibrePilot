@@ -240,10 +240,6 @@ public:
 //        osg::ref_ptr<osg::ApplicationUsage> applicationUsage;
 //        viewer->getUsage(*applicationUsage);
 //        qDebug() << QString::fromStdString(applicationUsage->getDescription());
-//        else {
-//            view->getCamera()->setGraphicsContext(createGraphicsContext());
-//            view->getCamera()->getGraphicsContext()->realize();
-//        }
     }
 
     void releaseResources()
@@ -253,11 +249,11 @@ public:
             qWarning() << "OSGViewport::releaseResources - view is not valid!";
             return;
         }
-//        view->getSceneData()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
-//        view->getCamera()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
         osg::deleteAllGLObjects(view->getCamera()->getGraphicsContext()->getState()->getContextID());
-//        view->getCamera()->getGraphicsContext()->close();
-//        view->getCamera()->setGraphicsContext(NULL);
+        // view->getSceneData()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
+        // view->getCamera()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
+        // view->getCamera()->getGraphicsContext()->close();
+        // view->getCamera()->setGraphicsContext(NULL);
     }
 
     bool acceptUpdateMode(OSGViewport::UpdateMode mode)

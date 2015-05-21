@@ -100,8 +100,8 @@ bool VehicleConfigurationHelper::setupHardwareSettings(bool save)
 
 bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
 {
-        return true;
-    }
+    return true;
+}
 
 void VehicleConfigurationHelper::addModifiedObject(UAVDataObject *object, QString description)
 {
@@ -410,6 +410,13 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
                 data.BankUpdateFreq[2] = escFrequence;
                 data.BankMode[2] = bankMode;
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
+                data.BankUpdateFreq[1] = escFrequence;
+                data.BankMode[1] = bankMode;
+                data.BankUpdateFreq[2] = escFrequence;
+                data.BankMode[2] = bankMode;
+                data.BankUpdateFreq[3] = escFrequence;
+                data.BankMode[3] = bankMode;
             }
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA:
@@ -429,6 +436,10 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             data.BankMode[2] = bankMode;
             data.BankUpdateFreq[3] = escFrequence;
             data.BankMode[3] = bankMode;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
+                data.BankUpdateFreq[4] = escFrequence;
+                data.BankMode[4] = bankMode;
+            }
             break;
         default:
             break;

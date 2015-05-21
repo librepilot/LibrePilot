@@ -133,7 +133,6 @@ equals(copydata, 1) {
             mingw_osgdb_osgearth_feature_wfs$${DS}.dll \
             mingw_osgdb_osgearth_gdal$${DS}.dll \
             mingw_osgdb_osgearth_label_annotation$${DS}.dll \
-            mingw_osgdb_osgearth_label_overlay$${DS}.dll \
             mingw_osgdb_osgearth_mask_feature$${DS}.dll \
             mingw_osgdb_osgearth_model_feature_geom$${DS}.dll \
             mingw_osgdb_osgearth_model_feature_stencil$${DS}.dll \

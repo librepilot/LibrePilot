@@ -1605,30 +1605,6 @@
       </default>
     </OPMapGadget>    
     <PfdQmlGadget>
-      <Cube>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <altitudeFactor>1</altitudeFactor>
-          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
-          <cacheOnly>false</cacheOnly>
-          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
-          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
-          <latitude>39.6576</latitude>
-          <longitude>19.8046</longitude>
-          <altitude>90</altitude>
-          <minAmbientLight>0.50</minAmbientLight>
-          <modelEnabled>false</modelEnabled>
-          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
-          <modelSelectionMode>1</modelSelectionMode>
-          <qmlFile>%%DATAPATH%%qml/CubeView.qml</qmlFile>
-          <speedFactor>1</speedFactor>
-          <terrainEnabled>false</terrainEnabled>
-          <timeMode>0</timeMode>
-        </data>
-      </Cube>
       <PFD>
         <configInfo>
           <locked>false</locked>

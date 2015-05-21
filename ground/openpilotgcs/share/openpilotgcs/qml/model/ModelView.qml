@@ -4,14 +4,6 @@ import PfdQmlEnums 1.0
 
 Item {
 
-// unfortunately it is currently not possible to place a background image behind the osg scene
-// the OSGViewport will completely overwrite the background image
-// currently the background image is handled by OSGViewport directly (which offers, if needed, "real" anti-aliasing of scene and background) 
-//Image {
-//    anchors.fill: parent
-//    source: "backgrounds/default_backgrounds.png"
-//}
-
     OSGViewport {
         anchors.fill: parent
         focus: true

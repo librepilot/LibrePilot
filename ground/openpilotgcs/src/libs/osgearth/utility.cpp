@@ -308,7 +308,7 @@ void openGLContextInfo(QOpenGLContext *context, const char *at)
         qDebug() << "share context :" << context->shareContext();
         // formatInfo(context->format());
     }
-    qDebug() << "thread        :" << QThread::currentThread() << " / " << QCoreApplication::instance()->thread();
+    qDebug() << "thread        :" << QThread::currentThread() << "/" << QCoreApplication::instance()->thread();
     qDebug() << "--------------------------------------------------------------------";
 }
 

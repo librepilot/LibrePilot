@@ -663,7 +663,6 @@ void PIOS_Board_Init(void)
         }
 #endif
         break;
-
     } /* hwsettings_rm_flexiport */
 
 

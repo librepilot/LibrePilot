@@ -179,11 +179,11 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
 
             switch (m_configSource->getGpsType()) {
             case VehicleConfigurationSource::GPS_NMEA:
-                gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_NMEA;
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_NMEA;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_DISABLED;
                 break;
             case VehicleConfigurationSource::GPS_UBX:
-                gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
                 break;
             case VehicleConfigurationSource::GPS_PLATINUM:

@@ -111,7 +111,7 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
     static uint8_t rx_count = 0;
     static bool start_flag  = false;
     static bool found_cr    = false;
-    bool goodParse          = false;
+    bool goodParse = false;
     uint8_t c;
     int i = 0;
 
@@ -124,7 +124,7 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
         if (c == '$') { // NMEA identifier found
             start_flag = false;
         }
-        if (!start_flag) {  // if no NMEA identifier ('$') found yet
+        if (!start_flag) { // if no NMEA identifier ('$') found yet
             if (c == '$') { // NMEA identifier found
                 start_flag = true;
                 found_cr   = false;
@@ -133,7 +133,7 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
                 // find a likely candidate for a NMEA string
                 // skip over some e.g. uBlox packets
                 uint8_t *p;
-                p = memchr(&rx[i], '$', len-i);
+                p = memchr(&rx[i], '$', len - i);
                 if (p) {
                     i += p - &rx[i];
                 } else {

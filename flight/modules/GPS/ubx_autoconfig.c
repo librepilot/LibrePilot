@@ -238,9 +238,9 @@ void gps_ubx_reset_sensor_type()
     // is this needed?
     // what happens if two tasks / threads try to do an XyzSet() at the same time?
     if (__sync_fetch_and_add(&mutex, 1) == 0) {
-        ubxHwVersion      = -1;
-        baud_to_try_index -= 1;  // undo postincrement and start with the one that was most recently successful
-        sensorType        = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
+        ubxHwVersion = -1;
+        baud_to_try_index -= 1; // undo postincrement and start with the one that was most recently successful
+        sensorType   = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
         GPSPositionSensorSensorTypeSet(&sensorType);
         // make the sensor type / autobaud code time out immediately to send the request immediately
         status->lastStepTimestampRaw += 0x8000000UL;
@@ -279,7 +279,7 @@ static void config_gps_baud(uint16_t *bytes_to_send)
     // disable current UBX messages for low baud rates
     status->working_packet.message.payload.cfg_prt.outProtoMask = 1;
     // Ask GPS to change it's speed
-    status->working_packet.message.payload.cfg_prt.baudRate = hwsettings_gpsspeed_enum_to_baud(hwsettings_baud);
+    status->working_packet.message.payload.cfg_prt.baudRate     = hwsettings_gpsspeed_enum_to_baud(hwsettings_baud);
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_PRT, sizeof(ubx_cfg_prt_t));
 }
 
@@ -429,7 +429,7 @@ static void configure(uint16_t *bytes_to_send)
             // Skip and fall through to next step
             status->lastConfigSent++;
         }
-        // in the else case we must fall through because we must send something each time because successful send is tested externally
+    // in the else case we must fall through because we must send something each time because successful send is tested externally
 
     case LAST_CONFIG_SENT_START + 3:
         config_sbas(bytes_to_send);
@@ -480,12 +480,12 @@ static void setGpsSettings()
 
 #if 0
     // get the "in memory" version to a local buffer
-    GPSSettingsGet((void *) &status->gpsSettings);
+    GPSSettingsGet((void *)&status->gpsSettings);
     // load the permanent version into memory
     UAVObjLoad(GPSSettingsHandle(), 0);
 #endif
     // change the in memory version of the field we want to change
-    GPSSettingsUbxAutoConfigSet((GPSSettingsUbxAutoConfigOptions *) &status->currentSettings.UbxAutoConfig);
+    GPSSettingsUbxAutoConfigSet((GPSSettingsUbxAutoConfigOptions *)&status->currentSettings.UbxAutoConfig);
     // save the in memory version to permanent
     UAVObjSave(GPSSettingsHandle(), 0);
 #if 0
@@ -494,10 +494,10 @@ static void setGpsSettings()
     // try casting it correctly and it says:
     // expected 'struct GPSSettingsData *' but argument is of type 'struct GPSSettingsData *'
     // probably a volatile or align issue
-    GPSSettingsSet((void *) &status->gpsSettings);  // set the "in memory" version back into use
+    GPSSettingsSet((void *)&status->gpsSettings); // set the "in memory" version back into use
 #endif
 }
-#endif
+#endif /* if defined(AUTOBAUD_CONFIGURE_STORE_AND_DISABLE) */
 
 
 // 9600 baud and lower are not usable, and are best left at factory default
@@ -537,8 +537,8 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
         // and the fact we are here says that ubxHwVersion has not been set (it is set externally)
         // so this try at this baud rate has failed
         // if we get here
-        //   select the next baud rate, skipping ahead if new baud rate is HwSettings.GPSSpeed
-        //   set Revo baud rate to current++ value (immediate change so we can send right after that) and send the MON_VER request
+        // select the next baud rate, skipping ahead if new baud rate is HwSettings.GPSSpeed
+        // set Revo baud rate to current++ value (immediate change so we can send right after that) and send the MON_VER request
         // baud rate search order are most likely matches first
 
         // if AutoBaud or higher, do AutoBaud
@@ -559,7 +559,7 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
             // get the next baud rate to try from the table, but skip over the value of HwSettings.GPSSpeed
             do {
                 // index is inited to be out of bounds, which is interpreted as "currently defined baud rate" (= HwSettings.GPSSpeed)
-                if (baud_to_try_index >= sizeof(baud_array)/sizeof(baud_array[0])) {
+                if (baud_to_try_index >= sizeof(baud_array) / sizeof(baud_array[0])) {
                     HwSettingsGPSSpeedGet(&hwsettings_baud);
                     baud_to_try = hwsettings_baud;
                     baud_to_try_index = 0;
@@ -567,7 +567,7 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
                 } else {
                     baud_to_try = baud_array[baud_to_try_index++];
                 }
-            // skip HwSettings.GPSSpeed when you run across it in the list
+                // skip HwSettings.GPSSpeed when you run across it in the list
             } while (baud_to_try == hwsettings_baud);
             // set the FC (Revo) baud rate
             gps_set_fc_baud_from_arg(baud_to_try);
@@ -598,9 +598,9 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
         // we should look for the GPS version again (user may plug in a different GPS and then do autoconfig again)
         // zero retries for the next state that needs it (INIT_STEP_SAVE)
         set_current_step_if_untouched(INIT_STEP_SEND_MON_VER);
-        // fall through to next state
-        // we can do that if we choose because we haven't sent any data in this state
-        // break;
+    // fall through to next state
+    // we can do that if we choose because we haven't sent any data in this state
+    // break;
 
     case INIT_STEP_SEND_MON_VER:
         build_request((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_MON, UBX_ID_MON_VER, bytes_to_send);
@@ -618,9 +618,9 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
         }
         // Continue with next configuration option
         set_current_step_if_untouched(INIT_STEP_RESET_GPS);
-        // fall through to next state
-        // we can do that if we choose because we haven't sent any data in this state
-        // break;
+    // fall through to next state
+    // we can do that if we choose because we haven't sent any data in this state
+    // break;
 
     // if here, we have just verified that the baud rates are in sync (again)
     case INIT_STEP_RESET_GPS:
@@ -682,12 +682,12 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
             // set the Revo GPS port to 9600 baud to match the reset to factory default that has already been done
             gps_set_fc_baud_from_arg(HWSETTINGS_GPSSPEED_9600);
         }
-        // at most, we just set Revo baud and that doesn't send any data
-        // fall through to next state
-        // we can do that if we choose because we haven't sent any data in this state
-        // set_current_step_if_untouched(INIT_STEP_GPS_BAUD);
-        // allow it enter the next state immmediately by not setting status->lastStepTimestampRaw = PIOS_DELAY_GetRaw();
-        // break;
+    // at most, we just set Revo baud and that doesn't send any data
+    // fall through to next state
+    // we can do that if we choose because we haven't sent any data in this state
+    // set_current_step_if_untouched(INIT_STEP_GPS_BAUD);
+    // allow it enter the next state immmediately by not setting status->lastStepTimestampRaw = PIOS_DELAY_GetRaw();
+    // break;
 
     // Revo and GPS are both at 9600 baud
     case INIT_STEP_GPS_BAUD:
@@ -818,7 +818,7 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
         // fall through to next state
         // we can do that if we choose because we haven't sent any data in this state
         set_current_step_if_untouched(INIT_STEP_PRE_DONE);
-        // break;
+    // break;
 
     // the autoconfig has completed normally
     case INIT_STEP_PRE_DONE:

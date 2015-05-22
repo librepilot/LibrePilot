@@ -445,22 +445,29 @@ uint32_t hwsettings_gpsspeed_enum_to_baud(uint8_t baud)
 {
     switch (baud) {
     case HWSETTINGS_GPSSPEED_2400:
-        return(2400);
+        return 2400;
+
     case HWSETTINGS_GPSSPEED_4800:
-        return(4800);
+        return 4800;
+
     default:
     case HWSETTINGS_GPSSPEED_9600:
-        return(9600);
+        return 9600;
+
     case HWSETTINGS_GPSSPEED_19200:
-        return(19200);
+        return 19200;
+
     case HWSETTINGS_GPSSPEED_38400:
-        return(38400);
+        return 38400;
+
     case HWSETTINGS_GPSSPEED_57600:
-        return(57600);
+        return 57600;
+
     case HWSETTINGS_GPSSPEED_115200:
-        return(115200);
+        return 115200;
+
     case HWSETTINGS_GPSSPEED_230400:
-        return(230400);
+        return 230400;
     }
 }
 
@@ -468,7 +475,7 @@ uint32_t hwsettings_gpsspeed_enum_to_baud(uint8_t baud)
 // having already set the GPS's baud rate with a serial command, set the local Revo port baud rate
 void gps_set_fc_baud_from_arg(uint8_t baud)
 {
-    static uint8_t previous_baud=255;
+    static uint8_t previous_baud = 255;
     static uint8_t mutex; // = 0
 
     // do we need this?
@@ -499,7 +506,7 @@ void gps_set_fc_baud_from_arg(uint8_t baud)
 static void updateHwSettings(UAVObjEvent __attribute__((unused)) *ev)
 {
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
-    static uint32_t previousGpsPort=0xf0f0f0f0; // = doesn't match gpsport
+    static uint32_t previousGpsPort = 0xf0f0f0f0; // = doesn't match gpsport
 #endif
     // if GPS (UBX or NMEA) is enabled at all
     if (gpsPort && gpsEnabled) {
@@ -510,7 +517,7 @@ static void updateHwSettings(UAVObjEvent __attribute__((unused)) *ev)
         if (ev == NULL
             || previousGpsPort != gpsPort
             || gpsSettings.UbxAutoConfig == GPSSETTINGS_UBXAUTOCONFIG_DISABLED
-            || gpsSettings.DataProtocol  != GPSSETTINGS_DATAPROTOCOL_UBX)
+            || gpsSettings.DataProtocol != GPSSETTINGS_DATAPROTOCOL_UBX)
 #endif
         {
             uint8_t speed;
@@ -555,15 +562,15 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
     // setting it up completely means that if we switch from initial NMEA to UBX or disabled to enabled, that it will start normally
     newconfig.UbxAutoConfig = gpsSettings.UbxAutoConfig;
     newconfig.navRate = gpsSettings.UbxRate;
-    newconfig.dynamicModel = gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_PORTABLE   ? UBX_DYNMODEL_PORTABLE   :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_STATIONARY ? UBX_DYNMODEL_STATIONARY :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_PEDESTRIAN ? UBX_DYNMODEL_PEDESTRIAN :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AUTOMOTIVE ? UBX_DYNMODEL_AUTOMOTIVE :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_SEA        ? UBX_DYNMODEL_SEA        :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AIRBORNE1G ? UBX_DYNMODEL_AIRBORNE1G :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AIRBORNE2G ? UBX_DYNMODEL_AIRBORNE2G :
-                             gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AIRBORNE4G ? UBX_DYNMODEL_AIRBORNE4G :
-                             UBX_DYNMODEL_AIRBORNE1G;
+    newconfig.dynamicModel  = gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_PORTABLE ? UBX_DYNMODEL_PORTABLE :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_STATIONARY ? UBX_DYNMODEL_STATIONARY :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_PEDESTRIAN ? UBX_DYNMODEL_PEDESTRIAN :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AUTOMOTIVE ? UBX_DYNMODEL_AUTOMOTIVE :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_SEA ? UBX_DYNMODEL_SEA :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AIRBORNE1G ? UBX_DYNMODEL_AIRBORNE1G :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AIRBORNE2G ? UBX_DYNMODEL_AIRBORNE2G :
+                              gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_AIRBORNE4G ? UBX_DYNMODEL_AIRBORNE4G :
+                              UBX_DYNMODEL_AIRBORNE1G;
 
     switch ((GPSSettingsUbxSBASModeOptions)gpsSettings.UbxSBASMode) {
     case GPSSETTINGS_UBXSBASMODE_RANGINGCORRECTION:
@@ -600,11 +607,11 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
 
     newconfig.SBASChannelsUsed = gpsSettings.UbxSBASChannelsUsed;
 
-    newconfig.SBASSats = gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_WAAS  ? UBX_SBAS_SATS_WAAS  :
+    newconfig.SBASSats = gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_WAAS ? UBX_SBAS_SATS_WAAS :
                          gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_EGNOS ? UBX_SBAS_SATS_EGNOS :
-                         gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_MSAS  ? UBX_SBAS_SATS_MSAS  :
+                         gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_MSAS ? UBX_SBAS_SATS_MSAS :
                          gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_GAGAN ? UBX_SBAS_SATS_GAGAN :
-                         gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_SDCM  ? UBX_SBAS_SATS_SDCM  : UBX_SBAS_SATS_AUTOSCAN;
+                         gpsSettings.UbxSBASSats == GPSSETTINGS_UBXSBASSATS_SDCM ? UBX_SBAS_SATS_SDCM : UBX_SBAS_SATS_AUTOSCAN;
 
     switch (gpsSettings.UbxGNSSMode) {
     case GPSSETTINGS_UBXGNSSMODE_GPSGLONASS:

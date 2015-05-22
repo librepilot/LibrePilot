@@ -18,6 +18,7 @@
 	<field name="EmergencyFallbackAttitude" units="deg" type="float" elementnames="Roll,Pitch" defaultvalue="0,-20.0"/>
 	<field name="EmergencyFallbackYawRate" units="(deg/s)/deg" type="float" elementnames="kP,Max" defaultvalue="2.0, 30.0"/>
         <field name="MaxRollPitch" units="deg" type="float" elements="1" defaultvalue="25"/>
+        <field name="VelocityRoamMaxRollPitch" units="deg" type="float" elements="1" defaultvalue="20"/>
         <field name="UpdatePeriod" units="ms" type="uint16" elements="1" defaultvalue="50"/>
         <field name="BrakeRate" units="m/s2" type="float" elements="1" defaultvalue="2.5"/>
         <field name="BrakeMaxPitch" units="deg" type="float" elements="1" defaultvalue="25"/>

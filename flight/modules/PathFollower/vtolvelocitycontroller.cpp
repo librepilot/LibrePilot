@@ -113,7 +113,7 @@ void VtolVelocityController::SettingsUpdated(void)
 
 
     controlNE.UpdatePositionalParameters(vtolPathFollowerSettings->HorizontalPosP);
-    controlNE.UpdateCommandParameters(-vtolPathFollowerSettings->MaxRollPitch, vtolPathFollowerSettings->MaxRollPitch, vtolPathFollowerSettings->VelocityFeedforward);
+    controlNE.UpdateCommandParameters(-vtolPathFollowerSettings->VelocityRoamMaxRollPitch, vtolPathFollowerSettings->VelocityRoamMaxRollPitch, vtolPathFollowerSettings->VelocityFeedforward);
 }
 
 int32_t VtolVelocityController::Initialize(VtolPathFollowerSettingsData *ptr_vtolPathFollowerSettings)
@@ -172,7 +172,7 @@ int8_t VtolVelocityController::UpdateStabilizationDesired(__attribute__((unused)
     float angle_radians = DEG2RAD(attitudeState.Yaw);
     float cos_angle     = cosf(angle_radians);
     float sine_angle    = sinf(angle_radians);
-    float maxPitch = vtolPathFollowerSettings->MaxRollPitch;
+    float maxPitch = vtolPathFollowerSettings->VelocityRoamMaxRollPitch;
     stabDesired.StabilizationMode.Pitch = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
     stabDesired.Pitch = boundf(-northCommand * cos_angle - eastCommand * sine_angle, -maxPitch, maxPitch);
     stabDesired.StabilizationMode.Roll  = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;

@@ -1,18 +1,17 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 NANO-RC2
-New hardware support - the Revolution Nano.
-Fully autonomous flight is now possible with autotakeoff and landing as flight modes available to path plans.  
-An all new implementation of altitude vario provides improved altitude maintenance and smoother flight.
-A new RateTrainer mode for beginners and aerial photography make it easier to learn this mode my limiting the pitch and roll extents.
-4CH transmitters for multirotor and 2CH for ground is now supported.
-It is now easier to takeoff with an improved axislock on yaw implementation.
-Full speed flight just got faster with new motor constraints that maintain your ability to enact roll without requiring a upper throttle limit.
-Setup on GPS just got easier. See the wiki for details.
-New control protocols and support for due telemtry and OSD programing have been added.
-CC3D is no longer supported. Upgrade to the Revolution Nano for better flight characteristics and Revolution features.
+Release Notes - OpenPilot - Version RELEASE-15.05 RC3
+This release introduces new features and new hardware support for the Revolution Nano.  Note that the CC3D is not supported by this feature release.  New features for multirotors include: 
+- Fully autonomous flight is now possible with auto-takeoff and landing as flight modes available to path plans.  
+- An all new implementation of altitude vario provides improved altitude maintenance and smoother flight.
+- A new RateTrainer flight mode for beginners and aerial photographers makes it easier to use this mode by limiting the pitch and roll extents.
+- A new GPS assisted VelocityRoam flight mode replacing the PositionRoam flight mode. This uses AltVario and a velocity controller for smooth GPS guided flight.
+- 4CH transmitters for multirotor (and 2CH for ground) is now supported if a single flight mode count is set.
+- It is now easier to takeoff with an improved axis-lock on yaw implementation.
+- Full speed flight just got faster with new motor constraints that maintain your ability to enact roll without requiring an upper throttle limit of 90%.
+- Setup of GPS is now automatic with auto-baud detection.
+- Support for dual telemetry and minim OSD programing have been added.
+- New control protocols have been introduced.
 
 The full list of bugfixes in this release is accessible here:
-
-Release Notes - OpenPilot - Version RELEASE-15.05 NANO-RC2
 
 ** Bug
     * [OP-1691] - PIOS_DELAY_WaitmS() in RFM22B causes jitter
@@ -34,6 +33,7 @@ Release Notes - OpenPilot - Version RELEASE-15.05 NANO-RC2
 
 ** Improvement
     * [OP-1289] - Need Revo to send two telemetry streams for OSD and GCS
+    * [OP-1464] - Handle Autobaud code for GPS
     * [OP-1734] - Clarify the need of reversing servo in FW vehicle wizard
     * [OP-1736] - Make package label something more meaningful than the date.
     * [OP-1739] - Add GNSS (GPS/GLONASS) selection to UBX autoconf
@@ -59,6 +59,8 @@ Release Notes - OpenPilot - Version RELEASE-15.05 NANO-RC2
     * [OP-1882] - vtol path follower thrust control now set to auto as a default
     * [OP-1884] - Improve low pass filter and gyro tau values
     * [OP-1887] - PFD update 
+    * [OP-1897] - Omit unnecessary warning dialog and texts in manual input calibration of Ground Vehicle
+    * [OP-1898] - VelocityRoam new flight mode
 
 ** New Feature
     * [OP-1696] - PathFollower C++ Rewrite: Autonomous Landing, Velocity Roam, RTBL, GroundPathFollower

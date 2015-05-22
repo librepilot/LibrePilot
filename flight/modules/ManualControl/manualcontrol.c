@@ -411,7 +411,7 @@ static void manualControlTask(void)
     // set in stabi settings.  Once if we decide to always have this on, it can
     // can be directly set here...i.e. set the flight mode assist as required.
     case FLIGHTSTATUS_FLIGHTMODE_POSITIONHOLD:
-    case FLIGHTSTATUS_FLIGHTMODE_POSITIONROAM:
+    case FLIGHTSTATUS_FLIGHTMODE_VELOCITYROAM:
     case FLIGHTSTATUS_FLIGHTMODE_LAND:
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF:
         newFlightModeAssist = isAssistedFlightMode(position, newMode, &modeSettings);
@@ -531,7 +531,7 @@ static uint8_t isAssistedFlightMode(uint8_t position, uint8_t flightMode, Flight
             thrustMode = modeSettings->Stabilization6Settings.Thrust;
             break;
         case FLIGHTSTATUS_FLIGHTMODE_POSITIONHOLD:
-        case FLIGHTSTATUS_FLIGHTMODE_POSITIONROAM:
+        case FLIGHTSTATUS_FLIGHTMODE_VELOCITYROAM:
             // we hard code the "GPS Assisted" PostionHold/Roam to use alt-vario which
             // is a more appropriate throttle mode.  "GPSAssist" adds braking
             // and a better throttle management to the standard Position Hold.

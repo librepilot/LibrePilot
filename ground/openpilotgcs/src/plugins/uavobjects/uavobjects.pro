@@ -139,6 +139,7 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/takeofflocation.xml \
     $${UAVOBJ_XML_DIR}/taskinfo.xml \
     $${UAVOBJ_XML_DIR}/txpidsettings.xml \
+    $${UAVOBJ_XML_DIR}/txpidstatus.xml \
     $${UAVOBJ_XML_DIR}/velocitydesired.xml \
     $${UAVOBJ_XML_DIR}/velocitystate.xml \
     $${UAVOBJ_XML_DIR}/vtolpathfollowersettings.xml \

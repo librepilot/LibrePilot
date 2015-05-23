@@ -64,6 +64,7 @@
 #include "stabilizationsettingsbank2.h"
 #include "stabilizationsettingsbank3.h"
 #include "flightstatus.h"
+#include "txpidstatus.h"
 #include "hwsettings.h"
 
 //
@@ -114,6 +115,7 @@ int32_t TxPIDInitialize(void)
 
     if (txPIDEnabled) {
         TxPIDSettingsInitialize();
+        TxPIDStatusInitialize();
         AccessoryDesiredInitialize();
 
         UAVObjEvent ev = {
@@ -138,7 +140,14 @@ int32_t TxPIDInitialize(void)
         metadata.telemetryUpdateMode   = UPDATEMODE_PERIODIC;
         metadata.telemetryUpdatePeriod = TELEMETRY_UPDATE_PERIOD_MS;
         StabilizationSettingsSetMetadata(&metadata);
-#endif
+
+        AttitudeSettingsInitialize();
+        AttitudeSettingsGetMetadata(&metadata);
+        metadata.telemetryAcked = 0;
+        metadata.telemetryUpdateMode   = UPDATEMODE_PERIODIC;
+        metadata.telemetryUpdatePeriod = TELEMETRY_UPDATE_PERIOD_MS;
+        AttitudeSettingsSetMetadata(&metadata);
+#endif /* if (TELEMETRY_UPDATE_PERIOD_MS != 0) */
 
         return 0;
     }
@@ -206,6 +215,9 @@ static void updatePIDs(UAVObjEvent *ev)
 #endif
     AccessoryDesiredData accessory;
 
+    TxPIDStatusData txpid_status;
+    TxPIDStatusGet(&txpid_status);
+
     uint8_t needsUpdateBank     = 0;
     uint8_t needsUpdateStab     = 0;
     uint8_t needsUpdateAtt      = 0;
@@ -233,6 +245,8 @@ static void updatePIDs(UAVObjEvent *ev)
             } else {
                 continue;
             }
+
+            TxPIDStatusCurPIDToArray(txpid_status.CurPID)[i] = value;
 
             switch (TxPIDSettingsPIDsToArray(inst.PIDs)[i]) {
             case TXPIDSETTINGS_PIDS_ROLLRATEKP:
@@ -431,6 +445,15 @@ static void updatePIDs(UAVObjEvent *ev)
         default:
             return;
         }
+    }
+
+    if (needsUpdateStab ||
+        needsUpdateAtt ||
+#ifdef REVOLUTION
+        needsUpdateAltitude ||
+#endif /* REVOLUTION */
+        needsUpdateBank) {
+        TxPIDStatusSet(&txpid_status);;
     }
 }
 

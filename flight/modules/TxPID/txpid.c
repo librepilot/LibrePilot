@@ -55,6 +55,7 @@
 #include "accessorydesired.h"
 #include "manualcontrolcommand.h"
 #include "stabilizationsettings.h"
+#include "attitudesettings.h"
 #ifdef REVOLUTION
 #include "altitudeholdsettings.h"
 #endif
@@ -195,6 +196,10 @@ static void updatePIDs(UAVObjEvent *ev)
     }
     StabilizationSettingsData stab;
     StabilizationSettingsGet(&stab);
+
+    AttitudeSettingsData att;
+    AttitudeSettingsGet(&att);
+
 #ifdef REVOLUTION
     AltitudeHoldSettingsData altitude;
     AltitudeHoldSettingsGet(&altitude);
@@ -203,6 +208,7 @@ static void updatePIDs(UAVObjEvent *ev)
 
     uint8_t needsUpdateBank     = 0;
     uint8_t needsUpdateStab     = 0;
+    uint8_t needsUpdateAtt      = 0;
 #ifdef REVOLUTION
     uint8_t needsUpdateAltitude = 0;
 #endif
@@ -365,6 +371,16 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_ACROPLUSFACTOR:
                 needsUpdateBank |= update(&bank.AcroInsanityFactor, value);
                 break;
+            case TXPIDSETTINGS_PIDS_ACCELTAU:
+                needsUpdateAtt  |= update(&att.AccelTau, value);
+                break;
+            case TXPIDSETTINGS_PIDS_ACCELKP:
+                needsUpdateAtt  |= update(&att.AccelKp, value);
+                break;
+            case TXPIDSETTINGS_PIDS_ACCELKI:
+                needsUpdateAtt  |= update(&att.AccelKi, value);
+                break;
+
 #ifdef REVOLUTION
             case TXPIDSETTINGS_PIDS_ALTITUDEPOSKP:
                 needsUpdateAltitude |= update(&altitude.VerticalPosP, value);
@@ -389,6 +405,9 @@ static void updatePIDs(UAVObjEvent *ev)
     }
     if (needsUpdateStab) {
         StabilizationSettingsSet(&stab);
+    }
+    if (needsUpdateAtt) {
+        AttitudeSettingsSet(&att);
     }
 #ifdef REVOLUTION
     if (needsUpdateAltitude) {

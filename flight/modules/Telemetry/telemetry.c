@@ -123,6 +123,8 @@ static channelContext radioChannel;
 static int32_t transmitRadioData(uint8_t *data, int32_t length);
 static void registerRadioObject(UAVObjHandle obj);
 static uint32_t radioPort();
+static uint32_t radio_port = PIOS_COM_RF;
+
 
 // Telemetry stats
 static uint32_t txErrors;
@@ -253,6 +255,20 @@ void TelemetryInitializeChannel(channelContext *channel)
 int32_t TelemetryInitialize(void)
 {
     HwSettingsInitialize();
+
+#ifdef PIOS_INCLUDE_RFM22B
+    OPLinkSettingsInitialize();
+    OPLinkSettingsData data;
+
+    OPLinkSettingsGet(&data);
+    if (data.PPMOnly) {
+        radio_port = 0;
+    } else {
+        radio_port = PIOS_COM_RF;
+    }
+#else /* PIOS_INCLUDE_RFM22B */
+    radio_port = 0;
+#endif /* PIOS_INCLUDE_RFM22B */
 
     FlightTelemetryStatsInitialize();
     GCSTelemetryStatsInitialize();
@@ -636,11 +652,8 @@ static uint32_t localPort()
  */
 static uint32_t radioPort()
 {
-#ifdef PIOS_INCLUDE_RFM22B
-    uint32_t port = PIOS_COM_RF;
-#else /* PIOS_INCLUDE_RFM22B */
-    uint32_t port = 0;
-#endif /* PIOS_INCLUDE_RFM22B */
+    uint32_t port = radio_port;
+
 #ifdef PIOS_INCLUDE_USB
     // if USB is connected, USB takes precedence for telemetry
     if (PIOS_COM_Available(PIOS_COM_TELEM_USB)) {

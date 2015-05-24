@@ -123,7 +123,7 @@ static channelContext radioChannel;
 static int32_t transmitRadioData(uint8_t *data, int32_t length);
 static void registerRadioObject(UAVObjHandle obj);
 static uint32_t radioPort();
-static uint32_t radio_port = PIOS_COM_RF;
+static uint32_t radio_port;
 
 
 // Telemetry stats

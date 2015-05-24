@@ -186,6 +186,7 @@ int8_t VtolVelocityController::UpdateStabilizationDesired(__attribute__((unused)
 
     // default thrust mode to altvario
     stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEVARIO;
+    stabDesired.Thrust = manualControl.Thrust;
 
     StabilizationDesiredSet(&stabDesired);
 

@@ -85,6 +85,7 @@ float stabilizationAltitudeHold(float setpoint, ThrustModeType mode, bool reinit
         controlDown.Activate();
         newaltitude = true;
         // calculate a thrustDemand on reinit only
+        thrustMode  = mode;
         altitudeHoldTask();
     }
 

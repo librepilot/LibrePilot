@@ -290,7 +290,7 @@ int8_t VtolBrakeController::UpdateStabilizationDesired(void)
     ManualControlCommandData manualControl;
     ManualControlCommandGet(&manualControl);
 
-    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
+    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
     stabDesired.Yaw = stabSettings.MaximumRate.Yaw * manualControl.Yaw;
 
     // default thrust mode to cruise control
@@ -322,9 +322,9 @@ int8_t VtolBrakeController::UpdateStabilizationDesired(void)
             thrustMode = settings.Stabilization6Settings.Thrust;
             break;
         case FLIGHTSTATUS_FLIGHTMODE_POSITIONHOLD:
-            // we hard code the "GPS Assisted" PostionHold/Roam to use alt-vario which
-            // is a more appropriate throttle mode.  "GPSAssist" adds braking
-            // and a better throttle management to the standard Position Hold.
+            thrustMode = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ALTITUDEVARIO;
+            break;
+        case FLIGHTSTATUS_FLIGHTMODE_VELOCITYROAM:
             thrustMode = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ALTITUDEVARIO;
             break;
         default:

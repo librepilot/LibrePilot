@@ -1,4 +1,13 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC3
+Release Notes - OpenPilot - Version RELEASE-15.05 RC4
+
+RC4 changes relative to RC3:
+1. GCS Input flight mode limit fixes hiding unsupported modes.
+2. Throttle check on GPSAssist/Stabi whilst in hold removed. Now easy to fly out of hold without reducing throttle.
+3. Trialling Rate instead of AxisLock on Yaw during Braking.
+4. VelocityRoam now passing throttle position to AltVario. previously it was stuck in AltHold.
+5. OP-1905 Fix OPLN in PPM mode blocking telemetry stream of no USB connected
+
+
 This release introduces new features and new hardware support for the Revolution Nano.  Note that the CC3D is not supported by this feature release.  New features for multirotors include: 
 - Fully autonomous flight is now possible with auto-takeoff and landing as flight modes available to path plans.  
 - An all new implementation of altitude vario provides improved altitude maintenance and smoother flight.

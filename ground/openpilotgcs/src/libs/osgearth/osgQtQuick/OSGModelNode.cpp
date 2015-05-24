@@ -81,9 +81,6 @@ public:
         // establish the coordinate system we wish to use:
         // const osgEarth::SpatialReference* latLong = osgEarth::SpatialReference::get("wgs84");
 
-// osgEarth::Config conf("style");
-// conf.set("auto_scale", true);
-// osgEarth::Symbology::Style style(conf);
         osgEarth::Symbology::Style style;
 
         // construct the symbology
@@ -112,11 +109,11 @@ public:
     bool attach(osgViewer::View *view)
     {
         return true;
-
     }
+
     bool detach(osgViewer::View *view)
     {
-        qWarning() << "OSGSkyNode::detach - not implemented";
+        qWarning() << "OSGModelNode::detach - not implemented";
         return true;
     }
 

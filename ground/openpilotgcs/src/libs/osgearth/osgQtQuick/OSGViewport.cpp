@@ -176,6 +176,7 @@ public:
             // TODO does it need to be added to the map node or to the view ?
             cullCallback = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);
             view->getCamera()->addCullCallback(cullCallback);
+            //mapNode->addCullCallback(cullCallback);
         }
 
         view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
@@ -198,8 +199,6 @@ public:
             view->getCamera()->removeCullCallback(cullCallback);
             cullCallback = NULL;
         }
-
-        //TODO detach sky
 
         return true;
     }
@@ -500,6 +499,7 @@ public:
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::render");
 
         if (!h->viewer.valid()) {
+            qWarning() << "ViewportRenderer::render - invalid viewport";
             return;
         }
 

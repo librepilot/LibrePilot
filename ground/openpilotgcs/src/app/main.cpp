@@ -261,7 +261,7 @@ void systemInit()
     QApplication::setAttribute(Qt::AA_X11InitThreads, true);
 
     // protect QQuickWidget from native widgets like GLC ModelView
-    // TODO revisit this... might cause issues with gstreamer
+    // TODO revisit this...
     QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
 
     // Force "basic" render loop

@@ -31,6 +31,7 @@ extern "C" {
 
 #include <math.h>
 #include <pid.h>
+#include <alarms.h>
 #include <CoordinateConversions.h>
 #include <sin_lookup.h>
 #include <pathdesired.h>
@@ -638,6 +639,7 @@ void VtolLandFSM::run_thrustdown(__attribute__((unused)) uint8_t flTimeout)
 void VtolLandFSM::setup_thrustoff(void)
 {
     mLandData->thrustLimit       = -1.0f;
+    mLandData->flZeroStabiHorizontal = true;
     mLandData->flConstrainThrust = true;
     mLandData->boundThrustMin    = -0.1f;
     mLandData->boundThrustMax    = 0.0f;
@@ -653,10 +655,13 @@ void VtolLandFSM::setup_disarmed(void)
 {
     // nothing to do
     mLandData->flConstrainThrust     = false;
-    mLandData->flZeroStabiHorizontal = false;
+    mLandData->flZeroStabiHorizontal = true;
     mLandData->observationCount = 0;
     mLandData->boundThrustMin   = -0.1f;
     mLandData->boundThrustMax   = 0.0f;
+    if (flightStatus->ControlChain.PathPlanner != FLIGHTSTATUS_CONTROLCHAIN_TRUE) {
+      AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_CRITICAL);
+    }
 }
 
 void VtolLandFSM::run_disarmed(__attribute__((unused)) uint8_t flTimeout)

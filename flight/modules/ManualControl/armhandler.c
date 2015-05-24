@@ -346,18 +346,6 @@ static bool forcedDisArm(void)
         return true;
     }
 
-#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
-    // check landing state if active
-    FlightStatusData flightStatus;
-    FlightStatusGet(&flightStatus);
-    if (flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_LAND) {
-        StatusVtolLandData statusland;
-        StatusVtolLandGet(&statusland);
-        if (statusland.State == STATUSVTOLLAND_STATE_DISARMED) {
-            return true;
-        }
-    }
-#endif
     return false;
 }
 

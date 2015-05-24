@@ -83,7 +83,8 @@ void OsgEarth::initialize()
 
     qDebug() << "OsgEarth::initialize - initializing osgearth...";
 
-    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(16);
+    // Number of threads in the DatbasePager set up, inclusive of the number of http dedicated threads.
+    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(12);
     osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(8);
 
     initializePathes();

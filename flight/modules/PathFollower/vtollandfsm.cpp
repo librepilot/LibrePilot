@@ -97,8 +97,7 @@ VtolLandFSM::PathFollowerFSM_LandStateHandler_T VtolLandFSM::sLandStateTable[LAN
     [LAND_STATE_GROUNDEFFECT]   =       { .setup = &VtolLandFSM::setup_groundeffect,         .run = &VtolLandFSM::run_groundeffect         },
     [LAND_STATE_THRUSTDOWN]     =       { .setup = &VtolLandFSM::setup_thrustdown,           .run = &VtolLandFSM::run_thrustdown           },
     [LAND_STATE_THRUSTOFF]      =       { .setup = &VtolLandFSM::setup_thrustoff,            .run = &VtolLandFSM::run_thrustoff            },
-    [LAND_STATE_DISARMED]       =       { .setup = &VtolLandFSM::setup_disarmed,             .run = &VtolLandFSM::run_disarmed             },
-    [LAND_STATE_ABORT] =                { .setup = &VtolLandFSM::setup_abort,                .run = &VtolLandFSM::run_abort                }
+    [LAND_STATE_DISARMED]       =       { .setup = &VtolLandFSM::setup_disarmed,             .run = &VtolLandFSM::run_disarmed             }
 };
 
 // pointer to a singleton instance
@@ -177,13 +176,8 @@ void VtolLandFSM::Activate()
 #endif
     } else {
         // move to error state and callback to position hold
-        setState(STATUSVTOLLAND_STATE_ABORT, STATUSVTOLLAND_STATEEXITREASON_NONE);
+        setState(STATUSVTOLLAND_STATE_DISARMED, STATUSVTOLLAND_STATEEXITREASON_NONE);
     }
-}
-
-void VtolLandFSM::Abort(void)
-{
-    setState(STATUSVTOLLAND_STATE_ABORT, STATUSVTOLLAND_STATEEXITREASON_NONE);
 }
 
 PathFollowerFSMState_T VtolLandFSM::GetCurrentState(void)
@@ -191,10 +185,6 @@ PathFollowerFSMState_T VtolLandFSM::GetCurrentState(void)
     switch (mLandData->currentState) {
     case STATUSVTOLLAND_STATE_INACTIVE:
         return PFFSM_STATE_INACTIVE;
-
-        break;
-    case STATUSVTOLLAND_STATE_ABORT:
-        return PFFSM_STATE_ABORT;
 
         break;
     case STATUSVTOLLAND_STATE_DISARMED:
@@ -432,7 +422,7 @@ void VtolLandFSM::run_wtg_for_descentrate(uint8_t flTimeout)
     }
 
     if (flTimeout) {
-        setState(STATUSVTOLLAND_STATE_ABORT, STATUSVTOLLAND_STATEEXITREASON_TIMEOUT);
+        setState(STATUSVTOLLAND_STATE_INITALTHOLD, STATUSVTOLLAND_STATEEXITREASON_TIMEOUT);
     }
 }
 
@@ -638,11 +628,11 @@ void VtolLandFSM::run_thrustdown(__attribute__((unused)) uint8_t flTimeout)
 // STATE: THRUSTOFF
 void VtolLandFSM::setup_thrustoff(void)
 {
-    mLandData->thrustLimit       = -1.0f;
+    mLandData->thrustLimit           = -1.0f;
     mLandData->flZeroStabiHorizontal = true;
-    mLandData->flConstrainThrust = true;
-    mLandData->boundThrustMin    = -0.1f;
-    mLandData->boundThrustMax    = 0.0f;
+    mLandData->flConstrainThrust     = true;
+    mLandData->boundThrustMin        = -0.1f;
+    mLandData->boundThrustMax        = 0.0f;
 }
 
 void VtolLandFSM::run_thrustoff(__attribute__((unused)) uint8_t flTimeout)
@@ -659,48 +649,24 @@ void VtolLandFSM::setup_disarmed(void)
     mLandData->observationCount = 0;
     mLandData->boundThrustMin   = -0.1f;
     mLandData->boundThrustMax   = 0.0f;
+
+    // force disarm unless in pathplanner mode
+    // to clear, a new pathfollower mode must be selected that is not land,
+    // and also a non-pathfollower mode selection will set this to uninitialised.
     if (flightStatus->ControlChain.PathPlanner != FLIGHTSTATUS_CONTROLCHAIN_TRUE) {
-      AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_CRITICAL);
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_CRITICAL);
     }
 }
 
 void VtolLandFSM::run_disarmed(__attribute__((unused)) uint8_t flTimeout)
 {
+    if (flightStatus->ControlChain.PathPlanner != FLIGHTSTATUS_CONTROLCHAIN_TRUE) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_CRITICAL);
+    }
+
 #ifdef DEBUG_GROUNDIMPACT
     if (mLandData->observationCount++ > 100) {
         setState(STATUSVTOLLAND_STATE_WTGFORGROUNDEFFECT, STATUSVTOLLAND_STATEEXITREASON_NONE);
     }
 #endif
 }
-
-void VtolLandFSM::fallback_to_hold(void)
-{
-    PositionStateData positionState;
-
-    PositionStateGet(&positionState);
-    pathDesired->End.North        = positionState.North;
-    pathDesired->End.East         = positionState.East;
-    pathDesired->End.Down         = positionState.Down;
-    pathDesired->Start.North      = positionState.North;
-    pathDesired->Start.East       = positionState.East;
-    pathDesired->Start.Down       = positionState.Down;
-    pathDesired->StartingVelocity = 0.0f;
-    pathDesired->EndingVelocity   = 0.0f;
-    pathDesired->Mode = PATHDESIRED_MODE_GOTOENDPOINT;
-
-    PathDesiredSet(pathDesired);
-}
-
-// abort repeatedly overwrites pathfollower's objective on a landing abort and
-// continues to do so until a flight mode change.
-void VtolLandFSM::setup_abort(void)
-{
-    mLandData->boundThrustMin        = vtolPathFollowerSettings->ThrustLimits.Min;
-    mLandData->boundThrustMax        = vtolPathFollowerSettings->ThrustLimits.Max;
-    mLandData->flConstrainThrust     = false;
-    mLandData->flZeroStabiHorizontal = false;
-    fallback_to_hold();
-}
-
-void VtolLandFSM::run_abort(__attribute__((unused)) uint8_t flTimeout)
-{}

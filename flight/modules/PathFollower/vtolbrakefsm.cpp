@@ -130,11 +130,6 @@ void VtolBrakeFSM::Activate()
     setState(BRAKE_STATE_BRAKE, FSMBRAKESTATUS_STATEEXITREASON_NONE);
 }
 
-void VtolBrakeFSM::Abort(void)
-{
-    setState(BRAKE_STATE_HOLD, FSMBRAKESTATUS_STATEEXITREASON_NONE);
-}
-
 PathFollowerFSMState_T VtolBrakeFSM::GetCurrentState(void)
 {
     switch (mBrakeData->currentState) {

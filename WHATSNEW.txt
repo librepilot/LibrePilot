@@ -1,9 +1,14 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC4
+Release Notes - OpenPilot - Version RELEASE-15.05 RC5
+
+RC5 changes relative to RC4:
+1. Landing flight mode now truely disarms to complete its sequence, triggered by a critical guidance alarm. Reset via change of flight mode.
+2. VelocityRoam now has its own VelocityRoamHorizontalVelPID to allow independent tuning.
+3. Sanity check for PWMSync & OneShot while using PWM receiver. Remove CC in hwsettings.xml
 
 RC4 changes relative to RC3:
 1. GCS Input flight mode limit fixes hiding unsupported modes.
 2. Throttle check on GPSAssist/Stabi whilst in hold removed. Now easy to fly out of hold without reducing throttle.
-3. Trialling Rate instead of AxisLock on Yaw during Braking.
+3. Trialing Rate instead of AxisLock on Yaw during Braking.
 4. VelocityRoam now passing throttle position to AltVario. previously it was stuck in AltHold.
 5. OP-1905 Fix OPLN in PPM mode blocking telemetry stream of no USB connected
 

@@ -117,6 +117,7 @@ void armHandler(bool newinit, FrameType_t frameType)
 
     if (forcedDisArm()) {
         // PathPlanner forces explicit disarming due to error condition (crash, impact, fire, ...)
+        armState = ARM_STATE_DISARMED;
         setArmedIfChanged(FLIGHTSTATUS_ARMED_DISARMED);
         return;
     }

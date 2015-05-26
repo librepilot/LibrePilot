@@ -36,7 +36,8 @@
 #include <pios_oplinkrcvr_priv.h>
 #include <taskinfo.h>
 #include <pios_ws2811.h>
-
+#include <sanitycheck.h>
+#include <actuatorsettings.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
@@ -52,6 +53,8 @@
  */
 #include "../board_hw_defs.c"
 
+static SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook();
+static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 /**
  * Sensor configurations
  */
@@ -764,8 +767,54 @@ void PIOS_Board_Init(void)
         }
     }
 #endif
+
+    // Attach the board config check hook
+    SANITYCHECK_AttachHook(&RevoNanoConfigHook);
+    // trigger a config check if actuatorsettings are updated
+    ActuatorSettingsInitialize();
+    ActuatorSettingsConnectCallback(ActuatorSettingsUpdatedCb);
 }
 
+SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook()
+{
+    // inhibit usage of oneshot for non supported RECEIVER port modes
+    uint8_t recmode;
+
+    HwSettingsRM_RcvrPortGet(&recmode);
+    uint8_t modes[ACTUATORSETTINGS_BANKMODE_NUMELEM];
+    ActuatorSettingsBankModeGet(modes);
+
+    switch ((HwSettingsRM_RcvrPortOptions)recmode) {
+    // Those modes allows oneshot usage
+    case HWSETTINGS_RM_RCVRPORT_DISABLED:
+    case HWSETTINGS_RM_RCVRPORT_PPM:
+    case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
+    case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
+        return SYSTEMALARMS_EXTENDEDALARMSTATUS_NONE;
+
+    // inhibit oneshot for the following modes
+    case HWSETTINGS_RM_RCVRPORT_PWM:
+        for (uint8_t i = 0; i < ACTUATORSETTINGS_BANKMODE_NUMELEM; i++) {
+            if (modes[i] == ACTUATORSETTINGS_BANKMODE_PWMSYNC ||
+                modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT125) {
+                return SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT;;
+            }
+        }
+
+        return SYSTEMALARMS_EXTENDEDALARMSTATUS_NONE;
+
+    default:
+        break;
+    }
+
+    return SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT;;
+}
+
+// trigger a configuration check if ActuatorSettings are changed.
+void ActuatorSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    configuration_check();
+}
 /**
  * @}
  * @}

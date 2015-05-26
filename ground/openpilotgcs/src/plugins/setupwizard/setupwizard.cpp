@@ -96,8 +96,11 @@ int SetupWizard::nextId() const
     {
         switch (getControllerType()) {
         case CONTROLLER_REVO:
-        case CONTROLLER_NANO:
         case CONTROLLER_DISCOVERYF4:
+            return PAGE_INPUT;
+
+        case CONTROLLER_NANO:
+            reboot();
             return PAGE_INPUT;
 
         case CONTROLLER_OPLINK:

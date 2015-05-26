@@ -1008,6 +1008,14 @@ void UploaderGadgetWidget::startAutoUpdate()
 void UploaderGadgetWidget::startAutoUpdateErase()
 {
     startAutoUpdate(true);
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
+    int id = utilMngr->getBoardModel();
+
+    if (id == 0x905) {
+        systemReset();
+    }
 }
 
 void UploaderGadgetWidget::startAutoUpdate(bool erase)

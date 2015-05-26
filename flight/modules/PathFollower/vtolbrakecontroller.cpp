@@ -35,6 +35,7 @@ extern "C" {
 
 #include <math.h>
 #include <pid.h>
+#include <alarms.h>
 #include <CoordinateConversions.h>
 #include <sin_lookup.h>
 #include <pathdesired.h>
@@ -138,10 +139,10 @@ void VtolBrakeController::SettingsUpdated(void)
     controlNE.UpdatePositionalParameters(vtolPathFollowerSettings->HorizontalPosP);
     controlNE.UpdateCommandParameters(-vtolPathFollowerSettings->BrakeMaxPitch, vtolPathFollowerSettings->BrakeMaxPitch, vtolPathFollowerSettings->BrakeVelocityFeedforward);
 
-    controlDown.UpdateParameters(vtolPathFollowerSettings->LandVerticalVelPID.Kp,
-                                 vtolPathFollowerSettings->LandVerticalVelPID.Ki,
-                                 vtolPathFollowerSettings->LandVerticalVelPID.Kd,
-                                 vtolPathFollowerSettings->LandVerticalVelPID.Beta,
+    controlDown.UpdateParameters(vtolPathFollowerSettings->VerticalVelPID.Kp,
+                                 vtolPathFollowerSettings->VerticalVelPID.Ki,
+                                 vtolPathFollowerSettings->VerticalVelPID.Kd,
+                                 vtolPathFollowerSettings->VerticalVelPID.Beta,
                                  dT,
                                  10.0f * vtolPathFollowerSettings->VerticalVelMax); // avoid constraining initial fast entry into brake
     controlDown.UpdatePositionalParameters(vtolPathFollowerSettings->VerticalPosP);
@@ -364,8 +365,11 @@ void VtolBrakeController::UpdateAutoPilot()
 
     int8_t result = UpdateStabilizationDesired();
 
-    if (!result) {
-        fsm->Abort(); // enter PH
+    if (result) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_OK);
+    } else {
+        pathStatus->Status = PATHSTATUS_STATUS_CRITICAL;
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_WARNING);
     }
 
     PathStatusSet(pathStatus);

@@ -117,6 +117,7 @@ void armHandler(bool newinit, FrameType_t frameType)
 
     if (forcedDisArm()) {
         // PathPlanner forces explicit disarming due to error condition (crash, impact, fire, ...)
+        armState = ARM_STATE_DISARMED;
         setArmedIfChanged(FLIGHTSTATUS_ARMED_DISARMED);
         return;
     }
@@ -346,18 +347,6 @@ static bool forcedDisArm(void)
         return true;
     }
 
-#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
-    // check landing state if active
-    FlightStatusData flightStatus;
-    FlightStatusGet(&flightStatus);
-    if (flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_LAND) {
-        StatusVtolLandData statusland;
-        StatusVtolLandGet(&statusland);
-        if (statusland.State == STATUSVTOLLAND_STATE_DISARMED) {
-            return true;
-        }
-    }
-#endif
     return false;
 }
 

@@ -65,7 +65,7 @@ extern "C" {
 #define TIMER_COUNT_PER_SECOND         (1000 / vtolPathFollowerSettings->UpdatePeriod)
 #define TIMEOUT_SLOWSTART              (2 * TIMER_COUNT_PER_SECOND)
 #define TIMEOUT_THRUSTUP               (1 * TIMER_COUNT_PER_SECOND)
-#define TIMEOUT_THRUSTDOWN             (2 * TIMER_COUNT_PER_SECOND)
+#define TIMEOUT_THRUSTDOWN             (5 * TIMER_COUNT_PER_SECOND)
 #define AUTOTAKEOFFING_SLOWDOWN_HEIGHT -5.0f
 
 VtolAutoTakeoffFSM::PathFollowerFSM_AutoTakeoffStateHandler_T VtolAutoTakeoffFSM::sAutoTakeoffStateTable[AUTOTAKEOFF_STATE_SIZE] = {
@@ -77,8 +77,7 @@ VtolAutoTakeoffFSM::PathFollowerFSM_AutoTakeoffStateHandler_T VtolAutoTakeoffFSM
     [AUTOTAKEOFF_STATE_HOLD] =       { .setup = &VtolAutoTakeoffFSM::setup_hold,       .run = &VtolAutoTakeoffFSM::run_hold       },
     [AUTOTAKEOFF_STATE_THRUSTDOWN] = { .setup = &VtolAutoTakeoffFSM::setup_thrustdown, .run = &VtolAutoTakeoffFSM::run_thrustdown },
     [AUTOTAKEOFF_STATE_THRUSTOFF]  = { .setup = &VtolAutoTakeoffFSM::setup_thrustoff,  .run = &VtolAutoTakeoffFSM::run_thrustoff  },
-    [AUTOTAKEOFF_STATE_DISARMED]   = { .setup = &VtolAutoTakeoffFSM::setup_disarmed,   .run = &VtolAutoTakeoffFSM::run_disarmed   },
-    [AUTOTAKEOFF_STATE_ABORT] =      { .setup = &VtolAutoTakeoffFSM::setup_abort,      .run = &VtolAutoTakeoffFSM::run_abort      }
+    [AUTOTAKEOFF_STATE_DISARMED]   = { .setup = &VtolAutoTakeoffFSM::setup_disarmed,   .run = &VtolAutoTakeoffFSM::run_disarmed   }
 };
 
 // pointer to a singleton instance
@@ -161,20 +160,11 @@ void VtolAutoTakeoffFSM::Activate()
     setState(STATUSVTOLAUTOTAKEOFF_STATE_INACTIVE, STATUSVTOLAUTOTAKEOFF_STATEEXITREASON_NONE);
 }
 
-void VtolAutoTakeoffFSM::Abort(void)
-{
-    setState(STATUSVTOLAUTOTAKEOFF_STATE_ABORT, STATUSVTOLAUTOTAKEOFF_STATEEXITREASON_NONE);
-}
-
 PathFollowerFSMState_T VtolAutoTakeoffFSM::GetCurrentState(void)
 {
     switch (mAutoTakeoffData->currentState) {
     case STATUSVTOLAUTOTAKEOFF_STATE_INACTIVE:
         return PFFSM_STATE_INACTIVE;
-
-        break;
-    case STATUSVTOLAUTOTAKEOFF_STATE_ABORT:
-        return PFFSM_STATE_ABORT;
 
         break;
     case STATUSVTOLAUTOTAKEOFF_STATE_DISARMED:
@@ -339,7 +329,7 @@ void VtolAutoTakeoffFSM::setControlState(StatusVtolAutoTakeoffControlStateOption
         setState(STATUSVTOLAUTOTAKEOFF_STATE_HOLD, STATUSVTOLAUTOTAKEOFF_STATEEXITREASON_NONE);
         break;
     case STATUSVTOLAUTOTAKEOFF_CONTROLSTATE_ABORT:
-        setState(STATUSVTOLAUTOTAKEOFF_STATE_ABORT, STATUSVTOLAUTOTAKEOFF_STATEEXITREASON_NONE);
+        setState(STATUSVTOLAUTOTAKEOFF_STATE_HOLD, STATUSVTOLAUTOTAKEOFF_STATEEXITREASON_NONE);
         break;
     }
 }
@@ -540,51 +530,26 @@ void VtolAutoTakeoffFSM::run_thrustoff(__attribute__((unused)) uint8_t flTimeout
 // STATE: DISARMED
 void VtolAutoTakeoffFSM::setup_disarmed(void)
 {
-    // nothing to do
-    mAutoTakeoffData->flConstrainThrust     = false;
-    mAutoTakeoffData->flZeroStabiHorizontal = false;
+    mAutoTakeoffData->thrustLimit = -1.0f;
+    mAutoTakeoffData->flConstrainThrust     = true;
+    mAutoTakeoffData->flZeroStabiHorizontal = true;
     mAutoTakeoffData->observationCount = 0;
     mAutoTakeoffData->boundThrustMin   = -0.1f;
     mAutoTakeoffData->boundThrustMax   = 0.0f;
+
+    if (flightStatus->ControlChain.PathPlanner != FLIGHTSTATUS_CONTROLCHAIN_TRUE) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_CRITICAL);
+    }
 }
 
 void VtolAutoTakeoffFSM::run_disarmed(__attribute__((unused)) uint8_t flTimeout)
 {
+    if (flightStatus->ControlChain.PathPlanner != FLIGHTSTATUS_CONTROLCHAIN_TRUE) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_CRITICAL);
+    }
 #ifdef DEBUG_GROUNDIMPACT
     if (mAutoTakeoffData->observationCount++ > 100) {
         setState(AUTOTAKEOFF_STATE_WTG_FOR_GROUNDEFFECT, STATUSVTOLAUTOTAKEOFF_STATEEXITREASON_NONE);
     }
 #endif
 }
-
-void VtolAutoTakeoffFSM::fallback_to_hold(void)
-{
-    PositionStateData positionState;
-
-    PositionStateGet(&positionState);
-    pathDesired->End.North        = positionState.North;
-    pathDesired->End.East         = positionState.East;
-    pathDesired->End.Down         = positionState.Down;
-    pathDesired->Start.North      = positionState.North;
-    pathDesired->Start.East       = positionState.East;
-    pathDesired->Start.Down       = positionState.Down;
-    pathDesired->StartingVelocity = 0.0f;
-    pathDesired->EndingVelocity   = 0.0f;
-    pathDesired->Mode = PATHDESIRED_MODE_GOTOENDPOINT;
-
-    PathDesiredSet(pathDesired);
-}
-
-// abort repeatedly overwrites pathfollower's objective on a landing abort and
-// continues to do so until a flight mode change.
-void VtolAutoTakeoffFSM::setup_abort(void)
-{
-    mAutoTakeoffData->boundThrustMin        = vtolPathFollowerSettings->ThrustLimits.Min;
-    mAutoTakeoffData->boundThrustMax        = vtolPathFollowerSettings->ThrustLimits.Max;
-    mAutoTakeoffData->flConstrainThrust     = false;
-    mAutoTakeoffData->flZeroStabiHorizontal = false;
-    fallback_to_hold();
-}
-
-void VtolAutoTakeoffFSM::run_abort(__attribute__((unused)) uint8_t flTimeout)
-{}

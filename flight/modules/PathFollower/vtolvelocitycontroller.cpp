@@ -30,6 +30,7 @@ extern "C" {
 
 #include <math.h>
 #include <pid.h>
+#include <alarms.h>
 #include <CoordinateConversions.h>
 #include <sin_lookup.h>
 #include <pathdesired.h>
@@ -104,10 +105,10 @@ void VtolVelocityController::SettingsUpdated(void)
 {
     const float dT = vtolPathFollowerSettings->UpdatePeriod / 1000.0f;
 
-    controlNE.UpdateParameters(vtolPathFollowerSettings->HorizontalVelPID.Kp,
-                               vtolPathFollowerSettings->HorizontalVelPID.Ki,
-                               vtolPathFollowerSettings->HorizontalVelPID.Kd,
-                               vtolPathFollowerSettings->HorizontalVelPID.Beta,
+    controlNE.UpdateParameters(vtolPathFollowerSettings->VelocityRoamHorizontalVelPID.Kp,
+                               vtolPathFollowerSettings->VelocityRoamHorizontalVelPID.Ki,
+                               vtolPathFollowerSettings->VelocityRoamHorizontalVelPID.Kd,
+                               vtolPathFollowerSettings->VelocityRoamHorizontalVelPID.Beta,
                                dT,
                                vtolPathFollowerSettings->HorizontalVelMax);
 
@@ -201,28 +202,12 @@ void VtolVelocityController::UpdateAutoPilot()
     float yaw = 0.0f;
 
     int8_t result     = UpdateStabilizationDesired(yaw_attitude, yaw);
-
-    if (!result) {
-        fallback_to_hold();
+    if (result) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_OK);
+    } else {
+        pathStatus->Status = PATHSTATUS_STATUS_CRITICAL;
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_WARNING);
     }
 
     PathStatusSet(pathStatus);
-}
-
-void VtolVelocityController::fallback_to_hold(void)
-{
-    PositionStateData positionState;
-
-    PositionStateGet(&positionState);
-    pathDesired->End.North        = positionState.North;
-    pathDesired->End.East         = positionState.East;
-    pathDesired->End.Down         = positionState.Down;
-    pathDesired->Start.North      = positionState.North;
-    pathDesired->Start.East       = positionState.East;
-    pathDesired->Start.Down       = positionState.Down;
-    pathDesired->StartingVelocity = 0.0f;
-    pathDesired->EndingVelocity   = 0.0f;
-    pathDesired->Mode = PATHDESIRED_MODE_GOTOENDPOINT;
-
-    PathDesiredSet(pathDesired);
 }

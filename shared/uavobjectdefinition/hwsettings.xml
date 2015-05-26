@@ -1,10 +1,6 @@
 <xml>
 	<object name="HwSettings" singleinstance="true" settings="true" category="System">
 		<description>Selection of optional hardware configurations.</description>
-		<field name="CC_RcvrPort" units="function" type="enum" elements="1" options="Disabled+OneShot,PWM+NoOneShot,PPM+NoOneShot,PPM+PWM+NoOneShot,PPM+Outputs+NoOneShot,PPM_PIN8+OneShot, Outputs+OneShot" defaultvalue="PWM+NoOneShot"/>
-		<field name="CC_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk" defaultvalue="Telemetry"/>
-		<field name="CC_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,PPM,DSM,DebugConsole,ComBridge,OsdHk" defaultvalue="Disabled"/>
-
 		<field name="RV_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+Outputs,Outputs" defaultvalue="PWM"/>
 		<field name="RV_AuxPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,DSM,ComAux,ComBridge,OsdHk" defaultvalue="Disabled"/>
 		<field name="RV_AuxSBusPort" units="function" type="enum" elements="1" options="Disabled,S.Bus,DSM,ComAux,ComBridge,OsdHk" defaultvalue="Disabled"/>
@@ -28,9 +24,7 @@
 		<field name="ADCRouting" units="" type="enum" elementnames="adc0,adc1,adc2,adc3,adc4,adc5,adc6,adc7" options="Disabled,BatteryVoltage,BatteryCurrent,AnalogAirspeed,Generic" defaultvalue="Disabled"/>
 		<field name="DSMxBind" units=""  type="uint8"  elements="1" defaultvalue="0"/>
 		<field name="WS2811LED_Out" units="" type="enum" elements="1" options="ServoOut1,ServoOut2,ServoOut3,ServoOut4,ServoOut5,ServoOut6,FlexiIOPin3,FlexiIOPin4,Disabled" defaultvalue="Disabled"
-		limits="%0905NE:ServoOut2:ServoOut3:ServoOut4:ServoOut5:ServoOut6:FlexiIOPin3:FlexiIOPin4,\
-		%0401NE:ServoOut1:ServoOut2:ServoOut3:ServoOut4:ServoOut5:ServoOut6:FlexiIOPin3:FlexiIOPin4,\
-		%0402NE:ServoOut1:ServoOut2:ServoOut3:ServoOut4:ServoOut5:ServoOut6:FlexiIOPin3:FlexiIOPin4;"
+		limits="%0905NE:ServoOut2:ServoOut3:ServoOut4:ServoOut5:ServoOut6:FlexiIOPin3:FlexiIOPin4;"
 		/>
 
 		<access gcs="readwrite" flight="readwrite"/>

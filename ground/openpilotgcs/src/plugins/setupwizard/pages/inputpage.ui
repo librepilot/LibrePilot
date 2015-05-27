@@ -226,7 +226,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="toolTip">
-        <string>Spektrum Satellite</string>
+        <string>Multiplex SRXL</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QToolButton { border: none }</string>

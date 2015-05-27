@@ -30,13 +30,13 @@
      inkscape:window-height="928"
      id="namedview4616"
      showgrid="false"
-     inkscape:zoom="1.5135025"
-     inkscape:cx="486.649"
-     inkscape:cy="636.99287"
+     inkscape:zoom="1.0702079"
+     inkscape:cx="547.53816"
+     inkscape:cy="386.12041"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer19"
+     inkscape:current-layer="layer16"
      fit-margin-top="15"
      fit-margin-left="15"
      fit-margin-right="15"
@@ -17811,12 +17811,11 @@
        inkscape:groupmode="layer"
        id="layer16"
        inkscape:label="revo-srxl"
-       sodipodi:insensitive="true"
-       style="display:none">
+       style="display:inline">
       <g
          style="display:inline"
          id="revo-srxl"
-         transform="matrix(0.4,0,0,0.4,-43.548679,-98.73412)">
+         transform="matrix(0,0.4,-0.4,0,929.4684,-117.45414)">
         <path
            id="path9857-8-8-1-1-4"
            d="m 1430.6302,1592 c -5.97,64.9 57.0596,195.8293 232.2275,97.9523"
@@ -17825,22 +17824,22 @@
            style="fill:none;stroke:#777777;stroke-width:14.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
            sodipodi:nodetypes="cc" />
         <path
-           sodipodi:nodetypes="cc"
-           style="fill:#cccccc;stroke:#ec6004;stroke-width:15.29999924;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           sodipodi:nodetypes="ccc"
+           style="fill:none;stroke:#ec6004;stroke-width:15.29999924;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
            inkscape:connector-curvature="0"
-           d="m 1392.571,1323.8556 l 0,-269.1209"
+           d="m 1392.571,1323.8556 l 0,-286.8032 l -291.0357,0"
            id="path8856-5-1-7-1-9-5-4-3-7" />
         <path
-           sodipodi:nodetypes="cc"
+           sodipodi:nodetypes="ccc"
            style="fill:none;stroke:#d81900;stroke-width:15.29999924;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
            inkscape:connector-curvature="0"
-           d="m 1362.571,1323.8556 l 0,-269.1209"
+           d="m 1362.571,1323.8556 l -7e-4,-251.8944 l -261.035,0.1823"
            id="path8856-1-2-1-9-0-9" />
         <path
-           sodipodi:nodetypes="cc"
-           style="fill:#cccccc;stroke:#000000;stroke-width:15.29999924;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           sodipodi:nodetypes="ccc"
+           style="fill:none;stroke:#000000;stroke-width:15.29999924;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
            inkscape:connector-curvature="0"
-           d="m 1347.571,1323.8556 l 0,-269.1209"
+           d="m 1347.571,1323.8556 l 0,-236.8032 l -246.0357,0"
            id="path8856-1-5-7-7-2-9-3" />
         <path
            sodipodi:nodetypes="cc"
@@ -17861,7 +17860,8 @@
            x="1250" />
         <g
            style="font-style:normal;font-weight:normal;font-size:100px;line-height:125%;font-family:Sans;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000"
-           id="text4849-5-9-2-5">
+           id="text4849-5-9-2-5"
+           transform="matrix(0,-1,1,0,-97.5,2824.5)">
           <path
              d="m 1337.2402,1484.8574 l 0,3.8477 q -2.2461,-1.0742 -4.2382,-1.6016 q -1.9922,-0.5273 -3.8477,-0.5273 q -3.2227,0 -4.9805,1.25 q -1.7383,1.25 -1.7383,3.5547 q 0,1.9336 1.1524,2.9296 q 1.1719,0.9766 4.4141,1.5821 l 2.3828,0.4883 q 4.414,0.8398 6.5039,2.9687 q 2.1093,2.1094 2.1093,5.6641 q 0,4.2383 -2.8515,6.4258 q -2.832,2.1875 -8.3203,2.1875 q -2.0703,0 -4.4141,-0.4688 q -2.3242,-0.4687 -4.8242,-1.3867 l 0,-4.0625 q 2.4023,1.3476 4.707,2.0312 q 2.3047,0.6836 4.5313,0.6836 q 3.3789,0 5.2148,-1.3281 q 1.836,-1.3281 1.836,-3.7891 q 0,-2.1484 -1.3282,-3.3593 q -1.3086,-1.211 -4.3164,-1.8164 l -2.4023,-0.4688 q -4.4141,-0.8789 -6.3867,-2.7539 q -1.9727,-1.875 -1.9727,-5.2148 q 0,-3.8672 2.7148,-6.0938 q 2.7344,-2.2266 7.5196,-2.2266 q 2.0508,0 4.1797,0.3711 q 2.1289,0.3711 4.3554,1.1133 z"
              style="font-size:40px;text-align:center;text-anchor:middle;fill:#ffffff"
@@ -17885,7 +17885,8 @@
         </g>
         <g
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:37.7733078px;line-height:125%;font-family:Arial;-inkscape-font-specification:'Sans Bold';letter-spacing:0px;word-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           id="text20525-8">
+           id="text20525-8"
+           transform="matrix(0,-1,1,0,-68.75,2824.5001)">
           <path
              d="m 1264.1993,1413.0389 l 0,-27.0389 l 8.1707,0 l 4.9061,18.444 l 4.8507,-18.444 l 8.1892,0 l 0,27.0389 l -5.0721,0 l 0,-21.2843 l -5.3672,21.2843 l -5.2566,0 l -5.3487,-21.2843 l 0,21.2843 l -5.0721,0 z"
              id="path21779-0"
@@ -18448,7 +18449,8 @@
        inkscape:groupmode="layer"
        id="layer19"
        inkscape:label="nano-srxl"
-       style="display:inline">
+       style="display:none"
+       sodipodi:insensitive="true">
       <g
          style="display:inline"
          id="nano-srxl"
@@ -20317,7 +20319,7 @@
        inkscape:groupmode="layer"
        id="layer36"
        inkscape:label="revo-OPGPS-v9"
-       style="display:none"
+       style="display:inline"
        sodipodi:insensitive="true">
       <g
          id="revo-OPGPS-v9">
@@ -20663,9 +20665,9 @@
         <polygon
            transform="matrix(1.5711089,0,0,1.5372108,235.33403,522.2062)"
            id="polygon8706-1"
-           points="186.083,4.74 191.036,13.319 186.194,11.031 181.129,13.319 " />
+           points="186.194,11.031 181.129,13.319 186.083,4.74 191.036,13.319 " />
         <polygon
-           points="181.129,13.319 186.083,4.74 191.036,13.319 186.194,11.031 "
+           points="191.036,13.319 186.194,11.031 181.129,13.319 186.083,4.74 "
            id="polygon10148"
            transform="matrix(1.5711089,0,0,1.5372108,357.19879,522.2062)" />
         <g
@@ -21931,7 +21933,7 @@
        inkscape:groupmode="layer"
        id="layer39"
        inkscape:label="nano-OPGPS-v9"
-       style="display:inline"
+       style="display:none"
        sodipodi:insensitive="true">
       <g
          id="nano-OPGPS-v9">
@@ -22251,13 +22253,13 @@
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cscsscssscssccscccccscsssscscssscsssscssssssssscsscsscccccscscscssscccsccssssssccsccsccssssccccccccccsccccsccscssssssssccssssscsccscsscsscccsccsscccsscscsssccccccscccsccssscscsscssscssscssscsscssccsscccsscssscsssssscsssssssssssssscscsccsssscsssssscccsscccsssssssscssscssssscsssscccssccsccscssscccsssssssssccssssccsscsscssssssssscccsccssscccssscscccscsssscssscccssssssscccssssscsssscccccsssscsscscsssccccccsccs" />
         <polygon
-           points="181.129,13.319 186.083,4.74 191.036,13.319 186.194,11.031 "
+           points="191.036,13.319 186.194,11.031 181.129,13.319 186.083,4.74 "
            id="polygon8706-1-5"
            transform="matrix(1.5711089,0,0,1.5372108,223.37514,520.91932)" />
         <polygon
            transform="matrix(1.5711089,0,0,1.5372108,345.23991,520.91932)"
            id="polygon10148-2"
-           points="186.194,11.031 181.129,13.319 186.083,4.74 191.036,13.319 " />
+           points="186.083,4.74 191.036,13.319 186.194,11.031 181.129,13.319 " />
         <g
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:12px;line-height:125%;font-family:'Arial Narrow';-inkscape-font-specification:'Arial Narrow Bold Condensed';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
            id="text10150-4"
@@ -29016,7 +29018,7 @@
        inkscape:groupmode="layer"
        id="layer15"
        inkscape:label="revo"
-       style="display:none">
+       style="display:inline">
       <g
          style="display:inline"
          transform="translate(-1.4348189,-1.0188297)"
@@ -32302,10 +32304,10 @@
              cx="151.73199" />
           <polygon
              id="polygon8706"
-             points="186.083,4.74 191.036,13.319 186.194,11.031 181.129,13.319 " />
+             points="186.194,11.031 181.129,13.319 186.083,4.74 191.036,13.319 " />
           <polygon
              id="polygon8708"
-             points="36.083,4.74 41.036,13.319 36.194,11.031 31.129,13.319 " />
+             points="36.194,11.031 31.129,13.319 36.083,4.74 41.036,13.319 " />
           <g
              id="g8710">
             <circle
@@ -32496,7 +32498,7 @@
        inkscape:groupmode="layer"
        id="layer18"
        inkscape:label="nano"
-       style="display:inline">
+       style="display:none">
       <g
          id="controller-nano"
          transform="translate(-726.76021,-465.53821)">
@@ -33157,7 +33159,7 @@
            inkscape:transform-center-y="95.699765"
            inkscape:transform-center-x="-66.090998"
            transform="matrix(0,-1.0887723,1.065281,0,1247.1905,860.25683)"
-           points="186.194,11.031 181.129,13.319 186.083,4.74 191.036,13.319 "
+           points="186.083,4.74 191.036,13.319 186.194,11.031 181.129,13.319 "
            id="polygon8706-0" />
         <g
            transform="translate(726.6625,-66.912713)"

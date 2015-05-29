@@ -100,7 +100,9 @@ int SetupWizard::nextId() const
             return PAGE_INPUT;
 
         case CONTROLLER_NANO:
-            reboot();
+            if (isRestartNeeded()) {
+                reboot();
+            }
             return PAGE_INPUT;
 
         case CONTROLLER_OPLINK:

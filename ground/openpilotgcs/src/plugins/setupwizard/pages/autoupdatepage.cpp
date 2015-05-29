@@ -49,6 +49,7 @@ void AutoUpdatePage::autoUpdate()
     Q_ASSERT(uploader);
     m_isUpdating = true;
     uploader->autoUpdate(ui->eraseSettings->isChecked());
+    getWizard()->setRestartNeeded(true);
 }
 
 void AutoUpdatePage::updateStatus(uploader::ProgressStep status, QVariant value)

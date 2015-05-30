@@ -179,7 +179,7 @@ public:
             mapNode->addCullCallback(cullCallback);
         }
 
-        view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
+        //view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
 
         view->setSceneData(node);
 

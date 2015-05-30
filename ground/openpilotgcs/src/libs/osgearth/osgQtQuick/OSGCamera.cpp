@@ -232,7 +232,7 @@ public:
                 // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
                 // TODO who takes ownership?
                 osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
-                    osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS);
+                    /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
                 switch (trackerMode) {
                 case NodeCenter:
                     ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);

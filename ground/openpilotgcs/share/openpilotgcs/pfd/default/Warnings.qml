@@ -12,24 +12,24 @@ Item {
                
                       // All 'manual modes' are green, 'assisted' modes in cyan
                       // "MANUAL","STAB 1","STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
-                      // "POS HOLD", "COURSE LOCK", "POS ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLANNER", "POI", "AUTOCRUISE"
+                      // "POS HOLD", "COURSELOCK","VEL ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"
 
     property variant flightmodeColors : ["gray", "green", "green", "green", "green", "green", "green", 
-                                         "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan"]
+                                         "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan", "cyan"]
 
-                      // Manual,Rate,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
-                      // AltitudeHold,AltitudeVario,CruiseControl + Auto mode (VTOL/Wing pathfollower)
+                      // Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
+                      // AltitudeHold,AltitudeVario,CruiseControl" + Auto mode (VTOL/Wing pathfollower)
                       // grey : 'disabled' modes
 
-    property variant thrustmodeColors : ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey",  
+    property variant thrustmodeColors : ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey", 
                                          "green", "green", "green", "cyan"]
 
                       // SystemSettings.AirframeType 3 - 17 : VtolPathFollower, check ThrustControl
  
     property var thrust_mode: FlightStatus.FlightMode < 7 ? StabilizationDesired.StabilizationMode_Thrust : 
                               FlightStatus.FlightMode > 6 && SystemSettings.AirframeType > 2 && SystemSettings.AirframeType < 18
-                              && VtolPathFollowerSettings.ThrustControl == 1 ? 11 : 
-                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType < 3 ? 11: 0 
+                              && VtolPathFollowerSettings.ThrustControl == 1 ? 12 : 
+                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType < 3 ? 12: 0 
 
 
     property real flight_time: Math.round(SystemStats.FlightTime / 1000)
@@ -198,11 +198,13 @@ Item {
         Rectangle {
             anchors.fill: parent
             color: warnings.flightmodeColors[FlightStatus.FlightMode]
+             // Manual,Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6,PositionHold,CourseLock,
+             // VelocityRoam,HomeLeash,AbsolutePosition,ReturnToBase,Land,PathPlanner,POI,AutoCruise,AutoTakeoff
 
             Text {
                 anchors.centerIn: parent
                 text: ["MANUAL","STAB 1","STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6", "POS HOLD", "COURSELOCK",
-                       "POS ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLAN", "POI", "AUTOCRUISE"][FlightStatus.FlightMode]
+                       "VEL ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"][FlightStatus.FlightMode]
                 font {
                     family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
@@ -225,12 +227,12 @@ Item {
             anchors.fill: parent
             color: FlightStatus.FlightMode < 1 ? "grey" : warnings.thrustmodeColors[thrust_mode.toString()]
 
-                      // Manual,Rate,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
+                      // Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
                       // AltitudeHold,AltitudeVario,CruiseControl
                       // grey : 'disabled' modes
             Text {
                 anchors.centerIn: parent
-                text: ["MANUAL"," "," ", " ", " ", " ", " ", " ",
+                text: ["MANUAL"," "," ", " ", " ", " ", " ", " ", " ",
                        "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrust_mode.toString()]
                 font {
                     family: pt_bold.name

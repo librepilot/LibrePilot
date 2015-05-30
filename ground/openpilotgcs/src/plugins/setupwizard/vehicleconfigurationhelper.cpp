@@ -159,6 +159,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         case VehicleConfigurationSource::INPUT_DSM:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
             break;
+        case VehicleConfigurationSource::INPUT_SRXL:
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            break;
         default:
             break;
         }
@@ -804,6 +807,9 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
         break;
     case VehicleConfigurationSource::INPUT_DSM:
         channelType = ManualControlSettings::CHANNELGROUPS_DSMFLEXIPORT;
+        break;
+    case VehicleConfigurationSource::INPUT_SRXL:
+        channelType = ManualControlSettings::CHANNELGROUPS_SRXL;
         break;
     default:
         break;

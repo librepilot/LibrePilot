@@ -177,8 +177,8 @@ static void altitudeHoldTask(void)
         break;
     }
 
-    AltitudeHoldStatusSet(&altitudeHoldStatus);
     thrustDemand = local_thrustDemand;
+    AltitudeHoldStatusSet(&altitudeHoldStatus);
 }
 
 static void VelocityStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)

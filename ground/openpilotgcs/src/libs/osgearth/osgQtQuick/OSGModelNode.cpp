@@ -155,10 +155,11 @@ public:
             if (mapNode) {
                 // TODO offset sometimes jitters badly...
                 float offset = 1.0f;
-                if (modelNode.valid()) {
+                if (false && modelNode.valid()) {
+                    // for some reason the bounds are not constant...
                     offset = modelNode->getBound().radius();
                 }
-                //qDebug() << "OSGModelNode::updateNode - model node bounds" << offset;
+                // qDebug() << "OSGModelNode::updateNode - model node bounds" << offset;
                 intoTerrain = clampGeoPoint(geoPoint, offset, mapNode);
             } else {
                 qWarning() << "OSGModelNode::updateNode - scene data does not contain a map node";

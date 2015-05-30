@@ -314,7 +314,10 @@ public:
 
         viewer = new osgViewer::CompositeViewer();
         viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
-        // viewer->setIncrementalCompileOperation(new osgUtil::IncrementalCompileOperation());
+
+        osg::ref_ptr<osgUtil::IncrementalCompileOperation> ico = new osgUtil::IncrementalCompileOperation();
+        ico->setTargetFrameRate(30.0f);
+        viewer->setIncrementalCompileOperation(ico);
 
         // disable the default setting of viewer.done() by pressing Escape.
         viewer->setKeyEventSetsDone(0);

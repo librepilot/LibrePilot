@@ -1,4 +1,14 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC5
+Release Notes - OpenPilot - Version RELEASE-15.05 RC6
+
+RC6 changes relative to RC5:
+1. Altvario AltHold PID updates
+2. Fix timer bank assignments
+3. Reboot nano in wizard only when needed
+4. Fix wizard limits for oneshot/pwmsync
+5. Update PFD with latest flight modes
+6. Add AccelTau, AccelKp and AccelKi to TxPID
+7. Adding support for SRXL in vehicle wizard.
+
 
 RC5 changes relative to RC4:
 1. Landing flight mode now truely disarms to complete its sequence, triggered by a critical guidance alarm. Reset via change of flight mode.

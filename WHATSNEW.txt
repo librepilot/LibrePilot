@@ -8,6 +8,8 @@ RC6 changes relative to RC5:
 5. Update PFD with latest flight modes
 6. Add AccelTau, AccelKp and AccelKi to TxPID
 7. Adding support for SRXL in vehicle wizard.
+8. OSD TxPID display
+9. MPU9k reset fixes and frequency fix affecting baud rate accuracy
 
 
 RC5 changes relative to RC4:
@@ -38,8 +40,12 @@ This release introduces new features and new hardware support for the Revolution
 
 The full list of bugfixes in this release is accessible here:
 
+
+Release Notes - OpenPilot - Version RELEASE-15.05
+
 ** Bug
     * [OP-1691] - PIOS_DELAY_WaitmS() in RFM22B causes jitter
+    * [OP-1732] - Incorrect display of Output Channel/Bank Groups on Revolution for channels 7 to 12.
     * [OP-1756] - Add option to Vehicle Setup Wizard to calibrate all motor outputs at the same time.
     * [OP-1778] - resolve win_sdk_install.sh issue with https://
     * [OP-1793] - Fixes for Sensor module
@@ -54,7 +60,8 @@ The full list of bugfixes in this release is accessible here:
     * [OP-1872] - Vehicle Wiz Tricopter tail servo settings don't save
     * [OP-1888] - SIGSEGV after starting simulator in HITL
     * [OP-1893] - Deadband changes max stick input
-
+    * [OP-1905] - OPLM in PPM mode blocks telemetry stream if no USB connected
+    * [OP-1906] - Auto land - yaw disarm can cause a crash
 
 ** Improvement
     * [OP-1289] - Need Revo to send two telemetry streams for OSD and GCS
@@ -86,6 +93,9 @@ The full list of bugfixes in this release is accessible here:
     * [OP-1887] - PFD update 
     * [OP-1897] - Omit unnecessary warning dialog and texts in manual input calibration of Ground Vehicle
     * [OP-1898] - VelocityRoam new flight mode
+    * [OP-1902] - MinOPOSD build required for 15.05 compatibility
+    * [OP-1903] - Add TxPID controls for AttitudeSettings
+    * [OP-1904] - Display current TxPID settings on OSD
 
 ** New Feature
     * [OP-1696] - PathFollower C++ Rewrite: Autonomous Landing, Velocity Roam, RTBL, GroundPathFollower
@@ -97,8 +107,9 @@ The full list of bugfixes in this release is accessible here:
     * [OP-1832] - Need method to get default UAV Object settings in Java UAVObjects
     * [OP-1849] - Support programming/update of minimosd using USB VCP port
     * [OP-1863] - RateTrainer mode - add maxpitch for beginners and aerial photography
-
-
+    
+    
+    
 --- RELEASE-15.02.02 ---
 This release fixes a bug that prevents revo onboard mag to work correctly.
 

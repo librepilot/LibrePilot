@@ -122,6 +122,7 @@ UAVOBJSRCFILENAMES += poilocation
 UAVOBJSRCFILENAMES += poilearnsettings
 UAVOBJSRCFILENAMES += mpugyroaccelsettings
 UAVOBJSRCFILENAMES += txpidsettings
+UAVOBJSRCFILENAMES += txpidstatus
 UAVOBJSRCFILENAMES += takeofflocation
 UAVOBJSRCFILENAMES += perfcounter
 

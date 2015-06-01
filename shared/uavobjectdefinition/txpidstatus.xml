@@ -1,0 +1,10 @@
+<xml>
+    <object name="TxPIDStatus" singleinstance="true" settings="false" category="Control" priority="true">
+	<description>Status of @ref TxPID optional module used to tune PID settings using R/C transmitter.</description>
+        <field name="CurPID" units="" type="float" elementnames="Instance1,Instance2,Instance3" defaultvalue="0"/>
+	<access gcs="readonly" flight="readwrite"/>
+        <telemetrygcs acked="false" updatemode="manual" period="0"/>
+        <telemetryflight acked="false" updatemode="periodic" period="2000"/>
+        <logging updatemode="manual" period="0"/>
+    </object>
+</xml>

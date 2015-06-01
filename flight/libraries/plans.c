@@ -823,7 +823,7 @@ void plan_run_AutoCruise()
 #define ASSISTEDCONTROL_TIMETOSTOP_MINIMUM 0.2f // seconds
 #define ASSISTEDCONTROL_TIMETOSTOP_MAXIMUM 9.0f // seconds
 #define ASSISTEDCONTROL_DELAY_TO_BRAKE     1.0f      // seconds
-#define ASSISTEDCONTROL_TIMEOUT_MULTIPLIER 2.0f // actual deceleration rate can be 50% of desired...timeouts need to cater for this
+#define ASSISTEDCONTROL_TIMEOUT_MULTIPLIER 4.0f // actual deceleration rate can be 50% of desired...timeouts need to cater for this
 void plan_setup_assistedcontrol()
 {
     PositionStateData positionState;

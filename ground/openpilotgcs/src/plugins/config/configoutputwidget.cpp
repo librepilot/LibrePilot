@@ -363,7 +363,7 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
             bankLabels << "1 (1)" << "2 (2,7,11)" << "3 (3)" << "4 (4)" << "5 (5-6)" << "6 (8-10,12)";
             channelBanks << 1 << 2 << 3 << 4 << 5 << 5 << 2 << 6 << 6 << 6 << 2 << 6;
         }
-    }    
+    }
 
     int i = 0;
     foreach(QString banklabel, bankLabels) {

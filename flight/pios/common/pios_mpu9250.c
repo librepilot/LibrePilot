@@ -952,12 +952,7 @@ bool PIOS_MPU9250_Main_driver_Test(__attribute__((unused)) uintptr_t context)
 
 void PIOS_MPU9250_Main_driver_Reset(__attribute__((unused)) uintptr_t context)
 {
-    // TODO!
-    if (PIOS_MPU9250_ClaimBus(true) != 0) {
-        return;
-    }
     PIOS_MPU9250_GetReg(PIOS_MPU9250_INT_STATUS_REG);
-    PIOS_MPU9250_ReleaseBus();
 }
 
 void PIOS_MPU9250_Main_driver_get_scale(float *scales, uint8_t size, __attribute__((unused)) uintptr_t contet)

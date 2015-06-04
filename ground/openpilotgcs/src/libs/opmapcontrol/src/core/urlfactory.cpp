@@ -123,7 +123,7 @@ void UrlFactory::TryCorrectGoogleVersions()
        // QString url = "https://www.google.com/maps/@0,-0,7z?dg=dbrw&newdg=1";
        // We need to switch to the Above url... the /lochp method will be depreciated soon
        // https://productforums.google.com/forum/#!category-topic/maps/navigation/k6EFrp7J7Jk
-        QString url = "https://www.google.com/lochp";
+        QString url = "http://www.google.com/lochp";
 
         qheader.setUrl(QUrl(url));
         qheader.setRawHeader("User-Agent", UserAgent);
@@ -146,7 +146,7 @@ void UrlFactory::TryCorrectGoogleVersions()
         qDebug() << html;
 #endif // DEBUG_URLFACTORY
 
-        QRegExp reg("\"*https://mts0.google.com/vt/lyrs=m@(\\d*)", Qt::CaseInsensitive);
+        QRegExp reg("\"*http://mts0.google.com/vt/lyrs=m@(\\d*)", Qt::CaseInsensitive);
         if (reg.indexIn(html) != -1) {
             QStringList gc = reg.capturedTexts();
             VersionGoogleMap = QString("m@%1").arg(gc[1]);
@@ -157,7 +157,7 @@ void UrlFactory::TryCorrectGoogleVersions()
 #endif // DEBUG_URLFACTORY
         }
 
-        reg = QRegExp("\"*https://mts0.google.com/vt/lyrs=h@(\\d*)", Qt::CaseInsensitive);
+        reg = QRegExp("\"*http://mts0.google.com/vt/lyrs=h@(\\d*)", Qt::CaseInsensitive);
         if (reg.indexIn(html) != -1) {
             QStringList gc = reg.capturedTexts();
             VersionGoogleLabels = QString("h@%1").arg(gc[1]);
@@ -168,7 +168,7 @@ void UrlFactory::TryCorrectGoogleVersions()
 #endif // DEBUG_URLFACTORY
         }
 
-        reg = QRegExp("\"*https://khms0.google.com/kh/v=(\\d*)", Qt::CaseInsensitive);
+        reg = QRegExp("\"*http://khms0.google.com/kh/v=(\\d*)", Qt::CaseInsensitive);
         if (reg.indexIn(html) != -1) {
             QStringList gc = reg.capturedTexts();
             VersionGoogleSatellite = gc[1];
@@ -180,7 +180,7 @@ void UrlFactory::TryCorrectGoogleVersions()
 #endif // DEBUG_URLFACTORY
         }
 
-        reg = QRegExp("\"*https://mts0.google.com/vt/lyrs=t@(\\d*),r@(\\d*)", Qt::CaseInsensitive);
+        reg = QRegExp("\"*http://mts0.google.com/vt/lyrs=t@(\\d*),r@(\\d*)", Qt::CaseInsensitive);
         if (reg.indexIn(html) != -1) {
             QStringList gc = reg.capturedTexts();
             VersionGoogleTerrain = QString("t@%1,r@%2").arg(gc[1]).arg(gc[2]);
@@ -315,9 +315,9 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
         // https://mts0.google.com/mt/v=kr1.11&hl=ko&x=109&y=49&z=7&s=
 
 #ifdef DEBUG_URLFACTORY
-        qDebug() << QString("https://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleMapKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
+        qDebug() << QString("http://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleMapKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
 #endif
-        return QString("https://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleMapKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
+        return QString("http://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleMapKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
     }
     break;
     case MapType::GoogleSatelliteKorea:
@@ -331,9 +331,9 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
         // http://khm1.google.co.kr/kh/v=54&x=109&y=49&z=7&s=
 
 #ifdef DEBUG_URLFACTORY
-        qDebug() << QString("https://%1%2.google.co.kr/%3/v=%4&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleSatelliteKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
+        qDebug() << QString("http://%1%2.google.co.kr/%3/v=%4&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleSatelliteKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
 #endif
-        return QString("https://%1%2.google.co.kr/%3/v=%4&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleSatelliteKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
+        return QString("http://%1%2.google.co.kr/%3/v=%4&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleSatelliteKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
     }
     break;
     case MapType::GoogleLabelsKorea:
@@ -346,9 +346,9 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
         TryCorrectGoogleVersions();
 
 #ifdef DEBUG_URLFACTORY
-        qDebug() << QString("https://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleLabelsKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
+        qDebug() << QString("http://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleLabelsKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
 #endif
-        return QString("https://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleLabelsKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
+        return QString("http://%1%2.google.com/%3/v=%4&hl=ko&gl=KR&x=%5%6&y=%7&z=%8&s=%9").arg(server).arg(GetServerNum(pos, 4)).arg(request).arg(VersionGoogleLabelsKorea).arg(pos.X()).arg(sec1).arg(pos.Y()).arg(zoom).arg(sec2);
     }
     break;
     // *.yimg.com has been depreciated. "Here" is what Yahoo uses now. https://developer.here.com/rest-apis/documentation/enterprise-map-tile/topics/request-constructing.html
@@ -480,7 +480,7 @@ QString UrlFactory::MakeGeocoderUrl(QString keywords)
     QString key = keywords.replace(' ', '+');
 
     // CSV output has been depreciated. API key is no longer needed.
-    return QString("https://maps.googleapis.com/maps/api/geocode/xml?sensor=false&address=%1").arg(key);
+    return QString("http://maps.googleapis.com/maps/api/geocode/xml?sensor=false&address=%1").arg(key);
 }
 QString UrlFactory::MakeReverseGeocoderUrl(internals::PointLatLng &pt, const QString &language)
 {
@@ -488,7 +488,7 @@ QString UrlFactory::MakeReverseGeocoderUrl(internals::PointLatLng &pt, const QSt
     qDebug() << "Language: " << language;
 #endif
     // CSV output has been depreciated. API key is no longer needed.
-    return QString("https://maps.googleapis.com/maps/api/geocode/xml?latlng=%1,%2").arg(QString::number(pt.Lat())).arg(QString::number(pt.Lng()));
+    return QString("http://maps.googleapis.com/maps/api/geocode/xml?latlng=%1,%2").arg(QString::number(pt.Lat())).arg(QString::number(pt.Lng()));
 }
 internals::PointLatLng UrlFactory::GetLatLngFromGeodecoder(const QString &keywords, QString &status)
 {

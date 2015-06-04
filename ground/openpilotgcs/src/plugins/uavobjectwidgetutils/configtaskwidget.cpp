@@ -209,6 +209,39 @@ ConfigTaskWidget::~ConfigTaskWidget()
     }
 }
 
+bool ConfigTaskWidget::isComboboxOptionSelected(QComboBox *combo, int optionValue)
+{
+    bool ok;
+    int value = combo->currentData().toInt(&ok);
+    return ok ? value == optionValue : false;
+}
+
+int ConfigTaskWidget::getComboboxSelectedOption(QComboBox *combo)
+{
+    bool ok;
+    int index = combo->currentData().toInt(&ok);
+    return ok ? index : -1;
+}
+
+void ConfigTaskWidget::setComboboxSelectedOption(QComboBox *combo, int optionValue)
+{
+    int index = combo->findData(QVariant(optionValue));
+    if (index != -1) {
+        combo->setCurrentIndex(index);
+    }
+}
+
+int ConfigTaskWidget::getComboboxIndexForOption(QComboBox *combo, int optionValue)
+{
+    return combo->findData(QVariant(optionValue));
+}
+
+void ConfigTaskWidget::enableComboBoxOptionItem(QComboBox *combo, int optionValue, bool enable)
+{
+    combo->model()->setData(combo->model()->index(getComboboxIndexForOption(combo, optionValue), 0),
+                                   !enable ? QVariant(0) : QVariant(1 | 32), Qt::UserRole - 1);
+}
+
 void ConfigTaskWidget::saveObjectToSD(UAVObject *obj)
 {
     // saveObjectToSD is now handled by the UAVUtils plugin in one
@@ -858,7 +891,7 @@ QVariant ConfigTaskWidget::getVariantFromWidget(QWidget *widget, WidgetBinding *
 
     if (QComboBox * cb = qobject_cast<QComboBox *>(widget)) {
         if (binding->isInteger()) {
-            return cb->currentIndex();
+            return QVariant(getComboboxSelectedOption(cb));
         }
         return (QString)cb->currentText();
     } else if (QDoubleSpinBox * cb = qobject_cast<QDoubleSpinBox *>(widget)) {
@@ -889,7 +922,7 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
     if (QComboBox * cb = qobject_cast<QComboBox *>(widget)) {
         bool ok = true;
         if (binding->isInteger()) {
-            cb->setCurrentIndex(value.toInt(&ok));
+            setComboboxSelectedOption(cb, value.toInt(&ok));
         } else {
             cb->setCurrentIndex(cb->findText(value.toString()));
         }
@@ -1004,22 +1037,16 @@ void ConfigTaskWidget::loadWidgetLimits(QWidget *widget, UAVObjectField *field, 
     }
     if (QComboBox * cb = qobject_cast<QComboBox *>(widget)) {
         cb->clear();
-        QStringList option = field->getOptions();
-        if (hasLimits) {
-            // Only add options to combo box if we have a board id to check limits for.
-            // We could enter this method while there is no board connected and without
-            // this check, we would add all the board dependent options whether they were
-            // valid or not. Ultimately this method will be called again when the connected
-            // signal is handled.
-            if (m_currentBoardId > -1) {
-                foreach(QString str, option) {
-                    if (field->isWithinLimits(str, index, m_currentBoardId)) {
-                        cb->addItem(str);
-                    }
+        QStringList options = field->getOptions();
+
+        for(int optionIndex = 0; optionIndex < options.count(); optionIndex++) {
+            if (hasLimits) {
+                if (m_currentBoardId > -1 && field->isWithinLimits(options.at(optionIndex), index, m_currentBoardId)) {
+                    cb->addItem(options.at(optionIndex), QVariant(optionIndex));
                 }
+            } else {
+                cb->addItem(options.at(optionIndex), QVariant(optionIndex));
             }
-        } else {
-            cb->addItems(option);
         }
     }
     if (!hasLimits) {

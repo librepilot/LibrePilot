@@ -301,10 +301,13 @@ void ConfigRevoNanoHWWidget::rcvrPortChanged(int index)
 {
     Q_UNUSED(index);
 
+    m_ui->lblRcvrSpeed->setVisible(true);
+    m_ui->cbRcvrTelemSpeed->setVisible(false);
+    m_ui->cbRcvrComSpeed->setVisible(false);
+
     switch (getComboboxSelectedOption(m_ui->cbRcvr)) {
     case HwSettings::RM_RCVRPORT_TELEMETRY:
     case HwSettings::RM_RCVRPORT_PPMTELEMETRY:
-        m_ui->lblRcvrSpeed->setVisible(true);
         m_ui->cbRcvrTelemSpeed->setVisible(true);
 
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_TELEMETRY)) {
@@ -315,7 +318,6 @@ void ConfigRevoNanoHWWidget::rcvrPortChanged(int index)
         }
         break;
     case HwSettings::RM_RCVRPORT_COMBRIDGE:
-        m_ui->lblRcvrSpeed->setVisible(true);
         m_ui->cbRcvrComSpeed->setVisible(true);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
@@ -326,8 +328,6 @@ void ConfigRevoNanoHWWidget::rcvrPortChanged(int index)
         break;
     default:
         m_ui->lblRcvrSpeed->setVisible(false);
-        m_ui->cbRcvrTelemSpeed->setVisible(false);
-        m_ui->cbRcvrComSpeed->setVisible(false);
         break;
     }
 }

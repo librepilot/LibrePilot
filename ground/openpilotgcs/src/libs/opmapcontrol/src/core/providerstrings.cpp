@@ -40,10 +40,10 @@ const QString ProviderStrings::levelsForSigPacSpainMap[] = {
 ProviderStrings::ProviderStrings()
 {
     // Google version strings
-    VersionGoogleMap       = "h@249000000";
-    VersionGoogleSatellite = "145";
-    VersionGoogleLabels    = "h@221000000";
-    VersionGoogleTerrain   = "t@132,r@249000000";
+    VersionGoogleMap       = "m@301";
+    VersionGoogleSatellite = "171";
+    VersionGoogleLabels    = "h@301";
+    VersionGoogleTerrain   = "t@132,r@301";
     SecGoogleWord = "Galileo";
 
     // Google (China) version strings

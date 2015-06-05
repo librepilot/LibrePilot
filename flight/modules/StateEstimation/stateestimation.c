@@ -290,6 +290,7 @@ int32_t StateEstimationInitialize(void)
     AirspeedStateInitialize();
     PositionStateInitialize();
     VelocityStateInitialize();
+    AuxMagSettingsInitialize();
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
 

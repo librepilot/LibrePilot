@@ -232,7 +232,7 @@
             </spacer>
            </item>
            <item row="2" column="2">
-            <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0">
+            <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
              <item row="4" column="0">
               <widget class="QLabel" name="lblUSBVCPSpeed">
                <property name="sizePolicy">
@@ -302,6 +302,13 @@
                </property>
               </widget>
              </item>
+             <item row="5" column="0">
+              <widget class="QComboBox" name="cbUSBVCPSpeed">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="0">
               <widget class="QLabel" name="label_4">
                <property name="sizePolicy">
@@ -334,18 +341,11 @@
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
-              <widget class="QComboBox" name="cbUSBVCPSpeed">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="11" column="0" alignment="Qt::AlignTop">
-              <widget class="QComboBox" name="cbRcvrTelemSpeed"/>
-             </item>
              <item row="9" column="0">
               <widget class="QComboBox" name="cbRcvr"/>
+             </item>
+             <item row="9" column="2" colspan="2">
+              <widget class="QComboBox" name="cbMain"/>
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_8">
@@ -373,8 +373,8 @@
                </property>
               </widget>
              </item>
-             <item row="9" column="2" colspan="2">
-              <widget class="QComboBox" name="cbMain"/>
+             <item row="14" column="2" colspan="2">
+              <widget class="QComboBox" name="cbMainGPSProtocol"/>
              </item>
              <item row="10" column="2" colspan="2">
               <widget class="QLabel" name="lblMainSpeed">
@@ -406,7 +406,10 @@
                </item>
               </layout>
              </item>
-             <item row="12" column="2" colspan="2">
+             <item row="5" column="1" colspan="2">
+              <widget class="QComboBox" name="cbFlexiGPSProtocol"/>
+             </item>
+             <item row="13" column="2" colspan="2">
               <widget class="QLabel" name="lbMainGPSProtocol">
                <property name="text">
                 <string>Protocol</string>
@@ -415,12 +418,6 @@
                 <set>Qt::AlignCenter</set>
                </property>
               </widget>
-             </item>
-             <item row="13" column="2" colspan="2">
-              <widget class="QComboBox" name="cbMainGPSProtocol"/>
-             </item>
-             <item row="5" column="1" colspan="2">
-              <widget class="QComboBox" name="cbFlexiGPSProtocol"/>
              </item>
              <item row="4" column="1" colspan="2">
               <widget class="QLabel" name="lbFlexiGPSProtocol">
@@ -434,6 +431,9 @@
                 <set>Qt::AlignCenter</set>
                </property>
               </widget>
+             </item>
+             <item row="1" column="1" colspan="2">
+              <widget class="QComboBox" name="cbFlexi"/>
              </item>
              <item row="3" column="1" colspan="2">
               <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -455,6 +455,16 @@
                </item>
               </layout>
              </item>
+             <item row="0" column="1" colspan="2">
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Flexi Port</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               </property>
+              </widget>
+             </item>
              <item row="2" column="1" colspan="2">
               <widget class="QLabel" name="lblFlexiSpeed">
                <property name="text">
@@ -465,18 +475,34 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="1" colspan="2">
-              <widget class="QComboBox" name="cbFlexi"/>
-             </item>
-             <item row="0" column="1" colspan="2">
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Flexi Port</string>
+             <item row="11" column="0">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <property name="spacing">
+                <number>0</number>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               <property name="topMargin">
+                <number>0</number>
                </property>
-              </widget>
+               <item>
+                <widget class="QComboBox" name="cbRcvrTelemSpeed"/>
+               </item>
+               <item alignment="Qt::AlignTop">
+                <widget class="QComboBox" name="cbRcvrComSpeed"/>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -683,8 +709,8 @@ Beware of not locking yourself out!</string>
   </layout>
  </widget>
  <resources>
-  <include location="configgadget.qrc"/>
   <include location="../coreplugin/core.qrc"/>
+  <include location="configgadget.qrc"/>
  </resources>
  <connections/>
 </ui>

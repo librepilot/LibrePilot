@@ -42,6 +42,7 @@
 #include <gpsvelocitysensor.h>
 #include <homelocation.h>
 #include <auxmagsensor.h>
+#include <auxmagsettings.h>
 
 #include <gyrostate.h>
 #include <accelstate.h>
@@ -254,7 +255,7 @@ static const filterPipeline *ekf13Queue = &(filterPipeline) {
 
 static void settingsUpdatedCb(UAVObjEvent *objEv);
 static void sensorUpdatedCb(UAVObjEvent *objEv);
-static void homeLocationUpdatedCb(UAVObjEvent *objEv);
+static void criticalConfigUpdatedCb(UAVObjEvent *objEv);
 static void StateEstimationCb(void);
 
 static inline int32_t maxint32_t(int32_t a, int32_t b)
@@ -289,10 +290,12 @@ int32_t StateEstimationInitialize(void)
     AirspeedStateInitialize();
     PositionStateInitialize();
     VelocityStateInitialize();
+    AuxMagSettingsInitialize();
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
 
-    HomeLocationConnectCallback(&homeLocationUpdatedCb);
+    HomeLocationConnectCallback(&criticalConfigUpdatedCb);
+    AuxMagSettingsConnectCallback(&criticalConfigUpdatedCb);
 
     GyroSensorConnectCallback(&sensorUpdatedCb);
     AccelSensorConnectCallback(&sensorUpdatedCb);
@@ -538,9 +541,9 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 }
 
 /**
- * Callback for eventdispatcher when HomeLocation has been updated
+ * Callback for eventdispatcher when HomeLocation or other critical configs (auxmagsettings, ...) has been updated
  */
-static void homeLocationUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+static void criticalConfigUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
     // Ask for a filter init (necessary for LLA filter)
     // Only possible if disarmed

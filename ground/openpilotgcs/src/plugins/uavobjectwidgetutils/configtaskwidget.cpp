@@ -213,6 +213,7 @@ bool ConfigTaskWidget::isComboboxOptionSelected(QComboBox *combo, int optionValu
 {
     bool ok;
     int value = combo->currentData().toInt(&ok);
+
     return ok ? value == optionValue : false;
 }
 
@@ -220,12 +221,14 @@ int ConfigTaskWidget::getComboboxSelectedOption(QComboBox *combo)
 {
     bool ok;
     int index = combo->currentData().toInt(&ok);
+
     return ok ? index : -1;
 }
 
 void ConfigTaskWidget::setComboboxSelectedOption(QComboBox *combo, int optionValue)
 {
     int index = combo->findData(QVariant(optionValue));
+
     if (index != -1) {
         combo->setCurrentIndex(index);
     }
@@ -239,7 +242,7 @@ int ConfigTaskWidget::getComboboxIndexForOption(QComboBox *combo, int optionValu
 void ConfigTaskWidget::enableComboBoxOptionItem(QComboBox *combo, int optionValue, bool enable)
 {
     combo->model()->setData(combo->model()->index(getComboboxIndexForOption(combo, optionValue), 0),
-                                   !enable ? QVariant(0) : QVariant(1 | 32), Qt::UserRole - 1);
+                            !enable ? QVariant(0) : QVariant(1 | 32), Qt::UserRole - 1);
 }
 
 void ConfigTaskWidget::saveObjectToSD(UAVObject *obj)
@@ -1039,7 +1042,7 @@ void ConfigTaskWidget::loadWidgetLimits(QWidget *widget, UAVObjectField *field, 
         cb->clear();
         QStringList options = field->getOptions();
 
-        for(int optionIndex = 0; optionIndex < options.count(); optionIndex++) {
+        for (int optionIndex = 0; optionIndex < options.count(); optionIndex++) {
             if (hasLimits) {
                 if (m_currentBoardId > -1 && field->isWithinLimits(options.at(optionIndex), index, m_currentBoardId)) {
                     cb->addItem(options.at(optionIndex), QVariant(optionIndex));

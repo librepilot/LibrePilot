@@ -123,7 +123,7 @@ void ConfigRevoHWWidget::updateObjectsFromWidgets()
     // If any port is configured to be GPS port, enable GPS module if it is not enabled.
     // Otherwise disable GPS module.
     if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS)
-            || isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS)) {
+        || isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS)) {
         data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_ENABLED;
     } else {
         data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_DISABLED;
@@ -168,7 +168,7 @@ void ConfigRevoHWWidget::usbVCPPortChanged(int index)
 
     // _USBTELEMETRY modes are mutual exclusive
     if (isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_USBTELEMETRY)
-            && isComboboxOptionSelected(m_ui->cbUSBHIDFunction, HwSettings::USB_HIDPORT_USBTELEMETRY)) {
+        && isComboboxOptionSelected(m_ui->cbUSBHIDFunction, HwSettings::USB_HIDPORT_USBTELEMETRY)) {
         setComboboxSelectedOption(m_ui->cbUSBHIDFunction, HwSettings::USB_HIDPORT_DISABLED);
     }
 }
@@ -179,7 +179,7 @@ void ConfigRevoHWWidget::usbHIDPortChanged(int index)
 
     // _USBTELEMETRY modes are mutual exclusive
     if (isComboboxOptionSelected(m_ui->cbUSBHIDFunction, HwSettings::USB_HIDPORT_USBTELEMETRY)
-            && isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_USBTELEMETRY)) {
+        && isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_USBTELEMETRY)) {
         setComboboxSelectedOption(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_DISABLED);
     }
 }

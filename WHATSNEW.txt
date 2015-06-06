@@ -1,4 +1,10 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC6
+Release Notes - OpenPilot - Version RELEASE-15.05 RC7
+
+RC7 changes relative to RC6:
+1. Nano hardware page fixes
+2. Upgrade google map version
+3. xtal frequency changes again to suit an sbus receiver.
+4. OP-1875 reinit EKF on changes to AuxMagSettings
 
 RC6 changes relative to RC5:
 1. Altvario AltHold PID updates

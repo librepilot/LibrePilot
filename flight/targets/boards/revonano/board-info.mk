@@ -40,7 +40,6 @@ FW_BANK_BASE        := 0x08010000  # Start of firmware flash
 FW_BANK_SIZE        := 0x00070000  # Should include FW_DESC_SIZE
 
 FW_DESC_SIZE        := 0x00000064
-# Quartz frequency is actually 8000000. 
-# The following value fixes several rounding errors on uart baud rates calculations
-OSCILLATOR_FREQ     :=   8000010
+
+OSCILLATOR_FREQ     :=   8000000
 SYSCLK_FREQ         :=  96000000

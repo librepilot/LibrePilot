@@ -222,7 +222,7 @@ int ConfigTaskWidget::getComboboxSelectedOption(QComboBox *combo)
     bool ok;
     int index = combo->currentData().toInt(&ok);
 
-    return ok ? index : -1;
+    return ok ? index : combo->currentIndex();
 }
 
 void ConfigTaskWidget::setComboboxSelectedOption(QComboBox *combo, int optionValue)
@@ -231,6 +231,8 @@ void ConfigTaskWidget::setComboboxSelectedOption(QComboBox *combo, int optionVal
 
     if (index != -1) {
         combo->setCurrentIndex(index);
+    } else {
+        combo->setCurrentIndex(optionValue);
     }
 }
 

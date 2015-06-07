@@ -22,6 +22,11 @@ class Node;
 class Camera;
 } // namespace osg
 
+namespace osgViewer {
+class Viewer;
+class CompositeViewer;
+} // namespace osgViewer
+
 namespace osgText {
 class Text;
 class Font;
@@ -110,6 +115,9 @@ void openGLContextInfo(QOpenGLContext *context, const char *at);
 
 QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile);
 QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
+
+QString getUsageString(osgViewer::Viewer *viewer);
+QString getUsageString(osgViewer::CompositeViewer *viewer);
 
 void registerTypes(const char *uri);
 } // namespace osgQtQuick

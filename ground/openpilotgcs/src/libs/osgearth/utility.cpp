@@ -16,7 +16,9 @@
 #include <osg/NodeCallback>
 #include <osg/Camera>
 #include <osg/io_utils>
+#include <osg/ApplicationUsage>
 #include <osgViewer/Viewer>
+#include <osgViewer/CompositeViewer>
 #include <osgDB/FileNameUtils>
 #include <osgDB/ReadFile>
 #include <osgUtil/CullVisitor>
@@ -435,6 +437,34 @@ QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior)
         return "Triple buffer";
     }
     return "<Unknown swap behavior>";
+}
+
+QString getUsageString(osg::ApplicationUsage *applicationUsage) {
+    const osg::ApplicationUsage::UsageMap& keyboardBinding = applicationUsage->getKeyboardMouseBindings();
+
+    QString desc;
+    for(osg::ApplicationUsage::UsageMap::const_iterator itr = keyboardBinding.begin();
+            itr != keyboardBinding.end();
+            ++itr)
+    {
+        desc += QString::fromStdString(itr->first);
+        desc += " : ";
+        desc += QString::fromStdString(itr->second);
+        desc += "\n";
+    }
+    return desc;
+}
+
+QString getUsageString(osgViewer::Viewer *viewer) {
+    osg::ref_ptr<osg::ApplicationUsage> applicationUsage = new osg::ApplicationUsage();
+    viewer->getUsage(*applicationUsage);
+    return getUsageString(applicationUsage);
+}
+
+QString getUsageString(osgViewer::CompositeViewer *viewer) {
+    osg::ref_ptr<osg::ApplicationUsage> applicationUsage = new osg::ApplicationUsage();
+    viewer->getUsage(*applicationUsage);
+    return getUsageString(applicationUsage);
 }
 
 void registerTypes(const char *uri)

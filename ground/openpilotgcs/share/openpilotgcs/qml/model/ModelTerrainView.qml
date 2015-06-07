@@ -10,7 +10,7 @@ OSGViewport {
 
     OSGSkyNode {
         id: skyNode
-        sceneData: terrainNode
+        sceneData: sceneGroup
         dateTime: getDateTime()
         minimumAmbientLight: qmlWidget.minimumAmbientLight
 
@@ -23,6 +23,11 @@ OSGViewport {
             }
         }
 
+    }
+
+    OSGGroup {
+        id: sceneGroup
+        children: [ terrainNode, modelNode ]
     }
 
     OSGFileNode {

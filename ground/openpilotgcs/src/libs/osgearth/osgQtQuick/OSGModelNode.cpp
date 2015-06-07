@@ -87,7 +87,7 @@ public:
         osgEarth::Symbology::ModelSymbol *modelSymbol = style.getOrCreate<osgEarth::Symbology::ModelSymbol>();
         modelSymbol->setModel(node);
 
-        // make a ModelNode
+        // create ModelNode
         modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
 
         // qDebug() << "OSGModelNode::acceptModelNode - model radius:" << modelNode->getBound().radius();
@@ -97,7 +97,6 @@ public:
         }
         modelNode->addUpdateCallback(nodeUpdateCallback.get());
 
-        mapNode->addChild(modelNode);
 
         self->setNode(modelNode);
 

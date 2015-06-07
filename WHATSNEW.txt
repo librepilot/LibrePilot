@@ -1,4 +1,8 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC7
+Release Notes - OpenPilot - Version RELEASE-15.05 RC8
+
+RC8 changes relative to RC7:
+1. Revert xtal changes that impacted SBUS.  
+2. Fix GCS changes that broken input wizard saving channel settings
 
 RC7 changes relative to RC6:
 1. Nano hardware page fixes

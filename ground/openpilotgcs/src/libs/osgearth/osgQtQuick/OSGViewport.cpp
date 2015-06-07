@@ -85,6 +85,8 @@ public:
         qDebug() << "OSGViewport::~Hidden";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "OSGViewport::~Hidden");
 
+        stop();
+
         destroyViewer();
     }
 
@@ -206,9 +208,7 @@ public:
     void onSceneGraphInitialized()
     {
         qDebug() << "OSGViewport::onSceneGraphInitialized";
-        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInitialized");
-
-        //initializeResources();
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInitialized");
     }
 
     void onSceneGraphAboutToStop()
@@ -220,9 +220,7 @@ public:
     void onSceneGraphInvalidated()
     {
         qDebug() << "OSGViewport::onSceneGraphInvalidated";
-        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInvalidated");
-
-        //releaseResources();
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInvalidated");
     }
 
     void initializeResources()
@@ -236,9 +234,6 @@ public:
             start();
             // osgDB::writeNodeFile(*(h->self->sceneData()->node()), "saved.osg");
         }
-//        osg::ref_ptr<osg::ApplicationUsage> applicationUsage;
-//        viewer->getUsage(*applicationUsage);
-//        qDebug() << QString::fromStdString(applicationUsage->getDescription());
     }
 
     void releaseResources()
@@ -275,10 +270,6 @@ public:
         }
 
         this->camera = camera;
-
-        if (this->camera) {
-            // this->camera->installCamera(view.get());
-        }
 
         return true;
     }
@@ -359,7 +350,7 @@ public:
         // view->addEventHandler(new osgViewer::HelpHandler(arguments.getApplicationUsage()));
 
         // add the record camera path handler
-        ///view->addEventHandler(new osgViewer::RecordCameraPathHandler);
+        // view->addEventHandler(new osgViewer::RecordCameraPathHandler);
 
         // add the LOD Scale handler
         // view->addEventHandler(new osgViewer::LODScaleHandler);
@@ -490,6 +481,11 @@ public:
     {
         // qDebug() << "ViewportRenderer::synchronize";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::synchronize");
+
+        if (!h->view.valid()) {
+            qWarning() << "ViewportRenderer::synchronize - invalid view";
+            return;
+        }
 
         // need to split frame() open and do the synchronization here (calling update callbacks, etc...)
     }

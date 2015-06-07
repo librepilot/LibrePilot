@@ -8,9 +8,9 @@ equals(copydata, 1) {
     linux {
         # copy osg libraries
         exists($(OSG_SDK_DIR)/lib64) {
-	        addCopyAllDirTarget($${OSG_SDK_DIR}/lib64,$${GCS_LIBRARY_PATH}/osg)
+	        addCopyDirFilesTargets($${OSG_SDK_DIR}/lib64,$${GCS_LIBRARY_PATH}/osg)
         } else {
-	        addCopyAllDirTarget($${OSG_SDK_DIR}/lib,$${GCS_LIBRARY_PATH}/osg)
+	        addCopyDirFilesTargets($${OSG_SDK_DIR}/lib,$${GCS_LIBRARY_PATH}/osg)
         }
     }
 
@@ -71,7 +71,7 @@ equals(copydata, 1) {
             libosgVolume$${DS}.dll \
             libosgWidget$${DS}.dll
         for(lib, OSG_LIBS) {
-            addCopyFileTarget($${lib},$${OSG_SDK_DIR}/bin/,$${GCS_APP_PATH})
+            addCopyFileTarget($${OSG_SDK_DIR}/bin/$${lib},$${GCS_APP_PATH}/$${lib})
         }
 
         OSG_PLUGINS = \
@@ -199,7 +199,7 @@ equals(copydata, 1) {
             mingw_osgdb_zip$${DS}.dll
         # copy osg plugins
         for(lib, OSG_PLUGINS) {
-            addCopyFileTarget($${lib},$${OSG_SDK_DIR}/bin/osgPlugins-$${OSG_VERSION},$${GCS_LIBRARY_PATH}/osg/osgPlugins-$${OSG_VERSION})
+            addCopyFileTarget($${OSG_SDK_DIR}/bin/osgPlugins-$${OSG_VERSION}/$${lib},$${GCS_LIBRARY_PATH}/osg/osgPlugins-$${OSG_VERSION}/$${lib})
         }
     }
 

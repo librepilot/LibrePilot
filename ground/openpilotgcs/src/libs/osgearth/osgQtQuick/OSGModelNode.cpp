@@ -3,6 +3,7 @@
 #include "../utility.h"
 
 #include <osg/Quat>
+#include <osg/ComputeBoundsVisitor>
 #include <osgViewer/View>
 
 #include <osgEarth/MapNode>
@@ -31,7 +32,7 @@ public:
 
 public:
 
-    Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), clampToTerrain(false), dirty(false)
+    Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), offset(-1.0), clampToTerrain(false), dirty(false)
     {
     }
 
@@ -90,13 +91,17 @@ public:
         // create ModelNode
         modelNode = new osgEarth::Annotation::ModelNode(mapNode, style);
 
-        // qDebug() << "OSGModelNode::acceptModelNode - model radius:" << modelNode->getBound().radius();
-
+        // add update callback
         if (!nodeUpdateCallback.valid()) {
             nodeUpdateCallback = new NodeUpdateCallback(this);
         }
         modelNode->addUpdateCallback(nodeUpdateCallback.get());
 
+        // get "size" of model
+        osg::ComputeBoundsVisitor cbv;
+        modelNode->accept(cbv);
+        const osg::BoundingBox& bbox = cbv.getBoundingBox();
+        offset = bbox.radius();
 
         self->setNode(modelNode);
 
@@ -152,13 +157,6 @@ public:
         if (clampToTerrain) {
             osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
             if (mapNode) {
-                // TODO offset sometimes jitters badly...
-                float offset = 1.0f;
-                if (false && modelNode.valid()) {
-                    // for some reason the bounds are not constant...
-                    offset = modelNode->getBound().radius();
-                }
-                // qDebug() << "OSGModelNode::updateNode - model node bounds" << offset;
                 intoTerrain = clampGeoPoint(geoPoint, offset, mapNode);
             } else {
                 qWarning() << "OSGModelNode::updateNode - scene data does not contain a map node";
@@ -184,6 +182,8 @@ public:
     OSGNode *sceneData;
 
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
+
+    float offset;
 
     bool clampToTerrain;
     bool intoTerrain;

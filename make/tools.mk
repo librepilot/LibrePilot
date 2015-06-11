@@ -62,14 +62,14 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run.md5
         QT_SDK_ARCH := gcc_64
-        OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-2705fde9e4-linux-x64-qt-5.4.1.tar.gz
+        OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-0b63c8ffde-linux-x64-qt-5.4.1.tar.gz
     else
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
         ARM_SDK_MD5_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2/+md5
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run.md5
         QT_SDK_ARCH := gcc
-        OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-2705fde9e4-linux-x86-qt-5.4.1.tar.gz
+        OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-0b63c8ffde-linux-x86-qt-5.4.1.tar.gz
     endif
     UNCRUSTIFY_URL := http://wiki.openpilot.org/download/attachments/18612236/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://wiki.openpilot.org/download/attachments/18612236/doxygen-1.8.3.1.src.tar.gz
@@ -100,7 +100,7 @@ else ifeq ($(UNAME), Windows)
     CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
     CMAKE_MD5_URL  := http://wiki.openpilot.org/download/attachments/18612236/cmake-2.8.12.2-win32-x86.zip.md5
     MSYS_URL       := https://wiki.openpilot.org/download/attachments/5472258/MSYS-1.0.11.zip
-    OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-2705fde9e4-mingw491_32-qt-5.4.1.tar.gz
+    OSG_URL        := http://wiki.openpilot.org/download/attachments/5472258/osg-0b63c8ffde-mingw491_32-qt-5.4.1.tar.gz
 endif
 
 GTEST_URL := http://wiki.openpilot.org/download/attachments/18612236/gtest-1.6.0.zip
@@ -114,12 +114,12 @@ OSG_DIR        := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR := $(OSG_DIR)/osg-2705fde9e4-linux-x64-qt-5.4.1
+        OSG_SDK_DIR := $(OSG_DIR)/osg-0b63c8ffde-linux-x64-qt-5.4.1
     else
-        OSG_SDK_DIR := $(OSG_DIR)/osg-2705fde9e4-linux-x86-qt-5.4.1
+        OSG_SDK_DIR := $(OSG_DIR)/osg-0b63c8ffde-linux-x86-qt-5.4.1
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR := $(OSG_DIR)/osg-2705fde9e4-clang_64-qt-5.4.1
+    OSG_SDK_DIR := $(OSG_DIR)/osg-0b63c8ffde-clang_64-qt-5.4.1
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
@@ -131,7 +131,7 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
     MSYS_DIR     := $(TOOLS_DIR)/msys
-    OSG_SDK_DIR  := $(OSG_DIR)/osg-2705fde9e4-mingw491_32-qt-5.4.1
+    OSG_SDK_DIR  := $(OSG_DIR)/osg-0b63c8ffde-mingw491_32-qt-5.4.1
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -306,22 +306,35 @@ endif
 # Cross platform download template
 #  $(1) = Package URL
 #  $(2) = Package file
-#  $(3) = URL for .md5 file to be tested against Package
 #
 ##############################
 
 define DOWNLOAD_TEMPLATE
-@$(ECHO) $(MSG_VERIFYING) $$(call toprel, $(DL_DIR)/$(2))
-	$(V1) ( \
-		cd "$(DL_DIR)" && \
-		$(CURL) $(CURL_OPTIONS) --silent -o "$(DL_DIR)/$(2).md5" "$(3)" && \
-		if [ $(call MD5_CHECK_TEMPLATE,$(DL_DIR)/$(2),!=) ]; then \
-			$(ECHO) $(MSG_DOWNLOADING) $(1) && \
-			$(CURL) $(CURL_OPTIONS) -o "$(DL_DIR)/$(2)" "$(1)" && \
-			$(ECHO) $(MSG_CHECKSUMMING) $$(call toprel, $(DL_DIR)/$(2)) && \
-			[ $(call MD5_CHECK_TEMPLATE,$(DL_DIR)/$(2),=) ]; \
-		fi; \
-	)
+$(DL_DIR)/$(2): | $(DL_DIR)
+	@$(ECHO) $(MSG_DOWNLOADING) $$(call toprel, $(DL_DIR)/$(2))
+	$(V1) $(CURL) $$(CURL_OPTIONS) -o "$(DL_DIR)/$(2)" "$(1)"
+endef
+
+##############################
+#
+# Cross platform download and check template
+#  $(1) = Package URL
+#  $(2) = Package file
+#  $(3) = URL for .md5 file to be tested against Package
+#
+##############################
+
+define DOWNLOAD_AND_CHECK_TEMPLATE
+$(DL_DIR)/$(2).md5: CURL_OPTIONS += --silent
+
+$(call DOWNLOAD_TEMPLATE,$(3),$(2).md5)
+
+$(DL_DIR)/$(2): $(DL_DIR)/$(2).md5
+
+$(call DOWNLOAD_TEMPLATE,$(1),$(2))
+	@$(ECHO) $(MSG_VERIFYING) $$(call toprel, $(DL_DIR)/$(2))
+	$(V1) $(call MD5_CHECK_TEMPLATE,$(DL_DIR)/$(2),=) || \
+		( mv $(DL_DIR)/$(2) $(DL_DIR)/$(2).failed && false)
 endef
 
 ##############################
@@ -341,11 +354,11 @@ define TOOL_INSTALL_TEMPLATE
 
 .PHONY: $(addprefix $(1)_, install clean distclean)
 
-$(1)_install: $(1)_clean | $(DL_DIR) $(TOOLS_DIR)
-	
-	$(if $(4), $(call DOWNLOAD_TEMPLATE,$(3),$(5),$(4)),$(call DOWNLOAD_TEMPLATE,$(3),$(5),"$(3).md5"))
-	
+$(if $(4), $(call DOWNLOAD_AND_CHECK_TEMPLATE,$(3),$(5),$(4)),$(call DOWNLOAD_TEMPLATE,$(3),$(5)))
+
+$(2): $(DL_DIR)/$(5) | $(TOOLS_DIR)
 	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(2))
+	$(V1) [ ! -d "$(2)" ] || $(RM) -rf "$(2)"
 	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
 
 	$(if $(filter $(suffix $(5)), .zip),
@@ -354,6 +367,8 @@ $(1)_install: $(1)_clean | $(DL_DIR) $(TOOLS_DIR)
 	)
 
 	$(6)
+
+$(1)_install: $(2)
 
 $(1)_clean:
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(2))

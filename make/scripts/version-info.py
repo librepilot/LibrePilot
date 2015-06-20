@@ -165,7 +165,7 @@ class Repo:
 
     def tag(self, none = None):
         """Return git tag for the HEAD commit or given string if none"""
-        if self._last_tag == None or self._num_commits_past_tag != 0:
+        if self._last_tag == None or self._num_commits_past_tag != "0":
             return none
         else:
             return self._last_tag
@@ -187,7 +187,7 @@ class Repo:
     def label(self):
         """Return package label (similar to git describe)"""
         try:
-            if self._num_commits_past_tag == 0:
+            if self._num_commits_past_tag == "0":
                 return self._last_tag + self.dirty()
             else:
                 return self._last_tag + "+r" + self._num_commits_past_tag + "-g" + self.hash(7, '') + self.dirty()
@@ -197,7 +197,7 @@ class Repo:
     def revision(self):
         """Return full revison string (tag if defined, or branch:hash date time if no tag)"""
         try:
-            if self._num_commits_past_tag == 0:
+            if self._num_commits_past_tag == "0":
                 return self.tag('') + self.dirty()
             else:
                 return self.branch('no-branch') + ":" + self.hash(8, 'no-hash') + self.dirty() + self.time(' %Y%m%d %H:%M')

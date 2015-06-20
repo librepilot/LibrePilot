@@ -49,16 +49,15 @@
 // later versions dropped this and drop data when the send buffer is full and that could be even longer
 // rather than have long timeouts, we will let timeouts * retries handle that if it happens
 
-// timeout for ack reception
-#define UBX_REPLY_TIMEOUT             (500 * 1000)
-// timeout for a settings save, in case it has to erase flash
-#define UBX_REPLY_TO_SAVE_TIMEOUT     (3000 * 1000)
+#define UBX_REPLY_TIMEOUT             (280 * 1000)
+// timeout for a settings save, in case it has to erase flash?
+#define UBX_SAVE_WAIT_TIME            (1000 * 1000)
 // max retries in case of timeout
 #define UBX_MAX_RETRIES               5
-// pause between each verifiably correct configuration step
-#define UBX_VERIFIED_STEP_WAIT_TIME   (50 * 1000)
-// pause between each unverifiably correct configuration step
-#define UBX_UNVERIFIED_STEP_WAIT_TIME (500 * 1000)
+// max time for ubx parser to respond to MON_VER
+#define UBX_PARSER_TIMEOUT            (950 * 1000)
+// pause between each unverifiable (no ack/nak) configuration step
+#define UBX_UNVERIFIED_STEP_WAIT_TIME (280 * 1000)
 
 #define UBX_CFG_CFG_OP_STORE_SETTINGS \
     (UBX_CFG_CFG_SETTINGS_IOPORT | \
@@ -85,9 +84,7 @@ typedef enum {
 
 #define UBX_
 typedef struct {
-    bool    autoconfigEnabled;
-    bool    storeSettings;
-
+    GPSSettingsUbxAutoConfigOptions UbxAutoConfig;
     bool    SBASRanging;
     bool    SBASCorrection;
     bool    SBASIntegrity;
@@ -114,9 +111,9 @@ typedef struct UBX_CFG_GNSS ubx_cfg_gnss_t;
 typedef struct UBXSENTHEADER UBXSentHeader_t;
 typedef union  UBXSENTPACKET UBXSentPacket_t;
 
-void ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send);
-void ubx_autoconfig_set(ubx_autoconfig_settings_t *config);
-void ubx_reset_sensor_type();
+void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send);
+void gps_ubx_autoconfig_set(ubx_autoconfig_settings_t *config);
+void gps_ubx_reset_sensor_type();
 
 int32_t ubx_autoconfig_get_status();
 #endif /* UBX_AUTOCONFIG_H_ */

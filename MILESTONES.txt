@@ -255,3 +255,14 @@ M: First Auto landing on a Heli using Revo
 C:
 D:
 V:
+
+M: First RevoNano flight on a multirotor
+C: Alessio Morale (a*morale)
+D: 6 December 2014
+V: https://youtu.be/lBypWnDUoc8
+
+M: First RevoNano Navigated flight on a FixedWing
+C: Laurent Lalanne (f5soh)
+D: 25 april 2015
+V: http://youtu.be/EerfH5cfGkk
+

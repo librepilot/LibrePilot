@@ -30,6 +30,7 @@ extern "C" {
 
 #include <math.h>
 #include <pid.h>
+#include <alarms.h>
 #include <CoordinateConversions.h>
 #include <sin_lookup.h>
 #include <pathdesired.h>
@@ -208,7 +209,7 @@ void VtolAutoTakeoffController::UpdateVelocityDesired()
     VelocityDesiredSet(&velocityDesired);
 }
 
-int8_t VtolAutoTakeoffController::UpdateStabilizationDesired(bool yaw_attitude, float yaw_direction)
+int8_t VtolAutoTakeoffController::UpdateStabilizationDesired()
 {
     uint8_t result = 1;
     StabilizationDesiredData stabDesired;
@@ -236,13 +237,8 @@ int8_t VtolAutoTakeoffController::UpdateStabilizationDesired(bool yaw_attitude, 
     ManualControlCommandData manualControl;
     ManualControlCommandGet(&manualControl);
 
-    if (yaw_attitude) {
-        stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
-        stabDesired.Yaw = yaw_direction;
-    } else {
-        stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
-        stabDesired.Yaw = stabSettings.MaximumRate.Yaw * manualControl.Yaw;
-    }
+    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
+    stabDesired.Yaw = stabSettings.MaximumRate.Yaw * manualControl.Yaw;
 
     // default thrust mode to cruise control
     stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_CRUISECONTROL;
@@ -259,29 +255,13 @@ void VtolAutoTakeoffController::UpdateAutoPilot()
 
     UpdateVelocityDesired();
 
-    // yaw behaviour is configurable in vtolpathfollower, select yaw control algorithm
-    bool yaw_attitude = true;
-    float yaw = 0.0f;
-
-    fsm->GetYaw(yaw_attitude, yaw);
-
-    int8_t result = UpdateStabilizationDesired(yaw_attitude, yaw);
-
-    if (!result) {
-        fsm->Abort();
-    }
-
-    if (fsm->GetCurrentState() == PFFSM_STATE_DISARMED) {
-        setArmedIfChanged(FLIGHTSTATUS_ARMED_DISARMED);
+    int8_t result = UpdateStabilizationDesired();
+    if (result) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_OK);
+    } else {
+        pathStatus->Status = PATHSTATUS_STATUS_CRITICAL;
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_WARNING);
     }
 
     PathStatusSet(pathStatus);
-}
-
-void VtolAutoTakeoffController::setArmedIfChanged(FlightStatusArmedOptions val)
-{
-    if (flightStatus->Armed != val) {
-        flightStatus->Armed = val;
-        FlightStatusSet(flightStatus);
-    }
 }

@@ -276,7 +276,7 @@ extern "C" {
 /* #define PIOS_INCLUDE_FLASH_INTERNAL */
 
 #ifdef PIOS_INCLUDE_FLASH_EEPROM
-#include <pios_eeprom.h>
+#include <pios_flash_eeprom.h>
 #endif
 
 /* PIOS radio modules */

@@ -259,8 +259,8 @@ void USB_OTG_BSP_Init(__attribute__((unused)) USB_OTG_CORE_HANDLE *pdev)
     GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_OTG1_FS);
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_OTG1_FS);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_OTG_FS);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_OTG_FS);
 
     /* Configure VBUS sense pin */
     GPIO_Init(usb_dev->cfg->vsense.gpio, &usb_dev->cfg->vsense.init);

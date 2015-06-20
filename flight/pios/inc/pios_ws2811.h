@@ -31,7 +31,7 @@
 #include <stdint.h>
 #include <optypes.h>
 
-#define PIOS_WS2811_NUMLEDS 2
+#define PIOS_WS2811_NUMLEDS 10
 
 void PIOS_WS2811_setColorRGB(Color_t c, uint8_t led, bool update);
 void PIOS_WS2811_Update();

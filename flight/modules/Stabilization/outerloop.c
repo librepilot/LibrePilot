@@ -104,25 +104,30 @@ static void stabilizationOuterloopTask()
     float *rateDesiredAxis = &rateDesired.Roll;
     int t;
     float dT    = PIOS_DELTATIME_GetAverageSeconds(&timeval);
+    StabilizationStatusOuterLoopOptions newThrustMode = StabilizationStatusOuterLoopToArray(enabled)[STABILIZATIONSTATUS_OUTERLOOP_THRUST];
 
-    bool reinit = (StabilizationStatusOuterLoopToArray(enabled)[STABILIZATIONSTATUS_OUTERLOOP_THRUST] != previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST]);
-    previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = StabilizationStatusOuterLoopToArray(enabled)[STABILIZATIONSTATUS_OUTERLOOP_THRUST];
-#ifdef REVOLUTION
-    if (reinit && (previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] == STABILIZATIONSTATUS_OUTERLOOP_ALTITUDE ||
-                   previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] == STABILIZATIONSTATUS_OUTERLOOP_ALTITUDEVARIO)) {
-        // disable the altvario velocity control loop
-        stabilizationDisableAltitudeHold();
+    bool reinit = (newThrustMode != previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST]);
+    // Trigger a disable message to the alt hold on reinit to prevent that loop from running when not in use.
+    if (reinit) {
+        if (previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] == STABILIZATIONSTATUS_OUTERLOOP_ALTITUDE ||
+            previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] == STABILIZATIONSTATUS_OUTERLOOP_ALTITUDEVARIO) {
+            if (newThrustMode != STABILIZATIONSTATUS_OUTERLOOP_ALTITUDE && newThrustMode != STABILIZATIONSTATUS_OUTERLOOP_ALTITUDEVARIO) {
+                // disable the altvario velocity control loop
+                stabilizationDisableAltitudeHold();
+            }
+        }
     }
-#endif /* REVOLUTION */
-    switch (StabilizationStatusOuterLoopToArray(enabled)[STABILIZATIONSTATUS_OUTERLOOP_THRUST]) {
-#ifdef REVOLUTION
+    // update previous mode
+    previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = newThrustMode;
+
+    // calculate the thrust desired
+    switch (newThrustMode) {
     case STABILIZATIONSTATUS_OUTERLOOP_ALTITUDE:
         rateDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = stabilizationAltitudeHold(stabilizationDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST], ALTITUDEHOLD, reinit);
         break;
     case STABILIZATIONSTATUS_OUTERLOOP_ALTITUDEVARIO:
         rateDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = stabilizationAltitudeHold(stabilizationDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST], ALTITUDEVARIO, reinit);
         break;
-#endif /* REVOLUTION */
     case STABILIZATIONSTATUS_OUTERLOOP_DIRECT:
     case STABILIZATIONSTATUS_OUTERLOOP_DIRECTWITHLIMITS:
     default:

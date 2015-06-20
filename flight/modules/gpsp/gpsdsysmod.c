@@ -60,6 +60,7 @@ extern uint32_t pios_com_main_id;
 // Private variables
 static xTaskHandle systemTaskHandle;
 static enum { STACKOVERFLOW_NONE = 0, STACKOVERFLOW_WARNING = 1, STACKOVERFLOW_CRITICAL = 3 } stackOverflow;
+volatile int initTaskDone = 0;
 
 
 static bool mallocFailed;
@@ -106,6 +107,9 @@ static void gpspSystemTask(__attribute__((unused)) void *parameters)
 #ifdef PIOS_INCLUDE_WDG
     PIOS_WDG_UpdateFlag(PIOS_WDG_SYSTEM);
 #endif
+    while (!initTaskDone) {
+        vTaskDelay(10);
+    }
     /* create all modules thread */
     MODULE_TASKCREATE_ALL;
 

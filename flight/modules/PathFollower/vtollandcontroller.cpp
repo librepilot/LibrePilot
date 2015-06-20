@@ -30,6 +30,7 @@ extern "C" {
 
 #include <math.h>
 #include <pid.h>
+#include <alarms.h>
 #include <CoordinateConversions.h>
 #include <sin_lookup.h>
 #include <pathdesired.h>
@@ -266,9 +267,11 @@ void VtolLandController::UpdateAutoPilot()
     fsm->GetYaw(yaw_attitude, yaw);
 
     int8_t result = UpdateStabilizationDesired(yaw_attitude, yaw);
-
-    if (!result) {
-        fsm->Abort();
+    if (result) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_OK);
+    } else {
+        pathStatus->Status = PATHSTATUS_STATUS_CRITICAL;
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_WARNING);
     }
 
     PathStatusSet(pathStatus);

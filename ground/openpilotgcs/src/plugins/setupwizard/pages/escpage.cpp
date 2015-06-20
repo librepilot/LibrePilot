@@ -73,5 +73,16 @@ void EscPage::initializePage()
 
 bool EscPage::isSynchOrOneShotAvailable()
 {
-    return true;
+    bool available = true;
+
+    switch (getWizard()->getControllerType()) {
+    case SetupWizard::CONTROLLER_NANO:
+        available = getWizard()->getInputType() != SetupWizard::INPUT_PWM;
+        break;
+
+    default:
+        break;
+    }
+
+    return available;
 }

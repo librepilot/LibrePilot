@@ -1197,9 +1197,10 @@ void I2C1_ER_IRQHandler()
 __attribute__((alias("PIOS_I2C_mag_adapter_er_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_mag_adapter_cfg = {
-    .regs  = I2C1,
-    .remap = GPIO_AF_I2C1,
-    .init  = {
+    .regs     = I2C1,
+    .remapSCL = GPIO_AF_I2C1,
+    .remapSDA = GPIO_AF_I2C1,
+    .init     = {
         .I2C_Mode = I2C_Mode_I2C,
         .I2C_OwnAddress1                       = 0,
         .I2C_Ack  = I2C_Ack_Enable,
@@ -1268,9 +1269,10 @@ void I2C2_EV_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_ev_ir
 void I2C2_ER_IRQHandler() __attribute__((alias("PIOS_I2C_flexiport_adapter_er_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_flexiport_adapter_cfg = {
-    .regs  = I2C2,
-    .remap = GPIO_AF_I2C2,
-    .init  = {
+    .regs     = I2C2,
+    .remapSCL = GPIO_AF_I2C2,
+    .remapSDA = GPIO_AF_I2C2,
+    .init     = {
         .I2C_Mode = I2C_Mode_I2C,
         .I2C_OwnAddress1                       = 0,
         .I2C_Ack  = I2C_Ack_Enable,
@@ -1339,9 +1341,10 @@ void I2C3_EV_IRQHandler() __attribute__((alias("PIOS_I2C_pressure_adapter_ev_irq
 void I2C3_ER_IRQHandler() __attribute__((alias("PIOS_I2C_pressure_adapter_er_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_pressure_adapter_cfg = {
-    .regs  = I2C3,
-    .remap = GPIO_AF_I2C3,
-    .init  = {
+    .regs     = I2C3,
+    .remapSCL = GPIO_AF_I2C3,
+    .remapSDA = GPIO_AF_I2C3,
+    .init     = {
         .I2C_Mode = I2C_Mode_I2C,
         .I2C_OwnAddress1                       = 0,
         .I2C_Ack  = I2C_Ack_Enable,

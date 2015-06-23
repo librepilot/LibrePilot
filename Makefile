@@ -51,12 +51,19 @@ export DIST_DIR    := $(ROOT_DIR)/build/dist
 
 DIRS = $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
+# Function to convert to all lowercase
+lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
+# Function to make all lowercase and replace spaces with -
+EMPTY             :=
+SPACE             := $(EMPTY) $(EMPTY)
+smallify = $(subst $(SPACE),-,$(call lc,$1))
+
 # Naming for binaries and packaging etc,.
 OP_BIG_NAME := OpenPilot
 GCS_BIG_NAME := ${OP_BIG_NAME} GCS
 # These should be lowercase with no spaces
-OP_SMALL_NAME := openpilot
-GCS_SMALL_NAME := ${OP_SMALL_NAME}gcs
+OP_SMALL_NAME := $(call smallify,$(OP_BIG_NAME))
+GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -724,8 +731,6 @@ endif
 #  - calls paltform-specific packaging script
 
 # Define some variables
-EMPTY             :=
-SPACE             := $(EMPTY) $(EMPTY)
 PACKAGE_LBL       := $(shell $(VERSION_INFO) --format=\$${LABEL})
 PACKAGE_NAME      := $(subst $(SPACE),,$(OP_BIG_NAME))
 PACKAGE_SEP       := -

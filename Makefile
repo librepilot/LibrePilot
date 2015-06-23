@@ -59,7 +59,7 @@ SPACE             := $(EMPTY) $(EMPTY)
 smallify = $(subst $(SPACE),-,$(call lc,$1))
 
 # Naming for binaries and packaging etc,.
-OP_BIG_NAME := OpenPilot
+OP_BIG_NAME := LibrePilot
 GCS_BIG_NAME := ${OP_BIG_NAME} GCS
 # These should be lowercase with no spaces
 OP_SMALL_NAME := $(call smallify,$(OP_BIG_NAME))

@@ -1,42 +1,9 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC8
+--- RELEASE-15.05 --- Revolution Nano ---
 
-RC8 changes relative to RC7:
-1. Revert xtal changes that impacted SBUS.  
-2. Fix GCS changes that broken input wizard saving channel settings
+This release introduces new features and new hardware support for the Revolution Nano.  
+Note that the CC3D is not supported by this feature release.  
 
-RC7 changes relative to RC6:
-1. Nano hardware page fixes
-2. Upgrade google map version
-3. xtal frequency changes again to suit an sbus receiver.
-4. OP-1875 reinit EKF on changes to AuxMagSettings
-
-RC6 changes relative to RC5:
-1. Altvario AltHold PID updates
-2. Fix timer bank assignments
-3. Reboot nano in wizard only when needed
-4. Fix wizard limits for oneshot/pwmsync
-5. Update PFD with latest flight modes
-6. Add AccelTau, AccelKp and AccelKi to TxPID
-7. Adding support for SRXL in vehicle wizard.
-8. OSD TxPID display
-9. MPU9k reset fixes and frequency fix affecting baud rate accuracy
-
-
-RC5 changes relative to RC4:
-1. Landing flight mode now truely disarms to complete its sequence, triggered by a critical guidance alarm. Reset via change of flight mode.
-2. VelocityRoam now has its own VelocityRoamHorizontalVelPID to allow independent tuning.
-3. Sanity check for PWMSync & OneShot while using PWM receiver. Remove CC in hwsettings.xml
-4. Wizard freeze issue on erase settings fixed.
-
-RC4 changes relative to RC3:
-1. GCS Input flight mode limit fixes hiding unsupported modes.
-2. Throttle check on GPSAssist/Stabi whilst in hold removed. Now easy to fly out of hold without reducing throttle.
-3. Trialing Rate instead of AxisLock on Yaw during Braking.
-4. VelocityRoam now passing throttle position to AltVario. previously it was stuck in AltHold.
-5. OP-1905 Fix OPLN in PPM mode blocking telemetry stream of no USB connected
-
-
-This release introduces new features and new hardware support for the Revolution Nano.  Note that the CC3D is not supported by this feature release.  New features for multirotors include: 
+New features for multirotors include: 
 - Fully autonomous flight is now possible with auto-takeoff and landing as flight modes available to path plans.  
 - An all new implementation of altitude vario provides improved altitude maintenance and smoother flight.
 - A new RateTrainer flight mode for beginners and aerial photographers makes it easier to use this mode by limiting the pitch and roll extents.
@@ -46,10 +13,6 @@ This release introduces new features and new hardware support for the Revolution
 - Full speed flight just got faster with new motor constraints that maintain your ability to enact roll without requiring an upper throttle limit of 90%.
 - Setup of GPS is now automatic with auto-baud detection.
 - Support for dual telemetry and minim OSD programing have been added.
-- New control protocols have been introduced.
-
-The full list of bugfixes in this release is accessible here:
-
 
 Release Notes - OpenPilot - Version RELEASE-15.05
 
@@ -68,10 +31,13 @@ Release Notes - OpenPilot - Version RELEASE-15.05
     * [OP-1867] - PathPlanner AutoLand simplification
     * [OP-1869] - Allow Analog Airspeed scale
     * [OP-1872] - Vehicle Wiz Tricopter tail servo settings don't save
+    * [OP-1875] - MagSource changes not applied
     * [OP-1888] - SIGSEGV after starting simulator in HITL
     * [OP-1893] - Deadband changes max stick input
     * [OP-1905] - OPLM in PPM mode blocks telemetry stream if no USB connected
     * [OP-1906] - Auto land - yaw disarm can cause a crash
+    * [OP-1915] - google map issue
+
 
 ** Improvement
     * [OP-1289] - Need Revo to send two telemetry streams for OSD and GCS
@@ -117,9 +83,13 @@ Release Notes - OpenPilot - Version RELEASE-15.05
     * [OP-1832] - Need method to get default UAV Object settings in Java UAVObjects
     * [OP-1849] - Support programming/update of minimosd using USB VCP port
     * [OP-1863] - RateTrainer mode - add maxpitch for beginners and aerial photography
-    
-    
-    
+
+** Sub task
+    * [OP-1901] - Add SRXL configuration support to Vehicle Setup Wizard.
+
+
+
+
 --- RELEASE-15.02.02 ---
 This release fixes a bug that prevents revo onboard mag to work correctly.
 

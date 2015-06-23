@@ -288,7 +288,6 @@ Section ; create uninstall info
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "DisplayIcon" '"$INSTDIR\bin\${GCS_SMALL_NAME}.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "Publisher" "OpenPilot Team"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "DisplayVersion" "Ragin' Cajun"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "URLInfoAbout" "http://www.openpilot.org"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "HelpLink" "http://wiki.openpilot.org"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "EstimatedSize" 100600

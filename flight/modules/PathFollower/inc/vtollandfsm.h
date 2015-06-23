@@ -47,7 +47,6 @@ typedef enum {
     LAND_STATE_THRUSTDOWN, // Thrust down sequence
     LAND_STATE_THRUSTOFF, // Thrust is now off
     LAND_STATE_DISARMED, // Disarmed
-    LAND_STATE_ABORT, // Abort on error triggerig fallback to hold
     LAND_STATE_SIZE
 } PathFollowerFSM_LandState_T;
 
@@ -75,7 +74,6 @@ public:
     void ConstrainStabiDesired(StabilizationDesiredData *stabDesired);
     float BoundVelocityDown(float);
     void CheckPidScaler(pid_scaler *scaler);
-    void Abort(void);
 
 protected:
 
@@ -130,8 +128,6 @@ protected:
     void run_thrustoff(uint8_t);
     void setup_disarmed(void);
     void run_disarmed(uint8_t);
-    void setup_abort(void);
-    void run_abort(uint8_t);
     void initFSM(void);
     void setState(StatusVtolLandStateOptions newState, StatusVtolLandStateExitReasonOptions reason);
     int32_t runState();
@@ -140,7 +136,6 @@ protected:
     void assessAltitude(void);
 
     void setStateTimeout(int32_t count);
-    void fallback_to_hold(void);
 
     static PathFollowerFSM_LandStateHandler_T sLandStateTable[LAND_STATE_SIZE];
 };

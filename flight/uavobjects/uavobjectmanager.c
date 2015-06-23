@@ -634,6 +634,7 @@ unlock_exit:
  * \param[in] obj The object handle
  * \param[in] instId The object instance ID
  */
+#ifdef PIOS_INCLUDE_DEBUGLOG
 void UAVObjInstanceWriteToLog(UAVObjHandle obj_handle, uint16_t instId)
 {
     PIOS_Assert(obj_handle);
@@ -665,7 +666,9 @@ void UAVObjInstanceWriteToLog(UAVObjHandle obj_handle, uint16_t instId)
 unlock_exit:
     xSemaphoreGiveRecursive(mutex);
 }
-
+#else /* ifdef PIOS_INCLUDE_DEBUGLOG */
+void UAVObjInstanceWriteToLog(__attribute__((unused)) UAVObjHandle obj_handle, __attribute__((unused)) uint16_t instId) {}
+#endif /* ifdef PIOS_INCLUDE_DEBUGLOG */
 /**
  * Save all settings objects to the SD card.
  * @return 0 if success or -1 if failure

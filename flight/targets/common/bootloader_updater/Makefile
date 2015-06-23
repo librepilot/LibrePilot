@@ -52,12 +52,10 @@ ifeq ($(MCU),cortex-m3)
     LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_sections.ld
 else ifeq  ($(MCU),cortex-m4)
     include $(PIOS)/stm32f4xx/library.mk
-
     # Set linker-script name depending on selected submodel name
-    LDFLAGS += -T$(PIOS_DEVLIB)/link_stm32f4xx_fw_memory.ld
     # Using the _compat ld script ensure that the bootloader updated is compiled with irqstack in sram
     # This allow to be used with bootloader earlier than rel5
-    LDFLAGS += -T$(PIOS_DEVLIB)/link_stm32f4xx_sections_compat.ld
+    LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))
     SRC += $(HWDEFSINC)/firmware/cm3_fault_handlers.c
     SRC += $(HWDEFSINC)/firmware/dcc_stdio.c
 else

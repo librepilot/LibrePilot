@@ -47,6 +47,7 @@ ifndef TESTAPP
     SRC += $(OPUAVOBJ)/uavobjectmanager.c
     SRC += $(OPUAVOBJ)/uavobjectpersistence.c
     SRC += $(OPUAVOBJ)/eventdispatcher.c
+    SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
 
     ## Misc library functions
     SRC += $(FLIGHTLIB)/sha1.c

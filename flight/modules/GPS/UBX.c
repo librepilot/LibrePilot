@@ -126,9 +126,10 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
     static enum proto_states proto_state = START;
     static uint16_t rx_count = 0;
     struct UBXPacket *ubx    = (struct UBXPacket *)gps_rx_buffer;
+    int i = 0;
 
-    for (int i = 0; i < len; i++) {
-        c = rx[i];
+    while (i < len) {
+        c = rx[i++];
         switch (proto_state) {
         case START: // detect protocol
             if (c == UBX_SYNC1) { // first UBX sync char found
@@ -170,9 +171,6 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                 if (++rx_count == ubx->header.len) {
                     proto_state = UBX_CHK1;
                 }
-            } else {
-                gpsRxStats->gpsRxOverflow++;
-                proto_state = START;
             }
             break;
         case UBX_CHK1:
@@ -189,7 +187,8 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                 proto_state = START;
             }
             break;
-        default: break;
+        default:
+            break;
         }
 
         if (proto_state == START) {
@@ -200,6 +199,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             ret = PARSER_COMPLETE; // message complete & processed
         }
     }
+
     return ret;
 }
 
@@ -528,6 +528,8 @@ uint32_t parse_ubx_message(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosi
     GpsPosition->SensorType = sensorType;
 
     if (msgtracker.msg_received == ALL_RECEIVED) {
+        // leave my new field alone!
+        GPSPositionSensorBaudRateGet(&GpsPosition->BaudRate);
         GPSPositionSensorSet(GpsPosition);
         msgtracker.msg_received = NONE_RECEIVED;
         id = GPSPOSITIONSENSOR_OBJID;

@@ -55,6 +55,7 @@
 #include <QApplication>
 
 #include <qwt/src/qwt_legend_label.h>
+#include <qwt/src/qwt_picker_machine.h>
 #include <qwt/src/qwt_plot_canvas.h>
 #include <qwt/src/qwt_plot_layout.h>
 
@@ -66,7 +67,7 @@ ScopeGadgetWidget::ScopeGadgetWidget(QWidget *parent) : QwtPlot(parent),
     m_csvLoggingNewFileOnConnect(false),
     m_csvLoggingStartTime(QDateTime::currentDateTime()),
     m_csvLoggingPath("./csvlogging/"),
-    m_plotLegend(NULL)
+    m_plotLegend(NULL), m_picker(NULL)
 {
     setMouseTracking(true);
 
@@ -78,6 +79,15 @@ ScopeGadgetWidget::ScopeGadgetWidget(QWidget *parent) : QwtPlot(parent),
 
     axisWidget(QwtPlot::yLeft)->setMargin(2);
     axisWidget(QwtPlot::xBottom)->setMargin(2);
+
+    m_picker = new QwtPlotPicker(QwtPlot::xBottom,
+                                 QwtPlot::yLeft,
+                                 QwtPlotPicker::HLineRubberBand,
+                                 QwtPicker::ActiveOnly,
+                                 canvas());
+    m_picker->setStateMachine(new QwtPickerDragPointMachine());
+    m_picker->setRubberBandPen(QColor(Qt::darkMagenta));
+    m_picker->setTrackerPen(QColor(Qt::green));
 
     // Setup the timer that replots data
     replotTimer = new QTimer(this);
@@ -100,6 +110,11 @@ ScopeGadgetWidget::ScopeGadgetWidget(QWidget *parent) : QwtPlot(parent),
 
 ScopeGadgetWidget::~ScopeGadgetWidget()
 {
+    if (m_picker) {
+        delete m_picker;
+        m_picker = NULL;
+    }
+
     if (replotTimer) {
         replotTimer->stop();
         delete replotTimer;

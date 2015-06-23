@@ -85,6 +85,7 @@ float stabilizationAltitudeHold(float setpoint, ThrustModeType mode, bool reinit
         controlDown.Activate();
         newaltitude = true;
         // calculate a thrustDemand on reinit only
+        thrustMode  = mode;
         altitudeHoldTask();
     }
 
@@ -176,8 +177,8 @@ static void altitudeHoldTask(void)
         break;
     }
 
-    AltitudeHoldStatusSet(&altitudeHoldStatus);
     thrustDemand = local_thrustDemand;
+    AltitudeHoldStatusSet(&altitudeHoldStatus);
 }
 
 static void VelocityStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)

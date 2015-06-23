@@ -200,13 +200,14 @@ export OPGCSSYNTHDIR := $(BUILD_DIR)/openpilotgcs-synthetics
 DIRS += $(OPGCSSYNTHDIR)
 
 # Define supported board lists
-ALL_BOARDS    := oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum
+ALL_BOARDS    := oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano
 
 # Short names of each board (used to display board name in parallel builds)
 oplinkmini_short       := 'oplm'
 revolution_short       := 'revo'
 osd_short              := 'osd '
 revoproto_short        := 'revp'
+revonano_short         := 'revn'
 simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'

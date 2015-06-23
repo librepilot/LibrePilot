@@ -74,6 +74,7 @@ SRC += $(PIOSCOMMON)/pios_hmc5x83.c
 SRC += $(PIOSCOMMON)/pios_i2c_esc.c
 SRC += $(PIOSCOMMON)/pios_l3gd20.c
 SRC += $(PIOSCOMMON)/pios_mpu6000.c
+SRC += $(PIOSCOMMON)/pios_mpu9250.c
 SRC += $(PIOSCOMMON)/pios_mpxv.c
 SRC += $(PIOSCOMMON)/pios_ms4525do.c
 SRC += $(PIOSCOMMON)/pios_ms5611.c
@@ -98,8 +99,6 @@ SRC += $(MATHLIB)/pid.c
 CPPSRC += $(PIDLIB)/pidcontroldown.cpp
 
 ## PIOS Hardware (Common)
-SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
-SRC += $(PIOSCOMMON)/pios_flash_jedec.c
 SRC += $(PIOSCOMMON)/pios_debuglog.c
 endif
 

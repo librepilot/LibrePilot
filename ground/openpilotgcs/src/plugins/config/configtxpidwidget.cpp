@@ -28,6 +28,7 @@
 #include "configtxpidwidget.h"
 #include "txpidsettings.h"
 #include "hwsettings.h"
+#include "attitudesettings.h"
 #include "stabilizationsettings.h"
 #include "stabilizationsettingsbank1.h"
 #include "stabilizationsettingsbank2.h"
@@ -305,6 +306,15 @@ float ConfigTxPIDWidget::getDefaultValueForPidOption(int pidOption)
     if (pidOption == TxPIDSettings::PIDS_GYROTAU) {
         StabilizationSettings *stab = qobject_cast<StabilizationSettings *>(getObject(QString("StabilizationSettings")));
         return stab->getGyroTau();
+    } else if (pidOption == TxPIDSettings::PIDS_ACCELTAU) {
+        AttitudeSettings *att = qobject_cast<AttitudeSettings *>(getObject(QString("AttitudeSettings")));
+        return att->getAccelTau();
+    } else if (pidOption == TxPIDSettings::PIDS_ACCELKP) {
+        AttitudeSettings *att = qobject_cast<AttitudeSettings *>(getObject(QString("AttitudeSettings")));
+        return att->getAccelKp();
+    } else if (pidOption == TxPIDSettings::PIDS_ACCELKI) {
+        AttitudeSettings *att = qobject_cast<AttitudeSettings *>(getObject(QString("AttitudeSettings")));
+        return att->getAccelKi();
     }
 
     int pidBankIndex = m_txpid->pidBank->currentIndex();

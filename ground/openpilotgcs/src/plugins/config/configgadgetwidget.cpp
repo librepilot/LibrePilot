@@ -36,6 +36,7 @@
 #include "configrevohwwidget.h"
 #include "configoplinkwidget.h"
 #include "configrevowidget.h"
+#include "configrevonanohwwidget.h"
 #include "defaultattitudewidget.h"
 #include "defaulthwsettingswidget.h"
 #include "uavobjectutilmanager.h"
@@ -187,6 +188,8 @@ void ConfigGadgetWidget::onAutopilotConnect()
             stackWidget->replaceTab(ConfigGadgetWidget::sensors, qwd);
             if (board == 0x0903) {
                 qwd = new ConfigRevoHWWidget(this);
+            } else if (board == 0x0905) {
+                qwd = new ConfigRevoNanoHWWidget(this);
             }
             stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
         } else {

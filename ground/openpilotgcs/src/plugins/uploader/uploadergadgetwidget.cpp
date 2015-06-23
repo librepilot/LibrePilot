@@ -764,6 +764,9 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     case 0x904:
         filename = "fw_discoveryf4bare";
         break;
+    case 0x905:
+        filename = "fw_revonano";
+        break;
     default:
         emit progressUpdate(FAILURE, QVariant(tr("Unknown board id '0x%1'").arg(QString::number(m_dfu->devices[0].ID, 16))));
         emit autoUpdateFailed();
@@ -1005,6 +1008,14 @@ void UploaderGadgetWidget::startAutoUpdate()
 void UploaderGadgetWidget::startAutoUpdateErase()
 {
     startAutoUpdate(true);
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
+    int id = utilMngr->getBoardModel();
+
+    if (id == 0x905) {
+        systemReset();
+    }
 }
 
 void UploaderGadgetWidget::startAutoUpdate(bool erase)

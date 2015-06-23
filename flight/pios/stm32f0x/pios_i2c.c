@@ -551,9 +551,11 @@ int32_t PIOS_I2C_Init(uint32_t *i2c_id, const struct pios_i2c_adapter_cfg *cfg)
         break;
     }
 
-    if (i2c_adapter->cfg->remap) {
-        GPIO_PinAFConfig(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.pin_source, i2c_adapter->cfg->remap);
-        GPIO_PinAFConfig(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.pin_source, i2c_adapter->cfg->remap);
+    if (i2c_adapter->cfg->remapSCL) {
+        GPIO_PinAFConfig(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.pin_source, i2c_adapter->cfg->remapSCL);
+    }
+    if (i2c_adapter->cfg->remapSDA) {
+        GPIO_PinAFConfig(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.pin_source, i2c_adapter->cfg->remapSDA);
     }
 
     GPIO_Init(i2c_adapter->cfg->scl.gpio, &i2c_adapter->cfg->scl.init);

@@ -159,6 +159,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         case VehicleConfigurationSource::INPUT_DSM:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
             break;
+        case VehicleConfigurationSource::INPUT_SRXL:
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            break;
         default:
             break;
         }
@@ -176,19 +179,20 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             GPSSettings *gpsSettings = GPSSettings::GetInstance(m_uavoManager);
             Q_ASSERT(gpsSettings);
             GPSSettings::DataFields gpsData = gpsSettings->getData();
-            gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_DISABLED;
 
             switch (m_configSource->getGpsType()) {
             case VehicleConfigurationSource::GPS_NMEA:
-                gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_NMEA;
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_NMEA;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_DISABLED;
                 break;
             case VehicleConfigurationSource::GPS_UBX:
-                gpsData.DataProtocol = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
                 break;
             case VehicleConfigurationSource::GPS_PLATINUM:
             {
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
-                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_CONFIGURE;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
@@ -410,6 +414,13 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
                 data.BankUpdateFreq[2] = escFrequence;
                 data.BankMode[2] = bankMode;
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
+                data.BankUpdateFreq[1] = escFrequence;
+                data.BankMode[1] = bankMode;
+                data.BankUpdateFreq[2] = escFrequence;
+                data.BankMode[2] = bankMode;
+                data.BankUpdateFreq[3] = escFrequence;
+                data.BankMode[3] = bankMode;
             }
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA:
@@ -429,6 +440,10 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             data.BankMode[2] = bankMode;
             data.BankUpdateFreq[3] = escFrequence;
             data.BankMode[3] = bankMode;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
+                data.BankUpdateFreq[4] = escFrequence;
+                data.BankMode[4] = bankMode;
+            }
             break;
         default:
             break;
@@ -582,6 +597,7 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
 
         switch (m_configSource->getControllerType()) {
         case VehicleConfigurationSource::CONTROLLER_REVO:
+        case VehicleConfigurationSource::CONTROLLER_NANO:
         {
             RevoCalibration *revolutionCalibration = RevoCalibration::GetInstance(m_uavoManager);
             Q_ASSERT(revolutionCalibration);
@@ -791,6 +807,9 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
         break;
     case VehicleConfigurationSource::INPUT_DSM:
         channelType = ManualControlSettings::CHANNELGROUPS_DSMFLEXIPORT;
+        break;
+    case VehicleConfigurationSource::INPUT_SRXL:
+        channelType = ManualControlSettings::CHANNELGROUPS_SRXL;
         break;
     default:
         break;

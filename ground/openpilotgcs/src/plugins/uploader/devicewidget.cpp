@@ -98,6 +98,9 @@ void DeviceWidget::populate()
     case 0x0904:
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
+    case 0x0905:
+        devicePic.load(":/uploader/images/gcs-board-nano.png");
+        break;
     default:
         // Clear
         devicePic.load("");

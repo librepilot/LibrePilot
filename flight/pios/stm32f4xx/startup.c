@@ -85,10 +85,10 @@ void _main(void)
 
     /* zero the BSS */
     memset(&_sbss, 0, &_ebss - &_sbss);
-
+#ifdef PIOS_TARGET_PROVIDES_FAST_HEAP
     /* zero any 'fast' RAM that's been used */
     memset(&_sfast, 0, &_efast - &_sfast);
-
+#endif
     /* fill most of the IRQ/bootstrap stack with a watermark pattern so we can measure how much is used */
     /* leave a little space at the top in case memset() isn't a leaf with no locals */
     memset(&irq_stack, 0xa5, sizeof(irq_stack) - 64);

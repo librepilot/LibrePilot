@@ -73,7 +73,6 @@ public:
     void BoundThrust(float &ulow, float &uhigh);
     PathFollowerFSMState_T GetCurrentState(void);
     void ConstrainStabiDesired(StabilizationDesiredData *stabDesired);
-    void Abort(void);
     uint8_t PositionHoldState(void);
     void setControlState(StatusVtolAutoTakeoffControlStateOptions controlState);
 
@@ -138,9 +137,6 @@ protected:
     void setup_disarmed(void);
     void run_disarmed(uint8_t);
 
-    void setup_abort(void);
-    void run_abort(uint8_t);
-
     void initFSM(void);
     void setState(StatusVtolAutoTakeoffStateOptions newState, StatusVtolAutoTakeoffStateExitReasonOptions reason);
     int32_t runState();
@@ -150,7 +146,6 @@ protected:
     void assessAltitude(void);
 
     void setStateTimeout(int32_t count);
-    void fallback_to_hold(void);
 
     static PathFollowerFSM_AutoTakeoffStateHandler_T sAutoTakeoffStateTable[AUTOTAKEOFF_STATE_SIZE];
 };

@@ -66,7 +66,6 @@ public:
     void Activate(void);
     void Update(void);
     PathFollowerFSMState_T GetCurrentState(void);
-    void Abort(void);
     uint8_t PositionHoldState(void);
 
 protected:
@@ -103,7 +102,6 @@ protected:
     // void updateVtolBrakeFSMStatus();
 
     void setStateTimeout(int32_t count);
-    void fallback_to_hold(void);
 
     static PathFollowerFSM_BrakeStateHandler_T sBrakeStateTable[BRAKE_STATE_SIZE];
 };

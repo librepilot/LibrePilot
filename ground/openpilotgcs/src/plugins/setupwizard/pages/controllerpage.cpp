@@ -104,6 +104,9 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
     case 0x0904:
         return SetupWizard::CONTROLLER_DISCOVERYF4;
 
+    case 0x0905:
+        return SetupWizard::CONTROLLER_NANO;
+
     default:
         return SetupWizard::CONTROLLER_UNKNOWN;
     }
@@ -123,6 +126,7 @@ void ControllerPage::setupBoardTypes()
     ui->boardTypeCombo->addItem(tr("OpenPilot Revolution"), SetupWizard::CONTROLLER_REVO);
     ui->boardTypeCombo->addItem(tr("OpenPilot OPLink Radio Modem"), SetupWizard::CONTROLLER_OPLINK);
     ui->boardTypeCombo->addItem(tr("OpenPilot DiscoveryF4"), SetupWizard::CONTROLLER_DISCOVERYF4);
+    ui->boardTypeCombo->addItem(tr("OpenPilot Nano"), SetupWizard::CONTROLLER_NANO);
 }
 
 void ControllerPage::setControllerType(SetupWizard::CONTROLLER_TYPE type)

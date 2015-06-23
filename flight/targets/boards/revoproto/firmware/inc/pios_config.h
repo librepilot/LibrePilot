@@ -116,6 +116,8 @@
 #define FLASH_FREERTOS
 /* #define PIOS_INCLUDE_FLASH_EEPROM */
 
+#define PIOS_INCLUDE_DEBUGLOG
+
 /* PIOS radio modules */
 /* #define PIOS_INCLUDE_RFM22B */
 /* #define PIOS_INCLUDE_RFM22B_COM */

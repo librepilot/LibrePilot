@@ -1,38 +1,37 @@
-What is OpenPilot all about?
+About the LibrePilot Project
 ----------------------------
 
-The project aims at implementing the best features of all existing similar systems developed by
-enthusiasts and combines them into a single, easy-to-use software/hardware package. The ease-of-use
-in this case does not imply functional simplicity or compromises. There are no rigidly defined
-constraints and settings, but a full-fledged programming language configuration loaded via a
-Ground Control Station and other advanced features. OpenPilot is developed as a powerful platform
-for all types of vehicles.
+Open - Collaborative - Free 
 
-This is a non-profit project of the OpenPilot Foundation
---------------------------------------------------------
+The LibrePilot open source project was founded in July 2015. It focuses on 
+research and development of software and hardware to be used in a variety of 
+applications including vehicle control and stabilization, unmanned autonomous
+vehicles and robotics. One of the project’s primary goals is to provide an open
+and collaborative environment making it the ideal home for development of 
+innovative ideas.
 
-This is a project using only volunteer personnel who have donated enormous amounts of time, money
-and effort. Please respect the people that are part of the project and their generosity. OpenPilot
-is funded entirely at the expense of those who spend their time and money in the development of the
-public project which helps it grow. Giving complete and correct references to all their work is not
-only a legal requirement of the CC-BY-SA license, but also simple respect for their work. The people
-who create this project, really deserve it for their very hard work.
+LibrePilot welcomes and encourages exchange and collaboration with other 
+projects, like adding support for existing hardware or software in 
+collaboration under the spirit of open source.
+ 
+LibrePilot finds its roots in the OpenPilot project and the founding members
+are all long-standing contributors in that project.
 
-The OpenPilot project web sites
--------------------------------
+The LibrePilot project will be governed by a board of members using consensual
+methods to make important decisions and to set the overall direction of the
+project.
 
-The project provides feature-rich development and collaboration environment using advanced tools such
-as GCC compilers, git, Atlassian JIRA, Confluence, FishEye, Crucible, Bamboo, Crowd, forums and blogs.
+The LibrePilot source code is released under the OSI approved GPL V3 license.
+Integral text of the license can be found at http://www.gnu.org/licenses/gpl-3.0.en.html
 
-Main project web site:	http://www.openpilot.org/
-Project forums:		http://forums.openpilot.org/
-Wiki, docs and manuals:	http://wiki.openpilot.org/
-Bug and issue tracker:	http://progress.openpilot.org/
-Source code repository:	http://git.openpilot.org/
-Crucible code reviews:	http://reviews.openpilot.org/cru
-Project build server:	http://bamboo.openpilot.org/
-Community blogs:	http://forums.openpilot.org/blogs/
-Software downloads:	http://wiki.openpilot.org/display/WIKI/OpenPilot+Downloads
+
+Links for the LibrePilot Project
+--------------------------------
+
+Main project web site:  https://www.librepilot.org/
+Project forums:	        https://forum.librepilot.org/
+Source code repository: https://github.com/librepilot
+GitHub issue tracker:   https://github.com/librepilot/LibrePilot/issues
 
 How to build from source?
 -------------------------
@@ -40,5 +39,4 @@ How to build from source?
 make all_sdk_install
 make all
 
-The project supports Windows, Linux and Mac OS X platforms as well as Android.
-Check the wiki for more details: http://wiki.openpilot.org/display/Doc/OpenPilot+Developer+Manual
+Both development environment and GCS are supported on Windows, Linux and Mac OS X

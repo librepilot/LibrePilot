@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/app">
-        <file>splash.png</file>
+        <file>librepilot_splash.png</file>
     </qresource>
 </RCC>

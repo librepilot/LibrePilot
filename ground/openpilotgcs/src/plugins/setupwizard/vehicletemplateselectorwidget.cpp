@@ -86,7 +86,7 @@ void VehicleTemplateSelectorWidget::updatePhoto(QJsonObject *templ)
         QByteArray imageData = QByteArray::fromBase64(templ->value("photo").toString().toLatin1());
         photo.loadFromData(imageData, "PNG");
     } else {
-        photo.load(":/core/images/openpilot_logo_500.png");
+        photo.load(":/core/images/librepilot_logo_500.png");
     }
     m_photoItem = ui->templateImage->scene()->addPixmap(photo);
     ui->templateImage->setSceneRect(ui->templateImage->scene()->itemsBoundingRect());

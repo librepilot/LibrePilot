@@ -35,7 +35,7 @@ GCSSplashScreen::GCSSplashScreen() :
     QSplashScreen(), m_pixmap(0), m_painter(0)
 {
     setWindowFlags(windowFlags());
-    m_pixmap  = new QPixmap(":/app/splash.png");
+    m_pixmap  = new QPixmap(":/app/librepilot_splash.png");
 
     m_painter = new QPainter(m_pixmap);
     m_painter->setPen(Qt::lightGray);
@@ -43,7 +43,7 @@ GCSSplashScreen::GCSSplashScreen() :
     m_painter->setFont(font);
     m_painter->drawText(405, 170, QString(CopyrightSymbol) +
                         QString(" 2010-") + VersionInfo::year() +
-                        QString(tr(" The OpenPilot Project - All Rights Reserved")));
+                        QString(tr(" The LibrePilot Project - All Rights Reserved")));
 
     m_painter->drawText(406, 173, 310, 100, Qt::TextWordWrap | Qt::AlignTop | Qt::AlignLeft,
                         QString(tr("GCS Revision - ")) + VersionInfo::revision());

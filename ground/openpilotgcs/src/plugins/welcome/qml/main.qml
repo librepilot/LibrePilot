@@ -5,11 +5,11 @@ Rectangle {
     width: 1024
     height: 768
 
-    color: "#272727"
+    color: "#fefefe"
 
     Image {
         id: bg
-        source: "images/welcome-op-bg.png"
+        source: "images/welcome-lp-bg.png"
         anchors.bottom: parent.bottom
         anchors.right: parent.right
 
@@ -43,7 +43,7 @@ Rectangle {
             spacing: 16
 
             Image {
-                source: "images/welcome-op-logo.png"
+                source: "images/welcome-lp-logo.png"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.verticalCenterOffset: -2 //it looks better aligned to icons grid
 
@@ -128,7 +128,7 @@ Rectangle {
             }
             Text {
                 id: textOpVersionAvailable
-                color: "#5fcf07"
+                color: "#feb103"
                 text: welcomePlugin.newVersionText
                 font.bold: true
                 font.underline: true

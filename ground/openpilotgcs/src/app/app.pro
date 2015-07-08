@@ -16,7 +16,7 @@ include(../libs/version_info/version_info.pri)
 LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation)
 
 win32 {
-    RC_FILE = openpilotgcs.rc
+    RC_FILE = librepilotgcs.rc
     target.path = /bin
     INSTALLS += target
 } else:macx {
@@ -39,7 +39,7 @@ win32 {
     }
 }
 
-OTHER_FILES += openpilotgcs.rc
+OTHER_FILES += librepilotgcs.rc
 
 RESOURCES += \
     appresources.qrc

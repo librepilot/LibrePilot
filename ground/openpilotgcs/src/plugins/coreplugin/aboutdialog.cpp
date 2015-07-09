@@ -59,6 +59,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
         "Based on Qt %6 (%7 bit)<br/>"
         "<br/>"
         "&copy; %8, %9. All rights reserved.<br/>"
+        "&copy; The OpenPilot Project 2010-2015. All rights reserved.<br/>"
         ).arg(
         VersionInfo::revision().left(60), // %1
         VersionInfo::uavoHash().left(8), // %2

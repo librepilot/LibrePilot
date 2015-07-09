@@ -58,10 +58,10 @@ void GCSSplashScreen::drawMessageText(const QString &message)
     QPixmap pix(*m_pixmap);
     QPainter progressPainter(&pix);
 
-    progressPainter.setPen(Qt::lightGray);
+    progressPainter.setPen(Qt::yellow);
     QFont font("Tahoma", 13);
     progressPainter.setFont(font);
-    progressPainter.drawText(170, 385, message);
+    progressPainter.drawText(300, 385, message);
     setPixmap(pix);
 }
 

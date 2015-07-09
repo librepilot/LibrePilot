@@ -50,8 +50,8 @@
 ; Version information
 
   ; Program name and installer file
-  !define PRODUCT_NAME "OpenPilot GCS"
-  !define INSTALLER_NAME "OpenPilot GCS Installer"
+  !define PRODUCT_NAME "LibrePilot GCS"
+  !define INSTALLER_NAME "LibrePilot GCS Installer"
 
   ; Read automatically generated version info
 ; !define PACKAGE_LBL "${DATE}-${TAG_OR_HASH8}"
@@ -69,9 +69,9 @@
   VIAddVersionKey "ProductName" "${INSTALLER_NAME}"
   VIAddVersionKey "FileVersion" "${FILE_VERSION}"
   VIAddVersionKey "Comments" "${INSTALLER_NAME}. ${BUILD_DESCRIPTION}"
-  VIAddVersionKey "CompanyName" "The OpenPilot Team, http://www.openpilot.org"
-  VIAddVersionKey "LegalTrademarks" "${PRODUCT_NAME} is a trademark of The OpenPilot Team"
-  VIAddVersionKey "LegalCopyright" "© 2010-2015 The OpenPilot Team"
+  VIAddVersionKey "CompanyName" "The LibrePilot Team, http://www.librepilot.org"
+  VIAddVersionKey "LegalTrademarks" "${PRODUCT_NAME} is a trademark of The LibrePilot Team"
+  VIAddVersionKey "LegalCopyright" "© 2015 The LibrePilot Team"
   VIAddVersionKey "FileDescription" "${INSTALLER_NAME}"
 
 ;--------------------------------
@@ -92,9 +92,9 @@
 ;--------------------------------
 ; Branding
 
-  BrandingText "© 2010-2015 The OpenPilot Team, http://www.openpilot.org"
+  BrandingText "© 2015 The LibrePilot Team, http://www.librepilot.org"
 
-  !define MUI_ICON "${NSIS_DATA_TREE}\resources\openpilot.ico"
+  !define MUI_ICON "${NSIS_DATA_TREE}\resources\installer_icon.ico"
   !define MUI_HEADERIMAGE
   !define MUI_HEADERIMAGE_BITMAP "${NSIS_DATA_TREE}\resources\header.bmp"
   !define MUI_WELCOMEFINISHPAGE_BITMAP "${NSIS_DATA_TREE}\resources\welcome.bmp"
@@ -276,11 +276,11 @@ Section "Shortcuts" InSecShortcuts
 	"" "$INSTDIR\bin\openpilotgcs.exe" 0
   CreateShortCut "$SMPROGRAMS\OpenPilot\OpenPilot Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
 	"" "$INSTDIR\bin\openpilotgcs.exe" 0
-  CreateShortCut "$SMPROGRAMS\OpenPilot\OpenPilot Website.lnk" "http://www.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\OpenPilot\OpenPilot Website.lnk" "http://www.librepilot.org" \
 	"" "$INSTDIR\bin\openpilotgcs.exe" 0
   CreateShortCut "$SMPROGRAMS\OpenPilot\OpenPilot Wiki.lnk" "http://wiki.openpilot.org" \
 	"" "$INSTDIR\bin\openpilotgcs.exe" 0
-  CreateShortCut "$SMPROGRAMS\OpenPilot\OpenPilot Forums.lnk" "http://forums.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\OpenPilot\OpenPilot Forums.lnk" "http://forum.librepilot.org" \
 	"" "$INSTDIR\bin\openpilotgcs.exe" 0
   CreateShortCut "$DESKTOP\OpenPilot GCS.lnk" "$INSTDIR\bin\openpilotgcs.exe" \
   	"" "$INSTDIR\bin\openpilotgcs.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
@@ -292,12 +292,12 @@ Section ; create uninstall info
   WriteRegStr HKCU "Software\OpenPilot" "Install Location" $INSTDIR
 
    ; Write the uninstall keys for Windows
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "DisplayName" "OpenPilot GCS"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "DisplayName" "LibrePilot GCS"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "UninstallString" '"$INSTDIR\Uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "DisplayIcon" '"$INSTDIR\bin\openpilotgcs.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "Publisher" "OpenPilot Team"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "DisplayVersion" "Ragin' Cajun"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "URLInfoAbout" "http://www.openpilot.org"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "URLInfoAbout" "http://www.librepilot.org"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "HelpLink" "http://wiki.openpilot.org"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "EstimatedSize" 100600
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\OpenPilot" "NoModify" 1

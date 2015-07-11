@@ -79,6 +79,7 @@
 
 #include "qtsingleapplication.h"
 #include "utils/xmlconfig.h"
+#include "utils/pathutils.h"
 #include "gcssplashscreen.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -110,18 +111,10 @@ typedef QMap<QString, QString> AppOptionValues;
 const int OptionIndent = 4;
 const int DescriptionIndent = 24;
 
-const QLatin1String APP_NAME("OpenPilot GCS");
+const QLatin1String APP_NAME(GCS_NAME);
+const QLatin1String ORG_NAME("OpenPilot");
 
 const QLatin1String CORE_PLUGIN_NAME("Core");
-
-const QLatin1String SETTINGS_ORG_NAME("OpenPilot");
-const QLatin1String SETTINGS_APP_NAME("OpenPilotGCS_config");
-
-#ifdef Q_OS_MAC
-const QLatin1String SHARE_PATH("/../Resources");
-#else
-const QLatin1String SHARE_PATH("/../share/openpilotgcs");
-#endif
 
 const char *DEFAULT_CONFIG_FILENAME = "OpenPilotGCS.xml";
 
@@ -306,25 +299,12 @@ void logInit(QString fileName)
 inline QStringList getPluginPaths()
 {
     QStringList rc;
-    // Figure out root:  Up one from 'bin'
-    QDir rootDir = QApplication::applicationDirPath();
 
-    rootDir.cdUp();
-    const QString rootDirPath = rootDir.canonicalPath();
-    // 1) "plugins" (Win/Linux)
-    QString pluginPath = rootDirPath;
+    QString pluginPath = QApplication::applicationDirPath();
     pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String(GCS_LIBRARY_BASENAME);
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String("openpilotgcs");
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String("plugins");
+    pluginPath += QLatin1String(PLUGIN_REL_PATH);
     rc.push_back(pluginPath);
-    // 2) "PlugIns" (OS X)
-    pluginPath  = rootDirPath;
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String("Plugins");
-    rc.push_back(pluginPath);
+
     return rc;
 }
 
@@ -362,7 +342,7 @@ AppOptionValues parseCommandLine(SharedTools::QtSingleApplication &app,
 
 void loadFactoryDefaults(QSettings &settings, AppOptionValues &appOptionValues)
 {
-    QDir directory(QCoreApplication::applicationDirPath() + SHARE_PATH + QString("/default_configurations"));
+    QDir directory(Utils::PathUtils().GetDataPath() + QString("default_configurations"));
 
     qDebug() << "Looking for factory defaults configuration files in:" << directory.absolutePath();
 
@@ -434,8 +414,7 @@ void overrideSettings(QSettings &settings, int argc, char * *argv)
 
 void loadTranslators(QString language, QTranslator &translator, QTranslator &qtTranslator)
 {
-    const QString &creatorTrPath = QCoreApplication::applicationDirPath() + SHARE_PATH
-                                   + QLatin1String("/translations");
+    const QString &creatorTrPath = Utils::PathUtils().GetDataPath() + QLatin1String("translations");
 
     if (translator.load(QLatin1String("openpilotgcs_") + language, creatorTrPath)) {
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
@@ -464,6 +443,10 @@ int main(int argc, char * *argv)
     // create application
     SharedTools::QtSingleApplication app(APP_NAME, argc, argv);
 
+    QCoreApplication::setApplicationName(APP_NAME);
+    QCoreApplication::setOrganizationName(ORG_NAME);
+    QSettings::setDefaultFormat(XmlConfig::XmlSettingsFormat);
+
     // initialize the plugin manager
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
@@ -489,11 +472,11 @@ int main(int argc, char * *argv)
     // load user settings
     // Must be done before any QSettings class is created
     // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
-    QString settingsPath = QCoreApplication::applicationDirPath() + SHARE_PATH;
+    QString settingsPath = Utils::PathUtils().GetDataPath();
     qDebug() << "Loading system settings from" << settingsPath;
     QSettings::setPath(XmlConfig::XmlSettingsFormat, QSettings::SystemScope, settingsPath);
-    qDebug() << "Loading user settings from" << SETTINGS_ORG_NAME << "/" << SETTINGS_APP_NAME;
-    QSettings settings(XmlConfig::XmlSettingsFormat, QSettings::UserScope, SETTINGS_ORG_NAME, SETTINGS_APP_NAME);
+    QSettings settings;
+    qDebug() << "Loading user settings from" << settings.fileName();
 
     // need to reset all user settings?
     if (appOptionValues.contains(RESET_OPTION)) {

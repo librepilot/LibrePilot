@@ -721,10 +721,10 @@ PACKAGE_NAME      := OpenPilot
 PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
-include $(ROOT_DIR)/package/$(UNAME).mk
-
 # Source distribution is never dirty because it uses git archive
 DIST_NAME := $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
+
+include $(ROOT_DIR)/package/$(UNAME).mk
 
 ##############################
 #

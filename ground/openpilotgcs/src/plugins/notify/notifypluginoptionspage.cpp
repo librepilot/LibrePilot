@@ -384,7 +384,7 @@ void NotifyPluginOptionsPage::updateConfigView(NotificationItem *notification)
 
     QString path = notification->getSoundCollectionPath();
     if (path.isEmpty()) {
-        path = Utils::PathUtils().InsertDataPath("%%DATAPATH%%sounds");
+        path = Utils::InsertDataPath("%%DATAPATH%%sounds");
     }
 
     _optionsPage->SoundDirectoryPathChooser->setPath(path);

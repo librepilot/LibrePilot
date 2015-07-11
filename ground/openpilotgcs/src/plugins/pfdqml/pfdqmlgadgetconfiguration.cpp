@@ -46,10 +46,10 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
     // if a saved configuration exists load it
     if (qSettings != 0) {
         m_qmlFile            = qSettings->value("qmlFile").toString();
-        m_qmlFile            = Utils::PathUtils().InsertDataPath(m_qmlFile);
+        m_qmlFile            = Utils::InsertDataPath(m_qmlFile);
 
         m_earthFile          = qSettings->value("earthFile").toString();
-        m_earthFile          = Utils::PathUtils().InsertDataPath(m_earthFile);
+        m_earthFile          = Utils::InsertDataPath(m_earthFile);
 
         m_openGLEnabled      = qSettings->value("openGLEnabled", true).toBool();
         m_terrainEnabled     = qSettings->value("terrainEnabled").toBool();
@@ -92,10 +92,10 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
  */
 void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
 {
-    QString qmlFile   = Utils::PathUtils().RemoveDataPath(m_qmlFile);
+    QString qmlFile   = Utils::RemoveDataPath(m_qmlFile);
 
     qSettings->setValue("qmlFile", qmlFile);
-    QString earthFile = Utils::PathUtils().RemoveDataPath(m_earthFile);
+    QString earthFile = Utils::RemoveDataPath(m_earthFile);
     qSettings->setValue("earthFile", earthFile);
 
     qSettings->setValue("openGLEnabled", m_openGLEnabled);

@@ -342,7 +342,7 @@ AppOptionValues parseCommandLine(SharedTools::QtSingleApplication &app,
 
 void loadFactoryDefaults(QSettings &settings, AppOptionValues &appOptionValues)
 {
-    QDir directory(Utils::PathUtils().GetDataPath() + QString("default_configurations"));
+    QDir directory(Utils::GetDataPath() + QString("default_configurations"));
 
     qDebug() << "Looking for factory defaults configuration files in:" << directory.absolutePath();
 
@@ -414,7 +414,7 @@ void overrideSettings(QSettings &settings, int argc, char * *argv)
 
 void loadTranslators(QString language, QTranslator &translator, QTranslator &qtTranslator)
 {
-    const QString &creatorTrPath = Utils::PathUtils().GetDataPath() + QLatin1String("translations");
+    const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
 
     if (translator.load(QLatin1String("openpilotgcs_") + language, creatorTrPath)) {
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
@@ -472,7 +472,7 @@ int main(int argc, char * *argv)
     // load user settings
     // Must be done before any QSettings class is created
     // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
-    QString settingsPath = Utils::PathUtils().GetDataPath();
+    QString settingsPath = Utils::GetDataPath();
     qDebug() << "Loading system settings from" << settingsPath;
     QSettings::setPath(XmlConfig::XmlSettingsFormat, QSettings::SystemScope, settingsPath);
     QSettings settings;

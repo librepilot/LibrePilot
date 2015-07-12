@@ -31,6 +31,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
 
+#include "utils/pathutils.h"
+
 namespace Core {
 namespace Internal {
 // The Core Singleton
@@ -125,15 +127,9 @@ SettingsDatabase *CoreImpl::settingsDatabase() const
     return m_mainwindow->settingsDatabase();
 }
 
-#ifdef Q_OS_MAC
-#  define SHARE_PATH "/../Resources"
-#else
-#  define SHARE_PATH "/../share/openpilotgcs"
-#endif
-
 QString CoreImpl::resourcePath() const
 {
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + QLatin1String(SHARE_PATH));
+    return QDir::cleanPath(Utils::GetDataPath());
 }
 
 IContext *CoreImpl::currentContextObject() const

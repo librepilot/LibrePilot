@@ -105,7 +105,7 @@ void NotificationItem::copyTo(NotificationItem *that) const
 
 void NotificationItem::saveState(QSettings *settings) const
 {
-    settings->setValue("SoundCollectionPath", Utils::PathUtils().RemoveDataPath(getSoundCollectionPath()));
+    settings->setValue("SoundCollectionPath", Utils::RemoveDataPath(getSoundCollectionPath()));
     settings->setValue(QLatin1String("CurrentLanguage"), getCurrentLanguage());
     settings->setValue(QLatin1String("ObjectField"), getObjectField());
     settings->setValue(QLatin1String("DataObject"), getDataObject());
@@ -124,7 +124,7 @@ void NotificationItem::saveState(QSettings *settings) const
 void NotificationItem::restoreState(QSettings *settings)
 {
     // settings = Core::ICore::instance()->settings();
-    setSoundCollectionPath(Utils::PathUtils().InsertDataPath(settings->value(QLatin1String("SoundCollectionPath"), tr("")).toString()));
+    setSoundCollectionPath(Utils::InsertDataPath(settings->value(QLatin1String("SoundCollectionPath"), tr("")).toString()));
     setCurrentLanguage(settings->value(QLatin1String("CurrentLanguage"), tr("")).toString());
     setDataObject(settings->value(QLatin1String("DataObject"), tr("")).toString());
     setObjectField(settings->value(QLatin1String("ObjectField"), tr("")).toString());

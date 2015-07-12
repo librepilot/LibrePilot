@@ -272,7 +272,7 @@ QString VehicleTemplateExportDialog::fixFilenameString(QString input, int trunca
 
 void VehicleTemplateExportDialog::exportTemplate()
 {
-    QString path = QString("%1%2%3%4").arg(Utils::PathUtils().InsertStoragePath("%%STOREPATH%%cloudconfig"))
+    QString path = QString("%1%2%3%4").arg(Utils::InsertStoragePath("%%STOREPATH%%cloudconfig"))
                    .arg(QDir::separator()).arg(getTypeDirectory()).arg(QDir::separator());
     QDir dir;
 

@@ -16,7 +16,7 @@ DEB_REV              := 1
 ifeq ($(DEB_DIST), trusty)
 DEB_REV              := $(DEB_REV)$(DEB_DIST)1
 endif
-DEB_NAME             := $(OP_SMALL_NAME)
+DEB_NAME             := $(ORG_SMALL_NAME)
 DEB_ORIG_SRC         := $(PACKAGE_DIR)/$(DEB_NAME)_$(UPSTREAM_VER).orig.tar.gz
 DEB_PACKAGE_DIR      := $(PACKAGE_DIR)/$(DEB_NAME)-$(UPSTREAM_VER)
 DEB_ARCH             := $(shell dpkg --print-architecture)
@@ -102,8 +102,8 @@ install:
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/lib/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
-	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.desktop $(DESTDIR)$(datadir)/applications/$(OP_SMALL_NAME).desktop
-	$(V1) sed -i -e 's/openpilotgcs/$(GCS_SMALL_NAME)/g;s/OpenPilot GCS/$(GCS_BIG_NAME)/g' $(DESTDIR)$(datadir)/applications/$(OP_SMALL_NAME).desktop
-	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(OP_SMALL_NAME).png
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) sed -i -e 's/openpilotgcs/$(GCS_SMALL_NAME)/g;s/OpenPilot GCS/$(GCS_BIG_NAME)/g' $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
 

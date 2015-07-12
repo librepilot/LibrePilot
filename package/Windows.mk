@@ -24,7 +24,7 @@ endif
 	$(VERSION_CMD) \
 		--template='$(NSIS_TEMPLATE)' \
 		--outfile='$(NSIS_HEADER)' \
-	        OP_BIG_NAME='$(OP_BIG_NAME)' \
+	        ORG_BIG_NAME='$(ORG_BIG_NAME)' \
 	        GCS_BIG_NAME='$(GCS_BIG_NAME)' \
 	        GCS_SMALL_NAME='$(GCS_SMALL_NAME)' \
 		PACKAGE_LBL='$(PACKAGE_LBL)' \

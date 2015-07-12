@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef TOP_LEVEL_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 

@@ -46,6 +46,10 @@ macx {
         hidapi/mac/hid.c
 
     LIBS += -framework CoreFoundation -framework IOKit
+
+    # hid.c has too many warnings about unused paramters.
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+    QMAKE_CFLAGS_WARN_ON   += -Wno-unused-parameter
 }
 
 linux {

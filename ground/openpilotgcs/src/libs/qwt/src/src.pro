@@ -35,6 +35,9 @@ DEFINES           += QWT_LIBRARY
 #
 include(../../../openpilotgcslibrary.pri)
 
+# disable all warnings (no need for warnings as qwt sources are imported)
+CONFIG += warn_off
+
 contains(QWT_CONFIG, QwtDll) {
 
     CONFIG += dll

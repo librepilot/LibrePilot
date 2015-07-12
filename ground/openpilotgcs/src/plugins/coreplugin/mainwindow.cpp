@@ -133,9 +133,9 @@ MainWindow::MainWindow() :
 #endif
     m_toggleFullScreenAction(0)
 {
-    setWindowTitle(tr("OpenPilot GCS ") + VersionInfo::label());
+    setWindowTitle(tr("LibrePilot GCS ") + VersionInfo::label());
 #ifndef Q_WS_MAC
-    qApp->setWindowIcon(QIcon(":/core/images/openpilot_logo_128.png"));
+    qApp->setWindowIcon(QIcon(":/core/images/librepilot_logo_128.png"));
 #endif
     qApp->setStyle(QStyleFactory::create("Fusion"));
 

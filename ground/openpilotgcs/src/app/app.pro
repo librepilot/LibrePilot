@@ -43,7 +43,12 @@ win32 {
     include(../rpath.pri)
 
     equals(copyqt, 1) {
-        RESOURCES += qtconf.qrc
+        RESOURCES += $$OUT_PWD/qtconf.qrc
+
+        # Copy qtconf.qrc to OUT_PWD because paths are relative
+	# This needs to be done at qmake time because the Makefile depends on it
+        system(cp $$PWD/qtconf.qrc.in $$OUT_PWD/qtconf.qrc)
+        system(printf $$shell_quote([Paths]\nPrefix = $$relative_path($$GCS_QT_BASEPATH, $$GCS_APP_PATH)\n) > $$OUT_PWD/qt.conf)
     }
 }
 

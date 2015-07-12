@@ -39,7 +39,7 @@ OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings *q
     m_showTileGridLines(false),
     m_accessMode("ServerAndCache"),
     m_useMemoryCache(true),
-    m_cacheLocation(Utils::PathUtils().GetStoragePath() + "mapscache" + QDir::separator()),
+    m_cacheLocation(Utils::GetStoragePath() + "mapscache" + QDir::separator()),
     m_uavSymbol(QString::fromUtf8(":/uavs/images/mapquad.png")),
     m_maxUpdateRate(2000), // ms
     m_settings(qSettings),
@@ -81,7 +81,7 @@ OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings *q
         }
         m_useMemoryCache = useMemoryCache;
         if (!cacheLocation.isEmpty()) {
-            m_cacheLocation = Utils::PathUtils().InsertStoragePath(cacheLocation);
+            m_cacheLocation = Utils::InsertStoragePath(cacheLocation);
         }
     }
 }
@@ -119,7 +119,7 @@ void OPMapGadgetConfiguration::saveConfig() const
     m_settings->setValue("accessMode", m_accessMode);
     m_settings->setValue("useMemoryCache", m_useMemoryCache);
     m_settings->setValue("uavSymbol", m_uavSymbol);
-    m_settings->setValue("cacheLocation", Utils::PathUtils().RemoveStoragePath(m_cacheLocation));
+    m_settings->setValue("cacheLocation", Utils::RemoveStoragePath(m_cacheLocation));
     m_settings->setValue("maxUpdateRate", m_maxUpdateRate);
     m_settings->setValue("overlayOpacity", m_opacity);
 }
@@ -134,7 +134,7 @@ void OPMapGadgetConfiguration::saveConfig(QSettings *qSettings) const
     qSettings->setValue("accessMode", m_accessMode);
     qSettings->setValue("useMemoryCache", m_useMemoryCache);
     qSettings->setValue("uavSymbol", m_uavSymbol);
-    qSettings->setValue("cacheLocation", Utils::PathUtils().RemoveStoragePath(m_cacheLocation));
+    qSettings->setValue("cacheLocation", Utils::RemoveStoragePath(m_cacheLocation));
     qSettings->setValue("maxUpdateRate", m_maxUpdateRate);
     qSettings->setValue("overlayOpacity", m_opacity);
 }

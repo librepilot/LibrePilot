@@ -60,7 +60,7 @@ DialGadgetConfiguration::DialGadgetConfiguration(QString classId, QSettings *qSe
     if (qSettings != 0) {
         QString dialFile = qSettings->value("dialFile").toString();
 
-        m_defaultDial      = Utils::PathUtils().InsertDataPath(dialFile);
+        m_defaultDial      = Utils::InsertDataPath(dialFile);
         dialBackgroundID   = qSettings->value("dialBackgroundID").toString();
         dialForegroundID   = qSettings->value("dialForegroundID").toString();
         dialNeedleID1      = qSettings->value("dialNeedleID1").toString();
@@ -135,7 +135,7 @@ IUAVGadgetConfiguration *DialGadgetConfiguration::clone()
  */
 void DialGadgetConfiguration::saveConfig(QSettings *settings) const
 {
-    QString dialFile = Utils::PathUtils().RemoveDataPath(m_defaultDial);
+    QString dialFile = Utils::RemoveDataPath(m_defaultDial);
 
     settings->setValue("dialFile", dialFile);
 

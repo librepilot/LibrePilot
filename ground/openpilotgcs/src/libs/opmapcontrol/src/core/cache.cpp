@@ -54,7 +54,7 @@ QString Cache::CacheLocation()
 Cache::Cache()
 {
     if (cache.isNull() | cache.isEmpty()) {
-        cache = Utils::PathUtils().GetStoragePath() + "mapscache" + QDir::separator();
+        cache = Utils::GetStoragePath() + "mapscache" + QDir::separator();
         setCacheLocation(cache);
     }
 }

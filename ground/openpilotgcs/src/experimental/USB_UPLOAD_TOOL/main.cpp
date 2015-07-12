@@ -191,9 +191,9 @@ int main(int argc, char *argv[])
                     return -1;
                 }
             } else if (!description.isEmpty()) {
-                retstatus = dfu.UploadDescription(description);
-                if (retstatus != OP_DFU::Last_operation_Success) {
-                    standardOutput << "Upload failed with code:" << retstatus << endl;
+                OP_DFU::Status status = dfu.UploadDescription(description);
+                if (status != OP_DFU::Last_operation_Success) {
+                    standardOutput << "Upload failed with code:" << status << endl;
                     return -1;
                 }
             }
@@ -206,7 +206,6 @@ int main(int argc, char *argv[])
                 standardOutput << "ERROR device not readable\n" << endl;
                 return false;
             }
-            qint32 size = ((OP_DFU::device)dfu.devices[device]).SizeOfCode;
             QByteArray fw;
             dfu.DownloadFirmware(&fw, 0);
             bool ret    = dfu.SaveByteArrayToFile(file.toLatin1(), fw);

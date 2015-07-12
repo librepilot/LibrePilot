@@ -2,7 +2,7 @@
 # MacOSX-specific packaging script
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef LIBREPILOT_IS_COOL
     $(error Top level Makefile must be used to build this target)
 endif
 

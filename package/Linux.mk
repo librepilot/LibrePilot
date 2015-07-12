@@ -2,7 +2,7 @@
 # Linux-specific packaging script
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef LIBREPILOT_IS_COOL
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -98,7 +98,9 @@ install:
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
-	$(V1) $(MKDIR) -p $(DESTDIR)$(udevdir)
+# Following line creates udev directory - however udevdir is not previously defined, nor is anything
+# installed to this location in the rest of this recipe
+#	$(V1) $(MKDIR)  $(DESTDIR)$(udevdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/lib/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)

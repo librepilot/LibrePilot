@@ -127,10 +127,10 @@ isEmpty(TOOLS_DIR) {
 }
 
 # Set the default name of the application
-isEmpty(GCS_SMALL_NAME):GCS_SMALL_NAME = openpilotgcs
+isEmpty(GCS_SMALL_NAME):GCS_SMALL_NAME = librepilot
 
 isEmpty(GCS_BIG_NAME) {
-    GCS_BIG_NAME = "OpenPilot GCS"
+    GCS_BIG_NAME = "LibrePilot GCS"
 } else {
     # Requote for safety and because of QTBUG-46224
     GCS_BIG_NAME = "$$GCS_BIG_NAME"

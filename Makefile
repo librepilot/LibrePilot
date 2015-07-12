@@ -23,7 +23,7 @@
 # Lower level makefiles assume that these variables are defined. To ensure
 # that a special magic variable is exported here. It must be checked for
 # existance by each sub-make.
-export OPENPILOT_IS_COOL := Fuck Yeah!
+export LIBREPILOT_IS_COOL := Fuck Yeah!
 
 # It is possible to set OPENPILOT_DL_DIR and/or OPENPILOT_TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the
@@ -439,7 +439,7 @@ sim_win32: sim_win32_exe
 sim_win32_%: uavobjects_flight
 	$(V1) $(MKDIR) -p $(BUILD_DIR)/sitl_win32
 	$(V1) $(MAKE) --no-print-directory \
-		-C $(ROOT_DIR)/flight/targets/OpenPilot --file=$(ROOT_DIR)/flight/targets/OpenPilot/Makefile.win32 $*
+		-C $(ROOT_DIR)/flight/targets/LibrePilot --file=$(ROOT_DIR)/flight/targets/LibrePilot/Makefile.win32 $*
 
 .PHONY: sim_osx
 sim_osx: sim_osx_elf
@@ -945,9 +945,9 @@ help:
 	@$(ECHO) "     ut_<test>_run        - Run test and dump output to console"
 	@$(ECHO)
 	@$(ECHO) "   [Simulation]"
-	@$(ECHO) "     sim_osx              - Build OpenPilot simulation firmware for OSX"
+	@$(ECHO) "     sim_osx              - Build LibrePilot simulation firmware for OSX"
 	@$(ECHO) "     sim_osx_clean        - Delete all build output for the osx simulation"
-	@$(ECHO) "     sim_win32            - Build OpenPilot simulation firmware for Windows"
+	@$(ECHO) "     sim_win32            - Build LibrePilot simulation firmware for Windows"
 	@$(ECHO) "                            using mingw and msys"
 	@$(ECHO) "     sim_win32_clean      - Delete all build output for the win32 simulation"
 	@$(ECHO)
@@ -973,7 +973,7 @@ help:
 	@$(ECHO) "                            Supported groups are ($(UAVOBJ_TARGETS))"
 	@$(ECHO)
 	@$(ECHO) "   [Packaging]"
-	@$(ECHO) "     package              - Build and package the OpenPilot platform-dependent package (no clean)"
+	@$(ECHO) "     package              - Build and package the LibrePilot platform-dependent package (no clean)"
 	@$(ECHO) "     opfw_resource        - Generate resources to embed firmware binaries into the GCS"
 	@$(ECHO) "     dist                 - Generate source archive for distribution"
 	@$(ECHO) "     install              - Install GCS to \"DESTDIR\" with prefix \"prefix\" (Linux only)"
@@ -997,7 +997,8 @@ help:
 	@$(ECHO) "         All build output will be placed in $(BUILD_DIR)"
 	@$(ECHO)
 	@$(ECHO) "  Tool download and install directories can be changed using environment variables:"
-	@$(ECHO) "         OPENPILOT_DL_DIR        full path to downloads directory [downloads if not set]"
-	@$(ECHO) "         OPENPILOT_TOOLS_DIR     full path to installed tools directory [tools if not set]"
-	@$(ECHO) "  More info: http://wiki.openpilot.org/display/Doc/OpenPilot+Build+System+Overview"
+	@$(ECHO) "         LIBREPILOT_DL_DIR        full path to downloads directory [downloads if not set]"
+	@$(ECHO) "         LIBREPILOT_TOOLS_DIR     full path to installed tools directory [tools if not set]"
+# Commented the following out pending setting up the LibrePilot wiki
+# @$(ECHO) "  More info: http://wiki.openpilot.org/display/Doc/OpenPilotBuild+System+Overview"
 	@$(ECHO)

@@ -61,9 +61,9 @@
   VIAddVersionKey "ProductName" "${INSTALLER_NAME}"
   VIAddVersionKey "FileVersion" "${FILE_VERSION}"
   VIAddVersionKey "Comments" "${INSTALLER_NAME}. ${BUILD_DESCRIPTION}"
-  VIAddVersionKey "CompanyName" "The OpenPilot Team, http://www.openpilot.org"
-  VIAddVersionKey "LegalTrademarks" "${PRODUCT_NAME} is a trademark of The OpenPilot Team"
-  VIAddVersionKey "LegalCopyright" "© 2010-2015 The OpenPilot Team"
+  VIAddVersionKey "CompanyName" "The LibrePilot Team, http://www.librepilot.org"
+  VIAddVersionKey "LegalTrademarks" "${PRODUCT_NAME} is a trademark of The LibrePilot Team"
+  VIAddVersionKey "LegalCopyright" "© 2015 The LibrePilot Team"
   VIAddVersionKey "FileDescription" "${INSTALLER_NAME}"
 
 ;--------------------------------
@@ -84,9 +84,9 @@
 ;--------------------------------
 ; Branding
 
-  BrandingText "© 2010-2015 The OpenPilot Team, http://www.openpilot.org"
+  BrandingText "© 2015 The LibrePilot Team, http://www.librepilot.org"
 
-  !define MUI_ICON "${NSIS_DATA_TREE}\resources\openpilot.ico"
+  !define MUI_ICON "${NSIS_DATA_TREE}\resources\installer_icon.ico"
   !define MUI_HEADERIMAGE
   !define MUI_HEADERIMAGE_BITMAP "${NSIS_DATA_TREE}\resources\header.bmp"
   !define MUI_WELCOMEFINISHPAGE_BITMAP "${NSIS_DATA_TREE}\resources\welcome.bmp"
@@ -268,11 +268,11 @@ Section "Shortcuts" InSecShortcuts
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Website.lnk" "http://www.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Website.lnk" "http://www.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Wiki.lnk" "http://wiki.openpilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Forums.lnk" "http://forums.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Forums.lnk" "http://forums.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
   	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
@@ -281,14 +281,14 @@ SectionEnd
 
 Section ; create uninstall info
   ; Write the installation path into the registry
-  WriteRegStr HKCU "Software\${OP_BIG_NAME}" "Install Location" $INSTDIR
+  WriteRegStr HKCU "Software\OpenPilot" "Install Location" $INSTDIR
 
    ; Write the uninstall keys for Windows
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "DisplayName" "${GCS_BIG_NAME}"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "DisplayIcon" '"$INSTDIR\bin\${GCS_SMALL_NAME}.exe"'
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "Publisher" "OpenPilot Team"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "URLInfoAbout" "http://www.openpilot.org"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "Publisher" "LibrePilot Team"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "URLInfoAbout" "http://www.librepilot.org"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "HelpLink" "http://wiki.openpilot.org"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "EstimatedSize" 100600
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "NoModify" 1

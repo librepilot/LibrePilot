@@ -89,7 +89,7 @@ WelcomeMode::WelcomeMode() :
         // This will delete the network access manager instance when we're done
         connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)), networkAccessManager, SLOT(deleteLater()));
 
-        networkAccessManager->get(QNetworkRequest(QUrl("http://www.openpilot.org/opver")));
+        networkAccessManager->get(QNetworkRequest(QUrl("http://www.librepilot.org/opver")));
     } else {
         // No network, can delete this now as we don't need it.
         delete networkAccessManager;
@@ -109,7 +109,7 @@ QString WelcomeMode::name() const
 
 QIcon WelcomeMode::icon() const
 {
-    return QIcon(QLatin1String(":/core/images/openpiloticon.png"));
+    return QIcon(QLatin1String(":/core/images/librepiloticon.png"));
 }
 
 int WelcomeMode::priority() const

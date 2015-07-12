@@ -44,7 +44,7 @@ Rectangle {
                 anchors.leftMargin: 10
                 anchors.top: parent.top
                 anchors.topMargin: 10
-                source: "../images/openpilot_logo_128.png"
+                source: "../images/librepilot_logo_128.png"
                 z: 100
                 fillMode: Image.PreserveAspectFit
                 MouseArea {
@@ -53,7 +53,7 @@ Rectangle {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        dialog.openUrl("http://www.openpilot.org")
+                        dialog.openUrl("http://www.librepilot.org")
                     }
                 }
             }
@@ -83,7 +83,7 @@ Rectangle {
                     anchors.fill: parent
                     Text {
                         id: headerLabel
-                        text: qsTr("OpenPilot Ground Control Station")
+                        text: qsTr("LibrePilot Ground Control Station")
                         Layout.fillWidth: true
                         font.pixelSize: 14
                         font.bold: true

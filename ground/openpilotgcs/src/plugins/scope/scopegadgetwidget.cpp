@@ -390,7 +390,8 @@ void ScopeGadgetWidget::addCurvePlot(QString objectName, QString fieldPlusSubFie
         plotData = new SequentialPlotData(object, field, element, scaleFactor,
                                           meanSamples, mathFunction, m_plotDataSize,
                                           pen, antialiased);
-    } else if (m_plotType == ChronoPlot) {
+    } else {
+      Q_ASSERT(m_plotType == ChronoPlot);
         plotData = new ChronoPlotData(object, field, element, scaleFactor,
                                       meanSamples, mathFunction, m_plotDataSize,
                                       pen, antialiased);

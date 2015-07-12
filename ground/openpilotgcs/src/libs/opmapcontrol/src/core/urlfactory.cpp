@@ -486,6 +486,8 @@ QString UrlFactory::MakeReverseGeocoderUrl(internals::PointLatLng &pt, const QSt
 {
 #ifdef DEBUG_URLFACTORY
     qDebug() << "Language: " << language;
+#else
+	(void)language;
 #endif
     // CSV output has been depreciated. API key is no longer needed.
     return QString("http://maps.googleapis.com/maps/api/geocode/xml?latlng=%1,%2").arg(QString::number(pt.Lat())).arg(QString::number(pt.Lng()));

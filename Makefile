@@ -439,7 +439,7 @@ sim_win32: sim_win32_exe
 sim_win32_%: uavobjects_flight
 	$(V1) $(MKDIR) -p $(BUILD_DIR)/sitl_win32
 	$(V1) $(MAKE) --no-print-directory \
-		-C $(ROOT_DIR)/flight/targets/LibrePilot --file=$(ROOT_DIR)/flight/targets/LibrePilot/Makefile.win32 $*
+		-C $(ROOT_DIR)/flight/targets/LibrePilot --file=$(ROOT_DIR)/flight/targets/OpenPilot/Makefile.win32 $*
 
 .PHONY: sim_osx
 sim_osx: sim_osx_elf

@@ -1,11 +1,11 @@
 [Desktop Entry]
 Version=0.1.0
 Encoding=UTF-8
-Name=OpenPilot GCS
-Exec=openpilotgcs
-TryExec=openpilotgcs
-Comment=Configure, Tune, Diagnose, Track, & Upgrade FW for OpenPilot solutions
+Name=LibrePilot GCS
+Exec=librepilot-gcs
+TryExec=librepilot-gcs
+Comment=Configure, Tune, Diagnose, Track, & Upgrade FW for LibrePilot solutions
 Terminal=false
 Categories=Utility;Robotics;Engineering;
-Icon=openpilot
+Icon=librepilot
 Type=Application

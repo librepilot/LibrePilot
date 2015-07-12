@@ -44,7 +44,7 @@ namespace Constants {
     "." STRINGIFY(GCS_VERSION_RELEASE)
 
 const char *const GCS_VERSION_LONG = GCS_VERSION;
-const char *const GCS_AUTHOR = "The OpenPilot Project";
+const char *const GCS_AUTHOR = "The LibrePilot Project";
 const char *const GCS_HELP   = "http://wiki.openpilot.org";
 
 #undef GCS_VERSION
@@ -129,7 +129,7 @@ const char *const GO_FORWARD              = "GCS.GoForward";
 const char *const GOTOPREVIOUSGROUP       = "GCS.GotoPreviousTabGroup";
 const char *const GOTONEXTGROUP           = "GCS.GotoNextTabGroup";
 const char *const WINDOWSLIST             = "GCS.WindowsList";
-const char *const ABOUT_OPENPILOTGCS      = "GCS.AboutOpenPilotGCS";
+const char *const ABOUT_LIBREPILOTGCS      = "GCS.AboutLibrePilotGCS";
 const char *const ABOUT_PLUGINS           = "GCS.AboutPlugins";
 const char *const ABOUT_AUTHORS           = "GCS.AboutAuthors";
 const char *const ABOUT_QT                = "GCS.AboutQt";
@@ -212,7 +212,7 @@ const char *const ICON_PLUGIN         = ":/core/images/pluginicon.png";
 const char *const ICON_EXIT           = ":/core/images/exiticon.png";
 const char *const ICON_OPTIONS        = ":/core/images/optionsicon.png";
 const char *const ICON_HELP           = ":/core/images/helpicon.png";
-const char *const ICON_OPENPILOT      = ":/core/images/openpiloticon.png";
+const char *const ICON_LIBREPILOT      = ":/core/images/librepiloticon.png";
 
 
 // wizard kind

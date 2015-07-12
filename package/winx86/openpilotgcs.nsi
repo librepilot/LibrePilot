@@ -42,10 +42,10 @@
   !define AEROSIMRC_TREE "${GCS_BUILD_TREE}\misc\AeroSIM-RC"
 
   ; Default installation folder
-  InstallDir "$PROGRAMFILES\${OP_BIG_NAME}"
+  InstallDir "$PROGRAMFILES\${ORG_BIG_NAME}"
 
   ; Get installation folder from registry if available
-  InstallDirRegKey HKLM "Software\${OP_BIG_NAME}" "Install Location"
+  InstallDirRegKey HKLM "Software\${ORG_BIG_NAME}" "Install Location"
 
 ;--------------------------------
 ; Version information
@@ -114,7 +114,7 @@
 
   ; Remember the installer language
   !define MUI_LANGDLL_REGISTRY_ROOT "HKCU" 
-  !define MUI_LANGDLL_REGISTRY_KEY "Software\${OP_BIG_NAME}" 
+  !define MUI_LANGDLL_REGISTRY_KEY "Software\${ORG_BIG_NAME}" 
   !define MUI_LANGDLL_REGISTRY_VALUENAME "Installer Language"
   !define MUI_LANGDLL_ALWAYSSHOW
 
@@ -255,28 +255,28 @@ SectionEnd
 Section "Shortcuts" InSecShortcuts
   ; Create desktop and start menu shortcuts
   SetOutPath "$INSTDIR"
-  CreateDirectory "$SMPROGRAMS\${OP_BIG_NAME}"
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
+  CreateDirectory "$SMPROGRAMS\${ORG_BIG_NAME}"
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
 	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot License.lnk" "$INSTDIR\LICENSE.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot License.lnk" "$INSTDIR\LICENSE.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot ReadMe.lnk" "$INSTDIR\README.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot ReadMe.lnk" "$INSTDIR\README.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Website.lnk" "http://www.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Website.lnk" "http://www.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Wiki.lnk" "http://wiki.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Wiki.lnk" "http://wiki.openpilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\OpenPilot Forums.lnk" "http://forums.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Forums.lnk" "http://forums.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
   	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${OP_BIG_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
 SectionEnd
 
 Section ; create uninstall info
@@ -284,15 +284,15 @@ Section ; create uninstall info
   WriteRegStr HKCU "Software\OpenPilot" "Install Location" $INSTDIR
 
    ; Write the uninstall keys for Windows
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "DisplayName" "${GCS_BIG_NAME}"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "DisplayIcon" '"$INSTDIR\bin\${GCS_SMALL_NAME}.exe"'
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "Publisher" "LibrePilot Team"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "URLInfoAbout" "http://www.librepilot.org"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "HelpLink" "http://wiki.openpilot.org"
-  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "EstimatedSize" 100600
-  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "NoModify" 1
-  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}" "NoRepair" 1
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "DisplayName" "${GCS_BIG_NAME}"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "UninstallString" '"$INSTDIR\Uninstall.exe"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "DisplayIcon" '"$INSTDIR\bin\${GCS_SMALL_NAME}.exe"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "Publisher" "LibrePilot Team"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "URLInfoAbout" "http://www.librepilot.org"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "HelpLink" "http://wiki.openpilot.org"
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "EstimatedSize" 100600
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "NoModify" 1
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "NoRepair" 1
 
   ; Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -344,14 +344,14 @@ Section "un.${GCS_BIG_NAME}" UnSecProgram
   RMDir /rebootok "$INSTDIR"
 
   ; Remove registry keys
-  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${OP_BIG_NAME}"
-  DeleteRegKey HKCU "Software\${OP_BIG_NAME}"
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}"
+  DeleteRegKey HKCU "Software\${ORG_BIG_NAME}"
 
   ; Remove shortcuts, if any
   SetShellVarContext all
   Delete /rebootok "$DESKTOP\${GCS_BIG_NAME}.lnk"
-  Delete /rebootok "$SMPROGRAMS\${OP_BIG_NAME}\*"
-  RMDir /rebootok "$SMPROGRAMS\${OP_BIG_NAME}"
+  Delete /rebootok "$SMPROGRAMS\${ORG_BIG_NAME}\*"
+  RMDir /rebootok "$SMPROGRAMS\${ORG_BIG_NAME}"
 SectionEnd
 
 Section "un.Maps cache" UnSecCache

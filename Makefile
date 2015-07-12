@@ -59,10 +59,10 @@ SPACE             := $(EMPTY) $(EMPTY)
 smallify = $(subst $(SPACE),-,$(call lc,$1))
 
 # Naming for binaries and packaging etc,.
-OP_BIG_NAME := LibrePilot
-GCS_BIG_NAME := ${OP_BIG_NAME} GCS
+ORG_BIG_NAME := LibrePilot
+GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-OP_SMALL_NAME := $(call smallify,$(OP_BIG_NAME))
+ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
@@ -480,7 +480,9 @@ openpilotgcs_qmake $(OPENPILOTGCS_MAKEFILE): | $(OPENPILOTGCS_DIR)
 	$(V1) cd $(OPENPILOTGCS_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/openpilotgcs/openpilotgcs.pro \
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
-	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) $(GCS_QMAKE_OPTS)
+	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
+	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
+	    $(GCS_QMAKE_OPTS)
 
 .PHONY: openpilotgcs
 openpilotgcs: uavobjgenerator $(OPENPILOTGCS_MAKEFILE)
@@ -732,7 +734,7 @@ endif
 
 # Define some variables
 PACKAGE_LBL       := $(shell $(VERSION_INFO) --format=\$${LABEL})
-PACKAGE_NAME      := $(subst $(SPACE),,$(OP_BIG_NAME))
+PACKAGE_NAME      := $(subst $(SPACE),,$(ORG_BIG_NAME))
 PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 

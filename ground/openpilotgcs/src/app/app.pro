@@ -22,6 +22,7 @@ LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation)
 
 DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$GCS_APP_PATH)\")
 DEFINES += GCS_NAME=$$shell_quote(\"$$GCS_BIG_NAME\")
+DEFINES += ORG_BIG_NAME=$$shell_quote(\"$$ORG_BIG_NAME\")
 
 win32 {
     RC_FILE = librepilotgcs.rc

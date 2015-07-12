@@ -45,7 +45,7 @@
    openpilotgcs -reset -config-file ./MyOpenPilotGCS.xml
    [/code]
 
-   Relative paths are relative to <install dir>/share/openpilotgcs/default_configurations/
+   Relative paths are relative to <install dir>/share/openpilotgcs/configurations/
 
    The specified file will be used to load the factory defaults from but only when the user settings are empty.
    If the user settings are not empty the file will not be used.
@@ -112,11 +112,11 @@ const int OptionIndent = 4;
 const int DescriptionIndent = 24;
 
 const QLatin1String APP_NAME(GCS_NAME);
-const QLatin1String ORG_NAME("OpenPilot");
+const QLatin1String ORG_NAME(ORG_BIG_NAME);
 
 const QLatin1String CORE_PLUGIN_NAME("Core");
 
-const char *DEFAULT_CONFIG_FILENAME = "OpenPilotGCS.xml";
+const char *DEFAULT_CONFIG_FILENAME = "default.xml";
 
 const char *fixedOptionsC = " [OPTION]... [FILE]...\n"
                             "Options:\n"
@@ -342,7 +342,7 @@ AppOptionValues parseCommandLine(SharedTools::QtSingleApplication &app,
 
 void loadFactoryDefaults(QSettings &settings, AppOptionValues &appOptionValues)
 {
-    QDir directory(Utils::GetDataPath() + QString("default_configurations"));
+    QDir directory(Utils::GetDataPath() + QString("configurations"));
 
     qDebug() << "Looking for factory defaults configuration files in:" << directory.absolutePath();
 

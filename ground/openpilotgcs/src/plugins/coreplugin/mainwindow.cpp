@@ -63,6 +63,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include "dialogs/iwizard.h"
 #include <utils/pathchooser.h>
+#include <utils/pathutils.h>
 #include <utils/stylehelper.h>
 #include <utils/xmlconfig.h>
 #include "version_info/version_info.h"
@@ -285,21 +286,9 @@ void MainWindow::extensionsInitialized()
 
 QString MainWindow::loadStyleSheet(QString fileName)
 {
-    // Let's use QFile and point to a resource...
-    QDir dir(QCoreApplication::applicationDirPath());
-
-#ifdef Q_OS_MAC
-    dir.cdUp();
-    dir.cd("Resources");
-#else
-    dir.cdUp();
-    dir.cd("share");
-    dir.cd("openpilotgcs");
-#endif
-    dir.cd("stylesheets");
     QString style;
     // ...to open the file
-    QFile file(dir.absolutePath() + QDir::separator() + fileName);
+    QFile file(Utils::GetDataPath() + QString("stylesheets/") + fileName);
     qDebug() << "Loading style sheet file" << file.fileName();
     if (file.open(QFile::ReadOnly)) {
         // QTextStream...

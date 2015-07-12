@@ -21,12 +21,12 @@ Item {
 
     ListModel {
         id: sitesModel
-        ListElement { link: "http://www.openpilot.org" }
+        ListElement { link: "http://www.librepilot.org" }
         ListElement { link: "http://wiki.openpilot.org" }
         ListElement { link: "http://www.openpilot.org/hardware/get-hardware/" }
-        ListElement { link: "http://forums.openpilot.org" }
-        ListElement { link: "http://git.openpilot.org" }
-        ListElement { link: "http://progress.openpilot.org" }
+        ListElement { link: "http://forum.librepilot.org" }
+        ListElement { link: "http://github.com/librepilot" }
+        ListElement { link: "http://github.com/librepilot/LibrePilot/issues" }
         function title(index){
             if (title["text"] === undefined) {
             title.text = [

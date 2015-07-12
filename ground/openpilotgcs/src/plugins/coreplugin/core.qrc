@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/core">
-        <file>images/openpilot_logo_500.png</file>
-        <file>images/openpilot_logo_256.png</file>
-        <file>images/openpilot_logo_128.png</file>
-        <file>images/openpilot_logo_64.png</file>
-        <file>images/openpilot_logo_32.png</file>
+        <file>images/librepilot_logo_500.png</file>
+        <file>images/librepilot_logo_256.png</file>
+        <file>images/librepilot_logo_128.png</file>
+        <file>images/librepilot_logo_64.png</file>
+        <file>images/librepilot_logo_32.png</file>
         <file>images/clean_pane_small.png</file>
         <file>images/clear.png</file>
         <file>images/closebutton.png</file>
@@ -50,7 +50,7 @@
         <file>images/exiticon.png</file>
         <file>images/optionsicon.png</file>
         <file>images/helpicon.png</file>
-        <file>images/openpiloticon.png</file>
+        <file>images/librepiloticon.png</file>
         <file>images/ah.png</file>
         <file>images/config.png</file>
         <file>images/flight.png</file>

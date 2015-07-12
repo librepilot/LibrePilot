@@ -24,7 +24,7 @@ DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$
 DEFINES += GCS_NAME=$$shell_quote(\"$$GCS_BIG_NAME\")
 
 win32 {
-    RC_FILE = openpilotgcs.rc
+    RC_FILE = librepilotgcs.rc
     target.path = /bin
     INSTALLS += target
 } else:macx {
@@ -47,7 +47,7 @@ win32 {
     }
 }
 
-OTHER_FILES += openpilotgcs.rc
+OTHER_FILES += librepilotgcs.rc
 
 RESOURCES += \
     appresources.qrc

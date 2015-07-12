@@ -156,6 +156,9 @@ void opmap_edit_waypoint_dialog::setupModeWidgets()
         ui->dsb_modeParam3->setVisible(false);
         ui->dsb_modeParam4->setVisible(false);
         break;
+	 case MapDataDelegate::MODE_AUTOTAKEOFF:
+        // FIXME: Do nothing?
+        break;
     }
 }
 void opmap_edit_waypoint_dialog::setupConditionWidgets()

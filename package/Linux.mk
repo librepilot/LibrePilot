@@ -101,8 +101,8 @@ install:
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/lib/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
-	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
-	$(V1) sed -i -e 's/openpilotgcs/$(GCS_SMALL_NAME)/g;s/OpenPilot GCS/$(GCS_BIG_NAME)/g' $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/application.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) sed -i -e 's/_gcs/$(GCS_SMALL_NAME)/g;s/_GCS/$(GCS_BIG_NAME)/g;s/_org/$(ORG_SMALL_NAME)/g;s/_ORG/$(ORG_BIG_NAME)/g' $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
 

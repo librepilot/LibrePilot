@@ -136,6 +136,15 @@ isEmpty(GCS_BIG_NAME) {
     GCS_BIG_NAME = "$$GCS_BIG_NAME"
 }
 
+isEmpty(ORG_SMALL_NAME):ORG_SMALL_NAME = unknown
+
+isEmpty(ORG_BIG_NAME) {
+    ORG_BIG_NAME = Unknown
+} else {
+    # Requote for safety and because of QTBUG-46224
+    ORG_BIG_NAME = "$$ORG_BIG_NAME"
+}
+
 macx {
     GCS_APP_TARGET   = $$GCS_BIG_NAME
     GCS_PATH = $$GCS_BUILD_TREE/$${GCS_APP_TARGET}.app/Contents

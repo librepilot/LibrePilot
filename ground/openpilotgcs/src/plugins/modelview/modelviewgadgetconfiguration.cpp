@@ -30,7 +30,7 @@
 
 ModelViewGadgetConfiguration::ModelViewGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent),
-    m_acFilename("../share/openpilotgcs/models/planes/Easystar/EasyStar.3ds"),
+    m_acFilename(Utils::GetDataPath() + QString("models/planes/Easystar/EasyStar.3ds")),
     m_bgFilename(""),
     m_enableVbo(false)
 {
@@ -39,8 +39,8 @@ ModelViewGadgetConfiguration::ModelViewGadgetConfiguration(QString classId, QSet
         QString modelFile = qSettings->value("acFilename").toString();
         QString bgFile    = qSettings->value("bgFilename").toString();
         m_enableVbo  = qSettings->value("enableVbo").toBool();
-        m_acFilename = Utils::PathUtils().InsertDataPath(modelFile);
-        m_bgFilename = Utils::PathUtils().InsertDataPath(bgFile);
+        m_acFilename = Utils::InsertDataPath(modelFile);
+        m_bgFilename = Utils::InsertDataPath(bgFile);
     }
 }
 
@@ -60,7 +60,7 @@ IUAVGadgetConfiguration *ModelViewGadgetConfiguration::clone()
  */
 void ModelViewGadgetConfiguration::saveConfig(QSettings *qSettings) const
 {
-    qSettings->setValue("acFilename", Utils::PathUtils().RemoveDataPath(m_acFilename));
-    qSettings->setValue("bgFilename", Utils::PathUtils().RemoveDataPath(m_bgFilename));
+    qSettings->setValue("acFilename", Utils::RemoveDataPath(m_acFilename));
+    qSettings->setValue("bgFilename", Utils::RemoveDataPath(m_bgFilename));
     qSettings->setValue("enableVbo", m_enableVbo);
 }

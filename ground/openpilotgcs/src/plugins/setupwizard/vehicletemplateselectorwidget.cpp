@@ -203,8 +203,8 @@ void VehicleTemplateSelectorWidget::loadValidFiles()
     }
     m_templates.clear();
     QString path = getTemplatePath();
-    loadFilesInDir(QString("%1/%2/").arg(Utils::PathUtils().InsertDataPath("%%DATAPATH%%cloudconfig")).arg(path));
-    loadFilesInDir(QString("%1/%2/").arg(Utils::PathUtils().InsertStoragePath("%%STOREPATH%%cloudconfig")).arg(path));
+    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertDataPath("%%DATAPATH%%cloudconfig")).arg(path));
+    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertStoragePath("%%STOREPATH%%cloudconfig")).arg(path));
 }
 
 void VehicleTemplateSelectorWidget::setupTemplateList()

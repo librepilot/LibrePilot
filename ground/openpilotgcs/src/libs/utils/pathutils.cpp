@@ -33,15 +33,12 @@
 
 
 namespace Utils {
-PathUtils::PathUtils()
-{}
-
 /**
    Returns the base path of the share directory.
 
    Path is in Qt/Unix conventions, separated by "/".
  */
-QString PathUtils::GetDataPath()
+QString GetDataPath()
 {
     QString dataPath = QApplication::applicationDirPath();
     dataPath += QLatin1Char('/');
@@ -56,7 +53,7 @@ QString PathUtils::GetDataPath()
 
    Always returns a path converted to "/".
  */
-QString PathUtils::RemoveDataPath(QString path)
+QString RemoveDataPath(QString path)
 {
     // Depending on the platform, we might get either "/" or "\"
     // so we need to go to the standard ("/")
@@ -75,7 +72,7 @@ QString PathUtils::RemoveDataPath(QString path)
 
    Returns a "/" or "\" separated path depending on platform conventions.
  */
-QString PathUtils::InsertDataPath(QString path)
+QString InsertDataPath(QString path)
 {
     if (path.startsWith(QString("%%DATAPATH%%"))) {
         QString newPath = GetDataPath();
@@ -88,7 +85,7 @@ QString PathUtils::InsertDataPath(QString path)
 /**
    Gets a standard user-writable location for the system
  */
-QString PathUtils::GetStoragePath()
+QString GetStoragePath()
 {
     return QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1Char('/');
 }
@@ -96,7 +93,7 @@ QString PathUtils::GetStoragePath()
 /**
    Removes the standard storage path and replace with a tag
  */
-QString PathUtils::RemoveStoragePath(QString path)
+QString RemoveStoragePath(QString path)
 {
     // Depending on the platform, we might get either "/" or "\"
     // so we need to go to the standard ("/")
@@ -113,7 +110,7 @@ QString PathUtils::RemoveStoragePath(QString path)
 /**
    Inserts the standard storage path is there is a storage path tag
  */
-QString PathUtils::InsertStoragePath(QString path)
+QString InsertStoragePath(QString path)
 {
     if (path.startsWith(QString("%%STOREPATH%%"))) {
         QString newPath = GetStoragePath();

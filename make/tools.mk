@@ -45,7 +45,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef LIBREPILOT_IS_COOL
+ifndef TOP_LEVEL_MAKEFILE
     $(error $(notdir $(lastword $(MAKEFILE_LIST))) should be included by the top level Makefile)
 endif
 

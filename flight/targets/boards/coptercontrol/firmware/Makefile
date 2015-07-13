@@ -82,8 +82,10 @@ ifndef TESTAPP
     SRC += $(OPUAVTALK)/uavtalk.c
     SRC += $(OPUAVOBJ)/uavobjectmanager.c
     SRC += $(OPUAVOBJ)/uavobjectpersistence.c
+    SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
+    SRC += $(PIOSCOMMON)/pios_flash_jedec.c
     SRC += $(OPUAVOBJ)/eventdispatcher.c
-    
+
     ## UAVObjects
     SRC += $(OPUAVSYNTHDIR)/accessorydesired.c
     SRC += $(OPUAVSYNTHDIR)/objectpersistence.c
@@ -122,10 +124,12 @@ ifndef TESTAPP
     SRC += $(OPUAVSYNTHDIR)/gpssettings.c
     SRC += $(OPUAVSYNTHDIR)/hwsettings.c
     SRC += $(OPUAVSYNTHDIR)/receiveractivity.c
+    SRC += $(OPUAVSYNTHDIR)/receiverstatus.c
     SRC += $(OPUAVSYNTHDIR)/mixerstatus.c
     SRC += $(OPUAVSYNTHDIR)/ratedesired.c
     SRC += $(OPUAVSYNTHDIR)/txpidsettings.c
-    SRC += $(OPUAVSYNTHDIR)/mpu6000settings.c
+    SRC += $(OPUAVSYNTHDIR)/txpidstatus.c
+    SRC += $(OPUAVSYNTHDIR)/mpugyroaccelsettings.c
     # Command line option for Gcsreceiver module
     ifeq ($(GCSRECEIVER), YES)
         SRC += $(OPUAVSYNTHDIR)/gcsreceiver.c

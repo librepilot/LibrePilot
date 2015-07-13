@@ -1111,8 +1111,8 @@ int DFUObject::receiveData(void *data, int size)
                 qDebug() << "____timeout";
             }
             if (x > size - 1) {
-              qDebug() << "Error buffer overrun";
-              Q_ASSERT(false);
+                qDebug() << "Error buffer overrun";
+                Q_ASSERT(false);
             }
             return x;
         }

@@ -129,7 +129,7 @@ const char *const GO_FORWARD              = "GCS.GoForward";
 const char *const GOTOPREVIOUSGROUP       = "GCS.GotoPreviousTabGroup";
 const char *const GOTONEXTGROUP           = "GCS.GotoNextTabGroup";
 const char *const WINDOWSLIST             = "GCS.WindowsList";
-const char *const ABOUT_LIBREPILOTGCS      = "GCS.AboutLibrePilotGCS";
+const char *const ABOUT_LIBREPILOTGCS     = "GCS.AboutLibrePilotGCS";
 const char *const ABOUT_PLUGINS           = "GCS.AboutPlugins";
 const char *const ABOUT_AUTHORS           = "GCS.AboutAuthors";
 const char *const ABOUT_QT                = "GCS.AboutQt";
@@ -212,7 +212,7 @@ const char *const ICON_PLUGIN         = ":/core/images/pluginicon.png";
 const char *const ICON_EXIT           = ":/core/images/exiticon.png";
 const char *const ICON_OPTIONS        = ":/core/images/optionsicon.png";
 const char *const ICON_HELP           = ":/core/images/helpicon.png";
-const char *const ICON_LIBREPILOT      = ":/core/images/librepiloticon.png";
+const char *const ICON_LIBREPILOT     = ":/core/images/librepiloticon.png";
 
 
 // wizard kind

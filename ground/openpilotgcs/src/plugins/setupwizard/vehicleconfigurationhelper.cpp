@@ -98,8 +98,9 @@ bool VehicleConfigurationHelper::setupHardwareSettings(bool save)
     return result;
 }
 
-bool VehicleConfigurationHelper::isApplicable(UAVObject * /* dataObj */)
+bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
 {
+    Q_UNUSED(dataObj);
     return true;
 }
 

@@ -2,7 +2,7 @@
 # Linux-specific packaging script
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef TOP_LEVEL_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 

@@ -301,7 +301,7 @@
     </message>
     <message>
         <location line="+10"/>
-        <source>About &amp;OpenPilot...</source>
+        <source>About &amp;LibrePilot...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

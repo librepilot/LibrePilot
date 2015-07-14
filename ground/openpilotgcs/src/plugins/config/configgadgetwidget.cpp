@@ -184,22 +184,21 @@ void ConfigGadgetWidget::onAutopilotConnect()
     UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
     if (utilMngr) {
         int board = utilMngr->getBoardModel();
-        if ((board & 0xff00) == 1024) {
+        if ((board & 0xff00) == 0x0400) {
             // CopterControl family
             QWidget *qwd = new ConfigCCAttitudeWidget(this);
             stackWidget->replaceTab(ConfigGadgetWidget::sensors, qwd);
-
             qwd = new ConfigCCHWWidget(this);
             stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
         } else if ((board & 0xff00) == 0x0900) {
             // Revolution family
             QWidget *qwd = new ConfigRevoWidget(this);
             stackWidget->replaceTab(ConfigGadgetWidget::sensors, qwd);
-
             qwd = new ConfigRevoHWWidget(this);
-            } else if (board == 0x0905) {
+            if (board == 0x0905) {
                 qwd = new ConfigRevoNanoHWWidget(this);
-            stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
+            }
+                stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
         } else {
             // Unknown board
             qDebug() << "Unknown board " << board;

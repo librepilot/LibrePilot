@@ -301,8 +301,8 @@
     </message>
     <message>
         <location line="+10"/>
-        <source>About &amp;LibrePilot...</source>
-        <translation>关于 &amp;LibrePilot...</translation>
+        <source>About &amp;OpenPilot...</source>
+        <translation>关于 &amp;OpenPilot...</translation>
     </message>
     <message>
         <location line="+640"/>

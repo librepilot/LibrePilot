@@ -121,7 +121,7 @@ void OsgEarth::initializePathes()
 
 void OsgEarth::initializeCache()
 {
-    QString cachePath = Utils::PathUtils().GetStoragePath() + "osgearth/cache";
+    QString cachePath = Utils::GetStoragePath() + "osgearth/cache";
 
     osgEarth::Drivers::FileSystemCacheOptions cacheOptions;
 

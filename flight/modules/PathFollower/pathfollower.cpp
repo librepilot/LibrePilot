@@ -242,6 +242,7 @@ static void pathFollowerSetActiveController(void)
     if (activeController == 0) {
         // Initialise
         pathFollowerInitializeControllersForFrameType();
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_OK);
 
         switch (frameType) {
         case FRAME_TYPE_MULTIROTOR:
@@ -273,6 +274,7 @@ static void pathFollowerSetActiveController(void)
                 break;
             default:
                 activeController = 0;
+                AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_UNINITIALISED);
                 break;
             }
             break;
@@ -289,6 +291,7 @@ static void pathFollowerSetActiveController(void)
                 break;
             default:
                 activeController = 0;
+                AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_UNINITIALISED);
                 break;
             }
             break;
@@ -305,12 +308,14 @@ static void pathFollowerSetActiveController(void)
                 break;
             default:
                 activeController = 0;
+                AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_UNINITIALISED);
                 break;
             }
             break;
 
         default:
             activeController = 0;
+            AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_UNINITIALISED);
             break;
         }
     }

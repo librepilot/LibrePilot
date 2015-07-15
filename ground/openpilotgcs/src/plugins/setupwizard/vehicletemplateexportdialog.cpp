@@ -48,7 +48,6 @@
 #include <uavtalk/telemetrymanager.h>
 #include <utils/pathutils.h>
 
-const char *VehicleTemplateExportDialog::EXPORT_BASE_NAME      = "../share/openpilotgcs/cloudconfig";
 const char *VehicleTemplateExportDialog::EXPORT_FIXEDWING_NAME = "fixedwing";
 const char *VehicleTemplateExportDialog::EXPORT_MULTI_NAME     = "multirotor";
 const char *VehicleTemplateExportDialog::EXPORT_HELI_NAME      = "helicopter";
@@ -273,7 +272,7 @@ QString VehicleTemplateExportDialog::fixFilenameString(QString input, int trunca
 
 void VehicleTemplateExportDialog::exportTemplate()
 {
-    QString path = QString("%1%2%3%4").arg(Utils::PathUtils().InsertStoragePath("%%STOREPATH%%cloudconfig"))
+    QString path = QString("%1%2%3%4").arg(Utils::InsertStoragePath("%%STOREPATH%%cloudconfig"))
                    .arg(QDir::separator()).arg(getTypeDirectory()).arg(QDir::separator());
     QDir dir;
 

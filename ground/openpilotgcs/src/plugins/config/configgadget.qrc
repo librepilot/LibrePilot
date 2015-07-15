@@ -53,5 +53,6 @@
         <file>images/calibration/board-swd.png</file>
         <file>images/gear.png</file>
         <file>images/error.svg</file>
+        <file>images/nano_top.png</file>
     </qresource>
 </RCC>

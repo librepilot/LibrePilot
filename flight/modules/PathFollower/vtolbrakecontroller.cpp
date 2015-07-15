@@ -35,6 +35,7 @@ extern "C" {
 
 #include <math.h>
 #include <pid.h>
+#include <alarms.h>
 #include <CoordinateConversions.h>
 #include <sin_lookup.h>
 #include <pathdesired.h>
@@ -138,10 +139,10 @@ void VtolBrakeController::SettingsUpdated(void)
     controlNE.UpdatePositionalParameters(vtolPathFollowerSettings->HorizontalPosP);
     controlNE.UpdateCommandParameters(-vtolPathFollowerSettings->BrakeMaxPitch, vtolPathFollowerSettings->BrakeMaxPitch, vtolPathFollowerSettings->BrakeVelocityFeedforward);
 
-    controlDown.UpdateParameters(vtolPathFollowerSettings->LandVerticalVelPID.Kp,
-                                 vtolPathFollowerSettings->LandVerticalVelPID.Ki,
-                                 vtolPathFollowerSettings->LandVerticalVelPID.Kd,
-                                 vtolPathFollowerSettings->LandVerticalVelPID.Beta,
+    controlDown.UpdateParameters(vtolPathFollowerSettings->VerticalVelPID.Kp,
+                                 vtolPathFollowerSettings->VerticalVelPID.Ki,
+                                 vtolPathFollowerSettings->VerticalVelPID.Kd,
+                                 vtolPathFollowerSettings->VerticalVelPID.Beta,
                                  dT,
                                  10.0f * vtolPathFollowerSettings->VerticalVelMax); // avoid constraining initial fast entry into brake
     controlDown.UpdatePositionalParameters(vtolPathFollowerSettings->VerticalPosP);
@@ -290,7 +291,7 @@ int8_t VtolBrakeController::UpdateStabilizationDesired(void)
     ManualControlCommandData manualControl;
     ManualControlCommandGet(&manualControl);
 
-    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
+    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
     stabDesired.Yaw = stabSettings.MaximumRate.Yaw * manualControl.Yaw;
 
     // default thrust mode to cruise control
@@ -322,9 +323,9 @@ int8_t VtolBrakeController::UpdateStabilizationDesired(void)
             thrustMode = settings.Stabilization6Settings.Thrust;
             break;
         case FLIGHTSTATUS_FLIGHTMODE_POSITIONHOLD:
-            // we hard code the "GPS Assisted" PostionHold/Roam to use alt-vario which
-            // is a more appropriate throttle mode.  "GPSAssist" adds braking
-            // and a better throttle management to the standard Position Hold.
+            thrustMode = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ALTITUDEVARIO;
+            break;
+        case FLIGHTSTATUS_FLIGHTMODE_VELOCITYROAM:
             thrustMode = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ALTITUDEVARIO;
             break;
         default:
@@ -364,8 +365,11 @@ void VtolBrakeController::UpdateAutoPilot()
 
     int8_t result = UpdateStabilizationDesired();
 
-    if (!result) {
-        fsm->Abort(); // enter PH
+    if (result) {
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_OK);
+    } else {
+        pathStatus->Status = PATHSTATUS_STATUS_CRITICAL;
+        AlarmsSet(SYSTEMALARMS_ALARM_GUIDANCE, SYSTEMALARMS_ALARM_WARNING);
     }
 
     PathStatusSet(pathStatus);

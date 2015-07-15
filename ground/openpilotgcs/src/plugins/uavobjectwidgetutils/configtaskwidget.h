@@ -104,6 +104,13 @@ public:
     ConfigTaskWidget(QWidget *parent = 0);
     virtual ~ConfigTaskWidget();
 
+    // Combobox helper functions
+    static bool isComboboxOptionSelected(QComboBox *combo, int optionValue);
+    static int getComboboxSelectedOption(QComboBox *combo);
+    static void setComboboxSelectedOption(QComboBox *combo, int optionValue);
+    static int getComboboxIndexForOption(QComboBox *combo, int optionValue);
+    static void enableComboBoxOptionItem(QComboBox *combo, int optionValue, bool enable);
+
     void disableMouseWheelEvents();
     bool eventFilter(QObject *obj, QEvent *evt);
 

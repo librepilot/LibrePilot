@@ -55,7 +55,8 @@ HEADERS += \
     calibration/levelcalibrationmodel.h \
     calibration/gyrobiascalibrationmodel.h \
     calibration/calibrationuiutils.h \
-    configoplinkwidget.h
+    configoplinkwidget.h \
+    configrevonanohwwidget.h
 
 SOURCES += \
     configplugin.cpp \
@@ -93,7 +94,8 @@ SOURCES += \
     calibration/sixpointcalibrationmodel.cpp \
     calibration/levelcalibrationmodel.cpp \
     calibration/gyrobiascalibrationmodel.cpp \
-    configoplinkwidget.cpp
+    configoplinkwidget.cpp \
+    configrevonanohwwidget.cpp
 
 FORMS += \
     airframe.ui \
@@ -115,6 +117,7 @@ FORMS += \
     txpid.ui \
     mixercurve.ui \
     configrevohwwidget.ui \
-    oplink.ui 
+    oplink.ui \
+    configrevonanohwwidget.ui
 
 RESOURCES += configgadget.qrc

@@ -116,8 +116,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1228</width>
-            <height>661</height>
+            <width>1220</width>
+            <height>655</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout">
@@ -490,8 +490,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1228</width>
-            <height>669</height>
+            <width>1220</width>
+            <height>655</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_7" rowstretch="1,0,0,0">
@@ -1960,7 +1960,7 @@ font:bold;</string>
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assisted Control options augment the primary flight mode.  GPSAssist adds brake/hold to Stabilization and PositionHold.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
@@ -1986,7 +1986,7 @@ font:bold;</string>
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assisted Control options augment the primary flight mode.  GPSAssist adds brake/hold to Stabilization and PositionHold.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
@@ -2012,7 +2012,7 @@ font:bold;</string>
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assisted Control options augment the primary flight mode.  GPSAssist adds brake/hold to Stabilization and PositionHold.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
@@ -2041,7 +2041,7 @@ font:bold;</string>
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assisted Control options augment the primary flight mode.  GPSAssist adds brake/hold to Stabilization and PositionHold.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
@@ -2070,7 +2070,7 @@ font:bold;</string>
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assisted Control options augment the primary flight mode.  GPSAssist adds brake/hold to Stabilization and PositionHold.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
@@ -2099,7 +2099,7 @@ font:bold;</string>
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Assisted Control options augment the primary flight mode.  GPSAssist adds brake/hold to Stabilization and PositionHold.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
@@ -2219,8 +2219,8 @@ font:bold;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1228</width>
-            <height>669</height>
+            <width>1220</width>
+            <height>655</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">

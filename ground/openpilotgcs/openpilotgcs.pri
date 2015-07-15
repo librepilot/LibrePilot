@@ -81,12 +81,6 @@ isEmpty(TEST):CONFIG(debug, debug|release) {
     }
 }
 
-isEmpty(GCS_LIBRARY_BASENAME) {
-    GCS_LIBRARY_BASENAME = lib/openpilotgcs
-}
-
-DEFINES += GCS_LIBRARY_BASENAME=\\\"$$GCS_LIBRARY_BASENAME\\\"
-
 equals(TEST, 1) {
     QT +=testlib
     DEFINES += WITH_TESTS
@@ -115,25 +109,44 @@ isEmpty(TOOLS_DIR) {
     isEmpty(TOOLS_DIR):TOOLS_DIR = $$clean_path($$ROOT_DIR/tools)
 }
 
-GCS_APP_PATH = $$GCS_BUILD_TREE/bin
+# Set the default name of the application
+isEmpty(GCS_SMALL_NAME):GCS_SMALL_NAME = gcs
+
+isEmpty(GCS_BIG_NAME) {
+    GCS_BIG_NAME = GCS
+} else {
+    # Requote for safety and because of QTBUG-46224
+    GCS_BIG_NAME = "$$GCS_BIG_NAME"
+}
+
+isEmpty(ORG_SMALL_NAME):ORG_SMALL_NAME = unknown
+
+isEmpty(ORG_BIG_NAME) {
+    ORG_BIG_NAME = Unknown
+} else {
+    # Requote for safety and because of QTBUG-46224
+    ORG_BIG_NAME = "$$ORG_BIG_NAME"
+}
+
 macx {
-    GCS_APP_TARGET   = "OpenPilot GCS"
-    GCS_LIBRARY_PATH = $$GCS_APP_PATH/$${GCS_APP_TARGET}.app/Contents/Plugins
+    GCS_APP_TARGET   = $$GCS_BIG_NAME
+    GCS_PATH = $$GCS_BUILD_TREE/$${GCS_APP_TARGET}.app/Contents
+    GCS_APP_PATH = $$GCS_PATH/MacOS
+    GCS_LIBRARY_PATH = $$GCS_PATH/Plugins
     GCS_PLUGIN_PATH  = $$GCS_LIBRARY_PATH
-    GCS_QT_QML_PATH = $$GCS_APP_PATH/$${GCS_APP_TARGET}.app/Contents/Imports
-    GCS_LIBEXEC_PATH = $$GCS_APP_PATH/$${GCS_APP_TARGET}.app/Contents/Resources
-    GCS_DATA_PATH    = $$GCS_APP_PATH/$${GCS_APP_TARGET}.app/Contents/Resources
-    GCS_DATA_BASENAME = Resources
+    GCS_QT_QML_PATH = $$GCS_PATH/Imports
+    GCS_DATA_PATH    = $$GCS_PATH/Resources
     GCS_DOC_PATH     = $$GCS_DATA_PATH/doc
     copydata = 1
     copyqt = 1
 } else {
-    GCS_LIBRARY_PATH = $$GCS_BUILD_TREE/$$GCS_LIBRARY_BASENAME
+    GCS_APP_TARGET = $$GCS_SMALL_NAME
+    GCS_PATH         = $$GCS_BUILD_TREE
+    GCS_APP_PATH     = $$GCS_PATH/bin
+    GCS_LIBRARY_PATH = $$GCS_PATH/lib/$$GCS_SMALL_NAME
     GCS_PLUGIN_PATH  = $$GCS_LIBRARY_PATH/plugins
-    GCS_LIBEXEC_PATH = $$GCS_APP_PATH # FIXME
-    GCS_DATA_PATH    = $$GCS_BUILD_TREE/share/openpilotgcs
-    GCS_DATA_BASENAME = share/openpilotgcs
-    GCS_DOC_PATH     = $$GCS_BUILD_TREE/share/doc
+    GCS_DATA_PATH    = $$GCS_PATH/share/$$GCS_SMALL_NAME
+    GCS_DOC_PATH     = $$GCS_PATH/share/doc
 
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1
 
@@ -147,14 +160,11 @@ macx {
         MESAWIN_DIR = $$(MESAWIN_DIR)
         isEmpty(MESAWIN_DIR):MESAWIN_DIR = $${TOOLS_DIR}/mesawin
 
-        GCS_APP_TARGET   = openpilotgcs
-
         GCS_QT_PLUGINS_PATH = $$GCS_APP_PATH
         GCS_QT_QML_PATH = $$GCS_APP_PATH
 
         copyqt = $$copydata
     } else {
-        GCS_APP_TARGET   = openpilotgcs
         GCS_QT_BASEPATH = $$GCS_LIBRARY_PATH/qt5
         GCS_QT_LIBRARY_PATH = $$GCS_QT_BASEPATH/lib
         GCS_QT_PLUGINS_PATH = $$GCS_QT_BASEPATH/plugins
@@ -168,9 +178,6 @@ macx {
         }
     }
 }
-
-
-DEFINES += GCS_DATA_BASENAME=\\\"$$GCS_DATA_BASENAME\\\"
 
 
 INCLUDEPATH += \

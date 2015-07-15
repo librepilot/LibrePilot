@@ -29,28 +29,20 @@
 #include "xmlconfig.h"
 #include <stdint.h>
 #include <QDebug>
+#include <QStandardPaths>
 
 
 namespace Utils {
-PathUtils::PathUtils()
-{}
-
 /**
    Returns the base path of the share directory.
 
    Path is in Qt/Unix conventions, separated by "/".
  */
-QString PathUtils::GetDataPath()
+QString GetDataPath()
 {
-    // This routine works with "/" as the standard:
-    // Figure out root:  Up one from 'bin'
-    QDir rootDir = QApplication::applicationDirPath();
-
-    rootDir.cdUp();
-    const QString rootDirPath = rootDir.canonicalPath();
-    QString dataPath = rootDirPath;
+    QString dataPath = QApplication::applicationDirPath();
     dataPath += QLatin1Char('/');
-    dataPath += QLatin1String(GCS_DATA_BASENAME);
+    dataPath += QLatin1String(DATA_REL_PATH);
     dataPath += QLatin1Char('/');
     return dataPath;
 }
@@ -61,7 +53,7 @@ QString PathUtils::GetDataPath()
 
    Always returns a path converted to "/".
  */
-QString PathUtils::RemoveDataPath(QString path)
+QString RemoveDataPath(QString path)
 {
     // Depending on the platform, we might get either "/" or "\"
     // so we need to go to the standard ("/")
@@ -80,7 +72,7 @@ QString PathUtils::RemoveDataPath(QString path)
 
    Returns a "/" or "\" separated path depending on platform conventions.
  */
-QString PathUtils::InsertDataPath(QString path)
+QString InsertDataPath(QString path)
 {
     if (path.startsWith(QString("%%DATAPATH%%"))) {
         QString newPath = GetDataPath();
@@ -93,27 +85,15 @@ QString PathUtils::InsertDataPath(QString path)
 /**
    Gets a standard user-writable location for the system
  */
-QString PathUtils::GetStoragePath()
+QString GetStoragePath()
 {
-    // This routine works with "/" as the standard:
-    // Work out where the settings are stored on the machine
-    QSettings set(XmlConfig::XmlSettingsFormat, QSettings::UserScope, QLatin1String("OpenPilot"), QLatin1String("OpenPilotGCS_config"));
-    QFileInfo f(set.fileName());
-    QDir dir(f.absoluteDir());
-
-    const QString homeDirPath = dir.canonicalPath();
-    QString storagePath = homeDirPath;
-
-    storagePath += QLatin1Char('/');
-    // storagePath += QLatin1String("OpenPilot");
-    // storagePath += QLatin1Char('/');
-    return storagePath;
+    return QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QLatin1Char('/');
 }
 
 /**
    Removes the standard storage path and replace with a tag
  */
-QString PathUtils::RemoveStoragePath(QString path)
+QString RemoveStoragePath(QString path)
 {
     // Depending on the platform, we might get either "/" or "\"
     // so we need to go to the standard ("/")
@@ -130,7 +110,7 @@ QString PathUtils::RemoveStoragePath(QString path)
 /**
    Inserts the standard storage path is there is a storage path tag
  */
-QString PathUtils::InsertStoragePath(QString path)
+QString InsertStoragePath(QString path)
 {
     if (path.startsWith(QString("%%STOREPATH%%"))) {
         QString newPath = GetStoragePath();

@@ -63,8 +63,7 @@ public:
 
 private:
     void UpdateVelocityDesired(void);
-    int8_t UpdateStabilizationDesired(bool yaw_attitude, float yaw_direction);
-    void setArmedIfChanged(FlightStatusArmedOptions val);
+    int8_t UpdateStabilizationDesired(void);
 
     VtolAutoTakeoffFSM *fsm;
     VtolPathFollowerSettingsData *vtolPathFollowerSettings;

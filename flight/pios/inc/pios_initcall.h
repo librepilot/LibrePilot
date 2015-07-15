@@ -50,7 +50,7 @@ typedef struct {
 
 /* Init module section */
 extern initmodule_t __module_initcall_start[], __module_initcall_end[];
-
+extern volatile int initTaskDone;
 #ifdef USE_SIM_POSIX
 
 extern void InitModules();
@@ -69,9 +69,10 @@ extern void StartModules();
         /* Initialize modules */ \
         InitModules(); \
         /* Initialize the system thread */ \
-        SystemModInitialize(); }
+        SystemModInitialize(); \
+        initTaskDone = 1; }
 
-#else
+#else // ifdef USE_SIM_POSIX
 
 /* initcalls are now grouped by functionality into separate
  * subsections. Ordering inside the subsections is determined
@@ -96,6 +97,7 @@ extern void StartModules();
           if (fn->fn_minit) { \
               (fn->fn_minit)(); } \
       } \
+      initTaskDone = 1; \
     }
 
 #define MODULE_TASKCREATE_ALL \

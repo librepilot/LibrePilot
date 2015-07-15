@@ -350,9 +350,10 @@ void PIOS_I2C_gps_irq_handler(void);
 void I2C1_IRQHandler() __attribute__((alias("PIOS_I2C_gps_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_gps_cfg = {
-    .remap = GPIO_AF_1,
-    .regs  = I2C1,
-    .init  = {
+    .remapSDA = GPIO_AF_1,
+    .remapSCL = GPIO_AF_1,
+    .regs     = I2C1,
+    .init     = {
         .I2C_Mode                    = I2C_Mode_I2C,
         .I2C_AnalogFilter  = I2C_AnalogFilter_Enable,
         .I2C_DigitalFilter = 0x00,

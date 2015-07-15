@@ -32,9 +32,9 @@ if [ -x "$1" ]; then
 fi
 
 # Tools URLs to fetch
-WGET_URL="http://wiki.openpilot.org/download/attachments/18612236/wget.exe"
-MAKE_URL="http://wiki.openpilot.org/download/attachments/18612236/make.exe"
-SEVENZIP_URL="http://wiki.openpilot.org/download/attachments/18612236/7za.exe"
+WGET_URL="http://librepilot.github.io/tools/wget.exe"
+MAKE_URL="http://librepilot.github.io/tools/make.exe"
+SEVENZIP_URL="http://librepilot.github.io/tools/7za.exe"
 
 # Expected tools paths
 WGET="$TOOLS_DIR/bin/`basename \"$WGET_URL\"`"

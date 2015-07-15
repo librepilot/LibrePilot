@@ -51,7 +51,7 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
     // if a saved configuration exists load it
     if (qSettings != 0) {
         m_qmlFile             = qSettings->value("qmlFile").toString();
-        m_qmlFile             = Utils::PathUtils().InsertDataPath(m_qmlFile);
+        m_qmlFile             = Utils::InsertDataPath(m_qmlFile);
 
         m_speedFactor         = qSettings->value("speedFactor").toDouble();
         m_altitudeFactor      = qSettings->value("altitudeFactor").toDouble();
@@ -59,7 +59,7 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         // terrain
         m_terrainEnabled      = qSettings->value("terrainEnabled").toBool();
         m_terrainFile         = qSettings->value("earthFile").toString();
-        m_terrainFile         = Utils::PathUtils().InsertDataPath(m_terrainFile);
+        m_terrainFile         = Utils::InsertDataPath(m_terrainFile);
         m_cacheOnly           = qSettings->value("cacheOnly").toBool();
 
         m_latitude            = qSettings->value("latitude").toDouble();
@@ -75,11 +75,11 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         m_modelEnabled        = qSettings->value("modelEnabled").toBool();
         m_modelSelectionMode  = static_cast<Pfd::ModelSelectionMode>(qSettings->value("modelSelectionMode").toUInt());
         m_modelFile           = qSettings->value("modelFile").toString();
-        m_modelFile           = Utils::PathUtils().InsertDataPath(m_modelFile);
+        m_modelFile           = Utils::InsertDataPath(m_modelFile);
 
         // background image
         m_backgroundImageFile = qSettings->value("backgroundImageFile").toString();
-        m_backgroundImageFile = Utils::PathUtils().InsertDataPath(m_backgroundImageFile);
+        m_backgroundImageFile = Utils::InsertDataPath(m_backgroundImageFile);
     }
 }
 
@@ -127,7 +127,7 @@ IUAVGadgetConfiguration *PfdQmlGadgetConfiguration::clone()
  */
 void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
 {
-    QString qmlFile = Utils::PathUtils().RemoveDataPath(m_qmlFile);
+    QString qmlFile = Utils::RemoveDataPath(m_qmlFile);
 
     qSettings->setValue("qmlFile", qmlFile);
 
@@ -136,7 +136,7 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
 
     // terrain
     qSettings->setValue("terrainEnabled", m_terrainEnabled);
-    QString terrainFile = Utils::PathUtils().RemoveDataPath(m_terrainFile);
+    QString terrainFile = Utils::RemoveDataPath(m_terrainFile);
     qSettings->setValue("earthFile", terrainFile);
     qSettings->setValue("cacheOnly", m_cacheOnly);
 
@@ -152,10 +152,10 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings *qSettings) const
     // model
     qSettings->setValue("modelEnabled", m_modelEnabled);
     qSettings->setValue("modelSelectionMode", static_cast<uint>(m_modelSelectionMode));
-    QString modelFile = Utils::PathUtils().RemoveDataPath(m_modelFile);
+    QString modelFile = Utils::RemoveDataPath(m_modelFile);
     qSettings->setValue("modelFile", modelFile);
 
     // background image
-    QString backgroundImageFile = Utils::PathUtils().RemoveDataPath(m_backgroundImageFile);
+    QString backgroundImageFile = Utils::RemoveDataPath(m_backgroundImageFile);
     qSettings->setValue("backgroundImageFile", backgroundImageFile);
 }

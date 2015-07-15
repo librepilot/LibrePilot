@@ -63,6 +63,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include "dialogs/iwizard.h"
 #include <utils/pathchooser.h>
+#include <utils/pathutils.h>
 #include <utils/stylehelper.h>
 #include <utils/xmlconfig.h>
 #include "version_info/version_info.h"
@@ -102,12 +103,11 @@ MainWindow::MainWindow() :
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
     // keep this in sync with main() in app/main.cpp
-    m_settings(new QSettings(XmlConfig::XmlSettingsFormat, QSettings::UserScope,
-                             QLatin1String("OpenPilot"), QLatin1String("OpenPilotGCS_config"), this)),
+    m_settings(new QSettings(this)),
     m_globalSettings(new QSettings(XmlConfig::XmlSettingsFormat, QSettings::SystemScope,
-                                   QLatin1String("OpenPilot"), QLatin1String("OpenPilotGCS_config"), this)),
+                                   m_settings->organizationName(), m_settings->applicationName(), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
-                                            QLatin1String("OpenPilotGCS_config"),
+                                            QFileInfo(m_settings->fileName()).baseName(),
                                             this)),
     m_dontSaveSettings(false),
     m_actionManager(new ActionManagerPrivate(this)),
@@ -134,15 +134,10 @@ MainWindow::MainWindow() :
 #endif
     m_toggleFullScreenAction(0)
 {
-    setWindowTitle(tr("OpenPilot GCS ") + VersionInfo::label());
+    setWindowTitle(tr("LibrePilot GCS ") + VersionInfo::label());
 #ifndef Q_WS_MAC
-    qApp->setWindowIcon(QIcon(":/core/images/openpilot_logo_128.png"));
+    qApp->setWindowIcon(QIcon(":/core/images/librepilot_logo_128.png"));
 #endif
-    QCoreApplication::setApplicationName(QLatin1String("OpenPilotGCS"));
-    QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::GCS_VERSION_LONG));
-    QCoreApplication::setOrganizationName(QLatin1String("OpenPilot"));
-    QCoreApplication::setOrganizationDomain(QLatin1String("openpilot.org"));
-    QSettings::setDefaultFormat(XmlConfig::XmlSettingsFormat);
     qApp->setStyle(QStyleFactory::create("Fusion"));
 
     setDockNestingEnabled(true);
@@ -291,21 +286,9 @@ void MainWindow::extensionsInitialized()
 
 QString MainWindow::loadStyleSheet(QString fileName)
 {
-    // Let's use QFile and point to a resource...
-    QDir dir(QCoreApplication::applicationDirPath());
-
-#ifdef Q_OS_MAC
-    dir.cdUp();
-    dir.cd("Resources");
-#else
-    dir.cdUp();
-    dir.cd("share");
-    dir.cd("openpilotgcs");
-#endif
-    dir.cd("stylesheets");
     QString style;
     // ...to open the file
-    QFile file(dir.absolutePath() + QDir::separator() + fileName);
+    QFile file(Utils::GetDataPath() + QString("stylesheets/") + fileName);
     qDebug() << "Loading style sheet file" << file.fileName();
     if (file.open(QFile::ReadOnly)) {
         // QTextStream...

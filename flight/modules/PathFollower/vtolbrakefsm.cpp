@@ -62,7 +62,7 @@ extern "C" {
 // Private constants
 #define TIMER_COUNT_PER_SECOND                      (1000 / vtolPathFollowerSettings->UpdatePeriod)
 #define BRAKE_FRACTIONALPROGRESS_STARTVELOCITYCHECK 0.95f
-#define BRAKE_EXIT_VELOCITY_LIMIT                   0.2f
+#define BRAKE_EXIT_VELOCITY_LIMIT                   0.15f
 
 VtolBrakeFSM::PathFollowerFSM_BrakeStateHandler_T VtolBrakeFSM::sBrakeStateTable[BRAKE_STATE_SIZE] = {
     [BRAKE_STATE_INACTIVE] = { .setup = 0,                          .run = 0                        },
@@ -128,11 +128,6 @@ void VtolBrakeFSM::Activate()
     memset(mBrakeData, 0, sizeof(VtolBrakeFSMData_T));
     mBrakeData->currentState = BRAKE_STATE_INACTIVE;
     setState(BRAKE_STATE_BRAKE, FSMBRAKESTATUS_STATEEXITREASON_NONE);
-}
-
-void VtolBrakeFSM::Abort(void)
-{
-    setState(BRAKE_STATE_HOLD, FSMBRAKESTATUS_STATEEXITREASON_NONE);
 }
 
 PathFollowerFSMState_T VtolBrakeFSM::GetCurrentState(void)

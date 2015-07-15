@@ -166,7 +166,11 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         parameters["bl_version"]   = QString::number(utilMngr->getBootloaderRevision());
         parameters["fw_tag"] = devDesc.gitTag;
         parameters["fw_hash"] = devDesc.gitHash;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         parameters["os_version"]   = QSysInfo::prettyProductName() + " " + QSysInfo::currentCpuArchitecture();
+#else
+        parameters["os_version"]   = "none";
+#endif
         parameters["os_threads"]   = QString::number(QThread::idealThreadCount());
         parameters["os_timezone"]  = QTimeZone::systemTimeZoneId();
         parameters["gcs_version"]  = VersionInfo::revision();

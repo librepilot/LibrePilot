@@ -74,10 +74,12 @@ void PIOS_SYS_Init(void)
         RCC_AHB1Periph_GPIOC |
         RCC_AHB1Periph_GPIOD |
         RCC_AHB1Periph_GPIOE |
+#ifdef STM32F40_41xxx
         RCC_AHB1Periph_GPIOF |
         RCC_AHB1Periph_GPIOG |
         RCC_AHB1Periph_GPIOH |
         RCC_AHB1Periph_GPIOI |
+#endif
         RCC_AHB1Periph_CRC |
         RCC_AHB1Periph_FLITF |
         RCC_AHB1Periph_SRAM1 |
@@ -158,21 +160,23 @@ void PIOS_SYS_Init(void)
 #if (PIOS_USB_ENABLED)
     GPIO_InitStructure.GPIO_Pin &= ~(GPIO_Pin_11 | GPIO_Pin_12); // leave USB D+/D- alone
 #endif
-    GPIO_InitStructure.GPIO_Pin &= ~(GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15); // leave JTAG pins alone
+    GPIO_InitStructure.GPIO_Pin &= ~(GPIO_Pin_13 | GPIO_Pin_14); // leave JTAG pins alone
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_All;
-    GPIO_InitStructure.GPIO_Pin &= ~(GPIO_Pin_3 | GPIO_Pin_4); // leave JTAG pins alone
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     GPIO_InitStructure.GPIO_Pin  = GPIO_Pin_All;
     GPIO_Init(GPIOC, &GPIO_InitStructure);
     GPIO_Init(GPIOD, &GPIO_InitStructure);
     GPIO_Init(GPIOE, &GPIO_InitStructure);
+
+#ifdef STM32F40_41xxx
     GPIO_Init(GPIOF, &GPIO_InitStructure);
     GPIO_Init(GPIOG, &GPIO_InitStructure);
     GPIO_Init(GPIOH, &GPIO_InitStructure);
     GPIO_Init(GPIOI, &GPIO_InitStructure);
+#endif
 }
 
 /**

@@ -60,7 +60,7 @@ public:
     void activated();
     QString contextHelpId() const
     {
-        return QLatin1String("OpenPilot GCS");
+        return QLatin1String("LibrePilot GCS");
     }
     void setPriority(int priority)
     {
@@ -68,7 +68,7 @@ public:
     }
     QString versionString() const
     {
-        return tr("OpenPilot GCS Version: %1 ").arg(VersionInfo::tagOrHash8());
+        return tr("LibrePilot GCS Version: %1 ").arg(VersionInfo::tagOrHash8());
     }
     QString newVersionText() const
     {

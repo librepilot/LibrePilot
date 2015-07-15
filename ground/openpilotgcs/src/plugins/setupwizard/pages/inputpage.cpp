@@ -55,6 +55,8 @@ bool InputPage::validatePage()
         getWizard()->setInputType(SetupWizard::INPUT_SBUS);
     } else if (ui->spectrumButton->isChecked()) {
         getWizard()->setInputType(SetupWizard::INPUT_DSM);
+    } else if (ui->multiplexButton->isChecked()) {
+        getWizard()->setInputType(SetupWizard::INPUT_SRXL);
     } else {
         getWizard()->setInputType(SetupWizard::INPUT_PWM);
     }
@@ -74,6 +76,7 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
     switch (getWizard()->getControllerType()) {
     case SetupWizard::CONTROLLER_REVO:
     case SetupWizard::CONTROLLER_DISCOVERYF4:
+    case SetupWizard::CONTROLLER_NANO:
     {
         switch (selectedType) {
         case VehicleConfigurationSource::INPUT_PWM:
@@ -84,6 +87,9 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
 
         case VehicleConfigurationSource::INPUT_SBUS:
             return data.RM_MainPort != HwSettings::RM_MAINPORT_SBUS;
+
+        case VehicleConfigurationSource::INPUT_SRXL:
+            return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_SRXL;
 
         case VehicleConfigurationSource::INPUT_DSM:
             // TODO: Handle all of the DSM types ?? Which is most common?

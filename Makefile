@@ -51,6 +51,20 @@ export DIST_DIR    := $(ROOT_DIR)/build/dist
 
 DIRS = $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
+# Function to convert to all lowercase
+lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
+# Function to make all lowercase and replace spaces with -
+EMPTY             :=
+SPACE             := $(EMPTY) $(EMPTY)
+smallify = $(subst $(SPACE),-,$(call lc,$1))
+
+# Naming for binaries and packaging etc,.
+ORG_BIG_NAME := LibrePilot
+GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
+# These should be lowercase with no spaces
+ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
+GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
+
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
 GOOGLE_API_VERSION	:= 14
@@ -200,13 +214,14 @@ export OPGCSSYNTHDIR := $(BUILD_DIR)/openpilotgcs-synthetics
 DIRS += $(OPGCSSYNTHDIR)
 
 # Define supported board lists
-ALL_BOARDS    := oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum
+ALL_BOARDS    := oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano
 
 # Short names of each board (used to display board name in parallel builds)
 oplinkmini_short       := 'oplm'
 revolution_short       := 'revo'
 osd_short              := 'osd '
 revoproto_short        := 'revp'
+revonano_short         := 'revn'
 simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'
@@ -455,7 +470,7 @@ else
     GCS_SILENT := silent
 endif
 
-OPENPILOTGCS_DIR := $(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)
+OPENPILOTGCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
 DIRS += $(OPENPILOTGCS_DIR)
 
 OPENPILOTGCS_MAKEFILE := $(OPENPILOTGCS_DIR)/Makefile
@@ -464,7 +479,10 @@ OPENPILOTGCS_MAKEFILE := $(OPENPILOTGCS_DIR)/Makefile
 openpilotgcs_qmake $(OPENPILOTGCS_MAKEFILE): | $(OPENPILOTGCS_DIR)
 	$(V1) cd $(OPENPILOTGCS_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/openpilotgcs/openpilotgcs.pro \
-	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
+	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
+	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
+	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
+	    $(GCS_QMAKE_OPTS)
 
 .PHONY: openpilotgcs
 openpilotgcs: uavobjgenerator $(OPENPILOTGCS_MAKEFILE)
@@ -716,14 +734,14 @@ endif
 
 # Define some variables
 PACKAGE_LBL       := $(shell $(VERSION_INFO) --format=\$${LABEL})
-PACKAGE_NAME      := OpenPilot
+PACKAGE_NAME      := $(subst $(SPACE),,$(ORG_BIG_NAME))
 PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
-include $(ROOT_DIR)/package/$(UNAME).mk
-
 # Source distribution is never dirty because it uses git archive
 DIST_NAME := $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
+
+include $(ROOT_DIR)/package/$(UNAME).mk
 
 ##############################
 #

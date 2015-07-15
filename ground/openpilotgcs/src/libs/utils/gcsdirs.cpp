@@ -27,7 +27,7 @@ QString GCSDirs::libraryPath(QString provider)
     libPath += QLatin1String("/Plugins");
 #else
     // GCS_LIBRARY_BASENAME is a compiler define set by qmake
-    libPath += QLatin1Char('/') + QLatin1String(GCS_LIBRARY_BASENAME);
+    libPath += QLatin1Char('/') + QLatin1String(LIB_REL_PATH);
     libPath += QLatin1Char('/') + provider;
 #endif
     return libPath;
@@ -42,7 +42,7 @@ QString GCSDirs::pluginPath(QString provider)
     pluginPath += QLatin1String("/Plugins");
 #else
     // GCS_LIBRARY_BASENAME is a compiler define set by qmake
-    pluginPath += QLatin1Char('/') + QLatin1String(GCS_LIBRARY_BASENAME);
+    pluginPath += QLatin1Char('/') + QLatin1String(LIB_REL_PATH);
     pluginPath += QLatin1Char('/') + provider;
     pluginPath += QLatin1String("/plugins");
 #endif

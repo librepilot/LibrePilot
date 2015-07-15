@@ -19,17 +19,11 @@
     <height>700</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>610</width>
-    <height>700</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Vehicle Templates</string>
   </property>
   <property name="sizeGripEnabled">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="modal">
    <bool>true</bool>

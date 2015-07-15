@@ -23,7 +23,7 @@
 # Lower level makefiles assume that these variables are defined. To ensure
 # that a special magic variable is exported here. It must be checked for
 # existance by each sub-make.
-export OPENPILOT_IS_COOL := Fuck Yeah!
+export TOP_LEVEL_MAKEFILE := TRUE
 
 # It is possible to set OPENPILOT_DL_DIR and/or OPENPILOT_TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the

@@ -198,7 +198,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
             if (board == 0x0905) {
                 qwd = new ConfigRevoNanoHWWidget(this);
             }
-                stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
+            stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
         } else {
             // Unknown board
             qDebug() << "Unknown board " << board;

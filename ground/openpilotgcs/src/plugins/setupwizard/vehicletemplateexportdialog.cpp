@@ -229,7 +229,7 @@ void VehicleTemplateExportDialog::saveTemplate(QString path)
 
     QJsonDocument saveDoc(exportObject);
 
-    const char *fileType = ".optmpl";
+    const char *fileType = ".vtmpl";
 
     QString fileName     = QString("%1-%2-%3%4")
                            .arg(fixFilenameString(ui->Name->text(), 20))
@@ -240,7 +240,7 @@ void VehicleTemplateExportDialog::saveTemplate(QString path)
     QString fullPath;
     if (path.isEmpty()) {
         fullPath = QString("%1%2%3").arg(QDir::homePath()).arg(QDir::separator()).arg(fileName);
-        fullPath = QFileDialog::getSaveFileName(this, tr("Export settings"), fullPath, QString("%1 (*%2)").arg(tr("OPTemplates"), fileType));
+        fullPath = QFileDialog::getSaveFileName(this, tr("Export settings"), fullPath, QString("%1 (*%2)").arg(tr("VehicleTemplates"), fileType));
     } else {
         fullPath = QString("%1%2%3").arg(path).arg(QDir::separator()).arg(fileName);
     }
@@ -272,7 +272,7 @@ QString VehicleTemplateExportDialog::fixFilenameString(QString input, int trunca
 
 void VehicleTemplateExportDialog::exportTemplate()
 {
-    QString path = QString("%1%2%3%4").arg(Utils::InsertStoragePath("%%STOREPATH%%cloudconfig"))
+    QString path = QString("%1%2%3%4").arg(Utils::InsertStoragePath("%%STOREPATH%%vehicletemplates"))
                    .arg(QDir::separator()).arg(getTypeDirectory()).arg(QDir::separator());
     QDir dir;
 

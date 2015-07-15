@@ -115,7 +115,7 @@ void VehicleTemplateSelectorWidget::updateDescription(QJsonObject *templ)
         ui->templateDescription->setText(description);
     } else {
         ui->templateDescription->setText(tr("This option will use the current tuning settings saved on the controller, if your controller "
-                                            "is currently unconfigured, then the OpenPilot firmware defaults will be used.\n\n"
+                                            "is currently unconfigured, then the pre-configured firmware defaults will be used.\n\n"
                                             "It is suggested that if this is a first time configuration of your controller, rather than "
                                             "use this option, instead select a tuning set that matches your own airframe as close as "
                                             "possible from the list above or if you are not able to fine one, then select the generic item "
@@ -161,13 +161,14 @@ QString VehicleTemplateSelectorWidget::getTemplatePath()
     }
 }
 
-void VehicleTemplateSelectorWidget::loadFilesInDir(QString templateBasePath)
+void VehicleTemplateSelectorWidget::loadFilesInDir(QString templateBasePath, bool local)
 {
     QDir templateDir(templateBasePath);
 
     qDebug() << "Loading templates from base path:" << templateBasePath;
     QStringList names;
     names << "*.optmpl";
+    names << "*.vtmpl"; // Vehicle template
     templateDir.setNameFilters(names);
     templateDir.setSorting(QDir::Name);
     QStringList files = templateDir.entryList();
@@ -203,8 +204,8 @@ void VehicleTemplateSelectorWidget::loadValidFiles()
     }
     m_templates.clear();
     QString path = getTemplatePath();
-    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertDataPath("%%DATAPATH%%cloudconfig")).arg(path));
-    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertStoragePath("%%STOREPATH%%cloudconfig")).arg(path));
+    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertDataPath("%%DATAPATH%%vehicletemplates")).arg(path), false);
+    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertStoragePath("%%STOREPATH%%vehicletemplates")).arg(path), true);
 }
 
 void VehicleTemplateSelectorWidget::setupTemplateList()

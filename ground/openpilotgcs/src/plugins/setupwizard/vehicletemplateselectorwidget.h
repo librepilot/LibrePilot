@@ -61,7 +61,7 @@ private:
     QGraphicsPixmapItem *m_photoItem;
 
     void loadValidFiles();
-    void loadFilesInDir(QString templateBasePath);
+    void loadFilesInDir(QString templateBasePath, bool local);
     void setupTemplateList();
     QString getTemplateKey(QJsonObject *templ);
     void updatePhoto(QJsonObject *templ);

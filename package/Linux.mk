@@ -85,6 +85,7 @@ prefix  := /usr/local
 bindir  := $(prefix)/bin
 libdir  := $(prefix)/lib
 datadir := $(prefix)/share
+udevdir := /etc/udev/rules.d
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln

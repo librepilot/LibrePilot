@@ -2,7 +2,7 @@
 TEMPLATE = lib 
 TARGET = DoNothing 
  
-include(../../openpilotgcsplugin.pri) 
+include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
  
 HEADERS += donothingplugin.h 

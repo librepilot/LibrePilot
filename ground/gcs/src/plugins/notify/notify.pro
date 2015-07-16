@@ -2,7 +2,7 @@
 TEMPLATE = lib 
 TARGET = NotifyPlugin 
  
-include(../../openpilotgcsplugin.pri) 
+include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
 include(notifyplugin_dependencies.pri)
 

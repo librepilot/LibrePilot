@@ -3,7 +3,7 @@ TEMPLATE = lib
 TARGET = UsageTracker
 QT += network
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../libs/version_info/version_info.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/uavobjects/uavobjects.pri)

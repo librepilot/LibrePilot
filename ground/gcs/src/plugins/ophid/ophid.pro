@@ -5,7 +5,7 @@ DEFINES += OPHID_LIBRARY
 
 //DEFINES += OPHID_DEBUG_ON
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(ophid_dependencies.pri)
 
 HEADERS += \

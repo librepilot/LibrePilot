@@ -8,7 +8,7 @@ DEFINES += UAVTALK_LIBRARY
 #DEFINES += VERBOSE_TELEMETRY
 #DEFINES += VERBOSE_UAVTALK
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(uavtalk_dependencies.pri)
 
 HEADERS += \

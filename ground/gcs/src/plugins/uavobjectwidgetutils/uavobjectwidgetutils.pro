@@ -3,7 +3,7 @@ TARGET = UAVObjectWidgetUtils
 DEFINES += UAVOBJECTWIDGETUTILS_LIBRARY
 QT += svg
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(uavobjectwidgetutils_dependencies.pri)
 
 HEADERS += uavobjectwidgetutils_global.h \

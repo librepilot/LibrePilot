@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = DialGadget
 QT += svg
 QT += opengl
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(dial_dependencies.pri)
 HEADERS += dialplugin.h

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Serial
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(serial_dependencies.pri)
 QT += serialport
 HEADERS += serialplugin.h \

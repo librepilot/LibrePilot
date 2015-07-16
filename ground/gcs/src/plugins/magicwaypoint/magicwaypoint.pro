@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = MagicWaypoint 
 QT += svg
 
-include(../../openpilotgcsplugin.pri) 
+include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
 include(../../plugins/uavobjects/uavobjects.pri)
 

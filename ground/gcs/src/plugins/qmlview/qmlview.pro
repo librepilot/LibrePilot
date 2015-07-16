@@ -4,7 +4,7 @@ QT += svg
 QT += opengl
 QT += qml quick
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(qmlview_dependencies.pri)
 

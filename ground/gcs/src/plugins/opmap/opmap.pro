@@ -5,7 +5,7 @@ PATHPLANNER {
 }
 
 TARGET = OPMapGadget
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../libs/opmapcontrol/opmapcontrol.pri)
 include(../../plugins/uavobjects/uavobjects.pri)

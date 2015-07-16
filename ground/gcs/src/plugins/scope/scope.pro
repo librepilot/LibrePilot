@@ -3,7 +3,7 @@ TARGET = ScopeGadget
 
 DEFINES += SCOPE_LIBRARY
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include (scope_dependencies.pri)
 
 HEADERS += \

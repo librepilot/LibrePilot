@@ -3,7 +3,7 @@ TARGET = GCSControl
 
 QT += svg opengl network
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/uavobjects/uavobjects.pri)
 include(../../libs/sdlgamepad/sdlgamepad.pri)

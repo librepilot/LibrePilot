@@ -50,7 +50,7 @@
 
 const char *VehicleTemplateExportDialog::EXPORT_FIXEDWING_NAME = "fixedwing";
 const char *VehicleTemplateExportDialog::EXPORT_MULTI_NAME     = "multirotor";
-const char *VehicleTemplateExportDialog::EXPORT_HELI_NAME      = "helicopter";
+const char *VehicleTemplateExportDialog::EXPORT_HELI_NAME = "helicopter";
 const char *VehicleTemplateExportDialog::EXPORT_SURFACE_NAME   = "surface";
 const char *VehicleTemplateExportDialog::EXPORT_CUSTOM_NAME    = "custom";
 

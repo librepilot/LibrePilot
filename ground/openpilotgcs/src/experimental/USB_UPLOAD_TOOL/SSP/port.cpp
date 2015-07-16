@@ -27,7 +27,7 @@
 #include "port.h"
 #include "delay.h"
 #include <QDebug>
-port::port(QString name, bool debug) : mstatus(port::closed), debug(debug)
+port::port(QString name, bool debug) : debug(debug), mstatus(port::closed)
 {
     timer.start();
     sport = new QSerialPort();

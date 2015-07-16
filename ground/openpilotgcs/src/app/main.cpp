@@ -305,6 +305,7 @@ inline QStringList getPluginPaths()
     QStringList rc;
 
     QString pluginPath = QApplication::applicationDirPath();
+
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String(PLUGIN_REL_PATH);
     rc.push_back(pluginPath);

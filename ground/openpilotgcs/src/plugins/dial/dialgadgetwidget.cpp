@@ -29,6 +29,7 @@
 #include "dialgadgetwidget.h"
 #include <utils/stylehelper.h>
 #include <iostream>
+#include <math.h>
 #include <QtOpenGL/QGLWidget>
 #include <QDebug>
 
@@ -558,7 +559,7 @@ void DialGadgetWidget::rotateNeedles()
     int dialRun = 3;
     if (n2enabled) {
         double needle2Diff;
-        if (abs((needle2Value - needle2Target) * 10) > 5 && beSmooth) {
+        if (beSmooth && fabs(needle2Value - needle2Target) > 0.5) {
             needle2Diff = (needle2Target - needle2Value) / 5;
         } else {
             needle2Diff = needle2Target - needle2Value;
@@ -590,7 +591,7 @@ void DialGadgetWidget::rotateNeedles()
 
     // We assume that needle1 always exists!
     double needle1Diff;
-    if ((abs((needle1Value - needle1Target) * 10) > 5) && beSmooth) {
+    if (beSmooth && fabs(needle1Value - needle1Target) > 0.5) {
         needle1Diff = (needle1Target - needle1Value) / 5;
     } else {
         needle1Diff = needle1Target - needle1Value;
@@ -614,7 +615,7 @@ void DialGadgetWidget::rotateNeedles()
 
     if (n3enabled) {
         double needle3Diff;
-        if ((abs((needle3Value - needle3Target) * 10) > 5) && beSmooth) {
+        if (beSmooth && fabs(needle3Value - needle3Target) > 0.5) {
             needle3Diff = (needle3Target - needle3Value) / 5;
         } else {
             needle3Diff = needle3Target - needle3Value;

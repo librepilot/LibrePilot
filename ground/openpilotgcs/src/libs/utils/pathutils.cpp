@@ -41,6 +41,7 @@ namespace Utils {
 QString GetDataPath()
 {
     QString dataPath = QApplication::applicationDirPath();
+
     dataPath += QLatin1Char('/');
     dataPath += QLatin1String(DATA_REL_PATH);
     dataPath += QLatin1Char('/');

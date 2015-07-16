@@ -289,6 +289,7 @@ QString MainWindow::loadStyleSheet(QString fileName)
     QString style;
     // ...to open the file
     QFile file(Utils::GetDataPath() + QString("stylesheets/") + fileName);
+
     qDebug() << "Loading style sheet file" << file.fileName();
     if (file.open(QFile::ReadOnly)) {
         // QTextStream...

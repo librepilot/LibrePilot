@@ -14,7 +14,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "pfdqmlgadgetfactory.h"
-#include "pfdqmlgadgetwidget.h"
 #include "pfdqmlgadget.h"
 #include "pfdqmlgadgetconfiguration.h"
 #include "pfdqmlgadgetoptionspage.h"
@@ -31,9 +30,7 @@ PfdQmlGadgetFactory::~PfdQmlGadgetFactory()
 
 Core::IUAVGadget *PfdQmlGadgetFactory::createGadget(QWidget *parent)
 {
-    PfdQmlGadgetWidget *gadgetWidget = new PfdQmlGadgetWidget();
-
-    return new PfdQmlGadget(QString("PfdQmlGadget"), gadgetWidget, parent);
+    return new PfdQmlGadget(QString("PfdQmlGadget"), parent);
 }
 
 IUAVGadgetConfiguration *PfdQmlGadgetFactory::createConfiguration(QSettings *qSettings)

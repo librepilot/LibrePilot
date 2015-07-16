@@ -29,7 +29,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include <QDebug>
 #include <QWidget>
-#include <QtOpenGL/QGLWidget>
+#include <QOpenGLWidget>
 #include <QMouseEvent>
 
 /**
@@ -85,7 +85,7 @@ JoystickControl::~JoystickControl()
 void JoystickControl::enableOpenGL(bool flag)
 {
     if (flag) {
-        setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+        setViewport(new QOpenGLWidget()); // QGLFormat(QGL::SampleBuffers)));
     } else {
         setViewport(new QWidget);
     }

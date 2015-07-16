@@ -14,13 +14,17 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "pfdqml.h"
 #include "pfdqmlplugin.h"
 #include "pfdqmlgadgetfactory.h"
-#include <QDebug>
-#include <QtPlugin>
-#include <QStringList>
 #include <extensionsystem/pluginmanager.h>
 
+#ifdef USE_OSG
+#include <osgearth/osgearth.h>
+#endif
+
+#include <QDebug>
+#include <QStringList>
 
 PfdQmlPlugin::PfdQmlPlugin()
 {
@@ -36,7 +40,15 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
-    mf = new PfdQmlGadgetFactory(this);
+
+#ifdef USE_OSG
+    // TODO get rid of this call...
+    OsgEarth::registerQmlTypes();
+#endif
+
+    Pfd::declareQML();
+
+    PfdQmlGadgetFactory *mf = new PfdQmlGadgetFactory(this);
     addAutoReleasedObject(mf);
 
     return true;

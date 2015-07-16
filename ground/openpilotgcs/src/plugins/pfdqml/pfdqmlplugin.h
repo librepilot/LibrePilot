@@ -32,8 +32,6 @@ public:
     void extensionsInitialized();
     bool initialize(const QStringList &arguments, QString *errorString);
     void shutdown();
-private:
-    PfdQmlGadgetFactory *mf;
 };
 
 #endif /* PFDQMLPLUGIN_H_ */

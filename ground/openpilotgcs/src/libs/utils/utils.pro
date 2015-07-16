@@ -1,21 +1,18 @@
 TEMPLATE = lib
 TARGET = Utils
 
-QT += gui \
-    network \
-    xml \
-    svg \
-    opengl \
-    qml quick \
-    widgets
+QT += network xml svg opengl gui widgets qml quick quickwidgets
 
 DEFINES += QTCREATOR_UTILS_LIB
 
 include(../../openpilotgcslibrary.pri)
 
 DEFINES += DATA_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_DATA_PATH, $$GCS_APP_PATH)\")
+DEFINES += LIB_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_LIBRARY_PATH, $$GCS_PATH)\")
 
-SOURCES += reloadpromptutils.cpp \
+SOURCES += \
+    gcsdirs.cpp \
+    reloadpromptutils.cpp \
     settingsutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
@@ -54,6 +51,7 @@ SOURCES += reloadpromptutils.cpp \
 	homelocationutil.cpp \
     mytabbedstackwidget.cpp \
     mytabwidget.cpp \
+    quickwidgetproxy.cpp \
     cachedsvgitem.cpp \
     svgimageprovider.cpp \
     hostosinfo.cpp \
@@ -71,7 +69,9 @@ win32 {
 }
 else:SOURCES += consoleprocess_unix.cpp
 
-HEADERS += utils_global.h \
+HEADERS += \
+    utils_global.h \
+    gcsdirs.h \
     reloadpromptutils.h \
     settingsutils.h \
     filesearch.h \
@@ -114,13 +114,13 @@ HEADERS += utils_global.h \
 	homelocationutil.h \
     mytabbedstackwidget.h \
     mytabwidget.h \
+    quickwidgetproxy.h \
     cachedsvgitem.h \
     svgimageprovider.h \
     hostosinfo.h \
     logfile.h \
     crc.h \
     mustache.h
-
 
 HEADERS += xmlconfig.h
 

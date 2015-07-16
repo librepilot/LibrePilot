@@ -174,6 +174,7 @@ Section "Core files" InSecCore
   File "${PROJECT_ROOT}\GPLv3.txt"
 SectionEnd
 
+
 ; Copy GCS plugins
 Section "-Plugins" InSecPlugins
   SectionIn RO
@@ -182,12 +183,21 @@ Section "-Plugins" InSecPlugins
   File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\plugins\*.pluginspec"
 SectionEnd
 
+; Copy OSG libs
+Section "-OsgLibs" InSecOsgLibs
+  SectionIn RO
+  SetOutPath "$INSTDIR\lib\openpilotgcs\osg"
+  File /r "${GCS_BUILD_TREE}\lib\openpilotgcs\osg\*.dll"
+SectionEnd
+
 ; Copy GCS resources
 Section "-Resources" InSecResources
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\cloudconfig"
   File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\cloudconfig\*"
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\default_configurations"
   File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\default_configurations\*"
+  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\backgrounds"
+  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\backgrounds\*"
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\diagrams"
   File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\diagrams\*"
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\dials"
@@ -196,8 +206,10 @@ Section "-Resources" InSecResources
   File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\mapicons\*"
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\models"
   File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\models\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\pfd"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\pfd\*"
+  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\qml"
+  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\qml\*"
+  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\osgearth"
+  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\osgearth\*"
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\stylesheets"
   File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\stylesheets\*"
 SectionEnd
@@ -357,9 +369,14 @@ SectionEnd
 Section "un.Maps cache" UnSecCache
   ; Remove maps cache
   SetShellVarContext current
+<<<<<<< HEAD
+  RMDir /r /rebootok "$APPDATA\OpenPilot\mapscache"
+  RMDir /r /rebootok "$APPDATA\OpenPilot\osgearth"
+=======
   RMDir /r /rebootok "$LOCALAPPDATA\OpenPilot\${GCS_BIG_NAME}"
   ; Only remove if no other versions have data here
   RMDir /rebootok "$LOCALAPPDATA\OpenPilot"
+>>>>>>> origin/next
 SectionEnd
 
 Section "un.GCS Layout" UnSecConfig

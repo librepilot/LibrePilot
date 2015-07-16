@@ -17,38 +17,27 @@
 #ifndef PFDQMLGADGET_H_
 #define PFDQMLGADGET_H_
 
-#include <coreplugin/iuavgadget.h>
-#include "pfdqmlgadgetwidget.h"
+#include "pfdqmlgadget.h"
 
-class IUAVGadget;
-class QWidget;
-class QString;
+#include <coreplugin/iuavgadget.h>
+
 class PfdQmlGadgetWidget;
 
 using namespace Core;
 
 class PfdQmlGadget : public Core::IUAVGadget {
     Q_OBJECT
-public:
-    PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent = 0);
-    ~PfdQmlGadget();
 
-    QWidget *widget()
-    {
-        if (!m_container) {
-            m_container = QWidget::createWindowContainer(m_widget, m_parent);
-            m_container->setMinimumSize(64, 64);
-            m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        }
-        return m_container;
-    }
+public:
+    PfdQmlGadget(QString classId, QWidget *parent = 0);
+    virtual ~PfdQmlGadget();
+
+    QWidget *widget();
+
     void loadConfiguration(IUAVGadgetConfiguration *config);
 
 private:
-    QWidget *m_container;
-    QWidget *m_parent;
-    PfdQmlGadgetWidget *m_widget;
+    PfdQmlGadgetWidget *m_qmlGadgetWidget;
 };
-
 
 #endif // PFDQMLGADGET_H_

@@ -19,9 +19,10 @@ macx {
     } else {
         QMAKE_RPATHDIR  = $$shell_quote(\$$ORIGIN)
         QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_QT_LIBRARY_PATH, $$GCS_LIBRARY_PATH))
+	    QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH/osg, $$GCS_LIBRARY_PATH))
         include(rpath.pri)
 
-        target.path = /$$GCS_LIBRARY_BASENAME/openpilotgcs
+        target.path = /$$GCS_LIBRARY_BASENAME
     }
     INSTALLS += target
 }

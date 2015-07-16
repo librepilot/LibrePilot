@@ -60,7 +60,7 @@ equals(copydata, 1) {
         #             libgcc_s_dw2-1.dll \
         #             mingwm10.dll
         #for(dll, MINGW_DLLS) {
-        #    addCopyFileTarget($${dll},$$(QTMINGW),$${SIM_DIR})
+        #    addCopyFileTarget($$(QTMINGW)/$${dll},$${SIM_DIR}/$${dll})
         #}
     }
 }

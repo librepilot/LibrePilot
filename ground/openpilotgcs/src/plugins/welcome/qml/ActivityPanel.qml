@@ -54,24 +54,19 @@ Item {
 
     XmlListModel {
         id: xmlModel
-        source: "http://progress.openpilot.org/activity?maxResults=30&streams=key+IS+OP"
+        source: "https://github.com/librepilot/LibrePilot/commits/next.atom"
         query: "/feed/entry"
         namespaceDeclarations: "declare default element namespace 'http://www.w3.org/2005/Atom';
-                                declare namespace activity='http://activitystrea.ms/spec/1.0/';
-                                declare namespace media='http://purl.org/syndication/atommedia';"
+                                declare namespace media='http://search.yahoo.com/mrss/';"
 
         XmlRole { name: "author"; query: "author/name/string()" }
+        XmlRole { name: "authorEmail"; query: "author/email/string()" }
         XmlRole { name: "authorLink"; query: "author/uri/string()" }
-        XmlRole { name: "authorPhoto"; query: "author/link[@rel = 'photo' and @media:height='16']/@href/string()" }
+        XmlRole { name: "authorPhoto"; query: "media:thumbnail/@url/string()" }
 
-        XmlRole { name: "action"; query: "category/@term/string()" }
+        XmlRole { name: "action"; query: "substring-before(substring-after(id/string(),'::'),'/')" }
         XmlRole { name: "actionLink"; query: "link[@rel = 'alternate']/@href/string()" }
-        XmlRole { name: "actionTitle"; query: "activity:object/title/string()" }
-        XmlRole { name: "actionSummary"; query: "activity:object/summary/string()" }
-        XmlRole { name: "actionTargetTitle"; query: "activity:target/summary/string()" }
-        XmlRole { name: "actionTargetSummary"; query: "activity:target/summary/string()" }
-
-        XmlRole { name: "applicationIcon"; query: "link[@rel = 'http://streams.atlassian.com/syndication/icon']/@href/string()" }
+        XmlRole { name: "actionTitle"; query: "title/string()" }
     }
 
     Component {
@@ -101,7 +96,15 @@ Item {
                     }
                     Text {
                         id: name
-                        text: author
+                        text: {
+                            if (author != "") {
+                                author
+                            } else if (authorEmail != "") {
+                                authorEmail
+                            } else {
+                                "Unkown Author"
+                            }
+                        }
                         width: container.width - photo.width - icon.width - 24
                         color: mouseArea2.containsMouse ? "#224d81" : "black"
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -124,7 +127,8 @@ Item {
                         id: icon
                         width: 16
                         height: 16
-                        source: applicationIcon
+                        // No image for GitHub commits.
+                        // source: applicationIcon
                     }
                 }
                 Row {
@@ -150,6 +154,7 @@ Item {
                             case "closed": prefix = qsTr("Closed "); break;
                             case "abandon": prefix = qsTr("Abandoned "); break;
                             case "commit": prefix = qsTr("Committed "); break;
+                            case "Commit": prefix = qsTr("Committed "); break;
                             case "resolved": prefix = qsTr("Resolved "); break;
                             case "start": prefix = qsTr("Started "); break;
                             case "started": prefix = qsTr("Started working on "); break;
@@ -160,20 +165,7 @@ Item {
                             default: prefix = action.substr(0, 1).toUpperCase() + action.substr(1) + " " ; break;
                             }
                             prefix = "<font color='#224d81'>" + prefix + "</font>"
-                            if(action == "commented" || action == "comment" || (action == "" && actionSummary == "")) {
-                                if(actionTargetTitle != actionTargetSummary) {
-                                    prefix + actionTargetTitle + ": " + actionTargetSummary
-                                } else {
-                                    prefix + actionTargetTitle
-                                }
-                            }
-                            else {
-                                if(actionSummary == "") {
-                                    prefix + actionTitle
-                                } else {
-                                    prefix + actionTitle + ": " + actionSummary
-                                }
-                            }
+                            prefix + actionTitle
                         }
                         color: mouseArea3.containsMouse ? "#224d81" : "black"
                         MouseArea {

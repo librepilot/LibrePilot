@@ -111,10 +111,10 @@ ifeq ($(UNAME), Linux)
 else ifeq ($(UNAME), Darwin)
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
-    # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
+    # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
     PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
     NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
-    # When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/openpilotgcs/openpilotgcs.pri
+    # When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/gcs/gcs.pri
     SDL_DIR      := $(TOOLS_DIR)/SDL-1.2.15
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin

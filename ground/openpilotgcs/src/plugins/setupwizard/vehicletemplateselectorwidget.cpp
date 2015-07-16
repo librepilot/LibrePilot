@@ -76,7 +76,7 @@ bool VehicleTemplateSelectorWidget::selectedTemplateEditable() const
     if (ui->templateList->currentRow() >= 0) {
         return ui->templateList->item(ui->templateList->currentRow())->data(Qt::UserRole + 2).value<bool>();
     }
-    return NULL;
+    return false;
 }
 
 QString VehicleTemplateSelectorWidget::selectedTemplatePath() const
@@ -84,7 +84,7 @@ QString VehicleTemplateSelectorWidget::selectedTemplatePath() const
     if (ui->templateList->currentRow() >= 0) {
         return ui->templateList->item(ui->templateList->currentRow())->data(Qt::UserRole + 3).value<QString>();
     }
-    return NULL;
+    return "";
 }
 
 void VehicleTemplateSelectorWidget::updateTemplates()

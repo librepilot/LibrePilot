@@ -24,7 +24,7 @@ macx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
 }
 
-include(openpilotgcs.pri)
+include(gcs.pri)
 
 TEMPLATE  = subdirs
 CONFIG   += ordered

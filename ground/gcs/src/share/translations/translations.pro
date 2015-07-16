@@ -1,4 +1,4 @@
-include(../../../openpilotgcs.pri)
+include(../../../gcs.pri)
 
 # Commented languages with outdated translations
 # Allow removing the 'C' language in default config files at first start.

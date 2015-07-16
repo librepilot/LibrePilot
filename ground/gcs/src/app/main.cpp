@@ -29,7 +29,7 @@
 
 /*
    The GCS application name is defined in the top level makefile - GCS_BIG_NAME / GCS_SMALL_NAME, and
-   set for the build in ../../openpilotgcs.pri and ./app.pro
+   set for the build in ../../gcs.pri and ./app.pro
 
    The GCS locale is set to the system locale by default unless the "hidden" setting General/Locale has a value.
    The user can not change General/Locale from the Options dialog.

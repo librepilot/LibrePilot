@@ -104,7 +104,7 @@ void VehicleTemplateSelectorWidget::deleteSelectedTemplate()
                                   QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QFile fileToDelete(selectedTemplatePath());
             if (fileToDelete.remove()) {
-                QJsonObject* templObj = selectedTemplate();
+                QJsonObject *templObj = selectedTemplate();
                 if (templObj) {
                     VehicleTemplate *templ = m_templates[templObj->value("uuid").toString()];
                     m_templates.remove(templObj->value("uuid").toString());
@@ -120,6 +120,7 @@ void VehicleTemplateSelectorWidget::addTemplate()
 {
     QString path = QFileDialog::getOpenFileName(this, tr("Add settings"), QDir::homePath(),
                                                 tr("Vehicle Template Files (*.vtmpl *.optmpl)"));
+
     if (path != NULL) {
         QFile file(path);
 
@@ -132,7 +133,7 @@ void VehicleTemplateSelectorWidget::addTemplate()
                 if (airframeIsCompatible(json["type"].toInt(), json["subtype"].toInt())) {
                     QFileInfo fInfo(file);
                     QString destinationFilePath = QString("%1/%2").arg(Utils::InsertStoragePath("%%STOREPATH%%vehicletemplates"))
-                            .arg(getTemplatePath());
+                                                  .arg(getTemplatePath());
                     QDir dir;
                     if (dir.mkpath(destinationFilePath) && file.copy(QString("%1/%2").arg(destinationFilePath).arg(fInfo.fileName()))) {
                         updateTemplates();

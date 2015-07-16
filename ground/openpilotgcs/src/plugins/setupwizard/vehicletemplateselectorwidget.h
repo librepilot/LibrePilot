@@ -39,24 +39,27 @@ class VehicleTemplateSelectorWidget;
 class VehicleTemplate {
 public:
     VehicleTemplate(QJsonObject *templateObject, bool editable, QString templatePath) :
-    m_templateObject(templateObject), m_editable(editable), m_templatePath(templatePath) {
-    }
+        m_templateObject(templateObject), m_editable(editable), m_templatePath(templatePath) {}
 
-    ~VehicleTemplate() {
+    ~VehicleTemplate()
+    {
         if (m_templateObject) {
             delete m_templateObject;
         }
     }
 
-    QJsonObject *templateObject() {
+    QJsonObject *templateObject()
+    {
         return m_templateObject;
     }
 
-    bool editable() {
+    bool editable()
+    {
         return m_editable;
     }
 
-    QString templatePath() {
+    QString templatePath()
+    {
         return m_templatePath;
     }
 

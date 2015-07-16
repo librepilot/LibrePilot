@@ -253,7 +253,7 @@ SectionEnd
 
 Section ; create uninstall info
   ; Write the installation path into the registry
-  WriteRegStr HKCU "Software\OpenPilot" "Install Location" $INSTDIR
+  WriteRegStr HKCU "Software\${ORG_BIG_NAME}" "Install Location" $INSTDIR
 
    ; Write the uninstall keys for Windows
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "DisplayName" "${GCS_BIG_NAME}"
@@ -327,22 +327,22 @@ SectionEnd
 Section "un.Maps cache" UnSecCache
   ; Remove maps cache
   SetShellVarContext current
-  RMDir /r /rebootok "$LOCALAPPDATA\OpenPilot\${GCS_BIG_NAME}"
+  RMDir /r /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}"
   ; Only remove if no other versions have data here
-  RMDir /rebootok "$LOCALAPPDATA\OpenPilot"
+  RMDir /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}"
 SectionEnd
 
 Section "un.GCS Layout" UnSecConfig
   ; Remove GCS configuration files
   SetShellVarContext current
-  Delete /rebootok "$APPDATA\OpenPilot\${GCS_BIG_NAME}.db"
-  Delete /rebootok "$APPDATA\OpenPilot\${GCS_BIG_NAME}.xml"
+  Delete /rebootok "$APPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}.db"
+  Delete /rebootok "$APPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}.xml"
 SectionEnd
 
 Section "-un.Profile" UnSecProfile
-  ; Remove OpenPilot user profile subdirectory if empty
+  ; Remove ${ORG_BIG_NAME} user profile subdirectory if empty
   SetShellVarContext current
-  RMDir /rebootok "$APPDATA\OpenPilot"
+  RMDir /rebootok "$APPDATA\${ORG_BIG_NAME}"
 SectionEnd
 
 ;--------------------------------

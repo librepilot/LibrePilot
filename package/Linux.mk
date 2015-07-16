@@ -98,7 +98,6 @@ install:
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
-	$(V1) $(MKDIR) -p $(DESTDIR)$(udevdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/lib/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)

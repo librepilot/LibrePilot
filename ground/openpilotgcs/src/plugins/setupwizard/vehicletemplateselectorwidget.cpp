@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QMessageBox>
+#include <QFileDialog>
 #include "vehicletemplateexportdialog.h"
 #include "utils/pathutils.h"
 
@@ -43,6 +44,7 @@ VehicleTemplateSelectorWidget::VehicleTemplateSelectorWidget(QWidget *parent) :
     ui->templateImage->setScene(new QGraphicsScene());
     connect(ui->templateList, SIGNAL(itemSelectionChanged()), this, SLOT(templateSelectionChanged()));
     connect(ui->deleteTemplateButton, SIGNAL(clicked()), this, SLOT(deleteSelectedTemplate()));
+    connect(ui->addTemplateButton, SIGNAL(clicked()), this, SLOT(addTemplate()));
 }
 
 VehicleTemplateSelectorWidget::~VehicleTemplateSelectorWidget()
@@ -112,6 +114,42 @@ void VehicleTemplateSelectorWidget::deleteSelectedTemplate()
         }
     }
 }
+
+void VehicleTemplateSelectorWidget::addTemplate()
+{
+    QString path = QFileDialog::getOpenFileName(this, tr("Add settings"), QDir::homePath(),
+                                                tr("Vehicle Template Files (*.vtmpl *.optmpl)"));
+    if (path != NULL) {
+        QFile file(path);
+
+        if (file.open(QFile::ReadOnly)) {
+            QByteArray jsonData = file.readAll();
+            QJsonParseError error;
+            QJsonDocument templateDoc = QJsonDocument::fromJson(jsonData, &error);
+            if (error.error == QJsonParseError::NoError) {
+                QJsonObject json = templateDoc.object();
+                if (airframeIsCompatible(json["type"].toInt(), json["subtype"].toInt())) {
+                    QFileInfo fInfo(file);
+                    QString destinationFilePath = QString("%1/%2").arg(Utils::InsertStoragePath("%%STOREPATH%%vehicletemplates"))
+                            .arg(getTemplatePath());
+                    QDir dir;
+                    if (dir.mkpath(destinationFilePath) && file.copy(QString("%1/%2").arg(destinationFilePath).arg(fInfo.fileName()))) {
+                        updateTemplates();
+                    } else {
+                        QMessageBox::critical(this, tr("Error"), tr("The selected template file could not be added."));
+                    }
+                } else {
+                    QMessageBox::critical(this, tr("Error"), tr("The selected template file is not compatible with the current vehicle type."));
+                }
+            } else {
+                QMessageBox::critical(this, tr("Error"), tr("The selected template file is corrupt or of an unknown version."));
+            }
+        } else {
+            QMessageBox::critical(this, tr("Error"), tr("The selected template file could not be opened."));
+        }
+    }
+}
+
 void VehicleTemplateSelectorWidget::updatePhoto(QJsonObject *templ)
 {
     QPixmap photo;

@@ -103,6 +103,7 @@ private:
 private slots:
     void updateTemplates();
     void deleteSelectedTemplate();
+    void addTemplate();
 };
 
 Q_DECLARE_METATYPE(QJsonObject *)

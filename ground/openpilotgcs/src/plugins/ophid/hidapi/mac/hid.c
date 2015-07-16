@@ -252,7 +252,7 @@ static int get_string_property(IOHIDDeviceRef device, CFStringRef prop, wchar_t 
 			len * sizeof(wchar_t),
 			&used_buf_len);
 
-		if (chars_copied == len)
+		if ((size_t)chars_copied == len)
 			buf[len] = 0; /* len is decremented above */
 		else
 			buf[chars_copied] = 0;
@@ -292,7 +292,7 @@ static int get_string_property_utf8(IOHIDDeviceRef device, CFStringRef prop, cha
 			len,
 			&used_buf_len);
 
-		if (used_buf_len == len)
+		if ((size_t)used_buf_len == len)
 			buf[len] = 0; /* len is decremented above */
 		else
 			buf[used_buf_len] = 0;

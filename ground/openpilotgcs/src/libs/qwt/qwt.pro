@@ -17,9 +17,6 @@ include( qwtconfig.pri )
 TEMPLATE = subdirs
 CONFIG   += ordered
 
-# disable all warnings (no need for warnings as qwt sources are imported)
-CONFIG += warn_off
-
 SUBDIRS = \
     src \
 #    textengines \

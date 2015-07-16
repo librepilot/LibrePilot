@@ -63,8 +63,8 @@ public:
     void readSettings(QSettings *qs);
     void saveSettings(QSettings *qs);
     bool useExpertMode() const;
-    bool setCollectUsageData(bool collect);
-    bool setShowUsageDataDisclaimer(bool show);
+    void setCollectUsageData(bool collect);
+    void setShowUsageDataDisclaimer(bool show);
     void setLastUsageHash(QString hash);
 
 private slots:

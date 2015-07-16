@@ -100,6 +100,7 @@ bool VehicleConfigurationHelper::setupHardwareSettings(bool save)
 
 bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
 {
+    Q_UNUSED(dataObj);
     return true;
 }
 

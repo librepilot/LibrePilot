@@ -426,7 +426,7 @@ void LineardialGadgetWidget::moveIndex()
         dialTimer.stop();
         return;
     }
-    if ((abs((indexValue - indexTarget) * 10) > 3)) {
+    if ((abs(int((indexValue - indexTarget) * 10)) > 3)) {
         indexValue += (indexTarget - indexValue) / 5;
     } else {
         indexValue = indexTarget;

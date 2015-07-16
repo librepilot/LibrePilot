@@ -787,7 +787,7 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
 
             // Tricopter : Yaw mix slider value applies to servo (was fixed)
             // Get absolute MixerValueYaw, no servo reverse when Reverse All Motors is checked
-            setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_YAW, abs(getMixerValue(mixer, "MixerValueYaw")) * 1.27);
+            setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_YAW, abs(int(getMixerValue(mixer, "MixerValueYaw"))) * 1.27);
         }
 
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));

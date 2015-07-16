@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       main.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Team http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @brief
  * @see        The GNU Public License (GPL) Version 3
@@ -27,6 +28,9 @@
  */
 
 /*
+   The GCS application name is defined in the top level makefile - GCS_BIG_NAME / GCS_SMALL_NAME, and
+   set for the build in ../../openpilotgcs.pri and ./app.pro
+
    The GCS locale is set to the system locale by default unless the "hidden" setting General/Locale has a value.
    The user can not change General/Locale from the Options dialog.
 
@@ -42,10 +46,10 @@
    You can combine it with the -config-file=<file> command line argument to quickly switch between multiple settings files.
 
    [code]
-   openpilotgcs -reset -config-file ./MyOpenPilotGCS.xml
+   gcs -reset -config-file ./MyGCS.xml
    [/code]
 
-   Relative paths are relative to <install dir>/share/openpilotgcs/configurations/
+   Relative paths are relative to <install dir>/share/$(GCS_SMALL_NAME)/configurations/
 
    The specified file will be used to load the factory defaults from but only when the user settings are empty.
    If the user settings are not empty the file will not be used.
@@ -55,7 +59,7 @@
    Quickly switch configurations
 
    [code]
-   openpilotgcs -reset -config-file <relative or absolute path>
+   gcs -reset -config-file <relative or absolute path>
    [/code]
 
    Configuring GCS from installer
@@ -65,14 +69,14 @@
    If the user chooses to start GCS at the end of the installer:
 
    [code]
-   openpilotgcs -D General/OverrideLanguage=de
+   gcs -D General/OverrideLanguage=de
    [/code]
 
    If the user chooses not to start GCS at the end of the installer, you still need to configure GCS.
    In that case you can use -exit-after-config
 
    [code]
-   openpilotgcs -D General/OverrideLanguage=de -exit-after-config
+   gcs -D General/OverrideLanguage=de -exit-after-config
    [/code]
 
  */
@@ -301,6 +305,7 @@ inline QStringList getPluginPaths()
     QStringList rc;
 
     QString pluginPath = QApplication::applicationDirPath();
+
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String(PLUGIN_REL_PATH);
     rc.push_back(pluginPath);

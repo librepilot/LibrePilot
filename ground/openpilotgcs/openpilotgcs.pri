@@ -233,3 +233,13 @@ win32 {
     # The ((packet)) pragma is used in uav metadata struct and other places
     QMAKE_CXXFLAGS += -mno-ms-bitfields
 }
+
+# Stricter warnigs turned on for OS X.
+macx {
+    CONFIG += warn_on
+    !warn_off {
+        QMAKE_CXXFLAGS_WARN_ON += -Werror
+        QMAKE_CFLAGS_WARN_ON   += -Werror
+        QMAKE_CXXFLAGS_WARN_ON += -Wno-gnu-static-float-init
+    }
+}

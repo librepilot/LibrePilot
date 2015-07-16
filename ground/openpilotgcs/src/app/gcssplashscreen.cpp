@@ -38,7 +38,7 @@ GCSSplashScreen::GCSSplashScreen() :
     m_pixmap  = new QPixmap(":/app/splash.png");
 
     m_painter = new QPainter(m_pixmap);
-    m_painter->setPen(Qt::lightGray);
+    m_painter->setPen(Qt::darkGray);
     QFont font("Tahoma", 8);
     m_painter->setFont(font);
 
@@ -46,10 +46,10 @@ GCSSplashScreen::GCSSplashScreen() :
                         QString(" ") + VersionInfo::year() +
                         QString(tr(" The LibrePilot Project - All Rights Reserved")));
 
-    m_painter->drawText(405, 180, QString(CopyrightSymbol) +
+    m_painter->drawText(405, 182, QString(CopyrightSymbol) +
                         QString(tr(" 2010-2015 The OpenPilot Project - All Rights Reserved")));
 
-    m_painter->drawText(406, 183, 310, 100, Qt::TextWordWrap | Qt::AlignTop | Qt::AlignLeft,
+    m_painter->drawText(406, 186, 310, 100, Qt::TextWordWrap | Qt::AlignTop | Qt::AlignLeft,
                         QString(tr("GCS Revision - ")) + VersionInfo::revision());
     setPixmap(*m_pixmap);
 }
@@ -65,7 +65,7 @@ void GCSSplashScreen::drawMessageText(const QString &message)
     progressPainter.setPen(Qt::yellow);
     QFont font("Tahoma", 13);
     progressPainter.setFont(font);
-    progressPainter.drawText(300, 385, message);
+    progressPainter.drawText(300, 380, message);
     setPixmap(pix);
 }
 

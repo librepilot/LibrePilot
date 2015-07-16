@@ -279,7 +279,7 @@ bool GeneralSettings::useExpertMode() const
     return m_useExpertMode;
 }
 
-bool GeneralSettings::setCollectUsageData(bool collect)
+void GeneralSettings::setCollectUsageData(bool collect)
 {
     if (collect && collect != m_collectUsageData) {
         setShowUsageDataDisclaimer(true);
@@ -287,7 +287,7 @@ bool GeneralSettings::setCollectUsageData(bool collect)
     m_collectUsageData = collect;
 }
 
-bool GeneralSettings::setShowUsageDataDisclaimer(bool show)
+void GeneralSettings::setShowUsageDataDisclaimer(bool show)
 {
     m_showUsageDataDisclaimer = show;
 }

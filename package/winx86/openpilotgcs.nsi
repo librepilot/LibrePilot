@@ -232,19 +232,19 @@ Section "Shortcuts" InSecShortcuts
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
 	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot License.lnk" "$INSTDIR\LICENSE.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\License.lnk" "$INSTDIR\LICENSE.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot ReadMe.lnk" "$INSTDIR\README.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReadMe.lnk" "$INSTDIR\README.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Website.lnk" "http://www.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Website.lnk" "http://www.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Wiki.lnk" "http://wiki.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Wiki.lnk" "http://wiki.openpilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Forums.lnk" "http://forums.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forums.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
   	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"

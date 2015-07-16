@@ -3,7 +3,7 @@ TARGET = GLC_lib
 #VERSION = 2.2.0
 
 DEFINES += GLC_LIB_LIBRARY
-include(../../openpilotgcslibrary.pri)
+include(../../library.pri)
 
 QT += core opengl
 

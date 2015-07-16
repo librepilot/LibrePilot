@@ -33,7 +33,7 @@ DEFINES           += QWT_LIBRARY
 # defined.  Otherwise the debug version of the library
 # will not have the 'd' suffix it needs.
 #
-include(../../../openpilotgcslibrary.pri)
+include(../../../library.pri)
 
 # disable all warnings (no need for warnings as qwt sources are imported)
 CONFIG += warn_off

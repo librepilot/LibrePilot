@@ -11,7 +11,7 @@ QT += gui \
 
 DEFINES += QTCREATOR_UTILS_LIB
 
-include(../../openpilotgcslibrary.pri)
+include(../../library.pri)
 
 DEFINES += DATA_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_DATA_PATH, $$GCS_APP_PATH)\")
 

@@ -184,36 +184,8 @@ SectionEnd
 
 ; Copy GCS resources
 Section "-Resources" InSecResources
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\cloudconfig"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\cloudconfig\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\default_configurations"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\default_configurations\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\diagrams"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\diagrams\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\dials"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\dials\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\mapicons"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\mapicons\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\models"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\models\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\pfd"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\pfd\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\stylesheets"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\stylesheets\*"
-SectionEnd
-
-; Copy Notify plugin sound files
-Section "-Sound files" InSecSounds
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\sounds"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\sounds\*"
-SectionEnd
-
-; Copy localization files
-; Disabled until GCS source is stable and properly localized
-Section "-Localization" InSecLocalization
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\translations"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\translations\openpilotgcs_*.qm"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\translations\qt_*.qm"
+  SetOutPath "$INSTDIR\share"
+  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}"
 SectionEnd
 
 ; Copy utility files
@@ -305,8 +277,6 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecCore} $(DESC_InSecCore)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecPlugins} $(DESC_InSecPlugins)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecResources} $(DESC_InSecResources)
-    !insertmacro MUI_DESCRIPTION_TEXT ${InSecSounds} $(DESC_InSecSounds)
-    !insertmacro MUI_DESCRIPTION_TEXT ${InSecLocalization} $(DESC_InSecLocalization)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecUtilities} $(DESC_InSecUtilities)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecDrivers} $(DESC_InSecDrivers)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecInstallDrivers} $(DESC_InSecInstallDrivers)

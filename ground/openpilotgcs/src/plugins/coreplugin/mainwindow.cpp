@@ -94,6 +94,8 @@ using namespace Core::Internal;
 
 static const char *uriListMimeFormatC = "text/uri-list";
 
+const char *ORG_NAME(ORG_BIG_NAME);
+
 enum { debugMainWindow = 0 };
 
 MainWindow::MainWindow() :
@@ -747,7 +749,8 @@ void MainWindow::registerDefaultActions()
     connect(tmpaction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
 
     // Credits Action
-    tmpaction = new QAction(QIcon(Constants::ICON_PLUGIN), tr("About &LibrePilot..."), this);
+    
+    tmpaction = new QAction(QIcon(Constants::ICON_PLUGIN), tr("About &%1...").arg(ORG_NAME), this);
     cmd = am->registerAction(tmpaction, Constants::ABOUT_AUTHORS, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);

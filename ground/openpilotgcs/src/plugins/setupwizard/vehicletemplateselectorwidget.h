@@ -72,7 +72,7 @@ class VehicleTemplateSelectorWidget : public QWidget {
 public:
     explicit VehicleTemplateSelectorWidget(QWidget *parent = 0);
     ~VehicleTemplateSelectorWidget();
-    void setTemplateInfo(int vehicleType, int vehicleSubType);
+    void setTemplateInfo(int vehicleType, int vehicleSubType, bool showTemplateControls);
     QJsonObject *selectedTemplate() const;
 public slots:
     void templateSelectionChanged();

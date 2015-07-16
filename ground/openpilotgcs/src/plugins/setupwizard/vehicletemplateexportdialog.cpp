@@ -64,7 +64,7 @@ VehicleTemplateExportDialog::VehicleTemplateExportDialog(QWidget *parent) :
     m_uavoManager = pm->getObject<UAVObjectManager>();
     ui->Photo->setScene(new QGraphicsScene(this));
     ui->Type->setText(setupVehicleType());
-    ui->selectionWidget->setTemplateInfo(m_type, m_subType);
+    ui->selectionWidget->setTemplateInfo(m_type, m_subType, true);
 
     connect(ui->Name, SIGNAL(textChanged(QString)), this, SLOT(updateStatus()));
     connect(ui->Owner, SIGNAL(textChanged(QString)), this, SLOT(updateStatus()));

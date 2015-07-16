@@ -58,8 +58,9 @@ VehicleTemplateSelectorWidget::~VehicleTemplateSelectorWidget()
     delete ui;
 }
 
-void VehicleTemplateSelectorWidget::setTemplateInfo(int vehicleType, int vehicleSubType)
+void VehicleTemplateSelectorWidget::setTemplateInfo(int vehicleType, int vehicleSubType, bool showTemplateControls)
 {
+    ui->buttonFrame->setVisible(showTemplateControls);
     m_vehicleType    = vehicleType;
     m_vehicleSubType = vehicleSubType;
     updateTemplates();
@@ -297,6 +298,9 @@ void VehicleTemplateSelectorWidget::setupTemplateList()
         item->setData(Qt::UserRole + 2, QVariant::fromValue(vtemplate->editable()));
         if (vtemplate->editable()) {
             item->setData(Qt::ForegroundRole, QVariant::fromValue(QColor(Qt::darkGreen)));
+            item->setData(Qt::ToolTipRole, QVariant::fromValue(tr("Local template.")));
+        } else {
+            item->setData(Qt::ToolTipRole, QVariant::fromValue(tr("Built-in template.")));
         }
         item->setData(Qt::UserRole + 3, QVariant::fromValue(vtemplate->templatePath()));
     }

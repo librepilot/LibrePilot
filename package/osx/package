@@ -39,7 +39,7 @@ cp "${ROOT_DIR}/GPLv3.txt" "${SRC_DIR}/Docs/"
 --background "${ROOT_DIR}/package/osx/background.png" \
 --window-size 600 500 \
 --icon-size 60 \
---icon "Getting Started.webloc" 100 380 \
+--icon "Getting Started.webloc" 110 380 \
 --hide-extension "Getting Started.webloc"  \
 --icon "Docs" 250 380 \
 --icon "WHATSNEW.txt" 400 380 \

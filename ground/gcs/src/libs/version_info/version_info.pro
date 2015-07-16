@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = VersionInfo
 
-include(../../openpilotgcslibrary.pri)
+include(../../library.pri)
 include(../../python.pri)
 
 HEADERS = version_info.h

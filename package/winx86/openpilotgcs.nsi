@@ -182,6 +182,13 @@ Section "-Plugins" InSecPlugins
   File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\plugins\*.pluginspec"
 SectionEnd
 
+; Copy OSG libs
+Section "-OsgLibs" InSecOsgLibs
+  SectionIn RO
+  SetOutPath "$INSTDIR\lib\${GCS_SMALL_NAME}\osg"
+  File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\osg\*.dll"
+SectionEnd
+
 ; Copy GCS resources
 Section "-Resources" InSecResources
   SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\cloudconfig"

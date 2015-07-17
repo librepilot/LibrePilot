@@ -106,6 +106,7 @@
 #include <QtWidgets/QApplication>
 #include <QMainWindow>
 #include <QSplashScreen>
+#include <QSurfaceFormat>
 
 namespace {
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
@@ -252,11 +253,22 @@ void systemInit()
     getrlimit(RLIMIT_NOFILE, &rl);
     rl.rlim_cur = rl.rlim_max;
     setrlimit(RLIMIT_NOFILE, &rl);
-    QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
 #endif
-#ifdef Q_OS_LINUX
+
     QApplication::setAttribute(Qt::AA_X11InitThreads, true);
-#endif
+
+    // protect QQuickWidget from native widgets like GLC ModelView
+    // TODO revisit this...
+    QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
+
+    // Force "basic" render loop
+    // Only Mac uses "threaded" by default and that mode currently does not work well with OSGViewport
+    qputenv("QSG_RENDER_LOOP", "basic");
+
+    // disable vsync
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setSwapInterval(0);
+    QSurfaceFormat::setDefaultFormat(format);
 }
 
 static QTextStream *logStream;

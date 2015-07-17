@@ -248,3 +248,9 @@ macx {
         QMAKE_CXXFLAGS_WARN_ON += -Wno-gnu-static-float-init
     }
 }
+
+
+# use ccache when available
+QMAKE_CC = $$(CCACHE) $$QMAKE_CC
+QMAKE_CXX = $$(CCACHE) $$QMAKE_CXX
+

@@ -8,6 +8,10 @@ QT -= gui
 macx {
     QMAKE_CXXFLAGS  += -fpermissive
 }
+# use ccache when available
+QMAKE_CC = $$(CCACHE) $$QMAKE_CC
+QMAKE_CXX = $$(CCACHE) $$QMAKE_CXX
+
 TARGET = uavobjgenerator
 CONFIG += console
 CONFIG -= app_bundle

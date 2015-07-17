@@ -204,16 +204,9 @@ endif
 # Command to extract version info data from the repository and source tree
 export VERSION_INFO = $(PYTHON) $(ROOT_DIR)/make/scripts/version-info.py --path=$(ROOT_DIR)
 
-# check whether ccache is available
-ifneq  ($(UNAME), Windows)
-	CCACHE_VER := $(shell ccache --version 2>/dev/null)
-	ifdef CCACHE_VER
-		export CCACHE := ccache
-	endif
-else #Windows
-	export CCACHE :=
-endif
-##############################s
+export CCACHE
+
+##############################
 #
 # Misc settings
 #

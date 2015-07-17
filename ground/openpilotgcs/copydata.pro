@@ -23,6 +23,7 @@ equals(copyqt, 1) {
                   libQt5Multimedia.so.5 \
                   libQt5MultimediaWidgets.so.5 \
                   libQt5Quick.so.5 \
+                  libQt5QuickWidgets.so.5 \
                   libQt5Qml.so.5 \
                   libQt5DBus.so.5 \
                   libQt5QuickParticles.so.5 \
@@ -70,6 +71,7 @@ equals(copyqt, 1) {
                   Qt5Multimedia$${DS}.dll \
                   Qt5MultimediaWidgets$${DS}.dll \
                   Qt5Quick$${DS}.dll \
+                  Qt5QuickWidgets$${DS}.dll \
                   Qt5Qml$${DS}.dll \
                   icuin53.dll \
                   icudt53.dll \

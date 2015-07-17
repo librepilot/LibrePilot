@@ -51,6 +51,7 @@ SOURCES += \
     homelocationutil.cpp \
     mytabbedstackwidget.cpp \
     mytabwidget.cpp \
+    quickwidgetproxy.cpp \
     cachedsvgitem.cpp \
     svgimageprovider.cpp \
     hostosinfo.cpp \
@@ -114,6 +115,7 @@ HEADERS += \
     homelocationutil.h \
     mytabbedstackwidget.h \
     mytabwidget.h \
+    quickwidgetproxy.h \
     cachedsvgitem.h \
     svgimageprovider.h \
     hostosinfo.h \

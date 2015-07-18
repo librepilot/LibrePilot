@@ -140,6 +140,9 @@ else ifeq ($(UNAME), Windows)
     UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
 endif
 
+CONFIG_FILE := config
+-include $(CONFIG_FILE)
+
 ##############################
 #
 # All targets

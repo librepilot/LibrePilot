@@ -184,36 +184,8 @@ SectionEnd
 
 ; Copy GCS resources
 Section "-Resources" InSecResources
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\cloudconfig"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\cloudconfig\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\default_configurations"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\default_configurations\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\diagrams"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\diagrams\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\dials"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\dials\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\mapicons"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\mapicons\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\models"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\models\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\pfd"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\pfd\*"
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\stylesheets"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\stylesheets\*"
-SectionEnd
-
-; Copy Notify plugin sound files
-Section "-Sound files" InSecSounds
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\sounds"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\sounds\*"
-SectionEnd
-
-; Copy localization files
-; Disabled until GCS source is stable and properly localized
-Section "-Localization" InSecLocalization
-  SetOutPath "$INSTDIR\share\${GCS_SMALL_NAME}\translations"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\translations\openpilotgcs_*.qm"
-  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}\translations\qt_*.qm"
+  SetOutPath "$INSTDIR\share"
+  File /r "${GCS_BUILD_TREE}\share\${GCS_SMALL_NAME}"
 SectionEnd
 
 ; Copy utility files
@@ -260,19 +232,19 @@ Section "Shortcuts" InSecShortcuts
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
 	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot License.lnk" "$INSTDIR\LICENSE.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\License.lnk" "$INSTDIR\LICENSE.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot ReadMe.lnk" "$INSTDIR\README.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReadMe.lnk" "$INSTDIR\README.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Website.lnk" "http://www.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Website.lnk" "http://www.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Wiki.lnk" "http://wiki.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Wiki.lnk" "http://wiki.openpilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\OpenPilot Forums.lnk" "http://forums.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forums.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
   	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
@@ -281,7 +253,7 @@ SectionEnd
 
 Section ; create uninstall info
   ; Write the installation path into the registry
-  WriteRegStr HKCU "Software\OpenPilot" "Install Location" $INSTDIR
+  WriteRegStr HKCU "Software\${ORG_BIG_NAME}" "Install Location" $INSTDIR
 
    ; Write the uninstall keys for Windows
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "DisplayName" "${GCS_BIG_NAME}"
@@ -305,8 +277,6 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecCore} $(DESC_InSecCore)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecPlugins} $(DESC_InSecPlugins)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecResources} $(DESC_InSecResources)
-    !insertmacro MUI_DESCRIPTION_TEXT ${InSecSounds} $(DESC_InSecSounds)
-    !insertmacro MUI_DESCRIPTION_TEXT ${InSecLocalization} $(DESC_InSecLocalization)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecUtilities} $(DESC_InSecUtilities)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecDrivers} $(DESC_InSecDrivers)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecInstallDrivers} $(DESC_InSecInstallDrivers)
@@ -357,22 +327,22 @@ SectionEnd
 Section "un.Maps cache" UnSecCache
   ; Remove maps cache
   SetShellVarContext current
-  RMDir /r /rebootok "$LOCALAPPDATA\OpenPilot\${GCS_BIG_NAME}"
+  RMDir /r /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}"
   ; Only remove if no other versions have data here
-  RMDir /rebootok "$LOCALAPPDATA\OpenPilot"
+  RMDir /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}"
 SectionEnd
 
 Section "un.GCS Layout" UnSecConfig
   ; Remove GCS configuration files
   SetShellVarContext current
-  Delete /rebootok "$APPDATA\OpenPilot\${GCS_BIG_NAME}.db"
-  Delete /rebootok "$APPDATA\OpenPilot\${GCS_BIG_NAME}.xml"
+  Delete /rebootok "$APPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}.db"
+  Delete /rebootok "$APPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}.xml"
 SectionEnd
 
 Section "-un.Profile" UnSecProfile
-  ; Remove OpenPilot user profile subdirectory if empty
+  ; Remove ${ORG_BIG_NAME} user profile subdirectory if empty
   SetShellVarContext current
-  RMDir /rebootok "$APPDATA\OpenPilot"
+  RMDir /rebootok "$APPDATA\${ORG_BIG_NAME}"
 SectionEnd
 
 ;--------------------------------

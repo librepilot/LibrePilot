@@ -92,6 +92,7 @@ enum eBoardType {
     eBoardMainbrd = 1,
     eBoardINS,
     eBoardPip     = 3,
+    eBoardCC = 4,
     eBoardRevo    = 9,
 };
 

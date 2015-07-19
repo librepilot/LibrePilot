@@ -29,6 +29,7 @@
 #define XPLANESIMULATOR10_H
 
 #include <QObject>
+#include <QDataStream>
 #include <simulator.h>
 
 class XplaneSimulator10 : public Simulator {

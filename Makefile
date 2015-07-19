@@ -60,10 +60,10 @@ smallify = $(subst $(SPACE),-,$(call lc,$1))
 
 # Naming for binaries and packaging etc,.
 ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
+GCS_BIG_NAME = ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
-GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
+ORG_SMALL_NAME = $(call smallify,$(ORG_BIG_NAME))
+GCS_SMALL_NAME = $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release

@@ -79,7 +79,7 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>The language change will take effect after a restart of the %1.</source>
+        <source>The language change will take effect after a restart of %1.</source>
         <translation>Le changement de langue ne prendra effet qu&apos;après le redémarrage de %1.</translation>
     </message>
     <message>
@@ -115,12 +115,12 @@
     <message>
         <location/>
         <source>Automatically connect a compatible USB device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Connecter automatiquement un périphérique USB compatible :</translation>
     </message>
     <message>
         <location/>
         <source>Automatically select a compatible USB device:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner automatiquement un périphérique USB compatible :</translation>
     </message>
 </context>
 <context>

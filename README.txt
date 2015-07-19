@@ -40,3 +40,5 @@ make all_sdk_install
 make all
 
 Both development environment and GCS are supported on Windows, Linux and Mac OS X
+
+Join the chat at https://gitter.im/librepilot/LibrePilot

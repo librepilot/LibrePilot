@@ -35,12 +35,13 @@ Item {
 
     XmlListModel {
         id: xmlModel
-        source: "http://www.openpilot.org/feed/"
-        query: "/rss/channel/item"
+        source: "http://forum.librepilot.org/index.php?board=11.0&amp;action=.xml&amp;type=atom&amp;sa=news"
+        query: "/feed/entry"
+        namespaceDeclarations: "declare default element namespace 'http://www.w3.org/2005/Atom';"
 
         XmlRole { name: "title"; query: "title/string()" }
-        XmlRole { name: "description"; query: "description/string()" }
-        XmlRole { name: "link"; query: "link/string()" }
+        XmlRole { name: "description"; query: "summary/string()" }
+        XmlRole { name: "link"; query: "link/@href/string()" }
     }
 
     Component {
@@ -64,7 +65,7 @@ Item {
                 Text {
                     text: description
                     width: view.width - 4
-                    textFormat: text.indexOf("&") > 0 ? Text.StyledText : Text.PlainText
+                    textFormat: Text.RichText
                     maximumLineCount: 3
                     wrapMode: Text.WordWrap
                     elide: Text.ElideRight

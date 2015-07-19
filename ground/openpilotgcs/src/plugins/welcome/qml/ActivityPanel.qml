@@ -102,7 +102,7 @@ Item {
                             } else if (authorEmail != "") {
                                 authorEmail
                             } else {
-                                "Unkown Author"
+                                "Unknown Author"
                             }
                         }
                         width: container.width - photo.width - icon.width - 24

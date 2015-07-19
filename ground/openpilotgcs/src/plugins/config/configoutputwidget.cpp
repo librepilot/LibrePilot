@@ -354,7 +354,11 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
     if (utilMngr) {
         int board = utilMngr->getBoardModel();
         // Setup labels and combos for banks according to board type
-        if (board == 0x0903) {
+        if ((board & 0xff00) == 0x0400) {
+            // Coptercontrol family of boards 4 timer banks
+            bankLabels << "1 (1-3)" << "2 (4)" << "3 (5,7-8)" << "4 (6,9-10)";
+            channelBanks << 1 << 1 << 1 << 2 << 3 << 4 << 3 << 3 << 4 << 4;
+        } else if (board == 0x0903) {
             // Revolution family of boards 6 timer banks
             bankLabels << "1 (1-2)" << "2 (3)" << "3 (4)" << "4 (5-6)" << "5 (7,12)" << "6 (8-11)";
             channelBanks << 1 << 1 << 2 << 3 << 4 << 4 << 5 << 6 << 6 << 6 << 6 << 5;
@@ -472,7 +476,10 @@ void ConfigOutputWidget::updateWarnings(UAVObject *)
     if (systemAlarms.Alarm[SystemAlarms::ALARM_SYSTEMCONFIGURATION] > SystemAlarms::ALARM_WARNING) {
         switch (systemAlarms.ExtendedAlarmStatus[SystemAlarms::EXTENDEDALARMSTATUS_SYSTEMCONFIGURATION]) {
         case SystemAlarms::EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT:
-            setWarning(tr("OneShot and PWMSync output DO NOT work with Receiver Port is 'PWM'<br>"));
+            setWarning(tr("OneShot and PWMSync output only works with Receiver Port settings marked with '+OneShot'<br>"
+                          "When using Receiver Port setting 'PPM_PIN8+OneShot' "
+                          "<b><font color='%1'>Bank %2</font></b> must be set to PWM")
+                       .arg(m_banks.at(3).color().name()).arg(m_banks.at(3).label()->text()));
             return;
         }
     }

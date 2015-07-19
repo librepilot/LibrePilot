@@ -100,8 +100,15 @@ bool VehicleConfigurationHelper::setupHardwareSettings(bool save)
 
 bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
 {
-    Q_UNUSED(dataObj);
+    switch (m_configSource->getControllerType()) {
+    case VehicleConfigurationSource::CONTROLLER_CC:
+    case VehicleConfigurationSource::CONTROLLER_CC3D:
+        if (dataObj->getName() == "EKFConfiguration") {
+            return false;
+        }
+    default:
     return true;
+}
 }
 
 void VehicleConfigurationHelper::addModifiedObject(UAVDataObject *object, QString description)
@@ -129,6 +136,39 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
     data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 0;
 
     switch (m_configSource->getControllerType()) {
+    case VehicleConfigurationSource::CONTROLLER_CC:
+    case VehicleConfigurationSource::CONTROLLER_CC3D:
+        // Reset all ports
+        data.CC_RcvrPort  = HwSettings::CC_RCVRPORT_DISABLEDONESHOT;
+
+        // Default mainport to be active telemetry link
+        data.CC_MainPort  = HwSettings::CC_MAINPORT_TELEMETRY;
+
+        data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DISABLED;
+        switch (m_configSource->getInputType()) {
+        case VehicleConfigurationSource::INPUT_PWM:
+            data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PWMNOONESHOT;
+            break;
+        case VehicleConfigurationSource::INPUT_PPM:
+            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_SYNCHED) {
+                data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PPM_PIN8ONESHOT;
+            } else {
+                data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PPMNOONESHOT;
+            }
+            break;
+        case VehicleConfigurationSource::INPUT_SBUS:
+            // We have to set teletry on flexport since s.bus needs the mainport.
+            data.CC_MainPort  = HwSettings::CC_MAINPORT_SBUS;
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_TELEMETRY;
+            break;
+        case VehicleConfigurationSource::INPUT_DSM:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSM;
+            break;
+        default:
+            break;
+        }
+        break;
     case VehicleConfigurationSource::CONTROLLER_REVO:
     case VehicleConfigurationSource::CONTROLLER_NANO:
     case VehicleConfigurationSource::CONTROLLER_DISCOVERYF4:
@@ -597,6 +637,20 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
         addModifiedObject(accelGyroSettings, tr("Writing gyro and accelerometer bias settings"));
 
         switch (m_configSource->getControllerType()) {
+        case VehicleConfigurationSource::CONTROLLER_CC:
+        case VehicleConfigurationSource::CONTROLLER_CC3D:
+        {
+            AttitudeSettings *copterControlCalibration = AttitudeSettings::GetInstance(m_uavoManager);
+            Q_ASSERT(copterControlCalibration);
+            AttitudeSettings::DataFields data = copterControlCalibration->getData();
+
+            data.AccelTau = DEFAULT_ENABLED_ACCEL_TAU;
+            data.BiasCorrectGyro = AttitudeSettings::BIASCORRECTGYRO_TRUE;
+
+            copterControlCalibration->setData(data);
+            addModifiedObject(copterControlCalibration, tr("Writing board settings"));
+            break;
+        }
         case VehicleConfigurationSource::CONTROLLER_REVO:
         case VehicleConfigurationSource::CONTROLLER_NANO:
         {

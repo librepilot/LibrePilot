@@ -21,8 +21,8 @@
     </message>
     <message>
         <location line="+41"/>
-        <source>OpenPilot GCS - Plugin loader messages</source>
-        <translation>OpenPilot GCS - Messages du chargeur de modules complémentaires</translation>
+        <source>%1 - Plugin loader messages</source>
+        <translation>%1 - Messages du chargeur de modules complémentaires</translation>
     </message>
 </context>
 <context>
@@ -79,8 +79,8 @@
     </message>
     <message>
         <location line="+1"/>
-        <source>The language change will take effect after a restart of the %1 GCS.</source>
-        <translation>Le changement de langue ne prendra effet qu&apos;après le redémarrage de %1 GCS.</translation>
+        <source>The language change will take effect after a restart of the %1.</source>
+        <translation>Le changement de langue ne prendra effet qu&apos;après le redémarrage de %1.</translation>
     </message>
     <message>
         <location filename="../../plugins/coreplugin/generalsettings.ui"/>
@@ -111,14 +111,6 @@
         <location/>
         <source>Use UDP Mirror:</source>
         <translation>Utiliser Miroir UDP :</translation>
-    </message>
-    <message>
-        <source>Automatically connect an USB device:</source>
-        <translation type="vanished">Connecter automatiquement un périphérique USB :</translation>
-    </message>
-    <message>
-        <source>Automatically select an USB device:</source>
-        <translation type="vanished">Sélectionner automatiquement un périphérique USB :</translation>
     </message>
     <message>
         <location/>
@@ -174,12 +166,7 @@
         <translation>Enregistrer Paramètres &amp;GCS par Défaut</translation>
     </message>
     <message>
-        <location line="-433"/>
-        <source>%1 GCS </source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+444"/>
+        <location line="+11"/>
         <source>Ctrl+Q</source>
         <translation>Ctrl+Q</translation>
     </message>
@@ -1467,10 +1454,6 @@ Raison : %3</translation>
         <location line="+60"/>
         <source>Update Available: %1</source>
         <translation>Mise à jour disponible : %1</translation>
-    </message>
-    <message>
-        <source>LibrePilot GCS Version: %1 </source>
-        <translation type="vanished">LibrePilot GCS Version: %1 </translation>
     </message>
     <message>
         <location filename="../../plugins/welcome/welcomemode.h" line="+73"/>
@@ -5639,12 +5622,6 @@ La même valeur est utilisé pour tous les axes.</translation>
         <translation>Vous renvoie à la page wiki</translation>
     </message>
     <message>
-        <source>Send to OpenPilot but don&apos;t write in SD.
-Beware of not locking yourself out!</source>
-        <translation type="vanished">Envoie vers l&apos;OpenPilot mais n&apos;écrit pas dans la SD.
-Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
-    </message>
-    <message>
         <location/>
         <source>Apply</source>
         <translation>Appliquer</translation>
@@ -6110,24 +6087,6 @@ accéléromètres dans la mémoire Flash de la carte.</translation>
         <translation>Formulaire</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:600;&quot;&gt;Attitude Calibration&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt;&quot;&gt;This panel will be updated to provide the relevant controls to let you calibrate your unit, depending on the board which is detected once telemetry is connected and running.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:600;&quot;&gt;Calibration Attitude&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt;&quot;&gt;Ce panneau sera mis à jour pour vous fournir les contrôles pertinents afin de vous permettre de calibrer votre appareil en fonction de la carte détectée, une fois que la télémétrie est connectée et en cours d&apos;exécution.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -6332,12 +6291,6 @@ Réglé à 0 pour désactiver l&apos;option (conseillé pour les planeurs).</tra
         <location/>
         <source>Takes you to the wiki page</source>
         <translation>Vous renvoie à la page wiki</translation>
-    </message>
-    <message>
-        <source>Send to OpenPilot but don&apos;t write in SD.
-Be sure to set the Neutral position on all sliders before sending!</source>
-        <translation type="vanished">Envoie vers OpenPilot mais n&apos;écrit pas dans la SD.
-Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !</translation>
     </message>
     <message>
         <location/>
@@ -6709,12 +6662,6 @@ Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !
         <location/>
         <source>Takes you to the wiki page</source>
         <translation>Vous renvoie à la page wiki</translation>
-    </message>
-    <message>
-        <source>Send to OpenPilot but don&apos;t write in SD.
-Be sure to set the Neutral position on all sliders before sending!</source>
-        <translation type="vanished">Envoie vers OpenPilot mais n&apos;écrit pas dans la SD.
-Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !</translation>
     </message>
     <message>
         <location/>
@@ -9330,24 +9277,6 @@ p, li { white-space: pre-wrap; }
         <translation>Déconnecter</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot Board Identification&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To continue, the wizard needs to determine the configuration required for the type of OpenPilot controller you have. When connected, the wizard will attempt to automatically detect the type of board.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;If the board is already connected and successfully detected, the board type will already be displayed. You can &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600;&quot;&gt;Disconnect&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; and select another device if you need to detect another board.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;If your board is not connected, please connect the board to a USB port on your computer and select the device from the list below. Then press &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600;&quot;&gt;Connect&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Identification de la Carte OpenPilot&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Avant de continuer l&apos;assistant doit déterminer la configuration nécessaire à la carte OpenPilot que vous possédez. Lors de la connexion, l&apos;assistant va essayer de déterminer automatiquement le type de carte.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Si la carte est déjà connectée et détectée avec succès, le type de carte est déjà affiché. Vous pouvez appuyer sur &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600;&quot;&gt;Déconnecter&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; et sélectionner une autre carte si besoin.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Si votre carte n&apos;est pas connectée, veuillez brancher cotre carte sur le port USB de votre ordinateur et la sélectionner dans la liste ci-dessous. Appuyez ensuite sur &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600;&quot;&gt;Connecter&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location filename="../../plugins/setupwizard/pages/controllerpage.ui"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -9369,18 +9298,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>FixedWingPage</name>
-    <message>
-        <source>OpenPilot Fixed-wing Configuration</source>
-        <translation type="vanished">Configuration OpenPilot - Voilure fixe</translation>
-    </message>
-    <message>
-        <source>This part of the wizard will set up the OpenPilot controller for use with a fixed-wing flying aircraft utilizing servos. The wizard supports the most common types of fixed-wing aircraft, other variants of fixed-wing aircraft can be configured by using custom configuration options in the Configuration plugin in the GCS.
-
-Please select the type of fixed-wing you want to create a configuration for below:</source>
-        <translation type="vanished">Cette partie de l&apos;assistant va configurer le contrôleur OpenPilot pour utiliser une voilure fixe avec des servos. L&apos;assistant supporte les types de voilure fixe les plus communs, d&apos;autres variantes de voilures fixes peuvent être configurées dans l&apos;onglet &quot;Véhicule&quot; &gt; &quot;Personnalisé&quot; du plugin de configuration de GCS.
-
-Veuillez sélectionner la configuration de voilure fixe désirée ci-dessous :</translation>
-    </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/fixedwingpage.cpp" line="+51"/>
         <source>Fixed-wing Configuration</source>
@@ -9444,10 +9361,6 @@ Veuillez sélectionner la configuration de voilure fixe désirée ci-dessous :</
         <translation>Page d&apos;Assistant</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;The Helicopter section of the OpenPilot Setup Wizard is not yet implemented&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;La partie Hélicoptère de l&apos;Assistant de Configuration OpenPilot n&apos;est pas encore implémentée&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;The Helicopter section of the Setup Wizard is not yet implemented&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;La partie Hélicoptère de l&apos;Assistant de Configuration n&apos;est pas encore implémentée&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -9499,22 +9412,6 @@ Veuillez sélectionner la configuration de voilure fixe désirée ci-dessous :</
         <location/>
         <source>DSM Sat</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot Input Signal Configuration&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The OpenPilot controller supports many different types of input signals. Please select the type of input that matches your receiver configuration. If you are unsure, just leave the default option selected and continue the wizard.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Some input options require the OpenPilot controller to be rebooted before the changes can take place. If an option that requires a reboot is selected, you will be instructed to do so on the next page of this wizard.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration OpenPilot des Signaux d&apos;Entrée&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Le contrôleur OpenPilot supporte plusieurs types de signaux d&apos;entrée. Veuillez sélectionner le type d&apos;entrée qui correspond à votre configuration de récepteur. Si vous avez un doute, laissez l&apos;option sélectionnée par défaut et continuez l&apos;assistant.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Certaines configurations demandent un redémarrage du contrôleur OpenPilot pour que les changements soient effectifs. Vous serrez informé si un redémarrage est nécessaire à l&apos;écran suivant de cet assistant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -9626,18 +9523,6 @@ Veuillez sélectionner le type de multirotor désiré pour la configuration ci-d
         <translation>Hexacoptère X</translation>
     </message>
     <message>
-        <source>OpenPilot Multirotor Configuration</source>
-        <translation type="vanished">Configuration Multirotor OpenPilot</translation>
-    </message>
-    <message>
-        <source>This part of the wizard will set up the OpenPilot controller for use with a flying platform utilizing multiple rotors. The wizard supports the most common types of multirotors. Other variants of multirotors can be configured by using custom configuration options in the Configuration plugin in the GCS.
-
-Please select the type of multirotor you want to create a configuration for below:</source>
-        <translation type="vanished">Cette partie de l&apos;assistant va permettre le configuration du contrôleur OpenPilot pour fonctionner avec des plateformes volantes utilisant plusieurs moteurs. L&apos;assistant supporte les types de configurations les plus courants. D&apos;autres variantes de multirotors peuvent être configurées dans l&apos;onglet &quot;Véhicule&quot; &gt; &quot;Personnalisé&quot; du plugin de configuration de GCS.
-
-Veuillez sélectionner le type de multirotor désiré pour la configuration ci-dessous :</translation>
-    </message>
-    <message>
         <location line="+5"/>
         <source>Hexacopter H</source>
         <translation>Hexacoptère H</translation>
@@ -9649,11 +9534,6 @@ Veuillez sélectionner le type de multirotor désiré pour la configuration ci-d
         <location filename="../../plugins/setupwizard/pages/notyetimplementedpage.ui"/>
         <source>WizardPage</source>
         <translation>Page d&apos;Assistant</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;This section of the OpenPilot Setup Wizard is not yet implemented&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Cette partie de l&apos;Assistant de Configuration OpenPilot n&apos;est pas encore implémentée&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
     </message>
     <message>
         <location/>
@@ -9704,10 +9584,10 @@ Veuillez sélectionner le type de multirotor désiré pour la configuration ci-d
         <location line="-59"/>
         <source>The actuator module is in an error state.
 
-Please make sure the correct firmware version is used then restart the wizard and try again. If the problem persists please consult the openpilot.org support forum.</source>
+Please make sure the correct firmware version is used then restart the wizard and try again. If the problem persists please consult the librepilot.org support forum.</source>
         <translation>Le module de sortie est dans un état d&apos;erreur.
 
-Soyez certain d&apos;utiliser la bonne version de firmware puis redémarrer l&apos;assistant et essayez à nouveau. Si le problème persiste, consultez le forum openpilot.org.</translation>
+Soyez certain d&apos;utiliser la bonne version de firmware puis redémarrer l&apos;assistant et essayez à nouveau. Si le problème persiste, consultez le forum librepilot.org.</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -9738,23 +9618,6 @@ Soyez certain d&apos;utiliser la bonne version de firmware puis redémarrer l&ap
         <location/>
         <source>Max</source>
         <translation>Maxi</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;It is now time to calibrate the output levels for the signals controlling your vehicle. &lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;VERY IMPORTANT!&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;REMOVE ALL PROPELLERS FROM THE VEHICLE BEFORE PROCEEDING!&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;Connect all components according to the illustration on the summary page, and provide power using an external power supply such as a battery before continuing.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;Depending on what vehicle you have selected, both the motors controlled by ESCs and/or servos controlled directly by the OpenPilot controller may have to be calibrated. The following steps will guide you safely through this process. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;Il est à présent temps de calibrer les niveaux de sortie des signaux contrôlant votre véhicule. &lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;TRES IMPORTANT !&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;ENLEVER TOUTES LES HELICES DE VOTRE VEHICULE AVANT DE CONTINUER !&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;Branchez tous les composants comme sur l&apos;illustration dans la page de résumé et alimentez avec une source externe comme une batterie avant de continuer.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;En fonction du véhicule que vous avez sélectionné, les moteurs pilotés par des variateurs et/ou les servos contrôlés directement par la carte OpenPilot devront-être calibrés. Les étapes suivantes vous guideront en toute sécurité dans ce processus.  &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -9842,30 +9705,6 @@ p, li { white-space: pre-wrap; }
         <translation>Prêt...</translation>
     </message>
     <message>
-        <source>An OpenPilot controller must be connected to your computer to save the configuration.
-Please connect your OpenPilot controller to your computer and try again.</source>
-        <translation type="vanished">Un contrôleur OpenPilot doit être connecté à votre PC pour enregistrer la configuration.
-Connectez votre carte OpenPilot et essayez à nouveau.</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot configuration ready to save&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The wizard is now ready to save the configuration directly to your OpenPilot controller. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;If any of the selections made in this wizard require a reboot of the controller, then power cycling the OpenPilot controller board will have to be performed after you save in this step.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Press the Save button to save the configuration.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration OpenPilot prête à être enregistrée&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;L&apos;assistant est maintenant prêt à enregistrer les paramètres directement dans votre carte contrôleur OpenPilot.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Si une des sélections nécessite un redémarrage de la carte contrôleur, alors vous devrez éteindre / allumer la carte contrôleur OpenPilot après avoir enregistré dans cette étape.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Appuyer sur le bouton Enregistrer pour enregistrer la configuration.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -9906,24 +9745,6 @@ Connectez votre carte et essayez à nouveau.</translation>
         <translation>Afficher le diagramme de branchement pour la configuration</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot Configuration Summary&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The first part of this wizard is now complete. All information required to create a basic OpenPilot controller configuration for a specific vehicle has been collected.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Below is a summary of the configuration and a button that links to a diagram illustrating how to connect required hardware and the OpenPilot Controller with the current configuration.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The following steps require that your OpenPilot controller is connected according to the diagram, remains connected to the computer by USB, and that you have a battery ready but &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600;&quot;&gt;do not&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; connect it right now, you will be told when to in later steps of this wizard.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Sommaire Configuration OpenPilot&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;La première partie de l&apos;assistant est à présent terminée. Toutes les informations nécessaires à une configuration de base du contrôleur OpenPilot pour un appareil spécifique ont été collectées.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Ci-dessous vous trouverez un résumé de la configuration et un bouton qui permet d&apos;afficher un schéma de câblage représentant les branchements nécessaires entre le matériel et le contrôleur OpenPilot pour la configuration actuelle.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Les étapes suivantes requièrent que le contrôleur OpenPilot soit branché comme sur le schéma de câblage, actuellement connecté à l&apos;ordinateur en USB et que vous avez une batterie à disposition mais &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600;&quot;&gt;pas encore branchée.&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt; Il vous sera demandé d&apos;effectuer le branchement lors des étapes suivantes de cet assistant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -9949,22 +9770,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../../plugins/setupwizard/pages/surfacepage.ui"/>
         <source>WizardPage</source>
         <translation>Page d&apos;Assistant</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;The Surface Vehicle section of the OpenPilot Setup Wizard is not yet implemented&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;La partie Véhicule roulant de l&apos;Assistant de Configuration OpenPilot n&apos;est pas encore implémentée&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>OpenPilot Ground Vehicle Configuration</source>
-        <translation type="vanished">Configuration Véhicule Terrestre OpenPilot</translation>
-    </message>
-    <message>
-        <source>This part of the wizard will set up the OpenPilot controller for use with a ground vehicle utilizing servos. The wizard supports the most common types of ground vehicle, other variants can be configured by using custom configuration options in the Configuration plugin in the GCS.
-
-Please select the type of ground vehicle you want to create a configuration for below:</source>
-        <translation type="vanished">Cette partie de l&apos;assistant va permettre le configuration du contrôleur OpenPilot pour fonctionner avec des véhicules terrestres utilisant plusieurs moteurs/servos. L&apos;assistant supporte les types de configurations les plus courants. D&apos;autres variantes de véhicules peuvent être configurées dans l&apos;onglet &quot;Véhicule&quot; &gt; &quot;Personnalisé&quot; du plugin de configuration de GCS.
-
-Veuillez sélectionner le type de véhicule terrestre dont vous voulez créer la configuration ci-dessous :</translation>
     </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/surfacepage.cpp" line="+51"/>
@@ -10062,42 +9867,6 @@ Veuillez sélectionner le type de véhicule terrestre dont vous voulez créer la
         <location/>
         <source>Surface</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Vehicle Type Selection&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To continue, the wizard needs to know what type of vehicle the OpenPilot controller board is going to be used with. This step is crucial since much of the following configuration is unique per vehicle type.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Go ahead and select the type of vehicle for which you want to create a configuration.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The current version only provides functionality for Multirotors and Fixed-wing aircraft.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Sélection Type Véhicule&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Pour continuer, l&apos;assistant doit connaître le type de véhicule utilisé avec la carte contrôleur OpenPilot. Cette étape est cruciale et va déterminer la configuration à mettre en place en fonction du type de véhicule.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Poursuivez et sélectionnez le type de véhicule désiré pour créer la configuration.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;La version actuelle supporte les Multirotors et les Voilures Fixes.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Vehicle Type Selection&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To continue, the wizard needs to know what type of vehicle the flight controller board is going to be used with. This step is crucial since much of the following configuration is unique per vehicle type.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Go ahead and select the type of vehicle for which you want to create a configuration.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The current version only provides functionality for Multirotors and Fixed-wing aircraft.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Sélection Type Véhicule&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Pour continuer, l&apos;assistant doit connaître le type de véhicule utilisé avec la carte contrôleur. Cette étape est cruciale et va déterminer la configuration à mettre en place en fonction du type de véhicule.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Poursuivez et sélectionnez le type de véhicule désiré pour créer la configuration.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;La version actuelle supporte les Multirotors et les Voilures Fixes.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -11233,10 +11002,6 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>SetupWizard</name>
     <message>
-        <source>OpenPilot Setup Wizard</source>
-        <translation type="vanished">Assistant Configuration OpenPilot</translation>
-    </message>
-    <message>
         <location filename="../../plugins/setupwizard/setupwizard.cpp" line="+64"/>
         <source>Setup Wizard</source>
         <translation>Assistant de Configuration</translation>
@@ -11906,10 +11671,6 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Expiration du temps d&apos;attente lors du démarrage.</translation>
     </message>
     <message>
-        <source>Please disconnect your OpenPilot board.</source>
-        <translation type="vanished">Veuillez déconnecter votre carte OpenPilot.</translation>
-    </message>
-    <message>
         <location line="+68"/>
         <location line="+7"/>
         <location line="+8"/>
@@ -11918,27 +11679,15 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Sauvetage Système</translation>
     </message>
     <message>
-        <source>Please connect your OpenPilot board.</source>
-        <translation type="vanished">Veuillez connecter votre carte OpenPilot.</translation>
-    </message>
-    <message>
         <location line="-8"/>
         <source>Board must be connected to the USB port!</source>
         <translation>La carte doit être connectée à un port USB !</translation>
-    </message>
-    <message>
-        <source>Waiting for all OpenPilot boards to be disconnected from USB.</source>
-        <translation type="vanished">Attente de la déconnexion de toutes les cartes connectées en USB.</translation>
     </message>
     <message>
         <location line="+159"/>
         <location line="+7"/>
         <source>Timing out in %1 seconds</source>
         <translation>Expiration dans %1 secondes</translation>
-    </message>
-    <message>
-        <source>Please connect the OpenPilot board to the USB port.</source>
-        <translation type="vanished">Veuillez connecter la carte OpenPilot sur le port USB.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -12997,12 +12746,6 @@ Les valeurs classiques sont de 100% en configuration + et 50% en configuration X
         <translation>Vous renvoie à la page wiki</translation>
     </message>
     <message>
-        <source>Send to OpenPilot but don&apos;t write in SD.
-Beware of not locking yourself out!</source>
-        <translation type="vanished">Envoie vers l&apos;OpenPilot mais n&apos;écrit pas dans la SD.
-Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
-    </message>
-    <message>
         <location/>
         <source>Apply</source>
         <translation>Appliquer</translation>
@@ -13464,12 +13207,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Calculer</translation>
     </message>
     <message>
-        <source>An OpenPilot controller must be connected to your computer to perform bias calculations.
-Please connect your OpenPilot controller to your computer and try again.</source>
-        <translation type="vanished">Un contrôleur OpenPilot doit être connecté à votre PC pour calculer l&apos;ajustement du niveau.
-Connectez votre carte OpenPilot et essayez à nouveau.</translation>
-    </message>
-    <message>
         <location filename="../../plugins/setupwizard/pages/biascalibrationpage.cpp" line="+74"/>
         <source>A compatible flight controller must be connected to your computer to perform bias calculations.
 Please connect your flight controller to your computer and try again.</source>
@@ -13485,22 +13222,6 @@ Connectez votre carte et essayez à nouveau.</translation>
         <location line="+48"/>
         <source>&lt;font color=&apos;green&apos;&gt;Done!&lt;/font&gt;</source>
         <translation>&lt;font color=&apos;green&apos;&gt;Terminé !&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot Sensor Calibration Procedure&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;The wizard needs to get information from the controller to determine in which position the vehicle is normally considered to be level. To be able to successfully perform these measurements, you need to place the vehicle on a surface that is as flat and level as possible. Examples of such surfaces could be a table top or the floor. Be careful to ensure that the vehicle really is level, since this step will affect the accelerometer and gyro bias in the controller software.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To perform the calibration, please push the Calculate button and wait for the process to finish.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Procédure d&apos;étalonnage des capteurs OpenPilot&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;L&apos;assistant a besoin de récupérer des informations du contrôleur pour déterminer dans quelle position l&apos;appareil est normalement considéré de niveau. Afin de réaliser avec succès ces mesures, vous devez placer le véhicule sur une surface aussi plane et horizontale que possible. Des exemples de ces surfaces pourraient être un dessus de table ou le sol. Veillez à ce que le véhicule soit vraiment de niveau puisque cette étape aura une incidence sur l&apos;ajustement des accéléromètres et des gyroscopes dans le logiciel du contrôleur.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Pour effectuer l&apos;étalonnage, veuillez appuyer sur le bouton Calculer et attendez la fin du processus.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/biascalibrationpage.ui"/>
@@ -13547,10 +13268,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>GCSSplashScreen</name>
-    <message>
-        <source> The LibrePilot Project - All Rights Reserved</source>
-        <translation type="vanished"> Le Projet LibrePilot - Tous droits réservés</translation>
-    </message>
     <message>
         <location filename="../../app/gcssplashscreen.cpp" line="+47"/>
         <source> The %1 Project - All Rights Reserved</source>
@@ -13766,7 +13483,7 @@ p, li { white-space: pre-wrap; }
         <location line="+50"/>
         <location line="+24"/>
         <source>Tagged officially released firmware build</source>
-        <translation>Firmware certifié OpenPilot, publié officiellement</translation>
+        <translation>Firmware certifié, publié officiellement</translation>
     </message>
     <message>
         <location line="-20"/>
@@ -13808,14 +13525,6 @@ p, li { white-space: pre-wrap; }
         <location line="+4"/>
         <source>WARNING: the loaded firmware was not packaged with the right format. Do not update unless you know what you are doing.</source>
         <translation>ATTENTION : Le firmware chargé n&apos;est pas empaqueté avec le bon format. Ne mettez pas à jour sans savoir ce que vous faites.</translation>
-    </message>
-    <message>
-        <source>This is the tagged officially released OpenPilot firmware.</source>
-        <translation type="vanished">Ceci est un firmware certifié OpenPilot, publié officiellement.</translation>
-    </message>
-    <message>
-        <source>WARNING: the loaded firmware was not packaged with the OpenPilot format. Do not update unless you know what you are doing.</source>
-        <translation type="vanished">ATTENTION : Le firmware chargé n&apos;est pas empaqueté avec le format OpenPilot. Ne mettez pas à jour sans savoir ce que vous faites.</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -13866,7 +13575,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="-10"/>
         <source>Tagged officially released firmware build</source>
-        <translation>Firmware certifié OpenPilot, publié officiellement</translation>
+        <translation>Firmware certifié, publié officiellement</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -13954,14 +13663,6 @@ The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRAN
         <translation></translation>
     </message>
     <message>
-        <source>About LibrePilot</source>
-        <translation type="vanished">À propos de LibrePilot</translation>
-    </message>
-    <message>
-        <source>Revision: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;UAVO Hash: &lt;b&gt;%2&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Built from %3&lt;br/&gt;Built on %4 at %5&lt;br/&gt;Based on Qt %6 (%7 bit)&lt;br/&gt;&lt;br/&gt;&amp;copy; %8, %9. All rights reserved.&lt;br/&gt;&amp;copy; The OpenPilot Project 2010-2015. All rights reserved.&lt;br/&gt;</source>
-        <translation type="obsolete">Révision : &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Hash UAVO : &lt;b&gt;%2&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Compilé depuis %3&lt;br/&gt;Compilé le %4 à %5&lt;br/&gt;Basé sur Qt %6 (%7 bit)&lt;br/&gt;&lt;br/&gt;&amp;copy; %8, %9. Tous droits réservés.&lt;br/&gt;&amp;copy; Le Projet OpenPilot 2010-2015 . Tout droits réservés.&lt;br/&gt;</translation>
-    </message>
-    <message>
         <location filename="../../plugins/coreplugin/aboutdialog.cpp" line="+48"/>
         <source>About %1</source>
         <translation>A propos de %1</translation>
@@ -13992,24 +13693,6 @@ loaded in the current workspace.</source>
 Configuration n&apos;est pas chargé dans l&apos;espace de travail actuel.</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Congratulations!&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Setup wizard is completed.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;This part of the setup procedure is now complete and you are one step away from completing the setup of your OpenPilot controller.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To complete the setup please click the button below to close this wizard and go directly to the Transmitter Setup Wizard.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Félicitations !&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;L&apos;Assistant de Configuration est terminé.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Cette partie de la procédure de configuration est maintenant terminée et il vous reste une étape pour arriver au terme de la configuration de votre contrôleur OpenPilot.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Pour terminer la configuration veuillez appuyer sur le bouton ci-dessous pour fermer cet assistant et aller directement à l&apos;Assistant de Configuration Émetteur.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location filename="../../plugins/setupwizard/pages/opendpage.ui"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -14035,36 +13718,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../../plugins/setupwizard/pages/opstartpage.ui"/>
         <source>WizardPage</source>
         <translation>Page d&apos;Assistant</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Welcome to the OpenPilot Setup Wizard&lt;/span&gt;&lt;img src=&quot;:/setupwizard/resources/wizard.png&quot; style=&quot;float: right;&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;This wizard will guide you through the basic steps required to setup your OpenPilot controller for the first time. You will be asked questions about your platform (multirotor/heli/fixed-wing) which this wizard will use to configure your controller for its first flight.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;This wizard does not configure all of the advanced settings available in the GCS Configuration. All basic and advanced configuration parameters can be modified later by using the GCS Configuration plugin.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600; color:#ff0000;&quot;&gt;WARNING: YOU MUST REMOVE ALL PROPELLERS &lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600; color:#ff0000;&quot;&gt;FROM THE VEHICLE BEFORE PROCEEDING!&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Disregarding this warning puts you at&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600; color:#000000;&quot;&gt; risk of injury&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;!&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Now that your props are removed we can get started. Ready?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Bienvenue sur l&apos;Assistant de Configuration d&apos;OpenPilot&lt;/span&gt;&lt;img src=&quot;:/setupwizard/resources/wizard.png&quot; style=&quot;float: right;&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Cet assistant va vous guider à travers les étapes de base nécessaires à la configuration de votre contrôleur OpenPilot pour la première fois. Des questions vous seront posées sur votre plate-forme (multirotor / hélicoptère / voilure fixe), cet assistant les utilisera afin de configurer votre appareil pour son premier vol.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Cet assistant ne configure pas tous les paramètres avancés disponibles dans le module GCS Configuration. Tous les paramètres de base et avancés pourront être modifiés plus tard en utilisant l&apos;onglet Configuration de GCS.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600; color:#ff0000;&quot;&gt;ATTENTION : VOUS DEVEZ RETIRER TOUTES LES HELICES&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600; color:#ff0000;&quot;&gt;DU VEHICULE AVANT DE CONTINUER !&lt;/span&gt;&lt;/p&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Ne pas tenir compte de cet avertissement vous expose à des&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt; font-weight:600; color:#000000;&quot;&gt; risques de blessures très graves &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;!&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Maintenant que vos hélices sont retirées nous pouvons continuer. Êtes-vous prêt ?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -15131,20 +14784,6 @@ et même conduire au crash. A utiliser avec prudence.</translation>
         <translation>Page d&apos;Assistant</translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Initial Tuning&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2,sans-serif&apos;; font-size:10pt;&quot;&gt;This section of the OpenPilot Wizard allows you to select a set of initial tuning parameters for your airframe. Presented below is a list of common airframe types, select the one that matches your airframe the closest, if unsure select the generic variant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Réglages de Départ&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2,sans-serif&apos;; font-size:10pt;&quot;&gt;Cette partie de l&apos;assistant de configuration vous permet de sélectionner des paramètres prédéfinis pour votre appareil. Vous trouverez ci-dessous une liste d&apos;appareils couramment utilisés, sélectionnez-en un qui correspond le mieux à votre appareil ou un modèle générique si vous avez un doute.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -15190,25 +14829,25 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
+        <source>OneShot ESC</source>
+        <translation>ESC OneShot</translation>
+    </message>
+    <message>
+        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot Output Signal Configuration&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Output Signal Configuration&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To set an optimal configuration of the output signals powering your motors, the wizard needs to know what type of Electronic Speed Controllers (ESCs) you will use and what their capabilities are.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Please select one of the options below. If you are unsure about the capabilities of your ESCs, just leave the default option selected and continue the wizard.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration OpenPilot des Signaux de Sortie&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration des Signaux de Sortie&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Afin de régler de manière optimale la configuration des signaux de sortie qui pilotent vos moteurs, l&apos;assistant doit connaître le type de contrôleur de vitesse (ESC) utilisé et leurs capacités.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Veuillez sélectionner une des options ci-dessous. En cas de doute sur les possibilités de vos ESC, laissez l&apos;option sélectionnée par défaut et continuez l&apos;assistant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>OneShot ESC</source>
-        <translation>ESC OneShot</translation>
     </message>
 </context>
 <context>
@@ -15262,22 +14901,6 @@ p, li { white-space: pre-wrap; }
         <location/>
         <source>Digital Servos</source>
         <translation>Servo Digital</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot Output Signal Configuration&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;To set an optimal configuration of the output signals powering your servos, the wizard needs to know what type of servos you will use and what their capabilities are.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Please select one of the options below. If you are unsure about the capabilities of your servos, just leave the default option selected and continue the wizard.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration OpenPilot des Signaux de Sortie&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Afin de régler de manière optimale la configuration des signaux de sortie qui pilotent vos servos, l&apos;assistant doit connaître le type de servo utilisé et leurs capacités.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Veuillez sélectionner une des options ci-dessous. En cas de doute sur les possibilités de vos servos, laissez l&apos;option sélectionnée par défaut et continuez l&apos;assistant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -15612,50 +15235,14 @@ Veuillez essayer à nouveau.</translation>
 <context>
     <name>AirSpeedPage</name>
     <message>
-        <source>OpenPilot Airspeed Sensor Selection</source>
-        <translation type="vanished">Sélection Capteur Vitesse Air OpenPilot</translation>
-    </message>
-    <message>
-        <source>This part of the wizard will help you select and configure a way to obtain airspeed data. OpenPilot support three methods to achieve this, one is a software estimation technique and the other two utilize hardware sensors.
-
-Note: if previously selected input combinations use the Flexi-port for input, only estimated airspeed will be available.
-
-</source>
-        <translation type="vanished">Cette partie de l&apos;assistant va vous aider à sélectionner et configurer une solution pour obtenir les données de vitesse air. OpenPilot supporte trois méthodes pour l&apos;obtenir, une par estimation logicielle et deux à partir de capteurs externes.
-
-A Noter : Si vous avez précédemment sélectionné une entrée par le Flexi-port, seule l&apos;estimation logicelle sera disponnible.</translation>
-    </message>
-    <message>
         <location filename="../../plugins/setupwizard/pages/airspeedpage.cpp" line="+69"/>
         <source>Estimated</source>
         <translation>Estimée</translation>
     </message>
     <message>
-        <source>This option uses an intelligent estimation algorithm which utilizes the OpenPilot INS/GPS to estimate wind speed and subtract it from ground speed obtained from the GPS.
-
-This solution is highly accurate in normal level flight with the drawback of being less accurate in rapid altitude changes.
-
-</source>
-        <translation type="vanished">Cette option utilise un algorithme d&apos;estimation intelligent basé sur OpenPilot INS/GPS pour estimer la vitesse du vent et soustrait la vitesse sol obtenue par le GPS.
-
-Cette solution est très précise en vol normal avec l&apos;inconvénient d&apos;être moins précis lors de changements rapides d&apos;altitude.
-
-</translation>
-    </message>
-    <message>
         <location line="-6"/>
         <source>Airspeed Sensor Selection</source>
         <translation>Sélection Capteur Vitesse Air</translation>
-    </message>
-    <message>
-        <source>This part of the wizard will help you select and configure a way to obtain airspeed data. Current firmware support three methods to achieve this, one is a software estimation technique and the other two utilize hardware sensors.
-
-Note: if previously selected input combinations use the Flexi-port for input, only estimated airspeed will be available.
-
-</source>
-        <translation type="vanished">Cette partie de l&apos;assistant va vous aider à sélectionner et configurer une solution pour obtenir les données de vitesse air. Le firmware actuel supporte trois méthodes pour l&apos;obtenir, une par estimation logicielle et deux à partir de capteurs externes.
-
-A Noter : Si vous avez précédemment sélectionné une entrée par le Flexi-port, seule l&apos;estimation logicelle sera disponnible.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -15710,10 +15297,6 @@ Le choix de cette option va paramétrer le Flexi-Port de votre carte en mode I2C
 </context>
 <context>
     <name>GpsPage</name>
-    <message>
-        <source>OpenPilot GPS Selection</source>
-        <translation type="vanished">Sélection GPS OpenPilot</translation>
-    </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/gpspage.cpp" line="+55"/>
         <source>Please select the type of GPS you wish to use. As well as OpenPilot hardware, 3rd party GPSs are supported also, although please note that performance could be less than optimal as not all GPSs are created equal.
@@ -15833,26 +15416,6 @@ mais uniquement sur port USB</translation>
         <location/>
         <source>I confirm i have read and understood the above instructions in full</source>
         <translation>Je confirme avoir lu et compris les instructions ci-dessus en totalité</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;OpenPilot ESC Calibration Procedure&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;As you have selected to use a MultiRotor and Fast / Flashed ESCs, we need to calibrate the endpoints of these ESCs so they can see the full throttle range sent from the flight controller.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;This part of the wizard will tell you to connect the battery to your aircraft, before doing so you absolutely &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#f30f1d;&quot;&gt;must remove the propellers from all motors&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;The steps to perform this calibration are as follows:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;1.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Confirm all safety questions,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;2.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Press the Start button when it becomes enabled, &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;battery not connected&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;3.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Connect the battery to your airframe,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;4.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Wait for ESC calibration beep(s),&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;5.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Press the Stop button,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;6.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Wait for ESC confirmation beep(s),&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;7.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Disconnect battery.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Procédure OpenPilot Calibration ESC&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Comme vous avez choisi d&apos;utiliser un MultiRotor avec des ESC rapides / ESC flashés, il faut à présent définir les limites maxi/mini de ces ESC pour qu&apos;ils puissent interpréter correctement les signaux de gaz envoyés par la carte contrôleur. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cette partie de l&apos;assistant vous demandera de connecter la batterie sur votre appareil mais avant de le faire vous devez &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; color:#f30f1d;&quot;&gt;impérativement retirer toutes les hélices de tous les moteurs&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Les étapes pour effectuer cet étalonnage sont les suivantes :&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;1.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Valider les questions de sécurité,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;2.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Appuyer sur le bouton Démarrer lorsqu&apos;il devient actif, &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;batterie non connectée&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;3.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Connecter la batterie sur l&apos;appareil,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;4.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Attendre le(s) bip(s) de calibration de l&apos;ESC,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;5.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Appuyer sur le bouton Arrêter,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;6.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Attendre le(s) bip(s) de confirmation de l&apos;ESC,&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;7.&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt; Débrancher la batterie.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -16397,16 +15960,8 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
     </message>
     <message>
         <location line="+1"/>
-        <source>%1 GCS has a function to collect limited anonymous information about the usage of the application itself and the hardware connected to it.&lt;p&gt;The intention is to not include anything that can be considered sensitive or a threat to the users integrity. The collected information will be sent using a secure protocol to an %1 web service and stored in a database for later analysis and statistical purposes.&lt;br&gt;No information will be sold or given to any third party. The sole purpose is to collect statistics about the usage of our software and hardware to enable us to make things better for you.&lt;p&gt;The following things are collected:&lt;ul&gt;&lt;li&gt;Bootloader version&lt;/li&gt;&lt;li&gt;Firmware version, tag and git hash&lt;/li&gt;&lt;li&gt;Hardware type, revision and mcu serial number&lt;/li&gt;&lt;li&gt;Selected configuration parameters&lt;/li&gt;&lt;li&gt;GCS version&lt;/li&gt;&lt;li&gt;Operating system version and architecture&lt;/li&gt;&lt;li&gt;Current local time&lt;/li&gt;&lt;/ul&gt;The information is collected only at the time when a board is connecting to GCS.&lt;p&gt;It is possible to enable or disable this functionality in the general settings part of the options for the GCS application at any time.&lt;p&gt;We need your help, with your feedback we know where to improve things and what platforms are in use. This is a community project that depends on people being involved.&lt;br&gt;Thank You for helping us making things better and for supporting %1!</source>
-        <translation>%1 GCS possède une fonction qui permet de collecter les informations de manière anonyme sur l&apos;utilisation de l&apos;application en elle-même ainsi que le matériel connecté dessus.&lt;p&gt;Il n&apos;est pas question de collecter des informations sensibles ou pouvant représenter une menace pour l&apos;intégrité des utilisateurs. Les informations collectées seront envoyées vers un site web %1 en utilisant un protocole sécurisé et stockées dans une base de données pour une analyse et des statistiques ultérieures.&lt;br&gt;Aucune information ne sera vendue ou donnée à une quelconque tierce partie. Le seul but est de collecter des informations à propos de l&apos;utilisation de notre logiciel / matériel pour nous permettre de l&apos;améliorer.&lt;p&gt;Les éléments suivants sont collectés :&lt;ul&gt;&lt;li&gt;Version bootloader&lt;/li&gt;&lt;li&gt;Version firmware, tag et git hash&lt;/li&gt;&lt;li&gt;Type de matériel, révision et numéro de série CPU&lt;/li&gt;&lt;li&gt;Paramètres de configuration sélectionnés&lt;/li&gt;&lt;li&gt;Version GCS&lt;/li&gt;&lt;li&gt;Système d&apos;exploitation et architecture&lt;/li&gt;&lt;li&gt;Fuseau horaire&lt;/li&gt;&lt;/ul&gt;Les informations sont collectées au moment de la connexion de la carte avec GCS.&lt;p&gt;Il est possible d&apos;activer ou de désactiver cette fonctionnalité à tout moment dans le menu Options &gt; Paramètres généraux de GCS.&lt;p&gt;Nous avons besoin de votre aide, avec votre participation nous connaîtrons où apporter des améliorations et quelle plateforme vous utilisez. C&apos;est un projet communautaire qui dépend de l&apos;implication des utilisateurs.&lt;br&gt;Merci de nous aider à rendre les choses meilleures et soutenir %1 !</translation>
-    </message>
-    <message>
-        <source>LibrePilot GCS has a function to collect limited anonymous information about the usage of the application itself and the hardware connected to it.&lt;p&gt;The intention is to not include anything that can be considered sensitive or a threat to the users integrity. The collected information will be sent using a secure protocol to an LibrePilot web service and stored in a database for later analysis and statistical purposes.&lt;br&gt;No information will be sold or given to any third party. The sole purpose is to collect statistics about the usage of our software and hardware to enable us to make things better for you.&lt;p&gt;The following things are collected:&lt;ul&gt;&lt;li&gt;Bootloader version&lt;/li&gt;&lt;li&gt;Firmware version, tag and git hash&lt;/li&gt;&lt;li&gt;Hardware type, revision and mcu serial number&lt;/li&gt;&lt;li&gt;Selected configuration parameters&lt;/li&gt;&lt;li&gt;GCS version&lt;/li&gt;&lt;li&gt;Operating system version and architecture&lt;/li&gt;&lt;li&gt;Current local time&lt;/li&gt;&lt;/ul&gt;The information is collected only at the time when a board is connecting to GCS.&lt;p&gt;It is possible to enable or disable this functionality in the general settings part of the options for the GCS application at any time.&lt;p&gt;We need your help, with your feedback we know where to improve things and what platforms are in use. This is a community project that depends on people being involved.&lt;br&gt;Thank You for helping us making things better and for supporting LibrePilot!</source>
-        <translation type="vanished">LibrePilot GCS possède une fonction qui permet de collecter les informations de manière anonyme sur l&apos;utilisation de l&apos;application en elle-même ainsi que le matériel connecté dessus.&lt;p&gt;Il n&apos;est pas question de collecter des informations sensibles ou pouvant représenter une menace pour l&apos;intégrité des utilisateurs. Les informations collectées seront envoyées vers un site web LibrePilot en utilisant un protocole sécurisé et stockées dans une base de données pour une analyse et des statistiques ultérieures.&lt;br&gt;Aucune information ne sera vendue ou donnée à une quelconque tierce partie. Le seul but est de collecter des informations à propos de l&apos;utilisation de notre logiciel / matériel pour nous permettre de l&apos;améliorer.&lt;p&gt;Les éléments suivants sont collectés :&lt;ul&gt;&lt;li&gt;Version bootloader&lt;/li&gt;&lt;li&gt;Version firmware, tag et git hash&lt;/li&gt;&lt;li&gt;Type de matériel, révision et numéro de série CPU&lt;/li&gt;&lt;li&gt;Paramètres de configuration sélectionnés&lt;/li&gt;&lt;li&gt;Version GCS&lt;/li&gt;&lt;li&gt;Système d&apos;exploitation et architecture&lt;/li&gt;&lt;li&gt;Fuseau horaire&lt;/li&gt;&lt;/ul&gt;Les informations sont collectées au moment de la connexion de la carte avec GCS.&lt;p&gt;Il est possible d&apos;activer ou de désactiver cette fonctionnalité à tout moment dans le menu Options &gt; Paramètres généraux de GCS.&lt;p&gt;Nous avons besoin de votre aide, avec votre participation nous connaîtrons où apporter des améliorations et quelle plateforme vous utilisez. C&apos;est un projet communautaire qui dépend de l&apos;implication des utilisateurs.&lt;br&gt;Merci de nous aider à rendre les choses meilleures et soutenir LibrePilot !</translation>
-    </message>
-    <message>
-        <source>LibrePilot GCS has a function to collect limited anonymous information about the usage of the application itself and the LibrePilot hardware connected to it.&lt;p&gt;The intention is to not include anything that can be considered sensitive or a threat to the users integrity. The collected information will be sent using a secure protocol to an LibrePilot web service and stored in a database for later analysis and statistical purposes.&lt;br&gt;No information will be sold or given to any third party. The sole purpose is to collect statistics about the usage of our software and hardware to enable us to make things better for you.&lt;p&gt;The following things are collected:&lt;ul&gt;&lt;li&gt;Bootloader version&lt;/li&gt;&lt;li&gt;Firmware version, tag and git hash&lt;/li&gt;&lt;li&gt;OP Hardware type, revision and mcu serial number&lt;/li&gt;&lt;li&gt;Selected configuration parameters&lt;/li&gt;&lt;li&gt;GCS version&lt;/li&gt;&lt;li&gt;Operating system version and architecture&lt;/li&gt;&lt;li&gt;Current local time&lt;/li&gt;&lt;/ul&gt;The information is collected only at the time when a board is connecting to GCS.&lt;p&gt;It is possible to enable or disable this functionality in the general settings part of the options for the GCS application at any time.&lt;p&gt;We need your help, with your feedback we know where to improve things and what platforms are in use. This is a community project that depends on people being involved.&lt;br&gt;Thank You for helping us making things better and for supporting LibrePilot!</source>
-        <translation type="obsolete">LibrePilot GCS possède une fonction qui permet de collecter les informations de manière anonyme sur l&apos;utilisation de l&apos;application en elle-même ainsi que le matériel OpenPilot connecté dessus.&lt;p&gt;Il n&apos;est pas question de collecter des informations sensibles ou pouvant représenter une menace pour l&apos;intégrité des utilisateurs. Les informations collectées seront envoyées vers un site web OpenPilot en utilisant un protocole sécurisé et stockées dans une base de données pour une analyse et des statistiques ultérieures.&lt;br&gt;Aucune information ne sera vendue ou donnée à une quelconque tierce partie. Le seul but est de collecter des informations à propos de l&apos;utilisation de notre logiciel / matériel pour nous permettre de l&apos;améliorer.&lt;p&gt;Les éléments suivants sont collectés :&lt;ul&gt;&lt;li&gt;Version bootloader&lt;/li&gt;&lt;li&gt;Version firmware, tag et git hash&lt;/li&gt;&lt;li&gt;Type de matériel OP, révision et numéro de série CPU&lt;/li&gt;&lt;li&gt;Paramètres de configuration sélectionnés&lt;/li&gt;&lt;li&gt;Version GCS&lt;/li&gt;&lt;li&gt;Système d&apos;exploitation et architecture&lt;/li&gt;&lt;li&gt;Fuseau horaire&lt;/li&gt;&lt;/ul&gt;Les informations sont collectées au moment de la connexion de la carte avec GCS.&lt;p&gt;Il est possible d&apos;activer ou de désactiver cette fonctionnalité à tout moment dans le menu Options &gt; Paramètres généraux de GCS.&lt;p&gt;Nous avons besoin de votre aide, avec votre participation nous connaîtrons où apporter des améliorations et quelle plateforme vous utilisez. C&apos;est un projet communautaire qui dépend de l&apos;implication des utilisateurs.&lt;br&gt;Merci de nous aider à rendre les choses meilleures et soutenir OpenPilot !</translation>
+        <source>%1 has a function to collect limited anonymous information about the usage of the application itself and the hardware connected to it.&lt;p&gt;The intention is to not include anything that can be considered sensitive or a threat to the users integrity. The collected information will be sent using a secure protocol to an %2 web service and stored in a database for later analysis and statistical purposes.&lt;br&gt;No information will be sold or given to any third party. The sole purpose is to collect statistics about the usage of our software and hardware to enable us to make things better for you.&lt;p&gt;The following things are collected:&lt;ul&gt;&lt;li&gt;Bootloader version&lt;/li&gt;&lt;li&gt;Firmware version, tag and git hash&lt;/li&gt;&lt;li&gt;Hardware type, revision and mcu serial number&lt;/li&gt;&lt;li&gt;Selected configuration parameters&lt;/li&gt;&lt;li&gt;GCS version&lt;/li&gt;&lt;li&gt;Operating system version and architecture&lt;/li&gt;&lt;li&gt;Current local time&lt;/li&gt;&lt;/ul&gt;The information is collected only at the time when a board is connecting to GCS.&lt;p&gt;It is possible to enable or disable this functionality in the general settings part of the options for the GCS application at any time.&lt;p&gt;We need your help, with your feedback we know where to improve things and what platforms are in use. This is a community project that depends on people being involved.&lt;br&gt;Thank You for helping us making things better and for supporting %2!</source>
+        <translation>%1 possède une fonction qui permet de collecter les informations de manière anonyme sur l&apos;utilisation de l&apos;application en elle-même ainsi que le matériel connecté dessus.&lt;p&gt;Il n&apos;est pas question de collecter des informations sensibles ou pouvant représenter une menace pour l&apos;intégrité des utilisateurs. Les informations collectées seront envoyées vers un site web %2 en utilisant un protocole sécurisé et stockées dans une base de données pour une analyse et des statistiques ultérieures.&lt;br&gt;Aucune information ne sera vendue ou donnée à une quelconque tierce partie. Le seul but est de collecter des informations à propos de l&apos;utilisation de notre logiciel / matériel pour nous permettre de l&apos;améliorer.&lt;p&gt;Les éléments suivants sont collectés :&lt;ul&gt;&lt;li&gt;Version bootloader&lt;/li&gt;&lt;li&gt;Version firmware, tag et git hash&lt;/li&gt;&lt;li&gt;Type de matériel, révision et numéro de série CPU&lt;/li&gt;&lt;li&gt;Paramètres de configuration sélectionnés&lt;/li&gt;&lt;li&gt;Version GCS&lt;/li&gt;&lt;li&gt;Système d&apos;exploitation et architecture&lt;/li&gt;&lt;li&gt;Fuseau horaire&lt;/li&gt;&lt;/ul&gt;Les informations sont collectées au moment de la connexion de la carte avec GCS.&lt;p&gt;Il est possible d&apos;activer ou de désactiver cette fonctionnalité à tout moment dans le menu Options &gt; Paramètres généraux de GCS.&lt;p&gt;Nous avons besoin de votre aide, avec votre participation nous connaîtrons où apporter des améliorations et quelle plateforme vous utilisez. C&apos;est un projet communautaire qui dépend de l&apos;implication des utilisateurs.&lt;br&gt;Merci de nous aider à rendre les choses meilleures et soutenir %2 !</translation>
     </message>
     <message>
         <location line="+23"/>
@@ -16478,13 +16033,6 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
     </message>
     <message>
         <location/>
-        <source>Send to OpenPilot but don&apos;t write in SD.
-Beware of not locking yourself out!</source>
-        <translation type="unfinished">Envoie vers l&apos;OpenPilot mais n&apos;écrit pas dans la SD.
-Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
-    </message>
-    <message>
-        <location/>
         <source>Apply</source>
         <translation>Appliquer</translation>
     </message>
@@ -16499,6 +16047,13 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <location/>
         <source>Save</source>
         <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Send to board but don&apos;t write in SD.
+Beware of not locking yourself out!</source>
+        <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
+Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
 </context>
 <context>

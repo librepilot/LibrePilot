@@ -594,7 +594,7 @@ int main(int argc, char * *argv)
         }
         if (!errors.isEmpty()) {
             QMessageBox::warning(0,
-                                 QCoreApplication::translate("Application", "OpenPilot GCS - Plugin loader messages"),
+                                 QCoreApplication::translate("Application", "%1 - Plugin loader messages").arg(GCS_BIG_NAME),
                                  errors.join(QString::fromLatin1("\n\n")));
         }
     }

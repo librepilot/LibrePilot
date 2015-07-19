@@ -60,10 +60,10 @@ smallify = $(subst $(SPACE),-,$(call lc,$1))
 
 # Naming for binaries and packaging etc,.
 ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
+GCS_BIG_NAME = ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
-GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
+ORG_SMALL_NAME = $(call smallify,$(ORG_BIG_NAME))
+GCS_SMALL_NAME = $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -139,6 +139,9 @@ else ifeq ($(UNAME), Windows)
     QT_SPEC = win32-g++
     UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
 endif
+
+CONFIG_FILE := config
+-include $(CONFIG_FILE)
 
 ##############################
 #
@@ -844,6 +847,27 @@ dist: $(DIST_NAME).gz
 
 ##############################
 #
+# Config
+#
+##############################
+
+CONFIG_OPTS := $(subst $(SPACE),\n,$(MAKEOVERRIDES))
+
+.PHONY: config_new
+config_new:
+	@echo -e '$(CONFIG_OPTS)' > $(CONFIG_FILE)
+
+.PHONY: config_append
+config_append:
+	@echo -e '$(CONFIG_OPTS)' >> $(CONFIG_FILE)
+
+.PHONY: config_clean
+config_clean:
+	rm -f $(CONFIG_FILE)
+
+
+##############################
+#
 # Directories
 #
 ##############################
@@ -992,6 +1016,11 @@ help:
 	@$(ECHO) "     docs_all             - Generate HTML documentation for all"
 	@$(ECHO) "     docs_<source>_clean  - Delete generated documentation for <source>"
 	@$(ECHO) "     docs_all_clean       - Delete all generated documentation"
+	@$(ECHO)
+	@$(ECHO) "   [Configuration]"
+	@$(ECHO) "     config_new           - Place your make arguments in the config file"
+	@$(ECHO) "     config_append        - Place your make arguments in the config file but append"
+	@$(ECHO) "     config_clean         - Removes the config file"
 	@$(ECHO)
 	@$(ECHO) "   Hint: Add V=1 to your command line to see verbose build output."
 	@$(ECHO)

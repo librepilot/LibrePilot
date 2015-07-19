@@ -60,14 +60,14 @@ bool AirSpeedPage::validatePage(SelectionItem *selectedItem)
 
 void AirSpeedPage::setupSelection(Selection *selection)
 {
-    selection->setTitle(tr("OpenPilot Airspeed Sensor Selection"));
+    selection->setTitle(tr("Airspeed Sensor Selection"));
     selection->setText(tr("This part of the wizard will help you select and configure a way to obtain "
-                          "airspeed data. OpenPilot support three methods to achieve this, one is a "
+                          "airspeed data. Current firmware support three methods to achieve this, one is a "
                           "software estimation technique and the other two utilize hardware sensors.\n\n"
                           "Note: if previously selected input combinations use the Flexi-port for input, "
                           "only estimated airspeed will be available.\n\n"));
     selection->addItem(tr("Estimated"),
-                       tr("This option uses an intelligent estimation algorithm which utilizes the OpenPilot INS/GPS "
+                       tr("This option uses an intelligent estimation algorithm which utilizes the INS/GPS "
                           "to estimate wind speed and subtract it from ground speed obtained from the GPS.\n\n"
                           "This solution is highly accurate in normal level flight with the drawback of being less "
                           "accurate in rapid altitude changes.\n\n"),

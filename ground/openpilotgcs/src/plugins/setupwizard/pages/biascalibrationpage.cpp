@@ -71,8 +71,8 @@ void BiasCalibrationPage::performCalibration()
 {
     if (!getWizard()->getConnectionManager()->isConnected()) {
         QMessageBox msgBox;
-        msgBox.setText(tr("An OpenPilot controller must be connected to your computer to perform bias "
-                          "calculations.\nPlease connect your OpenPilot controller to your computer and try again."));
+        msgBox.setText(tr("A compatible flight controller must be connected to your computer to perform bias "
+                          "calculations.\nPlease connect your flight controller to your computer and try again."));
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.setDefaultButton(QMessageBox::Ok);
         msgBox.exec();

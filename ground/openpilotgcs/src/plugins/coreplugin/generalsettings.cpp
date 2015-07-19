@@ -233,7 +233,7 @@ void GeneralSettings::setLanguage(const QString &locale)
     if (m_language != locale) {
         if (!locale.isEmpty()) {
             QMessageBox::information((QWidget *)Core::ICore::instance()->mainWindow(), tr("Restart required"),
-                                     tr("The language change will take effect after a restart of the OpenPilot GCS."));
+                                     tr("The language change will take effect after a restart of the %1 GCS.").arg(ORG_BIG_NAME));
         }
         m_language = locale;
     }

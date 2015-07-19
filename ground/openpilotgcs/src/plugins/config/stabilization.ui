@@ -20743,7 +20743,7 @@ font:bold;</string>
                       <enum>Qt::StrongFocus</enum>
                      </property>
                      <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In AxisLock mode, this setting controls how many degrees per second you can request with the stick before OpenPilot stops trying to gently hold its position and goes into normal rate mode. This setting works almost like a dead band. Default value should work fine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In AxisLock mode, this setting controls how many degrees per second you can request with the stick before flight controller stops trying to gently hold its position and goes into normal rate mode. This setting works almost like a dead band. Default value should work fine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                      </property>
                      <property name="styleSheet">
                       <string notr="true"/>

@@ -49,8 +49,8 @@ bool MultiPage::validatePage(SelectionItem *selectedItem)
 
 void MultiPage::setupSelection(Selection *selection)
 {
-    selection->setTitle(tr("OpenPilot Multirotor Configuration"));
-    selection->setText(tr("This part of the wizard will set up the OpenPilot controller for use with a flying platform utilizing multiple rotors. "
+    selection->setTitle(tr("Multirotor Configuration"));
+    selection->setText(tr("This part of the wizard will set up the flight controller for use with a flying platform utilizing multiple rotors. "
                           "The wizard supports the most common types of multirotors. Other variants of multirotors can be configured by using custom "
                           "configuration options in the Configuration plugin in the GCS.\n\n"
                           "Please select the type of multirotor you want to create a configuration for below:"));

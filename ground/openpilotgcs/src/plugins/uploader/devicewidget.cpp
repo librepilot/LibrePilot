@@ -320,11 +320,11 @@ void DeviceWidget::loadFirmware(QString fwfilename)
             myDevice->statusLabel->setText(tr("The loaded firmware is untagged or custom build. Update only if it was received from a trusted source (official website or your own build)."));
             px.load(QString(":/uploader/images/warning.svg"));
         } else {
-            myDevice->statusLabel->setText(tr("This is the tagged officially released OpenPilot firmware."));
+            myDevice->statusLabel->setText(tr("This is the tagged officially released firmware."));
             px.load(QString(":/uploader/images/gtk-info.svg"));
         }
     } else {
-        myDevice->statusLabel->setText(tr("WARNING: the loaded firmware was not packaged with the OpenPilot format. Do not update unless you know what you are doing."));
+        myDevice->statusLabel->setText(tr("WARNING: the loaded firmware was not packaged with the right format. Do not update unless you know what you are doing."));
         px.load(QString(":/uploader/images/error.svg"));
         myDevice->confirmCheckBox->setChecked(false);
         myDevice->confirmCheckBox->setVisible(true);

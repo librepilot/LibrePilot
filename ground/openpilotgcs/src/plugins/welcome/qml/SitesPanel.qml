@@ -10,7 +10,7 @@ Item {
 
     Text {
         id: header
-        text: qsTr("OpenPilot Websites")
+        text: qsTr("Websites")
         width: parent.width
         color: "#44515c"
         font {

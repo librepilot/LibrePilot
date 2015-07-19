@@ -44,7 +44,7 @@ GCSSplashScreen::GCSSplashScreen() :
 
     m_painter->drawText(405, 170, QString(CopyrightSymbol) +
                         QString(" ") + VersionInfo::year() +
-                        QString(tr(" The LibrePilot Project - All Rights Reserved")));
+                        QString(tr(" The %1 Project - All Rights Reserved").arg(ORG_BIG_NAME)));
 
     m_painter->drawText(405, 182, QString(CopyrightSymbol) +
                         QString(tr(" 2010-2015 The OpenPilot Project - All Rights Reserved")));

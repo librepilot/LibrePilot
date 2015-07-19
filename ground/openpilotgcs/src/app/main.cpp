@@ -115,7 +115,7 @@ typedef QMap<QString, QString> AppOptionValues;
 const int OptionIndent = 4;
 const int DescriptionIndent = 24;
 
-const QLatin1String APP_NAME(GCS_NAME);
+const QLatin1String APP_NAME(GCS_BIG_NAME);
 const QLatin1String ORG_NAME(ORG_BIG_NAME);
 
 const QLatin1String CORE_PLUGIN_NAME("Core");

@@ -62,7 +62,7 @@ void AirSpeedPage::setupSelection(Selection *selection)
 {
     selection->setTitle(tr("Airspeed Sensor Selection"));
     selection->setText(tr("This part of the wizard will help you select and configure a way to obtain "
-                          "airspeed data. Current firmware support three methods to achieve this, one is a "
+                          "airspeed data. Current firmware supports three methods to achieve this, one is a "
                           "software estimation technique and the other two utilize hardware sensors.\n\n"
                           "Note: if previously selected input combinations use the Flexi-port for input, "
                           "only estimated airspeed will be available.\n\n"));

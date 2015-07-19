@@ -81,11 +81,11 @@ void UsageTrackerPlugin::onAutopilotConnect()
             message.setIcon(QMessageBox::Information);
             message.addButton(tr("Yes, count me in"), QMessageBox::AcceptRole);
             message.addButton(tr("No, I will not help"), QMessageBox::RejectRole);
-            message.setText(tr("LibrePilot GCS has a function to collect limited anonymous information about "
+            message.setText(tr("%1 GCS has a function to collect limited anonymous information about "
                                "the usage of the application itself and the hardware connected to it.<p>"
                                "The intention is to not include anything that can be considered sensitive "
                                "or a threat to the users integrity. The collected information will be sent "
-                               "using a secure protocol to an LibrePilot web service and stored in a database "
+                               "using a secure protocol to an %1 web service and stored in a database "
                                "for later analysis and statistical purposes.<br>"
                                "No information will be sold or given to any third party. The sole purpose is "
                                "to collect statistics about the usage of our software and hardware to enable us "
@@ -103,7 +103,7 @@ void UsageTrackerPlugin::onAutopilotConnect()
                                "settings part of the options for the GCS application at any time.<p>"
                                "We need your help, with your feedback we know where to improve things and what "
                                "platforms are in use. This is a community project that depends on people being involved.<br>"
-                               "Thank You for helping us making things better and for supporting LibrePilot!"));
+                               "Thank You for helping us making things better and for supporting %1!").arg(ORG_BIG_NAME));
             QCheckBox *disclaimerCb = new QCheckBox(tr("&Don't show this message again."));
             disclaimerCb->setChecked(true);
             message.setCheckBox(disclaimerCb);

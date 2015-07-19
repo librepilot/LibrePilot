@@ -25,6 +25,7 @@ QString GCSDirs::libraryPath(QString provider)
 #ifdef Q_OS_MACX
     // TODO not correct...
     libPath += QLatin1String("/Plugins");
+    Q_UNUSED(provider);
 #else
     // GCS_LIBRARY_BASENAME is a compiler define set by qmake
     libPath += QLatin1Char('/') + QLatin1String(LIB_REL_PATH);
@@ -40,6 +41,7 @@ QString GCSDirs::pluginPath(QString provider)
 #ifdef Q_OS_MACX
     // TODO not correct...
     pluginPath += QLatin1String("/Plugins");
+    Q_UNUSED(provider);
 #else
     // GCS_LIBRARY_BASENAME is a compiler define set by qmake
     pluginPath += QLatin1Char('/') + QLatin1String(LIB_REL_PATH);
@@ -55,6 +57,7 @@ QString GCSDirs::sharePath(QString provider)
 
 #ifdef Q_OS_MACX
     sharePath += QLatin1String("/Resources");
+    Q_UNUSED(provider);
 #else
     sharePath += QLatin1String("/share/openpilotgcs");
     sharePath += QLatin1Char('/') + provider;

@@ -31,6 +31,8 @@
 #include <QJsonArray>
 #include <QDir>
 #include <QDebug>
+#include <QMessageBox>
+#include <QFileDialog>
 #include "vehicletemplateexportdialog.h"
 #include "utils/pathutils.h"
 
@@ -41,12 +43,14 @@ VehicleTemplateSelectorWidget::VehicleTemplateSelectorWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->templateImage->setScene(new QGraphicsScene());
     connect(ui->templateList, SIGNAL(itemSelectionChanged()), this, SLOT(templateSelectionChanged()));
+    connect(ui->deleteTemplateButton, SIGNAL(clicked()), this, SLOT(deleteSelectedTemplate()));
+    connect(ui->addTemplateButton, SIGNAL(clicked()), this, SLOT(addTemplate()));
 }
 
 VehicleTemplateSelectorWidget::~VehicleTemplateSelectorWidget()
 {
     ui->templateList->clear();
-    foreach(QJsonObject * templ, m_templates.values()) {
+    foreach(VehicleTemplate * templ, m_templates.values()) {
         delete templ;
     }
     m_templates.clear();
@@ -54,8 +58,9 @@ VehicleTemplateSelectorWidget::~VehicleTemplateSelectorWidget()
     delete ui;
 }
 
-void VehicleTemplateSelectorWidget::setTemplateInfo(int vehicleType, int vehicleSubType)
+void VehicleTemplateSelectorWidget::setTemplateInfo(int vehicleType, int vehicleSubType, bool showTemplateControls)
 {
+    ui->buttonFrame->setVisible(showTemplateControls);
     m_vehicleType    = vehicleType;
     m_vehicleSubType = vehicleSubType;
     updateTemplates();
@@ -69,10 +74,82 @@ QJsonObject *VehicleTemplateSelectorWidget::selectedTemplate() const
     return NULL;
 }
 
+bool VehicleTemplateSelectorWidget::selectedTemplateEditable() const
+{
+    if (ui->templateList->currentRow() >= 0) {
+        return ui->templateList->item(ui->templateList->currentRow())->data(Qt::UserRole + 2).value<bool>();
+    }
+    return false;
+}
+
+QString VehicleTemplateSelectorWidget::selectedTemplatePath() const
+{
+    if (ui->templateList->currentRow() >= 0) {
+        return ui->templateList->item(ui->templateList->currentRow())->data(Qt::UserRole + 3).value<QString>();
+    }
+    return "";
+}
+
 void VehicleTemplateSelectorWidget::updateTemplates()
 {
     loadValidFiles();
     setupTemplateList();
+}
+
+void VehicleTemplateSelectorWidget::deleteSelectedTemplate()
+{
+    if (selectedTemplateEditable()) {
+        if (QMessageBox::question(this, tr("Delete Vehicle Template"),
+                                  "Are you sure you want to delete the selected template?",
+                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+            QFile fileToDelete(selectedTemplatePath());
+            if (fileToDelete.remove()) {
+                QJsonObject *templObj = selectedTemplate();
+                if (templObj) {
+                    VehicleTemplate *templ = m_templates[templObj->value("uuid").toString()];
+                    m_templates.remove(templObj->value("uuid").toString());
+                    delete templ;
+                }
+                delete ui->templateList->item(ui->templateList->currentRow());
+            }
+        }
+    }
+}
+
+void VehicleTemplateSelectorWidget::addTemplate()
+{
+    QString path = QFileDialog::getOpenFileName(this, tr("Add settings"), QDir::homePath(),
+                                                tr("Vehicle Template Files (*.vtmpl *.optmpl)"));
+
+    if (path != NULL) {
+        QFile file(path);
+
+        if (file.open(QFile::ReadOnly)) {
+            QByteArray jsonData = file.readAll();
+            QJsonParseError error;
+            QJsonDocument templateDoc = QJsonDocument::fromJson(jsonData, &error);
+            if (error.error == QJsonParseError::NoError) {
+                QJsonObject json = templateDoc.object();
+                if (airframeIsCompatible(json["type"].toInt(), json["subtype"].toInt())) {
+                    QFileInfo fInfo(file);
+                    QString destinationFilePath = QString("%1/%2").arg(Utils::InsertStoragePath("%%STOREPATH%%vehicletemplates"))
+                                                  .arg(getTemplatePath());
+                    QDir dir;
+                    if (dir.mkpath(destinationFilePath) && file.copy(QString("%1/%2").arg(destinationFilePath).arg(fInfo.fileName()))) {
+                        updateTemplates();
+                    } else {
+                        QMessageBox::critical(this, tr("Error"), tr("The selected template file could not be added."));
+                    }
+                } else {
+                    QMessageBox::critical(this, tr("Error"), tr("The selected template file is not compatible with the current vehicle type."));
+                }
+            } else {
+                QMessageBox::critical(this, tr("Error"), tr("The selected template file is corrupt or of an unknown version."));
+            }
+        } else {
+            QMessageBox::critical(this, tr("Error"), tr("The selected template file could not be opened."));
+        }
+    }
 }
 
 void VehicleTemplateSelectorWidget::updatePhoto(QJsonObject *templ)
@@ -115,7 +192,7 @@ void VehicleTemplateSelectorWidget::updateDescription(QJsonObject *templ)
         ui->templateDescription->setText(description);
     } else {
         ui->templateDescription->setText(tr("This option will use the current tuning settings saved on the controller, if your controller "
-                                            "is currently unconfigured, then the OpenPilot firmware defaults will be used.\n\n"
+                                            "is currently unconfigured, then the pre-configured firmware defaults will be used.\n\n"
                                             "It is suggested that if this is a first time configuration of your controller, rather than "
                                             "use this option, instead select a tuning set that matches your own airframe as close as "
                                             "possible from the list above or if you are not able to fine one, then select the generic item "
@@ -129,6 +206,7 @@ void VehicleTemplateSelectorWidget::templateSelectionChanged()
         QJsonObject *templ = selectedTemplate();
         updatePhoto(templ);
         updateDescription(templ);
+        ui->deleteTemplateButton->setEnabled(selectedTemplateEditable());
     }
 }
 
@@ -161,18 +239,20 @@ QString VehicleTemplateSelectorWidget::getTemplatePath()
     }
 }
 
-void VehicleTemplateSelectorWidget::loadFilesInDir(QString templateBasePath)
+void VehicleTemplateSelectorWidget::loadFilesInDir(QString templateBasePath, bool local)
 {
     QDir templateDir(templateBasePath);
 
     qDebug() << "Loading templates from base path:" << templateBasePath;
     QStringList names;
     names << "*.optmpl";
+    names << "*.vtmpl"; // Vehicle template
     templateDir.setNameFilters(names);
     templateDir.setSorting(QDir::Name);
     QStringList files = templateDir.entryList();
     foreach(QString fileName, files) {
-        QFile file(QString("%1/%2").arg(templateDir.absolutePath()).arg(fileName));
+        QString fullPathName = QString("%1/%2").arg(templateDir.absolutePath()).arg(fileName);
+        QFile file(fullPathName);
 
         if (file.open(QFile::ReadOnly)) {
             QByteArray jsonData = file.readAll();
@@ -183,7 +263,7 @@ void VehicleTemplateSelectorWidget::loadFilesInDir(QString templateBasePath)
                 if (airframeIsCompatible(json["type"].toInt(), json["subtype"].toInt())) {
                     QString uuid = json["uuid"].toString();
                     if (!m_templates.contains(uuid)) {
-                        m_templates[json["uuid"].toString()] = new QJsonObject(json);
+                        m_templates[json["uuid"].toString()] = new VehicleTemplate(new QJsonObject(json), local, fullPathName);
                     }
                 }
             } else {
@@ -198,13 +278,13 @@ void VehicleTemplateSelectorWidget::loadFilesInDir(QString templateBasePath)
 void VehicleTemplateSelectorWidget::loadValidFiles()
 {
     ui->templateList->clear();
-    foreach(QJsonObject * templ, m_templates.values()) {
+    foreach(VehicleTemplate * templ, m_templates.values()) {
         delete templ;
     }
     m_templates.clear();
     QString path = getTemplatePath();
-    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertDataPath("%%DATAPATH%%cloudconfig")).arg(path));
-    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertStoragePath("%%STOREPATH%%cloudconfig")).arg(path));
+    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertDataPath("%%DATAPATH%%vehicletemplates")).arg(path), false);
+    loadFilesInDir(QString("%1/%2/").arg(Utils::InsertStoragePath("%%STOREPATH%%vehicletemplates")).arg(path), true);
 }
 
 void VehicleTemplateSelectorWidget::setupTemplateList()
@@ -212,10 +292,18 @@ void VehicleTemplateSelectorWidget::setupTemplateList()
     QListWidgetItem *item;
 
     foreach(QString templ, m_templates.keys()) {
-        QJsonObject *json = m_templates[templ];
+        VehicleTemplate *vtemplate = m_templates[templ];
 
-        item = new QListWidgetItem(json->value("name").toString(), ui->templateList);
-        item->setData(Qt::UserRole + 1, QVariant::fromValue(json));
+        item = new QListWidgetItem(vtemplate->templateObject()->value("name").toString(), ui->templateList);
+        item->setData(Qt::UserRole + 1, QVariant::fromValue(vtemplate->templateObject()));
+        item->setData(Qt::UserRole + 2, QVariant::fromValue(vtemplate->editable()));
+        if (vtemplate->editable()) {
+            item->setData(Qt::ForegroundRole, QVariant::fromValue(QColor(Qt::darkGreen)));
+            item->setData(Qt::ToolTipRole, QVariant::fromValue(tr("Local template.")));
+        } else {
+            item->setData(Qt::ToolTipRole, QVariant::fromValue(tr("Built-in template.")));
+        }
+        item->setData(Qt::UserRole + 3, QVariant::fromValue(vtemplate->templatePath()));
     }
     ui->templateList->sortItems(Qt::AscendingOrder);
 

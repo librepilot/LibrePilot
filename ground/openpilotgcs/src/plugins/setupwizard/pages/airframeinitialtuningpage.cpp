@@ -47,7 +47,7 @@ AirframeInitialTuningPage::~AirframeInitialTuningPage()
 
 void AirframeInitialTuningPage::initializePage()
 {
-    ui->selectorWidget->setTemplateInfo(getWizard()->getVehicleType(), getWizard()->getVehicleSubType());
+    ui->selectorWidget->setTemplateInfo(getWizard()->getVehicleType(), getWizard()->getVehicleSubType(), false);
 }
 
 bool AirframeInitialTuningPage::validatePage()

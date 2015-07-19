@@ -36,15 +36,47 @@ namespace Ui {
 class VehicleTemplateSelectorWidget;
 }
 
+class VehicleTemplate {
+public:
+    VehicleTemplate(QJsonObject *templateObject, bool editable, QString templatePath) :
+        m_templateObject(templateObject), m_editable(editable), m_templatePath(templatePath) {}
+
+    ~VehicleTemplate()
+    {
+        if (m_templateObject) {
+            delete m_templateObject;
+        }
+    }
+
+    QJsonObject *templateObject()
+    {
+        return m_templateObject;
+    }
+
+    bool editable()
+    {
+        return m_editable;
+    }
+
+    QString templatePath()
+    {
+        return m_templatePath;
+    }
+
+private:
+    QJsonObject *m_templateObject;
+    bool m_editable;
+    QString m_templatePath;
+};
+
 class VehicleTemplateSelectorWidget : public QWidget {
     Q_OBJECT
 
 public:
     explicit VehicleTemplateSelectorWidget(QWidget *parent = 0);
     ~VehicleTemplateSelectorWidget();
-    void setTemplateInfo(int vehicleType, int vehicleSubType);
+    void setTemplateInfo(int vehicleType, int vehicleSubType, bool showTemplateControls);
     QJsonObject *selectedTemplate() const;
-
 public slots:
     void templateSelectionChanged();
 
@@ -57,20 +89,24 @@ private:
     int m_vehicleType;
     int m_vehicleSubType;
 
-    QMap<QString, QJsonObject *> m_templates;
+    QMap<QString, VehicleTemplate *> m_templates;
     QGraphicsPixmapItem *m_photoItem;
 
     void loadValidFiles();
-    void loadFilesInDir(QString templateBasePath);
+    void loadFilesInDir(QString templateBasePath, bool local);
     void setupTemplateList();
     QString getTemplateKey(QJsonObject *templ);
     void updatePhoto(QJsonObject *templ);
     void updateDescription(QJsonObject *templ);
     bool airframeIsCompatible(int vehicleType, int vehicleSubType);
     QString getTemplatePath();
+    bool selectedTemplateEditable() const;
+    QString selectedTemplatePath() const;
 
 private slots:
     void updateTemplates();
+    void deleteSelectedTemplate();
+    void addTemplate();
 };
 
 Q_DECLARE_METATYPE(QJsonObject *)

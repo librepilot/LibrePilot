@@ -62,14 +62,14 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run.md5
         QT_SDK_ARCH := gcc_64
-        OSG_URL        := http://librepilot.github.io/tools/osg-0b63c8ffde-linux-x64-qt-5.4.1.tar.gz
+        OSG_URL        := http://librepilot.github.io/tools/osg-3.4.0-rc5-linux-x64-qt-5.4.1.tar.gz
     else
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
         ARM_SDK_MD5_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2/+md5
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run.md5
         QT_SDK_ARCH := gcc
-        OSG_URL        := http://librepilot.github.io/tools/osg-0b63c8ffde-linux-x86-qt-5.4.1.tar.gz
+        OSG_URL        := http://librepilot.github.io/tools/osg-3.4.0-rc5-linux-x86-qt-5.4.1.tar.gz
     endif
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
@@ -100,7 +100,7 @@ else ifeq ($(UNAME), Windows)
     CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
     CMAKE_MD5_URL  := http://librepilot.github.io/tools/cmake-2.8.12.2-win32-x86.zip.md5
     MSYS_URL       := http://librepilot.github.io/tools/MSYS-1.0.11.zip
-    OSG_URL        := http://librepilot.github.io/tools/osg-0b63c8ffde-mingw491_32-qt-5.4.1.tar.gz
+    OSG_URL        := http://librepilot.github.io/tools/osg-3.4.0-rc5-mingw491_32-qt-5.4.1.tar.gz
 endif
 
 GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
@@ -113,12 +113,12 @@ GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR := $(OSG_DIR)/osg-0b63c8ffde-linux-x64-qt-5.4.1
+        OSG_SDK_DIR := $(OSG_DIR)/osg-3.4.0-rc5-linux-x64-qt-5.4.1
     else
-        OSG_SDK_DIR := $(OSG_DIR)/osg-0b63c8ffde-linux-x86-qt-5.4.1
+        OSG_SDK_DIR := $(OSG_DIR)/osg-3.4.0-rc5-linux-x86-qt-5.4.1
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR := $(OSG_DIR)/osg-0b63c8ffde-clang_64-qt-5.4.1
+    OSG_SDK_DIR := $(OSG_DIR)/osg-3.4.0-rc5-clang_64-qt-5.4.1
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
@@ -130,7 +130,7 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
     MSYS_DIR     := $(TOOLS_DIR)/msys
-    OSG_SDK_DIR  := $(OSG_DIR)/osg-0b63c8ffde-mingw491_32-qt-5.4.1
+    OSG_SDK_DIR  := $(OSG_DIR)/osg-3.4.0-rc5-mingw491_32-qt-5.4.1
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)

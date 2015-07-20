@@ -3,7 +3,7 @@
 #
 equals(copydata, 1) {
 
-    OSG_VERSION = 3.3.8
+    OSG_VERSION = 3.4.0
 
     linux {
         # copy osg libraries

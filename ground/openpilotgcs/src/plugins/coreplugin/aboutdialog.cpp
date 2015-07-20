@@ -45,7 +45,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent)
 {
     setWindowIcon(QIcon(":/core/images/librepilot_logo_32.png"));
-    setWindowTitle(tr("About LibrePilot"));
+    setWindowTitle(tr("About %1").arg(ORG_BIG_NAME));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setMinimumSize(600, 400);
     setMaximumSize(800, 600);
@@ -58,7 +58,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
         "Built on %4 at %5<br/>"
         "Based on Qt %6 (%7 bit)<br/>"
         "<br/>"
-        "&copy; %8, %9. All rights reserved.<br/>"
+        "&copy; The %8 Project, %9. All rights reserved.<br/>"
         "&copy; The OpenPilot Project 2010-2015. All rights reserved.<br/>"
         ).arg(
         VersionInfo::revision().left(60), // %1
@@ -68,7 +68,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
         QLatin1String(__TIME__), // %5
         QLatin1String(QT_VERSION_STR), // %6
         QString::number(QSysInfo::WordSize), // %7
-        QLatin1String(GCS_AUTHOR), // %8
+        QLatin1String(ORG_BIG_NAME), // %8
         VersionInfo::year() // %9
         );
 

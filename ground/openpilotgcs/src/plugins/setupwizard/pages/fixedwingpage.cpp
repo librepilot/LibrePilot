@@ -48,8 +48,8 @@ bool FixedWingPage::validatePage(SelectionItem *selectedItem)
 
 void FixedWingPage::setupSelection(Selection *selection)
 {
-    selection->setTitle(tr("OpenPilot Fixed-wing Configuration"));
-    selection->setText(tr("This part of the wizard will set up the OpenPilot controller for use with a fixed-wing "
+    selection->setTitle(tr("Fixed-wing Configuration"));
+    selection->setText(tr("This part of the wizard will set up the flight controller for use with a fixed-wing "
                           "flying aircraft utilizing servos. The wizard supports the most common types of fixed-wing "
                           "aircraft, other variants of fixed-wing aircraft can be configured by using custom "
                           "configuration options in the Configuration plugin in the GCS.\n\n"

@@ -115,7 +115,7 @@ typedef QMap<QString, QString> AppOptionValues;
 const int OptionIndent = 4;
 const int DescriptionIndent = 24;
 
-const QLatin1String APP_NAME(GCS_NAME);
+const QLatin1String APP_NAME(GCS_BIG_NAME);
 const QLatin1String ORG_NAME(ORG_BIG_NAME);
 
 const QLatin1String CORE_PLUGIN_NAME("Core");
@@ -594,7 +594,7 @@ int main(int argc, char * *argv)
         }
         if (!errors.isEmpty()) {
             QMessageBox::warning(0,
-                                 QCoreApplication::translate("Application", "OpenPilot GCS - Plugin loader messages"),
+                                 QCoreApplication::translate("Application", "%1 - Plugin loader messages").arg(GCS_BIG_NAME),
                                  errors.join(QString::fromLatin1("\n\n")));
         }
     }

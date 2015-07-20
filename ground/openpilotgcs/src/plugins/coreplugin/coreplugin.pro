@@ -1,7 +1,6 @@
 TEMPLATE = lib
 TARGET = Core
 DEFINES += CORE_LIBRARY
-DEFINES += ORG_BIG_NAME=$$shell_quote(\"$$ORG_BIG_NAME\")
            
 QT += qml \
     quick \

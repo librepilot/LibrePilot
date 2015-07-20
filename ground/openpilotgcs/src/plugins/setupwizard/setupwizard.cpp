@@ -61,7 +61,7 @@ SetupWizard::SetupWizard(QWidget *parent) : QWizard(parent), VehicleConfiguratio
     m_vehicleTemplate(NULL), m_calibrationPerformed(false),
     m_restartNeeded(false), m_connectionManager(NULL)
 {
-    setWindowTitle(tr("OpenPilot Setup Wizard"));
+    setWindowTitle(tr("Setup Wizard"));
     setOption(QWizard::IndependentPages, false);
     for (quint16 i = 0; i < ActuatorSettings::CHANNELMAX_NUMELEM; i++) {
         m_actuatorSettings << actuatorChannelSettings();

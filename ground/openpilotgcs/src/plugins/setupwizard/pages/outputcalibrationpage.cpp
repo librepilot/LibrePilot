@@ -633,7 +633,7 @@ bool OutputCalibrationPage::checkAlarms()
         mbox.setText(QString(tr("The actuator module is in an error state.\n\n"
                                 "Please make sure the correct firmware version is used then "
                                 "restart the wizard and try again. If the problem persists please "
-                                "consult the openpilot.org support forum.")));
+                                "consult the librepilot.org support forum.")));
         mbox.setStandardButtons(QMessageBox::Ok);
         mbox.setIcon(QMessageBox::Critical);
 

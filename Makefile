@@ -861,6 +861,10 @@ config_new:
 config_append:
 	@printf '$(CONFIG_OPTS)\n' >> $(CONFIG_FILE)
 
+.PHONY: config_show
+config_show:
+	@cat $(CONFIG_FILE)
+
 .PHONY: config_clean
 config_clean:
 	rm -f $(CONFIG_FILE)

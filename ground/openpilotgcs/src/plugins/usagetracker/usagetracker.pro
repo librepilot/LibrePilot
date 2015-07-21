@@ -13,4 +13,3 @@ HEADERS += usagetrackerplugin.h
 SOURCES += usagetrackerplugin.cpp
 
 OTHER_FILES += usagetracker.pluginspec
-QT += network

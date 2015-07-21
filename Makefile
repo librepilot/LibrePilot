@@ -855,11 +855,11 @@ CONFIG_OPTS := $(subst $(SPACE),\n,$(MAKEOVERRIDES))
 
 .PHONY: config_new
 config_new:
-	@echo -e '$(CONFIG_OPTS)' > $(CONFIG_FILE)
+	@printf '$(CONFIG_OPTS)\n' > $(CONFIG_FILE)
 
 .PHONY: config_append
 config_append:
-	@echo -e '$(CONFIG_OPTS)' >> $(CONFIG_FILE)
+	@printf '$(CONFIG_OPTS)\n' >> $(CONFIG_FILE)
 
 .PHONY: config_clean
 config_clean:

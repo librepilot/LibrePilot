@@ -1,7 +1,6 @@
 
 TEMPLATE = lib
 TARGET = UsageTracker
-QT += network
 
 include(../../openpilotgcsplugin.pri)
 include(../../libs/version_info/version_info.pri)
@@ -14,3 +13,4 @@ HEADERS += usagetrackerplugin.h
 SOURCES += usagetrackerplugin.cpp
 
 OTHER_FILES += usagetracker.pluginspec
+QT += network

@@ -29,13 +29,13 @@
 #include <QStringList>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkReply>
 #include <extensionsystem/pluginmanager.h>
 #include <QCheckBox>
 #include <QDebug>
 #include <QMessageBox>
 #include <uavobjectutil/devicedescriptorstruct.h>
 #include <uavobjectutil/uavobjectutilmanager.h>
+#include <coreplugin/generalsettings.h>
 #include "version_info/version_info.h"
 #include "coreplugin/icore.h"
 #include <uavtalk/telemetrymanager.h>
@@ -72,7 +72,8 @@ void UsageTrackerPlugin::shutdown()
 
 void UsageTrackerPlugin::onAutopilotConnect()
 {
-    Core::Internal::GeneralSettings *settings = getGeneralSettings();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
 
     if (settings->collectUsageData()) {
         if (settings->showUsageDataDisclaimer()) {
@@ -138,12 +139,14 @@ void UsageTrackerPlugin::trackUsage()
     if (shouldSend(hash)) {
         query.addQueryItem("hash", hash);
 
+        // Add local timestamp
+        query.addQueryItem("localtime", QDateTime::currentDateTime().toString(Qt::ISODate));
+
         QUrl url("https://www.openpilot.org/opver?" + query.toString(QUrl::FullyEncoded));
 
         QNetworkAccessManager *networkAccessManager = new QNetworkAccessManager();
 
         // This will delete the network access manager instance when we're done
-        connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)), this, SLOT(onFinished(QNetworkReply *)));
         connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)), networkAccessManager, SLOT(deleteLater()));
 
         qDebug() << "Sending usage tracking as:" << url.toEncoded(QUrl::FullyEncoded);
@@ -168,7 +171,6 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         parameters["fw_hash"] = devDesc.gitHash;
         parameters["os_version"]   = QSysInfo::prettyProductName() + " " + QSysInfo::currentCpuArchitecture();
         parameters["os_threads"]   = QString::number(QThread::idealThreadCount());
-        parameters["os_timezone"]        = QTimeZone::systemTimeZoneId();
         parameters["gcs_version"]  = VersionInfo::revision();
 
         // Configuration parameters
@@ -194,16 +196,6 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
     }
 }
 
-void UsageTrackerPlugin::onFinished(QNetworkReply *reply)
-{
-    if (reply->error() == QNetworkReply::NoError) {
-        getGeneralSettings()->setLastUsageHash(m_lastHash);
-        qDebug() << "Updated last usage hash to:" << m_lastHash;
-    } else {
-        qDebug() << "Usage tracking failed with:" << reply->errorString();
-    }
-}
-
 QString UsageTrackerPlugin::getUAVFieldValue(UAVObjectManager *objManager, QString objectName, QString fieldName, int index) const
 {
     UAVObject *object = objManager->getObject(objectName);
@@ -223,19 +215,15 @@ QString UsageTrackerPlugin::getQueryHash(QString source) const
     return QString(QCryptographicHash::hash(QByteArray(source.toStdString().c_str()), QCryptographicHash::Md5).toHex());
 }
 
-Core::Internal::GeneralSettings * UsageTrackerPlugin::getGeneralSettings() const
+bool UsageTrackerPlugin::shouldSend(const QString &hash)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    return settings;
-}
 
-bool UsageTrackerPlugin::shouldSend(const QString &hash)
-{
-    if (getGeneralSettings()->lastUsageHash() == hash) {
+    if (settings->lastUsageHash() == hash) {
         return false;
     } else {
-        m_lastHash = hash;
+        settings->setLastUsageHash(hash);
         return true;
     }
 }

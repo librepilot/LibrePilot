@@ -169,8 +169,8 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
 
-        parameters["conf_receiver"] = getUAVFieldValue(objManager, "ManualControlSettings", "ChannelGroups", 0);
-        parameters["conf_vehicle"]  = getUAVFieldValue(objManager, "SystemSettings", "AirframeType");
+        parameters["settings_receiver"] = getUAVFieldValue(objManager, "ManualControlSettings", "ChannelGroups", 0);
+        parameters["settings_vehicle"]  = getUAVFieldValue(objManager, "SystemSettings", "AirframeType");
 
         // Revolution family
         parameters["conf_rport"]    = getUAVFieldValue(objManager, "HwSettings", "RM_RcvrPort");
@@ -178,10 +178,10 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         parameters["conf_fport"]    = getUAVFieldValue(objManager, "HwSettings", "RM_FlexiPort");
         parameters["conf_fusion"]   = getUAVFieldValue(objManager, "RevoSettings", "FusionAlgorithm");
 
-        parameters["conf_uport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_HIDPort");
-        parameters["conf_vport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_VCPPort");
+        parameters["settings_uport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_HIDPort");
+        parameters["settings_vport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_VCPPort");
 
-        parameters["conf_rotation"] = QString("%1:%2:%3")
+        parameters["settings_rotation"] = QString("%1:%2:%3")
                                           .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 0))
                                           .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 1))
                                           .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 2));

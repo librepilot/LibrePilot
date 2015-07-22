@@ -204,6 +204,8 @@ endif
 # Command to extract version info data from the repository and source tree
 export VERSION_INFO = $(PYTHON) $(ROOT_DIR)/make/scripts/version-info.py --path=$(ROOT_DIR)
 
+export CCACHE
+
 ##############################
 #
 # Misc settings

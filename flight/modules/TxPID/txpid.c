@@ -9,6 +9,7 @@
  *
  * @file       txpid.c
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @brief      Optional module to tune PID settings using R/C transmitter.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -382,17 +383,21 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_GYROTAU:
                 needsUpdateStab |= update(&stab.GyroTau, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ACROPLUSFACTOR:
-                needsUpdateBank |= update(&bank.AcroInsanityFactor, value);
+            case TXPIDSETTINGS_PIDS_ACROPLUSFACTORROLL:
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Roll, value);
                 break;
+            case TXPIDSETTINGS_PIDS_ACROPLUSFACTORPITCH:
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
+                break;
+
             case TXPIDSETTINGS_PIDS_ACCELTAU:
-                needsUpdateAtt  |= update(&att.AccelTau, value);
+                needsUpdateAtt |= update(&att.AccelTau, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELKP:
-                needsUpdateAtt  |= update(&att.AccelKp, value);
+                needsUpdateAtt |= update(&att.AccelKp, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELKI:
-                needsUpdateAtt  |= update(&att.AccelKi, value);
+                needsUpdateAtt |= update(&att.AccelKi, value);
                 break;
 
 #ifdef REVOLUTION

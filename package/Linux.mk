@@ -107,4 +107,4 @@ install:
 	$(V1) sed -i -e 's/gcs/$(GCS_SMALL_NAME)/g;s/GCS/$(GCS_BIG_NAME)/g;s/org/$(ORG_SMALL_NAME)/g;s/ORG/$(ORG_BIG_NAME)/g' $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
 
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
-	$(V1) install -c -m 644 $(ROOT_DIR)/package/linux/45-openpilot-permissions.rules $(DESTDIR)$(sysconfdir)/udev/rules.d/45-$(ORG_SMALL_NAME).udev
+	$(V1) install -c -m 644 $(ROOT_DIR)/package/linux/45-openpilot-permissions.rules $(DESTDIR)$(sysconfdir)/udev/rules.d/45-$(ORG_SMALL_NAME).rules

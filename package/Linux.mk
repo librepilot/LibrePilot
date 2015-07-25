@@ -57,7 +57,7 @@ package: debian
 debian: $(DEB_DIR)
 	$(V1) rm -rf debian
 	$(V1) cp -r $(DEB_DIR) debian
-	$(V1) cp -T package/linux/45-openpilot-permissions.rules debian/$(DEB_NAME).udev
+	$(V1) cp -T package/linux/45-uav.rules debian/$(DEB_NAME).udev
 	$(V1) $(SED_SCRIPT) debian/changelog debian/control
 ifeq ($(DEB_DIST), trusty)
 	$(V1) sed -i -e "$(TRUSTY_DEPS_SED)" debian/control
@@ -81,10 +81,11 @@ endif # Debian based distro?
 # Install OpenPilot
 #
 ##############################
-prefix  := /usr/local
-bindir  := $(prefix)/bin
-libdir  := $(prefix)/lib
-datadir := $(prefix)/share
+prefix     := /usr/local
+bindir     := $(prefix)/bin
+libdir     := $(prefix)/lib
+datadir    := $(prefix)/share
+sysconfdir := $(prefix)/etc
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln
@@ -98,7 +99,7 @@ install:
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
+		$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/lib/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/gcs.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
@@ -106,4 +107,9 @@ install:
 
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
-
+# Are we using a debian based distro?
+ifneq ($(shell which dpkg 2> /dev/null),)
+	$(V1) $(MKDIR) -p $(DESTDIR)$(sysconfdir)/udev/rules.d
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/45-uav.rules $(DESTDIR)$(sysconfdir)/udev/rules.d/45-$(ORG_SMALL_NAME).rules
+endif
+	

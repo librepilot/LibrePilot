@@ -81,10 +81,11 @@ endif # Debian based distro?
 # Install OpenPilot
 #
 ##############################
-prefix  := /usr/local
-bindir  := $(prefix)/bin
-libdir  := $(prefix)/lib
-datadir := $(prefix)/share
+prefix     := /usr/local
+bindir     := $(prefix)/bin
+libdir     := $(prefix)/lib
+datadir    := $(prefix)/share
+sysconfdir := $(prefix)/etc
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln
@@ -98,6 +99,7 @@ install:
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
+	$(V1) install -dm 755 $(DESTDIR)$(sysconfdir)/udev/rules.d
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/lib/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
@@ -105,5 +107,4 @@ install:
 	$(V1) sed -i -e 's/gcs/$(GCS_SMALL_NAME)/g;s/GCS/$(GCS_BIG_NAME)/g;s/org/$(ORG_SMALL_NAME)/g;s/ORG/$(ORG_BIG_NAME)/g' $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
 
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
-
-
+	$(V1) install -c -m 644 $(ROOT_DIR)/package/linux/45-openpilot-permissions.rules $(DESTDIR)$(sysconfdir)/udev/rules.d/45-$(ORG_SMALL_NAME).udev

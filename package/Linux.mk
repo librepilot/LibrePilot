@@ -81,10 +81,13 @@ endif # Debian based distro?
 # Install OpenPilot
 #
 ##############################
-prefix  := /usr/local
-bindir  := $(prefix)/bin
-libdir  := $(prefix)/lib
-datadir := $(prefix)/share
+enable-udev-rules ?= no
+
+prefix     := /usr/local
+bindir     := $(prefix)/bin
+libdir     := $(prefix)/lib
+datadir    := $(prefix)/share
+sysconfdir := $(prefix)/etc
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln
@@ -106,4 +109,7 @@ install:
 
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
-
+ifneq ($(enable-udev-rules), no)
+	$(V1) $(MKDIR) -p $(DESTDIR)$(sysconfdir)/udev/rules.d
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/45-uav.rules $(DESTDIR)$(sysconfdir)/udev/rules.d/45-$(ORG_SMALL_NAME).rules
+endif

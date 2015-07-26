@@ -81,12 +81,13 @@ endif # Debian based distro?
 # Install OpenPilot
 #
 ##############################
-enable-udev-rules ?= no
-prefix       := /usr/local
-bindir       := $(prefix)/bin
-libdir       := $(prefix)/lib
-datadir      := $(prefix)/share
-udevrulesdir := /etc/udev/rules.d
+enable-udev-rules = no
+
+prefix        = /usr/local
+bindir        = $(prefix)/bin
+libdir        = $(prefix)/lib
+datadir       = $(prefix)/share
+udevrulesdir  = /etc/udev/rules.d
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln

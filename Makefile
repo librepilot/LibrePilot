@@ -737,13 +737,13 @@ endif
 #  - calls paltform-specific packaging script
 
 # Define some variables
-PACKAGE_LBL       := $(shell $(VERSION_INFO) --format=\$${LABEL})
-PACKAGE_NAME      := $(subst $(SPACE),,$(ORG_BIG_NAME))
-PACKAGE_SEP       := -
-PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
+PACKAGE_LBL       = $(shell $(VERSION_INFO) --format=\$${LABEL})
+PACKAGE_NAME      = $(subst $(SPACE),,$(ORG_BIG_NAME))
+PACKAGE_SEP       = -
+PACKAGE_FULL_NAME = $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
 # Source distribution is never dirty because it uses git archive
-DIST_NAME := $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
+DIST_NAME = $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
 
 include $(ROOT_DIR)/package/$(UNAME).mk
 
@@ -827,7 +827,7 @@ build-info: | $(BUILD_DIR)
 #
 ##############################
 
-DIST_VER_INFO := $(DIST_DIR)/version-info.json
+DIST_VER_INFO = $(DIST_DIR)/version-info.json
 
 $(DIST_VER_INFO): .git/index | $(DIST_DIR)
 	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"

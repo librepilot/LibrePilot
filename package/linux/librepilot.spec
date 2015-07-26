@@ -52,13 +52,9 @@ and ease of use.
 %prep
 %setup -q -n %{name}-%{version}-%{gitrev}
 
-# Fix hardcoded paths
-sed -i 's!lib/$$GCS_SMALL_NAME!%{_lib}/$$GCS_SMALL_NAME!g' ground/openpilotgcs/openpilotgcs.pri
-sed -i 's!lib/$(GCS_SMALL_NAME!%{_lib}/$(GCS_SMALL_NAME!g' package/Linux.mk
-
 
 %build
-make %{?_smp_mflags} gcs QMAKE=qmake-qt5 CC=%{__cc} CXX=%{__cxx} libdir=%{_libdir}
+make %{?_smp_mflags} gcs QMAKE=qmake-qt5 CC=%{__cc} CXX=%{__cxx} libbasename=%{_lib}
 #make -j1 opfw_resource
 
 
@@ -66,7 +62,7 @@ make %{?_smp_mflags} gcs QMAKE=qmake-qt5 CC=%{__cc} CXX=%{__cxx} libdir=%{_libdi
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT \
     prefix=%{_prefix} \
-    libdir=%{_libdir} \
+    libbasename=%{_lib} \
     enable-udev-rules=yes \
     udevrulesdir=%{_udevrulesdir}
 

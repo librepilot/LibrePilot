@@ -28,10 +28,13 @@ Integral text of the license can be found at http://www.gnu.org/licenses/gpl-3.0
 Links for the LibrePilot Project
 --------------------------------
 
-Main project web site:  https://www.librepilot.org/
-Project forums:	        https://forum.librepilot.org/
-Source code repository: https://github.com/librepilot
-GitHub issue tracker:   https://github.com/librepilot/LibrePilot/issues
+Main project web site:  https://www.librepilot.org
+Project forums:         https://forum.librepilot.org
+Source code repository: https://bitbucket.org/librepilot
+Mirror:                 https://github.com/librepilot
+Issue tracker:          https://librepilot.atlassian.net
+Gitter Chat:            https://gitter.im/librepilot/LibrePilot
+IRC:                    #LibrePilot on FreeNode
 
 How to build from source?
 -------------------------

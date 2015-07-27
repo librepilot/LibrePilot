@@ -195,6 +195,29 @@ margin-top: -1px;
                     <string>Acro+</string>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_26">
+
+                 <item row="0" column="0">
+                  <widget class="QCheckBox" name="checkBoxLinkAcroFactors">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::StrongFocus</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Link roll &amp;amp; pitch sliders to move together, thus giving same value for both roll &amp;amp; pitch when setting up a symetrical vehicle that requires both to be the same&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string>Link Roll and Pitch</string>
+                   </property>
+                  </widget>
+                 </item>
                     <item row="0" column="1">
                      <widget class="QPushButton" name="pushButton_21">
                       <property name="sizePolicy">

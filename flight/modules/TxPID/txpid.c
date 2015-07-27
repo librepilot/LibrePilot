@@ -389,7 +389,10 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_ACROPLUSFACTORPITCH:
                 needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
                 break;
-
+            case TXPIDSETTINGS_PIDS_ACROPLUSFACTORROLLPITCH:
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Roll, value);
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
+                break;
             case TXPIDSETTINGS_PIDS_ACCELTAU:
                 needsUpdateAtt |= update(&att.AccelTau, value);
                 break;

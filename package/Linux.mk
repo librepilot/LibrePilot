@@ -57,7 +57,7 @@ package: debian
 debian: $(DEB_DIR)
 	$(V1) rm -rf debian
 	$(V1) cp -r $(DEB_DIR) debian
-	$(V1) cp -T package/linux/45-openpilot-permissions.rules debian/$(DEB_NAME).udev
+	$(V1) cp -T package/linux/45-uav.rules debian/$(DEB_NAME).udev
 	$(V1) $(SED_SCRIPT) debian/changelog debian/control
 ifeq ($(DEB_DIST), trusty)
 	$(V1) sed -i -e "$(TRUSTY_DEPS_SED)" debian/control
@@ -81,10 +81,12 @@ endif # Debian based distro?
 # Install OpenPilot
 #
 ##############################
-prefix  := /usr/local
-bindir  := $(prefix)/bin
-libdir  := $(prefix)/lib
-datadir := $(prefix)/share
+enable-udev-rules ?= no
+prefix       := /usr/local
+bindir       := $(prefix)/bin
+libdir       := $(prefix)/lib
+datadir      := $(prefix)/share
+udevrulesdir := /etc/udev/rules.d
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln
@@ -106,4 +108,7 @@ install:
 
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
-
+ifneq ($(enable-udev-rules), no)
+	$(V1) $(MKDIR) -p $(DESTDIR)$(udevrulesdir)
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/45-uav.rules $(DESTDIR)$(udevrulesdir)/45-$(ORG_SMALL_NAME).rules
+endif

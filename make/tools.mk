@@ -16,6 +16,7 @@
 #    uncrustify_install
 #    doxygen_install
 #    gtest_install
+#    ccache_install
 #
 # TODO:
 #    openocd_install
@@ -100,12 +101,15 @@ else ifeq ($(UNAME), Windows)
 endif
 
 GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
-
+CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
+#temporary url, to be moved under librepilot.github.io
+CCACHE_MD5_URL := http://www.alessiomorale.com/download/ccache-3.2.2.tar.bz2.md5
 ARM_SDK_DIR    := $(TOOLS_DIR)/gcc-arm-none-eabi-4_9-2014q4
 QT_SDK_DIR     := $(TOOLS_DIR)/qt-5.4.1
 UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
+CCACHE_DIR     := $(TOOLS_DIR)/ccache
 
 ifeq ($(UNAME), Linux)
 else ifeq ($(UNAME), Darwin)
@@ -132,7 +136,7 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 
 BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += sdl nsis mesawin openssl 
+    BUILD_SDK_TARGETS += sdl nsis mesawin openssl ccache
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
 
@@ -969,9 +973,33 @@ msys_version:
 
 endif
 
+##############################
+#
+# CCACHE
+#
+##############################
 
+CCACHE_BUILD_DIR := $(BUILD_DIR)/ccache-3.2.2
 
+define CCACHE_BUILD_TEMPLATE
+	$(V1) ( \
+		$(ECHO) $(MSG_CONFIGURING) $(call toprel, $(CCACHE_BUILD_DIR)) && \
+		cd $(CCACHE_BUILD_DIR) && \
+		./configure --prefix="$(CCACHE_DIR)" && \
+		$(ECHO) $(MSG_BUILDING) $(call toprel, $(CCACHE_BUILD_DIR)) && \
+		$(MAKE) $(MAKE_SILENT) && \
+		$(ECHO) $(MSG_INSTALLING) $(call toprel, $(CCACHE_DIR)) && \
+		$(MAKE) $(MAKE_SILENT) install \
+	)
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(CCACHE_BUILD_DIR))
+	-$(V1) [ ! -d "$(CCACHE_BUILD_DIR)" ] || $(RM) -rf "$(CCACHE_BUILD_DIR)"
+endef
 
+define CCACHE_CLEAN_TEMPLATE
+	-$(V1) [ ! -d "$(CCACHE_DIR)" ] || $(RM) -rf "$(CCACHE_DIR)"
+endef
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,ccache,$(CCACHE_BUILD_DIR),$(CCACHE_URL),$(CCACHE_MD5_URL),$(notdir $(CCACHE_URL)),$(CCACHE_BUILD_TEMPLATE),$(CCACHE_CLEAN_TEMPLATE)))
 
 ##############################
 #

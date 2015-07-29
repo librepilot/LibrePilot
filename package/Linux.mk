@@ -67,8 +67,8 @@ endif
 package_src:  $(DEB_ORIG_SRC_NAME) $(DEB_PACKAGE_DIR)
 	$(V1) cd $(DEB_PACKAGE_DIR) && dpkg-buildpackage -S -us -uc
 
-$(DEB_ORIG_SRC): $(DIST_NAME).gz | $(PACKAGE_DIR)
-	$(V1) cp $(DIST_NAME).gz $(DEB_ORIG_SRC)
+$(DEB_ORIG_SRC): $(DIST_TAR_GZ) | $(PACKAGE_DIR)
+	$(V1) cp $(DIST_TAR_GZ) $(DEB_ORIG_SRC)
 
 $(DEB_PACKAGE_DIR): $(DEB_ORIG_SRC) debian | $(PACKAGE_DIR)
 	$(V1) tar -xf $(DEB_ORIG_SRC) -C $(PACKAGE_DIR)

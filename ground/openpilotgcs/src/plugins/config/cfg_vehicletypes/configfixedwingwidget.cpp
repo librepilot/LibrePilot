@@ -3,6 +3,7 @@
  *
  * @file       configfixedwingwidget.cpp
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -136,9 +137,18 @@ void ConfigFixedWingWidget::setupUI(QString frameType)
 
         m_aircraft->elevonSlider1->setEnabled(false);
         m_aircraft->elevonSlider2->setEnabled(false);
+        m_aircraft->elevonSlider3->setEnabled(true);
 
         m_aircraft->elevonSlider1->setValue(100);
         m_aircraft->elevonSlider2->setValue(100);
+
+        // Get values saved if frameType = current frameType set on board
+        if (field->getValue().toString() == "FixedWing") {
+            m_aircraft->elevonSlider3->setValue(getMixerValue(mixer, "RollDifferential"));
+        } else {
+            m_aircraft->elevonSlider3->setValue(0);
+        }
+
     } else if (frameType == "FixedWingElevon" || frameType == "Elevon") {
         planeimg->setElementId("elevon");
         setComboCurrentIndex(m_aircraft->fixedWingType, m_aircraft->fixedWingType->findText("Elevon"));
@@ -157,14 +167,17 @@ void ConfigFixedWingWidget::setupUI(QString frameType)
 
         m_aircraft->elevonSlider1->setEnabled(true);
         m_aircraft->elevonSlider2->setEnabled(true);
+        m_aircraft->elevonSlider3->setEnabled(true);
 
         // Get values saved if frameType = current frameType set on board
         if (field->getValue().toString() == "FixedWingElevon") {
             m_aircraft->elevonSlider1->setValue(getMixerValue(mixer, "MixerValueRoll"));
             m_aircraft->elevonSlider2->setValue(getMixerValue(mixer, "MixerValuePitch"));
+            m_aircraft->elevonSlider3->setValue(getMixerValue(mixer, "RollDifferential"));
         } else {
             m_aircraft->elevonSlider1->setValue(100);
             m_aircraft->elevonSlider2->setValue(100);
+            m_aircraft->elevonSlider3->setValue(0);
         }
     } else if (frameType == "FixedWingVtail" || frameType == "Vtail") {
         planeimg->setElementId("vtail");
@@ -187,14 +200,17 @@ void ConfigFixedWingWidget::setupUI(QString frameType)
 
         m_aircraft->elevonSlider1->setEnabled(true);
         m_aircraft->elevonSlider2->setEnabled(true);
+        m_aircraft->elevonSlider3->setEnabled(true);
 
         // Get values saved if frameType = current frameType set on board
         if (field->getValue().toString() == "FixedWingVtail") {
             m_aircraft->elevonSlider1->setValue(getMixerValue(mixer, "MixerValueYaw"));
             m_aircraft->elevonSlider2->setValue(getMixerValue(mixer, "MixerValuePitch"));
+            m_aircraft->elevonSlider3->setValue(getMixerValue(mixer, "RollDifferential"));
         } else {
             m_aircraft->elevonSlider1->setValue(100);
             m_aircraft->elevonSlider2->setValue(100);
+            m_aircraft->elevonSlider3->setValue(0);
         }
     }
 
@@ -220,6 +236,7 @@ void ConfigFixedWingWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->fwRudder2ChannelBox);
     parent.addWidget(m_aircraft->elevonSlider1);
     parent.addWidget(m_aircraft->elevonSlider2);
+    parent.addWidget(m_aircraft->elevonSlider3);
 }
 
 void ConfigFixedWingWidget::resetActuators(GUIConfigDataUnion *configData)
@@ -270,6 +287,7 @@ void ConfigFixedWingWidget::refreshWidgetsValues(QString frameType)
     setComboCurrentIndex(m_aircraft->fwRudder2ChannelBox, fixed.FixedWingYaw2);
 
     // Get mixing values for GUI sliders (values stored onboard)
+    m_aircraft->elevonSlider3->setValue(getMixerValue(mixer, "RollDifferential"));
     if (frameType == "FixedWingElevon" || frameType == "Elevon") {
         m_aircraft->elevonSlider1->setValue(getMixerValue(mixer, "MixerValueRoll"));
         m_aircraft->elevonSlider2->setValue(getMixerValue(mixer, "MixerValuePitch"));
@@ -361,8 +379,12 @@ bool ConfigFixedWingWidget::setupFrameFixedWing(QString airframeType)
     setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_YAW, -127);
 
     // ailerons
+    setMixerValue(mixer, "FirstRollServo", m_aircraft->fwAileron1ChannelBox->currentIndex());
     channel = m_aircraft->fwAileron1ChannelBox->currentIndex() - 1;
     if (channel > -1) {
+        // Store differential value onboard
+        setMixerValue(mixer, "RollDifferential", m_aircraft->elevonSlider3->value());
+
         setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_SERVO);
         setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_ROLL, 127);
 
@@ -442,6 +464,7 @@ bool ConfigFixedWingWidget::setupFrameElevon(QString airframeType)
     setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_YAW, -yaw);
 
     // ailerons
+    setMixerValue(mixer, "FirstRollServo", m_aircraft->fwAileron1ChannelBox->currentIndex());
     channel = m_aircraft->fwAileron1ChannelBox->currentIndex() - 1;
     if (channel > -1) {
         // Compute mixer absolute values
@@ -449,6 +472,7 @@ bool ConfigFixedWingWidget::setupFrameElevon(QString airframeType)
         roll  = (double)(m_aircraft->elevonSlider1->value() * 1.27);
 
         // Store sliders values onboard
+        setMixerValue(mixer, "RollDifferential", m_aircraft->elevonSlider3->value());
         setMixerValue(mixer, "MixerValuePitch", m_aircraft->elevonSlider2->value());
         setMixerValue(mixer, "MixerValueRoll", m_aircraft->elevonSlider1->value());
 
@@ -511,12 +535,14 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
     setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
 
     // ailerons
+    setMixerValue(mixer, "FirstRollServo", m_aircraft->fwAileron1ChannelBox->currentIndex());
     channel = m_aircraft->fwAileron1ChannelBox->currentIndex() - 1;
     if (channel > -1) {
         // Roll mixer value, currently no slider (should be added for Ailerons response ?)
         roll = 127;
-        // Store Roll fixed value onboard
+        // Store Roll fixed and RollDifferential values onboard
         setMixerValue(mixer, "MixerValueRoll", 100);
+        setMixerValue(mixer, "RollDifferential", m_aircraft->elevonSlider3->value());
 
         // First Aileron (left)
         setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_SERVO);
@@ -529,6 +555,7 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
     }
 
     // vtail (pitch / yaw mixing)
+
     channel = m_aircraft->fwElevator1ChannelBox->currentIndex() - 1;
     if (channel > -1) {
         // Compute mixer absolute values
@@ -538,6 +565,7 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
         // Store sliders values onboard
         setMixerValue(mixer, "MixerValuePitch", m_aircraft->elevonSlider2->value());
         setMixerValue(mixer, "MixerValueYaw", m_aircraft->elevonSlider1->value());
+
 
         // First Vtail servo
         setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_SERVO);

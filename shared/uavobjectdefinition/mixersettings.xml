@@ -5,6 +5,8 @@
         <field name="MixerValueRoll" units="percent" type="int8" elements="1" defaultvalue="50"/>  
         <field name="MixerValuePitch" units="percent" type="int8" elements="1" defaultvalue="50"/>
         <field name="MixerValueYaw" units="percent" type="int8" elements="1" defaultvalue="50"/>
+        <field name="RollDifferential" units="percent" type="int8" elements="1" defaultvalue="0"/>
+        <field name="FirstRollServo" units="" type="uint8" elements="1" defaultvalue="0"/>   
         <field name="FeedForward" units="" type="float" elements="1" defaultvalue="0"/>
         <field name="AccelTime" units="ms" type="float" elements="1" defaultvalue="0"/>
         <field name="DecelTime" units="ms" type="float" elements="1" defaultvalue="0"/>

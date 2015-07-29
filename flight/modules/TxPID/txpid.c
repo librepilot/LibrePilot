@@ -253,6 +253,16 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_ROLLRATEKP:
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
                 break;
+            case TXPIDSETTINGS_PIDS_ROLLRATEPID:
+                needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
+                needsUpdateBank |= update(&bank.RollRatePID.Ki, value * inst.PitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.RollRatePID.Kd, value * inst.PitchRollRateFactors.D);
+                break;
+            case TXPIDSETTINGS_PIDS_PITCHRATEPID:
+                needsUpdateBank |= update(&bank.PitchRatePID.Kp, value);
+                needsUpdateBank |= update(&bank.PitchRatePID.Ki, value * inst.PitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.PitchRatePID.Kd, value * inst.PitchRollRateFactors.D);
+                break;
             case TXPIDSETTINGS_PIDS_ROLLRATEKI:
                 needsUpdateBank |= update(&bank.RollRatePID.Ki, value);
                 break;
@@ -437,6 +447,11 @@ static void updatePIDs(UAVObjEvent *ev)
     }
 #endif
     if (needsUpdateBank) {
+        if(inst.RatePIDRecalculateYaw == TXPIDSETTINGS_RATEPIDRECALCULATEYAW_ENABLED){
+            update(&bank.YawRatePID.Kp, (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.YawRateFactors.P);
+            update(&bank.YawRatePID.Ki, bank.YawRatePID.Kp * inst.YawRateFactors.I);
+            update(&bank.YawRatePID.Kd, bank.YawRatePID.Kp * inst.YawRateFactors.D);
+        }
         switch (inst.BankNumber) {
         case 0:
             StabilizationSettingsBank1Set((StabilizationSettingsBank1Data *)&bank);

@@ -25,7 +25,7 @@
 # existance by each sub-make.
 export TOP_LEVEL_MAKEFILE := TRUE
 
-# It is possible to set OPENPILOT_DL_DIR and/or OPENPILOT_TOOLS_DIR environment
+# It is possible to set GCS_DL_DIR and/or GCS_TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the
 # same toolchains can be used for all working copies. Particularly useful for CI
 # server build agents, but also for local installations.
@@ -43,8 +43,8 @@ toprel = $(subst $(realpath $(ROOT_DIR))/,,$(abspath $(1)))
 
 # Set up some macros for common directories within the tree
 export ROOT_DIR    := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-export DL_DIR      := $(if $(OPENPILOT_DL_DIR),$(call slashfix,$(OPENPILOT_DL_DIR)),$(ROOT_DIR)/downloads)
-export TOOLS_DIR   := $(if $(OPENPILOT_TOOLS_DIR),$(call slashfix,$(OPENPILOT_TOOLS_DIR)),$(ROOT_DIR)/tools)
+export DL_DIR      := $(if $(GCS_DL_DIR),$(call slashfix,$(GCS_DL_DIR)),$(ROOT_DIR)/downloads)
+export TOOLS_DIR   := $(if $(GCS_TOOLS_DIR),$(call slashfix,$(GCS_TOOLS_DIR)),$(ROOT_DIR)/tools)
 export BUILD_DIR   := $(ROOT_DIR)/build
 export PACKAGE_DIR := $(ROOT_DIR)/build/package
 export DIST_DIR    := $(ROOT_DIR)/build/dist
@@ -1033,7 +1033,7 @@ help:
 	@$(ECHO) "         All build output will be placed in $(BUILD_DIR)"
 	@$(ECHO)
 	@$(ECHO) "  Tool download and install directories can be changed using environment variables:"
-	@$(ECHO) "         OPENPILOT_DL_DIR        full path to downloads directory [downloads if not set]"
-	@$(ECHO) "         OPENPILOT_TOOLS_DIR     full path to installed tools directory [tools if not set]"
+	@$(ECHO) "         GCS_DL_DIR        full path to downloads directory [downloads if not set]"
+	@$(ECHO) "         GCS_TOOLS_DIR     full path to installed tools directory [tools if not set]"
 	@$(ECHO) "  More info: http://wiki.openpilot.org/display/Doc/OpenPilot+Build+System+Overview"
 	@$(ECHO)

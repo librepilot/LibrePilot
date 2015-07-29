@@ -121,7 +121,7 @@ isEmpty(GCS_BUILD_TREE) {
 TOOLS_DIR = $$(TOOLS_DIR)
 isEmpty(TOOLS_DIR) {
     # check for custom enviroment variable,
-    TOOLS_DIR = $$(OPENPILOT_TOOLS_DIR)
+    TOOLS_DIR = $$(GCS_TOOLS_DIR)
     # fallback to default location.
     isEmpty(TOOLS_DIR):TOOLS_DIR = $$clean_path($$ROOT_DIR/tools)
 }

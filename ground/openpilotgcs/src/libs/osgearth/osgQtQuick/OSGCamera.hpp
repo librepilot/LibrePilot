@@ -55,9 +55,9 @@ public:
     virtual ~OSGCamera();
 
     // fov depends on the scenery space (probaby distance)
-    // here are some value: 75°, 60°, 45° many gamers use
-    // x-plane uses 45° for 4:3 and 60° for 16:9/16:10
-    // flightgear uses 55° / 70°
+    // here are some value: 75Â°, 60Â°, 45Â° many gamers use
+    // x-plane uses 45Â° for 4:3 and 60Â° for 16:9/16:10
+    // flightgear uses 55Â° / 70Â°
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
 

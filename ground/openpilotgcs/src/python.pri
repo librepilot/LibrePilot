@@ -4,9 +4,9 @@
 PYTHON_DIR = qt-5.4.1/Tools/mingw491_32/opt/bin
 
 # Search the python using environment override first
-GCS_TOOLS_DIR = $$(GCS_TOOLS_DIR)
-!isEmpty(GCS_TOOLS_DIR):exists($$GCS_TOOLS_DIR/$$PYTHON_DIR/python*) {
-    PYTHON = \"$$GCS_TOOLS_DIR/$$PYTHON_DIR/python\"
+TOOLS_DIR = $$(TOOLS_DIR)
+!isEmpty(TOOLS_DIR):exists($$TOOLS_DIR/$$PYTHON_DIR/python*) {
+    PYTHON = \"$$TOOLS_DIR/$$PYTHON_DIR/python\"
 } else {
     # If not found, search the predefined tools path
     exists($$ROOT_DIR/tools/$$PYTHON_DIR/python*) {

@@ -148,7 +148,6 @@ void ConfigFixedWingWidget::setupUI(QString frameType)
         } else {
             m_aircraft->elevonSlider3->setValue(0);
         }
-
     } else if (frameType == "FixedWingElevon" || frameType == "Elevon") {
         planeimg->setElementId("elevon");
         setComboCurrentIndex(m_aircraft->fixedWingType, m_aircraft->fixedWingType->findText("Elevon"));
@@ -184,8 +183,10 @@ void ConfigFixedWingWidget::setupUI(QString frameType)
         setComboCurrentIndex(m_aircraft->fixedWingType, m_aircraft->fixedWingType->findText("Vtail"));
         m_aircraft->fwRudder1ChannelBox->setEnabled(false);
         m_aircraft->fwRudder1ChannelBox->setCurrentText("None");
+        m_aircraft->fwRudder1ChannelBox->setToolTip("");
         m_aircraft->fwRudder2ChannelBox->setEnabled(false);
         m_aircraft->fwRudder2ChannelBox->setCurrentText("None");
+        m_aircraft->fwRudder2ChannelBox->setToolTip("");
 
         m_aircraft->fwElevator1Label->setText("Vtail 1");
         m_aircraft->fwElevator1ChannelBox->setEnabled(true);
@@ -354,6 +355,7 @@ bool ConfigFixedWingWidget::setupFrameFixedWing(QString airframeType)
     config.fixedwing.FixedWingRoll1    = m_aircraft->fwAileron1ChannelBox->currentIndex();
     config.fixedwing.FixedWingRoll2    = m_aircraft->fwAileron2ChannelBox->currentIndex();
     config.fixedwing.FixedWingYaw1     = m_aircraft->fwRudder1ChannelBox->currentIndex();
+    config.fixedwing.FixedWingYaw2     = m_aircraft->fwRudder2ChannelBox->currentIndex();
     config.fixedwing.FixedWingThrottle = m_aircraft->fwEngineChannelBox->currentIndex();
 
     setConfigData(config);
@@ -598,85 +600,57 @@ bool ConfigFixedWingWidget::throwConfigError(QString airframeType)
     // Initialize configuration error flag
     bool error = false;
 
-    // Create a red block. All combo boxes are the same size, so any one should do as a model
-    int size   = m_aircraft->fwEngineChannelBox->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    QPixmap pixmap(size, size);
+    QList<QComboBox *> comboChannelsName;
+    comboChannelsName << m_aircraft->fwEngineChannelBox
+                      << m_aircraft->fwAileron1ChannelBox << m_aircraft->fwAileron2ChannelBox
+                      << m_aircraft->fwElevator1ChannelBox << m_aircraft->fwElevator2ChannelBox
+                      << m_aircraft->fwRudder1ChannelBox << m_aircraft->fwRudder2ChannelBox;
+    QString channelNames = "";
 
-    pixmap.fill(QColor("red"));
-
-    if (airframeType == "FixedWing") {
-        if (m_aircraft->fwEngineChannelBox->currentText() == "None") {
-            m_aircraft->fwEngineChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwEngineChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-
-        if (m_aircraft->fwElevator1ChannelBox->currentText() == "None") {
-            m_aircraft->fwElevator1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwElevator1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-
-        if ((m_aircraft->fwAileron1ChannelBox->currentText() == "None")
-            && (m_aircraft->fwRudder1ChannelBox->currentText() == "None")) {
-            pixmap.fill(QColor("green"));
-            m_aircraft->fwAileron1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            m_aircraft->fwRudder1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwAileron1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-            m_aircraft->fwRudder1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-    } else if (airframeType == "FixedWingElevon") {
-        if (m_aircraft->fwEngineChannelBox->currentText() == "None") {
-            m_aircraft->fwEngineChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwEngineChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-
-        if (m_aircraft->fwAileron1ChannelBox->currentText() == "None") {
-            m_aircraft->fwAileron1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwAileron1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-
-        if (m_aircraft->fwAileron2ChannelBox->currentText() == "None") {
-            m_aircraft->fwAileron2ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwAileron2ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-    } else if (airframeType == "FixedWingVtail") {
-        if (m_aircraft->fwEngineChannelBox->currentText() == "None") {
-            m_aircraft->fwEngineChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwEngineChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-
-        if (m_aircraft->fwElevator1ChannelBox->currentText() == "None") {
-            m_aircraft->fwElevator1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwElevator1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-        }
-
-        if (m_aircraft->fwElevator2ChannelBox->currentText() == "None") {
-            m_aircraft->fwElevator2ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
-            error = true;
-        } else {
-            m_aircraft->fwElevator2ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
+    for (int i = 0; i < 7; i++) {
+        QComboBox *combobox = comboChannelsName[i];
+        if (combobox && (combobox->isEnabled())) {
+            if (combobox->currentText() == "None") {
+                int size = combobox->style()->pixelMetric(QStyle::PM_SmallIconSize);
+                QPixmap pixmap(size, size);
+                if ((airframeType == "FixedWingElevon") && (i > 2)) {
+                    pixmap.fill(QColor("green"));
+                    // Rudders are optional for elevon frame
+                    combobox->setToolTip(tr("Rudders are optional for Elevon frame"));
+                } else if (((airframeType == "FixedWing") || (airframeType == "FixedWingVtail")) && (i == 2)) {
+                    pixmap.fill(QColor("green"));
+                    // Second aileron servo is optional for FixedWing frame
+                    combobox->setToolTip(tr("Second aileron servo is optional"));
+                } else if ((airframeType == "FixedWing") && (i > 3)) {
+                    pixmap.fill(QColor("green"));
+                    // Second elevator and rudders are optional for FixedWing frame
+                    combobox->setToolTip(tr("Second elevator servo is optional"));
+                    if (i > 4) {
+                        combobox->setToolTip(tr("Rudder is highly recommended for fixed wing."));
+                    }
+                } else {
+                    pixmap.fill(QColor("red"));
+                    combobox->setToolTip(tr("Please assign Channel"));
+                    m_aircraft->fwStatusLabel->setText(tr("<font color='red'>ERROR: Assign all necessary channels</font>"));
+                    error = true;
+                }
+                combobox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
+            } else if (channelNames.contains(combobox->currentText(), Qt::CaseInsensitive)) {
+                int size = combobox->style()->pixelMetric(QStyle::PM_SmallIconSize);
+                QPixmap pixmap(size, size);
+                pixmap.fill(QColor("orange"));
+                combobox->setItemData(combobox->currentIndex(), pixmap, Qt::DecorationRole); // Set color palettes
+                combobox->setToolTip(tr("Channel already used"));
+                error = true;
+            } else {
+                for (int index = 0; index < (int)ConfigFixedWingWidget::CHANNEL_NUMELEM; index++) {
+                    combobox->setItemData(index, 0, Qt::DecorationRole); // Reset all color palettes
+                    combobox->setToolTip("");
+                }
+            }
+            channelNames += (combobox->currentText() == "None") ? "" : combobox->currentText();
         }
     }
-
-    if (error) {
-        m_aircraft->fwStatusLabel->setText(QString("<font color='red'>ERROR: Assign all necessary channels</font>"));
-    }
-
     return error;
 }
 

@@ -26,6 +26,12 @@
 # existance by each sub-make.
 export TOP_LEVEL_MAKEFILE := TRUE
 
+# The root directory that this makefile resides in
+export ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+# Include some helper functions
+include $(ROOT_DIR)/make/functions.mk
+
 # It is possible to set DL_DIR and/or TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the
 # same toolchains can be used for all working copies. Particularly useful for CI
@@ -35,15 +41,7 @@ export TOP_LEVEL_MAKEFILE := TRUE
 # will be used. They still can be overriden by the make command line parameters:
 # make DL_DIR=/path/to/download/directory TOOLS_DIR=/path/to/tools/directory targets...
 
-# Function for converting Windows style slashes into Unix style
-slashfix = $(subst \,/,$(1))
-
-# Function for converting an absolute path to one relative
-# to the top of the source tree
-toprel = $(subst $(realpath $(ROOT_DIR))/,,$(abspath $(1)))
-
 # Set up some macros for common directories within the tree
-export ROOT_DIR    := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 export BUILD_DIR   := $(ROOT_DIR)/build
 export PACKAGE_DIR := $(ROOT_DIR)/build/package
 export DIST_DIR    := $(ROOT_DIR)/build/dist
@@ -54,13 +52,6 @@ export DL_DIR
 export TOOLS_DIR
 
 DIRS = $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
-
-# Function to convert to all lowercase
-lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
-# Function to make all lowercase and replace spaces with -
-EMPTY             :=
-SPACE             := $(EMPTY) $(EMPTY)
-smallify = $(subst $(SPACE),-,$(call lc,$1))
 
 # Naming for binaries and packaging etc,.
 ORG_BIG_NAME := LibrePilot

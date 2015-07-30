@@ -3,6 +3,7 @@
  * @file       pios_board.c
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
+ * @author     LibrePilot, https://bitbucket.org/librepilot, Copyright (C) 2015
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core
@@ -672,6 +673,28 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_DSM */
         break;
+    case HWSETTINGS_CC_FLEXIPORT_SRXL:
+#if defined(PIOS_INCLUDE_SRXL)
+        {
+            uint32_t pios_usart_srxl_id;
+            if (PIOS_USART_Init(&pios_usart_srxl_id, &pios_usart_srxl_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_srxl_id;
+            if (PIOS_SRXL_Init(&pios_srxl_id, &pios_usart_com_driver, pios_usart_srxl_id)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_srxl_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_srxl_rcvr_id, &pios_srxl_rcvr_driver, pios_srxl_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_SRXL */
+        break;
+
     case HWSETTINGS_CC_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_COM)
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)

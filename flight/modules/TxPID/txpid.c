@@ -383,13 +383,13 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_GYROTAU:
                 needsUpdateStab |= update(&stab.GyroTau, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ACROPLUSFACTORROLL:
+            case TXPIDSETTINGS_PIDS_ACROROLLFACTOR:
                 needsUpdateBank |= update(&bank.AcroInsanityFactor.Roll, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ACROPLUSFACTORPITCH:
+            case TXPIDSETTINGS_PIDS_ACROPITCHFACTOR:
                 needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ACROPLUSFACTORROLLPITCH:
+            case TXPIDSETTINGS_PIDS_ACROROLLPITCHFACTOR:
                 needsUpdateBank |= update(&bank.AcroInsanityFactor.Roll, value);
                 needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
                 break;

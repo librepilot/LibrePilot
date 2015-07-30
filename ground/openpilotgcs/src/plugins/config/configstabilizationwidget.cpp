@@ -2,6 +2,7 @@
  ******************************************************************************
  *
  * @file       configstabilizationwidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @author     E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{

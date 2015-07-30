@@ -164,9 +164,9 @@ static bool isExpoOption(int pidOption)
 static bool isAcroPlusFactorOption(int pidOption)
 {
     switch (pidOption) {
-    case TxPIDSettings::PIDS_ACROPLUSFACTORPITCH:
-    case TxPIDSettings::PIDS_ACROPLUSFACTORROLL:
-    case TxPIDSettings::PIDS_ACROPLUSFACTORROLLPITCH:
+    case TxPIDSettings::PIDS_ACROPITCHFACTOR:
+    case TxPIDSettings::PIDS_ACROROLLFACTOR:
+    case TxPIDSettings::PIDS_ACROROLLPITCHFACTOR:
         return true;
 
     default:
@@ -300,10 +300,10 @@ static float defaultValueForPidOption(const StabilizationSettingsBankX *bank, in
 
     case TxPIDSettings::PIDS_YAWEXPO:
         return bank->getStickExpo_Yaw();
-    case TxPIDSettings::PIDS_ACROPLUSFACTORROLL:
-    case TxPIDSettings::PIDS_ACROPLUSFACTORROLLPITCH:
+    case TxPIDSettings::PIDS_ACROROLLFACTOR:
+    case TxPIDSettings::PIDS_ACROROLLPITCHFACTOR:
         return bank->getAcroInsanityFactor_Roll();
-    case TxPIDSettings::PIDS_ACROPLUSFACTORPITCH:
+    case TxPIDSettings::PIDS_ACROPITCHFACTOR:
         return bank->getAcroInsanityFactor_Pitch();
     case -1: // The PID Option field was uninitialized.
         return 0.0f;

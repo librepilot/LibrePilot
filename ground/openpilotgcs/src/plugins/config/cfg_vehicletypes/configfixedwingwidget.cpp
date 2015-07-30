@@ -555,7 +555,6 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
     }
 
     // vtail (pitch / yaw mixing)
-
     channel = m_aircraft->fwElevator1ChannelBox->currentIndex() - 1;
     if (channel > -1) {
         // Compute mixer absolute values
@@ -565,7 +564,6 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
         // Store sliders values onboard
         setMixerValue(mixer, "MixerValuePitch", m_aircraft->elevonSlider2->value());
         setMixerValue(mixer, "MixerValueYaw", m_aircraft->elevonSlider1->value());
-
 
         // First Vtail servo
         setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_SERVO);

@@ -32,33 +32,33 @@ export ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 # Include some helper functions
 include $(ROOT_DIR)/make/functions.mk
 
+# This file can be used to override default options using the "override" keyword
+CONFIG_FILE := config
+-include $(CONFIG_FILE)
+
+##############################
 # It is possible to set DL_DIR and/or TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the
 # same toolchains can be used for all working copies. Particularly useful for CI
 # server build agents, but also for local installations.
-#
-# If no OPENPILOT_* variables found, makefile internal DL_DIR and TOOLS_DIR paths
-# will be used. They still can be overriden by the make command line parameters:
-# make DL_DIR=/path/to/download/directory TOOLS_DIR=/path/to/tools/directory targets...
-
-# Set up some macros for common directories within the tree
-export BUILD_DIR   := $(ROOT_DIR)/build
-export PACKAGE_DIR := $(ROOT_DIR)/build/package
-export DIST_DIR    := $(ROOT_DIR)/build/dist
 override DL_DIR    := $(if $(DL_DIR),$(call slashfix,$(DL_DIR)),$(ROOT_DIR)/downloads)
 override TOOLS_DIR := $(if $(TOOLS_DIR),$(call slashfix,$(TOOLS_DIR)),$(ROOT_DIR)/tools)
-
 export DL_DIR
 export TOOLS_DIR
 
-DIRS = $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
+# Set up some macros for common directories within the tree
+export BUILD_DIR   := $(CURDIR)/build
+export PACKAGE_DIR := $(BUILD_DIR)/package
+export DIST_DIR    := $(BUILD_DIR)/dist
+
+DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
 # Naming for binaries and packaging etc,.
 ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME = ${ORG_BIG_NAME} GCS
+GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME = $(call smallify,$(ORG_BIG_NAME))
-GCS_SMALL_NAME = $(call smallify,$(GCS_BIG_NAME))
+ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
+GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -125,20 +125,16 @@ include $(ROOT_DIR)/make/tools.mk
 
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
-    QT_SPEC = linux-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    QT_SPEC := linux-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Darwin)
-    QT_SPEC = macx-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    QT_SPEC := macx-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Windows)
-    QT_SPEC = win32-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
+    QT_SPEC := win32-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
 endif
 
-CONFIG_FILE := config
--include $(CONFIG_FILE)
-
-##############################
 #
 # All targets
 #
@@ -162,7 +158,7 @@ clean: all_clean
 #
 ##############################
 
-UAVOBJGENERATOR_DIR = $(BUILD_DIR)/uavobjgenerator
+UAVOBJGENERATOR_DIR := $(BUILD_DIR)/uavobjgenerator
 DIRS += $(UAVOBJGENERATOR_DIR)
 
 .PHONY: uavobjgenerator
@@ -846,15 +842,16 @@ dist: $(DIST_NAME).gz
 #
 ##############################
 
-CONFIG_OPTS := $(subst $(SPACE),\n,$(MAKEOVERRIDES))
+CONFIG_OPTS := $(addsuffix \n,$(MAKEOVERRIDES))
+CONFIG_OPTS := $(addprefix override$(SPACE),$(CONFIG_OPTS))
 
 .PHONY: config_new
 config_new:
-	@printf '$(CONFIG_OPTS)\n' > $(CONFIG_FILE)
+	@printf '$(CONFIG_OPTS)' > $(CONFIG_FILE)
 
 .PHONY: config_append
 config_append:
-	@printf '$(CONFIG_OPTS)\n' >> $(CONFIG_FILE)
+	@printf '$(CONFIG_OPTS)' >> $(CONFIG_FILE)
 
 .PHONY: config_show
 config_show:

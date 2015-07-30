@@ -28,6 +28,7 @@
 #include "gcssplashscreen.h"
 #include "version_info/version_info.h"
 #include <QDebug>
+#include <QApplication>
 
 const QChar CopyrightSymbol(0x00a9);
 
@@ -74,4 +75,5 @@ void GCSSplashScreen::showPluginLoadingProgress(ExtensionSystem::PluginSpec *plu
     QString message(tr("Loading ") + pluginSpec->name() + " plugin...");
 
     drawMessageText(message);
+    qApp->processEvents();
 }

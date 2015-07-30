@@ -85,7 +85,7 @@ private:
     QGraphicsEllipseItem *ServosTextCircles[CCPM_MAX_SWASH_SERVOS];
     QSpinBox *SwashLvlSpinBoxes[CCPM_MAX_SWASH_SERVOS];
 
-    QString TypeText;
+    QString typeText;
 
     bool SwashLvlConfigurationInProgress;
     UAVObject::Metadata SwashLvlaccInitialData;
@@ -113,7 +113,7 @@ private:
 
 private slots:
     virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(int TypeInt);
+    virtual bool throwConfigError(int typeInt);
 
     void ccpmSwashplateUpdate();
     void ccpmSwashplateRedraw();

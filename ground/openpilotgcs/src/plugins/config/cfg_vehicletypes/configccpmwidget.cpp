@@ -390,7 +390,7 @@ void ConfigCcpmWidget::UpdateType()
 
     SetUIComponentVisibilities();
 
-    TypeText = m_aircraft->ccpmType->currentText();
+    typeText = m_aircraft->ccpmType->currentText();
     SingleServoIndex = m_aircraft->ccpmSingleServo->currentIndex();
 
     AdjustmentAngle  = SingleServoIndex * 90;
@@ -399,7 +399,7 @@ void ConfigCcpmWidget::UpdateType()
 
     NumServosDefined = 4;
     // set values for pre defined heli types
-    if (TypeText.compare(QString::fromUtf8("CCPM 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    if (typeText.compare(QString::fromUtf8("CCPM 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
@@ -411,7 +411,7 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmServoYChannel->setEnabled(0);
         m_aircraft->ccpmServoZChannel->setEnabled(0);
         NumServosDefined = 2;
-    } else if (TypeText.compare(QString::fromUtf8("CCPM 3 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 180, 360));
@@ -420,7 +420,7 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setEnabled(0);
         NumServosDefined = 3;
-    } else if (TypeText.compare(QString::fromUtf8("CCPM 4 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare(QString::fromUtf8("CCPM 4 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 180, 360));
@@ -428,7 +428,7 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmSingleServo->setEnabled(0);
         m_aircraft->ccpmSingleServo->setCurrentIndex(0);
         NumServosDefined = 4;
-    } else if (TypeText.compare(QString::fromUtf8("CCPM 3 Servo 120º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 120º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 120, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 240, 360));
@@ -437,7 +437,7 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setEnabled(0);
         NumServosDefined = 3;
-    } else if (TypeText.compare(QString::fromUtf8("CCPM 3 Servo 140º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 140º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 140, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 220, 360));
@@ -446,7 +446,7 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setEnabled(0);
         NumServosDefined = 3;
-    } else if (TypeText.compare(QString::fromUtf8("FP 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare(QString::fromUtf8("FP 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
@@ -464,7 +464,7 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmCollectiveSlider->setValue(0);
         m_aircraft->PitchCurve->setVisible(0);
         NumServosDefined = 2;
-    } else if (TypeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
@@ -485,7 +485,7 @@ void ConfigCcpmWidget::UpdateType()
     }
 
     // Set the text of the motor boxes
-    if (TypeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmEngineLabel->setText("CW motor");
         m_aircraft->ccpmTailLabel->setText("CCW motor");
     } else {
@@ -644,13 +644,14 @@ void ConfigCcpmWidget::UpdateMixer()
     float ThisAngle[6];
     QString Channel;
 
-    int TypeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
+    int typeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
 
-    // Don't check config if Custom, exit if currently updatingToHardware
-    // Avoid updating custom table if saving data to board
-    if ((throwConfigError(TypeInt) && TypeInt != 0) || updatingToHardware) {
+    // Exit if currently updatingToHardware or ConfigError
+    // Avoid mixer changes if something wrong in config
+    if (throwConfigError(typeInt) || updatingToHardware) {
         return;
     }
+
     GUIConfigDataUnion config = getConfigData();
 
     useCCPM   = !(config.heli.ccpmCollectivePassthroughState || !config.heli.ccpmLinkCyclicState);
@@ -682,7 +683,7 @@ void ConfigCcpmWidget::UpdateMixer()
 
     QTableWidget *table = m_aircraft->ccpmAdvancedSettingsTable;
 
-    if (TypeInt != 0) { // not advanced settings
+    if (typeInt != 0) { // not advanced settings
         // get the angle data from the ui
         ThisAngle[2]  = m_aircraft->ccpmAngleW->value();
         ThisAngle[3]  = m_aircraft->ccpmAngleX->value();
@@ -711,7 +712,7 @@ void ConfigCcpmWidget::UpdateMixer()
                     table->item(i, 3)->setText(QString("%1").arg(0)); // Roll
                     table->item(i, 4)->setText(QString("%1").arg(0)); // Pitch
 
-                    if (TypeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+                    if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
                         // Yaw
                         table->item(i, 5)->setText(QString("%1").arg(-127));
                     } else {
@@ -721,7 +722,7 @@ void ConfigCcpmWidget::UpdateMixer()
                 }
                 if (i == 1) {
                     // tailrotor --or-- counter-clockwise motor
-                    if (TypeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+                    if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
                         // ThrottleCurve1
                         table->item(i, 1)->setText(QString("%1").arg(127));
                         // Yaw
@@ -891,30 +892,30 @@ void ConfigCcpmWidget::SetUIComponentVisibilities()
     m_aircraft->SwashLvlStepList->item(2)->setBackground(Qt::transparent);
     m_aircraft->SwashLvlStepList->item(3)->setBackground(Qt::transparent);
 
-    // Enable / disable by TypeInt : 0 is custom
-    int TypeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
+    // Enable / disable by typeInt : 0 is custom
+    int typeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
 
     // set visibility of user settings (When Custom)
-    m_aircraft->ccpmAdvancedSettingsTable->setEnabled(TypeInt == 0);
+    m_aircraft->ccpmAdvancedSettingsTable->setEnabled(typeInt == 0);
 
-    m_aircraft->ccpmAngleW->setEnabled(TypeInt == 1);
-    m_aircraft->ccpmAngleX->setEnabled(TypeInt == 1);
-    m_aircraft->ccpmAngleY->setEnabled(TypeInt == 1);
-    m_aircraft->ccpmAngleZ->setEnabled(TypeInt == 1);
-    m_aircraft->ccpmCorrectionAngle->setEnabled(TypeInt != 0);
+    m_aircraft->ccpmAngleW->setEnabled(typeInt == 1);
+    m_aircraft->ccpmAngleX->setEnabled(typeInt == 1);
+    m_aircraft->ccpmAngleY->setEnabled(typeInt == 1);
+    m_aircraft->ccpmAngleZ->setEnabled(typeInt == 1);
+    m_aircraft->ccpmCorrectionAngle->setEnabled(typeInt != 0);
 
-    m_aircraft->ccpmServoWChannel->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmServoXChannel->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmServoYChannel->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmServoZChannel->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmSingleServo->setEnabled(TypeInt > 1);
+    m_aircraft->ccpmServoWChannel->setEnabled(typeInt > 0);
+    m_aircraft->ccpmServoXChannel->setEnabled(typeInt > 0);
+    m_aircraft->ccpmServoYChannel->setEnabled(typeInt > 0);
+    m_aircraft->ccpmServoZChannel->setEnabled(typeInt > 0);
+    m_aircraft->ccpmSingleServo->setEnabled(typeInt > 1);
 
-    m_aircraft->ccpmEngineChannel->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmTailChannel->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmCollectiveSlider->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmCollectivespinBox->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmRevoSlider->setEnabled(TypeInt > 0);
-    m_aircraft->ccpmREVOspinBox->setEnabled(TypeInt > 0);
+    m_aircraft->ccpmEngineChannel->setEnabled(typeInt > 0);
+    m_aircraft->ccpmTailChannel->setEnabled(typeInt > 0);
+    m_aircraft->ccpmCollectiveSlider->setEnabled(typeInt > 0);
+    m_aircraft->ccpmCollectivespinBox->setEnabled(typeInt > 0);
+    m_aircraft->ccpmRevoSlider->setEnabled(typeInt > 0);
+    m_aircraft->ccpmREVOspinBox->setEnabled(typeInt > 0);
 }
 
 /**
@@ -964,11 +965,11 @@ void ConfigCcpmWidget::setMixer()
 {
     int i, j;
 
-    int TypeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
+    int typeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
 
-    // Don't check config if Custom, exit if currently updatingToHardware
+    // Exit if currently updatingToHardware or ConfigError
     // Avoid mixer changes if something wrong in config
-    if ((throwConfigError(TypeInt) && TypeInt != 0) || updatingToHardware) {
+    if (throwConfigError(typeInt) || updatingToHardware) {
         return;
     }
 
@@ -1025,7 +1026,7 @@ void ConfigCcpmWidget::setMixer()
     for (i = 0; i < 6; i++) {
         if ((MixerChannelData[i] > 0) && (MixerChannelData[i] < (int)ConfigCcpmWidget::CHANNEL_NUMELEM + 1)) {
             // Set the mixer type. If Coax, then first two are motors. Otherwise, only first is motor
-            if (TypeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+            if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
                 *(mixerTypes[MixerChannelData[i] - 1]) = i > 1 ?
                                                          MixerSettings::MIXER1TYPE_SERVO :
                                                          MixerSettings::MIXER1TYPE_MOTOR;
@@ -1591,13 +1592,13 @@ void ConfigCcpmWidget::SwashLvlSpinBoxChanged(int value)
 /**
    This function displays text and color formatting in order to help the user understand what channels have not yet been configured.
  */
-bool ConfigCcpmWidget::throwConfigError(int TypeInt)
+bool ConfigCcpmWidget::throwConfigError(int typeInt)
 {
     bool error = false;
 
-    // Custom no need check
-    if (TypeInt == 0) {
-        return error;
+    // Custom no need check, always return no error
+    if (typeInt == 0) {
+        return false;
     }
 
     QList<QComboBox *> comboChannelsName;

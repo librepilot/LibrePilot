@@ -168,7 +168,7 @@ Section "Core files" InSecCore
   File /r "${GCS_BUILD_TREE}\bin\*"
   SetOutPath "$INSTDIR"
   File "${PROJECT_ROOT}\LICENSE.txt"
-  File "${PROJECT_ROOT}\README.txt"
+  File "/oname=README.txt" "${PROJECT_ROOT}\README.md"
   File "${PROJECT_ROOT}\WHATSNEW.txt"
   File "${PROJECT_ROOT}\MILESTONES.txt"
   File "${PROJECT_ROOT}\GPLv3.txt"

@@ -118,8 +118,8 @@ isEmpty(GCS_BUILD_TREE) {
 
 # Find the tools directory,
 # try from Makefile (not run by Qt Creator),
-isEmtpy(TOOLS_DIR):TOOLS_DIR = $$(TOOLS_DIR)
-isEmtpy(TOOLS_DIR):TOOLS_DIR = $$clean_path($$ROOT_DIR/tools)
+isEmpty(TOOLS_DIR):TOOLS_DIR = $$(TOOLS_DIR)
+isEmpty(TOOLS_DIR):TOOLS_DIR = $$clean_path($$ROOT_DIR/tools)
 
 # Set the default name of the application
 isEmpty(GCS_SMALL_NAME):GCS_SMALL_NAME = gcs

@@ -3,6 +3,7 @@
  *
  * @file       pios_board.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     LibrePilot, https://bitbucket.org/librepilot, Copyright (C) 2015
  * @brief      Defines board hardware for the OpenPilot Version 1.1 hardware.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -245,6 +246,12 @@ extern uint32_t pios_com_hkosd_id;
 // -------------------------
 #define PIOS_SBUS_MAX_DEVS           1
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
+
+// -------------------------
+// Receiver Multiplex SRXL input
+// -------------------------
+#define PIOS_SRXL_MAX_DEVS           1
+#define PIOS_SRXL_NUM_INPUTS         16
 
 // -------------------------
 // Servo outputs

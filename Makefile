@@ -735,7 +735,8 @@ PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
 # Source distribution is never dirty because it uses git archive
-DIST_NAME     := $(subst -dirty,,$(PACKAGE_FULL_NAME))
+DIST_LBL      := $(subst -dirty,,$(PACKAGE_LBL))
+DIST_NAME     := $(PACKAGE_NAME)$(PACKAGE_SEP)$(DIST_LBL)
 DIST_TAR      := $(DIST_DIR)/$(DIST_NAME).tar
 DIST_TAR_GZ   := $(DIST_TAR).gz
 DIST_VER_INFO := $(DIST_DIR)/version-info.json

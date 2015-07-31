@@ -9,7 +9,17 @@ endif
 # Are we using a debian based distro?
 ifneq ($(shell which dpkg 2> /dev/null),)
 	include $(ROOT_DIR)/package/linux/deb.mk
-endif # Debian based distro?
+endif
+
+# Are we using a rpm based distro?
+ifneq ($(shell which rpm 2> /dev/null),)
+	include $(ROOT_DIR)/package/linux/rpm.mk
+endif
+
+# Are we using an Arch based distro?
+ifneq ($(shell which makepkg 2> /dev/null),)
+    $(info TODO: built in arch package)
+endif
 
 ##############################
 #

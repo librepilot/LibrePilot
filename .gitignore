@@ -77,3 +77,6 @@ RemoteSystemsTempFiles
 *.rej
 *.orig
 *.diff~
+
+# ignore ccache storage
+.ccache

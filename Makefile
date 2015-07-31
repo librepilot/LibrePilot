@@ -1,5 +1,6 @@
 #
-# Top level Makefile for the OpenPilot project build system.
+# Top level Makefile for the LibrePilot project build system.
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 # Use 'make help' for instructions.
 #
@@ -912,6 +913,7 @@ help:
 	@$(ECHO) "     uncrustify_install   - Install the Uncrustify source code beautifier"
 	@$(ECHO) "     doxygen_install      - Install the Doxygen documentation generator"
 	@$(ECHO) "     gtest_install        - Install the GoogleTest framework"
+	@$(ECHO) "     ccache_install       - Install ccache"
 	@$(ECHO) "   These targets are not updated yet and are probably broken:"
 	@$(ECHO) "     openocd_install      - Install the OpenOCD JTAG daemon"
 	@$(ECHO) "     stm32flash_install   - Install the stm32flash tool for unbricking F1-based boards"

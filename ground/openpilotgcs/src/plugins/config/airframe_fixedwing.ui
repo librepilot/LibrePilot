@@ -222,7 +222,7 @@ margin:1px;</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>50</width>
+            <width>65</width>
             <height>0</height>
            </size>
           </property>
@@ -290,7 +290,7 @@ margin:1px;</string>
           </property>
           <property name="minimumSize">
            <size>
-            <width>50</width>
+            <width>65</width>
             <height>0</height>
            </size>
           </property>
@@ -318,6 +318,77 @@ margin:1px;</string>
           </property>
           <property name="text">
            <string>50</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="2">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QLabel" name="elevonLabel3">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
+color: rgb(255, 255, 255);
+border-radius: 5;
+font: bold 12px;
+margin:1px;</string>
+          </property>
+          <property name="text">
+           <string> Roll Diff</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="elevonSlider3">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>65</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Value of Roll differential in percent</string>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="elevonSliderLabel3">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>0</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -732,6 +803,22 @@ margin:1px;</string>
     <hint type="destinationlabel">
      <x>124</x>
      <y>126</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>elevonSlider3</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>elevonSliderLabel3</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>511</x>
+     <y>222</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>

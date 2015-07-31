@@ -9,6 +9,7 @@
  *
  * @file       actuator.c
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @brief      Actuator module. Drives the actuators (servos, motors etc).
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -110,7 +111,7 @@ static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 static void SettingsUpdatedCb(UAVObjEvent *ev);
 float ProcessMixer(const int index, const float curve1, const float curve2,
                    ActuatorDesiredData *desired,
-                   const float period, bool multirotor);
+                   const float period, bool multirotor, bool fixedwing);
 
 // this structure is equivalent to the UAVObjects for one mixer.
 typedef struct {
@@ -271,6 +272,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
         bool activeThrottle   = (throttleDesired < -0.001f || throttleDesired > 0.001f); // for ground and reversible motors
         bool positiveThrottle = (throttleDesired > 0.00f);
         bool multirotor  = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR); // check if frame is a multirotor.
+        bool fixedwing   = (GetCurrentFrameType() == FRAME_TYPE_FIXED_WING); // check if frame is a fixedwing.
         bool alwaysArmed = settings.Arming == FLIGHTMODESETTINGS_ARMING_ALWAYSARMED;
         bool AlwaysStabilizeWhenArmed = settings.AlwaysStabilizeWhenArmed == FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMED_TRUE;
 
@@ -406,7 +408,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                         nonreversible_curve2 = 0.0f;
                     }
                 }
-                status[ct] = ProcessMixer(ct, nonreversible_curve1, nonreversible_curve2, &desired, dTSeconds, multirotor);
+                status[ct] = ProcessMixer(ct, nonreversible_curve1, nonreversible_curve2, &desired, dTSeconds, multirotor, fixedwing);
                 // If not armed or motors aren't meant to spin all the time
                 if (!armed ||
                     (!spinWhileArmed && !positiveThrottle)) {
@@ -424,7 +426,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                     }
                 }
             } else if (mixer_type == MIXERSETTINGS_MIXER1TYPE_REVERSABLEMOTOR) {
-                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor);
+                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor, fixedwing);
                 // Reversable Motors are like Motors but go to neutral instead of minimum
                 // If not armed or motor is inactive - no "spinwhilearmed" for this engine type
                 if (!armed || !activeThrottle) {
@@ -433,7 +435,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                     status[ct] = 0; // force neutral throttle
                 }
             } else if (mixer_type == MIXERSETTINGS_MIXER1TYPE_SERVO) {
-                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor);
+                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor, fixedwing);
             } else {
                 status[ct] = -1;
 
@@ -555,15 +557,35 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
  * Process mixing for one actuator
  */
 float ProcessMixer(const int index, const float curve1, const float curve2,
-                   ActuatorDesiredData *desired, const float period, bool multirotor)
+                   ActuatorDesiredData *desired, const float period, bool multirotor, bool fixedwing)
 {
     static float lastFilteredResult[MAX_MIX_ACTUATORS];
     const Mixer_t *mixers = (Mixer_t *)&mixerSettings.Mixer1Type; // pointer to array of mixers in UAVObjects
     const Mixer_t *mixer  = &mixers[index];
+    float differential    = 1.0f;
+
+    // Apply differential only for fixedwing and Roll servos
+    if (fixedwing && (mixerSettings.FirstRollServo > 0) &&
+        (mixer->type == MIXERSETTINGS_MIXER1TYPE_SERVO) &&
+        (mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_ROLL] != 0)) {
+        // Positive differential
+        if (mixerSettings.RollDifferential > 0) {
+            // Check for first Roll servo (should be left aileron or elevon) and Roll desired (positive/negative)
+            if (((index == mixerSettings.FirstRollServo - 1) && (desired->Roll > 0.0f))
+                || ((index != mixerSettings.FirstRollServo - 1) && (desired->Roll < 0.0f))) {
+                differential -= (mixerSettings.RollDifferential * 0.01f);
+            }
+        } else if (mixerSettings.RollDifferential < 0) {
+            if (((index == mixerSettings.FirstRollServo - 1) && (desired->Roll < 0.0f))
+                || ((index != mixerSettings.FirstRollServo - 1) && (desired->Roll > 0.0f))) {
+                differential -= (-mixerSettings.RollDifferential * 0.01f);
+            }
+        }
+    }
 
     float result = ((((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_THROTTLECURVE1]) * curve1) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_THROTTLECURVE2]) * curve2) +
-                    (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_ROLL]) * desired->Roll) +
+                    (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_ROLL]) * desired->Roll * differential) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_PITCH]) * desired->Pitch) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_YAW]) * desired->Yaw)) / 128.0f;
 
@@ -575,36 +597,38 @@ float ProcessMixer(const int index, const float curve1, const float curve2,
             }
         }
 
-        // feed forward
-        float accumulator = filterAccumulator[index];
-        accumulator += (result - lastResult[index]) * mixerSettings.FeedForward;
-        lastResult[index] = result;
-        result += accumulator;
-        if (period > 0.0f) {
-            if (accumulator > 0.0f) {
-                float invFilter = period / mixerSettings.AccelTime;
-                if (invFilter > 1) {
-                    invFilter = 1;
+        if (!fixedwing) {
+            // feed forward, do not apply to fixedwing
+            float accumulator = filterAccumulator[index];
+            accumulator += (result - lastResult[index]) * mixerSettings.FeedForward;
+            lastResult[index] = result;
+            result += accumulator;
+            if (period > 0.0f) {
+                if (accumulator > 0.0f) {
+                    float invFilter = period / mixerSettings.AccelTime;
+                    if (invFilter > 1) {
+                        invFilter = 1;
+                    }
+                    accumulator -= accumulator * invFilter;
+                } else {
+                    float invFilter = period / mixerSettings.DecelTime;
+                    if (invFilter > 1) {
+                        invFilter = 1;
+                    }
+                    accumulator -= accumulator * invFilter;
                 }
-                accumulator -= accumulator * invFilter;
-            } else {
-                float invFilter = period / mixerSettings.DecelTime;
-                if (invFilter > 1) {
-                    invFilter = 1;
-                }
-                accumulator -= accumulator * invFilter;
             }
-        }
-        filterAccumulator[index] = accumulator;
-        result += accumulator;
+            filterAccumulator[index] = accumulator;
+            result += accumulator;
 
-        // acceleration limit
-        float dt    = result - lastFilteredResult[index];
-        float maxDt = mixerSettings.MaxAccel * period;
-        if (dt > maxDt) { // we are accelerating too hard
-            result = lastFilteredResult[index] + maxDt;
+            // acceleration limit
+            float dt    = result - lastFilteredResult[index];
+            float maxDt = mixerSettings.MaxAccel * period;
+            if (dt > maxDt) { // we are accelerating too hard
+                result = lastFilteredResult[index] + maxDt;
+            }
+            lastFilteredResult[index] = result;
         }
-        lastFilteredResult[index] = result;
     }
 
     return result;

@@ -1,7 +1,7 @@
 Name:           <NAME>
 Summary:        Ground Control Station
 Version:        <VERSION>
-Release:        <RELEASE>
+Release:        <RELEASE>%{?dist}
 
 Group:          Applications/Scientific
 License:        GPLv3+
@@ -49,12 +49,11 @@ and ease of use.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n <ARCHIVE_PREFIX>
 
 
 %build
 make %{?_smp_mflags} gcs QMAKE=qmake-qt5 CC=%{__cc} CXX=%{__cxx} libbasename=%{_lib}
-#make -j1 opfw_resource
 
 
 %install
@@ -75,11 +74,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files
-%doc README.txt GPLv3.txt
+%doc README.md CREDITS.txt WHATSNEW.txt
+%doc GPLv3.txt
 %{_bindir}/librepilot-gcs
 %{_udevrulesdir}/45-librepilot.rules
 %{_datadir}/applications/librepilot.desktop
-%{_datadir}/librepilot-gcs//*
+%{_datadir}/librepilot-gcs/*
 %{_datadir}/pixmaps/librepilot.png
 %{_libdir}/librepilot-gcs/plugins/OpenPilot/*.pluginspec
 %{_libdir}/librepilot-gcs/plugins/OpenPilot/*.so

@@ -7,17 +7,13 @@ ifndef TOP_LEVEL_MAKEFILE
 endif
 
 # Are we using a debian based distro?
-ifneq ($(shell which dpkg 2> /dev/null),)
+ifneq ($(wildcard /etc/apt/sources.list),)
 	include $(ROOT_DIR)/package/linux/deb.mk
-endif
-
 # Are we using a rpm based distro?
-ifneq ($(shell which rpm 2> /dev/null),)
+else ifneq ($(wildcard /etc/yum.repos.d/*),)
 	include $(ROOT_DIR)/package/linux/rpm.mk
-endif
-
 # Are we using an Arch based distro?
-ifneq ($(shell which makepkg 2> /dev/null),)
+else ifneq ($(wildcard /etc/pacman.conf),)
     $(info TODO: built in arch package)
 endif
 

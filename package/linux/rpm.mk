@@ -4,6 +4,7 @@ RPM_REL              := 1
 RPM_ARCH             := $(shell rpm --eval '%{_arch}')
 RPM_PACKAGE_NAME     := $(RPM_NAME)-$(UPSTREAM_VER)-$(RPM_REL)$(shell rpm --eval '%{?dist}').$(RPM_ARCH).rpm
 RPM_PACKAGE_FILE     := $(PACKAGE_DIR)/RPMS/$(RPM_ARCH)/$(RPM_PACKAGE_NAME)
+RPM_PACKAGE_SRC      := $(PACKAGE_DIR)/SRPMS/$(RPM_PACKAGE_NAME).src.rpm
 
 SED_SCRIPT           := sed -i -e ' \
 			s/<VERSION>/$(UPSTREAM_VER)/g; \
@@ -29,9 +30,14 @@ $(SPEC_FILE): $(SPEC_FILE_IN) | $(RPM_DIRS)
 
 .PHONY: package
 package: $(RPM_PACKAGE_FILE)
+$(RPM_PACKAGE_FILE): RPMBUILD_OPTS := -bb
 
-$(RPM_PACKAGE_FILE): $(SPEC_FILE) $(DIST_TAR_GZ) | $(RPM_DIRS)
-	@$(ECHO) "Building $(RPM_PACKAGE_NAME), please wait..."
+.PHONY: package_src
+package_src: $(RPM_PACKAGE_SRC)
+$(RPM_PACKAGE_SRC): RPMBUILD_OPTS := -bs
+
+$(RPM_PACKAGE_FILE) $(RPM_PACKAGE_SRC): $(SPEC_FILE) $(DIST_TAR_GZ) | $(RPM_DIRS)
+	@$(ECHO) "Building $(call toprel,$@), please wait..."
 	$(V1) ln -sf $(DIST_TAR_GZ) $(PACKAGE_DIR)/SOURCES
-	$(V1) rpmbuild -bb --define "_topdir $(PACKAGE_DIR)" $(SPEC_FILE)
+	$(V1) rpmbuild $(RPMBUILD_OPTS) --define "_topdir $(PACKAGE_DIR)" $(SPEC_FILE)
 

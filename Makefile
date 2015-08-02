@@ -26,48 +26,39 @@
 # existance by each sub-make.
 export TOP_LEVEL_MAKEFILE := TRUE
 
+# The root directory that this makefile resides in
+export ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+# Include some helper functions
+include $(ROOT_DIR)/make/functions.mk
+
+# This file can be used to override default options using the "override" keyword
+CONFIG_FILE := config
+-include $(CONFIG_FILE)
+
+##############################
 # It is possible to set DL_DIR and/or TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the
 # same toolchains can be used for all working copies. Particularly useful for CI
 # server build agents, but also for local installations.
-#
-# If no OPENPILOT_* variables found, makefile internal DL_DIR and TOOLS_DIR paths
-# will be used. They still can be overriden by the make command line parameters:
-# make DL_DIR=/path/to/download/directory TOOLS_DIR=/path/to/tools/directory targets...
-
-# Function for converting Windows style slashes into Unix style
-slashfix = $(subst \,/,$(1))
-
-# Function for converting an absolute path to one relative
-# to the top of the source tree
-toprel = $(subst $(realpath $(ROOT_DIR))/,,$(abspath $(1)))
-
-# Set up some macros for common directories within the tree
-export ROOT_DIR    := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-export BUILD_DIR   := $(ROOT_DIR)/build
-export PACKAGE_DIR := $(ROOT_DIR)/build/package
-export DIST_DIR    := $(ROOT_DIR)/build/dist
 override DL_DIR    := $(if $(DL_DIR),$(call slashfix,$(DL_DIR)),$(ROOT_DIR)/downloads)
 override TOOLS_DIR := $(if $(TOOLS_DIR),$(call slashfix,$(TOOLS_DIR)),$(ROOT_DIR)/tools)
-
 export DL_DIR
 export TOOLS_DIR
 
-DIRS = $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
+# Set up some macros for common directories within the tree
+export BUILD_DIR   := $(CURDIR)/build
+export PACKAGE_DIR := $(BUILD_DIR)/package
+export DIST_DIR    := $(BUILD_DIR)/dist
 
-# Function to convert to all lowercase
-lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
-# Function to make all lowercase and replace spaces with -
-EMPTY             :=
-SPACE             := $(EMPTY) $(EMPTY)
-smallify = $(subst $(SPACE),-,$(call lc,$1))
+DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
 # Naming for binaries and packaging etc,.
 ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME = ${ORG_BIG_NAME} GCS
+GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME = $(call smallify,$(ORG_BIG_NAME))
-GCS_SMALL_NAME = $(call smallify,$(GCS_BIG_NAME))
+ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
+GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -134,20 +125,16 @@ include $(ROOT_DIR)/make/tools.mk
 
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
-    QT_SPEC = linux-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    QT_SPEC := linux-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Darwin)
-    QT_SPEC = macx-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    QT_SPEC := macx-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Windows)
-    QT_SPEC = win32-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
+    QT_SPEC := win32-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
 endif
 
-CONFIG_FILE := config
--include $(CONFIG_FILE)
-
-##############################
 #
 # All targets
 #
@@ -171,7 +158,7 @@ clean: all_clean
 #
 ##############################
 
-UAVOBJGENERATOR_DIR = $(BUILD_DIR)/uavobjgenerator
+UAVOBJGENERATOR_DIR := $(BUILD_DIR)/uavobjgenerator
 DIRS += $(UAVOBJGENERATOR_DIR)
 
 .PHONY: uavobjgenerator
@@ -490,6 +477,7 @@ openpilotgcs_qmake $(OPENPILOTGCS_MAKEFILE): | $(OPENPILOTGCS_DIR)
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
+	    'GCS_LIBRARY_BASENAME=$(libbasename)' \
 	    $(GCS_QMAKE_OPTS)
 
 .PHONY: openpilotgcs
@@ -855,15 +843,16 @@ dist: $(DIST_NAME).gz
 #
 ##############################
 
-CONFIG_OPTS := $(subst $(SPACE),\n,$(MAKEOVERRIDES))
+CONFIG_OPTS := $(addsuffix \n,$(MAKEOVERRIDES))
+CONFIG_OPTS := $(addprefix override$(SPACE),$(CONFIG_OPTS))
 
 .PHONY: config_new
 config_new:
-	@printf '$(CONFIG_OPTS)\n' > $(CONFIG_FILE)
+	@printf '$(CONFIG_OPTS)' > $(CONFIG_FILE)
 
 .PHONY: config_append
 config_append:
-	@printf '$(CONFIG_OPTS)\n' >> $(CONFIG_FILE)
+	@printf '$(CONFIG_OPTS)' >> $(CONFIG_FILE)
 
 .PHONY: config_show
 config_show:

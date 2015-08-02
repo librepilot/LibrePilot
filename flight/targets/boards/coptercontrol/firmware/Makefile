@@ -18,12 +18,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef TOP_LEVEL_MAKEFILE
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # ARM DSP library
 USE_DSP_LIB ?= NO
@@ -88,60 +88,60 @@ ifndef TESTAPP
     SRC += $(OPUAVOBJ)/eventdispatcher.c
 
     ## UAVObjects
-    SRC += $(OPUAVSYNTHDIR)/accessorydesired.c
-    SRC += $(OPUAVSYNTHDIR)/objectpersistence.c
-    SRC += $(OPUAVSYNTHDIR)/gcstelemetrystats.c
-    SRC += $(OPUAVSYNTHDIR)/flighttelemetrystats.c
-    SRC += $(OPUAVSYNTHDIR)/faultsettings.c
-    SRC += $(OPUAVSYNTHDIR)/flightstatus.c
-    SRC += $(OPUAVSYNTHDIR)/systemstats.c
-    SRC += $(OPUAVSYNTHDIR)/systemalarms.c
-    SRC += $(OPUAVSYNTHDIR)/systemsettings.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationdesired.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationsettings.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationsettingsbank1.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationsettingsbank2.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationsettingsbank3.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationstatus.c
-    SRC += $(OPUAVSYNTHDIR)/stabilizationbank.c
-    SRC += $(OPUAVSYNTHDIR)/actuatorcommand.c
-    SRC += $(OPUAVSYNTHDIR)/actuatordesired.c
-    SRC += $(OPUAVSYNTHDIR)/actuatorsettings.c
-    SRC += $(OPUAVSYNTHDIR)/accelstate.c
-    SRC += $(OPUAVSYNTHDIR)/accelgyrosettings.c
-    SRC += $(OPUAVSYNTHDIR)/gyrostate.c
-    SRC += $(OPUAVSYNTHDIR)/attitudestate.c
-    SRC += $(OPUAVSYNTHDIR)/manualcontrolcommand.c
-    SRC += $(OPUAVSYNTHDIR)/watchdogstatus.c
-    SRC += $(OPUAVSYNTHDIR)/manualcontrolsettings.c
-    SRC += $(OPUAVSYNTHDIR)/flightmodesettings.c
-    SRC += $(OPUAVSYNTHDIR)/mixersettings.c
-    SRC += $(OPUAVSYNTHDIR)/firmwareiapobj.c
-    SRC += $(OPUAVSYNTHDIR)/attitudesettings.c
-    SRC += $(OPUAVSYNTHDIR)/camerastabsettings.c
-    SRC += $(OPUAVSYNTHDIR)/cameradesired.c
-    SRC += $(OPUAVSYNTHDIR)/gpspositionsensor.c
-    SRC += $(OPUAVSYNTHDIR)/gpsvelocitysensor.c
-    SRC += $(OPUAVSYNTHDIR)/gpssettings.c
-    SRC += $(OPUAVSYNTHDIR)/hwsettings.c
-    SRC += $(OPUAVSYNTHDIR)/receiveractivity.c
-    SRC += $(OPUAVSYNTHDIR)/receiverstatus.c
-    SRC += $(OPUAVSYNTHDIR)/mixerstatus.c
-    SRC += $(OPUAVSYNTHDIR)/ratedesired.c
-    SRC += $(OPUAVSYNTHDIR)/txpidsettings.c
-    SRC += $(OPUAVSYNTHDIR)/txpidstatus.c
-    SRC += $(OPUAVSYNTHDIR)/mpugyroaccelsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/accessorydesired.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/objectpersistence.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gcstelemetrystats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flighttelemetrystats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/faultsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flightstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/systemstats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/systemalarms.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/systemsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationdesired.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationsettingsbank1.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationsettingsbank2.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationsettingsbank3.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/stabilizationbank.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/actuatorcommand.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/actuatordesired.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/actuatorsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/accelstate.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/accelgyrosettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gyrostate.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/attitudestate.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/manualcontrolcommand.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/watchdogstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/manualcontrolsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flightmodesettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/mixersettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/firmwareiapobj.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/attitudesettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/camerastabsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/cameradesired.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpspositionsensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpsvelocitysensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpssettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/hwsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/receiveractivity.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/receiverstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/mixerstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/ratedesired.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/txpidsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/txpidstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/mpugyroaccelsettings.c
     # Command line option for Gcsreceiver module
     ifeq ($(GCSRECEIVER), YES)
-        SRC += $(OPUAVSYNTHDIR)/gcsreceiver.c
+        SRC += $(FLIGHT_UAVOBJ_DIR)/gcsreceiver.c
     endif
     # Enable Diag tasks and UAVOs needed
     ifeq ($(DIAG_TASKS), YES)
         CDEFS += -DDIAG_TASKS
-        SRC += $(OPUAVSYNTHDIR)/taskinfo.c
-        SRC += $(OPUAVSYNTHDIR)/callbackinfo.c
-        SRC += $(OPUAVSYNTHDIR)/perfcounter.c
-        SRC += $(OPUAVSYNTHDIR)/i2cstats.c
+        SRC += $(FLIGHT_UAVOBJ_DIR)/taskinfo.c
+        SRC += $(FLIGHT_UAVOBJ_DIR)/callbackinfo.c
+        SRC += $(FLIGHT_UAVOBJ_DIR)/perfcounter.c
+        SRC += $(FLIGHT_UAVOBJ_DIR)/i2cstats.c
     endif
 else
     ## Test Code
@@ -149,5 +149,5 @@ else
     SRC += $(OPTESTS)/$(TESTAPP).c
 endif
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

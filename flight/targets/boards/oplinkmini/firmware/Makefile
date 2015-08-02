@@ -17,12 +17,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef TOP_LEVEL_MAKEFILE
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # ARM DSP library
 override USE_DSP_LIB := NO
@@ -54,11 +54,11 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/sha1.c
 
     ## UAVObjects
-    SRC += $(OPUAVSYNTHDIR)/oplinkstatus.c
-    SRC += $(OPUAVSYNTHDIR)/oplinksettings.c
-    SRC += $(OPUAVSYNTHDIR)/objectpersistence.c
-    SRC += $(OPUAVSYNTHDIR)/oplinkreceiver.c
-    SRC += $(OPUAVSYNTHDIR)/radiocombridgestats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/oplinkstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/oplinksettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/objectpersistence.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/oplinkreceiver.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/radiocombridgestats.c
 else
     ## Test Code
     SRC += $(OPTESTS)/test_common.c
@@ -68,5 +68,5 @@ endif
 # Optional component libraries
 include $(FLIGHTLIB)/rscode/library.mk
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

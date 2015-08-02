@@ -451,13 +451,7 @@ sim_osx_%: uavobjects_flight
 ##############################
 
 .PHONY: all_ground
-all_ground: openpilotgcs uploader
-
-# Convenience target for the GCS
-.PHONY: gcs gcs_qmake gcs_clean
-gcs: openpilotgcs
-gcs_qmake: openpilotgcs_qmake
-gcs_clean: openpilotgcs_clean
+all_ground: gcs uploader
 
 ifeq ($(V), 1)
     GCS_SILENT :=
@@ -465,29 +459,29 @@ else
     GCS_SILENT := silent
 endif
 
-OPENPILOTGCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
-DIRS += $(OPENPILOTGCS_DIR)
+GCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
+DIRS += $(GCS_DIR)
 
-OPENPILOTGCS_MAKEFILE := $(OPENPILOTGCS_DIR)/Makefile
+GCS_MAKEFILE := $(GCS_DIR)/Makefile
 
-.PHONY: openpilotgcs_qmake
-openpilotgcs_qmake $(OPENPILOTGCS_MAKEFILE): | $(OPENPILOTGCS_DIR)
-	$(V1) cd $(OPENPILOTGCS_DIR) && \
-	    $(QMAKE) $(ROOT_DIR)/ground/openpilotgcs/openpilotgcs.pro \
+.PHONY: gcs_qmake
+gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
+	$(V1) cd $(GCS_DIR) && \
+	    $(QMAKE) $(ROOT_DIR)/ground/gcs/gcs.pro \
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
 	    'GCS_LIBRARY_BASENAME=$(libbasename)' \
 	    $(GCS_QMAKE_OPTS)
 
-.PHONY: openpilotgcs
-openpilotgcs: uavobjgenerator $(OPENPILOTGCS_MAKEFILE)
-	$(V1) $(MAKE) -w -C $(OPENPILOTGCS_DIR)/$(MAKE_DIR);
+.PHONY: gcs
+gcs: uavobjgenerator $(GCS_MAKEFILE)
+	$(V1) $(MAKE) -w -C $(GCS_DIR)/$(MAKE_DIR);
 
-.PHONY: openpilotgcs_clean
-openpilotgcs_clean:
-	@$(ECHO) " CLEAN      $(call toprel, $(OPENPILOTGCS_DIR))"
-	$(V1) [ ! -d "$(OPENPILOTGCS_DIR)" ] || $(RM) -r "$(OPENPILOTGCS_DIR)"
+.PHONY: gcs_clean
+gcs_clean:
+	@$(ECHO) " CLEAN      $(call toprel, $(GCS_DIR))"
+	$(V1) [ ! -d "$(GCS_DIR)" ] || $(RM) -r "$(GCS_DIR)"
 
 
 
@@ -505,7 +499,7 @@ UPLOADER_MAKEFILE := $(UPLOADER_DIR)/Makefile
 .PHONY: uploader_qmake
 uploader_qmake $(UPLOADER_MAKEFILE): | $(UPLOADER_DIR)
 	$(V1) cd $(UPLOADER_DIR) && \
-	    $(QMAKE) $(ROOT_DIR)/ground/openpilotgcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
+	    $(QMAKE) $(ROOT_DIR)/ground/gcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
 
 .PHONY: uploader
@@ -720,7 +714,7 @@ $(OPFW_RESOURCE): $(FW_TARGETS) | $(OPGCSSYNTHDIR)
 
 # If opfw_resource or all firmware are requested, GCS should depend on the resource
 ifneq ($(strip $(filter opfw_resource all all_fw all_flight package,$(MAKECMDGOALS))),)
-$(OPENPILOTGCS_MAKEFILE): $(OPFW_RESOURCE)
+$(GCS_MAKEFILE): $(OPFW_RESOURCE)
 endif
 
 # Packaging targets: package

@@ -64,7 +64,7 @@
     <message>
         <location line="+16"/>
         <source>&lt;System Language&gt;</source>
-        <translatorcomment>Other languages aren&apos;t translated : English and dynamicaly generated... Check in ground/openpilotgcs/src/plugins/coreplugin/generalsettings.cpp</translatorcomment>
+        <translatorcomment>Other languages aren&apos;t translated : English and dynamicaly generated... Check in ground/gcs/src/plugins/coreplugin/generalsettings.cpp</translatorcomment>
         <translation>&lt;Langue Système&gt;</translation>
     </message>
     <message>

@@ -141,7 +141,7 @@ Rectangle {
                     width: parent.width
                     height: parent.height
                     onClicked: {
-                        welcomePlugin.openUrl("http://wiki.openpilot.org/display/BUILDS/OpenPilot+Software+Downloads")
+                        welcomePlugin.openUrl("https://github.com/librepilot/LibrePilot/releases/")
                     }
                 }
             }

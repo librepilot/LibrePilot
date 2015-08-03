@@ -7,7 +7,7 @@ ifndef TOP_LEVEL_MAKEFILE
 endif
 
 .PHONY: package
-package: openpilotgcs uavobjects_matlab | $(PACKAGE_DIR)
+package: gcs uavobjects_matlab | $(PACKAGE_DIR)
 ifneq ($(GCS_BUILD_CONF),release)
 	# We can only package release builds
 	$(error Packaging is currently supported for release builds only)

@@ -43,7 +43,7 @@ rem QtSDK's MinGW directory. In that case make sure that you have correct
 rem directories specified here.
 rem
 rem Also the SDL should be installed into Qt directories to build the GCS.
-rem Check the wiki or ground/openpilotgcs/copydata.pro for details.
+rem Check the wiki or ground/gcs/copydata.pro for details.
 rem
 rem Also you can add any paths below just by adding extra 'call :which'
 rem lines with the following parameters:

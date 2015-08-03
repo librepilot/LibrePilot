@@ -1,16 +1,13 @@
-
-%global gitrev g07deb66
-
-Name:           LibrePilot
+Name:           <NAME>
 Summary:        Ground Control Station
-Version:        0.0
-Release:        1.git%{gitrev}%{?dist}
+Version:        <VERSION>
+Release:        <RELEASE>%{?dist}
 
 Group:          Applications/Scientific
 License:        GPLv3+
 URL:            http://forum.librepilot.org/
 
-Source0:        https://github.com/librepilot/%{name}/archive/%{name}-%{version}-%{gitrev}.tar.gz
+Source0:        <SOURCE>
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -25,6 +22,7 @@ BuildRequires:  qt5-qtscript-devel
 BuildRequires:  qt5-qtserialport-devel
 BuildRequires:  qt5-qtsvg-devel
 BuildRequires:  qt5-qttools-devel
+BuildRequires:  qt5-qttranslations
 BuildRequires:  dwz
 BuildRequires:  pkgconfig
 BuildRequires:  python
@@ -33,6 +31,7 @@ BuildRequires:  systemd-devel
 
 Requires:       libusbx
 Requires:       SDL
+Requires:       qt5-qtquickcontrols
 Requires:       qt5-qtdeclarative
 Requires:       qt5-qtmultimedia
 Requires:       qt5-qtscript
@@ -50,12 +49,11 @@ and ease of use.
 
 
 %prep
-%setup -q -n %{name}-%{version}-%{gitrev}
+%setup -q -n <ARCHIVE_PREFIX>
 
 
 %build
 make %{?_smp_mflags} gcs QMAKE=qmake-qt5 CC=%{__cc} CXX=%{__cxx} libbasename=%{_lib}
-#make -j1 opfw_resource
 
 
 %install
@@ -76,11 +74,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files
-%doc README.txt GPLv3.txt
+%doc README.md CREDITS.txt WHATSNEW.txt
+%doc GPLv3.txt
 %{_bindir}/librepilot-gcs
 %{_udevrulesdir}/45-librepilot.rules
 %{_datadir}/applications/librepilot.desktop
-%{_datadir}/librepilot-gcs//*
+%{_datadir}/librepilot-gcs/*
 %{_datadir}/pixmaps/librepilot.png
 %{_libdir}/librepilot-gcs/plugins/OpenPilot/*.pluginspec
 %{_libdir}/librepilot-gcs/plugins/OpenPilot/*.so

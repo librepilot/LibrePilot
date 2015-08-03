@@ -729,9 +729,39 @@ PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
 # Source distribution is never dirty because it uses git archive
-DIST_NAME := $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
+DIST_LBL      := $(subst -dirty,,$(PACKAGE_LBL))
+DIST_NAME     := $(PACKAGE_NAME)$(PACKAGE_SEP)$(DIST_LBL)
+DIST_TAR      := $(DIST_DIR)/$(DIST_NAME).tar
+DIST_TAR_GZ   := $(DIST_TAR).gz
+DIST_VER_INFO := $(DIST_DIR)/version-info.json
 
 include $(ROOT_DIR)/package/$(UNAME).mk
+
+##############################
+#
+# Source for distribution
+#
+##############################
+$(DIST_VER_INFO): .git/index | $(DIST_DIR)
+	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"
+
+$(DIST_TAR): $(DIST_VER_INFO) .git/index | $(DIST_DIR)
+	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR))"
+	$(V1) git archive --prefix="$(PACKAGE_NAME)/" -o "$(DIST_TAR)" HEAD
+	$(V1) tar --append --file="$(DIST_TAR)" \
+		--transform='s,.*version-info.json,$(PACKAGE_NAME)/version-info.json,' \
+		$(call toprel, "$(DIST_VER_INFO)")
+
+$(DIST_TAR_GZ): $(DIST_TAR)
+	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR_GZ))"
+	$(V1) gzip -kf "$(DIST_TAR)"
+
+.PHONY: dist_tar_gz
+dist_tar_gz: $(DIST_TAR_GZ)
+
+.PHONY: dist
+dist: dist_tar_gz
+
 
 ##############################
 #
@@ -806,30 +836,6 @@ build-info: | $(BUILD_DIR)
 		--uavodir=$(ROOT_DIR)/shared/uavobjectdefinition \
 		--template="make/templates/$@.txt" \
 		--outfile="$(BUILD_DIR)/$@.txt"
-
-##############################
-#
-# Source for distribution
-#
-##############################
-
-DIST_VER_INFO := $(DIST_DIR)/version-info.json
-
-$(DIST_VER_INFO): .git/index | $(DIST_DIR)
-	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"
-
-
-$(DIST_NAME).gz: $(DIST_VER_INFO) .git/index | $(DIST_DIR)
-	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_NAME).gz)"
-	$(V1) git archive --prefix="$(PACKAGE_NAME)/" -o "$(DIST_NAME)" HEAD
-	$(V1) tar --append --file="$(DIST_NAME)" \
-		--transform='s,.*version-info.json,$(PACKAGE_NAME)/version-info.json,' \
-		$(call toprel, "$(DIST_VER_INFO)")
-	$(V1) gzip -f "$(DIST_NAME)"
-
-.PHONY: dist
-dist: $(DIST_NAME).gz
-
 
 ##############################
 #

@@ -24,4 +24,4 @@
  */
 
 #include "version_info.h"
-#include "../../../../build/openpilotgcs-synthetics/version_info.cpp"
+#include "../../../../build/gcs-synthetics/version_info.cpp"

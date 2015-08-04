@@ -203,7 +203,7 @@ export OPMODULEDIR   := $(ROOT_DIR)/flight/modules
 export OPUAVOBJ      := $(ROOT_DIR)/flight/uavobjects
 export OPUAVTALK     := $(ROOT_DIR)/flight/uavtalk
 export OPUAVSYNTHDIR := $(BUILD_DIR)/uavobject-synthetics/flight
-export OPGCSSYNTHDIR := $(BUILD_DIR)/openpilotgcs-synthetics
+export OPGCSSYNTHDIR := $(BUILD_DIR)/gcs-synthetics
 
 DIRS += $(OPGCSSYNTHDIR)
 

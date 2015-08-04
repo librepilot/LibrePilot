@@ -16,7 +16,7 @@ LUPDATE = $$[QT_INSTALL_BINS]/lupdate -locations relative -no-ui-lines -no-sort
 LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 LCONVERT = $$[QT_INSTALL_BINS]/lconvert
 
-TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/openpilotgcs_,.ts)
+TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/gcs_,.ts)
 
 MIME_TR_H = $$PWD/mime_tr.h
 
@@ -48,8 +48,8 @@ QMAKE_LINK = @: IGNORE THIS LINE
 OBJECTS_DIR =
 win32:CONFIG -= embed_manifest_exe
 
-qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/openpilotgcs_,.qm)
-qmfiles.path = /share/openpilotgcs/translations
+qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/gcs_,.qm)
+qmfiles.path = /share/gcs/translations
 qmfiles.CONFIG += no_check_exist
 INSTALLS += qmfiles
 

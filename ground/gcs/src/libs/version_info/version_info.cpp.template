@@ -5,7 +5,7 @@
  * @addtogroup VersionInfo
  * @{
  * @brief      The template file used to generate the real source file called
- *             build/openpilotgcs-synthetics/version_info.cpp
+ *             build/gcs-synthetics/version_info.cpp
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

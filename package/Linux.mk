@@ -47,7 +47,7 @@ install:
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/$(libbasename)/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
 	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/gcs.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
-	$(V1) $(INSTALL) -T $(ROOT_DIR)/ground/openpilotgcs/src/plugins/coreplugin/images/$(ORG_SMALL_NAME)_logo_128.png \
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/ground/gcs/src/plugins/coreplugin/images/$(ORG_SMALL_NAME)_logo_128.png \
 		$(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
 	$(V1) sed -i -e 's/gcs/$(GCS_SMALL_NAME)/g;s/GCS/$(GCS_BIG_NAME)/g;s/org/$(ORG_SMALL_NAME)/g;s/ORG/$(ORG_BIG_NAME)/g' \

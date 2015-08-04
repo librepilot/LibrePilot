@@ -81,8 +81,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/applications/librepilot.desktop
 %{_datadir}/librepilot-gcs/*
 %{_datadir}/pixmaps/librepilot.png
-%{_libdir}/librepilot-gcs/plugins/OpenPilot/*.pluginspec
-%{_libdir}/librepilot-gcs/plugins/OpenPilot/*.so
+%{_libdir}/librepilot-gcs/plugins/LibrePilot/*.pluginspec
+%{_libdir}/librepilot-gcs/plugins/LibrePilot/*.so
 #
 %{_libdir}/librepilot-gcs/libAggregation.so.1*
 %{_libdir}/librepilot-gcs/libExtensionSystem.so.1*

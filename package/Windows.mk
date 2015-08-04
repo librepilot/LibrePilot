@@ -10,9 +10,9 @@ VERSION_CMD   := $(VERSION_INFO)
 
 NSIS_OPTS     := /V3
 NSIS_WINX86   := $(ROOT_DIR)/package/winx86
-NSIS_SCRIPT   := $(NSIS_WINX86)/openpilotgcs.nsi
-NSIS_TEMPLATE := $(NSIS_WINX86)/openpilotgcs.tpl
-NSIS_HEADER   := $(OPGCSSYNTHDIR)/openpilotgcs.nsh
+NSIS_SCRIPT   := $(NSIS_WINX86)/gcs.nsi
+NSIS_TEMPLATE := $(NSIS_WINX86)/gcs.tpl
+NSIS_HEADER   := $(OPGCSSYNTHDIR)/gcs.nsh
 
 .PHONY: package
 package: gcs uavobjects_matlab | $(PACKAGE_DIR)

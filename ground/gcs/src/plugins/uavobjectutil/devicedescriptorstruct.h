@@ -57,7 +57,7 @@ public:
             break;
         case 0x0905:
             // Nano
-            return QString("Nano");
+            return QString("RevoNano");
 
         default:
             return QString("");

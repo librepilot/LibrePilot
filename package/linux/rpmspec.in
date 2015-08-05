@@ -74,6 +74,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files
+%defattr(-,root,root)
 %doc README.md CREDITS.txt WHATSNEW.txt
 %doc GPLv3.txt
 %{_bindir}/librepilot-gcs
@@ -99,3 +100,4 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+

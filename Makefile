@@ -490,6 +490,7 @@ openpilotgcs_qmake $(OPENPILOTGCS_MAKEFILE): | $(OPENPILOTGCS_DIR)
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
+	    'GCS_LIBRARY_BASENAME=$(libbasename)' \
 	    $(GCS_QMAKE_OPTS)
 
 .PHONY: openpilotgcs
@@ -741,13 +742,13 @@ endif
 #  - calls paltform-specific packaging script
 
 # Define some variables
-PACKAGE_LBL       := $(shell $(VERSION_INFO) --format=\$${LABEL})
-PACKAGE_NAME      := $(subst $(SPACE),,$(ORG_BIG_NAME))
-PACKAGE_SEP       := -
-PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
+PACKAGE_LBL       = $(shell $(VERSION_INFO) --format=\$${LABEL})
+PACKAGE_NAME      = $(subst $(SPACE),,$(ORG_BIG_NAME))
+PACKAGE_SEP       = -
+PACKAGE_FULL_NAME = $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
 # Source distribution is never dirty because it uses git archive
-DIST_NAME := $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
+DIST_NAME = $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
 
 include $(ROOT_DIR)/package/$(UNAME).mk
 
@@ -831,7 +832,7 @@ build-info: | $(BUILD_DIR)
 #
 ##############################
 
-DIST_VER_INFO := $(DIST_DIR)/version-info.json
+DIST_VER_INFO = $(DIST_DIR)/version-info.json
 
 $(DIST_VER_INFO): .git/index | $(DIST_DIR)
 	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"

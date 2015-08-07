@@ -64,7 +64,7 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
         m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
         break;
     case 0x0402:
-        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
+        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/cc3d_top.png"));
         break;
     case 0x0201:
         m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0201.svg"));

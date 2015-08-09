@@ -91,7 +91,7 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     m_ui->calibrationVisualHelp->setScene(new QGraphicsScene(this));
     m_ui->calibrationVisualHelp->setRenderHint(QPainter::HighQualityAntialiasing, true);
     m_ui->calibrationVisualHelp->setRenderHint(QPainter::SmoothPixmapTransform, true);
-    m_ui->calibrationVisualHelp->setBackgroundBrush(QBrush(QColor(51, 51, 51)));
+    m_ui->calibrationVisualHelp->setBackgroundBrush(QBrush(QColor(200, 200, 200)));
     displayVisualHelp("empty");
 
     // Must set up the UI (above) before setting up the UAVO mappings or refreshWidgetValues

@@ -56,5 +56,6 @@
         <file>images/gear.png</file>
         <file>images/error.svg</file>
         <file>images/nano_top.png</file>
+        <file>images/cc3d_top.png</file>
     </qresource>
 </RCC>

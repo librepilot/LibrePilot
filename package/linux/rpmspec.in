@@ -53,7 +53,30 @@ and ease of use.
 
 
 %build
-make %{?_smp_mflags} gcs QMAKE=qmake-qt5 CC=%{__cc} CXX=%{__cxx} libbasename=%{_lib}
+
+%if 0%{?_with_firmware:1}
+# If you want to build firmware you will need to install the arm-none-eabi-gcc tool chain.
+# You can not install the default system version available via dnf, since it don't have
+# the features needed to compile the firmware.
+#
+# The easiest way to install a working arm tool chain is to fetch a package from
+# launchpad.net: https://launchpad.net/gcc-arm-embedded.
+# 
+# LibrePilot currently use gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
+#
+# Unpack the file and move to /opt/:
+#  tar xjvf gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
+#  sudo mv gcc-arm-none-eabi-4_9-2014q4 /opt/arm
+#  echo "PATH=/opt/arm/bin:$PATH" >> ~/.bashrc
+#  echo "export PATH" >> ~/.bashrc
+#  source ~/.bashrc
+#
+# NOTE: You need to have glibc 32bit
+
+make %{?_smp_mflags} opfw_resource
+%endif
+
+make %{?_smp_mflags} gcs QMAKE=qmake-qt5 libbasename=%{_lib}
 
 
 %install
@@ -74,6 +97,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files
+%defattr(-,root,root)
 %doc README.md CREDITS.txt WHATSNEW.txt
 %doc GPLv3.txt
 %{_bindir}/librepilot-gcs
@@ -99,3 +123,4 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+

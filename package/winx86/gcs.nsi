@@ -29,7 +29,7 @@
 ; Includes
 
 !include "x64.nsh"
-!include "..\..\build\openpilotgcs-synthetics\openpilotgcs.nsh"
+!include "..\..\build\gcs-synthetics\gcs.nsh"
 
 ;--------------------------------
 ; Paths

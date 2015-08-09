@@ -17,7 +17,7 @@ SOURCES = version_info.cpp
 # Since debug_and_release option is set, we need this
 !debug_and_release|build_pass {
     # Define other variables
-    VERSION_INFO_DIR      = $$GCS_BUILD_TREE/../openpilotgcs-synthetics
+    VERSION_INFO_DIR      = $$GCS_BUILD_TREE/../gcs-synthetics
     VERSION_INFO_SCRIPT   = $$ROOT_DIR/make/scripts/version-info.py
     VERSION_INFO_COMMAND  = $$PYTHON \"$$VERSION_INFO_SCRIPT\"
     VERSION_INFO_TEMPLATE = $$GCS_SOURCE_TREE/src/libs/version_info/version_info.cpp.template

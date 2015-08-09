@@ -95,7 +95,7 @@ void GeneralSettings::fillLanguageBox() const
     }
 
     const QString creatorTrPath     = Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
-    const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("openpilotgcs*.qm")));
+    const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("gcs*.qm")));
 
     foreach(QString languageFile, languageFiles) {
         int start = languageFile.indexOf(QLatin1Char('_')) + 1;

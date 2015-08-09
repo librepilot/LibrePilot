@@ -30,7 +30,7 @@
 
 	<field name="PitchRollRateFactors" units="" type="float" elementnames="I,D" defaultvalue="3,0.0135"/>
 	<field name="YawRateFactors" units="" type="float" elementnames="P,I,D" defaultvalue="1.5,1.9,0.0085"/>
-	<field name="RatePIDRecalculateYaw" units="" type="enum" elements="1" options="Disabled,Enabled" defaultvalue="Disabled"/>
+	<field name="RatePIDRecalculateYaw" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
 
 	<access gcs="readwrite" flight="readwrite"/>
 	<telemetrygcs acked="true" updatemode="onchange" period="0"/>

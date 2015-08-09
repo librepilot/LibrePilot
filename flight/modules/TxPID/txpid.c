@@ -404,13 +404,13 @@ static void updatePIDs(UAVObjEvent *ev)
                 needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELTAU:
-                needsUpdateAtt |= update(&att.AccelTau, value);
+                needsUpdateAtt  |= update(&att.AccelTau, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELKP:
-                needsUpdateAtt |= update(&att.AccelKp, value);
+                needsUpdateAtt  |= update(&att.AccelKp, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELKI:
-                needsUpdateAtt |= update(&att.AccelKi, value);
+                needsUpdateAtt  |= update(&att.AccelKi, value);
                 break;
 
 #ifdef REVOLUTION
@@ -446,12 +446,13 @@ static void updatePIDs(UAVObjEvent *ev)
         AltitudeHoldSettingsSet(&altitude);
     }
 #endif
+    if (inst.RatePIDRecalculateYaw != TXPIDSETTINGS_RATEPIDRECALCULATEYAW_FALSE) {
+        float newKp = (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.YawRateFactors.P;
+        needsUpdateBank |= update(&bank.YawRatePID.Kp, newKp);
+        needsUpdateBank |= update(&bank.YawRatePID.Ki, newKp * inst.YawRateFactors.I);
+        needsUpdateBank |= update(&bank.YawRatePID.Kd, newKp * inst.YawRateFactors.D);
+    }
     if (needsUpdateBank) {
-        if(inst.RatePIDRecalculateYaw == TXPIDSETTINGS_RATEPIDRECALCULATEYAW_ENABLED){
-            update(&bank.YawRatePID.Kp, (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.YawRateFactors.P);
-            update(&bank.YawRatePID.Ki, bank.YawRatePID.Kp * inst.YawRateFactors.I);
-            update(&bank.YawRatePID.Kd, bank.YawRatePID.Kp * inst.YawRateFactors.D);
-        }
         switch (inst.BankNumber) {
         case 0:
             StabilizationSettingsBank1Set((StabilizationSettingsBank1Data *)&bank);

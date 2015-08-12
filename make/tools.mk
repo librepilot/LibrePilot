@@ -1,5 +1,5 @@
 #
-# Installers for tools required by the OpenPilot build system.
+# Installers for tools required by the build system.
 # Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 #

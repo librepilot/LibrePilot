@@ -118,9 +118,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-337</y>
+            <y>-391</y>
             <width>754</width>
-            <height>771</height>
+            <height>783</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -780,6 +780,46 @@ font:bold;</string>
                 </property>
                </widget>
               </item>
+              <item row="0" column="4">
+               <widget class="QPushButton" name="fullPID_RP_Factor_Reset">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Reset Roll/Pitch factors to default values</string>
+                </property>
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>Default</string>
+                </property>
+                <property name="objrelation" stdset="0">
+                 <stringlist>
+                  <string>button:default</string>
+                  <string>buttongroup:10</string>
+                 </stringlist>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="0">
                <widget class="QLabel" name="fullPID_RP_I_FactorLabel">
                 <property name="sizePolicy">
@@ -846,6 +886,7 @@ font:bold;</string>
                   <string>fieldname:PitchRollRateFactors</string>
                   <string>scale:0.1</string>
                   <string>element:I</string>
+                  <string>buttongroup:10</string>
                  </stringlist>
                 </property>
                </widget>
@@ -907,6 +948,7 @@ font:bold;</string>
                   <string>fieldname:PitchRollRateFactors</string>
                   <string>scale:1</string>
                   <string>element:D</string>
+                  <string>buttongroup:10</string>
                  </stringlist>
                 </property>
                </widget>
@@ -926,6 +968,7 @@ font:bold;</string>
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:RatePIDRecalculateYaw</string>
+                  <string>buttongroup:11</string>
                  </stringlist>
                 </property>
                </widget>
@@ -993,6 +1036,7 @@ font:bold;</string>
                   <string>fieldname:YawRateFactors</string>
                   <string>scale:0.1</string>
                   <string>element:P</string>
+                  <string>buttongroup:11</string>
                  </stringlist>
                 </property>
                </widget>
@@ -1051,6 +1095,7 @@ font:bold;</string>
                   <string>fieldname:YawRateFactors</string>
                   <string>scale:1</string>
                   <string>element:I</string>
+                  <string>buttongroup:11</string>
                  </stringlist>
                 </property>
                </widget>
@@ -1112,6 +1157,7 @@ font:bold;</string>
                   <string>fieldname:YawRateFactors</string>
                   <string>scale:1</string>
                   <string>element:D</string>
+                  <string>buttongroup:11</string>
                  </stringlist>
                 </property>
                </widget>
@@ -1151,6 +1197,46 @@ font:bold;</string>
                 </property>
                </widget>
               </item>
+              <item row="4" column="4">
+               <widget class="QPushButton" name="fullPID_Y_Factor_Reset">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Reset Yaw factors to default values</string>
+                </property>
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>Default</string>
+                </property>
+                <property name="objrelation" stdset="0">
+                 <stringlist>
+                  <string>button:default</string>
+                  <string>buttongroup:11</string>
+                 </stringlist>
+                </property>
+               </widget>
+              </item>
               <item row="5" column="4">
                <widget class="QDoubleSpinBox" name="fullPID_Y_P_FactorSpinBox">
                 <property name="minimumSize">
@@ -1186,6 +1272,7 @@ font:bold;</string>
                   <string>fieldname:YawRateFactors</string>
                   <string>scale:1</string>
                   <string>element:P</string>
+                  <string>buttongroup:11</string>
                  </stringlist>
                 </property>
                </widget>
@@ -1222,6 +1309,7 @@ font:bold;</string>
                   <string>fieldname:PitchRollRateFactors</string>
                   <string>scale:1</string>
                   <string>element:I</string>
+                  <string>buttongroup:10</string>
                  </stringlist>
                 </property>
                </widget>

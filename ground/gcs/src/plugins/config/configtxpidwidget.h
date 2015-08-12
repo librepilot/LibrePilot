@@ -38,8 +38,8 @@ public:
     ~ConfigTxPIDWidget();
 private:
     Ui_TxPIDWidget *m_txpid;
-
 private slots:
+    void processLinkedWidgets(QWidget *widget);
     void updateSpinBoxProperties(int selectedPidOption);
     float getDefaultValueForPidOption(int pidOption);
     void refreshValues();

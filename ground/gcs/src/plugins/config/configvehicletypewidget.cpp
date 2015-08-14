@@ -135,9 +135,6 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     addUAVObject("MixerSettings");
     addUAVObject("ActuatorSettings");
 
-    m_ffTuningInProgress = false;
-    m_ffTuningPhase = false;
-
     // The order of the tabs is important since they correspond with the AirframCategory enum
     m_aircraft->aircraftType->addTab(tr("Multirotor"));
     m_aircraft->aircraftType->addTab(tr("Fixed Wing"));
@@ -148,24 +145,11 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     // Connect aircraft type selection dropbox to callback function
     connect(m_aircraft->aircraftType, SIGNAL(currentChanged(int)), this, SLOT(switchAirframeType(int)));
 
-    // Connect the three feed forward test checkboxes
-    connect(m_aircraft->ffTestBox1, SIGNAL(clicked(bool)), this, SLOT(enableFFTest()));
-    connect(m_aircraft->ffTestBox2, SIGNAL(clicked(bool)), this, SLOT(enableFFTest()));
-    connect(m_aircraft->ffTestBox3, SIGNAL(clicked(bool)), this, SLOT(enableFFTest()));
-
     // Connect the help pushbutton
     connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     refreshWidgetsValues();
 
-    // register FF widgets for dirty state management
-    addWidget(m_aircraft->feedForwardSlider);
-    addWidget(m_aircraft->accelTime);
-    addWidget(m_aircraft->decelTime);
-    addWidget(m_aircraft->maxAccelSlider);
-    addWidget(m_aircraft->ffTestBox1);
-    addWidget(m_aircraft->ffTestBox2);
-    addWidget(m_aircraft->ffTestBox3);
     addWidget(m_aircraft->nameEdit);
 
     disableMouseWheelEvents();
@@ -183,7 +167,6 @@ ConfigVehicleTypeWidget::~ConfigVehicleTypeWidget()
 void ConfigVehicleTypeWidget::switchAirframeType(int index)
 {
     m_aircraft->airframesWidget->setCurrentWidget(getVehicleConfigWidget(index));
-    m_aircraft->tabWidget->setTabEnabled(1, index != 1);
 }
 
 /**
@@ -247,7 +230,6 @@ void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *object)
     }
     m_aircraft->nameEdit->setText(name);
 
-    updateFeedForwardUI();
     setDirty(dirty);
 }
 
@@ -281,17 +263,6 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
         field->setValue(airframeType);
     }
 
-    // Update feed forward settings
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-    Q_ASSERT(mixer);
-
-    QPointer<VehicleConfig> vconfig = new VehicleConfig();
-
-    vconfig->setMixerValue(mixer, "FeedForward", m_aircraft->feedForwardSlider->value() / 100.0);
-    vconfig->setMixerValue(mixer, "AccelTime", m_aircraft->accelTime->value());
-    vconfig->setMixerValue(mixer, "DecelTime", m_aircraft->decelTime->value());
-    vconfig->setMixerValue(mixer, "MaxAccel", m_aircraft->maxAccelSlider->value());
-
     field = system->getField(QString("VehicleName"));
     Q_ASSERT(field);
     QString name = m_aircraft->nameEdit->text();
@@ -306,7 +277,6 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
     // call refreshWidgetsValues() to reflect actual saved values
     refreshWidgetsValues();
     ConfigTaskWidget::updateObjectsFromWidgets();
-    updateFeedForwardUI();
 }
 
 int ConfigVehicleTypeWidget::frameCategory(QString frameType)
@@ -370,86 +340,6 @@ VehicleConfig *ConfigVehicleTypeWidget::createVehicleConfigWidget(int frameCateg
         return new ConfigCustomWidget();
     }
     return NULL;
-}
-
-/**
-   Enables and runs feed forward testing
- */
-void ConfigVehicleTypeWidget::enableFFTest()
-{
-    // Role:
-    // - Check if all three checkboxes are checked
-    // - Every other timer event: toggle engine from 45% to 55%
-    // - Every other time event: send FF settings to flight FW
-    if (m_aircraft->ffTestBox1->isChecked() && m_aircraft->ffTestBox2->isChecked()
-        && m_aircraft->ffTestBox3->isChecked()) {
-        if (!m_ffTuningInProgress) {
-            // Initiate tuning:
-            UAVDataObject *obj = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(
-                                                                   QString("ManualControlCommand")));
-            UAVObject::Metadata mdata = obj->getMetadata();
-            m_accInitialData = mdata;
-            UAVObject::SetFlightAccess(mdata, UAVObject::ACCESS_READONLY);
-            obj->setMetadata(mdata);
-        }
-        // Depending on phase, either move actuator or send FF settings:
-        if (m_ffTuningPhase) {
-            // Send FF settings to the board
-            UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-            Q_ASSERT(mixer);
-
-            QPointer<VehicleConfig> vconfig = new VehicleConfig();
-
-            // Update feed forward settings
-            vconfig->setMixerValue(mixer, "FeedForward", m_aircraft->feedForwardSlider->value() / 100.0);
-            vconfig->setMixerValue(mixer, "AccelTime", m_aircraft->accelTime->value());
-            vconfig->setMixerValue(mixer, "DecelTime", m_aircraft->decelTime->value());
-            vconfig->setMixerValue(mixer, "MaxAccel", m_aircraft->maxAccelSlider->value());
-            mixer->updated();
-        } else {
-            // Toggle motor state
-            UAVDataObject *obj = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(
-                                                                   QString("ManualControlCommand")));
-            double value  = obj->getField("Throttle")->getDouble();
-            double target = (value < 0.5) ? 0.55 : 0.45;
-            obj->getField("Throttle")->setValue(target);
-            obj->updated();
-        }
-        m_ffTuningPhase = !m_ffTuningPhase;
-        m_ffTuningInProgress = true;
-        QTimer::singleShot(1000, this, SLOT(enableFFTest()));
-    } else {
-        // - If no: disarm timer, restore actuatorcommand metadata
-        // Disarm!
-        if (m_ffTuningInProgress) {
-            m_ffTuningInProgress = false;
-            UAVDataObject *obj = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(
-                                                                   QString("ManualControlCommand")));
-            UAVObject::Metadata mdata = obj->getMetadata();
-            mdata = m_accInitialData; // Restore metadata
-            obj->setMetadata(mdata);
-        }
-    }
-}
-
-/**
-   Updates the custom airframe settings based on the current airframe.
-
-   Note: does NOT ask for an object refresh itself!
- */
-void ConfigVehicleTypeWidget::updateFeedForwardUI()
-{
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-
-    Q_ASSERT(mixer);
-
-    QPointer<VehicleConfig> vconfig = new VehicleConfig();
-
-    // Update feed forward settings
-    m_aircraft->feedForwardSlider->setValue(vconfig->getMixerValue(mixer, "FeedForward") * 100);
-    m_aircraft->accelTime->setValue(vconfig->getMixerValue(mixer, "AccelTime"));
-    m_aircraft->decelTime->setValue(vconfig->getMixerValue(mixer, "DecelTime"));
-    m_aircraft->maxAccelSlider->setValue(vconfig->getMixerValue(mixer, "MaxAccel"));
 }
 
 /**

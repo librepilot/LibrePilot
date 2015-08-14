@@ -2,6 +2,7 @@
  ******************************************************************************
  *
  * @file       configgroundvehiclemwidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @author     K. Sebesta & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -352,9 +353,6 @@ QString ConfigGroundVehicleWidget::updateConfigObjectsFromWidgets()
 
     // Save the curve (common to all ground vehicle frames)
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-
-    // Remove Feed Forward, it is pointless on a ground vehicle:
-    setMixerValue(mixer, "FeedForward", 0.0);
 
     // set the throttle curves
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->groundVehicleThrottle1->getCurve());

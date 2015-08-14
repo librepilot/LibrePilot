@@ -310,9 +310,6 @@ QString ConfigFixedWingWidget::updateConfigObjectsFromWidgets()
 
     Q_ASSERT(mixer);
 
-    // Remove Feed Forward, it is pointless on a plane:
-    setMixerValue(mixer, "FeedForward", 0.0);
-
     // Set the throttle curve
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->fixedWingThrottle->getCurve());
 

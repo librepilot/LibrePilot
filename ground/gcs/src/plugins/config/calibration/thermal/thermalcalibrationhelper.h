@@ -73,6 +73,7 @@ typedef struct {
     float accel[3];
     bool  gyroCalibrated;
     float gyro[6];
+    float gyroBias[3];
 
     float baroInSigma;
     float baroOutSigma;

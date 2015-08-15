@@ -54,10 +54,10 @@ export DIST_DIR    := $(BUILD_DIR)/dist
 DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
 # Naming for binaries and packaging etc,.
-ORG_BIG_NAME := LibrePilot
+export ORG_BIG_NAME := LibrePilot
 GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
+export ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)

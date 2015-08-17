@@ -1,11 +1,12 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotSystem OpenPilot System
+ * @addtogroup LibrePilotSystem LibrePilot System
  * @{
- * @addtogroup OpenPilotLibraries OpenPilot System Libraries
+ * @addtogroup LibrePilotLibraries LibrePilot System Libraries
  * @{
- * @file       pios_task_monitor.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       pios_task_monitor.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      Task monitoring functions
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -36,6 +37,9 @@ static uint32_t mLastMonitorTime;
 static uint32_t mLastIdleMonitorTime;
 static uint16_t mMaxTasks;
 
+volatile uint32_t idleCounter;
+uint32_t zeroLoadIdleCounterPerSec = UINT32_MAX;
+volatile bool idleCounterClear;
 /**
  * Initialize the Task Monitor
  */
@@ -149,31 +153,44 @@ void PIOS_TASK_MONITOR_ForEachTask(TaskMonitorTaskInfoCallback callback, void *c
     xSemaphoreGiveRecursive(mLock);
 }
 
+
 uint8_t PIOS_TASK_MONITOR_GetIdlePercentage()
 {
-#if defined(ARCH_POSIX) || defined(ARCH_WIN32)
-    return 50;
+    uint32_t ticks = PIOS_TASK_MONITOR_GetIdleTicksCount();
 
-#elif (configGENERATE_RUN_TIME_STATS == 1)
-    xSemaphoreTakeRecursive(mLock, portMAX_DELAY);
-
-    uint32_t currentTime = portGET_RUN_TIME_COUNTER_VALUE();
-
-    /* avoid divide-by-zero if the interval is too small */
-    uint32_t deltaTime   = ((currentTime - mLastIdleMonitorTime) / 100) ? : 1;
-    mLastIdleMonitorTime = currentTime;
-    uint8_t running_time_percentage = 0;
-
-    /* Generate idle time percentage stats */
-    running_time_percentage = uxTaskGetRunTime(xTaskGetIdleTaskHandle()) / deltaTime;
-    xSemaphoreGiveRecursive(mLock);
-    return running_time_percentage;
-
-#else
-    return 0;
-
-#endif
+    return (uint8_t)((100 * ticks) / zeroLoadIdleCounterPerSec);
 }
 
+uint32_t PIOS_TASK_MONITOR_GetIdleTicksCount()
+{
+    static portTickType lastTickCount = 0;
+    uint32_t ticks   = 0;
+    portTickType now = xTaskGetTickCount();
+
+    if (idleCounterClear) {
+        idleCounter = 0;
+    }
+
+    if (now > lastTickCount) {
+        uint32_t dT = (xTaskGetTickCount() - lastTickCount) * portTICK_RATE_MS; // in ms
+        ticks = (1000 * idleCounter) / dT;
+    } // else: TickCount has wrapped, do not calc now
+    lastTickCount    = now;
+    idleCounterClear = true;
+    return ticks;
+}
+
+void PIOS_TASK_MONITOR_CalibrateIdleCounter()
+{
+    idleCounterClear = true;
+    PIOS_TASK_MONITOR_GetIdleTicksCount();
+    vTaskDelay(20);
+    zeroLoadIdleCounterPerSec = PIOS_TASK_MONITOR_GetIdleTicksCount();
+}
+
+uint32_t PIOS_TASK_MONITOR_GetZeroLoadTicksCount()
+{
+    return zeroLoadIdleCounterPerSec;
+}
 
 #endif // PIOS_INCLUDE_TASK_MONITOR

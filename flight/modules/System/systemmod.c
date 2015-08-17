@@ -59,6 +59,7 @@
 #include <hwsettings.h>
 #include <pios_flashfs.h>
 #include <pios_notify.h>
+#include <pios_task_monitor.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <instrumentation.h>
@@ -528,7 +529,6 @@ static uint16_t GetFreeIrqStackSize(void)
 static void updateStats()
 {
     SystemStatsData stats;
-
     // Get stats and update
     SystemStatsGet(&stats);
     stats.FlightTime = xTaskGetTickCount() * portTICK_RATE_MS;
@@ -558,7 +558,9 @@ static void updateStats()
         stats.UsrSlotsActive = fsStats.num_active_slots;
     }
 #endif
-    stats.CPULoad = 100 - PIOS_TASK_MONITOR_GetIdlePercentage();
+    stats.CPUIdleTicks     = PIOS_TASK_MONITOR_GetIdleTicksCount();
+    stats.CPUZeroLoadTicks = PIOS_TASK_MONITOR_GetZeroLoadTicksCount();
+    stats.CPULoad = 100 - (uint8_t)((100 * stats.CPUIdleTicks) / stats.CPUZeroLoadTicks);
 
 #if defined(PIOS_INCLUDE_ADC) && defined(PIOS_ADC_USE_TEMP_SENSOR)
     float temp_voltage = PIOS_ADC_PinGetVolt(PIOS_ADC_TEMPERATURE_PIN);
@@ -642,6 +644,7 @@ static void updateSystemAlarms()
  */
 void vApplicationIdleHook(void)
 {
+    PIOS_TASK_MONITOR_IdleHook();
     NotificationOnboardLedsRun();
 #ifdef PIOS_INCLUDE_WS2811
     LedNotificationExtLedsRun();

@@ -178,6 +178,8 @@ MODULE_INITCALL(SystemModInitialize, 0);
  */
 static void systemTask(__attribute__((unused)) void *parameters)
 {
+    /* calibrate the cpu usage monitor */
+    PIOS_TASK_MONITOR_CalibrateIdleCounter();
     /* board driver init */
     PIOS_Board_Init();
 

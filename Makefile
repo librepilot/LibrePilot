@@ -501,11 +501,14 @@ PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
 # Source distribution is never dirty because it uses git archive
-DIST_LBL      := $(subst -dirty,,$(PACKAGE_LBL))
-DIST_NAME     := $(PACKAGE_NAME)$(PACKAGE_SEP)$(DIST_LBL)
-DIST_TAR      := $(DIST_DIR)/$(DIST_NAME).tar
-DIST_TAR_GZ   := $(DIST_TAR).gz
-DIST_VER_INFO := $(DIST_DIR)/version-info.json
+DIST_LBL       := $(subst -dirty,,$(PACKAGE_LBL))
+DIST_NAME      := $(PACKAGE_NAME)$(PACKAGE_SEP)$(DIST_LBL)
+DIST_TAR       := $(DIST_DIR)/$(DIST_NAME).tar
+DIST_TAR_GZ    := $(DIST_TAR).gz
+FW_DIST_NAME   := $(DIST_NAME)_firmware
+FW_DIST_TAR    := $(DIST_DIR)/$(FW_DIST_NAME).tar
+FW_DIST_TAR_GZ := $(FW_DIST_TAR).gz
+DIST_VER_INFO  := $(DIST_DIR)/version-info.json
 
 include $(ROOT_DIR)/package/$(UNAME).mk
 
@@ -533,6 +536,23 @@ dist_tar_gz: $(DIST_TAR_GZ)
 
 .PHONY: dist
 dist: dist_tar_gz
+
+
+$(FW_DIST_TAR): $(PACKAGE_FW_TARGETS) | $(DIST_DIR)
+	@$(ECHO) " FIRMWARE FOR DISTRIBUTION $(call toprel, $(FW_DIST_TAR))"
+	$(V1) tar -c --file="$(FW_DIST_TAR)" --directory=$(FIRMWARE_DIR) \
+		--transform='s,^,firmware/,' \
+		$(foreach fw_targ,$(PACKAGE_FW_TARGETS),$(fw_targ)/$(fw_targ).opfw)
+
+$(FW_DIST_TAR_GZ): $(FW_DIST_TAR)
+	@$(ECHO) " FIRMWARE FOR DISTRIBUTION $(call toprel, $(FW_DIST_TAR_GZ))"
+	$(V1) gzip -kf "$(FW_DIST_TAR)"
+
+.PHONY: fw_dist_tar_gz
+fw_dist_tar_gz: $(FW_DIST_TAR_GZ)
+
+.PHONY: fw_dist
+fw_dist: fw_dist_tar_gz
 
 
 ##############################
@@ -773,6 +793,7 @@ help:
 	@$(ECHO) "     package              - Build and package the OpenPilot platform-dependent package (no clean)"
 	@$(ECHO) "     opfw_resource        - Generate resources to embed firmware binaries into the GCS"
 	@$(ECHO) "     dist                 - Generate source archive for distribution"
+	@$(ECHO) "     fw_dist              - Generate archive of firmware"
 	@$(ECHO) "     install              - Install GCS to \"DESTDIR\" with prefix \"prefix\" (Linux only)"
 	@$(ECHO)
 	@$(ECHO) "   [Code Formatting]"

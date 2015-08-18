@@ -1,17 +1,18 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotSystem OpenPilot System
- * @brief These files are the core system files of OpenPilot.
- * They are the ground layer just above PiOS. In practice, OpenPilot actually starts
- * in the main() function of openpilot.c
+ * @addtogroup LibrePilotSystem LibrePilot System
+ * @brief These files are the core system files for CopterControl.
+ * They are the ground layer just above PiOS. In practice, CopterControl actually starts
+ * in the main() function of coptercontrol.c
  * @{
- * @addtogroup OpenPilotCore OpenPilot Core
- * @brief This is where the OP firmware starts. Those files also define the compile-time
+ * @addtogroup LibrePilotCore LibrePilot Core
+ * @brief This is where the LP firmware starts. Those files also define the compile-time
  * options of the firmware.
  * @{
- * @file       openpilot.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Sets up and runs main OpenPilot tasks.
+ * @file       coptercontrol.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015
+ * @brief      Sets up and runs main tasks.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -32,18 +33,11 @@
  */
 
 #include "inc/openpilot.h"
-#include <uavobjectsinit.h>
-#include <hwsettings.h>
-
+#include <systemmod.h>
 /* Task Priorities */
-#define PRIORITY_TASK_HOOKS (tskIDLE_PRIORITY + 3)
 
 /* Global Variables */
-
-/* Prototype of PIOS_Board_Init() function */
-extern void PIOS_Board_Init(void);
 extern void Stack_Change(void);
-
 /**
  * OpenPilot Main function:
  *
@@ -61,24 +55,9 @@ int main()
     /* Brings up System using CMSIS functions, enables the LEDs. */
     PIOS_SYS_Init();
 
-    /* Architecture dependant Hardware and
-     * core subsystem initialisation
-     * (see pios_board.c for your arch)
-     * */
-    PIOS_Board_Init();
 
-#ifdef ERASE_FLASH
-    PIOS_Flash_Jedec_EraseChip();
-#if defined(PIOS_LED_HEARTBEAT)
-    PIOS_LED_Off(PIOS_LED_HEARTBEAT);
-#endif /* PIOS_LED_HEARTBEAT */
-    while (1) {
-        ;
-    }
-#endif
+    SystemModStart();
 
-    /* Initialize modules */
-    MODULE_INITIALISE_ALL
     /* swap the stack to use the IRQ stack */
     Stack_Change();
 

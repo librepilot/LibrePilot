@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
- * @brief The OpenPilot Modules do the majority of the control in OpenPilot.  The
+ * @addtogroup LibrePilotModules LibrePilot Modules
+ * @brief The LibrePilot Modules do the majority of the control in LibrePilot.  The
  * @ref SystemModule "System Module" starts all the other modules that then take care
  * of all the telemetry and control algorithms and such.  This is done through the @ref PIOS
  * "PIOS Hardware abstraction layer" which then contains hardware specific implementations
@@ -16,7 +16,8 @@
  * @{
  *
  * @file       systemmod.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      System module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -119,6 +120,7 @@ static void systemTask(void *parameters);
 static void updateI2Cstats();
 static void updateWDGstats();
 #endif
+extern void PIOS_Board_Init(void);
 
 extern uintptr_t pios_uavo_settings_fs_id;
 extern uintptr_t pios_user_fs_id;
@@ -134,8 +136,6 @@ int32_t SystemModStart(void)
     mallocFailed  = false;
     // Create system task
     xTaskCreate(systemTask, "System", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &systemTaskHandle);
-    // Register task
-    PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_SYSTEM, systemTaskHandle);
 
     return 0;
 }
@@ -169,8 +169,6 @@ int32_t SystemModInitialize(void)
         return -1;
     }
 
-    SystemModStart();
-
     return 0;
 }
 
@@ -180,6 +178,12 @@ MODULE_INITCALL(SystemModInitialize, 0);
  */
 static void systemTask(__attribute__((unused)) void *parameters)
 {
+    /* board driver init */
+    PIOS_Board_Init();
+
+    /* Initialize all modules */
+    MODULE_INITIALISE_ALL;
+
     while (!initTaskDone) {
         vTaskDelay(10);
     }
@@ -189,6 +193,9 @@ static void systemTask(__attribute__((unused)) void *parameters)
 
     /* start the delayed callback scheduler */
     PIOS_CALLBACKSCHEDULER_Start();
+
+    // Register task
+    PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_SYSTEM, systemTaskHandle);
 
     if (mallocFailed) {
         /* We failed to malloc during task creation,
@@ -529,6 +536,7 @@ static uint16_t GetFreeIrqStackSize(void)
 static void updateStats()
 {
     SystemStatsData stats;
+
     // Get stats and update
     SystemStatsGet(&stats);
     stats.FlightTime = xTaskGetTickCount() * portTICK_RATE_MS;

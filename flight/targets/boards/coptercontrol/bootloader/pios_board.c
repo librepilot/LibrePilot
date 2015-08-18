@@ -56,9 +56,6 @@ void PIOS_Board_Init(void)
     /* Flash 2 wait state */
     FLASH_SetLatency(FLASH_Latency_2);
 
-    /* Delay system */
-    PIOS_DELAY_Init();
-
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
 
 #if defined(PIOS_INCLUDE_LED)

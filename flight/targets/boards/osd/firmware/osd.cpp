@@ -1,17 +1,18 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotSystem OpenPilot System
- * @brief These files are the core system files of OpenPilot.
- * They are the ground layer just above PiOS. In practice, OpenPilot actually starts
- * in the main() function of openpilot.c
+ * @addtogroup LibrePilotSystem LibrePilot System
+ * @brief These files are the core system files for Revolution.
+ * They are the ground layer just above PiOS. In practice, OSD actually starts
+ * in the main() function of osd.c
  * @{
- * @addtogroup OpenPilotCore OpenPilot Core
- * @brief This is where the OP firmware starts. Those files also define the compile-time
+ * @addtogroup LibrePilotCore LibrePilot Core
+ * @brief This is where the LP firmware starts. Those files also define the compile-time
  * options of the firmware.
  * @{
- * @file       openpilot.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Sets up and runs main OpenPilot tasks.
+ * @file       osd.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015
+ * @brief      Sets up and runs main tasks.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/

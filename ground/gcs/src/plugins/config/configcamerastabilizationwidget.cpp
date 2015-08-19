@@ -73,6 +73,7 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
         }
     }
 
+    setWikiURL("Camera+Stabilisation+Configuration");
     // Load UAVObjects to widget relations from UI file
     // using objrelation dynamic property
     autoLoadWidgets();

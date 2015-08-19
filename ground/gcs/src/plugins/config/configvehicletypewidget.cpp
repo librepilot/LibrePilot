@@ -457,5 +457,6 @@ void ConfigVehicleTypeWidget::updateFeedForwardUI()
  */
 void ConfigVehicleTypeWidget::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/44Cf"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Vehicle+Configuration"),
+                                   QUrl::StrictMode));
 }

@@ -27264,7 +27264,6 @@ border-radius: 5;</string>
        <property name="objrelation" stdset="0">
         <stringlist>
          <string>button:help</string>
-         <string>url:http://wiki.openpilot.org/x/DAO9</string>
         </stringlist>
        </property>
       </widget>

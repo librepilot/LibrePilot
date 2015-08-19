@@ -336,5 +336,6 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
 
 void ConfigRevoHWWidget::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/GgDBAQ"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revolution+Configuration"),
+                                   QUrl::StrictMode));
 }

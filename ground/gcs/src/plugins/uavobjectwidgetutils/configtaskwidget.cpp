@@ -550,6 +550,11 @@ void ConfigTaskWidget::addHelpButton(QPushButton *button, QString url)
     connect(button, SIGNAL(clicked()), this, SLOT(helpButtonPressed()));
 }
 
+void ConfigTaskWidget::setWikiURL(QString url)
+{
+    m_wikiURL = url;
+}
+
 void ConfigTaskWidget::invalidateObjects()
 {
     foreach(UAVObject * obj, m_updatedObjects.keys()) {
@@ -684,7 +689,7 @@ void ConfigTaskWidget::autoLoadWidgets()
                 case help_button:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
-                        addHelpButton(button, uiRelation.url);
+                        addHelpButton(button, WIKI_URL_ROOT + m_wikiURL);
                     }
                     break;
 

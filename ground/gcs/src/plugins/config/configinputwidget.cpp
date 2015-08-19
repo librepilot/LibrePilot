@@ -393,7 +393,8 @@ void ConfigInputWidget::resizeEvent(QResizeEvent *event)
 
 void ConfigInputWidget::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/04Cf"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Input+Configuration"),
+                                   QUrl::StrictMode));
 }
 
 void ConfigInputWidget::goToWizard()

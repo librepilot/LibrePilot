@@ -59,6 +59,8 @@ GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
 ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
+# Change this once the DNS is set to http://wiki.librepilot.org/
+WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -471,6 +473,7 @@ gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
+       'WIKI_URL_ROOT="$(WIKI_URL_ROOT)"' \
 	    'GCS_LIBRARY_BASENAME=$(libbasename)' \
 	    $(GCS_QMAKE_OPTS)
 

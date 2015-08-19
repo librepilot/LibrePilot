@@ -42,6 +42,7 @@ ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
     m_txpid = new Ui_TxPIDWidget();
     m_txpid->setupUi(this);
 
+    setWikiURL("TxPID");
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     if (!settings->useExpertMode()) {
@@ -300,11 +301,14 @@ static float defaultValueForPidOption(const StabilizationSettingsBankX *bank, in
 
     case TxPIDSettings::PIDS_YAWEXPO:
         return bank->getStickExpo_Yaw();
+
     case TxPIDSettings::PIDS_ACROROLLFACTOR:
     case TxPIDSettings::PIDS_ACROROLLPITCHFACTOR:
         return bank->getAcroInsanityFactor_Roll();
+
     case TxPIDSettings::PIDS_ACROPITCHFACTOR:
         return bank->getAcroInsanityFactor_Pitch();
+
     case -1: // The PID Option field was uninitialized.
         return 0.0f;
 

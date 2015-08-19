@@ -112,6 +112,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     // Request and update of the setting object.
     settingsUpdated = false;
+    setWikiURL("OPLink+Configuration");
     autoLoadWidgets();
     disableMouseWheelEvents();
     updateEnableControls();

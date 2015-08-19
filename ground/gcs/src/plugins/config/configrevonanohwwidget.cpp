@@ -334,5 +334,6 @@ void ConfigRevoNanoHWWidget::rcvrPortChanged(int index)
 
 void ConfigRevoNanoHWWidget::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/GgDBAQ"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revo+Nano+Configuration"),
+                                   QUrl::StrictMode));
 }

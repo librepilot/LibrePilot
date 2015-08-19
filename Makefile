@@ -468,19 +468,27 @@ PACKAGE_FW_TARGETS := fw_coptercontrol fw_oplinkmini fw_revolution fw_osd fw_rev
 # They are used later by the vehicle setup wizard to update board firmware.
 # To open a firmware image use ":/firmware/fw_coptercontrol.opfw"
 OPFW_RESOURCE := $(OPGCSSYNTHDIR)/opfw_resource.qrc
-OPFW_RESOURCE_PREFIX := ../../
-OPFW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(call toprel, $(FLIGHT_OUT_DIR)/$(fw_targ)/$(fw_targ).opfw))
+
+ifeq ($(WITH_PREBUILT_FW),)
+FIRMWARE_DIR := $(FLIGHT_OUT_DIR)
+# We need to build the FW targets
+$(OPFW_RESOURCE): $(PACKAGE_FW_TARGETS)
+else
+FIRMWARE_DIR := $(WITH_PREBUILT_FW)
+endif
+
+OPFW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(FIRMWARE_DIR)/$(fw_targ)/$(fw_targ).opfw)
 OPFW_CONTENTS := \
 <!DOCTYPE RCC><RCC version="1.0"> \
     <qresource prefix="/firmware"> \
-        $(foreach fw_file, $(OPFW_FILES), <file alias="$(notdir $(fw_file))">$(OPFW_RESOURCE_PREFIX)$(fw_file)</file>) \
+        $(foreach fw_file, $(OPFW_FILES), <file alias="$(notdir $(fw_file))">$(fw_file)</file>) \
     </qresource> \
 </RCC>
 
 .PHONY: opfw_resource
 opfw_resource: $(OPFW_RESOURCE)
 
-$(OPFW_RESOURCE): $(PACKAGE_FW_TARGETS) | $(OPGCSSYNTHDIR)
+$(OPFW_RESOURCE): | $(OPGCSSYNTHDIR)
 	@$(ECHO) Generating OPFW resource file $(call toprel, $@)
 	$(V1) $(ECHO) $(QUOTE)$(OPFW_CONTENTS)$(QUOTE) > $@
 
@@ -540,7 +548,7 @@ dist: dist_tar_gz
 
 $(FW_DIST_TAR): $(PACKAGE_FW_TARGETS) | $(DIST_DIR)
 	@$(ECHO) " FIRMWARE FOR DISTRIBUTION $(call toprel, $(FW_DIST_TAR))"
-	$(V1) tar -c --file="$(FW_DIST_TAR)" --directory=$(FIRMWARE_DIR) \
+	$(V1) tar -c --file="$(FW_DIST_TAR)" --directory=$(FLIGHT_OUT_DIR) \
 		--transform='s,^,firmware/,' \
 		$(foreach fw_targ,$(PACKAGE_FW_TARGETS),$(fw_targ)/$(fw_targ).opfw)
 

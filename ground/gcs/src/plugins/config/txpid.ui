@@ -598,12 +598,12 @@ Throttle channel greater or equal to Throttle Max value.</string>
                  <enum>Qt::StrongFocus</enum>
                 </property>
                 <property name="toolTip">
-                 <string>PID values update mode which can be set to:
+                 <string>PID values update mode, which can be set to:
 - Never: this disables PID updates (but module still will be run if enabled),
 - When Armed: PID updated only when system is armed,
-- Always: PID updated always regardless of arm state.
+- Always: PID updated always, regardless of arm state.
 
-Since the GCS updates GUI PID values in real time on change, could be
+Since the GCS updates GUI PID values in real time on change, it could be
 tricky to change other PID values from the GUI if the module is enabled
 and constantly updates stabilization settings object. As a workaround,
 this option can be used to temporarily disable updates or enable them
@@ -927,6 +927,9 @@ font:bold;</string>
                   <height>22</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Roll/Pitch D factor for full PID mode</string>
+                </property>
                 <property name="decimals">
                  <number>4</number>
                 </property>
@@ -960,6 +963,9 @@ font:bold;</string>
                   <width>0</width>
                   <height>27</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Calculate Yaw PIDs based on Roll/Pitch PIDs</string>
                 </property>
                 <property name="text">
                  <string>AutoCalc Yaw</string>
@@ -1004,7 +1010,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Roll/Pitch I factor for full PID mode</string>
+                 <string>Yaw P factor for full PID mode</string>
                 </property>
                 <property name="minimum">
                  <number>10</number>
@@ -1077,6 +1083,9 @@ font:bold;</string>
                   <height>22</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Yaw I factor for full PID mode</string>
+                </property>
                 <property name="minimum">
                  <double>0.000000000000000</double>
                 </property>
@@ -1135,6 +1144,9 @@ font:bold;</string>
                   <width>60</width>
                   <height>22</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Yaw D factor for full PID mode</string>
                 </property>
                 <property name="decimals">
                  <number>4</number>
@@ -1251,6 +1263,9 @@ font:bold;</string>
                   <height>22</height>
                  </size>
                 </property>
+                <property name="toolTip">
+                 <string>Yaw P factor for full PID mode</string>
+                </property>
                 <property name="decimals">
                  <number>1</number>
                 </property>
@@ -1290,6 +1305,9 @@ font:bold;</string>
                   <width>60</width>
                   <height>22</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string>Roll/Pitch I factor for full PID mode</string>
                 </property>
                 <property name="decimals">
                  <number>1</number>

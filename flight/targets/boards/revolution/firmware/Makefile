@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 # Copyright (c) 2012, PhoenixPilot, http://github.com/PhoenixPilot
 #

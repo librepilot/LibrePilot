@@ -17,7 +17,7 @@ collaboration under the spirit of open source.
 LibrePilot finds its roots in the OpenPilot project and the founding members
 are all long-standing contributors in that project.
 
-The LibrePilot project will be governed by a board of members using consensual
+The LibrePilot Project will be governed by a board of members using consensual
 methods to make important decisions and to set the overall direction of the
 project.
 
@@ -35,3 +35,4 @@ Links for the LibrePilot Project
 - [Issue tracker](https://librepilot.atlassian.net)
 - [Gitter Chat](https://gitter.im/librepilot/LibrePilot)
 - IRC: #LibrePilot on FreeNode
+

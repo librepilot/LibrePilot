@@ -1,9 +1,10 @@
 /**
  *****************************************************************************
  * @file       pios_board.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
- * @author     LibrePilot, https://bitbucket.org/librepilot, Copyright (C) 2015
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
+ *
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core

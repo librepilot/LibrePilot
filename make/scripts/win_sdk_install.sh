@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # win_sdk_install.sh - Windows toolchain install script.
+# Copyright (C) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,6 +23,7 @@
 # environment and expects path names in the form of /C/some/path, where
 # C is a drive letter, and paths are in MSYS format. It probably won't
 # work under cygwin.
+
 SCRIPT_PATH="`echo "$BASH_SOURCE" | sed 's|\\\\|/|g; s|^\(.\):|/\1|'`"
 SCRIPT_NAME="`basename \"$SCRIPT_PATH\"`"
 SCRIPT_DIR="`dirname \"$SCRIPT_PATH\"`"

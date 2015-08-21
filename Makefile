@@ -1,5 +1,5 @@
 #
-# Top level Makefile for the LibrePilot project build system.
+# Top level Makefile for the LibrePilot Project build system.
 # Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 # Use 'make help' for instructions.

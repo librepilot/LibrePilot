@@ -89,8 +89,10 @@ ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
 
     addWidgetBinding("TxPIDSettings", "UpdateMode", m_txpid->UpdateMode);
 
-    addWidget(m_txpid->TxPIDEnable);
+    connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
+    addWidget(m_txpid->TxPIDEnable);
+    addWidget(m_txpid->enableAutoCalcYaw);
     enableControls(false);
     populateWidgets();
     refreshWidgetsValues();
@@ -161,6 +163,18 @@ static bool isExpoOption(int pidOption)
     }
 }
 
+static bool isFullPIDOption(int pidOption)
+{
+    switch (pidOption) {
+    case TxPIDSettings::PIDS_ROLLRATEPID:
+    case TxPIDSettings::PIDS_PITCHRATEPID:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
 static bool isAcroPlusFactorOption(int pidOption)
 {
     switch (pidOption) {
@@ -182,9 +196,11 @@ static float defaultValueForPidOption(const StabilizationSettingsBankX *bank, in
         return 0.0f;
 
     case TxPIDSettings::PIDS_ROLLRATEKP:
+    case TxPIDSettings::PIDS_ROLLRATEPID:
         return bank->getRollRatePID_Kp();
 
     case TxPIDSettings::PIDS_PITCHRATEKP:
+    case TxPIDSettings::PIDS_PITCHRATEPID:
         return bank->getPitchRatePID_Kp();
 
     case TxPIDSettings::PIDS_ROLLPITCHRATEKP:
@@ -300,11 +316,14 @@ static float defaultValueForPidOption(const StabilizationSettingsBankX *bank, in
 
     case TxPIDSettings::PIDS_YAWEXPO:
         return bank->getStickExpo_Yaw();
+
     case TxPIDSettings::PIDS_ACROROLLFACTOR:
     case TxPIDSettings::PIDS_ACROROLLPITCHFACTOR:
         return bank->getAcroInsanityFactor_Roll();
+
     case TxPIDSettings::PIDS_ACROPITCHFACTOR:
         return bank->getAcroInsanityFactor_Pitch();
+
     case -1: // The PID Option field was uninitialized.
         return 0.0f;
 
@@ -444,4 +463,24 @@ void ConfigTxPIDWidget::saveSettings()
     applySettings();
     UAVObject *obj = HwSettings::GetInstance(getObjectManager());
     saveObjectToSD(obj);
+}
+
+void ConfigTxPIDWidget::processLinkedWidgets(QWidget *widget)
+{
+    Q_UNUSED(widget);
+    bool fullPidEnabled =
+        isFullPIDOption(m_txpid->PID1->currentIndex()) ||
+        isFullPIDOption(m_txpid->PID2->currentIndex()) ||
+        isFullPIDOption(m_txpid->PID3->currentIndex());
+    bool calcYawEnabled = fullPidEnabled && m_txpid->enableAutoCalcYaw->isChecked();
+
+    m_txpid->fullPID_Y_P_FactorSlider->setEnabled(calcYawEnabled);
+    m_txpid->fullPID_Y_P_FactorSpinBox->setEnabled(calcYawEnabled);
+    m_txpid->fullPID_Y_I_FactorSpinBox->setEnabled(calcYawEnabled);
+    m_txpid->fullPID_Y_D_FactorSpinBox->setEnabled(calcYawEnabled);
+    m_txpid->enableAutoCalcYaw->setEnabled(fullPidEnabled);
+    m_txpid->fullPID_RP_I_FactorSlider->setEnabled(fullPidEnabled);
+    m_txpid->fullPID_RP_I_FactorSpinBox->setEnabled(fullPidEnabled);
+    m_txpid->fullPID_RP_D_FactorSpinBox->setEnabled(fullPidEnabled);
+    m_txpid->groupBox_FullPids->setEnabled(fullPidEnabled);
 }

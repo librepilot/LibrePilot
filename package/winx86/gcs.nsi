@@ -29,16 +29,11 @@
 ; Includes
 
 !include "x64.nsh"
-!include "..\..\build\gcs-synthetics\gcs.nsh"
 
 ;--------------------------------
 ; Paths
 
-  ; Tree root locations (relative to this script location)
-  !define PROJECT_ROOT   "..\.."
   !define NSIS_DATA_TREE "."
-  !define GCS_BUILD_TREE "..\..\build\${GCS_SMALL_NAME}_release"
-  !define UAVO_SYNTH_TREE "..\..\build\uavobject-synthetics"
   !define AEROSIMRC_TREE "${GCS_BUILD_TREE}\misc\AeroSIM-RC"
 
   ; Default installation folder
@@ -50,21 +45,15 @@
 ;--------------------------------
 ; Version information
 
-  ; Program name and installer file
-  !define PRODUCT_NAME "${GCS_BIG_NAME}"
-  !define INSTALLER_NAME "${GCS_BIG_NAME} Installer"
+  Name "${GCS_BIG_NAME}"
+  OutFile "${OUT_FILE}"
 
-  Name "${PRODUCT_NAME}"
-  OutFile "${PACKAGE_DIR}\..\${OUT_FILE}"
-
-  VIProductVersion ${PRODUCT_VERSION}
-  VIAddVersionKey "ProductName" "${INSTALLER_NAME}"
-  VIAddVersionKey "FileVersion" "${FILE_VERSION}"
-  VIAddVersionKey "Comments" "${INSTALLER_NAME}. ${BUILD_DESCRIPTION}"
+  VIProductVersion ${VERSION_FOUR_NUM}
+  VIAddVersionKey "ProductName" "${GCS_BIG_NAME}"
+  VIAddVersionKey "ProductVersion" "${VERSION_FOUR_NUM}"
   VIAddVersionKey "CompanyName" "The LibrePilot Team, http://www.librepilot.org"
-  VIAddVersionKey "LegalTrademarks" "${PRODUCT_NAME} is a trademark of The LibrePilot Team"
   VIAddVersionKey "LegalCopyright" "© 2015 The LibrePilot Team"
-  VIAddVersionKey "FileDescription" "${INSTALLER_NAME}"
+  VIAddVersionKey "FileDescription" "${GCS_BIG_NAME} Installer"
 
 ;--------------------------------
 ; Installer interface and base settings
@@ -229,9 +218,9 @@ Section "Shortcuts" InSecShortcuts
   SetOutPath "$INSTDIR"
   CreateDirectory "$SMPROGRAMS\${ORG_BIG_NAME}"
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
-	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
+	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\License.lnk" "$INSTDIR\LICENSE.txt" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReadMe.lnk" "$INSTDIR\README.txt" \
@@ -247,7 +236,7 @@ Section "Shortcuts" InSecShortcuts
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forum.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
-  	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
+  	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
 SectionEnd
 

@@ -265,7 +265,7 @@ void ConfigStabilizationWidget::updateThrottleCurveFromObject()
 
     QList<double> curve;
     for (quint32 i = 0; i < field->getNumElements(); i++) {
-        curve.append(field->getValue(i).toDouble());
+        curve.append(field->getValue(i).toDouble() / 100);
     }
 
     ui->thrustPIDScalingCurve->setCurve(&curve);
@@ -290,7 +290,7 @@ void ConfigStabilizationWidget::updateObjectFromThrottleCurve()
 
     QList<double> curve   = ui->thrustPIDScalingCurve->getCurve();
     for (quint32 i = 0; i < field->getNumElements(); i++) {
-        field->setValue(curve.at(i), i);
+        field->setValue(curve.at(i) * 100, i);
     }
 
     field = stabBank->getField("EnableThrustPIDScaling");
@@ -361,7 +361,7 @@ void ConfigStabilizationWidget::resetThrottleCurveToDefault()
 
     QList<double> curve;
     for (quint32 i = 0; i < field->getNumElements(); i++) {
-        curve.append(field->getValue(i).toDouble());
+        curve.append(field->getValue(i).toDouble() / 100);
     }
 
     ui->thrustPIDScalingCurve->setCurve(&curve);
@@ -572,7 +572,7 @@ void ConfigStabilizationWidget::linkCheckBoxes(bool value)
         ui->basicResponsivenessCheckBox->setChecked(!value);
         ui->basicResponsivenessControls->setEnabled(!value);
         ui->advancedResponsivenessControls->setEnabled(value);
-    } else if(sender() == ui->checkBoxLinkAcroFactors) {
+    } else if (sender() == ui->checkBoxLinkAcroFactors) {
         processLinkedWidgets(ui->AcroFactorRollSlider);
     }
 }

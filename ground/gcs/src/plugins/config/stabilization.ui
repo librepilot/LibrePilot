@@ -299,7 +299,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Roll</string>
                          </stringlist>
@@ -333,7 +333,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Roll</string>
                          </stringlist>
@@ -398,7 +398,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Pitch</string>
                          </stringlist>
@@ -432,7 +432,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Pitch</string>
                          </stringlist>

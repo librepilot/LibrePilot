@@ -152,11 +152,11 @@ static pid_scaler create_pid_scaler(int axis)
         const pid_curve_scaler curve_scaler = {
             .x      = get_pid_scale_source_value(),
             .points = {
-                { 0.00f, stabSettings.stabBank.ThrustPIDScaleCurve[0] },
-                { 0.25f, stabSettings.stabBank.ThrustPIDScaleCurve[1] },
-                { 0.50f, stabSettings.stabBank.ThrustPIDScaleCurve[2] },
-                { 0.75f, stabSettings.stabBank.ThrustPIDScaleCurve[3] },
-                { 1.00f, stabSettings.stabBank.ThrustPIDScaleCurve[4] }
+                { 0.00f, stabSettings.floatThrustPIDScaleCurve[0] },
+                { 0.25f, stabSettings.floatThrustPIDScaleCurve[1] },
+                { 0.50f, stabSettings.floatThrustPIDScaleCurve[2] },
+                { 0.75f, stabSettings.floatThrustPIDScaleCurve[3] },
+                { 1.00f, stabSettings.floatThrustPIDScaleCurve[4] }
             }
         };
 
@@ -303,9 +303,9 @@ static void stabilizationInnerloopTask()
                                  StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
                                  );
                 const float acroFactors[] = {
-                    stabSettings.stabBank.AcroInsanityFactor.Roll,
-                    stabSettings.stabBank.AcroInsanityFactor.Pitch,
-                    stabSettings.stabBank.AcroInsanityFactor.Yaw
+                    stabSettings.floatAcroInsanityFactorRoll,
+                    stabSettings.floatAcroInsanityFactorPitch,
+                    stabSettings.floatAcroInsanityFactorYaw
                 };
                 pid_scaler ascaler = create_pid_scaler(t);
                 ascaler.i *= boundf(1.0f - (1.5f * fabsf(stickinput[t])), 0.0f, 1.0f); // this prevents Integral from getting too high while controlled manually

@@ -10,7 +10,8 @@ SED_SCRIPT           := sed -i -e ' \
 			s/<VERSION>/$(UPSTREAM_VER)/g; \
 			s/<NAME>/$(RPM_NAME)/g; \
 			s/<RELEASE>/$(RPM_REL)/g; \
-			s/<SOURCE>/$(notdir $(DIST_TAR_GZ))/g; \
+			s/<SOURCE0>/$(notdir $(DIST_TAR_GZ))/g; \
+			s/<SOURCE1>/$(notdir $(FW_DIST_TAR_GZ))/g; \
 			s/<ARCHIVE_PREFIX>/$(PACKAGE_NAME)/g; \
 			'
 
@@ -36,8 +37,8 @@ $(RPM_PACKAGE_FILE): RPMBUILD_OPTS := -bb
 package_src: $(RPM_PACKAGE_SRC)
 $(RPM_PACKAGE_SRC): RPMBUILD_OPTS := -bs
 
-$(RPM_PACKAGE_FILE) $(RPM_PACKAGE_SRC): $(SPEC_FILE) $(DIST_TAR_GZ) | $(RPM_DIRS)
+$(RPM_PACKAGE_FILE) $(RPM_PACKAGE_SRC): $(SPEC_FILE) $(DIST_TAR_GZ) $(FW_DIST_TAR_GZ) | $(RPM_DIRS)
 	@$(ECHO) "Building $(call toprel,$@), please wait..."
 	$(V1) ln -sf $(DIST_TAR_GZ) $(PACKAGE_DIR)/SOURCES
+	$(V1) ln -sf $(FW_DIST_TAR_GZ) $(PACKAGE_DIR)/SOURCES
 	$(V1) rpmbuild $(RPMBUILD_OPTS) --define "_topdir $(PACKAGE_DIR)" $(SPEC_FILE)
-

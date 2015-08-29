@@ -84,17 +84,6 @@ equals(copydata, 1) {
             mingw_osgdb_cfg$${DS}.dll \
             mingw_osgdb_curl$${DS}.dll \
             mingw_osgdb_dds$${DS}.dll \
-            #mingw_osgdb_deprecated_osg$${DS}.dll \
-            #mingw_osgdb_deprecated_osganimationd$${DS}.dll \
-            #mingw_osgdb_deprecated_osgfx$${DS}.dll \
-            #mingw_osgdb_deprecated_osgparticle$${DS}.dll \
-            #mingw_osgdb_deprecated_osgshadow$${DS}.dll \
-            #mingw_osgdb_deprecated_osgsim$${DS}.dll \
-            #mingw_osgdb_deprecated_osgterrain$${DS}.dll \
-            #mingw_osgdb_deprecated_osgtext$${DS}.dll \
-            #mingw_osgdb_deprecated_osgviewer$${DS}.dll \
-            #mingw_osgdb_deprecated_osgvolume$${DS}.dll \
-            #mingw_osgdb_deprecated_osgwidget$${DS}.dll \
             mingw_osgdb_dot$${DS}.dll \
             mingw_osgdb_dw$${DS}.dll \
             mingw_osgdb_dxf$${DS}.dll \

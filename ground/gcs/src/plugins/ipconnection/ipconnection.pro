@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = IPconnection
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(ipconnection_dependencies.pri)
 HEADERS += ipconnectionplugin.h \
     ipconnection_global.h \

@@ -1,8 +1,8 @@
-include(../../openpilotgcs.pri)
+include(../../gcs.pri)
 
 TEMPLATE = aux
 
-DATACOLLECTIONS = cloudconfig configurations dials models pfd sounds diagrams mapicons stylesheets
+DATACOLLECTIONS = vehicletemplates configurations dials models pfd sounds diagrams mapicons stylesheets
 
 equals(copydata, 1) {
     for(dir, DATACOLLECTIONS) {

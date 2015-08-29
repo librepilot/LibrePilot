@@ -25,7 +25,7 @@ mkdir "${SRC_DIR}/Utilities/"
 
 cp "${BUILD_DIR}/uavobject-synthetics/matlab/OPLogConvert.m" "${SRC_DIR}/Utilities/"
 cp "${ROOT_DIR}/WHATSNEW.txt" "${SRC_DIR}"
-cp "${ROOT_DIR}/README.txt" "${SRC_DIR}/Docs/"
+cp "${ROOT_DIR}/README.md" "${SRC_DIR}/Docs/README.txt"
 cp "${ROOT_DIR}/MILESTONES.txt" "${SRC_DIR}/Docs/"
 cp "${ROOT_DIR}/LICENSE.txt" "${SRC_DIR}/Docs/"
 cp "${ROOT_DIR}/GPLv3.txt" "${SRC_DIR}/Docs/"

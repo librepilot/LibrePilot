@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ConsoleGadget
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 HEADERS += consoleplugin.h \
     texteditloggerengine.h

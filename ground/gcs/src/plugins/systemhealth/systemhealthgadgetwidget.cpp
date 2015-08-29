@@ -50,6 +50,8 @@ SystemHealthGadgetWidget::SystemHealthGadgetWidget(QWidget *parent) : QGraphicsV
     background = new QGraphicsSvgItem();
     foreground = new QGraphicsSvgItem();
     nolink     = new QGraphicsSvgItem();
+    logreplay  = new QGraphicsSvgItem();
+    logreplay2 = new QGraphicsSvgItem();
     missingElements = new QStringList();
     paint();
 
@@ -64,8 +66,35 @@ SystemHealthGadgetWidget::SystemHealthGadgetWidget(QWidget *parent) : QGraphicsV
     TelemetryManager *telMngr = pm->getObject<TelemetryManager>();
     connect(telMngr, SIGNAL(connected()), this, SLOT(onAutopilotConnect()));
     connect(telMngr, SIGNAL(disconnected()), this, SLOT(onAutopilotDisconnect()));
+    connect(telMngr, SIGNAL(telemetryUpdated(double, double)), this, SLOT(onTelemetryUpdated(double, double)));
 
     setToolTip(tr("Displays flight system errors. Click on an alarm for more information."));
+}
+
+/**
+ * Hide/Show the "Log Replay" overlay
+ */
+void SystemHealthGadgetWidget::onTelemetryUpdated(double txRate, double rxRate)
+{
+    // Return if a real board is connected or log file end (no telemetry)
+    if (boardConnected || ((txRate + rxRate) == 0)) {
+        return;
+    }
+
+    logreplayDelay++;
+    // With real board not connected, display Logreplay after a little delay
+    // and avoid Logreplay display when real board is connected.
+    if (logreplayDelay > 3) {
+        // Blink sequence, tell user Log replay runs.
+        if ((logreplayDelay % 2) == 0) {
+            logreplay->setVisible(true);
+            logreplay2->setVisible(false);
+        } else {
+            logreplay->setVisible(false);
+            logreplay2->setVisible(true);
+        }
+        nolink->setVisible(false);
+    }
 }
 
 /**
@@ -74,6 +103,9 @@ SystemHealthGadgetWidget::SystemHealthGadgetWidget(QWidget *parent) : QGraphicsV
 void SystemHealthGadgetWidget::onAutopilotConnect()
 {
     nolink->setVisible(false);
+    logreplay->setVisible(false);
+    logreplay2->setVisible(false);
+    boardConnected = true;
 }
 
 /**
@@ -82,6 +114,10 @@ void SystemHealthGadgetWidget::onAutopilotConnect()
 void SystemHealthGadgetWidget::onAutopilotDisconnect()
 {
     nolink->setVisible(true);
+    logreplay->setVisible(false);
+    logreplay2->setVisible(false);
+    boardConnected = false;
+    logreplayDelay = 0;
 }
 
 void SystemHealthGadgetWidget::updateAlarms(UAVObject *systemAlarm)
@@ -162,10 +198,20 @@ void SystemHealthGadgetWidget::setSystemFile(QString dfn)
                 foreground->setZValue(99);
                 fgenabled = true;
             }
+            if (m_renderer->elementExists("logreplay")) {
+                logreplay->setSharedRenderer(m_renderer);
+                logreplay->setElementId("logreplay");
+                logreplay->setZValue(100);
+            }
+            if (m_renderer->elementExists("logreplay2")) {
+                logreplay2->setSharedRenderer(m_renderer);
+                logreplay2->setElementId("logreplay2");
+                logreplay2->setZValue(100);
+            }
             if (m_renderer->elementExists("nolink")) {
                 nolink->setSharedRenderer(m_renderer);
                 nolink->setElementId("nolink");
-                nolink->setZValue(100);
+                nolink->setZValue(101);
             }
 
             QGraphicsScene *l_scene = scene();
@@ -192,6 +238,8 @@ void SystemHealthGadgetWidget::paint()
     l_scene->clear();
     l_scene->addItem(background);
     l_scene->addItem(foreground);
+    l_scene->addItem(logreplay);
+    l_scene->addItem(logreplay2);
     l_scene->addItem(nolink);
     update();
 }

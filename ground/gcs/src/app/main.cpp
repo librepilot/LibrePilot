@@ -29,7 +29,7 @@
 
 /*
    The GCS application name is defined in the top level makefile - GCS_BIG_NAME / GCS_SMALL_NAME, and
-   set for the build in ../../openpilotgcs.pri and ./app.pro
+   set for the build in ../../gcs.pri and ./app.pro
 
    The GCS locale is set to the system locale by default unless the "hidden" setting General/Locale has a value.
    The user can not change General/Locale from the Options dialog.
@@ -116,7 +116,7 @@ typedef QMap<QString, QString> AppOptionValues;
 const int OptionIndent = 4;
 const int DescriptionIndent = 24;
 
-const QLatin1String APP_NAME(GCS_NAME);
+const QLatin1String APP_NAME(GCS_BIG_NAME);
 const QLatin1String ORG_NAME(ORG_BIG_NAME);
 
 const QLatin1String CORE_PLUGIN_NAME("Core");
@@ -433,7 +433,7 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
 {
     const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
 
-    if (translator.load(QLatin1String("openpilotgcs_") + language, creatorTrPath)) {
+    if (translator.load(QLatin1String("gcs_") + language, creatorTrPath)) {
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &qtTrFile = QLatin1String("qt_") + language;
         // Binary installer puts Qt tr files into creatorTrPath
@@ -606,7 +606,7 @@ int main(int argc, char * *argv)
         }
         if (!errors.isEmpty()) {
             QMessageBox::warning(0,
-                                 QCoreApplication::translate("Application", "OpenPilot GCS - Plugin loader messages"),
+                                 QCoreApplication::translate("Application", "%1 - Plugin loader messages").arg(GCS_BIG_NAME),
                                  errors.join(QString::fromLatin1("\n\n")));
         }
     }

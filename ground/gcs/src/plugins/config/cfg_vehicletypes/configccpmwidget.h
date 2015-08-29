@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configccpmtwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -84,7 +85,7 @@ private:
     QGraphicsEllipseItem *ServosTextCircles[CCPM_MAX_SWASH_SERVOS];
     QSpinBox *SwashLvlSpinBoxes[CCPM_MAX_SWASH_SERVOS];
 
-    QString TypeText;
+    QString typeText;
 
     bool SwashLvlConfigurationInProgress;
     UAVObject::Metadata SwashLvlaccInitialData;
@@ -112,7 +113,7 @@ private:
 
 private slots:
     virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(QString airframeType);
+    virtual bool throwConfigError(int typeInt);
 
     void ccpmSwashplateUpdate();
     void ccpmSwashplateRedraw();

@@ -1,5 +1,6 @@
 #
-# Installers for tools required by the OpenPilot build system.
+# Installers for tools required by the build system.
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # NOTE: install targets are not tied to the default goals and must
@@ -16,6 +17,7 @@
 #    uncrustify_install
 #    doxygen_install
 #    gtest_install
+#    ccache_install
 #
 # TODO:
 #    openocd_install
@@ -104,12 +106,15 @@ else ifeq ($(UNAME), Windows)
 endif
 
 GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
+CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
+CCACHE_MD5_URL := http://librepilot.github.io/tools/ccache-3.2.2.tar.bz2.md5
 
 ARM_SDK_DIR    := $(TOOLS_DIR)/gcc-arm-none-eabi-4_9-2014q4
 QT_SDK_DIR     := $(TOOLS_DIR)/qt-5.4.1
 UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
+CCACHE_DIR     := $(TOOLS_DIR)/ccache
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
@@ -121,10 +126,10 @@ else ifeq ($(UNAME), Darwin)
     OSG_SDK_DIR := $(OSG_DIR)/osg-3.4.0-rc5-clang_64-qt-5.4.1
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
-    # When changing PYTHON_DIR, you must also update it in ground/openpilotgcs/src/python.pri
+    # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
     PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
     NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
-    # When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/openpilotgcs/openpilotgcs.pri
+    # When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/gcs/gcs.pri
     SDL_DIR      := $(TOOLS_DIR)/SDL-1.2.15
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
@@ -143,7 +148,7 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 
 BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += sdl nsis mesawin openssl
+    BUILD_SDK_TARGETS += sdl nsis mesawin openssl ccache
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg gtest uncrustify doxygen
 
@@ -190,7 +195,7 @@ ifneq ($(UNAME), Windows)
 else
 	SEVENZIP	:= 7za.exe
 ifneq ($(shell $(SEVENZIP) --version >/dev/null 2>&1 && $(ECHO) "found"), found)
-#	no $(SEVENZIP) found in path. hope is in bin... 
+#	no $(SEVENZIP) found in path. hope is in bin...
     SEVENZIP = $(TOOLS_DIR)/bin/7za.exe
 endif
 endif
@@ -214,6 +219,8 @@ endif
 
 # Command to extract version info data from the repository and source tree
 export VERSION_INFO = $(PYTHON) $(ROOT_DIR)/make/scripts/version-info.py --path=$(ROOT_DIR)
+
+export CCACHE
 
 ##############################
 #
@@ -341,9 +348,9 @@ define TOOL_INSTALL_TEMPLATE
 .PHONY: $(addprefix $(1)_, install clean distclean)
 
 $(1)_install: $(1)_clean | $(DL_DIR) $(TOOLS_DIR)
-	
+
 	$(if $(4), $(call DOWNLOAD_TEMPLATE,$(3),$(5),$(4)),$(call DOWNLOAD_TEMPLATE,$(3),$(5),"$(3).md5"))
-	
+
 	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(2))
 	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
 
@@ -458,13 +465,13 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 # Explode .run file into install packages
 	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(1))
 	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(1)))
-	$(V1) chmod +x $(DL_DIR)/$(5) 
+	$(V1) chmod +x $(DL_DIR)/$(5)
 	$(V1) $(DL_DIR)/$(5) --dump-binary-data -o  $(1)
 # Extract packages under tool directory
 	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_essentials.7z" | grep -v Extracting
 	$(V1) if [ -f "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_64.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_64.7z" | grep -v Extracting; fi
-	$(V1) if [ -f "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_32.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_32.7z" | grep -v Extracting; fi	
+	$(V1) if [ -f "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_32.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_32.7z" | grep -v Extracting; fi
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_addons.7z" | grep -v Extracting
 # Run patcher
 	@$(ECHO)
@@ -474,11 +481,11 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 
 # Execute post build templates
 	$(7)
-	
+
 # Clean up temporary files
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
-	
+
 qt_sdk_clean:
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
@@ -532,8 +539,8 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_essentials.7z" | grep -v Extracting
 #	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6).essentials/5.4.1icu_path_patcher.sh.7z" | grep -v Extracting
 	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_addons.7z" | grep -v Extracting
-	
-	
+
+
 # go to OpenPilot/tools/5.4/gcc_64 and call patcher.sh
 	@$(ECHO)
 	@$(ECHO) "Running patcher in" $$(call toprel, $(QT_SDK_PREFIX))
@@ -548,11 +555,11 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 
 # Execute post build templates
 	$(7)
-	
+
 # Clean up temporary files
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
-	
+
 qt_sdk_clean:
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
@@ -958,6 +965,44 @@ cmake_version:
 
 ##############################
 #
+# CCACHE
+#
+##############################
+
+CCACHE_BUILD_DIR := $(BUILD_DIR)/ccache-3.2.2
+
+define CCACHE_BUILD_TEMPLATE
+	$(V1) ( \
+		$(ECHO) $(MSG_CONFIGURING) $(call toprel, $(CCACHE_BUILD_DIR)) && \
+		cd $(CCACHE_BUILD_DIR) && \
+		./configure --prefix="$(CCACHE_DIR)" && \
+		$(ECHO) $(MSG_BUILDING) $(call toprel, $(CCACHE_BUILD_DIR)) && \
+		$(MAKE) $(MAKE_SILENT) && \
+		$(ECHO) $(MSG_INSTALLING) $(call toprel, $(CCACHE_DIR)) && \
+		$(MAKE) $(MAKE_SILENT) install \
+	)
+	@$(ECHO) $(MSG_CLEANING) $(call toprel, $(CCACHE_BUILD_DIR))
+	-$(V1) [ ! -d "$(CCACHE_BUILD_DIR)" ] || $(RM) -rf "$(CCACHE_BUILD_DIR)"
+
+	@$(ECHO)
+	@$(ECHO) "Setting up CCACHE configuration:"
+
+	$(V1) [ -d "$(ROOT_DIR)/.ccache" ] || mkdir $(ROOT_DIR)/.ccache
+	$(V1) [ -d "$(CCACHE_DIR)/etc" ] || mkdir $(CCACHE_DIR)/etc
+
+	$(V1) $(ECHO) $(QUOTE)cache_dir = $(ROOT_DIR)/.ccache $(QUOTE) > $(CCACHE_DIR)/etc/ccache.conf
+	$(V1) $(ECHO) $(QUOTE)max_size = 250M$(QUOTE) >> $(CCACHE_DIR)/etc/ccache.conf
+	$(V1) $(CAT) $(CCACHE_DIR)/etc/ccache.conf
+endef
+
+define CCACHE_CLEAN_TEMPLATE
+	-$(V1) [ ! -d "$(CCACHE_DIR)" ] || $(RM) -rf "$(CCACHE_DIR)"
+endef
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,ccache,$(CCACHE_BUILD_DIR),$(CCACHE_URL),$(CCACHE_MD5_URL),$(notdir $(CCACHE_URL)),$(CCACHE_BUILD_TEMPLATE),$(CCACHE_CLEAN_TEMPLATE)))
+
+##############################
+#
 # MSYS
 #
 ##############################
@@ -997,9 +1042,6 @@ endif
 osg_version:
 	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgversion`"
 	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version`"
-
-
-
 
 ##############################
 #
@@ -1204,7 +1246,7 @@ stm32flash_install: stm32flash_clean
 	)
         # build
 	$(V0) @$(ECHO) " BUILD        $(STM32FLASH_DIR)"
-	$(V1) $(MAKE) --silent -C $(STM32FLASH_DIR) all $(STM32FLASH_BUILD_OPTIONS) 
+	$(V1) $(MAKE) --silent -C $(STM32FLASH_DIR) all $(STM32FLASH_BUILD_OPTIONS)
 
 .PHONY: stm32flash_clean
 stm32flash_clean:
@@ -1281,7 +1323,7 @@ prepare:
 prepare_clean:
 	$(V0) @echo " Cleanup GIT commit template configuration"
 	$(V1) $(CD) "$(ROOT_DIR)"
-	$(V1) $(GIT) config --unset commit.template 
+	$(V1) $(GIT) config --unset commit.template
 
 ##############################
 #

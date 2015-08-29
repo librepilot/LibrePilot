@@ -3,7 +3,7 @@ TARGET = UAVObjects
 
 DEFINES += UAVOBJECTS_LIBRARY
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(uavobjects_dependencies.pri)
 
 HEADERS += \

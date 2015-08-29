@@ -77,9 +77,10 @@ bool EscPage::isSynchOrOneShotAvailable()
 
     switch (getWizard()->getControllerType()) {
     case SetupWizard::CONTROLLER_NANO:
+    case SetupWizard::CONTROLLER_CC:
+    case SetupWizard::CONTROLLER_CC3D:
         available = getWizard()->getInputType() != SetupWizard::INPUT_PWM;
         break;
-
     default:
         break;
     }

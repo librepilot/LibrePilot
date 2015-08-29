@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       gcssplashscreen.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup [Group]
  * @{
  * @addtogroup GCSSplashScreen
@@ -28,6 +29,7 @@
 #include "gcssplashscreen.h"
 #include "version_info/version_info.h"
 #include <QDebug>
+#include <QApplication>
 
 const QChar CopyrightSymbol(0x00a9);
 
@@ -44,7 +46,7 @@ GCSSplashScreen::GCSSplashScreen() :
 
     m_painter->drawText(405, 170, QString(CopyrightSymbol) +
                         QString(" ") + VersionInfo::year() +
-                        QString(tr(" The LibrePilot Project - All Rights Reserved")));
+                        QString(tr(" The %1 Project - All Rights Reserved").arg(ORG_BIG_NAME)));
 
     m_painter->drawText(405, 182, QString(CopyrightSymbol) +
                         QString(tr(" 2010-2015 The OpenPilot Project - All Rights Reserved")));
@@ -74,4 +76,5 @@ void GCSSplashScreen::showPluginLoadingProgress(ExtensionSystem::PluginSpec *plu
     QString message(tr("Loading ") + pluginSpec->name() + " plugin...");
 
     drawMessageText(message);
+    qApp->processEvents();
 }

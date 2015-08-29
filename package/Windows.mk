@@ -10,12 +10,12 @@ VERSION_CMD   := $(VERSION_INFO)
 
 NSIS_OPTS     := /V3
 NSIS_WINX86   := $(ROOT_DIR)/package/winx86
-NSIS_SCRIPT   := $(NSIS_WINX86)/openpilotgcs.nsi
-NSIS_TEMPLATE := $(NSIS_WINX86)/openpilotgcs.tpl
-NSIS_HEADER   := $(OPGCSSYNTHDIR)/openpilotgcs.nsh
+NSIS_SCRIPT   := $(NSIS_WINX86)/gcs.nsi
+NSIS_TEMPLATE := $(NSIS_WINX86)/gcs.tpl
+NSIS_HEADER   := $(OPGCSSYNTHDIR)/gcs.nsh
 
 .PHONY: package
-package: openpilotgcs uavobjects_matlab | $(PACKAGE_DIR)
+package: gcs uavobjects_matlab | $(PACKAGE_DIR)
 ifneq ($(GCS_BUILD_CONF),release)
 	# We can only package release builds
 	$(error Packaging is currently supported for release builds only)

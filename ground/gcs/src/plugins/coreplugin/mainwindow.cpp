@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       mainwindow.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -134,7 +135,7 @@ MainWindow::MainWindow() :
 #endif
     m_toggleFullScreenAction(0)
 {
-    setWindowTitle(tr("LibrePilot GCS ") + VersionInfo::label());
+    setWindowTitle(QLatin1String(GCS_BIG_NAME) + " "  + VersionInfo::label());
 #ifndef Q_WS_MAC
     qApp->setWindowIcon(QIcon(":/core/images/librepilot_logo_128.png"));
 #endif
@@ -748,7 +749,7 @@ void MainWindow::registerDefaultActions()
     connect(tmpaction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
 
     // Credits Action
-    tmpaction = new QAction(QIcon(Constants::ICON_PLUGIN), tr("About &OpenPilot..."), this);
+    tmpaction = new QAction(QIcon(Constants::ICON_PLUGIN), tr("About &%1...").arg(ORG_BIG_NAME), this);
     cmd = am->registerAction(tmpaction, Constants::ABOUT_AUTHORS, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);

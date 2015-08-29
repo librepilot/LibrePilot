@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vehicleconfig.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -60,7 +61,7 @@ typedef struct {
 } __attribute__((packed))  multiGUISettingsStruct;
 
 typedef struct {
-    uint    SwashplateType : 3;
+    uint    SwashplateType : 4;
     uint    FirstServoIndex : 2;
     uint    CorrectionAngle : 9;
     uint    ccpmCollectivePassthroughState : 1;
@@ -75,7 +76,7 @@ typedef struct {
     uint    ServoIndexZ : 4; // 57 bits
     uint    Throttle : 4;
     uint    Tail : 4; // 65bits
-    quint32 padding : 31; // 96 bits
+    quint32 padding : 30; // 96 bits
     quint32 padding1; // 128 bits
 } __attribute__((packed))  heliGUISettingsStruct;
 

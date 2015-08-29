@@ -10,7 +10,7 @@ Item {
 
     Text {
         id: header
-        text: qsTr("OpenPilot Websites")
+        text: qsTr("Websites")
         width: parent.width
         color: "#44515c"
         font {
@@ -23,19 +23,17 @@ Item {
         id: sitesModel
         ListElement { link: "http://www.librepilot.org" }
         ListElement { link: "http://wiki.openpilot.org" }
-        ListElement { link: "http://www.openpilot.org/hardware/get-hardware/" }
         ListElement { link: "http://forum.librepilot.org" }
-        ListElement { link: "http://github.com/librepilot" }
+        ListElement { link: "http://github.com/librepilot/LibrePilot/pulls" }
         ListElement { link: "http://github.com/librepilot/LibrePilot/issues" }
         function title(index){
             if (title["text"] === undefined) {
             title.text = [
                 qsTr("Home"),
                 qsTr("Wiki"),
-                qsTr("Store"),
                 qsTr("Forums"),
-                qsTr("Code Reviews"),
-                qsTr("Progress Tracker")
+                qsTr("Pull Requests"),
+                qsTr("Progress")
                ]
              }
               return title.text[index]

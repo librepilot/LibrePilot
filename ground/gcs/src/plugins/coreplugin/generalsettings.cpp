@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       generalsettings.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -95,7 +96,7 @@ void GeneralSettings::fillLanguageBox() const
     }
 
     const QString creatorTrPath     = Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
-    const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("openpilotgcs*.qm")));
+    const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("gcs*.qm")));
 
     foreach(QString languageFile, languageFiles) {
         int start = languageFile.indexOf(QLatin1Char('_')) + 1;
@@ -233,7 +234,7 @@ void GeneralSettings::setLanguage(const QString &locale)
     if (m_language != locale) {
         if (!locale.isEmpty()) {
             QMessageBox::information((QWidget *)Core::ICore::instance()->mainWindow(), tr("Restart required"),
-                                     tr("The language change will take effect after a restart of the OpenPilot GCS."));
+                                     tr("The language change will take effect after a restart of %1.").arg(GCS_BIG_NAME));
         }
         m_language = locale;
     }

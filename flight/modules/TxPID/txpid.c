@@ -8,7 +8,8 @@
  * @{
  *
  * @file       txpid.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
  * @brief      Optional module to tune PID settings using R/C transmitter.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -252,6 +253,16 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_ROLLRATEKP:
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
                 break;
+            case TXPIDSETTINGS_PIDS_ROLLRATEPID:
+                needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
+                needsUpdateBank |= update(&bank.RollRatePID.Ki, value * inst.PitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.RollRatePID.Kd, value * inst.PitchRollRateFactors.D);
+                break;
+            case TXPIDSETTINGS_PIDS_PITCHRATEPID:
+                needsUpdateBank |= update(&bank.PitchRatePID.Kp, value);
+                needsUpdateBank |= update(&bank.PitchRatePID.Ki, value * inst.PitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.PitchRatePID.Kd, value * inst.PitchRollRateFactors.D);
+                break;
             case TXPIDSETTINGS_PIDS_ROLLRATEKI:
                 needsUpdateBank |= update(&bank.RollRatePID.Ki, value);
                 break;
@@ -382,8 +393,15 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_GYROTAU:
                 needsUpdateStab |= update(&stab.GyroTau, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ACROPLUSFACTOR:
-                needsUpdateBank |= update(&bank.AcroInsanityFactor, value);
+            case TXPIDSETTINGS_PIDS_ACROROLLFACTOR:
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Roll, value);
+                break;
+            case TXPIDSETTINGS_PIDS_ACROPITCHFACTOR:
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
+                break;
+            case TXPIDSETTINGS_PIDS_ACROROLLPITCHFACTOR:
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Roll, value);
+                needsUpdateBank |= update(&bank.AcroInsanityFactor.Pitch, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELTAU:
                 needsUpdateAtt  |= update(&att.AccelTau, value);
@@ -428,6 +446,12 @@ static void updatePIDs(UAVObjEvent *ev)
         AltitudeHoldSettingsSet(&altitude);
     }
 #endif
+    if (inst.RatePIDRecalculateYaw != TXPIDSETTINGS_RATEPIDRECALCULATEYAW_FALSE) {
+        float newKp = (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.YawRateFactors.P;
+        needsUpdateBank |= update(&bank.YawRatePID.Kp, newKp);
+        needsUpdateBank |= update(&bank.YawRatePID.Ki, newKp * inst.YawRateFactors.I);
+        needsUpdateBank |= update(&bank.YawRatePID.Kd, newKp * inst.YawRateFactors.D);
+    }
     if (needsUpdateBank) {
         switch (inst.BankNumber) {
         case 0:

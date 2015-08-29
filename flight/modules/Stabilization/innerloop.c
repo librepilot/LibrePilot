@@ -9,7 +9,8 @@
  * @{
  *
  * @file       innerloop.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Attitude stabilization module.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -301,10 +302,15 @@ static void stabilizationInnerloopTask()
                                  -StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t],
                                  StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
                                  );
+                const float acroFactors[] = {
+                    stabSettings.stabBank.AcroInsanityFactor.Roll,
+                    stabSettings.stabBank.AcroInsanityFactor.Pitch,
+                    stabSettings.stabBank.AcroInsanityFactor.Yaw
+                };
                 pid_scaler ascaler = create_pid_scaler(t);
                 ascaler.i *= boundf(1.0f - (1.5f * fabsf(stickinput[t])), 0.0f, 1.0f); // this prevents Integral from getting too high while controlled manually
                 float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT);
-                float factor = fabsf(stickinput[t]) * stabSettings.stabBank.AcroInsanityFactor;
+                float factor = fabsf(stickinput[t]) * acroFactors[t];
                 actuatorDesiredAxis[t] = factor * stickinput[t] + (1.0f - factor) * arate;
             }
             break;

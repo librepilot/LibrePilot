@@ -1,5 +1,6 @@
 #
-# Top level Makefile for the OpenPilot project build system.
+# Top level Makefile for the LibrePilot Project build system.
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 # Use 'make help' for instructions.
 #
@@ -25,44 +26,38 @@
 # existance by each sub-make.
 export TOP_LEVEL_MAKEFILE := TRUE
 
-# It is possible to set OPENPILOT_DL_DIR and/or OPENPILOT_TOOLS_DIR environment
+# The root directory that this makefile resides in
+export ROOT_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+# Include some helper functions
+include $(ROOT_DIR)/make/functions.mk
+
+# This file can be used to override default options using the "override" keyword
+CONFIG_FILE := config
+-include $(CONFIG_FILE)
+
+##############################
+# It is possible to set DL_DIR and/or TOOLS_DIR environment
 # variables to override local tools download and installation directorys. So the
 # same toolchains can be used for all working copies. Particularly useful for CI
 # server build agents, but also for local installations.
-#
-# If no OPENPILOT_* variables found, makefile internal DL_DIR and TOOLS_DIR paths
-# will be used. They still can be overriden by the make command line parameters:
-# make DL_DIR=/path/to/download/directory TOOLS_DIR=/path/to/tools/directory targets...
-
-# Function for converting Windows style slashes into Unix style
-slashfix = $(subst \,/,$(1))
-
-# Function for converting an absolute path to one relative
-# to the top of the source tree
-toprel = $(subst $(realpath $(ROOT_DIR))/,,$(abspath $(1)))
+override DL_DIR    := $(if $(DL_DIR),$(call slashfix,$(DL_DIR)),$(ROOT_DIR)/downloads)
+override TOOLS_DIR := $(if $(TOOLS_DIR),$(call slashfix,$(TOOLS_DIR)),$(ROOT_DIR)/tools)
+export DL_DIR
+export TOOLS_DIR
 
 # Set up some macros for common directories within the tree
-export ROOT_DIR    := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-export DL_DIR      := $(if $(OPENPILOT_DL_DIR),$(call slashfix,$(OPENPILOT_DL_DIR)),$(ROOT_DIR)/downloads)
-export TOOLS_DIR   := $(if $(OPENPILOT_TOOLS_DIR),$(call slashfix,$(OPENPILOT_TOOLS_DIR)),$(ROOT_DIR)/tools)
-export BUILD_DIR   := $(ROOT_DIR)/build
-export PACKAGE_DIR := $(ROOT_DIR)/build/package
-export DIST_DIR    := $(ROOT_DIR)/build/dist
+export BUILD_DIR   := $(CURDIR)/build
+export PACKAGE_DIR := $(BUILD_DIR)/package
+export DIST_DIR    := $(BUILD_DIR)/dist
 
-DIRS = $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
-
-# Function to convert to all lowercase
-lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
-# Function to make all lowercase and replace spaces with -
-EMPTY             :=
-SPACE             := $(EMPTY) $(EMPTY)
-smallify = $(subst $(SPACE),-,$(call lc,$1))
+DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
 # Naming for binaries and packaging etc,.
-ORG_BIG_NAME := LibrePilot
+export ORG_BIG_NAME := LibrePilot
 GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
+export ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
@@ -130,17 +125,16 @@ include $(ROOT_DIR)/make/tools.mk
 
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
-    QT_SPEC = linux-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    QT_SPEC := linux-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Darwin)
-    QT_SPEC = macx-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    QT_SPEC := macx-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Windows)
-    QT_SPEC = win32-g++
-    UAVOBJGENERATOR = $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
+    QT_SPEC := win32-g++
+    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
 endif
 
-##############################
 #
 # All targets
 #
@@ -154,7 +148,7 @@ all_clean:
 	@$(ECHO) " CLEAN      $(call toprel, $(BUILD_DIR))"
 	$(V1) [ ! -d "$(BUILD_DIR)" ] || $(RM) -rf "$(BUILD_DIR)"
 
-.PONY: clean
+.PHONY: clean
 clean: all_clean
 
 
@@ -164,7 +158,7 @@ clean: all_clean
 #
 ##############################
 
-UAVOBJGENERATOR_DIR = $(BUILD_DIR)/uavobjgenerator
+UAVOBJGENERATOR_DIR := $(BUILD_DIR)/uavobjgenerator
 DIRS += $(UAVOBJGENERATOR_DIR)
 
 .PHONY: uavobjgenerator
@@ -209,14 +203,15 @@ export OPMODULEDIR   := $(ROOT_DIR)/flight/modules
 export OPUAVOBJ      := $(ROOT_DIR)/flight/uavobjects
 export OPUAVTALK     := $(ROOT_DIR)/flight/uavtalk
 export OPUAVSYNTHDIR := $(BUILD_DIR)/uavobject-synthetics/flight
-export OPGCSSYNTHDIR := $(BUILD_DIR)/openpilotgcs-synthetics
+export OPGCSSYNTHDIR := $(BUILD_DIR)/gcs-synthetics
 
 DIRS += $(OPGCSSYNTHDIR)
 
 # Define supported board lists
-ALL_BOARDS    := oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano
+ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano
 
 # Short names of each board (used to display board name in parallel builds)
+coptercontrol_short    := 'cc  '
 oplinkmini_short       := 'oplm'
 revolution_short       := 'revo'
 osd_short              := 'osd '
@@ -456,13 +451,7 @@ sim_osx_%: uavobjects_flight
 ##############################
 
 .PHONY: all_ground
-all_ground: openpilotgcs uploader
-
-# Convenience target for the GCS
-.PHONY: gcs gcs_qmake gcs_clean
-gcs: openpilotgcs
-gcs_qmake: openpilotgcs_qmake
-gcs_clean: openpilotgcs_clean
+all_ground: gcs uploader
 
 ifeq ($(V), 1)
     GCS_SILENT :=
@@ -470,28 +459,29 @@ else
     GCS_SILENT := silent
 endif
 
-OPENPILOTGCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
-DIRS += $(OPENPILOTGCS_DIR)
+GCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
+DIRS += $(GCS_DIR)
 
-OPENPILOTGCS_MAKEFILE := $(OPENPILOTGCS_DIR)/Makefile
+GCS_MAKEFILE := $(GCS_DIR)/Makefile
 
-.PHONY: openpilotgcs_qmake
-openpilotgcs_qmake $(OPENPILOTGCS_MAKEFILE): | $(OPENPILOTGCS_DIR)
-	$(V1) cd $(OPENPILOTGCS_DIR) && \
-	    $(QMAKE) $(ROOT_DIR)/ground/openpilotgcs/openpilotgcs.pro \
+.PHONY: gcs_qmake
+gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
+	$(V1) cd $(GCS_DIR) && \
+	    $(QMAKE) $(ROOT_DIR)/ground/gcs/gcs.pro \
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
+	    'GCS_LIBRARY_BASENAME=$(libbasename)' \
 	    $(GCS_QMAKE_OPTS)
 
-.PHONY: openpilotgcs
-openpilotgcs: uavobjgenerator $(OPENPILOTGCS_MAKEFILE)
-	$(V1) $(MAKE) -w -C $(OPENPILOTGCS_DIR)/$(MAKE_DIR);
+.PHONY: gcs
+gcs: uavobjgenerator $(GCS_MAKEFILE)
+	$(V1) $(MAKE) -w -C $(GCS_DIR)/$(MAKE_DIR);
 
-.PHONY: openpilotgcs_clean
-openpilotgcs_clean:
-	@$(ECHO) " CLEAN      $(call toprel, $(OPENPILOTGCS_DIR))"
-	$(V1) [ ! -d "$(OPENPILOTGCS_DIR)" ] || $(RM) -r "$(OPENPILOTGCS_DIR)"
+.PHONY: gcs_clean
+gcs_clean:
+	@$(ECHO) " CLEAN      $(call toprel, $(GCS_DIR))"
+	$(V1) [ ! -d "$(GCS_DIR)" ] || $(RM) -r "$(GCS_DIR)"
 
 
 
@@ -509,7 +499,7 @@ UPLOADER_MAKEFILE := $(UPLOADER_DIR)/Makefile
 .PHONY: uploader_qmake
 uploader_qmake $(UPLOADER_MAKEFILE): | $(UPLOADER_DIR)
 	$(V1) cd $(UPLOADER_DIR) && \
-	    $(QMAKE) $(ROOT_DIR)/ground/openpilotgcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
+	    $(QMAKE) $(ROOT_DIR)/ground/gcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
 	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
 
 .PHONY: uploader
@@ -724,7 +714,7 @@ $(OPFW_RESOURCE): $(FW_TARGETS) | $(OPGCSSYNTHDIR)
 
 # If opfw_resource or all firmware are requested, GCS should depend on the resource
 ifneq ($(strip $(filter opfw_resource all all_fw all_flight package,$(MAKECMDGOALS))),)
-$(OPENPILOTGCS_MAKEFILE): $(OPFW_RESOURCE)
+$(GCS_MAKEFILE): $(OPFW_RESOURCE)
 endif
 
 # Packaging targets: package
@@ -739,9 +729,39 @@ PACKAGE_SEP       := -
 PACKAGE_FULL_NAME := $(PACKAGE_NAME)$(PACKAGE_SEP)$(PACKAGE_LBL)
 
 # Source distribution is never dirty because it uses git archive
-DIST_NAME := $(DIST_DIR)/$(subst dirty-,,$(PACKAGE_FULL_NAME)).tar
+DIST_LBL      := $(subst -dirty,,$(PACKAGE_LBL))
+DIST_NAME     := $(PACKAGE_NAME)$(PACKAGE_SEP)$(DIST_LBL)
+DIST_TAR      := $(DIST_DIR)/$(DIST_NAME).tar
+DIST_TAR_GZ   := $(DIST_TAR).gz
+DIST_VER_INFO := $(DIST_DIR)/version-info.json
 
 include $(ROOT_DIR)/package/$(UNAME).mk
+
+##############################
+#
+# Source for distribution
+#
+##############################
+$(DIST_VER_INFO): .git/index | $(DIST_DIR)
+	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"
+
+$(DIST_TAR): $(DIST_VER_INFO) .git/index | $(DIST_DIR)
+	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR))"
+	$(V1) git archive --prefix="$(PACKAGE_NAME)/" -o "$(DIST_TAR)" HEAD
+	$(V1) tar --append --file="$(DIST_TAR)" \
+		--transform='s,.*version-info.json,$(PACKAGE_NAME)/version-info.json,' \
+		$(call toprel, "$(DIST_VER_INFO)")
+
+$(DIST_TAR_GZ): $(DIST_TAR)
+	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR_GZ))"
+	$(V1) gzip -kf "$(DIST_TAR)"
+
+.PHONY: dist_tar_gz
+dist_tar_gz: $(DIST_TAR_GZ)
+
+.PHONY: dist
+dist: dist_tar_gz
+
 
 ##############################
 #
@@ -819,26 +839,28 @@ build-info: | $(BUILD_DIR)
 
 ##############################
 #
-# Source for distribution
+# Config
 #
 ##############################
 
-DIST_VER_INFO := $(DIST_DIR)/version-info.json
+CONFIG_OPTS := $(addsuffix \n,$(MAKEOVERRIDES))
+CONFIG_OPTS := $(addprefix override$(SPACE),$(CONFIG_OPTS))
 
-$(DIST_VER_INFO): .git/index | $(DIST_DIR)
-	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"
+.PHONY: config_new
+config_new:
+	@printf '$(CONFIG_OPTS)' > $(CONFIG_FILE)
 
+.PHONY: config_append
+config_append:
+	@printf '$(CONFIG_OPTS)' >> $(CONFIG_FILE)
 
-$(DIST_NAME).gz: $(DIST_VER_INFO) .git/index | $(DIST_DIR)
-	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_NAME).gz)"
-	$(V1) git archive --prefix="$(PACKAGE_NAME)/" -o "$(DIST_NAME)" HEAD
-	$(V1) tar --append --file="$(DIST_NAME)" \
-		--transform='s,.*version-info.json,$(PACKAGE_NAME)/version-info.json,' \
-		$(call toprel, "$(DIST_VER_INFO)")
-	$(V1) gzip -f "$(DIST_NAME)"
+.PHONY: config_show
+config_show:
+	@cat $(CONFIG_FILE)
 
-.PHONY: dist
-dist: $(DIST_NAME).gz
+.PHONY: config_clean
+config_clean:
+	rm -f $(CONFIG_FILE)
 
 
 ##############################
@@ -880,6 +902,7 @@ help:
 	@$(ECHO) "     uncrustify_install   - Install the Uncrustify source code beautifier"
 	@$(ECHO) "     doxygen_install      - Install the Doxygen documentation generator"
 	@$(ECHO) "     gtest_install        - Install the GoogleTest framework"
+	@$(ECHO) "     ccache_install       - Install ccache"
 	@$(ECHO) "   These targets are not updated yet and are probably broken:"
 	@$(ECHO) "     openocd_install      - Install the OpenOCD JTAG daemon"
 	@$(ECHO) "     stm32flash_install   - Install the stm32flash tool for unbricking F1-based boards"
@@ -992,6 +1015,11 @@ help:
 	@$(ECHO) "     docs_<source>_clean  - Delete generated documentation for <source>"
 	@$(ECHO) "     docs_all_clean       - Delete all generated documentation"
 	@$(ECHO)
+	@$(ECHO) "   [Configuration]"
+	@$(ECHO) "     config_new           - Place your make arguments in the config file"
+	@$(ECHO) "     config_append        - Place your make arguments in the config file but append"
+	@$(ECHO) "     config_clean         - Removes the config file"
+	@$(ECHO)
 	@$(ECHO) "   Hint: Add V=1 to your command line to see verbose build output."
 	@$(ECHO)
 	@$(ECHO) "  Notes: All tool distribution files will be downloaded into $(DL_DIR)"
@@ -999,7 +1027,7 @@ help:
 	@$(ECHO) "         All build output will be placed in $(BUILD_DIR)"
 	@$(ECHO)
 	@$(ECHO) "  Tool download and install directories can be changed using environment variables:"
-	@$(ECHO) "         OPENPILOT_DL_DIR        full path to downloads directory [downloads if not set]"
-	@$(ECHO) "         OPENPILOT_TOOLS_DIR     full path to installed tools directory [tools if not set]"
+	@$(ECHO) "         DL_DIR        full path to downloads directory [downloads if not set]"
+	@$(ECHO) "         TOOLS_DIR     full path to installed tools directory [tools if not set]"
 	@$(ECHO) "  More info: http://wiki.openpilot.org/display/Doc/OpenPilot+Build+System+Overview"
 	@$(ECHO)

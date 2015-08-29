@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = PathActionEditor 
 
-include(../../openpilotgcsplugin.pri) 
+include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
 include(../../plugins/uavobjects/uavobjects.pri)
 

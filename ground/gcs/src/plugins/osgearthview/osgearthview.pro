@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = OsgEarthviewGadget
 
 QT += opengl
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(osgearthview_dependencies.pri)
 include(osg.pri)

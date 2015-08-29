@@ -4,7 +4,7 @@ TARGET = LoggingGadget
 DEFINES += LOGGING_LIBRARY
 QT += svg
 
-include(../../openpilotgcsplugin.pri)
+include(../../plugin.pri)
 include(logging_dependencies.pri)
 HEADERS += loggingplugin.h \
     logginggadgetwidget.h \

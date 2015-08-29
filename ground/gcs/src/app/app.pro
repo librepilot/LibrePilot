@@ -1,4 +1,4 @@
-include(../../openpilotgcs.pri)
+include(../../gcs.pri)
 include(../shared/qtsingleapplication/qtsingleapplication.pri)
 
 TEMPLATE = app
@@ -21,16 +21,14 @@ include(../libs/version_info/version_info.pri)
 LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation)
 
 DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$GCS_APP_PATH)\")
-DEFINES += GCS_NAME=$$shell_quote(\"$$GCS_BIG_NAME\")
-DEFINES += ORG_BIG_NAME=$$shell_quote(\"$$ORG_BIG_NAME\")
 
 win32 {
-    RC_FILE = librepilotgcs.rc
+    RC_FILE = gcs.rc
     target.path = /bin
     INSTALLS += target
 } else:macx {
     LIBS += -framework CoreFoundation
-    ICON = librepilotgcs.icns
+    ICON = gcs.icns
     QMAKE_INFO_PLIST = Info.plist
     FILETYPES.files = profile.icns prifile.icns
     FILETYPES.path = Contents/Resources
@@ -53,7 +51,7 @@ win32 {
     }
 }
 
-OTHER_FILES += librepilotgcs.rc
+OTHER_FILES += gcs.rc
 
 RESOURCES += \
     appresources.qrc

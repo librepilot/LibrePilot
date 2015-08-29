@@ -3,6 +3,7 @@
 # Utility functions to access git repository info and
 # generate source files and binary objects using templates.
 #
+# (C) 2015, The LibrePilot Project, http://www.librepilot.org
 # (c) 2011, The OpenPilot Team, http://www.openpilot.org
 # See also: The GNU Public License (GPL) Version 3
 #

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       coreconstants.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -45,7 +46,7 @@ namespace Constants {
 
 const char *const GCS_VERSION_LONG = GCS_VERSION;
 const char *const GCS_AUTHOR = "The LibrePilot Project";
-const char *const GCS_HELP   = "http://wiki.openpilot.org";
+const char *const GCS_HELP   = "http://forum.librepilot.org";
 
 #undef GCS_VERSION
 #undef STRINGIFY

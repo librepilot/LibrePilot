@@ -48,8 +48,8 @@ bool SurfacePage::validatePage(SelectionItem *selectedItem)
 
 void SurfacePage::setupSelection(Selection *selection)
 {
-    selection->setTitle(tr("OpenPilot Ground Vehicle Configuration"));
-    selection->setText(tr("This part of the wizard will set up the OpenPilot controller for use with a ground "
+    selection->setTitle(tr("Ground Vehicle Configuration"));
+    selection->setText(tr("This part of the wizard will set up the flight controller for use with a ground "
                           "vehicle utilizing servos. The wizard supports the most common types of ground vehicle, "
                           "other variants can be configured by using custom configuration options in the "
                           "Configuration plugin in the GCS.\n\n"

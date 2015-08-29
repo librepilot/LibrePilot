@@ -81,11 +81,11 @@ void UsageTrackerPlugin::onAutopilotConnect()
             message.setIcon(QMessageBox::Information);
             message.addButton(tr("Yes, count me in"), QMessageBox::AcceptRole);
             message.addButton(tr("No, I will not help"), QMessageBox::RejectRole);
-            message.setText(tr("Openpilot GCS has a function to collect limited anonymous information about "
-                               "the usage of the application itself and the OpenPilot hardware connected to it.<p>"
+            message.setText(tr("%1 has a function to collect limited anonymous information about "
+                               "the usage of the application itself and the hardware connected to it.<p>"
                                "The intention is to not include anything that can be considered sensitive "
                                "or a threat to the users integrity. The collected information will be sent "
-                               "using a secure protocol to an OpenPilot web service and stored in a database "
+                               "using a secure protocol to an %2 web service and stored in a database "
                                "for later analysis and statistical purposes.<br>"
                                "No information will be sold or given to any third party. The sole purpose is "
                                "to collect statistics about the usage of our software and hardware to enable us "
@@ -93,7 +93,7 @@ void UsageTrackerPlugin::onAutopilotConnect()
                                "The following things are collected:<ul>"
                                "<li>Bootloader version</li>"
                                "<li>Firmware version, tag and git hash</li>"
-                               "<li>OP Hardware type, revision and mcu serial number</li>"
+                               "<li>Hardware type, revision and mcu serial number</li>"
                                "<li>Selected configuration parameters</li>"
                                "<li>GCS version</li>"
                                "<li>Operating system version and architecture</li>"
@@ -103,7 +103,7 @@ void UsageTrackerPlugin::onAutopilotConnect()
                                "settings part of the options for the GCS application at any time.<p>"
                                "We need your help, with your feedback we know where to improve things and what "
                                "platforms are in use. This is a community project that depends on people being involved.<br>"
-                               "Thank You for helping us making things better and for supporting OpenPilot!"));
+                               "Thank You for helping us making things better and for supporting %2!").arg(GCS_BIG_NAME).arg(ORG_BIG_NAME));
             QCheckBox *disclaimerCb = new QCheckBox(tr("&Don't show this message again."));
             disclaimerCb->setChecked(true);
             message.setCheckBox(disclaimerCb);
@@ -138,7 +138,7 @@ void UsageTrackerPlugin::trackUsage()
     if (shouldSend(hash)) {
         query.addQueryItem("hash", hash);
 
-        QUrl url("https://www.openpilot.org/opver?" + query.toString(QUrl::FullyEncoded));
+        QUrl url("https://www.librepilot.org/opver?" + query.toString(QUrl::FullyEncoded));
 
         QNetworkAccessManager *networkAccessManager = new QNetworkAccessManager();
 
@@ -182,11 +182,18 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         parameters["conf_receiver"] = getUAVFieldValue(objManager, "ManualControlSettings", "ChannelGroups", 0);
         parameters["conf_vehicle"]  = getUAVFieldValue(objManager, "SystemSettings", "AirframeType");
 
-        // Revolution family
-        parameters["conf_rport"]    = getUAVFieldValue(objManager, "HwSettings", "RM_RcvrPort");
-        parameters["conf_mport"]    = getUAVFieldValue(objManager, "HwSettings", "RM_MainPort");
-        parameters["conf_fport"]    = getUAVFieldValue(objManager, "HwSettings", "RM_FlexiPort");
-        parameters["conf_fusion"]   = getUAVFieldValue(objManager, "RevoSettings", "FusionAlgorithm");
+        if ((boardModel & 0xff00) == 0x0400) {
+            // CopterControl family
+            parameters["conf_rport"] = getUAVFieldValue(objManager, "HwSettings", "CC_RcvrPort");
+            parameters["conf_mport"] = getUAVFieldValue(objManager, "HwSettings", "CC_MainPort");
+            parameters["conf_fport"] = getUAVFieldValue(objManager, "HwSettings", "CC_FlexiPort");
+        } else if ((boardModel & 0xff00) == 0x0900) {
+            // Revolution family
+            parameters["conf_rport"]  = getUAVFieldValue(objManager, "HwSettings", "RM_RcvrPort");
+            parameters["conf_mport"]  = getUAVFieldValue(objManager, "HwSettings", "RM_MainPort");
+            parameters["conf_fport"]  = getUAVFieldValue(objManager, "HwSettings", "RM_FlexiPort");
+            parameters["conf_fusion"] = getUAVFieldValue(objManager, "RevoSettings", "FusionAlgorithm");
+        }
 
         parameters["conf_uport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_HIDPort");
         parameters["conf_vport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_VCPPort");

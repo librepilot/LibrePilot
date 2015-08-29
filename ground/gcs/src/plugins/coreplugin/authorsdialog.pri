@@ -15,7 +15,7 @@ include(../../python.pri)
     AUTHORS_COMMAND  = $$PYTHON \"$$AUTHORS_SCRIPT\"
     AUTHORS_SOURCE   = $$ROOT_DIR/CREDITS.txt
     AUTHORS_TEMPLATE = $$GCS_SOURCE_TREE/src/plugins/coreplugin/qml/AuthorsModel.qml.template
-    AUTHORS_DIR      = $$GCS_BUILD_TREE/../openpilotgcs-synthetics
+    AUTHORS_DIR      = $$GCS_BUILD_TREE/../gcs-synthetics
     AUTHORS_FILE     = $$AUTHORS_DIR/AuthorsModel.qml
 
     # Create custom authors target which generates a real file

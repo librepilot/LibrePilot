@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configstabilizationwidget.cpp
- * @author     E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -90,6 +91,9 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->checkBox_8);
     connect(ui->checkBox_3, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
     addWidget(ui->checkBox_3);
+
+    connect(ui->checkBoxLinkAcroFactors, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
+    addWidget(ui->checkBoxLinkAcroFactors);
 
     addWidget(ui->pushButton_2);
     addWidget(ui->pushButton_3);
@@ -568,6 +572,8 @@ void ConfigStabilizationWidget::linkCheckBoxes(bool value)
         ui->basicResponsivenessCheckBox->setChecked(!value);
         ui->basicResponsivenessControls->setEnabled(!value);
         ui->advancedResponsivenessControls->setEnabled(value);
+    } else if(sender() == ui->checkBoxLinkAcroFactors) {
+        processLinkedWidgets(ui->AcroFactorRollSlider);
     }
 }
 
@@ -606,6 +612,13 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
             ui->ratePitchKp_4->setValue(ui->AttitudeResponsivenessSlider->value());
         } else if (widget == ui->RateResponsivenessSlider) {
             ui->ratePitchKi_4->setValue(ui->RateResponsivenessSlider->value());
+        }
+    }
+    if (ui->checkBoxLinkAcroFactors->isChecked()) {
+        if (widget == ui->AcroFactorRollSlider) {
+            ui->AcroFactorPitchSlider->setValue(ui->AcroFactorRollSlider->value());
+        } else if (widget == ui->AcroFactorPitchSlider) {
+            ui->AcroFactorRollSlider->setValue(ui->AcroFactorPitchSlider->value());
         }
     }
 }

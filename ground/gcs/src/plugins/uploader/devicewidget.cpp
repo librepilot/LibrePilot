@@ -78,11 +78,6 @@ void DeviceWidget::populate()
 {
     int id = m_dfu->devices[deviceID].ID;
 
-    // Exclude CC/CC3D
-    if ((id == 0x0401) || (id == 0x0402)) {
-        return;
-    }
-
     myDevice->lbldevID->setText(tr("Device ID: ") + QString::number(id, 16));
     // DeviceID tells us what sort of HW we have detected:
     // display a nice icon:
@@ -91,10 +86,22 @@ void DeviceWidget::populate()
     myDevice->lblHWRev->setText(tr("HW Revision: ") + QString::number(id & 0x00FF, 16));
 
     switch (id) {
+    case 0x0101:
+    case 0x0201:
+        devicePic.load("");
+        break;
     case 0x0301:
         devicePic.load(":/uploader/images/gcs-board-oplink.png");
         break;
+    case 0x0401:
+        devicePic.load(":/uploader/images/gcs-board-cc.png");
+        break;
+    case 0x0402:
+        devicePic.load(":/uploader/images/gcs-board-cc3d.png");
+        break;
     case 0x0903:
+        devicePic.load(":/uploader/images/gcs-board-revo.png");
+        break;
     case 0x0904:
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
@@ -313,11 +320,11 @@ void DeviceWidget::loadFirmware(QString fwfilename)
             myDevice->statusLabel->setText(tr("The loaded firmware is untagged or custom build. Update only if it was received from a trusted source (official website or your own build)."));
             px.load(QString(":/uploader/images/warning.svg"));
         } else {
-            myDevice->statusLabel->setText(tr("This is the tagged officially released OpenPilot firmware."));
+            myDevice->statusLabel->setText(tr("This is the tagged officially released firmware."));
             px.load(QString(":/uploader/images/gtk-info.svg"));
         }
     } else {
-        myDevice->statusLabel->setText(tr("WARNING: the loaded firmware was not packaged with the OpenPilot format. Do not update unless you know what you are doing."));
+        myDevice->statusLabel->setText(tr("WARNING: the loaded firmware was not packaged with the right format. Do not update unless you know what you are doing."));
         px.load(QString(":/uploader/images/error.svg"));
         myDevice->confirmCheckBox->setChecked(false);
         myDevice->confirmCheckBox->setVisible(true);
@@ -357,7 +364,8 @@ void DeviceWidget::uploadFirmware()
         // - Check whether board type matches firmware:
         int board = m_dfu->devices[deviceID].ID;
         int firmwareBoard = ((desc.at(12) & 0xff) << 8) + (desc.at(13) & 0xff);
-        if ((board == 0x901 && firmwareBoard == 0x902) || // L3GD20 revo supports Revolution firmware
+        if ((board == 0x401 && firmwareBoard == 0x402) ||
+            (board == 0x901 && firmwareBoard == 0x902) || // L3GD20 revo supports Revolution firmware
             (board == 0x902 && firmwareBoard == 0x903)) { // RevoMini1 supporetd by RevoMini2 firmware
             // These firmwares are designed to be backwards compatible
         } else if (firmwareBoard != board) {

@@ -22,7 +22,7 @@ TEMPLATE = lib
 TARGET = sdlgamepad
 DEFINES += SDLGAMEPAD_LIBRARY
 
-include(../../openpilotgcslibrary.pri)
+include(../../library.pri)
 
 macx {
     # Ensures that SDL framework and header files are found when compiled with Qt5.2.1

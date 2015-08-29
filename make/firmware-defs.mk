@@ -1,4 +1,5 @@
 #
+# Copyright (C) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,8 +22,8 @@ ifndef TOP_LEVEL_MAKEFILE
 endif
 
 # Define toolchain component names.
-CC      = $(ARM_SDK_PREFIX)gcc
-CXX     = $(ARM_SDK_PREFIX)g++
+CC      = $(CCACHE) $(ARM_SDK_PREFIX)gcc
+CXX     = $(CCACHE) $(ARM_SDK_PREFIX)g++
 AR      = $(ARM_SDK_PREFIX)ar
 OBJCOPY = $(ARM_SDK_PREFIX)objcopy
 OBJDUMP = $(ARM_SDK_PREFIX)objdump

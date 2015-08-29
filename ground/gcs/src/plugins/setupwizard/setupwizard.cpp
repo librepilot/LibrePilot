@@ -61,7 +61,7 @@ SetupWizard::SetupWizard(QWidget *parent) : QWizard(parent), VehicleConfiguratio
     m_vehicleTemplate(NULL), m_calibrationPerformed(false),
     m_restartNeeded(false), m_connectionManager(NULL)
 {
-    setWindowTitle(tr("OpenPilot Setup Wizard"));
+    setWindowTitle(tr("Setup Wizard"));
     setOption(QWizard::IndependentPages, false);
     for (quint16 i = 0; i < ActuatorSettings::CHANNELMAX_NUMELEM; i++) {
         m_actuatorSettings << actuatorChannelSettings();
@@ -95,6 +95,8 @@ int SetupWizard::nextId() const
     case PAGE_CONTROLLER:
     {
         switch (getControllerType()) {
+        case CONTROLLER_CC:
+        case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
         case CONTROLLER_DISCOVERYF4:
             return PAGE_INPUT;
@@ -207,6 +209,8 @@ int SetupWizard::nextId() const
     case PAGE_SUMMARY:
     {
         switch (getControllerType()) {
+        case CONTROLLER_CC:
+        case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
         case CONTROLLER_NANO:
         case CONTROLLER_DISCOVERYF4:
@@ -238,6 +242,12 @@ QString SetupWizard::getSummaryText()
 
     summary.append("<b>").append(tr("Controller type: ")).append("</b>");
     switch (getControllerType()) {
+    case CONTROLLER_CC:
+        summary.append(tr("OpenPilot CopterControl"));
+        break;
+    case CONTROLLER_CC3D:
+        summary.append(tr("OpenPilot CopterControl 3D"));
+        break;
     case CONTROLLER_REVO:
         summary.append(tr("OpenPilot Revolution"));
         break;

@@ -752,6 +752,10 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     case 0x301:
         filename = "fw_oplinkmini";
         break;
+    case 0x401:
+    case 0x402:
+        filename = "fw_coptercontrol";
+        break;
     case 0x501:
         filename = "fw_osd";
         break;
@@ -813,6 +817,7 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     commonSystemBoot(false, erase);
 
     // Wait for board to connect to GCS again after boot and erase
+    // For older board like CC3D this can take some time
     // Theres a special case with OPLink
     if (!telemetryManager->isConnected() && !m_oplinkwatchdog.isConnected()) {
         progressUpdate(erase ? BOOTING_AND_ERASING : BOOTING, QVariant());
@@ -888,7 +893,7 @@ void UploaderGadgetWidget::systemRescue()
 
     // Check if boards are connected and, if yes, prompt user to disconnect them all
     if (USBMonitor::instance()->availableDevices(0x20a0, -1, -1, -1).length() > 0) {
-        QString labelText = QString("<p align=\"left\">%1</p>").arg(tr("Please disconnect your OpenPilot board."));
+        QString labelText = QString("<p align=\"left\">%1</p>").arg(tr("Please disconnect your board."));
         int result = ConnectionWaiter::openDialog(tr("System Rescue"), labelText, 0, BOARD_EVENT_TIMEOUT, this);
         switch (result) {
         case ConnectionWaiter::Canceled:
@@ -903,7 +908,7 @@ void UploaderGadgetWidget::systemRescue()
     }
 
     // Now prompt user to connect board
-    QString labelText = QString("<p align=\"left\">%1<br>%2</p>").arg(tr("Please connect your OpenPilot board.")).arg(tr("Board must be connected to the USB port!"));
+    QString labelText = QString("<p align=\"left\">%1<br>%2</p>").arg(tr("Please connect your board.")).arg(tr("Board must be connected to the USB port!"));
     int result = ConnectionWaiter::openDialog(tr("System Rescue"), labelText, 1, BOARD_EVENT_TIMEOUT, this);
     switch (result) {
     case ConnectionWaiter::Canceled:
@@ -1058,14 +1063,14 @@ void UploaderGadgetWidget::autoUpdateStatus(uploader::ProgressStep status, QVari
 
     switch (status) {
     case uploader::WAITING_DISCONNECT:
-        m_config->autoUpdateLabel->setText(tr("Waiting for all OpenPilot boards to be disconnected from USB."));
+        m_config->autoUpdateLabel->setText(tr("Waiting for all boards to be disconnected from USB."));
         m_config->autoUpdateProgressBar->setMaximum(BOARD_EVENT_TIMEOUT / 1000);
         m_config->autoUpdateProgressBar->setValue(value.toInt());
         remaining = m_config->autoUpdateProgressBar->maximum() - m_config->autoUpdateProgressBar->value();
         m_config->autoUpdateProgressBar->setFormat(tr("Timing out in %1 seconds").arg(remaining));
         break;
     case uploader::WAITING_CONNECT:
-        m_config->autoUpdateLabel->setText(tr("Please connect the OpenPilot board to the USB port."));
+        m_config->autoUpdateLabel->setText(tr("Please connect the board to the USB port."));
         m_config->autoUpdateProgressBar->setMaximum(BOARD_EVENT_TIMEOUT / 1000);
         m_config->autoUpdateProgressBar->setValue(value.toInt());
         remaining = m_config->autoUpdateProgressBar->maximum() - m_config->autoUpdateProgressBar->value();

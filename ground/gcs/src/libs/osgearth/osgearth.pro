@@ -9,7 +9,7 @@ contains(DEFINES, OSG_USE_QT_PRIVATE) {
 	QT += core-private gui-private
 }
 
-include(../../openpilotgcslibrary.pri)
+include(../../library.pri)
 include(../utils/utils.pri)
 
 # osg and osgearth emit a lot of unused parameter warnings...

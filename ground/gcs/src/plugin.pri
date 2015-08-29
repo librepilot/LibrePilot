@@ -31,6 +31,7 @@ macx {
     QMAKE_RPATHDIR  = $$shell_quote(\$$ORIGIN)
     QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH, $$DESTDIR))
     QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_QT_LIBRARY_PATH, $$DESTDIR))
+    QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH/osg, $$DESTDIR))
     include(rpath.pri)
 }
 

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configtelemetrywidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -64,7 +65,7 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
         m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
         break;
     case 0x0402:
-        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
+        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/cc3d_top.png"));
         break;
     case 0x0201:
         m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0201.svg"));

@@ -1,11 +1,12 @@
 /**
  ******************************************************************************
  * @file       version_info.cpp.template
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @addtogroup VersionInfo
  * @{
  * @brief      The template file used to generate the real source file called
- *             build/openpilotgcs-synthetics/version_info.cpp
+ *             build/gcs-synthetics/version_info.cpp
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

@@ -8,8 +8,8 @@
  * @{
  *
  * @file       actuator.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Actuator module. Drives the actuators (servos, motors etc).
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -86,8 +86,6 @@ static xTaskHandle taskHandle;
 static FrameType_t frameType = FRAME_TYPE_MULTIROTOR;
 static SystemSettingsThrustControlOptions thrustType = SYSTEMSETTINGS_THRUSTCONTROL_THROTTLE;
 
-static float lastResult[MAX_MIX_ACTUATORS] = { 0 };
-static float filterAccumulator[MAX_MIX_ACTUATORS] = { 0 };
 static uint8_t pinsMode[MAX_MIX_ACTUATORS];
 // used to inform the actuator thread that actuator update rate is changed
 static ActuatorSettingsData actuatorSettings;
@@ -111,7 +109,7 @@ static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 static void SettingsUpdatedCb(UAVObjEvent *ev);
 float ProcessMixer(const int index, const float curve1, const float curve2,
                    ActuatorDesiredData *desired,
-                   const float period, bool multirotor, bool fixedwing);
+                   bool multirotor, bool fixedwing);
 
 // this structure is equivalent to the UAVObjects for one mixer.
 typedef struct {
@@ -196,7 +194,6 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
     UAVObjEvent ev;
     portTickType lastSysTime;
     portTickType thisSysTime;
-    float dTSeconds;
     uint32_t dTMilliseconds;
 
     ActuatorCommandData command;
@@ -246,7 +243,6 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
         thisSysTime    = xTaskGetTickCount();
         dTMilliseconds = (thisSysTime == lastSysTime) ? 1 : (thisSysTime - lastSysTime) * portTICK_RATE_MS;
         lastSysTime    = thisSysTime;
-        dTSeconds = dTMilliseconds * 0.001f;
 
         FlightStatusGet(&flightStatus);
         FlightModeSettingsGet(&settings);
@@ -408,12 +404,10 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                         nonreversible_curve2 = 0.0f;
                     }
                 }
-                status[ct] = ProcessMixer(ct, nonreversible_curve1, nonreversible_curve2, &desired, dTSeconds, multirotor, fixedwing);
+                status[ct] = ProcessMixer(ct, nonreversible_curve1, nonreversible_curve2, &desired, multirotor, fixedwing);
                 // If not armed or motors aren't meant to spin all the time
                 if (!armed ||
                     (!spinWhileArmed && !positiveThrottle)) {
-                    filterAccumulator[ct] = 0;
-                    lastResult[ct] = 0;
                     status[ct] = -1; // force min throttle
                 }
                 // If armed meant to keep spinning,
@@ -426,16 +420,14 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                     }
                 }
             } else if (mixer_type == MIXERSETTINGS_MIXER1TYPE_REVERSABLEMOTOR) {
-                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor, fixedwing);
+                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, multirotor, fixedwing);
                 // Reversable Motors are like Motors but go to neutral instead of minimum
                 // If not armed or motor is inactive - no "spinwhilearmed" for this engine type
                 if (!armed || !activeThrottle) {
-                    filterAccumulator[ct] = 0;
-                    lastResult[ct] = 0;
                     status[ct] = 0; // force neutral throttle
                 }
             } else if (mixer_type == MIXERSETTINGS_MIXER1TYPE_SERVO) {
-                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor, fixedwing);
+                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, multirotor, fixedwing);
             } else {
                 status[ct] = -1;
 
@@ -557,9 +549,9 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
  * Process mixing for one actuator
  */
 float ProcessMixer(const int index, const float curve1, const float curve2,
-                   ActuatorDesiredData *desired, const float period, bool multirotor, bool fixedwing)
+                   ActuatorDesiredData *desired, bool multirotor, bool fixedwing)
 {
-    static float lastFilteredResult[MAX_MIX_ACTUATORS];
+
     const Mixer_t *mixers = (Mixer_t *)&mixerSettings.Mixer1Type; // pointer to array of mixers in UAVObjects
     const Mixer_t *mixer  = &mixers[index];
     float differential    = 1.0f;
@@ -589,45 +581,11 @@ float ProcessMixer(const int index, const float curve1, const float curve2,
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_PITCH]) * desired->Pitch) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_YAW]) * desired->Yaw)) / 128.0f;
 
-    // note: no feedforward for reversable motors yet for safety reasons
     if (mixer->type == MIXERSETTINGS_MIXER1TYPE_MOTOR) {
         if (!multirotor) { // we allow negative throttle with a multirotor
             if (result < 0.0f) { // zero throttle
                 result = 0.0f;
             }
-        }
-
-        if (!fixedwing) {
-            // feed forward, do not apply to fixedwing
-            float accumulator = filterAccumulator[index];
-            accumulator += (result - lastResult[index]) * mixerSettings.FeedForward;
-            lastResult[index] = result;
-            result += accumulator;
-            if (period > 0.0f) {
-                if (accumulator > 0.0f) {
-                    float invFilter = period / mixerSettings.AccelTime;
-                    if (invFilter > 1) {
-                        invFilter = 1;
-                    }
-                    accumulator -= accumulator * invFilter;
-                } else {
-                    float invFilter = period / mixerSettings.DecelTime;
-                    if (invFilter > 1) {
-                        invFilter = 1;
-                    }
-                    accumulator -= accumulator * invFilter;
-                }
-            }
-            filterAccumulator[index] = accumulator;
-            result += accumulator;
-
-            // acceleration limit
-            float dt    = result - lastFilteredResult[index];
-            float maxDt = mixerSettings.MaxAccel * period;
-            if (dt > maxDt) { // we are accelerating too hard
-                result = lastFilteredResult[index] + maxDt;
-            }
-            lastFilteredResult[index] = result;
         }
     }
 

@@ -2,6 +2,7 @@
  ******************************************************************************
  *
  * @file       configairframetwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -86,17 +87,9 @@ private:
     VehicleConfig *getVehicleConfigWidget(int frameCategory);
     VehicleConfig *createVehicleConfigWidget(int frameCategory);
 
-    // Feed Forward
-    void updateFeedForwardUI();
-
-    bool m_ffTuningInProgress;
-    bool m_ffTuningPhase;
-    UAVObject::Metadata m_accInitialData;
-
 private slots:
     void switchAirframeType(int index);
     void openHelp();
-    void enableFFTest();
 };
 
 #endif // CONFIGVEHICLETYPEWIDGET_H

@@ -1,5 +1,5 @@
 #
-# Top level Makefile for the LibrePilot project build system.
+# Top level Makefile for the LibrePilot Project build system.
 # Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 # Use 'make help' for instructions.
@@ -54,10 +54,10 @@ export DIST_DIR    := $(BUILD_DIR)/dist
 DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR)
 
 # Naming for binaries and packaging etc,.
-ORG_BIG_NAME := LibrePilot
+export ORG_BIG_NAME := LibrePilot
 GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
 # These should be lowercase with no spaces
-ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
+export ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 
 # Set up default build configurations (debug | release)
@@ -203,7 +203,7 @@ export OPMODULEDIR   := $(ROOT_DIR)/flight/modules
 export OPUAVOBJ      := $(ROOT_DIR)/flight/uavobjects
 export OPUAVTALK     := $(ROOT_DIR)/flight/uavtalk
 export OPUAVSYNTHDIR := $(BUILD_DIR)/uavobject-synthetics/flight
-export OPGCSSYNTHDIR := $(BUILD_DIR)/openpilotgcs-synthetics
+export OPGCSSYNTHDIR := $(BUILD_DIR)/gcs-synthetics
 
 DIRS += $(OPGCSSYNTHDIR)
 

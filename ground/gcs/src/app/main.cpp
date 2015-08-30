@@ -421,7 +421,7 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
 {
     const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
 
-    if (translator.load(QLatin1String("openpilotgcs_") + language, creatorTrPath)) {
+    if (translator.load(QLatin1String("gcs_") + language, creatorTrPath)) {
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &qtTrFile = QLatin1String("qt_") + language;
         // Binary installer puts Qt tr files into creatorTrPath

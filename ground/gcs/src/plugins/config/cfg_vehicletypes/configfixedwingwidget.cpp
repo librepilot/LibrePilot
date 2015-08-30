@@ -2,8 +2,8 @@
  ******************************************************************************
  *
  * @file       configfixedwingwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -309,9 +309,6 @@ QString ConfigFixedWingWidget::updateConfigObjectsFromWidgets()
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
 
     Q_ASSERT(mixer);
-
-    // Remove Feed Forward, it is pointless on a plane:
-    setMixerValue(mixer, "FeedForward", 0.0);
 
     // Set the throttle curve
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->fixedWingThrottle->getCurve());

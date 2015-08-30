@@ -36,6 +36,6 @@ SUBDIRS = \
 # uavobjgenerator
 sub_uavobjgenerator.subdir = uavobjgenerator
 
-# openpilotgcs
-sub_openpilotgcs.subdir  = gcs
-sub_openpilotgcs.depends = sub_uavobjgenerator
+# GCS
+sub_gcs.subdir  = gcs
+sub_gcs.depends = sub_uavobjgenerator

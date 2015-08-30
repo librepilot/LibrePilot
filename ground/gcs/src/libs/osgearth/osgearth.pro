@@ -59,10 +59,10 @@ SOURCES += \
 INCLUDEPATH += $$OSG_SDK_DIR/include
 
 linux {
-    !exists( $(OSG_SDK_DIR)/lib64 ) {
-        LIBS += -L$$OSG_SDK_DIR/lib
-    } else {
+    exists( $$OSG_SDK_DIR/lib64 ) {
         LIBS += -L$$OSG_SDK_DIR/lib64
+    } else {
+        LIBS += -L$$OSG_SDK_DIR/lib
     }
 
     LIBS +=-lOpenThreads

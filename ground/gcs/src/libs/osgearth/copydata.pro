@@ -1,13 +1,13 @@
 #
 # copy osg and osgearth libraries and data to build dir
 #
-equals(copydata, 1) {
+equals(copyosg, 1) {
 
     OSG_VERSION = 3.4.0
 
     linux {
         # copy osg libraries
-        exists($(OSG_SDK_DIR)/lib64) {
+        exists( $${OSG_SDK_DIR}/lib64 ) {
 	        #addCopyDirFilesTargets($${OSG_SDK_DIR}/lib64,$${GCS_LIBRARY_PATH}/osg)
         } else {
 	        #addCopyDirFilesTargets($${OSG_SDK_DIR}/lib,$${GCS_LIBRARY_PATH}/osg)

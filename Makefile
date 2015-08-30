@@ -208,7 +208,7 @@ export OPGCSSYNTHDIR := $(BUILD_DIR)/gcs-synthetics
 DIRS += $(OPGCSSYNTHDIR)
 
 # Define supported board lists
-ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano
+ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano revorpi
 
 # Short names of each board (used to display board name in parallel builds)
 coptercontrol_short    := 'cc  '
@@ -220,6 +220,7 @@ revonano_short         := 'revn'
 simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'
+revorpi_short          := 'revr'
 
 # SimPosix only builds on Linux so drop it from the list for
 # all other platforms.

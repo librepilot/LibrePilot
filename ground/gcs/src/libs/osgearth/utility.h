@@ -125,9 +125,9 @@ osgText::Font *createFont(const std::string &name);
 osgText::Font *createFont(const QFont &font);
 
 osgText::Text *createText(const osg::Vec3 &pos,
-                                            const std::string &content,
-                                            float size,
-                                            osgText::Font *font = 0);
+                          const std::string &content,
+                          float size,
+                          osgText::Font *font = 0);
 
 osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
 bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode);

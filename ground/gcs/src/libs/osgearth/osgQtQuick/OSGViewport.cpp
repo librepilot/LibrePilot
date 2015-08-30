@@ -159,7 +159,6 @@ public:
 
     bool acceptNode(osg::Node *node)
     {
-
         return true;
     }
 
@@ -204,11 +203,11 @@ public:
             // TODO will the AutoClipPlaneCullCallback be destroyed ?
             // TODO does it need to be added to the map node or to the view ?
             cullCallback = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);
-            //view->getCamera()->addCullCallback(cullCallback);
+            // view->getCamera()->addCullCallback(cullCallback);
             mapNode->addCullCallback(cullCallback);
         }
 
-        //view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
+        // view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
 
         view->setSceneData(node);
 
@@ -313,7 +312,7 @@ public:
     int frameTimer;
 
     osg::ref_ptr<osgViewer::CompositeViewer> viewer;
-    osg::ref_ptr<osgViewer::View> view;
+    osg::ref_ptr<osgViewer::View>   view;
 
     osg::ref_ptr<osg::NodeCallback> cullCallback;
 
@@ -400,9 +399,9 @@ public:
         traits->pbuffer = true;
         osg::GraphicsContext *graphicsContext = osg::GraphicsContext::createGraphicsContext(traits);
         // if (!graphicsContext) {
-        //     qWarning() << "Failed to create pbuffer, failing back to normal graphics window.";
-        //     traits->pbuffer = false;
-        //     graphicsContext = osg::GraphicsContext::createGraphicsContext(traits);
+        // qWarning() << "Failed to create pbuffer, failing back to normal graphics window.";
+        // traits->pbuffer = false;
+        // graphicsContext = osg::GraphicsContext::createGraphicsContext(traits);
         // }
 
         return graphicsContext;
@@ -431,7 +430,7 @@ public:
         traits->sampleBuffers = ds->getMultiSamples();
         traits->samples = ds->getNumMultiSamples();
 
-        traits->doubleBuffer = false; //ds->getDoubleBuffer();
+        traits->doubleBuffer = false; // ds->getDoubleBuffer();
         traits->vsync   = false;
         // traits->sharedContext = gc;
         // traits->inheritedWindowData = new osgQt::GraphicsWindowQt::WindowData(this);
@@ -538,7 +537,7 @@ public:
             requestRedraw = false;
         }
 
-        //h->self->window()->resetOpenGLState();
+        // h->self->window()->resetOpenGLState();
 
         if (h->updateMode == OSGViewport::Continuous) {
             // trigger next update
@@ -666,8 +665,8 @@ bool OSGViewport::attach(osgViewer::View *view)
 
     QListIterator<QObject *> i(children());
     while (i.hasNext()) {
-        QObject *object= i.next();
-        OSGNode *node = qobject_cast<OSGNode *>(object);
+        QObject *object = i.next();
+        OSGNode *node   = qobject_cast<OSGNode *>(object);
         if (node) {
             qDebug() << "OSGViewport::attach - child" << node;
             node->attach(view);
@@ -683,8 +682,8 @@ bool OSGViewport::detach(osgViewer::View *view)
 
     QListIterator<QObject *> i(children());
     while (i.hasNext()) {
-        QObject *object= i.next();
-        OSGNode *node = qobject_cast<OSGNode *>(object);
+        QObject *object = i.next();
+        OSGNode *node   = qobject_cast<OSGNode *>(object);
         if (node) {
             node->detach(view);
         }

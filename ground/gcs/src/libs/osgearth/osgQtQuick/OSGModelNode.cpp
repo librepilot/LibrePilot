@@ -60,8 +60,7 @@ public:
 public:
 
     Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), offset(-1.0), clampToTerrain(false), dirty(false)
-    {
-    }
+    {}
 
     ~Hidden()
     {}
@@ -127,7 +126,7 @@ public:
         // get "size" of model
         osg::ComputeBoundsVisitor cbv;
         modelNode->accept(cbv);
-        const osg::BoundingBox& bbox = cbv.getBoundingBox();
+        const osg::BoundingBox & bbox = cbv.getBoundingBox();
         offset = bbox.radius();
 
         self->setNode(modelNode);
@@ -210,16 +209,16 @@ public:
 
     osg::ref_ptr<osgEarth::Annotation::ModelNode> modelNode;
 
-    float offset;
+    float     offset;
 
-    bool clampToTerrain;
-    bool intoTerrain;
+    bool      clampToTerrain;
+    bool      intoTerrain;
 
     QVector3D attitude;
     QVector3D position;
 
     // handle attitude/position/etc independently
-    bool dirty;
+    bool      dirty;
 
     osg::observer_ptr<NodeUpdateCallback> nodeUpdateCallback;
 

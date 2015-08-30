@@ -466,14 +466,15 @@ QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior)
     return "<Unknown swap behavior>";
 }
 
-QString getUsageString(osg::ApplicationUsage *applicationUsage) {
-    const osg::ApplicationUsage::UsageMap& keyboardBinding = applicationUsage->getKeyboardMouseBindings();
+QString getUsageString(osg::ApplicationUsage *applicationUsage)
+{
+    const osg::ApplicationUsage::UsageMap & keyboardBinding = applicationUsage->getKeyboardMouseBindings();
 
     QString desc;
-    for(osg::ApplicationUsage::UsageMap::const_iterator itr = keyboardBinding.begin();
-            itr != keyboardBinding.end();
-            ++itr)
-    {
+
+    for (osg::ApplicationUsage::UsageMap::const_iterator itr = keyboardBinding.begin();
+         itr != keyboardBinding.end();
+         ++itr) {
         desc += QString::fromStdString(itr->first);
         desc += " : ";
         desc += QString::fromStdString(itr->second);
@@ -482,14 +483,18 @@ QString getUsageString(osg::ApplicationUsage *applicationUsage) {
     return desc;
 }
 
-QString getUsageString(osgViewer::Viewer *viewer) {
+QString getUsageString(osgViewer::Viewer *viewer)
+{
     osg::ref_ptr<osg::ApplicationUsage> applicationUsage = new osg::ApplicationUsage();
+
     viewer->getUsage(*applicationUsage);
     return getUsageString(applicationUsage);
 }
 
-QString getUsageString(osgViewer::CompositeViewer *viewer) {
+QString getUsageString(osgViewer::CompositeViewer *viewer)
+{
     osg::ref_ptr<osg::ApplicationUsage> applicationUsage = new osg::ApplicationUsage();
+
     viewer->getUsage(*applicationUsage);
     return getUsageString(applicationUsage);
 }

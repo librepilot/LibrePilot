@@ -106,7 +106,7 @@ public:
         sceneData = node;
 
         if (sceneData) {
-            //connect(sceneData, &OSGNode::nodeChanged, this, &Hidden::onSceneDataChanged);
+            // connect(sceneData, &OSGNode::nodeChanged, this, &Hidden::onSceneDataChanged);
         }
 
         return true;
@@ -191,7 +191,7 @@ public:
         if (logDepthBufferEnabled) {
             qDebug() << "OSGCamera::attach - install logarithmic depth buffer";
             logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
-            //logDepthBuffer->setUseFragDepth(true);
+            // logDepthBuffer->setUseFragDepth(true);
             logDepthBuffer->install(camera);
         }
 
@@ -338,7 +338,8 @@ public:
     {
         // qDebug() << "OSGCamera::updateCameraFOV";
         double fovy, ar, zn, zf;
-        camera->getProjectionMatrixAsPerspective(fovy, ar, zn ,zf);
+
+        camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
 
         fovy = fieldOfView;
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
@@ -347,7 +348,8 @@ public:
     void updateAspectRatio()
     {
         double fovy, ar, zn, zf;
-        camera->getProjectionMatrixAsPerspective(fovy, ar, zn ,zf);
+
+        camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
 
         ar = static_cast<double>(width) / static_cast<double>(height);
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
@@ -401,9 +403,9 @@ public:
         camera->setViewMatrix(cameraMatrix);
     }
 
-    qreal fieldOfView;
+    qreal   fieldOfView;
 
-    OSGNode      *sceneData;
+    OSGNode *sceneData;
 
     ManipulatorMode manipulatorMode;
 
@@ -456,7 +458,7 @@ private slots:
 void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
     h->updateCamera();
-    //traverse(node, nv);
+    // traverse(node, nv);
 }
 
 /* class OSGCamera */

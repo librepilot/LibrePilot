@@ -355,8 +355,7 @@ void GraphicsWindowQt::requestWarpPointer(float x, float y)
 {}
 
 QtWindowingSystem::QtWindowingSystem()
-{
-}
+{}
 
 QtWindowingSystem::~QtWindowingSystem()
 {

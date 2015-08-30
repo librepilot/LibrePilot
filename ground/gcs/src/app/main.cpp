@@ -312,19 +312,6 @@ void logInit(QString fileName)
     }
 }
 
-inline QStringList getPluginPaths()
-{
-    QStringList rc;
-
-    QString pluginPath = QApplication::applicationDirPath();
-
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String(PLUGIN_REL_PATH);
-    rc.push_back(pluginPath);
-
-    return rc;
-}
-
 AppOptions options()
 {
     AppOptions appOptions;
@@ -467,7 +454,7 @@ int main(int argc, char * *argv)
     // initialize the plugin manager
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
-    pluginManager.setPluginPaths(getPluginPaths());
+    pluginManager.setPluginPaths(Utils::GetPluginPaths());
 
     // parse command line
     qDebug() << "Command line" << app.arguments();
@@ -564,7 +551,7 @@ int main(int argc, char * *argv)
         }
     }
     if (!coreplugin) {
-        QString nativePaths  = QDir::toNativeSeparators(getPluginPaths().join(QLatin1String(",")));
+        QString nativePaths  = QDir::toNativeSeparators(Utils::GetPluginPaths().join(QLatin1String(",")));
         const QString reason = QCoreApplication::translate("Application", "Could not find 'Core.pluginspec' in %1").arg(
             nativePaths);
         displayError(msgCoreLoadFailure(reason));

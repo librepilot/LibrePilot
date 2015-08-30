@@ -20,8 +20,6 @@ include(../libs/version_info/version_info.pri)
 
 LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation)
 
-DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$GCS_APP_PATH)\")
-
 win32 {
     RC_FILE = gcs.rc
     target.path = /bin

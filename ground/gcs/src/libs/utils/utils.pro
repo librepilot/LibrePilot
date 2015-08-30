@@ -8,10 +8,10 @@ DEFINES += QTCREATOR_UTILS_LIB
 include(../../library.pri)
 
 DEFINES += DATA_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_DATA_PATH, $$GCS_APP_PATH)\")
-DEFINES += LIB_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_LIBRARY_PATH, $$GCS_PATH)\")
+DEFINES += LIB_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_LIBRARY_PATH, $$GCS_APP_PATH)\")
+DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$GCS_APP_PATH)\")
 
 SOURCES += \
-    gcsdirs.cpp \
     reloadpromptutils.cpp \
     settingsutils.cpp \
     filesearch.cpp \
@@ -72,7 +72,6 @@ else:SOURCES += consoleprocess_unix.cpp
 
 HEADERS += \
     utils_global.h \
-    gcsdirs.h \
     reloadpromptutils.h \
     settingsutils.h \
     filesearch.h \

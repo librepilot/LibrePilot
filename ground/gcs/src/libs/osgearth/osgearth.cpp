@@ -30,7 +30,6 @@
 #include "utility.h"
 #include "qtwindowingsystem.h"
 
-#include "utils/gcsdirs.h"
 #include "utils/pathutils.h"
 
 #include <osg/DisplaySettings>
@@ -114,12 +113,12 @@ void OsgEarth::initializePathes()
     // initialize data file path list
     osgDB::FilePathList &dataFilePathList = osgDB::Registry::instance()->getDataFilePathList();
 
-    dataFilePathList.push_front(GCSDirs::sharePath("osgearth").toStdString());
-    dataFilePathList.push_front(GCSDirs::sharePath("osgearth/data").toStdString());
+    dataFilePathList.push_front((Utils::GetDataPath() + "osgearth").toStdString());
+    dataFilePathList.push_front((Utils::GetDataPath() + "osgearth/data").toStdString());
 
     // initialize library file path list
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
-    libraryFilePathList.push_front(GCSDirs::libraryPath("osg").toStdString());
+    libraryFilePathList.push_front((Utils::GetLibraryPath() + "osg").toStdString());
 }
 
 void OsgEarth::initializeCache()

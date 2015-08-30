@@ -37,7 +37,7 @@
    Timer | Channel 1 | Channel 2 | Channel 3 | Channel 4
    ------+-----------+-----------+-----------+----------
    TIM1  |           |           |           |
-   TIM2  | --------------- PIOS_DELAY -----------------
+   TIM2  |           |           |           |
    TIM3  |           |           |           |
    TIM4  |           |           |           |
    TIM5  |           |           |           |
@@ -48,8 +48,9 @@
  */
 
 // ------------------------
-// DMA Channels Used
+// DMA1 Channels Used
 // ------------------------
+/* Channel 0  -                                 */
 /* Channel 1  -                                 */
 /* Channel 2  - SPI1 RX                         */
 /* Channel 3  - SPI1 TX                         */
@@ -57,11 +58,17 @@
 /* Channel 5  - SPI2 TX                         */
 /* Channel 6  -                                 */
 /* Channel 7  -                                 */
-/* Channel 8  -                                 */
-/* Channel 9  -                                 */
-/* Channel 10 -                                 */
-/* Channel 11 -                                 */
-/* Channel 12 -                                 */
+// ------------------------
+// DMA2 Channels Used
+// ------------------------
+/* Channel 0  -                                 */
+/* Channel 1  -                                 */
+/* Channel 2  - SPI1 RX                         */
+/* Channel 3  - SPI1 TX                         */
+/* Channel 4  - SPI2 RX                         */
+/* Channel 5  - SPI2 TX                         */
+/* Channel 6  -                                 */
+/* Channel 7  -                                 */
 
 // ------------------------
 // BOOTLOADER_SETTINGS
@@ -283,8 +290,11 @@ extern uint32_t pios_packet_handler;
 
 // -------------------------
 // ADC
-// PIOS_ADC_PinGet(0) = Current sensor
-// PIOS_ADC_PinGet(1) = Voltage sensor
+// PIOS_ADC_PinGet(0) = Voltage sensor 1S
+// PIOS_ADC_PinGet(1) = Voltage sensor 2S
+// PIOS_ADC_PinGet(2) = Voltage sensor 3S
+// PIOS_ADC_PinGet(3) = Voltage sensor 4S
+// PIOS_ADC_PinGet(4) = Current sensor 2S
 // PIOS_ADC_PinGet(4) = VREF
 // PIOS_ADC_PinGet(5) = Temperature sensor
 // -------------------------

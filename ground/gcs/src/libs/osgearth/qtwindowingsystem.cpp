@@ -2,9 +2,12 @@
  ******************************************************************************
  *
  * @file       qtwindowingsystem.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
- *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
- * @brief osgearth utilities
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

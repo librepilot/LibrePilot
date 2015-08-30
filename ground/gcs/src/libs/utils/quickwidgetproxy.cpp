@@ -1,3 +1,14 @@
+/**
+ ******************************************************************************
+ *
+ * @file       quickwidgetproxy.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
+ *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -115,16 +115,16 @@ UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 CCACHE_DIR     := $(TOOLS_DIR)/ccache
-OSG_PARENT_DIR := $(TOOLS_DIR)
+OSG_TOOLS_DIR  := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR := $(OSG_PARENT_DIR)/osg-3.4-linux-x64-qt-5.4.1
+        OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-linux-x64-qt-5.4.1
     else
-        OSG_SDK_DIR := $(OSG_PARENT_DIR)/osg-3.4-linux-x86-qt-5.4.1
+        OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-linux-x86-qt-5.4.1
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR := $(OSG_PARENT_DIR)/osg-3.4-clang_64-qt-5.4.1
+    OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-clang_64-qt-5.4.1
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
@@ -136,7 +136,7 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
     MSYS_DIR     := $(TOOLS_DIR)/msys
-    OSG_SDK_DIR  := $(OSG_PARENT_DIR)/osg-3.4-mingw491_32-qt-5.4.1
+    OSG_SDK_DIR  := $(OSG_TOOLS_DIR)/osg-3.4-mingw491_32-qt-5.4.1
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)

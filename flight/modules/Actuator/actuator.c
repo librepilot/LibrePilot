@@ -690,22 +690,6 @@ static int16_t scaleChannel(float value, int16_t max, int16_t min, int16_t neutr
 }
 
 /**
- * No motor scaling, only limit the values to min and max.
- */
-static inline int16_t scaleMotorNoScaling(float value, int16_t max, int16_t min, int16_t neutral)
-{
-    int16_t valueScaled = (int16_t)(value * ((float)(max - neutral))) + neutral;
-
-    if (valueScaled > max) {
-        valueScaled = max; // clamp to max value only after scaling is done.
-    }
-    if (valueScaled < min) {
-        valueScaled = min; // clamp to min value only after scaling is done.
-    }
-    return valueScaled;
-}
-
-/**
  * Elevate all motor outputs so that none goes below neutral.
  * Compress all motors so that all motors are below or equal to max.
  */
@@ -778,7 +762,7 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
     if (max > min) {
         switch (scalingMode) {
         case FLIGHTMODESETTINGS_MOTORSCALINGMODE_NOSCALING:
-            valueScaled = scaleMotorNoScaling(value, max, min, neutral);
+            valueScaled = scaleChannel(value, max, min, neutral);
             break;
         case FLIGHTMODESETTINGS_MOTORSCALINGMODE_ELEVATEANDCOMPRESS:
             valueScaled = scaleMotorElevateAndCompress(value, max, neutral, maxMotor, minMotor);
@@ -790,8 +774,7 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
         }
     } else {
         // not sure what to do about reversed polarity right now. Why would anyone do this?
-        // Note the reversal of the max and min arguments below.
-        valueScaled = scaleMotorNoScaling(value, min, max, neutral);
+        valueScaled = scaleChannel(value, max, min, neutral);
     }
 
     // I've added the bool AlwaysStabilizeWhenArmed to this function. Right now we command the motors at min or a range between neutral and max.

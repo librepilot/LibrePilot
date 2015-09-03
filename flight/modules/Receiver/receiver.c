@@ -817,7 +817,7 @@ static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel
         float floatDeadband = ((float)deadband) * 0.01f;
         // avoid a long tail of non-zero data. if we have deadband, once the filtered result reduces to 1/10th
         // of deadband revert to 0.  We downstream rely on this to know when sticks are centered.
-        if (floatDeadband > 0.0f && fabsf(inputFiltered[channel]) < floatDeadband / 10.0f) {
+        if (floatDeadband > 0.0f && fabsf(inputFiltered[channel]) < floatDeadband * 0.1f) {
             inputFiltered[channel] = 0.0f;
         }
         *value = inputFiltered[channel];

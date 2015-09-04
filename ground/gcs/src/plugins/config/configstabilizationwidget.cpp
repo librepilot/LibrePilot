@@ -572,7 +572,7 @@ void ConfigStabilizationWidget::linkCheckBoxes(bool value)
         ui->basicResponsivenessCheckBox->setChecked(!value);
         ui->basicResponsivenessControls->setEnabled(!value);
         ui->advancedResponsivenessControls->setEnabled(value);
-    } else if(sender() == ui->checkBoxLinkAcroFactors) {
+    } else if (sender() == ui->checkBoxLinkAcroFactors) {
         processLinkedWidgets(ui->AcroFactorRollSlider);
     }
 }

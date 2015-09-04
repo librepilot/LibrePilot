@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configtaskwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVObjectWidgetUtils Plugin
@@ -550,6 +551,11 @@ void ConfigTaskWidget::addHelpButton(QPushButton *button, QString url)
     connect(button, SIGNAL(clicked()), this, SLOT(helpButtonPressed()));
 }
 
+void ConfigTaskWidget::setWikiURL(QString url)
+{
+    m_wikiURL = url;
+}
+
 void ConfigTaskWidget::invalidateObjects()
 {
     foreach(UAVObject * obj, m_updatedObjects.keys()) {
@@ -684,7 +690,7 @@ void ConfigTaskWidget::autoLoadWidgets()
                 case help_button:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
-                        addHelpButton(button, uiRelation.url);
+                        addHelpButton(button, WIKI_URL_ROOT + m_wikiURL);
                     }
                     break;
 

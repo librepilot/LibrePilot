@@ -1364,7 +1364,6 @@ The same value is used for all axes.</string>
        <property name="objrelation" stdset="0">
         <stringlist>
          <string>button:help</string>
-         <string>url:http://wiki.openpilot.org/display/Doc/Camera+Stabilization+Configuration</string>
         </stringlist>
        </property>
       </widget>

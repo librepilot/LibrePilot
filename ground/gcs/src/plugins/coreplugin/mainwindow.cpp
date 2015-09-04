@@ -135,7 +135,7 @@ MainWindow::MainWindow() :
 #endif
     m_toggleFullScreenAction(0)
 {
-    setWindowTitle(QLatin1String(GCS_BIG_NAME) + " "  + VersionInfo::label());
+    setWindowTitle(QLatin1String(GCS_BIG_NAME) + " " + VersionInfo::label());
 #ifndef Q_WS_MAC
     qApp->setWindowIcon(QIcon(":/core/images/librepilot_logo_128.png"));
 #endif

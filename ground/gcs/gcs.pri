@@ -140,6 +140,12 @@ isEmpty(ORG_BIG_NAME) {
     ORG_BIG_NAME = "$$ORG_BIG_NAME"
 }
 
+isEmpty(WIKI_URL_ROOT) {
+    WIKI_URL_ROOT = Unknown
+} else {
+    WIKI_URL_ROOT = "$$WIKI_URL_ROOT"
+}
+
 isEmpty(GCS_LIBRARY_BASENAME):GCS_LIBRARY_BASENAME = lib
 
 macx {
@@ -206,6 +212,7 @@ DEFINES += ORG_BIG_NAME=$$shell_quote(\"$$ORG_BIG_NAME\")
 DEFINES += GCS_BIG_NAME=$$shell_quote(\"$$GCS_BIG_NAME\")
 DEFINES += ORG_SMALL_NAME=$$shell_quote(\"$$ORG_SMALL_NAME\")
 DEFINES += GCS_SMALL_NAME=$$shell_quote(\"$$GCS_SMALL_NAME\")
+DEFINES += WIKI_URL_ROOT=$$shell_quote(\"$$WIKI_URL_ROOT\")
 
 # DEFINES += QT_NO_CAST_FROM_ASCII
 DEFINES += QT_NO_CAST_TO_ASCII

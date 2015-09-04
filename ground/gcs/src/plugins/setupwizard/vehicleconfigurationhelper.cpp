@@ -108,8 +108,8 @@ bool VehicleConfigurationHelper::isApplicable(UAVObject *dataObj)
             return false;
         }
     default:
-    return true;
-}
+        return true;
+    }
 }
 
 void VehicleConfigurationHelper::addModifiedObject(UAVDataObject *object, QString description)

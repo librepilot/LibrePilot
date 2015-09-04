@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configrevohwwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -336,5 +337,6 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
 
 void ConfigRevoHWWidget::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/GgDBAQ"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revolution+Configuration"),
+                                   QUrl::StrictMode));
 }

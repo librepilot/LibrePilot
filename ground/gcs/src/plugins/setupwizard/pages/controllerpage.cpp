@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       controllerpage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup ControllerPage
@@ -199,6 +200,35 @@ void ControllerPage::connectionStatusChanged()
 
         SetupWizard::CONTROLLER_TYPE type = getControllerType();
         setControllerType(type);
+        QPixmap boardPic;
+        QSize picSize = QSize(250,250);
+
+        switch (type) {
+        case SetupWizard::CONTROLLER_CC:
+            boardPic.load(":/configgadget/images/coptercontrol.svg");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+        case SetupWizard::CONTROLLER_CC3D:
+            boardPic.load(":/configgadget/images/cc3d_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+        case SetupWizard::CONTROLLER_REVO:
+        case SetupWizard::CONTROLLER_DISCOVERYF4:
+            boardPic.load(":/configgadget/images/revolution_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+        case SetupWizard::CONTROLLER_NANO:
+            boardPic.load(":/configgadget/images/nano_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+        default:
+            ui->boardImg->setPixmap(QPixmap());
+            break;
+        }
         qDebug() << "Connection status changed: Connected, controller type: " << getControllerType();
     } else {
         ui->deviceCombo->setEnabled(true);
@@ -206,6 +236,7 @@ void ControllerPage::connectionStatusChanged()
         ui->boardTypeCombo->setEnabled(false);
         ui->boardTypeCombo->model()->setData(ui->boardTypeCombo->model()->index(0, 0), QVariant(0), Qt::UserRole - 1);
         setControllerType(SetupWizard::CONTROLLER_UNKNOWN);
+        ui->boardImg->setPixmap(QPixmap());
         qDebug() << "Connection status changed: Disconnected";
     }
     emit completeChanged();

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       connectiondiagram.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup ConnectionDiagram
@@ -82,8 +83,10 @@ void ConnectionDiagram::setupGraphicsScene()
 
         switch (m_configSource->getControllerType()) {
         case VehicleConfigurationSource::CONTROLLER_CC:
-        case VehicleConfigurationSource::CONTROLLER_CC3D:
             elementsToShow << "controller-cc";
+            break;
+        case VehicleConfigurationSource::CONTROLLER_CC3D:
+            elementsToShow << "controller-cc3d";
             break;
         case VehicleConfigurationSource::CONTROLLER_REVO:
             elementsToShow << "controller-revo";

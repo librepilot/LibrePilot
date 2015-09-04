@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       outputcalibrationutil.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup OutputCalibrationUtil
@@ -121,6 +122,17 @@ void OutputCalibrationUtil::stopChannelOutput()
     }
 }
 
+void OutputCalibrationUtil::stopChannelDualOutput(quint16 safeValue1, quint16 safeValue2)
+{
+    if (c_prepared) {
+        setChannelDualOutputValue(safeValue1, safeValue2);
+        m_outputChannels.clear();
+        qDebug() << "OutputCalibrationUtil Dual output stopped.";
+    } else {
+        qDebug() << "OutputCalibrationUtil Dual output not started.";
+    }
+}
+
 void OutputCalibrationUtil::setChannelOutputValue(quint16 value)
 {
     if (c_prepared) {
@@ -137,6 +149,36 @@ void OutputCalibrationUtil::setChannelOutputValue(quint16 value)
             }
         }
         actuatorCommand->setData(data);
+    } else {
+        qDebug() << "OutputCalibrationUtil not started.";
+    }
+}
+
+void OutputCalibrationUtil::setChannelDualOutputValue(quint16 value1, quint16 value2)
+{
+    if (c_prepared && (m_outputChannels.size() == 2)) {
+        ActuatorCommand *actuatorCommand = getActuatorCommandObject();
+        ActuatorCommand::DataFields data = actuatorCommand->getData();
+        quint32 channel1 = m_outputChannels[0];
+        quint32 channel2 = m_outputChannels[1];
+        // Set output value
+        if (channel1 <= ActuatorCommand::CHANNEL_NUMELEM) {
+            qDebug() << "OutputCalibrationUtil (Dual) setting output value for channel1 " << channel1 << " to " << value1 << ".";
+            data.Channel[channel1] = value1;
+            actuatorCommand->setData(data);
+        } else {
+            qDebug() << "OutputCalibrationUtil could not set output value for channel1 " << channel1
+                     << " to " << value1 << "." << "Channel out of bounds" << channel1 << ".";
+        }
+
+        if (channel2 <= ActuatorCommand::CHANNEL_NUMELEM) {
+            qDebug() << "OutputCalibrationUtil (Dual) setting output value for channel2 " << channel2 << " to " << value2 << ".";
+            data.Channel[channel2] = value2;
+            actuatorCommand->setData(data);
+        } else {
+            qDebug() << "OutputCalibrationUtil could not set output value for channel2 " << channel2
+                     << " to " << value2 << "." << "Channel out of bounds" << channel2 << ".";
+        }
     } else {
         qDebug() << "OutputCalibrationUtil not started.";
     }

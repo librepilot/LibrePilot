@@ -1,7 +1,7 @@
-TEMPLATE  = subdirs
-CONFIG   += ordered
+TEMPLATE = subdirs
+CONFIG += ordered
 
-SUBDIRS   = \
+SUBDIRS = \
     version_info \
     qscispinbox\
     qtconcurrent \
@@ -13,4 +13,6 @@ SUBDIRS   = \
     qwt \
     sdlgamepad
 
-SUBDIRS +=
+exists( $(OSG_SDK_DIR) ) {
+    SUBDIRS += osgearth
+}

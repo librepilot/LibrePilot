@@ -1,14 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       pathutils.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
- * @brief
- * @see        The GNU Public License (GPL) Version 3
- * @defgroup
+ * @file       osgearth.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @addtogroup
  * @{
- *
+ * @addtogroup
+ * @{
+ * @brief
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -26,25 +25,27 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PATHUTILS_H
-#define PATHUTILS_H
+#ifndef OSGEARTH_H
+#define OSGEARTH_H
 
-#include "utils_global.h"
+#include "osgearth_global.h"
 
-#include <QStringList>
+class OSGEARTH_LIB_EXPORT OsgEarth {
+public:
+    static void registerQmlTypes();
+    static void initialize();
 
-namespace Utils {
-QTCREATOR_UTILS_EXPORT QString GetDataPath();
-QTCREATOR_UTILS_EXPORT QString RemoveDataPath(QString path);
-QTCREATOR_UTILS_EXPORT QString InsertDataPath(QString path);
+private:
+    static bool registered;
+    static bool initialized;
 
-QTCREATOR_UTILS_EXPORT QString GetStoragePath();
-QTCREATOR_UTILS_EXPORT QString RemoveStoragePath(QString path);
-QTCREATOR_UTILS_EXPORT QString InsertStoragePath(QString path);
+    static void initializePathes();
+    static void initializeCache();
 
-QTCREATOR_UTILS_EXPORT QString GetLibraryPath();
+    // Sets the WindowingSystem to Qt.
+    static void initWindowingSystem();
 
-QTCREATOR_UTILS_EXPORT QStringList GetPluginPaths();
-}
+    static void displayInfo();
+};
 
-#endif /* PATHUTILS_H */
+#endif // OSGEARTH_H

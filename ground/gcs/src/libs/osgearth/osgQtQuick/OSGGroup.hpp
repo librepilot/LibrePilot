@@ -1,14 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       pathutils.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
- * @brief
- * @see        The GNU Public License (GPL) Version 3
- * @defgroup
+ * @file       OSGGroup.hpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @addtogroup
  * @{
- *
+ * @addtogroup
+ * @{
+ * @brief
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -26,25 +25,30 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PATHUTILS_H
-#define PATHUTILS_H
+#ifndef _H_OSGQTQUICK_OSGGROUP_H_
+#define _H_OSGQTQUICK_OSGGROUP_H_
 
-#include "utils_global.h"
+#include "Export.hpp"
+#include "OSGNode.hpp"
 
-#include <QStringList>
+#include <QQmlListProperty>
 
-namespace Utils {
-QTCREATOR_UTILS_EXPORT QString GetDataPath();
-QTCREATOR_UTILS_EXPORT QString RemoveDataPath(QString path);
-QTCREATOR_UTILS_EXPORT QString InsertDataPath(QString path);
+namespace osgQtQuick {
+class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
+    Q_OBJECT Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
 
-QTCREATOR_UTILS_EXPORT QString GetStoragePath();
-QTCREATOR_UTILS_EXPORT QString RemoveStoragePath(QString path);
-QTCREATOR_UTILS_EXPORT QString InsertStoragePath(QString path);
+    Q_CLASSINFO("DefaultProperty", "children")
 
-QTCREATOR_UTILS_EXPORT QString GetLibraryPath();
+public:
+    explicit OSGGroup(QObject *parent = 0);
+    virtual ~OSGGroup();
 
-QTCREATOR_UTILS_EXPORT QStringList GetPluginPaths();
-}
+    QQmlListProperty<OSGNode> children();
 
-#endif /* PATHUTILS_H */
+private:
+    struct Hidden;
+    Hidden *h;
+};
+} // namespace osgQtQuick
+
+#endif // _H_OSGQTQUICK_OSGGROUP_H_

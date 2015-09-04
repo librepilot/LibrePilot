@@ -26,11 +26,10 @@
  */
 
 #include "pathutils.h"
-#include "xmlconfig.h"
-#include <stdint.h>
-#include <QDebug>
-#include <QStandardPaths>
 
+#include <QApplication>
+#include <QDir>
+#include <QStandardPaths>
 
 namespace Utils {
 /**
@@ -119,5 +118,33 @@ QString InsertStoragePath(QString path)
         return QDir::toNativeSeparators(newPath);
     }
     return QDir::toNativeSeparators(path);
+}
+
+/**
+   Returns the base path of the library directory.
+
+   Path is in Qt/Unix conventions, separated by "/".
+ */
+QString GetLibraryPath()
+{
+    QString libPath = QApplication::applicationDirPath();
+
+    libPath += QLatin1Char('/');
+    libPath += QLatin1String(LIB_REL_PATH);
+    libPath += QLatin1Char('/');
+    return libPath;
+}
+
+QStringList GetPluginPaths()
+{
+    QStringList rc;
+
+    QString pluginPath = QApplication::applicationDirPath();
+
+    pluginPath += QLatin1Char('/');
+    pluginPath += QLatin1String(PLUGIN_REL_PATH);
+    rc.push_back(pluginPath);
+
+    return rc;
 }
 }

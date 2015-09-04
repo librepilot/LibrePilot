@@ -106,6 +106,7 @@
 #include <QtWidgets/QApplication>
 #include <QMainWindow>
 #include <QSplashScreen>
+#include <QSurfaceFormat>
 
 namespace {
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
@@ -252,11 +253,22 @@ void systemInit()
     getrlimit(RLIMIT_NOFILE, &rl);
     rl.rlim_cur = rl.rlim_max;
     setrlimit(RLIMIT_NOFILE, &rl);
-    QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
 #endif
-#ifdef Q_OS_LINUX
+
     QApplication::setAttribute(Qt::AA_X11InitThreads, true);
-#endif
+
+    // protect QQuickWidget from native widgets like GLC ModelView
+    // TODO revisit this...
+    QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
+
+    // Force "basic" render loop
+    // Only Mac uses "threaded" by default and that mode currently does not work well with OSGViewport
+    qputenv("QSG_RENDER_LOOP", "basic");
+
+    // disable vsync
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setSwapInterval(0);
+    QSurfaceFormat::setDefaultFormat(format);
 }
 
 static QTextStream *logStream;
@@ -298,19 +310,6 @@ void logInit(QString fileName)
     } else {
         // TODO error popup
     }
-}
-
-inline QStringList getPluginPaths()
-{
-    QStringList rc;
-
-    QString pluginPath = QApplication::applicationDirPath();
-
-    pluginPath += QLatin1Char('/');
-    pluginPath += QLatin1String(PLUGIN_REL_PATH);
-    rc.push_back(pluginPath);
-
-    return rc;
 }
 
 AppOptions options()
@@ -455,7 +454,7 @@ int main(int argc, char * *argv)
     // initialize the plugin manager
     ExtensionSystem::PluginManager pluginManager;
     pluginManager.setFileExtension(QLatin1String("pluginspec"));
-    pluginManager.setPluginPaths(getPluginPaths());
+    pluginManager.setPluginPaths(Utils::GetPluginPaths());
 
     // parse command line
     qDebug() << "Command line" << app.arguments();
@@ -552,7 +551,7 @@ int main(int argc, char * *argv)
         }
     }
     if (!coreplugin) {
-        QString nativePaths  = QDir::toNativeSeparators(getPluginPaths().join(QLatin1String(",")));
+        QString nativePaths  = QDir::toNativeSeparators(Utils::GetPluginPaths().join(QLatin1String(",")));
         const QString reason = QCoreApplication::translate("Application", "Could not find 'Core.pluginspec' in %1").arg(
             nativePaths);
         displayError(msgCoreLoadFailure(reason));

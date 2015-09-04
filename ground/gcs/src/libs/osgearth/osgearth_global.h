@@ -1,14 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       pathutils.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
- * @brief
- * @see        The GNU Public License (GPL) Version 3
- * @defgroup
+ * @file       osgearth_global.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @addtogroup
  * @{
- *
+ * @addtogroup
+ * @{
+ * @brief
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -26,25 +25,17 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PATHUTILS_H
-#define PATHUTILS_H
+#ifndef OSGEARTH_GLOBAL_H
+#define OSGEARTH_GLOBAL_H
 
-#include "utils_global.h"
+#include <QtCore/qglobal.h>
 
-#include <QStringList>
+#if defined(OSGEARTH_LIBRARY)
+#  define OSGEARTH_LIB_EXPORT Q_DECL_EXPORT
+#elif  defined(OSGEARTH_STATIC_LIBRARY) // Abuse single files for manual tests
+#  define OSGEARTH_LIB_EXPORT
+#else
+#  define OSGEARTH_LIB_EXPORT Q_DECL_IMPORT
+#endif
 
-namespace Utils {
-QTCREATOR_UTILS_EXPORT QString GetDataPath();
-QTCREATOR_UTILS_EXPORT QString RemoveDataPath(QString path);
-QTCREATOR_UTILS_EXPORT QString InsertDataPath(QString path);
-
-QTCREATOR_UTILS_EXPORT QString GetStoragePath();
-QTCREATOR_UTILS_EXPORT QString RemoveStoragePath(QString path);
-QTCREATOR_UTILS_EXPORT QString InsertStoragePath(QString path);
-
-QTCREATOR_UTILS_EXPORT QString GetLibraryPath();
-
-QTCREATOR_UTILS_EXPORT QStringList GetPluginPaths();
-}
-
-#endif /* PATHUTILS_H */
+#endif // OSGEARTH_GLOBAL_H

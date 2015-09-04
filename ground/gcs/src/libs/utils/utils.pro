@@ -1,21 +1,18 @@
 TEMPLATE = lib
 TARGET = Utils
 
-QT += gui \
-    network \
-    xml \
-    svg \
-    opengl \
-    qml quick \
-    widgets
+QT += network xml svg opengl gui widgets qml quick quickwidgets
 
 DEFINES += QTCREATOR_UTILS_LIB
 
 include(../../library.pri)
 
 DEFINES += DATA_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_DATA_PATH, $$GCS_APP_PATH)\")
+DEFINES += LIB_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_LIBRARY_PATH, $$GCS_APP_PATH)\")
+DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$GCS_APP_PATH)\")
 
-SOURCES += reloadpromptutils.cpp \
+SOURCES += \
+    reloadpromptutils.cpp \
     settingsutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
@@ -50,10 +47,11 @@ SOURCES += reloadpromptutils.cpp \
     detailswidget.cpp \
     coordinateconversions.cpp \
     pathutils.cpp \
-	worldmagmodel.cpp \
-	homelocationutil.cpp \
+    worldmagmodel.cpp \
+    homelocationutil.cpp \
     mytabbedstackwidget.cpp \
     mytabwidget.cpp \
+    quickwidgetproxy.cpp \
     cachedsvgitem.cpp \
     svgimageprovider.cpp \
     hostosinfo.cpp \
@@ -64,14 +62,16 @@ SOURCES += reloadpromptutils.cpp \
 SOURCES += xmlconfig.cpp
 
 win32 {
-    SOURCES += abstractprocess_win.cpp \
+    SOURCES += \
+        abstractprocess_win.cpp \
         consoleprocess_win.cpp \
         winutils.cpp
     HEADERS += winutils.h
 }
 else:SOURCES += consoleprocess_unix.cpp
 
-HEADERS += utils_global.h \
+HEADERS += \
+    utils_global.h \
     reloadpromptutils.h \
     settingsutils.h \
     filesearch.h \
@@ -110,10 +110,11 @@ HEADERS += utils_global.h \
     detailswidget.h \
     coordinateconversions.h \
     pathutils.h \
-	worldmagmodel.h \
-	homelocationutil.h \
+    worldmagmodel.h \
+    homelocationutil.h \
     mytabbedstackwidget.h \
     mytabwidget.h \
+    quickwidgetproxy.h \
     cachedsvgitem.h \
     svgimageprovider.h \
     hostosinfo.h \
@@ -121,13 +122,13 @@ HEADERS += utils_global.h \
     crc.h \
     mustache.h
 
-
 HEADERS += xmlconfig.h
 
-FORMS += filewizardpage.ui \
+FORMS += \
+    filewizardpage.ui \
     projectintropage.ui \
     newclasswidget.ui \
     submiteditorwidget.ui \
-	checkablemessagebox.ui
+    checkablemessagebox.ui
 
 RESOURCES += utils.qrc

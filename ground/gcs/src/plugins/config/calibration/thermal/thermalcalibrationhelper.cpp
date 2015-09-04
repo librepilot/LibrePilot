@@ -338,7 +338,8 @@ void ThermalCalibrationHelper::calculate()
         datat[x] = m_gyroSamples[x].temperature;
     }
 
-    m_results.gyroCalibrated = ThermalCalibration::GyroscopeCalibration(datax, datay, dataz, datat, m_results.gyro,
+    m_results.gyroCalibrated = ThermalCalibration::GyroscopeCalibration(datax, datay, dataz, datat,
+                                                                        m_results.gyro, m_results.gyroBias,
                                                                         m_results.gyroInSigma, m_results.gyroOutSigma);
     if (m_results.gyroCalibrated) {
         addInstructions(tr("Gyro is calibrated."));
@@ -372,10 +373,10 @@ void ThermalCalibrationHelper::calculate()
     str += QStringLiteral("INFO::Baro cal {%1, %2, %3, %4}; initial variance: %5; Calibrated variance %6")
            .arg(m_results.baro[0]).arg(m_results.baro[1]).arg(m_results.baro[2]).arg(m_results.baro[3])
            .arg(m_results.baroInSigma).arg(m_results.baroOutSigma) + "\n";
-    str += QStringLiteral("INFO::Gyro cal x{%1, %2} y{%3, %4} z{%5, %6}; initial variance: {%7, %8, %9}; Calibrated variance {%10, %11, %12}")
-           .arg(m_results.gyro[0]).arg(m_results.gyro[1])
-           .arg(m_results.gyro[2]).arg(m_results.gyro[3])
-           .arg(m_results.gyro[4]).arg(m_results.gyro[5])
+    str += QStringLiteral("INFO::Gyro cal x{%1, %2, %3} y{%4, %5, %6} z{%7, %8, %9}; initial variance: {%10, %11, %12}; Calibrated variance {%13, %14, %15}")
+           .arg(m_results.gyroBias[0]).arg(m_results.gyro[0]).arg(m_results.gyro[1])
+           .arg(m_results.gyroBias[1]).arg(m_results.gyro[2]).arg(m_results.gyro[3])
+           .arg(m_results.gyroBias[2]).arg(m_results.gyro[4]).arg(m_results.gyro[5])
            .arg(m_results.gyroInSigma[0]).arg(m_results.gyroInSigma[1]).arg(m_results.gyroInSigma[2])
            .arg(m_results.gyroOutSigma[0]).arg(m_results.gyroOutSigma[1]).arg(m_results.gyroOutSigma[2]) + "\n";
     str += QStringLiteral("INFO::Accel cal x{%1} y{%2} z{%3}; initial variance: {%4, %5, %6}; Calibrated variance {%7, %8, %9}")
@@ -538,6 +539,9 @@ void ThermalCalibrationHelper::copyResultToSettings()
             data.gyro_temp_coeff[3] = m_results.gyro[3];
             data.gyro_temp_coeff[4] = m_results.gyro[4];
             data.gyro_temp_coeff[5] = m_results.gyro[5];
+            data.gyro_bias[AccelGyroSettings::GYRO_BIAS_X] += m_results.gyroBias[0];
+            data.gyro_bias[AccelGyroSettings::GYRO_BIAS_Y] += m_results.gyroBias[1];
+            data.gyro_bias[AccelGyroSettings::GYRO_BIAS_Z] += m_results.gyroBias[2];
         }
 
         if (m_results.accelCalibrated) {

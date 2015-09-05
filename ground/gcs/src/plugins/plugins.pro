@@ -77,12 +77,6 @@ plugin_uavobjectbrowser.depends = plugin_coreplugin
 plugin_uavobjectbrowser.depends += plugin_uavobjects
 SUBDIRS += plugin_uavobjectbrowser
 
-# ModelView UAVGadget
-plugin_modelview.subdir = modelview
-plugin_modelview.depends = plugin_coreplugin
-plugin_modelview.depends += plugin_uavobjects
-SUBDIRS += plugin_modelview
-
 #Qt 4.8.0 / phonon may crash on Mac, fixed in Qt 4.8.1, QTBUG-23128
 macx:contains(QT_VERSION, ^4\\.8\\.0): CONFIG += disable_notify_plugin
 
@@ -140,10 +134,10 @@ plugin_gpsdisplay.depends += plugin_uavobjects
 SUBDIRS += plugin_gpsdisplay
 
 # QML viewer gadget
-plugin_qmlview.subdir = qmlview
-plugin_qmlview.depends = plugin_coreplugin
-plugin_qmlview.depends += plugin_uavobjects
-SUBDIRS += plugin_qmlview
+#plugin_qmlview.subdir = qmlview
+#plugin_qmlview.depends = plugin_coreplugin
+#plugin_qmlview.depends += plugin_uavobjects
+#SUBDIRS += plugin_qmlview
 
 # PathAction Editor gadget
 plugin_pathactioneditor.subdir = pathactioneditor

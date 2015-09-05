@@ -1,4 +1,15 @@
-/*
+/**
+ ******************************************************************************
+ *
+ * @file       pfdqmlgadgetfactory.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
+ *****************************************************************************//*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -13,8 +24,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "pfdqmlgadgetfactory.h"
-#include "pfdqmlgadgetwidget.h"
 #include "pfdqmlgadget.h"
 #include "pfdqmlgadgetconfiguration.h"
 #include "pfdqmlgadgetoptionspage.h"
@@ -31,9 +42,7 @@ PfdQmlGadgetFactory::~PfdQmlGadgetFactory()
 
 Core::IUAVGadget *PfdQmlGadgetFactory::createGadget(QWidget *parent)
 {
-    PfdQmlGadgetWidget *gadgetWidget = new PfdQmlGadgetWidget();
-
-    return new PfdQmlGadget(QString("PfdQmlGadget"), gadgetWidget, parent);
+    return new PfdQmlGadget(QString("PfdQmlGadget"), parent);
 }
 
 IUAVGadgetConfiguration *PfdQmlGadgetFactory::createConfiguration(QSettings *qSettings)

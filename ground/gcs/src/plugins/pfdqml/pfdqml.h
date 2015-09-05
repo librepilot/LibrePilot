@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       pfdqmlgadget.cpp
+ * @file       pfdqml.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup
@@ -25,29 +25,24 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "pfdqmlgadget.h"
-#include "pfdqmlgadgetwidget.h"
-#include "pfdqmlgadgetconfiguration.h"
+#ifndef PFDQML_H_
+#define PFDQML_H_
 
-PfdQmlGadget::PfdQmlGadget(QString classId, QWidget *parent) :
-    IUAVGadget(classId, parent)
-{
-    m_qmlGadgetWidget = new PfdQmlGadgetWidget(parent);
-}
+#include <QObject>
+#include <QtQml>
 
-PfdQmlGadget::~PfdQmlGadget()
-{
-    delete m_qmlGadgetWidget;
-}
+class Pfd : public QObject {
+    Q_OBJECT Q_ENUMS(PositionMode)
+    Q_ENUMS(TimeMode)
 
-QWidget *PfdQmlGadget::widget()
-{
-    return m_qmlGadgetWidget;
-}
+public:
+    enum ModelSelectionMode { Auto, Fixed };
+    enum TimeMode { Local, PredefinedTime };
 
-void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
-{
-    PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
+    static void declareQML()
+    {
+        qmlRegisterType<Pfd>("PfdQmlEnums", 1, 0, "Pfd");
+    }
+};
 
-    m_qmlGadgetWidget->loadConfiguration(m);
-}
+#endif // PFDQML_H_

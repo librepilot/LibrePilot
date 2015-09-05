@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef TOP_LEVEL_MAKEFILE
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -30,8 +30,24 @@ PIOSINC		= $(PIOS)/inc
 PIOSCOMMON	= $(PIOS)/common
 FLIGHTLIBINC	= $(FLIGHTLIB)/inc
 
-# ARM DSP library
-override USE_DSP_LIB := NO
+## UAVTalk and UAVObject manager
+OPUAVOBJINC	= $(OPUAVOBJ)/inc
+OPUAVTALKINC	= $(OPUAVTALK)/inc
+
+## PID 
+PIDLIB		=$(FLIGHTLIB)/pid
+PIDLIBINC	=$(FLIGHTLIB)/pid
+
+## Math
+MATHLIB		= $(FLIGHTLIB)/math
+MATHLIBINC	= $(FLIGHTLIB)/math
+
+## FreeRTOS support
+FREERTOS_DIR	 = $(PIOSCOMMON)/libraries/FreeRTOS
+include $(FREERTOS_DIR)/library.mk
+
+## Misc
+OPTESTS		= $(TOPDIR)/Tests
 
 ## PIOS Hardware
 ifeq ($(MCU),cortex-m3)
@@ -46,26 +62,84 @@ endif
 
 # List C source files here (C dependencies are automatically generated).
 # Use file-extension c for "c-only"-files
+ifneq ($(PIOS_APPS_MINIMAL),YES)
+## PIOS Hardware (Common Peripherals)
+SRC += $(PIOSCOMMON)/pios_adxl345.c
+SRC += $(PIOSCOMMON)/pios_bma180.c
+SRC += $(PIOSCOMMON)/pios_bmp085.c
+SRC += $(PIOSCOMMON)/pios_etasv3.c
+SRC += $(PIOSCOMMON)/pios_gcsrcvr.c
+SRC += $(PIOSCOMMON)/pios_hcsr04.c
+SRC += $(PIOSCOMMON)/pios_hmc5843.c
+SRC += $(PIOSCOMMON)/pios_hmc5x83.c
+SRC += $(PIOSCOMMON)/pios_i2c_esc.c
+SRC += $(PIOSCOMMON)/pios_l3gd20.c
+SRC += $(PIOSCOMMON)/pios_mpu6000.c
+SRC += $(PIOSCOMMON)/pios_mpu9250.c
+SRC += $(PIOSCOMMON)/pios_mpxv.c
+SRC += $(PIOSCOMMON)/pios_ms4525do.c
+SRC += $(PIOSCOMMON)/pios_ms5611.c
+SRC += $(PIOSCOMMON)/pios_oplinkrcvr.c
+SRC += $(PIOSCOMMON)/pios_video.c
+SRC += $(PIOSCOMMON)/pios_wavplay.c
+SRC += $(PIOSCOMMON)/pios_rfm22b.c
+SRC += $(PIOSCOMMON)/pios_rfm22b_com.c
+SRC += $(PIOSCOMMON)/pios_rcvr.c
+SRC += $(PIOSCOMMON)/pios_sbus.c
+SRC += $(PIOSCOMMON)/pios_srxl.c
+SRC += $(PIOSCOMMON)/pios_sdcard.c
+SRC += $(PIOSCOMMON)/pios_sensors.c
 
-## Bootloader Core
+## Misc library functions
+SRC += $(FLIGHTLIB)/sanitycheck.c
+SRC += $(FLIGHTLIB)/CoordinateConversions.c
+SRC += $(MATHLIB)/sin_lookup.c
 
-SRC += $(OPSYSTEM)/main.c
-SRC += $(OPSYSTEM)/pios_board.c
+## PID library functions
+SRC += $(MATHLIB)/pid.c
+CPPSRC += $(PIDLIB)/pidcontroldown.cpp
 
 ## PIOS Hardware (Common)
-SRC += $(PIOSCOMMON)/pios_board_info.c
-SRC += $(PIOSCOMMON)/pios_com_msg.c
+SRC += $(PIOSCOMMON)/pios_debuglog.c
+endif
+
 SRC += $(PIOSCOMMON)/pios_iap.c
+SRC += $(PIOSCOMMON)/pios_com.c
+SRC += $(PIOSCOMMON)/pios_com_msg.c
+SRC += $(PIOSCOMMON)/pios_crc.c
+SRC += $(PIOSCOMMON)/pios_deltatime.c
+SRC += $(PIOSCOMMON)/pios_led.c
+
 ifneq ($(PIOS_OMITS_USB),YES)
-SRC += ../pios_usb_board_data.c
+## PIOS USB related files
+SRC += $(PIOSCOMMON)/pios_usb_desc_hid_cdc.c
 SRC += $(PIOSCOMMON)/pios_usb_desc_hid_only.c
 SRC += $(PIOSCOMMON)/pios_usb_util.c
 endif
-SRC += $(PIOSCOMMON)/pios_led.c
-
+## PIOS system code
+SRC += $(PIOSCOMMON)/pios_task_monitor.c
+SRC += $(PIOSCOMMON)/pios_callbackscheduler.c
+SRC += $(PIOSCOMMON)/pios_notify.c
+SRC += $(PIOSCOMMON)/pios_instrumentation.c
+SRC += $(PIOSCOMMON)/pios_mem.c
 ## Misc library functions
-SRC += $(FLIGHTLIB)/op_dfu.c
+SRC += $(FLIGHTLIB)/fifo_buffer.c
+
+SRC += $(MATHLIB)/mathmisc.c
+SRC += $(MATHLIB)/butterworth.c
 SRC += $(FLIGHTLIB)/printf-stdarg.c
+SRC += $(FLIGHTLIB)/optypes.c
+
+## Modules
+SRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c)))
+CPPSRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.cpp)))
+SRC += $(foreach mod, $(OPTMODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c)))
+
+# Declare all non-optional modules as built-in to force inclusion.
+# Built-in modules are always enabled and cannot be disabled.
+MODNAMES := $(notdir $(subst /revolution,,$(MODULES)))
+MODULES_BUILTIN := $(foreach mod, $(MODNAMES), -DMODULE_$(shell echo $(mod) | tr '[:lower:]' '[:upper:]')_BUILTIN)
+CDEFS += $(MODULES_BUILTIN)
 
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
 # Use file-extension c for "c-only"-files
@@ -99,6 +173,14 @@ EXTRAINCDIRS += $(BOARDINC)
 EXTRAINCDIRS += $(FLIGHTLIBINC)
 EXTRAINCDIRS += $(PIOSCOMMON)
 EXTRAINCDIRS += $(OPSYSTEMINC)
+EXTRAINCDIRS += $(MATHLIBINC)
+EXTRAINCDIRS += $(PIDLIBINC)
+EXTRAINCDIRS += $(OPUAVOBJINC)
+EXTRAINCDIRS += $(OPUAVTALKINC)
+EXTRAINCDIRS += $(FLIGHT_UAVOBJ_DIR)
+
+# Modules
+EXTRAINCDIRS += $(foreach mod, $(OPTMODULES) $(MODULES), $(OPMODULEDIR)/$(mod)/inc) $(OPMODULEDIR)/System/inc
 
 # List any extra directories to look for library files here.
 # Also add directories where the linker should search for
@@ -112,23 +194,21 @@ EXTRA_LIBDIRS +=
 #    EXTRA_LIBS = xyz abc efsl
 # for newlib-lpc (file: libnewlibc-lpc.a):
 #    EXTRA_LIBS = newlib-lpc
-EXTRA_LIBS +=
+EXTRA_LIBS += m
 
 # Compiler flags
-CDEFS += 
-# enable bootloader specific stuffs
-CDEFS += -DBOOTLOADER
+CFLAGS +=
 
 # Set linker-script name depending on selected submodel name
 ifeq ($(MCU),cortex-m3)
     LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_memory.ld
-    LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_BL_sections.ld
+    LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_sections.ld
 else ifeq ($(MCU),cortex-m4)
-    LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_BL))
+    LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))
 else ifeq ($(MCU),cortex-m0)
     LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_memory.ld
-    LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_BL_sections.ld
+    LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_sections.ld
 endif
 
 # Add jtag targets (program and wipe)
-$(eval $(call JTAG_TEMPLATE,$(OUTDIR)/$(TARGET).bin,$(BL_BANK_BASE),$(BL_BANK_SIZE),$(OPENOCD_JTAG_CONFIG),$(OPENOCD_CONFIG)))
+$(eval $(call JTAG_TEMPLATE,$(OUTDIR)/$(TARGET).bin,$(FW_BANK_BASE),$(FW_BANK_SIZE),$(OPENOCD_JTAG_CONFIG),$(OPENOCD_CONFIG)))

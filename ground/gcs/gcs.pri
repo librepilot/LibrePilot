@@ -140,6 +140,12 @@ isEmpty(ORG_BIG_NAME) {
     ORG_BIG_NAME = "$$ORG_BIG_NAME"
 }
 
+isEmpty(WIKI_URL_ROOT) {
+    WIKI_URL_ROOT = Unknown
+} else {
+    WIKI_URL_ROOT = "$$WIKI_URL_ROOT"
+}
+
 isEmpty(GCS_LIBRARY_BASENAME):GCS_LIBRARY_BASENAME = lib
 
 macx {
@@ -153,6 +159,7 @@ macx {
     GCS_DOC_PATH     = $$GCS_DATA_PATH/doc
     copydata = 1
     copyqt = 1
+    copyosg = 1
 } else {
     GCS_APP_TARGET = $$GCS_SMALL_NAME
     GCS_PATH         = $$GCS_BUILD_TREE
@@ -178,6 +185,7 @@ macx {
         GCS_QT_QML_PATH = $$GCS_APP_PATH
 
         copyqt = $$copydata
+        copyosg = $$copydata
     } else {
         GCS_QT_BASEPATH = $$GCS_LIBRARY_PATH/qt5
         GCS_QT_LIBRARY_PATH = $$GCS_QT_BASEPATH/lib
@@ -190,6 +198,7 @@ macx {
         } else {
             copyqt = 0
         }
+        copyosg = 1
     }
 }
 
@@ -206,6 +215,7 @@ DEFINES += ORG_BIG_NAME=$$shell_quote(\"$$ORG_BIG_NAME\")
 DEFINES += GCS_BIG_NAME=$$shell_quote(\"$$GCS_BIG_NAME\")
 DEFINES += ORG_SMALL_NAME=$$shell_quote(\"$$ORG_SMALL_NAME\")
 DEFINES += GCS_SMALL_NAME=$$shell_quote(\"$$GCS_SMALL_NAME\")
+DEFINES += WIKI_URL_ROOT=$$shell_quote(\"$$WIKI_URL_ROOT\")
 
 # DEFINES += QT_NO_CAST_FROM_ASCII
 DEFINES += QT_NO_CAST_TO_ASCII

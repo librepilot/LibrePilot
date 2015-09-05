@@ -551,7 +551,6 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
 float ProcessMixer(const int index, const float curve1, const float curve2,
                    ActuatorDesiredData *desired, bool multirotor, bool fixedwing)
 {
-
     const Mixer_t *mixers = (Mixer_t *)&mixerSettings.Mixer1Type; // pointer to array of mixers in UAVObjects
     const Mixer_t *mixer  = &mixers[index];
     float differential    = 1.0f;

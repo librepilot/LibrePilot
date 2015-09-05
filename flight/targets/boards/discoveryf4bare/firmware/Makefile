@@ -18,12 +18,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #####
 
-ifndef TOP_LEVEL_MAKEFILE
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # REVO C++ support 
 USE_CXX = YES
@@ -112,5 +112,5 @@ endif
 include $(FLIGHTLIB)/rscode/library.mk
 #include $(FLIGHTLIB)/PyMite/pymite.mk
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

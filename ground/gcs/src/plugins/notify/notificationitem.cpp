@@ -26,7 +26,8 @@
  */
 
 // Qt headers
-#include <QtCore/QDataStream>
+#include <QDataStream>
+#include <QDir>
 #include <QFile>
 
 // GCS headers

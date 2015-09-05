@@ -55,11 +55,20 @@ public:
      * @param samplesX X values for input samples
      * @param samplesY Y values for input samples
      * @param correctionPoly coefficients for the correction polynomial
-     * @param degrees Degree of the correction polynomial
      * @param initialSigma Standard deviation calculated over input samples
      * @param rebiasedSigma Standard deviation calculated over calibrated samples
      */
     static void ComputeStats(Eigen::VectorXf *samplesX, Eigen::VectorXf *samplesY, Eigen::VectorXf *correctionPoly, float *initialSigma, float *rebiasedSigma);
+
+    /**
+     * @brief ComputeStats
+     * @param samplesX X values for input samples
+     * @param samplesY Y values for input samples
+     * @param correctionPoly coefficients for the correction polynomial
+     * @param degrees Degree of the correction polynomial
+     * @param bias Calculated mean bias over the temp-compensated samples
+     */
+    static void ComputeBias(Eigen::VectorXf *samplesX, Eigen::VectorXf *samplesY, Eigen::VectorXf *correctionPoly, float *bias);
 
     /**
      * @brief produce the calibration polinomial coefficients from pressure and temperature samples
@@ -89,13 +98,13 @@ public:
      * @param samplesY
      * @param samplesZ
      * @param temperature
-     * @param result a float[4] array containing value to populate calibration settings (x,y,z1, z2)
+     * @param resultPoly a float[4] array containing value to populate calibration settings (x,y,z1, z2)
+     * @param resultBias a float[3] array containing value to populate bias settings (x,y,z)
      * @param inputSigma a float[3] array populated with input sample variance
      * @param CalibratedSigma float[3] array populated with calibrated data variance
      * @return
      */
-    static bool GyroscopeCalibration(Eigen::VectorXf samplesX, Eigen::VectorXf samplesY, Eigen::VectorXf samplesZ, Eigen::VectorXf temperature, float *result, float *inputSigma, float *calibratedSigma);
-
+    static bool GyroscopeCalibration(Eigen::VectorXf samplesX, Eigen::VectorXf samplesY, Eigen::VectorXf samplesZ, Eigen::VectorXf temperature, float *resultPoly, float *resultBias, float *inputSigma, float *calibratedSigma);
 
 private:
     static void copyToArray(float *result, Eigen::VectorXf solution, int elements);

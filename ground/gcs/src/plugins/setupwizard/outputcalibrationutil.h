@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       outputcalibrationutil.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup OutputCalibrationUtil
@@ -47,6 +48,8 @@ public slots:
     void startChannelOutput(QList<quint16> &channels, quint16 safeValue);
     void stopChannelOutput();
     void setChannelOutputValue(quint16 value);
+    void stopChannelDualOutput(quint16 safeValue1, quint16 safeValue2);
+    void setChannelDualOutputValue(quint16 value1, quint16 value2);
 
 private:
     static bool c_prepared;

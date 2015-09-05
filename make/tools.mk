@@ -64,12 +64,14 @@ ifeq ($(UNAME), Linux)
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run.md5
         QT_SDK_ARCH := gcc_64
+        OSG_URL        := http://librepilot.github.io/tools/osg-3.4-linux-x64-qt-5.4.1.tar.gz
     else
         ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
         ARM_SDK_MD5_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2/+md5
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run.md5
         QT_SDK_ARCH := gcc
+        OSG_URL        := http://librepilot.github.io/tools/osg-3.4-linux-x86-qt-5.4.1.tar.gz
     endif
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
@@ -84,6 +86,7 @@ else ifeq ($(UNAME), Darwin)
     QT_SDK_INSTALLER_DAT := /Volumes/qt-opensource-mac-x64-clang-5.4.1/qt-opensource-mac-x64-clang-5.4.1.app/Contents/Resources/installer.dat
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
+    OSG_URL        :=
 else ifeq ($(UNAME), Windows)
     ARM_SDK_URL    := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-win32.zip
     ARM_SDK_MD5_URL:= https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-win32.zip/+md5
@@ -99,6 +102,7 @@ else ifeq ($(UNAME), Windows)
     CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
     CMAKE_MD5_URL  := http://librepilot.github.io/tools/cmake-2.8.12.2-win32-x86.zip.md5
     MSYS_URL       := http://librepilot.github.io/tools/MSYS-1.0.11.zip
+    OSG_URL        := http://librepilot.github.io/tools/osg-3.4-mingw491_32-qt-5.4.1.tar.gz
 endif
 
 GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
@@ -111,9 +115,16 @@ UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
 CCACHE_DIR     := $(TOOLS_DIR)/ccache
+OSG_TOOLS_DIR  := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
+    ifeq ($(ARCH), x86_64)
+        OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-linux-x64-qt-5.4.1
+    else
+        OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-linux-x86-qt-5.4.1
+    endif
 else ifeq ($(UNAME), Darwin)
+    OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-clang_64-qt-5.4.1
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
@@ -125,6 +136,7 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
     MSYS_DIR     := $(TOOLS_DIR)/msys
+    OSG_SDK_DIR  := $(OSG_TOOLS_DIR)/osg-3.4-mingw491_32-qt-5.4.1
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -139,7 +151,7 @@ BUILD_SDK_TARGETS := arm_sdk qt_sdk
 ifeq ($(UNAME), Windows)
     BUILD_SDK_TARGETS += sdl nsis mesawin openssl ccache
 endif
-ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
+ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) osg gtest uncrustify doxygen
 
 define GROUP_SDK_TEMPLATE
 .PHONY: $(1)_install $(1)_clean $(1)_distclean $(1)_version
@@ -954,28 +966,6 @@ cmake_version:
 
 ##############################
 #
-# MSYS
-#
-##############################
-
-ifeq ($(UNAME), Windows)
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,msys,$(MSYS_DIR),$(MSYS_URL),,$(notdir $(MSYS_URL))))
-
-ifeq ($(shell [ -d "$(MSYS_DIR)" ] && $(ECHO) "exists"), exists)
-    export MSYS_DIR
-else
-    # not installed, hope it's in the path...
-    #$(info $(EMPTY) WARNING     $(call toprel, $(MSYS_DIR)) not found (make msys_install), using system PATH)
-endif
-
-.PHONY: msys_version
-msys_version:
-
-endif
-
-##############################
-#
 # CCACHE
 #
 ##############################
@@ -1011,6 +1001,48 @@ define CCACHE_CLEAN_TEMPLATE
 endef
 
 $(eval $(call TOOL_INSTALL_TEMPLATE,ccache,$(CCACHE_BUILD_DIR),$(CCACHE_URL),$(CCACHE_MD5_URL),$(notdir $(CCACHE_URL)),$(CCACHE_BUILD_TEMPLATE),$(CCACHE_CLEAN_TEMPLATE)))
+
+##############################
+#
+# MSYS
+#
+##############################
+
+ifeq ($(UNAME), Windows)
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,msys,$(MSYS_DIR),$(MSYS_URL),,$(notdir $(MSYS_URL))))
+
+ifeq ($(shell [ -d "$(MSYS_DIR)" ] && $(ECHO) "exists"), exists)
+    export MSYS_DIR
+else
+    # not installed, hope it's in the path...
+    #$(info $(EMPTY) WARNING     $(call toprel, $(MSYS_DIR)) not found (make msys_install), using system PATH)
+endif
+
+.PHONY: msys_version
+msys_version:
+
+endif
+
+##############################
+#
+# osg
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_SDK_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+
+ifeq ($(shell [ -d "$(OSG_SDK_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSG_SDK_DIR := $(OSG_SDK_DIR)
+else
+    # not installed, hope it's in the path...
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSG_SDK_DIR)) not found (make osg_install), using system PATH)
+endif
+
+.PHONY: osg_version
+osg_version:
+	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgversion`"
+	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version`"
 
 ##############################
 #

@@ -30,10 +30,8 @@
 #define PATHUTILS_H
 
 #include "utils_global.h"
-#include "../extensionsystem/pluginmanager.h"
-#include <QDir>
-#include <QtWidgets/QApplication>
-#include <QSettings>
+
+#include <QStringList>
 
 namespace Utils {
 QTCREATOR_UTILS_EXPORT QString GetDataPath();
@@ -43,6 +41,10 @@ QTCREATOR_UTILS_EXPORT QString InsertDataPath(QString path);
 QTCREATOR_UTILS_EXPORT QString GetStoragePath();
 QTCREATOR_UTILS_EXPORT QString RemoveStoragePath(QString path);
 QTCREATOR_UTILS_EXPORT QString InsertStoragePath(QString path);
+
+QTCREATOR_UTILS_EXPORT QString GetLibraryPath();
+
+QTCREATOR_UTILS_EXPORT QStringList GetPluginPaths();
 }
 
 #endif /* PATHUTILS_H */

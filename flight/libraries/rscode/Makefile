@@ -29,7 +29,7 @@ TARGETS = $(TARGET_LIB) $(TEST_PROGS)
 all: $(TARGETS)
 
 $(TARGET_LIB): $(LIB_OBJS)
-	$(RM) $@
+	rm $@
 	$(AR) cq $@ $(LIB_OBJS)
 	if [ "$(RANLIB)" ]; then $(RANLIB) $@; fi
 

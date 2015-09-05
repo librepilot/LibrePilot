@@ -299,7 +299,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Roll</string>
                          </stringlist>
@@ -333,7 +333,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Roll</string>
                          </stringlist>
@@ -398,7 +398,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Pitch</string>
                          </stringlist>
@@ -432,7 +432,7 @@ margin-top: -1px;
                          <stringlist>
                           <string>objname:StabilizationSettingsBankX</string>
                           <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:0.01</string>
+                          <string>scale:1</string>
                           <string>buttongroup:77</string>
                           <string>element:Pitch</string>
                          </stringlist>
@@ -27264,7 +27264,6 @@ border-radius: 5;</string>
        <property name="objrelation" stdset="0">
         <stringlist>
          <string>button:help</string>
-         <string>url:http://wiki.openpilot.org/x/DAO9</string>
         </stringlist>
        </property>
       </widget>

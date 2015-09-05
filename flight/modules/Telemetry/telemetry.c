@@ -195,7 +195,7 @@ int32_t TelemetryStart(void)
                                        localChannel.rxTaskHandle);
     }
 #endif /* ifdef HAS_RADIO */
-       // Start the telemetry tasks associated with Radio/USB
+    // Start the telemetry tasks associated with Radio/USB
     UAVObjIterate(&registerRadioObject);
 
     // Listen to objects of interest

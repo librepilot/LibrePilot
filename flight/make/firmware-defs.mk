@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef TOP_LEVEL_MAKEFILE
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -70,7 +70,7 @@ MSG_FLASH_IMG        = $(QUOTE) FLASH_IMG $(MSG_EXTRA) $(QUOTE)
 
 # Function for converting an absolute path to one relative
 # to the top of the source tree.
-toprel = $(subst $(realpath $(ROOT_DIR))/,,$(abspath $(1)))
+toprel = $(subst $(realpath $(FLIGHT_ROOT_DIR))/,,$(abspath $(1)))
 
 # Function to replace special characters like is done for the symbols.
 replace_special_chars = $(subst +,_,$(subst ~,_,$(subst @,_,$(subst :,_,$(subst -,_,$(subst .,_,$(subst /,_,$1)))))))
@@ -82,25 +82,25 @@ gccversion:
 
 # Create final output file (.hex) from ELF output file.
 %.hex: %.elf
-	@$(ECHO) $(MSG_LOAD_FILE) $(call toprel, $@)
+	@echo $(MSG_LOAD_FILE) $(call toprel, $@)
 	$(V1) $(OBJCOPY) -O ihex $< $@
 
 # Create stripped output file (.elf.stripped) from ELF output file.
 %.elf.stripped: %.elf
-	@$(ECHO) $(MSG_STRIP_FILE) $(call toprel, $@)
+	@echo $(MSG_STRIP_FILE) $(call toprel, $@)
 	$(V1) $(STRIP) --strip-unneeded $< -o $@
 
 # Create final output file (.bin) from ELF output file.
 %.bin: %.elf
-	@$(ECHO) $(MSG_LOAD_FILE) $(call toprel, $@)
+	@echo $(MSG_LOAD_FILE) $(call toprel, $@)
 	$(V1) $(OBJCOPY) -O binary $< $@
 
 %.bin: %.o
-	@$(ECHO) $(MSG_LOAD_FILE) $(call toprel, $@)
+	@echo $(MSG_LOAD_FILE) $(call toprel, $@)
 	$(V1) $(OBJCOPY) -O binary $< $@
 
 %.bin.o: %.bin
-	@$(ECHO) $(MSG_BIN_OBJ) $(call toprel, $@)
+	@echo $(MSG_BIN_OBJ) $(call toprel, $@)
 	$(V1) $(OBJCOPY) -I binary -O elf32-littlearm --binary-architecture arm \
 		--rename-section .data=.rodata,alloc,load,readonly,data,contents \
 		--wildcard \
@@ -112,12 +112,12 @@ gccversion:
 # Create extended listing file/disassambly from ELF output file.
 # using objdump testing: option -C
 %.lss: %.elf
-	@$(ECHO) $(MSG_EXTENDED_LISTING) $(call toprel, $@)
+	@echo $(MSG_EXTENDED_LISTING) $(call toprel, $@)
 	$(V1) $(OBJDUMP) -h -S -C -r $< > $@
 
 # Create a symbol table from ELF output file.
 %.sym: %.elf
-	@$(ECHO) $(MSG_SYMBOL_TABLE) $(call toprel, $@)
+	@echo $(MSG_SYMBOL_TABLE) $(call toprel, $@)
 	$(V1) $(NM) -n $< > $@
 
 define SIZE_TEMPLATE
@@ -126,7 +126,7 @@ size: $(1)_size
 
 .PHONY: $(1)_size
 $(1)_size: $(1)
-	@$(ECHO) $(MSG_SIZE) $$(call toprel, $$<)
+	@echo $(MSG_SIZE) $$(call toprel, $$<)
 	$(V1) $(SIZE) -A $$<
 endef
 
@@ -137,62 +137,62 @@ endef
 define OPFW_TEMPLATE
 FORCE:
 
-$(1).firmware_info.c: $(1) $(ROOT_DIR)/flight/templates/firmware_info.c.template FORCE
-	@$(ECHO) $(MSG_FWINFO) $$(call toprel, $$@)
+$(1).firmware_info.c: $(1) $(FLIGHT_ROOT_DIR)/templates/firmware_info.c.template FORCE
+	@echo $(MSG_FWINFO) $$(call toprel, $$@)
 	$(V1) $(VERSION_INFO) \
-		--template=$(ROOT_DIR)/flight/templates/firmware_info.c.template \
+		--template=$(FLIGHT_ROOT_DIR)/templates/firmware_info.c.template \
 		--outfile=$$@ \
 		--image=$(1) \
 		--type=$(2) \
 		--revision=$(3) \
-		--uavodir=$(ROOT_DIR)/shared/uavobjectdefinition
+		--uavodir=$(FLIGHT_ROOT_DIR)/../shared/uavobjectdefinition
 
 $(eval $(call COMPILE_C_TEMPLATE, $(1).firmware_info.c))
 
 $(OUTDIR)/$(notdir $(basename $(1))).opfw : $(1) $(1).firmware_info.bin
-	@$(ECHO) $(MSG_OPFIRMWARE) $$(call toprel, $$@)
-	$(V1) $(CAT) $(1) $(1).firmware_info.bin > $$@
+	@echo $(MSG_OPFIRMWARE) $$(call toprel, $$@)
+	$(V1) cat $(1) $(1).firmware_info.bin > $$@
 endef
 
 # Assemble: create object files from assembler source files.
 define ASSEMBLE_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
-	@$(ECHO) $(MSG_ASSEMBLING) $$(call toprel, $$<)
+	@echo $(MSG_ASSEMBLING) $$(call toprel, $$<)
 	$(V1) $(CC) -c $(THUMB) $$(ASFLAGS) $$< -o $$@
 endef
 
 # Assemble: create object files from assembler source files. ARM-only
 define ASSEMBLE_ARM_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
-	@$(ECHO) $(MSG_ASSEMBLING_ARM) $$(call toprel, $$<)
+	@echo $(MSG_ASSEMBLING_ARM) $$(call toprel, $$<)
 	$(V1) $(CC) -c $$(ASFLAGS) $$< -o $$@
 endef
 
 # Compile: create object files from C source files.
 define COMPILE_C_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
-	@$(ECHO) $(MSG_COMPILING) $$(call toprel, $$<)
+	@echo $(MSG_COMPILING) $$(call toprel, $$<)
 	$(V1) $(CC) -c $(THUMB) $$(CFLAGS) $$(CONLYFLAGS) $$(CPPFLAGS) $$< -o $$@
 endef
 
 # Compile: create object files from C source files. ARM-only
 define COMPILE_C_ARM_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
-	@$(ECHO) $(MSG_COMPILING_ARM) $$(call toprel, $$<)
+	@echo $(MSG_COMPILING_ARM) $$(call toprel, $$<)
 	$(V1) $(CC) -c $$(CFLAGS) $$(CONLYFLAGS) $$(CPPFLAGS) $$< -o $$@
 endef
 
 # Compile: create object files from C++ source files.
 define COMPILE_CXX_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
-	@$(ECHO) $(MSG_COMPILINGCXX) $$(call toprel, $$<)
+	@echo $(MSG_COMPILINGCXX) $$(call toprel, $$<)
 	$(V1) $(CXX) -c $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$(CXXFLAGS) $$< -o $$@
 endef
 
 # Compile: create object files from C++ source files. ARM-only
 define COMPILE_CXX_ARM_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
-	@$(ECHO) $(MSG_COMPILINGCXX_ARM) $$(call toprel, $$<)
+	@echo $(MSG_COMPILINGCXX_ARM) $$(call toprel, $$<)
 	$(V1) $(CPP) -c $$(CFLAGS) $$(CPPFLAGS) $$(CXXFLAGS) $$< -o $$@
 endef
 
@@ -204,7 +204,7 @@ define ARCHIVE_TEMPLATE
 .SECONDARY : $(1)
 .PRECIOUS : $(2)
 $(1):  $(2)
-	@$(ECHO) $(MSG_ARCHIVING) $$(call toprel, $$@)
+	@echo $(MSG_ARCHIVING) $$(call toprel, $$@)
 ifeq ($(3),)
 	$(V1) $(AR) rcs $$@ $(2)
 else
@@ -228,7 +228,7 @@ define LINK_TEMPLATE
 .SECONDARY : $(1)
 .PRECIOUS : $(2) $(3)
 $(1):  $(2) $(3)
-	@$(ECHO) $(MSG_LINKING) $$(call toprel, $$@)
+	@echo $(MSG_LINKING) $$(call toprel, $$@)
 	$(V1) $(CC) $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $(2) $(3) --output $$@ $$(LDFLAGS)
 endef
 
@@ -239,21 +239,21 @@ define LINK_CXX_TEMPLATE
 .SECONDARY : $(1)
 .PRECIOUS : $(2) $(3)
 $(1):  $(2) $(3)
-	@$(ECHO) $(MSG_LINKING) $$(call toprel, $$@)
+	@echo $(MSG_LINKING) $$(call toprel, $$@)
 	$(V1) $(CXX) $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$(CXXFLAGS) $(2) $(3) --output $$@ $$(LDFLAGS)
 endef
 
 # Compile: create assembler files from C source files. ARM/Thumb
 define PARTIAL_COMPILE_TEMPLATE
 $($(1):.c=.s) : %.s : %.c
-	@$(ECHO) $(MSG_ASMFROMC) $$(call toprel, $$<)
+	@echo $(MSG_ASMFROMC) $$(call toprel, $$<)
 	$(V1) $(CC) $(THUMB) -S $$(CFLAGS) $$(CONLYFLAGS) $$< -o $$@
 endef
 
 # Compile: create assembler files from C source files. ARM only
 define PARTIAL_COMPILE_ARM_TEMPLATE
 $($(1):.c=.s) : %.s : %.c
-	@$(ECHO) $(MSG_ASMFROMC_ARM) $$(call toprel, $$<)
+	@echo $(MSG_ASMFROMC_ARM) $$(call toprel, $$<)
 	$(V1) $(CC) -S $$(CFLAGS) $$(CONLYFLAGS) $$< -o $$@
 endef
 
@@ -270,7 +270,7 @@ define JTAG_TEMPLATE
 # debug level
 OOCD_JTAG_SETUP  = -d0
 # interface and board/target settings (using the OOCD target-library here)
-OOCD_JTAG_SETUP += -s $(ROOT_DIR)/flight/Project/OpenOCD
+OOCD_JTAG_SETUP += -s $(FLIGHT_ROOT_DIR)/Project/OpenOCD
 OOCD_JTAG_SETUP += -f $(4) -f $(5)
 
 # initialize
@@ -282,7 +282,7 @@ OOCD_BOARD_RESET += -c "reset halt"
 
 .PHONY: program
 program: $(1)
-	@$(ECHO) $(MSG_JTAG_PROGRAM) $$(call toprel, $$<)
+	@echo $(MSG_JTAG_PROGRAM) $$(call toprel, $$<)
 	$(V1) $(OPENOCD) \
 		$$(OOCD_JTAG_SETUP) \
 		$$(OOCD_BOARD_RESET) \
@@ -293,7 +293,7 @@ program: $(1)
 
 .PHONY: wipe
 wipe:
-	@$(ECHO) $(MSG_JTAG_WIPE) wiping $(3) bytes starting from $(2)
+	@echo $(MSG_JTAG_WIPE) wiping $(3) bytes starting from $(2)
 	$(V1) $(OPENOCD) \
 		$$(OOCD_JTAG_SETUP) \
 		$$(OOCD_BOARD_RESET) \

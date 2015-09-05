@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configtxpidswidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -112,6 +113,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     // Request and update of the setting object.
     settingsUpdated = false;
+    setWikiURL("OPLink+Configuration");
     autoLoadWidgets();
     disableMouseWheelEvents();
     updateEnableControls();

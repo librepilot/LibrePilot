@@ -1068,7 +1068,6 @@ p, li { white-space: pre-wrap; }
        <property name="objrelation" stdset="0">
         <stringlist>
          <string>button:help</string>
-         <string>url:http://wiki.openpilot.org/display/Doc/Revolution+Manual+Sensor+Calibration</string>
         </stringlist>
        </property>
       </widget>

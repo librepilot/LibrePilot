@@ -16,7 +16,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef TOP_LEVEL_MAKEFILE
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -234,7 +234,7 @@ endif
 
 # Generate code for PyMite
 # $(OUTDIR)/pmlib_img.c $(OUTDIR)/pmlib_nat.c $(OUTDIR)/pmlibusr_img.c $(OUTDIR)/pmlibusr_nat.c $(OUTDIR)/pmfeatures.h: $(wildcard $(PYMITELIB)/*.py) $(wildcard $(PYMITEPLAT)/*.py) $(wildcard $(FLIGHTPLANLIB)/*.py) $(wildcard $(FLIGHTPLANS)/*.py)
-#	@$(ECHO) $(MSG_PYMITEINIT) $(call toprel, $@)
+#	@echo $(MSG_PYMITEINIT) $(call toprel, $@)
 #	@$(PYTHON) $(PYMITETOOLS)/pmImgCreator.py -f $(PYMITEPLAT)/pmfeatures.py -c -s --memspace=flash -o $(OUTDIR)/pmlib_img.c --native-file=$(OUTDIR)/pmlib_nat.c $(PYMITELIB)/list.py $(PYMITELIB)/dict.py $(PYMITELIB)/__bi.py $(PYMITELIB)/sys.py $(PYMITELIB)/string.py $(wildcard $(FLIGHTPLANLIB)/*.py)
 #	@$(PYTHON) $(PYMITETOOLS)/pmGenPmFeatures.py $(PYMITEPLAT)/pmfeatures.py > $(OUTDIR)/pmfeatures.h
 #	@$(PYTHON) $(PYMITETOOLS)/pmImgCreator.py -f $(PYMITEPLAT)/pmfeatures.py -c -u -o $(OUTDIR)/pmlibusr_img.c --native-file=$(OUTDIR)/pmlibusr_nat.c $(FLIGHTPLANS)/test.py
@@ -292,30 +292,30 @@ $(eval $(call SIZE_TEMPLATE, $(OUTDIR)/$(TARGET).elf))
 # Target: clean project
 clean:
 	@echo $(MSG_CLEANING)
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).map
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).elf
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).hex
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).bin
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).sym
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).lss
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).bin.o
-	$(V1) $(RM) -f $(OUTDIR)/$(TARGET).opfw
-	$(V1) $(RM) -f $(wildcard $(OUTDIR)/*.c)
-	$(V1) $(RM) -f $(wildcard $(OUTDIR)/*.h)
-	$(V1) $(RM) -f $(ALLOBJ)
-	$(V1) $(RM) -f $(LSTFILES)
-	$(V1) $(RM) -f $(DEPFILES)
-	$(V1) $(RM) -f $(SRC:.c=.s)
-	$(V1) $(RM) -f $(SRCARM:.c=.s)
-	$(V1) $(RM) -f $(CPPSRC:.cpp=.s)
-	$(V1) $(RM) -f $(CPPSRCARM:.cpp=.s)
+	$(V1) rm -f $(OUTDIR)/$(TARGET).map
+	$(V1) rm -f $(OUTDIR)/$(TARGET).elf
+	$(V1) rm -f $(OUTDIR)/$(TARGET).hex
+	$(V1) rm -f $(OUTDIR)/$(TARGET).bin
+	$(V1) rm -f $(OUTDIR)/$(TARGET).sym
+	$(V1) rm -f $(OUTDIR)/$(TARGET).lss
+	$(V1) rm -f $(OUTDIR)/$(TARGET).bin.o
+	$(V1) rm -f $(OUTDIR)/$(TARGET).opfw
+	$(V1) rm -f $(wildcard $(OUTDIR)/*.c)
+	$(V1) rm -f $(wildcard $(OUTDIR)/*.h)
+	$(V1) rm -f $(ALLOBJ)
+	$(V1) rm -f $(LSTFILES)
+	$(V1) rm -f $(DEPFILES)
+	$(V1) rm -f $(SRC:.c=.s)
+	$(V1) rm -f $(SRCARM:.c=.s)
+	$(V1) rm -f $(CPPSRC:.cpp=.s)
+	$(V1) rm -f $(CPPSRCARM:.cpp=.s)
 
 # Create output files directory
 # all known MS Windows OS define the ComSpec environment variable
-$(shell $(MKDIR) -p $(OUTDIR) 2>/dev/null)
+$(shell mkdir -p $(OUTDIR) 2>/dev/null)
 
 # Include the dependency files.
--include $(shell $(MKDIR) -p $(OUTDIR)/dep 2>/dev/null) $(wildcard $(OUTDIR)/dep/*)
+-include $(shell mkdir -p $(OUTDIR)/dep 2>/dev/null) $(wildcard $(OUTDIR)/dep/*)
 
 # Listing of phony targets.
 .PHONY: all build clean install

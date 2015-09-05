@@ -155,6 +155,7 @@ public:
         m_outOfLimitsStyle = style;
     }
     void addHelpButton(QPushButton *button, QString url);
+    void setWikiURL(QString url);
     void forceShadowUpdates();
     void forceConnectedState();
     virtual bool shouldObjectBeSaved(UAVObject *object);
@@ -215,6 +216,8 @@ private:
     bool m_isConnected;
     bool m_isWidgetUpdatesAllowed;
     QStringList m_objects;
+    QString m_wikiURL; // Wiki address for help button
+                       // Concatenated with WIKI_URL_ROOT
 
     QMultiHash<int, WidgetBinding *> m_reloadGroups;
     QMultiHash<QWidget *, WidgetBinding *> m_widgetBindingsPerWidget;

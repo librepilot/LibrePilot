@@ -253,10 +253,11 @@ plugin_flightlog.depends += plugin_uavtalk
 SUBDIRS += plugin_flightlog
 
 # Usage Tracker plugin
+# Uncomment the following lines to re-enable the usagetracker plugin
 plugin_usagetracker.subdir = usagetracker
 plugin_usagetracker.depends = plugin_coreplugin
 plugin_usagetracker.depends += plugin_uavobjects
 plugin_usagetracker.depends += plugin_uavtalk
 plugin_setupwizard.depends += plugin_uavobjectutil
-SUBDIRS += plugin_usagetracker
+# SUBDIRS += plugin_usagetracker
 

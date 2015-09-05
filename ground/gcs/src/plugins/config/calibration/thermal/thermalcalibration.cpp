@@ -39,6 +39,16 @@ void ThermalCalibration::ComputeStats(Eigen::VectorXf *samplesX, Eigen::VectorXf
     *rebiasedSigma     = CalibrationUtils::ComputeSigma(&rebiasedY);
 }
 
+void ThermalCalibration::ComputeBias(Eigen::VectorXf *samplesX, Eigen::VectorXf *samplesY, Eigen::VectorXf *correctionPoly, float *bias)
+{
+    Eigen::VectorXf tempBias(samplesX->rows());
+    OpenPilot::CalibrationUtils::ComputePoly(samplesX, correctionPoly, &tempBias);
+    Eigen::VectorXf rebiasedY(*samplesY);
+
+    rebiasedY.array() -= tempBias.array();
+    *bias = rebiasedY.array().mean();
+}
+
 bool ThermalCalibration::BarometerCalibration(Eigen::VectorXf pressure, Eigen::VectorXf temperature, float *result, float *inputSigma, float *calibratedSigma)
 {
     // assume the nearest reading to 20°C as the "zero bias" point
@@ -91,7 +101,7 @@ bool ThermalCalibration::AccelerometerCalibration(Eigen::VectorXf samplesX, Eige
 }
 
 
-bool ThermalCalibration::GyroscopeCalibration(Eigen::VectorXf samplesX, Eigen::VectorXf samplesY, Eigen::VectorXf samplesZ, Eigen::VectorXf temperature, float *result, float *inputSigma, float *calibratedSigma)
+bool ThermalCalibration::GyroscopeCalibration(Eigen::VectorXf samplesX, Eigen::VectorXf samplesY, Eigen::VectorXf samplesZ, Eigen::VectorXf temperature, float *resultPoly, float *resultBias, float *inputSigma, float *calibratedSigma)
 {
     Eigen::VectorXf solution(GYRO_X_POLY_DEGREE + 1);
 
@@ -99,29 +109,31 @@ bool ThermalCalibration::GyroscopeCalibration(Eigen::VectorXf samplesX, Eigen::V
         return false;
     }
 
-    result[0]   = solution[1];
-    result[1]   = solution[2];
-    solution[0] = 0;
+    resultPoly[0] = solution[1];
+    resultPoly[1] = solution[2];
+    solution[0]   = 0;
     ComputeStats(&temperature, &samplesX, &solution, &inputSigma[0], &calibratedSigma[0]);
-
-
+    ComputeBias(&temperature, &samplesX, &solution, &resultBias[0]);
     solution.resize(GYRO_Y_POLY_DEGREE + 1);
     if (!CalibrationUtils::PolynomialCalibration(&temperature, &samplesY, GYRO_Y_POLY_DEGREE, solution, GYRO_Y_MAX_REL_ERROR)) {
         return false;
     }
-    result[2]   = solution[1];
-    result[3]   = solution[2];
-    solution[0] = 0;
+    resultPoly[2] = solution[1];
+    resultPoly[3] = solution[2];
+    solution[0]   = 0;
     ComputeStats(&temperature, &samplesY, &solution, &inputSigma[1], &calibratedSigma[1]);
+    ComputeBias(&temperature, &samplesY, &solution, &resultBias[1]);
 
     solution.resize(GYRO_Z_POLY_DEGREE + 1);
     if (!CalibrationUtils::PolynomialCalibration(&temperature, &samplesZ, GYRO_Z_POLY_DEGREE, solution, GYRO_Z_MAX_REL_ERROR)) {
         return false;
     }
-    result[4]   = solution[1];
-    result[5]   = solution[2];
-    solution[0] = 0;
+    resultPoly[4] = solution[1];
+    resultPoly[5] = solution[2];
+    solution[0]   = 0;
     ComputeStats(&temperature, &samplesZ, &solution, &inputSigma[2], &calibratedSigma[2]);
+    ComputeBias(&temperature, &samplesZ, &solution, &resultBias[2]);
+
     return (inputSigma[0] > calibratedSigma[0]) && (inputSigma[1] > calibratedSigma[1]) && (inputSigma[2] > calibratedSigma[2]);
 }
 

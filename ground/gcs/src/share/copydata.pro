@@ -2,7 +2,7 @@ include(../../gcs.pri)
 
 TEMPLATE = aux
 
-DATACOLLECTIONS = vehicletemplates configurations dials models pfd sounds diagrams mapicons stylesheets
+DATACOLLECTIONS = vehicletemplates configurations dials models qml sounds diagrams mapicons stylesheets backgrounds osgearth
 
 equals(copydata, 1) {
     for(dir, DATACOLLECTIONS) {

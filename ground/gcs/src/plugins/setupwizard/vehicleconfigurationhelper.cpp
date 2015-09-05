@@ -1015,7 +1015,8 @@ void VehicleConfigurationHelper::resetVehicleConfig()
     MixerSettings *mSettings = MixerSettings::GetInstance(m_uavoManager);
 
     // Reset throttle curves
-    QString throttlePattern = "ThrottleCurve%1";
+    QString throttlePattern  = "ThrottleCurve%1";
+
     for (int i = 1; i <= 2; i++) {
         UAVObjectField *field = mSettings->getField(throttlePattern.arg(i));
         Q_ASSERT(field);

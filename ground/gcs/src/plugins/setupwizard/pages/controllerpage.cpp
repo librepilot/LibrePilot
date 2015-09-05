@@ -201,7 +201,7 @@ void ControllerPage::connectionStatusChanged()
         SetupWizard::CONTROLLER_TYPE type = getControllerType();
         setControllerType(type);
         QPixmap boardPic;
-        QSize picSize = QSize(250,250);
+        QSize picSize = QSize(250, 250);
 
         switch (type) {
         case SetupWizard::CONTROLLER_CC:

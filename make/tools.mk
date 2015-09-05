@@ -53,6 +53,13 @@ endif
 
 ##############################
 #
+# Already installed tools modules
+#
+##############################
+-include $(wildcard $(TOOLS_DIR)/*.mk)
+
+##############################
+#
 # Toolchain URLs and directories
 #
 ##############################

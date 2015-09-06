@@ -54,16 +54,16 @@
 # This will:
 # - clone the git repositories into the ./3rdparty directory
 # - build osg in the build directory, building steps are : cmake, make, make install
-# - intall osg (in the OP tools directory)
+# - intall osg in the build directory
 # - create distribution files in the build directory
-# - TODO: upload distribution files to the OP wiki download page
+# - TODO: upload distribution files to the wiki download page
 #
 ################################
 # Todo
 # - install osgearth in osg (a minor issue in the osgearth cmake file prevents it)
 #   easy to fix then set INSTALL_TO_OSG_DIR=ON when running cmake on osgearth
 # - don't build osg deprecated code (if we don't use it...)
-# - add targets to publish distribution files to OP wiki.
+# - add targets to upload distribution files to wiki.
 # - provide complete list of dependencies for osg and osgearth (current list is most probably incomplete as I already had some stuff installed)
 #
 ################################
@@ -150,7 +150,7 @@ osg:
 .PHONY: package_osg
 package_osg:
 	@$(ECHO) "Packaging $(call toprel, $(OSG_INSTALL_DIR)) into $(notdir $(OSG_INSTALL_DIR)).tar"
-	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/OpenPilotReadme.txt $(OSG_INSTALL_DIR)/
+	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/LibrePilotReadme.txt $(OSG_INSTALL_DIR)/
 	$(V1) ( \
 		$(CD) $(OSG_INSTALL_DIR)/.. && \
 		$(TAR) cf $(notdir $(OSG_INSTALL_DIR)).tar $(notdir $(OSG_INSTALL_DIR)) && \

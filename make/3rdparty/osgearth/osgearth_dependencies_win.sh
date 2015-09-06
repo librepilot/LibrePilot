@@ -15,7 +15,8 @@
 
 WORKING_DIR=$PWD
 
-ROOT_DIR=/d/Projects/OpenPilot
+# TODO this should not be hardwired
+ROOT_DIR=/d/Projects/LibrePilot
 
 DOWNLOAD_DIR=$ROOT_DIR/downloads/osgearth
 SOURCE_DIR=$ROOT_DIR/3rdparty/osgearth_dependencies
@@ -185,9 +186,6 @@ cd freetype-2.5.3
 ./configure --prefix=$BUILD_DIR
 make
 make install
-
-# hack for osg
-#mv $BUILD_DIR/include/freetype2 $BUILD_DIR/include/freetype
 
 fi
 

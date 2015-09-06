@@ -38,9 +38,8 @@ BUILD_GEOS=1
 BUILD_GDAL=1
 
 # TODO
-#  libcurl needs to be built with zlib and ssl support
+#  libcurl needs to be built with ssl support
 #  gdal does not seem to link with shared proj4
-#  document libraries (required by, requires)
 
 mkdir -p $SOURCE_DIR/
 mkdir -p $BUILD_DIR/bin/
@@ -183,11 +182,6 @@ cd $SOURCE_DIR
 tar xzf $DOWNLOAD_DIR/freetype-2.5.3.tar.gz -C .
 cd freetype-2.5.3
 
-#unzip -q $DOWNLOAD_DIR/freetype-2.3.5-1-src.zip src/freetype/2.3.5/freetype-2.3.5/* -d $TEMP/freetype-2.3.5
-#cp -r $TEMP/freetype-2.3.5/src/freetype/2.3.5/freetype-2.3.5 ./
-#rm -rf $TEMP/freetype-2.3.5
-#cd freetype-2.3.5
-
 ./configure --prefix=$BUILD_DIR
 make
 make install
@@ -231,23 +225,6 @@ echo "****************************************"
 cd $SOURCE_DIR
 tar xzf $DOWNLOAD_DIR/curl-7.38.0.tar.gz -C .
 cd curl-7.38.0
-
-# see http://curl.haxx.se/docs/install.html
-#set ZLIB_PATH=c:\zlib-1.2.8
-#set OPENSSL_PATH=c:\openssl-0.9.8y
-#set LIBSSH2_PATH=c:\libssh2-1.4.3
-#mingw32-make mingw32-zlib' to build with Zlib support;
-#mingw32-make mingw32-ssl-zlib' to build with SSL and Zlib enabled;
-#mingw32-make mingw32-ssh2-ssl-zlib' to build with SSH2, SSL, Zlib;
-#mingw32-make mingw32-ssh2-ssl-sspi-zlib' to build with SSH2, SSL, Zlib
-
-#mingw32-make mingw32
-
-#cp -f src/curl.exe $BUILD_DIR/bin/
-#cp -rf include/curl $BUILD_DIR/include/
-#cp -f lib/libcurl.dll $BUILD_DIR/bin/
-#cp -f lib/libcurldll.a $BUILD_DIR/lib/
-#cp -f lib/libcurl.a $BUILD_DIR/lib/
 
 ./configure --prefix=$BUILD_DIR --build=$HOST \
   --enable-shared=yes --with-zlib=$BUILD_DIR
@@ -329,19 +306,6 @@ patch < $WORKING_DIR/gdal_GNUmakefile_fix.diff
   --with-geos=$BUILD_DIR/bin/geos-config
 make
 make install
-
-#  --with-xerces=no --with-libz=$BUILD_DIR  \
-#  --with-png=$BUILD_DIR --with-jpeg=$BUILD_DIR --with-curl=$BUILD_DIR
-#  --with-libtiff=$BUILD_DIR --with-geos=$BUILD_DIR/bin/geos-config
-
-#		$(CONFIGURE) --prefix=$BUILD_DIR --build=$(HOST) --enable-static=no --enable-shared=yes --without-python --without-libtool --with-libz=$(DEP_INSTALL_DIR) --with-libtiff=$(DEP_INSTALL_DIR) --with-png=$(DEP_INSTALL_DIR) --with-jpeg=$(DEP_INSTALL_DIR) && \
-
-
-#  --enable-static=no --enable-shared=yes
-
-
-#./configure --prefix=$WORKSPACE/dist --enable-shared=yes --enable-static=yes --with-python=no --with-xerces=no --with-expat=$WORKSPACE/dist --with-expat-lib=-L$WORKSPACE/dist/lib --with-curl=no --with-sqlite3=$WORKSPACE/dist --with-odbc=no --with-mysql=no --with-oci=no --with-pg=$WORKSPACE/dist/bin/pg_config --with-geos=no --with-libz=internal --with-png=internal --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-jasper=no --with-mrsid=no --with-mrsid_lidar=no --with-ecw=no --with-pcraster=internal --with-xml2=no --with-threads=yes --host=x86_64-w64-mingw32 --build=x86_64-w64-mingw32 --without-libtool --enable-fast-install  
-#./configure --prefix=$WORKSPACE/dist --enable-shared=yes --enable-static=no --with-python=no --with-xerces=no --with-expat=$WORKSPACE/dist --with-curl=no --with-sqlite3=$WORKSPACE/dist --with-odbc=no --with-mysql=no --with-oci=no --with-pg=$WORKSPACE/dist/bin/pg_config --with-geos=yes --with-libz=internal --with-png=internal --with-libtiff=internal --with-geotiff=internal --with-jpeg=internal --with-gif=internal --with-jasper=no --with-mrsid=no --with-mrsid_lidar=no --with-ecw=no --with-pcraster=internal --with-threads=yes --host=$HOST --build=$HOST --without-libtool --enable-fast-install --with-expat-lib=-L$WORKSPACE/dist/lib
 
 fi
 

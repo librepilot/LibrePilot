@@ -126,7 +126,7 @@ clone_marble:
 
 	$(V1) if [ ! -d "$(MARBLE_SRC_DIR)/googlemaps" ]; then \
 		$(ECHO) "Cloning googlemaps to $(call toprel, $(MARBLE_SRC_DIR)/googlemaps)" ; \
-		$(GIT) clone https://gitorious.org/marble-restricted-maps/googlemaps.git $(MARBLE_SRC_DIR)/googlemaps ; \
+		$(GIT) clone https://gitlab.com/marble-restricted-maps/googlemaps.git $(MARBLE_SRC_DIR)/googlemaps ; \
 	fi
 	@$(ECHO) "Fetching googlemaps..."
 	$(V1) ( $(CD) $(MARBLE_SRC_DIR)/googlemaps && $(GIT) fetch ; )
@@ -135,7 +135,7 @@ clone_marble:
 
 	$(V1) if [ ! -d "$(MARBLE_SRC_DIR)/googlesat" ]; then \
 		$(ECHO) "Cloning googlesat to $(call toprel, $(MARBLE_SRC_DIR)/googlesat)" ; \
-		$(GIT) clone https://gitorious.org/marble-restricted-maps/googlesat.git $(MARBLE_SRC_DIR)/googlesat ; \
+		$(GIT) clone https://gitlab.com/marble-restricted-maps/googlesat.git $(MARBLE_SRC_DIR)/googlesat ; \
 	fi
 	@$(ECHO) "Fetching googlesat..."
 	$(V1) ( $(CD) $(MARBLE_SRC_DIR)/googlesat && $(GIT) fetch ; )

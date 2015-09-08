@@ -97,7 +97,7 @@ marble:
 .PHONY: package_marble
 package_marble:
 	@$(ECHO) "Packaging $(call toprel, $(MARBLE_INSTALL_DIR)) into $(notdir $(MARBLE_INSTALL_DIR)).tar"
-	$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/OpenPilotReadme.txt $(MARBLE_INSTALL_DIR)/
+	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/LibrePilotReadme.txt $(MARBLE_INSTALL_DIR)/
 	$(V1) ( \
 		$(CD) $(MARBLE_INSTALL_DIR)/.. && \
 		$(TAR) cf $(notdir $(MARBLE_INSTALL_DIR)).tar $(notdir $(MARBLE_INSTALL_DIR)) && \

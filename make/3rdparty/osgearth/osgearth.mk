@@ -235,6 +235,7 @@ else ifeq ($(UNAME), Darwin)
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
 	OSG_WINDOWING_SYSTEM := "Cocoa"
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
+	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 else ifeq ($(UNAME), Windows)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
@@ -246,7 +247,7 @@ endif
 OSGEARTH_NAME := $(OSG_NAME_PREFIX)$(OSGEARTH_NAME)$(OSG_NAME_SUFIX)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
 OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
-# osgearth will be installed into osg (there is an offical option to do that but it seems broken on mingw)
+# osgearth will be installed into osg (there is an official option to do that but it seems broken on mingw)
 #OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
 OSGEARTH_INSTALL_DIR := $(OSG_INSTALL_DIR)
 OSGEARTH_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth-$(OSGEARTH_VERSION).patch
@@ -258,7 +259,7 @@ osgearth:
 	$(V1) ( $(CD) $(OSGEARTH_BUILD_DIR) && \
 		PATH=$(OSGEARTH_BUILD_PATH) && \
 		LD_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) && \
-		export DYLD_LIBRARY_PATH=$(OSG_LIB_PATH)/lib && \
+		export DYLD_LIBRARY_PATH=$(OSG_LIB_PATH) && \
 		$(CMAKE) -G $(OSGEARTH_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSGEARTH_BUILD_CONF) \
 			-DOSGEARTH_USE_QT=ON \
 			-DINSTALL_TO_OSG_DIR=OFF \

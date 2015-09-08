@@ -66,7 +66,7 @@ MARBLE_SRC_DIR     := $(ROOT_DIR)/3rdparty/marble
 MARBLE_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(MARBLE_NAME)
 MARBLE_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(MARBLE_NAME)
 MARBLE_DATA_DIR    := $(MARBLE_INSTALL_DIR)/$(MARBLE_DATA_BASE_DIR)
-MARBLE_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/marble-$(MARBLE_VERSION)_patch.diff
+MARBLE_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/marble-$(MARBLE_VERSION).patch
 
 .PHONY: marble
 marble:

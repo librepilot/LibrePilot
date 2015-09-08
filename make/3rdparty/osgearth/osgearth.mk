@@ -123,7 +123,7 @@ OSG_NAME := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
 OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
 OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
-OSG_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osg-$(OSG_VERSION)_patch.diff
+OSG_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osg-$(OSG_VERSION).patch
 
 .PHONY: osg
 osg:
@@ -249,7 +249,7 @@ OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
 # osgearth will be installed into osg (there is an offical option to do that but it seems broken on mingw)
 #OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
 OSGEARTH_INSTALL_DIR := $(OSG_INSTALL_DIR)
-OSGEARTH_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth-$(OSGEARTH_VERSION)_patch.diff
+OSGEARTH_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth-$(OSGEARTH_VERSION).patch
 
 .PHONY: osgearth
 osgearth:

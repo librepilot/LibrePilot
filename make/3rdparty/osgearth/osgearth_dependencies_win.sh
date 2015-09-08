@@ -294,7 +294,7 @@ tar xzf $DOWNLOAD_DIR/gdal-1.10.1.tar.gz -C .
 cd gdal-1.10.1
 
 # fix GNUmakefile as described here http://trac.osgeo.org/gdal/wiki/BuildingWithMinGW
-patch < $WORKING_DIR/gdal_GNUmakefile_fix.diff
+patch < $WORKING_DIR/gdal_GNUmakefile_fix.patch
 
 ./configure --prefix=$BUILD_DIR --build=$HOST \
   --without-python --without-libtool \

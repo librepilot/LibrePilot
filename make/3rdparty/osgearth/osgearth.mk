@@ -225,6 +225,11 @@ ifeq ($(UNAME), Linux)
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
+	ifeq ($(ARCH), x86_64)
+		OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib64
+	else
+		OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
+	endif
 else ifeq ($(UNAME), Darwin)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-clang_64
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
@@ -235,6 +240,7 @@ else ifeq ($(UNAME), Windows)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
 	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin"
+	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 endif
 
 OSGEARTH_NAME := $(OSG_NAME_PREFIX)$(OSGEARTH_NAME)$(OSG_NAME_SUFIX)
@@ -251,8 +257,8 @@ osgearth:
 	$(V1) $(MKDIR) -p $(OSGEARTH_BUILD_DIR)
 	$(V1) ( $(CD) $(OSGEARTH_BUILD_DIR) && \
 		PATH=$(OSGEARTH_BUILD_PATH) && \
-		LD_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib && \
-		export DYLD_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib && \
+		LD_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) && \
+		export DYLD_LIBRARY_PATH=$(OSG_LIB_PATH)/lib && \
 		$(CMAKE) -G $(OSGEARTH_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSGEARTH_BUILD_CONF) \
 			-DOSGEARTH_USE_QT=ON \
 			-DINSTALL_TO_OSG_DIR=OFF \

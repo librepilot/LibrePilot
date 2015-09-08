@@ -91,7 +91,6 @@ marble:
 	$(V1) $(CP) $(MARBLE_SRC_DIR)/googlesat/googlesat.dgml $(MARBLE_DATA_DIR)/maps/earth/googlesat/
 	$(V1) $(CP) $(MARBLE_SRC_DIR)/googlesat/preview.png $(MARBLE_DATA_DIR)/maps/earth/googlesat/
 	$(V1) $(CP) -R $(MARBLE_SRC_DIR)/googlesat/0 $(MARBLE_DATA_DIR)/maps/earth/googlesat/
-	$(V1) $(CP) -R $(MARBLE_SRC_DIR)/googlesat/bicycle $(MARBLE_DATA_DIR)/maps/earth/googlesat/
 	$(V1) $(CP) -R $(MARBLE_SRC_DIR)/googlesat/streets $(MARBLE_DATA_DIR)/maps/earth/googlesat/
 
 .PHONY: package_marble

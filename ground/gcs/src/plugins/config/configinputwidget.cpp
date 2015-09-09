@@ -65,7 +65,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     nextDelayedLatestActivityTick(0),
     accessoryDesiredObj0(NULL),
     accessoryDesiredObj1(NULL),
-    accessoryDesiredObj2(NULL)
+    accessoryDesiredObj2(NULL),
+    accessoryDesiredObj3(NULL)
 {
     manualCommandObj      = ManualControlCommand::GetInstance(getObjectManager());
     manualSettingsObj     = ManualControlSettings::GetInstance(getObjectManager());
@@ -75,6 +76,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     accessoryDesiredObj0  = AccessoryDesired::GetInstance(getObjectManager(), 0);
     accessoryDesiredObj1  = AccessoryDesired::GetInstance(getObjectManager(), 1);
     accessoryDesiredObj2  = AccessoryDesired::GetInstance(getObjectManager(), 2);
+    accessoryDesiredObj3  = AccessoryDesired::GetInstance(getObjectManager(), 3);
     actuatorSettingsObj   = ActuatorSettings::GetInstance(getObjectManager());
     systemSettingsObj     = SystemSettings::GetInstance(getObjectManager());
 
@@ -140,6 +142,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         case ManualControlSettings::CHANNELGROUPS_ACCESSORY0:
         case ManualControlSettings::CHANNELGROUPS_ACCESSORY1:
         case ManualControlSettings::CHANNELGROUPS_ACCESSORY2:
+        case ManualControlSettings::CHANNELGROUPS_ACCESSORY3:
             addWidgetBinding("ManualControlSettings", "ResponseTime", form->ui->channelResponseTime, indexRT);
             ++indexRT;
             break;
@@ -262,6 +265,11 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         m_txAccess2->setSharedRenderer(m_renderer);
         m_txAccess2->setElementId("access2");
 
+        m_txAccess3 = new QGraphicsSvgItem();
+        m_txAccess3->setParentItem(m_txBackground);
+        m_txAccess3->setSharedRenderer(m_renderer);
+        m_txAccess3->setElementId("access3");
+
         m_txFlightMode = new QGraphicsSvgItem();
         m_txFlightMode->setParentItem(m_txBackground);
         m_txFlightMode->setSharedRenderer(m_renderer);
@@ -330,6 +338,12 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         orig   = Matrix.mapRect(orig);
         m_txAccess2Orig.translate(orig.x(), orig.y());
         m_txAccess2->setTransform(m_txAccess2Orig, true);
+
+        orig   = m_renderer->boundsOnElement("access3");
+        Matrix = m_renderer->matrixForElement("access3");
+        orig   = Matrix.mapRect(orig);
+        m_txAccess3Orig.translate(orig.x(), orig.y());
+        m_txAccess3->setTransform(m_txAccess3Orig, true);
     }
     wizardUi->graphicsView->fitInView(m_txMainBody, Qt::KeepAspectRatio);
     animate = new QTimer(this);
@@ -343,7 +357,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         ManualControlSettings::CHANNELGROUPS_FLIGHTMODE <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY0 <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY1 <<
-        ManualControlSettings::CHANNELGROUPS_ACCESSORY2;
+        ManualControlSettings::CHANNELGROUPS_ACCESSORY2 <<
+        ManualControlSettings::CHANNELGROUPS_ACCESSORY3;
 
     acroChannelOrder << ManualControlSettings::CHANNELGROUPS_THROTTLE <<
         ManualControlSettings::CHANNELGROUPS_ROLL <<
@@ -352,7 +367,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         ManualControlSettings::CHANNELGROUPS_FLIGHTMODE <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY0 <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY1 <<
-        ManualControlSettings::CHANNELGROUPS_ACCESSORY2;
+        ManualControlSettings::CHANNELGROUPS_ACCESSORY2 <<
+        ManualControlSettings::CHANNELGROUPS_ACCESSORY3;
 
     groundChannelOrder << ManualControlSettings::CHANNELGROUPS_THROTTLE <<
         ManualControlSettings::CHANNELGROUPS_YAW <<
@@ -368,6 +384,7 @@ void ConfigInputWidget::resetTxControls()
     m_txAccess0->setTransform(m_txAccess0Orig, false);
     m_txAccess1->setTransform(m_txAccess1Orig, false);
     m_txAccess2->setTransform(m_txAccess2Orig, false);
+    m_txAccess3->setTransform(m_txAccess3Orig, false);
     m_txFlightMode->setElementId("flightModeCenter");
     m_txFlightMode->setTransform(m_txFlightModeCOrig, false);
     m_txArrows->setVisible(false);
@@ -1133,6 +1150,9 @@ void ConfigInputWidget::setMoveFromCommand(int command)
     case ManualControlSettings::CHANNELNUMBER_ACCESSORY2:
         movement = moveAccess2;
         break;
+    case ManualControlSettings::CHANNELNUMBER_ACCESSORY3:
+        movement = moveAccess3;
+        break;
     default:
         Q_ASSERT(0);
         break;
@@ -1184,6 +1204,12 @@ void ConfigInputWidget::setTxMovement(txMovements movement)
         movePos = 0;
         growing = true;
         currentMovement = moveAccess2;
+        animate->start(100);
+        break;
+    case moveAccess3:
+        movePos = 0;
+        growing = true;
+        currentMovement = moveAccess3;
         animate->start(100);
         break;
     case moveFlightMode:
@@ -1272,6 +1298,13 @@ void ConfigInputWidget::moveTxControls()
         limitMin = ACCESS_MIN_MOVE;
         move     = horizontal;
         break;
+    case moveAccess3:
+        item     = m_txAccess3;
+        trans    = m_txAccess3Orig;
+        limitMax = ACCESS_MAX_MOVE;
+        limitMin = ACCESS_MIN_MOVE;
+        move     = horizontal;
+        break;
     case moveFlightMode:
         item     = m_txFlightMode;
         move     = jump;
@@ -1325,6 +1358,8 @@ void ConfigInputWidget::moveTxControls()
         m_txAccess1->setTransform(trans.translate(movePos * 10 * ACCESS_MAX_MOVE / STICK_MAX_MOVE, 0), false);
         trans = m_txAccess2Orig;
         m_txAccess2->setTransform(trans.translate(movePos * 10 * ACCESS_MAX_MOVE / STICK_MAX_MOVE, 0), false);
+        trans = m_txAccess3Orig;
+        m_txAccess3->setTransform(trans.translate(movePos * 10 * ACCESS_MAX_MOVE / STICK_MAX_MOVE, 0), false);
 
         if (auxFlag) {
             trans = m_txLeftStickOrig;
@@ -1389,6 +1424,12 @@ AccessoryDesired *ConfigInputWidget::getAccessoryDesiredInstance(int instance)
             accessoryDesiredObj2 = AccessoryDesired::GetInstance(getObjectManager(), 2);
         }
         return accessoryDesiredObj2;
+
+    case 3:
+        if (accessoryDesiredObj3 == NULL) {
+            accessoryDesiredObj3 = AccessoryDesired::GetInstance(getObjectManager(), 3);
+        }
+        return accessoryDesiredObj3;
 
     default:
         Q_ASSERT(false);
@@ -1461,6 +1502,7 @@ void ConfigInputWidget::moveSticks()
     m_txAccess0->setTransform(QTransform(m_txAccess0Orig).translate(getAccessoryDesiredValue(0) * ACCESS_MAX_MOVE * 10, 0), false);
     m_txAccess1->setTransform(QTransform(m_txAccess1Orig).translate(getAccessoryDesiredValue(1) * ACCESS_MAX_MOVE * 10, 0), false);
     m_txAccess2->setTransform(QTransform(m_txAccess2Orig).translate(getAccessoryDesiredValue(2) * ACCESS_MAX_MOVE * 10, 0), false);
+    m_txAccess3->setTransform(QTransform(m_txAccess3Orig).translate(getAccessoryDesiredValue(3) * ACCESS_MAX_MOVE * 10, 0), false);
 }
 
 void ConfigInputWidget::dimOtherControls(bool value)
@@ -1475,6 +1517,7 @@ void ConfigInputWidget::dimOtherControls(bool value)
     m_txAccess0->setOpacity(opac);
     m_txAccess1->setOpacity(opac);
     m_txAccess2->setOpacity(opac);
+    m_txAccess3->setOpacity(opac);
     m_txFlightMode->setOpacity(opac);
 }
 

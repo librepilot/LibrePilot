@@ -56,7 +56,8 @@ typedef struct {
     uint    Accessory0 : 4;
     uint    Accessory1 : 4;
     uint    Accessory2 : 4;
-    quint32 padding : 16; // 96 bits
+    uint    Accessory3 : 4;
+    quint32 padding : 12; // 96 bits
     quint32 padding1; // 128 bits
 } __attribute__((packed))  multiGUISettingsStruct;
 

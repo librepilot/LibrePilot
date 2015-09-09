@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configcustomwidget.cpp
- * @author     E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -123,6 +124,24 @@ QStringList ConfigCustomWidget::getChannelDescriptions()
     if (custom.Servo8 > 0 && custom.Servo8 <= VehicleConfig::CHANNEL_NUMELEM) {
         channelDesc[custom.Servo8 - 1] = QString("Servo8");
     }
+    if (custom.Accessory0 > 0 && custom.Accessory0 <= VehicleConfig::CHANNEL_NUMELEM) {
+        channelDesc[custom.Accessory0 - 1] = QString("Accessory0");
+    }
+    if (custom.Accessory1 > 0 && custom.Accessory1 <= VehicleConfig::CHANNEL_NUMELEM) {
+        channelDesc[custom.Accessory1 - 1] = QString("Accessory1");
+    }
+    if (custom.Accessory2 > 0 && custom.Accessory2 <= VehicleConfig::CHANNEL_NUMELEM) {
+        channelDesc[custom.Accessory2 - 1] = QString("Accessory2");
+    }
+    if (custom.Accessory3 > 0 && custom.Accessory3 <= VehicleConfig::CHANNEL_NUMELEM) {
+        channelDesc[custom.Accessory3 - 1] = QString("Accessory3");
+    }
+    if (custom.Accessory4 > 0 && custom.Accessory4 <= VehicleConfig::CHANNEL_NUMELEM) {
+        channelDesc[custom.Accessory4 - 1] = QString("Accessory4");
+    }
+    if (custom.Accessory5 > 0 && custom.Accessory5 <= VehicleConfig::CHANNEL_NUMELEM) {
+        channelDesc[custom.Accessory5 - 1] = QString("Accessory5");
+    }
     return channelDesc;
 }
 
@@ -198,6 +217,12 @@ void ConfigCustomWidget::resetActuators(GUIConfigDataUnion *configData)
     configData->custom.Servo6    = 0;
     configData->custom.Servo7    = 0;
     configData->custom.Servo8    = 0;
+    configData->custom.Accessory0  = 0;
+    configData->custom.Accessory1  = 0;
+    configData->custom.Accessory2  = 0;
+    configData->custom.Accessory3  = 0;
+    configData->custom.Accessory4  = 0;
+    configData->custom.Accessory5  = 0;
 }
 
 /**
@@ -377,16 +402,22 @@ QString ConfigCustomWidget::updateConfigObjectsFromWidgets()
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_CAMERAYAW);
             } else if (q->currentText() == "Accessory0") {
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_ACCESSORY0);
+                configData.custom.Accessory0 = channel + 1;
             } else if (q->currentText() == "Accessory1") {
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_ACCESSORY1);
+                configData.custom.Accessory1 = channel + 1;
             } else if (q->currentText() == "Accessory2") {
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_ACCESSORY2);
+                configData.custom.Accessory2 = channel + 1;
             } else if (q->currentText() == "Accessory3") {
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_ACCESSORY3);
+                configData.custom.Accessory3 = channel + 1;
             } else if (q->currentText() == "Accessory4") {
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_ACCESSORY4);
+                configData.custom.Accessory4 = channel + 1;
             } else if (q->currentText() == "Accessory5") {
                 setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_ACCESSORY5);
+                configData.custom.Accessory5 = channel + 1;
             }
             setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE1,
                                 m_aircraft->customMixerTable->item(1, channel)->text().toDouble());

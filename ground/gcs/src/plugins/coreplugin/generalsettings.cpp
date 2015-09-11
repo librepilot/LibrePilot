@@ -128,8 +128,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->checkAutoSelect->setChecked(m_autoSelect);
     m_page->cbUseUDPMirror->setChecked(m_useUDPMirror);
     m_page->cbExpertMode->setChecked(m_useExpertMode);
-    // Usage data collection temporarily disabled
-    // m_page->cbUsageData->setChecked(m_collectUsageData);
+    m_page->cbUsageData->setChecked(m_collectUsageData);
     m_page->colorButton->setColor(StyleHelper::baseColor());
 
     connect(m_page->resetButton, SIGNAL(clicked()), this, SLOT(resetInterfaceColor()));
@@ -150,8 +149,7 @@ void GeneralSettings::apply()
     m_useExpertMode = m_page->cbExpertMode->isChecked();
     m_autoConnect   = m_page->checkAutoConnect->isChecked();
     m_autoSelect    = m_page->checkAutoSelect->isChecked();
-    // Usage data collection temporarily disabled
-    // setCollectUsageData(m_page->cbUsageData->isChecked());
+    setCollectUsageData(m_page->cbUsageData->isChecked());
 }
 
 void GeneralSettings::finish()
@@ -164,14 +162,13 @@ void GeneralSettings::readSettings(QSettings *qs)
     qs->beginGroup(QLatin1String("General"));
     m_language      = qs->value(QLatin1String("OverrideLanguage"), QLocale::system().name()).toString();
     m_saveSettingsOnExit = qs->value(QLatin1String("SaveSettingsOnExit"), m_saveSettingsOnExit).toBool();
-    m_autoConnect   = qs->value(QLatin1String("AutoConnect"), m_autoConnect).toBool();
-    m_autoSelect    = qs->value(QLatin1String("AutoSelect"), m_autoSelect).toBool();
-    m_useUDPMirror  = qs->value(QLatin1String("UDPMirror"), m_useUDPMirror).toBool();
-    m_useExpertMode = qs->value(QLatin1String("ExpertMode"), m_useExpertMode).toBool();
-    // Usage data collection temporarily disabled
-    // m_collectUsageData   = qs->value(QLatin1String("CollectUsageData"), m_collectUsageData).toBool();
-    // m_showUsageDataDisclaimer = qs->value(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer).toBool();
-    m_lastUsageHash = qs->value(QLatin1String("LastUsageHash"), m_lastUsageHash).toString();
+    m_autoConnect        = qs->value(QLatin1String("AutoConnect"), m_autoConnect).toBool();
+    m_autoSelect         = qs->value(QLatin1String("AutoSelect"), m_autoSelect).toBool();
+    m_useUDPMirror       = qs->value(QLatin1String("UDPMirror"), m_useUDPMirror).toBool();
+    m_useExpertMode      = qs->value(QLatin1String("ExpertMode"), m_useExpertMode).toBool();
+    m_collectUsageData   = qs->value(QLatin1String("CollectUsageData"), m_collectUsageData).toBool();
+    m_showUsageDataDisclaimer = qs->value(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer).toBool();
+    m_lastUsageHash      = qs->value(QLatin1String("LastUsageHash"), m_lastUsageHash).toString();
     qs->endGroup();
 }
 
@@ -190,9 +187,8 @@ void GeneralSettings::saveSettings(QSettings *qs)
     qs->setValue(QLatin1String("AutoSelect"), m_autoSelect);
     qs->setValue(QLatin1String("UDPMirror"), m_useUDPMirror);
     qs->setValue(QLatin1String("ExpertMode"), m_useExpertMode);
-    // Usage data collection temporarily disabled
-    // qs->setValue(QLatin1String("CollectUsageData"), m_collectUsageData);
-    // qs->setValue(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer);
+    qs->setValue(QLatin1String("CollectUsageData"), m_collectUsageData);
+    qs->setValue(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer);
     qs->setValue(QLatin1String("LastUsageHash"), m_lastUsageHash);
     qs->endGroup();
 }
@@ -264,18 +260,16 @@ bool GeneralSettings::useUDPMirror() const
     return m_useUDPMirror;
 }
 
-/** Usage data collection temporarily disabled
-   bool GeneralSettings::collectUsageData() const
-   {
+bool GeneralSettings::collectUsageData() const
+{
     return m_collectUsageData;
-   }
+}
 
-
-   bool GeneralSettings::showUsageDataDisclaimer() const
-   {
+bool GeneralSettings::showUsageDataDisclaimer() const
+{
     return m_showUsageDataDisclaimer;
-   }
- ********************/
+}
+
 QString GeneralSettings::lastUsageHash() const
 {
     return m_lastUsageHash;
@@ -286,20 +280,18 @@ bool GeneralSettings::useExpertMode() const
     return m_useExpertMode;
 }
 
-/** Usage data collection temporarily disabled
-   void GeneralSettings::setCollectUsageData(bool collect)
-   {
+void GeneralSettings::setCollectUsageData(bool collect)
+{
     if (collect && collect != m_collectUsageData) {
         setShowUsageDataDisclaimer(true);
     }
     m_collectUsageData = collect;
-   }
+}
 
-   void GeneralSettings::setShowUsageDataDisclaimer(bool show)
-   {
+void GeneralSettings::setShowUsageDataDisclaimer(bool show)
+{
     m_showUsageDataDisclaimer = show;
-   }
- ********************/
+}
 
 void GeneralSettings::setLastUsageHash(QString hash)
 {

@@ -160,7 +160,7 @@ void GeneralSettings::finish()
 void GeneralSettings::readSettings(QSettings *qs)
 {
     qs->beginGroup(QLatin1String("General"));
-    m_language      = qs->value(QLatin1String("OverrideLanguage"), QLocale::system().name()).toString();
+    m_language           = qs->value(QLatin1String("OverrideLanguage"), QLocale::system().name()).toString();
     m_saveSettingsOnExit = qs->value(QLatin1String("SaveSettingsOnExit"), m_saveSettingsOnExit).toBool();
     m_autoConnect        = qs->value(QLatin1String("AutoConnect"), m_autoConnect).toBool();
     m_autoSelect         = qs->value(QLatin1String("AutoSelect"), m_autoSelect).toBool();
@@ -262,7 +262,8 @@ bool GeneralSettings::useUDPMirror() const
 
 bool GeneralSettings::collectUsageData() const
 {
-    return m_collectUsageData;
+    // return m_collectUsageData;
+    return false;
 }
 
 bool GeneralSettings::showUsageDataDisclaimer() const

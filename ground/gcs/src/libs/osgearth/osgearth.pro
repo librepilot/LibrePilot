@@ -12,6 +12,9 @@ contains(DEFINES, OSG_USE_QT_PRIVATE) {
 include(../../library.pri)
 include(../utils/utils.pri)
 
+# disable all warnings on mac to avoid build failures
+macx:CONFIG += warn_off
+
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 

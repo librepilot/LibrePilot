@@ -42,6 +42,7 @@
 typedef struct {
     uint32_t magic;
     const struct pios_hmc5x83_cfg *cfg;
+    enum PIOS_HMC5X83_ORIENTATION Orientation;
     uint32_t port_id;
     uint8_t  slave_num;
     uint8_t  CTRLB;
@@ -66,6 +67,7 @@ const PIOS_SENSORS_Driver PIOS_HMC5x83_Driver = {
     .get_scale = PIOS_HMC5x83_driver_get_scale,
     .is_polled = true,
 };
+
 /**
  * Allocate the device setting structure
  * @return pios_hmc5x83_dev_data_t pointer to newly created structure
@@ -101,11 +103,15 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
 {
     pios_hmc5x83_dev_data_t *dev = dev_alloc();
 
-    dev->cfg       = cfg; // store config before enabling interrupt
+    dev->cfg       = cfg;                 // store config before enabling interrupt
     dev->port_id   = port_id;
     dev->slave_num = slave_num;
+    dev->Orientation = cfg->Orientation;  // make a read/write copy so we can update it at run time.
+
 #ifdef PIOS_HMC5X83_HAS_GPIOS
-    PIOS_EXTI_Init(cfg->exti_cfg);
+    if (cfg->exti_cfg) {
+        PIOS_EXTI_Init(cfg->exti_cfg);
+    }
 #endif
 
     int32_t val = PIOS_HMC5x83_Config(dev);
@@ -115,9 +121,9 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
     return (pios_hmc5x83_dev_t)dev;
 }
 
-void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler)
+void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler, PIOS_SENSORS_TYPE sensortype)
 {
-    PIOS_SENSORS_Register(&PIOS_HMC5x83_Driver, PIOS_SENSORS_TYPE_3AXIS_MAG, handler);
+    PIOS_SENSORS_Register(&PIOS_HMC5x83_Driver, sensortype, handler);
 }
 
 /**
@@ -212,6 +218,64 @@ static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev)
     return 0;
 }
 
+void PIOS_HMC5x83_Ext_Orientation_Set(enum PIOS_HMC5X83_ORIENTATION orientation)
+{
+    if (external_mag) {
+        ((pios_hmc5x83_dev_data_t *) external_mag)->Orientation = orientation;
+    }
+}
+
+void PIOS_HMC5x83_Orient(enum PIOS_HMC5X83_ORIENTATION orientation, int16_t in[3], int16_t out[3])
+{
+    switch (orientation) {
+    case PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP:
+        out[0] = in[2];
+        out[1] = in[0];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_SOUTH_EAST_UP:
+        out[0] = -in[0];
+        out[1] = in[2];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_WEST_SOUTH_UP:
+        out[0] = -in[2];
+        out[1] = -in[0];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_NORTH_WEST_UP:
+        out[0] = in[0];
+        out[1] = -in[2];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_EAST_SOUTH_DOWN:
+        out[0] = in[2];
+        out[1] = -in[0];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_SOUTH_WEST_DOWN:
+        out[0] = -in[0];
+        out[1] = -in[2];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_WEST_NORTH_DOWN:
+        out[0] = -in[2];
+        out[1] = in[0];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_NORTH_EAST_DOWN:
+        out[0] = in[0];
+        out[1] = in[2];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_UNCHANGED:
+        out[0] = in[0];  // N
+        out[1] = in[1];  // D
+        out[2] = in[2];  // E
+        break;
+    }
+}
+
 /**
  * @brief Read current X, Z, Y values (in that order)
  * \param[in] dev device handler
@@ -265,50 +329,14 @@ int32_t PIOS_HMC5x83_ReadMag(pios_hmc5x83_dev_t handler, int16_t out[3])
         temp[i] = v;
     }
 
-    switch (dev->cfg->Orientation) {
-    case PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP:
-        out[0] = temp[2];
-        out[1] = temp[0];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_SOUTH_EAST_UP:
-        out[0] = -temp[0];
-        out[1] = temp[2];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_WEST_SOUTH_UP:
-        out[0] = -temp[2];
-        out[1] = -temp[0];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_NORTH_WEST_UP:
-        out[0] = temp[0];
-        out[1] = -temp[2];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_EAST_SOUTH_DOWN:
-        out[0] = temp[2];
-        out[1] = -temp[0];
-        out[2] = temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_SOUTH_WEST_DOWN:
-        out[0] = -temp[0];
-        out[1] = -temp[2];
-        out[2] = temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_WEST_NORTH_DOWN:
-        out[0] = -temp[2];
-        out[1] = temp[0];
-        out[2] = temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_NORTH_EAST_DOWN:
-        out[0] = temp[0];
-        out[1] = temp[2];
-        out[2] = temp[1];
-        break;
-    }
+    PIOS_HMC5x83_Orient(dev->Orientation, temp, out);
 
-    // This should not be necessary but for some reason it is coming out of continuous conversion mode
+    // "This should not be necessary but for some reason it is coming out of continuous conversion mode"
+    //
+    // By default the chip is in single read mode meaning after reading from it once, it will go idle to save power.
+    // Once idle, we have write to it to turn it on before we can read from it again.
+    // To conserve current between measurements, the device is placed in a state similar to idle mode, but the
+    // Mode Register is not changed to Idle Mode.  That is, MD[n] bits are unchanged.
     dev->cfg->Driver->Write(handler, PIOS_HMC5x83_MODE_REG, PIOS_HMC5x83_MODE_CONTINUOUS);
 
     return 0;
@@ -329,16 +357,40 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
     return retval;
 }
 
+// define this to simply return true when asking if data is available on non-GPIO devices
+// we just set the polling rate elsewhere
+// this is more efficient, but has more data time lag
+#define HMC5X83_POLLED_STATUS_RETURNS_TRUE
+
 /**
  * @brief Tells whether new magnetometer readings are available
  * \return true if new data is available
  * \return false if new data is not available
  */
-bool PIOS_HMC5x83_NewDataAvailable(pios_hmc5x83_dev_t handler)
+bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t handler)
 {
+#if ( defined(PIOS_HMC5X83_HAS_GPIOS) || !defined(HMC5X83_POLLED_STATUS_RETURNS_TRUE) )
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
+#endif
 
-    return dev->data_ready;
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    if (dev->cfg->exti_cfg) {    // if this device has an interrupt line attached, then wait for interrupt to say data is ready
+        return dev->data_ready;
+    }
+    else
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
+    {                           // else poll to see if data is ready or just say "true" and set polling interval elsewhere
+#ifdef HMC5X83_POLLED_STATUS_RETURNS_TRUE
+        return true;
+#else
+        // poll SR0 (RDY) here.  1 -> data ready.
+        uint8_t rdy;
+        if (dev->cfg->Driver->Read(handler, PIOS_HMC5x83_DATAOUT_STATUS_REG, &rdy, 1) != 0) {
+            return false;
+        }
+        return ((rdy & PIOS_HMC5x83_DATAOUT_STATUS_RDY) != 0);
+#endif /* POLLED_STATUS_RETURNS_TRUE */
+    }
 }
 
 /**
@@ -435,16 +487,18 @@ int32_t PIOS_HMC5x83_Test(pios_hmc5x83_dev_t handler)
     return failed;
 }
 
+#ifdef PIOS_HMC5X83_HAS_GPIOS
 /**
  * @brief IRQ Handler
  */
 bool PIOS_HMC5x83_IRQHandler(pios_hmc5x83_dev_t handler)
 {
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
-
     dev->data_ready = true;
+
     return false;
 }
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
 
 #ifdef PIOS_INCLUDE_SPI
 int32_t PIOS_HMC5x83_SPI_Read(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t *buffer, uint8_t len);
@@ -529,8 +583,8 @@ int32_t PIOS_HMC5x83_SPI_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint
     return 0;
 }
 #endif /* PIOS_INCLUDE_SPI */
-#ifdef PIOS_INCLUDE_I2C
 
+#ifdef PIOS_INCLUDE_I2C
 int32_t PIOS_HMC5x83_I2C_Read(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t *buffer, uint8_t len);
 int32_t PIOS_HMC5x83_I2C_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t buffer);
 

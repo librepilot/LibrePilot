@@ -57,6 +57,8 @@
 
 #include <attitudesettings.h>
 #include <revocalibration.h>
+#include <auxmagsettings.h>
+#include <auxmagsensor.h>
 #include <accelgyrosettings.h>
 #include <revosettings.h>
 
@@ -81,7 +83,8 @@
 #define REGISTER_WDG()
 #endif
 
-static const TickType_t sensor_period_ticks = ((uint32_t)1000.0f / PIOS_SENSOR_RATE) / portTICK_RATE_MS;
+static const TickType_t sensor_period_ticks = ((uint32_t) (1000.0f / PIOS_SENSOR_RATE / (float) portTICK_RATE_MS));
+#define AUX_MAG_SKIP ((int) ((((PIOS_SENSOR_RATE < 76) ? 76 : PIOS_SENSOR_RATE) + 74) / 75))  /* (AMS at least 2) 75 is mag ODR output data rate in pios_board.c */
 
 // Interval in number of sample to recalculate temp bias
 #define TEMP_CALIB_INTERVAL      30
@@ -99,8 +102,8 @@ static const float temp_alpha_gyro_accel = LPF_ALPHA(TEMP_DT_GYRO_ACCEL, TEMP_LP
 #define TEMP_LPF_FC_BARO         5.0f
 static const float temp_alpha_baro = TEMP_DT_BARO / (TEMP_DT_BARO + 1.0f / (2.0f * M_PI_F * TEMP_LPF_FC_BARO));
 
-
 #define ZERO_ROT_ANGLE           0.00001f
+
 // Private types
 typedef struct {
     // used to accumulate all samples in a task iteration
@@ -138,6 +141,7 @@ static void clearContext(sensor_fetch_context *sensor_context);
 static void handleAccel(float *samples, float temperature);
 static void handleGyro(float *samples, float temperature);
 static void handleMag(float *samples, float temperature);
+static void handleAuxMag(float *samples);
 static void handleBaro(float sample, float temperature);
 
 static void updateAccelTempBias(float temperature);
@@ -148,12 +152,15 @@ static void updateBaroTempBias(float temperature);
 static sensor_data *source_data;
 static xTaskHandle sensorsTaskHandle;
 RevoCalibrationData cal;
+AuxMagSettingsData auxmagcal;
 AccelGyroSettingsData agcal;
 
 // These values are initialized by settings but can be updated by the attitude algorithm
-
 static float mag_bias[3] = { 0, 0, 0 };
 static float mag_transform[3][3] = {
+    { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }
+};
+static float auxmag_transform[3][3] = {
     { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }
 };
 
@@ -168,9 +175,11 @@ static float gyro_temp_bias[3] = { 0 };
 static uint8_t accel_temp_calibration_count = 0;
 static uint8_t gyro_temp_calibration_count  = 0;
 
+// The user specified "Rotate virtual attitude relative to board"
 static float R[3][3] = {
     { 0 }
 };
+
 // Variables used to handle baro temperature bias
 static RevoSettingsBaroTempCorrectionPolynomialData baroCorrection;
 static RevoSettingsBaroTempCorrectionExtentData baroCorrectionExtent;
@@ -179,6 +188,8 @@ static float baro_temp_bias   = 0;
 static float baro_temperature = NAN;
 static uint8_t baro_temp_calibration_count = 0;
 
+// this is set, but not used
+// it was intended to be a flag to avoid rotation calculation if the rotation was zero
 static int8_t rotate = 0;
 
 /**
@@ -193,6 +204,7 @@ int32_t SensorsInitialize(void)
     MagSensorInitialize();
     BaroSensorInitialize();
     RevoCalibrationInitialize();
+    AuxMagSettingsInitialize();
     RevoSettingsInitialize();
     AttitudeSettingsInitialize();
     AccelGyroSettingsInitialize();
@@ -201,6 +213,7 @@ int32_t SensorsInitialize(void)
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
     RevoCalibrationConnectCallback(&settingsUpdatedCb);
+    AuxMagSettingsConnectCallback(&settingsUpdatedCb);
     AttitudeSettingsConnectCallback(&settingsUpdatedCb);
     AccelGyroSettingsConnectCallback(&settingsUpdatedCb);
 
@@ -242,6 +255,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     bool error = false;
     const PIOS_SENSORS_Instance *sensors_list = PIOS_SENSORS_GetList();
     PIOS_SENSORS_Instance *sensor;
+    uint8_t aux_mag_skip = 0;
 
     AlarmsClear(SYSTEMALARMS_ALARM_SENSORS);
     settingsUpdatedCb(NULL);
@@ -258,6 +272,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     bool sensors_test = true;
     uint8_t count     = 0;
     LL_FOREACH((PIOS_SENSORS_Instance *)sensors_list, sensor) {
+        RELOAD_WDG();  // mag tests on I2C have 200+(7x10)ms delay calls in them
         sensors_test &= PIOS_SENSORS_Test(sensor);
         count++;
     }
@@ -290,36 +305,39 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 
         // reset the fetch context
         clearContext(&sensor_context);
+        aux_mag_skip = (aux_mag_skip + 1) % AUX_MAG_SKIP;
         LL_FOREACH((PIOS_SENSORS_Instance *)sensors_list, sensor) {
             // we will wait on the sensor that's marked as primary( that means the sensor with higher sample rate)
             bool is_primary = (sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL);
 
-            if (!sensor->driver->is_polled) {
-                const QueueHandle_t queue = PIOS_SENSORS_GetQueue(sensor);
-                while (xQueueReceive(queue,
-                                     (void *)source_data,
-                                     (is_primary && !sensor_context.count) ? sensor_period_ticks : 0) == pdTRUE) {
-                    accumulateSamples(&sensor_context, source_data);
-                }
-                if (sensor_context.count) {
-                    processSamples3d(&sensor_context, sensor);
-                    clearContext(&sensor_context);
-                } else if (is_primary) {
-                    PIOS_SENSOR_Reset(sensor);
-                    reset_counter++;
-                    PERF_TRACK_VALUE(counterSensorResets, reset_counter);
-                    error = true;
-                }
-            } else {
-                if (PIOS_SENSORS_Poll(sensor)) {
-                    PIOS_SENSOR_Fetch(sensor, (void *)source_data, MAX_SENSORS_PER_INSTANCE);
-                    if (sensor->type & PIOS_SENSORS_TYPE_3D) {
+            if (sensor->type != PIOS_SENSORS_TYPE_3AXIS_AUXMAG || aux_mag_skip == 0) {
+                if (!sensor->driver->is_polled) {
+                    const QueueHandle_t queue = PIOS_SENSORS_GetQueue(sensor);
+                    while (xQueueReceive(queue,
+                                         (void *)source_data,
+                                         (is_primary && !sensor_context.count) ? sensor_period_ticks : 0) == pdTRUE) {
                         accumulateSamples(&sensor_context, source_data);
-                        processSamples3d(&sensor_context, sensor);
-                    } else {
-                        processSamples1d(&source_data->sensorSample1Axis, sensor);
                     }
-                    clearContext(&sensor_context);
+                    if (sensor_context.count) {
+                        processSamples3d(&sensor_context, sensor);
+                        clearContext(&sensor_context);
+                    } else if (is_primary) {
+                        PIOS_SENSOR_Reset(sensor);
+                        reset_counter++;
+                        PERF_TRACK_VALUE(counterSensorResets, reset_counter);
+                        error = true;
+                    }
+                } else {
+                    if (PIOS_SENSORS_Poll(sensor)) {
+                        PIOS_SENSOR_Fetch(sensor, (void *)source_data, MAX_SENSORS_PER_INSTANCE);
+                        if (sensor->type & PIOS_SENSORS_TYPE_3D) {
+                            accumulateSamples(&sensor_context, source_data);
+                            processSamples3d(&sensor_context, sensor);
+                        } else {
+                            processSamples1d(&source_data->sensorSample1Axis, sensor);
+                        }
+                        clearContext(&sensor_context);
+                    }
                 }
             }
         }
@@ -361,20 +379,27 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
     PIOS_SENSORS_GetScales(sensor, scales, MAX_SENSORS_PER_INSTANCE);
     float inv_count = 1.0f / (float)sensor_context->count;
     if ((sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL) ||
-        (sensor->type == PIOS_SENSORS_TYPE_3AXIS_MAG)) {
+        (sensor->type == PIOS_SENSORS_TYPE_3AXIS_MAG) ||
+        (sensor->type == PIOS_SENSORS_TYPE_3AXIS_AUXMAG)) {
         float t = inv_count * scales[0];
         samples[0]  = ((float)sensor_context->accum[0].x * t);
         samples[1]  = ((float)sensor_context->accum[0].y * t);
         samples[2]  = ((float)sensor_context->accum[0].z * t);
         temperature = (float)sensor_context->temperature * inv_count * 0.01f;
-        if (sensor->type == PIOS_SENSORS_TYPE_3AXIS_MAG) {
+        switch (sensor->type) {
+        case PIOS_SENSORS_TYPE_3AXIS_MAG:
             handleMag(samples, temperature);
             PERF_MEASURE_PERIOD(counterMagPeriod);
             return;
-        } else {
+        case PIOS_SENSORS_TYPE_3AXIS_AUXMAG:
+            handleAuxMag(samples);
+            PERF_MEASURE_PERIOD(counterMagPeriod);
+            return;
+        default:
             PERF_TRACK_VALUE(counterAccelSamples, sensor_context->count);
             PERF_MEASURE_PERIOD(counterAccelPeriod);
             handleAccel(samples, temperature);
+            break;
         }
     }
 
@@ -458,6 +483,23 @@ static void handleMag(float *samples, float temperature)
     MagSensorSet(&mag);
 }
 
+static void handleAuxMag(float *samples)
+{
+    AuxMagSensorData mag;
+    float mags[3] = { (float)samples[0] - mag_bias[0],
+                      (float)samples[1] - mag_bias[1],
+                      (float)samples[2] - mag_bias[2] };
+
+    rot_mult(auxmag_transform, mags, samples);
+
+    mag.x = samples[0];
+    mag.y = samples[1];
+    mag.z = samples[2];
+    mag.Status = AUXMAGSENSOR_STATUS_OK;
+
+    AuxMagSensorSet(&mag);
+}
+
 static void handleBaro(float sample, float temperature)
 {
     updateBaroTempBias(temperature);
@@ -535,12 +577,14 @@ static void updateBaroTempBias(float temperature)
     }
     baro_temp_calibration_count--;
 }
+
 /**
  * Locally cache some variables from the AtttitudeSettings object
  */
 static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
 {
     RevoCalibrationGet(&cal);
+    AuxMagSettingsGet(&auxmagcal);
     AccelGyroSettingsGet(&agcal);
     mag_bias[0] = cal.mag_bias.X;
     mag_bias[1] = cal.mag_bias.Y;
@@ -588,6 +632,7 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
         Quaternion2R(rotationQuat, R);
     }
     matrix_mult_3x3f((float(*)[3])RevoCalibrationmag_transformToArray(cal.mag_transform), R, mag_transform);
+    matrix_mult_3x3f((float(*)[3])AuxMagSettingsmag_transformToArray(auxmagcal.mag_transform), R, auxmag_transform);
 
     RevoSettingsBaroTempCorrectionPolynomialGet(&baroCorrection);
     RevoSettingsBaroTempCorrectionExtentGet(&baroCorrectionExtent);

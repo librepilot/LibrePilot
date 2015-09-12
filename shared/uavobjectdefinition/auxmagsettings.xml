@@ -5,8 +5,10 @@
         <field name="mag_transform" units="gain" type="float" elementnames="r0c0,r0c1,r0c2,r1c0,r1c1,r1c2,r2c0,r2c1,r2c2"
          defaultvalue="1,0,0,0,1,0,0,0,1"/>
         <field name="MagBiasNullingRate" units="" type="float" elements="1" defaultvalue="0"/>
-        <field name="Orientation" units="degrees" type="float" elements="1" defaultvalue="0"/>
-        <field name="Type" units="" type="enum" elements="1" options="GPSV9,Ext" defaultvalue="GPSV9"/>
+        <field name="Orientation" units="" type="enum" elements="1"
+               options="EAST_NORTH_UP,SOUTH_EAST_UP,WEST_SOUTH_UP,NORTH_WEST_UP,EAST_SOUTH_DOWN,SOUTH_WEST_DOWN,WEST_NORTH_DOWN,NORTH_EAST_DOWN,UNCHANGED"
+               defaultvalue="UNCHANGED"/>
+        <field name="Type" units="" type="enum" elements="1" options="GPSV9,Ext,Flexi" defaultvalue="GPSV9"/>
         <field name="Usage" units="" type="enum" elements="1" options="Both,OnboardOnly,AuxOnly" defaultvalue="Both"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>

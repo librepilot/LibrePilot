@@ -95,7 +95,11 @@
 #define PIOS_HMC5x83_Sensitivity_5_6Ga  330     // LSB/Ga
 #define PIOS_HMC5x83_Sensitivity_8_1Ga  230     // LSB/Ga  --> NOT RECOMMENDED
 
+/* Status Register */
+#define PIOS_HMC5x83_DATAOUT_STATUS_RDY 0x01
+
 typedef uintptr_t pios_hmc5x83_dev_t;
+extern pios_hmc5x83_dev_t external_mag;
 
 struct pios_hmc5x83_io_driver {
     int32_t (*Write)(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t buffer);
@@ -119,6 +123,7 @@ enum PIOS_HMC5X83_ORIENTATION {
     PIOS_HMC5X83_ORIENTATION_SOUTH_WEST_DOWN,
     PIOS_HMC5X83_ORIENTATION_WEST_NORTH_DOWN,
     PIOS_HMC5X83_ORIENTATION_NORTH_EAST_DOWN,
+    PIOS_HMC5X83_ORIENTATION_UNCHANGED,
 };
 
 
@@ -137,8 +142,10 @@ struct pios_hmc5x83_cfg {
 
 /* Public Functions */
 extern pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_t port_id, uint8_t device_num);
-extern void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler);
+extern void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler, PIOS_SENSORS_TYPE sensortype);
 
+extern void PIOS_HMC5x83_Ext_Orientation_Set(enum PIOS_HMC5X83_ORIENTATION orientation);
+extern void PIOS_HMC5x83_Orient(enum PIOS_HMC5X83_ORIENTATION orientation, int16_t in[3], int16_t out[3]);
 extern bool PIOS_HMC5x83_NewDataAvailable(pios_hmc5x83_dev_t handler);
 extern int32_t PIOS_HMC5x83_ReadMag(pios_hmc5x83_dev_t handler, int16_t out[3]);
 extern uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4]);

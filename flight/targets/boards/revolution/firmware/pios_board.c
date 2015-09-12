@@ -36,6 +36,7 @@
 #include <pios_oplinkrcvr_priv.h>
 #include <taskinfo.h>
 #include <pios_ws2811.h>
+#include <auxmagsettings.h>
 
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
@@ -55,12 +56,11 @@
 /**
  * Sensor configurations
  */
-
 #if defined(PIOS_INCLUDE_ADC)
-
 #include "pios_adc_priv.h"
 void PIOS_ADC_DMC_irq_handler(void);
 void DMA2_Stream4_IRQHandler(void) __attribute__((alias("PIOS_ADC_DMC_irq_handler")));
+
 struct pios_adc_cfg pios_adc_cfg = {
     .adc_dev = ADC1,
     .dma     = {
@@ -84,22 +84,25 @@ struct pios_adc_cfg pios_adc_cfg = {
     .half_flag = DMA_IT_HTIF4,
     .full_flag = DMA_IT_TCIF4,
 };
+
 void PIOS_ADC_DMC_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
     PIOS_ADC_DMA_Handler();
 }
-
 #endif /* if defined(PIOS_INCLUDE_ADC) */
 
 #if defined(PIOS_INCLUDE_HMC5X83)
 #include "pios_hmc5x83.h"
 pios_hmc5x83_dev_t onboard_mag = 0;
+pios_hmc5x83_dev_t external_mag = 0;
 
+#ifdef PIOS_HMC5X83_HAS_GPIOS
 bool pios_board_internal_mag_handler()
 {
     return PIOS_HMC5x83_IRQHandler(onboard_mag);
 }
+
 static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
     .vector = pios_board_internal_mag_handler,
     .line   = EXTI_Line7,
@@ -130,13 +133,30 @@ static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
         },
     },
 };
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
 
-static const struct pios_hmc5x83_cfg pios_hmc5x83_cfg = {
+static const struct pios_hmc5x83_cfg pios_hmc5x83_internal_cfg = {
+#ifdef PIOS_HMC5X83_HAS_GPIOS
     .exti_cfg    = &pios_exti_hmc5x83_cfg,
+#endif
     .M_ODR       = PIOS_HMC5x83_ODR_75,
     .Meas_Conf   = PIOS_HMC5x83_MEASCONF_NORMAL,
     .Gain        = PIOS_HMC5x83_GAIN_1_9,
     .Mode        = PIOS_HMC5x83_MODE_CONTINUOUS,
+    .TempCompensation = false,
+    .Driver      = &PIOS_HMC5x83_I2C_DRIVER,
+    .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP,
+};
+
+static const struct pios_hmc5x83_cfg pios_hmc5x83_external_cfg = {
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    .exti_cfg    = NULL,
+#endif
+    .M_ODR       = PIOS_HMC5x83_ODR_75, // if you change this for auxmag, change AUX_MAG_SKIP in sensors.c
+    .Meas_Conf   = PIOS_HMC5x83_MEASCONF_NORMAL,
+    .Gain        = PIOS_HMC5x83_GAIN_1_9,
+    .Mode        = PIOS_HMC5x83_MODE_CONTINUOUS,
+    .TempCompensation = false,
     .Driver      = &PIOS_HMC5x83_I2C_DRIVER,
     .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP,
 };
@@ -247,7 +267,6 @@ uint32_t pios_com_rf_id        = 0;
 uint32_t pios_com_bridge_id    = 0;
 uint32_t pios_com_overo_id     = 0;
 uint32_t pios_com_hkosd_id     = 0;
-
 uint32_t pios_com_vcp_id       = 0;
 
 #if defined(PIOS_INCLUDE_RFM22B)
@@ -368,7 +387,6 @@ void PIOS_Board_Init(void)
     PIOS_LED_Init(led_cfg);
 #endif /* PIOS_INCLUDE_LED */
 
-
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
     PIOS_Instrumentation_Init(PIOS_INSTRUMENTATION_MAX_COUNTERS);
 #endif
@@ -400,6 +418,7 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_RTC)
     PIOS_RTC_Init(&pios_rtc_main_cfg);
 #endif
+
     /* IAP System Setup */
     PIOS_IAP_Init();
     // check for safe mode commands from gcs
@@ -411,8 +430,15 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);
     }
+
 #ifdef PIOS_INCLUDE_WDG
-    PIOS_WDG_Init();
+    /* From TauLabs
+     * Initialize watchdog as early as possible to catch faults during init
+     * but do it only if there is no debugger connected
+     */
+    if ((CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) == 0) {
+        PIOS_WDG_Init();
+    }
 #endif
 
     /* Initialize the task monitor */
@@ -471,11 +497,21 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_FLEXIPORT_I2C:
 #if defined(PIOS_INCLUDE_I2C)
-        {
-            if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
-                PIOS_Assert(0);
-            }
+        if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
+            PIOS_Assert(0);
         }
+        PIOS_DELAY_WaitmS(50);  // this was after the other PIOS_I2C_Init(), so I copied it here too
+#if defined(PIOS_INCLUDE_HMC5X83)
+        // get auxmag type
+        AuxMagSettingsTypeOptions option;
+        AuxMagSettingsInitialize();
+        AuxMagSettingsTypeGet(&option);
+        // if the aux mag type is FlexiPort then set it up
+        if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
+            external_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_external_cfg, pios_i2c_flexiport_adapter_id, 0);
+            PIOS_HMC5x83_Register(external_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+        }
+#endif /* PIOS_INCLUDE_HMC5X83 */
 #endif /* PIOS_INCLUDE_I2C */
         break;
     case HWSETTINGS_RM_FLEXIPORT_GPS:
@@ -662,7 +698,6 @@ void PIOS_Board_Init(void)
     }
 #endif /* PIOS_INCLUDE_USB */
 
-
     /* Configure main USART port */
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
@@ -723,7 +758,6 @@ void PIOS_Board_Init(void)
         GPIO_Init(pios_sbus_cfg.inv.gpio, &pios_sbus_cfg.inv.init);
         GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
     }
-
 
     /* Initalize the RFM22B radio COM device. */
 #if defined(PIOS_INCLUDE_RFM22B)
@@ -838,7 +872,6 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_RFM22B */
 
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PWM)
-
     const struct pios_servo_cfg *pios_servo_cfg;
     // default to servo outputs only
     pios_servo_cfg = &pios_servo_cfg_out;
@@ -933,10 +966,10 @@ void PIOS_Board_Init(void)
     };
     GPIO_Init(GPIOA, &gpioA8);
 
+    // init I2C1 for use with the internal mag and baro
     if (PIOS_I2C_Init(&pios_i2c_mag_pressure_adapter_id, &pios_i2c_mag_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
-
     PIOS_DELAY_WaitmS(50);
 
 #if defined(PIOS_INCLUDE_ADC)
@@ -950,8 +983,10 @@ void PIOS_Board_Init(void)
 #endif
 
 #if defined(PIOS_INCLUDE_HMC5X83)
-    onboard_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
-    PIOS_HMC5x83_Register(onboard_mag);
+    // attach the 5x83 mag to the previously inited I2C1
+    onboard_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_internal_cfg, pios_i2c_mag_pressure_adapter_id, 0);
+    // add this sensor to the sensor task's list
+    PIOS_HMC5x83_Register(onboard_mag, PIOS_SENSORS_TYPE_3AXIS_MAG);
 #endif
 
 #if defined(PIOS_INCLUDE_MS5611)
@@ -985,3 +1020,203 @@ void PIOS_Board_Init(void)
  * @}
  * @}
  */
+
+
+
+/*
+things to try:
+--------------
+tau uses single mode on external
+REMEMBER that to change this, we need to change the hack that always sets it continuous after each read?/write?
+static const struct pios_hmc5883_cfg pios_hmc5883_internal_cfg = {
+	.exti_cfg = &pios_exti_hmc5883_internal_cfg,
+	.M_ODR = PIOS_HMC5883_ODR_75,
+	.Meas_Conf = PIOS_HMC5883_MEASCONF_NORMAL,
+	.Gain = PIOS_HMC5883_GAIN_1_9,
+	.Mode = PIOS_HMC5883_MODE_CONTINUOUS,
+	.Default_Orientation = PIOS_HMC5883_TOP_90DEG,
+};
+
+static const struct pios_hmc5883_cfg pios_hmc5883_external_cfg = {
+	.M_ODR = PIOS_HMC5883_ODR_75,
+	.Meas_Conf = PIOS_HMC5883_MEASCONF_NORMAL,
+	.Gain = PIOS_HMC5883_GAIN_1_9,
+	.Mode = PIOS_HMC5883_MODE_SINGLE,
+	.Default_Orientation = PIOS_HMC5883_TOP_0DEG,
+};
+
+tau does as many i2c_init()s as are enabled
+but only does PIOS_HMC5883_Init() for the one mag that is in use
+
+try these in this order:
+------------------------
+current setup with tau fixes
+single mode
+only PIOS_HMC5883_Init() and register one mag
+increase several stacks
+ sensors.c sensor task
+ callback
+ hardware interrupt stack
+research tau's PIOS_I2C_Init() and PIOS_HMC5883_Init()
+
+RELOAD_WDG();
+
+things to do:
+-------------
+make an ASSERT() for enum PIOS_HMC5X83_ORIENTATION must match AuxMagSettingsOrientationOptions
+fix i2c reset in all processors, not just F4
+move all I2C stuff to a lower priority sensor task
+
+Things to do now:
+-----------------
+fix AUX_MAG_SKIP
+set AMS lower and see some duplicates
+set AMS to exactly what it needs to be for highest rate with no dups
+figure out mag orientation and set correct default and document how to determine what to use
+  I think that chip upside down and facing forward is the best default.
+back up into a tar
+clean up code 90% at least
+examine git diff
+back up into a tar
+merge latest next into it
+test calibration
+test fly
+push
+announce
+code and TL fixes on all other boards
+push
+
+for a test I moved PIOS_WDG_Init() to the end of PIOS_Board_Init()
+four work arounds:
+------------------
+disable ext mag with either UAVO setting or code
+disable int mag with code
+  remove just registration
+    PIOS_HMC5x83_Register(onboard_mag, PIOS_SENSORS_TYPE_3AXIS_MAG);
+disable watchdog
+  either comment out #define PIOS_INCLUDE_WDG or comment out PIOS_WDG_Init();
+sometimes: pause in PIOS_Board_Init() with the debugger, then some next/step then cont, can't reproduce
+
+does not fix it:
+----------------
+disable baro registration
+some RELOAD_WDG(); in sensors.c that I tried
+
+neo6 gps/mag:
+-------------
+east south down is right side up
+south west down locks up the GCS, no it just reds the mag and reinits and so atti and stab are offline
+
+mag facts:
+Revo front pointed north gives high positive X
+Revo right (servo pins) pointed north gives high Y
+Revo bottom pointed north gives high positive Z
+
+neo6 bottom pointed north gives high
+neo6 bottom pointed north gives high
+neo6 bottom pointed north gives high
+
+steps:
+send UNCHANGED
+point front north (and very importantly down 64 degrees for me)
+flip 180 degrees
+which axis moved the most?  was it positive (then negative)?  X yes
+that is N channel
+
+point bottom north
+flip 180 degrees
+which axis moved the most?  was it positive (then negative)?  Y yes
+that is D channel
+
+point right side north
+flip 180 degrees
+which axis moved the most?  was it positive (then negative)?  Z yes
+that is E channel
+
+Revo does X yes, Z yes, Y yes
+so to get that from this mag we need all positive
+NED
+maybe ask which axis moves Z
+
+which one makes X move, that is north (south if negative)
+which one makes Y move, that is east   (west if negative)
+which one makes Z move, that is down     (up if negative)
+find that exact combination in some order
+
+a test with upside down battery the desired orientation
+N channel Z neg is S
+D channel Y neg is U
+E channel X neg is W
+arrange in XZY order and that is WSU
+
+should be WSU
+that is correct
+What must we do to get NDE XZY
+
+=================================
+rephrase question
+what gives us XZY
+NED
+WSU
+
+=================================
+send UNCHANGED
+point front north (and very importantly down 64 degrees for me)
+flip 180 degrees
+which axis moved the most?  was it positive (then negative)?  X yes
+that is N channel
+
+point bottom north
+flip 180 degrees
+which axis moved the most?  was it positive (then negative)?  Y yes
+that is D channel
+
+point right side north
+flip 180 degrees
+which axis moved the most?  was it positive (then negative)?  Z yes
+that is E channel
+
+negative N is S and comes from Z
+negative D is U and comes from Y
+negative E is W and comes from X
+where did XZY come from?  WSU
+
+
+wires forward and top side up
+Note that it is the largest difference.
+  -100 to -900 is larger than 200 to -200
+  -100 to -900 started more positive
+you can find a more accurate north after you know which axis is pointing that way
+  make small rotations in yaw and pitch to change where it is pointing a little and watch for the strongest signal ON THAT AXIS
+send UNCHANGED
+point front north (and very importantly down 64 degrees for me)
+flip 180 degrees to point the back north
+which axis moved the most?  did it start positive (then negative)?  X neg
+that is N channel
+
+point bottom north
+flip 180 degrees to point the top north
+which axis moved the most?  did it start positive (then negative)?  Y pos
+that is D channel
+
+point right side north
+flip 180 degrees to point the left north
+which axis moved the most?  did it start positive (then negative)?  Z neg
+that is E channel
+
+X-N = S
+Y+D = D
+Z-E = W
+where did XZY come from?  SWD
+looks pointed south, not west after hours
+
+
+--- or? ---
+debug and hit continue when it traps
+
+It appears that the 0x08000bcc address is the boot code where it goes after watchdog
+
+
+Neo6
+7-8 sats upside down, indoors
+*/

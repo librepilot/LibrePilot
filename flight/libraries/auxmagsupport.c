@@ -27,6 +27,30 @@
 #include <stdint.h>
 #include "inc/auxmagsupport.h"
 #include "CoordinateConversions.h"
+#if defined(PIOS_INCLUDE_HMC5X83)
+#include "pios_hmc5x83.h"
+#endif
+
+#define assumptions \
+    ( \
+        ((int)   PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP ==    \
+         (int) AUXMAGSETTINGS_ORIENTATION_EAST_NORTH_UP) &&   \
+        ((int)   PIOS_HMC5X83_ORIENTATION_SOUTH_EAST_UP ==    \
+         (int) AUXMAGSETTINGS_ORIENTATION_SOUTH_EAST_UP) &&   \
+        ((int)   PIOS_HMC5X83_ORIENTATION_WEST_SOUTH_UP ==    \
+         (int) AUXMAGSETTINGS_ORIENTATION_WEST_SOUTH_UP) &&   \
+        ((int)   PIOS_HMC5X83_ORIENTATION_NORTH_WEST_UP ==    \
+         (int) AUXMAGSETTINGS_ORIENTATION_NORTH_WEST_UP) &&   \
+        ((int)   PIOS_HMC5X83_ORIENTATION_EAST_SOUTH_DOWN ==  \
+         (int) AUXMAGSETTINGS_ORIENTATION_EAST_SOUTH_DOWN) && \
+        ((int)   PIOS_HMC5X83_ORIENTATION_SOUTH_WEST_DOWN ==  \
+         (int) AUXMAGSETTINGS_ORIENTATION_SOUTH_WEST_DOWN) && \
+        ((int)   PIOS_HMC5X83_ORIENTATION_WEST_NORTH_DOWN ==  \
+         (int) AUXMAGSETTINGS_ORIENTATION_WEST_NORTH_DOWN) && \
+        ((int)   PIOS_HMC5X83_ORIENTATION_NORTH_EAST_DOWN ==  \
+         (int) AUXMAGSETTINGS_ORIENTATION_NORTH_EAST_DOWN) && \
+        ((int)   PIOS_HMC5X83_ORIENTATION_UNCHANGED ==        \
+         (int) AUXMAGSETTINGS_ORIENTATION_UNCHANGED) )
 
 static float mag_bias[3] = { 0, 0, 0 };
 static float mag_transform[3][3] = {
@@ -38,14 +62,11 @@ AuxMagSettingsTypeOptions option;
 void auxmagsupport_reload_settings()
 {
     AuxMagSettingsTypeGet(&option);
-    float a[3][3];
-    float b[3][3];
-    float rotz;
-    AuxMagSettingsmag_transformArrayGet((float *)a);
-    AuxMagSettingsOrientationGet(&rotz);
-    rotz = DEG2RAD(rotz);
-    rot_about_axis_z(rotz, b);
-    matrix_mult_3x3f(a, b, mag_transform);
+    AuxMagSettingsmag_transformArrayGet((float *)mag_transform);
+    AuxMagSettingsOrientationOptions orientation;
+    AuxMagSettingsOrientationGet(&orientation);
+    PIOS_STATIC_ASSERT(assumptions);
+    PIOS_HMC5x83_Ext_Orientation_Set((enum PIOS_HMC5X83_ORIENTATION) orientation);
     AuxMagSettingsmag_biasArrayGet(mag_bias);
 }
 

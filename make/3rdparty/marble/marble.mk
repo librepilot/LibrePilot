@@ -74,7 +74,7 @@ marble:
 	$(V1) $(MKDIR) -p $(MARBLE_BUILD_DIR)
 	$(V1) ( $(CD) $(MARBLE_BUILD_DIR) && \
 		PATH=$(MARBLE_BUILD_PATH) && \
-		$(CMAKE) -G $(MARBLE_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(MARBLE_BUILD_CONF) \
+		$(CMAKE) -Wno-dev -G $(MARBLE_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(MARBLE_BUILD_CONF) \
 			-DQTONLY=1 -DQT5BUILD=1 -DWITH_DESIGNER_PLUGIN=0 \
 			-DCMAKE_INSTALL_PREFIX=$(MARBLE_INSTALL_DIR) $(MARBLE_SRC_DIR) && \
 		$(MAKE) && \
@@ -116,7 +116,8 @@ clone_marble:
 	fi
 	@$(ECHO) "Fetching marble..."
 	$(V1) ( $(CD) $(MARBLE_SRC_DIR) && $(GIT) fetch ; )
-	@$(ECHO) "Checking out marble branch $(MARBLE_GIT_BRANCH)"
+	@$(ECHO) "Checking out marble $(MARBLE_GIT_BRANCH)"
+	$(V1) ( $(CD) $(MARBLE_SRC_DIR) && $(GIT) fetch --tags ; )
 	$(V1) ( $(CD) $(MARBLE_SRC_DIR) && $(GIT) checkout --quiet --force $(MARBLE_GIT_BRANCH) ; )
 	$(V1) if [ -e $(MARBLE_PATCH_FILE) ]; then \
 		$(ECHO) "Patching marble..." ; \

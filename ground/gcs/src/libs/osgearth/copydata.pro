@@ -7,18 +7,23 @@ equals(copyosg, 1) {
 
     linux {
         # copy osg libraries
+
+        data_copy.commands += $(MKDIR) $${GCS_LIBRARY_PATH}/osg $$addNewline()
         exists( $${OSG_SDK_DIR}/lib64 ) {
-	        #addCopyDirFilesTargets($${OSG_SDK_DIR}/lib64,$${GCS_LIBRARY_PATH}/osg)
-        } else {
-	        #addCopyDirFilesTargets($${OSG_SDK_DIR}/lib,$${GCS_LIBRARY_PATH}/osg)
+            data_copy.commands += $(COPY_DIR) $${OSG_SDK_DIR}/lib64/* $${GCS_LIBRARY_PATH}/osg/ $$addNewline()
         }
+        else {
+            data_copy.commands += $(COPY_DIR) $${OSG_SDK_DIR}/lib/* $${GCS_LIBRARY_PATH}/osg/ $$addNewline()
+        }
+
+        # add make target
+        POST_TARGETDEPS += copydata
+
+        data_copy.target = copydata
+        QMAKE_EXTRA_TARGETS += data_copy
     }
 
     macx {
-
-        isEmpty(PROVIDER) {
-            PROVIDER = OpenPilot
-        }
 
         data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_SDK_DIR/lib/\"*) $$targetPath(\"$$GCS_LIBRARY_PATH\") $$addNewline()
 

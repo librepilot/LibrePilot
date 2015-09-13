@@ -4,8 +4,7 @@
 
     <options>
         <!--overlay_resolution_ratio="1.0"/-->
-        <terrain first_lod="0" />
-        <!--terrain first_lod="0" min_lod="20" /-->
+        <terrain first_lod="0" min_lod="20" />
     </options>
 
     <image name="arcgis-world-imagery" driver="arcgis">

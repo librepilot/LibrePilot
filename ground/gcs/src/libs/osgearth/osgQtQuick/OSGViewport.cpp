@@ -196,10 +196,10 @@ public:
 
         // TODO map handling should not be done here
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
-        if (false && mapNode) {
+        if (mapNode) {
             qDebug() << "OSGViewport::attach - found map node" << mapNode;
-            // install AutoClipPlaneCullCallback : computes near/far planes based on scene geometry
             qDebug() << "OSGViewport::attach - set AutoClipPlaneCullCallback on camera";
+            // install AutoClipPlaneCullCallback : computes near/far planes based on scene geometry
             // TODO will the AutoClipPlaneCullCallback be destroyed ?
             // TODO does it need to be added to the map node or to the view ?
             cullCallback = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);

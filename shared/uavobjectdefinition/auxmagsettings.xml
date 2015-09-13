@@ -7,7 +7,7 @@
         <field name="MagBiasNullingRate" units="" type="float" elements="1" defaultvalue="0"/>
         <field name="Orientation" units="" type="enum" elements="1"
                options="EAST_NORTH_UP,SOUTH_EAST_UP,WEST_SOUTH_UP,NORTH_WEST_UP,EAST_SOUTH_DOWN,SOUTH_WEST_DOWN,WEST_NORTH_DOWN,NORTH_EAST_DOWN,UNCHANGED"
-               defaultvalue="UNCHANGED"/>
+               defaultvalue="NORTH_EAST_DOWN"/>
         <field name="Type" units="" type="enum" elements="1" options="GPSV9,Ext,Flexi" defaultvalue="GPSV9"/>
         <field name="Usage" units="" type="enum" elements="1" options="Both,OnboardOnly,AuxOnly" defaultvalue="Both"/>
         <access gcs="readwrite" flight="readwrite"/>

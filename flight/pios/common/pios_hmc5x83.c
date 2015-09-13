@@ -114,8 +114,14 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
     }
 #endif
 
+#if 0
     int32_t val = PIOS_HMC5x83_Config(dev);
     PIOS_Assert(val == 0);
+#else
+    if (PIOS_HMC5x83_Config(dev) != 0) {
+        return ((pios_hmc5x83_dev_t) NULL);
+    }
+#endif
 
     dev->data_ready = false;
     return (pios_hmc5x83_dev_t)dev;
@@ -123,7 +129,9 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
 
 void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler, PIOS_SENSORS_TYPE sensortype)
 {
-    PIOS_SENSORS_Register(&PIOS_HMC5x83_Driver, sensortype, handler);
+    if (handler) {
+        PIOS_SENSORS_Register(&PIOS_HMC5x83_Driver, sensortype, handler);
+    }
 }
 
 /**
@@ -360,7 +368,7 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
 // define this to simply return true when asking if data is available on non-GPIO devices
 // we just set the polling rate elsewhere
 // this is more efficient, but has more data time lag
-#define HMC5X83_POLLED_STATUS_RETURNS_TRUE
+#define HMC5X83_STATUS_POLL_RETURNS_TRUE
 
 /**
  * @brief Tells whether new magnetometer readings are available
@@ -369,7 +377,7 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
  */
 bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t handler)
 {
-#if ( defined(PIOS_HMC5X83_HAS_GPIOS) || !defined(HMC5X83_POLLED_STATUS_RETURNS_TRUE) )
+#if ( defined(PIOS_HMC5X83_HAS_GPIOS) || !defined(HMC5X83_STATUS_POLL_RETURNS_TRUE) )
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
 #endif
 
@@ -380,7 +388,7 @@ bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t ha
     else
 #endif /* PIOS_HMC5X83_HAS_GPIOS */
     {                           // else poll to see if data is ready or just say "true" and set polling interval elsewhere
-#ifdef HMC5X83_POLLED_STATUS_RETURNS_TRUE
+#ifdef HMC5X83_STATUS_POLL_RETURNS_TRUE
         return true;
 #else
         // poll SR0 (RDY) here.  1 -> data ready.

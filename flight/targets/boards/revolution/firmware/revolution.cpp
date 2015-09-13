@@ -128,7 +128,16 @@ void initTask(__attribute__((unused)) void *parameters)
     PIOS_Board_Init();
 
     /* Initialize modules */
+#if 1
     MODULE_INITIALISE_ALL;
+#else
+    for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) {
+        if (fn->fn_minit) {
+            (fn->fn_minit)();
+        }
+    }
+    initTaskDone = 1;
+#endif
 
     /* terminate this task */
     vTaskDelete(NULL);

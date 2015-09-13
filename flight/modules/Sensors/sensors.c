@@ -59,6 +59,7 @@
 #include <revocalibration.h>
 #include <auxmagsettings.h>
 #include <auxmagsensor.h>
+#include <auxmagsupport.h>
 #include <accelgyrosettings.h>
 #include <revosettings.h>
 
@@ -85,6 +86,8 @@
 
 static const TickType_t sensor_period_ticks = ((uint32_t) (1000.0f / PIOS_SENSOR_RATE / (float) portTICK_RATE_MS));
 #define AUX_MAG_SKIP ((int) ((((PIOS_SENSOR_RATE < 76) ? 76 : PIOS_SENSOR_RATE) + 74) / 75))  /* (AMS at least 2) 75 is mag ODR output data rate in pios_board.c */
+
+#define AUX_MAG_LOCAL_SUPPORT
 
 // Interval in number of sample to recalculate temp bias
 #define TEMP_CALIB_INTERVAL      30
@@ -152,7 +155,9 @@ static void updateBaroTempBias(float temperature);
 static sensor_data *source_data;
 static xTaskHandle sensorsTaskHandle;
 RevoCalibrationData cal;
+#ifdef AUX_MAG_LOCAL_SUPPORT
 AuxMagSettingsData auxmagcal;
+#endif
 AccelGyroSettingsData agcal;
 
 // These values are initialized by settings but can be updated by the attitude algorithm
@@ -160,9 +165,12 @@ static float mag_bias[3] = { 0, 0, 0 };
 static float mag_transform[3][3] = {
     { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }
 };
+#ifdef AUX_MAG_LOCAL_SUPPORT
+static float auxmag_bias[3] = { 0, 0, 0 };
 static float auxmag_transform[3][3] = {
     { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }
 };
+#endif
 
 // Variables used to handle accel/gyro temperature bias
 static volatile bool gyro_temp_calibrated  = false;
@@ -204,7 +212,9 @@ int32_t SensorsInitialize(void)
     MagSensorInitialize();
     BaroSensorInitialize();
     RevoCalibrationInitialize();
+#ifdef AUX_MAG_LOCAL_SUPPORT
     AuxMagSettingsInitialize();
+#endif
     RevoSettingsInitialize();
     AttitudeSettingsInitialize();
     AccelGyroSettingsInitialize();
@@ -213,7 +223,9 @@ int32_t SensorsInitialize(void)
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
     RevoCalibrationConnectCallback(&settingsUpdatedCb);
+#ifdef AUX_MAG_LOCAL_SUPPORT
     AuxMagSettingsConnectCallback(&settingsUpdatedCb);
+#endif
     AttitudeSettingsConnectCallback(&settingsUpdatedCb);
     AccelGyroSettingsConnectCallback(&settingsUpdatedCb);
 
@@ -485,10 +497,11 @@ static void handleMag(float *samples, float temperature)
 
 static void handleAuxMag(float *samples)
 {
+#ifdef AUX_MAG_LOCAL_SUPPORT
     AuxMagSensorData mag;
-    float mags[3] = { (float)samples[0] - mag_bias[0],
-                      (float)samples[1] - mag_bias[1],
-                      (float)samples[2] - mag_bias[2] };
+    float mags[3] = { (float)samples[0] - auxmag_bias[0],
+                      (float)samples[1] - auxmag_bias[1],
+                      (float)samples[2] - auxmag_bias[2] };
 
     rot_mult(auxmag_transform, mags, samples);
 
@@ -498,6 +511,9 @@ static void handleAuxMag(float *samples)
     mag.Status = AUXMAGSENSOR_STATUS_OK;
 
     AuxMagSensorSet(&mag);
+#else
+    auxmagsupport_publish_samples(samples, AUXMAGSENSOR_STATUS_OK);
+#endif
 }
 
 static void handleBaro(float sample, float temperature)
@@ -584,11 +600,16 @@ static void updateBaroTempBias(float temperature)
 static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
 {
     RevoCalibrationGet(&cal);
-    AuxMagSettingsGet(&auxmagcal);
-    AccelGyroSettingsGet(&agcal);
     mag_bias[0] = cal.mag_bias.X;
     mag_bias[1] = cal.mag_bias.Y;
     mag_bias[2] = cal.mag_bias.Z;
+#ifdef AUX_MAG_LOCAL_SUPPORT
+    AuxMagSettingsGet(&auxmagcal);
+    auxmag_bias[0] = auxmagcal.mag_bias.X;
+    auxmag_bias[1] = auxmagcal.mag_bias.Y;
+    auxmag_bias[2] = auxmagcal.mag_bias.Z;
+#endif
+    AccelGyroSettingsGet(&agcal);
 
     accel_temp_calibrated = (agcal.temp_calibrated_extent.max - agcal.temp_calibrated_extent.min > .1f) &&
                             (fabsf(agcal.accel_temp_coeff.X) > 1e-9f || fabsf(agcal.accel_temp_coeff.Y) > 1e-9f || fabsf(agcal.accel_temp_coeff.Z) > 1e-9f);
@@ -632,7 +653,9 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
         Quaternion2R(rotationQuat, R);
     }
     matrix_mult_3x3f((float(*)[3])RevoCalibrationmag_transformToArray(cal.mag_transform), R, mag_transform);
+#ifdef AUX_MAG_LOCAL_SUPPORT
     matrix_mult_3x3f((float(*)[3])AuxMagSettingsmag_transformToArray(auxmagcal.mag_transform), R, auxmag_transform);
+#endif
 
     RevoSettingsBaroTempCorrectionPolynomialGet(&baroCorrection);
     RevoSettingsBaroTempCorrectionExtentGet(&baroCorrectionExtent);

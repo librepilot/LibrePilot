@@ -92,7 +92,6 @@ extern void StartModules();
 
 #define MODULE_INITCALL(ifn, sfn) __define_module_initcall("module", ifn, sfn)
 
-#if 0
 #define MODULE_INITIALISE_ALL \
     { for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) { \
           if (fn->fn_minit) { \
@@ -100,24 +99,7 @@ extern void StartModules();
       } \
       initTaskDone = 1; \
     }
-#else
-#define MODULE_INITIALISE_ALL \
-    { for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) { \
-          if (fn->fn_minit) { \
-              (fn->fn_minit)(); } \
-      } \
-      initTaskDone = 1; \
-    }
-#endif
 
-#if 0
-#define MODULE_TASKCREATE_ALL \
-    { for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) { \
-          if (fn->fn_tinit) { \
-              (fn->fn_tinit)(); } \
-      } \
-    }
-#else
 #define MODULE_TASKCREATE_ALL    \
     { for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) { \
           if (fn->fn_tinit) {    \
@@ -125,7 +107,6 @@ extern void StartModules();
               PIOS_WDG_Clear();  \
           } \
     } }
-#endif
 
 #endif /* USE_SIM_POSIX */
 

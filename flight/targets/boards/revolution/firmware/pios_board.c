@@ -38,7 +38,6 @@
 #include <pios_ws2811.h>
 #include <auxmagsettings.h>
 
-
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
 #endif
@@ -1024,4 +1023,3 @@ void PIOS_Board_Init(void)
  * @}
  * @}
  */
-

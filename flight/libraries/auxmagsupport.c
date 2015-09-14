@@ -27,9 +27,7 @@
 #include <stdint.h>
 #include "inc/auxmagsupport.h"
 #include "CoordinateConversions.h"
-#if defined(PIOS_INCLUDE_HMC5X83)
-#include "pios_hmc5x83.h"
-#endif
+#include "pios_hmc5x83.h" // this is needed for mag orientation even for other mag types
 
 #define assumptions \
     ( \

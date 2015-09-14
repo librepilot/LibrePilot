@@ -96,6 +96,7 @@ bool EscPage::isSynchOrOneShotAvailable()
         default:
             break;
         }
+        break;
     case SetupWizard::CONTROLLER_REVO:
         available = true;
         break;

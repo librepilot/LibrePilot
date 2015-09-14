@@ -119,6 +119,66 @@ static struct device_flash_sector flash_sectors[] = {
         .size      = 128 * 1024,
         .st_sector = FLASH_Sector_11,
     },
+    [12] = {
+        .start     = 0x08100000,
+        .size      = 16 * 1024,
+        .st_sector = FLASH_Sector_12,
+    },
+    [13] = {
+        .start     = 0x08104000,
+        .size      = 16 * 1024,
+        .st_sector = FLASH_Sector_13,
+    },
+    [14] = {
+        .start     = 0x08108000,
+        .size      = 16 * 1024,
+        .st_sector = FLASH_Sector_14,
+    },
+    [15] = {
+        .start     = 0x0810C000,
+        .size      = 16 * 1024,
+        .st_sector = FLASH_Sector_15,
+    },
+    [16] = {
+        .start     = 0x08110000,
+        .size      = 64 * 1024,
+        .st_sector = FLASH_Sector_16,
+    },
+    [17] = {
+        .start     = 0x08120000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_17,
+    },
+    [18] = {
+        .start     = 0x08140000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_18,
+    },
+    [19] = {
+        .start     = 0x08160000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_19,
+    },
+    [20] = {
+        .start     = 0x08180000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_20,
+    },
+    [21] = {
+        .start     = 0x081A0000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_21,
+    },
+    [22] = {
+        .start     = 0x081C0000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_22,
+    },
+    [23] = {
+        .start     = 0x081E0000,
+        .size      = 128 * 1024,
+        .st_sector = FLASH_Sector_23,
+    },
 };
 
 static bool PIOS_BL_HELPER_FLASH_GetSectorInfo(uint32_t address, uint8_t *sector_number, uint32_t *sector_start, uint32_t *sector_size)
@@ -178,6 +238,16 @@ static bool erase_flash(uint32_t startAddress, uint32_t endAddress)
             PIOS_Assert(0);
         }
         for (int retry = 0; retry < MAX_DEL_RETRYS; ++retry) {
+            //if erasing area contain whole bank2 area, using bank erase
+            if (sector_start == 0x08100000 && endAddress >= 0x08200000){
+                if (FLASH_EraseAllBank2Sectors(VoltageRange_3) == FLASH_COMPLETE) {
+                    fail = false;
+                    sector_size = 0x100000;
+                    break;
+                } else {
+                    fail = true;
+                }
+            }
             if (FLASH_EraseSector(sector_number, VoltageRange_3) == FLASH_COMPLETE) {
                 fail = false;
                 break;

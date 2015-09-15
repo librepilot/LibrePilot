@@ -14,10 +14,10 @@
 # - geos
 # - gdal
 #
-# $ sudo apt-get build-dep openscenegraph
+# $ sudo apt-get install libzip-dev libpng-dev lipjpeg-dev libtiff5-dev libcurl4-openssl-dev libgeos++-dev libgdal-dev
 #
-# $ sudo apt-get install libtiff5-dev libcurl4-openssl-dev libgeos++-dev libgdal-dev
-# libpng-dev lipjpeg-dev
+# Alternative (not tested)
+# $ sudo apt-get build-dep openscenegraph
 #
 # $ curl --version
 # curl 7.35.0 (i686-pc-linux-gnu) libcurl/7.35.0 OpenSSL/1.0.1f zlib/1.2.8 libidn/1.28 librtmp/2.3

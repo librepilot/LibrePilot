@@ -598,7 +598,8 @@ static bool PIOS_MPU6000_HandleData()
     queue_data->sample[0].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_Z));
     queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_Z));
     const int16_t temp = GET_SENSOR_DATA(mpu6000_data, Temperature);
-    queue_data->temperature = 3500 + ((float)(temp + 512)) * (1.0f / 3.4f);
+    // Temperature in degrees C = (TEMP_OUT Register Value as a signed quantity)/340 + 36.53
+    queue_data->temperature = 3653 + (temp * 100) / 340;
 
     BaseType_t higherPriorityTaskWoken;
     xQueueSendToBackFromISR(dev->queue, (void *)queue_data, &higherPriorityTaskWoken);

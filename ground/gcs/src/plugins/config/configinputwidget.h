@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configservowidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -61,7 +62,7 @@ public:
     ~ConfigInputWidget();
     enum wizardSteps { wizardWelcome, wizardChooseMode, wizardChooseType, wizardIdentifySticks, wizardIdentifyCenter, wizardIdentifyLimits, wizardIdentifyInverted, wizardFinish, wizardNone };
     enum txMode { mode1, mode2, mode3, mode4 };
-    enum txMovements { moveLeftVerticalStick, moveRightVerticalStick, moveLeftHorizontalStick, moveRightHorizontalStick, moveAccess0, moveAccess1, moveAccess2, moveFlightMode, centerAll, moveAll, nothing };
+    enum txMovements { moveLeftVerticalStick, moveRightVerticalStick, moveLeftHorizontalStick, moveRightHorizontalStick, moveAccess0, moveAccess1, moveAccess2, moveAccess3,moveFlightMode, centerAll, moveAll, nothing };
     enum txMovementType { vertical, horizontal, jump, mix };
     enum txType { acro, heli, ground };
     void startInputWizard()
@@ -125,6 +126,7 @@ private:
     AccessoryDesired *accessoryDesiredObj0;
     AccessoryDesired *accessoryDesiredObj1;
     AccessoryDesired *accessoryDesiredObj2;
+    AccessoryDesired *accessoryDesiredObj3;
 
     ManualControlSettings *manualSettingsObj;
     ManualControlSettings::DataFields manualSettingsData;
@@ -157,6 +159,7 @@ private:
     QGraphicsSvgItem *m_txAccess0;
     QGraphicsSvgItem *m_txAccess1;
     QGraphicsSvgItem *m_txAccess2;
+    QGraphicsSvgItem *m_txAccess3;
     QGraphicsSvgItem *m_txFlightMode;
     QGraphicsSvgItem *m_txBackground;
     QGraphicsSvgItem *m_txArrows;
@@ -165,6 +168,7 @@ private:
     QTransform m_txAccess0Orig;
     QTransform m_txAccess1Orig;
     QTransform m_txAccess2Orig;
+    QTransform m_txAccess3Orig;
     QTransform m_txFlightModeCOrig;
     QTransform m_txFlightModeLOrig;
     QTransform m_txFlightModeROrig;

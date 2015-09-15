@@ -56,7 +56,8 @@ typedef struct {
     uint    Accessory0 : 4;
     uint    Accessory1 : 4;
     uint    Accessory2 : 4;
-    quint32 padding : 16; // 96 bits
+    uint    Accessory3 : 4;
+    quint32 padding : 12; // 96 bits
     quint32 padding1; // 128 bits
 } __attribute__((packed))  multiGUISettingsStruct;
 
@@ -130,7 +131,13 @@ typedef struct {
     uint    RevMotor6 : 4;
     uint    RevMotor7 : 4;
     uint    RevMotor8 : 4;  // 96 bits
-    quint32 padding; // 128 bits
+    uint    Accessory0 : 4;
+    uint    Accessory1 : 4;
+    uint    Accessory2 : 4;
+    uint    Accessory3 : 4;
+    uint    Accessory4 : 4;
+    uint    Accessory5 : 4;
+    uint    padding : 8; // 128 bits
 } __attribute__((packed))  customGUISettingsStruct;
 
 

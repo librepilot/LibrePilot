@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       usagetrackerplugin.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UsageTrackerPlugin Usage Tracker Plugin
@@ -138,7 +139,7 @@ void UsageTrackerPlugin::trackUsage()
     if (shouldSend(hash)) {
         query.addQueryItem("hash", hash);
 
-        QUrl url("https://www.librepilot.org/opver?" + query.toString(QUrl::FullyEncoded));
+        QUrl url("https://usagetracker.librepilot.org/?" + query.toString(QUrl::FullyEncoded));
 
         QNetworkAccessManager *networkAccessManager = new QNetworkAccessManager();
 
@@ -261,7 +262,6 @@ QString UsageTrackerPlugin::getUAVFieldValue(UAVObjectManager *objManager, QStri
 
 QString UsageTrackerPlugin::getQueryHash(QString source) const
 {
-    source += "OpenPilot Fuck Yeah!";
     return QString(QCryptographicHash::hash(QByteArray(source.toStdString().c_str()), QCryptographicHash::Md5).toHex());
 }
 

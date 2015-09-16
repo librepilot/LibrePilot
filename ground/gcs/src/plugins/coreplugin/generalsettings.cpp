@@ -262,8 +262,7 @@ bool GeneralSettings::useUDPMirror() const
 
 bool GeneralSettings::collectUsageData() const
 {
-    // return m_collectUsageData;
-    return false;
+    return m_collectUsageData;
 }
 
 bool GeneralSettings::showUsageDataDisclaimer() const

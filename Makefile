@@ -63,6 +63,8 @@ GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 # Change this once the DNS is set to http://wiki.librepilot.org/
 WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
+USAGETRACKER_URL := https://usagetracker.librepilot.org/?
+
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
 GOOGLE_API_VERSION	:= 14

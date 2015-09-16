@@ -247,8 +247,7 @@ static bool erase_flash(uint32_t startAddress, uint32_t endAddress)
                 } else {
                     fail = true;
                 }
-            }
-            if (FLASH_EraseSector(sector_number, VoltageRange_3) == FLASH_COMPLETE) {
+            } else if (FLASH_EraseSector(sector_number, VoltageRange_3) == FLASH_COMPLETE) {
                 fail = false;
                 break;
             } else {

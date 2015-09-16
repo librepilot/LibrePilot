@@ -84,7 +84,6 @@ macx {
     LIBS += -lOpenThreads
     LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
     LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-    LIBS += -losgDB
 }
 
 win32 {

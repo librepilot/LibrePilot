@@ -10,10 +10,10 @@ equals(copyosg, 1) {
 
         data_copy.commands += $(MKDIR) $${GCS_LIBRARY_PATH}/osg $$addNewline()
         exists( $${OSG_SDK_DIR}/lib64 ) {
-            data_copy.commands += $(COPY_DIR) $${OSG_SDK_DIR}/lib64/* $${GCS_LIBRARY_PATH}/osg/ $$addNewline()
+            data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/lib64/)* $$shell_quote($$GCS_LIBRARY_PATH/osg/)
         }
         else {
-            data_copy.commands += $(COPY_DIR) $${OSG_SDK_DIR}/lib/* $${GCS_LIBRARY_PATH}/osg/ $$addNewline()
+            data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/lib/)* $$shell_quote($$GCS_LIBRARY_PATH/osg/)
         }
 
         # add make target
@@ -25,7 +25,7 @@ equals(copyosg, 1) {
 
     macx {
 
-        data_copy.commands += $(COPY_DIR) $$targetPath(\"$$OSG_SDK_DIR/lib/\"*) $$targetPath(\"$$GCS_LIBRARY_PATH\") $$addNewline()
+        data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/lib/)* $$shell_quote($$GCS_LIBRARY_PATH/)
 
         # add make target
         POST_TARGETDEPS += copydata

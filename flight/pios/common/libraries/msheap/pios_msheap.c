@@ -62,7 +62,7 @@ extern char _efastheap;
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 heap_handle_t sram_heap;
-#if PIOS_TARGET_PROVIDES_FAST_HEAP
+#ifdef PIOS_TARGET_PROVIDES_FAST_HEAP
 heap_handle_t fast_heap;
 #else
 #define fast_heap sram_heap
@@ -131,7 +131,7 @@ void
 vPortInitialiseBlocks(void)
 {
 	msheap_init(&sram_heap, &_sheap, &_eheap);
-#if PIOS_TARGET_PROVIDES_FAST_HEAP
+#ifdef PIOS_TARGET_PROVIDES_FAST_HEAP
 	msheap_init(&fast_heap, &_sfastheap, &_efastheap);
 #endif
 }

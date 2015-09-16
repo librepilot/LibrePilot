@@ -575,6 +575,19 @@ OP_DFU::Status DFUObject::StatusRequest()
     buf[9] = 0;
 
     int result = sendData(buf, BUF_LEN);
+    //following code solved send request no response while erasing (maybe) flash
+    int cnt = 0;
+    while(result<0 && cnt <10){
+        if (debug) {
+            qDebug() << "StatusRequest fail, wait 1s";
+        }
+        cnt++;
+        delay::msleep(1000);
+        if (debug) {
+            qDebug() << "Start over now";
+        }
+        result = sendData(buf, BUF_LEN);
+    }
     if (debug) {
         qDebug() << "StatusRequest: " << result << " bytes sent";
     }
@@ -775,6 +788,7 @@ OP_DFU::Status DFUObject::UploadFirmwareT(const QString &sfile, const bool &veri
     if (debug) {
         qDebug() << "Erasing memory";
     }
+    delay::msleep(1000);
     if (StatusRequest() == OP_DFU::abort) {
         return OP_DFU::abort;
     }

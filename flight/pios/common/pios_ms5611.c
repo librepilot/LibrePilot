@@ -29,8 +29,26 @@
  */
 
 #include "pios.h"
-#ifdef PIOS_INCLUDE_MS5611
+#if defined (PIOS_INCLUDE_MS5611) || defined (PIOS_INCLUDE_MS5611_SPI)
 #include <pios_ms5611.h>
+
+enum pios_ms5611_dev_magic {
+    PIOS_MS5611_DEV_MAGIC = 0xa5611a55,
+};
+
+// TODO: add SPI bus operation
+#if defined (PIOS_INCLUDE_MS5611_SPI)
+#define PIOS_MS5611_USE_SPI        1
+#endif
+struct ms5611_dev {
+#if defined (PIOS_MS5611_USE_SPI)
+    uint32_t spi_id;
+#else
+    int32_t i2c_id;
+#endif
+    uint32_t slave_num;
+    enum pios_ms5611_dev_magic magic;
+};
 #define POW2(x) (1 << x)
 
 // TODO: Clean this up.  Getting around old constant.
@@ -80,6 +98,13 @@ static int32_t lastConversionStart;
 static uint32_t conversionDelayMs;
 static uint32_t conversionDelayUs;
 
+static struct ms5611_dev *PIOS_MS5611_alloc(void);
+#if defined (PIOS_MS5611_USE_SPI)
+// ! Private functions
+static int32_t PIOS_MS5611_Validate(struct ms5611_dev *dev);
+static int32_t PIOS_MS5611_ClaimBus();
+static int32_t PIOS_MS5611_ReleaseBus();
+#endif
 static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len);
 static int32_t PIOS_MS5611_WriteCommand(uint8_t command);
 static uint32_t PIOS_MS5611_GetDelay();
@@ -91,7 +116,7 @@ static int64_t compensation_t2;
 // Move into proper driver structure with cfg stored
 static uint32_t oversampling;
 static const struct pios_ms5611_cfg *dev_cfg;
-static int32_t i2c_id;
+static struct ms5611_dev *dev;
 static PIOS_SENSORS_1Axis_SensorsWithTemp results;
 
 // sensor driver interface
@@ -110,14 +135,98 @@ const PIOS_SENSORS_Driver PIOS_MS5611_Driver = {
     .get_scale = PIOS_MS5611_driver_get_scale,
     .is_polled = true,
 };
+
+/**
+ * @brief Allocate a new device
+ */
+static struct ms5611_dev *PIOS_MS5611_alloc(void)
+{
+    struct ms5611_dev *ms5611_dev;
+
+    ms5611_dev = (struct ms5611_dev *)pios_malloc(sizeof(*ms5611_dev));
+    if (!ms5611_dev) {
+        return NULL;
+    }
+
+    ms5611_dev->magic = PIOS_MS5611_DEV_MAGIC;
+    return ms5611_dev;
+}
+
+#if defined (PIOS_MS5611_USE_SPI)
+/**
+ * @brief Validate the handle to the spi device
+ * @returns 0 for valid device or -1 otherwise
+ */
+static int32_t PIOS_MS5611_Validate(struct ms5611_dev *vdev)
+{
+    if (vdev == NULL) {
+        return -1;
+    }
+    if (vdev->magic != PIOS_MS5611_DEV_MAGIC) {
+        return -2;
+    }
+    if (vdev->spi_id == 0) {
+        return -3;
+    }
+    return 0;
+}
+
+/**
+ * @brief Claim the SPI bus for the accel communications and select this chip
+ * @return 0 for succesful claiming of bus or -1 otherwise
+ */
+static int32_t PIOS_MS5611_ClaimBus()
+{
+    if (PIOS_MS5611_Validate(dev) != 0) {
+        return -1;
+    }
+
+    if (PIOS_SPI_ClaimBus(dev->spi_id) != 0) {
+        return -2;
+    }
+
+    PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 0);
+
+    return 0;
+}
+
+/**
+ * @brief Release the SPI bus for the accel communications and end the transaction
+ * @return 0 if success or <0 for failure
+ */
+static int32_t PIOS_MS5611_ReleaseBus()
+{
+    if (PIOS_MS5611_Validate(dev) != 0) {
+        return -1;
+    }
+
+    PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 1);
+
+    if (PIOS_SPI_ReleaseBus(dev->spi_id) != 0) {
+        return -2;
+    }
+
+    return 0;
+}
+
+#endif
+
 /**
  * Initialise the MS5611 sensor
  */
 int32_t ms5611_read_flag;
-void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t i2c_device)
+void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t device_handle)
 {
-    i2c_id = i2c_device;
-
+    dev = PIOS_MS5611_alloc();
+    if (dev == NULL) {
+        while(1){};
+    }
+#if defined (PIOS_MS5611_USE_SPI)
+    dev->spi_id    = device_handle;
+    dev->slave_num = cfg->slave_num;
+#else
+    dev->i2c_id = device_handle;
+#endif
     oversampling = cfg->oversampling;
     conversionDelayMs = PIOS_MS5611_GetDelay();
     conversionDelayUs = PIOS_MS5611_GetDelayUs();
@@ -332,6 +441,17 @@ static float PIOS_MS5611_GetPressure(void)
  */
 static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len)
 {
+#if defined (PIOS_MS5611_USE_SPI)
+	int32_t ret = PIOS_MS5611_ClaimBus();
+    if (ret != 0) {
+        return ret;
+    }
+    if (PIOS_SPI_TransferBlock(dev->spi_id, &address, buffer, len, NULL) < 0) {
+        ret = -3;
+    }
+    PIOS_MS5611_ReleaseBus();
+    return ret;
+#else
     const struct pios_i2c_txn txn_list[] = {
         {
             .info = __func__,
@@ -350,7 +470,8 @@ static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len)
         }
     };
 
-    return PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list));
+    return PIOS_I2C_Transfer(dev->i2c_id, txn_list, NELEMENTS(txn_list));
+#endif
 }
 
 /**
@@ -362,6 +483,18 @@ static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len)
  */
 static int32_t PIOS_MS5611_WriteCommand(uint8_t command)
 {
+#if defined (PIOS_MS5611_USE_SPI)
+	int32_t ret;
+	ret = PIOS_MS5611_ClaimBus();
+    if (ret != 0) {
+        return ret;
+    }
+    if (PIOS_SPI_TransferByte(dev->spi_id, command)) {
+        ret = -3;
+    }
+    PIOS_MS5611_ReleaseBus();
+    return ret;
+#else
     const struct pios_i2c_txn txn_list[] = {
         {
             .info = __func__,
@@ -373,7 +506,8 @@ static int32_t PIOS_MS5611_WriteCommand(uint8_t command)
         ,
     };
 
-    return PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list));
+    return PIOS_I2C_Transfer(dev->i2c_id, txn_list, NELEMENTS(txn_list));
+#endif
 }
 
 /**

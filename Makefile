@@ -64,7 +64,7 @@ GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
 # Set up default build configurations (debug | release)
-GCS_BUILD_CONF		:= release
+GCS_BUILD_CONF		:= debug
 GOOGLE_API_VERSION	:= 14
 
 # Clean out undesirable variables from the environment and command-line

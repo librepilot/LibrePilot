@@ -75,7 +75,7 @@ endif
 # ...safe to Proceed
 	$(V1) $(RM_RF) $(DESTDIR)$(bindir)/$(GCS_SMALL_NAME)  # Remove application
 	$(V1) $(RM_RF) $(DESTDIR)$(libdir)/$(GCS_SMALL_NAME)  # Remove libraries
-	$(V1) $(RM_RF) $(DESTDOR)$(datadir)/$(GCS_SMALL_NAME) # Remove other data
+	$(V1) $(RM_RF) $(DESTDIR)$(datadir)/$(GCS_SMALL_NAME) # Remove other data
 	$(V1) $(RM_F) $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
 	$(V1) $(RM_F) $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 	$(V1) $(RM_F) $(DESTDIR)$(udevrulesdir)/45-$(ORG_SMALL_NAME).rules

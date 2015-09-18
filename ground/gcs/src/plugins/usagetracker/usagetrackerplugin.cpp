@@ -139,7 +139,7 @@ void UsageTrackerPlugin::trackUsage()
     if (shouldSend(hash)) {
         query.addQueryItem("hash", hash);
 
-        QUrl url(QString(USAGETRACKER_URL) + query.toString(QUrl::FullyEncoded));
+        QUrl url(QString(USAGETRACKER_URL) + "?" + query.toString(QUrl::FullyEncoded));
 
         QNetworkAccessManager *networkAccessManager = new QNetworkAccessManager();
 

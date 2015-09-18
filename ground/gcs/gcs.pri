@@ -146,7 +146,6 @@ isEmpty(WIKI_URL_ROOT) {
     WIKI_URL_ROOT = "$$WIKI_URL_ROOT"
 }
 
-
 isEmpty(GCS_LIBRARY_BASENAME):GCS_LIBRARY_BASENAME = lib
 
 macx {

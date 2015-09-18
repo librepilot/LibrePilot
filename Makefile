@@ -63,7 +63,7 @@ GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 # Change this once the DNS is set to http://wiki.librepilot.org/
 WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
-USAGETRACKER_URL := https://usagetracker.librepilot.org/?
+USAGETRACKER_URL := https://usagetracker.librepilot.org/
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -251,6 +251,7 @@ gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
 	    'WIKI_URL_ROOT="$(WIKI_URL_ROOT)"' \
+	    'USAGETRACKER_URL="$(USAGETRACKER_URL)"' \
 	    'GCS_LIBRARY_BASENAME=$(libbasename)' \
 	    $(GCS_QMAKE_OPTS)
 

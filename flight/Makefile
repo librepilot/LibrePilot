@@ -8,7 +8,7 @@ export OPUAVTALK       := $(FLIGHT_ROOT_DIR)/uavtalk
 export FLIGHT_OUT_DIR  ?= $(CURDIR)
 
 # Define supported board lists
-ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano
+ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano sparky2
 
 # Short names of each board (used to display board name in parallel builds)
 coptercontrol_short    := 'cc  '
@@ -17,6 +17,7 @@ revolution_short       := 'revo'
 osd_short              := 'osd '
 revoproto_short        := 'revp'
 revonano_short         := 'revn'
+sparky2_short          := 'spk2'
 simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'

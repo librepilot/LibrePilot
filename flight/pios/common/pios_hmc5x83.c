@@ -42,7 +42,6 @@
 typedef struct {
     uint32_t magic;
     const struct pios_hmc5x83_cfg *cfg;
-    enum PIOS_HMC5X83_ORIENTATION Orientation;
     uint32_t port_id;
     uint8_t  slave_num;
     uint8_t  CTRLB;
@@ -103,10 +102,9 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
 {
     pios_hmc5x83_dev_data_t *dev = dev_alloc();
 
-    dev->cfg       = cfg;                 // store config before enabling interrupt
+    dev->cfg       = cfg; // store config before enabling interrupt
     dev->port_id   = port_id;
     dev->slave_num = slave_num;
-    dev->Orientation = cfg->Orientation;  // make a read/write copy so we can update it at run time.
 
 #ifdef PIOS_HMC5X83_HAS_GPIOS
     if (cfg->exti_cfg) {
@@ -114,14 +112,9 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
     }
 #endif
 
-#if 0
-    int32_t val = PIOS_HMC5x83_Config(dev);
-    PIOS_Assert(val == 0);
-#else
     if (PIOS_HMC5x83_Config(dev) != 0) {
         return ((pios_hmc5x83_dev_t) NULL);
     }
-#endif
 
     dev->data_ready = false;
     return (pios_hmc5x83_dev_t)dev;
@@ -226,14 +219,7 @@ static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev)
     return 0;
 }
 
-void PIOS_HMC5x83_Ext_Orientation_Set(enum PIOS_HMC5X83_ORIENTATION orientation)
-{
-    if (external_mag) {
-        ((pios_hmc5x83_dev_data_t *) external_mag)->Orientation = orientation;
-    }
-}
-
-void PIOS_HMC5x83_Orient(enum PIOS_HMC5X83_ORIENTATION orientation, int16_t in[3], int16_t out[3])
+static void PIOS_HMC5x83_Orient(enum PIOS_HMC5X83_ORIENTATION orientation, int16_t in[3], int16_t out[3])
 {
     switch (orientation) {
     case PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP:
@@ -275,11 +261,6 @@ void PIOS_HMC5x83_Orient(enum PIOS_HMC5X83_ORIENTATION orientation, int16_t in[3
         out[0] = in[0];
         out[1] = in[2];
         out[2] = in[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_UNCHANGED:
-        out[0] = in[0];  // N
-        out[1] = in[1];  // D
-        out[2] = in[2];  // E
         break;
     }
 }
@@ -337,7 +318,7 @@ int32_t PIOS_HMC5x83_ReadMag(pios_hmc5x83_dev_t handler, int16_t out[3])
         temp[i] = v;
     }
 
-    PIOS_HMC5x83_Orient(dev->Orientation, temp, out);
+    PIOS_HMC5x83_Orient(dev->cfg->Orientation, temp, out);
 
     // "This should not be necessary but for some reason it is coming out of continuous conversion mode"
     //
@@ -368,7 +349,7 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
 // define this to simply return true when asking if data is available on non-GPIO devices
 // we just set the polling rate elsewhere
 // this is more efficient, but has more data time lag
-#define HMC5X83_STATUS_POLL_RETURNS_TRUE
+//#define HMC5X83_STATUS_POLL_RETURNS_TRUE
 
 /**
  * @brief Tells whether new magnetometer readings are available

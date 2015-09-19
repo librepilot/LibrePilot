@@ -109,7 +109,7 @@ static const struct pios_hmc5x83_cfg pios_hmc5x83_external_cfg = {
     .Mode        = PIOS_HMC5x83_MODE_CONTINUOUS,
     .TempCompensation = false,
     .Driver      = &PIOS_HMC5x83_I2C_DRIVER,
-    .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP,
+    .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
 };
 #endif /* PIOS_INCLUDE_HMC5X83 */
 
@@ -380,13 +380,7 @@ void PIOS_Board_Init(void)
     }
 
 #ifdef PIOS_INCLUDE_WDG
-    /* From TauLabs
-     * Initialize watchdog as early as possible to catch faults during init
-     * but do it only if there is no debugger connected
-     */
-    if ((CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) == 0) {
-        PIOS_WDG_Init();
-    }
+    PIOS_WDG_Init();
 #endif
 
     /* Initialize the task monitor */
@@ -656,6 +650,9 @@ void PIOS_Board_Init(void)
             // attach the 5x83 mag to the previously inited I2C2
             external_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_external_cfg, pios_i2c_flexiport_adapter_id, 0);
             // add this sensor to the sensor task's list
+            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+            // and before registering some other fast and important sensor
+            // as that would cause delay and time jitter for the second fast sensor
             PIOS_HMC5x83_Register(external_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
             // mag alarm is cleared later, so use I2C
             AlarmsSet(SYSTEMALARMS_ALARM_I2C, (external_mag)?SYSTEMALARMS_ALARM_OK:SYSTEMALARMS_ALARM_WARNING);

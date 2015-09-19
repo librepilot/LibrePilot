@@ -167,8 +167,8 @@ static bool isExpoOption(int pidOption)
 static bool isFullPIDOption(int pidOption)
 {
     switch (pidOption) {
-    case TxPIDSettings::PIDS_ROLLRATEPID:
-    case TxPIDSettings::PIDS_PITCHRATEPID:
+    case TxPIDSettings::PIDS_EASYTUNERATEPITCH:
+    case TxPIDSettings::PIDS_EASYTUNERATEROLL:
         return true;
 
     default:
@@ -197,11 +197,11 @@ static float defaultValueForPidOption(const StabilizationSettingsBankX *bank, in
         return 0.0f;
 
     case TxPIDSettings::PIDS_ROLLRATEKP:
-    case TxPIDSettings::PIDS_ROLLRATEPID:
+    case TxPIDSettings::PIDS_EASYTUNERATEROLL:
         return bank->getRollRatePID_Kp();
 
     case TxPIDSettings::PIDS_PITCHRATEKP:
-    case TxPIDSettings::PIDS_PITCHRATEPID:
+    case TxPIDSettings::PIDS_EASYTUNERATEPITCH:
         return bank->getPitchRatePID_Kp();
 
     case TxPIDSettings::PIDS_ROLLPITCHRATEKP:

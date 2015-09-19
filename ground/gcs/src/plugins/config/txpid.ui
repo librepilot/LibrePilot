@@ -883,7 +883,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:PitchRollRateFactors</string>
+                  <string>fieldname:EasyTunePitchRollRateFactors</string>
                   <string>scale:0.1</string>
                   <string>element:I</string>
                   <string>buttongroup:10</string>
@@ -948,7 +948,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:PitchRollRateFactors</string>
+                  <string>fieldname:EasyTunePitchRollRateFactors</string>
                   <string>scale:1</string>
                   <string>element:D</string>
                   <string>buttongroup:10</string>
@@ -973,7 +973,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:RatePIDRecalculateYaw</string>
+                  <string>fieldname:EasyTuneRatePIDRecalculateYaw</string>
                   <string>buttongroup:11</string>
                  </stringlist>
                 </property>
@@ -1039,7 +1039,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:YawRateFactors</string>
+                  <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:0.1</string>
                   <string>element:P</string>
                   <string>buttongroup:11</string>
@@ -1101,7 +1101,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:YawRateFactors</string>
+                  <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:1</string>
                   <string>element:I</string>
                   <string>buttongroup:11</string>
@@ -1166,7 +1166,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:YawRateFactors</string>
+                  <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:1</string>
                   <string>element:D</string>
                   <string>buttongroup:11</string>
@@ -1284,7 +1284,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:YawRateFactors</string>
+                  <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:1</string>
                   <string>element:P</string>
                   <string>buttongroup:11</string>
@@ -1324,7 +1324,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:TxPIDSettings</string>
-                  <string>fieldname:PitchRollRateFactors</string>
+                  <string>fieldname:EasyTunePitchRollRateFactors</string>
                   <string>scale:1</string>
                   <string>element:I</string>
                   <string>buttongroup:10</string>

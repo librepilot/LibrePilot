@@ -220,6 +220,8 @@ static void updatePIDs(UAVObjEvent *ev)
     TxPIDStatusData txpid_status;
     TxPIDStatusGet(&txpid_status);
 
+    bool easyTuneEnabled        = false;
+
     uint8_t needsUpdateBank     = 0;
     uint8_t needsUpdateStab     = 0;
     uint8_t needsUpdateAtt      = 0;
@@ -255,11 +257,13 @@ static void updatePIDs(UAVObjEvent *ev)
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
                 break;
             case TXPIDSETTINGS_PIDS_ROLLRATEPID:
+                easyTuneEnabled  = true;
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
                 needsUpdateBank |= update(&bank.RollRatePID.Ki, value * inst.PitchRollRateFactors.I);
                 needsUpdateBank |= update(&bank.RollRatePID.Kd, value * inst.PitchRollRateFactors.D);
                 break;
             case TXPIDSETTINGS_PIDS_PITCHRATEPID:
+                easyTuneEnabled  = true;
                 needsUpdateBank |= update(&bank.PitchRatePID.Kp, value);
                 needsUpdateBank |= update(&bank.PitchRatePID.Ki, value * inst.PitchRollRateFactors.I);
                 needsUpdateBank |= update(&bank.PitchRatePID.Kd, value * inst.PitchRollRateFactors.D);
@@ -447,7 +451,7 @@ static void updatePIDs(UAVObjEvent *ev)
         AltitudeHoldSettingsSet(&altitude);
     }
 #endif
-    if (inst.RatePIDRecalculateYaw != TXPIDSETTINGS_RATEPIDRECALCULATEYAW_FALSE) {
+    if (easyTuneEnabled && (inst.RatePIDRecalculateYaw != TXPIDSETTINGS_RATEPIDRECALCULATEYAW_FALSE)) {
         float newKp = (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.YawRateFactors.P;
         needsUpdateBank |= update(&bank.YawRatePID.Kp, newKp);
         needsUpdateBank |= update(&bank.YawRatePID.Ki, newKp * inst.YawRateFactors.I);

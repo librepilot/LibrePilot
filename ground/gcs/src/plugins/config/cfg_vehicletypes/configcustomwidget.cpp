@@ -193,36 +193,36 @@ void ConfigCustomWidget::registerWidgets(ConfigTaskWidget &parent)
 
 void ConfigCustomWidget::resetActuators(GUIConfigDataUnion *configData)
 {
-    configData->custom.Motor1    = 0;
-    configData->custom.Motor2    = 0;
-    configData->custom.Motor3    = 0;
-    configData->custom.Motor4    = 0;
-    configData->custom.Motor5    = 0;
-    configData->custom.Motor6    = 0;
-    configData->custom.Motor7    = 0;
-    configData->custom.Motor8    = 0;
-    configData->custom.RevMotor1 = 0;
-    configData->custom.RevMotor2 = 0;
-    configData->custom.RevMotor3 = 0;
-    configData->custom.RevMotor4 = 0;
-    configData->custom.RevMotor5 = 0;
-    configData->custom.RevMotor6 = 0;
-    configData->custom.RevMotor7 = 0;
-    configData->custom.RevMotor8 = 0;
-    configData->custom.Servo1    = 0;
-    configData->custom.Servo2    = 0;
-    configData->custom.Servo3    = 0;
-    configData->custom.Servo4    = 0;
-    configData->custom.Servo5    = 0;
-    configData->custom.Servo6    = 0;
-    configData->custom.Servo7    = 0;
-    configData->custom.Servo8    = 0;
-    configData->custom.Accessory0  = 0;
-    configData->custom.Accessory1  = 0;
-    configData->custom.Accessory2  = 0;
-    configData->custom.Accessory3  = 0;
-    configData->custom.Accessory4  = 0;
-    configData->custom.Accessory5  = 0;
+    configData->custom.Motor1     = 0;
+    configData->custom.Motor2     = 0;
+    configData->custom.Motor3     = 0;
+    configData->custom.Motor4     = 0;
+    configData->custom.Motor5     = 0;
+    configData->custom.Motor6     = 0;
+    configData->custom.Motor7     = 0;
+    configData->custom.Motor8     = 0;
+    configData->custom.RevMotor1  = 0;
+    configData->custom.RevMotor2  = 0;
+    configData->custom.RevMotor3  = 0;
+    configData->custom.RevMotor4  = 0;
+    configData->custom.RevMotor5  = 0;
+    configData->custom.RevMotor6  = 0;
+    configData->custom.RevMotor7  = 0;
+    configData->custom.RevMotor8  = 0;
+    configData->custom.Servo1     = 0;
+    configData->custom.Servo2     = 0;
+    configData->custom.Servo3     = 0;
+    configData->custom.Servo4     = 0;
+    configData->custom.Servo5     = 0;
+    configData->custom.Servo6     = 0;
+    configData->custom.Servo7     = 0;
+    configData->custom.Servo8     = 0;
+    configData->custom.Accessory0 = 0;
+    configData->custom.Accessory1 = 0;
+    configData->custom.Accessory2 = 0;
+    configData->custom.Accessory3 = 0;
+    configData->custom.Accessory4 = 0;
+    configData->custom.Accessory5 = 0;
 }
 
 /**

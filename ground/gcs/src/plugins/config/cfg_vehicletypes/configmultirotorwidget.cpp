@@ -892,7 +892,7 @@ void ConfigMultiRotorWidget::setupQuadMotor(int channel, double pitch, double ro
 void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
 {
     QList<QComboBox *> rcList;
-    rcList << m_aircraft->rcOutputChannelBox1 << m_aircraft->rcOutputChannelBox2 
+    rcList << m_aircraft->rcOutputChannelBox1 << m_aircraft->rcOutputChannelBox2
            << m_aircraft->rcOutputChannelBox3 << m_aircraft->rcOutputChannelBox4;
 
     GUIConfigDataUnion configData = getConfigData();

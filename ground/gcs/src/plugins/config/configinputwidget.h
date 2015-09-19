@@ -62,7 +62,7 @@ public:
     ~ConfigInputWidget();
     enum wizardSteps { wizardWelcome, wizardChooseMode, wizardChooseType, wizardIdentifySticks, wizardIdentifyCenter, wizardIdentifyLimits, wizardIdentifyInverted, wizardFinish, wizardNone };
     enum txMode { mode1, mode2, mode3, mode4 };
-    enum txMovements { moveLeftVerticalStick, moveRightVerticalStick, moveLeftHorizontalStick, moveRightHorizontalStick, moveAccess0, moveAccess1, moveAccess2, moveAccess3,moveFlightMode, centerAll, moveAll, nothing };
+    enum txMovements { moveLeftVerticalStick, moveRightVerticalStick, moveLeftHorizontalStick, moveRightHorizontalStick, moveAccess0, moveAccess1, moveAccess2, moveAccess3, moveFlightMode, centerAll, moveAll, nothing };
     enum txMovementType { vertical, horizontal, jump, mix };
     enum txType { acro, heli, ground };
     void startInputWizard()

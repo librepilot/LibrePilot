@@ -107,37 +107,37 @@ typedef struct {
 } __attribute__((packed))  groundGUISettingsStruct;
 
 typedef struct {
-    uint    Motor1 : 4;
-    uint    Motor2 : 4;
-    uint    Motor3 : 4;
-    uint    Motor4 : 4;
-    uint    Motor5 : 4;
-    uint    Motor6 : 4;
-    uint    Motor7 : 4;
-    uint    Motor8 : 4;  // 32 bits
-    uint    Servo1 : 4;
-    uint    Servo2 : 4;
-    uint    Servo3 : 4;
-    uint    Servo4 : 4;
-    uint    Servo5 : 4;
-    uint    Servo6 : 4;
-    uint    Servo7 : 4;
-    uint    Servo8 : 4;  // 64 bits
-    uint    RevMotor1 : 4;
-    uint    RevMotor2 : 4;
-    uint    RevMotor3 : 4;
-    uint    RevMotor4 : 4;
-    uint    RevMotor5 : 4;
-    uint    RevMotor6 : 4;
-    uint    RevMotor7 : 4;
-    uint    RevMotor8 : 4;  // 96 bits
-    uint    Accessory0 : 4;
-    uint    Accessory1 : 4;
-    uint    Accessory2 : 4;
-    uint    Accessory3 : 4;
-    uint    Accessory4 : 4;
-    uint    Accessory5 : 4;
-    uint    padding : 8; // 128 bits
+    uint Motor1 : 4;
+    uint Motor2 : 4;
+    uint Motor3 : 4;
+    uint Motor4 : 4;
+    uint Motor5 : 4;
+    uint Motor6 : 4;
+    uint Motor7 : 4;
+    uint Motor8 : 4; // 32 bits
+    uint Servo1 : 4;
+    uint Servo2 : 4;
+    uint Servo3 : 4;
+    uint Servo4 : 4;
+    uint Servo5 : 4;
+    uint Servo6 : 4;
+    uint Servo7 : 4;
+    uint Servo8 : 4; // 64 bits
+    uint RevMotor1 : 4;
+    uint RevMotor2 : 4;
+    uint RevMotor3 : 4;
+    uint RevMotor4 : 4;
+    uint RevMotor5 : 4;
+    uint RevMotor6 : 4;
+    uint RevMotor7 : 4;
+    uint RevMotor8 : 4; // 96 bits
+    uint Accessory0 : 4;
+    uint Accessory1 : 4;
+    uint Accessory2 : 4;
+    uint Accessory3 : 4;
+    uint Accessory4 : 4;
+    uint Accessory5 : 4;
+    uint padding : 8; // 128 bits
 } __attribute__((packed))  customGUISettingsStruct;
 
 

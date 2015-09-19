@@ -2,7 +2,7 @@ include(../../gcs.pri)
 
 TEMPLATE = aux
 
-DATACOLLECTIONS = vehicletemplates configurations dials models pfd sounds diagrams mapicons stylesheets
+DATACOLLECTIONS = vehicletemplates configurations dials models backgrounds pfd sounds diagrams mapicons stylesheets
 
 equals(copydata, 1) {
     for(dir, DATACOLLECTIONS) {

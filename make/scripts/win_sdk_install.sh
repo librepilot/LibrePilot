@@ -36,12 +36,10 @@ fi
 # Tools URLs to fetch
 WGET_URL="http://librepilot.github.io/tools/wget.exe"
 MAKE_URL="http://librepilot.github.io/tools/make.exe"
-SEVENZIP_URL="http://librepilot.github.io/tools/7za.exe"
 
 # Expected tools paths
 WGET="$TOOLS_DIR/bin/`basename \"$WGET_URL\"`"
 MAKE="$TOOLS_DIR/bin/`basename \"$MAKE_URL\"`"
-SEVENZIP="$TOOLS_DIR/bin/`basename \"$SEVENZIP_URL\"`"
 
 # wget is necessary to fetch other files
 WGET_NAME="`basename \"$WGET\"`"
@@ -97,20 +95,9 @@ if [ ! -x "$MAKE" ]; then
     fi
 fi
 
-# 7-Zip is necessary to install some SDKs
-if [ ! -x "$SEVENZIP" ]; then
-    echo "$SCRIPT_NAME: $SEVENZIP_NAME not found, fetching from $SEVENZIP_URL"
-    SEVENZIP_DIR="`dirname \"$SEVENZIP\"`"
-    mkdir -p "$SEVENZIP_DIR"
-    $WGET --no-check-certificate -N --content-disposition -P "$SEVENZIP_DIR" "$SEVENZIP_URL"
-    if [ $? -ne 0 ]; then
-        echo "$SCRIPT_NAME: $SEVENZIP_NAME fetch error, hope it's in the path..."
-        SEVENZIP_NAME="`basename \"$SEVENZIP\"`"
-        SEVENZIP="$SEVENZIP_NAME"
-    fi
-fi
 
 # Finally we can fetch all SDKs using top level Makefile
 cd "$ROOT_DIR"
+./tool_install.sh 7z
 echo "Run 'tools/bin/make all_sdk_install' to install the other tools"
 echo " or 'tools/bin/make help' for more info on make targets"

@@ -53,21 +53,46 @@ endif
 
 ##############################
 #
+# Already installed tools modules
+#
+##############################
+-include $(wildcard $(TOOLS_DIR)/*.mk)
+
+TOOL_INSTALL := $(ROOT_DIR)/tool_install.sh
+TOOL_TARGETS := gcc-arm-none-eabi
+
+TOOL_INSTALL_TARGETS       := $(addsuffix _install,$(TOOL_TARGETS))
+TOOL_FORCE_INSTALL_TARGETS := $(addsuffix _force_install,$(TOOL_TARGETS))
+TOOL_REMOVE_TARGETS        := $(addsuffix _remove,$(TOOL_TARGETS))
+
+.PHONY: $(TOOL_INSTALL_TARGETS)
+$(TOOL_INSTALL_TARGETS):
+	@$(ECHO) $(MSG_INSTALLING) $(@:_install=)
+	$(V1) $(TOOL_INSTALL) -n $(@:_install=)
+
+.PHONY: $(TOOL_FORCE_INSTALL_TARGETS)
+$(TOOL_FORCE_INSTALL_TARGETS):
+	@$(ECHO) $(MSG_INSTALLING) $(@:_install=)
+	$(V1) $(TOOL_INSTALL) -n -f $(@:_force_install=)
+
+.PHONY: $(TOOL_REMOVE_TARGETS)
+$(TOOL_REMOVE_TARGETS):
+	@$(ECHO) $(MSG_CLEANING) $(@:_install=)
+	$(V1) $(TOOL_INSTALL) -n -r $(@:_remove=)
+
+##############################
+#
 # Toolchain URLs and directories
 #
 ##############################
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
-        ARM_SDK_MD5_URL:= https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2/+md5
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x64-5.4.1.run.md5
         QT_SDK_ARCH := gcc_64
         OSG_URL        := http://librepilot.github.io/tools/osg-3.4-linux-x64-qt-5.4.1.tar.gz
     else
-        ARM_SDK_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2
-        ARM_SDK_MD5_URL := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-linux.tar.bz2/+md5
         QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-linux-x86-5.4.1.run.md5
         QT_SDK_ARCH := gcc
@@ -76,8 +101,6 @@ ifeq ($(UNAME), Linux)
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
 else ifeq ($(UNAME), Darwin)
-    ARM_SDK_URL    := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-mac.tar.bz2
-    ARM_SDK_MD5_URL:= https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-mac.tar.bz2/+md5
     QT_SDK_URL  := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-mac-x64-clang-5.4.1.dmg
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-mac-x64-clang-5.4.1.dmg.md5
     QT_SDK_ARCH := clang_64
@@ -88,8 +111,6 @@ else ifeq ($(UNAME), Darwin)
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
     OSG_URL        :=
 else ifeq ($(UNAME), Windows)
-    ARM_SDK_URL    := https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-win32.zip
-    ARM_SDK_MD5_URL:= https://launchpad.net/gcc-arm-embedded/4.9/4.9-2014-q4-major/+download/gcc-arm-none-eabi-4_9-2014q4-20141203-win32.zip/+md5
     QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-windows-x86-mingw491_opengl-5.4.1.exe
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.4/5.4.1/qt-opensource-windows-x86-mingw491_opengl-5.4.1.exe.md5
     QT_SDK_ARCH    := mingw491_32
@@ -109,7 +130,6 @@ GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
 CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
 CCACHE_MD5_URL := http://librepilot.github.io/tools/ccache-3.2.2.tar.bz2.md5
 
-ARM_SDK_DIR    := $(TOOLS_DIR)/gcc-arm-none-eabi-4_9-2014q4
 QT_SDK_DIR     := $(TOOLS_DIR)/qt-5.4.1
 UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
@@ -581,26 +601,14 @@ endef
 # ARM SDK
 #
 ##############################
+export ARM_SDK_PREFIX := arm-none-eabi-
+ARM_SDK_TOOL := gcc-arm-none-eabi
 
-ifeq ($(UNAME), Windows)
+.PHONY: arm_sdk_install
+arm_sdk_install: $(ARM_SDK_TOOL)_install
 
-# unfortunately zip package for this release is missing root directory, so adding / at the end of the path
-# so that template interpret last part as directory and use the full path
-$(eval $(call TOOL_INSTALL_TEMPLATE,arm_sdk,$(ARM_SDK_DIR)/,$(ARM_SDK_URL),$(ARM_SDK_MD5_URL),$(notdir $(ARM_SDK_URL))))
-
-else
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,arm_sdk,$(ARM_SDK_DIR),$(ARM_SDK_URL),$(ARM_SDK_MD5_URL),$(notdir $(ARM_SDK_URL))))
-
-endif
-
-ifeq ($(shell [ -d "$(ARM_SDK_DIR)" ] && $(ECHO) "exists"), exists)
-    export ARM_SDK_PREFIX := $(ARM_SDK_DIR)/bin/arm-none-eabi-
-else
-    # not installed, hope it's in the path...
-    # $(info $(EMPTY) WARNING     $(call toprel, $(ARM_SDK_DIR)) not found (make arm_sdk_install), using system PATH)
-    export ARM_SDK_PREFIX ?= arm-none-eabi-
-endif
+.PHONY: arm_sdk_clean
+arm_sdk_clean: $(ARM_SDK_TOOL)_remove
 
 .PHONY: arm_sdk_version
 arm_sdk_version:

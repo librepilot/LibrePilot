@@ -34,9 +34,10 @@ udevrulesdir := /etc/udev/rules.d
 INSTALL = cp -a --no-preserve=ownership
 LN = ln
 LN_S = ln -s
-
+RM_RF = rm -rf
+RM_F = rm -f
 .PHONY: install
-install:
+install: uninstall
 	@$(ECHO) " INSTALLING GCS TO $(DESTDIR)/)"
 	$(V1) $(MKDIR) -p $(DESTDIR)$(bindir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(libdir)
@@ -57,3 +58,25 @@ ifneq ($(enable-udev-rules), no)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(udevrulesdir)
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/45-uav.rules $(DESTDIR)$(udevrulesdir)/45-$(ORG_SMALL_NAME).rules
 endif
+
+# uninstall target to ensure no side effects from previous installations
+.PHONY: uninstall
+uninstall:
+	@$(ECHO) " UNINSTALLING GCS FROM $(DESTDIR)/)"
+# Protect against inadvertant 'rm -rf /'
+ifeq ($(GCS_SMALL_NAME),)
+	@$(ECHO) "Error in build configuration - GCS_SMALL_NAME not defined"
+	exit 1
+endif
+ifeq ($(ORG_SMALL_NAME),)
+	@$(ECHO) "Error in build configuration - ORG_SMALL_NAME not defined"
+	exit 1
+endif
+# ...safe to Proceed
+	$(V1) $(RM_RF) $(DESTDIR)$(bindir)/$(GCS_SMALL_NAME)  # Remove application
+	$(V1) $(RM_RF) $(DESTDIR)$(libdir)/$(GCS_SMALL_NAME)  # Remove libraries
+	$(V1) $(RM_RF) $(DESTDIR)$(datadir)/$(GCS_SMALL_NAME) # Remove other data
+	$(V1) $(RM_F) $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) $(RM_F) $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
+	$(V1) $(RM_F) $(DESTDIR)$(udevrulesdir)/45-$(ORG_SMALL_NAME).rules
+

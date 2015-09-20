@@ -6,11 +6,19 @@ DEFINES += OSGEARTH_LIBRARY
 
 QT += widgets opengl qml quick
 contains(DEFINES, OSG_USE_QT_PRIVATE) {
-	QT += core-private gui-private
+    QT += core-private gui-private
 }
 
 include(../../library.pri)
 include(../utils/utils.pri)
+
+linux {
+    QMAKE_RPATHDIR = $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH/osg, $$GCS_LIBRARY_PATH))
+    include(../../rpath.pri)
+}
+
+# disable all warnings on mac to avoid build failures
+macx:CONFIG += warn_off
 
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
@@ -76,7 +84,6 @@ macx {
     LIBS += -lOpenThreads
     LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
     LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-    LIBS += -losgDB
 }
 
 win32 {

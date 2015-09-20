@@ -10,7 +10,8 @@
  * pass it to ManualControl
  *
  * @file       receiver.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Receiver module. Handles safety R/C link and flight mode.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -206,6 +207,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
     // this includes not even registering it if not used
     AccessoryDesiredCreateInstance();
     AccessoryDesiredCreateInstance();
+    AccessoryDesiredCreateInstance();
 
     // Whenever the configuration changes, make sure it is safe to fly
 
@@ -377,6 +379,10 @@ static void receiverTask(__attribute__((unused)) void *parameters)
             valid_input_detected &= validInputRange(settings.ChannelMin.Accessory2,
                                                     settings.ChannelMax.Accessory2, cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY2]);
         }
+        if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+            valid_input_detected &= validInputRange(settings.ChannelMin.Accessory3,
+                                                    settings.ChannelMax.Accessory3, cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY3]);
+        }
 
         // Implement hysteresis loop on connection status
         if (valid_input_detected && (++connected_count > 10)) {
@@ -433,6 +439,13 @@ static void receiverTask(__attribute__((unused)) void *parameters)
             if (settings.ChannelGroups.Accessory2 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
                 accessory.AccessoryVal = settings.FailsafeChannel.Accessory2;
                 if (AccessoryDesiredInstSet(2, &accessory) != 0) {
+                    AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
+                }
+            }
+            // Set Accessory 3
+            if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+                accessory.AccessoryVal = settings.FailsafeChannel.Accessory3;
+                if (AccessoryDesiredInstSet(3, &accessory) != 0) {
                     AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
                 }
             }
@@ -542,6 +555,17 @@ static void receiverTask(__attribute__((unused)) void *parameters)
 #endif
 
                 if (AccessoryDesiredInstSet(2, &accessory) != 0) {
+                    AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
+                }
+            }
+            // Set Accessory 3
+            if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+                accessory.AccessoryVal = scaledChannel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY3];
+#ifdef USE_INPUT_LPF
+                applyLPF(&accessory.AccessoryVal, MANUALCONTROLSETTINGS_RESPONSETIME_ACCESSORY3, &settings.ResponseTime, settings.Deadband, dT);
+#endif
+
+                if (AccessoryDesiredInstSet(3, &accessory) != 0) {
                     AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
                 }
             }

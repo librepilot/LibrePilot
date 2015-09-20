@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configmultirotorwidget.cpp
- * @author     E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -120,6 +121,9 @@ QStringList ConfigMultiRotorWidget::getChannelDescriptions()
     if (multi.Accessory2 > 0 && multi.Accessory2 <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
         channelDesc[multi.Accessory2 - 1] = QString("Accessory2");
     }
+    if (multi.Accessory3 > 0 && multi.Accessory3 <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
+        channelDesc[multi.Accessory3 - 1] = QString("Accessory3");
+    }
 
     return channelDesc;
 }
@@ -136,6 +140,7 @@ ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
     m_aircraft->rcOutputCurveBox1->addItems(mixerCurveList);
     m_aircraft->rcOutputCurveBox2->addItems(mixerCurveList);
     m_aircraft->rcOutputCurveBox3->addItems(mixerCurveList);
+    m_aircraft->rcOutputCurveBox4->addItems(mixerCurveList);
 
     // Setup the Multirotor picture in the Quad settings interface
     m_aircraft->quadShape->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -332,9 +337,11 @@ void ConfigMultiRotorWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->rcOutputChannelBox1);
     parent.addWidget(m_aircraft->rcOutputChannelBox2);
     parent.addWidget(m_aircraft->rcOutputChannelBox3);
+    parent.addWidget(m_aircraft->rcOutputChannelBox4);
     parent.addWidget(m_aircraft->rcOutputCurveBox1);
     parent.addWidget(m_aircraft->rcOutputCurveBox2);
     parent.addWidget(m_aircraft->rcOutputCurveBox3);
+    parent.addWidget(m_aircraft->rcOutputCurveBox4);
 }
 
 void ConfigMultiRotorWidget::resetActuators(GUIConfigDataUnion *configData)
@@ -363,6 +370,7 @@ void ConfigMultiRotorWidget::resetRcOutputs(GUIConfigDataUnion *configData)
     configData->multi.Accessory0 = 0;
     configData->multi.Accessory1 = 0;
     configData->multi.Accessory2 = 0;
+    configData->multi.Accessory3 = 0;
 }
 
 void ConfigMultiRotorWidget::resetMixers()
@@ -386,6 +394,7 @@ void ConfigMultiRotorWidget::updateRcCurvesUsed()
     setComboCurrentIndex(m_aircraft->rcOutputCurveBox1, VehicleConfig::MIXER_THROTTLECURVE1);
     setComboCurrentIndex(m_aircraft->rcOutputCurveBox2, VehicleConfig::MIXER_THROTTLECURVE1);
     setComboCurrentIndex(m_aircraft->rcOutputCurveBox3, VehicleConfig::MIXER_THROTTLECURVE1);
+    setComboCurrentIndex(m_aircraft->rcOutputCurveBox4, VehicleConfig::MIXER_THROTTLECURVE1);
 
     for (int channel = 0; channel < (int)ConfigMultiRotorWidget::CHANNEL_NUMELEM; channel++) {
         QString mixerType = getMixerType(mixer, channel);
@@ -395,6 +404,8 @@ void ConfigMultiRotorWidget::updateRcCurvesUsed()
             setComboCurrentIndex(m_aircraft->rcOutputCurveBox2, VehicleConfig::MIXER_THROTTLECURVE2);
         } else if (mixerType == "Accessory2" && getMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2)) {
             setComboCurrentIndex(m_aircraft->rcOutputCurveBox3, VehicleConfig::MIXER_THROTTLECURVE2);
+        } else if (mixerType == "Accessory3" && getMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2)) {
+            setComboCurrentIndex(m_aircraft->rcOutputCurveBox4, VehicleConfig::MIXER_THROTTLECURVE2);
         }
     }
 }
@@ -511,6 +522,7 @@ void ConfigMultiRotorWidget::refreshWidgetsValues(QString frameType)
     setComboCurrentIndex(m_aircraft->rcOutputChannelBox1, multi.Accessory0);
     setComboCurrentIndex(m_aircraft->rcOutputChannelBox2, multi.Accessory1);
     setComboCurrentIndex(m_aircraft->rcOutputChannelBox3, multi.Accessory2);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBox4, multi.Accessory3);
 
     updateRcCurvesUsed();
 
@@ -537,7 +549,7 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
     resetMixers();
 
     QList<QString> rcOutputList;
-    rcOutputList << "Accessory0" << "Accessory1" << "Accessory2";
+    rcOutputList << "Accessory0" << "Accessory1" << "Accessory2" << "Accessory3";
     setupRcOutputs(rcOutputList);
 
     // Curve is also common to all quads:
@@ -880,7 +892,8 @@ void ConfigMultiRotorWidget::setupQuadMotor(int channel, double pitch, double ro
 void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
 {
     QList<QComboBox *> rcList;
-    rcList << m_aircraft->rcOutputChannelBox1 << m_aircraft->rcOutputChannelBox2 << m_aircraft->rcOutputChannelBox3;
+    rcList << m_aircraft->rcOutputChannelBox1 << m_aircraft->rcOutputChannelBox2
+           << m_aircraft->rcOutputChannelBox3 << m_aircraft->rcOutputChannelBox4;
 
     GUIConfigDataUnion configData = getConfigData();
     resetRcOutputs(&configData);
@@ -891,6 +904,7 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
     int curveAccessory0  = m_aircraft->rcOutputCurveBox1->currentIndex();
     int curveAccessory1  = m_aircraft->rcOutputCurveBox2->currentIndex();
     int curveAccessory2  = m_aircraft->rcOutputCurveBox3->currentIndex();
+    int curveAccessory3  = m_aircraft->rcOutputCurveBox4->currentIndex();
 
     foreach(QString rc_output, rcOutputList) {
         int index = rcList.takeFirst()->currentIndex();
@@ -920,6 +934,16 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
             if (index) {
                 setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY2);
                 if (curveAccessory2) {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+        } else if (rc_output == QString("Accessory3")) {
+            configData.multi.Accessory3 = index;
+            if (index) {
+                setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY3);
+                if (curveAccessory3) {
                     setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
                 } else {
                     setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
@@ -1196,7 +1220,7 @@ bool ConfigMultiRotorWidget::throwConfigError(int numMotors)
     }
 
     // Iterate through all instances of rcOutputChannelBox
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
         // Find widgets with his name "rcOutputChannelBox.x", where x is an integer
         QComboBox *combobox = this->findChild<QComboBox *>("rcOutputChannelBox" + QString::number(i + 1));
         if (combobox) {

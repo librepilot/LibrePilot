@@ -31,7 +31,7 @@
 #ifndef PIOS_MS5611_H
 #define PIOS_MS5611_H
 #include <pios_sensors.h>
-/* BMP085 Addresses */
+/* MS5611 Addresses */
 #define MS5611_I2C_ADDR   0x77
 #define MS5611_RESET      0x1E
 #define MS5611_CALIB_ADDR 0xA2 /* First sample is factory stuff */
@@ -43,6 +43,7 @@
 
 struct pios_ms5611_cfg {
     uint32_t oversampling;
+    uint32_t slave_num;
 };
 
 enum pios_ms5611_osr {
@@ -54,7 +55,7 @@ enum pios_ms5611_osr {
 };
 
 /* Public Functions */
-extern void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t i2c_device);
+extern void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t device_handle);
 extern const PIOS_SENSORS_Driver PIOS_MS5611_Driver;
 void PIOS_MS5611_Register();
 

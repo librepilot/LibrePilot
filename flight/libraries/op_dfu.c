@@ -385,10 +385,10 @@ void processComand(uint8_t *xReceive_Buffer)
         sendData(echoBuffer + 1, 63);
     }
 }
+static Device dev;
 void OPDfuIni(uint8_t discover)
 {
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
-    Device dev;
 
     dev.programmingType   = Self_flash;
     dev.readWriteFlags    = (BOARD_READABLE | (BOARD_WRITABLE << 1));

@@ -59,12 +59,6 @@ public:
             // Nano
             return QString("RevoNano");
 
-            break;
-        case 0x0910:
-            // RasPilotHAT
-            return QString("revorpi");
-
-            break;
         default:
             return QString("");
 

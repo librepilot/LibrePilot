@@ -91,9 +91,6 @@ void RunningDeviceWidget::populate()
     case 0x0905:
         devicePic.load(":/uploader/images/gcs-board-nano.png");
         break;
-    case 0x0910:
-        devicePic.load(":/uploader/images/gcs-board-revr.png");
-        break;
     default:
         // Clear
         devicePic.load("");

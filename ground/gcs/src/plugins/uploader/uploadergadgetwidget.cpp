@@ -771,9 +771,6 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     case 0x905:
         filename = "fw_revonano";
         break;
-    case 0x910:
-        filename = "fw_revorpi";
-        break;
     default:
         emit progressUpdate(FAILURE, QVariant(tr("Unknown board id '0x%1'").arg(QString::number(m_dfu->devices[0].ID, 16))));
         emit autoUpdateFailed();

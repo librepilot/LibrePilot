@@ -19,6 +19,5 @@
         <file>images/gcs-board-oplink.png</file>
         <file>images/gcs-board-revo.png</file>
         <file>images/gcs-board-nano.png</file>
-        <file>images/gcs-board-revr.png</file>
     </qresource>
 </RCC>

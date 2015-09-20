@@ -788,7 +788,6 @@ OP_DFU::Status DFUObject::UploadFirmwareT(const QString &sfile, const bool &veri
     if (debug) {
         qDebug() << "Erasing memory";
     }
-    delay::msleep(1000);
     if (StatusRequest() == OP_DFU::abort) {
         return OP_DFU::abort;
     }

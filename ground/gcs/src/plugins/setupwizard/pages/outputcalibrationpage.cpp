@@ -212,9 +212,9 @@ void OutputCalibrationPage::setupVehicle()
         m_vehicleElementIds << "aileron" << "aileron-frame" << "aileron-motor" << "aileron-ail-left" << "aileron-ail-right" << "aileron-elevator" << "aileron-rudder";
         m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO << SERVO << SERVO << SERVO;
         m_vehicleHighlightElementIndexes << 0 << 1 << 2 << 3 << 4 << 5;
-        m_channelIndex << 0 << 2 << 0 << 5 << 1 << 3;
+        m_channelIndex << 0 << 3 << 0 << 5 << 1 << 2;
 
-        setupActuatorMinMaxAndNeutral(2, 2, 6); // should be 5 instead 6 but output 5 is not used
+        setupActuatorMinMaxAndNeutral(3, 3, 6); // should be 5 instead 6 but output 5 is not used
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;
@@ -224,9 +224,9 @@ void OutputCalibrationPage::setupVehicle()
         m_vehicleElementIds << "singleaileron" << "singleaileron-frame" << "singleaileron-motor" << "singleaileron-aileron" << "singleaileron-elevator" << "singleaileron-rudder";
         m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO << SERVO << SERVO;
         m_vehicleHighlightElementIndexes << 0 << 1 << 2 << 3 << 4;
-        m_channelIndex << 0 << 2 << 0 << 1 << 3;
+        m_channelIndex << 0 << 3 << 0 << 1 << 2;
 
-        setupActuatorMinMaxAndNeutral(2, 2, 4);
+        setupActuatorMinMaxAndNeutral(3, 3, 4);
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;
@@ -236,9 +236,9 @@ void OutputCalibrationPage::setupVehicle()
         m_vehicleElementIds << "elevon" << "elevon-frame" << "elevon-motor" << "elevon-left" << "elevon-right";
         m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO << SERVO;
         m_vehicleHighlightElementIndexes << 0 << 1 << 2 << 3;
-        m_channelIndex << 0 << 2 << 0 << 1;
+        m_channelIndex << 0 << 3 << 0 << 1;
 
-        setupActuatorMinMaxAndNeutral(2, 2, 3);
+        setupActuatorMinMaxAndNeutral(3, 3, 3);
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;
@@ -248,9 +248,9 @@ void OutputCalibrationPage::setupVehicle()
         m_vehicleElementIds << "vtail" << "vtail-frame" << "vtail-motor" << "vtail-ail-left" << "vtail-ail-right" << "vtail-rudder-left" << "vtail-rudder-right";
         m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO << SERVO << SERVO << SERVO;
         m_vehicleHighlightElementIndexes << 0 << 1 << 2 << 3 << 4 << 5;
-        m_channelIndex << 0 << 2 << 0 << 5 << 3 << 1;
+        m_channelIndex << 0 << 3 << 0 << 5 << 2 << 1;
 
-        setupActuatorMinMaxAndNeutral(2, 2, 6); // should be 5 instead 6 but output 5 is not used
+        setupActuatorMinMaxAndNeutral(3, 3, 6); // should be 5 instead 6 but output 5 is not used
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;
@@ -262,9 +262,9 @@ void OutputCalibrationPage::setupVehicle()
         m_vehicleElementIds << "car" << "car-frame" << "car-motor" << "car-steering";
         m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO;
         m_vehicleHighlightElementIndexes << 0 << 1 << 2;
-        m_channelIndex << 0 << 1 << 0;
+        m_channelIndex << 0 << 3 << 0;
 
-        setupActuatorMinMaxAndNeutral(1, 1, 2);
+        setupActuatorMinMaxAndNeutral(3, 3, 2);
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;
@@ -286,9 +286,9 @@ void OutputCalibrationPage::setupVehicle()
         m_vehicleElementIds << "motorbike" << "motorbike-frame" << "motorbike-motor" << "motorbike-steering";
         m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO;
         m_vehicleHighlightElementIndexes << 0 << 1 << 2;
-        m_channelIndex << 0 << 1 << 0;
+        m_channelIndex << 0 << 3 << 0;
 
-        setupActuatorMinMaxAndNeutral(1, 1, 2);
+        setupActuatorMinMaxAndNeutral(3, 3, 2);
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;

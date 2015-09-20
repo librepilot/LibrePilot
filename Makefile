@@ -64,7 +64,7 @@ GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
 WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
 # Set up default build configurations (debug | release)
-GCS_BUILD_CONF		:= debug
+GCS_BUILD_CONF		:= release
 GOOGLE_API_VERSION	:= 14
 
 # Clean out undesirable variables from the environment and command-line
@@ -93,7 +93,7 @@ $(foreach var, $(SANITIZE_DEPRECATED_VARS), $(eval $(call SANITIZE_VAR,$(var),de
 
 # Make sure this isn't being run as root unless installing (no whoami on Windows, but that is ok here)
 ifeq ($(shell whoami 2>/dev/null),root)
-    ifeq ($(filter install,$(MAKECMDGOALS)),)
+    ifeq ($(filter install uninstall,$(MAKECMDGOALS)),)
         ifndef FAKEROOTKEY
             $(error You should not be running this as root)
         endif

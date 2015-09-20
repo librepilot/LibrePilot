@@ -30,19 +30,19 @@
      inkscape:window-height="928"
      id="namedview4616"
      showgrid="false"
-     inkscape:zoom="0.56829069"
-     inkscape:cx="617.05784"
-     inkscape:cy="502.76029"
+     inkscape:zoom="1.6073688"
+     inkscape:cx="845.3775"
+     inkscape:cy="601.39702"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg12651"
+     inkscape:current-layer="layer47"
      fit-margin-top="15"
      fit-margin-left="15"
      fit-margin-right="15"
      fit-margin-bottom="15"
      inkscape:snap-grids="true"
-     showguides="false"
+     showguides="true"
      inkscape:guide-bbox="true"
      inkscape:snap-global="true"
      inkscape:snap-bbox="true"
@@ -40658,8 +40658,9 @@
      inkscape:groupmode="layer"
      id="layer13"
      inkscape:label="multirotors-frames"
-     style="display:inline"
-     transform="translate(-32.46875,315.85439)">
+     style="display:none"
+     transform="translate(-32.46875,315.85439)"
+     sodipodi:insensitive="true">
     <g
        inkscape:groupmode="layer"
        id="layer24"
@@ -45991,8 +45992,7 @@
      id="layer14"
      inkscape:label="fixed-wing-frames"
      style="display:inline"
-     transform="translate(-32.46875,315.85439)"
-     sodipodi:insensitive="true">
+     transform="translate(-32.46875,315.85439)">
     <g
        inkscape:groupmode="layer"
        id="layer46"
@@ -46281,7 +46281,7 @@
                      id="circle3889-7-2" />
                   <polygon
                      style="fill:#ffffff"
-                     points="385.232,688.145 384.951,688.426 383.697,687.172 382.443,688.426 382.162,688.145 383.416,686.891 382.162,685.637 382.443,685.355 383.697,686.609 384.951,685.355 385.232,685.637 383.978,686.891 "
+                     points="383.697,687.172 382.443,688.426 382.162,688.145 383.416,686.891 382.162,685.637 382.443,685.355 383.697,686.609 384.951,685.355 385.232,685.637 383.978,686.891 385.232,688.145 384.951,688.426 "
                      id="polygon3891-7-0" />
                 </g>
               </g>
@@ -46622,7 +46622,7 @@
                      id="circle3915-5-9" />
                   <polygon
                      style="fill:#ffffff"
-                     points="409.938,719.207 410.22,718.926 408.966,717.672 410.22,716.418 409.938,716.137 408.685,717.391 407.431,716.137 407.149,716.418 408.403,717.672 407.149,718.926 407.431,719.207 408.685,717.953 "
+                     points="408.966,717.672 410.22,716.418 409.938,716.137 408.685,717.391 407.431,716.137 407.149,716.418 408.403,717.672 407.149,718.926 407.431,719.207 408.685,717.953 409.938,719.207 410.22,718.926 "
                      id="polygon3917-2-3" />
                 </g>
               </g>
@@ -47260,7 +47260,7 @@
                        id="circle3808-2" />
                     <polygon
                        style="fill:#ffffff"
-                       points="582.444,612.459 582.163,612.74 583.417,613.994 582.163,615.248 582.444,615.529 583.698,614.275 584.952,615.529 585.233,615.248 583.979,613.994 585.233,612.74 584.952,612.459 583.698,613.713 "
+                       points="583.417,613.994 582.163,615.248 582.444,615.529 583.698,614.275 584.952,615.529 585.233,615.248 583.979,613.994 585.233,612.74 584.952,612.459 583.698,613.713 582.444,612.459 582.163,612.74 "
                        id="polygon3810-5" />
                   </g>
                 </g>
@@ -47624,7 +47624,7 @@
                        id="circle3853-8" />
                     <polygon
                        style="fill:#ffffff"
-                       points="212.52,612.367 212.801,612.086 214.055,613.34 215.309,612.086 215.59,612.367 214.336,613.621 215.59,614.875 215.309,615.156 214.055,613.901 212.801,615.156 212.52,614.875 213.773,613.621 "
+                       points="214.055,613.34 215.309,612.086 215.59,612.367 214.336,613.621 215.59,614.875 215.309,615.156 214.055,613.901 212.801,615.156 212.52,614.875 213.773,613.621 212.52,612.367 212.801,612.086 "
                        id="polygon3855-7" />
                   </g>
                 </g>
@@ -47664,8 +47664,8 @@
              transform="translate(-424.57206,737.27388)" />
         </g>
         <path
-           style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:2.56401658;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 265.22146,3082.1918 l 0,-42.6438 l -95.98891,-0.019 l 0,-266.8652"
+           style="display:inline;opacity:0.6;fill:none;stroke:#3232ed;stroke-width:2.56401658;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
+           d="m 278.91553,3082.1918 l 0,-32.3732 c -36.56099,0 -73.12199,-0.012 -109.68298,-0.02 l 0,-277.1358"
            id="path18297-0"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccc" />
@@ -47683,7 +47683,7 @@
            sodipodi:nodetypes="cccc" />
         <path
            style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:2.56401658;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 278.88006,3082.1918 l 0,-21.686 l 177.46656,-0.9169 l -0.3564,-291.1944"
+           d="m 266.89775,3082.1918 l 0,-21.686 l 189.44887,-0.9169 l -0.3564,-291.1944"
            id="path19631-2"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccc" />
@@ -47722,13 +47722,13 @@
              transform="matrix(0.86182848,-0.00300837,0.00369546,1.0586653,60.05965,-689.19036)"
              id="elevon-left-bg">
             <polygon
-               points="276.907,598.968 53.208,640.88 57.043,661.355 280.743,619.442 "
+               points="57.043,661.355 280.743,619.442 276.907,598.968 53.208,640.88 "
                id="polygon15045"
                style="fill:#ffffff;fill-opacity:1"
                transform="matrix(0.72121082,0.06170844,-0.10908107,0.84487279,73.505995,371.00173)" />
             <polygon
                style="fill:url(#linearGradient5053-3-6);fill-opacity:1"
-               points="277.907,598.968 54.208,640.88 58.043,661.355 281.743,619.442 "
+               points="58.043,661.355 281.743,619.442 277.907,598.968 54.208,640.88 "
                id="polygon15149"
                transform="matrix(0.72121082,0.06170844,-0.10908107,0.84487279,72.763393,371.00173)" />
             <g
@@ -47990,13 +47990,13 @@
              transform="matrix(-0.86182848,-0.00300837,-0.00369546,1.0586653,726.01496,-689.1904)"
              id="elevon-right-bg">
             <polygon
-               points="276.907,598.968 53.208,640.88 57.043,661.355 280.743,619.442 "
+               points="57.043,661.355 280.743,619.442 276.907,598.968 53.208,640.88 "
                id="polygon15045-6"
                style="fill:#ffffff;fill-opacity:1"
                transform="matrix(0.72121082,0.06170844,-0.10908107,0.84487279,73.505995,371.00173)" />
             <polygon
                style="fill:url(#linearGradient5055-9-1);fill-opacity:1"
-               points="277.907,598.968 54.208,640.88 58.043,661.355 281.743,619.442 "
+               points="58.043,661.355 281.743,619.442 277.907,598.968 54.208,640.88 "
                id="polygon15149-3"
                transform="matrix(0.72121082,0.06170844,-0.10908107,0.84487279,72.763393,371.00173)" />
             <g
@@ -48315,7 +48315,7 @@
                        id="circle3808-0-9-5" />
                     <polygon
                        style="fill:#ffffff"
-                       points="582.444,615.529 583.698,614.275 584.952,615.529 585.233,615.248 583.979,613.994 585.233,612.74 584.952,612.459 583.698,613.713 582.444,612.459 582.163,612.74 583.417,613.994 582.163,615.248 "
+                       points="584.952,615.529 585.233,615.248 583.979,613.994 585.233,612.74 584.952,612.459 583.698,613.713 582.444,612.459 582.163,612.74 583.417,613.994 582.163,615.248 582.444,615.529 583.698,614.275 "
                        id="polygon3810-1-8-8" />
                   </g>
                 </g>
@@ -48411,7 +48411,7 @@
                        id="circle3808-0-9" />
                     <polygon
                        style="fill:#ffffff"
-                       points="583.979,613.994 585.233,612.74 584.952,612.459 583.698,613.713 582.444,612.459 582.163,612.74 583.417,613.994 582.163,615.248 582.444,615.529 583.698,614.275 584.952,615.529 585.233,615.248 "
+                       points="584.952,612.459 583.698,613.713 582.444,612.459 582.163,612.74 583.417,613.994 582.163,615.248 582.444,615.529 583.698,614.275 584.952,615.529 585.233,615.248 583.979,613.994 585.233,612.74 "
                        id="polygon3810-1-8" />
                   </g>
                 </g>
@@ -48647,8 +48647,8 @@
            transform="translate(1.2734359,1.2734359)"
            sodipodi:nodetypes="ccccc" />
         <path
-           style="opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 711.4357,180.81019 l 20.66904,0 l 0,144.8503 l 378.00806,-0.25 l 0.01,-52.25"
+           style="opacity:0.6;fill:none;stroke:#3232ed;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
+           d="m 711.4357,195.81019 l 20.66904,0 l 0,129.8503 l 378.00806,-0.25 l 0.01,-52.25"
            id="path16917"
            inkscape:connector-curvature="0"
            transform="translate(1.2734359,1.2734359)"
@@ -49803,7 +49803,7 @@
                    cx="383.69699" />
                 <polygon
                    id="polygon3891-8"
-                   points="383.697,687.172 382.443,688.426 382.162,688.145 383.416,686.891 382.162,685.637 382.443,685.355 383.697,686.609 384.951,685.355 385.232,685.637 383.978,686.891 385.232,688.145 384.951,688.426 "
+                   points="385.232,688.145 384.951,688.426 383.697,687.172 382.443,688.426 382.162,688.145 383.416,686.891 382.162,685.637 382.443,685.355 383.697,686.609 384.951,685.355 385.232,685.637 383.978,686.891 "
                    style="fill:#ffffff" />
               </g>
             </g>
@@ -49864,7 +49864,7 @@
                    cx="408.685" />
                 <polygon
                    id="polygon3917-1"
-                   points="410.22,718.926 408.966,717.672 410.22,716.418 409.938,716.137 408.685,717.391 407.431,716.137 407.149,716.418 408.403,717.672 407.149,718.926 407.431,719.207 408.685,717.953 409.938,719.207 "
+                   points="408.685,717.953 409.938,719.207 410.22,718.926 408.966,717.672 410.22,716.418 409.938,716.137 408.685,717.391 407.431,716.137 407.149,716.418 408.403,717.672 407.149,718.926 407.431,719.207 "
                    style="fill:#ffffff" />
               </g>
             </g>
@@ -49987,7 +49987,7 @@
                  cx="214.054" />
               <polygon
                  id="polygon3855-2"
-                 points="212.801,612.086 214.055,613.34 215.309,612.086 215.59,612.367 214.336,613.621 215.59,614.875 215.309,615.156 214.055,613.901 212.801,615.156 212.52,614.875 213.773,613.621 212.52,612.367 "
+                 points="213.773,613.621 212.52,612.367 212.801,612.086 214.055,613.34 215.309,612.086 215.59,612.367 214.336,613.621 215.59,614.875 215.309,615.156 214.055,613.901 212.801,615.156 212.52,614.875 "
                  style="fill:#ffffff" />
             </g>
           </g>
@@ -50039,20 +50039,20 @@
           </g>
         </g>
         <path
-           style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 685.05778,181.18081 l 54.68649,0 l 0,-108 l 319.75323,0"
+           style="display:inline;opacity:0.6;fill:none;stroke:#3232ed;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
+           d="m 685.05778,197.18081 l 54.68649,0 l 0,-124 l 319.75323,0"
            id="path18297-3"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccc" />
         <path
            style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 685.05778,164.64861 l 35.68649,0 l 0,207.64993 l 374.59513,0"
+           d="m 685.05778,164.64861 l 38.68649,0 l 0,207.64993 l 371.59513,0"
            id="path19249-2"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccc" />
         <path
            style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 685.05778,197.16194 l 17.50906,0 l -0.92443,129.55097 l 374.23249,-0.38403"
+           d="m 685.05778,182.16194 l 21.50906,0 l 0.0756,144.55097 l 369.23246,-0.38403"
            id="path19631-4"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccc" />
@@ -50069,7 +50069,7 @@
        inkscape:groupmode="layer"
        id="layer34"
        inkscape:label="fixed-wing-two-servos"
-       style="display:none"
+       style="display:inline"
        sodipodi:insensitive="true">
       <g
          transform="translate(-1.2734359,-1.2734402)"
@@ -51461,8 +51461,8 @@
           </g>
         </g>
         <path
-           style="opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 683.33096,179.50208 l 31.11171,-0.0189 l 0.0563,-107.793143 l 341.81473,1.297651"
+           style="opacity:0.6;fill:none;stroke:#3232ed;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
+           d="m 683.33096,195.50208 l 31.11171,-0.0189 l 0.0563,-123.793143 l 341.81473,1.297651"
            id="path18297"
            inkscape:connector-curvature="0"
            transform="translate(1.2734359,1.2734359)"
@@ -51476,14 +51476,14 @@
            sodipodi:nodetypes="ccc" />
         <path
            style="opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 683.33096,162.96988 l 53.81977,0 l 0,205.64992 l 352.46187,0"
+           d="m 683.33096,162.96988 l 61.81977,0 l 0,205.64992 l 344.46187,0"
            id="path19249"
            inkscape:connector-curvature="0"
            transform="translate(1.2734359,1.2734359)"
            sodipodi:nodetypes="cccc" />
         <path
            style="opacity:0.6;fill:none;stroke:#ff0000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 683.33096,195.48321 l 31.13987,0 l 0,136.22396 l 346.65807,0"
+           d="m 683.33096,180.48321 l 46.13987,0 l 0,151.22396 l 331.65807,0"
            id="path19631"
            inkscape:connector-curvature="0"
            transform="translate(1.2734359,1.2734359)"
@@ -51501,13 +51501,14 @@
   <g
      inkscape:groupmode="layer"
      id="layer47"
-     inkscape:label="ground-vehicles">
+     inkscape:label="ground-vehicles"
+     sodipodi:insensitive="true"
+     style="display:none">
     <g
        inkscape:groupmode="layer"
        id="layer48"
        inkscape:label="motorbike"
-       style="display:none"
-       sodipodi:insensitive="true">
+       style="display:none">
       <g
          transform="translate(665.97868,-1210.1492)"
          style="display:inline"
@@ -51853,7 +51854,7 @@
                      id="circle3853-3" />
                   <polygon
                      style="fill:#ffffff"
-                     points="212.52,612.367 212.801,612.086 214.055,613.34 215.309,612.086 215.59,612.367 214.336,613.621 215.59,614.875 215.309,615.156 214.055,613.901 212.801,615.156 212.52,614.875 213.773,613.621 "
+                     points="212.52,614.875 213.773,613.621 212.52,612.367 212.801,612.086 214.055,613.34 215.309,612.086 215.59,612.367 214.336,613.621 215.59,614.875 215.309,615.156 214.055,613.901 212.801,615.156 "
                      id="polygon3855-79" />
                 </g>
               </g>
@@ -52016,8 +52017,8 @@
            d="m -15.116465,1673.5434 l 91.222621,-0.1041 l 51.576774,-65.0956 l 261.28532,-0.1041 l 63.42887,113.2472"
            style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:2.99576831;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)" />
         <path
-           style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:2.99576831;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m -15.116465,1688.9734 l 91.22266,-0.1041 l 228.794525,87.1813"
+           style="display:inline;opacity:0.6;fill:none;stroke:#3232ed;stroke-width:2.99576831;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
+           d="m -15.116465,1721.9734 l 213.222655,-0.1041 l 106.79453,54.1813"
            id="path37299-5"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="ccc" />
@@ -53148,8 +53149,8 @@
            d="m 650.86221,463.39425 l 364.89049,-0.4164"
            style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:2.99576831;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)" />
         <path
-           style="display:inline;opacity:0.6;fill:none;stroke:#ff0000;stroke-width:2.99576831;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
-           d="m 650.86221,478.82431 l 95.22265,-0.1041 l 122.44529,115.7918 l 95.22265,-0.1041"
+           style="display:inline;opacity:0.6;fill:none;stroke:#3232ed;stroke-width:2.99576831;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#DotS);marker-end:url(#Arrow2Send)"
+           d="m 650.86221,511.82431 l 95.22265,-0.1041 l 122.44529,82.7918 l 95.22265,-0.1041"
            id="path37299"
            inkscape:connector-curvature="0"
            sodipodi:nodetypes="cccc" />

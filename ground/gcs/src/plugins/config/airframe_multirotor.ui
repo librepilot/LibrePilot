@@ -532,6 +532,13 @@ Typical value is 50% for + or X configuration on quads.</string>
         <property name="leftMargin">
          <number>0</number>
         </property>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="rcOutputCurveBox2">
+          <property name="toolTip">
+           <string>Select output curve for Accessory1 RcInput</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="1">
          <widget class="QComboBox" name="rcOutputChannelBox1">
           <property name="sizePolicy">
@@ -752,17 +759,59 @@ margin:1px;</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QComboBox" name="rcOutputCurveBox2">
-          <property name="toolTip">
-           <string>Select output curve for Accessory1 RcInput</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="2">
          <widget class="QComboBox" name="rcOutputCurveBox3">
           <property name="toolTip">
            <string>Select output curve for Accessory2 RcInput</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
+color: rgb(255, 255, 255);
+border-radius: 5;
+font: bold 12px;
+margin:1px;</string>
+          </property>
+          <property name="text">
+           <string>Accessory3</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QComboBox" name="rcOutputChannelBox4">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Select output channel for Accessory3 RcInput</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QComboBox" name="rcOutputCurveBox4">
+          <property name="toolTip">
+           <string>Select output curve for Accessory3 RcInput</string>
           </property>
          </widget>
         </item>
@@ -804,6 +853,9 @@ margin:1px;</string>
         </property>
         <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        </property>
+        <property name="formAlignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="verticalSpacing">
          <number>6</number>
@@ -857,6 +909,12 @@ margin:1px;</string>
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
           </property>
@@ -881,6 +939,12 @@ margin:1px;</string>
           <property name="enabled">
            <bool>true</bool>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
           </property>
@@ -904,6 +968,12 @@ margin:1px;</string>
          <widget class="QComboBox" name="multiMotorChannelBox8">
           <property name="enabled">
            <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
@@ -952,6 +1022,9 @@ margin:1px;</string>
         <property name="fieldGrowthPolicy">
          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
         </property>
+        <property name="formAlignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
         <property name="verticalSpacing">
          <number>6</number>
         </property>
@@ -971,6 +1044,12 @@ margin:1px;</string>
         </item>
         <item row="0" column="1">
          <widget class="QComboBox" name="multiMotorChannelBox1">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
           </property>
@@ -992,6 +1071,12 @@ margin:1px;</string>
         </item>
         <item row="1" column="1">
          <widget class="QComboBox" name="multiMotorChannelBox2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
           </property>
@@ -1013,6 +1098,12 @@ margin:1px;</string>
         </item>
         <item row="2" column="1">
          <widget class="QComboBox" name="multiMotorChannelBox3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
           </property>
@@ -1034,6 +1125,12 @@ margin:1px;</string>
         </item>
         <item row="3" column="1">
          <widget class="QComboBox" name="multiMotorChannelBox4">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</string>
           </property>

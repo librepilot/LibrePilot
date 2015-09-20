@@ -548,7 +548,7 @@ QString DeviceWidget::getDevFirmwarePath()
     fwDirectory.cd("../../../../../..");
     fwDirectoryStr = fwDirectory.absolutePath();
 #endif
-    fwDirectoryStr = fwDirectoryStr + "/fw_" + myDevice->lblBrdName->text().toLower() + "/fw_" + myDevice->lblBrdName->text().toLower() + ".opfw";
+    fwDirectoryStr = fwDirectoryStr + "/firmware/fw_" + myDevice->lblBrdName->text().toLower() + "/fw_" + myDevice->lblBrdName->text().toLower() + ".opfw";
     return fwDirectoryStr;
 }
 

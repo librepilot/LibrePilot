@@ -552,15 +552,15 @@ void PIOS_Board_Init(void)
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
     switch (hwsettings_mainport) {
-    case HWSETTINGS_RM_MAINPORT_DISABLED:
+    case HWSETTINGS_RH_MAINPORT_DISABLED:
         break;
-    case HWSETTINGS_RM_MAINPORT_TELEMETRY:
+    case HWSETTINGS_RH_MAINPORT_TELEMETRY:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_GPS:
+    case HWSETTINGS_RH_MAINPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_SBUS:
+    case HWSETTINGS_RH_MAINPORT_SBUS:
 #if defined(PIOS_INCLUDE_SBUS)
         {
             uint32_t pios_usart_sbus_id;
@@ -581,7 +581,7 @@ void PIOS_Board_Init(void)
         }
 #endif
         break;
-    case HWSETTINGS_RM_MAINPORT_DSM:
+    case HWSETTINGS_RH_MAINPORT_DSM:
     {
         // Force binding to zero on the main port
         hwsettings_DSMxBind = 0;
@@ -591,22 +591,22 @@ void PIOS_Board_Init(void)
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
     }
     break;
-    case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
+    case HWSETTINGS_RH_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
             PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
-    case HWSETTINGS_RM_MAINPORT_COMBRIDGE:
+    case HWSETTINGS_RH_MAINPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_OSDHK:
+    case HWSETTINGS_RH_MAINPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     } /*        hwsettings_rm_mainport */
 
-    if (hwsettings_mainport != HWSETTINGS_RM_MAINPORT_SBUS) {
+    if (hwsettings_mainport != HWSETTINGS_RH_MAINPORT_SBUS) {
         GPIO_Init(pios_sbus_cfg.inv.gpio, &pios_sbus_cfg.inv.init);
         GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
     }
@@ -615,12 +615,12 @@ void PIOS_Board_Init(void)
     uint8_t hwsettings_flexiport;
     HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
     switch (hwsettings_flexiport) {
-    case HWSETTINGS_RM_FLEXIPORT_DISABLED:
+    case HWSETTINGS_RH_FLEXIPORT_DISABLED:
         break;
-    case HWSETTINGS_RM_FLEXIPORT_TELEMETRY:
+    case HWSETTINGS_RH_FLEXIPORT_TELEMETRY:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_I2C:
+    case HWSETTINGS_RH_FLEXIPORT_I2C:
 #if defined(PIOS_INCLUDE_I2C)
         {
             if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
@@ -629,28 +629,28 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_I2C */
         break;
-    case HWSETTINGS_RM_FLEXIPORT_GPS:
+    case HWSETTINGS_RH_FLEXIPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_DSM:
+    case HWSETTINGS_RH_FLEXIPORT_DSM:
         // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
         PIOS_Board_configure_dsm(&pios_usart_dsm_flexi_cfg, &pios_dsm_flexi_cfg,
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT, &hwsettings_DSMxBind);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE:
+    case HWSETTINGS_RH_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
             PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
-    case HWSETTINGS_RM_FLEXIPORT_COMBRIDGE:
+    case HWSETTINGS_RH_FLEXIPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_OSDHK:
+    case HWSETTINGS_RH_FLEXIPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_SRXL:
+    case HWSETTINGS_RH_FLEXIPORT_SRXL:
 #if defined(PIOS_INCLUDE_SRXL)
         {
             uint32_t pios_usart_srxl_id;
@@ -686,19 +686,19 @@ void PIOS_Board_Init(void)
     HwSettingsRM_RcvrPortGet(&hwsettings_rcvrport);
     //
     switch (hwsettings_rcvrport) {
-    case HWSETTINGS_RM_RCVRPORT_DISABLED:
+    case HWSETTINGS_RH_RCVRPORT_DISABLED:
         break;
-    case HWSETTINGS_RM_RCVRPORT_PWM:
+    case HWSETTINGS_RH_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
         /* Set up the receiver port.  Later this should be optional */
         PIOS_Board_configure_pwm(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
-    case HWSETTINGS_RM_RCVRPORT_PPM:
-    case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
-    case HWSETTINGS_RM_RCVRPORT_PPMPWM:
+    case HWSETTINGS_RH_RCVRPORT_PPM:
+    case HWSETTINGS_RH_RCVRPORT_PPMOUTPUTS:
+    case HWSETTINGS_RH_RCVRPORT_PPMPWM:
 #if defined(PIOS_INCLUDE_PPM)
-        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS) {
+        if (hwsettings_rcvrport == HWSETTINGS_RH_RCVRPORT_PPMOUTPUTS) {
             // configure servo outputs and the remaining 5 inputs as outputs
             pios_servo_cfg = &pios_servo_cfg_out_in_ppm;
         }
@@ -707,7 +707,7 @@ void PIOS_Board_Init(void)
 
         break;
 #endif /* PIOS_INCLUDE_PPM */
-    case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
+    case HWSETTINGS_RH_RCVRPORT_OUTPUTS:
         // configure only the servo outputs
         pios_servo_cfg = &pios_servo_cfg_out_in;
         break;
@@ -794,14 +794,14 @@ SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook()
 
     switch ((HwSettingsRM_RcvrPortOptions)recmode) {
     // Those modes allows oneshot usage
-    case HWSETTINGS_RM_RCVRPORT_DISABLED:
-    case HWSETTINGS_RM_RCVRPORT_PPM:
-    case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
-    case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
+    case HWSETTINGS_RH_RCVRPORT_DISABLED:
+    case HWSETTINGS_RH_RCVRPORT_PPM:
+    case HWSETTINGS_RH_RCVRPORT_PPMOUTPUTS:
+    case HWSETTINGS_RH_RCVRPORT_OUTPUTS:
         return SYSTEMALARMS_EXTENDEDALARMSTATUS_NONE;
 
     // inhibit oneshot for the following modes
-    case HWSETTINGS_RM_RCVRPORT_PWM:
+    case HWSETTINGS_RH_RCVRPORT_PWM:
         for (uint8_t i = 0; i < ACTUATORSETTINGS_BANKMODE_NUMELEM; i++) {
             if (modes[i] == ACTUATORSETTINGS_BANKMODE_PWMSYNC ||
                 modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT125) {

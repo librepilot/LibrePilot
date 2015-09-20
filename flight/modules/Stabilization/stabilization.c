@@ -341,6 +341,14 @@ static void BankUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
                                                                  && tps_for_pid[pid];
         }
     }
+
+    for (int i = 0; i < STABILIZATIONSETTINGSBANK1_THRUSTPIDSCALECURVE_NUMELEM; i++) {
+        stabSettings.floatThrustPIDScaleCurve[i] = (float)(stabSettings.stabBank.ThrustPIDScaleCurve[i]) * 0.01f;
+    }
+
+    stabSettings.acroInsanityFactors[0] = (float)(stabSettings.stabBank.AcroInsanityFactor.Roll) * 0.01f;
+    stabSettings.acroInsanityFactors[1] = (float)(stabSettings.stabBank.AcroInsanityFactor.Pitch) * 0.01f;
+    stabSettings.acroInsanityFactors[2] = (float)(stabSettings.stabBank.AcroInsanityFactor.Yaw) * 0.01f;
 }
 
 
@@ -381,13 +389,6 @@ static void SettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
     stabSettings.cruiseControl.power_trim = stabSettings.settings.CruiseControlPowerTrim / 100.0f;
     stabSettings.cruiseControl.half_power_delay = stabSettings.settings.CruiseControlPowerDelayComp / 2.0f;
     stabSettings.cruiseControl.max_power_factor_angle = RAD2DEG(acosf(1.0f / stabSettings.settings.CruiseControlMaxPowerFactor));
-
-    for (int i = 0; i < STABILIZATIONSETTINGSBANK1_THRUSTPIDSCALECURVE_NUMELEM; i++) {
-        stabSettings.floatThrustPIDScaleCurve[i] = (float)(stabSettings.stabBank.ThrustPIDScaleCurve[i]) * 0.01f;
-    }
-    stabSettings.acroInsanityFactors[0] = (float)(stabSettings.stabBank.AcroInsanityFactor.Roll) * 0.01f;
-    stabSettings.acroInsanityFactors[1] = (float)(stabSettings.stabBank.AcroInsanityFactor.Pitch) * 0.01f;
-    stabSettings.acroInsanityFactors[2] = (float)(stabSettings.stabBank.AcroInsanityFactor.Yaw) * 0.01f;
 }
 
 /**

@@ -718,6 +718,62 @@ static inline int16_t scaleMotorElevateAndCompress(float value, int16_t max, int
     return valueScaled;
 }
 
+/**
+ * Move and compress all motor outputs so that none goes below neutral,
+ * and all motors are below or equal to max.
+ */
+static inline int16_t scaleMotorMoveAndCompress(float valueMotor, int16_t max, int16_t neutral, float maxMotor, float minMotor)
+{
+    // The valueMotor parameter is the desired motor value somewhere in the
+    // [minMotor, maxMotor] range, which is [< -1.00, > 1.00].
+    //
+    // Before converting valueMotor to the [neutral, max] range, we scale
+    // valueMotor to a value in the [0.0f, 1.0f] range.
+    //
+    // This is done by, first, conceptually moving all three values valueMotor,
+    // minMotor, and maxMotor, equally so that the [minMotor, maxMotor] range,
+    // are contained or overlaps with the [0.0f, 1.0f] range.
+    //
+    // Then if the [minMotor, maxMotor] range is larger than 1.0f, the values
+    // are compressed enough to shrink the [minMotor + move, maxMotor + move]
+    // range to fit within the [0.0f, 1.0f] range.
+
+    // First move the values so that the source range [minMotor, maxMotor]
+    // covers the target range [0.0f, 1.0f] as much as possible.
+    float moveValue = 0.0f;
+
+    if (minMotor <= 0.0f) {
+        // Negative minMotor always adjust to 0.
+        moveValue = -minMotor;
+    } else if (maxMotor > 1.0f) {
+        // A too large maxMotor value adjust the range down towards, but not past, the minMotor value.
+        float beyondMax = maxMotor - 1.0f;
+        moveValue = -(beyondMax < minMotor ? beyondMax : minMotor);
+    }
+
+    // Then calculate the compress value, if the source range is greater than 1.0f.
+    float compressValue = 1.0f;
+
+    float rangeMotor    = maxMotor - minMotor;
+    if (rangeMotor > 1.0f) {
+        compressValue = rangeMotor;
+    }
+
+    // Combine the movement and compression, to get the value within [0.0f, 1.0f]
+    float movedAndCompressedValue = (valueMotor + moveValue) / compressValue;
+
+    // And last, convert the value into the [neutral, max] range.
+    int16_t valueScaled = movedAndCompressedValue * ((float)(max - neutral)) + neutral;
+
+    if (valueScaled > max) {
+        valueScaled = max; // clamp to max value only after scaling is done.
+    }
+
+    PIOS_Assert(valueScaled >= neutral);
+
+    return valueScaled;
+}
+
 static inline int16_t scaleMotorAddAndSubtract(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool AlwaysStabilizeWhenArmed)
 {
     // Scale
@@ -762,6 +818,9 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
         switch (scalingMode) {
         case FLIGHTMODESETTINGS_MOTORSCALINGMODE_NOSCALING:
             valueScaled = scaleChannel(value, max, min, neutral);
+            break;
+        case FLIGHTMODESETTINGS_MOTORSCALINGMODE_MOVEANDCOMPRESS:
+            valueScaled = scaleMotorMoveAndCompress(value, max, neutral, maxMotor, minMotor);
             break;
         case FLIGHTMODESETTINGS_MOTORSCALINGMODE_ELEVATEANDCOMPRESS:
             valueScaled = scaleMotorElevateAndCompress(value, max, neutral, maxMotor, minMotor);

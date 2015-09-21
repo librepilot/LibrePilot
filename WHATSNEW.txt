@@ -1,4 +1,15 @@
---- RELEASE-15.05 --- Revolution Nano ---
+--- RELEASE-15.05.01 HOTFIX --- Banana Split ---
+This release fixes an important bug.  All Revolution hardware running 15.05 should upgrade to 15.05.01. Note that this is a hotfix; it can
+simply be flashed without an erase settings. Furthermore, please review your vtolpathfollowersettings:HorizontalVelMax; a value of around 4m/s would be more appropriate for preliminary trialing of a new release and will be changed in future.
+
+Release Notes - OP Next Generation - Version OP15.05.01
+
+** Bug
+    * [NG-55] - 15.05 PositionHold exhibits fly-away behaviour at the vtolpathfollowersettings maxRollPitch and HorizontalVelMax values.
+
+
+
+--- RELEASE-15.05 --- Banana Split ---
 
 This release introduces new features and new hardware support for the Revolution Nano.  
 Note that the CC3D is not supported by this feature release.  

@@ -45,6 +45,8 @@ typedef struct {
     uint32_t port_id;
     uint8_t  slave_num;
     uint8_t  CTRLB;
+    uint16_t magCountMax;
+    uint16_t magCount;
     volatile bool data_ready;
 } pios_hmc5x83_dev_data_t;
 
@@ -109,8 +111,42 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
 #ifdef PIOS_HMC5X83_HAS_GPIOS
     if (cfg->exti_cfg) {
         PIOS_EXTI_Init(cfg->exti_cfg);
-    }
+    } else
 #endif
+    {
+        // for external mags that have no interrupt line, just poll them with a timer
+        // use the configured Output Data Rate to calculate the number of interations (of the main sensor task loop)
+        // to return false, before returning true
+        uint16_t rate100;
+        switch (cfg->M_ODR) {
+        case PIOS_HMC5x83_ODR_0_75:
+            rate100 = 75;
+            break;
+        case PIOS_HMC5x83_ODR_1_5:
+            rate100 = 150;
+            break;
+        case PIOS_HMC5x83_ODR_3:
+            rate100 = 300;
+            break;
+        case PIOS_HMC5x83_ODR_7_5:
+            rate100 = 750;
+            break;
+        case PIOS_HMC5x83_ODR_15:
+            rate100 = 1500;
+            break;
+        case PIOS_HMC5x83_ODR_30:
+            rate100 = 3000;
+            break;
+        default:
+        case PIOS_HMC5x83_ODR_75:
+            rate100 = 7500;
+            break;
+        }
+        // count the number of "return false" up to this number
+        dev->magCountMax = ((uint16_t)PIOS_SENSOR_RATE * 100 / rate100) + 1;
+        // with this counter
+        dev->magCount = 0;
+    }
 
     if (PIOS_HMC5x83_Config(dev) != 0) {
         return ((pios_hmc5x83_dev_t) NULL);
@@ -346,11 +382,6 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
     return retval;
 }
 
-// define this to simply return true when asking if data is available on non-GPIO devices
-// we just set the polling rate elsewhere
-// this is more efficient, but has more data time lag
-//#define HMC5X83_STATUS_POLL_RETURNS_TRUE
-
 /**
  * @brief Tells whether new magnetometer readings are available
  * \return true if new data is available
@@ -358,9 +389,7 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
  */
 bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t handler)
 {
-#if ( defined(PIOS_HMC5X83_HAS_GPIOS) || !defined(HMC5X83_STATUS_POLL_RETURNS_TRUE) )
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
-#endif
 
 #ifdef PIOS_HMC5X83_HAS_GPIOS
     if (dev->cfg->exti_cfg) {    // if this device has an interrupt line attached, then wait for interrupt to say data is ready
@@ -369,16 +398,12 @@ bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t ha
     else
 #endif /* PIOS_HMC5X83_HAS_GPIOS */
     {                           // else poll to see if data is ready or just say "true" and set polling interval elsewhere
-#ifdef HMC5X83_STATUS_POLL_RETURNS_TRUE
-        return true;
-#else
-        // poll SR0 (RDY) here.  1 -> data ready.
-        uint8_t rdy;
-        if (dev->cfg->Driver->Read(handler, PIOS_HMC5x83_DATAOUT_STATUS_REG, &rdy, 1) != 0) {
+        if (++(dev->magCount) >= dev->magCountMax) {
+            dev->magCount = 0;
+            return true;
+        } else {
             return false;
         }
-        return ((rdy & PIOS_HMC5x83_DATAOUT_STATUS_RDY) != 0);
-#endif /* POLLED_STATUS_RETURNS_TRUE */
     }
 }
 

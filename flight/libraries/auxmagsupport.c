@@ -27,7 +27,6 @@
 #include <stdint.h>
 #include "inc/auxmagsupport.h"
 #include "CoordinateConversions.h"
-#include "pios_hmc5x83.h" // this is needed for mag orientation even for other mag types
 
 static float mag_bias[3] = { 0, 0, 0 };
 static float mag_transform[3][3] = {

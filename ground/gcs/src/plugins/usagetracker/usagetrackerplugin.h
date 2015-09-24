@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       usagetrackerplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UsageTrackerPlugin Usage Tracker Plugin
@@ -36,7 +37,7 @@ class QNetworkReply;
 
 class UsageTrackerPlugin : public ExtensionSystem::IPlugin {
     Q_OBJECT
-                                                   Q_PLUGIN_METADATA(IID "OpenPilot.UsageTracker")
+                                                   Q_PLUGIN_METADATA(IID "LibrePilot.UsageTracker")
 public:
     UsageTrackerPlugin();
     ~UsageTrackerPlugin();

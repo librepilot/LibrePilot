@@ -599,6 +599,7 @@ void plan_run_VelocityRoam()
 {
     // float alpha;
     PathDesiredData pathDesired;
+
     // velocity roam code completely sets pathdesired object. it was not set in setup phase
     memset(&pathDesired, 0, sizeof(PathDesiredData));
     FlightStatusAssistedControlStateOptions assistedControlFlightMode;
@@ -724,6 +725,7 @@ static PiOSDeltatimeConfig actimeval;
 void plan_setup_AutoCruise()
 {
     PositionStateData positionState;
+
     PositionStateGet(&positionState);
 
     PathDesiredData pathDesired;

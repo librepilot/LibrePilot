@@ -66,7 +66,7 @@ MARBLE_SRC_DIR     := $(ROOT_DIR)/3rdparty/marble
 MARBLE_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(MARBLE_NAME)
 MARBLE_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(MARBLE_NAME)
 MARBLE_DATA_DIR    := $(MARBLE_INSTALL_DIR)/$(MARBLE_DATA_BASE_DIR)
-MARBLE_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/marble-$(MARBLE_VERSION).patch
+MARBLE_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/marble/marble-$(MARBLE_VERSION).patch
 
 .PHONY: marble
 marble:
@@ -96,7 +96,7 @@ marble:
 .PHONY: package_marble
 package_marble:
 	@$(ECHO) "Packaging $(call toprel, $(MARBLE_INSTALL_DIR)) into $(notdir $(MARBLE_INSTALL_DIR)).tar"
-	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/LibrePilotReadme.txt $(MARBLE_INSTALL_DIR)/
+	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/marble/LibrePilotReadme.txt $(MARBLE_INSTALL_DIR)/
 	$(V1) ( \
 		$(CD) $(MARBLE_INSTALL_DIR)/.. && \
 		$(TAR) cf $(notdir $(MARBLE_INSTALL_DIR)).tar $(notdir $(MARBLE_INSTALL_DIR)) && \

@@ -123,7 +123,7 @@ OSG_NAME := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
 OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
 OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
-OSG_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osg-$(OSG_VERSION).patch
+OSG_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth/osg-$(OSG_VERSION).patch
 
 .PHONY: osg
 osg:
@@ -150,7 +150,7 @@ osg:
 .PHONY: package_osg
 package_osg:
 	@$(ECHO) "Packaging $(call toprel, $(OSG_INSTALL_DIR)) into $(notdir $(OSG_INSTALL_DIR)).tar"
-	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/LibrePilotReadme.txt $(OSG_INSTALL_DIR)/
+	#$(V1) $(CP) $(ROOT_DIR)/make/3rdparty/osgearth/LibrePilotReadme.txt $(OSG_INSTALL_DIR)/
 	$(V1) ( \
 		$(CD) $(OSG_INSTALL_DIR)/.. && \
 		$(TAR) cf $(notdir $(OSG_INSTALL_DIR)).tar $(notdir $(OSG_INSTALL_DIR)) && \
@@ -250,7 +250,7 @@ OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
 # osgearth will be installed into osg (there is an official option to do that but it seems broken on mingw)
 #OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
 OSGEARTH_INSTALL_DIR := $(OSG_INSTALL_DIR)
-OSGEARTH_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth-$(OSGEARTH_VERSION).patch
+OSGEARTH_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth/osgearth-$(OSGEARTH_VERSION).patch
 
 .PHONY: osgearth
 osgearth:

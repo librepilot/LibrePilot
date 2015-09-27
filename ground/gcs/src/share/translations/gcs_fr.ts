@@ -4,7 +4,7 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../app/main.cpp" line="+202"/>
+        <location filename="../../app/main.cpp" line="+203"/>
         <source>Failed to load core plug-in, reason is: %1</source>
         <translation>Échec du chargement du module complémentaire core, la raison est : %1</translation>
     </message>
@@ -14,7 +14,7 @@
         <translation>Impossible de passer les arguments de la ligne de commande à l&apos;instance en cours d&apos;exécution. Elle semble ne pas répondre.</translation>
     </message>
     <message>
-        <location line="+349"/>
+        <location line="+347"/>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
         <translatorcomment>[Platypus]Ajout de &quot;est&quot;</translatorcomment>
         <translation>&apos;Core.pluginspec&apos; est introuvable dans %1</translation>
@@ -52,7 +52,7 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../../plugins/coreplugin/generalsettings.cpp" line="+64"/>
+        <location filename="../../plugins/coreplugin/generalsettings.cpp" line="+65"/>
         <source>General</source>
         <translation>Général</translation>
     </message>
@@ -126,7 +126,7 @@
 <context>
     <name>Core::Internal::MainWindow</name>
     <message>
-        <location filename="../../plugins/coreplugin/mainwindow.cpp" line="+416"/>
+        <location filename="../../plugins/coreplugin/mainwindow.cpp" line="+417"/>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
@@ -1472,7 +1472,7 @@ Raison : %3</translation>
 <context>
     <name>OpenWith::Editors</name>
     <message>
-        <location filename="../../plugins/coreplugin/coreconstants.h" line="+85"/>
+        <location filename="../../plugins/coreplugin/coreconstants.h" line="+86"/>
         <source>Plain Text Editor</source>
         <translation>Éditeur de texte</translation>
     </message>
@@ -4113,107 +4113,6 @@ uniquement lorsque les valeurs changent</translation>
     </message>
     <message>
         <location/>
-        <source>Feed Forward</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Accel Time Constant</source>
-        <translation>Constante Temps Accélération  </translation>
-    </message>
-    <message>
-        <location/>
-        <source>Decel Time Constant</source>
-        <translation>Constante Temps Décélération </translation>
-    </message>
-    <message>
-        <location/>
-        <source>Mixer Settings</source>
-        <translation>Paramètres de Mixage</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Feed Forward Configuration</source>
-        <translation>Paramètres Feed Forward</translation>
-    </message>
-    <message>
-        <location/>
-        <source>When tuning: Slowly raise decel time from zero to just
-under the level where the motor starts to undershoot
-its target speed when decelerating.
-
-Do it after accel time is setup.</source>
-        <translation>Lors du réglage : Augmentez lentement temps de décélération de zéro jusqu&apos;à 
-arriver juste en dessous du niveau où le moteur commence à dépasser sa vitesse 
-de consigne lors de la décélération.
-
-A faire après avoir configuré la constante de temps d&apos;accélération.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>In miliseconds.
-When tuning: Slowly raise accel time from zero to just
-under the level where the motor starts to overshoot
-its target speed.</source>
-        <translation>En millisecondes.
-
-Lors du réglage : Augmentez lentement le temps d&apos;accélération de zéro jusqu&apos;à arriver juste 
-en dessous du niveau où le moteur commence à dépasser sa vitesse de consigne.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>1000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>Overall level of feed forward (in percentage).</source>
-        <translation>Niveau global de Feed Forward (en pourcentage).</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Limits how much the engines can accelerate or decelerate.
-In &apos;units per second&apos;, a sound default is 1000.</source>
-        <translation>Limite de combien les moteurs peuvent accélérer ou ralentir.
-En &apos;unités par seconde&apos;, la valeur par défaut est 1000.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>MaxAccel</source>
-        <translation>AccélérationMaxi</translation>
-    </message>
-    <message>
-        <location/>
-        <source>000</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>FeedForward </source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Beware! Check &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt; font-weight:600;&quot;&gt;all three&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt; checkboxes to test Feed Forward.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;It will run only if your airframe armed.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Méfiez-vous ! Cochez &lt;/span&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt; font-weight:600;&quot;&gt;les trois&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt; cases pour essayer Feed Forward.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans&apos;; font-size:10pt;&quot;&gt;Cela fonctionnera uniquement si la carte est armée.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Enable FF tuning</source>
-        <translation>Activer le réglage de Feed Forward</translation>
-    </message>
-    <message>
-        <location/>
         <source>Takes you to the wiki page</source>
         <translatorcomment>Typo : Need good link to Feed Forward page (English) : http://wiki.openpilot.org/x/EwO9</translatorcomment>
         <translation>Vous renvoie à la page wiki</translation>
@@ -4247,35 +4146,6 @@ p, li { white-space: pre-wrap; }
         <location/>
         <source>Enter name of vehicle. Max 20 characters.</source>
         <translation>Entrez le nom du véhicule : 20 caractères maximum.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Ubuntu&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600; color:#ff0000;&quot;&gt;SETTING UP FEED FORWARD REQUIRES CAUTION&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;Beware: Feed Forward Tuning will launch all engines around mid-throttle, you have been warned!&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;Remove your props initially, and for fine-tuning, make sure your airframe is safely held in place. Wear glasses and protect your face and body.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
- &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
- p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-size:14pt; font-weight:600; color:#ff0000;&quot;&gt;LA MISE EN PLACE DE FEED FORWARD EXIGE DE LA PRUDENCE&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;Attention : L&apos;activation du réglage Feed Forward lancera tous les moteurs à mi-gaz, vous avez été averti !&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot;&gt;Dans un premier temps retirez vos hélices, puis pour affiner assurez-vous que le châssis est maintenu bien en place. Portez des lunettes et protégez-vous le visage et le corps.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -5225,11 +5095,6 @@ valeur.</translation>
         <location/>
         <source>button:help</source>
         <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>url:http://wiki.openpilot.org/display/Doc/Camera+Stabilization+Configuration</source>
         <translation></translation>
     </message>
     <message>
@@ -6493,7 +6358,7 @@ Applique et Enregistre tous les paramètres sur la SD</translation>
     <message>
         <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Le mode GPSAssist ajoute une séquence de freinage/maintien à la Stabilisation lorsque les manches Pitch et Roll sont centrés,ainsi qu&apos;au début d&apos;un maintien en position. GPSAssist autorise également l&apos;utilisation des manches pitch et roll avec le mode de vol Auto Landing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Le mode GPSAssist ajoute une séquence de freinage/maintien à la Stabilisation lorsque les manches Pitch et Roll sont centrés,ainsi qu&apos;au début d&apos;un maintien en position. GPSAssist autorise également l&apos;utilisation des manches pitch et roll avec le mode de vol Auto Landing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -7064,11 +6929,6 @@ Une valeur de 0.00 désactive le filtre.</translation>
     </message>
     <message>
         <location/>
-        <source>url:http://wiki.openpilot.org/display/Doc/Revolution+Manual+Sensor+Calibration</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Accelerometer calibration</source>
         <translation>Étalonnage des accéléromètres</translation>
     </message>
@@ -7596,11 +7456,6 @@ value as the Kp.</source>
         <location/>
         <source>button:help</source>
         <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>url:http://wiki.openpilot.org/x/DAO9</source>
         <translation></translation>
     </message>
     <message>
@@ -8245,11 +8100,6 @@ response (deg)</source>
     </message>
     <message>
         <location/>
-        <source>Factor</source>
-        <translation>Facteur</translation>
-    </message>
-    <message>
-        <location/>
         <source>Expo</source>
         <translation></translation>
     </message>
@@ -8389,6 +8239,21 @@ response (deg)</source>
         <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In AxisLock mode, this setting controls how many degrees per second you can request with the stick before flight controller stops trying to gently hold its position and goes into normal rate mode. This setting works almost like a dead band. Default value should work fine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;En mode AxisLock, ce paramètre contrôle combien de degrés par seconde vous pouvez demander avec le manche avant que la carte de vol ne cesse d&apos;essayer de tenir doucement sa position et passe en mode rate normal. Ce paramètre fonctionne presque comme une zone morte. La valeur par défaut devrait fonctionner correctement.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Link roll &amp;amp; pitch sliders to move together&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lier les curseurs roll &amp;amp; pitch pour qu&apos;ils bougent ensemble&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Roll Factor</source>
+        <translation>Facteur Roll</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pitch Factor</source>
+        <translation>Facteur Pitch</translation>
     </message>
 </context>
 <context>
@@ -8537,29 +8402,6 @@ d&apos;une valeur de gaz supérieure ou égale à la la valeur maximale des gaz.
     </message>
     <message>
         <location/>
-        <source>PID values update mode which can be set to:
-- Never: this disables PID updates (but module still will be run if enabled),
-- When Armed: PID updated only when system is armed,
-- Always: PID updated always regardless of arm state.
-
-Since the GCS updates GUI PID values in real time on change, could be
-tricky to change other PID values from the GUI if the module is enabled
-and constantly updates stabilization settings object. As a workaround,
-this option can be used to temporarily disable updates or enable them
-only when system is armed without disabling the module.</source>
-        <translation>Mode de mise à jour des valeurs PID qui peut être réglé à :
-- Never : ceci désactive les mises à jour PID (mais le module continue de fonctionner, si activé,)
-- When Armed : Les PID sont mis à jour lorsque le système est armé,
-- Always : les PID sont toujours mis à jour, indépendamment de l&apos;état d&apos;armement.
-
-Puisque la mise à jour des valeurs PID se fait en temps réel lors des changements, il peut-être
-difficile de changer les valeurs PID à partir de l&apos;interface graphique si le module est activé
-et actualise les paramètres de stabilisation. Pour contourner ce problème,
-cette option peut être utilisée pour désactiver temporairement les mises à jour ou les permettre
-uniquement lorsque le système est armé, sans désactiver le module.</translation>
-    </message>
-    <message>
-        <location/>
         <source>Throttle Range</source>
         <translation>Plage Gaz</translation>
     </message>
@@ -8586,11 +8428,6 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
     </message>
     <message>
         <location/>
-        <source>url:http://wiki.openpilot.org/x/DACiAQ</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board but do not save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire</translation>
     </message>
@@ -8613,6 +8450,201 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
         <location/>
         <source>PID Bank</source>
         <translation>Banque PID</translation>
+    </message>
+    <message>
+        <location/>
+        <source>PID values update mode, which can be set to:
+- Never: this disables PID updates (but module still will be run if enabled),
+- When Armed: PID updated only when system is armed,
+- Always: PID updated always, regardless of arm state.
+
+Since the GCS updates GUI PID values in real time on change, it could be
+tricky to change other PID values from the GUI if the module is enabled
+and constantly updates stabilization settings object. As a workaround,
+this option can be used to temporarily disable updates or enable them
+only when system is armed without disabling the module.</source>
+        <translation>Mode de mise à jour des valeurs PID, qui peut être réglé à :
+- Never : ceci désactive les mises à jour PID (mais le module continue de fonctionner, si activé,)
+- When Armed : Les PID sont mis à jour lorsque le système est armé,
+- Always : les PID sont toujours mis à jour, indépendamment de l&apos;état d&apos;armement.
+
+Puisque la mise à jour des valeurs PID se fait en temps réel lors des changements, il peut-être
+difficile de changer les valeurs PID à partir de l&apos;interface graphique si le module est activé
+et actualise les paramètres de stabilisation. Pour contourner ce problème,
+cette option peut être utilisée pour désactiver temporairement les mises à jour ou les permettre
+uniquement lorsque le système est armé, sans désactiver le module.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Photographer</source>
+        <translation>Photographe</translation>
+    </message>
+    <message>
+        <location/>
+        <source>FPV Racer</source>
+        <translation>FPV Racer</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reset Roll/Pitch factors to default values</source>
+        <translation>RaZ des facteurs Roll/Pitch aux valeurs par défaut</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default</source>
+        <translation>Défaut</translation>
+    </message>
+    <message>
+        <location/>
+        <source>button:default</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>buttongroup:10</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Roll/Pitch I Factor</source>
+        <translation>Facteur I Roll/Pitch</translation>
+    </message>
+    <message>
+        <location/>
+        <source>objname:TxPIDSettings</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>fieldname:EasyTunePitchRollRateFactors</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>scale:0.1</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>element:I</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Roll/Pitch D Factor</source>
+        <translation>Facteur D Roll/Pitch</translation>
+    </message>
+    <message>
+        <location/>
+        <source>scale:1</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>element:D</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Calculate Yaw PIDs based on Roll/Pitch PIDs</source>
+        <translation>Calculer les PIDs Yaw à partir des PIDs Pitch/Roll</translation>
+    </message>
+    <message>
+        <location/>
+        <source>AutoCalc Yaw</source>
+        <translation>Calcul Auto Yaw</translation>
+    </message>
+    <message>
+        <location/>
+        <source>fieldname:EasyTuneRatePIDRecalculateYaw</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>buttongroup:11</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Yaw P Factor</source>
+        <translation>Facteur P Yaw</translation>
+    </message>
+    <message>
+        <location/>
+        <source>fieldname:EasyTuneYawRateFactors</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>element:P</source>
+        <translatorcomment>Do not translate !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Yaw I Factor</source>
+        <translation>Facteur I Yaw</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Yaw D Factor</source>
+        <translation>Facteur D Yaw</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Soft</source>
+        <translation>Doux</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reset Yaw factors to default values</source>
+        <translation>RaZ des facteurs Yaw aux valeurs par défaut</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Aggressive</source>
+        <translation>Agressif</translation>
+    </message>
+    <message>
+        <location/>
+        <source>EasyTune Settings</source>
+        <translation>Paramètres EasyTune</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Roll/Pitch I factor for EasyTune mode</source>
+        <translation>Facteur I Roll/Pitch pour le mode EasyTune</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Roll/Pitch D factor for EasyTune mode</source>
+        <translation>Facteur D Roll/Pitch pour le mode EasyTune</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Yaw P factor for EasyTune mode</source>
+        <translation>Facteur P Yaw pour le mode EasyTune</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Yaw I factor for EasyTune mode</source>
+        <translation>Facteur I Yaw pour le mode EasyTune</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Yaw D factor for EasyTune mode</source>
+        <translation>Facteur D Yaw pour le mode EasyTune</translation>
     </message>
 </context>
 <context>
@@ -9096,12 +9128,12 @@ les données en cache</translation>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../../plugins/setupwizard/connectiondiagram.cpp" line="+41"/>
+        <location filename="../../plugins/setupwizard/connectiondiagram.cpp" line="+42"/>
         <source>Connection Diagram</source>
         <translation>Diagramme de Connexion</translation>
     </message>
     <message>
-        <location line="+233"/>
+        <location line="+235"/>
         <source>Save File</source>
         <translation>Enregistrer Fichier</translation>
     </message>
@@ -9232,12 +9264,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="+205"/>
+        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="+235"/>
         <source>Connect</source>
         <translation>Connecter</translation>
     </message>
     <message>
-        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="-71"/>
+        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="-100"/>
         <source>&lt;Unknown&gt;</source>
         <translation>&lt;Inconnu&gt;</translation>
     </message>
@@ -9556,32 +9588,42 @@ Veuillez sélectionner le type de multirotor désiré pour la configuration ci-d
     </message>
     <message>
         <location/>
-        <location filename="../../plugins/setupwizard/pages/outputcalibrationpage.cpp" line="+561"/>
-        <location line="+131"/>
+        <location filename="../../plugins/setupwizard/pages/outputcalibrationpage.cpp" line="+639"/>
+        <location line="+179"/>
+        <location line="+14"/>
         <source>Start</source>
         <translation>Démarrer</translation>
     </message>
     <message>
-        <location filename="../../plugins/setupwizard/pages/outputcalibrationpage.cpp" line="-268"/>
+        <location filename="../../plugins/setupwizard/pages/outputcalibrationpage.cpp" line="-392"/>
         <location line="+8"/>
-        <location line="+243"/>
-        <location line="+40"/>
+        <location line="+353"/>
         <source>Output value : &lt;b&gt;%1&lt;/b&gt; µs</source>
         <translation>Valeur de sortie : &lt;b&gt;%1&lt;/b&gt; µs</translation>
     </message>
     <message>
-        <location line="-286"/>
+        <location line="-356"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;To find &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;the neutral rate for this reversable motor&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, press the Start button below and slide the slider to the right or left until you find the value where the motor doesn&apos;t start. &lt;br/&gt;&lt;br/&gt;When done press button again to stop.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Pour trouver &lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;la valeur de neutre de ce moteur inversable&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, appuyez sur le bouton Démarrer et bouger le curseur à gauche ou à droite jusqu&apos;à trouver la position centrale où le moteur ne démarre pas. &lt;br/&gt;&lt;br/&gt;Lorsque c&apos;est terminé, appuyer à nouveau sur le bouton pour arrêter.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+132"/>
-        <location line="+131"/>
+        <location line="+23"/>
+        <location line="+23"/>
+        <location line="+369"/>
+        <location line="+99"/>
+        <location line="+100"/>
+        <source>Output %1 value : &lt;b&gt;%2&lt;/b&gt; µs</source>
+        <translation>Valeur de sortie %1 : &lt;b&gt;%2&lt;/b&gt; µs</translation>
+    </message>
+    <message>
+        <location line="-420"/>
+        <location line="+179"/>
+        <location line="+14"/>
         <source>Stop</source>
         <translation>Arrêter</translation>
     </message>
     <message>
-        <location line="-59"/>
+        <location line="-78"/>
         <source>The actuator module is in an error state.
 
 Please make sure the correct firmware version is used then restart the wizard and try again. If the problem persists please consult the librepilot.org support forum.</source>
@@ -9590,14 +9632,21 @@ Please make sure the correct firmware version is used then restart the wizard an
 Soyez certain d&apos;utiliser la bonne version de firmware puis redémarrer l&apos;assistant et essayez à nouveau. Si le problème persiste, consultez le forum librepilot.org.</translation>
     </message>
     <message>
-        <location line="+134"/>
-        <source>Output value : &lt;b&gt;%1&lt;/b&gt; µs (Min)</source>
-        <translation>Valeur de sortie : &lt;b&gt;%1&lt;/b&gt; µs (Min)</translation>
+        <location line="+124"/>
+        <location line="+100"/>
+        <location line="+100"/>
+        <source>Output %1 value : &lt;b&gt;%2&lt;/b&gt; µs (Min)</source>
+        <translation>Valeur de sortie %1 : &lt;b&gt;%2&lt;/b&gt; µs (Min)</translation>
     </message>
     <message>
+        <location line="-169"/>
         <location line="+31"/>
-        <source>Output value : &lt;b&gt;%1&lt;/b&gt; µs (Max)</source>
-        <translation>Valeur de sortie : &lt;b&gt;%1&lt;/b&gt; µs (Max)</translation>
+        <location line="+70"/>
+        <location line="+31"/>
+        <location line="+69"/>
+        <location line="+32"/>
+        <source>Output %1 value : &lt;b&gt;%2&lt;/b&gt; µs (Max)</source>
+        <translation>Valeur de sortie %1 : &lt;b&gt;%2&lt;/b&gt; µs (Max)</translation>
     </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/outputcalibrationpage.ui"/>
@@ -9618,22 +9667,6 @@ Soyez certain d&apos;utiliser la bonne version de firmware puis redémarrer l&ap
         <location/>
         <source>Max</source>
         <translation>Maxi</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;This step calibrates&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt; the minimum, center and maximum angle of the servo&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;. To set the angles for this servo, press the Start button below and slide the slider for the angle to set. The servo will follow the sliders position. &lt;br /&gt;When done press button again to stop.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Check Reverse to reverse servo action.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cette étape va ajuster&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt; l&apos;angle minimum, centré et maximum du servo&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;. Pour ajuster les positions de ce servo, appuyez sur &quot;Démarrer&quot; et déplacez les curseurs en fonction de l&apos;angle désiré. Le servo bouge en fonction de la position du curseur en cours.&lt;br /&gt;Lorsque vous avez terminé, appuyez à nouveau sur le bouton pour arrêter.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cochez &quot;Inverser&quot; pour changer la direction de mouvement du servo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
     </message>
     <message>
         <location/>
@@ -9680,6 +9713,38 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;Il est à présent temps de calibrer les niveaux de sortie des signaux contrôlant votre véhicule. &lt;/span&gt;&lt;/p&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;TRES IMPORTANT !&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt; font-weight:600; color:#ff0000;&quot;&gt;ENLEVER TOUTES LES HELICES DE VOTRE VEHICULE AVANT DE CONTINUER !&lt;/span&gt;&lt;/p&gt;&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;Branchez tous les composants comme sur l&apos;illustration dans la page de résumé et alimentez avec une source externe comme une batterie avant de continuer.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:10pt;&quot;&gt;En fonction du véhicule que vous avez sélectionné, les moteurs pilotés par des variateurs et/ou les servos contrôlés directement par la carte de vol devront-être calibrés. Les étapes suivantes vous guideront en toute sécurité dans ce processus.  &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;This step calibrates&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt; the minimum, center and maximum angle of the servo&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;. To set the angles for this servo, press the Start button below and slide the slider for the angle to set. The servo will follow the sliders position. &lt;br /&gt;When done press button again to stop.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Check Reverse to reverse servo action if green arrow &lt;/span&gt;&lt;a name=&quot;result_box&quot;&gt;&lt;/a&gt;does not match the movement of the servo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cette étape va ajuster&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt; l&apos;angle minimum, centré et maximum du servo&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;. Pour ajuster les positions de ce servo, appuyez sur &quot;Démarrer&quot; et déplacez les curseurs en fonction de l&apos;angle désiré. Le servo bouge en fonction de la position du curseur en cours.&lt;br /&gt;Lorsque vous avez terminé, appuyez à nouveau sur le bouton pour arrêter.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cochez &quot;Inverser&quot; pour changer la direction si le mouvement du servo ne correspond pas à la flèche verte.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;This step calibrates&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt; the minimum, center and maximum angle of the two servo&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, at same time. To set the angles for those servo, press the Start button below and slide the slider for the angle to set. The servo will follow the sliders position. Please adjust and compare the two servo&apos;s movement.&lt;br /&gt;When done press button again to stop.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Check Reverse to reverse servo action if green arrow &lt;/span&gt;&lt;a name=&quot;result_box&quot;&gt;&lt;/a&gt;does not match the movement of the servo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cette étape va ajuster&lt;/span&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt; l&apos;angle minimum, centré et maximum de deux servos&lt;/span&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;, en même temps. Pour ajuster les positions de ces servos, appuyez sur &quot;Démarrer&quot; et déplacez les curseurs en fonction de l&apos;angle désiré. Le servo bouge en fonction de la position du curseur en cours.&lt;br /&gt;Lorsque vous avez terminé, appuyez à nouveau sur le bouton pour arrêter.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Cochez &quot;Inverser&quot; pour changer la direction si le mouvement d&apos;un servo ne correspond pas à la flèche verte.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+</translation>
     </message>
 </context>
 <context>
@@ -10417,7 +10482,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigMultiRotorWidget</name>
     <message>
-        <location filename="../../plugins/config/cfg_vehicletypes/configmultirotorwidget.cpp" line="+169"/>
+        <location filename="../../plugins/config/cfg_vehicletypes/configmultirotorwidget.cpp" line="+174"/>
         <source>Input</source>
         <translation>Entrée</translation>
     </message>
@@ -10427,7 +10492,7 @@ p, li { white-space: pre-wrap; }
         <translation>Sortie</translation>
     </message>
     <message>
-        <location line="+420"/>
+        <location line="+427"/>
         <location line="+24"/>
         <location line="+31"/>
         <location line="+31"/>
@@ -10435,18 +10500,18 @@ p, li { white-space: pre-wrap; }
         <location line="+24"/>
         <location line="+24"/>
         <location line="+44"/>
-        <location line="+255"/>
+        <location line="+267"/>
         <location line="+70"/>
         <source>Configuration OK</source>
         <translation>Configuration OK</translation>
     </message>
     <message>
-        <location line="-360"/>
+        <location line="-372"/>
         <source>&lt;font color=&apos;red&apos;&gt;ERROR: Assign a Yaw channel&lt;/font&gt;</source>
         <translation>&lt;font color=&apos;red&apos;&gt;ERREUR : Veuillez affecter le canal de Yaw&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="+429"/>
+        <location line="+441"/>
         <source>Duplicate channel in motor outputs</source>
         <translation>Canaux en double dans le sorties moteur</translation>
     </message>
@@ -10469,7 +10534,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigCCHWWidget</name>
     <message>
-        <location filename="../../plugins/config/config_cc_hw_widget.cpp" line="+91"/>
+        <location filename="../../plugins/config/config_cc_hw_widget.cpp" line="+92"/>
         <source>Enable GPS module and reboot the board to be able to select GPS protocol</source>
         <translation>Activez le module GPS et redémarrez la carte pour pouvoir choisir le protocole GPS</translation>
     </message>
@@ -10494,29 +10559,19 @@ p, li { white-space: pre-wrap; }
         <source>Warning: you have disabled USB Telemetry on both USB HID Port and USB VCP Port, this currently is not supported</source>
         <translation>Attention : vous avez désactivé la télémétrie USB sur les deux ports USB HID et USB VCP, ce n&apos;est actuellement pas possible</translation>
     </message>
-    <message>
-        <location line="+15"/>
-        <source>http://wiki.openpilot.org/x/D4AUAQ</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>ConfigCCAttitudeWidget</name>
     <message>
-        <location filename="../../plugins/config/configccattitudewidget.cpp" line="+159"/>
+        <location filename="../../plugins/config/configccattitudewidget.cpp" line="+160"/>
         <source>Calibration timed out before receiving required updates.</source>
         <translation>Temps d&apos;attente dépassé avant d&apos;avoir reçu les mises à jour demandées.</translation>
-    </message>
-    <message>
-        <location line="+58"/>
-        <source>http://wiki.openpilot.org/x/44Cf</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConfigGadgetWidget</name>
     <message>
-        <location filename="../../plugins/config/configgadgetwidget.cpp" line="+220"/>
+        <location filename="../../plugins/config/configgadgetwidget.cpp" line="+221"/>
         <source>Unsaved changes</source>
         <translation>Modifications non sauvegardées</translation>
     </message>
@@ -10531,12 +10586,7 @@ Voulez-vous toujours continuer ?</translation>
 <context>
     <name>ConfigInputWidget</name>
     <message>
-        <location filename="../../plugins/config/configinputwidget.cpp" line="+396"/>
-        <source>http://wiki.openpilot.org/x/04Cf</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location filename="../../plugins/config/configinputwidget.cpp" line="+422"/>
         <source>Arming Settings are now set to &apos;Always Disarmed&apos; for your safety.</source>
         <translatorcomment>Contexte : Onglet &quot;Paramètres d&apos;Armement&quot;</translatorcomment>
         <translation>Pour des raisons de sécurité les Paramètres d&apos;Armement ont été modifiés à &apos;Toujours Désarmé&apos;.</translation>
@@ -10646,7 +10696,7 @@ Voulez-vous toujours continuer ?</translation>
         <translation>&lt;p&gt;Vous avez la possibilité d&apos;appuyer sur Suivant pour ignorer ce canal.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+796"/>
+        <location line="+822"/>
         <source>Ground Vehicle</source>
         <translation>Véhicule terrestre</translation>
     </message>
@@ -10656,7 +10706,7 @@ Voulez-vous toujours continuer ?</translation>
         <translation type="unfinished">&lt;p&gt;Veuillez &lt;b&gt;centrer&lt;/b&gt; le contrôle des gaz et appuyez sur OK lorsque vous êtes prêt.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="-999"/>
+        <location line="-1025"/>
         <source>Please center all controls and trims and press Next when ready.
 
 For a ground vehicle, this center position will be used as neutral value of each channel.</source>
@@ -10670,7 +10720,7 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
         <translation>Suivant / Sauter</translation>
     </message>
     <message>
-        <location line="+748"/>
+        <location line="+774"/>
         <source>Stop Manual Calibration</source>
         <translation>Arrêter Calibration Manuelle</translation>
     </message>
@@ -10859,7 +10909,7 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
 <context>
     <name>NotificationItem</name>
     <message>
-        <location filename="../../plugins/notify/notificationitem.cpp" line="+70"/>
+        <location filename="../../plugins/notify/notificationitem.cpp" line="+71"/>
         <source>Never</source>
         <translation>Jamais</translation>
     </message>
@@ -11298,7 +11348,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>VehicleConfigurationHelper</name>
     <message>
-        <location filename="../../plugins/setupwizard/vehicleconfigurationhelper.cpp" line="+85"/>
+        <location filename="../../plugins/setupwizard/vehicleconfigurationhelper.cpp" line="+86"/>
         <location line="+12"/>
         <source>Done!</source>
         <translation>Terminé !</translation>
@@ -11331,8 +11381,8 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
     </message>
     <message>
         <location line="+203"/>
-        <location line="+32"/>
-        <location line="+37"/>
+        <location line="+40"/>
+        <location line="+45"/>
         <source>Writing actuator settings</source>
         <translation>Écriture paramètres actionneurs</translation>
     </message>
@@ -11383,7 +11433,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Écriture modèle de configuration pour %1</translation>
     </message>
     <message>
-        <location line="+157"/>
+        <location line="+152"/>
         <source>Preparing mixer settings</source>
         <translation>Préparation des paramètres de mixage</translation>
     </message>
@@ -11404,7 +11454,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>SystemHealthGadgetWidget</name>
     <message>
-        <location filename="../../plugins/systemhealth/systemhealthgadgetwidget.cpp" line="+68"/>
+        <location filename="../../plugins/systemhealth/systemhealthgadgetwidget.cpp" line="+71"/>
         <source>Displays flight system errors. Click on an alarm for more information.</source>
         <translation>Affiche les erreurs du système de vol. Cliquer sur une alarme pour plus d&apos;informations.</translation>
     </message>
@@ -12375,6 +12425,21 @@ La carte sera redémarrée et tous les paramètres effacés.</translation>
         <source>Assign your motor output channel</source>
         <translation>Affecter votre canal de sortie moteur</translation>
     </message>
+    <message>
+        <location/>
+        <source> Roll Diff</source>
+        <translation>Diff Roll</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Value of Roll differential in percent</source>
+        <translation>Valeur de différentiel Roll en pourcentage</translation>
+    </message>
+    <message>
+        <location/>
+        <source>0</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>GroundConfigWidget</name>
@@ -12686,6 +12751,21 @@ Les valeurs classiques sont de 100% en configuration + et 50% en configuration X
         <location/>
         <source>Select output curve for Accessory2 RcInput</source>
         <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory2</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Accessory3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output channel for Accessory3 RcInput</source>
+        <translation>Sélectionnez le canal de sortie pour l&apos;entrée RC Accessory3</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output curve for Accessory3 RcInput</source>
+        <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory3</translation>
     </message>
 </context>
 <context>
@@ -13105,11 +13185,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
     <message>
         <location/>
-        <source>url:http://wiki.openpilot.org/x/hgAGAQ</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</source>
         <translation>Canal 0 correspond à 430Mhz, canal 250 à 440Mhz, et l&apos;espacement des canaux est de 40KHz. </translation>
     </message>
@@ -13122,42 +13197,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <location/>
         <source>430.000 (MHz)</source>
         <translation></translation>
-    </message>
-</context>
-<context>
-    <name>OsgEarthview</name>
-    <message>
-        <location filename="../../plugins/osgearthview/osgearthview.ui"/>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-</context>
-<context>
-    <name>OsgEarthviewGadgetOptionsPage</name>
-    <message>
-        <location filename="../../plugins/osgearthview/osgearthviewgadgetoptionspage.ui"/>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <location/>
-        <source>PFD SVG: </source>
-        <translation>SVG PFD : </translation>
-    </message>
-    <message>
-        <location/>
-        <source>Use OpenGL for rendering</source>
-        <translation>Utiliser le rendu OpenGL</translation>
-    </message>
-    <message>
-        <location/>
-        <source>High Quality text (OpenGL)</source>
-        <translation>Texte Haute Qualité (OpenGL)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Smooth updates</source>
-        <translation>Mises à jour lissées</translation>
     </message>
 </context>
 <context>
@@ -13269,9 +13308,9 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>GCSSplashScreen</name>
     <message>
-        <location filename="../../app/gcssplashscreen.cpp" line="+47"/>
+        <location filename="../../app/gcssplashscreen.cpp" line="+49"/>
         <source> The %1 Project - All Rights Reserved</source>
-        <translation>Le Projet %1 - Tous droits réservés</translation>
+        <translation> Le Projet %1 - Tous droits réservés</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -13300,7 +13339,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigOutputWidget</name>
     <message>
-        <location filename="../../plugins/config/configoutputwidget.cpp" line="+111"/>
+        <location filename="../../plugins/config/configoutputwidget.cpp" line="+112"/>
         <source>-</source>
         <translation>-</translation>
     </message>
@@ -13326,12 +13365,7 @@ p, li { white-space: pre-wrap; }
         <translation>Vous pouvez enregistrer vos changements des réglages de neutre.</translation>
     </message>
     <message>
-        <location line="+223"/>
-        <source>http://wiki.openpilot.org/x/WIGf</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+32"/>
+        <location line="+256"/>
         <source>OneShot and PWMSync output only works with Receiver Port settings marked with &apos;+OneShot&apos;&lt;br&gt;When using Receiver Port setting &apos;PPM_PIN8+OneShot&apos; &lt;b&gt;&lt;font color=&apos;%1&apos;&gt;Bank %2&lt;/font&gt;&lt;/b&gt; must be set to PWM</source>
         <translation>OneShot et PWMSync fonctionnent uniquement avec les ports récepteur marqués avec &apos;+OneShot&apos;&lt;br&gt;Lors de l&apos;utilisation de la configuration &apos;PPM_PIN8+OneShot&apos; &lt;b&gt;&lt;font color=&apos;%1&apos;&gt;la Banque %2&lt;/font&gt;&lt;/b&gt; doit être réglée sur PWM</translation>
     </message>
@@ -13339,14 +13373,9 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigRevoHWWidget</name>
     <message>
-        <location filename="../../plugins/config/configrevohwwidget.cpp" line="+95"/>
+        <location filename="../../plugins/config/configrevohwwidget.cpp" line="+96"/>
         <source>Disabled</source>
         <translation>Désactivé</translation>
-    </message>
-    <message>
-        <location line="+244"/>
-        <source>http://wiki.openpilot.org/x/GgDBAQ</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -13370,14 +13399,6 @@ p, li { white-space: pre-wrap; }
         <location line="+4"/>
         <source>DON&apos;T KNOW !</source>
         <translation>JE NE SAIS PAS !</translation>
-    </message>
-</context>
-<context>
-    <name>OsgEarthviewGadgetFactory</name>
-    <message>
-        <location filename="../../plugins/osgearthview/osgearthviewgadgetfactory.cpp" line="+34"/>
-        <source>Osg Earth View</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14175,7 +14196,7 @@ Veuillez vérifier le fichier.
 <context>
     <name>ConfigStabilizationWidget</name>
     <message>
-        <location filename="../../plugins/config/configstabilizationwidget.cpp" line="+173"/>
+        <location filename="../../plugins/config/configstabilizationwidget.cpp" line="+177"/>
         <source>Settings Bank %1</source>
         <translation>Banque Paramètres %1</translation>
     </message>
@@ -14457,7 +14478,7 @@ et même conduire au crash. A utiliser avec prudence.</translation>
 <context>
     <name>ConfigVehicleTypeWidget</name>
     <message>
-        <location filename="../../plugins/config/configvehicletypewidget.cpp" line="+142"/>
+        <location filename="../../plugins/config/configvehicletypewidget.cpp" line="+140"/>
         <source>Multirotor</source>
         <translation>Multirotor</translation>
     </message>
@@ -14480,11 +14501,6 @@ et même conduire au crash. A utiliser avec prudence.</translation>
         <location line="+1"/>
         <source>Custom</source>
         <translation>Personnalisé</translation>
-    </message>
-    <message>
-        <location line="+314"/>
-        <source>http://wiki.openpilot.org/x/44Cf</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -14733,7 +14749,7 @@ et même conduire au crash. A utiliser avec prudence.</translation>
         <translation>Échec de la calibration du baromètre !</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+24"/>
         <source>Gyro is calibrated.</source>
         <translation>Les gyroscopes sont calibrés.</translation>
     </message>
@@ -15251,7 +15267,11 @@ Veuillez essayer à nouveau.</translation>
 Note: if previously selected input combinations use the Flexi-port for input, only estimated airspeed will be available.
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Cette partie de l&apos;assistant va vous aider à choisir et configurer comment obtenir les données de vitesse air. Le firmware actuel supporte trois méthodes pour l&apos;obtenir, la première utilise une technique d&apos;estimation logicielle et les deux autres se basent sur des capteurs de mesure.
+
+Note : si une configuration d&apos;entrée Rc utilise le port Flexi, seule l&apos;estimation logicielle sera disponible.
+
+</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -15571,7 +15591,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigOPLinkWidget</name>
     <message>
-        <location filename="../../plugins/config/configoplinkwidget.cpp" line="+152"/>
+        <location filename="../../plugins/config/configoplinkwidget.cpp" line="+154"/>
         <location line="+9"/>
         <location line="+9"/>
         <location line="+9"/>
@@ -15731,7 +15751,7 @@ IMPORTANT : Ces nouveaux paramètres ne sont pas encore enregistrés sur la cart
 <context>
     <name>ConfigCcpmWidget</name>
     <message>
-        <location filename="../../plugins/config/cfg_vehicletypes/configccpmwidget.cpp" line="+1080"/>
+        <location filename="../../plugins/config/cfg_vehicletypes/configccpmwidget.cpp" line="+1112"/>
         <source>&lt;h1&gt;Swashplate Leveling Routine&lt;/h1&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15794,6 +15814,11 @@ IMPORTANT : Ces nouveaux paramètres ne sont pas encore enregistrés sur la cart
         <location line="+16"/>
         <source>&lt;h2&gt;The CCPM swashplate levelling code is NOT complete!&lt;/h2&gt;&lt;p&gt;&lt;font color=red&gt;DO NOT use it for flight!&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+173"/>
+        <source>Channel already used</source>
+        <translation type="unfinished">Canal déjà utilisé</translation>
     </message>
 </context>
 <context>
@@ -15923,7 +15948,7 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
     <message>
         <location line="+2"/>
         <source>Built-in template.</source>
-        <translation type="unfinished">Modèle intégré.</translation>
+        <translation>Modèle intégré.</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -15944,7 +15969,7 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
 <context>
     <name>UsageTrackerPlugin</name>
     <message>
-        <location filename="../../plugins/usagetracker/usagetrackerplugin.cpp" line="+80"/>
+        <location filename="../../plugins/usagetracker/usagetrackerplugin.cpp" line="+81"/>
         <source>Usage feedback</source>
         <translation>Retour d&apos;utilisation</translation>
     </message>
@@ -16057,11 +16082,41 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
 </context>
 <context>
-    <name>ConfigRevoNanoHWWidget</name>
+    <name>ConfigFixedWingWidget</name>
     <message>
-        <location filename="../../plugins/config/configrevonanohwwidget.cpp" line="+337"/>
-        <source>http://wiki.openpilot.org/x/GgDBAQ</source>
-        <translation type="unfinished"></translation>
+        <location filename="../../plugins/config/cfg_vehicletypes/configfixedwingwidget.cpp" line="+616"/>
+        <source>Rudders are optional for Elevon frame</source>
+        <translation>Les dérives sont optionnelles sur une aile volante (elevon)</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Second aileron servo is optional</source>
+        <translation>Le deuxième servo d&apos;aileron est optionnel</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Second elevator servo is optional</source>
+        <translation>Le second servo de profondeur est optionnel</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Rudder is highly recommended for fixed wing.</source>
+        <translation>Une dérive est fortement recommandée pour une voilure fixe.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Please assign Channel</source>
+        <translation>Veuillez assigner un Canal</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;font color=&apos;red&apos;&gt;ERROR: Assign all necessary channels&lt;/font&gt;</source>
+        <translation>&lt;font color=&apos;red&apos;&gt;ERREUR : Veuillez affecter tous les canaux nécessaires&lt;/font&gt;</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Channel already used</source>
+        <translation>Canal déjà utilisé</translation>
     </message>
 </context>
 </TS>

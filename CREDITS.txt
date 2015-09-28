@@ -1,4 +1,4 @@
-﻿Connor Abbott
+Connor Abbott
 Sergiy Anikeyev
 David Ankers
 Fredrik Arvidsson
@@ -6,13 +6,14 @@ Pedro Assuncao
 Werner Backes
 Jose Barros
 Alex Beck
+Roy Bekken
 Andre Bernet
 Mikael Blomqvist
 Pete Boehl
 Berkely Brown
 Joel Brueziere
-Thierry Bugeat
 Samuel Brugger
+Thierry Bugeat
 Glenn Campigli
 David Carlson
 Mike Carr
@@ -47,6 +48,7 @@ Andy Honecker
 Patrick Huebner
 Ryan Hunt
 Mark James
+Paul Jewell
 Michael Johnston
 Stefan Karlsson
 Ricky King
@@ -61,11 +63,12 @@ Edouard Lafargue
 Laurent Lalanne
 Fredrik Larsson
 Xavier Lecluse
+Richard Von Lehe
 Pablo Lema
 Matt Lipski
 David Llama
+Jasper Van Loenen
 Ben Matthews
-Greg Matthews
 Greg Matthews
 Guy McCaldin
 Alessio Morale
@@ -107,11 +110,9 @@ Rowan Taubitz
 Jim Allen Thibodaux
 Andrew Thoms
 Vladimir Timofeev
-Jasper Van Loenen
 Philippe Vanhaesendonck
 Vassilis Varveropoulos
 Kevin Vertucio
-Richard Von Lehe
 Alex Vrubel
 Mike Walters
 Sam Wang

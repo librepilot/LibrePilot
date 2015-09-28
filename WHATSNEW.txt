@@ -1,3 +1,108 @@
+-- RELEASE-15.09 - First LibrePilot Release -- Supermoon Eclipse
+This is the first LibrePilot release. 
+The main focus of this release is to bring back support for CC3D and an general re-branding of the GCS.
+
+The full list of bug fixes in this release is available here:
+https://librepilot.atlassian.net/issues/?filter=10300
+
+** Bug
+    * [LP-57] - Errors during NewsPanel data scraping
+    * [LP-58] - Splash Screen doesn't display
+    * [LP-65] - Heli config tab refresh
+    * [LP-69] - Add SRXL to CC3D target
+    * [LP-70] - Vehicle Setup Wizard allows a not working CC3D configuration
+    * [LP-84] - Nano (Revo Nano) does not automatically select correct firmware after Firmware then Halt
+    * [LP-89] - Port bug fixes from OP HotFix 150501
+    * [LP-107] - Motors could accidentally turn off with the recent motor output scaling feature
+    * [LP-115] - TPS and Acro+ settings are initialized incorrectly
+    * [LP-116] - Add uninstall to Makefile to prevent side effects from Installing over a previous installation
+    * [LP-123] - EasyTune yaw calculation is active even if easytune is not active
+    * [LP-125] - PathUtils should return absolute pathes
+    * [LP-127] - Fix Mac tool install md5 check
+    * [LP-128] - ElevateAndCompress is broken at full throttle
+    * [LP-134] - Obsolete Google Satellite Version
+    * [LP-135] - Mag calibration issue
+
+** Epic
+    * [LP-1] - Code Rebranding
+
+** Story
+    * [LP-3] - Artwork rebranding
+    * [LP-4] - Add a Gitter chat link to README.txt
+    * [LP-5] - Add back CC/CC3D Support
+    * [LP-6] - Laurent/lp 03 artwork rebranding
+    * [LP-7] - OP-1879 remove openpilot hardcoding
+    * [LP-8] - OP-1929 broken package src
+    * [LP-9] - Hotfix for files that were missed in share directory move due to rebase
+    * [LP-10] - Cleanup build warnings on OSX
+    * [LP-12] - Openpilot migration
+    * [LP-13] - some more OP hardcoding fixes
+    * [LP-14] - Remove some more openpilot hardcoding
+    * [LP-15] - Skarlsso/lp 10 cleanup build warnings on osx
+    * [LP-17] - Laurent/lp 03 artwork icons splashscreen
+    * [LP-18] - Makefile fix
+    * [LP-19] - Remove openpilot hardcoding
+    * [LP-20] - Menu item change
+    * [LP-21] - udevdir fix
+    * [LP-22] - Desktopfile migration
+    * [LP-23] - amorale/lp-05 readd cc rebased
+    * [LP-24] - filnet/op 1518 osgearth
+    * [LP-28] - Removed OpenPilot reference in About menu
+    * [LP-31] - skarlsso/LP-26_update_welcome_page_plugin
+    * [LP-33] - Remove op from gcs dir structure
+    * [LP-35] - Removed OpenPilot reference in About Menu
+    * [LP-37] - Memory wasted in pvPortMallocGeneric
+    * [LP-43] - change links and headers in welcome plugin
+    * [LP-44] - Review and cleanup to free some memory for CC3D
+    * [LP-47] - Fixed missing QDataStream includes to make compilation on qt 5.5 work
+    * [LP-48] - French translation
+    * [LP-49] - Laurent/lp 48 update rebranding strings translations
+    * [LP-50] - Make name define available for all by setting in openpilotgcs.pri
+    * [LP-51] - Wrong config tab contents
+    * [LP-52] - LP-51 Fix merge issue for Revo / Revonano HW config display
+    * [LP-53] - Set up Anonymous data collection to send information to the LibrePilot website
+    * [LP-55] - Config fix for echo without -e
+    * [LP-62] - Implement rpm spec
+
+** New Feature
+    * [LP-100] - Make firmware package
+    * [LP-101] - Make build possible with prebuilt firmware
+
+** Task
+    * [LP-16] - Vehicle template enhancements.
+    * [LP-26] - Update Welcome page plugin.
+    * [LP-27] - LP-16 Vehicle templates enhancements
+    * [LP-36] - Win install fixes
+    * [LP-42] - Added option for config file.
+    * [LP-45] - Amorale/lp 41 ccache support
+    * [LP-60] - Fix project links in readme
+    * [LP-92] - Remove old Feed Forward
+    * [LP-98] - SystemHealth refresh
+    * [LP-99] - Decouple flight build
+    * [LP-113] - Create new tool install framework
+    * [LP-129] - Remove broken scaleMotor modes
+
+** Improvement
+    * [LP-56] - Split roll/pitch acro+ factors
+    * [LP-61] - Make more things configurable with make config
+    * [LP-64] - Install target for ccache
+    * [LP-66] - Add differential Roll mixing to Fixed Wing frames
+    * [LP-67] - Add a txpid option that manage all PID factors at once
+    * [LP-77] - Jira needs more Component options
+    * [LP-80] - Extend linux packaging to easily support new distros
+    * [LP-87] - Remove OpenPilot branding from Doxygen Documentation
+    * [LP-93] - Thermal calibration should calculate also gyro bias 
+    * [LP-94] - Set up Wiki link in Configuration tabs to point to Librepilot Wiki
+    * [LP-102] - Remove OpenPilot links in "About Plugins" dialog boxes
+    * [LP-106] - Setup Wizard refresh
+    * [LP-108] - Fixes for mpu6k
+    * [LP-110] - Wizard : high rate servos and normal Esc rate for planes and ground vehicles
+    * [LP-114] - Support to more than three Accessory channels
+    * [LP-124] - Rename RollRatePID and PitcahRatePID to EasyTuneRateRoll and EasyTuneRatePitch
+
+
+
+
 --- RELEASE-15.05.01 HOTFIX --- Banana Split ---
 This release fixes an important bug.  All Revolution hardware running 15.05 should upgrade to 15.05.01. Note that this is a hotfix; it can
 simply be flashed without an erase settings. Furthermore, please review your vtolpathfollowersettings:HorizontalVelMax; a value of around 4m/s would be more appropriate for preliminary trialing of a new release and will be changed in future.

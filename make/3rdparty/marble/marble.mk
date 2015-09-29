@@ -68,6 +68,8 @@ MARBLE_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(MARBLE_NAME)
 MARBLE_DATA_DIR    := $(MARBLE_INSTALL_DIR)/$(MARBLE_DATA_BASE_DIR)
 MARBLE_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/marble/marble-$(MARBLE_VERSION).patch
 
+GOOGLE_SAT_PATCH_FILE := $(ROOT_DIR)/make/3rdparty/marble/googlesat.patch
+
 .PHONY: marble
 marble:
 	@$(ECHO) "Building marble $(call toprel, $(MARBLE_SRC_DIR)) into $(call toprel, $(MARBLE_BUILD_DIR))"
@@ -141,6 +143,10 @@ clone_marble:
 	$(V1) ( $(CD) $(MARBLE_SRC_DIR)/googlesat && $(GIT) fetch ; )
 	@$(ECHO) "Checking out googlesat"
 	$(V1) ( $(CD) $(MARBLE_SRC_DIR)/googlesat && $(GIT) checkout --quiet --force master ; )
+	$(V1) if [ -e $(GOOGLE_SAT_PATCH_FILE) ]; then \
+		$(ECHO) "Patching google sat..." ; \
+		( $(CD) $(MARBLE_SRC_DIR)/googlesat && $(GIT) apply $(GOOGLE_SAT_PATCH_FILE) ; ) \
+	fi
 
 .PHONY: clean_marble
 clean_marble:

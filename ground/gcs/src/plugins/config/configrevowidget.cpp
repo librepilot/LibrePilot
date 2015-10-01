@@ -241,6 +241,16 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]   = 0;
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]  = 0;
         attitudeSettings->setData(data);
+
+        // Store current aux mag board rotation
+        AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
+        Q_ASSERT(auxMagSettings);
+        AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
+        auxMagStoredBoardRotation = auxMagData.Orientation;
+
+        // Set aux mag board rotation to no rotation
+        auxMagData.Orientation = 0.0f;
+        auxMagSettings->setData(auxMagData);
     }
 }
 
@@ -250,6 +260,7 @@ void ConfigRevoWidget::recallBoardRotation()
         // Recall current board rotation
         isBoardRotationStored = false;
 
+        // Restore the flight controller board rotation
         AttitudeSettings *attitudeSettings = AttitudeSettings::GetInstance(getObjectManager());
         Q_ASSERT(attitudeSettings);
         AttitudeSettings::DataFields data  = attitudeSettings->getData();
@@ -257,6 +268,13 @@ void ConfigRevoWidget::recallBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]  = storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
         attitudeSettings->setData(data);
+
+        // Restore the aux mag board rotation
+        AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
+        Q_ASSERT(auxMagSettings);
+        AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
+        auxMagData.Orientation = auxMagStoredBoardRotation;
+        auxMagSettings->setData(auxMagData);
     }
 }
 

@@ -1,11 +1,30 @@
--- RELEASE-15.09 - First LibrePilot Release -- Supermoon Eclipse
+-- RELEASE-15.09-RC2 - First LibrePilot Release -- Supermoon Eclipse
+This release candidate adds a fix for external magnetometer calibration.
+It also fixes a build issue caused by broken make dependencies. 
+
+The list of bug fixes added in this release candidate is available here:
+https://librepilot.atlassian.net/issues/?filter=10301
+
+** Bug
+    * [LP-135] - Aux mag calibration issue
+    * [LP-136] - Build errors caused by broken uavobjgenerator make dependencies
+
+
+-- RELEASE-15.09-RC1 - First LibrePilot Release -- Supermoon Eclipse
 This is the first LibrePilot release. 
 The main focus of this release is to bring back support for CC3D and an general re-branding of the GCS.
 
 The full list of bug fixes in this release is available here:
 https://librepilot.atlassian.net/issues/?filter=10300
 
+
+Release Notes - LibrePilot - Version REL-15.09 - Supermoon Eclipse
+
+** Sub-task
+    * [LP-31] - skarlsso/LP-26_update_welcome_page_plugin
+
 ** Bug
+    * [LP-37] - Memory wasted in pvPortMallocGeneric
     * [LP-57] - Errors during NewsPanel data scraping
     * [LP-58] - Splash Screen doesn't display
     * [LP-65] - Heli config tab refresh
@@ -21,7 +40,6 @@ https://librepilot.atlassian.net/issues/?filter=10300
     * [LP-127] - Fix Mac tool install md5 check
     * [LP-128] - ElevateAndCompress is broken at full throttle
     * [LP-134] - Obsolete Google Satellite Version
-    * [LP-135] - Mag calibration issue
 
 ** Epic
     * [LP-1] - Code Rebranding
@@ -34,11 +52,9 @@ https://librepilot.atlassian.net/issues/?filter=10300
     * [LP-7] - OP-1879 remove openpilot hardcoding
     * [LP-8] - OP-1929 broken package src
     * [LP-9] - Hotfix for files that were missed in share directory move due to rebase
-    * [LP-10] - Cleanup build warnings on OSX
     * [LP-12] - Openpilot migration
     * [LP-13] - some more OP hardcoding fixes
     * [LP-14] - Remove some more openpilot hardcoding
-    * [LP-15] - Skarlsso/lp 10 cleanup build warnings on osx
     * [LP-17] - Laurent/lp 03 artwork icons splashscreen
     * [LP-18] - Makefile fix
     * [LP-19] - Remove openpilot hardcoding
@@ -48,10 +64,8 @@ https://librepilot.atlassian.net/issues/?filter=10300
     * [LP-23] - amorale/lp-05 readd cc rebased
     * [LP-24] - filnet/op 1518 osgearth
     * [LP-28] - Removed OpenPilot reference in About menu
-    * [LP-31] - skarlsso/LP-26_update_welcome_page_plugin
     * [LP-33] - Remove op from gcs dir structure
     * [LP-35] - Removed OpenPilot reference in About Menu
-    * [LP-37] - Memory wasted in pvPortMallocGeneric
     * [LP-43] - change links and headers in welcome plugin
     * [LP-44] - Review and cleanup to free some memory for CC3D
     * [LP-47] - Fixed missing QDataStream includes to make compilation on qt 5.5 work
@@ -73,8 +87,8 @@ https://librepilot.atlassian.net/issues/?filter=10300
     * [LP-26] - Update Welcome page plugin.
     * [LP-27] - LP-16 Vehicle templates enhancements
     * [LP-36] - Win install fixes
+    * [LP-41] - Add support for ccache
     * [LP-42] - Added option for config file.
-    * [LP-45] - Amorale/lp 41 ccache support
     * [LP-60] - Fix project links in readme
     * [LP-92] - Remove old Feed Forward
     * [LP-98] - SystemHealth refresh
@@ -83,6 +97,7 @@ https://librepilot.atlassian.net/issues/?filter=10300
     * [LP-129] - Remove broken scaleMotor modes
 
 ** Improvement
+    * [LP-10] - Cleanup build warnings on OSX
     * [LP-56] - Split roll/pitch acro+ factors
     * [LP-61] - Make more things configurable with make config
     * [LP-64] - Install target for ccache

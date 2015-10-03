@@ -17,8 +17,15 @@ LINKER_SCRIPTS_COMPAT	=  $(PIOS_DEVLIB)link_$(BOARD)_fw_memory.ld \
 # Compiler options implied by the F4xx
 CDEFS			+= -DSTM32F4XX
 ifneq ($(CHIPFAMILY),STM32F411xx)
+ifeq ($(CHIPFAMILY),STM32F427xx)
+CDEFS			+= -DPIOS_TARGET_PROVIDES_FAST_HEAP
+#large heap support must be enabled if SRAM > 128K
+CDEFS			+= -DHEAP_SUPPORT_LARGE
+CDEFS			+= -DSTM32F427_437xx
+else
 CDEFS			+= -DPIOS_TARGET_PROVIDES_FAST_HEAP
 CDEFS			+= -DSTM32F40_41xxx
+endif
 else
 CDEFS			+= -DSTM32F411xE
 endif

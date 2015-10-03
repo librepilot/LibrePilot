@@ -388,7 +388,7 @@ void processComand(uint8_t *xReceive_Buffer)
 void OPDfuIni(uint8_t discover)
 {
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
-    Device dev;
+    static Device dev;
 
     dev.programmingType   = Self_flash;
     dev.readWriteFlags    = (BOARD_READABLE | (BOARD_WRITABLE << 1));

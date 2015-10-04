@@ -74,16 +74,18 @@ linux {
     }
 
     LIBS +=-lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
+    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
+    LIBS += -losgQt -losgEarthQt
 }
 
 macx {
     LIBS += -L$$OSG_SDK_DIR/lib
 
     LIBS += -lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
+    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
+    LIBS += -losgQt -losgEarthQt
 }
 
 win32 {
@@ -91,13 +93,15 @@ win32 {
 
     CONFIG(release, debug|release) {
         LIBS += -lOpenThreads
-        LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+        LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
+        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
+        LIBS += -losgQt -losgEarthQt
     }
     CONFIG(debug, debug|release) {
         LIBS += -lOpenThreadsd
-        LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd -losgQtd
-        LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd -losgEarthQtd
+        LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd
+        LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd
+        LIBS += -losgQtd -losgEarthQtd
     }
 }
 

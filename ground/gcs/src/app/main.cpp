@@ -285,6 +285,9 @@ void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const 
     case QtDebugMsg:
         out << "DBG: ";
         break;
+    case QtInfoMsg:
+        out << "INF: ";
+        break;
     case QtWarningMsg:
         out << "WRN: ";
         break;

@@ -29,12 +29,16 @@
 
 void myQDebugHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    Q_UNUSED(context);
     static bool firstRun = true;
     QString txt;
 
     switch (type) {
     case QtDebugMsg:
         txt = QString("Debug: %1").arg(msg);
+        break;
+    case QtInfoMsg:
+        txt = QString("Info: %1").arg(msg);
         break;
     case QtWarningMsg:
         txt = QString("Warning: %1").arg(msg);

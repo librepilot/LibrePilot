@@ -56,7 +56,8 @@ DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(OPGCSSY
 
 # Naming for binaries and packaging etc,.
 export ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
+GCS_LABEL := GCS
+GCS_BIG_NAME := $(ORG_BIG_NAME) $(GCS_LABEL)
 # These should be lowercase with no spaces
 export ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))

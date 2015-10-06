@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uploadergadgetwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup YModemUploader YModem Serial Uploader Plugin
@@ -550,7 +551,8 @@ void UploaderGadgetWidget::systemEraseBoot()
         commonSystemBoot(true, true);
         break;
     case QMessageBox::Help:
-        QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/display/Doc/Erase+board+settings"), QUrl::StrictMode));
+        QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Erase+board+settings"),
+                                       QUrl::StrictMode));
         break;
     }
 }
@@ -1148,7 +1150,8 @@ UploaderGadgetWidget::~UploaderGadgetWidget()
 
 void UploaderGadgetWidget::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/AoBZ"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Firmware+Tab"),
+                                   QUrl::StrictMode));
 }
 
 int UploaderGadgetWidget::confirmEraseSettingsMessageBox()

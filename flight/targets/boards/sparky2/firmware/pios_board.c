@@ -313,20 +313,6 @@ static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm
     pios_rcvr_group_map[channelgroup] = pios_dsm_rcvr_id;
 }
 
-static void PIOS_Board_configure_pwm(const struct pios_pwm_cfg *pwm_cfg)
-{
-    /* Set up the receiver port.  Later this should be optional */
-    uint32_t pios_pwm_id;
-
-    PIOS_PWM_Init(&pios_pwm_id, pwm_cfg);
-
-    uint32_t pios_pwm_rcvr_id;
-    if (PIOS_RCVR_Init(&pios_pwm_rcvr_id, &pios_pwm_rcvr_driver, pios_pwm_id)) {
-        PIOS_Assert(0);
-    }
-    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PWM] = pios_pwm_rcvr_id;
-}
-
 static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
 {
     uint32_t pios_ppm_id;
@@ -678,33 +664,13 @@ void PIOS_Board_Init(void)
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
     switch (hwsettings_mainport) {
     case HWSETTINGS_RM_MAINPORT_DISABLED:
+    case HWSETTINGS_RM_MAINPORT_SBUS:
         break;
     case HWSETTINGS_RM_MAINPORT_TELEMETRY:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
     case HWSETTINGS_RM_MAINPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
-        break;
-    case HWSETTINGS_RM_MAINPORT_SBUS:
-#if defined(PIOS_INCLUDE_SBUS)
-        {
-            uint32_t pios_usart_sbus_id;
-            if (PIOS_USART_Init(&pios_usart_sbus_id, &pios_usart_sbus_main_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_sbus_id;
-            if (PIOS_SBus_Init(&pios_sbus_id, &pios_sbus_cfg, &pios_usart_com_driver, pios_usart_sbus_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_sbus_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_sbus_rcvr_id, &pios_sbus_rcvr_driver, pios_sbus_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS] = pios_sbus_rcvr_id;
-        }
-#endif
         break;
     case HWSETTINGS_RM_MAINPORT_DSM:
         // Force binding to zero on the main port
@@ -728,11 +694,6 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     } /*        hwsettings_rm_mainport */
-
-    if (hwsettings_mainport != HWSETTINGS_RM_MAINPORT_SBUS) {
-        GPIO_Init(pios_sbus_cfg.inv.gpio, &pios_sbus_cfg.inv.init);
-        GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
-    }
 
 
     /* Initalize the RFM22B radio COM device. */
@@ -855,51 +816,57 @@ void PIOS_Board_Init(void)
 #endif
 
     /* Configure the receiver port*/
+    // Revo Flex-IO Port Functions
+    // 1: GND
+    // 2: VCC_UNREG
+    // 3: PB12 = SPI2 NSS, CAN2 RX
+    // 4: PB13 = SPI2 SCK, CAN2 TX, USART3 CTS
+    // 5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
+    // 6: PB15 = SPI2 MOSI, TIM12 CH2
+    // 7: PC6 = TIM8 CH1, USART6 TX
+    // 8: PC7 = TIM8 CH2, USART6 RX
+    // 9: PC8 = TIM8 CH3
+    // 10: PC9 = TIM8 CH4
+    //
+    // Sparky2 receiver input on PC7 TIM8 CH2
+    // that appears to include PPM, DSM, DSM-HSUM, SBUS
     uint8_t hwsettings_rcvrport;
     HwSettingsRM_RcvrPortGet(&hwsettings_rcvrport);
     //
     switch (hwsettings_rcvrport) {
-    case HWSETTINGS_RM_RCVRPORT_DISABLED:
-        break;
-    case HWSETTINGS_RM_RCVRPORT_PWM:
-#if defined(PIOS_INCLUDE_PWM)
-        /* Set up the receiver port.  Later this should be optional */
-        PIOS_Board_configure_pwm(&pios_pwm_cfg);
-#endif /* PIOS_INCLUDE_PWM */
-        break;
     case HWSETTINGS_RM_RCVRPORT_PPM:
-    case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
-    case HWSETTINGS_RM_RCVRPORT_PPMPWM:
-    case HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY:
 #if defined(PIOS_INCLUDE_PPM)
         PIOS_Board_configure_ppm(&pios_ppm_cfg);
-
-        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS) {
-            // configure servo outputs and the remaining 5 inputs as outputs
-            pios_servo_cfg = &pios_servo_cfg_out_in_ppm;
-        }
-
-        // enable pwm on the remaining channels
-        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMPWM) {
-            PIOS_Board_configure_pwm(&pios_pwm_ppm_cfg);
-        }
-
-        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY) {
-            PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
-        }
-
         break;
 #endif /* PIOS_INCLUDE_PPM */
-    case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
-        // configure only the servo outputs
-        pios_servo_cfg = &pios_servo_cfg_out_in;
+    case HWSETTINGS_RM_RCVRPORT_SBUS:
+#if defined(PIOS_INCLUDE_SBUS)
+        {
+            uint32_t pios_usart_sbus_id;
+            if (PIOS_USART_Init(&pios_usart_sbus_id, &pios_usart_sbus_rcvrport_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_sbus_id;
+            if (PIOS_SBus_Init(&pios_sbus_id, &pios_sbus_cfg, &pios_usart_com_driver, pios_usart_sbus_id)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_sbus_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_sbus_rcvr_id, &pios_sbus_rcvr_driver, pios_sbus_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS] = pios_sbus_rcvr_id;
+        }
+#endif
         break;
-    case HWSETTINGS_RM_RCVRPORT_TELEMETRY:
-        PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
+    default:
         break;
-    case HWSETTINGS_RM_RCVRPORT_COMBRIDGE:
-        PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
-        break;
+    }
+
+    if (hwsettings_rcvrport != HWSETTINGS_RM_RCVRPORT_SBUS) {
+        GPIO_Init(pios_sbus_cfg.inv.gpio, &pios_sbus_cfg.inv.init);
+        GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
     }
 
 #if defined(PIOS_INCLUDE_GCSRCVR)
@@ -954,8 +921,13 @@ void PIOS_Board_Init(void)
     PIOS_MPU9250_MagRegister();
 #endif
 
+    PIOS_WDG_Clear();
+
 #if defined(PIOS_INCLUDE_HMC5X83)
+    // on board mag is in the MPU9250
+    // this hmc5x83 mag is an external mag
     i2c_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
+    PIOS_WDG_Clear();
     PIOS_HMC5x83_Register(i2c_port_mag);
 #endif
 

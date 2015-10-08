@@ -1,11 +1,11 @@
 Name:           <NAME>
-Summary:        Ground Control Station
+Summary:        <SUMMARY>
 Version:        <VERSION>
 Release:        <RELEASE>%{?dist}
 
 Group:          Applications/Scientific
 License:        GPLv3+
-URL:            http://forum.librepilot.org/
+URL:            <URL>
 
 Source0:        <SOURCE0>
 Source1:        <SOURCE1>
@@ -41,13 +41,7 @@ Requires:       qt5-qtsvg
 
 
 %description
-LibrePilot is a next-generation Open Source UAV autopilot created by the
-LibrePilot Community. It is a highly capable platform for
-multirotors, helicopters, fixed wing aircraft, and other vehicles.
-It has been designed from the ground up by a community of passionate developers
-from around the globe, with its core design principles being quality, safety,
-and ease of use. 
-
+<DESCRIPTION>
 
 %prep
 %setup -q -T -a 1 -c -n <ARCHIVE_PREFIX>/build

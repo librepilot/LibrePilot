@@ -6,6 +6,14 @@ ifndef TOP_LEVEL_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
+SED_SCRIPT := sed -i -e ' \
+s/<ARCHIVE_PREFIX>/$(PACKAGE_NAME)/g; \
+s/<EMAIL>/$(PACKAGING_EMAIL_ADDRESS)/g; \
+s,<URL>,$(WEBSITE_URL),g; \
+s,<GIT_URL>,$(GIT_URL),g; \
+s,<GITWEB_URL>,$(GITWEB_URL),g; \
+'
+
 # Are we using a debian based distro?
 ifneq ($(wildcard /etc/apt/sources.list),)
 	include $(ROOT_DIR)/package/linux/deb.mk

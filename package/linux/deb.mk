@@ -14,11 +14,12 @@ DEB_PACKAGE_NAME     := $(DEB_NAME)_$(UPSTREAM_VER)-$(DEB_REV)_$(DEB_ARCH)
 DEB_DIR              := package/linux/debian
 
 SED_DATE_STRG        := $(shell date -R)
-SED_SCRIPT           := sed -i -e ' \
+SED_SCRIPT           := $(SED_SCRIPT)' \
 			s/<VERSION>/$(UPSTREAM_VER)-$(DEB_REV)/g; \
 			s/<DATE>/$(SED_DATE_STRG)/g; \
 			s/<DIST>/$(DEB_DIST)/g; \
 			s/<NAME>/$(DEB_NAME)/g; \
+			s/<DESCRIPTION>/$(DESCRIPTION_SHORT)\n $(subst $(NEWLINE),\n ,$(DESCRIPTION_LONG))/g; \
 			'
 
 # Ubuntu 14.04 (Trusty Tahr) has different names for the qml-modules

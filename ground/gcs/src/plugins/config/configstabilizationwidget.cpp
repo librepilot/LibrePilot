@@ -58,6 +58,8 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     ui = new Ui_StabilizationWidget();
     ui->setupUi(this);
 
+    setWikiURL("Stabilization+Configuration");
+
     setupExpoPlot();
 
     setupStabBanksGUI();

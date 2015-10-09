@@ -34,7 +34,7 @@
 #include <QLineEdit>
 #include <QToolButton>
 
-ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true),
+ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_wikiURL("Welcome"),
     m_saveButton(NULL), m_isDirty(false), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
 {
     m_pluginManager     = ExtensionSystem::PluginManager::instance();

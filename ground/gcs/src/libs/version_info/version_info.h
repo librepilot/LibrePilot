@@ -37,7 +37,7 @@
  * @note If repository or git utility is unavailable, strings can be empty or be "None".
  *       So do not assume they have some particular format when used, use them as strings only.
  *
- * More info: http://wiki.openpilot.org/display/Doc/Building+and+Packaging+Overview
+ * More info: https://librepilot.atlassian.net/wiki/display/LPDOC/Building+and+Packaging+Overview
  */
 class VersionInfo {
 public:

@@ -694,7 +694,7 @@ help:
 	@$(ECHO)
 	@$(ECHO) "   This Makefile is known to work on Linux and Mac in a standard shell environment."
 	@$(ECHO) "   It also works on Windows by following the instructions given on this wiki page:"
-	@$(ECHO) "       http://wiki.openpilot.org/display/Doc/Windows%3A+Building+and+Packaging"
+	@$(ECHO) "       $(WIKI_ROOT_URL)Windows+Building+and+Packaging"
 	@$(ECHO)
 	@$(ECHO) "   Here is a summary of the available targets:"
 	@$(ECHO)
@@ -725,7 +725,7 @@ help:
 	@$(ECHO) "     <tool>_distclean     - Remove downloaded <tool> distribution file(s)"
 	@$(ECHO)
 	@$(ECHO) "   [Big Hammer]"
-	@$(ECHO) "     all                  - Generate UAVObjects, build openpilot firmware and gcs"
+	@$(ECHO) "     all                  - Generate UAVObjects, build $(ORG_BIG_NAME) firmware and gcs"
 	@$(ECHO) "     all_flight           - Build all firmware, bootloaders and bootloader updaters"
 	@$(ECHO) "     all_fw               - Build only firmware for all boards"
 	@$(ECHO) "     all_bl               - Build only bootloaders for all boards"
@@ -778,9 +778,9 @@ help:
 	@$(ECHO) "     ut_<test>_run        - Run test and dump output to console"
 	@$(ECHO)
 	@$(ECHO) "   [Simulation]"
-	@$(ECHO) "     sim_osx              - Build OpenPilot simulation firmware for OSX"
+	@$(ECHO) "     sim_osx              - Build $(ORG_BIG_NAME) simulation firmware for OSX"
 	@$(ECHO) "     sim_osx_clean        - Delete all build output for the osx simulation"
-	@$(ECHO) "     sim_win32            - Build OpenPilot simulation firmware for Windows"
+	@$(ECHO) "     sim_win32            - Build $(ORG_BIG_NAME) simulation firmware for Windows"
 	@$(ECHO) "                            using mingw and msys"
 	@$(ECHO) "     sim_win32_clean      - Delete all build output for the win32 simulation"
 	@$(ECHO)
@@ -806,7 +806,7 @@ help:
 	@$(ECHO) "                            Supported groups are ($(UAVOBJ_TARGETS))"
 	@$(ECHO)
 	@$(ECHO) "   [Packaging]"
-	@$(ECHO) "     package              - Build and package the OpenPilot platform-dependent package (no clean)"
+	@$(ECHO) "     package              - Build and package the platform-dependent package (no clean)"
 	@$(ECHO) "     opfw_resource        - Generate resources to embed firmware binaries into the GCS"
 	@$(ECHO) "     dist                 - Generate source archive for distribution"
 	@$(ECHO) "     fw_dist              - Generate archive of firmware"
@@ -838,5 +838,5 @@ help:
 	@$(ECHO) "  Tool download and install directories can be changed using environment variables:"
 	@$(ECHO) "         DL_DIR        full path to downloads directory [downloads if not set]"
 	@$(ECHO) "         TOOLS_DIR     full path to installed tools directory [tools if not set]"
-	@$(ECHO) "  More info: http://wiki.openpilot.org/display/Doc/OpenPilot+Build+System+Overview"
+	@$(ECHO) "  More info: $(WIKI_URL_ROOT)LibrePilot+Build+System+Overview"
 	@$(ECHO)

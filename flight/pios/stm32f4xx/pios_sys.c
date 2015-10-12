@@ -74,7 +74,7 @@ void PIOS_SYS_Init(void)
         RCC_AHB1Periph_GPIOC |
         RCC_AHB1Periph_GPIOD |
         RCC_AHB1Periph_GPIOE |
-#ifdef STM32F40_41xxx
+#if defined (STM32F40_41xxx) || defined (STM32F427_437xx) || defined (STM32F429_439xx)
         RCC_AHB1Periph_GPIOF |
         RCC_AHB1Periph_GPIOG |
         RCC_AHB1Periph_GPIOH |
@@ -85,6 +85,9 @@ void PIOS_SYS_Init(void)
         RCC_AHB1Periph_SRAM1 |
         RCC_AHB1Periph_SRAM2 |
         RCC_AHB1Periph_BKPSRAM |
+#if defined (STM32F427_437xx) || defined (STM32F429_439xx)
+        RCC_AHB1Periph_SRAM3 |
+#endif
         RCC_AHB1Periph_DMA1 |
         RCC_AHB1Periph_DMA2 |
         // RCC_AHB1Periph_ETH_MAC |			No ethernet
@@ -171,7 +174,7 @@ void PIOS_SYS_Init(void)
     GPIO_Init(GPIOD, &GPIO_InitStructure);
     GPIO_Init(GPIOE, &GPIO_InitStructure);
 
-#ifdef STM32F40_41xxx
+#if defined (STM32F40_41xxx) || defined (STM32F427_437xx) || defined (STM32F429_439xx)
     GPIO_Init(GPIOF, &GPIO_InitStructure);
     GPIO_Init(GPIOG, &GPIO_InitStructure);
     GPIO_Init(GPIOH, &GPIO_InitStructure);

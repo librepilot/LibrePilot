@@ -115,6 +115,8 @@ private:
     QList<int> acroChannelOrder;
     QList<int> groundChannelOrder;
 
+    uint16_t flightModeSignalValue[FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM];
+
     UAVObject::Metadata manualControlMdata;
     ManualControlCommand *manualCommandObj;
     ManualControlCommand::DataFields manualCommandData;
@@ -161,6 +163,8 @@ private:
     QGraphicsSvgItem *m_txAccess2;
     QGraphicsSvgItem *m_txAccess3;
     QGraphicsSvgItem *m_txFlightMode;
+    QGraphicsSvgItem *m_txFlightModeCountBG;
+    QGraphicsSimpleTextItem *m_txFlightModeCountText;
     QGraphicsSvgItem *m_txBackground;
     QGraphicsSvgItem *m_txArrows;
     QTransform m_txLeftStickOrig;
@@ -172,6 +176,8 @@ private:
     QTransform m_txFlightModeCOrig;
     QTransform m_txFlightModeLOrig;
     QTransform m_txFlightModeROrig;
+    QTransform m_txFlightModeCountBGOrig;
+    QTransform m_txFlightModeCountTextOrig;
     QTransform m_txMainBodyOrig;
     QTransform m_txArrowsOrig;
     QTimer *animate;
@@ -217,6 +223,7 @@ private slots:
     void checkThrottleRange();
     void updateCalibration();
     void resetChannelSettings();
+    void resetFlightModeSettings();
     void resetActuatorSettings();
     void forceOneFlightMode();
 

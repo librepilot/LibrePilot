@@ -118,6 +118,8 @@ struct hid_device_ {
 	pthread_barrier_t barrier; /* Ensures correct startup sequence */
 	pthread_barrier_t shutdown_barrier; /* Ensures correct shutdown sequence */
 	int shutdown_thread;
+
+	bool run_loop_stopped;
 };
 
 static hid_device *new_hid_device(void)
@@ -133,6 +135,7 @@ static hid_device *new_hid_device(void)
 	dev->input_report_buf = NULL;
 	dev->input_reports = NULL;
 	dev->shutdown_thread = 0;
+	dev->run_loop_stopped = 0;
 
 	/* Thread objects */
 	pthread_mutex_init(&dev->mutex, NULL);
@@ -173,7 +176,13 @@ static void free_hid_device(hid_device *dev)
 	pthread_mutex_destroy(&dev->mutex);
 
 	/* Free the structure itself. */
-	free(dev);
+	// Note: We can't delete the dev struct, since we might get
+	// an asynchronous call to hid_device_removal_callback, which
+	// gets the dev passed as an argument.
+	//
+	// See stop_run_loop for an explanation why this happens.
+	//
+	// free(dev);
 }
 
 static	IOHIDManagerRef hid_mgr = 0x0;
@@ -548,6 +557,38 @@ hid_device * HID_API_EXPORT hid_open(unsigned short vendor_id, unsigned short pr
 	return handle;
 }
 
+// Use a shared mutex for all devices.
+static pthread_mutex_t stop_run_loop_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void stop_run_loop(hid_device* dev)
+{
+	bool stop_run_loop;
+
+	// There seems to be a bug in IOHIDDeviceRegisterRemovalCallback,
+	// which causes de-registration of the removal callback
+	// (hid_device_removal_callbacl) to fail.
+	//
+	// Because of this, hid_device_removal_callback will be called after
+	// the read_thread has executed perform_signal_callback, which also
+	// calls CFRunLoopStop. This second call to CFRunLoopStop is executed
+	// in another thread, sometimes after the read_thread has executed, and
+	// this causes crashes.
+	//
+	// Because of this asynchronous call to hid_device_removal_callback,
+	// the dev structs are leaked, for now.
+
+	pthread_mutex_lock(&stop_run_loop_mutex);
+	stop_run_loop = !dev->run_loop_stopped;
+	if (stop_run_loop) {
+		dev->run_loop_stopped = 1;
+	}
+	pthread_mutex_unlock(&stop_run_loop_mutex);
+
+	if (stop_run_loop) {
+		CFRunLoopStop(dev->run_loop);
+	}
+}
+
 static void hid_device_removal_callback(void *context, IOReturn result,
                                         void *sender)
 {
@@ -555,7 +596,8 @@ static void hid_device_removal_callback(void *context, IOReturn result,
 	hid_device *d = context;
 
 	d->disconnected = 1;
-	CFRunLoopStop(d->run_loop);
+
+	stop_run_loop(d);
 }
 
 /* The Run Loop calls this function for each input report received.
@@ -614,7 +656,8 @@ static void hid_report_callback(void *context, IOReturn result, void *sender,
 static void perform_signal_callback(void *context)
 {
 	hid_device *dev = context;
-	CFRunLoopStop(dev->run_loop); /*TODO: CFRunLoopGetCurrent()*/
+
+	stop_run_loop(dev);
 }
 
 static void *read_thread(void *param)

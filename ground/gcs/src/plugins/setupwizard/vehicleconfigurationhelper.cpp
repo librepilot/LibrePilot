@@ -209,7 +209,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
-                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_SBUS;
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SBUS;
             } else {
                 data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
                 // We have to set telemetry on flexport since s.bus needs the mainport on all but Revo.
@@ -238,7 +238,10 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
             data.GPSSpeed = HwSettings::GPSSPEED_57600;
 
-            if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
+            // if using GPS and SBUS on Revo, we must use FlexiPort for GPS
+            // since we must use MainPort for SBUS
+            if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS
+                && m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
             } else {
                 data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;

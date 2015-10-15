@@ -661,18 +661,17 @@ void PIOS_Board_Init(void)
 
     /* Configure main USART port */
     uint8_t hwsettings_mainport;
-    HwSettingsRM_MainPortGet(&hwsettings_mainport);
+    HwSettingsSPK2_MainPortGet(&hwsettings_mainport);
     switch (hwsettings_mainport) {
-    case HWSETTINGS_RM_MAINPORT_DISABLED:
-    case HWSETTINGS_RM_MAINPORT_SBUS:
+    case HWSETTINGS_SPK2_MAINPORT_DISABLED:
         break;
-    case HWSETTINGS_RM_MAINPORT_TELEMETRY:
+    case HWSETTINGS_SPK2_MAINPORT_TELEMETRY:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_GPS:
+    case HWSETTINGS_SPK2_MAINPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_DSM:
+    case HWSETTINGS_SPK2_MAINPORT_DSM:
         // Force binding to zero on the main port
         hwsettings_DSMxBind = 0;
 
@@ -680,17 +679,17 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_dsm(&pios_usart_dsm_main_cfg, &pios_dsm_main_cfg,
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
         break;
-    case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
+    case HWSETTINGS_SPK2_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
             PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
-    case HWSETTINGS_RM_MAINPORT_COMBRIDGE:
+    case HWSETTINGS_SPK2_MAINPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_OSDHK:
+    case HWSETTINGS_SPK2_MAINPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     } /*        hwsettings_rm_mainport */
@@ -831,15 +830,15 @@ void PIOS_Board_Init(void)
     // Sparky2 receiver input on PC7 TIM8 CH2
     // that appears to include PPM, DSM, DSM-HSUM, SBUS
     uint8_t hwsettings_rcvrport;
-    HwSettingsRM_RcvrPortGet(&hwsettings_rcvrport);
+    HwSettingsSPK2_RcvrPortGet(&hwsettings_rcvrport);
     //
     switch (hwsettings_rcvrport) {
-    case HWSETTINGS_RM_RCVRPORT_PPM:
+    case HWSETTINGS_SPK2_RCVRPORT_PPM:
 #if defined(PIOS_INCLUDE_PPM)
         PIOS_Board_configure_ppm(&pios_ppm_cfg);
 #endif /* PIOS_INCLUDE_PPM */
         break;
-    case HWSETTINGS_RM_RCVRPORT_SBUS:
+    case HWSETTINGS_SPK2_RCVRPORT_SBUS:
 #if defined(PIOS_INCLUDE_SBUS)
         {
             uint32_t pios_usart_sbus_id;
@@ -864,7 +863,7 @@ void PIOS_Board_Init(void)
         break;
     }
 
-    if (hwsettings_rcvrport != HWSETTINGS_RM_RCVRPORT_SBUS) {
+    if (hwsettings_rcvrport != HWSETTINGS_SPK2_RCVRPORT_SBUS) {
         GPIO_Init(pios_sbus_cfg.inv.gpio, &pios_sbus_cfg.inv.init);
         GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
     }

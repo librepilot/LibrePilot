@@ -608,39 +608,47 @@
                 },
                 {
                     "name": "AcroInsanityFactor",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
-                            "name": "0",
-                            "value": 0.40000000596046448
+                            "name": "roll",
+                            "value": 40
+                        },
+                        {
+                            "name": "pitch",
+                            "value": 40
+                        },
+                        {
+                            "name": "yaw",
+                            "value": 40
                         }
                     ]
                 },
                 {
                     "name": "ThrustPIDScaleCurve",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
                             "name": "0",
-                            "value": -0.021443866193294525
+                            "value": -2
                         },
                         {
                             "name": "25",
-                            "value": -0.021436728537082672
+                            "value": -2
                         },
                         {
                             "name": "50",
-                            "value": -0.034287348389625549
+                            "value": -3
                         },
                         {
                             "name": "75",
-                            "value": -0.15000000596046448
+                            "value": -15
                         },
                         {
                             "name": "100",
-                            "value": -0.30000001192092896
+                            "value": -30
                         }
                     ]
                 },
@@ -925,27 +933,35 @@
                 },
                 {
                     "name": "AcroInsanityFactor",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
-                            "name": "0",
-                            "value": 0.40000000596046448
+                            "name": "roll",
+                            "value": 40
+                        },
+                        {
+                            "name": "pitch",
+                            "value": 40
+                        },
+                        {
+                            "name": "yaw",
+                            "value": 40
                         }
                     ]
                 },
                 {
                     "name": "ThrustPIDScaleCurve",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
                             "name": "0",
-                            "value": 0.30000001192092896
+                            "value": 30
                         },
                         {
                             "name": "25",
-                            "value": 0.15000000596046448
+                            "value": 15
                         },
                         {
                             "name": "50",
@@ -953,11 +969,11 @@
                         },
                         {
                             "name": "75",
-                            "value": -0.15000000596046448
+                            "value": -15
                         },
                         {
                             "name": "100",
-                            "value": -0.30000001192092896
+                            "value": -30
                         }
                     ]
                 },
@@ -1242,27 +1258,35 @@
                 },
                 {
                     "name": "AcroInsanityFactor",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
-                            "name": "0",
-                            "value": 0.40000000596046448
+                            "name": "roll",
+                            "value": 40
+                        },
+                        {
+                            "name": "pitch",
+                            "value": 40
+                        },
+                        {
+                            "name": "yaw",
+                            "value": 40
                         }
                     ]
                 },
                 {
                     "name": "ThrustPIDScaleCurve",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
                             "name": "0",
-                            "value": 0.30000001192092896
+                            "value": 30
                         },
                         {
                             "name": "25",
-                            "value": 0.15000000596046448
+                            "value": 15
                         },
                         {
                             "name": "50",
@@ -1270,11 +1294,11 @@
                         },
                         {
                             "name": "75",
-                            "value": -0.15000000596046448
+                            "value": -15
                         },
                         {
                             "name": "100",
-                            "value": -0.30000001192092896
+                            "value": -30
                         }
                     ]
                 },
@@ -1393,50 +1417,6 @@
         },
         {
             "fields": [
-                {
-                    "name": "MaxAccel",
-                    "type": "float32",
-                    "unit": "units/sec",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 1000
-                        }
-                    ]
-                },
-                {
-                    "name": "FeedForward",
-                    "type": "float32",
-                    "unit": "",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 0
-                        }
-                    ]
-                },
-                {
-                    "name": "AccelTime",
-                    "type": "float32",
-                    "unit": "ms",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 0
-                        }
-                    ]
-                },
-                {
-                    "name": "DecelTime",
-                    "type": "float32",
-                    "unit": "ms",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 0
-                        }
-                    ]
-                },
                 {
                     "name": "ThrottleCurve1",
                     "type": "float32",

@@ -1,3 +1,13 @@
+-- RELEASE-15.09-RC3 - First LibrePilot Release -- Supermoon Eclipse
+This release candidate adds a fix for the OSX crash issue and updated templates that matches new librepilot UAVOS.
+Also fixes Wiki links and elevon wizard issue.
+
+** Bug
+    * [LP-153] - Bug in configrevohwwidget.cpp use MAINPORT enum not FLEXIPORT
+    * [LP-155] - GCS crashes on OS X 10.11 when the board is halted
+    * [LP-156] - Update Vehicle templates to work with current UAVO's
+    
+
 -- RELEASE-15.09-RC2 - First LibrePilot Release -- Supermoon Eclipse
 This release candidate adds a fix for external magnetometer calibration.
 It also fixes a build issue caused by broken make dependencies. 

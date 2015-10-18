@@ -56,14 +56,31 @@ DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(OPGCSSY
 
 # Naming for binaries and packaging etc,.
 export ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
+GCS_LABEL := GCS
+GCS_BIG_NAME := $(ORG_BIG_NAME) $(GCS_LABEL)
 # These should be lowercase with no spaces
 export ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
-# Change this once the DNS is set to http://wiki.librepilot.org/
-WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
+WEBSITE_URL      := http://librepilot.org
+GIT_URL          := https://bitbucket.org/librepilot/librepilot.git
+GITWEB_URL       := https://bitbucket.org/librepilot/librepilot
+# Change this once the DNS is set to http://wiki.librepilot.org/
+WIKI_URL_ROOT    := https://librepilot.atlassian.net/wiki/display/LPDOC/
 USAGETRACKER_URL := https://usagetracker.librepilot.org/
+
+PACKAGING_EMAIL_ADDRESS := packaging@librepilot.org
+
+define DESCRIPTION_SHORT :=
+A ground control station and firmware for UAV flight controllers
+endef
+
+define DESCRIPTION_LONG :=
+The LibrePilot open source project was founded in July 2015.
+It focuses on research and development of software and hardware to be used in a variety of applications including vehicle control and stabilization, unmanned autonomous vehicles and robotics.
+One of the project’s primary goals is to provide an open and collaborative environment making it the ideal home for development of innovative ideas.
+endef
+
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release

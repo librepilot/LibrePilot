@@ -1,10 +1,13 @@
+# Get some info about the distro
+-include /etc/lsb-release
 
-DEB_DIST             := unstable
+DEB_DIST             := $(DISTRIB_CODENAME)
 # Instead of RELEASE-15.01-RC1 debian wants 15.01~RC1
 UPSTREAM_VER         := $(subst -,~,$(subst RELEASE-,,$(PACKAGE_LBL)))
+ifeq ($(DEB_DIST), unstable) # This should be set manually for a submission to Debian or similar
 DEB_REV              := 1
-ifeq ($(DEB_DIST), trusty)
-DEB_REV              := $(DEB_REV)$(DEB_DIST)1
+else
+DEB_REV              := 0$(DEB_DIST)1
 endif
 DEB_NAME             := $(ORG_SMALL_NAME)
 DEB_ORIG_SRC         := $(PACKAGE_DIR)/$(DEB_NAME)_$(UPSTREAM_VER).orig.tar.gz

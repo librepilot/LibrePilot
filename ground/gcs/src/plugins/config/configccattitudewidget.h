@@ -65,7 +65,6 @@ private:
     QList<double> x_accum, y_accum, z_accum;
     QList<double> x_gyro_accum, y_gyro_accum, z_gyro_accum;
 
-    static const float DEFAULT_ENABLED_ACCEL_TAU = 0.1;
     static const int NUM_SENSOR_UPDATES = 300;
 protected:
     virtual void enableControls(bool enable);

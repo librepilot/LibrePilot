@@ -1,1 +1,6 @@
-To be rewrited
+The LibrePilot code is licensed under the GPLv3. There are a few minor exceptions to this so please see
+the headers of all source code for copyright and license information. The full text of the GPLv3 can be
+read here: http://www.gnu.org/licenses/gpl-3.0.txt
+
+Artwork is licensed under the Creative Commons BY-SA v3 license.
+For details please see: http://creativecommons.org/licenses/by-sa/3.0/

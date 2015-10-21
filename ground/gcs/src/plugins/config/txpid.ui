@@ -707,7 +707,7 @@ Throttle channel greater or equal to Throttle Max value.</string>
               </size>
              </property>
              <property name="title">
-              <string>FullPID Settings</string>
+              <string>EasyTune Settings</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_2">
               <item row="0" column="1">
@@ -851,7 +851,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Roll/Pitch I factor for full PID mode</string>
+                 <string>Roll/Pitch I factor for EasyTune mode</string>
                 </property>
                 <property name="minimum">
                  <number>25</number>
@@ -928,7 +928,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Roll/Pitch D factor for full PID mode</string>
+                 <string>Roll/Pitch D factor for EasyTune mode</string>
                 </property>
                 <property name="decimals">
                  <number>4</number>
@@ -1010,7 +1010,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Yaw P factor for full PID mode</string>
+                 <string>Yaw P factor for EasyTune mode</string>
                 </property>
                 <property name="minimum">
                  <number>10</number>
@@ -1084,7 +1084,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Yaw I factor for full PID mode</string>
+                 <string>Yaw I factor for EasyTune mode</string>
                 </property>
                 <property name="minimum">
                  <double>0.000000000000000</double>
@@ -1146,7 +1146,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Yaw D factor for full PID mode</string>
+                 <string>Yaw D factor for EasyTune mode</string>
                 </property>
                 <property name="decimals">
                  <number>4</number>
@@ -1264,7 +1264,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Yaw P factor for full PID mode</string>
+                 <string>Yaw P factor for EasyTune mode</string>
                 </property>
                 <property name="decimals">
                  <number>1</number>
@@ -1307,7 +1307,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Roll/Pitch I factor for full PID mode</string>
+                 <string>Roll/Pitch I factor for EasyTune mode</string>
                 </property>
                 <property name="decimals">
                  <number>1</number>

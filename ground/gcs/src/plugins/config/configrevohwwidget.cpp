@@ -316,8 +316,8 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_TELEMETRY)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }
-        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_FLEXIPORT_TELEMETRY)) {
-            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_FLEXIPORT_DISABLED);
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_TELEMETRY)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
         }
         break;
     case HwSettings::RM_RCVRPORT_COMBRIDGE:

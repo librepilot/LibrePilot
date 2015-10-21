@@ -22,7 +22,7 @@ Item {
     ListModel {
         id: sitesModel
         ListElement { link: "http://www.librepilot.org" }
-        ListElement { link: "http://wiki.openpilot.org" }
+        ListElement { link: "https://librepilot.atlassian.net/wiki/display/LPDOC/Welcome" }
         ListElement { link: "http://forum.librepilot.org" }
         ListElement { link: "http://github.com/librepilot/LibrePilot/pulls" }
         ListElement { link: "http://github.com/librepilot/LibrePilot/issues" }

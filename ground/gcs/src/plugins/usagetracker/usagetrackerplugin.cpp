@@ -199,10 +199,12 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         parameters["conf_uport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_HIDPort");
         parameters["conf_vport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_VCPPort");
 
+        parameters["conf_acceltau"] = getUAVFieldValue(objManager, "AttitudeSettings", "AccelTau");
         parameters["conf_rotation"] = QString("[%1:%2:%3]")
                                       .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 0))
                                       .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 1))
                                       .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 2));
+
         parameters["conf_pidr"] = QString("[%1:%2:%3:%4][%5:%6:%7:%8][%9:%10:%11:%12]")
                                   .arg(getUAVFieldValue(objManager, "StabilizationSettingsBank1", "RollRatePID", 0))
                                   .arg(getUAVFieldValue(objManager, "StabilizationSettingsBank1", "RollRatePID", 1))

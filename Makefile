@@ -56,14 +56,31 @@ DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(OPGCSSY
 
 # Naming for binaries and packaging etc,.
 export ORG_BIG_NAME := LibrePilot
-GCS_BIG_NAME := ${ORG_BIG_NAME} GCS
+GCS_LABEL := GCS
+GCS_BIG_NAME := $(ORG_BIG_NAME) $(GCS_LABEL)
 # These should be lowercase with no spaces
 export ORG_SMALL_NAME := $(call smallify,$(ORG_BIG_NAME))
 GCS_SMALL_NAME := $(call smallify,$(GCS_BIG_NAME))
-# Change this once the DNS is set to http://wiki.librepilot.org/
-WIKI_URL_ROOT := https://librepilot.atlassian.net/wiki/display/LPDOC/
 
+WEBSITE_URL      := http://librepilot.org
+GIT_URL          := https://bitbucket.org/librepilot/librepilot.git
+GITWEB_URL       := https://bitbucket.org/librepilot/librepilot
+# Change this once the DNS is set to http://wiki.librepilot.org/
+WIKI_URL_ROOT    := https://librepilot.atlassian.net/wiki/display/LPDOC/
 USAGETRACKER_URL := https://usagetracker.librepilot.org/
+
+PACKAGING_EMAIL_ADDRESS := packaging@librepilot.org
+
+define DESCRIPTION_SHORT :=
+A ground control station and firmware for UAV flight controllers
+endef
+
+define DESCRIPTION_LONG :=
+The LibrePilot open source project was founded in July 2015.
+It focuses on research and development of software and hardware to be used in a variety of applications including vehicle control and stabilization, unmanned autonomous vehicles and robotics.
+One of the project’s primary goals is to provide an open and collaborative environment making it the ideal home for development of innovative ideas.
+endef
+
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF		:= release
@@ -170,7 +187,9 @@ UAVOBJGENERATOR_DIR := $(BUILD_DIR)/uavobjgenerator
 DIRS += $(UAVOBJGENERATOR_DIR)
 
 .PHONY: uavobjgenerator
-uavobjgenerator $(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
+uavobjgenerator: $(UAVOBJGENERATOR)
+
+$(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
 	$(V1) cd $(UAVOBJGENERATOR_DIR) && \
 	    ( [ -f Makefile ] || $(QMAKE) $(ROOT_DIR)/ground/uavobjgenerator/uavobjgenerator.pro \
 	    -spec $(QT_SPEC) CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) ) && \
@@ -184,13 +203,13 @@ uavobjects:  $(addprefix uavobjects_, $(UAVOBJ_TARGETS))
 UAVOBJ_XML_DIR := $(ROOT_DIR)/shared/uavobjectdefinition
 UAVOBJ_OUT_DIR := $(BUILD_DIR)/uavobject-synthetics
 
-uavobjects_%:  uavobjgenerator
+uavobjects_%: $(UAVOBJGENERATOR)
 	@$(MKDIR) -p $(UAVOBJ_OUT_DIR)/$*
 	$(V1) ( cd $(UAVOBJ_OUT_DIR)/$* && \
 	    $(UAVOBJGENERATOR) -$* $(UAVOBJ_XML_DIR) $(ROOT_DIR) ; \
 	)
 
-uavobjects_test:  uavobjgenerator
+uavobjects_test: $(UAVOBJGENERATOR)
 	$(V1) $(UAVOBJGENERATOR) -v $(UAVOBJ_XML_DIR) $(ROOT_DIR)
 
 uavobjects_clean:
@@ -256,7 +275,7 @@ gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
 	    $(GCS_QMAKE_OPTS)
 
 .PHONY: gcs
-gcs: uavobjgenerator $(GCS_MAKEFILE)
+gcs: $(UAVOBJGENERATOR) $(GCS_MAKEFILE)
 	$(V1) $(MAKE) -w -C $(GCS_DIR)/$(MAKE_DIR);
 
 .PHONY: gcs_clean
@@ -692,7 +711,7 @@ help:
 	@$(ECHO)
 	@$(ECHO) "   This Makefile is known to work on Linux and Mac in a standard shell environment."
 	@$(ECHO) "   It also works on Windows by following the instructions given on this wiki page:"
-	@$(ECHO) "       http://wiki.openpilot.org/display/Doc/Windows%3A+Building+and+Packaging"
+	@$(ECHO) "       $(WIKI_ROOT_URL)Windows+Building+and+Packaging"
 	@$(ECHO)
 	@$(ECHO) "   Here is a summary of the available targets:"
 	@$(ECHO)
@@ -723,7 +742,7 @@ help:
 	@$(ECHO) "     <tool>_distclean     - Remove downloaded <tool> distribution file(s)"
 	@$(ECHO)
 	@$(ECHO) "   [Big Hammer]"
-	@$(ECHO) "     all                  - Generate UAVObjects, build openpilot firmware and gcs"
+	@$(ECHO) "     all                  - Generate UAVObjects, build $(ORG_BIG_NAME) firmware and gcs"
 	@$(ECHO) "     all_flight           - Build all firmware, bootloaders and bootloader updaters"
 	@$(ECHO) "     all_fw               - Build only firmware for all boards"
 	@$(ECHO) "     all_bl               - Build only bootloaders for all boards"
@@ -776,9 +795,9 @@ help:
 	@$(ECHO) "     ut_<test>_run        - Run test and dump output to console"
 	@$(ECHO)
 	@$(ECHO) "   [Simulation]"
-	@$(ECHO) "     sim_osx              - Build OpenPilot simulation firmware for OSX"
+	@$(ECHO) "     sim_osx              - Build $(ORG_BIG_NAME) simulation firmware for OSX"
 	@$(ECHO) "     sim_osx_clean        - Delete all build output for the osx simulation"
-	@$(ECHO) "     sim_win32            - Build OpenPilot simulation firmware for Windows"
+	@$(ECHO) "     sim_win32            - Build $(ORG_BIG_NAME) simulation firmware for Windows"
 	@$(ECHO) "                            using mingw and msys"
 	@$(ECHO) "     sim_win32_clean      - Delete all build output for the win32 simulation"
 	@$(ECHO)
@@ -804,7 +823,7 @@ help:
 	@$(ECHO) "                            Supported groups are ($(UAVOBJ_TARGETS))"
 	@$(ECHO)
 	@$(ECHO) "   [Packaging]"
-	@$(ECHO) "     package              - Build and package the OpenPilot platform-dependent package (no clean)"
+	@$(ECHO) "     package              - Build and package the platform-dependent package (no clean)"
 	@$(ECHO) "     opfw_resource        - Generate resources to embed firmware binaries into the GCS"
 	@$(ECHO) "     dist                 - Generate source archive for distribution"
 	@$(ECHO) "     fw_dist              - Generate archive of firmware"
@@ -836,5 +855,5 @@ help:
 	@$(ECHO) "  Tool download and install directories can be changed using environment variables:"
 	@$(ECHO) "         DL_DIR        full path to downloads directory [downloads if not set]"
 	@$(ECHO) "         TOOLS_DIR     full path to installed tools directory [tools if not set]"
-	@$(ECHO) "  More info: http://wiki.openpilot.org/display/Doc/OpenPilot+Build+System+Overview"
+	@$(ECHO) "  More info: $(WIKI_URL_ROOT)LibrePilot+Build+System+Overview"
 	@$(ECHO)

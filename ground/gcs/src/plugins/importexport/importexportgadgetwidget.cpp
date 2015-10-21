@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       importexportgadgetwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @brief      Widget for Import/Export Plugin
  * @addtogroup GCSPlugins GCS Plugins
@@ -202,7 +203,7 @@ void ImportExportGadgetWidget::importConfiguration(const QString & fileName)
 
 void ImportExportGadgetWidget::on_helpButton_clicked()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/x/OQBj")));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Import+and+Export+Settings")));
 }
 
 

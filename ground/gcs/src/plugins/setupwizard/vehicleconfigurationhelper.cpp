@@ -1872,13 +1872,13 @@ void VehicleConfigurationHelper::setupElevon()
     mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
     GUIConfigDataUnion guiSettings = getGUIConfigData();
 
-    // Motor (Chan 3)
-    channels[2].type      = MIXER_TYPE_MOTOR;
-    channels[2].throttle1 = 100;
-    channels[2].throttle2 = 0;
-    channels[2].roll      = 0;
-    channels[2].pitch     = 0;
-    channels[2].yaw       = 0;
+    // Motor (Chan 4)
+    channels[3].type      = MIXER_TYPE_MOTOR;
+    channels[3].throttle1 = 100;
+    channels[3].throttle2 = 0;
+    channels[3].roll      = 0;
+    channels[3].pitch     = 0;
+    channels[3].yaw       = 0;
 
     // Elevon Servo 1 (Chan 1)
     channels[0].type      = MIXER_TYPE_SERVO;
@@ -1896,7 +1896,7 @@ void VehicleConfigurationHelper::setupElevon()
     channels[1].pitch     = 100;
     channels[1].yaw       = 0;
 
-    guiSettings.fixedwing.FixedWingThrottle = 3;
+    guiSettings.fixedwing.FixedWingThrottle = 4;
     guiSettings.fixedwing.FixedWingRoll1    = 1;
     guiSettings.fixedwing.FixedWingRoll2    = 2;
 

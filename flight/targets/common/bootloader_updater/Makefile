@@ -16,12 +16,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../../boards/$(BOARD_NAME)/board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # ARM DSP library
 override USE_DSP_LIB := NO
@@ -72,6 +72,6 @@ EXTRAINCDIRS += $(PIOSCOMMON)
 EXTRAINCDIRS += $(OPSYSTEMINC)
 
 # Link: create ELF output file from object files.
-EXTRAOBJ := $(BUILD_DIR)/bl_$(BOARD_NAME)/bl_$(BOARD_NAME).bin.o
+EXTRAOBJ := $(FLIGHT_OUT_DIR)/bl_$(BOARD_NAME)/bl_$(BOARD_NAME).bin.o
 
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

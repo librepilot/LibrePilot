@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # win_sdk_install.sh - Windows toolchain install script.
+# Copyright (C) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,6 +23,7 @@
 # environment and expects path names in the form of /C/some/path, where
 # C is a drive letter, and paths are in MSYS format. It probably won't
 # work under cygwin.
+
 SCRIPT_PATH="`echo "$BASH_SOURCE" | sed 's|\\\\|/|g; s|^\(.\):|/\1|'`"
 SCRIPT_NAME="`basename \"$SCRIPT_PATH\"`"
 SCRIPT_DIR="`dirname \"$SCRIPT_PATH\"`"
@@ -32,14 +34,12 @@ if [ -x "$1" ]; then
 fi
 
 # Tools URLs to fetch
-WGET_URL="http://wiki.openpilot.org/download/attachments/18612236/wget.exe"
-MAKE_URL="http://wiki.openpilot.org/download/attachments/18612236/make.exe"
-SEVENZIP_URL="http://wiki.openpilot.org/download/attachments/18612236/7za.exe"
+WGET_URL="http://librepilot.github.io/tools/wget.exe"
+MAKE_URL="http://librepilot.github.io/tools/make.exe"
 
 # Expected tools paths
 WGET="$TOOLS_DIR/bin/`basename \"$WGET_URL\"`"
 MAKE="$TOOLS_DIR/bin/`basename \"$MAKE_URL\"`"
-SEVENZIP="$TOOLS_DIR/bin/`basename \"$SEVENZIP_URL\"`"
 
 # wget is necessary to fetch other files
 WGET_NAME="`basename \"$WGET\"`"
@@ -95,20 +95,9 @@ if [ ! -x "$MAKE" ]; then
     fi
 fi
 
-# 7-Zip is necessary to install some SDKs
-if [ ! -x "$SEVENZIP" ]; then
-    echo "$SCRIPT_NAME: $SEVENZIP_NAME not found, fetching from $SEVENZIP_URL"
-    SEVENZIP_DIR="`dirname \"$SEVENZIP\"`"
-    mkdir -p "$SEVENZIP_DIR"
-    $WGET --no-check-certificate -N --content-disposition -P "$SEVENZIP_DIR" "$SEVENZIP_URL"
-    if [ $? -ne 0 ]; then
-        echo "$SCRIPT_NAME: $SEVENZIP_NAME fetch error, hope it's in the path..."
-        SEVENZIP_NAME="`basename \"$SEVENZIP\"`"
-        SEVENZIP="$SEVENZIP_NAME"
-    fi
-fi
 
 # Finally we can fetch all SDKs using top level Makefile
 cd "$ROOT_DIR"
+./tool_install.sh 7z
 echo "Run 'tools/bin/make all_sdk_install' to install the other tools"
 echo " or 'tools/bin/make help' for more info on make targets"

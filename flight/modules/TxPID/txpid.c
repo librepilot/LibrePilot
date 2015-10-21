@@ -8,7 +8,8 @@
  * @{
  *
  * @file       txpid.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
  * @brief      Optional module to tune PID settings using R/C transmitter.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -87,6 +88,7 @@
 // Private functions
 static void updatePIDs(UAVObjEvent *ev);
 static uint8_t update(float *var, float val);
+static uint8_t updateUint16(uint16_t *var, float val);
 static uint8_t updateUint8(uint8_t *var, float val);
 static uint8_t updateInt8(int8_t *var, float val);
 static float scale(float val, float inMin, float inMax, float outMin, float outMax);
@@ -218,6 +220,8 @@ static void updatePIDs(UAVObjEvent *ev)
     TxPIDStatusData txpid_status;
     TxPIDStatusGet(&txpid_status);
 
+    bool easyTuneEnabled        = false;
+
     uint8_t needsUpdateBank     = 0;
     uint8_t needsUpdateStab     = 0;
     uint8_t needsUpdateAtt      = 0;
@@ -252,6 +256,18 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_ROLLRATEKP:
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
                 break;
+            case TXPIDSETTINGS_PIDS_EASYTUNERATEROLL:
+                easyTuneEnabled  = true;
+                needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
+                needsUpdateBank |= update(&bank.RollRatePID.Ki, value * inst.EasyTunePitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.RollRatePID.Kd, value * inst.EasyTunePitchRollRateFactors.D);
+                break;
+            case TXPIDSETTINGS_PIDS_EASYTUNERATEPITCH:
+                easyTuneEnabled  = true;
+                needsUpdateBank |= update(&bank.PitchRatePID.Kp, value);
+                needsUpdateBank |= update(&bank.PitchRatePID.Ki, value * inst.EasyTunePitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.PitchRatePID.Kd, value * inst.EasyTunePitchRollRateFactors.D);
+                break;
             case TXPIDSETTINGS_PIDS_ROLLRATEKI:
                 needsUpdateBank |= update(&bank.RollRatePID.Ki, value);
                 break;
@@ -262,7 +278,7 @@ static void updatePIDs(UAVObjEvent *ev)
                 needsUpdateBank |= update(&bank.RollRatePID.ILimit, value);
                 break;
             case TXPIDSETTINGS_PIDS_ROLLRATERESP:
-                needsUpdateBank |= update(&bank.ManualRate.Roll, value);
+                needsUpdateBank |= updateUint16(&bank.ManualRate.Roll, value);
                 break;
             case TXPIDSETTINGS_PIDS_ROLLATTITUDEKP:
                 needsUpdateBank |= update(&bank.RollPI.Kp, value);
@@ -289,7 +305,7 @@ static void updatePIDs(UAVObjEvent *ev)
                 needsUpdateBank |= update(&bank.PitchRatePID.ILimit, value);
                 break;
             case TXPIDSETTINGS_PIDS_PITCHRATERESP:
-                needsUpdateBank |= update(&bank.ManualRate.Pitch, value);
+                needsUpdateBank |= updateUint16(&bank.ManualRate.Pitch, value);
                 break;
             case TXPIDSETTINGS_PIDS_PITCHATTITUDEKP:
                 needsUpdateBank |= update(&bank.PitchPI.Kp, value);
@@ -320,8 +336,8 @@ static void updatePIDs(UAVObjEvent *ev)
                 needsUpdateBank |= update(&bank.PitchRatePID.ILimit, value);
                 break;
             case TXPIDSETTINGS_PIDS_ROLLPITCHRATERESP:
-                needsUpdateBank |= update(&bank.ManualRate.Roll, value);
-                needsUpdateBank |= update(&bank.ManualRate.Pitch, value);
+                needsUpdateBank |= updateUint16(&bank.ManualRate.Roll, value);
+                needsUpdateBank |= updateUint16(&bank.ManualRate.Pitch, value);
                 break;
             case TXPIDSETTINGS_PIDS_ROLLPITCHATTITUDEKP:
                 needsUpdateBank |= update(&bank.RollPI.Kp, value);
@@ -352,7 +368,7 @@ static void updatePIDs(UAVObjEvent *ev)
                 needsUpdateBank |= update(&bank.YawRatePID.ILimit, value);
                 break;
             case TXPIDSETTINGS_PIDS_YAWRATERESP:
-                needsUpdateBank |= update(&bank.ManualRate.Yaw, value);
+                needsUpdateBank |= updateUint16(&bank.ManualRate.Yaw, value);
                 break;
             case TXPIDSETTINGS_PIDS_YAWATTITUDEKP:
                 needsUpdateBank |= update(&bank.YawPI.Kp, value);
@@ -382,8 +398,15 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_GYROTAU:
                 needsUpdateStab |= update(&stab.GyroTau, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ACROPLUSFACTOR:
-                needsUpdateBank |= update(&bank.AcroInsanityFactor, value);
+            case TXPIDSETTINGS_PIDS_ACROROLLFACTOR:
+                needsUpdateBank |= updateUint8(&bank.AcroInsanityFactor.Roll, value);
+                break;
+            case TXPIDSETTINGS_PIDS_ACROPITCHFACTOR:
+                needsUpdateBank |= updateUint8(&bank.AcroInsanityFactor.Pitch, value);
+                break;
+            case TXPIDSETTINGS_PIDS_ACROROLLPITCHFACTOR:
+                needsUpdateBank |= updateUint8(&bank.AcroInsanityFactor.Roll, value);
+                needsUpdateBank |= updateUint8(&bank.AcroInsanityFactor.Pitch, value);
                 break;
             case TXPIDSETTINGS_PIDS_ACCELTAU:
                 needsUpdateAtt  |= update(&att.AccelTau, value);
@@ -428,6 +451,12 @@ static void updatePIDs(UAVObjEvent *ev)
         AltitudeHoldSettingsSet(&altitude);
     }
 #endif
+    if (easyTuneEnabled && (inst.EasyTuneRatePIDRecalculateYaw != TXPIDSETTINGS_EASYTUNERATEPIDRECALCULATEYAW_FALSE)) {
+        float newKp = (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.EasyTuneYawRateFactors.P;
+        needsUpdateBank |= update(&bank.YawRatePID.Kp, newKp);
+        needsUpdateBank |= update(&bank.YawRatePID.Ki, newKp * inst.EasyTuneYawRateFactors.I);
+        needsUpdateBank |= update(&bank.YawRatePID.Kd, newKp * inst.EasyTuneYawRateFactors.D);
+    }
     if (needsUpdateBank) {
         switch (inst.BankNumber) {
         case 0:
@@ -505,6 +534,21 @@ static uint8_t update(float *var, float val)
      * of numbers we see here*/
     if (fabsf(*var - val) > 1e-9f) {
         *var = val;
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * Updates var using val if needed.
+ * \returns 1 if updated, 0 otherwise
+ */
+static uint8_t updateUint16(uint16_t *var, float val)
+{
+    uint16_t roundedVal = (uint16_t)roundf(val);
+
+    if (*var != roundedVal) {
+        *var = roundedVal;
         return 1;
     }
     return 0;

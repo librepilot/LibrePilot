@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 # Copyright (c) 2012, PhoenixPilot, http://github.com/PhoenixPilot
 #
@@ -17,12 +18,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # ARM DSP library
 USE_DSP_LIB ?= NO
@@ -52,11 +53,11 @@ SRC += $(PIOSCOMMON)/pios_ubx_dcc.c
 SRC += $(PIOSCOMMON)/pios_flash_jedec.c
 
 ## UAVObjects
-SRC += $(OPUAVSYNTHDIR)/firmwareiapobj.c
-SRC += $(OPUAVSYNTHDIR)/systemstats.c
+SRC += $(FLIGHT_UAVOBJ_DIR)/firmwareiapobj.c
+SRC += $(FLIGHT_UAVOBJ_DIR)/systemstats.c
 
 PIOS_OMITS_USB = YES
 PIOS_APPS_MINIMAL = YES
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

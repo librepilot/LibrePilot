@@ -47,12 +47,23 @@ extern "C" {
 
 PIDControlNE::PIDControlNE()
     : deltaTime(0), mNECommand(0), mNeutral(0), mVelocityMax(0), mMinCommand(0), mMaxCommand(0), mVelocityFeedforward(0), mActive(false)
-{}
+{
+    memset((void *)PIDvel, 0, 2 * sizeof(pid2));
+    memset((void *)PIDposH, 0, 2 * sizeof(pid));
+
+    mVelocitySetpointTarget[0]  = 0.0f;
+    mVelocitySetpointTarget[1]  = 0.0f;
+    mVelocityState[0] = 0.0f;
+    mVelocityState[1] = 0.0f;
+    mPositionSetpointTarget[0]  = 0.0f;
+    mPositionSetpointTarget[1]  = 0.0f;
+    mPositionState[0] = 0.0f;
+    mPositionState[1] = 0.0f;
+    mVelocitySetpointCurrent[0] = 0.0f;
+    mVelocitySetpointCurrent[1] = 0.0f;
+}
 
 PIDControlNE::~PIDControlNE() {}
-
-void PIDControlNE::Initialize()
-{}
 
 void PIDControlNE::Deactivate()
 {
@@ -62,6 +73,10 @@ void PIDControlNE::Deactivate()
 void PIDControlNE::Activate()
 {
     mActive = true;
+    pid2_transfer(&PIDvel[0], 0.0f);
+    pid2_transfer(&PIDvel[1], 0.0f);
+    pid_zero(&PIDposH[0]);
+    pid_zero(&PIDposH[1]);
 }
 
 void PIDControlNE::UpdateParameters(float kp, float ki, float kd, float beta, float dT, float velocityMax)

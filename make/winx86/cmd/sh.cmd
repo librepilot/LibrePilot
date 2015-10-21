@@ -16,8 +16,8 @@ rem   http://www.mingw.org/wiki/msys
 rem
 
 rem Shared directories for toolchains
-rem set OPENPILOT_DL_DIR=C:/OpenPilot/downloads
-rem set OPENPILOT_TOOLS_DIR=C:/OpenPilot/tools
+rem set DL_DIR=C:/LibrePilot/downloads
+rem set TOOLS_DIR=C:/LibrePilot/tools
 
 rem this should let run MSYS shell on x64
 if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
@@ -43,7 +43,7 @@ rem QtSDK's MinGW directory. In that case make sure that you have correct
 rem directories specified here.
 rem
 rem Also the SDL should be installed into Qt directories to build the GCS.
-rem Check the wiki or ground/openpilotgcs/copydata.pro for details.
+rem Check the wiki or ground/gcs/copydata.pro for details.
 rem
 rem Also you can add any paths below just by adding extra 'call :which'
 rem lines with the following parameters:

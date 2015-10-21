@@ -1,0 +1,103 @@
+Name:           <NAME>
+Summary:        <SUMMARY>
+Version:        <VERSION>
+Release:        <RELEASE>%{?dist}
+
+Group:          Applications/Scientific
+License:        GPLv3+
+URL:            <URL>
+
+Source0:        <SOURCE0>
+Source1:        <SOURCE1>
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+
+BuildRequires:  libusbx-devel
+BuildRequires:  mesa-libGL-devel
+BuildRequires:  qt5-qtbase-devel
+BuildRequires:  qt5-qtdeclarative-devel
+BuildRequires:  qt5-qtmultimedia-devel
+BuildRequires:  qt5-qtquick1-devel
+BuildRequires:  qt5-qtscript-devel
+BuildRequires:  qt5-qtserialport-devel
+BuildRequires:  qt5-qtsvg-devel
+BuildRequires:  qt5-qttools-devel
+BuildRequires:  qt5-qttranslations
+BuildRequires:  dwz
+BuildRequires:  pkgconfig
+BuildRequires:  python
+BuildRequires:  SDL-devel
+BuildRequires:  systemd-devel
+
+Requires:       libusbx
+Requires:       SDL
+Requires:       qt5-qtquickcontrols
+Requires:       qt5-qtdeclarative
+Requires:       qt5-qtmultimedia
+Requires:       qt5-qtscript
+Requires:       qt5-qtserialport
+Requires:       qt5-qtsvg
+
+
+%description
+<DESCRIPTION>
+
+%prep
+%setup -q -T -a 1 -c -n <ARCHIVE_PREFIX>/build
+%setup -q -D -n <ARCHIVE_PREFIX>
+
+
+%build
+make config_new                             \
+    enable-udev-rules=yes                   \
+    libbasename=%{_lib}                     \
+    prefix=%{_prefix}                       \
+    QMAKE=qmake-qt5                         \
+    udevrulesdir=%{_udevrulesdir}           \
+    WITH_PREBUILT_FW=$(pwd)/build/firmware
+
+make %{?_smp_mflags} opfw_resource gcs
+
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+
+%files
+%defattr(-,root,root)
+%doc README.md CREDITS.txt WHATSNEW.txt
+%doc GPLv3.txt
+%{_bindir}/librepilot-gcs
+%{_udevrulesdir}/45-librepilot.rules
+%{_datadir}/applications/librepilot.desktop
+%{_datadir}/librepilot-gcs/*
+%{_datadir}/pixmaps/librepilot.png
+%{_libdir}/librepilot-gcs/plugins/LibrePilot/*.pluginspec
+%{_libdir}/librepilot-gcs/plugins/LibrePilot/*.so
+#
+%{_libdir}/librepilot-gcs/libAggregation.so.1*
+%{_libdir}/librepilot-gcs/libExtensionSystem.so.1*
+%{_libdir}/librepilot-gcs/libGLC_lib.so.1*
+%{_libdir}/librepilot-gcs/libopmapwidget.so.1*
+%{_libdir}/librepilot-gcs/libQScienceSpinBox.so.1*
+%{_libdir}/librepilot-gcs/libQtConcurrent.so.1*
+%{_libdir}/librepilot-gcs/libQwt.so.1*
+%{_libdir}/librepilot-gcs/libsdlgamepad.so.1*
+%{_libdir}/librepilot-gcs/libUtils.so.1*
+%{_libdir}/librepilot-gcs/libVersionInfo.so.1*
+#
+%{_libdir}/librepilot-gcs/lib*.so
+
+
+%changelog
+

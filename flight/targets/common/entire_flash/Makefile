@@ -16,12 +16,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../../boards/$(BOARD_NAME)/board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # Paths
 TOPDIR		= .
@@ -36,12 +36,12 @@ endif
 .PHONY: bin
 bin: $(OUTDIR)/$(TARGET).bin
 
-BL_BIN = $(BUILD_DIR)/bl_$(BOARD_NAME)/bl_$(BOARD_NAME).bin
-FW_BIN = $(BUILD_DIR)/fw_$(BOARD_NAME)/fw_$(BOARD_NAME).bin
+BL_BIN = $(FLIGHT_OUT_DIR)/bl_$(BOARD_NAME)/bl_$(BOARD_NAME).bin
+FW_BIN = $(FLIGHT_OUT_DIR)/fw_$(BOARD_NAME)/fw_$(BOARD_NAME).bin
 FWINFO_BIN = $(FW_BIN).firmware_info.bin
 
 $(OUTDIR)/$(TARGET).bin: $(BL_BIN) $(FW_BIN)
-	$(V0) @$(ECHO) $(MSG_FLASH_IMG) $@
+	$(V0) @echo $(MSG_FLASH_IMG) $@
 	$(V1) $(ENTIRE_FLASH) \
 		$(EF_VERBOSE) \
 		--bl-bank-base=$(BL_BANK_BASE) \

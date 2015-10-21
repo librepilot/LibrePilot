@@ -341,6 +341,14 @@ static void BankUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
                                                                  && tps_for_pid[pid];
         }
     }
+
+    for (int i = 0; i < STABILIZATIONSETTINGSBANK1_THRUSTPIDSCALECURVE_NUMELEM; i++) {
+        stabSettings.floatThrustPIDScaleCurve[i] = (float)(stabSettings.stabBank.ThrustPIDScaleCurve[i]) * 0.01f;
+    }
+
+    stabSettings.acroInsanityFactors[0] = (float)(stabSettings.stabBank.AcroInsanityFactor.Roll) * 0.01f;
+    stabSettings.acroInsanityFactors[1] = (float)(stabSettings.stabBank.AcroInsanityFactor.Pitch) * 0.01f;
+    stabSettings.acroInsanityFactors[2] = (float)(stabSettings.stabBank.AcroInsanityFactor.Yaw) * 0.01f;
 }
 
 

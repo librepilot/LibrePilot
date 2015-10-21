@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       main.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Team http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      UAVObjectGenerator main.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -57,10 +58,10 @@ void usage()
     cout << "\t-wireshark     build wireshark plugin" << endl;
     cout << "\tIf no language is specified none are built - just parse xmls." << endl;
     cout << "Misc: " << endl;
-    cout << "\t-h             this help" << endl;
+    cout << "\t-h or --help   this help" << endl;
     cout << "\t-v             verbose" << endl;
     cout << "\tinput_path     path to UAVObject definition (.xml) files." << endl;
-    cout << "\ttemplate_path  path to the root of the OpenPilot source tree." << endl;
+    cout << "\ttemplate_path  path to the root of the source tree." << endl;
     cout << "\tUAVObjXY       name of a specific UAVObject to be built." << endl;
     cout << "\tIf any specific UAVObjects are given only these will be built." << endl;
     cout << "\tIf no UAVObject is specified -> all are built." << endl;
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    cout << "- OpenPilot UAVObject Generator -" << endl;
+    cout << "- LibrePilot UAVObject Generator -" << endl;
 
     QString inputpath;
     QString templatepath;
@@ -96,7 +97,7 @@ int main(int argc, char *argv[])
         arguments_stringlist << argv[argi];
     }
 
-    if ((arguments_stringlist.removeAll("-h") > 0) || (arguments_stringlist.removeAll("-h") > 0)) {
+    if ((arguments_stringlist.removeAll("-h") > 0) || (arguments_stringlist.removeAll("--help") > 0)) {
         usage();
         return RETURN_OK;
     }

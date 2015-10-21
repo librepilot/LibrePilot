@@ -8,7 +8,8 @@
  * @{
  *
  * @file       actuator.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Actuator module. Drives the actuators (servos, motors etc).
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -85,8 +86,6 @@ static xTaskHandle taskHandle;
 static FrameType_t frameType = FRAME_TYPE_MULTIROTOR;
 static SystemSettingsThrustControlOptions thrustType = SYSTEMSETTINGS_THRUSTCONTROL_THROTTLE;
 
-static float lastResult[MAX_MIX_ACTUATORS] = { 0 };
-static float filterAccumulator[MAX_MIX_ACTUATORS] = { 0 };
 static uint8_t pinsMode[MAX_MIX_ACTUATORS];
 // used to inform the actuator thread that actuator update rate is changed
 static ActuatorSettingsData actuatorSettings;
@@ -110,7 +109,7 @@ static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 static void SettingsUpdatedCb(UAVObjEvent *ev);
 float ProcessMixer(const int index, const float curve1, const float curve2,
                    ActuatorDesiredData *desired,
-                   const float period, bool multirotor);
+                   bool multirotor, bool fixedwing);
 
 // this structure is equivalent to the UAVObjects for one mixer.
 typedef struct {
@@ -195,7 +194,6 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
     UAVObjEvent ev;
     portTickType lastSysTime;
     portTickType thisSysTime;
-    float dTSeconds;
     uint32_t dTMilliseconds;
 
     ActuatorCommandData command;
@@ -245,7 +243,6 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
         thisSysTime    = xTaskGetTickCount();
         dTMilliseconds = (thisSysTime == lastSysTime) ? 1 : (thisSysTime - lastSysTime) * portTICK_RATE_MS;
         lastSysTime    = thisSysTime;
-        dTSeconds = dTMilliseconds * 0.001f;
 
         FlightStatusGet(&flightStatus);
         FlightModeSettingsGet(&settings);
@@ -271,6 +268,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
         bool activeThrottle   = (throttleDesired < -0.001f || throttleDesired > 0.001f); // for ground and reversible motors
         bool positiveThrottle = (throttleDesired > 0.00f);
         bool multirotor  = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR); // check if frame is a multirotor.
+        bool fixedwing   = (GetCurrentFrameType() == FRAME_TYPE_FIXED_WING); // check if frame is a fixedwing.
         bool alwaysArmed = settings.Arming == FLIGHTMODESETTINGS_ARMING_ALWAYSARMED;
         bool AlwaysStabilizeWhenArmed = settings.AlwaysStabilizeWhenArmed == FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMED_TRUE;
 
@@ -406,12 +404,10 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                         nonreversible_curve2 = 0.0f;
                     }
                 }
-                status[ct] = ProcessMixer(ct, nonreversible_curve1, nonreversible_curve2, &desired, dTSeconds, multirotor);
+                status[ct] = ProcessMixer(ct, nonreversible_curve1, nonreversible_curve2, &desired, multirotor, fixedwing);
                 // If not armed or motors aren't meant to spin all the time
                 if (!armed ||
                     (!spinWhileArmed && !positiveThrottle)) {
-                    filterAccumulator[ct] = 0;
-                    lastResult[ct] = 0;
                     status[ct] = -1; // force min throttle
                 }
                 // If armed meant to keep spinning,
@@ -424,16 +420,14 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                     }
                 }
             } else if (mixer_type == MIXERSETTINGS_MIXER1TYPE_REVERSABLEMOTOR) {
-                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor);
+                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, multirotor, fixedwing);
                 // Reversable Motors are like Motors but go to neutral instead of minimum
                 // If not armed or motor is inactive - no "spinwhilearmed" for this engine type
                 if (!armed || !activeThrottle) {
-                    filterAccumulator[ct] = 0;
-                    lastResult[ct] = 0;
                     status[ct] = 0; // force neutral throttle
                 }
             } else if (mixer_type == MIXERSETTINGS_MIXER1TYPE_SERVO) {
-                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, dTSeconds, multirotor);
+                status[ct] = ProcessMixer(ct, curve1, curve2, &desired, multirotor, fixedwing);
             } else {
                 status[ct] = -1;
 
@@ -555,56 +549,43 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
  * Process mixing for one actuator
  */
 float ProcessMixer(const int index, const float curve1, const float curve2,
-                   ActuatorDesiredData *desired, const float period, bool multirotor)
+                   ActuatorDesiredData *desired, bool multirotor, bool fixedwing)
 {
-    static float lastFilteredResult[MAX_MIX_ACTUATORS];
     const Mixer_t *mixers = (Mixer_t *)&mixerSettings.Mixer1Type; // pointer to array of mixers in UAVObjects
     const Mixer_t *mixer  = &mixers[index];
+    float differential    = 1.0f;
+
+    // Apply differential only for fixedwing and Roll servos
+    if (fixedwing && (mixerSettings.FirstRollServo > 0) &&
+        (mixer->type == MIXERSETTINGS_MIXER1TYPE_SERVO) &&
+        (mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_ROLL] != 0)) {
+        // Positive differential
+        if (mixerSettings.RollDifferential > 0) {
+            // Check for first Roll servo (should be left aileron or elevon) and Roll desired (positive/negative)
+            if (((index == mixerSettings.FirstRollServo - 1) && (desired->Roll > 0.0f))
+                || ((index != mixerSettings.FirstRollServo - 1) && (desired->Roll < 0.0f))) {
+                differential -= (mixerSettings.RollDifferential * 0.01f);
+            }
+        } else if (mixerSettings.RollDifferential < 0) {
+            if (((index == mixerSettings.FirstRollServo - 1) && (desired->Roll < 0.0f))
+                || ((index != mixerSettings.FirstRollServo - 1) && (desired->Roll > 0.0f))) {
+                differential -= (-mixerSettings.RollDifferential * 0.01f);
+            }
+        }
+    }
 
     float result = ((((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_THROTTLECURVE1]) * curve1) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_THROTTLECURVE2]) * curve2) +
-                    (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_ROLL]) * desired->Roll) +
+                    (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_ROLL]) * desired->Roll * differential) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_PITCH]) * desired->Pitch) +
                     (((float)mixer->matrix[MIXERSETTINGS_MIXER1VECTOR_YAW]) * desired->Yaw)) / 128.0f;
 
-    // note: no feedforward for reversable motors yet for safety reasons
     if (mixer->type == MIXERSETTINGS_MIXER1TYPE_MOTOR) {
         if (!multirotor) { // we allow negative throttle with a multirotor
             if (result < 0.0f) { // zero throttle
                 result = 0.0f;
             }
         }
-
-        // feed forward
-        float accumulator = filterAccumulator[index];
-        accumulator += (result - lastResult[index]) * mixerSettings.FeedForward;
-        lastResult[index] = result;
-        result += accumulator;
-        if (period > 0.0f) {
-            if (accumulator > 0.0f) {
-                float invFilter = period / mixerSettings.AccelTime;
-                if (invFilter > 1) {
-                    invFilter = 1;
-                }
-                accumulator -= accumulator * invFilter;
-            } else {
-                float invFilter = period / mixerSettings.DecelTime;
-                if (invFilter > 1) {
-                    invFilter = 1;
-                }
-                accumulator -= accumulator * invFilter;
-            }
-        }
-        filterAccumulator[index] = accumulator;
-        result += accumulator;
-
-        // acceleration limit
-        float dt    = result - lastFilteredResult[index];
-        float maxDt = mixerSettings.MaxAccel * period;
-        if (dt > maxDt) { // we are accelerating too hard
-            result = lastFilteredResult[index] + maxDt;
-        }
-        lastFilteredResult[index] = result;
     }
 
     return result;
@@ -707,50 +688,73 @@ static int16_t scaleChannel(float value, int16_t max, int16_t min, int16_t neutr
 }
 
 /**
+ * Move and compress all motor outputs so that none goes below neutral,
+ * and all motors are below or equal to max.
+ */
+static inline int16_t scaleMotorMoveAndCompress(float valueMotor, int16_t max, int16_t neutral, float maxMotor, float minMotor)
+{
+    // The valueMotor parameter is the desired motor value somewhere in the
+    // [minMotor, maxMotor] range, which is [< -1.00, > 1.00].
+    //
+    // Before converting valueMotor to the [neutral, max] range, we scale
+    // valueMotor to a value in the [0.0f, 1.0f] range.
+    //
+    // This is done by, first, conceptually moving all three values valueMotor,
+    // minMotor, and maxMotor, equally so that the [minMotor, maxMotor] range,
+    // are contained or overlaps with the [0.0f, 1.0f] range.
+    //
+    // Then if the [minMotor, maxMotor] range is larger than 1.0f, the values
+    // are compressed enough to shrink the [minMotor + move, maxMotor + move]
+    // range to fit within the [0.0f, 1.0f] range.
+
+    // First move the values so that the source range [minMotor, maxMotor]
+    // covers the target range [0.0f, 1.0f] as much as possible.
+    float moveValue = 0.0f;
+
+    if (minMotor <= 0.0f) {
+        // Negative minMotor always adjust to 0.
+        moveValue = -minMotor;
+    } else if (maxMotor > 1.0f) {
+        // A too large maxMotor value adjust the range down towards, but not past, the minMotor value.
+        float beyondMax = maxMotor - 1.0f;
+        moveValue = -(beyondMax < minMotor ? beyondMax : minMotor);
+    }
+
+    // Then calculate the compress value, if the source range is greater than 1.0f.
+    float compressValue = 1.0f;
+
+    float rangeMotor    = maxMotor - minMotor;
+    if (rangeMotor > 1.0f) {
+        compressValue = rangeMotor;
+    }
+
+    // Combine the movement and compression, to get the value within [0.0f, 1.0f]
+    float movedAndCompressedValue = (valueMotor + moveValue) / compressValue;
+
+    // And last, convert the value into the [neutral, max] range.
+    int16_t valueScaled = movedAndCompressedValue * ((float)(max - neutral)) + neutral;
+
+    if (valueScaled > max) {
+        valueScaled = max; // clamp to max value only after scaling is done.
+    }
+
+    PIOS_Assert(valueScaled >= neutral);
+
+    return valueScaled;
+}
+
+/**
  * Constrain motor values to keep any one motor value from going too far out of range of another motor
  */
 static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired)
 {
     int16_t valueScaled;
-    int16_t maxMotorScaled;
-    int16_t minMotorScaled;
-    int16_t diff;
-
-    // Scale
-    valueScaled    = (int16_t)(value * ((float)(max - neutral))) + neutral;
-    maxMotorScaled = (int16_t)(maxMotor * ((float)(max - neutral))) + neutral;
-    minMotorScaled = (int16_t)(minMotor * ((float)(max - neutral))) + neutral;
-
 
     if (max > min) {
-        diff = max - maxMotorScaled; // difference between max allowed and actual max motor
-        if (diff < 0) { // if the difference is smaller than 0 we add it to the scaled value
-            valueScaled += diff;
-        }
-        diff = neutral - minMotorScaled; // difference between min allowed and actual min motor
-        if (diff > 0) { // if the difference is larger than 0 we add it to the scaled value
-            valueScaled += diff;
-        }
-        // todo: make this flow easier to understand
-        if (valueScaled > max) {
-            valueScaled = max; // clamp to max value only after scaling is done.
-        }
-
-        if ((valueScaled < neutral) && (spinWhileArmed) && AlwaysStabilizeWhenArmed) {
-            valueScaled = neutral; // clamp to neutral value only after scaling is done.
-        } else if ((valueScaled < neutral) && (!spinWhileArmed) && AlwaysStabilizeWhenArmed) {
-            valueScaled = neutral; // clamp to neutral value only after scaling is done. //throttle goes to min if throttledesired is equal to or less than 0 below
-        } else if (valueScaled < neutral) {
-            valueScaled = min; // clamp to min value only after scaling is done.
-        }
+        valueScaled = scaleMotorMoveAndCompress(value, max, neutral, maxMotor, minMotor);
     } else {
         // not sure what to do about reversed polarity right now. Why would anyone do this?
-        if (valueScaled < max) {
-            valueScaled = max; // clamp to max value only after scaling is done.
-        }
-        if (valueScaled > min) {
-            valueScaled = min; // clamp to min value only after scaling is done.
-        }
+        valueScaled = scaleChannel(value, max, min, neutral);
     }
 
     // I've added the bool AlwaysStabilizeWhenArmed to this function. Right now we command the motors at min or a range between neutral and max.

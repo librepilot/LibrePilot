@@ -24,11 +24,11 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 EXTRAINCDIRS += $(TOPDIR)
 EXTRAINCDIRS += $(PIOS)/inc
@@ -37,4 +37,4 @@ SRC += $(PIOS)/common/pios_flashfs_logfs.c
 
 CFLAGS += "-DFLASH_IMAGE_FILE=\"$(OUTDIR)/theflash.bin\""
 
-include $(ROOT_DIR)/make/unittest.mk
+include $(FLIGHT_ROOT_DIR)/make/unittest.mk

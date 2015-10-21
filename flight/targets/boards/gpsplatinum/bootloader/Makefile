@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -24,7 +25,7 @@ PIOS_OMITS_USB = YES
 PIOS_APPS_MINIMAL = YES
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 ## The standard CMSIS startup
 SRC += $(CMSIS_DEVICEDIR)/system_stm32f0xx.c
@@ -34,6 +35,6 @@ SRC += $(FLIGHTLIB)/fifo_buffer.c
 
 
 
-include $(ROOT_DIR)/make/boot-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/boot-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk
 

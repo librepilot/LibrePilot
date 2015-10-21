@@ -2,7 +2,7 @@
 # Windows-specific packaging script
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef TOP_LEVEL_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -10,12 +10,12 @@ VERSION_CMD   := $(VERSION_INFO)
 
 NSIS_OPTS     := /V3
 NSIS_WINX86   := $(ROOT_DIR)/package/winx86
-NSIS_SCRIPT   := $(NSIS_WINX86)/openpilotgcs.nsi
-NSIS_TEMPLATE := $(NSIS_WINX86)/openpilotgcs.tpl
-NSIS_HEADER   := $(OPGCSSYNTHDIR)/openpilotgcs.nsh
+NSIS_SCRIPT   := $(NSIS_WINX86)/gcs.nsi
+NSIS_TEMPLATE := $(NSIS_WINX86)/gcs.tpl
+NSIS_HEADER   := $(OPGCSSYNTHDIR)/gcs.nsh
 
 .PHONY: package
-package: openpilotgcs uavobjects_matlab | $(PACKAGE_DIR)
+package: gcs uavobjects_matlab | $(PACKAGE_DIR)
 ifneq ($(GCS_BUILD_CONF),release)
 	# We can only package release builds
 	$(error Packaging is currently supported for release builds only)
@@ -24,6 +24,9 @@ endif
 	$(VERSION_CMD) \
 		--template='$(NSIS_TEMPLATE)' \
 		--outfile='$(NSIS_HEADER)' \
+	        ORG_BIG_NAME='$(ORG_BIG_NAME)' \
+	        GCS_BIG_NAME='$(GCS_BIG_NAME)' \
+	        GCS_SMALL_NAME='$(GCS_SMALL_NAME)' \
 		PACKAGE_LBL='$(PACKAGE_LBL)' \
 		PACKAGE_NAME='$(PACKAGE_NAME)' \
 		PACKAGE_SEP='$(PACKAGE_SEP)'

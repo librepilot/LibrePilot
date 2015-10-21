@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_usb_defs.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      USB Standard types and definitions
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -353,6 +354,7 @@ enum usb_cdc_notification {
 
 enum usb_product_ids {
     USB_PRODUCT_ID_OPENPILOT_MAIN = 0x415A,
+    USB_PRODUCT_ID_COPTERCONTROL  = 0x415B,
     USB_PRODUCT_ID_OPLINK = 0x415C,
     USB_PRODUCT_ID_CC3D = 0x415D,
     USB_PRODUCT_ID_REVOLUTION     = 0x415E,
@@ -363,9 +365,9 @@ enum usb_product_ids {
 enum usb_op_board_ids {
     USB_OP_BOARD_ID_OPENPILOT_MAIN = 1,
     /* Board ID 2 may be unused or AHRS */
-    USB_OP_BOARD_ID_OPLINK     = 3,
-    /* USB_OP_BOARD_ID_COPTERCONTROL  = 4, */
-    USB_OP_BOARD_ID_REVOLUTION = 5,
+    USB_OP_BOARD_ID_OPLINK = 3,
+    USB_OP_BOARD_ID_COPTERCONTROL  = 4,
+    USB_OP_BOARD_ID_REVOLUTION     = 5,
     USB_OP_BOARD_ID_OSD = 6,
 } __attribute__((packed));
 

@@ -9,7 +9,8 @@
  * @{
  *
  * @file       outerloop.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Attitude stabilization module.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -105,8 +106,9 @@ static void stabilizationOuterloopTask()
     int t;
     float dT    = PIOS_DELTATIME_GetAverageSeconds(&timeval);
     StabilizationStatusOuterLoopOptions newThrustMode = StabilizationStatusOuterLoopToArray(enabled)[STABILIZATIONSTATUS_OUTERLOOP_THRUST];
-
     bool reinit = (newThrustMode != previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST]);
+
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     // Trigger a disable message to the alt hold on reinit to prevent that loop from running when not in use.
     if (reinit) {
         if (previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] == STABILIZATIONSTATUS_OUTERLOOP_ALTITUDE ||
@@ -117,17 +119,20 @@ static void stabilizationOuterloopTask()
             }
         }
     }
+#endif
     // update previous mode
     previous_mode[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = newThrustMode;
 
     // calculate the thrust desired
     switch (newThrustMode) {
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     case STABILIZATIONSTATUS_OUTERLOOP_ALTITUDE:
         rateDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = stabilizationAltitudeHold(stabilizationDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST], ALTITUDEHOLD, reinit);
         break;
     case STABILIZATIONSTATUS_OUTERLOOP_ALTITUDEVARIO:
         rateDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST] = stabilizationAltitudeHold(stabilizationDesiredAxis[STABILIZATIONSTATUS_OUTERLOOP_THRUST], ALTITUDEVARIO, reinit);
         break;
+#endif
     case STABILIZATIONSTATUS_OUTERLOOP_DIRECT:
     case STABILIZATIONSTATUS_OUTERLOOP_DIRECTWITHLIMITS:
     default:

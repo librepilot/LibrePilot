@@ -9,7 +9,7 @@ Install XCode and its relatated command line tools (follow Apple documentation).
 Install git, curl and p7zip. You can use brew `brew install git curl p7zip` or macport: `sudo port install git curl p7zip`
 ###Ubuntu
 
-    sudo apt-get install git build-essentials curl gdb wget debhelper p7zip-full unzip flex bison libsdl1.2-dev  libudev-dev  libusb-1.0-0-dev libc6-i386 mesa-common-dev
+    sudo apt-get install git build-essential curl gdb wget debhelper p7zip-full unzip flex bison libsdl1.2-dev  libudev-dev  libusb-1.0-0-dev libc6-i386 mesa-common-dev
 
 
 ###Windows

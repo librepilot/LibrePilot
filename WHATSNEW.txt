@@ -1,42 +1,16 @@
--- RELEASE-15.09-RC3 - First LibrePilot Release -- Supermoon Eclipse
-This release candidate adds a fix for the OSX crash issue and updated templates that matches new librepilot UAVOS.
-Also fixes Wiki links and elevon wizard issue.
-
-** Bug
-    * [LP-153] - Bug in configrevohwwidget.cpp use MAINPORT enum not FLEXIPORT
-    * [LP-155] - GCS crashes on OS X 10.11 when the board is halted
-    * [LP-156] - Update Vehicle templates to work with current UAVO's
-    
-
--- RELEASE-15.09-RC2 - First LibrePilot Release -- Supermoon Eclipse
-This release candidate adds a fix for external magnetometer calibration.
-It also fixes a build issue caused by broken make dependencies. 
-
-The list of bug fixes added in this release candidate is available here:
-https://librepilot.atlassian.net/issues/?filter=10301
-
-** Bug
-    * [LP-135] - Aux mag calibration issue
-    * [LP-136] - Build errors caused by broken uavobjgenerator make dependencies
-
-
--- RELEASE-15.09-RC1 - First LibrePilot Release -- Supermoon Eclipse
+-- RELEASE-15.09 - First LibrePilot Release -- Supermoon Eclipse
 This is the first LibrePilot release. 
-The main focus of this release is to bring back support for CC3D and an general re-branding of the GCS.
+The main focus of this release is to bring back support for CC3D and a general re-branding of the GCS.
 
-The full list of bug fixes in this release is available here:
+The full list of bug fixes and enhancements in this release is available here:
 https://librepilot.atlassian.net/issues/?filter=10300
 
-
-Release Notes - LibrePilot - Version REL-15.09 - Supermoon Eclipse
-
-** Sub-task
-    * [LP-31] - skarlsso/LP-26_update_welcome_page_plugin
 
 ** Bug
     * [LP-37] - Memory wasted in pvPortMallocGeneric
     * [LP-57] - Errors during NewsPanel data scraping
     * [LP-58] - Splash Screen doesn't display
+    * [LP-59] - Replace openpilot email address in packaging
     * [LP-65] - Heli config tab refresh
     * [LP-69] - Add SRXL to CC3D target
     * [LP-70] - Vehicle Setup Wizard allows a not working CC3D configuration
@@ -50,6 +24,11 @@ Release Notes - LibrePilot - Version REL-15.09 - Supermoon Eclipse
     * [LP-127] - Fix Mac tool install md5 check
     * [LP-128] - ElevateAndCompress is broken at full throttle
     * [LP-134] - Obsolete Google Satellite Version
+    * [LP-135] - Aux mag calibration issue
+    * [LP-136] - Build errors caused by broken uavobjgenerator make dependencies
+    * [LP-153] - Bug in configrevohwwidget.cpp use MAINPORT enum not FLEXIPORT
+    * [LP-155] - GCS crashes on OS X 10.11 when the board is halted
+    * [LP-156] - Update Vehicle templates to work with current UAVO's
 
 ** Epic
     * [LP-1] - Code Rebranding
@@ -105,6 +84,9 @@ Release Notes - LibrePilot - Version REL-15.09 - Supermoon Eclipse
     * [LP-99] - Decouple flight build
     * [LP-113] - Create new tool install framework
     * [LP-129] - Remove broken scaleMotor modes
+    * [LP-138] - Remove OpenPilot branding from Makefile Help text
+    * [LP-141] - Missing link for wiki help page on Stabilization Configuration page
+    * [LP-142] - Replace remaining OpenPilot wiki links with LibrePilot links
 
 ** Improvement
     * [LP-10] - Cleanup build warnings on OSX
@@ -115,6 +97,7 @@ Release Notes - LibrePilot - Version REL-15.09 - Supermoon Eclipse
     * [LP-67] - Add a txpid option that manage all PID factors at once
     * [LP-77] - Jira needs more Component options
     * [LP-80] - Extend linux packaging to easily support new distros
+    * [LP-82] - Define all packaging descriptions and URLs in top Makefile
     * [LP-87] - Remove OpenPilot branding from Doxygen Documentation
     * [LP-93] - Thermal calibration should calculate also gyro bias 
     * [LP-94] - Set up Wiki link in Configuration tabs to point to Librepilot Wiki
@@ -124,8 +107,8 @@ Release Notes - LibrePilot - Version REL-15.09 - Supermoon Eclipse
     * [LP-110] - Wizard : high rate servos and normal Esc rate for planes and ground vehicles
     * [LP-114] - Support to more than three Accessory channels
     * [LP-124] - Rename RollRatePID and PitcahRatePID to EasyTuneRateRoll and EasyTuneRatePitch
-
-
+    * [LP-130] - Add an overridable postfix that is appended to GCS name
+    * [LP-162] - Add more data to usage tracker.
 
 
 --- RELEASE-15.05.01 HOTFIX --- Banana Split ---

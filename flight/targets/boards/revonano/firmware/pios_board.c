@@ -640,6 +640,13 @@ void PIOS_Board_Init(void)
             PIOS_Assert(0);
         }
         PIOS_DELAY_WaitmS(50);  // this was after the other PIOS_I2C_Init(), so I copied it here too
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+        // to avoid making something else fail when HMC5X83 is removed
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
 #if defined(PIOS_INCLUDE_HMC5X83)
         // get auxmag type
         AuxMagSettingsTypeOptions option;
@@ -649,6 +656,11 @@ void PIOS_Board_Init(void)
         if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
             // attach the 5x83 mag to the previously inited I2C2
             external_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_external_cfg, pios_i2c_flexiport_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+            // this is not in a loop, so it is safe
+            PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
             // add this sensor to the sensor task's list
             // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
             // and before registering some other fast and important sensor

@@ -5,8 +5,7 @@
 /3rdparty
 
 # Ignore user config
-config
-
+/config
 
 # Exclude temporary and system files
 Thumbs.db

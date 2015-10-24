@@ -245,13 +245,6 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         // Store current aux mag board rotation
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
         Q_ASSERT(auxMagSettings);
-<<<<<<< HEAD
-        AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
-        auxMagStoredBoardRotation = auxMagData.Orientation;
-
-        // Set aux mag board rotation to no rotation
-        auxMagData.Orientation = 0.0f;
-=======
         AuxMagSettings::DataFields auxMagData  = auxMagSettings->getData();
         auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW];
         auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
@@ -261,7 +254,6 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]    = 0;
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]   = 0;
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH]  = 0;
->>>>>>> 2c030f1... LP-73 fix V9 calibration bug and convert BoardRotation to int
         auxMagSettings->setData(auxMagData);
     }
 }
@@ -281,20 +273,13 @@ void ConfigRevoWidget::recallBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
         attitudeSettings->setData(data);
 
-<<<<<<< HEAD
         // Restore the aux mag board rotation
-        AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
-        Q_ASSERT(auxMagSettings);
-        AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
-        auxMagData.Orientation = auxMagStoredBoardRotation;
-=======
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
         Q_ASSERT(auxMagSettings);
         AuxMagSettings::DataFields auxMagData  = auxMagSettings->getData();
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW];
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH] = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_PITCH];
->>>>>>> 2c030f1... LP-73 fix V9 calibration bug and convert BoardRotation to int
         auxMagSettings->setData(auxMagData);
     }
 }

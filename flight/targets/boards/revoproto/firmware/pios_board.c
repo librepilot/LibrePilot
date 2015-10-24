@@ -940,9 +940,22 @@ void PIOS_Board_Init(void)
     PIOS_ADC_Init(&pios_adc_cfg);
 #endif
 
+#ifdef PIOS_INCLUDE_WDG
+    // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+    // this is not in a loop, so it is safe
+    // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+    // to avoid making something else fail when HMC5X83 is removed
+    PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+
 #if defined(PIOS_INCLUDE_HMC5X83)
     // attach the 5x83 mag to the previously inited I2C1
     onboard_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_internal_cfg, pios_i2c_mag_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+    // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+    // this is not in a loop, so it is safe
+    PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
     // add this sensor to the sensor task's list
     PIOS_HMC5x83_Register(onboard_mag, PIOS_SENSORS_TYPE_3AXIS_MAG);
 #endif

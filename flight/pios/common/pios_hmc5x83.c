@@ -112,8 +112,11 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
     if (cfg->exti_cfg) {
         PIOS_EXTI_Init(cfg->exti_cfg);
     } else
-#endif
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
     {
+// if PIOS_SENSOR_RATE is defined, there is a sensor loop that is called at that frequency
+// and "is data available" can simply return false a few times to save some CPU
+#ifdef PIOS_SENSOR_RATE
         // for external mags that have no interrupt line, just poll them with a timer
         // use the configured Output Data Rate to calculate the number of interations (of the main sensor task loop)
         // to return false, before returning true
@@ -142,8 +145,18 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
             rate100 = 7500;
             break;
         }
-        // count the number of "return false" up to this number
-        dev->magCountMax = ((uint16_t)PIOS_SENSOR_RATE * 100 / rate100) + 1;
+        // if the application sensor rate is fast enough to warrant skipping some slow hardware sensor reads
+        if ((PIOS_SENSOR_RATE * 100.0f / 3.0f) > rate100) {
+            // count the number of "return false" up to this number
+            dev->magCountMax = ((uint16_t)PIOS_SENSOR_RATE * 100 / rate100) + 1;
+        } else {
+            // return true every time (do a hardware sensor poll every time)
+            dev->magCountMax = 1;
+        }
+#else /* PIOS_SENSOR_RATE */
+        // return true every time (do a hardware sensor poll every time)
+        dev->magCountMax = 1;
+#endif /* PIOS_SENSOR_RATE */
         // with this counter
         dev->magCount = 0;
     }

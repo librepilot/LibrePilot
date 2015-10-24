@@ -12,6 +12,8 @@ contains(DEFINES, OSG_USE_QT_PRIVATE) {
 include(../../library.pri)
 include(../utils/utils.pri)
 
+include(osgearth_dependencies.pri)
+
 linux {
     QMAKE_RPATHDIR = $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH/osg, $$GCS_LIBRARY_PATH))
     include(../../rpath.pri)
@@ -22,9 +24,6 @@ macx:CONFIG += warn_off
 
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
-
-OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
-message(Using osg from here: $$OSG_SDK_DIR)
 
 HEADERS += \
     osgearth_global.h \
@@ -63,42 +62,5 @@ SOURCES += \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
-
-INCLUDEPATH += $$OSG_SDK_DIR/include
-
-linux {
-    exists( $$OSG_SDK_DIR/lib64 ) {
-        LIBS += -L$$OSG_SDK_DIR/lib64
-    } else {
-        LIBS += -L$$OSG_SDK_DIR/lib
-    }
-
-    LIBS +=-lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-}
-
-macx {
-    LIBS += -L$$OSG_SDK_DIR/lib
-
-    LIBS += -lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-}
-
-win32 {
-    LIBS += -L$$OSG_SDK_DIR/lib
-
-    CONFIG(release, debug|release) {
-        LIBS += -lOpenThreads
-        LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-    }
-    CONFIG(debug, debug|release) {
-        LIBS += -lOpenThreadsd
-        LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd -losgQtd
-        LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd -losgEarthQtd
-    }
-}
 
 include(copydata.pro)

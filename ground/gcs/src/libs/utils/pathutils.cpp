@@ -43,8 +43,8 @@ QString GetDataPath()
 
     dataPath += QLatin1Char('/');
     dataPath += QLatin1String(DATA_REL_PATH);
-    dataPath += QLatin1Char('/');
-    return dataPath;
+
+    return QDir::cleanPath(dataPath) + QLatin1Char('/');
 }
 
 /**
@@ -131,8 +131,8 @@ QString GetLibraryPath()
 
     libPath += QLatin1Char('/');
     libPath += QLatin1String(LIB_REL_PATH);
-    libPath += QLatin1Char('/');
-    return libPath;
+
+    return QDir::cleanPath(libPath) + QLatin1Char('/');
 }
 
 QStringList GetPluginPaths()
@@ -143,7 +143,8 @@ QStringList GetPluginPaths()
 
     pluginPath += QLatin1Char('/');
     pluginPath += QLatin1String(PLUGIN_REL_PATH);
-    rc.push_back(pluginPath);
+
+    rc.push_back(QDir::cleanPath(pluginPath));
 
     return rc;
 }

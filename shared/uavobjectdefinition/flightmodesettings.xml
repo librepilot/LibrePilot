@@ -76,7 +76,6 @@
                		   %NE:POI:AutoCruise;" />
 
 		<field name="AlwaysStabilizeWhenArmed" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="FALSE" description="For Multirotors. Always stabilize no matter the throttle setting when vehicle is armed. Does not work when vehicle is set to Always Armed."/>
-        <field name="MotorScalingMode" units="" type="enum" elements="1" options="NoScaling,AddAndSubtract,ElevateAndCompress" defaultvalue="ElevateAndCompress" description="Function to use to scale motors when the motors want to go beyond the end points.one motor wants to go beyond its end points."/>
         <field name="ArmedTimeout" units="ms" type="uint16" elements="1" defaultvalue="30000"/>
         <field name="ArmingSequenceTime" units="ms" type="uint16" elements="1" defaultvalue="1000"/>
         <field name="DisarmingSequenceTime" units="ms" type="uint16" elements="1" defaultvalue="1000"/>

@@ -41,7 +41,6 @@ extern "C" {
 #include <paths.h>
 #include "plans.h"
 #include <stabilizationdesired.h>
-#include <pidstatus.h>
 #include <vtolselftuningstats.h>
 }
 
@@ -348,7 +347,6 @@ float PIDControlDown::GetVelocityDesired(void)
 
 float PIDControlDown::GetDownCommand(void)
 {
-    PIDStatusData pidStatus;
     float ulow  = mMinThrust;
     float uhigh = mMaxThrust;
 
@@ -356,17 +354,6 @@ float PIDControlDown::GetDownCommand(void)
         mCallback->BoundThrust(ulow, uhigh);
     }
     float downCommand = pid2_apply(&PID, mVelocitySetpointCurrent, mVelocityState, ulow, uhigh);
-    pidStatus.setpoint = mVelocitySetpointCurrent;
-    pidStatus.actual   = mVelocityState;
-    pidStatus.error    = mVelocitySetpointCurrent - mVelocityState;
-    pidStatus.setpoint = mVelocitySetpointCurrent;
-    pidStatus.ulow     = ulow;
-    pidStatus.uhigh    = uhigh;
-    pidStatus.command  = downCommand;
-    pidStatus.P  = PID.P;
-    pidStatus.I  = PID.I;
-    pidStatus.D  = PID.D;
-    PIDStatusSet(&pidStatus);
     mDownCommand = downCommand;
     return mDownCommand;
 }

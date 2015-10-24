@@ -29,5 +29,10 @@ lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(s
 # Function to make all lowercase and replace spaces with -
 EMPTY             :=
 SPACE             := $(EMPTY) $(EMPTY)
+define NEWLINE    :=
+
+
+endef
+
 smallify = $(subst $(SPACE),-,$(call lc,$1))
 

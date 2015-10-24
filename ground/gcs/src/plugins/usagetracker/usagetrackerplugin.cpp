@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       usagetrackerplugin.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UsageTrackerPlugin Usage Tracker Plugin
@@ -138,7 +139,7 @@ void UsageTrackerPlugin::trackUsage()
     if (shouldSend(hash)) {
         query.addQueryItem("hash", hash);
 
-        QUrl url("https://www.librepilot.org/opver?" + query.toString(QUrl::FullyEncoded));
+        QUrl url(QString(USAGETRACKER_URL) + "?" + query.toString(QUrl::FullyEncoded));
 
         QNetworkAccessManager *networkAccessManager = new QNetworkAccessManager();
 
@@ -198,10 +199,12 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
         parameters["conf_uport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_HIDPort");
         parameters["conf_vport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_VCPPort");
 
+        parameters["conf_acceltau"] = getUAVFieldValue(objManager, "AttitudeSettings", "AccelTau");
         parameters["conf_rotation"] = QString("[%1:%2:%3]")
                                       .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 0))
                                       .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 1))
                                       .arg(getUAVFieldValue(objManager, "AttitudeSettings", "BoardRotation", 2));
+
         parameters["conf_pidr"] = QString("[%1:%2:%3:%4][%5:%6:%7:%8][%9:%10:%11:%12]")
                                   .arg(getUAVFieldValue(objManager, "StabilizationSettingsBank1", "RollRatePID", 0))
                                   .arg(getUAVFieldValue(objManager, "StabilizationSettingsBank1", "RollRatePID", 1))
@@ -261,7 +264,6 @@ QString UsageTrackerPlugin::getUAVFieldValue(UAVObjectManager *objManager, QStri
 
 QString UsageTrackerPlugin::getQueryHash(QString source) const
 {
-    source += "OpenPilot Fuck Yeah!";
     return QString(QCryptographicHash::hash(QByteArray(source.toStdString().c_str()), QCryptographicHash::Md5).toHex());
 }
 

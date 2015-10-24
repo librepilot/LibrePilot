@@ -220,6 +220,8 @@ static void updatePIDs(UAVObjEvent *ev)
     TxPIDStatusData txpid_status;
     TxPIDStatusGet(&txpid_status);
 
+    bool easyTuneEnabled        = false;
+
     uint8_t needsUpdateBank     = 0;
     uint8_t needsUpdateStab     = 0;
     uint8_t needsUpdateAtt      = 0;
@@ -254,15 +256,17 @@ static void updatePIDs(UAVObjEvent *ev)
             case TXPIDSETTINGS_PIDS_ROLLRATEKP:
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
                 break;
-            case TXPIDSETTINGS_PIDS_ROLLRATEPID:
+            case TXPIDSETTINGS_PIDS_EASYTUNERATEROLL:
+                easyTuneEnabled  = true;
                 needsUpdateBank |= update(&bank.RollRatePID.Kp, value);
-                needsUpdateBank |= update(&bank.RollRatePID.Ki, value * inst.PitchRollRateFactors.I);
-                needsUpdateBank |= update(&bank.RollRatePID.Kd, value * inst.PitchRollRateFactors.D);
+                needsUpdateBank |= update(&bank.RollRatePID.Ki, value * inst.EasyTunePitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.RollRatePID.Kd, value * inst.EasyTunePitchRollRateFactors.D);
                 break;
-            case TXPIDSETTINGS_PIDS_PITCHRATEPID:
+            case TXPIDSETTINGS_PIDS_EASYTUNERATEPITCH:
+                easyTuneEnabled  = true;
                 needsUpdateBank |= update(&bank.PitchRatePID.Kp, value);
-                needsUpdateBank |= update(&bank.PitchRatePID.Ki, value * inst.PitchRollRateFactors.I);
-                needsUpdateBank |= update(&bank.PitchRatePID.Kd, value * inst.PitchRollRateFactors.D);
+                needsUpdateBank |= update(&bank.PitchRatePID.Ki, value * inst.EasyTunePitchRollRateFactors.I);
+                needsUpdateBank |= update(&bank.PitchRatePID.Kd, value * inst.EasyTunePitchRollRateFactors.D);
                 break;
             case TXPIDSETTINGS_PIDS_ROLLRATEKI:
                 needsUpdateBank |= update(&bank.RollRatePID.Ki, value);
@@ -447,11 +451,11 @@ static void updatePIDs(UAVObjEvent *ev)
         AltitudeHoldSettingsSet(&altitude);
     }
 #endif
-    if (inst.RatePIDRecalculateYaw != TXPIDSETTINGS_RATEPIDRECALCULATEYAW_FALSE) {
-        float newKp = (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.YawRateFactors.P;
+    if (easyTuneEnabled && (inst.EasyTuneRatePIDRecalculateYaw != TXPIDSETTINGS_EASYTUNERATEPIDRECALCULATEYAW_FALSE)) {
+        float newKp = (bank.RollRatePID.Kp + bank.PitchRatePID.Kp) * .5f * inst.EasyTuneYawRateFactors.P;
         needsUpdateBank |= update(&bank.YawRatePID.Kp, newKp);
-        needsUpdateBank |= update(&bank.YawRatePID.Ki, newKp * inst.YawRateFactors.I);
-        needsUpdateBank |= update(&bank.YawRatePID.Kd, newKp * inst.YawRateFactors.D);
+        needsUpdateBank |= update(&bank.YawRatePID.Ki, newKp * inst.EasyTuneYawRateFactors.I);
+        needsUpdateBank |= update(&bank.YawRatePID.Kd, newKp * inst.EasyTuneYawRateFactors.D);
     }
     if (needsUpdateBank) {
         switch (inst.BankNumber) {

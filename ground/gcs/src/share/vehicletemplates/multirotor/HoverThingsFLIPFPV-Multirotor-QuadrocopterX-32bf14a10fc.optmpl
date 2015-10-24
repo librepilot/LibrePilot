@@ -577,27 +577,35 @@
                 },
                 {
                     "name": "AcroInsanityFactor",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
-                            "name": "0",
-                            "value": 0.5
+                            "name": "roll",
+                            "value": 50
+                        },
+                        {
+                            "name": "pitch",
+                            "value": 50
+                        },
+                        {
+                            "name": "yaw",
+                            "value": 50
                         }
                     ]
                 },
                 {
                     "name": "ThrustPIDScaleCurve",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
                             "name": "0",
-                            "value": 0.11141999810934067
+                            "value": 11
                         },
                         {
                             "name": "25",
-                            "value": 0.051423899829387665
+                            "value": 5
                         },
                         {
                             "name": "50",
@@ -605,11 +613,11 @@
                         },
                         {
                             "name": "75",
-                            "value": -0.119998998939991
+                            "value": -11
                         },
                         {
                             "name": "100",
-                            "value": -0.24856899678707123
+                            "value": -24
                         }
                     ]
                 },
@@ -894,27 +902,35 @@
                 },
                 {
                     "name": "AcroInsanityFactor",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
-                            "name": "0",
-                            "value": 0.5
+                            "name": "roll",
+                            "value": 50
+                        },
+                        {
+                            "name": "pitch",
+                            "value": 50
+                        },
+                        {
+                            "name": "yaw",
+                            "value": 50
                         }
                     ]
                 },
                 {
                     "name": "ThrustPIDScaleCurve",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
                             "name": "0",
-                            "value": 0.19285200536251068
+                            "value": 19
                         },
                         {
                             "name": "25",
-                            "value": 0.089997202157974243
+                            "value": 8
                         },
                         {
                             "name": "50",
@@ -922,11 +938,11 @@
                         },
                         {
                             "name": "75",
-                            "value": -0.085711203515529633
+                            "value": -8
                         },
                         {
                             "name": "100",
-                            "value": -0.18427999317646027
+                            "value": -18
                         }
                     ]
                 },
@@ -1211,27 +1227,35 @@
                 },
                 {
                     "name": "AcroInsanityFactor",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
-                            "name": "0",
-                            "value": 0.5
+                            "name": "roll",
+                            "value": 50
+                        },
+                        {
+                            "name": "pitch",
+                            "value": 50
+                        },
+                        {
+                            "name": "yaw",
+                            "value": 50
                         }
                     ]
                 },
                 {
                     "name": "ThrustPIDScaleCurve",
-                    "type": "float32",
+                    "type": "int8",
                     "unit": "percent",
                     "values": [
                         {
                             "name": "0",
-                            "value": 0.19285200536251068
+                            "value": 19
                         },
                         {
                             "name": "25",
-                            "value": 0.089997202157974243
+                            "value": 8
                         },
                         {
                             "name": "50",
@@ -1239,11 +1263,11 @@
                         },
                         {
                             "name": "75",
-                            "value": -0.085711203515529633
+                            "value": -8
                         },
                         {
                             "name": "100",
-                            "value": -0.18427999317646027
+                            "value": -18
                         }
                     ]
                 },
@@ -1362,50 +1386,6 @@
         },
         {
             "fields": [
-                {
-                    "name": "MaxAccel",
-                    "type": "float32",
-                    "unit": "units/sec",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 1000
-                        }
-                    ]
-                },
-                {
-                    "name": "FeedForward",
-                    "type": "float32",
-                    "unit": "",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 0
-                        }
-                    ]
-                },
-                {
-                    "name": "AccelTime",
-                    "type": "float32",
-                    "unit": "ms",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 0
-                        }
-                    ]
-                },
-                {
-                    "name": "DecelTime",
-                    "type": "float32",
-                    "unit": "ms",
-                    "values": [
-                        {
-                            "name": "0",
-                            "value": 0
-                        }
-                    ]
-                },
                 {
                     "name": "ThrottleCurve1",
                     "type": "float32",

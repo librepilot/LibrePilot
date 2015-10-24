@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       importsummary.cpp
- * @author     (C) 2011 The OpenPilot Team, http://www.openpilot.org
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVSettingsImportExport UAVSettings Import/Export Plugin
@@ -59,7 +60,8 @@ ImportSummaryDialog::~ImportSummaryDialog()
  */
 void ImportSummaryDialog::openHelp()
 {
-    QDesktopServices::openUrl(QUrl(tr("http://wiki.openpilot.org/display/Doc/UAV+Settings+import-export"), QUrl::StrictMode));
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("UAV+Settings+Import-Export"),
+                                   QUrl::StrictMode));
 }
 
 /*

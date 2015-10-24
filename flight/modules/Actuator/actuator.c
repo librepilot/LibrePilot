@@ -98,7 +98,7 @@ static int mixer_settings_count = 2;
 // Private functions
 static void actuatorTask(void *parameters);
 static int16_t scaleChannel(float value, int16_t max, int16_t min, int16_t neutral);
-static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired, FlightModeSettingsMotorScalingModeOptions scalingMode);
+static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired);
 static void setFailsafe();
 static float MixerCurveFullRangeProportional(const float input, const float *curve, uint8_t elements, bool multirotor);
 static float MixerCurveFullRangeAbsolute(const float input, const float *curve, uint8_t elements, bool multirotor);
@@ -499,8 +499,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                                                     minMotor,
                                                     armed,
                                                     AlwaysStabilizeWhenArmed,
-                                                    throttleDesired,
-                                                    settings.MotorScalingMode);
+                                                    throttleDesired);
                 } else { // else we scale the channel
                     command.Channel[i] = scaleChannel(status[i],
                                                       actuatorSettings.ChannelMax[i],
@@ -689,25 +688,51 @@ static int16_t scaleChannel(float value, int16_t max, int16_t min, int16_t neutr
 }
 
 /**
- * Elevate all motor outputs so that none goes below neutral.
- * Compress all motors so that all motors are below or equal to max.
+ * Move and compress all motor outputs so that none goes below neutral,
+ * and all motors are below or equal to max.
  */
-static inline int16_t scaleMotorElevateAndCompress(float value, int16_t max, int16_t neutral, float maxMotor, float minMotor)
+static inline int16_t scaleMotorMoveAndCompress(float valueMotor, int16_t max, int16_t neutral, float maxMotor, float minMotor)
 {
-    float elevatedAndCompressedValue = value;
+    // The valueMotor parameter is the desired motor value somewhere in the
+    // [minMotor, maxMotor] range, which is [< -1.00, > 1.00].
+    //
+    // Before converting valueMotor to the [neutral, max] range, we scale
+    // valueMotor to a value in the [0.0f, 1.0f] range.
+    //
+    // This is done by, first, conceptually moving all three values valueMotor,
+    // minMotor, and maxMotor, equally so that the [minMotor, maxMotor] range,
+    // are contained or overlaps with the [0.0f, 1.0f] range.
+    //
+    // Then if the [minMotor, maxMotor] range is larger than 1.0f, the values
+    // are compressed enough to shrink the [minMotor + move, maxMotor + move]
+    // range to fit within the [0.0f, 1.0f] range.
 
-    if (minMotor < 0.0f) {
-        // Elevate the value.
-        elevatedAndCompressedValue += -minMotor;
+    // First move the values so that the source range [minMotor, maxMotor]
+    // covers the target range [0.0f, 1.0f] as much as possible.
+    float moveValue = 0.0f;
+
+    if (minMotor <= 0.0f) {
+        // Negative minMotor always adjust to 0.
+        moveValue = -minMotor;
+    } else if (maxMotor > 1.0f) {
+        // A too large maxMotor value adjust the range down towards, but not past, the minMotor value.
+        float beyondMax = maxMotor - 1.0f;
+        moveValue = -(beyondMax < minMotor ? beyondMax : minMotor);
     }
 
-    float rangeMotor = maxMotor - minMotor;
+    // Then calculate the compress value, if the source range is greater than 1.0f.
+    float compressValue = 1.0f;
+
+    float rangeMotor    = maxMotor - minMotor;
     if (rangeMotor > 1.0f) {
-        // Compress the value.
-        elevatedAndCompressedValue /= rangeMotor;
+        compressValue = rangeMotor;
     }
 
-    int16_t valueScaled = elevatedAndCompressedValue * ((float)(max - neutral)) + neutral;
+    // Combine the movement and compression, to get the value within [0.0f, 1.0f]
+    float movedAndCompressedValue = (valueMotor + moveValue) / compressValue;
+
+    // And last, convert the value into the [neutral, max] range.
+    int16_t valueScaled = movedAndCompressedValue * ((float)(max - neutral)) + neutral;
 
     if (valueScaled > max) {
         valueScaled = max; // clamp to max value only after scaling is done.
@@ -718,59 +743,15 @@ static inline int16_t scaleMotorElevateAndCompress(float value, int16_t max, int
     return valueScaled;
 }
 
-static inline int16_t scaleMotorAddAndSubtract(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool AlwaysStabilizeWhenArmed)
-{
-    // Scale
-    int16_t valueScaled    = (int16_t)(value * ((float)(max - neutral))) + neutral;
-    int16_t maxMotorScaled = (int16_t)(maxMotor * ((float)(max - neutral))) + neutral;
-    int16_t minMotorScaled = (int16_t)(minMotor * ((float)(max - neutral))) + neutral;
-
-    int16_t diff = max - maxMotorScaled; // difference between max allowed and actual max motor
-
-    if (diff < 0) { // if the difference is smaller than 0 we add it to the scaled value
-        valueScaled += diff;
-    }
-    diff = neutral - minMotorScaled; // difference between min allowed and actual min motor
-    if (diff > 0) { // if the difference is larger than 0 we add it to the scaled value
-        valueScaled += diff;
-    }
-
-    if ((valueScaled < neutral) && (spinWhileArmed) && AlwaysStabilizeWhenArmed) {
-        valueScaled = neutral; // clamp to neutral value only after scaling is done.
-    } else if ((valueScaled < neutral) && (!spinWhileArmed) && AlwaysStabilizeWhenArmed) {
-        valueScaled = neutral; // clamp to neutral value only after scaling is done. //throttle goes to min if throttledesired is equal to or less than 0 below
-    } else if (valueScaled < neutral) {
-        valueScaled = min; // clamp to min value only after scaling is done.
-    }
-
-    if (valueScaled > max) {
-        valueScaled = max; // clamp to max value only after scaling is done.
-    }
-
-    return valueScaled;
-}
-
-
 /**
  * Constrain motor values to keep any one motor value from going too far out of range of another motor
  */
-static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired, FlightModeSettingsMotorScalingModeOptions scalingMode)
+static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired)
 {
     int16_t valueScaled;
 
     if (max > min) {
-        switch (scalingMode) {
-        case FLIGHTMODESETTINGS_MOTORSCALINGMODE_NOSCALING:
-            valueScaled = scaleChannel(value, max, min, neutral);
-            break;
-        case FLIGHTMODESETTINGS_MOTORSCALINGMODE_ELEVATEANDCOMPRESS:
-            valueScaled = scaleMotorElevateAndCompress(value, max, neutral, maxMotor, minMotor);
-            break;
-        case FLIGHTMODESETTINGS_MOTORSCALINGMODE_ADDANDSUBTRACT:
-            valueScaled = scaleMotorAddAndSubtract(value, max, min, neutral, maxMotor, minMotor, AlwaysStabilizeWhenArmed);
-            break;
-        default: PIOS_Assert(false);
-        }
+        valueScaled = scaleMotorMoveAndCompress(value, max, neutral, maxMotor, minMotor);
     } else {
         // not sure what to do about reversed polarity right now. Why would anyone do this?
         valueScaled = scaleChannel(value, max, min, neutral);

@@ -11,7 +11,7 @@
         <field name="PIDs" units="option" type="enum"
 		elementnames="Instance1,Instance2,Instance3"
 		options="Disabled,
-			PitchRatePID,RollRatePID,
+			EasyTuneRatePitch,EasyTuneRateRoll,
 			Roll Rate.Kp, Roll Rate.Ki, Roll Rate.Kd, Roll Rate.ILimit, Roll Rate.Resp,
 			Pitch Rate.Kp, Pitch Rate.Ki, Pitch Rate.Kd, Pitch Rate.ILimit, Pitch Rate.Resp,
 			Roll+Pitch Rate.Kp, Roll+Pitch Rate.Ki, Roll+Pitch Rate.Kd, Roll+Pitch Rate.ILimit, Roll+Pitch Rate.Resp,
@@ -28,9 +28,9 @@
         <field name="MinPID" units="" type="float" elementnames="Instance1,Instance2,Instance3" defaultvalue="0"/>
         <field name="MaxPID" units="" type="float" elementnames="Instance1,Instance2,Instance3" defaultvalue="0"/>
 
-	<field name="PitchRollRateFactors" units="" type="float" elementnames="I,D" defaultvalue="3,0.0135"/>
-	<field name="YawRateFactors" units="" type="float" elementnames="P,I,D" defaultvalue="1.5,1.9,0.0085"/>
-	<field name="RatePIDRecalculateYaw" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
+	<field name="EasyTunePitchRollRateFactors" units="" type="float" elementnames="I,D" defaultvalue="3,0.0135"/>
+	<field name="EasyTuneYawRateFactors" units="" type="float" elementnames="P,I,D" defaultvalue="1.5,1.9,0.0085"/>
+	<field name="EasyTuneRatePIDRecalculateYaw" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
 
 	<access gcs="readwrite" flight="readwrite"/>
 	<telemetrygcs acked="true" updatemode="onchange" period="0"/>

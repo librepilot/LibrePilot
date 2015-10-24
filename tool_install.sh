@@ -138,6 +138,19 @@ function extract_file
 	esac
 }
 
+## Verifies an md5 file
+#1 md5 file
+#2 file to check
+function md5_verify_file
+{
+	if [ "$uname" = Darwin ]
+	then
+		[[ "$(md5 "$2")" = *"$(awk '{print $1}' "$1")"* ]]
+	else
+		( cd "$downloads_dir" && md5sum -c "$1" )
+	fi
+}
+
 ################################################################################
 # Default functions
 ################################################################################
@@ -175,7 +188,7 @@ function download_and_verify
 	if [ -n "${tool_md5_url:-}" ]
 	then
 		download_file "$tool_md5_url" "$(basename "$downloaded_file").md5" --silent && \
-		if ! ( cd "$downloads_dir" && md5sum -c "$out_file" )
+		if ! md5_verify_file "$out_file" "$downloaded_file"
 		then
 			mv -f "$downloaded_file"{,.rej} && \
 			mv -f "$downloaded_file".md5{,.rej} && \

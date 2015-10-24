@@ -3,6 +3,7 @@ TEMPLATE = lib
 TARGET = UsageTracker
 QT += network
 
+include(usagetracker.pri)
 include(../../plugin.pri)
 include(../../libs/version_info/version_info.pri)
 include(../../plugins/coreplugin/coreplugin.pri)

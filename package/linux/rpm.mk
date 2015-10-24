@@ -6,13 +6,14 @@ RPM_PACKAGE_NAME     := $(RPM_NAME)-$(UPSTREAM_VER)-$(RPM_REL)$(shell rpm --eval
 RPM_PACKAGE_FILE     := $(PACKAGE_DIR)/RPMS/$(RPM_ARCH)/$(RPM_PACKAGE_NAME)
 RPM_PACKAGE_SRC      := $(PACKAGE_DIR)/SRPMS/$(RPM_PACKAGE_NAME).src.rpm
 
-SED_SCRIPT           := sed -i -e ' \
+SED_SCRIPT           := $(SED_SCRIPT)' \
 			s/<VERSION>/$(UPSTREAM_VER)/g; \
 			s/<NAME>/$(RPM_NAME)/g; \
 			s/<RELEASE>/$(RPM_REL)/g; \
 			s/<SOURCE0>/$(notdir $(DIST_TAR_GZ))/g; \
 			s/<SOURCE1>/$(notdir $(FW_DIST_TAR_GZ))/g; \
-			s/<ARCHIVE_PREFIX>/$(PACKAGE_NAME)/g; \
+			s/<SUMMARY>/$(DESCRIPTION_SHORT)/g; \
+			s/<DESCRIPTION>/$(subst $(NEWLINE),\n,$(DESCRIPTION_LONG))/g; \
 			'
 
 RPM_DIRS := $(addprefix $(PACKAGE_DIR)/,BUILD RPMS SOURCES SPECS SRPMS)

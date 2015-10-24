@@ -575,6 +575,19 @@ OP_DFU::Status DFUObject::StatusRequest()
     buf[9] = 0;
 
     int result = sendData(buf, BUF_LEN);
+    int retry_cnt = 0;
+    const int MaxSendRetry = 10, SendRetryIntervalMS = 1000;
+    while (result < 0 && retry_cnt < MaxSendRetry) {
+        retry_cnt++;
+        qWarning() << "StatusRequest failed, sleeping" << SendRetryIntervalMS << "ms";
+        delay::msleep(SendRetryIntervalMS);
+        qWarning() << "StatusRequest retry attempt" << retry_cnt;
+        result = sendData(buf, BUF_LEN);
+    }
+    if (retry_cnt >= MaxSendRetry) {
+        qWarning() << "StatusRequest failed too many times, aborting";
+        return OP_DFU::abort;
+    }
     if (debug) {
         qDebug() << "StatusRequest: " << result << " bytes sent";
     }

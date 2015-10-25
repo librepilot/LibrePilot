@@ -249,9 +249,9 @@ Section "Shortcuts" InSecShortcuts
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Website.lnk" "http://www.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Wiki.lnk" "http://wiki.openpilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Wiki.lnk" "https://librepilot.atlassian.net/wiki/display/LPDOC/LibrePilot+Documentation" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forums.librepilot.org" \
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forum.librepilot.org" \
 	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
   	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
@@ -268,7 +268,7 @@ Section ; create uninstall info
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "DisplayIcon" '"$INSTDIR\bin\${GCS_SMALL_NAME}.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "Publisher" "LibrePilot Team"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "URLInfoAbout" "http://www.librepilot.org"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "HelpLink" "http://wiki.openpilot.org"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "HelpLink" "https://librepilot.atlassian.net/wiki/display/LPDOC/LibrePilot+Documentation"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "EstimatedSize" 100600
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "NoRepair" 1

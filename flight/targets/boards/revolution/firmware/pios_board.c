@@ -93,7 +93,7 @@ void PIOS_ADC_DMC_irq_handler(void)
 
 #if defined(PIOS_INCLUDE_HMC5X83)
 #include "pios_hmc5x83.h"
-pios_hmc5x83_dev_t onboard_mag = 0;
+pios_hmc5x83_dev_t onboard_mag  = 0;
 pios_hmc5x83_dev_t external_mag = 0;
 
 #ifdef PIOS_HMC5X83_HAS_GPIOS
@@ -136,28 +136,28 @@ static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
 
 static const struct pios_hmc5x83_cfg pios_hmc5x83_internal_cfg = {
 #ifdef PIOS_HMC5X83_HAS_GPIOS
-    .exti_cfg    = &pios_exti_hmc5x83_cfg,
+    .exti_cfg  = &pios_exti_hmc5x83_cfg,
 #endif
-    .M_ODR       = PIOS_HMC5x83_ODR_75,
-    .Meas_Conf   = PIOS_HMC5x83_MEASCONF_NORMAL,
-    .Gain        = PIOS_HMC5x83_GAIN_1_9,
-    .Mode        = PIOS_HMC5x83_MODE_CONTINUOUS,
+    .M_ODR     = PIOS_HMC5x83_ODR_75,
+    .Meas_Conf = PIOS_HMC5x83_MEASCONF_NORMAL,
+    .Gain   = PIOS_HMC5x83_GAIN_1_9,
+    .Mode   = PIOS_HMC5x83_MODE_CONTINUOUS,
     .TempCompensation = false,
-    .Driver      = &PIOS_HMC5x83_I2C_DRIVER,
-    .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP,
+    .Driver = &PIOS_HMC5x83_I2C_DRIVER,
+    .Orientation      = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP,
 };
 
 static const struct pios_hmc5x83_cfg pios_hmc5x83_external_cfg = {
 #ifdef PIOS_HMC5X83_HAS_GPIOS
-    .exti_cfg    = NULL,
+    .exti_cfg  = NULL,
 #endif
-    .M_ODR       = PIOS_HMC5x83_ODR_75, // if you change this for auxmag, change AUX_MAG_SKIP in sensors.c
-    .Meas_Conf   = PIOS_HMC5x83_MEASCONF_NORMAL,
-    .Gain        = PIOS_HMC5x83_GAIN_1_9,
-    .Mode        = PIOS_HMC5x83_MODE_CONTINUOUS,
+    .M_ODR     = PIOS_HMC5x83_ODR_75, // if you change this for auxmag, change AUX_MAG_SKIP in sensors.c
+    .Meas_Conf = PIOS_HMC5x83_MEASCONF_NORMAL,
+    .Gain   = PIOS_HMC5x83_GAIN_1_9,
+    .Mode   = PIOS_HMC5x83_MODE_CONTINUOUS,
     .TempCompensation = false,
-    .Driver      = &PIOS_HMC5x83_I2C_DRIVER,
-    .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
+    .Driver = &PIOS_HMC5x83_I2C_DRIVER,
+    .Orientation      = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
 };
 #endif /* PIOS_INCLUDE_HMC5X83 */
 
@@ -493,7 +493,7 @@ void PIOS_Board_Init(void)
         if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
             PIOS_Assert(0);
         }
-        PIOS_DELAY_WaitmS(50);  // this was after the other PIOS_I2C_Init(), so I copied it here too
+        PIOS_DELAY_WaitmS(50); // this was after the other PIOS_I2C_Init(), so I copied it here too
 #ifdef PIOS_INCLUDE_WDG
         // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
         // this is not in a loop, so it is safe
@@ -521,7 +521,7 @@ void PIOS_Board_Init(void)
             // as that would cause delay and time jitter for the second fast sensor
             PIOS_HMC5x83_Register(external_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
             // mag alarm is cleared later, so use I2C
-            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (external_mag)?SYSTEMALARMS_ALARM_OK:SYSTEMALARMS_ALARM_WARNING);
+            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (external_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
         }
 #endif /* PIOS_INCLUDE_HMC5X83 */
 #endif /* PIOS_INCLUDE_I2C */

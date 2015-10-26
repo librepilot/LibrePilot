@@ -84,7 +84,7 @@
 #define REGISTER_WDG()
 #endif
 
-static const TickType_t sensor_period_ticks = ((uint32_t) (1000.0f / PIOS_SENSOR_RATE / (float) portTICK_RATE_MS));
+static const TickType_t sensor_period_ticks = ((uint32_t)(1000.0f / PIOS_SENSOR_RATE / (float)portTICK_RATE_MS));
 
 // Interval in number of sample to recalculate temp bias
 #define TEMP_CALIB_INTERVAL      30
@@ -263,7 +263,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     bool sensors_test = true;
     uint8_t count     = 0;
     LL_FOREACH((PIOS_SENSORS_Instance *)sensors_list, sensor) {
-        RELOAD_WDG();  // mag tests on I2C have 200+(7x10)ms delay calls in them
+        RELOAD_WDG(); // mag tests on I2C have 200+(7x10)ms delay calls in them
         sensors_test &= PIOS_SENSORS_Test(sensor);
         count++;
     }
@@ -299,6 +299,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         LL_FOREACH((PIOS_SENSORS_Instance *)sensors_list, sensor) {
             // we will wait on the sensor that's marked as primary( that means the sensor with higher sample rate)
             bool is_primary = (sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL);
+
             if (!sensor->driver->is_polled) {
                 const QueueHandle_t queue = PIOS_SENSORS_GetQueue(sensor);
                 while (xQueueReceive(queue,
@@ -378,10 +379,12 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
             handleMag(samples, temperature);
             PERF_MEASURE_PERIOD(counterMagPeriod);
             return;
+
         case PIOS_SENSORS_TYPE_3AXIS_AUXMAG:
             handleAuxMag(samples);
             PERF_MEASURE_PERIOD(counterMagPeriod);
             return;
+
         default:
             PERF_TRACK_VALUE(counterAccelSamples, sensor_context->count);
             PERF_MEASURE_PERIOD(counterAccelPeriod);
@@ -584,7 +587,7 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
     float sumQuat[4];
     const float trimRpy[3] = { attitudeSettings.BoardLevelTrim.Roll, attitudeSettings.BoardLevelTrim.Pitch, 0.0f };
     // do we actually want to include BoardLevelTrim in the mag rotation?  BoardRotation yes, but BoardLevelTrim?
-    // and is BoardLevelTrim done at the correct point in the sequence of rotations? 
+    // and is BoardLevelTrim done at the correct point in the sequence of rotations?
     RPY2Quaternion(trimRpy, trimQuat);
 
     // add the boardrotation and boardtrim rotations and put them into a rotation matrix

@@ -158,11 +158,11 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
         dev->magCountMax = 1;
 #endif /* PIOS_SENSOR_RATE */
         // with this counter
-        dev->magCount = 0;
+        dev->magCount    = 0;
     }
 
     if (PIOS_HMC5x83_Config(dev) != 0) {
-        return ((pios_hmc5x83_dev_t) NULL);
+        return (pios_hmc5x83_dev_t)NULL;
     }
 
     dev->data_ready = false;
@@ -405,12 +405,11 @@ bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t ha
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
 
 #ifdef PIOS_HMC5X83_HAS_GPIOS
-    if (dev->cfg->exti_cfg) {    // if this device has an interrupt line attached, then wait for interrupt to say data is ready
+    if (dev->cfg->exti_cfg) { // if this device has an interrupt line attached, then wait for interrupt to say data is ready
         return dev->data_ready;
-    }
-    else
+    } else
 #endif /* PIOS_HMC5X83_HAS_GPIOS */
-    {                           // else poll to see if data is ready or just say "true" and set polling interval elsewhere
+    { // else poll to see if data is ready or just say "true" and set polling interval elsewhere
         if (++(dev->magCount) >= dev->magCountMax) {
             dev->magCount = 0;
             return true;
@@ -521,6 +520,7 @@ int32_t PIOS_HMC5x83_Test(pios_hmc5x83_dev_t handler)
 bool PIOS_HMC5x83_IRQHandler(pios_hmc5x83_dev_t handler)
 {
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
+
     dev->data_ready = true;
 
     return false;

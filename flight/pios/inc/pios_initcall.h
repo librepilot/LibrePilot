@@ -106,7 +106,8 @@ extern void StartModules();
               (fn->fn_tinit)();  \
               PIOS_WDG_Clear();  \
           } \
-    } }
+      } \
+    }
 
 #endif /* USE_SIM_POSIX */
 

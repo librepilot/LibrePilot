@@ -341,6 +341,11 @@ static void PIOS_PPM_tim_edge_cb(__attribute__((unused)) uint32_t tim_id,
                 }
             }
 #endif /* USE_FREERTOS */
+        } else {
+            for (uint32_t i = 0;
+                 i < PIOS_PPM_IN_MAX_NUM_CHANNELS; i++) {
+                ppm_dev->CaptureValue[i] = PIOS_RCVR_TIMEOUT;
+            }
         }
 
         ppm_dev->Fresh      = TRUE;

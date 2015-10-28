@@ -246,10 +246,14 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
         Q_ASSERT(auxMagSettings);
         AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
-        auxMagStoredBoardRotation = auxMagData.Orientation;
+        auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW];
+        auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
+        auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_PITCH] = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH];
 
         // Set aux mag board rotation to no rotation
-        auxMagData.Orientation = 0.0f;
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]    = 0;
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]   = 0;
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH]  = 0;
         auxMagSettings->setData(auxMagData);
     }
 }
@@ -273,7 +277,9 @@ void ConfigRevoWidget::recallBoardRotation()
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
         Q_ASSERT(auxMagSettings);
         AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
-        auxMagData.Orientation = auxMagStoredBoardRotation;
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW];
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH] = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_PITCH];
         auxMagSettings->setData(auxMagData);
     }
 }

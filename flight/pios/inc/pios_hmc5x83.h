@@ -95,6 +95,9 @@
 #define PIOS_HMC5x83_Sensitivity_5_6Ga  330     // LSB/Ga
 #define PIOS_HMC5x83_Sensitivity_8_1Ga  230     // LSB/Ga  --> NOT RECOMMENDED
 
+/* Status Register */
+#define PIOS_HMC5x83_DATAOUT_STATUS_RDY 0x01
+
 typedef uintptr_t pios_hmc5x83_dev_t;
 
 struct pios_hmc5x83_io_driver {
@@ -137,7 +140,7 @@ struct pios_hmc5x83_cfg {
 
 /* Public Functions */
 extern pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_t port_id, uint8_t device_num);
-extern void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler);
+extern void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler, PIOS_SENSORS_TYPE sensortype);
 
 extern bool PIOS_HMC5x83_NewDataAvailable(pios_hmc5x83_dev_t handler);
 extern int32_t PIOS_HMC5x83_ReadMag(pios_hmc5x83_dev_t handler, int16_t out[3]);

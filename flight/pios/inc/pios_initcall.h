@@ -100,10 +100,12 @@ extern void StartModules();
       initTaskDone = 1; \
     }
 
-#define MODULE_TASKCREATE_ALL \
+#define MODULE_TASKCREATE_ALL    \
     { for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) { \
-          if (fn->fn_tinit) { \
-              (fn->fn_tinit)(); } \
+          if (fn->fn_tinit) {    \
+              (fn->fn_tinit)();  \
+              PIOS_WDG_Clear();  \
+          } \
       } \
     }
 

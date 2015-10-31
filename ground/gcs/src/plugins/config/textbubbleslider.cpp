@@ -1,33 +1,33 @@
 /**
-******************************************************************************
-*
-* @file       textbubbleslider.h
-* @author     Tau Labs, http://taulabs.org Copyright (C) 2013.
-* @brief      Creates a slider with a text bubble showing the slider value
-* @see        The GNU Public License (GPL) Version 3
-* @defgroup   Config
-* @{
-*
-*****************************************************************************/
+ ******************************************************************************
+ *
+ * @file       textbubbleslider.h
+ * @author     Tau Labs, http://taulabs.org Copyright (C) 2013.
+ * @brief      Creates a slider with a text bubble showing the slider value
+ * @see        The GNU Public License (GPL) Version 3
+ * @defgroup   Config
+ * @{
+ *
+ *****************************************************************************/
 /*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but
-* WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-* or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
-* for more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program; if not, write to the Free Software Foundation, Inc.,
-* 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 
 #include <QDebug>
 #include <QPainter>
-#include <QDebug>
+#include <QtGui>
 #include <qmath.h>
 
 #include "textbubbleslider.h"
@@ -39,6 +39,8 @@
 TextBubbleSlider::TextBubbleSlider(QWidget *parent) :
     QSlider(parent)
 {
+    QFontDatabase::addApplicationFont(":/configgadget/fonts/PTS75F.ttf");
+
     construct();
 }
 
@@ -71,13 +73,12 @@ TextBubbleSlider::TextBubbleSlider(QSlider *copySlider, QWidget *parent) :
  */
 void TextBubbleSlider::construct()
 {
-    font = QFont("Arial", 13);
+    font = QFont("PT Sans", 13, QFont::Bold);
     slideHandleMargin = 2; // This is a dubious way to set the margin. In reality, it should be read from the style sheet.
 }
 
 TextBubbleSlider::~TextBubbleSlider()
-{
-}
+{}
 
 
 /**
@@ -90,8 +91,9 @@ unsigned int numIntegerDigits(int number)
     unsigned int digits = 0;
 
     // If there is a negative sign, be sure to include it in digit count
-    if (number < 0)
+    if (number < 0) {
         digits = 1;
+    }
 
     while (number) {
         number /= 10;
@@ -113,17 +115,18 @@ void TextBubbleSlider::setMaxPixelWidth()
     // Generate string with maximum pixel width. Suppose that "0" is
     // the widest number in pixels.
     QString maximumWidthString;
-    for (int i=0; i<maxNumDigits; i++) {
+
+    for (int i = 0; i < maxNumDigits; i++) {
         maximumWidthString.append("0");
     }
 
     // Calculate maximum possible pixel width for string.
     QFontMetrics fontMetrics(font);
-    maximumFontWidth = fontMetrics.width(QString("%1").arg(maximumWidthString));
+    maximumFontWidth  = fontMetrics.width(QString("%1").arg(maximumWidthString));
     maximumFontHeight = fontMetrics.height();
 
     // Override stylesheet slider handle width
-    slideHandleWidth = maximumFontWidth + 6;
+    slideHandleWidth  = maximumFontWidth + 6;
     setStyleSheet(QString("QSlider::handle:horizontal { width: %1px; margin: -5px 0;}").arg(slideHandleWidth));
 }
 
@@ -170,26 +173,27 @@ void TextBubbleSlider::paintEvent(QPaintEvent *paintEvent)
     /* Add numbers on top of handler */
 
     // Calculate pixel position for text.
-    int sliderWidth = width();
+    int sliderWidth  = width();
     int sliderHeight = height();
     double valuePos;
 
     if (!invertedAppearance()) {
-        valuePos = (slideHandleWidth - maximumFontWidth)/2 + slideHandleMargin + // First part centers text in handle...
-                (value()-minimum())/(double)(maximum()-minimum()) * (sliderWidth - (slideHandleWidth + slideHandleMargin) - 1); //... and second part moves text with handle
+        valuePos = (slideHandleWidth - maximumFontWidth) / 2 + slideHandleMargin + // First part centers text in handle...
+                   (value() - minimum()) / (double)(maximum() - minimum()) * (sliderWidth - (slideHandleWidth + slideHandleMargin) - 1); // ... and second part moves text with handle
     } else {
-        valuePos = (slideHandleWidth - maximumFontWidth)/2 + slideHandleMargin + // First part centers text in handle...
-                (maximum()-value())/(double)(maximum()-minimum()) * (sliderWidth - (slideHandleWidth + slideHandleMargin) - 1); //... and second part moves text with handle
+        valuePos = (slideHandleWidth - maximumFontWidth) / 2 + slideHandleMargin + // First part centers text in handle...
+                   (maximum() - value()) / (double)(maximum() - minimum()) * (sliderWidth - (slideHandleWidth + slideHandleMargin) - 1); // ... and second part moves text with handle
     }
 
     // Create painter and set font
     QPainter painter(this);
     painter.setFont(font);
+    painter.setPen(QPen(QColor(80, 80, 80)));
 
-    // Draw neutral value text. Verically center it in the handle
+    // Draw neutral value text. Vertically center it in the handle
     QString neutralStringWidth = QString("%1").arg(value());
     QFontMetrics fontMetrics(font);
     int textWidth = fontMetrics.width(neutralStringWidth);
-    painter.drawText(QRectF(valuePos + maximumFontWidth - textWidth, ceil((sliderHeight - maximumFontHeight)/2.0), textWidth, maximumFontHeight),
+    painter.drawText(QRectF(valuePos + maximumFontWidth - textWidth, ceil((sliderHeight - maximumFontHeight) / 2.0), textWidth, maximumFontHeight),
                      neutralStringWidth);
 }

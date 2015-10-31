@@ -58,7 +58,8 @@ HEADERS += \
     calibration/gyrobiascalibrationmodel.h \
     calibration/calibrationuiutils.h \
     configoplinkwidget.h \
-    configrevonanohwwidget.h
+    configrevonanohwwidget.h \
+    textbubbleslider.h
 
 SOURCES += \
     configplugin.cpp \
@@ -99,7 +100,8 @@ SOURCES += \
     calibration/levelcalibrationmodel.cpp \
     calibration/gyrobiascalibrationmodel.cpp \
     configoplinkwidget.cpp \
-    configrevonanohwwidget.cpp
+    configrevonanohwwidget.cpp \
+    textbubbleslider.cpp
 
 FORMS += \
     airframe.ui \

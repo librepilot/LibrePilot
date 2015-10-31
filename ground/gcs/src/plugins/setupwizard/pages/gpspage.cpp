@@ -70,6 +70,12 @@ void GpsPage::setupSelection(Selection *selection)
                        "OPGPS-v9",
                        SetupWizard::GPS_PLATINUM);
 
+    selection->addItem(tr("U-Blox Based + Magnetometer"),
+                       tr("Select this option for the generic U-Blox chipset based GPS + I2C Magnetometer.\n\n"
+                          "GPS is connected to MainPort and two wires I2C to FlexiPort."),
+                       "generic-ublox-mag",
+                       SetupWizard::GPS_UBX_FLEXI_I2CMAG);
+
     selection->addItem(tr("U-Blox Based"),
                        tr("Select this option for the OpenPilot V8 GPS or generic U-Blox chipset based GPS."),
                        "OPGPS-v8-ublox",

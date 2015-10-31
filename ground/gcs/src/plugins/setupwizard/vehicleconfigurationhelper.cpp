@@ -243,6 +243,19 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
                 break;
             }
+            case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
+            {
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
+                Q_ASSERT(magSettings);
+                AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Usage = AuxMagSettings::USAGE_FLEXONLY;
+                magSettings->setData(magsData);
+                addModifiedObject(magSettings, tr("Writing I2C Mag sensor settings"));
+            }
+
             case VehicleConfigurationSource::GPS_DISABLED:
                 // Should not be able to reach here
                 break;

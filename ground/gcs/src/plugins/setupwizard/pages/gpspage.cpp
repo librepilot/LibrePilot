@@ -37,7 +37,18 @@ GpsPage::~GpsPage()
 
 void GpsPage::initializePage(VehicleConfigurationSource *settings)
 {
-    Q_UNUSED(settings);
+    // Enable all
+    setItemDisabled(-1, false);
+    if (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
+        settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
+        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL) {
+        // Disable GPS+I2C Mag
+        setItemDisabled(VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG, true);
+        if (getSelectedItem()->id() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
+            // If previously selected invalid GPS, reset to no GPS
+            setSelectedItem(VehicleConfigurationSource::GPS_DISABLED);
+        }
+    }
 }
 
 bool GpsPage::validatePage(SelectionItem *selectedItem)

@@ -40,8 +40,10 @@ void AirSpeedPage::initializePage(VehicleConfigurationSource *settings)
     // Enable all
     setItemDisabled(-1, false);
     if (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_DSM) {
-        // Disable non estimated sensors if ports are taken by receivers
+        settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
+        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
+        settings->getGpsType() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
+        // Disable non estimated sensors if ports are taken by receivers or I2C Mag
         setItemDisabled(VehicleConfigurationSource::AIRSPEED_EAGLETREE, true);
         setItemDisabled(VehicleConfigurationSource::AIRSPEED_MS4525, true);
         if (getSelectedItem()->id() == VehicleConfigurationSource::AIRSPEED_EAGLETREE ||

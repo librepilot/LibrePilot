@@ -377,6 +377,9 @@ QString SetupWizard::getSummaryText()
     case INPUT_DSM:
         summary.append(tr("Spektrum Satellite"));
         break;
+    case INPUT_SRXL:
+        summary.append(tr("Multiplex SRXL"));
+        break;
     default:
         summary.append(tr("Unknown"));
     }

@@ -73,15 +73,10 @@ public:
     {
         fieldOfView = 90.0;
 
-        first     = true;
+        first    = true;
 
-        dirty     = false;
-
-        sizeDirty = false;
-        x = 0;
-        y = 0;
-        width     = 0;
-        height    = 0;
+        dirty    = false;
+        fovDirty = false;
     }
 
     ~Hidden()
@@ -195,9 +190,10 @@ public:
             logDepthBuffer->install(camera);
         }
 
-        dirty     = true;
-        sizeDirty = true;
+        dirty    = true;
+        fovDirty = true;
         updateCamera();
+        updateAspectRatio();
     }
 
     void detachCamera(osg::Camera *camera)
@@ -220,9 +216,6 @@ public:
             delete logDepthBuffer;
             logDepthBuffer = NULL;
         }
-
-        // reset viewport
-        x = y = width = height = 0;
     }
 
     void attachManipulator(osgViewer::View *view)
@@ -311,31 +304,19 @@ public:
 
     void updateCamera()
     {
-        if (first) {
-            first = false;
-            updateCameraFOV();
-        }
-        updateCameraSize();
+        updateCameraFOV();
         if (manipulatorMode == User) {
             updateCameraPosition();
         }
     }
 
-    void updateCameraSize()
-    {
-        if (!sizeDirty || !camera.valid()) {
-            return;
-        }
-        sizeDirty = false;
-
-        // qDebug() << "OSGCamera::updateCamera size" << x << y << width << height << fieldOfView;
-        camera->getGraphicsContext()->resized(x, y, width, height);
-        camera->setViewport(x, y, width, height);
-        updateAspectRatio();
-    }
-
     void updateCameraFOV()
     {
+        if (!fovDirty || !camera.valid()) {
+            return;
+        }
+        fovDirty = false;
+
         // qDebug() << "OSGCamera::updateCameraFOV";
         double fovy, ar, zn, zf;
 
@@ -351,7 +332,8 @@ public:
 
         camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
 
-        ar = static_cast<double>(width) / static_cast<double>(height);
+        osg::Viewport *viewport = camera->getViewport();
+        ar = static_cast<double>(viewport->width()) / static_cast<double>(viewport->height());
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
     }
 
@@ -404,6 +386,7 @@ public:
     }
 
     qreal   fieldOfView;
+    bool    fovDirty;
 
     OSGNode *sceneData;
 
@@ -429,12 +412,6 @@ public:
 
     QVector3D attitude;
     QVector3D position;
-
-    bool sizeDirty;
-    int  x;
-    int  y;
-    int  width;
-    int  height;
 
     osg::ref_ptr<osg::Camera> camera;
     osg::ref_ptr<CameraUpdateCallback> cameraUpdateCallback;
@@ -478,23 +455,13 @@ qreal OSGCamera::fieldOfView() const
     return h->fieldOfView;
 }
 
-// ! Camera vertical field of view in degrees
+// Camera vertical field of view in degrees
 void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView != arg) {
         h->fieldOfView = arg;
-        h->sizeDirty   = true;
+        h->fovDirty    = true;
         emit fieldOfViewChanged(fieldOfView());
-
-        // it should be a queued call to OSGCameraRenderer instead
-        /*if (h->viewer.get()) {
-            h->viewer->getCamera()->setProjectionMatrixAsPerspective(
-                        h->fieldOfView,
-                        qreal(h->currentSize.width())/h->currentSize.height(),
-                        1.0f, 10000.0f);
-           }*/
-
-        // updateFrame();
     }
 }
 
@@ -616,23 +583,6 @@ void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
     if (h->logDepthBufferEnabled != enabled) {
         h->logDepthBufferEnabled = enabled;
         emit logarithmicDepthBufferChanged(logarithmicDepthBuffer());
-    }
-}
-
-void OSGCamera::setViewport(int x, int y, int width, int height)
-{
-    // qDebug() << "OSGCamera::setViewport" << x << y << width << "x" << heigth;
-    if (width <= 0 || height <= 0) {
-        qWarning() << "OSGCamera::setViewport - invalid size" << width << "x" << height;
-        return;
-    }
-    if (h->x != x || h->y != y || h->width != width || h->height != height) {
-        qWarning() << "OSGCamera::setViewport" << width << "x" << height;
-        h->x         = x;
-        h->y         = y;
-        h->width     = width;
-        h->height    = height;
-        h->sizeDirty = true;
     }
 }
 

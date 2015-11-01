@@ -173,7 +173,6 @@ public:
             return false;
         }
         if (camera) {
-            camera->setViewport(0, 0, self->width(), self->height());
             camera->attach(view);
         } else {
             qWarning() << "OSGViewport::attach - no camera!";
@@ -384,7 +383,10 @@ public:
         // add the screen capture handler
         // view->addEventHandler(new osgViewer::ScreenCaptureHandler);
 
-        view->getCamera()->setGraphicsContext(createGraphicsContext());
+        osg::GraphicsContext *gc = createGraphicsContext();
+        osg::Camera *camera = view->getCamera();
+        camera->setGraphicsContext(gc);
+        camera->setViewport(new osg::Viewport(0, 0, gc->getTraits()->width, gc->getTraits()->height));
 
         return view;
     }
@@ -548,8 +550,9 @@ public:
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
     {
         qDebug() << "ViewportRenderer::createFramebufferObject" << size;
-        if (h->camera) {
-            h->camera->setViewport(0, 0, size.width(), size.height());
+        if (h->view.valid()) {
+            h->view->getCamera()->getGraphicsContext()->resized(0, 0, size.width(), size.height());
+            h->view->getEventQueue()->windowResize(0, 0, size.width(), size.height());
         }
 
         QOpenGLFramebufferObjectFormat format;
@@ -582,7 +585,6 @@ osg::ref_ptr<osg::GraphicsContext> OSGViewport::Hidden::dummy;
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
 /* class OSGViewport */
-
 
 OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), h(new Hidden(this))
 {
@@ -719,10 +721,10 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
 
 QPointF OSGViewport::mousePoint(QMouseEvent *event)
 {
-    // qreal x = 0.01 * (event->x() - self->width() / 2);
-    // qreal y = 0.01 * (event->y() - self->height() / 2);
-    qreal x = 2.0 * (event->x() - width() / 2) / width();
-    qreal y = 2.0 * (event->y() - height() / 2) / height();
+    // qreal x = 2.0 * (event->x() - width() / 2) / width();
+    // qreal y = 2.0 * (event->y() - height() / 2) / height();
+    qreal x = event->x();
+    qreal y = event->y();
 
     return QPointF(x, y);
 }

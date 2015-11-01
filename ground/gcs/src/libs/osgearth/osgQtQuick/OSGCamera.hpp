@@ -117,8 +117,6 @@ public:
     bool logarithmicDepthBuffer();
     void setLogarithmicDepthBuffer(bool enabled);
 
-    void setViewport(int x, int y, int width, int height);
-
     virtual bool attach(osgViewer::View *view);
     virtual bool detach(osgViewer::View *view);
 

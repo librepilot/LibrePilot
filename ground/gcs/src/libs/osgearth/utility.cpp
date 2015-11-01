@@ -298,9 +298,9 @@ QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits)
     // format.setSampleBuffers(traits->sampleBuffers);
     format.setSamples(traits->samples);
 
-// format.setAlpha(traits->alpha > 0);
-// format.setDepth(traits->depth > 0);
-// format.setStencil(traits->stencil > 0);
+    // format.setAlpha(traits->alpha > 0);
+    // format.setDepth(traits->depth > 0);
+    // format.setStencil(traits->stencil > 0);
 
     format.setStereo(traits->quadBufferStereo ? 1 : 0);
 

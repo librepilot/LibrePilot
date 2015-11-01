@@ -144,19 +144,6 @@ void OsgEarth::initializeCache()
     } else {
         qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }
-
-// osgDB::SharedStateManager::ShareMode shareMode = osgDB::SharedStateManager::SHARE_NONE;// =osgDB::SharedStateManager::SHARE_ALL;
-// shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_STATESETS) : shareMode;
-// shareMode = true ? static_cast<osgDB::SharedStateManager::ShareMode>(shareMode | osgDB::SharedStateManager::SHARE_TEXTURES) : shareMode;
-// osgDB::Registry::instance()->getOrCreateSharedStateManager()->setShareMode(shareMode);
-
-// osgDB::Options::CacheHintOptions cacheHintOptions = osgDB::Options::CACHE_NONE;
-// cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_IMAGES);
-// cacheHintOptions = static_cast<osgDB::Options::CacheHintOptions>(cacheHintOptions | osgDB::Options::CACHE_NODES);
-// if (osgDB::Registry::instance()->getOptions() == 0) {
-// osgDB::Registry::instance()->setOptions(new osgDB::Options());
-// }
-// osgDB::Registry::instance()->getOptions()->setObjectCacheHint(cacheHintOptions);
 }
 
 void OsgEarth::displayInfo()

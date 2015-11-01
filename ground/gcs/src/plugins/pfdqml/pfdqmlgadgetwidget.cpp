@@ -62,9 +62,6 @@ void PfdQmlGadgetWidget::init()
     // to expose settings values
     m_pfdQmlContext = new PfdQmlContext(this);
     m_pfdQmlContext->apply(engine()->rootContext());
-
-// connect(this, &QQuickWidget::statusChanged, this, &PfdQmlGadgetWidget::onStatusChanged);
-// connect(this, &QQuickWidget::sceneGraphError, this, &PfdQmlGadgetWidget::onSceneGraphError);
 }
 
 void PfdQmlGadgetWidget::setSource(const QUrl &url)
@@ -99,19 +96,6 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
         init();
     }
 
-    // here we first clear the Qml file
-    // then set all the properties
-    // and finally set the desired Qml file
-    // TODO this is a work around... some OSG Quick items don't yet handle properties updates well
-
-    // clear widget
-    // setQmlFile("");
-
-    // no need to go further is Qml file is empty
-    // if (config->qmlFile().isEmpty()) {
-    // return;
-    // }
-
     m_pfdQmlContext->loadConfiguration(config);
 
     // go!
@@ -129,10 +113,7 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
-// if (m_qmlFileName == fn) {
-// return;
-// }
-    qDebug() << Q_FUNC_INFO << fn;
+    qDebug() << "PfdQmlGadgetWidget::setQmlFile" << fn;
 
     m_qmlFileName = fn;
 

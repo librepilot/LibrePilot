@@ -267,11 +267,7 @@ public:
                     break;
                 }
                 ntm->setTrackNode(trackNode->node());
-                // ntm->setRotationMode(trackRotationMode)
-                // ntm->setMinimumDistance(2, false);
                 ntm->setVerticalAxisFixed(false);
-                // ntm->setAutoComputeHomePosition(true);
-                // ntm->setDistance(100);
                 cm = ntm;
             } else {
                 qWarning() << "OSGCamera::attachManipulator - no track node provided.";

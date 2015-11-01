@@ -206,8 +206,6 @@ public:
             mapNode->addCullCallback(cullCallback);
         }
 
-        // view->getCamera()->setSmallFeatureCullingPixelSize(-1.0f);
-
         view->setSceneData(node);
 
         return true;
@@ -331,9 +329,6 @@ public:
         viewer = new osgViewer::CompositeViewer();
         viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
 
-        osg::ref_ptr<osgUtil::IncrementalCompileOperation> ico = new osgUtil::IncrementalCompileOperation();
-        ico->setTargetFrameRate(30.0f);
-        viewer->setIncrementalCompileOperation(ico);
 
         // disable the default setting of viewer.done() by pressing Escape.
         viewer->setKeyEventSetsDone(0);
@@ -492,8 +487,6 @@ public:
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
 
         h->initializeResources();
-
-        requestRedraw = false;
     }
 
     ~ViewportRenderer()
@@ -533,13 +526,10 @@ public:
         // needed to properly render models without terrain (Qt bug?)
         QOpenGLContext::currentContext()->functions()->glUseProgram(0);
 
-        if (checkNeedToDoFrame()) {
+        if (h->viewer->checkNeedToDoFrame()) {
             // TODO scene update should NOT be done here
             h->viewer->frame();
-            requestRedraw = false;
         }
-
-        // h->self->window()->resetOpenGLState();
 
         if (h->updateMode == OSGViewport::Continuous) {
             // trigger next update
@@ -565,20 +555,7 @@ public:
     }
 
 private:
-    bool checkNeedToDoFrame()
-    {
-        // if (requestRedraw) {
-        // return true;
-        // }
-        // if (getDatabasePager()->requiresUpdateSceneGraph() || getDatabasePager()->getRequestsInProgress()) {
-        // return true;
-        // }
-        return true;
-    }
-
     OSGViewport::Hidden *h;
-
-    bool requestRedraw;
 };
 
 osg::ref_ptr<osg::GraphicsContext> OSGViewport::Hidden::dummy;

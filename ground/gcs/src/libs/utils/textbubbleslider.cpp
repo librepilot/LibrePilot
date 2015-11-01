@@ -39,7 +39,7 @@
 TextBubbleSlider::TextBubbleSlider(QWidget *parent) :
     QSlider(parent)
 {
-    QFontDatabase::addApplicationFont(":/configgadget/fonts/PTS75F.ttf");
+    QFontDatabase::addApplicationFont(":/utils/fonts/PTS75F.ttf");
 
     construct();
 }

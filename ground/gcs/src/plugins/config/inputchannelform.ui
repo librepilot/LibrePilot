@@ -848,7 +848,7 @@ margin:1px;</string>
   <customwidget>
    <class>TextBubbleSlider</class>
    <extends>QSlider</extends>
-   <header>textbubbleslider.h</header>
+   <header>utils/textbubbleslider.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

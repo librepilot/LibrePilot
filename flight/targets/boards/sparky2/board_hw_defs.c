@@ -1473,12 +1473,13 @@ static const struct pios_tim_clock_cfg tim_12_cfg = {
     },
 };
 
+#include <pios_servo_priv.h>
 
+#if 1
 /**
  * Pios servo configuration structures
  * Using TIM3, TIM9, TIM2, TIM5
  */
-#include <pios_servo_priv.h>
 static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
     {
         .timer = TIM3,
@@ -1685,6 +1686,8 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         .remap = GPIO_AF_TIM12,
     },
 };
+#endif
+
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT        6
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN_PPM 11
 #define PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN     12
@@ -1703,6 +1706,8 @@ const struct pios_servo_cfg pios_servo_cfg_out = {
     .channels     = pios_tim_servoport_all_pins,
     .num_channels = PIOS_SERVOPORT_ALL_PINS_PWMOUT,
 };
+
+#if 0
 // All servo outputs, servo input ch1 ppm, ch2-6 outputs
 const struct pios_servo_cfg pios_servo_cfg_out_in_ppm = {
     .tim_oc_init          = {
@@ -1733,7 +1738,7 @@ const struct pios_servo_cfg pios_servo_cfg_out_in = {
     .channels     = pios_tim_servoport_all_pins,
     .num_channels = PIOS_SERVOPORT_ALL_PINS_PWMOUT_IN,
 };
-
+#endif
 
 /*
  * PWM Inputs

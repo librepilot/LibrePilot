@@ -38,6 +38,7 @@
 #include <pios_ws2811.h>
 #include <sanitycheck.h>
 #include <actuatorsettings.h>
+#include <auxmagsettings.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
@@ -96,11 +97,14 @@ void PIOS_ADC_DMC_irq_handler(void)
 #if defined(PIOS_INCLUDE_HMC5X83)
 #include "pios_hmc5x83.h"
 pios_hmc5x83_dev_t i2c_port_mag = 0;
+pios_hmc5x83_dev_t flexi_port_mag = 0;
 
+#if 0
 bool pios_board_internal_mag_handler()
 {
     return PIOS_HMC5x83_IRQHandler(i2c_port_mag);
 }
+
 static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
     .vector = pios_board_internal_mag_handler,
     .line   = EXTI_Line7,
@@ -131,9 +135,16 @@ static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
         },
     },
 };
+#endif
 
 static const struct pios_hmc5x83_cfg pios_hmc5x83_cfg = {
+#if 0
     .exti_cfg    = &pios_exti_hmc5x83_cfg,
+#else
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    .exti_cfg    = NULL,
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
+#endif /* 0 */
     .M_ODR       = PIOS_HMC5x83_ODR_75,
     .Meas_Conf   = PIOS_HMC5x83_MEASCONF_NORMAL,
     .Gain        = PIOS_HMC5x83_GAIN_1_9,
@@ -466,6 +477,7 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
     case HWSETTINGS_RM_FLEXIPORT_I2C:
+#if 0
 #if defined(PIOS_INCLUDE_I2C)
         {
             if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
@@ -473,6 +485,44 @@ void PIOS_Board_Init(void)
             }
         }
 #endif /* PIOS_INCLUDE_I2C */
+#else
+#if defined(PIOS_INCLUDE_I2C)
+        if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
+            PIOS_Assert(0);
+        }
+        PIOS_DELAY_WaitmS(50); // this was after the other PIOS_I2C_Init(), so I copied it here too
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+        // to avoid making something else fail when HMC5X83 is removed
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+#if defined(PIOS_INCLUDE_HMC5X83)
+        // get auxmag type
+        AuxMagSettingsTypeOptions option;
+        AuxMagSettingsInitialize();
+        AuxMagSettingsTypeGet(&option);
+        // if the aux mag type is FlexiPort then set it up
+        if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
+            // attach the 5x83 mag to the previously inited I2C2
+            flexi_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_flexiport_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+            // this is not in a loop, so it is safe
+            PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+            // add this sensor to the sensor task's list
+            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+            // and before registering some other fast and important sensor
+            // as that would cause delay and time jitter for the second fast sensor
+            PIOS_HMC5x83_Register(flexi_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+            // mag alarm is cleared later, so use I2C
+            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (flexi_port_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+        }
+#endif /* PIOS_INCLUDE_HMC5X83 */
+#endif /* PIOS_INCLUDE_I2C */
+#endif /* 0 */
         break;
     case HWSETTINGS_RM_FLEXIPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
@@ -807,11 +857,12 @@ void PIOS_Board_Init(void)
     OPLinkStatusSet(&oplinkStatus);
 #endif /* PIOS_INCLUDE_RFM22B */
 
+#if 1
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PWM)
-
     const struct pios_servo_cfg *pios_servo_cfg;
     // default to servo outputs only
     pios_servo_cfg = &pios_servo_cfg_out;
+#endif
 #endif
 
     /* Configure the receiver port*/
@@ -892,11 +943,13 @@ void PIOS_Board_Init(void)
     }
 #endif /* PIOS_INCLUDE_OPLINKRCVR */
 
+#if 1
 #ifndef PIOS_ENABLE_DEBUG_PINS
     // pios_servo_cfg points to the correct configuration based on input port settings
     PIOS_Servo_Init(pios_servo_cfg);
 #else
     PIOS_DEBUG_Init(pios_tim_servoport_all_pins, NELEMENTS(pios_tim_servoport_all_pins));
+#endif
 #endif
 
     // Disable GPIO_A8 Pullup to prevent wrong results on battery voltage readout
@@ -920,20 +973,67 @@ void PIOS_Board_Init(void)
     PIOS_MPU9250_MagRegister();
 #endif
 
+#if 0
+#ifdef PIOS_INCLUDE_WDG
+    // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+    // this is not in a loop, so it is safe
+    // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+    // to avoid making something else fail when HMC5X83 is removed
     PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
 
 #if defined(PIOS_INCLUDE_HMC5X83)
     // on board mag is in the MPU9250
     // this hmc5x83 mag is an external mag
     i2c_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+    // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+    // this is not in a loop, so it is safe
     PIOS_WDG_Clear();
-    PIOS_HMC5x83_Register(i2c_port_mag);
-#endif
+#endif /* PIOS_INCLUDE_WDG */
+    PIOS_HMC5x83_Register(i2c_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+#endif /* PIOS_INCLUDE_HMC5X83 */
+
+#else
+
+#if defined(PIOS_INCLUDE_I2C)
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+        // to avoid making something else fail when HMC5X83 is removed
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+#if defined(PIOS_INCLUDE_HMC5X83)
+        // get auxmag type
+        AuxMagSettingsTypeOptions option;
+        AuxMagSettingsInitialize();
+        AuxMagSettingsTypeGet(&option);
+        // if the aux mag type is FlexiPort then set it up
+        if (option == AUXMAGSETTINGS_TYPE_I2C) {
+            // attach the 5x83 mag to the previously inited I2C2
+            i2c_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+            // this is not in a loop, so it is safe
+            PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+            // add this sensor to the sensor task's list
+            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+            // and before registering some other fast and important sensor
+            // as that would cause delay and time jitter for the second fast sensor
+            PIOS_HMC5x83_Register(i2c_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+            // mag alarm is cleared later, so use I2C
+            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (i2c_port_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+        }
+#endif /* PIOS_INCLUDE_HMC5X83 */
+#endif /* PIOS_INCLUDE_I2C */
+#endif /* 0 */
 
 #if defined(PIOS_INCLUDE_MS5611)
     PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_mag_pressure_adapter_id);
     PIOS_MS5611_Register();
-#endif
+#endif /* PIOS_INCLUDE_MS5611 */
 
     #ifdef PIOS_INCLUDE_WS2811
 #include <pios_ws2811.h>

@@ -1,4 +1,4 @@
-﻿This document describes how to build osg and osgEarth.
+This document describes how to build osg and osgEarth.
 
 
 Building osgEarth requires:

@@ -116,7 +116,7 @@ else ifeq ($(UNAME), Windows)
 	OSG_NAME := $(OSG_BASE_NAME)-$(QT_SDK_ARCH)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSG_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin"
+	OSG_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin
 endif
 
 OSG_NAME := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
@@ -240,7 +240,7 @@ else ifeq ($(UNAME), Windows)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSGEARTH_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$(OSG_INSTALL_DIR)/bin"
+	OSGEARTH_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin
 	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 endif
 

@@ -639,6 +639,7 @@ void ConfigStabilizationWidget::onBoardConnected()
 void ConfigStabilizationWidget::stabBankChanged(int index)
 {
     bool dirty = isDirty();
+    disconnect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
     updateObjectFromThrottleCurve();
     foreach(QTabBar * tabBar, m_stabTabBars) {
@@ -655,6 +656,8 @@ void ConfigStabilizationWidget::stabBankChanged(int index)
 
     m_currentStabSettingsBank = index;
     updateThrottleCurveFromObject();
+
+    connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
     setDirty(dirty);
 }
 

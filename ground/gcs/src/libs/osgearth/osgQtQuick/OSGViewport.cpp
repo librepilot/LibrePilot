@@ -204,6 +204,10 @@ public:
             cullCallback = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);
             // view->getCamera()->addCullCallback(cullCallback);
             mapNode->addCullCallback(cullCallback);
+
+            // remove light to prevent unnecessary state changes in SceneView
+            // scene will get light from sky
+            view->setLightingMode(osg::View::NO_LIGHT);
         }
 
         view->setSceneData(node);

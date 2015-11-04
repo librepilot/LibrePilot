@@ -5,7 +5,7 @@
  * @author     Tau Labs, http://taulabs.org Copyright (C) 2013.
  * @brief      Creates a slider with a text bubble showing the slider value
  * @see        The GNU Public License (GPL) Version 3
- * @defgroup   Config
+ * @defgroup
  * @{
  *
  *****************************************************************************/

@@ -11,7 +11,4 @@
 #  	make uncrustify_all 
 # You can format flight or ground code only using respectively 
 # uncrustify_flight or uncrustify_ground
-#
-# Naming branch with username and Jira ticket is also a good practice:
-# e.g. username/LP-188_Determine_accel_tau
 

@@ -89,7 +89,7 @@ WelcomeMode::WelcomeMode() :
         // This will delete the network access manager instance when we're done
         connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)), networkAccessManager, SLOT(deleteLater()));
 
-        networkAccessManager->get(QNetworkRequest(QUrl("https://github.com/librepilot/LibrePilot/raw/master/.STABLEVER")));
+        networkAccessManager->get(QNetworkRequest(QUrl("http://www.librepilot.org/stable-version")));
     } else {
         // No network, can delete this now as we don't need it.
         delete networkAccessManager;

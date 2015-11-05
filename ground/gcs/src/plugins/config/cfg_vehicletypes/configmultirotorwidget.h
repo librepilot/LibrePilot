@@ -73,7 +73,6 @@ private:
     bool setupMultiRotorMixer(double mixerFactors[8][3]);
     void setupMotors(QList<QString> motorList);
     void setupRcOutputs(QList<QString> rcOutputList);
-    void resetMixers();
     void setupQuadMotor(int channel, double roll, double pitch, double yaw);
 
     void setYawMixLevel(int);

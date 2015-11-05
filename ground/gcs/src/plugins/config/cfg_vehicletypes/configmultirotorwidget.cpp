@@ -373,18 +373,6 @@ void ConfigMultiRotorWidget::resetRcOutputs(GUIConfigDataUnion *configData)
     configData->multi.Accessory3 = 0;
 }
 
-void ConfigMultiRotorWidget::resetMixers()
-{
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-
-    Q_ASSERT(mixer);
-
-    for (int channel = 0; channel < (int)ConfigMultiRotorWidget::CHANNEL_NUMELEM; channel++) {
-        resetMixerVector(mixer, channel);
-        setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_DISABLED);
-    }
-}
-
 void ConfigMultiRotorWidget::updateRcCurvesUsed()
 {
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
@@ -545,8 +533,8 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
 
     Q_ASSERT(mixer);
 
-    // Reset all Mixers
-    resetMixers();
+    // Reset all Mixers types
+    resetAllMixersType(mixer);
 
     QList<QString> rcOutputList;
     rcOutputList << "Accessory0" << "Accessory1" << "Accessory2" << "Accessory3";

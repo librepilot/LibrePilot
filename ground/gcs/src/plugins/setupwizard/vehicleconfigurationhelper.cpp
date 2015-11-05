@@ -159,12 +159,15 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             }
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            // We have to set teletry on flexport since s.bus needs the mainport.
+            // We have to set teletry on flexiport since s.bus needs the mainport.
             data.CC_MainPort  = HwSettings::CC_MAINPORT_SBUS;
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_TELEMETRY;
             break;
         case VehicleConfigurationSource::INPUT_DSM:
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSM;
+            break;
+        case VehicleConfigurationSource::INPUT_SRXL:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_SRXL;
             break;
         default:
             break;
@@ -193,7 +196,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
             data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
-            // We have to set telemetry on flexport since s.bus needs the mainport on all but Revo.
+            // We have to set telemetry on flexiport since s.bus needs the mainport on all but Revo.
             if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
             }
@@ -238,11 +241,26 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Type = AuxMagSettings::TYPE_GPSV9;
                 magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
                 magSettings->setData(magsData);
                 addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
                 break;
             }
+            case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
+            {
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                data.RM_FlexiPort     = HwSettings::RM_FLEXIPORT_I2C;
+                AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
+                Q_ASSERT(magSettings);
+                AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Type = AuxMagSettings::TYPE_FLEXI;
+                magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
+                magSettings->setData(magsData);
+                addModifiedObject(magSettings, tr("Writing I2C Mag sensor settings"));
+            }
+
             case VehicleConfigurationSource::GPS_DISABLED:
                 // Should not be able to reach here
                 break;

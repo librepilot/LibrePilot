@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>923</width>
-    <height>57</height>
+    <width>993</width>
+    <height>100</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -141,7 +141,7 @@ margin:1px;</string>
      </property>
      <property name="minimumSize">
       <size>
-       <width>110</width>
+       <width>120</width>
        <height>0</height>
       </size>
      </property>
@@ -169,7 +169,7 @@ margin:1px;</string>
      </property>
      <property name="minimumSize">
       <size>
-       <width>100</width>
+       <width>80</width>
        <height>0</height>
       </size>
      </property>
@@ -737,7 +737,7 @@ margin:1px;</string>
     </widget>
    </item>
    <item row="1" column="5">
-    <widget class="QSlider" name="channelNeutral">
+    <widget class="TextBubbleSlider" name="channelNeutral">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -746,12 +746,15 @@ margin:1px;</string>
      </property>
      <property name="minimumSize">
       <size>
-       <width>50</width>
+       <width>200</width>
        <height>0</height>
       </size>
      </property>
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="toolTip">
+      <string>Channel input value (µs)</string>
      </property>
      <property name="accessibleName">
       <string/>
@@ -841,6 +844,20 @@ margin:1px;</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextBubbleSlider</class>
+   <extends>QSlider</extends>
+   <header>utils/textbubbleslider.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>channelGroup</tabstop>
+  <tabstop>channelNumber</tabstop>
+  <tabstop>channelMin</tabstop>
+  <tabstop>channelNeutral</tabstop>
+  <tabstop>channelMax</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

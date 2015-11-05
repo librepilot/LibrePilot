@@ -1730,12 +1730,15 @@ void ConfigInputWidget::updatePositionSlider()
         if (sp->objectName() == "channelNeutral") {
             if (count == 4) {
                 sp->setStyleSheet(
-                    "QSlider::groove:horizontal {border: 2px solid rgb(196, 196, 196); height: 12px; border-radius: 4px; "
+                    "QSlider::groove:horizontal {border: 2px solid rgb(196, 196, 196); margin: 0px 23px 0px 23px; height: 12px; border-radius: 5px; "
                     "border-image:url(:/configgadget/images/flightmode_bg" + fmNumber + ".png); }"
                     "QSlider::add-page:horizontal { background: none; border: none; }"
                     "QSlider::sub-page:horizontal { background: none; border: none; }"
-                    "QSlider::handle:horizontal { background: rgba(196, 196, 196, 255); width: 10px; height: 28px; "
-                    "margin: -3px -2px; border-radius: 3px; border: 1px solid #777; }");
+                    "QSlider::handle:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+                    "stop: 0 rgba(196, 196, 196, 180), stop: 0.45 rgba(196, 196, 196, 180), "
+                    "stop: 0.46 rgba(255,0,0,100), stop: 0.54 rgba(255,0,0,100), "
+                    "stop: 0.55 rgba(196, 196, 196, 180), stop: 1 rgba(196, 196, 196, 180)); "
+                    "width: 46px; height: 28px; margin: -6px -23px -6px -23px; border-radius: 5px; border: 1px solid #777; }");
                 count++;
             } else {
                 count++;

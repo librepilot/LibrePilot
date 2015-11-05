@@ -24,7 +24,6 @@ public:
 
 private slots:
     void updateNeutralMark();
-    void updateTooltip();
     void minMaxUpdated();
     void neutralUpdated();
     void reversedUpdated();

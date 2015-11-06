@@ -377,6 +377,9 @@ QString SetupWizard::getSummaryText()
     case INPUT_DSM:
         summary.append(tr("Spektrum Satellite"));
         break;
+    case INPUT_SRXL:
+        summary.append(tr("Multiplex SRXL"));
+        break;
     default:
         summary.append(tr("Unknown"));
     }
@@ -424,6 +427,9 @@ QString SetupWizard::getSummaryText()
         switch (getGpsType()) {
         case GPS_PLATINUM:
             summary.append(tr("OpenPilot Platinum"));
+            break;
+        case GPS_UBX_FLEXI_I2CMAG:
+            summary.append(tr("Generic UBLOX + I2C Magnetometer"));
             break;
         case GPS_UBX:
             summary.append(tr("OpenPilot v8 or Generic UBLOX GPS"));

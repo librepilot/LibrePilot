@@ -49,7 +49,7 @@
 #define STICK_MAX_MOVE             8
 
 #define CHANNEL_NUMBER_NONE        0
-#define DEFAULT_FLIGHT_MODE_NUMBER 3
+#define DEFAULT_FLIGHT_MODE_NUMBER 0
 
 ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     ConfigTaskWidget(parent),
@@ -276,6 +276,16 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         m_txFlightMode->setElementId("flightModeCenter");
         m_txFlightMode->setZValue(-10);
 
+        m_txFlightModeCountBG = new QGraphicsSvgItem();
+        m_txFlightModeCountBG->setParentItem(m_txBackground);
+        m_txFlightModeCountBG->setSharedRenderer(m_renderer);
+        m_txFlightModeCountBG->setElementId("fm_count_bg");
+        l_scene->addItem(m_txFlightModeCountBG);
+
+        m_txFlightModeCountText = new QGraphicsSimpleTextItem("?", m_txFlightModeCountBG);
+        m_txFlightModeCountText->setBrush(QColor(40, 40, 40));
+        m_txFlightModeCountText->setFont(QFont("Arial Bold"));
+
         m_txArrows = new QGraphicsSvgItem();
         m_txArrows->setParentItem(m_txBackground);
         m_txArrows->setSharedRenderer(m_renderer);
@@ -314,6 +324,20 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         Matrix = m_renderer->matrixForElement("flightModeRight");
         orig   = Matrix.mapRect(orig);
         m_txFlightModeROrig.translate(orig.x(), orig.y());
+
+        orig   = m_renderer->boundsOnElement("fm_count_bg");
+        Matrix = m_renderer->matrixForElement("fm_count_bg");
+        orig   = Matrix.mapRect(orig);
+        m_txFlightModeCountBGOrig.translate(orig.x(), orig.y());
+        m_txFlightModeCountBG->setTransform(m_txFlightModeCountBGOrig, false);
+
+        QRectF flightModeBGRect   = m_txFlightModeCountBG->boundingRect();
+        QRectF flightModeTextRect = m_txFlightModeCountText->boundingRect();
+        qreal scale = 2.5;
+        m_txFlightModeCountTextOrig.translate(flightModeBGRect.width() - (flightModeBGRect.height() / 2), flightModeBGRect.height() / 2);
+        m_txFlightModeCountTextOrig.scale(scale, scale);
+        m_txFlightModeCountTextOrig.translate(-flightModeTextRect.width() / 2, -flightModeTextRect.height() / 2);
+        m_txFlightModeCountText->setTransform(m_txFlightModeCountTextOrig, false);
 
         orig   = m_renderer->boundsOnElement("rjoy");
         Matrix = m_renderer->matrixForElement("rjoy");
@@ -388,6 +412,9 @@ void ConfigInputWidget::resetTxControls()
     m_txFlightMode->setElementId("flightModeCenter");
     m_txFlightMode->setTransform(m_txFlightModeCOrig, false);
     m_txArrows->setVisible(false);
+    m_txFlightModeCountText->setText("?");
+    m_txFlightModeCountText->setVisible(false);
+    m_txFlightModeCountBG->setVisible(false);
 }
 
 ConfigInputWidget::~ConfigInputWidget()
@@ -562,6 +589,7 @@ void ConfigInputWidget::wzNext()
         }
         break;
     case wizardIdentifyCenter:
+        resetFlightModeSettings();
         wizardSetUpStep(wizardIdentifyLimits);
         break;
     case wizardIdentifyLimits:
@@ -608,7 +636,7 @@ void ConfigInputWidget::wzBack()
         wizardTearDownStep(wizardStep);
     }
 
-    // State transitions for next button
+    // State transitions for back button
     switch (wizardStep) {
     case wizardChooseType:
         wizardSetUpStep(wizardWelcome);
@@ -630,6 +658,7 @@ void ConfigInputWidget::wzBack()
         wizardSetUpStep(wizardIdentifyCenter);
         break;
     case wizardIdentifyInverted:
+        resetFlightModeSettings();
         wizardSetUpStep(wizardIdentifyLimits);
         break;
     case wizardFinish:
@@ -1099,6 +1128,38 @@ void ConfigInputWidget::identifyLimits()
                 manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
             }
         }
+        // Flightmode channel
+        if (i == ManualControlSettings::CHANNELGROUPS_FLIGHTMODE) {
+            bool newFlightModeValue = true;
+            // Avoid duplicate values too close and error due to RcTx drift
+            int minSpacing = 100; // 100µs
+            for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
+                if (flightModeSignalValue[pos] == 0) {
+                    // A new flightmode value can be set now
+                    for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
+                        // Check if value is already used, MinSpacing needed between values.
+                        if ((flightModeSignalValue[checkpos] < manualCommandData.Channel[i] + minSpacing) &&
+                            (flightModeSignalValue[checkpos] > manualCommandData.Channel[i] - minSpacing)) {
+                            newFlightModeValue = false;
+                        }
+                    }
+                    // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
+                    if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
+                        // Start from 0, erase previous count
+                        if (pos == 0) {
+                            manualSettingsData.FlightModeNumber = 0;
+                        }
+                        // Store new value and increase FlightModeNumber
+                        flightModeSignalValue[pos] = manualCommandData.Channel[i];
+                        manualSettingsData.FlightModeNumber++;
+                        // Show flight mode number
+                        m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
+                        m_txFlightModeCountText->setVisible(true);
+                        m_txFlightModeCountBG->setVisible(true);
+                    }
+                }
+            }
+        }
     }
     manualSettingsObj->setData(manualSettingsData);
 }
@@ -1488,13 +1549,16 @@ void ConfigInputWidget::moveSticks()
         Q_ASSERT(0);
         break;
     }
-    if (flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[0]) {
+    if ((flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[0]) ||
+        (flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[5])) {
         m_txFlightMode->setElementId("flightModeLeft");
         m_txFlightMode->setTransform(m_txFlightModeLOrig, false);
-    } else if (flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[1]) {
+    } else if ((flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[1]) ||
+               (flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[4])) {
         m_txFlightMode->setElementId("flightModeCenter");
         m_txFlightMode->setTransform(m_txFlightModeCOrig, false);
-    } else if (flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[2]) {
+    } else if ((flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[2]) ||
+               (flightStatusData.FlightMode == flightModeSettingsData.FlightModePosition[3])) {
         m_txFlightMode->setElementId("flightModeRight");
         m_txFlightMode->setTransform(m_txFlightModeROrig, false);
     }
@@ -1666,12 +1730,15 @@ void ConfigInputWidget::updatePositionSlider()
         if (sp->objectName() == "channelNeutral") {
             if (count == 4) {
                 sp->setStyleSheet(
-                    "QSlider::groove:horizontal {border: 2px solid rgb(196, 196, 196); height: 12px; border-radius: 4px; "
+                    "QSlider::groove:horizontal {border: 2px solid rgb(196, 196, 196); margin: 0px 23px 0px 23px; height: 12px; border-radius: 5px; "
                     "border-image:url(:/configgadget/images/flightmode_bg" + fmNumber + ".png); }"
                     "QSlider::add-page:horizontal { background: none; border: none; }"
                     "QSlider::sub-page:horizontal { background: none; border: none; }"
-                    "QSlider::handle:horizontal { background: rgba(196, 196, 196, 255); width: 10px; height: 28px; "
-                    "margin: -3px -2px; border-radius: 3px; border: 1px solid #777; }");
+                    "QSlider::handle:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+                    "stop: 0 rgba(196, 196, 196, 180), stop: 0.45 rgba(196, 196, 196, 180), "
+                    "stop: 0.46 rgba(255,0,0,100), stop: 0.54 rgba(255,0,0,100), "
+                    "stop: 0.55 rgba(196, 196, 196, 180), stop: 1 rgba(196, 196, 196, 180)); "
+                    "width: 46px; height: 28px; margin: -6px -23px -6px -23px; border-radius: 5px; border: 1px solid #777; }");
                 count++;
             } else {
                 count++;
@@ -1838,8 +1905,18 @@ void ConfigInputWidget::resetChannelSettings()
     for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_NUMELEM; channel++) {
         manualSettingsData.ChannelGroups[channel] = ManualControlSettings::CHANNELGROUPS_NONE;
         manualSettingsData.ChannelNumber[channel] = CHANNEL_NUMBER_NONE;
-        manualSettingsData.FlightModeNumber = DEFAULT_FLIGHT_MODE_NUMBER;
         manualSettingsObj->setData(manualSettingsData);
+    }
+    resetFlightModeSettings();
+}
+
+void ConfigInputWidget::resetFlightModeSettings()
+{
+    // Reset FlightMode settings
+    manualSettingsData.FlightModeNumber = DEFAULT_FLIGHT_MODE_NUMBER;
+    manualSettingsObj->setData(manualSettingsData);
+    for (uint8_t pos = 0; pos < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; pos++) {
+        flightModeSignalValue[pos] = 0;
     }
 }
 

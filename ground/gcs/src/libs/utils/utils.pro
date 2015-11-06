@@ -57,7 +57,8 @@ SOURCES += \
     hostosinfo.cpp \
     logfile.cpp \
     crc.cpp \
-    mustache.cpp
+    mustache.cpp \
+    textbubbleslider.cpp
 
 SOURCES += xmlconfig.cpp
 
@@ -120,7 +121,8 @@ HEADERS += \
     hostosinfo.h \
     logfile.h \
     crc.h \
-    mustache.h
+    mustache.h \
+    textbubbleslider.h
 
 HEADERS += xmlconfig.h
 

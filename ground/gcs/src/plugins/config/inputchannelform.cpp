@@ -12,7 +12,6 @@ InputChannelForm::InputChannelForm(const int index, QWidget *parent) :
     connect(ui->channelMin, SIGNAL(valueChanged(int)), this, SLOT(minMaxUpdated()));
     connect(ui->channelMax, SIGNAL(valueChanged(int)), this, SLOT(minMaxUpdated()));
     connect(ui->neutralValue, SIGNAL(valueChanged(int)), this, SLOT(neutralUpdated()));
-    connect(ui->channelNeutral, SIGNAL(valueChanged(int)), this, SLOT(updateTooltip()));
     connect(ui->channelGroup, SIGNAL(currentIndexChanged(int)), this, SLOT(groupUpdated()));
     connect(ui->channelRev, SIGNAL(toggled(bool)), this, SLOT(reversedUpdated()));
 
@@ -58,13 +57,6 @@ void InputChannelForm::minMaxUpdated()
     updateNeutralMark();
 }
 
-void InputChannelForm::updateTooltip()
-{
-    int currentValue = ui->channelNeutral->value();
-
-    ui->channelNeutral->setToolTip(QString::number(currentValue));
-}
-
 void InputChannelForm::neutralUpdated()
 {
     int neutralValue = ui->neutralValue->value();
@@ -98,13 +90,17 @@ void InputChannelForm::updateNeutralMark()
     float neutralPosition = offset / range;
 
     ui->channelNeutral->setStyleSheet(
-        "QSlider::groove:horizontal { border: 1px solid rgb(196, 196, 196); height: 6px; border-radius: 2px; "
+        "QSlider::groove:horizontal { border: 1px solid rgb(196, 196, 196); margin: 0px 23px 0px 23px; height: 6px; border-radius: 2px; "
         "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:" + QString::number(neutralPosition - 0.01) + " transparent, stop:"
         + QString::number(neutralPosition) + " red, stop:" + QString::number(neutralPosition + 0.01) + " transparent); }"
-        "QSlider::add-page:horizontal { background: rgba(255,255,255,180); border: 1px solid #777; margin: 0px 0px 0px 2px; border-radius: 4px; }"
-        "QSlider::sub-page:horizontal { background: rgba(78,147,246,180); border: 1px solid #777; margin: 0px 2px 0px 0px; border-radius: 4px; }"
-        "QSlider::handle:horizontal { background: rgba(196,196,196,180); width: 18px; height: 28px; margin: -2px 0px; border-radius: 3px; "
-        "border: 1px solid #777; }"
+        "QSlider::add-page:horizontal { background: rgba(255,255,255,120); border: 1px solid #777; margin: 0px 23px 0px 2px; border-radius: 4px; }"
+        "QSlider::sub-page:horizontal { background: rgba(78,147,246,120); border: 1px solid #777; margin: 0px 2px 0px 23px; border-radius: 4px; }"
+
+        "QSlider::handle:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+        "stop: 0 rgba(196, 196, 196, 180), stop: 0.45 rgba(196, 196, 196, 180), "
+        "stop: 0.46 rgba(255,0,0,100), stop: 0.54 rgba(255,0,0,100), "
+        "stop: 0.55 rgba(196, 196, 196, 180), stop: 1 rgba(196, 196, 196, 180)); "
+        "width: 46px; height: 28px; margin: -6px -23px -6px -23px; border-radius: 6px; border: 1px solid #777; }"
         );
 }
 

@@ -419,12 +419,12 @@ void ConfigTxPIDWidget::updateSpinBoxProperties(int selectedPidOption)
         minPID->setDecimals(0);
         maxPID->setDecimals(0);
     } else if (isAcroPlusFactorOption(selectedPidOption)) {
-        minPID->setRange(0, 1);
-        maxPID->setRange(0, 1);
-        minPID->setSingleStep(0.01);
-        maxPID->setSingleStep(0.01);
-        minPID->setDecimals(2);
-        maxPID->setDecimals(2);
+        minPID->setRange(0, 100);
+        maxPID->setRange(0, 100);
+        minPID->setSingleStep(1);
+        maxPID->setSingleStep(1);
+        minPID->setDecimals(0);
+        maxPID->setDecimals(0);
     } else {
         minPID->setRange(0, 99.99);
         maxPID->setRange(0, 99.99);

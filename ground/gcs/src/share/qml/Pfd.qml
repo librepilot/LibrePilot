@@ -27,7 +27,7 @@ Rectangle {
 
             FontLoader {
                 id: pt_bold
-                source: "qrc:/pfdqml/fonts/PTS75F.ttf"
+                source: "qrc:/utils/fonts/PTS75F.ttf"
             }
 
             width: Math.floor((parent.paintedHeight * 1.32) - (parent.paintedHeight * 0.013))

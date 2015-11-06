@@ -183,6 +183,10 @@ static void systemTask(__attribute__((unused)) void *parameters)
         vTaskDelay(10);
     }
 
+#ifndef PIOS_INCLUDE_WDG
+// if no watchdog is enabled, don't reset watchdog in MODULE_TASKCREATE_ALL loop
+#define PIOS_WDG_Clear()
+#endif
     /* create all modules thread */
     MODULE_TASKCREATE_ALL;
 

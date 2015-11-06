@@ -64,7 +64,7 @@ private:
 
     // Board rotation store/recall for FC and for aux mag
     qint16 storedBoardRotation[3];
-    float auxMagStoredBoardRotation;
+    qint16 auxMagStoredBoardRotation[3];
     bool isBoardRotationStored;
 
 private slots:

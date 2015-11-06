@@ -234,6 +234,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::GPS_UBX:
             elementsToShow << QString("%1OPGPS-v8-ublox").arg(prefix);
             break;
+        case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
+            elementsToShow << QString("%1generic-ublox-mag").arg(prefix);
+            break;
         default:
             break;
         }

@@ -37,16 +37,26 @@ AuxMagSettingsTypeOptions option;
 
 void auxmagsupport_reload_settings()
 {
+    AuxMagSettingsData cal;
+    float magQuat[4];
+    float R[3][3];
+
+    AuxMagSettingsGet(&cal);
+    mag_bias[0] = cal.mag_bias.X;
+    mag_bias[1] = cal.mag_bias.Y;
+    mag_bias[2] = cal.mag_bias.Z;
+
+    // convert the RPY mag board rotation to into a rotation matrix
+    // rotate the vector into the level hover frame (the attitude frame)
+    const float magRpy[3] = { cal.BoardRotation.Roll, cal.BoardRotation.Pitch, cal.BoardRotation.Yaw };
+    RPY2Quaternion(magRpy, magQuat);
+    Quaternion2R(magQuat, R);
+
+    // the mag transform only scales the raw mag values
+    matrix_mult_3x3f((float(*)[3])AuxMagSettingsmag_transformToArray(cal.mag_transform), R, mag_transform);
+
+    // GPSV9, Ext (unused), and Flexi
     AuxMagSettingsTypeGet(&option);
-    float a[3][3];
-    float b[3][3];
-    float rotz;
-    AuxMagSettingsmag_transformArrayGet((float *)a);
-    AuxMagSettingsOrientationGet(&rotz);
-    rotz = DEG2RAD(rotz);
-    rot_about_axis_z(rotz, b);
-    matrix_mult_3x3f(a, b, mag_transform);
-    AuxMagSettingsmag_biasArrayGet(mag_bias);
 }
 
 void auxmagsupport_publish_samples(float mags[3], uint8_t status)

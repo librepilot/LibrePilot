@@ -37,7 +37,18 @@ GpsPage::~GpsPage()
 
 void GpsPage::initializePage(VehicleConfigurationSource *settings)
 {
-    Q_UNUSED(settings);
+    // Enable all
+    setItemDisabled(-1, false);
+    if (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
+        settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
+        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL) {
+        // Disable GPS+I2C Mag
+        setItemDisabled(VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG, true);
+        if (getSelectedItem()->id() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
+            // If previously selected invalid GPS, reset to no GPS
+            setSelectedItem(VehicleConfigurationSource::GPS_DISABLED);
+        }
+    }
 }
 
 bool GpsPage::validatePage(SelectionItem *selectedItem)
@@ -69,6 +80,12 @@ void GpsPage::setupSelection(Selection *selection)
                           "Note: for the OpenPilot v8 GPS please select the U-Blox option."),
                        "OPGPS-v9",
                        SetupWizard::GPS_PLATINUM);
+
+    selection->addItem(tr("U-Blox Based + Magnetometer"),
+                       tr("Select this option for the generic U-Blox chipset based GPS + I2C Magnetometer.\n\n"
+                          "GPS is connected to MainPort and two wires I2C to FlexiPort."),
+                       "generic-ublox-mag",
+                       SetupWizard::GPS_UBX_FLEXI_I2CMAG);
 
     selection->addItem(tr("U-Blox Based"),
                        tr("Select this option for the OpenPilot V8 GPS or generic U-Blox chipset based GPS."),

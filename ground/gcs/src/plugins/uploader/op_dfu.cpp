@@ -574,7 +574,7 @@ OP_DFU::Status DFUObject::StatusRequest()
     buf[8] = 0;
     buf[9] = 0;
 
-    int result = sendData(buf, BUF_LEN);
+    int result    = sendData(buf, BUF_LEN);
     int retry_cnt = 0;
     const int MaxSendRetry = 10, SendRetryIntervalMS = 1000;
     while (result < 0 && retry_cnt < MaxSendRetry) {

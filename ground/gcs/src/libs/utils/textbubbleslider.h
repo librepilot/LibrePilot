@@ -28,10 +28,12 @@
 #ifndef TEXTBUBBLESLIDER_H
 #define TEXTBUBBLESLIDER_H
 
+#include "utils_global.h"
+
 #include <QSlider>
 #include <QtDesigner/QDesignerExportWidget>
 
-class TextBubbleSlider : public QSlider {
+class QTCREATOR_UTILS_EXPORT TextBubbleSlider : public QSlider {
     Q_OBJECT
 
 public:

@@ -241,7 +241,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
-                magsData.Type = AuxMagSettings::TYPE_GPSV9;
+                magsData.Type  = AuxMagSettings::TYPE_GPSV9;
                 magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
                 magSettings->setData(magsData);
                 addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
@@ -255,7 +255,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
-                magsData.Type = AuxMagSettings::TYPE_FLEXI;
+                magsData.Type  = AuxMagSettings::TYPE_FLEXI;
                 magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
                 magSettings->setData(magsData);
                 addModifiedObject(magSettings, tr("Writing I2C Mag sensor settings"));

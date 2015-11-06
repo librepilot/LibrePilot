@@ -639,6 +639,7 @@ void ConfigStabilizationWidget::onBoardConnected()
 void ConfigStabilizationWidget::stabBankChanged(int index)
 {
     bool dirty = isDirty();
+
     disconnect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
     updateObjectFromThrottleCurve();

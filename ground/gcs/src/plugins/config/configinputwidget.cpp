@@ -1645,6 +1645,46 @@ void ConfigInputWidget::moveFMSlider()
         pos = manualSettingsDataPriv.FlightModeNumber - 1;
     }
     ui->fmsSlider->setValue(pos);
+    highlightStabilizationMode(pos);
+}
+
+void ConfigInputWidget::highlightStabilizationMode(int pos)
+{
+    QComboBox *comboboxFm    = this->findChild<QComboBox *>("fmsModePos" + QString::number(pos + 1));
+    QString customStyleSheet = "border-radius: 4px; border:3px solid #feb103;";
+
+    if (comboboxFm) {
+        QString flightModeText = comboboxFm->currentText();
+        comboboxFm->setStyleSheet("");
+        for (uint8_t i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
+            QLabel *label = this->findChild<QLabel *>("stab" + QString::number(i + 1) + "_label");
+            QComboBox *comboRoll   = this->findChild<QComboBox *>("fmsSsPos" + QString::number(i + 1) + "Roll");
+            QComboBox *comboPitch  = this->findChild<QComboBox *>("fmsSsPos" + QString::number(i + 1) + "Pitch");
+            QComboBox *comboYaw    = this->findChild<QComboBox *>("fmsSsPos" + QString::number(i + 1) + "Yaw");
+            QComboBox *comboThrust = this->findChild<QComboBox *>("fmsSsPos" + QString::number(i + 1) + "Thrust");
+            QComboBox *comboboxFm2 = this->findChild<QComboBox *>("fmsModePos" + QString::number(i + 1));
+            comboboxFm2->setStyleSheet("");
+
+            // Highlight current stabilization mode if any.
+            if ((flightModeText.contains("Stabilized", Qt::CaseInsensitive)) && (flightModeText.contains(QString::number(i + 1), Qt::CaseInsensitive))) {
+                label->setStyleSheet("QLabel {" + customStyleSheet + "}");
+                comboRoll->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+                comboPitch->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+                comboYaw->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+                comboThrust->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+            } else {
+                label->setStyleSheet("");
+                comboRoll->setStyleSheet("");
+                comboPitch->setStyleSheet("");
+                comboYaw->setStyleSheet("");
+                comboThrust->setStyleSheet("");
+                if (!flightModeText.contains("Stabilized", Qt::CaseInsensitive)) {
+                    // Highlight PosHold, Return to Base, ... flightmodes
+                    comboboxFm->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+                }
+            }
+        }
+    }
 }
 
 void ConfigInputWidget::updatePositionSlider()

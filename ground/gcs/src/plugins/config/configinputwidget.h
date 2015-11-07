@@ -202,6 +202,8 @@ private:
     AccessoryDesired *getAccessoryDesiredInstance(int instance);
     float getAccessoryDesiredValue(int instance);
 
+    void highlightStabilizationMode(int pos);
+
 private slots:
     void wzNext();
     void wzNextDelayed();

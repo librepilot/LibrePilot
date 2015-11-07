@@ -353,7 +353,7 @@ public:
 
     osgViewer::View *createView()
     {
-        qWarning() << "OSGViewport::createView";
+        qDebug() << "OSGViewport::createView";
         osgViewer::View *view = new osgViewer::View();
 
         // TODO will the handlers be destroyed???
@@ -392,7 +392,7 @@ public:
 
     osg::GraphicsContext *createGraphicsContext()
     {
-        qWarning() << "OSGViewport::createGraphicsContext";
+        qDebug() << "OSGViewport::createGraphicsContext";
 
         osg::GraphicsContext::Traits *traits = getTraits();
         // traitsInfo(*traits);

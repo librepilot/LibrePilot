@@ -289,7 +289,7 @@ extern uint32_t pios_packet_handler;
 // -------------------------
 #define PIOS_DMA_PIN_CONFIG                            \
     {                                                  \
-        { GPIOC, GPIO_Pin_1, ADC_Channel_11, false }, /* batt/sonar pin 3   */  \
+        { GPIOC, GPIO_Pin_3, ADC_Channel_13, false }, /* batt/sonar pin 3   */  \
         { GPIOC, GPIO_Pin_2, ADC_Channel_12, false }, /* batt/sonar pin 4   */  \
         { GPIOA, GPIO_Pin_3, ADC_Channel_3, false }, /* Servo pin 3        */  \
         { GPIOA, GPIO_Pin_2, ADC_Channel_2, false }, /* Servo pin 4        */  \

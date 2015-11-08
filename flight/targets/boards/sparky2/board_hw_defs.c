@@ -56,6 +56,21 @@ static const struct pios_gpio pios_leds_v2[] = {
         },
         .active_low         = true
     },
+#if 0
+    // the other LED in the TL code is accessed this way
+    [PIOS_LED_LINK] = {
+        .pin = {
+            .gpio = GPIOB,
+            .init = {
+                .GPIO_Pin   = GPIO_Pin_6,
+                .GPIO_Speed = GPIO_Speed_50MHz,
+                .GPIO_Mode  = GPIO_Mode_OUT,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd = GPIO_PuPd_UP
+            },
+        },
+    },
+#endif
 #ifdef PIOS_RFM22B_DEBUG_ON_TELEM
     [PIOS_LED_D1] =        {
         .pin                =             {
@@ -254,7 +269,7 @@ void PIOS_OVERO_irq_handler(void)
 
 /*
  * SPI1 Interface
- * Used for MPU6000 gyro and accelerometer
+ * Used for MPU9250 gyro, accelerometer and mag
  */
 void PIOS_SPI_gyro_irq_handler(void);
 void DMA2_Stream0_IRQHandler(void) __attribute__((alias("PIOS_SPI_gyro_irq_handler")));
@@ -609,7 +624,7 @@ static const struct flashfs_logfs_cfg flashfs_internal_cfg = {
 #ifdef PIOS_INCLUDE_COM_TELEM
 
 /*
- * MAIN USART
+ * MAIN PORT
  */
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs  = USART1,
@@ -722,6 +737,7 @@ static const struct pios_dsm_cfg pios_dsm_main_cfg = {
  */
 #include <pios_sbus_priv.h>
 
+#if 0
 static const struct pios_usart_cfg pios_usart_sbus_main_cfg = {
     .regs  = USART1,
     .remap = GPIO_AF_USART1,
@@ -762,70 +778,9 @@ static const struct pios_usart_cfg pios_usart_sbus_main_cfg = {
         },
     },
 };
-
-static const struct pios_usart_cfg pios_usart_sbus_rcvrport_cfg = {
-    .regs  = USART6,
-    .remap = GPIO_AF_USART6,
-    .init  = {
-        .USART_BaudRate   = 100000,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_Even,
-        .USART_StopBits   = USART_StopBits_2,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART6_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = GPIOC,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_7,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-#if 0
-    .tx                                        = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_9,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
 #endif
-};
 
 #endif /* PIOS_INCLUDE_SBUS */
-
-// Need this defined regardless to be able to turn it off
-static const struct pios_sbus_cfg pios_sbus_cfg = {
-    /* Inverter configuration */
-    .inv                = {
-        .gpio = GPIOC,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_6,  // GPIO_Pin_6 Sparky2 has external inverter on PC6, Revo=PC0
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .gpio_inv_enable  = Bit_SET,
-    .gpio_inv_disable = Bit_RESET,
-    .gpio_clk_func    = RCC_AHB1PeriphClockCmd,
-    .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
-};
 
 #ifdef PIOS_INCLUDE_COM_FLEXI
 /*
@@ -1067,7 +1022,11 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
     },
 };
 
-static const struct pios_usart_cfg pios_usart_rcvrport_cfg = {
+
+/*
+ * RCVR PORT
+ */
+static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
     .regs  = USART6,
     .remap = GPIO_AF_USART6,
     .init  = {
@@ -1124,6 +1083,131 @@ static const struct pios_usart_cfg pios_usart_rcvrport_cfg = {
         .pin_source                            = GPIO_PinSource7,
     }
 };
+
+
+static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
+    .regs  = USART6,
+    .remap = GPIO_AF_USART6,
+    .init  = {
+        .USART_BaudRate   = 100000,
+        .USART_WordLength = USART_WordLength_8b,
+        .USART_Parity     = USART_Parity_Even,
+        .USART_StopBits   = USART_StopBits_2,
+        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
+        .USART_Mode                            = USART_Mode_Rx,
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = USART6_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .rx                                        = {
+        .gpio = GPIOC,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_7,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+#if 0
+    .tx                                        = {
+        .gpio = GPIOA,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_9,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_OUT,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+        },
+    },
+#else
+    .tx = {
+        .gpio = NULL,
+    },
+#endif
+};
+
+
+static const struct pios_sbus_cfg pios_sbus_cfg = {
+    /* Inverter configuration */
+    .inv                = {
+        .gpio = GPIOC,
+        .init = {
+            // according to TL code, Sparky uses PC6 and Revo uses PC0
+            // according to the schematics, they both use PC0
+            .GPIO_Pin   = GPIO_Pin_6,  // GPIO_Pin_6 Sparky2 has external inverter connected to PC6, Revo=PC0
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_OUT,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+    .gpio_inv_enable  = Bit_SET,
+    .gpio_inv_disable = Bit_RESET,
+// in TauLabs Revo code these exist
+// in TauLabs Sparky2 code these do not exist
+//    .gpio_clk_func    = RCC_AHB1PeriphClockCmd,
+//    .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
+};
+
+
+// It looks like TL notes originally came from OP's pios_dsm_main_cfg
+// (TL note) Because of the inverter on the main port this will not
+// (TL note) work.  Notice the mode is set to IN to maintain API
+// (TL note) compatibility but protect the pins
+static const struct pios_dsm_cfg pios_dsm_rcvr_cfg = {
+    .bind = {
+        .gpio = GPIOC,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_7,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_OUT,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+        },
+    },
+};
+
+
+static const struct pios_usart_cfg pios_usart_dsm_rcvr_cfg = {
+    .regs  = USART6,
+    .remap = GPIO_AF_USART6,
+    .init  = {
+        .USART_BaudRate   = 115200,
+        .USART_WordLength = USART_WordLength_8b,
+        .USART_Parity     = USART_Parity_No,
+        .USART_StopBits   = USART_StopBits_1,
+        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
+        .USART_Mode                            = USART_Mode_Rx,
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = USART6_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .rx                                        = {
+        .gpio = GPIOC,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_7,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+    .tx = {
+        .gpio = NULL,
+    },
+};
+
 
 #if defined(PIOS_INCLUDE_COM)
 
@@ -1746,7 +1830,7 @@ const struct pios_servo_cfg pios_servo_cfg_out_in = {
  */
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PPM)
 #include <pios_pwm_priv.h>
-static const struct pios_tim_channel pios_tim_rcvrport_all_channels[] = {
+static const struct pios_tim_channel pios_tim_rcvr_all_channels[] = {
 #if 0
     {
         .timer = TIM12,
@@ -1874,8 +1958,8 @@ const struct pios_pwm_cfg pios_pwm_cfg = {
         .TIM_ICPrescaler = TIM_ICPSC_DIV1,
         .TIM_ICFilter    = 0x0,
     },
-    .channels     = pios_tim_rcvrport_all_channels,
-    .num_channels = NELEMENTS(pios_tim_rcvrport_all_channels),
+    .channels     = pios_tim_rcvr_all_channels,
+    .num_channels = NELEMENTS(pios_tim_rcvr_all_channels),
 };
 // this configures outputs 2-6 as pwm inputs
 const struct pios_pwm_cfg pios_pwm_ppm_cfg = {
@@ -1885,8 +1969,8 @@ const struct pios_pwm_cfg pios_pwm_ppm_cfg = {
         .TIM_ICPrescaler = TIM_ICPSC_DIV1,
         .TIM_ICFilter    = 0x0,
     },
-    .channels     = &pios_tim_rcvrport_all_channels[1],
-    .num_channels = NELEMENTS(pios_tim_rcvrport_all_channels) - 1,
+    .channels     = &pios_tim_rcvr_all_channels[1],
+    .num_channels = NELEMENTS(pios_tim_rcvr_all_channels) - 1,
 };
 #endif
 
@@ -1906,7 +1990,7 @@ static const struct pios_ppm_cfg pios_ppm_cfg = {
         .TIM_Channel     = TIM_Channel_2,
     },
     /* Use only the first channel for ppm */
-    .channels     = &pios_tim_rcvrport_all_channels[0],
+    .channels     = &pios_tim_rcvr_all_channels[0],
     .num_channels = 1,
 };
 

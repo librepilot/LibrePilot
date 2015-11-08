@@ -438,6 +438,9 @@ void PIOS_Board_Init(void)
     OPLinkSettingsInitialize();
     OPLinkStatusInitialize();
 #endif /* PIOS_INCLUDE_RFM22B */
+#if defined(PIOS_INCLUDE_HMC5X83)
+    AuxMagSettingsInitialize();
+#endif /* PIOS_INCLUDE_HMC5X83 */
 
     /* Initialize the alarms library */
     AlarmsInitialize();
@@ -477,52 +480,43 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
     case HWSETTINGS_RM_FLEXIPORT_I2C:
-#if 0
 #if defined(PIOS_INCLUDE_I2C)
-        {
-            if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_I2C */
-#else
-#if defined(PIOS_INCLUDE_I2C)
-        if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
-            PIOS_Assert(0);
-        }
-        PIOS_DELAY_WaitmS(50); // this was after the other PIOS_I2C_Init(), so I copied it here too
-#ifdef PIOS_INCLUDE_WDG
-        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
-        // this is not in a loop, so it is safe
-        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
-        // to avoid making something else fail when HMC5X83 is removed
-        PIOS_WDG_Clear();
-#endif /* PIOS_INCLUDE_WDG */
 #if defined(PIOS_INCLUDE_HMC5X83)
-        // get auxmag type
-        AuxMagSettingsTypeOptions option;
-        AuxMagSettingsInitialize();
-        AuxMagSettingsTypeGet(&option);
-        // if the aux mag type is FlexiPort then set it up
-        if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
-            // attach the 5x83 mag to the previously inited I2C2
-            flexi_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_flexiport_adapter_id, 0);
+        {
+            // get auxmag type
+            AuxMagSettingsTypeOptions option;
+            AuxMagSettingsTypeGet(&option);
+            // the FlexiPort type is I2C, so if the AuxMag type is Flexi(Port) then set it up
+            if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
+                if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
+                    PIOS_Assert(0);
+                }
+                PIOS_DELAY_WaitmS(50); // this was after the other PIOS_I2C_Init(), so I copied it here too
 #ifdef PIOS_INCLUDE_WDG
-            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
-            // this is not in a loop, so it is safe
-            PIOS_WDG_Clear();
+                // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+                // this is not in a loop, so it is safe
+                // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+                // to avoid making something else fail when HMC5X83 is removed
+                PIOS_WDG_Clear();
 #endif /* PIOS_INCLUDE_WDG */
-            // add this sensor to the sensor task's list
-            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
-            // and before registering some other fast and important sensor
-            // as that would cause delay and time jitter for the second fast sensor
-            PIOS_HMC5x83_Register(flexi_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
-            // mag alarm is cleared later, so use I2C
-            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (flexi_port_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+                // attach the 5x83 mag to the previously inited I2C2
+                flexi_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_flexiport_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+                // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+                // this is not in a loop, so it is safe
+                PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+                // add this sensor to the sensor task's list
+                // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+                // and before registering some other fast and important sensor
+                // as that would cause delay and time jitter for the second fast sensor
+                PIOS_HMC5x83_Register(flexi_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+                // mag alarm is cleared later, so use I2C
+                AlarmsSet(SYSTEMALARMS_ALARM_I2C, (flexi_port_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+            }
         }
 #endif /* PIOS_INCLUDE_HMC5X83 */
 #endif /* PIOS_INCLUDE_I2C */
-#endif /* 0 */
         break;
     case HWSETTINGS_RM_FLEXIPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
@@ -893,7 +887,7 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_SBUS)
         {
             uint32_t pios_usart_sbus_id;
-            if (PIOS_USART_Init(&pios_usart_sbus_id, &pios_usart_sbus_rcvrport_cfg)) {
+            if (PIOS_USART_Init(&pios_usart_sbus_id, &pios_usart_sbus_rcvr_cfg)) {
                 PIOS_Assert(0);
             }
 
@@ -909,6 +903,11 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS] = pios_sbus_rcvr_id;
         }
 #endif
+        break;
+    case HWSETTINGS_SPK2_RCVRPORT_DSM:
+        // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
+        PIOS_Board_configure_dsm(&pios_usart_dsm_rcvr_cfg, &pios_dsm_rcvr_cfg,
+                                 &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMRCVRPORT, &hwsettings_DSMxBind);
         break;
     default:
         break;
@@ -1006,11 +1005,12 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_WDG */
 #if defined(PIOS_INCLUDE_HMC5X83)
         // get auxmag type
+        HwSettingsSPK2_I2CPortOptions i2cOption;
         AuxMagSettingsTypeOptions option;
-        AuxMagSettingsInitialize();
+        HwSettingsSPK2_I2CPortGet(&i2cOption);
         AuxMagSettingsTypeGet(&option);
-        // if the aux mag type is FlexiPort then set it up
-        if (option == AUXMAGSETTINGS_TYPE_I2C) {
+        // if the I2CPort type is I2C(Port) and the AuxMag type is I2C(Port) then set it up
+        if (i2cOption == HWSETTINGS_SPK2_I2CPORT_I2C && option == AUXMAGSETTINGS_TYPE_I2C) {
             // attach the 5x83 mag to the previously inited I2C2
             i2c_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
 #ifdef PIOS_INCLUDE_WDG

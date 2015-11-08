@@ -36,9 +36,8 @@
 #include <pios_com.h>
 #include <ssp.h>
 #include <pios_delay.h>
+#include <pios_board_init.h>
 
-/* Prototype of PIOS_Board_Init() function */
-extern void PIOS_Board_Init(void);
 extern void FLASH_Download();
 int32_t platform_senddata(const uint8_t *msg, uint16_t msg_len);
 /* Private typedef -----------------------------------------------------------*/

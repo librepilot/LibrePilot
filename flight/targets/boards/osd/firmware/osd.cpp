@@ -3,7 +3,7 @@
  * @addtogroup LibrePilotSystem LibrePilot System
  * @brief These files are the core system files for Revolution.
  * They are the ground layer just above PiOS. In practice, OSD actually starts
- * in the main() function of osd.c
+ * in the main() function of osd.cpp
  * @{
  * @addtogroup LibrePilotCore LibrePilot Core
  * @brief This is where the LP firmware starts. Those files also define the compile-time

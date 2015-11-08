@@ -3,7 +3,7 @@
  * @addtogroup LibrePilotSystem LibrePilot System
  * @brief These files are the core system files for Revolution.
  * They are the ground layer just above PiOS. In practice, Revolution actually starts
- * in the main() function of revolution.c
+ * in the main() function of revolution.cpp
  * @{
  * @addtogroup LibrePilotCore LibrePilot Core
  * @brief This is where the LP firmware starts. Those files also define the compile-time

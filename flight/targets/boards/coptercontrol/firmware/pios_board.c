@@ -155,7 +155,6 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
 int32_t init_test;
 void PIOS_Board_Init(void)
 {
-
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
 
 #if defined(PIOS_INCLUDE_LED)

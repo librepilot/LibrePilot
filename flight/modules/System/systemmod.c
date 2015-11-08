@@ -61,6 +61,8 @@
 #include <pios_flashfs.h>
 #include <pios_notify.h>
 #include <pios_task_monitor.h>
+#include <pios_board_init.h>
+
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <instrumentation.h>
@@ -120,7 +122,6 @@ static void systemTask(void *parameters);
 static void updateI2Cstats();
 static void updateWDGstats();
 #endif
-extern void PIOS_Board_Init(void);
 
 extern uintptr_t pios_uavo_settings_fs_id;
 extern uintptr_t pios_user_fs_id;

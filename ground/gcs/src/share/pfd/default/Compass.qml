@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import "."
+import "common.js" as Utils
 
 Item {
     id: sceneItem
@@ -50,7 +51,7 @@ Item {
 
         rotation: -AttitudeState.Yaw + home_degrees
         transformOrigin: Item.Bottom
-        visible: TakeOffLocation.Status == 0
+        visible: Utils.toInt(TakeOffLocation.Status) == 0
 
     }
 

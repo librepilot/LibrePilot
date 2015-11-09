@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import "common.js" as Utils
 
 Item {
     id: sceneItem
@@ -22,7 +23,7 @@ Item {
         y: scaledBounds.y * sceneItem.height
 
         smooth: true
-        visible: VelocityDesired.Down !== 0.0 && FlightStatus.FlightMode > 7 
+        visible: VelocityDesired.Down !== 0.0 && Utils.toInt(FlightStatus.FlightMode) > 7 
 
         //rotate it around the center
         transform: Rotation {

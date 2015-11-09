@@ -3,6 +3,11 @@ import QtQuick 2.0
 Item {
     id: warnings
 
+    // qml/js treats qint8 as a char, necessary to convert it back to integer value
+    function qint8toInt(qint8_value) {
+         return String(qint8_value).charCodeAt(0)
+    }
+
     property variant sceneSize
                           //  Uninitialised, OK,    Warning, Error, Critical
     property variant statusColors : ["gray", "green", "red", "red", "red"]
@@ -26,10 +31,10 @@ Item {
 
                       // SystemSettings.AirframeType 3 - 17 : VtolPathFollower, check ThrustControl
  
-    property var thrust_mode: FlightStatus.FlightMode < 7 ? StabilizationDesired.StabilizationMode_Thrust : 
-                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType > 2 && SystemSettings.AirframeType < 18
-                              && VtolPathFollowerSettings.ThrustControl == 1 ? 12 : 
-                              FlightStatus.FlightMode > 6 && SystemSettings.AirframeType < 3 ? 12: 0 
+    property var thrust_mode: qint8toInt(FlightStatus.FlightMode) < 7 ? qint8toInt(StabilizationDesired.StabilizationMode_Thrust) : 
+                              qint8toInt(FlightStatus.FlightMode) > 6 && qint8toInt(SystemSettings.AirframeType) > 2 && 
+                              qint8toInt(SystemSettings.AirframeType) < 18 && qint8toInt(VtolPathFollowerSettings.ThrustControl) == 1 ? 12 : 
+                              qint8toInt(FlightStatus.FlightMode) > 6 && qint8toInt(SystemSettings.AirframeType) < 3 ? 12: 0 
 
 
     property real flight_time: Math.round(SystemStats.FlightTime / 1000)
@@ -90,11 +95,11 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: warnings.armColors[FlightStatus.Armed]
+            color: warnings.armColors[qint8toInt(FlightStatus.Armed)]
 
             Text {
                 anchors.centerIn: parent
-                text: ["DISARMED","ARMING","ARMED"][FlightStatus.Armed]
+                text: ["DISARMED","ARMING","ARMED"][qint8toInt(FlightStatus.Armed)]
                 font {
                     family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
@@ -115,7 +120,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: warnings.statusColors[SystemAlarms.Alarm_ManualControl]
+            color: warnings.statusColors[qint8toInt(SystemAlarms.Alarm_ManualControl)]
 
             Text {
                 anchors.centerIn: parent
@@ -138,11 +143,11 @@ Item {
         x: scaledBounds.x * sceneItem.width
         y: scaledBounds.y * sceneItem.height
 
-        property bool warningActive: (SystemAlarms.Alarm_BootFault > 1 ||
-                                      SystemAlarms.Alarm_OutOfMemory > 1 ||
-                                      SystemAlarms.Alarm_StackOverflow > 1 ||
-                                      SystemAlarms.Alarm_CPUOverload > 1 ||
-                                      SystemAlarms.Alarm_EventSystem > 1)
+        property bool warningActive: (qint8toInt(SystemAlarms.Alarm_BootFault) > 1 ||
+                                      qint8toInt(SystemAlarms.Alarm_OutOfMemory) > 1 ||
+                                      qint8toInt(SystemAlarms.Alarm_StackOverflow) > 1 ||
+                                      qint8toInt(SystemAlarms.Alarm_CPUOverload) > 1 ||
+                                      qint8toInt(SystemAlarms.Alarm_EventSystem) > 1)
         Rectangle {
             anchors.fill: parent
             color: parent.warningActive ? "red" : "red"
@@ -172,7 +177,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: warnings.statusColors[SystemAlarms.Alarm_Guidance]
+            color: warnings.statusColors[qint8toInt(SystemAlarms.Alarm_Guidance)]
 
             Text {
                 anchors.centerIn: parent
@@ -197,14 +202,14 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: warnings.flightmodeColors[FlightStatus.FlightMode]
+            color: warnings.flightmodeColors[qint8toInt(FlightStatus.FlightMode)]
              // Manual,Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6,PositionHold,CourseLock,
              // VelocityRoam,HomeLeash,AbsolutePosition,ReturnToBase,Land,PathPlanner,POI,AutoCruise,AutoTakeoff
 
             Text {
                 anchors.centerIn: parent
                 text: ["MANUAL","STAB 1","STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6", "POS HOLD", "COURSELOCK",
-                       "VEL ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"][FlightStatus.FlightMode]
+                       "VEL ROAM", "HOME LEASH", "ABS POS", "RTB", "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"][qint8toInt(FlightStatus.FlightMode)]
                 font {
                     family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
@@ -225,7 +230,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: FlightStatus.FlightMode < 1 ? "grey" : warnings.thrustmodeColors[thrust_mode.toString()]
+            color: qint8toInt(FlightStatus.FlightMode) < 1 ? "grey" : warnings.thrustmodeColors[thrust_mode]
 
                       // Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,
                       // AltitudeHold,AltitudeVario,CruiseControl
@@ -233,7 +238,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 text: ["MANUAL"," "," ", " ", " ", " ", " ", " ", " ",
-                       "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrust_mode.toString()]
+                       "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrust_mode]
                 font {
                     family: pt_bold.name
                     pixelSize: Math.floor(parent.height * 0.74)
@@ -248,7 +253,7 @@ Item {
         elementName: "warning-gps"
         sceneSize: warnings.sceneSize
 
-        visible: SystemAlarms.Alarm_GPS > 1
+        visible: qint8toInt(SystemAlarms.Alarm_GPS) > 1
     }
 
     SvgElementImage {
@@ -256,6 +261,6 @@ Item {
         elementName: "warning-attitude"
         sceneSize: warnings.sceneSize
         anchors.centerIn: background.centerIn
-        visible: SystemAlarms.Alarm_Attitude > 1
+        visible: qint8toInt(SystemAlarms.Alarm_Attitude) > 1
     }
 }

@@ -1151,8 +1151,8 @@ static const struct pios_sbus_cfg pios_sbus_cfg = {
     .gpio_inv_disable = Bit_RESET,
 // in TauLabs Revo code these exist
 // in TauLabs Sparky2 code these do not exist
-//    .gpio_clk_func    = RCC_AHB1PeriphClockCmd,
-//    .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
+    .gpio_clk_func    = RCC_AHB1PeriphClockCmd,
+    .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
 };
 
 

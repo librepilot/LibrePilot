@@ -8,6 +8,7 @@ DEB_REV              := 0$(DEB_DIST)1
 endif
 DEB_NAME             := $(ORG_SMALL_NAME)
 DEB_ORIG_SRC         := $(PACKAGE_DIR)/$(DEB_NAME)_$(UPSTREAM_VER).orig.tar.gz
+DEB_ORIG_FW          := $(PACKAGE_DIR)/$(DEB_NAME)_$(UPSTREAM_VER).orig-firmware.tar.gz
 DEB_PACKAGE_DIR      := $(PACKAGE_DIR)/$(DEB_NAME)-$(UPSTREAM_VER)
 DEB_ARCH             := $(shell dpkg --print-architecture)
 DEB_PACKAGE_NAME     := $(DEB_NAME)_$(UPSTREAM_VER)-$(DEB_REV)_$(DEB_ARCH)
@@ -39,6 +40,7 @@ PACKAGE_DEPS_SED     := s/python.*/python/;s/{misc:Depends}.*/{misc:Depends}/;
 package: debian
 	@$(ECHO) "Building Linux package, please wait..."
 	$(V1) sed -i -e "$(PACKAGE_DEPS_SED)" debian/control
+	$(V1) sed -i -e 's/WITH_PREBUILT.*firmware//' debian/rules
 	$(V1) dpkg-buildpackage -b -us -uc -nc
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).deb $(BUILD_DIR)
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).changes $(BUILD_DIR)
@@ -61,8 +63,12 @@ package_src:  $(DEB_ORIG_SRC_NAME) $(DEB_PACKAGE_DIR)
 $(DEB_ORIG_SRC): $(DIST_TAR_GZ) | $(PACKAGE_DIR)
 	$(V1) cp $(DIST_TAR_GZ) $(DEB_ORIG_SRC)
 
-$(DEB_PACKAGE_DIR): $(DEB_ORIG_SRC) debian | $(PACKAGE_DIR)
+$(DEB_ORIG_FW): $(FW_DIST_TAR_GZ) | $(PACKAGE_DIR)
+	$(V1) cp $(FW_DIST_TAR_GZ) $(DEB_ORIG_FW)
+
+$(DEB_PACKAGE_DIR): $(DEB_ORIG_SRC) $(DEB_ORIG_FW) debian | $(PACKAGE_DIR)
 	$(V1) tar -xf $(DEB_ORIG_SRC) -C $(PACKAGE_DIR)
+	$(V1) tar -xf $(DEB_ORIG_FW) -C $(PACKAGE_DIR)/$(PACKAGE_NAME)
 	$(V1) mv debian $(PACKAGE_DIR)/$(PACKAGE_NAME)
 	$(V1) rm -rf $(DEB_PACKAGE_DIR) && mv $(PACKAGE_DIR)/$(PACKAGE_NAME) $(DEB_PACKAGE_DIR)
 

@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import "common.js" as Utils
 
 Item {
     id: info
@@ -6,11 +7,6 @@ Item {
 
     // Uninitialised, Ok, Warning, Critical, Error
     property variant batColors : ["black", "green", "orange", "red", "red"]
-
-    // qml/js treats qint8 as a char, necessary to convert it back to integer value
-    function qint8toInt(qint8_value) {
-         return String(qint8_value).charCodeAt(0)
-    }
 
     //
     // Waypoint functions
@@ -63,15 +59,6 @@ Item {
         }
     }
 
-    function formatTime(time) {
-        if (time === 0)
-            return "00"
-        if (time < 10)
-            return "0" + time;
-        else
-            return time.toString();
-    }
-
     // End Functions
     //
     // Start Drawing
@@ -89,14 +76,14 @@ Item {
     //
 
     property real bar_width: (info_bg.height + info_bg.width) / 110
-    property int satsInView: qint8toInt(GPSSatellites.SatsInView)
+    property int satsInView: Utils.toInt(GPSSatellites.SatsInView)
     property variant gps_tooltip: "Altitude : "+GPSPositionSensor.Altitude.toFixed(2) +"m\n"+ 
                                   "H/V/P DOP : "+GPSPositionSensor.HDOP.toFixed(2)+"/"+GPSPositionSensor.VDOP.toFixed(2)+"/"+GPSPositionSensor.PDOP.toFixed(2)+"m\n"+
                                    satsInView+" Sats in view"
 
     Repeater {
         id: satNumberBar
-        property int satNumber : qint8toInt(GPSPositionSensor.Satellites)
+        property int satNumber : Utils.toInt(GPSPositionSensor.Satellites)
 
         model: 13
         Rectangle {
@@ -125,10 +112,10 @@ Item {
         }
 
         Text {
-            property int satNumber : qint8toInt(GPSPositionSensor.Satellites)
+            property int satNumber : Utils.toInt(GPSPositionSensor.Satellites)
 
             text: [satNumber > 5 ? " " + satNumber.toString() + " sats - " : ""] + 
-                  ["NO GPS", "NO FIX", "2D", "3D"][qint8toInt(GPSPositionSensor.Status)] 
+                  ["NO GPS", "NO FIX", "2D", "3D"][Utils.toInt(GPSPositionSensor.Status)] 
             anchors.centerIn: parent
             font.pixelSize: parent.height*1.3
             font.family: pt_bold.name
@@ -157,7 +144,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
     }
 
     SvgElementPositionItem {
@@ -166,7 +153,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
 
         Text {
             text: "   "+wp_heading.toFixed(1)+"°"
@@ -187,7 +174,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
 
         Text {
             text: "  "+wp_distance.toFixed(0)+" m"
@@ -208,7 +195,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
 
         MouseArea { id: total_dist_mouseArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: reset_distance()}
 
@@ -226,7 +213,7 @@ Item {
 
         Timer {
             interval: 1000; running: true; repeat: true;
-            onTriggered: {if (qint8toInt(GPSPositionSensor.Status) == 3) compute_distance(PositionState.East,PositionState.North)}
+            onTriggered: {if (Utils.toInt(GPSPositionSensor.Status) == 3) compute_distance(PositionState.East,PositionState.North)}
         }
     }
 
@@ -236,10 +223,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
 
         Text {
-            text: formatTime(wp_eta_h) + ":" + formatTime(wp_eta_m) + ":" + formatTime(wp_eta_s)
+            text: Utils.formatTime(wp_eta_h) + ":" + Utils.formatTime(wp_eta_m) + ":" + Utils.formatTime(wp_eta_s)
             anchors.centerIn: parent
             color: "cyan"
 
@@ -257,7 +244,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
 
         Text {
             text: (WaypointActive.Index+1)+" / "+PathPlan.WaypointCount
@@ -278,10 +265,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
 
         Text {
-            text: ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE","SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"][qint8toInt(PathDesired.Mode)]
+            text: ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE","SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"][Utils.toInt(PathDesired.Mode)]
             anchors.centerIn: parent
             color: "cyan"
 
@@ -304,11 +291,11 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (qint8toInt(SystemAlarms.Alarm_PathPlan) != 1) && (qint8toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
 
         Rectangle {
             anchors.fill: parent
-            color:  FlightBatterySettings.NbCells > 0 ? info.batColors[qint8toInt(SystemAlarms.Alarm_Battery)] : "black"
+            color: Utils.toInt(FlightBatterySettings.NbCells) > 0 ? info.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)] : "black"
 
         }
     }
@@ -319,7 +306,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (qint8toInt(SystemAlarms.Alarm_PathPlan) != 1) && (qint8toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
     }
 
     SvgElementPositionItem {
@@ -330,7 +317,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (qint8toInt(SystemAlarms.Alarm_PathPlan) != 1) && (qint8toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
 
         Rectangle {
             anchors.fill: parent
@@ -357,7 +344,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (qint8toInt(SystemAlarms.Alarm_PathPlan) != 1) && (qint8toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
 
         Rectangle {
             anchors.fill: parent
@@ -384,7 +371,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (qint8toInt(SystemAlarms.Alarm_PathPlan) != 1) && (qint8toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
 
         Rectangle {
             anchors.fill: parent
@@ -402,7 +389,7 @@ Item {
 
             // Alarm based on FlightBatteryState.EstimatedFlightTime < 120s orange, < 60s red
             color: (FlightBatteryState.EstimatedFlightTime <= 120 && FlightBatteryState.EstimatedFlightTime > 60 ? "orange" :
-                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": info.batColors[qint8toInt(SystemAlarms.Alarm_Battery)]))
+                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": info.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]))
 
             border.color: "white"
             border.width: topbattery_volt.width * 0.01
@@ -430,7 +417,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) != 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1
     }
 
     SvgElementPositionItem {
@@ -439,7 +426,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: qint8toInt(SystemAlarms.Alarm_PathPlan) != 1
+        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1
 
         TooltipArea {
             text: "Reset distance counter"
@@ -461,7 +448,7 @@ Item {
 
         Timer {
             interval: 1000; running: true; repeat: true;
-            onTriggered: {if (qint8toInt(GPSPositionSensor.Status) == 3) compute_distance(PositionState.East,PositionState.North)}
+            onTriggered: {if (Utils.toInt(GPSPositionSensor.Status) == 3) compute_distance(PositionState.East,PositionState.North)}
         }
     }
 
@@ -480,7 +467,7 @@ Item {
 
         states: State {
              name: "fading"
-             when: qint8toInt(TakeOffLocation.Status) == 0
+             when: Utils.toInt(TakeOffLocation.Status) == 0
              PropertyChanges { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -501,7 +488,7 @@ Item {
 
         states: State {
              name: "fading_heading"
-             when: qint8toInt(TakeOffLocation.Status) == 0
+             when: Utils.toInt(TakeOffLocation.Status) == 0
              PropertyChanges { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -532,7 +519,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: qint8toInt(TakeOffLocation.Status) == 0
+             when: Utils.toInt(TakeOffLocation.Status) == 0
              PropertyChanges { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -563,7 +550,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: qint8toInt(TakeOffLocation.Status) == 0
+             when: Utils.toInt(TakeOffLocation.Status) == 0
              PropertyChanges { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -574,7 +561,7 @@ Item {
         }
 
         Text {
-            text: formatTime(home_eta_h) + ":" + formatTime(home_eta_m) + ":" + formatTime(home_eta_s)
+            text: Utils.formatTime(home_eta_h) + ":" + Utils.formatTime(home_eta_m) + ":" + Utils.formatTime(home_eta_s)
             anchors.centerIn: parent
             color: "cyan"
             font {

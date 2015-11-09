@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import "common.js" as Utils
 
 Item {
     id: panels
@@ -8,20 +9,6 @@ Item {
     property real est_time_h: (est_flight_time > 0 ? Math.floor(est_flight_time / 3600) : 0 )
     property real est_time_m: (est_flight_time > 0 ? Math.floor((est_flight_time - est_time_h*3600)/60) : 0)
     property real est_time_s: (est_flight_time > 0 ? Math.floor(est_flight_time - est_time_h*3600 - est_time_m*60) : 0)
-
-    function formatTime(time) {
-        if (time === 0)
-            return "00"
-        if (time < 10)
-            return "0" + time;
-        else
-            return time.toString();
-    }
-
-    // qml/js treats qint8 as a char, necessary to convert it back to integer value
-    function qint8toInt(qint8_value) {
-         return String(qint8_value).charCodeAt(0)
-    }
 
     //
     // Panel functions
@@ -105,7 +92,7 @@ Item {
     function telemetry_check() {
        telemetry_sum = OPLinkStatus.RXRate + OPLinkStatus.RXRate
 
-       if (telemetry_sum != telemetry_sum_old || qint8toInt(OPLinkStatus.LinkState) == 4) {
+       if (telemetry_sum != telemetry_sum_old || Utils.toInt(OPLinkStatus.LinkState) == 4) {
            telemetry_link = 1
        } else {
            telemetry_link = 0
@@ -456,7 +443,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: panels.batColors[qint8toInt(SystemAlarms.Alarm_Battery)]
+            color: panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
@@ -497,7 +484,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: panels.batColors[qint8toInt(SystemAlarms.Alarm_Battery)]
+            color: panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
@@ -554,7 +541,7 @@ Item {
 
             // Alarm based on FlightBatteryState.EstimatedFlightTime < 120s orange, < 60s red
             color: (FlightBatteryState.EstimatedFlightTime <= 120 && FlightBatteryState.EstimatedFlightTime > 60 ? "orange" :
-                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": panels.batColors[qint8toInt(SystemAlarms.Alarm_Battery)]))
+                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]))
 
             border.color: "white"
             border.width: battery_volt.width * 0.01
@@ -596,7 +583,7 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            //color: panels.batColors[qint8toInt(SystemAlarms.Alarm_Battery)]
+            //color: panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]
 
             TooltipArea {
                text: "Reset consumed energy"
@@ -613,14 +600,14 @@ Item {
 
             // Alarm based on FlightBatteryState.EstimatedFlightTime < 120s orange, < 60s red
             color: (FlightBatteryState.EstimatedFlightTime <= 120 && FlightBatteryState.EstimatedFlightTime > 60 ? "orange" :
-                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": panels.batColors[qint8toInt(SystemAlarms.Alarm_Battery)]))
+                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]))
 
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: formatTime(est_time_h) + ":" + formatTime(est_time_m) + ":" + formatTime(est_time_s)
+               text: Utils.formatTime(est_time_h) + ":" + Utils.formatTime(est_time_m) + ":" + Utils.formatTime(est_time_s)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -959,7 +946,7 @@ Item {
         }
 
         Text {
-             text: qint8toInt(ReceiverStatus.Quality) > 0 ? qint8toInt(ReceiverStatus.Quality)+"%" : "?? %"
+             text: Utils.toInt(ReceiverStatus.Quality) > 0 ? Utils.toInt(ReceiverStatus.Quality)+"%" : "?? %"
              anchors.centerIn: parent
              color: "white"
              font {
@@ -1048,7 +1035,7 @@ Item {
         Text {
              text: ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
                     "Hexa+", "Octo+", "Custom", "HexaX", "HexaH", "OctoV", "OctoCoaxP", "OctoCoaxX", "OctoX", "HexaCoax",
-                    "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"][qint8toInt(SystemSettings.AirframeType)]
+                    "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"][Utils.toInt(SystemSettings.AirframeType)]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1080,7 +1067,7 @@ Item {
 
         Text {
              // Coptercontrol detect with mem free : Only display Cpu load, no temperature available.
-             text: qint8toInt(SystemStats.CPULoad)+"%"+
+             text: Utils.toInt(SystemStats.CPULoad)+"%"+
                   [SystemStats.HeapRemaining < 3000 ? "" : " | "+cpuTemp+"°C"]
              anchors.right: parent.right
              color: "white"
@@ -1143,7 +1130,7 @@ Item {
         }
 
         Text {
-             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][qint8toInt(RevoSettings.FusionAlgorithm)]
+             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][Utils.toInt(RevoSettings.FusionAlgorithm)]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1174,7 +1161,7 @@ Item {
         }
 
         Text {
-             text: ["Invalid", "OnBoard", "External"][qint8toInt(MagState.Source)]
+             text: ["Invalid", "OnBoard", "External"][Utils.toInt(MagState.Source)]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1205,7 +1192,7 @@ Item {
         }
 
         Text {
-             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8"][qint8toInt(GPSPositionSensor.SensorType)]
+             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8"][Utils.toInt(GPSPositionSensor.SensorType)]
              anchors.right: parent.right
              color: "white"
              font {

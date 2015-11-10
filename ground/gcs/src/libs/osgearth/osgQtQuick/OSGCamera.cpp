@@ -186,7 +186,7 @@ public:
         if (logDepthBufferEnabled) {
             qDebug() << "OSGCamera::attach - install logarithmic depth buffer";
             logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
-            // logDepthBuffer->setUseFragDepth(true);
+            logDepthBuffer->setUseFragDepth(true);
             logDepthBuffer->install(camera);
         }
 

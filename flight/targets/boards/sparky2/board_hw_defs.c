@@ -58,6 +58,7 @@ static const struct pios_gpio pios_leds_v2[] = {
     },
 #if 0
     // the other LED in the TL code is accessed this way
+    // probably needs .active_low = true
     [PIOS_LED_LINK] = {
         .pin = {
             .gpio = GPIOB,
@@ -71,7 +72,8 @@ static const struct pios_gpio pios_leds_v2[] = {
         },
     },
 #endif
-#ifdef PIOS_RFM22B_DEBUG_ON_TELEM
+#if (0 && defined(PIOS_RFM22B_DEBUG_ON_TELEM))
+// Revo hardware config
     [PIOS_LED_D1] =        {
         .pin                =             {
             .gpio = GPIOB,
@@ -120,7 +122,7 @@ static const struct pios_gpio pios_leds_v2[] = {
             },
         },
     },
-#endif /* ifdef PIOS_RFM22B_DEBUG_ON_TELEM */
+#endif /* (0 && defined(PIOS_RFM22B_DEBUG_ON_TELEM)) */
 };
 
 static const struct pios_gpio_cfg pios_led_v2_cfg = {
@@ -138,7 +140,8 @@ const struct pios_gpio_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(__attribute__((unused))
 #if defined(PIOS_INCLUDE_SPI)
 #include <pios_spi_priv.h>
 
-#if defined(PIOS_OVERO_SPI)
+#if (0 && defined(PIOS_OVERO_SPI))
+// Revo hardware config
 /*      SPI2 Interface
  *      - Used for Flexi/IO/Overo communications
         3: PB12 = SPI2 NSS, CAN2 RX
@@ -265,7 +268,7 @@ void PIOS_OVERO_irq_handler(void)
     PIOS_OVERO_DMA_irq_handler(pios_overo_id);
 }
 
-#endif /* PIOS_OVERO_SPI */
+#endif /* (0 && defined(PIOS_OVERO_SPI)) */
 
 /*
  * SPI1 Interface
@@ -1026,6 +1029,7 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
 /*
  * RCVR PORT
  */
+#if 0
 static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
     .regs  = USART6,
     .remap = GPIO_AF_USART6,
@@ -1083,6 +1087,7 @@ static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
         .pin_source                            = GPIO_PinSource7,
     }
 };
+#endif
 
 
 static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
@@ -1115,17 +1120,6 @@ static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
         },
     },
 #if 0
-    .tx                                        = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_9,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-#else
     .tx = {
         .gpio = NULL,
     },
@@ -1203,9 +1197,11 @@ static const struct pios_usart_cfg pios_usart_dsm_rcvr_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
+#if 0
     .tx = {
         .gpio = NULL,
     },
+#endif
 };
 
 
@@ -1613,6 +1609,8 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM9,
     },
+#if 0
+// Revo (?Nano?) had this
     {
         .timer = TIM2,
         .timer_chan = TIM_Channel_3,
@@ -1629,6 +1627,25 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM2,
     },
+#else
+// TL code Sparky2 had this
+    {
+        .timer = TIM9,
+        .timer_chan = TIM_Channel_1,
+        .pin = {
+            .gpio = GPIOA,
+            .init = {
+                .GPIO_Pin   = GPIO_Pin_2,
+                .GPIO_Speed = GPIO_Speed_2MHz,
+                .GPIO_Mode  = GPIO_Mode_AF,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd  = GPIO_PuPd_DOWN
+            },
+            .pin_source     = GPIO_PinSource2,
+        },
+        .remap = GPIO_AF_TIM9,
+    },
+#endif
     {
         .timer = TIM5,
         .timer_chan = TIM_Channel_2,
@@ -1661,6 +1678,8 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM5,
     },
+#if 0
+// Revo (?Nano?) had this
     // PWM pins on FlexiIO(receiver) port
     {
         // * 6: PB15 = SPI2 MOSI, TIM12 CH2
@@ -1680,6 +1699,28 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM12,
     },
+#else
+// TL code Sparky2 had this
+    // Outputs below are buffered via output transmitter. This will make them inverterd.
+    {
+        .timer = TIM8,
+        .timer_chan = TIM_Channel_4,
+        .pin = {
+            .gpio = GPIOC,
+            .init = {
+                .GPIO_Pin   = GPIO_Pin_9,
+                .GPIO_Speed = GPIO_Speed_2MHz,
+                .GPIO_Mode  = GPIO_Mode_AF,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd  = GPIO_PuPd_DOWN
+            },
+            .pin_source     = GPIO_PinSource9,
+        },
+        .remap = GPIO_AF_TIM8,
+    },
+#endif
+#if 0
+// Revo (?Nano?) had this
     {
         // *  7: PC6 = TIM8 CH1, USART6 TX
         .timer = TIM8,
@@ -1697,7 +1738,27 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM8,
     },
-
+#else
+// TL code Sparky2 had this
+    {
+        .timer = TIM8,
+        .timer_chan = TIM_Channel_3,
+        .pin = {
+            .gpio = GPIOC,
+            .init = {
+                .GPIO_Pin   = GPIO_Pin_8,
+                .GPIO_Speed = GPIO_Speed_2MHz,
+                .GPIO_Mode  = GPIO_Mode_AF,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd  = GPIO_PuPd_DOWN
+            },
+            .pin_source     = GPIO_PinSource8,
+        },
+        .remap = GPIO_AF_TIM8,
+    },
+#endif
+#if 0
+// Revo (?Nano?) had this
     {
         // *  8: PC7 = TIM8 CH2, USART6 RX
         .timer = TIM8,
@@ -1715,7 +1776,27 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM8,
     },
-
+#else
+// TL code Sparky2 had this
+    {
+        .timer = TIM12,
+        .timer_chan = TIM_Channel_2,
+        .pin = {
+            .gpio = GPIOB,
+            .init = {
+                .GPIO_Pin   = GPIO_Pin_15,
+                .GPIO_Speed = GPIO_Speed_2MHz,
+                .GPIO_Mode  = GPIO_Mode_AF,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd  = GPIO_PuPd_DOWN
+            },
+            .pin_source     = GPIO_PinSource15,
+        },
+        .remap = GPIO_AF_TIM12,
+    },
+#endif
+#if 0
+// Revo (?Nano?) had this
     {
         // *  9: PC8 = TIM8 CH3
         .timer = TIM8,
@@ -1733,7 +1814,28 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM8,
     },
-
+#else
+// TL code Sparky2 had this
+    {
+        .timer = TIM12,
+        .timer_chan = TIM_Channel_1,
+        .pin = {
+            .gpio = GPIOB,
+            .init = {
+                .GPIO_Pin   = GPIO_Pin_14,
+                .GPIO_Speed = GPIO_Speed_2MHz,
+                .GPIO_Mode  = GPIO_Mode_AF,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd  = GPIO_PuPd_DOWN
+            },
+            .pin_source     = GPIO_PinSource14,
+        },
+        .remap = GPIO_AF_TIM12,
+    },
+#endif
+#if 0
+// Sparky2 had 10, Revo (?Nano?) had 12
+// these are the last 2 from Revo/Nano
     {
         // * 10: PC9 = TIM8 CH4
         .timer = TIM8,
@@ -1751,7 +1853,6 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM8,
     },
-
     {
         // *  5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
         .timer = TIM12,
@@ -1769,6 +1870,7 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
         },
         .remap = GPIO_AF_TIM12,
     },
+#endif
 };
 #endif
 

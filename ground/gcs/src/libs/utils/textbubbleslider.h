@@ -31,7 +31,6 @@
 #include "utils_global.h"
 
 #include <QSlider>
-#include <QtDesigner/QDesignerExportWidget>
 
 class QTCREATOR_UTILS_EXPORT TextBubbleSlider : public QSlider {
     Q_OBJECT

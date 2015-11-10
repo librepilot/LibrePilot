@@ -14,7 +14,6 @@ equals(copyqt, 1) {
                   libQt5Svg.so.5 \
                   libQt5Test.so.5 \
                   libQt5Xml.so.5 \
-                  libQt5Declarative.so.5 \
                   libQt5XmlPatterns.so.5 \
                   libQt5Script.so.5 \
                   libQt5Concurrent.so.5 \
@@ -62,7 +61,6 @@ equals(copyqt, 1) {
                   Qt5Svg$${DS}.dll \
                   Qt5Test$${DS}.dll \
                   Qt5Xml$${DS}.dll \
-                  Qt5Declarative$${DS}.dll \
                   Qt5XmlPatterns$${DS}.dll \
                   Qt5Script$${DS}.dll \
                   Qt5Concurrent$${DS}.dll \

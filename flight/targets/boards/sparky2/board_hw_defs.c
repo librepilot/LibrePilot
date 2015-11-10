@@ -2243,6 +2243,8 @@ const struct pios_ws2811_pin_cfg pios_ws2811_pin_cfg[] = {
             .GPIO_OType = GPIO_OType_PP,
         },
     },
+#if 0
+// Revo FlexiIo (receiver port) is not available on Sparky2
     [HWSETTINGS_WS2811LED_OUT_FLEXIIOPIN3] = {
         .gpio     = GPIOB,
         .gpioInit =                          {
@@ -2261,6 +2263,7 @@ const struct pios_ws2811_pin_cfg pios_ws2811_pin_cfg[] = {
             .GPIO_OType = GPIO_OType_PP,
         },
     },
+#endif
 };
 
 const struct pios_ws2811_cfg pios_ws2811_cfg = {

@@ -43,8 +43,6 @@
 #include <osgGA/StateSetManipulator>
 
 #include <osgEarth/MapNode>
-#include <osgEarthUtil/AutoClipPlaneHandler>
-#include <osgEarthUtil/Sky>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -62,7 +60,6 @@ namespace osgQtQuick {
    Debugging tips
    - export OSG_NOTIFY_LEVEL=DEBUG
 
-
    Z-fighting can happen with coincident polygons, but it can also happen when the Z buffer has insufficient resolution
    to represent the data in the scene. In the case where you are close up to an object (the helicopter)
    and also viewing a far-off object (the earth) the Z buffer has to stretch to accommodate them both.
@@ -71,11 +68,10 @@ namespace osgQtQuick {
    Assuming you are not messing around with the near/far computations, and assuming you don't have any other objects
    in the scene that are farther off than the earth, there are a couple things you can try.
 
-   One, adjust the near/far ratio of the camera. Look at osgearth_viewer.cpp to see how.
+   Adjust the near/far ratio of the camera. Look at osgearth_viewer.cpp to see how.
+   Use LogarythmicDepthBuffer.
 
-   Two, you can try to use the AutoClipPlaneHandler. You can install it automatically by running osgearth_viewer --autoclip.
-
-   If none of that works, you can try parenting your helicopter with an osg::Camera in NESTED mode,
+   More complex : you can try parenting your helicopter with an osg::Camera in NESTED mode,
    which will separate the clip plane calculations of the helicopter from those of the earth. *
 
    TODO : add OSGView to handle multiple views for a given OSGViewport
@@ -197,13 +193,6 @@ public:
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (mapNode) {
             qDebug() << "OSGViewport::attach - found map node" << mapNode;
-            qDebug() << "OSGViewport::attach - set AutoClipPlaneCullCallback on camera";
-            // install AutoClipPlaneCullCallback : computes near/far planes based on scene geometry
-            // TODO will the AutoClipPlaneCullCallback be destroyed ?
-            // TODO does it need to be added to the map node or to the view ?
-            cullCallback = new osgEarth::Util::AutoClipPlaneCullCallback(mapNode);
-            // view->getCamera()->addCullCallback(cullCallback);
-            mapNode->addCullCallback(cullCallback);
 
             // remove light to prevent unnecessary state changes in SceneView
             // scene will get light from sky
@@ -218,17 +207,9 @@ public:
     bool detach(osgViewer::View *view)
     {
         qDebug() << "OSGViewport::detach" << view;
-
         if (camera) {
             camera->detach(view);
         }
-
-        osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(view->getSceneData());
-        if (mapNode) {
-            view->getCamera()->removeCullCallback(cullCallback);
-            cullCallback = NULL;
-        }
-
         return true;
     }
 
@@ -314,8 +295,6 @@ public:
 
     osg::ref_ptr<osgViewer::CompositeViewer> viewer;
     osg::ref_ptr<osgViewer::View>   view;
-
-    osg::ref_ptr<osg::NodeCallback> cullCallback;
 
     static osg::ref_ptr<osg::GraphicsContext> dummy;
 

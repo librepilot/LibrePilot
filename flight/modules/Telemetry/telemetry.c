@@ -122,8 +122,8 @@ static channelContext localChannel;
 static int32_t transmitLocalData(uint8_t *data, int32_t length);
 static void registerLocalObject(UAVObjHandle obj);
 static uint32_t localPort();
-static void updateSettings(channelContext *channel);
 #endif
+static void updateSettings(channelContext *channel);
 
 // OPLink telemetry channel
 static channelContext radioChannel;
@@ -298,9 +298,13 @@ int32_t TelemetryInitialize(void)
         localChannel.uavTalkCon = UAVTalkInitialize(&transmitLocalData);
     }
 
-#endif
+#endif /* ifdef HAS_RADIO */
     // Set channel port handlers
     radioChannel.getPort = radioPort;
+
+    // Set the channel port baud rate
+    updateSettings(&radioChannel);
+
     // Initialise channel
     TelemetryInitializeChannel(&radioChannel);
     // Initialise UAVTalk
@@ -333,7 +337,8 @@ static void registerLocalObject(UAVObjHandle obj)
             EV_NONE);
     }
 }
-#endif
+#endif /* ifdef HAS_RADIO */
+
 static void registerRadioObject(UAVObjHandle obj)
 {
     if (UAVObjIsMetaobject(obj)) {
@@ -650,7 +655,7 @@ static uint32_t localPort()
 {
     return PIOS_COM_TELEM_RF;
 }
-#endif
+#endif /* ifdef HAS_RADIO */
 
 /**
  * Determine the port to be used for communication on the radio channel
@@ -688,7 +693,7 @@ static int32_t transmitLocalData(uint8_t *data, int32_t length)
 
     return -1;
 }
-#endif
+#endif /* ifdef HAS_RADIO */
 
 /**
  * Transmit data buffer to the radioport.
@@ -895,7 +900,6 @@ static void updateTelemetryStats()
     }
 }
 
-#ifdef HAS_RADIO
 /**
  * Update the telemetry settings, called on startup.
  * FIXME: This should be in the TelemetrySettings object. But objects
@@ -939,7 +943,6 @@ static void updateSettings(channelContext *channel)
     }
 }
 
-#endif /* ifdef HAS_RADIO */
 /**
  * @}
  * @}

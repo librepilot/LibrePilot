@@ -398,15 +398,21 @@ endef
 ##############################
 #
 # Windows QT install template
-#  $(1) = tool temp extract/build directory
-#  $(2) = tool install directory
-#  $(3) = tool distribution URL
-#  $(4) = tool distribution .md5 URL
-#  $(5) = tool distribution file
-#  $(6) = QT architecture
-#  $(7) = optional extra build recipes template
-#  $(8) = optional extra clean recipes template
+#  $(1) = tool install directory
+#  $(2) = tool distribution URL
+#  $(3) = tool distribution .md5 URL
+#  $(4) = tool distribution file
+#  $(5) = QT architecture
+#  $(6) = optional extra build recipes template
+#  $(7) = optional extra clean recipes template
 #
+##############################
+# notes:
+# - missing installer --dump-binary-data option : https://bugreports.qt.io/browse/QTIFW-734
+# - devtool can not run QtPatch operation  : https://bugreports.qt.io/browse/QTIFW-792
+# developper tips:
+# - install Qt manually and look at the install log for needed operations (install log is in root of install)
+# - use devtool.exe --dump <folder> <qt install binarry> to check package names and install scripts
 ##############################
 
 define WIN_QT_INSTALL_TEMPLATE
@@ -414,48 +420,32 @@ define WIN_QT_INSTALL_TEMPLATE
 .PHONY: $(addprefix qt_sdk_, install clean distclean)
 
 qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
-	$(V1) if ! $(SEVENZIP) >/dev/null 2>&1; then \
-		$(ECHO) $(MSG_NOTICE) "Missing 7zip. Run ./make/scripts/win_sdk_install.sh [<OpenPilot tools dir>] to get it." && \
-		exit 1; \
-	fi
-	$(call DOWNLOAD_TEMPLATE,$(3),$(5),"$(4)")
-# Explode .run file into install packages
-	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(1))
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(1)))
-	$(V1) chmod +x $(DL_DIR)/$(5)
-	$(V1) $(DL_DIR)/$(5) --dump-binary-data -o  $(1)
+	$(call DOWNLOAD_TEMPLATE,$(2),$(4),"$(3)")
 # Extract packages under tool directory
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.win32_mingw491/5.4.1-0qt5_essentials.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.win32_mingw491/5.4.1-0i686-4.9.1-release-posix-dwarf-rt_v3-rev2-runtime.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.win32_mingw491/5.4.1-0icu_53_1_mingw_builds_4_9_1_posix_dwarf_32.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.win32_mingw491/5.4.1-0qt5_addons.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.tools.win32_mingw491/4.9.1-2i686-4.9.1-release-posix-dwarf-rt_v3-rev2.7z" | grep -v Extracting
+	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(DL_DIR)/$(4)) to $$(call toprel, $(1))
+	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(1)))
+	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0qt5_essentials.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
+	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0i686-4.9.2-release-posix-dwarf-rt_v3-rev1-runtime.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
+	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0icu-win-MinGW4.9.2-Windows7-x86.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
+	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0qt5_addons.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
+	$(V1) devtool --operation DO,Extract,"installer://qt.55.qtquickcontrols.win32_mingw492/5.5.1-0qt5_qtquickcontrols.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
+	$(V1) devtool --operation DO,Extract,"installer://qt.tools.win32_mingw492/4.9.2-0i686-4.9.2-release-posix-dwarf-rt_v3-rev1.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
 # Run patcher
-	@$(ECHO)
 	@$(ECHO) "Executing QtPatch in" $$(call toprel, $(QT_SDK_PREFIX))
-	$(V1) $(CD) $(QT_SDK_PREFIX)
-	$(V1) $(DL_DIR)/$(5) --runoperation QtPatch windows $(QT_SDK_PREFIX) qt5
-
+	#$(V1) devtool --operation DO,QtPatch,"windows","$(QT_SDK_PREFIX)","qt5" "$(DL_DIR)/$(4)"
+	$(V1) devtool --operation DO,LineReplace,"$(QT_SDK_PREFIX)/mkspecs/qconfig.pri","QT_EDITION =","QT_EDITION = OpenSource" "$(DL_DIR)/$(4)"
 # Execute post build templates
-	$(7)
-
-# Clean up temporary files
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
-	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
+	$(6)
 
 qt_sdk_clean:
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, "$(2)")
-	$(V1) [ ! -d "$(2)" ] || $(RM) -rf "$(2)"
-
-	$(8)
+	$(7)
 
 qt_sdk_distclean:
-	@$(ECHO) $(MSG_DISTCLEANING) $$(call toprel, $(DL_DIR)/$(5))
-	$(V1) [ ! -f "$(DL_DIR)/$(5)" ]     || $(RM) "$(DL_DIR)/$(5)"
-	$(V1) [ ! -f "$(DL_DIR)/$(5).md5" ] || $(RM) "$(DL_DIR)/$(5).md5"
+	@$(ECHO) $(MSG_DISTCLEANING) $$(call toprel, $(DL_DIR)/$(4))
+	$(V1) [ ! -f "$(DL_DIR)/$(4)" ]     || $(RM) "$(DL_DIR)/$(4)"
+	$(V1) [ ! -f "$(DL_DIR)/$(4).md5" ] || $(RM) "$(DL_DIR)/$(4).md5"
 
 endef
 
@@ -641,8 +631,7 @@ define QT_SDK_CONFIGURE_TEMPLATE
 	$(V1) $(ECHO) $(QUOTE)Prefix = $(QT_SDK_PREFIX)$(QUOTE) >> $(QT_SDK_PREFIX)/bin/qt.conf
 endef
 
-QT_BUILD_DIR := $(BUILD_DIR)/QT_BUILD
-    $(eval $(call WIN_QT_INSTALL_TEMPLATE,$(QT_BUILD_DIR),$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH),$(QT_SDK_CONFIGURE_TEMPLATE)))
+    $(eval $(call WIN_QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH),$(QT_SDK_CONFIGURE_TEMPLATE)))
 
 else ifeq ($(UNAME), Linux)
 

@@ -26,6 +26,8 @@ equals(copyqt, 1) {
                   libQt5Qml.so.5 \
                   libQt5DBus.so.5 \
                   libQt5QuickParticles.so.5 \
+                  libQt5XcbQpa.so.5 \
+                  libQt5X11Extras.so.5 \
                   libqgsttools_p.so.1 \
                   libicui18n.so.54 \
                   libicuuc.so.54 \
@@ -44,6 +46,7 @@ equals(copyqt, 1) {
                      mediaservice/libgstaudiodecoder.so \
                      mediaservice/libgstmediaplayer.so \
                      platforms/libqxcb.so \
+                     xcbglintegrations/libqxcb-glx-integration.so \
                      sqldrivers/libqsqlite.so
     }
 

@@ -143,7 +143,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             if (c == UBX_SYNC2) { // second UBX sync char found
                 proto_state = UBX_CLASS;
             } else {
-                goto RESTART_NOERROR; // declare a packet error and reparse packet
+                goto RESTART_NOERROR; // reparse packet but don't declare error
             }
             continue;
         case UBX_CLASS:
@@ -163,7 +163,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             if (ubx->header.len > sizeof(UBXPayload)) {
                 gpsRxStats->gpsRxOverflow++;
 #if defined(PIOS_GPS_MINIMAL)
-                goto RESTART_NOERROR; // known issue that some packets are too long - reparse packet
+                goto RESTART_NOERROR; // known issue that some packets are too long on CC3D - reparse packet
 #else
                 goto RESTART; // declare a packet error and reparse packet
 #endif
@@ -213,9 +213,9 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         // if restarting due to error detected in 2nd call to this function (on split packet)
         // then we just restart at index 0, which is mid-packet, not the second byte
 RESTART:
-        ret = PARSER_ERROR; // inform caller that we found at least one error (along with 0 or more good packets)
+        ret  = PARSER_ERROR;  // inform caller that we found at least one error (along with 0 or more good packets)
 RESTART_NOERROR:
-        rx  += restart_index;   // restart parsing just past the most recent SYNC1
+        rx  += restart_index; // restart parsing just past the most recent SYNC1
         len -= restart_index;
         i    = 0;
         proto_state = START;

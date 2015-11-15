@@ -397,43 +397,29 @@ endef
 
 ##############################
 #
-# Windows QT install template
+# Qt install template
 #  $(1) = tool install directory
 #  $(2) = tool distribution URL
 #  $(3) = tool distribution .md5 URL
 #  $(4) = tool distribution file
-#  $(5) = QT architecture
+#  $(5) = Qt architecture
 #  $(6) = optional extra build recipes template
 #  $(7) = optional extra clean recipes template
 #
 ##############################
-# notes:
-# - missing installer --dump-binary-data option : https://bugreports.qt.io/browse/QTIFW-734
-# - devtool can not run QtPatch operation  : https://bugreports.qt.io/browse/QTIFW-792
-# developper tips:
-# - install Qt manually and look at the install log for needed operations (install log is in root of install)
-# - use devtool.exe --dump <folder> <qt install binarry> to check package names and install scripts
-##############################
 
-define WIN_QT_INSTALL_TEMPLATE
+define QT_INSTALL_TEMPLATE
 
 .PHONY: $(addprefix qt_sdk_, install clean distclean)
 
 qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 	$(call DOWNLOAD_TEMPLATE,$(2),$(4),"$(3)")
-# Extract packages under tool directory
-	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(DL_DIR)/$(4)) to $$(call toprel, $(1))
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(1)))
-	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0qt5_essentials.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
-	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0i686-4.9.2-release-posix-dwarf-rt_v3-rev1-runtime.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
-	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0icu-win-MinGW4.9.2-Windows7-x86.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
-	$(V1) devtool --operation DO,Extract,"installer://qt.55.win32_mingw492/5.5.1-0qt5_addons.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
-	$(V1) devtool --operation DO,Extract,"installer://qt.55.qtquickcontrols.win32_mingw492/5.5.1-0qt5_qtquickcontrols.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
-	$(V1) devtool --operation DO,Extract,"installer://qt.tools.win32_mingw492/4.9.2-0i686-4.9.2-release-posix-dwarf-rt_v3-rev1.7z","$(1)" "$(DL_DIR)/$(4)" > NUL
-# Run patcher
-	@$(ECHO) "Executing QtPatch in" $$(call toprel, $(QT_SDK_PREFIX))
-	#$(V1) devtool --operation DO,QtPatch,"windows","$(QT_SDK_PREFIX)","qt5" "$(DL_DIR)/$(4)"
-	$(V1) devtool --operation DO,LineReplace,"$(QT_SDK_PREFIX)/mkspecs/qconfig.pri","QT_EDITION =","QT_EDITION = OpenSource" "$(DL_DIR)/$(4)"
+# Silently install Qt under tools directory
+	@$(ECHO) $(MSG_EXTRACTING) $(4) to $$(call toprel, $(1))
+	$(V1) ( export QT_INSTALL_TARGET_DIR=$(1) && \
+		chmod +x $(DL_DIR)/$(4) && \
+		$(DL_DIR)/$(4) --script $(ROOT_DIR)/make/tool_install/qt-install.qs ; \
+	)
 # Execute post build templates
 	$(6)
 
@@ -623,27 +609,17 @@ ifeq ($(UNAME), Windows)
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)
 
-# This additional configuration step should not be necessary
-# but it is needed as a workaround to https://bugreports.qt-project.org/browse/QTBUG-33254
-define QT_SDK_CONFIGURE_TEMPLATE
-	@$(ECHO) $(MSG_CONFIGURING) $(call toprel, $(QT_SDK_DIR))
-	$(V1) $(ECHO) $(QUOTE)[Paths]$(QUOTE) > $(QT_SDK_PREFIX)/bin/qt.conf
-	$(V1) $(ECHO) $(QUOTE)Prefix = $(QT_SDK_PREFIX)$(QUOTE) >> $(QT_SDK_PREFIX)/bin/qt.conf
-endef
-
-    $(eval $(call WIN_QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH),$(QT_SDK_CONFIGURE_TEMPLATE)))
+    $(eval $(call QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else ifeq ($(UNAME), Linux)
 
 QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
-QT_BUILD_DIR := $(BUILD_DIR)/QT_BUILD
-    $(eval $(call LINUX_QT_INSTALL_TEMPLATE,$(QT_BUILD_DIR),$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
+    $(eval $(call QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else ifeq ($(UNAME), Darwin)
 
 QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
-QT_BUILD_DIR := $(BUILD_DIR)/QT_BUILD
-    $(eval $(call MAC_QT_INSTALL_TEMPLATE,$(QT_BUILD_DIR),$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
+    $(eval $(call QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else
 

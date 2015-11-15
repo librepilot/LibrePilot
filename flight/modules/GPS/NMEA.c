@@ -107,7 +107,6 @@ static const struct nmea_parser nmea_parsers[] = {
 
 int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPositionSensorData *GpsData, struct GPS_RX_STATS *gpsRxStats)
 {
-    int ret = PARSER_INCOMPLETE;
     static uint8_t rx_count = 0;
     static bool start_flag  = false;
     static bool found_cr    = false;
@@ -139,8 +138,6 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
                 } else {
                     i = len;
                 }
-                // if no more data, we can return an error
-                ret = PARSER_ERROR;
                 // loop to restart at the $ if there is one
                 continue;
             }
@@ -150,7 +147,6 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
             // Flush the buffer and note the overflow event.
             gpsRxStats->gpsRxOverflow++;
             start_flag = false;
-            ret = PARSER_OVERRUN;
             continue;
         } else {
             gps_rx_buffer[rx_count++] = c;
@@ -182,13 +178,11 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
                     // PIOS_DEBUG_PinHigh(2);
                     gpsRxStats->gpsRxChkSumError++;
                     // PIOS_DEBUG_PinLow(2);
-                    ret = PARSER_ERROR;
                 } else { // Valid checksum, use this packet to update the GPS position
                     if (!NMEA_update_position(&gps_rx_buffer[1], GpsData)) {
                         // PIOS_DEBUG_PinHigh(2);
                         gpsRxStats->gpsRxParserError++;
                         // PIOS_DEBUG_PinLow(2);
-                        ret = PARSER_ERROR;
                     } else {
                         gpsRxStats->gpsRxReceived++;
                         goodParse = true;
@@ -205,7 +199,7 @@ int parse_nmea_stream(uint8_t *rx, uint8_t len, char *gps_rx_buffer, GPSPosition
         // might think the GPS was offline
         return PARSER_COMPLETE;
     } else {
-        return ret;
+        return PARSER_INCOMPLETE;
     }
 }
 

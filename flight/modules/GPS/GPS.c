@@ -77,7 +77,9 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev);
 // ****************
 // Private constants
 
-#define GPS_TIMEOUT_MS             500
+// GPS timeout is greater than 1000ms so that a stock GPS configuration can be used without timeout errors
+#define GPS_TIMEOUT_MS             1250
+
 // delay from detecting HomeLocation.Set == False before setting new homelocation
 // this prevent that a save with homelocation.Set = false triggered by gps ends saving
 // the new location with Set = true.
@@ -120,7 +122,6 @@ static xTaskHandle gpsTaskHandle;
 
 static char *gps_rx_buffer;
 
-static uint32_t timeOfLastCommandMs;
 static uint32_t timeOfLastUpdateMs;
 
 #if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER)
@@ -256,8 +257,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
 #endif
     GPSPositionSensorData gpspositionsensor;
 
-    timeOfLastUpdateMs  = timeNowMs;
-    timeOfLastCommandMs = timeNowMs;
+    timeOfLastUpdateMs = timeNowMs;
 
     GPSPositionSensorGet(&gpspositionsensor);
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
@@ -312,13 +312,14 @@ static void gpsTask(__attribute__((unused)) void *parameters)
 #endif /* if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL) */
 
             uint16_t cnt;
+            int res;
             // This blocks the task until there is something on the buffer (or 100ms? passes)
             cnt = PIOS_COM_ReceiveBuffer(gpsPort, c, GPS_READ_BUFFER, xDelay);
+            res = PARSER_INCOMPLETE;
             if (cnt > 0) {
                 PERF_TIMED_SECTION_START(counterParse);
                 PERF_TRACK_VALUE(counterBytesIn, cnt);
                 PERF_MEASURE_PERIOD(counterRate);
-                int res;
                 switch (gpsSettings.DataProtocol) {
 #if defined(PIOS_INCLUDE_GPS_NMEA_PARSER)
                 case GPSSETTINGS_DATAPROTOCOL_NMEA:
@@ -339,20 +340,23 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                 if (res == PARSER_COMPLETE) {
                     timeNowMs = xTaskGetTickCount() * portTICK_RATE_MS;
                     timeOfLastUpdateMs = timeNowMs;
-                    timeOfLastCommandMs = timeNowMs;
                 }
             }
 
+            // if there is any error at all, set status to NOGPS
             // Check for GPS timeout
             timeNowMs = xTaskGetTickCount() * portTICK_RATE_MS;
-            if ((timeNowMs - timeOfLastUpdateMs) >= GPS_TIMEOUT_MS ||
+            if ((res == PARSER_ERROR) ||
+                (timeNowMs - timeOfLastUpdateMs) >= GPS_TIMEOUT_MS ||
                 (gpsSettings.DataProtocol == GPSSETTINGS_DATAPROTOCOL_UBX && gpspositionsensor.AutoConfigStatus == GPSPOSITIONSENSOR_AUTOCONFIGSTATUS_ERROR)) {
                 // we have not received any valid GPS sentences for a while.
                 // either the GPS is not plugged in or a hardware problem or the GPS has locked up.
                 GPSPositionSensorStatusOptions status = GPSPOSITIONSENSOR_STATUS_NOGPS;
                 GPSPositionSensorStatusSet(&status);
                 AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_ERROR);
-            } else {
+            }
+            // if we parsed at least one packet successfully
+            else if (res == PARSER_COMPLETE) {
                 // we appear to be receiving GPS sentences OK, we've had an update
                 // criteria for GPS-OK taken from this post...
                 // http://forums.openpilot.org/topic/1523-professors-insgps-in-svn/page__view__findpost__p__5220

@@ -126,45 +126,56 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
     static enum proto_states proto_state = START;
     static uint16_t rx_count = 0;
     struct UBXPacket *ubx    = (struct UBXPacket *)gps_rx_buffer;
-    int i = 0;
+    uint16_t i = 0;
+    uint16_t restart_index   = 0;
 
     while (i < len) {
         c = rx[i++];
         switch (proto_state) {
         case START: // detect protocol
             if (c == UBX_SYNC1) { // first UBX sync char found
-                proto_state = UBX_SY2;
+                proto_state   = UBX_SY2;
+                // restart here, at byte after SYNC1, if we fail to parse
+                restart_index = i;
             }
-            break;
+            continue;
         case UBX_SY2:
             if (c == UBX_SYNC2) { // second UBX sync char found
                 proto_state = UBX_CLASS;
             } else {
-                proto_state = START; // reset state
+                goto RESTART; // declare a packet error and reparse packet
             }
-            break;
+            continue;
         case UBX_CLASS:
             ubx->header.class = c;
             proto_state      = UBX_ID;
-            break;
+            continue;
         case UBX_ID:
             ubx->header.id   = c;
             proto_state      = UBX_LEN1;
-            break;
+            continue;
         case UBX_LEN1:
             ubx->header.len  = c;
             proto_state      = UBX_LEN2;
-            break;
+            continue;
         case UBX_LEN2:
             ubx->header.len += (c << 8);
             if (ubx->header.len > sizeof(UBXPayload)) {
                 gpsRxStats->gpsRxOverflow++;
-                proto_state = START;
+#if defined(PIOS_GPS_MINIMAL)
+                goto RESTART_NOERROR; // known issue that some packets are too long - reparse packet
+#else
+                goto RESTART; // declare a packet error and reparse packet
+#endif
             } else {
-                rx_count    = 0;
-                proto_state = UBX_PAYLOAD;
+                if (ubx->header.len == 0) {
+                    proto_state = UBX_CHK1;
+                } else {
+                    proto_state = UBX_PAYLOAD;
+                    rx_count    = 0;
+                }
             }
-            break;
+            continue;
         case UBX_PAYLOAD:
             if (rx_count < ubx->header.len) {
                 ubx->payload.payload[rx_count] = c;
@@ -172,32 +183,44 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                     proto_state = UBX_CHK1;
                 }
             }
-            break;
+            continue;
         case UBX_CHK1:
             ubx->header.ck_a = c;
             proto_state = UBX_CHK2;
-            break;
+            continue;
         case UBX_CHK2:
             ubx->header.ck_b = c;
             if (checksum_ubx_message(ubx)) { // message complete and valid
                 parse_ubx_message(ubx, GpsData);
-                proto_state = FINISHED;
+                gpsRxStats->gpsRxReceived++;
+                proto_state = START;
+                // pass PARSER_ERROR to be to caller if it happens even once
+                if (ret == PARSER_INCOMPLETE) {
+                    ret = PARSER_COMPLETE; // message complete & processed
+                }
             } else {
                 gpsRxStats->gpsRxChkSumError++;
-                proto_state = START;
+                goto RESTART;
             }
-            break;
+            continue;
         default:
-            break;
+            continue;
         }
 
-        if (proto_state == START) {
-            ret = (ret != PARSER_COMPLETE) ? PARSER_ERROR : PARSER_COMPLETE; // parser couldn't use this byte
-        } else if (proto_state == FINISHED) {
-            gpsRxStats->gpsRxReceived++;
-            proto_state = START;
-            ret = PARSER_COMPLETE; // message complete & processed
-        }
+        // this simple restart doesn't work across calls
+        // but it does work within a single call
+        // and it does the expected thing across calls
+        // if restarting due to error detected in 2nd call to this function (on split packet)
+        // then we just restart at index 0, which is mid-packet, not the second byte
+RESTART:
+        ret = PARSER_ERROR; // inform caller that we found at least one error (along with 0 or more good packets)
+#if defined(PIOS_GPS_MINIMAL)
+RESTART_NOERROR:
+#endif
+        rx  += restart_index;   // restart parsing just past the most recent SYNC1
+        len -= restart_index;
+        i    = 0;
+        proto_state = START;
     }
 
     return ret;
@@ -528,7 +551,7 @@ uint32_t parse_ubx_message(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosi
     GpsPosition->SensorType = sensorType;
 
     if (msgtracker.msg_received == ALL_RECEIVED) {
-        // leave my new field alone!
+        // leave BaudRate field alone
         GPSPositionSensorBaudRateGet(&GpsPosition->BaudRate);
         GPSPositionSensorSet(GpsPosition);
         msgtracker.msg_received = NONE_RECEIVED;

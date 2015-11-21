@@ -43,8 +43,11 @@ struct OSGSkyNode::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGSkyNode *parent) : QObject(parent), self(parent), sceneData(NULL), sunLightEnabled(true), dateTime(), minimumAmbientLight(0.03)
-    {}
+    Hidden(OSGSkyNode *parent) : QObject(parent),
+        self(parent), sceneData(NULL), sunLightEnabled(true), minimumAmbientLight(0.03)
+    {
+        dateTime = QDateTime::currentDateTime();
+    }
 
     ~Hidden()
     {}

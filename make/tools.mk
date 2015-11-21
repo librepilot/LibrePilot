@@ -459,7 +459,7 @@ qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
 # Silently install Qt under tools directory
 	@$(ECHO) $(MSG_EXTRACTING) $(4) to $$(call toprel, $(1))
 	$(V1) ( export QT_INSTALL_TARGET_DIR=$(1) && \
-		$(DL_DIR)/$(4) --script $(ROOT_DIR)/make/tool_install/qt-install.qs ; \
+		$(QT_SDK_MAINTENANCE_TOOL) --script $(ROOT_DIR)/make/tool_install/qt-install.qs ; \
 	)
 # Unmount the .dmg file
 	$(V1) hdiutil detach $(QT_SDK_MOUNT_DIR)

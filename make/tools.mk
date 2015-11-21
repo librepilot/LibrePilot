@@ -437,69 +437,6 @@ endef
 
 ##############################
 #
-# Linux QT install template
-#  $(1) = tool temp extract/build directory
-#  $(2) = tool install directory
-#  $(3) = tool distribution URL
-#  $(4) = tool distribution .md5 URL
-#  $(5) = tool distribution file
-#  $(6) = QT architecture
-#  $(7) = optional extra build recipes template
-#  $(8) = optional extra clean recipes template
-#
-##############################
-
-define LINUX_QT_INSTALL_TEMPLATE
-
-.PHONY: $(addprefix qt_sdk_, install clean distclean)
-
-qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
-	$(V1) if ! $(SEVENZIP) >/dev/null 2>&1; then \
-		$(ECHO) $(MSG_NOTICE) "Please install the p7zip for your distribution. i.e.: sudo apt-get install p7zip-full" && \
-		exit 1; \
-	fi
-	$(call DOWNLOAD_TEMPLATE,$(3),$(5),"$(4)")
-# Explode .run file into install packages
-	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(1))
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(1)))
-	$(V1) chmod +x $(DL_DIR)/$(5)
-	$(V1) $(DL_DIR)/$(5) --dump-binary-data -o  $(1)
-# Extract packages under tool directory
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_essentials.7z" | grep -v Extracting
-	$(V1) if [ -f "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_64.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_64.7z" | grep -v Extracting; fi
-	$(V1) if [ -f "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_32.7z" ]; then $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0icu_53_1_ubuntu_11_10_32.7z" | grep -v Extracting; fi
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_addons.7z" | grep -v Extracting
-# Run patcher
-	@$(ECHO)
-	@$(ECHO) "Executing QtPatch in" $$(call toprel, $(QT_SDK_PREFIX))
-	$(V1) $(CD) $(QT_SDK_PREFIX)
-	$(V1) $(DL_DIR)/$(5) --runoperation QtPatch linux $(QT_SDK_PREFIX) qt5
-
-# Execute post build templates
-	$(7)
-
-# Clean up temporary files
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
-	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
-
-qt_sdk_clean:
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
-	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, "$(2)")
-	$(V1) [ ! -d "$(2)" ] || $(RM) -rf "$(2)"
-
-	$(8)
-
-qt_sdk_distclean:
-	@$(ECHO) $(MSG_DISTCLEANING) $$(call toprel, $(DL_DIR)/$(5))
-	$(V1) [ ! -f "$(DL_DIR)/$(5)" ]     || $(RM) "$(DL_DIR)/$(5)"
-	$(V1) [ ! -f "$(DL_DIR)/$(5).md5" ] || $(RM) "$(DL_DIR)/$(5).md5"
-
-endef
-
-##############################
-#
 # Mac QT install template
 #  $(1) = tool temp extract/build directory
 #  $(2) = tool install directory

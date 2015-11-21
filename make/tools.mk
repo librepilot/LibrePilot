@@ -397,6 +397,33 @@ endef
 
 ##############################
 #
+# ARM SDK
+#
+##############################
+export ARM_SDK_PREFIX := arm-none-eabi-
+ARM_SDK_TOOL := gcc-arm-none-eabi
+
+.PHONY: arm_sdk_install
+arm_sdk_install: $(ARM_SDK_TOOL)_install
+
+.PHONY: arm_sdk_clean
+arm_sdk_clean: $(ARM_SDK_TOOL)_remove
+
+.PHONY: arm_sdk_version
+arm_sdk_version:
+	-$(V1) $(ARM_SDK_PREFIX)gcc --version | head -n1
+
+# Template to check ARM toolchain version before building targets
+define ARM_GCC_VERSION_CHECK_TEMPLATE
+	if ! $(ARM_SDK_PREFIX)gcc --version --specs=nano.specs >/dev/null 2>&1; then \
+		$(ECHO) $(MSG_NOTICE) Please install ARM toolchain 4.8 2014q1 using \'make arm_sdk_install\' && \
+		$(ECHO) $(MSG_NOTICE) Older ARM SDKs do not support new \'--specs=nano.specs\' option && \
+		exit 1; \
+	fi
+endef
+
+##############################
+#
 # Qt install template
 #  $(1) = tool install directory
 #  $(2) = tool distribution URL
@@ -471,33 +498,6 @@ qt_sdk_clean:
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
 	$(7)
 
-endef
-
-##############################
-#
-# ARM SDK
-#
-##############################
-export ARM_SDK_PREFIX := arm-none-eabi-
-ARM_SDK_TOOL := gcc-arm-none-eabi
-
-.PHONY: arm_sdk_install
-arm_sdk_install: $(ARM_SDK_TOOL)_install
-
-.PHONY: arm_sdk_clean
-arm_sdk_clean: $(ARM_SDK_TOOL)_remove
-
-.PHONY: arm_sdk_version
-arm_sdk_version:
-	-$(V1) $(ARM_SDK_PREFIX)gcc --version | head -n1
-
-# Template to check ARM toolchain version before building targets
-define ARM_GCC_VERSION_CHECK_TEMPLATE
-	if ! $(ARM_SDK_PREFIX)gcc --version --specs=nano.specs >/dev/null 2>&1; then \
-		$(ECHO) $(MSG_NOTICE) Please install ARM toolchain 4.8 2014q1 using \'make arm_sdk_install\' && \
-		$(ECHO) $(MSG_NOTICE) Older ARM SDKs do not support new \'--specs=nano.specs\' option && \
-		exit 1; \
-	fi
 endef
 
 ##############################

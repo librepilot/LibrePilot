@@ -389,22 +389,22 @@ public:
     ManipulatorMode::Enum manipulatorMode;
 
     // to compute home position
-    OSGNode     *node;
+    OSGNode *node;
 
     // for NodeTrackerManipulator
     TrackerMode::Enum trackerMode;
-    OSGNode     *trackNode;
+    OSGNode   *trackNode;
 
-    bool logDepthBufferEnabled;
+    bool      logDepthBufferEnabled;
     osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
 
-    bool first;
+    bool      first;
 
     // for User manipulator
-    bool dirty;
+    bool      dirty;
 
-    bool clampToTerrain;
-    bool intoTerrain;
+    bool      clampToTerrain;
+    bool      intoTerrain;
 
     QVector3D attitude;
     QVector3D position;

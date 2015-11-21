@@ -37,7 +37,6 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
-
 class OSGQTQUICK_EXPORT OptimizeMode : public QObject {
     Q_OBJECT
 public:

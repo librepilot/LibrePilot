@@ -282,18 +282,18 @@ public:
         return true;
     }
 
-    OSGViewport  *self;
+    OSGViewport      *self;
 
-    QQuickWindow *window;
+    QQuickWindow     *window;
 
-    OSGNode      *sceneData;
-    OSGCamera    *camera;
+    OSGNode          *sceneData;
+    OSGCamera        *camera;
 
     UpdateMode::Enum updateMode;
 
     int frameTimer;
 
-    osg::ref_ptr<osgViewer::CompositeViewer> viewer;
+    osg::ref_ptr<osgViewer::CompositeViewer>  viewer;
     osg::ref_ptr<osgViewer::View>   view;
 
     static osg::ref_ptr<osg::GraphicsContext> dummy;

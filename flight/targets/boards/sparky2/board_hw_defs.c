@@ -1090,6 +1090,8 @@ static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
 #endif
 
 
+#if defined(PIOS_INCLUDE_SBUS)
+
 static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
     .regs  = USART6,
     .remap = GPIO_AF_USART6,
@@ -1126,6 +1128,8 @@ static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
 #endif
 };
 
+#endif /* PIOS_INCLUDE_SBUS */
+
 
 static const struct pios_sbus_cfg pios_sbus_cfg = {
     /* Inverter configuration */
@@ -1149,6 +1153,8 @@ static const struct pios_sbus_cfg pios_sbus_cfg = {
     .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
 };
 
+
+#ifdef PIOS_INCLUDE_DSM
 
 // It looks like TL notes originally came from OP's pios_dsm_main_cfg
 // (TL note) Because of the inverter on the main port this will not
@@ -1203,6 +1209,8 @@ static const struct pios_usart_cfg pios_usart_dsm_rcvr_cfg = {
     },
 #endif
 };
+
+#endif /* PIOS_INCLUDE_DSM */
 
 
 #if defined(PIOS_INCLUDE_COM)

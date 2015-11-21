@@ -438,14 +438,13 @@ endef
 ##############################
 #
 # Mac QT install template
-#  $(1) = tool temp extract/build directory
-#  $(2) = tool install directory
-#  $(3) = tool distribution URL
-#  $(4) = tool distribution .md5 URL
-#  $(5) = tool distribution file
-#  $(6) = QT architecture
-#  $(7) = optional extra build recipes template
-#  $(8) = optional extra clean recipes template
+#  $(1) = tool install directory
+#  $(2) = tool distribution URL
+#  $(3) = tool distribution .md5 URL
+#  $(4) = tool distribution file
+#  $(5) = QT architecture
+#  $(6) = optional extra build recipes template
+#  $(7) = optional extra clean recipes template
 #
 ##############################
 
@@ -454,58 +453,23 @@ define MAC_QT_INSTALL_TEMPLATE
 .PHONY: $(addprefix qt_sdk_, install clean distclean)
 
 qt_sdk_install: qt_sdk_clean | $(DL_DIR) $(TOOLS_DIR)
-	$(V1) if ! $(SEVENZIP) >/dev/null 2>&1; then \
-		$(ECHO) $(MSG_NOTICE) "Please install the p7zip for your distribution. i.e.: brew install p7zip." && \
-		exit 1; \
-	fi
-	$(call DOWNLOAD_TEMPLATE,$(3),$(5),"$(4)")
+	$(call DOWNLOAD_TEMPLATE,$(2),$(4),"$(3)")
 # Mount .dmg file
-	$(V1) hdiutil attach -nobrowse $(DL_DIR)/$(5)
-# Explode .dmg file into install packages
-	@$(ECHO) $(MSG_EXTRACTING) $$(call toprel, $(1))
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(1)))
-	$(V1) $(QT_SDK_MAINTENANCE_TOOL) --dump-binary-data -i $(QT_SDK_INSTALLER_DAT) -o $(1)
-# Extract packages under tool directory
-	$(V1) $(MKDIR) -p $$(call toprel, $(dir $(2)))
-	#$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.readme/1.0.0-0qt-project-url.7z" | grep -v Extracting
-	#$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt/5.4.1ThirdPartySoftware_Listing.7z" | grep -v Extracting
-	#$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.readme/1.0.0-0readme.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_essentials.7z" | grep -v Extracting
-#	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6).essentials/5.4.1icu_path_patcher.sh.7z" | grep -v Extracting
-	$(V1) $(SEVENZIP) -y -o$(2) x "$(1)/qt.54.$(6)/5.4.1-0qt5_addons.7z" | grep -v Extracting
-
-
-# go to OpenPilot/tools/5.4/gcc_64 and call patcher.sh
-	@$(ECHO)
-	@$(ECHO) "Running patcher in" $$(call toprel, $(QT_SDK_PREFIX))
-	$(V1) $(CD) $(QT_SDK_PREFIX)
-#	$(V1) "$(QT_SDK_PREFIX)/patcher.sh" $(QT_SDK_PREFIX)
-# call qmake patcher
-	@$(ECHO) "Executing QtPatch in" $$(call toprel, $(QT_SDK_PREFIX))
-	$(V1) $(QT_SDK_MAINTENANCE_TOOL) --runoperation QtPatch mac $(QT_SDK_PREFIX) qt5
-
-#Unmount the .dmg file
+	$(V1) hdiutil attach -nobrowse $(DL_DIR)/$(4)
+# Silently install Qt under tools directory
+	@$(ECHO) $(MSG_EXTRACTING) $(4) to $$(call toprel, $(1))
+	$(V1) ( export QT_INSTALL_TARGET_DIR=$(1) && \
+		$(DL_DIR)/$(4) --script $(ROOT_DIR)/make/tool_install/qt-install.qs ; \
+	)
+# Unmount the .dmg file
 	$(V1) hdiutil detach $(QT_SDK_MOUNT_DIR)
-
 # Execute post build templates
-	$(7)
-
-# Clean up temporary files
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
-	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
+	$(6)
 
 qt_sdk_clean:
 	@$(ECHO) $(MSG_CLEANING) $$(call toprel, $(1))
 	$(V1) [ ! -d "$(1)" ] || $(RM) -rf "$(1)"
-	@$(ECHO) $(MSG_CLEANING) $$(call toprel, "$(2)")
-	$(V1) [ ! -d "$(2)" ] || $(RM) -rf "$(2)"
-
-	$(8)
-
-qt_sdk_distclean:
-	@$(ECHO) $(MSG_DISTCLEANING) $$(call toprel, $(DL_DIR)/$(5))
-	$(V1) [ ! -f "$(DL_DIR)/$(5)" ]     || $(RM) "$(DL_DIR)/$(5)"
-	$(V1) [ ! -f "$(DL_DIR)/$(5).md5" ] || $(RM) "$(DL_DIR)/$(5).md5"
+	$(7)
 
 endef
 
@@ -556,7 +520,7 @@ QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
 else ifeq ($(UNAME), Darwin)
 
 QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
-    $(eval $(call QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
+    $(eval $(call MAC_QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else
 

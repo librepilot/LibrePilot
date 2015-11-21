@@ -1,6 +1,5 @@
 import QtQuick 2.4
-import osgQtQuick 1.0
-import PfdQmlEnums 1.0
+import OsgQtQuick 1.0
 
 Item {
 
@@ -34,7 +33,7 @@ Item {
             id: fileNode
             source: qmlWidget.modelFile
             async: false
-            optimizeMode: OSGFileNode.OptimizeAndCheck
+            optimizeMode: OptimizeMode.OptimizeAndCheck
         }
 
         OSGCamera {

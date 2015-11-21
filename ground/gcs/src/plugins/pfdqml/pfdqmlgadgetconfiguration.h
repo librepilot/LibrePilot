@@ -133,11 +133,11 @@ public:
         return m_cacheOnly;
     }
 
-    Pfd::TimeMode timeMode() const
+    TimeMode::Enum timeMode() const
     {
         return m_timeMode;
     }
-    void setTimeMode(Pfd::TimeMode timeMode)
+    void setTimeMode(TimeMode::Enum timeMode)
     {
         m_timeMode = timeMode;
     }
@@ -178,11 +178,11 @@ public:
         m_modelFile = fileName;
     }
 
-    Pfd::ModelSelectionMode modelSelectionMode() const
+    ModelSelectionMode::Enum modelSelectionMode() const
     {
         return m_modelSelectionMode;
     }
-    void setModelSelectionMode(Pfd::ModelSelectionMode modelSelectionMode)
+    void setModelSelectionMode(ModelSelectionMode::Enum modelSelectionMode)
     {
         m_modelSelectionMode = modelSelectionMode;
     }
@@ -223,13 +223,13 @@ private:
     double m_longitude;
     double m_altitude;
 
-    Pfd::TimeMode m_timeMode;
+    TimeMode::Enum m_timeMode;
     QDateTime m_dateTime;
     double m_minAmbientLight;
 
     bool m_modelEnabled;
     QString m_modelFile; // The name of model file
-    Pfd::ModelSelectionMode m_modelSelectionMode;
+    ModelSelectionMode::Enum m_modelSelectionMode;
 
     QString m_backgroundImageFile;
 

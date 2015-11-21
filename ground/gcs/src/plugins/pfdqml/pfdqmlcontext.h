@@ -47,7 +47,7 @@ class PfdQmlContext : public QObject {
     Q_PROPERTY(double longitude READ longitude WRITE setLongitude NOTIFY longitudeChanged)
     Q_PROPERTY(double altitude READ altitude WRITE setAltitude NOTIFY altitudeChanged)
 
-    Q_PROPERTY(Pfd::TimeMode timeMode READ timeMode WRITE setTimeMode NOTIFY timeModeChanged)
+    Q_PROPERTY(TimeMode::Enum timeMode READ timeMode WRITE setTimeMode NOTIFY timeModeChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(double minimumAmbientLight READ minimumAmbientLight WRITE setMinimumAmbientLight NOTIFY minimumAmbientLightChanged)
 
@@ -79,8 +79,8 @@ public:
     double altitude() const;
     void setAltitude(double arg);
 
-    Pfd::TimeMode timeMode() const;
-    void setTimeMode(Pfd::TimeMode arg);
+    TimeMode::Enum timeMode() const;
+    void setTimeMode(TimeMode::Enum arg);
     QDateTime dateTime() const;
     void setDateTime(QDateTime arg);
     double minimumAmbientLight() const;
@@ -109,7 +109,7 @@ signals:
     void longitudeChanged(double arg);
     void altitudeChanged(double arg);
 
-    void timeModeChanged(Pfd::TimeMode arg);
+    void timeModeChanged(TimeMode::Enum arg);
     void dateTimeChanged(QDateTime arge);
     void minimumAmbientLightChanged(double arg);
 
@@ -129,7 +129,7 @@ private:
     double m_longitude;
     double m_altitude;
 
-    Pfd::TimeMode m_timeMode;
+    TimeMode::Enum m_timeMode;
     QDateTime m_dateTime;
     double m_minAmbientLight;
 

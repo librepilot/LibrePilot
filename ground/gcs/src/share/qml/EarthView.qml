@@ -1,6 +1,6 @@
 import QtQuick 2.4
-import osgQtQuick 1.0
-import PfdQmlEnums 1.0
+import Pfd 1.0
+import OsgQtQuick 1.0
 
 Item {
     OSGViewport {
@@ -17,9 +17,9 @@ Item {
 
             function getDateTime() {
                 switch(qmlWidget.timeMode) {
-                case Pfd.Local:
+                case TimeMode.Local:
                     return new Date();
-                case Pfd.PredefinedTime:
+                case TimeMode.Predefined:
                     return qmlWidget.dateTime;
                 }
             }
@@ -35,7 +35,7 @@ Item {
         OSGCamera {
             id: camera
             fieldOfView: 90
-            manipulatorMode: OSGCamera.Earth
+            manipulatorMode: ManipulatorMode.Earth
         }
 
     }

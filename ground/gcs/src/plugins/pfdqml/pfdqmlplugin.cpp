@@ -59,7 +59,8 @@ bool PfdQmlPlugin::initialize(const QStringList & args, QString *errMsg)
     OsgEarth::registerQmlTypes();
 #endif
 
-    Pfd::declareQML();
+    ModelSelectionMode::registerQMLTypes();
+    TimeMode::registerQMLTypes();
 
     PfdQmlGadgetFactory *mf = new PfdQmlGadgetFactory(this);
     addAutoReleasedObject(mf);

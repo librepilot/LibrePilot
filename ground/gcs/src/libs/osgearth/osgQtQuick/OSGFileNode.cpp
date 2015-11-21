@@ -75,7 +75,7 @@ private:
     OSGFileNode * const self;
 
 public:
-    Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(false), optimizeMode(None) {}
+    Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(false), optimizeMode(OptimizeMode::None) {}
 
     bool acceptSource(QUrl url)
     {
@@ -99,7 +99,7 @@ public:
 
     QUrl url;
     bool async;
-    OptimizeMode optimizeMode;
+    OptimizeMode::Enum optimizeMode;
 
 private:
 
@@ -133,7 +133,7 @@ private:
     bool acceptNode(osg::Node *node)
     {
         qDebug() << "OSGFileNode::acceptNode" << node;
-        if (node && optimizeMode != OSGFileNode::None) {
+        if (node && optimizeMode != OptimizeMode::None) {
             // qDebug() << "OSGFileNode::acceptNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
             optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
@@ -186,12 +186,12 @@ void OSGFileNode::setAsync(const bool async)
     }
 }
 
-OSGFileNode::OptimizeMode OSGFileNode::optimizeMode() const
+OptimizeMode::Enum OSGFileNode::optimizeMode() const
 {
     return h->optimizeMode;
 }
 
-void OSGFileNode::setOptimizeMode(OptimizeMode mode)
+void OSGFileNode::setOptimizeMode(OptimizeMode::Enum mode)
 {
     // qDebug() << "OSGFileNode::setOptimizeMode" << mode;
     if (h->optimizeMode != mode) {

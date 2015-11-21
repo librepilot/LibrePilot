@@ -43,12 +43,12 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
     m_latitude(0),
     m_longitude(0),
     m_altitude(0),
-    m_timeMode(Pfd::Local),
+    m_timeMode(TimeMode::Local),
     m_dateTime(QDateTime()),
     m_minAmbientLight(0),
     m_modelEnabled(false),
     m_modelFile("Unknown"),
-    m_modelSelectionMode(Pfd::Auto),
+    m_modelSelectionMode(ModelSelectionMode::Auto),
     m_backgroundImageFile("Unknown")
 {
     m_speedMap[1.0]       = "m/s";
@@ -78,13 +78,13 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
         m_altitude            = qSettings->value("altitude").toDouble();
 
         // sky
-        m_timeMode            = static_cast<Pfd::TimeMode>(qSettings->value("timeMode").toUInt());
+        m_timeMode            = static_cast<TimeMode::Enum>(qSettings->value("timeMode").toUInt());
         m_dateTime            = qSettings->value("dateTime").toDateTime();
         m_minAmbientLight     = qSettings->value("minAmbientLight").toDouble();
 
         // model
         m_modelEnabled        = qSettings->value("modelEnabled").toBool();
-        m_modelSelectionMode  = static_cast<Pfd::ModelSelectionMode>(qSettings->value("modelSelectionMode").toUInt());
+        m_modelSelectionMode  = static_cast<ModelSelectionMode::Enum>(qSettings->value("modelSelectionMode").toUInt());
         m_modelFile           = qSettings->value("modelFile").toString();
         m_modelFile           = Utils::InsertDataPath(m_modelFile);
 

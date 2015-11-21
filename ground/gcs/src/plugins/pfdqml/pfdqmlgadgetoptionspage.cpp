@@ -88,16 +88,16 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->useOnlyCache->setChecked(m_config->cacheOnly());
 
     // Sky options
-    options_page->useLocalTime->setChecked(m_config->timeMode() == Pfd::Local);
-    options_page->usePredefinedTime->setChecked(m_config->timeMode() == Pfd::PredefinedTime);
+    options_page->useLocalTime->setChecked(m_config->timeMode() == TimeMode::Local);
+    options_page->usePredefinedTime->setChecked(m_config->timeMode() == TimeMode::Predefined);
     options_page->dateEdit->setDate(m_config->dateTime().date());
     options_page->timeEdit->setTime(m_config->dateTime().time());
     options_page->minAmbientLightSpinBox->setValue(m_config->minAmbientLight());
 
     // Model check boxes
     options_page->showModel->setChecked(m_config->modelEnabled());
-    options_page->useAutomaticModel->setChecked(m_config->modelSelectionMode() == Pfd::Auto);
-    options_page->usePredefinedModel->setChecked(m_config->modelSelectionMode() == Pfd::Fixed);
+    options_page->useAutomaticModel->setChecked(m_config->modelSelectionMode() == ModelSelectionMode::Auto);
+    options_page->usePredefinedModel->setChecked(m_config->modelSelectionMode() == ModelSelectionMode::Predefined);
 
     // Model file chooser
     options_page->modelFile->setExpectedKind(Utils::PathChooser::File);
@@ -145,9 +145,9 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setCacheOnly(options_page->useOnlyCache->isChecked());
 
     if (options_page->useLocalTime->isChecked()) {
-        m_config->setTimeMode(Pfd::Local);
+        m_config->setTimeMode(TimeMode::Local);
     } else {
-        m_config->setTimeMode(Pfd::PredefinedTime);
+        m_config->setTimeMode(TimeMode::Predefined);
     }
     QDateTime dateTime(options_page->dateEdit->date(), options_page->timeEdit->time());
     m_config->setDateTime(dateTime);
@@ -162,9 +162,9 @@ void PfdQmlGadgetOptionsPage::apply()
     m_config->setModelFile(options_page->modelFile->path());
 
     if (options_page->useAutomaticModel->isChecked()) {
-        m_config->setModelSelectionMode(Pfd::Auto);
+        m_config->setModelSelectionMode(ModelSelectionMode::Auto);
     } else {
-        m_config->setModelSelectionMode(Pfd::Fixed);
+        m_config->setModelSelectionMode(ModelSelectionMode::Predefined);
     }
     m_config->setBackgroundImageFile(options_page->backgroundImageFile->path());
 #else

@@ -1,5 +1,5 @@
 import QtQuick 2.4
-import osgQtQuick 1.0
+import OsgQtQuick 1.0
 
 Item {
     OSGViewport {

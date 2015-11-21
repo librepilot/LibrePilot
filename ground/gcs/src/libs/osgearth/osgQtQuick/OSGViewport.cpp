@@ -86,7 +86,7 @@ public:
         window(NULL),
         sceneData(NULL),
         camera(NULL),
-        updateMode(Discrete),
+        updateMode(UpdateMode::Discrete),
         frameTimer(-1)
     {
         qDebug() << "OSGViewport::Hidden";
@@ -258,7 +258,7 @@ public:
         // view->getCamera()->setGraphicsContext(NULL);
     }
 
-    bool acceptUpdateMode(OSGViewport::UpdateMode mode)
+    bool acceptUpdateMode(UpdateMode::Enum mode)
     {
         // qDebug() << "OSGViewport::acceptUpdateMode" << mode;
         if (updateMode == mode) {
@@ -289,7 +289,7 @@ public:
     OSGNode      *sceneData;
     OSGCamera    *camera;
 
-    OSGViewport::UpdateMode updateMode;
+    UpdateMode::Enum updateMode;
 
     int frameTimer;
 
@@ -420,7 +420,7 @@ public:
 
     void start()
     {
-        if (updateMode == OSGViewport::Discrete && (frameTimer < 0)) {
+        if (updateMode == UpdateMode::Discrete && (frameTimer < 0)) {
             qDebug() << "OSGViewport::start - starting timer";
             frameTimer = startTimer(33, Qt::PreciseTimer);
         }
@@ -514,7 +514,7 @@ public:
             h->viewer->frame();
         }
 
-        if (h->updateMode == OSGViewport::Continuous) {
+        if (h->updateMode == UpdateMode::Continuous) {
             // trigger next update
             update();
         }
@@ -559,12 +559,12 @@ OSGViewport::~OSGViewport()
     qDebug() << "OSGViewport::~OSGViewport";
 }
 
-OSGViewport::UpdateMode OSGViewport::updateMode() const
+UpdateMode::Enum OSGViewport::updateMode() const
 {
     return h->updateMode;
 }
 
-void OSGViewport::setUpdateMode(OSGViewport::UpdateMode mode)
+void OSGViewport::setUpdateMode(UpdateMode::Enum mode)
 {
     if (h->acceptUpdateMode(mode)) {
         emit updateModeChanged(updateMode());

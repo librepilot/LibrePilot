@@ -41,30 +41,27 @@ class Renderer;
 class OSGNode;
 class OSGCamera;
 
+class UpdateMode : public QObject {
+    Q_OBJECT
+public:
+    enum Enum { Continuous, Discrete, OnDemand };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
+};
+
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
     Q_OBJECT Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(UpdateMode updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
+    Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
 
-    Q_ENUMS(UpdateMode)
-
 public:
-
     friend class ViewportRenderer;
-
-    // TODO rename to UpdateMode or something better
-    enum UpdateMode {
-        Continuous,
-        Discrete,
-        OnDemand
-    };
 
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 
-    UpdateMode updateMode() const;
-    void setUpdateMode(UpdateMode mode);
+    UpdateMode::Enum updateMode() const;
+    void setUpdateMode(UpdateMode::Enum mode);
 
     QColor color() const;
     void setColor(const QColor &color);
@@ -82,7 +79,7 @@ public:
     virtual bool detach(osgViewer::View *view);
 
 signals:
-    void updateModeChanged(UpdateMode mode);
+    void updateModeChanged(UpdateMode::Enum mode);
     void colorChanged(const QColor &color);
     void sceneDataChanged(OSGNode *node);
     void cameraChanged(OSGCamera *camera);

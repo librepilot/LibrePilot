@@ -67,8 +67,8 @@ public:
 public:
 
     Hidden(OSGCamera *parent) :
-        QObject(parent), sceneData(NULL), manipulatorMode(Default), node(NULL),
-        trackerMode(NodeCenterAndAzim), trackNode(NULL),
+        QObject(parent), sceneData(NULL), manipulatorMode(ManipulatorMode::Default), node(NULL),
+        trackerMode(TrackerMode::NodeCenterAndAzim), trackNode(NULL),
         logDepthBufferEnabled(false), logDepthBuffer(NULL), clampToTerrain(false)
     {
         fieldOfView = 90.0;
@@ -107,7 +107,7 @@ public:
         return true;
     }
 
-    bool acceptManipulatorMode(ManipulatorMode mode)
+    bool acceptManipulatorMode(ManipulatorMode::Enum mode)
     {
         // qDebug() << "OSGCamera::acceptManipulatorMode" << mode;
         if (manipulatorMode == mode) {
@@ -225,7 +225,7 @@ public:
         osgGA::CameraManipulator *cm = NULL;
 
         switch (manipulatorMode) {
-        case OSGCamera::Default:
+        case ManipulatorMode::Default:
         {
             qDebug() << "OSGCamera::attachManipulator - use TrackballManipulator";
             osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
@@ -234,12 +234,12 @@ public:
             cm = tm;
             break;
         }
-        case OSGCamera::User:
+        case ManipulatorMode::User:
             qDebug() << "OSGCamera::attachManipulator - no camera manipulator";
             // disable any installed camera manipulator
             cm = NULL;
             break;
-        case OSGCamera::Earth:
+        case ManipulatorMode::Earth:
         {
             qDebug() << "OSGCamera::attachManipulator - use EarthManipulator";
             osgEarth::Util::EarthManipulator *em = new osgEarth::Util::EarthManipulator();
@@ -247,7 +247,7 @@ public:
             cm = em;
             break;
         }
-        case OSGCamera::Track:
+        case ManipulatorMode::Track:
             qDebug() << "OSGCamera::attachManipulator - use NodeTrackerManipulator";
             if (trackNode && trackNode->node()) {
                 // setup tracking camera
@@ -256,13 +256,13 @@ public:
                 osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
                     /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
                 switch (trackerMode) {
-                case NodeCenter:
+                case TrackerMode::NodeCenter:
                     ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
                     break;
-                case NodeCenterAndAzim:
+                case TrackerMode::NodeCenterAndAzim:
                     ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_AZIM);
                     break;
-                case NodeCenterAndRotation:
+                case TrackerMode::NodeCenterAndRotation:
                     ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
                     break;
                 }
@@ -301,7 +301,7 @@ public:
     void updateCamera()
     {
         updateCameraFOV();
-        if (manipulatorMode == User) {
+        if (manipulatorMode == ManipulatorMode::User) {
             updateCameraPosition();
         }
     }
@@ -386,13 +386,13 @@ public:
 
     OSGNode *sceneData;
 
-    ManipulatorMode manipulatorMode;
+    ManipulatorMode::Enum manipulatorMode;
 
     // to compute home position
     OSGNode     *node;
 
     // for NodeTrackerManipulator
-    TrackerMode trackerMode;
+    TrackerMode::Enum trackerMode;
     OSGNode     *trackNode;
 
     bool logDepthBufferEnabled;
@@ -473,12 +473,12 @@ void OSGCamera::setSceneData(OSGNode *node)
     }
 }
 
-OSGCamera::ManipulatorMode OSGCamera::manipulatorMode() const
+ManipulatorMode::Enum OSGCamera::manipulatorMode() const
 {
     return h->manipulatorMode;
 }
 
-void OSGCamera::setManipulatorMode(ManipulatorMode mode)
+void OSGCamera::setManipulatorMode(ManipulatorMode::Enum mode)
 {
     if (h->acceptManipulatorMode(mode)) {
         emit manipulatorModeChanged(manipulatorMode());
@@ -509,12 +509,12 @@ void OSGCamera::setTrackNode(OSGNode *node)
     }
 }
 
-OSGCamera::TrackerMode OSGCamera::trackerMode() const
+TrackerMode::Enum OSGCamera::trackerMode() const
 {
     return h->trackerMode;
 }
 
-void OSGCamera::setTrackerMode(TrackerMode mode)
+void OSGCamera::setTrackerMode(TrackerMode::Enum mode)
 {
     if (h->trackerMode != mode) {
         h->trackerMode = mode;

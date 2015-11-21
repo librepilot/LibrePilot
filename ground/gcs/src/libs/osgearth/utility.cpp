@@ -499,23 +499,26 @@ QString getUsageString(osgViewer::CompositeViewer *viewer)
     return getUsageString(applicationUsage);
 }
 
-void registerTypes(const char *uri)
+void registerTypes()
 {
-    // Q_ASSERT(uri == QLatin1String("osgQtQuick"));
     int maj = 1, min = 0;
 
     // @uri osgQtQuick
-    qmlRegisterType<osgQtQuick::OSGNode>(uri, maj, min, "OSGNode");
-    qmlRegisterType<osgQtQuick::OSGGroup>(uri, maj, min, "OSGGroup");
-    qmlRegisterType<osgQtQuick::OSGFileNode>(uri, maj, min, "OSGFileNode");
-    qmlRegisterType<osgQtQuick::OSGTransformNode>(uri, maj, min, "OSGTransformNode");
-    qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
-    qmlRegisterType<osgQtQuick::OSGCubeNode>(uri, maj, min, "OSGCubeNode");
-    qmlRegisterType<osgQtQuick::OSGViewport>(uri, maj, min, "OSGViewport");
+    qmlRegisterType<osgQtQuick::OSGNode>("OsgQtQuick", maj, min, "OSGNode");
+    qmlRegisterType<osgQtQuick::OSGGroup>("OsgQtQuick", maj, min, "OSGGroup");
+    qmlRegisterType<osgQtQuick::OSGFileNode>("OsgQtQuick", maj, min, "OSGFileNode");
+    qmlRegisterType<osgQtQuick::OptimizeMode>("OsgQtQuick", maj, min, "OptimizeMode");
+    qmlRegisterType<osgQtQuick::OSGTransformNode>("OsgQtQuick", maj, min, "OSGTransformNode");
+    qmlRegisterType<osgQtQuick::OSGTextNode>("OsgQtQuick", maj, min, "OSGTextNode");
+    qmlRegisterType<osgQtQuick::OSGCubeNode>("OsgQtQuick", maj, min, "OSGCubeNode");
+    qmlRegisterType<osgQtQuick::OSGViewport>("OsgQtQuick", maj, min, "OSGViewport");
+    qmlRegisterType<osgQtQuick::UpdateMode>("OsgQtQuick", maj, min, "UpdateMode");
 
-    qmlRegisterType<osgQtQuick::OSGModelNode>(uri, maj, min, "OSGModelNode");
-    qmlRegisterType<osgQtQuick::OSGSkyNode>(uri, maj, min, "OSGSkyNode");
-    qmlRegisterType<osgQtQuick::OSGBackgroundNode>(uri, maj, min, "OSGBackgroundNode");
-    qmlRegisterType<osgQtQuick::OSGCamera>(uri, maj, min, "OSGCamera");
+    qmlRegisterType<osgQtQuick::OSGModelNode>("OsgQtQuick", maj, min, "OSGModelNode");
+    qmlRegisterType<osgQtQuick::OSGSkyNode>("OsgQtQuick", maj, min, "OSGSkyNode");
+    qmlRegisterType<osgQtQuick::OSGBackgroundNode>("OsgQtQuick", maj, min, "OSGBackgroundNode");
+    qmlRegisterType<osgQtQuick::OSGCamera>("OsgQtQuick", maj, min, "OSGCamera");
+    qmlRegisterType<osgQtQuick::ManipulatorMode>("OsgQtQuick", maj, min, "ManipulatorMode");
+    qmlRegisterType<osgQtQuick::TrackerMode>("OsgQtQuick", maj, min, "TrackerMode");
 }
 } // namespace osgQtQuick

@@ -1,6 +1,6 @@
 import QtQuick 2.4
-import osgQtQuick 1.0
-import PfdQmlEnums 1.0
+import Pfd 1.0
+import OsgQtQuick 1.0
 
 OSGViewport {
     id: fullview
@@ -26,9 +26,9 @@ OSGViewport {
 
         function getDateTime() {
             switch(qmlWidget.timeMode) {
-            case Pfd.Local:
+            case TimeMode.Local:
                 return new Date();
-            case Pfd.PredefinedTime:
+            case TimeMode.Predefined:
                 return qmlWidget.dateTime;
             }
         }
@@ -47,7 +47,7 @@ OSGViewport {
         sceneData: terrainNode
         logarithmicDepthBuffer: true
         clampToTerrain: true
-        manipulatorMode: OSGCamera.User
+        manipulatorMode: ManipulatorMode.User
 
         attitude: uavAttitude()
         position: uavPosition()

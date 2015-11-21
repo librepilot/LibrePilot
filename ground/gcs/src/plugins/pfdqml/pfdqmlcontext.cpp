@@ -45,7 +45,7 @@ PfdQmlContext::PfdQmlContext(QObject *parent) : QObject(parent),
     m_latitude(39.657380),
     m_longitude(19.805158),
     m_altitude(100),
-    m_timeMode(Pfd::Local),
+    m_timeMode(TimeMode::Local),
     m_dateTime(QDateTime()),
     m_minAmbientLight(0.03),
     m_modelFile(""),
@@ -172,12 +172,12 @@ void PfdQmlContext::setAltitude(double arg)
     }
 }
 
-Pfd::TimeMode PfdQmlContext::timeMode() const
+TimeMode::Enum PfdQmlContext::timeMode() const
 {
     return m_timeMode;
 }
 
-void PfdQmlContext::setTimeMode(Pfd::TimeMode arg)
+void PfdQmlContext::setTimeMode(TimeMode::Enum arg)
 {
     if (m_timeMode != arg) {
         m_timeMode = arg;

@@ -31,17 +31,29 @@
 #include <QObject>
 #include <QtQml>
 
-class Pfd : public QObject {
-    Q_OBJECT Q_ENUMS(PositionMode)
-    Q_ENUMS(TimeMode)
+class ModelSelectionMode : public QObject {
+    Q_OBJECT
 
 public:
-    enum ModelSelectionMode { Auto, Fixed };
-    enum TimeMode { Local, PredefinedTime };
+    enum Enum { Auto, Predefined };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
 
-    static void declareQML()
+    static void registerQMLTypes()
     {
-        qmlRegisterType<Pfd>("PfdQmlEnums", 1, 0, "Pfd");
+        qmlRegisterType<ModelSelectionMode>("Pfd", 1, 0, "ModelSelectionMode");
+    }
+};
+
+class TimeMode : public QObject {
+    Q_OBJECT
+
+public:
+    enum Enum { Local, Predefined };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
+
+    static void registerQMLTypes()
+    {
+        qmlRegisterType<TimeMode>("Pfd", 1, 0, "TimeMode");
     }
 };
 

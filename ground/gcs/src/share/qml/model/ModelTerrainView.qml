@@ -1,6 +1,6 @@
 import QtQuick 2.4
-import osgQtQuick 1.0
-import PfdQmlEnums 1.0
+import Pfd 1.0
+import OsgQtQuick 1.0
 
 OSGViewport {
     anchors.fill: parent
@@ -16,9 +16,9 @@ OSGViewport {
 
         function getDateTime() {
             switch(qmlWidget.timeMode) {
-            case Pfd.Local:
+            case TimeMode.Local:
                 return new Date();
-            case Pfd.PredefinedTime:
+            case TimeMode.Predefined:
                 return qmlWidget.dateTime;
             }
         }
@@ -34,7 +34,6 @@ OSGViewport {
         id: terrainNode
         source: qmlWidget.terrainFile
         async: false
-        optimizeMode: OSGFileNode.OptimizeAndCheck
     }
 
     OSGModelNode {
@@ -93,14 +92,14 @@ OSGViewport {
         id: modelFileNode
         source: qmlWidget.modelFile
         async: false
-        optimizeMode: OSGFileNode.OptimizeAndCheck
+        optimizeMode: OptimizeMode.OptimizeAndCheck
     }
 
     OSGCamera {
         id: camera
         fieldOfView: 90
         logarithmicDepthBuffer: true
-        manipulatorMode: OSGCamera.Track
+        manipulatorMode: ManipulatorMode.Track
         // use model to compute camera home position
         node: modelTransformNode
         // model will be tracked

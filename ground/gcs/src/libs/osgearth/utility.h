@@ -146,7 +146,7 @@ QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
 QString getUsageString(osgViewer::Viewer *viewer);
 QString getUsageString(osgViewer::CompositeViewer *viewer);
 
-void registerTypes(const char *uri);
+void registerTypes();
 } // namespace osgQtQuick
 
 #endif // OSGEARTH_UTILITY_H

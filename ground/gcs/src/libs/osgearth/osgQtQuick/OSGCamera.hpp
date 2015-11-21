@@ -40,6 +40,20 @@ class View;
 namespace osgQtQuick {
 class OSGNode;
 
+class ManipulatorMode : public QObject {
+    Q_OBJECT
+public:
+    enum Enum { Default, Earth, Track, User };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
+};
+
+class TrackerMode : public QObject {
+    Q_OBJECT
+public:
+    enum Enum { NodeCenter, NodeCenterAndAzim, NodeCenterAndRotation };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
+};
+
 // This class does too much:
 // - tracking a geo point and attitude
 // - tracking another node
@@ -52,32 +66,18 @@ class OSGNode;
 // - provide good default distance and attitude for tracker camera
 class OSGQTQUICK_EXPORT OSGCamera : public QObject {
     Q_OBJECT Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
-
     Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
-
-    Q_PROPERTY(ManipulatorMode manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
-
+    Q_PROPERTY(osgQtQuick::ManipulatorMode::Enum manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode * node READ node WRITE setNode NOTIFY nodeChanged)
-
     Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
-    Q_PROPERTY(TrackerMode trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
-
+    Q_PROPERTY(osgQtQuick::TrackerMode::Enum trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
-
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
-
     Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
 
-    Q_ENUMS(ManipulatorMode)
-    Q_ENUMS(TrackerMode)
-
 public:
-    enum ManipulatorMode { Default, Earth, Track, User };
-
-    enum TrackerMode { NodeCenter, NodeCenterAndAzim, NodeCenterAndRotation };
-
     explicit OSGCamera(QObject *parent = 0);
     virtual ~OSGCamera();
 
@@ -91,8 +91,8 @@ public:
     OSGNode *sceneData();
     void setSceneData(OSGNode *node);
 
-    ManipulatorMode manipulatorMode() const;
-    void setManipulatorMode(ManipulatorMode);
+    ManipulatorMode::Enum manipulatorMode() const;
+    void setManipulatorMode(ManipulatorMode::Enum);
 
     OSGNode *node() const;
     void setNode(OSGNode *node);
@@ -100,8 +100,8 @@ public:
     OSGNode *trackNode() const;
     void setTrackNode(OSGNode *node);
 
-    TrackerMode trackerMode() const;
-    void setTrackerMode(TrackerMode);
+    TrackerMode::Enum trackerMode() const;
+    void setTrackerMode(TrackerMode::Enum);
 
     bool clampToTerrain() const;
     void setClampToTerrain(bool arg);
@@ -125,12 +125,12 @@ signals:
 
     void sceneDataChanged(OSGNode *node);
 
-    void manipulatorModeChanged(ManipulatorMode);
+    void manipulatorModeChanged(ManipulatorMode::Enum);
 
     void nodeChanged(OSGNode *node);
 
     void trackNodeChanged(OSGNode *node);
-    void trackerModeChanged(TrackerMode);
+    void trackerModeChanged(TrackerMode::Enum);
 
     void clampToTerrainChanged(bool arg);
     void intoTerrainChanged(bool arg);

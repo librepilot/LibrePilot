@@ -494,7 +494,7 @@ OPFW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(FIRMWARE_DIR)/$(fw_tar
 OPFW_CONTENTS := \
 <!DOCTYPE RCC><RCC version="1.0"> \
     <qresource prefix="/firmware"> \
-        $(foreach fw_file, $(OPFW_FILES), <file alias="$(notdir $(fw_file))">$(fw_file)</file>) \
+        $(foreach fw_file, $(OPFW_FILES), <file alias="$(notdir $(fw_file))">$(call system_path, $(fw_file))</file>) \
     </qresource> \
 </RCC>
 

@@ -8,7 +8,7 @@ endif
 
 VERSION_CMD   := $(VERSION_INFO)
 
-NSIS_OPTS     := /V3
+NSIS_OPTS     := -V3
 NSIS_WINX86   := $(ROOT_DIR)/package/winx86
 NSIS_SCRIPT   := $(NSIS_WINX86)/gcs.nsi
 NSIS_TEMPLATE := $(NSIS_WINX86)/gcs.tpl

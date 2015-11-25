@@ -31,7 +31,7 @@ equals(copyqt, 1) {
                   libicui18n.so.54 \
                   libicuuc.so.54 \
                   libicudata.so.54
-        *-64 {
+        contains(QT_ARCH, x86_64) {
             QT_LIBS += libqgsttools_p.so.1
         }
         for(lib, QT_LIBS) {
@@ -48,12 +48,11 @@ equals(copyqt, 1) {
                      platforms/libqxcb.so \
                      xcbglintegrations/libqxcb-glx-integration.so \
                      sqldrivers/libqsqlite.so
-        *-32 {
-            QT_PLUGINS += mediaservice/libqtmedia_audioengine.so
-        }
-        *-64 {
+        contains(QT_ARCH, x86_64) {
             QT_PLUGINS += mediaservice/libgstaudiodecoder.so \
                           mediaservice/libgstmediaplayer.so
+        } else {
+            QT_PLUGINS += mediaservice/libqtmedia_audioengine.so
         }
     }
 

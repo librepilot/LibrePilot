@@ -147,17 +147,10 @@ include $(ROOT_DIR)/make/tools.mk
 
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
-    ifeq ($(ARCH), x86_64)
-        QT_SPEC := linux-g++-64
-    else
-        QT_SPEC := linux-g++-32
-    endif
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Darwin)
-    QT_SPEC := macx-g++
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Windows)
-    QT_SPEC := win32-g++
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
 endif
 
@@ -196,7 +189,7 @@ uavobjgenerator: $(UAVOBJGENERATOR)
 $(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
 	$(V1) cd $(UAVOBJGENERATOR_DIR) && \
 	    ( [ -f Makefile ] || $(QMAKE) $(ROOT_DIR)/ground/uavobjgenerator/uavobjgenerator.pro \
-	    -spec $(QT_SPEC) CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) ) && \
+	    CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) ) && \
 	    $(MAKE) --no-print-directory -w
 
 UAVOBJ_TARGETS := gcs flight python matlab java wireshark
@@ -270,7 +263,7 @@ GCS_MAKEFILE := $(GCS_DIR)/Makefile
 gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
 	$(V1) cd $(GCS_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/gcs/gcs.pro \
-	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
+	    -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
 	    'WIKI_URL_ROOT="$(WIKI_URL_ROOT)"' \
@@ -304,7 +297,7 @@ UPLOADER_MAKEFILE := $(UPLOADER_DIR)/Makefile
 uploader_qmake $(UPLOADER_MAKEFILE): | $(UPLOADER_DIR)
 	$(V1) cd $(UPLOADER_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/gcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
-	    -spec $(QT_SPEC) -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
+	    -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
 
 .PHONY: uploader
 uploader: $(UPLOADER_MAKEFILE)

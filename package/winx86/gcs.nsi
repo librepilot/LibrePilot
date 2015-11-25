@@ -222,7 +222,7 @@ SectionEnd
 ; Copy Opengl32.dll if needed (disabled by default)
 Section /o "Mesa OpenGL driver" InSecInstallOpenGL
   SetOutPath "$INSTDIR\bin"
-  File /r "${GCS_BUILD_TREE}\bin\opengl32_32\opengl32.dll"
+  File /r "${GCS_BUILD_TREE}\bin\opengl32\opengl32.dll"
 SectionEnd
 
 ; AeroSimRC plugin files

@@ -81,13 +81,26 @@ equals(copyqt, 1) {
                   Qt5Quick$${DS}.dll \
                   Qt5QuickWidgets$${DS}.dll \
                   Qt5Qml$${DS}.dll \
-                  icuin54.dll \
-                  icudt54.dll \
-                  icuuc54.dll
-        # it is more robust to take the following DLLs from Qt rather than from MinGW
-        QT_DLLS += libgcc_s_dw2-1.dll \
-                   libstdc++-6.dll \
-                   libwinpthread-1.dll
+                  libicuin56.dll \
+                  libicudt56.dll \
+                  libicuuc56.dll \
+                  libstdc++-6.dll \
+                  libwinpthread-1.dll \
+                  libpcre16-0.dll \
+                  zlib1.dll \
+                  libharfbuzz-0.dll \
+                  libfreetype-6.dll \
+                  libbz2-1.dll \
+                  libpng16-16.dll \
+                  libglib-2.0-0.dll \
+                  libintl-8.dll \
+                  libiconv-2.dll
+        contains(QT_ARCH, i386) {
+            QT_DLLS += libgcc_s_dw2-1.dll
+        } else {
+            QT_DLLS += libgcc_s_seh-1.dll
+        }
+
         for(dll, QT_DLLS) {
             addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
         }
@@ -97,14 +110,14 @@ equals(copyqt, 1) {
             ssleay32.dll \
             libeay32.dll
         for(dll, OPENSSL_DLLS) {
-            addCopyFileTarget($${dll},$${OPENSSL_DIR},$${GCS_APP_PATH})
+            addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
         }
 
         # copy OpenGL DLL
         OPENGL_DLLS = \
-            opengl32_32/opengl32.dll
+            opengl32.dll
         for(dll, OPENGL_DLLS) {
-            addCopyFileTarget($${dll},$${MESAWIN_DIR},$${GCS_APP_PATH})
+            addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH}/opengl32)
         }
 
         QT_PLUGINS = iconengines/qsvgicon$${DS}.dll \

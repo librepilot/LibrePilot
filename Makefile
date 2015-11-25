@@ -130,6 +130,8 @@ else ifeq ($(V), 0)
 else ifeq ($(V), 1)
 endif
 
+ARCH := $(call get_arch)
+
 # Include tools installers
 include $(ROOT_DIR)/make/tools.mk
 

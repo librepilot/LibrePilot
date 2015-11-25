@@ -37,7 +37,11 @@
   !define AEROSIMRC_TREE "${GCS_BUILD_TREE}\misc\AeroSIM-RC"
 
   ; Default installation folder
-  InstallDir "$PROGRAMFILES\${ORG_BIG_NAME}"
+!ifdef W64
+  InstallDir "$PROGRAMFILES64\${ORG_BIG_NAME}"
+!else
+  InstallDir "$PROGRAMFILES32\${ORG_BIG_NAME}"
+!endif
 
   ; Get installation folder from registry if available
   InstallDirRegKey HKLM "Software\${ORG_BIG_NAME}" "Install Location"

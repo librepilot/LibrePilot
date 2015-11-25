@@ -16,6 +16,21 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
+# Make sure we know few things about the architecture before including
+# the tools.mk to ensure that we download/install the right tools.
+UNAME := $(shell uname)
+ARCH  := $(shell uname -m)
+# Here and everywhere if not Linux or Mac then assume Windows
+ifeq ($(filter Linux Darwin, $(UNAME)), )
+    UNAME := Windows
+endif
+
+ifeq ($(UNAME),Windows)
+    system_path = $(shell cygpath -w $(1))
+else
+    system_path = $(1)
+endif
+
 # Function for converting Windows style slashes into Unix style
 slashfix = $(subst \,/,$(1))
 

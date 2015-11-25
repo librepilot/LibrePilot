@@ -130,15 +130,6 @@ else ifeq ($(V), 0)
 else ifeq ($(V), 1)
 endif
 
-# Make sure we know few things about the architecture before including
-# the tools.mk to ensure that we download/install the right tools.
-UNAME := $(shell uname)
-ARCH  := $(shell uname -m)
-# Here and everywhere if not Linux or Mac then assume Windows
-ifeq ($(filter Linux Darwin, $(UNAME)), )
-    UNAME := Windows
-endif
-
 # Include tools installers
 include $(ROOT_DIR)/make/tools.mk
 

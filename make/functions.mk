@@ -51,3 +51,4 @@ endef
 
 smallify = $(subst $(SPACE),-,$(call lc,$1))
 
+get_arch = $(shell $(CC) -dumpmachine | sed s/-.*//)

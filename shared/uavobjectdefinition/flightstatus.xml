@@ -10,7 +10,7 @@
         <field name="AssistedControlState" units="" type="enum" elements="1" options="Primary,Brake,Hold" defaultvalue="Primary"/>
         <field name="AssistedThrottleState" units="" type="enum" elements="1" options="Manual,Auto,AutoOverride" defaultvalue="Manual"/>
 
-	<field name="ControlChain" units="bool" type="enum" options="false,true">
+	<field name="ControlChain" units="bool" type="enum" options="False,True">
 		<elementnames>
 			<elementname>Stabilization</elementname>
 			<elementname>PathFollower</elementname>

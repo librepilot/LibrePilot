@@ -27,6 +27,7 @@
  */
 #include "uavobjectsplugin.h"
 #include "uavobjectsinit.h"
+#include "uavobjectmanager.h"
 
 UAVObjectsPlugin::UAVObjectsPlugin()
 {}

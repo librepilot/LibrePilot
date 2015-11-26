@@ -28,6 +28,7 @@
 #include "sixpointcalibrationmodel.h"
 #include "extensionsystem/pluginmanager.h"
 #include "calibration/calibrationuiutils.h"
+#include "uavobjectmanager.h"
 
 #include <math.h>
 #include <QThread>

@@ -33,6 +33,36 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 
+/*
+ * Convert a string to lower camel case.
+ * Handles following cases :
+ * - Property -> property
+ * - MyProperty -> myProperty
+ * - MYProperty -> myProperty
+ * - MY_Property -> my_Property
+ * - MY -> my
+ */
+// TODO move to some utility class
+QString toLowerCamelCase(const QString & name)
+{
+    QString str = name;
+
+    for (int i = 0; i < str.length(); ++i) {
+        if (str[i].isLower() || !str[i].isLetter()) {
+            break;
+        }
+        if (i > 0 && i < str.length() - 1) {
+            // after first, look ahead one
+            if (str[i + 1].isLower()) {
+                break;
+            }
+        }
+        str[i] = str[i].toLower();
+    }
+
+    return str;
+}
+
 PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     QQuickView(parent),
     m_openGLEnabled(false),
@@ -91,6 +121,11 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         UAVObject *object = objManager->getObject(objectName);
 
         if (object) {
+            // expose object with lower camel case name
+            engine()->rootContext()->setContextProperty(toLowerCamelCase(objectName), object);
+            // expose object with its name for backward compatibility
+            // exposing with the name conflicts with the Qml namespace (prevents to expose the object class as a type)
+            // this should be removed once the qml files all use the lower camel case name
             engine()->rootContext()->setContextProperty(objectName, object);
         } else {
             qWarning() << "Failed to load object" << objectName;
@@ -100,6 +135,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
 #ifdef USE_OSG
+    // should not be done here (PFD should not be directly dependent of osg)
     qmlRegisterType<OsgEarthItem>("org.OpenPilot", 1, 0, "OsgEarth");
 #endif
 }

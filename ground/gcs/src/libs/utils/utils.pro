@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = Utils
 
-QT += network xml svg opengl gui widgets qml quick quickwidgets
+QT += network xml svg gui widgets qml quick quickwidgets
 
 DEFINES += QTCREATOR_UTILS_LIB
 
@@ -52,7 +52,6 @@ SOURCES += \
     mytabbedstackwidget.cpp \
     mytabwidget.cpp \
     quickwidgetproxy.cpp \
-    cachedsvgitem.cpp \
     svgimageprovider.cpp \
     hostosinfo.cpp \
     logfile.cpp \
@@ -116,7 +115,6 @@ HEADERS += \
     mytabbedstackwidget.h \
     mytabwidget.h \
     quickwidgetproxy.h \
-    cachedsvgitem.h \
     svgimageprovider.h \
     hostosinfo.h \
     logfile.h \

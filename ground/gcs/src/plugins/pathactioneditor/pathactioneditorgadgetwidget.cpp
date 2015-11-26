@@ -25,6 +25,10 @@
  */
 #include "pathactioneditorgadgetwidget.h"
 #include "ui_pathactioneditor.h"
+#include "extensionsystem/pluginmanager.h"
+#include "uavobjectmanager.h"
+
+#include "browseritemdelegate.h"
 
 #include <QDebug>
 #include <QString>
@@ -33,9 +37,6 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QPushButton>
-#include "browseritemdelegate.h"
-
-#include "extensionsystem/pluginmanager.h"
 
 PathActionEditorGadgetWidget::PathActionEditorGadgetWidget(QWidget *parent) : QLabel(parent)
 {

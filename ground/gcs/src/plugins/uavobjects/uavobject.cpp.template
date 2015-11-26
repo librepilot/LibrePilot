@@ -33,6 +33,7 @@
 
 #include "$(NAMELC).h"
 #include "uavobjectfield.h"
+#include "uavobjectmanager.h"
 
 #include <QtQml>
 

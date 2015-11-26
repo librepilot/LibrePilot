@@ -25,16 +25,521 @@
  */
 
 #include "uavobjectgeneratorgcs.h"
+
+#define VERBOSE             false
+#define DEPRECATED          true
+
+#define DEFAULT_ENUM_PREFIX "E_"
+
 using namespace std;
+
+void error(QString msg)
+{
+    cerr << "error: " << msg.toStdString() << endl;
+}
+
+void warning(ObjectInfo *object, QString msg)
+{
+    cerr << "warning: " << object->filename.toStdString() << ": " << msg.toStdString() << endl;
+}
+
+void info(ObjectInfo *object, QString msg)
+{
+    if (VERBOSE) {
+        cout << "info: " << object->filename.toStdString() << ": " << msg.toStdString() << endl;
+    }
+}
+
+struct Context {
+    ObjectInfo *object;
+    // enums
+    QString    enums;
+    QString    registerImpl;
+    // interface
+    QString    fields;
+    QString    fieldsInfo;
+    QString    properties;
+    QString    deprecatedProperties;
+    QString    getters;
+    QString    setters;
+    QString    notifications;
+    // implementation
+    QString    fieldsInit;
+    QString    fieldsDefault;
+    QString    propertiesImpl;
+    QString    notificationsImpl;
+};
+
+struct FieldContext {
+    FieldInfo *field;
+    // field
+    QString   fieldName;
+    QString   fieldType;
+    // property
+    QString   propName;
+    QString   ucPropName;
+    QString   propType;
+    QString   propRefType;
+    // deprecation
+    bool hasDeprecatedProperty;
+    bool hasDeprecatedGetter;
+    bool hasDeprecatedSetter;
+    bool hasDeprecatedNotification;
+};
+
+QString fieldTypeStrCPP(int type)
+{
+    QStringList fieldTypeStrCPP;
+
+    fieldTypeStrCPP << "qint8" << "qint16" << "qint32" << "quint8" << "quint16" << "quint32" << "float" << "quint8";
+    return fieldTypeStrCPP[type];
+}
+
+QString fieldTypeStrCPPClass(int type)
+{
+    QStringList fieldTypeStrCPPClass;
+
+    fieldTypeStrCPPClass << "INT8" << "INT16" << "INT32" << "UINT8" << "UINT16" << "UINT32" << "FLOAT32" << "ENUM";
+    return fieldTypeStrCPPClass[type];
+}
+
+QString toPropertyName(const QString & name)
+{
+    QString str = name;
+
+    // make sure 1st letter is upper case
+    str[0] = str[0].toUpper();
+
+    // handle underscore
+    int p = str.indexOf('_');
+    while (p != -1) {
+        str.remove(p, 1);
+        str[p] = str[p].toUpper();
+        p = str.indexOf('_', p);
+    }
+
+    return str;
+}
+
+/*
+ * Convert a string to lower camel case.
+ * Handles following cases :
+ * - Property -> property
+ * - MyProperty -> myProperty
+ * - MYProperty -> myProperty
+ * - MY_Property -> my_Property
+ * - MY -> my
+ */
+QString toLowerCamelCase(const QString & name)
+{
+    QString str = name;
+
+    for (int i = 0; i < str.length(); ++i) {
+        if (str[i].isLower() || !str[i].isLetter()) {
+            break;
+        }
+        if (i > 0 && i < str.length() - 1) {
+            // after first, look ahead one
+            if (str[i + 1].isLower()) {
+                break;
+            }
+        }
+        str[i] = str[i].toLower();
+    }
+
+    return str;
+}
+
+QString toEnumName(ObjectInfo *object, FieldInfo *field, int index)
+{
+    QString option = field->options[index];
+
+    if (option.contains(QRegExp(ENUM_SPECIAL_CHARS))) {
+        info(object, "Enumeration value \"" + option + "\" contains special chars, cleaning.");
+        option.replace(QRegExp(ENUM_SPECIAL_CHARS), "");
+    }
+    if (option[0].isDigit()) {
+        info(object, "Enumeration value \"" + option + "\" starts with a digit, prefixing with \"" + DEFAULT_ENUM_PREFIX "\".");
+        option = DEFAULT_ENUM_PREFIX + option;
+    }
+    if (option == option.toLower()) {
+        warning(object, "Enumeration value \"" + option + "\" is all lower case, consider capitalizing.");
+    }
+    if (option[0].isLower()) {
+        warning(object, "Enumeration value \"" + option + "\" does not start with an upper case letter.");
+        option[0] = option[0].toUpper();
+    }
+    if (option == "FALSE") {
+        warning(object, "Invalid enumeration name FALSE, converting to False.");
+        option = "False";
+    }
+    if (option == "TRUE") {
+        warning(object, "Invalid enumeration name TRUE, converting to True.");
+        option = "True";
+    }
+    return option;
+}
+
+QString toEnumStringList(ObjectInfo *object, FieldInfo *field)
+{
+    QString enumListString;
+
+    for (int m = 0; m < field->options.length(); ++m) {
+        if (m > 0) {
+            enumListString.append(", ");
+        }
+        QString option = toEnumName(object, field, m);
+        enumListString.append(option);
+    }
+
+    return enumListString;
+}
+
+
+QString generate(Context &ctxt, const QString &fragment)
+{
+    QString str = fragment;
+
+    str.replace(":ClassName", ctxt.object->name);
+    str.replace(":className", ctxt.object->namelc);
+
+    return str;
+}
+
+QString generate(Context &ctxt, FieldContext &fieldCtxt, const QString &fragment)
+{
+    QString str = generate(ctxt, fragment);
+
+    str.replace(":PropName", fieldCtxt.ucPropName);
+    str.replace(":propName", fieldCtxt.propName);
+    str.replace(":propType", fieldCtxt.propType);
+    str.replace(":propRefType", fieldCtxt.propRefType);
+
+    str.replace(":fieldName", fieldCtxt.fieldName);
+    str.replace(":fieldType", fieldCtxt.fieldType);
+    str.replace(":fieldDesc", fieldCtxt.field->description);
+    str.replace(":fieldUnits", fieldCtxt.field->units);
+    str.replace(":fieldLimitValues", fieldCtxt.field->limitValues);
+
+    str.replace(":elementCount", QString::number(fieldCtxt.field->numElements));
+
+    return str;
+}
+
+void generateFieldInfo(Context &ctxt, FieldContext &fieldCtxt)
+{
+    ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "    // :fieldName\n");
+
+    if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
+        QStringList options = fieldCtxt.field->options;
+        ctxt.fieldsInfo += "    typedef enum { ";
+        for (int m = 0; m < options.length(); ++m) {
+            if (m > 0) {
+                ctxt.fieldsInfo.append(", ");
+            }
+            ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "%1_%2=%3")
+                               .arg(fieldCtxt.field->name.toUpper())
+                               .arg(options[m].toUpper().replace(QRegExp(ENUM_SPECIAL_CHARS), ""))
+                               .arg(m);
+        }
+        ctxt.fieldsInfo += generate(ctxt, fieldCtxt, " } :fieldNameOptions;\n");
+    }
+
+    // Generate element names (only if field has more than one element)
+    if (fieldCtxt.field->numElements > 1 && !fieldCtxt.field->defaultElementNames) {
+        QStringList elemNames = fieldCtxt.field->elementNames;
+        ctxt.fieldsInfo += "    typedef enum { ";
+        for (int m = 0; m < elemNames.length(); ++m) {
+            if (m > 0) {
+                ctxt.fieldsInfo.append(", ");
+            }
+            ctxt.fieldsInfo += QString("%1_%2=%3")
+                               .arg(fieldCtxt.field->name.toUpper())
+                               .arg(elemNames[m].toUpper())
+                               .arg(m);
+        }
+        ctxt.fieldsInfo += generate(ctxt, fieldCtxt, " } :fieldNameElem;\n");
+    }
+
+    // Generate array information
+    if (fieldCtxt.field->numElements > 1) {
+        ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "    static const quint32 %1_NUMELEM = :elementCount;\n")
+                           .arg(fieldCtxt.field->name.toUpper());
+    }
+}
+
+void generateFieldInit(Context &ctxt, FieldContext &fieldCtxt)
+{
+    ctxt.fieldsInit += generate(ctxt, fieldCtxt, "    // :fieldName\n");
+
+    // Setup element names
+    ctxt.fieldsInit += generate(ctxt, fieldCtxt, "    QStringList :fieldNameElemNames;\n");
+    QStringList elemNames = fieldCtxt.field->elementNames;
+    ctxt.fieldsInit += generate(ctxt, fieldCtxt, "    :fieldNameElemNames");
+    for (int m = 0; m < elemNames.length(); ++m) {
+        ctxt.fieldsInit += QString(" << \"%1\"").arg(elemNames[m]);
+    }
+    ctxt.fieldsInit += ";\n";
+
+    if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
+        ctxt.fieldsInit += generate(ctxt, fieldCtxt, "    QStringList :fieldNameEnumOptions;\n");
+        QStringList options = fieldCtxt.field->options;
+        ctxt.fieldsInit += generate(ctxt, fieldCtxt, "    :fieldNameEnumOptions");
+        for (int m = 0; m < options.length(); ++m) {
+            ctxt.fieldsInit += QString(" << \"%1\"").arg(options[m]);
+        }
+        ctxt.fieldsInit += ";\n";
+        ctxt.fieldsInit += generate(ctxt, fieldCtxt,
+                                    "    fields.append(new UAVObjectField(\":fieldName\", tr(\":fieldDesc\"), \":fieldUnits\", UAVObjectField::ENUM, :fieldNameElemNames, :fieldNameEnumOptions, \":fieldLimitValues\"));\n");
+    } else {
+        ctxt.fieldsInit += generate(ctxt, fieldCtxt,
+                                    "    fields.append(new UAVObjectField(\":fieldName\", tr(\":fieldDesc\"), \":fieldUnits\", UAVObjectField::%1, :fieldNameElemNames, QStringList(), \":fieldLimitValues\"));\n")
+                           .arg(fieldTypeStrCPPClass(fieldCtxt.field->type));
+    }
+}
+
+void generateFieldDefault(Context &ctxt, FieldContext &fieldCtxt)
+{
+    if (!fieldCtxt.field->defaultValues.isEmpty()) {
+        // For non-array fields
+        if (fieldCtxt.field->numElements == 1) {
+            ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    // :fieldName\n");
+            if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
+                ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    data_.:fieldName = %1;\n")
+                                      .arg(fieldCtxt.field->options.indexOf(fieldCtxt.field->defaultValues[0]));
+            } else if (fieldCtxt.field->type == FIELDTYPE_FLOAT32) {
+                ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    data_.:fieldName = %1;\n")
+                                      .arg(fieldCtxt.field->defaultValues[0].toFloat());
+            } else {
+                ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    data_.:fieldName = %1;\n")
+                                      .arg(fieldCtxt.field->defaultValues[0].toInt());
+            }
+        } else {
+            // Initialize all fields in the array
+            ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    // :fieldName\n");
+            for (int idx = 0; idx < fieldCtxt.field->numElements; ++idx) {
+                if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
+                    ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    data_.:fieldName[%1] = %2;\n")
+                                          .arg(idx)
+                                          .arg(fieldCtxt.field->options.indexOf(fieldCtxt.field->defaultValues[idx]));
+                } else if (fieldCtxt.field->type == FIELDTYPE_FLOAT32) {
+                    ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    data_.:fieldName[%1] = %2;\n")
+                                          .arg(idx)
+                                          .arg(fieldCtxt.field->defaultValues[idx].toFloat());
+                } else {
+                    ctxt.fieldsDefault += generate(ctxt, fieldCtxt, "    data_.:fieldName[%1] = %2;\n")
+                                          .arg(idx)
+                                          .arg(fieldCtxt.field->defaultValues[idx].toInt());
+                }
+            }
+        }
+    }
+}
+
+void generateField(Context &ctxt, FieldContext &fieldCtxt)
+{
+    if (fieldCtxt.field->numElements > 1) {
+        ctxt.fields += generate(ctxt, fieldCtxt, "        :fieldType :fieldName[:elementCount];\n");
+    } else {
+        ctxt.fields += generate(ctxt, fieldCtxt, "        :fieldType :fieldName;\n");
+    }
+    generateFieldInfo(ctxt, fieldCtxt);
+    generateFieldInit(ctxt, fieldCtxt);
+    generateFieldDefault(ctxt, fieldCtxt);
+}
+
+void generateEnum(Context &ctxt, FieldContext &fieldCtxt)
+{
+    Q_ASSERT(fieldCtxt.field->type == FIELDTYPE_ENUM);
+
+    QString enumStringList = toEnumStringList(ctxt.object, fieldCtxt.field);
+
+    ctxt.enums += generate(ctxt, fieldCtxt,
+                           "class :ClassName_:PropName : public QObject {\n"
+                           "    Q_OBJECT\n"
+                           "public:\n"
+                           "    enum Enum { %1 };\n"
+                           "    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5\n"
+                           "};\n\n").arg(enumStringList);
+
+    ctxt.registerImpl += generate(ctxt, fieldCtxt,
+                                  "    qmlRegisterType<:ClassName_:PropName>(\"%1.:ClassName\", 1, 0, \":PropName\");\n").arg("UAVTalk");
+}
+
+void generateBaseProperty(Context &ctxt, FieldContext &fieldCtxt)
+{
+    ctxt.properties        += generate(ctxt, fieldCtxt,
+                                       "    Q_PROPERTY(:propType :propName READ :propName WRITE set:PropName NOTIFY :propNameChanged)\n");
+
+    ctxt.getters           += generate(ctxt, fieldCtxt, "    :propType :propName() const;\n");
+    ctxt.setters           += generate(ctxt, fieldCtxt, "    void set:PropName(const :propRefType value);\n");
+
+    ctxt.notifications     += generate(ctxt, fieldCtxt, "    void :propNameChanged(const :propRefType value);\n");
+    ctxt.notificationsImpl += generate(ctxt, fieldCtxt, "    emit :propNameChanged(:propName());\n");
+
+    if (DEPRECATED) {
+        // generate deprecated property for retro compatibility
+        if (fieldCtxt.hasDeprecatedProperty) {
+            ctxt.deprecatedProperties += generate(ctxt, fieldCtxt,
+                                                  "    /*DEPRECATED*/ Q_PROPERTY(:fieldType :fieldName READ get:fieldName WRITE set:fieldName NOTIFY :fieldNameChanged);\n");
+        }
+        if (fieldCtxt.hasDeprecatedGetter) {
+            ctxt.getters += generate(ctxt, fieldCtxt,
+                                     "    /*DEPRECATED*/ Q_INVOKABLE :fieldType get:fieldName() const { return static_cast<:fieldType>(:propName()); }\n");
+        }
+        if (fieldCtxt.hasDeprecatedSetter) {
+            ctxt.setters += generate(ctxt, fieldCtxt,
+                                     "    /*DEPRECATED*/ void set:fieldName(:fieldType value) { set:fieldName(static_cast<:propType>(value)); }\n");
+        }
+        if (fieldCtxt.hasDeprecatedNotification) {
+            ctxt.notifications     += generate(ctxt, fieldCtxt,
+                                               "    /*DEPRECATED*/ void :fieldNameChanged(:fieldType value);\n");
+
+            ctxt.notificationsImpl += generate(ctxt, fieldCtxt,
+                                               "    /*DEPRECATED*/ emit :fieldNameChanged(get:fieldName());\n");
+        }
+    }
+}
+
+void generateSimpleProperty(Context &ctxt, FieldContext &fieldCtxt)
+{
+    if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
+        generateEnum(ctxt, fieldCtxt);
+    }
+
+    generateBaseProperty(ctxt, fieldCtxt);
+
+    // getter implementation
+    ctxt.propertiesImpl += generate(ctxt, fieldCtxt,
+                                    ":propType :ClassName:::propName() const\n"
+                                    "{\n"
+                                    "   QMutexLocker locker(mutex);\n"
+                                    "   return static_cast<:propType>(data_.:fieldName);\n"
+                                    "}\n");
+
+    // emitters
+    QString emitters = generate(ctxt, fieldCtxt, "emit :propNameChanged(value);");
+
+    if (fieldCtxt.hasDeprecatedNotification) {
+        emitters += " ";
+        emitters += generate(ctxt, fieldCtxt, "emit :fieldNameChanged(static_cast<:fieldType>(value));");
+    }
+
+    // setter implementation
+    ctxt.propertiesImpl += generate(ctxt, fieldCtxt,
+                                    "void :ClassName::set:PropName(const :propRefType value)\n"
+                                    "{\n"
+                                    "   mutex->lock();\n"
+                                    "   bool changed = (data_.:fieldName != static_cast<:fieldType>(value));\n"
+                                    "   data_.:fieldName = static_cast<:fieldType>(value);\n"
+                                    "   mutex->unlock();\n"
+                                    "   if (changed) { %1 }\n"
+                                    "}\n\n").arg(emitters);
+}
+
+void generateIndexedProperty(Context &ctxt, FieldContext &fieldCtxt)
+{
+    if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
+        generateEnum(ctxt, fieldCtxt);
+    }
+
+    // indexed getter/setter
+    ctxt.getters += generate(ctxt, fieldCtxt, "    Q_INVOKABLE :propType :propName(quint32 index) const;\n");
+    ctxt.setters += generate(ctxt, fieldCtxt, "    Q_INVOKABLE void set:PropName(quint32 index, const :propRefType value);\n");
+
+    // getter implementation
+    ctxt.propertiesImpl += generate(ctxt, fieldCtxt,
+                                    ":propType :ClassName:::propName(quint32 index) const\n"
+                                    "{\n"
+                                    "   QMutexLocker locker(mutex);\n"
+                                    "   return static_cast<:propType>(data_.:fieldName[index]);\n"
+                                    "}\n");
+
+    // emitters
+    QString emitters = generate(ctxt, fieldCtxt, "emit :propNameChanged(index, value);");
+
+    if (fieldCtxt.hasDeprecatedNotification) {
+        emitters += " ";
+        emitters += generate(ctxt, fieldCtxt, "emit :fieldNameChanged(index, static_cast<:fieldType>(value));");
+    }
+
+    // setter implementation
+    ctxt.propertiesImpl += generate(ctxt, fieldCtxt,
+                                    "void :ClassName::set:PropName(quint32 index, const :propRefType value)\n"
+                                    "{\n"
+                                    "   mutex->lock();\n"
+                                    "   bool changed = (data_.:fieldName[index] != static_cast<:fieldType>(value));\n"
+                                    "   data_.:fieldName[index] = static_cast<:fieldType>(value);\n"
+                                    "   mutex->unlock();\n"
+                                    "   if (changed) { %1 }\n"
+                                    "}\n\n").arg(emitters);
+
+    ctxt.notifications += generate(ctxt, fieldCtxt, "    void :propNameChanged(quint32 index, const :propRefType value);\n");
+
+    if (DEPRECATED) {
+        // backward compatibility
+        if (fieldCtxt.hasDeprecatedGetter) {
+            ctxt.getters += generate(ctxt, fieldCtxt,
+                                     "    /*DEPRECATED*/ Q_INVOKABLE :fieldType get:fieldName(quint32 index) const { return static_cast<:fieldType>(:propName(index)); }\n");
+        }
+        if (fieldCtxt.hasDeprecatedSetter) {
+            ctxt.setters += generate(ctxt, fieldCtxt,
+                                     "    /*DEPRECATED*/ void set:fieldName(quint32 index, :fieldType value) { set:fieldName(index, static_cast<:propType>(value)); }\n");
+        }
+
+        if (fieldCtxt.hasDeprecatedNotification) {
+            ctxt.notifications += generate(ctxt, fieldCtxt,
+                                           "    /*DEPRECATED*/ void :fieldNameChanged(quint32 index, :fieldType value);\n");
+        }
+    }
+
+    for (int elementIndex = 0; elementIndex < fieldCtxt.field->numElements; elementIndex++) {
+        QString elementName = fieldCtxt.field->elementNames[elementIndex];
+
+        FieldContext elementCtxt;
+        elementCtxt.field       = fieldCtxt.field;
+        elementCtxt.fieldName   = fieldCtxt.fieldName + "_" + elementName;
+        elementCtxt.fieldType   = fieldCtxt.fieldType;
+        elementCtxt.propName    = fieldCtxt.propName + elementName;
+        elementCtxt.ucPropName  = fieldCtxt.ucPropName + elementName;
+        elementCtxt.propType    = fieldCtxt.propType;
+        elementCtxt.propRefType = fieldCtxt.propRefType;
+        // deprecation
+        elementCtxt.hasDeprecatedProperty     = (elementCtxt.fieldName != elementCtxt.propName) && DEPRECATED;
+        elementCtxt.hasDeprecatedGetter       = DEPRECATED;
+        elementCtxt.hasDeprecatedSetter       = ((elementCtxt.fieldName != elementCtxt.ucPropName) || (elementCtxt.fieldType != elementCtxt.propType)) && DEPRECATED;
+        elementCtxt.hasDeprecatedNotification = ((elementCtxt.fieldName != elementCtxt.propName) || (elementCtxt.fieldType != elementCtxt.propType)) && DEPRECATED;
+
+
+        generateBaseProperty(ctxt, elementCtxt);
+
+        ctxt.propertiesImpl += generate(ctxt, elementCtxt,
+                                        ":propType :ClassName:::propName() const { return %1(%2); }\n").arg(fieldCtxt.propName).arg(elementIndex);
+
+        ctxt.propertiesImpl += generate(ctxt, elementCtxt,
+                                        "void :ClassName::set:PropName(const :propRefType value) { set%1(%2, value); }\n").arg(fieldCtxt.ucPropName).arg(elementIndex);
+    }
+}
+
+void generateProperty(Context &ctxt, FieldContext &fieldCtxt)
+{
+    // do some checks
+    QString fieldName = fieldCtxt.fieldName;
+
+    if (fieldName[0].isLower()) {
+        info(ctxt.object, "Field \"" + fieldName + "\" does not start with an upper case letter.");
+    }
+
+    // generate all properties
+    if (fieldCtxt.field->numElements > 1) {
+        generateIndexedProperty(ctxt, fieldCtxt);
+    } else {
+        generateSimpleProperty(ctxt, fieldCtxt);
+    }
+}
 
 bool UAVObjectGeneratorGCS::generate(UAVObjectParser *parser, QString templatepath, QString outputpath)
 {
-    fieldTypeStrCPP << "qint8" << "qint16" << "qint32" <<
-        "quint8" << "quint16" << "quint32" << "float" << "quint8";
-
-    fieldTypeStrCPPClass << "INT8" << "INT16" << "INT32"
-                         << "UINT8" << "UINT16" << "UINT32" << "FLOAT32" << "ENUM";
-
     gcsCodePath        = QDir(templatepath + QString(GCS_CODE_DIR));
     gcsOutputPath      = QDir(outputpath);
     gcsOutputPath.mkpath(gcsOutputPath.absolutePath());
@@ -44,7 +549,7 @@ bool UAVObjectGeneratorGCS::generate(UAVObjectParser *parser, QString templatepa
     QString gcsInitTemplate = readFile(gcsCodePath.absoluteFilePath("uavobjectsinit.cpp.template"));
 
     if (gcsCodeTemplate.isEmpty() || gcsIncludeTemplate.isEmpty() || gcsInitTemplate.isEmpty()) {
-        std::cerr << "Problem reading gcs code templates" << endl;
+        error("Error: Failed to read gcs code templates.");
         return false;
     }
 
@@ -52,29 +557,42 @@ bool UAVObjectGeneratorGCS::generate(UAVObjectParser *parser, QString templatepa
     QString gcsObjInit;
 
     for (int objidx = 0; objidx < parser->getNumObjects(); ++objidx) {
-        ObjectInfo *info = parser->getObjectByIndex(objidx);
-        process_object(info);
+        ObjectInfo *object = parser->getObjectByIndex(objidx);
+        process_object(object);
 
-        gcsObjInit.append("    objMngr->registerObject( new " + info->name + "() );\n");
-        objInc.append("#include \"" + info->namelc + ".h\"\n");
+        Context ctxt;
+        ctxt.object = object;
+
+        objInc.append(QString("#include \"%1.h\"\n").arg(object->namelc));
+
+        gcsObjInit += ::generate(ctxt, "    objMngr->registerObject( new :ClassName() );\n");
+        gcsObjInit += ::generate(ctxt, "    :ClassName::registerQMLTypes();\n");
     }
 
-    // Write the gcs object inialization files
-    gcsInitTemplate.replace(QString("$(OBJINC)"), objInc);
-    gcsInitTemplate.replace(QString("$(OBJINIT)"), gcsObjInit);
+    // Write the gcs object initialization files
+    gcsInitTemplate.replace("$(OBJINC)", objInc);
+    gcsInitTemplate.replace("$(OBJINIT)", gcsObjInit);
+
     bool res = writeFileIfDifferent(gcsOutputPath.absolutePath() + "/uavobjectsinit.cpp", gcsInitTemplate);
     if (!res) {
-        cout << "Error: Could not write output files" << endl;
+        error("Error: Could not write output files");
         return false;
     }
 
-    return true; // if we come here everything should be fine
+    return true;
 }
 
 /**
  * Generate the GCS object files
+ *
+ * TODO add getter to get enum names
+ *
+ * TODO handle "char" unit
+ * TODO handle "bool" unit
+ * TODO handle "hex" unit
+ * TODO handle Vector
  */
-bool UAVObjectGeneratorGCS::process_object(ObjectInfo *info)
+bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
 {
     if (info == NULL) {
         return false;
@@ -85,300 +603,80 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *info)
     QString outCode    = gcsCodeTemplate;
 
     // Replace common tags
-    replaceCommonTags(outInclude, info);
-    replaceCommonTags(outCode, info);
-
-    // Replace the $(DATAFIELDS) tag
-    QString type;
-    QString fields;
-    for (int n = 0; n < info->fields.length(); ++n) {
-        // Determine type
-        type = fieldTypeStrCPP[info->fields[n]->type];
-        // Append field
-        if (info->fields[n]->numElements > 1) {
-            fields.append(QString("        %1 %2[%3];\n").arg(type).arg(info->fields[n]->name)
-                          .arg(info->fields[n]->numElements));
-        } else {
-            fields.append(QString("        %1 %2;\n").arg(type).arg(info->fields[n]->name));
-        }
-    }
-    outInclude.replace(QString("$(DATAFIELDS)"), fields);
-
-    // Replace $(PROPERTIES) and related tags
-    QString properties;
-    QString propertiesImpl;
-    QString propertyGetters;
-    QString propertySetters;
-    QString propertyNotifications;
-    QString propertyNotificationsImpl;
+    replaceCommonTags(outInclude, object);
+    replaceCommonTags(outCode, object);
 
     // to avoid name conflicts
     QStringList reservedProperties;
     reservedProperties << "Description" << "Metadata";
 
-    for (int n = 0; n < info->fields.length(); ++n) {
-        FieldInfo *field = info->fields[n];
+    Context ctxt;
+    ctxt.object = object;
+
+    ctxt.registerImpl += ::generate(ctxt,
+                                  "    qmlRegisterType<:ClassName>(\"%1.:ClassName\", 1, 0, \":ClassName\");\n").arg("UAVTalk");
+
+    for (int n = 0; n < object->fields.length(); ++n) {
+        FieldInfo *field = object->fields[n];
+
+        // field context
+        FieldContext fieldCtxt;
+        fieldCtxt.field       = field;
+
+        // field properties
+        fieldCtxt.fieldName   = field->name;
+        fieldCtxt.fieldType   = fieldTypeStrCPP(field->type);
+
+        fieldCtxt.ucPropName  = toPropertyName(field->name);
+        fieldCtxt.propName    = toLowerCamelCase(fieldCtxt.ucPropName);
+        fieldCtxt.propType    = fieldCtxt.fieldType;
+        fieldCtxt.propRefType = fieldCtxt.fieldType;
+        if (field->type == FIELDTYPE_ENUM) {
+            QString enumClassName = object->name + "_" + fieldCtxt.ucPropName;
+            fieldCtxt.propType    = enumClassName + "::Enum";
+            fieldCtxt.propRefType = fieldCtxt.propType;
+        }
+
+        // deprecation
+        fieldCtxt.hasDeprecatedProperty     = (fieldCtxt.fieldName != fieldCtxt.propName) && DEPRECATED;
+        fieldCtxt.hasDeprecatedGetter       = DEPRECATED;
+        fieldCtxt.hasDeprecatedSetter       = ((fieldCtxt.fieldName != fieldCtxt.ucPropName) || (fieldCtxt.fieldType != fieldCtxt.propType)) && DEPRECATED;
+        fieldCtxt.hasDeprecatedNotification = ((fieldCtxt.fieldName != fieldCtxt.propName) || (fieldCtxt.fieldType != fieldCtxt.propType)) && DEPRECATED;
+
+        generateField(ctxt, fieldCtxt);
 
         if (reservedProperties.contains(field->name)) {
+            warning(object, "Ignoring reserved property " + field->name + ".");
             continue;
         }
 
-        // Determine type
-        type = fieldTypeStrCPP[field->type];
-        // Append field
-        if (field->numElements > 1) {
-            // add both field(elementIndex)/setField(elemntIndex,value) and field_element properties
-            // field_element is more convenient if only certain element is used
-            // and much easier to use from the qml side
-            propertyGetters +=
-                QString("    Q_INVOKABLE %1 get%2(quint32 index) const;\n")
-                .arg(type).arg(field->name);
-            propertiesImpl  +=
-                QString("%1 %2::get%3(quint32 index) const\n"
-                        "{\n"
-                        "   QMutexLocker locker(mutex);\n"
-                        "   return data.%3[index];\n"
-                        "}\n")
-                .arg(type).arg(info->name).arg(field->name);
-            propertySetters +=
-                QString("    void set%1(quint32 index, %2 value);\n")
-                .arg(field->name).arg(type);
-            propertiesImpl  +=
-                QString("void %1::set%2(quint32 index, %3 value)\n"
-                        "{\n"
-                        "   mutex->lock();\n"
-                        "   bool changed = data.%2[index] != value;\n"
-                        "   data.%2[index] = value;\n"
-                        "   mutex->unlock();\n"
-                        "   if (changed) emit %2Changed(index,value);\n"
-                        "}\n\n")
-                .arg(info->name).arg(field->name).arg(type);
-            propertyNotifications +=
-                QString("    void %1Changed(quint32 index, %2 value);\n")
-                .arg(field->name).arg(type);
-
-            for (int elementIndex = 0; elementIndex < field->numElements; elementIndex++) {
-                QString elementName = field->elementNames[elementIndex];
-                properties += QString("    Q_PROPERTY(%1 %2 READ get%2 WRITE set%2 NOTIFY %2Changed);\n")
-                              .arg(type).arg(field->name + "_" + elementName);
-                propertyGetters +=
-                    QString("    Q_INVOKABLE %1 get%2_%3() const;\n")
-                    .arg(type).arg(field->name).arg(elementName);
-                propertiesImpl  +=
-                    QString("%1 %2::get%3_%4() const\n"
-                            "{\n"
-                            "   QMutexLocker locker(mutex);\n"
-                            "   return data.%3[%5];\n"
-                            "}\n")
-                    .arg(type).arg(info->name).arg(field->name).arg(elementName).arg(elementIndex);
-                propertySetters +=
-                    QString("    void set%1_%2(%3 value);\n")
-                    .arg(field->name).arg(elementName).arg(type);
-                propertiesImpl  +=
-                    QString("void %1::set%2_%3(%4 value)\n"
-                            "{\n"
-                            "   mutex->lock();\n"
-                            "   bool changed = data.%2[%5] != value;\n"
-                            "   data.%2[%5] = value;\n"
-                            "   mutex->unlock();\n"
-                            "   if (changed) emit %2_%3Changed(value);\n"
-                            "}\n\n")
-                    .arg(info->name).arg(field->name).arg(elementName).arg(type).arg(elementIndex);
-                propertyNotifications     +=
-                    QString("    void %1_%2Changed(%3 value);\n")
-                    .arg(field->name).arg(elementName).arg(type);
-                propertyNotificationsImpl +=
-                    QString("        //if (data.%1[%2] != oldData.%1[%2])\n"
-                            "            emit %1_%3Changed(data.%1[%2]);\n")
-                    .arg(field->name).arg(elementIndex).arg(elementName);
-            }
-        } else {
-            properties += QString("    Q_PROPERTY(%1 %2 READ get%2 WRITE set%2 NOTIFY %2Changed);\n")
-                          .arg(type).arg(field->name);
-            propertyGetters +=
-                QString("    Q_INVOKABLE %1 get%2() const;\n")
-                .arg(type).arg(field->name);
-            propertiesImpl  +=
-                QString("%1 %2::get%3() const\n"
-                        "{\n"
-                        "   QMutexLocker locker(mutex);\n"
-                        "   return data.%3;\n"
-                        "}\n")
-                .arg(type).arg(info->name).arg(field->name);
-            propertySetters +=
-                QString("    void set%1(%2 value);\n")
-                .arg(field->name).arg(type);
-            propertiesImpl  +=
-                QString("void %1::set%2(%3 value)\n"
-                        "{\n"
-                        "   mutex->lock();\n"
-                        "   bool changed = data.%2 != value;\n"
-                        "   data.%2 = value;\n"
-                        "   mutex->unlock();\n"
-                        "   if (changed) emit %2Changed(value);\n"
-                        "}\n\n")
-                .arg(info->name).arg(field->name).arg(type);
-            propertyNotifications     +=
-                QString("    void %1Changed(%2 value);\n")
-                .arg(field->name).arg(type);
-            propertyNotificationsImpl +=
-                QString("        //if (data.%1 != oldData.%1)\n"
-                        "            emit %1Changed(data.%1);\n")
-                .arg(field->name);
-        }
+        generateProperty(ctxt, fieldCtxt);
     }
 
-    outInclude.replace(QString("$(PROPERTIES)"), properties);
-    outInclude.replace(QString("$(PROPERTY_GETTERS)"), propertyGetters);
-    outInclude.replace(QString("$(PROPERTY_SETTERS)"), propertySetters);
-    outInclude.replace(QString("$(PROPERTY_NOTIFICATIONS)"), propertyNotifications);
+    outInclude.replace("$(ENUMS)", ctxt.enums);
+    outInclude.replace("$(DATAFIELDS)", ctxt.fields);
+    outInclude.replace("$(DATAFIELDINFO)", ctxt.fieldsInfo);
+    outInclude.replace("$(PROPERTIES)", ctxt.properties);
+    outInclude.replace("$(DEPRECATED_PROPERTIES)", ctxt.deprecatedProperties);
+    outInclude.replace("$(PROPERTY_GETTERS)", ctxt.getters);
+    outInclude.replace("$(PROPERTY_SETTERS)", ctxt.setters);
+    outInclude.replace("$(PROPERTY_NOTIFICATIONS)", ctxt.notifications);
 
-    outCode.replace(QString("$(PROPERTIES_IMPL)"), propertiesImpl);
-    outCode.replace(QString("$(NOTIFY_PROPERTIES_CHANGED)"), propertyNotificationsImpl);
-
-    // Replace the $(FIELDSINIT) tag
-    QString finit;
-    for (int n = 0; n < info->fields.length(); ++n) {
-        // Setup element names
-        QString varElemName   = info->fields[n]->name + "ElemNames";
-        finit.append(QString("    QStringList %1;\n").arg(varElemName));
-        QStringList elemNames = info->fields[n]->elementNames;
-        for (int m = 0; m < elemNames.length(); ++m) {
-            finit.append(QString("    %1.append(\"%2\");\n")
-                         .arg(varElemName)
-                         .arg(elemNames[m]));
-        }
-
-        // Only for enum types
-        if (info->fields[n]->type == FIELDTYPE_ENUM) {
-            QString varOptionName = info->fields[n]->name + "EnumOptions";
-            finit.append(QString("    QStringList %1;\n").arg(varOptionName));
-            QStringList options   = info->fields[n]->options;
-            for (int m = 0; m < options.length(); ++m) {
-                finit.append(QString("    %1.append(\"%2\");\n")
-                             .arg(varOptionName)
-                             .arg(options[m]));
-            }
-            finit.append(QString("    fields.append( new UAVObjectField(QString(\"%1\"), tr(\"%2\"), QString(\"%3\"), UAVObjectField::ENUM, %4, %5, QString(\"%6\")));\n")
-                         .arg(info->fields[n]->name)
-                         .arg(info->fields[n]->description)
-                         .arg(info->fields[n]->units)
-                         .arg(varElemName)
-                         .arg(varOptionName)
-                         .arg(info->fields[n]->limitValues));
-        }
-        // For all other types
-        else {
-            finit.append(QString("    fields.append( new UAVObjectField(QString(\"%1\"), tr(\"%2\"), QString(\"%3\"), UAVObjectField::%4, %5, QStringList(), QString(\"%6\")));\n")
-                         .arg(info->fields[n]->name)
-                         .arg(info->fields[n]->description)
-                         .arg(info->fields[n]->units)
-                         .arg(fieldTypeStrCPPClass[info->fields[n]->type])
-                         .arg(varElemName)
-                         .arg(info->fields[n]->limitValues));
-        }
-    }
-    outCode.replace(QString("$(FIELDSINIT)"), finit);
-
-    // Replace the $(DATAFIELDINFO) tag
-    QString name;
-    QString enums;
-    for (int n = 0; n < info->fields.length(); ++n) {
-        enums.append(QString("    // Field %1 information\n").arg(info->fields[n]->name));
-        // Only for enum types
-        if (info->fields[n]->type == FIELDTYPE_ENUM) {
-            enums.append(QString("    /* Enumeration options for field %1 */\n").arg(info->fields[n]->name));
-            enums.append("    typedef enum { ");
-            // Go through each option
-            QStringList options = info->fields[n]->options;
-            for (int m = 0; m < options.length(); ++m) {
-                QString s = (m != (options.length() - 1)) ? "%1_%2=%3, " : "%1_%2=%3";
-                enums.append(s.arg(info->fields[n]->name.toUpper())
-                             .arg(options[m].toUpper().replace(QRegExp(ENUM_SPECIAL_CHARS), ""))
-                             .arg(m));
-            }
-            enums.append(QString(" } %1Options;\n")
-                         .arg(info->fields[n]->name));
-        }
-        // Generate element names (only if field has more than one element)
-        if (info->fields[n]->numElements > 1 && !info->fields[n]->defaultElementNames) {
-            enums.append(QString("    /* Array element names for field %1 */\n").arg(info->fields[n]->name));
-            enums.append("    typedef enum { ");
-            // Go through the element names
-            QStringList elemNames = info->fields[n]->elementNames;
-            for (int m = 0; m < elemNames.length(); ++m) {
-                QString s = (m != (elemNames.length() - 1)) ? "%1_%2=%3, " : "%1_%2=%3";
-                enums.append(s.arg(info->fields[n]->name.toUpper())
-                             .arg(elemNames[m].toUpper())
-                             .arg(m));
-            }
-            enums.append(QString(" } %1Elem;\n")
-                         .arg(info->fields[n]->name));
-        }
-        // Generate array information
-        if (info->fields[n]->numElements > 1) {
-            enums.append(QString("    /* Number of elements for field %1 */\n").arg(info->fields[n]->name));
-            enums.append(QString("    static const quint32 %1_NUMELEM = %2;\n")
-                         .arg(info->fields[n]->name.toUpper())
-                         .arg(info->fields[n]->numElements));
-        }
-    }
-    outInclude.replace(QString("$(DATAFIELDINFO)"), enums);
-
-    // Replace the $(INITFIELDS) tag
-    QString initfields;
-    for (int n = 0; n < info->fields.length(); ++n) {
-        if (!info->fields[n]->defaultValues.isEmpty()) {
-            // For non-array fields
-            if (info->fields[n]->numElements == 1) {
-                if (info->fields[n]->type == FIELDTYPE_ENUM) {
-                    initfields.append(QString("    data.%1 = %2;\n")
-                                      .arg(info->fields[n]->name)
-                                      .arg(info->fields[n]->options.indexOf(info->fields[n]->defaultValues[0])));
-                } else if (info->fields[n]->type == FIELDTYPE_FLOAT32) {
-                    initfields.append(QString("    data.%1 = %2;\n")
-                                      .arg(info->fields[n]->name)
-                                      .arg(info->fields[n]->defaultValues[0].toFloat()));
-                } else {
-                    initfields.append(QString("    data.%1 = %2;\n")
-                                      .arg(info->fields[n]->name)
-                                      .arg(info->fields[n]->defaultValues[0].toInt()));
-                }
-            } else {
-                // Initialize all fields in the array
-                for (int idx = 0; idx < info->fields[n]->numElements; ++idx) {
-                    if (info->fields[n]->type == FIELDTYPE_ENUM) {
-                        initfields.append(QString("    data.%1[%2] = %3;\n")
-                                          .arg(info->fields[n]->name)
-                                          .arg(idx)
-                                          .arg(info->fields[n]->options.indexOf(info->fields[n]->defaultValues[idx])));
-                    } else if (info->fields[n]->type == FIELDTYPE_FLOAT32) {
-                        initfields.append(QString("    data.%1[%2] = %3;\n")
-                                          .arg(info->fields[n]->name)
-                                          .arg(idx)
-                                          .arg(info->fields[n]->defaultValues[idx].toFloat()));
-                    } else {
-                        initfields.append(QString("    data.%1[%2] = %3;\n")
-                                          .arg(info->fields[n]->name)
-                                          .arg(idx)
-                                          .arg(info->fields[n]->defaultValues[idx].toInt()));
-                    }
-                }
-            }
-        }
-    }
-
-    outCode.replace(QString("$(INITFIELDS)"), initfields);
+    outCode.replace("$(FIELDSINIT)", ctxt.fieldsInit);
+    outCode.replace("$(FIELDSDEFAULT)", ctxt.fieldsDefault);
+    outCode.replace("$(PROPERTIES_IMPL)", ctxt.propertiesImpl);
+    outCode.replace("$(NOTIFY_PROPERTIES_CHANGED)", ctxt.notificationsImpl);
+    outCode.replace("$(REGISTER_QML_TYPES)", ctxt.registerImpl);
 
     // Write the GCS code
-    bool res = writeFileIfDifferent(gcsOutputPath.absolutePath() + "/" + info->namelc + ".cpp", outCode);
+    bool res = writeFileIfDifferent(gcsOutputPath.absolutePath() + "/" + object->namelc + ".cpp", outCode);
     if (!res) {
-        cout << "Error: Could not write gcs output files" << endl;
+        error("Error: Could not write gcs output files");
         return false;
     }
-    res = writeFileIfDifferent(gcsOutputPath.absolutePath() + "/" + info->namelc + ".h", outInclude);
+    res = writeFileIfDifferent(gcsOutputPath.absolutePath() + "/" + object->namelc + ".h", outInclude);
     if (!res) {
-        cout << "Error: Could not write gcs output files" << endl;
+        error("Error: Could not write gcs output files");
         return false;
     }
 

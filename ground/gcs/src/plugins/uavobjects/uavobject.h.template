@@ -36,10 +36,17 @@
 #include "uavdataobject.h"
 #include "uavobjectmanager.h"
 
+class UAVObjectManager;
+
+$(ENUMS)
+
 class UAVOBJECTS_EXPORT $(NAME): public UAVDataObject
 {
     Q_OBJECT
 $(PROPERTIES)
+
+    // Deprecated properties
+$(DEPRECATED_PROPERTIES)
 
 public:
     // Field structure
@@ -49,7 +56,7 @@ $(DATAFIELDS)
 
     // Field information
 $(DATAFIELDINFO)
-  
+
     // Constants
     static const quint32 OBJID = $(OBJIDHEX);
     static const QString NAME;
@@ -66,9 +73,11 @@ $(DATAFIELDINFO)
     void setData(const DataFields& data);
     Metadata getDefaultMetadata();
     UAVDataObject* clone(quint32 instID);
-	UAVDataObject* dirtyClone();
-	
+    UAVDataObject* dirtyClone();
+
     static $(NAME)* GetInstance(UAVObjectManager* objMngr, quint32 instID = 0);
+
+    static void registerQMLTypes();
 
 $(PROPERTY_GETTERS)
 
@@ -80,9 +89,9 @@ $(PROPERTY_NOTIFICATIONS)
 
 private slots:
     void emitNotifications();
-	
+
 private:
-    DataFields data;
+    DataFields data_;
 
     void setDefaultFieldValues();
 

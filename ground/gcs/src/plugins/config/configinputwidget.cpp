@@ -1651,7 +1651,7 @@ void ConfigInputWidget::moveFMSlider()
 void ConfigInputWidget::highlightStabilizationMode(int pos)
 {
     QComboBox *comboboxFm    = this->findChild<QComboBox *>("fmsModePos" + QString::number(pos + 1));
-    QString customStyleSheet = "border-radius: 4px; border:3px solid #feb103;";
+    QString customStyleSheet = "QComboBox:editable:!on{background: #feb103;}";
 
     if (comboboxFm) {
         QString flightModeText = comboboxFm->currentText();
@@ -1667,11 +1667,11 @@ void ConfigInputWidget::highlightStabilizationMode(int pos)
 
             // Highlight current stabilization mode if any.
             if ((flightModeText.contains("Stabilized", Qt::CaseInsensitive)) && (flightModeText.contains(QString::number(i + 1), Qt::CaseInsensitive))) {
-                label->setStyleSheet("QLabel {" + customStyleSheet + "}");
-                comboRoll->setStyleSheet("QComboBox {" + customStyleSheet + "}");
-                comboPitch->setStyleSheet("QComboBox {" + customStyleSheet + "}");
-                comboYaw->setStyleSheet("QComboBox {" + customStyleSheet + "}");
-                comboThrust->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+                label->setStyleSheet("border-radius: 4px; border:3px solid #feb103;");
+                comboRoll->setStyleSheet(customStyleSheet);
+                comboPitch->setStyleSheet(customStyleSheet);
+                comboYaw->setStyleSheet(customStyleSheet);
+                comboThrust->setStyleSheet(customStyleSheet);
             } else {
                 label->setStyleSheet("");
                 comboRoll->setStyleSheet("");
@@ -1680,7 +1680,7 @@ void ConfigInputWidget::highlightStabilizationMode(int pos)
                 comboThrust->setStyleSheet("");
                 if (!flightModeText.contains("Stabilized", Qt::CaseInsensitive)) {
                     // Highlight PosHold, Return to Base, ... flightmodes
-                    comboboxFm->setStyleSheet("QComboBox {" + customStyleSheet + "}");
+                    comboboxFm->setStyleSheet(customStyleSheet);
                 }
             }
         }

@@ -6,6 +6,8 @@ import UAVTalk.AttitudeState 1.0
 import UAVTalk.HomeLocation 1.0
 import UAVTalk.GPSPositionSensor 1.0
 
+import "../uav.js" as UAV
+
 OSGViewport {
     anchors.fill: parent
     focus: true
@@ -46,43 +48,8 @@ OSGViewport {
         modelData: modelTransformNode
         sceneData: terrainNode
 
-        attitude: uavAttitude()
-        position: uavPosition()
-
-        function uavAttitude() {
-            return Qt.vector3d(attitudeState.pitch, attitudeState.roll, -attitudeState.yaw);
-        }
-
-        function uavPosition() {
-            switch(gpsPositionSensor.status) {
-            case Status.Fix2D:
-            case Status.Fix3D:
-                return uavGPSPosition();
-            case Status.NoFix:
-            case Status.NoGPS:
-            default:
-                return (homeLocation.set == Set.True) ? uavHomePosition() : uavDefaultPosition();
-            }
-        }
-
-        function uavGPSPosition() {
-            return Qt.vector3d(
-                gpsPositionSensor.longitude / 10000000.0,
-                gpsPositionSensor.latitude / 10000000.0,
-                gpsPositionSensor.altitude);
-        }
-
-        function uavHomePosition() {
-            return Qt.vector3d(
-                homeLocation.longitude / 10000000.0,
-                homeLocation.latitude / 10000000.0,
-                homeLocation.altitude);
-        }
-
-        function uavDefaultPosition() {
-            return Qt.vector3d(qmlWidget.longitude, qmlWidget.latitude, qmlWidget.altitude);
-        }
-
+        attitude: UAV.attitude()
+        position: UAV.position()
     }
 
     OSGTransformNode {

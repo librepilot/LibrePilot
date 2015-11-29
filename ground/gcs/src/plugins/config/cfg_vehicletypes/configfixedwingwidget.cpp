@@ -382,7 +382,6 @@ void ConfigFixedWingWidget::refreshWidgetsValues(QString frameType)
     setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw3_2, fixed.Accessory2_2);
     setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw4_2, fixed.Accessory3_2);
 
-
     updateRcCurvesUsed();
 
     // Get mixing values for GUI sliders (values stored onboard)
@@ -701,7 +700,7 @@ void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
     GUIConfigDataUnion configData = getConfigData();
     resetRcOutputs(&configData);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     int curveAccessory0  = m_aircraft->rcOutputCurveBoxFw1->currentIndex();
@@ -713,7 +712,7 @@ void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
         int index  = rcList.takeFirst()->currentIndex();
         int index2 = rcList2.takeFirst()->currentIndex();
 
-        if (rc_output == QString("Accessory0")) {
+        if (rc_output == "Accessory0") {
             // First output for Accessory0
             configData.fixedwing.Accessory0 = index;
             if (index) {
@@ -734,7 +733,7 @@ void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
                     setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
                 }
             }
-        } else if (rc_output == QString("Accessory1")) {
+        } else if (rc_output == "Accessory1") {
             configData.fixedwing.Accessory1   = index;
             configData.fixedwing.Accessory1_2 = index2;
             if (index) {
@@ -753,7 +752,7 @@ void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
                     setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
                 }
             }
-        } else if (rc_output == QString("Accessory2")) {
+        } else if (rc_output == "Accessory2") {
             configData.fixedwing.Accessory2   = index;
             configData.fixedwing.Accessory2_2 = index2;
             if (index) {
@@ -772,7 +771,7 @@ void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
                     setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
                 }
             }
-        } else if (rc_output == QString("Accessory3")) {
+        } else if (rc_output == "Accessory3") {
             configData.fixedwing.Accessory3   = index;
             configData.fixedwing.Accessory3_2 = index2;
             if (index) {

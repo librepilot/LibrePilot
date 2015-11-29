@@ -123,10 +123,6 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         if (object) {
             // expose object with lower camel case name
             engine()->rootContext()->setContextProperty(toLowerCamelCase(objectName), object);
-            // expose object with its name for backward compatibility
-            // exposing with the name conflicts with the Qml namespace (prevents to expose the object class as a type)
-            // this should be removed once the qml files all use the lower camel case name
-            engine()->rootContext()->setContextProperty(objectName, object);
         } else {
             qWarning() << "Failed to load object" << objectName;
         }

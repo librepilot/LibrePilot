@@ -30,7 +30,7 @@
 
 	<field name="EasyTunePitchRollRateFactors" units="" type="float" elementnames="I,D" defaultvalue="3,0.0135"/>
 	<field name="EasyTuneYawRateFactors" units="" type="float" elementnames="P,I,D" defaultvalue="1.5,1.9,0.0085"/>
-	<field name="EasyTuneRatePIDRecalculateYaw" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
+	<field name="EasyTuneRatePIDRecalculateYaw" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
 
 	<access gcs="readwrite" flight="readwrite"/>
 	<telemetrygcs acked="true" updatemode="onchange" period="0"/>

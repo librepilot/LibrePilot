@@ -1,7 +1,4 @@
-# Get some info about the distro
--include /etc/lsb-release
-
-DEB_DIST             := $(DISTRIB_CODENAME)
+DEB_DIST             := $(shell lsb_release -c -s)
 # Instead of RELEASE-15.01-RC1 debian wants 15.01~RC1
 UPSTREAM_VER         := $(subst -,~,$(subst RELEASE-,,$(PACKAGE_LBL)))
 ifeq ($(DEB_DIST), unstable) # This should be set manually for a submission to Debian or similar

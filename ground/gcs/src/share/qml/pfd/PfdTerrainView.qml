@@ -2,9 +2,13 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
+import UAVTalk.AttitudeState 1.0
+import UAVTalk.HomeLocation 1.0
+import UAVTalk.GPSPositionSensor 1.0
+
 OSGViewport {
     id: fullview
-    // anchors.fill: parent
+    //anchors.fill: parent
     focus: true
     sceneData: skyNode
     camera: camera
@@ -15,7 +19,7 @@ OSGViewport {
     property double factor: 0.04
 
     // Stretch height and apply offset
-    ///height: height * (1 + factor)
+    //height: height * (1 + factor)
     y: -height * factor
 
     OSGSkyNode {
@@ -53,33 +57,33 @@ OSGViewport {
         position: uavPosition()
 
         function uavAttitude() {
-            return Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw);
+            return Qt.vector3d(attitudeState.pitch, attitudeState.roll, -attitudeState.yaw);
         }
 
         function uavPosition() {
-            switch(GPSPositionSensor.Status) {
-            case 2: // Fix2D
-            case 3: // Fix3D
+            switch(gpsPositionSensor.status) {
+            case Status.Fix2D:
+            case Status.Fix3D:
                 return uavGPSPosition();
-            case 0: // NoGPS
-            case 1: // NoFix
+            case Status.NoFix:
+            case Status.NoGPS:
             default:
-                return (HomeLocation.Set == 1) ? uavHomePosition() : uavDefaultPosition();
+                return (homeLocation.set == Set.True) ? uavHomePosition() : uavDefaultPosition();
             }
         }
 
         function uavGPSPosition() {
             return Qt.vector3d(
-                GPSPositionSensor.Longitude / 10000000.0,
-                GPSPositionSensor.Latitude / 10000000.0,
-                GPSPositionSensor.Altitude);
+                gpsPositionSensor.longitude / 10000000.0,
+                gpsPositionSensor.latitude / 10000000.0,
+                gpsPositionSensor.altitude);
         }
 
         function uavHomePosition() {
             return Qt.vector3d(
-                HomeLocation.Longitude / 10000000.0,
-                HomeLocation.Latitude / 10000000.0,
-                HomeLocation.Altitude);
+                homeLocation.longitude / 10000000.0,
+                homeLocation.latitude / 10000000.0,
+                homeLocation.altitude);
         }
 
         function uavDefaultPosition() {
@@ -96,13 +100,13 @@ OSGViewport {
         opacity: 0
 
         property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "horizon")
-        width: Math.round(sceneItem.width*scaledBounds.width/2)*2
-        height: Math.round(sceneItem.height*scaledBounds.height/2)*3
+        width: Math.round(sceneItem.width * scaledBounds.width / 2) * 2
+        height: Math.round(sceneItem.height * scaledBounds.height / 2) * 3
 
         property double pitch1DegScaledHeight: (svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch-90").y -
-                                                svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch90").y)/180.0
+                                                svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch90").y) / 180.0
 
-        property double pitch1DegHeight: sceneItem.height*pitch1DegScaledHeight
+        property double pitch1DegHeight: sceneItem.height * pitch1DegScaledHeight
 
 
         transform: [
@@ -110,12 +114,11 @@ OSGViewport {
                 id: pitchTranslate
                 x: Math.round((world.parent.width - world.width)/2)
                 // y is centered around world_center element
-                y: Math.round(horizontCenter - world.height/2 +
-                              AttitudeState.Pitch*world.pitch1DegHeight)
+                y: Math.round(horizontCenter - world.height / 2 + attitudeState.pitch * world.pitch1DegHeight)
             },
             Rotation {
-                angle: -AttitudeState.Roll
-                origin.x : world.parent.width/2
+                angle: -attitudeState.roll
+                origin.x : world.parent.width / 2
                 origin.y : horizontCenter
             }
         ]
@@ -131,7 +134,7 @@ OSGViewport {
         width: Math.floor(scaledBounds.width * sceneItem.width)
         height: Math.floor(scaledBounds.height * sceneItem.height)
 
-        rotation: -AttitudeState.Roll
+        rotation: -attitudeState.roll
         transformOrigin: Item.Center
 
         smooth: true
@@ -145,8 +148,8 @@ OSGViewport {
             sceneSize: background.sceneSize
             anchors.centerIn: parent
             //see comment for world transform
-            anchors.verticalCenterOffset: AttitudeState.Pitch*world.pitch1DegHeight
-            border: 64 //sometimes numbers are excluded from bounding rect
+            anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
+            border: 64 // sometimes numbers are excluded from bounding rect
 
             smooth: true
         }
@@ -157,11 +160,11 @@ OSGViewport {
 
             opacity: 0.5
 
-            //worldView is loaded with Loader, so background element is visible
+            // worldView is loaded with Loader, so background element is visible
             sceneSize: background.sceneSize
             anchors.centerIn: parent
 
-            anchors.verticalCenterOffset: AttitudeState.Pitch*world.pitch1DegHeight
+            anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
             border: 1
             smooth: true
        }
@@ -172,7 +175,7 @@ OSGViewport {
 
             sceneSize: background.sceneSize
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: AttitudeState.Pitch*world.pitch1DegHeight
+            anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
             border: 1
             smooth: true
        }

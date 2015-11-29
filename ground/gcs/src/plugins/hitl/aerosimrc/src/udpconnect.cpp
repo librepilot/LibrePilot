@@ -210,8 +210,8 @@ void UdpReceiver::onReadyRead()
     while (inSocket->hasPendingDatagrams()) {
         QByteArray datagram;
         datagram.resize(inSocket->pendingDatagramSize());
-        quint64 datagramSize;
-        datagramSize = inSocket->readDatagram(datagram.data(), datagram.size());
+        // quint64 datagramSize;
+        /*datagramSize =*/ inSocket->readDatagram(datagram.data(), datagram.size());
 
         processDatagram(datagram);
     }

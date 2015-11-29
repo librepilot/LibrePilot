@@ -3,6 +3,8 @@ TARGET = UAVObjects
 
 DEFINES += UAVOBJECTS_LIBRARY
 
+QT += qml
+
 include(../../plugin.pri)
 include(uavobjects_dependencies.pri)
 

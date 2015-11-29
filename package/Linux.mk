@@ -16,14 +16,16 @@ s,<GITWEB_URL>,$(GITWEB_URL),g; \
 
 # Are we using a debian based distro?
 ifneq ($(wildcard /etc/apt/sources.list),)
-	include $(ROOT_DIR)/package/linux/deb.mk
+	PKG_TYPE := deb
 # Are we using a rpm based distro?
 else ifneq ($(wildcard /etc/yum.repos.d/*),)
-	include $(ROOT_DIR)/package/linux/rpm.mk
+	PKG_TYPE := rpm
 # Are we using an Arch based distro?
 else ifneq ($(wildcard /etc/pacman.conf),)
     $(info TODO: built in arch package)
 endif
+
+-include $(ROOT_DIR)/package/linux/$(PKG_TYPE).mk
 
 ##############################
 #

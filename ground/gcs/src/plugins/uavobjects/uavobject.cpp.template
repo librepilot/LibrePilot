@@ -33,6 +33,9 @@
 
 #include "$(NAMELC).h"
 #include "uavobjectfield.h"
+#include "uavobjectmanager.h"
+
+#include <QtQml>
 
 const QString $(NAME)::NAME = QString("$(NAME)");
 const QString $(NAME)::DESCRIPTION = QString("$(DESCRIPTION)");
@@ -47,7 +50,7 @@ $(NAME)::$(NAME)(): UAVDataObject(OBJID, ISSINGLEINST, ISSETTINGS, NAME)
     QList<UAVObjectField *> fields;
 $(FIELDSINIT)
     // Initialize object
-    initializeFields(fields, (quint8 *)&data, NUMBYTES);
+    initializeFields(fields, (quint8 *)&data_, NUMBYTES);
     // Set the default field values
     setDefaultFieldValues();
     // Set the object description
@@ -86,7 +89,7 @@ UAVObject::Metadata $(NAME)::getDefaultMetadata()
  */
 void $(NAME)::setDefaultFieldValues()
 {
-$(INITFIELDS)
+$(FIELDSDEFAULT)
 }
 
 /**
@@ -95,7 +98,7 @@ $(INITFIELDS)
 $(NAME)::DataFields $(NAME)::getData()
 {
     QMutexLocker locker(mutex);
-    return data;
+    return data_;
 }
 
 /**
@@ -108,7 +111,7 @@ void $(NAME)::setData(const DataFields& data)
     Metadata mdata = getMetadata();
     // Update object if the access mode permits
     if (UAVObject::GetGcsAccess(mdata) == ACCESS_READWRITE) {
-        this->data = data;
+        this->data_ = data;
         emit objectUpdatedAuto(this); // trigger object updated event
         emit objectUpdated(this);
     }
@@ -116,7 +119,7 @@ void $(NAME)::setData(const DataFields& data)
 
 void $(NAME)::emitNotifications()
 {
-    $(NOTIFY_PROPERTIES_CHANGED)
+$(NOTIFY_PROPERTIES_CHANGED)
 }
 
 /**
@@ -146,6 +149,13 @@ UAVDataObject *$(NAME)::dirtyClone()
 $(NAME) *$(NAME)::GetInstance(UAVObjectManager *objMngr, quint32 instID)
 {
     return dynamic_cast<$(NAME) *>(objMngr->getObject($(NAME)::OBJID, instID));
+}
+
+/**
+ * Static function to register QML types.
+ */
+void $(NAME)::registerQMLTypes() {
+$(REGISTER_QML_TYPES)
 }
 
 $(PROPERTIES_IMPL)

@@ -1,5 +1,7 @@
 import QtQuick 2.4
 
+import UAVTalk.AttitudeState 1.0
+
 Item {
     id: worldView
     property real horizontCenter : horizontCenterItem.horizontCenter
@@ -32,10 +34,10 @@ Item {
                 x: Math.round((world.parent.width - world.width)/2)
                 // y is centered around world_center element
                 y: Math.round(horizontCenter - world.height/2 +
-                              AttitudeState.Pitch*world.pitch1DegHeight)
+                              attitudeState.pitch * world.pitch1DegHeight)
             },
             Rotation {
-                angle: -AttitudeState.Roll
+                angle: -attitudeState.roll
                 origin.x : world.parent.width/2
                 origin.y : horizontCenter
             }
@@ -72,7 +74,7 @@ Item {
         width: Math.floor(scaledBounds.width * sceneItem.width)
         height: Math.floor(scaledBounds.height * sceneItem.height)
 
-        rotation: -AttitudeState.Roll
+        rotation: -attitudeState.roll
         transformOrigin: Item.Center
 
         smooth: true
@@ -85,7 +87,7 @@ Item {
             sceneSize: background.sceneSize
             anchors.centerIn: parent
             //see comment for world transform
-            anchors.verticalCenterOffset: AttitudeState.Pitch*world.pitch1DegHeight
+            anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
             border: 64 //sometimes numbers are excluded from bounding rect
 
             smooth: true

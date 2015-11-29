@@ -28,6 +28,7 @@
 #include "levelcalibrationmodel.h"
 #include "extensionsystem/pluginmanager.h"
 #include "calibration/calibrationuiutils.h"
+#include "uavobjectmanager.h"
 
 #include <attitudestate.h>
 #include <attitudesettings.h>

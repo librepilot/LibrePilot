@@ -1,5 +1,10 @@
 import QtQuick 2.4
 
+import UAVTalk.FlightStatus 1.0
+import UAVTalk.VelocityDesired 1.0
+
+import "common.js" as Utils
+
 Item {
     id: sceneItem
     property variant sceneSize
@@ -7,7 +12,7 @@ Item {
 
     Timer {
          interval: 100; running: true; repeat: true
-         onTriggered: vert_velocity = (0.9 * vert_velocity) + (0.1 * VelocityState.Down)
+         onTriggered: vert_velocity = (0.9 * vert_velocity) + (0.1 * velocityState.down)
      }
 
     SvgElementImage {
@@ -22,11 +27,11 @@ Item {
         y: scaledBounds.y * sceneItem.height
 
         smooth: true
-        visible: VelocityDesired.Down !== 0.0 && FlightStatus.FlightMode > 7
+        visible: ((velocityDesired.down != 0.0) && (flightStatus.flightMode > FlightMode.PositionHold))
 
-        //rotate it around the center
+        // rotate it around the center
         transform: Rotation {
-            angle: -VelocityDesired.Down * 5
+            angle: -velocityDesired.down * 5
             origin.y : vsi_waypoint.height / 2
             origin.x : vsi_waypoint.width * 33
         }
@@ -35,7 +40,7 @@ Item {
     SvgElementImage {
         id: vsi_scale_meter
 
-        visible: qmlWidget.altitudeUnit == "m"
+        visible: (qmlWidget.altitudeUnit == "m")
         elementName: "vsi-scale-meter"
         sceneSize: sceneItem.sceneSize
 
@@ -47,7 +52,7 @@ Item {
     SvgElementImage {
         id: vsi_scale_ft
 
-        visible: qmlWidget.altitudeUnit == "ft"
+        visible: (qmlWidget.altitudeUnit == "ft")
         elementName: "vsi-scale-ft"
         sceneSize: sceneItem.sceneSize
 
@@ -69,9 +74,9 @@ Item {
 
         smooth: true
 
-        //rotate it around the center : limit value to +/-6m/s
+        // rotate it around the center, limit value to +/-6m/s
         transform: Rotation {
-            angle: vert_velocity > 6 ? -30 : vert_velocity < -6 ? 30 : -vert_velocity * 5
+            angle: (vert_velocity > 6) ? -30 : (vert_velocity < -6) ? 30 : -vert_velocity * 5
             origin.y : vsi_arrow.height / 2
             origin.x : vsi_arrow.width * 3.15
         }
@@ -83,7 +88,7 @@ Item {
         sceneSize: sceneItem.sceneSize
 
         Text {
-            text: qmlWidget.altitudeUnit == "m" ? "m/s" : "ft/s"
+            text: (qmlWidget.altitudeUnit == "m") ? "m/s" : "ft/s"
             color: "cyan"
             font {
                 family: pt_bold.name

@@ -2,6 +2,10 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
+import UAVTalk.AttitudeState 1.0
+import UAVTalk.HomeLocation 1.0
+import UAVTalk.GPSPositionSensor 1.0
+
 OSGViewport {
     anchors.fill: parent
     focus: true
@@ -46,33 +50,33 @@ OSGViewport {
         position: uavPosition()
 
         function uavAttitude() {
-            return Qt.vector3d(AttitudeState.Pitch, AttitudeState.Roll, -AttitudeState.Yaw);
+            return Qt.vector3d(attitudeState.pitch, attitudeState.roll, -attitudeState.yaw);
         }
 
         function uavPosition() {
-            switch(GPSPositionSensor.Status) {
-            case 2: // Fix2D
-            case 3: // Fix3D
+            switch(gpsPositionSensor.status) {
+            case Status.Fix2D:
+            case Status.Fix3D:
                 return uavGPSPosition();
-            case 0: // NoGPS
-            case 1: // NoFix
+            case Status.NoFix:
+            case Status.NoGPS:
             default:
-                return (HomeLocation.Set == 1) ? uavHomePosition() : uavDefaultPosition();
+                return (homeLocation.set == Set.True) ? uavHomePosition() : uavDefaultPosition();
             }
         }
 
         function uavGPSPosition() {
             return Qt.vector3d(
-                GPSPositionSensor.Longitude / 10000000.0,
-                GPSPositionSensor.Latitude / 10000000.0,
-                GPSPositionSensor.Altitude);
+                gpsPositionSensor.longitude / 10000000.0,
+                gpsPositionSensor.latitude / 10000000.0,
+                gpsPositionSensor.altitude);
         }
 
         function uavHomePosition() {
             return Qt.vector3d(
-                HomeLocation.Longitude / 10000000.0,
-                HomeLocation.Latitude / 10000000.0,
-                HomeLocation.Altitude);
+                homeLocation.longitude / 10000000.0,
+                homeLocation.latitude / 10000000.0,
+                homeLocation.altitude);
         }
 
         function uavDefaultPosition() {

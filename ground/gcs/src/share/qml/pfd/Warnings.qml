@@ -5,7 +5,7 @@ import UAVTalk.SystemAlarms 1.0
 import UAVTalk.FlightStatus 1.0
 import UAVTalk.VtolPathFollowerSettings 1.0
 
-import "common.js" as Utils
+import "../common.js" as Utils
 
 Item {
     id: warnings
@@ -193,6 +193,8 @@ Item {
         Rectangle {
             anchors.fill: parent
             color: warnings.flightmodeColors[flightStatus.flightMode]
+            // Manual,Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6,PositionHold,CourseLock,
+            // VelocityRoam,HomeLeash,AbsolutePosition,ReturnToBase,Land,PathPlanner,POI,AutoCruise,AutoTakeoff
 
             Text {
                 anchors.centerIn: parent

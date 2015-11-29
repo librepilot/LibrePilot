@@ -11,7 +11,7 @@ import UAVTalk.GPSSatellites 1.0
 import UAVTalk.FlightBatterySettings 1.0
 import UAVTalk.FlightBatteryState 1.0
 
-import "common.js" as Utils
+import "../common.js" as Utils
 
 Item {
     id: info

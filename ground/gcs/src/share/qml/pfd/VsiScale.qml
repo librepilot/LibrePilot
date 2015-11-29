@@ -3,8 +3,6 @@ import QtQuick 2.4
 import UAVTalk.FlightStatus 1.0
 import UAVTalk.VelocityDesired 1.0
 
-import "common.js" as Utils
-
 Item {
     id: sceneItem
     property variant sceneSize

@@ -10,7 +10,7 @@ import UAVTalk.MagState 1.0
 import UAVTalk.ReceiverStatus 1.0
 import UAVTalk.OPLinkStatus 1.0
 
-import "common.js" as Utils
+import "../common.js" as Utils
 
 Item {
     id: panels

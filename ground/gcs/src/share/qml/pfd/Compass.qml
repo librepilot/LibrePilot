@@ -5,8 +5,6 @@ import UAVTalk.PositionState 1.0
 import UAVTalk.PathDesired 1.0
 import UAVTalk.TakeOffLocation 1.0
 
-import "common.js" as Utils
-
 Item {
     id: sceneItem
     property variant sceneSize

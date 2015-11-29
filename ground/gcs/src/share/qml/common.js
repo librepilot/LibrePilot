@@ -15,4 +15,3 @@ function formatTime(time) {
     else
         return time.toString();
 }
-

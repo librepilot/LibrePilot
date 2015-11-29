@@ -1,10 +1,14 @@
 import QtQuick 2.0
 
+import UAVTalk.PositionState 1.0
+import UAVTalk.NedAccel 1.0
+import UAVTalk.PathDesired 1.0
+
 Item {
     id: sceneItem
     property variant sceneSize
 
-    property real altitude : -qmlWidget.altitudeFactor * PositionState.Down
+    property real altitude : -qmlWidget.altitudeFactor * positionState.down
 
     SvgElementImage {
         id: altitude_window
@@ -60,7 +64,7 @@ Item {
             elementName: "altitude-vector"
             sceneSize: sceneItem.sceneSize
 
-            height: -NedAccel.Down * altitude_scale.height/10
+            height: -nedAccel.down * altitude_scale.height / 10
 
             anchors.left: parent.left
             anchors.bottom: parent.verticalCenter
@@ -70,12 +74,12 @@ Item {
             id: altitude_waypoint
             elementName: "altitude-waypoint"
             sceneSize: sceneItem.sceneSize
-            visible: PathDesired.End_Down !== 0.0
+            visible: (pathDesired.endDown != 0.0)
 
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
 
-            anchors.verticalCenterOffset: -altitude_scale.height/10 * (PositionState.Down - PathDesired.End_Down) * qmlWidget.altitudeFactor
+            anchors.verticalCenterOffset: -altitude_scale.height / 10 * (positionState.Down - pathDesired.endDown) * qmlWidget.altitudeFactor
         }
     }
 

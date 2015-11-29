@@ -88,7 +88,6 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         "AccelState" <<
         "VelocityDesired" <<
         "PathDesired" <<
-        "AltitudeHoldDesired" <<
         "GPSPositionSensor" <<
         "GPSSatellites" <<
         "GCSTelemetryStats" <<

@@ -233,7 +233,6 @@ ifeq ($(UNAME), Linux)
 else ifeq ($(UNAME), Darwin)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-clang_64
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
-	OSG_WINDOWING_SYSTEM := "Cocoa"
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 else ifeq ($(UNAME), Windows)
@@ -269,7 +268,6 @@ osgearth:
 			-DCMAKE_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib \
 			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osg_dependencies \
 			-DCMAKE_OSX_ARCHITECTURES="x86_64" \
-			-DOSG_WINDOWING_SYSTEM=$(OSG_WINDOWING_SYSTEM) \
 			-DCMAKE_INSTALL_NAME_DIR=@executable_path/../Plugins \
 			-DCMAKE_INSTALL_PREFIX=$(OSGEARTH_INSTALL_DIR) $(OSGEARTH_SRC_DIR) && \
 		$(MAKE) && \

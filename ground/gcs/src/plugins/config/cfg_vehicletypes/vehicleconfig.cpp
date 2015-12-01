@@ -232,6 +232,15 @@ void VehicleConfig::resetMotorAndServoMixers(UAVDataObject *mixer)
     }
 }
 
+// Disable all mixers types
+void VehicleConfig::resetAllMixersType(UAVDataObject *mixer)
+{
+    for (int channel = 0; channel < (int)VehicleConfig::CHANNEL_NUMELEM; channel++) {
+        resetMixerVector(mixer, channel);
+        setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_DISABLED);
+    }
+}
+
 double VehicleConfig::getMixerVectorValue(UAVDataObject *mixer, int channel, MixerVectorElem elementName)
 {
     Q_ASSERT(mixer);

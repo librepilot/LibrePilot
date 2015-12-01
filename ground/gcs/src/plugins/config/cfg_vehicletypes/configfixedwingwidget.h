@@ -58,10 +58,13 @@ private:
 
     virtual void registerWidgets(ConfigTaskWidget &parent);
     virtual void resetActuators(GUIConfigDataUnion *configData);
+    virtual void resetRcOutputs(GUIConfigDataUnion *configData);
 
     bool setupFrameFixedWing(QString airframeType);
     bool setupFrameElevon(QString airframeType);
     bool setupFrameVtail(QString airframeType);
+    void setupRcOutputs(QList<QString> rcOutputList);
+    void updateRcCurvesUsed();
 
 protected:
     void enableControls(bool enable);

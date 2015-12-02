@@ -531,7 +531,12 @@ public:
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         // format.setSamples(4);
-        int dpr = h->self->window()->devicePixelRatio();
+
+        // Keeping this for reference :
+        // Mac need(ed) to have devicePixelRatio (dpr) taken into account (i.e. dpr = 2).
+        // Further tests on Mac have shown that although dpr is still 2 it should not be used to scale the fbo.
+        // Note that getting the window to get the devicePixelRatio is not great (messing with windows is often a bad idea...)
+        int dpr = 1; // h->self->window()->devicePixelRatio();
         QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
 
         return fbo;

@@ -16,6 +16,7 @@ rm -rf "${OUT_FILE}"
 
 # copy base dmg structure
 cp -r "${ROOT_DIR}/package/osx/dmg/" "${SRC_DIR}"
+sed -i '' s/@URL@/$(echo ${WIKI_URL_ROOT} | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g' -e 's/&/\\\&/g')/ "${SRC_DIR}/Getting Started.webloc"
 
 # packaging goes here
 cp -a "${APP_PATH}" "${SRC_DIR}"

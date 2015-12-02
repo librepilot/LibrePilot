@@ -522,7 +522,7 @@ public:
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
     {
-        qDebug() << "ViewportRenderer::createFramebufferObject" << size;
+        // qDebug() << "ViewportRenderer::createFramebufferObject" << size;
         if (h->view.valid()) {
             h->view->getCamera()->getGraphicsContext()->resized(0, 0, size.width(), size.height());
             h->view->getEventQueue()->windowResize(0, 0, size.width(), size.height());

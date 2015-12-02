@@ -101,8 +101,7 @@ Item {
     // Hack : check if telemetry is active. Works with real link and log replay
 
     function telemetry_check() {
-       // FIXME : why rxRate + rxRate?
-       telemetry_sum = opLinkStatus.rxRate + opLinkStatus.rxRate
+       telemetry_sum = opLinkStatus.rxRate + opLinkStatus.txRate
 
        if (telemetry_sum != telemetry_sum_old || (opLinkStatus.linkState == LinkState.Connected)) {
            telemetry_link = 1

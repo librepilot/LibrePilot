@@ -75,8 +75,7 @@ Item {
         transformOrigin: Item.Center
 
         smooth: true
-        // FIXME : why test endEast twice?
-        visible: ((pathDesired.endEast != 0.0) && (pathDesired.endEast != 0.0))
+        visible: ((pathDesired.endEast != 0.0) && (pathDesired.endNorth != 0.0))
     }
 
 

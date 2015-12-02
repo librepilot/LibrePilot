@@ -1,3 +1,15 @@
+diff --git a/include/osg/OperationThread b/include/osg/OperationThread
+index a62157e..75adfba 100644
+--- a/include/osg/OperationThread
++++ b/include/osg/OperationThread
+@@ -80,6 +80,7 @@ protected:
+             _keep(false) {}
+ 
+         Operation(const Operation& op):
++            Referenced(),
+             _name(op._name),
+             _keep(op._keep) {}
+ 
 diff --git a/include/osgViewer/View b/include/osgViewer/View
 index 472b489..07ef9ce 100644
 --- a/include/osgViewer/View

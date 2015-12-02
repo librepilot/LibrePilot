@@ -3,9 +3,9 @@ import QtQuick 2.0
 import UAVTalk.HwSettings 1.0
 import UAVTalk.SystemAlarms 1.0
 import UAVTalk.VelocityState 1.0
-import UAVTalk.TakeOffLocation 1.0
 import UAVTalk.PathDesired 1.0
 import UAVTalk.WaypointActive 1.0
+import UAVTalk.TakeOffLocation 1.0 as TakeOffLocation
 import UAVTalk.GPSPositionSensor 1.0 as GPSPositionSensor
 import UAVTalk.GPSSatellites 1.0
 import UAVTalk.FlightBatterySettings 1.0
@@ -479,7 +479,7 @@ Item {
 
         states: State {
              name: "fading"
-             when: (takeOffLocation.status == Status.Valid)
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -500,7 +500,7 @@ Item {
 
         states: State {
              name: "fading_heading"
-             when: (takeOffLocation.status == Status.Valid)
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -531,7 +531,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: (takeOffLocation.status == Status.Valid)
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -562,7 +562,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: (takeOffLocation.status == Status.Valid)
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 

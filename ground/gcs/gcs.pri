@@ -254,8 +254,10 @@ macx {
         QMAKE_CFLAGS_WARN_ON   += -Werror
         QMAKE_CXXFLAGS_WARN_ON += -Wno-gnu-static-float-init
     }
+    # building with libc++ is needed when linking with osg/gdal
+    QMAKE_CXXFLAGS += -stdlib=libc++
+    QMAKE_LFLAGS += -stdlib=libc++
 }
-
 
 # use ccache when available
 QMAKE_CC = $$(CCACHE) $$QMAKE_CC

@@ -1,4 +1,16 @@
 import QtQuick 2.0
+
+import UAVTalk.HwSettings 1.0
+import UAVTalk.SystemAlarms 1.0
+import UAVTalk.VelocityState 1.0
+import UAVTalk.PathDesired 1.0
+import UAVTalk.WaypointActive 1.0
+import UAVTalk.TakeOffLocation 1.0 as TakeOffLocation
+import UAVTalk.GPSPositionSensor 1.0 as GPSPositionSensor
+import UAVTalk.GPSSatellites 1.0
+import UAVTalk.FlightBatterySettings 1.0
+import UAVTalk.FlightBatteryState 1.0
+
 import "common.js" as Utils
 
 Item {
@@ -19,29 +31,29 @@ Item {
 
     property bool init_dist: false
 
-    property real home_heading: 180/3.1415 * Math.atan2(TakeOffLocation.East - PositionState.East,
-                                                        TakeOffLocation.North - PositionState.North)
+    property real home_heading: 180 / 3.1415 * Math.atan2(takeOffLocation.east - positionState.east,
+                                                          takeOffLocation.north - positionState.north)
 
-    property real home_distance: Math.sqrt(Math.pow((TakeOffLocation.East - PositionState.East),2) +
-                                           Math.pow((TakeOffLocation.North - PositionState.North),2))
+    property real home_distance: Math.sqrt(Math.pow((takeOffLocation.east - positionState.east), 2) +
+                                           Math.pow((takeOffLocation.north - positionState.north), 2))
 
-    property real wp_heading: 180/3.1415 * Math.atan2(PathDesired.End_East - PositionState.East,
-                                                      PathDesired.End_North - PositionState.North)
+    property real wp_heading: 180 / 3.1415 * Math.atan2(pathDesired.endEast - positionState.east,
+                                                        pathDesired.endNorth - positionState.north)
 
-    property real wp_distance: Math.sqrt(Math.pow((PathDesired.End_East - PositionState.East),2) +
-                                           Math.pow(( PathDesired.End_North - PositionState.North),2))
+    property real wp_distance: Math.sqrt(Math.pow((pathDesired.endEast - positionState.east), 2) +
+                                         Math.pow((pathDesired.endNorth - positionState.north), 2))
 
-    property real current_velocity: Math.sqrt(Math.pow(VelocityState.North,2)+Math.pow(VelocityState.East,2))
+    property real current_velocity: Math.sqrt(Math.pow(velocityState.north, 2) + Math.pow(velocityState.east, 2))
 
-    property real home_eta: (home_distance > 0 && current_velocity > 0 ? Math.round(home_distance/current_velocity) : 0)
+    property real home_eta: (home_distance > 0 && current_velocity > 0 ? Math.round(home_distance / current_velocity) : 0)
     property real home_eta_h: (home_eta > 0 ? Math.floor(home_eta / 3600) : 0 )
-    property real home_eta_m: (home_eta > 0 ? Math.floor((home_eta - home_eta_h*3600)/60) : 0)
-    property real home_eta_s: (home_eta > 0 ? Math.floor(home_eta - home_eta_h*3600 - home_eta_m*60) : 0)
+    property real home_eta_m: (home_eta > 0 ? Math.floor((home_eta - home_eta_h * 3600) / 60) : 0)
+    property real home_eta_s: (home_eta > 0 ? Math.floor(home_eta - home_eta_h * 3600 - home_eta_m * 60) : 0)
 
     property real wp_eta: (wp_distance > 0 && current_velocity > 0 ? Math.round(wp_distance/current_velocity) : 0)
     property real wp_eta_h: (wp_eta > 0 ? Math.floor(wp_eta / 3600) : 0 )
-    property real wp_eta_m: (wp_eta > 0 ? Math.floor((wp_eta - wp_eta_h*3600)/60) : 0)
-    property real wp_eta_s: (wp_eta > 0 ? Math.floor(wp_eta - wp_eta_h*3600 - wp_eta_m*60) : 0)
+    property real wp_eta_m: (wp_eta > 0 ? Math.floor((wp_eta - wp_eta_h * 3600) / 60) : 0)
+    property real wp_eta_s: (wp_eta > 0 ? Math.floor(wp_eta - wp_eta_h * 3600 - wp_eta_m * 60) : 0)
 
     function reset_distance() {
         total_distance = 0;
@@ -49,8 +61,8 @@ Item {
 
     function compute_distance(posEast,posNorth) {
         if (total_distance == 0 && !init_dist) { init_dist = "true"; posEast_old = posEast; posNorth_old = posNorth; }
-        if (posEast > posEast_old+3 || posEast < posEast_old-3 || posNorth > posNorth_old+3 || posNorth < posNorth_old-3) {
-           total_distance += Math.sqrt(Math.pow((posEast - posEast_old ),2) + Math.pow((posNorth - posNorth_old),2));
+        if (posEast > posEast_old+3 || posEast < posEast_old - 3 || posNorth > posNorth_old + 3 || posNorth < posNorth_old - 3) {
+           total_distance += Math.sqrt(Math.pow((posEast - posEast_old ), 2) + Math.pow((posNorth - posNorth_old), 2));
            total_distance_km = total_distance / 1000;
 
            posEast_old = posEast;
@@ -76,14 +88,14 @@ Item {
     //
 
     property real bar_width: (info_bg.height + info_bg.width) / 110
-    property int satsInView: Utils.toInt(GPSSatellites.SatsInView)
-    property variant gps_tooltip: "Altitude : "+GPSPositionSensor.Altitude.toFixed(2) +"m\n"+ 
-                                  "H/V/P DOP : "+GPSPositionSensor.HDOP.toFixed(2)+"/"+GPSPositionSensor.VDOP.toFixed(2)+"/"+GPSPositionSensor.PDOP.toFixed(2)+"m\n"+
-                                   satsInView+" Sats in view"
+    property int satsInView: gpsSatellites.satsInView
+    property variant gps_tooltip: "Altitude : " + gpsPositionSensor.altitude.toFixed(2) + "m\n" +
+                                  "H/V/P DOP : " + gpsPositionSensor.hdop.toFixed(2) + "/" + gpsPositionSensor.vdop.toFixed(2) + "/" + gpsPositionSensor.pdop.toFixed(2) + "m\n" +
+                                   satsInView + " Sats in view"
 
     Repeater {
         id: satNumberBar
-        property int satNumber : Utils.toInt(GPSPositionSensor.Satellites)
+        property int satNumber : gpsPositionSensor.satellites
 
         model: 13
         Rectangle {
@@ -95,9 +107,9 @@ Item {
                text: gps_tooltip
             }
 
-            x: Math.round((bar_width*4.5) + (bar_width * 1.6 * index))
+            x: Math.round((bar_width * 4.5) + (bar_width * 1.6 * index))
             height: bar_width * index * 0.6
-            y: (bar_width*8) - height
+            y: (bar_width * 8) - height
             color: "green"
             opacity: satNumberBar.satNumber >= minSatNumber ? 1 : 0.4
         }
@@ -112,10 +124,10 @@ Item {
         }
 
         Text {
-            property int satNumber : Utils.toInt(GPSPositionSensor.Satellites)
+            property int satNumber : gpsPositionSensor.satellites
 
-            text: [satNumber > 5 ? " " + satNumber.toString() + " sats - " : ""] + 
-                  ["NO GPS", "NO FIX", "2D", "3D"][Utils.toInt(GPSPositionSensor.Status)] 
+            text: [satNumber > 5 ? " " + satNumber.toString() + " sats - " : ""] +
+                  ["NO GPS", "NO FIX", "2D", "3D"][gpsPositionSensor.status]
             anchors.centerIn: parent
             font.pixelSize: parent.height*1.3
             font.family: pt_bold.name
@@ -144,7 +156,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
     }
 
     SvgElementPositionItem {
@@ -153,7 +165,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
 
         Text {
             text: "   "+wp_heading.toFixed(1)+"°"
@@ -174,7 +186,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
 
         Text {
             text: "  "+wp_distance.toFixed(0)+" m"
@@ -195,7 +207,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
 
         MouseArea { id: total_dist_mouseArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: reset_distance()}
 
@@ -213,7 +225,7 @@ Item {
 
         Timer {
             interval: 1000; running: true; repeat: true;
-            onTriggered: {if (Utils.toInt(GPSPositionSensor.Status) == 3) compute_distance(PositionState.East,PositionState.North)}
+            onTriggered: { if (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D) compute_distance(positionState.east, positionState.north) }
         }
     }
 
@@ -223,7 +235,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
 
         Text {
             text: Utils.formatTime(wp_eta_h) + ":" + Utils.formatTime(wp_eta_m) + ":" + Utils.formatTime(wp_eta_s)
@@ -244,10 +256,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
 
         Text {
-            text: (WaypointActive.Index+1)+" / "+PathPlan.WaypointCount
+            text: (waypointActive.index + 1) + " / " + pathPlan.waypointCount
             anchors.centerIn: parent
             color: "cyan"
 
@@ -265,10 +277,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) == 1
+        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
 
         Text {
-            text: ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE","SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"][Utils.toInt(PathDesired.Mode)]
+            text: ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE","SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"][pathDesired.mode]
             anchors.centerIn: parent
             color: "cyan"
 
@@ -291,11 +303,11 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
 
         Rectangle {
             anchors.fill: parent
-            color: Utils.toInt(FlightBatterySettings.NbCells) > 0 ? info.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)] : "black"
+            color: (flightBatterySettings.nbCells > 0) ? info.batColors[systemAlarms.alarmBattery] : "black"
 
         }
     }
@@ -306,7 +318,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
     }
 
     SvgElementPositionItem {
@@ -317,14 +329,14 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
 
         Rectangle {
             anchors.fill: parent
             color: "transparent"
 
             Text {
-               text: FlightBatteryState.Voltage.toFixed(2)
+               text: flightBatteryState.voltage.toFixed(2)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -344,14 +356,14 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
 
         Rectangle {
             anchors.fill: parent
             color: "transparent"
 
             Text {
-               text: FlightBatteryState.Current.toFixed(2)
+               text: flightBatteryState.current.toFixed(2)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -371,7 +383,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1) && (Utils.toInt(HwSettings.OptionalModules_Battery) == 1)
+        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
 
         Rectangle {
             anchors.fill: parent
@@ -380,23 +392,23 @@ Item {
                   text: "Reset consumed energy"
             }
 
-            MouseArea { 
-               id: reset_consumed_energy_mouseArea; 
+            MouseArea {
+               id: reset_consumed_energy_mouseArea;
                anchors.fill: parent;
-               cursorShape: Qt.PointingHandCursor; 
+               cursorShape: Qt.PointingHandCursor;
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
-            // Alarm based on FlightBatteryState.EstimatedFlightTime < 120s orange, < 60s red
-            color: (FlightBatteryState.EstimatedFlightTime <= 120 && FlightBatteryState.EstimatedFlightTime > 60 ? "orange" :
-                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": info.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]))
+            // Alarm based on flightBatteryState.estimatedFlightTime < 120s orange, < 60s red
+            color: ((flightBatteryState.estimatedFlightTime <= 120) && (flightBatteryState.estimatedFlightTime > 60)) ? "orange" :
+                   (flightBatteryState.estimatedFlightTime <= 60) ? "red" : info.batColors[systemAlarms.alarmBattery]
 
             border.color: "white"
             border.width: topbattery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: FlightBatteryState.ConsumedEnergy.toFixed(0)
+               text: flightBatteryState.consumedEnergy.toFixed(0)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -417,7 +429,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1
+        visible: (systemAlarms.alarmPathPlan != Alarm.OK)
     }
 
     SvgElementPositionItem {
@@ -426,7 +438,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: Utils.toInt(SystemAlarms.Alarm_PathPlan) != 1
+        visible: (systemAlarms.alarmPathPlan != Alarm.OK)
 
         TooltipArea {
             text: "Reset distance counter"
@@ -448,7 +460,7 @@ Item {
 
         Timer {
             interval: 1000; running: true; repeat: true;
-            onTriggered: {if (Utils.toInt(GPSPositionSensor.Status) == 3) compute_distance(PositionState.East,PositionState.North)}
+            onTriggered: { if (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D) compute_distance(positionState.east, positionState.north) }
         }
     }
 
@@ -467,7 +479,7 @@ Item {
 
         states: State {
              name: "fading"
-             when: Utils.toInt(TakeOffLocation.Status) == 0
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -488,7 +500,7 @@ Item {
 
         states: State {
              name: "fading_heading"
-             when: Utils.toInt(TakeOffLocation.Status) == 0
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -519,7 +531,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: Utils.toInt(TakeOffLocation.Status) == 0
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -550,7 +562,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: Utils.toInt(TakeOffLocation.Status) == 0
+             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
              PropertyChanges { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 

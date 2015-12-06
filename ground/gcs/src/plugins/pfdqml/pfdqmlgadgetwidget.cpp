@@ -20,11 +20,11 @@
 #include "uavobject.h"
 #include "flightbatterysettings.h"
 #include "utils/svgimageprovider.h"
+#include "utils/stringutils.h"
 #ifdef USE_OSG
 #include "osgearth.h"
 #endif
 #include <QDebug>
-#include <QSvgRenderer>
 #include <QtOpenGL/QGLWidget>
 #include <QtCore/qfileinfo.h>
 #include <QtCore/qdir.h>
@@ -58,7 +58,6 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         "AccelState" <<
         "VelocityDesired" <<
         "PathDesired" <<
-        "AltitudeHoldDesired" <<
         "GPSPositionSensor" <<
         "GPSSatellites" <<
         "GCSTelemetryStats" <<
@@ -91,7 +90,8 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
         UAVObject *object = objManager->getObject(objectName);
 
         if (object) {
-            engine()->rootContext()->setContextProperty(objectName, object);
+            // expose object with lower camel case name
+            engine()->rootContext()->setContextProperty(Utils::toLowerCamelCase(objectName), object);
         } else {
             qWarning() << "Failed to load object" << objectName;
         }
@@ -100,6 +100,7 @@ PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
     // to expose settings values
     engine()->rootContext()->setContextProperty("qmlWidget", this);
 #ifdef USE_OSG
+    // should not be done here (PFD should not be directly dependent of osg)
     qmlRegisterType<OsgEarthItem>("org.OpenPilot", 1, 0, "OsgEarth");
 #endif
 }

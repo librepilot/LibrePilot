@@ -26,9 +26,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "uavobjectfield.h"
+
 #include <QtEndian>
 #include <QDebug>
-#include <QtWidgets>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QJsonObject>
+#include <QJsonArray>
 
 UAVObjectField::UAVObjectField(const QString & name, const QString & description, const QString & units, FieldType type, quint32 numElements, const QStringList & options, const QString &limits)
 {

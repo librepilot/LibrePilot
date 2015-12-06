@@ -6,7 +6,7 @@
          defaultvalue="1,0,0,0,1,0,0,0,1"/>
         <!-- These settings are related to how the sensors are post processed -->
         <!-- TODO: reimplement, put elsewhere (later) -->
-        <field name="BiasCorrectedRaw" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
+        <field name="BiasCorrectedRaw" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
         <field name="MagBiasNullingRate" units="" type="float" elements="1" defaultvalue="0"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>

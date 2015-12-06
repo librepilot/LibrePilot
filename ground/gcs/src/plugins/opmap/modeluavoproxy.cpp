@@ -27,6 +27,7 @@
 #include "modeluavoproxy.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjecthelper.h"
+#include "uavobjectmanager.h"
 
 #include <QProgressDialog>
 #include <math.h>

@@ -1,14 +1,25 @@
 import QtQuick 2.0
+
+import UAVTalk.SystemSettings 1.0
+import UAVTalk.RevoSettings 1.0
+import UAVTalk.SystemAlarms 1.0
+import UAVTalk.FlightBatteryState 1.0
+import UAVTalk.GPSPositionSensor 1.0
+import UAVTalk.ManualControlCommand 1.0
+import UAVTalk.MagState 1.0
+import UAVTalk.ReceiverStatus 1.0
+import UAVTalk.OPLinkStatus 1.0
+
 import "common.js" as Utils
 
 Item {
     id: panels
     property variant sceneSize
 
-    property real est_flight_time: Math.round(FlightBatteryState.EstimatedFlightTime)
-    property real est_time_h: (est_flight_time > 0 ? Math.floor(est_flight_time / 3600) : 0 )
-    property real est_time_m: (est_flight_time > 0 ? Math.floor((est_flight_time - est_time_h*3600)/60) : 0)
-    property real est_time_s: (est_flight_time > 0 ? Math.floor(est_flight_time - est_time_h*3600 - est_time_m*60) : 0)
+    property real est_flight_time: Math.round(flightBatteryState.estimatedFlightTime)
+    property real est_time_h: (est_flight_time > 0) ? Math.floor(est_flight_time / 3600) : 0
+    property real est_time_m: (est_flight_time > 0) ? Math.floor((est_flight_time - est_time_h * 3600) / 60) : 0
+    property real est_time_s: (est_flight_time > 0) ? Math.floor(est_flight_time - est_time_h * 3600 - est_time_m * 60) : 0
 
     //
     // Panel functions
@@ -72,16 +83,16 @@ Item {
 
     property real smeter_angle
 
-    property real memory_free : SystemStats.HeapRemaining > 1024 ? SystemStats.HeapRemaining / 1024 : SystemStats.HeapRemaining
+    property real memory_free : (systemStats.heapRemaining > 1024) ? systemStats.heapRemaining / 1024 : systemStats.heapRemaining
 
     // Needed to get correctly int8 value
-    property int cpuTemp : SystemStats.CPUTemp
+    property int cpuTemp : systemStats.cpuTemp
 
     // Needed to get correctly int8 value, reset value (-127) on disconnect
-    property int oplm0_db: telemetry_link == 1 ? OPLinkStatus.PairSignalStrengths_0 : -127
-    property int oplm1_db: telemetry_link == 1 ? OPLinkStatus.PairSignalStrengths_1 : -127
-    property int oplm2_db: telemetry_link == 1 ? OPLinkStatus.PairSignalStrengths_2 : -127
-    property int oplm3_db: telemetry_link == 1 ? OPLinkStatus.PairSignalStrengths_3 : -127
+    property int oplm0_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths0 : -127
+    property int oplm1_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths1 : -127
+    property int oplm2_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths2 : -127
+    property int oplm3_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths3 : -127
 
     property real telemetry_sum
     property real telemetry_sum_old
@@ -90,9 +101,9 @@ Item {
     // Hack : check if telemetry is active. Works with real link and log replay
 
     function telemetry_check() {
-       telemetry_sum = OPLinkStatus.RXRate + OPLinkStatus.RXRate
+       telemetry_sum = opLinkStatus.rxRate + opLinkStatus.txRate
 
-       if (telemetry_sum != telemetry_sum_old || Utils.toInt(OPLinkStatus.LinkState) == 4) {
+       if (telemetry_sum != telemetry_sum_old || (opLinkStatus.linkState == LinkState.Connected)) {
            telemetry_link = 1
        } else {
            telemetry_link = 0
@@ -133,7 +144,7 @@ Item {
     }
 
     property int smeter_filter
-    property variant oplm_pair_id : OPLinkStatus.PairIDs_0
+    property variant oplm_pair_id : opLinkStatus.pairIDs0
 
     function select_oplm(index){
          smeter_filter0.running = false;
@@ -145,22 +156,22 @@ Item {
             case 0:
                 smeter_filter0.running = true;
                 smeter_filter = 0;
-                oplm_pair_id = OPLinkStatus.PairIDs_0
+                oplm_pair_id = opLinkStatus.pairIDs0
                 break;
             case 1:
                 smeter_filter1.running = true;
                 smeter_filter = 1;
-                oplm_pair_id = OPLinkStatus.PairIDs_1
+                oplm_pair_id = opLinkStatus.pairIDs1
                 break;
             case 2:
                 smeter_filter2.running = true;
                 smeter_filter = 2;
-                oplm_pair_id = OPLinkStatus.PairIDs_2
+                oplm_pair_id = opLinkStatus.pairIDs2
                 break;
             case 3:
                 smeter_filter3.running = true;
                 smeter_filter = 3;
-                oplm_pair_id = OPLinkStatus.PairIDs_3
+                oplm_pair_id = opLinkStatus.pairIDs3
                 break;
          }
      }
@@ -210,7 +221,7 @@ Item {
         elementName: "panel-open-icon"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: close_bg.z+1        
+        z: close_bg.z + 1
         opacity: show_panels == true ? 0 : 1
 
         states: State {
@@ -233,7 +244,7 @@ Item {
         elementName: "close-panel-mousearea"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: close_bg.z+100
+        z: close_bg.z + 100
 
         TooltipArea {
             text: show_panels == true ? "Close panels" : "Open panels"
@@ -242,7 +253,7 @@ Item {
         MouseArea {
              id: hidedisp_close;
              anchors.fill: parent;
-             cursorShape: Qt.PointingHandCursor 
+             cursorShape: Qt.PointingHandCursor
              onClicked: close_panels()
         }
 
@@ -289,7 +300,7 @@ Item {
         elementName: "rc-input-labels"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: rc_input_bg.z+1
+        z: rc_input_bg.z + 1
 
         states: State {
              name: "fading"
@@ -298,9 +309,9 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
         }
     }
 
@@ -309,7 +320,7 @@ Item {
         elementName: "rc-input-panel-mousearea"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: rc_input_bg.z+1
+        z: rc_input_bg.z + 1
 
         TooltipArea {
             text: "RC panel"
@@ -329,9 +340,9 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
         }
     }
 
@@ -342,7 +353,7 @@ Item {
         z: rc_input_bg.z+2
 
         width: scaledBounds.width * sceneItem.width
-        height: (scaledBounds.height * sceneItem.height) * (ManualControlCommand.Throttle)
+        height: (scaledBounds.height * sceneItem.height) * (manualControlCommand.throttle)
 
         x: scaledBounds.x * sceneItem.width
         y: (scaledBounds.y * sceneItem.height) - rc_throttle.height + (scaledBounds.height * sceneItem.height)
@@ -356,9 +367,9 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
         }
     }
 
@@ -371,13 +382,13 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
 
-        y: (scaledBounds.y * sceneItem.height) + (ManualControlCommand.Pitch * rc_stick.width * 2.5)
+        y: (scaledBounds.y * sceneItem.height) + (manualControlCommand.pitch * rc_stick.width * 2.5)
 
         smooth: true
 
         //rotate it around his center
         transform: Rotation {
-            angle: ManualControlCommand.Yaw * 90
+            angle: manualControlCommand.yaw * 90
             origin.y : rc_stick.height / 2
             origin.x : rc_stick.width / 2
         }
@@ -385,13 +396,13 @@ Item {
         states: State {
              name: "fading"
              when: show_panels == true
-             PropertyChanges { target: rc_stick; x: Math.floor(scaledBounds.x * sceneItem.width) + (ManualControlCommand.Roll * rc_stick.width * 2.5) + offset_value; }
+             PropertyChanges { target: rc_stick; x: Math.floor(scaledBounds.x * sceneItem.width) + (manualControlCommand.roll * rc_stick.width * 2.5) + offset_value; }
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
         }
     }
 
@@ -413,9 +424,9 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+            }
         }
     }
 
@@ -423,7 +434,7 @@ Item {
         id: battery_volt
         sceneSize: panels.sceneSize
         elementName: "battery-volt-text"
-        z: battery_bg.z+1
+        z: battery_bg.z + 1
 
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
@@ -443,13 +454,13 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]
+            color: panels.batColors[systemAlarms.alarmBattery]
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: FlightBatteryState.Voltage.toFixed(2)
+               text: flightBatteryState.voltage.toFixed(2)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -484,13 +495,13 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]
+            color: panels.batColors[systemAlarms.alarmBattery]
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: FlightBatteryState.Current.toFixed(2)
+               text: flightBatteryState.current.toFixed(2)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -531,24 +542,24 @@ Item {
                visible: display_bat == true ? 1 : 0
             }
 
-            MouseArea { 
-               id: reset_panel_consumed_energy_mouseArea; 
+            MouseArea {
+               id: reset_panel_consumed_energy_mouseArea;
                anchors.fill: parent;
                cursorShape: Qt.PointingHandCursor;
                visible: display_bat == true ? 1 : 0
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
-            // Alarm based on FlightBatteryState.EstimatedFlightTime < 120s orange, < 60s red
-            color: (FlightBatteryState.EstimatedFlightTime <= 120 && FlightBatteryState.EstimatedFlightTime > 60 ? "orange" :
-                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]))
+            // Alarm based on flightBatteryState.estimatedFlightTime < 120s orange, < 60s red
+            color: (flightBatteryState.estimatedFlightTime <= 120 && flightBatteryState.estimatedFlightTime > 60 ? "orange" :
+                   (flightBatteryState.estimatedFlightTime <= 60 ? "red": panels.batColors[systemAlarms.alarmBattery]))
 
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: FlightBatteryState.ConsumedEnergy.toFixed(0)
+               text: flightBatteryState.consumedEnergy.toFixed(0)
                anchors.centerIn: parent
                color: "white"
                font {
@@ -583,24 +594,24 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            //color: panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]
+            //color: panels.batColors[systemAlarms.alarmBattery]
 
             TooltipArea {
                text: "Reset consumed energy"
                visible: display_bat == true ? 1 : 0
             }
 
-            MouseArea { 
-               id: reset_panel_consumed_energy_mouseArea2; 
+            MouseArea {
+               id: reset_panel_consumed_energy_mouseArea2;
                anchors.fill: parent;
-               cursorShape: Qt.PointingHandCursor; 
+               cursorShape: Qt.PointingHandCursor;
                visible: display_bat == true ? 1 : 0
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
-            // Alarm based on FlightBatteryState.EstimatedFlightTime < 120s orange, < 60s red
-            color: (FlightBatteryState.EstimatedFlightTime <= 120 && FlightBatteryState.EstimatedFlightTime > 60 ? "orange" :
-                   (FlightBatteryState.EstimatedFlightTime <= 60 ? "red": panels.batColors[Utils.toInt(SystemAlarms.Alarm_Battery)]))
+            // Alarm based on flightBatteryState.estimatedFlightTime < 120s orange, < 60s red
+            color: (flightBatteryState.estimatedFlightTime <= 120) && (flightBatteryState.estimatedFlightTime > 60) ? "orange" :
+                   (flightBatteryState.estimatedFlightTime <= 60) ? "red" : panels.batColors[systemAlarms.alarmBattery]
 
             border.color: "white"
             border.width: battery_volt.width * 0.01
@@ -698,7 +709,7 @@ Item {
         elementName: "smeter-bg"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: oplm_bg.z+1
+        z: oplm_bg.z + 1
 
         states: State {
              name: "fading"
@@ -718,7 +729,7 @@ Item {
         elementName: "smeter-scale"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: oplm_bg.z+2
+        z: oplm_bg.z + 2
 
         states: State {
              name: "fading"
@@ -738,7 +749,7 @@ Item {
         elementName: "smeter-needle"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: oplm_bg.z+3
+        z: oplm_bg.z + 3
 
         states: State {
              name: "fading"
@@ -766,7 +777,7 @@ Item {
         width: smeter_scale.width * 1.09
         //anchors.horizontalCenter: smeter_scale
 
-        z: oplm_bg.z+4
+        z: oplm_bg.z + 4
 
         states: State {
              name: "fading"
@@ -788,7 +799,7 @@ Item {
         y: Math.floor(scaledBounds.y * sceneItem.height)
         width: smeter_mask.width
 
-        z: oplm_bg.z+5
+        z: oplm_bg.z + 5
 
         states: State {
              name: "fading"
@@ -807,7 +818,7 @@ Item {
         model: 4
 
         SvgElementImage {
-            z: oplm_bg.z+5
+            z: oplm_bg.z + 5
             property variant idButton_oplm: "oplm_button_" + index
             property variant idButton_oplm_mousearea: "oplm_button_mousearea" + index
             property variant button_color: "button"+index+"_color"
@@ -853,7 +864,7 @@ Item {
         elementName: "oplm-id-label"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: oplm_bg.z+6
+        z: oplm_bg.z + 6
 
         states: State {
              name: "fading"
@@ -872,7 +883,7 @@ Item {
         id: oplm_id_text
         sceneSize: panels.sceneSize
         elementName: "oplm-id-text"
-        z: oplm_bg.z+7
+        z: oplm_bg.z + 7
 
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
@@ -908,7 +919,7 @@ Item {
         elementName: "rx-quality-label"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: oplm_bg.z+8
+        z: oplm_bg.z + 8
 
         states: State {
              name: "fading"
@@ -927,7 +938,7 @@ Item {
         id: rx_quality_text
         sceneSize: panels.sceneSize
         elementName: "rx-quality-text"
-        z: oplm_bg.z+9
+        z: oplm_bg.z + 9
 
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
@@ -946,7 +957,7 @@ Item {
         }
 
         Text {
-             text: Utils.toInt(ReceiverStatus.Quality) > 0 ? Utils.toInt(ReceiverStatus.Quality)+"%" : "?? %"
+             text: (receiverStatus.quality > 0) ? receiverStatus.quality + "%" : "?? %"
              anchors.centerIn: parent
              color: "white"
              font {
@@ -1018,7 +1029,7 @@ Item {
         elementName: "system-frame-type"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         states: State {
              name: "fading"
@@ -1035,7 +1046,7 @@ Item {
         Text {
              text: ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
                     "Hexa+", "Octo+", "Custom", "HexaX", "HexaH", "OctoV", "OctoCoaxP", "OctoCoaxX", "OctoX", "HexaCoax",
-                    "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"][Utils.toInt(SystemSettings.AirframeType)]
+                    "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"][systemSettings.airframeType]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1051,7 +1062,7 @@ Item {
         elementName: "system-cpu-load-temp"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         states: State {
              name: "fading"
@@ -1067,8 +1078,7 @@ Item {
 
         Text {
              // Coptercontrol detect with mem free : Only display Cpu load, no temperature available.
-             text: Utils.toInt(SystemStats.CPULoad)+"%"+
-                  [SystemStats.HeapRemaining < 3000 ? "" : " | "+cpuTemp+"°C"]
+             text: systemStats.cpuLoad + "%" + [(systemStats.heapRemaining < 3000) ? "" : " | " + cpuTemp + "°C"]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1084,7 +1094,7 @@ Item {
         elementName: "system-mem-free"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         states: State {
              name: "fading"
@@ -1099,7 +1109,7 @@ Item {
         }
 
         Text {
-             text: SystemStats.HeapRemaining > 1024 ? memory_free.toFixed(2) +"Kb" : memory_free +"bytes"
+             text: (systemStats.heapRemaining > 1024) ? memory_free.toFixed(2) +"Kb" : memory_free +"bytes"
              anchors.right: parent.right
              color: "white"
              font {
@@ -1115,7 +1125,7 @@ Item {
         elementName: "system-attitude-estimation-algo"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         states: State {
              name: "fading"
@@ -1130,7 +1140,7 @@ Item {
         }
 
         Text {
-             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][Utils.toInt(RevoSettings.FusionAlgorithm)]
+             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][revoSettings.fusionAlgorithm]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1146,7 +1156,7 @@ Item {
         elementName: "system-mag-used"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         states: State {
              name: "fading"
@@ -1161,7 +1171,7 @@ Item {
         }
 
         Text {
-             text: ["Invalid", "OnBoard", "External"][Utils.toInt(MagState.Source)]
+             text: ["Invalid", "OnBoard", "External"][magState.source]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1177,7 +1187,7 @@ Item {
         elementName: "system-gps-type"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         states: State {
              name: "fading"
@@ -1192,7 +1202,7 @@ Item {
         }
 
         Text {
-             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8"][Utils.toInt(GPSPositionSensor.SensorType)]
+             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8"][gpsPositionSensor.sensorType]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1208,7 +1218,7 @@ Item {
         elementName: "system-panel-mousearea"
         sceneSize: panels.sceneSize
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        z: system_bg.z+1
+        z: system_bg.z + 1
 
         TooltipArea {
             text: "System panel"

@@ -37,9 +37,6 @@
 #include <QList>
 #include <QFile>
 #include <stdint.h>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-#include <QJsonObject>
 
 #include "uavobjectfield.h"
 
@@ -53,6 +50,9 @@
 #define UAVOBJ_UPDATE_MODE_MASK                0x3
 
 class UAVObjectField;
+class QXmlStreamWriter;
+class QXmlStreamReader;
+class QJsonObject;
 
 class UAVOBJECTS_EXPORT UAVObject : public QObject {
     Q_OBJECT

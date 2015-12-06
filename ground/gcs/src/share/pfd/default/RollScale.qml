@@ -1,12 +1,15 @@
 import QtQuick 2.0
 import "."
 
+import UAVTalk.AttitudeState 1.0
+
 Item {
     id: sceneItem
+
     property variant sceneSize
     property real horizontCenter
 
-    onHorizontCenterChanged: console.log("horizont center:"+horizontCenter)
+    //onHorizontCenterChanged: console.log("horizont center:" + horizontCenter)
 
     SvgElementImage {
         id: rollscale
@@ -21,11 +24,11 @@ Item {
 
         smooth: true
 
-        //rotate it around the center of horizon
+        // rotate it around the center of horizon
         transform: Rotation {
-            angle: -AttitudeState.Roll
-            origin.y : rollscale.height*2.4
-            origin.x : rollscale.width/2
+            angle: -attitudeState.roll
+            origin.y : rollscale.height * 2.4
+            origin.x : rollscale.width / 2
         }
     }
 

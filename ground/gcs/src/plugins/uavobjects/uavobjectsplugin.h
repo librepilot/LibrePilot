@@ -30,8 +30,8 @@
 
 #include "uavobjects_global.h"
 #include <extensionsystem/iplugin.h>
+
 #include <QtPlugin>
-#include "uavobjectmanager.h"
 
 class UAVOBJECTS_EXPORT UAVObjectsPlugin :
     public ExtensionSystem::IPlugin {

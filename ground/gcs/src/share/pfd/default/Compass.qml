@@ -1,5 +1,11 @@
 import QtQuick 2.0
 import "."
+
+import UAVTalk.AttitudeState 1.0
+import UAVTalk.PositionState 1.0
+import UAVTalk.PathDesired 1.0
+import UAVTalk.TakeOffLocation 1.0
+
 import "common.js" as Utils
 
 Item {
@@ -32,7 +38,7 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        rotation: -AttitudeState.Yaw
+        rotation: -attitudeState.yaw
         transformOrigin: Item.Center
 
         smooth: true
@@ -47,11 +53,11 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        property real home_degrees: 180/3.1415 * Math.atan2(TakeOffLocation.East - PositionState.East, TakeOffLocation.North - PositionState.North)
+        property real home_degrees: 180 / 3.1415 * Math.atan2(takeOffLocation.east - positionState.east, takeOffLocation.north - positionState.north)
 
-        rotation: -AttitudeState.Yaw + home_degrees
+        rotation: -attitudeState.yaw + home_degrees
         transformOrigin: Item.Bottom
-        visible: Utils.toInt(TakeOffLocation.Status) == 0
+        visible: (takeOffLocation.status == Status.Valid)
 
     }
 
@@ -63,13 +69,13 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        property real course_degrees: 180/3.1415 * Math.atan2(PathDesired.End_East - PositionState.East, PathDesired.End_North - PositionState.North)
+        property real course_degrees: 180 / 3.1415 * Math.atan2(pathDesired.endEast - positionState.east, pathDesired.endNorth - positionState.north)
 
-        rotation: -AttitudeState.Yaw + course_degrees
+        rotation: -attitudeState.yaw + course_degrees
         transformOrigin: Item.Center
 
         smooth: true
-        visible: PathDesired.End_East !== 0.0 && PathDesired.End_East !== 0.0
+        visible: ((pathDesired.endEast != 0.0) && (pathDesired.endNorth != 0.0))
     }
 
 
@@ -86,7 +92,7 @@ Item {
 
         Text {
             id: compass_text
-            text: Math.floor(AttitudeState.Yaw).toFixed()
+            text: Math.floor(attitudeState.yaw).toFixed()
             color: "white"
             font {
                 family: pt_bold.name

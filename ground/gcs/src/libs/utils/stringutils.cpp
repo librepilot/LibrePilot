@@ -1,13 +1,11 @@
 /**
  ******************************************************************************
  *
- * @file       settingsutils.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
- * @brief
+ * @file       pathutils.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @brief      String utilities
+ *
  * @see        The GNU Public License (GPL) Version 3
- * @defgroup
- * @{
  *
  *****************************************************************************/
 /*
@@ -26,15 +24,26 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef SETTINGSTUTILS_H
-#define SETTINGSTUTILS_H
-
-#include "utils_global.h"
+#include "stringutils.h"
 
 namespace Utils {
-// Create a usable settings key from a category,
-// for example Editor|C++ -> Editor_C__
-QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
-} // namespace Utils
+QString toLowerCamelCase(const QString & name)
+{
+    QString str = name;
 
-#endif // SETTINGSTUTILS_H
+    for (int i = 0; i < str.length(); ++i) {
+        if (str[i].isLower() || !str[i].isLetter()) {
+            break;
+        }
+        if (i > 0 && i < str.length() - 1) {
+            // after first, look ahead one
+            if (str[i + 1].isLower()) {
+                break;
+            }
+        }
+        str[i] = str[i].toLower();
+    }
+
+    return str;
+}
+}

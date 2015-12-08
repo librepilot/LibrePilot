@@ -13,7 +13,7 @@ DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$
 
 SOURCES += \
     reloadpromptutils.cpp \
-    settingsutils.cpp \
+    stringutils.cpp \
     filesearch.cpp \
     pathchooser.cpp \
     pathlisteditor.cpp \
@@ -59,6 +59,7 @@ SOURCES += \
     mustache.cpp \
     textbubbleslider.cpp
 
+
 SOURCES += xmlconfig.cpp
 
 win32 {
@@ -73,7 +74,7 @@ else:SOURCES += consoleprocess_unix.cpp
 HEADERS += \
     utils_global.h \
     reloadpromptutils.h \
-    settingsutils.h \
+    stringutils.h \
     filesearch.h \
     listutils.h \
     pathchooser.h \

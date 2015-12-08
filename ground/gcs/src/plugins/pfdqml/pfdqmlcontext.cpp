@@ -30,40 +30,11 @@
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+#include "utils/stringutils.h"
 #include "flightbatterysettings.h"
 
 #include <QQmlContext>
 #include <QDebug>
-
-/*
- * Convert a string to lower camel case.
- * Handles following cases :
- * - Property -> property
- * - MyProperty -> myProperty
- * - MYProperty -> myProperty
- * - MY_Property -> my_Property
- * - MY -> my
- */
-// TODO move to some utility class
-QString toLowerCamelCase(const QString & name)
-{
-    QString str = name;
-
-    for (int i = 0; i < str.length(); ++i) {
-        if (str[i].isLower() || !str[i].isLetter()) {
-            break;
-        }
-        if (i > 0 && i < str.length() - 1) {
-            // after first, look ahead one
-            if (str[i + 1].isLower()) {
-                break;
-            }
-        }
-        str[i] = str[i].toLower();
-    }
-
-    return str;
-}
 
 PfdQmlContext::PfdQmlContext(QObject *parent) : QObject(parent),
     m_speedUnit("m/s"),
@@ -350,7 +321,7 @@ void PfdQmlContext::apply(QQmlContext *context)
 
         if (object) {
             // expose object with lower camel case name
-            context->setContextProperty(toLowerCamelCase(objectName), object);
+            context->setContextProperty(Utils::toLowerCamelCase(objectName), object);
         } else {
             qWarning() << "PfdQmlContext::apply - failed to load object" << objectName;
         }

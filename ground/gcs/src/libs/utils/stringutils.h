@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
  *
- * @file       settingsutils.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       stringutils.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @brief
  * @see        The GNU Public License (GPL) Version 3
@@ -26,23 +26,24 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "settingsutils.h"
+#ifndef STRINGUTILS_H
+#define STRINGUTILS_H
 
-#include <QtCore/QString>
+#include "utils_global.h"
+
+#include <QString>
 
 namespace Utils {
-QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
-{
-    QString rc(category);
-    const QChar underscore = QLatin1Char('_');
-    const int size = rc.size();
-
-    for (int i = 0; i < size; i++) {
-        const QChar c = rc.at(i);
-        if (!c.isLetterOrNumber() && c != underscore) {
-            rc[i] = underscore;
-        }
-    }
-    return rc;
+/**
+ * Convert a string to lower camel case.
+ * Handles following cases :
+ * - Property -> property
+ * - MyProperty -> myProperty
+ * - MYProperty -> myProperty
+ * - MY_Property -> my_Property
+ * - MY -> my
+ */
+QTCREATOR_UTILS_EXPORT QString toLowerCamelCase(const QString &);
 }
-} // namespace Utils
+
+#endif /* STRINGUTILS_H */

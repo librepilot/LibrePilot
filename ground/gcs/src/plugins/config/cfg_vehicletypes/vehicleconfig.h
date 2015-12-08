@@ -89,10 +89,17 @@ typedef struct {
     uint    FixedWingPitch2 : 4;
     uint    FixedWingYaw1 : 4;
     uint    FixedWingYaw2 : 4;
-    uint    padding : 4; // 32 bits
+    uint    Accessory0 : 4;  // 32 bits
+    uint    Accessory1 : 4;
+    uint    Accessory2 : 4;
+    uint    Accessory3 : 4;
+    uint    Accessory0_2 : 4;
+    uint    Accessory1_2 : 4;
+    uint    Accessory2_2 : 4;
+    uint    Accessory3_2 : 4;
+    quint32 padding : 4; // 64bits
     quint32 padding1;
-    quint32 padding2;
-    quint32 padding3; // 128 bits
+    quint32 padding2; // 128 bits
 } __attribute__((packed))  fixedGUISettingsStruct;
 
 typedef struct {
@@ -228,6 +235,7 @@ protected:
     void    setMixerVectorValue(UAVDataObject *mixer, int channel, MixerVectorElem elementName, double value);
     void    resetMixerVector(UAVDataObject *mixer, int channel);
     void    resetMotorAndServoMixers(UAVDataObject *mixer);
+    void    resetAllMixersType(UAVDataObject *mixer);
     QString getMixerType(UAVDataObject *mixer, int channel);
     void    setMixerType(UAVDataObject *mixer, int channel, MixerTypeElem mixerType);
     void    setThrottleCurve(UAVDataObject *mixer, MixerThrottleCurveElem curveType, QList<double> curve);

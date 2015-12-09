@@ -361,8 +361,9 @@ public:
         // add the screen capture handler
         // view->addEventHandler(new osgViewer::ScreenCaptureHandler);
 
-        osg::GraphicsContext *gc = createGraphicsContext();
+        // setup graphics context and camera
         osg::Camera *camera = view->getCamera();
+        osg::GraphicsContext *gc = createGraphicsContext();
         camera->setGraphicsContext(gc);
         camera->setViewport(new osg::Viewport(0, 0, gc->getTraits()->width, gc->getTraits()->height));
 
@@ -470,6 +471,9 @@ public:
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
 
         h->initializeResources();
+
+        firstFrame    = true;
+        needToDoFrame = false;
     }
 
     ~ViewportRenderer()
@@ -477,7 +481,6 @@ public:
         qDebug() << "ViewportRenderer::~ViewportRenderer";
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
 
-        h->releaseResources();
     }
 
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.
@@ -486,12 +489,29 @@ public:
         // qDebug() << "ViewportRenderer::synchronize";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::synchronize");
 
+        if (!h->viewer.valid()) {
+            qWarning() << "ViewportRenderer::synchronize - invalid viewer";
+            return;
+        }
+
         if (!h->view.valid()) {
             qWarning() << "ViewportRenderer::synchronize - invalid view";
             return;
         }
 
-        // need to split frame() open and do the synchronization here (calling update callbacks, etc...)
+        needToDoFrame = h->viewer->checkNeedToDoFrame();
+        if (needToDoFrame) {
+            if (firstFrame) {
+                h->view->init();
+                if (!h->viewer->isRealized()) {
+                    h->viewer->realize();
+                }
+                firstFrame = false;
+            }
+            h->viewer->advance();
+            h->viewer->eventTraversal();
+            h->viewer->updateTraversal();
+        }
     }
 
     // This function is called when the FBO should be rendered into.
@@ -502,16 +522,16 @@ public:
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::render");
 
         if (!h->viewer.valid()) {
-            qWarning() << "ViewportRenderer::render - invalid viewport";
+            qWarning() << "ViewportRenderer::render - invalid viewer";
             return;
         }
 
-        // needed to properly render models without terrain (Qt bug?)
-        QOpenGLContext::currentContext()->functions()->glUseProgram(0);
 
-        if (h->viewer->checkNeedToDoFrame()) {
-            // TODO scene update should NOT be done here
-            h->viewer->frame();
+        if (needToDoFrame) {
+            // needed to properly render models without terrain (Qt bug?)
+            QOpenGLContext::currentContext()->functions()->glUseProgram(0);
+            h->viewer->renderingTraversals();
+            needToDoFrame = false;
         }
 
         if (h->updateMode == UpdateMode::Continuous) {
@@ -544,6 +564,9 @@ public:
 
 private:
     OSGViewport::Hidden *h;
+
+    bool firstFrame;
+    bool needToDoFrame;
 };
 
 osg::ref_ptr<osg::GraphicsContext> OSGViewport::Hidden::dummy;

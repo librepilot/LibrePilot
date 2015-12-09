@@ -26,9 +26,11 @@
  */
 
 #include "opmapwidget.h"
+#include "waypointitem.h"
+
 #include <QtGui>
 #include <QMetaObject>
-#include "waypointitem.h"
+#include <QOpenGLWidget>
 
 namespace mapcontrol {
 OPMapWidget::OPMapWidget(QWidget *parent, Configuration *config) : QGraphicsView(parent), configuration(config), UAV(0), GPS(0), Home(0)
@@ -210,7 +212,7 @@ void OPMapWidget::SetUseOpenGL(const bool &value)
 {
     useOpenGL = value;
     if (useOpenGL) {
-        setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+        setViewport(new QOpenGLWidget()); // QGLFormat(QGL::SampleBuffers)));
     } else {
         setupViewport(new QWidget());
     }

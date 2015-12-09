@@ -6,6 +6,8 @@
 // Librepilot
 // ***********************
 
+Qt.include("common.js")
+
 function attitude() {
     return Qt.vector3d(attitudeState.pitch, attitudeState.roll, -attitudeState.yaw);
 }

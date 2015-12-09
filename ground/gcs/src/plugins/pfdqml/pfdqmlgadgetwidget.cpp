@@ -50,20 +50,6 @@ PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
     }
 }
 
-void PfdQmlGadgetWidget::init()
-{
-    m_quickWidgetProxy = new QuickWidgetProxy(this);
-
-#if 0
-    qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent OpenGL context" << isPersistentOpenGLContext();
-    qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent scene graph" << isPersistentSceneGraph();
-#endif
-
-    // to expose settings values
-    m_pfdQmlContext = new PfdQmlContext(this);
-    m_pfdQmlContext->apply(engine()->rootContext());
-}
-
 void PfdQmlGadgetWidget::setSource(const QUrl &url)
 {
     m_quickWidgetProxy->setSource(url);
@@ -83,32 +69,28 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
     qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
 
-    QuickWidgetProxy *oldQuickWidgetProxy = NULL;
-    PfdQmlContext *oldPfdQmlContext = NULL;
-    if (m_quickWidgetProxy) {
-        oldQuickWidgetProxy = m_quickWidgetProxy;
-        oldPfdQmlContext    = m_pfdQmlContext;
-        m_quickWidgetProxy  = NULL;
-        m_pfdQmlContext     = NULL;
+    if (!m_quickWidgetProxy) {
+        m_quickWidgetProxy = new QuickWidgetProxy(this);
+
+#if 0
+        qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent OpenGL context" << isPersistentOpenGLContext();
+        qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent scene graph" << isPersistentSceneGraph();
+#endif
+
+        // expose context
+        m_pfdQmlContext = new PfdQmlContext(this);
+        m_pfdQmlContext->apply(engine()->rootContext());
+
+        // add widget
+        layout()->addWidget(m_quickWidgetProxy->widget());
     }
 
-    if (!m_quickWidgetProxy) {
-        init();
-    }
+    setQmlFile("");
 
     m_pfdQmlContext->loadConfiguration(config);
 
     // go!
     setQmlFile(config->qmlFile());
-
-    // deleting and recreating the PfdQmlGadgetWidget is workaround to avoid crashes in osgearth when
-    // switching between configurations. Please remove this workaround once osgearth is stabilized
-    if (oldQuickWidgetProxy) {
-        layout()->removeWidget(oldQuickWidgetProxy->widget());
-        delete oldQuickWidgetProxy;
-        delete oldPfdQmlContext;
-    }
-    layout()->addWidget(m_quickWidgetProxy->widget());
 }
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)

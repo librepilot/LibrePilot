@@ -47,8 +47,6 @@ public:
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
 
 private:
-    void init();
-
     void setQmlFile(QString);
 
     void setSource(const QUrl &url);

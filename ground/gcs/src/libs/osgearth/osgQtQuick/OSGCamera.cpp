@@ -179,6 +179,9 @@ public:
 
         this->camera = camera;
 
+        // TODO don't add update callback as this disables ON_DEMAND frame update scheme
+        // see https://github.com/gwaldron/osgearth/commit/796daf4792ccaf18ae7eb6a5cb268eef0d42888d
+        // see ViewportRenderer::render() in OSGViewport.cpp
         cameraUpdateCallback = new CameraUpdateCallback(this);
         camera->addUpdateCallback(cameraUpdateCallback);
 
@@ -237,6 +240,9 @@ public:
         case ManipulatorMode::User:
             qDebug() << "OSGCamera::attachManipulator - no camera manipulator";
             // disable any installed camera manipulator
+            // TODO create and use own camera manipulator to avoid disabling ON_DEMAND frame update scheme
+            // see https://github.com/gwaldron/osgearth/commit/796daf4792ccaf18ae7eb6a5cb268eef0d42888d
+            // TODO see StandardManaipulator for example on how to react to events (tohabd FOV changes without the need for an update callback?)
             cm = NULL;
             break;
         case ManipulatorMode::Earth:

@@ -14,7 +14,6 @@ equals(copyqt, 1) {
                   libQt5Svg.so.5 \
                   libQt5Test.so.5 \
                   libQt5Xml.so.5 \
-                  libQt5Declarative.so.5 \
                   libQt5XmlPatterns.so.5 \
                   libQt5Script.so.5 \
                   libQt5Concurrent.so.5 \
@@ -27,10 +26,12 @@ equals(copyqt, 1) {
                   libQt5Qml.so.5 \
                   libQt5DBus.so.5 \
                   libQt5QuickParticles.so.5 \
+                  libQt5XcbQpa.so.5 \
+                  libQt5X11Extras.so.5 \
                   libqgsttools_p.so.1 \
-                  libicui18n.so.53 \
-                  libicuuc.so.53 \
-                  libicudata.so.53
+                  libicui18n.so.54 \
+                  libicuuc.so.54 \
+                  libicudata.so.54
         for(lib, QT_LIBS) {
             addCopyFileTarget($${lib},$$[QT_INSTALL_LIBS],$${GCS_QT_LIBRARY_PATH})
         }
@@ -45,6 +46,7 @@ equals(copyqt, 1) {
                      mediaservice/libgstaudiodecoder.so \
                      mediaservice/libgstmediaplayer.so \
                      platforms/libqxcb.so \
+                     xcbglintegrations/libqxcb-glx-integration.so \
                      sqldrivers/libqsqlite.so
     }
 
@@ -62,7 +64,6 @@ equals(copyqt, 1) {
                   Qt5Svg$${DS}.dll \
                   Qt5Test$${DS}.dll \
                   Qt5Xml$${DS}.dll \
-                  Qt5Declarative$${DS}.dll \
                   Qt5XmlPatterns$${DS}.dll \
                   Qt5Script$${DS}.dll \
                   Qt5Concurrent$${DS}.dll \
@@ -73,9 +74,9 @@ equals(copyqt, 1) {
                   Qt5Quick$${DS}.dll \
                   Qt5QuickWidgets$${DS}.dll \
                   Qt5Qml$${DS}.dll \
-                  icuin53.dll \
-                  icudt53.dll \
-                  icuuc53.dll
+                  icuin54.dll \
+                  icudt54.dll \
+                  icuuc54.dll
         # it is more robust to take the following DLLs from Qt rather than from MinGW
         QT_DLLS += libgcc_s_dw2-1.dll \
                    libstdc++-6.dll \

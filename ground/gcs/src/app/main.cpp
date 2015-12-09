@@ -285,6 +285,11 @@ void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const 
     case QtDebugMsg:
         out << "DBG: ";
         break;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    case QtInfoMsg:
+        out << "INF: ";
+        break;
+#endif
     case QtWarningMsg:
         out << "WRN: ";
         break;

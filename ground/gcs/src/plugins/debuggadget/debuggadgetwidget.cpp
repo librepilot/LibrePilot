@@ -52,6 +52,12 @@ void DebugGadgetWidget::customMessageHandler(QtMsgType type, const QMessageLogCo
         txt   = QString("Debug: %1").arg(msg);
         color = Qt::black;
         break;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    case QtInfoMsg:
+        txt   = QString("Info: %1").arg(msg);
+        color = Qt::blue;
+        break;
+#endif
     case QtWarningMsg:
         txt   = QString("Warning: %1").arg(msg);
         color = Qt::red;

@@ -93,11 +93,6 @@ public:
 
         OsgEarth::initialize();
 
-        // workaround to avoid using GraphicsContext #0
-        if (!dummy.valid()) {
-            dummy = createGraphicsContext();
-        }
-
         createViewer();
 
         connect(quickItem, &OSGViewport::windowChanged, this, &Hidden::onWindowChanged);

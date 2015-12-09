@@ -614,7 +614,7 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
     ctxt.object = object;
 
     ctxt.registerImpl += ::generate(ctxt,
-                                  "    qmlRegisterType<:ClassName>(\"%1.:ClassName\", 1, 0, \":ClassName\");\n").arg("UAVTalk");
+                                    "    qmlRegisterType<:ClassName>(\"%1.:ClassName\", 1, 0, \":ClassName\");\n").arg("UAVTalk");
 
     for (int n = 0; n < object->fields.length(); ++n) {
         FieldInfo *field = object->fields[n];

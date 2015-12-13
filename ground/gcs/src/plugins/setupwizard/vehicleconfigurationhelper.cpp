@@ -679,7 +679,6 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
             Q_ASSERT(copterControlCalibration);
             AttitudeSettings::DataFields data = copterControlCalibration->getData();
 
-            data.AccelTau = DEFAULT_ENABLED_ACCEL_TAU;
             data.BiasCorrectGyro = AttitudeSettings::BIASCORRECTGYRO_TRUE;
 
             copterControlCalibration->setData(data);

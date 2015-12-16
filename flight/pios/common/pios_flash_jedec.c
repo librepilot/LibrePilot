@@ -373,6 +373,9 @@ static int32_t PIOS_Flash_Jedec_EraseSector(uintptr_t flash_id, uint32_t addr)
 #if defined(FLASH_FREERTOS)
         vTaskDelay(2);
 #endif
+#ifdef PIOS_INCLUDE_WDG
+        PIOS_WDG_Clear();
+#endif
     }
 
     return 0;

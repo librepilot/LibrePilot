@@ -123,6 +123,9 @@ static int32_t logfs_erase_arena(const struct logfs_state *logfs, uint8_t arena_
     for (uint8_t sector_id = 0;
          sector_id < (logfs->cfg->arena_size / logfs->cfg->sector_size);
          sector_id++) {
+#ifdef PIOS_INCLUDE_WDG
+        PIOS_WDG_Clear();
+#endif
         if (logfs->driver->erase_sector(logfs->flash_id,
                                         arena_addr + (sector_id * logfs->cfg->sector_size))) {
             return -1;
@@ -197,9 +200,6 @@ static int32_t logfs_erase_all_arenas(const struct logfs_state *logfs)
     for (uint16_t arena = 0; arena < num_arenas; arena++) {
 #ifdef PIOS_LED_HEARTBEAT
         PIOS_LED_Toggle(PIOS_LED_HEARTBEAT);
-#endif
-#ifdef PIOS_INCLUDE_WDG
-        PIOS_WDG_Clear();
 #endif
         if (logfs_erase_arena(logfs, arena) != 0) {
             return -1;
@@ -445,6 +445,7 @@ static int32_t logfs_mount_log(struct logfs_state *logfs, uint8_t arena_id)
                                      slot_addr,
                                      (uint8_t *)&slot_hdr,
                                      sizeof(slot_hdr)) != 0) {
+            /* Abort the mount (format and retry mount if called from init) */
             return -1;
         }
 
@@ -452,8 +453,13 @@ static int32_t logfs_mount_log(struct logfs_state *logfs, uint8_t arena_id)
          * Empty slots must be in a continguous block at the
          * end of the arena.
          */
-        PIOS_Assert(slot_hdr.state == SLOT_STATE_EMPTY ||
-                    logfs->num_free_slots == 0);
+        if (slot_hdr.state != SLOT_STATE_EMPTY && logfs->num_free_slots != 0) {
+            /*
+             * Once a free slot is found, the rest of the slots must be free
+             * else about the mount (format and retry mount if called from init)
+             */
+            return -2;
+        }
 
         switch (slot_hdr.state) {
         case SLOT_STATE_EMPTY:
@@ -465,6 +471,12 @@ static int32_t logfs_mount_log(struct logfs_state *logfs, uint8_t arena_id)
         case SLOT_STATE_RESERVED:
         case SLOT_STATE_OBSOLETE:
             break;
+        default:
+            /*
+             * If any slot header is unrecognized abort the mount
+             * (format and retry mount if called from init)
+             */
+            return -3;
         }
     }
 
@@ -530,6 +542,10 @@ static void PIOS_FLASHFS_Logfs_free(struct logfs_state *logfs)
  */
 int32_t PIOS_FLASHFS_Logfs_Init(uintptr_t *fs_id, const struct flashfs_logfs_cfg *cfg, const struct pios_flash_driver *driver, uintptr_t flash_id)
 {
+#ifdef PIOS_INCLUDE_WDG
+    PIOS_WDG_Clear();
+#endif
+
     PIOS_Assert(cfg);
     PIOS_Assert(fs_id);
     PIOS_Assert(driver);
@@ -544,69 +560,64 @@ int32_t PIOS_FLASHFS_Logfs_Init(uintptr_t *fs_id, const struct flashfs_logfs_cfg
     PIOS_Assert(driver->write_data);
     PIOS_Assert(driver->read_data);
 
-    int8_t rc;
+    int8_t rc    = -1;  // assume failure
+    int8_t count = 0;
 
     struct logfs_state *logfs;
 
     logfs = (struct logfs_state *)PIOS_FLASHFS_Logfs_alloc();
-    if (!logfs) {
-        rc = -1;
-        goto out_exit;
-    }
+    if (logfs) {
+        while (rc && count++ < 2) {
+            /* Bind configuration parameters to this filesystem instance */
+            logfs->cfg      = cfg;  /* filesystem configuration */
+            logfs->driver   = driver; /* lower-level flash driver */
+            logfs->flash_id = flash_id; /* lower-level flash device id */
+            logfs->mounted  = false;
 
-    /* Bind configuration parameters to this filesystem instance */
-    logfs->cfg      = cfg;  /* filesystem configuration */
-    logfs->driver   = driver; /* lower-level flash driver */
-    logfs->flash_id = flash_id; /* lower-level flash device id */
-    logfs->mounted  = false;
+            if (logfs->driver->start_transaction(logfs->flash_id) == 0) {
+                bool found = false;
+                int32_t arena_id;
+                for (uint8_t try = 0; !found && try < 2; try++) {
+                    /* Find the active arena */
+                    arena_id = logfs_find_active_arena(logfs);
+                    if (arena_id >= 0) {
+                        /* Found the active arena */
+                        found = true;
+                        break;
+                    } else {
+                        /* No active arena found, erase and activate arena 0 */
+                        if (logfs_erase_arena(logfs, 0) != 0) {
+                            break;
+                        }
+                        if (logfs_activate_arena(logfs, 0) != 0) {
+                            break;
+                        }
+                    }
+                }
 
-    if (logfs->driver->start_transaction(logfs->flash_id) != 0) {
-        rc = -1;
-        goto out_exit;
-    }
+                if (!found) {
+                    /* Still no active arena, something is broken */
+                    rc = -2;
+                    goto out_end_trans;
+                }
 
-    bool found = false;
-    int32_t arena_id;
-    for (uint8_t try = 0; !found && try < 2; try++) {
-        /* Find the active arena */
-        arena_id = logfs_find_active_arena(logfs);
-        if (arena_id >= 0) {
-            /* Found the active arena */
-            found = true;
-            break;
-        } else {
-            /* No active arena found, erase and activate arena 0 */
-            if (logfs_erase_arena(logfs, 0) != 0) {
-                break;
-            }
-            if (logfs_activate_arena(logfs, 0) != 0) {
-                break;
+                /* We've found an active arena, mount it */
+                rc = logfs_mount_log(logfs, arena_id);
+                if (rc != 0) {
+                    /* Failed to mount the log, something is broken */
+                    PIOS_FLASHFS_Format((uintptr_t)logfs);
+                    rc -= 3;
+                    goto out_end_trans;
+                }
+
+                *fs_id = (uintptr_t)logfs;
+
+out_end_trans:
+                logfs->driver->end_transaction(logfs->flash_id);
             }
         }
     }
 
-    if (!found) {
-        /* Still no active arena, something is broken */
-        rc = -2;
-        goto out_end_trans;
-    }
-
-    /* We've found an active arena, mount it */
-    if (logfs_mount_log(logfs, arena_id) != 0) {
-        /* Failed to mount the log, something is broken */
-        rc = -3;
-        goto out_end_trans;
-    }
-
-    /* Log has been mounted */
-    rc     = 0;
-
-    *fs_id = (uintptr_t)logfs;
-
-out_end_trans:
-    logfs->driver->end_transaction(logfs->flash_id);
-
-out_exit:
     return rc;
 }
 

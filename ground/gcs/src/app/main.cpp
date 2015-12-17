@@ -209,6 +209,11 @@ inline QString msgSendArgumentFailed()
                                        "Unable to send command line arguments to the already running instance. It appears to be not responding.");
 }
 
+inline QString msgLogfileOpenFailed()
+{
+    return QCoreApplication::translate("Application", "Failed to open log file");
+}
+
 // Prepare a remote argument: If it is a relative file, add the current directory
 // since the the central instance might be running in a different directory.
 inline QString prepareRemoteArgument(const QString &arg)
@@ -313,7 +318,8 @@ void logInit(QString fileName)
         logStream = new QTextStream(file);
         qInstallMessageHandler(mainMessageOutput);
     } else {
-        // TODO error popup
+        displayError(msgLogfileOpenFailed());
+
     }
 }
 

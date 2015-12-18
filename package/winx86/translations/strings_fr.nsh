@@ -31,11 +31,11 @@
   LangString DESC_InSecSounds ${LANG_FRENCH} "Fichiers son GCS (pour les notifications sonores)."
   LangString DESC_InSecLocalization ${LANG_FRENCH} "Fichiers de localisation (langues supportées)."
   LangString DESC_InSecFirmware ${LANG_FRENCH} "OpenPilot firmware binaries."
-  LangString DESC_InSecUtilities ${LANG_FRENCH} "OpenPilot utilities (Matlab log parser)."
-  LangString DESC_InSecDrivers ${LANG_FRENCH} "OpenPilot hardware driver files (optional OpenPilot CDC driver)."
-  LangString DESC_InSecInstallDrivers ${LANG_FRENCH} "Optional OpenPilot CDC driver (virtual USB COM port)."
-  LangString DESC_InSecInstallOpenGL ${LANG_FRENCH} "Optional OpenGL32.dll for old video cards."
-  LangString DESC_InSecAeroSimRC ${LANG_FRENCH} "AeroSimRC plugin files with sample configuration."
+  LangString DESC_InSecUtilities ${LANG_FRENCH} "Utilitaires OpenPilot (Matlab log parser)."
+  LangString DESC_InSecDrivers ${LANG_FRENCH} "Fichiers OpenPilot de pilotes matériels (optional OpenPilot CDC driver)."
+  LangString DESC_InSecInstallDrivers ${LANG_FRENCH} "Pilote OpenPilot optionel CDC (virtual USB COM port)."
+  LangString DESC_InSecInstallOpenGL ${LANG_FRENCH} "Bibliothèque OpenGL32.dll optionelle pour cartes vidéo anciennes."
+  LangString DESC_InSecAeroSimRC ${LANG_FRENCH} "Fichiers de plugin AeroSimRC avec exemple de configuration."
   LangString DESC_InSecShortcuts ${LANG_FRENCH} "Installer les raccourcis dans le menu démarrer."
 
 ;--------------------------------

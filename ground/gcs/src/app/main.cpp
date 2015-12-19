@@ -319,7 +319,6 @@ void logInit(QString fileName)
         qInstallMessageHandler(mainMessageOutput);
     } else {
         displayError(msgLogfileOpenFailed(fileName));
-
     }
 }
 

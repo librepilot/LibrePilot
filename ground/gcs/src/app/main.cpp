@@ -209,7 +209,7 @@ inline QString msgSendArgumentFailed()
                                        "Unable to send command line arguments to the already running instance. It appears to be not responding.");
 }
 
-inline QString msgLogfileOpenFailed(QString &fileName)
+inline QString msgLogfileOpenFailed(const QString &fileName)
 {
     return QCoreApplication::translate("Application", "Failed to open log file %1").arg(fileName);
 }

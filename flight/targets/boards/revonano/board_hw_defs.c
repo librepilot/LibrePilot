@@ -535,6 +535,95 @@ static const struct pios_dsm_cfg pios_dsm_flexi_cfg = {
 
 #endif /* PIOS_INCLUDE_DSM */
 
+#if defined(PIOS_INCLUDE_HOTT)
+/*
+ * HOTT USART
+ */
+#include <pios_hott_priv.h>
+static const struct pios_usart_cfg pios_usart_hott_main_cfg = {
+    .regs  = MAIN_USART_REGS,
+    .remap = MAIN_USART_REMAP,
+    .init  = {
+        .USART_BaudRate   = 115200,
+        .USART_WordLength = USART_WordLength_8b,
+        .USART_Parity     = USART_Parity_No,
+        .USART_StopBits   = USART_StopBits_1,
+        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
+        .USART_Mode                            = USART_Mode_Rx,
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = MAIN_USART_IRQ,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .rx                                        = {
+        .gpio = MAIN_USART_RX_GPIO,
+        .init = {
+            .GPIO_Pin   = MAIN_USART_RX_PIN,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+    .tx                                        = {
+        .gpio = MAIN_USART_TX_GPIO,
+        .init = {
+            .GPIO_Pin   = MAIN_USART_TX_PIN,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+};
+
+static const struct pios_usart_cfg pios_usart_hott_flexi_cfg = {
+    .regs  = FLEXI_USART_REGS,
+    .remap = FLEXI_USART_REMAP,
+    .init  = {
+        .USART_BaudRate   = 115200,
+        .USART_WordLength = USART_WordLength_8b,
+        .USART_Parity     = USART_Parity_No,
+        .USART_StopBits   = USART_StopBits_1,
+        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
+        .USART_Mode                            = USART_Mode_Rx,
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .rx                                        = {
+        .gpio = FLEXI_USART_RX_GPIO,
+        .init = {
+            .GPIO_Pin   = FLEXI_USART_RX_PIN,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+    .tx                                        = {
+        .gpio = FLEXI_USART_TX_GPIO,
+        .init = {
+            .GPIO_Pin   = FLEXI_USART_TX_PIN,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_OUT,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+};
+
+#endif /* PIOS_INCLUDE_HOTT */
+
 #if defined(PIOS_INCLUDE_SRXL)
 /*
  * SRXL USART

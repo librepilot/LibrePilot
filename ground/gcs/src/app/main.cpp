@@ -431,16 +431,19 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
     const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
 
     if (translator.load(QLatin1String("gcs_") + language, creatorTrPath)) {
+        // Install gcs_xx.qm translation file
+        QCoreApplication::installTranslator(&translator);
+
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &qtTrFile = QLatin1String("qt_") + language;
         // Binary installer puts Qt tr files into creatorTrPath
         if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {
-            QCoreApplication::installTranslator(&translator);
+            // Install main qt_xx.qm translation file
             QCoreApplication::installTranslator(&qtTranslator);
-        } else {
-            // unload()
-            translator.load(QString());
         }
+    } else {
+        // unload(), no gcs translation found
+        translator.load(QString());
     }
 }
 } // namespace anonymous

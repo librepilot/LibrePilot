@@ -169,6 +169,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         case VehicleConfigurationSource::INPUT_SRXL:
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_SRXL;
             break;
+        case VehicleConfigurationSource::INPUT_HOTT:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_HOTTSUMD;
+            break;
         default:
             break;
         }
@@ -206,6 +209,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             break;
         case VehicleConfigurationSource::INPUT_SRXL:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            break;
+        //case VehicleConfigurationSource::INPUT_HOTT:
+        //    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
             break;
         default:
             break;
@@ -899,6 +905,9 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
         break;
     case VehicleConfigurationSource::INPUT_SRXL:
         channelType = ManualControlSettings::CHANNELGROUPS_SRXL;
+        break;
+    case VehicleConfigurationSource::INPUT_HOTT:
+        channelType = ManualControlSettings::CHANNELGROUPS_HOTTFLEXIPORT;
         break;
     default:
         break;

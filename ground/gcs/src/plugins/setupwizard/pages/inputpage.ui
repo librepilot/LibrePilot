@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>738</width>
+    <height>494</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,6 +51,9 @@ p, li { white-space: pre-wrap; }
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
      <item>
       <widget class="QToolButton" name="pwmButton">
        <property name="font">
@@ -238,6 +241,47 @@ p, li { white-space: pre-wrap; }
         <iconset resource="../wizardResources.qrc">
          <normaloff>:/setupwizard/resources/bttn-srxl-up.png</normaloff>
          <normalon>:/setupwizard/resources/bttn-srxl-down.png</normalon>:/setupwizard/resources/bttn-srxl-up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>100</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="graupnerButton">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>Graupner HoTT</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton { border: none }</string>
+       </property>
+       <property name="text">
+        <string>HoTT</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../wizardResources.qrc">
+         <normaloff>:/setupwizard/resources/bttn-hott-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-hott-down.png</normalon>:/setupwizard/resources/bttn-hott-up.png</iconset>
        </property>
        <property name="iconSize">
         <size>

@@ -380,6 +380,9 @@ QString SetupWizard::getSummaryText()
     case INPUT_SRXL:
         summary.append(tr("Multiplex SRXL"));
         break;
+    case INPUT_HOTT:
+        summary.append(tr("Graupner HoTT"));
+        break;
     default:
         summary.append(tr("Unknown"));
     }

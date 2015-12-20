@@ -210,8 +210,8 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         case VehicleConfigurationSource::INPUT_SRXL:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
             break;
-        //case VehicleConfigurationSource::INPUT_HOTT:
-        //    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
+        case VehicleConfigurationSource::INPUT_HOTT:
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
             break;
         default:
             break;

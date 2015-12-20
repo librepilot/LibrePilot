@@ -117,8 +117,8 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
         case VehicleConfigurationSource::INPUT_SBUS:
             return data.RM_MainPort != HwSettings::RM_MAINPORT_SBUS;
 
-        //case VehicleConfigurationSource::INPUT_HOTT:
-        //    return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_HOTTSUMD;
+        case VehicleConfigurationSource::INPUT_HOTT:
+            return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_HOTTSUMD;
 
         case VehicleConfigurationSource::INPUT_SRXL:
             return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_SRXL;

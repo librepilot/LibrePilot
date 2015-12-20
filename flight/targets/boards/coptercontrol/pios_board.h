@@ -248,6 +248,12 @@ extern uint32_t pios_com_hkosd_id;
 #define PIOS_SBUS_MAX_DEVS           1
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
 
+//-------------------------
+// Receiver HSUM input
+//-------------------------
+#define PIOS_HOTT_MAX_DEVS			2
+#define PIOS_HOTT_NUM_INPUTS		32
+
 // -------------------------
 // Receiver Multiplex SRXL input
 // -------------------------

@@ -586,6 +586,30 @@ void PIOS_Board_Init(void)
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
     }
     break;
+    case HWSETTINGS_RM_MAINPORT_HOTTSUMD:
+    case HWSETTINGS_RM_MAINPORT_HOTTSUMH:
+#if defined(PIOS_INCLUDE_HOTT)
+        {
+            uint32_t pios_usart_hott_id;
+            if (PIOS_USART_Init(&pios_usart_hott_id, &pios_usart_hott_main_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_hott_id;
+            if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
+            		hwsettings_mainport == HWSETTINGS_RM_MAINPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_hott_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTTMAINPORT] = pios_hott_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_HOTT */
+        break;
+
     case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
@@ -665,6 +689,29 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
         }
 #endif
+        break;
+    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
+    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMH:
+#if defined(PIOS_INCLUDE_HOTT)
+        {
+            uint32_t pios_usart_hott_id;
+            if (PIOS_USART_Init(&pios_usart_hott_id, &pios_usart_hott_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_hott_id;
+            if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
+            		hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_hott_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTTFLEXIPORT] = pios_hott_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_HOTT */
         break;
     } /* hwsettings_rm_flexiport */
 

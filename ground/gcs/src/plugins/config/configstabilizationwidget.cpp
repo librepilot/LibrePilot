@@ -289,7 +289,7 @@ void ConfigStabilizationWidget::updateThrottleCurveFromObject()
     field = stabBank->getField("EnableThrustPIDScaling");
     Q_ASSERT(field);
 
-    bool enabled = field->getValue() == "TRUE";
+    bool enabled = field->getValue() == "True";
     ui->enableThrustPIDScalingCheckBox->setChecked(enabled);
     ui->thrustPIDScalingCurve->setEnabled(enabled);
     setDirty(dirty);
@@ -311,7 +311,7 @@ void ConfigStabilizationWidget::updateObjectFromThrottleCurve()
 
     field = stabBank->getField("EnableThrustPIDScaling");
     Q_ASSERT(field);
-    field->setValue(ui->enableThrustPIDScalingCheckBox->isChecked() ? "TRUE" : "FALSE");
+    field->setValue(ui->enableThrustPIDScalingCheckBox->isChecked() ? "True" : "False");
 }
 
 void ConfigStabilizationWidget::setupExpoPlot()
@@ -385,7 +385,7 @@ void ConfigStabilizationWidget::resetThrottleCurveToDefault()
     field = defaultStabBank->getField("EnableThrustPIDScaling");
     Q_ASSERT(field);
 
-    bool enabled = field->getValue() == "TRUE";
+    bool enabled = field->getValue() == "True";
     ui->enableThrustPIDScalingCheckBox->setChecked(enabled);
     ui->thrustPIDScalingCurve->setEnabled(enabled);
 

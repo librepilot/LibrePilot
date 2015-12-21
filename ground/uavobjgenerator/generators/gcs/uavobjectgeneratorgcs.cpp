@@ -496,12 +496,18 @@ void generateIndexedProperty(Context &ctxt, FieldContext &fieldCtxt)
     for (int elementIndex = 0; elementIndex < fieldCtxt.field->numElements; elementIndex++) {
         QString elementName = fieldCtxt.field->elementNames[elementIndex];
 
+        QString sep;
+        if (fieldCtxt.propName.right(1)[0].isDigit() && elementName[0].isDigit()) {
+            info(ctxt.object, "Property \"" + fieldCtxt.propName + "\" and element \"" + elementName + "\" have digit conflict, consider fixing it.");
+            sep = "_";
+        }
+
         FieldContext elementCtxt;
         elementCtxt.field       = fieldCtxt.field;
         elementCtxt.fieldName   = fieldCtxt.fieldName + "_" + elementName;
         elementCtxt.fieldType   = fieldCtxt.fieldType;
-        elementCtxt.propName    = fieldCtxt.propName + elementName;
-        elementCtxt.ucPropName  = fieldCtxt.ucPropName + elementName;
+        elementCtxt.propName    = fieldCtxt.propName + sep + elementName;
+        elementCtxt.ucPropName  = fieldCtxt.ucPropName + sep + elementName;
         elementCtxt.propType    = fieldCtxt.propType;
         elementCtxt.propRefType = fieldCtxt.propRefType;
         // deprecation

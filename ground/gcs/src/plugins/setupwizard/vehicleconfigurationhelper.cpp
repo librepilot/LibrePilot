@@ -770,30 +770,30 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA:
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_H:
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_X:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 100);
-            mSettings->setMixerValueYaw((qint8) 100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
-            mSettings->setMixerValueRoll((qint8) 50);
-            mSettings->setMixerValuePitch((qint8) 50);
-            mSettings->setMixerValueYaw((qint8) 50);
+            mSettings->setMixerValueRoll((qint8)50);
+            mSettings->setMixerValuePitch((qint8)50);
+            mSettings->setMixerValueYaw((qint8)50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 100);
-            mSettings->setMixerValueYaw((qint8) 50);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_COAX_Y:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 50);
-            mSettings->setMixerValueYaw((qint8) 66);
+            mSettings->setMixerValueRoll((qint8)86);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_X:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 100);
-            mSettings->setMixerValueYaw((qint8) 100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_X:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_PLUS:
@@ -805,9 +805,9 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         break;
     }
     case VehicleConfigurationSource::VEHICLE_FIXEDWING:
-        mSettings->setMixerValueRoll((qint8) 100);
-        mSettings->setMixerValuePitch((qint8) 100);
-        mSettings->setMixerValueYaw((qint8) 100);
+        mSettings->setMixerValueRoll((qint8)100);
+        mSettings->setMixerValuePitch((qint8)100);
+        mSettings->setMixerValueYaw((qint8)100);
         maxThrottle = 1;
         break;
     case VehicleConfigurationSource::VEHICLE_HELI:
@@ -816,22 +816,22 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
     {
         switch (m_configSource->getVehicleSubType()) {
         case VehicleConfigurationSource::GROUNDVEHICLE_MOTORCYCLE:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 100);
-            mSettings->setMixerValueYaw((qint8) 100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             maxThrottle = 1;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_CAR:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 100);
-            mSettings->setMixerValueYaw((qint8) 100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             maxThrottle = 1;
             minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL:
-            mSettings->setMixerValueRoll((qint8) 100);
-            mSettings->setMixerValuePitch((qint8) 100);
-            mSettings->setMixerValueYaw((qint8) 100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             maxThrottle = 0.8;
             minThrottle = 0;
             break;

@@ -6,7 +6,7 @@
  * @{
  * @file       pios_config.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
  * @brief      PiOS configuration header, the compile time config file for the PIOS.
  *             Defines which PiOS libraries and features are included in the firmware.
  * @see        The GNU Public License (GPL) Version 3

@@ -2,7 +2,7 @@
  ******************************************************************************
  * @file       board_hw_defs.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core

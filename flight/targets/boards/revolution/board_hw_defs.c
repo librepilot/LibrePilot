@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file       board_hw_defs.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core

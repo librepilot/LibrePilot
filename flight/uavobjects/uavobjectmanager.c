@@ -67,6 +67,84 @@ static const UAVObjMetadata defMetadata = {
 
 static UAVObjStats stats;
 
+
+static inline bool IsMetaobject(UAVObjHandle obj_handle)
+{
+    /* Recover the common object header */
+    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
+
+    return uavo_base->flags.isMeta;
+}
+
+static inline bool IsSingleInstance(UAVObjHandle obj_handle)
+{
+    /* Recover the common object header */
+    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
+
+    return uavo_base->flags.isSingle;
+}
+
+static inline bool IsSettings(UAVObjHandle obj_handle)
+{
+    /* Recover the common object header */
+    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
+
+    return uavo_base->flags.isSettings;
+}
+
+static inline bool IsPriority(UAVObjHandle obj_handle)
+{
+    /* Recover the common object header */
+    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
+
+    return uavo_base->flags.isPriority;
+}
+
+/**
+ * Is this a metaobject?
+ * \param[in] obj The object handle
+ * \return True (1) if this is metaobject
+ */
+bool UAVObjIsMetaobject(UAVObjHandle obj_handle)
+{
+    PIOS_Assert(obj_handle);
+    return IsMetaobject(obj_handle);
+}
+
+/**
+ * Does this object contains a single instance or multiple instances?
+ * \param[in] obj The object handle
+ * \return True (1) if this is a single instance object
+ */
+bool UAVObjIsSingleInstance(UAVObjHandle obj_handle)
+{
+    PIOS_Assert(obj_handle);
+    return IsSingleInstance(obj_handle);
+}
+
+/**
+ * Is this a settings object?
+ * \param[in] obj The object handle
+ * \return True (1) if this is a settings object
+ */
+bool UAVObjIsSettings(UAVObjHandle obj_handle)
+{
+    PIOS_Assert(obj_handle);
+    return IsSettings(obj_handle);
+}
+
+
+/**
+ * Is this a prioritized object?
+ * \param[in] obj The object handle
+ * \return True (1) if this is a prioritized object
+ */
+bool UAVObjIsPriority(UAVObjHandle obj_handle)
+{
+    return IsPriority(obj_handle);
+}
+
+
 /**
  * Initialize the object manager
  * \return 0 Success
@@ -309,7 +387,7 @@ uint32_t UAVObjGetID(UAVObjHandle obj_handle)
     /* Recover the common object header */
     struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         /* We have a meta object, find our containing UAVO */
         struct UAVOData *uavo_data = container_of((struct UAVOMeta *)uavo_base, struct UAVOData, metaObj);
 
@@ -362,7 +440,7 @@ UAVObjHandle UAVObjGetLinkedObj(UAVObjHandle obj_handle)
     /* Recover the common object header */
     struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         /* We have a meta object, find our containing UAVO. */
         struct UAVOData *uavo_data = container_of((struct UAVOMeta *)uavo_base, struct UAVOData, metaObj);
 
@@ -384,7 +462,7 @@ uint16_t UAVObjGetNumInstances(UAVObjHandle obj_handle)
 {
     PIOS_Assert(obj_handle);
 
-    if (UAVObjIsSingleInstance(obj_handle)) {
+    if (IsSingleInstance(obj_handle)) {
         /* Only one instance is allowed */
         return 1;
     } else {
@@ -405,7 +483,7 @@ uint16_t UAVObjCreateInstance(UAVObjHandle obj_handle,
 {
     PIOS_Assert(obj_handle);
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         return 0;
     }
 
@@ -434,67 +512,6 @@ unlock_exit:
 }
 
 /**
- * Does this object contains a single instance or multiple instances?
- * \param[in] obj The object handle
- * \return True (1) if this is a single instance object
- */
-bool UAVObjIsSingleInstance(UAVObjHandle obj_handle)
-{
-    PIOS_Assert(obj_handle);
-
-    /* Recover the common object header */
-    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
-
-    return uavo_base->flags.isSingle;
-}
-
-/**
- * Is this a metaobject?
- * \param[in] obj The object handle
- * \return True (1) if this is metaobject
- */
-bool UAVObjIsMetaobject(UAVObjHandle obj_handle)
-{
-    PIOS_Assert(obj_handle);
-
-    /* Recover the common object header */
-    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
-
-    return uavo_base->flags.isMeta;
-}
-
-/**
- * Is this a settings object?
- * \param[in] obj The object handle
- * \return True (1) if this is a settings object
- */
-bool UAVObjIsSettings(UAVObjHandle obj_handle)
-{
-    PIOS_Assert(obj_handle);
-
-    /* Recover the common object header */
-    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
-
-    return uavo_base->flags.isSettings;
-}
-
-/**
- * Is this a prioritized object?
- * \param[in] obj The object handle
- * \return True (1) if this is a prioritized object
- */
-bool UAVObjIsPriority(UAVObjHandle obj_handle)
-{
-    PIOS_Assert(obj_handle);
-
-    /* Recover the common object header */
-    struct UAVOBase *uavo_base = (struct UAVOBase *)obj_handle;
-
-    return uavo_base->flags.isPriority;
-}
-
-
-/**
  * Unpack an object from a byte array
  * \param[in] obj The object handle
  * \param[in] instId The instance ID
@@ -510,7 +527,7 @@ int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *da
 
     int32_t rc = -1;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         if (instId != 0) {
             goto unlock_exit;
         }
@@ -561,7 +578,7 @@ int32_t UAVObjPack(UAVObjHandle obj_handle, uint16_t instId, uint8_t *dataOut)
 
     int32_t rc = -1;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         if (instId != 0) {
             goto unlock_exit;
         }
@@ -603,7 +620,7 @@ uint8_t UAVObjUpdateCRC(UAVObjHandle obj_handle, uint16_t instId, uint8_t crc)
     // Lock
     xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         if (instId != 0) {
             goto unlock_exit;
         }
@@ -642,7 +659,7 @@ void UAVObjInstanceWriteToLog(UAVObjHandle obj_handle, uint16_t instId)
     // Lock
     xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         if (instId != 0) {
             goto unlock_exit;
         }
@@ -683,7 +700,7 @@ int32_t UAVObjSaveSettings()
     // Save all settings objects
     UAVO_LIST_ITERATE(obj)
     // Check if this is a settings object
-    if (UAVObjIsSettings(obj)) {
+    if (IsSettings(obj)) {
         // Save object
         if (UAVObjSave((UAVObjHandle)obj, 0) ==
             -1) {
@@ -713,7 +730,7 @@ int32_t UAVObjLoadSettings()
     // Load all settings objects
     UAVO_LIST_ITERATE(obj)
     // Check if this is a settings object
-    if (UAVObjIsSettings(obj)) {
+    if (IsSettings(obj)) {
         // Load object
         if (UAVObjLoad((UAVObjHandle)obj, 0) ==
             -1) {
@@ -743,7 +760,7 @@ int32_t UAVObjDeleteSettings()
     // Save all settings objects
     UAVO_LIST_ITERATE(obj)
     // Check if this is a settings object
-    if (UAVObjIsSettings(obj)) {
+    if (IsSettings(obj)) {
         // Save object
         if (UAVObjDelete((UAVObjHandle)obj, 0)
             == -1) {
@@ -901,7 +918,7 @@ int32_t UAVObjSetInstanceData(UAVObjHandle obj_handle, uint16_t instId,
 
     int32_t rc = -1;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         if (instId != 0) {
             goto unlock_exit;
         }
@@ -951,7 +968,7 @@ int32_t UAVObjSetInstanceDataField(UAVObjHandle obj_handle, uint16_t instId, con
 
     int32_t rc = -1;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         // Get instance information
         if (instId != 0) {
             goto unlock_exit;
@@ -1018,7 +1035,7 @@ int32_t UAVObjGetInstanceData(UAVObjHandle obj_handle, uint16_t instId,
 
     int32_t rc = -1;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         // Get instance information
         if (instId != 0) {
             goto unlock_exit;
@@ -1064,7 +1081,7 @@ int32_t UAVObjGetInstanceDataField(UAVObjHandle obj_handle, uint16_t instId, voi
 
     int32_t rc = -1;
 
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         // Get instance information
         if (instId != 0) {
             goto unlock_exit;
@@ -1117,7 +1134,7 @@ int32_t UAVObjSetMetadata(UAVObjHandle obj_handle, const UAVObjMetadata *dataIn)
     PIOS_Assert(obj_handle);
 
     // Set metadata (metadata of metaobjects can not be modified)
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         return -1;
     }
 
@@ -1143,7 +1160,7 @@ int32_t UAVObjGetMetadata(UAVObjHandle obj_handle, UAVObjMetadata *dataOut)
     xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
 
     // Get metadata
-    if (UAVObjIsMetaobject(obj_handle)) {
+    if (IsMetaobject(obj_handle)) {
         memcpy(dataOut, &defMetadata, sizeof(UAVObjMetadata));
     } else {
         UAVObjGetData((UAVObjHandle)MetaObjectPtr((struct UAVOData *)obj_handle),
@@ -1325,7 +1342,7 @@ void UAVObjSetLoggingUpdateMode(UAVObjMetadata *metadata, UAVObjUpdateMode val)
 int8_t UAVObjReadOnly(UAVObjHandle obj_handle)
 {
     PIOS_Assert(obj_handle);
-    if (!UAVObjIsMetaobject(obj_handle)) {
+    if (!IsMetaobject(obj_handle)) {
         return UAVObjGetAccess(LinkedMetaDataPtr((struct UAVOData *)obj_handle)) == ACCESS_READONLY;
     }
     return -1;
@@ -1557,7 +1574,7 @@ static InstanceHandle createInstance(struct UAVOData *obj, uint16_t instId)
     struct UAVOMultiInst *instEntry;
 
     /* Don't allow more than one instance for single instance objects */
-    if (UAVObjIsSingleInstance(&(obj->base))) {
+    if (IsSingleInstance(&(obj->base))) {
         PIOS_Assert(0);
         return NULL;
     }
@@ -1602,7 +1619,7 @@ static InstanceHandle createInstance(struct UAVOData *obj, uint16_t instId)
  */
 InstanceHandle getInstance(struct UAVOData *obj, uint16_t instId)
 {
-    if (UAVObjIsMetaobject(&obj->base)) {
+    if (IsMetaobject(&obj->base)) {
         /* Metadata Instance */
 
         if (instId != 0) {
@@ -1612,7 +1629,7 @@ InstanceHandle getInstance(struct UAVOData *obj, uint16_t instId)
         /* Augment our pointer to reflect the proper type */
         struct UAVOMeta *uavo_meta = (struct UAVOMeta *)obj;
         return &(uavo_meta->instance0);
-    } else if (UAVObjIsSingleInstance(&(obj->base))) {
+    } else if (IsSingleInstance(&(obj->base))) {
         /* Single Instance */
 
         if (instId != 0) {

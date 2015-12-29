@@ -236,7 +236,7 @@ void UAVObjSetLoggingUpdateMode(UAVObjMetadata *dataOut, UAVObjUpdateMode val);
 int8_t UAVObjReadOnly(UAVObjHandle obj);
 int32_t UAVObjConnectQueue(UAVObjHandle obj_handle, xQueueHandle queue, uint8_t eventMask);
 int32_t UAVObjDisconnectQueue(UAVObjHandle obj_handle, xQueueHandle queue);
-int32_t UAVObjConnectCallback(UAVObjHandle obj_handle, UAVObjEventCallback cb, uint8_t eventMask);
+int32_t UAVObjConnectCallback(UAVObjHandle obj_handle, UAVObjEventCallback cb, uint8_t eventMask, bool fast);
 int32_t UAVObjDisconnectCallback(UAVObjHandle obj_handle, UAVObjEventCallback cb);
 void UAVObjRequestUpdate(UAVObjHandle obj);
 void UAVObjRequestInstanceUpdate(UAVObjHandle obj_handle, uint16_t instId);

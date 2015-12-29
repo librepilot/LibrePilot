@@ -37,7 +37,7 @@
 
 // Private functions
 static InstanceHandle createInstance(struct UAVOData *obj, uint16_t instId);
-static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue, UAVObjEventCallback cb, uint8_t eventMask);
+static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue, UAVObjEventCallback cb, uint8_t eventMask, bool fast);
 static int32_t disconnectObj(UAVObjHandle obj_handle, xQueueHandle queue, UAVObjEventCallback cb);
 static void instanceAutoUpdated(UAVObjHandle obj_handle, uint16_t instId);
 
@@ -1346,7 +1346,7 @@ int32_t UAVObjConnectQueue(UAVObjHandle obj_handle, xQueueHandle queue,
     PIOS_Assert(queue);
     int32_t res;
     xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
-    res = connectObj(obj_handle, queue, 0, eventMask);
+    res = connectObj(obj_handle, queue, 0, eventMask, false);
     xSemaphoreGiveRecursive(mutex);
     return res;
 }
@@ -1377,12 +1377,12 @@ int32_t UAVObjDisconnectQueue(UAVObjHandle obj_handle, xQueueHandle queue)
  * \return 0 if success or -1 if failure
  */
 int32_t UAVObjConnectCallback(UAVObjHandle obj_handle, UAVObjEventCallback cb,
-                              uint8_t eventMask)
+                              uint8_t eventMask, bool fast)
 {
     PIOS_Assert(obj_handle);
     int32_t res;
     xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
-    res = connectObj(obj_handle, 0, cb, eventMask);
+    res = connectObj(obj_handle, 0, cb, eventMask, fast);
     xSemaphoreGiveRecursive(mutex);
     return res;
 }
@@ -1535,8 +1535,10 @@ int32_t sendEvent(struct UAVOBase *obj, uint16_t instId, UAVObjEventType trigger
 
             // Invoke callback (from event task) if a valid one is registered
             if (event->cb) {
-                // invoke callback from the event task, will not block
-                if (EventCallbackDispatch(&msg, event->cb) != pdTRUE) {
+                if (event->fast) {
+                    event->cb(&msg);
+                } else if (EventCallbackDispatch(&msg, event->cb) != pdTRUE) {
+                    // invoke callback from the event task, will not block
                     ++stats.eventCallbackErrors;
                     stats.lastCallbackErrorID = UAVObjGetID(obj);
                 }
@@ -1651,7 +1653,7 @@ InstanceHandle getInstance(struct UAVOData *obj, uint16_t instId)
  * \return 0 if success or -1 if failure
  */
 static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue,
-                          UAVObjEventCallback cb, uint8_t eventMask)
+                          UAVObjEventCallback cb, uint8_t eventMask, bool fast)
 {
     struct ObjectEventEntry *event;
     struct UAVOBase *obj;
@@ -1662,6 +1664,7 @@ static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue,
         if (event->queue == queue && event->cb == cb) {
             // Already connected, update event mask and return
             event->eventMask = eventMask;
+            event->fast = fast;
             return 0;
         }
     }
@@ -1674,6 +1677,7 @@ static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue,
     event->queue     = queue;
     event->cb        = cb;
     event->eventMask = eventMask;
+    event->fast      = fast;
     LL_APPEND(obj->next_event, event);
 
     // Done

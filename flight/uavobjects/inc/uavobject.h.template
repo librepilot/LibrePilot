@@ -76,7 +76,8 @@ static inline int32_t $(NAME)Set(const $(NAME)Data *dataIn) { return UAVObjSetDa
 static inline int32_t $(NAME)InstGet(uint16_t instId, $(NAME)Data *dataOut) { return UAVObjGetInstanceData($(NAME)Handle(), instId, dataOut); }
 static inline int32_t $(NAME)InstSet(uint16_t instId, const $(NAME)Data *dataIn) { return UAVObjSetInstanceData($(NAME)Handle(), instId, dataIn); }
 static inline int32_t $(NAME)ConnectQueue(xQueueHandle queue) { return UAVObjConnectQueue($(NAME)Handle(), queue, EV_MASK_ALL_UPDATES); }
-static inline int32_t $(NAME)ConnectCallback(UAVObjEventCallback cb) { return UAVObjConnectCallback($(NAME)Handle(), cb, EV_MASK_ALL_UPDATES); }
+static inline int32_t $(NAME)ConnectCallback(UAVObjEventCallback cb) { return UAVObjConnectCallback($(NAME)Handle(), cb, EV_MASK_ALL_UPDATES,FALSE); }
+static inline int32_t $(NAME)ConnectCallbackFast(UAVObjEventCallback cb) { return UAVObjConnectCallback($(NAME)Handle(), cb, EV_MASK_ALL_UPDATES, TRUE); }
 static inline uint16_t $(NAME)CreateInstance() { return UAVObjCreateInstance($(NAME)Handle(), &$(NAME)SetDefaults); }
 static inline void $(NAME)RequestUpdate() { UAVObjRequestUpdate($(NAME)Handle()); }
 static inline void $(NAME)RequestInstUpdate(uint16_t instId) { UAVObjRequestInstanceUpdate($(NAME)Handle(), instId); }

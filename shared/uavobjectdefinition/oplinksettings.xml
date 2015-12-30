@@ -1,7 +1,7 @@
 <xml>
 	<object name="OPLinkSettings" singleinstance="true" settings="true" category="System">
 		<description>OPLink configurations options.</description>
-                <field name="Coordinator" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+                <field name="Protocol" units="" type="enum" elements="1" options="OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="OPLinkReceiver"/>
                 <field name="OneWay" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
                 <field name="PPM" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
                 <field name="PPMOnly" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>

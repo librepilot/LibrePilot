@@ -103,6 +103,8 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/mpugyroaccelsettings.xml \
     $${UAVOBJ_XML_DIR}/nedaccel.xml \
     $${UAVOBJ_XML_DIR}/objectpersistence.xml \
+    $${UAVOBJ_XML_DIR}/openlrs.xml \
+    $${UAVOBJ_XML_DIR}/openlrsstatus.xml \
     $${UAVOBJ_XML_DIR}/oplinkreceiver.xml \
     $${UAVOBJ_XML_DIR}/oplinksettings.xml \
     $${UAVOBJ_XML_DIR}/oplinkstatus.xml \
@@ -125,6 +127,7 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/receiverstatus.xml \
     $${UAVOBJ_XML_DIR}/revocalibration.xml \
     $${UAVOBJ_XML_DIR}/revosettings.xml \
+    $${UAVOBJ_XML_DIR}/rfm22breceiver.xml \
     $${UAVOBJ_XML_DIR}/sonaraltitude.xml \
     $${UAVOBJ_XML_DIR}/stabilizationbank.xml \
     $${UAVOBJ_XML_DIR}/stabilizationdesired.xml \

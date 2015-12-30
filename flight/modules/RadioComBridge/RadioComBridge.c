@@ -131,7 +131,7 @@ static int32_t RadioComBridgeStart(void)
         OPLinkSettingsGet(&oplinkSettings);
 
         // Check if this is the coordinator modem
-        data->isCoordinator = (oplinkSettings.Coordinator == OPLINKSETTINGS_COORDINATOR_TRUE);
+        data->isCoordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
 
         // We will not parse/send UAVTalk if any ports are configured as Serial (except for over the USB HID port).
         data->parseUAVTalk  = ((oplinkSettings.MainPort != OPLINKSETTINGS_MAINPORT_SERIAL) &&

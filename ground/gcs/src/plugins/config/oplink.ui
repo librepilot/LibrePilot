@@ -1606,30 +1606,21 @@ The device must be rebooted for the binding to take place.</string>
                </widget>
               </item>
               <item row="1" column="2">
-               <widget class="QCheckBox" name="Coordinator">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
+               <widget class="QComboBox" name="Protocol">
+                <property name="maximumSize">
                  <size>
-                  <width>0</width>
-                  <height>32</height>
+                  <width>16777215</width>
+                  <height>16777215</height>
                  </size>
                 </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
                 <property name="toolTip">
-                 <string>This modem will be a coordinator and other modems will bind to it.</string>
+                 <string>Set the modem protocol</string>
                 </property>
-                <property name="text">
-                 <string>Coordinator</string>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="modelColumn">
+                 <number>0</number>
                 </property>
                </widget>
               </item>

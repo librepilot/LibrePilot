@@ -91,6 +91,8 @@ SRC += $(PIOSCOMMON)/pios_srxl.c
 SRC += $(PIOSCOMMON)/pios_exbus.c
 SRC += $(PIOSCOMMON)/pios_sdcard.c
 SRC += $(PIOSCOMMON)/pios_sensors.c
+SRC += $(PIOSCOMMON)/pios_openlrs.c
+SRC += $(PIOSCOMMON)/pios_openlrs_rcvr.c
 
 ## Misc library functions
 SRC += $(FLIGHTLIB)/sanitycheck.c
@@ -111,6 +113,8 @@ SRC += $(PIOSCOMMON)/pios_com_msg.c
 SRC += $(PIOSCOMMON)/pios_crc.c
 SRC += $(PIOSCOMMON)/pios_deltatime.c
 SRC += $(PIOSCOMMON)/pios_led.c
+SRC += $(PIOSCOMMON)/pios_semaphore.c
+SRC += $(PIOSCOMMON)/pios_thread.c
 
 ifneq ($(PIOS_OMITS_USB),YES)
 ## PIOS USB related files

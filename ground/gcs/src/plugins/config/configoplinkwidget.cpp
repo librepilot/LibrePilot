@@ -75,7 +75,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "MinChannel", m_oplink->MinimumChannel);
     addWidgetBinding("OPLinkSettings", "MaxChannel", m_oplink->MaximumChannel);
     addWidgetBinding("OPLinkSettings", "CoordID", m_oplink->CoordID);
-    addWidgetBinding("OPLinkSettings", "Coordinator", m_oplink->Coordinator);
+    addWidgetBinding("OPLinkSettings", "Protocol", m_oplink->Protocol);
     addWidgetBinding("OPLinkSettings", "OneWay", m_oplink->OneWayLink);
     addWidgetBinding("OPLinkSettings", "PPMOnly", m_oplink->PPMOnly);
     addWidgetBinding("OPLinkSettings", "PPM", m_oplink->PPM);
@@ -105,7 +105,6 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     // Connect the selection changed signals.
     connect(m_oplink->PPMOnly, SIGNAL(toggled(bool)), this, SLOT(ppmOnlyChanged()));
-    connect(m_oplink->Coordinator, SIGNAL(toggled(bool)), this, SLOT(updateCoordID()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
     connect(m_oplink->CustomDeviceID, SIGNAL(editingFinished()), this, SLOT(updateCustomDeviceID()));
@@ -277,7 +276,7 @@ void ConfigOPLinkWidget::updatePPMOptions()
         return;
     }
 
-    bool is_coordinator = m_oplink->Coordinator->isChecked();
+    bool is_coordinator = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKCOORDINATOR);
     bool is_ppm_active  = ((isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_PPM)) ||
                            (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_PPM)));
 
@@ -358,7 +357,7 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
 
 void ConfigOPLinkWidget::updateCoordID()
 {
-    bool is_coordinator    = m_oplink->Coordinator->isChecked();
+    bool is_coordinator    = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKCOORDINATOR);
     bool coordinatorNotSet = (m_oplink->CoordID->text() == "0");
 
     if (settingsUpdated && coordinatorNotSet) {

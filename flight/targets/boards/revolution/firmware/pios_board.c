@@ -35,6 +35,8 @@
 #include <oplinkstatus.h>
 #include <oplinkreceiver.h>
 #include <pios_oplinkrcvr_priv.h>
+#include <pios_openlrs.h>
+#include <pios_openlrs_rcvr_priv.h>
 #include <taskinfo.h>
 #include <pios_ws2811.h>
 #include <auxmagsettings.h>
@@ -810,9 +812,8 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-        {
-            PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
-        }
+        PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+        PIOS_COM_ChangeBaud(pios_com_debug_id, 28800);
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
     case HWSETTINGS_RM_MAINPORT_COMBRIDGE:
@@ -847,62 +848,83 @@ void PIOS_Board_Init(void)
     oplinkStatus.BoardRevision = bdinfo->board_rev;
 
     /* Is the radio turned on? */
-    bool is_coordinator = (oplinkSettings.Coordinator == OPLINKSETTINGS_COORDINATOR_TRUE);
+    bool is_coordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
+    bool openlrs = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPENLRS);
     bool is_oneway = (oplinkSettings.OneWay == OPLINKSETTINGS_ONEWAY_TRUE);
     bool ppm_mode  = (oplinkSettings.PPM == OPLINKSETTINGS_PPM_TRUE);
     bool ppm_only  = (oplinkSettings.PPMOnly == OPLINKSETTINGS_PPMONLY_TRUE);
     if (oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) {
-        /* Configure the RFM22B device. */
-        const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
-        if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg)) {
-            PIOS_Assert(0);
-        }
+        if (openlrs) {
+            
+#if defined(PIOS_INCLUDE_OPENLRS_RCVR)
+            const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(bdinfo->board_rev);
+            uint32_t openlrs_id;
 
-        /* Configure the radio com interface */
-        uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_RX_BUF_LEN);
-        uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_TX_BUF_LEN);
-        PIOS_Assert(rx_buffer);
-        PIOS_Assert(tx_buffer);
-        if (PIOS_COM_Init(&pios_com_rf_id, &pios_rfm22b_com_driver, pios_rfm22b_id,
-                          rx_buffer, PIOS_COM_RFM22B_RF_RX_BUF_LEN,
-                          tx_buffer, PIOS_COM_RFM22B_RF_TX_BUF_LEN)) {
-            PIOS_Assert(0);
-        }
+            PIOS_OpenLRS_Init(&openlrs_id, PIOS_RFM22_SPI_PORT, 0, openlrs_cfg);
+            {
+                uint32_t openlrsrcvr_id;
+                PIOS_OpenLRS_Rcvr_Init(&openlrsrcvr_id, openlrs_id);
+                uint32_t openlrsrcvr_rcvr_id;
+                if (PIOS_RCVR_Init(&openlrsrcvr_rcvr_id, &pios_openlrs_rcvr_driver, openlrsrcvr_id)) {
+                    PIOS_Assert(0);
+                }
+                pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_OPENLRS] = openlrsrcvr_rcvr_id;
+            }
+#endif /* PIOS_INCLUDE_OPENLRS_RCVR */
+            
+        } else {
 
-        oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
+            /* Configure the RFM22B device. */
+            const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
+            if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg)) {
+                PIOS_Assert(0);
+            }
 
-        // Set the RF data rate on the modem to ~2X the selected buad rate because the modem is half duplex.
-        enum rfm22b_datarate datarate = RFM22_datarate_64000;
-        switch (oplinkSettings.ComSpeed) {
-        case OPLINKSETTINGS_COMSPEED_4800:
-            datarate = RFM22_datarate_9600;
-            break;
-        case OPLINKSETTINGS_COMSPEED_9600:
-            datarate = RFM22_datarate_19200;
-            break;
-        case OPLINKSETTINGS_COMSPEED_19200:
-            datarate = RFM22_datarate_32000;
-            break;
-        case OPLINKSETTINGS_COMSPEED_38400:
-            datarate = RFM22_datarate_64000;
-            break;
-        case OPLINKSETTINGS_COMSPEED_57600:
-            datarate = RFM22_datarate_100000;
-            break;
-        case OPLINKSETTINGS_COMSPEED_115200:
-            datarate = RFM22_datarate_192000;
-            break;
-        }
+            /* Configure the radio com interface */
+            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_RX_BUF_LEN);
+            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_TX_BUF_LEN);
+            PIOS_Assert(rx_buffer);
+            PIOS_Assert(tx_buffer);
+            if (PIOS_COM_Init(&pios_com_rf_id, &pios_rfm22b_com_driver, pios_rfm22b_id,
+                              rx_buffer, PIOS_COM_RFM22B_RF_RX_BUF_LEN,
+                              tx_buffer, PIOS_COM_RFM22B_RF_TX_BUF_LEN)) {
+                PIOS_Assert(0);
+            }
+
+            oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
+
+            // Set the RF data rate on the modem to ~2X the selected buad rate because the modem is half duplex.
+            enum rfm22b_datarate datarate = RFM22_datarate_64000;
+            switch (oplinkSettings.ComSpeed) {
+            case OPLINKSETTINGS_COMSPEED_4800:
+                datarate = RFM22_datarate_9600;
+                break;
+            case OPLINKSETTINGS_COMSPEED_9600:
+                datarate = RFM22_datarate_19200;
+                break;
+            case OPLINKSETTINGS_COMSPEED_19200:
+                datarate = RFM22_datarate_32000;
+                break;
+            case OPLINKSETTINGS_COMSPEED_38400:
+                datarate = RFM22_datarate_64000;
+                break;
+            case OPLINKSETTINGS_COMSPEED_57600:
+                datarate = RFM22_datarate_100000;
+                break;
+            case OPLINKSETTINGS_COMSPEED_115200:
+                datarate = RFM22_datarate_192000;
+                break;
+            }
 
         /* Set the radio configuration parameters. */
         PIOS_RFM22B_SetDeviceID(pios_rfm22b_id, oplinkSettings.CustomDeviceID);
         PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
         PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, is_oneway, ppm_mode, ppm_only);
 
-        /* Set the PPM callback if we should be receiving PPM. */
-        if (ppm_mode || (ppm_only && !is_coordinator)) {
-            PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
-        }
+            /* Set the PPM callback if we should be receiving PPM. */
+            if (ppm_mode || (ppm_only && !is_coordinator)) {
+                PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
+            }
 
         /* Set the modem Tx power level */
         switch (oplinkSettings.MaxRFPower) {
@@ -935,8 +957,9 @@ void PIOS_Board_Init(void)
             break;
         }
 
-        /* Reinitialize the modem. */
-        PIOS_RFM22B_Reinit(pios_rfm22b_id);
+            /* Reinitialize the modem. */
+            PIOS_RFM22B_Reinit(pios_rfm22b_id);
+        }
     } else {
         oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
     }
@@ -1103,6 +1126,8 @@ void PIOS_Board_Init(void)
         }
     }
 #endif // PIOS_INCLUDE_ADC
+
+    DEBUG_PRINTF(2, "Board complete\r\n");
 }
 
 /**

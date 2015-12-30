@@ -224,7 +224,7 @@ void PIOS_Board_Init(void)
     // Configure the main port
     OPLinkSettingsData oplinkSettings;
     OPLinkSettingsGet(&oplinkSettings);
-    bool is_coordinator = (oplinkSettings.Coordinator == OPLINKSETTINGS_COORDINATOR_TRUE);
+    bool is_coordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
     bool is_oneway   = (oplinkSettings.OneWay == OPLINKSETTINGS_ONEWAY_TRUE);
     bool ppm_only    = (oplinkSettings.PPMOnly == OPLINKSETTINGS_PPMONLY_TRUE);
     bool ppm_mode    = false;

@@ -99,7 +99,7 @@ static uint8_t isAssistedFlightMode(uint8_t position);
 static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, uint8_t deadband, float dT);
 #endif
 
-#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 18  // Sbus max channel
+#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 18 // Sbus max channel
 #define RCVR_ACTIVITY_MONITOR_MIN_RANGE          15
 struct rcvr_activity_fsm {
     ManualControlSettingsChannelGroupsOptions group;

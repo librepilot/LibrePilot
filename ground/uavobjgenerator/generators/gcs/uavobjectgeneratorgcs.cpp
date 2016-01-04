@@ -627,24 +627,22 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
 
         // field context
         FieldContext fieldCtxt;
-        fieldCtxt.field       = field;
+        fieldCtxt.field      = field;
 
         // field properties
-        fieldCtxt.fieldName   = field->name;
-        fieldCtxt.fieldType   = fieldTypeStrCPP(field->type);
+        fieldCtxt.fieldName  = field->name;
+        fieldCtxt.fieldType  = fieldTypeStrCPP(field->type);
 
-        fieldCtxt.ucPropName  = toPropertyName(field->name);
-        fieldCtxt.propName    = toLowerCamelCase(fieldCtxt.ucPropName);
-        fieldCtxt.propType    = fieldCtxt.fieldType;
+        fieldCtxt.ucPropName = toPropertyName(field->name);
+        fieldCtxt.propName   = toLowerCamelCase(fieldCtxt.ucPropName);
+        fieldCtxt.propType   = fieldCtxt.fieldType;
         if (field->type == FIELDTYPE_INT8) {
             fieldCtxt.propType = fieldTypeStrCPP(FIELDTYPE_INT16);
-        }
-        else if (field->type == FIELDTYPE_UINT8) {
+        } else if (field->type == FIELDTYPE_UINT8) {
             fieldCtxt.propType = fieldTypeStrCPP(FIELDTYPE_UINT16);
-        }
-        else if (field->type == FIELDTYPE_ENUM) {
+        } else if (field->type == FIELDTYPE_ENUM) {
             QString enumClassName = object->name + "_" + fieldCtxt.ucPropName;
-            fieldCtxt.propType    = enumClassName + "::Enum";
+            fieldCtxt.propType = enumClassName + "::Enum";
         }
         // reference type
         fieldCtxt.propRefType = fieldCtxt.propType;

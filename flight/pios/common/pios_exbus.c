@@ -54,6 +54,10 @@
 #define EXBUS_DATA_TELEMETRY 0x3A
 #define EXBUS_DATA_JETIBOX 0x3B
 
+#define EXBUS_LOW_BAUD_RATE 125000
+#define EXBUS_HIGH_BAUD_RATE 250000
+#define EXBUS_BAUD_RATE_LIMIT 64
+
 /* Forward Declarations */
 static int32_t PIOS_EXBUS_Get(uint32_t rcvr_id, uint8_t channel);
 static uint16_t PIOS_EXBUS_RxInCallback(uint32_t context,
@@ -88,7 +92,8 @@ struct pios_exbus_state {
     uint8_t received_data[EXBUS_MAX_FRAME_LENGTH];
     uint8_t receive_timer;
     uint8_t failsafe_timer;
-    uint8_t tx_connected;
+    uint8_t failsafe_count;
+    bool high_baud_rate;
     uint8_t byte_count;
     uint8_t frame_length;
     uint16_t crc;
@@ -97,7 +102,8 @@ struct pios_exbus_state {
 
 struct pios_exbus_dev {
     enum pios_exbus_dev_magic magic;
-    const struct pios_exbus_cfg *cfg;
+    uint32_t com_port_id;
+    const struct pios_com_driver *driver;
     struct pios_exbus_state state;
 };
 
@@ -152,8 +158,9 @@ static void PIOS_EXBUS_ResetState(struct pios_exbus_dev *exbus_dev)
     struct pios_exbus_state *state = &(exbus_dev->state);
     state->receive_timer = 0;
     state->failsafe_timer = 0;
+    state->failsafe_count = 0;
+    state->high_baud_rate = false;
     state->frame_found = false;
-    state->tx_connected = 0;
     PIOS_EXBUS_ResetChannels(exbus_dev);
 }
 
@@ -277,9 +284,11 @@ static void PIOS_EXBUS_UpdateState(struct pios_exbus_dev *exbus_dev, uint8_t byt
             state->frame_length = byte;
         }
         if(state->byte_count == state->frame_length) {
-            if (!PIOS_EXBUS_UnrollChannels(exbus_dev))
+            if (!PIOS_EXBUS_UnrollChannels(exbus_dev)) {
                 /* data looking good */
                 state->failsafe_timer = 0;
+                state->failsafe_count = 0;
+            }
             /* get ready for the next frame */
             state->frame_found = false;
         }
@@ -313,6 +322,9 @@ int32_t PIOS_EXBUS_Init(uint32_t *exbus_id,
     if (!PIOS_RTC_RegisterTickCallback(PIOS_EXBUS_Supervisor, *exbus_id)) {
         PIOS_DEBUG_Assert(0);
     }
+
+    exbus_dev->driver = driver;
+    exbus_dev->com_port_id = lower_id;
 
     return 0;
 }
@@ -368,6 +380,16 @@ static int32_t PIOS_EXBUS_Get(uint32_t rcvr_id, uint8_t channel)
     return exbus_dev->state.channel_data[channel];
 }
 
+static void PIOS_EXBUS_Change_BaudRate(struct pios_exbus_dev *device) {
+    struct pios_exbus_state *state = &(device->state);
+	if (++state->failsafe_count >= EXBUS_BAUD_RATE_LIMIT) {
+		state->high_baud_rate = !state->high_baud_rate;
+		(device->driver->set_baud) (device->com_port_id,
+				state->high_baud_rate ?  EXBUS_HIGH_BAUD_RATE : EXBUS_LOW_BAUD_RATE);
+		state->failsafe_count = 0;
+	}
+}
+
 /**
  * Input data supervisor is called periodically and provides
  * two functions: frame syncing and failsafe triggering.
@@ -401,7 +423,7 @@ static void PIOS_EXBUS_Supervisor(uint32_t exbus_id)
     if (++state->failsafe_timer > 64) {
         PIOS_EXBUS_ResetChannels(exbus_dev);
         state->failsafe_timer = 0;
-        state->tx_connected = 0;
+        PIOS_EXBUS_Change_BaudRate(exbus_dev);
     }
 }
 

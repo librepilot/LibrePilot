@@ -1026,41 +1026,6 @@ static const struct pios_dsm_cfg pios_dsm_flexi_cfg = {
  * EXBUS USART
  */
 #include <pios_exbus_priv.h>
-static const struct pios_usart_cfg pios_usart_exbus_main_cfg = {
-    .regs = USART1,
-    .init = {
-        .USART_BaudRate   = 125000,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART1_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_10,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_IPU,
-        },
-    },
-    .tx                                        = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_9,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_IN_FLOATING,
-        },
-    },
-};
 
 static const struct pios_usart_cfg pios_usart_exbus_flexi_cfg = {
     .regs = USART3,

@@ -251,7 +251,7 @@ extern uint32_t pios_com_hkosd_id;
 // -------------------------
 // Receiver EX.Bus input
 // -------------------------
-#define PIOS_EXBUS_MAX_DEVS           2
+#define PIOS_EXBUS_MAX_DEVS           1
 #define PIOS_EXBUS_NUM_INPUTS         16
 
 // -------------------------

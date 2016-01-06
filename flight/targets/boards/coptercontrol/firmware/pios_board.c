@@ -518,27 +518,6 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_DSM */
         break;
-    case HWSETTINGS_CC_MAINPORT_JETIEXBUS:
-#if defined(PIOS_INCLUDE_EXBUS)
-        {
-            uint32_t pios_usart_exbus_id;
-            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_main_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_id;
-            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_JETIEXBUSMAINPORT] = pios_exbus_rcvr_id;
-        }
-#endif /* PIOS_INCLUDE_EXBUS */
-        break;
     case HWSETTINGS_CC_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_COM)
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)

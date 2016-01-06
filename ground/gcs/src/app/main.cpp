@@ -209,6 +209,11 @@ inline QString msgSendArgumentFailed()
                                        "Unable to send command line arguments to the already running instance. It appears to be not responding.");
 }
 
+inline QString msgLogfileOpenFailed(const QString &fileName)
+{
+    return QCoreApplication::translate("Application", "Failed to open log file %1").arg(fileName);
+}
+
 // Prepare a remote argument: If it is a relative file, add the current directory
 // since the the central instance might be running in a different directory.
 inline QString prepareRemoteArgument(const QString &arg)
@@ -313,7 +318,7 @@ void logInit(QString fileName)
         logStream = new QTextStream(file);
         qInstallMessageHandler(mainMessageOutput);
     } else {
-        // TODO error popup
+        displayError(msgLogfileOpenFailed(fileName));
     }
 }
 
@@ -426,16 +431,19 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
     const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
 
     if (translator.load(QLatin1String("gcs_") + language, creatorTrPath)) {
+        // Install gcs_xx.qm translation file
+        QCoreApplication::installTranslator(&translator);
+
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &qtTrFile = QLatin1String("qt_") + language;
         // Binary installer puts Qt tr files into creatorTrPath
         if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {
-            QCoreApplication::installTranslator(&translator);
+            // Install main qt_xx.qm translation file
             QCoreApplication::installTranslator(&qtTranslator);
-        } else {
-            // unload()
-            translator.load(QString());
         }
+    } else {
+        // unload(), no gcs translation found
+        translator.load(QString());
     }
 }
 } // namespace anonymous

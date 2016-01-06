@@ -9,10 +9,10 @@ equals(copyosg, 1) {
         # copy osg libraries
 
         data_copy.commands += $(MKDIR) $${GCS_LIBRARY_PATH}/osg $$addNewline()
-        exists( $${OSG_SDK_DIR}/lib64 ) {
+        *-64 {
             data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/lib64/)* $$shell_quote($$GCS_LIBRARY_PATH/osg/)
         }
-        else {
+        *-32 {
             data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/lib/)* $$shell_quote($$GCS_LIBRARY_PATH/osg/)
         }
 

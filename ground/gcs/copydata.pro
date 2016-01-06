@@ -28,10 +28,12 @@ equals(copyqt, 1) {
                   libQt5QuickParticles.so.5 \
                   libQt5XcbQpa.so.5 \
                   libQt5X11Extras.so.5 \
-                  libqgsttools_p.so.1 \
                   libicui18n.so.54 \
                   libicuuc.so.54 \
                   libicudata.so.54
+        *-64 {
+            QT_LIBS += libqgsttools_p.so.1
+        }
         for(lib, QT_LIBS) {
             addCopyFileTarget($${lib},$$[QT_INSTALL_LIBS],$${GCS_QT_LIBRARY_PATH})
         }
@@ -43,11 +45,16 @@ equals(copyqt, 1) {
                      imageformats/libqmng.so \
                      imageformats/libqsvg.so \
                      imageformats/libqtiff.so \
-                     mediaservice/libgstaudiodecoder.so \
-                     mediaservice/libgstmediaplayer.so \
                      platforms/libqxcb.so \
                      xcbglintegrations/libqxcb-glx-integration.so \
                      sqldrivers/libqsqlite.so
+        *-32 {
+            QT_PLUGINS += mediaservice/libqtmedia_audioengine.so
+        }
+        *-64 {
+            QT_PLUGINS += mediaservice/libgstaudiodecoder.so \
+                          mediaservice/libgstmediaplayer.so
+        }
     }
 
     win32 {

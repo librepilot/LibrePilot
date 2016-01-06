@@ -912,7 +912,7 @@ QVariant ConfigTaskWidget::getVariantFromWidget(QWidget *widget, WidgetBinding *
     } else if (QSlider * cb = qobject_cast<QSlider *>(widget)) {
         return (double)(cb->value() * scale);
     } else if (QCheckBox * cb = qobject_cast<QCheckBox *>(widget)) {
-        return (QString)(cb->isChecked() ? "TRUE" : "FALSE");
+        return (QString)(cb->isChecked() ? "True" : "False");
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {
         QString value = (QString)cb->displayText();
         if (binding->units() == "hex") {
@@ -955,7 +955,7 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
         cb->setValue((int)qRound(value.toDouble() / scale));
         return true;
     } else if (QCheckBox * cb = qobject_cast<QCheckBox *>(widget)) {
-        bool bvalue = value.toString() == "TRUE";
+        bool bvalue = value.toString() == "True";
         cb->setChecked(bvalue);
         return true;
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {

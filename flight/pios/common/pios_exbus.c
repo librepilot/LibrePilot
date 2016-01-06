@@ -93,10 +93,10 @@ struct pios_exbus_state {
     uint8_t receive_timer;
     uint8_t failsafe_timer;
     uint8_t failsafe_count;
-    bool high_baud_rate;
     uint8_t byte_count;
     uint8_t frame_length;
     uint16_t crc;
+    bool high_baud_rate;
     bool frame_found;
 };
 
@@ -176,7 +176,7 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
     if(state->crc != 0) {
         /* crc failed */
         DEBUG_PRINTF(2, "Jeti CRC error!%d\r\n");
-        goto stream_error;
+        return -1;
     }
 
     enum pios_exbus_frame_state exbus_state = EXBUS_STATE_SYNC;
@@ -193,7 +193,7 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
                 exbus_state = EXBUS_STATE_REQ;
             }
             else {
-                goto stream_error;
+                return -1;
             }
             byte += sizeof(uint8_t);
             break;
@@ -209,8 +209,9 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
             else if(*byte == EXBUS_BYTE_NOREQ) {
                 exbus_state = EXBUS_STATE_LEN;
             }
-            else
-                goto stream_error;
+            else {
+                return -1;
+            }
             byte += sizeof(uint8_t);
             break;
 
@@ -231,8 +232,9 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
             if(*byte == EXBUS_DATA_CHANNEL) {
                 exbus_state = EXBUS_STATE_SUBLEN;
             }
-            else
-                goto stream_error;
+            else {
+                return -1;
+            }
             byte += sizeof(uint8_t);
             break;
 
@@ -251,15 +253,7 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
             break;
         }
     }
-
-    for(; channel < EXBUS_MAX_CHANNELS; channel++) {
-        /* this channel was not received */
-        state->channel_data[channel] = PIOS_RCVR_INVALID;
-    }
     return 0;
-
-stream_error:
-    return -1;
 }
 
 /* Update decoder state processing input byte from the stream */

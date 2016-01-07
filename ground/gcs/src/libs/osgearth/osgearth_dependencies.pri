@@ -1,46 +1,45 @@
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
-OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
-message(Using osg from here: $$OSG_SDK_DIR)
+# set debug suffix if needed
+#win32:CONFIG(debug, debug|release):DS = "d"
 
-INCLUDEPATH += $$OSG_SDK_DIR/include
+contains(QT_ARCH, x86_64)  {
+    LIB_DIR_NAME = lib64
+} else {
+    LIB_DIR_NAME = lib
+}
 
-linux {
-    exists( $$OSG_SDK_DIR/lib64 ) {
-        LIBS += -L$$OSG_SDK_DIR/lib64
-    } else {
-        LIBS += -L$$OSG_SDK_DIR/lib
+osg {
+    OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
+    message(Using osg from here: $$OSG_SDK_DIR)
+
+    INCLUDEPATH += $$OSG_SDK_DIR/include
+
+    linux|macx {
+        LIBS += -L$$OSG_SDK_DIR/$$LIB_DIR_NAME
+        LIBS +=-lOpenThreads -losg -losgUtil -losgDB -losgGA -losgFX -losgViewer -losgText -losgQt
     }
 
-    LIBS +=-lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgFX -losgViewer -losgText
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
-    LIBS += -losgQt -losgEarthQt
+    win32 {
+        LIBS += -L$$OSG_SDK_DIR/lib
+        LIBS += -lOpenThreads$DS -losg$DS -losgUtil$DS -losgDB$DS -losgGA$DS -losgFX$DS -losgViewer$DS -losgText$DS -losgQt$DS
+    }
 }
 
-macx {
-    LIBS += -L$$OSG_SDK_DIR/lib
+osgearth {
+    OSGEARTH_SDK_DIR = $$clean_path($$(OSGEARTH_SDK_DIR))
+    message(Using osgearth from here: $$OSGEARTH_SDK_DIR)
 
-    LIBS += -lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgFX -losgViewer -losgText
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
-    LIBS += -losgQt -losgEarthQt
-}
+    INCLUDEPATH += $$OSGEARTH_SDK_DIR/include
 
-win32 {
-    LIBS += -L$$OSG_SDK_DIR/lib
+    linux|macx {
+        LIBS += -L$$OSGEARTH_SDK_DIR/$$LIB_DIR_NAME
+        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+    }
 
-    #CONFIG(release, debug|release) {
-        LIBS += -lOpenThreads
-        LIBS += -losg -losgUtil -losgDB -losgGA -losgFX -losgViewer -losgText
-        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
-        LIBS += -losgQt -losgEarthQt
-    #}
-    #CONFIG(debug, debug|release) {
-    #    LIBS += -lOpenThreadsd
-    #    LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgFXd -losgViewerd -losgTextd
-    #    LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd
-    #    LIBS += -losgQtd -losgEarthQtd
-    #}
+    win32 {
+        LIBS += -L$$OSGEARTH_SDK_DIR/lib
+        LIBS += -losgEarth$DS -losgEarthUtil$DS -losgEarthFeatures$DS -losgEarthSymbology$DS -losgEarthAnnotation$DS -losgEarthQt$DS
+    }
 }

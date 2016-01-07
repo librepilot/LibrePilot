@@ -147,11 +147,7 @@ include $(ROOT_DIR)/make/tools.mk
 
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
-    ifeq ($(ARCH), x86_64)
-        QT_SPEC := linux-g++-64
-    else
-        QT_SPEC := linux-g++-32
-    endif
+    QT_SPEC := linux-g++
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
 else ifeq ($(UNAME), Darwin)
     QT_SPEC := macx-g++

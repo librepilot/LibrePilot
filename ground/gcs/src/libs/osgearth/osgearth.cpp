@@ -38,11 +38,13 @@
 #include <osg/Notify>
 #include <osgDB/Registry>
 
+#ifdef USE_OSGEARTH
 #include <osgEarth/Version>
 #include <osgEarth/Cache>
 #include <osgEarth/Capabilities>
 #include <osgEarth/Registry>
 #include <osgEarthDrivers/cache_filesystem/FileSystemCache>
+#endif
 
 #include <QDebug>
 
@@ -107,7 +109,7 @@ void OsgEarth::initialize()
     // force early initialization of osgEarth capabilities
     // Doing this too early (before main window is displayed) causes rendering glitches (black holes)
     // Not sure why... See OSGViewport for when it is called (late...)
-    osgEarth::Registry::capabilities();
+    // osgEarth::Registry::capabilities();
 
     displayInfo();
 }
@@ -127,6 +129,7 @@ void OsgEarth::initializePathes()
 
 void OsgEarth::initializeCache()
 {
+#ifdef USE_OSGEARTH
     QString cachePath = Utils::GetStoragePath() + "osgearth/cache";
 
     osgEarth::Drivers::FileSystemCacheOptions cacheOptions;
@@ -148,12 +151,15 @@ void OsgEarth::initializeCache()
     } else {
         qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }
+#endif // ifdef USE_OSGEARTH
 }
 
 void OsgEarth::displayInfo()
 {
     qDebug() << "Using osg version :" << osgGetVersion();
+#ifdef USE_OSGEARTH
     qDebug() << "Using osgEarth version :" << osgEarthGetVersion();
+#endif
 
     // library file path list
     osgDB::FilePathList &libraryFilePathList = osgDB::Registry::instance()->getLibraryFilePathList();
@@ -181,7 +187,9 @@ void OsgEarth::displayInfo()
     qDebug() << "Platform supports threaded OpenGL:" << threadedOpenGL;
 #endif
 
+#ifdef USE_OSGEARTH
     osgQtQuick::capabilitiesInfo(osgEarth::Registry::capabilities());
+#endif
 }
 
 void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)

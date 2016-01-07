@@ -41,10 +41,10 @@
 
 #include <osgViewer/View>
 
-#include <osgEarth/GeoData>
-#include <osgEarth/SpatialReference>
+#ifdef USE_OSGEARTH
 #include <osgEarthUtil/EarthManipulator>
 #include <osgEarthUtil/LogarithmicDepthBuffer>
+#endif
 
 #include <QDebug>
 #include <QThread>
@@ -69,7 +69,7 @@ public:
     Hidden(OSGCamera *parent) :
         QObject(parent), sceneData(NULL), manipulatorMode(ManipulatorMode::Default), node(NULL),
         trackerMode(TrackerMode::NodeCenterAndAzim), trackNode(NULL),
-        logDepthBufferEnabled(false), logDepthBuffer(NULL), clampToTerrain(false)
+        logDepthBufferEnabled(false), clampToTerrain(false)
     {
         fieldOfView = 90.0;
 
@@ -77,14 +77,20 @@ public:
 
         dirty    = false;
         fovDirty = false;
+
+#ifdef USE_OSGEARTH
+        logDepthBuffer = NULL;
+#endif
     }
 
     ~Hidden()
     {
+#ifdef USE_OSGEARTH
         if (logDepthBuffer) {
             delete logDepthBuffer;
             logDepthBuffer = NULL;
         }
+#endif
     }
 
     bool acceptSceneData(OSGNode *node)
@@ -185,6 +191,7 @@ public:
         cameraUpdateCallback = new CameraUpdateCallback(this);
         camera->addUpdateCallback(cameraUpdateCallback);
 
+#ifdef USE_OSGEARTH
         // install log depth buffer if requested
         if (logDepthBufferEnabled) {
             qDebug() << "OSGCamera::attach - install logarithmic depth buffer";
@@ -192,6 +199,7 @@ public:
             logDepthBuffer->setUseFragDepth(true);
             logDepthBuffer->install(camera);
         }
+#endif
 
         dirty    = true;
         fovDirty = true;
@@ -214,11 +222,13 @@ public:
             cameraUpdateCallback = NULL;
         }
 
+#ifdef USE_OSGEARTH
         if (logDepthBuffer) {
             logDepthBuffer->uninstall(camera);
             delete logDepthBuffer;
             logDepthBuffer = NULL;
         }
+#endif
     }
 
     void attachManipulator(osgViewer::View *view)
@@ -247,10 +257,12 @@ public:
             break;
         case ManipulatorMode::Earth:
         {
+#ifdef USE_OSGEARTH
             qDebug() << "OSGCamera::attachManipulator - use EarthManipulator";
             osgEarth::Util::EarthManipulator *em = new osgEarth::Util::EarthManipulator();
             em->getSettings()->setThrowingEnabled(true);
             cm = em;
+#endif
             break;
         }
         case ManipulatorMode::Track:
@@ -354,6 +366,9 @@ public:
         // TODO compensate antenna height when source of position is GPS (i.e. subtract antenna height from altitude) ;)
 
         // Camera position
+        osg::Matrix cameraPosition;
+
+#ifdef USE_OSGEARTH
         osgEarth::GeoPoint geoPoint = osgQtQuick::toGeoPoint(position);
         if (clampToTerrain) {
             if (sceneData) {
@@ -366,8 +381,8 @@ public:
             }
         }
 
-        osg::Matrix cameraPosition;
         geoPoint.createLocalToWorld(cameraPosition);
+#endif
 
         // Camera orientation
         // By default the camera looks toward -Z, we must rotate it so it looks toward Y
@@ -399,18 +414,20 @@ public:
 
     // for NodeTrackerManipulator
     TrackerMode::Enum trackerMode;
-    OSGNode   *trackNode;
+    OSGNode *trackNode;
 
-    bool      logDepthBufferEnabled;
+    bool    logDepthBufferEnabled;
+#ifdef USE_OSGEARTH
     osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
+#endif
 
-    bool      first;
+    bool first;
 
     // for User manipulator
-    bool      dirty;
+    bool dirty;
 
-    bool      clampToTerrain;
-    bool      intoTerrain;
+    bool clampToTerrain;
+    bool intoTerrain;
 
     QVector3D attitude;
     QVector3D position;

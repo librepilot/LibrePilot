@@ -33,8 +33,6 @@
 #include <osg/NodeVisitor>
 #include <osg/GraphicsContext>
 
-#include <osgEarth/GeoData>
-
 #include <QtGlobal>
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
@@ -59,10 +57,13 @@ class Text;
 class Font;
 } // namespace osgText
 
+#ifdef USE_OSGEARTH
 namespace osgEarth {
 class Capabilities;
+class GeoPoint;
 class MapNode;
 } // namespace osgEarth
+#endif
 
 QT_BEGIN_NAMESPACE
 class QFont;
@@ -129,15 +130,11 @@ osgText::Text *createText(const osg::Vec3 &pos,
                           float size,
                           osgText::Font *font = 0);
 
-osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
-bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode);
-
 QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits);
 void formatToTraits(const QSurfaceFormat & format, osg::GraphicsContext::Traits *traits);
 
 void formatInfo(const QSurfaceFormat & format);
 void traitsInfo(const osg::GraphicsContext::Traits & traits);
-void capabilitiesInfo(const osgEarth::Capabilities & caps);
 void openGLContextInfo(QOpenGLContext *context, const char *at);
 
 QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile);
@@ -145,6 +142,12 @@ QString formatSwapBehaviorName(QSurfaceFormat::SwapBehavior swapBehavior);
 
 QString getUsageString(osgViewer::Viewer *viewer);
 QString getUsageString(osgViewer::CompositeViewer *viewer);
+
+#ifdef USE_OSGEARTH
+osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
+bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode);
+void capabilitiesInfo(const osgEarth::Capabilities & caps);
+#endif
 
 void registerTypes();
 } // namespace osgQtQuick

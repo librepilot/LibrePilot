@@ -246,9 +246,7 @@ endif
 OSGEARTH_NAME := $(OSG_NAME_PREFIX)$(OSGEARTH_NAME)$(OSG_NAME_SUFIX)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
 OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
-# osgearth will be installed into osg (there is an official option to do that but it seems broken on mingw)
-#OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
-OSGEARTH_INSTALL_DIR := $(OSG_INSTALL_DIR)
+OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
 OSGEARTH_PATCH_FILE  := $(ROOT_DIR)/make/3rdparty/osgearth/osgearth-$(OSGEARTH_VERSION).patch
 
 .PHONY: osgearth
@@ -326,7 +324,7 @@ clean_all_osgearth: clean_osgearth
 .PHONY: all_osg
 
 ifeq ($(UNAME), Windows)
-all_osg: prepare_osg prepare_osgearth osg osgearth install_win_osg package_osg
+all_osg: prepare_osg prepare_osgearth osg osgearth install_win_osg package_osg package_osgearth
 else
-all_osg: prepare_osg prepare_osgearth osg osgearth package_osg
+all_osg: prepare_osg prepare_osgearth osg osgearth package_osg package_osgearth
 endif

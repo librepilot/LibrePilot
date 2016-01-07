@@ -92,11 +92,13 @@ ifeq ($(UNAME), Linux)
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x64-5.5.1.run.md5
         QT_SDK_ARCH    := gcc_64
         OSG_URL        := http://librepilot.github.io/tools/osg-3.4-linux-x64-qt-5.5.1.tar.gz
+        OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-linux-x64-qt-5.5.1.tar.gz
     else
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x86-5.5.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x86-5.5.1.run.md5
         QT_SDK_ARCH    := gcc
         OSG_URL        := http://librepilot.github.io/tools/osg-3.4-linux-x86-qt-5.5.1.tar.gz
+        OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-linux-x86-qt-5.5.1.tar.gz
     endif
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
@@ -109,6 +111,7 @@ else ifeq ($(UNAME), Darwin)
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
     OSG_URL        := http://librepilot.github.io/tools/osg-3.4-clang_64-qt-5.5.1.tar.gz
+    OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-clang_64-qt-5.5.1.tar.gz
 else ifeq ($(UNAME), Windows)
     QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe.md5
@@ -123,6 +126,7 @@ else ifeq ($(UNAME), Windows)
     CMAKE_MD5_URL  := http://librepilot.github.io/tools/cmake-2.8.12.2-win32-x86.zip.md5
     MSYS_URL       := http://librepilot.github.io/tools/MSYS-1.0.11.zip
     OSG_URL        := http://librepilot.github.io/tools/osg-3.4-mingw492_32-qt-5.5.1.tar.gz
+    OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-mingw492_32-qt-5.5.1.tar.gz
 endif
 
 GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
@@ -138,12 +142,15 @@ OSG_TOOLS_DIR  := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-linux-x64-qt-5.5.1
+        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-linux-x64-qt-5.5.1
+        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x64-qt-5.5.1
     else
-        OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-linux-x86-qt-5.5.1
+        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-linux-x86-qt-5.5.1
+        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x86-qt-5.5.1
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR := $(OSG_TOOLS_DIR)/osg-3.4-clang_64-qt-5.5.1
+    OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-clang_64-qt-5.5.1
+    OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-5.5.1
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
@@ -156,6 +163,7 @@ else ifeq ($(UNAME), Windows)
     CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
     MSYS_DIR     := $(TOOLS_DIR)/msys
     OSG_SDK_DIR  := $(OSG_TOOLS_DIR)/osg-3.4-mingw492_32-qt-5.5.1
+    OSGEARTH_SDK_DIR  := $(OSG_TOOLS_DIR)/osgearth-2.7-mingw492_32-qt-5.5.1
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -168,7 +176,7 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 
 BUILD_SDK_TARGETS := arm_sdk qt_sdk osg
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += sdl nsis mesawin openssl ccache
+    BUILD_SDK_TARGETS += sdl osgearth nsis mesawin openssl ccache
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
 
@@ -915,7 +923,25 @@ endif
 .PHONY: osg_version
 osg_version:
 	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgversion`"
-	-$(V1) $(ECHO) "`$(OSG_SDK_DIR)/bin/osgearth_version`"
+
+##############################
+#
+# osgearth
+#
+##############################
+
+$(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_SDK_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+
+ifeq ($(shell [ -d "$(OSGEARTH_SDK_DIR)" ] && $(ECHO) "exists"), exists)
+    export OSGEARTH_SDK_DIR := $(OSGEARTH_SDK_DIR)
+else
+    # not installed, hope it's in the path...
+    $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_SDK_DIR)) not found (make osgearth_install), using system PATH)
+endif
+
+.PHONY: osgearth_version
+osgearth_version:
+	-$(V1) $(ECHO) "`$(OSGEARTH_SDK_DIR)/bin/osgearth_version`"
 
 ##############################
 #

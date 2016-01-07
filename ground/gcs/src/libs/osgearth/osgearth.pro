@@ -2,6 +2,16 @@ TEMPLATE = lib
 TARGET = GCSOsgEarth
 DEFINES += OSGEARTH_LIBRARY
 
+OSG_VERSION = 3.4.0
+
+CONFIG += osg
+DEFINES += USE_OSG
+
+exists( $(OSGEARTH_SDK_DIR) ) {
+    CONFIG += osgearth
+    DEFINES += USE_OSGEARTH
+}
+
 #DEFINES += OSG_USE_QT_PRIVATE
 
 QT += widgets opengl qml quick
@@ -44,9 +54,7 @@ HEADERS += \
     osgQtQuick/OSGCubeNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
-    osgQtQuick/OSGModelNode.hpp \
     osgQtQuick/OSGBackgroundNode.hpp \
-    osgQtQuick/OSGSkyNode.hpp \
     osgQtQuick/OSGCamera.hpp \
     osgQtQuick/OSGViewport.hpp
 
@@ -57,10 +65,16 @@ SOURCES += \
     osgQtQuick/OSGCubeNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
-    osgQtQuick/OSGModelNode.cpp \
     osgQtQuick/OSGBackgroundNode.cpp \
-    osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
+
+osgearth:HEADERS += \
+    osgQtQuick/OSGModelNode.hpp \
+    osgQtQuick/OSGSkyNode.hpp
+
+osgearth:SOURCES += \
+    osgQtQuick/OSGModelNode.cpp \
+    osgQtQuick/OSGSkyNode.cpp
 
 include(copydata.pro)

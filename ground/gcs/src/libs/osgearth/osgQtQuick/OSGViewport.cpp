@@ -42,7 +42,9 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/StateSetManipulator>
 
+#ifdef USE_OSGEARTH
 #include <osgEarth/MapNode>
+#endif
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -184,6 +186,7 @@ public:
             return true;
         }
 
+#ifdef USE_OSGEARTH
         // TODO map handling should not be done here
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
         if (mapNode) {
@@ -193,6 +196,7 @@ public:
             // scene will get light from sky
             view->setLightingMode(osg::View::NO_LIGHT);
         }
+#endif
 
         view->setSceneData(node);
 
@@ -475,7 +479,6 @@ public:
     {
         qDebug() << "ViewportRenderer::~ViewportRenderer";
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
-
     }
 
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.

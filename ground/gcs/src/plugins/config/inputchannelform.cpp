@@ -161,7 +161,6 @@ void InputChannelForm::groupUpdated()
     case ManualControlSettings::CHANNELGROUPS_SRXL:
         count = 16;
         break;
-    case ManualControlSettings::CHANNELGROUPS_HOTTMAINPORT:
     case ManualControlSettings::CHANNELGROUPS_HOTTFLEXIPORT:
         count = 32;
         break;

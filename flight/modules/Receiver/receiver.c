@@ -655,9 +655,6 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_DSMFLEXIPORT;
                 break;
-            case MANUALCONTROLSETTINGS_CHANNELGROUPS_JETIEXBUSMAINPORT:
-                group = RECEIVERACTIVITY_ACTIVEGROUP_JETIEXBUSMAINPORT;
-                break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_JETIEXBUSFLEXIPORT:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_JETIEXBUSFLEXIPORT;
                 break;

@@ -238,13 +238,13 @@ static bool erase_flash(uint32_t startAddress, uint32_t endAddress)
             PIOS_Assert(0);
         }
         for (int retry = 0; retry < MAX_DEL_RETRYS; ++retry) {
-            //if erasing area contain whole bank2 area, using bank erase
-            //bank2: sector 12 to sector 23
+            // if erasing area contain whole bank2 area, using bank erase
+            // bank2: sector 12 to sector 23
             if (sector_start == flash_sectors[12].start &&
-                endAddress >= (flash_sectors[23].start + flash_sectors[23].size)){
+                endAddress >= (flash_sectors[23].start + flash_sectors[23].size)) {
                 if (FLASH_EraseAllBank2Sectors(VoltageRange_3) == FLASH_COMPLETE) {
                     fail = false;
-                    //using bank2 total size substitute sector_size
+                    // using bank2 total size substitute sector_size
                     sector_size = flash_sectors[23].start - flash_sectors[12].start + flash_sectors[23].size;
                     break;
                 } else {

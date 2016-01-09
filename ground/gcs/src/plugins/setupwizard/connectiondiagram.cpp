@@ -204,6 +204,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::INPUT_HOTT:
             elementsToShow << QString("%1hott").arg(prefix);
             break;
+        case VehicleConfigurationSource::INPUT_EXBUS:
+            elementsToShow << QString("%1exbus").arg(prefix);
+            break;
         default:
             break;
         }

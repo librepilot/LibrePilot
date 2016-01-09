@@ -58,5 +58,7 @@
         <file>resources/bttn-srxl-up.png</file>
         <file>resources/bttn-hott-down.png</file>
         <file>resources/bttn-hott-up.png</file>
+        <file>resources/bttn-exbus-down.png</file>
+        <file>resources/bttn-exbus-up.png</file>
     </qresource>
 </RCC>

@@ -261,7 +261,7 @@ extern uint32_t pios_packet_handler;
 //-------------------------
 // Receiver HSUM input
 //-------------------------
-#define PIOS_HOTT_MAX_DEVS			2
+#define PIOS_HOTT_MAX_DEVS			1
 #define PIOS_HOTT_NUM_INPUTS		32
 
 // -------------------------

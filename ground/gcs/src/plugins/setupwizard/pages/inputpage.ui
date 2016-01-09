@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>738</width>
+    <width>753</width>
     <height>494</height>
    </rect>
   </property>
@@ -50,9 +50,9 @@ p, li { white-space: pre-wrap; }
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>2</number>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="bottomMargin">
+      <number>20</number>
      </property>
      <item>
       <widget class="QToolButton" name="pwmButton">
@@ -139,6 +139,13 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
      <item>
       <widget class="QToolButton" name="sbusButton">
        <property name="font">

@@ -255,6 +255,12 @@ extern uint32_t pios_com_hkosd_id;
 #define PIOS_HOTT_NUM_INPUTS		32
 
 // -------------------------
+// Receiver EX.Bus input
+// -------------------------
+#define PIOS_EXBUS_MAX_DEVS           1
+#define PIOS_EXBUS_NUM_INPUTS         16
+
+// -------------------------
 // Receiver Multiplex SRXL input
 // -------------------------
 #define PIOS_SRXL_MAX_DEVS           1

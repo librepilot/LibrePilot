@@ -500,6 +500,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_FLEXIPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
+            
     case HWSETTINGS_RM_FLEXIPORT_SRXL:
 #if defined(PIOS_INCLUDE_SRXL)
         {
@@ -519,8 +520,9 @@ void PIOS_Board_Init(void)
             }
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
         }
-#endif
+#endif /* PIOS_INCLUDE_SRXL */
         break;
+
     case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
     case HWSETTINGS_RM_FLEXIPORT_HOTTSUMH:
 #if defined(PIOS_INCLUDE_HOTT)
@@ -543,6 +545,28 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
         }
 #endif /* PIOS_INCLUDE_HOTT */
+        break;
+
+    case HWSETTINGS_RM_FLEXIPORT_EXBUS:
+#if defined(PIOS_INCLUDE_EXBUS)
+        {
+            uint32_t pios_usart_exbus_id;
+            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_exbus_id;
+            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_exbus_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_EXBUS */
         break;
 
     } /* hwsettings_rm_flexiport */

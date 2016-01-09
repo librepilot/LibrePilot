@@ -245,8 +245,22 @@ void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *o)
 
     updateThrottleCurveFromObject();
 
-    ui->basicResponsivenessCheckBox->setChecked(ui->rateRollKp_3->value() == ui->ratePitchKp_4->value() &&
-                                                ui->rateRollKi_3->value() == ui->ratePitchKi_4->value());
+    // Check and update basic/advanced checkboxes only if something connected
+    // Jump to advanced tab if something not "basic": Rate value out of slider limits or different Pitch/Roll values
+    if (ui->lowThrottleZeroIntegral_8->isEnabled()) {
+        if ((ui->attitudeRollResponse->value() == ui->attitudePitchResponse->value()) &&
+            (ui->rateRollResponse->value() == ui->ratePitchResponse->value()) &&
+            (ui->rateRollResponse->value() <= ui->RateResponsivenessSlider->maximum()) &&
+            (ui->ratePitchResponse->value() <= ui->RateResponsivenessSlider->maximum())) {
+            ui->basicResponsivenessCheckBox->setChecked(true);
+            ui->advancedResponsivenessCheckBox->setChecked(false);
+            ui->tabWidget->setCurrentIndex(0);
+        } else {
+            ui->basicResponsivenessCheckBox->setChecked(false);
+            ui->advancedResponsivenessCheckBox->setChecked(true);
+            ui->tabWidget->setCurrentIndex(1);
+        }
+    }
 }
 
 void ConfigStabilizationWidget::updateObjectsFromWidgets()
@@ -611,9 +625,11 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
 
     if (ui->basicResponsivenessCheckBox->isChecked()) {
         if (widget == ui->AttitudeResponsivenessSlider) {
-            ui->ratePitchKp_4->setValue(ui->AttitudeResponsivenessSlider->value());
+            ui->attitudePitchResponse->setValue(ui->AttitudeResponsivenessSlider->value());
+            ui->attitudeRollResponse->setValue(ui->AttitudeResponsivenessSlider->value());
         } else if (widget == ui->RateResponsivenessSlider) {
-            ui->ratePitchKi_4->setValue(ui->RateResponsivenessSlider->value());
+            ui->ratePitchResponse->setValue(ui->RateResponsivenessSlider->value());
+            ui->rateRollResponse->setValue(ui->RateResponsivenessSlider->value());
         }
     }
     if (ui->checkBoxLinkAcroFactors->isChecked()) {

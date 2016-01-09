@@ -520,7 +520,7 @@ void PIOS_Board_Init(void)
         }
 #endif
         break;
-    case HWSETTINGS_RM_FLEXIPORT_JETIEXBUS:
+    case HWSETTINGS_RM_FLEXIPORT_EXBUS:
 #if defined(PIOS_INCLUDE_EXBUS)
         {
             uint32_t pios_usart_exbus_id;
@@ -537,7 +537,7 @@ void PIOS_Board_Init(void)
             if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
                 PIOS_Assert(0);
             }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_JETIEXBUSFLEXIPORT] = pios_exbus_rcvr_id;
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
         }
 #endif /* PIOS_INCLUDE_EXBUS */
         break;
@@ -717,27 +717,6 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS] = pios_sbus_rcvr_id;
         }
 #endif
-        break;
-    case HWSETTINGS_RM_MAINPORT_JETIEXBUS:
-#if defined(PIOS_INCLUDE_EXBUS)
-        {
-            uint32_t pios_usart_exbus_id;
-            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_main_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_id;
-            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_JETIEXBUSMAINPORT] = pios_exbus_rcvr_id;
-        }
-#endif /* PIOS_INCLUDE_EXBUS */
         break;
     case HWSETTINGS_RM_MAINPORT_DSM:
         // Force binding to zero on the main port

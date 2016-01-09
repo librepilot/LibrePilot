@@ -1,6 +1,7 @@
 /**
  ******************************************************************************
  * @file       pios.h
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2015
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013
  * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @brief      Main PiOS header.
@@ -226,6 +227,10 @@ extern "C" {
 
 #ifdef PIOS_INCLUDE_SBUS
 #include <pios_sbus.h>
+#endif
+
+#ifdef PIOS_INCLUDE_HOTT
+#include <pios_hott.h>
 #endif
 
 #ifdef PIOS_INCLUDE_SRXL

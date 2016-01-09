@@ -5,7 +5,8 @@
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
  * @file       pios_board.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Defines board hardware for the OpenPilot Version 1.1 hardware.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -256,6 +257,18 @@ extern uint32_t pios_packet_handler;
 // -------------------------
 #define PIOS_SBUS_MAX_DEVS           1
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
+
+//-------------------------
+// Receiver HSUM input
+//-------------------------
+#define PIOS_HOTT_MAX_DEVS			1
+#define PIOS_HOTT_NUM_INPUTS		32
+
+// -------------------------
+// Receiver EX.Bus input
+// -------------------------
+#define PIOS_EXBUS_MAX_DEVS           1
+#define PIOS_EXBUS_NUM_INPUTS         16
 
 // -------------------------
 // Receiver Multiplex SRXL input

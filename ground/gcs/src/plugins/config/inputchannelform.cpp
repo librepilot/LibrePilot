@@ -151,14 +151,14 @@ void InputChannelForm::groupUpdated()
     case ManualControlSettings::CHANNELGROUPS_DSMFLEXIPORT:
         count = 12;
         break;
+    case ManualControlSettings::CHANNELGROUPS_SRXL:
+    case ManualControlSettings::CHANNELGROUPS_EXBUS:
+        count = 16;
+        break;
     case ManualControlSettings::CHANNELGROUPS_SBUS:
         count = 18;
         break;
-    case ManualControlSettings::CHANNELGROUPS_SRXL:
-        count = 16;
-        break;
-    case ManualControlSettings::CHANNELGROUPS_HOTTMAINPORT:
-    case ManualControlSettings::CHANNELGROUPS_HOTTFLEXIPORT:
+    case ManualControlSettings::CHANNELGROUPS_HOTT:
         count = 32;
         break;
     case ManualControlSettings::CHANNELGROUPS_GCS:

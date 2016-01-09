@@ -114,8 +114,8 @@ typedef struct {
 #endif /* PIOS_TELEM_PRIORITY_QUEUE */
 
     // Transmit/receive task handles
-    xTaskHandle  txTaskHandle;
-    xTaskHandle  rxTaskHandle;
+    xTaskHandle txTaskHandle;
+    xTaskHandle rxTaskHandle;
     // Telemetry stream
     UAVTalkConnection uavTalkCon;
 } channelContext;
@@ -170,7 +170,6 @@ static void gcsTelemetryStatsUpdated();
  */
 int32_t TelemetryStart(void)
 {
-
 #ifdef HAS_RADIO
     // Only start the local telemetry tasks if needed
     if (localPort()) {
@@ -623,7 +622,6 @@ static void telemetryTxTask(void *parameters)
             processObjEvent(channel, &ev);
         }
 #endif /* PIOS_TELEM_PRIORITY_QUEUE */
-
     }
 }
 

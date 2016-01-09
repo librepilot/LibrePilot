@@ -99,7 +99,7 @@ static uint8_t isAssistedFlightMode(uint8_t position);
 static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, uint8_t deadband, float dT);
 #endif
 
-#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 18  // Sbus max channel
+#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 18 // Sbus max channel
 #define RCVR_ACTIVITY_MONITOR_MIN_RANGE          15
 struct rcvr_activity_fsm {
     ManualControlSettingsChannelGroupsOptions group;
@@ -655,14 +655,14 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_DSMFLEXIPORT;
                 break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_EXBUS;
+                break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_SBUS;
                 break;
-            case MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTTMAINPORT:
-                group = RECEIVERACTIVITY_ACTIVEGROUP_HOTTMAINPORT;
-                break;
-            case MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTTFLEXIPORT:
-                group = RECEIVERACTIVITY_ACTIVEGROUP_HOTTFLEXIPORT;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_HOTT;
                 break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_SRXL;

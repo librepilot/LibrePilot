@@ -36,7 +36,7 @@ equals(copyosg, 1) {
 
     win32 {
         # set debug suffix if needed
-        CONFIG(debug, debug|release):DS = "d"
+        #CONFIG(debug, debug|release):DS = "d"
 
         # copy osg libraries
         OSG_LIBS = \

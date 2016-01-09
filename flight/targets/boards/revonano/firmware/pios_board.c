@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  * @file       pios_board.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
- * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core
@@ -605,30 +606,6 @@ void PIOS_Board_Init(void)
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
     }
     break;
-    case HWSETTINGS_RM_MAINPORT_HOTTSUMD:
-    case HWSETTINGS_RM_MAINPORT_HOTTSUMH:
-#if defined(PIOS_INCLUDE_HOTT)
-        {
-            uint32_t pios_usart_hott_id;
-            if (PIOS_USART_Init(&pios_usart_hott_id, &pios_usart_hott_main_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_hott_id;
-            if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
-            		hwsettings_mainport == HWSETTINGS_RM_MAINPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_hott_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTTMAINPORT] = pios_hott_rcvr_id;
-        }
-#endif /* PIOS_INCLUDE_HOTT */
-        break;
-
     case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
@@ -738,6 +715,7 @@ void PIOS_Board_Init(void)
         }
 #endif
         break;
+
     case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
     case HWSETTINGS_RM_FLEXIPORT_HOTTSUMH:
 #if defined(PIOS_INCLUDE_HOTT)
@@ -757,10 +735,33 @@ void PIOS_Board_Init(void)
             if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
                 PIOS_Assert(0);
             }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTTFLEXIPORT] = pios_hott_rcvr_id;
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
         }
 #endif /* PIOS_INCLUDE_HOTT */
         break;
+
+    case HWSETTINGS_RM_FLEXIPORT_EXBUS:
+#if defined(PIOS_INCLUDE_EXBUS)
+        {
+            uint32_t pios_usart_exbus_id;
+            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_exbus_id;
+            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_exbus_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_EXBUS */
+        break;
+
     } /* hwsettings_rm_flexiport */
 
 

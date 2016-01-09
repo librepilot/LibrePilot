@@ -230,9 +230,9 @@ void ConfigMultiRotorWidget::setupUI(QString frameType)
         setComboCurrentIndex(m_aircraft->multirotorFrameType,
                              m_aircraft->multirotorFrameType->findText("Hexacopter Y6"));
 
-        m_aircraft->mrRollMixLevel->setValue(100);
-        m_aircraft->mrPitchMixLevel->setValue(50);
-        setYawMixLevel(66);
+        m_aircraft->mrRollMixLevel->setValue(86);
+        m_aircraft->mrPitchMixLevel->setValue(100);
+        setYawMixLevel(100);
     } else if (frameType == "Octo" || frameType == "Octocopter") {
         setComboCurrentIndex(m_aircraft->multirotorFrameType, m_aircraft->multirotorFrameType->findText("Octocopter"));
 

@@ -438,16 +438,16 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         attitude[3] = -attitude[3];
     }
 
-    // Renomalize
-    float qmag = sqrtf(attitude[0] * attitude[0] + attitude[1] * attitude[1] + attitude[2] * attitude[2] + attitude[3] * attitude[3]);
-    attitude[0] = attitude[0] / qmag;
-    attitude[1] = attitude[1] / qmag;
-    attitude[2] = attitude[2] / qmag;
-    attitude[3] = attitude[3] / qmag;
+    // Renormalize
+    float inv_qmag = invsqrtf(attitude[0] * attitude[0] + attitude[1] * attitude[1] + attitude[2] * attitude[2] + attitude[3] * attitude[3]);
+    attitude[0] = attitude[0] * inv_qmag;
+    attitude[1] = attitude[1] * inv_qmag;
+    attitude[2] = attitude[2] * inv_qmag;
+    attitude[3] = attitude[3] * inv_qmag;
 
     // If quaternion has become inappropriately short or is nan reinit.
     // THIS SHOULD NEVER ACTUALLY HAPPEN
-    if ((fabsf(qmag) < 1.0e-3f) || isnan(qmag)) {
+    if ((fabsf(inv_qmag) > 1e3f) || isnan(inv_qmag)) {
         this->first_run = 1;
         return FILTERRESULT_WARNING;
     }

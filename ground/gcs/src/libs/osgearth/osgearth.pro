@@ -91,18 +91,18 @@ macx {
 win32 {
     LIBS += -L$$OSG_SDK_DIR/lib
 
-    CONFIG(release, debug|release) {
+    #CONFIG(release, debug|release) {
         LIBS += -lOpenThreads
         LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
         LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
         LIBS += -losgQt -losgEarthQt
-    }
-    CONFIG(debug, debug|release) {
-        LIBS += -lOpenThreadsd
-        LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd
-        LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd
-        LIBS += -losgQtd -losgEarthQtd
-    }
+    #}
+    #CONFIG(debug, debug|release) {
+    #    LIBS += -lOpenThreadsd
+    #    LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd
+    #    LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd
+    #    LIBS += -losgQtd -losgEarthQtd
+    #}
 }
 
 include(copydata.pro)

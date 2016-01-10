@@ -258,17 +258,17 @@ extern uint32_t pios_packet_handler;
 #define PIOS_SBUS_MAX_DEVS           1
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
 
-//-------------------------
+// -------------------------
 // Receiver HSUM input
-//-------------------------
-#define PIOS_HOTT_MAX_DEVS			1
-#define PIOS_HOTT_NUM_INPUTS		32
+// -------------------------
+#define PIOS_HOTT_MAX_DEVS           1
+#define PIOS_HOTT_NUM_INPUTS         32
 
 // -------------------------
 // Receiver EX.Bus input
 // -------------------------
-#define PIOS_EXBUS_MAX_DEVS           1
-#define PIOS_EXBUS_NUM_INPUTS         16
+#define PIOS_EXBUS_MAX_DEVS          1
+#define PIOS_EXBUS_NUM_INPUTS        16
 
 // -------------------------
 // Receiver Multiplex SRXL input

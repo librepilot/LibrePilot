@@ -2,7 +2,7 @@
  ******************************************************************************
  * @file       pios_hott.h
  * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2015
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2013
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2013
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
  * @addtogroup PIOS_HOTT Graupner HoTT receiver functions

@@ -727,7 +727,7 @@ void PIOS_Board_Init(void)
 
             uint32_t pios_hott_id;
             if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
-            		hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
+                               hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
                 PIOS_Assert(0);
             }
 
@@ -761,7 +761,6 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_EXBUS */
         break;
-
     } /* hwsettings_rm_flexiport */
 
 

@@ -33,17 +33,17 @@
 
 /* HOTT protocol variations */
 enum pios_hott_proto {
-	PIOS_HOTT_PROTO_SUMD,
-	PIOS_HOTT_PROTO_SUMH,
+    PIOS_HOTT_PROTO_SUMD,
+    PIOS_HOTT_PROTO_SUMH,
 };
 
 /* HOTT receiver instance configuration */
 extern const struct pios_rcvr_driver pios_hott_rcvr_driver;
 
 extern int32_t PIOS_HOTT_Init(uint32_t *hott_id,
-			     const struct pios_com_driver *driver,
-				 uint32_t lower_id,
-			     enum pios_hott_proto proto);
+                              const struct pios_com_driver *driver,
+                              uint32_t lower_id,
+                              enum pios_hott_proto proto);
 
 #endif /* PIOS_HOTT_PRIV_H */
 

@@ -1,9 +1,5 @@
 /**
  ******************************************************************************
- * @addtogroup PIOS PIOS Core hardware abstraction layer
- * @{
- * @addtogroup   PIOS_SBus Futaba S.Bus receiver functions
- * @{
  *
  * @file       pios_sbus.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.

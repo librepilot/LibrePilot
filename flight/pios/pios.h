@@ -233,6 +233,10 @@ extern "C" {
 #include <pios_hott.h>
 #endif
 
+#ifdef PIOS_INCLUDE_EXBUS
+#include <pios_exbus.h>
+#endif
+
 #ifdef PIOS_INCLUDE_SRXL
 #include <pios_srxl.h>
 #endif

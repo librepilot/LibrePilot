@@ -39,24 +39,24 @@
  */
 
 /* EXBUS frame size and contents definitions */
-#define EXBUS_HEADER_LENGTH 4
-#define EXBUS_CRC_LENGTH 2
-#define EXBUS_MAX_CHANNELS 16
-#define EXBUS_OVERHEAD_LENGTH (EXBUS_HEADER_LENGTH + EXBUS_CRC_LENGTH)
-#define EXBUS_MAX_FRAME_LENGTH (EXBUS_MAX_CHANNELS*2+10 + EXBUS_OVERHEAD_LENGTH)
+#define EXBUS_HEADER_LENGTH    4
+#define EXBUS_CRC_LENGTH       2
+#define EXBUS_MAX_CHANNELS     16
+#define EXBUS_OVERHEAD_LENGTH  (EXBUS_HEADER_LENGTH + EXBUS_CRC_LENGTH)
+#define EXBUS_MAX_FRAME_LENGTH (EXBUS_MAX_CHANNELS * 2 + 10 + EXBUS_OVERHEAD_LENGTH)
 
-#define EXBUS_SYNC_CHANNEL 0x3E
-#define EXBUS_SYNC_TELEMETRY 0x3D
-#define EXBUS_BYTE_REQ 0x01
-#define EXBUS_BYTE_NOREQ 0x03
+#define EXBUS_SYNC_CHANNEL     0x3E
+#define EXBUS_SYNC_TELEMETRY   0x3D
+#define EXBUS_BYTE_REQ         0x01
+#define EXBUS_BYTE_NOREQ       0x03
 
-#define EXBUS_DATA_CHANNEL 0x31
-#define EXBUS_DATA_TELEMETRY 0x3A
-#define EXBUS_DATA_JETIBOX 0x3B
+#define EXBUS_DATA_CHANNEL     0x31
+#define EXBUS_DATA_TELEMETRY   0x3A
+#define EXBUS_DATA_JETIBOX     0x3B
 
-#define EXBUS_LOW_BAUD_RATE 125000
-#define EXBUS_HIGH_BAUD_RATE 250000
-#define EXBUS_BAUD_RATE_LIMIT 64
+#define EXBUS_LOW_BAUD_RATE    125000
+#define EXBUS_HIGH_BAUD_RATE   250000
+#define EXBUS_BAUD_RATE_LIMIT  64
 
 /* Forward Declarations */
 static int32_t PIOS_EXBUS_Get(uint32_t rcvr_id, uint8_t channel);
@@ -89,19 +89,19 @@ enum pios_exbus_frame_state {
 
 struct pios_exbus_state {
     uint16_t channel_data[PIOS_EXBUS_NUM_INPUTS];
-    uint8_t received_data[EXBUS_MAX_FRAME_LENGTH];
-    uint8_t receive_timer;
-    uint8_t failsafe_timer;
-    uint8_t failsafe_count;
-    uint8_t byte_count;
-    uint8_t frame_length;
+    uint8_t  received_data[EXBUS_MAX_FRAME_LENGTH];
+    uint8_t  receive_timer;
+    uint8_t  failsafe_timer;
+    uint8_t  failsafe_count;
+    uint8_t  byte_count;
+    uint8_t  frame_length;
     uint16_t crc;
-    bool high_baud_rate;
-    bool frame_found;
+    bool     high_baud_rate;
+    bool     frame_found;
 };
 
 struct pios_exbus_dev {
-    enum pios_exbus_dev_magic magic;
+    enum pios_exbus_dev_magic    magic;
     uint32_t com_port_id;
     const struct pios_com_driver *driver;
     struct pios_exbus_state state;
@@ -114,8 +114,9 @@ static struct pios_exbus_dev *PIOS_EXBUS_Alloc(void)
     struct pios_exbus_dev *exbus_dev;
 
     exbus_dev = (struct pios_exbus_dev *)pios_malloc(sizeof(*exbus_dev));
-    if (!exbus_dev)
+    if (!exbus_dev) {
         return NULL;
+    }
 
     exbus_dev->magic = PIOS_EXBUS_DEV_MAGIC;
     return exbus_dev;
@@ -127,26 +128,28 @@ static struct pios_exbus_dev *PIOS_EXBUS_Alloc(void)
 {
     struct pios_exbus_dev *exbus_dev;
 
-    if (pios_exbus_num_devs >= PIOS_EXBUS_MAX_DEVS)
+    if (pios_exbus_num_devs >= PIOS_EXBUS_MAX_DEVS) {
         return NULL;
+    }
 
     exbus_dev = &pios_exbus_devs[pios_exbus_num_devs++];
     exbus_dev->magic = PIOS_EXBUS_DEV_MAGIC;
 
     return exbus_dev;
 }
-#endif
+#endif /* if defined(PIOS_INCLUDE_FREERTOS) */
 
 /* Validate EXBUS device descriptor */
 static bool PIOS_EXBUS_Validate(struct pios_exbus_dev *exbus_dev)
 {
-    return (exbus_dev->magic == PIOS_EXBUS_DEV_MAGIC);
+    return exbus_dev->magic == PIOS_EXBUS_DEV_MAGIC;
 }
 
 /* Reset channels in case of lost signal or explicit failsafe receiver flag */
 static void PIOS_EXBUS_ResetChannels(struct pios_exbus_dev *exbus_dev)
 {
     struct pios_exbus_state *state = &(exbus_dev->state);
+
     for (int i = 0; i < PIOS_EXBUS_NUM_INPUTS; i++) {
         state->channel_data[i] = PIOS_RCVR_TIMEOUT;
     }
@@ -156,11 +159,12 @@ static void PIOS_EXBUS_ResetChannels(struct pios_exbus_dev *exbus_dev)
 static void PIOS_EXBUS_ResetState(struct pios_exbus_dev *exbus_dev)
 {
     struct pios_exbus_state *state = &(exbus_dev->state);
-    state->receive_timer = 0;
+
+    state->receive_timer  = 0;
     state->failsafe_timer = 0;
     state->failsafe_count = 0;
     state->high_baud_rate = false;
-    state->frame_found = false;
+    state->frame_found    = false;
     PIOS_EXBUS_ResetChannels(exbus_dev);
 }
 
@@ -173,26 +177,25 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
 {
     struct pios_exbus_state *state = &(exbus_dev->state);
 
-    if(state->crc != 0) {
+    if (state->crc != 0) {
         /* crc failed */
         DEBUG_PRINTF(2, "Jeti CRC error!%d\r\n");
         return -1;
     }
 
     enum pios_exbus_frame_state exbus_state = EXBUS_STATE_SYNC;
-    uint8_t *byte = state->received_data;
+    uint8_t *byte      = state->received_data;
     uint8_t sub_length;
     uint8_t n_channels = 0;
-    uint8_t channel = 0;
+    uint8_t channel    = 0;
 
-    while((byte - state->received_data) < state->frame_length) {
-        switch(exbus_state) {
+    while ((byte - state->received_data) < state->frame_length) {
+        switch (exbus_state) {
         case EXBUS_STATE_SYNC:
             /* sync byte */
-            if(*byte == EXBUS_SYNC_CHANNEL) {
+            if (*byte == EXBUS_SYNC_CHANNEL) {
                 exbus_state = EXBUS_STATE_REQ;
-            }
-            else {
+            } else {
                 return -1;
             }
             byte += sizeof(uint8_t);
@@ -203,13 +206,11 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
              * tells us whether the rx is requesting a reply or not,
              * currently nothing is actually done with this information...
              */
-            if(*byte == EXBUS_BYTE_REQ) {
+            if (*byte == EXBUS_BYTE_REQ) {
                 exbus_state = EXBUS_STATE_LEN;
-            }
-            else if(*byte == EXBUS_BYTE_NOREQ) {
+            } else if (*byte == EXBUS_BYTE_NOREQ) {
                 exbus_state = EXBUS_STATE_LEN;
-            }
-            else {
+            } else {
                 return -1;
             }
             byte += sizeof(uint8_t);
@@ -229,23 +230,22 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
 
         case EXBUS_STATE_DATA_ID:
             /* checks the type of data, ignore non-rc data */
-            if(*byte == EXBUS_DATA_CHANNEL) {
+            if (*byte == EXBUS_DATA_CHANNEL) {
                 exbus_state = EXBUS_STATE_SUBLEN;
-            }
-            else {
+            } else {
                 return -1;
             }
             byte += sizeof(uint8_t);
             break;
 
         case EXBUS_STATE_SUBLEN:
-            sub_length = *byte;
-            n_channels = sub_length / 2;
+            sub_length  = *byte;
+            n_channels  = sub_length / 2;
             exbus_state = EXBUS_STATE_DATA;
             byte += sizeof(uint8_t);
             break;
         case EXBUS_STATE_DATA:
-            if(channel < n_channels) {
+            if (channel < n_channels) {
                 /* 1 lsb = 1/8 us */
                 state->channel_data[channel++] = (byte[1] << 8 | byte[0]) / 8;
             }
@@ -261,23 +261,22 @@ static void PIOS_EXBUS_UpdateState(struct pios_exbus_dev *exbus_dev, uint8_t byt
 {
     struct pios_exbus_state *state = &(exbus_dev->state);
 
-    if(!state->frame_found) {
-        if(byte == EXBUS_SYNC_CHANNEL) {
-            state->frame_found = true;
-            state->byte_count = 0;
+    if (!state->frame_found) {
+        if (byte == EXBUS_SYNC_CHANNEL) {
+            state->frame_found  = true;
+            state->byte_count   = 0;
             state->frame_length = EXBUS_MAX_FRAME_LENGTH;
             state->crc = PIOS_EXBUS_CRC_Update(0, byte);
             state->received_data[state->byte_count++] = byte;
         }
-    }
-    else if(state->byte_count < EXBUS_MAX_FRAME_LENGTH) {
+    } else if (state->byte_count < EXBUS_MAX_FRAME_LENGTH) {
         state->crc = PIOS_EXBUS_CRC_Update(state->crc, byte);
         state->received_data[state->byte_count++] = byte;
 
-        if(state->byte_count == 3) {
+        if (state->byte_count == 3) {
             state->frame_length = byte;
         }
-        if(state->byte_count == state->frame_length) {
+        if (state->byte_count == state->frame_length) {
             if (!PIOS_EXBUS_UnrollChannels(exbus_dev)) {
                 /* data looking good */
                 state->failsafe_timer = 0;
@@ -286,8 +285,7 @@ static void PIOS_EXBUS_UpdateState(struct pios_exbus_dev *exbus_dev, uint8_t byt
             /* get ready for the next frame */
             state->frame_found = false;
         }
-    }
-    else {
+    } else {
         state->frame_found = false;
     }
 }
@@ -303,8 +301,9 @@ int32_t PIOS_EXBUS_Init(uint32_t *exbus_id,
     struct pios_exbus_dev *exbus_dev;
 
     exbus_dev = (struct pios_exbus_dev *)PIOS_EXBUS_Alloc();
-    if (!exbus_dev)
+    if (!exbus_dev) {
         return -1;
+    }
 
     PIOS_EXBUS_ResetState(exbus_dev);
 
@@ -333,6 +332,7 @@ static uint16_t PIOS_EXBUS_RxInCallback(uint32_t context,
     struct pios_exbus_dev *exbus_dev = (struct pios_exbus_dev *)context;
 
     bool valid = PIOS_EXBUS_Validate(exbus_dev);
+
     PIOS_Assert(valid);
 
     /* process byte(s) and clear receive timer */
@@ -342,8 +342,9 @@ static uint16_t PIOS_EXBUS_RxInCallback(uint32_t context,
     }
 
     /* Always signal that we can accept more data */
-    if (headroom)
+    if (headroom) {
         *headroom = EXBUS_MAX_FRAME_LENGTH;
+    }
 
     /* We never need a yield */
     *need_yield = false;
@@ -363,25 +364,29 @@ static int32_t PIOS_EXBUS_Get(uint32_t rcvr_id, uint8_t channel)
 {
     struct pios_exbus_dev *exbus_dev = (struct pios_exbus_dev *)rcvr_id;
 
-    if (!PIOS_EXBUS_Validate(exbus_dev))
+    if (!PIOS_EXBUS_Validate(exbus_dev)) {
         return PIOS_RCVR_INVALID;
+    }
 
     /* return error if channel is not available */
-    if (channel >= PIOS_EXBUS_NUM_INPUTS)
+    if (channel >= PIOS_EXBUS_NUM_INPUTS) {
         return PIOS_RCVR_INVALID;
+    }
 
     /* may also be PIOS_RCVR_TIMEOUT set by other function */
     return exbus_dev->state.channel_data[channel];
 }
 
-static void PIOS_EXBUS_Change_BaudRate(struct pios_exbus_dev *device) {
+static void PIOS_EXBUS_Change_BaudRate(struct pios_exbus_dev *device)
+{
     struct pios_exbus_state *state = &(device->state);
-	if (++state->failsafe_count >= EXBUS_BAUD_RATE_LIMIT) {
-		state->high_baud_rate = !state->high_baud_rate;
-		(device->driver->set_baud) (device->com_port_id,
-				state->high_baud_rate ?  EXBUS_HIGH_BAUD_RATE : EXBUS_LOW_BAUD_RATE);
-		state->failsafe_count = 0;
-	}
+
+    if (++state->failsafe_count >= EXBUS_BAUD_RATE_LIMIT) {
+        state->high_baud_rate = !state->high_baud_rate;
+        (device->driver->set_baud)(device->com_port_id,
+                                   state->high_baud_rate ? EXBUS_HIGH_BAUD_RATE : EXBUS_LOW_BAUD_RATE);
+        state->failsafe_count = 0;
+    }
 }
 
 /**
@@ -401,16 +406,17 @@ static void PIOS_EXBUS_Supervisor(uint32_t exbus_id)
     struct pios_exbus_dev *exbus_dev = (struct pios_exbus_dev *)exbus_id;
 
     bool valid = PIOS_EXBUS_Validate(exbus_dev);
+
     PIOS_Assert(valid);
 
     struct pios_exbus_state *state = &(exbus_dev->state);
 
     /* waiting for new frame if no bytes were received in 8ms */
     if (++state->receive_timer > 4) {
-        state->frame_found = false;
-        state->byte_count = 0;
+        state->frame_found   = false;
+        state->byte_count    = 0;
         state->receive_timer = 0;
-        state->frame_length = EXBUS_MAX_FRAME_LENGTH;
+        state->frame_length  = EXBUS_MAX_FRAME_LENGTH;
     }
 
     /* activate failsafe if no frames have arrived in 102.4ms */
@@ -425,13 +431,13 @@ static uint16_t PIOS_EXBUS_CRC_Update(uint16_t crc, uint8_t data)
 {
     data ^= (uint8_t)crc & (uint8_t)0xFF;
     data ^= data << 4;
-    crc = ((((uint16_t)data << 8) | ((crc & 0xFF00) >> 8))
-           ^ (uint8_t)(data >> 4) ^ ((uint16_t)data << 3));
+    crc   = ((((uint16_t)data << 8) | ((crc & 0xFF00) >> 8))
+             ^ (uint8_t)(data >> 4) ^ ((uint16_t)data << 3));
 
     return crc;
 }
 
-#endif	/* PIOS_INCLUDE_EXBUS */
+#endif /* PIOS_INCLUDE_EXBUS */
 
 /**
  * @}

@@ -77,105 +77,107 @@
  */
 
 /* HOTT frame size and contents definitions */
-#define HOTT_HEADER_LENGTH 3
-#define HOTT_CRC_LENGTH 2
+#define HOTT_HEADER_LENGTH          3
+#define HOTT_CRC_LENGTH             2
 #define HOTT_MAX_CHANNELS_PER_FRAME 32
-#define HOTT_OVERHEAD_LENGTH (HOTT_HEADER_LENGTH+HOTT_CRC_LENGTH)
-#define HOTT_MAX_FRAME_LENGTH (HOTT_MAX_CHANNELS_PER_FRAME*2+HOTT_OVERHEAD_LENGTH)
+#define HOTT_OVERHEAD_LENGTH        (HOTT_HEADER_LENGTH + HOTT_CRC_LENGTH)
+#define HOTT_MAX_FRAME_LENGTH       (HOTT_MAX_CHANNELS_PER_FRAME * 2 + HOTT_OVERHEAD_LENGTH)
 
-#define HOTT_GRAUPNER_ID 0xA8
-#define HOTT_STATUS_LIVING_SUMH 0x00
-#define HOTT_STATUS_LIVING_SUMD 0x01
-#define HOTT_STATUS_FAILSAFE 0x81
+#define HOTT_GRAUPNER_ID            0xA8
+#define HOTT_STATUS_LIVING_SUMH     0x00
+#define HOTT_STATUS_LIVING_SUMD     0x01
+#define HOTT_STATUS_FAILSAFE        0x81
 
 /* Forward Declarations */
 static int32_t PIOS_HOTT_Get(uint32_t rcvr_id, uint8_t channel);
 static uint16_t PIOS_HOTT_RxInCallback(uint32_t context,
-				       uint8_t *buf,
-				       uint16_t buf_len,
-				       uint16_t *headroom,
-				       bool *need_yield);
+                                       uint8_t *buf,
+                                       uint16_t buf_len,
+                                       uint16_t *headroom,
+                                       bool *need_yield);
 static void PIOS_HOTT_Supervisor(uint32_t hott_id);
 
 /* Local Variables */
 const struct pios_rcvr_driver pios_hott_rcvr_driver = {
-	.read = PIOS_HOTT_Get,
+    .read = PIOS_HOTT_Get,
 };
 
 enum pios_hott_dev_magic {
-	PIOS_HOTT_DEV_MAGIC = 0x4853554D,
+    PIOS_HOTT_DEV_MAGIC = 0x4853554D,
 };
 
 struct pios_hott_state {
-	uint16_t channel_data[PIOS_HOTT_NUM_INPUTS];
-	uint8_t received_data[HOTT_MAX_FRAME_LENGTH];
-	uint8_t receive_timer;
-	uint8_t failsafe_timer;
-	uint8_t frame_found;
-	uint8_t tx_connected;
-	uint8_t byte_count;
-	uint8_t frame_length;
+    uint16_t channel_data[PIOS_HOTT_NUM_INPUTS];
+    uint8_t  received_data[HOTT_MAX_FRAME_LENGTH];
+    uint8_t  receive_timer;
+    uint8_t  failsafe_timer;
+    uint8_t  frame_found;
+    uint8_t  tx_connected;
+    uint8_t  byte_count;
+    uint8_t  frame_length;
 };
 
 struct pios_hott_dev {
-	enum pios_hott_dev_magic magic;
-	const struct pios_hott_cfg *cfg;
-	enum pios_hott_proto proto;
-	struct pios_hott_state state;
+    enum pios_hott_dev_magic   magic;
+    const struct pios_hott_cfg *cfg;
+    enum pios_hott_proto proto;
+    struct pios_hott_state     state;
 };
 
 /* Allocate HOTT device descriptor */
 #if defined(PIOS_INCLUDE_FREERTOS)
 static struct pios_hott_dev *PIOS_HOTT_Alloc(void)
 {
-	struct pios_hott_dev *hott_dev;
+    struct pios_hott_dev *hott_dev;
 
-	hott_dev = (struct pios_hott_dev *)pios_malloc(sizeof(*hott_dev));
-	if (!hott_dev)
-		return NULL;
+    hott_dev = (struct pios_hott_dev *)pios_malloc(sizeof(*hott_dev));
+    if (!hott_dev) {
+        return NULL;
+    }
 
-	hott_dev->magic = PIOS_HOTT_DEV_MAGIC;
-	return hott_dev;
+    hott_dev->magic = PIOS_HOTT_DEV_MAGIC;
+    return hott_dev;
 }
 #else
 static struct pios_hott_dev pios_hott_devs[PIOS_HOTT_MAX_DEVS];
 static uint8_t pios_hott_num_devs;
 static struct pios_hott_dev *PIOS_HOTT_Alloc(void)
 {
-	struct pios_hott_dev *hott_dev;
+    struct pios_hott_dev *hott_dev;
 
-	if (pios_hott_num_devs >= PIOS_HOTT_MAX_DEVS)
-		return NULL;
+    if (pios_hott_num_devs >= PIOS_HOTT_MAX_DEVS) {
+        return NULL;
+    }
 
-	hott_dev = &pios_hott_devs[pios_hott_num_devs++];
-	hott_dev->magic = PIOS_HOTT_DEV_MAGIC;
+    hott_dev = &pios_hott_devs[pios_hott_num_devs++];
+    hott_dev->magic = PIOS_HOTT_DEV_MAGIC;
 
-	return hott_dev;
+    return hott_dev;
 }
-#endif
+#endif /* if defined(PIOS_INCLUDE_FREERTOS) */
 
 /* Validate HOTT device descriptor */
 static bool PIOS_HOTT_Validate(struct pios_hott_dev *hott_dev)
 {
-	return (hott_dev->magic == PIOS_HOTT_DEV_MAGIC);
+    return hott_dev->magic == PIOS_HOTT_DEV_MAGIC;
 }
 
 /* Reset channels in case of lost signal or explicit failsafe receiver flag */
 static void PIOS_HOTT_ResetChannels(struct pios_hott_state *state)
 {
-	for (int i = 0; i < PIOS_HOTT_NUM_INPUTS; i++) {
-		state->channel_data[i] = PIOS_RCVR_TIMEOUT;
-	}
+    for (int i = 0; i < PIOS_HOTT_NUM_INPUTS; i++) {
+        state->channel_data[i] = PIOS_RCVR_TIMEOUT;
+    }
 }
 
 /* Reset HOTT receiver state */
 static void PIOS_HOTT_ResetState(struct pios_hott_state *state)
 {
-	state->receive_timer = 0;
-	state->failsafe_timer = 0;
-	state->frame_found = 0;
-	state->tx_connected = 0;
-	PIOS_HOTT_ResetChannels(state);
+    state->receive_timer  = 0;
+    state->failsafe_timer = 0;
+    state->frame_found    = 0;
+    state->tx_connected   = 0;
+    PIOS_HOTT_ResetChannels(state);
 }
 
 /**
@@ -185,142 +187,152 @@ static void PIOS_HOTT_ResetState(struct pios_hott_state *state)
  */
 static int PIOS_HOTT_UnrollChannels(struct pios_hott_dev *hott_dev)
 {
-	struct pios_hott_state *state = &(hott_dev->state);
+    struct pios_hott_state *state = &(hott_dev->state);
 
-	/* check the header and crc for a valid HoTT SUM stream */
-	uint8_t vendor = state->received_data[0];
-	uint8_t status = state->received_data[1];
-	if (vendor != HOTT_GRAUPNER_ID)
-		/* Graupner ID was expected */
-		goto stream_error;
+    /* check the header and crc for a valid HoTT SUM stream */
+    uint8_t vendor = state->received_data[0];
+    uint8_t status = state->received_data[1];
 
-	switch (status) {
-	case HOTT_STATUS_LIVING_SUMH:
-	case HOTT_STATUS_LIVING_SUMD:
-	case HOTT_STATUS_FAILSAFE:
-		/* check crc before processing */
-		if (hott_dev->proto == PIOS_HOTT_PROTO_SUMD) {
-			/* SUMD has 16 bit CCITT CRC */
-			uint16_t crc = 0;
-			uint8_t *s = &(state->received_data[0]);
-			int len = state->byte_count - 2;
-			for (int n = 0; n < len; n++) {
-				crc ^= (uint16_t)s[n] << 8;
-				for (int i = 0; i < 8; i++)
-					crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : (crc << 1);
-			}
-			if (crc ^ (((uint16_t)s[len] << 8) | s[len + 1]))
-				/* wrong crc checksum found */
-				goto stream_error;
-		}
-		if (hott_dev->proto == PIOS_HOTT_PROTO_SUMH) {
-			/* SUMH has only 8 bit added CRC */
-			uint8_t crc = 0;
-			uint8_t *s = &(state->received_data[0]);
-			int len = state->byte_count - 1;
-			for (int n = 0; n < len; n++)
-				crc += s[n];
-			if (crc ^ s[len])
-				/* wrong crc checksum found */
-				goto stream_error;
-		}
-		/* check for a living connect */
-		state->tx_connected |= (status != HOTT_STATUS_FAILSAFE);
-		break;
-	default:
-		/* wrong header format */
-		goto stream_error;
-	}
+    if (vendor != HOTT_GRAUPNER_ID) {
+        /* Graupner ID was expected */
+        goto stream_error;
+    }
 
-	/* check initial connection since reset or timeout */
-	if (!(state->tx_connected)) {
-		/* these are failsafe data without a first connect. ignore it */
-		PIOS_HOTT_ResetChannels(state);
-		return 0;
-	}
+    switch (status) {
+    case HOTT_STATUS_LIVING_SUMH:
+    case HOTT_STATUS_LIVING_SUMD:
+    case HOTT_STATUS_FAILSAFE:
+        /* check crc before processing */
+        if (hott_dev->proto == PIOS_HOTT_PROTO_SUMD) {
+            /* SUMD has 16 bit CCITT CRC */
+            uint16_t crc = 0;
+            uint8_t *s   = &(state->received_data[0]);
+            int len = state->byte_count - 2;
+            for (int n = 0; n < len; n++) {
+                crc ^= (uint16_t)s[n] << 8;
+                for (int i = 0; i < 8; i++) {
+                    crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : (crc << 1);
+                }
+            }
+            if (crc ^ (((uint16_t)s[len] << 8) | s[len + 1])) {
+                /* wrong crc checksum found */
+                goto stream_error;
+            }
+        }
+        if (hott_dev->proto == PIOS_HOTT_PROTO_SUMH) {
+            /* SUMH has only 8 bit added CRC */
+            uint8_t crc = 0;
+            uint8_t *s  = &(state->received_data[0]);
+            int len     = state->byte_count - 1;
+            for (int n = 0; n < len; n++) {
+                crc += s[n];
+            }
+            if (crc ^ s[len]) {
+                /* wrong crc checksum found */
+                goto stream_error;
+            }
+        }
+        /* check for a living connect */
+        state->tx_connected |= (status != HOTT_STATUS_FAILSAFE);
+        break;
+    default:
+        /* wrong header format */
+        goto stream_error;
+    }
 
-	/* unroll channels */
-	uint8_t n_channels = state->received_data[2];
-	uint8_t *s = &(state->received_data[3]);
-	uint16_t word;
+    /* check initial connection since reset or timeout */
+    if (!(state->tx_connected)) {
+        /* these are failsafe data without a first connect. ignore it */
+        PIOS_HOTT_ResetChannels(state);
+        return 0;
+    }
 
-	for (int i = 0; i < HOTT_MAX_CHANNELS_PER_FRAME; i++) {
-		if (i < n_channels) {
-			word = ((uint16_t)s[0] << 8) | s[1];
-			s += sizeof(uint16_t);
-			/* save the channel value */
-			if (i < PIOS_HOTT_NUM_INPUTS) {
-				/* floating version. channel limits from -100..+100% are mapped to 1000..2000 */
-				state->channel_data[i] = (uint16_t)(word / 6.4f - 375);
-			}
-		} else
-			/* this channel was not received */
-			state->channel_data[i] = PIOS_RCVR_INVALID;
-	}
+    /* unroll channels */
+    uint8_t n_channels = state->received_data[2];
+    uint8_t *s = &(state->received_data[3]);
+    uint16_t word;
 
-	/* all channels processed */
-	return 0;
+    for (int i = 0; i < HOTT_MAX_CHANNELS_PER_FRAME; i++) {
+        if (i < n_channels) {
+            word = ((uint16_t)s[0] << 8) | s[1];
+            s   += sizeof(uint16_t);
+            /* save the channel value */
+            if (i < PIOS_HOTT_NUM_INPUTS) {
+                /* floating version. channel limits from -100..+100% are mapped to 1000..2000 */
+                state->channel_data[i] = (uint16_t)(word / 6.4f - 375);
+            }
+        } else {
+            /* this channel was not received */
+            state->channel_data[i] = PIOS_RCVR_INVALID;
+        }
+    }
+
+    /* all channels processed */
+    return 0;
 
 stream_error:
-	/* either SUMD selected with SUMH stream found, or vice-versa */
-	return -1;
+    /* either SUMD selected with SUMH stream found, or vice-versa */
+    return -1;
 }
 
 /* Update decoder state processing input byte from the HoTT stream */
 static void PIOS_HOTT_UpdateState(struct pios_hott_dev *hott_dev, uint8_t byte)
 {
-	struct pios_hott_state *state = &(hott_dev->state);
-	if (state->frame_found) {
-		/* receiving the data frame */
-		if (state->byte_count < HOTT_MAX_FRAME_LENGTH) {
-			/* store next byte */
-			state->received_data[state->byte_count++] = byte;
-			if (state->byte_count == HOTT_HEADER_LENGTH) {
-				/* 3rd byte contains the number of channels. calculate frame size */
-				state->frame_length = HOTT_OVERHEAD_LENGTH + 2 * byte;
-			}
-			if (state->byte_count == state->frame_length) {
-				/* full frame received - process and wait for new one */
-				if (!PIOS_HOTT_UnrollChannels(hott_dev))
-					/* data looking good */
-					state->failsafe_timer = 0;
-				/* prepare for the next frame */
-				state->frame_found = 0;
-			}
-		}
-	}
+    struct pios_hott_state *state = &(hott_dev->state);
+
+    if (state->frame_found) {
+        /* receiving the data frame */
+        if (state->byte_count < HOTT_MAX_FRAME_LENGTH) {
+            /* store next byte */
+            state->received_data[state->byte_count++] = byte;
+            if (state->byte_count == HOTT_HEADER_LENGTH) {
+                /* 3rd byte contains the number of channels. calculate frame size */
+                state->frame_length = HOTT_OVERHEAD_LENGTH + 2 * byte;
+            }
+            if (state->byte_count == state->frame_length) {
+                /* full frame received - process and wait for new one */
+                if (!PIOS_HOTT_UnrollChannels(hott_dev)) {
+                    /* data looking good */
+                    state->failsafe_timer = 0;
+                }
+                /* prepare for the next frame */
+                state->frame_found = 0;
+            }
+        }
+    }
 }
 
 /* Initialise HoTT receiver interface */
 int32_t PIOS_HOTT_Init(uint32_t *hott_id,
                        const struct pios_com_driver *driver,
-					   uint32_t lower_id,
+                       uint32_t lower_id,
                        enum pios_hott_proto proto)
 {
-	PIOS_DEBUG_Assert(hott_id);
-	PIOS_DEBUG_Assert(driver);
+    PIOS_DEBUG_Assert(hott_id);
+    PIOS_DEBUG_Assert(driver);
 
-	struct pios_hott_dev *hott_dev;
+    struct pios_hott_dev *hott_dev;
 
-	hott_dev = (struct pios_hott_dev *)PIOS_HOTT_Alloc();
-	if (!hott_dev)
-		return -1;
+    hott_dev = (struct pios_hott_dev *)PIOS_HOTT_Alloc();
+    if (!hott_dev) {
+        return -1;
+    }
 
-	/* Bind the configuration to the device instance */
-	hott_dev->proto = proto;
+    /* Bind the configuration to the device instance */
+    hott_dev->proto = proto;
 
-	PIOS_HOTT_ResetState(&(hott_dev->state));
+    PIOS_HOTT_ResetState(&(hott_dev->state));
 
-	*hott_id = (uint32_t)hott_dev;
+    *hott_id = (uint32_t)hott_dev;
 
-	/* Set comm driver callback */
-	(driver->bind_rx_cb)(lower_id, PIOS_HOTT_RxInCallback, *hott_id);
+    /* Set comm driver callback */
+    (driver->bind_rx_cb)(lower_id, PIOS_HOTT_RxInCallback, *hott_id);
 
-	if (!PIOS_RTC_RegisterTickCallback(PIOS_HOTT_Supervisor, *hott_id)) {
-		PIOS_DEBUG_Assert(0);
-	}
+    if (!PIOS_RTC_RegisterTickCallback(PIOS_HOTT_Supervisor, *hott_id)) {
+        PIOS_DEBUG_Assert(0);
+    }
 
-	return 0;
+    return 0;
 }
 
 /* Comm byte received callback */
@@ -330,26 +342,28 @@ static uint16_t PIOS_HOTT_RxInCallback(uint32_t context,
                                        uint16_t *headroom,
                                        bool *need_yield)
 {
-	struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)context;
+    struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)context;
 
-	bool valid = PIOS_HOTT_Validate(hott_dev);
-	PIOS_Assert(valid);
+    bool valid = PIOS_HOTT_Validate(hott_dev);
 
-	/* process byte(s) and clear receive timer */
-	for (uint8_t i = 0; i < buf_len; i++) {
-		PIOS_HOTT_UpdateState(hott_dev, buf[i]);
-		hott_dev->state.receive_timer = 0;
-	}
+    PIOS_Assert(valid);
 
-	/* Always signal that we can accept more data */
-	if (headroom)
-		*headroom = HOTT_MAX_FRAME_LENGTH;
+    /* process byte(s) and clear receive timer */
+    for (uint8_t i = 0; i < buf_len; i++) {
+        PIOS_HOTT_UpdateState(hott_dev, buf[i]);
+        hott_dev->state.receive_timer = 0;
+    }
 
-	/* We never need a yield */
-	*need_yield = false;
+    /* Always signal that we can accept more data */
+    if (headroom) {
+        *headroom = HOTT_MAX_FRAME_LENGTH;
+    }
 
-	/* Always indicate that all bytes were consumed */
-	return buf_len;
+    /* We never need a yield */
+    *need_yield = false;
+
+    /* Always indicate that all bytes were consumed */
+    return buf_len;
 }
 
 /**
@@ -361,17 +375,19 @@ static uint16_t PIOS_HOTT_RxInCallback(uint32_t context,
  */
 static int32_t PIOS_HOTT_Get(uint32_t rcvr_id, uint8_t channel)
 {
-	struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)rcvr_id;
+    struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)rcvr_id;
 
-	if (!PIOS_HOTT_Validate(hott_dev))
-		return PIOS_RCVR_INVALID;
+    if (!PIOS_HOTT_Validate(hott_dev)) {
+        return PIOS_RCVR_INVALID;
+    }
 
-	/* return error if channel is not available */
-	if (channel >= PIOS_HOTT_NUM_INPUTS)
-		return PIOS_RCVR_INVALID;
+    /* return error if channel is not available */
+    if (channel >= PIOS_HOTT_NUM_INPUTS) {
+        return PIOS_RCVR_INVALID;
+    }
 
-	/* may also be PIOS_RCVR_TIMEOUT set by other function */
-	return hott_dev->state.channel_data[channel];
+    /* may also be PIOS_RCVR_TIMEOUT set by other function */
+    return hott_dev->state.channel_data[channel];
 }
 
 /**
@@ -388,30 +404,31 @@ static int32_t PIOS_HOTT_Get(uint32_t rcvr_id, uint8_t channel)
  */
 static void PIOS_HOTT_Supervisor(uint32_t hott_id)
 {
-	struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)hott_id;
+    struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)hott_id;
 
-	bool valid = PIOS_HOTT_Validate(hott_dev);
-	PIOS_Assert(valid);
+    bool valid = PIOS_HOTT_Validate(hott_dev);
 
-	struct pios_hott_state *state = &(hott_dev->state);
+    PIOS_Assert(valid);
 
-	/* waiting for new frame if no bytes were received in 8ms */
-	if (++state->receive_timer > 4) {
-		state->frame_found = 1;
-		state->byte_count = 0;
-		state->receive_timer = 0;
-		state->frame_length = HOTT_MAX_FRAME_LENGTH;
-	}
+    struct pios_hott_state *state = &(hott_dev->state);
 
-	/* activate failsafe if no frames have arrived in 102.4ms */
-	if (++state->failsafe_timer > 64) {
-		PIOS_HOTT_ResetChannels(state);
-		state->failsafe_timer = 0;
-		state->tx_connected = 0;
-	}
+    /* waiting for new frame if no bytes were received in 8ms */
+    if (++state->receive_timer > 4) {
+        state->frame_found   = 1;
+        state->byte_count    = 0;
+        state->receive_timer = 0;
+        state->frame_length  = HOTT_MAX_FRAME_LENGTH;
+    }
+
+    /* activate failsafe if no frames have arrived in 102.4ms */
+    if (++state->failsafe_timer > 64) {
+        PIOS_HOTT_ResetChannels(state);
+        state->failsafe_timer = 0;
+        state->tx_connected   = 0;
+    }
 }
 
-#endif	/* PIOS_INCLUDE_HOTT */
+#endif /* PIOS_INCLUDE_HOTT */
 
 /**
  * @}

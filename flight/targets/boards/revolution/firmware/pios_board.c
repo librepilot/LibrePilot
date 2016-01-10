@@ -548,7 +548,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_FLEXIPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
-            
+
     case HWSETTINGS_RM_FLEXIPORT_SRXL:
 #if defined(PIOS_INCLUDE_SRXL)
         {
@@ -582,7 +582,7 @@ void PIOS_Board_Init(void)
 
             uint32_t pios_hott_id;
             if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
-            		hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
+                               hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
                 PIOS_Assert(0);
             }
 
@@ -616,7 +616,6 @@ void PIOS_Board_Init(void)
         }
 #endif /* PIOS_INCLUDE_EXBUS */
         break;
-
     } /* hwsettings_rm_flexiport */
 
     /* Moved this here to allow binding on flexiport */

@@ -36,8 +36,8 @@
 extern const struct pios_rcvr_driver pios_exbus_rcvr_driver;
 
 extern int32_t PIOS_EXBUS_Init(uint32_t *exbus_id,
-			     const struct pios_com_driver *driver,
-				 uint32_t lower_id);
+                               const struct pios_com_driver *driver,
+                               uint32_t lower_id);
 
 #endif /* PIOS_EXBUS_PRIV_H */
 

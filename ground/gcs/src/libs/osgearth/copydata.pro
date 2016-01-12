@@ -46,15 +46,15 @@ osg:win32 {
     OSG_LIBS = \
         libcurl-4.dll \
         libfreetype-6.dll \
-        libgdal.dll \
-        libgeos-3-3-8.dll \
-        libgeos_c-1.dll \
-        libjpeg-9.dll \
+        libgdal-20.dll \
+        libgeos.dll \
+        libgeos_c.dll \
+        libjpeg-8.dll \
         libpng16-16.dll \
-        libproj-0.dll \
+        libproj-9.dll \
         libtiff-5.dll \
         libtiffxx-5.dll \
-        zlib1.dll
+        zlib1.dll \
 
     # osg libraries
     OSG_LIBS += \

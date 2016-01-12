@@ -15,7 +15,7 @@ Linux prerequisites
 ----------------------------------
 
 $ sudo apt-get install libzip-dev libpng-dev lipjpeg-dev libtiff5-dev libcurl4-openssl-dev
-$ sudo apt-get install  libgeos++-dev libgdal-dev
+$ sudo apt-get install libgeos++-dev libgdal-dev
 
 Alternative (not tested recently but could work):
 $ sudo apt-get build-dep openscenegraph
@@ -38,8 +38,7 @@ brew install gdal
 Windows prerequisites
 ----------------------------------
 
-Windows requires many libraries to be build.
-See osg_win.sh for more details.
+pacman -S mingw-w64-i686-cmake mingw-w64-i686-gdal
 
 
 Building

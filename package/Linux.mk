@@ -54,9 +54,9 @@ install: uninstall
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/$(libbasename)/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
+	$(V1) $(INSTALL) $(GCS_DIR)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
+	$(V1) $(INSTALL) $(GCS_DIR)/$(libbasename)/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
+	$(V1) $(INSTALL) $(GCS_DIR)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/gcs.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/ground/gcs/src/plugins/coreplugin/images/$(ORG_SMALL_NAME)_logo_128.png \
 		$(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png

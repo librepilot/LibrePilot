@@ -35,8 +35,7 @@
 # Windows prerequisites
 ################################
 #
-# Windows versions of osg and osgearth require many additional libraries to be build
-# See osg_win.sh
+# pacman -S mingw-w64-i686-cmake mingw-w64-i686-gdal
 #
 ################################
 # OSX prerequisites
@@ -104,19 +103,23 @@ ifeq ($(UNAME), Linux)
 		OSG_NAME := $(OSG_BASE_NAME)-linux-x86
 	endif
 	OSG_CMAKE_GENERATOR := "Unix Makefiles"
+	OSG_CMAKE_MAKE_PROGRAM := make
 	OSG_WINDOWING_SYSTEM := "X11"
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
 else ifeq ($(UNAME), Darwin)
 	OSG_NAME := $(OSG_BASE_NAME)-clang_64
 	OSG_CMAKE_GENERATOR := "Unix Makefiles"
+	OSG_CMAKE_MAKE_PROGRAM := make
 	OSG_WINDOWING_SYSTEM := "Cocoa"
 	OSG_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(PATH)
 else ifeq ($(UNAME), Windows)
 	OSG_NAME := $(OSG_BASE_NAME)-$(QT_SDK_ARCH)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
+	OSG_CMAKE_MAKE_PROGRAM := /mingw32/bin/mingw32-make
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSG_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin
+	#OSG_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin:/usr/bin:
+	#OSG_BUILD_PATH := $(PATH)
 endif
 
 OSG_NAME := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
@@ -130,15 +133,17 @@ osg:
 	@$(ECHO) "Building osg $(call toprel, $(OSG_SRC_DIR)) into $(call toprel, $(OSG_BUILD_DIR))"
 	$(V1) $(MKDIR) -p $(OSG_BUILD_DIR)
 	$(V1) ( $(CD) $(OSG_BUILD_DIR) && \
-		PATH=$(OSG_BUILD_PATH) && \
+		if [ $(OSG_BUILD_PATH) != "" ]; then \
+			PATH=$(OSG_BUILD_PATH) ; \
+		fi ; \
 		$(CMAKE) -G $(OSG_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSG_BUILD_CONF) \
+			-DCMAKE_MAKE_PROGRAM=$(OSG_CMAKE_MAKE_PROGRAM) \
 			-DOSG_USE_QT=ON \
 			-DBUILD_OSG_APPLICATIONS=ON \
 			-DBUILD_OSG_EXAMPLES=OFF \
 			-DBUILD_OPENTHREADS_WITH_QT=OFF \
 			-DOSG_GL3_AVAILABLE=OFF \
 			-DOSG_PLUGIN_SEARCH_INSTALL_DIR_FOR_PLUGINS=OFF \
-			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osg_dependencies \
 			-DCMAKE_OSX_ARCHITECTURES="x86_64" \
 			-DOSG_WINDOWING_SYSTEM=$(OSG_WINDOWING_SYSTEM) \
 			-DCMAKE_INSTALL_NAME_DIR=@executable_path/../Plugins \
@@ -160,8 +165,17 @@ package_osg:
 
 .PHONY: install_win_osg
 install_win_osg:
-	$(V1) $(CP) $(BUILD_DIR)/3rdparty/osg_dependencies/bin/*.dll $(OSG_INSTALL_DIR)/bin/
-	$(V1) $(CP) $(BUILD_DIR)/3rdparty/osg_dependencies/lib/*.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libcurl-4.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libfreetype-6.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libgdal-20.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libgeos.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libgeos_c.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libjpeg-8.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libpng16-16.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libproj-9.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libtiff-5.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libtiffxx-5.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/zlib1.dll $(OSG_INSTALL_DIR)/bin/
 
 .NOTPARALLEL:
 .PHONY: prepare_osg
@@ -223,6 +237,7 @@ ifeq ($(UNAME), Linux)
 		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux-x86
 	endif
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
+	OSGEARTH_CMAKE_MAKE_PROGRAM := make
 	# for some reason Qt is not added to the path in make/tools.mk
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 	ifeq ($(ARCH), x86_64)
@@ -233,13 +248,15 @@ ifeq ($(UNAME), Linux)
 else ifeq ($(UNAME), Darwin)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-clang_64
 	OSGEARTH_CMAKE_GENERATOR := "Unix Makefiles"
+	OSGEARTH_CMAKE_MAKE_PROGRAM := make
 	OSGEARTH_BUILD_PATH := $(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin:$(PATH)
 	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 else ifeq ($(UNAME), Windows)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
+	OSGEARTH_CMAKE_MAKE_PROGRAM := /mingw32/bin/mingw32-make
 	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	OSGEARTH_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin
+	#OSGEARTH_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin
 	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 endif
 
@@ -254,17 +271,20 @@ osgearth:
 	@$(ECHO) "Building osgEarth $(call toprel, $(OSGEARTH_SRC_DIR)) into $(call toprel, $(OSGEARTH_BUILD_DIR))"
 	$(V1) $(MKDIR) -p $(OSGEARTH_BUILD_DIR)
 	$(V1) ( $(CD) $(OSGEARTH_BUILD_DIR) && \
-		PATH=$(OSGEARTH_BUILD_PATH) && \
+		if [ $(OSGEARTH_BUILD_PATH) != "" ]; then \
+			PATH=$(OSGEARTH_BUILD_PATH) ; \
+		fi ; \
 		LD_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) && \
 		export DYLD_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) && \
 		unset OSG_NOTIFY_LEVEL && \
 		$(CMAKE) -G $(OSGEARTH_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSGEARTH_BUILD_CONF) \
+			-DCMAKE_MAKE_PROGRAM=$(OSGEARTH_CMAKE_MAKE_PROGRAM) \
 			-DOSGEARTH_USE_QT=ON \
 			-DINSTALL_TO_OSG_DIR=OFF \
 			-DOSG_DIR=$(OSG_INSTALL_DIR) \
 			-DCMAKE_INCLUDE_PATH=$(OSG_INSTALL_DIR)/include \
 			-DCMAKE_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib \
-			-DCMAKE_PREFIX_PATH=$(BUILD_DIR)/3rdparty/osg_dependencies \
+			-DCMAKE_PREFIX_PATH=$(OSGEARTH_LIB_PATH) \
 			-DCMAKE_OSX_ARCHITECTURES="x86_64" \
 			-DCMAKE_INSTALL_NAME_DIR=@executable_path/../Plugins \
 			-DCMAKE_INSTALL_PREFIX=$(OSGEARTH_INSTALL_DIR) $(OSGEARTH_SRC_DIR) && \

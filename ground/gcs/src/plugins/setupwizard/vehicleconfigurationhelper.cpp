@@ -785,9 +785,9 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
             mSettings->setMixerValueYaw((qint8)50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_COAX_Y:
-            mSettings->setMixerValueRoll((qint8)100);
-            mSettings->setMixerValuePitch((qint8)50);
-            mSettings->setMixerValueYaw((qint8)66);
+            mSettings->setMixerValueRoll((qint8)86);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_X:

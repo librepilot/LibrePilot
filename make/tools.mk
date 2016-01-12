@@ -174,9 +174,11 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 #
 ##############################
 
-BUILD_SDK_TARGETS := arm_sdk qt_sdk osg
+BUILD_SDK_TARGETS := arm_sdk osg
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += sdl osgearth nsis mesawin openssl ccache
+    BUILD_SDK_TARGETS += nsis osgearth
+else
+    BUILD_SDK_TARGETS += qt_sdk
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
 

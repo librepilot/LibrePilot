@@ -78,7 +78,7 @@ osg:win32 {
         libosgWidget$${DS}.dll
 
     for(lib, OSG_LIBS) {
-        addCopyFileTarget($$lib},$${OSG_SDK_DIR}/bin,$${GCS_APP_PATH})
+        addCopyFileTarget($${lib},$${OSG_SDK_DIR}/bin,$${GCS_APP_PATH})
     }
 
     # osg plugins

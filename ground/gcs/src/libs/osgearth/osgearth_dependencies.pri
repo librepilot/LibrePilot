@@ -23,7 +23,7 @@ osg {
 
     win32 {
         LIBS += -L$$OSG_SDK_DIR/lib
-        LIBS += -lOpenThreads$DS -losg$DS -losgUtil$DS -losgDB$DS -losgGA$DS -losgFX$DS -losgViewer$DS -losgText$DS -losgQt$DS
+        LIBS += -lOpenThreads$${DS} -losg$${DS} -losgUtil$${DS} -losgDB$${DS} -losgGA$${DS} -losgFX$${DS} -losgViewer$${DS} -losgText$${DS} -losgQt$${DS}
     }
 }
 
@@ -40,6 +40,6 @@ osgearth {
 
     win32 {
         LIBS += -L$$OSGEARTH_SDK_DIR/lib
-        LIBS += -losgEarth$DS -losgEarthUtil$DS -losgEarthFeatures$DS -losgEarthSymbology$DS -losgEarthAnnotation$DS -losgEarthQt$DS
+        LIBS += -losgEarth$${DS} -losgEarthUtil$${DS} -losgEarthFeatures$${DS} -losgEarthSymbology$${DS} -losgEarthAnnotation$${DS} -losgEarthQt$${DS}
     }
 }

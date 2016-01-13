@@ -42,19 +42,39 @@ linux|macx {
 }
 
 osg:win32 {
-    # osg & osgearth dependencies (needs to be split)
+    # osg & osgearth dependencies
+
+    # curl
     OSG_LIBS = \
         libcurl-4.dll \
-        libfreetype-6.dll \
+        libidn-11.dll \
+        librtmp-1.dll \
+        libgmp-10.dll \
+        libgnutls-30.dll \
+        libp11-kit-0.dll \
+        libffi-6.dll \
+        libtasn1-6.dll \
+        libhogweed-4-1.dll \
+        libnettle-6-1.dll \
+        libssh2-1.dll
+
+
+    # gdal
+    OSG_LIBS += \
         libgdal-20.dll \
-        libgeos.dll \
         libgeos_c.dll \
+        libgeos.dll \
         libjpeg-8.dll \
-        libpng16-16.dll \
-        libproj-9.dll \
         libtiff-5.dll \
-        libtiffxx-5.dll \
-        zlib1.dll \
+        liblzma-5.dll \
+        libiconv-2.dll \
+        zlib1.dll
+
+    # other
+    OSG_LIBS += \
+        libproj-9.dll \
+        libfreetype-6.dll \
+        libpng16-16.dll
 
     # osg libraries
     OSG_LIBS += \

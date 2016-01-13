@@ -2,72 +2,19 @@
 # Targets to build osg and osgearth
 #
 ################################
-# Linux prerequisites
-################################
-#
-# Install development libraries for:
-# - zlib
-# - jpeg
-# - png
-# - tiff
-# - curl
-# - geos
-# - gdal
-#
-# $ sudo apt-get install libzip-dev libpng-dev lipjpeg-dev libtiff5-dev libcurl4-openssl-dev libgeos++-dev libgdal-dev
-#
-# Alternative (not tested)
-# $ sudo apt-get build-dep openscenegraph
-#
-# $ curl --version
-# curl 7.35.0 (i686-pc-linux-gnu) libcurl/7.35.0 OpenSSL/1.0.1f zlib/1.2.8 libidn/1.28 librtmp/2.3
-# Protocols: dict file ftp ftps gopher http https imap imaps ldap ldaps pop3 pop3s rtmp rtsp smtp smtps telnet tftp
-# Features: AsynchDNS GSS-Negotiate IDN IPv6 Largefile NTLM NTLM_WB SSL libz TLS-SRP
-#
-# $ gdal-config --version
-# 1.10.1
-#
-# If using Qt 5.3.1, you'll need to workaround this issue : https://bugreports.qt-project.org/browse/QTBUG-39859
-# by editing the file : ./tool/qt-5.3.1/5.3/gcc/lib/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake
-# and commenting out this line : _qt5gui_find_extra_libs(EGL "EGL" "" "/usr/include/libdrm")
-#
-################################
-# Windows prerequisites
-################################
-#
-# pacman -S mingw-w64-i686-cmake mingw-w64-i686-gdal
-#
-################################
-# OSX prerequisites
-################################
-#
-# brew install cmake
-# brew install gdal
-#
-################################
-# Building
-################################
 #
 # $ make all_osg
 #
 # This will:
 # - clone the git repositories into the ./3rdparty directory
-# - build osg in the build directory, building steps are : cmake, make, make install
-# - intall osg in the build directory
-# - create distribution files in the build directory
-# - TODO: upload distribution files to the wiki download page
-#
-################################
-# Todo
-# - install osgearth in osg (a minor issue in the osgearth cmake file prevents it)
-#   easy to fix then set INSTALL_TO_OSG_DIR=ON when running cmake on osgearth
-# - don't build osg deprecated code (if we don't use it...)
-# - add targets to upload distribution files to wiki.
-# - provide complete list of dependencies for osg and osgearth (current list is most probably incomplete as I already had some stuff installed)
+# - build osg in the build/3rdparty directory
+# - intall osg in the build/3rdparty/install directory
+# - create distribution files (tar.gz and md5) in the build/3rdparty/install directory
+# - [TODO] upload distribution files to the librepilot tools repository
 #
 ################################
 
-# TODO should be discovered
+# [TODO] should be discovered
 QT_VERSION := 5.5.1
 
 ################################
@@ -117,12 +64,9 @@ else ifeq ($(UNAME), Windows)
 	OSG_NAME := $(OSG_BASE_NAME)-$(QT_SDK_ARCH)
 	OSG_CMAKE_GENERATOR := "MinGW Makefiles"
 	OSG_CMAKE_MAKE_PROGRAM := /mingw32/bin/mingw32-make
-	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	#OSG_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin:/usr/bin:
-	#OSG_BUILD_PATH := $(PATH)
 endif
 
-OSG_NAME := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
+OSG_NAME        := $(OSG_NAME_PREFIX)$(OSG_NAME)$(OSG_NAME_SUFIX)
 OSG_SRC_DIR     := $(ROOT_DIR)/3rdparty/osg
 OSG_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSG_NAME)
 OSG_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSG_NAME)
@@ -133,7 +77,7 @@ osg:
 	@$(ECHO) "Building osg $(call toprel, $(OSG_SRC_DIR)) into $(call toprel, $(OSG_BUILD_DIR))"
 	$(V1) $(MKDIR) -p $(OSG_BUILD_DIR)
 	$(V1) ( $(CD) $(OSG_BUILD_DIR) && \
-		if [ $(OSG_BUILD_PATH) != "" ]; then \
+		if [ -n "$(OSG_BUILD_PATH)" ]; then \
 			PATH=$(OSG_BUILD_PATH) ; \
 		fi ; \
 		$(CMAKE) -G $(OSG_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSG_BUILD_CONF) \
@@ -165,17 +109,31 @@ package_osg:
 
 .PHONY: install_win_osg
 install_win_osg:
+	# curl
 	$(V1) $(CP) /mingw32/bin/libcurl-4.dll $(OSG_INSTALL_DIR)/bin/
-	$(V1) $(CP) /mingw32/bin/libfreetype-6.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libidn-11.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/librtmp-1.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libgmp-10.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libgnutls-30.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libp11-kit-0.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libffi-6.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libtasn1-6.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libhogweed-4-1.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libnettle-6-1.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libssh2-1.dll $(OSG_INSTALL_DIR)/bin/
+    # gdal
 	$(V1) $(CP) /mingw32/bin/libgdal-20.dll $(OSG_INSTALL_DIR)/bin/
-	$(V1) $(CP) /mingw32/bin/libgeos.dll $(OSG_INSTALL_DIR)/bin/
 	$(V1) $(CP) /mingw32/bin/libgeos_c.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libgeos.dll $(OSG_INSTALL_DIR)/bin/
 	$(V1) $(CP) /mingw32/bin/libjpeg-8.dll $(OSG_INSTALL_DIR)/bin/
-	$(V1) $(CP) /mingw32/bin/libpng16-16.dll $(OSG_INSTALL_DIR)/bin/
-	$(V1) $(CP) /mingw32/bin/libproj-9.dll $(OSG_INSTALL_DIR)/bin/
 	$(V1) $(CP) /mingw32/bin/libtiff-5.dll $(OSG_INSTALL_DIR)/bin/
-	$(V1) $(CP) /mingw32/bin/libtiffxx-5.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/liblzma-5.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libiconv-2.dll $(OSG_INSTALL_DIR)/bin/
 	$(V1) $(CP) /mingw32/bin/zlib1.dll $(OSG_INSTALL_DIR)/bin/
+    # other
+	$(V1) $(CP) /mingw32/bin/libproj-9.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libfreetype-6.dll $(OSG_INSTALL_DIR)/bin/
+	$(V1) $(CP) /mingw32/bin/libpng16-16.dll $(OSG_INSTALL_DIR)/bin/
 
 .NOTPARALLEL:
 .PHONY: prepare_osg
@@ -255,12 +213,10 @@ else ifeq ($(UNAME), Windows)
 	OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-$(QT_SDK_ARCH)
 	OSGEARTH_CMAKE_GENERATOR := "MinGW Makefiles"
 	OSGEARTH_CMAKE_MAKE_PROGRAM := /mingw32/bin/mingw32-make
-	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	#OSGEARTH_BUILD_PATH := $(MINGW_DIR)/bin:$(QT_SDK_PREFIX)/bin:$(OSG_INSTALL_DIR)/bin
 	OSGEARTH_LIB_PATH := $(OSG_INSTALL_DIR)/lib
 endif
 
-OSGEARTH_NAME := $(OSG_NAME_PREFIX)$(OSGEARTH_NAME)$(OSG_NAME_SUFIX)
+OSGEARTH_NAME        := $(OSG_NAME_PREFIX)$(OSGEARTH_NAME)$(OSG_NAME_SUFIX)
 OSGEARTH_SRC_DIR     := $(ROOT_DIR)/3rdparty/osgearth
 OSGEARTH_BUILD_DIR   := $(BUILD_DIR)/3rdparty/$(OSGEARTH_NAME)
 OSGEARTH_INSTALL_DIR := $(BUILD_DIR)/3rdparty/install/$(OSGEARTH_NAME)
@@ -271,10 +227,9 @@ osgearth:
 	@$(ECHO) "Building osgEarth $(call toprel, $(OSGEARTH_SRC_DIR)) into $(call toprel, $(OSGEARTH_BUILD_DIR))"
 	$(V1) $(MKDIR) -p $(OSGEARTH_BUILD_DIR)
 	$(V1) ( $(CD) $(OSGEARTH_BUILD_DIR) && \
-		if [ $(OSGEARTH_BUILD_PATH) != "" ]; then \
+		if [ -n "$(OSGEARTH_BUILD_PATH)" ]; then \
 			PATH=$(OSGEARTH_BUILD_PATH) ; \
 		fi ; \
-		LD_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) && \
 		export DYLD_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) && \
 		unset OSG_NOTIFY_LEVEL && \
 		$(CMAKE) -G $(OSGEARTH_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(OSGEARTH_BUILD_CONF) \
@@ -283,7 +238,7 @@ osgearth:
 			-DINSTALL_TO_OSG_DIR=OFF \
 			-DOSG_DIR=$(OSG_INSTALL_DIR) \
 			-DCMAKE_INCLUDE_PATH=$(OSG_INSTALL_DIR)/include \
-			-DCMAKE_LIBRARY_PATH=$(OSG_INSTALL_DIR)/lib \
+			-DCMAKE_LIBRARY_PATH=$(OSGEARTH_LIB_PATH) \
 			-DCMAKE_PREFIX_PATH=$(OSGEARTH_LIB_PATH) \
 			-DCMAKE_OSX_ARCHITECTURES="x86_64" \
 			-DCMAKE_INSTALL_NAME_DIR=@executable_path/../Plugins \

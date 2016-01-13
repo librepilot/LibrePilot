@@ -122,9 +122,6 @@ else ifeq ($(UNAME), Windows)
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60-windows.tar.bz2
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1-windows.tar.bz2
     MESAWIN_URL    := http://librepilot.github.io/tools/mesawin.tar.gz
-    CMAKE_URL      := http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.zip
-    CMAKE_MD5_URL  := http://librepilot.github.io/tools/cmake-2.8.12.2-win32-x86.zip.md5
-    MSYS_URL       := http://librepilot.github.io/tools/MSYS-1.0.11.zip
     OSG_URL        := http://librepilot.github.io/tools/osg-3.4-mingw492_32-qt-5.5.1.tar.gz
     OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-mingw492_32-qt-5.5.1.tar.gz
 endif
@@ -160,8 +157,6 @@ else ifeq ($(UNAME), Windows)
     SDL_DIR      := $(TOOLS_DIR)/SDL-1.2.15
     OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
-    CMAKE_DIR    := $(TOOLS_DIR)/cmake-2.8.12.2-win32-x86
-    MSYS_DIR     := $(TOOLS_DIR)/msys
     OSG_SDK_DIR  := $(OSG_TOOLS_DIR)/osg-3.4-mingw492_32-qt-5.5.1
     OSGEARTH_SDK_DIR  := $(OSG_TOOLS_DIR)/osgearth-2.7-mingw492_32-qt-5.5.1
 endif
@@ -220,6 +215,7 @@ JAVAC		:= javac
 JAR			:= jar
 CD			:= cd
 GREP		:= grep
+CMAKE		:= cmake
 ifneq ($(UNAME), Windows)
 	SEVENZIP	:= 7za
 else
@@ -828,27 +824,6 @@ gtest_version:
 
 ##############################
 #
-# CMake
-#
-##############################
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,cmake,$(CMAKE_DIR),$(CMAKE_URL),$(CMAKE_MD5_URL),$(notdir $(CMAKE_URL))))
-
-ifeq ($(shell [ -d "$(CMAKE_DIR)" ] && $(ECHO) "exists"), exists)
-    export CMAKE := $(CMAKE_DIR)/bin/cmake
-    export PATH := $(CMAKE_DIR)/bin:$(PATH)
-else
-    # not installed, hope it's in the path...
-    #$(info $(EMPTY) WARNING     $(call toprel, $(CMAKE_DIR)) not found (make cmake_install), using system PATH)
-    export CMAKE := cmake
-endif
-
-.PHONY: cmake_version
-cmake_version:
-	-$(V1) $(CMAKE) --version
-
-##############################
-#
 # CCACHE
 #
 ##############################
@@ -884,28 +859,6 @@ define CCACHE_CLEAN_TEMPLATE
 endef
 
 $(eval $(call TOOL_INSTALL_TEMPLATE,ccache,$(CCACHE_BUILD_DIR),$(CCACHE_URL),$(CCACHE_MD5_URL),$(notdir $(CCACHE_URL)),$(CCACHE_BUILD_TEMPLATE),$(CCACHE_CLEAN_TEMPLATE)))
-
-##############################
-#
-# MSYS
-#
-##############################
-
-ifeq ($(UNAME), Windows)
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,msys,$(MSYS_DIR),$(MSYS_URL),,$(notdir $(MSYS_URL))))
-
-ifeq ($(shell [ -d "$(MSYS_DIR)" ] && $(ECHO) "exists"), exists)
-    export MSYS_DIR
-else
-    # not installed, hope it's in the path...
-    #$(info $(EMPTY) WARNING     $(call toprel, $(MSYS_DIR)) not found (make msys_install), using system PATH)
-endif
-
-.PHONY: msys_version
-msys_version:
-
-endif
 
 ##############################
 #

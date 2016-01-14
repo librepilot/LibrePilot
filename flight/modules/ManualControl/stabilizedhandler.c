@@ -30,6 +30,7 @@
 
 #include "inc/manualcontrol.h"
 #include <mathmisc.h>
+#include <sin_lookup.h>
 #include <manualcontrolcommand.h>
 #include <stabilizationdesired.h>
 #include <flightmodesettings.h>
@@ -42,6 +43,10 @@
 // Private functions
 static float applyExpo(float value, float expo);
 
+// Private variables
+static uint8_t currentFpvTiltAngle = 0;
+static float cosAngle = 0.0f;
+static float sinAngle = 0.0f;
 
 static float applyExpo(float value, float expo)
 {
@@ -90,6 +95,24 @@ void stabilizedHandler(bool newinit)
     cmd.Roll  = applyExpo(cmd.Roll, stabSettings.StickExpo.Roll);
     cmd.Pitch = applyExpo(cmd.Pitch, stabSettings.StickExpo.Pitch);
     cmd.Yaw   = applyExpo(cmd.Yaw, stabSettings.StickExpo.Yaw);
+
+    if (stabSettings.FpvCamTiltCompensation > 0) {
+        // Reduce Cpu load
+        if (currentFpvTiltAngle != stabSettings.FpvCamTiltCompensation) {
+            cosAngle = cos_lookup_deg((float)stabSettings.FpvCamTiltCompensation);
+            sinAngle = sin_lookup_deg((float)stabSettings.FpvCamTiltCompensation);
+            currentFpvTiltAngle = stabSettings.FpvCamTiltCompensation;
+        }
+        float rollCommand = cmd.Roll;
+        float yawCommand  = cmd.Yaw;
+
+        // http://shrediquette.blogspot.de/2016/01/some-thoughts-on-camera-tilt.html
+        // Roll_output = cos(camera_tilt) * Roll_input - sin(camera_tilt) * Yaw_input
+        // Yaw_output = sin(camera_tilt) * Roll_input + cos(camera_tilt) * Yaw_input
+        cmd.Roll = boundf((cosAngle * rollCommand) - (sinAngle * yawCommand), -1.0f, 1.0f);
+        cmd.Yaw  = boundf((cosAngle * yawCommand) + (sinAngle * rollCommand), -1.0f, 1.0f);
+    }
+
     uint8_t *stab_settings;
     FlightStatusData flightStatus;
     FlightStatusGet(&flightStatus);

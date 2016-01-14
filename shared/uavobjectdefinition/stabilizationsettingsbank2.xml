@@ -20,6 +20,8 @@
 
 	<field name="EnablePiroComp" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
 
+	<field name="FpvCamTiltCompensation" units="deg" type="uint8" elements="1" defaultvalue="0"/>
+
 	<field name="EnableThrustPIDScaling" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
 	<field name="ThrustPIDScaleCurve" units="percent" type="int8" elementnames="0,25,50,75,100" defaultvalue="30,15,0,-15,-30"/>
 	<field name="ThrustPIDScaleSource" units="" type="enum" elements="1" options="ManualControlThrottle,StabilizationDesiredThrust,ActuatorDesiredThrust" defaultvalue="ActuatorDesiredThrust" />

@@ -1,4 +1,4 @@
-import QtQuick 2.4
+import QtQuick 2.0
 
 import UAVTalk.SystemSettings 1.0
 import UAVTalk.RevoSettings 1.0
@@ -186,10 +186,8 @@ Item {
 
     property double offset_value: close_bg.width * 0.85
 
-    property int anim_type: Easing.InOutExpo //Easing.InOutSine Easing.InOutElastic
-    property real anim_amplitude: 1.2
-    property real anim_period: 2
-    property int duration_value: 1600
+    property int anim_type: Easing.OutExpo
+    property int anim_duration: 1600
 
     //
     // Close - Open panel
@@ -209,10 +207,10 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              id: close_anim
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                id: close_anim
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
+            }
         }
     }
 
@@ -232,10 +230,10 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              PropertyAnimation { property: "opacity"; duration: 500; }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
+                PropertyAnimation { property: "opacity"; duration: 500; }
+            }
         }
     }
 
@@ -265,7 +263,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -289,8 +287,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                id: rc_input_anim
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -310,7 +307,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -341,7 +338,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -368,7 +365,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -401,7 +398,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -425,7 +422,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -448,7 +445,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -489,7 +486,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -530,7 +527,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -588,7 +585,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -644,7 +641,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -675,7 +672,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -698,9 +695,9 @@ Item {
         }
 
         transitions: Transition {
-        SequentialAnimation {
-              PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
-              }
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
+            }
         }
     }
 
@@ -719,7 +716,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -739,7 +736,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -759,7 +756,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -787,7 +784,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -809,7 +806,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -853,7 +850,7 @@ Item {
 
             transitions: Transition {
                 SequentialAnimation {
-                    PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                    PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
                 }
             }
         }
@@ -874,7 +871,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -897,7 +894,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -929,7 +926,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -952,7 +949,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -994,7 +991,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -1018,8 +1015,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                id: system_anim
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }
@@ -1039,7 +1035,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -1072,7 +1068,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -1104,7 +1100,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -1135,7 +1131,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -1166,7 +1162,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -1197,7 +1193,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
 
@@ -1239,7 +1235,7 @@ Item {
 
         transitions: Transition {
             SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; easing.amplitude: anim_amplitude; easing.period: anim_period;  duration: duration_value }
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
             }
         }
     }

@@ -1,17 +1,14 @@
 TEMPLATE = lib
 TARGET = PfdQml
-QT += svg
-QT += opengl
-QT += qml quick
-OSG {
-    DEFINES += USE_OSG
-}
+
+QT += svg qml quick quickwidgets
 
 include(../../plugin.pri)
-include(../../plugins/coreplugin/coreplugin.pri)
 include(pfdqml_dependencies.pri)
 
 HEADERS += \
+    pfdqml.h \
+    pfdqmlcontext.h \
     pfdqmlplugin.h \
     pfdqmlgadget.h \
     pfdqmlgadgetwidget.h \
@@ -20,21 +17,13 @@ HEADERS += \
     pfdqmlgadgetoptionspage.h
 
 SOURCES += \
+    pfdqmlcontext.cpp \
     pfdqmlplugin.cpp \
     pfdqmlgadget.cpp \
     pfdqmlgadgetfactory.cpp \
     pfdqmlgadgetwidget.cpp \
     pfdqmlgadgetconfiguration.cpp \
     pfdqmlgadgetoptionspage.cpp
-
-
-contains(DEFINES,USE_OSG) {
-    LIBS += -losg -losgUtil -losgViewer -losgQt -losgDB -lOpenThreads -losgGA
-    LIBS += -losgEarth -losgEarthFeatures -losgEarthUtil
-
-    HEADERS += osgearth.h
-    SOURCES += osgearth.cpp
-}
 
 OTHER_FILES += PfdQml.pluginspec
 

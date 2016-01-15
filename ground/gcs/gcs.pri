@@ -159,7 +159,6 @@ macx {
     GCS_DOC_PATH     = $$GCS_DATA_PATH/doc
     copydata = 1
     copyqt = 1
-    copyosg = 1
 } else {
     GCS_APP_TARGET = $$GCS_SMALL_NAME
     GCS_PATH         = $$GCS_BUILD_TREE
@@ -185,7 +184,6 @@ macx {
         GCS_QT_QML_PATH = $$GCS_APP_PATH
 
         copyqt = $$copydata
-        copyosg = $$copydata
     } else {
         GCS_QT_BASEPATH = $$GCS_LIBRARY_PATH/qt5
         GCS_QT_LIBRARY_PATH = $$GCS_QT_BASEPATH/lib
@@ -198,7 +196,6 @@ macx {
         } else {
             copyqt = 0
         }
-        copyosg = 1
     }
 }
 
@@ -254,8 +251,10 @@ macx {
         QMAKE_CFLAGS_WARN_ON   += -Werror
         QMAKE_CXXFLAGS_WARN_ON += -Wno-gnu-static-float-init
     }
+    # building with libc++ is needed when linking with osg/gdal
+    QMAKE_CXXFLAGS += -stdlib=libc++
+    QMAKE_LFLAGS += -stdlib=libc++
 }
-
 
 # use ccache when available
 QMAKE_CC = $$(CCACHE) $$QMAKE_CC

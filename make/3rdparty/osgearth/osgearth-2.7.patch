@@ -1,0 +1,13 @@
+diff --git a/src/osgEarthSymbology/Resource b/src/osgEarthSymbology/Resource
+index a8a1441..934fc7d 100644
+--- a/src/osgEarthSymbology/Resource
++++ b/src/osgEarthSymbology/Resource
+@@ -33,7 +33,7 @@ namespace osgEarth { namespace Symbology
+     class OSGEARTHSYMBOLOGY_EXPORT Resource : public Taggable<osg::Object>
+     {
+     protected:
+-        Resource(const Resource& rhs,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY) {};
++        Resource(const Resource& rhs,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY) : Taggable() {};
+         Resource( const Config& config =Config() );
+ 
+         /** dtor */

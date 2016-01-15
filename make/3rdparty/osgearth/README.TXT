@@ -15,7 +15,7 @@ Linux prerequisites
 ----------------------------------
 
 $ sudo apt-get install libzip-dev libpng-dev lipjpeg-dev libtiff5-dev libcurl4-openssl-dev
-$ sudo apt-get install  libgeos++-dev libgdal-dev
+$ sudo apt-get install libgeos++-dev libgdal-dev
 
 Alternative (not tested recently but could work):
 $ sudo apt-get build-dep openscenegraph
@@ -38,9 +38,26 @@ brew install gdal
 Windows prerequisites
 ----------------------------------
 
-Windows requires many libraries to be build.
-See osg_win.sh for more details.
+pacman -S mingw-w64-i686-cmake mingw-w64-i686-gdal-minimal
 
+To build minimal gdal
+
+From a MSYS shell:
+
+$ pacman -S base-devel
+
+Follow these instructions : http://sourceforge.net/p/msys2/wiki/Contributing%20to%20MSYS2/
+With :
+- LibrePilot package repository : ???
+
+$ pacman -U mingw-w64-i686-gdal-minimal-2.0.1-2-any.pkg.tar.xz
+
+Notes:
+- uninstall any previously installed gdal package.
+
+Todo
+- declare provides=<original pkgname> and conflicts with origina gdal in PKGBUILD file
+  (allows to substitute the minimal package when anything depends on the original package)
 
 Building
 ----------------------------------

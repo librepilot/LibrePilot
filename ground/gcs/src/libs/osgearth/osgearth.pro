@@ -2,6 +2,25 @@ TEMPLATE = lib
 TARGET = GCSOsgEarth
 DEFINES += OSGEARTH_LIBRARY
 
+#CONFIG += mys2
+
+CONFIG += osg
+#CONFIG += osgQt
+
+exists( $(OSGEARTH_SDK_DIR) ) {
+    CONFIG += osgearth
+    #CONFIG += osgearthQt
+}
+
+!msys2:OSG_VERSION = 3.4.0
+msys2:OSG_VERSION = 3.5.1
+
+osg:DEFINES += USE_OSG
+osgQt:DEFINES += USE_OSG_QT
+
+osgearth:DEFINES += USE_OSGEARTH
+osgearthQt:DEFINES += USE_OSGEARTH_QT
+
 #DEFINES += OSG_USE_QT_PRIVATE
 
 QT += widgets opengl qml quick
@@ -11,6 +30,8 @@ contains(DEFINES, OSG_USE_QT_PRIVATE) {
 
 include(../../library.pri)
 include(../utils/utils.pri)
+
+include(osgearth_dependencies.pri)
 
 linux {
     QMAKE_RPATHDIR = $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH/osg, $$GCS_LIBRARY_PATH))
@@ -22,9 +43,6 @@ macx:CONFIG += warn_off
 
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
-
-OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
-message(Using osg from here: $$OSG_SDK_DIR)
 
 HEADERS += \
     osgearth_global.h \
@@ -45,9 +63,7 @@ HEADERS += \
     osgQtQuick/OSGCubeNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
-    osgQtQuick/OSGModelNode.hpp \
     osgQtQuick/OSGBackgroundNode.hpp \
-    osgQtQuick/OSGSkyNode.hpp \
     osgQtQuick/OSGCamera.hpp \
     osgQtQuick/OSGViewport.hpp
 
@@ -58,51 +74,16 @@ SOURCES += \
     osgQtQuick/OSGCubeNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
-    osgQtQuick/OSGModelNode.cpp \
     osgQtQuick/OSGBackgroundNode.cpp \
-    osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
 
-INCLUDEPATH += $$OSG_SDK_DIR/include
+osgearth:HEADERS += \
+    osgQtQuick/OSGModelNode.hpp \
+    osgQtQuick/OSGSkyNode.hpp
 
-linux {
-    exists( $$OSG_SDK_DIR/lib64 ) {
-        LIBS += -L$$OSG_SDK_DIR/lib64
-    } else {
-        LIBS += -L$$OSG_SDK_DIR/lib
-    }
-
-    LIBS +=-lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
-    LIBS += -losgQt -losgEarthQt
-}
-
-macx {
-    LIBS += -L$$OSG_SDK_DIR/lib
-
-    LIBS += -lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
-    LIBS += -losgQt -losgEarthQt
-}
-
-win32 {
-    LIBS += -L$$OSG_SDK_DIR/lib
-
-    #CONFIG(release, debug|release) {
-        LIBS += -lOpenThreads
-        LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText
-        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
-        LIBS += -losgQt -losgEarthQt
-    #}
-    #CONFIG(debug, debug|release) {
-    #    LIBS += -lOpenThreadsd
-    #    LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd
-    #    LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd
-    #    LIBS += -losgQtd -losgEarthQtd
-    #}
-}
+osgearth:SOURCES += \
+    osgQtQuick/OSGModelNode.cpp \
+    osgQtQuick/OSGSkyNode.cpp
 
 include(copydata.pro)

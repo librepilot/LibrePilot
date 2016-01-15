@@ -198,18 +198,6 @@ MonitorWidget::~MonitorWidget()
     }
 }
 
-/*!
-   \brief Enables/Disables OpenGL
- */
-// void LineardialGadgetWidget::enableOpenGL(bool flag)
-// {
-// if (flag) {
-// setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-// } else {
-// setViewport(new QWidget);
-// }
-// }
-
 void MonitorWidget::telemetryConnected()
 {
     qDebug() << "telemetry connected";

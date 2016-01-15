@@ -104,20 +104,7 @@ GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
 {
     qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
     _traits = traits;
-
     init();
-
-    if (valid()) {
-        setState(new osg::State);
-        getState()->setGraphicsContext(this);
-
-        if (_traits.valid() && _traits->sharedContext.valid()) {
-            getState()->setContextID(_traits->sharedContext->getState()->getContextID());
-            incrementContextIDUsageCount(getState()->getContextID());
-        } else {
-            getState()->setContextID(osg::GraphicsContext::createNewContextID());
-        }
-    }
 }
 
 GraphicsWindowQt::~GraphicsWindowQt()
@@ -139,6 +126,20 @@ void GraphicsWindowQt::init()
     // _widget = windowData ? windowData->_widget : NULL;
     // if ( !parent )
     // parent = windowData ? windowData->_parent : NULL;
+
+
+    setState(new osg::State);
+    getState()->setGraphicsContext(this);
+
+    if (_traits.valid() && _traits->sharedContext.valid()) {
+        getState()->setContextID(_traits->sharedContext->getState()->getContextID());
+        incrementContextIDUsageCount(getState()->getContextID());
+    } else {
+        getState()->setContextID(osg::GraphicsContext::createNewContextID());
+    }
+
+    // make sure the event queue has the correct window rectangle size and input range
+    getEventQueue()->syncWindowRectangleWithGraphicsContext();
 
     _initialized = true;
 
@@ -244,8 +245,8 @@ bool GraphicsWindowQt::realizeImplementation()
 
     _realized = true;
 
-//// make sure the event queue has the correct window rectangle size and input range
-// getEventQueue()->syncWindowRectangleWithGraphcisContext();
+    // make sure the event queue has the correct window rectangle size and input range
+    getEventQueue()->syncWindowRectangleWithGraphicsContext();
 
     // make this window's context not current
     // note: this must be done as we will probably make the context current from another thread

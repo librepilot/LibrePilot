@@ -18,12 +18,14 @@ osg {
 
     linux|macx {
         LIBS += -L$$OSG_SDK_DIR/$$LIB_DIR_NAME
-        LIBS +=-lOpenThreads -losg -losgUtil -losgDB -losgGA -losgFX -losgViewer -losgText -losgQt
+        LIBS += -lOpenThreads -losg -losgUtil -losgDB -losgGA -losgFX -losgViewer -losgText
+        osgQt:LIBS += -losgQt
     }
 
     win32 {
         LIBS += -L$$OSG_SDK_DIR/lib
-        LIBS += -lOpenThreads$${DS} -losg$${DS} -losgUtil$${DS} -losgDB$${DS} -losgGA$${DS} -losgFX$${DS} -losgViewer$${DS} -losgText$${DS} -losgQt$${DS}
+        LIBS += -lOpenThreads$${DS} -losg$${DS} -losgUtil$${DS} -losgDB$${DS} -losgGA$${DS} -losgFX$${DS} -losgViewer$${DS} -losgText$${DS}
+        osgQt:LIBS += -losgQt$${DS}
     }
 }
 
@@ -35,11 +37,13 @@ osgearth {
 
     linux|macx {
         LIBS += -L$$OSGEARTH_SDK_DIR/$$LIB_DIR_NAME
-        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
+        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation
+        osgearthQt:LIBS +=  -losgEarthQt
     }
 
     win32 {
         LIBS += -L$$OSGEARTH_SDK_DIR/lib
-        LIBS += -losgEarth$${DS} -losgEarthUtil$${DS} -losgEarthFeatures$${DS} -losgEarthSymbology$${DS} -losgEarthAnnotation$${DS} -losgEarthQt$${DS}
+        LIBS += -losgEarth$${DS} -losgEarthUtil$${DS} -losgEarthFeatures$${DS} -losgEarthSymbology$${DS} -losgEarthAnnotation$${DS}
+        osgearthQt:LIBS += -losgEarthQt$${DS}
     }
 }

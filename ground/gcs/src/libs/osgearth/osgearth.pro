@@ -4,16 +4,22 @@ DEFINES += OSGEARTH_LIBRARY
 
 #CONFIG += mys2
 
-!msys2:OSG_VERSION = 3.4.0
-msys2:OSG_VERSION = 3.5.1
-
 CONFIG += osg
-DEFINES += USE_OSG
+#CONFIG += osgQt
 
 exists( $(OSGEARTH_SDK_DIR) ) {
     CONFIG += osgearth
-    DEFINES += USE_OSGEARTH
+    #CONFIG += osgearthQt
 }
+
+!msys2:OSG_VERSION = 3.4.0
+msys2:OSG_VERSION = 3.5.1
+
+osg:DEFINES += USE_OSG
+osgQt:DEFINES += USE_OSG_QT
+
+osgearth:DEFINES += USE_OSGEARTH
+osgearthQt:DEFINES += USE_OSGEARTH_QT
 
 #DEFINES += OSG_USE_QT_PRIVATE
 

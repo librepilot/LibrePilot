@@ -87,7 +87,6 @@ osg:win32 {
         libosgManipulator$${DS}.dll \
         libosgParticle$${DS}.dll \
         libosgPresentation$${DS}.dll \
-        libosgQt$${DS}.dll \
         libosgShadow$${DS}.dll \
         libosgSim$${DS}.dll \
         libosgTerrain$${DS}.dll \
@@ -96,6 +95,9 @@ osg:win32 {
         libosgViewer$${DS}.dll \
         libosgVolume$${DS}.dll \
         libosgWidget$${DS}.dll
+
+    osgQt:OSG_LIBS += \
+        libosgQt$${DS}.dll
 
     for(lib, OSG_LIBS) {
         addCopyFileTarget($${lib},$${OSG_SDK_DIR}/bin,$${GCS_APP_PATH})
@@ -185,9 +187,11 @@ osgearth:win32 {
         libosgEarth$${DS}.dll \
         libosgEarthAnnotation$${DS}.dll \
         libosgEarthFeatures$${DS}.dll \
-        libosgEarthQt$${DS}.dll \
         libosgEarthSymbology$${DS}.dll \
         libosgEarthUtil$${DS}.dll
+
+    osgearthQt:OSGEARTH_LIBS += \
+        libosgEarthQt$${DS}.dll
 
     for(lib, OSGEARTH_LIBS) {
         addCopyFileTarget($${lib},$${OSGEARTH_SDK_DIR}/bin,$${GCS_APP_PATH})

@@ -54,14 +54,17 @@
 #include <osgText/Font>
 #include <osgText/Text>
 #include <osgText/String>
+
+#ifdef USE_OSG_QT
 #include <osgQt/QFontImplementation>
+#endif // USE_OSG_QT
 
 #ifdef USE_OSGEARTH
 #include <osgEarth/Capabilities>
 #include <osgEarth/MapNode>
 #include <osgEarth/SpatialReference>
 #include <osgEarth/ElevationQuery>
-#endif
+#endif // USE_OSGEARTH
 
 #include <QFont>
 #include <QKeyEvent>
@@ -152,12 +155,19 @@ osgText::Font *createFont(const std::string &name)
         return 0;
     }
 
-    return new osgText::Font(new osgQt::QFontImplementation(font));
+    return createFont(font);
 }
 
 osgText::Font *createFont(const QFont &font)
 {
+#ifdef USE_OSG_QT
     return new osgText::Font(new osgQt::QFontImplementation(font));
+
+#else
+    qWarning() << "Cannot create osgText::Font from QFont (osgQt is not available)";
+    return osgText::Font::getDefaultFont();
+
+#endif // USE_OSG_QT
 }
 
 osgText::Text *createText(const osg::Vec3 &pos, const std::string &content, float size, osgText::Font *font)
@@ -501,7 +511,7 @@ void capabilitiesInfo(const osgEarth::Capabilities &caps)
     qDebug().nospace() << "PreferDisplayListsForStaticGeometry : " << caps.preferDisplayListsForStaticGeometry();
     qDebug().nospace() << "FragDepthWrite : " << caps.supportsFragDepthWrite();
 }
-#endif // ifdef USE_OSGEARTH
+#endif // USE_OSGEARTH
 
 void registerTypes()
 {
@@ -533,6 +543,6 @@ void registerTypes()
 #ifdef USE_OSGEARTH
     qmlRegisterType<osgQtQuick::OSGModelNode>("OsgQtQuick", maj, min, "OSGModelNode");
     qmlRegisterType<osgQtQuick::OSGSkyNode>("OsgQtQuick", maj, min, "OSGSkyNode");
-#endif
+#endif // USE_OSGEARTH
 }
 } // namespace osgQtQuick

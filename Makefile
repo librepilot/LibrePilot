@@ -182,7 +182,7 @@ uavobjgenerator: $(UAVOBJGENERATOR)
 $(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
 	$(V1) cd $(UAVOBJGENERATOR_DIR) && \
 	    ( [ -f Makefile ] || $(QMAKE) $(ROOT_DIR)/ground/uavobjgenerator/uavobjgenerator.pro \
-	    CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) ) && \
+	    CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' ) && \
 	    $(MAKE) --no-print-directory -w
 
 UAVOBJ_TARGETS := gcs flight python matlab java wireshark
@@ -241,10 +241,8 @@ include $(ROOT_DIR)/flight/Makefile
 .PHONY: all_ground
 all_ground: gcs uploader
 
-ifeq ($(V), 1)
-    GCS_SILENT :=
-else
-    GCS_SILENT := silent
+ifneq ($(V), 1)
+    GCS_EXTRA_CONF += silent
 endif
 
 GCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
@@ -256,7 +254,7 @@ GCS_MAKEFILE := $(GCS_DIR)/Makefile
 gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
 	$(V1) cd $(GCS_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/gcs/gcs.pro \
-	    -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
+	    -r CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
 	    'WIKI_URL_ROOT="$(WIKI_URL_ROOT)"' \
@@ -290,7 +288,7 @@ UPLOADER_MAKEFILE := $(UPLOADER_DIR)/Makefile
 uploader_qmake $(UPLOADER_MAKEFILE): | $(UPLOADER_DIR)
 	$(V1) cd $(UPLOADER_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/gcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
-	    -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
+	    -r CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' $(GCS_QMAKE_OPTS)
 
 .PHONY: uploader
 uploader: $(UPLOADER_MAKEFILE)

@@ -13,32 +13,31 @@ Item {
         smooth: true
 
         property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "horizon")
-        width: Math.round(sceneItem.width*scaledBounds.width/2)*2
-        height: Math.round(sceneItem.height*scaledBounds.height/2)*3
+        width: Math.round(sceneItem.width * scaledBounds.width / 2) * 2
+        height: Math.round(sceneItem.height * scaledBounds.height / 2) * 3
 
         property double pitch1DegScaledHeight: ((svgRenderer.scaledElementBounds("pfd.svg", "pitch-90").y -
-                                                svgRenderer.scaledElementBounds("pfd.svg", "pitch90").y)*1.03)/180.0
+                                                 svgRenderer.scaledElementBounds("pfd.svg", "pitch90").y) * 1.03) / 180.0
 
         property double pitch1DegHeight: sceneItem.height*pitch1DegScaledHeight
 
         gradient: Gradient {
-            GradientStop { position: 0.4000;   color: "#013163" }
-            GradientStop { position: 0.4999;   color: "#0164CC" }
-            GradientStop { position: 0.5001;   color: "#653300" }
-            GradientStop { position: 0.6000;   color: "#3C1E00" }
+            GradientStop { position: 0.4000; color: "#013163" }
+            GradientStop { position: 0.4999; color: "#0164CC" }
+            GradientStop { position: 0.5001; color: "#653300" }
+            GradientStop { position: 0.6000; color: "#3C1E00" }
         }
 
         transform: [
             Translate {
                 id: pitchTranslate
-                x: Math.round((world.parent.width - world.width)/2)
+                x: Math.round((world.parent.width - world.width) / 2)
                 // y is centered around world_center element
-                y: Math.round(horizontCenter - world.height/2 +
-                              attitudeState.pitch * world.pitch1DegHeight)
+                y: Math.round(horizontCenter - world.height / 2 + attitudeState.pitch * world.pitch1DegHeight)
             },
             Rotation {
                 angle: -attitudeState.roll
-                origin.x : world.parent.width/2
+                origin.x : world.parent.width / 2
                 origin.y : horizontCenter
             }
         ]
@@ -47,7 +46,7 @@ Item {
             id: horizont_line
             elementName: "center-line"
 
-            //worldView is loaded with Loader, so background element is visible
+            // worldView is loaded with Loader, so background element is visible
             sceneSize: background.sceneSize
             anchors.centerIn: parent
             border: 1
@@ -83,10 +82,10 @@ Item {
         SvgElementImage {
             id: pitch_scale
             elementName: "pitch-scale"
-            //worldView is loaded with Loader, so background element is visible
+            // worldView is loaded with Loader, so background element is visible
             sceneSize: background.sceneSize
             anchors.centerIn: parent
-            //see comment for world transform
+            // see comment for world transform
             anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
             border: 64 //sometimes numbers are excluded from bounding rect
 

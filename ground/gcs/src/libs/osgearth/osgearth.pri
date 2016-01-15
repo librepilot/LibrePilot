@@ -1,7 +1,8 @@
-exists( $(OSG_SDK_DIR) ) {
+osg {
 	DEFINES += USE_OSG
 	LIBS *= -l$$qtLibraryName(GCSOsgEarth)
 }
-exists( $(OSGEARTH_SDK_DIR) ) {
+
+osgearth {
 	DEFINES += USE_OSGEARTH
 }

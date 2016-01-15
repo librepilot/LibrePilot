@@ -82,10 +82,6 @@ One of the project’s primary goals is to provide an open and collaborative env
 endef
 
 
-# Set up default build configurations (debug | release)
-GCS_BUILD_CONF		:= release
-GOOGLE_API_VERSION	:= 14
-
 # Clean out undesirable variables from the environment and command-line
 # to remove the chance that they will cause problems with our build
 define SANITIZE_VAR
@@ -148,6 +144,14 @@ else ifeq ($(UNAME), Windows)
 endif
 
 export UAVOBJGENERATOR
+
+# Set up default build configurations (debug | release)
+GCS_BUILD_CONF := release
+GCS_EXTRA_CONF := osg copy_osg
+
+ifeq ($(UNAME), Windows)
+    GCS_EXTRA_CONF += osgearth
+endif
 
 ##############################
 #

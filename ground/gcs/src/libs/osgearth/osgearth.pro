@@ -4,17 +4,6 @@ DEFINES += OSGEARTH_LIBRARY
 
 #CONFIG += mys2
 
-CONFIG += osg
-#CONFIG += osgQt
-
-exists( $(OSGEARTH_SDK_DIR) ) {
-    CONFIG += osgearth
-    #CONFIG += osgearthQt
-}
-
-!msys2:OSG_VERSION = 3.4.0
-msys2:OSG_VERSION = 3.5.1
-
 osg:DEFINES += USE_OSG
 osgQt:DEFINES += USE_OSG_QT
 
@@ -86,4 +75,4 @@ osgearth:SOURCES += \
     osgQtQuick/OSGModelNode.cpp \
     osgQtQuick/OSGSkyNode.cpp
 
-include(copydata.pro)
+copy_osg:include(copydata.pro)

@@ -28,7 +28,7 @@
 #include "lineardialgadgetwidget.h"
 #include <utils/stylehelper.h>
 #include <QFileDialog>
-#include <QtOpenGL/QGLWidget>
+#include <QOpenGLWidget>
 #include <QDebug>
 
 LineardialGadgetWidget::LineardialGadgetWidget(QWidget *parent) : QGraphicsView(parent)
@@ -66,7 +66,7 @@ LineardialGadgetWidget::~LineardialGadgetWidget()
 void LineardialGadgetWidget::enableOpenGL(bool flag)
 {
     if (flag) {
-        setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+        setViewport(new QOpenGLWidget()); // QGLFormat(QGL::SampleBuffers)));
     } else {
         setViewport(new QWidget);
     }

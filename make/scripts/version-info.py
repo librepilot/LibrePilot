@@ -195,6 +195,25 @@ class Repo:
         except:
             return None
 
+    def version_four_num(self):
+        """Return package version in format X.X.X.X using only numbers"""
+
+        try:
+            (release, junk, candidate) = self._last_tag.partition("-RC")
+            (year, dot, month_and_patch) = release.partition(".")
+            (month, dot, patch) = month_and_patch.partition(".")
+
+            if candidate == "":
+                candidate = "64" # Need to stay below 65536 for last part
+
+            if patch == "":
+                patch = "0"
+
+            return "{}.{}.{}.{}{:0>3.3}".format(year,month,patch,candidate,self._num_commits_past_tag)
+        except:
+            return None
+
+
     def revision(self):
         """Return full revison string (tag if defined, or branch:hash date time if no tag)"""
         try:
@@ -463,6 +482,7 @@ string given.
         TAG_OR_BRANCH = r.tag(r.branch('unreleased')),
         TAG_OR_HASH8 = r.tag(r.hash(8, 'untagged')),
         LABEL = r.label(),
+        VERSION_FOUR_NUM = r.version_four_num(),
         REVISION = r.revision(),
         DIRTY = r.dirty(),
         FWTAG = xtrim(r.tag(r.branch('unreleased')), r.dirty(), 25),

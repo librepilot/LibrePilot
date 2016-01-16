@@ -42,6 +42,7 @@
 
 #include <osg/NodeCallback>
 #include <osg/Camera>
+#include <osg/MatrixTransform>
 #include <osg/io_utils>
 #include <osg/ApplicationUsage>
 #include <osgViewer/Viewer>
@@ -53,13 +54,17 @@
 #include <osgText/Font>
 #include <osgText/Text>
 #include <osgText/String>
-#include <osgQt/QFontImplementation>
 
+#ifdef USE_OSG_QT
+#include <osgQt/QFontImplementation>
+#endif // USE_OSG_QT
+
+#ifdef USE_OSGEARTH
 #include <osgEarth/Capabilities>
-#include <osgEarth/CullingUtils>
 #include <osgEarth/MapNode>
 #include <osgEarth/SpatialReference>
 #include <osgEarth/ElevationQuery>
+#endif // USE_OSGEARTH
 
 #include <QFont>
 #include <QKeyEvent>
@@ -76,7 +81,7 @@ public:
 public:
     virtual void operator()(osg::Node *node, osg::NodeVisitor *nv)
     {
-        osgUtil::CullVisitor *cv = osgEarth::Culling::asCullVisitor(nv);
+        osgUtil::CullVisitor *cv = 0; // osgEarth::Culling::asCullVisitor(nv);
 
         if (cv) {
             OSG_DEBUG << "****** Node:" << node << " " << node->getName() << std::endl;
@@ -150,12 +155,19 @@ osgText::Font *createFont(const std::string &name)
         return 0;
     }
 
-    return new osgText::Font(new osgQt::QFontImplementation(font));
+    return createFont(font);
 }
 
 osgText::Font *createFont(const QFont &font)
 {
+#ifdef USE_OSG_QT
     return new osgText::Font(new osgQt::QFontImplementation(font));
+
+#else
+    qWarning() << "Cannot create osgText::Font from QFont (osgQt is not available)";
+    return osgText::Font::getDefaultFont();
+
+#endif // USE_OSG_QT
 }
 
 osgText::Text *createText(const osg::Vec3 &pos, const std::string &content, float size, osgText::Font *font)
@@ -250,40 +262,6 @@ int QtKeyboardMap::remapKey(QKeyEvent *event)
     return itr->second;
 }
 
-osgEarth::GeoPoint toGeoPoint(const QVector3D &position)
-{
-    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                                position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
-
-    return geoPoint;
-}
-
-bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode)
-{
-    if (!mapNode) {
-        qWarning() << "Utility::clampGeoPoint - null map node";
-        return false;
-    }
-
-    // establish an elevation query interface based on the features' SRS.
-    osgEarth::ElevationQuery eq(mapNode->getMap());
-    // qDebug() << "Utility::clampGeoPoint - SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
-
-    bool clamped = false;
-    double elevation;
-    if (eq.getElevation(geoPoint, elevation, 0.0)) {
-        clamped = ((geoPoint.z() - offset) < elevation);
-        if (clamped) {
-            qDebug() << "Utility::clampGeoPoint - clamping" << geoPoint.z() - offset << "/" << elevation;
-            geoPoint.z() = elevation + offset;
-        }
-    } else {
-        qDebug() << "Utility::clampGeoPoint - failed to get elevation";
-    }
-
-    return clamped;
-}
-
 QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits)
 {
     QSurfaceFormat format(QSurfaceFormat::defaultFormat());
@@ -298,9 +276,9 @@ QSurfaceFormat traitsToFormat(const osg::GraphicsContext::Traits *traits)
     // format.setSampleBuffers(traits->sampleBuffers);
     format.setSamples(traits->samples);
 
-// format.setAlpha(traits->alpha > 0);
-// format.setDepth(traits->depth > 0);
-// format.setStencil(traits->stencil > 0);
+    // format.setAlpha(traits->alpha > 0);
+    // format.setDepth(traits->depth > 0);
+    // format.setStencil(traits->stencil > 0);
 
     format.setStereo(traits->quadBufferStereo ? 1 : 0);
 
@@ -395,44 +373,6 @@ void traitsInfo(const osg::GraphicsContext::Traits &traits)
     // qDebug().nospace() << "swapInterval : " << traits.swapInterval();
 }
 
-void capabilitiesInfo(const osgEarth::Capabilities &caps)
-{
-    qDebug().nospace() << "capabilities  ----------------------------------------";
-
-    qDebug().nospace() << "Vendor : " << QString::fromStdString(caps.getVendor());
-    qDebug().nospace() << "Version : " << QString::fromStdString(caps.getVersion());
-    qDebug().nospace() << "Renderer : " << QString::fromStdString(caps.getRenderer());
-
-    qDebug().nospace() << "GLSL supported : " << caps.supportsGLSL();
-    qDebug().nospace() << "GLSL version   : " << caps.getGLSLVersionInt();
-
-    qDebug().nospace() << "GLES : " << caps.isGLES();
-
-    qDebug().nospace() << "Num Processors : " << caps.getNumProcessors();
-
-    qDebug().nospace() << "MaxFFPTextureUnits : " << caps.getMaxFFPTextureUnits();
-    qDebug().nospace() << "MaxGPUTextureUnits : " << caps.getMaxGPUTextureUnits();
-    qDebug().nospace() << "MaxGPUAttribs : " << caps.getMaxGPUAttribs();
-    qDebug().nospace() << "MaxTextureSize : " << caps.getMaxTextureSize();
-    qDebug().nospace() << "MaxLights : " << caps.getMaxLights();
-    qDebug().nospace() << "DepthBufferBits : " << caps.getDepthBufferBits();
-    qDebug().nospace() << "TextureArrays : " << caps.supportsTextureArrays();
-    qDebug().nospace() << "Texture3D : " << caps.supportsTexture3D();
-    qDebug().nospace() << "MultiTexture : " << caps.supportsMultiTexture();
-    qDebug().nospace() << "StencilWrap : " << caps.supportsStencilWrap();
-    qDebug().nospace() << "TwoSidedStencil : " << caps.supportsTwoSidedStencil();
-    qDebug().nospace() << "Texture2DLod : " << caps.supportsTexture2DLod();
-    qDebug().nospace() << "MipmappedTextureUpdates : " << caps.supportsMipmappedTextureUpdates();
-    qDebug().nospace() << "DepthPackedStencilBuffer : " << caps.supportsDepthPackedStencilBuffer();
-    qDebug().nospace() << "OcclusionQuery : " << caps.supportsOcclusionQuery();
-    qDebug().nospace() << "DrawInstanced : " << caps.supportsDrawInstanced();
-    qDebug().nospace() << "UniformBufferObjects : " << caps.supportsUniformBufferObjects();
-    qDebug().nospace() << "NonPowerOfTwoTextures : " << caps.supportsNonPowerOfTwoTextures();
-    qDebug().nospace() << "MaxUniformBlockSize : " << caps.getMaxUniformBlockSize();
-    qDebug().nospace() << "PreferDisplayListsForStaticGeometry : " << caps.preferDisplayListsForStaticGeometry();
-    qDebug().nospace() << "FragDepthWrite : " << caps.supportsFragDepthWrite();
-}
-
 QString formatProfileName(QSurfaceFormat::OpenGLContextProfile profile)
 {
     switch (profile) {
@@ -499,23 +439,110 @@ QString getUsageString(osgViewer::CompositeViewer *viewer)
     return getUsageString(applicationUsage);
 }
 
-void registerTypes(const char *uri)
+#ifdef USE_OSGEARTH
+osgEarth::GeoPoint toGeoPoint(const QVector3D &position)
 {
-    // Q_ASSERT(uri == QLatin1String("osgQtQuick"));
+    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
+                                position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
+
+    return geoPoint;
+}
+
+bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode)
+{
+    if (!mapNode) {
+        qWarning() << "Utility::clampGeoPoint - null map node";
+        return false;
+    }
+
+    // establish an elevation query interface based on the features' SRS.
+    osgEarth::ElevationQuery eq(mapNode->getMap());
+    // qDebug() << "Utility::clampGeoPoint - SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
+
+    bool clamped = false;
+    double elevation;
+    if (eq.getElevation(geoPoint, elevation, 0.0)) {
+        clamped = ((geoPoint.z() - offset) < elevation);
+        if (clamped) {
+            qDebug() << "Utility::clampGeoPoint - clamping" << geoPoint.z() - offset << "/" << elevation;
+            geoPoint.z() = elevation + offset;
+        }
+    } else {
+        qDebug() << "Utility::clampGeoPoint - failed to get elevation";
+    }
+
+    return clamped;
+}
+
+void capabilitiesInfo(const osgEarth::Capabilities &caps)
+{
+    qDebug().nospace() << "capabilities  ----------------------------------------";
+
+    qDebug().nospace() << "Vendor : " << QString::fromStdString(caps.getVendor());
+    qDebug().nospace() << "Version : " << QString::fromStdString(caps.getVersion());
+    qDebug().nospace() << "Renderer : " << QString::fromStdString(caps.getRenderer());
+
+    qDebug().nospace() << "GLSL supported : " << caps.supportsGLSL();
+    qDebug().nospace() << "GLSL version   : " << caps.getGLSLVersionInt();
+
+    qDebug().nospace() << "GLES : " << caps.isGLES();
+
+    qDebug().nospace() << "Num Processors : " << caps.getNumProcessors();
+
+    qDebug().nospace() << "MaxFFPTextureUnits : " << caps.getMaxFFPTextureUnits();
+    qDebug().nospace() << "MaxGPUTextureUnits : " << caps.getMaxGPUTextureUnits();
+    qDebug().nospace() << "MaxGPUAttribs : " << caps.getMaxGPUAttribs();
+    qDebug().nospace() << "MaxTextureSize : " << caps.getMaxTextureSize();
+    qDebug().nospace() << "MaxLights : " << caps.getMaxLights();
+    qDebug().nospace() << "DepthBufferBits : " << caps.getDepthBufferBits();
+    qDebug().nospace() << "TextureArrays : " << caps.supportsTextureArrays();
+    qDebug().nospace() << "Texture3D : " << caps.supportsTexture3D();
+    qDebug().nospace() << "MultiTexture : " << caps.supportsMultiTexture();
+    qDebug().nospace() << "StencilWrap : " << caps.supportsStencilWrap();
+    qDebug().nospace() << "TwoSidedStencil : " << caps.supportsTwoSidedStencil();
+    qDebug().nospace() << "Texture2DLod : " << caps.supportsTexture2DLod();
+    qDebug().nospace() << "MipmappedTextureUpdates : " << caps.supportsMipmappedTextureUpdates();
+    qDebug().nospace() << "DepthPackedStencilBuffer : " << caps.supportsDepthPackedStencilBuffer();
+    qDebug().nospace() << "OcclusionQuery : " << caps.supportsOcclusionQuery();
+    qDebug().nospace() << "DrawInstanced : " << caps.supportsDrawInstanced();
+    qDebug().nospace() << "UniformBufferObjects : " << caps.supportsUniformBufferObjects();
+    qDebug().nospace() << "NonPowerOfTwoTextures : " << caps.supportsNonPowerOfTwoTextures();
+    qDebug().nospace() << "MaxUniformBlockSize : " << caps.getMaxUniformBlockSize();
+    qDebug().nospace() << "PreferDisplayListsForStaticGeometry : " << caps.preferDisplayListsForStaticGeometry();
+    qDebug().nospace() << "FragDepthWrite : " << caps.supportsFragDepthWrite();
+}
+#endif // USE_OSGEARTH
+
+void registerTypes()
+{
     int maj = 1, min = 0;
 
     // @uri osgQtQuick
-    qmlRegisterType<osgQtQuick::OSGNode>(uri, maj, min, "OSGNode");
-    qmlRegisterType<osgQtQuick::OSGGroup>(uri, maj, min, "OSGGroup");
-    qmlRegisterType<osgQtQuick::OSGFileNode>(uri, maj, min, "OSGFileNode");
-    qmlRegisterType<osgQtQuick::OSGTransformNode>(uri, maj, min, "OSGTransformNode");
-    qmlRegisterType<osgQtQuick::OSGTextNode>(uri, maj, min, "OSGTextNode");
-    qmlRegisterType<osgQtQuick::OSGCubeNode>(uri, maj, min, "OSGCubeNode");
-    qmlRegisterType<osgQtQuick::OSGViewport>(uri, maj, min, "OSGViewport");
+    qmlRegisterType<osgQtQuick::OSGNode>("OsgQtQuick", maj, min, "OSGNode");
 
-    qmlRegisterType<osgQtQuick::OSGModelNode>(uri, maj, min, "OSGModelNode");
-    qmlRegisterType<osgQtQuick::OSGSkyNode>(uri, maj, min, "OSGSkyNode");
-    qmlRegisterType<osgQtQuick::OSGBackgroundNode>(uri, maj, min, "OSGBackgroundNode");
-    qmlRegisterType<osgQtQuick::OSGCamera>(uri, maj, min, "OSGCamera");
+    qmlRegisterType<osgQtQuick::OSGGroup>("OsgQtQuick", maj, min, "OSGGroup");
+
+    qmlRegisterType<osgQtQuick::OSGFileNode>("OsgQtQuick", maj, min, "OSGFileNode");
+    qmlRegisterType<osgQtQuick::OptimizeMode>("OsgQtQuick", maj, min, "OptimizeMode");
+
+    qmlRegisterType<osgQtQuick::OSGTransformNode>("OsgQtQuick", maj, min, "OSGTransformNode");
+
+    qmlRegisterType<osgQtQuick::OSGTextNode>("OsgQtQuick", maj, min, "OSGTextNode");
+
+    qmlRegisterType<osgQtQuick::OSGCubeNode>("OsgQtQuick", maj, min, "OSGCubeNode");
+
+    qmlRegisterType<osgQtQuick::OSGBackgroundNode>("OsgQtQuick", maj, min, "OSGBackgroundNode");
+
+    qmlRegisterType<osgQtQuick::OSGViewport>("OsgQtQuick", maj, min, "OSGViewport");
+    qmlRegisterType<osgQtQuick::UpdateMode>("OsgQtQuick", maj, min, "UpdateMode");
+
+    qmlRegisterType<osgQtQuick::OSGCamera>("OsgQtQuick", maj, min, "OSGCamera");
+    qmlRegisterType<osgQtQuick::ManipulatorMode>("OsgQtQuick", maj, min, "ManipulatorMode");
+    qmlRegisterType<osgQtQuick::TrackerMode>("OsgQtQuick", maj, min, "TrackerMode");
+
+#ifdef USE_OSGEARTH
+    qmlRegisterType<osgQtQuick::OSGModelNode>("OsgQtQuick", maj, min, "OSGModelNode");
+    qmlRegisterType<osgQtQuick::OSGSkyNode>("OsgQtQuick", maj, min, "OSGSkyNode");
+#endif // USE_OSGEARTH
 }
 } // namespace osgQtQuick

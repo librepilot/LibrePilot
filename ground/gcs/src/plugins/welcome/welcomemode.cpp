@@ -38,6 +38,7 @@
 #include <utils/styledbar.h>
 #include <utils/welcomemodetreewidget.h>
 #include <utils/iwelcomepage.h>
+#include <utils/quickwidgetproxy.h>
 
 #include <QDesktopServices>
 
@@ -49,7 +50,7 @@
 #include <QNetworkReply>
 
 #include <QtQuick>
-#include <QQuickView>
+#include <QQuickWidget>
 #include <QQmlEngine>
 #include <QQmlContext>
 
@@ -59,27 +60,11 @@ using namespace ExtensionSystem;
 using namespace Utils;
 
 namespace Welcome {
-struct WelcomeModePrivate {
-    WelcomeModePrivate();
-
-    QQuickView *quickView;
-};
-
-WelcomeModePrivate::WelcomeModePrivate()
-{}
-
-// ---  WelcomeMode
 WelcomeMode::WelcomeMode() :
-    m_d(new WelcomeModePrivate),
+    m_quickWidgetProxy(NULL),
     m_priority(Core::Constants::P_MODE_WELCOME),
     m_newVersionText("")
 {
-    m_d->quickView = new QQuickView;
-    m_d->quickView->setResizeMode(QQuickView::SizeRootObjectToView);
-    m_d->quickView->engine()->rootContext()->setContextProperty("welcomePlugin", this);
-    m_d->quickView->setSource(QUrl("qrc:/welcome/qml/main.qml"));
-    m_container = NULL;
-
     QNetworkAccessManager *networkAccessManager = new QNetworkAccessManager;
 
     // Only attempt to request our version info if the network is accessible
@@ -97,10 +82,7 @@ WelcomeMode::WelcomeMode() :
 }
 
 WelcomeMode::~WelcomeMode()
-{
-    delete m_d->quickView;
-    delete m_d;
-}
+{}
 
 QString WelcomeMode::name() const
 {
@@ -119,12 +101,13 @@ int WelcomeMode::priority() const
 
 QWidget *WelcomeMode::widget()
 {
-    if (!m_container) {
-        m_container = QWidget::createWindowContainer(m_d->quickView);
-        m_container->setMinimumSize(64, 64);
-        m_container->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    if (!m_quickWidgetProxy) {
+        m_quickWidgetProxy = new QuickWidgetProxy();
+        // qWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+        m_quickWidgetProxy->engine()->rootContext()->setContextProperty("welcomePlugin", this);
+        m_quickWidgetProxy->setSource(QUrl("qrc:/welcome/qml/main.qml"));
     }
-    return m_container;
+    return m_quickWidgetProxy->widget();
 }
 
 const char *WelcomeMode::uniqueModeName() const

@@ -37,15 +37,19 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
+class OSGQTQUICK_EXPORT OptimizeMode : public QObject {
+    Q_OBJECT
+public:
+    enum Enum { None, Optimize, OptimizeAndCheck };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
+};
+
 class OSGQTQUICK_EXPORT OSGFileNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
-    Q_PROPERTY(OptimizeMode optimizeMode READ optimizeMode WRITE setOptimizeMode NOTIFY optimizeModeChanged)
-
-    Q_ENUMS(OptimizeMode)
+    Q_PROPERTY(osgQtQuick::OptimizeMode::Enum optimizeMode READ optimizeMode WRITE setOptimizeMode NOTIFY optimizeModeChanged)
 
 public:
-    enum OptimizeMode { None, Optimize, OptimizeAndCheck };
 
     OSGFileNode(QObject *parent = 0);
     virtual ~OSGFileNode();
@@ -56,13 +60,13 @@ public:
     bool async() const;
     void setAsync(const bool async);
 
-    OptimizeMode optimizeMode() const;
-    void setOptimizeMode(OptimizeMode);
+    OptimizeMode::Enum optimizeMode() const;
+    void setOptimizeMode(OptimizeMode::Enum);
 
 signals:
     void sourceChanged(const QUrl &url);
     void asyncChanged(const bool async);
-    void optimizeModeChanged(OptimizeMode);
+    void optimizeModeChanged(OptimizeMode::Enum);
 
 private:
     struct Hidden;

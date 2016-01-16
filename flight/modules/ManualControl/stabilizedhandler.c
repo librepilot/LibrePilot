@@ -107,10 +107,10 @@ void stabilizedHandler(bool newinit)
         float yawCommand  = cmd.Yaw;
 
         // http://shrediquette.blogspot.de/2016/01/some-thoughts-on-camera-tilt.html
-        // Roll_output = cos(camera_tilt) * Roll_input - sin(camera_tilt) * Yaw_input
-        // Yaw_output = sin(camera_tilt) * Roll_input + cos(camera_tilt) * Yaw_input
-        cmd.Roll = boundf((cosAngle * rollCommand) - (sinAngle * yawCommand), -1.0f, 1.0f);
-        cmd.Yaw  = boundf((cosAngle * yawCommand) + (sinAngle * rollCommand), -1.0f, 1.0f);
+        // When Roll right, add negative Yaw.
+        // When Yaw left, add negative Roll.
+        cmd.Roll = boundf((cosAngle * rollCommand) + (sinAngle * yawCommand), -1.0f, 1.0f);
+        cmd.Yaw  = boundf((cosAngle * yawCommand) - (sinAngle * rollCommand), -1.0f, 1.0f);
     }
 
     uint8_t *stab_settings;

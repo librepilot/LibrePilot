@@ -30,6 +30,7 @@
 #include "utility.h"
 
 #include <osg/DeleteHandler>
+#include <osg/Version>
 #include <osgViewer/GraphicsWindow>
 
 #include <QOpenGLContext>
@@ -139,7 +140,11 @@ void GraphicsWindowQt::init()
     }
 
     // make sure the event queue has the correct window rectangle size and input range
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
+#else
+    getEventQueue()->syncWindowRectangleWithGraphcisContext();
+#endif
 
     _initialized = true;
 
@@ -246,7 +251,11 @@ bool GraphicsWindowQt::realizeImplementation()
     _realized = true;
 
     // make sure the event queue has the correct window rectangle size and input range
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
+#else
+    getEventQueue()->syncWindowRectangleWithGraphcisContext();
+#endif
 
     // make this window's context not current
     // note: this must be done as we will probably make the context current from another thread

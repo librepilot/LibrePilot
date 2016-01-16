@@ -12,6 +12,6 @@ SUBDIRS = \
     qwt \
     sdlgamepad
 
-exists( $(OSG_SDK_DIR) ) {
+osg {
     SUBDIRS += osgearth
 }

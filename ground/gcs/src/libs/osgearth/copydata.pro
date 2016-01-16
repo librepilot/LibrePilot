@@ -11,6 +11,10 @@ contains(QT_ARCH, x86_64)  {
     LIB_DIR_NAME = lib
 }
 
+!msys2:OSG_VERSION = 3.4.0
+msys2:OSG_VERSION = 3.5.1
+
+
 osg:linux {
     # copy osg libraries
     data_copy.commands += $(MKDIR) $$GCS_LIBRARY_PATH/osg $$addNewline()

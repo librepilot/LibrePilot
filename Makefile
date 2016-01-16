@@ -82,10 +82,6 @@ One of the project’s primary goals is to provide an open and collaborative env
 endef
 
 
-# Set up default build configurations (debug | release)
-GCS_BUILD_CONF		:= release
-GOOGLE_API_VERSION	:= 14
-
 # Clean out undesirable variables from the environment and command-line
 # to remove the chance that they will cause problems with our build
 define SANITIZE_VAR
@@ -149,6 +145,14 @@ endif
 
 export UAVOBJGENERATOR
 
+# Set up default build configurations (debug | release)
+GCS_BUILD_CONF := release
+GCS_EXTRA_CONF := osg copy_osg
+
+ifeq ($(UNAME), Windows)
+    GCS_EXTRA_CONF += osgearth
+endif
+
 ##############################
 #
 # All targets
@@ -182,7 +186,7 @@ uavobjgenerator: $(UAVOBJGENERATOR)
 $(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
 	$(V1) cd $(UAVOBJGENERATOR_DIR) && \
 	    ( [ -f Makefile ] || $(QMAKE) $(ROOT_DIR)/ground/uavobjgenerator/uavobjgenerator.pro \
-	    CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) ) && \
+	    CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' ) && \
 	    $(MAKE) --no-print-directory -w
 
 UAVOBJ_TARGETS := gcs flight python matlab java wireshark
@@ -241,10 +245,8 @@ include $(ROOT_DIR)/flight/Makefile
 .PHONY: all_ground
 all_ground: gcs uploader
 
-ifeq ($(V), 1)
-    GCS_SILENT :=
-else
-    GCS_SILENT := silent
+ifneq ($(V), 1)
+    GCS_EXTRA_CONF += silent
 endif
 
 GCS_DIR := $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)
@@ -256,7 +258,7 @@ GCS_MAKEFILE := $(GCS_DIR)/Makefile
 gcs_qmake $(GCS_MAKEFILE): | $(GCS_DIR)
 	$(V1) cd $(GCS_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/gcs/gcs.pro \
-	    -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) \
+	    -r CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' \
 	    'GCS_BIG_NAME="$(GCS_BIG_NAME)"' GCS_SMALL_NAME=$(GCS_SMALL_NAME) \
 	    'ORG_BIG_NAME="$(ORG_BIG_NAME)"' ORG_SMALL_NAME=$(ORG_SMALL_NAME) \
 	    'WIKI_URL_ROOT="$(WIKI_URL_ROOT)"' \
@@ -290,7 +292,7 @@ UPLOADER_MAKEFILE := $(UPLOADER_DIR)/Makefile
 uploader_qmake $(UPLOADER_MAKEFILE): | $(UPLOADER_DIR)
 	$(V1) cd $(UPLOADER_DIR) && \
 	    $(QMAKE) $(ROOT_DIR)/ground/gcs/src/experimental/USB_UPLOAD_TOOL/upload.pro \
-	    -r CONFIG+=$(GCS_BUILD_CONF) CONFIG+=$(GCS_SILENT) $(GCS_QMAKE_OPTS)
+	    -r CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' $(GCS_QMAKE_OPTS)
 
 .PHONY: uploader
 uploader: $(UPLOADER_MAKEFILE)
@@ -302,116 +304,6 @@ uploader_clean:
 	$(V1) [ ! -d "$(UPLOADER_DIR)" ] || $(RM) -r "$(UPLOADER_DIR)"
 
 
-# We want to take snapshots of the UAVOs at each point that they change
-# to allow the GCS to be compatible with as many versions as possible.
-# We always include a pseudo collection called "srctree" which represents
-# the UAVOs in the source tree. So not necessary to add current tree UAVO
-# hash here, it is always included.
-
-# Find the git hashes of each commit that changes uavobjects with:
-#   git log --format=%h -- shared/uavobjectdefinition/ | head -n 2
-# List only UAVO hashes of past releases, do not list current hash.
-# Past compatible versions are so far: RELEASE-12.10.2
-UAVO_GIT_VERSIONS := 5e14f53
-
-# All versions includes also the current source tree UAVO hash
-UAVO_ALL_VERSIONS := $(UAVO_GIT_VERSIONS) srctree
-
-# This is where the UAVO collections are stored
-UAVO_COLLECTION_DIR := $(BUILD_DIR)/uavo-collections
-
-# $(1) git hash of a UAVO snapshot
-define UAVO_COLLECTION_GIT_TEMPLATE
-
-# Make the output directory that will contain all of the synthetics for the
-# uavo collection referenced by the git hash $(1)
-$$(UAVO_COLLECTION_DIR)/$(1):
-	$$(V1) $(MKDIR) -p $$(UAVO_COLLECTION_DIR)/$(1)
-
-# Extract the snapshot of shared/uavobjectdefinition from git hash $(1)
-$$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml.tar: | $$(UAVO_COLLECTION_DIR)/$(1)
-$$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml.tar:
-	$$(V0) @$(ECHO) " UAVOTAR   $(1)"
-	$$(V1) $(GIT) archive $(1) -o $$@ -- shared/uavobjectdefinition/
-
-# Extract the uavo xml files from our snapshot
-$$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml: $$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml.tar
-	$$(V0) @$(ECHO) " UAVOUNTAR $(1)"
-	$$(V1) $(RM) -rf $$@
-	$$(V1) $(MKDIR) -p $$@
-	$$(V1) $(TAR) -C $$(call toprel, $$@) -xf $$(call toprel, $$<) || $(RM) -rf $$@
-endef
-
-# Map the current working directory into the set of UAVO collections
-$(UAVO_COLLECTION_DIR)/srctree:
-	$(V1) $(MKDIR) -p $@
-
-$(UAVO_COLLECTION_DIR)/srctree/uavo-xml: | $(UAVO_COLLECTION_DIR)/srctree
-$(UAVO_COLLECTION_DIR)/srctree/uavo-xml: $(UAVOBJ_XML_DIR)
-	$(V1) $(LN) -sf $(ROOT_DIR) $(UAVO_COLLECTION_DIR)/srctree/uavo-xml
-
-# $(1) git hash (or symbolic name) of a UAVO snapshot
-define UAVO_COLLECTION_BUILD_TEMPLATE
-
-# This leaves us with a (broken) symlink that points to the full sha1sum of the collection
-$$(UAVO_COLLECTION_DIR)/$(1)/uavohash: $$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml
-        # Compute the sha1 hash for this UAVO collection
-        # The sed bit truncates the UAVO hash to 16 hex digits
-	$$(V1) $$(VERSION_INFO) \
-			--uavodir=$$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml/shared/uavobjectdefinition \
-			--format='$$$${UAVO_HASH}' | \
-		$(SED) -e 's|\(................\).*|\1|' > $$@
-
-	$$(V0) @$(ECHO) " UAVOHASH  $(1) ->" $$$$(cat $$(UAVO_COLLECTION_DIR)/$(1)/uavohash)
-
-# Generate the java uavobjects for this UAVO collection
-$$(UAVO_COLLECTION_DIR)/$(1)/java-build/java: $$(UAVO_COLLECTION_DIR)/$(1)/uavohash
-	$$(V0) @$(ECHO) " UAVOJAVA  $(1)   " $$$$(cat $$(UAVO_COLLECTION_DIR)/$(1)/uavohash)
-	$$(V1) $(MKDIR) -p $$@
-	$$(V1) ( \
-		cd $$(UAVO_COLLECTION_DIR)/$(1)/java-build && \
-		$$(UAVOBJGENERATOR) -java $$(UAVO_COLLECTION_DIR)/$(1)/uavo-xml/shared/uavobjectdefinition $$(ROOT_DIR) ; \
-	)
-
-# Build a jar file for this UAVO collection
-$$(UAVO_COLLECTION_DIR)/$(1)/java-build/uavobjects.jar: | $$(ANDROIDGCS_ASSETS_DIR)/uavos
-$$(UAVO_COLLECTION_DIR)/$(1)/java-build/uavobjects.jar: $$(UAVO_COLLECTION_DIR)/$(1)/java-build/java
-	$$(V0) @$(ECHO) " UAVOJAR   $(1)   " $$$$(cat $$(UAVO_COLLECTION_DIR)/$(1)/uavohash)
-	$$(V1) ( \
-		HASH=$$$$(cat $$(UAVO_COLLECTION_DIR)/$(1)/uavohash) && \
-		cd $$(UAVO_COLLECTION_DIR)/$(1)/java-build && \
-		$(JAVAC) java/*.java \
-			$$(ROOT_DIR)/androidgcs/src/org/openpilot/uavtalk/UAVDataObject.java \
-			$$(ROOT_DIR)/androidgcs/src/org/openpilot/uavtalk/UAVObject*.java \
-			$$(ROOT_DIR)/androidgcs/src/org/openpilot/uavtalk/UAVMetaObject.java \
-			-d . && \
-		find ./org/openpilot/uavtalk/uavobjects -type f -name '*.class' > classlist.txt && \
-		$(JAR) cf tmp_uavobjects.jar @classlist.txt && \
-		$$(ANDROID_DX) \
-			--dex \
-			--output $$(ANDROIDGCS_ASSETS_DIR)/uavos/$$$${HASH}.jar \
-			tmp_uavobjects.jar && \
-		$(LN) -sf $$(ANDROIDGCS_ASSETS_DIR)/uavos/$$$${HASH}.jar uavobjects.jar \
-	)
-
-endef
-
-# One of these for each element of UAVO_GIT_VERSIONS so we can extract the UAVOs from git
-$(foreach githash, $(UAVO_GIT_VERSIONS), $(eval $(call UAVO_COLLECTION_GIT_TEMPLATE,$(githash))))
-
-# One of these for each UAVO_ALL_VERSIONS which includes the ones in the srctree
-$(foreach githash, $(UAVO_ALL_VERSIONS), $(eval $(call UAVO_COLLECTION_BUILD_TEMPLATE,$(githash))))
-
-.PHONY: uavo-collections_java
-uavo-collections_java: $(foreach githash, $(UAVO_ALL_VERSIONS), $(UAVO_COLLECTION_DIR)/$(githash)/java-build/uavobjects.jar)
-
-.PHONY: uavo-collections
-uavo-collections: uavo-collections_java
-
-.PHONY: uavo-collections_clean
-uavo-collections_clean:
-	@$(ECHO) " CLEAN      $(call toprel, $(UAVO_COLLECTION_DIR))"
-	$(V1) [ ! -d "$(UAVO_COLLECTION_DIR)" ] || $(RM) -r $(UAVO_COLLECTION_DIR)
 
 ##############################
 #

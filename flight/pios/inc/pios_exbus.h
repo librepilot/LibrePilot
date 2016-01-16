@@ -1,12 +1,11 @@
 /**
  ******************************************************************************
  *
- * @file       pios_sbus.h
+ * @file       pios_exbus.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  *             Tau Labs, http://taulabs.org, Copyright (C) 2013
  * @brief      Futaba S.Bus functions header.
  * @see        The GNU Public License (GPL) Version 3
- *
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

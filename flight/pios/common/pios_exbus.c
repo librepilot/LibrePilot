@@ -57,6 +57,8 @@
 #define EXBUS_LOW_BAUD_RATE    125000
 #define EXBUS_HIGH_BAUD_RATE   250000
 #define EXBUS_BAUD_RATE_LIMIT  64
+#define EXBUS_FRAME_TIMEOUT    4
+#define EXBUS_FAILSAFE_TIMEOUT 64
 
 /* Forward Declarations */
 static int32_t PIOS_EXBUS_Get(uint32_t rcvr_id, uint8_t channel);
@@ -108,7 +110,6 @@ struct pios_exbus_dev {
 };
 
 /* Allocate EXBUS device descriptor */
-#if defined(PIOS_INCLUDE_FREERTOS)
 static struct pios_exbus_dev *PIOS_EXBUS_Alloc(void)
 {
     struct pios_exbus_dev *exbus_dev;
@@ -121,23 +122,6 @@ static struct pios_exbus_dev *PIOS_EXBUS_Alloc(void)
     exbus_dev->magic = PIOS_EXBUS_DEV_MAGIC;
     return exbus_dev;
 }
-#else
-static struct pios_exbus_dev pios_exbus_devs[PIOS_EXBUS_MAX_DEVS];
-static uint8_t pios_exbus_num_devs;
-static struct pios_exbus_dev *PIOS_EXBUS_Alloc(void)
-{
-    struct pios_exbus_dev *exbus_dev;
-
-    if (pios_exbus_num_devs >= PIOS_EXBUS_MAX_DEVS) {
-        return NULL;
-    }
-
-    exbus_dev = &pios_exbus_devs[pios_exbus_num_devs++];
-    exbus_dev->magic = PIOS_EXBUS_DEV_MAGIC;
-
-    return exbus_dev;
-}
-#endif /* if defined(PIOS_INCLUDE_FREERTOS) */
 
 /* Validate EXBUS device descriptor */
 static bool PIOS_EXBUS_Validate(struct pios_exbus_dev *exbus_dev)
@@ -179,7 +163,6 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
 
     if (state->crc != 0) {
         /* crc failed */
-        DEBUG_PRINTF(2, "Jeti CRC error!%d\r\n");
         return -1;
     }
 
@@ -244,6 +227,7 @@ static int PIOS_EXBUS_UnrollChannels(struct pios_exbus_dev *exbus_dev)
             exbus_state = EXBUS_STATE_DATA;
             byte += sizeof(uint8_t);
             break;
+
         case EXBUS_STATE_DATA:
             if (channel < n_channels) {
                 /* 1 lsb = 1/8 us */
@@ -412,7 +396,7 @@ static void PIOS_EXBUS_Supervisor(uint32_t exbus_id)
     struct pios_exbus_state *state = &(exbus_dev->state);
 
     /* waiting for new frame if no bytes were received in 8ms */
-    if (++state->receive_timer > 4) {
+    if (++state->receive_timer > EXBUS_FRAME_TIMEOUT) {
         state->frame_found   = false;
         state->byte_count    = 0;
         state->receive_timer = 0;
@@ -420,7 +404,7 @@ static void PIOS_EXBUS_Supervisor(uint32_t exbus_id)
     }
 
     /* activate failsafe if no frames have arrived in 102.4ms */
-    if (++state->failsafe_timer > 64) {
+    if (++state->failsafe_timer > EXBUS_FAILSAFE_TIMEOUT) {
         PIOS_EXBUS_ResetChannels(exbus_dev);
         state->failsafe_timer = 0;
         PIOS_EXBUS_Change_BaudRate(exbus_dev);

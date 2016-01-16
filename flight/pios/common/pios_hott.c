@@ -87,6 +87,9 @@
 #define HOTT_STATUS_LIVING_SUMH     0x00
 #define HOTT_STATUS_LIVING_SUMD     0x01
 #define HOTT_STATUS_FAILSAFE        0x81
+#define HOTT_FRAME_TIMEOUT          4
+#define HOTT_FAILSAFE_TIMEOUT       64
+
 
 /* Forward Declarations */
 static int32_t PIOS_HOTT_Get(uint32_t rcvr_id, uint8_t channel);
@@ -125,7 +128,6 @@ struct pios_hott_dev {
 };
 
 /* Allocate HOTT device descriptor */
-#if defined(PIOS_INCLUDE_FREERTOS)
 static struct pios_hott_dev *PIOS_HOTT_Alloc(void)
 {
     struct pios_hott_dev *hott_dev;
@@ -138,23 +140,6 @@ static struct pios_hott_dev *PIOS_HOTT_Alloc(void)
     hott_dev->magic = PIOS_HOTT_DEV_MAGIC;
     return hott_dev;
 }
-#else
-static struct pios_hott_dev pios_hott_devs[PIOS_HOTT_MAX_DEVS];
-static uint8_t pios_hott_num_devs;
-static struct pios_hott_dev *PIOS_HOTT_Alloc(void)
-{
-    struct pios_hott_dev *hott_dev;
-
-    if (pios_hott_num_devs >= PIOS_HOTT_MAX_DEVS) {
-        return NULL;
-    }
-
-    hott_dev = &pios_hott_devs[pios_hott_num_devs++];
-    hott_dev->magic = PIOS_HOTT_DEV_MAGIC;
-
-    return hott_dev;
-}
-#endif /* if defined(PIOS_INCLUDE_FREERTOS) */
 
 /* Validate HOTT device descriptor */
 static bool PIOS_HOTT_Validate(struct pios_hott_dev *hott_dev)
@@ -413,7 +398,7 @@ static void PIOS_HOTT_Supervisor(uint32_t hott_id)
     struct pios_hott_state *state = &(hott_dev->state);
 
     /* waiting for new frame if no bytes were received in 8ms */
-    if (++state->receive_timer > 4) {
+    if (++state->receive_timer > HOTT_FRAME_TIMEOUT) {
         state->frame_found   = 1;
         state->byte_count    = 0;
         state->receive_timer = 0;
@@ -421,7 +406,7 @@ static void PIOS_HOTT_Supervisor(uint32_t hott_id)
     }
 
     /* activate failsafe if no frames have arrived in 102.4ms */
-    if (++state->failsafe_timer > 64) {
+    if (++state->failsafe_timer > HOTT_FAILSAFE_TIMEOUT) {
         PIOS_HOTT_ResetChannels(state);
         state->failsafe_timer = 0;
         state->tx_connected   = 0;

@@ -201,7 +201,7 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::INPUT_DSM:
             elementsToShow << QString("%1satellite").arg(prefix);
             break;
-        case VehicleConfigurationSource::INPUT_HOTT:
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
             elementsToShow << QString("%1hott").arg(prefix);
             break;
         case VehicleConfigurationSource::INPUT_EXBUS:

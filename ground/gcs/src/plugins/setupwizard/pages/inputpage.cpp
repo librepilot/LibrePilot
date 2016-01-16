@@ -54,7 +54,7 @@ bool InputPage::validatePage()
     } else if (ui->sbusButton->isChecked()) {
         getWizard()->setInputType(SetupWizard::INPUT_SBUS);
     } else if (ui->graupnerButton->isChecked()) {
-        getWizard()->setInputType(SetupWizard::INPUT_HOTT);
+        getWizard()->setInputType(SetupWizard::INPUT_HOTT_SUMD);
     } else if (ui->jetiButton->isChecked()) {
         getWizard()->setInputType(SetupWizard::INPUT_EXBUS);
     } else if (ui->spectrumButton->isChecked()) {
@@ -94,7 +94,7 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
         case VehicleConfigurationSource::INPUT_SRXL:
             return data.CC_FlexiPort != HwSettings::CC_FLEXIPORT_SRXL;
 
-        case VehicleConfigurationSource::INPUT_HOTT:
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
             return data.CC_FlexiPort != HwSettings::CC_FLEXIPORT_HOTTSUMD;
 
         case VehicleConfigurationSource::INPUT_EXBUS:
@@ -122,7 +122,7 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
         case VehicleConfigurationSource::INPUT_SBUS:
             return data.RM_MainPort != HwSettings::RM_MAINPORT_SBUS;
 
-        case VehicleConfigurationSource::INPUT_HOTT:
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
             return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_HOTTSUMD;
 
         case VehicleConfigurationSource::INPUT_EXBUS:

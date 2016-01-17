@@ -1968,7 +1968,8 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
                 if (val != RFM22B_PPM_INVALID) {
                     radio_dev->ppm[i] = (uint16_t)(RFM22B_PPM_MIN_US + (val - RFM22B_PPM_MIN) * RFM22B_PPM_SCALE);
                 } else {
-                    radio_dev->ppm[i] = PIOS_RCVR_INVALID;
+                    // Set failsafe value
+                    radio_dev->ppm[i] = PIOS_RCVR_TIMEOUT;
                 }
             }
 
@@ -2117,7 +2118,7 @@ static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev)
     rfm22b_dev->stats.rx_error     = 0;
     rfm22b_dev->stats.rx_failure   = 0;
 
-    if(!rfm22_isConnected(rfm22b_dev)) {
+    if (!rfm22_isConnected(rfm22b_dev)) {
         // Set link_quality to 0 and Rssi to noise floor if disconnected
         rfm22b_dev->stats.link_quality = 0;
         rfm22b_dev->stats.rssi = -127;
@@ -2127,7 +2128,7 @@ static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev)
     // Check if connection is timed out
     if (rfm22_checkTimeOut(rfm22b_dev)) {
         // Set the link state to disconnected.
-        rfm22b_dev->stats.link_state   = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
+        rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
     }
 
     for (uint8_t i = 0; i < RFM22B_RX_PACKET_STATS_LEN; ++i) {

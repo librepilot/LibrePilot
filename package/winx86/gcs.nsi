@@ -175,6 +175,13 @@ Section "-Plugins" InSecPlugins
   File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\plugins\*.pluginspec"
 SectionEnd
 
+; Copy GCS third party libs
+Section "-Libs" InSecLibs
+  SectionIn RO
+  SetOutPath "$INSTDIR\lib\${GCS_SMALL_NAME}\osg"
+  File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\osg\*.dll"
+SectionEnd
+
 ; Copy GCS resources
 Section "-Resources" InSecResources
   SetOutPath "$INSTDIR\share"
@@ -269,6 +276,7 @@ SectionEnd
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecCore} $(DESC_InSecCore)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecPlugins} $(DESC_InSecPlugins)
+    !insertmacro MUI_DESCRIPTION_TEXT ${InSecLibs} $(DESC_InSecLibs)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecResources} $(DESC_InSecResources)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecUtilities} $(DESC_InSecUtilities)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecDrivers} $(DESC_InSecDrivers)

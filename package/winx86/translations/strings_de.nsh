@@ -27,6 +27,7 @@
 
   LangString DESC_InSecCore ${LANG_GERMAN} "GCS Kernkomponenten (Programm und Bibliotheken)."
   LangString DESC_InSecPlugins ${LANG_GERMAN} "GCS Plugins (Der Großteil der GCS Funktionalität)."
+  LangString DESC_InSecLibs ${LANG_GERMAN} "GCS third party libraries."
   LangString DESC_InSecResources ${LANG_GERMAN} "GCS Resourcen (Diagramme, Ziffernblätter, Kartensymbole, 3d-Modelle, PFD)."
   LangString DESC_InSecSounds ${LANG_GERMAN} "GCS Sounddateien (benötigt für akustische Ereignisbenachrichtigungen)."
   LangString DESC_InSecLocalization ${LANG_GERMAN} "GCS Lokalisierung (für unterstützte Sprachen)."

@@ -27,6 +27,7 @@
 
   LangString DESC_InSecCore ${LANG_FRENCH} "Composants GCS principaux (executable et librairies)."
   LangString DESC_InSecPlugins ${LANG_FRENCH} "Plugins GCS (fournissent la plupart des fonctions)."
+  LangString DESC_InSecLibs ${LANG_FRENCH} "Librairies tierces GCS (fournissent des fonctions supplémentaires)."
   LangString DESC_InSecResources ${LANG_FRENCH} "Ressources GCS (diagrammes, cadrans, modèles 3d, PFD)."
   LangString DESC_InSecSounds ${LANG_FRENCH} "Fichiers son GCS (pour les notifications sonores)."
   LangString DESC_InSecLocalization ${LANG_FRENCH} "Fichiers de localisation (langues supportées)."

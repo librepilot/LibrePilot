@@ -27,10 +27,11 @@
 #ifndef CONFIGPIPXTREMEWIDGET_H
 #define CONFIGPIPXTREMEWIDGET_H
 
-#include <oplinksettings.h>
-
-#include "ui_oplink.h"
 #include "configtaskwidget.h"
+
+#include "oplinksettings.h"
+
+class Ui_OPLinkWidget;
 
 class ConfigOPLinkWidget : public ConfigTaskWidget {
     Q_OBJECT

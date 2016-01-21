@@ -30,15 +30,15 @@
 
 #include "utils/homelocationutil.h"
 
+#include "objectpersistence.h"
+#include "firmwareiapobj.h"
+#include "homelocation.h"
+#include "gpspositionsensor.h"
+
 #include <QMutexLocker>
 #include <QDebug>
 #include <QEventLoop>
 #include <QTimer>
-#include <objectpersistence.h>
-
-#include "firmwareiapobj.h"
-#include "homelocation.h"
-#include "gpspositionsensor.h"
 
 // ******************************
 // constructor/destructor

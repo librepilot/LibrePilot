@@ -193,7 +193,6 @@ macx {
     }
 }
 
-
 INCLUDEPATH += \
     $$GCS_SOURCE_TREE/src/libs
 

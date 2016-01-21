@@ -1,17 +1,21 @@
 TEMPLATE = lib
-
 TARGET = LoggingGadget
+
 DEFINES += LOGGING_LIBRARY
+
 QT += svg
 
 include(../../plugin.pri)
 include(logging_dependencies.pri)
-HEADERS += loggingplugin.h \
+
+HEADERS += \
+    loggingplugin.h \
     logginggadgetwidget.h \
     logginggadget.h \
     logginggadgetfactory.h
 
-SOURCES += loggingplugin.cpp \
+SOURCES += \
+    loggingplugin.cpp \
     logginggadgetwidget.cpp \
     logginggadget.cpp \
     logginggadgetfactory.cpp

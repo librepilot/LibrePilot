@@ -1,33 +1,34 @@
 TEMPLATE = lib
 TARGET = PathActionEditor 
 
+QT += widgets
+
 include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
 include(../../plugins/uavobjects/uavobjects.pri)
 
-HEADERS += pathactioneditorgadget.h
-HEADERS += pathactioneditorgadgetwidget.h
-HEADERS += pathactioneditorgadgetfactory.h
-HEADERS += pathactioneditorplugin.h
-HEADERS += pathactioneditortreemodel.h
-HEADERS += treeitem.h
-HEADERS += fieldtreeitem.h
-HEADERS += browseritemdelegate.h
+HEADERS += \
+    pathactioneditorgadget.h \
+    pathactioneditorgadgetwidget.h \
+    pathactioneditorgadgetfactory.h \
+    pathactioneditorplugin.h \
+    pathactioneditortreemodel.h \
+    treeitem.h \
+    fieldtreeitem.h \
+    browseritemdelegate.h
 
-SOURCES += pathactioneditorgadget.cpp
-SOURCES += pathactioneditorgadgetwidget.cpp
-SOURCES += pathactioneditorgadgetfactory.cpp
-SOURCES += pathactioneditorplugin.cpp
-SOURCES += pathactioneditortreemodel.cpp
-SOURCES += treeitem.cpp
-SOURCES += fieldtreeitem.cpp
-SOURCES += browseritemdelegate.cpp
-
+SOURCES += \
+    pathactioneditorgadget.cpp \
+    pathactioneditorgadgetwidget.cpp \
+    pathactioneditorgadgetfactory.cpp \
+    pathactioneditorplugin.cpp \
+    pathactioneditortreemodel.cpp \
+    treeitem.cpp \
+    fieldtreeitem.cpp \
+    browseritemdelegate.cpp
 
 OTHER_FILES += pathactioneditor.pluginspec
 
 FORMS += pathactioneditor.ui
 
 RESOURCES +=
-
-

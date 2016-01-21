@@ -27,14 +27,17 @@
  */
 #include "configrevonanohwwidget.h"
 
-#include <QDebug>
+#include "ui_configrevonanohwwidget.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+
 #include "hwsettings.h"
+
+#include <QDebug>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMessageBox>
-
 
 ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
 {

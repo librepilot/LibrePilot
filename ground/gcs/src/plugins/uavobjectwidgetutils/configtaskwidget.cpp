@@ -27,12 +27,24 @@
  */
 #include "configtaskwidget.h"
 
-#include <uavtalk/telemetrymanager.h>
+#include "uavobjectmanager.h"
+#include "uavobject.h"
+#include "uavobjectutilmanager.h"
+#include "uavtalk/telemetrymanager.h"
 #include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
+#include "smartsavebutton.h"
+#include "mixercurvewidget.h"
 
-#include <QWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDesktopServices>
+#include <QLabel>
 #include <QLineEdit>
+#include <QSpinBox>
+#include <QTableWidget>
 #include <QToolButton>
+#include <QUrl>
+#include <QWidget>
 
 ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_wikiURL("Welcome"),
     m_saveButton(NULL), m_isDirty(false), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)

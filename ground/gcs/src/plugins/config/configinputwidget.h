@@ -28,30 +28,33 @@
 #ifndef CONFIGINPUTWIDGET_H
 #define CONFIGINPUTWIDGET_H
 
-#include "ui_input.h"
-#include "ui_input_wizard.h"
-#include "../uavobjectwidgetutils/configtaskwidget.h"
+#include "uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
-#include <QWidget>
-#include <QList>
-#include <QRadioButton>
+
 #include "manualcontrolcommand.h"
 #include "manualcontrolsettings.h"
 #include "actuatorsettings.h"
 #include "mixersettings.h"
 #include "flightmodesettings.h"
 #include "receiveractivity.h"
-#include <QGraphicsView>
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
 #include "flightstatus.h"
 #include "accessorydesired.h"
-#include <QPointer>
 #include "systemsettings.h"
 
+#include <QPointer>
+#include <QWidget>
+#include <QList>
+#include <QTimer>
+
 class Ui_InputWidget;
+class Ui_InputWizardWidget;
+
+class QEventLoop;
+class QSvgRenderer;
+class QGraphicsSvgItem;
+class QGraphicsSimpleTextItem;
 
 class ConfigInputWidget : public ConfigTaskWidget {
     Q_OBJECT

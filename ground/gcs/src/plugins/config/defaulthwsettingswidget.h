@@ -27,16 +27,9 @@
 #ifndef DEFAULTHWSETTINGSt_H
 #define DEFAULTHWSETTINGSt_H
 
-#include "ui_defaulthwsettings.h"
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
 #include <QWidget>
-#include <QTimer>
-#include <QMutex>
 
-class Ui_Widget;
+class Ui_defaulthwsettings;
 
 class DefaultHwSettingsWidget : public QWidget {
     Q_OBJECT

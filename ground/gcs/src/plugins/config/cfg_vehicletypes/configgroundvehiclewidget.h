@@ -28,17 +28,16 @@
 #define CONFIGGROUNDVEHICLEWIDGET_H
 
 #include "cfg_vehicletypes/vehicleconfig.h"
-#include "ui_airframe_ground.h"
+
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 
-#include <QWidget>
-#include <QList>
-#include <QItemDelegate>
+class Ui_GroundConfigWidget;
 
-class Ui_Widget;
+class QWidget;
+class QGraphicsSvgItem;
 
 class ConfigGroundVehicleWidget : public VehicleConfig {
     Q_OBJECT

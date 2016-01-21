@@ -26,9 +26,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configvehicletypewidget.h"
+
+#include "ui_airframe.h"
+
+#include "configgadgetfactory.h"
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/generalsettings.h>
+
 #include "systemsettings.h"
 #include "actuatorsettings.h"
-#include "configgadgetfactory.h"
 
 #include "cfg_vehicletypes/configccpmwidget.h"
 #include "cfg_vehicletypes/configfixedwingwidget.h"
@@ -46,9 +52,6 @@
 #include <math.h>
 #include <QDesktopServices>
 #include <QUrl>
-
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 /**
    Static function to get currently assigned channelDescriptions

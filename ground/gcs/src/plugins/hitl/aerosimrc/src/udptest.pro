@@ -1,9 +1,9 @@
-include(../../../../../gcs.pri)
+TEMPLATE = app
+TARGET = udp_test
 
 QT += core gui network widgets
 
-TEMPLATE = app
-TARGET = udp_test
+include(../../../../../gcs.pri)
 
 HEADERS += \
     udptestwidget.h

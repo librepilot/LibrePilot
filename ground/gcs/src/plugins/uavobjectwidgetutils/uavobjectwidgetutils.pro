@@ -1,12 +1,15 @@
 TEMPLATE = lib
 TARGET = UAVObjectWidgetUtils
+
 DEFINES += UAVOBJECTWIDGETUTILS_LIBRARY
-QT += svg
+
+QT += widgets svg
 
 include(../../plugin.pri)
 include(uavobjectwidgetutils_dependencies.pri)
 
-HEADERS += uavobjectwidgetutils_global.h \
+HEADERS += \
+    uavobjectwidgetutils_global.h \
     uavobjectwidgetutilsplugin.h \
     configtaskwidget.h \
     mixercurvewidget.h \
@@ -15,7 +18,8 @@ HEADERS += uavobjectwidgetutils_global.h \
     smartsavebutton.h \
     popupwidget.h
 
-SOURCES += uavobjectwidgetutilsplugin.cpp \
+SOURCES += \
+    uavobjectwidgetutilsplugin.cpp \
     configtaskwidget.cpp \
     mixercurvewidget.cpp \
     mixercurvepoint.cpp \

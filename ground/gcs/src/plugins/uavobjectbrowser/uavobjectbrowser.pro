@@ -1,8 +1,13 @@
 TEMPLATE = lib
 TARGET = UAVObjectBrowser
+
+QT += widgets
+
 include(../../plugin.pri)
 include(uavobjectbrowser_dependencies.pri)
-HEADERS += browserplugin.h \
+
+HEADERS += \
+    browserplugin.h \
     uavobjectbrowserconfiguration.h \
     uavobjectbrowser.h \
     uavobjectbrowserwidget.h \
@@ -12,7 +17,9 @@ HEADERS += browserplugin.h \
     treeitem.h \
     browseritemdelegate.h \
     fieldtreeitem.h
-SOURCES += browserplugin.cpp \
+
+SOURCES += \
+    browserplugin.cpp \
     uavobjectbrowserconfiguration.cpp \
     uavobjectbrowser.cpp \
     uavobjectbrowserfactory.cpp \
@@ -22,8 +29,11 @@ SOURCES += browserplugin.cpp \
     treeitem.cpp \
     browseritemdelegate.cpp \
     fieldtreeitem.cpp
+
 OTHER_FILES += UAVObjectBrowser.pluginspec
-FORMS += uavobjectbrowser.ui \
+
+FORMS += \
+    uavobjectbrowser.ui \
     uavobjectbrowseroptionspage.ui \
     viewoptions.ui
 

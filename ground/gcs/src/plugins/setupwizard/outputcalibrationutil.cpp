@@ -27,11 +27,15 @@
  */
 
 #include "outputcalibrationutil.h"
+
 #include "uavobject.h"
 #include "uavobjectmanager.h"
 #include "extensionsystem/pluginmanager.h"
 #include "vehicleconfigurationhelper.h"
+
 #include "manualcontrolsettings.h"
+
+#include <QDebug>
 
 bool OutputCalibrationUtil::c_prepared = false;
 ActuatorCommand::Metadata OutputCalibrationUtil::c_savedActuatorCommandMetaData;

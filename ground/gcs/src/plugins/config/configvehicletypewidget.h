@@ -28,22 +28,17 @@
 #ifndef CONFIGVEHICLETYPEWIDGET_H
 #define CONFIGVEHICLETYPEWIDGET_H
 
-#include "ui_airframe.h"
 #include "cfg_vehicletypes/vehicleconfig.h"
 #include "uavobject.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 
-#include <QComboBox>
 #include <QMap>
 #include <QString>
 #include <QStringList>
-#include <QWidget>
 
-#include <QWidget>
-#include <QList>
-#include <QItemDelegate>
+class Ui_AircraftWidget;
 
-class Ui_Widget;
+class QWidget;
 
 /*
  * This class derives from ConfigTaskWidget and overrides its default "binding" mechanism.

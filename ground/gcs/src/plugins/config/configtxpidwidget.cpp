@@ -27,6 +27,12 @@
  */
 
 #include "configtxpidwidget.h"
+
+#include "ui_txpid.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/generalsettings.h>
+
 #include "txpidsettings.h"
 #include "hwsettings.h"
 #include "attitudesettings.h"
@@ -34,8 +40,6 @@
 #include "stabilizationsettingsbank1.h"
 #include "stabilizationsettingsbank2.h"
 #include "stabilizationsettingsbank3.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {

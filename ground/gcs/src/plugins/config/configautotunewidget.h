@@ -27,16 +27,19 @@
 #ifndef CONFIGAUTOTUNE_H
 #define CONFIGAUTOTUNE_H
 
-#include "ui_autotune.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+
 #include "stabilizationsettings.h"
 #include "relaytuningsettings.h"
 #include "relaytuning.h"
-#include <QtWidgets/QWidget>
+
+#include <QWidget>
 #include <QTimer>
+
+class Ui_AutotuneWidget;
 
 class ConfigAutotuneWidget : public ConfigTaskWidget {
     Q_OBJECT

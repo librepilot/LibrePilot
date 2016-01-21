@@ -25,8 +25,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
 #include "config_cc_hw_widget.h"
+
+#include "ui_cc_hw_settings.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/generalsettings.h>
+
 #include "hwsettings.h"
+
 #include <QDebug>
 #include <QStringList>
 #include <QWidget>
@@ -35,9 +43,6 @@
 #include <QPushButton>
 #include <QDesktopServices>
 #include <QUrl>
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 
 ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {

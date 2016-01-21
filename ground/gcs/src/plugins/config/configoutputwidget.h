@@ -27,22 +27,26 @@
 #ifndef CONFIGOUTPUTWIDGET_H
 #define CONFIGOUTPUTWIDGET_H
 
-#include "ui_output.h"
+#include "cfg_vehicletypes/vehicleconfig.h"
+
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 #include "uavobjectutilmanager.h"
-#include "cfg_vehicletypes/vehicleconfig.h"
-#include <QWidget>
-#include <QList>
-#include <QSignalMapper>
 
 #include "systemalarms.h"
+
+#include <QList>
+#include <QSlider>
 
 class Ui_OutputWidget;
 class OutputChannelForm;
 class MixerSettings;
+
+class QLabel;
+class QCheckBox;
+class QWidget;
 
 class OutputBankControls {
 public:

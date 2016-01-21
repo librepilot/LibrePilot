@@ -26,20 +26,25 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configccattitudewidget.h"
+
 #include "ui_ccattitude.h"
+
 #include "utils/coordinateconversions.h"
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/generalsettings.h>
+#include <calibration/calibrationutils.h>
+
 #include "attitudesettings.h"
+#include "accelstate.h"
+#include "accelgyrosettings.h"
+#include "gyrostate.h"
+
 #include <QMutexLocker>
 #include <QMessageBox>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QUrl>
-#include "accelstate.h"
-#include "accelgyrosettings.h"
-#include "gyrostate.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-#include <calibration/calibrationutils.h>
+
 ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
     ConfigTaskWidget(parent),
     ui(new Ui_ccattitude)

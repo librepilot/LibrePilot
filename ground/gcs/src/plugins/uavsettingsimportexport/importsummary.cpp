@@ -27,6 +27,10 @@
  */
 #include "importsummary.h"
 
+#include <QCheckBox>
+#include <QDesktopServices>
+#include <QUrl>
+
 ImportSummaryDialog::ImportSummaryDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ImportSummaryDialog)

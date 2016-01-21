@@ -29,17 +29,17 @@
 
 #include "generalsettings.h"
 
+#include "ui_generalsettings.h"
+
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/consoleprocess.h>
 #include <coreplugin/icore.h>
+
 #include <QMessageBox>
-#include <QtCore/QDir>
-
-#include <QtCore/QLibraryInfo>
-#include <QtCore/QSettings>
-
-#include "ui_generalsettings.h"
+#include <QDir>
+#include <QLibraryInfo>
+#include <QSettings>
 
 using namespace Utils;
 using namespace Core::Internal;

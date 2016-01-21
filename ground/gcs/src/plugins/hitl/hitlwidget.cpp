@@ -25,12 +25,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "hitlwidget.h"
+
 #include "ui_hitlwidget.h"
-#include <QDebug>
-#include <QFile>
-#include <QDir>
-#include <QDateTime>
-#include <QThread>
 
 #include <hitlplugin.h>
 #include <simulator.h>
@@ -38,6 +34,11 @@
 #include "coreplugin/icore.h"
 #include "coreplugin/threadmanager.h"
 
+#include <QDebug>
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
+#include <QThread>
 
 QStringList Simulator::instances;
 

@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = Uploader
+
 DEFINES += UPLOADER_LIBRARY
 
 QT += svg serialport
@@ -15,7 +16,8 @@ macx {
     QMAKE_CXXFLAGS += -Wno-enum-compare
 }
 
-HEADERS += uploadergadget.h \
+HEADERS += \
+    uploadergadget.h \
     uploadergadgetconfiguration.h \
     uploadergadgetfactory.h \
     uploadergadgetoptionspage.h \
@@ -34,7 +36,8 @@ HEADERS += uploadergadget.h \
     rebootdialog.h \
     oplinkwatchdog.h
 
-SOURCES += uploadergadget.cpp \
+SOURCES += \
+    uploadergadget.cpp \
     uploadergadgetconfiguration.cpp \
     uploadergadgetfactory.cpp \
     uploadergadgetoptionspage.cpp \

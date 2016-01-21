@@ -27,16 +27,13 @@
 #ifndef IMPORTSUMMARY_H
 #define IMPORTSUMMARY_H
 
-#include <QDialog>
-#include <QCheckBox>
-#include <QDesktopServices>
-#include <QUrl>
 #include "ui_importsummarydialog.h"
 #include "uavdataobject.h"
 #include "uavobjectmanager.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectutil/uavobjectutilmanager.h"
 
+#include <QDialog>
 
 namespace Ui {
 class ImportSummaryDialog;

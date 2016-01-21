@@ -25,13 +25,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "cfg_vehicletypes/vehicleconfig.h"
+
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
-#include "systemsettings.h"
-#include <QtCore/qmath.h>
 
+#include "systemsettings.h"
+
+#include <QtCore/qmath.h>
 #include <QDebug>
+#include <QComboBox>
+#include <QPushButton>
+#include <QPointer>
 
 VehicleConfig::VehicleConfig(QWidget *parent) : ConfigTaskWidget(parent)
 {

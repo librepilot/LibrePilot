@@ -2,15 +2,11 @@ TEMPLATE = lib
 TARGET = Config
 DEFINES += CONFIG_LIBRARY
 
-QT += svg opengl qml quick
+QT += widgets svg opengl qml quick
 
 include(config_dependencies.pri)
 
 INCLUDEPATH += ../../libs/eigen
-
-OTHER_FILES += \
-    Config.pluginspec \
-    calibration/WizardStepIndicator.qml
 
 HEADERS += \
     configplugin.h \
@@ -128,5 +124,9 @@ FORMS += \
     oplink.ui \
     configrevonanohwwidget.ui \
     failsafechannelform.ui
+
+OTHER_FILES += \
+    Config.pluginspec \
+    calibration/WizardStepIndicator.qml
 
 RESOURCES += configgadget.qrc

@@ -26,6 +26,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configcustomwidget.h"
+
+#include "ui_airframe_custom.h"
+
 #include "mixersettings.h"
 
 #include <QDebug>

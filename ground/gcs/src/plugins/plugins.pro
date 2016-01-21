@@ -156,7 +156,7 @@ plugin_ipconnection.subdir = ipconnection
 plugin_ipconnection.depends = plugin_coreplugin
 SUBDIRS += plugin_ipconnection
 
-#HITL Simulation gadget
+# HITL Simulation gadget
 plugin_hitl.subdir = hitl
 plugin_hitl.depends = plugin_coreplugin
 plugin_hitl.depends += plugin_uavobjects
@@ -187,12 +187,6 @@ SUBDIRS += plugin_gcscontrol
 #plugin_antennatrack.depends = plugin_coreplugin
 #plugin_antennatrack.depends += plugin_uavobjects
 #SUBDIRS += plugin_antennatrack
-
-# Scope OpenGL Gadget
-#plugin_scopeogl.subdir = scopeogl
-#plugin_scopeogl.depends = plugin_coreplugin
-#plugin_scopeogl.depends += plugin_uavobjects
-#SUBDIRS += plugin_scopeogl
 
 # UAV Object Utility plugin
 plugin_uavobjectutil.subdir = uavobjectutil
@@ -244,4 +238,3 @@ plugin_usagetracker.depends += plugin_uavobjects
 plugin_usagetracker.depends += plugin_uavtalk
 plugin_setupwizard.depends += plugin_uavobjectutil
 SUBDIRS += plugin_usagetracker
-

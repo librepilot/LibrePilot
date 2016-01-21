@@ -26,6 +26,8 @@
  */
 #include "configrevowidget.h"
 
+#include "ui_revosensors.h"
+
 #include <attitudestate.h>
 #include <attitudesettings.h>
 #include <revocalibration.h>

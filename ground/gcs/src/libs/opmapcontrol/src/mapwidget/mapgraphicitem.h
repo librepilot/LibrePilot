@@ -27,19 +27,18 @@
 #ifndef MAPGRAPHICITEM_H
 #define MAPGRAPHICITEM_H
 
-#include <QGraphicsItem>
 #include "../internals/core.h"
-// #include "../internals/point.h"
 #include "../core/diagnostics.h"
 #include "configuration.h"
+#include "waypointitem.h"
+
+#include <QGraphicsItem>
 #include <QtGui>
 #include <QTransform>
 #include <QWidget>
 #include <QBrush>
 #include <QFont>
 #include <QObject>
-#include "waypointitem.h"
-// #include "uavitem.h"
 
 namespace mapcontrol {
 class WayPointItem;

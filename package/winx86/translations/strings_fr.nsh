@@ -1,7 +1,8 @@
 ﻿#
-# Project: OpenPilot
-# NSIS header file for OpenPilot GCS
+# Project: LibrePilot
+# NSIS header file for LibrePilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2011.
+# The LibrePilot Team, http://www.librepilot.org, Copyright (C) 2015-2016.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,8 +32,8 @@
   LangString DESC_InSecResources ${LANG_FRENCH} "Ressources GCS (diagrammes, cadrans, modèles 3d, PFD)."
   LangString DESC_InSecSounds ${LANG_FRENCH} "Fichiers son GCS (pour les notifications sonores)."
   LangString DESC_InSecLocalization ${LANG_FRENCH} "Fichiers de localisation (langues supportées)."
-  LangString DESC_InSecFirmware ${LANG_FRENCH} "OpenPilot firmware binaries."
-  LangString DESC_InSecUtilities ${LANG_FRENCH} "OpenPilot utilities (Matlab log parser)."
+  LangString DESC_InSecFirmware ${LANG_FRENCH} "LibrePilot firmware binaries."
+  LangString DESC_InSecUtilities ${LANG_FRENCH} "LibrePilot utilities (Matlab log parser)."
   LangString DESC_InSecDrivers ${LANG_FRENCH} "OpenPilot hardware driver files (optional OpenPilot CDC driver)."
   LangString DESC_InSecInstallDrivers ${LANG_FRENCH} "Optional OpenPilot CDC driver (virtual USB COM port)."
   LangString DESC_InSecInstallOpenGL ${LANG_FRENCH} "Optional OpenGL32.dll for old video cards."
@@ -42,6 +43,6 @@
 ;--------------------------------
 ; Uninstaller section descriptions
 
-  LangString DESC_UnSecProgram ${LANG_FRENCH} "Application OpenPilot GCS et ses composants."
-  LangString DESC_UnSecCache ${LANG_FRENCH} "Données en cache OpenPilot GCS."
-  LangString DESC_UnSecConfig ${LANG_FRENCH} "Fichiers de configuration OpenPilot GCS."
+  LangString DESC_UnSecProgram ${LANG_FRENCH} "Application LibrePilot GCS et ses composants."
+  LangString DESC_UnSecCache ${LANG_FRENCH} "Données en cache LibrePilot GCS."
+  LangString DESC_UnSecConfig ${LANG_FRENCH} "Fichiers de configuration LibrePilot GCS."

@@ -1,7 +1,8 @@
 #
-# Project: OpenPilot
-# NSIS configuration file for OpenPilot GCS
+# Project: LibrePilot
+# NSIS configuration file for LibrePilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2015.
+# The LibrePilot Team, http://www.librepilot.org, Copyright (C) 2015-2016.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -56,7 +57,7 @@
   VIAddVersionKey "ProductName" "${GCS_BIG_NAME}"
   VIAddVersionKey "ProductVersion" "${VERSION_FOUR_NUM}"
   VIAddVersionKey "CompanyName" "The LibrePilot Team, http://www.librepilot.org"
-  VIAddVersionKey "LegalCopyright" "© 2015 The LibrePilot Team"
+  VIAddVersionKey "LegalCopyright" "© 2015-2016 The LibrePilot Team"
   VIAddVersionKey "FileDescription" "${GCS_BIG_NAME} Installer"
 
 ;--------------------------------
@@ -77,7 +78,7 @@
 ;--------------------------------
 ; Branding
 
-  BrandingText "© 2015 The LibrePilot Team, http://www.librepilot.org"
+  BrandingText "© 2015-2016 The LibrePilot Team, http://www.librepilot.org"
 
   !define MUI_ICON "${NSIS_DATA_TREE}\resources\installer_icon.ico"
   !define MUI_HEADERIMAGE
@@ -326,7 +327,7 @@ Section "un.${GCS_BIG_NAME}" UnSecProgram
 SectionEnd
 
 Section "un.Maps cache" UnSecCache
-  ; Remove maps cache
+  ; Remove local app data (maps cache, ...)
   SetShellVarContext current
   RMDir /r /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}"
   ; Only remove if no other versions have data here

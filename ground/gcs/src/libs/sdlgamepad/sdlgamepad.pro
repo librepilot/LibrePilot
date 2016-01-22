@@ -28,17 +28,14 @@ macx {
     # Ensures that SDL framework and header files are found when compiled with Qt5.2.1
     INCLUDEPATH += /Library/Frameworks/SDL.framework/Headers
     SDL = -F/Library/Frameworks
+
     # Add SDL to CFLAGS fixes build problems on mac
     QMAKE_CFLAGS += $$SDL
     QMAKE_CXXFLAGS += $$SDL
+
     # Let the linker know where to find the frameworks
     LIBS += $$SDL
     LIBS += -framework OpenGL -framework SDL -framework Cocoa
-}
-
-win32 {
-    INCLUDEPATH += $${SDL_DIR}/include
-    LIBS += -L$${SDL_DIR}/lib
 }
 
 !mac:LIBS += -lSDL
@@ -56,4 +53,4 @@ OTHER_FILES += \
     sdlgamepad.dox \
     sdlgamepad.doc
 
-include(copydata.pro)
+equals(copydata, 1):include(copydata.pro)

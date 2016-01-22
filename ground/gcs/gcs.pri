@@ -171,12 +171,6 @@ macx {
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1
 
     win32 {
-        SDL_DIR = $$(SDL_DIR)
-        isEmpty(SDL_DIR):SDL_DIR = $${TOOLS_DIR}/SDL-1.2.15
-
-        OPENSSL_DIR = $$(OPENSSL_DIR)
-        isEmpty(OPENSSL_DIR):OPENSSL_DIR = $${TOOLS_DIR}/openssl-1.0.1e-win32
-
         MESAWIN_DIR = $$(MESAWIN_DIR)
         isEmpty(MESAWIN_DIR):MESAWIN_DIR = $${TOOLS_DIR}/mesawin
 
@@ -259,4 +253,3 @@ macx {
 # use ccache when available
 QMAKE_CC = $$(CCACHE) $$QMAKE_CC
 QMAKE_CXX = $$(CCACHE) $$QMAKE_CXX
-

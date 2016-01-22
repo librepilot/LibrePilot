@@ -11,8 +11,6 @@
 #    arm_sdk_install
 #    qt_sdk_install
 #    nsis_install (Windows only)
-#    sdl_install (Windows only)
-#    openssl_install (Windows only)
 #    mesawin_install (Windows only)
 #    uncrustify_install
 #    doxygen_install
@@ -117,8 +115,6 @@ else ifeq ($(UNAME), Windows)
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe.md5
     QT_SDK_ARCH    := mingw492_32
     NSIS_URL       := http://librepilot.github.io/tools/nsis-2.46-unicode.tar.bz2
-    SDL_URL        := http://librepilot.github.io/tools/SDL-devel-1.2.15-mingw32.tar.gz
-    OPENSSL_URL    := http://librepilot.github.io/tools/openssl-1.0.1e-win32.tar.bz2
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60-windows.tar.bz2
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1-windows.tar.bz2
     MESAWIN_URL    := http://librepilot.github.io/tools/mesawin.tar.gz
@@ -153,9 +149,6 @@ else ifeq ($(UNAME), Windows)
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
     PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
     NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
-    # When changing SDL_DIR or OPENSSL_DIR, you must also update them in ground/gcs/gcs.pri
-    SDL_DIR      := $(TOOLS_DIR)/SDL-1.2.15
-    OPENSSL_DIR  := $(TOOLS_DIR)/openssl-1.0.1e-win32
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
     OSG_SDK_DIR  := $(OSG_TOOLS_DIR)/osg-3.4-mingw492_32-qt-5.5.1
     OSGEARTH_SDK_DIR  := $(OSG_TOOLS_DIR)/osgearth-2.7-mingw492_32-qt-5.5.1
@@ -641,29 +634,6 @@ nsis_version:
 
 endif
 
-##############################
-#
-# SDL (Windows only)
-#
-##############################
-
-ifeq ($(UNAME), Windows)
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,sdl,$(SDL_DIR),$(SDL_URL),,$(notdir $(SDL_URL))))
-
-ifeq ($(shell [ -d "$(SDL_DIR)" ] && $(ECHO) "exists"), exists)
-    export SDL_DIR := $(SDL_DIR)
-else
-    # not installed, hope it's in the path...
-    $(info $(EMPTY) WARNING     $(call toprel, $(SDL_DIR)) not found (make sdl_install), using system PATH)
-endif
-
-.PHONY: sdl_version
-sdl_version:
-	-$(V1) $(ECHO) "SDL 1.2.15"
-
-endif
-
 ##################################
 #
 # Mesa OpenGL DLL (Windows only)
@@ -684,31 +654,6 @@ endif
 .PHONY: mesawin_version
 mesawin_version:
 	-$(V1) $(ECHO) "MesaOpenGL vXX"
-
-endif
-
-##############################
-#
-# OpenSSL (Windows only)
-#
-##############################
-
-ifeq ($(UNAME), Windows)
-
-$(eval $(call TOOL_INSTALL_TEMPLATE,openssl,$(OPENSSL_DIR),$(OPENSSL_URL),,$(notdir $(OPENSSL_URL))))
-
-ifeq ($(shell [ -d "$(OPENSSL_DIR)" ] && $(ECHO) "exists"), exists)
-    export OPENSSL := $(OPENSSL_DIR)/bin/openssl
-    export OPENSSL_CONF := $(OPENSSL_DIR)/bin/openssl.cfg
-    export OPENSSL_DIR
-else
-    # not installed, hope it's in the path...
-    # $(info $(EMPTY) WARNING     $(call toprel, $(OPENSSL_DIR)) not found (make openssl_install), using system PATH)
-endif
-
-.PHONY: openssl_version
-openssl_version:
-	-$(V1) $(ECHO) "OpenSSL `$(OPENSSL) version`"
 
 endif
 

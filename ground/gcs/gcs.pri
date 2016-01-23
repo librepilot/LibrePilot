@@ -103,6 +103,9 @@ equals(TEST, 1) {
     DEFINES += WITH_TESTS
 }
 
+# don't build both debug and release
+CONFIG -= debug_and_release
+
 #ideally, we would want a qmake.conf patch, but this does the trick...
 win32:!isEmpty(QMAKE_SH):QMAKE_COPY_DIR = cp -r -f
 

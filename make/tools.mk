@@ -115,9 +115,9 @@ else ifeq ($(UNAME), Windows)
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe.md5
     QT_SDK_ARCH    := mingw492_32
     NSIS_URL       := http://librepilot.github.io/tools/nsis-2.46-unicode.tar.bz2
+    MESAWIN_URL    := http://librepilot.github.io/tools/mesawin.tar.gz
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60-windows.tar.bz2
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1-windows.tar.bz2
-    MESAWIN_URL    := http://librepilot.github.io/tools/mesawin.tar.gz
     OSG_URL        := http://librepilot.github.io/tools/osg-3.4-mingw492_32-qt-5.5.1.tar.gz
     OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-mingw492_32-qt-5.5.1.tar.gz
 endif
@@ -164,7 +164,7 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 
 BUILD_SDK_TARGETS := arm_sdk osg
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += nsis osgearth
+    BUILD_SDK_TARGETS += nsis mesawin osgearth
 else
     BUILD_SDK_TARGETS += qt_sdk
 endif

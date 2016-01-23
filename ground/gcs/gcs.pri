@@ -171,9 +171,6 @@ macx {
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1
 
     win32 {
-        MESAWIN_DIR = $$(MESAWIN_DIR)
-        isEmpty(MESAWIN_DIR):MESAWIN_DIR = $${TOOLS_DIR}/mesawin
-
         GCS_QT_PLUGINS_PATH = $$GCS_APP_PATH
         GCS_QT_QML_PATH = $$GCS_APP_PATH
 

@@ -125,14 +125,6 @@ win32 {
         addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
     }
 
-    # copy OpenGL DLL
-    OPENGL_DLLS = \
-        opengl32.dll
-
-    for(dll, OPENGL_DLLS) {
-        addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH}/opengl32)
-    }
-
     QT_PLUGINS = \
         iconengines/qsvgicon$${DS}.dll \
         imageformats/qgif$${DS}.dll \

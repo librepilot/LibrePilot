@@ -37,4 +37,8 @@ SUBDIRS = src
 equals(copyqt, 1) {
     SUBDIRS += copydata
     copydata.file = copydata.pro
+    win32 {
+        SUBDIRS += opengl
+        opengl.file = opengl.pro
+    }
 }

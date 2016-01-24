@@ -266,6 +266,14 @@ void systemInit()
     // TODO revisit this...
     QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    // see https://doc-snapshots.qt.io/qt5-5.6/highdpi.html
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+#else
+    // see http://doc.qt.io/qt-5/highdpi.html
+    qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
+#endif
+
     // Force "basic" render loop
     // Only Mac uses "threaded" by default and that mode currently does not work well with OSGViewport
     qputenv("QSG_RENDER_LOOP", "basic");

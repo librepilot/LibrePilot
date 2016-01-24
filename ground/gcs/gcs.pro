@@ -1,6 +1,7 @@
 #
-# Qmake project for the OpenPilot GCS.
+# Qmake project for the LibrePilot GCS.
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
+# Copyright (c) 2015-2016, The LibrePilot Team, http://www.librepilot.org
 #
 
 cache()
@@ -31,6 +32,13 @@ CONFIG   += ordered
 
 DEFINES += USE_PATHPLANNER
 
-SUBDIRS = src copydata
+SUBDIRS = src
 
-copydata.file = copydata.pro
+equals(copyqt, 1) {
+    SUBDIRS += copydata
+    copydata.file = copydata.pro
+    win32 {
+        SUBDIRS += opengl
+        opengl.file = opengl.pro
+    }
+}

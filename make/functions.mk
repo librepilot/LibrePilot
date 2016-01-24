@@ -22,6 +22,7 @@ UNAME := $(shell uname)
 # Here and everywhere if not Linux or Mac then assume Windows
 ifeq ($(filter Linux Darwin, $(UNAME)), )
     UNAME := Windows
+    CC := gcc# because cc doesn't exist
 endif
 
 ifeq ($(UNAME),Windows)

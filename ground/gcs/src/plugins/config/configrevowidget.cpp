@@ -193,6 +193,9 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addWidgetBinding("AttitudeSettings", "BoardRotation", m_ui->yawRotation, AttitudeSettings::BOARDROTATION_YAW);
     addWidgetBinding("AttitudeSettings", "AccelTau", m_ui->accelTau);
 
+    // Connect the help button
+    connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
     populateWidgets();
     enableAllCalibrations();
 
@@ -446,4 +449,10 @@ void ConfigRevoWidget::enableAllCalibrations()
     m_ui->boardLevelStart->setEnabled(true);
     m_ui->gyroBiasStart->setEnabled(true);
     m_ui->thermalBiasStart->setEnabled(true);
+}
+
+void ConfigRevoWidget::openHelp()
+{
+    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revo+Attitude+Configuration"),
+                                   QUrl::StrictMode));
 }

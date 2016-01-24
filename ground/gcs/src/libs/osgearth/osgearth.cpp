@@ -71,7 +71,7 @@ void OsgEarth::registerQmlTypes()
     }
     registered = true;
 
-    // redirect osg logging to Qt (use OSG_DEBUG environment variable to enable osg logging)
+    // redirect osg logging to Qt (and export OSG_NOTIFY_LEVEL=DEBUG to enable osg logging)
     // osg::setNotifyHandler(new QtNotifyHandler());
 
     // initialize();

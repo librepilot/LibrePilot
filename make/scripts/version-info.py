@@ -359,30 +359,31 @@ def get_hash_of_dirs(directory, verbose = 0, raw = 0, n = 40):
                 files.sort()
 
             for names in files:
-                if verbose == 1:
-                    print 'Hashing', names
-                filepath = os.path.join(root, names)
-                try:
-                    f1 = open(filepath, 'rU')
-                except:
-                    # You can't open the file for some reason
-                    continue
+                if names.endswith('.xml'):
+                    if verbose == 1:
+                        print 'Hashing', names
+                    filepath = os.path.join(root, names)
+                    try:
+                        f1 = open(filepath, 'rU')
+                    except:
+                        # You can't open the file for some reason
+                        continue
 
-                # Compute file hash. Same as running "sha1sum <file>".
-                f1hash = hashlib.sha1()
-                while 1:
-                    # Read file in as little chunks
-                    buf = f1.read(4096)
-                    if not buf:
-                        break
-                    f1hash.update(buf)
-                f1.close()
+                    # Compute file hash. Same as running "sha1sum <file>".
+                    f1hash = hashlib.sha1()
+                    while 1:
+                        # Read file in as little chunks
+                        buf = f1.read(4096)
+                        if not buf:
+                            break
+                        f1hash.update(buf)
+                    f1.close()
 
-                if verbose == 1:
-                    print 'Hash is', f1hash.hexdigest()
+                    if verbose == 1:
+                        print 'Hash is', f1hash.hexdigest()
 
-                # Append the hex representation of the current file's hash into the cumulative hash
-                SHAhash.update(f1hash.hexdigest())
+                    # Append the hex representation of the current file's hash into the cumulative hash
+                    SHAhash.update(f1hash.hexdigest())
 
     except:
         import traceback

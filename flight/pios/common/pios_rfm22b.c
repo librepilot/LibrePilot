@@ -188,7 +188,8 @@ static void rfm22b_add_rx_status(struct pios_rfm22b_dev *rfm22b_dev, enum pios_r
 static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan);
 static bool rfm22_setFreqHopChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t channel);
 static void rfm22_updatePairStatus(struct pios_rfm22b_dev *radio_dev);
-static void rfm22_calculateLinkQuality(struct pios_rfm22b_dev *rfm22b_dev);
+static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev);
+static bool rfm22_checkTimeOut(struct pios_rfm22b_dev *rfm22b_dev);
 static bool rfm22_isConnected(struct pios_rfm22b_dev *rfm22b_dev);
 static bool rfm22_isCoordinator(struct pios_rfm22b_dev *rfm22b_dev);
 static uint32_t rfm22_destinationID(struct pios_rfm22b_dev *rfm22b_dev);
@@ -414,7 +415,7 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     rfm22b_dev->rx_in_cb      = NULL;
     rfm22b_dev->tx_out_cb     = NULL;
 
-    // Initialzie the PPM callback.
+    // Initialize the PPM callback.
     rfm22b_dev->ppm_callback  = NULL;
 
     // Initialize the stats.
@@ -666,8 +667,8 @@ void PIOS_RFM22B_GetStats(uint32_t rfm22b_id, struct rfm22b_stats *stats)
         return;
     }
 
-    // Calculate the current link quality
-    rfm22_calculateLinkQuality(rfm22b_dev);
+    // Update the current stats
+    rfm22_updateStats(rfm22b_dev);
 
     // Return the stats.
     *stats = rfm22b_dev->stats;
@@ -1117,6 +1118,14 @@ extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels)
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
     if (!PIOS_RFM22B_Validate(rfm22b_dev)) {
+        return;
+    }
+
+    if (!rfm22_isCoordinator(rfm22b_dev) && !rfm22_isConnected(rfm22b_dev)) {
+        // Set the PPM channels values to INVALID
+        for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
+            channels[i] = PIOS_RCVR_INVALID;
+        }
         return;
     }
 
@@ -1959,7 +1968,8 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
                 if (val != RFM22B_PPM_INVALID) {
                     radio_dev->ppm[i] = (uint16_t)(RFM22B_PPM_MIN_US + (val - RFM22B_PPM_MIN) * RFM22B_PPM_SCALE);
                 } else {
-                    radio_dev->ppm[i] = PIOS_RCVR_INVALID;
+                    // Set failsafe value
+                    radio_dev->ppm[i] = PIOS_RCVR_TIMEOUT;
                 }
             }
 
@@ -1998,10 +2008,10 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
         if (!rfm22_isCoordinator(radio_dev) &&
             radio_dev->rx_destination_id == rfm22_destinationID(radio_dev)) {
             rfm22_synchronizeClock(radio_dev);
-            radio_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_CONNECTED;
         }
-
-        radio_dev->last_contact = xTaskGetTickCount();
+        radio_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_CONNECTED;
+        radio_dev->last_contact     = xTaskGetTickCount();
+        radio_dev->stats.rssi = radio_dev->rssi_dBm;
     } else {
         ret_event = RADIO_EVENT_RX_COMPLETE;
     }
@@ -2096,17 +2106,31 @@ static void rfm22_updatePairStatus(struct pios_rfm22b_dev *radio_dev)
 }
 
 /**
- * Calculate the link quality from the packet receipt, tranmittion statistics.
+ * Calculate stats from the packet receipt, transmission statistics.
  *
  * @param[in] rfm22b_dev  The device structure
  */
-static void rfm22_calculateLinkQuality(struct pios_rfm22b_dev *rfm22b_dev)
+static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev)
 {
     // Add the RX packet statistics
     rfm22b_dev->stats.rx_good      = 0;
     rfm22b_dev->stats.rx_corrected = 0;
     rfm22b_dev->stats.rx_error     = 0;
     rfm22b_dev->stats.rx_failure   = 0;
+
+    if (!rfm22_isConnected(rfm22b_dev)) {
+        // Set link_quality to 0 and Rssi to noise floor if disconnected
+        rfm22b_dev->stats.link_quality = 0;
+        rfm22b_dev->stats.rssi = -127;
+        return;
+    }
+
+    // Check if connection is timed out
+    if (rfm22_checkTimeOut(rfm22b_dev)) {
+        // Set the link state to disconnected.
+        rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
+    }
+
     for (uint8_t i = 0; i < RFM22B_RX_PACKET_STATS_LEN; ++i) {
         uint32_t val = rfm22b_dev->rx_packet_stats[i];
         for (uint8_t j = 0; j < 16; ++j) {
@@ -2132,6 +2156,16 @@ static void rfm22_calculateLinkQuality(struct pios_rfm22b_dev *rfm22b_dev)
     // Using this equation, error and resent packets are counted as -2, and corrected packets are counted as -1.
     // The range is 0 (all error or resent packets) to 128 (all good packets).
     rfm22b_dev->stats.link_quality = 64 + rfm22b_dev->stats.rx_good - rfm22b_dev->stats.rx_error - rfm22b_dev->stats.rx_failure;
+}
+
+/**
+ * A timeout occured ?
+ *
+ * @param[in] rfm22b_dev  The device structure
+ */
+static bool rfm22_checkTimeOut(struct pios_rfm22b_dev *rfm22b_dev)
+{
+    return pios_rfm22_time_difference_ms(rfm22b_dev->last_contact, xTaskGetTickCount()) >= CONNECTED_TIMEOUT;
 }
 
 /**
@@ -2262,25 +2296,16 @@ static uint8_t rfm22_calcChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t ind
     uint8_t idx = index % rfm22b_dev->num_channels;
 
     // Are we switching to a new channel?
-    if (idx != rfm22b_dev->channel_index) {
-        if (!rfm22_isCoordinator(rfm22b_dev) &&
-            pios_rfm22_time_difference_ms(rfm22b_dev->last_contact, xTaskGetTickCount()) >=
-            CONNECTED_TIMEOUT) {
-            // Set the link state to disconnected.
-            if (rfm22b_dev->stats.link_state == OPLINKSTATUS_LINKSTATE_CONNECTED) {
-                rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
-                // Set the PPM outputs to INVALID
-                for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-                    rfm22b_dev->ppm[i] = PIOS_RCVR_INVALID;
-                }
-            }
-
-            // Stay on first channel.
-            idx = 0;
-        }
-
-        rfm22b_dev->channel_index = idx;
+    if ((idx != rfm22b_dev->channel_index) && !rfm22_isCoordinator(rfm22b_dev) && rfm22_checkTimeOut(rfm22b_dev)) {
+        // Set the link state to disconnected.
+        rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
+        // Update stats
+        rfm22_updateStats(rfm22b_dev);
+        // Stay on first channel.
+        idx = 0;
     }
+
+    rfm22b_dev->channel_index = idx;
 
     return rfm22b_dev->channels[idx];
 }

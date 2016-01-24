@@ -26,7 +26,7 @@ public:
             break;
         case 0x0301:
             // OPLink Mini
-            return QString("OPLink");
+            return QString("OPLinkMini");
 
             break;
         case 0x0401:

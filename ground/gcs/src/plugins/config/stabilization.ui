@@ -16898,53 +16898,182 @@ border-radius: 5;</string>
                </layout>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_10">
-                <property name="title">
-                 <string>Pirouette Compensation</string>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <property name="bottomMargin">
+                 <number>20</number>
                 </property>
-                <layout class="QGridLayout" name="gridLayout_32">
-                 <item row="1" column="0">
-                  <widget class="QCheckBox" name="enableThrustPIDScalingCheckBox_2">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>27</height>
-                    </size>
+                <item>
+                 <widget class="QGroupBox" name="groupBox_10">
+                  <property name="title">
+                   <string>Pirouette Compensation</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_32">
+                   <item row="1" column="0">
+                    <widget class="QCheckBox" name="enableThrustPIDScalingCheckBox_2">
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>27</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Enable pirouette compensation</string>
+                     </property>
+                     <property name="objrelation" stdset="0">
+                      <stringlist>
+                       <string>objname:StabilizationSettingsBankX</string>
+                       <string>fieldname:EnablePiroComp</string>
+                       <string>buttongroup:55</string>
+                      </stringlist>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0" alignment="Qt::AlignRight">
+                    <widget class="QPushButton" name="pushButton_13">
+                     <property name="toolTip">
+                      <string>Reset all values to GCS defaults</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true"/>
+                     </property>
+                     <property name="text">
+                      <string>Default</string>
+                     </property>
+                     <property name="objrelation" stdset="0">
+                      <stringlist>
+                       <string>objname:StabilizationSettings</string>
+                       <string>button:default</string>
+                       <string>buttongroup:55</string>
+                      </stringlist>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QGroupBox" name="groupBox_13">
+                  <property name="title">
+                   <string>FPV Camera Tilt Compensation</string>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_33">
+                   <property name="leftMargin">
+                    <number>9</number>
                    </property>
-                   <property name="text">
-                    <string>Enable pirouette compensation</string>
+                   <property name="topMargin">
+                    <number>9</number>
                    </property>
-                   <property name="objrelation" stdset="0">
-                    <stringlist>
-                     <string>objname:StabilizationSettingsBankX</string>
-                     <string>fieldname:EnablePiroComp</string>
-                     <string>buttongroup:55</string>
-                    </stringlist>
+                   <property name="rightMargin">
+                    <number>9</number>
                    </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0" alignment="Qt::AlignRight">
-                  <widget class="QPushButton" name="pushButton_13">
-                   <property name="toolTip">
-                    <string>Reset all values to GCS defaults</string>
+                   <property name="bottomMargin">
+                    <number>9</number>
                    </property>
-                   <property name="styleSheet">
-                    <string notr="true"/>
-                   </property>
-                   <property name="text">
-                    <string>Default</string>
-                   </property>
-                   <property name="objrelation" stdset="0">
-                    <stringlist>
-                     <string>objname:StabilizationSettings</string>
-                     <string>button:default</string>
-                     <string>buttongroup:55</string>
-                    </stringlist>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
+                   <item row="0" column="2" alignment="Qt::AlignRight|Qt::AlignVCenter">
+                    <widget class="QPushButton" name="pushButton_14">
+                     <property name="toolTip">
+                      <string>Reset value to GCS defaults</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true"/>
+                     </property>
+                     <property name="text">
+                      <string>Default</string>
+                     </property>
+                     <property name="objrelation" stdset="0">
+                      <stringlist>
+                       <string>objname:StabilizationSettings</string>
+                       <string>button:default</string>
+                       <string>buttongroup:56</string>
+                      </stringlist>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_13">
+                     <property name="text">
+                      <string>Camera Tilt Angle (deg)</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QDoubleSpinBox" name="FpvCamTiltCompensation">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>22</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>80</width>
+                       <height>22</height>
+                      </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::StrongFocus</enum>
+                     </property>
+                     <property name="toolTip">
+                      <string>Camera tilt angle from 0 to 50 degrees (0 to disable compensation).</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                     <property name="accelerated">
+                      <bool>true</bool>
+                     </property>
+                     <property name="decimals">
+                      <number>0</number>
+                     </property>
+                     <property name="minimum">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>50.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="objrelation" stdset="0">
+                      <stringlist>
+                       <string>objname:StabilizationSettingsBankX</string>
+                       <string>fieldname:FpvCamTiltCompensation</string>
+                       <string>haslimits:no</string>
+                       <string>scale:1</string>
+                       <string>buttongroup:56</string>
+                      </stringlist>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <spacer name="horizontalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Minimum</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -26113,19 +26242,18 @@ Useful if you have accidentally changed some settings.</string>
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>scrollArea</tabstop>
   <tabstop>basicResponsivenessCheckBox</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>AttitudeResponsivenessSlider</tabstop>
-  <tabstop>spinBox</tabstop>
   <tabstop>RateResponsivenessSlider</tabstop>
+  <tabstop>spinBox</tabstop>
   <tabstop>spinBox_2</tabstop>
   <tabstop>RateYawResponsivenessSlider</tabstop>
   <tabstop>spinBox_5</tabstop>
   <tabstop>pushButton_21</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>FpvCamTiltCompensation</tabstop>
   <tabstop>AcroFactorRollSlider</tabstop>
   <tabstop>AcroFactorRollSpinBox</tabstop>
+  <tabstop>pushButton_14</tabstop>
   <tabstop>AcroFactorPitchSlider</tabstop>
   <tabstop>AcroFactorPitchSpinBox</tabstop>
   <tabstop>pushButton_12</tabstop>
@@ -26234,6 +26362,14 @@ Useful if you have accidentally changed some settings.</string>
   <tabstop>stabilizationReloadBoardData_6</tabstop>
   <tabstop>saveStabilizationToRAM_6</tabstop>
   <tabstop>saveStabilizationToSD_6</tabstop>
+  <tabstop>checkBoxLinkAcroFactors</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>AttitudeResponsivenessSlider</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>VelKdSlider</tabstop>
+  <tabstop>VelKd</tabstop>
+  <tabstop>VelBetaSlider</tabstop>
+  <tabstop>VelBeta</tabstop>
  </tabstops>
  <resources>
   <include location="../coreplugin/core.qrc"/>

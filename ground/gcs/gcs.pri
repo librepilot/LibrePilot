@@ -103,6 +103,9 @@ equals(TEST, 1) {
     DEFINES += WITH_TESTS
 }
 
+# don't build both debug and release
+CONFIG -= debug_and_release
+
 #ideally, we would want a qmake.conf patch, but this does the trick...
 win32:!isEmpty(QMAKE_SH):QMAKE_COPY_DIR = cp -r -f
 
@@ -171,15 +174,6 @@ macx {
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1
 
     win32 {
-        SDL_DIR = $$(SDL_DIR)
-        isEmpty(SDL_DIR):SDL_DIR = $${TOOLS_DIR}/SDL-1.2.15
-
-        OPENSSL_DIR = $$(OPENSSL_DIR)
-        isEmpty(OPENSSL_DIR):OPENSSL_DIR = $${TOOLS_DIR}/openssl-1.0.1e-win32
-
-        MESAWIN_DIR = $$(MESAWIN_DIR)
-        isEmpty(MESAWIN_DIR):MESAWIN_DIR = $${TOOLS_DIR}/mesawin
-
         GCS_QT_PLUGINS_PATH = $$GCS_APP_PATH
         GCS_QT_QML_PATH = $$GCS_APP_PATH
 
@@ -259,4 +253,3 @@ macx {
 # use ccache when available
 QMAKE_CC = $$(CCACHE) $$QMAKE_CC
 QMAKE_CXX = $$(CCACHE) $$QMAKE_CXX
-

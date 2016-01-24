@@ -359,7 +359,7 @@ def get_hash_of_dirs(directory, verbose = 0, raw = 0, n = 40):
                 files.sort()
 
             for names in files:
-                if names.endswith('.xml')
+                if names.endswith('.xml'):
                     if verbose == 1:
                         print 'Hashing', names
                     filepath = os.path.join(root, names)

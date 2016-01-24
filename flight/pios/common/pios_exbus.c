@@ -60,6 +60,11 @@
 #define EXBUS_FRAME_TIMEOUT    4
 #define EXBUS_FAILSAFE_TIMEOUT 64
 
+/* With an Ex.Bus frame rate of 10ms (100Hz) averaging over 20 samples
+ * gives about a 200ms response.
+ */
+#define EXBUS_FL_WEIGHTED_AVERAGE 20
+
 /* Forward Declarations */
 static int32_t PIOS_EXBUS_Get(uint32_t rcvr_id, uint8_t channel);
 static uint16_t PIOS_EXBUS_RxInCallback(uint32_t context,
@@ -69,10 +74,12 @@ static uint16_t PIOS_EXBUS_RxInCallback(uint32_t context,
                                         bool *need_yield);
 static void PIOS_EXBUS_Supervisor(uint32_t exbus_id);
 static uint16_t PIOS_EXBUS_CRC_Update(uint16_t crc, uint8_t data);
+static uint8_t PIOS_EXBUS_Quality_Get(uint32_t rcvr_id);
 
 /* Local Variables */
 const struct pios_rcvr_driver pios_exbus_rcvr_driver = {
     .read = PIOS_EXBUS_Get,
+    .get_quality = PIOS_EXBUS_Quality_Get,
 };
 
 enum pios_exbus_dev_magic {
@@ -100,6 +107,7 @@ struct pios_exbus_state {
     uint16_t crc;
     bool     high_baud_rate;
     bool     frame_found;
+    float    quality;
 };
 
 struct pios_exbus_dev {
@@ -149,6 +157,7 @@ static void PIOS_EXBUS_ResetState(struct pios_exbus_dev *exbus_dev)
     state->failsafe_count = 0;
     state->high_baud_rate = false;
     state->frame_found    = false;
+    state->quality = 0.0f;
     PIOS_EXBUS_ResetChannels(exbus_dev);
 }
 
@@ -261,11 +270,16 @@ static void PIOS_EXBUS_UpdateState(struct pios_exbus_dev *exbus_dev, uint8_t byt
             state->frame_length = byte;
         }
         if (state->byte_count == state->frame_length) {
+            uint8_t quality_trend = 0;
             if (!PIOS_EXBUS_UnrollChannels(exbus_dev)) {
                 /* data looking good */
                 state->failsafe_timer = 0;
                 state->failsafe_count = 0;
+                quality_trend = 100;
             }
+            // Calculate quality trend using weighted average of good frames
+            state->quality = ((state->quality * (EXBUS_FL_WEIGHTED_AVERAGE - 1)) +
+                              quality_trend) / EXBUS_FL_WEIGHTED_AVERAGE;
             /* get ready for the next frame */
             state->frame_found = false;
         }
@@ -407,8 +421,22 @@ static void PIOS_EXBUS_Supervisor(uint32_t exbus_id)
     if (++state->failsafe_timer > EXBUS_FAILSAFE_TIMEOUT) {
         PIOS_EXBUS_ResetChannels(exbus_dev);
         state->failsafe_timer = 0;
+        state->quality = 0.0f;
         PIOS_EXBUS_Change_BaudRate(exbus_dev);
     }
+}
+
+static uint8_t PIOS_EXBUS_Quality_Get(uint32_t exbus_id)
+{
+    struct pios_exbus_dev *exbus_dev = (struct pios_exbus_dev *)exbus_id;
+
+    bool valid = PIOS_EXBUS_Validate(exbus_dev);
+
+    PIOS_Assert(valid);
+
+    struct pios_exbus_state *state = &(exbus_dev->state);
+
+    return (uint8_t)(state->quality + 0.5f);
 }
 
 static uint16_t PIOS_EXBUS_CRC_Update(uint16_t crc, uint8_t data)

@@ -39,26 +39,26 @@
  */
 
 /* EXBUS frame size and contents definitions */
-#define EXBUS_HEADER_LENGTH    4
-#define EXBUS_CRC_LENGTH       2
-#define EXBUS_MAX_CHANNELS     16
-#define EXBUS_OVERHEAD_LENGTH  (EXBUS_HEADER_LENGTH + EXBUS_CRC_LENGTH)
-#define EXBUS_MAX_FRAME_LENGTH (EXBUS_MAX_CHANNELS * 2 + 10 + EXBUS_OVERHEAD_LENGTH)
+#define EXBUS_HEADER_LENGTH       4
+#define EXBUS_CRC_LENGTH          2
+#define EXBUS_MAX_CHANNELS        16
+#define EXBUS_OVERHEAD_LENGTH     (EXBUS_HEADER_LENGTH + EXBUS_CRC_LENGTH)
+#define EXBUS_MAX_FRAME_LENGTH    (EXBUS_MAX_CHANNELS * 2 + 10 + EXBUS_OVERHEAD_LENGTH)
 
-#define EXBUS_SYNC_CHANNEL     0x3E
-#define EXBUS_SYNC_TELEMETRY   0x3D
-#define EXBUS_BYTE_REQ         0x01
-#define EXBUS_BYTE_NOREQ       0x03
+#define EXBUS_SYNC_CHANNEL        0x3E
+#define EXBUS_SYNC_TELEMETRY      0x3D
+#define EXBUS_BYTE_REQ            0x01
+#define EXBUS_BYTE_NOREQ          0x03
 
-#define EXBUS_DATA_CHANNEL     0x31
-#define EXBUS_DATA_TELEMETRY   0x3A
-#define EXBUS_DATA_JETIBOX     0x3B
+#define EXBUS_DATA_CHANNEL        0x31
+#define EXBUS_DATA_TELEMETRY      0x3A
+#define EXBUS_DATA_JETIBOX        0x3B
 
-#define EXBUS_LOW_BAUD_RATE    125000
-#define EXBUS_HIGH_BAUD_RATE   250000
-#define EXBUS_BAUD_RATE_LIMIT  64
-#define EXBUS_FRAME_TIMEOUT    4
-#define EXBUS_FAILSAFE_TIMEOUT 64
+#define EXBUS_LOW_BAUD_RATE       125000
+#define EXBUS_HIGH_BAUD_RATE      250000
+#define EXBUS_BAUD_RATE_LIMIT     64
+#define EXBUS_FRAME_TIMEOUT       4
+#define EXBUS_FAILSAFE_TIMEOUT    64
 
 /* With an Ex.Bus frame rate of 10ms (100Hz) averaging over 20 samples
  * gives about a 200ms response.
@@ -78,7 +78,7 @@ static uint8_t PIOS_EXBUS_Quality_Get(uint32_t rcvr_id);
 
 /* Local Variables */
 const struct pios_rcvr_driver pios_exbus_rcvr_driver = {
-    .read = PIOS_EXBUS_Get,
+    .read        = PIOS_EXBUS_Get,
     .get_quality = PIOS_EXBUS_Quality_Get,
 };
 
@@ -278,8 +278,8 @@ static void PIOS_EXBUS_UpdateState(struct pios_exbus_dev *exbus_dev, uint8_t byt
                 quality_trend = 100;
             }
             // Calculate quality trend using weighted average of good frames
-            state->quality = ((state->quality * (EXBUS_FL_WEIGHTED_AVERAGE - 1)) +
-                              quality_trend) / EXBUS_FL_WEIGHTED_AVERAGE;
+            state->quality     = ((state->quality * (EXBUS_FL_WEIGHTED_AVERAGE - 1)) +
+                                  quality_trend) / EXBUS_FL_WEIGHTED_AVERAGE;
             /* get ready for the next frame */
             state->frame_found = false;
         }

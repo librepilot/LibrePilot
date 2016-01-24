@@ -90,6 +90,11 @@
 #define HOTT_FRAME_TIMEOUT          4
 #define HOTT_FAILSAFE_TIMEOUT       64
 
+/* With an Ex.Bus frame rate of 11/22ms (90/45Hz) averaging over 15 samples
+ * gives about a 165/330ms response.
+ */
+#define HOTT_FL_WEIGHTED_AVERAGE    20
+
 
 /* Forward Declarations */
 static int32_t PIOS_HOTT_Get(uint32_t rcvr_id, uint8_t channel);
@@ -99,10 +104,12 @@ static uint16_t PIOS_HOTT_RxInCallback(uint32_t context,
                                        uint16_t *headroom,
                                        bool *need_yield);
 static void PIOS_HOTT_Supervisor(uint32_t hott_id);
+static uint8_t PIOS_HOTT_Quality_Get(uint32_t rcvr_id);
 
 /* Local Variables */
 const struct pios_rcvr_driver pios_hott_rcvr_driver = {
-    .read = PIOS_HOTT_Get,
+    .read        = PIOS_HOTT_Get,
+    .get_quality = PIOS_HOTT_Quality_Get,
 };
 
 enum pios_hott_dev_magic {
@@ -118,6 +125,7 @@ struct pios_hott_state {
     uint8_t  tx_connected;
     uint8_t  byte_count;
     uint8_t  frame_length;
+    float    quality;
 };
 
 struct pios_hott_dev {
@@ -162,6 +170,7 @@ static void PIOS_HOTT_ResetState(struct pios_hott_state *state)
     state->failsafe_timer = 0;
     state->frame_found    = 0;
     state->tx_connected   = 0;
+    state->quality = 0.0f;
     PIOS_HOTT_ResetChannels(state);
 }
 
@@ -275,11 +284,17 @@ static void PIOS_HOTT_UpdateState(struct pios_hott_dev *hott_dev, uint8_t byte)
                 state->frame_length = HOTT_OVERHEAD_LENGTH + 2 * byte;
             }
             if (state->byte_count == state->frame_length) {
+                uint8_t quality_trend = 0;
                 /* full frame received - process and wait for new one */
                 if (!PIOS_HOTT_UnrollChannels(hott_dev)) {
                     /* data looking good */
                     state->failsafe_timer = 0;
+                    quality_trend = 100;
                 }
+                // Calculate quality trend using weighted average of good frames
+                state->quality = ((state->quality * (HOTT_FL_WEIGHTED_AVERAGE - 1)) +
+                                  quality_trend) / HOTT_FL_WEIGHTED_AVERAGE;
+
                 /* prepare for the next frame */
                 state->frame_found = 0;
             }
@@ -375,6 +390,19 @@ static int32_t PIOS_HOTT_Get(uint32_t rcvr_id, uint8_t channel)
     return hott_dev->state.channel_data[channel];
 }
 
+static uint8_t PIOS_HOTT_Quality_Get(uint32_t hott_id)
+{
+    struct pios_hott_dev *hott_dev = (struct pios_hott_dev *)hott_id;
+
+    bool valid = PIOS_HOTT_Validate(hott_dev);
+
+    PIOS_Assert(valid);
+
+    struct pios_hott_state *state = &(hott_dev->state);
+
+    return (uint8_t)(state->quality + 0.5f);
+}
+
 /**
  * Input data supervisor is called periodically and provides
  * two functions: frame syncing and failsafe triggering.
@@ -410,6 +438,7 @@ static void PIOS_HOTT_Supervisor(uint32_t hott_id)
         PIOS_HOTT_ResetChannels(state);
         state->failsafe_timer = 0;
         state->tx_connected   = 0;
+        state->quality = 0.0f;
     }
 }
 

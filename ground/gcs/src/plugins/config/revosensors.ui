@@ -1025,7 +1025,7 @@ p, li { white-space: pre-wrap; }
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="Help">
+      <widget class="QPushButton" name="attitudeHelp">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -1064,11 +1064,6 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="flat">
         <bool>true</bool>
-       </property>
-       <property name="objrelation" stdset="0">
-        <stringlist>
-         <string>button:help</string>
-        </stringlist>
        </property>
       </widget>
      </item>

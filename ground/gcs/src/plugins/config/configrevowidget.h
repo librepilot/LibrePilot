@@ -88,6 +88,7 @@ private slots:
     void enableAllCalibrations();
 
     void updateVisualHelp();
+    void openHelp();
 
 protected:
     void showEvent(QShowEvent *event);

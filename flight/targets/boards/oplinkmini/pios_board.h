@@ -248,7 +248,7 @@ extern uint32_t pios_ppm_out_id;
 // Receiver PPM input
 // -------------------------
 #define PIOS_PPM_MAX_DEVS            1
-#define PIOS_PPM_NUM_INPUTS          8
+#define PIOS_PPM_NUM_INPUTS          12
 
 // -------------------------
 // Receiver PWM inputs

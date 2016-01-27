@@ -10,19 +10,6 @@ index a62157e..75adfba 100644
              _name(op._name),
              _keep(op._keep) {}
  
-diff --git a/include/osgViewer/View b/include/osgViewer/View
-index 472b489..07ef9ce 100644
---- a/include/osgViewer/View
-+++ b/include/osgViewer/View
-@@ -127,7 +127,7 @@ class OSGVIEWER_EXPORT View : public osg::View, public osgGA::GUIActionAdapter
-         /** Set the View's image pager.*/
-         void setImagePager(osgDB::ImagePager* ip);
- 
--        template<class T> void setImagePager(const osg::ref_ptr<T>* ip) { setImagePager(ip.get()); }
-+        template<class T> void setImagePager(const osg::ref_ptr<T>& ip) { setImagePager(ip.get()); }
- 
-         /** Get the View's image pager.*/
-         osgDB::ImagePager* getImagePager();
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 33edf57..d2ea025 100644
 --- a/src/CMakeLists.txt

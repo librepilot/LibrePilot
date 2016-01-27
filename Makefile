@@ -147,8 +147,12 @@ export UAVOBJGENERATOR
 
 # Set up default build configurations (debug | release)
 GCS_BUILD_CONF := release
-GCS_EXTRA_CONF := osg copy_osg
 
+# Set extra configuration
+GCS_EXTRA_CONF :=
+
+# osg & osgearth
+GCS_EXTRA_CONF += osg copy_osg
 ifeq ($(UNAME), Windows)
     GCS_EXTRA_CONF += osgearth
 endif

@@ -2,18 +2,6 @@
 # Targets to build Marble
 #
 ################################
-# Linux prerequisites
-################################
-#
-#
-################################
-# Windows prerequisites
-################################
-#
-#
-################################
-# Building
-################################
 #
 # $ make all_marble
 #
@@ -54,8 +42,6 @@ else ifeq ($(UNAME), Windows)
 	MARBLE_NAME := $(MARBLE_BASE_NAME)-$(QT_SDK_ARCH)
 	MARBLE_DATA_BASE_DIR := data
 	MARBLE_CMAKE_GENERATOR := "MinGW Makefiles"
-	# CMake is quite picky about its PATH and will complain if sh.exe is found in it
-	MARBLE_BUILD_PATH := "$(TOOLS_DIR)/bin;$(QT_SDK_PREFIX)/bin;$(MINGW_DIR)/bin;$$SYSTEMROOT/System32"
 endif
 
 MARBLE_NAME        := $(MARBLE_NAME_PREFIX)$(MARBLE_NAME)$(MARBLE_NAME_SUFIX)
@@ -72,7 +58,9 @@ marble:
 	@$(ECHO) "Building marble $(call toprel, $(MARBLE_SRC_DIR)) into $(call toprel, $(MARBLE_BUILD_DIR))"
 	$(V1) $(MKDIR) -p $(MARBLE_BUILD_DIR)
 	$(V1) ( $(CD) $(MARBLE_BUILD_DIR) && \
-		PATH=$(MARBLE_BUILD_PATH) && \
+		if [ -n "$(MARBLE_BUILD_PATH)" ]; then \
+			PATH=$(MARBLE_BUILD_PATH) ; \
+		fi ; \
 		$(CMAKE) -Wno-dev -G $(MARBLE_CMAKE_GENERATOR) -DCMAKE_BUILD_TYPE=$(MARBLE_BUILD_CONF) \
 			-DCMAKE_MAKE_PROGRAM=$(MAKE) \
 			-DQTONLY=1 -DQT5BUILD=1 -DWITH_DESIGNER_PLUGIN=0 \

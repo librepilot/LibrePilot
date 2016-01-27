@@ -218,6 +218,11 @@ ifneq ($(shell $(SEVENZIP) --version >/dev/null 2>&1 && $(ECHO) "found"), found)
     SEVENZIP = $(TOOLS_DIR)/bin/7za.exe
 endif
 endif
+ifneq ($(UNAME), Windows)
+	MAKE := make
+else
+	MAKE := mingw32-make
+endif
 
 # Echo in recipes is a bit tricky in a Windows Git Bash window in some cases.
 # It does not work if make started under msysGit installed into a path with spaces.

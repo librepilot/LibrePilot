@@ -19,9 +19,6 @@
 #
 ################################
 
-# TODO should be discovered
-QT_VERSION := 5.4.1
-
 MARBLE_NAME_PREFIX :=
 MARBLE_NAME_SUFIX := -qt-$(QT_VERSION)
 

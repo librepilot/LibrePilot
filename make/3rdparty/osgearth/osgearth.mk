@@ -14,9 +14,6 @@
 #
 ################################
 
-# [TODO] should be discovered
-QT_VERSION := 5.5.1
-
 ################################
 #
 # common stuff

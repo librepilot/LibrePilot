@@ -126,7 +126,8 @@ GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
 CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
 CCACHE_MD5_URL := http://librepilot.github.io/tools/ccache-3.2.2.tar.bz2.md5
 
-QT_SDK_DIR     := $(TOOLS_DIR)/qt-5.5.1
+QT_VERSION     := 5.5.1
+QT_SDK_DIR     := $(TOOLS_DIR)/qt-$(QT_VERSION)
 UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
@@ -135,23 +136,23 @@ OSG_TOOLS_DIR  := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-linux-x64-qt-5.5.1
-        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x64-qt-5.5.1
+        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-linux-x64-qt-$(QT_VERSION)
+        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x64-qt-$(QT_VERSION)
     else
-        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-linux-x86-qt-5.5.1
-        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x86-qt-5.5.1
+        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-linux-x86-qt-$(QT_VERSION)
+        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x86-qt-$(QT_VERSION)
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-clang_64-qt-5.5.1
-    OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-5.5.1
+    OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4-clang_64-qt-$(QT_VERSION)
+    OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
     PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
     NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
-    OSG_SDK_DIR  := $(OSG_TOOLS_DIR)/osg-3.4-mingw492_32-qt-5.5.1
-    OSGEARTH_SDK_DIR  := $(OSG_TOOLS_DIR)/osgearth-2.7-mingw492_32-qt-5.5.1
+    OSG_SDK_DIR       := $(OSG_TOOLS_DIR)/osg-3.4-mingw492_32-qt-$(QT_VERSION)
+    OSGEARTH_SDK_DIR  := $(OSG_TOOLS_DIR)/osgearth-2.7-mingw492_32-qt-$(QT_VERSION)
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)

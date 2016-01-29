@@ -22,5 +22,6 @@ endif
 	  PACKAGE_DIR="$(PACKAGE_DIR)" \
 	  PACKAGE_NAME="$(PACKAGE_NAME)" \
 	  PACKAGE_SEP="$(PACKAGE_SEP)" \
+	  QT_DIR="$(QT_SDK_PREFIX)/lib" \
 	  "$(ROOT_DIR)/package/osx/package" \
 	)

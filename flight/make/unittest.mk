@@ -28,19 +28,18 @@
 override ARM_SDK_PREFIX :=
 override THUMB :=
 
+GTEST_SRC_DIR := $(GTEST_DIR)/src
+
 # Unit test source files
 ALLSRC     := $(SRC) $(wildcard ./*.c)
-ALLCPPSRC  := $(wildcard ./*.cpp) $(GTEST_DIR)/src/gtest_main.cc
+ALLCPPSRC  := $(wildcard ./*.cpp) $(GTEST_SRC_DIR)/gtest_main.cc
 ALLSRCBASE := $(notdir $(basename $(ALLSRC) $(ALLCPPSRC)))
 ALLOBJ     := $(addprefix $(OUTDIR)/, $(addsuffix .o, $(ALLSRCBASE)))
 
 $(foreach src,$(ALLSRC),$(eval $(call COMPILE_C_TEMPLATE,$(src))))
 $(foreach src,$(ALLCPPSRC),$(eval $(call COMPILE_CXX_TEMPLATE,$(src))))
 
-# Specific extensions to CPPFLAGS only for the google test library
-$(OUTDIR)/gtest-all.o: CPPFLAGS += -I$(GTEST_DIR)
-
-$(eval $(call COMPILE_CXX_TEMPLATE, $(GTEST_DIR)/src/gtest-all.cc))
+$(eval $(call COMPILE_CXX_TEMPLATE, $(GTEST_SRC_DIR)/gtest-all.cc))
 $(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ) $(OUTDIR)/gtest-all.o))
 
 # Flags passed to the preprocessor

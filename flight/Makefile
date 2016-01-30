@@ -254,3 +254,62 @@ flight_uavobjects: $(UAVOBJGENERATOR)
 	$(V1) cd $(FLIGHT_UAVOBJ_DIR) && \
 	    $(UAVOBJGENERATOR) -flight $(UAVOBJ_XML_DIR) $(FLIGHT_ROOT_DIR)/..
 
+
+##############################
+#
+# Unit Tests
+#
+##############################
+
+ALL_UNITTESTS := logfs math lednotification
+
+# Build the directory for the unit tests
+UT_OUT_DIR := $(BUILD_DIR)/unit_tests
+DIRS += $(UT_OUT_DIR)
+
+.PHONY: all_ut
+all_ut: $(addsuffix _elf, $(addprefix ut_, $(ALL_UNITTESTS)))
+
+.PHONY: all_ut_xml
+all_ut_xml: $(addsuffix _xml, $(addprefix ut_, $(ALL_UNITTESTS)))
+
+.PHONY: all_ut_run
+all_ut_run: $(addsuffix _run, $(addprefix ut_, $(ALL_UNITTESTS)))
+
+.PHONY: all_ut_clean
+all_ut_clean:
+	@$(ECHO) " CLEAN      $(call toprel, $(UT_OUT_DIR))"
+	$(V1) [ ! -d "$(UT_OUT_DIR)" ] || $(RM) -r "$(UT_OUT_DIR)"
+
+# $(1) = Unit test name
+define UT_TEMPLATE
+.PHONY: ut_$(1)
+ut_$(1): ut_$(1)_run
+
+ut_$(1)_%: $$(UT_OUT_DIR)
+	$(V1) $(MKDIR) -p $(UT_OUT_DIR)/$(1)
+	$(V1) cd $(ROOT_DIR)/flight/tests/$(1) && \
+		$$(MAKE) -r --no-print-directory \
+		BUILD_TYPE=ut \
+		BOARD_SHORT_NAME=$(1) \
+		TOPDIR=$(ROOT_DIR)/flight/tests/$(1) \
+		OUTDIR="$(UT_OUT_DIR)/$(1)" \
+		TARGET=$(1) \
+		$$*
+
+.PHONY: ut_$(1)_clean
+ut_$(1)_clean:
+	@$(ECHO) " CLEAN      $(call toprel, $(UT_OUT_DIR)/$(1))"
+	$(V1) [ ! -d "$(UT_OUT_DIR)/$(1)" ] || $(RM) -r "$(UT_OUT_DIR)/$(1)"
+endef
+
+# Expand the unittest rules
+$(foreach ut, $(ALL_UNITTESTS), $(eval $(call UT_TEMPLATE,$(ut))))
+
+# Disable parallel make when the all_ut_run target is requested otherwise the TAP
+# output is interleaved with the rest of the make output.
+ifneq ($(strip $(filter all_ut_run,$(MAKECMDGOALS))),)
+.NOTPARALLEL:
+    $(info $(EMPTY) NOTE        Parallel make disabled by all_ut_run target so we have sane console output)
+endif
+

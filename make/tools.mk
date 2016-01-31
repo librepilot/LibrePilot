@@ -118,8 +118,6 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_URL    := http://librepilot.github.io/tools/mesawin.tar.gz
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60-windows.tar.bz2
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1-windows.tar.bz2
-    OSG_URL        := http://librepilot.github.io/tools/osg-3.4-mingw492_32-qt-5.5.1.tar.gz
-    OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-mingw492_32-qt-5.5.1.tar.gz
 endif
 
 GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
@@ -151,8 +149,6 @@ else ifeq ($(UNAME), Windows)
     PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
     NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
-    OSG_SDK_DIR       := $(OSG_TOOLS_DIR)/osg-3.4-mingw492_32-qt-$(QT_VERSION)
-    OSGEARTH_SDK_DIR  := $(OSG_TOOLS_DIR)/osgearth-2.7-mingw492_32-qt-$(QT_VERSION)
 endif
 
 QT_SDK_PREFIX := $(QT_SDK_DIR)
@@ -163,11 +159,11 @@ QT_SDK_PREFIX := $(QT_SDK_DIR)
 #
 ##############################
 
-BUILD_SDK_TARGETS := arm_sdk osg
+BUILD_SDK_TARGETS := arm_sdk
 ifeq ($(UNAME), Windows)
-    BUILD_SDK_TARGETS += nsis mesawin osgearth
+    BUILD_SDK_TARGETS += nsis mesawin
 else
-    BUILD_SDK_TARGETS += qt_sdk
+    BUILD_SDK_TARGETS += qt_sdk osg
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
 

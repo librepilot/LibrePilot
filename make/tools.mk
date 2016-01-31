@@ -120,7 +120,7 @@ else ifeq ($(UNAME), Windows)
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1-windows.tar.bz2
 endif
 
-GTEST_URL := http://librepilot.github.io/tools/gtest-1.6.0.zip
+GTEST_URL 	   := http://librepilot.github.io/tools/gtest-1.7.0.zip
 CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
 CCACHE_MD5_URL := http://librepilot.github.io/tools/ccache-3.2.2.tar.bz2.md5
 
@@ -128,7 +128,7 @@ QT_VERSION     := 5.5.1
 QT_SDK_DIR     := $(TOOLS_DIR)/qt-$(QT_VERSION)
 UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
-GTEST_DIR      := $(TOOLS_DIR)/gtest-1.6.0
+GTEST_DIR      := $(TOOLS_DIR)/gtest-1.7.0
 CCACHE_DIR     := $(TOOLS_DIR)/ccache
 OSG_TOOLS_DIR  := $(TOOLS_DIR)
 

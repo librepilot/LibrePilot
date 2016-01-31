@@ -39,6 +39,9 @@ ALLOBJ     := $(addprefix $(OUTDIR)/, $(addsuffix .o, $(ALLSRCBASE)))
 $(foreach src,$(ALLSRC),$(eval $(call COMPILE_C_TEMPLATE,$(src))))
 $(foreach src,$(ALLCPPSRC),$(eval $(call COMPILE_CXX_TEMPLATE,$(src))))
 
+# Specific extensions to CPPFLAGS only for the google test library
+$(OUTDIR)/gtest-all.o: CPPFLAGS += -I$(GTEST_SRC_DIR)/..
+
 $(eval $(call COMPILE_CXX_TEMPLATE, $(GTEST_SRC_DIR)/gtest-all.cc))
 $(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ) $(OUTDIR)/gtest-all.o))
 
@@ -46,7 +49,7 @@ $(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ) $(OUTDIR)/gtes
 CPPFLAGS += -I$(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler
-CXXFLAGS += -g -Wall -Wextra
+CXXFLAGS += -g -Wall -Wextra -Wno-missing-field-initializers
 
 # Flags passed to the C compiler
 CONLYFLAGS += -std=gnu99

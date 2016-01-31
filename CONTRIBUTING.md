@@ -28,11 +28,11 @@ Install the dependent packages that match your MinGW shell.
 
 For 32 bit:
 
-    pacman -S --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl
+    pacman -S --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl mingw-w64-i686-OpenSceneGraph
 
 For 64 bit:
 
-    pacman -S --needed git unzip tar mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw-w64-x86_64-SDL mingw-w64-x86_64-mesa mingw-w64-x86_64-openssl
+    pacman -S --needed git unzip tar mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw-w64-x86_64-SDL mingw-w64-x86_64-mesa mingw-w64-x86_64-openssl mingw-w64-x86_64-OpenSceneGraph
 
 **NOTE** On Windows you need to run the mingw version of make, which is `mingw32-make`
 

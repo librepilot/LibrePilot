@@ -153,9 +153,6 @@ GCS_EXTRA_CONF :=
 
 # osg & osgearth
 GCS_EXTRA_CONF += osg copy_osg
-ifeq ($(UNAME), Windows)
-    GCS_EXTRA_CONF += osgearth
-endif
 
 ##############################
 #

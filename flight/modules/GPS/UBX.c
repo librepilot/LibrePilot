@@ -122,13 +122,20 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         UBX_CHK2,
         FINISHED
     };
+    enum restart_states {
+        RESTART_WITH_ERROR,
+        RESTART_NO_ERROR
+    };
     uint8_t c;
     static enum proto_states proto_state = START;
     static uint16_t rx_count = 0;
     struct UBXPacket *ubx    = (struct UBXPacket *)gps_rx_buffer;
     uint16_t i = 0;
     uint16_t restart_index   = 0;
+    enum restart_states restart_state;
 
+    // switch continue is the normal condition and comes back to here for another byte
+    // switch break is the error state that branches to the end and restarts the scan at the byte after the first sync byte
     while (i < len) {
         c = rx[i++];
         switch (proto_state) {
@@ -143,7 +150,8 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             if (c == UBX_SYNC2) { // second UBX sync char found
                 proto_state = UBX_CLASS;
             } else {
-                goto RESTART_NOERROR; // reparse packet but don't declare error
+                restart_state = RESTART_NO_ERROR;
+                break;
             }
             continue;
         case UBX_CLASS:
@@ -163,9 +171,11 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             if (ubx->header.len > sizeof(UBXPayload)) {
                 gpsRxStats->gpsRxOverflow++;
 #if defined(PIOS_GPS_MINIMAL)
-                goto RESTART_NOERROR; // known issue that some packets are too long on CC3D - reparse packet
+                restart_state = RESTART_NO_ERROR;
+                break;
 #else
-                goto RESTART; // declare a packet error and reparse packet
+                restart_state = RESTART_WITH_ERROR;
+                break;
 #endif
             } else {
                 if (ubx->header.len == 0) {
@@ -190,6 +200,12 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             continue;
         case UBX_CHK2:
             ubx->header.ck_b = c;
+            // OP GPSV9 sends data with bad checksums this appears to happen because it drops data
+            // this has been proven by running it without autoconfig and testing:
+            // data coming from OPV9 "GPS+MCU" port the checksum errors happen roughly every 5 to 30 seconds
+            // same data coming from OPV9 "GPS Only" port the checksums are always good
+            // this also ocassionally causes parse_ubx_message() to issue alarms because not all the messages were received
+            // see OP GPSV9 comment in parse_ubx_message() for further information
             if (checksum_ubx_message(ubx)) { // message complete and valid
                 parse_ubx_message(ubx, GpsData);
                 gpsRxStats->gpsRxReceived++;
@@ -200,7 +216,8 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                 }
             } else {
                 gpsRxStats->gpsRxChkSumError++;
-                goto RESTART;
+                restart_state = RESTART_WITH_ERROR;
+                break;
             }
             continue;
         default:
@@ -212,9 +229,10 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         // and it does the expected thing across calls
         // if restarting due to error detected in 2nd call to this function (on split packet)
         // then we just restart at index 0, which is mid-packet, not the second byte
-RESTART:
-        ret  = PARSER_ERROR;  // inform caller that we found at least one error (along with 0 or more good packets)
-RESTART_NOERROR:
+        if (restart_state == RESTART_WITH_ERROR) {
+            ret = PARSER_ERROR; // inform caller that we found at least one error (along with 0 or more good packets)
+        }
+        // else restart with no error
         rx  += restart_index; // restart parsing just past the most recent SYNC1
         len -= restart_index;
         i    = 0;
@@ -549,7 +567,7 @@ uint32_t parse_ubx_message(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosi
     GpsPosition->SensorType = sensorType;
 
     if (msgtracker.msg_received == ALL_RECEIVED) {
-        // leave BaudRate field alone
+        // leave BaudRate field alone!
         GPSPositionSensorBaudRateGet(&GpsPosition->BaudRate);
         GPSPositionSensorSet(GpsPosition);
         msgtracker.msg_received = NONE_RECEIVED;
@@ -559,6 +577,10 @@ uint32_t parse_ubx_message(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosi
         GPSPositionSensorStatusGet(&status);
         if (status == GPSPOSITIONSENSOR_STATUS_NOGPS) {
             // Some ubx thing has been received so GPS is there
+            //
+            // OP GPSV9 will sometimes cause this NOFIX
+            // because GPSV9 drops data which causes checksum errors which causes GPS.c to set the status to NOGPS
+            // see OP GPSV9 comment in parse_ubx_stream() for further information
             status = GPSPOSITIONSENSOR_STATUS_NOFIX;
             GPSPositionSensorStatusSet(&status);
         }
@@ -567,18 +589,12 @@ uint32_t parse_ubx_message(struct UBXPacket *ubx, GPSPositionSensorData *GpsPosi
 }
 
 #if !defined(PIOS_GPS_MINIMAL)
-
-void load_mag_settings()
+void op_gpsv9_load_mag_settings()
 {
-    auxmagsupport_reload_settings();
-
-    if (auxmagsupport_get_type() != AUXMAGSETTINGS_TYPE_GPSV9) {
-        useMag = false;
-        const uint8_t status = AUXMAGSENSOR_STATUS_NONE;
-        // next sample from other external mags will provide the right status if present
-        AuxMagSensorStatusSet((uint8_t *)&status);
-    } else {
+    if (auxmagsupport_get_type() == AUXMAGSETTINGS_TYPE_GPSV9) {
         useMag = true;
+    } else {
+        useMag = false;
     }
 }
 #endif

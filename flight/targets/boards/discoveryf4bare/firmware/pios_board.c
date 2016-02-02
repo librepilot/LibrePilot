@@ -270,7 +270,10 @@ uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
 /*
- * Setup a com port based on the passed cfg, driver and buffer sizes. tx size of -1 make the port rx only
+ * Setup a com port based on the passed cfg, driver and buffer sizes.
+ * tx size of -1 make the port rx only
+ * rx size of -1 make the port tx only
+ * having both tx and rx size of -1 is not valid and will fail further down in PIOS_COM_Init()
  */
 static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, size_t rx_buf_len, size_t tx_buf_len,
                                      const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
@@ -280,26 +283,25 @@ static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg
     if (PIOS_USART_Init(&pios_usart_id, usart_port_cfg)) {
         PIOS_Assert(0);
     }
-
-    uint8_t *rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
-    PIOS_Assert(rx_buffer);
-    if (tx_buf_len != (size_t)-1) { // this is the case for rx/tx ports
-        uint8_t *tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
-        PIOS_Assert(tx_buffer);
-
-        if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
-                          rx_buffer, rx_buf_len,
-                          tx_buffer, tx_buf_len)) {
-            PIOS_Assert(0);
-        }
-    } else { // rx only port
-        if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
-                          rx_buffer, rx_buf_len,
-                          NULL, 0)) {
-            PIOS_Assert(0);
-        }
+    
+    uint8_t *rx_buffer = 0, *tx_buffer =0;
+    
+    if(rx_buf_len > 0) {
+        rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
+        PIOS_Assert(rx_buffer);
     }
-}
+
+    if(tx_buf_len > 0) {
+        tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
+        PIOS_Assert(tx_buffer);
+    }
+    
+    if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
+                      rx_buffer, rx_buf_len,
+                      tx_buffer, tx_buf_len)) {
+        PIOS_Assert(0);
+    }
+}    
 
 static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm_cfg, const struct pios_dsm_cfg *pios_dsm_cfg,
                                      const struct pios_com_driver *usart_com_driver,
@@ -726,7 +728,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
-            PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+            PIOS_Board_configure_com(&pios_usart_flexi_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;

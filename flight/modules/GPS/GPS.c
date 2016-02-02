@@ -551,7 +551,7 @@ static void updateHwSettings(UAVObjEvent __attribute__((unused)) *ev)
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
 void AuxMagSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
-    load_mag_settings();
+    op_gpsv9_load_mag_settings();
 }
 
 

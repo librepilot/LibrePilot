@@ -290,25 +290,25 @@ static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg
     if (PIOS_USART_Init(&pios_usart_id, usart_port_cfg)) {
         PIOS_Assert(0);
     }
-    
-    uint8_t *rx_buffer = 0, *tx_buffer =0;
-    
-    if(rx_buf_len > 0) {
+
+    uint8_t *rx_buffer = 0, *tx_buffer = 0;
+
+    if (rx_buf_len > 0) {
         rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
         PIOS_Assert(rx_buffer);
     }
 
-    if(tx_buf_len > 0) {
+    if (tx_buf_len > 0) {
         tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
         PIOS_Assert(tx_buffer);
     }
-    
+
     if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
                       rx_buffer, rx_buf_len,
                       tx_buffer, tx_buf_len)) {
         PIOS_Assert(0);
     }
-}    
+}
 
 static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm_cfg, const struct pios_dsm_cfg *pios_dsm_cfg,
                                      const struct pios_com_driver *usart_com_driver,

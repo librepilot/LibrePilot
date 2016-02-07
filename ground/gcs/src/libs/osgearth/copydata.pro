@@ -2,8 +2,7 @@
 # copy osg and osgearth libraries and data to build dir
 #
 
-# set debug suffix if needed
-#win32:CONFIG(debug, debug|release):DS = "d"
+OSG_VERSION = 3.5.1
 
 contains(QT_ARCH, x86_64)  {
     LIB_DIR_NAME = lib64
@@ -11,12 +10,8 @@ contains(QT_ARCH, x86_64)  {
     LIB_DIR_NAME = lib
 }
 
-win32 {
-    OSG_VERSION = 3.5.1
-} else {
-    OSG_VERSION = 3.4.0
-}
-
+# set debug suffix if needed
+#win32:CONFIG(debug, debug|release):DS = "d"
 
 osg:linux {
     # copy osg libraries

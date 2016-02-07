@@ -89,13 +89,13 @@ ifeq ($(UNAME), Linux)
         QT_SDK_ARCH    := gcc_64
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x64-5.5.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x64-5.5.1.run.md5
-        OSG_URL        := http://librepilot.github.io/tools/osg-3.4.0-linux-x64-qt-5.5.1.tar.gz
+        OSG_URL        := http://librepilot.github.io/tools/osg-3.5.1-linux-x64-qt-5.5.1.tar.gz
         OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-linux-x64-qt-5.5.1.tar.gz
     else
         QT_SDK_ARCH    := gcc
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x86-5.5.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x86-5.5.1.run.md5
-        OSG_URL        := http://librepilot.github.io/tools/osg-3.4.0-linux-x86-qt-5.5.1.tar.gz
+        OSG_URL        := http://librepilot.github.io/tools/osg-3.5.1-linux-x86-qt-5.5.1.tar.gz
         OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-linux-x86-qt-5.5.1.tar.gz
     endif
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
@@ -108,7 +108,7 @@ else ifeq ($(UNAME), Darwin)
     QT_SDK_MAINTENANCE_TOOL := /Volumes/qt-opensource-mac-x64-clang-5.5.1/qt-opensource-mac-x64-clang-5.5.1.app/Contents/MacOS/qt-opensource-mac-x64-clang-5.5.1
     UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
-    OSG_URL        := http://librepilot.github.io/tools/osg-3.4.0-clang_64-qt-5.5.1.tar.gz
+    OSG_URL        := http://librepilot.github.io/tools/osg-3.5.1-clang_64-qt-5.5.1.tar.gz
     OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-clang_64-qt-5.5.1.tar.gz
 else ifeq ($(UNAME), Windows)
     QT_SDK_ARCH    := mingw492_32
@@ -134,15 +134,15 @@ OSG_TOOLS_DIR  := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4.0-linux-x64-qt-5.5.1
-        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x64-qt-5.5.1
+        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-linux-x64-qt-$(QT_VERSION)
+        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x64-qt-$(QT_VERSION)
     else
-        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4.0-linux-x86-qt-5.5.1
-        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x86-qt-5.5.1
+        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-linux-x86-qt-$(QT_VERSION)
+        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x86-qt-$(QT_VERSION)
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.4.0-clang_64-qt-5.5.1
-    OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-5.5.1
+    OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-clang_64-qt-$(QT_VERSION)
+    OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
 else ifeq ($(UNAME), Windows)
     MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri

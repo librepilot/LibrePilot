@@ -31,7 +31,7 @@ OSG_NAME_SUFIX := -qt-$(QT_VERSION)
 #
 ################################
 
-OSG_VERSION := 3.4.0
+OSG_VERSION := 3.5.1
 OSG_GIT_TAG := OpenSceneGraph-$(OSG_VERSION)
 
 OSG_BASE_NAME   := osg-$(OSG_VERSION)

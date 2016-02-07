@@ -31,12 +31,8 @@ OSG_NAME_SUFIX := -qt-$(QT_VERSION)
 #
 ################################
 
-#OSG_VERSION     := 0b63c8ffde
-#OSG_GIT_BRANCH  := $(OSG_VERSION)
-#OSG_VERSION     := 3.4.0-rc5
-#OSG_GIT_BRANCH  := tags/OpenSceneGraph-$(OSG_VERSION)
-OSG_VERSION     := 3.4
-OSG_GIT_BRANCH  := OpenSceneGraph-$(OSG_VERSION)
+OSG_VERSION := 3.4.0
+OSG_GIT_TAG := OpenSceneGraph-$(OSG_VERSION)
 
 OSG_BASE_NAME   := osg-$(OSG_VERSION)
 
@@ -137,15 +133,14 @@ prepare_osg: clone_osg
 
 .PHONY: clone_osg
 clone_osg:
-	$(V1) if [ ! -d "$(OSG_SRC_DIR)" ]; then \
-		$(ECHO) "Cloning osg..." ; \
-		$(GIT) clone --no-checkout git://github.com/openscenegraph/osg.git $(OSG_SRC_DIR) ; \
+	$(V1) if [ -d "$(OSG_SRC_DIR)" ]; then \
+		$(ECHO) "Deleting osg clone..." ; \
+		$(RM) -rf $(OSG_SRC_DIR) ; \
 	fi
-	@$(ECHO) "Fetching osg..."
-	$(V1) ( $(CD) $(OSG_SRC_DIR) && $(GIT) fetch ; )
-	@$(ECHO) "Checking out osg $(OSG_GIT_BRANCH)"
-	$(V1) ( $(CD) $(OSG_SRC_DIR) && $(GIT) fetch --tags ; )
-	$(V1) ( $(CD) $(OSG_SRC_DIR) && $(GIT) checkout --quiet --force $(OSG_GIT_BRANCH) ; )
+	@$(ECHO) "Cloning osg..."
+	$(V1) $(GIT) clone --depth 1 --no-checkout -b $(OSG_GIT_TAG) git://github.com/openscenegraph/osg.git $(OSG_SRC_DIR)
+	@$(ECHO) "Checkout osg $(OSG_GIT_TAG)"
+	$(V1) ( $(CD) $(OSG_SRC_DIR) && $(GIT) checkout --force tags/$(OSG_GIT_TAG) ; )
 	$(V1) if [ -e $(OSG_PATCH_FILE) ]; then \
 		$(ECHO) "Patching osg..." ; \
 		( $(CD) $(OSG_SRC_DIR) && $(GIT) apply $(OSG_PATCH_FILE) ; ) \
@@ -173,17 +168,14 @@ clean_all_osg: clean_osg
 # fix Debug build
 # add option to not build the applications (in Debug mode in particular)
 
-#OSGEARTH_VERSION     := 1873b3a9489
-#OSGEARTH_GIT_BRANCH  := $(OSGEARTH_VERSION)
-OSGEARTH_VERSION     := 2.7
-OSGEARTH_GIT_BRANCH  := osgearth-$(OSGEARTH_VERSION)
+OSGEARTH_VERSION := 2.7
+OSGEARTH_GIT_TAG := osgearth-$(OSGEARTH_VERSION)
 
 OSGEARTH_BASE_NAME   := osgearth-$(OSGEARTH_VERSION)
 OSGEARTH_BUILD_CONF  := $(OSG_BUILD_CONF)
 
 # osgearth cmake script calls the osgversion executable to find the osg version
-# this makes it necessary to have osg in the pathes (bin and lib) to make sure the correct one is found
-# ideally this should not be necessary
+# this makes it necessary to have osg in the path (bin and lib) to make sure the correct one is found
 ifeq ($(UNAME), Linux)
 	ifeq ($(ARCH), x86_64)
 		OSGEARTH_NAME := $(OSGEARTH_BASE_NAME)-linux-x64
@@ -259,16 +251,15 @@ prepare_osgearth: clone_osgearth
 
 .PHONY: clone_osgearth
 clone_osgearth:
-	$(V1) if [ ! -d "$(OSGEARTH_SRC_DIR)" ]; then \
-		$(ECHO) "Cloning osgearth..." ; \
-		$(GIT) clone --no-checkout git://github.com/gwaldron/osgearth.git $(OSGEARTH_SRC_DIR) ; \
+	$(V1) if [ -d "$(OSGEARTH_SRC_DIR)" ]; then \
+		$(ECHO) "Deleting osgearth clone..." ; \
+		$(RM) -rf $(OSGEARTH_SRC_DIR) ; \
 	fi
-	@$(ECHO) "Fetching osgearth..."
-	$(V1) ( $(CD) $(OSGEARTH_SRC_DIR) && $(GIT) fetch ; )
-	@$(ECHO) "Checking out osgearth $(OSGEARTH_GIT_BRANCH)"
-	$(V1) ( $(CD) $(OSGEARTH_SRC_DIR) && $(GIT) fetch --tags ; )
-	$(V1) ( $(CD) $(OSGEARTH_SRC_DIR) && $(GIT) checkout --quiet --force $(OSGEARTH_GIT_BRANCH) ; )
-	$(V1) if [ -f "$(OSGEARTH_PATCH_FILE)" ]; then \
+	@$(ECHO) "Cloning osgearth..."
+	$(V1) $(GIT) clone --depth 1 --no-checkout -b $(OSGEARTH_GIT_TAG) git://github.com/gwaldron/osgearth.git $(OSGEARTH_SRC_DIR)
+	@$(ECHO) "Checkout osgearth $(OSGEARTH_GIT_TAG)"
+	$(V1) ( $(CD) $(OSGEARTH_SRC_DIR) && $(GIT) checkout --force tags/$(OSGEARTH_GIT_TAG) ; )
+	$(V1) if [ -e $(OSGEARTH_PATCH_FILE) ]; then \
 		$(ECHO) "Patching osgearth..." ; \
 		( $(CD) $(OSGEARTH_SRC_DIR) && $(GIT) apply $(OSGEARTH_PATCH_FILE) ; ) \
 	fi

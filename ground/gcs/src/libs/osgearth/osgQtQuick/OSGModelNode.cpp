@@ -59,7 +59,7 @@ public:
 
 public:
 
-    Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), offset(-1.0), clampToTerrain(false), dirty(false)
+    Hidden(OSGModelNode *parent) : QObject(parent), self(parent), modelData(NULL), sceneData(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false), dirty(false)
     {}
 
     ~Hidden()

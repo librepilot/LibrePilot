@@ -7,7 +7,8 @@
  * @{
  *
  * @file       UBX.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      GPS module, handles GPS and NMEA stream
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -130,7 +131,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
     static enum proto_states proto_state = START;
     static uint16_t rx_count = 0;
     struct UBXPacket *ubx    = (struct UBXPacket *)gps_rx_buffer;
-    uint16_t i = 0;
+    uint16_t i               = 0;
     uint16_t restart_index   = 0;
     enum restart_states restart_state;
 
@@ -204,15 +205,20 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             // this has been proven by running it without autoconfig and testing:
             // data coming from OPV9 "GPS+MCU" port the checksum errors happen roughly every 5 to 30 seconds
             // same data coming from OPV9 "GPS Only" port the checksums are always good
-            // this also ocassionally causes parse_ubx_message() to issue alarms because not all the messages were received
+            // this also occasionally causes parse_ubx_message() to issue alarms because not all the messages were received
             // see OP GPSV9 comment in parse_ubx_message() for further information
-            if (checksum_ubx_message(ubx)) { // message complete and valid
-                parse_ubx_message(ubx, GpsData);
+            if (checksum_ubx_message(ubx)) {
                 gpsRxStats->gpsRxReceived++;
                 proto_state = START;
-                // pass PARSER_ERROR to be to caller if it happens even once
-                if (ret == PARSER_INCOMPLETE) {
-                    ret = PARSER_COMPLETE; // message complete & processed
+                // overwrite PARSER_INCOMPLETE with PARSER_COMPLETE
+                // but don't overwrite PARSER_ERROR with PARSER_COMPLETE
+                // pass PARSER_ERROR to caller if it happens even once
+                // only pass PARSER_COMPLETE back to caller if we parsed a full set of GPS data
+                // that allows the caller to know if we are parsing GPS data
+                // or just other packets for some reason (mis-configuration)
+                if (parse_ubx_message(ubx, GpsData)==GPSPOSITIONSENSOR_OBJID
+                    && ret == PARSER_INCOMPLETE) {
+                    ret = PARSER_COMPLETE;
                 }
             } else {
                 gpsRxStats->gpsRxChkSumError++;
@@ -230,9 +236,8 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         // if restarting due to error detected in 2nd call to this function (on split packet)
         // then we just restart at index 0, which is mid-packet, not the second byte
         if (restart_state == RESTART_WITH_ERROR) {
-            ret = PARSER_ERROR; // inform caller that we found at least one error (along with 0 or more good packets)
+            ret  = PARSER_ERROR;  // inform caller that we found at least one error (along with 0 or more good packets)
         }
-        // else restart with no error
         rx  += restart_index; // restart parsing just past the most recent SYNC1
         len -= restart_index;
         i    = 0;

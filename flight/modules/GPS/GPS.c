@@ -7,7 +7,8 @@
  * @{
  *
  * @file       GPS.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      GPS module, handles GPS and NMEA stream
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -48,9 +49,11 @@
 #include "GPS.h"
 #include "NMEA.h"
 #include "UBX.h"
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+#include "DJI.h"
+#if (defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)
 #include "inc/ubx_autoconfig.h"
 #endif
+#include <auxmagsupport.h>
 
 #include <pios_instrumentation_helper.h>
 PERF_DEFINE_COUNTER(counterBytesIn);
@@ -67,7 +70,7 @@ static void setHomeLocation(GPSPositionSensorData *gpsData);
 static float GravityAccel(float latitude, float longitude, float altitude);
 #endif
 
-#ifdef PIOS_INCLUDE_GPS_UBX_PARSER
+#if (defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER))
 void AuxMagSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev);
 #ifndef PIOS_GPS_MINIMAL
 void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev);
@@ -124,7 +127,7 @@ static char *gps_rx_buffer;
 
 static uint32_t timeOfLastUpdateMs;
 
-#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER)
+#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)
 static struct GPS_RX_STATS gpsRxStats;
 #endif
 
@@ -178,7 +181,7 @@ int32_t GPSInitialize(void)
     GPSTimeInitialize();
     GPSSatellitesInitialize();
     HomeLocationInitialize();
-#ifdef PIOS_INCLUDE_GPS_UBX_PARSER
+#if (defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER))
     AuxMagSensorInitialize();
     AuxMagSettingsInitialize();
     GPSExtendedStatusInitialize();
@@ -212,19 +215,34 @@ int32_t GPSInitialize(void)
 #endif /* if defined(REVOLUTION) */
 
     if (gpsEnabled) {
-#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) && defined(PIOS_INCLUDE_GPS_UBX_PARSER)
-        gps_rx_buffer = pios_malloc((sizeof(struct UBXPacket) > NMEA_MAX_PACKET_LENGTH) ? sizeof(struct UBXPacket) : NMEA_MAX_PACKET_LENGTH);
-#elif defined(PIOS_INCLUDE_GPS_UBX_PARSER)
+#if defined(PIOS_GPS_MINIMAL)
+#if defined(PIOS_INCLUDE_GPS_UBX_PARSER)
         gps_rx_buffer = pios_malloc(sizeof(struct UBXPacket));
-#elif defined(PIOS_INCLUDE_GPS_NMEA_PARSER)
-        gps_rx_buffer = pios_malloc(NMEA_MAX_PACKET_LENGTH);
 #else
         gps_rx_buffer = NULL;
 #endif
-#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER)
+#else /* defined(PIOS_GPS_MINIMAL) */
+#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)
+#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER)
+        size_t bufSize = NMEA_MAX_PACKET_LENGTH;
+#else
+        size_t bufSize = 0;
+#endif
+#if defined(PIOS_INCLUDE_GPS_UBX_PARSER)
+        if (bufSize < sizeof(struct UBXPacket)) bufSize = sizeof(struct UBXPacket);
+#endif
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER)
+        if (bufSize < sizeof(struct DJIPacket)) bufSize = sizeof(struct DJIPacket);
+#endif
+        gps_rx_buffer = pios_malloc(bufSize);
+#else /* defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER) */
+        gps_rx_buffer = NULL;
+#endif /* defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER) */
+#endif /* defined(PIOS_GPS_MINIMAL) */
+#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)
         PIOS_Assert(gps_rx_buffer);
 #endif
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+#if (defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)
         HwSettingsConnectCallback(updateHwSettings); // allow changing baud rate even after startup
         GPSSettingsConnectCallback(updateGpsSettings);
 #endif
@@ -251,17 +269,15 @@ static void gpsTask(__attribute__((unused)) void *parameters)
     // 100ms is way slow too, considering we do everything possible to make the sensor data as contemporary as possible
     portTickType xDelay = 5 / portTICK_RATE_MS;
     uint32_t timeNowMs  = xTaskGetTickCount() * portTICK_RATE_MS;
-
 #ifdef PIOS_GPS_SETS_HOMELOCATION
     portTickType homelocationSetDelay = 0;
 #endif
     GPSPositionSensorData gpspositionsensor;
 
     timeOfLastUpdateMs = timeNowMs;
-
     GPSPositionSensorGet(&gpspositionsensor);
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
-    // this should be done in the task because it calls out to actually start the GPS serial reads
+#if (defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)
+    // this should be done in the task because it calls out to actually start the ubx GPS serial reads
     updateGpsSettings(0);
 #endif
 
@@ -321,7 +337,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                 PERF_TRACK_VALUE(counterBytesIn, cnt);
                 PERF_MEASURE_PERIOD(counterRate);
                 switch (gpsSettings.DataProtocol) {
-#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER)
+#if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) && !defined(PIOS_GPS_MINIMAL)
                 case GPSSETTINGS_DATAPROTOCOL_NMEA:
                     res = parse_nmea_stream(c, cnt, gps_rx_buffer, &gpspositionsensor, &gpsRxStats);
                     break;
@@ -329,6 +345,11 @@ static void gpsTask(__attribute__((unused)) void *parameters)
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER)
                 case GPSSETTINGS_DATAPROTOCOL_UBX:
                     res = parse_ubx_stream(c, cnt, gps_rx_buffer, &gpspositionsensor, &gpsRxStats);
+                    break;
+#endif
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER) && !defined(PIOS_GPS_MINIMAL)
+                case GPSSETTINGS_DATAPROTOCOL_DJI:
+                    res = parse_dji_stream(c, cnt, gps_rx_buffer, &gpspositionsensor, &gpsRxStats);
                     break;
 #endif
                 default:
@@ -343,8 +364,13 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                 }
             }
 
-            // if there is any error at all, set status to NOGPS
-            // Check for GPS timeout
+            // if there is a protocol error or communication error, or timeout error,
+            // generally, if there is an error that is due to configuration or bad hardware, set status to NOGPS
+            // poor GPS signal gets a different error/alarm (below)
+            //
+            // should this be expanded to include aux mag status as well? currently the aux mag
+            // attached to a GPS protocol (OPV9 and DJI) still says OK after the GPS/mag goes down
+            // (data cable unplugged or flight battery removed with USB still powering the FC)
             timeNowMs = xTaskGetTickCount() * portTICK_RATE_MS;
             if ((res == PARSER_ERROR) ||
                 (timeNowMs - timeOfLastUpdateMs) >= GPS_TIMEOUT_MS ||
@@ -356,10 +382,15 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                 AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_ERROR);
             }
             // if we parsed at least one packet successfully
+            // we aren't offline, but we still may not have a good enough fix to fly
+            // or we might not even be receiving all necessary GPS packets (NMEA)
             else if (res == PARSER_COMPLETE) {
-                // we appear to be receiving GPS sentences OK, we've had an update
+                // we appear to be receiving packets OK
                 // criteria for GPS-OK taken from this post...
                 // http://forums.openpilot.org/topic/1523-professors-insgps-in-svn/page__view__findpost__p__5220
+                // NMEA doesn't verify that all necessary packet types for an update have been received
+                //
+                // if (the fix is good) {
                 if ((gpspositionsensor.PDOP < gpsSettings.MaxPDOP) && (gpspositionsensor.Satellites >= gpsSettings.MinSatellites) &&
                     (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
                     (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
@@ -380,9 +411,11 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                         homelocationSetDelay = 0;
                     }
 #endif
+                // else if (we are at least getting what might be usable GPS data to finish a flight with) {
                 } else if ((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
                            (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
                     AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_WARNING);
+                // else data is probably not good enough to fly
                 } else {
                     AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_CRITICAL);
                 }
@@ -498,60 +531,95 @@ void gps_set_fc_baud_from_arg(uint8_t baud)
 }
 
 
+// set the FC port baud rate
+// from HwSettings or override with 115200 if DJI
+static void gps_set_fc_baud_from_settings()
+{
+    uint8_t speed;
+    // Retrieve settings
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER) && !defined(PIOS_GPS_MINIMAL)
+    if (gpsSettings.DataProtocol == GPSSETTINGS_DATAPROTOCOL_DJI) {
+        speed = HWSETTINGS_GPSSPEED_115200;
+    } else {
+#endif
+        HwSettingsGPSSpeedGet(&speed);
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER) && !defined(PIOS_GPS_MINIMAL)
+    }
+#endif
+    // set fc baud
+    gps_set_fc_baud_from_arg(speed);
+}
+
+
 /**
- * Update the GPS settings, called on startup.
- * FIXME: This should be in the GPSSettings object. But objects have
- * too much overhead yet. Also the GPS has no any specific settings
- * like protocol, etc. Thus the HwSettings object which contains the
- * GPS port speed is used for now.
+ * HwSettings callback
+ * Generally speaking, set the FC baud rate
+ * and for UBX, if it is safe, start the auto config process
+ * this allows the user to change the baud rate and see if it works without rebooting
  */
 
 // must updateHwSettings() before updateGpsSettings() so baud rate is set before GPS serial code starts running
 static void updateHwSettings(UAVObjEvent __attribute__((unused)) *ev)
 {
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+#if (defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)
     static uint32_t previousGpsPort = 0xf0f0f0f0; // = doesn't match gpsport
 #endif
     // if GPS (UBX or NMEA) is enabled at all
     if (gpsPort && gpsEnabled) {
+// if we have ubx auto config then sometimes we don't set the baud rate
+#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+        // if in startup, or not configured to do ubx and ubx auto config
+        //
         // on first use of this port (previousGpsPort != gpsPort) we must set the Revo port baud rate
         // after startup (previousGpsPort == gpsPort) we must set the Revo port baud rate only if autoconfig is disabled
         // always we must set the Revo port baud rate if not using UBX
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
         if (ev == NULL
             || previousGpsPort != gpsPort
             || gpsSettings.UbxAutoConfig == GPSSETTINGS_UBXAUTOCONFIG_DISABLED
             || gpsSettings.DataProtocol != GPSSETTINGS_DATAPROTOCOL_UBX)
 #endif
         {
-            uint8_t speed;
-            // Retrieve settings
-            HwSettingsGPSSpeedGet(&speed);
-            // set fc baud
-            gps_set_fc_baud_from_arg(speed);
+            // always set the baud rate
+            gps_set_fc_baud_from_settings();
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
-            // even changing the baud rate will make it re-verify the sensor type
-            // that way the user can just try some baud rates and when the sensor type is valid, the baud rate is correct
+            // changing anything in HwSettings will make it re-verify the sensor type (including auto-baud if not completely disabled)
+            // for auto baud disabled, the user can just try some baud rates and when the baud rate is correct, the sensor type becomes valid
             gps_ubx_reset_sensor_type();
 #endif
         }
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
         else {
-            // it will never do this during startup because ev == NULL
+            // else:
+            // - we are past startup
+            // - we are running uxb protocol
+            // - and some form of ubx auto config is enabled
+            //
+            // it will never do this during startup because ev == NULL during startup
+            //
+            // this is here so that runtime (not startup) user changes to HwSettings will restart auto-config
             gps_ubx_autoconfig_set(NULL);
         }
 #endif
     }
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+#if (defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)
     previousGpsPort = gpsPort;
 #endif
 }
 
 
-#if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+#if (defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)
 void AuxMagSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
+    auxmagsupport_reload_settings();
+#if defined(PIOS_INCLUDE_GPS_UBX_PARSER)
     op_gpsv9_load_mag_settings();
+#endif
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER)
+    dji_load_mag_settings();
+#endif
+#if defined(PIOS_INCLUDE_HMC5X83)
+    aux_hmc5x83_load_mag_settings();
+#endif
 }
 
 
@@ -561,9 +629,17 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
 
     GPSSettingsGet(&gpsSettings);
 
-    // it's OK that ubx auto config is inited and ready to go, when GPS is disabled or running NMEA
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER)
+    // each time there is a protocol change, set the baud rate
+    // so that DJI can be forced to 115200, but changing to another protocol will change the baud rate to the user specified value
+    // note that changes to HwSettings GPS baud rate are detected in the HwSettings callback,
+    // but changing to/from DJI is effectively a baud rate change because DJI is forced to be 115200
+    gps_set_fc_baud_from_settings(); // knows to force 115200 for DJI
+#endif
+
+    // it's OK that ubx auto config is inited and ready to go, when GPS is disabled or running another protocol
     // because ubx auto config never gets called
-    // setting it up completely means that if we switch from initial NMEA to UBX or disabled to enabled, that it will start normally
+    // setting it up completely means that if we switch from the other protocol to UBX or disabled to enabled, that it will start normally
     newconfig.UbxAutoConfig = gpsSettings.UbxAutoConfig;
     newconfig.navRate = gpsSettings.UbxRate;
     newconfig.dynamicModel  = gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_PORTABLE ? UBX_DYNMODEL_PORTABLE :
@@ -650,9 +726,22 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
         break;
     }
 
-    gps_ubx_autoconfig_set(&newconfig);
+// handle protocol changes and devices that have just been powered up
+#if defined(PIOS_INCLUDE_GPS_UBX_PARSER)
+    if (gpsSettings.DataProtocol == GPSSETTINGS_DATAPROTOCOL_UBX) {
+        // do whatever the user has configured for power on startup
+        // even autoconfig disabled still gets the ubx version
+        gps_ubx_autoconfig_set(&newconfig);
+    }
+#endif
+#if defined(PIOS_INCLUDE_GPS_DJI_PARSER)
+    if (gpsSettings.DataProtocol == GPSSETTINGS_DATAPROTOCOL_DJI) {
+        // clear out satellite data because DJI doesn't provide it
+        GPSSatellitesSetDefaults(GPSSatellitesHandle(), 0);
+    }
+#endif
 }
-#endif /* if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL) */
+#endif /* (defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL) */
 /**
  * @}
  * @}

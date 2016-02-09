@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
+# Copyright (c) 2015-2016, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 # Copyright (c) 2012, PhoenixPilot, http://github.com/PhoenixPilot
 #
@@ -32,7 +32,7 @@ USE_CXX = YES
 USE_DSP_LIB ?= NO
 
 # List of mandatory modules to include
-#MODULES += Sensors
+MODULES += Sensors
 #MODULES += Attitude/revolution
 #MODULES += StateEstimation # use instead of Attitude
 #MODULES += Altitude/revolution

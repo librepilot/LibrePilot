@@ -7,7 +7,8 @@
  * @{
  *
  * @file       ubx_autoconfig.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Support code for UBX AutoConfig
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -849,6 +850,8 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
 }
 
 
+// (re)init the autoconfig stuff so that it will run if called
+//
 // this can be called from a different thread
 // so everything it touches must be declared volatile
 void gps_ubx_autoconfig_set(ubx_autoconfig_settings_t *config)
@@ -883,17 +886,17 @@ void gps_ubx_autoconfig_set(ubx_autoconfig_settings_t *config)
     status->currentStep     = new_step;
     status->currentStepSave = new_step;
 
+    // this forces the sensor type detection to occur outside the FSM
+    // and _can_ also engage the autobaud detection that is outside the FSM
+    // don't do it if FSM is enabled as FSM can change the baud itself
+    // (don't do it because the baud rates are already in sync)
+    gps_ubx_reset_sensor_type();
+
     if (status->currentSettings.UbxAutoConfig >= GPSSETTINGS_UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE) {
         // enabled refers to autoconfigure
         // note that sensor type (gps type) detection happens even if completely disabled
-        // also note that AutoBaud is less than Configure
+        // also note that AutoBaud is less than AutoBaudAndConfigure
         enabled = true;
-    } else {
-        // this forces the sensor type detection to occur outside the FSM
-        // and _can_ also engage the autobaud detection that is outside the FSM
-        // don't do it if FSM is enabled as FSM can change the baud itself
-        // (don't do it because the baud rates are already in sync)
-        gps_ubx_reset_sensor_type();
     }
 }
 

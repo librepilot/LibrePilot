@@ -229,10 +229,14 @@ int32_t GPSInitialize(void)
         size_t bufSize = 0;
 #endif
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER)
-        if (bufSize < sizeof(struct UBXPacket)) bufSize = sizeof(struct UBXPacket);
+        if (bufSize < sizeof(struct UBXPacket)) {
+            bufSize = sizeof(struct UBXPacket);
+        }
 #endif
 #if defined(PIOS_INCLUDE_GPS_DJI_PARSER)
-        if (bufSize < sizeof(struct DJIPacket)) bufSize = sizeof(struct DJIPacket);
+        if (bufSize < sizeof(struct DJIPacket)) {
+            bufSize = sizeof(struct DJIPacket);
+        }
 #endif
         gps_rx_buffer = pios_malloc(bufSize);
 #else /* defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER) */
@@ -269,6 +273,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
     // 100ms is way slow too, considering we do everything possible to make the sensor data as contemporary as possible
     portTickType xDelay = 5 / portTICK_RATE_MS;
     uint32_t timeNowMs  = xTaskGetTickCount() * portTICK_RATE_MS;
+
 #ifdef PIOS_GPS_SETS_HOMELOCATION
     portTickType homelocationSetDelay = 0;
 #endif
@@ -411,11 +416,11 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                         homelocationSetDelay = 0;
                     }
 #endif
-                // else if (we are at least getting what might be usable GPS data to finish a flight with) {
+                    // else if (we are at least getting what might be usable GPS data to finish a flight with) {
                 } else if ((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
                            (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
                     AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_WARNING);
-                // else data is probably not good enough to fly
+                    // else data is probably not good enough to fly
                 } else {
                     AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_CRITICAL);
                 }
@@ -536,15 +541,16 @@ void gps_set_fc_baud_from_arg(uint8_t baud)
 static void gps_set_fc_baud_from_settings()
 {
     uint8_t speed;
+
     // Retrieve settings
 #if defined(PIOS_INCLUDE_GPS_DJI_PARSER) && !defined(PIOS_GPS_MINIMAL)
     if (gpsSettings.DataProtocol == GPSSETTINGS_DATAPROTOCOL_DJI) {
         speed = HWSETTINGS_GPSSPEED_115200;
     } else {
 #endif
-        HwSettingsGPSSpeedGet(&speed);
+    HwSettingsGPSSpeedGet(&speed);
 #if defined(PIOS_INCLUDE_GPS_DJI_PARSER) && !defined(PIOS_GPS_MINIMAL)
-    }
+}
 #endif
     // set fc baud
     gps_set_fc_baud_from_arg(speed);

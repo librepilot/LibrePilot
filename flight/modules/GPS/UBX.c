@@ -131,7 +131,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
     static enum proto_states proto_state = START;
     static uint16_t rx_count = 0;
     struct UBXPacket *ubx    = (struct UBXPacket *)gps_rx_buffer;
-    uint16_t i               = 0;
+    uint16_t i = 0;
     uint16_t restart_index   = 0;
     enum restart_states restart_state;
 
@@ -216,7 +216,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                 // only pass PARSER_COMPLETE back to caller if we parsed a full set of GPS data
                 // that allows the caller to know if we are parsing GPS data
                 // or just other packets for some reason (mis-configuration)
-                if (parse_ubx_message(ubx, GpsData)==GPSPOSITIONSENSOR_OBJID
+                if (parse_ubx_message(ubx, GpsData) == GPSPOSITIONSENSOR_OBJID
                     && ret == PARSER_INCOMPLETE) {
                     ret = PARSER_COMPLETE;
                 }
@@ -236,7 +236,7 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         // if restarting due to error detected in 2nd call to this function (on split packet)
         // then we just restart at index 0, which is mid-packet, not the second byte
         if (restart_state == RESTART_WITH_ERROR) {
-            ret  = PARSER_ERROR;  // inform caller that we found at least one error (along with 0 or more good packets)
+            ret = PARSER_ERROR; // inform caller that we found at least one error (along with 0 or more good packets)
         }
         rx  += restart_index; // restart parsing just past the most recent SYNC1
         len -= restart_index;

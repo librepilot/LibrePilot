@@ -58,9 +58,9 @@ typedef struct {
 } dji_message_handler;
 
 const dji_message_handler dji_handler_table[] = {
-    { .msgID = DJI_ID_GPS,  .handler = &parse_dji_gps  },
-    { .msgID = DJI_ID_MAG,  .handler = &parse_dji_mag  },
-    { .msgID = DJI_ID_VER,  .handler = &parse_dji_ver  },
+    { .msgID = DJI_ID_GPS, .handler = &parse_dji_gps },
+    { .msgID = DJI_ID_MAG, .handler = &parse_dji_mag },
+    { .msgID = DJI_ID_VER, .handler = &parse_dji_ver },
 };
 #define DJI_HANDLER_TABLE_SIZE NELEMENTS(dji_handler_table)
 
@@ -91,7 +91,7 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
     static enum proto_states proto_state = START;
     static uint16_t rx_count = 0;
     struct DJIPacket *dji    = (struct DJIPacket *)gps_rx_buffer;
-    uint16_t i               = 0;
+    uint16_t i = 0;
     uint16_t restart_index   = 0;
     enum restart_states restart_state;
     static bool previous_packet_good = true;
@@ -103,13 +103,14 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         c = rx[i++];
         switch (proto_state) {
         case START: // detect protocol
-            if (c == DJI_SYNC1) {     // first DJI sync char found
-                proto_state = DJI_SY2;
+            if (c == DJI_SYNC1) { // first DJI sync char found
+                proto_state   = DJI_SY2;
                 // restart here, at byte after SYNC1, if we fail to parse
-                restart_index = i;            }
+                restart_index = i;
+            }
             continue;
         case DJI_SY2:
-            if (c == DJI_SYNC2) {     // second DJI sync char found
+            if (c == DJI_SYNC2) { // second DJI sync char found
                 proto_state = DJI_ID;
             } else {
                 restart_state = RESTART_NO_ERROR;
@@ -117,8 +118,8 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             }
             continue;
         case DJI_ID:
-            dji->header.id   = c;
-            proto_state      = DJI_LEN;
+            dji->header.id = c;
+            proto_state    = DJI_LEN;
             continue;
         case DJI_LEN:
             if (c > sizeof(DJIPayload)) {
@@ -131,7 +132,7 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                 break;
 #endif
             } else {
-                dji->header.len  = c;
+                dji->header.len = c;
                 if (c == 0) {
                     proto_state = DJI_CHK1;
                 } else {
@@ -161,7 +162,7 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
             // instead of a mag packet (30 per second)
             current_packet_good = checksum_dji_message(dji);
             // message complete and valid or (it's a mag packet and the previous "any" packet was good)
-            if (current_packet_good || (dji->header.id==DJI_ID_MAG && previous_packet_good)) {
+            if (current_packet_good || (dji->header.id == DJI_ID_MAG && previous_packet_good)) {
                 parse_dji_message(dji, GpsData);
                 gpsRxStats->gpsRxReceived++;
                 proto_state = START;
@@ -171,7 +172,7 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
                 // only pass PARSER_COMPLETE back to caller if we parsed a full set of GPS data
                 // that allows the caller to know if we are parsing GPS data
                 // or just other packets for some reason (DJI clone firmware bug that happens sometimes)
-                if (dji->header.id==DJI_ID_GPS && ret==PARSER_INCOMPLETE) {
+                if (dji->header.id == DJI_ID_GPS && ret == PARSER_INCOMPLETE) {
                     ret = PARSER_COMPLETE; // message complete & processed
                 }
             } else {
@@ -192,7 +193,7 @@ int parse_dji_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
         // if restarting due to error detected in 2nd call to this function (on split packet)
         // then we just restart at index 0, which is mid-packet, not the second byte
         if (restart_state == RESTART_WITH_ERROR) {
-            ret  = PARSER_ERROR;  // inform caller that we found at least one error (along with 0 or more good packets)
+            ret = PARSER_ERROR; // inform caller that we found at least one error (along with 0 or more good packets)
         }
         rx  += restart_index; // restart parsing just past the most recent SYNC1
         len -= restart_index;
@@ -209,8 +210,8 @@ bool checksum_dji_message(struct DJIPacket *dji)
     int i;
     uint8_t ck_a, ck_b;
 
-    ck_a = dji->header.id;
-    ck_b = ck_a;
+    ck_a  = dji->header.id;
+    ck_b  = ck_a;
 
     ck_a += dji->header.len;
     ck_b += ck_a;
@@ -231,7 +232,8 @@ bool checksum_dji_message(struct DJIPacket *dji)
 
 static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *GpsPosition)
 {
-    static bool inited=false;
+    static bool inited = false;
+
     if (!inited) {
         inited = true;
         // Is there a model calculation we can do to get a reasonable value for geoid separation?
@@ -242,11 +244,11 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *GpsPosit
 
     // decode with xor mask
     uint8_t mask = gps->unused5;
-    //for (uint8_t i=0; i<dji->header->len; ++i) {
-    for (uint8_t i=0; i<56; ++i) {
-        //if (i!=48 && i!=49 && i<=55) {
-        if (i!=48 && i!=49) {
-            dji->payload.payload[i]^=mask;
+    // for (uint8_t i=0; i<dji->header->len; ++i) {
+    for (uint8_t i = 0; i < 56; ++i) {
+        // if (i!=48 && i!=49 && i<=55) {
+        if (i != 48 && i != 49) {
+            dji->payload.payload[i] ^= mask;
         }
     }
 
@@ -255,7 +257,7 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *GpsPosit
     GpsVelocity.Down  = (float)gps->velD * 0.01f;
     GPSVelocitySensorSet(&GpsVelocity);
 
-    GpsPosition->Groundspeed     = sqrtf(GpsVelocity.North*GpsVelocity.North + GpsVelocity.East*GpsVelocity.East);
+    GpsPosition->Groundspeed     = sqrtf(GpsVelocity.North * GpsVelocity.North + GpsVelocity.East * GpsVelocity.East);
     GpsPosition->Heading         = RAD2DEG(atan2f(-GpsVelocity.East, -GpsVelocity.North)) + 180.0f;
     GpsPosition->Altitude        = (float)gps->hMSL * 0.001f;
     // there is no source of geoid separation data in the DJI protocol
@@ -264,14 +266,7 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *GpsPosit
     GpsPosition->Longitude       = gps->lon;
     GpsPosition->Satellites      = gps->numSV;
     GpsPosition->PDOP = gps->pDOP * 0.01f;
-    // cliffg FIXME
-    // might get away with just using a max function here...
-    // hmmm pdop=sqrt(hdop*hdop+hdop*hdop+vdop*vdop)
-    // pdop*pdop=hdop*hdop+hdop*hdop+vdop*vdop
-    // pdop*pdop-vdop*vdop=hdop*hdop+hdop*hdop
-    // (pdop*pdop-vdop*vdop)/2=hdop*hdop
-    // srtq(pdop*pdop-vdop*vdop)/2=hdop
-    GpsPosition->HDOP = sqrtf((float)gps->nDOP*(float)gps->nDOP + (float)gps->eDOP*(float)gps->eDOP) * 0.01f;
+    GpsPosition->HDOP = sqrtf((float)gps->nDOP * (float)gps->nDOP + (float)gps->eDOP * (float)gps->eDOP) * 0.01f;
     GpsPosition->VDOP = gps->vDOP * 0.01f;
     if (gps->flags & FLAGS_GPSFIX_OK) {
         GpsPosition->Status = gps->fixType == FIXTYPE_3D ?
@@ -281,18 +276,17 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *GpsPosit
     }
     GpsPosition->SensorType = GPSPOSITIONSENSOR_SENSORTYPE_DJI;
     GpsPosition->AutoConfigStatus = GPSPOSITIONSENSOR_AUTOCONFIGSTATUS_DISABLED;
-    //GpsPosition->BaudRate = GPSPOSITIONSENSOR_BAUDRATE_115200;
     GPSPositionSensorSet(GpsPosition);
 
     // Time is valid, set GpsTime
     GPSTimeData GpsTime;
-    // cliffg FIXME
-    // the lowest bit of day and the highest bit of hour overlap (xored? no stranger than that)
+    // the lowest bit of day and the highest bit of hour overlap (xored? no, stranger than that)
     // this causes strange day/hour changes
     // we could track it here and even if we guess wrong initially
     // we can massage the data so that time doesn't jump
     // and maybe make the assumption that most people will fly at 5pm, not 1am
-    // so if it looks if we have to make a choice between 5pm on the 10th and
+    // this is part of the DJI protocol
+    // see DJI.h for further info
     GpsTime.Year   = (int16_t)gps->year + 2000;
     GpsTime.Month  = gps->month;
     GpsTime.Day    = gps->day;
@@ -316,10 +310,10 @@ static void parse_dji_mag(struct DJIPacket *dji, __attribute__((unused)) GPSPosi
         };
         int16_t maskmask;
     } u;
-    u.mask = (int8_t) (dji->payload.payload[4]);
+    u.mask = (int8_t)(dji->payload.payload[4]);
     u.mask = u.mask2 = (((u.mask ^ (u.mask >> 4)) & 0x0F) | ((u.mask << 3) & 0xF0)) ^ (((u.mask & 0x01) << 3) | ((u.mask & 0x01) << 7));
     // yes, z is only xored by mask<<8, not maskmask
-    float mags[3] = { mag->x^u.maskmask, mag->y^u.maskmask, mag->z^((int16_t)u.mask<<8) };
+    float mags[3] = { mag->x ^ u.maskmask, mag->y ^ u.maskmask, mag->z ^ ((int16_t)u.mask << 8) };
     auxmagsupport_publish_samples(mags, AUXMAGSENSOR_STATUS_OK);
 }
 
@@ -330,9 +324,10 @@ static void parse_dji_ver(struct DJIPacket *dji, __attribute__((unused)) GPSPosi
 
     // decode with xor mask
     uint8_t mask = (uint8_t)(ver->unused1);
-    //for (uint8_t i=0; i<dji->header->len; ++i) {
-    for (uint8_t i=4; i<12; ++i) {
-        dji->payload.payload[i]^=mask;
+
+    // for (uint8_t i=0; i<dji->header->len; ++i) {
+    for (uint8_t i = 4; i < 12; ++i) {
+        dji->payload.payload[i] ^= mask;
     }
 
     djiHwVersion = ver->hwVersion;

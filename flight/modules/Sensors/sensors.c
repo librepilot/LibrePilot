@@ -387,7 +387,7 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
 #if defined(PIOS_INCLUDE_HMC5X83)
         || (sensor->type == PIOS_SENSORS_TYPE_3AXIS_AUXMAG)
 #endif
-    ) {
+        ) {
         float t = inv_count * scales[0];
         samples[0]  = ((float)sensor_context->accum[0].x * t);
         samples[1]  = ((float)sensor_context->accum[0].y * t);
@@ -398,11 +398,13 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
             handleMag(samples, temperature);
             PERF_MEASURE_PERIOD(counterMagPeriod);
             return;
+
 #if defined(PIOS_INCLUDE_HMC5X83)
         case PIOS_SENSORS_TYPE_3AXIS_AUXMAG:
             handleAuxMag(samples);
             PERF_MEASURE_PERIOD(counterMagPeriod);
             return;
+
 #endif
         default:
             PERF_TRACK_VALUE(counterAccelSamples, sensor_context->count);
@@ -632,7 +634,8 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
 }
 
 #if defined(PIOS_INCLUDE_HMC5X83)
-void aux_hmc5x83_load_mag_settings() {
+void aux_hmc5x83_load_mag_settings()
+{
     uint8_t magType = auxmagsupport_get_type();
 
     if (magType == AUXMAGSETTINGS_TYPE_I2C || magType == AUXMAGSETTINGS_TYPE_FLEXI) {

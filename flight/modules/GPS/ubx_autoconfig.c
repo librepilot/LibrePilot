@@ -239,10 +239,10 @@ void gps_ubx_reset_sensor_type()
     // is this needed?
     // what happens if two tasks / threads try to do an XyzSet() at the same time?
     if (__sync_fetch_and_add(&mutex, 1) == 0) {
-        ubxHwVersion = -1;
+        ubxHwVersion       = -1;
         baud_to_try_index -= 1; // undo postincrement and start with the one that was most recently successful
-        sensorType   = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
-        GPSPositionSensorSensorTypeSet(&sensorType);
+        ubxSensorType      = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
+        GPSPositionSensorSensorTypeSet(&ubxSensorType);
         // make the sensor type / autobaud code time out immediately to send the request immediately
         status->lastStepTimestampRaw += 0x8000000UL;
     }

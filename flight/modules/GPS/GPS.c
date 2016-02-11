@@ -574,6 +574,7 @@ static void updateHwSettings(UAVObjEvent __attribute__((unused)) *ev)
     if (gpsPort && gpsEnabled) {
 // if we have ubx auto config then sometimes we don't set the baud rate
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+        // just for UBX, because it has autoconfig
         // if in startup, or not configured to do ubx and ubx auto config
         //
         // on first use of this port (previousGpsPort != gpsPort) we must set the Revo port baud rate
@@ -588,6 +589,7 @@ static void updateHwSettings(UAVObjEvent __attribute__((unused)) *ev)
             // always set the baud rate
             gps_set_fc_baud_from_settings();
 #if defined(PIOS_INCLUDE_GPS_UBX_PARSER) && !defined(PIOS_GPS_MINIMAL)
+            // just for UBX, because it has subtypes UBX(6), UBX7 and UBX8
             // changing anything in HwSettings will make it re-verify the sensor type (including auto-baud if not completely disabled)
             // for auto baud disabled, the user can just try some baud rates and when the baud rate is correct, the sensor type becomes valid
             gps_ubx_reset_sensor_type();

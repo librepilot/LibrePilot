@@ -169,7 +169,7 @@ typedef enum {
  */
 
 // DJI GPS packet
-struct DJI_GPS { // byte offset from beginning of packet, subtract 5 for struct offset
+struct DjiGps { // byte offset from beginning of packet, subtract 5 for struct offset
     struct { // YYYYYYYMMMMDDDDDHHHHMMMMMMSSSSSS
         uint32_t sec : 6;
         uint32_t min : 6;
@@ -178,29 +178,29 @@ struct DJI_GPS { // byte offset from beginning of packet, subtract 5 for struct 
         uint32_t month : 4;
         uint32_t year : 7;
     }; // BYTE 5-8 (DT): date and time, see details above
-    int32_t  lon;      // BYTE 9-12 (LO): longitude (x10^7, degree decimal)
-    int32_t  lat;      // BYTE 13-16 (LA): latitude (x10^7, degree decimal)
-    int32_t  hMSL;     // BYTE 17-20 (AL): altitude (in millimeters) (is this MSL or geoid?)
+    int32_t  lon;     // BYTE 9-12 (LO): longitude (x10^7, degree decimal)
+    int32_t  lat;     // BYTE 13-16 (LA): latitude (x10^7, degree decimal)
+    int32_t  hMSL;    // BYTE 17-20 (AL): altitude (in millimeters) (is this MSL or geoid?)
     uint32_t hAcc; // BYTE 21-24 (HA): horizontal accuracy estimate (see uBlox NAV-POSLLH message for details)
     uint32_t vAcc; // BYTE 25-28 (VA): vertical accuracy estimate (see uBlox NAV-POSLLH message for details)
     uint32_t unused1; // BYTE 29-32: ??? (seems to be always 0)
-    int32_t  velN;     // BYTE 33-36 (NV): NED north velocity (see uBlox NAV-VELNED message for details)
-    int32_t  velE;     // BYTE 37-40 (EV): NED east velocity (see uBlox NAV-VELNED message for details)
-    int32_t  velD;     // BYTE 41-44 (DV): NED down velocity (see uBlox NAV-VELNED message for details)
+    int32_t  velN;    // BYTE 33-36 (NV): NED north velocity (see uBlox NAV-VELNED message for details)
+    int32_t  velE;    // BYTE 37-40 (EV): NED east velocity (see uBlox NAV-VELNED message for details)
+    int32_t  velD;    // BYTE 41-44 (DV): NED down velocity (see uBlox NAV-VELNED message for details)
     uint16_t pDOP; // BYTE 45-46 (PD): position DOP (see uBlox NAV-DOP message for details)
     uint16_t vDOP; // BYTE 47-48 (VD): vertical DOP (see uBlox NAV-DOP message for details)
     uint16_t nDOP; // BYTE 49-50 (ND): northing DOP (see uBlox NAV-DOP message for details)
     uint16_t eDOP; // BYTE 51-52 (ED): easting DOP (see uBlox NAV-DOP message for details)
-    uint8_t  numSV;    // BYTE 53 (NS): number of satellites (not XORed)
-    uint8_t  unused2;  // BYTE 54: ??? (not XORed, seems to be always 0)
-    uint8_t  fixType;  // BYTE 55 (FT): fix type (0 - no lock, 2 - 2D lock, 3 - 3D lock, not sure if other values can be expected
-                       // see uBlox NAV-SOL message for details)
-    uint8_t  unused3;  // BYTE 56: ??? (seems to be always 0)
-    uint8_t  flags;    // BYTE 57 (SF): fix status flags (see uBlox NAV-SOL message for details)
+    uint8_t  numSV;   // BYTE 53 (NS): number of satellites (not XORed)
+    uint8_t  unused2; // BYTE 54: ??? (not XORed, seems to be always 0)
+    uint8_t  fixType; // BYTE 55 (FT): fix type (0 - no lock, 2 - 2D lock, 3 - 3D lock, not sure if other values can be expected
+                      // see uBlox NAV-SOL message for details)
+    uint8_t  unused3; // BYTE 56: ??? (seems to be always 0)
+    uint8_t  flags;   // BYTE 57 (SF): fix status flags (see uBlox NAV-SOL message for details)
     uint16_t unused4; // BYTE 58-59: ??? (seems to be always 0)
-    uint8_t  unused5;  // BYTE 60 (XM): not sure yet, but I use it as the XOR mask
+    uint8_t  unused5; // BYTE 60 (XM): not sure yet, but I use it as the XOR mask
     uint16_t seqNo; // BYTE 61-62 (SN): sequence number (not XORed), once there is a lock
-                    // increases with every message. When the lock is lost later LSB and MSB are swapped with every message.
+                    // increases with every message. When the lock is lost later LSB and MSB are swapped (in all messages where lock is lost).
 } __attribute__((packed));
 
 #define FLAGS_GPSFIX_OK          (1 << 0)
@@ -208,12 +208,16 @@ struct DJI_GPS { // byte offset from beginning of packet, subtract 5 for struct 
 #define FLAGS_WKNSET             (1 << 2)
 #define FLAGS_TOWSET             (1 << 3)
 
-#define FIXTYPE_NO_FIX           0
-#define FIXTYPE_DEAD_RECKON      0x01 // Dead Reckoning only
-#define FIXTYPE_2D               0x02 // 2D-Fix
-#define FIXTYPE_3D               0x03 // 3D-Fix
-#define FIXTYPE_GNSS_DEAD_RECKON 0x04 // GNSS + dead reckoning combined
-#define FIXTYPE_TIME_ONLY        0x05 // Time only fix
+#define FIXTYPE_NO_FIX           0x00 /* No Fix */
+#define FIXTYPE_DEAD_RECKON      0x01 /* Dead Reckoning only */
+#define FIXTYPE_2D               0x02 /* 2D-Fix */
+#define FIXTYPE_3D               0x03 /* 3D-Fix */
+#define FIXTYPE_GNSS_DEAD_RECKON 0x04 /* GNSS + dead reckoning combined */
+#define FIXTYPE_TIME_ONLY        0x05 /* Time only fix */
+
+#define GPS_DECODED_LENGTH       offsetof(struct DjiGps, seqNo)
+#define GPS_NOT_XORED_BYTE_1     offsetof(struct DjiGps, numSV)
+#define GPS_NOT_XORED_BYTE_2     offsetof(struct DjiGps, unused2)
 
 
 /*
@@ -260,7 +264,7 @@ struct DJI_GPS { // byte offset from beginning of packet, subtract 5 for struct 
    y any a (y and x?) values, convert radians to degrees and add 360 if the result is negative.
  */
 
-struct DJI_MAG { // byte offset from beginning of packet, subtract 5 for struct offset
+struct DjiMag { // byte offset from beginning of packet, subtract 5 for struct offset
     int16_t x; // BYTE 5-6 (CX): compass X axis data (signed) - see comments below
     int16_t y; // BYTE 7-8 (CY): compass Y axis data (signed) - see comments below
     int16_t z; // BYTE 9-10 (CZ): compass Z axis data (signed) - see comments below
@@ -294,26 +298,27 @@ struct DJI_MAG { // byte offset from beginning of packet, subtract 5 for struct 
    BYTE 17-18 (CS): checksum, calculated the same way as for uBlox binary messages
  */
 
-struct DJI_VER { // byte offset from beginning of packet, subtract 5 for struct offset
+struct DjiVer { // byte offset from beginning of packet, subtract 5 for struct offset
     uint32_t unused1; // BYTE 5-8" ??? (seems to be always 0)
     uint32_t swVersion; // BYTE 9-12 (FW): firmware version
     uint32_t hwVersion; // BYTE 13-16 (HW): hardware id
 } __attribute__((packed));
+#define VER_FIRST_DECODED_BYTE offsetof(struct DjiVer, swVersion)
 
 
 typedef union {
     uint8_t payload[0];
     // Nav Class
-    struct DJI_GPS gps;
-    struct DJI_MAG mag;
-    struct DJI_VER ver;
+    struct DjiGps gps;
+    struct DjiMag mag;
+    struct DjiVer ver;
 } DJIPayload;
 
 struct DJIHeader {
     uint8_t id;
     uint8_t len;
-    uint8_t ck_a; // these are not part of the dji header, they are actually in the trailer
-    uint8_t ck_b; // but they are kept here for parsing ease
+    uint8_t checksumA; // these are not part of the dji header, they are actually in the trailer
+    uint8_t checksumB; // but they are kept here for parsing ease
 } __attribute__((packed));
 
 struct DJIPacket {
@@ -321,12 +326,7 @@ struct DJIPacket {
     DJIPayload payload;
 } __attribute__((packed));
 
-extern GPSPositionSensorSensorTypeOptions sensorType;
-
-bool checksum_dji_message(struct DJIPacket *);
-uint32_t parse_dji_message(struct DJIPacket *, GPSPositionSensorData *);
-
-int parse_dji_stream(uint8_t *rx, uint16_t len, char *, GPSPositionSensorData *, struct GPS_RX_STATS *);
+int parse_dji_stream(uint8_t *inputBuffer, uint16_t inputBufferLength, char *parsedDjiStruct, GPSPositionSensorData *GpsData, struct GPS_RX_STATS *GpsRxStats);
 void dji_load_mag_settings();
 
 #endif /* DJI_H */

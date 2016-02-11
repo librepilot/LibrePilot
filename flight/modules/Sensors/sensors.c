@@ -195,7 +195,7 @@ static uint8_t baro_temp_calibration_count = 0;
 #if defined(PIOS_INCLUDE_HMC5X83)
 // Allow AuxMag to be disabled without reboot
 // because the other mags are that way
-static bool useMag = false;
+static bool useAuxMag = false;
 #endif
 
 /**
@@ -497,7 +497,7 @@ static void handleMag(float *samples, float temperature)
 #if defined(PIOS_INCLUDE_HMC5X83)
 static void handleAuxMag(float *samples)
 {
-    if (useMag) {
+    if (useAuxMag) {
         auxmagsupport_publish_samples(samples, AUXMAGSENSOR_STATUS_OK);
     }
 }
@@ -639,9 +639,9 @@ void aux_hmc5x83_load_mag_settings()
     uint8_t magType = auxmagsupport_get_type();
 
     if (magType == AUXMAGSETTINGS_TYPE_I2C || magType == AUXMAGSETTINGS_TYPE_FLEXI) {
-        useMag = true;
+        useAuxMag = true;
     } else {
-        useMag = false;
+        useAuxMag = false;
     }
 }
 #endif

@@ -613,7 +613,7 @@ union UBXSENTPACKET {
 
 // Used by AutoConfig code
 extern int32_t ubxHwVersion;
-extern GPSPositionSensorSensorTypeOptions sensorType;
+extern GPSPositionSensorSensorTypeOptions ubxSensorType;
 extern struct UBX_ACK_ACK ubxLastAck;
 extern struct UBX_ACK_NAK ubxLastNak;
 

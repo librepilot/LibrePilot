@@ -284,21 +284,21 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
     GPSPositionSensorSet(gpsPosition);
 
     // Time is valid, set GpsTime
-    GPSTimeData GpsTime;
-    // the lowest bit of day and the highest bit of hour overlap (xored? no, stranger than that)
+    GPSTimeData gpsTime;
+    // the lowest bit of day and the highest bit of hour overlap (xored? no stranger than that)
     // this causes strange day/hour changes
     // we could track it here and even if we guess wrong initially
     // we can massage the data so that time doesn't jump
     // and maybe make the assumption that most people will fly at 5pm, not 1am
     // this is part of the DJI protocol
     // see DJI.h for further info
-    GpsTime.Year   = (int16_t)djiGps->year + 2000;
-    GpsTime.Month  = djiGps->month;
-    GpsTime.Day    = djiGps->day;
-    GpsTime.Hour   = djiGps->hour;
-    GpsTime.Minute = djiGps->min;
-    GpsTime.Second = djiGps->sec;
-    GPSTimeSet(&GpsTime);
+    gpsTime.Year   = (int16_t)djiGps->year + 2000;
+    gpsTime.Month  = djiGps->month;
+    gpsTime.Day    = djiGps->day;
+    gpsTime.Hour   = djiGps->hour;
+    gpsTime.Minute = djiGps->min;
+    gpsTime.Second = djiGps->sec;
+    GPSTimeSet(&gpsTime);
 }
 
 

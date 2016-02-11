@@ -41,10 +41,12 @@
 #include <string.h>
 #include <auxmagsupport.h>
 
-// parsing functions, roughly ordered by reception rate (higher rate messages on top)
-static void parse_dji_mag(struct DJIPacket *dji, GPSPositionSensorData *gpsPosition);
+// parsing functions
 static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosition);
+#if !defined(PIOS_GPS_MINIMAL)
+static void parse_dji_mag(struct DJIPacket *dji, GPSPositionSensorData *gpsPosition);
 static void parse_dji_ver(struct DJIPacket *dji, GPSPositionSensorData *gpsPosition);
+#endif /* !defined(PIOS_GPS_MINIMAL) */
 
 static bool checksum_dji_message(struct DJIPacket *dji);
 static uint32_t parse_dji_message(struct DJIPacket *dji, GPSPositionSensorData *gpsPosition);
@@ -57,8 +59,10 @@ typedef struct {
 
 const djiMessageHandler djiHandlerTable[] = {
     { .msgId = DJI_ID_GPS, .handler = &parse_dji_gps },
+#if !defined(PIOS_GPS_MINIMAL)
     { .msgId = DJI_ID_MAG, .handler = &parse_dji_mag },
     { .msgId = DJI_ID_VER, .handler = &parse_dji_ver },
+#endif /* !defined(PIOS_GPS_MINIMAL) */
 };
 #define DJI_HANDLER_TABLE_SIZE NELEMENTS(djiHandlerTable)
 
@@ -283,6 +287,7 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
     // gpsPosition->BaudRate = GPSPOSITIONSENSOR_BAUDRATE_115200;
     GPSPositionSensorSet(gpsPosition);
 
+#if !defined(PIOS_GPS_MINIMAL)
     // Time is valid, set GpsTime
     GPSTimeData gpsTime;
     // the lowest bit of day and the highest bit of hour overlap (xored? no stranger than that)
@@ -299,9 +304,11 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
     gpsTime.Minute = djiGps->min;
     gpsTime.Second = djiGps->sec;
     GPSTimeSet(&gpsTime);
+#endif /* !defined(PIOS_GPS_MINIMAL) */
 }
 
 
+#if !defined(PIOS_GPS_MINIMAL)
 static void parse_dji_mag(struct DJIPacket *dji, __attribute__((unused)) GPSPositionSensorData *gpsPosition)
 {
     if (!useMag) {
@@ -345,6 +352,7 @@ static void parse_dji_ver(struct DJIPacket *dji, __attribute__((unused)) GPSPosi
         GPSPositionSensorSensorTypeSet((uint8_t *)&sensorType);
     }
 }
+#endif /* !defined(PIOS_GPS_MINIMAL) */
 
 
 // DJI message parser

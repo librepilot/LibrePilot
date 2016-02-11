@@ -66,11 +66,13 @@ const djiMessageHandler djiHandlerTable[] = {
 };
 #define DJI_HANDLER_TABLE_SIZE NELEMENTS(djiHandlerTable)
 
+#if !defined(PIOS_GPS_MINIMAL)
 static bool useMag    = false;
 
 // detected hw version
 uint32_t djiHwVersion = -1;
 uint32_t djiSwVersion = -1;
+#endif /* !defined(PIOS_GPS_MINIMAL) */
 
 
 // parse incoming character stream for messages in DJI binary format
@@ -128,11 +130,7 @@ int parse_dji_stream(uint8_t *inputBuffer, uint16_t inputBufferLength, char *par
         case DJI_LEN:
             if (inputByte > sizeof(DJIPayload)) {
                 gpsRxStats->gpsRxOverflow++;
-#if defined(PIOS_GPS_MINIMAL)
-                restartState = RESTART_NO_ERROR;
-#else
                 restartState = RESTART_WITH_ERROR;
-#endif
                 break;
             } else {
                 djiPacket->header.len = inputByte;
@@ -254,7 +252,11 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
     gpsVelocity.Down  = (float)djiGps->velD * 0.01f;
     GPSVelocitySensorSet(&gpsVelocity);
 
+#if !defined(PIOS_GPS_MINIMAL)
     gpsPosition->Groundspeed = sqrtf(gpsVelocity.North * gpsVelocity.North + gpsVelocity.East * gpsVelocity.East);
+#else
+    gpsPosition->Groundspeed = fmaxf(gpsVelocity.North, gpsVelocity.East) * 1.2f; // within 20% or so
+#endif /* !defined(PIOS_GPS_MINIMAL) */
     // don't allow a funny number like 4.87416e-06 to show up in Uavo Browser for Heading
     // smallest groundspeed is 0.01f from (int)1 * (float)0.01
     // so this is saying if groundspeed is zero
@@ -271,10 +273,14 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
     gpsPosition->Longitude  = djiGps->lon;
     gpsPosition->Satellites = djiGps->numSV;
     gpsPosition->PDOP = djiGps->pDOP * 0.01f;
+#if !defined(PIOS_GPS_MINIMAL)
     gpsPosition->HDOP = sqrtf((float)djiGps->nDOP * (float)djiGps->nDOP + (float)djiGps->eDOP * (float)djiGps->eDOP) * 0.01f;
     if (gpsPosition->HDOP > 99.99f) {
         gpsPosition->HDOP = 99.99f;
     }
+#else
+    gpsPosition->HDOP = MAX(djiGps->nDOP, djiGps->eDOP) * 0.01f;
+#endif
     gpsPosition->VDOP = djiGps->vDOP * 0.01f;
     if (djiGps->flags & FLAGS_GPSFIX_OK) {
         gpsPosition->Status = djiGps->fixType == FIXTYPE_3D ?
@@ -309,6 +315,16 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
 
 
 #if !defined(PIOS_GPS_MINIMAL)
+void dji_load_mag_settings()
+{
+    if (auxmagsupport_get_type() == AUXMAGSETTINGS_TYPE_DJI) {
+        useMag = true;
+    } else {
+        useMag = false;
+    }
+}
+
+
 static void parse_dji_mag(struct DJIPacket *dji, __attribute__((unused)) GPSPositionSensorData *gpsPosition)
 {
     if (!useMag) {
@@ -389,15 +405,5 @@ uint32_t parse_dji_message(struct DJIPacket *dji, GPSPositionSensorData *gpsPosi
     }
 
     return id;
-}
-
-
-void dji_load_mag_settings()
-{
-    if (auxmagsupport_get_type() == AUXMAGSETTINGS_TYPE_DJI) {
-        useMag = true;
-    } else {
-        useMag = false;
-    }
 }
 #endif // PIOS_INCLUDE_GPS_DJI_PARSER

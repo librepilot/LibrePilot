@@ -72,6 +72,7 @@ void OsgEarth::registerQmlTypes()
     registered = true;
 
     // redirect osg logging to Qt (and export OSG_NOTIFY_LEVEL=DEBUG to enable osg logging)
+    // Note : enabling the notify handler seems to cause crashes (the notifier is probably not thread safe)
     // osg::setNotifyHandler(new QtNotifyHandler());
 
     // initialize();
@@ -105,11 +106,6 @@ void OsgEarth::initialize()
     initWindowingSystem();
 
     initializeCache();
-
-    // force early initialization of osgEarth capabilities
-    // Doing this too early (before main window is displayed) causes rendering glitches (black holes)
-    // Not sure why... See OSGViewport for when it is called (late...)
-    // osgEarth::Registry::capabilities();
 
     displayInfo();
 }
@@ -151,7 +147,7 @@ void OsgEarth::initializeCache()
     } else {
         qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }
-#endif // ifdef USE_OSGEARTH
+#endif
 }
 
 void OsgEarth::displayInfo()

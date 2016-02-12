@@ -297,7 +297,6 @@ bool GraphicsWindowQt::makeCurrentImplementation()
         return false;
     }
     if (_owned && _glContext) {
-        // qDebug() << "GraphicsWindowQt::makeCurrentImplementation : " << _surface;
         if (!_glContext->makeCurrent(_surface)) {
             qWarning() << "GraphicsWindowQt::makeCurrentImplementation : failed to make context current";
             return false;

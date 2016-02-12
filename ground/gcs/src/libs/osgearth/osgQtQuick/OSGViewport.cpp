@@ -91,8 +91,6 @@ public:
         updateMode(UpdateMode::Discrete),
         frameTimer(-1)
     {
-        qDebug() << "OSGViewport::Hidden";
-
         OsgEarth::initialize();
 
         createViewer();
@@ -102,9 +100,6 @@ public:
 
     ~Hidden()
     {
-        qDebug() << "OSGViewport::~Hidden";
-        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "OSGViewport::~Hidden");
-
         stop();
 
         destroyViewer();
@@ -127,6 +122,7 @@ public slots:
         }
         this->window = window;
     }
+
 public:
 
     bool acceptSceneData(OSGNode *node)
@@ -161,14 +157,16 @@ public:
             qWarning() << "OSGViewport::attach - invalid scene!";
             return false;
         }
-        if (!attach(view, sceneData->node())) {
-            qWarning() << "OSGViewport::attach - failed to attach node!";
-            return false;
-        }
+        // attach camera
         if (camera) {
             camera->attach(view);
         } else {
             qWarning() << "OSGViewport::attach - no camera!";
+        }
+        // attach scene
+        if (!attach(view, sceneData->node())) {
+            qWarning() << "OSGViewport::attach - failed to attach node!";
+            return false;
         }
         return true;
     }
@@ -198,6 +196,7 @@ public:
         }
 #endif
 
+        qDebug() << "OSGViewport::attach - set scene" << node;
         view->setSceneData(node);
 
         return true;
@@ -233,14 +232,14 @@ public:
     void initializeResources()
     {
         qDebug() << "OSGViewport::initializeResources";
-        if (!view.valid()) {
-            qDebug() << "OSGViewport::initializeResources - creating view";
-            view = createView();
-            self->attach(view.get());
-            viewer->addView(view);
-            start();
-            // osgDB::writeNodeFile(*(h->self->sceneData()->node()), "saved.osg");
+        if (view.valid()) {
+            qWarning() << "OSGViewport::initializeResources - view already created!";
+            return;
         }
+        view = createView();
+        self->attach(view.get());
+        viewer->addView(view);
+        start();
     }
 
     void releaseResources()
@@ -259,7 +258,6 @@ public:
 
     bool acceptUpdateMode(UpdateMode::Enum mode)
     {
-        // qDebug() << "OSGViewport::acceptUpdateMode" << mode;
         if (updateMode == mode) {
             return true;
         }

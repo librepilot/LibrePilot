@@ -61,10 +61,14 @@ PERF_DEFINE_COUNTER(counterBytesIn);
 PERF_DEFINE_COUNTER(counterRate);
 PERF_DEFINE_COUNTER(counterParse);
 
+#if defined(ANY_GPS_PARSER) || defined(ANY_FULL_GPS_PARSER) || defined(ANY_FULL_MAG_PARSER)
+#error ANY_GPS_PARSER ANY_FULL_GPS_PARSER and ANY_FULL_MAG_PARSER should all be undefined at this point.
+#endif
+
 #if defined(PIOS_INCLUDE_GPS_NMEA_PARSER) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)
 #define ANY_GPS_PARSER
 #endif
-#if (defined(ANY_GPS_PARSER)) && !defined(PIOS_GPS_MINIMAL)
+#if defined(ANY_GPS_PARSER) && !defined(PIOS_GPS_MINIMAL)
 #define ANY_FULL_GPS_PARSER
 #endif
 #if (defined(PIOS_INCLUDE_HMC5X83) || defined(PIOS_INCLUDE_GPS_UBX_PARSER) || defined(PIOS_INCLUDE_GPS_DJI_PARSER)) && !defined(PIOS_GPS_MINIMAL)

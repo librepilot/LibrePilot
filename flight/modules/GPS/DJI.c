@@ -290,16 +290,15 @@ static void parse_dji_gps(struct DJIPacket *dji, GPSPositionSensorData *gpsPosit
     }
     gpsPosition->SensorType = GPSPOSITIONSENSOR_SENSORTYPE_DJI;
     gpsPosition->AutoConfigStatus = GPSPOSITIONSENSOR_AUTOCONFIGSTATUS_DISABLED;
-    // gpsPosition->BaudRate = GPSPOSITIONSENSOR_BAUDRATE_115200;
     GPSPositionSensorSet(gpsPosition);
 
 #if !defined(PIOS_GPS_MINIMAL)
     // Time is valid, set GpsTime
     GPSTimeData gpsTime;
-    // the lowest bit of day and the highest bit of hour overlap (xored? no stranger than that)
+    // the lowest bit of day and the highest bit of hour overlap (xored? no, stranger than that)
     // this causes strange day/hour changes
     // we could track it here and even if we guess wrong initially
-    // we can massage the data so that time doesn't jump
+    // we can massage the data so that time doesn't jump at least
     // and maybe make the assumption that most people will fly at 5pm, not 1am
     // this is part of the DJI protocol
     // see DJI.h for further info

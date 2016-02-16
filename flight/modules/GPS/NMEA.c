@@ -7,7 +7,8 @@
  * @{
  *
  * @file       NMEA.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      GPS module, handles GPS and NMEA stream
  * @see        The GNU Public License (GPL) Version 3
  *

@@ -7,7 +7,8 @@
  * @{
  *
  * @file       UBX.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      GPS module, handles GPS and NMEA stream
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -612,7 +613,7 @@ union UBXSENTPACKET {
 
 // Used by AutoConfig code
 extern int32_t ubxHwVersion;
-extern GPSPositionSensorSensorTypeOptions sensorType;
+extern GPSPositionSensorSensorTypeOptions ubxSensorType;
 extern struct UBX_ACK_ACK ubxLastAck;
 extern struct UBX_ACK_NAK ubxLastNak;
 
@@ -621,5 +622,6 @@ uint32_t parse_ubx_message(struct UBXPacket *, GPSPositionSensorData *);
 
 int parse_ubx_stream(uint8_t *rx, uint16_t len, char *, GPSPositionSensorData *, struct GPS_RX_STATS *);
 void op_gpsv9_load_mag_settings();
+void aux_hmc5x83_load_mag_settings();
 
 #endif /* UBX_H */

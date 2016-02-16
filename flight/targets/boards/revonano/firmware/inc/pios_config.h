@@ -5,7 +5,7 @@
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
  * @file       pios_config.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
  * @brief      PiOS configuration header, the compile time config file for the PIOS.
  *             Defines which PiOS libraries and features are included in the firmware.
@@ -157,6 +157,7 @@
 /* #define PIOS_GPS_MINIMAL */
 #define PIOS_INCLUDE_GPS_NMEA_PARSER
 #define PIOS_INCLUDE_GPS_UBX_PARSER
+#define PIOS_INCLUDE_GPS_DJI_PARSER
 #define PIOS_GPS_SETS_HOMELOCATION
 
 /* Stabilization options */

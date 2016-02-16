@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       auxmagsupport.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Functions to handle aux mag data and calibration.
  *             --
  * @see        The GNU Public License (GPL) Version 3
@@ -57,6 +58,10 @@ void auxmagsupport_reload_settings()
 
     // GPSV9, Ext (unused), and Flexi
     AuxMagSettingsTypeGet(&option);
+
+    const uint8_t status = AUXMAGSENSOR_STATUS_NONE;
+    // next sample from other external mags will provide the right status if present
+    AuxMagSensorStatusSet((uint8_t *)&status);
 }
 
 void auxmagsupport_publish_samples(float mags[3], uint8_t status)

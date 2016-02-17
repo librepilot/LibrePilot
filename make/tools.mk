@@ -158,8 +158,6 @@ else ifeq ($(UNAME), Windows)
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
 endif
 
-QT_SDK_PREFIX := $(QT_SDK_DIR)
-
 ##############################
 #
 # Build only and all toolchains available for the platform
@@ -515,18 +513,17 @@ endef
 
 ifeq ($(UNAME), Windows)
 
-QT_SDK_PREFIX := $(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)
-
+    QT_SDK_PREFIX := $(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)
     $(eval $(call QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else ifeq ($(UNAME), Linux)
 
-QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
+    QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
     $(eval $(call QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else ifeq ($(UNAME), Darwin)
 
-QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
+    QT_SDK_PREFIX := "$(QT_SDK_DIR)/5.5/$(QT_SDK_ARCH)"
     $(eval $(call MAC_QT_INSTALL_TEMPLATE,$(QT_SDK_DIR),$(QT_SDK_URL),$(QT_SDK_MD5_URL),$(notdir $(QT_SDK_URL)),$(QT_SDK_ARCH)))
 
 else

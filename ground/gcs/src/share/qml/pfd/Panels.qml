@@ -955,7 +955,61 @@ Item {
 
         Text {
              text: (receiverStatus.quality > 0) ? receiverStatus.quality + "%" : "?? %"
-             anchors.centerIn: parent
+             anchors.right: parent.right
+             color: "white"
+             font {
+                 family: pt_bold.name
+                 pixelSize: Math.floor(parent.height * 1.4)
+                 weight: Font.DemiBold
+             }
+        }
+    }
+
+    SvgElementImage {
+        id: cnx_state_label
+        elementName: "cnx-state-label"
+        sceneSize: panels.sceneSize
+        y: Math.floor(scaledBounds.y * sceneItem.height)
+        z: oplm_bg.z + 8
+
+        states: State {
+             name: "fading"
+             when: show_panels == true
+             PropertyChanges { target: cnx_state_label; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
+        }
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
+            }
+        }
+    }
+
+    SvgElementPositionItem {
+        id: cnx_state_text
+        sceneSize: panels.sceneSize
+        elementName: "cnx-state-text"
+        z: oplm_bg.z + 9
+
+        width: scaledBounds.width * sceneItem.width
+        height: scaledBounds.height * sceneItem.height
+        y: scaledBounds.y * sceneItem.height
+
+        states: State {
+             name: "fading"
+             when: show_panels == true
+             PropertyChanges { target: cnx_state_text; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
+        }
+
+        transitions: Transition {
+            SequentialAnimation {
+                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
+            }
+        }
+
+        Text {
+             text: ["Disabled", "Enabled", "Disconnected", "Connecting", "Connected"][opLinkStatus.linkState]
+             anchors.right: parent.right
              color: "white"
              font {
                  family: pt_bold.name
@@ -1167,7 +1221,8 @@ Item {
         }
 
         Text {
-             text: ["Invalid", "OnBoard", "External"][magState.source]
+             text: [magState.source == 2 ? ["GPSv9", "Flexi", "I2C", "DJI"][auxMagSettings.type] + " " : ""] +
+                   ["Invalid", "OnBoard", "ExtMag"][magState.source]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1198,7 +1253,7 @@ Item {
         }
 
         Text {
-             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8"][gpsPositionSensor.sensorType]
+             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8", "DJI"][gpsPositionSensor.sensorType]
              anchors.right: parent.right
              color: "white"
              font {

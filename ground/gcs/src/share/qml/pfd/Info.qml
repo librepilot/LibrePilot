@@ -90,7 +90,7 @@ Item {
     property real bar_width: (info_bg.height + info_bg.width) / 110
     property int satsInView: gpsSatellites.satsInView
     property variant gps_tooltip: "Altitude : " + gpsPositionSensor.altitude.toFixed(2) + "m\n" +
-                                  "H/V/P DOP : " + gpsPositionSensor.hdop.toFixed(2) + "/" + gpsPositionSensor.vdop.toFixed(2) + "/" + gpsPositionSensor.pdop.toFixed(2) + "m\n" +
+                                  "H/V/P DOP : " + gpsPositionSensor.hdop.toFixed(2) + "/" + gpsPositionSensor.vdop.toFixed(2) + "/" + gpsPositionSensor.pdop.toFixed(2) + "\n" +
                                    satsInView + " Sats in view"
 
     Repeater {

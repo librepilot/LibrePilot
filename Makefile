@@ -149,9 +149,6 @@ export UAVOBJGENERATOR
 GCS_BUILD_CONF := release
 
 # Set extra configuration
-GCS_EXTRA_CONF :=
-
-# osg & osgearth
 GCS_EXTRA_CONF += osg copy_osg
 
 ##############################

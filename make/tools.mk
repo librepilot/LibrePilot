@@ -144,9 +144,15 @@ else ifeq ($(UNAME), Darwin)
     OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-clang_64-qt-$(QT_VERSION)
     OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
 else ifeq ($(UNAME), Windows)
-    MINGW_DIR    := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)
+    ifeq ($(ARCH), x86_64)
+        MINGW_DIR := /mingw64
+    else
+        MINGW_DIR := /mingw32
+    endif
     # When changing PYTHON_DIR, you must also update it in ground/gcs/src/python.pri
-    PYTHON_DIR   := $(QT_SDK_DIR)/Tools/$(QT_SDK_ARCH)/opt/bin
+    PYTHON_DIR   := $(MINGW_DIR)/bin
+    OSG_SDK_DIR  := $(MINGW_DIR)
+    OSGEARTH_SDK_DIR := $(MINGW_DIR)
     NSIS_DIR     := $(TOOLS_DIR)/nsis-2.46-unicode
     MESAWIN_DIR  := $(TOOLS_DIR)/mesawin
 endif

@@ -1058,7 +1058,7 @@ Item {
         id: system_bg
         elementName: "system-bg"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: 40
 
         states: State {
@@ -1078,7 +1078,7 @@ Item {
         id: system_frametype
         elementName: "system-frame-type"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: system_bg.z + 1
 
         states: State {
@@ -1111,7 +1111,7 @@ Item {
         id: system_cpuloadtemp
         elementName: "system-cpu-load-temp"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: system_bg.z + 1
 
         states: State {
@@ -1143,7 +1143,7 @@ Item {
         id: system_memfree
         elementName: "system-mem-free"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: system_bg.z + 1
 
         states: State {
@@ -1174,7 +1174,7 @@ Item {
         id: system_fusion_algo
         elementName: "system-attitude-estimation-algo"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: system_bg.z + 1
 
         states: State {
@@ -1190,7 +1190,7 @@ Item {
         }
 
         Text {
-             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPS Nav (INS13)"][revoSettings.fusionAlgorithm]
+             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"][revoSettings.fusionAlgorithm]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1205,7 +1205,7 @@ Item {
         id: system_mag_used
         elementName: "system-mag-used"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: system_bg.z + 1
 
         states: State {
@@ -1237,7 +1237,7 @@ Item {
         id: system_gpstype
         elementName: "system-gps-type"
         sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
+        y: scaledBounds.y * sceneItem.height
         z: system_bg.z + 1
 
         states: State {

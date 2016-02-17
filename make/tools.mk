@@ -84,45 +84,47 @@ $(TOOL_REMOVE_TARGETS):
 #
 ##############################
 
+TOOLS_URL := http://librepilot.github.io/tools
+
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
         QT_SDK_ARCH    := gcc_64
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x64-5.5.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x64-5.5.1.run.md5
-        OSG_URL        := http://librepilot.github.io/tools/osg-3.5.1-linux-x64-qt-5.5.1.tar.gz
-        OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-linux-x64-qt-5.5.1.tar.gz
+        OSG_URL        := $(TOOLS_URL)/osg-3.5.1-linux-x64-qt-5.5.1.tar.gz
+        OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-linux-x64-qt-5.5.1.tar.gz
     else
         QT_SDK_ARCH    := gcc
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x86-5.5.1.run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-linux-x86-5.5.1.run.md5
-        OSG_URL        := http://librepilot.github.io/tools/osg-3.5.1-linux-x86-qt-5.5.1.tar.gz
-        OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-linux-x86-qt-5.5.1.tar.gz
+        OSG_URL        := $(TOOLS_URL)/osg-3.5.1-linux-x86-qt-5.5.1.tar.gz
+        OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-linux-x86-qt-5.5.1.tar.gz
     endif
-    UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
-    DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
+    UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60.tar.gz
+    DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
 else ifeq ($(UNAME), Darwin)
     QT_SDK_ARCH    := clang_64
     QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-mac-x64-clang-5.5.1.dmg
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-mac-x64-clang-5.5.1.dmg.md5
     QT_SDK_MOUNT_DIR        := /Volumes/qt-opensource-mac-x64-clang-5.5.1
     QT_SDK_MAINTENANCE_TOOL := /Volumes/qt-opensource-mac-x64-clang-5.5.1/qt-opensource-mac-x64-clang-5.5.1.app/Contents/MacOS/qt-opensource-mac-x64-clang-5.5.1
-    UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60.tar.gz
-    DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1.src.tar.gz
-    OSG_URL        := http://librepilot.github.io/tools/osg-3.5.1-clang_64-qt-5.5.1.tar.gz
-    OSGEARTH_URL   := http://librepilot.github.io/tools/osgearth-2.7-clang_64-qt-5.5.1.tar.gz
+    UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60.tar.gz
+    DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
+    OSG_URL        := $(TOOLS_URL)/osg-3.5.1-clang_64-qt-5.5.1.tar.gz
+    OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-clang_64-qt-5.5.1.tar.gz
 else ifeq ($(UNAME), Windows)
     QT_SDK_ARCH    := mingw492_32
     QT_SDK_URL     := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/5.5/5.5.1/qt-opensource-windows-x86-mingw492-5.5.1.exe.md5
-    NSIS_URL       := http://librepilot.github.io/tools/nsis-2.46-unicode.tar.bz2
-    MESAWIN_URL    := http://librepilot.github.io/tools/mesawin.tar.gz
-    UNCRUSTIFY_URL := http://librepilot.github.io/tools/uncrustify-0.60-windows.tar.bz2
-    DOXYGEN_URL    := http://librepilot.github.io/tools/doxygen-1.8.3.1-windows.tar.bz2
+    NSIS_URL       := $(TOOLS_URL)/nsis-2.46-unicode.tar.bz2
+    MESAWIN_URL    := $(TOOLS_URL)/mesawin.tar.gz
+    UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60-windows.tar.bz2
+    DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1-windows.tar.bz2
 endif
 
-GTEST_URL 	   := http://librepilot.github.io/tools/gtest-1.7.0.zip
+GTEST_URL 	   := $(TOOLS_URL)/gtest-1.7.0.zip
 CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
-CCACHE_MD5_URL := http://librepilot.github.io/tools/ccache-3.2.2.tar.bz2.md5
+CCACHE_MD5_URL := $(TOOLS_URL)/ccache-3.2.2.tar.bz2.md5
 
 QT_VERSION     := 5.5.1
 QT_SDK_DIR     := $(TOOLS_DIR)/qt-$(QT_VERSION)
@@ -130,19 +132,18 @@ UNCRUSTIFY_DIR := $(TOOLS_DIR)/uncrustify-0.60
 DOXYGEN_DIR    := $(TOOLS_DIR)/doxygen-1.8.3.1
 GTEST_DIR      := $(TOOLS_DIR)/gtest-1.7.0
 CCACHE_DIR     := $(TOOLS_DIR)/ccache
-OSG_TOOLS_DIR  := $(TOOLS_DIR)
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-linux-x64-qt-$(QT_VERSION)
-        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x64-qt-$(QT_VERSION)
+        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.1-linux-x64-qt-$(QT_VERSION)
+        OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-linux-x64-qt-$(QT_VERSION)
     else
-        OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-linux-x86-qt-$(QT_VERSION)
-        OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-linux-x86-qt-$(QT_VERSION)
+        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.1-linux-x86-qt-$(QT_VERSION)
+        OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-linux-x86-qt-$(QT_VERSION)
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR      := $(OSG_TOOLS_DIR)/osg-3.5.1-clang_64-qt-$(QT_VERSION)
-    OSGEARTH_SDK_DIR := $(OSG_TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
+    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.1-clang_64-qt-$(QT_VERSION)
+    OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
 else ifeq ($(UNAME), Windows)
     ifeq ($(ARCH), x86_64)
         MINGW_DIR := /mingw64

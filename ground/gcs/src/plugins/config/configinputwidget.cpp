@@ -428,6 +428,9 @@ void ConfigInputWidget::enableControls(bool enable)
 
     if (enable) {
         updatePositionSlider();
+    } else {
+        // Hide configAlarmStatus when disconnected
+        ui->configAlarmStatus->setVisible(false);
     }
 }
 
@@ -1807,6 +1810,7 @@ void ConfigInputWidget::updateConfigAlarmStatus()
             bgColor = "red";
         }
     }
+    ui->configAlarmStatus->setVisible(true);
     ui->configAlarmStatus->setStyleSheet(
         "QLabel { background-color: " + bgColor + ";"
         "color: rgb(255, 255, 255); border-radius: 5; margin:1px; font:bold; }");

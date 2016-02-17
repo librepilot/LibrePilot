@@ -252,7 +252,7 @@ public:
             // disable any installed camera manipulator
             // TODO create and use own camera manipulator to avoid disabling ON_DEMAND frame update scheme
             // see https://github.com/gwaldron/osgearth/commit/796daf4792ccaf18ae7eb6a5cb268eef0d42888d
-            // TODO see StandardManaipulator for example on how to react to events (tohabd FOV changes without the need for an update callback?)
+            // TODO see StandardManipulator for an example on how to react to events (to have FOV changes without the need for an update callback?)
             cm = NULL;
             break;
         case ManipulatorMode::Earth:
@@ -331,23 +331,24 @@ public:
         }
         fovDirty = false;
 
-        // qDebug() << "OSGCamera::updateCameraFOV";
+        qDebug() << "OSGCamera::updateCameraFOV" << fieldOfView;
+
         double fovy, ar, zn, zf;
-
         camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
-
         fovy = fieldOfView;
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
     }
 
     void updateAspectRatio()
     {
-        double fovy, ar, zn, zf;
-
-        camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
-
         osg::Viewport *viewport = camera->getViewport();
-        ar = static_cast<double>(viewport->width()) / static_cast<double>(viewport->height());
+        double aspectRatio = static_cast<double>(viewport->width()) / static_cast<double>(viewport->height());
+
+        qDebug() << "OSGCamera::updateAspectRatio" << aspectRatio;
+
+        double fovy, ar, zn, zf;
+        camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
+        ar = aspectRatio;
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
     }
 
@@ -392,10 +393,13 @@ public:
                                   osg::DegreesToRadians(0.0), osg::Vec3(0.0, 0.0, 1.0));
 
         // Final camera matrix
+        double roll  = osg::DegreesToRadians(attitude.x());
+        double pitch = osg::DegreesToRadians(attitude.y());
+        double yaw   = osg::DegreesToRadians(attitude.z());
         osg::Matrix cameraMatrix = cameraRotation
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.x()), osg::Vec3(1.0, 0.0, 0.0))
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.y()), osg::Vec3(0.0, 1.0, 0.0))
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.z()), osg::Vec3(0.0, 0.0, 1.0)) * cameraPosition;
+                                   * osg::Matrix::rotate(roll, osg::Vec3(0, 1, 0))
+                                   * osg::Matrix::rotate(pitch, osg::Vec3(1, 0, 0))
+                                   * osg::Matrix::rotate(yaw, osg::Vec3(0, 0, -1.0)) * cameraPosition;
 
         // Inverse the camera's position and orientation matrix to obtain the view matrix
         cameraMatrix = osg::Matrix::inverse(cameraMatrix);

@@ -81,7 +81,7 @@ Qt.include("common.js")
 */
 
 function attitude() {
-    return Qt.vector3d(attitudeState.pitch, attitudeState.roll, -attitudeState.yaw);
+    return Qt.vector3d(attitudeState.roll, attitudeState.pitch, attitudeState.yaw);
 }
 
 function attitudeRoll() {

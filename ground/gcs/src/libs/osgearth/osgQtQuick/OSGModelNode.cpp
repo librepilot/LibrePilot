@@ -194,10 +194,13 @@ public:
 
     osg::Quat localRotation()
     {
-        osg::Quat q = osg::Quat(
-            osg::DegreesToRadians(attitude.x()), osg::Vec3d(1, 0, 0),
-            osg::DegreesToRadians(attitude.y()), osg::Vec3d(0, 1, 0),
-            osg::DegreesToRadians(attitude.z()), osg::Vec3d(0, 0, 1));
+        double roll  = osg::DegreesToRadians(attitude.x());
+        double pitch = osg::DegreesToRadians(attitude.y());
+        double yaw   = osg::DegreesToRadians(attitude.z());
+        osg::Quat q  = osg::Quat(
+            roll, osg::Vec3d(0, 1, 0),
+            pitch, osg::Vec3d(1, 0, 0),
+            yaw, osg::Vec3d(0, 0, -1));
 
         return q;
     }

@@ -3,6 +3,8 @@ import QtQuick 2.4
 import UAVTalk.FlightStatus 1.0
 import UAVTalk.VelocityDesired 1.0
 
+import "../uav.js" as UAV
+
 Item {
     id: sceneItem
     property variant sceneSize
@@ -10,7 +12,7 @@ Item {
 
     Timer {
          interval: 100; running: true; repeat: true
-         onTriggered: vert_velocity = (0.9 * vert_velocity) + (0.1 * velocityState.down)
+         onTriggered: vert_velocity = (0.9 * vert_velocity) + (0.1 * UAV.velocityStateDown())
      }
 
     SvgElementImage {
@@ -25,11 +27,11 @@ Item {
         y: scaledBounds.y * sceneItem.height
 
         smooth: true
-        visible: ((velocityDesired.down != 0.0) && (flightStatus.flightMode > FlightMode.PositionHold))
+        visible: ((UAV.velocityDesiredDown() != 0.0) && (UAV.isFlightModeAssisted()))
 
         // rotate it around the center
         transform: Rotation {
-            angle: -velocityDesired.down * 5
+            angle: -UAV.velocityDesiredDown() * 5
             origin.y : vsi_waypoint.height / 2
             origin.x : vsi_waypoint.width * 33
         }

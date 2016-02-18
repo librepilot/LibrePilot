@@ -12,13 +12,11 @@ import UAVTalk.FlightBatterySettings 1.0
 import UAVTalk.FlightBatteryState 1.0
 
 import "../common.js" as Utils
+import "../uav.js" as UAV
 
 Item {
     id: info
     property variant sceneSize
-
-    // Uninitialised, Ok, Warning, Critical, Error
-    property variant batColors : ["black", "green", "orange", "red", "red"]
 
     //
     // Waypoint functions
@@ -30,30 +28,6 @@ Item {
     property real total_distance_km
 
     property bool init_dist: false
-
-    property real home_heading: 180 / 3.1415 * Math.atan2(takeOffLocation.east - positionState.east,
-                                                          takeOffLocation.north - positionState.north)
-
-    property real home_distance: Math.sqrt(Math.pow((takeOffLocation.east - positionState.east), 2) +
-                                           Math.pow((takeOffLocation.north - positionState.north), 2))
-
-    property real wp_heading: 180 / 3.1415 * Math.atan2(pathDesired.endEast - positionState.east,
-                                                        pathDesired.endNorth - positionState.north)
-
-    property real wp_distance: Math.sqrt(Math.pow((pathDesired.endEast - positionState.east), 2) +
-                                         Math.pow((pathDesired.endNorth - positionState.north), 2))
-
-    property real current_velocity: Math.sqrt(Math.pow(velocityState.north, 2) + Math.pow(velocityState.east, 2))
-
-    property real home_eta: (home_distance > 0 && current_velocity > 0 ? Math.round(home_distance / current_velocity) : 0)
-    property real home_eta_h: (home_eta > 0 ? Math.floor(home_eta / 3600) : 0 )
-    property real home_eta_m: (home_eta > 0 ? Math.floor((home_eta - home_eta_h * 3600) / 60) : 0)
-    property real home_eta_s: (home_eta > 0 ? Math.floor(home_eta - home_eta_h * 3600 - home_eta_m * 60) : 0)
-
-    property real wp_eta: (wp_distance > 0 && current_velocity > 0 ? Math.round(wp_distance/current_velocity) : 0)
-    property real wp_eta_h: (wp_eta > 0 ? Math.floor(wp_eta / 3600) : 0 )
-    property real wp_eta_m: (wp_eta > 0 ? Math.floor((wp_eta - wp_eta_h * 3600) / 60) : 0)
-    property real wp_eta_s: (wp_eta > 0 ? Math.floor(wp_eta - wp_eta_h * 3600 - wp_eta_m * 60) : 0)
 
     function reset_distance() {
         total_distance = 0;
@@ -88,14 +62,13 @@ Item {
     //
 
     property real bar_width: (info_bg.height + info_bg.width) / 110
-    property int satsInView: gpsSatellites.satsInView
-    property variant gps_tooltip: "Altitude : " + gpsPositionSensor.altitude.toFixed(2) + "m\n" +
-                                  "H/V/P DOP : " + gpsPositionSensor.hdop.toFixed(2) + "/" + gpsPositionSensor.vdop.toFixed(2) + "/" + gpsPositionSensor.pdop.toFixed(2) + "\n" +
-                                   satsInView + " Sats in view"
+
+    property variant gps_tooltip: "Altitude : " + UAV.gpsAltitude() + "m\n" +
+                                  "H/V/P DOP : " + UAV.gpsHdopInfo() +
+                                  [UAV.gpsSensorType() == "DJI" ? "" :  "\n" + UAV.gpsSatsInView() + " Sats in view"]
 
     Repeater {
         id: satNumberBar
-        property int satNumber : gpsPositionSensor.satellites
 
         model: 13
         Rectangle {
@@ -111,7 +84,7 @@ Item {
             height: bar_width * index * 0.6
             y: (bar_width * 8) - height
             color: "green"
-            opacity: satNumberBar.satNumber >= minSatNumber ? 1 : 0.4
+            opacity: UAV.gpsNumSat() >= minSatNumber ? 1 : 0.4
         }
     }
 
@@ -124,10 +97,7 @@ Item {
         }
 
         Text {
-            property int satNumber : gpsPositionSensor.satellites
-
-            text: [satNumber > 5 ? " " + satNumber.toString() + " sats - " : ""] +
-                  ["NO GPS", "NO FIX", "2D", "3D"][gpsPositionSensor.status]
+            text: [UAV.gpsNumSat() > 5 ? " " + UAV.gpsNumSat().toString() + " sats - " : ""] + UAV.gpsStatus()
             anchors.centerIn: parent
             font.pixelSize: parent.height*1.3
             font.family: pt_bold.name
@@ -156,7 +126,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
     }
 
     SvgElementPositionItem {
@@ -165,10 +135,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
 
         Text {
-            text: "   "+wp_heading.toFixed(1)+"°"
+            text: UAV.isPathPlanValid() ? "   " + UAV.waypointHeading().toFixed(1) + "°" : "   0°"
             anchors.centerIn: parent
             color: "cyan"
 
@@ -186,10 +156,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
 
         Text {
-            text: "  "+wp_distance.toFixed(0)+" m"
+            text: UAV.isPathPlanValid() ? "  " + UAV.waypointDistance().toFixed(0) + " m" : "  0 m"
             anchors.centerIn: parent
             color: "cyan"
 
@@ -207,7 +177,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
 
         MouseArea { id: total_dist_mouseArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: reset_distance()}
 
@@ -235,10 +205,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
 
         Text {
-            text: Utils.formatTime(wp_eta_h) + ":" + Utils.formatTime(wp_eta_m) + ":" + Utils.formatTime(wp_eta_s)
+            text: UAV.isPathPlanValid() ? Utils.estimatedTimeOfArrival(UAV.waypointDistance(), UAV.currentVelocity()) : "00:00:00"
             anchors.centerIn: parent
             color: "cyan"
 
@@ -256,10 +226,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
 
         Text {
-            text: (waypointActive.index + 1) + " / " + pathPlan.waypointCount
+            text: UAV.isPathPlanValid() ? UAV.currentWaypointActive() + " / " + UAV.waypointCount() : "0 / 0"
             anchors.centerIn: parent
             color: "cyan"
 
@@ -277,10 +247,10 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan == Alarm.OK)
+        visible: UAV.isPathPlanValid()
 
         Text {
-            text: ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE","SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"][pathDesired.mode]
+            text: UAV.isPathPlanValid() ? UAV.pathModeDesired() : ""
             anchors.centerIn: parent
             color: "cyan"
 
@@ -303,11 +273,11 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
+        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
-            color: (flightBatterySettings.nbCells > 0) ? info.batColors[systemAlarms.alarmBattery] : "black"
+            color: (UAV.batteryNbCells() > 0) ? UAV.batteryAlarmColor() : "black"
 
         }
     }
@@ -318,7 +288,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
+        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
     }
 
     SvgElementPositionItem {
@@ -329,14 +299,14 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
+        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
             color: "transparent"
 
             Text {
-               text: flightBatteryState.voltage.toFixed(2)
+               text: UAV.batteryVoltage()
                anchors.centerIn: parent
                color: "white"
                font {
@@ -356,14 +326,14 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
+        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
             color: "transparent"
 
             Text {
-               text: flightBatteryState.current.toFixed(2)
+               text: UAV.batteryCurrent()
                anchors.centerIn: parent
                color: "white"
                font {
@@ -383,7 +353,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: ((systemAlarms.alarmPathPlan != Alarm.OK) && (hwSettings.optionalModulesBattery == OptionalModules.Enabled))
+        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
@@ -399,16 +369,15 @@ Item {
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
-            // Alarm based on flightBatteryState.estimatedFlightTime < 120s orange, < 60s red
-            color: ((flightBatteryState.estimatedFlightTime <= 120) && (flightBatteryState.estimatedFlightTime > 60)) ? "orange" :
-                   (flightBatteryState.estimatedFlightTime <= 60) ? "red" : info.batColors[systemAlarms.alarmBattery]
+            // Alarm based on estimatedFlightTime < 120s orange, < 60s red
+            color: UAV.estimatedTimeAlarmColor()
 
             border.color: "white"
             border.width: topbattery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: flightBatteryState.consumedEnergy.toFixed(0)
+               text: UAV.batteryConsumedEnergy()
                anchors.centerIn: parent
                color: "white"
                font {
@@ -429,7 +398,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan != Alarm.OK)
+        visible: !UAV.isPathPlanValid()
     }
 
     SvgElementPositionItem {
@@ -438,7 +407,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (systemAlarms.alarmPathPlan != Alarm.OK)
+        visible: !UAV.isPathPlanValid()
 
         TooltipArea {
             text: "Reset distance counter"
@@ -479,7 +448,7 @@ Item {
 
         states: State {
              name: "fading"
-             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
+             when: UAV.isTakeOffLocationValid()
              PropertyChanges { target: home_bg; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -500,7 +469,7 @@ Item {
 
         states: State {
              name: "fading_heading"
-             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
+             when: UAV.isTakeOffLocationValid()
              PropertyChanges { target: home_heading_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -511,7 +480,7 @@ Item {
         }
 
         Text {
-            text: "  "+home_heading.toFixed(1)+"°"
+            text: "  " + UAV.homeHeading().toFixed(1) + "°"
             anchors.centerIn: parent
             color: "cyan"
             font {
@@ -531,7 +500,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
+             when: UAV.isTakeOffLocationValid()
              PropertyChanges { target: home_distance_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -542,7 +511,7 @@ Item {
         }
 
         Text {
-            text: home_distance.toFixed(0)+" m"
+            text: UAV.homeDistance().toFixed(0) + " m"
             anchors.centerIn: parent
             color: "cyan"
             font {
@@ -562,7 +531,7 @@ Item {
 
         states: State {
              name: "fading_distance"
-             when: (takeOffLocation.status == TakeOffLocation.Status.Valid)
+             when: UAV.isTakeOffLocationValid()
              PropertyChanges { target: home_eta_text; x: Math.floor(scaledBounds.x * sceneItem.width) - home_bg.width; }
         }
 
@@ -573,7 +542,7 @@ Item {
         }
 
         Text {
-            text: Utils.formatTime(home_eta_h) + ":" + Utils.formatTime(home_eta_m) + ":" + Utils.formatTime(home_eta_s)
+            text: Utils.estimatedTimeOfArrival(UAV.homeDistance(), UAV.currentVelocity())
             anchors.centerIn: parent
             color: "cyan"
             font {

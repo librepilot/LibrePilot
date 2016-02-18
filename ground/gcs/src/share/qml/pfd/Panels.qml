@@ -11,15 +11,11 @@ import UAVTalk.ReceiverStatus 1.0
 import UAVTalk.OPLinkStatus 1.0
 
 import "../common.js" as Utils
+import "../uav.js" as UAV
 
 Item {
     id: panels
     property variant sceneSize
-
-    property real est_flight_time: Math.round(flightBatteryState.estimatedFlightTime)
-    property real est_time_h: (est_flight_time > 0) ? Math.floor(est_flight_time / 3600) : 0
-    property real est_time_m: (est_flight_time > 0) ? Math.floor((est_flight_time - est_time_h * 3600) / 60) : 0
-    property real est_time_s: (est_flight_time > 0) ? Math.floor(est_flight_time - est_time_h * 3600 - est_time_m * 60) : 0
 
     //
     // Panel functions
@@ -78,15 +74,7 @@ Item {
         system_bg.z = 40
     }
 
-    // Uninitialised, Ok, Warning, Critical, Error
-    property variant batColors : ["#2c2929", "green", "orange", "red", "red"]
-
     property real smeter_angle
-
-    property real memory_free : (systemStats.heapRemaining > 1024) ? systemStats.heapRemaining / 1024 : systemStats.heapRemaining
-
-    // Needed to get correctly int8 value
-    property int cpuTemp : systemStats.cpuTemp
 
     // Needed to get correctly int8 value, reset value (-127) on disconnect
     property int oplm0_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths0 : -127
@@ -451,13 +439,13 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: panels.batColors[systemAlarms.alarmBattery]
+            color: UAV.batteryAlarmColor()
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: flightBatteryState.voltage.toFixed(2)
+               text: UAV.batteryVoltage()
                anchors.centerIn: parent
                color: "white"
                font {
@@ -492,13 +480,13 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            color: panels.batColors[systemAlarms.alarmBattery]
+            color: UAV.batteryAlarmColor()
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: flightBatteryState.current.toFixed(2)
+               text: UAV.batteryCurrent()
                anchors.centerIn: parent
                color: "white"
                font {
@@ -547,16 +535,15 @@ Item {
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
-            // Alarm based on flightBatteryState.estimatedFlightTime < 120s orange, < 60s red
-            color: (flightBatteryState.estimatedFlightTime <= 120 && flightBatteryState.estimatedFlightTime > 60 ? "orange" :
-                   (flightBatteryState.estimatedFlightTime <= 60 ? "red": panels.batColors[systemAlarms.alarmBattery]))
+            // Alarm based on estimatedFlightTime < 120s orange, < 60s red
+            color: UAV.estimatedTimeAlarmColor()
 
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: flightBatteryState.consumedEnergy.toFixed(0)
+               text: UAV.batteryConsumedEnergy()
                anchors.centerIn: parent
                color: "white"
                font {
@@ -591,7 +578,6 @@ Item {
 
         Rectangle {
             anchors.fill: parent
-            //color: panels.batColors[systemAlarms.alarmBattery]
 
             TooltipArea {
                text: "Reset consumed energy"
@@ -606,16 +592,15 @@ Item {
                onClicked: qmlWidget.resetConsumedEnergy();
             }
 
-            // Alarm based on flightBatteryState.estimatedFlightTime < 120s orange, < 60s red
-            color: (flightBatteryState.estimatedFlightTime <= 120) && (flightBatteryState.estimatedFlightTime > 60) ? "orange" :
-                   (flightBatteryState.estimatedFlightTime <= 60) ? "red" : panels.batColors[systemAlarms.alarmBattery]
+            // Alarm based on estimatedFlightTime < 120s orange, < 60s red
+            color: UAV.estimatedTimeAlarmColor()
 
             border.color: "white"
             border.width: battery_volt.width * 0.01
             radius: border.width * 4
 
             Text {
-               text: Utils.formatTime(est_time_h) + ":" + Utils.formatTime(est_time_m) + ":" + Utils.formatTime(est_time_s)
+               text: Utils.formatFlightTime(UAV.estimatedFlightTimeValue())
                anchors.centerIn: parent
                color: "white"
                font {
@@ -954,7 +939,7 @@ Item {
         }
 
         Text {
-             text: (receiverStatus.quality > 0) ? receiverStatus.quality + "%" : "?? %"
+             text: UAV.receiverQuality()
              anchors.right: parent.right
              color: "white"
              font {
@@ -1008,7 +993,7 @@ Item {
         }
 
         Text {
-             text: ["Disabled", "Enabled", "Disconnected", "Connecting", "Connected"][opLinkStatus.linkState]
+             text: UAV.oplmLinkState()
              anchors.right: parent.right
              color: "white"
              font {
@@ -1094,9 +1079,7 @@ Item {
         }
 
         Text {
-             text: ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
-                    "Hexa+", "Octo+", "Custom", "HexaX", "HexaH", "OctoV", "OctoCoaxP", "OctoCoaxX", "OctoX", "HexaCoax",
-                    "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"][systemSettings.airframeType]
+             text: UAV.frameType()
              anchors.right: parent.right
              color: "white"
              font {
@@ -1127,8 +1110,8 @@ Item {
         }
 
         Text {
-             // Coptercontrol detect with mem free : Only display Cpu load, no temperature available.
-             text: systemStats.cpuLoad + "%" + [(systemStats.heapRemaining < 3000) ? "" : " | " + cpuTemp + "°C"]
+             // CC3D: Only display Cpu load, no temperature available.
+             text: UAV.cpuLoad() + "%" + [UAV.isCC3D() ? "" : " | " + UAV.cpuTemp() + "°C"]
              anchors.right: parent.right
              color: "white"
              font {
@@ -1159,7 +1142,7 @@ Item {
         }
 
         Text {
-             text: (systemStats.heapRemaining > 1024) ? memory_free.toFixed(2) +"Kb" : memory_free +"bytes"
+             text: UAV.freeMemory()
              anchors.right: parent.right
              color: "white"
              font {
@@ -1190,7 +1173,7 @@ Item {
         }
 
         Text {
-             text: ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"][revoSettings.fusionAlgorithm]
+             text: UAV.fusionAlgorithm()
              anchors.right: parent.right
              color: "white"
              font {
@@ -1221,8 +1204,7 @@ Item {
         }
 
         Text {
-             text: [magState.source == 2 ? ["GPSv9", "Flexi", "I2C", "DJI"][auxMagSettings.type] + " " : ""] +
-                   ["Invalid", "OnBoard", "ExtMag"][magState.source]
+             text: UAV.magSourceName()
              anchors.right: parent.right
              color: "white"
              font {
@@ -1253,7 +1235,7 @@ Item {
         }
 
         Text {
-             text: ["Unknown", "NMEA", "UBX", "UBX7", "UBX8", "DJI"][gpsPositionSensor.sensorType]
+             text: UAV.gpsSensorType()
              anchors.right: parent.right
              color: "white"
              font {

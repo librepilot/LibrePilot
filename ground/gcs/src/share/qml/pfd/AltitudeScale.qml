@@ -4,11 +4,14 @@ import UAVTalk.PositionState 1.0
 import UAVTalk.NedAccel 1.0
 import UAVTalk.PathDesired 1.0
 
+import "../common.js" as Utils
+import "../uav.js" as UAV
+
 Item {
     id: sceneItem
     property variant sceneSize
 
-    property real altitude : -qmlWidget.altitudeFactor * positionState.down
+    property real altitude : -qmlWidget.altitudeFactor * UAV.positionStateDown()
 
     SvgElementImage {
         id: altitude_window
@@ -64,7 +67,7 @@ Item {
             elementName: "altitude-vector"
             sceneSize: sceneItem.sceneSize
 
-            height: -nedAccel.down * altitude_scale.height / 10
+            height: -UAV.nedAccelDown() * altitude_scale.height / 10
 
             anchors.left: parent.left
             anchors.bottom: parent.verticalCenter
@@ -74,12 +77,13 @@ Item {
             id: altitude_waypoint
             elementName: "altitude-waypoint"
             sceneSize: sceneItem.sceneSize
-            visible: (pathDesired.endDown != 0.0)
+            visible: (UAV.pathDesiredEndDown() != 0.0)
 
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
 
-            anchors.verticalCenterOffset: -altitude_scale.height / 10 * (positionState.Down - pathDesired.endDown) * qmlWidget.altitudeFactor
+            anchors.verticalCenterOffset: -altitude_scale.height / 10 * 
+                                          (UAV.positionStateDown() - UAV.pathDesiredEndDown()) * qmlWidget.altitudeFactor
         }
     }
 
@@ -101,7 +105,7 @@ Item {
 
         Text {
             id: altitude_text
-            text: "  " +altitude.toFixed(1)
+            text: "  " + altitude.toFixed(1)
             color: "white"
             font {
                 family: pt_bold.name

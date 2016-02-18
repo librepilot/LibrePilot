@@ -2,6 +2,8 @@ import QtQuick 2.4
 
 import UAVTalk.AttitudeState 1.0
 
+import "../uav.js" as UAV
+
 Item {
     id: sceneItem
 
@@ -25,7 +27,7 @@ Item {
 
         // rotate it around the center of horizon
         transform: Rotation {
-            angle: -attitudeState.roll
+            angle: -UAV.attitudeRoll()
             origin.y : rollscale.height * 2.4
             origin.x : rollscale.width / 2
         }

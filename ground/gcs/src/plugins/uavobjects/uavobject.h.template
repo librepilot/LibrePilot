@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       $(NAMELC).h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -36,6 +37,13 @@
 #include "uavdataobject.h"
 
 class UAVObjectManager;
+
+class $(NAME)Constants : public QObject {
+    Q_OBJECT
+public:
+    enum Enum { $(ENUMS_COUNT) };
+    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
+};
 
 $(ENUMS)
 

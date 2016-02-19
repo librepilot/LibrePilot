@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uavobjectparser.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Parses XML files and extracts object information.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -545,7 +546,8 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
                 }
             }
         }
-        if (field->options.length() == 0) {
+        field->numOptions = field->options.size();
+        if (field->numOptions == 0) {
             return QString("Object:field:options attribute/element is missing");
         }
     }

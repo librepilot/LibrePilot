@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uavobjectgeneratorgcs.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      produce gcs code for uavobjects
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -54,6 +55,7 @@ struct Context {
     ObjectInfo *object;
     // enums
     QString    enums;
+    QString    enumsCount;
     QString    registerImpl;
     // interface
     QString    fields;
@@ -222,6 +224,7 @@ QString generate(Context &ctxt, FieldContext &fieldCtxt, const QString &fragment
     str.replace(":fieldLimitValues", fieldCtxt.field->limitValues);
 
     str.replace(":elementCount", QString::number(fieldCtxt.field->numElements));
+    str.replace(":enumCount", QString::number(fieldCtxt.field->numOptions));
 
     return str;
 }
@@ -361,6 +364,8 @@ void generateEnum(Context &ctxt, FieldContext &fieldCtxt)
                            "    enum Enum { %1 };\n"
                            "    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5\n"
                            "};\n\n").arg(enumStringList);
+
+    ctxt.enumsCount   += generate(ctxt, fieldCtxt, ":PropNameCount = :enumCount, ");
 
     ctxt.registerImpl += generate(ctxt, fieldCtxt,
                                   "    qmlRegisterType<:ClassName_:PropName>(\"%1.:ClassName\", 1, 0, \":PropName\");\n").arg("UAVTalk");
@@ -622,6 +627,9 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
     ctxt.registerImpl += ::generate(ctxt,
                                     "    qmlRegisterType<:ClassName>(\"%1.:ClassName\", 1, 0, \":ClassName\");\n").arg("UAVTalk");
 
+    ctxt.registerImpl += ::generate(ctxt,
+                                    "    qmlRegisterType<:ClassNameConstants>(\"%1.:ClassName\", 1, 0, \":ClassNameConstants\");\n").arg("UAVTalk");
+
     for (int n = 0; n < object->fields.length(); ++n) {
         FieldInfo *field = object->fields[n];
 
@@ -664,6 +672,7 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
     }
 
     outInclude.replace("$(ENUMS)", ctxt.enums);
+    outInclude.replace("$(ENUMS_COUNT)", ctxt.enumsCount);
     outInclude.replace("$(DATAFIELDS)", ctxt.fields);
     outInclude.replace("$(DATAFIELDINFO)", ctxt.fieldsInfo);
     outInclude.replace("$(PROPERTIES)", ctxt.properties);

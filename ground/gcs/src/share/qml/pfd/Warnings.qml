@@ -4,6 +4,7 @@ import UAVTalk.SystemSettings 1.0
 import UAVTalk.SystemAlarms 1.0
 import UAVTalk.FlightStatus 1.0
 import UAVTalk.VtolPathFollowerSettings 1.0 as VtolPathFollowerSettings
+import UAVTalk.StabilizationDesired 1.0
 
 import "../common.js" as Utils
 import "../uav.js" as UAV

@@ -70,7 +70,6 @@ function defaultPosition() {
     return Qt.vector3d(qmlWidget.longitude, qmlWidget.latitude, qmlWidget.altitude);
 }
 
-
 /*
  * System
  *
@@ -175,7 +174,6 @@ function receiverQuality() {
 function oplmLinkState() {
     return ["Disabled", "Enabled", "Disconnected", "Connecting", "Connected"][opLinkStatus.linkState];
 }
-
 
 /*
  * Battery
@@ -304,12 +302,15 @@ function flightModeColor() {
 
 function thrustMode() {
     return !isFlightModeAssisted() ? stabilizationDesired.stabilizationModeThrust :
-           (isFlightModeAssisted() && isVtolOrMultirotor() && isVtolPathFollowerSettingsThrustAuto()) ? 12 :
-           (isFlightModeAssisted() && isFixedWing()) ? 12 : 0;
+           (isFlightModeAssisted() && isVtolOrMultirotor() && isVtolPathFollowerSettingsThrustAuto()) ?
+            StabilizationDesiredConstants.StabilizationModeCount : (isFlightModeAssisted() && isFixedWing()) ?
+            StabilizationDesiredConstants.StabilizationModeCount : 0;
 }
 
 function thrustModeName() {
-    return ["MANUAL", " ", " ", " ", " ", " ", " ", " ", " ",
+    // Last "Auto" Thrust mode is added to UAVO enum list
+    // Lower case modes are never displayed/used for Thrust
+    return ["MANUAL", "rate", "ratetrainer", "attitude", "axislock", "weakleveling", "virtualbar", "acro+ ", "rattitude",
             "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrustMode()]
 }
 

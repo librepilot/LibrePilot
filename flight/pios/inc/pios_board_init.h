@@ -1,15 +1,10 @@
 /**
  ******************************************************************************
- * @addtogroup LibrePilotModules LibrePilot Modules
- * @{
- * @addtogroup SystemModule System Module
- * @{
  *
- * @file       systemmod.h
+ * @file       pios_board_init.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      System module
- *
+ * @brief      board initialization prototypes
+ *             --
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -28,9 +23,9 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef SYSTEMMOD_H
-#define SYSTEMMOD_H
+#ifndef PIOS_BOARD_INIT_H
+#define PIOS_BOARD_INIT_H
 
-int32_t SystemModStart(void);
+extern void PIOS_Board_Init(void);
 
-#endif // SYSTEMMOD_H
+#endif /* PIOS_BOARD_INIT_H */

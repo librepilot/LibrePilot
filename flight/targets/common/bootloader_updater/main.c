@@ -30,10 +30,10 @@
 #include <pios_board_info.h>
 #include <stdbool.h>
 #include <pios_bl_helper.h>
+#include <pios_board_init.h>
 
 #define MAX_WRI_RETRYS 3
-/* Prototype of PIOS_Board_Init() function */
-extern void PIOS_Board_Init(void);
+
 extern void FLASH_Download();
 void error(int, int);
 

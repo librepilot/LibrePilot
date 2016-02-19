@@ -34,14 +34,13 @@
 #include "inc/openpilot.h"
 #include <uavobjectsinit.h>
 #include <hwsettings.h>
+#include <pios_board_init.h>
 
 /* Task Priorities */
 #define PRIORITY_TASK_HOOKS (tskIDLE_PRIORITY + 3)
 
 /* Global Variables */
 
-/* Prototype of PIOS_Board_Init() function */
-extern void PIOS_Board_Init(void);
 extern void Stack_Change(void);
 
 /**

@@ -34,9 +34,8 @@
 #include <pios_com_msg.h>
 #include <pios_usbhook.h> /* PIOS_USBHOOK_* */
 #include <stdbool.h>
+#include <pios_board_init.h>
 
-/* Prototype of PIOS_Board_Init() function */
-extern void PIOS_Board_Init(void);
 extern void FLASH_Download();
 #define BSL_HOLD_STATE ((PIOS_USB_DETECT_GPIO_PORT->IDR & PIOS_USB_DETECT_GPIO_PIN) ? 0 : 1)
 

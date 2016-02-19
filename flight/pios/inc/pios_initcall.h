@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_initcall.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015
  * @brief      Initcall header
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -55,6 +56,7 @@ extern volatile int initTaskDone;
 
 extern void InitModules();
 extern void StartModules();
+extern int32_t SystemModInitialize(void);
 
 #define MODULE_INITCALL(ifn, sfn)
 

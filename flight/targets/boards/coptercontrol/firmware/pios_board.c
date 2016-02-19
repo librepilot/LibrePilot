@@ -4,10 +4,9 @@
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
- *
- * @addtogroup OpenPilotSystem OpenPilot System
+ * @addtogroup LibrePilotSystem LibrePilot System
  * @{
- * @addtogroup OpenPilotCore OpenPilot Core
+ * @addtogroup LibrePilotCore LibrePilot Core
  * @{
  * @brief Defines board specific static initializers for hardware for the CopterControl board.
  *****************************************************************************/
@@ -156,9 +155,6 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
 int32_t init_test;
 void PIOS_Board_Init(void)
 {
-    /* Delay system */
-    PIOS_DELAY_Init();
-
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
 
 #if defined(PIOS_INCLUDE_LED)

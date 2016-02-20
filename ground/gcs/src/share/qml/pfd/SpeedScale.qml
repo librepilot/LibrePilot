@@ -64,7 +64,7 @@ Item {
             id: speed_waypoint
             elementName: "speed-waypoint"
             sceneSize: sceneItem.sceneSize
-            visible: UAV.isPathDesiredActive()
+            visible: (UAV.isFlightModeAssisted() && UAV.isPathDesiredActive())
 
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter

@@ -64,7 +64,7 @@ Item {
         rotation: -UAV.attitudeYaw() + UAV.waypointHeading()
         transformOrigin: Item.Center
 
-        visible: UAV.isPathDesiredActive()
+        visible: (UAV.isFlightModeAssisted() && UAV.isPathDesiredActive())
     }
 
     Item {

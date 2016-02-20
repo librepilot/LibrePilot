@@ -73,7 +73,7 @@ Item {
             id: altitude_waypoint
             elementName: "altitude-waypoint"
             sceneSize: sceneItem.sceneSize
-            visible: (UAV.pathDesiredEndDown() != 0.0)
+            visible: (UAV.isFlightModeAssisted() && (UAV.pathDesiredEndDown() != 0.0))
 
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter

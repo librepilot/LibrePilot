@@ -24,7 +24,7 @@ Item {
         y: scaledBounds.y * sceneItem.height
 
         smooth: true
-        visible: ((UAV.velocityDesiredDown() != 0.0) && (UAV.isFlightModeAssisted()))
+        visible: (UAV.isFlightModeAssisted() && (UAV.velocityDesiredDown() != 0.0))
 
         // rotate it around the center
         transform: Rotation {

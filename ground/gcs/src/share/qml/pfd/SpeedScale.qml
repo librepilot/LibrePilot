@@ -1,8 +1,5 @@
 import QtQuick 2.4
 
-import UAVTalk.VelocityState 1.0
-import UAVTalk.PathDesired 1.0
-
 import "../uav.js" as UAV
 
 Item {

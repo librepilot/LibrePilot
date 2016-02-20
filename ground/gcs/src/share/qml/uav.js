@@ -6,7 +6,63 @@
 // Librepilot
 // ***********************
 
+// Settings
+//
+// Control
+.import UAVTalk.VtolPathFollowerSettings 1.0 as VtolPathFollowerSettings
+
+// Navigation
+.import UAVTalk.HomeLocation 1.0 as HomeLocation 
+.import UAVTalk.TakeOffLocation 1.0 as TakeOffLocation
+
+// Sensors
+.import UAVTalk.FlightBatterySettings 1.0 as FlightBatterySettings
+
+// State
+.import UAVTalk.RevoSettings 1.0 as RevoSettings
+
+// System
+.import UAVTalk.HwSettings 1.0 as HwSettings
+.import UAVTalk.SystemSettings 1.0 as SystemSettings
+
+// Data
+//
+// Control
+.import UAVTalk.FlightStatus 1.0 as FlightStatus
+.import UAVTalk.ManualControlCommand 1.0 as ManualControlCommand
+.import UAVTalk.StabilizationDesired 1.0 as StabilizationDesired
+.import UAVTalk.VelocityDesired 1.0 as VelocityDesired
+
+// Navigation
+.import UAVTalk.PathDesired 1.0 as PathDesired
+.import UAVTalk.WaypointActive 1.0 as WaypointActive
+
+// Sensors
+.import UAVTalk.FlightBatteryState 1.0 as FlightBatteryState
+.import UAVTalk.GPSPositionSensor 1.0 as GPSPositionSensor
+.import UAVTalk.GPSSatellites 1.0 as GPSSatellites
+
+// State
+.import UAVTalk.AttitudeState 1.0 as AttitudeState
+.import UAVTalk.MagState 1.0 as MagState
+.import UAVTalk.NedAccel 1.0 as NedAccel
+.import UAVTalk.PositionState 1.0 as PositionState
+.import UAVTalk.VelocityState 1.0 as VelocityState
+
+// System
+.import UAVTalk.OPLinkStatus 1.0 as OPLinkStatus
+.import UAVTalk.ReceiverStatus 1.0 as ReceiverStatus
+.import UAVTalk.SystemAlarms 1.0 as SystemAlarms
+
 Qt.include("common.js")
+
+// End Import
+
+
+/*
+ * State functions
+ *
+*/
 
 function attitude() {
     return Qt.vector3d(attitudeState.pitch, attitudeState.roll, -attitudeState.yaw);
@@ -42,13 +98,13 @@ function nedAccelDown() {
 
 function position() {
     switch(gpsPositionSensor.status) {
-    case Status.Fix2D:
-    case Status.Fix3D:
+    case GPSPositionSensor.Status.Fix2D:
+    case GPSPositionSensor.Status.Fix3D:
         return gpsPosition();
-    case Status.NoFix:
-    case Status.NoGPS:
+    case GPSPositionSensor.Status.NoFix:
+    case GPSPositionSensor.Status.NoGPS:
     default:
-        return (homeLocation.set == Set.True) ? homePosition() : defaultPosition();
+        return (homeLocation.set == HomeLocation.Set.True) ? homePosition() : defaultPosition();
     }
 }
 
@@ -86,16 +142,16 @@ function frameType() {
 }
 
 function isVtolOrMultirotor() {
-    return ((systemSettings.airframeType > AirframeType.FixedWingVtail) &&
-           (systemSettings.airframeType < AirframeType.GroundVehicleCar));
+    return ((systemSettings.airframeType > SystemSettings.AirframeType.FixedWingVtail) &&
+           (systemSettings.airframeType < SystemSettings.AirframeType.GroundVehicleCar));
 }
 
 function isFixedWing() {
-    return (systemSettings.airframeType <= AirframeType.FixedWingVtail);
+    return (systemSettings.airframeType <= SystemSettings.AirframeType.FixedWingVtail);
 }
 
 function isGroundVehicle() {
-    return (systemSettings.airframeType >= AirframeType.GroundVehicleCar);
+    return (systemSettings.airframeType >= SystemSettings.AirframeType.GroundVehicleCar);
 }
 
 function freeMemoryBytes() {
@@ -123,19 +179,27 @@ function flightTimeValue() {
 }
 
 /*
- * Sensor
+ * Sensors
  *
 */
-function isGpsValid() {
-    return (systemAlarms.alarmGPS == Alarm.OK);
+function isAttitudeValid() {
+    return (systemAlarms.alarmAttitude == SystemAlarms.Alarm.OK);
 }
 
-function isAttitudeValid() {
-    return (systemAlarms.alarmAttitude == Alarm.OK);
+function isGpsValid() {
+    return (systemAlarms.alarmGPS == SystemAlarms.Alarm.OK);
+}
+
+function isGpsStatusFix3D() {
+    return (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D);
+}
+
+function isOplmConnected() {
+    return (opLinkStatus.linkState == OPLinkStatus.LinkState.Connected);
 }
 
 function magSourceName() {
-    return [magState.source == Source.Aux ? ["GPSv9", "Flexi", "I2C", "DJI"][auxMagSettings.type] + " " : ""] +
+    return [magState.source == MagState.Source.Aux ? ["GPSv9", "Flexi", "I2C", "DJI"][auxMagSettings.type] + " " : ""] +
            ["Invalid", "OnBoard", "ExtMag"][magState.source];
 }
 
@@ -180,7 +244,7 @@ function oplmLinkState() {
  *
 */
 function batteryModuleEnabled() {
-    return (hwSettings.optionalModulesBattery == OptionalModules.Enabled);
+    return (hwSettings.optionalModulesBattery == HwSettings.OptionalModules.Enabled);
 }
 
 function batteryNbCells() { 
@@ -218,7 +282,7 @@ function estimatedTimeAlarmColor() {
  *
 */
 function isPathPlanValid() {
-    return (systemAlarms.alarmPathPlan == Alarm.OK);
+    return (systemAlarms.alarmPathPlan == SystemAlarms.Alarm.OK);
 }
 
 function isPathDesiredActive() {
@@ -277,11 +341,11 @@ function waypointDistance() {
  *
 */
 function isFlightModeManual() {
-    return (flightStatus.flightMode == FlightMode.Manual);
+    return (flightStatus.flightMode == FlightStatus.FlightMode.Manual);
 }
 
 function isFlightModeAssisted() {
-    return (flightStatus.flightMode > FlightMode.Stabilized6);
+    return (flightStatus.flightMode > FlightStatus.FlightMode.Stabilized6);
 }
 
 function isVtolPathFollowerSettingsThrustAuto() {
@@ -303,8 +367,8 @@ function flightModeColor() {
 function thrustMode() {
     return !isFlightModeAssisted() ? stabilizationDesired.stabilizationModeThrust :
            (isFlightModeAssisted() && isVtolOrMultirotor() && isVtolPathFollowerSettingsThrustAuto()) ?
-            StabilizationDesiredConstants.StabilizationModeCount : (isFlightModeAssisted() && isFixedWing()) ?
-            StabilizationDesiredConstants.StabilizationModeCount : 0;
+            StabilizationDesired.StabilizationDesiredConstants.StabilizationModeCount : (isFlightModeAssisted() && isFixedWing()) ?
+            StabilizationDesired.StabilizationDesiredConstants.StabilizationModeCount : 0;
 }
 
 function thrustModeName() {
@@ -319,6 +383,18 @@ function thrustModeColor() {
             "green", "green", "green", "cyan"][thrustMode()];
 }
 
+function armStatusName() {
+    return ["DISARMED","ARMING","ARMED"][flightStatus.armed];
+}
+
+function armStatusColor() {
+    return ["gray", "orange", "green"][flightStatus.armed];
+}
+
+/*
+ * Alarms
+ *
+*/
 function autopilotStatusColor() {
     return statusColor(systemAlarms.alarmGuidance)
 }
@@ -331,17 +407,11 @@ function statusColor(module) {
     return ["gray", "green", "red", "red", "red"][module];
 }
 
-function armStatusName() {
-    return ["DISARMED","ARMING","ARMED"][flightStatus.armed];
-}
-
-function armStatusColor() {
-    return ["gray", "orange", "green"][flightStatus.armed];
-}
-
 function masterCautionWarning() {
-    return ((systemAlarms.alarmBootFault > Alarm.OK) || (systemAlarms.alarmOutOfMemory > Alarm.OK) ||
-           (systemAlarms.alarmStackOverflow > Alarm.OK) || (systemAlarms.alarmCPUOverload > Alarm.OK) ||
-           (systemAlarms.alarmEventSystem > Alarm.OK))
+    return ((systemAlarms.alarmBootFault > SystemAlarms.Alarm.OK) ||
+           (systemAlarms.alarmOutOfMemory > SystemAlarms.Alarm.OK) ||
+           (systemAlarms.alarmStackOverflow > SystemAlarms.Alarm.OK) ||
+           (systemAlarms.alarmCPUOverload > SystemAlarms.Alarm.OK) ||
+           (systemAlarms.alarmEventSystem > SystemAlarms.Alarm.OK))
 }
 

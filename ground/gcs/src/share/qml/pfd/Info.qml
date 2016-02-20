@@ -1,16 +1,5 @@
 import QtQuick 2.4
 
-import UAVTalk.HwSettings 1.0
-import UAVTalk.SystemAlarms 1.0
-import UAVTalk.VelocityState 1.0
-import UAVTalk.PathDesired 1.0
-import UAVTalk.WaypointActive 1.0
-import UAVTalk.TakeOffLocation 1.0 as TakeOffLocation
-import UAVTalk.GPSPositionSensor 1.0 as GPSPositionSensor
-import UAVTalk.GPSSatellites 1.0
-import UAVTalk.FlightBatterySettings 1.0
-import UAVTalk.FlightBatteryState 1.0
-
 import "../common.js" as Utils
 import "../uav.js" as UAV
 
@@ -195,7 +184,7 @@ Item {
 
         Timer {
             interval: 1000; running: true; repeat: true;
-            onTriggered: { if (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D) compute_distance(positionState.east, positionState.north) }
+            onTriggered: { if (UAV.isGpsStatusFix3D()) compute_distance(positionState.east, positionState.north) }
         }
     }
 
@@ -429,7 +418,7 @@ Item {
 
         Timer {
             interval: 1000; running: true; repeat: true;
-            onTriggered: { if (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D) compute_distance(positionState.east, positionState.north) }
+            onTriggered: { if (UAV.isGpsStatusFix3D()) compute_distance(positionState.east, positionState.north) }
         }
     }
 

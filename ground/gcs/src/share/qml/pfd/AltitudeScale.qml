@@ -1,9 +1,5 @@
 import QtQuick 2.4
 
-import UAVTalk.PositionState 1.0
-import UAVTalk.NedAccel 1.0
-import UAVTalk.PathDesired 1.0
-
 import "../common.js" as Utils
 import "../uav.js" as UAV
 

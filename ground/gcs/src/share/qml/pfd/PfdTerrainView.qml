@@ -2,10 +2,6 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import UAVTalk.AttitudeState 1.0
-import UAVTalk.HomeLocation 1.0
-import UAVTalk.GPSPositionSensor 1.0
-
 import "../common.js" as Utils
 import "../uav.js" as UAV
 

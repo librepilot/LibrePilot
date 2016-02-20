@@ -1,15 +1,5 @@
 import QtQuick 2.0
 
-import UAVTalk.SystemSettings 1.0
-import UAVTalk.RevoSettings 1.0
-import UAVTalk.SystemAlarms 1.0
-import UAVTalk.FlightBatteryState 1.0
-import UAVTalk.GPSPositionSensor 1.0
-import UAVTalk.ManualControlCommand 1.0
-import UAVTalk.MagState 1.0
-import UAVTalk.ReceiverStatus 1.0
-import UAVTalk.OPLinkStatus 1.0
-
 import "../common.js" as Utils
 import "../uav.js" as UAV
 
@@ -91,7 +81,7 @@ Item {
     function telemetry_check() {
        telemetry_sum = opLinkStatus.rxRate + opLinkStatus.txRate
 
-       if (telemetry_sum != telemetry_sum_old || (opLinkStatus.linkState == LinkState.Connected)) {
+       if (telemetry_sum != telemetry_sum_old || UAV.isOplmConnected()) {
            telemetry_link = 1
        } else {
            telemetry_link = 0

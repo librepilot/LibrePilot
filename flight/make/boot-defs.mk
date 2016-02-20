@@ -67,6 +67,11 @@ SRC += $(PIOSCOMMON)/pios_led.c
 SRC += $(FLIGHTLIB)/op_dfu.c
 SRC += $(FLIGHTLIB)/printf-stdarg.c
 
+## CPP support
+ifeq ($(USE_CXX),YES)
+CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
+endif
+
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
 # Use file-extension c for "c-only"-files
 SRCARM +=

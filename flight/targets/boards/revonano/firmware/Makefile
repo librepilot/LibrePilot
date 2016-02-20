@@ -91,7 +91,6 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/plans.c
     SRC += $(FLIGHTLIB)/WorldMagModel.c
     SRC += $(FLIGHTLIB)/insgps13state.c
-    CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
     SRC += $(FLIGHTLIB)/lednotification.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     ## UAVObjects

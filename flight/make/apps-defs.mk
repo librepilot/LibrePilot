@@ -132,6 +132,11 @@ SRC += $(MATHLIB)/butterworth.c
 SRC += $(FLIGHTLIB)/printf-stdarg.c
 SRC += $(FLIGHTLIB)/optypes.c
 
+## CPP support
+ifeq ($(USE_CXX),YES)
+CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
+endif
+
 ## Modules
 SRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c)))
 CPPSRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.cpp)))

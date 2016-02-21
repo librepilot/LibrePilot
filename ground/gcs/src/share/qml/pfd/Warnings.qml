@@ -198,7 +198,7 @@ Item {
         elementName: "warning-gps"
         sceneSize: warnings.sceneSize
 
-        visible: !UAV.isGpsValid()
+        visible: UAV.isGpsNotInitialised() ? false : !UAV.isGpsValid()
     }
 
     SvgElementImage {
@@ -206,6 +206,6 @@ Item {
         elementName: "warning-attitude"
         sceneSize: warnings.sceneSize
         anchors.centerIn: background.centerIn
-        visible: !UAV.isAttitudeValid()
+        visible: UAV.isAttitudeNotInitialised() ? false : !UAV.isAttitudeValid()
     }
 }

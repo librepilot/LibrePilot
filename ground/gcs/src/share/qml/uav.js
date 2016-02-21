@@ -186,8 +186,16 @@ function isAttitudeValid() {
     return (systemAlarms.alarmAttitude == SystemAlarms.Alarm.OK);
 }
 
+function isAttitudeNotInitialised() {
+    return (systemAlarms.alarmAttitude == SystemAlarms.Alarm.Uninitialised);
+}
+
 function isGpsValid() {
     return (systemAlarms.alarmGPS == SystemAlarms.Alarm.OK);
+}
+
+function isGpsNotInitialised() {
+    return (systemAlarms.alarmGPS == SystemAlarms.Alarm.Uninitialised);
 }
 
 function isGpsStatusFix3D() {

@@ -193,6 +193,22 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addWidgetBinding("AttitudeSettings", "BoardRotation", m_ui->yawRotation, AttitudeSettings::BOARDROTATION_YAW);
     addWidgetBinding("AttitudeSettings", "AccelTau", m_ui->accelTau);
 
+    addWidgetBinding("AuxMagSettings", "Usage", m_ui->auxMagUsage, 0, 1, true);
+    addWidgetBinding("AuxMagSettings", "Type", m_ui->auxMagType, 0, 1, true);
+
+    addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagRollRotation, AuxMagSettings::BOARDROTATION_ROLL);
+    addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagPitchRotation, AuxMagSettings::BOARDROTATION_PITCH);
+    addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagYawRotation, AuxMagSettings::BOARDROTATION_YAW);
+
+    connect(MagSensor::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(onBoardAuxMagError()));
+    connect(MagState::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateMagStatus()));
+
+    addWidget(m_ui->internalAuxErrorX);
+    addWidget(m_ui->internalAuxErrorY);
+    addWidget(m_ui->internalAuxErrorZ);
+
+    displayMagError = false;
+
     // Connect the help button
     connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
@@ -449,6 +465,98 @@ void ConfigRevoWidget::enableAllCalibrations()
     m_ui->boardLevelStart->setEnabled(true);
     m_ui->gyroBiasStart->setEnabled(true);
     m_ui->thermalBiasStart->setEnabled(true);
+}
+
+void ConfigRevoWidget::onBoardAuxMagError()
+{
+    magSensor    = MagSensor::GetInstance(getObjectManager());
+    Q_ASSERT(magSensor);
+
+    auxMagSensor = AuxMagSensor::GetInstance(getObjectManager());
+    Q_ASSERT(auxMagSensor);
+
+    if (m_ui->tabWidget->currentIndex() != 2) {
+        // Restore metadata
+        if (displayMagError) {
+            magSensor->setMetadata(metamag.magSensorMetadata);
+            auxMagSensor->setMetadata(metamag.auxMagSensorMetadata);
+            displayMagError = false;
+        }
+        return;
+    }
+
+    if (!displayMagError) {
+        // Store current metadata settings
+        metamag.magSensorMetadata    = magSensor->getMetadata();
+        metamag.auxMagSensorMetadata = auxMagSensor->getMetadata();
+
+        // Apply new rates
+        UAVObject::Metadata mdata = magSensor->getMetadata();
+        UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
+        mdata.flightTelemetryUpdatePeriod = 100;
+        magSensor->setMetadata(mdata);
+
+        mdata = auxMagSensor->getMetadata();
+        UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
+        mdata.flightTelemetryUpdatePeriod = 100;
+        auxMagSensor->setMetadata(mdata);
+
+        displayMagError = true;
+    }
+
+    MagSensor::DataFields magData = magSensor->getData();
+    AuxMagSensor::DataFields auxMagData = auxMagSensor->getData();
+
+    // Smooth Mag readings
+    float alpha     = 0.8f;
+    float inv_alpha = (1.0f - alpha);
+    onboardMag[0] = (onboardMag[0] * alpha) + (magData.x * inv_alpha);
+    onboardMag[1] = (onboardMag[1] * alpha) + (magData.y * inv_alpha);
+    onboardMag[2] = (onboardMag[2] * alpha) + (magData.z * inv_alpha);
+
+    auxMag[0]     = (auxMag[0] * alpha) + (auxMagData.x * inv_alpha);
+    auxMag[1]     = (auxMag[1] * alpha) + (auxMagData.y * inv_alpha);
+    auxMag[2]     = (auxMag[2] * alpha) + (auxMagData.z * inv_alpha);
+
+    // Normalize vectors
+    float magLenght    = sqrt((onboardMag[0] * onboardMag[0]) + (onboardMag[1] * onboardMag[1]) + (onboardMag[2] * onboardMag[2]));
+    float auxMagLenght = sqrt((auxMag[0] * auxMag[0]) + (auxMag[1] * auxMag[1]) + (auxMag[2] * auxMag[2]));
+
+    normalizedMag[0]    = onboardMag[0] / magLenght;
+    normalizedMag[1]    = onboardMag[1] / magLenght;
+    normalizedMag[2]    = onboardMag[2] / magLenght;
+
+    normalizedAuxMag[0] = auxMag[0] / auxMagLenght;
+    normalizedAuxMag[1] = auxMag[1] / auxMagLenght;
+    normalizedAuxMag[2] = auxMag[2] / auxMagLenght;
+
+    // Calc diff and scale
+    float xDiff = (normalizedMag[0] - normalizedAuxMag[0]) * 25.0f;
+    float yDiff = (normalizedMag[1] - normalizedAuxMag[1]) * 25.0f;
+    float zDiff = (normalizedMag[2] - normalizedAuxMag[2]) * 25.0f;
+
+    // Display Mag/AuxMag diff for every axis
+    m_ui->internalAuxErrorX->setValue(xDiff > 50.0f ? 50.0f : xDiff < -50.0f ? -50.0f : xDiff);
+    m_ui->internalAuxErrorY->setValue(yDiff > 50.0f ? 50.0f : yDiff < -50.0f ? -50.0f : yDiff);
+    m_ui->internalAuxErrorZ->setValue(zDiff > 50.0f ? 50.0f : zDiff < -50.0f ? -50.0f : zDiff);
+}
+
+void ConfigRevoWidget::updateMagStatus()
+{
+    magState = MagState::GetInstance(getObjectManager());
+    Q_ASSERT(magState);
+
+    MagState::DataFields magStateData = magState->getData();
+
+    if (magStateData.Source == MagState::SOURCE_INVALID) {
+        m_ui->magStatusSource->setText(tr("Source invalid"));
+    } else if (magStateData.Source == MagState::SOURCE_ONBOARD) {
+        m_ui->magStatusSource->setText(tr("OnBoard mag"));
+    } else if (magStateData.Source == MagState::SOURCE_AUX) {
+        m_ui->magStatusSource->setText(tr("External mag"));
+    } else {
+        m_ui->magStatusSource->setText(tr("Unknown"));
+    }
 }
 
 void ConfigRevoWidget::openHelp()

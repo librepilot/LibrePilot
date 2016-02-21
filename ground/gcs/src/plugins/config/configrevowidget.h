@@ -37,6 +37,11 @@
 #include "calibration/levelcalibrationmodel.h"
 #include "calibration/gyrobiascalibrationmodel.h"
 
+#include <auxmagsettings.h>
+#include <magsensor.h>
+#include <auxmagsensor.h>
+#include <magstate.h>
+
 #include <QWidget>
 #include <QtSvg/QSvgRenderer>
 #include <QtSvg/QGraphicsSvgItem>
@@ -52,6 +57,26 @@ class ConfigRevoWidget : public ConfigTaskWidget {
 public:
     ConfigRevoWidget(QWidget *parent = 0);
     ~ConfigRevoWidget();
+
+    typedef struct {
+        UAVObject::Metadata magSensorMetadata;
+        UAVObject::Metadata auxMagSensorMetadata;
+    } MetaMag;
+
+    MetaMag metamag;
+
+    bool displayMagError;
+
+    AuxMagSettings *auxMagSettings;
+    MagSensor *magSensor;
+    AuxMagSensor *auxMagSensor;
+    MagState *magState;
+
+    float onboardMag[3];
+    float auxMag[3];
+
+    float normalizedMag[3];
+    float normalizedAuxMag[3];
 
 private:
     OpenPilot::SixPointCalibrationModel *m_accelCalibrationModel;
@@ -86,6 +111,9 @@ private slots:
 
     void disableAllCalibrations();
     void enableAllCalibrations();
+
+    void onBoardAuxMagError();
+    void updateMagStatus();
 
     void updateVisualHelp();
     void openHelp();

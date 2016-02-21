@@ -127,15 +127,18 @@ public:
             transform->getOrCreateStateSet()->setMode(GL_RESCALE_NORMAL, osg::StateAttribute::ON);
         }
 
-        // rotate
-        osg::Quat q = osg::Quat(
-            osg::DegreesToRadians(rotate.x()), osg::Vec3d(1, 0, 0),
-            osg::DegreesToRadians(rotate.y()), osg::Vec3d(0, 1, 0),
-            osg::DegreesToRadians(rotate.z()), osg::Vec3d(0, 0, 1));
+        // attitude
+        double roll  = osg::DegreesToRadians(attitude.x());
+        double pitch = osg::DegreesToRadians(attitude.y());
+        double yaw   = osg::DegreesToRadians(attitude.z());
+        osg::Quat q  = osg::Quat(
+            roll, osg::Vec3d(0, 1, 0),
+            pitch, osg::Vec3d(1, 0, 0),
+            yaw, osg::Vec3d(0, 0, -1));
         transform->setAttitude(q);
 
-        // translate
-        transform->setPosition(osg::Vec3d(translate.x(), translate.y(), translate.z()));
+        // position
+        transform->setPosition(osg::Vec3d(position.x(), position.y(), position.z()));
     }
 
     OSGTransformNode *const self;
@@ -147,8 +150,8 @@ public:
     bool dirty;
 
     QVector3D scale;
-    QVector3D rotate;
-    QVector3D translate;
+    QVector3D attitude;
+    QVector3D position;
 
 private slots:
 
@@ -203,31 +206,31 @@ void OSGTransformNode::setScale(QVector3D arg)
     }
 }
 
-QVector3D OSGTransformNode::rotate() const
+QVector3D OSGTransformNode::attitude() const
 {
-    return h->rotate;
+    return h->attitude;
 }
 
-void OSGTransformNode::setRotate(QVector3D arg)
+void OSGTransformNode::setAttitude(QVector3D arg)
 {
-    if (h->rotate != arg) {
-        h->rotate = arg;
-        h->dirty  = true;
-        emit rotateChanged(rotate());
+    if (h->attitude != arg) {
+        h->attitude = arg;
+        h->dirty    = true;
+        emit attitudeChanged(attitude());
     }
 }
 
-QVector3D OSGTransformNode::translate() const
+QVector3D OSGTransformNode::position() const
 {
-    return h->translate;
+    return h->position;
 }
 
-void OSGTransformNode::setTranslate(QVector3D arg)
+void OSGTransformNode::setPosition(QVector3D arg)
 {
-    if (h->translate != arg) {
-        h->translate = arg;
-        h->dirty     = true;
-        emit translateChanged(translate());
+    if (h->position != arg) {
+        h->position = arg;
+        h->dirty    = true;
+        emit positionChanged(position());
     }
 }
 } // namespace osgQtQuick

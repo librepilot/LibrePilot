@@ -47,8 +47,7 @@ Item {
         OSGTransformNode {
             id: transformNode
             modelData: fileNode
-            rotate: Qt.vector3d(UAV.attitudePitch(), UAV.attitudeRoll(), -UAV.attitudeYaw())
-            //scale: Qt.vector3d(0.001, 0.001, 0.001)
+            attitude: UAV.attitude()
         }
 
         OSGFileNode {

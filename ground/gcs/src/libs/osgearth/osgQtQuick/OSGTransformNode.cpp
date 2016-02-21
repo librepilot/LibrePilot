@@ -167,7 +167,6 @@ private slots:
 void OSGTransformNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
     h->updateNode();
-    traverse(node, nv);
 }
 
 OSGTransformNode::OSGTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))

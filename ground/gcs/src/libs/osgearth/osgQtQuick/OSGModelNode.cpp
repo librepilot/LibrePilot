@@ -272,7 +272,6 @@ private slots:
 void OSGModelNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
     h->updateNode();
-    traverse(node, nv);
 }
 
 OSGModelNode::OSGModelNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))

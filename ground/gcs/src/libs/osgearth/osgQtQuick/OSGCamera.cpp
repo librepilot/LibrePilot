@@ -458,7 +458,6 @@ private slots:
 void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
     h->updateCamera();
-    // traverse(node, nv);
 }
 
 /* class OSGCamera */

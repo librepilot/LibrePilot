@@ -1,9 +1,6 @@
 import QtQuick 2.4
 
-import UAVTalk.AttitudeState 1.0
-import UAVTalk.PositionState 1.0
-import UAVTalk.PathDesired 1.0
-import UAVTalk.TakeOffLocation 1.0
+import "../uav.js" as UAV
 
 Item {
     id: sceneItem
@@ -36,7 +33,7 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        rotation: -attitudeState.yaw
+        rotation: -UAV.attitudeYaw()
         transformOrigin: Item.Center
     }
 
@@ -49,12 +46,10 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        property real home_degrees: 180 / 3.1415 * Math.atan2(takeOffLocation.east - positionState.east, takeOffLocation.north - positionState.north)
-
-        rotation: -attitudeState.yaw + home_degrees
+        rotation: -UAV.attitudeYaw() + UAV.homeHeading()
         transformOrigin: Item.Bottom
 
-        visible: (takeOffLocation.status == Status.Valid)
+        visible: UAV.isTakeOffLocationValid()
     }
 
     SvgElementImage {
@@ -66,12 +61,10 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        property real course_degrees: 180 / 3.1415 * Math.atan2(pathDesired.endEast - positionState.east, pathDesired.endNorth - positionState.north)
-
-        rotation: -attitudeState.yaw + course_degrees
+        rotation: -UAV.attitudeYaw() + UAV.waypointHeading()
         transformOrigin: Item.Center
 
-        visible: ((pathDesired.endEast != 0.0) && (pathDesired.endNorth != 0.0))
+        visible: (UAV.isFlightModeAssisted() && UAV.isPathDesiredActive())
     }
 
     Item {
@@ -86,7 +79,7 @@ Item {
 
         Text {
             id: compass_text
-            text: Math.floor(attitudeState.yaw).toFixed()
+            text: Math.floor(UAV.attitudeYaw()).toFixed()
             color: "white"
             font {
                 family: pt_bold.name

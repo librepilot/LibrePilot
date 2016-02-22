@@ -2,10 +2,7 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import UAVTalk.AttitudeState 1.0
-import UAVTalk.HomeLocation 1.0
-import UAVTalk.GPSPositionSensor 1.0
-
+import "../common.js" as Utils
 import "../uav.js" as UAV
 
 OSGViewport {
@@ -17,18 +14,8 @@ OSGViewport {
     OSGSkyNode {
         id: skyNode
         sceneData: sceneGroup
-        dateTime: getDateTime()
+        dateTime: Utils.getDateTime()
         minimumAmbientLight: qmlWidget.minimumAmbientLight
-
-        function getDateTime() {
-            switch(qmlWidget.timeMode) {
-            case TimeMode.Local:
-                return new Date();
-            case TimeMode.Predefined:
-                return qmlWidget.dateTime;
-            }
-        }
-
     }
 
     OSGGroup {

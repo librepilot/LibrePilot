@@ -2,10 +2,7 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import UAVTalk.AttitudeState 1.0
-import UAVTalk.HomeLocation 1.0
-import UAVTalk.GPSPositionSensor 1.0
-
+import "../common.js" as Utils
 import "../uav.js" as UAV
 
 OSGViewport {
@@ -27,19 +24,8 @@ OSGViewport {
     OSGSkyNode {
         id: skyNode
         sceneData: terrainNode
-        dateTime: getDateTime()
+        dateTime: Utils.getDateTime()
         minimumAmbientLight: qmlWidget.minimumAmbientLight
-
-        // MOVE...
-        function getDateTime() {
-            switch(qmlWidget.timeMode) {
-            case TimeMode.Local:
-                return new Date();
-            case TimeMode.Predefined:
-                return qmlWidget.dateTime;
-            }
-        }
-
     }
 
     OSGFileNode {
@@ -82,10 +68,10 @@ OSGViewport {
                 id: pitchTranslate
                 x: Math.round((world.parent.width - world.width)/2)
                 // y is centered around world_center element
-                y: Math.round(horizontCenter - world.height / 2 + attitudeState.pitch * world.pitch1DegHeight)
+                y: Math.round(horizontCenter - world.height / 2 + UAV.attitudePitch() * world.pitch1DegHeight)
             },
             Rotation {
-                angle: -attitudeState.roll
+                angle: -UAV.attitudeRoll()
                 origin.x : world.parent.width / 2
                 origin.y : horizontCenter
             }
@@ -102,7 +88,7 @@ OSGViewport {
         width: Math.floor(scaledBounds.width * sceneItem.width)
         height: Math.floor(scaledBounds.height * sceneItem.height)
 
-        rotation: -attitudeState.roll
+        rotation: -UAV.attitudeRoll()
         transformOrigin: Item.Center
 
         smooth: true
@@ -132,7 +118,7 @@ OSGViewport {
             sceneSize: background.sceneSize
             anchors.centerIn: parent
 
-            anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
+            anchors.verticalCenterOffset: UAV.attitudePitch() * world.pitch1DegHeight
             border: 1
             smooth: true
        }
@@ -143,7 +129,7 @@ OSGViewport {
 
             sceneSize: background.sceneSize
             anchors.centerIn: parent
-            anchors.verticalCenterOffset: attitudeState.pitch * world.pitch1DegHeight
+            anchors.verticalCenterOffset: UAV.attitudePitch() * world.pitch1DegHeight
             border: 1
             smooth: true
        }

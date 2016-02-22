@@ -309,6 +309,7 @@ void PfdQmlContext::apply(QQmlContext *context)
         "SystemSettings" <<
         "RevoSettings" <<
         "MagState" <<
+        "AuxMagSettings" <<
         "FlightBatterySettings" <<
         "FlightBatteryState" <<
         "ReceiverStatus";

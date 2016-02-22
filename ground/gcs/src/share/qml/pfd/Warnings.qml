@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The LibrePilot Project
+ * Copyright (C) 2016 The LibrePilot Project
  * Contact: http://www.librepilot.org
  *
  * This file is part of LibrePilot GCS.

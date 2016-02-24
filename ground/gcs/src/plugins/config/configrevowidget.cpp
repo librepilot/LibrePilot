@@ -60,6 +60,8 @@
 
 // #define DEBUG
 
+#define MAG_ALARM_THRESHOLD 20
+
 // Uncomment this to enable 6 point calibration on the accels
 #define NOISE_SAMPLES 50
 
@@ -406,6 +408,7 @@ void ConfigRevoWidget::refreshWidgetsValues(UAVObject *object)
     m_ui->beBox->setText(beStr);
 
     getMagBeVector();
+    onBoardAuxMagError();
 }
 
 void ConfigRevoWidget::updateObjectsFromWidgets()
@@ -517,59 +520,66 @@ void ConfigRevoWidget::onBoardAuxMagError()
     onboardMag[1] = magData.y;
     onboardMag[2] = magData.z;
 
-    auxMag[0]     = auxMagData.x;
-    auxMag[1]     = auxMagData.y;
-    auxMag[2]     = auxMagData.z;
-
     float normalizedMag[3];
     float normalizedAuxMag[3];
+    float xDiff     = 0.0f;
+    float yDiff     = 0.0f;
+    float zDiff     = 0.0f;
 
     // Smooth Mag readings
     float alpha     = 0.8f;
     float inv_alpha = (1.0f - alpha);
-
+    // OnBoard mag
     onboardMagFiltered[0] = (onboardMagFiltered[0] * alpha) + (onboardMag[0] * inv_alpha);
     onboardMagFiltered[1] = (onboardMagFiltered[1] * alpha) + (onboardMag[1] * inv_alpha);
     onboardMagFiltered[2] = (onboardMagFiltered[2] * alpha) + (onboardMag[2] * inv_alpha);
 
-    auxMagFiltered[0]     = (auxMagFiltered[0] * alpha) + (auxMag[0] * inv_alpha);
-    auxMagFiltered[1]     = (auxMagFiltered[1] * alpha) + (auxMag[1] * inv_alpha);
-    auxMagFiltered[2]     = (auxMagFiltered[2] * alpha) + (auxMag[2] * inv_alpha);
+    // Normalize vector
+    float magLenght = sqrt((onboardMagFiltered[0] * onboardMagFiltered[0]) +
+                           (onboardMagFiltered[1] * onboardMagFiltered[1]) +
+                           (onboardMagFiltered[2] * onboardMagFiltered[2]));
 
-    // Normalize vectors
-    float magLenght    = sqrt((onboardMagFiltered[0] * onboardMagFiltered[0]) +
-                              (onboardMagFiltered[1] * onboardMagFiltered[1]) +
-                              (onboardMagFiltered[2] * onboardMagFiltered[2]));
-    float auxMagLenght = sqrt((auxMagFiltered[0] * auxMagFiltered[0]) +
-                              (auxMagFiltered[1] * auxMagFiltered[1]) +
-                              (auxMagFiltered[2] * auxMagFiltered[2]));
+    normalizedMag[0] = onboardMagFiltered[0] / magLenght;
+    normalizedMag[1] = onboardMagFiltered[1] / magLenght;
+    normalizedMag[2] = onboardMagFiltered[2] / magLenght;
 
+    if (auxMagData.Status > AuxMagSensor::STATUS_NONE) {
+        auxMag[0] = auxMagData.x;
+        auxMag[1] = auxMagData.y;
+        auxMag[2] = auxMagData.z;
 
-    normalizedMag[0]    = onboardMagFiltered[0] / magLenght;
-    normalizedMag[1]    = onboardMagFiltered[1] / magLenght;
-    normalizedMag[2]    = onboardMagFiltered[2] / magLenght;
+        auxMagFiltered[0] = (auxMagFiltered[0] * alpha) + (auxMag[0] * inv_alpha);
+        auxMagFiltered[1] = (auxMagFiltered[1] * alpha) + (auxMag[1] * inv_alpha);
+        auxMagFiltered[2] = (auxMagFiltered[2] * alpha) + (auxMag[2] * inv_alpha);
 
-    normalizedAuxMag[0] = auxMagFiltered[0] / auxMagLenght;
-    normalizedAuxMag[1] = auxMagFiltered[1] / auxMagLenght;
-    normalizedAuxMag[2] = auxMagFiltered[2] / auxMagLenght;
+        // Normalize vector
+        float auxMagLenght = sqrt((auxMagFiltered[0] * auxMagFiltered[0]) +
+                                  (auxMagFiltered[1] * auxMagFiltered[1]) +
+                                  (auxMagFiltered[2] * auxMagFiltered[2]));
 
-    // Calc diff and scale
-    float xDiff = (normalizedMag[0] - normalizedAuxMag[0]) * 25.0f;
-    float yDiff = (normalizedMag[1] - normalizedAuxMag[1]) * 25.0f;
-    float zDiff = (normalizedMag[2] - normalizedAuxMag[2]) * 25.0f;
+        normalizedAuxMag[0] = auxMagFiltered[0] / auxMagLenght;
+        normalizedAuxMag[1] = auxMagFiltered[1] / auxMagLenght;
+        normalizedAuxMag[2] = auxMagFiltered[2] / auxMagLenght;
+
+        // Calc diff and scale
+        xDiff = (normalizedMag[0] - normalizedAuxMag[0]) * 25.0f;
+        yDiff = (normalizedMag[1] - normalizedAuxMag[1]) * 25.0f;
+        zDiff = (normalizedMag[2] - normalizedAuxMag[2]) * 25.0f;
+    } else {
+        auxMag[0] = auxMag[1] = auxMag[2] = 0.0f;
+        auxMagFiltered[0] = auxMagFiltered[1] = auxMagFiltered[2] = 0.0f;
+    }
 
     // Display Mag/AuxMag diff for every axis
     m_ui->internalAuxErrorX->setValue(xDiff > 50.0f ? 50.0f : xDiff < -50.0f ? -50.0f : xDiff);
     m_ui->internalAuxErrorY->setValue(yDiff > 50.0f ? 50.0f : yDiff < -50.0f ? -50.0f : yDiff);
     m_ui->internalAuxErrorZ->setValue(zDiff > 50.0f ? 50.0f : zDiff < -50.0f ? -50.0f : zDiff);
 
-    updateMagAlarm(getMagError(onboardMag), getMagError(auxMag));
+    updateMagAlarm(getMagError(onboardMag), (auxMagData.Status == AuxMagSensor::STATUS_NONE) ? -1.0f : getMagError(auxMag));
 }
 
 void ConfigRevoWidget::updateMagAlarm(float errorMag, float errorAuxMag)
 {
-    #define ALARM_THRESHOLD 20
-
     RevoSettings *revoSettings = RevoSettings::GetInstance(getObjectManager());
     Q_ASSERT(revoSettings);
     RevoSettings::DataFields revoSettingsData = revoSettings->getData();
@@ -585,38 +595,43 @@ void ConfigRevoWidget::updateMagAlarm(float errorMag, float errorAuxMag)
 
     if (errorMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_ERROR]) {
         magErrorCount = 0;
-        if (magWarningCount > ALARM_THRESHOLD) {
+        if (magWarningCount > MAG_ALARM_THRESHOLD) {
             bgColorMag = "orange";
         } else {
             magWarningCount++;
         }
     }
 
-    if (magErrorCount > ALARM_THRESHOLD) {
+    if (magErrorCount > MAG_ALARM_THRESHOLD) {
         bgColorMag = "red";
     } else {
         magErrorCount++;
     }
 
-    // External Mag
-    if (errorAuxMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_WARNING]) {
-        auxMagWarningCount = 0;
-        auxMagErrorCount   = 0;
-    }
-
-    if (errorAuxMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_ERROR]) {
-        auxMagErrorCount = 0;
-        if (auxMagWarningCount > ALARM_THRESHOLD) {
-            bgColorAuxMag = "orange";
-        } else {
-            auxMagWarningCount++;
+    // Auxiliary Mag
+    if (errorAuxMag > -1.0f) {
+        if (errorAuxMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_WARNING]) {
+            auxMagWarningCount = 0;
+            auxMagErrorCount   = 0;
         }
-    }
 
-    if (auxMagErrorCount > ALARM_THRESHOLD) {
-        bgColorAuxMag = "red";
+        if (errorAuxMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_ERROR]) {
+            auxMagErrorCount = 0;
+            if (auxMagWarningCount > MAG_ALARM_THRESHOLD) {
+                bgColorAuxMag = "orange";
+            } else {
+                auxMagWarningCount++;
+            }
+        }
+
+        if (auxMagErrorCount > MAG_ALARM_THRESHOLD) {
+            bgColorAuxMag = "red";
+        } else {
+            auxMagErrorCount++;
+        }
     } else {
-        auxMagErrorCount++;
+        // Disable aux mag alarm
+        bgColorAuxMag = "grey";
     }
 
     m_ui->onBoardMagStatus->setStyleSheet(
@@ -659,12 +674,16 @@ void ConfigRevoWidget::updateMagStatus()
 
     if (magStateData.Source == MagState::SOURCE_INVALID) {
         m_ui->magStatusSource->setText(tr("Source invalid"));
+        m_ui->magStatusSource->setToolTip(tr("Currently no attitude estimation algorithm uses magnetometer or there is something wrong"));
     } else if (magStateData.Source == MagState::SOURCE_ONBOARD) {
-        m_ui->magStatusSource->setText(tr("OnBoard mag"));
+        m_ui->magStatusSource->setText(tr("OnBoard magnetometer"));
+        m_ui->magStatusSource->setToolTip("");
     } else if (magStateData.Source == MagState::SOURCE_AUX) {
-        m_ui->magStatusSource->setText(tr("External mag"));
+        m_ui->magStatusSource->setText(tr("Auxiliary magnetometer"));
+        m_ui->magStatusSource->setToolTip("");
     } else {
         m_ui->magStatusSource->setText(tr("Unknown"));
+        m_ui->magStatusSource->setToolTip("");
     }
 }
 

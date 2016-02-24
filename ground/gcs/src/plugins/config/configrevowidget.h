@@ -74,9 +74,14 @@ public:
 
     float onboardMag[3];
     float auxMag[3];
+    float onboardMagFiltered[3];
+    float auxMagFiltered[3];
+    float magBe[3];
 
-    float normalizedMag[3];
-    float normalizedAuxMag[3];
+    int magWarningCount;
+    int magErrorCount;
+    int auxMagWarningCount;
+    int auxMagErrorCount;
 
 private:
     OpenPilot::SixPointCalibrationModel *m_accelCalibrationModel;
@@ -114,6 +119,10 @@ private slots:
 
     void onBoardAuxMagError();
     void updateMagStatus();
+    void getMagBeVector();
+    void updateMagAlarm(float errorMag, float errorAuxMag);
+
+    float getMagError(float mag[3]);
 
     void updateVisualHelp();
     void openHelp();

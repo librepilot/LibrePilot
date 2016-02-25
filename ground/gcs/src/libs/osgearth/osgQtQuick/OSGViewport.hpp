@@ -75,8 +75,8 @@ public:
     virtual Renderer *createRenderer() const;
     virtual void releaseResources();
 
-    virtual bool attach(osgViewer::View *view);
-    virtual bool detach(osgViewer::View *view);
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 
 signals:
     void updateModeChanged(UpdateMode::Enum mode);

@@ -85,17 +85,12 @@ public:
         }
 
         osg::Transform *transform = getOrCreateTransform();
-        if (!transform) {
-            qWarning() << "OSGTransformNode::acceptNode - transform is null";
-            return false;
-        }
 
         transform->addChild(node);
 
         self->setNode(transform);
 
         dirty = true;
-        updateNode();
 
         return true;
     }
@@ -230,6 +225,23 @@ void OSGTransformNode::setPosition(QVector3D arg)
         h->position = arg;
         h->dirty    = true;
         emit positionChanged(position());
+    }
+}
+
+void OSGTransformNode::attach(osgViewer::View *view)
+{
+    // qDebug() << "OSGTransformNode::attach " << view;
+    if (h->modelData) {
+        h->modelData->attach(view);
+    }
+    h->updateNode();
+}
+
+void OSGTransformNode::detach(osgViewer::View *view)
+{
+    // qDebug() << "OSGTransformNode::detach " << view;
+    if (h->modelData) {
+        h->modelData->detach(view);
     }
 }
 } // namespace osgQtQuick

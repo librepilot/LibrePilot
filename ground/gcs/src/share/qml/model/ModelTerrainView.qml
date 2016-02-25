@@ -61,9 +61,9 @@ OSGViewport {
 
     OSGTransformNode {
         id: modelTransformNode
+        modelData: modelFileNode
         // model dimensions are in mm, scale to meters
         scale: Qt.vector3d(0.001, 0.001, 0.001)
-        modelData: modelFileNode
     }
 
     OSGFileNode {

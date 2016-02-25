@@ -45,6 +45,9 @@ public:
 
     QQmlListProperty<OSGNode> children();
 
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
+
 private:
     struct Hidden;
     Hidden *h;

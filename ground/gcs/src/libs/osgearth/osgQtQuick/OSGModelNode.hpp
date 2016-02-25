@@ -72,8 +72,8 @@ public:
     QVector3D position() const;
     void setPosition(QVector3D arg);
 
-    virtual bool attach(osgViewer::View *view);
-    virtual bool detach(osgViewer::View *view);
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 
 signals:
     void modelDataChanged(OSGNode *node);

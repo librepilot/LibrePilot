@@ -152,37 +152,32 @@ public:
         return true;
     }
 
-    bool attach(osgViewer::View *view)
+    void attach(osgViewer::View *view)
     {
         if (!sceneData) {
             qWarning() << "OSGViewport::attach - invalid scene!";
-            return false;
+            return;
         }
         // attach scene
-        if (!attach(view, sceneData->node())) {
-            qWarning() << "OSGViewport::attach - failed to attach node!";
-            return false;
-        }
+        attach(view, sceneData->node());
         // attach camera
         if (camera) {
             camera->attach(view);
         } else {
             qWarning() << "OSGViewport::attach - no camera!";
         }
-        return true;
     }
 
-    bool attach(osgViewer::View *view, osg::Node *node)
+    void attach(osgViewer::View *view, osg::Node *node)
     {
-        qDebug() << "OSGViewport::attach" << node;
         if (!view) {
             qWarning() << "OSGViewport::attach - view is null";
-            return false;
+            return;
         }
         if (!node) {
             qWarning() << "OSGViewport::attach - node is null";
             view->setSceneData(NULL);
-            return true;
+            return;
         }
 
 #ifdef USE_OSGEARTH
@@ -199,17 +194,16 @@ public:
 
         qDebug() << "OSGViewport::attach - set scene" << node;
         view->setSceneData(node);
-
-        return true;
     }
 
-    bool detach(osgViewer::View *view)
+    void detach(osgViewer::View *view)
     {
-        qDebug() << "OSGViewport::detach" << view;
+        // detach camera
         if (camera) {
             camera->detach(view);
         }
-        return true;
+        // detach scene
+        view->setSceneData(NULL);
     }
 
     void onSceneGraphInitialized()
@@ -543,6 +537,7 @@ public:
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
     {
         QOpenGLFramebufferObjectFormat format;
+
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         // format.setSamples(4);
 
@@ -640,41 +635,22 @@ QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
     return new ViewportRenderer(h);
 }
 
-bool OSGViewport::attach(osgViewer::View *view)
+void OSGViewport::attach(osgViewer::View *view)
 {
-    qDebug() << "OSGViewport::attach" << view;
-
-    h->attach(view);
-
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        QObject *object = i.next();
-        OSGNode *node   = qobject_cast<OSGNode *>(object);
-        if (node) {
-            qDebug() << "OSGViewport::attach - child" << node;
-            node->attach(view);
-        }
+    // qDebug() << "OSGViewport::attach" << view;
+    if (h->sceneData) {
+        h->sceneData->attach(view);
     }
-
-    return true;
+    h->attach(view);
 }
 
-bool OSGViewport::detach(osgViewer::View *view)
+void OSGViewport::detach(osgViewer::View *view)
 {
     qDebug() << "OSGViewport::detach" << view;
-
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        QObject *object = i.next();
-        OSGNode *node   = qobject_cast<OSGNode *>(object);
-        if (node) {
-            node->detach(view);
-        }
-    }
-
     h->detach(view);
-
-    return true;
+    if (h->sceneData) {
+        h->sceneData->detach(view);
+    }
 }
 
 void OSGViewport::releaseResources()

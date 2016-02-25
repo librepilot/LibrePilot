@@ -123,27 +123,10 @@ public:
         }
         modelNode->addUpdateCallback(nodeUpdateCallback.get());
 
-        // get "size" of model
-        osg::ComputeBoundsVisitor cbv;
-        modelNode->accept(cbv);
-        const osg::BoundingBox & bbox = cbv.getBoundingBox();
-        offset = bbox.radius();
-
         self->setNode(modelNode);
 
         dirty = true;
 
-        return true;
-    }
-
-    bool attach(osgViewer::View *view)
-    {
-        return true;
-    }
-
-    bool detach(osgViewer::View *view)
-    {
-        qWarning() << "OSGModelNode::detach - not implemented";
         return true;
     }
 
@@ -183,6 +166,14 @@ public:
         if (clampToTerrain) {
             osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
             if (mapNode) {
+                // get "size" of model
+                // TODO this should be done once only...
+                osg::ComputeBoundsVisitor cbv;
+                modelNode->accept(cbv);
+                const osg::BoundingBox & bbox = cbv.getBoundingBox();
+                offset = bbox.radius();
+
+                // clamp model to terrain if needed
                 intoTerrain = clampGeoPoint(geoPoint, offset, mapNode);
             } else {
                 qWarning() << "OSGModelNode::updateNode - scene data does not contain a map node";
@@ -355,14 +346,21 @@ void OSGModelNode::setPosition(QVector3D arg)
     }
 }
 
-bool OSGModelNode::attach(osgViewer::View *view)
+void OSGModelNode::attach(osgViewer::View *view)
 {
-    return h->attach(view);
+    // qDebug() << "OSGModelNode::attach " << view;
+    if (h->modelData) {
+        h->modelData->attach(view);
+    }
+    h->updateNode();
 }
 
-bool OSGModelNode::detach(osgViewer::View *view)
+void OSGModelNode::detach(osgViewer::View *view)
 {
-    return h->detach(view);
+    // qDebug() << "OSGModelNode::detach " << view;
+    if (h->modelData) {
+        h->modelData->detach(view);
+    }
 }
 } // namespace osgQtQuick
 

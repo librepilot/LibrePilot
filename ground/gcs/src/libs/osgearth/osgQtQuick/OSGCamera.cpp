@@ -165,20 +165,6 @@ public:
         return true;
     }
 
-    bool attach(osgViewer::View *view)
-    {
-        attachCamera(view->getCamera());
-        attachManipulator(view);
-        return true;
-    }
-
-    bool detach(osgViewer::View *view)
-    {
-        detachManipulator(view);
-        detachCamera(view->getCamera());
-        return true;
-    }
-
     void attachCamera(osg::Camera *camera)
     {
         qDebug() << "OSGCamera::attach" << camera;
@@ -269,8 +255,7 @@ public:
             qDebug() << "OSGCamera::attachManipulator - use NodeTrackerManipulator";
             if (trackNode && trackNode->node()) {
                 // setup tracking camera
-                // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
-                // TODO who takes ownership?
+                // TODO when camera is thrown, then changing attitude has jitter
                 osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
                     /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
                 switch (trackerMode) {
@@ -608,14 +593,16 @@ void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
     }
 }
 
-bool OSGCamera::attach(osgViewer::View *view)
+void OSGCamera::attach(osgViewer::View *view)
 {
-    return h->attach(view);
+    h->attachCamera(view->getCamera());
+    h->attachManipulator(view);
 }
 
-bool OSGCamera::detach(osgViewer::View *view)
+void OSGCamera::detach(osgViewer::View *view)
 {
-    return h->detach(view);
+    h->detachCamera(view->getCamera());
+    h->detachManipulator(view);
 }
 } // namespace osgQtQuick
 

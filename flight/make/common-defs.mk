@@ -234,43 +234,43 @@ endif
 
 # Generate code for PyMite
 # $(OUTDIR)/pmlib_img.c $(OUTDIR)/pmlib_nat.c $(OUTDIR)/pmlibusr_img.c $(OUTDIR)/pmlibusr_nat.c $(OUTDIR)/pmfeatures.h: $(wildcard $(PYMITELIB)/*.py) $(wildcard $(PYMITEPLAT)/*.py) $(wildcard $(FLIGHTPLANLIB)/*.py) $(wildcard $(FLIGHTPLANS)/*.py)
-#	@echo $(MSG_PYMITEINIT) $(call toprel, $@)
+#	@echo $(MSG_PYMITEINIT) $(call toprel,$@)
 #	@$(PYTHON) $(PYMITETOOLS)/pmImgCreator.py -f $(PYMITEPLAT)/pmfeatures.py -c -s --memspace=flash -o $(OUTDIR)/pmlib_img.c --native-file=$(OUTDIR)/pmlib_nat.c $(PYMITELIB)/list.py $(PYMITELIB)/dict.py $(PYMITELIB)/__bi.py $(PYMITELIB)/sys.py $(PYMITELIB)/string.py $(wildcard $(FLIGHTPLANLIB)/*.py)
 #	@$(PYTHON) $(PYMITETOOLS)/pmGenPmFeatures.py $(PYMITEPLAT)/pmfeatures.py > $(OUTDIR)/pmfeatures.h
 #	@$(PYTHON) $(PYMITETOOLS)/pmImgCreator.py -f $(PYMITEPLAT)/pmfeatures.py -c -u -o $(OUTDIR)/pmlibusr_img.c --native-file=$(OUTDIR)/pmlibusr_nat.c $(FLIGHTPLANS)/test.py
 
 # Link: create ELF output file from object files.
 ifeq ($(USE_CXX), YES)
-$(eval $(call LINK_CXX_TEMPLATE, $(OUTDIR)/$(TARGET).elf, $(ALLOBJ), $(ALLLIB)))
+$(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ),$(ALLLIB)))
 else
-$(eval $(call LINK_TEMPLATE, $(OUTDIR)/$(TARGET).elf, $(ALLOBJ), $(ALLLIB)))
+$(eval $(call LINK_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ),$(ALLLIB)))
 endif
 
 # Assemble: create object files from assembler source files.
-$(foreach src, $(ASRC), $(eval $(call ASSEMBLE_TEMPLATE, $(src))))
+$(foreach src, $(ASRC), $(eval $(call ASSEMBLE_TEMPLATE,$(src))))
 
 # Assemble: create object files from assembler source files. ARM-only
-$(foreach src, $(ASRCARM), $(eval $(call ASSEMBLE_ARM_TEMPLATE, $(src))))
+$(foreach src, $(ASRCARM), $(eval $(call ASSEMBLE_ARM_TEMPLATE,$(src))))
 
 # Compile: create object files from C source files.
-$(foreach src, $(SRC), $(eval $(call COMPILE_C_TEMPLATE, $(src))))
+$(foreach src, $(SRC), $(eval $(call COMPILE_C_TEMPLATE,$(src))))
 
 # Compile: create object files from C source files. ARM-only
-$(foreach src, $(SRCARM), $(eval $(call COMPILE_C_ARM_TEMPLATE, $(src))))
+$(foreach src, $(SRCARM), $(eval $(call COMPILE_C_ARM_TEMPLATE,$(src))))
 
 ifeq ($(USE_CXX), YES)
 # Compile: create object files from C++ source files.
-$(foreach src, $(CPPSRC), $(eval $(call COMPILE_CXX_TEMPLATE, $(src))))
+$(foreach src, $(CPPSRC), $(eval $(call COMPILE_CXX_TEMPLATE,$(src))))
 
 # Compile: create object files from C++ source files. ARM-only
-$(foreach src, $(CPPSRCARM), $(eval $(call COMPILE_CXX_ARM_TEMPLATE, $(src))))
+$(foreach src, $(CPPSRCARM), $(eval $(call COMPILE_CXX_ARM_TEMPLATE,$(src))))
 endif
 
 # Compile: create assembler files from C source files. ARM/Thumb
-$(eval $(call PARTIAL_COMPILE_TEMPLATE, SRC))
+$(eval $(call PARTIAL_COMPILE_TEMPLATE,SRC))
 
 # Compile: create assembler files from C source files. ARM only
-$(eval $(call PARTIAL_COMPILE_ARM_TEMPLATE, SRCARM))
+$(eval $(call PARTIAL_COMPILE_ARM_TEMPLATE,SRCARM))
 
 # Add opfw target
 $(eval $(call OPFW_TEMPLATE,$(OUTDIR)/$(TARGET).bin,$(BOARD_TYPE),$(BOARD_REVISION)))
@@ -287,7 +287,7 @@ bino: $(OUTDIR)/$(TARGET).bin.o
 opfw: $(OUTDIR)/$(TARGET).opfw
 
 # Display sizes of sections.
-$(eval $(call SIZE_TEMPLATE, $(OUTDIR)/$(TARGET).elf))
+$(eval $(call SIZE_TEMPLATE,$(OUTDIR)/$(TARGET).elf))
 
 # Target: clean project
 clean:

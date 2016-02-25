@@ -188,7 +188,7 @@ public:
 
             // remove light to prevent unnecessary state changes in SceneView
             // scene will get light from sky
-            view->setLightingMode(osg::View::NO_LIGHT);
+            // view->setLightingMode(osg::View::NO_LIGHT);
         }
 #endif
 

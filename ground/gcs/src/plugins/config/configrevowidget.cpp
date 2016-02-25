@@ -205,9 +205,10 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagPitchRotation, AuxMagSettings::BOARDROTATION_PITCH);
     addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagYawRotation, AuxMagSettings::BOARDROTATION_YAW);
 
+    connect(m_ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(onBoardAuxMagError()));
     connect(MagSensor::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(onBoardAuxMagError()));
     connect(MagState::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateMagStatus()));
-    connect(HomeLocation::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateMagBeVector()));
+    connect(HomeLocation::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(getMagBeVector()));
 
     addWidget(m_ui->internalAuxErrorX);
     addWidget(m_ui->internalAuxErrorY);
@@ -485,20 +486,16 @@ void ConfigRevoWidget::onBoardAuxMagError()
     Q_ASSERT(auxMagSensor);
 
     if (m_ui->tabWidget->currentIndex() != 2) {
-        // Restore metadata
+        // Apply default metadata
         if (displayMagError) {
-            magSensor->setMetadata(metamag.magSensorMetadata);
-            auxMagSensor->setMetadata(metamag.auxMagSensorMetadata);
+            magSensor->setMetadata(magSensor->getDefaultMetadata());
+            auxMagSensor->setMetadata(auxMagSensor->getDefaultMetadata());
             displayMagError = false;
         }
         return;
     }
 
     if (!displayMagError) {
-        // Store current metadata settings
-        metamag.magSensorMetadata    = magSensor->getMetadata();
-        metamag.auxMagSensorMetadata = auxMagSensor->getMetadata();
-
         // Apply new rates
         UAVObject::Metadata mdata = magSensor->getMetadata();
         UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
@@ -511,6 +508,7 @@ void ConfigRevoWidget::onBoardAuxMagError()
         auxMagSensor->setMetadata(mdata);
 
         displayMagError = true;
+        return;
     }
 
     MagSensor::DataFields magData = magSensor->getData();

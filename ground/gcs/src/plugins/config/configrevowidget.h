@@ -58,31 +58,6 @@ public:
     ConfigRevoWidget(QWidget *parent = 0);
     ~ConfigRevoWidget();
 
-    typedef struct {
-        UAVObject::Metadata magSensorMetadata;
-        UAVObject::Metadata auxMagSensorMetadata;
-    } MetaMag;
-
-    MetaMag metamag;
-
-    bool displayMagError;
-
-    AuxMagSettings *auxMagSettings;
-    MagSensor *magSensor;
-    AuxMagSensor *auxMagSensor;
-    MagState *magState;
-
-    float onboardMag[3];
-    float auxMag[3];
-    float onboardMagFiltered[3];
-    float auxMagFiltered[3];
-    float magBe[3];
-
-    int magWarningCount;
-    int magErrorCount;
-    int auxMagWarningCount;
-    int auxMagErrorCount;
-
 private:
     OpenPilot::SixPointCalibrationModel *m_accelCalibrationModel;
     OpenPilot::SixPointCalibrationModel *m_magCalibrationModel;
@@ -96,6 +71,17 @@ private:
     qint16 storedBoardRotation[3];
     qint16 auxMagStoredBoardRotation[3];
     bool isBoardRotationStored;
+
+    bool displayMagError;
+
+    float onboardMagFiltered[3];
+    float auxMagFiltered[3];
+    float magBe[3];
+
+    int magWarningCount;
+    int magErrorCount;
+    int auxMagWarningCount;
+    int auxMagErrorCount;
 
 private slots:
     void storeAndClearBoardRotation();
@@ -119,7 +105,7 @@ private slots:
 
     void onBoardAuxMagError();
     void updateMagStatus();
-    void getMagBeVector();
+    void updateMagBeVector();
     void updateMagAlarm(float errorMag, float errorAuxMag);
 
     float getMagError(float mag[3]);

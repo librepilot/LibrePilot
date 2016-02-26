@@ -60,10 +60,10 @@
 
 // #define DEBUG
 
-#define MAG_ALARM_THRESHOLD 20
+#define MAG_ALARM_THRESHOLD 5
 
 // Uncomment this to enable 6 point calibration on the accels
-#define NOISE_SAMPLES 50
+#define NOISE_SAMPLES       50
 
 class Thread : public QThread {
 public:
@@ -499,12 +499,12 @@ void ConfigRevoWidget::onBoardAuxMagError()
         // Apply new rates
         UAVObject::Metadata mdata = magSensor->getMetadata();
         UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
-        mdata.flightTelemetryUpdatePeriod = 100;
+        mdata.flightTelemetryUpdatePeriod = 300;
         magSensor->setMetadata(mdata);
 
         mdata = auxMagSensor->getMetadata();
         UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
-        mdata.flightTelemetryUpdatePeriod = 100;
+        mdata.flightTelemetryUpdatePeriod = 300;
         auxMagSensor->setMetadata(mdata);
 
         displayMagError = true;
@@ -525,7 +525,7 @@ void ConfigRevoWidget::onBoardAuxMagError()
     float zDiff     = 0.0f;
 
     // Smooth Mag readings
-    float alpha     = 0.8f;
+    float alpha     = 0.7f;
     float inv_alpha = (1.0f - alpha);
     // OnBoard mag
     onboardMagFiltered[0] = (onboardMagFiltered[0] * alpha) + (onboardMag[0] * inv_alpha);
@@ -579,6 +579,7 @@ void ConfigRevoWidget::onBoardAuxMagError()
 void ConfigRevoWidget::updateMagAlarm(float errorMag, float errorAuxMag)
 {
     RevoSettings *revoSettings = RevoSettings::GetInstance(getObjectManager());
+
     Q_ASSERT(revoSettings);
     RevoSettings::DataFields revoSettingsData = revoSettings->getData();
 
@@ -627,11 +628,16 @@ void ConfigRevoWidget::updateMagAlarm(float errorMag, float errorAuxMag)
         } else {
             auxMagErrorCount++;
         }
+        errorAuxMag = ((errorAuxMag * 100.0f) <= 100.0f) ? errorAuxMag * 100.0f : 100.0f;
+        m_ui->auxMagStatus->setText("AuxMag\n" + QString::number(errorAuxMag, 'f', 1) + "%");
     } else {
         // Disable aux mag alarm
         bgColorAuxMag = "grey";
+        m_ui->auxMagStatus->setText("AuxMag\nnot found");
     }
 
+    errorMag = ((errorMag * 100.0f) <= 100.0f) ? errorMag * 100.0f : 100.0f;
+    m_ui->onBoardMagStatus->setText("OnBoard\n" + QString::number(errorMag, 'f', 1) + "%");
     m_ui->onBoardMagStatus->setStyleSheet(
         "QLabel { background-color: " + bgColorMag + ";"
         "color: rgb(255, 255, 255); border-radius: 5; margin:1px; font:bold; }");

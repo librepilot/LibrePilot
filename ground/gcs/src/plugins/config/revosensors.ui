@@ -1356,7 +1356,7 @@ font:bold;</string>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>80</width>
+                  <width>100</width>
                   <height>35</height>
                  </size>
                 </property>
@@ -1385,8 +1385,8 @@ font:bold;</string>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>80</width>
-                  <height>35</height>
+                  <width>100</width>
+                  <height>40</height>
                  </size>
                 </property>
                 <property name="styleSheet">
@@ -1409,7 +1409,7 @@ font:bold;</string>
                 <property name="minimumSize">
                  <size>
                   <width>110</width>
-                  <height>0</height>
+                  <height>20</height>
                  </size>
                 </property>
                 <property name="text">

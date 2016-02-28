@@ -1,7 +1,7 @@
 <xml>
     <object name="SystemIdent" singleinstance="true" settings="true" category="Control">
         <description>The input to the PID tuning.</description>
-        <field name="Tau" units="s" type="float" elements="1" defaultvalue="0"/>
+        <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0"/>
         <!-- Beta default valuses 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
         <field name="Beta" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="10.0,10.0,7.0"/>
         <field name="Bias" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="0"/>
@@ -19,8 +19,8 @@
         <!-- RateDamp is [50,150] default 110. -->
         <field name="RateDamp" units="" type="uint8" elements="1" defaultvalue="110"/>
         <field name="RateNoise" units="" type="uint8" elements="1" defaultvalue="10"/>
-        <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
-        <field name="DestinationPidBank" units="" type="uint8" elements="1" defaultvalue="2"/>
+        <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True"/>
+        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
         <telemetryflight acked="false" updatemode="onchange" period="1000"/>

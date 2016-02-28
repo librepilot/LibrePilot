@@ -270,7 +270,7 @@ static circ_queue_t at_queue;
 static volatile uint32_t at_points_spilled;
 static uint32_t throttle_accumulator;
 static uint8_t rollMax, pitchMax;
-static StabilizationBankMaximumRateData maximumRate;
+static StabilizationBankManualRateData manualRate;
 static SystemSettingsAirframeTypeOptions airframe_type;
 static float gX[AF_NUMX] = {0};
 static float gP[AF_NUMP] = {0};
@@ -280,6 +280,8 @@ SystemIdentData systemIdentData;
 static void AutotuneTask(void *parameters);
 static void af_predict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in);
 static void af_init(float X[AF_NUMX], float P[AF_NUMP]);
+static uint8_t checkSettings();
+static void ComputeStabilizationAndSetPids();
 
 #ifndef AT_QUEUE_NUMELEM
 #define AT_QUEUE_NUMELEM 18
@@ -397,8 +399,7 @@ typedef struct {
 }
 
 static void UpdateSystemIdent(const float *X, const float *noise,
-        float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle) {
-    memset(&systemIdentData, 0, sizeof(systemIdentData));
+    float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle) {
     systemIdentData.Beta.Roll    = X[6];
     systemIdentData.Beta.Pitch   = X[7];
     systemIdentData.Beta.Yaw     = X[8];
@@ -431,7 +432,7 @@ static void UpdateStabilizationDesired(bool doingIdent) {
 
     stabDesired.Roll = manual_control_command.Roll * rollMax;
     stabDesired.Pitch = manual_control_command.Pitch * pitchMax;
-    stabDesired.Yaw = manual_control_command.Yaw * maximumRate.Yaw;
+    stabDesired.Yaw = manual_control_command.Yaw * manualRate.Yaw;
 
     if (doingIdent) {
         stabDesired.StabilizationMode.Roll  = STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT;
@@ -447,6 +448,33 @@ static void UpdateStabilizationDesired(bool doingIdent) {
 // is this a race
 // control feels very sluggish too
     StabilizationDesiredSet(&stabDesired);
+}
+
+
+static uint8_t checkSettings()
+{
+    uint8_t retVal = 0;
+
+    // Check the axis gains
+    // Extreme values: Your roll or pitch gain was lower than expected. This will result in large PID values.
+    if (systemIdentData.Beta.Roll < 6) {
+        retVal |= 1;
+    }
+    if (systemIdentData.Beta.Pitch < 6) {
+        retVal |= 2;
+    }
+
+    // Check the response speed
+    // Extreme values: Your estimated response speed (tau) is slower than normal. This will result in large PID values.
+    if (expf(systemIdentData.Tau) > 0.1f) {
+        retVal |= 4;
+    }
+    // Extreme values: Your estimated response speed (tau) is faster than normal. This will result in large PID values.
+    else if (expf(systemIdentData.Tau) < 0.008f) {
+        retVal |= 8;
+    }
+
+    return retVal;
 }
 
 
@@ -540,7 +568,7 @@ void ComputeStabilization()
     //stabSettingsBank.DerivativeCutoff = 1.0f / (2.0f*M_PI*tau_d);
 }
 #else
-void ComputeStabilizationAndSetPids()
+static void ComputeStabilizationAndSetPids()
 {
     StabilizationSettingsBank1Data stabSettingsBank;
 
@@ -632,12 +660,15 @@ void ComputeStabilizationAndSetPids()
     switch (systemIdentData.DestinationPidBank) {
     case 1:
         StabilizationSettingsBank1Set((void *)&stabSettingsBank);
+        UAVObjSave(StabilizationSettingsBank1Handle(), 0);
         break;
     case 2:
         StabilizationSettingsBank2Set((void *)&stabSettingsBank);
+        UAVObjSave(StabilizationSettingsBank2Handle(), 0);
         break;
     case 3:
         StabilizationSettingsBank3Set((void *)&stabSettingsBank);
+        UAVObjSave(StabilizationSettingsBank3Handle(), 0);
         break;
     }
 }
@@ -657,11 +688,13 @@ static void AutotuneTask(__attribute__((unused)) void *parameters)
 
     float noise[3] = {0};
 
+// is this needed?
     af_init(gX,gP);
 
     uint32_t last_time = 0.0f;
     const uint32_t YIELD_MS = 2;
 
+// should this be put in Init()?
     GyroSensorConnectCallback(at_new_gyro_data);
 
     bool save_needed = false;
@@ -683,12 +716,21 @@ static void AutotuneTask(__attribute__((unused)) void *parameters)
         FlightStatusGet(&flightStatus);
 
 //this seems to lock up on Nano
+// maybe it was only the first time when allocating new flash block?
         if (save_needed) {
             if (flightStatus.Armed == FLIGHTSTATUS_ARMED_DISARMED) {
+                uint8_t failureBits;
                 // Save the settings locally.
                 UAVObjSave(SystemIdentHandle(), 0);
+                failureBits = checkSettings();
+                if (!failureBits) {
+                    ComputeStabilizationAndSetPids();
+                } else {
+                    // raise a warning
+                    ExtendedAlarmsSet(SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION, SYSTEMALARMS_ALARM_WARNING,
+                                      SYSTEMALARMS_EXTENDEDALARMSTATUS_AUTOTUNE, failureBits);
+                }
                 state = AT_INIT;
-
                 save_needed = false;
             }
         }
@@ -709,7 +751,7 @@ static void AutotuneTask(__attribute__((unused)) void *parameters)
                 // moved from UpdateStabilizationDesired()
                 StabilizationBankRollMaxGet(&rollMax);
                 StabilizationBankPitchMaxGet(&pitchMax);
-                StabilizationBankMaximumRateGet(&maximumRate);
+                StabilizationBankManualRateGet(&manualRate);
                 SystemSettingsAirframeTypeGet(&airframe_type);
 
                 // Reset save status; only save if this tune
@@ -720,6 +762,26 @@ static void AutotuneTask(__attribute__((unused)) void *parameters)
 
                 // Only start when armed and flying
                 if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+#if 1
+                    SystemIdentGet(&systemIdentData);
+                    // these are values that could be changed by the user
+                    // save them through the following xSetDefaults() call
+                    uint8_t rateDamp = systemIdentData.RateDamp;
+                    uint8_t rateNoise = systemIdentData.RateNoise;
+                    bool calcYaw = systemIdentData.CalculateYaw;
+                    uint8_t destBank = systemIdentData.DestinationPidBank;
+
+                    // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
+                    // so that if they are changed there (mainly for future code changes), they will be changed here too
+                    SystemIdentSetDefaults(SystemIdentHandle(), 0);
+                    SystemIdentGet(&systemIdentData);
+
+                    // restore the user changeable values
+                    systemIdentData.RateDamp = rateDamp;
+                    systemIdentData.RateNoise = rateNoise;
+                    systemIdentData.CalculateYaw = calcYaw;
+                    systemIdentData.DestinationPidBank = destBank;
+#endif
 // remove this one and let the other one init it
 // should wait on the other one if that is the case
                     af_init(gX, gP);
@@ -1074,12 +1136,38 @@ static void af_init(float X[AF_NUMX], float P[AF_NUMP])
     // X[9] = -4.0f;                 // and 50 (18?) ms time scale
     // X[10] = X[11] = X[12] = 0.0f; // zero bias
 
+// lets not set SystemIdent to defaults at all
+// that way the user can run it a second time, with initial values from the first run
+#if 0
+    // these are values that could be changed by the user
+    // save them through the following xSetDefaults() call
+    uint8_t damp = systemIdentData.RateDamp;
+    uint8_t noise = systemIdentData.RateNoise;
+    bool yaw = systemIdentData.CalculateYaw;
+    uint8_t bank = systemIdentData.DestinationPidBank;
+
     // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
     // so that if they are changed there (mainly for future code changes), they will be changed here too
     memset(X, 0, AF_NUMX*sizeof(X[0]));
     SystemIdentSetDefaults(SystemIdentHandle(), 0);
     SystemIdentBetaArrayGet(&X[6]);
     SystemIdentTauGet(&X[9]);
+
+    // restore the user changeable values
+    systemIdentData.RateDamp = damp;
+    systemIdentData.RateNoise = noise;
+    systemIdentData.CalculateYaw = yaw;
+    systemIdentData.DestinationPidBank = bank;
+#else
+    // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
+    // so that if they are changed there (mainly for future code changes), they will be changed here too
+    memset(X, 0, AF_NUMX*sizeof(X[0]));
+    //SystemIdentSetDefaults(SystemIdentHandle(), 0);
+    //SystemIdentBetaArrayGet(&X[6]);
+    memcpy(&X[6], &systemIdentData.Beta, sizeof(systemIdentData.Beta));
+    //SystemIdentTauGet(&X[9]);
+    X[9] = systemIdentData.Tau;
+#endif
 
     // P initialization
     // Could zero this like: *P = *((float [AF_NUMP]){});

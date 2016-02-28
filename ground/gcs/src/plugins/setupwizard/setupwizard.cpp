@@ -434,6 +434,9 @@ QString SetupWizard::getSummaryText()
         case GPS_PLATINUM:
             summary.append(tr("OpenPilot Platinum"));
             break;
+        case GPS_NAZA:
+            summary.append(tr("Naza GPS"));
+            break;
         case GPS_UBX_FLEXI_I2CMAG:
             summary.append(tr("Generic UBLOX + I2C Magnetometer"));
             break;

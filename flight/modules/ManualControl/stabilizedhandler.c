@@ -35,6 +35,8 @@
 #include <stabilizationdesired.h>
 #include <flightmodesettings.h>
 #include <stabilizationbank.h>
+#include <flightstatus.h>
+#include <systemident.h>
 
 // Private constants
 
@@ -47,6 +49,22 @@ static float applyExpo(float value, float expo);
 static uint8_t currentFpvTiltAngle = 0;
 static float cosAngle = 0.0f;
 static float sinAngle = 0.0f;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+static FlightModeSettingsStabilization1SettingsData autotuneSettings = {
+    .Roll   = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT,
+    .Pitch  = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT,
+    .Yaw    = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT,
+    .Thrust = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_MANUAL
+};
+#if 0
+static FlightModeSettingsStabilization1SettingsData attitudeSettings = {
+    .Roll   = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ATTITUDE,
+    .Pitch  = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ATTITUDE,
+    .Yaw    = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_RATE,
+    .Thrust = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_MANUAL
+};
+#endif
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 static float applyExpo(float value, float expo)
 {
@@ -74,9 +92,11 @@ static float applyExpo(float value, float expo)
  * @input: ManualControlCommand
  * @output: StabilizationDesired
  */
-void stabilizedHandler(bool newinit)
+void stabilizedHandler(__attribute__((unused)) bool newinit)
 {
-    if (newinit) {
+    static bool inited=false;
+    if (!inited) {
+        inited = true;
         StabilizationDesiredInitialize();
         StabilizationBankInitialize();
     }
@@ -116,7 +136,6 @@ void stabilizedHandler(bool newinit)
     uint8_t *stab_settings;
     FlightStatusData flightStatus;
     FlightStatusGet(&flightStatus);
-
     switch (flightStatus.FlightMode) {
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED1:
         stab_settings = (uint8_t *)FlightModeSettingsStabilization1SettingsToArray(settings.Stabilization1Settings);
@@ -136,6 +155,15 @@ void stabilizedHandler(bool newinit)
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED6:
         stab_settings = (uint8_t *)FlightModeSettingsStabilization6SettingsToArray(settings.Stabilization6Settings);
         break;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
+//        if (SystemIdentHandle()) {
+            stab_settings = (uint8_t *)&autotuneSettings;
+//        } else {
+//            stab_settings = (uint8_t *)&attitudeSettings;
+//        }
+        break;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
     default:
         // Major error, this should not occur because only enter this block when one of these is true
         AlarmsSet(SYSTEMALARMS_ALARM_MANUALCONTROL, SYSTEMALARMS_ALARM_CRITICAL);
@@ -153,6 +181,9 @@ void stabilizedHandler(bool newinit)
         (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_VIRTUALBAR) ? cmd.Roll :
         (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO) ? cmd.Roll * stabSettings.ManualRate.Roll :
         (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE) ? cmd.Roll * stabSettings.RollMax :
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT) ? cmd.Roll * stabSettings.RollMax :
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         0; // this is an invalid mode
 
     stabilization.Pitch =
@@ -165,6 +196,9 @@ void stabilizedHandler(bool newinit)
         (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_VIRTUALBAR) ? cmd.Pitch :
         (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO) ? cmd.Pitch * stabSettings.ManualRate.Pitch :
         (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE) ? cmd.Pitch * stabSettings.PitchMax :
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT) ? cmd.Pitch * stabSettings.PitchMax :
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         0; // this is an invalid mode
 
     // TOOD: Add assumption about order of stabilization desired and manual control stabilization mode fields having same order
@@ -187,6 +221,9 @@ void stabilizedHandler(bool newinit)
             (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_VIRTUALBAR) ? cmd.Yaw :
             (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO) ? cmd.Yaw * stabSettings.ManualRate.Yaw :
             (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE) ? cmd.Yaw * stabSettings.YawMax :
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+            (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT) ? cmd.Yaw * stabSettings.ManualRate.Yaw :
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
             0; // this is an invalid mode
     }
 

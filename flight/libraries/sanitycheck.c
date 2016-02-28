@@ -5,7 +5,8 @@
  * @addtogroup OpenPilot Libraries OpenPilot System Libraries
  * @{
  * @file       sanitycheck.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Utilities to validate a flight configuration
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -163,6 +164,11 @@ int32_t configuration_check()
             ADDSEVERITY(!coptercontrol);
             ADDSEVERITY(navCapableFusion);
             break;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        case FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE:
+            ADDSEVERITY(!gps_assisted);
+            break;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         default:
             // Uncovered modes are automatically an error
             ADDSEVERITY(false);
@@ -265,14 +271,30 @@ static bool check_stabilization_settings(int index, bool multirotor, bool copter
             if (modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_MANUAL) {
                 return false;
             }
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+            // we want to be able to use systemident with or without autotune
+            // If this axis allows enabling an autotune behavior without the module
+            // running then set an alarm now that aututune module initializes the
+            // appropriate objects
+            //if ((modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) &&
+            //    (!TaskMonitorQueryRunning(TASKINFO_RUNNING_AUTOTUNE))) {
+            //    return false;
+            //}
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         }
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        // don't allow playing with systemident (autotune) on thrust (yet)
+        if (modes[FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_THRUST] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) {
+            return false;
+        }
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
     }
 
     if (gpsassisted) {
         // For multirotors verify that roll/pitch are either attitude or rattitude
         for (uint32_t i = 0; i < FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_YAW; i++) {
             if (!(modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ATTITUDE ||
-                  modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_RATTITUDE)) {
+                modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_RATTITUDE)) {
                 return false;
             }
         }

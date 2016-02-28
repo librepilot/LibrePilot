@@ -137,6 +137,7 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/statusvtolautotakeoff.xml \
     $${UAVOBJ_XML_DIR}/statusvtolland.xml \
     $${UAVOBJ_XML_DIR}/systemalarms.xml \
+    $${UAVOBJ_XML_DIR}/systemident.xml \
     $${UAVOBJ_XML_DIR}/systemsettings.xml \
     $${UAVOBJ_XML_DIR}/systemstats.xml \
     $${UAVOBJ_XML_DIR}/takeofflocation.xml \

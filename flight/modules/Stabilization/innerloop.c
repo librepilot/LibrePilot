@@ -9,7 +9,7 @@
  * @{
  *
  * @file       innerloop.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Attitude stabilization module.
  *
@@ -51,6 +51,10 @@
 #include <virtualflybar.h>
 #include <cruisecontrol.h>
 #include <sanitycheck.h>
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+#include <systemident.h>
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+
 // Private constants
 
 #define CALLBACK_PRIORITY CALLBACK_PRIORITY_CRITICAL
@@ -59,6 +63,16 @@
 #define UPDATE_MIN        1.0e-6f
 #define UPDATE_MAX        1.0f
 #define UPDATE_ALPHA      1.0e-2f
+
+#define SYSTEM_IDENT_PERIOD ((uint32_t) 75)
+
+#if defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+#define powapprox fastpow
+#define expapprox fastexp
+#else
+#define powapprox powf
+#define expapprox expf
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 // Private variables
 static DelayedCallbackInfo *callbackHandle;
@@ -69,6 +83,10 @@ static PiOSDeltatimeConfig timeval;
 static float speedScaleFactor = 1.0f;
 static bool frame_is_multirotor;
 static bool measuredDterm_enabled;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+static uint32_t system_ident_timeval = 0;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+
 // Private functions
 static void stabilizationInnerloopTask();
 static void GyroStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev);
@@ -86,6 +104,9 @@ void stabilizationInnerloopInit()
     ManualControlCommandInitialize();
     StabilizationDesiredInitialize();
     ActuatorDesiredInitialize();
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    SystemIdentInitialize();
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 #ifdef REVOLUTION
     AirspeedStateInitialize();
     AirspeedStateConnectCallback(AirSpeedUpdatedCb);
@@ -100,6 +121,10 @@ void stabilizationInnerloopInit()
 
     frame_is_multirotor   = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR);
     measuredDterm_enabled = (stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    // Settings for system identification
+    system_ident_timeval = PIOS_DELAY_GetRaw();
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 }
 
 static float get_pid_scale_source_value()
@@ -230,7 +255,6 @@ static void stabilizationInnerloopTask()
         }
     }
 
-
     RateDesiredData rateDesired;
     ActuatorDesiredData actuator;
     StabilizationStatusInnerLoopData enabled;
@@ -286,6 +310,7 @@ static void stabilizationInnerloopTask()
             // IMPORTANT: deliberately no "break;" here, execution continues with regular RATE control loop to avoid code duplication!
             // keep order as it is, RATE must follow!
             case STABILIZATIONSTATUS_INNERLOOP_RATE:
+            {
                 // limit rate to maximum configured limits (once here instead of 5 times in outer loop)
                 rate[t] = boundf(rate[t],
                                  -StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t],
@@ -293,6 +318,7 @@ static void stabilizationInnerloopTask()
                                  );
                 pid_scaler scaler = create_pid_scaler(t);
                 actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
+            }
                 break;
             case STABILIZATIONSTATUS_INNERLOOP_ACRO:
             {
@@ -312,6 +338,263 @@ static void stabilizationInnerloopTask()
                 actuatorDesiredAxis[t] = factor * stickinput[t] + (1.0f - factor) * arate;
             }
             break;
+
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        case STABILIZATIONSTATUS_INNERLOOP_SYSTEMIDENT:
+            {
+                static uint32_t ident_iteration = 0;
+                static float ident_offsets[3] = {0};
+
+/////////////// if (PIOS_DELAY_DiffuS(system_ident_timeval) / 1000.0f > SYSTEM_IDENT_PERIOD && SystemIdentHandle()) {
+                if (PIOS_DELAY_DiffuS(system_ident_timeval) / 1000.0f > SYSTEM_IDENT_PERIOD) {
+                    system_ident_timeval = PIOS_DELAY_GetRaw();
+
+                    SystemIdentData systemIdent;
+                    SystemIdentGet(&systemIdent);
+// original code
+#if 1
+                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
+                    float roll_scale  = expapprox(SCALE_BIAS - systemIdent.Beta.Roll);
+                    float pitch_scale = expapprox(SCALE_BIAS - systemIdent.Beta.Pitch);
+                    float yaw_scale   = expapprox(SCALE_BIAS - systemIdent.Beta.Yaw);
+                    ident_iteration++;
+
+                    if (roll_scale > 0.25f)
+                        roll_scale = 0.25f;
+                    if (pitch_scale > 0.25f)
+                        pitch_scale = 0.25f;
+                    if (yaw_scale > 0.25f)
+                        yaw_scale = 0.25f;
+
+//why did he do this fsm?
+//with yaw changing twice a cycle and roll/pitch changing once?
+                    switch(ident_iteration & 0x07) {
+                        case 0:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = yaw_scale;
+                            break;
+                        case 1:
+                            ident_offsets[0] = roll_scale;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 2:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = -yaw_scale;
+                            break;
+                        case 3:
+                            ident_offsets[0] = -roll_scale;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 4:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = yaw_scale;
+                            break;
+                        case 5:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = pitch_scale;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 6:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = -yaw_scale;
+                            break;
+                        case 7:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = -pitch_scale;
+                            ident_offsets[2] = 0;
+                            break;
+                    }
+#endif
+
+// old partially completed good stuff
+#if 0
+                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
+                    float scale[3] = { expapprox(SCALE_BIAS - systemIdent.Beta.Roll),
+                                       expapprox(SCALE_BIAS - systemIdent.Beta.Pitch),
+                                       expapprox(SCALE_BIAS - systemIdent.Beta.Yaw) };
+                    ident_iteration++;
+
+                    if (scale[0] > 0.25f)
+                        scale[0] = 0.25f;
+                    if (scale[1] > 0.25f)
+                        scale[1] = 0.25f;
+                    if (scale[2] > 0.25f)
+                        scale[2] = 0.25f;
+
+//why did he do this fsm?
+//with yaw changing twice a cycle and roll/pitch changing once?
+                    ident_offsets[0] = 0.0f;
+                    ident_offsets[1] = 0.0f;
+                    ident_offsets[2] = 0.0f;
+                    switch(ident_iteration & 7) {
+                        case 0:
+                            ident_offsets[2] = scale[2];
+                            break;
+                        case 1:
+                            ident_offsets[0] = scale[0];
+                            break;
+                        case 2:
+                            ident_offsets[2] = -scale[2];
+                            break;
+                        case 3:
+                            ident_offsets[0] = -scale[0];
+                            break;
+                        case 4:
+                            ident_offsets[2] = scale[2];
+                            break;
+                        case 5:
+                            ident_offsets[1] = scale[1];
+                            break;
+                        case 6:
+                            ident_offsets[2] = -scale[2];
+                            break;
+                        case 7:
+                            ident_offsets[1] = -scale[1];
+                            break;
+                    }
+#endif
+
+//good stuff here
+#if 0
+                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
+                    float scale[3] = { expapprox(SCALE_BIAS - systemIdent.Beta.Roll),
+                                       expapprox(SCALE_BIAS - systemIdent.Beta.Pitch),
+                                       expapprox(SCALE_BIAS - systemIdent.Beta.Yaw) };
+
+                    if (scale[0] > 0.25f)
+                        scale[0] = 0.25f;
+                    if (scale[1] > 0.25f)
+                        scale[1] = 0.25f;
+                    if (scale[2] > 0.25f)
+                        scale[2] = 0.25f;
+
+//why did he do this fsm?
+//with yaw changing twice a cycle and roll/pitch changing once?
+                    ident_offsets[0] = 0.0f;
+                    ident_offsets[1] = 0.0f;
+                    ident_offsets[2] = 0.0f;
+                    ident_iteration = (ident_iteration+1) & 7;
+                    uint8_t index = ((uint8_t *) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' } ) [ident_iteration];
+                    // if (ident_iteration & 2) scale[index] = -scale[index];
+                    ((uint8_t *)(&scale[index]))[3] ^= (ident_iteration & 2) << 6;
+                    ident_offsets[index] = scale[index];
+#if 0
+                    switch(ident_iteration) {
+                        case 0:
+                            ident_offsets[2] = scale[2];
+                            break;
+                        case 1:
+                            ident_offsets[0] = scale[0];
+                            break;
+                        case 2:
+                            ident_offsets[2] = -scale[2];
+                            break;
+                        case 3:
+                            ident_offsets[0] = -scale[0];
+                            break;
+                        case 4:
+                            ident_offsets[2] = scale[2];
+                            break;
+                        case 5:
+                            ident_offsets[1] = scale[1];
+                            break;
+                        case 6:
+                            ident_offsets[2] = -scale[2];
+                            break;
+                        case 7:
+                            ident_offsets[1] = -scale[1];
+                            break;
+                    }
+#endif
+#endif
+
+//aborted mod 9
+#if 0
+                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
+                    float roll_scale  = expapprox(SCALE_BIAS - systemIdent.Beta.Roll);
+                    float pitch_scale = expapprox(SCALE_BIAS - systemIdent.Beta.Pitch);
+                    float yaw_scale   = expapprox(SCALE_BIAS - systemIdent.Beta.Yaw);
+                    ident_iteration++;
+
+                    if (roll_scale > 0.25f)
+                        roll_scale = 0.25f;
+                    if (pitch_scale > 0.25f)
+                        pitch_scale = 0.25f;
+                    if (yaw_scale > 0.25f)
+                        yaw_scale = 0.25f;
+
+//why did he do this fsm?
+//with yaw changing twice a cycle and roll/pitch changing once?
+                    switch(ident_iteration % 9) {
+                        case 0:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = yaw_scale;
+                            break;
+                        case 1:
+                            ident_offsets[0] = roll_scale;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 2:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = -yaw_scale;
+                            break;
+                        case 3:
+                            ident_offsets[0] = -roll_scale;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 4:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = yaw_scale;
+                            break;
+                        case 5:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = pitch_scale;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 6:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = 0;
+                            ident_offsets[2] = -yaw_scale;
+                            break;
+                        case 7:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = -pitch_scale;
+                            ident_offsets[2] = 0;
+                            break;
+                        case 8:
+                            ident_offsets[0] = 0;
+                            ident_offsets[1] = -pitch_scale;
+                            ident_offsets[2] = 0;
+                            break;
+                    }
+#endif
+
+                }
+
+                rate[t] = boundf(rate[t],
+                                 -StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t],
+                                 StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
+                                 );
+                pid_scaler scaler = create_pid_scaler(t);
+                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
+                actuatorDesiredAxis[t] += ident_offsets[t];
+                // we shouldn't do any clamping until after the motors are calculated and scaled?
+                //actuatorDesiredAxis[t] = boundf(actuatorDesiredAxis[t], -1.0f, 1.0f);
+            }
+            break;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+
             case STABILIZATIONSTATUS_INNERLOOP_DIRECT:
             default:
                 actuatorDesiredAxis[t] = rate[t];

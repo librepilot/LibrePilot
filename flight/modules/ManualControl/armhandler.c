@@ -342,6 +342,9 @@ static bool okToArm(void)
 
         break;
     case FLIGHTSTATUS_FLIGHTMODE_LAND:
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         return false;
 
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF:

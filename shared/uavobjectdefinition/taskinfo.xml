@@ -32,6 +32,7 @@
 			<elementname>GPS</elementname>
 			<elementname>OSDGen</elementname>
 			<elementname>UAVOMSPBridge</elementname>
+			<elementname>AutoTune</elementname>
 		</elementnames>
 	</field> 
 	<field name="Running" units="bool" type="enum">
@@ -65,6 +66,7 @@
 			<elementname>GPS</elementname>
 			<elementname>OSDGen</elementname>
 			<elementname>UAVOMSPBridge</elementname>
+			<elementname>AutoTune</elementname>
 		</elementnames>
 		<options>
 			<option>False</option>
@@ -102,6 +104,7 @@
 			<elementname>GPS</elementname>
 			<elementname>OSDGen</elementname>
 			<elementname>UAVOMSPBridge</elementname>
+			<elementname>AutoTune</elementname>
 		</elementnames>
 	</field> 
         <access gcs="readonly" flight="readwrite"/>

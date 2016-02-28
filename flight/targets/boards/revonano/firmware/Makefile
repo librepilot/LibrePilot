@@ -53,6 +53,7 @@ MODULES += Notify
 
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
+OPTMODULES += AutoTune
 
 SRC += $(FLIGHTLIB)/notification.c
 

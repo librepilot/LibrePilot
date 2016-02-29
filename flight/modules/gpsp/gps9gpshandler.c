@@ -34,7 +34,8 @@
 #include "gps9protocol.h"
 
 uint32_t lastUnsentData = 0;
-uint8_t buffer[BUFFER_SIZE];
+uint8_t gpsBuffer[BUFFER_SIZE];
+uint8_t fcBuffer[BUFFER_SIZE];
 
 void handleGPS()
 {
@@ -46,29 +47,29 @@ void handleGPS()
         if (datacounter > 0) {
             uint8_t toRead = (uint32_t)datacounter > BUFFER_SIZE - lastUnsentData ? BUFFER_SIZE - lastUnsentData : (uint8_t)datacounter;
             uint8_t toSend = toRead;
-            PIOS_UBX_DDC_ReadData(PIOS_I2C_GPS, buffer, toRead);
+            PIOS_UBX_DDC_ReadData(PIOS_I2C_GPS, gpsBuffer, toRead);
 
             uint8_t *lastSentence;
             uint16_t lastSentenceLength;
-            completeSentenceSent = ubx_getLastSentence(buffer, toRead, &lastSentence, &lastSentenceLength);
+            completeSentenceSent = ubx_getLastSentence(gpsBuffer, toRead, &lastSentence, &lastSentenceLength);
             if (completeSentenceSent) {
-                toSend = (uint8_t)(lastSentence - buffer + lastSentenceLength);
+                toSend = (uint8_t)(lastSentence - gpsBuffer + lastSentenceLength);
             } else {
                 lastUnsentData = 0;
             }
 
-            PIOS_COM_SendBuffer(pios_com_main_id, buffer, toSend);
+            PIOS_COM_SendBuffer(pios_com_main_id, gpsBuffer, toSend);
 
             if (toRead > toSend) {
-                // move unsent data at the beginning of buffer to be sent next time
+                // move unsent data at the beginning of gpsBuffer to be sent next time
                 lastUnsentData = toRead - toSend;
-                memcpy(buffer, (buffer + toSend), lastUnsentData);
+                memcpy(gpsBuffer, (gpsBuffer + toSend), lastUnsentData);
             }
         }
 
-        datacounter = PIOS_COM_ReceiveBuffer(pios_com_main_id, buffer, BUFFER_SIZE, 0);
+        datacounter = PIOS_COM_ReceiveBuffer(pios_com_main_id, fcBuffer, BUFFER_SIZE, 0);
         if (datacounter > 0) {
-            PIOS_UBX_DDC_WriteData(PIOS_I2C_GPS, buffer, datacounter);
+            PIOS_UBX_DDC_WriteData(PIOS_I2C_GPS, fcBuffer, datacounter);
         }
         if (maxCount) {
             // Note: this delay is needed as querying too quickly the UBX module's I2C(DDC)

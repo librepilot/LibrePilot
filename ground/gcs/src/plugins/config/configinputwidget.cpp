@@ -160,18 +160,28 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
             Q_ASSERT(0);
             break;
         }
+        ++index;
+    }
+
+    QList<int> failsafeReloadGroup;
+    failsafeReloadGroup.append(555);
+
+    addWidgetBinding("ManualControlSettings", "FailsafeFlightModeSwitchPosition", ui->failsafeFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
+
+    // Generate the rows for the failsafe channel form GUI
+    index   = 0;
+    foreach(QString name, manualSettingsObj->getField("FailsafeChannel")->getElementNames()) {
+        Q_ASSERT(index < ManualControlSettings::FAILSAFECHANNEL_NUMELEM);
 
         // Failsafe channels setup
         FailsafeChannelForm *failsafeChannelForm = new FailsafeChannelForm(index, this);
         addWidget(failsafeChannelForm->ui->channelValueSpinner);
         failsafeChannelForm->setName(name);
         failsafeChannelForm->moveTo(*(ui->failsafeChannelsLayout));
-        addWidgetBinding("ManualControlSettings", "FailsafeChannel", failsafeChannelForm->ui->channelValue, index, 0.01);
-
+        addWidgetBinding("ManualControlSettings", "FailsafeChannel", failsafeChannelForm->ui->channelValue, index, 0.01, true, new QList<int>(failsafeReloadGroup));
         ++index;
     }
-
-    addWidgetBinding("ManualControlSettings", "FailsafeFlightModeSwitchPosition", ui->failsafeFlightMode, 0, 1, true);
+    addWidget(ui->failsafeDefault);
 
     addWidgetBinding("ManualControlSettings", "Deadband", ui->deadband, 0, 1);
     addWidgetBinding("ManualControlSettings", "DeadbandAssistedControl", ui->assistedControlDeadband, 0, 1);
@@ -185,13 +195,11 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(wizardUi->wzBack, SIGNAL(clicked()), this, SLOT(wzBack()));
 
     ui->stackedWidget->setCurrentIndex(0);
-    addWidgetBinding("FlightModeSettings", "FlightModePosition", ui->fmsModePos1, 0, 1, true);
-    addWidgetBinding("FlightModeSettings", "FlightModePosition", ui->fmsModePos2, 1, 1, true);
-    addWidgetBinding("FlightModeSettings", "FlightModePosition", ui->fmsModePos3, 2, 1, true);
-    addWidgetBinding("FlightModeSettings", "FlightModePosition", ui->fmsModePos4, 3, 1, true);
-    addWidgetBinding("FlightModeSettings", "FlightModePosition", ui->fmsModePos5, 4, 1, true);
-    addWidgetBinding("FlightModeSettings", "FlightModePosition", ui->fmsModePos6, 5, 1, true);
-    addWidgetBinding("ManualControlSettings", "FlightModeNumber", ui->fmsPosNum);
+    QList<QWidget*> widgets = QList<QWidget*>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
+                                                   ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
+    foreach(QWidget* widget, widgets) {
+        addWidgetBinding("FlightModeSettings", "FlightModePosition", widget, 0, 1, true);
+    }
 
     addWidgetBinding("FlightModeSettings", "Stabilization1Settings", ui->fmsSsPos1Roll, "Roll", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization2Settings", ui->fmsSsPos2Roll, "Roll", 1, true);
@@ -199,24 +207,29 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addWidgetBinding("FlightModeSettings", "Stabilization4Settings", ui->fmsSsPos4Roll, "Roll", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization5Settings", ui->fmsSsPos5Roll, "Roll", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization6Settings", ui->fmsSsPos6Roll, "Roll", 1, true);
+
     addWidgetBinding("FlightModeSettings", "Stabilization1Settings", ui->fmsSsPos1Pitch, "Pitch", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization2Settings", ui->fmsSsPos2Pitch, "Pitch", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization3Settings", ui->fmsSsPos3Pitch, "Pitch", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization4Settings", ui->fmsSsPos4Pitch, "Pitch", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization5Settings", ui->fmsSsPos5Pitch, "Pitch", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization6Settings", ui->fmsSsPos6Pitch, "Pitch", 1, true);
+
     addWidgetBinding("FlightModeSettings", "Stabilization1Settings", ui->fmsSsPos1Yaw, "Yaw", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization2Settings", ui->fmsSsPos2Yaw, "Yaw", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization3Settings", ui->fmsSsPos3Yaw, "Yaw", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization4Settings", ui->fmsSsPos4Yaw, "Yaw", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization5Settings", ui->fmsSsPos5Yaw, "Yaw", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization6Settings", ui->fmsSsPos6Yaw, "Yaw", 1, true);
+
     addWidgetBinding("FlightModeSettings", "Stabilization1Settings", ui->fmsSsPos1Thrust, "Thrust", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization2Settings", ui->fmsSsPos2Thrust, "Thrust", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization3Settings", ui->fmsSsPos3Thrust, "Thrust", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization4Settings", ui->fmsSsPos4Thrust, "Thrust", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization5Settings", ui->fmsSsPos5Thrust, "Thrust", 1, true);
     addWidgetBinding("FlightModeSettings", "Stabilization6Settings", ui->fmsSsPos6Thrust, "Thrust", 1, true);
+
+    addWidgetBinding("ManualControlSettings", "FlightModeNumber", ui->fmsPosNum);
 
     addWidgetBinding("FlightModeSettings", "Arming", ui->armControl);
     addWidgetBinding("FlightModeSettings", "ArmedTimeout", ui->armTimeout, 0, 1000);
@@ -228,6 +241,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     addWidget(ui->configurationWizard);
     addWidget(ui->runCalibration);
+    addWidget(ui->failsafeFlightModeCb);
 
     autoLoadWidgets();
 

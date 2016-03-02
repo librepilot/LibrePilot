@@ -2295,6 +2295,20 @@ font:bold;</string>
                   </property>
                  </spacer>
                 </item>
+                <item>
+                 <widget class="QPushButton" name="failsafeDefault">
+                  <property name="text">
+                   <string>Default</string>
+                  </property>
+                  <property name="objrelation" stdset="0">
+                   <stringlist>
+                    <string>objname:ManualControlSettings</string>
+                    <string>button:default</string>
+                    <string>buttongroup:555</string>
+                   </stringlist>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
               <item row="3" column="0">
@@ -2360,9 +2374,8 @@ font:bold;</string>
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;LibrePilot supports a security function to handle the situation when there is a loss of signal from the transmitter used to control the craft. This function is often called Failsafe.&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The condition to trigger failsafe differs between the type of receiver used.&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Bla bla bla...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Failsafe is a function that is triggered when the connection between the transmitter and receiver is lost. Failsafe gives the user a chance to configure some basic behaviour and specify what input the flight controller should get even if no control signals from the transmitter is present.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The failsafe is triggered differently for different receivers. Failsafe should always be tested before every flight.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="acceptRichText">
                  <bool>true</bool>

@@ -27,21 +27,20 @@
 #ifndef MIXERCURVE_H
 #define MIXERCURVE_H
 
-#include <QFrame>
-#include <QWidget>
-#include <QList>
-#include <QTableWidget>
-
-#include "ui_mixercurve.h"
 #include "mixercurvewidget.h"
 #include "dblspindelegate.h"
 #include "uavobjectwidgetutils_global.h"
 #include "uavobjectwidgetutils/popupwidget.h"
 
+#include <QFrame>
+#include <QList>
 
 namespace Ui {
 class MixerCurve;
 }
+
+class QWidget;
+class QTableWidget;
 
 class MixerCurve : public QFrame {
     Q_OBJECT

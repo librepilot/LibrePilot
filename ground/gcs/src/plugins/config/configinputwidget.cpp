@@ -30,6 +30,17 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+#include <utils/stylehelper.h>
+
+#include "ui_input.h"
+#include "ui_input_wizard.h"
+
+#include "inputchannelform.h"
+#include "ui_inputchannelform.h"
+
+#include "failsafechannelform.h"
+#include "ui_failsafechannelform.h"
+
 #include <systemalarms.h>
 
 #include <QDebug>
@@ -41,12 +52,9 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMessageBox>
-#include <utils/stylehelper.h>
-#include <QMessageBox>
-#include "inputchannelform.h"
-#include "ui_inputchannelform.h"
-#include "failsafechannelform.h"
-#include "ui_failsafechannelform.h"
+#include <QEventLoop>
+#include <QGraphicsSvgItem>
+#include <QSvgRenderer>
 
 #define ACCESS_MIN_MOVE            -3
 #define ACCESS_MAX_MOVE            3
@@ -170,7 +178,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addWidgetBinding("ManualControlSettings", "FailsafeFlightModeSwitchPosition", ui->failsafeFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
 
     // Generate the rows for the failsafe channel form GUI
-    index   = 0;
+    index = 0;
     foreach(QString name, manualSettingsObj->getField("FailsafeChannel")->getElementNames()) {
         Q_ASSERT(index < ManualControlSettings::FAILSAFECHANNEL_NUMELEM);
 
@@ -196,10 +204,10 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(wizardUi->wzBack, SIGNAL(clicked()), this, SLOT(wzBack()));
 
     ui->stackedWidget->setCurrentIndex(0);
-    QList<QWidget*> widgets = QList<QWidget*>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
-                                                   ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
+    QList<QWidget *> widgets = QList<QWidget *>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
+                               ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
     index = 0;
-    foreach(QWidget* widget, widgets) {
+    foreach(QWidget * widget, widgets) {
         addWidgetBinding("FlightModeSettings", "FlightModePosition", widget, index++, 1, true);
     }
 

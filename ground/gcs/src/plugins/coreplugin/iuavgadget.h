@@ -31,12 +31,11 @@
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/core_global.h>
-#include <QComboBox>
-#include <QtCore/QSettings>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
 class QComboBox;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace Core {

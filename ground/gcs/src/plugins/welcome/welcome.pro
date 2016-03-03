@@ -16,5 +16,7 @@ SOURCES += \
     welcomemode.cpp \
 
 RESOURCES += welcome.qrc
+
 DEFINES += WELCOME_LIBRARY
+
 OTHER_FILES += Welcome.pluginspec

@@ -27,17 +27,23 @@
 #ifndef CONFIGSTABILIZATIONWIDGET_H
 #define CONFIGSTABILIZATIONWIDGET_H
 
-#include "ui_stabilization.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+
 #include "stabilizationsettings.h"
-#include <QWidget>
-#include <QTimer>
-#include <QSignalMapper>
+
 #include "qwt/src/qwt_plot_curve.h"
 #include "qwt/src/qwt_plot_grid.h"
+
+#include <QTimer>
+#include <QSignalMapper>
+
+class Ui_StabilizationWidget;
+
+class QWidget;
+class QTabBar;
 
 class ConfigStabilizationWidget : public ConfigTaskWidget {
     Q_OBJECT

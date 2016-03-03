@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = UAVTalk
 
-QT += network
+QT += widgets network
 
 DEFINES += UAVTALK_LIBRARY
 

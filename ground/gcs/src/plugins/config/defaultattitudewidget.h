@@ -27,16 +27,9 @@
 #ifndef DEFAULTATTITUDEWIDGET_H
 #define DEFAULTATTITUDEWIDGET_H
 
-#include "ui_defaultattitude.h"
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
 #include <QWidget>
-#include <QTimer>
-#include <QMutex>
 
-class Ui_Widget;
+class Ui_defaultattitude;
 
 class DefaultAttitudeWidget : public QWidget {
     Q_OBJECT

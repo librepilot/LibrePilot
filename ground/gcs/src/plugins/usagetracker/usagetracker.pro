@@ -1,7 +1,7 @@
-
 TEMPLATE = lib
 TARGET = UsageTracker
-QT += network
+
+QT += widgets network
 
 include(usagetracker.pri)
 include(../../plugin.pri)
@@ -11,7 +11,10 @@ include(../../plugins/uavobjects/uavobjects.pri)
 include(../../plugins/uavobjectutil/uavobjectutil.pri)
 include(../../plugins/uavtalk/uavtalk.pri)
 
-HEADERS += usagetrackerplugin.h
-SOURCES += usagetrackerplugin.cpp
+HEADERS += \
+    usagetrackerplugin.h
+
+SOURCES += \
+    usagetrackerplugin.cpp
 
 OTHER_FILES += usagetracker.pluginspec

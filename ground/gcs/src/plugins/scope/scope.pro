@@ -1,6 +1,8 @@
 TEMPLATE = lib
 TARGET = ScopeGadget
 
+QT += widgets
+
 DEFINES += SCOPE_LIBRARY
 
 include(../../plugin.pri)

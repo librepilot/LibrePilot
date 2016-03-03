@@ -30,8 +30,8 @@
 #define OUTPUTCALIBRATIONUTIL_H
 
 #include <QObject>
-#include "actuatorcommand.h"
 
+#include "actuatorcommand.h"
 
 class OutputCalibrationUtil : public QObject {
     Q_OBJECT

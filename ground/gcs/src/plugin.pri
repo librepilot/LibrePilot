@@ -7,8 +7,6 @@ LIBS += -L$$DESTDIR
 INCLUDEPATH += $$GCS_SOURCE_TREE/src/plugins
 DEPENDPATH += $$GCS_SOURCE_TREE/src/plugins
 
-QT += widgets
-
 # copy the plugin spec
 isEmpty(TARGET) {
     error("qtcreatorplugin.pri: You must provide a TARGET")
@@ -26,14 +24,13 @@ QMAKE_EXTRA_COMPILERS += copy2build
 TARGET = $$qtLibraryName($$TARGET)
 
 macx {
-        QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../Plugins/$${PROVIDER}/
+    QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/../Plugins/$${PROVIDER}/
 } else:linux-* {
     QMAKE_RPATHDIR  = $$shell_quote(\$$ORIGIN)
     QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH, $$DESTDIR))
     QMAKE_RPATHDIR += $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_QT_LIBRARY_PATH, $$DESTDIR))
     include(rpath.pri)
 }
-
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hGCS_symbols
 

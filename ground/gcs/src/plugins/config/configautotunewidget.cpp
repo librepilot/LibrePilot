@@ -1,18 +1,21 @@
 #include "configautotunewidget.h"
 
-#include <QDebug>
-#include <QStringList>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QTextEdit>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QList>
+#include "ui_autotune.h"
+
 #include "relaytuningsettings.h"
 #include "relaytuning.h"
 #include "stabilizationsettings.h"
 #include "hwsettings.h"
+
+#include <QDebug>
+#include <QStringList>
+#include <QWidget>
+#include <QTextEdit>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QList>
 
 ConfigAutotuneWidget::ConfigAutotuneWidget(QWidget *parent) :
     ConfigTaskWidget(parent)

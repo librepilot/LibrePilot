@@ -30,11 +30,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QtPlugin>
-#include <QMainWindow>
-
 #include <QDebug>
-
 
 SerialEnumerationThread::SerialEnumerationThread(SerialConnection *serial)
     : m_serial(serial), m_running(false)

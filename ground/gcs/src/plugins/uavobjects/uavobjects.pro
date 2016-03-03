@@ -17,6 +17,7 @@ HEADERS += \
     uavobjectfield.h \
     uavobjectsinit.h \
     uavobjectsplugin.h
+
 SOURCES += \
     uavobject.cpp \
     uavmetaobject.cpp \

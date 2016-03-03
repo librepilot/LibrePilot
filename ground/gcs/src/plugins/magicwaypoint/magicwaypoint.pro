@@ -1,22 +1,25 @@
 TEMPLATE = lib
 TARGET = MagicWaypoint 
+
 QT += svg
 
 include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
 include(../../plugins/uavobjects/uavobjects.pri)
 
-HEADERS += magicwaypointgadget.h
-HEADERS += magicwaypointgadgetwidget.h
-HEADERS += magicwaypointgadgetfactory.h
-HEADERS += magicwaypointplugin.h
-HEADERS += positionfield.h
+HEADERS += \
+    magicwaypointgadget.h \
+    magicwaypointgadgetwidget.h \
+    magicwaypointgadgetfactory.h \
+    magicwaypointplugin.h \
+    positionfield.h
 
-SOURCES += magicwaypointgadget.cpp
-SOURCES += magicwaypointgadgetwidget.cpp
-SOURCES += magicwaypointgadgetfactory.cpp
-SOURCES += magicwaypointplugin.cpp
-SOURCES += positionfield.cpp
+SOURCES += \
+    magicwaypointgadget.cpp \
+    magicwaypointgadgetwidget.cpp \
+    magicwaypointgadgetfactory.cpp \
+    magicwaypointplugin.cpp \
+    positionfield.cpp
 
 OTHER_FILES += MagicWaypoint.pluginspec
 

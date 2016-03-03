@@ -1,15 +1,25 @@
 TEMPLATE = lib
 TARGET = ImportExportGadget
+
 DEFINES += IMPORTEXPORT_LIBRARY
-QT += xml
+
+QT += xml widgets
+
 include(../../plugin.pri)
 include(importexport_dependencies.pri)
-HEADERS += importexportplugin.h \
+
+HEADERS += \
+    importexportplugin.h \
     importexportgadgetwidget.h \
     importexportdialog.h
-SOURCES += importexportplugin.cpp \
+
+SOURCES += \
+    importexportplugin.cpp \
     importexportgadgetwidget.cpp \
     importexportdialog.cpp
+
 OTHER_FILES += ImportExportGadget.pluginspec
-FORMS += importexportgadgetwidget.ui \
+
+FORMS += \
+    importexportgadgetwidget.ui \
     importexportdialog.ui

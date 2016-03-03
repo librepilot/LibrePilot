@@ -27,14 +27,13 @@
 #ifndef CONFIGREVOHWWIDGET_H
 #define CONFIGREVOHWWIDGET_H
 
-#include "ui_configrevohwwidget.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include <QWidget>
-#include <QList>
 
+class Ui_RevoHWWidget;
+
+class UAVObject;
+
+class QWidget;
 
 class ConfigRevoHWWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -44,8 +43,8 @@ public:
     ~ConfigRevoHWWidget();
 
 private:
-    bool m_refreshing;
     Ui_RevoHWWidget *m_ui;
+    bool m_refreshing;
     void setupCustomCombos();
 
 protected slots:

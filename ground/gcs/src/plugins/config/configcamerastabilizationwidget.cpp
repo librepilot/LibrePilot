@@ -35,12 +35,16 @@
  */
 
 #include "configcamerastabilizationwidget.h"
+
+#include "ui_camerastabilization.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/generalsettings.h>
+
 #include "camerastabsettings.h"
 #include "hwsettings.h"
 #include "mixersettings.h"
 #include "actuatorcommand.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {

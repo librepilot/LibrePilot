@@ -27,15 +27,15 @@
 #ifndef CCATTITUDEWIDGET_H
 #define CCATTITUDEWIDGET_H
 
-#include "ui_ccattitude.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+
 #include <QWidget>
 #include <QTimer>
 
-class Ui_Widget;
+class Ui_ccattitude;
 
 class ConfigCCAttitudeWidget : public ConfigTaskWidget {
     Q_OBJECT

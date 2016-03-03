@@ -29,21 +29,22 @@
 #define CONFIGccpmWIDGET_H
 
 #include "cfg_vehicletypes/vehicleconfig.h"
-#include "ui_airframe_ccpm.h"
+
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
-#include <QGraphicsEllipseItem>
-#include <QWidget>
-#include <QList>
+class Ui_CcpmConfigWidget;
+
+class QWidget;
+class QSpinBox;
+class QGraphicsSvgItem;
+class QGraphicsEllipseItem;
+class QGraphicsLineItem;
+class QGraphicsTextItem;
 
 #define CCPM_MAX_SWASH_SERVOS 4
-
-class Ui_Widget;
 
 typedef struct {
     int ServoChannels[CCPM_MAX_SWASH_SERVOS];

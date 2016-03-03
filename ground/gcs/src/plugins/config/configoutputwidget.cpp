@@ -27,16 +27,21 @@
  */
 
 #include "configoutputwidget.h"
+
+#include "ui_output.h"
+#include "ui_outputchannelform.h"
+
 #include "outputchannelform.h"
 #include "configvehicletypewidget.h"
+
+#include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/generalsettings.h>
 
 #include "mixersettings.h"
 #include "actuatorcommand.h"
 #include "actuatorsettings.h"
 #include "systemsettings.h"
-#include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -84,11 +89,11 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
         connect(m_ui->channelOutTest, SIGNAL(toggled(bool)), form, SLOT(enableChannelTest(bool)));
         connect(form, SIGNAL(channelChanged(int, int)), this, SLOT(sendChannelTest(int, int)));
 
-        addWidget(form->ui.actuatorMin);
-        addWidget(form->ui.actuatorNeutral);
-        addWidget(form->ui.actuatorMax);
-        addWidget(form->ui.actuatorRev);
-        addWidget(form->ui.actuatorLink);
+        addWidget(form->ui->actuatorMin);
+        addWidget(form->ui->actuatorNeutral);
+        addWidget(form->ui->actuatorMax);
+        addWidget(form->ui->actuatorRev);
+        addWidget(form->ui->actuatorLink);
     }
 
 

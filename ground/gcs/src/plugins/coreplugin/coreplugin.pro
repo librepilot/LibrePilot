@@ -1,14 +1,9 @@
 TEMPLATE = lib
 TARGET = Core
+
 DEFINES += CORE_LIBRARY
-           
-QT += qml \
-    quick \
-    xml \
-    network \
-    script \
-    svg \
-    sql 
+
+QT += widgets qml quick xml network script svg sql
 
 include(../../plugin.pri)
 include(../../libs/utils/utils.pri)
@@ -17,15 +12,18 @@ include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(coreplugin_dependencies.pri)
 include(authorsdialog.pri)
 
-INCLUDEPATH += dialogs \
+INCLUDEPATH += \
+    dialogs \
     uavgadgetmanager \
     actionmanager
 
-DEPENDPATH += dialogs \
+DEPENDPATH += \
+    dialogs \
     uavgadgetmanager \
     actionmanager
 
-SOURCES += mainwindow.cpp \
+SOURCES += \
+    mainwindow.cpp \
     tabpositionindicator.cpp \
     fancyactionbar.cpp \
     fancytabwidget.cpp \
@@ -72,7 +70,8 @@ SOURCES += mainwindow.cpp \
     uavconfiginfo.cpp \
     aboutdialog.cpp \
 
-HEADERS += mainwindow.h \
+HEADERS += \
+    mainwindow.h \
     tabpositionindicator.h \
     fancyactionbar.h \
     fancytabwidget.h \
@@ -132,13 +131,15 @@ HEADERS += mainwindow.h \
     iconfigurableplugin.h \
     aboutdialog.h
 
-FORMS += dialogs/settingsdialog.ui \
+FORMS += \
+    dialogs/settingsdialog.ui \
     dialogs/shortcutsettings.ui \
     generalsettings.ui \
     uavgadgetoptionspage.ui \
     workspacesettings.ui
 
-RESOURCES += core.qrc \
+RESOURCES += \
+    core.qrc \
     fancyactionbar.qrc
 
 unix:!macx { 

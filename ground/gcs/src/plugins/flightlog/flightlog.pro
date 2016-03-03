@@ -1,7 +1,7 @@
 TEMPLATE = lib 
 TARGET = FlightLog
 
-QT += qml quick
+QT += widgets qml quick
 
 include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
@@ -9,12 +9,16 @@ include(../../plugins/uavobjects/uavobjects.pri)
 include(../../plugins/uavobjectutil/uavobjectutil.pri)
 include(../../plugins/uavtalk/uavtalk.pri)
 
-HEADERS += flightlogplugin.h \
+HEADERS += \
+    flightlogplugin.h \
     flightlogmanager.h
-SOURCES += flightlogplugin.cpp \
+
+SOURCES += \
+    flightlogplugin.cpp \
     flightlogmanager.cpp
 
-OTHER_FILES += Flightlog.pluginspec \
+OTHER_FILES += \
+    Flightlog.pluginspec \
     FlightLogDialog.qml \
     functions.js
 

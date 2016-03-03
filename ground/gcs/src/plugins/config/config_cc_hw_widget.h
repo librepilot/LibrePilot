@@ -27,14 +27,17 @@
 #ifndef CONFIGCCHWWIDGET_H
 #define CONFIGCCHWWIDGET_H
 
-#include "ui_cc_hw_settings.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+#include "smartsavebutton.h"
+
 #include <QWidget>
 #include <QList>
-#include "smartsavebutton.h"
+#include <QSvgRenderer>
+
+class Ui_CC_HW_Widget;
 
 class ConfigCCHWWidget : public ConfigTaskWidget {
     Q_OBJECT

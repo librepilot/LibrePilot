@@ -1,22 +1,30 @@
 TEMPLATE = lib
 TARGET = LineardialGadget
-QT += svg
-QT += opengl
+
+QT += widgets svg opengl
+
 include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(lineardial_dependencies.pri)
-HEADERS += lineardialplugin.h
-HEADERS += lineardialgadget.h
-HEADERS += lineardialgadgetwidget.h
-HEADERS += lineardialgadgetfactory.h
-HEADERS += lineardialgadgetconfiguration.h
-HEADERS += lineardialgadgetoptionspage.h
-SOURCES += lineardialplugin.cpp
-SOURCES += lineardialgadget.cpp
-SOURCES += lineardialgadgetfactory.cpp
-SOURCES += lineardialgadgetwidget.cpp
-SOURCES += lineardialgadgetconfiguration.cpp
-SOURCES += lineardialgadgetoptionspage.cpp
+
+HEADERS += \
+    lineardialplugin.h \
+    lineardialgadget.h \
+    lineardialgadgetwidget.h \
+    lineardialgadgetfactory.h \
+    lineardialgadgetconfiguration.h \
+    lineardialgadgetoptionspage.h
+
+SOURCES += \
+    lineardialplugin.cpp \
+    lineardialgadget.cpp \
+    lineardialgadgetfactory.cpp \
+    lineardialgadgetwidget.cpp \
+    lineardialgadgetconfiguration.cpp \
+    lineardialgadgetoptionspage.cpp
+
 OTHER_FILES += LineardialGadget.pluginspec
+
 FORMS += lineardialgadgetoptionspage.ui
+
 RESOURCES += lineardial.qrc

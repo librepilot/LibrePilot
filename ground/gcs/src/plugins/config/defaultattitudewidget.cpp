@@ -25,7 +25,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "defaultattitudewidget.h"
+
 #include "ui_defaultattitude.h"
+
 #include <QMutexLocker>
 #include <QErrorMessage>
 #include <QDebug>

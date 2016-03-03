@@ -27,7 +27,10 @@
  */
 
 #include "vehicleconfigurationhelper.h"
+
 #include "extensionsystem/pluginmanager.h"
+#include "uavobjectutilmanager.h"
+
 #include "hwsettings.h"
 #include "actuatorsettings.h"
 #include "attitudesettings.h"
@@ -42,9 +45,12 @@
 #include "accelgyrosettings.h"
 #include "gpssettings.h"
 #include "airspeedsettings.h"
-#include <QtCore/qmath.h>
-#include <QJsonObject>
 #include "auxmagsettings.h"
+
+#include <QtCore/qmath.h>
+#include <QDebug>
+#include <QJsonObject>
+#include <QTimer>
 
 VehicleConfigurationHelper::VehicleConfigurationHelper(VehicleConfigurationSource *configSource)
     : m_configSource(configSource), m_uavoManager(0),

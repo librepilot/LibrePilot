@@ -27,29 +27,19 @@
 #ifndef CONFIGREVOWIDGET_H
 #define CONFIGREVOWIDGET_H
 
-#include "ui_revosensors.h"
 #include "configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
+
 #include "calibration/thermal/thermalcalibrationmodel.h"
 #include "calibration/sixpointcalibrationmodel.h"
 #include "calibration/levelcalibrationmodel.h"
 #include "calibration/gyrobiascalibrationmodel.h"
 
-#include <auxmagsettings.h>
-#include <magsensor.h>
-#include <auxmagsensor.h>
-#include <magstate.h>
+class Ui_RevoSensorsWidget;
 
-#include <QWidget>
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
-#include <QList>
-#include <QTimer>
-#include <QMutex>
-
-class Ui_Widget;
+class QWidget;
 
 class ConfigRevoWidget : public ConfigTaskWidget {
     Q_OBJECT

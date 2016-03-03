@@ -28,10 +28,16 @@
 
 #include "configoplinkwidget.h"
 
+#include "ui_oplink.h"
+
 #include <coreplugin/generalsettings.h>
+#include <uavobjectmanager.h>
+
 #include <oplinksettings.h>
 #include <oplinkstatus.h>
+
 #include <QMessageBox>
+#include <QDateTime>
 
 // Channel range and Frequency display
 static const int MAX_CHANNEL_NUM   = 250;

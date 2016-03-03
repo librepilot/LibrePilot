@@ -27,25 +27,23 @@
 #ifndef CONFIGTASKWIDGET_H
 #define CONFIGTASKWIDGET_H
 
+#include "uavobjectwidgetutils_global.h"
+
 #include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include "uavobjectutilmanager.h"
-#include <QQueue>
+
 #include <QWidget>
 #include <QList>
-#include <QLabel>
-#include "smartsavebutton.h"
-#include "mixercurvewidget.h"
-#include <QTableWidget>
-#include <QDoubleSpinBox>
-#include <QSpinBox>
-#include <QCheckBox>
-#include <QPushButton>
-#include "uavobjectwidgetutils_global.h"
-#include <QDesktopServices>
-#include <QUrl>
-#include <QEvent>
+#include <QVariant>
+
+class UAVObject;
+class UAVObjectField;
+class UAVObjectManager;
+class UAVObjectUtilManager;
+class SmartSaveButton;
+
+class QComboBox;
+class QPushButton;
+class QEvent;
 
 class ShadowWidgetBinding : public QObject {
     Q_OBJECT

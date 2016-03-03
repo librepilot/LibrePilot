@@ -27,14 +27,17 @@
  */
 #include "configrevohwwidget.h"
 
-#include <QDebug>
+#include "ui_configrevohwwidget.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+
 #include "hwsettings.h"
+
+#include <QDebug>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMessageBox>
-
 
 ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
 {

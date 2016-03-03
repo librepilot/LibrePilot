@@ -259,6 +259,19 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
                 break;
             }
+            case VehicleConfigurationSource::GPS_NAZA:
+            {
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_DJI;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_DISABLED;
+                AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
+                Q_ASSERT(magSettings);
+                AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Type  = AuxMagSettings::TYPE_DJI;
+                magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
+                magSettings->setData(magsData);
+                addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
+                break;
+            }
             case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
             {
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;

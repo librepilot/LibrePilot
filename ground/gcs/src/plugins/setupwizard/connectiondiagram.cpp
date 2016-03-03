@@ -237,6 +237,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::GPS_PLATINUM:
             elementsToShow << QString("%1OPGPS-v9").arg(prefix);
             break;
+        case VehicleConfigurationSource::GPS_NAZA:
+            elementsToShow << QString("%1NazaGPS").arg(prefix);
+            break;
         case VehicleConfigurationSource::GPS_UBX:
             elementsToShow << QString("%1OPGPS-v8-ublox").arg(prefix);
             break;

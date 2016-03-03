@@ -83,6 +83,11 @@ void GpsPage::setupSelection(Selection *selection)
                        "OPGPS-v9",
                        SetupWizard::GPS_PLATINUM);
 
+    selection->addItem(tr("Naza GPS"),
+                       tr("Select this option to use the Naza GPS with integrated Magnetometer."),
+                       "NazaGPS",
+                       SetupWizard::GPS_NAZA);
+
     selection->addItem(tr("U-Blox Based + Magnetometer"),
                        tr("Select this option for the generic U-Blox chipset based GPS + I2C Magnetometer.\n\n"
                           "GPS is connected to MainPort and two wires I2C to FlexiPort."),

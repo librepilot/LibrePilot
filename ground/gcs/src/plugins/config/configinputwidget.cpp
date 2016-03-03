@@ -170,7 +170,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addWidgetBinding("ManualControlSettings", "FailsafeFlightModeSwitchPosition", ui->failsafeFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
 
     // Generate the rows for the failsafe channel form GUI
-    index   = 0;
+    index = 0;
     foreach(QString name, manualSettingsObj->getField("FailsafeChannel")->getElementNames()) {
         Q_ASSERT(index < ManualControlSettings::FAILSAFECHANNEL_NUMELEM);
 
@@ -196,10 +196,10 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(wizardUi->wzBack, SIGNAL(clicked()), this, SLOT(wzBack()));
 
     ui->stackedWidget->setCurrentIndex(0);
-    QList<QWidget*> widgets = QList<QWidget*>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
-                                                   ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
+    QList<QWidget *> widgets = QList<QWidget *>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
+                               ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
     index = 0;
-    foreach(QWidget* widget, widgets) {
+    foreach(QWidget * widget, widgets) {
         addWidgetBinding("FlightModeSettings", "FlightModePosition", widget, index++, 1, true);
     }
 
@@ -241,6 +241,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     connect(ui->failsafeFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeFlightModeChanged(int)));
     connect(ui->failsafeFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeFlightModeCbToggled(bool)));
+
+    connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
 
     addWidget(ui->configurationWizard);
     addWidget(ui->runCalibration);
@@ -440,7 +442,9 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 void ConfigInputWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)
 {
     if (combo == ui->failsafeFlightMode) {
-        ConfigTaskWidget::buildOptionComboBox(combo, flightModeSettingsObj->getField("FlightModePosition"), index, applyLimits);
+        for (int i = 0; i < 6; i++) {
+            ui->failsafeFlightMode->addItem(QString("Position %1").arg(i + 1), QVariant(i));
+        }
     } else {
         ConfigTaskWidget::buildOptionComboBox(combo, field, index, applyLimits);
     }
@@ -1735,6 +1739,11 @@ void ConfigInputWidget::highlightStabilizationMode(int pos)
     }
 }
 
+void setComboBoxItemEnabled(QComboBox *combo, int index, bool enabled = true)
+{
+    combo->setItemData(index, enabled ? QVariant(1 | 32) : QVariant(0), Qt::UserRole - 1);
+}
+
 void ConfigInputWidget::updatePositionSlider()
 {
     ManualControlSettings::DataFields manualSettingsDataPriv = manualSettingsObj->getData();
@@ -1745,31 +1754,37 @@ void ConfigInputWidget::updatePositionSlider()
         ui->fmsModePos6->setEnabled(true);
         ui->pidBankSs1_5->setEnabled(true);
         ui->assistControlPos6->setEnabled(true);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 5);
     // pass through
     case 5:
         ui->fmsModePos5->setEnabled(true);
         ui->pidBankSs1_4->setEnabled(true);
         ui->assistControlPos5->setEnabled(true);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 4);
     // pass through
     case 4:
         ui->fmsModePos4->setEnabled(true);
         ui->pidBankSs1_3->setEnabled(true);
         ui->assistControlPos4->setEnabled(true);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 3);
     // pass through
     case 3:
         ui->fmsModePos3->setEnabled(true);
         ui->pidBankSs1_2->setEnabled(true);
         ui->assistControlPos3->setEnabled(true);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 2);
     // pass through
     case 2:
         ui->fmsModePos2->setEnabled(true);
         ui->pidBankSs1_1->setEnabled(true);
         ui->assistControlPos2->setEnabled(true);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 1);
     // pass through
     case 1:
         ui->fmsModePos1->setEnabled(true);
         ui->pidBankSs1_0->setEnabled(true);
         ui->assistControlPos1->setEnabled(true);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 0);
     // pass through
     case 0:
         break;
@@ -1780,31 +1795,37 @@ void ConfigInputWidget::updatePositionSlider()
         ui->fmsModePos1->setEnabled(false);
         ui->pidBankSs1_0->setEnabled(false);
         ui->assistControlPos1->setEnabled(false);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 0, false);
     // pass through
     case 1:
         ui->fmsModePos2->setEnabled(false);
         ui->pidBankSs1_1->setEnabled(false);
         ui->assistControlPos2->setEnabled(false);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 1, false);
     // pass through
     case 2:
         ui->fmsModePos3->setEnabled(false);
         ui->pidBankSs1_2->setEnabled(false);
         ui->assistControlPos3->setEnabled(false);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 2, false);
     // pass through
     case 3:
         ui->fmsModePos4->setEnabled(false);
         ui->pidBankSs1_3->setEnabled(false);
         ui->assistControlPos4->setEnabled(false);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 3, false);
     // pass through
     case 4:
         ui->fmsModePos5->setEnabled(false);
         ui->pidBankSs1_4->setEnabled(false);
         ui->assistControlPos5->setEnabled(false);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 4, false);
     // pass through
     case 5:
         ui->fmsModePos6->setEnabled(false);
         ui->pidBankSs1_5->setEnabled(false);
         ui->assistControlPos6->setEnabled(false);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, 5, false);
     // pass through
     case 6:
     default:
@@ -2082,4 +2103,9 @@ void ConfigInputWidget::failsafeFlightModeChanged(int index)
 void ConfigInputWidget::failsafeFlightModeCbToggled(bool checked)
 {
     ui->failsafeFlightMode->setCurrentIndex(checked ? 0 : -1);
+}
+
+void ConfigInputWidget::enableControlsChanged(bool enabled)
+{
+    ui->failsafeFlightMode->setEnabled(enabled && ui->failsafeFlightMode->currentIndex() != -1);
 }

@@ -230,6 +230,7 @@ private slots:
 
     void failsafeFlightModeChanged(int index);
     void failsafeFlightModeCbToggled(bool checked);
+    void enableControlsChanged(bool enabled);
 
 protected:
     void resizeEvent(QResizeEvent *event);

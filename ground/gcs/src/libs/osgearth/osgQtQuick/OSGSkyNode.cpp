@@ -183,20 +183,18 @@ public:
         return true;
     }
 
-    bool attach(osgViewer::View *view)
+    void attachSkyNode(osgViewer::View *view)
     {
         if (!skyNode.valid()) {
             qWarning() << "OSGSkyNode::attach - invalid sky node" << skyNode;
-            return false;
+            return;
         }
         skyNode->attach(view, 0);
-        return true;
     }
 
-    bool detach(osgViewer::View *view)
+    void detachSkyNode(osgViewer::View *view)
     {
-        qWarning() << "OSGSkyNode::detach - not implemented";
-        return true;
+        // TODO find a way to detach the skyNode (?)
     }
 
     OSGSkyNode *const self;
@@ -275,14 +273,22 @@ void OSGSkyNode::setMinimumAmbientLight(double arg)
     }
 }
 
-bool OSGSkyNode::attach(osgViewer::View *view)
+void OSGSkyNode::attach(osgViewer::View *view)
 {
-    return h->attach(view);
+    // qDebug() << "OSGSkyNode::attach " << view;
+    if (h->sceneData) {
+        h->sceneData->attach(view);
+    }
+    h->attachSkyNode(view);
 }
 
-bool OSGSkyNode::detach(osgViewer::View *view)
+void OSGSkyNode::detach(osgViewer::View *view)
 {
-    return h->detach(view);
+    // qDebug() << "OSGSkyNode::detach " << view;
+    h->detachSkyNode(view);
+    if (h->sceneData) {
+        h->sceneData->detach(view);
+    }
 }
 } // namespace osgQtQuick
 

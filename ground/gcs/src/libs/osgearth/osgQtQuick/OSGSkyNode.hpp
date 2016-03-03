@@ -66,8 +66,8 @@ public:
     double minimumAmbientLight();
     void setMinimumAmbientLight(double arg);
 
-    virtual bool attach(osgViewer::View *view);
-    virtual bool detach(osgViewer::View *view);
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 
 signals:
     void sceneDataChanged(OSGNode *node);

@@ -48,6 +48,7 @@
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
+#include <QQuickFramebufferObject>
 #include <QOpenGLFramebufferObject>
 #include <QSGSimpleTextureNode>
 #include <QOpenGLFunctions>
@@ -151,37 +152,32 @@ public:
         return true;
     }
 
-    bool attach(osgViewer::View *view)
+    void attach(osgViewer::View *view)
     {
         if (!sceneData) {
             qWarning() << "OSGViewport::attach - invalid scene!";
-            return false;
+            return;
         }
+        // attach scene
+        attach(view, sceneData->node());
         // attach camera
         if (camera) {
             camera->attach(view);
         } else {
             qWarning() << "OSGViewport::attach - no camera!";
         }
-        // attach scene
-        if (!attach(view, sceneData->node())) {
-            qWarning() << "OSGViewport::attach - failed to attach node!";
-            return false;
-        }
-        return true;
     }
 
-    bool attach(osgViewer::View *view, osg::Node *node)
+    void attach(osgViewer::View *view, osg::Node *node)
     {
-        qDebug() << "OSGViewport::attach" << node;
         if (!view) {
             qWarning() << "OSGViewport::attach - view is null";
-            return false;
+            return;
         }
         if (!node) {
             qWarning() << "OSGViewport::attach - node is null";
             view->setSceneData(NULL);
-            return true;
+            return;
         }
 
 #ifdef USE_OSGEARTH
@@ -192,23 +188,22 @@ public:
 
             // remove light to prevent unnecessary state changes in SceneView
             // scene will get light from sky
-            view->setLightingMode(osg::View::NO_LIGHT);
+            // view->setLightingMode(osg::View::NO_LIGHT);
         }
 #endif
 
         qDebug() << "OSGViewport::attach - set scene" << node;
         view->setSceneData(node);
-
-        return true;
     }
 
-    bool detach(osgViewer::View *view)
+    void detach(osgViewer::View *view)
     {
-        qDebug() << "OSGViewport::detach" << view;
+        // detach camera
         if (camera) {
             camera->detach(view);
         }
-        return true;
+        // detach scene
+        view->setSceneData(NULL);
     }
 
     void onSceneGraphInitialized()
@@ -237,8 +232,8 @@ public:
             return;
         }
         view = createView();
-        self->attach(view.get());
         viewer->addView(view);
+        self->attach(view.get());
         start();
     }
 
@@ -290,10 +285,8 @@ public:
 
     int frameTimer;
 
-    osg::ref_ptr<osgViewer::CompositeViewer>  viewer;
-    osg::ref_ptr<osgViewer::View>   view;
-
-    static osg::ref_ptr<osg::GraphicsContext> dummy;
+    osg::ref_ptr<osgViewer::CompositeViewer> viewer;
+    osg::ref_ptr<osgViewer::View> view;
 
     static QtKeyboardMap keyMap;
 
@@ -359,10 +352,11 @@ public:
         // view->addEventHandler(new osgViewer::ScreenCaptureHandler);
 
         // setup graphics context and camera
-        osg::Camera *camera = view->getCamera();
         osg::GraphicsContext *gc = createGraphicsContext();
+
+        osg::Camera *camera = view->getCamera();
         camera->setGraphicsContext(gc);
-        camera->setViewport(new osg::Viewport(0, 0, gc->getTraits()->width, gc->getTraits()->height));
+        camera->setViewport(0, 0, gc->getTraits()->width, gc->getTraits()->height);
 
         return view;
     }
@@ -504,6 +498,11 @@ public:
                 }
                 firstFrame = false;
             }
+            osg::Viewport *viewport = h->view->getCamera()->getViewport();
+            if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
+                h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width(), item->height());
+            }
+
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
@@ -522,7 +521,6 @@ public:
             return;
         }
 
-
         if (needToDoFrame) {
             // needed to properly render models without terrain (Qt bug?)
             QOpenGLContext::currentContext()->functions()->glUseProgram(0);
@@ -538,13 +536,8 @@ public:
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
     {
-        // qDebug() << "ViewportRenderer::createFramebufferObject" << size;
-        if (h->view.valid()) {
-            h->view->getCamera()->getGraphicsContext()->resized(0, 0, size.width(), size.height());
-            h->view->getEventQueue()->windowResize(0, 0, size.width(), size.height());
-        }
-
         QOpenGLFramebufferObjectFormat format;
+
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         // format.setSamples(4);
 
@@ -565,7 +558,6 @@ private:
     bool needToDoFrame;
 };
 
-osg::ref_ptr<osg::GraphicsContext> OSGViewport::Hidden::dummy;
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
 /* class OSGViewport */
@@ -643,41 +635,22 @@ QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
     return new ViewportRenderer(h);
 }
 
-bool OSGViewport::attach(osgViewer::View *view)
+void OSGViewport::attach(osgViewer::View *view)
 {
-    qDebug() << "OSGViewport::attach" << view;
-
-    h->attach(view);
-
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        QObject *object = i.next();
-        OSGNode *node   = qobject_cast<OSGNode *>(object);
-        if (node) {
-            qDebug() << "OSGViewport::attach - child" << node;
-            node->attach(view);
-        }
+    // qDebug() << "OSGViewport::attach" << view;
+    if (h->sceneData) {
+        h->sceneData->attach(view);
     }
-
-    return true;
+    h->attach(view);
 }
 
-bool OSGViewport::detach(osgViewer::View *view)
+void OSGViewport::detach(osgViewer::View *view)
 {
     qDebug() << "OSGViewport::detach" << view;
-
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        QObject *object = i.next();
-        OSGNode *node   = qobject_cast<OSGNode *>(object);
-        if (node) {
-            node->detach(view);
-        }
-    }
-
     h->detach(view);
-
-    return true;
+    if (h->sceneData) {
+        h->sceneData->detach(view);
+    }
 }
 
 void OSGViewport::releaseResources()
@@ -705,10 +678,8 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
 
 QPointF OSGViewport::mousePoint(QMouseEvent *event)
 {
-    // qreal x = 2.0 * (event->x() - width() / 2) / width();
-    // qreal y = 2.0 * (event->y() - height() / 2) / height();
-    qreal x = event->x();
-    qreal y = event->y();
+    qreal x = 2.0 * (event->x() - width() / 2) / width();
+    qreal y = 2.0 * (event->y() - height() / 2) / height();
 
     return QPointF(x, y);
 }

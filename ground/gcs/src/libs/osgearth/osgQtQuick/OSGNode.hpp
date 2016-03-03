@@ -41,6 +41,7 @@ class View;
 } // namespace osgViewer
 
 namespace osgQtQuick {
+
 class OSGQTQUICK_EXPORT OSGNode : public QObject {
     Q_OBJECT
 
@@ -51,8 +52,8 @@ public:
     osg::Node *node() const;
     void setNode(osg::Node *node);
 
-    virtual bool attach(osgViewer::View *view);
-    virtual bool detach(osgViewer::View *view);
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 
 signals:
     void nodeChanged(osg::Node *node) const;

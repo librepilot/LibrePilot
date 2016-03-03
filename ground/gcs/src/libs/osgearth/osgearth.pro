@@ -36,11 +36,13 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter
 HEADERS += \
     osgearth_global.h \
     utility.h \
+    shapeutils.h \
     qtwindowingsystem.h \
     osgearth.h
 
 SOURCES += \
     utility.cpp \
+    shapeutils.cpp \
     qtwindowingsystem.cpp \
     osgearth.cpp
 
@@ -49,7 +51,7 @@ HEADERS += \
     osgQtQuick/OSGNode.hpp \
     osgQtQuick/OSGGroup.hpp \
     osgQtQuick/OSGTransformNode.hpp \
-    osgQtQuick/OSGCubeNode.hpp \
+    osgQtQuick/OSGShapeNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
     osgQtQuick/OSGBackgroundNode.hpp \
@@ -60,7 +62,7 @@ SOURCES += \
     osgQtQuick/OSGNode.cpp \
     osgQtQuick/OSGGroup.cpp \
     osgQtQuick/OSGTransformNode.cpp \
-    osgQtQuick/OSGCubeNode.cpp \
+    osgQtQuick/OSGShapeNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
     osgQtQuick/OSGBackgroundNode.cpp \

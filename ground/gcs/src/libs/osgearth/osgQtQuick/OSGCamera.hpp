@@ -117,8 +117,8 @@ public:
     bool logarithmicDepthBuffer();
     void setLogarithmicDepthBuffer(bool enabled);
 
-    virtual bool attach(osgViewer::View *view);
-    virtual bool detach(osgViewer::View *view);
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 
 signals:
     void fieldOfViewChanged(qreal arg);

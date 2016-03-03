@@ -145,6 +145,28 @@ QQmlListProperty<OSGNode> OSGGroup::children()
                                      &Hidden::at_child,
                                      &Hidden::clear_child);
 }
+
+void OSGGroup::attach(osgViewer::View *view)
+{
+    // qDebug() << "OSGGroup::attach " << view;
+    QListIterator<OSGNode *> i(h->children);
+    while (i.hasNext()) {
+        OSGNode *node = i.next();
+        // qDebug() << "OSGGroup::attach - child" << node;
+        node->attach(view);
+    }
+}
+
+void OSGGroup::detach(osgViewer::View *view)
+{
+    // qDebug() << "OSGGroup::detach " << view;
+    QListIterator<OSGNode *> i(h->children);
+    while (i.hasNext()) {
+        OSGNode *node = i.next();
+        // qDebug() << "OSGGroup::detach - child" << node;
+        node->detach(view);
+    }
+}
 } // namespace osgQtQuick
 
 #include "OSGGroup.moc"

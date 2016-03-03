@@ -147,7 +147,7 @@ void OsgEarth::initializeCache()
     } else {
         qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
     }
-#endif
+#endif // ifdef USE_OSGEARTH
 }
 
 void OsgEarth::displayInfo()

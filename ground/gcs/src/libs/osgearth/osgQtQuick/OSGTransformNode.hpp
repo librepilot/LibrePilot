@@ -41,8 +41,8 @@ class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
     Q_PROPERTY(osgQtQuick::OSGNode *modelData READ modelData WRITE setModelData NOTIFY modelDataChanged)
 
     Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
-    Q_PROPERTY(QVector3D rotate READ rotate WRITE setRotate NOTIFY rotateChanged)
-    Q_PROPERTY(QVector3D translate READ translate WRITE setTranslate NOTIFY translateChanged)
+    Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
+    Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
 
 public:
     OSGTransformNode(QObject *parent = 0);
@@ -54,18 +54,21 @@ public:
     QVector3D scale() const;
     void setScale(QVector3D arg);
 
-    QVector3D rotate() const;
-    void setRotate(QVector3D arg);
+    QVector3D attitude() const;
+    void setAttitude(QVector3D arg);
 
-    QVector3D translate() const;
-    void setTranslate(QVector3D arg);
+    QVector3D position() const;
+    void setPosition(QVector3D arg);
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 
 signals:
     void modelDataChanged(OSGNode *node);
 
     void scaleChanged(QVector3D arg);
-    void rotateChanged(QVector3D arg);
-    void translateChanged(QVector3D arg);
+    void attitudeChanged(QVector3D arg);
+    void positionChanged(QVector3D arg);
 
 private:
     struct Hidden;

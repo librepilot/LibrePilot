@@ -32,7 +32,7 @@
 #include "osgQtQuick/OSGGroup.hpp"
 #include "osgQtQuick/OSGFileNode.hpp"
 #include "osgQtQuick/OSGTransformNode.hpp"
-#include "osgQtQuick/OSGCubeNode.hpp"
+#include "osgQtQuick/OSGShapeNode.hpp"
 #include "osgQtQuick/OSGTextNode.hpp"
 #include "osgQtQuick/OSGModelNode.hpp"
 #include "osgQtQuick/OSGBackgroundNode.hpp"
@@ -529,7 +529,8 @@ void registerTypes()
 
     qmlRegisterType<osgQtQuick::OSGTextNode>("OsgQtQuick", maj, min, "OSGTextNode");
 
-    qmlRegisterType<osgQtQuick::OSGCubeNode>("OsgQtQuick", maj, min, "OSGCubeNode");
+    qmlRegisterType<osgQtQuick::OSGShapeNode>("OsgQtQuick", maj, min, "OSGShapeNode");
+    qmlRegisterType<osgQtQuick::ShapeType>("OsgQtQuick", maj, min, "ShapeType");
 
     qmlRegisterType<osgQtQuick::OSGBackgroundNode>("OsgQtQuick", maj, min, "OSGBackgroundNode");
 

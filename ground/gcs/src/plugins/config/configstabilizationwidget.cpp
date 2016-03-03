@@ -107,6 +107,9 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->pushButton_9);
     addWidget(ui->pushButton_10);
     addWidget(ui->pushButton_11);
+    addWidget(ui->pushButton_12);
+    addWidget(ui->pushButton_13);
+    addWidget(ui->pushButton_14);
     addWidget(ui->pushButton_20);
     addWidget(ui->pushButton_22);
     addWidget(ui->pushButton_23);

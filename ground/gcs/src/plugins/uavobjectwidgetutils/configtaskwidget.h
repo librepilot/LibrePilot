@@ -241,7 +241,7 @@ private:
     void connectWidgetUpdatesToSlot(QWidget *widget, const char *function);
     void disconnectWidgetUpdatesToSlot(QWidget *widget, const char *function);
 
-    void loadWidgetLimits(QWidget *widget, UAVObjectField *field, int index, bool hasLimits, double sclale);
+    void loadWidgetLimits(QWidget *widget, UAVObjectField *field, int index, bool applyLimits, double scale);
 
     int fieldIndexFromElementName(QString objectName, QString fieldName, QString elementName);
 
@@ -262,6 +262,7 @@ protected:
     virtual void enableControls(bool enable);
     virtual QString mapObjectName(const QString objectName);
     virtual UAVObject *getObject(const QString name, quint32 instId = 0);
+    virtual void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
     void checkWidgetsLimits(QWidget *widget, UAVObjectField *field, int index, bool hasLimits, QVariant value, double scale);
     void updateEnableControls();
 };

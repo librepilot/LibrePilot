@@ -36,8 +36,6 @@
 #include "uavobject.h"
 #include <QWidget>
 #include <QList>
-#include "inputchannelform.h"
-#include "ui_inputchannelform.h"
 #include <QRadioButton>
 #include "manualcontrolcommand.h"
 #include "manualcontrolsettings.h"
@@ -229,8 +227,12 @@ private slots:
     void resetActuatorSettings();
     void forceOneFlightMode();
 
+    void failsafeFlightModeChanged(int index);
+    void failsafeFlightModeCbToggled(bool checked);
+
 protected:
     void resizeEvent(QResizeEvent *event);
+    void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
 };
 
 #endif // ifndef CONFIGINPUTWIDGET_H

@@ -30,6 +30,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+#include <systemalarms.h>
 
 #include <QDebug>
 #include <QStringList>
@@ -235,6 +236,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addWidgetBinding("FlightModeSettings", "ArmedTimeout", ui->armTimeout, 0, 1000);
     connect(ManualControlCommand::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(moveFMSlider()));
     connect(ManualControlSettings::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updatePositionSlider()));
+    connect(SystemAlarms::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateConfigAlarmStatus()));
 
     connect(ui->failsafeFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeFlightModeChanged(int)));
     connect(ui->failsafeFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeFlightModeCbToggled(bool)));
@@ -468,6 +470,9 @@ void ConfigInputWidget::enableControls(bool enable)
 
     if (enable) {
         updatePositionSlider();
+    } else {
+        // Hide configAlarmStatus when disconnected
+        ui->configAlarmStatus->setVisible(false);
     }
 }
 
@@ -1827,6 +1832,32 @@ void ConfigInputWidget::updatePositionSlider()
             }
         }
     }
+}
+
+void ConfigInputWidget::updateConfigAlarmStatus()
+{
+    SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
+    SystemAlarms::DataFields systemAlarms = systemAlarmsObj->getData();
+
+    QString message = tr("Config OK");
+    QString tooltipMessage = tr("All fine, no config alarm!");
+    QString bgColor = "green";
+
+    if (systemAlarms.Alarm[SystemAlarms::ALARM_SYSTEMCONFIGURATION] > SystemAlarms::ALARM_WARNING) {
+        switch (systemAlarms.ExtendedAlarmStatus[SystemAlarms::EXTENDEDALARMSTATUS_SYSTEMCONFIGURATION]) {
+        case SystemAlarms::EXTENDEDALARMSTATUS_FLIGHTMODE:
+            message = tr("Config error");
+            tooltipMessage = tr("There is something wrong with your config,\nusually a Thrust mode or Assisted mode not supported.\n\n"
+                                "Tip: Reduce the Flight Mode Count to find the culprit.");
+            bgColor = "red";
+        }
+    }
+    ui->configAlarmStatus->setVisible(true);
+    ui->configAlarmStatus->setStyleSheet(
+        "QLabel { background-color: " + bgColor + ";"
+        "color: rgb(255, 255, 255); border-radius: 5; margin:1px; font:bold; }");
+    ui->configAlarmStatus->setText(message);
+    ui->configAlarmStatus->setToolTip(tooltipMessage);
 }
 
 void ConfigInputWidget::updateCalibration()

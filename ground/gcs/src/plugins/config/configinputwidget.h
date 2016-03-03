@@ -217,6 +217,7 @@ private slots:
     void dimOtherControls(bool value);
     void moveFMSlider();
     void updatePositionSlider();
+    void updateConfigAlarmStatus();
     void invertControls();
     void simpleCalibration(bool state);
     void adjustSpecialNeutrals();

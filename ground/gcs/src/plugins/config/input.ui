@@ -1154,7 +1154,76 @@ font:bold;</string>
               <property name="horizontalSpacing">
                <number>6</number>
               </property>
-              <item row="1" column="0" rowspan="2">
+              <item row="3" column="12">
+               <widget class="QLabel" name="configAlarmStatus">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Ignored" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>14</pointsize>
+                  <weight>75</weight>
+                  <italic>false</italic>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: green;
+color: rgb(255, 255, 255);
+border-radius: 5;
+margin:1px;
+font:bold;</string>
+                </property>
+                <property name="text">
+                 <string>Config Status</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="12">
+               <widget class="QLabel" name="label_15">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Ignored" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Never select &amp;quot;Manual&amp;quot; as Flight Mode when flying a multitrotor! Never select &amp;quot;Altitude&amp;quot; or &amp;quot;CruiseControl&amp;quot; in Stabilization Modes when using a fixed wing!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" rowspan="3">
                <widget class="QFrame" name="frame">
                 <property name="minimumSize">
                  <size>
@@ -1392,7 +1461,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                 </layout>
                </widget>
               </item>
-              <item row="1" column="2" rowspan="2">
+              <item row="1" column="2" rowspan="3">
                <widget class="QFrame" name="frame1">
                 <property name="minimumSize">
                  <size>
@@ -1503,7 +1572,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                 </layout>
                </widget>
               </item>
-              <item row="1" column="6" rowspan="2">
+              <item row="1" column="6" rowspan="3">
                <widget class="QFrame" name="frame_8">
                 <property name="minimumSize">
                  <size>
@@ -1785,32 +1854,6 @@ channel value for each flight mode.</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="12">
-               <widget class="QLabel" name="label_15">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>10</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Never select &amp;quot;Manual&amp;quot; as Flight Mode when flying a multitrotor! Never select &amp;quot;Altitude&amp;quot; or &amp;quot;CruiseControl&amp;quot; in Stabilization Modes when using a fixed wing!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="3">
                <spacer name="horizontalSpacer_6">
                 <property name="orientation">
@@ -1859,7 +1902,7 @@ channel value for each flight mode.</string>
                 </property>
                </spacer>
               </item>
-              <item row="0" column="10" rowspan="3">
+              <item row="0" column="10" rowspan="4">
                <widget class="Line" name="line">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
@@ -1921,7 +1964,7 @@ font:bold;</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="8" rowspan="2">
+              <item row="1" column="8" rowspan="3">
                <widget class="QFrame" name="frame_4">
                 <property name="minimumSize">
                  <size>

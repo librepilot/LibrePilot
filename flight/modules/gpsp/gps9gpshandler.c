@@ -64,7 +64,6 @@ void handleGPS()
                 // toss the buffer contents if it's full and there are no complete
                 // ublox sentences in it.  This happens if the module is sending NMEA
                 lastUnsentData = toSend < GPS_BUFFER_SIZE ? toSend : 0;
-                PIOS_COM_SendBuffer(pios_com_main_id, gpsBuffer, toSend);
             }
         }
 

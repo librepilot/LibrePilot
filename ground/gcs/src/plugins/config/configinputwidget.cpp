@@ -197,8 +197,9 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     ui->stackedWidget->setCurrentIndex(0);
     QList<QWidget*> widgets = QList<QWidget*>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
                                                    ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
+    index = 0;
     foreach(QWidget* widget, widgets) {
-        addWidgetBinding("FlightModeSettings", "FlightModePosition", widget, 0, 1, true);
+        addWidgetBinding("FlightModeSettings", "FlightModePosition", widget, index++, 1, true);
     }
 
     addWidgetBinding("FlightModeSettings", "Stabilization1Settings", ui->fmsSsPos1Roll, "Roll", 1, true);

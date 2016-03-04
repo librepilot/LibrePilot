@@ -50,6 +50,8 @@ MODULES += Airspeed
 
 SRC += $(FLIGHTLIB)/notification.c
 
+OPTMODULES += AutoTune
+
 # Paths
 OPSYSTEM = .
 BOARDINC = ..

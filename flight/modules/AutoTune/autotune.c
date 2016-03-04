@@ -36,19 +36,15 @@
 
 #include "openpilot.h"
 #include "pios.h"
-//#include "physical_constants.h"
 #include "flightstatus.h"
-//#include "modulesettings.h"
 #include "manualcontrolcommand.h"
 #include "manualcontrolsettings.h"
-//#include "gyros.h"
 #include "gyrosensor.h"
 #include "actuatordesired.h"
 #include "stabilizationdesired.h"
 #include "stabilizationsettings.h"
 #include "systemident.h"
 #include <pios_board_info.h>
-//#include "pios_thread.h"
 #include "systemsettings.h"
 #include "taskinfo.h"
 
@@ -57,9 +53,8 @@
 #include "stabilizationsettingsbank1.h"
 #include "stabilizationsettingsbank2.h"
 #include "stabilizationsettingsbank3.h"
+#include "accessorydesired.h"
 
-//#include "circqueue.h"
-//#include "misc_math.h"
 
 #define PIOS_malloc pios_malloc
 
@@ -71,6 +66,10 @@
 #define expapprox expf
 #endif /* defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
+//#define USE_CIRC_QUEUE
+
+
+#if defined(USE_CIRC_QUEUE)
 /**
  ******************************************************************************
  * @file       circqueue.h
@@ -144,7 +143,7 @@ circ_queue_t circ_queue_new(uint16_t elem_size, uint16_t num_elem) {
     struct circ_queue *ret = PIOS_malloc(sizeof(*ret) + size);
 
     memset(ret, 0, sizeof(*ret) + size);
-
+CSS pixel
     ret->elem_size = elem_size;
     ret->num_elem = num_elem;
 
@@ -239,6 +238,8 @@ void circ_queue_read_completed(circ_queue_t q) {
 
     q->read_tail = next_pos(q->num_elem, read_tail);
 }
+#endif
+
 
 // Private constants
 #undef  STACK_SIZE_BYTES
@@ -251,6 +252,26 @@ void circ_queue_read_completed(circ_queue_t q) {
 #define AF_NUMX 13
 #define AF_NUMP 43
 
+#if !defined(AT_QUEUE_NUMELEM)
+#define AT_QUEUE_NUMELEM 18
+#endif
+
+#define MAX_PTS_PER_CYCLE      4
+#define START_TIME_DELAY_MS 2000
+#define INIT_TIME_DELAY_MS  2000
+#define YIELD_MS               2
+
+#if defined(USE_CIRC_QUEUE)
+#define DEREFERENCE(str, ele) (str->ele)
+#else
+#define DEREFERENCE(str, ele) (str.ele)
+#endif
+
+#define SMOOTH_QUICK_DISABLED     0
+#define SMOOTH_QUICK_AUX_BASE    10
+#define SMOOTH_QUICK_TOGGLE_BASE 21
+
+
 // Private types		<access gcs="readwrite" flight="readwrite"/>
 enum AUTOTUNE_STATE { AT_INIT, AT_START, AT_RUN, AT_FINISHED, AT_WAITING };
 
@@ -262,97 +283,359 @@ struct at_queued_data {
     uint32_t raw_time;    /* From PIOS_DELAY_GetRaw() */
 };
 
+
 // Private variables
 //static struct pios_thread *taskHandle;
 static xTaskHandle taskHandle;
-static bool module_enabled;
-static circ_queue_t at_queue;
-static volatile uint32_t at_points_spilled;
-static uint32_t throttle_accumulator;
+static bool moduleEnabled;
+#if defined(USE_CIRC_QUEUE)
+static circ_queue_t atQueue;
+#else
+static xQueueHandle atQueue;
+#endif
+static volatile uint32_t atPointsSpilled;
+static uint32_t throttleAccumulator;
 static uint8_t rollMax, pitchMax;
 static StabilizationBankManualRateData manualRate;
-static SystemSettingsAirframeTypeOptions airframe_type;
+static SystemSettingsAirframeTypeOptions airframeType;
 static float gX[AF_NUMX] = {0};
 static float gP[AF_NUMP] = {0};
 SystemIdentData systemIdentData;
+int8_t accessoryToUse;
+int8_t flightModeSwitchTogglePosition;
+
 
 // Private functions
-static void AutotuneTask(void *parameters);
-static void af_predict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in);
-static void af_init(float X[AF_NUMX], float P[AF_NUMP]);
-static uint8_t checkSettings();
+static void AutoTuneTask(void *parameters);
+static void AfPredict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in);
+static void AfInit(float X[AF_NUMX], float P[AF_NUMP]);
+static uint8_t CheckSettings();
+static void ComputeStabilizationAndSetPidsFromDampAndNoise(float damp, float noise);
 static void ComputeStabilizationAndSetPids();
+static void ProportionPidsSmoothToQuick(float min, float val, float max);
+static void AtNewGyroData(UAVObjEvent * ev);
+static void UpdateSystemIdent(const float *X, const float *noise, float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle);
+static void UpdateStabilizationDesired(bool doingIdent);
+static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode);
+static void InitSystemIdent();
 
-#ifndef AT_QUEUE_NUMELEM
-#define AT_QUEUE_NUMELEM 18
-#endif
 
 /**
  * Initialise the module, called on startup
  * \returns 0 on success or -1 if initialisation failed
  */
-int32_t AutotuneInitialize(void)
+int32_t AutoTuneInitialize(void)
 {
     // Create a queue, connect to manual control command and flightstatus
 #ifdef MODULE_AutoTune_BUILTIN
-    module_enabled = true;
+    moduleEnabled = true;
 #else
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
     if (optionalModules.AutoTune == HWSETTINGS_OPTIONALMODULES_ENABLED) {
-        module_enabled = true;
+        moduleEnabled = true;
     } else {
-        module_enabled = false;
+        moduleEnabled = false;
     }
 #endif
 
-    if (module_enabled) {
+    if (moduleEnabled) {
         SystemIdentInitialize();
-        at_queue = circ_queue_new(sizeof(struct at_queued_data),
-                AT_QUEUE_NUMELEM);
-        if (!at_queue) {
-            module_enabled = false;
+#if defined(USE_CIRC_QUEUE)
+        atQueue = circ_queue_new(sizeof(struct at_queued_data), AT_QUEUE_NUMELEM);
+#else
+        atQueue = xQueueCreate(AT_QUEUE_NUMELEM, sizeof(struct at_queued_data));
+#endif
+        if (!atQueue) {
+            moduleEnabled = false;
         }
     }
 
     return 0;
 }
 
+
 /**
  * Initialise the module, called on startup
  * \returns 0 on success or -1 if initialisation failed
  */
-int32_t AutotuneStart(void)
+int32_t AutoTuneStart(void)
 {
     // Start main task if it is enabled
-    if (module_enabled) {
-        //taskHandle = PIOS_Thread_Create(AutotuneTask, "Autotune", STACK_SIZE_BYTES, NULL, TASK_PRIORITY);
+    if (moduleEnabled) {
+        //taskHandle = PIOS_Thread_Create(AutoTuneTask, "Autotune", STACK_SIZE_BYTES, NULL, TASK_PRIORITY);
         //TaskMonitorAdd(TASKINFO_RUNNING_AUTOTUNE, taskHandle);
         //PIOS_WDG_RegisterFlag(PIOS_WDG_AUTOTUNE);
-        xTaskCreate(AutotuneTask, "AutoTune", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &taskHandle);
+        GyroSensorConnectCallback(AtNewGyroData);
+        xTaskCreate(AutoTuneTask, "AutoTune", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &taskHandle);
         PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_AUTOTUNE, taskHandle);
     }
     return 0;
 }
 
-MODULE_INITCALL(AutotuneInitialize, AutotuneStart);
 
-#if 0
-static void at_new_gyro_data(UAVObjEvent * ev, void *ctx, void *obj, int len) {
-    (void) ev; (void) ctx;
+MODULE_INITCALL(AutoTuneInitialize, AutoTuneStart);
+
+
+/**
+ * Module thread, should not return.
+ */
+static void AutoTuneTask(__attribute__((unused)) void *parameters)
+{
+    enum AUTOTUNE_STATE state = AT_INIT;
+    uint32_t lastUpdateTime = xTaskGetTickCount();
+    float noise[3] = {0};
+// is this needed?
+//    AfInit(gX,gP);
+    uint32_t lastTime = 0.0f;
+    bool saveSiNeeded = false;
+    bool savePidNeeded = false;
+
+// should this be put in Init()?
+//    GyroSensorConnectCallback(AtNewGyroData);
+
+    // correctly set accessoryToUse and flightModeSwitchTogglePosition
+    // based on what is in SystemIdent
+    // so that the user can use the PID smooth->quick slider in a following flight
+    InitSystemIdent();
+
+    while (1) {
+        static uint32_t updateCounter = 0;
+        uint32_t diffTime;
+        uint32_t measureTime = 60000;
+        bool doingIdent = false;
+        bool canSleep = true;
+//PIOS_WDG_UpdateFlag(PIOS_WDG_AUTOTUNE);
+        FlightStatusData flightStatus;
+        FlightStatusGet(&flightStatus);
+
+// can't restart till after you save that's OK I guess
+// but you should be able to stop in mid tune and restart from beginning
+// maybe reset state in that fn that gets called on mode change
+
+        if (flightStatus.Armed == FLIGHTSTATUS_ARMED_DISARMED) {
+            if (saveSiNeeded) {
+                // Save SystemIdent to permanent settings
+                UAVObjSave(SystemIdentHandle(), 0);
+                saveSiNeeded = false;
+//so how to restart if it failed and both saves are false
+            }
+            if (savePidNeeded) {
+                // Save SystemIdent to permanent settings
+                UAVObjSave(SystemIdentHandle(), 0);
+                // Save PIDs to permanent settings
+                switch (systemIdentData.DestinationPidBank) {
+                case 1:
+                    UAVObjSave(StabilizationSettingsBank1Handle(), 0);
+                    break;
+                case 2:
+                    UAVObjSave(StabilizationSettingsBank2Handle(), 0);
+                    break;
+                case 3:
+                    UAVObjSave(StabilizationSettingsBank3Handle(), 0);
+                    break;
+                }
+                savePidNeeded = false;
+            }
+//state = AT_INIT;
+        }
+
+        // if using flight mode switch quick toggle to "try smooth -> quick PIDs" is enabled
+        // and user toggled into and back out of AutoTune
+        // three times in the last two seconds
+        // CheckFlightModeSwitchForPidRequest(mode) only returns true if mode is not autotune
+        if (flightModeSwitchTogglePosition!=-1 && CheckFlightModeSwitchForPidRequest(flightStatus.FlightMode)) {
+            if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+                // if user toggled while armed set PID's to next in sequence 3,4,5,1,2 or 2,3,1
+                ++flightModeSwitchTogglePosition;
+                if (flightModeSwitchTogglePosition > systemIdentData.SmoothQuick - SMOOTH_QUICK_TOGGLE_BASE) {
+                    flightModeSwitchTogglePosition = 0;
+                }
+            } else {
+                // if they did it disarmed, then set PID's back to AT default
+                flightModeSwitchTogglePosition = (systemIdentData.SmoothQuick - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+            }
+            ProportionPidsSmoothToQuick(0.0f, (float) flightModeSwitchTogglePosition, (float) (systemIdentData.SmoothQuick - SMOOTH_QUICK_TOGGLE_BASE));
+            savePidNeeded = true;
+        }
+
+        if (flightStatus.FlightMode != FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) {
+            // if accessory0-3 is configured as a PID vario over the smooth to quick range
+            // and FC is not currently running autotune
+            // and accessory0-3 changed by at least 1/900 of full range
+            // don't bother checking to see if the requested accessory# is configured properly
+            // if it isn't, the value will be 0 which is the center of [-1,1] anyway
+// if (accessoryToUse!=-1 && CheckAccessoryForPidRequest(accessoryToUse)) {
+            if (accessoryToUse != -1) {
+                static AccessoryDesiredData accessoryValueOld = { 0.0f };
+//                static float accessoryValueOld = 0.0f;
+                AccessoryDesiredData accessoryValue;
+//                float accessoryValue;
+                AccessoryDesiredInstGet(accessoryToUse, &accessoryValue);
+                if (fabsf(accessoryValueOld.AccessoryVal - accessoryValue.AccessoryVal) > (1.0f/900.0f)) {
+                    accessoryValueOld = accessoryValue;
+                    ProportionPidsSmoothToQuick(-1.0f, accessoryValue.AccessoryVal, 1.0f);
+                    savePidNeeded = true;
+                }
+            }
+            state = AT_INIT;
+            vTaskDelay(50 / portTICK_RATE_MS);
+            lastUpdateTime = xTaskGetTickCount();
+            continue;
+        }
+
+        switch(state) {
+        case AT_INIT:
+            diffTime = xTaskGetTickCount() - lastUpdateTime;
+            // Spend the first block of time in normal rate mode to get stabilized
+            if (diffTime > INIT_TIME_DELAY_MS) {
+                StabilizationBankRollMaxGet(&rollMax);
+                StabilizationBankPitchMaxGet(&pitchMax);
+                StabilizationBankManualRateGet(&manualRate);
+                SystemSettingsAirframeTypeGet(&airframeType);
+                // Reset save status; only save if this tune completes.
+                saveSiNeeded = false;
+                savePidNeeded = false;
+                lastUpdateTime = xTaskGetTickCount();
+
+                // Only start when armed and flying
+                if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+                    InitSystemIdent();
+                    AfInit(gX, gP);
+                    UpdateSystemIdent(gX, NULL, 0.0f, 0, 0, 0.0f);
+                    measureTime = (uint32_t)systemIdentData.TuningDuration * (uint32_t)1000;
+                    state = AT_START;
+                    lastUpdateTime = xTaskGetTickCount();
+                }
+            }
+            break;
+
+        case AT_START:
+            diffTime = xTaskGetTickCount() - lastUpdateTime;
+            // Spend the first block of time in normal rate mode to get stabilized
+            if (diffTime > START_TIME_DELAY_MS) {
+                lastTime = PIOS_DELAY_GetRaw();
+                /* Drain the queue of all current data */
+#if defined(USE_CIRC_QUEUE)
+                while (circ_queue_read_pos(atQueue)) {
+                    circ_queue_read_completed(atQueue);
+                }
 #else
-static void at_new_gyro_data(UAVObjEvent * ev) {
+                xQueueReset(atQueue);
 #endif
-#if 0
-typedef struct {
-    UAVObjHandle    obj;
-    uint16_t        instId;
-    UAVObjEventType event;
-    bool lowPriority; /* if true prevents raising warnings */
-} UAVObjEvent;
-#endif
+                /* And reset the point spill counter */
+                updateCounter = 0;
+                atPointsSpilled = 0;
+                throttleAccumulator = 0;
+                state = AT_RUN;
+                lastUpdateTime = xTaskGetTickCount();
+            }
+            break;
 
-    static bool last_sample_unpushed = 0;
+        case AT_RUN:
+            diffTime = xTaskGetTickCount() - lastUpdateTime;
+            doingIdent = true;
+            canSleep = false;
+
+            for (int i=0; i<MAX_PTS_PER_CYCLE; i++) {
+#if defined(USE_CIRC_QUEUE)
+                struct at_queued_data *pt;
+                /* Grab an autotune point */
+                pt = circ_queue_read_pos(atQueue);
+                if (!pt) {
+#else
+                struct at_queued_data pt;
+                /* Grab an autotune point */
+                if (xQueueReceive(atQueue, &pt, 0) != pdTRUE) {
+#endif
+                    /* We've drained the buffer fully */
+                    canSleep = true;
+                    break;
+                }
+                /* calculate time between successive points */
+                float dT_s = PIOS_DELAY_DiffuS2(lastTime,
+                        DEREFERENCE(pt,raw_time)) * 1.0e-6f;
+                /* This is for the first point, but
+                 * also if we have extended drops */
+                if (dT_s > 0.010f) {
+                    dT_s = 0.010f;
+                }
+                lastTime = DEREFERENCE(pt,raw_time);
+                AfPredict(gX, gP, DEREFERENCE(pt,u), DEREFERENCE(pt,y), dT_s, DEREFERENCE(pt,throttle));
+                for (int j=0; j<3; ++j) {
+                    const float NOISE_ALPHA = 0.9997f;  // 10 second time constant at 300 Hz
+                    noise[j] = NOISE_ALPHA * noise[j] + (1-NOISE_ALPHA) * (DEREFERENCE(pt,y[j]) - gX[j]) * (DEREFERENCE(pt,y[j]) - gX[j]);
+                }
+                //This will work up to 8kHz with an 89% throttle position before overflow
+                throttleAccumulator += 10000 * DEREFERENCE(pt,throttle);
+                // Update uavo every 256 cycles to avoid
+                // telemetry spam
+                if (!((updateCounter++) & 0xff)) {
+                    float hover_throttle = ((float)(throttleAccumulator/updateCounter))/10000.0f;
+                    UpdateSystemIdent(gX, noise, dT_s, updateCounter, atPointsSpilled, hover_throttle);
+                }
+#if defined(USE_CIRC_QUEUE)
+                /* Free the buffer containing an AT point */
+                circ_queue_read_completed(atQueue);
+#endif
+            }
+            if (diffTime > measureTime) { // Move on to next state
+                // permanent flag that AT is complete and PIDs can be calculated
+                systemIdentData.Complete = true;
+                state = AT_FINISHED;
+                lastUpdateTime = xTaskGetTickCount();
+            }
+            break;
+
+        case AT_FINISHED:
+            ;
+            float hover_throttle = ((float)(throttleAccumulator/updateCounter))/10000.0f;
+            uint8_t failureBits;
+            UpdateSystemIdent(gX, noise, 0, updateCounter, atPointsSpilled, hover_throttle);
+            // data is bad if FC was disarmed at the time AT completed
+            if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+                saveSiNeeded = true;
+                failureBits = CheckSettings();
+                if (!failureBits) {
+                    ComputeStabilizationAndSetPids();
+                    savePidNeeded = true;
+                } else {
+//is this right
+                    // default to disable PID changing with flight mode switch and accessory0-3
+                    accessoryToUse = -1;
+                    flightModeSwitchTogglePosition = -1;
+                    // raise a warning
+                    ExtendedAlarmsSet(SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION, SYSTEMALARMS_ALARM_WARNING,
+                                      SYSTEMALARMS_EXTENDEDALARMSTATUS_AUTOTUNE, failureBits);
+                }
+            }
+            state = AT_WAITING;
+//                break;
+// fall through in the unlikely case that it is disarmed at AT_FINISHED
+// and armed before it ever gets to AT_WAITING the first time
+
+        case AT_WAITING:
+        default:
+            // maybe set an alarm to notify user that tuning is done
+            break;
+        }
+
+        // Update based on ManualControlCommand
+        UpdateStabilizationDesired(doingIdent);
+        if (canSleep) {
+            vTaskDelay(YIELD_MS / portTICK_RATE_MS);
+        }
+    }
+}
+
+
+static void AtNewGyroData(UAVObjEvent * ev) {
+#if defined(USE_CIRC_QUEUE)
+    struct at_queued_data *q_item;
+#else
+    static struct at_queued_data q_item;
+#endif
+    static bool last_sample_unpushed = false;
     GyroSensorData gyro;
     ActuatorDesiredData actuators;
 
@@ -365,38 +648,112 @@ typedef struct {
     GyroSensorGet(&gyro);
     ActuatorDesiredGet(&actuators);
 
-//    GyroSensorData *g = ev->obj;
-
-//    PIOS_Assert(len == sizeof(*g));
-
     if (last_sample_unpushed) {
         /* Last time we were unable to advance the write pointer.
          * Try again, last chance! */
-        if (circ_queue_advance_write(at_queue)) {
-            at_points_spilled++;
+#if defined(USE_CIRC_QUEUE)
+        if (circ_queue_advance_write(atQueue)) {
+#else
+        if (xQueueSend(atQueue, &q_item, 0) != pdTRUE) {
+#endif
+            atPointsSpilled++;
         }
     }
 
-    struct at_queued_data *q_item = circ_queue_cur_write_pos(at_queue);
+#if defined(USE_CIRC_QUEUE)
+    q_item = circ_queue_cur_write_pos(atQueue);
+#endif
+    DEREFERENCE(q_item,raw_time) = PIOS_DELAY_GetRaw();
+    DEREFERENCE(q_item,y[0]) = gyro.x;
+    DEREFERENCE(q_item,y[1]) = gyro.y;
+    DEREFERENCE(q_item,y[2]) = gyro.z;
+    DEREFERENCE(q_item,u[0]) = actuators.Roll;
+    DEREFERENCE(q_item,u[1]) = actuators.Pitch;
+    DEREFERENCE(q_item,u[2]) = actuators.Yaw;
+    DEREFERENCE(q_item,throttle) = actuators.Thrust;
 
-    q_item->raw_time = PIOS_DELAY_GetRaw();
-
-    q_item->y[0] = gyro.x;
-    q_item->y[1] = gyro.y;
-    q_item->y[2] = gyro.z;
-
-    q_item->u[0] = actuators.Roll;
-    q_item->u[1] = actuators.Pitch;
-    q_item->u[2] = actuators.Yaw;
-
-    q_item->throttle = actuators.Thrust;
-
-    if (circ_queue_advance_write(at_queue) != 0) {
+#if defined(USE_CIRC_QUEUE)
+    if (circ_queue_advance_write(atQueue) != 0) {
+#else
+    if (xQueueSend(atQueue, &q_item, 0) != pdTRUE) {
+#endif
         last_sample_unpushed = true;
     } else {
         last_sample_unpushed = false;
     }
 }
+
+
+static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode) {
+    static uint32_t lastUpdateTime;
+    static uint8_t flightModePrev;
+    static uint8_t counter;
+    uint32_t updateTime;
+
+    // only count transitions into and out of autotune
+    if ((flightModePrev == FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) ^ (flightMode == FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE)) {
+        flightModePrev = flightMode;
+        updateTime = xTaskGetTickCount();
+        // if it has been over 2 seconds, reset the counter
+        if (updateTime - lastUpdateTime > 2000) {
+            counter = 0;
+        }
+        // if the counter is reset, start a new time period
+        if (counter == 0) {
+            lastUpdateTime = updateTime;
+        }
+        // if flight mode has toggled into autotune 3 times but is currently not autotune
+        if (++counter >= 5 && flightMode != FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) {
+            counter = 0;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+static void InitSystemIdent() {
+    SystemIdentGet(&systemIdentData);
+    // these are values that could be changed by the user
+    // save them through the following xSetDefaults() call
+    uint8_t dampRate = systemIdentData.DampRate;
+    uint8_t noiseRate = systemIdentData.NoiseRate;
+    bool calcYaw = systemIdentData.CalculateYaw;
+    uint8_t destBank = systemIdentData.DestinationPidBank;
+    uint8_t smoothQuick = systemIdentData.SmoothQuick;
+
+    // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
+    // so that if they are changed there (mainly for future code changes), they will be changed here too
+    SystemIdentSetDefaults(SystemIdentHandle(), 0);
+    SystemIdentGet(&systemIdentData);
+
+    // restore the user changeable values
+    systemIdentData.DampRate = dampRate;
+    systemIdentData.NoiseRate = noiseRate;
+    systemIdentData.CalculateYaw = calcYaw;
+    systemIdentData.DestinationPidBank = destBank;
+    // default to disable PID changing with flight mode switch and accessory0-3
+    accessoryToUse = -1;
+    flightModeSwitchTogglePosition = -1;
+    systemIdentData.SmoothQuick = 0;
+    switch (smoothQuick) {
+    case 10: // use accessory0
+    case 11: // use accessory1
+    case 12: // use accessory2
+    case 13: // use accessory3
+        accessoryToUse = smoothQuick - 10;
+        systemIdentData.SmoothQuick = smoothQuick;
+        break;
+    case 23: // use flight mode switch toggle with 3 points
+    case 25: // use flight mode switch toggle with 5 points
+        // first test PID is in the middle of the smooth -> quick range
+        flightModeSwitchTogglePosition = (smoothQuick - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+        systemIdentData.SmoothQuick = smoothQuick;
+        break;
+    }
+}
+
 
 static void UpdateSystemIdent(const float *X, const float *noise,
     float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle) {
@@ -423,6 +780,7 @@ static void UpdateSystemIdent(const float *X, const float *noise,
     SystemIdentSet(&systemIdentData);
 }
 
+
 static void UpdateStabilizationDesired(bool doingIdent) {
     StabilizationDesiredData stabDesired;
     StabilizationDesiredGet(&stabDesired);
@@ -444,14 +802,14 @@ static void UpdateStabilizationDesired(bool doingIdent) {
         stabDesired.StabilizationMode.Yaw   = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
     }
 
-    stabDesired.Thrust = (airframe_type == SYSTEMSETTINGS_AIRFRAMETYPE_HELICP) ? manual_control_command.Collective : manual_control_command.Throttle;
+    stabDesired.Thrust = (airframeType == SYSTEMSETTINGS_AIRFRAMETYPE_HELICP) ? manual_control_command.Collective : manual_control_command.Throttle;
 // is this a race
 // control feels very sluggish too
     StabilizationDesiredSet(&stabDesired);
 }
 
 
-static uint8_t checkSettings()
+static uint8_t CheckSettings()
 {
     uint8_t retVal = 0;
 
@@ -478,8 +836,7 @@ static uint8_t checkSettings()
 }
 
 
-#if 0
-void ComputeStabilization()
+static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float noiseRate)
 {
     StabilizationSettingsBank1Data stabSettingsBank;
 
@@ -502,97 +859,8 @@ void ComputeStabilization()
     //   make oscillations less likely
     // - ghf is the amount of high frequency gain and limits the influence
     //   of noise
-    const double ghf = systemIdentData.RateNoise / 1000.0f;
-    const double damp = systemIdentData.RateDamp / 100.0f;
-
-    double tau = exp(systemIdentData.Tau);
-    double beta_roll = systemIdentData.Beta.Roll;
-    double beta_pitch = systemIdentData.Beta.Pitch;
-
-    double wn = 1.0f/tau;
-    double tau_d = 0.0f;
-    for (int i = 0; i < 30; i++) {
-        double tau_d_roll = (2.0f*damp*tau*wn - 1.0f)/(4.0f*tau*damp*damp*wn*wn - 2.0f*damp*wn - tau*wn*wn + exp(beta_roll)*ghf);
-        double tau_d_pitch = (2.0f*damp*tau*wn - 1.0f)/(4.0f*tau*damp*damp*wn*wn - 2.0f*damp*wn - tau*wn*wn + exp(beta_pitch)*ghf);
-
-        // Select the slowest filter property
-        tau_d = (tau_d_roll > tau_d_pitch) ? tau_d_roll : tau_d_pitch;
-        wn = (tau + tau_d) / (tau*tau_d) / (2.0f * damp + 2.0f);
-    }
-
-    // Set the real pole position. The first pole is quite slow, which
-    // prevents the integral being too snappy and driving too much
-    // overshoot.
-    const double a = ((tau+tau_d) / tau / tau_d - 2.0f * damp * wn) / 20.0f;
-    const double b = ((tau+tau_d) / tau / tau_d - 2.0f * damp * wn - a);
-
-    // Calculate the gain for the outer loop by approximating the
-    // inner loop as a single order lpf. Set the outer loop to be
-    // critically damped;
-    const double zeta_o = 1.3;
-    const double kp_o = 1.0f / 4.0f / (zeta_o * zeta_o) / (1.0f/wn);
-
-    // For now just run over roll and pitch
-    int axes = ((systemIdentData.CalculateYaw) : 3 : 2);
-    for (int i = 0; i < axes; i++) {
-        double beta = exp(SystemIdentBetaToArray(systemIdentData.Beta)[i]);
-
-        double ki = a * b * wn * wn * tau * tau_d / beta;
-        double kp = tau * tau_d * ((a+b)*wn*wn + 2.0f*a*b*damp*wn) / beta - ki*tau_d;
-        double kd = (tau * tau_d * (a*b + wn*wn + (a+b)*2.0f*damp*wn) - 1.0f) / beta - kp * tau_d;
-
-        switch(i) {
-        case 0: // Roll
-            stabSettingsBank.RollRatePID.Kp = kp;
-            stabSettingsBank.RollRatePID.Ki = ki;
-            stabSettingsBank.RollRatePID.Kd = kd;
-            stabSettingsBank.RollPI.Kp = kp_o;
-            stabSettingsBank.RollPI.Ki = 0;
-            break;
-        case 1: // Pitch
-            stabSettingsBank.PitchRatePID.Kp = kp;
-            stabSettingsBank.PitchRatePID.Ki = ki;
-            stabSettingsBank.PitchRatePID.Kd = kd;
-            stabSettingsBank.PitchPI.Kp = kp_o;
-            stabSettingsBank.PitchPI.Ki = 0;
-            break;
-        case 2: // optional Yaw
-            stabSettingsBank.YawRatePID.Kp = kp;
-            stabSettingsBank.YawRatePID.Ki = ki;
-            stabSettingsBank.YawRatePID.Kd = kd;
-            stabSettingsBank.YawPI.Kp = kp_o;
-            stabSettingsBank.YawPI.Ki = 0;
-            break;
-        }
-    }
-    //stabSettingsBank.DerivativeCutoff = 1.0f / (2.0f*M_PI*tau_d);
-}
-#else
-static void ComputeStabilizationAndSetPids()
-{
-    StabilizationSettingsBank1Data stabSettingsBank;
-
-    switch (systemIdentData.DestinationPidBank) {
-    case 1:
-        StabilizationSettingsBank1Get((void *)&stabSettingsBank);
-        break;
-    case 2:
-        StabilizationSettingsBank2Get((void *)&stabSettingsBank);
-        break;
-    case 3:
-        StabilizationSettingsBank3Get((void *)&stabSettingsBank);
-        break;
-    }
-
-    // These three parameters define the desired response properties
-    // - rate scale in the fraction of the natural speed of the system
-    //   to strive for.
-    // - damp is the amount of damping in the system. higher values
-    //   make oscillations less likely
-    // - ghf is the amount of high frequency gain and limits the influence
-    //   of noise
-    const double ghf = systemIdentData.RateNoise / 1000.0d;
-    const double damp = systemIdentData.RateDamp / 100.0d;
+    const double ghf  = (double) noiseRate / 1000.0d;
+    const double damp = (double) dampRate  / 100.0d;
 
     double tau = exp(systemIdentData.Tau);
     double beta_roll = systemIdentData.Beta.Roll;
@@ -657,255 +925,69 @@ static void ComputeStabilizationAndSetPids()
 
     //stabSettingsBank.DerivativeCutoff = 1.0d / (2.0d*M_PI*tau_d);
 
+    // Save PIDs to permanent settings
     switch (systemIdentData.DestinationPidBank) {
     case 1:
         StabilizationSettingsBank1Set((void *)&stabSettingsBank);
-        UAVObjSave(StabilizationSettingsBank1Handle(), 0);
         break;
     case 2:
         StabilizationSettingsBank2Set((void *)&stabSettingsBank);
-        UAVObjSave(StabilizationSettingsBank2Handle(), 0);
         break;
     case 3:
         StabilizationSettingsBank3Set((void *)&stabSettingsBank);
-        UAVObjSave(StabilizationSettingsBank3Handle(), 0);
         break;
     }
 }
-#endif
 
 
-#define MAX_PTS_PER_CYCLE 4
-
-/**
- * Module thread, should not return.
- */
-static void AutotuneTask(__attribute__((unused)) void *parameters)
+static void ComputeStabilizationAndSetPids()
 {
-    enum AUTOTUNE_STATE state = AT_INIT;
-
-    uint32_t last_update_time = xTaskGetTickCount();
-
-    float noise[3] = {0};
-
-// is this needed?
-    af_init(gX,gP);
-
-    uint32_t last_time = 0.0f;
-    const uint32_t YIELD_MS = 2;
-
-// should this be put in Init()?
-    GyroSensorConnectCallback(at_new_gyro_data);
-
-    bool save_needed = false;
-
-    while(1) {
-//PIOS_WDG_UpdateFlag(PIOS_WDG_AUTOTUNE);
-
-        uint32_t diff_time;
-
-        const uint32_t PREPARE_TIME = 2000;
-        const uint32_t MEASURE_TIME = 60000;
-
-        static uint32_t update_counter = 0;
-
-        bool doing_ident = false;
-        bool can_sleep = true;
-
-        FlightStatusData flightStatus;
-        FlightStatusGet(&flightStatus);
-
-//this seems to lock up on Nano
-// maybe it was only the first time when allocating new flash block?
-        if (save_needed) {
-            if (flightStatus.Armed == FLIGHTSTATUS_ARMED_DISARMED) {
-                uint8_t failureBits;
-                // Save the settings locally.
-                UAVObjSave(SystemIdentHandle(), 0);
-                failureBits = checkSettings();
-                if (!failureBits) {
-                    ComputeStabilizationAndSetPids();
-                } else {
-                    // raise a warning
-                    ExtendedAlarmsSet(SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION, SYSTEMALARMS_ALARM_WARNING,
-                                      SYSTEMALARMS_EXTENDEDALARMSTATUS_AUTOTUNE, failureBits);
-                }
-                state = AT_INIT;
-                save_needed = false;
-            }
-        }
-// can't restart till after you save that's OK I guess
-// but you should be able to stop in mid tune and restart from beginning
-// maybe reset state in that fn that gets called on mode change
-
-        // Only allow this module to run when autotuning
-        if (flightStatus.FlightMode != FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) {
-            state = AT_INIT;
-            vTaskDelay(50 / portTICK_RATE_MS);
-            continue;
-        }
-
-        switch(state) {
-            case AT_INIT:
-
-                // moved from UpdateStabilizationDesired()
-                StabilizationBankRollMaxGet(&rollMax);
-                StabilizationBankPitchMaxGet(&pitchMax);
-                StabilizationBankManualRateGet(&manualRate);
-                SystemSettingsAirframeTypeGet(&airframe_type);
-
-                // Reset save status; only save if this tune
-                // completes.
-                save_needed = false;
-
-                last_update_time = xTaskGetTickCount();
-
-                // Only start when armed and flying
-                if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
-#if 1
-                    SystemIdentGet(&systemIdentData);
-                    // these are values that could be changed by the user
-                    // save them through the following xSetDefaults() call
-                    uint8_t rateDamp = systemIdentData.RateDamp;
-                    uint8_t rateNoise = systemIdentData.RateNoise;
-                    bool calcYaw = systemIdentData.CalculateYaw;
-                    uint8_t destBank = systemIdentData.DestinationPidBank;
-
-                    // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
-                    // so that if they are changed there (mainly for future code changes), they will be changed here too
-                    SystemIdentSetDefaults(SystemIdentHandle(), 0);
-                    SystemIdentGet(&systemIdentData);
-
-                    // restore the user changeable values
-                    systemIdentData.RateDamp = rateDamp;
-                    systemIdentData.RateNoise = rateNoise;
-                    systemIdentData.CalculateYaw = calcYaw;
-                    systemIdentData.DestinationPidBank = destBank;
-#endif
-// remove this one and let the other one init it
-// should wait on the other one if that is the case
-                    af_init(gX, gP);
-                    UpdateSystemIdent(gX, NULL, 0.0f, 0, 0, 0.0f);
-                    state = AT_START;
-                }
-
-                break;
-
-            case AT_START:
-
-                diff_time = xTaskGetTickCount() - last_update_time;
-
-                // Spend the first block of time in normal rate mode to get stabilized
-                if (diff_time > PREPARE_TIME) {
-                    last_time = PIOS_DELAY_GetRaw();
-
-                    /* Drain the queue of all current data */
-                    while (circ_queue_read_pos(at_queue)) {
-                        circ_queue_read_completed(at_queue);
-                    }
-
-                    /* And reset the point spill counter */
-
-                    update_counter = 0;
-                    at_points_spilled = 0;
-
-                    throttle_accumulator = 0;
-
-                    state = AT_RUN;
-                    last_update_time = xTaskGetTickCount();
-                }
-
-
-                break;
-
-            case AT_RUN:
-
-                diff_time = xTaskGetTickCount() - last_update_time;
-
-                doing_ident = true;
-                can_sleep = false;
-
-                for (int i=0; i<MAX_PTS_PER_CYCLE; i++) {
-                    struct at_queued_data *pt;
-
-                    /* Grab an autotune point */
-                    pt = circ_queue_read_pos(at_queue);
-
-                    if (!pt) {
-                        /* We've drained the buffer
-                         * fully.  Yay! */
-                        can_sleep = true;
-                        break;
-                    }
-
-                    /* calculate time between successive
-                     * points */
-
-                    float dT_s = PIOS_DELAY_DiffuS2(last_time,
-                            pt->raw_time) * 1.0e-6f;
-
-                    /* This is for the first point, but
-                     * also if we have extended drops */
-                    if (dT_s > 0.010f) {
-                        dT_s = 0.010f;
-                    }
-
-                    last_time = pt->raw_time;
-
-                    af_predict(gX, gP, pt->u, pt->y, dT_s, pt->throttle);
-
-                    for (int j=0; j<3; ++j) {
-                        const float NOISE_ALPHA = 0.9997f;  // 10 second time constant at 300 Hz
-                        noise[j] = NOISE_ALPHA * noise[j] + (1-NOISE_ALPHA) * (pt->y[j] - gX[j]) * (pt->y[j] - gX[j]);
-                    }
-
-                    //This will work up to 8kHz with an 89% throttle position before overflow
-                    throttle_accumulator += 10000 * pt->throttle;
-
-                    // Update uavo every 256 cycles to avoid
-                    // telemetry spam
-                    if (!((update_counter++) & 0xff)) {
-                        float hover_throttle = ((float)(throttle_accumulator/update_counter))/10000.0f;
-                        UpdateSystemIdent(gX, noise, dT_s, update_counter, at_points_spilled, hover_throttle);
-                    }
-
-                    /* Free the buffer containing an AT point */
-                    circ_queue_read_completed(at_queue);
-                }
-
-                if (diff_time > MEASURE_TIME) { // Move on to next state
-                    state = AT_FINISHED;
-                    last_update_time = xTaskGetTickCount();
-                }
-
-                break;
-
-            case AT_FINISHED: ;
-
-                // Wait until disarmed and landed before saving the settings
-
-                float hover_throttle = ((float)(throttle_accumulator/update_counter))/10000.0f;
-                UpdateSystemIdent(gX, noise, 0, update_counter, at_points_spilled, hover_throttle);
-
-                save_needed = true;
-                state = AT_WAITING;
-
-                break;
-
-            case AT_WAITING:
-            default:
-                // Set an alarm or some shit like that
-                break;
-        }
-
-        // Update based on manual controls
-        UpdateStabilizationDesired(doing_ident);
-
-        if (can_sleep) {
-            vTaskDelay(YIELD_MS / portTICK_RATE_MS);
-        }
-    }
+    ComputeStabilizationAndSetPidsFromDampAndNoise(systemIdentData.DampRate, systemIdentData.NoiseRate);
 }
+
+
+// scale damp and noise to generate PIDs according to how a slider or other ratio is set
+//
+// when val is half way between min and max, it generates the default PIDs
+// when val is min, it generates the smoothest configured PIDs
+// when val is max, it generates the quickest configured PIDs
+//
+// when val is between min and (min+max)/2, it scales val over the range [min, (min+max)/2] to generate PIDs between smoothest and default
+// when val is between (min+max)/2 and max, it scales val over the range [(min+max)/2, max] to generate PIDs between default and quickest
+//
+// this is done piecewise because we are not guaranteed that default-min == max-default
+// but we are given that [smoothDamp,smoothNoise] [defaultDamp,defaultNoise] [quickDamp,quickNoise] are all good parameterizations
+#define dampMin      systemIdentData.DampMin
+#define dampDefault  systemIdentData.DampRate
+#define dampMax      systemIdentData.DampMax
+#define noiseMin     systemIdentData.DampMin
+#define noiseDefault systemIdentData.DampRate
+#define noiseMax     systemIdentData.DampMax
+static void ProportionPidsSmoothToQuick(float min, float val, float max)
+{
+    float ratio, damp, noise;
+
+    // translate from range [min, max] to range [0, max-min]
+    // takes care of min < 0 too
+    val -= min;
+    max -= min;
+    ratio = val / max;
+
+    if (ratio <= 0.5f) {
+        // scale ratio in [0,0.5] to produce PIDs in [smoothest,default]
+        ratio *= 2.0f;
+        damp  = (dampMax  * (1.0f - ratio)) + (dampDefault  * ratio);
+        noise = (noiseMin * (1.0f - ratio)) + (noiseDefault * ratio);
+    } else {
+        // scale ratio in [0.5,1.0] to produce PIDs in [default,quickest]
+        ratio = (ratio - 0.5f) * 2.0f;
+        damp  = (dampDefault  * (1.0f - ratio)) + (dampMin  * ratio);
+        noise = (noiseDefault * (1.0f - ratio)) + (noiseMax * ratio);
+    }
+
+    ComputeStabilizationAndSetPidsFromDampAndNoise(damp, noise);
+}
+
 
 /**
  * Prediction step for EKF on control inputs to quad that
@@ -915,7 +997,7 @@ static void AutotuneTask(__attribute__((unused)) void *parameters)
  * @param[in] the current control inputs (roll, pitch, yaw)
  * @param[in] the gyro measurements
  */
-__attribute__((always_inline)) static inline void af_predict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in)
+__attribute__((always_inline)) static inline void AfPredict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in)
 {
     const float Ts = dT_s;
     const float Tsq = Ts * Ts;
@@ -1027,11 +1109,8 @@ __attribute__((always_inline)) static inline void af_predict(float X[AF_NUMX], f
     P[41] = D[41];
     P[42] = D[42] + Q[12];
 
-
     /********* this is the update part of the equation ***********/
-
     float S[3] = {P[0] + s_a, P[1] + s_a, P[2] + s_a};
-
     X[0] = w1 + P[0]*((gyro_x - w1)/S[0]);
     X[1] = w2 + P[1]*((gyro_y - w2)/S[1]);
     X[2] = w3 + P[2]*((gyro_z - w3)/S[2]);
@@ -1115,13 +1194,14 @@ __attribute__((always_inline)) static inline void af_predict(float X[AF_NUMX], f
         X[12] = -0.5f;
 }
 
+
 /**
  * Initialize the state variable and covariance matrix
  * for the system identification EKF
  */
-static void af_init(float X[AF_NUMX], float P[AF_NUMP])
+static void AfInit(float X[AF_NUMX], float P[AF_NUMP])
 {
-    static const float q_init[AF_NUMX] = {
+    static const float qInit[AF_NUMX] = {
         1.0f, 1.0f, 1.0f,
         1.0f, 1.0f, 1.0f,
         0.05f, 0.05f, 0.005f,
@@ -1141,8 +1221,8 @@ static void af_init(float X[AF_NUMX], float P[AF_NUMP])
 #if 0
     // these are values that could be changed by the user
     // save them through the following xSetDefaults() call
-    uint8_t damp = systemIdentData.RateDamp;
-    uint8_t noise = systemIdentData.RateNoise;
+    uint8_t damp = systemIdentData.DampRate;
+    uint8_t noise = systemIdentData.NoiseRate;
     bool yaw = systemIdentData.CalculateYaw;
     uint8_t bank = systemIdentData.DestinationPidBank;
 
@@ -1154,8 +1234,8 @@ static void af_init(float X[AF_NUMX], float P[AF_NUMP])
     SystemIdentTauGet(&X[9]);
 
     // restore the user changeable values
-    systemIdentData.RateDamp = damp;
-    systemIdentData.RateNoise = noise;
+    systemIdentData.DampRate = damp;
+    systemIdentData.NoiseRate = noise;
     systemIdentData.CalculateYaw = yaw;
     systemIdentData.DestinationPidBank = bank;
 #else
@@ -1172,19 +1252,19 @@ static void af_init(float X[AF_NUMX], float P[AF_NUMP])
     // P initialization
     // Could zero this like: *P = *((float [AF_NUMP]){});
     memset(P, 0, AF_NUMP*sizeof(P[0]));
-    P[0] = q_init[0];
-    P[1] = q_init[1];
-    P[2] = q_init[2];
-    P[4] = q_init[3];
-    P[6] = q_init[4];
-    P[8] = q_init[5];
-    P[11] = q_init[6];
-    P[14] = q_init[7];
-    P[17] = q_init[8];
-    P[27] = q_init[9];
-    P[32] = q_init[10];
-    P[37] = q_init[11];
-    P[42] = q_init[12];
+    P[0] = qInit[0];
+    P[1] = qInit[1];
+    P[2] = qInit[2];
+    P[4] = qInit[3];
+    P[6] = qInit[4];
+    P[8] = qInit[5];
+    P[11] = qInit[6];
+    P[14] = qInit[7];
+    P[17] = qInit[8];
+    P[27] = qInit[9];
+    P[32] = qInit[10];
+    P[37] = qInit[11];
+    P[42] = qInit[12];
 }
 
 /**

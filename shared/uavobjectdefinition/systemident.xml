@@ -12,18 +12,31 @@
         <field name="HoverThrottle" units="%/100" type="float" elements="1" defaultvalue="0"/>
         <!-- Decrease damping to make your aircraft response more rapidly. Increase it for more stability. -->
         <!-- Increasing noise (sensitivity) will make your aircraft respond more rapidly, but will cause twitches due to noise. -->
-        <!-- Use damping 1.3 (130) and noise sensitivity 0.8 (08) for very smooth flight. -->
-        <!-- Use damping 1.1 (110) and noise sensitivity 1.0 (10) for default flight. -->
-        <!-- Use damping 1.0 (100) and noise sensitivity 1.3 (13) for very snappy flight. -->
+        <!-- Use RateDamp 130 with RateNoise 08 for very smooth flight. -->
+        <!-- Use RateDamp 110 with RateNoise 10 for default flight. -->
+        <!-- Use RateDamp 100 with RateNoise 13 for very snappy flight. -->
         <!-- RateNoise is [0,30] default 10. -->
         <!-- RateDamp is [50,150] default 110. -->
-        <field name="RateDamp" units="" type="uint8" elements="1" defaultvalue="110"/>
-        <field name="RateNoise" units="" type="uint8" elements="1" defaultvalue="10"/>
+        <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="100"/>
+        <field name="DampRate" units="" type="uint8" elements="1" defaultvalue="110"/>
+        <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="130"/>
+        <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="8"/>
+        <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
+        <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="13"/>
         <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
+        <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
+        <!-- smooth vs. quick PID selector: -->
+        <!--  0 = disabled -->
+        <!-- 10 thru 13 correspond to aux0 -> aux3 transmitter knobs -->
+        <!-- 23 and 25 are discrete 3 and 5 stop rount robin selectors accessed by quickly toggling the fms 3 times -->
+        <!-- 23 means stops at 1/2, 1, 0 (repeat) -->
+        <!-- 25 means stops at 1/2, 3/4, 1, 0, 1/4 (repeat) -->
+        <field name="SmoothQuick" units="sec" type="uint8" elements="1" defaultvalue="25"/>
+        <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <access gcs="readwrite" flight="readwrite"/>
-        <telemetrygcs acked="false" updatemode="manual" period="0"/>
-        <telemetryflight acked="false" updatemode="onchange" period="1000"/>
+        <telemetrygcs acked="true" updatemode="onchange" period="0"/>
+        <telemetryflight acked="false" updatemode="onchange" period="5000"/>
         <logging updatemode="manual" period="0"/>
     </object>
 </xml>

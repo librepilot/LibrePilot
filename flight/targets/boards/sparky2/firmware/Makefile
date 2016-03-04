@@ -95,7 +95,6 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     SRC += $(FLIGHTLIB)/lednotification.c    
     SRC += $(FLIGHTLIB)/sha1.c
-    CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
 
     ## UAVObjects
     include ./UAVObjects.inc

@@ -5,7 +5,8 @@
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
  * @file       pios_config.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
  * @brief      PiOS configuration header, the compile time config file for the PIOS.
  *             Defines which PiOS libraries and features are included in the firmware.
  * @see        The GNU Public License (GPL) Version 3
@@ -88,17 +89,18 @@
 /* Sparky2 5X83s are all external and thus don't have GPIOs #define PIOS_HMC5X83_HAS_GPIOS */
 /* #define PIOS_INCLUDE_BMP085 */
 #define PIOS_INCLUDE_MS5611
-#define PIOS_INCLUDE_MPU9250
-#define PIOS_MPU9250_ACCEL
-#define PIOS_MPU9250_MAG
 #define PIOS_INCLUDE_MPXV
 #define PIOS_INCLUDE_ETASV3
 #define PIOS_INCLUDE_MS4525DO
-/* #define PIOS_INCLUDE_HCSR04 */
+#define PIOS_INCLUDE_MPU9250
+#define PIOS_MPU9250_ACCEL
+#define PIOS_MPU9250_MAG
 
 #define PIOS_SENSOR_RATE 500.0f
 
 #define PIOS_INCLUDE_WS2811
+
+/* #define PIOS_INCLUDE_HCSR04 */
 
 /* PIOS receiver drivers */
 #define PIOS_INCLUDE_PWM
@@ -107,6 +109,8 @@
 #define PIOS_INCLUDE_DSM
 #define PIOS_INCLUDE_SBUS
 #define PIOS_INCLUDE_SRXL
+#define PIOS_INCLUDE_HOTT
+#define PIOS_INCLUDE_EXBUS
 #define PIOS_INCLUDE_GCSRCVR
 #define PIOS_INCLUDE_OPLINKRCVR
 
@@ -125,8 +129,9 @@
 #define PIOS_INCLUDE_FLASH
 #define PIOS_INCLUDE_FLASH_INTERNAL
 #define PIOS_INCLUDE_FLASH_LOGFS_SETTINGS
-#define FLASH_FREERTOS
+/* #define PIOS_INCLUDE_FLASH_OBJLIST */
 /* #define PIOS_INCLUDE_FLASH_EEPROM */
+#define FLASH_FREERTOS
 
 #define PIOS_INCLUDE_DEBUGLOG
 
@@ -153,6 +158,7 @@
 /* #define PIOS_GPS_MINIMAL */
 #define PIOS_INCLUDE_GPS_NMEA_PARSER
 #define PIOS_INCLUDE_GPS_UBX_PARSER
+#define PIOS_INCLUDE_GPS_DJI_PARSER
 #define PIOS_GPS_SETS_HOMELOCATION
 
 /* Stabilization options */
@@ -172,7 +178,7 @@
 /* Task stack sizes */
 /* #define PIOS_ACTUATOR_STACK_SIZE	1020 */
 /* #define PIOS_MANUAL_STACK_SIZE		800 */
-/* #define PIOS_SYSTEM_STACK_SIZE		660 */
+#define PIOS_SYSTEM_STACK_SIZE         1536
 /* #define PIOS_STABILIZATION_STACK_SIZE	524 */
 /* #define PIOS_TELEM_STACK_SIZE		500 */
 /* #define PIOS_EVENTDISPATCHER_STACK_SIZE	130 */

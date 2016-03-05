@@ -680,7 +680,7 @@ void ConfigInputWidget::wzNext()
         manualSettingsObj->setData(manualSettingsData);
         // move to Arming Settings tab
         ui->stackedWidget->setCurrentIndex(0);
-        ui->tabWidget->setCurrentIndex(2);
+        ui->tabWidget->setCurrentIndex(3);
         break;
     default:
         Q_ASSERT(0);

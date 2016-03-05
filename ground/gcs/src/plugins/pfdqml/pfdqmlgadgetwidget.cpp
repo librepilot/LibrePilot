@@ -93,6 +93,16 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
     setQmlFile(config->qmlFile());
 }
 
+void PfdQmlGadgetWidget::saveState(QSettings *settings)
+{
+    m_pfdQmlContext->saveState(settings);
+}
+
+void PfdQmlGadgetWidget::restoreState(QSettings *settings)
+{
+    m_pfdQmlContext->restoreState(settings);
+}
+
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
     qDebug() << "PfdQmlGadgetWidget::setQmlFile" << fn;
@@ -117,6 +127,7 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
 
         QUrl url = QUrl::fromLocalFile(fn);
         engine()->setBaseUrl(url);
+
         setSource(url);
     }
 

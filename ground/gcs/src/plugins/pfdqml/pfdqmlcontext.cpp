@@ -278,6 +278,15 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
     setBackgroundImageFile(config->backgroundImageFile());
 }
 
+
+void PfdQmlContext::saveState(QSettings *settings)
+{
+}
+
+void PfdQmlContext::restoreState(QSettings *settings)
+{
+}
+
 void PfdQmlContext::apply(QQmlContext *context)
 {
     QStringList objectsToExport;

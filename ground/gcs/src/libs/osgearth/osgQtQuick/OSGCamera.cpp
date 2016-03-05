@@ -384,7 +384,7 @@ public:
         osg::Matrix cameraMatrix = cameraRotation
                                    * osg::Matrix::rotate(roll, osg::Vec3(0, 1, 0))
                                    * osg::Matrix::rotate(pitch, osg::Vec3(1, 0, 0))
-                                   * osg::Matrix::rotate(yaw, osg::Vec3(0, 0, -1.0)) * cameraPosition;
+                                   * osg::Matrix::rotate(yaw, osg::Vec3(0, 0, -1)) * cameraPosition;
 
         // Inverse the camera's position and orientation matrix to obtain the view matrix
         cameraMatrix = osg::Matrix::inverse(cameraMatrix);

@@ -442,7 +442,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 void ConfigInputWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)
 {
     if (combo == ui->failsafeFlightMode) {
-        for (int i = 0; i < 6; i++) {
+        for (quint32 i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
             ui->failsafeFlightMode->addItem(QString("Position %1").arg(i + 1), QVariant(i));
         }
     } else {

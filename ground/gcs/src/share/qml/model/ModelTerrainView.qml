@@ -35,7 +35,7 @@ OSGViewport {
         id: skyNode
         sceneData: sceneGroup
         dateTime: Utils.getDateTime()
-        minimumAmbientLight: qmlWidget.minimumAmbientLight
+        minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGGroup {
@@ -45,7 +45,7 @@ OSGViewport {
 
     OSGFileNode {
         id: terrainNode
-        source: qmlWidget.terrainFile
+        source: pfdContext.terrainFile
         async: false
     }
 
@@ -68,7 +68,7 @@ OSGViewport {
 
     OSGFileNode {
         id: modelFileNode
-        source: qmlWidget.modelFile
+        source: pfdContext.modelFile
         async: false
         optimizeMode: OptimizeMode.OptimizeAndCheck
     }

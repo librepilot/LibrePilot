@@ -23,6 +23,6 @@ Item {
     Loader {
         anchors.fill: parent
         focus: true
-        source: qmlWidget.terrainEnabled ? "model/ModelTerrainView.qml" : "model/ModelView.qml"
+        source: pfdContext.terrainEnabled ? "model/ModelTerrainView.qml" : "model/ModelView.qml"
     }
 }

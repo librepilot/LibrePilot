@@ -26,7 +26,7 @@ Item {
     id: sceneItem
     property variant sceneSize
 
-    property real altitude : -qmlWidget.altitudeFactor * UAV.positionStateDown()
+    property real altitude : -pfdContext.altitudeFactor * UAV.positionStateDown()
 
     SvgElementImage {
         id: altitude_window
@@ -34,7 +34,7 @@ Item {
         sceneSize: sceneItem.sceneSize
         clip: true
 
-        visible: qmlWidget.altitudeUnit != 0
+        visible: pfdContext.altitudeUnit != 0
 
         property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "altitude-window")
 
@@ -98,7 +98,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             anchors.verticalCenterOffset: -altitude_scale.height / 10 * 
-                                          (UAV.positionStateDown() - UAV.pathDesiredEndDown()) * qmlWidget.altitudeFactor
+                                          (UAV.positionStateDown() - UAV.pathDesiredEndDown()) * pfdContext.altitudeFactor
         }
     }
 
@@ -106,7 +106,7 @@ Item {
         id: altitude_box
         clip: true
 
-        visible: qmlWidget.altitudeUnit != 0
+        visible: pfdContext.altitudeUnit != 0
 
         elementName: "altitude-box"
         sceneSize: sceneItem.sceneSize
@@ -136,7 +136,7 @@ Item {
         elementName: "altitude-unit-box"
         sceneSize: sceneItem.sceneSize
 
-        visible: qmlWidget.altitudeUnit != 0
+        visible: pfdContext.altitudeUnit != 0
 
         anchors.top: altitude_window.bottom
         anchors.right: altitude_window.right
@@ -145,7 +145,7 @@ Item {
 
         Text {
             id: altitude_unit_text
-            text: qmlWidget.altitudeUnit
+            text: pfdContext.altitudeUnit
             color: "cyan"
             font {
                 family: pt_bold.name

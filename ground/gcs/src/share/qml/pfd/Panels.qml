@@ -541,7 +541,7 @@ Item {
                anchors.fill: parent;
                cursorShape: Qt.PointingHandCursor;
                visible: display_bat == true ? 1 : 0
-               onClicked: qmlWidget.resetConsumedEnergy();
+               onClicked: pfdContext.resetConsumedEnergy();
             }
 
             // Alarm based on estimatedFlightTime < 120s orange, < 60s red
@@ -598,7 +598,7 @@ Item {
                anchors.fill: parent;
                cursorShape: Qt.PointingHandCursor;
                visible: display_bat == true ? 1 : 0
-               onClicked: qmlWidget.resetConsumedEnergy();
+               onClicked: pfdContext.resetConsumedEnergy();
             }
 
             // Alarm based on estimatedFlightTime < 120s orange, < 60s red

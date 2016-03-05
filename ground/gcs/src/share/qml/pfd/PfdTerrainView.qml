@@ -45,12 +45,12 @@ OSGViewport {
         id: skyNode
         sceneData: terrainNode
         dateTime: Utils.getDateTime()
-        minimumAmbientLight: qmlWidget.minimumAmbientLight
+        minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGFileNode {
         id: terrainNode
-        source: qmlWidget.terrainFile
+        source: pfdContext.terrainFile
         async: false
     }
 

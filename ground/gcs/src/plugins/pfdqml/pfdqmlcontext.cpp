@@ -329,5 +329,5 @@ void PfdQmlContext::apply(QQmlContext *context)
     }
 
     // to expose settings values
-    context->setContextProperty("qmlWidget", this);
+    context->setContextProperty("pfdContext", this);
 }

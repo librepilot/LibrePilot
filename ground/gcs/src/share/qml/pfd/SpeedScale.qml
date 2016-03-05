@@ -24,7 +24,7 @@ import "../uav.js" as UAV
 Item {
     id: sceneItem
     property variant sceneSize
-    property real groundSpeed : qmlWidget.speedFactor * UAV.currentVelocity()
+    property real groundSpeed : pfdContext.speedFactor * UAV.currentVelocity()
 
     SvgElementImage {
         id: speed_window
@@ -32,7 +32,7 @@ Item {
         sceneSize: sceneItem.sceneSize
         clip: true
 
-        visible: qmlWidget.speedUnit != 0
+        visible: pfdContext.speedUnit != 0
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
@@ -88,7 +88,7 @@ Item {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
 
-            anchors.verticalCenterOffset: speed_scale.height / 10 * (sceneItem.groundSpeed - (UAV.pathDesiredEndingVelocity() * qmlWidget.speedFactor))
+            anchors.verticalCenterOffset: speed_scale.height / 10 * (sceneItem.groundSpeed - (UAV.pathDesiredEndingVelocity() * pfdContext.speedFactor))
         }
     }
 
@@ -98,7 +98,7 @@ Item {
         elementName: "speed-box"
         sceneSize: sceneItem.sceneSize
 
-        visible: qmlWidget.speedUnit != 0
+        visible: pfdContext.speedUnit != 0
 
         x: scaledBounds.x * sceneItem.width
         y: scaledBounds.y * sceneItem.height
@@ -123,7 +123,7 @@ Item {
         elementName: "speed-unit-box"
         sceneSize: sceneItem.sceneSize
 
-        visible: qmlWidget.speedUnit != 0
+        visible: pfdContext.speedUnit != 0
 
         anchors.top: speed_window.bottom
         anchors.right: speed_window.right
@@ -132,7 +132,7 @@ Item {
 
         Text {
            id: speed_unit_text
-           text: qmlWidget.speedUnit
+           text: pfdContext.speedUnit
            color: "cyan"
            font {
                 family: pt_bold.name

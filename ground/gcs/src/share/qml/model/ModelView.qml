@@ -41,7 +41,7 @@ Item {
 
         OSGBackgroundNode {
             id: backgroundNode
-            imageFile: qmlWidget.backgroundImageFile
+            imageFile: pfdContext.backgroundImageFile
         }
 
         OSGTransformNode {
@@ -52,7 +52,7 @@ Item {
 
         OSGFileNode {
             id: fileNode
-            source: qmlWidget.modelFile
+            source: pfdContext.modelFile
             async: false
             optimizeMode: OptimizeMode.OptimizeAndCheck
         }

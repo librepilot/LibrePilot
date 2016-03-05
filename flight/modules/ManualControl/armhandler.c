@@ -106,6 +106,10 @@ void armHandler(bool newinit, FrameType_t frameType)
         AccessoryDesiredInstGet(2, &acc);
         armSwitch = true;
         break;
+    case FLIGHTMODESETTINGS_ARMING_ACCESSORY3:
+        AccessoryDesiredInstGet(3, &acc);
+        armSwitch = true;
+        break;
     default:
         break;
     }
@@ -181,6 +185,7 @@ void armHandler(bool newinit, FrameType_t frameType)
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY0:
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY1:
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY2:
+    case FLIGHTMODESETTINGS_ARMING_ACCESSORY3:
         armingInputLevel = -1.0f * acc.AccessoryVal;
         break;
     default:
@@ -313,6 +318,11 @@ static bool okToArm(void)
             return false;
         }
 
+        // Avoid arming while AlwaysStabilizeWhenArmed is active
+        if (flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE) {
+            return false;
+        }
+
         return true;
 
         break;
@@ -321,6 +331,10 @@ static bool okToArm(void)
 
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF:
     case FLIGHTSTATUS_FLIGHTMODE_PATHPLANNER:
+        // Avoid arming while AlwaysStabilizeWhenArmed is active
+        if (flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE) {
+            return false;
+        }
         return true;
 
     default:

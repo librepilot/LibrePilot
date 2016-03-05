@@ -98,7 +98,7 @@ static int mixer_settings_count = 2;
 // Private functions
 static void actuatorTask(void *parameters);
 static int16_t scaleChannel(float value, int16_t max, int16_t min, int16_t neutral);
-static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired);
+static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool alwaysStabilizeWhenArmed, float throttleDesired);
 static void setFailsafe();
 static float MixerCurveFullRangeProportional(const float input, const float *curve, uint8_t elements, bool multirotor);
 static float MixerCurveFullRangeAbsolute(const float input, const float *curve, uint8_t elements, bool multirotor);
@@ -270,10 +270,10 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
         bool multirotor  = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR); // check if frame is a multirotor.
         bool fixedwing   = (GetCurrentFrameType() == FRAME_TYPE_FIXED_WING); // check if frame is a fixedwing.
         bool alwaysArmed = settings.Arming == FLIGHTMODESETTINGS_ARMING_ALWAYSARMED;
-        bool AlwaysStabilizeWhenArmed = settings.AlwaysStabilizeWhenArmed == FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMED_TRUE;
+        bool alwaysStabilizeWhenArmed = flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE;
 
         if (alwaysArmed) {
-            AlwaysStabilizeWhenArmed = false; // Do not allow always stabilize when alwaysArmed is active. This is dangerous.
+            alwaysStabilizeWhenArmed = false; // Do not allow always stabilize when alwaysArmed is active. This is dangerous.
         }
         // safety settings
         if (!armed) {
@@ -284,7 +284,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
             // throttleDesired should never be 0 or go below 0.
             // force set all other controls to zero if throttle is cut (previously set in Stabilization)
             // todo: can probably remove this
-            if (!(multirotor && AlwaysStabilizeWhenArmed && armed)) { // we don't do this if this is a multirotor AND AlwaysStabilizeWhenArmed is true and the model is armed
+            if (!(multirotor && alwaysStabilizeWhenArmed && armed)) { // we don't do this if this is a multirotor AND AlwaysStabilizeWhenArmed is true and the model is armed
                 if (actuatorSettings.LowThrottleZeroAxis.Roll == ACTUATORSETTINGS_LOWTHROTTLEZEROAXIS_TRUE) {
                     desired.Roll = 0.00f;
                 }
@@ -498,7 +498,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                                                     maxMotor,
                                                     minMotor,
                                                     armed,
-                                                    AlwaysStabilizeWhenArmed,
+                                                    alwaysStabilizeWhenArmed,
                                                     throttleDesired);
                 } else { // else we scale the channel
                     command.Channel[i] = scaleChannel(status[i],
@@ -746,7 +746,7 @@ static inline int16_t scaleMotorMoveAndCompress(float valueMotor, int16_t max, i
 /**
  * Constrain motor values to keep any one motor value from going too far out of range of another motor
  */
-static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired)
+static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool alwaysStabilizeWhenArmed, float throttleDesired)
 {
     int16_t valueScaled;
 
@@ -757,7 +757,7 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
         valueScaled = scaleChannel(value, max, min, neutral);
     }
 
-    // I've added the bool AlwaysStabilizeWhenArmed to this function. Right now we command the motors at min or a range between neutral and max.
+    // I've added the bool alwaysStabilizeWhenArmed to this function. Right now we command the motors at min or a range between neutral and max.
     // NEVER should a motor be command at between min and neutral. I don't like the idea of stabilization ever commanding a motor to min, but we give people the option
     // This prevents motors startup sync issues causing possible ESC failures.
 
@@ -765,8 +765,8 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
     if (!armed) {
         // if not armed return min EVERYTIME!
         valueScaled = min;
-    } else if (!AlwaysStabilizeWhenArmed && (throttleDesired <= 0.0f) && spinWhileArmed) {
-        // all motors idle is AlwaysStabilizeWhenArmed is false, throttle is less than or equal to neutral and spin while armed
+    } else if (!alwaysStabilizeWhenArmed && (throttleDesired <= 0.0f) && spinWhileArmed) {
+        // all motors idle is alwaysStabilizeWhenArmed is false, throttle is less than or equal to neutral and spin while armed
         // stabilize when armed?
         valueScaled = neutral;
     } else if (!spinWhileArmed && (throttleDesired <= 0.0f)) {

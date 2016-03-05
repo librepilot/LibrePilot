@@ -317,7 +317,7 @@ static void AtNewGyroData(UAVObjEvent * ev);
 static void UpdateSystemIdent(const float *X, const float *noise, float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle);
 static void UpdateStabilizationDesired(bool doingIdent);
 static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode);
-static void InitSystemIdent();
+static void InitSystemIdent(bool loadDefaults);
 
 
 /**
@@ -397,7 +397,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     // correctly set accessoryToUse and flightModeSwitchTogglePosition
     // based on what is in SystemIdent
     // so that the user can use the PID smooth->quick slider in a following flight
-    InitSystemIdent();
+    InitSystemIdent(false);
 
     while (1) {
         static uint32_t updateCounter = 0;
@@ -415,14 +415,13 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
 
         if (flightStatus.Armed == FLIGHTSTATUS_ARMED_DISARMED) {
             if (saveSiNeeded) {
+                saveSiNeeded = false;
                 // Save SystemIdent to permanent settings
                 UAVObjSave(SystemIdentHandle(), 0);
-                saveSiNeeded = false;
 //so how to restart if it failed and both saves are false
             }
             if (savePidNeeded) {
-                // Save SystemIdent to permanent settings
-                UAVObjSave(SystemIdentHandle(), 0);
+                savePidNeeded = false;
                 // Save PIDs to permanent settings
                 switch (systemIdentData.DestinationPidBank) {
                 case 1:
@@ -435,8 +434,8 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                     UAVObjSave(StabilizationSettingsBank3Handle(), 0);
                     break;
                 }
-                savePidNeeded = false;
             }
+// can't set to AT_INIT because when we land and disarm it will jump to init and clear things out after 2 seconds
 //state = AT_INIT;
         }
 
@@ -444,7 +443,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
         // and user toggled into and back out of AutoTune
         // three times in the last two seconds
         // CheckFlightModeSwitchForPidRequest(mode) only returns true if mode is not autotune
-        if (flightModeSwitchTogglePosition!=-1 && CheckFlightModeSwitchForPidRequest(flightStatus.FlightMode)) {
+        if (flightModeSwitchTogglePosition!=-1 && CheckFlightModeSwitchForPidRequest(flightStatus.FlightMode) && systemIdentData.Complete && !CheckSettings()) {
             if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
                 // if user toggled while armed set PID's to next in sequence 3,4,5,1,2 or 2,3,1
                 ++flightModeSwitchTogglePosition;
@@ -466,7 +465,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             // don't bother checking to see if the requested accessory# is configured properly
             // if it isn't, the value will be 0 which is the center of [-1,1] anyway
 // if (accessoryToUse!=-1 && CheckAccessoryForPidRequest(accessoryToUse)) {
-            if (accessoryToUse != -1) {
+            if (accessoryToUse != -1 && systemIdentData.Complete && !CheckSettings()) {
                 static AccessoryDesiredData accessoryValueOld = { 0.0f };
 //                static float accessoryValueOld = 0.0f;
                 AccessoryDesiredData accessoryValue;
@@ -496,11 +495,12 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // Reset save status; only save if this tune completes.
                 saveSiNeeded = false;
                 savePidNeeded = false;
+//                systemIdentData.Complete = false;
                 lastUpdateTime = xTaskGetTickCount();
 
                 // Only start when armed and flying
                 if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
-                    InitSystemIdent();
+                    InitSystemIdent(true);
                     AfInit(gX, gP);
                     UpdateSystemIdent(gX, NULL, 0.0f, 0, 0, 0.0f);
                     measureTime = (uint32_t)systemIdentData.TuningDuration * (uint32_t)1000;
@@ -581,7 +581,6 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             }
             if (diffTime > measureTime) { // Move on to next state
                 // permanent flag that AT is complete and PIDs can be calculated
-                systemIdentData.Complete = true;
                 state = AT_FINISHED;
                 lastUpdateTime = xTaskGetTickCount();
             }
@@ -599,20 +598,20 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 if (!failureBits) {
                     ComputeStabilizationAndSetPids();
                     savePidNeeded = true;
+                    systemIdentData.Complete = true;
                 } else {
 //is this right
                     // default to disable PID changing with flight mode switch and accessory0-3
                     accessoryToUse = -1;
                     flightModeSwitchTogglePosition = -1;
+//                    systemIdentData.Complete = false;
                     // raise a warning
                     ExtendedAlarmsSet(SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION, SYSTEMALARMS_ALARM_WARNING,
                                       SYSTEMALARMS_EXTENDEDALARMSTATUS_AUTOTUNE, failureBits);
                 }
             }
             state = AT_WAITING;
-//                break;
-// fall through in the unlikely case that it is disarmed at AT_FINISHED
-// and armed before it ever gets to AT_WAITING the first time
+            break;
 
         case AT_WAITING:
         default:
@@ -713,26 +712,42 @@ static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode) {
 }
 
 
-static void InitSystemIdent() {
+static void InitSystemIdent(bool loadDefaults) {
     SystemIdentGet(&systemIdentData);
-    // these are values that could be changed by the user
-    // save them through the following xSetDefaults() call
-    uint8_t dampRate = systemIdentData.DampRate;
-    uint8_t noiseRate = systemIdentData.NoiseRate;
-    bool calcYaw = systemIdentData.CalculateYaw;
-    uint8_t destBank = systemIdentData.DestinationPidBank;
     uint8_t smoothQuick = systemIdentData.SmoothQuick;
 
-    // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
-    // so that if they are changed there (mainly for future code changes), they will be changed here too
-    SystemIdentSetDefaults(SystemIdentHandle(), 0);
-    SystemIdentGet(&systemIdentData);
+    if (loadDefaults) {
+        // these are values that could be changed by the user
+        // save them through the following xSetDefaults() call
+        uint8_t dampMin = systemIdentData.DampMin;
+        uint8_t dampRate = systemIdentData.DampRate;
+        uint8_t dampMax = systemIdentData.DampMax;
+        uint8_t noiseMin = systemIdentData.NoiseMin;
+        uint8_t noiseRate = systemIdentData.NoiseRate;
+        uint8_t noiseMax = systemIdentData.NoiseMax;
+        bool calcYaw = systemIdentData.CalculateYaw;
+        uint8_t destBank = systemIdentData.DestinationPidBank;
+        uint8_t tuningDuration = systemIdentData.TuningDuration;
+//        bool complete = systemIdentData.Complete;
 
-    // restore the user changeable values
-    systemIdentData.DampRate = dampRate;
-    systemIdentData.NoiseRate = noiseRate;
-    systemIdentData.CalculateYaw = calcYaw;
-    systemIdentData.DestinationPidBank = destBank;
+        // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
+        // so that if they are changed there (mainly for future code changes), they will be changed here too
+        SystemIdentSetDefaults(SystemIdentHandle(), 0);
+        SystemIdentGet(&systemIdentData);
+
+        // restore the user changeable values
+        systemIdentData.DampMin = dampMin;
+        systemIdentData.DampRate = dampRate;
+        systemIdentData.DampMax = dampMax;
+        systemIdentData.NoiseMin = noiseMin;
+        systemIdentData.NoiseRate = noiseRate;
+        systemIdentData.NoiseMax = noiseMax;
+        systemIdentData.CalculateYaw = calcYaw;
+        systemIdentData.DestinationPidBank = destBank;
+        systemIdentData.TuningDuration = tuningDuration;
+//        systemIdentData.Complete = complete;
+    }
+
     // default to disable PID changing with flight mode switch and accessory0-3
     accessoryToUse = -1;
     flightModeSwitchTogglePosition = -1;
@@ -791,6 +806,7 @@ static void UpdateStabilizationDesired(bool doingIdent) {
     stabDesired.Roll = manual_control_command.Roll * rollMax;
     stabDesired.Pitch = manual_control_command.Pitch * pitchMax;
     stabDesired.Yaw = manual_control_command.Yaw * manualRate.Yaw;
+    stabDesired.Thrust = (airframeType == SYSTEMSETTINGS_AIRFRAMETYPE_HELICP) ? manual_control_command.Collective : manual_control_command.Throttle;
 
     if (doingIdent) {
         stabDesired.StabilizationMode.Roll  = STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT;
@@ -801,8 +817,8 @@ static void UpdateStabilizationDesired(bool doingIdent) {
         stabDesired.StabilizationMode.Pitch = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
         stabDesired.StabilizationMode.Yaw   = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
     }
+    stabDesired.StabilizationMode.Thrust    = STABILIZATIONDESIRED_STABILIZATIONMODE_MANUAL;
 
-    stabDesired.Thrust = (airframeType == SYSTEMSETTINGS_AIRFRAMETYPE_HELICP) ? manual_control_command.Collective : manual_control_command.Throttle;
 // is this a race
 // control feels very sluggish too
     StabilizationDesiredSet(&stabDesired);
@@ -836,6 +852,7 @@ static uint8_t CheckSettings()
 }
 
 
+#if 0
 static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float noiseRate)
 {
     StabilizationSettingsBank1Data stabSettingsBank;
@@ -863,6 +880,7 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     const double damp = (double) dampRate  / 100.0d;
 
     double tau = exp(systemIdentData.Tau);
+#if 0
     double beta_roll = systemIdentData.Beta.Roll;
     double beta_pitch = systemIdentData.Beta.Pitch;
 
@@ -871,7 +889,16 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     for (int i = 0; i < 30; i++) {
         double tau_d_roll = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp(beta_roll)*ghf);
         double tau_d_pitch = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp(beta_pitch)*ghf);
+#else
+    double exp_beta_roll_times_ghf = exp(systemIdentData.Beta.Roll)*ghf;
+    double exp_beta_pitch_times_ghf = exp(systemIdentData.Beta.Pitch)*ghf;
 
+    double wn = 1.0d/tau;
+    double tau_d = 0.0d;
+    for (int i = 0; i < 30; i++) {
+        double tau_d_roll = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp_beta_roll_times_ghf);
+        double tau_d_pitch = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp_beta_pitch_times_ghf);
+#endif
         // Select the slowest filter property
         tau_d = (tau_d_roll > tau_d_pitch) ? tau_d_roll : tau_d_pitch;
         wn = (tau + tau_d) / (tau*tau_d) / (2.0d * damp + 2.0d);
@@ -938,6 +965,145 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
         break;
     }
 }
+#else
+static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float noiseRate)
+{
+    StabilizationSettingsBank1Data stabSettingsBank;
+
+#if 0
+systemIdentData.Bias.Roll  = dampRate;
+systemIdentData.Bias.Pitch = noiseRate;
+SystemIdentSet(&systemIdentData);
+#endif
+
+    switch (systemIdentData.DestinationPidBank) {
+    case 1:
+        StabilizationSettingsBank1Get((void *)&stabSettingsBank);
+        break;
+    case 2:
+        StabilizationSettingsBank2Get((void *)&stabSettingsBank);
+        break;
+    case 3:
+        StabilizationSettingsBank3Get((void *)&stabSettingsBank);
+        break;
+    }
+
+    // These three parameters define the desired response properties
+    // - rate scale in the fraction of the natural speed of the system
+    //   to strive for.
+    // - damp is the amount of damping in the system. higher values
+    //   make oscillations less likely
+    // - ghf is the amount of high frequency gain and limits the influence
+    //   of noise
+    const double ghf  = (double) noiseRate / 1000.0d;
+    const double damp = (double) dampRate  / 100.0d;
+
+    double tau = exp(systemIdentData.Tau);
+    {
+    double exp_beta_roll_times_ghf = exp(systemIdentData.Beta.Roll)*ghf;
+    double exp_beta_pitch_times_ghf = exp(systemIdentData.Beta.Pitch)*ghf;
+
+    double wn = 1.0d/tau;
+    double tau_d = 0.0d;
+    for (int i = 0; i < 30; i++) {
+        double tau_d_roll = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp_beta_roll_times_ghf);
+        double tau_d_pitch = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp_beta_pitch_times_ghf);
+        // Select the slowest filter property
+        tau_d = (tau_d_roll > tau_d_pitch) ? tau_d_roll : tau_d_pitch;
+        wn = (tau + tau_d) / (tau*tau_d) / (2.0d * damp + 2.0d);
+    }
+
+    // Set the real pole position. The first pole is quite slow, which
+    // prevents the integral being too snappy and driving too much
+    // overshoot.
+    const double a = ((tau+tau_d) / tau / tau_d - 2.0d * damp * wn) / 20.0d;
+    const double b = ((tau+tau_d) / tau / tau_d - 2.0d * damp * wn - a);
+
+    // Calculate the gain for the outer loop by approximating the
+    // inner loop as a single order lpf. Set the outer loop to be
+    // critically damped;
+    const double zeta_o = 1.3d;
+    const double kp_o = 1.0d / 4.0d / (zeta_o * zeta_o) / (1.0d/wn);
+
+    for (int i = 0; i < 2; i++) {
+        double beta = exp(SystemIdentBetaToArray(systemIdentData.Beta)[i]);
+
+        double ki = a * b * wn * wn * tau * tau_d / beta;
+        double kp = tau * tau_d * ((a+b)*wn*wn + 2.0d*a*b*damp*wn) / beta - ki*tau_d;
+        double kd = (tau * tau_d * (a*b + wn*wn + (a+b)*2.0d*damp*wn) - 1.0d) / beta - kp * tau_d;
+
+        switch(i) {
+        case 0: // Roll
+            stabSettingsBank.RollRatePID.Kp = kp;
+            stabSettingsBank.RollRatePID.Ki = ki;
+            stabSettingsBank.RollRatePID.Kd = kd;
+            stabSettingsBank.RollPI.Kp = kp_o;
+            stabSettingsBank.RollPI.Ki = 0;
+            break;
+        case 1: // Pitch
+            stabSettingsBank.PitchRatePID.Kp = kp;
+            stabSettingsBank.PitchRatePID.Ki = ki;
+            stabSettingsBank.PitchRatePID.Kd = kd;
+            stabSettingsBank.PitchPI.Kp = kp_o;
+            stabSettingsBank.PitchPI.Ki = 0;
+            break;
+        }
+    }
+    }
+
+    // do yaw if requested
+    if (systemIdentData.CalculateYaw) {
+    double exp_beta_yaw_times_ghf = exp(systemIdentData.Beta.Yaw)*ghf;
+
+    double wn = 1.0d/tau;
+    double tau_d = 0.0d;
+    for (int i = 0; i < 30; i++) {
+        tau_d = (2.0d*damp*tau*wn - 1.0d)/(4.0d*tau*damp*damp*wn*wn - 2.0d*damp*wn - tau*wn*wn + exp_beta_yaw_times_ghf);
+        wn = (tau + tau_d) / (tau*tau_d) / (2.0d * damp + 2.0d);
+    }
+
+    // Set the real pole position. The first pole is quite slow, which
+    // prevents the integral being too snappy and driving too much
+    // overshoot.
+    const double a = ((tau+tau_d) / tau / tau_d - 2.0d * damp * wn) / 20.0d;
+    const double b = ((tau+tau_d) / tau / tau_d - 2.0d * damp * wn - a);
+
+    // Calculate the gain for the outer loop by approximating the
+    // inner loop as a single order lpf. Set the outer loop to be
+    // critically damped;
+    const double zeta_o = 1.3d;
+    const double kp_o = 1.0d / 4.0d / (zeta_o * zeta_o) / (1.0d/wn);
+
+        double beta = exp(systemIdentData.Beta.Yaw);
+
+        double ki = a * b * wn * wn * tau * tau_d / beta;
+        double kp = tau * tau_d * ((a+b)*wn*wn + 2.0d*a*b*damp*wn) / beta - ki*tau_d;
+        double kd = (tau * tau_d * (a*b + wn*wn + (a+b)*2.0d*damp*wn) - 1.0d) / beta - kp * tau_d;
+
+        // optional Yaw
+        stabSettingsBank.YawRatePID.Kp = kp;
+        stabSettingsBank.YawRatePID.Ki = ki;
+        stabSettingsBank.YawRatePID.Kd = kd;
+        stabSettingsBank.YawPI.Kp = kp_o;
+        stabSettingsBank.YawPI.Ki = 0;
+    }
+
+    //stabSettingsBank.DerivativeCutoff = 1.0d / (2.0d*M_PI*tau_d);
+
+    // Save PIDs to permanent settings
+    switch (systemIdentData.DestinationPidBank) {
+    case 1:
+        StabilizationSettingsBank1Set((void *)&stabSettingsBank);
+        break;
+    case 2:
+        StabilizationSettingsBank2Set((void *)&stabSettingsBank);
+        break;
+    case 3:
+        StabilizationSettingsBank3Set((void *)&stabSettingsBank);
+        break;
+    }
+}
+#endif
 
 
 static void ComputeStabilizationAndSetPids()
@@ -960,9 +1126,9 @@ static void ComputeStabilizationAndSetPids()
 #define dampMin      systemIdentData.DampMin
 #define dampDefault  systemIdentData.DampRate
 #define dampMax      systemIdentData.DampMax
-#define noiseMin     systemIdentData.DampMin
-#define noiseDefault systemIdentData.DampRate
-#define noiseMax     systemIdentData.DampMax
+#define noiseMin     systemIdentData.NoiseMin
+#define noiseDefault systemIdentData.NoiseRate
+#define noiseMax     systemIdentData.NoiseMax
 static void ProportionPidsSmoothToQuick(float min, float val, float max)
 {
     float ratio, damp, noise;

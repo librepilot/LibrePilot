@@ -41,7 +41,6 @@ class View;
 } // namespace osgViewer
 
 namespace osgQtQuick {
-
 class OSGQTQUICK_EXPORT OSGNode : public QObject {
     Q_OBJECT
 

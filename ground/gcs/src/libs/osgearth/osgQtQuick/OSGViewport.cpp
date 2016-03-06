@@ -187,7 +187,7 @@ public:
             qDebug() << "OSGViewport::attach - found map node" << mapNode;
 
             // remove light to prevent unnecessary state changes in SceneView
-            // scene will get light from sky
+            // scene will get light from sky (works only with latest > 2.7)
             // view->setLightingMode(osg::View::NO_LIGHT);
         }
 #endif

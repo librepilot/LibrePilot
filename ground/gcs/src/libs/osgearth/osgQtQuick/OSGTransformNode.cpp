@@ -67,7 +67,7 @@ public:
         }
 
         childNode = node;
-        dirty = true;
+        dirty     = true;
 
         if (childNode) {
             connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)));
@@ -91,15 +91,13 @@ public:
             if (childNode && childNode->node()) {
                 transform->addChild(childNode->node());
             }
-        }
-        else {
+        } else {
             if (childNode && childNode->node()) {
                 if (transform->getChild(0) != childNode->node()) {
                     transform->removeChild(0, 1);
                     transform->addChild(childNode->node());
                 }
-            }
-            else {
+            } else {
                 transform->removeChild(0, 1);
             }
         }

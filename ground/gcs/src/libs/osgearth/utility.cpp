@@ -34,9 +34,7 @@
 #include "osgQtQuick/OSGTransformNode.hpp"
 #include "osgQtQuick/OSGShapeNode.hpp"
 #include "osgQtQuick/OSGTextNode.hpp"
-#include "osgQtQuick/OSGModelNode.hpp"
 #include "osgQtQuick/OSGBackgroundNode.hpp"
-#include "osgQtQuick/OSGSkyNode.hpp"
 #include "osgQtQuick/OSGCamera.hpp"
 #include "osgQtQuick/OSGViewport.hpp"
 
@@ -60,6 +58,9 @@
 #endif // USE_OSG_QT
 
 #ifdef USE_OSGEARTH
+#include "osgQtQuick/OSGSkyNode.hpp"
+#include "osgQtQuick/OSGGeoTransformNode.hpp"
+
 #include <osgEarth/Capabilities>
 #include <osgEarth/MapNode>
 #include <osgEarth/SpatialReference>
@@ -440,12 +441,15 @@ QString getUsageString(osgViewer::CompositeViewer *viewer)
 }
 
 #ifdef USE_OSGEARTH
+osgEarth::GeoPoint toGeoPoint(const osgEarth::SpatialReference *srs, const QVector3D &position)
+{
+    osgEarth::GeoPoint geoPoint(srs, position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
+    return geoPoint;
+}
+
 osgEarth::GeoPoint toGeoPoint(const QVector3D &position)
 {
-    osgEarth::GeoPoint geoPoint(osgEarth::SpatialReference::get("wgs84"),
-                                position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
-
-    return geoPoint;
+    return toGeoPoint(osgEarth::SpatialReference::get("wgs84"), position);
 }
 
 bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode)
@@ -542,8 +546,8 @@ void registerTypes()
     qmlRegisterType<osgQtQuick::TrackerMode>("OsgQtQuick", maj, min, "TrackerMode");
 
 #ifdef USE_OSGEARTH
-    qmlRegisterType<osgQtQuick::OSGModelNode>("OsgQtQuick", maj, min, "OSGModelNode");
     qmlRegisterType<osgQtQuick::OSGSkyNode>("OsgQtQuick", maj, min, "OSGSkyNode");
+    qmlRegisterType<osgQtQuick::OSGGeoTransformNode>("OsgQtQuick", maj, min, "OSGGeoTransformNode");
 #endif // USE_OSGEARTH
 }
 } // namespace osgQtQuick

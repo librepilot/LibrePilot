@@ -58,10 +58,8 @@ void OSGNode::setNode(osg::Node *node)
 }
 
 void OSGNode::attach(osgViewer::View *view)
-{
-}
+{}
 
 void OSGNode::detach(osgViewer::View *view)
-{
-}
+{}
 } // namespace osgQtQuick

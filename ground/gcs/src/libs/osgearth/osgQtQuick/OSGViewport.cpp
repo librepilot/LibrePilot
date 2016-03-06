@@ -354,6 +354,10 @@ public:
         // setup graphics context and camera
         osg::GraphicsContext *gc = createGraphicsContext();
 
+        // TODO expose as Qml properties
+        view->setLightingMode(osgViewer::View::SKY_LIGHT);
+        view->getLight()->setAmbient(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
+
         osg::Camera *camera = view->getCamera();
         camera->setGraphicsContext(gc);
         camera->setViewport(0, 0, gc->getTraits()->width, gc->getTraits()->height);

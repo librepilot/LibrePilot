@@ -605,7 +605,7 @@ bool UAVObjectGeneratorGCS::generate(UAVObjectParser *parser, QString templatepa
  */
 bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
 {
-    if (info == NULL) {
+    if (object == NULL) {
         return false;
     }
 

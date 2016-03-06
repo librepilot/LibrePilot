@@ -212,7 +212,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SBUS;
             } else {
                 data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
-                // We have to set telemetry on flexport since s.bus needs the mainport on all but Revo.
+                // We have to set telemetry to flexport on all except Revo (and except Sparky2) since s.bus needs the mainport.
                 if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
                     data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
                 }
@@ -238,10 +238,10 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
             data.GPSSpeed = HwSettings::GPSSPEED_57600;
 
-            // if using GPS and SBUS on Revo, we must use FlexiPort for GPS
+            // if using GPS and SBUS on Revo or Nano, we must use FlexiPort for GPS
             // since we must use MainPort for SBUS
             if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS
-                && m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+                && m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
             } else {
                 data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
@@ -1371,6 +1371,7 @@ void VehicleConfigurationHelper::setupHexaCopter()
         channels[0].roll      = 100;
         channels[0].pitch     = 25;
         channels[0].yaw = -66;
+
 
         channels[1].type      = MIXER_TYPE_MOTOR;
         channels[1].throttle1 = 100;

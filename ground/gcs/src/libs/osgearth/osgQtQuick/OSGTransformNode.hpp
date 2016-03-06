@@ -37,7 +37,7 @@
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
     Q_OBJECT
-    // TODO rename to parentNode and modelNode
+    // TODO rename to childNode
     Q_PROPERTY(osgQtQuick::OSGNode *modelData READ modelData WRITE setModelData NOTIFY modelDataChanged)
 
     Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)

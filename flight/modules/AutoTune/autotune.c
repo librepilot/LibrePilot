@@ -798,7 +798,8 @@ static void UpdateSystemIdent(const float *X, const float *noise,
 
 static void UpdateStabilizationDesired(bool doingIdent) {
     StabilizationDesiredData stabDesired;
-    StabilizationDesiredGet(&stabDesired);
+    // unneeded since we are setting everything in this uavo
+    //StabilizationDesiredGet(&stabDesired);
 
     ManualControlCommandData manual_control_command;
     ManualControlCommandGet(&manual_control_command);
@@ -806,7 +807,8 @@ static void UpdateStabilizationDesired(bool doingIdent) {
     stabDesired.Roll = manual_control_command.Roll * rollMax;
     stabDesired.Pitch = manual_control_command.Pitch * pitchMax;
     stabDesired.Yaw = manual_control_command.Yaw * manualRate.Yaw;
-    stabDesired.Thrust = (airframeType == SYSTEMSETTINGS_AIRFRAMETYPE_HELICP) ? manual_control_command.Collective : manual_control_command.Throttle;
+    //stabDesired.Thrust = (airframeType == SYSTEMSETTINGS_AIRFRAMETYPE_HELICP) ? manual_control_command.Collective : manual_control_command.Throttle;
+    stabDesired.Thrust = manual_control_command.Thrust;
 
     if (doingIdent) {
         stabDesired.StabilizationMode.Roll  = STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT;
@@ -829,6 +831,7 @@ static uint8_t CheckSettings()
 {
     uint8_t retVal = 0;
 
+#if 1
     // Check the axis gains
     // Extreme values: Your roll or pitch gain was lower than expected. This will result in large PID values.
     if (systemIdentData.Beta.Roll < 6) {
@@ -847,6 +850,7 @@ static uint8_t CheckSettings()
     else if (expf(systemIdentData.Tau) < 0.008f) {
         retVal |= 8;
     }
+#endif
 
     return retVal;
 }

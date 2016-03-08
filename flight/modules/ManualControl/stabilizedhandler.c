@@ -49,6 +49,7 @@ static float applyExpo(float value, float expo);
 static uint8_t currentFpvTiltAngle = 0;
 static float cosAngle = 0.0f;
 static float sinAngle = 0.0f;
+#if 0
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
 static FlightModeSettingsStabilization1SettingsData autotuneSettings = {
     .Roll   = FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT,
@@ -65,6 +66,7 @@ static FlightModeSettingsStabilization1SettingsData attitudeSettings = {
 };
 #endif
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+#endif
 
 static float applyExpo(float value, float expo)
 {
@@ -100,6 +102,7 @@ void stabilizedHandler(__attribute__((unused)) bool newinit)
         StabilizationDesiredInitialize();
         StabilizationBankInitialize();
     }
+
     ManualControlCommandData cmd;
     ManualControlCommandGet(&cmd);
 
@@ -157,12 +160,18 @@ void stabilizedHandler(__attribute__((unused)) bool newinit)
         break;
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
+#if 0
 //        if (SystemIdentHandle()) {
             stab_settings = (uint8_t *)&autotuneSettings;
 //        } else {
 //            stab_settings = (uint8_t *)&attitudeSettings;
 //        }
         break;
+#else
+        // let autotune.c handle it
+        // because it must switch to Attitude after <user configurable> seconds
+        return;
+#endif
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
     default:
         // Major error, this should not occur because only enter this block when one of these is true

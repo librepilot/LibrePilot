@@ -463,7 +463,7 @@ public:
     ViewportRenderer(OSGViewport::Hidden *h) : h(h)
     {
         qDebug() << "ViewportRenderer::ViewportRenderer";
-        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
 
         h->initializeResources();
 
@@ -474,7 +474,7 @@ public:
     ~ViewportRenderer()
     {
         qDebug() << "ViewportRenderer::~ViewportRenderer";
-        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
     }
 
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.
@@ -644,7 +644,7 @@ void OSGViewport::setCamera(OSGCamera *camera)
 QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
 {
     qDebug() << "OSGViewport::createRenderer";
-    osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "createRenderer");
+    // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "createRenderer");
     return new ViewportRenderer(h);
 }
 

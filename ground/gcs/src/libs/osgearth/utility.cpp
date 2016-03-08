@@ -444,6 +444,7 @@ QString getUsageString(osgViewer::CompositeViewer *viewer)
 osgEarth::GeoPoint toGeoPoint(const osgEarth::SpatialReference *srs, const QVector3D &position)
 {
     osgEarth::GeoPoint geoPoint(srs, position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
+
     return geoPoint;
 }
 

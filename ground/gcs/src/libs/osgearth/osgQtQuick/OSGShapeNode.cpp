@@ -41,7 +41,7 @@ struct OSGShapeNode::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGShapeNode *parent) : QObject(parent), self(parent), shapeType(ShapeType::Sphere) {}
+    Hidden(OSGShapeNode *node) : QObject(node), self(node), shapeType(ShapeType::Sphere) {}
 
     void realize()
     {
@@ -97,6 +97,7 @@ OSGShapeNode::OSGShapeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this
 OSGShapeNode::~OSGShapeNode()
 {
     qDebug() << "OSGShapeNode::~OSGShapeNode";
+    delete h;
 }
 
 ShapeType::Enum OSGShapeNode::shapeType() const

@@ -100,6 +100,7 @@ OSGBackgroundNode::OSGBackgroundNode(QObject *parent) : OSGNode(parent), h(new H
 OSGBackgroundNode::~OSGBackgroundNode()
 {
     // qDebug() << "OSGBackgroundNode::~OSGBackgroundNode";
+    delete h;
 }
 
 const QUrl OSGBackgroundNode::imageFile() const

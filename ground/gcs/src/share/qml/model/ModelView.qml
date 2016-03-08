@@ -60,7 +60,7 @@ Item {
         OSGCamera {
             id: camera
             fieldOfView: 90
-            node: transformNode
+            sceneNode: transformNode
         }
     }
 

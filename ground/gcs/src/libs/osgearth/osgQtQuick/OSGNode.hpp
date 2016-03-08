@@ -32,6 +32,18 @@
 
 #include <QObject>
 
+/**
+ * Only update() methods are allowed to update the OSG scenegraph.
+ * All other methods should call setDirty() which will later trigger an update.
+ * Exceptions:
+ * - node change events should be handled right away.
+ *
+ * Setting an OSGNode dirty will trigger the addition of a one time update callback.
+ *  *
+ * This approach leads to some potential issues:
+ * - if a child sets a parent dirty, the parent will be updated later on the next update traversal (i.e. before the next frame).
+ *
+ */
 namespace osg {
 class Node;
 } // namespace osg
@@ -44,6 +56,8 @@ namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGNode : public QObject {
     Q_OBJECT
 
+    friend class NodeUpdateCallback;
+
 public:
     explicit OSGNode(QObject *parent = 0);
     virtual ~OSGNode();
@@ -54,12 +68,20 @@ public:
     virtual void attach(osgViewer::View *view);
     virtual void detach(osgViewer::View *view);
 
+protected:
+    bool isDirty();
+    bool isDirty(int flag);
+    void setDirty();
+    void setDirty(int flag);
+
 signals:
     void nodeChanged(osg::Node *node) const;
 
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update() {};
 };
 } // namespace osgQtQuick
 

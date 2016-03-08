@@ -42,9 +42,7 @@ public:
     osg::ref_ptr<osgText::Text> text;
 };
 
-OSGTextNode::OSGTextNode(QObject *parent) :
-    osgQtQuick::OSGNode(parent),
-    h(new Hidden)
+OSGTextNode::OSGTextNode(QObject *node) : OSGNode(node), h(new Hidden)
 {
     osg::ref_ptr<osgText::Font> textFont = createFont(QFont("Times"));
 

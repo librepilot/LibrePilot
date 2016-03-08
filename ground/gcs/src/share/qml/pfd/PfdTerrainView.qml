@@ -57,7 +57,7 @@ OSGViewport {
     OSGCamera {
         id: camera
         fieldOfView: 100
-        sceneData: terrainNode
+        sceneNode: terrainNode
         logarithmicDepthBuffer: true
         clampToTerrain: true
         manipulatorMode: ManipulatorMode.User

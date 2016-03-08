@@ -85,7 +85,7 @@ OSGViewport {
         logarithmicDepthBuffer: true
         manipulatorMode: ManipulatorMode.Track
         // use model to compute camera home position
-        node: modelTransformNode
+        sceneNode: modelTransformNode
         // model will be tracked
         trackNode: modelTransformNode
     }

@@ -37,10 +37,8 @@ struct OSGGroup::Hidden : public QObject {
     Q_OBJECT
 
 public:
-    Hidden(OSGGroup *parent) : QObject(parent), self(parent)
-    {
-        group = new osg::Group;
-    }
+    Hidden(OSGGroup *node) : QObject(node), self(node), group(new osg::Group)
+    {}
 
     OSGGroup *self;
 
@@ -135,6 +133,7 @@ OSGGroup::OSGGroup(QObject *parent) :
 OSGGroup::~OSGGroup()
 {
     qDebug() << "OSGGroup::~OSGGroup";
+    delete h;
 }
 
 QQmlListProperty<OSGNode> OSGGroup::children()

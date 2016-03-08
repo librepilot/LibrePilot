@@ -75,7 +75,7 @@ private:
     OSGFileNode * const self;
 
 public:
-    Hidden(OSGFileNode *parent) : QObject(parent), self(parent), url(), async(false), optimizeMode(OptimizeMode::None) {}
+    Hidden(OSGFileNode *node) : QObject(node), self(node), url(), async(false), optimizeMode(OptimizeMode::None) {}
 
     bool acceptSource(QUrl url)
     {
@@ -157,6 +157,7 @@ OSGFileNode::OSGFileNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 OSGFileNode::~OSGFileNode()
 {
     qDebug() << "OSGFileNode::~OSGFileNode";
+    delete h;
 }
 
 const QUrl OSGFileNode::source() const

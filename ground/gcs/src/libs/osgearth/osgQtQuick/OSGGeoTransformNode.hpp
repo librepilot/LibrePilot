@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGTransformNode.hpp
+ * @file       OSGGeoTransformNode.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -81,6 +81,8 @@ signals:
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 

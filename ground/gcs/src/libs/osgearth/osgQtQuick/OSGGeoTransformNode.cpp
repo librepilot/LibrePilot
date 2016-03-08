@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGTransformNode.cpp
+ * @file       OSGGeoTransformNode.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -41,22 +41,9 @@ namespace osgQtQuick {
 struct OSGGeoTransformNode::Hidden : public QObject {
     Q_OBJECT
 
-    struct NodeUpdateCallback : public osg::NodeCallback {
-public:
-        NodeUpdateCallback(Hidden *h) : h(h) {}
-
-        void operator()(osg::Node *node, osg::NodeVisitor *nv);
-
-        mutable Hidden *h;
-    };
-    friend class NodeUpdateCallback;
-
 public:
 
-    Hidden(OSGGeoTransformNode *parent) : QObject(parent), self(parent), childNode(NULL), sceneNode(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false), dirty(false)
-    {}
-
-    ~Hidden()
+    Hidden(OSGGeoTransformNode *node) : QObject(node), self(node), childNode(NULL), sceneNode(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false)
     {}
 
     bool acceptChildNode(OSGNode *node)
@@ -71,7 +58,6 @@ public:
         }
 
         childNode = node;
-        dirty     = true;
 
         if (childNode) {
             connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)));
@@ -92,7 +78,6 @@ public:
         }
 
         sceneNode = node;
-        dirty     = true;
 
         if (sceneNode) {
             connect(sceneNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onSceneNodeChanged(osg::Node *)));
@@ -103,11 +88,6 @@ public:
 
     void updateNode()
     {
-        if (!dirty) {
-            return;
-        }
-        dirty = false;
-
         // qDebug() << "OSGGeoTransformNode::updateNode" << this;
 
         osgEarth::GeoTransform *transform = getOrCreateTransform();
@@ -168,8 +148,6 @@ public:
         transform = new osgEarth::GeoTransform();
         transform->setAutoRecomputeHeights(true);
 
-        transform->addUpdateCallback(new NodeUpdateCallback(this));
-
         self->setNode(transform);
 
         return transform.get();
@@ -177,10 +155,10 @@ public:
 
     OSGGeoTransformNode *const self;
 
-    OSGNode *childNode;
-    OSGNode *sceneNode;
-
     osg::ref_ptr<osgEarth::GeoTransform> transform;
+
+    OSGNode   *childNode;
+    OSGNode   *sceneNode;
 
     float     offset;
 
@@ -189,30 +167,20 @@ public:
 
     QVector3D position;
 
-    bool      dirty;
-
 private slots:
 
     void onChildNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGGeoTransformNode::onChildNodeChanged" << node;
-        dirty = true;
+        self->setDirty();
     }
 
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGGeoTransformNode::onSceneNodeChanged" << node;
-        dirty = true;
+        self->setDirty();
     }
 };
-
-/* struct Hidden::NodeUpdateCallback */
-
-void OSGGeoTransformNode::Hidden::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
-{
-    nv->traverse(*node);
-    h->updateNode();
-}
 
 OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
@@ -222,6 +190,7 @@ OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : OSGNode(parent), h(n
 OSGGeoTransformNode::~OSGGeoTransformNode()
 {
     qDebug() << "OSGGeoTransformNode::~OSGGeoTransformNode";
+    delete h;
 }
 
 OSGNode *OSGGeoTransformNode::modelData()
@@ -257,7 +226,7 @@ void OSGGeoTransformNode::setClampToTerrain(bool arg)
 {
     if (h->clampToTerrain != arg) {
         h->clampToTerrain = arg;
-        h->dirty = true;
+        setDirty();
         emit clampToTerrainChanged(clampToTerrain());
     }
 }
@@ -276,9 +245,14 @@ void OSGGeoTransformNode::setPosition(QVector3D arg)
 {
     if (h->position != arg) {
         h->position = arg;
-        h->dirty    = true;
+        setDirty();
         emit positionChanged(position());
     }
+}
+
+void OSGGeoTransformNode::update()
+{
+    h->updateNode();
 }
 
 void OSGGeoTransformNode::attach(osgViewer::View *view)
@@ -287,7 +261,7 @@ void OSGGeoTransformNode::attach(osgViewer::View *view)
     if (h->childNode) {
         h->childNode->attach(view);
     }
-    h->updateNode();
+    update();
 }
 
 void OSGGeoTransformNode::detach(osgViewer::View *view)

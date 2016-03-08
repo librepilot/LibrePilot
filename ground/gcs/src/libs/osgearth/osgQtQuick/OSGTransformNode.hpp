@@ -73,6 +73,8 @@ signals:
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 

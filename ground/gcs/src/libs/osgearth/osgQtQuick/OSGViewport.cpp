@@ -84,8 +84,8 @@ struct OSGViewport::Hidden : public QObject {
 
 public:
 
-    Hidden(OSGViewport *quickItem) : QObject(quickItem),
-        self(quickItem),
+    Hidden(OSGViewport *viewport) : QObject(viewport),
+        self(viewport),
         window(NULL),
         sceneData(NULL),
         camera(NULL),
@@ -96,7 +96,7 @@ public:
 
         createViewer();
 
-        connect(quickItem, &OSGViewport::windowChanged, this, &Hidden::onWindowChanged);
+        connect(self, &OSGViewport::windowChanged, this, &Hidden::onWindowChanged);
     }
 
     ~Hidden()
@@ -493,20 +493,28 @@ public:
             return;
         }
 
-        needToDoFrame = h->viewer->checkNeedToDoFrame();
-        if (needToDoFrame) {
-            if (firstFrame) {
-                h->view->init();
-                if (!h->viewer->isRealized()) {
-                    h->viewer->realize();
-                }
-                firstFrame = false;
+        if (firstFrame) {
+            h->view->init();
+            if (!h->viewer->isRealized()) {
+                h->viewer->realize();
             }
-            osg::Viewport *viewport = h->view->getCamera()->getViewport();
-            if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
-                h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width(), item->height());
-            }
+            firstFrame = false;
+        }
 
+        needToDoFrame = false;
+        osg::Viewport *viewport = h->view->getCamera()->getViewport();
+        if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
+            needToDoFrame = true;
+            h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width(), item->height());
+        }
+
+        if (!needToDoFrame) {
+            needToDoFrame = h->viewer->checkNeedToDoFrame();
+        }
+        if (!needToDoFrame) {
+            needToDoFrame = !h->view->getEventQueue()->empty();
+        }
+        if (needToDoFrame) {
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
@@ -577,6 +585,7 @@ OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), 
 OSGViewport::~OSGViewport()
 {
     qDebug() << "OSGViewport::~OSGViewport";
+    delete h;
 }
 
 UpdateMode::Enum OSGViewport::updateMode() const

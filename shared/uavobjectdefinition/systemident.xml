@@ -23,7 +23,7 @@
         <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="8"/>
         <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
         <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="13"/>
-        <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True"/>
+        <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
         <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
         <!-- smooth vs. quick PID selector: -->

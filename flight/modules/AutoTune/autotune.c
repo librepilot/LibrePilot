@@ -257,7 +257,7 @@ void circ_queue_read_completed(circ_queue_t q) {
 #endif
 
 #define MAX_PTS_PER_CYCLE      4
-#define START_TIME_DELAY_MS 2000
+//#define START_TIME_DELAY_MS 2000
 #define INIT_TIME_DELAY_MS  2000
 #define YIELD_MS               2
 
@@ -273,7 +273,7 @@ void circ_queue_read_completed(circ_queue_t q) {
 
 
 // Private types		<access gcs="readwrite" flight="readwrite"/>
-enum AUTOTUNE_STATE { AT_INIT, AT_START, AT_RUN, AT_FINISHED, AT_WAITING };
+enum AUTOTUNE_STATE { AT_INIT, AT_INIT_DELAY, AT_START, AT_RUN, AT_FINISHED, AT_WAITING };
 
 struct at_queued_data {
     float y[3];        /* Gyro measurements */
@@ -297,7 +297,7 @@ static volatile uint32_t atPointsSpilled;
 static uint32_t throttleAccumulator;
 static uint8_t rollMax, pitchMax;
 static StabilizationBankManualRateData manualRate;
-static SystemSettingsAirframeTypeOptions airframeType;
+//static SystemSettingsAirframeTypeOptions airframeType;
 static float gX[AF_NUMX] = {0};
 static float gP[AF_NUMP] = {0};
 SystemIdentData systemIdentData;
@@ -383,7 +383,7 @@ MODULE_INITCALL(AutoTuneInitialize, AutoTuneStart);
 static void AutoTuneTask(__attribute__((unused)) void *parameters)
 {
     enum AUTOTUNE_STATE state = AT_INIT;
-    uint32_t lastUpdateTime = xTaskGetTickCount();
+    uint32_t lastUpdateTime = 0; // initialization is only for compiler warning
     float noise[3] = {0};
 // is this needed?
 //    AfInit(gX,gP);
@@ -479,41 +479,55 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             }
             state = AT_INIT;
             vTaskDelay(50 / portTICK_RATE_MS);
-            lastUpdateTime = xTaskGetTickCount();
             continue;
         }
 
         switch(state) {
         case AT_INIT:
+            // beware that control comes here every time the user toggles the flight mode switch into AutoTune
+            // and it isn't appropriate to reset the main state here
+            // that must wait until after a delay has passed to make sure they intended to stay in this mode
+            // is this a race?  is it possible that flightStatus.FlightMode has been changed, but the stab bank hasn't been changed yet?
+            StabilizationBankRollMaxGet(&rollMax);
+            StabilizationBankPitchMaxGet(&pitchMax);
+            StabilizationBankManualRateGet(&manualRate);
+            state = AT_INIT_DELAY;
+            lastUpdateTime = xTaskGetTickCount();
+            break;
+
+        case AT_INIT_DELAY:
             diffTime = xTaskGetTickCount() - lastUpdateTime;
             // Spend the first block of time in normal rate mode to get stabilized
             if (diffTime > INIT_TIME_DELAY_MS) {
-                StabilizationBankRollMaxGet(&rollMax);
-                StabilizationBankPitchMaxGet(&pitchMax);
-                StabilizationBankManualRateGet(&manualRate);
-                SystemSettingsAirframeTypeGet(&airframeType);
-                // Reset save status; only save if this tune completes.
-                saveSiNeeded = false;
-                savePidNeeded = false;
-//                systemIdentData.Complete = false;
-                lastUpdateTime = xTaskGetTickCount();
-
                 // Only start when armed and flying
                 if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+//                    SystemSettingsAirframeTypeGet(&airframeType);
+                    // Reset save status; only save if this tune completes.
+                    saveSiNeeded = false;
+                    savePidNeeded = false;
+//                    systemIdentData.Complete = false;
+////                    lastUpdateTime = xTaskGetTickCount();
                     InitSystemIdent(true);
                     AfInit(gX, gP);
                     UpdateSystemIdent(gX, NULL, 0.0f, 0, 0, 0.0f);
                     measureTime = (uint32_t)systemIdentData.TuningDuration * (uint32_t)1000;
                     state = AT_START;
+#if 0
                     lastUpdateTime = xTaskGetTickCount();
+#endif
                 }
+////                lastUpdateTime = xTaskGetTickCount();
             }
             break;
 
         case AT_START:
+#if 0
             diffTime = xTaskGetTickCount() - lastUpdateTime;
             // Spend the first block of time in normal rate mode to get stabilized
             if (diffTime > START_TIME_DELAY_MS) {
+#else
+            {
+#endif
                 lastTime = PIOS_DELAY_GetRaw();
                 /* Drain the queue of all current data */
 #if defined(USE_CIRC_QUEUE)
@@ -582,7 +596,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             if (diffTime > measureTime) { // Move on to next state
                 // permanent flag that AT is complete and PIDs can be calculated
                 state = AT_FINISHED;
-                lastUpdateTime = xTaskGetTickCount();
+//                lastUpdateTime = xTaskGetTickCount();
             }
             break;
 
@@ -591,9 +605,9 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             float hover_throttle = ((float)(throttleAccumulator/updateCounter))/10000.0f;
             uint8_t failureBits;
             UpdateSystemIdent(gX, noise, 0, updateCounter, atPointsSpilled, hover_throttle);
+            saveSiNeeded = true;
             // data is bad if FC was disarmed at the time AT completed
             if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
-                saveSiNeeded = true;
                 failureBits = CheckSettings();
                 if (!failureBits) {
                     ComputeStabilizationAndSetPids();

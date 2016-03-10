@@ -46,21 +46,21 @@ private:
     OSGNode::Hidden *const h;
 };
 
-
-struct OSGNode::Hidden /*: public QObject*/ {
-    // Q_OBJECT
+struct OSGNode::Hidden : public QObject {
+    Q_OBJECT
 
     friend class OSGNode;
+
 public:
-    Hidden(OSGNode *node) : /*QObject(node),*/ self(node), dirty(0)
+    Hidden(OSGNode *node) : QObject(node), self(node), dirty(0)
     {}
 
-    bool isDirty(int flag)
+    bool isDirty(int mask)
     {
-        return (dirty && (1 << flag)) != 0;
+        return (dirty && mask) != 0;
     }
 
-    void setDirty(int flag)
+    void setDirty(int mask)
     {
         // qDebug() << "OSGNode::setDirty BEGIN";
         if (!dirty) {
@@ -74,7 +74,7 @@ public:
                 node->setUpdateCallback(nodeUpdateCallback);
             }
         }
-        dirty |= 1 << flag;
+        dirty |= mask;
         // qDebug() << "OSGNode::setDirty DONE";
     }
 
@@ -161,23 +161,42 @@ void OSGNode::setNode(osg::Node *node)
 
 bool OSGNode::isDirty()
 {
-    return h->isDirty(1);
+    return h->isDirty(0xFFFFFFFF);
 }
 
-bool OSGNode::isDirty(int flag)
+bool OSGNode::isDirty(int mask)
 {
-    return h->isDirty(flag);
+    return h->isDirty(mask);
 }
 
-void OSGNode::setDirty()
+void OSGNode::setDirty(int mask)
 {
-    h->setDirty(1);
+    h->setDirty(mask);
 }
 
-void OSGNode::setDirty(int flag)
+void OSGNode::clearDirty()
 {
-    h->setDirty(flag);
+    h->clearDirty();
 }
+
+void OSGNode::attach(OSGNode *node, osgViewer::View *view)
+{
+    if (!node) {
+        return;
+    }
+    node->attach(view);
+}
+
+void OSGNode::detach(OSGNode *node, osgViewer::View *view)
+{
+    if (!node) {
+        return;
+    }
+    node->detach(view);
+}
+
+void OSGNode::update()
+{}
 
 void OSGNode::attach(osgViewer::View *view)
 {}
@@ -185,3 +204,5 @@ void OSGNode::attach(osgViewer::View *view)
 void OSGNode::detach(osgViewer::View *view)
 {}
 } // namespace osgQtQuick
+
+#include "OSGNode.moc"

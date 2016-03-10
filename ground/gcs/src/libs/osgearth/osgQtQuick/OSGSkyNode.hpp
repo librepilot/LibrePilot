@@ -44,7 +44,8 @@ QT_END_NAMESPACE
 
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    // TODO rename to sceneNode
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
 
     Q_PROPERTY(bool sunLightEnabled READ sunLightEnabled WRITE setSunLightEnabled NOTIFY sunLightEnabledChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
@@ -54,8 +55,8 @@ public:
     OSGSkyNode(QObject *parent = 0);
     virtual ~OSGSkyNode();
 
-    OSGNode *sceneData();
-    void setSceneData(OSGNode *node);
+    OSGNode *sceneNode();
+    void setSceneNode(OSGNode *node);
 
     bool sunLightEnabled();
     void setSunLightEnabled(bool arg);
@@ -66,11 +67,8 @@ public:
     double minimumAmbientLight();
     void setMinimumAmbientLight(double arg);
 
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
-
 signals:
-    void sceneDataChanged(OSGNode *node);
+    void sceneNodeChanged(OSGNode *node);
 
     void sunLightEnabledChanged(bool arg);
     void dateTimeChanged(QDateTime arg);
@@ -79,6 +77,11 @@ signals:
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

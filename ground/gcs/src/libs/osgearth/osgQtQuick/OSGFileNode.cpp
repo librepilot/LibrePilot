@@ -45,10 +45,11 @@ public:
 
     void run()
     {
-        load();
+        osg::Node *node = load();
+        emit loaded(url, node);
     }
 
-    void load()
+    osg::Node *load()
     {
         QElapsedTimer t;
 
@@ -57,8 +58,7 @@ public:
         // qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(url.path().toStdString());
         // qDebug() << "OSGFileLoader::load - reading node" << node << "took" << t.elapsed() << "ms";
-
-        emit loaded(url, node);
+        return node;
     }
 
 signals:
@@ -75,33 +75,37 @@ private:
     OSGFileNode * const self;
 
 public:
-    Hidden(OSGFileNode *node) : QObject(node), self(node), url(), async(false), optimizeMode(OptimizeMode::None) {}
-
-    bool acceptSource(QUrl url)
-    {
-        // qDebug() << "OSGFileNode::acceptSource" << url;
-
-        if (this->url == url) {
-            return false;
-        }
-
-        this->url = url;
-
-        if (url.isValid()) {
-            realize();
-        } else {
-            qWarning() << "OSGFileNode::acceptNode - invalid url" << url;
-            self->setNode(NULL);
-        }
-
-        return true;
-    }
-
-    QUrl url;
+    QUrl source;
     bool async;
     OptimizeMode::Enum optimizeMode;
 
+    Hidden(OSGFileNode *node) : QObject(node), self(node), source(), async(false), optimizeMode(OptimizeMode::None) {}
+
+    void updateNode()
+    {
+        // qDebug() << "OSGFileNode::updateNode" << source;
+        if (!source.isValid()) {
+            self->setNode(NULL);
+            if (!source.isEmpty()) {
+                qWarning() << "OSGFileNode::updateNode - invalid source" << source;
+            }
+        }
+        if (false /*async*/) {
+            // not supported yet
+            // it is not clear if thread safety is insured...
+            asyncLoad(source);
+        } else {
+            setNode(syncLoad(source));
+        }
+    }
+
 private:
+    osg::Node *syncLoad(const QUrl &url)
+    {
+        OSGFileLoader loader(url);
+
+        return loader.load();
+    }
 
     void asyncLoad(const QUrl &url)
     {
@@ -112,64 +116,56 @@ private:
         loader->start();
     }
 
-    void syncLoad(const QUrl &url)
+    void setNode(osg::Node *node)
     {
-        OSGFileLoader loader(url);
-
-        connect(&loader, &OSGFileLoader::loaded, this, &Hidden::onLoaded);
-        loader.load();
-    }
-
-    void realize()
-    {
-        qDebug() << "OSGFileNode::realize";
-        if (async) {
-            asyncLoad(url);
-        } else {
-            syncLoad(url);
-        }
-    }
-
-    bool acceptNode(osg::Node *node)
-    {
-        qDebug() << "OSGFileNode::acceptNode" << node;
+        qDebug() << "OSGFileNode::setNode" << node;
         if (node && optimizeMode != OptimizeMode::None) {
             // qDebug() << "OSGFileNode::acceptNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
             optimizer.optimize(node, osgUtil::Optimizer::DEFAULT_OPTIMIZATIONS);
         }
         self->setNode(node);
-        return true;
     }
 
 private slots:
     void onLoaded(const QUrl &url, osg::Node *node)
     {
-        acceptNode(node);
+        // called in async mode
+        // question : is it thread safe to call setNode() ?
+        // could calling setDirty help? is setDirty() thread safe ?
+        setNode(node);
     }
 };
+
+/* class OSGFileNode */
+
+enum DirtyFlag { Source = 1 << 0, Async = 1 << 1, OptimizeMode = 1 << 2 };
 
 OSGFileNode::OSGFileNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
     qDebug() << "OSGFileNode::OSGFileNode";
+    setAsync(false);
+    setOptimizeMode(OptimizeMode::None);
 }
 
 OSGFileNode::~OSGFileNode()
 {
-    qDebug() << "OSGFileNode::~OSGFileNode";
+    // qDebug() << "OSGFileNode::~OSGFileNode";
     delete h;
 }
 
 const QUrl OSGFileNode::source() const
 {
-    return h->url;
+    return h->source;
 }
 
-void OSGFileNode::setSource(const QUrl &url)
+void OSGFileNode::setSource(const QUrl &source)
 {
-    qDebug() << "OSGFileNode::setSource" << url;
-    if (h->acceptSource(url)) {
-        emit sourceChanged(source());
+    qDebug() << "OSGFileNode::setSource" << source;
+    if (h->source != source) {
+        h->source = source;
+        setDirty(Source);
+        emit sourceChanged(source);
     }
 }
 
@@ -183,6 +179,7 @@ void OSGFileNode::setAsync(const bool async)
     // qDebug() << "OSGFileNode::setAsync" << async;
     if (h->async != async) {
         h->async = async;
+        setDirty(Async);
         emit asyncChanged(async);
     }
 }
@@ -192,14 +189,37 @@ OptimizeMode::Enum OSGFileNode::optimizeMode() const
     return h->optimizeMode;
 }
 
-void OSGFileNode::setOptimizeMode(OptimizeMode::Enum mode)
+void OSGFileNode::setOptimizeMode(OptimizeMode::Enum optimizeMode)
 {
-    // qDebug() << "OSGFileNode::setOptimizeMode" << mode;
-    if (h->optimizeMode != mode) {
-        h->optimizeMode = mode;
-        emit optimizeModeChanged(optimizeMode());
+    // qDebug() << "OSGFileNode::setOptimizeMode" << optimizeMode;
+    if (h->optimizeMode != optimizeMode) {
+        h->optimizeMode = optimizeMode;
+        setDirty(OptimizeMode);
+        emit optimizeModeChanged(optimizeMode);
     }
 }
+
+void OSGFileNode::update()
+{
+    if (isDirty(Async)) {
+        // do nothing...
+    }
+    if (isDirty(OptimizeMode)) {
+        // TODO: trigger a node update ?
+    }
+    if (isDirty(Source)) {
+        h->updateNode();
+    }
+}
+
+void OSGFileNode::attach(osgViewer::View *view)
+{
+    update();
+    clearDirty();
+}
+
+void OSGFileNode::detach(osgViewer::View *view)
+{}
 } // namespace osgQtQuick
 
 #include "OSGFileNode.moc"

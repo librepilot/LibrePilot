@@ -72,11 +72,8 @@ public:
     OSGCamera *camera();
     void setCamera(OSGCamera *camera);
 
-    virtual Renderer *createRenderer() const;
-    virtual void releaseResources();
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
+    Renderer *createRenderer() const;
+    void releaseResources();
 
 signals:
     void updateModeChanged(UpdateMode::Enum mode);
@@ -96,6 +93,9 @@ protected:
     QPointF mousePoint(QMouseEvent *event);
 
     QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+
+    void attach(osgViewer::View *view);
+    void detach(osgViewer::View *view);
 
 private:
     struct Hidden;

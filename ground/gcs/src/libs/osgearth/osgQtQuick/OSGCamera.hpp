@@ -75,8 +75,7 @@ class OSGQTQUICK_EXPORT OSGCamera : public OSGNode {
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
 
-    enum DirtyFlag { Position, Attitude, FieldOfView, All };
-
+    friend class OSGViewport;
 
 public:
     explicit OSGCamera(QObject *parent = 0);
@@ -115,9 +114,6 @@ public:
     bool logarithmicDepthBuffer();
     void setLogarithmicDepthBuffer(bool enabled);
 
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
-
 signals:
     void fieldOfViewChanged(qreal arg);
 
@@ -140,7 +136,10 @@ private:
     struct Hidden;
     Hidden *h;
 
-    void update();
+    virtual void update();
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

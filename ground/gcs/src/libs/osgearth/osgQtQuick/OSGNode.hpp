@@ -56,6 +56,7 @@ namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGNode : public QObject {
     Q_OBJECT
 
+    friend class OSGViewport;
     friend class NodeUpdateCallback;
 
 public:
@@ -65,14 +66,19 @@ public:
     osg::Node *node() const;
     void setNode(osg::Node *node);
 
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
-
 protected:
     bool isDirty();
-    bool isDirty(int flag);
-    void setDirty();
-    void setDirty(int flag);
+    bool isDirty(int mask);
+    void setDirty(int mask);
+    void clearDirty();
+
+    void emitNodeChanged()
+    {
+        emit nodeChanged(node());
+    }
+
+    void attach(OSGNode *node, osgViewer::View *view);
+    void detach(OSGNode *node, osgViewer::View *view);
 
 signals:
     void nodeChanged(osg::Node *node) const;
@@ -81,7 +87,10 @@ private:
     struct Hidden;
     Hidden *h;
 
-    virtual void update() {};
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 

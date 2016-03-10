@@ -40,13 +40,17 @@ namespace osgQtQuick {
 struct OSGShapeNode::Hidden : public QObject {
     Q_OBJECT
 
+private:
+    OSGShapeNode * self;
+
 public:
-    Hidden(OSGShapeNode *node) : QObject(node), self(node), shapeType(ShapeType::Sphere) {}
+    ShapeType::Enum shapeType;
 
-    void realize()
+    Hidden(OSGShapeNode *node) : QObject(node), self(node), shapeType(ShapeType::Sphere)
+    {}
+
+    void updateNode()
     {
-        qDebug() << "OSGShapeNode::realize";
-
         osg::Node *node = NULL;
 
         switch (shapeType) {
@@ -63,40 +67,26 @@ public:
             node = ShapeUtils::create3DAxis();
             break;
         }
-
-        // Add the node to the scene:
+        // Add the node to the scene
         self->setNode(node);
     }
-
-    bool acceptShapeType(ShapeType::Enum type)
-    {
-        if (shapeType == type) {
-            return false;
-        }
-        qDebug() << "OSGShapeNode::acceptShapeType" << type;
-
-        shapeType = type;
-        realize();
-
-        return true;
-    }
-
-    OSGShapeNode    *self;
-
-    ShapeType::Enum shapeType;
 };
+
+/* class OSGShapeNode */
+
+enum DirtyFlag { Type = 1 << 0 };
 
 // TODO turn into generic shape node...
 // see http://trac.openscenegraph.org/projects/osg//wiki/Support/Tutorials/TransformsAndStates
 OSGShapeNode::OSGShapeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
     qDebug() << "OSGShapeNode::OSGShapeNode";
-    h->realize();
+    setShapeType(ShapeType::Sphere);
 }
 
 OSGShapeNode::~OSGShapeNode()
 {
-    qDebug() << "OSGShapeNode::~OSGShapeNode";
+    // qDebug() << "OSGShapeNode::~OSGShapeNode";
     delete h;
 }
 
@@ -107,10 +97,28 @@ ShapeType::Enum OSGShapeNode::shapeType() const
 
 void OSGShapeNode::setShapeType(ShapeType::Enum type)
 {
-    if (h->acceptShapeType(type)) {
-        emit shapeTypeChanged(shapeType());
+    if (h->shapeType != type) {
+        h->shapeType = type;
+        setDirty(Type);
+        emit shapeTypeChanged(type);
     }
 }
+
+void OSGShapeNode::update()
+{
+    if (isDirty(Type)) {
+        h->updateNode();
+    }
+}
+
+void OSGShapeNode::attach(osgViewer::View *view)
+{
+    update();
+    clearDirty();
+}
+
+void OSGShapeNode::detach(osgViewer::View *view)
+{}
 } // namespace osgQtQuick
 
 #include "OSGShapeNode.moc"

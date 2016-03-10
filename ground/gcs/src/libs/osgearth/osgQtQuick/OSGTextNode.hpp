@@ -52,11 +52,14 @@ signals:
     void textChanged(const QString &text);
     void colorChanged(const QColor &color);
 
-public slots:
-
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

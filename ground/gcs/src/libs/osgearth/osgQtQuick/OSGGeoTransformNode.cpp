@@ -41,10 +41,28 @@ namespace osgQtQuick {
 struct OSGGeoTransformNode::Hidden : public QObject {
     Q_OBJECT
 
+private:
+    OSGGeoTransformNode * const self;
+
+    osg::ref_ptr<osgEarth::GeoTransform> transform;
+
 public:
+    OSGNode   *childNode;
+    OSGNode   *sceneNode;
+
+    float     offset;
+
+    bool      clampToTerrain;
+    bool      intoTerrain;
+
+    QVector3D position;
 
     Hidden(OSGGeoTransformNode *node) : QObject(node), self(node), childNode(NULL), sceneNode(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false)
-    {}
+    {
+        transform = new osgEarth::GeoTransform();
+        transform->setAutoRecomputeHeights(true);
+        self->setNode(transform);
+    }
 
     bool acceptChildNode(OSGNode *node)
     {
@@ -86,35 +104,50 @@ public:
         return true;
     }
 
-    void updateNode()
+    void updateTransformNode()
     {
-        // qDebug() << "OSGGeoTransformNode::updateNode" << this;
-
-        osgEarth::GeoTransform *transform = getOrCreateTransform();
+        bool updated = false;
 
         if (transform->getNumChildren() == 0) {
             if (childNode && childNode->node()) {
-                transform->addChild(childNode->node());
+                updated |= transform->addChild(childNode->node());
             }
         } else {
             if (childNode && childNode->node()) {
                 if (transform->getChild(0) != childNode->node()) {
-                    transform->removeChild(0, 1);
-                    transform->addChild(childNode->node());
+                    updated |= transform->removeChild(0, 1);
+                    updated |= transform->addChild(childNode->node());
                 }
             } else {
-                transform->removeChild(0, 1);
+                updated |= transform->removeChild(0, 1);
             }
         }
+        // if (updated) {
+        self->emitNodeChanged();
+        // }
+    }
 
-        osgEarth::MapNode *mapNode = NULL;
+    void updateSceneNode()
+    {
         if (sceneNode && sceneNode->node()) {
-            mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
+            osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
             if (mapNode) {
                 transform->setTerrain(mapNode->getTerrain());
             } else {
-                qWarning() << "OSGGeoTransformNode::updateNode - scene data does not contain a map node";
+                qWarning() << "OSGGeoTransformNode::updateScene - scene data does not contain a map node";
             }
+        }
+    }
+
+    void updatePosition()
+    {
+        osgEarth::MapNode *mapNode = NULL;
+
+        if (sceneNode && sceneNode->node()) {
+            mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
+        }
+        if (!mapNode) {
+            qWarning() << "OSGGeoTransformNode::updatePosition - scene node does not contain a map node";
         }
 
         osgEarth::GeoPoint geoPoint;
@@ -139,48 +172,23 @@ public:
         transform->setPosition(geoPoint);
     }
 
-    osgEarth::GeoTransform *getOrCreateTransform()
-    {
-        if (transform.valid()) {
-            return transform.get();
-        }
-
-        transform = new osgEarth::GeoTransform();
-        transform->setAutoRecomputeHeights(true);
-
-        self->setNode(transform);
-
-        return transform.get();
-    }
-
-    OSGGeoTransformNode *const self;
-
-    osg::ref_ptr<osgEarth::GeoTransform> transform;
-
-    OSGNode   *childNode;
-    OSGNode   *sceneNode;
-
-    float     offset;
-
-    bool      clampToTerrain;
-    bool      intoTerrain;
-
-    QVector3D position;
-
 private slots:
-
     void onChildNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGGeoTransformNode::onChildNodeChanged" << node;
-        self->setDirty();
+        updateTransformNode();
     }
 
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGGeoTransformNode::onSceneNodeChanged" << node;
-        self->setDirty();
+        // TODO
     }
 };
+
+/* class OSGGeoTransformNode */
+
+enum DirtyFlag { Child = 1 << 0, Scene = 1 << 1, Position = 1 << 2, Clamp = 1 << 3 };
 
 OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
@@ -189,31 +197,33 @@ OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : OSGNode(parent), h(n
 
 OSGGeoTransformNode::~OSGGeoTransformNode()
 {
-    qDebug() << "OSGGeoTransformNode::~OSGGeoTransformNode";
+    // qDebug() << "OSGGeoTransformNode::~OSGGeoTransformNode";
     delete h;
 }
 
-OSGNode *OSGGeoTransformNode::modelData()
+OSGNode *OSGGeoTransformNode::childNode()
 {
     return h->childNode;
 }
 
-void OSGGeoTransformNode::setModelData(OSGNode *node)
+void OSGGeoTransformNode::setChildNode(OSGNode *node)
 {
     if (h->acceptChildNode(node)) {
-        emit modelDataChanged(node);
+        setDirty(Child);
+        emit childNodeChanged(node);
     }
 }
 
-OSGNode *OSGGeoTransformNode::sceneData()
+OSGNode *OSGGeoTransformNode::sceneNode()
 {
     return h->sceneNode;
 }
 
-void OSGGeoTransformNode::setSceneData(OSGNode *node)
+void OSGGeoTransformNode::setSceneNode(OSGNode *node)
 {
     if (h->acceptSceneNode(node)) {
-        emit sceneDataChanged(node);
+        setDirty(Scene);
+        emit sceneNodeChanged(node);
     }
 }
 
@@ -226,7 +236,7 @@ void OSGGeoTransformNode::setClampToTerrain(bool arg)
 {
     if (h->clampToTerrain != arg) {
         h->clampToTerrain = arg;
-        setDirty();
+        setDirty(Clamp);
         emit clampToTerrainChanged(clampToTerrain());
     }
 }
@@ -245,31 +255,36 @@ void OSGGeoTransformNode::setPosition(QVector3D arg)
 {
     if (h->position != arg) {
         h->position = arg;
-        setDirty();
+        setDirty(Position);
         emit positionChanged(position());
     }
 }
 
 void OSGGeoTransformNode::update()
 {
-    h->updateNode();
+    if (isDirty(Child)) {
+        h->updateTransformNode();
+    }
+    if (isDirty(Scene)) {
+        h->updateSceneNode();
+    }
+    if (isDirty(Clamp)) {}
+    if (isDirty(Position)) {
+        h->updatePosition();
+    }
 }
 
 void OSGGeoTransformNode::attach(osgViewer::View *view)
 {
-    // qDebug() << "OSGGeoTransformNode::attach " << view;
-    if (h->childNode) {
-        h->childNode->attach(view);
-    }
+    OSGNode::attach(h->childNode, view);
+
     update();
+    clearDirty();
 }
 
 void OSGGeoTransformNode::detach(osgViewer::View *view)
 {
-    // qDebug() << "OSGGeoTransformNode::detach " << view;
-    if (h->childNode) {
-        h->childNode->detach(view);
-    }
+    OSGNode::detach(h->childNode, view);
 }
 } // namespace osgQtQuick
 

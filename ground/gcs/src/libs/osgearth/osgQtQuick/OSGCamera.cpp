@@ -55,7 +55,6 @@ struct OSGCamera::Hidden : public QObject {
     Q_OBJECT
 
 public:
-
     Hidden(OSGCamera *camera) :
         QObject(camera), self(camera), sceneNode(NULL),
         manipulatorMode(ManipulatorMode::Default), trackerMode(TrackerMode::NodeCenterAndAzim), trackNode(NULL),
@@ -333,6 +332,7 @@ public:
 
     osg::ref_ptr<osg::Camera> camera;
 
+    // Camera vertical field of view in degrees
     qreal   fieldOfView;
 
     OSGNode *sceneNode;
@@ -370,6 +370,8 @@ private slots:
 
 /* class OSGCamera */
 
+enum DirtyFlag { FieldOfView = 1 << 0, Position = 1 << 1, Attitude = 1 << 2 };
+
 OSGCamera::OSGCamera(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
     qDebug() << "OSGCamera::OSGCamera";
@@ -386,12 +388,11 @@ qreal OSGCamera::fieldOfView() const
     return h->fieldOfView;
 }
 
-// Camera vertical field of view in degrees
 void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView != arg) {
         h->fieldOfView = arg;
-        setDirty(OSGCamera::FieldOfView);
+        setDirty(FieldOfView);
         emit fieldOfViewChanged(fieldOfView());
     }
 }
@@ -454,7 +455,6 @@ void OSGCamera::setClampToTerrain(bool arg)
 {
     if (h->clampToTerrain != arg) {
         h->clampToTerrain = arg;
-        setDirty(OSGCamera::All);
         emit clampToTerrainChanged(clampToTerrain());
     }
 }
@@ -473,7 +473,7 @@ void OSGCamera::setAttitude(QVector3D arg)
 {
     if (h->attitude != arg) {
         h->attitude = arg;
-        setDirty(OSGCamera::Attitude);
+        setDirty(Attitude);
         emit attitudeChanged(attitude());
     }
 }
@@ -487,7 +487,7 @@ void OSGCamera::setPosition(QVector3D arg)
 {
     if (h->position != arg) {
         h->position = arg;
-        setDirty(OSGCamera::Position);
+        setDirty(Position);
         emit positionChanged(position());
     }
 }
@@ -507,26 +507,26 @@ void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
 
 void OSGCamera::update()
 {
-    // h->updateAspectRatio();
-    if (isDirty(OSGCamera::FieldOfView)) {
+    if (isDirty(FieldOfView)) {
         h->updateFieldOfView();
     }
-    if (isDirty(OSGCamera::Position) || isDirty(OSGCamera::Attitude) || isDirty(OSGCamera::All)) {
+    if (isDirty(Position | Attitude)) {
         h->updatePosition();
     }
 }
-
 
 void OSGCamera::attach(osgViewer::View *view)
 {
     h->attachCamera(view->getCamera());
     h->attachManipulator(view);
+    update();
+    clearDirty();
 }
 
 void OSGCamera::detach(osgViewer::View *view)
 {
-    h->detachCamera(view->getCamera());
     h->detachManipulator(view);
+    h->detachCamera(view->getCamera());
 }
 } // namespace osgQtQuick
 

@@ -157,8 +157,8 @@ static void StabilizationDesiredUpdatedCb(__attribute__((unused)) UAVObjEvent *e
         // no break, do not reorder this code
         // for low power FCs just fall through to Attitude mode
         // that means Yaw will be Attitude, but at least it is safe and creates no/minimal extra code
-//        default:
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+// do not reorder this code
         case STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE:
             StabilizationStatusOuterLoopToArray(status.OuterLoop)[t] = STABILIZATIONSTATUS_OUTERLOOP_ATTITUDE;
             StabilizationStatusInnerLoopToArray(status.InnerLoop)[t] = STABILIZATIONSTATUS_INNERLOOP_RATE;

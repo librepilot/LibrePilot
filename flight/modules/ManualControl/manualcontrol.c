@@ -47,7 +47,6 @@
 #include <stabilizationsettings.h>
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
 #include <vtolpathfollowersettings.h>
-#include <systemident.h>
 #endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
 
 // Private constants
@@ -119,9 +118,6 @@ static void commandUpdatedCb(UAVObjEvent *ev);
 static void manualControlTask(void);
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
 static uint8_t isAssistedFlightMode(uint8_t position, uint8_t flightMode, FlightModeSettingsData *modeSettings);
-#if 0
-static bool isSystemIdentFlightMode(uint8_t flightMode, FlightModeSettingsData *modeSettings);
-#endif
 #endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
 static void SettingsUpdatedCb(UAVObjEvent *ev);
 
@@ -255,13 +251,6 @@ static void manualControlTask(void)
         // check the flightmodeassist state.
         newAssistedControlState  = FLIGHTSTATUS_ASSISTEDCONTROLSTATE_PRIMARY;
         newAssistedThrottleState = FLIGHTSTATUS_ASSISTEDTHROTTLESTATE_MANUAL;
-#if 0
-#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
-        if (isSystemIdentFlightMode(newMode, &modeSettings)) {
-            SystemIdentInitData();
-        }
-#endif
-#endif
     }
 
     // Depending on the mode update the Stabilization or Actuator objects
@@ -623,52 +612,6 @@ static uint8_t isAssistedFlightMode(uint8_t position, uint8_t flightMode, Flight
     //return isAssistedFlag;
     return FLIGHTSTATUS_FLIGHTMODEASSIST_NONE;
 }
-
-#if 0
-/**
- * Check if this flight mode uses SystemIdent stabilization mode
- */
-static bool isSystemIdentFlightMode(uint8_t flightMode, FlightModeSettingsData *modeSettings)
-{
-#if 0
-    if (flightMode == FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) {
-        return true;
-    }
-    if (flightMode >= FLIGHTSTATUS_FLIGHTMODE_STABILIZED1 && flightMode <= FLIGHTSTATUS_FLIGHTMODE_STABILIZED6) {
-        if (modeSettings->Stabilization1Settings.Roll == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT
-            || modeSettings->Stabilization1Settings.Pitch == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT
-            || modeSettings->Stabilization1Settings.Yaw == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) {
-            return true;
-        }
-    }
-    return false;
-#else
-    if (
-        flightMode != FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE && (
-            (
-                flightMode < FLIGHTSTATUS_FLIGHTMODE_STABILIZED1 || flightMode > FLIGHTSTATUS_FLIGHTMODE_STABILIZED6
-            ) || (
-                modeSettings->Stabilization1Settings.Roll != FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT
-                && modeSettings->Stabilization1Settings.Pitch != FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT
-                && modeSettings->Stabilization1Settings.Yaw != FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT
-            )
-        )
-    ) {
-        return false;
-    }
-#if 1
-    static bool inited=false;
-    if (!inited) {
-        inited = true;
-#else
-    if (!SystemIdentHandle()) {
-#endif /* 1 */
-        SystemIdentInitialize();
-    }
-    return true;
-#endif /* 0 */
-}
-#endif /* 0 */
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 /**

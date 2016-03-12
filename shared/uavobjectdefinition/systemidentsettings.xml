@@ -17,18 +17,20 @@
         <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="8"/>
         <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
         <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="13"/>
-        <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True"/>
-        <field name="YawBetaMin" units="" type="float" elements="1" defaultvalue="5.8"/>
-        <field name="OverrideYawBeta" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True"/>
+        <field name="CalculateYaw" units="bool" type="enum" elements="1" options="False,True,TrueIgnoreError" defaultvalue="True"/>
+        <!-- Mateuze quad needs yaw P to be at most 2.6 times roll/pitch P to avoid yaw oscillation -->
+        <!-- Cliff sluggish 500 quad would like yaw P to be about 5.8 times roll/pitch P, but can easily live with 2.6 -->
+        <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0"/>
+        <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.6"/>
+        <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
         <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
         <!-- smooth vs. quick PID selector: -->
         <!--  0 = disabled -->
-        <!-- 10 thru 13 correspond to aux0 -> aux3 transmitter knobs -->
+        <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
         <!-- 23 and 25 are discrete 3 and 5 stop rount robin selectors accessed by quickly toggling the fms 3 times -->
-        <!-- where -100 is smoothest, 0 is middle, +100 is quickest -->
-        <!-- 23 means stops at 0, 100, -100 (repeat) -->
-        <!-- 25 means stops at 0, 50, 100, -100, -50 (repeat) -->
+        <!-- 23 (3 stops) means stops at 0%, 100%, -100% (repeat) -->
+        <!-- 25 (5 stops) means stops at 0%, 50%, 100%, -100%, -50% (repeat) -->
         <field name="SmoothQuick" units="" type="uint8" elements="1" defaultvalue="25"/>
         <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>

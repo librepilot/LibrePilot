@@ -668,7 +668,7 @@ static uint8_t CheckSettingsRaw()
     if (systemIdentState.Beta.Pitch < 6) {
         retVal |= PITCH_BETA_LOW;
     }
-    if (systemIdentState.Beta.Yaw < systemIdentSettings.YawBetaMin) {
+    if (systemIdentState.Beta.Yaw < 4) {
         retVal |= YAW_BETA_LOW;
     }
     // Check the response speed
@@ -693,9 +693,10 @@ static uint8_t CheckSettings()
 {
     uint8_t retVal = CheckSettingsRaw();
 
-    if (systemIdentSettings.DisableSanityChecks
-        || ((retVal == YAW_BETA_LOW) && (!systemIdentSettings.CalculateYaw || systemIdentSettings.OverrideYawBeta))) {
-        retVal = 0;
+    if (systemIdentSettings.DisableSanityChecks) {
+    	retVal = 0;
+    } else if  (systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_TRUE) {
+        retVal &= ~YAW_BETA_LOW;
     }
 
     return retVal;
@@ -758,18 +759,45 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     const double kp_o = 1.0d / 4.0d / (zeta_o * zeta_o) / (1.0d/wn);
 
     // dRonin simply uses default PID settings for yaw
-    for (int i = 0; i < ((systemIdentSettings.CalculateYaw) ? 3 : 2); i++) {
-        double beta;
-        // if yaw axis and yaw beta is too low and user wants to override it if too low
-        if (i == 2 && systemIdentState.Beta.Yaw < systemIdentSettings.YawBetaMin && systemIdentSettings.OverrideYawBeta) {
-            beta = exp(systemIdentSettings.YawBetaMin);
-        } else {
-            beta = exp(SystemIdentStateBetaToArray(systemIdentState.Beta)[i]);
-        }
-
+    float kpMax = 0.0f;
+    for (int i = 0; i < ((systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_FALSE) ? 3 : 2); i++) {
+        double beta = exp(SystemIdentStateBetaToArray(systemIdentState.Beta)[i]);
         double ki = a * b * wn * wn * tau * tau_d / beta;
         double kp = tau * tau_d * ((a+b)*wn*wn + 2.0d*a*b*damp*wn) / beta - ki*tau_d;
         double kd = (tau * tau_d * (a*b + wn*wn + (a+b)*2.0d*damp*wn) - 1.0d) / beta - kp * tau_d;
+
+        if (i<2) {
+            if (kpMax < (float) kp) {
+            	kpMax = (float) kp;
+            }
+        } else {
+            // use the ratio with the largest roll/pitch kp to limit yaw kp to a reasonable value
+            // use largest roll/pitch kp because it is the axis most slowed by rotational inertia
+            // and yaw is also slowed maximally by rotational inertia
+            // note that kp, ki, kd are all proportional in beta
+            // so reducing them all proportionally is the same as changing beta
+            float min = 0.0f;
+            float max = 0.0f;
+            switch (systemIdentSettings.YawPIDRatioFunction) {
+            case SYSTEMIDENTSETTINGS_YAWPIDRATIOFUNCTION_DISABLE:
+                max = 1000.0f;
+                min = 0.0f;
+                break;
+            case SYSTEMIDENTSETTINGS_YAWPIDRATIOFUNCTION_LIMIT:
+                max = kpMax * systemIdentSettings.YawToRollPitchPIDRatioMax;
+                min = kpMax * systemIdentSettings.YawToRollPitchPIDRatioMin;
+                break;
+            }
+            float ratio = 1.0f;
+            if (min > 0.0f && (float) kp < min) {
+            	ratio = (float) kp / min;
+            } else if (max > 0.0f && (float) kp > max) {
+            	ratio = (float) kp / max;
+            }
+         	kp /= (double) ratio;
+           	ki /= (double) ratio;
+           	kd /= (double) ratio;
+        }
 
         switch(i) {
         case 0: // Roll

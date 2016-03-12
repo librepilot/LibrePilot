@@ -104,6 +104,8 @@ private:
 
 private slots:
     void updateWarnings(UAVObject *);
+    void updateSpinStabilizeCheckComboBoxes();
+    void updateAlwaysStabilizeStatus();
     void stopTests();
     virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     void updateObjectsFromWidgets();

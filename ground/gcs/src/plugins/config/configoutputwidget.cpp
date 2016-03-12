@@ -41,6 +41,8 @@
 #include "mixersettings.h"
 #include "actuatorcommand.h"
 #include "actuatorsettings.h"
+#include "flightmodesettings.h"
+#include "flightstatus.h"
 #include "systemsettings.h"
 
 #include <QDebug>
@@ -99,6 +101,13 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     // Associate the buttons with their UAVO fields
     addWidget(m_ui->spinningArmed);
+    connect(m_ui->spinningArmed, SIGNAL(clicked(bool)), this, SLOT(updateSpinStabilizeCheckComboBoxes()));
+
+    addUAVObject("FlightModeSettings");
+    addWidgetBinding("FlightModeSettings", "AlwaysStabilizeWhenArmedSwitch", m_ui->alwaysStabilizedSwitch);
+
+    connect(FlightStatus::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateAlwaysStabilizeStatus()));
+
     MixerSettings *mixer = MixerSettings::GetInstance(getObjectManager());
     Q_ASSERT(mixer);
     m_banks << OutputBankControls(mixer, m_ui->chBank1, QColor("#C6ECAE"), m_ui->cb_outputRate1, m_ui->cb_outputMode1);
@@ -407,6 +416,8 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
         outputChannelForm->setNeutral(neutral);
     }
 
+    updateSpinStabilizeCheckComboBoxes();
+
     setDirty(dirty);
 }
 
@@ -445,6 +456,40 @@ void ConfigOutputWidget::updateObjectsFromWidgets()
 
         // Apply settings
         actuatorSettings->setData(actuatorSettingsData);
+    }
+
+    FlightModeSettings *flightModeSettings = FlightModeSettings::GetInstance(getObjectManager());
+    Q_ASSERT(flightModeSettings);
+
+    if (flightModeSettings) {
+        FlightModeSettings::DataFields flightModeSettingsData = flightModeSettings->getData();
+        flightModeSettingsData.AlwaysStabilizeWhenArmedSwitch = m_ui->alwaysStabilizedSwitch->currentIndex();
+
+        // Apply settings
+        flightModeSettings->setData(flightModeSettingsData);
+    }
+}
+
+void ConfigOutputWidget::updateSpinStabilizeCheckComboBoxes()
+{
+    m_ui->alwayStabilizedLabel1->setEnabled(m_ui->spinningArmed->isChecked());
+    m_ui->alwayStabilizedLabel2->setEnabled(m_ui->spinningArmed->isChecked());
+    m_ui->alwaysStabilizedSwitch->setEnabled(m_ui->spinningArmed->isChecked());
+
+    if (!m_ui->spinningArmed->isChecked()) {
+        m_ui->alwaysStabilizedSwitch->setCurrentIndex(FlightModeSettings::ALWAYSSTABILIZEWHENARMEDSWITCH_DISABLED);
+    }
+}
+
+void ConfigOutputWidget::updateAlwaysStabilizeStatus()
+{
+    FlightStatus *flightStatusObj = FlightStatus::GetInstance(getObjectManager());
+    FlightStatus::DataFields flightStatus = flightStatusObj->getData();
+
+    if (flightStatus.AlwaysStabilizeWhenArmed == FlightStatus::ALWAYSSTABILIZEWHENARMED_TRUE) {
+        m_ui->alwayStabilizedLabel2->setText("AlwaysStabilizeWhenArmed is <b>ACTIVE</b>. This prevents arming!.");
+    } else {
+        m_ui->alwayStabilizedLabel2->setText("(Really be careful!).");
     }
 }
 

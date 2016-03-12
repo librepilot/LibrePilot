@@ -37,6 +37,7 @@
 #include <sanitycheck.h>
 #include <manualcontrolsettings.h>
 #include <manualcontrolcommand.h>
+#include <accessorydesired.h>
 #include <vtolselftuningstats.h>
 #include <flightmodesettings.h>
 #include <flightstatus.h>
@@ -62,6 +63,7 @@
 #define ASSISTEDCONTROL_BRAKETHRUST_DEADBAND_FACTOR_LO 0.96f
 #define ASSISTEDCONTROL_BRAKETHRUST_DEADBAND_FACTOR_HI 1.04f
 
+#define ALWAYSTABILIZEACCESSORY_THRESHOLD              0.50f
 
 // defined handlers
 
@@ -166,6 +168,7 @@ int32_t ManualControlInitialize()
     FlightModeSettingsInitialize();
     SystemSettingsInitialize();
     StabilizationSettingsInitialize();
+    AccessoryDesiredInitialize();
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     VtolSelfTuningStatsInitialize();
     VtolPathFollowerSettingsInitialize();
@@ -218,6 +221,7 @@ static void manualControlTask(void)
     FlightStatusGet(&flightStatus);
     ManualControlCommandData cmd;
     ManualControlCommandGet(&cmd);
+    AccessoryDesiredData acc;
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     VtolPathFollowerSettingsThrustLimitsData thrustLimits;
     VtolPathFollowerSettingsThrustLimitsGet(&thrustLimits);
@@ -228,6 +232,7 @@ static void manualControlTask(void)
 
     uint8_t position = cmd.FlightModeSwitchPosition;
     uint8_t newMode  = flightStatus.FlightMode;
+    uint8_t newAlwaysStabilized      = flightStatus.AlwaysStabilizeWhenArmed;
     uint8_t newFlightModeAssist      = flightStatus.FlightModeAssist;
     uint8_t newAssistedControlState  = flightStatus.AssistedControlState;
     uint8_t newAssistedThrottleState = flightStatus.AssistedThrottleState;
@@ -449,21 +454,57 @@ static void manualControlTask(void)
         // There is no default, so if a flightmode is forgotten the compiler can throw a warning!
     }
 
+    bool alwaysStabilizedSwitch = false;
+
+    // Check for a AlwaysStabilizeWhenArmed accessory switch
+    switch (modeSettings.AlwaysStabilizeWhenArmedSwitch) {
+    case FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMEDSWITCH_ACCESSORY0:
+        AccessoryDesiredInstGet(0, &acc);
+        alwaysStabilizedSwitch = true;
+        break;
+    case FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMEDSWITCH_ACCESSORY1:
+        AccessoryDesiredInstGet(1, &acc);
+        alwaysStabilizedSwitch = true;
+        break;
+    case FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMEDSWITCH_ACCESSORY2:
+        AccessoryDesiredInstGet(2, &acc);
+        alwaysStabilizedSwitch = true;
+        break;
+    case FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMEDSWITCH_ACCESSORY3:
+        AccessoryDesiredInstGet(3, &acc);
+        alwaysStabilizedSwitch = true;
+        break;
+    default:
+        break;
+    }
+
+    if (alwaysStabilizedSwitch) {
+        if (acc.AccessoryVal <= -ALWAYSTABILIZEACCESSORY_THRESHOLD) {
+            newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_FALSE;
+        } else if (acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) {
+            newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE;
+        }
+    } else {
+        newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_FALSE;
+    }
+
     bool newinit = false;
 
     // FlightMode needs to be set correctly on first run (otherwise ControlChain is invalid)
     static bool firstRun = true;
 
-    if (flightStatus.FlightMode != newMode || firstRun ||
+    if (flightStatus.AlwaysStabilizeWhenArmed != newAlwaysStabilized ||
+        flightStatus.FlightMode != newMode || firstRun ||
         newFlightModeAssist != flightStatus.FlightModeAssist ||
         newAssistedControlState != flightStatus.AssistedControlState ||
         flightStatus.AssistedThrottleState != newAssistedThrottleState) {
         firstRun = false;
-        flightStatus.ControlChain          = handler->controlChain;
-        flightStatus.FlightMode            = newMode;
-        flightStatus.FlightModeAssist      = newFlightModeAssist;
-        flightStatus.AssistedControlState  = newAssistedControlState;
-        flightStatus.AssistedThrottleState = newAssistedThrottleState;
+        flightStatus.ControlChain             = handler->controlChain;
+        flightStatus.FlightMode               = newMode;
+        flightStatus.AlwaysStabilizeWhenArmed = newAlwaysStabilized;
+        flightStatus.FlightModeAssist         = newFlightModeAssist;
+        flightStatus.AssistedControlState     = newAssistedControlState;
+        flightStatus.AssistedThrottleState    = newAssistedThrottleState;
         FlightStatusSet(&flightStatus);
         newinit = true;
     }

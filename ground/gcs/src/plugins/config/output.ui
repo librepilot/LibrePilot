@@ -123,7 +123,7 @@
             <x>0</x>
             <y>0</y>
             <width>743</width>
-            <height>668</height>
+            <height>662</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
@@ -817,9 +817,78 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Motors spin at neutral output when armed and throttle below zero (be careful)</string>
+                 <string>Motors spin at neutral output when armed and throttle below zero (Be careful).</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="alwaysStabilizeGroup">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="alwayStabilizedLabel1">
+                  <property name="text">
+                   <string>Multirotor is Always Stabilized When Armed using:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="alwaysStabilizedSwitch">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>120</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="alwayStabilizedLabel2">
+                  <property name="text">
+                   <string>(Really be careful!).</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
               <item>
                <spacer name="verticalSpacer">

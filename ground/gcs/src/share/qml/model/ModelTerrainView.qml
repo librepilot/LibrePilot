@@ -18,6 +18,7 @@
  * along with LibrePilot GCS.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
+import QtQuick.Controls 1.4
 
 import Pfd 1.0
 import OsgQtQuick 1.0
@@ -26,6 +27,7 @@ import "../common.js" as Utils
 import "../uav.js" as UAV
 
 OSGViewport {
+    id: osgViewport
     anchors.fill: parent
     focus: true
     sceneData: skyNode
@@ -97,4 +99,15 @@ OSGViewport {
     Keys.onDownPressed: {
         pfdContext.previousModel();
     }
+
+    BusyIndicator {
+        width: 24
+        height: 24
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 4
+
+        running: osgViewport.busy
+    }
+
 }

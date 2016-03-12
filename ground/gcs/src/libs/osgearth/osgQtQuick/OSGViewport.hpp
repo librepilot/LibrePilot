@@ -49,10 +49,11 @@ public:
 };
 
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
-    Q_OBJECT Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
+    Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
     friend class ViewportRenderer;
@@ -60,26 +61,30 @@ public:
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 
-    UpdateMode::Enum updateMode() const;
-    void setUpdateMode(UpdateMode::Enum mode);
-
-    QColor color() const;
-    void setColor(const QColor &color);
-
     OSGNode *sceneData();
     void setSceneData(OSGNode *node);
 
     OSGCamera *camera();
     void setCamera(OSGCamera *camera);
 
+    UpdateMode::Enum updateMode() const;
+    void setUpdateMode(UpdateMode::Enum mode);
+
+    bool busy() const;
+    void setBusy(const bool busy);
+
+    QColor color() const;
+    void setColor(const QColor &color);
+
     Renderer *createRenderer() const;
     void releaseResources();
 
 signals:
-    void updateModeChanged(UpdateMode::Enum mode);
-    void colorChanged(const QColor &color);
     void sceneDataChanged(OSGNode *node);
     void cameraChanged(OSGCamera *camera);
+    void updateModeChanged(UpdateMode::Enum mode);
+    void busyChanged(bool busy);
+    void colorChanged(const QColor &color);
 
 protected:
     void mousePressEvent(QMouseEvent *event);

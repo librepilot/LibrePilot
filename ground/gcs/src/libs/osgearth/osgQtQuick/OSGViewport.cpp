@@ -58,7 +58,6 @@
 #include <QThread>
 #include <QApplication>
 
-namespace osgQtQuick {
 /*
    Debugging tips
    - export OSG_NOTIFY_LEVEL=DEBUG
@@ -79,18 +78,44 @@ namespace osgQtQuick {
 
    TODO : add OSGView to handle multiple views for a given OSGViewport
  */
+
+namespace osgQtQuick {
+class ViewportRenderer;
+
 struct OSGViewport::Hidden : public QObject {
     Q_OBJECT
+
+    friend ViewportRenderer;
+
+    OSGViewport  *self;
+
+    QQuickWindow *window;
+
+    int frameTimer;
+
+public:
+    OSGNode   *sceneData;
+    OSGCamera *camera;
+
+    osg::ref_ptr<osgViewer::CompositeViewer> viewer;
+    osg::ref_ptr<osgViewer::View> view;
+
+    UpdateMode::Enum updateMode;
+
+    bool busy;
+
+    static QtKeyboardMap keyMap;
 
 public:
 
     Hidden(OSGViewport *viewport) : QObject(viewport),
         self(viewport),
         window(NULL),
+        frameTimer(-1),
         sceneData(NULL),
         camera(NULL),
         updateMode(UpdateMode::Discrete),
-        frameTimer(-1)
+        busy(false)
     {
         OsgEarth::initialize();
 
@@ -274,22 +299,7 @@ public:
         return true;
     }
 
-    OSGViewport      *self;
-
-    QQuickWindow     *window;
-
-    OSGNode          *sceneData;
-    OSGCamera        *camera;
-
-    UpdateMode::Enum updateMode;
-
-    int frameTimer;
-
-    osg::ref_ptr<osgViewer::CompositeViewer> viewer;
-    osg::ref_ptr<osgViewer::View> view;
-
-    static QtKeyboardMap keyMap;
-
+private:
     void createViewer()
     {
         if (viewer.valid()) {
@@ -511,10 +521,15 @@ public:
             h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width() * dpr, item->height() * dpr);
         }
 
+        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
+        // TODO also expose request list size to Qml
+        // qDebug() << h->view->getDatabasePager()->getFileRequestListSize();
+
         if (!needToDoFrame) {
             needToDoFrame = h->viewer->checkNeedToDoFrame();
         }
         if (!needToDoFrame) {
+            // calling checkNeedToDoFrame is not enough...
             needToDoFrame = !h->view->getEventQueue()->empty();
         }
         if (needToDoFrame) {
@@ -592,35 +607,6 @@ OSGViewport::~OSGViewport()
     delete h;
 }
 
-UpdateMode::Enum OSGViewport::updateMode() const
-{
-    return h->updateMode;
-}
-
-void OSGViewport::setUpdateMode(UpdateMode::Enum mode)
-{
-    if (h->acceptUpdateMode(mode)) {
-        emit updateModeChanged(updateMode());
-    }
-}
-
-QColor OSGViewport::color() const
-{
-    const osg::Vec4 osgColor = h->view->getCamera()->getClearColor();
-
-    return QColor::fromRgbF(osgColor.r(), osgColor.g(), osgColor.b(), osgColor.a());
-}
-
-void OSGViewport::setColor(const QColor &color)
-{
-    osg::Vec4 osgColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-
-    if (h->view->getCamera()->getClearColor() != osgColor) {
-        h->view->getCamera()->setClearColor(osgColor);
-        emit colorChanged(color);
-    }
-}
-
 OSGNode *OSGViewport::sceneData()
 {
     return h->sceneData;
@@ -642,6 +628,48 @@ void OSGViewport::setCamera(OSGCamera *camera)
 {
     if (h->acceptCamera(camera)) {
         emit cameraChanged(camera);
+    }
+}
+
+UpdateMode::Enum OSGViewport::updateMode() const
+{
+    return h->updateMode;
+}
+
+void OSGViewport::setUpdateMode(UpdateMode::Enum mode)
+{
+    if (h->acceptUpdateMode(mode)) {
+        emit updateModeChanged(updateMode());
+    }
+}
+
+bool OSGViewport::busy() const
+{
+    return h->busy;
+}
+
+void OSGViewport::setBusy(const bool busy)
+{
+    if (h->busy != busy) {
+        h->busy = busy;
+        emit busyChanged(busy);
+    }
+}
+
+QColor OSGViewport::color() const
+{
+    const osg::Vec4 osgColor = h->view->getCamera()->getClearColor();
+
+    return QColor::fromRgbF(osgColor.r(), osgColor.g(), osgColor.b(), osgColor.a());
+}
+
+void OSGViewport::setColor(const QColor &color)
+{
+    osg::Vec4 osgColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+
+    if (h->view->getCamera()->getClearColor() != osgColor) {
+        h->view->getCamera()->setClearColor(osgColor);
+        emit colorChanged(color);
     }
 }
 

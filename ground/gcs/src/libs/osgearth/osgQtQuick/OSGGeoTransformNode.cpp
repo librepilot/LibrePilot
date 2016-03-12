@@ -31,7 +31,7 @@
 
 #include <osg/ComputeBoundsVisitor>
 
-#include <osgearth/GeoTransform>
+#include <osgEarth/GeoTransform>
 #include <osgEarth/MapNode>
 #include <osgEarth/GeoData>
 

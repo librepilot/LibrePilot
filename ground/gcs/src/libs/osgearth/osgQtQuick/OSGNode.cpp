@@ -30,7 +30,7 @@
 #include <osg/Node>
 #include <osg/NodeVisitor>
 
-#include <qDebug>
+#include <QDebug>
 
 namespace osgQtQuick {
 class OSGNode;

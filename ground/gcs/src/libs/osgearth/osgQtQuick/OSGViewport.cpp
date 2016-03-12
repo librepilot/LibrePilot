@@ -398,8 +398,10 @@ public:
         traits->windowDecoration = false;
         traits->x       = 0;
         traits->y       = 0;
-        traits->width   = self->width();
-        traits->height  = self->height();
+
+        int dpr = self->window()->devicePixelRatio();
+        traits->width   = self->width() * dpr;
+        traits->height  = self->height() * dpr;
 
         traits->alpha   = ds->getMinimumNumAlphaBits();
         traits->stencil = ds->getMinimumNumStencilBits();
@@ -505,7 +507,8 @@ public:
         osg::Viewport *viewport = h->view->getCamera()->getViewport();
         if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
             needToDoFrame = true;
-            h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width(), item->height());
+            int dpr = h->self->window()->devicePixelRatio();
+            h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width() * dpr, item->height() * dpr);
         }
 
         if (!needToDoFrame) {

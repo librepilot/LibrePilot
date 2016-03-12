@@ -60,7 +60,6 @@ osg:win32 {
         libnettle-6-1.dll \
         libssh2-1.dll
 
-
     # other
     OSG_LIBS += \
         libproj-9.dll \
@@ -68,7 +67,6 @@ osg:win32 {
         libpng16-16.dll \
         libiconv-2.dll \
         zlib1.dll
-
 
     # osg libraries
     OSG_LIBS += \
@@ -190,6 +188,7 @@ osgearth:win32 {
         libgeos_c.dll \
         libgeos.dll \
         libjpeg-8.dll \
+        libopenjp2-7.dll \
         libtiff-5.dll \
         liblzma-5.dll
 

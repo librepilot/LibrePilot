@@ -62,6 +62,14 @@ Item {
             fieldOfView: 90
             sceneNode: transformNode
         }
+
+        Keys.onUpPressed: {
+            pfdContext.nextModel();
+        }
+
+        Keys.onDownPressed: {
+            pfdContext.previousModel();
+        }
     }
 
 }

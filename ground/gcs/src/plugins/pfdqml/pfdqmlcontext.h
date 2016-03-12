@@ -52,7 +52,11 @@ class PfdQmlContext : public QObject {
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(double minimumAmbientLight READ minimumAmbientLight WRITE setMinimumAmbientLight NOTIFY minimumAmbientLightChanged)
 
-    Q_PROPERTY(QString modelFile READ modelFile WRITE setModelFile NOTIFY modelFileChanged)
+    // model
+    Q_PROPERTY(QString modelFile READ modelFile NOTIFY modelFileChanged)
+    Q_PROPERTY(QStringList modelFileList READ modelFileList CONSTANT FINAL)
+
+    // background
     Q_PROPERTY(QString backgroundImageFile READ backgroundImageFile WRITE setBackgroundImageFile NOTIFY backgroundImageFileChanged)
 
 public:
@@ -87,8 +91,14 @@ public:
     double minimumAmbientLight() const;
     void setMinimumAmbientLight(double arg);
 
+    // model
     QString modelFile() const;
     void setModelFile(const QString &arg);
+    QStringList modelFileList() const;
+    Q_INVOKABLE void nextModel();
+    Q_INVOKABLE void previousModel();
+
+    // background
     QString backgroundImageFile() const;
     void setBackgroundImageFile(const QString &arg);
 
@@ -121,6 +131,9 @@ signals:
     void backgroundImageFileChanged(QString arg);
 
 private:
+    // constants
+    static const QString CONTEXT_PROPERTY_NAME;
+
     QString m_speedUnit;
     double m_speedFactor;
     QString m_altitudeUnit;
@@ -138,7 +151,11 @@ private:
     double m_minAmbientLight;
 
     QString m_modelFile;
+    int m_modelIndex;
+    QStringList m_modelFileList;
 
     QString m_backgroundImageFile;
+
+    void addModelDir(QString dir);
 };
 #endif /* PFDQMLCONTEXT_H_ */

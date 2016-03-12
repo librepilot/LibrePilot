@@ -28,13 +28,18 @@
 #include "pfdqmlcontext.h"
 
 #include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
 #include "uavobject.h"
+#include "uavobjectmanager.h"
 #include "utils/stringutils.h"
+#include "utils/pathutils.h"
+
 #include "flightbatterysettings.h"
 
 #include <QQmlContext>
 #include <QDebug>
+#include <QDirIterator>
+
+const QString PfdQmlContext::CONTEXT_PROPERTY_NAME = "pfdContext";
 
 PfdQmlContext::PfdQmlContext(QObject *parent) : QObject(parent),
     m_speedUnit("m/s"),
@@ -50,8 +55,13 @@ PfdQmlContext::PfdQmlContext(QObject *parent) : QObject(parent),
     m_dateTime(QDateTime()),
     m_minAmbientLight(0.03),
     m_modelFile(""),
+    m_modelIndex(0),
     m_backgroundImageFile("")
-{}
+{
+    addModelDir("helis");
+    addModelDir("multi");
+    addModelDir("planes");
+}
 
 PfdQmlContext::~PfdQmlContext()
 {}
@@ -220,9 +230,30 @@ QString PfdQmlContext::modelFile() const
 void PfdQmlContext::setModelFile(const QString &arg)
 {
     if (m_modelFile != arg) {
-        m_modelFile = arg;
+        m_modelFile  = arg;
+        m_modelIndex = m_modelFileList.indexOf(m_modelFile);
+        if (m_modelIndex == -1) {
+            m_modelIndex = 0;
+        }
         emit modelFileChanged(modelFile());
     }
+}
+
+void PfdQmlContext::nextModel()
+{
+    m_modelIndex = (m_modelIndex + 1) % m_modelFileList.length();
+    setModelFile(m_modelFileList[m_modelIndex]);
+}
+
+void PfdQmlContext::previousModel()
+{
+    m_modelIndex = (m_modelFileList.length() + m_modelIndex - 1) % m_modelFileList.length();
+    setModelFile(m_modelFileList[m_modelIndex]);
+}
+
+QStringList PfdQmlContext::modelFileList() const
+{
+    return m_modelFileList;
 }
 
 QString PfdQmlContext::backgroundImageFile() const
@@ -281,12 +312,16 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
 void PfdQmlContext::saveState(QSettings *settings)
 {
-    Q_UNUSED(settings);
+    settings->setValue("modelFile", modelFile());
 }
 
 void PfdQmlContext::restoreState(QSettings *settings)
 {
-    Q_UNUSED(settings);
+    QString file = settings->value("modelFile").toString();
+
+    if (!file.isEmpty()) {
+        setModelFile(file);
+    }
 }
 
 void PfdQmlContext::apply(QQmlContext *context)
@@ -339,6 +374,17 @@ void PfdQmlContext::apply(QQmlContext *context)
         }
     }
 
-    // to expose settings values
-    context->setContextProperty("pfdContext", this);
+    // expose this context to Qml
+    context->setContextProperty(CONTEXT_PROPERTY_NAME, this);
+}
+
+void PfdQmlContext::addModelDir(QString dir)
+{
+    QDirIterator it(Utils::GetDataPath() + "models/" + dir, QStringList("*.3ds"), QDir::NoFilter, QDirIterator::Subdirectories);
+
+    while (it.hasNext()) {
+        QString file = QDir::toNativeSeparators(it.next());
+        // qDebug() << file;
+        m_modelFileList.append(file);
+    }
 }

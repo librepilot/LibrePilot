@@ -89,4 +89,12 @@ OSGViewport {
         // model will be tracked
         trackNode: modelTransformNode
     }
+
+    Keys.onUpPressed: {
+        pfdContext.nextModel();
+    }
+
+    Keys.onDownPressed: {
+        pfdContext.previousModel();
+    }
 }

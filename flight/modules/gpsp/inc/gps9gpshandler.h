@@ -27,7 +27,7 @@
 #define GPS9GPSHANDLER_H_
 
 #define GPS_BUFFER_SIZE 250
-#define FC_BUFFER_SIZE 120
+#define FC_BUFFER_SIZE  120
 
 void handleGPS();
 void setupGPS();

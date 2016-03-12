@@ -49,7 +49,7 @@ public:
 };
 
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
-    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
@@ -61,8 +61,8 @@ public:
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 
-    OSGNode *sceneData();
-    void setSceneData(OSGNode *node);
+    OSGNode *sceneNode();
+    void setSceneNode(OSGNode *node);
 
     OSGCamera *camera();
     void setCamera(OSGCamera *camera);
@@ -80,7 +80,7 @@ public:
     void releaseResources();
 
 signals:
-    void sceneDataChanged(OSGNode *node);
+    void sceneNodeChanged(OSGNode *node);
     void cameraChanged(OSGCamera *camera);
     void updateModeChanged(UpdateMode::Enum mode);
     void busyChanged(bool busy);

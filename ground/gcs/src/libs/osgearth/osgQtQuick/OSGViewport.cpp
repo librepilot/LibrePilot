@@ -87,6 +87,7 @@ struct OSGViewport::Hidden : public QObject {
 
     friend ViewportRenderer;
 
+private:
     OSGViewport  *self;
 
     QQuickWindow *window;
@@ -94,7 +95,7 @@ struct OSGViewport::Hidden : public QObject {
     int frameTimer;
 
 public:
-    OSGNode   *sceneData;
+    OSGNode   *sceneNode;
     OSGCamera *camera;
 
     osg::ref_ptr<osgViewer::CompositeViewer> viewer;
@@ -112,7 +113,7 @@ public:
         self(viewport),
         window(NULL),
         frameTimer(-1),
-        sceneData(NULL),
+        sceneNode(NULL),
         camera(NULL),
         updateMode(UpdateMode::OnDemand),
         busy(false)
@@ -151,40 +152,34 @@ public slots:
 
 public:
 
-    bool acceptSceneData(OSGNode *node)
+    bool acceptSceneNode(OSGNode *node)
     {
-        qDebug() << "OSGViewport::acceptSceneData" << node;
-        if (sceneData == node) {
+        qDebug() << "OSGViewport::acceptSceneNode" << node;
+        if (sceneNode == node) {
             return true;
         }
 
-        if (sceneData) {
-            disconnect(sceneData);
+        if (sceneNode) {
+            disconnect(sceneNode);
         }
 
-        sceneData = node;
+        sceneNode = node;
 
-        if (sceneData) {
-            acceptNode(sceneData->node());
-            connect(sceneData, &OSGNode::nodeChanged, this, &Hidden::onNodeChanged);
+        if (sceneNode) {
+            connect(sceneNode, &OSGNode::nodeChanged, this, &Hidden::onNodeChanged);
         }
 
-        return true;
-    }
-
-    bool acceptNode(osg::Node *node)
-    {
         return true;
     }
 
     void attach(osgViewer::View *view)
     {
-        if (!sceneData) {
+        if (!sceneNode) {
             qWarning() << "OSGViewport::attach - invalid scene!";
             return;
         }
         // attach scene
-        attach(view, sceneData->node());
+        attach(view, sceneNode->node());
         // attach camera
         if (camera) {
             camera->attach(view);
@@ -274,17 +269,6 @@ public:
         // view->getCamera()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
         // view->getCamera()->getGraphicsContext()->close();
         // view->getCamera()->setGraphicsContext(NULL);
-    }
-
-    bool acceptUpdateMode(UpdateMode::Enum mode)
-    {
-        if (updateMode == mode) {
-            return true;
-        }
-
-        updateMode = mode;
-
-        return true;
     }
 
     bool acceptCamera(OSGCamera *camera)
@@ -612,15 +596,15 @@ OSGViewport::~OSGViewport()
     delete h;
 }
 
-OSGNode *OSGViewport::sceneData()
+OSGNode *OSGViewport::sceneNode()
 {
-    return h->sceneData;
+    return h->sceneNode;
 }
 
-void OSGViewport::setSceneData(OSGNode *node)
+void OSGViewport::setSceneNode(OSGNode *node)
 {
-    if (h->acceptSceneData(node)) {
-        emit sceneDataChanged(node);
+    if (h->acceptSceneNode(node)) {
+        emit sceneNodeChanged(node);
     }
 }
 
@@ -643,8 +627,9 @@ UpdateMode::Enum OSGViewport::updateMode() const
 
 void OSGViewport::setUpdateMode(UpdateMode::Enum mode)
 {
-    if (h->acceptUpdateMode(mode)) {
-        emit updateModeChanged(updateMode());
+    if (h->updateMode != mode) {
+        h->updateMode = mode;
+        emit updateModeChanged(mode);
     }
 }
 
@@ -688,8 +673,8 @@ QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
 void OSGViewport::attach(osgViewer::View *view)
 {
     // qDebug() << "OSGViewport::attach" << view;
-    if (h->sceneData) {
-        h->sceneData->attach(view);
+    if (h->sceneNode) {
+        h->sceneNode->attach(view);
     }
     h->attach(view);
 }
@@ -698,8 +683,8 @@ void OSGViewport::detach(osgViewer::View *view)
 {
     qDebug() << "OSGViewport::detach" << view;
     h->detach(view);
-    if (h->sceneData) {
-        h->sceneData->detach(view);
+    if (h->sceneNode) {
+        h->sceneNode->detach(view);
     }
 }
 

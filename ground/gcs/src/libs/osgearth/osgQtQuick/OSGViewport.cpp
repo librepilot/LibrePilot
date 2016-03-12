@@ -114,7 +114,7 @@ public:
         frameTimer(-1),
         sceneData(NULL),
         camera(NULL),
-        updateMode(UpdateMode::Discrete),
+        updateMode(UpdateMode::OnDemand),
         busy(false)
     {
         OsgEarth::initialize();
@@ -428,7 +428,7 @@ private:
 
     void start()
     {
-        if (updateMode == UpdateMode::Discrete && (frameTimer < 0)) {
+        if (updateMode != UpdateMode::Continuous && (frameTimer < 0)) {
             qDebug() << "OSGViewport::start - starting timer";
             frameTimer = startTimer(33, Qt::PreciseTimer);
         }
@@ -505,6 +505,11 @@ public:
             return;
         }
 
+        needToDoFrame = firstFrame;
+        if (h->updateMode != UpdateMode::OnDemand) {
+            needToDoFrame = true;
+        }
+
         if (firstFrame) {
             h->view->init();
             if (!h->viewer->isRealized()) {
@@ -513,7 +518,7 @@ public:
             firstFrame = false;
         }
 
-        needToDoFrame = false;
+
         osg::Viewport *viewport = h->view->getCamera()->getViewport();
         if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
             needToDoFrame = true;

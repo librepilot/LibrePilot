@@ -56,7 +56,7 @@ Item {
     SvgElementImage {
         id: vsi_scale_meter
 
-        visible: (qmlWidget.altitudeUnit == "m")
+        visible: (pfdContext.altitudeUnit == "m")
         elementName: "vsi-scale-meter"
         sceneSize: sceneItem.sceneSize
 
@@ -68,7 +68,7 @@ Item {
     SvgElementImage {
         id: vsi_scale_ft
 
-        visible: (qmlWidget.altitudeUnit == "ft")
+        visible: (pfdContext.altitudeUnit == "ft")
         elementName: "vsi-scale-ft"
         sceneSize: sceneItem.sceneSize
 
@@ -104,7 +104,7 @@ Item {
         sceneSize: sceneItem.sceneSize
 
         Text {
-            text: (qmlWidget.altitudeUnit == "m") ? "m/s" : "ft/s"
+            text: (pfdContext.altitudeUnit == "m") ? "m/s" : "ft/s"
             color: "cyan"
             font {
                 family: pt_bold.name

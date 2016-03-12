@@ -51,3 +51,13 @@ void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 
     m_qmlGadgetWidget->loadConfiguration(m);
 }
+
+void PfdQmlGadget::saveState(QSettings *settings)
+{
+    m_qmlGadgetWidget->saveState(settings);
+}
+
+void PfdQmlGadget::restoreState(QSettings *settings)
+{
+    m_qmlGadgetWidget->restoreState(settings);
+}

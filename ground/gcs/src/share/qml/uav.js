@@ -139,7 +139,7 @@ function homePosition() {
 }
 
 function defaultPosition() {
-    return Qt.vector3d(qmlWidget.longitude, qmlWidget.latitude, qmlWidget.altitude);
+    return Qt.vector3d(pfdContext.longitude, pfdContext.latitude, pfdContext.altitude);
 }
 
 /*

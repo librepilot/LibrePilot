@@ -32,6 +32,7 @@
 #include "pfdqmlgadgetconfiguration.h"
 
 class QQmlContext;
+class QSettings;
 
 class PfdQmlContext : public QObject {
     Q_OBJECT Q_PROPERTY(QString speedUnit READ speedUnit WRITE setSpeedUnit NOTIFY speedUnitChanged)
@@ -94,6 +95,9 @@ public:
     Q_INVOKABLE void resetConsumedEnergy();
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
+    void saveState(QSettings *);
+    void restoreState(QSettings *);
+
     void apply(QQmlContext *context);
 
 signals:

@@ -62,6 +62,7 @@ namespace osgEarth {
 class Capabilities;
 class GeoPoint;
 class MapNode;
+class SpatialReference;
 } // namespace osgEarth
 #endif
 
@@ -145,6 +146,7 @@ QString getUsageString(osgViewer::CompositeViewer *viewer);
 
 #ifdef USE_OSGEARTH
 osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
+osgEarth::GeoPoint toGeoPoint(const osgEarth::SpatialReference *srs, const QVector3D &position);
 bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode);
 void capabilitiesInfo(const osgEarth::Capabilities & caps);
 #endif

@@ -35,7 +35,7 @@ OSGViewport {
         id: skyNode
         sceneData: sceneGroup
         dateTime: Utils.getDateTime()
-        minimumAmbientLight: qmlWidget.minimumAmbientLight
+        minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGGroup {
@@ -45,17 +45,18 @@ OSGViewport {
 
     OSGFileNode {
         id: terrainNode
-        source: qmlWidget.terrainFile
+        source: pfdContext.terrainFile
         async: false
     }
 
-    OSGModelNode {
+    OSGGeoTransformNode {
         id: modelNode
-        clampToTerrain: true
+
         modelData: modelTransformNode
         sceneData: terrainNode
 
-        attitude: UAV.attitude()
+        clampToTerrain: true
+
         position: UAV.position()
     }
 
@@ -64,11 +65,16 @@ OSGViewport {
         modelData: modelFileNode
         // model dimensions are in mm, scale to meters
         scale: Qt.vector3d(0.001, 0.001, 0.001)
+        attitude: UAV.attitude()
     }
 
     OSGFileNode {
         id: modelFileNode
-        source: qmlWidget.modelFile
+
+        // use ShaderGen pseudoloader to generate the shaders expected by osgEarth
+        // see http://docs.osgearth.org/en/latest/faq.html#i-added-a-node-but-it-has-no-texture-lighting-etc-in-osgearth-why
+        source: pfdContext.modelFile + ".osgearth_shadergen"
+
         async: false
         optimizeMode: OptimizeMode.OptimizeAndCheck
     }
@@ -79,7 +85,7 @@ OSGViewport {
         logarithmicDepthBuffer: true
         manipulatorMode: ManipulatorMode.Track
         // use model to compute camera home position
-        node: modelTransformNode
+        sceneNode: modelTransformNode
         // model will be tracked
         trackNode: modelTransformNode
     }

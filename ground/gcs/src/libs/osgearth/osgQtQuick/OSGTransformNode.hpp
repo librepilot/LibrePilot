@@ -37,8 +37,8 @@
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
     Q_OBJECT
-    // TODO rename to parentNode and modelNode
-    Q_PROPERTY(osgQtQuick::OSGNode *modelData READ modelData WRITE setModelData NOTIFY modelDataChanged)
+    // TODO rename to childNode
+    Q_PROPERTY(osgQtQuick::OSGNode *modelData READ childNode WRITE setChildNode NOTIFY childNodeChanged)
 
     Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
@@ -48,8 +48,8 @@ public:
     OSGTransformNode(QObject *parent = 0);
     virtual ~OSGTransformNode();
 
-    OSGNode *modelData();
-    void setModelData(OSGNode *node);
+    OSGNode *childNode();
+    void setChildNode(OSGNode *node);
 
     QVector3D scale() const;
     void setScale(QVector3D arg);
@@ -60,11 +60,8 @@ public:
     QVector3D position() const;
     void setPosition(QVector3D arg);
 
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
-
 signals:
-    void modelDataChanged(OSGNode *node);
+    void childNodeChanged(OSGNode *node);
 
     void scaleChanged(QVector3D arg);
     void attitudeChanged(QVector3D arg);
@@ -73,6 +70,11 @@ signals:
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

@@ -62,7 +62,7 @@ Item {
         sceneSize: info.sceneSize
         elementName: "info-bg"
         width: parent.width
-        opacity: qmlWidget.terrainEnabled ? 0.3 : 1
+        opacity: pfdContext.terrainEnabled ? 0.3 : 1
     }
 
     //
@@ -374,7 +374,7 @@ Item {
                id: reset_consumed_energy_mouseArea;
                anchors.fill: parent;
                cursorShape: Qt.PointingHandCursor;
-               onClicked: qmlWidget.resetConsumedEnergy();
+               onClicked: pfdContext.resetConsumedEnergy();
             }
 
             // Alarm based on estimatedFlightTime < 120s orange, < 60s red
@@ -452,7 +452,7 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        opacity: qmlWidget.terrainEnabled ? 0.6 : 1
+        opacity: pfdContext.terrainEnabled ? 0.6 : 1
 
         states: State {
              name: "fading"

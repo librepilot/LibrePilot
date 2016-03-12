@@ -45,19 +45,19 @@ OSGViewport {
         id: skyNode
         sceneData: terrainNode
         dateTime: Utils.getDateTime()
-        minimumAmbientLight: qmlWidget.minimumAmbientLight
+        minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGFileNode {
         id: terrainNode
-        source: qmlWidget.terrainFile
+        source: pfdContext.terrainFile
         async: false
     }
 
     OSGCamera {
         id: camera
         fieldOfView: 100
-        sceneData: terrainNode
+        sceneNode: terrainNode
         logarithmicDepthBuffer: true
         clampToTerrain: true
         manipulatorMode: ManipulatorMode.User

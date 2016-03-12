@@ -24,11 +24,11 @@
 
 // Get date
 function getDateTime() {
-    switch(qmlWidget.timeMode) {
+    switch(pfdContext.timeMode) {
     case TimeMode.Local:
          return new Date();
     case TimeMode.Predefined:
-         return qmlWidget.dateTime;
+         return pfdContext.dateTime;
     }
 }
 

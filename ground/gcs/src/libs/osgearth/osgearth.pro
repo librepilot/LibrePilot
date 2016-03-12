@@ -70,11 +70,11 @@ SOURCES += \
     osgQtQuick/OSGViewport.cpp
 
 osgearth:HEADERS += \
-    osgQtQuick/OSGModelNode.hpp \
-    osgQtQuick/OSGSkyNode.hpp
+    osgQtQuick/OSGSkyNode.hpp \
+    osgQtQuick/OSGGeoTransformNode.hpp
 
 osgearth:SOURCES += \
-    osgQtQuick/OSGModelNode.cpp \
-    osgQtQuick/OSGSkyNode.cpp
+    osgQtQuick/OSGSkyNode.cpp \
+    osgQtQuick/OSGGeoTransformNode.cpp
 
 copy_osg:include(copydata.pro)

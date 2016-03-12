@@ -29,6 +29,7 @@
 #define _H_OSGQTQUICK_OSGCAMERA_H_
 
 #include "Export.hpp"
+#include "OSGNode.hpp"
 
 #include <QObject>
 #include <QVector3D>
@@ -38,8 +39,6 @@ class View;
 }
 
 namespace osgQtQuick {
-class OSGNode;
-
 class ManipulatorMode : public QObject {
     Q_OBJECT
 public:
@@ -64,11 +63,10 @@ public:
 // TODO
 // - expose track mode
 // - provide good default distance and attitude for tracker camera
-class OSGQTQUICK_EXPORT OSGCamera : public QObject {
+class OSGQTQUICK_EXPORT OSGCamera : public OSGNode {
     Q_OBJECT Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+    Q_PROPERTY(osgQtQuick::OSGNode * sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(osgQtQuick::ManipulatorMode::Enum manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode * node READ node WRITE setNode NOTIFY nodeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(osgQtQuick::TrackerMode::Enum trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
@@ -76,6 +74,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public QObject {
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
+
+    friend class OSGViewport;
 
 public:
     explicit OSGCamera(QObject *parent = 0);
@@ -88,14 +88,11 @@ public:
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
 
-    OSGNode *sceneData();
-    void setSceneData(OSGNode *node);
+    OSGNode *sceneNode();
+    void setSceneNode(OSGNode *node);
 
     ManipulatorMode::Enum manipulatorMode() const;
     void setManipulatorMode(ManipulatorMode::Enum);
-
-    OSGNode *node() const;
-    void setNode(OSGNode *node);
 
     OSGNode *trackNode() const;
     void setTrackNode(OSGNode *node);
@@ -117,17 +114,12 @@ public:
     bool logarithmicDepthBuffer();
     void setLogarithmicDepthBuffer(bool enabled);
 
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
-
 signals:
     void fieldOfViewChanged(qreal arg);
 
-    void sceneDataChanged(OSGNode *node);
+    void sceneNodeChanged(OSGNode *node);
 
     void manipulatorModeChanged(ManipulatorMode::Enum);
-
-    void nodeChanged(OSGNode *node);
 
     void trackNodeChanged(OSGNode *node);
     void trackerModeChanged(TrackerMode::Enum);
@@ -143,6 +135,11 @@ signals:
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

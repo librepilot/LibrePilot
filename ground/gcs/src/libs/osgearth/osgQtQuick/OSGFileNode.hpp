@@ -50,7 +50,6 @@ class OSGQTQUICK_EXPORT OSGFileNode : public OSGNode {
     Q_PROPERTY(osgQtQuick::OptimizeMode::Enum optimizeMode READ optimizeMode WRITE setOptimizeMode NOTIFY optimizeModeChanged)
 
 public:
-
     OSGFileNode(QObject *parent = 0);
     virtual ~OSGFileNode();
 
@@ -71,6 +70,11 @@ signals:
 private:
     struct Hidden;
     Hidden *h;
+
+    virtual void update();
+
+    virtual void attach(osgViewer::View *view);
+    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

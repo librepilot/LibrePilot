@@ -84,8 +84,8 @@ struct OSGViewport::Hidden : public QObject {
 
 public:
 
-    Hidden(OSGViewport *quickItem) : QObject(quickItem),
-        self(quickItem),
+    Hidden(OSGViewport *viewport) : QObject(viewport),
+        self(viewport),
         window(NULL),
         sceneData(NULL),
         camera(NULL),
@@ -96,7 +96,7 @@ public:
 
         createViewer();
 
-        connect(quickItem, &OSGViewport::windowChanged, this, &Hidden::onWindowChanged);
+        connect(self, &OSGViewport::windowChanged, this, &Hidden::onWindowChanged);
     }
 
     ~Hidden()
@@ -187,7 +187,7 @@ public:
             qDebug() << "OSGViewport::attach - found map node" << mapNode;
 
             // remove light to prevent unnecessary state changes in SceneView
-            // scene will get light from sky
+            // scene will get light from sky (works only with latest > 2.7)
             // view->setLightingMode(osg::View::NO_LIGHT);
         }
 #endif
@@ -354,6 +354,10 @@ public:
         // setup graphics context and camera
         osg::GraphicsContext *gc = createGraphicsContext();
 
+        // TODO expose as Qml properties
+        view->setLightingMode(osgViewer::View::SKY_LIGHT);
+        view->getLight()->setAmbient(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
+
         osg::Camera *camera = view->getCamera();
         camera->setGraphicsContext(gc);
         camera->setViewport(0, 0, gc->getTraits()->width, gc->getTraits()->height);
@@ -459,7 +463,7 @@ public:
     ViewportRenderer(OSGViewport::Hidden *h) : h(h)
     {
         qDebug() << "ViewportRenderer::ViewportRenderer";
-        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
 
         h->initializeResources();
 
@@ -470,7 +474,7 @@ public:
     ~ViewportRenderer()
     {
         qDebug() << "ViewportRenderer::~ViewportRenderer";
-        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
     }
 
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.
@@ -489,20 +493,28 @@ public:
             return;
         }
 
-        needToDoFrame = h->viewer->checkNeedToDoFrame();
-        if (needToDoFrame) {
-            if (firstFrame) {
-                h->view->init();
-                if (!h->viewer->isRealized()) {
-                    h->viewer->realize();
-                }
-                firstFrame = false;
+        if (firstFrame) {
+            h->view->init();
+            if (!h->viewer->isRealized()) {
+                h->viewer->realize();
             }
-            osg::Viewport *viewport = h->view->getCamera()->getViewport();
-            if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
-                h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width(), item->height());
-            }
+            firstFrame = false;
+        }
 
+        needToDoFrame = false;
+        osg::Viewport *viewport = h->view->getCamera()->getViewport();
+        if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
+            needToDoFrame = true;
+            h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width(), item->height());
+        }
+
+        if (!needToDoFrame) {
+            needToDoFrame = h->viewer->checkNeedToDoFrame();
+        }
+        if (!needToDoFrame) {
+            needToDoFrame = !h->view->getEventQueue()->empty();
+        }
+        if (needToDoFrame) {
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
@@ -573,6 +585,7 @@ OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), 
 OSGViewport::~OSGViewport()
 {
     qDebug() << "OSGViewport::~OSGViewport";
+    delete h;
 }
 
 UpdateMode::Enum OSGViewport::updateMode() const
@@ -631,7 +644,7 @@ void OSGViewport::setCamera(OSGCamera *camera)
 QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
 {
     qDebug() << "OSGViewport::createRenderer";
-    osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "createRenderer");
+    // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "createRenderer");
     return new ViewportRenderer(h);
 }
 

@@ -34,6 +34,7 @@
 #include <QWidget>
 
 class QQmlEngine;
+class QSettings;
 class QuickWidgetProxy;
 class PfdQmlContext;
 
@@ -45,6 +46,8 @@ public:
     virtual ~PfdQmlGadgetWidget();
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
+    void saveState(QSettings *);
+    void restoreState(QSettings *);
 
 private:
     void setQmlFile(QString);

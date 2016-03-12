@@ -61,7 +61,7 @@ Rectangle {
                 id: worldLoader
                 anchors.fill: parent
                 focus: true
-                source: qmlWidget.terrainEnabled ? "pfd/PfdTerrainView.qml" : "pfd/PfdWorldView.qml"
+                source: pfdContext.terrainEnabled ? "pfd/PfdTerrainView.qml" : "pfd/PfdWorldView.qml"
             }
 
             Pfd.HorizontCenter {
@@ -103,7 +103,7 @@ Rectangle {
             Pfd.VsiScale {
                 anchors.fill: parent
                 sceneSize: sceneItem.viewportSize
-                visible: qmlWidget.altitudeUnit != 0
+                visible: pfdContext.altitudeUnit != 0
             }
 
             Pfd.Info {

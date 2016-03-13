@@ -48,7 +48,7 @@ public:
     OSGTransformNode(QObject *parent = 0);
     virtual ~OSGTransformNode();
 
-    OSGNode *childNode();
+    OSGNode *childNode() const;
     void setChildNode(OSGNode *node);
 
     QVector3D scale() const;
@@ -69,7 +69,7 @@ signals:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void update();
 

@@ -61,10 +61,10 @@ public:
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 
-    OSGNode *sceneNode();
+    OSGNode *sceneNode() const;
     void setSceneNode(OSGNode *node);
 
-    OSGCamera *camera();
+    OSGCamera *camera() const;
     void setCamera(OSGCamera *camera);
 
     UpdateMode::Enum updateMode() const;
@@ -104,7 +104,7 @@ protected:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

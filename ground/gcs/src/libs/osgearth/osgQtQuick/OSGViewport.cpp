@@ -88,7 +88,7 @@ struct OSGViewport::Hidden : public QObject {
     friend ViewportRenderer;
 
 private:
-    OSGViewport  *self;
+    OSGViewport *const self;
 
     QQuickWindow *window;
 
@@ -106,8 +106,6 @@ public:
     bool busy;
 
     static QtKeyboardMap keyMap;
-
-public:
 
     Hidden(OSGViewport *viewport) : QObject(viewport),
         self(viewport),
@@ -151,7 +149,6 @@ public slots:
     }
 
 public:
-
     bool acceptSceneNode(OSGNode *node)
     {
         qDebug() << "OSGViewport::acceptSceneNode" << node;
@@ -571,7 +568,7 @@ public:
     }
 
 private:
-    OSGViewport::Hidden *h;
+    OSGViewport::Hidden *const h;
 
     bool firstFrame;
     bool needToDoFrame;
@@ -596,7 +593,7 @@ OSGViewport::~OSGViewport()
     delete h;
 }
 
-OSGNode *OSGViewport::sceneNode()
+OSGNode *OSGViewport::sceneNode() const
 {
     return h->sceneNode;
 }
@@ -608,7 +605,7 @@ void OSGViewport::setSceneNode(OSGNode *node)
     }
 }
 
-OSGCamera *OSGViewport::camera()
+OSGCamera *OSGViewport::camera() const
 {
     return h->camera;
 }

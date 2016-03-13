@@ -55,16 +55,16 @@ public:
     OSGSkyNode(QObject *parent = 0);
     virtual ~OSGSkyNode();
 
-    OSGNode *sceneNode();
+    OSGNode *sceneNode() const;
     void setSceneNode(OSGNode *node);
 
-    bool sunLightEnabled();
+    bool sunLightEnabled() const;
     void setSunLightEnabled(bool arg);
 
-    QDateTime dateTime();
+    QDateTime dateTime() const;
     void setDateTime(QDateTime arg);
 
-    double minimumAmbientLight();
+    double minimumAmbientLight() const;
     void setMinimumAmbientLight(double arg);
 
 signals:
@@ -76,7 +76,7 @@ signals:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void update();
 

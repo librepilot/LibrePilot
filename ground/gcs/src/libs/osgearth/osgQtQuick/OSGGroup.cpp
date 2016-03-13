@@ -39,7 +39,7 @@ struct OSGGroup::Hidden : public QObject {
     Q_OBJECT
 
 private:
-    OSGGroup * self;
+    OSGGroup * const self;
 
     osg::ref_ptr<osg::Group>     group;
 
@@ -171,7 +171,7 @@ OSGGroup::~OSGGroup()
     delete h;
 }
 
-QQmlListProperty<OSGNode> OSGGroup::children()
+QQmlListProperty<OSGNode> OSGGroup::children() const
 {
     return QQmlListProperty<OSGNode>(h, 0,
                                      &Hidden::append_child,

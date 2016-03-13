@@ -43,11 +43,11 @@ public:
     explicit OSGGroup(QObject *parent = 0);
     virtual ~OSGGroup();
 
-    QQmlListProperty<OSGNode> children();
+    QQmlListProperty<OSGNode> children() const;
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void update();
 

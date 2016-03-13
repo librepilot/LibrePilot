@@ -41,7 +41,7 @@ struct OSGShapeNode::Hidden : public QObject {
     Q_OBJECT
 
 private:
-    OSGShapeNode * self;
+    OSGShapeNode * const self;
 
 public:
     ShapeType::Enum shapeType;

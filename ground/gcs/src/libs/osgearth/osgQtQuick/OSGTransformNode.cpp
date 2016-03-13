@@ -151,7 +151,7 @@ OSGTransformNode::~OSGTransformNode()
     delete h;
 }
 
-OSGNode *OSGTransformNode::childNode()
+OSGNode *OSGTransformNode::childNode() const
 {
     return h->childNode;
 }

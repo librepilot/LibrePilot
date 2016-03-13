@@ -54,14 +54,40 @@ namespace osgQtQuick {
 struct OSGCamera::Hidden : public QObject {
     Q_OBJECT
 
+private:
+    OSGCamera * const self;
+
+    osg::ref_ptr<osg::Camera> camera;
+
+public:
+    OSGNode *sceneNode;
+
+    // Camera vertical field of view in degrees
+    qreal   fieldOfView;
+
+    ManipulatorMode::Enum manipulatorMode;
+
+    // for NodeTrackerManipulator
+    TrackerMode::Enum     trackerMode;
+    OSGNode *trackNode;
+
+    bool    logDepthBufferEnabled;
+#ifdef USE_OSGEARTH
+    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
+#endif
+
+    bool clampToTerrain;
+    bool intoTerrain;
+
+    QVector3D attitude;
+    QVector3D position;
+
 public:
     Hidden(OSGCamera *camera) :
-        QObject(camera), self(camera), sceneNode(NULL),
+        QObject(camera), self(camera), sceneNode(NULL), fieldOfView(90),
         manipulatorMode(ManipulatorMode::Default), trackerMode(TrackerMode::NodeCenterAndAzim), trackNode(NULL),
         logDepthBufferEnabled(false), clampToTerrain(false), intoTerrain(false)
     {
-        fieldOfView    = 90.0;
-
 #ifdef USE_OSGEARTH
         logDepthBuffer = NULL;
 #endif
@@ -328,32 +354,6 @@ public:
         camera->setViewMatrix(cameraMatrix);
     }
 
-    OSGCamera *const self;
-
-    osg::ref_ptr<osg::Camera> camera;
-
-    // Camera vertical field of view in degrees
-    qreal   fieldOfView;
-
-    OSGNode *sceneNode;
-
-    ManipulatorMode::Enum manipulatorMode;
-
-    // for NodeTrackerManipulator
-    TrackerMode::Enum     trackerMode;
-    OSGNode *trackNode;
-
-    bool    logDepthBufferEnabled;
-#ifdef USE_OSGEARTH
-    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
-#endif
-
-    bool clampToTerrain;
-    bool intoTerrain;
-
-    QVector3D attitude;
-    QVector3D position;
-
 private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
@@ -383,6 +383,18 @@ OSGCamera::~OSGCamera()
     delete h;
 }
 
+OSGNode *OSGCamera::sceneNode() const
+{
+    return h->sceneNode;
+}
+
+void OSGCamera::setSceneNode(OSGNode *node)
+{
+    if (h->acceptSceneNode(node)) {
+        emit sceneNodeChanged(node);
+    }
+}
+
 qreal OSGCamera::fieldOfView() const
 {
     return h->fieldOfView;
@@ -394,18 +406,6 @@ void OSGCamera::setFieldOfView(qreal arg)
         h->fieldOfView = arg;
         setDirty(FieldOfView);
         emit fieldOfViewChanged(fieldOfView());
-    }
-}
-
-OSGNode *OSGCamera::sceneNode()
-{
-    return h->sceneNode;
-}
-
-void OSGCamera::setSceneNode(OSGNode *node)
-{
-    if (h->acceptSceneNode(node)) {
-        emit sceneNodeChanged(node);
     }
 }
 
@@ -492,7 +492,7 @@ void OSGCamera::setPosition(QVector3D arg)
     }
 }
 
-bool OSGCamera::logarithmicDepthBuffer()
+bool OSGCamera::logarithmicDepthBuffer() const
 {
     return h->logDepthBufferEnabled;
 }

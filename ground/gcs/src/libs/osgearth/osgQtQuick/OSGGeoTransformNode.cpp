@@ -201,7 +201,7 @@ OSGGeoTransformNode::~OSGGeoTransformNode()
     delete h;
 }
 
-OSGNode *OSGGeoTransformNode::childNode()
+OSGNode *OSGGeoTransformNode::childNode() const
 {
     return h->childNode;
 }
@@ -214,7 +214,7 @@ void OSGGeoTransformNode::setChildNode(OSGNode *node)
     }
 }
 
-OSGNode *OSGGeoTransformNode::sceneNode()
+OSGNode *OSGGeoTransformNode::sceneNode() const
 {
     return h->sceneNode;
 }

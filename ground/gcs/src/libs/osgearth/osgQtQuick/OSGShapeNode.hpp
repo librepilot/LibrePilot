@@ -54,7 +54,7 @@ signals:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void update();
 

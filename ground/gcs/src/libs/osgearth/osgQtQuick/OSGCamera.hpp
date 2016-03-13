@@ -64,8 +64,8 @@ public:
 // - expose track mode
 // - provide good default distance and attitude for tracker camera
 class OSGQTQUICK_EXPORT OSGCamera : public OSGNode {
-    Q_OBJECT Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
     Q_PROPERTY(osgQtQuick::ManipulatorMode::Enum manipulatorMode READ manipulatorMode WRITE setManipulatorMode NOTIFY manipulatorModeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode * trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(osgQtQuick::TrackerMode::Enum trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
@@ -81,15 +81,15 @@ public:
     explicit OSGCamera(QObject *parent = 0);
     virtual ~OSGCamera();
 
+    OSGNode *sceneNode() const;
+    void setSceneNode(OSGNode *node);
+
     // fov depends on the scenery space (probaby distance)
     // here are some value: 75°, 60°, 45° many gamers use
     // x-plane uses 45° for 4:3 and 60° for 16:9/16:10
     // flightgear uses 55° / 70°
     qreal fieldOfView() const;
     void setFieldOfView(qreal arg);
-
-    OSGNode *sceneNode();
-    void setSceneNode(OSGNode *node);
 
     ManipulatorMode::Enum manipulatorMode() const;
     void setManipulatorMode(ManipulatorMode::Enum);
@@ -111,13 +111,13 @@ public:
     QVector3D position() const;
     void setPosition(QVector3D arg);
 
-    bool logarithmicDepthBuffer();
+    bool logarithmicDepthBuffer() const;
     void setLogarithmicDepthBuffer(bool enabled);
 
 signals:
-    void fieldOfViewChanged(qreal arg);
-
     void sceneNodeChanged(OSGNode *node);
+
+    void fieldOfViewChanged(qreal arg);
 
     void manipulatorModeChanged(ManipulatorMode::Enum);
 
@@ -134,7 +134,7 @@ signals:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void update();
 

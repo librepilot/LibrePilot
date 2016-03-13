@@ -51,10 +51,10 @@ public:
     OSGGeoTransformNode(QObject *parent = 0);
     virtual ~OSGGeoTransformNode();
 
-    OSGNode *childNode();
+    OSGNode *childNode() const;
     void setChildNode(OSGNode *node);
 
-    OSGNode *sceneNode();
+    OSGNode *sceneNode() const;
     void setSceneNode(OSGNode *node);
 
     bool clampToTerrain() const;
@@ -77,7 +77,7 @@ signals:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void update();
 

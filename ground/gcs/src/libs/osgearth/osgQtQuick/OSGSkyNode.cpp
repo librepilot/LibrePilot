@@ -214,7 +214,7 @@ OSGSkyNode::~OSGSkyNode()
     delete h;
 }
 
-OSGNode *OSGSkyNode::sceneNode()
+OSGNode *OSGSkyNode::sceneNode() const
 {
     return h->sceneNode;
 }
@@ -227,7 +227,7 @@ void OSGSkyNode::setSceneNode(OSGNode *node)
     }
 }
 
-bool OSGSkyNode::sunLightEnabled()
+bool OSGSkyNode::sunLightEnabled() const
 {
     return h->sunLightEnabled;
 }
@@ -241,7 +241,7 @@ void OSGSkyNode::setSunLightEnabled(bool enabled)
     }
 }
 
-QDateTime OSGSkyNode::dateTime()
+QDateTime OSGSkyNode::dateTime() const
 {
     return h->dateTime;
 }
@@ -255,7 +255,7 @@ void OSGSkyNode::setDateTime(QDateTime dateTime)
     }
 }
 
-double OSGSkyNode::minimumAmbientLight()
+double OSGSkyNode::minimumAmbientLight() const
 {
     return h->minimumAmbientLight;
 }

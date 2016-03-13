@@ -51,11 +51,20 @@ struct OSGNode::Hidden : public QObject {
 
     friend class OSGNode;
 
+private:
+    OSGNode *const self;
+
+    osg::ref_ptr<osg::Node> node;
+
+    osg::ref_ptr<osg::NodeCallback> nodeUpdateCallback;
+
+    int dirty;
+
 public:
     Hidden(OSGNode *node) : QObject(node), self(node), dirty(0)
     {}
 
-    bool isDirty(int mask)
+    bool isDirty(int mask) const
     {
         return (dirty && mask) != 0;
     }
@@ -121,15 +130,6 @@ public:
         }
         return true;
     }
-
-private:
-    OSGNode *const self;
-
-    osg::ref_ptr<osg::Node> node;
-
-    osg::ref_ptr<osg::NodeCallback> nodeUpdateCallback;
-
-    int dirty;
 };
 
 void NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
@@ -159,12 +159,12 @@ void OSGNode::setNode(osg::Node *node)
     }
 }
 
-bool OSGNode::isDirty()
+bool OSGNode::isDirty() const
 {
     return h->isDirty(0xFFFFFFFF);
 }
 
-bool OSGNode::isDirty(int mask)
+bool OSGNode::isDirty(int mask) const
 {
     return h->isDirty(mask);
 }

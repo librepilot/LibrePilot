@@ -67,8 +67,8 @@ public:
     void setNode(osg::Node *node);
 
 protected:
-    bool isDirty();
-    bool isDirty(int mask);
+    bool isDirty() const;
+    bool isDirty(int mask) const;
     void setDirty(int mask);
     void clearDirty();
 
@@ -85,7 +85,7 @@ signals:
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 
     virtual void attach(osgViewer::View *view);
     virtual void detach(osgViewer::View *view);

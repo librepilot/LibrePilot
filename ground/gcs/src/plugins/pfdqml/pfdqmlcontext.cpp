@@ -280,10 +280,14 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
 
 void PfdQmlContext::saveState(QSettings *settings)
-{}
+{
+    Q_UNUSED(settings);
+}
 
 void PfdQmlContext::restoreState(QSettings *settings)
-{}
+{
+    Q_UNUSED(settings);
+}
 
 void PfdQmlContext::apply(QQmlContext *context)
 {

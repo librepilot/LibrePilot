@@ -116,7 +116,7 @@ GraphicsWindowQt::~GraphicsWindowQt()
 
 void GraphicsWindowQt::init()
 {
-    qDebug() << "GraphicsWindowQt::init";
+    // qDebug() << "GraphicsWindowQt::init";
     if (_closing || _initialized) {
         return;
     }
@@ -199,7 +199,7 @@ bool GraphicsWindowQt::valid() const
 
 bool GraphicsWindowQt::realizeImplementation()
 {
-    qDebug() << "GraphicsWindowQt::realizeImplementation";
+    // qDebug() << "GraphicsWindowQt::realizeImplementation";
     // save the current context
     // note: this will save only Qt-based contexts
 
@@ -224,7 +224,9 @@ bool GraphicsWindowQt::realizeImplementation()
         _surface   = new QOffscreenSurface();
         _surface->setFormat(_glContext->format());
         _surface->create();
+#ifdef OSG_VERBOSE
         osgQtQuick::formatInfo(_surface->format());
+#endif
     } else {
         qDebug() << "GraphicsWindowQt::realizeImplementation - using current context";
         _glContext = currentContext;

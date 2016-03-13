@@ -107,7 +107,9 @@ void OsgEarth::initialize()
 
     initializeCache();
 
+#ifdef OSG_VERBOSE
     displayInfo();
+#endif
 }
 
 void OsgEarth::initializePathes()

@@ -538,13 +538,12 @@ static void commandUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
  */
 static uint8_t isAssistedFlightMode(uint8_t position, uint8_t flightMode, FlightModeSettingsData *modeSettings)
 {
-    //uint8_t isAssistedFlag = FLIGHTSTATUS_FLIGHTMODEASSIST_NONE;
     StabilizationSettingsFlightModeAssistMapOptions FlightModeAssistMap[STABILIZATIONSETTINGS_FLIGHTMODEASSISTMAP_NUMELEM];
 
     StabilizationSettingsFlightModeAssistMapGet(FlightModeAssistMap);
     if (flightMode == FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE
         || position >= STABILIZATIONSETTINGS_FLIGHTMODEASSISTMAP_NUMELEM) {
-        return (FLIGHTSTATUS_FLIGHTMODEASSIST_NONE);
+        return FLIGHTSTATUS_FLIGHTMODEASSIST_NONE;
     }
 
     switch (FlightModeAssistMap[position]) {
@@ -594,22 +593,19 @@ static uint8_t isAssistedFlightMode(uint8_t position, uint8_t flightMode, Flight
         case FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ALTITUDEHOLD:
         case FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ALTITUDEVARIO:
             // this is only for use with stabi mods with althold/vario.
-            //isAssistedFlag = FLIGHTSTATUS_FLIGHTMODEASSIST_GPSASSIST_PRIMARYTHRUST;
-            //break;
             return FLIGHTSTATUS_FLIGHTMODEASSIST_GPSASSIST_PRIMARYTHRUST;
+
         case FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_MANUAL:
         case FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_CRUISECONTROL:
         default:
             // this is the default for non stabi modes also
-            //isAssistedFlag = FLIGHTSTATUS_FLIGHTMODEASSIST_GPSASSIST;
-            //break;
             return FLIGHTSTATUS_FLIGHTMODEASSIST_GPSASSIST;
         }
     }
     break;
     }
 
-    //return isAssistedFlag;
+    // return isAssistedFlag;
     return FLIGHTSTATUS_FLIGHTMODEASSIST_NONE;
 }
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */

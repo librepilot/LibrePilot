@@ -57,21 +57,21 @@
 
 // Private constants
 
-#define CALLBACK_PRIORITY CALLBACK_PRIORITY_CRITICAL
+#define CALLBACK_PRIORITY   CALLBACK_PRIORITY_CRITICAL
 
-#define UPDATE_EXPECTED   (1.0f / PIOS_SENSOR_RATE)
-#define UPDATE_MIN        1.0e-6f
-#define UPDATE_MAX        1.0f
-#define UPDATE_ALPHA      1.0e-2f
+#define UPDATE_EXPECTED     (1.0f / PIOS_SENSOR_RATE)
+#define UPDATE_MIN          1.0e-6f
+#define UPDATE_MAX          1.0f
+#define UPDATE_ALPHA        1.0e-2f
 
-#define SYSTEM_IDENT_PERIOD ((uint32_t) 75)
+#define SYSTEM_IDENT_PERIOD ((uint32_t)75)
 
 #if defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
-#define powapprox fastpow
-#define expapprox fastexp
+#define powapprox           fastpow
+#define expapprox           fastexp
 #else
-#define powapprox powf
-#define expapprox expf
+#define powapprox           powf
+#define expapprox           expf
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 // Private variables
@@ -319,7 +319,7 @@ static void stabilizationInnerloopTask()
                 pid_scaler scaler = create_pid_scaler(t);
                 actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
             }
-                break;
+            break;
             case STABILIZATIONSTATUS_INNERLOOP_ACRO:
             {
                 float stickinput[3];
@@ -340,112 +340,25 @@ static void stabilizationInnerloopTask()
             break;
 
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
-        case STABILIZATIONSTATUS_INNERLOOP_SYSTEMIDENT:
+            case STABILIZATIONSTATUS_INNERLOOP_SYSTEMIDENT:
             {
                 static int8_t identIteration = 0;
-                static float identOffsets[3] = {0};
+                float identOffsets[3];
 
                 if (PIOS_DELAY_DiffuS(systemIdentTimeVal) / 1000.0f > SYSTEM_IDENT_PERIOD) {
-                    systemIdentTimeVal = PIOS_DELAY_GetRaw();
-
-                    SystemIdentStateData systemIdentState;
-                    SystemIdentStateGet(&systemIdentState);
-// original code used 32 bit identIteration
-#if 0
                     const float SCALE_BIAS = 7.1f;
-                    float roll_scale  = expapprox(SCALE_BIAS - systemIdentState.Beta.Roll);
-                    float pitch_scale = expapprox(SCALE_BIAS - systemIdentState.Beta.Pitch);
-                    float yaw_scale   = expapprox(SCALE_BIAS - systemIdentState.Beta.Yaw);
-                    identIteration++;
+                    SystemIdentStateData systemIdentState;
 
-                    if (roll_scale > 0.25f)
-                        roll_scale = 0.25f;
-                    if (pitch_scale > 0.25f)
-                        pitch_scale = 0.25f;
-                    if (yaw_scale > 0.25f)
-                        yaw_scale = 0.25f;
-
-                    // yaw changes twice a cycle and roll/pitch changes once ?
-                    switch(identIteration & 0x07) {
-                        case 0:
-                            identOffsets[0] = 0;
-                            identOffsets[1] = 0;
-                            identOffsets[2] = yaw_scale;
-                            break;
-                        case 1:
-                            identOffsets[0] = roll_scale;
-                            identOffsets[1] = 0;
-                            identOffsets[2] = 0;
-                            break;
-                        case 2:
-                            identOffsets[0] = 0;
-                            identOffsets[1] = 0;
-                            identOffsets[2] = -yaw_scale;
-                            break;
-                        case 3:
-                            identOffsets[0] = -roll_scale;
-                            identOffsets[1] = 0;
-                            identOffsets[2] = 0;
-                            break;
-                        case 4:
-                            identOffsets[0] = 0;
-                            identOffsets[1] = 0;
-                            identOffsets[2] = yaw_scale;
-                            break;
-                        case 5:
-                            identOffsets[0] = 0;
-                            identOffsets[1] = pitch_scale;
-                            identOffsets[2] = 0;
-                            break;
-                        case 6:
-                            identOffsets[0] = 0;
-                            identOffsets[1] = 0;
-                            identOffsets[2] = -yaw_scale;
-                            break;
-                        case 7:
-                            identOffsets[0] = 0;
-                            identOffsets[1] = -pitch_scale;
-                            identOffsets[2] = 0;
-                            break;
-                    }
-#endif
-
-//good stuff here
-#if 0
-                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
-                    float scale[3] = { expapprox(SCALE_BIAS - systemIdentState.Beta.Roll),
-                                       expapprox(SCALE_BIAS - systemIdentState.Beta.Pitch),
-                                       expapprox(SCALE_BIAS - systemIdentState.Beta.Yaw) };
-
-                    if (scale[0] > 0.25f)
-                        scale[0] = 0.25f;
-                    if (scale[1] > 0.25f)
-                        scale[1] = 0.25f;
-                    if (scale[2] > 0.25f)
-                        scale[2] = 0.25f;
-
-//why did he do this fsm?
-//with yaw changing twice a cycle and roll/pitch changing once?
-                    identOffsets[0] = 0.0f;
-                    identOffsets[1] = 0.0f;
-                    identOffsets[2] = 0.0f;
-                    identIteration = (identIteration+1) & 7;
-                    uint8_t index = ((uint8_t []) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' } ) [identIteration];
-                    // if (identIteration & 2) scale[index] = -scale[index];
-                    ((uint8_t *)(&scale[index]))[3] ^= (identIteration & 2) << 6;
-                    identOffsets[index] = scale[index];
-#endif
-
-// same as stock
-#if 1
-                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
+                    SystemIdentStateGet(&systemIdentState);
+                    systemIdentTimeVal = PIOS_DELAY_GetRaw();
+                    identOffsets[0]    = 0.0f;
+                    identOffsets[1]    = 0.0f;
+                    identOffsets[2]    = 0.0f;
+                    identIteration     = (identIteration + 1) & 7;
                     // why does yaw change twice a cycle and roll/pitch change only once?
-                    identOffsets[0] = 0.0f;
-                    identOffsets[1] = 0.0f;
-                    identOffsets[2] = 0.0f;
-                    identIteration = (identIteration+1) & 7;
-                    uint8_t index = ((uint8_t []) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' } ) [identIteration];
-                    float scale = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
+                    uint8_t index = ((uint8_t[]) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' }
+                                     )[identIteration];
+                    float scale   = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
                     if (scale > 0.25f) {
                         scale = 0.25f;
                     }
@@ -464,176 +377,6 @@ static void stabilizationInnerloopTask()
                     // when identIteration==7: identOffsets[1] = -pitch_scale;
                     // each change has one axis with an offset
                     // and another axis coming back to zero from having an offset
-#endif
-
-// since we are not calculating yaw, remove it and test roll/pitch more frequently
-// perhaps this will converge faster
-#if 0
-                    const float SCALE_BIAS = 7.1f;  /* I hope this isn't actually dependant on loop time */
-                    // why does yaw change twice a cycle and roll/pitch change only once?
-                    identOffsets[0] = 0.0f;
-                    identOffsets[1] = 0.0f;
-                    identOffsets[2] = 0.0f;
-                    identIteration = (identIteration+1) & 3;
-                    uint8_t index = ((uint8_t []) { '\0', '\0', '\1', '\1' } ) [identIteration];
-                    float scale = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
-                    if (scale > 0.25f) {
-                        scale = 0.25f;
-                    }
-                    if (identIteration & 2) {
-                        scale = -scale;
-                    }
-                    identOffsets[index] = scale;
-                    // this results in:
-                    // when identIteration==0: identOffsets[0] = roll_scale;
-                    // when identIteration==1: identOffsets[1] = pitch_scale;
-                    // when identIteration==2: identOffsets[0] = -roll_scale;
-                    // when identIteration==3: identOffsets[1] = -pitch_scale;
-                    // each change has one axis with an offset
-                    // and another axis coming back to zero from having an offset
-#endif
-
-// since we are not calculating yaw, remove it
-// for a cleaner roll / pitch signal
-#if 0
-                    const float SCALE_BIAS = 7.1f;
-                    // why does yaw change twice a cycle and roll/pitch change only once?
-                    identOffsets[0] = 0.0f;
-                    identOffsets[1] = 0.0f;
-                    identOffsets[2] = 0.0f;
-                    identIteration = (identIteration+1) & 7;
-                    uint8_t index = ((uint8_t []) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' } ) [identIteration];
-//recode to this    uint8_t index = identIteration >> 2;
-                    if (identIteration & 1) {
-                        float scale = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
-                        if (scale > 0.25f) {
-                            scale = 0.25f;
-                        }
-                        if (identIteration & 2) {
-                            scale = -scale;
-                        }
-                        identOffsets[index] = scale;
-                    }
-                    // this results in:
-                    // when identIteration==0: no offset
-                    // when identIteration==1: identOffsets[0] = roll_scale;
-                    // when identIteration==2: no offset
-                    // when identIteration==3: identOffsets[0] = -roll_scale;
-                    // when identIteration==4: no offset
-                    // when identIteration==5: identOffsets[1] = pitch_scale;
-                    // when identIteration==6: no offset
-                    // when identIteration==7: identOffsets[1] = -pitch_scale;
-                    // each change is either one axis with an offset
-                    // or one axis coming back to zero from having an offset
-#endif
-
-// since we are not calculating yaw, remove it
-// for a cleaner roll / pitch signal
-#if 0
-                    const float SCALE_BIAS = 7.1f;
-                    // why does yaw change twice a cycle and roll/pitch change only once?
-                    identOffsets[0] = 0.0f;
-                    identOffsets[1] = 0.0f;
-                    identOffsets[2] = 0.0f;
-                    identIteration = (identIteration+1) % 12;
-//                  uint8_t index = ((uint8_t []) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' } ) [identIteration];
-//recode to this    uint8_t index = identIteration >> 2;
-#if 0
-                    if (identIteration < 5) {
-                        index = 0;
-                    } else {
-                        index = 1;
-                    }
-#endif
-                    uint8_t index = identIteration % 6 / 3;
-                    uint8_t identIterationMod3 = identIteration % 3;
-                    if (identIterationMod3 <= 1) {
-                        float scale = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
-                        if (scale > 0.25f) {
-                            scale = 0.25f;
-                        }
-                        if ((identIterationMod3 == 1) ^ (identIteration >= 6)) {
-                            scale = -scale;
-                        }
-                        identOffsets[index] = scale;
-                    }
-                    // this results in:
-                    // when identIteration== 0: identOffsets[0] = roll_scale;
-                    // when identIteration== 1: identOffsets[0] = -roll_scale;
-                    // when identIteration== 2: no offset
-                    // when identIteration== 3: identOffsets[1] = pitch_scale;
-                    // when identIteration== 4: identOffsets[1] = -pitch_scale;
-                    // when identIteration== 5: no offset
-                    // when identIteration== 6: identOffsets[0] = -roll_scale;
-                    // when identIteration== 7: identOffsets[0] = roll_scale;
-                    // when identIteration== 8: no offset
-                    // when identIteration== 9: identOffsets[1] = -pitch_scale;
-                    // when identIteration==10: identOffsets[1] = pitch_scale;
-                    // when identIteration==11: no offset
-                    //
-                    // each change is either an axis going from zero to +-scale
-                    // or going from +-scale to -+scale
-                    // there is a delay when changing axes
-                    //
-                    // it's not clear whether AfPredict() is designed to handle double scale perturbances on a particular axis
-                    // resulting from -offset to +offset and needs -offset to zero to +offset
-                    // as an EKF it should handle it
-#endif
-
-// one axis at a time
-// full stroke with delay between axes
-// for a cleaner signal
-// a little more difficult to fly?
-// makes slightly lower PIDs
-// yaw pids seem way high and incorrect
-#if 0
-                    const float SCALE_BIAS = 7.1f;
-                    // why does yaw change twice a cycle and roll/pitch change only once?
-                    identOffsets[0] = 0.0f;
-                    identOffsets[1] = 0.0f;
-                    identOffsets[2] = 0.0f;
-                    identIteration = (identIteration+1) % 18;
-                    uint8_t index = identIteration % 9 / 3;
-                    uint8_t identIterationMod3 = identIteration % 3;
-//                    if (identIterationMod3 <= 1) {
-                    {
-                        float scale = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
-                        if (scale > 0.25f) {
-                            scale = 0.25f;
-                        }
-                        if ((identIterationMod3 == 1) ^ (identIteration >= 9)) {
-                            scale = -scale;
-                        }
-                        identOffsets[index] = scale;
-                    }
-                    // this results in:
-                    // when identIteration== 0: identOffsets[0] = roll_scale;
-                    // when identIteration== 1: identOffsets[0] = -roll_scale;
-                    // when identIteration== 2: no offset
-                    // when identIteration== 3: identOffsets[1] = pitch_scale;
-                    // when identIteration== 4: identOffsets[1] = -pitch_scale;
-                    // when identIteration== 5: no offset
-                    // when identIteration== 6: identOffsets[2] = yaw_scale;
-                    // when identIteration== 7: identOffsets[2] = -yaw_scale;
-                    // when identIteration== 8: no offset
-                    // when identIteration== 9: identOffsets[0] = -roll_scale;
-                    // when identIteration==10: identOffsets[0] = roll_scale;
-                    // when identIteration==11: no offset
-                    // when identIteration==12: identOffsets[1] = -pitch_scale;
-                    // when identIteration==13: identOffsets[1] = pitch_scale;
-                    // when identIteration==14: no offset
-                    // when identIteration==15: identOffsets[2] = -yaw_scale;
-                    // when identIteration==16: identOffsets[2] = yaw_scale;
-                    // when identIteration==17: no offset
-                    //
-                    // each change is either an axis going from zero to +-scale
-                    // or going from +-scale to -+scale
-                    // there is a delay when changing axes
-                    //
-                    // it's not clear whether AfPredict() is designed to handle 2x scale perturbations on a particular axis
-                    // resulting from -offset to +offset and instead needs -offset to zero to +offset
-                    // ... as an EKF it should handle it
-#endif
                 }
 
                 rate[t] = boundf(rate[t],
@@ -643,8 +386,6 @@ static void stabilizationInnerloopTask()
                 pid_scaler scaler = create_pid_scaler(t);
                 actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
                 actuatorDesiredAxis[t] += identOffsets[t];
-                // we shouldn't do any clamping until after the motors are calculated and scaled?
-                //actuatorDesiredAxis[t] = boundf(actuatorDesiredAxis[t], -1.0f, 1.0f);
             }
             break;
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */

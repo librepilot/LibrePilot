@@ -78,7 +78,8 @@ static float applyExpo(float value, float expo)
  */
 void stabilizedHandler(__attribute__((unused)) bool newinit)
 {
-    static bool inited=false;
+    static bool inited = false;
+
     if (!inited) {
         inited = true;
         StabilizationDesiredInitialize();
@@ -145,6 +146,7 @@ void stabilizedHandler(__attribute__((unused)) bool newinit)
         // let autotune.c handle it
         // because it must switch to Attitude after <user configurable> seconds
         return;
+
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
     default:
         // Major error, this should not occur because only enter this block when one of these is true

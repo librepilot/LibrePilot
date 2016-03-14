@@ -274,12 +274,12 @@ static bool check_stabilization_settings(int index, bool multirotor, bool copter
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
             // we want to be able to use systemident with or without autotune
             // If this axis allows enabling an autotune behavior without the module
-            // running then set an alarm now that aututune module initializes the
+            // running then set an alarm now that autotune module initializes the
             // appropriate objects
-            //if ((modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) &&
-            //    (!TaskMonitorQueryRunning(TASKINFO_RUNNING_AUTOTUNE))) {
-            //    return false;
-            //}
+            // if ((modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) &&
+            // (!TaskMonitorQueryRunning(TASKINFO_RUNNING_AUTOTUNE))) {
+            // return false;
+            // }
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         }
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
@@ -294,7 +294,7 @@ static bool check_stabilization_settings(int index, bool multirotor, bool copter
         // For multirotors verify that roll/pitch are either attitude or rattitude
         for (uint32_t i = 0; i < FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_YAW; i++) {
             if (!(modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ATTITUDE ||
-                modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_RATTITUDE)) {
+                  modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_RATTITUDE)) {
                 return false;
             }
         }

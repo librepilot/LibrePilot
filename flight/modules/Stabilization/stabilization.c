@@ -144,7 +144,7 @@ static void StabilizationDesiredUpdatedCb(__attribute__((unused)) UAVObjEvent *e
         case STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT:
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
             // roll or pitch
-            if (t<=1) {
+            if (t <= 1) {
                 StabilizationStatusOuterLoopToArray(status.OuterLoop)[t] = STABILIZATIONSTATUS_OUTERLOOP_ATTITUDE;
             }
             // else yaw (other modes don't worry about invalid thrust mode either)
@@ -154,9 +154,9 @@ static void StabilizationDesiredUpdatedCb(__attribute__((unused)) UAVObjEvent *e
             StabilizationStatusInnerLoopToArray(status.InnerLoop)[t] = STABILIZATIONSTATUS_INNERLOOP_SYSTEMIDENT;
             break;
 #else /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
-        // no break, do not reorder this code
-        // for low power FCs just fall through to Attitude mode
-        // that means Yaw will be Attitude, but at least it is safe and creates no/minimal extra code
+            // no break, do not reorder this code
+            // for low power FCs just fall through to Attitude mode
+            // that means Yaw will be Attitude, but at least it is safe and creates no/minimal extra code
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 // do not reorder this code
         case STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE:

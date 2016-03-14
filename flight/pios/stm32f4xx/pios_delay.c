@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_delay.c
- * @author     Michael Smith Copyright (C) 2012
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             Michael Smith Copyright (C) 2012
  * @brief      Delay Functions
  *                 - Provides a micro-second granular delay using the CPU
  *                   cycle counter.

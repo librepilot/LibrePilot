@@ -3,6 +3,7 @@
 #
 # Makefile for OpenPilot UAVObject code
 #
+# Copyright (C) 2016, The LibrePilot Project, http://www.librepilot.org
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2011.
 #
 # This program is free software; you can redistribute it and/or modify

@@ -2,7 +2,7 @@
 #
 # TODO: This file should be reworked. It will be done as a part of sim target refactoring.
 #
-# Copyright (c) 2015 The LibrePilot Project, http://www.librepilot.org
+# Copyright (c) 2015-2016 The LibrePilot Project, http://www.librepilot.org
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2009.
 #
 #

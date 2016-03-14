@@ -6,7 +6,7 @@
  * @{
  * @file       sanitycheck.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Utilities to validate a flight configuration
  * @see        The GNU Public License (GPL) Version 3
  *

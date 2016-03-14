@@ -11,7 +11,8 @@
  * AttitudeDesired object (stabilized mode)
  *
  * @file       manualcontrol.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      ManualControl module. Handles safety R/C link and flight mode.
  *
  * @see        The GNU Public License (GPL) Version 3

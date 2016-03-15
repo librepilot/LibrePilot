@@ -343,7 +343,7 @@ static void stabilizationInnerloopTask()
             case STABILIZATIONSTATUS_INNERLOOP_SYSTEMIDENT:
             {
                 static int8_t identIteration = 0;
-                float identOffsets[3];
+                static float identOffsets[3] = { 0 };
 
                 if (PIOS_DELAY_DiffuS(systemIdentTimeVal) / 1000.0f > SYSTEM_IDENT_PERIOD) {
                     const float SCALE_BIAS = 7.1f;

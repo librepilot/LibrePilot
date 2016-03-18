@@ -171,7 +171,7 @@ uint32_t PIOS_DELAY_DiffuS(uint32_t raw)
 
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
 /**
- * @brief Subrtact two raw times and convert to us.
+ * @brief Subtract two raw times and convert to us.
  * @return Interval between raw times in microseconds
  */
 uint32_t PIOS_DELAY_DiffuS2(uint32_t raw, uint32_t later)

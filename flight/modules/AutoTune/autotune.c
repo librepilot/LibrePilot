@@ -39,7 +39,7 @@
 #include <flightstatus.h>
 #include <manualcontrolcommand.h>
 #include <manualcontrolsettings.h>
-#include <gyrosensor.h>
+#include <gyrostate.h>
 #include <actuatordesired.h>
 #include <stabilizationdesired.h>
 #include <stabilizationsettings.h>
@@ -183,7 +183,7 @@ int32_t AutoTuneStart(void)
         // taskHandle = PIOS_Thread_Create(AutoTuneTask, "Autotune", STACK_SIZE_BYTES, NULL, TASK_PRIORITY);
         // TaskMonitorAdd(TASKINFO_RUNNING_AUTOTUNE, taskHandle);
         // PIOS_WDG_RegisterFlag(PIOS_WDG_AUTOTUNE);
-        GyroSensorConnectCallback(AtNewGyroData);
+        GyroStateConnectCallback(AtNewGyroData);
         xTaskCreate(AutoTuneTask, "AutoTune", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &taskHandle);
         PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_AUTOTUNE, taskHandle);
     }
@@ -264,16 +264,16 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // if user toggled while armed set PID's to next in sequence 2,3,4,0,1... or 1,2,0...
                 // if smoothest is -100 and quickest is +100 this corresponds to 0,+50,+100,-100,-50... or 0,+100,-100
                 ++flightModeSwitchTogglePosition;
-                if (flightModeSwitchTogglePosition > systemIdentSettings.SmoothQuick - SMOOTH_QUICK_TOGGLE_BASE) {
+                if (flightModeSwitchTogglePosition > systemIdentSettings.SmoothQuickSource - SMOOTH_QUICK_TOGGLE_BASE) {
                     flightModeSwitchTogglePosition = 0;
                 }
             } else {
                 // if they did it disarmed, then set PID's back to AutoTune default
-                flightModeSwitchTogglePosition = (systemIdentSettings.SmoothQuick - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+                flightModeSwitchTogglePosition = (systemIdentSettings.SmoothQuickSource - SMOOTH_QUICK_TOGGLE_BASE) / 2;
             }
             ProportionPidsSmoothToQuick(0.0f,
                                         (float)flightModeSwitchTogglePosition,
-                                        (float)(systemIdentSettings.SmoothQuick - SMOOTH_QUICK_TOGGLE_BASE));
+                                        (float)(systemIdentSettings.SmoothQuickSource - SMOOTH_QUICK_TOGGLE_BASE));
             savePidNeeded = true;
         }
 
@@ -473,7 +473,7 @@ static void AtNewGyroData(UAVObjEvent *ev)
 {
     static struct at_queued_data q_item;
     static bool last_sample_unpushed = false;
-    GyroSensorData gyro;
+    GyroStateData gyro;
     ActuatorDesiredData actuators;
 
     if (!ev || !ev->obj || ev->instId != 0 || ev->event != EV_UPDATED) {
@@ -482,7 +482,7 @@ static void AtNewGyroData(UAVObjEvent *ev)
 
     // object will at times change asynchronously so must copy data here, with locking
     // and do it as soon as possible
-    GyroSensorGet(&gyro);
+    GyroStateGet(&gyro);
     ActuatorDesiredGet(&actuators);
 
     if (last_sample_unpushed) {
@@ -553,7 +553,7 @@ static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode)
 static void InitSystemIdent(bool loadDefaults)
 {
     SystemIdentSettingsGet(&systemIdentSettings);
-    uint8_t smoothQuick = systemIdentSettings.SmoothQuick;
+    uint8_t SmoothQuickSource = systemIdentSettings.SmoothQuickSource;
 
     if (loadDefaults) {
         // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
@@ -576,20 +576,20 @@ static void InitSystemIdent(bool loadDefaults)
     // default to disable PID changing with flight mode switch and accessory0-3
     accessoryToUse = -1;
     flightModeSwitchTogglePosition  = -1;
-    systemIdentSettings.SmoothQuick = SMOOTH_QUICK_DISABLED;
-    switch (smoothQuick) {
+    systemIdentSettings.SmoothQuickSource = SMOOTH_QUICK_DISABLED;
+    switch (SmoothQuickSource) {
     case SMOOTH_QUICK_ACCESSORY_BASE + 0: // use accessory0
     case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
     case SMOOTH_QUICK_ACCESSORY_BASE + 2: // use accessory2
     case SMOOTH_QUICK_ACCESSORY_BASE + 3: // use accessory3
-        accessoryToUse = smoothQuick - SMOOTH_QUICK_ACCESSORY_BASE;
-        systemIdentSettings.SmoothQuick = smoothQuick;
+        accessoryToUse = SmoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
+        systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
     case SMOOTH_QUICK_TOGGLE_BASE + 2: // use flight mode switch toggle with 3 points
     case SMOOTH_QUICK_TOGGLE_BASE + 4: // use flight mode switch toggle with 5 points
         // first test PID is in the middle of the smooth -> quick range
-        flightModeSwitchTogglePosition  = (smoothQuick - SMOOTH_QUICK_TOGGLE_BASE) / 2;
-        systemIdentSettings.SmoothQuick = smoothQuick;
+        flightModeSwitchTogglePosition  = (SmoothQuickSource - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+        systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
     }
 }
@@ -671,8 +671,9 @@ static uint8_t CheckSettingsRaw()
     if (systemIdentState.Beta.Pitch < 6) {
         retVal |= PITCH_BETA_LOW;
     }
-    if (systemIdentState.Beta.Yaw < 4) {
-        retVal |= YAW_BETA_LOW;
+//    if (systemIdentState.Beta.Yaw < 4) {
+    if (systemIdentState.Beta.Yaw < systemIdentSettings.YawBetaMin) {
+            retVal |= YAW_BETA_LOW;
     }
     // Check the response speed
     // Extreme values: Your estimated response speed (tau) is slower than normal. This will result in large PID values.
@@ -714,7 +715,8 @@ static uint8_t CheckSettings()
 // most of the doubles could be replaced with floats
 static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float noiseRate)
 {
-    StabilizationSettingsBank1Data stabSettingsBank;
+//    StabilizationSettingsBank1Data stabSettingsBank;
+    StabilizationBankData stabSettingsBank;
 
     switch (systemIdentSettings.DestinationPidBank) {
     case 1:
@@ -763,14 +765,56 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     // critically damped;
     const double zeta_o = 1.3d;
     const double kp_o   = 1.0d / 4.0d / (zeta_o * zeta_o) / (1.0d / wn);
+    const double ki_o   = 0.75d * kp_o / (2.0d * M_PI_D * tau * 10.0d);
 
-    // dRonin simply uses default PID settings for yaw
     float kpMax = 0.0f;
+    double betaMinLn = 1000.0d;
+    StabilizationBankRollRatePIDData *rollPitchPid = NULL; // satisfy compiler warning only
+
     for (int i = 0; i < ((systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_FALSE) ? 3 : 2); i++) {
-        double beta = exp(SystemIdentStateBetaToArray(systemIdentState.Beta)[i]);
-        double ki   = a * b * wn * wn * tau * tau_d / beta;
-        double kp   = tau * tau_d * ((a + b) * wn * wn + 2.0d * a * b * damp * wn) / beta - ki * tau_d;
-        double kd   = (tau * tau_d * (a * b + wn * wn + (a + b) * 2.0d * damp * wn) - 1.0d) / beta - kp * tau_d;
+        double betaLn = SystemIdentStateBetaToArray(systemIdentState.Beta)[i];
+        double beta = exp(betaLn);
+        double ki;
+        double kp;
+        double kd;
+
+        switch (i) {
+        case 0: // Roll
+        case 1: // Pitch
+            ki = a * b * wn * wn * tau * tau_d / beta;
+            kp = tau * tau_d * ((a + b) * wn * wn + 2.0d * a * b * damp * wn) / beta - ki * tau_d;
+            kd = (tau * tau_d * (a * b + wn * wn + (a + b) * 2.0d * damp * wn) - 1.0d) / beta - kp * tau_d;
+            if (betaMinLn > betaLn) {
+                betaMinLn = betaLn;
+                // RollRatePID PitchRatePID YawRatePID
+                // form an array of structures
+                // point to one
+                rollPitchPid = &(&stabSettingsBank.RollRatePID)[i];
+            }
+            break;
+        case 2: // Yaw
+            // yaw uses a mixture of yaw and the slowest axis (pitch) for it's beta and thus PID calculation
+            // calculate the ratio to use when converting from the slowest axis (pitch) to the yaw axis
+            // as (e^(betaMinLn-betaYawLn))^0.6
+            // which is (e^betaMinLn / e^betaYawLn)^0.6
+            // which is (betaMin / betaYaw)^0.6
+            // which is betaMin^0.6 / betaYaw^0.6
+            // now given that kp for each axis can be written as kpaxis = xp / betaaxis
+            // for xp that is constant across all axes
+            // then kpmin (probably kppitch) was xp / betamin (probably betapitch)
+            // which we multiply by betaMin^0.6 / betaYaw^0.6 to get the new Yaw kp
+            // so the new kpyaw is (xp / betaMin) * (betaMin^0.6 / betaYaw^0.6)
+            // which is (xp / betaMin) * (betaMin^0.6 / betaYaw^0.6)
+            // which is (xp * betaMin^0.6) / (betaMin * betaYaw^0.6)
+            // which is xp / (betaMin * betaYaw^0.6 / betaMin^0.6)
+            // which is xp / (betaMin^0.4 * betaYaw^0.6)
+            // hence the new effective betaYaw for Yaw P is (betaMin^0.4)*(betaYaw^0.6)
+            beta = exp(0.6d * (betaMinLn - (double) systemIdentState.Beta.Yaw));
+            kp = (double) rollPitchPid->Kp * beta;
+            ki = 0.8d * (double) rollPitchPid->Ki * beta;
+            kd = 0.8d * (double) rollPitchPid->Kd * beta;
+            break;
+        }
 
         if (i < 2) {
             if (kpMax < (float)kp) {
@@ -811,21 +855,26 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
             stabSettingsBank.RollRatePID.Ki = ki;
             stabSettingsBank.RollRatePID.Kd = kd;
             stabSettingsBank.RollPI.Kp = kp_o;
-            stabSettingsBank.RollPI.Ki = 0;
+            stabSettingsBank.RollPI.Ki = ki_o;
             break;
         case 1: // Pitch
             stabSettingsBank.PitchRatePID.Kp = kp;
             stabSettingsBank.PitchRatePID.Ki = ki;
             stabSettingsBank.PitchRatePID.Kd = kd;
             stabSettingsBank.PitchPI.Kp    = kp_o;
-            stabSettingsBank.PitchPI.Ki    = 0;
+            stabSettingsBank.PitchPI.Ki    = ki_o;
             break;
         case 2: // Yaw
             stabSettingsBank.YawRatePID.Kp = kp;
             stabSettingsBank.YawRatePID.Ki = ki;
             stabSettingsBank.YawRatePID.Kd = kd;
+#if 0
+            // if we ever choose to use these
+            // (e.g. mag yaw attitude)
+            // here they are
             stabSettingsBank.YawPI.Kp = kp_o;
-            stabSettingsBank.YawPI.Ki = 0;
+            stabSettingsBank.YawPI.Ki = ki_o;
+#endif
             break;
         }
     }

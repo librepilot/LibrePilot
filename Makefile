@@ -150,6 +150,9 @@ GCS_BUILD_CONF := release
 
 # Set extra configuration
 GCS_EXTRA_CONF += osg copy_osg
+ifeq ($(UNAME), Windows)
+    GCS_EXTRA_CONF += osgearth
+endif
 
 ##############################
 #

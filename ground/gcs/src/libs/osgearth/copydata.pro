@@ -11,7 +11,7 @@ contains(QT_ARCH, x86_64)  {
 }
 
 # set debug suffix if needed
-#win32:CONFIG(debug, debug|release):DS = "d"
+win32:CONFIG(debug, debug|release):DS = "d"
 
 osg:linux {
     # copy osg libraries
@@ -62,7 +62,7 @@ osg:win32 {
 
     # other
     OSG_LIBS += \
-        libproj-9.dll \
+        libjpeg-8.dll \
         libfreetype-6.dll \
         libpng16-16.dll \
         libiconv-2.dll \
@@ -190,7 +190,6 @@ osgearth:win32 {
         libgdal-20.dll \
         libgeos_c.dll \
         libgeos.dll \
-        libjpeg-8.dll \
         libopenjp2-7.dll \
         libtiff-5.dll \
         liblzma-5.dll

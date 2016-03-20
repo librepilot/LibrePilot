@@ -20,19 +20,43 @@ You can use brew with `brew install git curl p7zip` or macport with `sudo port i
 
 ### Windows
 
-Install [Msys2](https://msys2.github.io/) following the instructions on the web site. You can either install the i686 (32 bit) or x86_64 (64 bit) version.
+## Install [Msys2](https://msys2.github.io/)
 
-Start a *MinGW-w64 Win32 Shell* or *MinGW-w64 Win64 Shell* (but **not** a *MSYS2 Shell*).
+Follow the instructions on the web site. You can either install the i686 (Win32) or x86_64 (Win64) version.
+It is recommended to go for the Win64 Shell if possible.
+The x86_64 version has both Win32 and Win64 shells and it is possible to build both i686 and x86_64 applications.
 
-Install the dependent packages that match your MinGW shell.
+## Add the LibrePilot MinGW package repository
 
-For 32 bit:
+Add the following lines at the end of your /etc/pacman.conf file:
 
-    pacman -S --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl mingw-w64-i686-OpenSceneGraph mingw-w64-i686-osgearth
+    [librepilot-mingw]
+    SigLevel = Optional TrustAll
+    Server = http://download.librepilot.org/repo/mingw
 
-For 64 bit:
+## Install required packages
 
-    pacman -S --needed git unzip tar mingw-w64-x86_64-toolchain mingw-w64-x86_64-qt5 mingw-w64-x86_64-SDL mingw-w64-x86_64-mesa mingw-w64-x86_64-openssl mingw-w64-x86_64-OpenSceneGraph mingw-w64-x86_64-osgearth
+# For i686 applications
+
+Start a MinGW-w64 Win64 Shell or a MinGW-w64 Win32 Shell.
+
+    pacman -Sy
+    pacman -S --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-ccache mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl mingw-w64-i686-gdal-minimal mingw-w64-i686-OpenSceneGraph mingw-w64-i686-osgearth
+
+Optionally install debug packages:
+
+    pacman -S --needed mingw-w64-i686-OpenSceneGraph-debug mingw-w64-i686-osgearth-debug
+
+# For x86_64 applications
+
+Start a MinGW-w64 Win64 Shell.
+
+    pacman -Sy
+    pacman -S --needed git unzip tar mingw-w64-x86_64-toolchain mingw-w64-x86_64-ccache mingw-w64-x86_64-qt5 mingw-w64-x86_64-SDL mingw-w64-x86_64-mesa mingw-w64-x86_64-openssl mingw-w64-x86_64-gdal-minimal mingw-w64-x86_64-OpenSceneGraph mingw-w64-x86_64-osgearth
+
+Optionally install debug packages:
+
+    pacman -S --needed mingw-w64-x86_64-OpenSceneGraph-debug mingw-w64-x86_64-osgearth-debug
 
 **NOTE** On Windows you need to run the mingw version of make, which is `mingw32-make`
 

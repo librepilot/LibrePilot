@@ -27,27 +27,16 @@
 
 #include "OSGNode.hpp"
 
+#include "DirtySupport.hpp"
+
 #include <osg/Node>
-#include <osg/NodeVisitor>
 
 #include <QDebug>
 
 namespace osgQtQuick {
 class OSGNode;
-class Hidden;
 
-struct OSGNode::NodeUpdateCallback : public osg::NodeCallback {
-public:
-    NodeUpdateCallback(OSGNode::Hidden *h) : h(h)
-    {}
-
-    void operator()(osg::Node *node, osg::NodeVisitor *nv);
-
-private:
-    OSGNode::Hidden *const h;
-};
-
-struct OSGNode::Hidden : public QObject {
+struct OSGNode::Hidden : public QObject, public DirtySupport {
     Q_OBJECT
 
     friend class OSGNode;
@@ -57,48 +46,20 @@ private:
 
     osg::ref_ptr<osg::Node> node;
 
-    osg::ref_ptr<osg::NodeCallback> nodeUpdateCallback;
-
     bool complete;
-    int  dirty;
 
 public:
-    Hidden(OSGNode *self) : QObject(self), self(self), complete(false), dirty(0)
+    Hidden(OSGNode *self) : QObject(self), self(self), complete(false) /*, dirty(0)*/
     {}
 
-    bool isDirty(int mask) const
+    osg::Node *hookNode() const
     {
-        return (dirty & mask) != 0;
-    }
-
-    void setDirty(int mask)
-    {
-        if (!dirty) {
-            if (node) {
-                if (!nodeUpdateCallback.valid()) {
-                    // lazy creation
-                    nodeUpdateCallback = new NodeUpdateCallback(this);
-                }
-                node->addUpdateCallback(nodeUpdateCallback.get());
-            }
-        }
-        dirty |= mask;
-    }
-
-    void clearDirty()
-    {
-        if (node && nodeUpdateCallback.valid()) {
-            node->removeUpdateCallback(nodeUpdateCallback.get());
-        }
-        dirty = 0;
+        return self->node();
     }
 
     void update()
     {
-        if (dirty) {
-            self->update();
-        }
-        clearDirty();
+        return self->update();
     }
 
     bool acceptNode(osg::Node *aNode)
@@ -106,31 +67,20 @@ public:
         if (node == aNode) {
             return false;
         }
-        if (node && dirty) {
-            node->setUpdateCallback(NULL);
+
+        int flags = dirty();
+        if (flags) {
+            clearDirty();
         }
         node = aNode;
         if (node) {
-            if (dirty) {
-                if (!nodeUpdateCallback.valid()) {
-                    // lazy creation
-                    nodeUpdateCallback = new NodeUpdateCallback(this);
-                }
-                node->setUpdateCallback(nodeUpdateCallback);
+            if (flags) {
+                setDirty(flags);
             }
         }
         return true;
     }
 };
-
-/* struct OSGNode::NodeUpdateCallback */
-
-void OSGNode::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
-{
-    // qDebug() << "OSGNode::NodeUpdateCallback";
-    nv->traverse(*node);
-    h->update();
-}
 
 /* class OSGNode */
 
@@ -152,11 +102,6 @@ void OSGNode::setNode(osg::Node *node)
     if (h->acceptNode(node)) {
         emitNodeChanged();
     }
-}
-
-bool OSGNode::isDirty() const
-{
-    return h->isDirty(0xFFFFFFFF);
 }
 
 bool OSGNode::isDirty(int mask) const

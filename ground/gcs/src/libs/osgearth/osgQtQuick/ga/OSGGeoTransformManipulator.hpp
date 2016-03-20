@@ -41,9 +41,6 @@ class OSGQTQUICK_EXPORT OSGGeoTransformManipulator : public OSGCameraManipulator
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
 
-    friend class NodeUpdateCallback;
-    friend class MyManipulator;
-
 public:
     explicit OSGGeoTransformManipulator(QObject *parent = 0);
     virtual ~OSGGeoTransformManipulator();
@@ -70,8 +67,9 @@ protected:
 
 private:
     struct Hidden;
-    struct NodeUpdateCallback;
     Hidden *const h;
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 

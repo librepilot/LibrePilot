@@ -48,6 +48,7 @@ SOURCES += \
 
 HEADERS += \
     osgQtQuick/Export.hpp \
+    osgQtQuick/DirtySupport.hpp \
     osgQtQuick/OSGNode.hpp \
     osgQtQuick/OSGGroup.hpp \
     osgQtQuick/OSGTransformNode.hpp \
@@ -59,6 +60,7 @@ HEADERS += \
     osgQtQuick/OSGViewport.hpp
 
 SOURCES += \
+    osgQtQuick/DirtySupport.cpp \
     osgQtQuick/OSGNode.cpp \
     osgQtQuick/OSGGroup.cpp \
     osgQtQuick/OSGTransformNode.cpp \

@@ -32,7 +32,6 @@
 
 #include <osg/Matrix>
 #include <osg/Node>
-#include <osg/NodeVisitor>
 #include <osg/Vec3d>
 
 #include <osgGA/CameraManipulator>
@@ -96,29 +95,14 @@ private:
     osg::ref_ptr<osg::Node> node;
 };
 
-struct OSGGeoTransformManipulator::NodeUpdateCallback : public osg::NodeCallback {
-public:
-    NodeUpdateCallback(OSGGeoTransformManipulator::Hidden *h) : h(h)
-    {}
-
-    void operator()(osg::Node *node, osg::NodeVisitor *nv);
-
-private:
-    OSGGeoTransformManipulator::Hidden *const h;
-};
-
 struct OSGGeoTransformManipulator::Hidden : public QObject {
     Q_OBJECT
 
 private:
     OSGGeoTransformManipulator * const self;
 
-    osg::ref_ptr<osg::NodeCallback> nodeUpdateCallback;
-
     osg::Matrix cameraPosition;
     osg::Matrix cameraRotation;
-
-    bool dirty;
 
 public:
     osg::ref_ptr<MyManipulator> manipulator;
@@ -129,7 +113,7 @@ public:
     bool clampToTerrain;
     bool intoTerrain;
 
-    Hidden(OSGGeoTransformManipulator *self) : QObject(self), self(self), dirty(false), clampToTerrain(false), intoTerrain(false)
+    Hidden(OSGGeoTransformManipulator *self) : QObject(self), self(self), clampToTerrain(false), intoTerrain(false)
     {
         manipulator = new MyManipulator();
         self->setManipulator(manipulator);
@@ -137,45 +121,6 @@ public:
 
     ~Hidden()
     {}
-
-    // TODO factorize up
-    void setDirty()
-    {
-        if (dirty) {
-            return;
-        }
-        // qDebug() << "OSGGeoTransformManipulator::setDirty";
-        dirty = true;
-        osg::Node *node = manipulator->getNode();
-        if (node) {
-            if (!nodeUpdateCallback.valid()) {
-                // lazy creation
-                nodeUpdateCallback = new NodeUpdateCallback(this);
-            }
-            node->addUpdateCallback(nodeUpdateCallback.get());
-        } else {
-            qWarning() << "OSGGeoTransformManipulator::setDirty - no node...";
-        }
-    }
-
-    // TODO factorize up
-    void clearDirty()
-    {
-        // qDebug() << "OSGGeoTransformManipulator::clearDirty";
-        osg::Node *node = manipulator->getNode();
-
-        if (node && nodeUpdateCallback.valid()) {
-            node->removeUpdateCallback(nodeUpdateCallback.get());
-        }
-        dirty = false;
-    }
-
-    void update()
-    {
-        updatePosition();
-        updateAttitude();
-        updateManipulator();
-    }
 
     void updateManipulator()
     {
@@ -256,16 +201,6 @@ void MyManipulator::updateCamera(osg::Camera & camera)
     CameraManipulator::updateCamera(camera);
 }
 
-/* struct OSGGeoTransformManipulator::NodeUpdateCallback */
-
-void OSGGeoTransformManipulator::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
-{
-    // qDebug() << "OSGGeoTransformManipulator::NodeUpdateCallback";
-    nv->traverse(*node);
-    h->update();
-    h->clearDirty();
-}
-
 /* class OSGGeoTransformManipulator */
 
 OSGGeoTransformManipulator::OSGGeoTransformManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
@@ -304,7 +239,7 @@ void OSGGeoTransformManipulator::setAttitude(QVector3D arg)
 {
     if (h->attitude != arg) {
         h->attitude = arg;
-        h->setDirty();
+        setDirty();
         emit attitudeChanged(attitude());
     }
 }
@@ -318,7 +253,7 @@ void OSGGeoTransformManipulator::setPosition(QVector3D arg)
 {
     if (h->position != arg) {
         h->position = arg;
-        h->setDirty();
+        setDirty();
         emit positionChanged(position());
     }
 }
@@ -329,8 +264,15 @@ void OSGGeoTransformManipulator::componentComplete()
     OSGCameraManipulator::componentComplete();
 
     qDebug() << "OSGGeoTransformManipulator::componentComplete" << this;
-    h->update();
-    h->clearDirty();
+    update();
+    clearDirty();
+}
+
+void OSGGeoTransformManipulator::update()
+{
+    h->updatePosition();
+    h->updateAttitude();
+    h->updateManipulator();
 }
 } // namespace osgQtQuick
 

@@ -100,9 +100,7 @@ public:
             qDebug() << "OSGCamera::updateClearColor - invalid camera";
             return;
         }
-
-        qDebug() << "OSGCamera::updateClearColor" << clearColor;
-
+        // qDebug() << "OSGCamera::updateClearColor" << clearColor;
         camera->setClearColor(osg::Vec4(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()));
     }
 
@@ -145,11 +143,12 @@ public:
 
     void updateLogDepthBuffer()
     {
-        qDebug() << "OSGCamera::updateLogDepthBuffer" << logDepthBufferEnabled;
         if (!camera.valid()) {
             qWarning() << "OSGCamera::updateLogDepthBuffer - invalid camera";
             return;
         }
+        // qDebug() << "OSGCamera::updateLogDepthBuffer" << logDepthBufferEnabled;
+
 #ifdef USE_OSGEARTH
         // install log depth buffer if requested
         if (logDepthBufferEnabled && !logDepthBuffer) {

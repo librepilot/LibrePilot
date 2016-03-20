@@ -144,7 +144,7 @@ public:
 
     void updatePosition()
     {
-        qDebug() << "OSGGeoTransformNode::updatePosition" << position;
+        // qDebug() << "OSGGeoTransformNode::updatePosition" << position;
 
         osgEarth::MapNode *mapNode = NULL;
         if (sceneNode && sceneNode->node()) {

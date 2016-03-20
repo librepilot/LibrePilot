@@ -57,9 +57,9 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
 
-public:
     friend class ViewportRenderer;
 
+public:
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
 

@@ -59,6 +59,10 @@ signals:
     void sceneNodeChanged(OSGNode *node);
 
 protected:
+    bool isDirty(int mask = 0xFFFF) const;
+    void setDirty(int mask = 0xFFFF);
+    void clearDirty();
+
     void classBegin();
     void componentComplete();
 
@@ -68,6 +72,8 @@ protected:
 private:
     struct Hidden;
     Hidden *const h;
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 

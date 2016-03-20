@@ -72,7 +72,30 @@
    which will separate the clip plane calculations of the helicopter from those of the earth. *
 
    TODO : add OSGView to handle multiple views for a given OSGViewport
- */
+*/
+
+/*
+   that's a typical error when working with high-resolution (retina)
+   displays. The issue here is that on the high-resolution devices, the UI
+   operates with a virtual pixel size that is smaller than the real number
+   of pixels on the device. For example, you get coordinates from 0 to 2048
+   while the real device resolution if 4096 pixels. This factor has to be
+   taken into account when mapping from window coordinates to OpenGL, e.g.,
+   when calling glViewport.
+
+   How you can get this factor depends on the GUI library you are using. In
+   Qt, you can query it with QWindow::devicePixelRatio():
+   http://doc.qt.io/qt-5/qwindow.html#devicePixelRatio
+
+   So, there should be something like
+   glViewport(0, 0, window->width() * window->devicePixelRatio(),
+   window->height() * window->devicePixelRatio()).
+
+   Also keep in mind that you have to do the same e.g. for mouse coordinates.
+
+   I think osgQt already handles this correctly, so you shouldn't have to
+   worry about this if you use the classes provided by osgQt ...
+*/
 
 namespace osgQtQuick {
 enum DirtyFlag { Scene = 1 << 0, Camera = 1 << 1 };
@@ -92,7 +115,6 @@ private:
     int frameTimer;
 
     osg::ref_ptr<osg::GraphicsContext> gc;
-
 
 public:
     OSGNode   *sceneNode;
@@ -483,12 +505,12 @@ public:
 
         osg::Viewport *viewport = h->view->getCamera()->getViewport();
         if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
-            qDebug() << "*** RESIZE" << frameCount << viewport->width() << "x" << viewport->height() << "->" << item->width() << "x" << item->height();
+            // qDebug() << "*** RESIZE" << frameCount << viewport->width() << "x" << viewport->height() << "->" << item->width() << "x" << item->height();
             needToDoFrame = true;
+
             // h->view->getCamera()->resize(item->width(), item->height());
             int dpr = h->self->window()->devicePixelRatio();
             h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width() * dpr, item->height() * dpr);
-            // h->view.get()->getEventQueue()->windowResize(0, 0, item->width() * dpr, item->height() * dpr);
 
             // trick to force a "home" on first few frames to absorb initial spurious resizes
             if (frameCount <= 2) {
@@ -498,15 +520,10 @@ public:
 
         // refresh busy state
         h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
-
         // TODO also expose request list size to Qml
         if (h->view->getDatabasePager()->getFileRequestListSize() > 0) {
             // qDebug() << h->view->getDatabasePager()->getFileRequestListSize();
         }
-
-        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
-        // TODO also expose request list size to Qml
-        // qDebug() << h->view->getDatabasePager()->getFileRequestListSize();
 
         if (!needToDoFrame) {
             needToDoFrame = h->viewer->checkNeedToDoFrame();
@@ -520,29 +537,10 @@ public:
         }
         if (needToDoFrame) {
             // qDebug() << "ViewportRenderer::synchronize - update scene" << frameCount;
-
-            // info();
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
         }
-    }
-
-    void info()
-    {
-        if (!h->view.valid()) {
-            return;
-        }
-        // If the database pager is going to update the scene the render flag is
-        // set so that the updates show up
-        qDebug() << "DatabasePager" << (h->view->getDatabasePager()->requiresUpdateSceneGraph() || h->view->getDatabasePager()->getRequestsInProgress());
-
-        // if there update callbacks then we need to do frame.
-        qDebug() << "Camera" << (h->view->getCamera()->getUpdateCallback());
-        qDebug() << "Scene" << (h->view->getSceneData() && h->view->getSceneData()->getNumChildrenRequiringUpdateTraversal() > 0);
-
-        // check if events are available and need processing
-        qDebug() << "Events" << (h->viewer->checkEvents());
     }
 
     // This function is called when the FBO should be rendered into.
@@ -581,34 +579,7 @@ public:
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         // format.setSamples(4);
 
-        /**
-         * that's a typical error when working with high-resolution (retina)
-           displays. The issue here is that on the high-resolution devices, the UI
-           operates with a virtual pixel size that is smaller than the real number
-           of pixels on the device. For example, you get coordinates from 0 to 2048
-           while the real device resolution if 4096 pixels. This factor has to be
-           taken into account when mapping from window coordinates to OpenGL, e.g.,
-           when calling glViewport.
-
-           How you can get this factor depends on the GUI library you are using. In
-           Qt, you can query it with QWindow::devicePixelRatio():
-           http://doc.qt.io/qt-5/qwindow.html#devicePixelRatio
-
-           So, there should be something like
-           glViewport(0, 0, window->width() * window->devicePixelRatio(),
-           window->height() * window->devicePixelRatio()).
-
-           Also keep in mind that you have to do the same e.g. for mouse coordinates.
-
-           I think osgQt already handles this correctly, so you shouldn't have to
-           worry about this if you use the classes provided by osgQt ...
-         */
-        // Keeping this for reference :
-        // Mac need(ed) to have devicePixelRatio (dpr) taken into account (i.e. dpr = 2).
-        // Further tests on Mac have shown that although dpr is still 2 it should not be used to scale the fbo.
-        // Note that getting the window to get the devicePixelRatio is not great (messing with windows is often a bad idea...)
-        int dpr = 1; // h->self->window()->devicePixelRatio();
-        QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width() / dpr, size.height() / dpr, format);
+        QOpenGLFramebufferObject *fbo = new QOpenGLFramebufferObject(size.width(), size.height(), format);
 
         return fbo;
     }
@@ -731,7 +702,7 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
 {
     // qDebug() << "OSGViewport::updatePaintNode";
     if (!node) {
-        qDebug() << "OSGViewport::updatePaintNode - set transform";
+        // qDebug() << "OSGViewport::updatePaintNode - set transform";
         node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
         QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
         return node;

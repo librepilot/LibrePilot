@@ -102,7 +102,7 @@ public:
 
     void updateScale()
     {
-        qDebug() << "OSGTransformNode::updateScale" << scale;
+        // qDebug() << "OSGTransformNode::updateScale" << scale;
         if ((scale.x() != 0.0) || (scale.y() != 0.0) || (scale.z() != 0.0)) {
             transform->setScale(osg::Vec3d(scale.x(), scale.y(), scale.z()));
             // transform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);

@@ -27,6 +27,7 @@
 
 #include "OSGCameraManipulator.hpp"
 
+#include "../DirtySupport.hpp"
 #include "../OSGNode.hpp"
 
 #include <osgGA/CameraManipulator>
@@ -34,11 +35,13 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-struct OSGCameraManipulator::Hidden : public QObject {
+struct OSGCameraManipulator::Hidden : public QObject, public DirtySupport {
     Q_OBJECT
 
+    friend class OSGCameraManipulator;
+
 private:
-    OSGCameraManipulator * const self;
+    OSGCameraManipulator *const self;
 
 public:
     osg::ref_ptr<osgGA::CameraManipulator> manipulator;
@@ -51,6 +54,16 @@ public:
 
     ~Hidden()
     {}
+
+    osg::Node *hookNode() const
+    {
+        return manipulator->getNode();
+    }
+
+    void update()
+    {
+        return self->update();
+    }
 
     bool acceptSceneNode(OSGNode *node)
     {
@@ -113,6 +126,21 @@ void OSGCameraManipulator::setSceneNode(OSGNode *node)
     }
 }
 
+bool OSGCameraManipulator::isDirty(int mask) const
+{
+    return h->isDirty(mask);
+}
+
+void OSGCameraManipulator::setDirty(int mask)
+{
+    h->setDirty(mask);
+}
+
+void OSGCameraManipulator::clearDirty()
+{
+    h->clearDirty();
+}
+
 void OSGCameraManipulator::classBegin()
 {
     // qDebug() << "OSGCameraManipulator::classBegin" << this;
@@ -138,6 +166,9 @@ osgGA::CameraManipulator *OSGCameraManipulator::asCameraManipulator() const
 {
     return h->manipulator;
 }
+
+void OSGCameraManipulator::update()
+{}
 } // namespace osgQtQuick
 
 #include "OSGCameraManipulator.moc"

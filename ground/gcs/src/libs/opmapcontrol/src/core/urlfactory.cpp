@@ -377,9 +377,9 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
         // http://129.206.74.245:8001/tms_r.ashx?x=37378&y=20826&z=16
 
 #ifdef DEBUG_URLFACTORY
-        qDebug() << QString("http://129.206.74.245:8001/tms_r.ashx?x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
+        qDebug() << QString("http://129.206.66.245:8001/tms_r.ashx?x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
 #endif
-        return QString("http://129.206.74.245:8001/tms_r.ashx?x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
+        return QString("http://129.206.66.245:8001/tms_r.ashx?x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
     }
     break;
     case MapType::OpenStreetMapSurferTerrain:
@@ -387,9 +387,9 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
         // http://korona.geog.uni-heidelberg.de/tiles/asterh/x=501&y=388&z=10
 
 #ifdef DEBUG_URLFACTORY
-        qDebug() << QString("http://korona.geog.uni-heidelberg.de/tiles/asterh/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
+        qDebug() << QString("http://129.206.66.245/tiles/asterh/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
 #endif
-        return QString("http://korona.geog.uni-heidelberg.de/tiles/asterh/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
+        return QString("http://129.206.66.245/tiles/asterh/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
     }
     break;
     case MapType::BingMap:

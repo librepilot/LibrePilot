@@ -41,7 +41,8 @@ ProviderStrings::ProviderStrings()
 {
     // Google version strings
     VersionGoogleMap       = "m@301";
-    VersionGoogleSatellite = "184";
+    QString version = qgetenv("GCS_GOOGLE_SAT_VERSION").constData();
+    VersionGoogleSatellite = version.isEmpty() ? "193" : version;
     VersionGoogleLabels    = "h@301";
     VersionGoogleTerrain   = "t@132,r@301";
     SecGoogleWord = "Galileo";

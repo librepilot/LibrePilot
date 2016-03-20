@@ -37,15 +37,13 @@ OPMaps *OPMaps::Instance()
     }
     return m_pInstance;
 }
+
 OPMaps::OPMaps() : RetryLoadTile(2), useMemoryCache(true)
 {
     accessmode  = AccessMode::ServerAndCache;
-    // Need to figure out why this is *fixed* to Portugese. This casues pt-PT to be sent with every Google request
-    Language    = LanguageType::PortuguesePortugal;
-    LanguageStr = LanguageType().toShortString(Language);
+    LanguageStr = QLocale().bcp47Name();
     Cache::Instance();
 }
-
 
 OPMaps::~OPMaps()
 {

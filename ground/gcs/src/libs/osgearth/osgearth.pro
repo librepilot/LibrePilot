@@ -69,6 +69,16 @@ SOURCES += \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
 
+HEADERS += \
+    osgQtQuick/ga/OSGCameraManipulator.hpp \
+    osgQtQuick/ga/OSGNodeTrackerManipulator.hpp \
+    osgQtQuick/ga/OSGTrackballManipulator.hpp
+
+SOURCES += \
+    osgQtQuick/ga/OSGCameraManipulator.cpp \
+    osgQtQuick/ga/OSGNodeTrackerManipulator.cpp \
+    osgQtQuick/ga/OSGTrackballManipulator.cpp
+
 osgearth:HEADERS += \
     osgQtQuick/OSGSkyNode.hpp \
     osgQtQuick/OSGGeoTransformNode.hpp
@@ -76,5 +86,13 @@ osgearth:HEADERS += \
 osgearth:SOURCES += \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGGeoTransformNode.cpp
+
+osgearth:HEADERS += \
+    osgQtQuick/ga/OSGEarthManipulator.hpp \
+    osgQtQuick/ga/OSGGeoTransformManipulator.hpp
+
+osgearth:SOURCES += \
+    osgQtQuick/ga/OSGEarthManipulator.cpp \
+    osgQtQuick/ga/OSGGeoTransformManipulator.cpp
 
 copy_osg:include(copydata.pro)

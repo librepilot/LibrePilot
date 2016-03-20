@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGTextNode.hpp
+ * @file       OSGEarthManipulator.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -25,39 +25,46 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGTEXTNODE_H_
-#define _H_OSGQTQUICK_OSGTEXTNODE_H_
+#include "OSGEarthManipulator.hpp"
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../OSGNode.hpp"
 
-#include <QColor>
+#include <osgEarthUtil/EarthManipulator>
+
+#include <QDebug>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-
-public:
-    explicit OSGTextNode(QObject *parent = 0);
-    virtual ~OSGTextNode();
-
-    QString text() const;
-    void setText(const QString &text);
-
-    QColor color() const;
-    void setColor(const QColor &color);
-
-signals:
-    void textChanged(const QString &text);
-    void colorChanged(const QColor &color);
+struct OSGEarthManipulator::Hidden : public QObject {
+    Q_OBJECT
 
 private:
-    struct Hidden;
-    Hidden *const h;
+    OSGEarthManipulator * const self;
 
-    virtual void update();
+public:
+    osg::ref_ptr<osgEarth::Util::EarthManipulator> manipulator;
+
+    Hidden(OSGEarthManipulator *self) : QObject(self), self(self)
+    {
+        manipulator = new osgEarth::Util::EarthManipulator(
+            /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
+        manipulator->getSettings()->setThrowingEnabled(true);
+        self->setManipulator(manipulator);
+    }
+
+    ~Hidden()
+    {}
 };
+
+/* class OSGEarthManipulator */
+
+OSGEarthManipulator::OSGEarthManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
+{}
+
+OSGEarthManipulator::~OSGEarthManipulator()
+{
+    qDebug() << "OSGEarthManipulator::~OSGEarthManipulator";
+    delete h;
+}
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGTEXTNODE_H_
+#include "OSGEarthManipulator.moc"

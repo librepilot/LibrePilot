@@ -72,9 +72,6 @@ private:
     Hidden *const h;
 
     virtual void update();
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

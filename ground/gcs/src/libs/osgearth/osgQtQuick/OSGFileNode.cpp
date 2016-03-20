@@ -37,11 +37,14 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { Source = 1 << 0, Async = 1 << 1, OptimizeMode = 1 << 2 };
+
 class OSGFileLoader : public QThread {
     Q_OBJECT
 
 public:
-    OSGFileLoader(const QUrl &url) : url(url) {}
+    OSGFileLoader(const QUrl &url) : url(url)
+    {}
 
     void run()
     {
@@ -54,9 +57,12 @@ public:
         QElapsedTimer t;
 
         t.start();
-        qDebug() << "OSGFileLoader::load - reading node file" << url.path();
+        // qDebug() << "OSGFileLoader::load - reading node file" << url.path();
         // qDebug() << "OSGFileLoader - load - currentContext" << QOpenGLContext::currentContext();
         osg::Node *node = osgDB::readNodeFile(url.path().toStdString());
+        if (!node) {
+            qWarning() << "OSGFileLoader::load - failed to load" << url.path();
+        }
         // qDebug() << "OSGFileLoader::load - reading node" << node << "took" << t.elapsed() << "ms";
         return node;
     }
@@ -79,11 +85,12 @@ public:
     bool async;
     OptimizeMode::Enum optimizeMode;
 
-    Hidden(OSGFileNode *node) : QObject(node), self(node), source(), async(false), optimizeMode(OptimizeMode::None) {}
+    Hidden(OSGFileNode *self) : QObject(self), self(self), source(), async(false), optimizeMode(OptimizeMode::None)
+    {}
 
     void updateNode()
     {
-        // qDebug() << "OSGFileNode::updateNode" << source;
+        qDebug() << "OSGFileNode::updateNode" << source;
         if (!source.isValid()) {
             self->setNode(NULL);
             if (!source.isEmpty()) {
@@ -118,7 +125,7 @@ private:
 
     void setNode(osg::Node *node)
     {
-        qDebug() << "OSGFileNode::setNode" << node;
+        // qDebug() << "OSGFileNode::setNode" << node;
         if (node && optimizeMode != OptimizeMode::None) {
             // qDebug() << "OSGFileNode::acceptNode - optimize" << node << optimizeMode;
             osgUtil::Optimizer optimizer;
@@ -139,18 +146,12 @@ private slots:
 
 /* class OSGFileNode */
 
-enum DirtyFlag { Source = 1 << 0, Async = 1 << 1, OptimizeMode = 1 << 2 };
-
 OSGFileNode::OSGFileNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
-{
-    qDebug() << "OSGFileNode::OSGFileNode";
-    setAsync(false);
-    setOptimizeMode(OptimizeMode::None);
-}
+{}
 
 OSGFileNode::~OSGFileNode()
 {
-    // qDebug() << "OSGFileNode::~OSGFileNode";
+    qDebug() << "OSGFileNode::~OSGFileNode";
     delete h;
 }
 
@@ -161,7 +162,6 @@ const QUrl OSGFileNode::source() const
 
 void OSGFileNode::setSource(const QUrl &source)
 {
-    qDebug() << "OSGFileNode::setSource" << source;
     if (h->source != source) {
         h->source = source;
         setDirty(Source);
@@ -176,7 +176,6 @@ bool OSGFileNode::async() const
 
 void OSGFileNode::setAsync(const bool async)
 {
-    // qDebug() << "OSGFileNode::setAsync" << async;
     if (h->async != async) {
         h->async = async;
         setDirty(Async);
@@ -191,7 +190,6 @@ OptimizeMode::Enum OSGFileNode::optimizeMode() const
 
 void OSGFileNode::setOptimizeMode(OptimizeMode::Enum optimizeMode)
 {
-    // qDebug() << "OSGFileNode::setOptimizeMode" << optimizeMode;
     if (h->optimizeMode != optimizeMode) {
         h->optimizeMode = optimizeMode;
         setDirty(OptimizeMode);
@@ -211,15 +209,6 @@ void OSGFileNode::update()
         h->updateNode();
     }
 }
-
-void OSGFileNode::attach(osgViewer::View *view)
-{
-    update();
-    clearDirty();
-}
-
-void OSGFileNode::detach(osgViewer::View *view)
-{}
 } // namespace osgQtQuick
 
 #include "OSGFileNode.moc"

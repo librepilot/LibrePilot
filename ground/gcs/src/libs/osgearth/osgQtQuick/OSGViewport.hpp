@@ -30,6 +30,8 @@
 
 #include "Export.hpp"
 
+#include "ga/OSGCameraManipulator.hpp"
+
 #include <QQuickFramebufferObject>
 
 namespace osgViewer {
@@ -50,10 +52,10 @@ public:
 
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
     Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
-    Q_PROPERTY(osgQtQuick::OSGCamera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(osgQtQuick::OSGCamera * camera READ cameraNode WRITE setCameraNode NOTIFY cameraNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGCameraManipulator * manipulator READ manipulator WRITE setManipulator NOTIFY manipulatorChanged)
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
     friend class ViewportRenderer;
@@ -64,8 +66,11 @@ public:
     OSGNode *sceneNode() const;
     void setSceneNode(OSGNode *node);
 
-    OSGCamera *camera() const;
-    void setCamera(OSGCamera *camera);
+    OSGCamera *cameraNode() const;
+    void setCameraNode(OSGCamera *node);
+
+    OSGCameraManipulator *manipulator() const;
+    void setManipulator(OSGCameraManipulator *manipulator);
 
     UpdateMode::Enum updateMode() const;
     void setUpdateMode(UpdateMode::Enum mode);
@@ -73,20 +78,24 @@ public:
     bool busy() const;
     void setBusy(const bool busy);
 
-    QColor color() const;
-    void setColor(const QColor &color);
-
     Renderer *createRenderer() const;
     void releaseResources();
 
+    osgViewer::View *asView() const;
+
 signals:
     void sceneNodeChanged(OSGNode *node);
-    void cameraChanged(OSGCamera *camera);
+    void cameraNodeChanged(OSGCamera *node);
+    void manipulatorChanged(OSGCameraManipulator *manipulator);
     void updateModeChanged(UpdateMode::Enum mode);
     void busyChanged(bool busy);
-    void colorChanged(const QColor &color);
 
 protected:
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
+
+    void classBegin();
+    void componentComplete();
+
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -96,11 +105,6 @@ protected:
 
     void setKeyboardModifiers(QInputEvent *event);
     QPointF mousePoint(QMouseEvent *event);
-
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
-
-    void attach(osgViewer::View *view);
-    void detach(osgViewer::View *view);
 
 private:
     struct Hidden;

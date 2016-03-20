@@ -43,9 +43,12 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
+class OSGViewport;
+
 class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
     // TODO rename to sceneNode
     Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGViewport * viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
 
     Q_PROPERTY(bool sunLightEnabled READ sunLightEnabled WRITE setSunLightEnabled NOTIFY sunLightEnabledChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
@@ -58,6 +61,9 @@ public:
     OSGNode *sceneNode() const;
     void setSceneNode(OSGNode *node);
 
+    OSGViewport *viewport() const;
+    void setViewport(OSGViewport *viewport);
+
     bool sunLightEnabled() const;
     void setSunLightEnabled(bool arg);
 
@@ -69,6 +75,7 @@ public:
 
 signals:
     void sceneNodeChanged(OSGNode *node);
+    void viewportChanged(OSGViewport *viewport);
 
     void sunLightEnabledChanged(bool arg);
     void dateTimeChanged(QDateTime arg);
@@ -79,9 +86,6 @@ private:
     Hidden *const h;
 
     virtual void update();
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
 };
 } // namespace osgQtQuick
 

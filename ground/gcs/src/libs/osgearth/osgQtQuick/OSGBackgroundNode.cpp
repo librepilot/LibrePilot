@@ -35,6 +35,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { URL = 1 << 0 };
+
 struct OSGBackgroundNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -44,17 +46,15 @@ private:
 public:
     QUrl url;
 
-    Hidden(OSGBackgroundNode *parent) : QObject(parent), self(parent), url() {}
+    Hidden(OSGBackgroundNode *self) : QObject(self), self(self), url()
+    {}
 
-    void updateNode()
+    void updateURL()
     {
-        // qDebug() << "OSGBackgroundNode::realize - reading image file" << url.path();
+        qDebug() << "OSGBackgroundNode::updateNode - reading image file" << url.path();
         osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-        osg::ref_ptr<osg::Image> image = osgDB::readImageFile(url.path().toStdString());
 
-        texture->setImage(image.get());
-
-        osg::ref_ptr<osg::Drawable> quad = osg::createTexturedQuadGeometry(
+        osg::ref_ptr<osg::Drawable> quad     = osg::createTexturedQuadGeometry(
             osg::Vec3(), osg::Vec3(1.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 1.0f, 0.0f));
         quad->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get());
 
@@ -75,21 +75,20 @@ public:
         ss->setAttributeAndModes(new osg::Depth(osg::Depth::LEQUAL, 1.0, 1.0));
 
         self->setNode(camera);
+
+        osg::ref_ptr<osg::Image> image = osgDB::readImageFile(url.path().toStdString());
+        texture->setImage(image.get());
     }
 };
 
 /* class OSGBackgroundNode */
 
-enum DirtyFlag { URL = 1 << 0 };
-
 OSGBackgroundNode::OSGBackgroundNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
-{
-    qDebug() << "OSGBackgroundNode::OSGBackgroundNode";
-}
+{}
 
 OSGBackgroundNode::~OSGBackgroundNode()
 {
-    // qDebug() << "OSGBackgroundNode::~OSGBackgroundNode";
+    qDebug() << "OSGBackgroundNode::~OSGBackgroundNode";
     delete h;
 }
 
@@ -100,7 +99,6 @@ const QUrl OSGBackgroundNode::imageFile() const
 
 void OSGBackgroundNode::setImageFile(const QUrl &url)
 {
-    // qDebug() << "OSGBackgroundNode::setImageFile" << url;
     if (h->url != url) {
         h->url = url;
         setDirty(URL);
@@ -111,18 +109,9 @@ void OSGBackgroundNode::setImageFile(const QUrl &url)
 void OSGBackgroundNode::update()
 {
     if (isDirty(URL)) {
-        h->updateNode();
+        h->updateURL();
     }
 }
-
-void OSGBackgroundNode::attach(osgViewer::View *view)
-{
-    update();
-    clearDirty();
-}
-
-void OSGBackgroundNode::detach(osgViewer::View *view)
-{}
 } // namespace osgQtQuick
 
 #include "OSGBackgroundNode.moc"

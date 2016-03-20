@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGTextNode.hpp
+ * @file       OSGTrackballManipulator.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -25,39 +25,46 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGTEXTNODE_H_
-#define _H_OSGQTQUICK_OSGTEXTNODE_H_
+#include "OSGTrackballManipulator.hpp"
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../OSGNode.hpp"
 
-#include <QColor>
+#include <osgGA/TrackballManipulator>
+
+#include <QDebug>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-
-public:
-    explicit OSGTextNode(QObject *parent = 0);
-    virtual ~OSGTextNode();
-
-    QString text() const;
-    void setText(const QString &text);
-
-    QColor color() const;
-    void setColor(const QColor &color);
-
-signals:
-    void textChanged(const QString &text);
-    void colorChanged(const QColor &color);
+struct OSGTrackballManipulator::Hidden : public QObject {
+    Q_OBJECT
 
 private:
-    struct Hidden;
-    Hidden *const h;
+    OSGTrackballManipulator * const self;
 
-    virtual void update();
+public:
+    osg::ref_ptr<osgGA::TrackballManipulator> manipulator;
+
+    Hidden(OSGTrackballManipulator *self) : QObject(self), self(self)
+    {
+        manipulator = new osgGA::TrackballManipulator(
+            /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
+
+        self->setManipulator(manipulator);
+    }
+
+    ~Hidden()
+    {}
 };
+
+/* class OSGTrackballManipulator */
+
+OSGTrackballManipulator::OSGTrackballManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
+{}
+
+OSGTrackballManipulator::~OSGTrackballManipulator()
+{
+    qDebug() << "OSGTrackballManipulator::~OSGTrackballManipulator";
+    delete h;
+}
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGTEXTNODE_H_
+#include "OSGTrackballManipulator.moc"

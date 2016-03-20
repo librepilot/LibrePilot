@@ -36,9 +36,10 @@ namespace osgQtQuick {
 class OSGNode;
 class Hidden;
 
-struct NodeUpdateCallback : public osg::NodeCallback {
+struct OSGNode::NodeUpdateCallback : public osg::NodeCallback {
 public:
-    NodeUpdateCallback(OSGNode::Hidden *h) : h(h) {}
+    NodeUpdateCallback(OSGNode::Hidden *h) : h(h)
+    {}
 
     void operator()(osg::Node *node, osg::NodeVisitor *nv);
 
@@ -58,53 +59,46 @@ private:
 
     osg::ref_ptr<osg::NodeCallback> nodeUpdateCallback;
 
-    int dirty;
+    bool complete;
+    int  dirty;
 
 public:
-    Hidden(OSGNode *node) : QObject(node), self(node), dirty(0)
+    Hidden(OSGNode *self) : QObject(self), self(self), complete(false), dirty(0)
     {}
 
     bool isDirty(int mask) const
     {
-        return (dirty && mask) != 0;
+        return (dirty & mask) != 0;
     }
 
     void setDirty(int mask)
     {
-        // qDebug() << "OSGNode::setDirty BEGIN";
         if (!dirty) {
             if (node) {
                 if (!nodeUpdateCallback.valid()) {
                     // lazy creation
-                    // qDebug() << "OSGNode::setDirty CREATE";
                     nodeUpdateCallback = new NodeUpdateCallback(this);
                 }
-                // qDebug() << "OSGNode::setDirty ADD" << node;
-                node->setUpdateCallback(nodeUpdateCallback);
+                node->addUpdateCallback(nodeUpdateCallback.get());
             }
         }
         dirty |= mask;
-        // qDebug() << "OSGNode::setDirty DONE";
     }
 
     void clearDirty()
     {
-        dirty = 0;
         if (node && nodeUpdateCallback.valid()) {
-            // qDebug() << "OSGNode::clearDirty REMOVE CALLBACK";
-            node->setUpdateCallback(NULL);
+            node->removeUpdateCallback(nodeUpdateCallback.get());
         }
+        dirty = 0;
     }
 
     void update()
     {
-        // qDebug() << "OSGNode::update BEGIN";
         if (dirty) {
-            // qDebug() << "OSGNode::update UPDATE";
             self->update();
         }
         clearDirty();
-        // qDebug() << "OSGNode::update DONE";
     }
 
     bool acceptNode(osg::Node *aNode)
@@ -113,7 +107,6 @@ public:
             return false;
         }
         if (node && dirty) {
-            // qDebug() << "OSGNode::acceptNode REMOVE CALLBACK" << node;
             node->setUpdateCallback(NULL);
         }
         node = aNode;
@@ -121,10 +114,8 @@ public:
             if (dirty) {
                 if (!nodeUpdateCallback.valid()) {
                     // lazy creation
-                    // qDebug() << "OSGNode::acceptNode CREATE CALLBACK";
                     nodeUpdateCallback = new NodeUpdateCallback(this);
                 }
-                // qDebug() << "OSGNode::acceptNode ADD CALLBACK";
                 node->setUpdateCallback(nodeUpdateCallback);
             }
         }
@@ -132,14 +123,18 @@ public:
     }
 };
 
-void NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
+/* struct OSGNode::NodeUpdateCallback */
+
+void OSGNode::NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
 {
-    // qDebug() << "NodeUpdateCallback::";
+    // qDebug() << "OSGNode::NodeUpdateCallback";
     nv->traverse(*node);
     h->update();
 }
 
-OSGNode::OSGNode(QObject *parent) : QObject(parent), h(new Hidden(this))
+/* class OSGNode */
+
+OSGNode::OSGNode(QObject *parent) : QObject(parent), QQmlParserStatus(), h(new Hidden(this))
 {}
 
 OSGNode::~OSGNode()
@@ -155,7 +150,7 @@ osg::Node *OSGNode::node() const
 void OSGNode::setNode(osg::Node *node)
 {
     if (h->acceptNode(node)) {
-        emit nodeChanged(node);
+        emitNodeChanged();
     }
 }
 
@@ -179,29 +174,36 @@ void OSGNode::clearDirty()
     h->clearDirty();
 }
 
-void OSGNode::attach(OSGNode *node, osgViewer::View *view)
+void OSGNode::classBegin()
 {
-    if (!node) {
-        return;
-    }
-    node->attach(view);
+    // qDebug() << "OSGNode::classBegin" << this;
 }
 
-void OSGNode::detach(OSGNode *node, osgViewer::View *view)
+void OSGNode::componentComplete()
 {
-    if (!node) {
-        return;
+    qDebug() << "OSGNode::componentComplete" << this;
+    update();
+    clearDirty();
+    h->complete = h->node.valid();
+    if (!isComponentComplete()) {
+        qWarning() << "OSGNode::componentComplete - not complete !!!" << this;
     }
-    node->detach(view);
+}
+
+bool OSGNode::isComponentComplete()
+{
+    return h->complete;
+}
+
+
+void OSGNode::emitNodeChanged()
+{
+    if (isComponentComplete()) {
+        emit nodeChanged(node());
+    }
 }
 
 void OSGNode::update()
-{}
-
-void OSGNode::attach(osgViewer::View *view)
-{}
-
-void OSGNode::detach(osgViewer::View *view)
 {}
 } // namespace osgQtQuick
 

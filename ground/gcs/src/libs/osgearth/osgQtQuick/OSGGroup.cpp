@@ -46,13 +46,13 @@ private:
     QMap<OSGNode *, osg::Node *> cache;
 
 public:
-    Hidden(OSGGroup *node) : QObject(node), self(node), group(new osg::Group)
+    QList<OSGNode *> children;
+
+    Hidden(OSGGroup *self) : QObject(self), self(self)
     {
         group = new osg::Group();
         self->setNode(group);
     }
-
-    QList<OSGNode *> children;
 
     void appendChild(OSGNode *childNode)
     {
@@ -88,6 +88,7 @@ public:
 
     void updateGroupNode()
     {
+        qDebug() << "OSGGeoTransformNode::updateGroupNode";
         bool updated = false;
         unsigned int index = 0;
 
@@ -161,13 +162,11 @@ private slots:
 /* class OSGGGroupNode */
 
 OSGGroup::OSGGroup(QObject *parent) : OSGNode(parent), h(new Hidden(this))
-{
-    qDebug() << "OSGGroup::OSGGroup";
-}
+{}
 
 OSGGroup::~OSGGroup()
 {
-    // qDebug() << "OSGGroup::~OSGGroup";
+    qDebug() << "OSGGroup::~OSGGroup";
     delete h;
 }
 
@@ -184,30 +183,6 @@ void OSGGroup::update()
 {
     if (isDirty(Children)) {
         h->updateGroupNode();
-    }
-}
-
-void OSGGroup::attach(osgViewer::View *view)
-{
-    // qDebug() << "OSGGroup::attach " << view;
-    QListIterator<OSGNode *> i(h->children);
-    while (i.hasNext()) {
-        OSGNode *node = i.next();
-        // qDebug() << "OSGGroup::attach - child" << node;
-        OSGNode::attach(node, view);
-    }
-    update();
-    clearDirty();
-}
-
-void OSGGroup::detach(osgViewer::View *view)
-{
-    // qDebug() << "OSGGroup::detach " << view;
-    QListIterator<OSGNode *> i(h->children);
-    while (i.hasNext()) {
-        OSGNode *node = i.next();
-        // qDebug() << "OSGGroup::detach - child" << node;
-        OSGNode::detach(node, view);
     }
 }
 } // namespace osgQtQuick

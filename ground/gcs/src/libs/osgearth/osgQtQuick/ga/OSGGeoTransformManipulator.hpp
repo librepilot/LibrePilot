@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGGeoTransformNode.hpp
+ * @file       OSGGeoTransformManipulator.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -25,62 +25,54 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_GEOTRANSFORMNODE_H_
-#define _H_OSGQTQUICK_GEOTRANSFORMNODE_H_
+#ifndef _H_OSGQTQUICK_OSGGEOTRANSFORMMANIPULATOR_H_
+#define _H_OSGQTQUICK_OSGGEOTRANSFORMMANIPULATOR_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../Export.hpp"
+#include "OSGCameraManipulator.hpp"
 
+#include <QObject>
 #include <QVector3D>
 
-// TODO derive from OSGGroup...
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGeoTransformNode : public OSGNode {
-    Q_OBJECT
-    // TODO rename to sceneNode
-    Q_PROPERTY(osgQtQuick::OSGNode *modelData READ childNode WRITE setChildNode NOTIFY childNodeChanged)
-    // TODO rename to earthNode
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
-
+class OSGQTQUICK_EXPORT OSGGeoTransformManipulator : public OSGCameraManipulator {
+    Q_OBJECT Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
+    Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
 
-    Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
+    friend class NodeUpdateCallback;
+    friend class MyManipulator;
 
 public:
-    OSGGeoTransformNode(QObject *parent = 0);
-    virtual ~OSGGeoTransformNode();
+    explicit OSGGeoTransformManipulator(QObject *parent = 0);
+    virtual ~OSGGeoTransformManipulator();
 
-    OSGNode *childNode() const;
-    void setChildNode(OSGNode *node);
+    QVector3D attitude() const;
+    void setAttitude(QVector3D arg);
 
-    OSGNode *sceneNode() const;
-    void setSceneNode(OSGNode *node);
+    QVector3D position() const;
+    void setPosition(QVector3D arg);
 
     bool clampToTerrain() const;
     void setClampToTerrain(bool arg);
 
     bool intoTerrain() const;
 
-    QVector3D position() const;
-    void setPosition(QVector3D arg);
-
 signals:
-    void childNodeChanged(OSGNode *node);
-
-    void sceneNodeChanged(OSGNode *node);
-
+    void attitudeChanged(QVector3D arg);
+    void positionChanged(QVector3D arg);
     void clampToTerrainChanged(bool arg);
     void intoTerrainChanged(bool arg);
 
-    void positionChanged(QVector3D arg);
+protected:
+    void componentComplete();
 
 private:
     struct Hidden;
+    struct NodeUpdateCallback;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_GEOTRANSFORMNODE_H_
+#endif // _H_OSGQTQUICK_OSGGEOTRANSFORMMANIPULATOR_H_

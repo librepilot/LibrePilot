@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGTextNode.hpp
+ * @file       OSGTrackballManipulator.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -25,39 +25,26 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGTEXTNODE_H_
-#define _H_OSGQTQUICK_OSGTEXTNODE_H_
+#ifndef _H_OSGQTQUICK_OSGTRACKBALLMANIPULATOR_H_
+#define _H_OSGQTQUICK_OSGTRACKBALLMANIPULATOR_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../Export.hpp"
+#include "OSGCameraManipulator.hpp"
 
-#include <QColor>
+#include <QObject>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+class OSGQTQUICK_EXPORT OSGTrackballManipulator : public OSGCameraManipulator {
+    Q_OBJECT
 
 public:
-    explicit OSGTextNode(QObject *parent = 0);
-    virtual ~OSGTextNode();
-
-    QString text() const;
-    void setText(const QString &text);
-
-    QColor color() const;
-    void setColor(const QColor &color);
-
-signals:
-    void textChanged(const QString &text);
-    void colorChanged(const QColor &color);
+    explicit OSGTrackballManipulator(QObject *parent = 0);
+    virtual ~OSGTrackballManipulator();
 
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGTEXTNODE_H_
+#endif // _H_OSGQTQUICK_OSGTRACKBALLMANIPULATOR_H_

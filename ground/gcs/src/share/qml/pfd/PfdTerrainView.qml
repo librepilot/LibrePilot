@@ -26,11 +26,14 @@ import "../common.js" as Utils
 import "../uav.js" as UAV
 
 OSGViewport {
-    id: fullview
+    id: osgViewport
+
     //anchors.fill: parent
     focus: true
+
     sceneData: skyNode
     camera: camera
+    manipulator: geoTransformManipulator
 
     property real horizontCenter : horizontCenterItem.horizontCenter
 
@@ -41,29 +44,34 @@ OSGViewport {
     //height: height * (1 + factor)
     y: -height * factor
 
+    OSGCamera {
+        id: camera
+
+        fieldOfView: 100
+        logarithmicDepthBuffer: true
+    }
+
+    OSGGeoTransformManipulator {
+        id: geoTransformManipulator
+
+        clampToTerrain: true
+
+        attitude: UAV.attitude()
+        position: UAV.position()
+    }
+
     OSGSkyNode {
         id: skyNode
-        sceneData: terrainNode
+        sceneData: terrainFileNode
+        viewport: osgViewport
         dateTime: Utils.getDateTime()
         minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGFileNode {
-        id: terrainNode
+        id: terrainFileNode
         source: pfdContext.terrainFile
         async: false
-    }
-
-    OSGCamera {
-        id: camera
-        fieldOfView: 100
-        sceneNode: terrainNode
-        logarithmicDepthBuffer: true
-        clampToTerrain: true
-        manipulatorMode: ManipulatorMode.User
-
-        attitude: UAV.attitude()
-        position: UAV.position()
     }
 
     Rectangle {
@@ -104,7 +112,7 @@ OSGViewport {
         property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch-window-terrain")
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
-        y: Math.floor(scaledBounds.y * sceneItem.height) - fullview.y
+        y: Math.floor(scaledBounds.y * sceneItem.height) - osgViewport.y
         width: Math.floor(scaledBounds.width * sceneItem.width)
         height: Math.floor(scaledBounds.height * sceneItem.height)
 

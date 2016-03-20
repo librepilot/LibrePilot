@@ -37,6 +37,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { Type = 1 << 0 };
+
 struct OSGShapeNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -46,7 +48,7 @@ private:
 public:
     ShapeType::Enum shapeType;
 
-    Hidden(OSGShapeNode *node) : QObject(node), self(node), shapeType(ShapeType::Sphere)
+    Hidden(OSGShapeNode *self) : QObject(self), self(self), shapeType(ShapeType::Sphere)
     {}
 
     void updateNode()
@@ -74,19 +76,16 @@ public:
 
 /* class OSGShapeNode */
 
-enum DirtyFlag { Type = 1 << 0 };
-
 // TODO turn into generic shape node...
 // see http://trac.openscenegraph.org/projects/osg//wiki/Support/Tutorials/TransformsAndStates
 OSGShapeNode::OSGShapeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGShapeNode::OSGShapeNode";
-    setShapeType(ShapeType::Sphere);
+    setDirty(Type);
 }
 
 OSGShapeNode::~OSGShapeNode()
 {
-    // qDebug() << "OSGShapeNode::~OSGShapeNode";
+    qDebug() << "OSGShapeNode::~OSGShapeNode";
     delete h;
 }
 
@@ -110,15 +109,6 @@ void OSGShapeNode::update()
         h->updateNode();
     }
 }
-
-void OSGShapeNode::attach(osgViewer::View *view)
-{
-    update();
-    clearDirty();
-}
-
-void OSGShapeNode::detach(osgViewer::View *view)
-{}
 } // namespace osgQtQuick
 
 #include "OSGShapeNode.moc"

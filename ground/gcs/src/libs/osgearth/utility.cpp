@@ -38,6 +38,10 @@
 #include "osgQtQuick/OSGCamera.hpp"
 #include "osgQtQuick/OSGViewport.hpp"
 
+#include "osgQtQuick/ga/OSGCameraManipulator.hpp"
+#include "osgQtQuick/ga/OSGNodeTrackerManipulator.hpp"
+#include "osgQtQuick/ga/OSGTrackballManipulator.hpp"
+
 #include <osg/NodeCallback>
 #include <osg/Camera>
 #include <osg/MatrixTransform>
@@ -61,6 +65,9 @@
 #include "osgQtQuick/OSGSkyNode.hpp"
 #include "osgQtQuick/OSGGeoTransformNode.hpp"
 
+#include "osgQtQuick/ga/OSGEarthManipulator.hpp"
+#include "osgQtQuick/ga/OSGGeoTransformManipulator.hpp"
+
 #include <osgEarth/Capabilities>
 #include <osgEarth/MapNode>
 #include <osgEarth/SpatialReference>
@@ -75,9 +82,11 @@
 namespace osgQtQuick {
 class CullCallback : public osg::NodeCallback {
 public:
-    CullCallback() {}
+    CullCallback()
+    {}
 
-    virtual ~CullCallback() {}
+    virtual ~CullCallback()
+    {}
 
 public:
     virtual void operator()(osg::Node *node, osg::NodeVisitor *nv)
@@ -101,12 +110,14 @@ class InsertCallbacksVisitor : public osg::NodeVisitor {
 public:
     InsertCallbacksVisitor() : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
     {}
+
     virtual void apply(osg::Node & node)
     {
         // node.setUpdateCallback(new UpdateCallback());
         node.setCullCallback(new CullCallback());
         traverse(node);
     }
+
     virtual void apply(osg::Geode & geode)
     {
 // geode.setUpdateCallback(new UpdateCallback());
@@ -122,6 +133,7 @@ public:
 // geode.getDrawable(i)->setDrawCallback(new DrawableDrawCallback());
 // }
     }
+
     virtual void apply(osg::Transform & node)
     {
         apply((osg::Node &)node);
@@ -543,12 +555,18 @@ void registerTypes()
     qmlRegisterType<osgQtQuick::UpdateMode>("OsgQtQuick", maj, min, "UpdateMode");
 
     qmlRegisterType<osgQtQuick::OSGCamera>("OsgQtQuick", maj, min, "OSGCamera");
-    qmlRegisterType<osgQtQuick::ManipulatorMode>("OsgQtQuick", maj, min, "ManipulatorMode");
+
+    qmlRegisterType<osgQtQuick::OSGCameraManipulator>("OsgQtQuick", maj, min, "OSGCameraManipulator");
+    qmlRegisterType<osgQtQuick::OSGNodeTrackerManipulator>("OsgQtQuick", maj, min, "OSGNodeTrackerManipulator");
     qmlRegisterType<osgQtQuick::TrackerMode>("OsgQtQuick", maj, min, "TrackerMode");
+    qmlRegisterType<osgQtQuick::OSGTrackballManipulator>("OsgQtQuick", maj, min, "OSGTrackballManipulator");
 
 #ifdef USE_OSGEARTH
     qmlRegisterType<osgQtQuick::OSGSkyNode>("OsgQtQuick", maj, min, "OSGSkyNode");
     qmlRegisterType<osgQtQuick::OSGGeoTransformNode>("OsgQtQuick", maj, min, "OSGGeoTransformNode");
+
+    qmlRegisterType<osgQtQuick::OSGEarthManipulator>("OsgQtQuick", maj, min, "OSGEarthManipulator");
+    qmlRegisterType<osgQtQuick::OSGGeoTransformManipulator>("OsgQtQuick", maj, min, "OSGGeoTransformManipulator");
 #endif // USE_OSGEARTH
 }
 } // namespace osgQtQuick

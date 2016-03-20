@@ -28,14 +28,27 @@ import "common.js" as Utils
 Item {
     OSGViewport {
         id: osgViewport
+
         anchors.fill: parent
         focus: true
+
         sceneData: skyNode
         camera: camera
+        manipulator: earthManipulator
+
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+        }
+
+        OSGEarthManipulator {
+            id: earthManipulator
+        }
 
         OSGSkyNode {
             id: skyNode
             sceneData: terrainNode
+            viewport: osgViewport
             dateTime: Utils.getDateTime()
             minimumAmbientLight: pfdContext.minimumAmbientLight
         }
@@ -46,11 +59,7 @@ Item {
             async: false
         }
 
-        OSGCamera {
-            id: camera
-            fieldOfView: 90
-            manipulatorMode: ManipulatorMode.Earth
-        }
+    }
 
     BusyIndicator {
         width: 24

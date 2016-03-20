@@ -28,8 +28,20 @@ Item {
     OSGViewport {
         anchors.fill: parent
         focus: true
+
         sceneData: sceneNode
         camera: camera
+        manipulator: trackballManipulator
+
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+        }
+
+        OSGTrackballManipulator {
+            id: trackballManipulator
+            sceneNode: transformNode
+        }
 
         OSGGroup {
             id: sceneNode
@@ -55,12 +67,6 @@ Item {
             source: pfdContext.modelFile
             async: false
             optimizeMode: OptimizeMode.OptimizeAndCheck
-        }
-
-        OSGCamera {
-            id: camera
-            fieldOfView: 90
-            sceneNode: transformNode
         }
 
         Keys.onUpPressed: {

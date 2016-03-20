@@ -28,34 +28,46 @@ import "../uav.js" as UAV
 
 OSGViewport {
     id: osgViewport
+
     anchors.fill: parent
     focus: true
+
     sceneData: skyNode
     camera: camera
+    manipulator: nodeTrackerManipulator
+
+    OSGCamera {
+        id: camera
+        fieldOfView: 90
+        logarithmicDepthBuffer: true
+    }
+
+    OSGNodeTrackerManipulator {
+        id: nodeTrackerManipulator
+        // use model to compute camera home position
+        sceneNode: modelTransformNode
+        // model will be tracked
+        trackNode: modelTransformNode
+    }
 
     OSGSkyNode {
         id: skyNode
         sceneData: sceneGroup
+        viewport: osgViewport
         dateTime: Utils.getDateTime()
         minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGGroup {
         id: sceneGroup
-        children: [ terrainNode, modelNode ]
-    }
-
-    OSGFileNode {
-        id: terrainNode
-        source: pfdContext.terrainFile
-        async: false
+        children: [ terrainFileNode, modelNode ]
     }
 
     OSGGeoTransformNode {
         id: modelNode
 
         modelData: modelTransformNode
-        sceneData: terrainNode
+        sceneData: terrainFileNode
 
         clampToTerrain: true
 
@@ -71,25 +83,18 @@ OSGViewport {
     }
 
     OSGFileNode {
+        id: terrainFileNode
+        source: pfdContext.terrainFile
+    }
+
+    OSGFileNode {
         id: modelFileNode
 
         // use ShaderGen pseudoloader to generate the shaders expected by osgEarth
         // see http://docs.osgearth.org/en/latest/faq.html#i-added-a-node-but-it-has-no-texture-lighting-etc-in-osgearth-why
         source: pfdContext.modelFile + ".osgearth_shadergen"
 
-        async: false
         optimizeMode: OptimizeMode.OptimizeAndCheck
-    }
-
-    OSGCamera {
-        id: camera
-        fieldOfView: 90
-        logarithmicDepthBuffer: true
-        manipulatorMode: ManipulatorMode.Track
-        // use model to compute camera home position
-        sceneNode: modelTransformNode
-        // model will be tracked
-        trackNode: modelTransformNode
     }
 
     Keys.onUpPressed: {

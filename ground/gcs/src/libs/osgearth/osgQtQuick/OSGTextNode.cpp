@@ -37,6 +37,8 @@
 #include <QColor>
 
 namespace osgQtQuick {
+enum DirtyFlag { Text = 1 << 0, Color = 1 << 1 };
+
 struct OSGTextNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -49,7 +51,7 @@ public:
     QString textString;
     QColor  color;
 
-    Hidden(OSGTextNode *node) : QObject(node), self(node)
+    Hidden(OSGTextNode *self) : QObject(self), self(self)
     {
         osg::ref_ptr<osgText::Font> textFont = createFont(QFont("Times"));
 
@@ -88,10 +90,10 @@ public:
 
 /* class OSGTextNode */
 
-enum DirtyFlag { Text = 1 << 0, Color = 1 << 1 };
-
-OSGTextNode::OSGTextNode(QObject *node) : OSGNode(node), h(new Hidden(this))
-{}
+OSGTextNode::OSGTextNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+{
+    setDirty(Text | Color);
+}
 
 OSGTextNode::~OSGTextNode()
 {
@@ -135,15 +137,6 @@ void OSGTextNode::update()
         h->updateColor();
     }
 }
-
-void OSGTextNode::attach(osgViewer::View *view)
-{
-    update();
-    clearDirty();
-}
-
-void OSGTextNode::detach(osgViewer::View *view)
-{}
 } // namespace osgQtQuick
 
 #include "OSGTextNode.moc"

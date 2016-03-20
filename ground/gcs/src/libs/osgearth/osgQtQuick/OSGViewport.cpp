@@ -34,6 +34,7 @@
 #include "OSGCamera.hpp"
 
 #include <osg/Node>
+#include <osg/Vec4>
 #include <osg/DeleteHandler>
 #include <osg/GLObjects>
 #include <osg/ApplicationUsage>
@@ -41,10 +42,7 @@
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/StateSetManipulator>
-
-#ifdef USE_OSGEARTH
-#include <osgEarth/MapNode>
-#endif
+#include <osgGA/CameraManipulator>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -54,9 +52,6 @@
 #include <QOpenGLFunctions>
 
 #include <QDebug>
-
-#include <QThread>
-#include <QApplication>
 
 /*
    Debugging tips
@@ -80,6 +75,8 @@
  */
 
 namespace osgQtQuick {
+enum DirtyFlag { Scene = 1 << 0, Camera = 1 << 1 };
+
 class ViewportRenderer;
 
 struct OSGViewport::Hidden : public QObject {
@@ -94,27 +91,26 @@ private:
 
     int frameTimer;
 
+    osg::ref_ptr<osg::GraphicsContext> gc;
+
+
 public:
     OSGNode   *sceneNode;
-    OSGCamera *camera;
+    OSGCamera *cameraNode;
 
     osg::ref_ptr<osgViewer::CompositeViewer> viewer;
     osg::ref_ptr<osgViewer::View> view;
 
-    UpdateMode::Enum updateMode;
+    OSGCameraManipulator *manipulator;
+
+    UpdateMode::Enum     updateMode;
 
     bool busy;
 
     static QtKeyboardMap keyMap;
 
-    Hidden(OSGViewport *viewport) : QObject(viewport),
-        self(viewport),
-        window(NULL),
-        frameTimer(-1),
-        sceneNode(NULL),
-        camera(NULL),
-        updateMode(UpdateMode::OnDemand),
-        busy(false)
+    Hidden(OSGViewport *self) : QObject(self), self(self), window(NULL), frameTimer(-1),
+        sceneNode(NULL), cameraNode(NULL), manipulator(NULL), updateMode(UpdateMode::OnDemand), busy(false)
     {
         OsgEarth::initialize();
 
@@ -125,7 +121,9 @@ public:
 
     ~Hidden()
     {
-        stop();
+        disconnect(self);
+
+        stopTimer();
 
         destroyViewer();
     }
@@ -137,13 +135,16 @@ public slots:
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onWindowChanged");
         if (window) {
             // window->setClearBeforeRendering(false);
-            connect(window, &QQuickWindow::sceneGraphInitialized, this, &Hidden::onSceneGraphInitialized, Qt::DirectConnection);
-            connect(window, &QQuickWindow::sceneGraphAboutToStop, this, &Hidden::onSceneGraphAboutToStop, Qt::DirectConnection);
-            connect(window, &QQuickWindow::sceneGraphInvalidated, this, &Hidden::onSceneGraphInvalidated, Qt::DirectConnection);
+// connect(window, &QQuickWindow::sceneGraphInitialized, this, &Hidden::onSceneGraphInitialized, Qt::DirectConnection);
+// connect(window, &QQuickWindow::sceneGraphAboutToStop, this, &Hidden::onSceneGraphAboutToStop, Qt::DirectConnection);
+// connect(window, &QQuickWindow::sceneGraphInvalidated, this, &Hidden::onSceneGraphInvalidated, Qt::DirectConnection);
+// connect(window, &QQuickWindow::visibleChanged, this, &Hidden::visibleChanged, Qt::DirectConnection);
+// connect(window, &QQuickWindow::widthChanged, this, &Hidden::widthChanged, Qt::DirectConnection);
+// connect(window, &QQuickWindow::heightChanged, this, &Hidden::heightChanged, Qt::DirectConnection);
         } else {
-            if (this->window) {
-                disconnect(this->window);
-            }
+// if (this->window) {
+// disconnect(this->window);
+// }
         }
         this->window = window;
     }
@@ -163,121 +164,97 @@ public:
         sceneNode = node;
 
         if (sceneNode) {
-            connect(sceneNode, &OSGNode::nodeChanged, this, &Hidden::onNodeChanged);
+            connect(sceneNode, &OSGNode::nodeChanged, this, &Hidden::onSceneNodeChanged);
         }
 
         return true;
     }
 
-    void attach(osgViewer::View *view)
+    bool acceptCameraNode(OSGCamera *node)
     {
-        if (!sceneNode) {
-            qWarning() << "OSGViewport::attach - invalid scene!";
-            return;
+        qDebug() << "OSGViewport::acceptCameraNode" << node;
+        if (cameraNode == node) {
+            return true;
         }
-        // attach scene
-        attach(view, sceneNode->node());
-        // attach camera
-        if (camera) {
-            camera->attach(view);
-        } else {
-            qWarning() << "OSGViewport::attach - no camera!";
+
+        if (cameraNode) {
+            disconnect(cameraNode);
         }
+
+        cameraNode = node;
+
+        if (cameraNode) {
+            connect(cameraNode, &OSGNode::nodeChanged, this, &Hidden::onCameraNodeChanged);
+        }
+
+        return true;
     }
 
-    void attach(osgViewer::View *view, osg::Node *node)
+    bool acceptManipulator(OSGCameraManipulator *m)
     {
-        if (!view) {
-            qWarning() << "OSGViewport::attach - view is null";
-            return;
-        }
-        if (!node) {
-            qWarning() << "OSGViewport::attach - node is null";
-            view->setSceneData(NULL);
-            return;
+        qDebug() << "OSGViewport::acceptManipulator" << manipulator;
+        if (manipulator == m) {
+            return true;
         }
 
-#ifdef USE_OSGEARTH
-        // TODO map handling should not be done here
-        osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(node);
-        if (mapNode) {
-            qDebug() << "OSGViewport::attach - found map node" << mapNode;
+        manipulator = m;
 
-            // remove light to prevent unnecessary state changes in SceneView
-            // scene will get light from sky (works only with latest > 2.7)
-            // view->setLightingMode(osg::View::NO_LIGHT);
-        }
-#endif
-
-        qDebug() << "OSGViewport::attach - set scene" << node;
-        view->setSceneData(node);
-    }
-
-    void detach(osgViewer::View *view)
-    {
-        // detach camera
-        if (camera) {
-            camera->detach(view);
-        }
-        // detach scene
-        view->setSceneData(NULL);
-    }
-
-    void onSceneGraphInitialized()
-    {
-        qDebug() << "OSGViewport::onSceneGraphInitialized";
-        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInitialized");
-    }
-
-    void onSceneGraphAboutToStop()
-    {
-        qDebug() << "OSGViewport::onSceneGraphAboutToStop";
-        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphAboutToStop");
-    }
-
-    void onSceneGraphInvalidated()
-    {
-        qDebug() << "OSGViewport::onSceneGraphInvalidated";
-        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onSceneGraphInvalidated");
+        return true;
     }
 
     void initializeResources()
     {
-        qDebug() << "OSGViewport::initializeResources";
-        if (view.valid()) {
-            qWarning() << "OSGViewport::initializeResources - view already created!";
+        if (gc.valid()) {
+            // qWarning() << "OSGViewport::initializeResources - gc already created!";
             return;
         }
-        view = createView();
-        viewer->addView(view);
-        self->attach(view.get());
-        start();
+        qDebug() << "OSGViewport::initializeResources";
+
+        // setup graphics context and camera
+        gc = createGraphicsContext();
+
+        cameraNode->setGraphicsContext(gc);
+
+        qDebug() << "OSGViewport::initializeResources - camera" << cameraNode->asCamera();
+        view->setCamera(cameraNode->asCamera());
+
+        qDebug() << "OSGViewport::initializeResources - scene data" << sceneNode->node();
+        view->setSceneData(sceneNode->node());
+
+        if (manipulator) {
+            osgGA::CameraManipulator *m = manipulator->asCameraManipulator();
+            qDebug() << "OSGViewport::initializeResources - manipulator" << m;
+
+            // Setting the manipulator on the camera will change the manipulator node (used to compute the camera home position)
+            // to the view scene node. So we need to save and restore the manipulator node.
+            osg::Node *node = m->getNode();
+            view->setCameraManipulator(m, false);
+            if (node) {
+                m->setNode(node);
+            }
+
+            view->home();
+        } else {
+            view->setCameraManipulator(NULL, false);
+        }
+
+        installHanders();
+
+        startTimer();
     }
 
     void releaseResources()
     {
         qDebug() << "OSGViewport::releaseResources";
-        if (!view.valid()) {
-            qWarning() << "OSGViewport::releaseResources - view is not valid!";
+        if (!gc.valid()) {
+            qWarning() << "OSGViewport::releaseResources - gc is not valid!";
             return;
         }
-        osg::deleteAllGLObjects(view->getCamera()->getGraphicsContext()->getState()->getContextID());
+        osg::deleteAllGLObjects(gc->getState()->getContextID());
         // view->getSceneData()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
         // view->getCamera()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
         // view->getCamera()->getGraphicsContext()->close();
         // view->getCamera()->setGraphicsContext(NULL);
-    }
-
-    bool acceptCamera(OSGCamera *camera)
-    {
-        qDebug() << "OSGViewport::acceptCamera" << camera;
-        if (this->camera == camera) {
-            return true;
-        }
-
-        this->camera = camera;
-
-        return true;
     }
 
 private:
@@ -297,6 +274,9 @@ private:
         // disable the default setting of viewer.done() by pressing Escape.
         viewer->setKeyEventSetsDone(0);
         // viewer->setQuitEventSetsDone(false);
+
+        view = createView();
+        viewer->addView(view);
     }
 
     void destroyViewer()
@@ -316,6 +296,15 @@ private:
         qDebug() << "OSGViewport::createView";
         osgViewer::View *view = new osgViewer::View();
 
+        // TODO expose as Qml properties
+        view->setLightingMode(osgViewer::View::SKY_LIGHT);
+        view->getLight()->setAmbient(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
+
+        return view;
+    }
+
+    void installHanders()
+    {
         // TODO will the handlers be destroyed???
         // add the state manipulator
         view->addEventHandler(new osgGA::StateSetManipulator(view->getCamera()->getOrCreateStateSet()));
@@ -341,19 +330,6 @@ private:
 
         // add the screen capture handler
         // view->addEventHandler(new osgViewer::ScreenCaptureHandler);
-
-        // setup graphics context and camera
-        osg::GraphicsContext *gc = createGraphicsContext();
-
-        // TODO expose as Qml properties
-        view->setLightingMode(osgViewer::View::SKY_LIGHT);
-        view->getLight()->setAmbient(osg::Vec4(0.6f, 0.6f, 0.6f, 1.0f));
-
-        osg::Camera *camera = view->getCamera();
-        camera->setGraphicsContext(gc);
-        camera->setViewport(0, 0, gc->getTraits()->width, gc->getTraits()->height);
-
-        return view;
     }
 
     osg::GraphicsContext *createGraphicsContext()
@@ -407,19 +383,19 @@ private:
         return traits;
     }
 
-    void start()
+    void startTimer()
     {
-        if (updateMode != UpdateMode::Continuous && (frameTimer < 0)) {
-            qDebug() << "OSGViewport::start - starting timer";
-            frameTimer = startTimer(33, Qt::PreciseTimer);
+        if ((updateMode != UpdateMode::Continuous) && (frameTimer < 0)) {
+            qDebug() << "OSGViewport::startTimer - starting timer";
+            frameTimer = QObject::startTimer(33, Qt::PreciseTimer);
         }
     }
 
-    void stop()
+    void stopTimer()
     {
         if (frameTimer >= 0) {
-            qDebug() << "OSGViewport::stop - killing timer";
-            killTimer(frameTimer);
+            qDebug() << "OSGViewport::stopTimer - killing timer";
+            QObject::killTimer(frameTimer);
             frameTimer = -1;
         }
     }
@@ -439,29 +415,33 @@ protected:
 
 private slots:
 
-    void onNodeChanged(osg::Node *node)
+    void onSceneNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGViewport::onNodeChanged" << node;
-        qWarning() << "OSGViewport::onNodeChanged - not implemented";
-        // if (view.valid()) {
-        // acceptNode(node);
-        // }
+        qWarning() << "OSGViewport::onSceneNodeChanged - not implemented";
+    }
+
+    void onCameraNodeChanged(osg::Node *node)
+    {
+        qWarning() << "OSGViewport::onCameraNodeChanged - not implemented";
     }
 };
 
 /* class ViewportRenderer */
 
 class ViewportRenderer : public QQuickFramebufferObject::Renderer {
+private:
+    OSGViewport::Hidden *const h;
+
+    int frameCount;
+    bool needToDoFrame;
+
 public:
-    ViewportRenderer(OSGViewport::Hidden *h) : h(h)
+    ViewportRenderer(OSGViewport::Hidden *h) : h(h), frameCount(0), needToDoFrame(false)
     {
         qDebug() << "ViewportRenderer::ViewportRenderer";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
 
         h->initializeResources();
-
-        firstFrame    = true;
-        needToDoFrame = false;
     }
 
     ~ViewportRenderer()
@@ -486,25 +466,42 @@ public:
             return;
         }
 
-        needToDoFrame = firstFrame;
+        // we want to always draw the first frame
+        needToDoFrame = (frameCount == 0);
+
+        // if not on-demand then do frame
         if (h->updateMode != UpdateMode::OnDemand) {
             needToDoFrame = true;
         }
 
-        if (firstFrame) {
+        if (frameCount == 0) {
             h->view->init();
             if (!h->viewer->isRealized()) {
                 h->viewer->realize();
             }
-            firstFrame = false;
         }
-
 
         osg::Viewport *viewport = h->view->getCamera()->getViewport();
         if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
+            qDebug() << "*** RESIZE" << frameCount << viewport->width() << "x" << viewport->height() << "->" << item->width() << "x" << item->height();
             needToDoFrame = true;
+            // h->view->getCamera()->resize(item->width(), item->height());
             int dpr = h->self->window()->devicePixelRatio();
             h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width() * dpr, item->height() * dpr);
+            // h->view.get()->getEventQueue()->windowResize(0, 0, item->width() * dpr, item->height() * dpr);
+
+            // trick to force a "home" on first few frames to absorb initial spurious resizes
+            if (frameCount <= 2) {
+                h->view->home();
+            }
+        }
+
+        // refresh busy state
+        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
+
+        // TODO also expose request list size to Qml
+        if (h->view->getDatabasePager()->getFileRequestListSize() > 0) {
+            // qDebug() << h->view->getDatabasePager()->getFileRequestListSize();
         }
 
         h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
@@ -515,14 +512,37 @@ public:
             needToDoFrame = h->viewer->checkNeedToDoFrame();
         }
         if (!needToDoFrame) {
-            // calling checkNeedToDoFrame is not enough...
+            // workarounds to osg issues
             needToDoFrame = !h->view->getEventQueue()->empty();
+            if (h->view->getSceneData()) {
+                needToDoFrame |= !(h->view->getSceneData()->getUpdateCallback() == NULL);
+            }
         }
         if (needToDoFrame) {
+            // qDebug() << "ViewportRenderer::synchronize - update scene" << frameCount;
+
+            // info();
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
         }
+    }
+
+    void info()
+    {
+        if (!h->view.valid()) {
+            return;
+        }
+        // If the database pager is going to update the scene the render flag is
+        // set so that the updates show up
+        qDebug() << "DatabasePager" << (h->view->getDatabasePager()->requiresUpdateSceneGraph() || h->view->getDatabasePager()->getRequestsInProgress());
+
+        // if there update callbacks then we need to do frame.
+        qDebug() << "Camera" << (h->view->getCamera()->getUpdateCallback());
+        qDebug() << "Scene" << (h->view->getSceneData() && h->view->getSceneData()->getNumChildrenRequiringUpdateTraversal() > 0);
+
+        // check if events are available and need processing
+        qDebug() << "Events" << (h->viewer->checkEvents());
     }
 
     // This function is called when the FBO should be rendered into.
@@ -538,6 +558,8 @@ public:
         }
 
         if (needToDoFrame) {
+            // qDebug() << "ViewportRenderer::render - render scene" << frameCount;
+
             // needed to properly render models without terrain (Qt bug?)
             QOpenGLContext::currentContext()->functions()->glUseProgram(0);
             h->viewer->renderingTraversals();
@@ -548,6 +570,8 @@ public:
             // trigger next update
             update();
         }
+
+        ++frameCount;
     }
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)
@@ -557,6 +581,28 @@ public:
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
         // format.setSamples(4);
 
+        /**
+         * that's a typical error when working with high-resolution (retina)
+           displays. The issue here is that on the high-resolution devices, the UI
+           operates with a virtual pixel size that is smaller than the real number
+           of pixels on the device. For example, you get coordinates from 0 to 2048
+           while the real device resolution if 4096 pixels. This factor has to be
+           taken into account when mapping from window coordinates to OpenGL, e.g.,
+           when calling glViewport.
+
+           How you can get this factor depends on the GUI library you are using. In
+           Qt, you can query it with QWindow::devicePixelRatio():
+           http://doc.qt.io/qt-5/qwindow.html#devicePixelRatio
+
+           So, there should be something like
+           glViewport(0, 0, window->width() * window->devicePixelRatio(),
+           window->height() * window->devicePixelRatio()).
+
+           Also keep in mind that you have to do the same e.g. for mouse coordinates.
+
+           I think osgQt already handles this correctly, so you shouldn't have to
+           worry about this if you use the classes provided by osgQt ...
+         */
         // Keeping this for reference :
         // Mac need(ed) to have devicePixelRatio (dpr) taken into account (i.e. dpr = 2).
         // Further tests on Mac have shown that although dpr is still 2 it should not be used to scale the fbo.
@@ -566,12 +612,6 @@ public:
 
         return fbo;
     }
-
-private:
-    OSGViewport::Hidden *const h;
-
-    bool firstFrame;
-    bool needToDoFrame;
 };
 
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
@@ -580,7 +620,6 @@ QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 
 OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGViewport::OSGViewport";
     // setClearBeforeRendering(false);
     setMirrorVertically(true);
     setAcceptHoverEvents(true);
@@ -601,19 +640,34 @@ OSGNode *OSGViewport::sceneNode() const
 void OSGViewport::setSceneNode(OSGNode *node)
 {
     if (h->acceptSceneNode(node)) {
+        // setDirty(Scene);
         emit sceneNodeChanged(node);
     }
 }
 
-OSGCamera *OSGViewport::camera() const
+OSGCamera *OSGViewport::cameraNode() const
 {
-    return h->camera;
+    return h->cameraNode;
 }
 
-void OSGViewport::setCamera(OSGCamera *camera)
+void OSGViewport::setCameraNode(OSGCamera *node)
 {
-    if (h->acceptCamera(camera)) {
-        emit cameraChanged(camera);
+    if (h->acceptCameraNode(node)) {
+        // setDirty(Camera);
+        emit cameraNodeChanged(node);
+    }
+}
+
+OSGCameraManipulator *OSGViewport::manipulator() const
+{
+    return h->manipulator;
+}
+
+void OSGViewport::setManipulator(OSGCameraManipulator *manipulator)
+{
+    if (h->acceptManipulator(manipulator)) {
+        // setDirty(Manipulator);
+        emit manipulatorChanged(manipulator);
     }
 }
 
@@ -643,21 +697,9 @@ void OSGViewport::setBusy(const bool busy)
     }
 }
 
-QColor OSGViewport::color() const
+osgViewer::View *OSGViewport::asView() const
 {
-    const osg::Vec4 osgColor = h->view->getCamera()->getClearColor();
-
-    return QColor::fromRgbF(osgColor.r(), osgColor.g(), osgColor.b(), osgColor.a());
-}
-
-void OSGViewport::setColor(const QColor &color)
-{
-    osg::Vec4 osgColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
-
-    if (h->view->getCamera()->getClearColor() != osgColor) {
-        h->view->getCamera()->setClearColor(osgColor);
-        emit colorChanged(color);
-    }
+    return h->view;
 }
 
 QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
@@ -667,27 +709,21 @@ QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
     return new ViewportRenderer(h);
 }
 
-void OSGViewport::attach(osgViewer::View *view)
-{
-    // qDebug() << "OSGViewport::attach" << view;
-    if (h->sceneNode) {
-        h->sceneNode->attach(view);
-    }
-    h->attach(view);
-}
-
-void OSGViewport::detach(osgViewer::View *view)
-{
-    qDebug() << "OSGViewport::detach" << view;
-    h->detach(view);
-    if (h->sceneNode) {
-        h->sceneNode->detach(view);
-    }
-}
-
 void OSGViewport::releaseResources()
 {
     QQuickFramebufferObject::releaseResources();
+}
+
+void OSGViewport::classBegin()
+{
+    // qDebug() << "OSGViewport::classBegin" << this;
+    QQuickFramebufferObject::classBegin();
+}
+
+void OSGViewport::componentComplete()
+{
+    qDebug() << "OSGViewport::componentComplete" << this;
+    QQuickFramebufferObject::componentComplete();
 }
 
 // see https://bugreports.qt-project.org/browse/QTBUG-41073

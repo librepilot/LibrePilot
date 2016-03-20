@@ -35,10 +35,10 @@ OSGViewport {
     camera: camera
     manipulator: geoTransformManipulator
 
-    property real horizontCenter : horizontCenterItem.horizontCenter
+    readonly property real horizontCenter : horizontCenterItem.horizontCenter
 
-    // Factor for OSGview vertical offset
-    property double factor: 0.04
+    // Factor for OSGViewer vertical offset
+    readonly property double factor: 0.04
 
     // Stretch height and apply offset
     //height: height * (1 + factor)

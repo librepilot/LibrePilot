@@ -29,7 +29,7 @@ Item {
         anchors.fill: parent
         focus: true
 
-        sceneData: sceneNode
+        sceneNode: sceneNode
         camera: camera
         manipulator: trackballManipulator
 
@@ -58,7 +58,7 @@ Item {
 
         OSGTransformNode {
             id: transformNode
-            modelData: fileNode
+            childNode: fileNode
             attitude: UAV.attitude()
         }
 

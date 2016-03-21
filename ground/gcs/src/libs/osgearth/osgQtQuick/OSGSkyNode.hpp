@@ -46,8 +46,7 @@ namespace osgQtQuick {
 class OSGViewport;
 
 class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
-    // TODO rename to sceneNode
-    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGViewport * viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
     Q_PROPERTY(bool sunLightEnabled READ sunLightEnabled WRITE setSunLightEnabled NOTIFY sunLightEnabledChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)

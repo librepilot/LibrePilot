@@ -32,7 +32,7 @@ OSGViewport {
     anchors.fill: parent
     focus: true
 
-    sceneData: skyNode
+    sceneNode: skyNode
     camera: camera
     manipulator: nodeTrackerManipulator
 
@@ -52,7 +52,7 @@ OSGViewport {
 
     OSGSkyNode {
         id: skyNode
-        sceneData: sceneGroup
+        sceneNode: sceneGroup
         viewport: osgViewport
         dateTime: Utils.getDateTime()
         minimumAmbientLight: pfdContext.minimumAmbientLight
@@ -66,8 +66,8 @@ OSGViewport {
     OSGGeoTransformNode {
         id: modelNode
 
-        modelData: modelTransformNode
-        sceneData: terrainFileNode
+        childNode: modelTransformNode
+        sceneNode: terrainFileNode
 
         clampToTerrain: true
 
@@ -76,7 +76,7 @@ OSGViewport {
 
     OSGTransformNode {
         id: modelTransformNode
-        modelData: modelFileNode
+        childNode: modelFileNode
         // model dimensions are in mm, scale to meters
         scale: Qt.vector3d(0.001, 0.001, 0.001)
         attitude: UAV.attitude()

@@ -31,7 +31,7 @@ OSGViewport {
     //anchors.fill: parent
     focus: true
 
-    sceneData: skyNode
+    sceneNode: skyNode
     camera: camera
     manipulator: geoTransformManipulator
 
@@ -62,7 +62,7 @@ OSGViewport {
 
     OSGSkyNode {
         id: skyNode
-        sceneData: terrainFileNode
+        sceneNode: terrainFileNode
         viewport: osgViewport
         dateTime: Utils.getDateTime()
         minimumAmbientLight: pfdContext.minimumAmbientLight

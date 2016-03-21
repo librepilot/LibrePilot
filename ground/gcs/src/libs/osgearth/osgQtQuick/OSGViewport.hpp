@@ -51,7 +51,7 @@ public:
 };
 
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
-    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGCamera * camera READ cameraNode WRITE setCameraNode NOTIFY cameraNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGCameraManipulator * manipulator READ manipulator WRITE setManipulator NOTIFY manipulatorChanged)
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)

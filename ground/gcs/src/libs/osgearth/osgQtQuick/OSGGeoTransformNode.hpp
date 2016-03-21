@@ -37,10 +37,8 @@
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGGeoTransformNode : public OSGNode {
     Q_OBJECT
-    // TODO rename to sceneNode
-    Q_PROPERTY(osgQtQuick::OSGNode *modelData READ childNode WRITE setChildNode NOTIFY childNodeChanged)
-    // TODO rename to earthNode
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGNode *childNode READ childNode WRITE setChildNode NOTIFY childNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGNode * sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)

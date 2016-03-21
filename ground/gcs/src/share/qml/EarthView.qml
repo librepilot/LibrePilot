@@ -32,7 +32,7 @@ Item {
         anchors.fill: parent
         focus: true
 
-        sceneData: skyNode
+        sceneNode: skyNode
         camera: camera
         manipulator: earthManipulator
 
@@ -47,7 +47,7 @@ Item {
 
         OSGSkyNode {
             id: skyNode
-            sceneData: terrainNode
+            sceneNode: terrainNode
             viewport: osgViewport
             dateTime: Utils.getDateTime()
             minimumAmbientLight: pfdContext.minimumAmbientLight

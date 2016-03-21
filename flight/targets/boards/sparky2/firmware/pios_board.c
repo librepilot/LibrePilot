@@ -97,55 +97,13 @@ void PIOS_ADC_DMC_irq_handler(void)
 
 #if defined(PIOS_INCLUDE_HMC5X83)
 #include "pios_hmc5x83.h"
-pios_hmc5x83_dev_t i2c_port_mag = 0;
+pios_hmc5x83_dev_t i2c_port_mag   = 0;
 pios_hmc5x83_dev_t flexi_port_mag = 0;
 
-#if 0
-bool pios_board_internal_mag_handler()
-{
-    return PIOS_HMC5x83_IRQHandler(i2c_port_mag);
-}
-
-static const struct pios_exti_cfg pios_exti_hmc5x83_cfg __exti_config = {
-    .vector = pios_board_internal_mag_handler,
-    .line   = EXTI_Line7,
-    .pin    = {
-        .gpio = GPIOB,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_7,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_Mode  = GPIO_Mode_IN,
-            .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
-        },
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = EXTI9_5_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .exti                                      = {
-        .init                                  = {
-            .EXTI_Line    = EXTI_Line7, // matches above GPIO pin
-            .EXTI_Mode    = EXTI_Mode_Interrupt,
-            .EXTI_Trigger = EXTI_Trigger_Rising,
-            .EXTI_LineCmd = ENABLE,
-        },
-    },
-};
-#endif
-
 static const struct pios_hmc5x83_cfg pios_hmc5x83_cfg = {
-#if 0
-    .exti_cfg    = &pios_exti_hmc5x83_cfg,
-#else
 #ifdef PIOS_HMC5X83_HAS_GPIOS
     .exti_cfg    = NULL,
 #endif /* PIOS_HMC5X83_HAS_GPIOS */
-#endif /* 0 */
     .M_ODR       = PIOS_HMC5x83_ODR_75,
     .Meas_Conf   = PIOS_HMC5x83_MEASCONF_NORMAL,
     .Gain        = PIOS_HMC5x83_GAIN_1_9,
@@ -1043,39 +1001,39 @@ void PIOS_Board_Init(void)
     PIOS_HMC5x83_Register(i2c_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
 #endif /* PIOS_INCLUDE_HMC5X83 */
 
-#else
+#else /* if 0 */
 
 #if defined(PIOS_INCLUDE_I2C)
 #ifdef PIOS_INCLUDE_WDG
-        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
-        // this is not in a loop, so it is safe
-        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
-        // to avoid making something else fail when HMC5X83 is removed
-        PIOS_WDG_Clear();
+    // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+    // this is not in a loop, so it is safe
+    // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+    // to avoid making something else fail when HMC5X83 is removed
+    PIOS_WDG_Clear();
 #endif /* PIOS_INCLUDE_WDG */
 #if defined(PIOS_INCLUDE_HMC5X83)
-        // get auxmag type
-        HwSettingsSPK2_I2CPortOptions i2cOption;
-        AuxMagSettingsTypeOptions option;
-        HwSettingsSPK2_I2CPortGet(&i2cOption);
-        AuxMagSettingsTypeGet(&option);
-        // if the I2CPort type is I2C(Port) and the AuxMag type is I2C(Port) then set it up
-        if (i2cOption == HWSETTINGS_SPK2_I2CPORT_I2C && option == AUXMAGSETTINGS_TYPE_I2C) {
-            // attach the 5x83 mag to the previously inited I2C2
-            i2c_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
+    // get auxmag type
+    HwSettingsSPK2_I2CPortOptions i2cOption;
+    AuxMagSettingsTypeOptions option;
+    HwSettingsSPK2_I2CPortGet(&i2cOption);
+    AuxMagSettingsTypeGet(&option);
+    // if the I2CPort type is I2C(Port) and the AuxMag type is I2C(Port) then set it up
+    if (i2cOption == HWSETTINGS_SPK2_I2CPORT_I2C && option == AUXMAGSETTINGS_TYPE_I2C) {
+        // attach the 5x83 mag to the previously inited I2C2
+        i2c_port_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_cfg, pios_i2c_mag_pressure_adapter_id, 0);
 #ifdef PIOS_INCLUDE_WDG
-            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
-            // this is not in a loop, so it is safe
-            PIOS_WDG_Clear();
+        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+        PIOS_WDG_Clear();
 #endif /* PIOS_INCLUDE_WDG */
-            // add this sensor to the sensor task's list
-            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
-            // and before registering some other fast and important sensor
-            // as that would cause delay and time jitter for the second fast sensor
-            PIOS_HMC5x83_Register(i2c_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
-            // mag alarm is cleared later, so use I2C
-            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (i2c_port_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
-        }
+        // add this sensor to the sensor task's list
+        // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+        // and before registering some other fast and important sensor
+        // as that would cause delay and time jitter for the second fast sensor
+        PIOS_HMC5x83_Register(i2c_port_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+        // mag alarm is cleared later, so use I2C
+        AlarmsSet(SYSTEMALARMS_ALARM_I2C, (i2c_port_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+    }
 #endif /* PIOS_INCLUDE_HMC5X83 */
 #endif /* PIOS_INCLUDE_I2C */
 #endif /* 0 */

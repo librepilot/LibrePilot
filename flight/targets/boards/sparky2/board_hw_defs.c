@@ -140,136 +140,6 @@ const struct pios_gpio_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(__attribute__((unused))
 #if defined(PIOS_INCLUDE_SPI)
 #include <pios_spi_priv.h>
 
-#if (0 && defined(PIOS_OVERO_SPI))
-// Revo hardware config
-/*      SPI2 Interface
- *      - Used for Flexi/IO/Overo communications
-        3: PB12 = SPI2 NSS, CAN2 RX
-        4: PB13 = SPI2 SCK, CAN2 TX, USART3 CTS
-        5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
-        6: PB15 = SPI2 MOSI, TIM12 CH2
- */
-#include <pios_overo_priv.h>
-void PIOS_OVERO_irq_handler(void);
-void DMA1_Stream7_IRQHandler(void) __attribute__((alias("PIOS_OVERO_irq_handler")));
-static const struct pios_overo_cfg pios_overo_cfg = {
-    .regs  = SPI2,
-    .remap = GPIO_AF_SPI2,
-    .init  = {
-        .SPI_Mode              = SPI_Mode_Slave,
-        .SPI_Direction         = SPI_Direction_2Lines_FullDuplex,
-        .SPI_DataSize          = SPI_DataSize_8b,
-        .SPI_NSS                                   = SPI_NSS_Hard,
-        .SPI_FirstBit          = SPI_FirstBit_MSB,
-        .SPI_CRCPolynomial     = 7,
-        .SPI_CPOL              = SPI_CPOL_High,
-        .SPI_CPHA              = SPI_CPHA_2Edge,
-        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2,
-    },
-    .use_crc = false,
-    .dma     = {
-        .irq                                       = {
-            // Note this is the stream ID that triggers interrupts (in this case TX)
-            .flags = (DMA_IT_TCIF7),
-            .init  = {
-                .NVIC_IRQChannel    = DMA1_Stream7_IRQn,
-                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-                .NVIC_IRQChannelSubPriority        = 0,
-                .NVIC_IRQChannelCmd = ENABLE,
-            },
-        },
-
-        .rx                                        = {
-            .channel = DMA1_Stream0,
-            .init    = {
-                .DMA_Channel            = DMA_Channel_0,
-                .DMA_PeripheralBaseAddr = (uint32_t)&(SPI2->DR),
-                .DMA_DIR                = DMA_DIR_PeripheralToMemory,
-                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
-                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
-                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
-                .DMA_Mode               = DMA_Mode_Circular,
-                .DMA_Priority           = DMA_Priority_Medium,
-                // TODO: Enable FIFO
-                .DMA_FIFOMode           = DMA_FIFOMode_Disable,
-                .DMA_FIFOThreshold      = DMA_FIFOThreshold_Full,
-                .DMA_MemoryBurst        = DMA_MemoryBurst_Single,
-                .DMA_PeripheralBurst    = DMA_PeripheralBurst_Single,
-            },
-        },
-        .tx                                        = {
-            .channel = DMA1_Stream7,
-            .init    = {
-                .DMA_Channel            = DMA_Channel_0,
-                .DMA_PeripheralBaseAddr = (uint32_t)&(SPI2->DR),
-                .DMA_DIR                = DMA_DIR_MemoryToPeripheral,
-                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
-                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
-                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
-                .DMA_Mode               = DMA_Mode_Circular,
-                .DMA_Priority           = DMA_Priority_Medium,
-                .DMA_FIFOMode           = DMA_FIFOMode_Disable,
-                .DMA_FIFOThreshold      = DMA_FIFOThreshold_Full,
-                .DMA_MemoryBurst        = DMA_MemoryBurst_Single,
-                .DMA_PeripheralBurst    = DMA_PeripheralBurst_Single,
-            },
-        },
-    },
-    .sclk                                          = {
-        .gpio = GPIOB,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_13,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-    .miso                                          = {
-        .gpio = GPIOB,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_14,
-            .GPIO_Speed = GPIO_Speed_50MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-    .mosi                                          = {
-        .gpio = GPIOB,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_15,
-            .GPIO_Speed = GPIO_Speed_50MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-    .slave_count                                   = 1,
-    .ssel                                          = {
-        {
-            .gpio = GPIOB,
-            .init = {
-                .GPIO_Pin   = GPIO_Pin_12,
-                .GPIO_Speed = GPIO_Speed_50MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
-            },
-        }
-    },
-};
-uint32_t pios_overo_id = 0;
-void PIOS_OVERO_irq_handler(void)
-{
-    /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_OVERO_DMA_irq_handler(pios_overo_id);
-}
-
-#endif /* (0 && defined(PIOS_OVERO_SPI)) */
-
 /*
  * SPI1 Interface
  * Used for MPU9250 gyro, accelerometer and mag
@@ -733,58 +603,6 @@ static const struct pios_dsm_cfg pios_dsm_main_cfg = {
 
 #endif /* PIOS_INCLUDE_DSM */
 
-#include <pios_sbus_priv.h>
-#if defined(PIOS_INCLUDE_SBUS)
-/*
- * S.Bus USART
- */
-#include <pios_sbus_priv.h>
-
-#if 0
-static const struct pios_usart_cfg pios_usart_sbus_main_cfg = {
-    .regs  = USART1,
-    .remap = GPIO_AF_USART1,
-    .init  = {
-        .USART_BaudRate   = 100000,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_Even,
-        .USART_StopBits   = USART_StopBits_2,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART1_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_10,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_9,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-};
-#endif
-
-#endif /* PIOS_INCLUDE_SBUS */
-
 #ifdef PIOS_INCLUDE_COM_FLEXI
 /*
  * FLEXI PORT
@@ -1130,68 +948,12 @@ static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
 /*
  * RCVR PORT
  */
-#if 0
-static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
-    .regs  = USART6,
-    .remap = GPIO_AF_USART6,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART6_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-
-    .dtr                                       = {
-        // FlexIO pin 9
-        .gpio = GPIOC,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_8,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-
-    .tx                                        = {
-        // *  7: PC6 = TIM8 CH1, USART6 TX
-        .gpio = GPIOC,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_6,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-        .pin_source                            = GPIO_PinSource6,
-    },
-
-    .rx                                        = {
-        // *  8: PC7 = TIM8 CH2, USART6 RX
-        .gpio = GPIOC,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_7,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-        .pin_source                            = GPIO_PinSource7,
-    }
-};
-#endif
-
 
 #if defined(PIOS_INCLUDE_SBUS)
+/*
+ * S.Bus USART
+ */
+#include <pios_sbus_priv.h>
 
 static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
     .regs  = USART6,
@@ -1222,11 +984,6 @@ static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-#if 0
-    .tx = {
-        .gpio = NULL,
-    },
-#endif
 };
 
 #endif /* PIOS_INCLUDE_SBUS */
@@ -1237,9 +994,7 @@ static const struct pios_sbus_cfg pios_sbus_cfg = {
     .inv                = {
         .gpio = GPIOC,
         .init = {
-            // according to TL code, Sparky uses PC6 and Revo uses PC0
-            // according to the schematics, they both use PC0
-            .GPIO_Pin   = GPIO_Pin_6,  // GPIO_Pin_6 Sparky2 has external inverter connected to PC6, Revo=PC0
+            .GPIO_Pin   = GPIO_Pin_6,
             .GPIO_Speed = GPIO_Speed_2MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
@@ -1248,8 +1003,6 @@ static const struct pios_sbus_cfg pios_sbus_cfg = {
     },
     .gpio_inv_enable  = Bit_SET,
     .gpio_inv_disable = Bit_RESET,
-// in TauLabs Revo code these exist
-// in TauLabs Sparky2 code these do not exist
     .gpio_clk_func    = RCC_AHB1PeriphClockCmd,
     .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
 };
@@ -1262,7 +1015,7 @@ static const struct pios_sbus_cfg pios_sbus_cfg = {
 // (TL note) work.  Notice the mode is set to IN to maintain API
 // (TL note) compatibility but protect the pins
 static const struct pios_dsm_cfg pios_dsm_rcvr_cfg = {
-    .bind = {
+    .bind               = {
         .gpio = GPIOC,
         .init = {
             .GPIO_Pin   = GPIO_Pin_7,
@@ -1304,11 +1057,6 @@ static const struct pios_usart_cfg pios_usart_dsm_rcvr_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-#if 0
-    .tx = {
-        .gpio = NULL,
-    },
-#endif
 };
 
 #endif /* PIOS_INCLUDE_DSM */
@@ -1832,81 +1580,60 @@ void DMA2_Stream1_IRQHandler(void) __attribute__((alias("PIOS_WS2811_irq_handler
 // this will not clash with PWM in or servo output as
 // pins will be reconfigured as _OUT so the alternate function is disabled.
 const struct pios_ws2811_pin_cfg pios_ws2811_pin_cfg[] = {
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT1] =   {
+    [HWSETTINGS_WS2811LED_OUT_SERVOOUT1] = {
         .gpio     = GPIOB,
-        .gpioInit =                          {
+        .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_0,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
         },
     },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT2] =   {
+    [HWSETTINGS_WS2811LED_OUT_SERVOOUT2] = {
         .gpio     = GPIOB,
-        .gpioInit =                          {
+        .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_1,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
         },
     },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT3] =   {
+    [HWSETTINGS_WS2811LED_OUT_SERVOOUT3] = {
         .gpio     = GPIOA,
-        .gpioInit =                          {
+        .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_3,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
         },
     },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT4] =   {
+    [HWSETTINGS_WS2811LED_OUT_SERVOOUT4] = {
         .gpio     = GPIOA,
-        .gpioInit =                          {
+        .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_2,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
         },
     },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT5] =   {
+    [HWSETTINGS_WS2811LED_OUT_SERVOOUT5] = {
         .gpio     = GPIOA,
-        .gpioInit =                          {
+        .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_1,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
         },
     },
-    [HWSETTINGS_WS2811LED_OUT_SERVOOUT6] =   {
+    [HWSETTINGS_WS2811LED_OUT_SERVOOUT6] = {
         .gpio     = GPIOA,
-        .gpioInit =                          {
+        .gpioInit =                        {
             .GPIO_Pin   = GPIO_Pin_0,
             .GPIO_Speed = GPIO_Speed_25MHz,
             .GPIO_Mode  = GPIO_Mode_OUT,
             .GPIO_OType = GPIO_OType_PP,
         },
     },
-#if 0
-// Revo FlexiIo (receiver port) is not available on Sparky2
-    [HWSETTINGS_WS2811LED_OUT_FLEXIIOPIN3] = {
-        .gpio     = GPIOB,
-        .gpioInit =                          {
-            .GPIO_Pin   = GPIO_Pin_12,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-    [HWSETTINGS_WS2811LED_OUT_FLEXIIOPIN4] = {
-        .gpio     = GPIOB,
-        .gpioInit =                          {
-            .GPIO_Pin   = GPIO_Pin_13,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-#endif
 };
 
 const struct pios_ws2811_cfg pios_ws2811_cfg = {

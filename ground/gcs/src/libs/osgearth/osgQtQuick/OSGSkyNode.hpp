@@ -49,10 +49,11 @@ class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
     // TODO rename to sceneNode
     Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGViewport * viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
-
     Q_PROPERTY(bool sunLightEnabled READ sunLightEnabled WRITE setSunLightEnabled NOTIFY sunLightEnabledChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(double minimumAmbientLight READ minimumAmbientLight WRITE setMinimumAmbientLight NOTIFY minimumAmbientLightChanged)
+
+    typedef OSGNode Inherited;
 
 public:
     OSGSkyNode(QObject *parent = 0);
@@ -81,11 +82,12 @@ signals:
     void dateTimeChanged(QDateTime arg);
     void minimumAmbientLightChanged(double arg);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

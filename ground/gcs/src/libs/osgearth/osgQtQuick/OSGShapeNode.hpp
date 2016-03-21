@@ -42,6 +42,8 @@ public:
 class OSGQTQUICK_EXPORT OSGShapeNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(osgQtQuick::ShapeType::Enum shapeType READ shapeType WRITE setShapeType NOTIFY shapeTypeChanged)
 
+    typedef OSGNode Inherited;
+
 public:
     OSGShapeNode(QObject *parent = 0);
     virtual ~OSGShapeNode();
@@ -52,11 +54,12 @@ public:
 signals:
     void shapeTypeChanged(ShapeType::Enum);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

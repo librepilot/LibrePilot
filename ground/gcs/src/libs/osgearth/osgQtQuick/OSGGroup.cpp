@@ -161,7 +161,7 @@ private slots:
 
 /* class OSGGGroupNode */
 
-OSGGroup::OSGGroup(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGGroup::OSGGroup(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGGroup::~OSGGroup()
@@ -181,6 +181,8 @@ QQmlListProperty<OSGNode> OSGGroup::children() const
 
 void OSGGroup::update()
 {
+    Inherited::update();
+
     if (isDirty(Children)) {
         h->updateGroupNode();
     }

@@ -41,6 +41,8 @@ class OSGQTQUICK_EXPORT OSGGeoTransformManipulator : public OSGCameraManipulator
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
 
+    typedef OSGCameraManipulator Inherited;
+
 public:
     explicit OSGGeoTransformManipulator(QObject *parent = 0);
     virtual ~OSGGeoTransformManipulator();
@@ -61,9 +63,6 @@ signals:
     void positionChanged(QVector3D arg);
     void clampToTerrainChanged(bool arg);
     void intoTerrainChanged(bool arg);
-
-protected:
-    void componentComplete();
 
 private:
     struct Hidden;

@@ -45,6 +45,8 @@ class OSGQTQUICK_EXPORT OSGCamera : public OSGNode {
     Q_PROPERTY(qreal fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
     Q_PROPERTY(bool logarithmicDepthBuffer READ logarithmicDepthBuffer WRITE setLogarithmicDepthBuffer NOTIFY logarithmicDepthBufferChanged)
 
+    typedef OSGNode Inherited;
+
     friend class OSGViewport;
 
 public:
@@ -65,14 +67,15 @@ signals:
     void fieldOfViewChanged(qreal arg);
     void logarithmicDepthBufferChanged(bool enabled);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
 
     osg::Camera *asCamera() const;
     void setGraphicsContext(osg::GraphicsContext *gc);
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

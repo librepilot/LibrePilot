@@ -149,7 +149,8 @@ void OSGCameraManipulator::classBegin()
 void OSGCameraManipulator::componentComplete()
 {
     qDebug() << "OSGCameraManipulator::componentComplete" << this;
-    h->updateSceneNode();
+    update();
+    clearDirty();
 }
 
 osgGA::CameraManipulator *OSGCameraManipulator::manipulator() const
@@ -168,7 +169,9 @@ osgGA::CameraManipulator *OSGCameraManipulator::asCameraManipulator() const
 }
 
 void OSGCameraManipulator::update()
-{}
+{
+    h->updateSceneNode();
+}
 } // namespace osgQtQuick
 
 #include "OSGCameraManipulator.moc"

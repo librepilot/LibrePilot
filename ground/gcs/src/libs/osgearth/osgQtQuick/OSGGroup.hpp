@@ -39,17 +39,20 @@ class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
 
     Q_CLASSINFO("DefaultProperty", "children")
 
+    typedef OSGNode Inherited;
+
 public:
     explicit OSGGroup(QObject *parent = 0);
     virtual ~OSGGroup();
 
     QQmlListProperty<OSGNode> children() const;
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

@@ -57,7 +57,7 @@ public:
 
 /* class OSGEarthManipulator */
 
-OSGEarthManipulator::OSGEarthManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
+OSGEarthManipulator::OSGEarthManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGEarthManipulator::~OSGEarthManipulator()

@@ -38,6 +38,8 @@ class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
+    typedef OSGNode Inherited;
+
 public:
     explicit OSGTextNode(QObject *parent = 0);
     virtual ~OSGTextNode();
@@ -52,11 +54,12 @@ signals:
     void textChanged(const QString &text);
     void colorChanged(const QColor &color);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

@@ -61,6 +61,9 @@ public:
     osg::Node *node() const;
     void setNode(osg::Node *node);
 
+signals:
+    void nodeChanged(osg::Node *node) const;
+
 protected:
     bool isDirty(int mask = 0xFFFF) const;
     void setDirty(int mask = 0xFFFF);
@@ -69,18 +72,13 @@ protected:
     void classBegin();
     void componentComplete();
 
-    bool isComponentComplete();
-
     void emitNodeChanged();
 
-signals:
-    void nodeChanged(osg::Node *node) const;
+    virtual void update();
 
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

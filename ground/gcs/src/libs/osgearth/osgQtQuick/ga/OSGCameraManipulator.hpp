@@ -69,11 +69,12 @@ protected:
     osgGA::CameraManipulator *manipulator() const;
     void setManipulator(osgGA::CameraManipulator *manipulator);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

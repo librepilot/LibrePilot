@@ -37,6 +37,8 @@ namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGTrackballManipulator : public OSGCameraManipulator {
     Q_OBJECT
 
+    typedef OSGCameraManipulator Inherited;
+
 public:
     explicit OSGTrackballManipulator(QObject *parent = 0);
     virtual ~OSGTrackballManipulator();

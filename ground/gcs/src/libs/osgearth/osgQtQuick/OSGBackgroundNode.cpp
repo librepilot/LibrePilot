@@ -83,7 +83,7 @@ public:
 
 /* class OSGBackgroundNode */
 
-OSGBackgroundNode::OSGBackgroundNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGBackgroundNode::OSGBackgroundNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGBackgroundNode::~OSGBackgroundNode()
@@ -108,6 +108,8 @@ void OSGBackgroundNode::setImageFile(const QUrl &url)
 
 void OSGBackgroundNode::update()
 {
+    Inherited::update();
+
     if (isDirty(URL)) {
         h->updateURL();
     }

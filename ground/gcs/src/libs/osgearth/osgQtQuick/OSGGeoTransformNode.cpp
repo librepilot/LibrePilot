@@ -147,6 +147,7 @@ public:
         // qDebug() << "OSGGeoTransformNode::updatePosition" << position;
 
         osgEarth::MapNode *mapNode = NULL;
+
         if (sceneNode && sceneNode->node()) {
             mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
             if (!mapNode) {
@@ -199,7 +200,7 @@ private slots:
 
 /* class OSGGeoTransformNode */
 
-OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGGeoTransformNode::~OSGGeoTransformNode()
@@ -269,6 +270,8 @@ void OSGGeoTransformNode::setPosition(QVector3D arg)
 
 void OSGGeoTransformNode::update()
 {
+    Inherited::update();
+
     if (isDirty(Child)) {
         h->updateChildNode();
     }

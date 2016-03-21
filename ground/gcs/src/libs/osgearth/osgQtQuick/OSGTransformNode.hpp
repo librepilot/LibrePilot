@@ -39,10 +39,11 @@ class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
     Q_OBJECT
     // TODO rename to childNode
     Q_PROPERTY(osgQtQuick::OSGNode *modelData READ childNode WRITE setChildNode NOTIFY childNodeChanged)
-
     Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
+
+    typedef OSGNode Inherited;
 
 public:
     OSGTransformNode(QObject *parent = 0);
@@ -67,11 +68,12 @@ signals:
     void attitudeChanged(QVector3D arg);
     void positionChanged(QVector3D arg);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

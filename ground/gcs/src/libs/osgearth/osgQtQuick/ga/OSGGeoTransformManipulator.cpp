@@ -203,7 +203,7 @@ void MyManipulator::updateCamera(osg::Camera & camera)
 
 /* class OSGGeoTransformManipulator */
 
-OSGGeoTransformManipulator::OSGGeoTransformManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
+OSGGeoTransformManipulator::OSGGeoTransformManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGGeoTransformManipulator::~OSGGeoTransformManipulator()
@@ -258,18 +258,10 @@ void OSGGeoTransformManipulator::setPosition(QVector3D arg)
     }
 }
 
-// TODO factorize up
-void OSGGeoTransformManipulator::componentComplete()
-{
-    OSGCameraManipulator::componentComplete();
-
-    qDebug() << "OSGGeoTransformManipulator::componentComplete" << this;
-    update();
-    clearDirty();
-}
-
 void OSGGeoTransformManipulator::update()
 {
+    Inherited::update();
+
     h->updatePosition();
     h->updateAttitude();
     h->updateManipulator();

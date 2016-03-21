@@ -129,21 +129,15 @@ void OSGNode::componentComplete()
     qDebug() << "OSGNode::componentComplete" << this;
     update();
     clearDirty();
-    h->complete = h->node.valid();
-    if (!isComponentComplete()) {
-        qWarning() << "OSGNode::componentComplete - not complete !!!" << this;
+    h->complete = true;
+    if (!h->node.valid()) {
+        qWarning() << "OSGNode::componentComplete - node is not valid!" << this;
     }
 }
 
-bool OSGNode::isComponentComplete()
-{
-    return h->complete;
-}
-
-
 void OSGNode::emitNodeChanged()
 {
-    if (isComponentComplete()) {
+    if (h->complete) {
         emit nodeChanged(node());
     }
 }

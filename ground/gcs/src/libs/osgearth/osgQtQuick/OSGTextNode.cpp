@@ -90,7 +90,7 @@ public:
 
 /* class OSGTextNode */
 
-OSGTextNode::OSGTextNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGTextNode::OSGTextNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {
     setDirty(Text | Color);
 }
@@ -130,6 +130,8 @@ void OSGTextNode::setColor(const QColor &color)
 
 void OSGTextNode::update()
 {
+    Inherited::update();
+
     if (isDirty(Text)) {
         h->updateText();
     }

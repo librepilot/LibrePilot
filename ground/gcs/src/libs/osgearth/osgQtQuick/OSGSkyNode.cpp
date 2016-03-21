@@ -223,7 +223,7 @@ private slots:
 
 /* class OSGSkyNode */
 
-OSGSkyNode::OSGSkyNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGSkyNode::OSGSkyNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {
     setDirty(DateTime | Light);
 }
@@ -305,6 +305,8 @@ void OSGSkyNode::setMinimumAmbientLight(double ambient)
 
 void OSGSkyNode::update()
 {
+    Inherited::update();
+
     if (isDirty(Scene)) {
         h->updateSkyNode();
     }

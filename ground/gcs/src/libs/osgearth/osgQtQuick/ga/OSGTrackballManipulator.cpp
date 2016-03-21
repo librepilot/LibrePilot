@@ -57,7 +57,7 @@ public:
 
 /* class OSGTrackballManipulator */
 
-OSGTrackballManipulator::OSGTrackballManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
+OSGTrackballManipulator::OSGTrackballManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGTrackballManipulator::~OSGTrackballManipulator()

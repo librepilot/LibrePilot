@@ -41,11 +41,11 @@ class OSGQTQUICK_EXPORT OSGGeoTransformNode : public OSGNode {
     Q_PROPERTY(osgQtQuick::OSGNode *modelData READ childNode WRITE setChildNode NOTIFY childNodeChanged)
     // TODO rename to earthNode
     Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
-
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
-
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
+
+    typedef OSGNode Inherited;
 
 public:
     OSGGeoTransformNode(QObject *parent = 0);
@@ -75,11 +75,12 @@ signals:
 
     void positionChanged(QVector3D arg);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

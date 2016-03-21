@@ -78,7 +78,7 @@ public:
 
 // TODO turn into generic shape node...
 // see http://trac.openscenegraph.org/projects/osg//wiki/Support/Tutorials/TransformsAndStates
-OSGShapeNode::OSGShapeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGShapeNode::OSGShapeNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {
     setDirty(Type);
 }
@@ -105,6 +105,8 @@ void OSGShapeNode::setShapeType(ShapeType::Enum type)
 
 void OSGShapeNode::update()
 {
+    Inherited::update();
+
     if (isDirty(Type)) {
         h->updateNode();
     }

@@ -37,6 +37,8 @@ namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGEarthManipulator : public OSGCameraManipulator {
     Q_OBJECT
 
+    typedef OSGCameraManipulator Inherited;
+
 public:
     explicit OSGEarthManipulator(QObject *parent = 0);
     virtual ~OSGEarthManipulator();

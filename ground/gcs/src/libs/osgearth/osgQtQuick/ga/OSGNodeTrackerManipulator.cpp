@@ -122,7 +122,7 @@ private slots:
 
 /* class OSGNodeTrackerManipulator */
 
-OSGNodeTrackerManipulator::OSGNodeTrackerManipulator(QObject *parent) : OSGCameraManipulator(parent), h(new Hidden(this))
+OSGNodeTrackerManipulator::OSGNodeTrackerManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGNodeTrackerManipulator::~OSGNodeTrackerManipulator()
@@ -156,11 +156,10 @@ void OSGNodeTrackerManipulator::setTrackerMode(TrackerMode::Enum mode)
     }
 }
 
-void OSGNodeTrackerManipulator::componentComplete()
+void OSGNodeTrackerManipulator::update()
 {
-    OSGCameraManipulator::componentComplete();
+    Inherited::update();
 
-    qDebug() << "OSGNodeTrackerManipulator::componentComplete" << this;
     h->updateTrackerMode();
     h->updateTrackNode();
 }

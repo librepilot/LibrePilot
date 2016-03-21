@@ -39,6 +39,7 @@ QT_END_NAMESPACE
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OptimizeMode : public QObject {
     Q_OBJECT
+
 public:
     enum Enum { None, Optimize, OptimizeAndCheck };
     Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
@@ -48,6 +49,8 @@ class OSGQTQUICK_EXPORT OSGFileNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
     Q_PROPERTY(osgQtQuick::OptimizeMode::Enum optimizeMode READ optimizeMode WRITE setOptimizeMode NOTIFY optimizeModeChanged)
+
+    typedef OSGNode Inherited;
 
 public:
     OSGFileNode(QObject *parent = 0);
@@ -67,11 +70,12 @@ signals:
     void asyncChanged(const bool async);
     void optimizeModeChanged(OptimizeMode::Enum);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

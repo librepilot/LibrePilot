@@ -40,6 +40,8 @@ namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGBackgroundNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(QUrl imageFile READ imageFile WRITE setImageFile NOTIFY imageFileChanged)
 
+    typedef OSGNode Inherited;
+
 public:
     OSGBackgroundNode(QObject *parent = 0);
     virtual ~OSGBackgroundNode();
@@ -50,11 +52,12 @@ public:
 signals:
     void imageFileChanged(const QUrl &url);
 
+protected:
+    virtual void update();
+
 private:
     struct Hidden;
     Hidden *const h;
-
-    virtual void update();
 };
 } // namespace osgQtQuick
 

@@ -72,7 +72,7 @@
    which will separate the clip plane calculations of the helicopter from those of the earth. *
 
    TODO : add OSGView to handle multiple views for a given OSGViewport
-*/
+ */
 
 /*
    that's a typical error when working with high-resolution (retina)
@@ -95,7 +95,7 @@
 
    I think osgQt already handles this correctly, so you shouldn't have to
    worry about this if you use the classes provided by osgQt ...
-*/
+ */
 
 namespace osgQtQuick {
 enum DirtyFlag { Scene = 1 << 0, Camera = 1 << 1 };

@@ -45,6 +45,8 @@ class OSGQTQUICK_EXPORT OSGNodeTrackerManipulator : public OSGCameraManipulator 
     Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
     Q_PROPERTY(osgQtQuick::TrackerMode::Enum trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
 
+    typedef OSGCameraManipulator Inherited;
+
 public:
     explicit OSGNodeTrackerManipulator(QObject *parent = 0);
     virtual ~OSGNodeTrackerManipulator();
@@ -59,12 +61,11 @@ signals:
     void trackNodeChanged(OSGNode *node);
     void trackerModeChanged(TrackerMode::Enum);
 
-protected:
-    void componentComplete();
-
 private:
     struct Hidden;
     Hidden *const h;
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 

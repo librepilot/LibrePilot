@@ -146,7 +146,7 @@ private slots:
 
 /* class OSGFileNode */
 
-OSGFileNode::OSGFileNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGFileNode::OSGFileNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGFileNode::~OSGFileNode()
@@ -199,6 +199,8 @@ void OSGFileNode::setOptimizeMode(OptimizeMode::Enum optimizeMode)
 
 void OSGFileNode::update()
 {
+    Inherited::update();
+
     if (isDirty(Async)) {
         // do nothing...
     }

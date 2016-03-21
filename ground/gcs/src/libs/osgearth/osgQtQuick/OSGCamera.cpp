@@ -27,8 +27,6 @@
 
 #include "OSGCamera.hpp"
 
-#include "OSGNode.hpp"
-
 #include <osg/Camera>
 #include <osg/Node>
 
@@ -191,7 +189,7 @@ public:
 
 /* class OSGCamera */
 
-OSGCamera::OSGCamera(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGCamera::OSGCamera(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGCamera::~OSGCamera()
@@ -254,6 +252,8 @@ void OSGCamera::setGraphicsContext(osg::GraphicsContext *gc)
 
 void OSGCamera::update()
 {
+    Inherited::update();
+
     if (isDirty(ClearColor)) {
         h->updateClearColor();
     }

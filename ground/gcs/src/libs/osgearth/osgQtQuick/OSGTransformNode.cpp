@@ -138,7 +138,7 @@ private slots:
 
 /* class OSGTransformNode */
 
-OSGTransformNode::OSGTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGTransformNode::OSGTransformNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
 OSGTransformNode::~OSGTransformNode()
@@ -204,6 +204,8 @@ void OSGTransformNode::setPosition(QVector3D arg)
 
 void OSGTransformNode::update()
 {
+    Inherited::update();
+
     if (isDirty(Child)) {
         h->updateChildNode();
     }

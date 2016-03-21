@@ -57,22 +57,21 @@ static const struct pios_gpio pios_leds_v2[] = {
         },
         .active_low         = true
     },
-#if 0
     // the other LED in the TL code is accessed this way
     // probably needs .active_low = true
-    [PIOS_LED_LINK] = {
-        .pin = {
+    [PIOS_LED_LINK] =      {
+        .pin                =             {
             .gpio = GPIOB,
-            .init = {
+            .init =             {
                 .GPIO_Pin   = GPIO_Pin_6,
                 .GPIO_Speed = GPIO_Speed_50MHz,
                 .GPIO_Mode  = GPIO_Mode_OUT,
                 .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd = GPIO_PuPd_UP
+                .GPIO_PuPd  = GPIO_PuPd_UP
             },
         },
+        .active_low         = true
     },
-#endif
 #if (0 && defined(PIOS_RFM22B_DEBUG_ON_TELEM))
 // Revo hardware config
     [PIOS_LED_D1] =        {

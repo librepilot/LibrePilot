@@ -76,6 +76,8 @@
 // ------------------------
 #define PIOS_LED_HEARTBEAT 0
 #define PIOS_LED_ALARM     1
+#define PIOS_LED_LINK         2
+
 #ifdef PIOS_RFM22B_DEBUG_ON_TELEM
 #define PIOS_LED_D1        2
 #define PIOS_LED_D2        3

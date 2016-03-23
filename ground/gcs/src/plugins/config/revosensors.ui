@@ -509,10 +509,10 @@ p, li { white-space: pre-wrap; }
             <item row="1" column="3">
              <widget class="QDoubleSpinBox" name="pitchRotation">
               <property name="minimum">
-               <double>-90.000000000000000</double>
+               <double>-180.000000000000000</double>
               </property>
               <property name="maximum">
-               <double>90.000000000000000</double>
+               <double>180.000000000000000</double>
               </property>
              </widget>
             </item>

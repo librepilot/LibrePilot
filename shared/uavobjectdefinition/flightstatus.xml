@@ -2,10 +2,12 @@
     <object name="FlightStatus" singleinstance="true" settings="false" category="Control">
         <description>Contains major flight status information for other modules.</description>
         <field name="Armed" units="" type="enum" elements="1" options="Disarmed,Arming,Armed" defaultvalue="Disarmed"/>
-        <field name="AlwaysStabilizeWhenArmed" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
 
 	<!-- Note these enumerated values should be the same as ManualControlSettings -->
         <field name="FlightMode" units="" type="enum" elements="1" options="Manual,Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6,PositionHold,CourseLock,VelocityRoam,HomeLeash,AbsolutePosition,ReturnToBase,Land,PathPlanner,POI,AutoCruise,AutoTakeoff"/>
+        <!-- Keep Armed (first pos) and FlightMode (second pos) before this line for OSD compatibility -->
+        <field name="AlwaysStabilizeWhenArmed" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+
         <!-- the options for FlightModeAssist needs to match the StablizationSettings' assist options -->
         <field name="FlightModeAssist" units="" type="enum" elements="1" options="None,GPSAssist_PrimaryThrust,GPSAssist"/>
         <field name="AssistedControlState" units="" type="enum" elements="1" options="Primary,Brake,Hold" defaultvalue="Primary"/>

@@ -1,7 +1,7 @@
 /*
 silent installer script
 
-known not work with Qt 5.5.1 and QtIFW 2.0.2
+known not work with Qt 5.6.0 and QtIFW 2.1.0
 
 known issues:
 - silent but not headless (QtIFW 2.0.3 should support installer.setSilent(true))
@@ -14,11 +14,10 @@ function Controller()
 {
     console.log("*** Silent Installer ***");
     console.log("Installing on " + installer.value("os"));
-    //installer.setSilent(true);
 
     var qtInstallTargetDir = installer.environmentVariable("QT_INSTALL_TARGET_DIR");
     if (qtInstallTargetDir == "") {
-        qtInstallTargetDir = installer.environmentVariable("PWD") + "/tools/qt-5.5.1";
+        qtInstallTargetDir = installer.environmentVariable("PWD") + "/tools/qt-5.6.0";
         console.log("Environment variable QT_INSTALL_TARGET_DIR not set, using default " + qtInstallTargetDir);
     }
     installer.setValue("TargetDir", qtInstallTargetDir);
@@ -97,18 +96,18 @@ Controller.prototype.ComponentSelectionPageCallback = function()
     var page = gui.currentPageWidget();
     page.deselectAll()
     if (installer.value("os") == "win") {
-        selectComponent(page, "qt.55.win32_mingw492");
+        selectComponent(page, "qt.56.win32_mingw492");
         selectComponent(page, "qt.tools.win32_mingw492");
     }
     else if (installer.value("os") == "x11") {
-        selectComponent(page, "qt.55.gcc");
-        selectComponent(page, "qt.55.gcc_64");
+        selectComponent(page, "qt.56.gcc");
+        selectComponent(page, "qt.56.gcc_64");
     }
     else if (installer.value("os") == "mac") {
-        selectComponent(page, "qt.55.clang_64");
+        selectComponent(page, "qt.56.clang_64");
     }
-    selectComponent(page, "qt.55.qtquickcontrols");
-    selectComponent(page, "qt.55.qtscript");
+    selectComponent(page, "qt.56.qtquickcontrols");
+    selectComponent(page, "qt.56.qtscript");
 
     //installer.componentByName("qt.tools.qtcreator").setValue("ForcedInstallation", "false");
 

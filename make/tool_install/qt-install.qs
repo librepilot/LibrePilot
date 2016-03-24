@@ -1,10 +1,10 @@
 /*
 silent installer script
 
-known not work with Qt 5.6.0 and QtIFW 2.1.0
+known to work with Qt 5.6.0 and QtIFW 2.1.0
 
 known issues:
-- silent but not headless (QtIFW 2.0.3 should support installer.setSilent(true))
+- silent but not headless (QtIFW 2.1.0 should support gui.setSilent(true))
 - cannot disable forced components (QtCreator, ...)
  - cannot disable virtual components (doc, examples, ...)
  - cannot disable shortcuts creation

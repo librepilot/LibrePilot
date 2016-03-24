@@ -581,6 +581,7 @@ OSGViewport::OSGViewport(QQuickItem *parent) : QQuickFramebufferObject(parent), 
 {
     qDebug() << "OSGViewport::OSGViewport";
     // setClearBeforeRendering(false);
+    setMirrorVertically(true);
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
 }
@@ -682,10 +683,6 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
         qDebug() << "OSGViewport::updatePaintNode - set transform";
         node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
         QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
-        if (n) {
-            // flip Y axis
-            n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-        }
         return node;
     }
     return QQuickFramebufferObject::updatePaintNode(node, nodeData);

@@ -238,3 +238,10 @@ plugin_usagetracker.depends += plugin_uavobjects
 plugin_usagetracker.depends += plugin_uavtalk
 plugin_setupwizard.depends += plugin_uavobjectutil
 SUBDIRS += plugin_usagetracker
+
+# Stream Service Plugin
+plugin_streamservice.subdir = streamservice
+plugin_streamservice.depends = plugin_coreplugin
+plugin_streamservice.depends += plugin_uavobjects
+plugin_streamservice.depends += plugin_uavtalk
+SUBDIRS += plugin_streamservice

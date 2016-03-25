@@ -19,8 +19,8 @@
  */
 import QtQuick 2.0
 
-import "../common.js" as Utils
-import "../uav.js" as UAV
+import "../js/common.js" as Utils
+import "../js/uav.js" as UAV
 
 Item {
     id: panels

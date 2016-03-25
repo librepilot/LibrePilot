@@ -19,7 +19,7 @@
  */
 import QtQuick 2.4
 
-import "../uav.js" as UAV
+import "../js/uav.js" as UAV
 
 Item {
     id: sceneItem

@@ -22,18 +22,14 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import "../common.js" as Utils
-import "../uav.js" as UAV
+import "../js/common.js" as Utils
+import "../js/uav.js" as UAV
 
 OSGViewport {
     id: osgViewport
 
     //anchors.fill: parent
     focus: true
-
-    sceneNode: skyNode
-    camera: camera
-    manipulator: geoTransformManipulator
 
     readonly property real horizontCenter : horizontCenterItem.horizontCenter
 
@@ -43,6 +39,10 @@ OSGViewport {
     // Stretch height and apply offset
     //height: height * (1 + factor)
     y: -height * factor
+
+    sceneNode: skyNode
+    camera: camera
+    manipulator: geoTransformManipulator
 
     OSGCamera {
         id: camera
@@ -89,7 +89,6 @@ OSGViewport {
                                                 svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch90").y) / 180.0
 
         property double pitch1DegHeight: sceneItem.height * pitch1DegScaledHeight
-
 
         transform: [
             Translate {

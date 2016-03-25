@@ -28,7 +28,7 @@
 .import UAVTalk.VtolPathFollowerSettings 1.0 as VtolPathFollowerSettings
 
 // Navigation
-.import UAVTalk.HomeLocation 1.0 as HomeLocation 
+.import UAVTalk.HomeLocation 1.0 as HomeLocation
 .import UAVTalk.TakeOffLocation 1.0 as TakeOffLocation
 
 // Sensors
@@ -147,7 +147,7 @@ function defaultPosition() {
  *
 */
 function isCC3D() {
-    // Hack: detect Coptercontrol with mem free 
+    // Hack: detect Coptercontrol with mem free
     return (freeMemoryBytes() < 3096);
 }
 
@@ -251,7 +251,7 @@ function gpsStatus() {
     return ["NO GPS", "NO FIX", "2D", "3D"][gpsPositionSensor.status];
 }
 
-function fusionAlgorithm() { 
+function fusionAlgorithm() {
     return ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"][revoSettings.fusionAlgorithm];
 }
 
@@ -271,7 +271,7 @@ function batteryModuleEnabled() {
     return (hwSettings.optionalModulesBattery == HwSettings.OptionalModules.Enabled);
 }
 
-function batteryNbCells() { 
+function batteryNbCells() {
     return flightBatterySettings.nbCells;
 }
 
@@ -287,7 +287,7 @@ function batteryConsumedEnergy() {
     return flightBatteryState.consumedEnergy.toFixed(0);
 }
 
-function estimatedFlightTimeValue() {        
+function estimatedFlightTimeValue() {
     return Math.round(flightBatteryState.estimatedFlightTime);
 }
 
@@ -351,7 +351,7 @@ function waypointHeading() {
 }
 
 function homeDistance() {
-    return Math.sqrt(Math.pow((takeOffLocation.east - positionState.east), 2) + 
+    return Math.sqrt(Math.pow((takeOffLocation.east - positionState.east), 2) +
                      Math.pow((takeOffLocation.north - positionState.north), 2));
 }
 
@@ -377,8 +377,8 @@ function isVtolPathFollowerSettingsThrustAuto() {
 }
 
 function flightModeName() {
-    return ["MANUAL", "STAB 1", "STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6", 
-            "POS HOLD", "COURSELOCK", "VEL ROAM", "HOME LEASH", "ABS POS", "RTB", 
+    return ["MANUAL", "STAB 1", "STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
+            "POS HOLD", "COURSELOCK", "VEL ROAM", "HOME LEASH", "ABS POS", "RTB",
             "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"][flightStatus.flightMode];
 }
 

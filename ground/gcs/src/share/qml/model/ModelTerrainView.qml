@@ -23,96 +23,98 @@ import QtQuick.Controls 1.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import "../common.js" as Utils
-import "../uav.js" as UAV
+import "../js/common.js" as Utils
+import "../js/uav.js" as UAV
 
-OSGViewport {
-    id: osgViewport
+Item {
+    OSGViewport {
+        id: osgViewport
 
-    anchors.fill: parent
-    focus: true
+        anchors.fill: parent
+        focus: true
 
-    sceneNode: skyNode
-    camera: camera
-    manipulator: nodeTrackerManipulator
+        sceneNode: skyNode
+        camera: camera
+        manipulator: nodeTrackerManipulator
 
-    OSGCamera {
-        id: camera
-        fieldOfView: 90
-        logarithmicDepthBuffer: true
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+            logarithmicDepthBuffer: true
+        }
+
+        OSGNodeTrackerManipulator {
+            id: nodeTrackerManipulator
+            // use model to compute camera home position
+            sceneNode: modelTransformNode
+            // model will be tracked
+            trackNode: modelTransformNode
+        }
+
+        OSGSkyNode {
+            id: skyNode
+            sceneNode: sceneGroup
+            viewport: osgViewport
+            dateTime: Utils.getDateTime()
+            minimumAmbientLight: pfdContext.minimumAmbientLight
+        }
+
+        OSGGroup {
+            id: sceneGroup
+            children: [ terrainFileNode, modelNode ]
+        }
+
+        OSGGeoTransformNode {
+            id: modelNode
+
+            childNode: modelTransformNode
+            sceneNode: terrainFileNode
+
+            clampToTerrain: true
+
+            position: UAV.position()
+        }
+
+        OSGTransformNode {
+            id: modelTransformNode
+            childNode: modelFileNode
+            // model dimensions are in mm, scale to meters
+            scale: Qt.vector3d(0.001, 0.001, 0.001)
+            attitude: UAV.attitude()
+        }
+
+        OSGFileNode {
+            id: terrainFileNode
+            source: pfdContext.terrainFile
+        }
+
+        OSGFileNode {
+            id: modelFileNode
+
+            // use ShaderGen pseudoloader to generate the shaders expected by osgEarth
+            // see http://docs.osgearth.org/en/latest/faq.html#i-added-a-node-but-it-has-no-texture-lighting-etc-in-osgearth-why
+            source: pfdContext.modelFile + ".osgearth_shadergen"
+
+            optimizeMode: OptimizeMode.OptimizeAndCheck
+        }
+
+        Keys.onUpPressed: {
+            pfdContext.nextModel();
+        }
+
+        Keys.onDownPressed: {
+            pfdContext.previousModel();
+        }
+
+        BusyIndicator {
+            width: 24
+            height: 24
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 4
+
+            running: osgViewport.busy
+        }
+
     }
-
-    OSGNodeTrackerManipulator {
-        id: nodeTrackerManipulator
-        // use model to compute camera home position
-        sceneNode: modelTransformNode
-        // model will be tracked
-        trackNode: modelTransformNode
-    }
-
-    OSGSkyNode {
-        id: skyNode
-        sceneNode: sceneGroup
-        viewport: osgViewport
-        dateTime: Utils.getDateTime()
-        minimumAmbientLight: pfdContext.minimumAmbientLight
-    }
-
-    OSGGroup {
-        id: sceneGroup
-        children: [ terrainFileNode, modelNode ]
-    }
-
-    OSGGeoTransformNode {
-        id: modelNode
-
-        childNode: modelTransformNode
-        sceneNode: terrainFileNode
-
-        clampToTerrain: true
-
-        position: UAV.position()
-    }
-
-    OSGTransformNode {
-        id: modelTransformNode
-        childNode: modelFileNode
-        // model dimensions are in mm, scale to meters
-        scale: Qt.vector3d(0.001, 0.001, 0.001)
-        attitude: UAV.attitude()
-    }
-
-    OSGFileNode {
-        id: terrainFileNode
-        source: pfdContext.terrainFile
-    }
-
-    OSGFileNode {
-        id: modelFileNode
-
-        // use ShaderGen pseudoloader to generate the shaders expected by osgEarth
-        // see http://docs.osgearth.org/en/latest/faq.html#i-added-a-node-but-it-has-no-texture-lighting-etc-in-osgearth-why
-        source: pfdContext.modelFile + ".osgearth_shadergen"
-
-        optimizeMode: OptimizeMode.OptimizeAndCheck
-    }
-
-    Keys.onUpPressed: {
-        pfdContext.nextModel();
-    }
-
-    Keys.onDownPressed: {
-        pfdContext.previousModel();
-    }
-
-    BusyIndicator {
-        width: 24
-        height: 24
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: 4
-
-        running: osgViewport.busy
-    }
-
 }

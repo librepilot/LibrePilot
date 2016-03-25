@@ -23,7 +23,7 @@ import QtQuick.Controls 1.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import "common.js" as Utils
+import "js/common.js" as Utils
 
 Item {
     OSGViewport {

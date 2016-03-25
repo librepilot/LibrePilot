@@ -21,7 +21,7 @@ import QtQuick 2.4
 
 import OsgQtQuick 1.0
 
-import "../uav.js" as UAV
+import "../js/uav.js" as UAV
 
 Item {
 

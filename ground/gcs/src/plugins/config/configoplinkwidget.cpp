@@ -99,6 +99,8 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "TXSeq", m_oplink->TXSeq);
     addWidgetBinding("OPLinkStatus", "RXRate", m_oplink->RXRate);
     addWidgetBinding("OPLinkStatus", "TXRate", m_oplink->TXRate);
+    addWidgetBinding("OPLinkStatus", "RXPacketRate", m_oplink->RXPacketRate);
+    addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
 
     // Connect the bind buttons
     connect(m_oplink->Bind1, SIGNAL(clicked()), this, SLOT(bind()));

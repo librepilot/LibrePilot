@@ -279,6 +279,9 @@ static void systemTask(__attribute__((unused)) void *parameters)
             static bool first_time = true;
             static uint16_t prev_tx_count = 0;
             static uint16_t prev_rx_count = 0;
+            static uint16_t prev_tx_seq = 0;
+            static uint16_t prev_rx_seq = 0;
+
             oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
             oplinkStatus.DeviceID = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
             oplinkStatus.RxGood = radio_stats.rx_good;
@@ -297,12 +300,18 @@ static void systemTask(__attribute__((unused)) void *parameters)
             } else {
                 uint16_t tx_count = radio_stats.tx_byte_count;
                 uint16_t rx_count = radio_stats.rx_byte_count;
+                uint16_t tx_packets = radio_stats.tx_seq - prev_tx_seq;
+                uint16_t rx_packets = radio_stats.rx_seq - prev_rx_seq;
                 uint16_t tx_bytes = (tx_count < prev_tx_count) ? (0xffff - prev_tx_count + tx_count) : (tx_count - prev_tx_count);
                 uint16_t rx_bytes = (rx_count < prev_rx_count) ? (0xffff - prev_rx_count + rx_count) : (rx_count - prev_rx_count);
                 oplinkStatus.TXRate = (uint16_t)((float)(tx_bytes * 1000) / SYSTEM_UPDATE_PERIOD_MS);
                 oplinkStatus.RXRate = (uint16_t)((float)(rx_bytes * 1000) / SYSTEM_UPDATE_PERIOD_MS);
+                oplinkStatus.TXPacketRate = (uint16_t)((float)(tx_packets * 1000) / SYSTEM_UPDATE_PERIOD_MS);
+                oplinkStatus.RXPacketRate = (uint16_t)((float)(rx_packets * 1000) / SYSTEM_UPDATE_PERIOD_MS);
                 prev_tx_count = tx_count;
                 prev_rx_count = rx_count;
+                prev_tx_seq = radio_stats.tx_seq;
+                prev_rx_seq = radio_stats.rx_seq;
             }
             oplinkStatus.TXSeq     = radio_stats.tx_seq;
             oplinkStatus.RXSeq     = radio_stats.rx_seq;

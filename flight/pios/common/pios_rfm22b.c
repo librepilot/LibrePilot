@@ -1993,7 +1993,7 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
         // We couldn't correct the error, so drop the packet.
         rfm22b_add_rx_status(radio_dev, RADIO_ERROR_RX_PACKET);
     }
-    
+
     // Increment the packet sequence number.
     radio_dev->stats.rx_seq++;
 

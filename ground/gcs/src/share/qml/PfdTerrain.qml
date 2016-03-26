@@ -22,5 +22,6 @@ import QtQuick 2.4
 import "pfd"
 
 PfdView {
+    opaque: false
     worldFile: "PfdTerrainWorld.qml"
 }

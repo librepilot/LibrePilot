@@ -23,7 +23,8 @@ Rectangle {
 
     color: "#515151"
 
-	property string worldFile: "PfdSimpleWorld.qml"
+    property string worldFile: "PfdSimpleWorld.qml"
+    property bool opaque: true
 
     SvgElementImage {
         id: background

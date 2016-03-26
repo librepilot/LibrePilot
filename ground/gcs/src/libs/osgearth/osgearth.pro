@@ -53,9 +53,10 @@ HEADERS += \
     osgQtQuick/OSGGroup.hpp \
     osgQtQuick/OSGTransformNode.hpp \
     osgQtQuick/OSGShapeNode.hpp \
+    osgQtQuick/OSGImageNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
-    osgQtQuick/OSGBackgroundNode.hpp \
+    osgQtQuick/OSGBillboardNode.hpp \
     osgQtQuick/OSGCamera.hpp \
     osgQtQuick/OSGViewport.hpp
 
@@ -65,9 +66,10 @@ SOURCES += \
     osgQtQuick/OSGGroup.cpp \
     osgQtQuick/OSGTransformNode.cpp \
     osgQtQuick/OSGShapeNode.cpp \
+    osgQtQuick/OSGImageNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
-    osgQtQuick/OSGBackgroundNode.cpp \
+    osgQtQuick/OSGBillboardNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
 

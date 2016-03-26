@@ -48,7 +48,8 @@ public:
     QQmlListProperty<OSGNode> children() const;
 
 protected:
-    virtual void update();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;

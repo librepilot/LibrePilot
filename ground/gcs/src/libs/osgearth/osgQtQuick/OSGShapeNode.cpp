@@ -37,7 +37,7 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-enum DirtyFlag { Type = 1 << 0 };
+enum DirtyFlag { ShapeType = 1 << 0 };
 
 struct OSGShapeNode::Hidden : public QObject {
     Q_OBJECT
@@ -51,7 +51,7 @@ public:
     Hidden(OSGShapeNode *self) : QObject(self), self(self), shapeType(ShapeType::Sphere)
     {}
 
-    void updateNode()
+    void updateShapeType()
     {
         osg::Node *node = NULL;
 
@@ -69,18 +69,15 @@ public:
             node = ShapeUtils::create3DAxis();
             break;
         }
-        // Add the node to the scene
         self->setNode(node);
     }
 };
 
 /* class OSGShapeNode */
 
-// TODO turn into generic shape node...
-// see http://trac.openscenegraph.org/projects/osg//wiki/Support/Tutorials/TransformsAndStates
 OSGShapeNode::OSGShapeNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {
-    setDirty(Type);
+    setDirty(ShapeType);
 }
 
 OSGShapeNode::~OSGShapeNode()
@@ -98,17 +95,22 @@ void OSGShapeNode::setShapeType(ShapeType::Enum type)
 {
     if (h->shapeType != type) {
         h->shapeType = type;
-        setDirty(Type);
+        setDirty(ShapeType);
         emit shapeTypeChanged(type);
     }
 }
 
-void OSGShapeNode::update()
+osg::Node *OSGShapeNode::createNode()
 {
-    Inherited::update();
+    return NULL;
+}
 
-    if (isDirty(Type)) {
-        h->updateNode();
+void OSGShapeNode::updateNode()
+{
+    Inherited::updateNode();
+
+    if (isDirty(ShapeType)) {
+        h->updateShapeType();
     }
 }
 } // namespace osgQtQuick

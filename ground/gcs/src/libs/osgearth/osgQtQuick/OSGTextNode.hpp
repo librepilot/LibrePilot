@@ -55,7 +55,8 @@ signals:
     void colorChanged(const QColor &color);
 
 protected:
-    virtual void update();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;

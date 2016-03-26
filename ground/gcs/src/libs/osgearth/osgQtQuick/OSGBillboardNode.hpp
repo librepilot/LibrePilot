@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGShapeNode.hpp
+ * @file       OSGBillboardNode.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -25,34 +25,21 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_SHAPENODE_H_
-#define _H_OSGQTQUICK_SHAPENODE_H_
+#ifndef _H_OSGQTQUICK_BILLBOARDNODE_H_
+#define _H_OSGQTQUICK_BILLBOARDNODE_H_
 
 #include "Export.hpp"
-#include "OSGNode.hpp"
+#include "OSGGroup.hpp"
 
 namespace osgQtQuick {
-class ShapeType : public QObject {
+class OSGQTQUICK_EXPORT OSGBillboardNode : public OSGGroup {
     Q_OBJECT
-public:
-    enum Enum { Cube, Sphere, Torus, Axis };
-    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
-};
 
-class OSGQTQUICK_EXPORT OSGShapeNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(osgQtQuick::ShapeType::Enum shapeType READ shapeType WRITE setShapeType NOTIFY shapeTypeChanged)
-
-    typedef OSGNode Inherited;
+    typedef OSGGroup Inherited;
 
 public:
-    OSGShapeNode(QObject *parent = 0);
-    virtual ~OSGShapeNode();
-
-    ShapeType::Enum shapeType() const;
-    void setShapeType(ShapeType::Enum);
-
-signals:
-    void shapeTypeChanged(ShapeType::Enum);
+    OSGBillboardNode(QObject *parent = 0);
+    virtual ~OSGBillboardNode();
 
 protected:
     virtual osg::Node *createNode();
@@ -64,4 +51,4 @@ private:
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_SHAPENODE_H_
+#endif // _H_OSGQTQUICK_BILLBOARDNODE_H_

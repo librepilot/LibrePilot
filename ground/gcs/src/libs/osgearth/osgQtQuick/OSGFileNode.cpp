@@ -88,7 +88,7 @@ public:
     Hidden(OSGFileNode *self) : QObject(self), self(self), source(), async(false), optimizeMode(OptimizeMode::None)
     {}
 
-    void updateNode()
+    void updateSource()
     {
         qDebug() << "OSGFileNode::updateNode" << source;
         if (!source.isValid()) {
@@ -197,9 +197,15 @@ void OSGFileNode::setOptimizeMode(OptimizeMode::Enum optimizeMode)
     }
 }
 
-void OSGFileNode::update()
+osg::Node *OSGFileNode::createNode()
 {
-    Inherited::update();
+    // node is created later
+    return NULL;
+}
+
+void OSGFileNode::updateNode()
+{
+    Inherited::updateNode();
 
     if (isDirty(Async)) {
         // do nothing...
@@ -208,7 +214,7 @@ void OSGFileNode::update()
         // TODO: trigger a node update ?
     }
     if (isDirty(Source)) {
-        h->updateNode();
+        h->updateSource();
     }
 }
 } // namespace osgQtQuick

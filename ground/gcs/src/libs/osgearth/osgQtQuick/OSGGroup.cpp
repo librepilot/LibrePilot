@@ -41,17 +41,17 @@ struct OSGGroup::Hidden : public QObject {
 private:
     OSGGroup * const self;
 
-    osg::ref_ptr<osg::Group>     group;
-
     QMap<OSGNode *, osg::Node *> cache;
 
-public:
     QList<OSGNode *> children;
 
+public:
     Hidden(OSGGroup *self) : QObject(self), self(self)
+    {}
+
+    osg::Node *createNode()
     {
-        group = new osg::Group();
-        self->setNode(group);
+        return new osg::Group();
     }
 
     void appendChild(OSGNode *childNode)
@@ -86,9 +86,16 @@ public:
         self->setDirty(Children);
     }
 
-    void updateGroupNode()
+    void updateChildren()
     {
-        qDebug() << "OSGGeoTransformNode::updateGroupNode";
+        qDebug() << "OSGGroup::updateChildren";
+
+        osg::Group *group = static_cast<osg::Group *>(self->node());
+        if (!group) {
+            qWarning() << "OSGGroup::updateChildren - null group";
+            return;
+        }
+
         bool updated = false;
         unsigned int index = 0;
 
@@ -145,6 +152,13 @@ private slots:
     void onChildNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGGroup::onChildNodeChanged" << node;
+
+        osg::Group *group = static_cast<osg::Group *>(self->node());
+        if (!group) {
+            qWarning() << "OSGGroup::onChildNodeChanged - null group";
+            return;
+        }
+
         OSGNode *obj = qobject_cast<OSGNode *>(sender());
         if (obj) {
             osg::Node *cacheNode = cache.value(obj, NULL);
@@ -179,12 +193,17 @@ QQmlListProperty<OSGNode> OSGGroup::children() const
                                      &Hidden::clear_child);
 }
 
-void OSGGroup::update()
+osg::Node *OSGGroup::createNode()
 {
-    Inherited::update();
+    return h->createNode();
+}
+
+void OSGGroup::updateNode()
+{
+    Inherited::updateNode();
 
     if (isDirty(Children)) {
-        h->updateGroupNode();
+        h->updateChildren();
     }
 }
 } // namespace osgQtQuick

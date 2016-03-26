@@ -59,7 +59,7 @@ public:
 
     void update()
     {
-        return self->update();
+        return self->updateNode();
     }
 
     bool acceptNode(osg::Node *aNode)
@@ -119,21 +119,13 @@ void OSGNode::clearDirty()
     h->clearDirty();
 }
 
-void OSGNode::classBegin()
+osg::Node *OSGNode::createNode()
 {
-    // qDebug() << "OSGNode::classBegin" << this;
+    return NULL;
 }
 
-void OSGNode::componentComplete()
-{
-    qDebug() << "OSGNode::componentComplete" << this;
-    update();
-    clearDirty();
-    h->complete = true;
-    if (!h->node.valid()) {
-        qWarning() << "OSGNode::componentComplete - node is not valid!" << this;
-    }
-}
+void OSGNode::updateNode()
+{}
 
 void OSGNode::emitNodeChanged()
 {
@@ -142,8 +134,25 @@ void OSGNode::emitNodeChanged()
     }
 }
 
-void OSGNode::update()
-{}
+void OSGNode::classBegin()
+{
+    qDebug() << "OSGNode::classBegin" << this;
+
+    setNode(createNode());
+}
+
+void OSGNode::componentComplete()
+{
+    qDebug() << "OSGNode::componentComplete" << this;
+
+    updateNode();
+    clearDirty();
+    h->complete = true;
+    if (!h->node.valid()) {
+        qWarning() << "OSGNode::componentComplete - node is not valid!" << this;
+    }
+    qDebug() << "OSGNode::componentComplete DONE" << this;
+}
 } // namespace osgQtQuick
 
 #include "OSGNode.moc"

@@ -36,8 +36,7 @@
 // TODO derive from OSGGroup...
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
-    Q_OBJECT
-    Q_PROPERTY(osgQtQuick::OSGNode *childNode READ childNode WRITE setChildNode NOTIFY childNodeChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *childNode READ childNode WRITE setChildNode NOTIFY childNodeChanged)
     Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
@@ -68,7 +67,8 @@ signals:
     void positionChanged(QVector3D arg);
 
 protected:
-    virtual void update();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;

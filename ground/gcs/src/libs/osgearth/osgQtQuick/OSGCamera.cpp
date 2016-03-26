@@ -66,16 +66,6 @@ public:
 public:
     Hidden(OSGCamera *self) : QObject(self), self(self), fieldOfView(90), clearColor(0, 0, 0, 255), logDepthBufferEnabled(false)
     {
-        // default blue osg::Vec4f(0.2f, 0.99f, 0.4f, 1.0f)
-        camera = new osg::Camera();
-
-        camera->setClearColor(osg::Vec4(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()));
-
-        osg::StateSet *stateset = camera->getOrCreateStateSet();
-        stateset->setGlobalDefaults();
-
-        self->setNode(camera);
-
 #ifdef USE_OSGEARTH
         logDepthBuffer = NULL;
 #endif
@@ -90,6 +80,18 @@ public:
             logDepthBuffer = NULL;
         }
 #endif
+    }
+
+    osg::Node *createNode()
+    {
+        camera = new osg::Camera();
+
+        camera->setClearColor(osg::Vec4(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()));
+
+        osg::StateSet *stateset = camera->getOrCreateStateSet();
+        stateset->setGlobalDefaults();
+
+        return camera;
     }
 
     void updateClearColor()
@@ -239,20 +241,14 @@ void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
     }
 }
 
-osg::Camera *OSGCamera::asCamera() const
+osg::Node *OSGCamera::createNode()
 {
-    // BAD introduce templating
-    return (osg::Camera *)node();
+    return h->createNode();
 }
 
-void OSGCamera::setGraphicsContext(osg::GraphicsContext *gc)
+void OSGCamera::updateNode()
 {
-    h->setGraphicsContext(gc);
-}
-
-void OSGCamera::update()
-{
-    Inherited::update();
+    Inherited::updateNode();
 
     if (isDirty(ClearColor)) {
         h->updateClearColor();
@@ -263,6 +259,17 @@ void OSGCamera::update()
     if (isDirty(LogDepthBuffer)) {
         h->updateLogDepthBuffer();
     }
+}
+
+osg::Camera *OSGCamera::asCamera() const
+{
+    // BAD introduce templating
+    return (osg::Camera *)node();
+}
+
+void OSGCamera::setGraphicsContext(osg::GraphicsContext *gc)
+{
+    h->setGraphicsContext(gc);
 }
 } // namespace osgQtQuick
 

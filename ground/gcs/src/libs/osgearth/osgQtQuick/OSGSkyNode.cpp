@@ -303,9 +303,14 @@ void OSGSkyNode::setMinimumAmbientLight(double ambient)
     }
 }
 
-void OSGSkyNode::update()
+osg::Node *OSGSkyNode::createNode()
 {
-    Inherited::update();
+    return NULL;
+}
+
+void OSGSkyNode::updateNode()
+{
+    Inherited::updateNode();
 
     if (isDirty(Scene)) {
         h->updateSkyNode();

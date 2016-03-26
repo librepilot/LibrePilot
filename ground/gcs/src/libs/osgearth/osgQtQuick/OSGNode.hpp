@@ -69,12 +69,13 @@ protected:
     void setDirty(int mask = 0xFFFF);
     void clearDirty();
 
-    void classBegin();
-    void componentComplete();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
     void emitNodeChanged();
 
-    virtual void update();
+    void classBegin();
+    void componentComplete();
 
 private:
     struct Hidden;

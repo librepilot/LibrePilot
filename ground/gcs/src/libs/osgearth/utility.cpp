@@ -33,8 +33,9 @@
 #include "osgQtQuick/OSGFileNode.hpp"
 #include "osgQtQuick/OSGTransformNode.hpp"
 #include "osgQtQuick/OSGShapeNode.hpp"
+#include "osgQtQuick/OSGImageNode.hpp"
 #include "osgQtQuick/OSGTextNode.hpp"
-#include "osgQtQuick/OSGBackgroundNode.hpp"
+#include "osgQtQuick/OSGBillboardNode.hpp"
 #include "osgQtQuick/OSGCamera.hpp"
 #include "osgQtQuick/OSGViewport.hpp"
 
@@ -534,28 +535,34 @@ void registerTypes()
 {
     int maj = 1, min = 0;
 
-    // @uri osgQtQuick
+    // viewport
+    qmlRegisterType<osgQtQuick::OSGViewport>("OsgQtQuick", maj, min, "OSGViewport");
+    qmlRegisterType<osgQtQuick::UpdateMode>("OsgQtQuick", maj, min, "UpdateMode");
+
+    // basic nodes
     qmlRegisterType<osgQtQuick::OSGNode>("OsgQtQuick", maj, min, "OSGNode");
 
     qmlRegisterType<osgQtQuick::OSGGroup>("OsgQtQuick", maj, min, "OSGGroup");
 
-    qmlRegisterType<osgQtQuick::OSGFileNode>("OsgQtQuick", maj, min, "OSGFileNode");
-    qmlRegisterType<osgQtQuick::OptimizeMode>("OsgQtQuick", maj, min, "OptimizeMode");
-
     qmlRegisterType<osgQtQuick::OSGTransformNode>("OsgQtQuick", maj, min, "OSGTransformNode");
 
-    qmlRegisterType<osgQtQuick::OSGTextNode>("OsgQtQuick", maj, min, "OSGTextNode");
-
+    // primitive nodes
     qmlRegisterType<osgQtQuick::OSGShapeNode>("OsgQtQuick", maj, min, "OSGShapeNode");
     qmlRegisterType<osgQtQuick::ShapeType>("OsgQtQuick", maj, min, "ShapeType");
 
-    qmlRegisterType<osgQtQuick::OSGBackgroundNode>("OsgQtQuick", maj, min, "OSGBackgroundNode");
+    qmlRegisterType<osgQtQuick::OSGImageNode>("OsgQtQuick", maj, min, "OSGImageNode");
 
-    qmlRegisterType<osgQtQuick::OSGViewport>("OsgQtQuick", maj, min, "OSGViewport");
-    qmlRegisterType<osgQtQuick::UpdateMode>("OsgQtQuick", maj, min, "UpdateMode");
+    qmlRegisterType<osgQtQuick::OSGTextNode>("OsgQtQuick", maj, min, "OSGTextNode");
 
+    qmlRegisterType<osgQtQuick::OSGBillboardNode>("OsgQtQuick", maj, min, "OSGBillboardNode");
+
+    qmlRegisterType<osgQtQuick::OSGFileNode>("OsgQtQuick", maj, min, "OSGFileNode");
+    qmlRegisterType<osgQtQuick::OptimizeMode>("OsgQtQuick", maj, min, "OptimizeMode");
+
+    // camera nodes
     qmlRegisterType<osgQtQuick::OSGCamera>("OsgQtQuick", maj, min, "OSGCamera");
 
+    // camera manipulators
     qmlRegisterType<osgQtQuick::OSGCameraManipulator>("OsgQtQuick", maj, min, "OSGCameraManipulator");
     qmlRegisterType<osgQtQuick::OSGNodeTrackerManipulator>("OsgQtQuick", maj, min, "OSGNodeTrackerManipulator");
     qmlRegisterType<osgQtQuick::TrackerMode>("OsgQtQuick", maj, min, "TrackerMode");

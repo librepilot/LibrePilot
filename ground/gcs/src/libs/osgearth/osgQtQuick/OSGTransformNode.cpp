@@ -52,9 +52,12 @@ public:
     QVector3D position;
 
     Hidden(OSGTransformNode *self) : QObject(self), self(self), childNode(NULL)
+    {}
+
+    osg::Node *createNode()
     {
         transform = new osg::PositionAttitudeTransform();
-        self->setNode(transform);
+        return transform;
     }
 
     bool acceptChildNode(OSGNode *node)
@@ -202,9 +205,14 @@ void OSGTransformNode::setPosition(QVector3D arg)
     }
 }
 
-void OSGTransformNode::update()
+osg::Node *OSGTransformNode::createNode()
 {
-    Inherited::update();
+    return h->createNode();
+}
+
+void OSGTransformNode::updateNode()
+{
+    Inherited::updateNode();
 
     if (isDirty(Child)) {
         h->updateChildNode();

@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGBackgroundNode.cpp
+ * @file       OSGBillboardNode.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup
  * @{
@@ -25,95 +25,69 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "OSGBackgroundNode.hpp"
+#include "OSGBillboardNode.hpp"
 
 #include <osg/Depth>
 #include <osg/Texture2D>
+#include <osg/ImageSequence>
+
 #include <osgDB/ReadFile>
 
-#include <QUrl>
 #include <QDebug>
 
 namespace osgQtQuick {
-enum DirtyFlag { URL = 1 << 0 };
+enum DirtyFlag {};
 
-struct OSGBackgroundNode::Hidden : public QObject {
+struct OSGBillboardNode::Hidden : public QObject {
     Q_OBJECT
 
 private:
-    OSGBackgroundNode * const self;
+    OSGBillboardNode * const self;
+
+    osg::ref_ptr<osg::Camera> camera;
 
 public:
-    QUrl url;
-
-    Hidden(OSGBackgroundNode *self) : QObject(self), self(self), url()
+    Hidden(OSGBillboardNode *self) : QObject(self), self(self)
     {}
 
-    void updateURL()
+    osg::Node *createNode()
     {
-        qDebug() << "OSGBackgroundNode::updateNode - reading image file" << url.path();
-        osg::ref_ptr<osg::Texture2D> texture = new osg::Texture2D;
-
-        osg::ref_ptr<osg::Drawable> quad     = osg::createTexturedQuadGeometry(
-            osg::Vec3(), osg::Vec3(1.0f, 0.0f, 0.0f), osg::Vec3(0.0f, 1.0f, 0.0f));
-        quad->getOrCreateStateSet()->setTextureAttributeAndModes(0, texture.get());
-
-        osg::ref_ptr<osg::Geode> geode = new osg::Geode;
-        geode->addDrawable(quad.get());
-
-        osg::Camera *camera = new osg::Camera;
+        camera = new osg::Camera;
         camera->setClearMask(0);
         camera->setCullingActive(false);
         camera->setAllowEventFocus(false);
         camera->setReferenceFrame(osg::Transform::ABSOLUTE_RF);
         camera->setRenderOrder(osg::Camera::POST_RENDER);
         camera->setProjectionMatrix(osg::Matrix::ortho2D(0.0, 1.0, 0.0, 1.0));
-        camera->addChild(geode.get());
 
         osg::StateSet *ss = camera->getOrCreateStateSet();
         ss->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
         ss->setAttributeAndModes(new osg::Depth(osg::Depth::LEQUAL, 1.0, 1.0));
 
-        self->setNode(camera);
-
-        osg::ref_ptr<osg::Image> image = osgDB::readImageFile(url.path().toStdString());
-        texture->setImage(image.get());
+        return camera;
     }
 };
 
-/* class OSGBackgroundNode */
+/* class OSGBillboardNode */
 
-OSGBackgroundNode::OSGBackgroundNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
+OSGBillboardNode::OSGBillboardNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {}
 
-OSGBackgroundNode::~OSGBackgroundNode()
+OSGBillboardNode::~OSGBillboardNode()
 {
-    qDebug() << "OSGBackgroundNode::~OSGBackgroundNode";
+    qDebug() << "OSGBillboardNode::~OSGBillboardNode";
     delete h;
 }
 
-const QUrl OSGBackgroundNode::imageFile() const
+osg::Node *OSGBillboardNode::createNode()
 {
-    return h->url;
+    return h->createNode();
 }
 
-void OSGBackgroundNode::setImageFile(const QUrl &url)
+void OSGBillboardNode::updateNode()
 {
-    if (h->url != url) {
-        h->url = url;
-        setDirty(URL);
-        emit imageFileChanged(url);
-    }
-}
-
-void OSGBackgroundNode::update()
-{
-    Inherited::update();
-
-    if (isDirty(URL)) {
-        h->updateURL();
-    }
+    Inherited::updateNode();
 }
 } // namespace osgQtQuick
 
-#include "OSGBackgroundNode.moc"
+#include "OSGBillboardNode.moc"

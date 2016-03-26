@@ -52,23 +52,23 @@ public:
     QColor  color;
 
     Hidden(OSGTextNode *self) : QObject(self), self(self)
+    {}
+
+    osg::Node *createNode()
     {
         osg::ref_ptr<osgText::Font> textFont = createFont(QFont("Times"));
 
-        text = createText(osg::Vec3(-100, 20, 0), "Hello World", 20.0f,
-                          textFont.get());
-        osg::ref_ptr<osg::Geode> textGeode = new osg::Geode();
+        text = createText(osg::Vec3(-100, 20, 0), "Hello World", 20.0f, textFont.get());
+        osg::ref_ptr<osg::Geode> textGeode   = new osg::Geode();
         textGeode->addDrawable(text.get());
     #if 0
         text->setAutoRotateToScreen(true);
-        self->setNode(textGeode.get());
     #else
         osg::Camera *camera = createHUDCamera(-100, 100, -100, 100);
         camera->addChild(textGeode.get());
-        camera->getOrCreateStateSet()->setMode(
-            GL_LIGHTING, osg::StateAttribute::OFF);
-        self->setNode(camera);
+        camera->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     #endif
+        return text;
     }
 
     void updateText()
@@ -128,9 +128,14 @@ void OSGTextNode::setColor(const QColor &color)
     }
 }
 
-void OSGTextNode::update()
+osg::Node *OSGTextNode::createNode()
 {
-    Inherited::update();
+    return h->createNode();
+}
+
+void OSGTextNode::updateNode()
+{
+    Inherited::updateNode();
 
     if (isDirty(Text)) {
         h->updateText();

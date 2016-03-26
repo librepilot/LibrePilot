@@ -36,8 +36,7 @@
 // TODO derive from OSGGroup...
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGGeoTransformNode : public OSGNode {
-    Q_OBJECT
-    Q_PROPERTY(osgQtQuick::OSGNode *childNode READ childNode WRITE setChildNode NOTIFY childNodeChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *childNode READ childNode WRITE setChildNode NOTIFY childNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGNode * sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
@@ -74,7 +73,8 @@ signals:
     void positionChanged(QVector3D arg);
 
 protected:
-    virtual void update();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;

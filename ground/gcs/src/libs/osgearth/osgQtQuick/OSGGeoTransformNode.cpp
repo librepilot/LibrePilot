@@ -60,10 +60,13 @@ public:
     QVector3D position;
 
     Hidden(OSGGeoTransformNode *self) : QObject(self), self(self), childNode(NULL), sceneNode(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false)
+    {}
+
+    osg::Node *createNode()
     {
         transform = new osgEarth::GeoTransform();
         transform->setAutoRecomputeHeights(true);
-        self->setNode(transform);
+        return transform;
     }
 
     bool acceptChildNode(OSGNode *node)
@@ -268,9 +271,14 @@ void OSGGeoTransformNode::setPosition(QVector3D arg)
     }
 }
 
-void OSGGeoTransformNode::update()
+osg::Node *OSGGeoTransformNode::createNode()
 {
-    Inherited::update();
+    return h->createNode();
+}
+
+void OSGGeoTransformNode::updateNode()
+{
+    Inherited::updateNode();
 
     if (isDirty(Child)) {
         h->updateChildNode();

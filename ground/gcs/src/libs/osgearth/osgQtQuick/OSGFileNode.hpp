@@ -71,7 +71,8 @@ signals:
     void optimizeModeChanged(OptimizeMode::Enum);
 
 protected:
-    virtual void update();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;

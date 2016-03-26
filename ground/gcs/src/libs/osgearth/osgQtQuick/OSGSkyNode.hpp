@@ -82,7 +82,8 @@ signals:
     void minimumAmbientLightChanged(double arg);
 
 protected:
-    virtual void update();
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;

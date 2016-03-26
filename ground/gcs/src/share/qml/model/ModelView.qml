@@ -45,14 +45,16 @@ Item {
 
         OSGGroup {
             id: sceneNode
-            children: [
-                transformNode,
-                backgroundNode
-            ]
+            children: [ transformNode, backgroundNode ]
         }
 
-        OSGBackgroundNode {
+        OSGBillboardNode {
             id: backgroundNode
+            children: [ backgroundImageNode ]
+        }
+
+        OSGImageNode {
+            id: backgroundImageNode
             imageFile: pfdContext.backgroundImageFile
         }
 

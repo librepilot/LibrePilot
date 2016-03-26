@@ -60,7 +60,9 @@ Item {
 
         OSGTransformNode {
             id: transformNode
-            childNode: fileNode
+
+            children: [ fileNode ]
+
             attitude: UAV.attitude()
         }
 

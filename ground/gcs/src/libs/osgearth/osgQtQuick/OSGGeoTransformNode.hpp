@@ -29,27 +29,22 @@
 #define _H_OSGQTQUICK_GEOTRANSFORMNODE_H_
 
 #include "Export.hpp"
-#include "OSGNode.hpp"
+#include "OSGGroup.hpp"
 
 #include <QVector3D>
 
-// TODO derive from OSGGroup...
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGeoTransformNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *childNode READ childNode WRITE setChildNode NOTIFY childNodeChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+class OSGQTQUICK_EXPORT OSGGeoTransformNode : public OSGGroup {
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(bool clampToTerrain READ clampToTerrain WRITE setClampToTerrain NOTIFY clampToTerrainChanged)
     Q_PROPERTY(bool intoTerrain READ intoTerrain NOTIFY intoTerrainChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
 
-    typedef OSGNode Inherited;
+    typedef OSGGroup Inherited;
 
 public:
     OSGGeoTransformNode(QObject *parent = 0);
     virtual ~OSGGeoTransformNode();
-
-    OSGNode *childNode() const;
-    void setChildNode(OSGNode *node);
 
     OSGNode *sceneNode() const;
     void setSceneNode(OSGNode *node);
@@ -63,13 +58,9 @@ public:
     void setPosition(QVector3D arg);
 
 signals:
-    void childNodeChanged(OSGNode *node);
-
     void sceneNodeChanged(OSGNode *node);
-
     void clampToTerrainChanged(bool arg);
     void intoTerrainChanged(bool arg);
-
     void positionChanged(QVector3D arg);
 
 protected:

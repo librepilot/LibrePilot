@@ -38,7 +38,9 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-enum DirtyFlag { Child = 1 << 0, Scene = 1 << 1, Position = 1 << 2, Clamp = 1 << 3 };
+// NOTE : these flags should not overlap with OSGGroup flags!!!
+// TODO : find a better way...
+enum DirtyFlag { Scene = 1 << 10, Position = 1 << 11, Clamp = 1 << 12 };
 
 struct OSGGeoTransformNode::Hidden : public QObject {
     Q_OBJECT
@@ -49,7 +51,6 @@ private:
     osg::ref_ptr<osgEarth::GeoTransform> transform;
 
 public:
-    OSGNode   *childNode;
     OSGNode   *sceneNode;
 
     float     offset;
@@ -59,7 +60,7 @@ public:
 
     QVector3D position;
 
-    Hidden(OSGGeoTransformNode *self) : QObject(self), self(self), childNode(NULL), sceneNode(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false)
+    Hidden(OSGGeoTransformNode *self) : QObject(self), self(self), sceneNode(NULL), offset(-1.0), clampToTerrain(false), intoTerrain(false)
     {}
 
     osg::Node *createNode()
@@ -67,26 +68,6 @@ public:
         transform = new osgEarth::GeoTransform();
         transform->setAutoRecomputeHeights(true);
         return transform;
-    }
-
-    bool acceptChildNode(OSGNode *node)
-    {
-        qDebug() << "OSGGeoTransformNode::acceptChildNode" << node;
-        if (childNode == node) {
-            return false;
-        }
-
-        if (childNode) {
-            disconnect(childNode);
-        }
-
-        childNode = node;
-
-        if (childNode) {
-            connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)));
-        }
-
-        return true;
     }
 
     bool acceptSceneNode(OSGNode *node)
@@ -107,29 +88,6 @@ public:
         }
 
         return true;
-    }
-
-    void updateChildNode()
-    {
-        qDebug() << "OSGGeoTransformNode::updateChildNode" << childNode;
-        bool updated = false;
-        if (transform->getNumChildren() == 0) {
-            if (childNode && childNode->node()) {
-                updated |= transform->addChild(childNode->node());
-            }
-        } else {
-            if (childNode && childNode->node()) {
-                if (transform->getChild(0) != childNode->node()) {
-                    updated |= transform->removeChild(0, 1);
-                    updated |= transform->addChild(childNode->node());
-                }
-            } else {
-                updated |= transform->removeChild(0, 1);
-            }
-        }
-        // if (updated) {
-        self->emitNodeChanged();
-        // }
     }
 
     void updateSceneNode()
@@ -171,7 +129,7 @@ public:
             // get "size" of model
             // TODO this should be done once only...
             osg::ComputeBoundsVisitor cbv;
-            childNode->node()->accept(cbv);
+            transform->accept(cbv);
             const osg::BoundingBox & bbox = cbv.getBoundingBox();
             offset = bbox.radius();
 
@@ -187,12 +145,6 @@ public:
     }
 
 private slots:
-    void onChildNodeChanged(osg::Node *node)
-    {
-        qDebug() << "OSGGeoTransformNode::onChildNodeChanged" << node;
-        updateChildNode();
-    }
-
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGGeoTransformNode::onSceneNodeChanged" << node;
@@ -210,19 +162,6 @@ OSGGeoTransformNode::~OSGGeoTransformNode()
 {
     qDebug() << "OSGGeoTransformNode::~OSGGeoTransformNode";
     delete h;
-}
-
-OSGNode *OSGGeoTransformNode::childNode() const
-{
-    return h->childNode;
-}
-
-void OSGGeoTransformNode::setChildNode(OSGNode *node)
-{
-    if (h->acceptChildNode(node)) {
-        setDirty(Child);
-        emit childNodeChanged(node);
-    }
 }
 
 OSGNode *OSGGeoTransformNode::sceneNode() const
@@ -280,9 +219,6 @@ void OSGGeoTransformNode::updateNode()
 {
     Inherited::updateNode();
 
-    if (isDirty(Child)) {
-        h->updateChildNode();
-    }
     if (isDirty(Scene)) {
         h->updateSceneNode();
     }

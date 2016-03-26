@@ -34,7 +34,9 @@
 #include <QDebug>
 
 namespace osgQtQuick {
-enum DirtyFlag { Child = 1 << 0, Scale = 1 << 1, Position = 1 << 2, Attitude = 1 << 3 };
+// NOTE : these flags should not overlap with OSGGroup flags!!!
+// TODO : find a better way...
+enum DirtyFlag { Scale = 1 << 10, Position = 1 << 11, Attitude = 1 << 12 };
 
 struct OSGTransformNode::Hidden : public QObject {
     Q_OBJECT
@@ -45,62 +47,17 @@ private:
     osg::ref_ptr<osg::PositionAttitudeTransform> transform;
 
 public:
-    OSGNode   *childNode;
-
     QVector3D scale;
     QVector3D attitude;
     QVector3D position;
 
-    Hidden(OSGTransformNode *self) : QObject(self), self(self), childNode(NULL)
+    Hidden(OSGTransformNode *self) : QObject(self), self(self)
     {}
 
     osg::Node *createNode()
     {
         transform = new osg::PositionAttitudeTransform();
         return transform;
-    }
-
-    bool acceptChildNode(OSGNode *node)
-    {
-        qDebug() << "OSGTransformNode::acceptChildNode" << node;
-        if (childNode == node) {
-            return false;
-        }
-
-        if (childNode) {
-            disconnect(childNode);
-        }
-
-        childNode = node;
-
-        if (childNode) {
-            connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)));
-        }
-
-        return true;
-    }
-
-    void updateChildNode()
-    {
-        qDebug() << "OSGTransformNode::updateChildNode" << childNode;
-        bool updated = false;
-        if (transform->getNumChildren() == 0) {
-            if (childNode && childNode->node()) {
-                updated |= transform->addChild(childNode->node());
-            }
-        } else {
-            if (childNode && childNode->node()) {
-                if (transform->getChild(0) != childNode->node()) {
-                    updated |= transform->removeChild(0, 1);
-                    updated |= transform->addChild(childNode->node());
-                }
-            } else {
-                updated |= transform->removeChild(0, 1);
-            }
-        }
-        // if (updated) {
-        self->emitNodeChanged();
-        // }
     }
 
     void updateScale()
@@ -130,13 +87,6 @@ public:
     {
         transform->setPosition(osg::Vec3d(position.x(), position.y(), position.z()));
     }
-
-private slots:
-    void onChildNodeChanged(osg::Node *node)
-    {
-        qDebug() << "OSGTransformNode::onChildNodeChanged" << node;
-        updateChildNode();
-    }
 };
 
 /* class OSGTransformNode */
@@ -148,19 +98,6 @@ OSGTransformNode::~OSGTransformNode()
 {
     qDebug() << "OSGTransformNode::~OSGTransformNode";
     delete h;
-}
-
-OSGNode *OSGTransformNode::childNode() const
-{
-    return h->childNode;
-}
-
-void OSGTransformNode::setChildNode(OSGNode *node)
-{
-    if (h->acceptChildNode(node)) {
-        setDirty(Child);
-        emit childNodeChanged(node);
-    }
 }
 
 QVector3D OSGTransformNode::scale() const
@@ -214,9 +151,6 @@ void OSGTransformNode::updateNode()
 {
     Inherited::updateNode();
 
-    if (isDirty(Child)) {
-        h->updateChildNode();
-    }
     if (isDirty(Scale)) {
         h->updateScale();
     }

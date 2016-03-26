@@ -36,6 +36,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+// NOTE : these flags should not overlap with OSGGroup flags!!!
+// TODO : find a better way...
 enum DirtyFlag {};
 
 struct OSGBillboardNode::Hidden : public QObject {

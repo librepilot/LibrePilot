@@ -67,8 +67,8 @@ Item {
         OSGGeoTransformNode {
             id: modelNode
 
-            childNode: modelTransformNode
             sceneNode: terrainFileNode
+            children: [ modelTransformNode ]
 
             clampToTerrain: true
 
@@ -77,7 +77,9 @@ Item {
 
         OSGTransformNode {
             id: modelTransformNode
-            childNode: modelFileNode
+
+            children: [ modelFileNode ]
+
             // model dimensions are in mm, scale to meters
             scale: Qt.vector3d(0.001, 0.001, 0.001)
             attitude: UAV.attitude()

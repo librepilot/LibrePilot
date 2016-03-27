@@ -203,6 +203,8 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     uint32_t lastUpdateTime   = 0; // initialization is only for compiler warning
     float noise[3]     = { 0 };
     uint32_t lastTime  = 0.0f;
+    uint32_t measureTime = 0;
+    uint32_t updateCounter = 0;
     bool saveSiNeeded  = false;
     bool savePidNeeded = false;
 
@@ -218,9 +220,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     InitSystemIdent(false);
 
     while (1) {
-        static uint32_t updateCounter = 0;
         uint32_t diffTime;
-        uint32_t measureTime = 60000;
         bool doingIdent = false;
         bool canSleep   = true;
         FlightStatusData flightStatus;

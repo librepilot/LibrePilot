@@ -347,9 +347,9 @@ static void stabilizationInnerloopTask()
 
                 if (PIOS_DELAY_DiffuS(systemIdentTimeVal) / 1000.0f > SYSTEM_IDENT_PERIOD) {
                     const float SCALE_BIAS = 7.1f;
-                    SystemIdentStateData systemIdentState;
+                    SystemIdentStateBetaData systemIdentBeta;
 
-                    SystemIdentStateGet(&systemIdentState);
+                    SystemIdentStateBetaGet(&systemIdentBeta);
                     systemIdentTimeVal = PIOS_DELAY_GetRaw();
                     identOffsets[0]    = 0.0f;
                     identOffsets[1]    = 0.0f;
@@ -358,7 +358,7 @@ static void stabilizationInnerloopTask()
                     // why does yaw change twice a cycle and roll/pitch change only once?
                     uint8_t index = ((uint8_t[]) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' }
                                      )[identIteration];
-                    float scale   = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentState.Beta)[index]);
+                    float scale   = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentBeta)[index]);
                     if (scale > 0.25f) {
                         scale = 0.25f;
                     }

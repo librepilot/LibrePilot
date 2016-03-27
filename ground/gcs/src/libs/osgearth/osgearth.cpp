@@ -27,8 +27,8 @@
 
 #include "osgearth.h"
 
-#include "utility.h"
-#include "qtwindowingsystem.h"
+#include "utils/utility.h"
+#include "utils/qtwindowingsystem.h"
 
 #include "utils/pathutils.h"
 

@@ -35,16 +35,16 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 HEADERS += \
     osgearth_global.h \
-    utility.h \
-    shapeutils.h \
-    qtwindowingsystem.h \
-    osgearth.h
+    osgearth.h \
+    utils/qtwindowingsystem.h \
+    utils/utility.h \
+    utils/shapeutils.h
 
 SOURCES += \
-    utility.cpp \
-    shapeutils.cpp \
-    qtwindowingsystem.cpp \
-    osgearth.cpp
+    osgearth.cpp \
+    utils/qtwindowingsystem.cpp \
+    utils/utility.cpp \
+    utils/shapeutils.cpp
 
 HEADERS += \
     osgQtQuick/Export.hpp \

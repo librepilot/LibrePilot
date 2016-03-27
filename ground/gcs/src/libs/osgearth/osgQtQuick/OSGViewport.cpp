@@ -27,8 +27,8 @@
 
 #include "OSGViewport.hpp"
 
-#include "../osgearth.h"
-#include "../utility.h"
+#include "osgearth.h"
+#include "utils/utility.h"
 
 #include "OSGNode.hpp"
 #include "OSGCamera.hpp"

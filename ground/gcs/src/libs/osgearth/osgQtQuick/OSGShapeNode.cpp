@@ -27,7 +27,7 @@
 
 #include "OSGShapeNode.hpp"
 
-#include "../shapeutils.h"
+#include "utils/shapeutils.h"
 
 #include <osg/Geode>
 #include <osg/Group>

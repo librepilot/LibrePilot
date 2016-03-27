@@ -28,7 +28,7 @@
 #include "OSGGeoTransformManipulator.hpp"
 
 #include "../OSGNode.hpp"
-#include "../../utility.h"
+#include "utils/utility.h"
 
 #include <osg/Matrix>
 #include <osg/Node>

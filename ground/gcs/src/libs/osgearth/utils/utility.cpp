@@ -25,7 +25,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "utility.h"
+#include "utils/utility.h"
 
 // osgQtQuick qml types
 #include "osgQtQuick/OSGNode.hpp"

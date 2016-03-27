@@ -27,7 +27,7 @@
 
 #include "OSGTextNode.hpp"
 
-#include "../utility.h"
+#include "utils/utility.h"
 
 #include <osgText/Text>
 #include <osg/Geode>

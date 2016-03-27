@@ -27,7 +27,7 @@
 
 #include "OSGGeoTransformNode.hpp"
 
-#include "../utility.h"
+#include "utils/utility.h"
 
 #include <osg/ComputeBoundsVisitor>
 

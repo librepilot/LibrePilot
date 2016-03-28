@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_usart.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2016
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      USART commands. Inits USARTs, controls USARTs & Interupt handlers. (STM32 dependent)
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -40,6 +41,7 @@
 
 /* Provide a COM driver */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud);
+static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity);
 static void PIOS_USART_SetCtrlLine(uint32_t usart_id, uint32_t mask, uint32_t state);
 static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback tx_out_cb, uint32_t context);
@@ -48,6 +50,7 @@ static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 
 const struct pios_com_driver pios_usart_com_driver = {
     .set_baud      = PIOS_USART_ChangeBaud,
+    .set_config    = PIOS_USART_ChangeConfig,
     .set_ctrl_line = PIOS_USART_SetCtrlLine,
     .tx_start      = PIOS_USART_TxStart,
     .rx_start      = PIOS_USART_RxStart,
@@ -280,6 +283,74 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
     /* Adjust the baud rate */
     USART_InitStructure.USART_BaudRate = baud;
 
+    /* Write back the new configuration */
+    USART_Init(usart_dev->cfg->regs, &USART_InitStructure);
+}
+
+/**
+ * Changes configuration of the USART peripheral without re-initialising.
+ * \param[in] usart_id USART name (GPS, TELEM, AUX)
+ * \param[in] word_len Requested word length
+ * \param[in] stop_bits Requested stop bits
+ * \param[in] parity Requested parity
+ *
+ */
+static void PIOS_USART_ChangeConfig(uint32_t usart_id,
+                                    enum PIOS_COM_Word_Length word_len,
+                                    enum PIOS_COM_StopBits stop_bits,
+                                    enum PIOS_COM_Parity parity)
+{
+    struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
+
+    bool valid = PIOS_USART_validate(usart_dev);
+
+    PIOS_Assert(valid);
+
+    USART_InitTypeDef USART_InitStructure;
+
+    /* Start with a copy of the default configuration for the peripheral */
+    USART_InitStructure = usart_dev->cfg->init;
+    switch (word_len) {
+    case PIOS_COM_Word_length_8b:
+        USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+        break;
+    case PIOS_COM_Word_length_9b:
+        USART_InitStructure.USART_WordLength = USART_WordLength_9b;
+        break;
+    default:
+        break;
+    }
+
+    switch (stop_bits) {
+    case PIOS_COM_StopBits_0_5:
+        USART_InitStructure.USART_StopBits = USART_StopBits_0_5;
+        break;
+    case PIOS_COM_StopBits_1:
+        USART_InitStructure.USART_StopBits = USART_StopBits_1;
+        break;
+    case PIOS_COM_StopBits_1_5:
+        USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
+        break;
+    case PIOS_COM_StopBits_2:
+        USART_InitStructure.USART_StopBits = USART_StopBits_2;
+        break;
+    default:
+        break;
+    }
+
+    switch (parity) {
+    case PIOS_COM_Parity_No:
+        USART_InitStructure.USART_Parity = USART_Parity_No;
+        break;
+    case PIOS_COM_Parity_Even:
+        USART_InitStructure.USART_Parity = USART_Parity_Even;
+        break;
+    case PIOS_COM_Parity_Odd:
+        USART_InitStructure.USART_Parity = USART_Parity_Odd;
+        break;
+    default:
+        break;
+    }
     /* Write back the new configuration */
     USART_Init(usart_dev->cfg->regs, &USART_InitStructure);
 }

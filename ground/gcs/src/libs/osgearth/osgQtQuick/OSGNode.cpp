@@ -136,14 +136,14 @@ void OSGNode::emitNodeChanged()
 
 void OSGNode::classBegin()
 {
-    qDebug() << "OSGNode::classBegin" << this;
+    // qDebug() << "OSGNode::classBegin" << this;
 
     setNode(createNode());
 }
 
 void OSGNode::componentComplete()
 {
-    qDebug() << "OSGNode::componentComplete" << this;
+    // qDebug() << "OSGNode::componentComplete" << this;
 
     updateNode();
     clearDirty();
@@ -151,7 +151,6 @@ void OSGNode::componentComplete()
     if (!h->node.valid()) {
         qWarning() << "OSGNode::componentComplete - node is not valid!" << this;
     }
-    qDebug() << "OSGNode::componentComplete DONE" << this;
 }
 } // namespace osgQtQuick
 

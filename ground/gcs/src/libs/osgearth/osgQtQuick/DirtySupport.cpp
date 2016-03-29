@@ -70,6 +70,7 @@ public:
 
     void setDirty(int mask)
     {
+        // qDebug() << "DirtySupport::setDirty" << mask;
         if (!dirtyFlags) {
             osg::Node *node = self->hookNode();
             if (node) {
@@ -97,7 +98,9 @@ public:
 
     void update()
     {
+        // qDebug() << "DirtySupport::update";
         if (dirtyFlags) {
+            // qDebug() << "DirtySupport::update - updating...";
             self->update();
         }
         clearDirty();

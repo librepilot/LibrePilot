@@ -56,7 +56,7 @@ public:
 
     void appendChild(OSGNode *childNode)
     {
-        cache[childNode] = childNode->node();
+        // qDebug() << "OSGGroup::appendChild" << childNode;
         children.append(childNode);
         connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)), Qt::UniqueConnection);
         self->setDirty(Children);
@@ -102,19 +102,23 @@ public:
         QListIterator<OSGNode *> i(children);
         while (i.hasNext()) {
             OSGNode *childNode = i.next();
-            if (index < group->getNumChildren()) {
-                updated |= group->replaceChild(group->getChild(index), childNode->node());
-            } else {
-                updated |= group->addChild(childNode->node());
+            // qDebug() << "OSGGroup::updateChildren - child" << childNode;
+            if (childNode->node()) {
+                if (index < group->getNumChildren()) {
+                    updated |= group->replaceChild(group->getChild(index), childNode->node());
+                } else {
+                    updated |= group->addChild(childNode->node());
+                }
+                cache.insert(childNode, childNode->node());
+                index++;
             }
-            index++;
         }
         // removing eventual left overs
         if (index < group->getNumChildren()) {
             updated |= group->removeChild(index, group->getNumChildren() - index);
         }
         // if (updated) {
-        self->emitNodeChanged();
+        // self->emitNodeChanged();
         // }
     }
 
@@ -149,27 +153,39 @@ public:
     }
 
 private slots:
-    void onChildNodeChanged(osg::Node *node)
+    void onChildNodeChanged(osg::Node *child)
     {
-        qDebug() << "OSGGroup::onChildNodeChanged" << node;
+        // qDebug() << "OSGGroup::onChildNodeChanged" << node;
 
         osg::Group *group = static_cast<osg::Group *>(self->node());
+
         if (!group) {
             qWarning() << "OSGGroup::onChildNodeChanged - null group";
             return;
         }
 
-        OSGNode *obj = qobject_cast<OSGNode *>(sender());
-        if (obj) {
-            osg::Node *cacheNode = cache.value(obj, NULL);
-            if (cacheNode) {
-                group->replaceChild(cacheNode, node);
-            } else {
-                // should not happen...
-            }
-            cache[obj] = node;
-            // emit self->nodeChanged(group.get());
+        OSGNode *childNode = qobject_cast<OSGNode *>(sender());
+        // qDebug() << "OSGGroup::onChildNodeChanged - child node" << obj;
+        if (!childNode) {
+            qWarning() << "OSGGroup::onChildNodeChanged - sender is not an OSGNode" << sender();
+            return;
         }
+        if (childNode->node() != child) {
+            qWarning() << "OSGGroup::onChildNodeChanged - child node is not valid" << childNode;
+            return;
+        }
+        bool updated = false;
+        osg::Node *current = cache.value(childNode, NULL);
+        if (current) {
+            updated |= group->replaceChild(current, child);
+        } else {
+            // should not happen...
+            qWarning() << "OSGGroup::onChildNodeChanged - child node is not a child" << childNode;
+        }
+        cache[childNode] = childNode->node();
+        // if (updated) {
+        // emit self->nodeChanged(group.get());
+        // }
     }
 };
 

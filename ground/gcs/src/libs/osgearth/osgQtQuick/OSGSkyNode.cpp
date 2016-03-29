@@ -88,22 +88,22 @@ public:
         return true;
     }
 
-    void updateSkyNode()
+    void updateScene()
     {
         if (!sceneNode || !sceneNode->node()) {
-            qWarning() << "OSGSkyNode::updateSkyNode - scene node not valid";
+            qWarning() << "OSGSkyNode::updateScene - scene node not valid";
             self->setNode(NULL);
             return;
         }
-        qDebug() << "OSGSkyNode::updateSkyNode - scene node" << sceneNode->node();
+        qDebug() << "OSGSkyNode::updateScene - scene node" << sceneNode->node();
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
         if (!mapNode) {
-            qWarning() << "OSGSkyNode::updateSkyNode - scene node does not contain a map node";
+            qWarning() << "OSGSkyNode::updateScene - scene node does not contain a map node";
             self->setNode(NULL);
             return;
         }
         if (!mapNode->getMap()->isGeocentric()) {
-            qWarning() << "OSGSkyNode::updateSkyNode - map node is not geocentric";
+            qWarning() << "OSGSkyNode::updateScene - map node is not geocentric";
             self->setNode(NULL);
             return;
         }
@@ -124,7 +124,7 @@ public:
         } else {
             skyNode->removeChild(0, 1);
             skyNode->addChild(sceneNode->node());
-            self->emitNodeChanged();
+            // self->emitNodeChanged();
         }
     }
 
@@ -217,7 +217,7 @@ private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGSkyNode::onSceneNodeChanged" << node;
-        updateSkyNode();
+        updateScene();
     }
 };
 
@@ -313,7 +313,7 @@ void OSGSkyNode::updateNode()
     Inherited::updateNode();
 
     if (isDirty(Scene)) {
-        h->updateSkyNode();
+        h->updateScene();
     }
     if (isDirty(Viewport)) {
         h->updateViewport();

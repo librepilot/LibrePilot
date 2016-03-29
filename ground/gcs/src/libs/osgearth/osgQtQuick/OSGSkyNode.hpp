@@ -45,6 +45,7 @@ QT_END_NAMESPACE
 namespace osgQtQuick {
 class OSGViewport;
 
+// TODO should derive from OSGGroup
 class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGViewport * viewport READ viewport WRITE setViewport NOTIFY viewportChanged)

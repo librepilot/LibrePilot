@@ -237,9 +237,9 @@ win32 {
 }
 
 # Explicit setting of C++11
-CONFIG   += c++11
+CONFIG += c++11
 
-# Stricter warnigs turned on for OS X.
+# Stricter warnings turned on for OS X.
 macx {
     CONFIG += warn_on
     !warn_off {

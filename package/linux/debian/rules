@@ -12,7 +12,7 @@ export DH_OPTIONS
 	dh $@ 
 
 override_dh_auto_build:
-	dh_auto_build -- WITH_PREBUILT_FW=$(CURDIR)/firmware opfw_resource gcs
+	dh_auto_build -- opfw_resource gcs WITH_PREBUILT_FW=$(CURDIR)/firmware
 
 override_dh_auto_install:
 	dh_auto_install -- prefix=/usr

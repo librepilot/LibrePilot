@@ -29,7 +29,6 @@ include(gcs.pri)
 
 TEMPLATE  = subdirs
 CONFIG   += ordered
-CONFIG   += c++11
 
 DEFINES += USE_PATHPLANNER
 

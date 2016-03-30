@@ -36,7 +36,7 @@ PACKAGE_DEPS_SED     := s/python.*/python/;s/{misc:Depends}.*/{misc:Depends}/;
 package: debian
 	@$(ECHO) "Building Linux package, please wait..."
 	$(V1) sed -i -e "$(PACKAGE_DEPS_SED)" debian/control
-	$(V1) sed -i -e 's/WITH_PREBUILT.*//' debian/rules
+	$(V1) sed -i -e 's,config_new.*, --help > /dev/null,' debian/rules
 	$(V1) dpkg-buildpackage -b -us -uc -nc
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).deb $(BUILD_DIR)
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).changes $(BUILD_DIR)

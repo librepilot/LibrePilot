@@ -5,7 +5,11 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter
 #win32:CONFIG(debug, debug|release):DS = "d"
 
 contains(QT_ARCH, x86_64)  {
-    LIB_DIR_NAME = lib64
+    macx {
+        LIB_DIR_NAME = lib
+    } else {
+        LIB_DIR_NAME = lib64
+    }
 } else {
     LIB_DIR_NAME = lib
 }

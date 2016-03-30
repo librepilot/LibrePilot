@@ -236,7 +236,10 @@ win32 {
     QMAKE_CXXFLAGS += -mno-ms-bitfields
 }
 
-# Stricter warnigs turned on for OS X.
+# Explicit setting of C++11
+CONFIG += c++11
+
+# Stricter warnings turned on for OS X.
 macx {
     CONFIG += warn_on
     !warn_off {

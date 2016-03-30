@@ -14,6 +14,9 @@ namespace Eigen {
 
 namespace internal {
 
+// Deprecated in C++11.
+#define register
+
 #ifndef EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD
 #define EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD 8
 #endif

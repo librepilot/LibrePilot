@@ -29,9 +29,9 @@ linux {
         libQt5QuickParticles.so.5 \
         libQt5XcbQpa.so.5 \
         libQt5X11Extras.so.5 \
-        libicui18n.so.54 \
-        libicuuc.so.54 \
-        libicudata.so.54
+        libicui18n.so.56 \
+        libicuuc.so.56 \
+        libicudata.so.56
 
     contains(QT_ARCH, x86_64) {
         QT_LIBS += \
@@ -47,7 +47,6 @@ linux {
         imageformats/libqgif.so \
         imageformats/libqico.so \
         imageformats/libqjpeg.so \
-        imageformats/libqmng.so \
         imageformats/libqsvg.so \
         imageformats/libqtiff.so \
         platforms/libqxcb.so \

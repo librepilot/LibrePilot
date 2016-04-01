@@ -20,7 +20,7 @@ SED_SCRIPT           := $(SED_SCRIPT)' \
 			s/<DATE>/$(SED_DATE_STRG)/g; \
 			s/<DIST>/$(DEB_DIST)/g; \
 			s/<NAME>/$(DEB_NAME)/g; \
-			s/<DESCRIPTION>/$(DESCRIPTION_SHORT)\n $(subst $(NEWLINE),\n ,$(DESCRIPTION_LONG))/g; \
+			s/<DESCRIPTION>/$(DESCRIPTION_SHORT)\n $(subst ','"'"',$(subst $(NEWLINE),\n ,$(DESCRIPTION_LONG)))/g; \
 			'
 
 # Ubuntu 14.04 (Trusty Tahr) has different names for the qml-modules

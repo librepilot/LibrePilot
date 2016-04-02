@@ -1,32 +1,32 @@
 # How to build from source?
 
-Both development environment and GCS are supported on Windows, Linux and Mac OS X
+Both development environment and GCS are supported on Windows, Linux and Mac OS X.
 
-## Install prerequisites
+# Install prerequisites
 
 The first step is to Install all OS specific prerequisites.
 
-### Mac OS X
+## Mac OS X
 
 Install XCode and its relatated command line tools (follow Apple documentation). Install git, curl and p7zip.
 
 You can use brew with `brew install git curl p7zip` or macport with `sudo port install git curl p7zip`.
 
 
-### Ubuntu
+## Ubuntu
 
     sudo apt-get install git build-essential curl gdb wget debhelper p7zip-full unzip flex bison libsdl1.2-dev libudev-dev libusb-1.0-0-dev libc6-i386 mesa-common-dev
 
 
-### Windows
+## Windows
 
-## Install [Msys2](https://msys2.github.io/)
+### Install [Msys2](https://msys2.github.io/)
 
 Follow the instructions on the web site. You can either install the i686 (Win32) or x86_64 (Win64) version.
 It is recommended to go for the Win64 Shell if possible.
 The x86_64 version has both Win32 and Win64 shells and it is possible to build both i686 and x86_64 applications.
 
-## Add the LibrePilot MinGW package repository
+### Add the LibrePilot MinGW package repository
 
 Add the following lines at the end of your /etc/pacman.conf file:
 
@@ -34,9 +34,9 @@ Add the following lines at the end of your /etc/pacman.conf file:
     SigLevel = Optional TrustAll
     Server = http://download.librepilot.org/repo/mingw
 
-## Install required packages
+### Install required packages
 
-# For i686 applications
+#### For i686 applications
 
 Start a MinGW-w64 Win64 Shell or a MinGW-w64 Win32 Shell.
 
@@ -47,7 +47,7 @@ Optionally install debug packages:
 
     pacman -S --needed mingw-w64-i686-OpenSceneGraph-debug mingw-w64-i686-osgearth-debug
 
-# For x86_64 applications
+#### For x86_64 applications
 
 Start a MinGW-w64 Win64 Shell.
 
@@ -61,16 +61,16 @@ Optionally install debug packages:
 **NOTE** On Windows you need to run the mingw version of make, which is `mingw32-make`
 
 
-## Setup the build environment and build
+# Setup the build environment and build
 
 The `all_sdk_install` target will automatically retrieve and install all needed tools (qt, arm gcc, etc.) in a local folder `/path/to/LibrePilot_root/tools`
 
-### Ubuntu / Mac OS X
+## Ubuntu / Mac OS X
 
     make all_sdk_install
     make package
 
-### Windows
+## Windows
 
     mingw32-make all_sdk_install
     mingw32-make package

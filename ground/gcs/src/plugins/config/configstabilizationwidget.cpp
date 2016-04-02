@@ -255,7 +255,7 @@ void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *o)
 
     // Check and update basic/advanced checkboxes only if something connected
     // Jump to advanced tab if something not "basic": Rate value out of slider limits or different Pitch/Roll values
-    if (ui->lowThrottleZeroIntegral_8->isEnabled()) {
+    if (ui->lowThrottleZeroIntegral_8->isEnabled() && !realtimeUpdates->isActive()) {
         if ((ui->attitudeRollResponse->value() == ui->attitudePitchResponse->value()) &&
             (ui->rateRollResponse->value() == ui->ratePitchResponse->value()) &&
             (ui->rateRollResponse->value() <= ui->RateResponsivenessSlider->maximum()) &&

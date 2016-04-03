@@ -70,7 +70,7 @@ typedef struct pid_scaler_s {
 
 // ! Methods to use the pid structures
 float pid_apply(struct pid *pid, const float err, float dT);
-float pid_apply_setpoint(struct pid *pid, const pid_scaler *scaler, const float setpoint, const float measured, float dT);
+float pid_apply_setpoint(struct pid *pid, const pid_scaler *scaler, const float setpoint, const float measured, float dT, bool meas_based_d_term);
 void pid_zero(struct pid *pid);
 void pid_configure(struct pid *pid, float p, float i, float d, float iLim);
 void pid_configure_derivative(float cutoff, float gamma);

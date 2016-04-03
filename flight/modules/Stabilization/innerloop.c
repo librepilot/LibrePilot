@@ -290,7 +290,7 @@ static void stabilizationInnerloopTask()
                                  StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
                                  );
                 pid_scaler scaler = create_pid_scaler(t);
-                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT);
+                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
                 break;
             case STABILIZATIONSTATUS_INNERLOOP_ACRO:
             {
@@ -305,7 +305,7 @@ static void stabilizationInnerloopTask()
 
                 pid_scaler ascaler = create_pid_scaler(t);
                 ascaler.i *= boundf(1.0f - (1.5f * fabsf(stickinput[t])), 0.0f, 1.0f); // this prevents Integral from getting too high while controlled manually
-                float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT);
+                float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT, stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
                 float factor = fabsf(stickinput[t]) * stabSettings.acroInsanityFactors[t];
                 actuatorDesiredAxis[t] = factor * stickinput[t] + (1.0f - factor) * arate;
             }

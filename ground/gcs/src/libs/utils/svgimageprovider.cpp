@@ -45,7 +45,7 @@ SvgImageProvider::~SvgImageProvider()
 
 QSvgRenderer *SvgImageProvider::loadRenderer(const QString &svgFile)
 {
-    QSvgRenderer *renderer = m_renderers.value(svgFile);
+    QSvgRenderer *renderer = m_renderers.value(svgFile, NULL);
 
     if (!renderer) {
         QFileInfo fi(svgFile);

@@ -215,7 +215,7 @@ Q_DECLARE_METATYPE(::PageData) SettingsDialog::SettingsDialog(QWidget *parent, c
 SettingsDialog::~SettingsDialog()
 {
     foreach(QString category, m_categoryItemsMap.keys()) {
-        QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(category);
+        QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(category, NULL);
         delete categoryItemList;
     }
     // delete place holders
@@ -237,7 +237,7 @@ QTreeWidgetItem *SettingsDialog::addPage(IOptionsPage *page)
 
     QString category = page->category();
 
-    QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(category);
+    QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(category, NULL);
     if (!categoryItemList) {
         categoryItemList = new QList<QTreeWidgetItem *>();
         m_categoryItemsMap.insert(category, categoryItemList);
@@ -346,7 +346,7 @@ void SettingsDialog::deletePage()
     PageData data    = item->data(0, Qt::UserRole).value<PageData>();
     QString category = data.category;
 
-    QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(category);
+    QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(category, NULL);
     if (categoryItemList) {
         categoryItemList->removeOne(item);
         QTreeWidgetItem *parentItem = item->parent();
@@ -382,7 +382,7 @@ void SettingsDialog::insertPage(IOptionsPage *page)
 
     // If this category has no child right now
     // we need to add the "default child"
-    QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(page->category());
+    QList<QTreeWidgetItem *> *categoryItemList = m_categoryItemsMap.value(page->category(), NULL);
     if (categoryItem->childCount() == 1) {
         QTreeWidgetItem *defaultItem = categoryItemList->at(0);
         defaultItem->setHidden(false);

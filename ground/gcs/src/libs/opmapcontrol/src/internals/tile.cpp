@@ -39,9 +39,6 @@ void Tile::Clear()
     qDebug() << "Tile:Clear Overlays";
 #endif // DEBUG_TILE
     mutex.lock();
-    foreach(QByteArray img, Overlays) {
-        img.~QByteArray();
-    }
     Overlays.clear();
     mutex.unlock();
 }

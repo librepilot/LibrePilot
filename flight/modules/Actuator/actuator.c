@@ -45,6 +45,7 @@
 #include "mixersettings.h"
 #include "mixerstatus.h"
 #include "cameradesired.h"
+#include "hwsettings.h"
 #include "manualcontrolcommand.h"
 #include "taskinfo.h"
 #include <systemsettings.h>
@@ -85,6 +86,7 @@ static xQueueHandle queue;
 static xTaskHandle taskHandle;
 static FrameType_t frameType = FRAME_TYPE_MULTIROTOR;
 static SystemSettingsThrustControlOptions thrustType = SYSTEMSETTINGS_THRUSTCONTROL_THROTTLE;
+static bool camStabEnabled;
 
 static uint8_t pinsMode[MAX_MIX_ACTUATORS];
 // used to inform the actuator thread that actuator update rate is changed
@@ -156,6 +158,12 @@ int32_t ActuatorInitialize()
 
     // Register AccessoryDesired (Secondary input to this module)
     AccessoryDesiredInitialize();
+
+    // Check if CameraStab module is enabled
+    HwSettingsOptionalModulesData optionalModules;
+    HwSettingsInitialize();
+    HwSettingsOptionalModulesGet(&optionalModules);
+    camStabEnabled = (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED);
 
     // Primary output of this module
     ActuatorCommandInitialize();
@@ -448,8 +456,9 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
 
                 if ((mixer_type >= MIXERSETTINGS_MIXER1TYPE_CAMERAROLLORSERVO1) &&
                     (mixer_type <= MIXERSETTINGS_MIXER1TYPE_CAMERAYAW)) {
-                    CameraDesiredData cameraDesired;
-                    if (CameraDesiredGet(&cameraDesired) == 0) {
+                    if (camStabEnabled) {
+                        CameraDesiredData cameraDesired;
+                        CameraDesiredGet(&cameraDesired);
                         switch (mixer_type) {
                         case MIXERSETTINGS_MIXER1TYPE_CAMERAROLLORSERVO1:
                             status[ct] = cameraDesired.RollOrServo1;

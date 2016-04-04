@@ -1994,6 +1994,9 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
         rfm22b_add_rx_status(radio_dev, RADIO_ERROR_RX_PACKET);
     }
 
+    // Increment the packet sequence number.
+    radio_dev->stats.rx_seq++;
+
     enum pios_radio_event ret_event = RADIO_EVENT_RX_COMPLETE;
     if (good_packet || corrected_packet) {
         // Send the data to the com port

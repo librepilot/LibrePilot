@@ -94,7 +94,7 @@ SideBarItem *SideBar::item(const QString &title)
 {
     if (m_itemMap.contains(title)) {
         m_availableItems.removeAll(title);
-        return m_itemMap.value(title);
+        return m_itemMap.value(title, NULL);
     }
     return 0;
 }

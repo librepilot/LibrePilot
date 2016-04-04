@@ -394,7 +394,7 @@ void generateBaseProperty(Context &ctxt, FieldContext &fieldCtxt)
         }
         if (fieldCtxt.hasDeprecatedSetter) {
             ctxt.setters += generate(ctxt, fieldCtxt,
-                                     "    /*DEPRECATED*/ void set:fieldName(:fieldType value) { set:fieldName(static_cast<:propType>(value)); }\n");
+                                     "    /*DEPRECATED*/ void set:fieldName(:fieldType value) { set:PropName(static_cast<:propType>(value)); }\n");
         }
         if (fieldCtxt.hasDeprecatedNotification) {
             ctxt.notifications     += generate(ctxt, fieldCtxt,
@@ -489,7 +489,7 @@ void generateIndexedProperty(Context &ctxt, FieldContext &fieldCtxt)
         }
         if (fieldCtxt.hasDeprecatedSetter) {
             ctxt.setters += generate(ctxt, fieldCtxt,
-                                     "    /*DEPRECATED*/ void set:fieldName(quint32 index, :fieldType value) { set:fieldName(index, static_cast<:propType>(value)); }\n");
+                                     "    /*DEPRECATED*/ void set:fieldName(quint32 index, :fieldType value) { set:PropName(index, static_cast<:propType>(value)); }\n");
         }
 
         if (fieldCtxt.hasDeprecatedNotification) {

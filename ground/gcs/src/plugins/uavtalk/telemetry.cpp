@@ -607,12 +607,12 @@ ObjectTransactionInfo *Telemetry::findTransaction(UAVObject *obj)
     quint16 instId = obj->getInstID();
 
     // Lookup the transaction in the transaction map
-    QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId);
+    QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId, NULL);
     if (objTransactions != NULL) {
-        ObjectTransactionInfo *trans = objTransactions->value(instId);
+        ObjectTransactionInfo *trans = objTransactions->value(instId, NULL);
         if (trans == NULL) {
             // see if there is an ALL_INSTANCES transaction
-            trans = objTransactions->value(UAVTalk::ALL_INSTANCES);
+            trans = objTransactions->value(UAVTalk::ALL_INSTANCES, NULL);
         }
         return trans;
     }
@@ -624,7 +624,7 @@ void Telemetry::openTransaction(ObjectTransactionInfo *trans)
     quint32 objId  = trans->obj->getObjID();
     quint16 instId = trans->allInstances ? UAVTalk::ALL_INSTANCES : trans->obj->getInstID();
 
-    QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId);
+    QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId, NULL);
     if (objTransactions == NULL) {
         objTransactions = new QMap<quint32, ObjectTransactionInfo *>();
         transMap.insert(objId, objTransactions);
@@ -637,7 +637,7 @@ void Telemetry::closeTransaction(ObjectTransactionInfo *trans)
     quint32 objId  = trans->obj->getObjID();
     quint16 instId = trans->allInstances ? UAVTalk::ALL_INSTANCES : trans->obj->getInstID();
 
-    QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId);
+    QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId, NULL);
     if (objTransactions != NULL) {
         objTransactions->remove(instId);
         // Keep the map even if it is empty
@@ -649,9 +649,9 @@ void Telemetry::closeTransaction(ObjectTransactionInfo *trans)
 void Telemetry::closeAllTransactions()
 {
     foreach(quint32 objId, transMap.keys()) {
-        QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId);
+        QMap<quint32, ObjectTransactionInfo *> *objTransactions = transMap.value(objId, NULL);
         foreach(quint32 instId, objTransactions->keys()) {
-            ObjectTransactionInfo *trans = objTransactions->value(instId);
+            ObjectTransactionInfo *trans = objTransactions->value(instId, NULL);
 
             qWarning() << "Telemetry - closing active transaction for object" << trans->obj->toStringBrief();
             objTransactions->remove(instId);

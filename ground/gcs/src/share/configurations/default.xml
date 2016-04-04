@@ -1828,12 +1828,14 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>20</dataSize>
           <plotCurve0>
-            <color>4294901760</color>
+            <color>4278190080</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-4</uavField>
+            <uavField>Channel-0</uavField>
             <uavObject>ActuatorCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1841,9 +1843,10 @@
             <yScalePower>0</yScalePower>
           </plotCurve0>
           <plotCurve1>
-            <color>4294901760</color>
+            <color>4289352960</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-5</uavField>
+            <uavField>Channel-1</uavField>
             <uavObject>ActuatorCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1851,9 +1854,10 @@
             <yScalePower>0</yScalePower>
           </plotCurve1>
           <plotCurve2>
-            <color>4289374847</color>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-6</uavField>
+            <uavField>Channel-2</uavField>
             <uavObject>ActuatorCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1861,7 +1865,52 @@
             <yScalePower>0</yScalePower>
           </plotCurve2>
           <plotCurve3>
-            <color>4289374847</color>
+            <color>4294923520</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-3</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-4</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4283825920</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-5</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurve6>
+            <color>4278190335</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-6</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve6>
+          <plotCurve7>
+            <color>4289331455</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Channel-7</uavField>
             <uavObject>ActuatorCommand</uavObject>
@@ -1869,8 +1918,8 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
-          </plotCurve3>
-          <plotCurveCount>4</plotCurveCount>
+          </plotCurve7>
+          <plotCurveCount>8</plotCurveCount>
           <plotType>1</plotType>
           <refreshInterval>100</refreshInterval>
         </data>
@@ -1928,10 +1977,34 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>60</dataSize>
           <plotCurve0>
+            <color>4278212095</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Altitude</uavField>
+            <uavObject>BaroSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Temperature</uavField>
+            <uavObject>BaroSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
             <color>4278190080</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Pressure</uavField>
             <uavObject>BaroSensor</uavObject>
@@ -1939,12 +2012,138 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
-          </plotCurve0>
-          <plotCurveCount>1</plotCurveCount>
+          </plotCurve2>
+          <plotCurveCount>3</plotCurveCount>
           <plotType>1</plotType>
-          <refreshInterval>1000</refreshInterval>
+          <refreshInterval>300</refreshInterval>
         </data>
       </Barometer>
+      <GPS>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <LoggingEnabled>false</LoggingEnabled>
+          <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
+          <configurationStreamVersion>1000</configurationStreamVersion>
+          <dataSize>60</dataSize>
+          <plotCurve0>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Satellites</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4278255615</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>AutoConfigStatus</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
+            <color>4283804415</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>BaudRate</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve2>
+          <plotCurve3>
+            <color>4294923520</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>SatsInView</uavField>
+            <uavObject>GPSSatellites</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Status</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4294901887</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Groundspeed</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurve6>
+            <color>4283804287</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>PDOP</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve6>
+          <plotCurve7>
+            <color>4283826047</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>HDOP</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve7>
+          <plotCurve8>
+            <color>4289396607</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>VDOP</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve8>
+          <plotCurve9>
+            <color>4289353215</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Alarm-GPS</uavField>
+            <uavObject>SystemAlarms</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve9>
+          <plotCurveCount>10</plotCurveCount>
+          <plotType>1</plotType>
+          <refreshInterval>100</refreshInterval>
+        </data>
+      </GPS>
       <Inputs>
         <configInfo>
           <locked>false</locked>
@@ -1953,12 +2152,14 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>40</dataSize>
           <plotCurve0>
-            <color>4278190207</color>
+            <color>4278190080</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-1</uavField>
+            <uavField>Channel-0</uavField>
             <uavObject>ManualControlCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1966,9 +2167,10 @@
             <yScalePower>0</yScalePower>
           </plotCurve0>
           <plotCurve1>
-            <color>4294901760</color>
+            <color>4289352960</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-4</uavField>
+            <uavField>Channel-1</uavField>
             <uavObject>ManualControlCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1977,36 +2179,7 @@
           </plotCurve1>
           <plotCurve2>
             <color>4294901760</color>
-            <mathFunction>None</mathFunction>
-            <uavField>Channel-5</uavField>
-            <uavObject>ManualControlCommand</uavObject>
-            <yMaximum>0</yMaximum>
-            <yMeanSamples>1</yMeanSamples>
-            <yMinimum>0</yMinimum>
-            <yScalePower>0</yScalePower>
-          </plotCurve2>
-          <plotCurve3>
-            <color>4294901760</color>
-            <mathFunction>None</mathFunction>
-            <uavField>Channel-6</uavField>
-            <uavObject>ManualControlCommand</uavObject>
-            <yMaximum>0</yMaximum>
-            <yMeanSamples>1</yMeanSamples>
-            <yMinimum>0</yMinimum>
-            <yScalePower>0</yScalePower>
-          </plotCurve3>
-          <plotCurve4>
-            <color>4294901760</color>
-            <mathFunction>None</mathFunction>
-            <uavField>Channel-7</uavField>
-            <uavObject>ManualControlCommand</uavObject>
-            <yMaximum>0</yMaximum>
-            <yMeanSamples>1</yMeanSamples>
-            <yMinimum>0</yMinimum>
-            <yScalePower>0</yScalePower>
-          </plotCurve4>
-          <plotCurve5>
-            <color>4283825920</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Channel-2</uavField>
             <uavObject>ManualControlCommand</uavObject>
@@ -2014,9 +2187,10 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
-          </plotCurve5>
-          <plotCurve6>
+          </plotCurve2>
+          <plotCurve3>
             <color>4294923520</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Channel-3</uavField>
             <uavObject>ManualControlCommand</uavObject>
@@ -2024,11 +2198,45 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-4</uavField>
+            <uavObject>ManualControlCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4278255360</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-5</uavField>
+            <uavObject>ManualControlCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurve6>
+            <color>4278190335</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-6</uavField>
+            <uavObject>ManualControlCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
           </plotCurve6>
           <plotCurve7>
-            <color>4294967040</color>
+            <color>4289331455</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-0</uavField>
+            <uavField>Channel-7</uavField>
             <uavObject>ManualControlCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -2040,6 +2248,77 @@
           <refreshInterval>200</refreshInterval>
         </data>
       </Inputs>
+      <OPLink>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <LoggingEnabled>false</LoggingEnabled>
+          <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
+          <configurationStreamVersion>1000</configurationStreamVersion>
+          <dataSize>60</dataSize>
+          <plotCurve0>
+            <color>4278212095</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>LinkState</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4278255615</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>RSSI</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>LinkQuality</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve2>
+          <plotCurve3>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>TXRate</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4278255360</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>RXRate</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurveCount>5</plotCurveCount>
+          <plotType>1</plotType>
+          <refreshInterval>100</refreshInterval>
+        </data>
+      </OPLink>
       <Raw__PCT__20AccelState>
         <configInfo>
           <locked>false</locked>
@@ -2130,7 +2409,7 @@
           <refreshInterval>500</refreshInterval>
         </data>
       </Raw__PCT__20GyroState>
-      <Raw__PCT__20magnetometers>
+      <Raw__PCT__20Magnetometers>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
@@ -2138,10 +2417,94 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
+          <configurationStreamVersion>1000</configurationStreamVersion>
+          <dataSize>40</dataSize>
+          <plotCurve0>
+            <color>4278233600</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>x</uavField>
+            <uavObject>MagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4278233855</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>y</uavField>
+            <uavObject>MagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
+            <color>4294967167</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>z</uavField>
+            <uavObject>MagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve2>
+          <plotCurve3>
+            <color>4278255360</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>x</uavField>
+            <uavObject>AuxMagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4278255615</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>y</uavField>
+            <uavObject>AuxMagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>z</uavField>
+            <uavObject>AuxMagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurveCount>6</plotCurveCount>
+          <plotType>1</plotType>
+          <refreshInterval>200</refreshInterval>
+        </data>
+      </Raw__PCT__20Magnetometers>
+      <Magnetometer>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <LoggingEnabled>false</LoggingEnabled>
+          <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>60</dataSize>
           <plotCurve0>
-            <color>4294901760</color>
+            <color>4278233600</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>x</uavField>
             <uavObject>MagState</uavObject>
@@ -2151,7 +2514,8 @@
             <yScalePower>0</yScalePower>
           </plotCurve0>
           <plotCurve1>
-            <color>4283782655</color>
+            <color>4278190335</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>y</uavField>
             <uavObject>MagState</uavObject>
@@ -2161,7 +2525,8 @@
             <yScalePower>0</yScalePower>
           </plotCurve1>
           <plotCurve2>
-            <color>4283804160</color>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>z</uavField>
             <uavObject>MagState</uavObject>
@@ -2170,11 +2535,33 @@
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
           </plotCurve2>
-          <plotCurveCount>3</plotCurveCount>
+          <plotCurve3>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Alarm-Magnetometer</uavField>
+            <uavObject>SystemAlarms</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4283826175</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Source</uavField>
+            <uavObject>MagState</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurveCount>5</plotCurveCount>
           <plotType>1</plotType>
           <refreshInterval>500</refreshInterval>
         </data>
-      </Raw__PCT__20magnetometers>
+      </Magnetometer>
       <Stacks__PCT__20monitor>
         <configInfo>
           <locked>false</locked>

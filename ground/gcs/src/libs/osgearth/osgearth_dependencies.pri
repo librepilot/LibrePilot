@@ -2,7 +2,7 @@
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 # set debug suffix if needed
-#win32:CONFIG(debug, debug|release):DS = "d"
+win32:CONFIG(debug, debug|release):DS = "d"
 
 contains(QT_ARCH, x86_64)  {
     macx {

@@ -11,7 +11,7 @@ contains(QT_ARCH, x86_64)  {
 }
 
 # set debug suffix if needed
-#win32:CONFIG(debug, debug|release):DS = "d"
+win32:CONFIG(debug, debug|release):DS = "d"
 
 osg:linux {
     # copy osg libraries
@@ -62,7 +62,7 @@ osg:win32 {
 
     # other
     OSG_LIBS += \
-        libproj-9.dll \
+        libjpeg-8.dll \
         libfreetype-6.dll \
         libpng16-16.dll \
         libiconv-2.dll \
@@ -97,8 +97,17 @@ osg:win32 {
 
     # osg plugins
     OSG_PLUGINS = \
-        mingw_osgdb_3dc$${DS}.dll \
         mingw_osgdb_3ds$${DS}.dll \
+        mingw_osgdb_freetype$${DS}.dll \
+        mingw_osgdb_jpeg$${DS}.dll \
+        mingw_osgdb_osg$${DS}.dll \
+        mingw_osgdb_png$${DS}.dll \
+        mingw_osgdb_tiff$${DS}.dll \
+        mingw_osgdb_zip$${DS}.dll \
+        mingw_osgdb_serializers_osg$${DS}.dll
+
+    osg_extra:OSG_PLUGINS = \
+        mingw_osgdb_3dc$${DS}.dll \
         mingw_osgdb_ac$${DS}.dll \
         mingw_osgdb_bmp$${DS}.dll \
         mingw_osgdb_bsp$${DS}.dll \
@@ -114,7 +123,6 @@ osg:win32 {
         mingw_osgdb_gz$${DS}.dll \
         mingw_osgdb_hdr$${DS}.dll \
         mingw_osgdb_ive$${DS}.dll \
-        mingw_osgdb_jpeg$${DS}.dll \
         mingw_osgdb_ktx$${DS}.dll \
         mingw_osgdb_logo$${DS}.dll \
         mingw_osgdb_lwo$${DS}.dll \
@@ -126,7 +134,6 @@ osg:win32 {
         mingw_osgdb_ogr$${DS}.dll \
         mingw_osgdb_openflight$${DS}.dll \
         mingw_osgdb_osc$${DS}.dll \
-        mingw_osgdb_osg$${DS}.dll \
         mingw_osgdb_osga$${DS}.dll \
         mingw_osgdb_osgshadow$${DS}.dll \
         mingw_osgdb_osgterrain$${DS}.dll \
@@ -135,7 +142,6 @@ osg:win32 {
         mingw_osgdb_p3d$${DS}.dll \
         mingw_osgdb_pic$${DS}.dll \
         mingw_osgdb_ply$${DS}.dll \
-        mingw_osgdb_png$${DS}.dll \
         mingw_osgdb_pnm$${DS}.dll \
         mingw_osgdb_pov$${DS}.dll \
         mingw_osgdb_pvr$${DS}.dll \
@@ -147,15 +153,12 @@ osg:win32 {
         mingw_osgdb_stl$${DS}.dll \
         mingw_osgdb_tga$${DS}.dll \
         mingw_osgdb_tgz$${DS}.dll \
-        mingw_osgdb_tiff$${DS}.dll \
         mingw_osgdb_trans$${DS}.dll \
         mingw_osgdb_trk$${DS}.dll \
         mingw_osgdb_txf$${DS}.dll \
         mingw_osgdb_txp$${DS}.dll \
         mingw_osgdb_vtf$${DS}.dll \
         mingw_osgdb_x$${DS}.dll \
-        mingw_osgdb_zip$${DS}.dll \
-        mingw_osgdb_serializers_osg$${DS}.dll \
         mingw_osgdb_serializers_osganimation$${DS}.dll \
         mingw_osgdb_serializers_osgfx$${DS}.dll \
         mingw_osgdb_serializers_osgga$${DS}.dll \
@@ -187,7 +190,6 @@ osgearth:win32 {
         libgdal-20.dll \
         libgeos_c.dll \
         libgeos.dll \
-        libjpeg-8.dll \
         libopenjp2-7.dll \
         libtiff-5.dll \
         liblzma-5.dll
@@ -202,16 +204,20 @@ osgearth:win32 {
     # osgearth plugins
     OSGEARTH_PLUGINS += \
         mingw_osgdb_earth$${DS}.dll \
+        mingw_osgdb_osgearth_arcgis$${DS}.dll \
+        mingw_osgdb_osgearth_engine_mp$${DS}.dll \
+        mingw_osgdb_osgearth_sky_simple$${DS}.dll \
+        mingw_osgdb_osgearth_tms$${DS}.dll \
+        mingw_osgdb_osgearth_cache_filesystem$${DS}.dll
+
+    osgearth_extra:OSGEARTH_PLUGINS += \
         mingw_osgdb_kml$${DS}.dll \
         mingw_osgdb_osgearth_agglite$${DS}.dll \
-        mingw_osgdb_osgearth_arcgis$${DS}.dll \
         mingw_osgdb_osgearth_arcgis_map_cache$${DS}.dll \
         mingw_osgdb_osgearth_bing$${DS}.dll \
-        mingw_osgdb_osgearth_cache_filesystem$${DS}.dll \
         mingw_osgdb_osgearth_colorramp$${DS}.dll \
         mingw_osgdb_osgearth_debug$${DS}.dll \
         mingw_osgdb_osgearth_engine_byo$${DS}.dll \
-        mingw_osgdb_osgearth_engine_mp$${DS}.dll \
         mingw_osgdb_osgearth_feature_ogr$${DS}.dll \
         mingw_osgdb_osgearth_feature_tfs$${DS}.dll \
         mingw_osgdb_osgearth_feature_wfs$${DS}.dll \
@@ -227,13 +233,11 @@ osgearth:win32 {
         mingw_osgdb_osgearth_refresh$${DS}.dll \
         mingw_osgdb_osgearth_scriptengine_javascript$${DS}.dll \
         mingw_osgdb_osgearth_sky_gl$${DS}.dll \
-        mingw_osgdb_osgearth_sky_simple$${DS}.dll \
         mingw_osgdb_osgearth_splat_mask$${DS}.dll \
         mingw_osgdb_osgearth_template_matclass$${DS}.dll \
         mingw_osgdb_osgearth_tilecache$${DS}.dll \
         mingw_osgdb_osgearth_tileindex$${DS}.dll \
         mingw_osgdb_osgearth_tileservice$${DS}.dll \
-        mingw_osgdb_osgearth_tms$${DS}.dll \
         mingw_osgdb_osgearth_vdatum_egm2008$${DS}.dll \
         mingw_osgdb_osgearth_vdatum_egm84$${DS}.dll \
         mingw_osgdb_osgearth_vdatum_egm96$${DS}.dll \

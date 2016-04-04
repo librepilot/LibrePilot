@@ -93,12 +93,14 @@ win32 {
         libicuuc56.dll \
         libstdc++-6.dll \
         libwinpthread-1.dll \
+        libpcre-1.dll \
         libpcre16-0.dll \
         zlib1.dll \
         libharfbuzz-0.dll \
         libfreetype-6.dll \
         libbz2-1.dll \
         libpng16-16.dll \
+        libjpeg-8.dll \
         libglib-2.0-0.dll \
         libintl-8.dll \
         libiconv-2.dll
@@ -129,7 +131,6 @@ win32 {
         imageformats/qgif$${DS}.dll \
         imageformats/qico$${DS}.dll \
         imageformats/qjpeg$${DS}.dll \
-        imageformats/qmng$${DS}.dll \
         imageformats/qsvg$${DS}.dll \
         imageformats/qtiff$${DS}.dll \
         platforms/qwindows$${DS}.dll \

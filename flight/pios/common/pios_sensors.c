@@ -57,7 +57,7 @@ PIOS_SENSORS_Instance *PIOS_SENSORS_GetInstanceByType(const PIOS_SENSORS_Instanc
     PIOS_SENSORS_Instance *sensor;
 
     LL_FOREACH((PIOS_SENSORS_Instance *)previous_instance, sensor) {
-        if (sensor->type && type) {
+        if (sensor->type & type) {
             return sensor;
         }
     }

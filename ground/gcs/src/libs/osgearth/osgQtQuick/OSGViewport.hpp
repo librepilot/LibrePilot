@@ -57,6 +57,8 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
 
+    typedef QQuickFramebufferObject Inherited;
+
     friend class ViewportRenderer;
 
 public:
@@ -91,11 +93,7 @@ signals:
     void busyChanged(bool busy);
 
 protected:
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
-
-    void classBegin();
-    void componentComplete();
-
+    // QQuickItem
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -105,6 +103,10 @@ protected:
 
     void setKeyboardModifiers(QInputEvent *event);
     QPointF mousePoint(QMouseEvent *event);
+
+    // QQmlParserStatus
+    void classBegin();
+    void componentComplete();
 
 private:
     struct Hidden;

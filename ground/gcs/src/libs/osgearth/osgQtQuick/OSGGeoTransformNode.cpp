@@ -225,7 +225,7 @@ void OSGGeoTransformNode::updateNode()
     if (isDirty(Clamp)) {
         // do nothing...
     }
-    if (isDirty(Position)) {
+    if (isDirty(Scene | Clamp | Position)) {
         h->updatePosition();
     }
 }

@@ -82,7 +82,7 @@ public:
         sceneNode = node;
 
         if (sceneNode) {
-            connect(sceneNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onSceneNodeChanged(osg::Node *)));
+            connect(sceneNode, &OSGNode::nodeChanged, this, &OSGSkyNode::Hidden::onSceneNodeChanged);
         }
 
         return true;

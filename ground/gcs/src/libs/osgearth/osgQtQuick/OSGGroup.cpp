@@ -58,7 +58,7 @@ public:
     {
         // qDebug() << "OSGGroup::appendChild" << childNode;
         children.append(childNode);
-        connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)), Qt::UniqueConnection);
+        connect(childNode, &OSGNode::nodeChanged, this, &osgQtQuick::OSGGroup::Hidden::onChildNodeChanged, Qt::UniqueConnection);
         self->setDirty(Children);
     }
 

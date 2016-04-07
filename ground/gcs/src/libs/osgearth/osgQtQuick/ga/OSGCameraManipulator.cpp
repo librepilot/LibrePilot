@@ -79,7 +79,7 @@ public:
         sceneNode = node;
 
         if (sceneNode) {
-            connect(sceneNode, &OSGNode::nodeChanged, this, &Hidden::onSceneNodeChanged);
+            connect(sceneNode, &OSGNode::nodeChanged, this, &OSGCameraManipulator::Hidden::onSceneNodeChanged);
         }
 
         return true;

@@ -75,7 +75,7 @@ public:
         trackNode = node;
 
         if (trackNode) {
-            connect(trackNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onTrackNodeChanged(osg::Node *)));
+            connect(trackNode, &OSGNode::nodeChanged, this, &OSGNodeTrackerManipulator::Hidden::onTrackNodeChanged);
         }
 
         return true;

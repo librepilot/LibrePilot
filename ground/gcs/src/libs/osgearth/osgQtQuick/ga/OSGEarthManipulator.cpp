@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGEarthManipulator.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup

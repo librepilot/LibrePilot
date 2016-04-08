@@ -731,7 +731,6 @@ static uint32_t hwsettings_mspspeed_enum_to_baud(uint8_t baud)
     case HWSETTINGS_MSPSPEED_4800:
         return 4800;
 
-    default:
     case HWSETTINGS_MSPSPEED_9600:
         return 9600;
 
@@ -744,6 +743,7 @@ static uint32_t hwsettings_mspspeed_enum_to_baud(uint8_t baud)
     case HWSETTINGS_MSPSPEED_57600:
         return 57600;
 
+    default:
     case HWSETTINGS_MSPSPEED_115200:
         return 115200;
     }

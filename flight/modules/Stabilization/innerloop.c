@@ -68,7 +68,7 @@ static uint8_t previous_mode[AXES] = { 255, 255, 255, 255 };
 static PiOSDeltatimeConfig timeval;
 static float speedScaleFactor = 1.0f;
 static bool frame_is_multirotor;
-
+static bool measuredDterm_enabled;
 // Private functions
 static void stabilizationInnerloopTask();
 static void GyroStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev);
@@ -98,7 +98,8 @@ void stabilizationInnerloopInit()
     // schedule dead calls every FAILSAFE_TIMEOUT_MS to have the watchdog cleared
     PIOS_CALLBACKSCHEDULER_Schedule(callbackHandle, FAILSAFE_TIMEOUT_MS, CALLBACK_UPDATEMODE_LATER);
 
-    frame_is_multirotor = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR);
+    frame_is_multirotor   = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR);
+    measuredDterm_enabled = (stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
 }
 
 static float get_pid_scale_source_value()
@@ -250,6 +251,7 @@ static void stabilizationInnerloopTask()
     StabilizationStatusOuterLoopGet(&outerLoop);
     bool allowPiroComp = true;
 
+
     for (t = 0; t < AXES; t++) {
         bool reinit = (StabilizationStatusInnerLoopToArray(enabled)[t] != previous_mode[t]);
         previous_mode[t] = StabilizationStatusInnerLoopToArray(enabled)[t];
@@ -290,7 +292,7 @@ static void stabilizationInnerloopTask()
                                  StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
                                  );
                 pid_scaler scaler = create_pid_scaler(t);
-                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
+                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
                 break;
             case STABILIZATIONSTATUS_INNERLOOP_ACRO:
             {
@@ -305,7 +307,7 @@ static void stabilizationInnerloopTask()
 
                 pid_scaler ascaler = create_pid_scaler(t);
                 ascaler.i *= boundf(1.0f - (1.5f * fabsf(stickinput[t])), 0.0f, 1.0f); // this prevents Integral from getting too high while controlled manually
-                float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT, stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
+                float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
                 float factor = fabsf(stickinput[t]) * stabSettings.acroInsanityFactors[t];
                 actuatorDesiredAxis[t] = factor * stickinput[t] + (1.0f - factor) * arate;
             }

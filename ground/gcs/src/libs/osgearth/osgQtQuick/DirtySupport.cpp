@@ -72,7 +72,7 @@ public:
     {
         // qDebug() << "DirtySupport::setDirty" << mask;
         if (!dirtyFlags) {
-            osg::Node *node = self->hookNode();
+            osg::Node *node = self->nodeToUpdate();
             if (node) {
                 if (!nodeUpdateCallback.valid()) {
                     // lazy creation
@@ -80,7 +80,7 @@ public:
                 }
                 node->addUpdateCallback(nodeUpdateCallback.get());
             } else {
-                qWarning() << "DirtySupport::setDirty - node is null";
+                // qWarning() << "DirtySupport::setDirty - node to update is null";
             }
         }
         dirtyFlags |= mask;
@@ -88,7 +88,7 @@ public:
 
     void clearDirty()
     {
-        osg::Node *node = self->hookNode();
+        osg::Node *node = self->nodeToUpdate();
 
         if (node && nodeUpdateCallback.valid()) {
             node->removeUpdateCallback(nodeUpdateCallback.get());

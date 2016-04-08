@@ -54,7 +54,7 @@ private:
     struct NodeUpdateCallback;
     Hidden *const h;
 
-    virtual osg::Node *hookNode() const = 0;
+    virtual osg::Node *nodeToUpdate() const = 0;
 
     virtual void update() = 0;
 };

@@ -52,7 +52,7 @@ public:
     Hidden(OSGNode *self) : QObject(self), self(self), complete(false) /*, dirty(0)*/
     {}
 
-    osg::Node *hookNode() const
+    osg::Node *nodeToUpdate() const
     {
         return self->node();
     }

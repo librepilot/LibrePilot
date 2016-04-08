@@ -55,7 +55,7 @@ public:
     ~Hidden()
     {}
 
-    osg::Node *hookNode() const
+    osg::Node *nodeToUpdate() const
     {
         return manipulator->getNode();
     }

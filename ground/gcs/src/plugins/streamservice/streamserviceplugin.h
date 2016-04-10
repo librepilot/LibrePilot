@@ -37,7 +37,7 @@ class QTcpSocket;
 
 class StreamServicePlugin : public ExtensionSystem::IPlugin {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "Openpilot.StreamService")
+                                                    Q_PLUGIN_METADATA(IID "Openpilot.StreamService")
 
 public:
     StreamServicePlugin();

@@ -30,6 +30,7 @@
 
 #include "treeitem.h"
 #include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QColor>
@@ -127,5 +128,4 @@ private:
     // Highlight manager to handle highlighting of tree items.
     HighLightManager *m_highlightManager;
 };
-
 #endif // UAVOBJECTTREEMODEL_H

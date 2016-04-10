@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       browseritemdelegate.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVObjectBrowserPlugin UAVObject Browser Plugin
@@ -25,41 +26,52 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "uavobjectbrowserwidget.h"
 #include "browseritemdelegate.h"
 #include "fieldtreeitem.h"
 
-BrowserItemDelegate::BrowserItemDelegate(QObject *parent) :
+BrowserItemDelegate::BrowserItemDelegate(TreeSortFilterProxyModel *proxyModel, QObject *parent)  :
     QStyledItemDelegate(parent)
-{}
+{
+    this->proxyModel = proxyModel;
+}
 
 QWidget *BrowserItemDelegate::createEditor(QWidget *parent,
                                            const QStyleOptionViewItem & option,
-                                           const QModelIndex & index) const
+                                           const QModelIndex & proxyIndex) const
 {
     Q_UNUSED(option)
-    FieldTreeItem * item = static_cast<FieldTreeItem *>(index.internalPointer());
-    QWidget *editor = item->createEditor(parent);
+    QModelIndex index = proxyModel->mapToSource(proxyIndex);
+
+    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
+    QWidget *editor     = item->createEditor(parent);
     Q_ASSERT(editor);
     return editor;
 }
 
 
 void BrowserItemDelegate::setEditorData(QWidget *editor,
-                                        const QModelIndex &index) const
+                                        const QModelIndex & proxyIndex) const
 {
+    QModelIndex index   = proxyModel->mapToSource(proxyIndex);
+
     FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
-    QVariant value = index.model()->data(index, Qt::EditRole);
+    QVariant value = proxyIndex.model()->data(proxyIndex, Qt::EditRole);
 
     item->setEditorValue(editor, value);
 }
 
 void BrowserItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                       const QModelIndex &index) const
+                                       const QModelIndex &proxyIndex) const
 {
+    QModelIndex index   = proxyModel->mapToSource(proxyIndex);
+
     FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
     QVariant value = item->getEditorValue(editor);
 
-    model->setData(index, value, Qt::EditRole);
+    bool ret = model->setData(proxyIndex, value, Qt::EditRole);
+
+    Q_ASSERT(ret);
 }
 
 void BrowserItemDelegate::updateEditorGeometry(QWidget *editor,

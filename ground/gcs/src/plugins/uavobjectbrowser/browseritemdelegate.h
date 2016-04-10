@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       browseritemdelegate.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVObjectBrowserPlugin UAVObject Browser Plugin
@@ -30,10 +31,12 @@
 
 #include <QStyledItemDelegate>
 
+class TreeSortFilterProxyModel;
+
 class BrowserItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
-    explicit BrowserItemDelegate(QObject *parent = 0);
+    explicit BrowserItemDelegate(TreeSortFilterProxyModel *proxyModel, QObject *parent = 0);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const;
@@ -51,6 +54,9 @@ public:
 signals:
 
 public slots:
+
+private:
+    TreeSortFilterProxyModel *proxyModel;
 };
 
 #endif // BROWSERITEMDELEGATE_H

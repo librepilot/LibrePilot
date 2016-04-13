@@ -54,6 +54,7 @@ OSGViewport {
     OSGGeoTransformManipulator {
         id: geoTransformManipulator
 
+        sceneNode: terrainFileNode
         clampToTerrain: true
 
         attitude: UAV.attitude()

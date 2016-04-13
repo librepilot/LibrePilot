@@ -62,7 +62,7 @@ Item {
         sceneSize: info.sceneSize
         elementName: "info-bg"
         width: parent.width
-        opacity: opaque ? 0.3 : 1
+        opacity: opaque ? 1 : 0.3
     }
 
     //
@@ -452,7 +452,7 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        opacity: opaque ? 0.6 : 1
+        opacity: opaque ? 1 : 0.6
 
         states: State {
              name: "fading"

@@ -506,13 +506,15 @@ public:
         // check if viewport needs to be resized
         // a redraw will be requested if necessary
         osg::Viewport *viewport = h->view->getCamera()->getViewport();
-        if ((viewport->width() != item->width()) || (viewport->height() != item->height())) {
-            // qDebug() << "*** RESIZE" << frameCount << viewport->width() << "x" << viewport->height() << "->" << item->width() << "x" << item->height();
+        int dpr    = h->self->window()->devicePixelRatio();
+        int width  = item->width() * dpr;
+        int height = item->height() * dpr;
+        if ((viewport->width() != width) || (viewport->height() != height)) {
+            // qDebug() << "*** RESIZE" << frameCount << viewport->width() << "x" << viewport->height() << "->" << width << "x" << height;
             needToDoFrame = true;
 
-            // h->view->getCamera()->resize(item->width(), item->height());
-            int dpr = h->self->window()->devicePixelRatio();
-            h->view->getCamera()->getGraphicsContext()->resized(0, 0, item->width() * dpr, item->height() * dpr);
+            // h->view->getCamera()->resize(width, height);
+            h->view->getCamera()->getGraphicsContext()->resized(0, 0, width, height);
 
             // trick to force a "home" on first few frames to absorb initial spurious resizes
             if (frameCount <= 2) {
@@ -531,13 +533,15 @@ public:
         if (!needToDoFrame) {
             needToDoFrame = h->viewer->checkNeedToDoFrame();
         }
+        // workarounds to osg issues
         if (!needToDoFrame) {
-            // workarounds to osg issues
             // issue 1 : if only root node has an update callback checkNeedToDoFrame should return true but does not
             // a fix will be submitted to osg (current version is 3.5.1)
             if (h->view->getSceneData()) {
                 needToDoFrame |= !(h->view->getSceneData()->getUpdateCallback() == NULL);
             }
+        }
+        if (!needToDoFrame) {
             // issue 2 : UI events don't trigger a redraw
             // this issue should be fixed here...
             // event handling needs a lot of attention :

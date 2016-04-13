@@ -151,7 +151,6 @@ OSGFileNode::OSGFileNode(QObject *parent) : Inherited(parent), h(new Hidden(this
 
 OSGFileNode::~OSGFileNode()
 {
-    qDebug() << "OSGFileNode::~OSGFileNode";
     delete h;
 }
 

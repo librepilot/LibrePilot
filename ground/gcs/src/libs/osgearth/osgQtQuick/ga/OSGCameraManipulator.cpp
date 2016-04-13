@@ -110,7 +110,6 @@ OSGCameraManipulator::OSGCameraManipulator(QObject *parent) : QObject(parent), h
 
 OSGCameraManipulator::~OSGCameraManipulator()
 {
-    qDebug() << "OSGCameraManipulator::~OSGCameraManipulator";
     delete h;
 }
 

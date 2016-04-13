@@ -96,7 +96,6 @@ OSGTransformNode::OSGTransformNode(QObject *parent) : Inherited(parent), h(new H
 
 OSGTransformNode::~OSGTransformNode()
 {
-    qDebug() << "OSGTransformNode::~OSGTransformNode";
     delete h;
 }
 

@@ -614,7 +614,6 @@ OSGViewport::OSGViewport(QQuickItem *parent) : Inherited(parent), h(new Hidden(t
 
 OSGViewport::~OSGViewport()
 {
-    // qDebug() << "OSGViewport::~OSGViewport";
     delete h;
 }
 

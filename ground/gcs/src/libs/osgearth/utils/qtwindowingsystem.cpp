@@ -103,14 +103,14 @@ GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
     _glContext(NULL),
     _surface(NULL)
 {
-    qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
+    // qDebug() << "GraphicsWindowQt::GraphicsWindowQt";
     _traits = traits;
     init();
 }
 
 GraphicsWindowQt::~GraphicsWindowQt()
 {
-    qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
+    // qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
     close();
 }
 
@@ -217,7 +217,7 @@ bool GraphicsWindowQt::realizeImplementation()
     QOpenGLContext *currentContext = QOpenGLContext::currentContext();
 
     if (!currentContext) {
-        qDebug() << "GraphicsWindowQt::realizeImplementation - creating owned context";
+        // qDebug() << "GraphicsWindowQt::realizeImplementation - creating owned context";
         _owned     = true;
         _glContext = new QOpenGLContext();
         _glContext->create();
@@ -228,7 +228,7 @@ bool GraphicsWindowQt::realizeImplementation()
         osgQtQuick::formatInfo(_surface->format());
 #endif
     } else {
-        qDebug() << "GraphicsWindowQt::realizeImplementation - using current context";
+        // qDebug() << "GraphicsWindowQt::realizeImplementation - using current context";
         _glContext = currentContext;
     }
 
@@ -318,7 +318,7 @@ bool GraphicsWindowQt::releaseContextImplementation()
         return false;
     }
     if (_owned && _glContext) {
-        qDebug() << "GraphicsWindowQt::releaseContextImplementation";
+        // qDebug() << "GraphicsWindowQt::releaseContextImplementation";
         _glContext->doneCurrent();
     }
     return true;
@@ -326,14 +326,14 @@ bool GraphicsWindowQt::releaseContextImplementation()
 
 void GraphicsWindowQt::closeImplementation()
 {
-    qDebug() << "GraphicsWindowQt::closeImplementation";
+    // qDebug() << "GraphicsWindowQt::closeImplementation";
     _closing     = true;
     _initialized = false;
     _valid = false;
     _realized    = false;
     if (_owned) {
         if (_glContext) {
-            qDebug() << "GraphicsWindowQt::closeImplementation - deleting owned context";
+            // qDebug() << "GraphicsWindowQt::closeImplementation - deleting owned context";
             delete _glContext;
         }
         if (_surface) {

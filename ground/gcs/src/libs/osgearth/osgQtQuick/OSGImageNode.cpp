@@ -93,7 +93,6 @@ OSGImageNode::OSGImageNode(QObject *parent) : Inherited(parent), h(new Hidden(th
 
 OSGImageNode::~OSGImageNode()
 {
-    qDebug() << "OSGImageNode::~OSGImageNode";
     delete h;
 }
 

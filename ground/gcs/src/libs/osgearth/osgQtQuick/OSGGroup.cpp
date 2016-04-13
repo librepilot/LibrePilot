@@ -196,7 +196,6 @@ OSGGroup::OSGGroup(QObject *parent) : Inherited(parent), h(new Hidden(this))
 
 OSGGroup::~OSGGroup()
 {
-    qDebug() << "OSGGroup::~OSGGroup";
     delete h;
 }
 

@@ -208,7 +208,6 @@ OSGGeoTransformManipulator::OSGGeoTransformManipulator(QObject *parent) : Inheri
 
 OSGGeoTransformManipulator::~OSGGeoTransformManipulator()
 {
-    qDebug() << "OSGGeoTransformManipulator::~OSGGeoTransformManipulator";
     delete h;
 }
 

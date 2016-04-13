@@ -62,7 +62,6 @@ OSGEarthManipulator::OSGEarthManipulator(QObject *parent) : Inherited(parent), h
 
 OSGEarthManipulator::~OSGEarthManipulator()
 {
-    qDebug() << "OSGEarthManipulator::~OSGEarthManipulator";
     delete h;
 }
 } // namespace osgQtQuick

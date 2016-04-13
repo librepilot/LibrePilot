@@ -230,7 +230,6 @@ OSGSkyNode::OSGSkyNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 
 OSGSkyNode::~OSGSkyNode()
 {
-    qDebug() << "OSGSkyNode::~OSGSkyNode";
     delete h;
 }
 

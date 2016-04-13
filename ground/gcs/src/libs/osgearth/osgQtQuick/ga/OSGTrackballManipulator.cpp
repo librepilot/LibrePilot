@@ -62,7 +62,6 @@ OSGTrackballManipulator::OSGTrackballManipulator(QObject *parent) : Inherited(pa
 
 OSGTrackballManipulator::~OSGTrackballManipulator()
 {
-    qDebug() << "OSGTrackballManipulator::~OSGTrackballManipulator";
     delete h;
 }
 } // namespace osgQtQuick

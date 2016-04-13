@@ -77,7 +77,6 @@ OSGBillboardNode::OSGBillboardNode(QObject *parent) : Inherited(parent), h(new H
 
 OSGBillboardNode::~OSGBillboardNode()
 {
-    qDebug() << "OSGBillboardNode::~OSGBillboardNode";
     delete h;
 }
 

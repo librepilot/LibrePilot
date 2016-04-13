@@ -127,7 +127,6 @@ OSGNodeTrackerManipulator::OSGNodeTrackerManipulator(QObject *parent) : Inherite
 
 OSGNodeTrackerManipulator::~OSGNodeTrackerManipulator()
 {
-    qDebug() << "OSGNodeTrackerManipulator::~OSGNodeTrackerManipulator";
     delete h;
 }
 

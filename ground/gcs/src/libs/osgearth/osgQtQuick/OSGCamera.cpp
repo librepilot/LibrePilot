@@ -196,7 +196,6 @@ OSGCamera::OSGCamera(QObject *parent) : Inherited(parent), h(new Hidden(this))
 
 OSGCamera::~OSGCamera()
 {
-    qDebug() << "OSGCamera::~OSGCamera";
     delete h;
 }
 

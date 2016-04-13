@@ -82,7 +82,6 @@ OSGShapeNode::OSGShapeNode(QObject *parent) : Inherited(parent), h(new Hidden(th
 
 OSGShapeNode::~OSGShapeNode()
 {
-    qDebug() << "OSGShapeNode::~OSGShapeNode";
     delete h;
 }
 

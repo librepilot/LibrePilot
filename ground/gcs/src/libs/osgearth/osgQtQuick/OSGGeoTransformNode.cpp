@@ -160,7 +160,6 @@ OSGGeoTransformNode::OSGGeoTransformNode(QObject *parent) : Inherited(parent), h
 
 OSGGeoTransformNode::~OSGGeoTransformNode()
 {
-    qDebug() << "OSGGeoTransformNode::~OSGGeoTransformNode";
     delete h;
 }
 

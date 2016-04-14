@@ -34,6 +34,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { TrackNode = 1 << 10, TrackerMode = 1 << 11 };
+
 struct OSGNodeTrackerManipulator::Hidden : public QObject {
     Q_OBJECT
 
@@ -138,6 +140,7 @@ OSGNode *OSGNodeTrackerManipulator::trackNode() const
 void OSGNodeTrackerManipulator::setTrackNode(OSGNode *node)
 {
     if (h->acceptTrackNode(node)) {
+        setDirty(TrackNode);
         emit trackNodeChanged(node);
     }
 }
@@ -151,6 +154,7 @@ void OSGNodeTrackerManipulator::setTrackerMode(TrackerMode::Enum mode)
 {
     if (h->trackerMode != mode) {
         h->trackerMode = mode;
+        setDirty(TrackerMode);
         emit trackerModeChanged(trackerMode());
     }
 }
@@ -159,8 +163,12 @@ void OSGNodeTrackerManipulator::update()
 {
     Inherited::update();
 
-    h->updateTrackerMode();
-    h->updateTrackNode();
+    if (isDirty(TrackNode)) {
+        h->updateTrackNode();
+    }
+    if (isDirty(TrackerMode)) {
+        h->updateTrackerMode();
+    }
 }
 } // namespace osgQtQuick
 

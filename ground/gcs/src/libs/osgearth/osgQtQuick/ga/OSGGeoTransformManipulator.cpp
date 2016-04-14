@@ -42,6 +42,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { Position = 1 << 10, Attitude = 1 << 11, Clamp = 1 << 12 };
+
 class MyManipulator : public osgGA::CameraManipulator {
 public:
     MyManipulator()
@@ -148,13 +150,15 @@ public:
 
         osgEarth::MapNode *mapNode = NULL;
 
-        if (manipulator->getNode()) {
-            mapNode = osgEarth::MapNode::findMapNode(manipulator->getNode());
+        OSGNode *sceneNode = self->sceneNode();
+
+        if (sceneNode && sceneNode->node()) {
+            mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
             if (!mapNode) {
                 qWarning() << "OSGGeoTransformManipulator::updatePosition - manipulator node does not contain a map node";
             }
         } else {
-            qWarning() << "OSGGeoTransformManipulator::updatePosition - manipulator node is null";
+            qWarning() << "OSGGeoTransformManipulator::updatePosition - scene node is null";
         }
 
         osgEarth::GeoPoint geoPoint;
@@ -220,6 +224,7 @@ void OSGGeoTransformManipulator::setClampToTerrain(bool arg)
 {
     if (h->clampToTerrain != arg) {
         h->clampToTerrain = arg;
+        setDirty(Clamp);
         emit clampToTerrainChanged(clampToTerrain());
     }
 }
@@ -238,7 +243,7 @@ void OSGGeoTransformManipulator::setAttitude(QVector3D arg)
 {
     if (h->attitude != arg) {
         h->attitude = arg;
-        setDirty();
+        setDirty(Attitude);
         emit attitudeChanged(attitude());
     }
 }
@@ -252,7 +257,7 @@ void OSGGeoTransformManipulator::setPosition(QVector3D arg)
 {
     if (h->position != arg) {
         h->position = arg;
-        setDirty();
+        setDirty(Position);
         emit positionChanged(position());
     }
 }
@@ -261,9 +266,19 @@ void OSGGeoTransformManipulator::update()
 {
     Inherited::update();
 
-    h->updatePosition();
-    h->updateAttitude();
-    h->updateManipulator();
+    bool b = false;
+
+    if (isDirty(Clamp | Position)) {
+        h->updatePosition();
+        b = true;
+    }
+    if (isDirty(Attitude)) {
+        h->updateAttitude();
+        b = true;
+    }
+    if (b) {
+        h->updateManipulator();
+    }
 }
 } // namespace osgQtQuick
 

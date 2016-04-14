@@ -35,6 +35,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { Scene = 1 << 0 };
+
 struct OSGCameraManipulator::Hidden : public QObject, public DirtySupport {
     Q_OBJECT
 
@@ -91,7 +93,7 @@ public:
             qWarning() << "OSGCameraManipulator::updateSceneNode - no scene node";
             return;
         }
-        qDebug() << "OSGCameraManipulator::updateSceneNode" << sceneNode->node();
+        qDebug() << "OSGCameraManipulator::updateSceneNode" << sceneNode;
         manipulator->setNode(sceneNode->node());
     }
 
@@ -99,7 +101,7 @@ private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGCameraManipulator::onSceneNodeChanged" << node;
-        qWarning() << "OSGCameraManipulator::onSceneNodeChanged - needs to be implemented";
+        updateSceneNode();
     }
 };
 
@@ -121,6 +123,7 @@ OSGNode *OSGCameraManipulator::sceneNode() const
 void OSGCameraManipulator::setSceneNode(OSGNode *node)
 {
     if (h->acceptSceneNode(node)) {
+        setDirty(Scene);
         emit sceneNodeChanged(node);
     }
 }
@@ -169,7 +172,9 @@ osgGA::CameraManipulator *OSGCameraManipulator::asCameraManipulator() const
 
 void OSGCameraManipulator::update()
 {
-    h->updateSceneNode();
+    if (isDirty(Scene)) {
+        h->updateSceneNode();
+    }
 }
 } // namespace osgQtQuick
 

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGSkyNode.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,6 +27,8 @@
 
 #include "OSGSkyNode.hpp"
 
+#include "OSGViewport.hpp"
+
 #include <osgViewer/View>
 
 #include <osgEarth/Config>
@@ -39,6 +41,8 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { Scene = 1 << 0, Viewport = 1 << 1, DateTime = 1 << 2, Light = 1 << 3 };
+
 struct OSGSkyNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -48,13 +52,15 @@ private:
     osg::ref_ptr<osgEarth::Util::SkyNode> skyNode;
 
 public:
-    OSGNode   *sceneNode;
+    OSGNode     *sceneNode;
+    OSGViewport *viewport;
 
-    bool      sunLightEnabled;
-    QDateTime dateTime;
-    double    minimumAmbientLight;
+    bool        sunLightEnabled;
+    QDateTime   dateTime;
+    double      minimumAmbientLight;
 
-    Hidden(OSGSkyNode *node) : QObject(node), self(node), sceneNode(NULL), sunLightEnabled(true), minimumAmbientLight(0.03)
+    Hidden(OSGSkyNode *self) : QObject(self), self(self), sceneNode(NULL), viewport(NULL),
+        sunLightEnabled(true), minimumAmbientLight(0.03)
     {
         dateTime = QDateTime::currentDateTime();
     }
@@ -76,27 +82,28 @@ public:
         sceneNode = node;
 
         if (sceneNode) {
-            connect(sceneNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onSceneNodeChanged(osg::Node *)));
+            connect(sceneNode, &OSGNode::nodeChanged, this, &OSGSkyNode::Hidden::onSceneNodeChanged);
         }
 
         return true;
     }
 
-    void updateSkyNode()
+    void updateScene()
     {
         if (!sceneNode || !sceneNode->node()) {
-            qWarning() << "OSGSkyNode::acceptNode - scene node not valid";
+            qWarning() << "OSGSkyNode::updateScene - scene node not valid";
             self->setNode(NULL);
             return;
         }
+        qDebug() << "OSGSkyNode::updateScene - scene node" << sceneNode->node();
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
         if (!mapNode) {
-            qWarning() << "OSGSkyNode::acceptNode - scene node does not contain a map node";
+            qWarning() << "OSGSkyNode::updateScene - scene node does not contain a map node";
             self->setNode(NULL);
             return;
         }
         if (!mapNode->getMap()->isGeocentric()) {
-            qWarning() << "OSGSkyNode::acceptNode - map node is not geocentric";
+            qWarning() << "OSGSkyNode::updateScene - map node is not geocentric";
             self->setNode(NULL);
             return;
         }
@@ -117,7 +124,7 @@ public:
         } else {
             skyNode->removeChild(0, 1);
             skyNode->addChild(sceneNode->node());
-            self->emitNodeChanged();
+            // self->emitNodeChanged();
         }
     }
 
@@ -142,8 +149,23 @@ public:
     }
  */
 
+    void updateViewport()
+    {
+        qDebug() << "OSGSkyNode::updateViewport" << skyNode;
+        if (!skyNode.valid()) {
+            qWarning() << "OSGSkyNode::updateViewport - invalid sky node" << skyNode;
+            return;
+        }
+        qDebug() << "OSGSkyNode::updateViewport - attaching to" << viewport->asView();
+        skyNode->attach(viewport->asView());
+    }
+
     void updateSunLightEnabled()
     {
+        if (!skyNode.valid()) {
+            qWarning() << "OSGSkyNode::updateSunLightEnabled - invalid sky node";
+            return;
+        }
         if (!skyNode.valid()) {
             return;
         }
@@ -153,10 +175,11 @@ public:
     void updateDateTime()
     {
         if (!skyNode.valid()) {
+            qWarning() << "OSGSkyNode::updateDateTime - invalid sky node";
             return;
         }
         if (!dateTime.isValid()) {
-            qWarning() << "OSGSkyNode::acceptDateTime - invalid date/time" << dateTime;
+            qWarning() << "OSGSkyNode::updateDateTime - invalid date/time" << dateTime;
         }
 
         QDate date   = dateTime.date();
@@ -168,6 +191,7 @@ public:
     void updateMinimumAmbientLight()
     {
         if (!skyNode.valid()) {
+            qWarning() << "OSGSkyNode::updateMinimumAmbientLight - invalid sky node";
             return;
         }
         double d = minimumAmbientLight;
@@ -193,28 +217,23 @@ private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
         qDebug() << "OSGSkyNode::onSceneNodeChanged" << node;
-        updateSkyNode();
+        updateScene();
     }
 };
 
 /* class OSGSkyNode */
 
-enum DirtyFlag { Child = 1 << 0, DateTime = 1 << 1, Light = 1 << 2 };
-
-OSGSkyNode::OSGSkyNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGSkyNode::OSGSkyNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGSkyNode::OSGSkyNode";
-    setSunLightEnabled(true);
-    setMinimumAmbientLight(0.03);
+    setDirty(DateTime | Light);
 }
 
 OSGSkyNode::~OSGSkyNode()
 {
-    // qDebug() << "OSGSkyNode::~OSGSkyNode";
     delete h;
 }
 
-OSGNode *OSGSkyNode::sceneNode()
+OSGNode *OSGSkyNode::sceneNode() const
 {
     return h->sceneNode;
 }
@@ -222,12 +241,26 @@ OSGNode *OSGSkyNode::sceneNode()
 void OSGSkyNode::setSceneNode(OSGNode *node)
 {
     if (h->acceptSceneNode(node)) {
-        setDirty(Child);
+        setDirty(Scene);
         emit sceneNodeChanged(node);
     }
 }
 
-bool OSGSkyNode::sunLightEnabled()
+OSGViewport *OSGSkyNode::viewport() const
+{
+    return h->viewport;
+}
+
+void OSGSkyNode::setViewport(OSGViewport *viewport)
+{
+    if (h->viewport != viewport) {
+        h->viewport = viewport;
+        setDirty(Viewport);
+        emit viewportChanged(viewport);
+    }
+}
+
+bool OSGSkyNode::sunLightEnabled() const
 {
     return h->sunLightEnabled;
 }
@@ -241,7 +274,7 @@ void OSGSkyNode::setSunLightEnabled(bool enabled)
     }
 }
 
-QDateTime OSGSkyNode::dateTime()
+QDateTime OSGSkyNode::dateTime() const
 {
     return h->dateTime;
 }
@@ -255,7 +288,7 @@ void OSGSkyNode::setDateTime(QDateTime dateTime)
     }
 }
 
-double OSGSkyNode::minimumAmbientLight()
+double OSGSkyNode::minimumAmbientLight() const
 {
     return h->minimumAmbientLight;
 }
@@ -269,10 +302,20 @@ void OSGSkyNode::setMinimumAmbientLight(double ambient)
     }
 }
 
-void OSGSkyNode::update()
+osg::Node *OSGSkyNode::createNode()
 {
-    if (isDirty(Child)) {
-        h->updateSkyNode();
+    return NULL;
+}
+
+void OSGSkyNode::updateNode()
+{
+    Inherited::updateNode();
+
+    if (isDirty(Scene)) {
+        h->updateScene();
+    }
+    if (isDirty(Viewport)) {
+        h->updateViewport();
     }
     if (isDirty(Light)) {
         h->updateSunLightEnabled();
@@ -281,23 +324,6 @@ void OSGSkyNode::update()
     if (isDirty(DateTime)) {
         h->updateDateTime();
     }
-}
-
-void OSGSkyNode::attach(osgViewer::View *view)
-{
-    // qDebug() << "OSGSkyNode::attach " << view;
-    OSGNode::attach(h->sceneNode, view);
-
-    h->attachSkyNode(view);
-    update();
-    clearDirty();
-}
-
-void OSGSkyNode::detach(osgViewer::View *view)
-{
-    // qDebug() << "OSGSkyNode::detach " << view;
-    h->detachSkyNode(view);
-    OSGNode::detach(h->sceneNode, view);
 }
 } // namespace osgQtQuick
 

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGShapeNode.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,7 +27,7 @@
 
 #include "OSGShapeNode.hpp"
 
-#include "../shapeutils.h"
+#include "utils/shapeutils.h"
 
 #include <osg/Geode>
 #include <osg/Group>
@@ -37,19 +37,21 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { ShapeType = 1 << 0 };
+
 struct OSGShapeNode::Hidden : public QObject {
     Q_OBJECT
 
 private:
-    OSGShapeNode * self;
+    OSGShapeNode * const self;
 
 public:
     ShapeType::Enum shapeType;
 
-    Hidden(OSGShapeNode *node) : QObject(node), self(node), shapeType(ShapeType::Sphere)
+    Hidden(OSGShapeNode *self) : QObject(self), self(self), shapeType(ShapeType::Sphere)
     {}
 
-    void updateNode()
+    void updateShapeType()
     {
         osg::Node *node = NULL;
 
@@ -67,26 +69,19 @@ public:
             node = ShapeUtils::create3DAxis();
             break;
         }
-        // Add the node to the scene
         self->setNode(node);
     }
 };
 
 /* class OSGShapeNode */
 
-enum DirtyFlag { Type = 1 << 0 };
-
-// TODO turn into generic shape node...
-// see http://trac.openscenegraph.org/projects/osg//wiki/Support/Tutorials/TransformsAndStates
-OSGShapeNode::OSGShapeNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
+OSGShapeNode::OSGShapeNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
 {
-    qDebug() << "OSGShapeNode::OSGShapeNode";
-    setShapeType(ShapeType::Sphere);
+    setDirty(ShapeType);
 }
 
 OSGShapeNode::~OSGShapeNode()
 {
-    // qDebug() << "OSGShapeNode::~OSGShapeNode";
     delete h;
 }
 
@@ -99,26 +94,24 @@ void OSGShapeNode::setShapeType(ShapeType::Enum type)
 {
     if (h->shapeType != type) {
         h->shapeType = type;
-        setDirty(Type);
+        setDirty(ShapeType);
         emit shapeTypeChanged(type);
     }
 }
 
-void OSGShapeNode::update()
+osg::Node *OSGShapeNode::createNode()
 {
-    if (isDirty(Type)) {
-        h->updateNode();
+    return NULL;
+}
+
+void OSGShapeNode::updateNode()
+{
+    Inherited::updateNode();
+
+    if (isDirty(ShapeType)) {
+        h->updateShapeType();
     }
 }
-
-void OSGShapeNode::attach(osgViewer::View *view)
-{
-    update();
-    clearDirty();
-}
-
-void OSGShapeNode::detach(osgViewer::View *view)
-{}
 } // namespace osgQtQuick
 
 #include "OSGShapeNode.moc"

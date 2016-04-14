@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGTextNode.hpp
+ * @file       OSGCameraManipulator.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,38 +25,52 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGTEXTNODE_H_
-#define _H_OSGQTQUICK_OSGTEXTNODE_H_
+#ifndef _H_OSGQTQUICK_OSGCAMERAMANIPULATOR_H_
+#define _H_OSGQTQUICK_OSGCAMERAMANIPULATOR_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../Export.hpp"
 
-#include <QColor>
+#include <QObject>
+#include <QQmlParserStatus>
+
+namespace osgGA {
+class CameraManipulator;
+}
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+class OSGNode;
 
-    typedef OSGNode Inherited;
+class OSGQTQUICK_EXPORT OSGCameraManipulator : public QObject, public QQmlParserStatus {
+    Q_OBJECT
+                        Q_INTERFACES(QQmlParserStatus)
+
+    Q_PROPERTY(osgQtQuick::OSGNode * sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
 
 public:
-    explicit OSGTextNode(QObject *parent = 0);
-    virtual ~OSGTextNode();
+    explicit OSGCameraManipulator(QObject *parent = 0);
+    virtual ~OSGCameraManipulator();
 
-    QString text() const;
-    void setText(const QString &text);
+    osgGA::CameraManipulator *asCameraManipulator() const;
 
-    QColor color() const;
-    void setColor(const QColor &color);
+    OSGNode *sceneNode() const;
+    void setSceneNode(OSGNode *node);
 
 signals:
-    void textChanged(const QString &text);
-    void colorChanged(const QColor &color);
+    void sceneNodeChanged(OSGNode *node);
 
 protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+    bool isDirty(int mask = 0xFFFF) const;
+    void setDirty(int mask = 0xFFFF);
+    void clearDirty();
+
+    void classBegin();
+    void componentComplete();
+
+    osgGA::CameraManipulator *manipulator() const;
+    void setManipulator(osgGA::CameraManipulator *manipulator);
+
+protected:
+    virtual void update();
 
 private:
     struct Hidden;
@@ -64,4 +78,4 @@ private:
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGTEXTNODE_H_
+#endif // _H_OSGQTQUICK_OSGCAMERAMANIPULATOR_H_

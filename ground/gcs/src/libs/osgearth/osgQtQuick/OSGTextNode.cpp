@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGTextNode.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,7 +27,7 @@
 
 #include "OSGTextNode.hpp"
 
-#include "../utility.h"
+#include "utils/utility.h"
 
 #include <osgText/Text>
 #include <osg/Geode>
@@ -37,6 +37,8 @@
 #include <QColor>
 
 namespace osgQtQuick {
+enum DirtyFlag { Text = 1 << 0, Color = 1 << 1 };
+
 struct OSGTextNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -49,24 +51,24 @@ public:
     QString textString;
     QColor  color;
 
-    Hidden(OSGTextNode *node) : QObject(node), self(node)
+    Hidden(OSGTextNode *self) : QObject(self), self(self)
+    {}
+
+    osg::Node *createNode()
     {
         osg::ref_ptr<osgText::Font> textFont = createFont(QFont("Times"));
 
-        text = createText(osg::Vec3(-100, 20, 0), "Hello World", 20.0f,
-                          textFont.get());
-        osg::ref_ptr<osg::Geode> textGeode = new osg::Geode();
+        text = createText(osg::Vec3(-100, 20, 0), "Hello World", 20.0f, textFont.get());
+        osg::ref_ptr<osg::Geode> textGeode   = new osg::Geode();
         textGeode->addDrawable(text.get());
     #if 0
         text->setAutoRotateToScreen(true);
-        self->setNode(textGeode.get());
     #else
         osg::Camera *camera = createHUDCamera(-100, 100, -100, 100);
         camera->addChild(textGeode.get());
-        camera->getOrCreateStateSet()->setMode(
-            GL_LIGHTING, osg::StateAttribute::OFF);
-        self->setNode(camera);
+        camera->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     #endif
+        return text;
     }
 
     void updateText()
@@ -88,10 +90,10 @@ public:
 
 /* class OSGTextNode */
 
-enum DirtyFlag { Text = 1 << 0, Color = 1 << 1 };
-
-OSGTextNode::OSGTextNode(QObject *node) : OSGNode(node), h(new Hidden(this))
-{}
+OSGTextNode::OSGTextNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
+{
+    setDirty(Text | Color);
+}
 
 OSGTextNode::~OSGTextNode()
 {
@@ -126,8 +128,15 @@ void OSGTextNode::setColor(const QColor &color)
     }
 }
 
-void OSGTextNode::update()
+osg::Node *OSGTextNode::createNode()
 {
+    return h->createNode();
+}
+
+void OSGTextNode::updateNode()
+{
+    Inherited::updateNode();
+
     if (isDirty(Text)) {
         h->updateText();
     }
@@ -135,15 +144,6 @@ void OSGTextNode::update()
         h->updateColor();
     }
 }
-
-void OSGTextNode::attach(osgViewer::View *view)
-{
-    update();
-    clearDirty();
-}
-
-void OSGTextNode::detach(osgViewer::View *view)
-{}
 } // namespace osgQtQuick
 
 #include "OSGTextNode.moc"

@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGGroup.hpp
+ * @file       OSGEarthManipulator.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,31 +25,23 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGGROUP_H_
-#define _H_OSGQTQUICK_OSGGROUP_H_
+#ifndef _H_OSGQTQUICK_OSGEARTHMANIPULATOR_H_
+#define _H_OSGQTQUICK_OSGEARTHMANIPULATOR_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../Export.hpp"
+#include "OSGCameraManipulator.hpp"
 
-#include <QQmlListProperty>
+#include <QObject>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
+class OSGQTQUICK_EXPORT OSGEarthManipulator : public OSGCameraManipulator {
+    Q_OBJECT
 
-    Q_CLASSINFO("DefaultProperty", "children")
-
-    typedef OSGNode Inherited;
+    typedef OSGCameraManipulator Inherited;
 
 public:
-    explicit OSGGroup(QObject *parent = 0);
-    virtual ~OSGGroup();
-
-    QQmlListProperty<OSGNode> children() const;
-
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+    explicit OSGEarthManipulator(QObject *parent = 0);
+    virtual ~OSGEarthManipulator();
 
 private:
     struct Hidden;
@@ -57,4 +49,4 @@ private:
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGGROUP_H_
+#endif // _H_OSGQTQUICK_OSGEARTHMANIPULATOR_H_

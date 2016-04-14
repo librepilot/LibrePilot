@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGShapeNode.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -42,6 +42,8 @@ public:
 class OSGQTQUICK_EXPORT OSGShapeNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(osgQtQuick::ShapeType::Enum shapeType READ shapeType WRITE setShapeType NOTIFY shapeTypeChanged)
 
+    typedef OSGNode Inherited;
+
 public:
     OSGShapeNode(QObject *parent = 0);
     virtual ~OSGShapeNode();
@@ -52,14 +54,13 @@ public:
 signals:
     void shapeTypeChanged(ShapeType::Enum);
 
+protected:
+    virtual osg::Node *createNode();
+    virtual void updateNode();
+
 private:
     struct Hidden;
-    Hidden *h;
-
-    virtual void update();
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

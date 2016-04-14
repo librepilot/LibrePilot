@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGNode.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,75 +27,39 @@
 
 #include "OSGNode.hpp"
 
+#include "DirtySupport.hpp"
+
 #include <osg/Node>
-#include <osg/NodeVisitor>
 
 #include <QDebug>
 
 namespace osgQtQuick {
 class OSGNode;
-class Hidden;
 
-struct NodeUpdateCallback : public osg::NodeCallback {
-public:
-    NodeUpdateCallback(OSGNode::Hidden *h) : h(h) {}
-
-    void operator()(osg::Node *node, osg::NodeVisitor *nv);
-
-private:
-    OSGNode::Hidden *const h;
-};
-
-struct OSGNode::Hidden : public QObject {
+struct OSGNode::Hidden : public QObject, public DirtySupport {
     Q_OBJECT
 
     friend class OSGNode;
 
+private:
+    OSGNode *const self;
+
+    osg::ref_ptr<osg::Node> node;
+
+    bool complete;
+
 public:
-    Hidden(OSGNode *node) : QObject(node), self(node), dirty(0)
+    Hidden(OSGNode *self) : QObject(self), self(self), complete(false) /*, dirty(0)*/
     {}
 
-    bool isDirty(int mask)
+    osg::Node *nodeToUpdate() const
     {
-        return (dirty && mask) != 0;
-    }
-
-    void setDirty(int mask)
-    {
-        // qDebug() << "OSGNode::setDirty BEGIN";
-        if (!dirty) {
-            if (node) {
-                if (!nodeUpdateCallback.valid()) {
-                    // lazy creation
-                    // qDebug() << "OSGNode::setDirty CREATE";
-                    nodeUpdateCallback = new NodeUpdateCallback(this);
-                }
-                // qDebug() << "OSGNode::setDirty ADD" << node;
-                node->setUpdateCallback(nodeUpdateCallback);
-            }
-        }
-        dirty |= mask;
-        // qDebug() << "OSGNode::setDirty DONE";
-    }
-
-    void clearDirty()
-    {
-        dirty = 0;
-        if (node && nodeUpdateCallback.valid()) {
-            // qDebug() << "OSGNode::clearDirty REMOVE CALLBACK";
-            node->setUpdateCallback(NULL);
-        }
+        return self->node();
     }
 
     void update()
     {
-        // qDebug() << "OSGNode::update BEGIN";
-        if (dirty) {
-            // qDebug() << "OSGNode::update UPDATE";
-            self->update();
-        }
-        clearDirty();
-        // qDebug() << "OSGNode::update DONE";
+        return self->updateNode();
     }
 
     bool acceptNode(osg::Node *aNode)
@@ -103,43 +67,24 @@ public:
         if (node == aNode) {
             return false;
         }
-        if (node && dirty) {
-            // qDebug() << "OSGNode::acceptNode REMOVE CALLBACK" << node;
-            node->setUpdateCallback(NULL);
+
+        int flags = dirty();
+        if (flags) {
+            clearDirty();
         }
         node = aNode;
         if (node) {
-            if (dirty) {
-                if (!nodeUpdateCallback.valid()) {
-                    // lazy creation
-                    // qDebug() << "OSGNode::acceptNode CREATE CALLBACK";
-                    nodeUpdateCallback = new NodeUpdateCallback(this);
-                }
-                // qDebug() << "OSGNode::acceptNode ADD CALLBACK";
-                node->setUpdateCallback(nodeUpdateCallback);
+            if (flags) {
+                setDirty(flags);
             }
         }
         return true;
     }
-
-private:
-    OSGNode *const self;
-
-    osg::ref_ptr<osg::Node> node;
-
-    osg::ref_ptr<osg::NodeCallback> nodeUpdateCallback;
-
-    int dirty;
 };
 
-void NodeUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
-{
-    // qDebug() << "NodeUpdateCallback::";
-    nv->traverse(*node);
-    h->update();
-}
+/* class OSGNode */
 
-OSGNode::OSGNode(QObject *parent) : QObject(parent), h(new Hidden(this))
+OSGNode::OSGNode(QObject *parent) : QObject(parent), QQmlParserStatus(), h(new Hidden(this))
 {}
 
 OSGNode::~OSGNode()
@@ -155,16 +100,11 @@ osg::Node *OSGNode::node() const
 void OSGNode::setNode(osg::Node *node)
 {
     if (h->acceptNode(node)) {
-        emit nodeChanged(node);
+        emitNodeChanged();
     }
 }
 
-bool OSGNode::isDirty()
-{
-    return h->isDirty(0xFFFFFFFF);
-}
-
-bool OSGNode::isDirty(int mask)
+bool OSGNode::isDirty(int mask) const
 {
     return h->isDirty(mask);
 }
@@ -179,30 +119,39 @@ void OSGNode::clearDirty()
     h->clearDirty();
 }
 
-void OSGNode::attach(OSGNode *node, osgViewer::View *view)
+osg::Node *OSGNode::createNode()
 {
-    if (!node) {
-        return;
-    }
-    node->attach(view);
+    return NULL;
 }
 
-void OSGNode::detach(OSGNode *node, osgViewer::View *view)
+void OSGNode::updateNode()
+{}
+
+void OSGNode::emitNodeChanged()
 {
-    if (!node) {
-        return;
+    if (h->complete) {
+        emit nodeChanged(node());
     }
-    node->detach(view);
 }
 
-void OSGNode::update()
-{}
+void OSGNode::classBegin()
+{
+    // qDebug() << "OSGNode::classBegin" << this;
 
-void OSGNode::attach(osgViewer::View *view)
-{}
+    setNode(createNode());
+}
 
-void OSGNode::detach(osgViewer::View *view)
-{}
+void OSGNode::componentComplete()
+{
+    // qDebug() << "OSGNode::componentComplete" << this;
+
+    updateNode();
+    clearDirty();
+    h->complete = true;
+    if (!h->node.valid()) {
+        qWarning() << "OSGNode::componentComplete - node is not valid!" << this;
+    }
+}
 } // namespace osgQtQuick
 
 #include "OSGNode.moc"

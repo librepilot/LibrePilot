@@ -18,75 +18,105 @@
  * along with LibrePilot GCS.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
+import QtQuick.Controls 1.4
 
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import "../common.js" as Utils
-import "../uav.js" as UAV
+import "../js/common.js" as Utils
+import "../js/uav.js" as UAV
 
-OSGViewport {
-    anchors.fill: parent
-    focus: true
-    sceneData: skyNode
-    camera: camera
+Item {
+    OSGViewport {
+        id: osgViewport
 
-    OSGSkyNode {
-        id: skyNode
-        sceneData: sceneGroup
-        dateTime: Utils.getDateTime()
-        minimumAmbientLight: pfdContext.minimumAmbientLight
-    }
+        anchors.fill: parent
+        focus: true
 
-    OSGGroup {
-        id: sceneGroup
-        children: [ terrainNode, modelNode ]
-    }
+        sceneNode: skyNode
+        camera: camera
+        manipulator: nodeTrackerManipulator
 
-    OSGFileNode {
-        id: terrainNode
-        source: pfdContext.terrainFile
-        async: false
-    }
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+            logarithmicDepthBuffer: true
+        }
 
-    OSGGeoTransformNode {
-        id: modelNode
+        OSGNodeTrackerManipulator {
+            id: nodeTrackerManipulator
+            // use model to compute camera home position
+            sceneNode: modelTransformNode
+            // model will be tracked
+            trackNode: modelTransformNode
+        }
 
-        modelData: modelTransformNode
-        sceneData: terrainNode
+        OSGSkyNode {
+            id: skyNode
+            sceneNode: sceneGroup
+            viewport: osgViewport
+            dateTime: Utils.getDateTime()
+            minimumAmbientLight: pfdContext.minimumAmbientLight
+        }
 
-        clampToTerrain: true
+        OSGGroup {
+            id: sceneGroup
+            children: [ terrainFileNode, modelNode ]
+        }
 
-        position: UAV.position()
-    }
+        OSGGeoTransformNode {
+            id: modelNode
 
-    OSGTransformNode {
-        id: modelTransformNode
-        modelData: modelFileNode
-        // model dimensions are in mm, scale to meters
-        scale: Qt.vector3d(0.001, 0.001, 0.001)
-        attitude: UAV.attitude()
-    }
+            sceneNode: terrainFileNode
+            children: [ modelTransformNode ]
 
-    OSGFileNode {
-        id: modelFileNode
+            clampToTerrain: true
 
-        // use ShaderGen pseudoloader to generate the shaders expected by osgEarth
-        // see http://docs.osgearth.org/en/latest/faq.html#i-added-a-node-but-it-has-no-texture-lighting-etc-in-osgearth-why
-        source: pfdContext.modelFile + ".osgearth_shadergen"
+            position: UAV.position()
+        }
 
-        async: false
-        optimizeMode: OptimizeMode.OptimizeAndCheck
-    }
+        OSGTransformNode {
+            id: modelTransformNode
 
-    OSGCamera {
-        id: camera
-        fieldOfView: 90
-        logarithmicDepthBuffer: true
-        manipulatorMode: ManipulatorMode.Track
-        // use model to compute camera home position
-        sceneNode: modelTransformNode
-        // model will be tracked
-        trackNode: modelTransformNode
+            children: [ modelFileNode ]
+
+            // model dimensions are in mm, scale to meters
+            scale: Qt.vector3d(0.001, 0.001, 0.001)
+            attitude: UAV.attitude()
+        }
+
+        OSGFileNode {
+            id: terrainFileNode
+            source: pfdContext.terrainFile
+        }
+
+        OSGFileNode {
+            id: modelFileNode
+
+            // use ShaderGen pseudoloader to generate the shaders expected by osgEarth
+            // see http://docs.osgearth.org/en/latest/faq.html#i-added-a-node-but-it-has-no-texture-lighting-etc-in-osgearth-why
+            source: pfdContext.modelFile + ".osgearth_shadergen"
+
+            optimizeMode: OptimizeMode.OptimizeAndCheck
+        }
+
+        Keys.onUpPressed: {
+            pfdContext.nextModel();
+        }
+
+        Keys.onDownPressed: {
+            pfdContext.previousModel();
+        }
+
+        BusyIndicator {
+            width: 24
+            height: 24
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 4
+
+            running: osgViewport.busy
+        }
+
     }
 }

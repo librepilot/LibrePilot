@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGGroup.hpp
+ * @file       OSGBillboardNode.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,27 +25,21 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGGROUP_H_
-#define _H_OSGQTQUICK_OSGGROUP_H_
+#ifndef _H_OSGQTQUICK_BILLBOARDNODE_H_
+#define _H_OSGQTQUICK_BILLBOARDNODE_H_
 
 #include "Export.hpp"
-#include "OSGNode.hpp"
-
-#include <QQmlListProperty>
+#include "OSGGroup.hpp"
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
+class OSGQTQUICK_EXPORT OSGBillboardNode : public OSGGroup {
+    Q_OBJECT
 
-    Q_CLASSINFO("DefaultProperty", "children")
-
-    typedef OSGNode Inherited;
+    typedef OSGGroup Inherited;
 
 public:
-    explicit OSGGroup(QObject *parent = 0);
-    virtual ~OSGGroup();
-
-    QQmlListProperty<OSGNode> children() const;
+    OSGBillboardNode(QObject *parent = 0);
+    virtual ~OSGBillboardNode();
 
 protected:
     virtual osg::Node *createNode();
@@ -57,4 +51,4 @@ private:
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGGROUP_H_
+#endif // _H_OSGQTQUICK_BILLBOARDNODE_H_

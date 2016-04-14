@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGNode.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -31,6 +31,7 @@
 #include "Export.hpp"
 
 #include <QObject>
+#include <QQmlParserStatus>
 
 /**
  * Only update() methods are allowed to update the OSG scenegraph.
@@ -39,25 +40,19 @@
  * - node change events should be handled right away.
  *
  * Setting an OSGNode dirty will trigger the addition of a one time update callback.
- *  *
  * This approach leads to some potential issues:
  * - if a child sets a parent dirty, the parent will be updated later on the next update traversal (i.e. before the next frame).
  *
  */
+
 namespace osg {
 class Node;
 } // namespace osg
 
-namespace osgViewer {
-class View;
-} // namespace osgViewer
-
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGNode : public QObject {
+class OSGQTQUICK_EXPORT OSGNode : public QObject, public QQmlParserStatus {
     Q_OBJECT
-
-    friend class OSGViewport;
-    friend class NodeUpdateCallback;
+                        Q_INTERFACES(QQmlParserStatus)
 
 public:
     explicit OSGNode(QObject *parent = 0);
@@ -66,31 +61,25 @@ public:
     osg::Node *node() const;
     void setNode(osg::Node *node);
 
-protected:
-    bool isDirty();
-    bool isDirty(int mask);
-    void setDirty(int mask);
-    void clearDirty();
-
-    void emitNodeChanged()
-    {
-        emit nodeChanged(node());
-    }
-
-    void attach(OSGNode *node, osgViewer::View *view);
-    void detach(OSGNode *node, osgViewer::View *view);
-
 signals:
     void nodeChanged(osg::Node *node) const;
 
+protected:
+    bool isDirty(int mask = 0xFFFF) const;
+    void setDirty(int mask = 0xFFFF);
+    void clearDirty();
+
+    virtual osg::Node *createNode();
+    virtual void updateNode();
+
+    void emitNodeChanged();
+
+    void classBegin();
+    void componentComplete();
+
 private:
     struct Hidden;
-    Hidden *h;
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
-
-    virtual void update();
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

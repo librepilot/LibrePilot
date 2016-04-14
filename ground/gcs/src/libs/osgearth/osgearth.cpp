@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       osgearth.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,8 +27,8 @@
 
 #include "osgearth.h"
 
-#include "utility.h"
-#include "qtwindowingsystem.h"
+#include "utils/utility.h"
+#include "utils/qtwindowingsystem.h"
 
 #include "utils/pathutils.h"
 
@@ -107,7 +107,9 @@ void OsgEarth::initialize()
 
     initializeCache();
 
+#ifdef OSG_VERBOSE
     displayInfo();
+#endif
 }
 
 void OsgEarth::initializePathes()

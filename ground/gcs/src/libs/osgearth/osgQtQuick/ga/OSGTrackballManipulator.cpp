@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGGroup.hpp
+ * @file       OSGTrackballManipulator.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,36 +25,45 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGGROUP_H_
-#define _H_OSGQTQUICK_OSGGROUP_H_
+#include "OSGTrackballManipulator.hpp"
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../OSGNode.hpp"
 
-#include <QQmlListProperty>
+#include <osgGA/TrackballManipulator>
+
+#include <QDebug>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
-
-    Q_CLASSINFO("DefaultProperty", "children")
-
-    typedef OSGNode Inherited;
-
-public:
-    explicit OSGGroup(QObject *parent = 0);
-    virtual ~OSGGroup();
-
-    QQmlListProperty<OSGNode> children() const;
-
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+struct OSGTrackballManipulator::Hidden : public QObject {
+    Q_OBJECT
 
 private:
-    struct Hidden;
-    Hidden *const h;
+    OSGTrackballManipulator * const self;
+
+public:
+    osg::ref_ptr<osgGA::TrackballManipulator> manipulator;
+
+    Hidden(OSGTrackballManipulator *self) : QObject(self), self(self)
+    {
+        manipulator = new osgGA::TrackballManipulator(
+            /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
+
+        self->setManipulator(manipulator);
+    }
+
+    ~Hidden()
+    {}
 };
+
+/* class OSGTrackballManipulator */
+
+OSGTrackballManipulator::OSGTrackballManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
+{}
+
+OSGTrackballManipulator::~OSGTrackballManipulator()
+{
+    delete h;
+}
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGGROUP_H_
+#include "OSGTrackballManipulator.moc"

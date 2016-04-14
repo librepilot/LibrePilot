@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGGroup.hpp
+ * @file       DirtySupport.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,36 +25,39 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGGROUP_H_
-#define _H_OSGQTQUICK_OSGGROUP_H_
+#ifndef _H_OSGQTQUICK_DIRTYSUPPORT_H_
+#define _H_OSGQTQUICK_DIRTYSUPPORT_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
-
-#include <QQmlListProperty>
+namespace osg {
+class Node;
+} // namespace osg
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
-
-    Q_CLASSINFO("DefaultProperty", "children")
-
-    typedef OSGNode Inherited;
-
+/**
+ * Provides support to:
+ * - manage dirty state flags
+ * - add/remove node callback to trigger refresh (compatible with viewer on demand mode)
+ */
+class DirtySupport {
 public:
-    explicit OSGGroup(QObject *parent = 0);
-    virtual ~OSGGroup();
-
-    QQmlListProperty<OSGNode> children() const;
+    explicit DirtySupport();
+    virtual ~DirtySupport();
 
 protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+    int dirty() const;
+    bool isDirty(int mask = 0xFFFF) const;
+    void setDirty(int mask = 0xFFFF);
+    void clearDirty();
 
 private:
     struct Hidden;
+    struct NodeUpdateCallback;
     Hidden *const h;
+
+    virtual osg::Node *nodeToUpdate() const = 0;
+
+    virtual void update() = 0;
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGGROUP_H_
+#endif // _H_OSGQTQUICK_DIRTYSUPPORT_H_

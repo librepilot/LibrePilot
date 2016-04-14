@@ -21,32 +21,48 @@ import QtQuick 2.4
 
 import OsgQtQuick 1.0
 
-import "../uav.js" as UAV
+import "../js/uav.js" as UAV
 
 Item {
 
     OSGViewport {
         anchors.fill: parent
         focus: true
-        sceneData: sceneNode
+
+        sceneNode: sceneNode
         camera: camera
+        manipulator: trackballManipulator
+
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+        }
+
+        OSGTrackballManipulator {
+            id: trackballManipulator
+            sceneNode: transformNode
+        }
 
         OSGGroup {
             id: sceneNode
-            children: [
-                transformNode,
-                backgroundNode
-            ]
+            children: [ transformNode, backgroundNode ]
         }
 
-        OSGBackgroundNode {
+        OSGBillboardNode {
             id: backgroundNode
+            children: [ backgroundImageNode ]
+        }
+
+        OSGImageNode {
+            id: backgroundImageNode
             imageFile: pfdContext.backgroundImageFile
         }
 
         OSGTransformNode {
             id: transformNode
-            modelData: fileNode
+
+            children: [ fileNode ]
+
             attitude: UAV.attitude()
         }
 
@@ -57,10 +73,12 @@ Item {
             optimizeMode: OptimizeMode.OptimizeAndCheck
         }
 
-        OSGCamera {
-            id: camera
-            fieldOfView: 90
-            sceneNode: transformNode
+        Keys.onUpPressed: {
+            pfdContext.nextModel();
+        }
+
+        Keys.onDownPressed: {
+            pfdContext.previousModel();
         }
     }
 

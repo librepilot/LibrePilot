@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGTransformNode.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -34,6 +34,10 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+// NOTE : these flags should not overlap with OSGGroup flags!!!
+// TODO : find a better way...
+enum DirtyFlag { Scale = 1 << 10, Position = 1 << 11, Attitude = 1 << 12 };
+
 struct OSGTransformNode::Hidden : public QObject {
     Q_OBJECT
 
@@ -43,63 +47,22 @@ private:
     osg::ref_ptr<osg::PositionAttitudeTransform> transform;
 
 public:
-    OSGNode   *childNode;
-
     QVector3D scale;
     QVector3D attitude;
     QVector3D position;
 
-    Hidden(OSGTransformNode *node) : QObject(node), self(node), childNode(NULL)
+    Hidden(OSGTransformNode *self) : QObject(self), self(self)
+    {}
+
+    osg::Node *createNode()
     {
         transform = new osg::PositionAttitudeTransform();
-        self->setNode(transform);
-    }
-
-    bool acceptChildNode(OSGNode *node)
-    {
-        qDebug() << "OSGTransformNode::acceptChildNode" << node;
-        if (childNode == node) {
-            return false;
-        }
-
-        if (childNode) {
-            disconnect(childNode);
-        }
-
-        childNode = node;
-
-        if (childNode) {
-            connect(childNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onChildNodeChanged(osg::Node *)));
-        }
-
-        return true;
-    }
-
-    void updateTransformNode()
-    {
-        bool updated = false;
-
-        if (transform->getNumChildren() == 0) {
-            if (childNode && childNode->node()) {
-                updated |= transform->addChild(childNode->node());
-            }
-        } else {
-            if (childNode && childNode->node()) {
-                if (transform->getChild(0) != childNode->node()) {
-                    updated |= transform->removeChild(0, 1);
-                    updated |= transform->addChild(childNode->node());
-                }
-            } else {
-                updated |= transform->removeChild(0, 1);
-            }
-        }
-        // if (updated) {
-        self->emitNodeChanged();
-        // }
+        return transform;
     }
 
     void updateScale()
     {
+        // qDebug() << "OSGTransformNode::updateScale" << scale;
         if ((scale.x() != 0.0) || (scale.y() != 0.0) || (scale.z() != 0.0)) {
             transform->setScale(osg::Vec3d(scale.x(), scale.y(), scale.z()));
             // transform->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
@@ -118,50 +81,22 @@ public:
             yaw, osg::Vec3d(0, 0, -1));
 
         transform->setAttitude(q);
-
-        // position
-        transform->setPosition(osg::Vec3d(position.x(), position.y(), position.z()));
     }
 
     void updatePosition()
     {
         transform->setPosition(osg::Vec3d(position.x(), position.y(), position.z()));
     }
-
-private slots:
-    void onChildNodeChanged(osg::Node *node)
-    {
-        qDebug() << "OSGTransformNode::onChildNodeChanged" << node;
-        updateTransformNode();
-    }
 };
 
 /* class OSGTransformNode */
 
-enum DirtyFlag { Child = 1 << 0, Scale = 1 << 1, Position = 1 << 2, Attitude = 1 << 3 };
-
-OSGTransformNode::OSGTransformNode(QObject *parent) : OSGNode(parent), h(new Hidden(this))
-{
-    qDebug() << "OSGTransformNode::OSGTransformNode";
-}
+OSGTransformNode::OSGTransformNode(QObject *parent) : Inherited(parent), h(new Hidden(this))
+{}
 
 OSGTransformNode::~OSGTransformNode()
 {
-    // qDebug() << "OSGTransformNode::~OSGTransformNode";
     delete h;
-}
-
-OSGNode *OSGTransformNode::childNode()
-{
-    return h->childNode;
-}
-
-void OSGTransformNode::setChildNode(OSGNode *node)
-{
-    if (h->acceptChildNode(node)) {
-        setDirty(Child);
-        emit childNodeChanged(node);
-    }
 }
 
 QVector3D OSGTransformNode::scale() const
@@ -206,11 +141,15 @@ void OSGTransformNode::setPosition(QVector3D arg)
     }
 }
 
-void OSGTransformNode::update()
+osg::Node *OSGTransformNode::createNode()
 {
-    if (isDirty(Child)) {
-        h->updateTransformNode();
-    }
+    return h->createNode();
+}
+
+void OSGTransformNode::updateNode()
+{
+    Inherited::updateNode();
+
     if (isDirty(Scale)) {
         h->updateScale();
     }
@@ -220,19 +159,6 @@ void OSGTransformNode::update()
     if (isDirty(Position)) {
         h->updatePosition();
     }
-}
-
-void OSGTransformNode::attach(osgViewer::View *view)
-{
-    OSGNode::attach(h->childNode, view);
-
-    update();
-    clearDirty();
-}
-
-void OSGTransformNode::detach(osgViewer::View *view)
-{
-    OSGNode::detach(h->childNode, view);
 }
 } // namespace osgQtQuick
 

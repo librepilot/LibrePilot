@@ -22,48 +22,57 @@ import QtQuick 2.4
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import "../common.js" as Utils
-import "../uav.js" as UAV
+import "../js/common.js" as Utils
+import "../js/uav.js" as UAV
 
 OSGViewport {
-    id: fullview
+    id: osgViewport
+
     //anchors.fill: parent
     focus: true
-    sceneData: skyNode
-    camera: camera
 
-    property real horizontCenter : horizontCenterItem.horizontCenter
+    readonly property real horizontCenter : horizontCenterItem.horizontCenter
 
-    // Factor for OSGview vertical offset
-    property double factor: 0.04
+    // Factor for OSGViewer vertical offset
+    readonly property double factor: 0.04
 
     // Stretch height and apply offset
     //height: height * (1 + factor)
     y: -height * factor
 
+    sceneNode: skyNode
+    camera: camera
+    manipulator: geoTransformManipulator
+
+    OSGCamera {
+        id: camera
+
+        fieldOfView: 100
+        logarithmicDepthBuffer: true
+    }
+
+    OSGGeoTransformManipulator {
+        id: geoTransformManipulator
+
+        sceneNode: terrainFileNode
+        clampToTerrain: true
+
+        attitude: UAV.attitude()
+        position: UAV.position()
+    }
+
     OSGSkyNode {
         id: skyNode
-        sceneData: terrainNode
+        sceneNode: terrainFileNode
+        viewport: osgViewport
         dateTime: Utils.getDateTime()
         minimumAmbientLight: pfdContext.minimumAmbientLight
     }
 
     OSGFileNode {
-        id: terrainNode
+        id: terrainFileNode
         source: pfdContext.terrainFile
         async: false
-    }
-
-    OSGCamera {
-        id: camera
-        fieldOfView: 100
-        sceneNode: terrainNode
-        logarithmicDepthBuffer: true
-        clampToTerrain: true
-        manipulatorMode: ManipulatorMode.User
-
-        attitude: UAV.attitude()
-        position: UAV.position()
     }
 
     Rectangle {
@@ -81,7 +90,6 @@ OSGViewport {
                                                 svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch90").y) / 180.0
 
         property double pitch1DegHeight: sceneItem.height * pitch1DegScaledHeight
-
 
         transform: [
             Translate {
@@ -104,7 +112,7 @@ OSGViewport {
         property variant scaledBounds: svgRenderer.scaledElementBounds("pfd/pfd.svg", "pitch-window-terrain")
 
         x: Math.floor(scaledBounds.x * sceneItem.width)
-        y: Math.floor(scaledBounds.y * sceneItem.height) - fullview.y
+        y: Math.floor(scaledBounds.y * sceneItem.height) - osgViewport.y
         width: Math.floor(scaledBounds.width * sceneItem.width)
         height: Math.floor(scaledBounds.height * sceneItem.height)
 

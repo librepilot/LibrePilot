@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGFileNode.hpp
+ * @file       OSGNodeTrackerManipulator.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,59 +25,48 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_FILENODE_H_
-#define _H_OSGQTQUICK_FILENODE_H_
+#ifndef _H_OSGQTQUICK_OSGNODETRACKERMANIPULATOR_H_
+#define _H_OSGQTQUICK_OSGNODETRACKERMANIPULATOR_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../Export.hpp"
+#include "OSGCameraManipulator.hpp"
 
-#include <QUrl>
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
+#include <QObject>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OptimizeMode : public QObject {
+class TrackerMode : public QObject {
     Q_OBJECT
-
 public:
-    enum Enum { None, Optimize, OptimizeAndCheck };
+    enum Enum { NodeCenter, NodeCenterAndAzim, NodeCenterAndRotation };
     Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
 };
 
-class OSGQTQUICK_EXPORT OSGFileNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
-    Q_PROPERTY(bool async READ async WRITE setAsync NOTIFY asyncChanged)
-    Q_PROPERTY(osgQtQuick::OptimizeMode::Enum optimizeMode READ optimizeMode WRITE setOptimizeMode NOTIFY optimizeModeChanged)
+class OSGQTQUICK_EXPORT OSGNodeTrackerManipulator : public OSGCameraManipulator {
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *trackNode READ trackNode WRITE setTrackNode NOTIFY trackNodeChanged)
+    Q_PROPERTY(osgQtQuick::TrackerMode::Enum trackerMode READ trackerMode WRITE setTrackerMode NOTIFY trackerModeChanged)
 
-    typedef OSGNode Inherited;
+    typedef OSGCameraManipulator Inherited;
 
 public:
-    OSGFileNode(QObject *parent = 0);
-    virtual ~OSGFileNode();
+    explicit OSGNodeTrackerManipulator(QObject *parent = 0);
+    virtual ~OSGNodeTrackerManipulator();
 
-    const QUrl source() const;
-    void setSource(const QUrl &url);
+    OSGNode *trackNode() const;
+    void setTrackNode(OSGNode *node);
 
-    bool async() const;
-    void setAsync(const bool async);
-
-    OptimizeMode::Enum optimizeMode() const;
-    void setOptimizeMode(OptimizeMode::Enum);
+    TrackerMode::Enum trackerMode() const;
+    void setTrackerMode(TrackerMode::Enum);
 
 signals:
-    void sourceChanged(const QUrl &url);
-    void asyncChanged(const bool async);
-    void optimizeModeChanged(OptimizeMode::Enum);
-
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+    void trackNodeChanged(OSGNode *node);
+    void trackerModeChanged(TrackerMode::Enum);
 
 private:
     struct Hidden;
     Hidden *const h;
+
+    virtual void update();
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_FILENODE_H_
+#endif // _H_OSGQTQUICK_OSGNODETRACKERMANIPULATOR_H_

@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
  *
- * @file       OSGBackgroundNode.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @file       OSGTrackballManipulator.hpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -25,40 +25,28 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_BACKGROUNDNODE_H_
-#define _H_OSGQTQUICK_BACKGROUNDNODE_H_
+#ifndef _H_OSGQTQUICK_OSGTRACKBALLMANIPULATOR_H_
+#define _H_OSGQTQUICK_OSGTRACKBALLMANIPULATOR_H_
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../Export.hpp"
+#include "OSGCameraManipulator.hpp"
 
-#include <QUrl>
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
+#include <QObject>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGBackgroundNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QUrl imageFile READ imageFile WRITE setImageFile NOTIFY imageFileChanged)
+class OSGQTQUICK_EXPORT OSGTrackballManipulator : public OSGCameraManipulator {
+    Q_OBJECT
+
+    typedef OSGCameraManipulator Inherited;
 
 public:
-    OSGBackgroundNode(QObject *parent = 0);
-    virtual ~OSGBackgroundNode();
-
-    const QUrl imageFile() const;
-    void setImageFile(const QUrl &url);
-
-signals:
-    void imageFileChanged(const QUrl &url);
+    explicit OSGTrackballManipulator(QObject *parent = 0);
+    virtual ~OSGTrackballManipulator();
 
 private:
     struct Hidden;
-    Hidden *h;
-
-    virtual void update();
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_BACKGROUNDNODE_H_
+#endif // _H_OSGQTQUICK_OSGTRACKBALLMANIPULATOR_H_

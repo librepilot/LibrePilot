@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGTransformNode.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -29,27 +29,21 @@
 #define _H_OSGQTQUICK_TRANSFORMNODE_H_
 
 #include "Export.hpp"
-#include "OSGNode.hpp"
+#include "OSGGroup.hpp"
 
 #include <QVector3D>
 
-// TODO derive from OSGGroup...
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGTransformNode : public OSGNode {
-    Q_OBJECT
-    // TODO rename to childNode
-    Q_PROPERTY(osgQtQuick::OSGNode *modelData READ childNode WRITE setChildNode NOTIFY childNodeChanged)
-
-    Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
+class OSGQTQUICK_EXPORT OSGTransformNode : public OSGGroup {
+    Q_OBJECT Q_PROPERTY(QVector3D scale READ scale WRITE setScale NOTIFY scaleChanged)
     Q_PROPERTY(QVector3D attitude READ attitude WRITE setAttitude NOTIFY attitudeChanged)
     Q_PROPERTY(QVector3D position READ position WRITE setPosition NOTIFY positionChanged)
+
+    typedef OSGGroup Inherited;
 
 public:
     OSGTransformNode(QObject *parent = 0);
     virtual ~OSGTransformNode();
-
-    OSGNode *childNode();
-    void setChildNode(OSGNode *node);
 
     QVector3D scale() const;
     void setScale(QVector3D arg);
@@ -61,20 +55,17 @@ public:
     void setPosition(QVector3D arg);
 
 signals:
-    void childNodeChanged(OSGNode *node);
-
     void scaleChanged(QVector3D arg);
     void attitudeChanged(QVector3D arg);
     void positionChanged(QVector3D arg);
 
+protected:
+    virtual osg::Node *createNode();
+    virtual void updateNode();
+
 private:
     struct Hidden;
-    Hidden *h;
-
-    virtual void update();
-
-    virtual void attach(osgViewer::View *view);
-    virtual void detach(osgViewer::View *view);
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

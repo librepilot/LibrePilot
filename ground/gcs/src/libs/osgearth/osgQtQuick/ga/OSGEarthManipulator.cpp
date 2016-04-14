@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGGroup.hpp
+ * @file       OSGEarthManipulator.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,36 +25,45 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_OSGGROUP_H_
-#define _H_OSGQTQUICK_OSGGROUP_H_
+#include "OSGEarthManipulator.hpp"
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "../OSGNode.hpp"
 
-#include <QQmlListProperty>
+#include <osgEarthUtil/EarthManipulator>
+
+#include <QDebug>
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QQmlListProperty<osgQtQuick::OSGNode> children READ children)
-
-    Q_CLASSINFO("DefaultProperty", "children")
-
-    typedef OSGNode Inherited;
-
-public:
-    explicit OSGGroup(QObject *parent = 0);
-    virtual ~OSGGroup();
-
-    QQmlListProperty<OSGNode> children() const;
-
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+struct OSGEarthManipulator::Hidden : public QObject {
+    Q_OBJECT
 
 private:
-    struct Hidden;
-    Hidden *const h;
+    OSGEarthManipulator * const self;
+
+public:
+    osg::ref_ptr<osgEarth::Util::EarthManipulator> manipulator;
+
+    Hidden(OSGEarthManipulator *self) : QObject(self), self(self)
+    {
+        manipulator = new osgEarth::Util::EarthManipulator(
+            /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
+        manipulator->getSettings()->setThrowingEnabled(true);
+        self->setManipulator(manipulator);
+    }
+
+    ~Hidden()
+    {}
 };
+
+/* class OSGEarthManipulator */
+
+OSGEarthManipulator::OSGEarthManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
+{}
+
+OSGEarthManipulator::~OSGEarthManipulator()
+{
+    delete h;
+}
 } // namespace osgQtQuick
 
-#endif // _H_OSGQTQUICK_OSGGROUP_H_
+#include "OSGEarthManipulator.moc"

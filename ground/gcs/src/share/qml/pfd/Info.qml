@@ -19,8 +19,8 @@
  */
 import QtQuick 2.4
 
-import "../common.js" as Utils
-import "../uav.js" as UAV
+import "../js/common.js" as Utils
+import "../js/uav.js" as UAV
 
 Item {
     id: info
@@ -62,7 +62,7 @@ Item {
         sceneSize: info.sceneSize
         elementName: "info-bg"
         width: parent.width
-        opacity: pfdContext.terrainEnabled ? 0.3 : 1
+        opacity: opaque ? 1 : 0.3
     }
 
     //
@@ -452,7 +452,7 @@ Item {
         x: Math.floor(scaledBounds.x * sceneItem.width)
         y: Math.floor(scaledBounds.y * sceneItem.height)
 
-        opacity: pfdContext.terrainEnabled ? 0.6 : 1
+        opacity: opaque ? 1 : 0.6
 
         states: State {
              name: "fading"

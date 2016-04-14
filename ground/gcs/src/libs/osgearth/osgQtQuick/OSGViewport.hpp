@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGViewport.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -30,6 +30,8 @@
 
 #include "Export.hpp"
 
+#include "ga/OSGCameraManipulator.hpp"
+
 #include <QQuickFramebufferObject>
 
 namespace osgViewer {
@@ -49,39 +51,49 @@ public:
 };
 
 class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
-    Q_OBJECT Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGCamera * camera READ cameraNode WRITE setCameraNode NOTIFY cameraNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGCameraManipulator * manipulator READ manipulator WRITE setManipulator NOTIFY manipulatorChanged)
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
-    Q_PROPERTY(osgQtQuick::OSGNode * sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
-    Q_PROPERTY(osgQtQuick::OSGCamera * camera READ camera WRITE setCamera NOTIFY cameraChanged)
+    Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
 
-public:
+    typedef QQuickFramebufferObject Inherited;
+
     friend class ViewportRenderer;
 
+public:
     explicit OSGViewport(QQuickItem *parent = 0);
     virtual ~OSGViewport();
+
+    OSGNode *sceneNode() const;
+    void setSceneNode(OSGNode *node);
+
+    OSGCamera *cameraNode() const;
+    void setCameraNode(OSGCamera *node);
+
+    OSGCameraManipulator *manipulator() const;
+    void setManipulator(OSGCameraManipulator *manipulator);
 
     UpdateMode::Enum updateMode() const;
     void setUpdateMode(UpdateMode::Enum mode);
 
-    QColor color() const;
-    void setColor(const QColor &color);
-
-    OSGNode *sceneData();
-    void setSceneData(OSGNode *node);
-
-    OSGCamera *camera();
-    void setCamera(OSGCamera *camera);
+    bool busy() const;
+    void setBusy(const bool busy);
 
     Renderer *createRenderer() const;
     void releaseResources();
 
+    osgViewer::View *asView() const;
+
 signals:
+    void sceneNodeChanged(OSGNode *node);
+    void cameraNodeChanged(OSGCamera *node);
+    void manipulatorChanged(OSGCameraManipulator *manipulator);
     void updateModeChanged(UpdateMode::Enum mode);
-    void colorChanged(const QColor &color);
-    void sceneDataChanged(OSGNode *node);
-    void cameraChanged(OSGCamera *camera);
+    void busyChanged(bool busy);
 
 protected:
+    // QQuickItem
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -92,14 +104,13 @@ protected:
     void setKeyboardModifiers(QInputEvent *event);
     QPointF mousePoint(QMouseEvent *event);
 
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *updatePaintNodeData);
-
-    void attach(osgViewer::View *view);
-    void detach(osgViewer::View *view);
+    // QQmlParserStatus
+    void classBegin();
+    void componentComplete();
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

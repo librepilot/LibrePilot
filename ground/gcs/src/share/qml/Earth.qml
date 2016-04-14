@@ -18,22 +18,37 @@
  * along with LibrePilot GCS.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
+import QtQuick.Controls 1.4
 
 import Pfd 1.0
 import OsgQtQuick 1.0
 
-import "common.js" as Utils
+import "js/common.js" as Utils
 
 Item {
     OSGViewport {
+        id: osgViewport
+
         anchors.fill: parent
         focus: true
-        sceneData: skyNode
+
+        sceneNode: skyNode
         camera: camera
+        manipulator: earthManipulator
+
+        OSGCamera {
+            id: camera
+            fieldOfView: 90
+        }
+
+        OSGEarthManipulator {
+            id: earthManipulator
+        }
 
         OSGSkyNode {
             id: skyNode
-            sceneData: terrainNode
+            sceneNode: terrainNode
+            viewport: osgViewport
             dateTime: Utils.getDateTime()
             minimumAmbientLight: pfdContext.minimumAmbientLight
         }
@@ -44,11 +59,25 @@ Item {
             async: false
         }
 
-        OSGCamera {
-            id: camera
-            fieldOfView: 90
-            manipulatorMode: ManipulatorMode.Earth
-        }
+    }
 
+    BusyIndicator {
+        width: 24
+        height: 24
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 4
+
+        running: osgViewport.busy
+    }
+
+    BusyIndicator {
+        width: 24
+        height: 24
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 4
+
+        running: osgViewport.busy
     }
 }

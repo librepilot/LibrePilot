@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET = GCSOsgEarth
 DEFINES += OSGEARTH_LIBRARY
 
-#CONFIG += mys2
+#DEFINES += OSG_VERBOSE
 
 osg:DEFINES += USE_OSG
 osgQt:DEFINES += USE_OSG_QT
@@ -35,39 +35,53 @@ QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 HEADERS += \
     osgearth_global.h \
-    utility.h \
-    shapeutils.h \
-    qtwindowingsystem.h \
-    osgearth.h
+    osgearth.h \
+    utils/qtwindowingsystem.h \
+    utils/utility.h \
+    utils/shapeutils.h
 
 SOURCES += \
-    utility.cpp \
-    shapeutils.cpp \
-    qtwindowingsystem.cpp \
-    osgearth.cpp
+    osgearth.cpp \
+    utils/qtwindowingsystem.cpp \
+    utils/utility.cpp \
+    utils/shapeutils.cpp
 
 HEADERS += \
     osgQtQuick/Export.hpp \
+    osgQtQuick/DirtySupport.hpp \
     osgQtQuick/OSGNode.hpp \
     osgQtQuick/OSGGroup.hpp \
     osgQtQuick/OSGTransformNode.hpp \
     osgQtQuick/OSGShapeNode.hpp \
+    osgQtQuick/OSGImageNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
-    osgQtQuick/OSGBackgroundNode.hpp \
+    osgQtQuick/OSGBillboardNode.hpp \
     osgQtQuick/OSGCamera.hpp \
     osgQtQuick/OSGViewport.hpp
 
 SOURCES += \
+    osgQtQuick/DirtySupport.cpp \
     osgQtQuick/OSGNode.cpp \
     osgQtQuick/OSGGroup.cpp \
     osgQtQuick/OSGTransformNode.cpp \
     osgQtQuick/OSGShapeNode.cpp \
+    osgQtQuick/OSGImageNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
-    osgQtQuick/OSGBackgroundNode.cpp \
+    osgQtQuick/OSGBillboardNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
+
+HEADERS += \
+    osgQtQuick/ga/OSGCameraManipulator.hpp \
+    osgQtQuick/ga/OSGNodeTrackerManipulator.hpp \
+    osgQtQuick/ga/OSGTrackballManipulator.hpp
+
+SOURCES += \
+    osgQtQuick/ga/OSGCameraManipulator.cpp \
+    osgQtQuick/ga/OSGNodeTrackerManipulator.cpp \
+    osgQtQuick/ga/OSGTrackballManipulator.cpp
 
 osgearth:HEADERS += \
     osgQtQuick/OSGSkyNode.hpp \
@@ -76,5 +90,13 @@ osgearth:HEADERS += \
 osgearth:SOURCES += \
     osgQtQuick/OSGSkyNode.cpp \
     osgQtQuick/OSGGeoTransformNode.cpp
+
+osgearth:HEADERS += \
+    osgQtQuick/ga/OSGEarthManipulator.hpp \
+    osgQtQuick/ga/OSGGeoTransformManipulator.hpp
+
+osgearth:SOURCES += \
+    osgQtQuick/ga/OSGEarthManipulator.cpp \
+    osgQtQuick/ga/OSGGeoTransformManipulator.cpp
 
 copy_osg:include(copydata.pro)

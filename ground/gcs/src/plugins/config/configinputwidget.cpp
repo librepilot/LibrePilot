@@ -924,7 +924,12 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
         manualCommandData  = manualCommandObj->getData();
         manualSettingsData = manualSettingsObj->getData();
         for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; ++i) {
-            manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
+            // Set Accessory neutral to middle range
+            if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
+                manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
+            } else {
+                manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
+            }
         }
         manualSettingsObj->setData(manualSettingsData);
         setTxMovement(nothing);
@@ -1905,7 +1910,12 @@ void ConfigInputWidget::updateCalibration()
         if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
             adjustSpecialNeutrals();
         } else {
-            manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
+            // Set Accessory neutral to middle range
+            if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
+                manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
+            } else {
+                manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
+            }
         }
     }
 
@@ -1981,7 +1991,12 @@ void ConfigInputWidget::simpleCalibration(bool enable)
                 adjustSpecialNeutrals();
                 checkThrottleRange();
             } else {
-                manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
+                // Set Accessory neutral to middle range
+                if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
+                    manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
+                } else {
+                    manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
+                }
             }
         }
         manualSettingsObj->setData(manualSettingsData);
@@ -2074,7 +2089,7 @@ void ConfigInputWidget::resetActuatorSettings()
 
     // Clear all output data : Min, max, neutral at same value
     // 1000 for motors and 1500 for all others (Reversable motor included)
-    for (unsigned int output = 0; output < 12; output++) {
+    for (unsigned int output = 0; output < ActuatorSettings::CHANNELMAX_NUMELEM; output++) {
         QString mixerNumType  = QString("Mixer%1Type").arg(output + 1);
         UAVObjectField *field = mixer->getField(mixerNumType);
         Q_ASSERT(field);

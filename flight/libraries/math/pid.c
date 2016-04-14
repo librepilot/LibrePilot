@@ -76,7 +76,7 @@ float pid_apply(struct pid *pid, const float err, float dT)
  * This version of apply uses setpoint weighting for the derivative component so the gain
  * on the gyro derivative can be different than the gain on the setpoint derivative
  */
-float pid_apply_setpoint(struct pid *pid, const pid_scaler *scaler, const float setpoint, const float measured, float dT)
+float pid_apply_setpoint(struct pid *pid, const pid_scaler *scaler, const float setpoint, const float measured, float dT, bool meas_based_d_term)
 {
     float err = setpoint - measured;
 
@@ -85,9 +85,18 @@ float pid_apply_setpoint(struct pid *pid, const pid_scaler *scaler, const float 
     pid->iAccumulator  = boundf(pid->iAccumulator, pid->iLim * -1000.0f, pid->iLim * 1000.0f);
 
     // Calculate DT1 term,
+    float diff;
+    float derr = (-measured);
+
+    if (!meas_based_d_term) {
+        derr += deriv_gamma * setpoint;
+    }
+
+    diff = derr - pid->lastErr;
+    pid->lastErr = derr;
+
     float dterm = 0;
-    float diff  = ((deriv_gamma * setpoint - measured) - pid->lastErr);
-    pid->lastErr = (deriv_gamma * setpoint - measured);
+
     if (pid->d > 0.0f && dT > 0.0f) {
         // low pass filter derivative term. below formula is the same as
         // dterm = (1-alpha)*pid->lastDer + alpha * (...)/dT
@@ -95,7 +104,6 @@ float pid_apply_setpoint(struct pid *pid, const pid_scaler *scaler, const float 
         dterm = pid->lastDer + dT / (dT + deriv_tau) * ((scaler->d * diff * pid->d / dT) - pid->lastDer);
         pid->lastDer = dterm;
     }
-
     return (err * scaler->p * pid->p) + pid->iAccumulator / 1000.0f + dterm;
 }
 

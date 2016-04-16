@@ -58,7 +58,8 @@ osg:win32 {
         libtasn1-6.dll \
         libhogweed-4-1.dll \
         libnettle-6-1.dll \
-        libssh2-1.dll
+        libssh2-1.dll \
+        libnghttp2-14.dll
 
     # other
     OSG_LIBS += \

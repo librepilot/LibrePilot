@@ -1,14 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       configtxpidswidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @file       configoplinkwidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief The Configuration Gadget used to configure the PipXtreme
+ * @brief The Configuration Gadget used to configure the OPLink and Revo modem
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -80,6 +80,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "PPMOnly", m_oplink->PPMOnly);
     addWidgetBinding("OPLinkSettings", "PPM", m_oplink->PPM);
     addWidgetBinding("OPLinkSettings", "ComSpeed", m_oplink->ComSpeed);
+    addWidgetBinding("OPLinkSettings", "CustomDeviceID", m_oplink->CustomDeviceID);
 
     addWidgetBinding("OPLinkStatus", "DeviceID", m_oplink->DeviceID);
     addWidgetBinding("OPLinkStatus", "RxGood", m_oplink->Good);
@@ -112,6 +113,9 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     connect(m_oplink->PPMOnly, SIGNAL(toggled(bool)), this, SLOT(ppmOnlyChanged()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
+    connect(m_oplink->CustomDeviceID, SIGNAL(editingFinished()), this, SLOT(updateCustomDeviceID()));
+
+    m_oplink->CustomDeviceID->setInputMask("HHHHHHHH");
 
     m_oplink->MinimumChannel->setKeyboardTracking(false);
     m_oplink->MaximumChannel->setKeyboardTracking(false);
@@ -247,7 +251,6 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
 
     if (!settingsUpdated) {
         settingsUpdated = true;
-
         // Enable components based on the board type connected.
         UAVObjectField *board_type_field = oplinkStatusObj->getField("BoardType");
         switch (board_type_field->getValue().toInt()) {
@@ -294,6 +297,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
 
 void ConfigOPLinkWidget::updateEnableControls()
 {
+    updateCustomDeviceID();
     enableControls(true);
     ppmOnlyChanged();
 }
@@ -384,6 +388,15 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");
 }
 
+void ConfigOPLinkWidget::updateCustomDeviceID()
+{
+    bool customDeviceIDNotSet = (m_oplink->CustomDeviceID->text() == "0");
+
+    if (settingsUpdated && customDeviceIDNotSet) {
+        m_oplink->CustomDeviceID->clear();
+        m_oplink->CustomDeviceID->setPlaceholderText(m_oplink->DeviceID->text());
+    }
+}
 /**
    @}
    @}

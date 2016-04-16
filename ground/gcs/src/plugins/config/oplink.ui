@@ -54,360 +54,6 @@
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
-           <item row="0" column="1">
-            <widget class="QGroupBox" name="groupBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="font">
-              <font>
-               <weight>50</weight>
-               <bold>false</bold>
-              </font>
-             </property>
-             <property name="title">
-              <string>Configuration</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="4" column="4">
-               <widget class="QComboBox" name="ComSpeed">
-                <property name="statusTip">
-                 <string>Com speed in bps.</string>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="3">
-               <widget class="QLabel" name="ComSpeedLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Com Speed</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="9" column="3">
-               <widget class="QLabel" name="VCPPortLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>VCP Port</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="4">
-               <widget class="QComboBox" name="FlexiPort">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Choose the function for the flexi port</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="3">
-               <widget class="QLabel" name="MainPortLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Main Port</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="4">
-               <widget class="QComboBox" name="MainPort">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Choose the function for the main port</string>
-                </property>
-               </widget>
-              </item>
-              <item row="9" column="4">
-               <widget class="QComboBox" name="VCPPort">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Choose the function for the USB virtual com port</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QComboBox" name="MaxRFTxPower">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>Set the maximum TX output power the modem will use (mW)</string>
-                </property>
-                <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
-                </property>
-                <property name="modelColumn">
-                 <number>0</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="3">
-               <widget class="QLabel" name="MaxRFTxPowerLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Max Power</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="4">
-               <widget class="QComboBox" name="FlexiIOPort"/>
-              </item>
-              <item row="10" column="3">
-               <widget class="QLabel" name="FlexiIOPortLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>FlexiIO Port</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="1">
-               <widget class="QSpinBox" name="MaximumChannel">
-                <property name="maximumSize">
-                 <size>
-                  <width>60</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</string>
-                </property>
-                <property name="maximum">
-                 <number>250</number>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="3">
-               <widget class="QLabel" name="FlexiPortLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Flexi Port</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="0">
-               <widget class="QLabel" name="MaximumChannelLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Max Chan</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="0">
-               <widget class="QLabel" name="MinimumChannelLabel">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Min Chan</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="1">
-               <widget class="QSpinBox" name="MinimumChannel">
-                <property name="maximumSize">
-                 <size>
-                  <width>60</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="toolTip">
-                 <string>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</string>
-                </property>
-                <property name="maximum">
-                 <number>250</number>
-                </property>
-               </widget>
-              </item>
-              <item row="10" column="0" colspan="2">
-               <widget class="QCheckBox" name="Coordinator">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="statusTip">
-                 <string>This modem will be a coordinator and other modems will bind to it.</string>
-                </property>
-                <property name="text">
-                 <string>Coordinator</string>
-                </property>
-               </widget>
-              </item>
-              <item row="6" column="2">
-               <widget class="QLabel" name="MaxFreq">
-                <property name="maximumSize">
-                 <size>
-                  <width>110</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>440.000 (MHz)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="7" column="2">
-               <widget class="QLabel" name="MinFreq">
-                <property name="maximumSize">
-                 <size>
-                  <width>110</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>430.000 (MHz)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QCheckBox" name="OneWayLink">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="acceptDrops">
-                 <bool>false</bool>
-                </property>
-                <property name="statusTip">
-                 <string>If selected, data will only be transmitted from the coordinator to the Rx modem.</string>
-                </property>
-                <property name="text">
-                 <string>One-Way</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="PPMOnly">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="statusTip">
-                 <string>Only PPM packets will be transmitted.</string>
-                </property>
-                <property name="text">
-                 <string>PPM Only</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="PPM">
-                <property name="font">
-                 <font>
-                  <weight>50</weight>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="statusTip">
-                 <string>PPM packets will be received by this modem.  Must be selected if Coordinator modem is configured for PPM.</string>
-                </property>
-                <property name="text">
-                 <string>PPM</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item row="0" column="0">
             <widget class="QGroupBox" name="PairingGroupBox">
              <property name="title">
@@ -759,6 +405,9 @@
                   <bold>false</bold>
                  </font>
                 </property>
+                <property name="maxLength">
+                 <number>8</number>
+                </property>
                 <property name="frame">
                  <bool>false</bool>
                 </property>
@@ -769,7 +418,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="placeholderText">
-                 <string>12345678</string>
+                 <string>AA00FF99</string>
                 </property>
                </widget>
               </item>
@@ -1788,6 +1437,424 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="0" column="1">
+            <widget class="QGroupBox" name="groupBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="title">
+              <string>Configuration</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="9" column="0" colspan="3">
+               <widget class="QCheckBox" name="Coordinator">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="statusTip">
+                 <string>This modem will be a coordinator and other modems will bind to it.</string>
+                </property>
+                <property name="text">
+                 <string>Coordinator</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="4">
+               <widget class="QComboBox" name="ComSpeed">
+                <property name="statusTip">
+                 <string>Com speed in bps.</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QLabel" name="ComSpeedLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Com Speed</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="3">
+               <widget class="QLabel" name="VCPPortLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>VCP Port</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="4">
+               <widget class="QComboBox" name="FlexiPort">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Choose the function for the flexi port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="3">
+               <widget class="QLabel" name="MainPortLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Main Port</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="4">
+               <widget class="QComboBox" name="MainPort">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Choose the function for the main port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="9" column="4">
+               <widget class="QComboBox" name="VCPPort">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Choose the function for the USB virtual com port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="4">
+               <widget class="QComboBox" name="FlexiIOPort"/>
+              </item>
+              <item row="0" column="4">
+               <widget class="QComboBox" name="MaxRFTxPower">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Set the maximum TX output power the modem will use (mW)</string>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="modelColumn">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLabel" name="MaxRFTxPowerLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Max Power</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QSpinBox" name="MaximumChannel">
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</string>
+                </property>
+                <property name="maximum">
+                 <number>250</number>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="3">
+               <widget class="QLabel" name="FlexiIOPortLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>FlexiIO Port</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="3">
+               <widget class="QLabel" name="FlexiPortLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Flexi Port</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="1">
+               <widget class="QSpinBox" name="MinimumChannel">
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</string>
+                </property>
+                <property name="maximum">
+                 <number>250</number>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="MaximumChannelLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Max Chan</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="MinimumChannelLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Min Chan</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QLabel" name="MinFreq">
+                <property name="maximumSize">
+                 <size>
+                  <width>110</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>430.000 (MHz)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QCheckBox" name="OneWayLink">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="acceptDrops">
+                 <bool>false</bool>
+                </property>
+                <property name="statusTip">
+                 <string>If selected, data will only be transmitted from the coordinator to the Rx modem.</string>
+                </property>
+                <property name="text">
+                 <string>One-Way</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="PPMOnly">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="statusTip">
+                 <string>Only PPM packets will be transmitted.</string>
+                </property>
+                <property name="text">
+                 <string>PPM Only</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="PPM">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="statusTip">
+                 <string>PPM packets will be received by this modem.  Must be selected if Coordinator modem is configured for PPM.</string>
+                </property>
+                <property name="text">
+                 <string>PPM</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <widget class="QLabel" name="MaxFreq">
+                <property name="maximumSize">
+                 <size>
+                  <width>110</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>440.000 (MHz)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="1" colspan="2">
+               <widget class="QLineEdit" name="CustomDeviceID">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>101</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>Enter your custom ID for this device as hexadecimal value,
+this allow device clones. Be sure only one same Device ID transmit once!
+Leave blank for Device ID autogenerated.</string>
+                </property>
+                <property name="maxLength">
+                 <number>8</number>
+                </property>
+                <property name="frame">
+                 <bool>true</bool>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>false</bool>
+                </property>
+                <property name="placeholderText">
+                 <string>AA00FF99</string>
+                </property>
+                <property name="cursorMoveStyle">
+                 <enum>Qt::LogicalMoveStyle</enum>
+                </property>
+                <property name="clearButtonEnabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="10" column="0">
+               <widget class="QLabel" name="customDeviceIDLabel">
+                <property name="font">
+                 <font>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Device ID</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>

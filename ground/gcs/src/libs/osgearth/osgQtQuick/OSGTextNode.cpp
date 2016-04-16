@@ -68,7 +68,7 @@ public:
         camera->addChild(textGeode.get());
         camera->getOrCreateStateSet()->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
     #endif
-        return text;
+        return textGeode;
     }
 
     void updateText()

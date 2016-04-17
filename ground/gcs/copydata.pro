@@ -97,6 +97,7 @@ win32 {
         libpcre16-0.dll \
         zlib1.dll \
         libharfbuzz-0.dll \
+        libgraphite2.dll \
         libfreetype-6.dll \
         libbz2-1.dll \
         libpng16-16.dll \

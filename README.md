@@ -37,3 +37,5 @@ Links for the LibrePilot Project
 - [Issue tracker](https://librepilot.atlassian.net)
 - [Gitter Chat](https://gitter.im/librepilot/LibrePilot)
 - IRC: #LibrePilot on FreeNode
+
+[![Build Status](https://travis-ci.org/librepilot/LibrePilot.svg?branch=next)](https://travis-ci.org/librepilot/LibrePilot)

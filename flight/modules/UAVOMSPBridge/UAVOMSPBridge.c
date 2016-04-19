@@ -52,7 +52,7 @@
 #include "homelocation.h"
 #include "barosensor.h"
 #include "stabilizationdesired.h"
-
+#include "taskinfo.h"
 //#include "pios_thread.h"
 #include "pios_sensors.h"
 
@@ -717,7 +717,7 @@ static int32_t uavoMSPBridgeStart(void)
 	xTaskHandle taskHandle;
 	
 	xTaskCreate(uavoMSPBridgeTask, "uavoMSPBridge", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &taskHandle);
-//	PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_UAVOMSPBRIDGE, taskHandle);
+	PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_UAVOMSPBRIDGE, taskHandle);
 
 	return 0;
 }

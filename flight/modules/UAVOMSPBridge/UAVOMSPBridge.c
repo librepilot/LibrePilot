@@ -224,6 +224,7 @@ struct msp_bridge {
 	union {
 		uint8_t data[0];
 		// Specific packed data structures go here.
+		msp_pid_t piditems[PID_ITEM_COUNT];
 	} cmd_data;
 };
 
@@ -255,11 +256,16 @@ static void msp_send(struct msp_bridge *m, uint8_t cmd, const uint8_t *data, siz
 	buf[4] = cmd;
 
 	PIOS_COM_SendBuffer(m->com, buf, sizeof(buf));
-	PIOS_COM_SendBuffer(m->com, data, len);
+	
+	if(len > 0)
+	{
+	        PIOS_COM_SendBuffer(m->com, data, len);
 
-	for (unsigned i = 0; i < len; i++) {
-		cs ^= data[i];
-	}
+        	for (unsigned i = 0; i < len; i++) {
+	        	cs ^= data[i];
+        	}
+        }
+
 	cs ^= 0;
 
 	buf[0] = cs;
@@ -646,51 +652,99 @@ static void msp_send_boxids(struct msp_bridge *m) { // This is actually sending 
         msp_send( m, MSP_BOXIDS, msp_boxes, sizeof( msp_boxes ) );
 }
 
-static void msp_send_pid(struct msp_bridge *m)
+static StabilizationSettingsFlightModeMapOptions get_current_stabilization_bank()
 {
   uint8_t fm;
   ManualControlCommandFlightModeSwitchPositionGet(&fm);
 
   if( fm >= FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM )
   {
-    return;
+    return STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1;
   }
   
   StabilizationSettingsFlightModeMapOptions flightModeMap[STABILIZATIONSETTINGS_FLIGHTMODEMAP_NUMELEM];
   StabilizationSettingsFlightModeMapGet(flightModeMap);
   
-  StabilizationBankData bankData;
-  
-  switch(flightModeMap[fm])
+  return flightModeMap[fm];
+}
+
+static void get_current_stabilizationbankdata( StabilizationBankData *bankData )
+{
+  switch( get_current_stabilization_bank() )
   {
     case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
-      StabilizationSettingsBank1Get( ((StabilizationSettingsBank1Data *) &bankData ) );
+      StabilizationSettingsBank1Get( (StabilizationSettingsBank1Data *) bankData );
       break;
     case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
-      StabilizationSettingsBank2Get( ((StabilizationSettingsBank2Data *) &bankData ) );
+      StabilizationSettingsBank2Get( (StabilizationSettingsBank2Data *) bankData );
       break;
     case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
-      StabilizationSettingsBank3Get( ((StabilizationSettingsBank3Data *) &bankData ) );
+      StabilizationSettingsBank3Get( (StabilizationSettingsBank3Data *) bankData );
       break;
   }
+}
+
+static void set_current_stabilizationbankdata( const StabilizationBankData *bankData )
+{
+  // update just relevant parts. or not.
+  switch( get_current_stabilization_bank() )
+  {
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
+      StabilizationSettingsBank1Set( (const StabilizationSettingsBank1Data *) bankData  );
+      break;
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
+      StabilizationSettingsBank2Set( (const StabilizationSettingsBank2Data *) bankData  );
+      break;
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
+      StabilizationSettingsBank3Set( (const StabilizationSettingsBank3Data *) bankData  );
+      break;
+  }
+}
+
+static void pid_native2msp( const float *native, msp_pid_t *piditem )
+{
+  piditem->P = native[0] * 10000;
+  piditem->I = native[1] * 10000;
+  piditem->D = native[2] * 10000;
+}
+
+static void pid_msp2native( const msp_pid_t *piditem, float *native )
+{
+  native[0] = (float)piditem->P / 10000;
+  native[1] = (float)piditem->I / 10000;
+  native[2] = (float)piditem->D / 10000;
+}
+
+static void msp_send_pid(struct msp_bridge *m)
+{
+  StabilizationBankData bankData;
+  
+  get_current_stabilizationbankdata( &bankData );
   
   msp_pid_t piditems[ PID_ITEM_COUNT ];
 
   memset(piditems, 0, sizeof( piditems ) ); 
   
-  piditems[ PIDROLL ].P = bankData.RollRatePID.Kp * 10000;
-  piditems[ PIDROLL ].I = bankData.RollRatePID.Ki * 10000;
-  piditems[ PIDROLL ].D = bankData.RollRatePID.Kd * 10000;
-
-  piditems[ PIDPITCH ].P = bankData.PitchRatePID.Kp * 10000;
-  piditems[ PIDPITCH ].I = bankData.PitchRatePID.Ki * 10000;
-  piditems[ PIDPITCH ].D = bankData.PitchRatePID.Kd * 10000;
-
-  piditems[ PIDYAW ].P = bankData.YawRatePID.Kp * 10000;
-  piditems[ PIDYAW ].I = bankData.YawRatePID.Ki * 10000;
-  piditems[ PIDYAW ].D = bankData.YawRatePID.Kd * 10000;
-
+  pid_native2msp( (float *) &bankData.RollRatePID, &piditems[ PIDROLL ] );
+  pid_native2msp( (float *) &bankData.PitchRatePID, &piditems[ PIDPITCH ] );
+  pid_native2msp( (float *) &bankData.YawRatePID, &piditems[ PIDYAW ] );
+  
   msp_send( m, MSP_PID, (const uint8_t *) piditems, sizeof( piditems ) );
+}
+
+static void msp_set_pid(struct msp_bridge *m)
+{
+  StabilizationBankData bankData;
+  
+  get_current_stabilizationbankdata( &bankData );
+  
+  pid_msp2native( &m->cmd_data.piditems[ PIDROLL ], (float *) &bankData.RollRatePID );
+  pid_msp2native( &m->cmd_data.piditems[ PIDPITCH ], (float *) &bankData.PitchRatePID );
+  pid_msp2native( &m->cmd_data.piditems[ PIDYAW ], (float *) &bankData.YawRatePID );
+  
+  set_current_stabilizationbankdata( &bankData );
+  
+  msp_send( m, MSP_SET_PID, 0, 0 ); // send ack.
 }
 
 #define ALARM_OK 0
@@ -783,6 +837,9 @@ static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
 		break;
         case MSP_PID:
                 msp_send_pid(m);
+                break;
+        case MSP_SET_PID:
+                msp_set_pid(m);
                 break;
 	}
 	

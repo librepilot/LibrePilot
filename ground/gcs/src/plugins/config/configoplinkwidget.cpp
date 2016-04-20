@@ -103,19 +103,15 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "RXPacketRate", m_oplink->RXPacketRate);
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
 
-    // Connect the bind buttons
-    connect(m_oplink->Bind1, SIGNAL(clicked()), this, SLOT(bind()));
-    connect(m_oplink->Bind2, SIGNAL(clicked()), this, SLOT(bind()));
-    connect(m_oplink->Bind3, SIGNAL(clicked()), this, SLOT(bind()));
-    connect(m_oplink->Bind4, SIGNAL(clicked()), this, SLOT(bind()));
-
     // Connect the selection changed signals.
     connect(m_oplink->PPMOnly, SIGNAL(toggled(bool)), this, SLOT(ppmOnlyChanged()));
+    connect(m_oplink->Coordinator, SIGNAL(toggled(bool)), this, SLOT(updateCoordID()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
     connect(m_oplink->CustomDeviceID, SIGNAL(editingFinished()), this, SLOT(updateCustomDeviceID()));
 
     m_oplink->CustomDeviceID->setInputMask("HHHHHHHH");
+    m_oplink->CoordID->setInputMask("HHHHHHHH");
 
     m_oplink->MinimumChannel->setKeyboardTracking(false);
     m_oplink->MaximumChannel->setKeyboardTracking(false);
@@ -148,52 +144,9 @@ void ConfigOPLinkWidget::updateStatus(UAVObject *object)
     UAVObjectField *linkField = object->getField("LinkState");
     m_oplink->LinkState->setText(linkField->getValue().toString());
     bool linkConnected = (linkField->getValue() == linkField->getOptions().at(OPLinkStatus::LINKSTATE_CONNECTED));
-    bool modemEnabled  = linkConnected || (linkField->getValue() == linkField->getOptions().at(OPLinkStatus::LINKSTATE_DISCONNECTED)) ||
-                         (linkField->getValue() == linkField->getOptions().at(OPLinkStatus::LINKSTATE_ENABLED));
 
-    UAVObjectField *pairRssiField = object->getField("PairSignalStrengths");
-
-    bool bound;
-    bool ok;
-    quint32 boundPairId = m_oplink->CoordID->text().toUInt(&ok, 16);
-
-    // Update the detected devices.
-    UAVObjectField *pairIdField = object->getField("PairIDs");
-    quint32 pairid = pairIdField->getValue(0).toUInt();
-    bound = (pairid == boundPairId);
-    m_oplink->PairID1->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID1->setEnabled(false);
-    m_oplink->Bind1->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind1->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar1->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(0).toInt());
+    m_oplink->PairSignalStrengthBar1->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);
     m_oplink->PairSignalStrengthLabel1->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar1->value()));
-
-    pairid = pairIdField->getValue(1).toUInt();
-    bound  = (pairid == boundPairId);
-    m_oplink->PairID2->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID2->setEnabled(false);
-    m_oplink->Bind2->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind2->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar2->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(1).toInt());
-    m_oplink->PairSignalStrengthLabel2->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar2->value()));
-
-    pairid = pairIdField->getValue(2).toUInt();
-    bound  = (pairid == boundPairId);
-    m_oplink->PairID3->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID3->setEnabled(false);
-    m_oplink->Bind3->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind3->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar3->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(2).toInt());
-    m_oplink->PairSignalStrengthLabel3->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar3->value()));
-
-    pairid = pairIdField->getValue(3).toUInt();
-    bound  = (pairid == boundPairId);
-    m_oplink->PairID4->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID4->setEnabled(false);
-    m_oplink->Bind4->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind4->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar4->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(3).toInt());
-    m_oplink->PairSignalStrengthLabel4->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar4->value()));
 
     // Update the Description field
     // TODO use  UAVObjectUtilManager::descriptionToStructure()
@@ -297,6 +250,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
 
 void ConfigOPLinkWidget::updateEnableControls()
 {
+    updateCoordID();
     updateCustomDeviceID();
     enableControls(true);
     ppmOnlyChanged();
@@ -306,32 +260,6 @@ void ConfigOPLinkWidget::disconnected()
 {
     if (settingsUpdated) {
         settingsUpdated = false;
-    }
-}
-
-void ConfigOPLinkWidget::bind()
-{
-    QPushButton *bindButton = qobject_cast<QPushButton *>(sender());
-
-    if (bindButton) {
-        QLineEdit *editField = NULL;
-        if (bindButton == m_oplink->Bind1) {
-            editField = m_oplink->PairID1;
-        } else if (bindButton == m_oplink->Bind2) {
-            editField = m_oplink->PairID2;
-        } else if (bindButton == m_oplink->Bind3) {
-            editField = m_oplink->PairID3;
-        } else if (bindButton == m_oplink->Bind4) {
-            editField = m_oplink->PairID4;
-        }
-        Q_ASSERT(editField);
-        bool ok;
-        quint32 pairid = editField->text().toUInt(&ok, 16);
-        if (ok) {
-            quint32 boundPairId = m_oplink->CoordID->text().toUInt(&ok, 16);
-            (pairid != boundPairId) ? m_oplink->CoordID->setText(QString::number(pairid, 16).toUpper()) : m_oplink->CoordID->setText("0");
-        }
-        QMessageBox::information(this, tr("Information"), tr("To apply the changes when binding/unbinding the board must be rebooted or power cycled."), QMessageBox::Ok);
     }
 }
 
@@ -388,13 +316,26 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");
 }
 
+void ConfigOPLinkWidget::updateCoordID()
+{
+    bool is_coordinator    = m_oplink->Coordinator->isChecked();
+    bool coordinatorNotSet = (m_oplink->CoordID->text() == "0");
+
+    if (settingsUpdated && coordinatorNotSet) {
+        m_oplink->CoordID->clear();
+        m_oplink->CoordID->setPlaceholderText("SetCoordID");
+    }
+    m_oplink->CoordID->setVisible(!is_coordinator);
+    m_oplink->CoordIDLabel->setVisible(!is_coordinator);
+}
+
 void ConfigOPLinkWidget::updateCustomDeviceID()
 {
     bool customDeviceIDNotSet = (m_oplink->CustomDeviceID->text() == "0");
 
     if (settingsUpdated && customDeviceIDNotSet) {
         m_oplink->CustomDeviceID->clear();
-        m_oplink->CustomDeviceID->setPlaceholderText(m_oplink->DeviceID->text());
+        m_oplink->CustomDeviceID->setPlaceholderText("AutoGenerated");
     }
 }
 /**

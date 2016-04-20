@@ -62,10 +62,10 @@ protected:
 
 private slots:
     void disconnected();
-    void bind();
     void ppmOnlyChanged();
     void minChannelChanged();
     void maxChannelChanged();
+    void updateCoordID();
     void updateCustomDeviceID();
     void channelChanged(bool isMax);
 };

@@ -703,9 +703,9 @@ static void set_current_stabilizationbankdata( const StabilizationBankData *bank
 
 static void pid_native2msp( const float *native, msp_pid_t *piditem )
 {
-  piditem->P = native[0] * 10000;
-  piditem->I = native[1] * 10000;
-  piditem->D = native[2] * 10000;
+  piditem->P = lroundf(native[0] * 10000);
+  piditem->I = lroundf(native[1] * 10000);
+  piditem->D = lroundf(native[2] * 10000);
 }
 
 static void pid_msp2native( const msp_pid_t *piditem, float *native )

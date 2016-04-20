@@ -20,17 +20,13 @@ SED_SCRIPT           := $(SED_SCRIPT)' \
 			s/<DATE>/$(SED_DATE_STRG)/g; \
 			s/<DIST>/$(DEB_DIST)/g; \
 			s/<NAME>/$(DEB_NAME)/g; \
-			s/<DESCRIPTION>/$(DESCRIPTION_SHORT)\n $(subst $(NEWLINE),\n ,$(DESCRIPTION_LONG))/g; \
+			s/<DESCRIPTION>/$(DESCRIPTION_SHORT)\n $(subst ','"'"',$(subst $(NEWLINE),\n ,$(DESCRIPTION_LONG)))/g; \
 			'
 
-# Ubuntu 14.04 (Trusty Tahr) has different names for the qml-modules
-TRUSTY_DEPS_SED      := s/qml-module-qtquick-controls/qtdeclarative5-controls-plugin/g; \
-	s/qml-module-qtquick-dialogs/qtdeclarative5-dialogs-plugin/g; \
-	s/qml-module-qtquick-localstorage/qtdeclarative5-localstorage-plugin/g; \
-	s/qml-module-qtquick-particles2/qtdeclarative5-particles-plugin/g; \
-	s/qml-module-qtquick2/qtdeclarative5-qtquick2-plugin/g; \
-	s/qml-module-qtquick-window2/qtdeclarative5-window-plugin/g; \
-	s/qml-module-qtquick-xmllistmodel/qtdeclarative5-xmllistmodel-plugin/g;
+# Ubuntu 14.04 (Trusty Tahr) use qt in /opt PPA
+OPT_QT               := qt56
+TRUSTY_DEPS_SED      := s/qml-module-.*/$(OPT_QT)quickcontrols/g; \
+                        s/qt5-default.*/$(OPT_QT)-meta-minimal, $(OPT_QT)svg, $(OPT_QT)script, $(OPT_QT)serialport, $(OPT_QT)multimedia, $(OPT_QT)translations, $(OPT_QT)tools/g;
 
 # Leave off Qt and ARM compiler dependencies if calling package target under the assumption that
 # OP is providing them or the user already has them installed because OP is already built.
@@ -40,7 +36,7 @@ PACKAGE_DEPS_SED     := s/python.*/python/;s/{misc:Depends}.*/{misc:Depends}/;
 package: debian
 	@$(ECHO) "Building Linux package, please wait..."
 	$(V1) sed -i -e "$(PACKAGE_DEPS_SED)" debian/control
-	$(V1) sed -i -e 's/WITH_PREBUILT.*firmware//' debian/rules
+	$(V1) sed -i -e 's,config_new.*, --help > /dev/null,' debian/rules
 	$(V1) dpkg-buildpackage -b -us -uc -nc
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).deb $(BUILD_DIR)
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).changes $(BUILD_DIR)
@@ -53,7 +49,9 @@ debian: $(DEB_DIR)
 	$(V1) cp -T package/linux/45-uav.rules debian/$(DEB_NAME).udev
 	$(V1) $(SED_SCRIPT) debian/changelog debian/control
 ifeq ($(DEB_DIST), trusty)
-	$(V1) sed -i -e "$(TRUSTY_DEPS_SED)" debian/control
+	$(V1) sed -i -e '$(TRUSTY_DEPS_SED)' debian/control
+	$(V1) sed -i -e 's,dh ,source /opt/$(OPT_QT)/bin/$(OPT_QT)-env.sh || true; dh ,' debian/rules
+	$(V1) echo "SHELL := /bin/bash" >> debian/rules
 endif
 
 .PHONY: package_src

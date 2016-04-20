@@ -13,7 +13,7 @@ SED_SCRIPT           := $(SED_SCRIPT)' \
 			s/<SOURCE0>/$(notdir $(DIST_TAR_GZ))/g; \
 			s/<SOURCE1>/$(notdir $(FW_DIST_TAR_GZ))/g; \
 			s/<SUMMARY>/$(DESCRIPTION_SHORT)/g; \
-			s/<DESCRIPTION>/$(subst $(NEWLINE),\n,$(DESCRIPTION_LONG))/g; \
+			s/<DESCRIPTION>/$(subst ','"'"',$(subst $(NEWLINE),\n,$(DESCRIPTION_LONG)))/g; \
 			'
 
 RPM_DIRS := $(addprefix $(PACKAGE_DIR)/,BUILD RPMS SOURCES SPECS SRPMS)

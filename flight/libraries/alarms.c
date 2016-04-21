@@ -37,6 +37,8 @@
         #define PIOS_ALARM_GRACETIME 1000
 #endif // PIOS_ALARM_GRACETIME
 
+#define NELEM(x) ((sizeof(x) / sizeof((x)[0])))
+
 // Private types
 
 // Private variables
@@ -279,6 +281,108 @@ SystemAlarmsAlarmOptions AlarmsGetHighestSeverity()
 
     xSemaphoreGiveRecursive(lock);
     return highest;
+}
+
+
+static const char *const systemalarms_severity_names[] = {
+    [SYSTEMALARMS_ALARM_UNINITIALISED] = "UNINITIALISED",
+    [SYSTEMALARMS_ALARM_OK]       = "OK",
+    [SYSTEMALARMS_ALARM_WARNING]  = "WARNING",
+    [SYSTEMALARMS_ALARM_CRITICAL] = "CRITICAL",
+    [SYSTEMALARMS_ALARM_ERROR]    = "ERROR"
+};
+
+static const char *const systemalarms_alarm_names[] = {
+    [SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION] = "CONFIG",
+    [SYSTEMALARMS_ALARM_BOOTFAULT]     = "BOOT",
+    [SYSTEMALARMS_ALARM_OUTOFMEMORY]   = "MEMORY",
+    [SYSTEMALARMS_ALARM_STACKOVERFLOW] = "STACK",
+    [SYSTEMALARMS_ALARM_CPUOVERLOAD]   = "CPU",
+    [SYSTEMALARMS_ALARM_EVENTSYSTEM]   = "EVENTSYSTEM",
+    [SYSTEMALARMS_ALARM_TELEMETRY]     = "TELEMETRY",
+    [SYSTEMALARMS_ALARM_RECEIVER] = "RECEIVER",
+    [SYSTEMALARMS_ALARM_MANUALCONTROL] = "MANUAL",
+    [SYSTEMALARMS_ALARM_ACTUATOR]      = "ACTUATOR",
+    [SYSTEMALARMS_ALARM_ATTITUDE]      = "ATTITUDE",
+    [SYSTEMALARMS_ALARM_SENSORS]       = "SENSORS",
+    [SYSTEMALARMS_ALARM_MAGNETOMETER]  = "MAG",
+    [SYSTEMALARMS_ALARM_AIRSPEED]      = "AIRSPEED",
+    [SYSTEMALARMS_ALARM_STABILIZATION] = "STAB",
+    [SYSTEMALARMS_ALARM_GUIDANCE]      = "GUIDANCE",
+    [SYSTEMALARMS_ALARM_PATHPLAN]      = "PLAN",
+    [SYSTEMALARMS_ALARM_BATTERY]       = "BATTERY",
+    [SYSTEMALARMS_ALARM_FLIGHTTIME]    = "TIME",
+    [SYSTEMALARMS_ALARM_I2C] = "I2C",
+    [SYSTEMALARMS_ALARM_GPS] = "GPS",
+};
+
+static const char *const systemalarms_extendedalarmstatus_names[] = {
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED] = "CFG:REBOOT",
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_FLIGHTMODE]     = "CFG:FLIGHTMODE",
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT] = "CFG:ONESHOT",
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_BADTHROTTLEORCOLLECTIVEINPUTRANGE] = "CFG:THR-COL",
+};
+
+static const SystemAlarmsAlarmOptions severity_order[] = {
+    SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_ALARM_WARNING, SYSTEMALARMS_ALARM_ERROR
+};
+
+size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size)
+{
+    size_t bytes_written = 0;
+
+    PIOS_STATIC_ASSERT(NELEM(systemalarms_alarm_names) == SYSTEMALARMS_ALARM_NUMELEM);
+
+    for (unsigned order = 0; order < NELEM(severity_order); ++order) {
+        // should we prepend severity level here? No, not for now.
+
+        for (unsigned i = 0; i < SYSTEMALARMS_ALARM_NUMELEM; ++i) {
+            if ((SystemAlarmsAlarmToArray(alarm->Alarm)[i] == severity_order[order])
+                && (systemalarms_alarm_names[i])) {
+                // in which case should we dig into extended alarm status?
+                // looks like SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION sets most of the extended alarms
+                // except SYSTEMALARMS_ALARM_BOOTFAULT which also sets SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED
+
+                const char *current_msg = systemalarms_alarm_names[i];
+
+                switch (i) {
+                case SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION:
+                    if (alarm->ExtendedAlarmStatus.SystemConfiguration < NELEM(systemalarms_extendedalarmstatus_names)) {
+                        current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.SystemConfiguration];
+                    }
+                    break;
+
+                case SYSTEMALARMS_ALARM_BOOTFAULT:
+                    if (alarm->ExtendedAlarmStatus.BootFault < NELEM(systemalarms_extendedalarmstatus_names)) {
+                        current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.BootFault];
+                    }
+                    break;
+
+                default:;
+                }
+
+                int current_len = strlen(current_msg);
+
+                if ((bytes_written + current_len + 2) >= buffer_size) {
+                    break;
+                }
+
+                memcpy(buffer + bytes_written, current_msg, current_len);
+
+                bytes_written += current_len;
+
+                buffer[bytes_written++] = ' ';
+            }
+        }
+    }
+
+    if (bytes_written > 0) {
+        --bytes_written; // get rid of that trailing space.
+    }
+
+    buffer[bytes_written] = 0;
+
+    return bytes_written;
 }
 
 /**

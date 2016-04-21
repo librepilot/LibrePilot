@@ -327,7 +327,7 @@ static const SystemAlarmsAlarmOptions severity_order[] = {
     SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_ALARM_WARNING, SYSTEMALARMS_ALARM_ERROR
 };
 
-size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size)
+size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions *state)
 {
     size_t bytes_written = 0;
 
@@ -339,6 +339,11 @@ size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size)
         for (unsigned i = 0; i < SYSTEMALARMS_ALARM_NUMELEM; ++i) {
             if ((SystemAlarmsAlarmToArray(alarm->Alarm)[i] == severity_order[order])
                 && (systemalarms_alarm_names[i])) {
+                if (state) { // they are already sorted by severity as we are processing in specific order
+                    *state = severity_order[order];
+                    state  = 0;
+                }
+
                 // in which case should we dig into extended alarm status?
                 // looks like SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION sets most of the extended alarms
                 // except SYSTEMALARMS_ALARM_BOOTFAULT which also sets SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED

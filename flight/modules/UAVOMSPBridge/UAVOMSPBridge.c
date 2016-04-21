@@ -769,7 +769,7 @@ static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m) {
 
 	// Special case early boot times -- just report boot reason
 
-
+#if 0
 	if (xTaskGetTickCount() < MS2TICKS(10*1000)) {
 		data.alarm.state = ALARM_CRIT;
 		const char *boot_reason = AlarmBootReason(alarm.RebootCause);
@@ -778,11 +778,12 @@ static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m) {
 		msp_send(m, MSP_ALARMS, data.buf, strlen((char*)data.alarm.msg)+1);
 		return;
 	}
+#endif
 
 	uint8_t state;
 	data.alarm.state = ALARM_OK;
 	int32_t len = AlarmString(&alarm, data.alarm.msg,
-				  sizeof(data.alarm.msg), false, &state);
+				  sizeof(data.alarm.msg), SYSTEMALARMS_ALARM_CRITICAL, &state); // Include only CRITICAL and ERROR
 	switch (state) {
 	case SYSTEMALARMS_ALARM_WARNING:
 		data.alarm.state = ALARM_WARN;

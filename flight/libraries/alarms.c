@@ -295,22 +295,22 @@ static const char *const systemalarms_severity_names[] = {
 static const char *const systemalarms_alarm_names[] = {
     [SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION] = "CONFIG",
     [SYSTEMALARMS_ALARM_BOOTFAULT]     = "BOOT",
-    [SYSTEMALARMS_ALARM_OUTOFMEMORY]   = "MEMORY",
+    [SYSTEMALARMS_ALARM_OUTOFMEMORY]   = "MEM",
     [SYSTEMALARMS_ALARM_STACKOVERFLOW] = "STACK",
     [SYSTEMALARMS_ALARM_CPUOVERLOAD]   = "CPU",
-    [SYSTEMALARMS_ALARM_EVENTSYSTEM]   = "EVENTSYSTEM",
+    [SYSTEMALARMS_ALARM_EVENTSYSTEM]   = "EVENT",
     [SYSTEMALARMS_ALARM_TELEMETRY]     = "TELEMETRY",
-    [SYSTEMALARMS_ALARM_RECEIVER] = "RECEIVER",
+    [SYSTEMALARMS_ALARM_RECEIVER] = "INPUT",
     [SYSTEMALARMS_ALARM_MANUALCONTROL] = "MANUAL",
     [SYSTEMALARMS_ALARM_ACTUATOR]      = "ACTUATOR",
-    [SYSTEMALARMS_ALARM_ATTITUDE]      = "ATTITUDE",
-    [SYSTEMALARMS_ALARM_SENSORS]       = "SENSORS",
+    [SYSTEMALARMS_ALARM_ATTITUDE]      = "ATTI",
+    [SYSTEMALARMS_ALARM_SENSORS]       = "SENSOR",
     [SYSTEMALARMS_ALARM_MAGNETOMETER]  = "MAG",
-    [SYSTEMALARMS_ALARM_AIRSPEED]      = "AIRSPEED",
+    [SYSTEMALARMS_ALARM_AIRSPEED]      = "AIRSPD",
     [SYSTEMALARMS_ALARM_STABILIZATION] = "STAB",
     [SYSTEMALARMS_ALARM_GUIDANCE]      = "GUIDANCE",
     [SYSTEMALARMS_ALARM_PATHPLAN]      = "PLAN",
-    [SYSTEMALARMS_ALARM_BATTERY]       = "BATTERY",
+    [SYSTEMALARMS_ALARM_BATTERY]       = "BATT",
     [SYSTEMALARMS_ALARM_FLIGHTTIME]    = "TIME",
     [SYSTEMALARMS_ALARM_I2C] = "I2C",
     [SYSTEMALARMS_ALARM_GPS] = "GPS",
@@ -376,13 +376,13 @@ size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, Sy
 
                 bytes_written += current_len;
 
-                buffer[bytes_written++] = ' ';
+                buffer[bytes_written++] = ',';
             }
         }
     }
 
     if (bytes_written > 0) {
-        --bytes_written; // get rid of that trailing space.
+        --bytes_written; // get rid of that trailing separator.
     }
 
     buffer[bytes_written] = 0;

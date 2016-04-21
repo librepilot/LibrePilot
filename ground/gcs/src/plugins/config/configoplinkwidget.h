@@ -62,6 +62,7 @@ protected:
 
 private slots:
     void disconnected();
+    void updatePPMOptions();
     void ppmOnlyChanged();
     void minChannelChanged();
     void maxChannelChanged();

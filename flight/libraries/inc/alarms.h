@@ -48,7 +48,7 @@ int32_t AlarmsHasErrors();
 int32_t AlarmsHasCritical();
 SystemAlarmsAlarmOptions AlarmsGetHighestSeverity();
 
-size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions *state);
+size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions level, SystemAlarmsAlarmOptions *highestSeverity);
 
 #endif // ALARMS_H
 

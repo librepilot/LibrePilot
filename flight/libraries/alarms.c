@@ -323,25 +323,21 @@ static const char *const systemalarms_extendedalarmstatus_names[] = {
     [SYSTEMALARMS_EXTENDEDALARMSTATUS_BADTHROTTLEORCOLLECTIVEINPUTRANGE] = "CFG:THR-COL",
 };
 
-static const SystemAlarmsAlarmOptions severity_order[] = {
-    SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_ALARM_WARNING, SYSTEMALARMS_ALARM_ERROR
-};
-
-size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions *state)
+size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions level, SystemAlarmsAlarmOptions *highestSeverity)
 {
     size_t bytes_written = 0;
 
     PIOS_STATIC_ASSERT(NELEM(systemalarms_alarm_names) == SYSTEMALARMS_ALARM_NUMELEM);
 
-    for (unsigned order = 0; order < NELEM(severity_order); ++order) {
+    for (unsigned severity = SYSTEMALARMS_ALARM_ERROR; severity >= level; --severity) {
         // should we prepend severity level here? No, not for now.
 
         for (unsigned i = 0; i < SYSTEMALARMS_ALARM_NUMELEM; ++i) {
-            if ((SystemAlarmsAlarmToArray(alarm->Alarm)[i] == severity_order[order])
+            if ((SystemAlarmsAlarmToArray(alarm->Alarm)[i] == severity)
                 && (systemalarms_alarm_names[i])) {
-                if (state) { // they are already sorted by severity as we are processing in specific order
-                    *state = severity_order[order];
-                    state  = 0;
+                if (highestSeverity) { // they are already sorted by severity as we are processing in specific order
+                    *highestSeverity = severity;
+                    highestSeverity  = 0;
                 }
 
                 // in which case should we dig into extended alarm status?

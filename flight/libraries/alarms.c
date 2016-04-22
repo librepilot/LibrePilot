@@ -326,7 +326,7 @@ static const char *const systemalarms_extendedalarmstatus_names[] = {
 
 size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions level, SystemAlarmsAlarmOptions *highestSeverity)
 {
-    size_t bytes_written = 0;
+    size_t pos = 0;
 
     PIOS_STATIC_ASSERT(NELEM(systemalarms_alarm_names) == SYSTEMALARMS_ALARM_NUMELEM);
 
@@ -359,32 +359,30 @@ size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, Sy
                         current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.BootFault];
                     }
                     break;
-
-                default:;
                 }
 
                 int current_len = strlen(current_msg);
-
-                if ((bytes_written + current_len + 2) >= buffer_size) {
+                
+                if ((pos + current_len + 1) > buffer_size) {
                     break;
                 }
 
-                memcpy(buffer + bytes_written, current_msg, current_len);
+                memcpy(buffer + pos, current_msg, current_len);
 
-                bytes_written += current_len;
+                pos += current_len;
 
-                buffer[bytes_written++] = ',';
+                buffer[pos++] = ',';
             }
         }
     }
 
-    if (bytes_written > 0) {
-        --bytes_written; // get rid of that trailing separator.
+    if (pos > 0) {
+        --pos; // get rid of that trailing separator.
     }
 
-    buffer[bytes_written] = 0;
+    buffer[pos] = 0;
 
-    return bytes_written;
+    return pos; // return length of the string in buffer. Actual bytes written is +1
 }
 
 /**

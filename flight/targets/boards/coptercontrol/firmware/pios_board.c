@@ -75,6 +75,9 @@ static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 
 #define PIOS_COM_HKOSD_TX_BUF_LEN        22
 
+#define PIOS_COM_MSP_TX_BUF_LEN          128
+#define PIOS_COM_MSP_RX_BUF_LEN          64
+
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 #define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
 uint32_t pios_com_debug_id;
@@ -86,7 +89,7 @@ uint32_t pios_com_vcp_id;
 uint32_t pios_com_gps_id;
 uint32_t pios_com_bridge_id;
 uint32_t pios_com_hkosd_id;
-
+uint32_t pios_com_msp_id;
 uint32_t pios_usb_rctx_id;
 
 uintptr_t pios_uavo_settings_fs_id;
@@ -551,6 +554,23 @@ void PIOS_Board_Init(void)
             PIOS_Assert(0);
         }
     }
+    case HWSETTINGS_CC_MAINPORT_MSP:
+    {
+        uint32_t pios_usart_generic_id;
+        if (PIOS_USART_Init(&pios_usart_generic_id, &pios_usart_generic_main_cfg)) {
+            PIOS_Assert(0);
+        }
+
+        uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_MSP_RX_BUF_LEN);
+        PIOS_Assert(rx_buffer);
+        uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_MSP_TX_BUF_LEN);
+        PIOS_Assert(tx_buffer);
+        if (PIOS_COM_Init(&pios_com_msp_id, &pios_usart_com_driver, pios_usart_generic_id,
+                          rx_buffer, PIOS_COM_MSP_RX_BUF_LEN,
+                          tx_buffer, PIOS_COM_MSP_TX_BUF_LEN)) {
+            PIOS_Assert(0);
+        }
+    }
     break;
     case HWSETTINGS_CC_MAINPORT_OSDHK:
     {
@@ -610,6 +630,24 @@ void PIOS_Board_Init(void)
         if (PIOS_COM_Init(&pios_com_bridge_id, &pios_usart_com_driver, pios_usart_generic_id,
                           rx_buffer, PIOS_COM_BRIDGE_RX_BUF_LEN,
                           tx_buffer, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
+            PIOS_Assert(0);
+        }
+    }
+    break;
+    case HWSETTINGS_CC_FLEXIPORT_MSP:
+    {
+        uint32_t pios_usart_generic_id;
+        if (PIOS_USART_Init(&pios_usart_generic_id, &pios_usart_generic_flexi_cfg)) {
+            PIOS_Assert(0);
+        }
+
+        uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_MSP_RX_BUF_LEN);
+        PIOS_Assert(rx_buffer);
+        uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_MSP_TX_BUF_LEN);
+        PIOS_Assert(tx_buffer);
+        if (PIOS_COM_Init(&pios_com_msp_id, &pios_usart_com_driver, pios_usart_generic_id,
+                          rx_buffer, PIOS_COM_MSP_RX_BUF_LEN,
+                          tx_buffer, PIOS_COM_MSP_TX_BUF_LEN)) {
             PIOS_Assert(0);
         }
     }

@@ -156,6 +156,9 @@ extern uint32_t pios_com_debug_id;
 extern uint32_t pios_com_hkosd_id;
 #define PIOS_COM_OSDHK     (pios_com_hkosd_id)
 
+extern uint32_t pios_com_msp_id;
+#define PIOS_COM_MSP       (pios_com_msp_id)
+
 // -------------------------
 // ADC
 // PIOS_ADC_PinGet(0) = Gyro Z

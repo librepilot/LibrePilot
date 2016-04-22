@@ -207,6 +207,9 @@ uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 #define PIOS_COM_HKOSD_RX_BUF_LEN        22
 #define PIOS_COM_HKOSD_TX_BUF_LEN        22
 
+#define PIOS_COM_MSP_TX_BUF_LEN          128
+#define PIOS_COM_MSP_RX_BUF_LEN          64
+
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 #define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
 uint32_t pios_com_debug_id;
@@ -219,7 +222,7 @@ uint32_t pios_com_rf_id        = 0;
 uint32_t pios_com_bridge_id    = 0;
 uint32_t pios_com_overo_id     = 0;
 uint32_t pios_com_hkosd_id     = 0;
-
+uint32_t pios_com_msp_id       = 0;
 uint32_t pios_com_vcp_id       = 0;
 
 uintptr_t pios_uavo_settings_fs_id;
@@ -618,6 +621,9 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_MAINPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
+    case HWSETTINGS_RM_MAINPORT_MSP:
+        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
+        break;
     case HWSETTINGS_RM_MAINPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
@@ -692,6 +698,9 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_FLEXIPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
+        break;
+    case HWSETTINGS_RM_FLEXIPORT_MSP:
+        PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
         break;
     case HWSETTINGS_RM_FLEXIPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);

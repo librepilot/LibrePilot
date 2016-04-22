@@ -255,8 +255,8 @@ uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 #define PIOS_COM_HKOSD_RX_BUF_LEN        22
 #define PIOS_COM_HKOSD_TX_BUF_LEN        22
 
-#define PIOS_COM_MSP_TX_BUF_LEN 128
-#define PIOS_COM_MSP_RX_BUF_LEN 64
+#define PIOS_COM_MSP_TX_BUF_LEN          128
+#define PIOS_COM_MSP_RX_BUF_LEN          64
 
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 #define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
@@ -994,6 +994,9 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_RCVRPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
+        break;
+    case HWSETTINGS_RM_RCVRPORT_MSP:
+        PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
         break;
     }
 

@@ -7,8 +7,8 @@
  *
  * @file       uavomspbridge.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2015
- * @author     dRonin, http://dronin.org Copyright (C) 2015-2016
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2015
+ *             dRonin, http://dronin.org Copyright (C) 2015-2016
  * @brief      Bridges selected UAVObjects to MSP for MWOSD and the like.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -585,7 +585,7 @@ static uint16_t msp_scale_rc(float percent)
 // position unless we send it what it wants right away.
 static uint16_t msp_scale_rc_thr(float percent)
 {
-    return percent <= 0 ? 1100 : percent *800 + 1100;
+    return percent <= 0 ? 1100 : percent * 800 + 1100;
 }
 
 // MSP RC order is Roll/Pitch/Yaw/Throttle/AUX1/AUX2/AUX3/AUX4

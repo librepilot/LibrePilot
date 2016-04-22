@@ -37,6 +37,7 @@
 //#include "physical_constants.h"
 #include "receiverstatus.h"
 #include "hwsettings.h"
+#include "flightmodesettings.h"
 #include "flightbatterysettings.h"
 #include "flightbatterystate.h"
 #include "gpspositionsensor.h"
@@ -53,6 +54,13 @@
 #include "barosensor.h"
 #include "stabilizationdesired.h"
 #include "taskinfo.h"
+#include "stabilizationsettings.h"
+#include "stabilizationbank.h"
+#include "stabilizationsettingsbank1.h"
+#include "stabilizationsettingsbank2.h"
+#include "stabilizationsettingsbank3.h"
+#include "magstate.h"
+
 //#include "pios_thread.h"
 #include "pios_sensors.h"
 
@@ -83,7 +91,7 @@
 #define  MSP_ALTITUDE   109 // altitude, variometer
 #define  MSP_ANALOG     110 // vbat, powermetersum, rssi if available on RX
 #define  MSP_RC_TUNING  111 // rc rate, rc expo, rollpitch rate, yaw rate, dyn throttle PID
-#define  MSP_PID        112 // P I D coeff (9 are used currently)
+#define  MSP_PID        112 // P I D coeff (10 are used currently)
 #define  MSP_BOX        113 // BOX setup (number is dependant of your setup)
 #define  MSP_MISC       114 // powermeter trig
 #define  MSP_MOTOR_PINS 115 // which pins are in use for motors & servos, for GUI
@@ -94,33 +102,70 @@
 #define  MSP_CELLS      130 // FrSky SPort Telemtry
 #define  MSP_ALARMS     242 // Alarm request
 
-typedef enum {
-	MSP_BOX_ARM,
-	MSP_BOX_ANGLE,
-	MSP_BOX_HORIZON,
-	MSP_BOX_BARO,
-	MSP_BOX_VARIO,
-	MSP_BOX_MAG,
-	MSP_BOX_GPSHOME,
-	MSP_BOX_GPSHOLD,
-	MSP_BOX_LAST,
-} msp_box_t;
+#define  MSP_SET_PID    202 // set P I D coeff
 
-static const struct {
-	msp_box_t mode;
-	uint8_t mwboxid;
-	FlightStatusFlightModeOptions flightMode;
-	StabilizationDesiredStabilizationModeOptions thrustMode;
-} msp_boxes[] = {
-	{ MSP_BOX_ARM, 0, 0, 0xff},
-	{ MSP_BOX_ANGLE, 1, 0, 0xff},
-	{ MSP_BOX_HORIZON, 2, 0, 0xff},
-	{ MSP_BOX_BARO, 3, 0, STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEHOLD },
-	{ MSP_BOX_VARIO, 4, 0, STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEVARIO },
-	{ MSP_BOX_MAG, 5, 0, 0xff},
-	{ MSP_BOX_GPSHOME, 10, FLIGHTSTATUS_FLIGHTMODE_RETURNTOBASE, 0xff},
-	{ MSP_BOX_GPSHOLD, 11, FLIGHTSTATUS_FLIGHTMODE_POSITIONHOLD, 0xff},
-	{ MSP_BOX_LAST, 0xff, 0, 0xff},
+typedef enum {
+	MSP_BOX_ID_ARM,
+	MSP_BOX_ID_ANGLE, // mode.stable (attitude??) - [sensor icon] [ fligth mode icon ]
+	MSP_BOX_ID_HORIZON, // [sensor icon] [ flight mode icon ]
+	MSP_BOX_ID_BARO, // [sensor icon]
+	MSP_BOX_ID_VARIO,
+	MSP_BOX_ID_MAG, // [sensor icon]
+	MSP_BOX_ID_HEADFREE,
+	MSP_BOX_ID_HEADADJ,
+	MSP_BOX_ID_CAMSTAB, // [gimbal icon]
+	MSP_BOX_ID_CAMTRIG,
+	MSP_BOX_ID_GPSHOME, // [ flight mode icon ]
+	MSP_BOX_ID_GPSHOLD, // [ flight mode icon ]
+	MSP_BOX_ID_PASSTHRU, // [ flight mode icon ]
+	MSP_BOX_ID_BEEPER,
+	MSP_BOX_ID_LEDMAX,
+	MSP_BOX_ID_LEDLOW,
+	MSP_BOX_ID_LLIGHTS, // landing lights
+	MSP_BOX_ID_CALIB,
+	MSP_BOX_ID_GOVERNOR,
+	MSP_BOX_ID_OSD_SWITCH, // OSD on or off, maybe.
+	MSP_BOX_ID_GPSMISSION, // [ flight mode icon ]
+	MSP_BOX_ID_GPSLAND, // [ flight mode icon ]
+	
+	MSP_BOX_ID_AIR = 28, // this box will add AIRMODE icon to flight mode.
+	MSP_BOX_ID_ACROPLUS = 29, // this will add PLUS icon to ACRO. ACRO = !ANGLE && !HORIZON
+} msp_boxid_t;
+
+enum
+{
+  MSP_STATUS_ARMED,
+  MSP_STATUS_FLIGHTMODE_STABILIZED,
+  MSP_STATUS_FLIGHTMODE_HORIZON,
+  MSP_STATUS_SENSOR_BARO,
+  MSP_STATUS_SENSOR_MAG,
+  MSP_STATUS_MISC_GIMBAL,
+  MSP_STATUS_FLIGHTMODE_GPSHOME,
+  MSP_STATUS_FLIGHTMODE_GPSHOLD,
+  MSP_STATUS_FLIGHTMODE_GPSMISSION,
+  MSP_STATUS_FLIGHTMODE_GPSLAND,
+  MSP_STATUS_FLIGHTMODE_PASSTHRU,
+  MSP_STATUS_OSD_SWITCH,
+  MSP_STATUS_ICON_AIRMODE,
+  MSP_STATUS_ICON_ACROPLUS,
+};
+
+static const uint8_t msp_boxes[] =
+{
+        [ MSP_STATUS_ARMED ] = MSP_BOX_ID_ARM,
+        [ MSP_STATUS_FLIGHTMODE_STABILIZED ] = MSP_BOX_ID_ANGLE, // flight mode
+        [ MSP_STATUS_FLIGHTMODE_HORIZON ] = MSP_BOX_ID_HORIZON, // flight mode
+        [ MSP_STATUS_SENSOR_BARO ] = MSP_BOX_ID_BARO, // sensor icon only
+        [ MSP_STATUS_SENSOR_MAG ] = MSP_BOX_ID_MAG, // sensor icon only
+        [ MSP_STATUS_MISC_GIMBAL ] = MSP_BOX_ID_CAMSTAB, // gimbal icon only
+        [ MSP_STATUS_FLIGHTMODE_GPSHOME ] = MSP_BOX_ID_GPSHOME, // flight mode
+        [ MSP_STATUS_FLIGHTMODE_GPSHOLD ] = MSP_BOX_ID_GPSHOLD, // flight mode
+        [ MSP_STATUS_FLIGHTMODE_GPSMISSION ] = MSP_BOX_ID_GPSMISSION, // flight mode
+        [ MSP_STATUS_FLIGHTMODE_GPSLAND ] = MSP_BOX_ID_GPSLAND, // flight mode
+        [ MSP_STATUS_FLIGHTMODE_PASSTHRU ] = MSP_BOX_ID_PASSTHRU, // flight mode
+        [ MSP_STATUS_OSD_SWITCH ] = MSP_BOX_ID_OSD_SWITCH, // switch OSD mode
+        [ MSP_STATUS_ICON_AIRMODE ] = MSP_BOX_ID_AIR,
+        [ MSP_STATUS_ICON_ACROPLUS ] = MSP_BOX_ID_ACROPLUS,
 };
 
 typedef enum {
@@ -142,6 +187,26 @@ typedef enum {
 	MSP_MAYBE_UAVTALK_SLOW6
 } msp_state;
 
+typedef struct __attribute__((packed))
+{
+  uint8_t P, I, D;
+} msp_pid_t;
+
+typedef enum {
+    PIDROLL,
+    PIDPITCH,
+    PIDYAW,
+    PIDALT,
+    PIDPOS,
+    PIDPOSR,
+    PIDNAVR,
+    PIDLEVEL,
+    PIDMAG,
+    PIDVEL,
+    PID_ITEM_COUNT
+} pidIndex_e;
+
+  
 #define MSP_ANALOG_VOLTAGE (1 << 0)
 #define MSP_ANALOG_CURRENT (1 << 1)
 
@@ -252,6 +317,8 @@ static void msp_send_attitude(struct msp_bridge *m)
 	msp_send(m, MSP_ATTITUDE, data.buf, sizeof(data));
 }
 
+#define IS_STAB_MODE(d,m) ( ( (d).Roll == (m)) && ((d).Pitch == (m)) )
+
 static void msp_send_status(struct msp_bridge *m)
 {
 	union {
@@ -289,15 +356,85 @@ static void msp_send_status(struct msp_bridge *m)
 	
 	StabilizationDesiredStabilizationModeData stabModeData;
 	StabilizationDesiredStabilizationModeGet(&stabModeData);
-
-	data.status.flags = flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED; // activate "armed" box.
 	
-        for (int i = 1; msp_boxes[i].mode != MSP_BOX_LAST; i++) {
-                if ( (flightStatus.FlightMode == msp_boxes[i].flightMode) 
-                  ||  (stabModeData.Thrust == msp_boxes[i].thrustMode) ) {
-                        data.status.flags |= (1 << i);
-                }
-        }
+	if( flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED )
+	{
+          data.status.flags |= (1 << MSP_STATUS_ARMED);
+	}
+	
+	// flightmode
+	
+	if( flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_POSITIONHOLD )
+	{
+           data.status.flags |= ( 1 << MSP_STATUS_FLIGHTMODE_GPSHOLD ); 
+	}
+	else if( flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_RETURNTOBASE )
+	{
+           data.status.flags |= ( 1 << MSP_STATUS_FLIGHTMODE_GPSHOME );
+	}
+	else if( flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_PATHPLANNER )
+	{
+           data.status.flags |= (1 << MSP_STATUS_FLIGHTMODE_GPSMISSION);
+	}
+	else if( flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_LAND )
+	{
+           data.status.flags |= (1 << MSP_STATUS_FLIGHTMODE_GPSLAND);
+	}
+	else if( flightStatus.FlightMode == FLIGHTSTATUS_FLIGHTMODE_MANUAL )
+	{
+	  data.status.flags |= (1 << MSP_STATUS_FLIGHTMODE_PASSTHRU);
+	}
+	else
+	{ //
+	  // if Roll(Rate) && Pitch(Rate) => Acro
+	  // if Roll(Acro+) && Pitch(Acro+) => Acro+
+	  // if Roll(Rattitude) && Pitch(Rattitude) => Horizon
+	  // else => Stabilized
+	  
+	  if( IS_STAB_MODE( stabModeData, STABILIZATIONDESIRED_STABILIZATIONMODE_RATE ) 
+	    || IS_STAB_MODE( stabModeData, STABILIZATIONDESIRED_STABILIZATIONMODE_RATETRAINER ) )
+	  {
+	     // data.status.flags should not set any mode flags
+	  }
+          else if( IS_STAB_MODE( stabModeData, STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO ) ) // this is Acro+ mode
+          {
+              data.status.flags |= ( 1 << MSP_STATUS_ICON_ACROPLUS );
+          }
+          else if( IS_STAB_MODE( stabModeData, STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE ) )
+          {
+              data.status.flags |= ( 1 << MSP_STATUS_FLIGHTMODE_HORIZON );
+          }
+          else // looks like stabilized mode, whichever it is..
+          {
+              data.status.flags |= ( 1 << MSP_STATUS_FLIGHTMODE_STABILIZED );
+          }
+	}
+	
+	// sensors in use?
+	// flight mode HORIZON or STABILIZED will turn on Accelerometer icon.
+	// Barometer?
+	
+	if( ( stabModeData.Thrust == STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEHOLD )
+	 || ( stabModeData.Thrust == STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEVARIO ) )
+	{
+           data.status.flags |= ( 1 << MSP_STATUS_SENSOR_BARO );
+	}
+	 
+	if( MagStateHandle() != NULL )
+	{
+            MagStateSourceOptions magSource;
+            MagStateSourceGet(&magSource);
+            
+            if(magSource != MAGSTATE_SOURCE_INVALID)
+            {
+              data.status.flags |= ( 1 << MSP_STATUS_SENSOR_MAG );
+            }
+	}
+	
+	if( flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE )
+	{
+          data.status.flags |= ( 1 << MSP_STATUS_ICON_AIRMODE );
+	}
 
 	msp_send(m, MSP_STATUS, data.buf, sizeof(data));
 }
@@ -505,14 +642,55 @@ static void msp_send_channels(struct msp_bridge *m)
 	msp_send(m, MSP_RC, data.buf, sizeof(data));
 }
 
-static void msp_send_boxids(struct msp_bridge *m) {
-	uint8_t boxes[MSP_BOX_LAST];
-	int len = 0;
+static void msp_send_boxids(struct msp_bridge *m) { // This is actually sending a map of MSP_STATUS.flag bits to BOX ids.
+        msp_send( m, MSP_BOXIDS, msp_boxes, sizeof( msp_boxes ) );
+}
 
-	for (int i = 0; msp_boxes[i].mode != MSP_BOX_LAST; i++) {
-		boxes[len++] = msp_boxes[i].mwboxid;
-	}
-	msp_send(m, MSP_BOXIDS, boxes, len);
+static void msp_send_pid(struct msp_bridge *m)
+{
+  uint8_t fm;
+  ManualControlCommandFlightModeSwitchPositionGet(&fm);
+
+  if( fm >= FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM )
+  {
+    return;
+  }
+  
+  StabilizationSettingsFlightModeMapOptions flightModeMap[STABILIZATIONSETTINGS_FLIGHTMODEMAP_NUMELEM];
+  StabilizationSettingsFlightModeMapGet(flightModeMap);
+  
+  StabilizationBankData bankData;
+  
+  switch(flightModeMap[fm])
+  {
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
+      StabilizationSettingsBank1Get( ((StabilizationSettingsBank1Data *) &bankData ) );
+      break;
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
+      StabilizationSettingsBank2Get( ((StabilizationSettingsBank2Data *) &bankData ) );
+      break;
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
+      StabilizationSettingsBank3Get( ((StabilizationSettingsBank3Data *) &bankData ) );
+      break;
+  }
+  
+  msp_pid_t piditems[ PID_ITEM_COUNT ];
+
+  memset(piditems, 0, sizeof( piditems ) ); 
+  
+  piditems[ PIDROLL ].P = bankData.RollRatePID.Kp * 10000;
+  piditems[ PIDROLL ].I = bankData.RollRatePID.Ki * 10000;
+  piditems[ PIDROLL ].D = bankData.RollRatePID.Kd * 10000;
+
+  piditems[ PIDPITCH ].P = bankData.PitchRatePID.Kp * 10000;
+  piditems[ PIDPITCH ].I = bankData.PitchRatePID.Ki * 10000;
+  piditems[ PIDPITCH ].D = bankData.PitchRatePID.Kd * 10000;
+
+  piditems[ PIDYAW ].P = bankData.YawRatePID.Kp * 10000;
+  piditems[ PIDYAW ].I = bankData.YawRatePID.Ki * 10000;
+  piditems[ PIDYAW ].D = bankData.YawRatePID.Kd * 10000;
+
+  msp_send( m, MSP_PID, (const uint8_t *) piditems, sizeof( piditems ) );
 }
 
 #define ALARM_OK 0
@@ -603,7 +781,11 @@ static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
 	case MSP_ALARMS:
 		msp_send_alarms(m);
 		break;
+        case MSP_PID:
+                msp_send_pid(m);
+                break;
 	}
+	
 	return MSP_IDLE;
 }
 

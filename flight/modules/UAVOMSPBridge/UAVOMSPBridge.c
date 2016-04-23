@@ -446,12 +446,33 @@ static void msp_send_analog(struct msp_bridge *m)
         }
     }
 #endif
-    uint8_t quality;
-    ReceiverStatusQualityGet(&quality);
+    // OPLink supports RSSI reported in dBm, but updates different value in ReceiverStatus.Quality (link_quality - function of lost, repaired and good packet count).
+    // We use same method as in Receiver module to decide if oplink is used for control:
+    // Check for Throttle channel group, if this belongs to oplink, we will use oplink rssi instead of ReceiverStatus.Quality.
 
-    // MSP RSSI's range is 0-1023
+    ManualControlSettingsChannelGroupsData channelGroups;
+    ManualControlSettingsChannelGroupsGet(&channelGroups);
+    
+    if(channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK)
+    {
+        int8_t rssi;
+        OPLinkStatusRSSIGet(&rssi);
+        
+        // oplink rssi - low: -127 noise floor (set by software when link is completely lost)
+        //               max: various articles found on web quote -10 as maximum received signal power expressed in dBm.
+        // MSP values have no units, and OSD rssi display requires calibration anyway, so we will translate -127 to -10 -> 0-1023
+        
+        data.status.rssi = ((127 + rssi) * 1023) / (127 - 10);
+    }
+    else
+    {
+        uint8_t quality;
+        ReceiverStatusQualityGet(&quality);
 
-    data.status.rssi = (quality * 1023) / 100;
+        // MSP RSSI's range is 0-1023
+
+        data.status.rssi = (quality * 1023) / 100;
+    }
 
     if (data.status.rssi > 1023) {
         data.status.rssi = 1023;
@@ -508,7 +529,7 @@ static void msp_send_comp_gps(struct msp_bridge *m)
             uint8_t  home_position_valid;  // 0 = Invalid, Dronin MSP specific
         } __attribute__((packed)) comp_gps;
     } data;
-
+    
     GPSPositionSensorData gps_data;
     HomeLocationData home_data;
 
@@ -538,14 +559,14 @@ static void msp_send_comp_gps(struct msp_bridge *m)
             data.comp_gps.distance_to_home = (uint16_t)(sqrtf(delta_x * delta_x + delta_y * delta_y) * 1e-4f); // meters
 
             if ((delta_lon == 0) && (delta_lat == 0)) {
-                data.comp_gps.direction_to_home = 0;
+    data.comp_gps.direction_to_home   = 0;
             } else {
                 data.comp_gps.direction_to_home = RAD2DEG((int16_t)(atan2f(delta_y, delta_x))); // degrees;
             }
         }
-
-        msp_send(m, MSP_COMP_GPS, data.buf, sizeof(data));
-    }
+    
+    msp_send(m, MSP_COMP_GPS, data.buf, sizeof(data));
+}
 }
 
 static void msp_send_altitude(struct msp_bridge *m)
@@ -565,8 +586,8 @@ static void msp_send_altitude(struct msp_bridge *m)
 
         data.baro.alt = (int32_t)roundf(baro.Altitude * 100.0f);
 
-        msp_send(m, MSP_ALTITUDE, data.buf, sizeof(data));
-    }
+    msp_send(m, MSP_ALTITUDE, data.buf, sizeof(data));
+}
 }
 #endif /* PIOS_EXCLUDE_ADVANCED_FEATURES */
 

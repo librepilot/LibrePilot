@@ -126,7 +126,6 @@ private:
     void updateObjectPersistance(ObjectPersistence::OperationOptions op, UAVObject *obj);
     void enableSendRequest(bool enable);
     void updateDescription();
-    void resetProxyModel(UAVObjectTreeModel *currentModel);
     ObjectTreeItem *findCurrentObjectTreeItem();
     QString loadFileIntoString(QString fileName);
 };

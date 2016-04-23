@@ -306,10 +306,11 @@ QModelIndex UAVObjectTreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    TreeItem *childItem  = static_cast<TreeItem *>(index.internalPointer());
-    TreeItem *parentItem = childItem->parent();
+    TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
 
-    if (parentItem == m_rootItem) {
+    TreeItem *parentItem = item->parent();
+    if (!parentItem) {
+        // item is root has no parent...
         return QModelIndex();
     }
 

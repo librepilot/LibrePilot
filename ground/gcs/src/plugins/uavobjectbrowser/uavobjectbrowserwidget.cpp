@@ -102,22 +102,6 @@ void UAVObjectBrowserWidget::setSplitterState(QByteArray state)
     m_browser->splitter->restoreState(state);
 }
 
-
-void UAVObjectBrowserWidget::resetProxyModel(UAVObjectTreeModel *currentModel)
-{
-    m_modelProxy = new TreeSortFilterProxyModel(this);
-    m_modelProxy->setSourceModel(currentModel);
-    m_modelProxy->setDynamicSortFilter(true);
-    m_browser->treeView->setModel(m_modelProxy);
-
-    BrowserItemDelegate *m_delegate = new BrowserItemDelegate(m_modelProxy);
-    m_browser->treeView->setItemDelegate(m_delegate);
-
-    if (!m_browser->searchLine->text().isEmpty()) {
-        emit searchLineChanged(m_browser->searchLine->text());
-    }
-}
-
 void UAVObjectBrowserWidget::showMetaData(bool show)
 {
     QList<QModelIndex> metaIndexes = m_model->getMetaDataIndexes();
@@ -135,34 +119,42 @@ void UAVObjectBrowserWidget::showDescription(bool show)
 
 void UAVObjectBrowserWidget::categorize(bool categorize)
 {
+    UAVObjectTreeModel *model = new UAVObjectTreeModel(0, categorize, m_viewoptions->cbScientific->isChecked());
+
+    model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
+    model->setManuallyChangedColor(m_manuallyChangedColor);
+    model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
+    model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
+    model->setUnknowObjectColor(m_unknownObjectColor);
+
     UAVObjectTreeModel *tmpModel = m_model;
-
-    m_model = new UAVObjectTreeModel(0, categorize, m_viewoptions->cbScientific->isChecked());
-    resetProxyModel(m_model);
-    m_model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
-    m_model->setManuallyChangedColor(m_manuallyChangedColor);
-    m_model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    m_model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
-    m_model->setUnknowObjectColor(m_unknownObjectColor);
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
-    connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(currentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
-
+    m_model = model;
+    m_modelProxy->setSourceModel(m_model);
     delete tmpModel;
+
+    showMetaData(m_viewoptions->cbMetaData->isChecked());
+
+    // FIXME this causes a collapse all if filter is on
+    searchLineChanged(m_browser->searchLine->text());
 }
 
 void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
 {
+    UAVObjectTreeModel *model = new UAVObjectTreeModel(0, m_viewoptions->cbCategorized->isChecked(), scientific);
+
+    model->setManuallyChangedColor(m_manuallyChangedColor);
+    model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
+    model->setUnknowObjectColor(m_unknownObjectColor);
+
     UAVObjectTreeModel *tmpModel = m_model;
-
-    m_model = new UAVObjectTreeModel(0, m_viewoptions->cbCategorized->isChecked(), scientific);
-    resetProxyModel(m_model);
-    m_model->setManuallyChangedColor(m_manuallyChangedColor);
-    m_model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    m_model->setUnknowObjectColor(m_unknownObjectColor);
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
-    connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(currentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
-
+    m_model = model;
+    m_modelProxy->setSourceModel(m_model);
     delete tmpModel;
+
+    showMetaData(m_viewoptions->cbMetaData->isChecked());
+
+    // FIXME this causes a collapse all if filter is on
+    searchLineChanged(m_browser->searchLine->text());
 }
 
 void UAVObjectBrowserWidget::sendUpdate()
@@ -424,7 +416,6 @@ void UAVObjectBrowserWidget::updateDescription()
 void UAVObjectBrowserWidget::searchLineChanged(QString searchText)
 {
     m_modelProxy->setFilterRegExp(QRegExp(searchText, Qt::CaseInsensitive, QRegExp::FixedString));
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
     if (!searchText.isEmpty()) {
         m_browser->treeView->expandAll();
     } else {

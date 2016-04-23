@@ -363,50 +363,56 @@ QVariant UAVObjectTreeModel::data(const QModelIndex &index, int role) const
 
     TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
 
-    if (index.column() == TreeItem::DATA_COLUMN && role == Qt::EditRole) {
+    switch (role) {
+    case Qt::DisplayRole:
+        if (index.column() == TreeItem::DATA_COLUMN) {
+            EnumFieldTreeItem *fieldItem = dynamic_cast<EnumFieldTreeItem *>(item);
+            if (fieldItem) {
+                int enumIndex = fieldItem->data(index.column()).toInt();
+                return fieldItem->enumOptions(enumIndex);
+            }
+        }
         return item->data(index.column());
-    }
 
-    if (role == Qt::ToolTipRole) {
+    case Qt::EditRole:
+        if (index.column() == TreeItem::DATA_COLUMN) {
+            return item->data(index.column());
+        }
+        return QVariant();
+
+    case Qt::ToolTipRole:
         return item->description();
-    }
 
-    if (role == Qt::ForegroundRole) {
+    case Qt::ForegroundRole:
         if (!dynamic_cast<TopTreeItem *>(item) && !item->isKnown()) {
-            return QVariant(m_unknownObjectColor);
+            return m_unknownObjectColor;
         }
-    }
+        return QVariant();
 
-    if (index.column() == 0 && role == Qt::BackgroundRole) {
-        if (!dynamic_cast<TopTreeItem *>(item) && item->highlighted()) {
-            return QVariant(m_recentlyUpdatedColor);
+    case Qt::BackgroundRole:
+        if (index.column() == TreeItem::TITLE_COLUMN) {
+            if (!dynamic_cast<TopTreeItem *>(item) && item->highlighted()) {
+                return m_recentlyUpdatedColor;
+            }
+        } else if (index.column() == TreeItem::DATA_COLUMN) {
+            FieldTreeItem *fieldItem = dynamic_cast<FieldTreeItem *>(item);
+            if (fieldItem && fieldItem->highlighted()) {
+                return m_recentlyUpdatedColor;
+            }
+            if (fieldItem && fieldItem->changed()) {
+                return m_manuallyChangedColor;
+            }
         }
-    }
+        return QVariant();
 
-    if (index.column() == TreeItem::DATA_COLUMN && role == Qt::BackgroundRole) {
-        FieldTreeItem *fieldItem = dynamic_cast<FieldTreeItem *>(item);
-        if (fieldItem && fieldItem->highlighted()) {
-            return QVariant(m_recentlyUpdatedColor);
-        }
+    case Qt::UserRole:
+        // UserRole gives access to TreeItem
+        // cast to void* is necessary
+        return qVariantFromValue((void *)item);
 
-        if (fieldItem && fieldItem->changed()) {
-            return QVariant(m_manuallyChangedColor);
-        }
-    }
-
-    if (role != Qt::DisplayRole) {
+    default:
         return QVariant();
     }
-
-    if (index.column() == TreeItem::DATA_COLUMN) {
-        EnumFieldTreeItem *fieldItem = dynamic_cast<EnumFieldTreeItem *>(item);
-        if (fieldItem) {
-            int enumIndex = fieldItem->data(index.column()).toInt();
-            return fieldItem->enumOptions(enumIndex);
-        }
-    }
-
-    return item->data(index.column());
 }
 
 bool UAVObjectTreeModel::setData(const QModelIndex &index, const QVariant & value, int role)

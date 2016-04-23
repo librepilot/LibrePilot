@@ -31,12 +31,10 @@
 
 #include <QStyledItemDelegate>
 
-class TreeSortFilterProxyModel;
-
 class BrowserItemDelegate : public QStyledItemDelegate {
     Q_OBJECT
 public:
-    explicit BrowserItemDelegate(TreeSortFilterProxyModel *proxyModel, QObject *parent = 0);
+    explicit BrowserItemDelegate(QObject *parent = 0);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const;
@@ -49,14 +47,6 @@ public:
                               const QStyleOptionViewItem &option, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem & option,
                    const QModelIndex &index) const;
-
-
-signals:
-
-public slots:
-
-private:
-    TreeSortFilterProxyModel *proxyModel;
 };
 
 #endif // BROWSERITEMDELEGATE_H

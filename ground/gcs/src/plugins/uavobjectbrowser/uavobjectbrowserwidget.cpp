@@ -56,8 +56,7 @@ UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent
     m_browser->treeView->setModel(m_modelProxy);
     m_browser->treeView->setColumnWidth(0, 300);
 
-    BrowserItemDelegate *m_delegate = new BrowserItemDelegate(m_modelProxy);
-    m_browser->treeView->setItemDelegate(m_delegate);
+    m_browser->treeView->setItemDelegate(new BrowserItemDelegate());
     m_browser->treeView->setEditTriggers(QAbstractItemView::AllEditTriggers);
     m_browser->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
     m_mustacheTemplate = loadFileIntoString(QString(":/uavobjectbrowser/resources/uavodescription.mustache"));
@@ -191,8 +190,8 @@ void UAVObjectBrowserWidget::requestUpdate()
 
 ObjectTreeItem *UAVObjectBrowserWidget::findCurrentObjectTreeItem()
 {
-    QModelIndex current     = m_modelProxy->mapToSource(m_browser->treeView->currentIndex());
-    TreeItem *item = static_cast<TreeItem *>(current.internalPointer());
+    QModelIndex current     = m_browser->treeView->currentIndex();
+    TreeItem *item = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
     ObjectTreeItem *objItem = 0;
 
     while (item) {
@@ -277,11 +276,9 @@ void UAVObjectBrowserWidget::currentChanged(const QModelIndex &current, const QM
 {
     Q_UNUSED(previous);
 
-    QModelIndex cindex = m_modelProxy->mapToSource(current);
-
-    TreeItem *item     = static_cast<TreeItem *>(cindex.internalPointer());
-    bool enable = true;
-    if (cindex == QModelIndex()) {
+    TreeItem *item = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
+    bool enable    = true;
+    if (!current.isValid()) {
         enable = false;
     }
     TopTreeItem *top     = dynamic_cast<TopTreeItem *>(item);

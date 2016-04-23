@@ -30,53 +30,45 @@
 #include "browseritemdelegate.h"
 #include "fieldtreeitem.h"
 
-BrowserItemDelegate::BrowserItemDelegate(TreeSortFilterProxyModel *proxyModel, QObject *parent)  :
+BrowserItemDelegate::BrowserItemDelegate(QObject *parent)  :
     QStyledItemDelegate(parent)
-{
-    this->proxyModel = proxyModel;
-}
+{}
 
 QWidget *BrowserItemDelegate::createEditor(QWidget *parent,
                                            const QStyleOptionViewItem & option,
-                                           const QModelIndex & proxyIndex) const
+                                           const QModelIndex & index) const
 {
     Q_UNUSED(option)
-    QModelIndex index = proxyModel->mapToSource(proxyIndex);
-
-    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
-    QWidget *editor     = item->createEditor(parent);
+    FieldTreeItem * item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
+    QWidget *editor = item->createEditor(parent);
     Q_ASSERT(editor);
     return editor;
 }
 
-
 void BrowserItemDelegate::setEditorData(QWidget *editor,
-                                        const QModelIndex & proxyIndex) const
+                                        const QModelIndex & index) const
 {
-    QModelIndex index   = proxyModel->mapToSource(proxyIndex);
-
-    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
-    QVariant value = proxyIndex.model()->data(proxyIndex, Qt::EditRole);
+    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
+    QVariant value = index.model()->data(index, Qt::EditRole);
 
     item->setEditorValue(editor, value);
 }
 
 void BrowserItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                       const QModelIndex &proxyIndex) const
+                                       const QModelIndex &index) const
 {
-    QModelIndex index   = proxyModel->mapToSource(proxyIndex);
-
-    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
+    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
     QVariant value = item->getEditorValue(editor);
 
-    bool ret = model->setData(proxyIndex, value, Qt::EditRole);
+    bool ret = model->setData(index, value, Qt::EditRole);
 
     Q_ASSERT(ret);
 }
 
 void BrowserItemDelegate::updateEditorGeometry(QWidget *editor,
-                                               const QStyleOptionViewItem &option, const QModelIndex & /* index */) const
+                                               const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     editor->setGeometry(option.rect);
 }
 

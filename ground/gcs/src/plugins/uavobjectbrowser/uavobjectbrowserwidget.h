@@ -3,6 +3,7 @@
  *
  * @file       uavobjectbrowserwidget.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2013
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{

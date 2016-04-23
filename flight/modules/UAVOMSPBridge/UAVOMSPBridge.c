@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @addtogroup TauLabsModules TauLabs Modules
+ * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
  * @addtogroup UAVOMSPBridge UAVO to MSP Bridge Module
  * @{
@@ -51,7 +51,8 @@
 #include "systemstats.h"
 #include "systemalarms.h"
 #include "homelocation.h"
-#include "barosensor.h"
+#include "positionstate.h"
+#include "velocitystate.h"
 #include "stabilizationdesired.h"
 #include "taskinfo.h"
 #include "stabilizationsettings.h"
@@ -574,20 +575,31 @@ static void msp_send_altitude(struct msp_bridge *m)
     union {
         uint8_t buf[0];
         struct {
-            int32_t  alt; // cm
-            uint16_t vario; // cm/s
-        } __attribute__((packed)) baro;
+            int32_t  estimatedAltitude; // cm
+            int16_t  vario; // cm/s
+        } __attribute__((packed)) altitude;
     } data;
 
 
-    if (BaroSensorHandle() != NULL) {
-        BaroSensorData baro;
-        BaroSensorGet(&baro);
+    if (PositionStateHandle() != NULL) {
+        PositionStateData positionState;
+        PositionStateGet(&positionState);
 
-        data.baro.alt = (int32_t)roundf(baro.Altitude * 100.0f);
+        data.altitude.estimatedAltitude = (int32_t)roundf(positionState.Down * -100.0f);
+    } else {
+        data.altitude.estimatedAltitude = 0;
+    }
+    
+    if( VelocityStateHandle() != NULL) {
+        VelocityStateData velocityState;
+        VelocityStateGet(&velocityState);
+        
+        data.altitude.vario = (int16_t)roundf(velocityState.Down * -100.0f);
+    } else {
+        data.altitude.vario = 0;
+    }
 
     msp_send(m, MSP_ALTITUDE, data.buf, sizeof(data));
-}
 }
 #endif /* PIOS_EXCLUDE_ADVANCED_FEATURES */
 

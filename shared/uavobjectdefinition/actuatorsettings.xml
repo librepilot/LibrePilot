@@ -8,11 +8,11 @@
         <field name="ChannelMin" units="us" type="int16" elements="12" defaultvalue="1000"/>
         <field name="ChannelType" units="" type="enum" elements="12" options="PWM,MK,ASTEC4,PWM Alarm Buzzer,Arming led,Info led" defaultvalue="PWM"/>
         <field name="ChannelAddr" units="" type="uint8" elements="12" defaultvalue="0,1,2,3,4,5,6,7,8,9,10,11"/>
-        <field name="MotorsSpinWhileArmed" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="FALSE"/>
-	<field name="LowThrottleZeroAxis" units="" type="enum" elementnames="Roll,Pitch,Yaw" options="FALSE,TRUE" defaultvalue="FALSE,FALSE,FALSE"/>
+        <field name="MotorsSpinWhileArmed" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+        <field name="LowThrottleZeroAxis" units="" type="enum" elementnames="Roll,Pitch,Yaw" options="False,True" defaultvalue="False,False,False"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>
         <telemetryflight acked="true" updatemode="onchange" period="0"/>
         <logging updatemode="manual" period="0"/>
-	</object>
+    </object>
 </xml>

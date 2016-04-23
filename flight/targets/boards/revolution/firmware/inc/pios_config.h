@@ -5,7 +5,8 @@
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
  * @file       pios_config.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013.
  * @brief      PiOS configuration header, the compile time config file for the PIOS.
  *             Defines which PiOS libraries and features are included in the firmware.
  * @see        The GNU Public License (GPL) Version 3
@@ -104,6 +105,8 @@
 #define PIOS_INCLUDE_DSM
 #define PIOS_INCLUDE_SBUS
 #define PIOS_INCLUDE_SRXL
+#define PIOS_INCLUDE_HOTT
+#define PIOS_INCLUDE_EXBUS
 #define PIOS_INCLUDE_GCSRCVR
 #define PIOS_INCLUDE_OPLINKRCVR
 
@@ -150,6 +153,7 @@
 /* #define PIOS_GPS_MINIMAL */
 #define PIOS_INCLUDE_GPS_NMEA_PARSER
 #define PIOS_INCLUDE_GPS_UBX_PARSER
+#define PIOS_INCLUDE_GPS_DJI_PARSER
 #define PIOS_GPS_SETS_HOMELOCATION
 
 /* Stabilization options */
@@ -169,7 +173,7 @@
 /* Task stack sizes */
 /* #define PIOS_ACTUATOR_STACK_SIZE	1020 */
 /* #define PIOS_MANUAL_STACK_SIZE		800 */
-/* #define PIOS_SYSTEM_STACK_SIZE		660 */
+#define PIOS_SYSTEM_STACK_SIZE         1536
 /* #define PIOS_STABILIZATION_STACK_SIZE	524 */
 /* #define PIOS_TELEM_STACK_SIZE		500 */
 /* #define PIOS_EVENTDISPATCHER_STACK_SIZE	130 */

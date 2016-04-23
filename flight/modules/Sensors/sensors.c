@@ -7,7 +7,8 @@
  * @{
  *
  * @file       sensors.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Module to handle fetch and preprocessing of sensor data
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -57,8 +58,12 @@
 
 #include <attitudesettings.h>
 #include <revocalibration.h>
+#include <auxmagsettings.h>
+#include <auxmagsensor.h>
+#include <auxmagsupport.h>
 #include <accelgyrosettings.h>
 #include <revosettings.h>
+#include <UBX.h>
 
 #include <mathmisc.h>
 #include <taskinfo.h>
@@ -81,7 +86,7 @@
 #define REGISTER_WDG()
 #endif
 
-static const TickType_t sensor_period_ticks = ((uint32_t)1000.0f / PIOS_SENSOR_RATE) / portTICK_RATE_MS;
+static const TickType_t sensor_period_ticks = ((uint32_t)(1000.0f / PIOS_SENSOR_RATE / (float)portTICK_RATE_MS));
 
 // Interval in number of sample to recalculate temp bias
 #define TEMP_CALIB_INTERVAL      30
@@ -99,8 +104,8 @@ static const float temp_alpha_gyro_accel = LPF_ALPHA(TEMP_DT_GYRO_ACCEL, TEMP_LP
 #define TEMP_LPF_FC_BARO         5.0f
 static const float temp_alpha_baro = TEMP_DT_BARO / (TEMP_DT_BARO + 1.0f / (2.0f * M_PI_F * TEMP_LPF_FC_BARO));
 
-
 #define ZERO_ROT_ANGLE           0.00001f
+
 // Private types
 typedef struct {
     // used to accumulate all samples in a task iteration
@@ -125,6 +130,10 @@ PERF_DEFINE_COUNTER(counterBaroPeriod);
 PERF_DEFINE_COUNTER(counterSensorPeriod);
 PERF_DEFINE_COUNTER(counterSensorResets);
 
+#if defined(PIOS_INCLUDE_HMC5X83)
+void aux_hmc5x83_load_settings();
+#endif
+
 // Private functions
 static void SensorsTask(void *parameters);
 static void settingsUpdatedCb(UAVObjEvent *objEv);
@@ -138,6 +147,9 @@ static void clearContext(sensor_fetch_context *sensor_context);
 static void handleAccel(float *samples, float temperature);
 static void handleGyro(float *samples, float temperature);
 static void handleMag(float *samples, float temperature);
+#if defined(PIOS_INCLUDE_HMC5X83)
+static void handleAuxMag(float *samples);
+#endif
 static void handleBaro(float sample, float temperature);
 
 static void updateAccelTempBias(float temperature);
@@ -151,7 +163,6 @@ RevoCalibrationData cal;
 AccelGyroSettingsData agcal;
 
 // These values are initialized by settings but can be updated by the attitude algorithm
-
 static float mag_bias[3] = { 0, 0, 0 };
 static float mag_transform[3][3] = {
     { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 }
@@ -168,9 +179,11 @@ static float gyro_temp_bias[3] = { 0 };
 static uint8_t accel_temp_calibration_count = 0;
 static uint8_t gyro_temp_calibration_count  = 0;
 
+// The user specified "Rotate virtual attitude relative to board"
 static float R[3][3] = {
     { 0 }
 };
+
 // Variables used to handle baro temperature bias
 static RevoSettingsBaroTempCorrectionPolynomialData baroCorrection;
 static RevoSettingsBaroTempCorrectionExtentData baroCorrectionExtent;
@@ -179,7 +192,11 @@ static float baro_temp_bias   = 0;
 static float baro_temperature = NAN;
 static uint8_t baro_temp_calibration_count = 0;
 
-static int8_t rotate = 0;
+#if defined(PIOS_INCLUDE_HMC5X83)
+// Allow AuxMag to be disabled without reboot
+// because the other mags are that way
+static bool useAuxMag = false;
+#endif
 
 /**
  * Initialise the module.  Called before the start function
@@ -197,7 +214,11 @@ int32_t SensorsInitialize(void)
     AttitudeSettingsInitialize();
     AccelGyroSettingsInitialize();
 
-    rotate = 0;
+#if defined(PIOS_INCLUDE_HMC5X83)
+    // for auxmagsupport.c helpers
+    AuxMagSettingsInitialize();
+    AuxMagSensorInitialize();
+#endif
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
     RevoCalibrationConnectCallback(&settingsUpdatedCb);
@@ -258,6 +279,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     bool sensors_test = true;
     uint8_t count     = 0;
     LL_FOREACH((PIOS_SENSORS_Instance *)sensors_list, sensor) {
+        RELOAD_WDG(); // mag tests on I2C have 200+(7x10)ms delay calls in them
         sensors_test &= PIOS_SENSORS_Test(sensor);
         count++;
     }
@@ -360,21 +382,35 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
 
     PIOS_SENSORS_GetScales(sensor, scales, MAX_SENSORS_PER_INSTANCE);
     float inv_count = 1.0f / (float)sensor_context->count;
-    if ((sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL) ||
-        (sensor->type == PIOS_SENSORS_TYPE_3AXIS_MAG)) {
+    if ((sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL)
+        || (sensor->type == PIOS_SENSORS_TYPE_3AXIS_MAG)
+#if defined(PIOS_INCLUDE_HMC5X83)
+        || (sensor->type == PIOS_SENSORS_TYPE_3AXIS_AUXMAG)
+#endif
+        ) {
         float t = inv_count * scales[0];
         samples[0]  = ((float)sensor_context->accum[0].x * t);
         samples[1]  = ((float)sensor_context->accum[0].y * t);
         samples[2]  = ((float)sensor_context->accum[0].z * t);
         temperature = (float)sensor_context->temperature * inv_count * 0.01f;
-        if (sensor->type == PIOS_SENSORS_TYPE_3AXIS_MAG) {
+        switch (sensor->type) {
+        case PIOS_SENSORS_TYPE_3AXIS_MAG:
             handleMag(samples, temperature);
             PERF_MEASURE_PERIOD(counterMagPeriod);
             return;
-        } else {
+
+#if defined(PIOS_INCLUDE_HMC5X83)
+        case PIOS_SENSORS_TYPE_3AXIS_AUXMAG:
+            handleAuxMag(samples);
+            PERF_MEASURE_PERIOD(counterMagPeriod);
+            return;
+
+#endif
+        default:
             PERF_TRACK_VALUE(counterAccelSamples, sensor_context->count);
             PERF_MEASURE_PERIOD(counterAccelPeriod);
             handleAccel(samples, temperature);
+            break;
         }
     }
 
@@ -458,6 +494,15 @@ static void handleMag(float *samples, float temperature)
     MagSensorSet(&mag);
 }
 
+#if defined(PIOS_INCLUDE_HMC5X83)
+static void handleAuxMag(float *samples)
+{
+    if (useAuxMag) {
+        auxmagsupport_publish_samples(samples, AUXMAGSENSOR_STATUS_OK);
+    }
+}
+#endif
+
 static void handleBaro(float sample, float temperature)
 {
     updateBaroTempBias(temperature);
@@ -535,58 +580,47 @@ static void updateBaroTempBias(float temperature)
     }
     baro_temp_calibration_count--;
 }
+
 /**
- * Locally cache some variables from the AtttitudeSettings object
+ * Locally cache some variables from the AttitudeSettings object
  */
 static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
 {
     RevoCalibrationGet(&cal);
-    AccelGyroSettingsGet(&agcal);
     mag_bias[0] = cal.mag_bias.X;
     mag_bias[1] = cal.mag_bias.Y;
     mag_bias[2] = cal.mag_bias.Z;
 
+    AccelGyroSettingsGet(&agcal);
     accel_temp_calibrated = (agcal.temp_calibrated_extent.max - agcal.temp_calibrated_extent.min > .1f) &&
                             (fabsf(agcal.accel_temp_coeff.X) > 1e-9f || fabsf(agcal.accel_temp_coeff.Y) > 1e-9f || fabsf(agcal.accel_temp_coeff.Z) > 1e-9f);
-
     gyro_temp_calibrated  = (agcal.temp_calibrated_extent.max - agcal.temp_calibrated_extent.min > .1f) &&
                             (fabsf(agcal.gyro_temp_coeff.X) > 1e-9f || fabsf(agcal.gyro_temp_coeff.Y) > 1e-9f ||
                             fabsf(agcal.gyro_temp_coeff.Z) > 1e-9f || fabsf(agcal.gyro_temp_coeff.Z2) > 1e-9f);
 
-
+    // convert BoardRotation ("rotate virtual") into a quaternion
     AttitudeSettingsData attitudeSettings;
     AttitudeSettingsGet(&attitudeSettings);
-
-    // Indicates not to expend cycles on rotation
-    if (fabsf(attitudeSettings.BoardRotation.Roll) < ZERO_ROT_ANGLE
-        && fabsf(attitudeSettings.BoardRotation.Pitch) < ZERO_ROT_ANGLE &&
-        fabsf(attitudeSettings.BoardRotation.Yaw) < ZERO_ROT_ANGLE) {
-        rotate = 0;
-    } else {
-        rotate = 1;
-    }
-
     const float rpy[3] = { attitudeSettings.BoardRotation.Roll,
                            attitudeSettings.BoardRotation.Pitch,
                            attitudeSettings.BoardRotation.Yaw };
-
     float rotationQuat[4];
     RPY2Quaternion(rpy, rotationQuat);
 
-    if (fabsf(attitudeSettings.BoardLevelTrim.Roll) > ZERO_ROT_ANGLE ||
-        fabsf(attitudeSettings.BoardLevelTrim.Pitch) > ZERO_ROT_ANGLE) {
-        float trimQuat[4];
-        float sumQuat[4];
-        rotate = 1;
+    // convert BoardLevelTrim ("board level calibration") into a quaternion
+    float trimQuat[4];
+    float sumQuat[4];
+    const float trimRpy[3] = { attitudeSettings.BoardLevelTrim.Roll, attitudeSettings.BoardLevelTrim.Pitch, 0.0f };
+    // do we actually want to include BoardLevelTrim in the mag rotation?  BoardRotation yes, but BoardLevelTrim?
+    // and is BoardLevelTrim done at the correct point in the sequence of rotations?
+    RPY2Quaternion(trimRpy, trimQuat);
 
-        const float trimRpy[3] = { attitudeSettings.BoardLevelTrim.Roll, attitudeSettings.BoardLevelTrim.Pitch, 0.0f };
-        RPY2Quaternion(trimRpy, trimQuat);
+    // add the boardrotation and boardtrim rotations and put them into a rotation matrix
+    quat_mult(rotationQuat, trimQuat, sumQuat);
+    Quaternion2R(sumQuat, R);
 
-        quat_mult(rotationQuat, trimQuat, sumQuat);
-        Quaternion2R(sumQuat, R);
-    } else {
-        Quaternion2R(rotationQuat, R);
-    }
+    // mag_transform is only a scaling
+    // so add the scaling, and store the result in mag_transform for run time use
     matrix_mult_3x3f((float(*)[3])RevoCalibrationmag_transformToArray(cal.mag_transform), R, mag_transform);
 
     RevoSettingsBaroTempCorrectionPolynomialGet(&baroCorrection);
@@ -598,6 +632,19 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
           fabsf(baroCorrection.c) > 1e-9f ||
           fabsf(baroCorrection.d) > 1e-9f));
 }
+
+#if defined(PIOS_INCLUDE_HMC5X83)
+void aux_hmc5x83_load_mag_settings()
+{
+    uint8_t magType = auxmagsupport_get_type();
+
+    if (magType == AUXMAGSETTINGS_TYPE_I2C || magType == AUXMAGSETTINGS_TYPE_FLEXI) {
+        useAuxMag = true;
+    } else {
+        useAuxMag = false;
+    }
+}
+#endif
 /**
  * @}
  * @}

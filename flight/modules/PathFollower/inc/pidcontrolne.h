@@ -39,7 +39,6 @@ class PIDControlNE {
 public:
     PIDControlNE();
     ~PIDControlNE();
-    void Initialize();
     void Deactivate();
     void Activate();
     void UpdateParameters(float kp, float ki, float kd, __attribute__((unused)) float ilimit, float dT, float velocityMax);

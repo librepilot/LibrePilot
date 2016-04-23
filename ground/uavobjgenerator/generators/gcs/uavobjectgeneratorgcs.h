@@ -27,7 +27,7 @@
 #ifndef UAVOBJECTGENERATORGCS_H
 #define UAVOBJECTGENERATORGCS_H
 
-#define GCS_CODE_DIR "ground/openpilotgcs/src/plugins/uavobjects"
+#define GCS_CODE_DIR "ground/gcs/src/plugins/uavobjects"
 
 #include "../generator_common.h"
 
@@ -39,7 +39,6 @@ private:
     bool process_object(ObjectInfo *info);
 
     QString gcsCodeTemplate, gcsIncludeTemplate;
-    QStringList fieldTypeStrCPP, fieldTypeStrCPPClass;
     QDir gcsCodePath;
     QDir gcsOutputPath;
 };

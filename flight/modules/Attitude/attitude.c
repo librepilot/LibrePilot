@@ -628,7 +628,7 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
     CrossProduct((const float *)accels_filtered, (const float *)grot_filtered, accel_err);
 
     // Account for accel magnitude
-    float inv_accel_mag = fast_invsqrtf(accels_filtered[0] * accels_filtered[0] + accels_filtered[1] * accels_filtered[1] + accels_filtered[2] * accels_filtered[2]);
+    float inv_accel_mag = invsqrtf(accels_filtered[0] * accels_filtered[0] + accels_filtered[1] * accels_filtered[1] + accels_filtered[2] * accels_filtered[2]);
     if (inv_accel_mag > 1e3f) {
         return;
     }
@@ -637,7 +637,7 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
     float inv_grot_mag;
 
     if (accel_filter_enabled) {
-        inv_grot_mag = fast_invsqrtf(grot_filtered[0] * grot_filtered[0] + grot_filtered[1] * grot_filtered[1] + grot_filtered[2] * grot_filtered[2]);
+        inv_grot_mag = invsqrtf(grot_filtered[0] * grot_filtered[0] + grot_filtered[1] * grot_filtered[1] + grot_filtered[2] * grot_filtered[2]);
     } else {
         inv_grot_mag = 1.0f;
     }
@@ -685,8 +685,8 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
         }
     }
 
-    // Renomalize
-    float inv_qmag = fast_invsqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+    // Renormalize
+    float inv_qmag = invsqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
 
     // If quaternion has become inappropriately short or is nan reinit.
     // THIS SHOULD NEVER ACTUALLY HAPPEN

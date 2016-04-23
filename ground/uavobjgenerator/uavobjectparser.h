@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uavobjectparser.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Parses XML files and extracts object information.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -46,15 +47,16 @@ typedef enum {
 } FieldType;
 
 typedef struct {
-    QString     name;
-    QString     description;
-    QString     units;
-    FieldType   type;
-    int numElements;
-    int numBytes;
+    QString   name;
+    QString   description;
+    QString   units;
+    FieldType type;
+    int         numElements;
+    int         numOptions;
+    int         numBytes;
     QStringList elementNames;
     QStringList options; // for enums only
-    bool defaultElementNames;
+    bool        defaultElementNames;
     QStringList defaultValues;
     QString     limitValues;
 } FieldInfo;

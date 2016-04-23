@@ -84,6 +84,7 @@ void VtolFlyController::Activate(void)
         mManualThrust = false;
         SettingsUpdated();
         controlDown.Activate();
+        controlNE.UpdateVelocitySetpoint(0.0f, 0.0f);
         controlNE.Activate();
         mMode = pathDesired->Mode;
 
@@ -175,8 +176,6 @@ void VtolFlyController::UpdateVelocityDesired()
 
     VelocityStateData velocityState;
     VelocityStateGet(&velocityState);
-    controlNE.UpdateVelocityState(velocityState.North, velocityState.East);
-    controlDown.UpdateVelocityState(velocityState.Down);
 
     VelocityDesiredData velocityDesired;
 
@@ -191,6 +190,9 @@ void VtolFlyController::UpdateVelocityDesired()
     if (!mManualThrust) {
         controlDown.ControlPositionWithPath(&progress);
     }
+
+    controlNE.UpdateVelocityState(velocityState.North, velocityState.East);
+    controlDown.UpdateVelocityState(velocityState.Down);
 
     float north, east;
     controlNE.GetVelocityDesired(&north, &east);
@@ -368,10 +370,12 @@ void VtolFlyController::UpdateAutoPilot()
     // to the pathDesired to initiate a Landing sequence. This is the simpliest approach. plans.c
     // can't manage this.  And pathplanner whilst similar does not manage this as it is not a
     // waypoint traversal and is not aware of flight modes other than path plan.
-    if ((uint8_t)pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_GOTOENDPOINT_NEXTCOMMAND] == FLIGHTMODESETTINGS_RETURNTOBASENEXTCOMMAND_LAND) {
-        if (pathStatus->fractional_progress > RTB_LAND_FRACTIONAL_PROGRESS_START_CHECKS) {
-            if (fabsf(pathStatus->correction_direction_north) < RTB_LAND_NE_DISTANCE_REQUIRED_TO_START_LAND_SEQUENCE && fabsf(pathStatus->correction_direction_east) < RTB_LAND_NE_DISTANCE_REQUIRED_TO_START_LAND_SEQUENCE) {
-                plan_setup_land();
+    if (flightStatus->FlightMode == FLIGHTSTATUS_FLIGHTMODE_RETURNTOBASE) {
+        if ((uint8_t)pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_GOTOENDPOINT_NEXTCOMMAND] == FLIGHTMODESETTINGS_RETURNTOBASENEXTCOMMAND_LAND) {
+            if (pathStatus->fractional_progress > RTB_LAND_FRACTIONAL_PROGRESS_START_CHECKS) {
+                if (fabsf(pathStatus->correction_direction_north) < RTB_LAND_NE_DISTANCE_REQUIRED_TO_START_LAND_SEQUENCE && fabsf(pathStatus->correction_direction_east) < RTB_LAND_NE_DISTANCE_REQUIRED_TO_START_LAND_SEQUENCE) {
+                    plan_setup_land();
+                }
             }
         }
     }

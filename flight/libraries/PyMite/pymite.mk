@@ -40,13 +40,13 @@ PYSCRIPTS	+= $(wildcard $(FLIGHTPLANS)/*.py)
 $(PYSRC): | $(PYLIB) $(OUTDIR)/pmfeatures.h
 
 $(OUTDIR)/pmfeatures.h: $(PYSCRIPTS)
-	@$(ECHO) $(MSG_PYMITEINIT) $(call toprel, $@)
+	@echo $(MSG_PYMITEINIT) $(call toprel, $@)
 	$(V1) $(PYTHON) $(PYMITETOOLS)/pmGenPmFeatures.py $(PYMITEPLAT)/pmfeatures.py > $@
 
 $(OUTDIR)/pmlib_img.c: | $(OUTDIR)/pmlib_nat.c
 
 $(OUTDIR)/pmlib_nat.c: $(PYSCRIPTS)
-	@$(ECHO) $(MSG_PYMITEINIT) $(call toprel, $@)
+	@echo $(MSG_PYMITEINIT) $(call toprel, $@)
 	$(V1) $(PYTHON) $(PYMITETOOLS)/pmImgCreator.py -c -s --memspace=flash \
 			-f $(PYMITEPLAT)/pmfeatures.py \
 			-o $(OUTDIR)/pmlib_img.c \
@@ -61,7 +61,7 @@ $(OUTDIR)/pmlib_nat.c: $(PYSCRIPTS)
 $(OUTDIR)/pmlibusr_img.c: | $(OUTDIR)/pmlibusr_nat.c
 
 $(OUTDIR)/pmlibusr_nat.c: $(PYSCRIPTS)
-	@$(ECHO) $(MSG_PYMITEINIT) $(call toprel, $@)
+	@echo $(MSG_PYMITEINIT) $(call toprel, $@)
 	$(V1) $(PYTHON) $(PYMITETOOLS)/pmImgCreator.py -c -u \
 			-f $(PYMITEPLAT)/pmfeatures.py \
 			-o $(OUTDIR)/pmlibusr_img.c \

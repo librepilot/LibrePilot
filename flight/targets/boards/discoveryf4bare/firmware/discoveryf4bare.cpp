@@ -34,46 +34,12 @@
 extern "C" {
 #include "inc/openpilot.h"
 #include <uavobjectsinit.h>
+#include <systemmod.h>
 
-/* Task Priorities */
-#define PRIORITY_TASK_HOOKS (tskIDLE_PRIORITY + 3)
 
 /* Global Variables */
 
 /* Local Variables */
-#define INCLUDE_TEST_TASKS  0
-#if INCLUDE_TEST_TASKS
-static uint8_t sdcard_available;
-#endif
-char Buffer[1024];
-uint32_t Cache;
-
-/* Function Prototypes */
-#if INCLUDE_TEST_TASKS
-static void TaskTick(void *pvParameters);
-static void TaskTesting(void *pvParameters);
-static void TaskHIDTest(void *pvParameters);
-static void TaskServos(void *pvParameters);
-static void TaskSDCard(void *pvParameters);
-#endif
-int32_t CONSOLE_Parse(uint8_t port, char c);
-void OP_ADC_NotifyChange(uint32_t pin, uint32_t pin_value);
-
-/* Prototype of PIOS_Board_Init() function */
-extern void PIOS_Board_Init(void);
-extern void Stack_Change(void);
-static void Stack_Change_Weak() __attribute__((weakref("Stack_Change")));
-
-/* Local Variables */
-#define INIT_TASK_PRIORITY (tskIDLE_PRIORITY + configMAX_PRIORITIES - 1) // max priority
-#define INIT_TASK_STACK    (1024 / 4)                                                                              // XXX this seems excessive
-static xTaskHandle initTaskHandle;
-
-/* Function Prototypes */
-static void initTask(void *parameters);
-
-/* Prototype of generated InitModules() function */
-extern void InitModules(void);
 }
 
 /**
@@ -87,8 +53,6 @@ extern void InitModules(void);
  */
 int main()
 {
-    int result;
-
     /* NOTE: Do NOT modify the following start-up sequence */
     /* Any new initialization functions should be added in OpenPilotInit() */
     vPortInitialiseBlocks();
@@ -96,12 +60,7 @@ int main()
     /* Brings up System using CMSIS functions, enables the LEDs. */
     PIOS_SYS_Init();
 
-    /* For Revolution we use a FreeRTOS task to bring up the system so we can */
-    /* always rely on FreeRTOS primitive */
-    result = xTaskCreate(initTask, "init",
-                         INIT_TASK_STACK, NULL, INIT_TASK_PRIORITY,
-                         &initTaskHandle);
-    PIOS_Assert(result == pdPASS);
+    SystemModStart();
 
     /* Start the FreeRTOS scheduler */
     vTaskStartScheduler();
@@ -117,22 +76,7 @@ int main()
 
     return 0;
 }
-/**
- * Initialisation task.
- *
- * Runs board and module initialisation, then terminates.
- */
-void initTask(__attribute__((unused)) void *parameters)
-{
-    /* board driver init */
-    PIOS_Board_Init();
 
-    /* Initialize modules */
-    MODULE_INITIALISE_ALL;
-
-    /* terminate this task */
-    vTaskDelete(NULL);
-}
 
 /**
  * @}

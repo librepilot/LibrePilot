@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  * @file       pios_board.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
- * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core
@@ -38,6 +39,7 @@
 #include <pios_ws2811.h>
 #include <sanitycheck.h>
 #include <actuatorsettings.h>
+#include <auxmagsettings.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
@@ -92,8 +94,25 @@ void PIOS_ADC_DMC_irq_handler(void)
     /* Call into the generic code to handle the IRQ for this specific device */
     PIOS_ADC_DMA_Handler();
 }
-
 #endif /* if defined(PIOS_INCLUDE_ADC) */
+
+#if defined(PIOS_INCLUDE_HMC5X83)
+#include "pios_hmc5x83.h"
+pios_hmc5x83_dev_t external_mag = 0;
+
+static const struct pios_hmc5x83_cfg pios_hmc5x83_external_cfg = {
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    .exti_cfg  = NULL,
+#endif
+    .M_ODR     = PIOS_HMC5x83_ODR_75, // if you change this for auxmag, change AUX_MAG_SKIP in sensors.c
+    .Meas_Conf = PIOS_HMC5x83_MEASCONF_NORMAL,
+    .Gain   = PIOS_HMC5x83_GAIN_1_9,
+    .Mode   = PIOS_HMC5x83_MODE_CONTINUOUS,
+    .TempCompensation = false,
+    .Driver = &PIOS_HMC5x83_I2C_DRIVER,
+    .Orientation      = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
+};
+#endif /* PIOS_INCLUDE_HMC5X83 */
 
 /**
  * Configuration for the MS5611 chip
@@ -207,7 +226,10 @@ uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
 /*
- * Setup a com port based on the passed cfg, driver and buffer sizes. tx size of -1 make the port rx only
+ * Setup a com port based on the passed cfg, driver and buffer sizes.
+ * tx size of -1 make the port rx only
+ * rx size of -1 make the port tx only
+ * having both tx and rx size of -1 is not valid and will fail further down in PIOS_COM_Init()
  */
 static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, size_t rx_buf_len, size_t tx_buf_len,
                                      const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
@@ -218,23 +240,22 @@ static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg
         PIOS_Assert(0);
     }
 
-    uint8_t *rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
-    PIOS_Assert(rx_buffer);
-    if (tx_buf_len != (size_t)-1) { // this is the case for rx/tx ports
-        uint8_t *tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
-        PIOS_Assert(tx_buffer);
+    uint8_t *rx_buffer = 0, *tx_buffer = 0;
 
-        if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
-                          rx_buffer, rx_buf_len,
-                          tx_buffer, tx_buf_len)) {
-            PIOS_Assert(0);
-        }
-    } else { // rx only port
-        if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
-                          rx_buffer, rx_buf_len,
-                          NULL, 0)) {
-            PIOS_Assert(0);
-        }
+    if (rx_buf_len > 0) {
+        rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
+        PIOS_Assert(rx_buffer);
+    }
+
+    if (tx_buf_len > 0) {
+        tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
+        PIOS_Assert(tx_buffer);
+    }
+
+    if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
+                      rx_buffer, rx_buf_len,
+                      tx_buffer, tx_buf_len)) {
+        PIOS_Assert(0);
     }
 }
 
@@ -360,6 +381,7 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);
     }
+
 #ifdef PIOS_INCLUDE_WDG
     PIOS_WDG_Init();
 #endif
@@ -617,11 +639,40 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_FLEXIPORT_I2C:
 #if defined(PIOS_INCLUDE_I2C)
-        {
-            if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
-                PIOS_Assert(0);
-            }
+        if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
+            PIOS_Assert(0);
         }
+        PIOS_DELAY_WaitmS(50); // this was after the other PIOS_I2C_Init(), so I copied it here too
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
+        // to avoid making something else fail when HMC5X83 is removed
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+#if defined(PIOS_INCLUDE_HMC5X83)
+        // get auxmag type
+        AuxMagSettingsTypeOptions option;
+        AuxMagSettingsInitialize();
+        AuxMagSettingsTypeGet(&option);
+        // if the aux mag type is FlexiPort then set it up
+        if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
+            // attach the 5x83 mag to the previously inited I2C2
+            external_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_external_cfg, pios_i2c_flexiport_adapter_id, 0);
+#ifdef PIOS_INCLUDE_WDG
+            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+            // this is not in a loop, so it is safe
+            PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+            // add this sensor to the sensor task's list
+            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+            // and before registering some other fast and important sensor
+            // as that would cause delay and time jitter for the second fast sensor
+            PIOS_HMC5x83_Register(external_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+            // mag alarm is cleared later, so use I2C
+            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (external_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+        }
+#endif /* PIOS_INCLUDE_HMC5X83 */
 #endif /* PIOS_INCLUDE_I2C */
         break;
     case HWSETTINGS_RM_FLEXIPORT_GPS:
@@ -635,7 +686,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
-            PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+            PIOS_Board_configure_com(&pios_usart_flexi_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
@@ -665,6 +716,52 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
         }
 #endif
+        break;
+
+    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
+    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMH:
+#if defined(PIOS_INCLUDE_HOTT)
+        {
+            uint32_t pios_usart_hott_id;
+            if (PIOS_USART_Init(&pios_usart_hott_id, &pios_usart_hott_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_hott_id;
+            if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
+                               hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_hott_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_HOTT */
+        break;
+
+    case HWSETTINGS_RM_FLEXIPORT_EXBUS:
+#if defined(PIOS_INCLUDE_EXBUS)
+        {
+            uint32_t pios_usart_exbus_id;
+            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_exbus_id;
+            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_exbus_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_EXBUS */
         break;
     } /* hwsettings_rm_flexiport */
 

@@ -103,7 +103,8 @@ void plan_setup_positionHold()
 
     PositionStateGet(&positionState);
     PathDesiredData pathDesired;
-    PathDesiredGet(&pathDesired);
+    // re-initialise in setup stage
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
 
     FlightModeSettingsPositionHoldOffsetData offset;
     FlightModeSettingsPositionHoldOffsetGet(&offset);
@@ -133,7 +134,8 @@ void plan_setup_returnToBase()
     PositionStateDownGet(&positionStateDown);
 
     PathDesiredData pathDesired;
-    PathDesiredGet(&pathDesired);
+    // re-initialise in setup stage
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
 
     TakeOffLocationData takeoffLocation;
     TakeOffLocationGet(&takeoffLocation);
@@ -172,6 +174,7 @@ void plan_setup_returnToBase()
 void plan_setup_AutoTakeoff()
 {
     PathDesiredData pathDesired;
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
     PositionStateData positionState;
 
     PositionStateGet(&positionState);
@@ -227,6 +230,9 @@ static void plan_setup_land_helper(PathDesiredData *pathDesired)
 void plan_setup_land()
 {
     PathDesiredData pathDesired;
+
+    // re-initialise in setup stage
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
 
     plan_setup_land_helper(&pathDesired);
     PathDesiredSet(&pathDesired);
@@ -386,7 +392,10 @@ static void plan_run_PositionVario(vario_type type)
     float alpha;
     PathDesiredData pathDesired;
 
+    // Reuse the existing pathdesired object as setup in the setup to avoid
+    // updating values already set.
     PathDesiredGet(&pathDesired);
+
     FlightModeSettingsPositionHoldOffsetData offset;
     FlightModeSettingsPositionHoldOffsetGet(&offset);
 
@@ -467,10 +476,12 @@ void plan_run_VelocityRoam()
 {
     // float alpha;
     PathDesiredData pathDesired;
+
+    // velocity roam code completely sets pathdesired object. it was not set in setup phase
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
     FlightStatusAssistedControlStateOptions assistedControlFlightMode;
     FlightStatusFlightModeOptions flightMode;
 
-    PathDesiredGet(&pathDesired);
     FlightModeSettingsPositionHoldOffsetData offset;
     FlightModeSettingsPositionHoldOffsetGet(&offset);
     FlightStatusAssistedControlStateGet(&assistedControlFlightMode);
@@ -593,8 +604,10 @@ void plan_setup_AutoCruise()
     PositionStateData positionState;
 
     PositionStateGet(&positionState);
+
     PathDesiredData pathDesired;
-    PathDesiredGet(&pathDesired);
+    // setup needs to reinitialise the pathdesired object
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
 
     FlightModeSettingsPositionHoldOffsetData offset;
     FlightModeSettingsPositionHoldOffsetGet(&offset);
@@ -637,7 +650,9 @@ void plan_run_AutoCruise()
 
     PositionStateGet(&positionState);
     PathDesiredData pathDesired;
+    // re-use pathdesired that was setup correctly in setup stage.
     PathDesiredGet(&pathDesired);
+
     FlightModeSettingsPositionHoldOffsetData offset;
     FlightModeSettingsPositionHoldOffsetGet(&offset);
 
@@ -710,6 +725,8 @@ void plan_setup_assistedcontrol()
 
     PositionStateGet(&positionState);
     PathDesiredData pathDesired;
+    // setup function, avoid carry over from previous mode
+    memset(&pathDesired, 0, sizeof(PathDesiredData));
 
     FlightStatusAssistedControlStateOptions assistedControlFlightMode;
 

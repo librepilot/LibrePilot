@@ -40,7 +40,7 @@ locations (but any other locations are fine as well):
  - OpenOCD           in C:\OpenOCD\0.4.0\bin (optional)
 
 The SDL and SSL libraries and headers should be installed into Qt directories to 
-build the GCS. Check the wiki or ground/openpilotgcs/copydata.pro for details.
+build the GCS. Check the wiki or ground/gcs/copydata.pro for details.
 
 Also it is assumed that you have the C:\Program Files\Git\cmd\ directory in
 the PATH. Usually this is the case for msysGit installation if you have chosen

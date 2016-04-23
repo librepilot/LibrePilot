@@ -1,7 +1,8 @@
 ﻿#
-# Project: OpenPilot
-# NSIS header file for OpenPilot GCS
+# Project: LibrePilot
+# NSIS header file for LibrePilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2011.
+# The LibrePilot Team, http://www.librepilot.org, Copyright (C) 2015-2016.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,11 +28,12 @@
 
   LangString DESC_InSecCore ${LANG_TRADCHINESE} "地面站核心组件 （可执行文件和库文件）."
   LangString DESC_InSecPlugins ${LANG_TRADCHINESE} "地面站插件（提供地面站大部分功能）."
+  LangString DESC_InSecLibs ${LANG_TRADCHINESE} "GCS third party libraries."
   LangString DESC_InSecResources ${LANG_TRADCHINESE} "地面站资源库（图表，地图，模型，PFD（主要飞行数据图））."
   LangString DESC_InSecSounds ${LANG_TRADCHINESE} "地面站音频文件（用于对于特定事件的提醒）."
   LangString DESC_InSecLocalization ${LANG_TRADCHINESE} "地面站本土化（适用于它所支持的语言）."
-  LangString DESC_InSecFirmware ${LANG_TRADCHINESE} "OpenPilot firmware binaries."
-  LangString DESC_InSecUtilities ${LANG_TRADCHINESE} "OpenPilot utilities (Matlab log parser)."
+  LangString DESC_InSecFirmware ${LANG_TRADCHINESE} "LibrePilot firmware binaries."
+  LangString DESC_InSecUtilities ${LANG_TRADCHINESE} "LibrePilot utilities (Matlab log parser)."
   LangString DESC_InSecDrivers ${LANG_TRADCHINESE} "OpenPilot hardware driver files (optional OpenPilot CDC driver)."
   LangString DESC_InSecInstallDrivers ${LANG_TRADCHINESE} "Optional OpenPilot CDC driver (virtual USB COM port)."
   LangString DESC_InSecInstallOpenGL ${LANG_TRADCHINESE} "Optional OpenGL32.dll for old video cards."
@@ -41,6 +43,6 @@
 ;--------------------------------
 ; Uninstaller section descriptions
 
-  LangString DESC_UnSecProgram ${LANG_TRADCHINESE} "OpenPilot GCS（地面站）程序及其所有的文件."
-  LangString DESC_UnSecCache ${LANG_TRADCHINESE} "OpenPilot GCS（地面站）缓存的地图数据."
-  LangString DESC_UnSecConfig ${LANG_TRADCHINESE} "OpenPilot GCS（地面站）配置文件."
+  LangString DESC_UnSecProgram ${LANG_TRADCHINESE} "LibrePilot GCS（地面站）程序及其所有的文件."
+  LangString DESC_UnSecCache ${LANG_TRADCHINESE} "LibrePilot GCS（地面站）缓存的地图数据."
+  LangString DESC_UnSecConfig ${LANG_TRADCHINESE} "LibrePilot GCS（地面站）配置文件."

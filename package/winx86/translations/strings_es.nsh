@@ -1,7 +1,8 @@
 ﻿#
-# Project: OpenPilot
-# NSIS header file for OpenPilot GCS
+# Project: LibrePilot
+# NSIS header file for LibrePilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2011.
+# The LibrePilot Team, http://www.librepilot.org, Copyright (C) 2015-2016.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,11 +28,12 @@
 
   LangString DESC_InSecCore ${LANG_SPANISH} "Componentes principales del GCS (librerías y ejecutables)."
   LangString DESC_InSecPlugins ${LANG_SPANISH} "Plugins del GCS (funcionalidades del GCS)."
+  LangString DESC_InSecLibs ${LANG_SPANISH} "GCS third party libraries."
   LangString DESC_InSecResources ${LANG_SPANISH} "Recursos del GCS (diagramas, marcadores, iconos del mapa, modelos, PFD)."
   LangString DESC_InSecSounds ${LANG_SPANISH} "Archivos de sonido del GCS (usados para los eventos y notificaciones audibles)."
   LangString DESC_InSecLocalization ${LANG_SPANISH} "Localización GCS (idiomas soportados)."
-  LangString DESC_InSecFirmware ${LANG_SPANISH} "OpenPilot firmware binaries."
-  LangString DESC_InSecUtilities ${LANG_SPANISH} "OpenPilot utilities (Matlab log parser)."
+  LangString DESC_InSecFirmware ${LANG_SPANISH} "LibrePilot firmware binaries."
+  LangString DESC_InSecUtilities ${LANG_SPANISH} "LibrePilot utilities (Matlab log parser)."
   LangString DESC_InSecDrivers ${LANG_SPANISH} "OpenPilot hardware driver files (optional OpenPilot CDC driver)."
   LangString DESC_InSecInstallDrivers ${LANG_SPANISH} "Optional OpenPilot CDC driver (virtual USB COM port)."
   LangString DESC_InSecInstallOpenGL ${LANG_SPANISH} "Optional OpenGL32.dll for old video cards."
@@ -41,6 +43,6 @@
 ;--------------------------------
 ; Uninstaller section descriptions
 
-  LangString DESC_UnSecProgram ${LANG_SPANISH} "Aplicación OpenPilot GCS y todos sus componentes."
-  LangString DESC_UnSecCache ${LANG_SPANISH} "Datos de mapas en caché del OpenPilot GCS."
-  LangString DESC_UnSecConfig ${LANG_SPANISH} "Archivos de configuración del OpenPilot GCS."
+  LangString DESC_UnSecProgram ${LANG_SPANISH} "Aplicación LibrePilot GCS y todos sus componentes."
+  LangString DESC_UnSecCache ${LANG_SPANISH} "Datos de mapas en caché del LibrePilot GCS."
+  LangString DESC_UnSecConfig ${LANG_SPANISH} "Archivos de configuración del LibrePilot GCS."

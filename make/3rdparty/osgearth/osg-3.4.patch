@@ -1,0 +1,24 @@
+diff --git a/include/osg/OperationThread b/include/osg/OperationThread
+index a62157e..75adfba 100644
+--- a/include/osg/OperationThread
++++ b/include/osg/OperationThread
+@@ -80,6 +80,7 @@ protected:
+             _keep(false) {}
+ 
+         Operation(const Operation& op):
++            Referenced(),
+             _name(op._name),
+             _keep(op._keep) {}
+ 
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 33edf57..d2ea025 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -27,7 +27,6 @@ FOREACH( mylibfolder
+         osgUI
+         osgVolume
+         osgWrappers/serializers
+-        osgWrappers/deprecated-dotosg
+         osgPlugins
+     )
+ 

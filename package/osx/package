@@ -4,58 +4,50 @@
 : ${ROOT_DIR?} ${BUILD_DIR?} ${PACKAGE_LBL?} ${PACKAGE_DIR?} ${PACKAGE_NAME?} ${PACKAGE_SEP?}
 
 # more variables
-APP_PATH="${BUILD_DIR}/openpilotgcs_release/bin/OpenPilot GCS.app"
-TEMP_FILE="${PACKAGE_DIR}/OpenPilot-temp.dmg"
+APP_PATH="${BUILD_DIR}/${GCS_SMALL_NAME}_release/${GCS_BIG_NAME}.app"
 OUT_FILE="${PACKAGE_DIR}/../${PACKAGE_NAME}${PACKAGE_SEP}${PACKAGE_LBL}${PACKAGE_SEP}osx.dmg"
-VOL_NAME="OpenPilot"
 
-# prepare the stage
-rm -f "${TEMP_FILE}"
-rm -f "${OUT_FILE}"
+SRC_DIR="${PACKAGE_DIR}/src"
+APPLICATION_NAME="${GCS_BIG_NAME}.app"
+VOL_NAME="${GCS_BIG_NAME}"
+# cleanup previous build
+rm -rf "${SRC_DIR}"
+rm -rf "${OUT_FILE}"
 
-# if an OpenPilot volume is already mounted, unmount it
-if [ -f "/Volumes/${VOL_NAME}" ]
-then
-echo "Unmount existing /Volumes/${VOL_NAME}"
-hdiutil unmount "/Volumes/${VOL_NAME}"
-fi
-
-hdiutil convert "${ROOT_DIR}/package/osx/OpenPilot.dmg" \
-    -format UDRW -o "${TEMP_FILE}"
-device=$(hdiutil attach "${TEMP_FILE}" | \
-    egrep '^/dev/' | sed 1q | awk '{print $1}')
-
-#Just in case something is still mounted as ${VOL_NAME}, check the correct mount point
-mountvolume=$(hdiutil info | egrep "^${device}"| egrep "${VOL_NAME}" | sed 's/.*Volumes\///;s/*//' | sed 1q)
-
-echo "Image mounted as /Volumes/${mountvolume}"
-
-if [ ! -d "/Volumes/${mountvolume}/OpenPilot GCS.app" ]
-then
-    echo "Cannot find a valid image at /Volumes/${mountvolume}"
-    exit 1
-fi
+# copy base dmg structure
+cp -r "${ROOT_DIR}/package/osx/dmg/" "${SRC_DIR}"
+sed -i '' s/@URL@/$(echo ${WIKI_URL_ROOT} | sed -e 's/\\/\\\\/g' -e 's/\//\\\//g' -e 's/&/\\\&/g')/ "${SRC_DIR}/Getting Started.webloc"
 
 # packaging goes here
-cp -a "${APP_PATH}" "/Volumes/${mountvolume}"
+cp -a "${APP_PATH}" "${SRC_DIR}"
 
-cp "${BUILD_DIR}/uavobject-synthetics/matlab/OPLogConvert.m" "/Volumes/${mountvolume}/Utilities"
-cp "${ROOT_DIR}/WHATSNEW.txt" "/Volumes/${mountvolume}"
-cp "${ROOT_DIR}/README.txt" "/Volumes/${mountvolume}/Docs"
-cp "${ROOT_DIR}/MILESTONES.txt" "/Volumes/${mountvolume}/Docs"
-cp "${ROOT_DIR}/LICENSE.txt" "/Volumes/${mountvolume}/Docs"
-cp "${ROOT_DIR}/GPLv3.txt" "/Volumes/${mountvolume}/Docs"
+mkdir "${SRC_DIR}/Docs/"
+mkdir "${SRC_DIR}/Utilities/"
+
+cp "${BUILD_DIR}/uavobject-synthetics/matlab/OPLogConvert.m" "${SRC_DIR}/Utilities/"
+cp "${ROOT_DIR}/WHATSNEW.txt" "${SRC_DIR}"
+cp "${ROOT_DIR}/README.md" "${SRC_DIR}/Docs/README.txt"
+cp "${ROOT_DIR}/MILESTONES.txt" "${SRC_DIR}/Docs/"
+cp "${ROOT_DIR}/LICENSE.txt" "${SRC_DIR}/Docs/"
+cp "${ROOT_DIR}/GPLv3.txt" "${SRC_DIR}/Docs/"
 
 "${ROOT_DIR}/package/osx/libraries" \
-    "/Volumes/${mountvolume}/OpenPilot GCS.app" || exit 1
+    "${SRC_DIR}/${APPLICATION_NAME}" || exit 1
 
-hdiutil detach ${device}
-
-min=`hdiutil resize ${TEMP_FILE} | awk \{print\ \$\1\}`
-echo "Resizing dmg to ${min}"
-
-hdiutil resize -sectors ${min} ${TEMP_FILE}
-hdiutil convert "${TEMP_FILE}" -format UDZO -o "${OUT_FILE}"
-
-# cleanup
-rm "${TEMP_FILE}"
+"${ROOT_DIR}/package/osx/create-dmg/create-dmg" \
+--volname "${VOL_NAME}" \
+--volicon "${ROOT_DIR}/package/osx/VolumeIcon.icns" \
+--background "${ROOT_DIR}/package/osx/background.png" \
+--window-size 600 500 \
+--icon-size 60 \
+--icon "Getting Started.webloc" 110 380 \
+--hide-extension "Getting Started.webloc"  \
+--icon "Docs" 250 380 \
+--icon "WHATSNEW.txt" 400 380 \
+--icon "Utilities" 500 380 \
+--icon "${APPLICATION_NAME}" 150 215 \
+--hide-extension "${APPLICATION_NAME}" \
+--app-drop-link 450 215 \
+--no-internet-enable \
+"${OUT_FILE}" \
+"${SRC_DIR}"

@@ -1,0 +1,13 @@
+diff --git a/googlesat.dgml b/googlesat.dgml
+index 6e9fbd3..42f5e72 100644
+--- a/googlesat.dgml
++++ b/googlesat.dgml
+@@ -26,7 +26,7 @@
+                     <sourcedir format="JPG"> earth/googlesat </sourcedir>
+                     <storageLayout levelZeroColumns="1" levelZeroRows="1" maximumTileLevel="20" mode="Custom" />
+                     <projection name="Mercator" />
+-                    <downloadUrl protocol="http" host="khm.google.com" path="/kh/v=113&amp;hl=de&amp;x={x}&amp;s=&amp;y={y}&amp;z={zoomLevel}&amp;s=Ga" />
++                    <downloadUrl protocol="http" host="khm.google.com" path="/kh/v=184&amp;hl=de&amp;x={x}&amp;s=&amp;y={y}&amp;z={zoomLevel}&amp;s=Ga" />
+                 </texture>
+                 <texture name="streets" expire="604800" >
+                     <sourcedir format="PNG"> earth/googlesat/streets </sourcedir>

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=GCS
+Exec=gcs
+TryExec=gcs
+Comment=Configure, Tune, Diagnose, Track, & Upgrade FW for ORG solutions
+Terminal=false
+Categories=Utility;Robotics;Engineering;
+Icon=org
+Type=Application

@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015-2016, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 # Copyright (c) 2012, PhoenixPilot, http://github.com/PhoenixPilot
 #
@@ -17,12 +18,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #####
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # REVO C++ support 
 USE_CXX = YES
@@ -31,7 +32,7 @@ USE_CXX = YES
 USE_DSP_LIB ?= NO
 
 # List of mandatory modules to include
-#MODULES += Sensors
+MODULES += Sensors
 #MODULES += Attitude/revolution
 #MODULES += StateEstimation # use instead of Attitude
 #MODULES += Altitude/revolution
@@ -96,7 +97,6 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/insgps13state.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     SRC += $(FLIGHTLIB)/lednotification.c    
-    CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
 
     ## UAVObjects
     include ./UAVObjects.inc
@@ -111,5 +111,5 @@ endif
 include $(FLIGHTLIB)/rscode/library.mk
 #include $(FLIGHTLIB)/PyMite/pymite.mk
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

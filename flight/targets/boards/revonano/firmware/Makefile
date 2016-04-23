@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2014, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,12 +17,12 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #####
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 # REVO C++ support 
 USE_CXX = YES
@@ -90,7 +91,6 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/plans.c
     SRC += $(FLIGHTLIB)/WorldMagModel.c
     SRC += $(FLIGHTLIB)/insgps13state.c
-    CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
     SRC += $(FLIGHTLIB)/lednotification.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     ## UAVObjects
@@ -105,5 +105,5 @@ endif
 # Optional component libraries
 
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

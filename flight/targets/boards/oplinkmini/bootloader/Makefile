@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
@@ -24,9 +25,9 @@ endif
 SRC += $(CMSIS_DEVICEDIR)/system_stm32f10x.c
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
-include $(ROOT_DIR)/make/boot-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/boot-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk
 
 BLONLY_CDEFS += -DEE_BANK_BASE=$(EE_BANK_BASE)
 BLONLY_CDEFS += -DEE_BANK_SIZE=$(EE_BANK_SIZE)

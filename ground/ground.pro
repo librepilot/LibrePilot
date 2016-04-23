@@ -30,12 +30,12 @@ message("Make sure you have shadow build path set as noted in ground.pro. Build 
 TEMPLATE  = subdirs
 
 SUBDIRS = \
-        sub_openpilotgcs \
+        sub_gcs \
         sub_uavobjgenerator
 
 # uavobjgenerator
 sub_uavobjgenerator.subdir = uavobjgenerator
 
-# openpilotgcs
-sub_openpilotgcs.subdir  = openpilotgcs
-sub_openpilotgcs.depends = sub_uavobjgenerator
+# GCS
+sub_gcs.subdir  = gcs
+sub_gcs.depends = sub_uavobjgenerator

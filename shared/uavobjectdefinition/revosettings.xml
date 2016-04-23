@@ -3,7 +3,6 @@
         <description>Settings for the revo to control the algorithm and what is updated</description>
         <field name="FusionAlgorithm" units="" type="enum" elements="1" 
         options="None,Basic (Complementary),Complementary+Mag,Complementary+Mag+GPSOutdoor,INS13Indoor,GPS Navigation (INS13)" 
-        limits="%NE:None:Complementary+Mag:Complementary+Mag+GPSOutdoor:INS13Indoor;"
         defaultvalue="Basic (Complementary)"/>
 
         <!-- Low pass filter configuration to calculate offset of barometric altitude sensor.

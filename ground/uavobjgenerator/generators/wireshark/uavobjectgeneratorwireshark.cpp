@@ -35,7 +35,7 @@ bool UAVObjectGeneratorWireshark::generate(UAVObjectParser *parser, QString temp
     fieldTypeStrGlib << "gint8" << "gint16" << "gint32" << "guint8"
                      << "guint16" << "guint32" << "gfloat" << "guint8";
 
-    wiresharkCodePath     = QDir(templatepath + QString("ground/openpilotgcs/src/plugins/uavobjects/wireshark"));
+    wiresharkCodePath     = QDir(templatepath + QString("ground/gcs/src/plugins/uavobjects/wireshark"));
 
     wiresharkOutputPath   = QDir(outputpath);
     wiresharkOutputPath.mkpath(wiresharkOutputPath.absolutePath());
@@ -233,7 +233,7 @@ bool UAVObjectGeneratorWireshark::process_object(ObjectInfo *info, QDir outputpa
             } else if (info->fields[n]->type == FIELDTYPE_FLOAT32) {
                 headerfields.append(QString("\t     BASE_NONE, NULL, 0x0, NULL, HFILL \r\n"));
             } else {
-                headerfields.append(QString("\t     BASE_DEC_HEX, NULL, 0x0, NULL, HFILL\r\n"));
+                headerfields.append(QString("\t     BASE_DEC, NULL, 0x0, NULL, HFILL\r\n"));
             }
             headerfields.append(QString("\t   },\r\n"));
             headerfields.append(QString("\t },\r\n"));
@@ -268,7 +268,7 @@ bool UAVObjectGeneratorWireshark::process_object(ObjectInfo *info, QDir outputpa
                 } else if (info->fields[n]->type == FIELDTYPE_FLOAT32) {
                     headerfields.append(QString("\t     BASE_NONE, NULL, 0x0, NULL, HFILL \r\n"));
                 } else {
-                    headerfields.append(QString("\t     BASE_DEC_HEX, NULL, 0x0, NULL, HFILL\r\n"));
+                    headerfields.append(QString("\t     BASE_DEC, NULL, 0x0, NULL, HFILL\r\n"));
                 }
                 headerfields.append(QString("\t   },\r\n"));
                 headerfields.append(QString("\t },\r\n"));

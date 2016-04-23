@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
- * @brief The OpenPilot Modules do the majority of the control in OpenPilot.  The
+ * @addtogroup LibrePilotModules LibrePilot Modules
+ * @brief The LibrePilot Modules do the majority of the control in LibrePilot.  The
  * @ref SystemModule "System Module" starts all the other modules that then take care
  * of all the telemetry and control algorithms and such.  This is done through the @ref PIOS
  * "PIOS Hardware abstraction layer" which then contains hardware specific implementations
@@ -16,7 +16,8 @@
  * @{
  *
  * @file       systemmod.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      System module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -59,6 +60,9 @@
 #include <hwsettings.h>
 #include <pios_flashfs.h>
 #include <pios_notify.h>
+#include <pios_task_monitor.h>
+#include <pios_board_init.h>
+
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <instrumentation.h>
@@ -133,8 +137,6 @@ int32_t SystemModStart(void)
     mallocFailed  = false;
     // Create system task
     xTaskCreate(systemTask, "System", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &systemTaskHandle);
-    // Register task
-    PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_SYSTEM, systemTaskHandle);
 
     return 0;
 }
@@ -168,8 +170,6 @@ int32_t SystemModInitialize(void)
         return -1;
     }
 
-    SystemModStart();
-
     return 0;
 }
 
@@ -179,15 +179,30 @@ MODULE_INITCALL(SystemModInitialize, 0);
  */
 static void systemTask(__attribute__((unused)) void *parameters)
 {
+    /* calibrate the cpu usage monitor */
+    PIOS_TASK_MONITOR_CalibrateIdleCounter();
+    /* board driver init */
+    PIOS_Board_Init();
+
+    /* Initialize all modules */
+    MODULE_INITIALISE_ALL;
+
     while (!initTaskDone) {
         vTaskDelay(10);
     }
 
+#ifndef PIOS_INCLUDE_WDG
+// if no watchdog is enabled, don't reset watchdog in MODULE_TASKCREATE_ALL loop
+#define PIOS_WDG_Clear()
+#endif
     /* create all modules thread */
     MODULE_TASKCREATE_ALL;
 
     /* start the delayed callback scheduler */
     PIOS_CALLBACKSCHEDULER_Start();
+
+    // Register task
+    PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_SYSTEM, systemTaskHandle);
 
     if (mallocFailed) {
         /* We failed to malloc during task creation,
@@ -254,7 +269,7 @@ static void systemTask(__attribute__((unused)) void *parameters)
 
         if (pios_rfm22b_id) {
             // Get the other device stats.
-            PIOS_RFM2B_GetPairStats(pios_rfm22b_id, oplinkStatus.PairIDs, oplinkStatus.PairSignalStrengths, OPLINKSTATUS_PAIRIDS_NUMELEM);
+            PIOS_RFM22B_GetPairStats(pios_rfm22b_id, oplinkStatus.PairIDs, oplinkStatus.PairSignalStrengths, OPLINKSTATUS_PAIRIDS_NUMELEM);
 
             // Get the stats from the radio device
             struct rfm22b_stats radio_stats;
@@ -264,6 +279,9 @@ static void systemTask(__attribute__((unused)) void *parameters)
             static bool first_time = true;
             static uint16_t prev_tx_count = 0;
             static uint16_t prev_rx_count = 0;
+            static uint16_t prev_tx_seq   = 0;
+            static uint16_t prev_rx_seq   = 0;
+
             oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
             oplinkStatus.DeviceID = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
             oplinkStatus.RxGood = radio_stats.rx_good;
@@ -280,14 +298,20 @@ static void systemTask(__attribute__((unused)) void *parameters)
             if (first_time) {
                 first_time = false;
             } else {
-                uint16_t tx_count = radio_stats.tx_byte_count;
-                uint16_t rx_count = radio_stats.rx_byte_count;
-                uint16_t tx_bytes = (tx_count < prev_tx_count) ? (0xffff - prev_tx_count + tx_count) : (tx_count - prev_tx_count);
-                uint16_t rx_bytes = (rx_count < prev_rx_count) ? (0xffff - prev_rx_count + rx_count) : (rx_count - prev_rx_count);
+                uint16_t tx_count   = radio_stats.tx_byte_count;
+                uint16_t rx_count   = radio_stats.rx_byte_count;
+                uint16_t tx_packets = radio_stats.tx_seq - prev_tx_seq;
+                uint16_t rx_packets = radio_stats.rx_seq - prev_rx_seq;
+                uint16_t tx_bytes   = (tx_count < prev_tx_count) ? (0xffff - prev_tx_count + tx_count) : (tx_count - prev_tx_count);
+                uint16_t rx_bytes   = (rx_count < prev_rx_count) ? (0xffff - prev_rx_count + rx_count) : (rx_count - prev_rx_count);
                 oplinkStatus.TXRate = (uint16_t)((float)(tx_bytes * 1000) / SYSTEM_UPDATE_PERIOD_MS);
                 oplinkStatus.RXRate = (uint16_t)((float)(rx_bytes * 1000) / SYSTEM_UPDATE_PERIOD_MS);
+                oplinkStatus.TXPacketRate = (uint16_t)((float)(tx_packets * 1000) / SYSTEM_UPDATE_PERIOD_MS);
+                oplinkStatus.RXPacketRate = (uint16_t)((float)(rx_packets * 1000) / SYSTEM_UPDATE_PERIOD_MS);
                 prev_tx_count = tx_count;
                 prev_rx_count = rx_count;
+                prev_tx_seq   = radio_stats.tx_seq;
+                prev_rx_seq   = radio_stats.rx_seq;
             }
             oplinkStatus.TXSeq     = radio_stats.tx_seq;
             oplinkStatus.RXSeq     = radio_stats.rx_seq;
@@ -560,7 +584,9 @@ static void updateStats()
         stats.UsrSlotsActive = fsStats.num_active_slots;
     }
 #endif
-    stats.CPULoad = 100 - PIOS_TASK_MONITOR_GetIdlePercentage();
+    stats.CPUIdleTicks     = PIOS_TASK_MONITOR_GetIdleTicksCount();
+    stats.CPUZeroLoadTicks = PIOS_TASK_MONITOR_GetZeroLoadTicksCount();
+    stats.CPULoad = 100 - (uint8_t)((100 * stats.CPUIdleTicks) / stats.CPUZeroLoadTicks);
 
 #if defined(PIOS_INCLUDE_ADC) && defined(PIOS_ADC_USE_TEMP_SENSOR)
     float temp_voltage = PIOS_ADC_PinGetVolt(PIOS_ADC_TEMPERATURE_PIN);
@@ -644,6 +670,7 @@ static void updateSystemAlarms()
  */
 void vApplicationIdleHook(void)
 {
+    PIOS_TASK_MONITOR_IdleHook();
     NotificationOnboardLedsRun();
 #ifdef PIOS_INCLUDE_WS2811
     LedNotificationExtLedsRun();

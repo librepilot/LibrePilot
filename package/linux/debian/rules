@@ -11,8 +11,11 @@ export DH_OPTIONS
 %:
 	dh $@ 
 
+override_dh_auto_configure:
+	$(MAKE) config_new GCS_EXTRA_CONF=osg WITH_PREBUILT_FW=$(CURDIR)/firmware
+
 override_dh_auto_build:
-	dh_auto_build -- opfw_resource openpilotgcs
+	dh_auto_build -- opfw_resource gcs
 
 override_dh_auto_install:
 	dh_auto_install -- prefix=/usr

@@ -10,7 +10,8 @@
  * pass it to ManualControl
  *
  * @file       receiver.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Receiver module. Handles safety R/C link and flight mode.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -68,7 +69,7 @@
 // safe band to allow a bit of calibration error or trim offset (in microseconds)
 #define CONNECTION_OFFSET                250
 
-#define ASSISTEDCONTROL_DEADBAND_MINIMUM 0.02f // minimum value for a well bahaved Tx.
+#define ASSISTEDCONTROL_DEADBAND_MINIMUM 2 // minimum value for a well bahaved Tx, in percent.
 
 // Private types
 
@@ -87,7 +88,7 @@ static void receiverTask(void *parameters);
 static float scaleChannel(int16_t value, int16_t max, int16_t min, int16_t neutral);
 static uint32_t timeDifferenceMs(portTickType start_time, portTickType end_time);
 static bool validInputRange(int16_t min, int16_t max, uint16_t value);
-static void applyDeadband(float *value, float deadband);
+static void applyDeadband(float *value, uint8_t deadband);
 static void SettingsUpdatedCb(UAVObjEvent *ev);
 
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
@@ -95,11 +96,11 @@ static uint8_t isAssistedFlightMode(uint8_t position);
 #endif
 
 #ifdef USE_INPUT_LPF
-static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, float deadband, float dT);
+static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, uint8_t deadband, float dT);
 #endif
 
-#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 12
-#define RCVR_ACTIVITY_MONITOR_MIN_RANGE          10
+#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 18 // Sbus max channel
+#define RCVR_ACTIVITY_MONITOR_MIN_RANGE          15
 struct rcvr_activity_fsm {
     ManualControlSettingsChannelGroupsOptions group;
     uint16_t prev[RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP];
@@ -204,6 +205,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
 
     // For now manual instantiate extra instances of Accessory Desired.  In future should be done dynamically
     // this includes not even registering it if not used
+    AccessoryDesiredCreateInstance();
     AccessoryDesiredCreateInstance();
     AccessoryDesiredCreateInstance();
 
@@ -377,6 +379,10 @@ static void receiverTask(__attribute__((unused)) void *parameters)
             valid_input_detected &= validInputRange(settings.ChannelMin.Accessory2,
                                                     settings.ChannelMax.Accessory2, cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY2]);
         }
+        if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+            valid_input_detected &= validInputRange(settings.ChannelMin.Accessory3,
+                                                    settings.ChannelMax.Accessory3, cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY3]);
+        }
 
         // Implement hysteresis loop on connection status
         if (valid_input_detected && (++connected_count > 10)) {
@@ -436,6 +442,13 @@ static void receiverTask(__attribute__((unused)) void *parameters)
                     AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
                 }
             }
+            // Set Accessory 3
+            if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+                accessory.AccessoryVal = settings.FailsafeChannel.Accessory3;
+                if (AccessoryDesiredInstSet(3, &accessory) != 0) {
+                    AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
+                }
+            }
         } else if (valid_input_detected) {
             AlarmsClear(SYSTEMALARMS_ALARM_RECEIVER);
 
@@ -450,7 +463,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
                 cmd.FlightModeSwitchPosition = settings.FlightModeNumber - 1;
             }
 
-            float deadband_checked = settings.Deadband;
+            uint8_t deadband_checked = settings.Deadband;
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
             // AssistedControl must have deadband set for pitch/roll hence
             // we default to a higher value for badly behaved TXs and also enforce a minimum value
@@ -470,7 +483,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
 #endif // PIOS_EXCLUDE_ADVANCED_FEATURES
 
             // Apply deadband for Roll/Pitch/Yaw stick inputs
-            if (deadband_checked > 0.0f) {
+            if (deadband_checked > 0) {
                 applyDeadband(&cmd.Roll, deadband_checked);
                 applyDeadband(&cmd.Pitch, deadband_checked);
                 applyDeadband(&cmd.Yaw, deadband_checked);
@@ -494,7 +507,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
                 && cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_COLLECTIVE] != (uint16_t)PIOS_RCVR_NODRIVER
                 && cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_COLLECTIVE] != (uint16_t)PIOS_RCVR_TIMEOUT) {
                 cmd.Collective = scaledChannel[MANUALCONTROLSETTINGS_CHANNELGROUPS_COLLECTIVE];
-                if (settings.Deadband > 0.0f) {
+                if (settings.Deadband > 0) {
                     applyDeadband(&cmd.Collective, settings.Deadband);
                 }
 #ifdef USE_INPUT_LPF
@@ -542,6 +555,17 @@ static void receiverTask(__attribute__((unused)) void *parameters)
 #endif
 
                 if (AccessoryDesiredInstSet(2, &accessory) != 0) {
+                    AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
+                }
+            }
+            // Set Accessory 3
+            if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+                accessory.AccessoryVal = scaledChannel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY3];
+#ifdef USE_INPUT_LPF
+                applyLPF(&accessory.AccessoryVal, MANUALCONTROLSETTINGS_RESPONSETIME_ACCESSORY3, &settings.ResponseTime, settings.Deadband, dT);
+#endif
+
+                if (AccessoryDesiredInstSet(3, &accessory) != 0) {
                     AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
                 }
             }
@@ -631,8 +655,14 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_DSMFLEXIPORT;
                 break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_EXBUS;
+                break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_SBUS;
+                break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_HOTT;
                 break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_SRXL;
@@ -790,14 +820,16 @@ bool validInputRange(int16_t min, int16_t max, uint16_t value)
 /**
  * @brief Apply deadband to Roll/Pitch/Yaw channels
  */
-static void applyDeadband(float *value, float deadband)
+static void applyDeadband(float *value, uint8_t deadband)
 {
-    if (fabsf(*value) < deadband) {
+    float floatDeadband = ((float)deadband) * 0.01f;
+
+    if (fabsf(*value) < floatDeadband) {
         *value = 0.0f;
     } else if (*value > 0.0f) {
-        *value = (*value - deadband) / (1.0f - deadband);
+        *value = (*value - floatDeadband) / (1.0f - floatDeadband);
     } else {
-        *value = (*value + deadband) / (1.0f - deadband);
+        *value = (*value + floatDeadband) / (1.0f - floatDeadband);
     }
 }
 
@@ -805,16 +837,17 @@ static void applyDeadband(float *value, float deadband)
 /**
  * @brief Apply Low Pass Filter to Throttle/Roll/Pitch/Yaw or Accessory channel
  */
-static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, float deadband, float dT)
+static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, uint8_t deadband, float dT)
 {
     float rt = (float)ManualControlSettingsResponseTimeToArray((*responseTime))[channel];
 
     if (rt > 0.0f) {
         inputFiltered[channel] = ((rt * inputFiltered[channel]) + (dT * (*value))) / (rt + dT);
 
+        float floatDeadband = ((float)deadband) * 0.01f;
         // avoid a long tail of non-zero data. if we have deadband, once the filtered result reduces to 1/10th
         // of deadband revert to 0.  We downstream rely on this to know when sticks are centered.
-        if (deadband > 0.0f && fabsf(inputFiltered[channel]) < deadband / 10.0f) {
+        if (floatDeadband > 0.0f && fabsf(inputFiltered[channel]) < floatDeadband * 0.1f) {
             inputFiltered[channel] = 0.0f;
         }
         *value = inputFiltered[channel];

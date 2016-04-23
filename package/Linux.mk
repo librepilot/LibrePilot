@@ -2,103 +2,91 @@
 # Linux-specific packaging script
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef TOP_LEVEL_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
+SED_SCRIPT := sed -i -e ' \
+s/<ARCHIVE_PREFIX>/$(PACKAGE_NAME)/g; \
+s/<EMAIL>/$(PACKAGING_EMAIL_ADDRESS)/g; \
+s,<URL>,$(WEBSITE_URL),g; \
+s,<GIT_URL>,$(GIT_URL),g; \
+s,<GITWEB_URL>,$(GITWEB_URL),g; \
+'
+
 # Are we using a debian based distro?
-ifneq ($(shell which dpkg 2> /dev/null),)
-
-DEB_DIST             := unstable
-# Instead of RELEASE-15.01-RC1 debian wants 15.01~RC1
-UPSTREAM_VER         := $(subst -,~,$(subst RELEASE-,,$(PACKAGE_LBL)))
-DEB_REV              := 1
-ifeq ($(DEB_DIST), trusty)
-DEB_REV              := $(DEB_REV)$(DEB_DIST)1
-endif
-DEB_NAME             := openpilot
-DEB_ORIG_SRC         := $(PACKAGE_DIR)/$(DEB_NAME)_$(UPSTREAM_VER).orig.tar.gz
-DEB_PACKAGE_DIR      := $(PACKAGE_DIR)/$(DEB_NAME)-$(UPSTREAM_VER)
-DEB_ARCH             := $(shell dpkg --print-architecture)
-DEB_PACKAGE_NAME     := $(DEB_NAME)_$(UPSTREAM_VER)-$(DEB_REV)_$(DEB_ARCH)
-DEB_DIR              := package/linux/debian
-
-SED_DATE_STRG         = $(shell date -R)
-SED_SCRIPT            = s/<VERSION>/$(UPSTREAM_VER)-$(DEB_REV)/;s/<DATE>/$(SED_DATE_STRG)/;s/<DIST>/$(DEB_DIST)/
-
-# Ubuntu 14.04 (Trusty Tahr) has different names for the qml-modules
-TRUSTY_DEPS_SED      := s/qml-module-qtquick-controls/qtdeclarative5-controls-plugin/g; \
-	s/qml-module-qtquick-dialogs/qtdeclarative5-dialogs-plugin/g; \
-	s/qml-module-qtquick-localstorage/qtdeclarative5-localstorage-plugin/g; \
-	s/qml-module-qtquick-particles2/qtdeclarative5-particles-plugin/g; \
-	s/qml-module-qtquick2/qtdeclarative5-qtquick2-plugin/g; \
-	s/qml-module-qtquick-window2/qtdeclarative5-window-plugin/g; \
-	s/qml-module-qtquick-xmllistmodel/qtdeclarative5-xmllistmodel-plugin/g;
-
-# Leave off Qt and ARM compiler dependencies if calling package target under the assumption that
-# OP is providing them or the user already has them installed because OP is already built.
-PACKAGE_DEPS_SED     := s/python.*/python/;s/{misc:Depends}.*/{misc:Depends}/;
-
-.PHONY: package
-package: debian
-	@$(ECHO) "Building Linux package, please wait..."
-	$(V1) sed -i -e "$(PACKAGE_DEPS_SED)" debian/control
-	$(V1) dpkg-buildpackage -b -us -uc -nc
-	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).deb $(BUILD_DIR)
-	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).changes $(BUILD_DIR)
-	$(V1) rm -r debian
-
-.PHONY: debian
-debian: $(DEB_DIR)
-	$(V1) rm -rf debian
-	$(V1) cp -rL $(DEB_DIR) debian
-	$(V1) sed -i -e "$(SED_SCRIPT)" debian/changelog
-ifeq ($(DEB_DIST), trusty)
-	$(V1) sed -i -e "$(TRUSTY_DEPS_SED)" debian/control
+ifneq ($(wildcard /etc/apt/sources.list),)
+	PKG_TYPE := deb
+# Are we using a rpm based distro?
+else ifneq ($(wildcard /etc/yum.repos.d/*),)
+	PKG_TYPE := rpm
+# Are we using an Arch based distro?
+else ifneq ($(wildcard /etc/pacman.conf),)
+    $(info TODO: built in arch package)
 endif
 
-.PHONY: package_src
-package_src:  $(DEB_ORIG_SRC_NAME) $(DEB_PACKAGE_DIR)
-	$(V1) cd $(DEB_PACKAGE_DIR) && dpkg-buildpackage -S -us -uc
+-include $(ROOT_DIR)/package/linux/$(PKG_TYPE).mk
 
-$(DEB_ORIG_SRC): $(DIST_NAME).gz | $(PACKAGE_DIR)
-	$(V1) cp $(DIST_NAME).gz $(DEB_ORIG_SRC)
-
-$(DEB_PACKAGE_DIR): $(DEB_ORIG_SRC) debian | $(PACKAGE_DIR)
-	$(V1) tar -xf $(DEB_ORIG_SRC) -C $(PACKAGE_DIR)
-	$(V1) mv debian $(PACKAGE_DIR)/$(PACKAGE_NAME)
-	$(V1) rm -rf $(DEB_PACKAGE_DIR) && mv $(PACKAGE_DIR)/$(PACKAGE_NAME) $(DEB_PACKAGE_DIR)
-
-endif # Debian based distro?
 ##############################
 #
-# Install OpenPilot
+# Install Linux Target
 #
 ##############################
-prefix  := /usr/local
-bindir  := $(prefix)/bin
-libdir  := $(prefix)/lib
-datadir := $(prefix)/share
+enable-udev-rules := no
+
+prefix       := /usr/local
+bindir       := $(prefix)/bin
+libbasename  := lib
+libdir       := $(prefix)/$(libbasename)
+datadir      := $(prefix)/share
+udevrulesdir := /etc/udev/rules.d
 
 INSTALL = cp -a --no-preserve=ownership
 LN = ln
 LN_S = ln -s
-
+RM_RF = rm -rf
+RM_F = rm -f
 .PHONY: install
-install:
+install: uninstall
 	@$(ECHO) " INSTALLING GCS TO $(DESTDIR)/)"
 	$(V1) $(MKDIR) -p $(DESTDIR)$(bindir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(libdir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
-	$(V1) $(MKDIR) -p $(DESTDIR)$(udevdir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)/bin/openpilotgcs $(DESTDIR)$(bindir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)/bin/udp_test $(DESTDIR)$(bindir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)/lib/openpilotgcs $(DESTDIR)$(libdir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/openpilotgcs_$(GCS_BUILD_CONF)/share/openpilotgcs $(DESTDIR)$(datadir)
-	$(V1) $(INSTALL) $(ROOT_DIR)/package/linux/openpilot.desktop $(DESTDIR)$(datadir)/applications
-	$(V1) $(INSTALL) $(ROOT_DIR)/package/linux/openpilot.png $(DESTDIR)$(datadir)/pixmaps
-	$(V1) rm $(DESTDIR)/$(datadir)/openpilotgcs/translations/Makefile
+	$(V1) $(INSTALL) $(GCS_DIR)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
+	$(V1) $(INSTALL) $(GCS_DIR)/$(libbasename)/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
+	$(V1) $(INSTALL) $(GCS_DIR)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/gcs.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/ground/gcs/src/plugins/coreplugin/images/$(ORG_SMALL_NAME)_logo_128.png \
+		$(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
 
+	$(V1) sed -i -e 's/gcs/$(GCS_SMALL_NAME)/g;s/GCS/$(GCS_BIG_NAME)/g;s/org/$(ORG_SMALL_NAME)/g;s/ORG/$(ORG_BIG_NAME)/g' \
+		$(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+
+ifneq ($(enable-udev-rules), no)
+	$(V1) $(MKDIR) -p $(DESTDIR)$(udevrulesdir)
+	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/45-uav.rules $(DESTDIR)$(udevrulesdir)/45-$(ORG_SMALL_NAME).rules
+endif
+
+# uninstall target to ensure no side effects from previous installations
+.PHONY: uninstall
+uninstall:
+	@$(ECHO) " UNINSTALLING GCS FROM $(DESTDIR)/)"
+# Protect against inadvertant 'rm -rf /'
+ifeq ($(GCS_SMALL_NAME),)
+	@$(ECHO) "Error in build configuration - GCS_SMALL_NAME not defined"
+	exit 1
+endif
+ifeq ($(ORG_SMALL_NAME),)
+	@$(ECHO) "Error in build configuration - ORG_SMALL_NAME not defined"
+	exit 1
+endif
+# ...safe to Proceed
+	$(V1) $(RM_RF) $(DESTDIR)$(bindir)/$(GCS_SMALL_NAME)  # Remove application
+	$(V1) $(RM_RF) $(DESTDIR)$(libdir)/$(GCS_SMALL_NAME)  # Remove libraries
+	$(V1) $(RM_RF) $(DESTDIR)$(datadir)/$(GCS_SMALL_NAME) # Remove other data
+	$(V1) $(RM_F) $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
+	$(V1) $(RM_F) $(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png
+	$(V1) $(RM_F) $(DESTDIR)$(udevrulesdir)/45-$(ORG_SMALL_NAME).rules
 

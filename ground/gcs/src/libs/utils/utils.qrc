@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/utils" >
+        <file>images/removesubmitfield.png</file>
+        <file>fonts/PTS75F.ttf</file>
+    </qresource>
+</RCC>

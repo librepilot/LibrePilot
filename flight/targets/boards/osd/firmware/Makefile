@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,12 +17,15 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-ifndef OPENPILOT_IS_COOL
+ifndef FLIGHT_MAKEFILE
     $(error Top level Makefile must be used to build this target)
 endif
 
 include ../board-info.mk
-include $(ROOT_DIR)/make/firmware-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
+
+# REVO C++ support 
+USE_CXX = YES
 
 # ARM DSP library
 override USE_DSP_LIB := NO
@@ -51,7 +55,7 @@ ifndef TESTAPP
     ## Application Core
     SRC += ../pios_usb_board_data.c
     SRC += $(OPMODULEDIR)/System/systemmod.c
-    SRC += $(OPSYSTEM)/osd.c
+    CPPSRC += $(OPSYSTEM)/osd.cpp
     SRC += $(OPSYSTEM)/pios_board.c
     SRC += $(FLIGHTLIB)/alarms.c
     SRC += $(OPUAVTALK)/uavtalk.c
@@ -76,34 +80,34 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/auxmagsupport.c
 
     ## UAVObjects
-    SRC += $(OPUAVSYNTHDIR)/objectpersistence.c
-    SRC += $(OPUAVSYNTHDIR)/gcstelemetrystats.c
-    SRC += $(OPUAVSYNTHDIR)/flighttelemetrystats.c
-    SRC += $(OPUAVSYNTHDIR)/flightstatus.c
-    SRC += $(OPUAVSYNTHDIR)/flightmodesettings.c
-    SRC += $(OPUAVSYNTHDIR)/manualcontrolsettings.c
-    SRC += $(OPUAVSYNTHDIR)/systemstats.c
-    SRC += $(OPUAVSYNTHDIR)/systemalarms.c
-    SRC += $(OPUAVSYNTHDIR)/systemsettings.c
-    SRC += $(OPUAVSYNTHDIR)/attitudestate.c
-    SRC += $(OPUAVSYNTHDIR)/i2cstats.c
-    SRC += $(OPUAVSYNTHDIR)/watchdogstatus.c
-    SRC += $(OPUAVSYNTHDIR)/firmwareiapobj.c
-    SRC += $(OPUAVSYNTHDIR)/hwsettings.c
-    SRC += $(OPUAVSYNTHDIR)/taskinfo.c
-    SRC += $(OPUAVSYNTHDIR)/callbackinfo.c
-    SRC += $(OPUAVSYNTHDIR)/mixerstatus.c
-    SRC += $(OPUAVSYNTHDIR)/homelocation.c
-    SRC += $(OPUAVSYNTHDIR)/gpspositionsensor.c
-    SRC += $(OPUAVSYNTHDIR)/gpssatellites.c
-    SRC += $(OPUAVSYNTHDIR)/gpsvelocitysensor.c
-    SRC += $(OPUAVSYNTHDIR)/gpstime.c
-    SRC += $(OPUAVSYNTHDIR)/gpssettings.c
-    SRC += $(OPUAVSYNTHDIR)/osdsettings.c
-    SRC += $(OPUAVSYNTHDIR)/barosensor.c
-    SRC += $(OPUAVSYNTHDIR)/magsensor.c
-    SRC += $(OPUAVSYNTHDIR)/auxmagsensor.c
-    SRC += $(OPUAVSYNTHDIR)/gpsextendedstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/objectpersistence.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gcstelemetrystats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flighttelemetrystats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flightstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flightmodesettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/manualcontrolsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/systemstats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/systemalarms.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/systemsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/attitudestate.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/i2cstats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/watchdogstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/firmwareiapobj.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/hwsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/taskinfo.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/callbackinfo.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/mixerstatus.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/homelocation.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpspositionsensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpssatellites.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpsvelocitysensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpstime.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpssettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/osdsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/barosensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/magsensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/auxmagsensor.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gpsextendedstatus.c
 else
     ## Test Code
     SRC += $(OPTESTS)/test_common.c
@@ -113,5 +117,5 @@ endif
 # Optional component libraries
 include $(PIOS)/common/libraries/dosfs/library.mk
 
-include $(ROOT_DIR)/make/apps-defs.mk
-include $(ROOT_DIR)/make/common-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/apps-defs.mk
+include $(FLIGHT_ROOT_DIR)/make/common-defs.mk

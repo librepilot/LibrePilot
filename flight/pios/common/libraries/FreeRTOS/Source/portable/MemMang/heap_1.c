@@ -103,7 +103,7 @@ static uint8_t *pucAlignedHeap = NULL;
 size_t mask = alignment - 1;
 	/* Ensure that blocks are always aligned to the required number of bytes. */
 	#if portBYTE_ALIGNMENT != 1
-		if( xWantedSize & portBYTE_ALIGNMENT_MASK )
+		if( xWantedSize & mask )
 		{
 			/* Byte alignment required. */
 		    xWantedSize += ( alignment - ( xWantedSize & mask ) );

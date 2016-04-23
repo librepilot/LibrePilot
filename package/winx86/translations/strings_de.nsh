@@ -1,7 +1,8 @@
 ﻿#
-# Project: OpenPilot
-# NSIS header file for OpenPilot GCS
+# Project: LibrePilot
+# NSIS header file for LibrePilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2011.
+# The LibrePilot Team, http://www.librepilot.org, Copyright (C) 2015-2016.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,11 +28,12 @@
 
   LangString DESC_InSecCore ${LANG_GERMAN} "GCS Kernkomponenten (Programm und Bibliotheken)."
   LangString DESC_InSecPlugins ${LANG_GERMAN} "GCS Plugins (Der Großteil der GCS Funktionalität)."
+  LangString DESC_InSecLibs ${LANG_GERMAN} "GCS third party libraries."
   LangString DESC_InSecResources ${LANG_GERMAN} "GCS Resourcen (Diagramme, Ziffernblätter, Kartensymbole, 3d-Modelle, PFD)."
   LangString DESC_InSecSounds ${LANG_GERMAN} "GCS Sounddateien (benötigt für akustische Ereignisbenachrichtigungen)."
   LangString DESC_InSecLocalization ${LANG_GERMAN} "GCS Lokalisierung (für unterstützte Sprachen)."
-  LangString DESC_InSecFirmware ${LANG_GERMAN} "OpenPilot firmware binaries."
-  LangString DESC_InSecUtilities ${LANG_GERMAN} "OpenPilot Dienstprogramme (Matlab Log Parser)."
+  LangString DESC_InSecFirmware ${LANG_GERMAN} "LibrePilot firmware binaries."
+  LangString DESC_InSecUtilities ${LANG_GERMAN} "LibrePilot Dienstprogramme (Matlab Log Parser)."
   LangString DESC_InSecDrivers ${LANG_GERMAN} "OpenPilot Hardware Treiberdateien (optionaler OpenPilot CDC Treiber)."
   LangString DESC_InSecInstallDrivers ${LANG_GERMAN} "OpenPilot CDC Treiber (optional)."
   LangString DESC_InSecInstallOpenGL ${LANG_GERMAN} "Optional OpenGL32.dll for old video cards."
@@ -41,6 +43,6 @@
 ;--------------------------------
 ; Uninstaller section descriptions
 
-  LangString DESC_UnSecProgram ${LANG_GERMAN} "OpenPilot GCS Programm inklusive aller Komponenten."
-  LangString DESC_UnSecCache ${LANG_GERMAN} "OpenPilot GCS zwischengespeichertes Kartenmaterial."
-  LangString DESC_UnSecConfig ${LANG_GERMAN} "OpenPilot GCS gespeicherte Konfigurationsdaten."
+  LangString DESC_UnSecProgram ${LANG_GERMAN} "LibrePilot GCS Programm inklusive aller Komponenten."
+  LangString DESC_UnSecCache ${LANG_GERMAN} "LibrePilot GCS zwischengespeichertes Kartenmaterial."
+  LangString DESC_UnSecConfig ${LANG_GERMAN} "LibrePilot GCS gespeicherte Konfigurationsdaten."

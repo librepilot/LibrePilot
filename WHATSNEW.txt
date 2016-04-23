@@ -1,38 +1,133 @@
-Release Notes - OpenPilot - Version RELEASE-15.05 RC7
+-- RELEASE-15.09 - First LibrePilot Release -- Supermoon Eclipse
+This is the first LibrePilot release. 
+The main focus of this release is to bring back support for CC3D and a general re-branding of the GCS.
 
-RC7 changes relative to RC6:
-1. Nano hardware page fixes
-2. Upgrade google map version
-3. xtal frequency changes again to suit an sbus receiver.
-4. OP-1875 reinit EKF on changes to AuxMagSettings
-
-RC6 changes relative to RC5:
-1. Altvario AltHold PID updates
-2. Fix timer bank assignments
-3. Reboot nano in wizard only when needed
-4. Fix wizard limits for oneshot/pwmsync
-5. Update PFD with latest flight modes
-6. Add AccelTau, AccelKp and AccelKi to TxPID
-7. Adding support for SRXL in vehicle wizard.
-8. OSD TxPID display
-9. MPU9k reset fixes and frequency fix affecting baud rate accuracy
+The full list of bug fixes and enhancements in this release is available here:
+https://librepilot.atlassian.net/issues/?filter=10300
 
 
-RC5 changes relative to RC4:
-1. Landing flight mode now truely disarms to complete its sequence, triggered by a critical guidance alarm. Reset via change of flight mode.
-2. VelocityRoam now has its own VelocityRoamHorizontalVelPID to allow independent tuning.
-3. Sanity check for PWMSync & OneShot while using PWM receiver. Remove CC in hwsettings.xml
-4. Wizard freeze issue on erase settings fixed.
+** Bug
+    * [LP-37] - Memory wasted in pvPortMallocGeneric
+    * [LP-57] - Errors during NewsPanel data scraping
+    * [LP-58] - Splash Screen doesn't display
+    * [LP-59] - Replace openpilot email address in packaging
+    * [LP-65] - Heli config tab refresh
+    * [LP-69] - Add SRXL to CC3D target
+    * [LP-70] - Vehicle Setup Wizard allows a not working CC3D configuration
+    * [LP-84] - Nano (Revo Nano) does not automatically select correct firmware after Firmware then Halt
+    * [LP-89] - Port bug fixes from OP HotFix 150501
+    * [LP-107] - Motors could accidentally turn off with the recent motor output scaling feature
+    * [LP-115] - TPS and Acro+ settings are initialized incorrectly
+    * [LP-116] - Add uninstall to Makefile to prevent side effects from Installing over a previous installation
+    * [LP-123] - EasyTune yaw calculation is active even if easytune is not active
+    * [LP-125] - PathUtils should return absolute pathes
+    * [LP-127] - Fix Mac tool install md5 check
+    * [LP-128] - ElevateAndCompress is broken at full throttle
+    * [LP-134] - Obsolete Google Satellite Version
+    * [LP-135] - Aux mag calibration issue
+    * [LP-136] - Build errors caused by broken uavobjgenerator make dependencies
+    * [LP-153] - Bug in configrevohwwidget.cpp use MAINPORT enum not FLEXIPORT
+    * [LP-155] - GCS crashes on OS X 10.11 when the board is halted
+    * [LP-156] - Update Vehicle templates to work with current UAVO's
 
-RC4 changes relative to RC3:
-1. GCS Input flight mode limit fixes hiding unsupported modes.
-2. Throttle check on GPSAssist/Stabi whilst in hold removed. Now easy to fly out of hold without reducing throttle.
-3. Trialing Rate instead of AxisLock on Yaw during Braking.
-4. VelocityRoam now passing throttle position to AltVario. previously it was stuck in AltHold.
-5. OP-1905 Fix OPLN in PPM mode blocking telemetry stream of no USB connected
+** Epic
+    * [LP-1] - Code Rebranding
+
+** Story
+    * [LP-3] - Artwork rebranding
+    * [LP-4] - Add a Gitter chat link to README.txt
+    * [LP-5] - Add back CC/CC3D Support
+    * [LP-6] - Laurent/lp 03 artwork rebranding
+    * [LP-7] - OP-1879 remove openpilot hardcoding
+    * [LP-8] - OP-1929 broken package src
+    * [LP-9] - Hotfix for files that were missed in share directory move due to rebase
+    * [LP-12] - Openpilot migration
+    * [LP-13] - some more OP hardcoding fixes
+    * [LP-14] - Remove some more openpilot hardcoding
+    * [LP-17] - Laurent/lp 03 artwork icons splashscreen
+    * [LP-18] - Makefile fix
+    * [LP-19] - Remove openpilot hardcoding
+    * [LP-20] - Menu item change
+    * [LP-21] - udevdir fix
+    * [LP-22] - Desktopfile migration
+    * [LP-23] - amorale/lp-05 readd cc rebased
+    * [LP-24] - filnet/op 1518 osgearth
+    * [LP-28] - Removed OpenPilot reference in About menu
+    * [LP-33] - Remove op from gcs dir structure
+    * [LP-35] - Removed OpenPilot reference in About Menu
+    * [LP-43] - change links and headers in welcome plugin
+    * [LP-44] - Review and cleanup to free some memory for CC3D
+    * [LP-47] - Fixed missing QDataStream includes to make compilation on qt 5.5 work
+    * [LP-48] - French translation
+    * [LP-49] - Laurent/lp 48 update rebranding strings translations
+    * [LP-50] - Make name define available for all by setting in openpilotgcs.pri
+    * [LP-51] - Wrong config tab contents
+    * [LP-52] - LP-51 Fix merge issue for Revo / Revonano HW config display
+    * [LP-53] - Set up Anonymous data collection to send information to the LibrePilot website
+    * [LP-55] - Config fix for echo without -e
+    * [LP-62] - Implement rpm spec
+
+** New Feature
+    * [LP-100] - Make firmware package
+    * [LP-101] - Make build possible with prebuilt firmware
+
+** Task
+    * [LP-16] - Vehicle template enhancements.
+    * [LP-26] - Update Welcome page plugin.
+    * [LP-27] - LP-16 Vehicle templates enhancements
+    * [LP-36] - Win install fixes
+    * [LP-41] - Add support for ccache
+    * [LP-42] - Added option for config file.
+    * [LP-60] - Fix project links in readme
+    * [LP-92] - Remove old Feed Forward
+    * [LP-98] - SystemHealth refresh
+    * [LP-99] - Decouple flight build
+    * [LP-113] - Create new tool install framework
+    * [LP-129] - Remove broken scaleMotor modes
+    * [LP-138] - Remove OpenPilot branding from Makefile Help text
+    * [LP-141] - Missing link for wiki help page on Stabilization Configuration page
+    * [LP-142] - Replace remaining OpenPilot wiki links with LibrePilot links
+
+** Improvement
+    * [LP-10] - Cleanup build warnings on OSX
+    * [LP-56] - Split roll/pitch acro+ factors
+    * [LP-61] - Make more things configurable with make config
+    * [LP-64] - Install target for ccache
+    * [LP-66] - Add differential Roll mixing to Fixed Wing frames
+    * [LP-67] - Add a txpid option that manage all PID factors at once
+    * [LP-77] - Jira needs more Component options
+    * [LP-80] - Extend linux packaging to easily support new distros
+    * [LP-82] - Define all packaging descriptions and URLs in top Makefile
+    * [LP-87] - Remove OpenPilot branding from Doxygen Documentation
+    * [LP-93] - Thermal calibration should calculate also gyro bias 
+    * [LP-94] - Set up Wiki link in Configuration tabs to point to Librepilot Wiki
+    * [LP-102] - Remove OpenPilot links in "About Plugins" dialog boxes
+    * [LP-106] - Setup Wizard refresh
+    * [LP-108] - Fixes for mpu6k
+    * [LP-110] - Wizard : high rate servos and normal Esc rate for planes and ground vehicles
+    * [LP-114] - Support to more than three Accessory channels
+    * [LP-124] - Rename RollRatePID and PitcahRatePID to EasyTuneRateRoll and EasyTuneRatePitch
+    * [LP-130] - Add an overridable postfix that is appended to GCS name
+    * [LP-162] - Add more data to usage tracker.
 
 
-This release introduces new features and new hardware support for the Revolution Nano.  Note that the CC3D is not supported by this feature release.  New features for multirotors include: 
+--- RELEASE-15.05.01 HOTFIX --- Banana Split ---
+This release fixes an important bug.  All Revolution hardware running 15.05 should upgrade to 15.05.01. Note that this is a hotfix; it can
+simply be flashed without an erase settings. Furthermore, please review your vtolpathfollowersettings:HorizontalVelMax; a value of around 4m/s would be more appropriate for preliminary trialing of a new release and will be changed in future.
+
+Release Notes - OP Next Generation - Version OP15.05.01
+
+** Bug
+    * [NG-55] - 15.05 PositionHold exhibits fly-away behaviour at the vtolpathfollowersettings maxRollPitch and HorizontalVelMax values.
+
+
+
+--- RELEASE-15.05 --- Banana Split ---
+
+This release introduces new features and new hardware support for the Revolution Nano.  
+Note that the CC3D is not supported by this feature release.  
+
+New features for multirotors include: 
 - Fully autonomous flight is now possible with auto-takeoff and landing as flight modes available to path plans.  
 - An all new implementation of altitude vario provides improved altitude maintenance and smoother flight.
 - A new RateTrainer flight mode for beginners and aerial photographers makes it easier to use this mode by limiting the pitch and roll extents.
@@ -42,10 +137,6 @@ This release introduces new features and new hardware support for the Revolution
 - Full speed flight just got faster with new motor constraints that maintain your ability to enact roll without requiring an upper throttle limit of 90%.
 - Setup of GPS is now automatic with auto-baud detection.
 - Support for dual telemetry and minim OSD programing have been added.
-- New control protocols have been introduced.
-
-The full list of bugfixes in this release is accessible here:
-
 
 Release Notes - OpenPilot - Version RELEASE-15.05
 
@@ -64,10 +155,13 @@ Release Notes - OpenPilot - Version RELEASE-15.05
     * [OP-1867] - PathPlanner AutoLand simplification
     * [OP-1869] - Allow Analog Airspeed scale
     * [OP-1872] - Vehicle Wiz Tricopter tail servo settings don't save
+    * [OP-1875] - MagSource changes not applied
     * [OP-1888] - SIGSEGV after starting simulator in HITL
     * [OP-1893] - Deadband changes max stick input
     * [OP-1905] - OPLM in PPM mode blocks telemetry stream if no USB connected
     * [OP-1906] - Auto land - yaw disarm can cause a crash
+    * [OP-1915] - google map issue
+
 
 ** Improvement
     * [OP-1289] - Need Revo to send two telemetry streams for OSD and GCS
@@ -113,9 +207,13 @@ Release Notes - OpenPilot - Version RELEASE-15.05
     * [OP-1832] - Need method to get default UAV Object settings in Java UAVObjects
     * [OP-1849] - Support programming/update of minimosd using USB VCP port
     * [OP-1863] - RateTrainer mode - add maxpitch for beginners and aerial photography
-    
-    
-    
+
+** Sub task
+    * [OP-1901] - Add SRXL configuration support to Vehicle Setup Wizard.
+
+
+
+
 --- RELEASE-15.02.02 ---
 This release fixes a bug that prevents revo onboard mag to work correctly.
 

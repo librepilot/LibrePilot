@@ -45,6 +45,8 @@ typedef struct {
     StabilizationSettingsData settings;
     StabilizationBankData     stabBank;
     float gyro_alpha;
+    float floatThrustPIDScaleCurve[STABILIZATIONBANK_THRUSTPIDSCALECURVE_NUMELEM];
+    float acroInsanityFactors[STABILIZATIONBANK_ACROINSANITYFACTOR_NUMELEM];
     struct {
         float min_thrust;
         float max_thrust;

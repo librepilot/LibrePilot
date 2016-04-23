@@ -68,20 +68,23 @@ UAVObjectTreeModel::~UAVObjectTreeModel()
 
 void UAVObjectTreeModel::setupModelData(UAVObjectManager *objManager)
 {
+    m_settingsTree = new TopTreeItem(tr("Settings"));
+    m_settingsTree->setHighlightManager(m_highlightManager);
+    connect(m_settingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
+
+    m_nonSettingsTree = new TopTreeItem(tr("Data Objects"));
+    m_nonSettingsTree->setHighlightManager(m_highlightManager);
+    connect(m_nonSettingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
+
     // root
     QList<QVariant> rootData;
     rootData << tr("Property") << tr("Value") << tr("Unit");
-    m_rootItem        = new TreeItem(rootData);
-
-    m_settingsTree    = new TopTreeItem(tr("Settings"), m_rootItem);
-    m_settingsTree->setHighlightManager(m_highlightManager);
-    m_rootItem->appendChild(m_settingsTree);
-    m_nonSettingsTree = new TopTreeItem(tr("Data Objects"), m_rootItem);
-    m_nonSettingsTree->setHighlightManager(m_highlightManager);
-    m_rootItem->appendChild(m_nonSettingsTree);
+    m_rootItem = new TreeItem(rootData);
     m_rootItem->setHighlightManager(m_highlightManager);
-    connect(m_settingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
-    connect(m_nonSettingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
+
+    // tree item takes ownership of its children
+    m_rootItem->appendChild(m_settingsTree);
+    m_rootItem->appendChild(m_nonSettingsTree);
 
     QList< QList<UAVDataObject *> > objList = objManager->getDataObjects();
     foreach(QList<UAVDataObject *> list, objList) {
@@ -258,8 +261,7 @@ void UAVObjectTreeModel::addSingleField(int index, UAVObjectField *field, TreeIt
     parent->appendChild(item);
 }
 
-QModelIndex UAVObjectTreeModel::index(int row, int column, const QModelIndex &parent)
-const
+QModelIndex UAVObjectTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent)) {
         return QModelIndex();

@@ -29,12 +29,14 @@
 #ifndef UAVOBJECTBROWSERWIDGET_H_
 #define UAVOBJECTBROWSERWIDGET_H_
 
+#include "uavobjecttreemodel.h"
+
+#include "objectpersistence.h"
+
 #include <QWidget>
 #include <QTreeView>
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
-#include "objectpersistence.h"
-#include "uavobjecttreemodel.h"
 
 class QPushButton;
 class ObjectTreeItem;
@@ -85,6 +87,7 @@ public:
     }
     void setViewOptions(bool categorized, bool scientific, bool metadata, bool description);
     void setSplitterState(QByteArray state);
+
 public slots:
     void showMetaData(bool show);
     void showDescription(bool show);
@@ -104,12 +107,12 @@ private slots:
     void searchTextCleared();
     void splitterMoved();
     QString createObjectDescription(UAVObject *object);
+
 signals:
     void viewOptionsChanged(bool categorized, bool scientific, bool metadata, bool description);
     void splitterChanged(QByteArray state);
+
 private:
-    QPushButton *m_requestUpdate;
-    QPushButton *m_sendUpdate;
     Ui_UAVObjectBrowser *m_browser;
     Ui_viewoptions *m_viewoptions;
     QDialog *m_viewoptionsDialog;

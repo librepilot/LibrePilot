@@ -44,43 +44,54 @@
 
 UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent)
 {
-    m_browser     = new Ui_UAVObjectBrowser();
-    m_viewoptions = new Ui_viewoptions();
     m_viewoptionsDialog = new QDialog(this);
+
+    m_viewoptions = new Ui_viewoptions();
     m_viewoptions->setupUi(m_viewoptionsDialog);
-    m_browser->setupUi(this);
-    m_model = new UAVObjectTreeModel();
+
+    m_model = new UAVObjectTreeModel(this);
+
     m_modelProxy = new TreeSortFilterProxyModel(this);
     m_modelProxy->setSourceModel(m_model);
     m_modelProxy->setDynamicSortFilter(true);
+
+    m_browser = new Ui_UAVObjectBrowser();
+    m_browser->setupUi(this);
     m_browser->treeView->setModel(m_modelProxy);
     m_browser->treeView->setColumnWidth(0, 300);
 
     m_browser->treeView->setItemDelegate(new BrowserItemDelegate());
     m_browser->treeView->setEditTriggers(QAbstractItemView::AllEditTriggers);
     m_browser->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+
     m_mustacheTemplate = loadFileIntoString(QString(":/uavobjectbrowser/resources/uavodescription.mustache"));
+
     showMetaData(m_viewoptions->cbMetaData->isChecked());
     showDescription(m_viewoptions->cbDescription->isChecked());
+
     connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(currentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
-    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(showMetaData(bool)));
-    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(categorize(bool)));
-    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(showDescription(bool)));
     connect(m_browser->saveSDButton, SIGNAL(clicked()), this, SLOT(saveObject()));
     connect(m_browser->readSDButton, SIGNAL(clicked()), this, SLOT(loadObject()));
-    connect(m_browser->eraseSDButton, SIGNAL(clicked()), this, SLOT(eraseObject()));
     connect(m_browser->sendButton, SIGNAL(clicked()), this, SLOT(sendUpdate()));
     connect(m_browser->requestButton, SIGNAL(clicked()), this, SLOT(requestUpdate()));
+    connect(m_browser->eraseSDButton, SIGNAL(clicked()), this, SLOT(eraseObject()));
     connect(m_browser->tbView, SIGNAL(clicked()), this, SLOT(viewSlot()));
+    connect(m_browser->splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(splitterMoved()));
+
+    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(showMetaData(bool)));
+    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
+    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(categorize(bool)));
+    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
+    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(showDescription(bool)));
+    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
     connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(useScientificNotation(bool)));
     connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_browser->splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(splitterMoved()));
+
+    // search field and button
     connect(m_browser->searchLine, SIGNAL(textChanged(QString)), this, SLOT(searchLineChanged(QString)));
     connect(m_browser->searchClearButton, SIGNAL(clicked(bool)), this, SLOT(searchTextCleared()));
+
     enableSendRequest(false);
 }
 
@@ -106,9 +117,9 @@ void UAVObjectBrowserWidget::showMetaData(bool show)
 {
     QList<QModelIndex> metaIndexes = m_model->getMetaDataIndexes();
     foreach(QModelIndex modelIndex, metaIndexes) {
-        QModelIndex proxyModelindex = m_modelProxy->mapFromSource(modelIndex);
+        QModelIndex proxyModelIndex = m_modelProxy->mapFromSource(modelIndex);
 
-        m_browser->treeView->setRowHidden(proxyModelindex.row(), proxyModelindex.parent(), !show);
+        m_browser->treeView->setRowHidden(proxyModelIndex.row(), proxyModelIndex.parent(), !show);
     }
 }
 
@@ -140,6 +151,7 @@ void UAVObjectBrowserWidget::categorize(bool categorize)
 
 void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
 {
+    // TODO we should have the model update itself instead of rebuilding it
     UAVObjectTreeModel *model = new UAVObjectTreeModel(0, m_viewoptions->cbCategorized->isChecked(), scientific);
 
     model->setManuallyChangedColor(m_manuallyChangedColor);

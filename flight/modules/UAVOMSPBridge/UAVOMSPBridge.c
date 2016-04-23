@@ -42,6 +42,8 @@
 #include "flightbatterystate.h"
 #include "gpspositionsensor.h"
 #include "manualcontrolcommand.h"
+#include "manualcontrolsettings.h"
+#include "oplinkstatus.h"
 #include "accessorydesired.h"
 #include "attitudestate.h"
 #include "airspeedstate.h"
@@ -451,20 +453,17 @@ static void msp_send_analog(struct msp_bridge *m)
 
     ManualControlSettingsChannelGroupsData channelGroups;
     ManualControlSettingsChannelGroupsGet(&channelGroups);
-    
-    if(channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK)
-    {
+
+    if (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) {
         int8_t rssi;
         OPLinkStatusRSSIGet(&rssi);
-        
+
         // oplink rssi - low: -127 noise floor (set by software when link is completely lost)
-        //               max: various articles found on web quote -10 as maximum received signal power expressed in dBm.
+        // max: various articles found on web quote -10 as maximum received signal power expressed in dBm.
         // MSP values have no units, and OSD rssi display requires calibration anyway, so we will translate -127 to -10 -> 0-1023
-        
+
         data.status.rssi = ((127 + rssi) * 1023) / (127 - 10);
-    }
-    else
-    {
+    } else {
         uint8_t quality;
         ReceiverStatusQualityGet(&quality);
 
@@ -534,32 +533,29 @@ static void msp_send_comp_gps(struct msp_bridge *m)
             uint8_t  home_position_valid;  // 0 = Invalid, Dronin MSP specific
         } __attribute__((packed)) comp_gps;
     } data;
-    
+
     data.comp_gps.distance_to_home    = 0;
     data.comp_gps.direction_to_home   = 0;
     data.comp_gps.home_position_valid = 0; // Home distance and direction will not display on OSD
-    
-    if( PositionStateHandle() && TakeOffLocationHandle() )
-    {
 
+    if (PositionStateHandle() && TakeOffLocationHandle()) {
         TakeOffLocationData takeOffLocation;
         TakeOffLocationGet(&takeOffLocation);
-        
-        if(takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID)
-        {
-            PositionStateData   positionState;
+
+        if (takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID) {
+            PositionStateData positionState;
             PositionStateGet(&positionState);
-            
-            data.comp_gps.distance_to_home = (uint16_t)sqrtf( Sq(takeOffLocation.East - positionState.East) + Sq(takeOffLocation.North - positionState.North) );
-            data.comp_gps.direction_to_home = RAD2DEG( atan2f(takeOffLocation.East - positionState.East, takeOffLocation.North - positionState.North) );
+
+            data.comp_gps.distance_to_home    = (uint16_t)sqrtf(Sq(takeOffLocation.East - positionState.East) + Sq(takeOffLocation.North - positionState.North));
+            data.comp_gps.direction_to_home   = RAD2DEG(atan2f(takeOffLocation.East - positionState.East, takeOffLocation.North - positionState.North));
 
             data.comp_gps.home_position_valid = 1;
         }
     }
 
     // here, CC3D implementation could use raw gps data (GPSPositionSensorData) and locally cached GPSPositionSensorData at arming time as TakeOffLocation.
-    
-    
+
+
     msp_send(m, MSP_COMP_GPS, data.buf, sizeof(data));
 }
 
@@ -568,8 +564,8 @@ static void msp_send_altitude(struct msp_bridge *m)
     union {
         uint8_t buf[0];
         struct {
-            int32_t  estimatedAltitude; // cm
-            int16_t  vario; // cm/s
+            int32_t estimatedAltitude; // cm
+            int16_t vario; // cm/s
         } __attribute__((packed)) altitude;
     } data;
 
@@ -582,11 +578,11 @@ static void msp_send_altitude(struct msp_bridge *m)
     } else {
         data.altitude.estimatedAltitude = 0;
     }
-    
-    if( VelocityStateHandle() != NULL) {
+
+    if (VelocityStateHandle() != NULL) {
         VelocityStateData velocityState;
         VelocityStateGet(&velocityState);
-        
+
         data.altitude.vario = (int16_t)roundf(velocityState.Down * -100.0f);
     } else {
         data.altitude.vario = 0;

@@ -223,7 +223,7 @@
      <item>
       <widget class="QLineEdit" name="searchLine">
        <property name="placeholderText">
-        <string>Search for UAVObject...</string>
+        <string>type filter text</string>
        </property>
       </widget>
      </item>

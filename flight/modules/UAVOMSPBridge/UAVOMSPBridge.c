@@ -50,6 +50,7 @@
 #include "flightstatus.h"
 #include "systemstats.h"
 #include "systemalarms.h"
+#include "takeofflocation.h"
 #include "homelocation.h"
 #include "positionstate.h"
 #include "velocitystate.h"
@@ -64,9 +65,6 @@
 
 #include "pios_sensors.h"
 
-
-#define WGS84_RADIUS_EARTH_KM 6371.008f // Earth's radius in km
-#define PI                    3.14159265358979323846f // [-]
 
 #define PIOS_INCLUDE_MSP_BRIDGE
 
@@ -520,6 +518,12 @@ static void msp_send_raw_gps(struct msp_bridge *m)
 }
 
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
+
+static inline float Sq(float x)
+{
+    return x * x;
+}
+
 static void msp_send_comp_gps(struct msp_bridge *m)
 {
     union {
@@ -531,43 +535,32 @@ static void msp_send_comp_gps(struct msp_bridge *m)
         } __attribute__((packed)) comp_gps;
     } data;
     
-    GPSPositionSensorData gps_data;
-    HomeLocationData home_data;
-
-    if ((GPSPositionSensorHandle() == NULL) || (HomeLocationHandle() == NULL)) {
-        data.comp_gps.distance_to_home    = 0;
-        data.comp_gps.direction_to_home   = 0;
-        data.comp_gps.home_position_valid = 0; // Home distance and direction will not display on OSD
-    } else {
-        GPSPositionSensorGet(&gps_data);
-        HomeLocationGet(&home_data);
-
-        if ((gps_data.Status < GPSPOSITIONSENSOR_STATUS_FIX2D) || (home_data.Set == HOMELOCATION_SET_FALSE)) {
-            data.comp_gps.distance_to_home    = 0;
-            data.comp_gps.direction_to_home   = 0;
-            data.comp_gps.home_position_valid = 0; // Home distance and direction will not display on OSD
-        } else {
-            data.comp_gps.home_position_valid = 1; // Home distance and direction will display on OSD
-
-            int32_t delta_lon = (home_data.Longitude - gps_data.Longitude); // degrees * 1e7
-            int32_t delta_lat = (home_data.Latitude - gps_data.Latitude); // degrees * 1e7
-
-            float delta_y     = DEG2RAD((float)delta_lon * WGS84_RADIUS_EARTH_KM);  // KM * 1e7
-            float delta_x     = DEG2RAD((float)delta_lat * WGS84_RADIUS_EARTH_KM);  // KM * 1e7
-
-            delta_y *= cosf(DEG2RAD((float)home_data.Latitude * 1e-7f)); // Latitude compression correction
-
-            data.comp_gps.distance_to_home = (uint16_t)(sqrtf(delta_x * delta_x + delta_y * delta_y) * 1e-4f); // meters
-
-            if ((delta_lon == 0) && (delta_lat == 0)) {
+    data.comp_gps.distance_to_home    = 0;
     data.comp_gps.direction_to_home   = 0;
-            } else {
-                data.comp_gps.direction_to_home = RAD2DEG((int16_t)(atan2f(delta_y, delta_x))); // degrees;
-            }
+    data.comp_gps.home_position_valid = 0; // Home distance and direction will not display on OSD
+    
+    if( PositionStateHandle() && TakeOffLocationHandle() )
+    {
+
+        TakeOffLocationData takeOffLocation;
+        TakeOffLocationGet(&takeOffLocation);
+        
+        if(takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID)
+        {
+            PositionStateData   positionState;
+            PositionStateGet(&positionState);
+            
+            data.comp_gps.distance_to_home = (uint16_t)sqrtf( Sq(takeOffLocation.East - positionState.East) + Sq(takeOffLocation.North - positionState.North) );
+            data.comp_gps.direction_to_home = RAD2DEG( atan2f(takeOffLocation.East - positionState.East, takeOffLocation.North - positionState.North) );
+
+            data.comp_gps.home_position_valid = 1;
         }
+    }
+
+    // here, CC3D implementation could use raw gps data (GPSPositionSensorData) and locally cached GPSPositionSensorData at arming time as TakeOffLocation.
+    
     
     msp_send(m, MSP_COMP_GPS, data.buf, sizeof(data));
-}
 }
 
 static void msp_send_altitude(struct msp_bridge *m)

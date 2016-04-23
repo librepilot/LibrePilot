@@ -115,6 +115,7 @@ void UAVObjectBrowserWidget::setSplitterState(QByteArray state)
 
 void UAVObjectBrowserWidget::showMetaData(bool show)
 {
+    // TODO update the model directly instead of hiding rows...
     QList<QModelIndex> metaIndexes = m_model->getMetaDataIndexes();
     foreach(QModelIndex modelIndex, metaIndexes) {
         QModelIndex proxyModelIndex = m_modelProxy->mapFromSource(modelIndex);
@@ -130,6 +131,8 @@ void UAVObjectBrowserWidget::showDescription(bool show)
 
 void UAVObjectBrowserWidget::categorize(bool categorize)
 {
+    // TODO we should update the model instead of rebuilding it
+    // a side effect of rebuilding is that some state is lost (expand state, ...)
     UAVObjectTreeModel *model = new UAVObjectTreeModel(0, categorize, m_viewoptions->cbScientific->isChecked());
 
     model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
@@ -145,13 +148,16 @@ void UAVObjectBrowserWidget::categorize(bool categorize)
 
     showMetaData(m_viewoptions->cbMetaData->isChecked());
 
-    // FIXME this causes a collapse all if filter is on
-    searchLineChanged(m_browser->searchLine->text());
+    // force an expand all if search text is not empty
+    if (!m_browser->searchLine->text().isEmpty()) {
+        searchLineChanged(m_browser->searchLine->text());
+    }
 }
 
 void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
 {
-    // TODO we should have the model update itself instead of rebuilding it
+    // TODO we should update the model instead of rebuilding it
+    // a side effect of rebuilding is that some state is lost (expand state, ...)
     UAVObjectTreeModel *model = new UAVObjectTreeModel(0, m_viewoptions->cbCategorized->isChecked(), scientific);
 
     model->setManuallyChangedColor(m_manuallyChangedColor);
@@ -165,14 +171,19 @@ void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
 
     showMetaData(m_viewoptions->cbMetaData->isChecked());
 
-    // FIXME this causes a collapse all if filter is on
-    searchLineChanged(m_browser->searchLine->text());
+    // force an expand all if search text is not empty
+    if (!m_browser->searchLine->text().isEmpty()) {
+        searchLineChanged(m_browser->searchLine->text());
+    }
 }
 
 void UAVObjectBrowserWidget::sendUpdate()
 {
+    // TODO why steal focys ?
     this->setFocus();
+
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
+
     if (objItem != NULL) {
         objItem->apply();
         UAVObject *obj = objItem->object();
@@ -221,12 +232,15 @@ QString UAVObjectBrowserWidget::loadFileIntoString(QString fileName)
 
 void UAVObjectBrowserWidget::saveObject()
 {
+    // TODO why steal focys ?
     this->setFocus();
+
     // Send update so that the latest value is saved
     sendUpdate();
 
     // Save object
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
+
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);

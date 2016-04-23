@@ -612,13 +612,14 @@ static uint16_t msp_scale_rc_thr(float percent)
 // MSP RC order is Roll/Pitch/Yaw/Throttle/AUX1/AUX2/AUX3/AUX4
 static void msp_send_channels(struct msp_bridge *m)
 {
-    AccessoryDesiredData acc0, acc1, acc2;
+    AccessoryDesiredData acc0, acc1, acc2, acc3;
     ManualControlCommandData manualState;
 
     ManualControlCommandGet(&manualState);
     AccessoryDesiredInstGet(0, &acc0);
     AccessoryDesiredInstGet(1, &acc1);
     AccessoryDesiredInstGet(2, &acc2);
+    AccessoryDesiredInstGet(3, &acc2);
 
     union {
         uint8_t  buf[0];
@@ -632,7 +633,7 @@ static void msp_send_channels(struct msp_bridge *m)
             msp_scale_rc(acc0.AccessoryVal),
             msp_scale_rc(acc1.AccessoryVal),
             msp_scale_rc(acc2.AccessoryVal),
-            1000,                                  // no aux4
+            msp_scale_rc(acc3.AccessoryVal),
         }
     };
 

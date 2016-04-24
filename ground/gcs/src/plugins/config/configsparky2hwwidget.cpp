@@ -67,8 +67,8 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbMainGPSSpeed);
     addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbMainComSpeed);
 
-    //addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbRcvrTelemSpeed);
-    //addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbRcvrComSpeed);
+    // addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbRcvrTelemSpeed);
+    // addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbRcvrComSpeed);
 
     // Add Gps protocol configuration
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
@@ -94,13 +94,13 @@ void ConfigSparky2HWWidget::setupCustomCombos()
     connect(m_ui->cbUSBHIDFunction, SIGNAL(currentIndexChanged(int)), this, SLOT(usbHIDPortChanged(int)));
     connect(m_ui->cbUSBVCPFunction, SIGNAL(currentIndexChanged(int)), this, SLOT(usbVCPPortChanged(int)));
 
-    //m_ui->cbSonar->addItem(tr("Disabled"));
-    //m_ui->cbSonar->setCurrentIndex(0);
-    //m_ui->cbSonar->setEnabled(false);
+    // m_ui->cbSonar->addItem(tr("Disabled"));
+    // m_ui->cbSonar->setCurrentIndex(0);
+    // m_ui->cbSonar->setEnabled(false);
 
     connect(m_ui->cbFlexi, SIGNAL(currentIndexChanged(int)), this, SLOT(flexiPortChanged(int)));
     connect(m_ui->cbMain, SIGNAL(currentIndexChanged(int)), this, SLOT(mainPortChanged(int)));
-    //connect(m_ui->cbRcvr, SIGNAL(currentIndexChanged(int)), this, SLOT(rcvrPortChanged(int)));
+    // connect(m_ui->cbRcvr, SIGNAL(currentIndexChanged(int)), this, SLOT(rcvrPortChanged(int)));
 }
 
 void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
@@ -111,7 +111,7 @@ void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
-    //rcvrPortChanged(0);
+    // rcvrPortChanged(0);
     m_refreshing = false;
 }
 

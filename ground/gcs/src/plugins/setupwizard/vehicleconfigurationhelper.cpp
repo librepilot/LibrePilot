@@ -577,7 +577,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                     data.BankUpdateFreq[i] = escFrequence;
                 }
             } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
-                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                       || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 2) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -623,7 +623,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                     data.BankUpdateFreq[i] = escFrequence;
                 }
             } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
-                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                       || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -1370,7 +1370,7 @@ void VehicleConfigurationHelper::setupHexaCopter()
         channels[0].throttle2 = 0;
         channels[0].roll      = 100;
         channels[0].pitch     = 25;
-        channels[0].yaw = -66;
+        channels[0].yaw       = -66;
 
 
         channels[1].type      = MIXER_TYPE_MOTOR;
@@ -1378,35 +1378,35 @@ void VehicleConfigurationHelper::setupHexaCopter()
         channels[1].throttle2 = 0;
         channels[1].roll      = 100;
         channels[1].pitch     = 25;
-        channels[1].yaw = 66;
+        channels[1].yaw       = 66;
 
         channels[2].type      = MIXER_TYPE_MOTOR;
         channels[2].throttle1 = 100;
         channels[2].throttle2 = 0;
         channels[2].roll      = -100;
         channels[2].pitch     = 25;
-        channels[2].yaw = -66;
+        channels[2].yaw       = -66;
 
         channels[3].type      = MIXER_TYPE_MOTOR;
         channels[3].throttle1 = 100;
         channels[3].throttle2 = 0;
         channels[3].roll      = -100;
         channels[3].pitch     = 25;
-        channels[3].yaw = 66;
+        channels[3].yaw       = 66;
 
         channels[4].type      = MIXER_TYPE_MOTOR;
         channels[4].throttle1 = 100;
         channels[4].throttle2 = 0;
         channels[4].roll      = 0;
         channels[4].pitch     = -50;
-        channels[4].yaw = -66;
+        channels[4].yaw       = -66;
 
         channels[5].type      = MIXER_TYPE_MOTOR;
         channels[5].throttle1 = 100;
         channels[5].throttle2 = 0;
         channels[5].roll      = 0;
         channels[5].pitch     = -50;
-        channels[5].yaw = 66;
+        channels[5].yaw       = 66;
 
         guiSettings.multi.VTOLMotorNW = 1;
         guiSettings.multi.VTOLMotorW  = 2;

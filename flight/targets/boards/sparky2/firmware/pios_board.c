@@ -837,8 +837,8 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PPM:
 #if defined(PIOS_INCLUDE_PPM)
         PIOS_Board_configure_ppm(&pios_ppm_cfg);
-        break;
 #endif /* PIOS_INCLUDE_PPM */
+        break;
     case HWSETTINGS_RM_RCVRPORT_SBUS:
 #if defined(PIOS_INCLUDE_SBUS)
         {

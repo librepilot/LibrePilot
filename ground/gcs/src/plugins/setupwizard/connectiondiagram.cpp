@@ -94,6 +94,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::CONTROLLER_NANO:
             elementsToShow << "controller-nano";
             break;
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
+            elementsToShow << "controller-sparky2";
+            break;
         case VehicleConfigurationSource::CONTROLLER_OPLINK:
         default:
             elementsToShow << "controller-cc";
@@ -180,6 +183,9 @@ void ConnectionDiagram::setupGraphicsScene()
             break;
         case VehicleConfigurationSource::CONTROLLER_NANO:
             prefix = "nano-";
+            break;
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
+            prefix = "sparky2-";
             break;
         default:
             break;

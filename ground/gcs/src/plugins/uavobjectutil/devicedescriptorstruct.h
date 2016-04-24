@@ -59,6 +59,10 @@ public:
             // Nano
             return QString("RevoNano");
 
+        case 0x0b01:
+            // Sparky 2.0
+            return QString("Sparky2");
+
         default:
             return QString("");
 

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configgadgetwidget.cpp
- * @author     E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -39,6 +40,7 @@
 #include "configoplinkwidget.h"
 #include "configrevowidget.h"
 #include "configrevonanohwwidget.h"
+#include "configsparky2hwwidget.h"
 #include "defaultattitudewidget.h"
 #include "defaulthwsettingswidget.h"
 #include "uavobjectutilmanager.h"
@@ -199,6 +201,12 @@ void ConfigGadgetWidget::onAutopilotConnect()
             } else if (board == 0x0905) {
                 qwd = new ConfigRevoNanoHWWidget(this);
             }
+            stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
+        } else if ((board & 0xff00) == 0x0b00) {
+            // Sparky2
+            QWidget *qwd = new ConfigRevoWidget(this);
+            stackWidget->replaceTab(ConfigGadgetWidget::sensors, qwd);
+            qwd = new ConfigSparky2HWWidget(this);
             stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
         } else {
             // Unknown board

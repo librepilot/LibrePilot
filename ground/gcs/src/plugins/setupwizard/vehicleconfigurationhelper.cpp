@@ -27,7 +27,6 @@
  */
 
 #include "vehicleconfigurationhelper.h"
-
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectutilmanager.h"
 
@@ -187,13 +186,15 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         break;
     case VehicleConfigurationSource::CONTROLLER_REVO:
     case VehicleConfigurationSource::CONTROLLER_NANO:
+    case VehicleConfigurationSource::CONTROLLER_SPARKY2:
     case VehicleConfigurationSource::CONTROLLER_DISCOVERYF4:
         // Reset all ports to their defaults
         data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
         data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
 
-        // Revo uses inbuilt Modem do not set mainport to be active telemetry link for the Revo
-        if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+        // Revo/Sparky2 uses inbuilt Modem do not set mainport to be active telemetry link for Revo/Sparky2
+        if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+            || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
             data.RM_MainPort = HwSettings::RM_MAINPORT_DISABLED;
         } else {
             data.RM_MainPort = HwSettings::RM_MAINPORT_TELEMETRY;
@@ -207,10 +208,14 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
-            // We have to set telemetry on flexiport since s.bus needs the mainport on all but Revo.
-            if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_SBUS;
+            } else {
+                data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
+                // We have to set telemetry on flexport since s.bus needs the mainport on all but Revo.
+                if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+                }
             }
             break;
         case VehicleConfigurationSource::INPUT_DSM:
@@ -484,7 +489,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             // Servo always on channel 4
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
-            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.BankUpdateFreq[1] = escFrequence;
                 data.BankMode[1] = bankMode;
                 data.BankUpdateFreq[2] = servoFrequence;
@@ -502,7 +508,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;
             data.BankMode[1] = bankMode;
-            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.BankUpdateFreq[2] = escFrequence;
                 data.BankMode[2] = bankMode;
             } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
@@ -566,7 +573,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
                 }
-            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 2) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -611,7 +619,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
                 }
-            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -718,6 +727,7 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
         }
         case VehicleConfigurationSource::CONTROLLER_REVO:
         case VehicleConfigurationSource::CONTROLLER_NANO:
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
         {
             RevoCalibration *revolutionCalibration = RevoCalibration::GetInstance(m_uavoManager);
             Q_ASSERT(revolutionCalibration);

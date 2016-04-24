@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       escpage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup
  * @{
  * @addtogroup EscPage
@@ -98,6 +99,7 @@ bool EscPage::isSynchOrOneShotAvailable()
         }
         break;
     case SetupWizard::CONTROLLER_REVO:
+    case SetupWizard::CONTROLLER_SPARKY2:
         available = true;
         break;
     default:

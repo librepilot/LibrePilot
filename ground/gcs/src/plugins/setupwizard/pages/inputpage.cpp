@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       inputpage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup InputPage
@@ -111,6 +112,7 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
     case SetupWizard::CONTROLLER_REVO:
     case SetupWizard::CONTROLLER_DISCOVERYF4:
     case SetupWizard::CONTROLLER_NANO:
+    case SetupWizard::CONTROLLER_SPARKY2:
     {
         switch (selectedType) {
         case VehicleConfigurationSource::INPUT_PWM:

@@ -55,6 +55,7 @@ HEADERS += \
     calibration/calibrationuiutils.h \
     configoplinkwidget.h \
     configrevonanohwwidget.h \
+    configsparky2hwwidget.h \
     failsafechannelform.h
 
 SOURCES += \
@@ -97,6 +98,7 @@ SOURCES += \
     calibration/gyrobiascalibrationmodel.cpp \
     configoplinkwidget.cpp \
     configrevonanohwwidget.cpp \
+    configsparky2hwwidget.cpp \
     failsafechannelform.cpp
 
 FORMS += \
@@ -123,6 +125,7 @@ FORMS += \
     configrevohwwidget.ui \
     oplink.ui \
     configrevonanohwwidget.ui \
+    configsparky2hwwidget.ui \
     failsafechannelform.ui
 
 OTHER_FILES += \

@@ -117,6 +117,9 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
     case 0x0905:
         return SetupWizard::CONTROLLER_NANO;
 
+    case 0x0b01:
+        return SetupWizard::CONTROLLER_SPARKY2;
+
     default:
         return SetupWizard::CONTROLLER_UNKNOWN;
     }
@@ -139,6 +142,7 @@ void ControllerPage::setupBoardTypes()
     ui->boardTypeCombo->addItem(tr("OpenPilot OPLink Radio Modem"), SetupWizard::CONTROLLER_OPLINK);
     ui->boardTypeCombo->addItem(tr("OpenPilot DiscoveryF4"), SetupWizard::CONTROLLER_DISCOVERYF4);
     ui->boardTypeCombo->addItem(tr("OpenPilot Nano"), SetupWizard::CONTROLLER_NANO);
+    ui->boardTypeCombo->addItem(tr("TauLabs Sparky 2.0"), SetupWizard::CONTROLLER_SPARKY2);
 }
 
 void ControllerPage::setControllerType(SetupWizard::CONTROLLER_TYPE type)
@@ -222,6 +226,11 @@ void ControllerPage::connectionStatusChanged()
 
         case SetupWizard::CONTROLLER_NANO:
             boardPic.load(":/configgadget/images/nano_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+        case SetupWizard::CONTROLLER_SPARKY2:
+            boardPic.load(":/configgadget/images/sparky2_top.png");
             ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
             break;
 

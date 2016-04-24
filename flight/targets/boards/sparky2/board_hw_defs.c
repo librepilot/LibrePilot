@@ -1446,7 +1446,7 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM12, 1, B, 14),
 };
 
-#define PIOS_SERVOPORT_ALL_PINS_PWMOUT 12
+#define PIOS_SERVOPORT_ALL_PINS_PWMOUT (NELEMENTS(pios_tim_servoport_all_pins))
 
 const struct pios_servo_cfg pios_servo_cfg_out = {
     .tim_oc_init          = {

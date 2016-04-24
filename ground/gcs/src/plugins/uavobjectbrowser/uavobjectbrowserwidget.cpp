@@ -180,7 +180,7 @@ void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
 
 void UAVObjectBrowserWidget::sendUpdate()
 {
-    // TODO why steal focys ?
+    // TODO why steal focus ?
     this->setFocus();
 
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
@@ -233,7 +233,7 @@ QString UAVObjectBrowserWidget::loadFileIntoString(QString fileName)
 
 void UAVObjectBrowserWidget::saveObject()
 {
-    // TODO why steal focys ?
+    // TODO why steal focus ?
     this->setFocus();
 
     // Send update so that the latest value is saved

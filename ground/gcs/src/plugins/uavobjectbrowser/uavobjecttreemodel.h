@@ -30,7 +30,6 @@
 
 #include "treeitem.h"
 #include <QAbstractItemModel>
-#include <QSortFilterProxyModel>
 #include <QtCore/QMap>
 #include <QtCore/QList>
 #include <QColor>

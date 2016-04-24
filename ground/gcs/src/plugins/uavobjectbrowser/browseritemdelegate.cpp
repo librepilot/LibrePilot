@@ -26,17 +26,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "uavobjectbrowserwidget.h"
 #include "browseritemdelegate.h"
 #include "fieldtreeitem.h"
 
-BrowserItemDelegate::BrowserItemDelegate(QObject *parent)  :
+BrowserItemDelegate::BrowserItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {}
 
 QWidget *BrowserItemDelegate::createEditor(QWidget *parent,
                                            const QStyleOptionViewItem & option,
-                                           const QModelIndex & index) const
+                                           const QModelIndex &index) const
 {
     Q_UNUSED(option)
     FieldTreeItem * item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
@@ -46,7 +45,7 @@ QWidget *BrowserItemDelegate::createEditor(QWidget *parent,
 }
 
 void BrowserItemDelegate::setEditorData(QWidget *editor,
-                                        const QModelIndex & index) const
+                                        const QModelIndex &index) const
 {
     FieldTreeItem *item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
     QVariant value = index.model()->data(index, Qt::EditRole);

@@ -986,8 +986,6 @@ static const struct pios_usart_cfg pios_usart_sbus_rcvr_cfg = {
     },
 };
 
-#endif /* PIOS_INCLUDE_SBUS */
-
 
 static const struct pios_sbus_cfg pios_sbus_cfg = {
     /* Inverter configuration */
@@ -1007,6 +1005,7 @@ static const struct pios_sbus_cfg pios_sbus_cfg = {
     .gpio_clk_periph  = RCC_AHB1Periph_GPIOC,
 };
 
+#endif /* PIOS_INCLUDE_SBUS */
 
 #ifdef PIOS_INCLUDE_DSM
 

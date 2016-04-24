@@ -38,8 +38,6 @@
         #define PIOS_ALARM_GRACETIME 1000
 #endif // PIOS_ALARM_GRACETIME
 
-#define NELEM(x) ((sizeof(x) / sizeof((x)[0])))
-
 // Private types
 
 // Private variables
@@ -328,7 +326,7 @@ size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, Sy
 {
     size_t pos = 0;
 
-    PIOS_STATIC_ASSERT(NELEM(systemalarms_alarm_names) == SYSTEMALARMS_ALARM_NUMELEM);
+    PIOS_STATIC_ASSERT(NELEMENTS(systemalarms_alarm_names) == SYSTEMALARMS_ALARM_NUMELEM);
 
     for (unsigned severity = SYSTEMALARMS_ALARM_ERROR; severity >= level; --severity) {
         // should we prepend severity level here? No, not for now.
@@ -349,13 +347,13 @@ size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, Sy
 
                 switch (i) {
                 case SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION:
-                    if (alarm->ExtendedAlarmStatus.SystemConfiguration < NELEM(systemalarms_extendedalarmstatus_names)) {
+                    if (alarm->ExtendedAlarmStatus.SystemConfiguration < NELEMENTS(systemalarms_extendedalarmstatus_names)) {
                         current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.SystemConfiguration];
                     }
                     break;
 
                 case SYSTEMALARMS_ALARM_BOOTFAULT:
-                    if (alarm->ExtendedAlarmStatus.BootFault < NELEM(systemalarms_extendedalarmstatus_names)) {
+                    if (alarm->ExtendedAlarmStatus.BootFault < NELEMENTS(systemalarms_extendedalarmstatus_names)) {
                         current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.BootFault];
                     }
                     break;

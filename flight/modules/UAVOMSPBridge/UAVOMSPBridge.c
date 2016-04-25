@@ -461,6 +461,7 @@ static void msp_send_analog(struct msp_bridge *m)
     ManualControlSettingsChannelGroupsData channelGroups;
     ManualControlSettingsChannelGroupsGet(&channelGroups);
 
+#ifdef PIOS_INCLUDE_OPLINKRCVR
     if (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) {
         int8_t rssi;
         OPLinkStatusRSSIGet(&rssi);
@@ -474,12 +475,15 @@ static void msp_send_analog(struct msp_bridge *m)
 
         data.status.rssi = ((rssi - OPLINK_LOW_RSSI) * 1023) / (OPLINK_HIGH_RSSI - OPLINK_LOW_RSSI);
     } else {
+#endif /* PIOS_INCLUDE_OPLINKRCVR */
         uint8_t quality;
         ReceiverStatusQualityGet(&quality);
 
         // MSP RSSI's range is 0-1023
         data.status.rssi = (quality * 1023) / 100;
+#ifdef PIOS_INCLUDE_OPLINKRCVR
     }
+#endif /* PIOS_INCLUDE_OPLINKRCVR */
 
     if (data.status.rssi > 1023) {
         data.status.rssi = 1023;

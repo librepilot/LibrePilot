@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       browseritemdelegate.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVObjectBrowserPlugin UAVObject Browser Plugin
@@ -34,20 +35,19 @@ BrowserItemDelegate::BrowserItemDelegate(QObject *parent) :
 
 QWidget *BrowserItemDelegate::createEditor(QWidget *parent,
                                            const QStyleOptionViewItem & option,
-                                           const QModelIndex & index) const
+                                           const QModelIndex &index) const
 {
     Q_UNUSED(option)
-    FieldTreeItem * item = static_cast<FieldTreeItem *>(index.internalPointer());
+    FieldTreeItem * item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
     QWidget *editor = item->createEditor(parent);
     Q_ASSERT(editor);
     return editor;
 }
 
-
 void BrowserItemDelegate::setEditorData(QWidget *editor,
                                         const QModelIndex &index) const
 {
-    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
+    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
     QVariant value = index.model()->data(index, Qt::EditRole);
 
     item->setEditorValue(editor, value);
@@ -56,15 +56,18 @@ void BrowserItemDelegate::setEditorData(QWidget *editor,
 void BrowserItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                        const QModelIndex &index) const
 {
-    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.internalPointer());
+    FieldTreeItem *item = static_cast<FieldTreeItem *>(index.data(Qt::UserRole).value<void *>());
     QVariant value = item->getEditorValue(editor);
 
-    model->setData(index, value, Qt::EditRole);
+    bool ret = model->setData(index, value, Qt::EditRole);
+
+    Q_ASSERT(ret);
 }
 
 void BrowserItemDelegate::updateEditorGeometry(QWidget *editor,
-                                               const QStyleOptionViewItem &option, const QModelIndex & /* index */) const
+                                               const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     editor->setGeometry(option.rect);
 }
 

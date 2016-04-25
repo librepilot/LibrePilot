@@ -369,7 +369,6 @@ void VtolAutoTakeoffController::UpdateAutoPilot()
         }
     }
     break;
-
     case STATUSVTOLAUTOTAKEOFF_CONTROLSTATE_ABORT:
     {
         FlightStatusData flightStatus;

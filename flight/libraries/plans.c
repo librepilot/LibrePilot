@@ -174,6 +174,7 @@ void plan_setup_returnToBase()
 void plan_setup_AutoTakeoff()
 {
     PathDesiredData pathDesired;
+
     memset(&pathDesired, 0, sizeof(PathDesiredData));
     PositionStateData positionState;
 

@@ -72,9 +72,9 @@
 
 #if defined(PIOS_INCLUDE_MSP_BRIDGE)
 
-// oplink rssi - absolute low : -127 noise floor (set by software when link is completely lost)
-// in reality  : around -110
-// max: various articles found on web quote -10 as maximum received signal power expressed in dBm.
+// oplink rssi - absolute low : -127 dBm noise floor (set by software when link is completely lost)
+// in reality  : around -110 dBm
+// max: various articles found on web quote -10 dBm as maximum received signal power.
 
 #define OPLINK_LOW_RSSI  -110
 #define OPLINK_HIGH_RSSI -10
@@ -466,8 +466,6 @@ static void msp_send_analog(struct msp_bridge *m)
         OPLinkStatusRSSIGet(&rssi);
 
         // MSP values have no units, and OSD rssi display requires calibration anyway, so we will translate OPLINK_LOW_RSSI to OPLINK_HIGH_RSSI -> 0-1023
-
-
         if (rssi < OPLINK_LOW_RSSI) {
             rssi = OPLINK_LOW_RSSI;
         } else if (rssi > OPLINK_HIGH_RSSI) {
@@ -480,7 +478,6 @@ static void msp_send_analog(struct msp_bridge *m)
         ReceiverStatusQualityGet(&quality);
 
         // MSP RSSI's range is 0-1023
-
         data.status.rssi = (quality * 1023) / 100;
     }
 
@@ -489,11 +486,6 @@ static void msp_send_analog(struct msp_bridge *m)
     }
 
     msp_send(m, MSP_ANALOG, data.buf, sizeof(data));
-}
-
-static void msp_send_ident(__attribute__((unused)) struct msp_bridge *m)
-{
-    // TODO
 }
 
 static void msp_send_raw_gps(struct msp_bridge *m)
@@ -811,9 +803,6 @@ static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
 
     // Respond to interesting things.
     switch (m->cmd_id) {
-    case MSP_IDENT:
-        msp_send_ident(m);
-        break;
     case MSP_RAW_GPS:
         msp_send_raw_gps(m);
         break;

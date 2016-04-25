@@ -2,9 +2,12 @@
  ******************************************************************************
  *
  * @file       FixedWingFlyController.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Fixed wing fly controller implementation
  * @see        The GNU Public License (GPL) Version 3
+ *
+ * @addtogroup LibrePilot LibrePilotModules Modules PathFollower Navigation
  *
  *****************************************************************************/
 /*

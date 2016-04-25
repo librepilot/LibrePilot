@@ -1,16 +1,15 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotLibraries OpenPilot Libraries
- * @{
- * @addtogroup Navigation
- * @brief setups RTH/PH and other pathfollower/pathplanner status
- * @{
  *
  * @file       plan.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ *
+ * @brief setups RTH/PH and other pathfollower/pathplanner status
  *
  * @see        The GNU Public License (GPL) Version 3
  *
+ * @addtogroup LibrePilotLibraries LibrePilot Libraries Navigation
  ******************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

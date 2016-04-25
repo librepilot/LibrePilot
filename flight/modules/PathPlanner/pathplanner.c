@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
+ * @addtogroup LibrePilotModules LibrePilot Modules
  * @{
  * @addtogroup PathPlanner Path Planner Module
  * @brief Executes a series of waypoints
  * @{
  *
  * @file       pathplanner.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Executes a series of waypoints
  *
  * @see        The GNU Public License (GPL) Version 3

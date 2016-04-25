@@ -2,12 +2,14 @@
  ******************************************************************************
  *
  * @file       pathfollower.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      This module compared @ref PositionActuatl to @ref ActiveWaypoint
  * and sets @ref AttitudeDesired.  It only does this when the FlightMode field
  * of @ref ManualControlCommand is Auto.
  *
  * @see        The GNU Public License (GPL) Version 3
+ * @addtogroup LibrePilot LibrePilotModules Modules PathFollower Navigation
  *
  *****************************************************************************/
 /*

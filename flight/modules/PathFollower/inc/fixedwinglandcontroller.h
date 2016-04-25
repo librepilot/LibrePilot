@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
+ * @addtogroup LibrePilotModules LibrePilot Modules
  * @{
  * @addtogroup FixedWing CONTROL interface class
  * @brief CONTROL interface class for pathfollower fixed wing fly controller
  * @{
  *
  * @file       fixedwinglandcontroller.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Executes CONTROL for fixed wing fly objectives
  *
  * @see        The GNU Public License (GPL) Version 3

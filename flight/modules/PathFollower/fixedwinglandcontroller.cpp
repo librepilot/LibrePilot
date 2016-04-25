@@ -98,7 +98,7 @@ int32_t FixedWingLandController::Initialize(FixedWingPathFollowerSettingsData *p
 }
 
 /**
- * reset integrals
+ * reset globals, (integrals, accumulated errors and timers)
  */
 void FixedWingLandController::resetGlobals()
 {

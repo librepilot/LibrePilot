@@ -130,8 +130,8 @@ uint8_t VtolAutoTakeoffController::Mode(void)
 void VtolAutoTakeoffController::ObjectiveUpdated(void)
 {
     if (mOverride) {
-        // override pathDesired from PathPLanner with current position,
-        // as we deliberately don' not care about the location of the waypoints on the map
+        // override pathDesired from PathPlanner with current position,
+        // as we deliberately don't care about the location of the waypoints on the map
         float velocity_down;
         float autotakeoff_height;
         PositionStateData positionState;
@@ -161,6 +161,8 @@ void VtolAutoTakeoffController::ObjectiveUpdated(void)
         controlDown.UpdatePositionSetpoint(pathDesired->End.Down);
     }
 }
+
+// Controller deactivated
 void VtolAutoTakeoffController::Deactivate(void)
 {
     if (mActive) {

@@ -47,7 +47,7 @@ typedef enum {
     AUTOTAKEOFF_STATE_THRUSTDOWN, // Thrust down sequence
     AUTOTAKEOFF_STATE_THRUSTOFF, // Thrust is now off
     AUTOTAKEOFF_STATE_DISARMED, // Disarmed
-    AUTOTAKEOFF_STATE_ABORT, // Abort on error triggerig fallback to land
+    AUTOTAKEOFF_STATE_ABORT, // Abort on error triggers fallback to land
     AUTOTAKEOFF_STATE_SIZE
 } PathFollowerFSM_AutoTakeoffState_T;
 

@@ -3,69 +3,43 @@
         <description>Settings for the @ref FixedWingPathFollowerModule</description>
 
         <!-- these coefficients control desired movement in airspace -->
-        <field name="HorizontalVelMax" units="m/s" type="float" elements="1" defaultvalue="20"/>
-                <!-- Maximum speed the autopilot will try to achieve, usually for long distances -->
-        <field name="HorizontalVelMin" units="m/s" type="float" elements="1" defaultvalue="10"/>
-                <!-- V_y, Minimum speed the autopilot will try to fly, for example when loitering -->
-        <field name="VerticalVelMax" units="m/s" type="float" elements="1" defaultvalue="10"/>
-                <!-- maximum allowed climb or sink rate in guided flight-->
+        <field name="HorizontalVelMax" units="m/s" type="float" elements="1" defaultvalue="20" description="Maximum speed the autopilot will try to achieve, usually for long distances" />
+        <field name="HorizontalVelMin" units="m/s" type="float" elements="1" defaultvalue="10" description="Minimum speed the autopilot will try to fly, for example when loitering" />
+        <field name="VerticalVelMax" units="m/s" type="float" elements="1" defaultvalue="10" description="maximum allowed climb or sink rate in guided flight" />
 
-        <field name="CourseFeedForward" units="s" type="float" elements="1" defaultvalue="3.0"/>
-                <!-- how many seconds to plan the flight vector ahead when initiating necessary heading changes - increase for planes with sluggish response -->
-        <field name="ReverseCourseOverlap" units="deg" type="float" elements="1" defaultvalue="20.0"/>
-		<!-- how big the overlapping area behind the plane is, where, if the desired course lies behind, the current bank angle will determine if the plane goes left or right -->
+        <field name="CourseFeedForward" units="s" type="float" elements="1" defaultvalue="1.0" description="how many seconds to plan the flight vector ahead when initiating necessary heading changes - increase for planes with sluggish response" />
+        <field name="ReverseCourseOverlap" units="deg" type="float" elements="1" defaultvalue="20.0" description="how big the overlapping area behind the plane is, where, if the desired course lies in, the plane will not change bank angle while turning (to prevent oscillation)" />
 
-        <field name="HorizontalPosP" units="(m/s)/m" type="float" elements="1" defaultvalue="0.2"/>
-                <!-- proportional coefficient for correction vector in path vector field to get back on course - reduce for fast planes to prevent course oscillations -->
-        <field name="VerticalPosP" units="(m/s)/m" type="float" elements="1" defaultvalue="0.4"/>
-                <!-- proportional coefficient for desired vertical speed in relation to altitude displacement-->
+        <field name="HorizontalPosP" units="(m/s)/m" type="float" elements="1" defaultvalue="0.2" description="proportional coefficient for correction vector in path vector field to get back on course - reduce for fast planes to prevent course oscillations" />
+        <field name="VerticalPosP" units="(m/s)/m" type="float" elements="1" defaultvalue="0.4" description="proportional coefficient for desired vertical speed in relation to altitude displacement - reduce if plane is oscillating vertically, increase if altitude is not held reliably" />
 
-	<field name="UseAirspeedSensor" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True"/>
-		<!-- allows to ignore the airspeed sensor, set to false if you have none, which will trigger fallback algorithm without indicating a fault -->
+	<field name="UseAirspeedSensor" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True" description="allows to ignore the airspeed sensor, set to false if you have none, which will trigger fallback algorithm without indicating a fault" />
 
         <!-- these coefficients control actual control outputs -->
-        <field name="CoursePI" units="deg/deg" type="float" elements="3" elementnames="Kp,Ki,ILimit" defaultvalue="0.2, 0, 0"/>
-                <!-- coefficients for desired bank angle in relation to ground bearing error - this controls heading -->
+        <field name="CoursePI" units="deg/deg" type="float" elements="3" elementnames="Kp,Ki,ILimit" defaultvalue="0.2,0,0" description="coefficients for desired bank angle in relation to ground bearing error - this controls heading" />
 
-        <field name="SpeedPI" units="deg / (m/s)" type="float" elements="3" elementnames="Kp,Ki,ILimit" defaultvalue="2.5, .25, 10"/>
-                <!-- coefficients for desired pitch
-                     in relation to speed error IASerror -->
-        <field name="VerticalToPitchCrossFeed" units="deg / (m/s)" type="float" elementnames="Kp,Max" defaultvalue="5, 10"/>
-                <!-- coefficients for adjusting desired pitch
-                     in relation to "vertical speed error -->
-        <field name="AirspeedToPowerCrossFeed" units="1 / (m/s)" type="float" elementnames="Kp,Max" defaultvalue="0.2, 1"/>
-                <!-- proportional coefficient for adjusting vertical speed error for power calculation
-                     in relation to airspeed error IASerror -->
-        <field name="PowerPI" units="1/(m/s)" type="float" elements="3" elementnames="Kp,Ki,ILimit" defaultvalue="0.01,0.05,0.5"/>
-                <!-- proportional coefficient for desired thrust
-                     in relation to vertical speed error (absolute but including crossfeed) -->
+        <field name="SpeedPI" units="deg / (m/s)" type="float" elements="3" elementnames="Kp,Ki,ILimit" defaultvalue="2.5,.25,10" description="coefficients for desired pitch in relation to speed error" />
+        <field name="VerticalToPitchCrossFeed" units="deg / (m/s)" type="float" elementnames="Kp,Max" defaultvalue="5,10" description="coefficients for adjusting desired pitch in relation to vertical speed error" />
+        <field name="AirspeedToPowerCrossFeed" units="1 / (m/s)" type="float" elementnames="Kp,Max" defaultvalue="0.2,1" description="proportional coefficient for adjusting vertical speed error for power calculation in relation to airspeed error" />
+        <field name="PowerPI" units="1/(m/s)" type="float" elements="3" elementnames="Kp,Ki,ILimit" defaultvalue="0.01,0.05,0.5" description="proportional coefficient for desired thrust in relation to vertical speed error (absolute but including crossfeed)" />
 
         <!-- output limits -->
-        <field name="RollLimit" units="deg" type="float" elements="3" elementnames="Min,Neutral,Max" defaultvalue="-45,0,45" />
-                <!-- maximum allowed bank angles in navigates flight -->
-        <field name="PitchLimit" units="deg" type="float" elements="3" elementnames="Min,Neutral,Max" defaultvalue="-10,5,20" />
-                <!-- maximum allowed pitch angles and setpoint for neutral pitch -->
-        <field name="ThrustLimit" units="" type="float" elements="3" elementnames="Min,Neutral,Max" defaultvalue="0.1,0.5,0.9" />
-                <!-- minimum and maximum allowed thrust and setpoint for cruise speed -->
-        <field name="Safetymargins" units="" type="float"
-                elementnames="Wind, Stallspeed, Lowspeed, Highspeed, Overspeed, Lowpower, Highpower, Rollcontrol, Pitchcontrol"
-                defaultvalue="1, 1.0, 0.5, 1.5, 1.0, 1, 0, 1, 1" />
-                <!-- Wind: degrees of crabbing allowed
-                     Speeds: percentage (1.0=100%) of the limit to be over/onder
-                     Power & Control: flag to turn on/off 0.0 =off 1.0 = on -->
+        <field name="RollLimit" units="deg" type="float" elements="3" elementnames="Min,Neutral,Max" defaultvalue="-45,0,45" description="maximum allowed bank angles in navigates flight" />
+        <field name="PitchLimit" units="deg" type="float" elements="3" elementnames="Min,Neutral,Max" defaultvalue="-10,5,20" description="maximum allowed pitch angles and setpoint for neutral pitch" />
+        <field name="ThrustLimit" units="" type="float" elements="3" elementnames="Min,Neutral,Max" defaultvalue="0.1,0.5,0.9" description="minimum and maximum allowed thrust and setpoint for cruise speed" />
+	<field name="Safetymargins" units="" type="float"
+                elementnames="Wind,Stallspeed,Lowspeed,Highspeed,Overspeed,Lowpower,Highpower,Rollcontrol,Pitchcontrol"
+                defaultvalue="1,1.0,0.5,1.5,1.0,1,0,1,1"
+		description="Wind: degrees of crabbing allowed -- Speeds: percentage (1.0=100%) of the limit to be over/under -- Power &amp; Control: flag to turn on/off 0.0=off 1.0 = on" />
         <field name="SafetyCutoffLimits" units="" type="float"
-		elementnames="RollDeg,PitchDeg,YawDeg,MaxDecelerationDeltaMPS" defaultvalue="25.0, 25.0, 25.0, 4.0" />
-		<!-- maximum margins from attempted attitude allowed during takeoff
-		     In flight Roll/Pitch are added to RollLimit/PitchLimit as max limits - throttle is cut when beyond
-		     if roll > RollLimit.Max + TakeOffLimits.RollDeg
-		     the same happens when MaxDecelerationDeltaMPS below Lowspeed limit
-		     if speed < Safetymargins.Lowspeed*HorizontalVelMin - TakeOffLimits.MaxDecelerationDeltaMPS --> 
+		elementnames="RollDeg,PitchDeg,YawDeg,MaxDecelerationDeltaMPS" defaultvalue="25.0,25.0,25.0,4.0"
+		description="maximum margins from attempted attitude allowed during takeoff -- In flight Roll/Pitch are added to RollLimit/PitchLimit as max limits - throttle is cut when beyond if roll &gt; RollLimit.Max + TakeOffLimits.RollDeg the same happens when MaxDecelerationDeltaMPS below Lowspeed limit if speed &lt; Safetymargins.Lowspeed*HorizontalVelMin - TakeOffLimits.MaxDecelerationDeltaMPS" />
 
 
-	<field name="TakeOffPitch" units="deg" type="float" elements="1" defaultvalue="25.0"/>
-	<field name="LandingPitch" units="deg" type="float" elements="1" defaultvalue="7.5"/>
+	<field name="TakeOffPitch" units="deg" type="float" elements="1" defaultvalue="25.0" description="pitch angle in autotakeoff mode" />
+	<field name="LandingPitch" units="deg" type="float" elements="1" defaultvalue="7.5" description="pitch angle in autoland mode" />
 
-        <field name="UpdatePeriod" units="ms" type="int32" elements="1" defaultvalue="100"/>
+        <field name="UpdatePeriod" units="ms" type="int32" elements="1" defaultvalue="100" description="update period of pathfollower" />
 
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>

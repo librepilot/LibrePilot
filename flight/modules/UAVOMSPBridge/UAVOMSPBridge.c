@@ -72,6 +72,13 @@
 
 #if defined(PIOS_INCLUDE_MSP_BRIDGE)
 
+// oplink rssi - absolute low : -127 noise floor (set by software when link is completely lost)
+// in reality  : around -110
+// max: various articles found on web quote -10 as maximum received signal power expressed in dBm.
+
+#define OPLINK_LOW_RSSI  -110
+#define OPLINK_HIGH_RSSI -10
+
 #define MSP_SENSOR_ACC   (1 << 0)
 #define MSP_SENSOR_BARO  (1 << 1)
 #define MSP_SENSOR_MAG   (1 << 2)
@@ -458,11 +465,16 @@ static void msp_send_analog(struct msp_bridge *m)
         int8_t rssi;
         OPLinkStatusRSSIGet(&rssi);
 
-        // oplink rssi - low: -127 noise floor (set by software when link is completely lost)
-        // max: various articles found on web quote -10 as maximum received signal power expressed in dBm.
-        // MSP values have no units, and OSD rssi display requires calibration anyway, so we will translate -127 to -10 -> 0-1023
+        // MSP values have no units, and OSD rssi display requires calibration anyway, so we will translate OPLINK_LOW_RSSI to OPLINK_HIGH_RSSI -> 0-1023
 
-        data.status.rssi = ((127 + rssi) * 1023) / (127 - 10);
+
+        if (rssi < OPLINK_LOW_RSSI) {
+            rssi = OPLINK_LOW_RSSI;
+        } else if (rssi > OPLINK_HIGH_RSSI) {
+            rssi = OPLINK_HIGH_RSSI;
+        }
+
+        data.status.rssi = ((rssi - OPLINK_LOW_RSSI) * 1023) / (OPLINK_HIGH_RSSI - OPLINK_LOW_RSSI);
     } else {
         uint8_t quality;
         ReceiverStatusQualityGet(&quality);

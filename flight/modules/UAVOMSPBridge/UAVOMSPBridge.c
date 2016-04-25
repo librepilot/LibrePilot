@@ -620,7 +620,7 @@ static void msp_send_channels(struct msp_bridge *m)
     AccessoryDesiredInstGet(0, &acc0);
     AccessoryDesiredInstGet(1, &acc1);
     AccessoryDesiredInstGet(2, &acc2);
-    AccessoryDesiredInstGet(3, &acc2);
+    AccessoryDesiredInstGet(3, &acc3);
 
     union {
         uint8_t  buf[0];

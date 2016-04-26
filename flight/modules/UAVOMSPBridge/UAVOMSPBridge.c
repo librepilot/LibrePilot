@@ -800,6 +800,7 @@ static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m)
         break;
     case SYSTEMALARMS_ALARM_CRITICAL:
         data.alarm.state = ALARM_ERROR;
+        break;
     }
 
     msp_send(m, MSP_ALARMS, data.buf, len + 1);

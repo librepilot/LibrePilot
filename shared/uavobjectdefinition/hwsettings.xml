@@ -11,11 +11,11 @@
 		<field name="RV_TelemetryPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,ComAux,ComBridge,MSP" defaultvalue="Telemetry"/>
 		<field name="RV_GPSPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,ComAux,ComBridge,MSP" defaultvalue="GPS"/>
 
-		<field name="RM_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+PWM,PPM+Telemetry,PPM+Outputs,Outputs,Telemetry,ComBridge,MSP"
+		<field name="RM_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+PWM,PPM+Telemetry,PPM+Outputs,Outputs,Telemetry,ComBridge,MSP,MAVLink"
 			defaultvalue="PWM"
-                        limits="%0905NE:PPM+PWM:PPM+Telemetry:Telemetry:ComBridge:MSP;"/>
-		<field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
-		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
+                        limits="%0905NE:PPM+PWM:PPM+Telemetry:Telemetry:ComBridge:MSP:MAVLink;"/>
+		<field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 
 		<field name="SPK2_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PPM,S.Bus,DSM,SRXL,EX.Bus,HoTT SUMD,HoTT SUMH" defaultvalue="PPM"/>
 		<field name="SPK2_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,DSM,DebugConsole,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>

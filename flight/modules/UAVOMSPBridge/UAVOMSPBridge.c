@@ -785,14 +785,21 @@ static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m)
     data.alarm.state = ALARM_OK;
     int32_t len = AlarmString(&alarm, data.alarm.msg,
                               sizeof(data.alarm.msg), SYSTEMALARMS_ALARM_CRITICAL, &state); // Include only CRITICAL and ERROR
+
+    // NOTE: LP alarm severity levels and MSP levels do not match. ERROR and CRITICAL are swapped.
+    //       So far, MW-OSD code (MSP consumer) does not make difference between ALARM_ERROR and ALARM_CRITICAL.
+    //       ALARM_WARN should be blinking if thats the highest severity level at the moment.
+    //       There might be other types of MSP consumers.
+    
     switch (state) {
     case SYSTEMALARMS_ALARM_WARNING:
         data.alarm.state = ALARM_WARN;
         break;
     case SYSTEMALARMS_ALARM_ERROR:
+        data.alarm.state = ALARM_CRIT;
         break;
     case SYSTEMALARMS_ALARM_CRITICAL:
-        data.alarm.state = ALARM_CRIT;;
+        data.alarm.state = ALARM_ERROR;
     }
 
     msp_send(m, MSP_ALARMS, data.buf, len + 1);

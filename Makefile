@@ -382,12 +382,13 @@ $(DIST_TAR): $(DIST_VER_INFO) .git/index | $(DIST_DIR)
 	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR))"
 	$(V1) git archive --prefix="$(PACKAGE_NAME)/" -o "$(DIST_TAR)" HEAD
 	$(V1) tar --append --file="$(DIST_TAR)" \
+		--owner=root --group=root --mtime="`git show -s --format=%ci`" \
 		--transform='s,.*version-info.json,$(PACKAGE_NAME)/version-info.json,' \
 		$(call toprel, "$(DIST_VER_INFO)")
 
 $(DIST_TAR_GZ): $(DIST_TAR)
 	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR_GZ))"
-	$(V1) gzip -kf "$(DIST_TAR)"
+	$(V1) gzip -knf "$(DIST_TAR)"
 
 .PHONY: dist_tar_gz
 dist_tar_gz: $(DIST_TAR_GZ)
@@ -399,12 +400,13 @@ dist: dist_tar_gz
 $(FW_DIST_TAR): $(PACKAGE_FW_TARGETS) | $(DIST_DIR)
 	@$(ECHO) " FIRMWARE FOR DISTRIBUTION $(call toprel, $(FW_DIST_TAR))"
 	$(V1) tar -c --file="$(FW_DIST_TAR)" --directory=$(FLIGHT_OUT_DIR) \
+		--owner=root --group=root --mtime="`git show -s --format=%ci`" \
 		--transform='s,^,firmware/,' \
 		$(foreach fw_targ,$(PACKAGE_FW_TARGETS),$(fw_targ)/$(fw_targ).opfw)
 
 $(FW_DIST_TAR_GZ): $(FW_DIST_TAR)
 	@$(ECHO) " FIRMWARE FOR DISTRIBUTION $(call toprel, $(FW_DIST_TAR_GZ))"
-	$(V1) gzip -kf "$(FW_DIST_TAR)"
+	$(V1) gzip -knf "$(FW_DIST_TAR)"
 
 .PHONY: fw_dist_tar_gz
 fw_dist_tar_gz: $(FW_DIST_TAR_GZ)

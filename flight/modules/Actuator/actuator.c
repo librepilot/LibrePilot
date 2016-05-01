@@ -77,6 +77,8 @@ static int8_t counter;
 
 #define ACTUATOR_ONESHOT125_CLOCK       2000000
 #define ACTUATOR_ONESHOT125_PULSE_SCALE 4
+#define ACTUATOR_ONESHOT42_CLOCK        6000000
+#define ACTUATOR_ONESHOT42_PULSE_SCALE  4
 #define ACTUATOR_PWM_CLOCK              1000000
 // Private types
 
@@ -941,6 +943,10 @@ static bool set_channel(uint8_t mixer_channel, uint16_t value)
             // Remap 1000-2000 range to 125-250
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value / ACTUATOR_ONESHOT125_PULSE_SCALE);
             break;
+        case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
+            // Remap 1000-2000 range to 41,666-83,333µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value / ACTUATOR_ONESHOT42_PULSE_SCALE);
+            break;
         default:
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value);
             break;
@@ -993,6 +999,10 @@ static void actuator_update_rate_if_changed(bool force_update)
             case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
                 freq[i]  = 100; // Value must be small enough so CCr isn't update until the PIOS_Servo_Update is triggered
                 clock[i] = ACTUATOR_ONESHOT125_CLOCK; // Setup an 2MHz timer clock
+                break;
+            case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
+                freq[i]  = 100;
+                clock[i] = ACTUATOR_ONESHOT42_CLOCK;
                 break;
             case ACTUATORSETTINGS_BANKMODE_PWMSYNC:
                 freq[i]  = 100;

@@ -78,7 +78,7 @@ static int8_t counter;
 #define ACTUATOR_ONESHOT125_CLOCK        12000000
 #define ACTUATOR_ONESHOT125_PULSE_FACTOR 1.5f
 #define ACTUATOR_ONESHOT42_CLOCK         12000000
-#define ACTUATOR_ONESHOT42_PULSE_SCALE   2
+#define ACTUATOR_ONESHOT42_PULSE_FACTOR  0.5f
 #define ACTUATOR_PWM_CLOCK               1000000
 // Private types
 
@@ -940,12 +940,12 @@ static bool set_channel(uint8_t mixer_channel, uint16_t value)
         uint8_t mode = pinsMode[actuatorSettings.ChannelAddr[mixer_channel]];
         switch (mode) {
         case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
-            // Remap 1000-2000 range to 125-250
+            // Remap 1000-2000 range to 125-250µs
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value * ACTUATOR_ONESHOT125_PULSE_FACTOR);
             break;
         case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
             // Remap 1000-2000 range to 41,666-83,333µs
-            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value / ACTUATOR_ONESHOT42_PULSE_SCALE);
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value * ACTUATOR_ONESHOT42_PULSE_FACTOR);
             break;
         default:
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value);

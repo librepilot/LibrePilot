@@ -7,9 +7,9 @@ dist: trusty
 before_install:
         - sudo add-apt-repository ppa:librepilot/tools -y
         - sudo apt-get update -q
-        - sudo apt-get install -y libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools
+        - sudo apt-get install -y libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev libosgearth-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools
 
-script: . /opt/qt56/bin/qt56-env.sh && make gcs CCACHE=ccache GCS_EXTRA_CONF=osg
+script: . /opt/qt56/bin/qt56-env.sh && make gcs CCACHE=ccache GCS_EXTRA_CONF='osg osgearth'
 
 git:
         depth: 500

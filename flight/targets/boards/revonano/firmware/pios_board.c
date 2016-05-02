@@ -894,7 +894,8 @@ SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook()
         for (uint8_t i = 0; i < ACTUATORSETTINGS_BANKMODE_NUMELEM; i++) {
             if (modes[i] == ACTUATORSETTINGS_BANKMODE_PWMSYNC ||
                 modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT125 ||
-                modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT42) {
+                modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT42 ||
+                modes[i] == ACTUATORSETTINGS_BANKMODE_MULTISHOT) {
                 return SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT;;
             }
         }

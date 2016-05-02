@@ -332,11 +332,8 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
         } else {
             // Do not update attitude data in simulation mode
             if (!AttitudeStateReadOnly()) {
-                PERF_TIMED_SECTION_START(counterAtt);
                 updateAttitude(&accelState, &gyros);
-                PERF_TIMED_SECTION_END(counterAtt);
             }
-            PERF_MEASURE_PERIOD(counterPeriod);
             AlarmsClear(SYSTEMALARMS_ALARM_ATTITUDE);
         }
         vTaskDelayUntil(&lastSysTime, sensor_period_ms / portTICK_PERIOD_MS);
@@ -606,17 +603,41 @@ static inline void apply_accel_filter(const float *raw, float *filtered)
 
 __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accelStateData, GyroStateData *gyrosData)
 {
-    float dT      = PIOS_DELTATIME_GetAverageSeconds(&dtconfig);
+    static uint32_t samples = 0;
+    static float gyros_accum[3];
+    static float accels_accum[3];
+
 
     // Bad practice to assume structure order, but saves memory
     float *gyros  = &gyrosData->x;
     float *accels = &accelStateData->x;
 
+    if (samples < ATTITUDE_SENSORS_DOWNSAMPLE - 1) {
+        gyros_accum[0]  += gyros[0];
+        gyros_accum[1]  += gyros[1];
+        gyros_accum[2]  += gyros[2];
+        accels_accum[0] += accels[0];
+        accels_accum[1] += accels[1];
+        accels_accum[2] += accels[2];
+        samples++;
+        return;
+    }
+    float dT = PIOS_DELTATIME_GetAverageSeconds(&dtconfig);
+    PERF_TIMED_SECTION_START(counterAtt);
+    float inv_samples_count = 1.0f / (float)samples;
+    samples = 0;
+    gyros_accum[0]  *= inv_samples_count;
+    gyros_accum[1]  *= inv_samples_count;
+    gyros_accum[2]  *= inv_samples_count;
+    accels_accum[0] *= inv_samples_count;
+    accels_accum[1] *= inv_samples_count;
+    accels_accum[2] *= inv_samples_count;
+
     float grot[3];
     float accel_err[3];
 
     // Apply smoothing to accel values, to reduce vibration noise before main calculations.
-    apply_accel_filter(accels, accels_filtered);
+    apply_accel_filter(accels_accum, accels_filtered);
 
     // Rotate gravity unit vector to body frame, filter and cross with accels
     grot[0] = -(2 * (q[1] * q[3] - q[0] * q[2]));
@@ -658,18 +679,18 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
 
     // Correct rates based on error, integral component dealt with in updateSensors
     const float kpInvdT = accelKp / dT;
-    gyros[0] += accel_err[0] * kpInvdT;
-    gyros[1] += accel_err[1] * kpInvdT;
-    gyros[2] += accel_err[2] * kpInvdT;
+    gyros_accum[0] += accel_err[0] * kpInvdT;
+    gyros_accum[1] += accel_err[1] * kpInvdT;
+    gyros_accum[2] += accel_err[2] * kpInvdT;
 
     { // scoping variables to save memory
       // Work out time derivative from INSAlgo writeup
       // Also accounts for the fact that gyros are in deg/s
         float qdot[4];
-        qdot[0] = (-q[1] * gyros[0] - q[2] * gyros[1] - q[3] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
-        qdot[1] = (q[0] * gyros[0] - q[3] * gyros[1] + q[2] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
-        qdot[2] = (q[3] * gyros[0] + q[0] * gyros[1] - q[1] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
-        qdot[3] = (-q[2] * gyros[0] + q[1] * gyros[1] + q[0] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[0] = (-q[1] * gyros_accum[0] - q[2] * gyros_accum[1] - q[3] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[1] = (q[0] * gyros_accum[0] - q[3] * gyros_accum[1] + q[2] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[2] = (q[3] * gyros_accum[0] + q[0] * gyros_accum[1] - q[1] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[3] = (-q[2] * gyros_accum[0] + q[1] * gyros_accum[1] + q[0] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
 
         // Take a time step
         q[0]    = q[0] + qdot[0];
@@ -711,6 +732,10 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
     Quaternion2RPY(&attitudeState.q1, &attitudeState.Roll);
 
     AttitudeStateSet(&attitudeState);
+    gyros_accum[0]  = gyros_accum[1] = gyros_accum[2] = 0.0f;
+    accels_accum[0] = accels_accum[1] = accels_accum[2] = 0.0f;
+    PERF_TIMED_SECTION_END(counterAtt);
+    PERF_MEASURE_PERIOD(counterPeriod);
 }
 
 static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)

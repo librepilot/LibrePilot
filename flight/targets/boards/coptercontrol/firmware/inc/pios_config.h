@@ -93,7 +93,8 @@
 /* #define PIOS_INCLUDE_ETASV3 */
 /* #define PIOS_INCLUDE_HCSR04 */
 
-#define PIOS_SENSOR_RATE 500.0f
+#define PIOS_SENSOR_RATE            500.0f
+#define ATTITUDE_SENSORS_DOWNSAMPLE 4
 
 /* PIOS receiver drivers */
 #define PIOS_INCLUDE_PWM

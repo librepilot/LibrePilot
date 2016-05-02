@@ -94,6 +94,7 @@
 /* #define PIOS_INCLUDE_HCSR04 */
 
 #define PIOS_SENSOR_RATE            500.0f
+#define STABILIZATION_ATTITUDE_DOWNSAMPLED
 #define ATTITUDE_SENSORS_DOWNSAMPLE 4
 
 /* PIOS receiver drivers */

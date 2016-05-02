@@ -79,6 +79,7 @@ private:
     void setYawMixLevel(int);
     void updateRcCurvesUsed();
     void updateAirframe(QString multiRotorType);
+    void updateMotorsPositionLabels(QList<QString> motorLabels);
     void setupEnabledControls(QString multiRotorType);
 
 private slots:

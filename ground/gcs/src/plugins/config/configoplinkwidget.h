@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       configpipxtremewidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @file       configoplinkwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief The Configuration Gadget used to configure PipXtreme
+ * @brief The Configuration Gadget used to configure the OPLink and Revo modem
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -24,8 +25,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef CONFIGPIPXTREMEWIDGET_H
-#define CONFIGPIPXTREMEWIDGET_H
+#ifndef CONFIGOPLINKWIDGET_H
+#define CONFIGOPLINKWIDGET_H
 
 #include "configtaskwidget.h"
 
@@ -61,11 +62,13 @@ protected:
 
 private slots:
     void disconnected();
-    void bind();
+    void updatePPMOptions();
     void ppmOnlyChanged();
     void minChannelChanged();
     void maxChannelChanged();
+    void updateCoordID();
+    void updateCustomDeviceID();
     void channelChanged(bool isMax);
 };
 
-#endif // CONFIGTXPIDWIDGET_H
+#endif // CONFIGOPLINKWIDGET_H

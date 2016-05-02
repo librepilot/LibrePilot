@@ -1,14 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       configtxpidswidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @file       configoplinkwidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief The Configuration Gadget used to configure the PipXtreme
+ * @brief The Configuration Gadget used to configure the OPLink and Revo modem
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -80,6 +80,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "PPMOnly", m_oplink->PPMOnly);
     addWidgetBinding("OPLinkSettings", "PPM", m_oplink->PPM);
     addWidgetBinding("OPLinkSettings", "ComSpeed", m_oplink->ComSpeed);
+    addWidgetBinding("OPLinkSettings", "CustomDeviceID", m_oplink->CustomDeviceID);
 
     addWidgetBinding("OPLinkStatus", "DeviceID", m_oplink->DeviceID);
     addWidgetBinding("OPLinkStatus", "RxGood", m_oplink->Good);
@@ -102,16 +103,15 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "RXPacketRate", m_oplink->RXPacketRate);
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
 
-    // Connect the bind buttons
-    connect(m_oplink->Bind1, SIGNAL(clicked()), this, SLOT(bind()));
-    connect(m_oplink->Bind2, SIGNAL(clicked()), this, SLOT(bind()));
-    connect(m_oplink->Bind3, SIGNAL(clicked()), this, SLOT(bind()));
-    connect(m_oplink->Bind4, SIGNAL(clicked()), this, SLOT(bind()));
-
     // Connect the selection changed signals.
     connect(m_oplink->PPMOnly, SIGNAL(toggled(bool)), this, SLOT(ppmOnlyChanged()));
+    connect(m_oplink->Coordinator, SIGNAL(toggled(bool)), this, SLOT(updateCoordID()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
+    connect(m_oplink->CustomDeviceID, SIGNAL(editingFinished()), this, SLOT(updateCustomDeviceID()));
+
+    m_oplink->CustomDeviceID->setInputMask("HHHHHHHH");
+    m_oplink->CoordID->setInputMask("HHHHHHHH");
 
     m_oplink->MinimumChannel->setKeyboardTracking(false);
     m_oplink->MaximumChannel->setKeyboardTracking(false);
@@ -144,52 +144,9 @@ void ConfigOPLinkWidget::updateStatus(UAVObject *object)
     UAVObjectField *linkField = object->getField("LinkState");
     m_oplink->LinkState->setText(linkField->getValue().toString());
     bool linkConnected = (linkField->getValue() == linkField->getOptions().at(OPLinkStatus::LINKSTATE_CONNECTED));
-    bool modemEnabled  = linkConnected || (linkField->getValue() == linkField->getOptions().at(OPLinkStatus::LINKSTATE_DISCONNECTED)) ||
-                         (linkField->getValue() == linkField->getOptions().at(OPLinkStatus::LINKSTATE_ENABLED));
 
-    UAVObjectField *pairRssiField = object->getField("PairSignalStrengths");
-
-    bool bound;
-    bool ok;
-    quint32 boundPairId = m_oplink->CoordID->text().toUInt(&ok, 16);
-
-    // Update the detected devices.
-    UAVObjectField *pairIdField = object->getField("PairIDs");
-    quint32 pairid = pairIdField->getValue(0).toUInt();
-    bound = (pairid == boundPairId);
-    m_oplink->PairID1->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID1->setEnabled(false);
-    m_oplink->Bind1->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind1->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar1->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(0).toInt());
+    m_oplink->PairSignalStrengthBar1->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);
     m_oplink->PairSignalStrengthLabel1->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar1->value()));
-
-    pairid = pairIdField->getValue(1).toUInt();
-    bound  = (pairid == boundPairId);
-    m_oplink->PairID2->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID2->setEnabled(false);
-    m_oplink->Bind2->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind2->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar2->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(1).toInt());
-    m_oplink->PairSignalStrengthLabel2->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar2->value()));
-
-    pairid = pairIdField->getValue(2).toUInt();
-    bound  = (pairid == boundPairId);
-    m_oplink->PairID3->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID3->setEnabled(false);
-    m_oplink->Bind3->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind3->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar3->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(2).toInt());
-    m_oplink->PairSignalStrengthLabel3->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar3->value()));
-
-    pairid = pairIdField->getValue(3).toUInt();
-    bound  = (pairid == boundPairId);
-    m_oplink->PairID4->setText(QString::number(pairid, 16).toUpper());
-    m_oplink->PairID4->setEnabled(false);
-    m_oplink->Bind4->setText(bound ? tr("Unbind") : tr("Bind"));
-    m_oplink->Bind4->setEnabled(pairid && modemEnabled);
-    m_oplink->PairSignalStrengthBar4->setValue(((bound && !linkConnected) || !modemEnabled) ? -127 : pairRssiField->getValue(3).toInt());
-    m_oplink->PairSignalStrengthLabel4->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar4->value()));
 
     // Update the Description field
     // TODO use  UAVObjectUtilManager::descriptionToStructure()
@@ -247,7 +204,6 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
 
     if (!settingsUpdated) {
         settingsUpdated = true;
-
         // Enable components based on the board type connected.
         UAVObjectField *board_type_field = oplinkStatusObj->getField("BoardType");
         switch (board_type_field->getValue().toInt()) {
@@ -260,7 +216,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             m_oplink->VCPPortLabel->setVisible(false);
             m_oplink->FlexiIOPort->setVisible(false);
             m_oplink->FlexiIOPortLabel->setVisible(false);
-            m_oplink->PPM->setVisible(true);
+            m_oplink->PPM->setEnabled(true);
             break;
         case 0x03: // OPLinkMini
             m_oplink->MainPort->setVisible(true);
@@ -271,7 +227,9 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             m_oplink->VCPPortLabel->setVisible(true);
             m_oplink->FlexiIOPort->setVisible(false);
             m_oplink->FlexiIOPortLabel->setVisible(false);
-            m_oplink->PPM->setVisible(false);
+            m_oplink->PPM->setEnabled(false);
+            connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
+            connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
             break;
         case 0x0A: // OPLink?
             m_oplink->MainPort->setVisible(true);
@@ -282,7 +240,9 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             m_oplink->VCPPortLabel->setVisible(true);
             m_oplink->FlexiIOPort->setVisible(true);
             m_oplink->FlexiIOPortLabel->setVisible(true);
-            m_oplink->PPM->setVisible(false);
+            m_oplink->PPM->setEnabled(false);
+            connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
+            connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
             break;
         default:
             // This shouldn't happen.
@@ -295,6 +255,9 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
 void ConfigOPLinkWidget::updateEnableControls()
 {
     enableControls(true);
+    updatePPMOptions();
+    updateCustomDeviceID();
+    updateCoordID();
     ppmOnlyChanged();
 }
 
@@ -305,37 +268,45 @@ void ConfigOPLinkWidget::disconnected()
     }
 }
 
-void ConfigOPLinkWidget::bind()
+void ConfigOPLinkWidget::updatePPMOptions()
 {
-    QPushButton *bindButton = qobject_cast<QPushButton *>(sender());
+    bool is_oplm = m_oplink->MainPort->isVisible();
 
-    if (bindButton) {
-        QLineEdit *editField = NULL;
-        if (bindButton == m_oplink->Bind1) {
-            editField = m_oplink->PairID1;
-        } else if (bindButton == m_oplink->Bind2) {
-            editField = m_oplink->PairID2;
-        } else if (bindButton == m_oplink->Bind3) {
-            editField = m_oplink->PairID3;
-        } else if (bindButton == m_oplink->Bind4) {
-            editField = m_oplink->PairID4;
+    if (!is_oplm) {
+        return;
+    }
+
+    bool is_coordinator = m_oplink->Coordinator->isChecked();
+    bool is_ppm_active  = ((isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_PPM)) ||
+                           (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_PPM)));
+
+    m_oplink->PPM->setEnabled(false);
+    m_oplink->PPM->setChecked(is_ppm_active);
+    m_oplink->PPMOnly->setEnabled(is_ppm_active);
+
+    if (!is_ppm_active) {
+        m_oplink->PPMOnly->setChecked(false);
+        QString selectPort = tr("Please select a port for PPM function.");
+        m_oplink->PPMOnly->setToolTip(selectPort);
+        m_oplink->PPM->setToolTip(selectPort);
+    } else {
+        if (is_coordinator) {
+            m_oplink->PPMOnly->setToolTip(tr("Only PPM packets will be transmitted and baudrate set to 9600 bauds by default."));
+            m_oplink->PPM->setToolTip(tr("PPM packets will be transmitted by this modem."));
+        } else {
+            m_oplink->PPMOnly->setToolTip(tr("Only PPM packets will be received and baudrate set to 9600 bauds by default."));
+            m_oplink->PPM->setToolTip(tr("PPM packets will be received by this modem."));
         }
-        Q_ASSERT(editField);
-        bool ok;
-        quint32 pairid = editField->text().toUInt(&ok, 16);
-        if (ok) {
-            quint32 boundPairId = m_oplink->CoordID->text().toUInt(&ok, 16);
-            (pairid != boundPairId) ? m_oplink->CoordID->setText(QString::number(pairid, 16).toUpper()) : m_oplink->CoordID->setText("0");
-        }
-        QMessageBox::information(this, tr("Information"), tr("To apply the changes when binding/unbinding the board must be rebooted or power cycled."), QMessageBox::Ok);
     }
 }
+
 
 void ConfigOPLinkWidget::ppmOnlyChanged()
 {
     bool is_ppm_only = m_oplink->PPMOnly->isChecked();
+    bool is_oplm     = m_oplink->MainPort->isVisible();
 
-    m_oplink->PPM->setEnabled(!is_ppm_only);
+    m_oplink->PPM->setEnabled(!is_ppm_only && !is_oplm);
     m_oplink->OneWayLink->setEnabled(!is_ppm_only);
     m_oplink->ComSpeed->setEnabled(!is_ppm_only);
 }
@@ -384,6 +355,26 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");
 }
 
+void ConfigOPLinkWidget::updateCoordID()
+{
+    bool is_coordinator    = m_oplink->Coordinator->isChecked();
+    bool coordinatorNotSet = (m_oplink->CoordID->text() == "0");
+
+    if (settingsUpdated && coordinatorNotSet) {
+        m_oplink->CoordID->clear();
+    }
+    m_oplink->CoordID->setEnabled(!is_coordinator);
+}
+
+void ConfigOPLinkWidget::updateCustomDeviceID()
+{
+    bool customDeviceIDNotSet = (m_oplink->CustomDeviceID->text() == "0");
+
+    if (settingsUpdated && customDeviceIDNotSet) {
+        m_oplink->CustomDeviceID->clear();
+        m_oplink->CustomDeviceID->setPlaceholderText("AutoGen");
+    }
+}
 /**
    @}
    @}

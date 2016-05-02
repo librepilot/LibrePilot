@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_rfm22b.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Implements a driver the the RFM22B driver
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -187,6 +188,7 @@ static enum pios_radio_event rfm22_fatal_error(struct pios_rfm22b_dev *rfm22b_de
 static void rfm22b_add_rx_status(struct pios_rfm22b_dev *rfm22b_dev, enum pios_rfm22b_rx_packet_status status);
 static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan);
 static bool rfm22_setFreqHopChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t channel);
+static void rfm22_generateDeviceID(struct pios_rfm22b_dev *rfm22b_dev);
 static void rfm22_updatePairStatus(struct pios_rfm22b_dev *radio_dev);
 static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev);
 static bool rfm22_checkTimeOut(struct pios_rfm22b_dev *rfm22b_dev);
@@ -446,18 +448,8 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     // Create a semaphore to know if an ISR needs responding to
     vSemaphoreCreateBinary(rfm22b_dev->isrPending);
 
-    // Create our (hopefully) unique 32 bit id from the processor serial number.
-    uint8_t crcs[] = { 0, 0, 0, 0 };
-    {
-        char serial_no_str[33];
-        PIOS_SYS_SerialNumberGet(serial_no_str);
-        // Create a 32 bit value using 4 8 bit CRC values.
-        for (uint8_t i = 0; serial_no_str[i] != 0; ++i) {
-            crcs[i % 4] = PIOS_CRC_updateByte(crcs[i % 4], serial_no_str[i]);
-        }
-    }
-    rfm22b_dev->deviceID = crcs[0] | crcs[1] << 8 | crcs[2] << 16 | crcs[3] << 24;
-    DEBUG_PRINTF(2, "RF device ID: %x\n\r", rfm22b_dev->deviceID);
+    // Create default (hopefully) unique 32 bit id from the processor serial number.
+    rfm22_generateDeviceID(rfm22b_dev);
 
     // Initialize the external interrupt.
     PIOS_EXTI_Init(cfg->exti_cfg);
@@ -508,6 +500,26 @@ bool PIOS_RFM22_EXT_Int(void)
     // Inject an interrupt event into the state machine.
     pios_rfm22_inject_event(g_rfm22b_dev, RADIO_EVENT_INT_RECEIVED, true);
     return false;
+}
+
+
+/**
+ * Set the device ID for the RFM22B device.
+ *
+ * @param[in] rfm22b_id The RFM22B device index.
+ *
+ */
+void PIOS_RFM22B_SetDeviceID(uint32_t rfm22b_id, uint32_t custom_device_id)
+{
+    struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
+
+    if (custom_device_id > 0) {
+        rfm22b_dev->deviceID = custom_device_id;
+    } else {
+        rfm22_generateDeviceID(rfm22b_dev);
+    }
+
+    DEBUG_PRINTF(2, "RF device ID: %x\n\r", rfm22b_dev->deviceID);
 }
 
 /**
@@ -1709,6 +1721,29 @@ static bool rfm22_setFreqHopChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t 
     rfm22b_dev->channel = channel;
     rfm22_write_claim(rfm22b_dev, RFM22_frequency_hopping_channel_select, channel);
     return true;
+}
+
+/**
+ * Generate the unique device ID for the RFM22B device.
+ *
+ * @param[in] rfm22b_id The RFM22B device index.
+ *
+ */
+void rfm22_generateDeviceID(struct pios_rfm22b_dev *rfm22b_dev)
+{
+    // Create our (hopefully) unique 32 bit id from the processor serial number.
+    uint8_t crcs[] = { 0, 0, 0, 0 };
+    {
+        char serial_no_str[33];
+        PIOS_SYS_SerialNumberGet(serial_no_str);
+        // Create a 32 bit value using 4 8 bit CRC values.
+        for (uint8_t i = 0; serial_no_str[i] != 0; ++i) {
+            crcs[i % 4] = PIOS_CRC_updateByte(crcs[i % 4], serial_no_str[i]);
+        }
+    }
+
+    rfm22b_dev->deviceID = crcs[0] | crcs[1] << 8 | crcs[2] << 16 | crcs[3] << 24;
+    DEBUG_PRINTF(2, "Generated RF device ID: %x\n\r", rfm22b_dev->deviceID);
 }
 
 /**

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       pios_instrumentation_helper.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2016
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Macros to easily add optional performance monitoring to a module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -84,7 +85,7 @@
 /**
  * include the following macro together with modules variable declaration
  */
-#define PERF_DEFINE_COUNTER(x)      pios_counter_t x
+#define PERF_DEFINE_COUNTER(x)      static pios_counter_t x
 
 /**
  * this mast be called at some module init code

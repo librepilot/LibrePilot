@@ -5,7 +5,8 @@
  * @addtogroup OpenPilotLibraries OpenPilot System Libraries
  * @{
  * @file       alarms.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Include file of the alarm library
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -47,6 +48,8 @@ int32_t AlarmsHasWarnings();
 int32_t AlarmsHasErrors();
 int32_t AlarmsHasCritical();
 SystemAlarmsAlarmOptions AlarmsGetHighestSeverity();
+
+size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions level, SystemAlarmsAlarmOptions *highestSeverity);
 
 #endif // ALARMS_H
 

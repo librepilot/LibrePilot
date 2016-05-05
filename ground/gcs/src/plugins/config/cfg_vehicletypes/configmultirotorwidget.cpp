@@ -190,7 +190,7 @@ void ConfigMultiRotorWidget::setupUI(QString frameType)
     Q_ASSERT(m_aircraft);
     Q_ASSERT(quad);
 
-    QList<QString> motorLabels;
+    QStringList motorLabels;
 
     if (frameType == "Tri" || frameType == "Tricopter Y") {
         setComboCurrentIndex(m_aircraft->multirotorFrameType, m_aircraft->multirotorFrameType->findText("Tricopter Y"));
@@ -560,7 +560,7 @@ void ConfigMultiRotorWidget::refreshWidgetsValues(QString frameType)
 /**
    Helper function to update the UI MotorPositionLabels text
  */
-void ConfigMultiRotorWidget::updateMotorsPositionLabels(QList<QString> motorLabels)
+void ConfigMultiRotorWidget::updateMotorsPositionLabels(QStringList motorLabels)
 {
     QList<QLabel *> mpList;
     mpList << m_aircraft->motorPositionLabel1 << m_aircraft->motorPositionLabel2
@@ -568,10 +568,12 @@ void ConfigMultiRotorWidget::updateMotorsPositionLabels(QList<QString> motorLabe
            << m_aircraft->motorPositionLabel5 << m_aircraft->motorPositionLabel6
            << m_aircraft->motorPositionLabel7 << m_aircraft->motorPositionLabel8;
 
-    if (motorLabels.count() < 8) {
-        int motorCount = motorLabels.count();
+    int motorCount    = motorLabels.count();
+    int uiLabelsCount = mpList.count();
+
+    if (motorCount < uiLabelsCount) {
         // Fill labels for unused motors
-        for (int index = motorCount; index < mpList.count(); index++) {
+        for (int index = motorCount; index < uiLabelsCount; index++) {
             motorLabels.insert(index, "Not used");
         }
     }

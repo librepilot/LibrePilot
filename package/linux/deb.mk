@@ -28,7 +28,7 @@ OPT_QT               := qt56
 TRUSTY_DEPS_SED      := s/qml-module-.*/$(OPT_QT)quickcontrols/g; \
                         s/qt5-default.*/$(OPT_QT)-meta-minimal, $(OPT_QT)svg, $(OPT_QT)script, $(OPT_QT)serialport, $(OPT_QT)multimedia, $(OPT_QT)translations, $(OPT_QT)tools/g;
 
-# Leave off Qt and ARM compiler dependencies if calling package target under the assumption that
+# Leave off Qt and OSG dependencies if calling package target under the assumption that
 # OP is providing them or the user already has them installed because OP is already built.
 PACKAGE_DEPS_SED     := s/python.*/python/;s/{misc:Depends}.*/{misc:Depends}/;
 

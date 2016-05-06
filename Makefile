@@ -496,8 +496,10 @@ build-info: | $(BUILD_DIR)
 #
 ##############################
 
-CONFIG_OPTS := $(addsuffix \n,$(MAKEOVERRIDES))
-CONFIG_OPTS := $(addprefix override$(SPACE),$(CONFIG_OPTS))
+CONFIG_OPTS := $(subst \$(SPACE),%SPACE_PLACEHOLDER%,$(MAKEOVERRIDES))
+CONFIG_OPTS := $(addprefix override%SPACE_PLACEHOLDER%,$(CONFIG_OPTS))
+CONFIG_OPTS := $(subst $(SPACE),\n,$(CONFIG_OPTS))\n
+CONFIG_OPTS := $(subst %SPACE_PLACEHOLDER%,$(SPACE),$(CONFIG_OPTS))
 
 .PHONY: config_new
 config_new:

@@ -37,7 +37,7 @@ package: debian
 	@$(ECHO) "Building Linux package, please wait..."
 	$(V1) sed -i -e "$(PACKAGE_DEPS_SED)" debian/control
 	$(V1) sed -i -e 's,config_new.*, --help > /dev/null,' debian/rules
-	$(V1) dpkg-buildpackage -b -us -uc -nc
+	$(V1) dpkg-buildpackage -b -us -uc -nc $(DPKG_BUILDPACKAGE_OPTS)
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).deb $(BUILD_DIR)
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).changes $(BUILD_DIR)
 	$(V1) rm -r debian
@@ -56,7 +56,7 @@ endif
 
 .PHONY: package_src
 package_src:  $(DEB_ORIG_SRC_NAME) $(DEB_PACKAGE_DIR)
-	$(V1) cd $(DEB_PACKAGE_DIR) && dpkg-buildpackage -S -us -uc
+	$(V1) cd $(DEB_PACKAGE_DIR) && dpkg-buildpackage -S -us -uc $(DPKG_BUILDPACKAGE_OPTS)
 
 $(DEB_ORIG_SRC): $(DIST_TAR_GZ) | $(PACKAGE_DIR)
 	$(V1) cp $(DIST_TAR_GZ) $(DEB_ORIG_SRC)

@@ -235,7 +235,8 @@ endif
 FLIGHT_OUT_DIR := $(BUILD_DIR)/firmware
 DIRS += $(FLIGHT_OUT_DIR)
 
-include $(ROOT_DIR)/flight/Makefile
+# Might not be here in source package
+-include $(ROOT_DIR)/flight/Makefile
 
 ##############################
 #

@@ -42,10 +42,11 @@ package: debian
 	$(V1) mv $(ROOT_DIR)/../$(DEB_PACKAGE_NAME).changes $(BUILD_DIR)
 	$(V1) rm -r debian
 
+DEBIAN_DIR_FILES := changelog compat control copyright rules source/format
 .PHONY: debian
 debian: $(DEB_DIR)
-	$(V1) rm -rf debian
-	$(V1) cp -r $(DEB_DIR) debian
+	$(V1) rm -rf debian && mkdir debian
+	$(V1) cd $(DEB_DIR) $(foreach file,$(DEBIAN_DIR_FILES), && cp --parents $(file) $(ROOT_DIR)/debian)
 	$(V1) cp -T package/linux/45-uav.rules debian/$(DEB_NAME).udev
 	$(V1) $(SED_SCRIPT) debian/changelog debian/control
 ifeq ($(DEB_DIST), trusty)

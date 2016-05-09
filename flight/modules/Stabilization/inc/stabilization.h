@@ -80,9 +80,12 @@ extern StabilizationData stabSettings;
 // must be same as eventdispatcher to avoid needing additional mutexes
 #define CBTASK_PRIORITY     CALLBACK_TASK_FLIGHTCONTROL
 
+#ifndef STABILIZATION_ATTITUDE_DOWNSAMPLED
 // outer loop only executes every 4th uavobject update to save CPU
 #define OUTERLOOP_SKIPCOUNT 4
-
+#else
+#define OUTERLOOP_SKIPCOUNT ATTITUDE_SENSORS_DOWNSAMPLE
+#endif // STABILIZATION_ATTITUDE_DOWNSAMPLED
 #endif // STABILIZATION_H
 
 /**

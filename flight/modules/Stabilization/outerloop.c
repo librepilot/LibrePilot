@@ -365,14 +365,19 @@ static void stabilizationOuterloopTask()
 
 static void AttitudeStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
+#ifndef STABILIZATION_ATTITUDE_DOWNSAMPLED
     // to reduce CPU utilization, outer loop is not executed on every state update
     static uint8_t cpusaver = 0;
 
     if ((cpusaver++ % OUTERLOOP_SKIPCOUNT) == 0) {
-        // this does not need mutex protection as both eventdispatcher and stabi run in same callback task!
-        AttitudeStateGet(&attitude);
-        PIOS_CALLBACKSCHEDULER_Dispatch(callbackHandle);
-    }
+#endif
+    // this does not need mutex protection as both eventdispatcher and stabi run in same callback task!
+    AttitudeStateGet(&attitude);
+    PIOS_CALLBACKSCHEDULER_Dispatch(callbackHandle);
+
+#ifndef STABILIZATION_ATTITUDE_DOWNSAMPLED
+}
+#endif
 }
 
 /**

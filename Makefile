@@ -106,15 +106,6 @@ $(foreach var, $(SANITIZE_GCC_VARS), $(eval $(call SANITIZE_VAR,$(var),disallowe
 SANITIZE_DEPRECATED_VARS := USE_BOOTLOADER CLEAN_BUILD
 $(foreach var, $(SANITIZE_DEPRECATED_VARS), $(eval $(call SANITIZE_VAR,$(var),deprecated)))
 
-# Make sure this isn't being run as root unless installing (no whoami on Windows, but that is ok here)
-ifeq ($(shell whoami 2>/dev/null),root)
-    ifeq ($(filter install uninstall,$(MAKECMDGOALS)),)
-        ifndef FAKEROOTKEY
-            $(error You should not be running this as root)
-        endif
-    endif
-endif
-
 # Decide on a verbosity level based on the V= parameter
 export AT := @
 ifndef V

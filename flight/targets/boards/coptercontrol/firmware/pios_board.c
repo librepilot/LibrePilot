@@ -954,7 +954,9 @@ SystemAlarmsExtendedAlarmStatusOptions CopterControlConfigHook()
         if ((recmode == HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT ||
              flexiMode == HWSETTINGS_CC_FLEXIPORT_PPM) &&
             (modes[3] == ACTUATORSETTINGS_BANKMODE_PWMSYNC ||
-             modes[3] == ACTUATORSETTINGS_BANKMODE_ONESHOT125)) {
+             modes[3] == ACTUATORSETTINGS_BANKMODE_ONESHOT125 ||
+             modes[3] == ACTUATORSETTINGS_BANKMODE_ONESHOT42 ||
+             modes[3] == ACTUATORSETTINGS_BANKMODE_MULTISHOT)) {
             return SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT;
         } else {
             return SYSTEMALARMS_EXTENDEDALARMSTATUS_NONE;
@@ -967,7 +969,9 @@ SystemAlarmsExtendedAlarmStatusOptions CopterControlConfigHook()
     case HWSETTINGS_CC_RCVRPORT_PWMNOONESHOT:
         for (uint8_t i = 0; i < ACTUATORSETTINGS_BANKMODE_NUMELEM; i++) {
             if (modes[i] == ACTUATORSETTINGS_BANKMODE_PWMSYNC ||
-                modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT125) {
+                modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT125 ||
+                modes[i] == ACTUATORSETTINGS_BANKMODE_ONESHOT42 ||
+                modes[i] == ACTUATORSETTINGS_BANKMODE_MULTISHOT) {
                 return SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT;;
             }
 

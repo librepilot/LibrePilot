@@ -861,7 +861,16 @@ margin:1px;</string>
          <number>6</number>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="label_18">
+         <widget class="QLabel" name="motorPositionLabel5">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -870,7 +879,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>5</string>
+           <string>Pos5</string>
           </property>
          </widget>
         </item>
@@ -891,7 +900,16 @@ margin:1px;</string>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_19">
+         <widget class="QLabel" name="motorPositionLabel6">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -900,7 +918,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>6</string>
+           <string>Pos6</string>
           </property>
          </widget>
         </item>
@@ -921,7 +939,16 @@ margin:1px;</string>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_20">
+         <widget class="QLabel" name="motorPositionLabel7">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -930,7 +957,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>7</string>
+           <string>Pos7</string>
           </property>
          </widget>
         </item>
@@ -951,7 +978,16 @@ margin:1px;</string>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_21">
+         <widget class="QLabel" name="motorPositionLabel8">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -960,7 +996,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>8</string>
+           <string>Pos8</string>
           </property>
          </widget>
         </item>
@@ -1029,7 +1065,16 @@ margin:1px;</string>
          <number>6</number>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="MotorOutputLabel1_2">
+         <widget class="QLabel" name="motorPositionLabel1">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -1038,7 +1083,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>1</string>
+           <string>Pos1</string>
           </property>
          </widget>
         </item>
@@ -1056,7 +1101,16 @@ margin:1px;</string>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_13">
+         <widget class="QLabel" name="motorPositionLabel2">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -1065,7 +1119,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>2</string>
+           <string>Pos2</string>
           </property>
          </widget>
         </item>
@@ -1083,7 +1137,16 @@ margin:1px;</string>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_14">
+         <widget class="QLabel" name="motorPositionLabel3">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -1092,7 +1155,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>3</string>
+           <string>Pos3</string>
           </property>
          </widget>
         </item>
@@ -1110,7 +1173,16 @@ margin:1px;</string>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_15">
+         <widget class="QLabel" name="motorPositionLabel4">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <property name="styleSheet">
            <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -1119,7 +1191,7 @@ font: bold 12px;
 margin:1px;</string>
           </property>
           <property name="text">
-           <string>4</string>
+           <string>Pos4</string>
           </property>
          </widget>
         </item>

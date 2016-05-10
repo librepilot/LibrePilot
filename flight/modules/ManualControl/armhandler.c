@@ -195,11 +195,21 @@ void armHandler(bool newinit, FrameType_t frameType)
     bool manualArm    = false;
     bool manualDisarm = false;
 
-    if (armingInputLevel <= -ARMED_THRESHOLD) {
+    static FlightModeSettingsArmingOptions previousArmingSettings = -1;
+    static float previousArmingInputLevel = 0.0f;
+
+    if (previousArmingSettings != settings.Arming) {
+        previousArmingSettings   = settings.Arming;
+        previousArmingInputLevel = 0.0f;
+    }
+
+    if ((armingInputLevel <= -ARMED_THRESHOLD) && (previousArmingInputLevel > -ARMED_THRESHOLD)) {
         manualArm = true;
-    } else if (armingInputLevel >= +ARMED_THRESHOLD) {
+    } else if ((armingInputLevel >= +ARMED_THRESHOLD) && (previousArmingInputLevel < +ARMED_THRESHOLD)) {
         manualDisarm = true;
     }
+
+    previousArmingInputLevel = armingInputLevel;
 
     switch (armState) {
     case ARM_STATE_DISARMED:

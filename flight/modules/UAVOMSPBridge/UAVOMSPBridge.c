@@ -203,11 +203,11 @@ typedef enum {
     PIDPITCH,
     PIDYAW,
     PIDAROLL, // (PIDALT) use this for Attitude ROLL
-    PIDPOS, // skipped by MWOSD
+    PIDAPITCH, // (PIDPOS) use this for Attitude PITCH
     PIDPOSR, // skipped by MWOSD
-    PIDAPITCH, // (PIDNAVR) use this for Attitude PITCH
-    PIDAYAW, // (PIDAYAW) use this for Attitude YAW
-    PIDMAG,
+    PIDNAVR, // skipped by MWOSD
+    PIDAYAW, // (PIDLEVEL) use this for Attitude YAW
+    PIDMAG, // unused for now
     PIDVEL, // skipped by MWOSD
     PID_ITEM_COUNT
 } pidIndex_e;
@@ -216,10 +216,11 @@ static const char msp_pidnames[] = "ROLL;"
                                    "PITCH;"
                                    "YAW;"
                                    "A.ROLL;"
-                                   "Pos;"
-                                   "PosR;"
                                    "A.PITCH;"
+                                   "PosR;"
+                                   "NavR;"
                                    "A.YAW;"
+                                   "MAG;"
                                    "VEL;";
 
 #define MSP_ANALOG_VOLTAGE (1 << 0)

@@ -192,8 +192,9 @@ typedef enum {
     MSP_MAYBE_UAVTALK_SLOW6
 } msp_state;
 
+
 typedef struct __attribute__((packed)) {
-    uint8_t P, I, D;
+    uint8_t values[3];
 }
 msp_pid_t;
 
@@ -201,16 +202,25 @@ typedef enum {
     PIDROLL,
     PIDPITCH,
     PIDYAW,
-    PIDALT,
-    PIDPOS,
-    PIDPOSR,
-    PIDNAVR,
-    PIDLEVEL,
+    PIDAROLL, // (PIDALT) use this for Attitude ROLL
+    PIDPOS, // skipped by MWOSD
+    PIDPOSR, // skipped by MWOSD
+    PIDAPITCH, // (PIDNAVR) use this for Attitude PITCH
+    PIDAYAW, // (PIDAYAW) use this for Attitude YAW
     PIDMAG,
-    PIDVEL,
+    PIDVEL, // skipped by MWOSD
     PID_ITEM_COUNT
 } pidIndex_e;
 
+static const char msp_pidnames[] = "ROLL;"
+                                   "PITCH;"
+                                   "YAW;"
+                                   "A.ROLL;"
+                                   "Pos;"
+                                   "PosR;"
+                                   "A.PITCH;"
+                                   "A.YAW;"
+                                   "VEL;";
 
 #define MSP_ANALOG_VOLTAGE (1 << 0)
 #define MSP_ANALOG_CURRENT (1 << 1)
@@ -220,7 +230,9 @@ struct msp_bridge {
 
     uint8_t   sensors;
     uint8_t   analog;
-
+    
+    UAVObjHandle current_pid_bank;
+    
     msp_state state;
     uint8_t   cmd_size;
     uint8_t   cmd_id;
@@ -654,7 +666,26 @@ static void msp_send_boxids(struct msp_bridge *m) // This is actually sending a 
     msp_send(m, MSP_BOXIDS, msp_boxes, sizeof(msp_boxes));
 }
 
-static StabilizationSettingsFlightModeMapOptions get_current_stabilization_bank()
+static void msp_send_pidnames(struct msp_bridge *m)
+{
+    msp_send(m, MSP_PIDNAMES, (const uint8_t *)msp_pidnames, sizeof(msp_pidnames) - 1); // without terminating 0
+}
+
+static void pid_native2msp(const float *native, msp_pid_t *piditem, float scale, unsigned numelem)
+{
+    for(unsigned i = 0; i < numelem; ++i) {
+        piditem->values[i] = lroundf(native[i] * scale);
+    }
+}
+
+static void pid_msp2native(const msp_pid_t *piditem, float *native, float scale, unsigned numelem)
+{
+    for(unsigned i = 0; i < numelem; ++i) {
+        native[i] = (float)piditem->values[i] / scale;
+    }
+}
+
+static UAVObjHandle get_current_pid_bank_handle()
 {
     uint8_t fm;
 
@@ -667,83 +698,71 @@ static StabilizationSettingsFlightModeMapOptions get_current_stabilization_bank(
     StabilizationSettingsFlightModeMapOptions flightModeMap[STABILIZATIONSETTINGS_FLIGHTMODEMAP_NUMELEM];
     StabilizationSettingsFlightModeMapGet(flightModeMap);
 
-    return flightModeMap[fm];
-}
-
-static void get_current_stabilizationbankdata(StabilizationBankData *bankData)
-{
-    switch (get_current_stabilization_bank()) {
-    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
-        StabilizationSettingsBank1Get((StabilizationSettingsBank1Data *)bankData);
-        break;
-    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
-        StabilizationSettingsBank2Get((StabilizationSettingsBank2Data *)bankData);
-        break;
-    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
-        StabilizationSettingsBank3Get((StabilizationSettingsBank3Data *)bankData);
-        break;
+    switch(flightModeMap[fm])
+    {
+        case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
+            return StabilizationSettingsBank1Handle();
+        case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
+            return StabilizationSettingsBank2Handle();
+        case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
+            return StabilizationSettingsBank3Handle();
     }
-}
-
-static void set_current_stabilizationbankdata(const StabilizationBankData *bankData)
-{
-    // update just relevant parts. or not.
-    switch (get_current_stabilization_bank()) {
-    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
-        StabilizationSettingsBank1Set((const StabilizationSettingsBank1Data *)bankData);
-        break;
-    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
-        StabilizationSettingsBank2Set((const StabilizationSettingsBank2Data *)bankData);
-        break;
-    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
-        StabilizationSettingsBank3Set((const StabilizationSettingsBank3Data *)bankData);
-        break;
-    }
-}
-
-static void pid_native2msp(const float *native, msp_pid_t *piditem)
-{
-    piditem->P = lroundf(native[0] * 10000);
-    piditem->I = lroundf(native[1] * 10000);
-    piditem->D = lroundf(native[2] * 10000);
-}
-
-static void pid_msp2native(const msp_pid_t *piditem, float *native)
-{
-    native[0] = (float)piditem->P / 10000;
-    native[1] = (float)piditem->I / 10000;
-    native[2] = (float)piditem->D / 10000;
+    
+    return 0;
 }
 
 static void msp_send_pid(struct msp_bridge *m)
 {
+    m->current_pid_bank = get_current_pid_bank_handle();
+    
     StabilizationBankData bankData;
-
-    get_current_stabilizationbankdata(&bankData);
+    UAVObjGetData(m->current_pid_bank, &bankData);
 
     msp_pid_t piditems[PID_ITEM_COUNT];
 
     memset(piditems, 0, sizeof(piditems));
 
-    pid_native2msp((float *)&bankData.RollRatePID, &piditems[PIDROLL]);
-    pid_native2msp((float *)&bankData.PitchRatePID, &piditems[PIDPITCH]);
-    pid_native2msp((float *)&bankData.YawRatePID, &piditems[PIDYAW]);
+    pid_native2msp((float *)&bankData.RollRatePID, &piditems[PIDROLL], 10000, 3);
+    pid_native2msp((float *)&bankData.PitchRatePID, &piditems[PIDPITCH], 10000, 3);
+    pid_native2msp((float *)&bankData.YawRatePID, &piditems[PIDYAW], 10000, 3);
+
+    pid_native2msp((float *)&bankData.RollPI, &piditems[PIDAROLL], 10, 2);
+    pid_native2msp((float *)&bankData.PitchPI, &piditems[PIDAPITCH], 10, 2);
+    pid_native2msp((float *)&bankData.YawPI, &piditems[PIDAYAW], 10, 2);
 
     msp_send(m, MSP_PID, (const uint8_t *)piditems, sizeof(piditems));
 }
 
 static void msp_set_pid(struct msp_bridge *m)
 {
+    if(m->current_pid_bank == 0) {
+        return;
+    }
+
     StabilizationBankData bankData;
+    UAVObjGetData(m->current_pid_bank, &bankData);
 
-    get_current_stabilizationbankdata(&bankData);
+    pid_msp2native(&m->cmd_data.piditems[PIDROLL], (float *)&bankData.RollRatePID, 10000, 3);
+    pid_msp2native(&m->cmd_data.piditems[PIDPITCH], (float *)&bankData.PitchRatePID, 10000, 3);
+    pid_msp2native(&m->cmd_data.piditems[PIDYAW], (float *)&bankData.YawRatePID, 10000, 3);
 
-    pid_msp2native(&m->cmd_data.piditems[PIDROLL], (float *)&bankData.RollRatePID);
-    pid_msp2native(&m->cmd_data.piditems[PIDPITCH], (float *)&bankData.PitchRatePID);
-    pid_msp2native(&m->cmd_data.piditems[PIDYAW], (float *)&bankData.YawRatePID);
+    pid_msp2native(&m->cmd_data.piditems[PIDAROLL], (float *)&bankData.RollPI, 10, 2);
+    pid_msp2native(&m->cmd_data.piditems[PIDAPITCH], (float *)&bankData.PitchPI, 10, 2);
+    pid_msp2native(&m->cmd_data.piditems[PIDAYAW], (float *)&bankData.YawPI, 10, 2);
 
-    set_current_stabilizationbankdata(&bankData);
-
+    UAVObjSetData(m->current_pid_bank, &bankData);
+    
+    bool needSave = true;
+    
+    if(needSave) {
+        FlightStatusArmedOptions armed;
+        FlightStatusArmedGet(&armed);
+        
+        if(armed == FLIGHTSTATUS_ARMED_DISARMED) {
+            UAVObjSave(m->current_pid_bank, 0);
+        }
+    }
+    
     msp_send(m, MSP_SET_PID, 0, 0); // send ack.
 }
 
@@ -756,7 +775,6 @@ static void msp_set_pid(struct msp_bridge *m)
 
 static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m)
 {
-#if 0
     union {
         uint8_t buf[0];
         struct {
@@ -804,7 +822,6 @@ static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m)
     }
 
     msp_send(m, MSP_ALARMS, data.buf, len + 1);
-#endif /* if 0 */
 }
 
 static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
@@ -849,6 +866,9 @@ static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
         break;
     case MSP_SET_PID:
         msp_set_pid(m);
+        break;
+    case MSP_PIDNAMES:
+        msp_send_pidnames(m);
         break;
     }
 

@@ -204,7 +204,7 @@ void armHandler(bool newinit, FrameType_t frameType)
     }
 
     // ignore previous arming input level if not transitioning from fully ARMED/DISARMED states.
-    if((armState != ARM_STATE_DISARMED) && (armState != ARM_STATE_ARMED)) {
+    if ((armState != ARM_STATE_DISARMED) && (armState != ARM_STATE_ARMED)) {
         previousArmingInputLevel = 0.0f;
     }
 

@@ -11,27 +11,39 @@
         <!-- Use RateDamp 100 with RateNoise 13 for very snappy flight. -->
         <!-- RateNoise is [0,30] default 10. -->
         <!-- RateDamp is [50,150] default 110. -->
-        <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="100"/>
+        <!-- per https://github.com/d-ronin/dRonin/pull/811/files change min ratedamp to 85. -->
+        <!-- So RateDamp is [85,150] default 110. -->
+        <!-- Extrapolated multiplicatively: -->
+        <!-- Use RateDamp 153.636363636 with RateNoise 06.4 for very very smooth flight. -->
+        <!-- Use RateDamp  90.909090909 with RateNoise 16.9 for very very snappy flight. -->
+        <!-- Extrapolated additively: -->
+        <!-- Use RateDamp 150 with RateNoise 06 for very very smooth flight. -->
+        <!-- Use RateDamp  90 with RateNoise 16 for very very snappy flight. -->
+        <!-- use additive so the piecewise algorithm will give the exact recommended pairs at 25%, 50%, and 75% of slider -->
+        <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="90"/>
         <field name="DampRate" units="" type="uint8" elements="1" defaultvalue="110"/>
-        <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="130"/>
-        <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="8"/>
+        <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="150"/>
+        <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="6"/>
         <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
-        <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="13"/>
-        <field name="CalculateYaw" units="" type="enum" elements="1" options="False,True,TrueIgnoreError" defaultvalue="True"/>
-        <field name="YawBetaMin" units="" type="float" elements="1" defaultvalue="5.6"/>
+        <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="16"/>
+        <!-- <field name="CalculateYaw" units="" type="enum" elements="1" options="False,True,TrueIgnoreError" defaultvalue="True"/> -->
+        <field name="CalculateYaw" units="" type="enum" elements="1" options="False,TrueLimitToRatio,TrueIgnoreLimit" defaultvalue="TrueLimitToRatio"/>
+        <!-- <field name="YawBetaMin" units="" type="float" elements="1" defaultvalue="5.6"/> -->
         <!-- Mateuze quad needs yaw P to be at most 2.6 times roll/pitch P to avoid yaw oscillation -->
-        <!-- Cliff sluggish 500 quad would like yaw P to be about 5.8 times roll/pitch P, but can easily live with 2.6 -->
+        <!-- Cliff sluggish 500 quad thinks that yaw P should be about 5.8 times roll/pitch P, but can easily (and better) live with 2.6 -->
         <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0"/>
-        <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.6"/>
-        <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/>
+        <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5"/>
+        <!-- <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/> -->
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
         <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
         <!-- smooth vs. quick PID selector: -->
         <!--  0 = disabled -->
         <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
-        <!-- 23 and 25 are discrete 3 and 5 stop rount robin selectors accessed by quickly toggling the fms 3 times -->
-        <!-- 23 (3 stops) means stops at 0%, 100%, -100% (repeat) -->
-        <!-- 25 (5 stops) means stops at 0%, 50%, 100%, -100%, -50% (repeat) -->
+        <!-- 23, 25, and 27 are discrete 3, 5, and 7 stop rount robin selectors incremented by quickly toggling the fms 3 times -->
+        <!-- 23 (3 stops) means stops at 0%, 100%, -100% (repeat as you toggle) -->
+        <!-- 25 (5 stops) means stops at 0%, 50%, 100%, -100%, -50% (repeat as you toggle) -->
+        <!-- 27 (7 stops) means stops at 0%, 33%, 67%, 100%, -100%, -67%, -33% (repeat as you toggle) -->
+        <!-- 25 is special in that the 3 middle values (-50, 0, 50) are exactly those that are recommended for smooth, normal, and quick responses -->
         <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25"/>
         <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>

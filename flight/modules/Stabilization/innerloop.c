@@ -359,8 +359,17 @@ static void stabilizationInnerloopTask()
                     uint8_t index = ((uint8_t[]) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' }
                                      )[identIteration];
                     float scale   = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentBeta)[index]);
-                    if (scale > 0.25f) {
-                        scale = 0.25f;
+                    // if roll or pitch limit to 25% of range
+                    if (identIteration & 1) {
+                        if (scale > 0.25f) {
+                            scale = 0.25f;
+                        }
+                    }
+                    // else it is yaw that can be a little more radical
+                    else {
+                        if (scale > 0.45f) {
+                            scale = 0.45f;
+                        }
                     }
                     if (identIteration & 2) {
                         scale = -scale;

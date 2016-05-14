@@ -25,7 +25,7 @@ SPEC_FILE_IN := $(ROOT_DIR)/package/linux/rpmspec.in
 .PHONY: rpmspec
 rpmspec: $(SPEC_FILE)
 
-$(SPEC_FILE): $(SPEC_FILE_IN) | $(RPM_DIRS) 
+$(SPEC_FILE): $(SPEC_FILE_IN) $(DIST_VER_INFO) | $(RPM_DIRS)
 	$(V1) cp -f $(SPEC_FILE_IN) $(SPEC_FILE)
 	$(V1) $(SED_SCRIPT) $(SPEC_FILE)
 

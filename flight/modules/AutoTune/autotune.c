@@ -39,6 +39,7 @@
 #include <flightstatus.h>
 #include <manualcontrolcommand.h>
 #include <manualcontrolsettings.h>
+#include <flightmodesettings.h>
 #include <gyrostate.h>
 #include <actuatordesired.h>
 #include <stabilizationdesired.h>
@@ -145,7 +146,7 @@ static void UpdateSystemIdentState(const float *X, const float *noise, float dT_
 static void UpdateStabilizationDesired(bool doingIdent);
 static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode);
 static void InitSystemIdent(bool loadDefaults);
-static void InitSmoothQuick();
+static void InitSmoothQuick(bool loadToggle);
 
 
 /**
@@ -161,11 +162,26 @@ int32_t AutoTuneInitialize(void)
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
     if (optionalModules.AutoTune == HWSETTINGS_OPTIONALMODULES_ENABLED) {
+        // even though the AutoTune module is automatically enabled
+        // (below, when the flight mode switch is configured to use autotune)
+        // there are use cases where the user may even want it enabled without being on the FMS
+        // that allows PIDs to be adjusted in flight
         moduleEnabled = true;
     } else {
+        // if the user did not enable the autotune module
+        // do it for them if they have autotune on their flight mode switch
+        FlightModeSettingsFlightModePositionOptions fms[FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM];
         moduleEnabled = false;
+        FlightModeSettingsInitialize();
+        FlightModeSettingsFlightModePositionGet(fms);
+        for (uint8_t i = 0; i < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM; ++i) {
+            if (fms[i] == FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE) {
+                moduleEnabled = true;
+                break;
+            }
+        }
     }
-#endif
+#endif /* ifdef MODULE_AutoTune_BUILTIN */
 
     if (moduleEnabled) {
         SystemIdentSettingsInitialize();
@@ -226,7 +242,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     // based on what is in SystemIdent
     // so that the user can use the PID smooth->quick slider in following flights
     InitSystemIdent(false);
-    InitSmoothQuick();
+    InitSmoothQuick(true);
 
     while (1) {
         uint32_t diffTime;
@@ -287,14 +303,27 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             savePidNeeded = true;
         }
 
+        //////////////////////////////////////////////////////////////////////////////////////
+        // if configured to use a slider for smooth-quick and the autotune module is running
+        // (note that the module can be automatically or manually enabled)
+        // then the smooth-quick slider is always active (when not actually in autotune mode)
+        //
+        // when the slider is active it will immediately change the PIDs
+        // and it will schedule the PIDs to be written to permanent storage
+        //
+        // if the FC is disarmed, the perm write will happen on next loop
+        // but if the FC is armed, the perm write will only occur when the FC goes disarmed
+        //////////////////////////////////////////////////////////////////////////////////////
+
+        // we don't want it saving to permanent storage many times
+        // while the user is moving the knob once, so wait till the knob stops moving
+        static uint8_t savePidDelay;
         // any time we are not in AutoTune mode:
         // - the user may be using the accessory0-3 knob/slider to request PID changes
         // - the state machine needs to be reset
         // - the local version of Attitude mode gets skipped
         if (flightStatus.FlightMode != FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) {
-            // we don't want it saving to permanent storage many times
-            // while the user is moving the knob once, so wait till the knob stops moving
-            static uint8_t savePidDelay;
+            static bool savePidActive = false;
             // if accessory0-3 is configured as a PID changing slider/knob over the smooth to quick range
             // and FC is not currently running autotune
             // and accessory0-3 changed by at least 1/160 of full range (2)
@@ -309,16 +338,27 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // some old PPM receivers use a low resolution chip which only allows about 180 steps
                 // what we are doing here does not need any higher precision than that
                 if (fabsf(accessoryValueOld.AccessoryVal - accessoryValue.AccessoryVal) > (2.0f / 160.0f)) {
-                    accessoryValueOld     = accessoryValue;
+                    accessoryValueOld = accessoryValue;
                     // this copies the PIDs to memory and makes them active
                     // but does not write them to permanent storage
                     ProportionPidsSmoothToQuick(-1.0f, accessoryValue.AccessoryVal, 1.0f);
-                    // this schedules the first possible write of the PIDs to occur later (a fraction of a second)
-                    savePidDelay = SMOOTH_QUICK_FLUSH_TICKS;
+                    // don't save PID to perm storage the first time
+                    // that usually means at power up
+                    //
+                    // that keeps it from writing the same value at each boot
+                    // but means that it won't be permanent if they move the slider before FC power on
+                    // (note that the PIDs will be changed, just not saved permanently)
+                    if (savePidActive) {
+                        // this schedules the first possible write of the PIDs to occur a fraction of a second or so from now
+                        // and moves the scheduled time if it is already scheduled
+                        savePidDelay = SMOOTH_QUICK_FLUSH_TICKS;
+                    } else {
+                        savePidActive = true;
+                    }
                 } else if (savePidDelay && --savePidDelay == 0) {
                     // this flags that the PIDs can be written to permanent storage right now
                     // but they will only be written when the FC is disarmed
-                    // so this means immediate or wait till FC is disarmed
+                    // so this means immediate (after NOT_AT_MODE_DELAY_MS) or wait till FC is disarmed
                     savePidNeeded = true;
                 }
             } else {
@@ -327,6 +367,8 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             state = AT_INIT;
             vTaskDelay(NOT_AT_MODE_DELAY_MS / portTICK_RATE_MS);
             continue;
+        } else {
+            savePidDelay = 0;
         }
 
         switch (state) {
@@ -355,9 +397,15 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // load SystemIdentSettings so that they can change it
                 // and do smooth-quick on changed values
                 InitSystemIdent(false);
-                // no InitSmoothQuick() here or the toggle switch gets reset even in a "quick toggle" that should increment it
-                state = AT_INIT_DELAY2;
-                lastUpdateTime = xTaskGetTickCount();
+                InitSmoothQuick(false);
+                // wait for FC to arm in case they are doing this without a flight mode switch
+                // that causes the 2+ second delay that follows to happen after arming
+                // which gives them a chance to take off before the shakes start
+                // the FC must be armed and if we check here it also allows switchless setup to use autotune
+                if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+                    state = AT_INIT_DELAY2;
+                    lastUpdateTime = xTaskGetTickCount();
+                }
             }
             break;
 
@@ -373,21 +421,18 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 doingIdent = true;
                 // after an additional .5 seconds start capturing data
                 if (diffTime > INIT_TIME_DELAY2_MS) {
-                    // Only start when armed and flying
-                    if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
-                        // Reset save status
-                        // save SI data even if partial or bad, aids in diagnostics
-                        saveSiNeeded  = true;
-                        // don't save PIDs until data gathering is complete
-                        // and the complete data has been sanity checked
-                        savePidNeeded = false;
-                        InitSystemIdent(true);
-                        InitSmoothQuick();
-                        AfInit(gX, gP);
-                        UpdateSystemIdentState(gX, NULL, 0.0f, 0, 0, 0.0f);
-                        measureTime = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
-                        state = AT_START;
-                    }
+                    // Reset save status
+                    // save SI data even if partial or bad, aids in diagnostics
+                    saveSiNeeded  = true;
+                    // don't save PIDs until data gathering is complete
+                    // and the complete data has been sanity checked
+                    savePidNeeded = false;
+                    InitSystemIdent(true);
+                    InitSmoothQuick(true);
+                    AfInit(gX, gP);
+                    UpdateSystemIdentState(gX, NULL, 0.0f, 0, 0, 0.0f);
+                    measureTime = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
+                    state = AT_START;
                 }
             }
             break;
@@ -587,13 +632,13 @@ static void InitSystemIdent(bool loadDefaults)
         // so that if they are changed there (mainly for future code changes), they will be changed here too
         SystemIdentStateSetDefaults(SystemIdentStateHandle(), 0);
         SystemIdentStateGet(&systemIdentState);
-        // Tau Beta and the Complete flag get default values
+        // Tau, Beta, and the Complete flag get default values
         // in preparation for running AutoTune
         systemIdentSettings.Tau = systemIdentState.Tau;
         memcpy(&systemIdentSettings.Beta, &systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
         systemIdentSettings.Complete = systemIdentState.Complete;
     } else {
-        // Tau Beta and the Complete flag get stored values
+        // Tau, Beta, and the Complete flag get stored values
         // so the user can fly another battery to select and test PIDs with the slider/knob
         systemIdentState.Tau = systemIdentSettings.Tau;
         memcpy(&systemIdentState.Beta, &systemIdentSettings.Beta, sizeof(SystemIdentStateBetaData));
@@ -602,28 +647,41 @@ static void InitSystemIdent(bool loadDefaults)
 }
 
 
-static void InitSmoothQuick()
+static void InitSmoothQuick(bool loadToggle)
 {
     uint8_t SmoothQuickSource = systemIdentSettings.SmoothQuickSource;
 
-    // default to disable PID changing with flight mode switch and accessory0-3
-    accessoryToUse = -1;
-    flightModeSwitchTogglePosition = -1;
-    systemIdentSettings.SmoothQuickSource = SMOOTH_QUICK_DISABLED;
     switch (SmoothQuickSource) {
     case SMOOTH_QUICK_ACCESSORY_BASE + 0: // use accessory0
     case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
     case SMOOTH_QUICK_ACCESSORY_BASE + 2: // use accessory2
     case SMOOTH_QUICK_ACCESSORY_BASE + 3: // use accessory3
+        // disable PID changing with flight mode switch
+        // ignore loadToggle if user is also switching to use knob as source
+        flightModeSwitchTogglePosition = -1;
         accessoryToUse = SmoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
         systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
     case SMOOTH_QUICK_TOGGLE_BASE + 3: // use flight mode switch toggle with 3 points
     case SMOOTH_QUICK_TOGGLE_BASE + 5: // use flight mode switch toggle with 5 points
     case SMOOTH_QUICK_TOGGLE_BASE + 7: // use flight mode switch toggle with 7 points
-        // first test PID is in the middle of the smooth -> quick range
-        flightModeSwitchTogglePosition = (SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+        // disable PID changing with accessory0-3
+        accessoryToUse = -1;
+        // don't allow init of current toggle position in the middle of 3x fms toggle
+        if (loadToggle) {
+            // first test PID is in the middle of the smooth -> quick range
+            flightModeSwitchTogglePosition = (SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+        }
         systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
+        break;
+    case SMOOTH_QUICK_DISABLED:
+    default:
+        // disable PID changing with flight mode switch
+        // ignore loadToggle since user is disabling toggle
+        flightModeSwitchTogglePosition = -1;
+        // disable PID changing with accessory0-3
+        accessoryToUse = -1;
+        systemIdentSettings.SmoothQuickSource = SMOOTH_QUICK_DISABLED;
         break;
     }
 }
@@ -642,7 +700,7 @@ static void UpdateSystemIdentState(const float *X, const float *noise,
     systemIdentState.Bias.Pitch = X[11];
     systemIdentState.Bias.Yaw   = X[12];
     systemIdentState.Tau = X[9];
-    // 'settings' beta and tau have same value as state versions
+    // 'settings' beta and tau have same value as 'state' versions
     // the state version produces a GCS log
     // the settings version is remembered after power off/on
     systemIdentSettings.Tau = systemIdentState.Tau;

@@ -36,14 +36,18 @@
         <!-- <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/> -->
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
         <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
-        <!-- smooth vs. quick PID selector: -->
-        <!--  0 = disabled -->
+        <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
+        <!-- 0 = disabled -->
         <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
-        <!-- 23, 25, and 27 are discrete 3, 5, and 7 stop rount robin selectors incremented by quickly toggling the fms 3 times -->
-        <!-- 23 (3 stops) means stops at 0%, 100%, -100% (repeat as you toggle) -->
-        <!-- 25 (5 stops) means stops at 0%, 50%, 100%, -100%, -50% (repeat as you toggle) -->
-        <!-- 27 (7 stops) means stops at 0%, 33%, 67%, 100%, -100%, -67%, -33% (repeat as you toggle) -->
-        <!-- 25 is special in that the 3 middle values (-50, 0, 50) are exactly those that are recommended for smooth, normal, and quick responses -->
+        <!-- an accessory knob works as expected, with full left being smoothest and full right being quickest -->
+        <!-- 23, 25, and 27 are discrete 3, 5, and 7 position rount robin selectors -->
+        <!-- incremented by quickly double toggling the fms 3 times (starting outside autotune mode -->
+        <!-- with each double toggle going into and back out of autotune) to go to the next position -->
+        <!-- think of the positions on a scale from 0 to 100, with smoothest being 0 and quickest being 100, and you start out at 50 -->
+        <!-- 23 (3 stops) means stops at 50, then 100, then 0 then back to 50 -->
+        <!-- 25 (5 stops) means stops at 50, 75, 100, 0, 25 (repeat as you toggle) -->
+        <!-- 27 (7 stops) means stops at 50, 67, 83, 100, 0, 17, 33 (repeat as you toggle) -->
+        <!-- 25 is special in that the 3 middle values (25, 50, 75) are exactly those that are recommended for smooth, normal, and quick responses -->
         <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25"/>
         <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>

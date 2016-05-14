@@ -167,6 +167,9 @@ int32_t configuration_check()
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
         case FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE:
             ADDSEVERITY(!gps_assisted);
+            // it would be fun to try autotune on a fixed wing
+            // but that should only be attempted by devs at first
+            ADDSEVERITY(multirotor);
             break;
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         default:

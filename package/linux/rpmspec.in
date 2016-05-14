@@ -82,25 +82,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc README.md CREDITS.txt WHATSNEW.txt
 %doc GPLv3.txt
-%{_bindir}/librepilot-gcs
-%{_udevrulesdir}/45-librepilot.rules
-%{_datadir}/applications/librepilot.desktop
-%{_datadir}/librepilot-gcs/*
-%{_datadir}/pixmaps/librepilot.png
-%{_libdir}/librepilot-gcs/plugins/LibrePilot/*.pluginspec
-%{_libdir}/librepilot-gcs/plugins/LibrePilot/*.so
-#
-%{_libdir}/librepilot-gcs/libAggregation.so.1*
-%{_libdir}/librepilot-gcs/libExtensionSystem.so.1*
-%{_libdir}/librepilot-gcs/libopmapwidget.so.1*
-%{_libdir}/librepilot-gcs/libQScienceSpinBox.so.1*
-%{_libdir}/librepilot-gcs/libQtConcurrent.so.1*
-%{_libdir}/librepilot-gcs/libQwt.so.1*
-%{_libdir}/librepilot-gcs/libsdlgamepad.so.1*
-%{_libdir}/librepilot-gcs/libUtils.so.1*
-%{_libdir}/librepilot-gcs/libVersionInfo.so.1*
-#
-%{_libdir}/librepilot-gcs/lib*.so
+%{_bindir}/*
+%{_udevrulesdir}/*
+%{_datadir}/*
+%{_libdir}/*
 
 
 %changelog

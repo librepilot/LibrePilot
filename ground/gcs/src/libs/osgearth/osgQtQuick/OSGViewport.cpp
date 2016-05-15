@@ -607,10 +607,26 @@ QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
 OSGViewport::OSGViewport(QQuickItem *parent) : Inherited(parent), h(new Hidden(this))
 {
     // setClearBeforeRendering(false);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     setMirrorVertically(true);
+#endif
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
 }
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData)
+{
+    if (!node) {
+        node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
+        QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
+        if (n)
+            n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
+        return node;
+    }
+    return QQuickFramebufferObject::updatePaintNode(node, nodeData);
+}
+#endif
 
 OSGViewport::~OSGViewport()
 {

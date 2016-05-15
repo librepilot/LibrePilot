@@ -10,5 +10,5 @@ Vcs-Browser: <GITWEB_URL>
 
 Package: <NAME>
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, qml-module-qtquick-controls, qml-module-qtquick-dialogs, qml-module-qtquick-xmllistmodel, qml-module-qtquick-localstorage, qml-module-qtquick-particles2, qml-module-qtquick-window2, qml-module-qtquick2
+Depends: ${shlibs:Depends}, ${misc:Depends}, openscenegraph-plugin-osgearth, qml-module-qtquick-controls, qml-module-qtquick-dialogs, qml-module-qtquick-xmllistmodel, qml-module-qtquick-localstorage, qml-module-qtquick-particles2, qml-module-qtquick-window2, qml-module-qtquick2
 Description: <DESCRIPTION>

@@ -2,9 +2,11 @@
  ******************************************************************************
  *
  * @file       vtollandcontroller.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Vtol landing controller loop
  * @see        The GNU Public License (GPL) Version 3
+ * @addtogroup LibrePilot LibrePilotModules Modules PathFollower Navigation
  *
  *****************************************************************************/
 /*
@@ -76,7 +78,8 @@ VtolLandController::VtolLandController()
 void VtolLandController::Activate(void)
 {
     if (!mActive) {
-        mActive = true;
+        mActive   = true;
+        mOverride = true;
         SettingsUpdated();
         fsm->Activate();
         controlDown.Activate();
@@ -97,11 +100,24 @@ uint8_t VtolLandController::Mode(void)
 // Objective updated in pathdesired, e.g. same flight mode but new target velocity
 void VtolLandController::ObjectiveUpdated(void)
 {
-    // Set the objective's target velocity
-    controlDown.UpdateVelocitySetpoint(pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_VELOCITY_VELOCITYVECTOR_DOWN]);
-    controlNE.UpdateVelocitySetpoint(pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_VELOCITY_VELOCITYVECTOR_NORTH],
-                                     pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_VELOCITY_VELOCITYVECTOR_EAST]);
-    controlNE.UpdatePositionSetpoint(pathDesired->End.North, pathDesired->End.East);
+    if (mOverride) {
+        // override pathDesired from PathPLanner with current position,
+        // as we deliberately don' not care about the location of the waypoints on the map
+        float velocity_down;
+        PositionStateData positionState;
+        PositionStateGet(&positionState);
+        FlightModeSettingsLandingVelocityGet(&velocity_down);
+        controlDown.UpdateVelocitySetpoint(velocity_down);
+        controlNE.UpdateVelocitySetpoint(0.0f, 0.0f);
+        controlNE.UpdatePositionSetpoint(positionState.North, positionState.East);
+        mOverride = false; // further updates always come from ManualControl and will control horizontal position
+    } else {
+        // Set the objective's target velocity
+        controlDown.UpdateVelocitySetpoint(pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_VELOCITY_VELOCITYVECTOR_DOWN]);
+        controlNE.UpdateVelocitySetpoint(pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_VELOCITY_VELOCITYVECTOR_NORTH],
+                                         pathDesired->ModeParameters[PATHDESIRED_MODEPARAMETER_VELOCITY_VELOCITYVECTOR_EAST]);
+        controlNE.UpdatePositionSetpoint(pathDesired->End.North, pathDesired->End.East);
+    }
 }
 void VtolLandController::Deactivate(void)
 {

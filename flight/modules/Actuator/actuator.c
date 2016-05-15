@@ -61,23 +61,25 @@ static int8_t counter;
 #endif
 
 // Private constants
-#define MAX_QUEUE_SIZE                  2
+#define MAX_QUEUE_SIZE                   2
 
 #if defined(PIOS_ACTUATOR_STACK_SIZE)
-#define STACK_SIZE_BYTES                PIOS_ACTUATOR_STACK_SIZE
+#define STACK_SIZE_BYTES                 PIOS_ACTUATOR_STACK_SIZE
 #else
-#define STACK_SIZE_BYTES                1312
+#define STACK_SIZE_BYTES                 1312
 #endif
 
-#define TASK_PRIORITY                   (tskIDLE_PRIORITY + 4) // device driver
-#define FAILSAFE_TIMEOUT_MS             100
-#define MAX_MIX_ACTUATORS               ACTUATORCOMMAND_CHANNEL_NUMELEM
+#define TASK_PRIORITY                    (tskIDLE_PRIORITY + 4) // device driver
+#define FAILSAFE_TIMEOUT_MS              100
+#define MAX_MIX_ACTUATORS                ACTUATORCOMMAND_CHANNEL_NUMELEM
 
-#define CAMERA_BOOT_DELAY_MS            7000
+#define CAMERA_BOOT_DELAY_MS             7000
 
-#define ACTUATOR_ONESHOT125_CLOCK       2000000
-#define ACTUATOR_ONESHOT125_PULSE_SCALE 4
-#define ACTUATOR_PWM_CLOCK              1000000
+#define ACTUATOR_ONESHOT_CLOCK           12000000
+#define ACTUATOR_ONESHOT125_PULSE_FACTOR 1.5f
+#define ACTUATOR_ONESHOT42_PULSE_FACTOR  0.5f
+#define ACTUATOR_MULTISHOT_PULSE_FACTOR  0.24f
+#define ACTUATOR_PWM_CLOCK               1000000
 // Private types
 
 
@@ -938,8 +940,16 @@ static bool set_channel(uint8_t mixer_channel, uint16_t value)
         uint8_t mode = pinsMode[actuatorSettings.ChannelAddr[mixer_channel]];
         switch (mode) {
         case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
-            // Remap 1000-2000 range to 125-250
-            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value / ACTUATOR_ONESHOT125_PULSE_SCALE);
+            // Remap 1000-2000 range to 125-250µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value * ACTUATOR_ONESHOT125_PULSE_FACTOR);
+            break;
+        case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
+            // Remap 1000-2000 range to 41,666-83,333µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value * ACTUATOR_ONESHOT42_PULSE_FACTOR);
+            break;
+        case ACTUATORSETTINGS_BANKMODE_MULTISHOT:
+            // Remap 1000-2000 range to 5-25µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], (value * ACTUATOR_MULTISHOT_PULSE_FACTOR) - 180);
             break;
         default:
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value);
@@ -991,8 +1001,10 @@ static void actuator_update_rate_if_changed(bool force_update)
             }
             switch (actuatorSettings.BankMode[i]) {
             case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
+            case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
+            case ACTUATORSETTINGS_BANKMODE_MULTISHOT:
                 freq[i]  = 100; // Value must be small enough so CCr isn't update until the PIOS_Servo_Update is triggered
-                clock[i] = ACTUATOR_ONESHOT125_CLOCK; // Setup an 2MHz timer clock
+                clock[i] = ACTUATOR_ONESHOT_CLOCK; // Setup an 12MHz timer clock
                 break;
             case ACTUATORSETTINGS_BANKMODE_PWMSYNC:
                 freq[i]  = 100;

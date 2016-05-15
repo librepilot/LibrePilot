@@ -259,7 +259,7 @@ public:
 
     DataObjectTreeItem *findDataObjectTreeItemByObjectId(quint32 objectId)
     {
-        return m_objectTreeItemsPerObjectIds.contains(objectId) ? m_objectTreeItemsPerObjectIds[objectId] : 0;
+        return m_objectTreeItemsPerObjectIds.value(objectId, 0);
     }
 
     void addMetaObjectTreeItem(quint32 objectId, MetaObjectTreeItem *oti)
@@ -269,7 +269,7 @@ public:
 
     MetaObjectTreeItem *findMetaObjectTreeItemByObjectId(quint32 objectId)
     {
-        return m_metaObjectTreeItemsPerObjectIds.contains(objectId) ? m_metaObjectTreeItemsPerObjectIds[objectId] : 0;
+        return m_metaObjectTreeItemsPerObjectIds.value(objectId, 0);
     }
 
     QList<MetaObjectTreeItem *> getMetaObjectItems();

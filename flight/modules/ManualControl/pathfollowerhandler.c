@@ -1,16 +1,14 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
- * @{
- * @addtogroup ManualControl
- * @brief Interpretes the control input in ManualControlCommand
- * @{
- *
  * @file       pathfollowerhandler.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ *
+ * @brief Interpretes the control input in ManualControlCommand
  *
  * @see        The GNU Public License (GPL) Version 3
  *
+ * @addtogroup LibrePilotModules LibrePilot Modules ManualControl
  ******************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -139,9 +137,6 @@ void pathFollowerHandler(bool newinit)
         if (flightModeAssist != FLIGHTSTATUS_FLIGHTMODEASSIST_NONE) {
             plan_run_VelocityRoam();
         }
-        break;
-    case FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF:
-        plan_run_AutoTakeoff();
         break;
     case FLIGHTSTATUS_FLIGHTMODE_AUTOCRUISE:
         plan_run_AutoCruise();

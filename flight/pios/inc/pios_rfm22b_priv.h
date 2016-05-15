@@ -674,7 +674,7 @@ struct pios_rfm22b_dev {
     // The device ID
     uint32_t    deviceID;
 
-    // The coodinator ID (0 if this modem is a coordinator).
+    // The coordinator ID (0 if this modem is a coordinator).
     uint32_t    coordinatorID;
 
     // The task handle

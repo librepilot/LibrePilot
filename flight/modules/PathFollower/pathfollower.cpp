@@ -2,12 +2,14 @@
  ******************************************************************************
  *
  * @file       pathfollower.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      This module compared @ref PositionActuatl to @ref ActiveWaypoint
  * and sets @ref AttitudeDesired.  It only does this when the FlightMode field
  * of @ref ManualControlCommand is Auto.
  *
  * @see        The GNU Public License (GPL) Version 3
+ * @addtogroup LibrePilot LibrePilotModules Modules PathFollower Navigation
  *
  *****************************************************************************/
 /*
@@ -93,6 +95,8 @@ extern "C" {
 #include "vtolbrakecontroller.h"
 #include "vtolflycontroller.h"
 #include "fixedwingflycontroller.h"
+#include "fixedwingautotakeoffcontroller.h"
+#include "fixedwinglandcontroller.h"
 #include "grounddrivecontroller.h"
 
 // Private constants
@@ -220,6 +224,8 @@ void pathFollowerInitializeControllersForFrameType()
     case FRAME_TYPE_FIXED_WING:
         if (!fixedwing_initialised) {
             FixedWingFlyController::instance()->Initialize(&fixedWingPathFollowerSettings);
+            FixedWingAutoTakeoffController::instance()->Initialize(&fixedWingPathFollowerSettings);
+            FixedWingLandController::instance()->Initialize(&fixedWingPathFollowerSettings);
             fixedwing_initialised = 1;
         }
         break;
@@ -287,6 +293,14 @@ static void pathFollowerSetActiveController(void)
             case PATHDESIRED_MODE_CIRCLERIGHT:
             case PATHDESIRED_MODE_CIRCLELEFT:
                 activeController = FixedWingFlyController::instance();
+                activeController->Activate();
+                break;
+            case PATHDESIRED_MODE_LAND: // land with optional velocity roam option
+                activeController = FixedWingLandController::instance();
+                activeController->Activate();
+                break;
+            case PATHDESIRED_MODE_AUTOTAKEOFF:
+                activeController = FixedWingAutoTakeoffController::instance();
                 activeController->Activate();
                 break;
             default:
@@ -451,6 +465,7 @@ static void SettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 static void airspeedStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
     FixedWingFlyController::instance()->AirspeedStateUpdatedCb(ev);
+    FixedWingAutoTakeoffController::instance()->AirspeedStateUpdatedCb(ev);
 }
 
 

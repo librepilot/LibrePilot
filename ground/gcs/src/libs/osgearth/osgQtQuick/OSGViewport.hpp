@@ -93,6 +93,9 @@ signals:
     void busyChanged(bool busy);
 
 protected:
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    QSGNode *updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData) override;
+#endif
     // QQuickItem
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);

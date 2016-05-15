@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       flightgearbridge.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup HITLPlugin HITL Plugin
@@ -269,7 +270,7 @@ void FGSimulator::processUpdate(const QByteArray & inp)
     // Get pressure (kpa)
     float pressure     = fields[20].toFloat() * INHG2KPA;
     // Get VelocityState Down (m/s)
-    float velocityStateDown  = -fields[21].toFloat() * FPS2CMPS * 1e-2f;
+    float velocityStateDown  = fields[21].toFloat() * FPS2CMPS * 1e-2f;
     // Get VelocityState East (m/s)
     float velocityStateEast  = fields[22].toFloat() * FPS2CMPS * 1e-2f;
     // Get VelocityState Down (m/s)

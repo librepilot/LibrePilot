@@ -53,6 +53,7 @@ MODULES += Telemetry
 MODULES += Notify
 
 OPTMODULES += ComUsbBridge
+OPTMODULES += UAVOMSPBridge
 
 SRC += $(FLIGHTLIB)/notification.c
 

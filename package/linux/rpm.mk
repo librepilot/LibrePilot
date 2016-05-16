@@ -38,6 +38,10 @@ $(RPM_PACKAGE_FILE): RPMBUILD_OPTS := -bb
 package_src: $(RPM_PACKAGE_SRC)
 $(RPM_PACKAGE_SRC): RPMBUILD_OPTS := -bs
 
+.PHONY: package_src_upload
+package_src_upload: $(RPM_PACKAGE_SRC)
+	copr-cli build --nowait $(COPR_PROJECT) $(RPM_PACKAGE_SRC)
+
 $(RPM_PACKAGE_FILE) $(RPM_PACKAGE_SRC): $(SPEC_FILE) $(DIST_TAR_GZ) $(FW_DIST_TAR_GZ) | $(RPM_DIRS)
 	@$(ECHO) "Building $(call toprel,$@), please wait..."
 	$(V1) ln -sf $(DIST_TAR_GZ) $(PACKAGE_DIR)/SOURCES

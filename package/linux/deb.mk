@@ -24,7 +24,6 @@ SED_SCRIPT           := $(SED_SCRIPT)' \
 			'
 
 # Ubuntu 14.04 (Trusty Tahr) use qt in /opt PPA
-OPT_QT               := qt56
 TRUSTY_DEPS_SED      := s/qml-module-.*/$(OPT_QT)quickcontrols/g; \
                         s/qt5-default.*/$(OPT_QT)-meta-minimal, $(OPT_QT)svg, $(OPT_QT)script, $(OPT_QT)serialport, $(OPT_QT)multimedia, $(OPT_QT)translations, $(OPT_QT)tools/g;
 
@@ -51,8 +50,6 @@ debian: $(DEB_DIR)
 	$(V1) $(SED_SCRIPT) debian/changelog debian/control
 ifeq ($(DEB_DIST), trusty)
 	$(V1) sed -i -e '$(TRUSTY_DEPS_SED)' debian/control
-	$(V1) sed -i -e 's,dh ,source /opt/$(OPT_QT)/bin/$(OPT_QT)-env.sh || true; dh ,' debian/rules
-	$(V1) echo "SHELL := /bin/bash" >> debian/rules
 endif
 
 .PHONY: package_src

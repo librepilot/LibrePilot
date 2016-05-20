@@ -1,5 +1,5 @@
 /**
- ******************************************************************************
+ ***********************************************************************************
  *
  * @file       vehicleconfigurationhelper.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
@@ -9,7 +9,7 @@
  * @addtogroup VehicleConfigurationHelper
  * @{
  * @brief
- *****************************************************************************/
+ **********************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,7 +212,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SBUS;
             } else {
                 data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
-                // We have to set telemetry to flexport on all except Revo (and except Sparky2) since s.bus needs the mainport.
+                // We have to set telemetry to flexiport on all except Revo (and except Sparky2) since s.bus needs mainport.
                 if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
                     data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
                 }
@@ -1851,6 +1851,7 @@ void VehicleConfigurationHelper::setupOctoCopter()
         guiSettings.multi.VTOLMotorE  = 3;
         guiSettings.multi.VTOLMotorSE = 4;
         guiSettings.multi.VTOLMotorS  = 5;
+
         guiSettings.multi.VTOLMotorSW = 6;
         guiSettings.multi.VTOLMotorW  = 7;
         guiSettings.multi.VTOLMotorNW = 8;

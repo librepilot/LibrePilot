@@ -28,14 +28,13 @@
 #ifndef CONFIGSPARKY2HWWIDGET_H
 #define CONFIGSPARKY2HWWIDGET_H
 
-#include "ui_configsparky2hwwidget.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include <QWidget>
-#include <QList>
 
+class Ui_Sparky2HWWidget;
+
+class UAVObject;
+
+class QWidget;
 
 class ConfigSparky2HWWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -45,8 +44,8 @@ public:
     ~ConfigSparky2HWWidget();
 
 private:
-    bool m_refreshing;
     Ui_Sparky2HWWidget *m_ui;
+    bool m_refreshing;
     void setupCustomCombos();
 
 protected slots:

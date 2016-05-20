@@ -1,5 +1,5 @@
 /**
- ******************************************************************************
+ ****************************************************************************************
  * @file       pios_board.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
@@ -8,8 +8,8 @@
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
- * @brief Defines board specific static initializers for hardware for the revomini board.
- *****************************************************************************/
+ * @brief Defines board specific static initializers for hardware for the Sparky2 board.
+ ***************************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -484,7 +484,7 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
     case HWSETTINGS_RM_FLEXIPORT_DSM:
-        // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
+        // TODO: Define the various Channelgroup for Sparky2 dsm inputs and handle here
         PIOS_Board_configure_dsm(&pios_usart_dsm_flexi_cfg, &pios_dsm_flexi_cfg,
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT, &hwsettings_DSMxBind);
         break;
@@ -727,7 +727,7 @@ void PIOS_Board_Init(void)
         // Force binding to zero on the main port
         hwsettings_DSMxBind = 0;
 
-        // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
+        // TODO: Define the various Channelgroup for Sparky2 dsm inputs and handle here
         PIOS_Board_configure_dsm(&pios_usart_dsm_main_cfg, &pios_dsm_main_cfg,
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
         break;
@@ -868,18 +868,6 @@ void PIOS_Board_Init(void)
 #endif
 
     /* Configure the receiver port*/
-    // Revo Flex-IO Port Functions
-    // 1: GND
-    // 2: VCC_UNREG
-    // 3: PB12 = SPI2 NSS, CAN2 RX
-    // 4: PB13 = SPI2 SCK, CAN2 TX, USART3 CTS
-    // 5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
-    // 6: PB15 = SPI2 MOSI, TIM12 CH2
-    // 7: PC6 = TIM8 CH1, USART6 TX
-    // 8: PC7 = TIM8 CH2, USART6 RX
-    // 9: PC8 = TIM8 CH3
-    // 10: PC9 = TIM8 CH4
-    //
     // Sparky2 receiver input on PC7 TIM8 CH2
     // that appears to include PPM, DSM, DSM-HSUM, SBUS
     uint8_t hwsettings_rcvrport;
@@ -913,7 +901,7 @@ void PIOS_Board_Init(void)
 #endif
         break;
     case HWSETTINGS_SPK2_RCVRPORT_DSM:
-        // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
+        // TODO: Define the various Channelgroup for Sparky2 dsm inputs and handle here
         PIOS_Board_configure_dsm(&pios_usart_dsm_rcvr_cfg, &pios_dsm_rcvr_cfg,
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMRCVRPORT, &hwsettings_DSMxBind);
         break;

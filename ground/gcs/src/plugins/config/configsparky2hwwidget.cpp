@@ -27,14 +27,17 @@
  */
 #include "configsparky2hwwidget.h"
 
-#include <QDebug>
+#include "ui_configsparky2hwwidget.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+
 #include "hwsettings.h"
+
+#include <QDebug>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QMessageBox>
-
 
 ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
 {
@@ -67,9 +70,6 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbMainGPSSpeed);
     addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbMainComSpeed);
 
-    // addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbRcvrTelemSpeed);
-    // addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbRcvrComSpeed);
-
     // Add Gps protocol configuration
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
@@ -100,7 +100,6 @@ void ConfigSparky2HWWidget::setupCustomCombos()
 
     connect(m_ui->cbFlexi, SIGNAL(currentIndexChanged(int)), this, SLOT(flexiPortChanged(int)));
     connect(m_ui->cbMain, SIGNAL(currentIndexChanged(int)), this, SLOT(mainPortChanged(int)));
-    // connect(m_ui->cbRcvr, SIGNAL(currentIndexChanged(int)), this, SLOT(rcvrPortChanged(int)));
 }
 
 void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
@@ -111,7 +110,6 @@ void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
-    // rcvrPortChanged(0);
     m_refreshing = false;
 }
 

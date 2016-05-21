@@ -1,15 +1,16 @@
 /**
- ******************************************************************************
- * @addtogroup RevolutionBL Revolution BootLoader
- * @brief These files contain the code to the Revolution Bootloader.
+ ***********************************************************************************
+ * @addtogroup Sparky2BL Sparky2 BootLoader
+ * @brief These files contain the code to the Sparky2 Bootloader.
  *
  * @{
  * @file       main.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      This is the file with the main function of the Revolution BootLoader
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @brief      This is the file with the main function of the Sparky2 BootLoader
  * @see        The GNU Public License (GPL) Version 3
  *
- *****************************************************************************/
+ **********************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

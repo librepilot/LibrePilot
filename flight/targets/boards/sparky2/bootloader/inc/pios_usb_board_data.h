@@ -1,5 +1,5 @@
 /**
- ******************************************************************************
+ ***********************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
  * @addtogroup PIOS_USB_BOARD Board specific USB definitions
@@ -7,11 +7,12 @@
  * @{
  *
  * @file       pios_usb_board_data.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Board specific USB definitions
  * @see        The GNU Public License (GPL) Version 3
  *
- *****************************************************************************/
+ **********************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,8 +39,8 @@
 
 #include <pios_usb_defs.h> /* struct usb_* */
 
-#define PIOS_USB_BOARD_PRODUCT_ID      USB_PRODUCT_ID_REVOLUTION
-#define PIOS_USB_BOARD_DEVICE_VER      USB_OP_DEVICE_VER(USB_OP_BOARD_ID_REVOLUTION, USB_OP_BOARD_MODE_BL)
+#define PIOS_USB_BOARD_PRODUCT_ID      USB_PRODUCT_ID_SPARKY2
+#define PIOS_USB_BOARD_DEVICE_VER      USB_OP_DEVICE_VER(USB_OP_BOARD_ID_SPARKY2, USB_OP_BOARD_MODE_BL)
 #define PIOS_USB_BOARD_SN_SUFFIX       "+BL"
 
 /*

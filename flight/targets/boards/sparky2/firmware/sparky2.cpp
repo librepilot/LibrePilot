@@ -1,21 +1,21 @@
 /**
- ******************************************************************************
+ ****************************************************************************************
  * @addtogroup LibrePilotSystem LibrePilot System
- * @brief These files are the core system files for Revolution.
- * They are the ground layer just above PiOS. In practice, Revolution actually starts
- * in the main() function of revolution.cpp
+ * @brief These files are the core system files for Sparky2.
+ * They are the ground layer just above PiOS. In practice, Sparky2 actually starts
+ * in the main() function of sparky2.cpp
  * @{
  * @addtogroup LibrePilotCore LibrePilot Core
  * @brief This is where the LP firmware starts. Those files also define the compile-time
  * options of the firmware.
  * @{
- * @file       revolution.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @file       sparky2.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015
  * @brief      Sets up and runs main tasks.
  * @see        The GNU Public License (GPL) Version 3
  *
- *****************************************************************************/
+ ***************************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

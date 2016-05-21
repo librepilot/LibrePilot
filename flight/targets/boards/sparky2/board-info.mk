@@ -12,7 +12,7 @@ MODEL_SUFFIX        :=
 OPENOCD_JTAG_CONFIG := stlink-v2.cfg
 OPENOCD_CONFIG      := stm32f4xx.stlink.cfg
 
-# Flash memory map for Revolution:
+# Flash memory map for Sparky2:
 # Sector	start		size	use
 # 0		0x0800 0000	16k	BL
 # 1		0x0800 4000	16k	BL

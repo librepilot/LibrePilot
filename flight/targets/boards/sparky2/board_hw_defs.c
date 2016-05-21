@@ -1,15 +1,15 @@
 /**
- ******************************************************************************
+ ****************************************************************************************
  * @file       board_hw_defs.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016	.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @addtogroup OpenPilotSystem OpenPilot System
  * @{
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
- * @brief Defines board specific static initializers for hardware for the Revolution board.
- *****************************************************************************/
+ * @brief Defines board specific static initializers for hardware for the Sparky2 board.
+ ***************************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -760,7 +760,7 @@ static const struct pios_usart_cfg pios_usart_srxl_flexi_cfg = {
 #endif /* PIOS_INCLUDE_SRXL */
 
 // these were copied from Revo support
-// they probably need to be modified for sparky2 support
+// they might need to be further modified for Sparky2 support
 #if defined(PIOS_INCLUDE_HOTT)
 /*
  * HOTT USART

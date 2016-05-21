@@ -14,7 +14,7 @@
 		<field name="RM_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+PWM,PPM+Telemetry,PPM+Outputs,Outputs,Telemetry,ComBridge,MSP"
 			defaultvalue="PWM"
                         limits="%0905NE:PPM+PWM:PPM+Telemetry:Telemetry:ComBridge;"/>
-                <field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
+		<field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
 		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
 
 		<field name="SPK2_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PPM,S.Bus,DSM,SRXL,MSP"

@@ -70,6 +70,17 @@ bool InputPage::validatePage()
     return true;
 }
 
+void InputPage::initializePage()
+{
+    bool isSparky2 = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
+
+    ui->pwmButton->setEnabled(!isSparky2);
+    if (ui->pwmButton->isChecked() && isSparky2) {
+        ui->pwmButton->setChecked(false);
+        ui->ppmButton->setChecked(true);
+    }
+}
+
 bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedType)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -149,18 +160,19 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
         case VehicleConfigurationSource::INPUT_SBUS:
             return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_SBUS;
 
-        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
-            return data.SPK2_FlexiPort != HwSettings::SPK2_FLEXIPORT_HOTTSUMD;
-
-        case VehicleConfigurationSource::INPUT_EXBUS:
-            return data.SPK2_FlexiPort != HwSettings::SPK2_FLEXIPORT_EXBUS;
-
         case VehicleConfigurationSource::INPUT_SRXL:
             return data.SPK2_FlexiPort != HwSettings::SPK2_FLEXIPORT_SRXL;
 
         case VehicleConfigurationSource::INPUT_DSM:
             // TODO: Handle all of the DSM types ?? Which is most common?
-            return data.SPK2_MainPort != HwSettings::SPK2_MAINPORT_DSM;
+            return data.SPK2_MainPort != HwSettings::SPK2_RCVRPORT_DSM;
+
+        // TODO, Sparky2: Move Hott and Exbus to Receiver port.
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
+            return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_HOTTSUMD;
+
+        case VehicleConfigurationSource::INPUT_EXBUS:
+            return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_EXBUS;
 
         default: return true;
         }

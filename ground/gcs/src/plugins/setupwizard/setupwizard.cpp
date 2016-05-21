@@ -469,10 +469,10 @@ QString SetupWizard::getSummaryText()
             summary.append(tr("Software Estimated"));
             break;
         case AIRSPEED_EAGLETREE:
-            summary.append(tr("EagleTree on Flexi-Port"));
+            (getControllerType() == CONTROLLER_SPARKY2) ? summary.append(tr("EagleTree on I2C-Port")) : summary.append(tr("EagleTree on Flexi-Port"));
             break;
         case AIRSPEED_MS4525:
-            summary.append(tr("MS4525 based on Flexi-Port"));
+            (getControllerType() == CONTROLLER_SPARKY2) ? summary.append(tr("MS4525 based on I2C-Port")) : summary.append(tr("MS4525 based on Flexi-Port"));
             break;
         default:
             summary.append(tr("Unknown"));

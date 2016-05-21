@@ -41,6 +41,7 @@ public:
     explicit InputPage(SetupWizard *wizard, QWidget *parent = 0);
     ~InputPage();
     bool validatePage();
+    void initializePage();
 
 private:
     bool restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedType);

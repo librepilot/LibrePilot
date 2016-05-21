@@ -231,7 +231,8 @@ void ConnectionDiagram::setupGraphicsScene()
             }
         }
 
-        if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
+        if ((m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) &&
+            (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2)) {
             prefix = QString("flexi-%1").arg(prefix);
         }
         switch (m_configSource->getGpsType()) {

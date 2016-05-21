@@ -302,6 +302,27 @@ static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PPM] = pios_ppm_rcvr_id;
 }
 
+static void PIOS_Board_configure_srxl(const struct pios_usart_cfg *usart_cfg)
+{
+    uint32_t pios_usart_srxl_id;
+
+    if (PIOS_USART_Init(&pios_usart_srxl_id, usart_cfg)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_srxl_id;
+    if (PIOS_SRXL_Init(&pios_srxl_id, &pios_usart_com_driver, pios_usart_srxl_id)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_srxl_rcvr_id;
+    if (PIOS_RCVR_Init(&pios_srxl_rcvr_id, &pios_srxl_rcvr_driver, pios_srxl_id)) {
+        PIOS_Assert(0);
+    }
+
+    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
+}
+
 static void PIOS_Board_PPM_callback(const int16_t *channels)
 {
     uint8_t max_chan = (RFM22B_PPM_NUM_CHANNELS < OPLINKRECEIVER_CHANNEL_NUMELEM) ? RFM22B_PPM_NUM_CHANNELS : OPLINKRECEIVER_CHANNEL_NUMELEM;
@@ -510,23 +531,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_SPK2_FLEXIPORT_SRXL:
 #if defined(PIOS_INCLUDE_SRXL)
-        {
-            uint32_t pios_usart_srxl_id;
-            if (PIOS_USART_Init(&pios_usart_srxl_id, &pios_usart_srxl_flexi_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_srxl_id;
-            if (PIOS_SRXL_Init(&pios_srxl_id, &pios_usart_com_driver, pios_usart_srxl_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_srxl_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_srxl_rcvr_id, &pios_srxl_rcvr_driver, pios_srxl_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
-        }
+        PIOS_Board_configure_srxl(&pios_usart_srxl_flexi_cfg);
 #endif /* PIOS_INCLUDE_SRXL */
         break;
 
@@ -909,6 +914,11 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS] = pios_sbus_rcvr_id;
         }
 #endif
+        break;
+    case HWSETTINGS_SPK2_RCVRPORT_SRXL:
+#if defined(PIOS_INCLUDE_SRXL)
+        PIOS_Board_configure_srxl(&pios_usart_srxl_rcvr_cfg);
+#endif /* PIOS_INCLUDE_SRXL */
         break;
     case HWSETTINGS_SPK2_RCVRPORT_DSM:
         // TODO: Define the various Channelgroup for Sparky2 dsm inputs and handle here

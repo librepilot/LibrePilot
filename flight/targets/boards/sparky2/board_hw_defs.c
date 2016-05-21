@@ -757,6 +757,37 @@ static const struct pios_usart_cfg pios_usart_srxl_flexi_cfg = {
     },
 };
 
+static const struct pios_usart_cfg pios_usart_srxl_rcvr_cfg = {
+    .regs  = USART6,
+    .remap = GPIO_AF_USART6,
+    .init  = {
+        .USART_BaudRate   = 115200,
+        .USART_WordLength = USART_WordLength_8b,
+        .USART_Parity     = USART_Parity_No,
+        .USART_StopBits   = USART_StopBits_1,
+        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
+        .USART_Mode                            = USART_Mode_Rx,
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = USART6_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .rx                                        = {
+        .gpio = GPIOC,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_7,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
+        },
+    },
+};
+
 #endif /* PIOS_INCLUDE_SRXL */
 
 // these were copied from Revo support

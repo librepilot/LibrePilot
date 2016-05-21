@@ -206,6 +206,9 @@ uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 #define PIOS_COM_HKOSD_RX_BUF_LEN        22
 #define PIOS_COM_HKOSD_TX_BUF_LEN        22
 
+#define PIOS_COM_MSP_TX_BUF_LEN          128
+#define PIOS_COM_MSP_RX_BUF_LEN          64
+
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 #define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
 uint32_t pios_com_debug_id;
@@ -218,6 +221,7 @@ uint32_t pios_com_rf_id        = 0;
 uint32_t pios_com_bridge_id    = 0;
 uint32_t pios_com_overo_id     = 0;
 uint32_t pios_com_hkosd_id     = 0;
+uint32_t pios_com_msp_id       = 0;
 
 uint32_t pios_com_vcp_id       = 0;
 
@@ -436,12 +440,12 @@ void PIOS_Board_Init(void)
     uint8_t hwsettings_flexiport;
     HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
     switch (hwsettings_flexiport) {
-    case HWSETTINGS_RM_FLEXIPORT_DISABLED:
+    case HWSETTINGS_SPK2_FLEXIPORT_DISABLED:
         break;
-    case HWSETTINGS_RM_FLEXIPORT_TELEMETRY:
+    case HWSETTINGS_SPK2_FLEXIPORT_TELEMETRY:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_I2C:
+    case HWSETTINGS_SPK2_FLEXIPORT_I2C:
 #if defined(PIOS_INCLUDE_I2C)
 #if defined(PIOS_INCLUDE_HMC5X83)
         {
@@ -480,28 +484,31 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_HMC5X83 */
 #endif /* PIOS_INCLUDE_I2C */
         break;
-    case HWSETTINGS_RM_FLEXIPORT_GPS:
+    case HWSETTINGS_SPK2_FLEXIPORT_GPS:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_DSM:
+    case HWSETTINGS_SPK2_FLEXIPORT_DSM:
         // TODO: Define the various Channelgroup for Sparky2 dsm inputs and handle here
         PIOS_Board_configure_dsm(&pios_usart_dsm_flexi_cfg, &pios_dsm_flexi_cfg,
                                  &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT, &hwsettings_DSMxBind);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE:
+    case HWSETTINGS_SPK2_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         {
             PIOS_Board_configure_com(&pios_usart_flexi_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
         }
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
-    case HWSETTINGS_RM_FLEXIPORT_COMBRIDGE:
+    case HWSETTINGS_SPK2_FLEXIPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_OSDHK:
+    case HWSETTINGS_SPK2_FLEXIPORT_MSP:
+        PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
+        break;
+    case HWSETTINGS_SPK2_FLEXIPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
-    case HWSETTINGS_RM_FLEXIPORT_SRXL:
+    case HWSETTINGS_SPK2_FLEXIPORT_SRXL:
 #if defined(PIOS_INCLUDE_SRXL)
         {
             uint32_t pios_usart_srxl_id;
@@ -523,8 +530,8 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_SRXL */
         break;
 
-    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
-    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMH:
+    case HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD:
+    case HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMH:
 #if defined(PIOS_INCLUDE_HOTT)
         {
             uint32_t pios_usart_hott_id;
@@ -534,7 +541,7 @@ void PIOS_Board_Init(void)
 
             uint32_t pios_hott_id;
             if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
-                               hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
+                               hwsettings_flexiport == HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
                 PIOS_Assert(0);
             }
 
@@ -547,7 +554,7 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_HOTT */
         break;
 
-    case HWSETTINGS_RM_FLEXIPORT_EXBUS:
+    case HWSETTINGS_SPK2_FLEXIPORT_EXBUS:
 #if defined(PIOS_INCLUDE_EXBUS)
         {
             uint32_t pios_usart_exbus_id;
@@ -740,6 +747,9 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_SPK2_MAINPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
+        break;
+    case HWSETTINGS_RM_MAINPORT_MSP:
+        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
         break;
     case HWSETTINGS_SPK2_MAINPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);

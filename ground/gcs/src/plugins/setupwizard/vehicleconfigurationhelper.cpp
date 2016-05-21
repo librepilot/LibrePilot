@@ -164,7 +164,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             }
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            // We have to set teletry on flexiport since s.bus needs the mainport.
+            // We have to set telemetry on flexiport since s.bus needs the mainport.
             data.CC_MainPort  = HwSettings::CC_MAINPORT_SBUS;
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_TELEMETRY;
             break;
@@ -191,11 +191,14 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         // Reset all ports to their defaults
         data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
         data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+        data.SPK2_RcvrPort  = HwSettings::SPK2_RCVRPORT_DISABLED;
+        data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_DISABLED;
 
         // Revo/Sparky2 uses inbuilt Modem do not set mainport to be active telemetry link for Revo/Sparky2
         if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
             || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
             data.RM_MainPort = HwSettings::RM_MAINPORT_DISABLED;
+            data.RM_MainPort = HwSettings::SPK2_MAINPORT_DISABLED;
         } else {
             data.RM_MainPort = HwSettings::RM_MAINPORT_TELEMETRY;
         }
@@ -203,9 +206,12 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         switch (m_configSource->getInputType()) {
         case VehicleConfigurationSource::INPUT_PWM:
             data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PWM;
+            // this should not happen, sparky2 does not allow pwm
+            data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DISABLED;
             break;
         case VehicleConfigurationSource::INPUT_PPM:
             data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
+            data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_PPM;
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
@@ -220,15 +226,19 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             break;
         case VehicleConfigurationSource::INPUT_DSM:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_DSM;
             break;
         case VehicleConfigurationSource::INPUT_SRXL:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_SRXL;
             break;
         case VehicleConfigurationSource::INPUT_HOTT_SUMD:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_HOTTSUMD;
             break;
         case VehicleConfigurationSource::INPUT_EXBUS:
             data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_EXBUS;
             break;
         default:
             break;
@@ -245,6 +255,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
             } else {
                 data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
+                data.SPK2_MainPort = HwSettings::SPK2_MAINPORT_GPS;
             }
 
             GPSSettings *gpsSettings = GPSSettings::GetInstance(m_uavoManager);
@@ -291,6 +302,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
                 data.RM_FlexiPort     = HwSettings::RM_FLEXIPORT_I2C;
+                data.SPK2_FlexiPort     = HwSettings::SPK2_FLEXIPORT_I2C;
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
@@ -325,11 +337,15 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             case VehicleConfigurationSource::AIRSPEED_EAGLETREE:
                 data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 1;
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                // sparky2: put I2C airspeed on flexiport, but it could be put on i2cport
+                data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
                 airspeedData.AirspeedSensorType = AirspeedSettings::AIRSPEEDSENSORTYPE_EAGLETREEAIRSPEEDV3;
                 break;
             case VehicleConfigurationSource::AIRSPEED_MS4525:
                 data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 1;
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                // sparky2: put I2C airspeed on flexiport, but it could be put on i2cport
+                data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
                 airspeedData.AirspeedSensorType = AirspeedSettings::AIRSPEEDSENSORTYPE_PIXHAWKAIRSPEEDMS4525DO;
                 break;
             default:

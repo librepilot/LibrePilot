@@ -39,7 +39,9 @@ void GpsPage::initializePage(VehicleConfigurationSource *settings)
 {
     // Enable all
     setItemDisabled(-1, false);
-    if (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
+    // sbus is on rcvrport for sparky2, that leaves mainport/flexiport available for gps/auxmag
+    // it is not even possible to put sbus on mainport on sparky2 because hardware inverter is on rcvrport
+    if ((settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS && settings->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2) ||
         settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
         settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
         settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS ||

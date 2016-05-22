@@ -47,6 +47,8 @@ void AirSpeedPage::initializePage(VehicleConfigurationSource *settings)
                        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
                        settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
                        settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS)) ||
+        (isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
+                      settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS)) ||
         settings->getGpsType() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
         // Disable non estimated sensors if ports are taken by receivers or I2C Mag
         setItemDisabled(VehicleConfigurationSource::AIRSPEED_EAGLETREE, true);
@@ -67,19 +69,12 @@ bool AirSpeedPage::validatePage(SelectionItem *selectedItem)
 
 void AirSpeedPage::setupSelection(Selection *selection)
 {
-    QString i2cPortWarning = tr("Note: if previously selected input combinations use the Flexi-port for input, "
-                                "only estimated airspeed will be available.\n\n");
-    QString i2cPortText    = tr("Selecting this option will set your board's Flexi-Port in to I2C mode.");
-
-    if (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2) {
-        i2cPortWarning = tr("Note: if previously selected GPS with I2C auxMag, only estimated airspeed will be available.\n\n");
-        i2cPortText    = tr("Selecting this option will enable your board's I2C-Port.");
-    }
-
     selection->setTitle(tr("Airspeed Sensor Selection"));
     selection->setText(tr("This part of the wizard will help you select and configure a way to obtain "
                           "airspeed data. Current firmware supports three methods to achieve this, one is a "
-                          "software estimation technique and the other two utilize hardware sensors.\n\n") + i2cPortWarning);
+                          "software estimation technique and the other two utilize hardware sensors.\n\n"
+                          "Note: if previously selected input combinations use the Flexi-port for input, "
+                          "only estimated airspeed will be available.\n\n"));
 
     selection->addItem(tr("Estimated"),
                        tr("This option uses an intelligent estimation algorithm which utilizes the INS/GPS "
@@ -91,13 +86,15 @@ void AirSpeedPage::setupSelection(Selection *selection)
 
     selection->addItem(tr("EagleTree"),
                        tr("Select this option to use the Airspeed MicroSensor V3 from EagleTree, this is an accurate "
-                          "airspeed sensor that includes on-board Temperature Compensation.\n\n") + i2cPortText,
+                          "airspeed sensor that includes on-board Temperature Compensation.\n\n"
+                          "Selecting this option will set your board's Flexi-Port in to I2C mode."),
                        "eagletree-speed-sensor",
                        SetupWizard::AIRSPEED_EAGLETREE);
 
     selection->addItem(tr("MS4525 Based"),
                        tr("Select this option to use an airspeed sensor based on the MS4525DO  pressure transducer "
-                          "from Measurement Specialties. This includes the PixHawk sensor and their clones.\n\n") + i2cPortText,
+                          "from Measurement Specialties. This includes the PixHawk sensor and their clones.\n\n"
+                          "Selecting this option will set your board's Flexi-Port in to I2C mode."),
                        "ms4525-speed-sensor",
                        SetupWizard::AIRSPEED_MS4525);
 }

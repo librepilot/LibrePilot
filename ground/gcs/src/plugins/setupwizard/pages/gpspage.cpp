@@ -39,14 +39,14 @@ void GpsPage::initializePage(VehicleConfigurationSource *settings)
 {
     // Enable all
     setItemDisabled(-1, false);
-    // sbus is on rcvrport for sparky2, that leaves mainport/flexiport available for gps/auxmag
-    // it is not even possible to put sbus on mainport on sparky2 because hardware inverter is on rcvrport
-    // for sparky2: ppm, sbus, and dsm all attach to rcvrport by default
-    if ((settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS && settings->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2) ||
-        (settings->getInputType() == VehicleConfigurationSource::INPUT_DSM && settings->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2) ||
+
+    bool isSparky = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
+    // Sbus, dsm and srxl are on rcvrport for sparky2, that leaves mainport/flexiport available for gps/auxmag
+    if ((!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS)) ||
+        (!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_DSM)) ||
+        (!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL)) ||
         settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL) {
+        settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS) {
         // Disable GPS+I2C Mag
         setItemDisabled(VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG, true);
         if (getSelectedItem()->id() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
@@ -67,12 +67,6 @@ bool GpsPage::validatePage(SelectionItem *selectedItem)
 
 void GpsPage::setupSelection(Selection *selection)
 {
-    QString i2cPortName = "FlexiPort.";
-
-    if (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2) {
-        i2cPortName = tr("I2C Port (under).");
-    }
-
     selection->setTitle(tr("GPS Selection"));
     selection->setText(tr("Please select the type of GPS you wish to use. As well as OpenPilot hardware, "
                           "3rd party GPSs are supported also, although please note that performance could "
@@ -99,7 +93,7 @@ void GpsPage::setupSelection(Selection *selection)
 
     selection->addItem(tr("U-Blox Based + Magnetometer"),
                        tr("Select this option for the generic U-Blox chipset based GPS + I2C Magnetometer.\n\n"
-                          "GPS is connected to MainPort and two wires I2C to ") + i2cPortName,
+                          "GPS is connected to MainPort and two wires I2C to FlexiPort."),
                        "generic-ublox-mag",
                        SetupWizard::GPS_UBX_FLEXI_I2CMAG);
 

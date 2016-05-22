@@ -41,12 +41,12 @@ void GpsPage::initializePage(VehicleConfigurationSource *settings)
     setItemDisabled(-1, false);
 
     bool isSparky = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
-    // Sbus, dsm and srxl are on rcvrport for sparky2, that leaves mainport/flexiport available for gps/auxmag
-    if ((!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS)) ||
-        (!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_DSM)) ||
-        (!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL)) ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS) {
+    // All rcinputs are on rcvrport for sparky2, that leaves mainport/flexiport available for gps/auxmag
+    if (!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
+                      settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
+                      settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
+                      settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
+                      settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS)) {
         // Disable GPS+I2C Mag
         setItemDisabled(VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG, true);
         if (getSelectedItem()->id() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {

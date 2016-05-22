@@ -249,14 +249,14 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             break;
         case VehicleConfigurationSource::INPUT_HOTT_SUMD:
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
-                data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_HOTTSUMD;
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_HOTTSUMD;
             } else {
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
             }
             break;
         case VehicleConfigurationSource::INPUT_EXBUS:
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
-                data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_EXBUS;
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_EXBUS;
             } else {
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
             }

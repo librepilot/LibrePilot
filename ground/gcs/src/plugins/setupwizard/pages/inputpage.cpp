@@ -167,12 +167,11 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
             // TODO: Handle all of the DSM types ?? Which is most common?
             return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_DSM;
 
-        // TODO: Sparky2: Move Hott and Exbus to Receiver port.
         case VehicleConfigurationSource::INPUT_HOTT_SUMD:
-            return data.SPK2_FlexiPort != HwSettings::SPK2_FLEXIPORT_HOTTSUMD;
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_HOTTSUMD;
 
         case VehicleConfigurationSource::INPUT_EXBUS:
-            return data.SPK2_FlexiPort != HwSettings::SPK2_FLEXIPORT_EXBUS;
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_EXBUS;
 
         default: return true;
         }

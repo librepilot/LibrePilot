@@ -323,6 +323,47 @@ static void PIOS_Board_configure_srxl(const struct pios_usart_cfg *usart_cfg)
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
 }
 
+
+static void PIOS_Board_configure_exbus(const struct pios_usart_cfg *usart_cfg)
+{
+    uint32_t pios_usart_exbus_id;
+
+    if (PIOS_USART_Init(&pios_usart_exbus_id, usart_cfg)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_exbus_id;
+    if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_exbus_rcvr_id;
+    if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
+        PIOS_Assert(0);
+    }
+    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
+}
+
+static void PIOS_Board_configure_hott(const struct pios_usart_cfg *usart_cfg, enum pios_hott_proto proto)
+{
+    uint32_t pios_usart_hott_id;
+
+    if (PIOS_USART_Init(&pios_usart_hott_id, usart_cfg)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_hott_id;
+    if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id, proto)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_hott_rcvr_id;
+    if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
+        PIOS_Assert(0);
+    }
+    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
+}
+
 static void PIOS_Board_PPM_callback(const int16_t *channels)
 {
     uint8_t max_chan = (RFM22B_PPM_NUM_CHANNELS < OPLINKRECEIVER_CHANNEL_NUMELEM) ? RFM22B_PPM_NUM_CHANNELS : OPLINKRECEIVER_CHANNEL_NUMELEM;
@@ -538,46 +579,14 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD:
     case HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMH:
 #if defined(PIOS_INCLUDE_HOTT)
-        {
-            uint32_t pios_usart_hott_id;
-            if (PIOS_USART_Init(&pios_usart_hott_id, &pios_usart_hott_flexi_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_hott_id;
-            if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
-                               hwsettings_flexiport == HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_hott_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
-        }
+        PIOS_Board_configure_hott(&pios_usart_hott_flexi_cfg,
+                                  hwsettings_flexiport == HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH);
 #endif /* PIOS_INCLUDE_HOTT */
         break;
 
     case HWSETTINGS_SPK2_FLEXIPORT_EXBUS:
 #if defined(PIOS_INCLUDE_EXBUS)
-        {
-            uint32_t pios_usart_exbus_id;
-            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_flexi_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_id;
-            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
-        }
+        PIOS_Board_configure_exbus(&pios_usart_exbus_flexi_cfg);
 #endif /* PIOS_INCLUDE_EXBUS */
         break;
     } /* hwsettings_rm_flexiport */
@@ -919,6 +928,19 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_SRXL)
         PIOS_Board_configure_srxl(&pios_usart_srxl_rcvr_cfg);
 #endif /* PIOS_INCLUDE_SRXL */
+        break;
+    case HWSETTINGS_SPK2_RCVRPORT_HOTTSUMD:
+    case HWSETTINGS_SPK2_RCVRPORT_HOTTSUMH:
+#if defined(PIOS_INCLUDE_HOTT)
+        PIOS_Board_configure_hott(&pios_usart_hott_rcvr_cfg,
+                                  hwsettings_flexiport == HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH);
+#endif /* PIOS_INCLUDE_HOTT */
+        break;
+
+    case HWSETTINGS_SPK2_RCVRPORT_EXBUS:
+#if defined(PIOS_INCLUDE_EXBUS)
+        PIOS_Board_configure_exbus(&pios_usart_exbus_rcvr_cfg);
+#endif /* PIOS_INCLUDE_EXBUS */
         break;
     case HWSETTINGS_SPK2_RCVRPORT_DSM:
         // TODO: Define the various Channelgroup for Sparky2 dsm inputs and handle here

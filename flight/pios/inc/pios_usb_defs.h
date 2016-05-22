@@ -358,9 +358,9 @@ enum usb_product_ids {
     USB_PRODUCT_ID_OPLINK = 0x415C,
     USB_PRODUCT_ID_CC3D = 0x415D,
     USB_PRODUCT_ID_REVOLUTION     = 0x415E,
-    USB_PRODUCT_ID_SPARKY2        = 0x415E,
-    USB_PRODUCT_ID_OSD   = 0x4194,
-    USB_PRODUCT_ID_SPARE = 0x4195,
+    USB_PRODUCT_ID_SPARKY2 = 0x415E,
+    USB_PRODUCT_ID_OSD     = 0x4194,
+    USB_PRODUCT_ID_SPARE   = 0x4195,
 } __attribute__((packed));
 
 enum usb_op_board_ids {
@@ -369,8 +369,8 @@ enum usb_op_board_ids {
     USB_OP_BOARD_ID_OPLINK = 3,
     USB_OP_BOARD_ID_COPTERCONTROL  = 4,
     USB_OP_BOARD_ID_REVOLUTION     = 5,
-    USB_OP_BOARD_ID_SPARKY2        = 5,
-    USB_OP_BOARD_ID_OSD = 6,
+    USB_OP_BOARD_ID_SPARKY2 = 5,
+    USB_OP_BOARD_ID_OSD     = 6,
 } __attribute__((packed));
 
 enum usb_op_board_modes {

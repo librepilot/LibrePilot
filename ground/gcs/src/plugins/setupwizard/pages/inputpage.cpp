@@ -46,6 +46,17 @@ InputPage::~InputPage()
     delete ui;
 }
 
+void InputPage::initializePage()
+{
+    bool isSparky2 = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
+
+    ui->pwmButton->setEnabled(!isSparky2);
+    if (ui->pwmButton->isChecked() && isSparky2) {
+        ui->pwmButton->setChecked(false);
+        ui->ppmButton->setChecked(true);
+    }
+}
+
 bool InputPage::validatePage()
 {
     if (ui->pwmButton->isChecked()) {
@@ -68,17 +79,6 @@ bool InputPage::validatePage()
     getWizard()->setRestartNeeded(getWizard()->isRestartNeeded() || restartNeeded(getWizard()->getInputType()));
 
     return true;
-}
-
-void InputPage::initializePage()
-{
-    bool isSparky2 = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
-
-    ui->pwmButton->setEnabled(!isSparky2);
-    if (ui->pwmButton->isChecked() && isSparky2) {
-        ui->pwmButton->setChecked(false);
-        ui->ppmButton->setChecked(true);
-    }
 }
 
 bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedType)

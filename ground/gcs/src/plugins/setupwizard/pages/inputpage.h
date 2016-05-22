@@ -40,8 +40,8 @@ class InputPage : public AbstractWizardPage {
 public:
     explicit InputPage(SetupWizard *wizard, QWidget *parent = 0);
     ~InputPage();
-    bool validatePage();
     void initializePage();
+    bool validatePage();
 
 private:
     bool restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedType);

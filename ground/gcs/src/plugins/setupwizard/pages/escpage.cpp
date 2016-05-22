@@ -43,6 +43,17 @@ EscPage::~EscPage()
     delete ui;
 }
 
+void EscPage::initializePage()
+{
+    bool enabled = isSynchOrOneShotAvailable();
+
+    ui->oneshotESCButton->setEnabled(enabled);
+    if (ui->oneshotESCButton->isChecked() && !enabled) {
+        ui->oneshotESCButton->setChecked(false);
+        ui->rapidESCButton->setChecked(true);
+    }
+}
+
 bool EscPage::validatePage()
 {
     if (ui->oneshotESCButton->isChecked()) {
@@ -58,18 +69,6 @@ bool EscPage::validatePage()
     }
 
     return true;
-}
-
-
-void EscPage::initializePage()
-{
-    bool enabled = isSynchOrOneShotAvailable();
-
-    ui->oneshotESCButton->setEnabled(enabled);
-    if (ui->oneshotESCButton->isChecked() && !enabled) {
-        ui->oneshotESCButton->setChecked(false);
-        ui->rapidESCButton->setChecked(true);
-    }
 }
 
 bool EscPage::isSynchOrOneShotAvailable()

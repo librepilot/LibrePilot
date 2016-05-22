@@ -40,8 +40,8 @@ class EscPage : public AbstractWizardPage {
 public:
     explicit EscPage(SetupWizard *wizard, QWidget *parent = 0);
     ~EscPage();
-    bool validatePage();
     void initializePage();
+    bool validatePage();
 
 private:
     Ui::EscPage *ui;

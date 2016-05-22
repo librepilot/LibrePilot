@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vehiclepage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup VehiclePage
@@ -41,7 +42,6 @@ public:
     explicit VehiclePage(SetupWizard *wizard, QWidget *parent = 0);
     ~VehiclePage();
     bool validatePage();
-    void initializePage();
 
 private:
     Ui::VehiclePage *ui;

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       vehiclepage.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
@@ -57,11 +57,4 @@ bool VehiclePage::validatePage()
         getWizard()->setVehicleType(SetupWizard::VEHICLE_UNKNOWN);
     }
     return true;
-}
-
-void VehiclePage::initializePage()
-{
-    // ui->fixedwingButton->setEnabled(getWizard()->getControllerType() == SetupWizard::CONTROLLER_REVO ||
-    // getWizard()->getControllerType() == SetupWizard::CONTROLLER_NANO ||
-    // getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
 }

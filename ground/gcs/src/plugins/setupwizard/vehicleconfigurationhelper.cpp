@@ -189,10 +189,13 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
     case VehicleConfigurationSource::CONTROLLER_SPARKY2:
     case VehicleConfigurationSource::CONTROLLER_DISCOVERYF4:
         // Reset all ports to their defaults
-        data.RM_RcvrPort    = HwSettings::RM_RCVRPORT_DISABLED;
-        data.RM_FlexiPort   = HwSettings::RM_FLEXIPORT_DISABLED;
-        data.SPK2_RcvrPort  = HwSettings::SPK2_RCVRPORT_DISABLED;
-        data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_DISABLED;
+        if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+            data.SPK2_RcvrPort  = HwSettings::SPK2_RCVRPORT_DISABLED;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_DISABLED;
+        } else {
+            data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+        }
 
         // Revo/Sparky2 uses inbuilt Modem do not set mainport to be active telemetry link for Revo/Sparky2
         if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
@@ -205,9 +208,12 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
 
         switch (m_configSource->getInputType()) {
         case VehicleConfigurationSource::INPUT_PWM:
-            data.RM_RcvrPort   = HwSettings::RM_RCVRPORT_PWM;
-            // this should not happen, sparky2 does not allow pwm
-            data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DISABLED;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                // this should not happen, sparky2 does not allow pwm
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DISABLED;
+            } else {
+                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PWM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_PPM:
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
@@ -242,12 +248,18 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             }
             break;
         case VehicleConfigurationSource::INPUT_HOTT_SUMD:
-            data.RM_FlexiPort   = HwSettings::RM_FLEXIPORT_HOTTSUMD;
-            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_HOTTSUMD;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_HOTTSUMD;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
+            }
             break;
         case VehicleConfigurationSource::INPUT_EXBUS:
-            data.RM_FlexiPort   = HwSettings::RM_FLEXIPORT_EXBUS;
-            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_EXBUS;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_EXBUS;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
+            }
             break;
         default:
             break;
@@ -317,12 +329,11 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
                 if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
-                    data.SPK2_I2CPort = HwSettings::SPK2_I2CPORT_I2C;
-                    magsData.Type     = AuxMagSettings::TYPE_EXT;
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
                 } else {
                     data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
-                    magsData.Type     = AuxMagSettings::TYPE_FLEXI;
                 }
+                magsData.Type  = AuxMagSettings::TYPE_FLEXI;
                 magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
                 magSettings->setData(magsData);
                 addModifiedObject(magSettings, tr("Writing I2C Mag sensor settings"));

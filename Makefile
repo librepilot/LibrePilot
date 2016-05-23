@@ -376,10 +376,12 @@ include $(ROOT_DIR)/package/$(UNAME).mk
 # Source for distribution
 #
 ##############################
-$(DIST_VER_INFO): .git/index | $(DIST_DIR)
+FORCE:
+
+$(DIST_VER_INFO): FORCE | $(DIST_DIR)
 	$(V1) $(VERSION_INFO) --jsonpath="$(DIST_DIR)"
 
-$(DIST_TAR): $(DIST_VER_INFO) .git/index | $(DIST_DIR)
+$(DIST_TAR): $(DIST_VER_INFO) | $(DIST_DIR)
 	@$(ECHO) " SOURCE FOR DISTRIBUTION $(call toprel, $(DIST_TAR))"
 	$(V1) git archive --prefix="$(PACKAGE_NAME)/" -o "$(DIST_TAR)" HEAD
 	$(V1) tar --append --file="$(DIST_TAR)" \

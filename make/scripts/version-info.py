@@ -252,8 +252,29 @@ class Repo:
         json_data['dirty'] = False
 
         json_path = os.path.join(path, 'version-info.json')
-        with open(json_path, 'w') as json_file:
-           json.dump(json_data, json_file)
+
+        write_if_different(json_path, json.dumps(json_data))
+
+
+def write_if_different(out_name, out):
+    """Write ouput to file only if it differs from current"""
+
+    # Check if output file already exists
+    try:
+        of = open(out_name, "rb")
+    except IOError:
+        # No file - create new
+        of = open(out_name, "wb")
+        of.write(out)
+        of.close()
+    else:
+        # File exists - overwite only if content is different
+        inp = of.read()
+        of.close()
+        if inp != out:
+            of = open(out_name, "wb")
+            of.write(out)
+            of.close()
 
 def escape_dict(dictionary):
     """Escapes dictionary values for C"""
@@ -300,22 +321,8 @@ def file_from_template(tpl_name, out_name, dictionary):
     # Replace placeholders using dictionary
     out = Template(tpl).substitute(dictionary)
 
-    # Check if output file already exists
-    try:
-        of = open(out_name, "rb")
-    except IOError:
-        # No file - create new
-        of = open(out_name, "wb")
-        of.write(out)
-        of.close()
-    else:
-        # File exists - overwite only if content is different
-        inp = of.read()
-        of.close()
-        if inp != out:
-            of = open(out_name, "wb")
-            of.write(out)
-            of.close()
+    write_if_different(out_name, out)
+
 
 def sha1(file):
     """Provides C source representation of sha1 sum of file"""

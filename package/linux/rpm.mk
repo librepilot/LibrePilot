@@ -25,7 +25,7 @@ SPEC_FILE_IN := $(ROOT_DIR)/package/linux/rpmspec.in
 .PHONY: rpmspec
 rpmspec: $(SPEC_FILE)
 
-$(SPEC_FILE): $(SPEC_FILE_IN) | $(RPM_DIRS) 
+$(SPEC_FILE): $(SPEC_FILE_IN) $(DIST_VER_INFO) | $(RPM_DIRS)
 	$(V1) cp -f $(SPEC_FILE_IN) $(SPEC_FILE)
 	$(V1) $(SED_SCRIPT) $(SPEC_FILE)
 
@@ -37,6 +37,10 @@ $(RPM_PACKAGE_FILE): RPMBUILD_OPTS := -bb
 .PHONY: package_src
 package_src: $(RPM_PACKAGE_SRC)
 $(RPM_PACKAGE_SRC): RPMBUILD_OPTS := -bs
+
+.PHONY: package_src_upload
+package_src_upload: $(RPM_PACKAGE_SRC)
+	copr-cli build --nowait $(COPR_PROJECT) $(RPM_PACKAGE_SRC)
 
 $(RPM_PACKAGE_FILE) $(RPM_PACKAGE_SRC): $(SPEC_FILE) $(DIST_TAR_GZ) $(FW_DIST_TAR_GZ) | $(RPM_DIRS)
 	@$(ECHO) "Building $(call toprel,$@), please wait..."

@@ -552,9 +552,15 @@ ifeq ($(shell [ -d "$(QT_SDK_DIR)" ] && $(ECHO) "exists"), exists)
         export LD_LIBRARY_PATH := $(QT_SDK_DIR)/lib:$(LD_LIBRARY_PATH)
     endif
 else
-    # not installed, hope it's in the path...
-    # $(info $(EMPTY) WARNING     $(call toprel, $(QT_SDK_DIR)) not found (make qt_sdk_install), using system PATH)
-    QMAKE ?= qmake
+    OPT_QT := qt56
+    OPT_QT_ENV_SH := /opt/$(OPT_QT)/bin/$(OPT_QT)-env.sh
+    ifneq ($(wildcard $(OPT_QT_ENV_SH)),)
+        SHELL := /bin/bash
+        QMAKE := . $(OPT_QT_ENV_SH) && qmake
+    else
+        # not installed, hope it's in the path...
+        QMAKE := qmake
+    endif
 endif
 
 .PHONY: qt_sdk_version

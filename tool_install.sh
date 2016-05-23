@@ -76,7 +76,7 @@ function download_file
 #2 The output directory
 function zip_extract
 {
-	unzip "$1" -d "$2"
+	unzip -q "$1" -d "$2"
 }
 
 ## Extracts a 7zip file

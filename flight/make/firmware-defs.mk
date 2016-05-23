@@ -227,9 +227,14 @@ endef
 define LINK_TEMPLATE
 .SECONDARY : $(1)
 .PRECIOUS : $(2) $(3)
-$(1):  $(2) $(3)
+$(1).input_files:  $(2) $(3)
+	$(V1) rm -rf $(1).input_files
+	$(foreach file,$(2) $(3),
+	$(V1) echo $(file) >> $$@)
+
+$(1):  $(1).input_files
 	@echo $(MSG_LINKING) $$(call toprel, $$@)
-	$(V1) $(CC) $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $(2) $(3) --output $$@ $$(LDFLAGS)
+	$(V1) $(CC) $(THUMB) $$(CFLAGS) $$(CPPFLAGS) @$(1).input_files --output $$@ $$(LDFLAGS)
 endef
 
 # Link: create ELF output file from object files.
@@ -238,9 +243,14 @@ endef
 define LINK_CXX_TEMPLATE
 .SECONDARY : $(1)
 .PRECIOUS : $(2) $(3)
-$(1):  $(2) $(3)
+$(1).input_files:  $(2) $(3)
+	$(V1) rm -rf $(1).input_files
+	$(foreach file,$(2) $(3),
+	$(V1) echo $(file) >> $$@)
+
+$(1): $(1).input_files
 	@echo $(MSG_LINKING) $$(call toprel, $$@)
-	$(V1) $(CXX) $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$(CXXFLAGS) $(2) $(3) --output $$@ $$(LDFLAGS)
+	$(V1) $(CXX) $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$(CXXFLAGS) @$(1).input_files --output $$@ $$(LDFLAGS)
 endef
 
 # Compile: create assembler files from C source files. ARM/Thumb

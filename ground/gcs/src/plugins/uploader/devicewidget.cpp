@@ -101,15 +101,19 @@ void DeviceWidget::populate()
         devicePic.load(":/uploader/images/gcs-board-cc3d.png");
         break;
     case 0x0903:
+        // Revo
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
     case 0x0904:
+        // DiscoveryF4Bare
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
     case 0x0905:
+        // Nano
         devicePic.load(":/uploader/images/gcs-board-nano.png");
         break;
     case 0x0b01:
+        // Sparky2
         devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
     default:
@@ -368,9 +372,9 @@ void DeviceWidget::uploadFirmware()
         // - Check whether board type matches firmware:
         int board = m_dfu->devices[deviceID].ID;
         int firmwareBoard = ((desc.at(12) & 0xff) << 8) + (desc.at(13) & 0xff);
-        if ((board == 0x401 && firmwareBoard == 0x402) ||
-            (board == 0x901 && firmwareBoard == 0x902) || // L3GD20 revo supports Revolution firmware
-            (board == 0x902 && firmwareBoard == 0x903)) { // RevoMini1 supporetd by RevoMini2 firmware
+        if ((board == 0x0401 && firmwareBoard == 0x0402) ||
+            (board == 0x0901 && firmwareBoard == 0x0902) || // L3GD20 revo supports Revolution firmware
+            (board == 0x0902 && firmwareBoard == 0x0903)) { // RevoMini1 supporetd by RevoMini2 firmware
             // These firmwares are designed to be backwards compatible
         } else if (firmwareBoard != board) {
             status("Error: firmware does not match board", STATUSICON_FAIL);

@@ -208,7 +208,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
         UAVObjectField *board_type_field = oplinkStatusObj->getField("BoardType");
         switch (board_type_field->getValue().toInt()) {
         case 0x09: // Revolution, DiscoveryF4Bare, RevoNano, RevoProto
-        case 0x0B: // Sparky2
+        case 0x0b: // Sparky2
             m_oplink->MainPort->setVisible(false);
             m_oplink->MainPortLabel->setVisible(false);
             m_oplink->FlexiPort->setVisible(false);
@@ -232,7 +232,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
             connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
             break;
-        case 0x0A: // OPLink? (No. This is wrong. 0x0A is gpsplatinum.)
+        case 0x0a: // OPLink? (No. This is wrong. 0x0A is gpsplatinum.)
             m_oplink->MainPort->setVisible(true);
             m_oplink->MainPortLabel->setVisible(true);
             m_oplink->FlexiPort->setVisible(true);

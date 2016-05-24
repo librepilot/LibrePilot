@@ -42,12 +42,12 @@ public:
 
             break;
         case 0x0901:
-            // Revolution
+            // old unreleased Revolution prototype
             return QString("Revolution");
 
             break;
         case 0x0903:
-            // Revo Mini
+            // Revo also known as Revo Mini
             return QString("Revolution");
 
             break;

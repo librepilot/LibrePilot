@@ -199,6 +199,7 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
             parameters["conf_rport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_RcvrPort");
             parameters["conf_mport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_MainPort");
             parameters["conf_fport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_FlexiPort");
+            parameters["conf_iport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_I2CPort");
             parameters["conf_fusion"] = getUAVFieldValue(objManager, "RevoSettings", "FusionAlgorithm");
         }
 

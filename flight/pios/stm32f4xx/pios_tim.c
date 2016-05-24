@@ -140,7 +140,7 @@ int32_t PIOS_TIM_InitClock(const struct pios_tim_clock_cfg *cfg)
         NVIC_InitTypeDef init = cfg->irq.init;
         init.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
         NVIC_Init(&init);
-#if !defined (STM32F401xx) && !defined (STM32F411xE)
+#if !defined(STM32F401xx) && !defined(STM32F411xE)
     } else if (cfg->timer == TIM8) {
         NVIC_InitTypeDef init = cfg->irq.init;
         init.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;

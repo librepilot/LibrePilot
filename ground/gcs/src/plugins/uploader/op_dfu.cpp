@@ -1084,11 +1084,11 @@ int DFUObject::receiveData(void *data, int size)
     }
 }
 
-#define BOARD_ID_MB   1
-#define BOARD_ID_INS  2
-#define BOARD_ID_PIP  3
-#define BOARD_ID_CC   4
-#define BOARD_ID_REVO 9
+#define BOARD_ID_MB      1
+#define BOARD_ID_INS     2
+#define BOARD_ID_PIP     3
+#define BOARD_ID_CC      4
+#define BOARD_ID_REVO    9
 #define BOARD_ID_SPARKY2 0x92
 
 /**

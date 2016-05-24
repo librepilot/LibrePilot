@@ -9,8 +9,8 @@ public:
     QString        gitTag;
     QByteArray     fwHash;
     QByteArray     uavoHash;
-    quint8 boardType;
-    quint8 boardRevision;
+    quint8         boardType;
+    quint8         boardRevision;
     static QString idToBoardName(quint16 id)
     {
         switch (id) {

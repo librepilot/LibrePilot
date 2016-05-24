@@ -45,6 +45,9 @@
 // Running moving average smoothing factor
 #define PIOS_MS5611_TEMP_SMOOTHING 10
 //
+
+#define PIOS_MS5611_I2C_RETRIES    5
+
 /* Local Types */
 typedef struct {
     uint16_t C[6];
@@ -94,6 +97,8 @@ static const struct pios_ms5611_cfg *dev_cfg;
 static int32_t i2c_id;
 static PIOS_SENSORS_1Axis_SensorsWithTemp results;
 
+static bool sensorIsAlive = false;
+
 // sensor driver interface
 bool PIOS_MS5611_driver_Test(uintptr_t context);
 void PIOS_MS5611_driver_Reset(uintptr_t context);
@@ -116,13 +121,21 @@ const PIOS_SENSORS_Driver PIOS_MS5611_Driver = {
 int32_t ms5611_read_flag;
 void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t i2c_device)
 {
-    i2c_id = i2c_device;
+    static uint32_t initTime;
 
-    oversampling = cfg->oversampling;
-    conversionDelayMs = PIOS_MS5611_GetDelay();
-    conversionDelayUs = PIOS_MS5611_GetDelayUs();
+    if (cfg) {
+        i2c_id = i2c_device;
 
-    dev_cfg = cfg; // Store cfg before enabling interrupt
+        oversampling = cfg->oversampling;
+        conversionDelayMs = PIOS_MS5611_GetDelay();
+        conversionDelayUs = PIOS_MS5611_GetDelayUs();
+
+        dev_cfg = cfg; // Store cfg before enabling interrupt
+    } else if (PIOS_DELAY_DiffuS(initTime) < 1000000) { // Do not reinitialize too often
+        return;
+    }
+
+    initTime = PIOS_DELAY_GetRaw();
 
     PIOS_MS5611_WriteCommand(MS5611_RESET);
     PIOS_DELAY_WaitmS(20);
@@ -133,27 +146,35 @@ void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t i2c_device)
     compensation_t2 = 0;
     /* Calibration parameters */
     for (int i = 0; i < 6; i++) {
-        while (PIOS_MS5611_Read(MS5611_CALIB_ADDR + i * 2, data, 2)) {}
-        ;
+        if (PIOS_MS5611_Read(MS5611_CALIB_ADDR + i * 2, data, 2) != 0) {
+            return;
+        }
         CalibData.C[i] = (data[0] << 8) | data[1];
     }
+
+    sensorIsAlive = true;
 }
 
 /**
  * Start the ADC conversion
  * \param[in] PresOrTemp BMP085_PRES_ADDR or BMP085_TEMP_ADDR
- * \return 0 for success, -1 for failure (conversion completed and not read)
+ * \return 0 for success, -1 for failure (conversion completed and not read), -2 if failure occurred
  */
 int32_t PIOS_MS5611_StartADC(ConversionTypeTypeDef Type)
 {
+    if (!sensorIsAlive) { /* if sensor is not alive, don't bother, wait for next poll to try to reinitialize */
+        return -2;
+    }
+
     /* Start the conversion */
+
     if (Type == MS5611_CONVERSION_TYPE_TemperatureConv) {
-        while (PIOS_MS5611_WriteCommand(MS5611_TEMP_ADDR + oversampling) != 0) {
-            continue;
+        if (PIOS_MS5611_WriteCommand(MS5611_TEMP_ADDR + oversampling) != 0) {
+            return -2;
         }
     } else if (Type == MS5611_CONVERSION_TYPE_PressureConv) {
-        while (PIOS_MS5611_WriteCommand(MS5611_PRES_ADDR + oversampling) != 0) {
-            continue;
+        if (PIOS_MS5611_WriteCommand(MS5611_PRES_ADDR + oversampling) != 0) {
+            return -2;
         }
     }
     lastConversionStart = PIOS_DELAY_GetRaw();
@@ -222,6 +243,10 @@ static uint32_t PIOS_MS5611_GetDelayUs()
  */
 int32_t PIOS_MS5611_ReadADC(void)
 {
+    if (!sensorIsAlive) { /* if sensor is not alive, don't bother, wait for next poll to try to reinitialize */
+        return -2;
+    }
+
     uint8_t Data[3];
 
     Data[0] = 0;
@@ -350,7 +375,15 @@ static int32_t PIOS_MS5611_Read(uint8_t address, uint8_t *buffer, uint8_t len)
         }
     };
 
-    return PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list));
+    for (uint8_t retry = PIOS_MS5611_I2C_RETRIES; retry > 0; --retry) {
+        if (PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list)) == 0) {
+            return 0;
+        }
+    }
+
+    sensorIsAlive = false;
+
+    return -1;
 }
 
 /**
@@ -373,7 +406,15 @@ static int32_t PIOS_MS5611_WriteCommand(uint8_t command)
         ,
     };
 
-    return PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list));
+    for (uint8_t retry = PIOS_MS5611_I2C_RETRIES; retry > 0; --retry) {
+        if (PIOS_I2C_Transfer(i2c_id, txn_list, NELEMENTS(txn_list)) == 0) {
+            return 0;
+        }
+    }
+
+    sensorIsAlive = false;
+
+    return -1;
 }
 
 /**
@@ -434,6 +475,10 @@ bool PIOS_MS5611_driver_poll(__attribute__((unused)) uintptr_t context)
 {
     static uint8_t temp_press_interleave_count = 1;
     static MS5611_FSM_State next_state = MS5611_FSM_INIT;
+
+    if (!sensorIsAlive) { // try to reinit
+        PIOS_MS5611_Init(0, 0);
+    }
 
     int32_t conversionResult = PIOS_MS5611_ReadADC();
 

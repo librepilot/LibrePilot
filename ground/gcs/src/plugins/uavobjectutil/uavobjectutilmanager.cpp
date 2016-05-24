@@ -469,8 +469,8 @@ bool UAVObjectUtilManager::descriptionToStructure(QByteArray desc, deviceDescrip
 
         // TODO: check platform compatibility
         QByteArray targetPlatform = desc.mid(12, 2);
-        struc.boardType     = (int)targetPlatform.at(0);
-        struc.boardRevision = (int)targetPlatform.at(1);
+        struc.boardType     = (quint8)targetPlatform.at(0);
+        struc.boardRevision = (quint8)targetPlatform.at(1);
         struc.fwHash.clear();
         struc.fwHash   = desc.mid(40, 20);
         struc.uavoHash.clear();

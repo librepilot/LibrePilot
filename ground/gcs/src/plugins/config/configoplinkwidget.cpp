@@ -208,7 +208,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
         UAVObjectField *board_type_field = oplinkStatusObj->getField("BoardType");
         switch (board_type_field->getValue().toInt()) {
         case 0x09: // Revolution, DiscoveryF4Bare, RevoNano, RevoProto
-        case 0x0b: // Sparky2
+        case 0x92: // Sparky2
             m_oplink->MainPort->setVisible(false);
             m_oplink->MainPortLabel->setVisible(false);
             m_oplink->FlexiPort->setVisible(false);

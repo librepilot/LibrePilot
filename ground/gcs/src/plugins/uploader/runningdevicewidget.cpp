@@ -97,7 +97,7 @@ void RunningDeviceWidget::populate()
         // Nano
         devicePic.load(":/uploader/images/gcs-board-nano.png");
         break;
-    case 0x0b01:
+    case 0x9201:
         // Sparky2
         devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;

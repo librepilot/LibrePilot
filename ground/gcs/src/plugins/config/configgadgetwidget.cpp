@@ -202,7 +202,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
                 qwd = new ConfigRevoNanoHWWidget(this);
             }
             stackWidget->replaceTab(ConfigGadgetWidget::hardware, qwd);
-        } else if ((board & 0xff00) == 0x0b00) {
+        } else if ((board & 0xff00) == 0x9200) {
             // Sparky2
             QWidget *qwd = new ConfigRevoWidget(this);
             stackWidget->replaceTab(ConfigGadgetWidget::sensors, qwd);

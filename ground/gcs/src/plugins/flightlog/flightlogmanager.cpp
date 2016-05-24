@@ -603,7 +603,7 @@ void FlightLogManager::connectionStatusChanged()
     if (m_telemtryManager->isConnected()) {
         ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
-        setBoardConnected(utilMngr->getBoardModel() == 0x0903 || utilMngr->getBoardModel() == 0x0904 || utilMngr->getBoardModel() == 0x0905 || utilMngr->getBoardModel() == 0x0b01);
+        setBoardConnected(utilMngr->getBoardModel() == 0x0903 || utilMngr->getBoardModel() == 0x0904 || utilMngr->getBoardModel() == 0x0905 || utilMngr->getBoardModel() == 0x9201);
     } else {
         setBoardConnected(false);
     }

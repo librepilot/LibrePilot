@@ -117,7 +117,7 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
     case 0x0905:
         return SetupWizard::CONTROLLER_NANO;
 
-    case 0x0b01:
+    case 0x9201:
         return SetupWizard::CONTROLLER_SPARKY2;
 
     default:

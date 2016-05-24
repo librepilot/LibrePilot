@@ -773,7 +773,7 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     case 0x0905:
         filename = "fw_revonano";
         break;
-    case 0x0b01:
+    case 0x9201:
         filename = "fw_sparky2";
         break;
     default:

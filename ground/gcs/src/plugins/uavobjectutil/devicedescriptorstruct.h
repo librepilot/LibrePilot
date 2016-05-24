@@ -9,9 +9,9 @@ public:
     QString        gitTag;
     QByteArray     fwHash;
     QByteArray     uavoHash;
-    int boardType;
-    int boardRevision;
-    static QString idToBoardName(int id)
+    quint8 boardType;
+    quint8 boardRevision;
+    static QString idToBoardName(quint16 id)
     {
         switch (id) {
         case 0x0101:
@@ -59,7 +59,7 @@ public:
             // Nano
             return QString("RevoNano");
 
-        case 0x0b01:
+        case 0x9201:
             // Sparky 2.0
             return QString("Sparky2");
 

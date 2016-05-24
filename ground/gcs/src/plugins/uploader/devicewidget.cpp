@@ -112,7 +112,7 @@ void DeviceWidget::populate()
         // Nano
         devicePic.load(":/uploader/images/gcs-board-nano.png");
         break;
-    case 0x0b01:
+    case 0x9201:
         // Sparky2
         devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
@@ -203,7 +203,7 @@ bool DeviceWidget::populateBoardStructuredDescription(QByteArray desc)
             myDevice->lblCertified->setToolTip(tr("Untagged or custom firmware build"));
         }
 
-        myDevice->lblBrdName->setText(deviceDescriptorStruct::idToBoardName(onBoardDescription.boardType << 8 | onBoardDescription.boardRevision));
+        myDevice->lblBrdName->setText(deviceDescriptorStruct::idToBoardName(((quint16)onBoardDescription.boardType << 8) | onBoardDescription.boardRevision));
 
         return true;
     }
@@ -227,7 +227,7 @@ bool DeviceWidget::populateLoadedStructuredDescription(QByteArray desc)
             myDevice->lblCertifiedL->setPixmap(QPixmap(":uploader/images/warning.svg"));
             myDevice->lblCertifiedL->setToolTip(tr("Untagged or custom firmware build"));
         }
-        myDevice->lblBrdNameL->setText(deviceDescriptorStruct::idToBoardName(LoadedDescription.boardType << 8 | LoadedDescription.boardRevision));
+        myDevice->lblBrdNameL->setText(deviceDescriptorStruct::idToBoardName(((quint16)LoadedDescription.boardType << 8) | LoadedDescription.boardRevision));
 
         return true;
     }
@@ -371,13 +371,15 @@ void DeviceWidget::uploadFirmware()
         // Now do sanity checking:
         // - Check whether board type matches firmware:
         int board = m_dfu->devices[deviceID].ID;
-        int firmwareBoard = ((desc.at(12) & 0xff) << 8) + (desc.at(13) & 0xff);
+        int firmwareBoard = ((quint16)(quint8)desc.at(12) << 8) + (quint16)(quint8)desc.at(13);
         if ((board == 0x0401 && firmwareBoard == 0x0402) ||
             (board == 0x0901 && firmwareBoard == 0x0902) || // L3GD20 revo supports Revolution firmware
             (board == 0x0902 && firmwareBoard == 0x0903)) { // RevoMini1 supporetd by RevoMini2 firmware
             // These firmwares are designed to be backwards compatible
         } else if (firmwareBoard != board) {
-            status("Error: firmware does not match board", STATUSICON_FAIL);
+            char buf[100];
+            sprintf(buf, "Error: Device ID: firmware 0x%x does not match board 0x%x", firmwareBoard, board);
+            status(buf, STATUSICON_FAIL);
             updateButtons(true);
             return;
         }

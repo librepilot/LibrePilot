@@ -358,7 +358,7 @@ enum usb_product_ids {
     USB_PRODUCT_ID_OPLINK = 0x415C,
     USB_PRODUCT_ID_CC3D = 0x415D,
     USB_PRODUCT_ID_REVOLUTION     = 0x415E,
-    USB_PRODUCT_ID_SPARKY2 = 0x415E,
+    USB_PRODUCT_ID_SPARKY2 = 0x41D0, // was 0x415E during LP testing
     USB_PRODUCT_ID_OSD     = 0x4194,
     USB_PRODUCT_ID_SPARE   = 0x4195,
 } __attribute__((packed));

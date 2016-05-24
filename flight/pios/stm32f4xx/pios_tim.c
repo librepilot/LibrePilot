@@ -129,6 +129,23 @@ int32_t PIOS_TIM_InitClock(const struct pios_tim_clock_cfg *cfg)
     /* Enable Interrupts */
     NVIC_Init(&cfg->irq.init);
 
+
+    // Advanced timers TIM1 & TIM8 need special handling:
+    // There are up to 4 separate interrupts handlers for each advanced timer, but
+    // pios_tim_clock_cfg has provision for only one irq init, so we take care here
+    // to enable additional irq channels that we intend to use.
+
+
+    if (cfg->timer == TIM1) {
+        NVIC_InitTypeDef init = cfg->irq.init;
+        init.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
+        NVIC_Init(&init);
+    } else if (cfg->timer == TIM8) {
+        NVIC_InitTypeDef init = cfg->irq.init;
+        init.NVIC_IRQChannel = TIM8_UP_TIM13_IRQn;
+        NVIC_Init(&init);
+    }
+
     return 0;
 }
 
@@ -374,12 +391,6 @@ void TIM7_IRQHandler(void) __attribute__((alias("PIOS_TIM_7_irq_handler")));
 static void PIOS_TIM_7_irq_handler(void)
 {
     PIOS_TIM_generic_irq_handler(TIM7);
-}
-
-void TIM8_UP_IRQHandler(void) __attribute__((alias("PIOS_TIM_8_UP_irq_handler")));
-static void PIOS_TIM_8_UP_irq_handler(void)
-{
-    PIOS_TIM_generic_irq_handler(TIM8);
 }
 
 void TIM8_CC_IRQHandler(void) __attribute__((alias("PIOS_TIM_8_CC_irq_handler")));

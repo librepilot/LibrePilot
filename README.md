@@ -38,4 +38,8 @@ Links for the LibrePilot Project
 - [Gitter Chat](https://gitter.im/librepilot/LibrePilot)
 - IRC: #LibrePilot on FreeNode
 
-[![Build Status](https://travis-ci.org/librepilot/LibrePilot.svg?branch=next)](https://travis-ci.org/librepilot/LibrePilot)
+
+| Builder      | Status        |
+|:-------------|:--------------|
+| Travis CI    |[![Build Status](https://travis-ci.org/librepilot/LibrePilot.svg?branch=next)](https://travis-ci.org/librepilot/LibrePilot)|
+| Tea CI       |[![Build Status](https://tea-ci.org/api/badges/librepilot/LibrePilot/status.svg?branch=next)](https://tea-ci.org/librepilot/LibrePilot)|

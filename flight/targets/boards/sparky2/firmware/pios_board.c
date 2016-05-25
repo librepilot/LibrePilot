@@ -109,7 +109,7 @@ static const struct pios_hmc5x83_cfg pios_hmc5x83_cfg = {
     .Gain        = PIOS_HMC5x83_GAIN_1_9,
     .Mode        = PIOS_HMC5x83_MODE_CONTINUOUS,
     .Driver      = &PIOS_HMC5x83_I2C_DRIVER,
-    .Orientation = PIOS_HMC5X83_ORIENTATION_NORTH_WEST_UP,
+    .Orientation = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP,
 };
 #endif /* PIOS_INCLUDE_HMC5X83 */
 

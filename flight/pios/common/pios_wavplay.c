@@ -77,12 +77,12 @@ typedef enum {
     Unvalid_RIFF_ID,
     Unvalid_WAVE_Format,
     Unvalid_FormatChunk_ID,
-    Unsupporetd_FormatTag,
-    Unsupporetd_Number_Of_Channel,
-    Unsupporetd_Sample_Rate,
-    Unsupporetd_Bits_Per_Sample,
+    Unsupported_FormatTag,
+    Unsupported_Number_Of_Channel,
+    Unsupported_Sample_Rate,
+    Unsupported_Bits_Per_Sample,
     Unvalid_DataChunk_ID,
-    Unsupporetd_ExtraFormatBytes,
+    Unsupported_ExtraFormatBytes,
     Unvalid_FactChunk_ID
 } ErrorCode;
 
@@ -256,13 +256,13 @@ static ErrorCode WavePlayer_WaveParsing(uint8_t *DirName, uint8_t *FileName, uin
     /* Read the audio format, must be 0x01 (PCM) -------------------------------*/
     WAVE_Format.FormatTag = ReadUnit(buffer1, 20, 2, LittleEndian);
     if (WAVE_Format.FormatTag != WAVE_FORMAT_PCM) {
-        return Unsupporetd_FormatTag;
+        return Unsupported_FormatTag;
     }
 
     /* Read the number of channels, must be 0x01 (Mono) ------------------------*/
     WAVE_Format.NumChannels = ReadUnit(buffer1, 22, 2, LittleEndian);
     if (WAVE_Format.NumChannels != CHANNEL_MONO) {
-        return Unsupporetd_Number_Of_Channel;
+        return Unsupported_Number_Of_Channel;
     }
 
     /* Read the Sample Rate ----------------------------------------------------*/
@@ -282,7 +282,7 @@ static ErrorCode WavePlayer_WaveParsing(uint8_t *DirName, uint8_t *FileName, uin
         TIM6ARRValue = (PIOS_PERIPHERAL_APB1_CLOCK) / 44100;
         break; /* 44.1KHz = 24MHz / 544 */
     default:
-        return Unsupporetd_Sample_Rate;
+        return Unsupported_Sample_Rate;
     }
 
     /* Read the Byte Rate ------------------------------------------------------*/
@@ -294,7 +294,7 @@ static ErrorCode WavePlayer_WaveParsing(uint8_t *DirName, uint8_t *FileName, uin
     /* Read the number of bits per sample --------------------------------------*/
     WAVE_Format.BitsPerSample = ReadUnit(buffer1, 34, 2, LittleEndian);
     if (WAVE_Format.BitsPerSample != BITS_PER_SAMPLE_8) {
-        return Unsupporetd_Bits_Per_Sample;
+        return Unsupported_Bits_Per_Sample;
     }
     SpeechDataOffset = 36;
     /* If there is Extra format bytes, these bytes will be defined in "Fact Chunk" */
@@ -302,7 +302,7 @@ static ErrorCode WavePlayer_WaveParsing(uint8_t *DirName, uint8_t *FileName, uin
         /* Read th Extra format bytes, must be 0x00 ------------------------------*/
         Temp = ReadUnit(buffer1, 36, 2, LittleEndian);
         if (Temp != 0x00) {
-            return Unsupporetd_ExtraFormatBytes;
+            return Unsupported_ExtraFormatBytes;
         }
         /* Read the Fact chunk, must be 'fact' -----------------------------------*/
         Temp = ReadUnit(buffer1, 38, 4, BigEndian);

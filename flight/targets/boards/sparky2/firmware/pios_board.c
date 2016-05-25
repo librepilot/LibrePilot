@@ -884,19 +884,19 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_RFM22B */
 
 #if 1
-#if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PWM)
+#if defined(PIOS_INCLUDE_PPM)
     const struct pios_servo_cfg *pios_servo_cfg;
     // default to servo outputs only
     pios_servo_cfg = &pios_servo_cfg_out;
 #endif
 #endif
 
-    /* Configure the receiver port*/
+    // Configure the receiver port
     // Sparky2 receiver input on PC7 TIM8 CH2
-    // that appears to include PPM, DSM, DSM-HSUM, SBUS
+    // include PPM,S.Bus,DSM,SRXL,EX.Bus,HoTT SUMD,HoTT SUMH
     uint8_t hwsettings_rcvrport;
     HwSettingsSPK2_RcvrPortGet(&hwsettings_rcvrport);
-    //
+
     switch (hwsettings_rcvrport) {
     case HWSETTINGS_SPK2_RCVRPORT_PPM:
 #if defined(PIOS_INCLUDE_PPM)

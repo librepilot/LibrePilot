@@ -374,7 +374,7 @@ void DeviceWidget::uploadFirmware()
         int firmwareBoard = ((quint16)(quint8)desc.at(12) << 8) + (quint16)(quint8)desc.at(13);
         if ((board == 0x0401 && firmwareBoard == 0x0402) ||
             (board == 0x0901 && firmwareBoard == 0x0902) || // L3GD20 revo supports Revolution firmware
-            (board == 0x0902 && firmwareBoard == 0x0903)) { // RevoMini1 supporetd by RevoMini2 firmware
+            (board == 0x0902 && firmwareBoard == 0x0903)) { // RevoMini1 supported by RevoMini2 firmware
             // These firmwares are designed to be backwards compatible
         } else if (firmwareBoard != board) {
             char buf[100];

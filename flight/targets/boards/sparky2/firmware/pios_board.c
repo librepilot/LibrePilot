@@ -589,7 +589,7 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_exbus(&pios_usart_exbus_flexi_cfg);
 #endif /* PIOS_INCLUDE_EXBUS */
         break;
-    } /* hwsettings_rm_flexiport */
+    } /* hwsettings_spk2_flexiport */
 
     /* Moved this here to allow binding on flexiport */
 #if defined(PIOS_INCLUDE_FLASH)
@@ -768,7 +768,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_SPK2_MAINPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
-    } /*        hwsettings_rm_mainport */
+    } /*        hwsettings_spk2_mainport */
 
 
     /* Initalize the RFM22B radio COM device. */
@@ -933,7 +933,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_SPK2_RCVRPORT_HOTTSUMH:
 #if defined(PIOS_INCLUDE_HOTT)
         PIOS_Board_configure_hott(&pios_usart_hott_rcvr_cfg,
-                                  hwsettings_flexiport == HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH);
+                                  hwsettings_rcvrport == HWSETTINGS_SPK2_RCVRPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH);
 #endif /* PIOS_INCLUDE_HOTT */
         break;
 

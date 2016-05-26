@@ -500,7 +500,7 @@ void PIOS_Board_Init(void)
 
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
-    HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
+    HwSettingsSPK2_FlexiPortGet(&hwsettings_flexiport);
     switch (hwsettings_flexiport) {
     case HWSETTINGS_SPK2_FLEXIPORT_DISABLED:
         break;

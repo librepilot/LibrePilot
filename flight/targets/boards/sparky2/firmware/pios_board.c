@@ -762,7 +762,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_SPK2_MAINPORT_COMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
-    case HWSETTINGS_RM_MAINPORT_MSP:
+    case HWSETTINGS_SPK2_MAINPORT_MSP:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
         break;
     case HWSETTINGS_SPK2_MAINPORT_OSDHK:

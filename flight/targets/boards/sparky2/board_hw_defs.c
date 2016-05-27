@@ -58,7 +58,6 @@ static const struct pios_gpio pios_leds_v2[] = {
         .active_low         = true
     },
     // the other LED in the TL code is accessed this way
-    // probably needs .active_low = true
     [PIOS_LED_LINK] =      {
         .pin                =             {
             .gpio = GPIOB,

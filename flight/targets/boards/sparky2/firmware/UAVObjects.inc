@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2016, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-# These are the UAVObjects supposed to be build as part of the OpenPilot target
+# These are the UAVObjects supposed to be build as part of the target
 # (all architectures)
 UAVOBJSRCFILENAMES =
 UAVOBJSRCFILENAMES += statusgrounddrive

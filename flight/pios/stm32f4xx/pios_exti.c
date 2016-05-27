@@ -175,7 +175,13 @@ int32_t PIOS_EXTI_DeInit(const struct pios_exti_cfg *cfg)
     uint8_t line_index = PIOS_EXTI_line_to_index(cfg->line);
 
     if(pios_exti_vector[line_index] == cfg->vector) {
+        
+        EXTI_InitTypeDef disable = cfg->exti.init;
+        disable.EXTI_LineCmd = DISABLE;
+        
+        EXTI_Init(&disable);
         pios_exti_vector[line_index] = 0;
+        
         return 0;
     }
     

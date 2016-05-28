@@ -1,5 +1,5 @@
 /**
- ******************************************************************************
+ ***********************************************************************************
  *
  * @file       vehicleconfigurationhelper.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
@@ -9,7 +9,7 @@
  * @addtogroup VehicleConfigurationHelper
  * @{
  * @brief
- *****************************************************************************/
+ **********************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
  */
 
 #include "vehicleconfigurationhelper.h"
-
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectutilmanager.h"
 
@@ -165,7 +164,7 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             }
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            // We have to set teletry on flexiport since s.bus needs the mainport.
+            // We have to set telemetry on flexiport since s.bus needs the mainport.
             data.CC_MainPort  = HwSettings::CC_MAINPORT_SBUS;
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_TELEMETRY;
             break;
@@ -187,43 +186,80 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         break;
     case VehicleConfigurationSource::CONTROLLER_REVO:
     case VehicleConfigurationSource::CONTROLLER_NANO:
+    case VehicleConfigurationSource::CONTROLLER_SPARKY2:
     case VehicleConfigurationSource::CONTROLLER_DISCOVERYF4:
         // Reset all ports to their defaults
-        data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
-        data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+        if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+            data.SPK2_RcvrPort  = HwSettings::SPK2_RCVRPORT_DISABLED;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_DISABLED;
+        } else {
+            data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+        }
 
-        // Revo uses inbuilt Modem do not set mainport to be active telemetry link for the Revo
+        // Revo/Sparky2 uses inbuilt Modem do not set mainport to be active telemetry link for Revo/Sparky2
         if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
             data.RM_MainPort = HwSettings::RM_MAINPORT_DISABLED;
+        } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+            data.SPK2_MainPort = HwSettings::SPK2_MAINPORT_DISABLED;
         } else {
             data.RM_MainPort = HwSettings::RM_MAINPORT_TELEMETRY;
         }
 
         switch (m_configSource->getInputType()) {
         case VehicleConfigurationSource::INPUT_PWM:
-            data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PWM;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                // this should not happen, sparky2 does not allow pwm
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DISABLED;
+            } else {
+                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PWM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_PPM:
-            data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_PPM;
+            } else {
+                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
-            // We have to set telemetry on flexiport since s.bus needs the mainport on all but Revo.
-            if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SBUS;
+            } else {
+                data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
+                // We have to set telemetry to flexiport on all except Revo (and except Sparky2) since s.bus needs mainport.
+                if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+                }
             }
             break;
         case VehicleConfigurationSource::INPUT_DSM:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DSM;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_SRXL:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SRXL;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            }
             break;
         case VehicleConfigurationSource::INPUT_HOTT_SUMD:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_HOTTSUMD;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
+            }
             break;
         case VehicleConfigurationSource::INPUT_EXBUS:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_EXBUS;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
+            }
             break;
         default:
             break;
@@ -233,10 +269,16 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
             data.GPSSpeed = HwSettings::GPSSPEED_57600;
 
-            if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
+            // if using GPS and SBUS on Revo or Nano, we must use FlexiPort for GPS
+            // since we must use MainPort for SBUS
+            if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
+                } else {
+                    data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
+                }
             } else {
-                data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
+                data.SPK2_MainPort = HwSettings::SPK2_MAINPORT_GPS;
             }
 
             GPSSettings *gpsSettings = GPSSettings::GetInstance(m_uavoManager);
@@ -280,12 +322,17 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             }
             case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
             {
-                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
-                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
-                data.RM_FlexiPort     = HwSettings::RM_FLEXIPORT_I2C;
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
+
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
+                } else {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                }
                 magsData.Type  = AuxMagSettings::TYPE_FLEXI;
                 magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
                 magSettings->setData(magsData);
@@ -316,12 +363,22 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 break;
             case VehicleConfigurationSource::AIRSPEED_EAGLETREE:
                 data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 1;
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                    // sparky2: put I2C airspeed on flexiport, but it could be put on i2cport
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
+                } else {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                }
                 airspeedData.AirspeedSensorType = AirspeedSettings::AIRSPEEDSENSORTYPE_EAGLETREEAIRSPEEDV3;
                 break;
             case VehicleConfigurationSource::AIRSPEED_MS4525:
                 data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 1;
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                    // sparky2: put I2C airspeed on flexiport, but it could be put on i2cport
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
+                } else {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                }
                 airspeedData.AirspeedSensorType = AirspeedSettings::AIRSPEEDSENSORTYPE_PIXHAWKAIRSPEEDMS4525DO;
                 break;
             default:
@@ -484,7 +541,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             // Servo always on channel 4
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
-            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.BankUpdateFreq[1] = escFrequence;
                 data.BankMode[1] = bankMode;
                 data.BankUpdateFreq[2] = servoFrequence;
@@ -502,7 +560,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;
             data.BankMode[1] = bankMode;
-            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.BankUpdateFreq[2] = escFrequence;
                 data.BankMode[2] = bankMode;
             } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
@@ -566,7 +625,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
                 }
-            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                       || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 2) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -611,7 +671,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
                 }
-            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                       || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -718,6 +779,7 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
         }
         case VehicleConfigurationSource::CONTROLLER_REVO:
         case VehicleConfigurationSource::CONTROLLER_NANO:
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
         {
             RevoCalibration *revolutionCalibration = RevoCalibration::GetInstance(m_uavoManager);
             Q_ASSERT(revolutionCalibration);
@@ -1357,42 +1419,43 @@ void VehicleConfigurationHelper::setupHexaCopter()
         channels[0].throttle2 = 0;
         channels[0].roll      = 100;
         channels[0].pitch     = 25;
-        channels[0].yaw = -66;
+        channels[0].yaw       = -66;
+
 
         channels[1].type      = MIXER_TYPE_MOTOR;
         channels[1].throttle1 = 100;
         channels[1].throttle2 = 0;
         channels[1].roll      = 100;
         channels[1].pitch     = 25;
-        channels[1].yaw = 66;
+        channels[1].yaw       = 66;
 
         channels[2].type      = MIXER_TYPE_MOTOR;
         channels[2].throttle1 = 100;
         channels[2].throttle2 = 0;
         channels[2].roll      = -100;
         channels[2].pitch     = 25;
-        channels[2].yaw = -66;
+        channels[2].yaw       = -66;
 
         channels[3].type      = MIXER_TYPE_MOTOR;
         channels[3].throttle1 = 100;
         channels[3].throttle2 = 0;
         channels[3].roll      = -100;
         channels[3].pitch     = 25;
-        channels[3].yaw = 66;
+        channels[3].yaw       = 66;
 
         channels[4].type      = MIXER_TYPE_MOTOR;
         channels[4].throttle1 = 100;
         channels[4].throttle2 = 0;
         channels[4].roll      = 0;
         channels[4].pitch     = -50;
-        channels[4].yaw = -66;
+        channels[4].yaw       = -66;
 
         channels[5].type      = MIXER_TYPE_MOTOR;
         channels[5].throttle1 = 100;
         channels[5].throttle2 = 0;
         channels[5].roll      = 0;
         channels[5].pitch     = -50;
-        channels[5].yaw = 66;
+        channels[5].yaw       = 66;
 
         guiSettings.multi.VTOLMotorNW = 1;
         guiSettings.multi.VTOLMotorW  = 2;
@@ -1837,6 +1900,7 @@ void VehicleConfigurationHelper::setupOctoCopter()
         guiSettings.multi.VTOLMotorE  = 3;
         guiSettings.multi.VTOLMotorSE = 4;
         guiSettings.multi.VTOLMotorS  = 5;
+
         guiSettings.multi.VTOLMotorSW = 6;
         guiSettings.multi.VTOLMotorW  = 7;
         guiSettings.multi.VTOLMotorNW = 8;

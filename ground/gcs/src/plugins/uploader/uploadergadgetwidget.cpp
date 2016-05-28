@@ -751,27 +751,30 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     QString filename;
     emit progressUpdate(LOADING_FW, QVariant());
     switch (m_dfu->devices[0].ID) {
-    case 0x301:
+    case 0x0301:
         filename = "fw_oplinkmini";
         break;
-    case 0x401:
-    case 0x402:
+    case 0x0401:
+    case 0x0402:
         filename = "fw_coptercontrol";
         break;
-    case 0x501:
+    case 0x0501:
         filename = "fw_osd";
         break;
-    case 0x902:
+    case 0x0902:
         filename = "fw_revoproto";
         break;
-    case 0x903:
+    case 0x0903:
         filename = "fw_revolution";
         break;
-    case 0x904:
+    case 0x0904:
         filename = "fw_discoveryf4bare";
         break;
-    case 0x905:
+    case 0x0905:
         filename = "fw_revonano";
+        break;
+    case 0x9201:
+        filename = "fw_sparky2";
         break;
     default:
         emit progressUpdate(FAILURE, QVariant(tr("Unknown board id '0x%1'").arg(QString::number(m_dfu->devices[0].ID, 16))));
@@ -1020,7 +1023,8 @@ void UploaderGadgetWidget::startAutoUpdateErase()
     UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
     int id = utilMngr->getBoardModel();
 
-    if (id == 0x905) {
+    // reset if Nano
+    if (id == 0x0905) {
         systemReset();
     }
 }

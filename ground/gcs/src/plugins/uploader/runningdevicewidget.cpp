@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       runningdevicewidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -86,10 +87,19 @@ void RunningDeviceWidget::populate()
         devicePic.load(":/uploader/images/gcs-board-cc3d.png");
         break;
     case 0x0903:
+    // Revo
+    // fall through to DF4B
+    case 0x0904:
+        // DiscoveryF4Bare
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
     case 0x0905:
+        // Nano
         devicePic.load(":/uploader/images/gcs-board-nano.png");
+        break;
+    case 0x9201:
+        // Sparky2
+        devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
     default:
         // Clear

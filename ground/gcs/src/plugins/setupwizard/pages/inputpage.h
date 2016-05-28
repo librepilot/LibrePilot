@@ -40,6 +40,7 @@ class InputPage : public AbstractWizardPage {
 public:
     explicit InputPage(SetupWizard *wizard, QWidget *parent = 0);
     ~InputPage();
+    void initializePage();
     bool validatePage();
 
 private:

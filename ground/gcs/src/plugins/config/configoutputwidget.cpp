@@ -381,6 +381,10 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
             // Revolution Nano
             bankLabels << "1 (1)" << "2 (2,7,11)" << "3 (3)" << "4 (4)" << "5 (5-6)" << "6 (8-10,12)";
             channelBanks << 1 << 2 << 3 << 4 << 5 << 5 << 2 << 6 << 6 << 6 << 2 << 6;
+        } else if (board == 0x9201) {
+            // Sparky2
+            bankLabels << "1 (1-2)" << "2 (3)" << "3 (4)" << "4 (5-6)" << "5 (7-8)" << "6 (9-10)";
+            channelBanks << 1 << 1 << 2 << 3 << 4 << 4 << 5 << 5 << 6 << 6;
         }
     }
 

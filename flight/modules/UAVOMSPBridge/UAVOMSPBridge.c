@@ -227,18 +227,18 @@ static const char msp_pidnames[] = "ROLL;"
 #define MSP_ANALOG_CURRENT (1 << 1)
 
 struct msp_bridge {
-    uintptr_t com;
+    uintptr_t    com;
 
-    uint8_t   sensors;
-    uint8_t   analog;
-    
+    uint8_t      sensors;
+    uint8_t      analog;
+
     UAVObjHandle current_pid_bank;
-    
-    msp_state state;
-    uint8_t   cmd_size;
-    uint8_t   cmd_id;
-    uint8_t   cmd_i;
-    uint8_t   checksum;
+
+    msp_state    state;
+    uint8_t      cmd_size;
+    uint8_t      cmd_id;
+    uint8_t      cmd_i;
+    uint8_t      checksum;
     union {
         uint8_t   data[0];
         // Specific packed data structures go here.
@@ -489,13 +489,13 @@ static void msp_send_analog(struct msp_bridge *m)
         data.status.rssi = ((rssi - OPLINK_LOW_RSSI) * 1023) / (OPLINK_HIGH_RSSI - OPLINK_LOW_RSSI);
     } else {
 #endif /* PIOS_INCLUDE_OPLINKRCVR */
-        uint8_t quality;
-        ReceiverStatusQualityGet(&quality);
+    uint8_t quality;
+    ReceiverStatusQualityGet(&quality);
 
-        // MSP RSSI's range is 0-1023
-        data.status.rssi = (quality * 1023) / 100;
+    // MSP RSSI's range is 0-1023
+    data.status.rssi = (quality * 1023) / 100;
 #ifdef PIOS_INCLUDE_OPLINKRCVR
-    }
+}
 #endif /* PIOS_INCLUDE_OPLINKRCVR */
 
     if (data.status.rssi > 1023) {
@@ -674,14 +674,14 @@ static void msp_send_pidnames(struct msp_bridge *m)
 
 static void pid_native2msp(const float *native, msp_pid_t *piditem, float scale, unsigned numelem)
 {
-    for(unsigned i = 0; i < numelem; ++i) {
+    for (unsigned i = 0; i < numelem; ++i) {
         piditem->values[i] = lroundf(native[i] * scale);
     }
 }
 
 static void pid_msp2native(const msp_pid_t *piditem, float *native, float scale, unsigned numelem)
 {
-    for(unsigned i = 0; i < numelem; ++i) {
+    for (unsigned i = 0; i < numelem; ++i) {
         native[i] = (float)piditem->values[i] / scale;
     }
 }
@@ -699,23 +699,24 @@ static UAVObjHandle get_current_pid_bank_handle()
     StabilizationSettingsFlightModeMapOptions flightModeMap[STABILIZATIONSETTINGS_FLIGHTMODEMAP_NUMELEM];
     StabilizationSettingsFlightModeMapGet(flightModeMap);
 
-    switch(flightModeMap[fm])
-    {
-        case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
-            return StabilizationSettingsBank1Handle();
-        case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
-            return StabilizationSettingsBank2Handle();
-        case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
-            return StabilizationSettingsBank3Handle();
+    switch (flightModeMap[fm]) {
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK1:
+        return StabilizationSettingsBank1Handle();
+
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK2:
+        return StabilizationSettingsBank2Handle();
+
+    case STABILIZATIONSETTINGS_FLIGHTMODEMAP_BANK3:
+        return StabilizationSettingsBank3Handle();
     }
-    
+
     return 0;
 }
 
 static void msp_send_pid(struct msp_bridge *m)
 {
     m->current_pid_bank = get_current_pid_bank_handle();
-    
+
     StabilizationBankData bankData;
     UAVObjGetData(m->current_pid_bank, &bankData);
 
@@ -736,7 +737,7 @@ static void msp_send_pid(struct msp_bridge *m)
 
 static void msp_set_pid(struct msp_bridge *m)
 {
-    if(m->current_pid_bank == 0) {
+    if (m->current_pid_bank == 0) {
         return;
     }
 
@@ -752,18 +753,18 @@ static void msp_set_pid(struct msp_bridge *m)
     pid_msp2native(&m->cmd_data.piditems[PIDAYAW], (float *)&bankData.YawPI, 10, 2);
 
     UAVObjSetData(m->current_pid_bank, &bankData);
-    
+
     bool needSave = true;
-    
-    if(needSave) {
+
+    if (needSave) {
         FlightStatusArmedOptions armed;
         FlightStatusArmedGet(&armed);
-        
-        if(armed == FLIGHTSTATUS_ARMED_DISARMED) {
+
+        if (armed == FLIGHTSTATUS_ARMED_DISARMED) {
             UAVObjSave(m->current_pid_bank, 0);
         }
     }
-    
+
     msp_send(m, MSP_SET_PID, 0, 0); // send ack.
 }
 
@@ -806,10 +807,10 @@ static void msp_send_alarms(__attribute__((unused)) struct msp_bridge *m)
                               sizeof(data.alarm.msg), SYSTEMALARMS_ALARM_CRITICAL, &state); // Include only CRITICAL and ERROR
 
     // NOTE: LP alarm severity levels and MSP levels do not match. ERROR and CRITICAL are swapped.
-    //       So far, MW-OSD code (MSP consumer) does not make difference between ALARM_ERROR and ALARM_CRITICAL.
-    //       ALARM_WARN should be blinking if thats the highest severity level at the moment.
-    //       There might be other types of MSP consumers.
-    
+    // So far, MW-OSD code (MSP consumer) does not make difference between ALARM_ERROR and ALARM_CRITICAL.
+    // ALARM_WARN should be blinking if thats the highest severity level at the moment.
+    // There might be other types of MSP consumers.
+
     switch (state) {
     case SYSTEMALARMS_ALARM_WARNING:
         data.alarm.state = ALARM_WARN;

@@ -656,8 +656,8 @@ void ConfigStabilizationWidget::onBoardConnected()
 
     Q_ASSERT(utilMngr);
     boardModel = utilMngr->getBoardModel();
-    // If Revolution board enable Althold tab, otherwise disable it
-    ui->AltitudeHold->setEnabled((boardModel & 0xff00) == 0x0900);
+    // If Revolution/Sparky2 board enable Althold tab, otherwise disable it
+    ui->AltitudeHold->setEnabled(((boardModel & 0xff00) == 0x0900) || ((boardModel & 0xff00) == 0x9200));
 }
 
 void ConfigStabilizationWidget::stabBankChanged(int index)
@@ -688,8 +688,8 @@ void ConfigStabilizationWidget::stabBankChanged(int index)
 
 bool ConfigStabilizationWidget::shouldObjectBeSaved(UAVObject *object)
 {
-    // AltitudeHoldSettings should only be saved for Revolution board to avoid error.
-    if ((boardModel & 0xff00) != 0x0900) {
+    // AltitudeHoldSettings should only be saved for Revolution/Sparky2 board to avoid error.
+    if (((boardModel & 0xff00) != 0x0900) && ((boardModel & 0xff00) != 0x9200)) {
         return dynamic_cast<AltitudeHoldSettings *>(object) == 0;
     } else {
         return true;

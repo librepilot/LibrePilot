@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       biascalibrationpage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup BiasCalibrationPage
@@ -42,8 +43,8 @@ class EscCalibrationPage : public AbstractWizardPage {
 public:
     explicit EscCalibrationPage(SetupWizard *wizard, QWidget *parent = 0);
     ~EscCalibrationPage();
-    bool validatePage();
     void initializePage();
+    bool validatePage();
 
 private slots:
     void startButtonClicked();

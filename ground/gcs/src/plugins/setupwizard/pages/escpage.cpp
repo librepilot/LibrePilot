@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       escpage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup
  * @{
  * @addtogroup EscPage
@@ -42,6 +43,17 @@ EscPage::~EscPage()
     delete ui;
 }
 
+void EscPage::initializePage()
+{
+    bool enabled = isSynchOrOneShotAvailable();
+
+    ui->oneshotESCButton->setEnabled(enabled);
+    if (ui->oneshotESCButton->isChecked() && !enabled) {
+        ui->oneshotESCButton->setChecked(false);
+        ui->rapidESCButton->setChecked(true);
+    }
+}
+
 bool EscPage::validatePage()
 {
     if (ui->oneshotESCButton->isChecked()) {
@@ -57,18 +69,6 @@ bool EscPage::validatePage()
     }
 
     return true;
-}
-
-
-void EscPage::initializePage()
-{
-    bool enabled = isSynchOrOneShotAvailable();
-
-    ui->oneshotESCButton->setEnabled(enabled);
-    if (ui->oneshotESCButton->isChecked() && !enabled) {
-        ui->oneshotESCButton->setChecked(false);
-        ui->rapidESCButton->setChecked(true);
-    }
 }
 
 bool EscPage::isSynchOrOneShotAvailable()
@@ -98,6 +98,7 @@ bool EscPage::isSynchOrOneShotAvailable()
         }
         break;
     case SetupWizard::CONTROLLER_REVO:
+    case SetupWizard::CONTROLLER_SPARKY2:
         available = true;
         break;
     default:

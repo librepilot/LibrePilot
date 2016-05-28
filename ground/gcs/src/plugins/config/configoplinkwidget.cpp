@@ -1,5 +1,5 @@
 /**
- ******************************************************************************
+ ****************************************************************************************
  *
  * @file       configoplinkwidget.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
@@ -9,7 +9,7 @@
  * @addtogroup ConfigPlugin Config Plugin
  * @{
  * @brief The Configuration Gadget used to configure the OPLink and Revo modem
- *****************************************************************************/
+ ***************************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -207,7 +207,8 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
         // Enable components based on the board type connected.
         UAVObjectField *board_type_field = oplinkStatusObj->getField("BoardType");
         switch (board_type_field->getValue().toInt()) {
-        case 0x09: // Revolution
+        case 0x09: // Revolution, DiscoveryF4Bare, RevoNano, RevoProto
+        case 0x92: // Sparky2
             m_oplink->MainPort->setVisible(false);
             m_oplink->MainPortLabel->setVisible(false);
             m_oplink->FlexiPort->setVisible(false);
@@ -231,7 +232,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
             connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
             break;
-        case 0x0A: // OPLink?
+        case 0x0a: // OPLink? (No. This is wrong. 0x0A is gpsplatinum.)
             m_oplink->MainPort->setVisible(true);
             m_oplink->MainPortLabel->setVisible(true);
             m_oplink->FlexiPort->setVisible(true);

@@ -194,6 +194,13 @@ void UsageTrackerPlugin::collectUsageParameters(QMap<QString, QString> &paramete
             parameters["conf_mport"]  = getUAVFieldValue(objManager, "HwSettings", "RM_MainPort");
             parameters["conf_fport"]  = getUAVFieldValue(objManager, "HwSettings", "RM_FlexiPort");
             parameters["conf_fusion"] = getUAVFieldValue(objManager, "RevoSettings", "FusionAlgorithm");
+        } else if ((boardModel & 0xff00) == 0x9200) {
+            // Sparky2
+            parameters["conf_rport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_RcvrPort");
+            parameters["conf_mport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_MainPort");
+            parameters["conf_fport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_FlexiPort");
+            parameters["conf_iport"]  = getUAVFieldValue(objManager, "HwSettings", "SPK2_I2CPort");
+            parameters["conf_fusion"] = getUAVFieldValue(objManager, "RevoSettings", "FusionAlgorithm");
         }
 
         parameters["conf_uport"]    = getUAVFieldValue(objManager, "HwSettings", "USB_HIDPort");

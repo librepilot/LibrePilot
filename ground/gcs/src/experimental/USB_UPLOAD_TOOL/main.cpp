@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
     bool use_serial   = false;
     bool verify;
     bool debug = false;
-    bool umodereset   = false;
-    OP_DFU::Actions action;
+    // bool umodereset   = false;
+    OP_DFU::Actions action = OP_DFU::actionNone;
     QString file;
     QString serialport;
     QString description;
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
         debug = true;
     }
     if (args.contains("-ur")) {
-        umodereset = true;
+        // umodereset = true;
     }
     standardOutput << "OpenPilot serial firmware uploader tool." << endl;
     if (args.indexOf(PROGRAMFW) + 1 < args.length()) {
@@ -57,17 +57,17 @@ int main(int argc, char *argv[])
         }
         action = OP_DFU::actionProgram;
     } else if (args.contains(COMPARECRC) || args.contains(COMPAREALL)) {
-        int index;
+        // int index;
         if (args.contains(COMPARECRC)) {
-            index  = args.indexOf(COMPARECRC);
+            // index  = args.indexOf(COMPARECRC);
             action = OP_DFU::actionCompareCrc;
         } else {
-            index  = args.indexOf(COMPAREALL);
+            // index  = args.indexOf(COMPAREALL);
             action = OP_DFU::actionCompareAll;
         }
     } else if (args.contains(DOWNLOAD)) {
-        int index;
-        index  = args.indexOf(DOWNLOAD);
+        // int index;
+        // index  = args.indexOf(DOWNLOAD);
         action = OP_DFU::actionDownload;
     } else if (args.contains(STATUSREQUEST)) {
         action = OP_DFU::actionStatusReq;

@@ -360,7 +360,7 @@ size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, Sy
                 }
 
                 int current_len = strlen(current_msg);
-                
+
                 if ((pos + current_len + 1) > buffer_size) {
                     break;
                 }

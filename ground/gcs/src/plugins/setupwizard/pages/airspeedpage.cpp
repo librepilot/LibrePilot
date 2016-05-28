@@ -39,11 +39,14 @@ void AirSpeedPage::initializePage(VehicleConfigurationSource *settings)
 {
     // Enable all
     setItemDisabled(-1, false);
-    if (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
-        settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS ||
+
+    bool isSparky = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
+
+    if ((!isSparky && (settings->getInputType() == VehicleConfigurationSource::INPUT_SBUS ||
+                       settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
+                       settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
+                       settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
+                       settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS)) ||
         settings->getGpsType() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
         // Disable non estimated sensors if ports are taken by receivers or I2C Mag
         setItemDisabled(VehicleConfigurationSource::AIRSPEED_EAGLETREE, true);
@@ -70,6 +73,7 @@ void AirSpeedPage::setupSelection(Selection *selection)
                           "software estimation technique and the other two utilize hardware sensors.\n\n"
                           "Note: if previously selected input combinations use the Flexi-port for input, "
                           "only estimated airspeed will be available.\n\n"));
+
     selection->addItem(tr("Estimated"),
                        tr("This option uses an intelligent estimation algorithm which utilizes the INS/GPS "
                           "to estimate wind speed and subtract it from ground speed obtained from the GPS.\n\n"

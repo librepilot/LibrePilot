@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       EscCalibrationPage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup
  * @{
  * @addtogroup EscCalibrationPage
@@ -59,6 +60,11 @@ EscCalibrationPage::EscCalibrationPage(SetupWizard *wizard, QWidget *parent) :
 EscCalibrationPage::~EscCalibrationPage()
 {
     delete ui;
+}
+
+void EscCalibrationPage::initializePage()
+{
+    resetAllSecurityCheckboxes();
 }
 
 bool EscCalibrationPage::validatePage()
@@ -179,10 +185,4 @@ void EscCalibrationPage::securityCheckBoxesToggled()
     ui->startButton->setEnabled(ui->securityCheckBox1->isChecked() &&
                                 ui->securityCheckBox2->isChecked() &&
                                 ui->securityCheckBox3->isChecked());
-}
-
-
-void EscCalibrationPage::initializePage()
-{
-    resetAllSecurityCheckboxes();
 }

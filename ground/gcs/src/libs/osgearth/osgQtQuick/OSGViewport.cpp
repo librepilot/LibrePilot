@@ -620,8 +620,9 @@ QSGNode *OSGViewport::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNode
     if (!node) {
         node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
         QSGSimpleTextureNode *n = static_cast<QSGSimpleTextureNode *>(node);
-        if (n)
+        if (n) {
             n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
+        }
         return node;
     }
     return QQuickFramebufferObject::updatePaintNode(node, nodeData);

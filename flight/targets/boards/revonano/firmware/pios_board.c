@@ -775,7 +775,7 @@ void PIOS_Board_Init(void)
     } /* hwsettings_rm_flexiport */
 
 
-#if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PWM)
+#if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PPM)
 
     const struct pios_servo_cfg *pios_servo_cfg;
     // default to servo outputs only

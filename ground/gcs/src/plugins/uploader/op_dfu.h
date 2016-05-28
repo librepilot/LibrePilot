@@ -60,6 +60,7 @@ enum Status {
 };
 
 enum Actions {
+    actionNone,
     actionProgram,
     actionProgramAndVerify,
     actionDownload,
@@ -94,12 +95,13 @@ enum eBoardType {
     eBoardPip     = 3,
     eBoardCC = 4,
     eBoardRevo    = 9,
+    eBoardSparky2 = 0x92,
 };
 
 struct device {
-    int     ID;
+    quint16 ID;
     quint32 FW_CRC;
-    int     BL_Version;
+    quint8  BL_Version;
     int     SizeOfDesc;
     quint32 SizeOfCode;
     bool    Readable;

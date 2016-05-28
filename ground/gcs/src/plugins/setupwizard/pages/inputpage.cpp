@@ -1,14 +1,15 @@
 /**
- ******************************************************************************
+ ****************************************************************************************
  *
  * @file       inputpage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup InputPage
  * @{
  * @brief
- *****************************************************************************/
+ ***************************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +44,17 @@ InputPage::InputPage(SetupWizard *wizard, QWidget *parent) :
 InputPage::~InputPage()
 {
     delete ui;
+}
+
+void InputPage::initializePage()
+{
+    bool isSparky2 = (getWizard()->getControllerType() == SetupWizard::CONTROLLER_SPARKY2);
+
+    ui->pwmButton->setEnabled(!isSparky2);
+    if (ui->pwmButton->isChecked() && isSparky2) {
+        ui->pwmButton->setChecked(false);
+        ui->ppmButton->setChecked(true);
+    }
 }
 
 bool InputPage::validatePage()
@@ -134,6 +146,32 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
         case VehicleConfigurationSource::INPUT_DSM:
             // TODO: Handle all of the DSM types ?? Which is most common?
             return data.RM_MainPort != HwSettings::RM_MAINPORT_DSM;
+
+        default: return true;
+        }
+        break;
+    }
+    case SetupWizard::CONTROLLER_SPARKY2:
+    {
+        switch (selectedType) {
+        case VehicleConfigurationSource::INPUT_PPM:
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_PPM;
+
+        case VehicleConfigurationSource::INPUT_SBUS:
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_SBUS;
+
+        case VehicleConfigurationSource::INPUT_SRXL:
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_SRXL;
+
+        case VehicleConfigurationSource::INPUT_DSM:
+            // TODO: Handle all of the DSM types ?? Which is most common?
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_DSM;
+
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_HOTTSUMD;
+
+        case VehicleConfigurationSource::INPUT_EXBUS:
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_EXBUS;
 
         default: return true;
         }

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       setupwizard.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Setup Wizard  Plugin
@@ -98,6 +99,7 @@ int SetupWizard::nextId() const
         case CONTROLLER_CC:
         case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
+        case CONTROLLER_SPARKY2:
         case CONTROLLER_DISCOVERYF4:
             return PAGE_INPUT;
 
@@ -156,6 +158,7 @@ int SetupWizard::nextId() const
             switch (getControllerType()) {
             case CONTROLLER_REVO:
             case CONTROLLER_NANO:
+            case CONTROLLER_SPARKY2:
                 return PAGE_GPS;
 
             default:
@@ -168,6 +171,7 @@ int SetupWizard::nextId() const
         switch (getControllerType()) {
         case CONTROLLER_REVO:
         case CONTROLLER_NANO:
+        case CONTROLLER_SPARKY2:
             return PAGE_GPS;
 
         default:
@@ -213,6 +217,7 @@ int SetupWizard::nextId() const
         case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
         case CONTROLLER_NANO:
+        case CONTROLLER_SPARKY2:
         case CONTROLLER_DISCOVERYF4:
             switch (getVehicleType()) {
             case VEHICLE_FIXEDWING:
@@ -253,6 +258,9 @@ QString SetupWizard::getSummaryText()
         break;
     case CONTROLLER_NANO:
         summary.append(tr("OpenPilot Nano"));
+        break;
+    case CONTROLLER_SPARKY2:
+        summary.append(tr("TauLabs Sparky 2.0"));
         break;
     case CONTROLLER_OPLINK:
         summary.append(tr("OpenPilot OPLink Radio Modem"));
@@ -427,7 +435,7 @@ QString SetupWizard::getSummaryText()
     }
 
     // Show GPS Type
-    if (getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO) {
+    if (getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO || getControllerType() == CONTROLLER_SPARKY2) {
         summary.append("<br>");
         summary.append("<b>").append(tr("GPS type: ")).append("</b>");
         switch (getGpsType()) {
@@ -452,7 +460,8 @@ QString SetupWizard::getSummaryText()
     }
 
     // Show Airspeed sensor type
-    if ((getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO) && getVehicleType() == VEHICLE_FIXEDWING) {
+    if ((getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO || getControllerType() == CONTROLLER_SPARKY2)
+        && getVehicleType() == VEHICLE_FIXEDWING) {
         summary.append("<br>");
         summary.append("<b>").append(tr("Airspeed Sensor: ")).append("</b>");
         switch (getAirspeedType()) {

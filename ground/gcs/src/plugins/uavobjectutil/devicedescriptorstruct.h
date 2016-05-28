@@ -9,9 +9,9 @@ public:
     QString        gitTag;
     QByteArray     fwHash;
     QByteArray     uavoHash;
-    int boardType;
-    int boardRevision;
-    static QString idToBoardName(int id)
+    quint8         boardType;
+    quint8         boardRevision;
+    static QString idToBoardName(quint16 id)
     {
         switch (id) {
         case 0x0101:
@@ -42,12 +42,12 @@ public:
 
             break;
         case 0x0901:
-            // Revolution
+            // old unreleased Revolution prototype
             return QString("Revolution");
 
             break;
         case 0x0903:
-            // Revo Mini
+            // Revo also known as Revo Mini
             return QString("Revolution");
 
             break;
@@ -58,6 +58,10 @@ public:
         case 0x0905:
             // Nano
             return QString("RevoNano");
+
+        case 0x9201:
+            // Sparky 2.0
+            return QString("Sparky2");
 
         default:
             return QString("");

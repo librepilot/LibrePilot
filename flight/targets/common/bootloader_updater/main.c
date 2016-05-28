@@ -81,13 +81,13 @@ int main()
     if ((pios_board_info_blob.magic != new_board_info_blob->magic)
 #if PIOS_USB_BOARD_PRODUCT_ID == USB_PRODUCT_ID_SPARKY2
         || (((pios_board_info_blob.board_type != new_board_info_blob->board_type)
-        || (pios_board_info_blob.board_rev != new_board_info_blob->board_rev))
-        && ((pios_board_info_blob.board_type != 0x0b) || (pios_board_info_blob.board_rev != 0x01)))
+             || (pios_board_info_blob.board_rev != new_board_info_blob->board_rev))
+            && ((pios_board_info_blob.board_type != 0x0b) || (pios_board_info_blob.board_rev != 0x01)))
 #else
         || (pios_board_info_blob.board_type != new_board_info_blob->board_type)
         || (pios_board_info_blob.board_rev != new_board_info_blob->board_rev)
 #endif
-    ) {
+        ) {
         error(PIOS_LED_HEARTBEAT, 2);
     }
 

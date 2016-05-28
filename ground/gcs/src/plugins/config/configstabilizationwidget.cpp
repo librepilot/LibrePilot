@@ -252,23 +252,6 @@ void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *o)
     ConfigTaskWidget::refreshWidgetsValues(o);
 
     updateThrottleCurveFromObject();
-
-    // Check and update basic/advanced checkboxes only if something connected
-    // Jump to advanced tab if something not "basic": Rate value out of slider limits or different Pitch/Roll values
-    if (ui->lowThrottleZeroIntegral_8->isEnabled() && !realtimeUpdates->isActive()) {
-        if ((ui->attitudeRollResponse->value() == ui->attitudePitchResponse->value()) &&
-            (ui->rateRollResponse->value() == ui->ratePitchResponse->value()) &&
-            (ui->rateRollResponse->value() <= ui->RateResponsivenessSlider->maximum()) &&
-            (ui->ratePitchResponse->value() <= ui->RateResponsivenessSlider->maximum())) {
-            ui->basicResponsivenessCheckBox->setChecked(true);
-            ui->advancedResponsivenessCheckBox->setChecked(false);
-            ui->tabWidget->setCurrentIndex(0);
-        } else {
-            ui->basicResponsivenessCheckBox->setChecked(false);
-            ui->advancedResponsivenessCheckBox->setChecked(true);
-            ui->tabWidget->setCurrentIndex(1);
-        }
-    }
 }
 
 void ConfigStabilizationWidget::updateObjectsFromWidgets()

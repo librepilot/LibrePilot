@@ -89,7 +89,6 @@ FORMS += \
     pages/vehiclepage.ui \
     pages/notyetimplementedpage.ui \
     pages/helipage.ui \
-    pages/surfacepage.ui \
     pages/inputpage.ui \
     pages/summarypage.ui \
     connectiondiagram.ui \

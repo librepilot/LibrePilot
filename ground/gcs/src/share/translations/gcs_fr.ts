@@ -5428,7 +5428,7 @@ La même valeur est utilisé pour tous les axes.</translation>
     <message>
         <location/>
         <source>Input configuration also provides smoothing for controls. Look for RT options on the RC Input tab.</source>
-        <translation>La configuration des entrées fournit également un lissage des contrôles. Recherchez les options RT dans l&apos;onglet Entrées RC.</translation>
+        <translation>La configuration des entrées fournit également un lissage des contrôles. Recherchez les options RT dans l&apos;onglet Entrées Télécommande.</translation>
     </message>
 </context>
 <context>
@@ -6078,7 +6078,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
         <translation>Le curseur se déplace lorsque vous bougez l&apos;inter de mode de vol sur votre radiocommande.
 Il affiche le mode actif en cours.
 
-Configurez le canal de mode de vol dans l&apos;onglet Entrées RC si vous ne l&apos;avez pas déjà fait.
+Configurez le canal de mode de vol dans l&apos;onglet Entrées Télécommande si vous ne l&apos;avez pas déjà fait.
 </translation>
     </message>
     <message>
@@ -13957,7 +13957,17 @@ p, li { white-space: pre-wrap; }
         <translation>Vous pouvez enregistrer vos changements des réglages de neutre.</translation>
     </message>
     <message>
-        <location line="+296"/>
+        <location line="+255"/>
+        <source>AlwaysStabilizeWhenArmed is &lt;b&gt;ACTIVE&lt;/b&gt;. This prevents arming!.</source>
+        <translation>AlwaysStabilizeWhenArmed est &lt;b&gt;ACTIF&lt;/b&gt;. Ceci empêche l&apos;armement !.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>(Really be careful!).</source>
+        <translation>(Soyez très prudent !).</translation>
+    </message>
+    <message>
+        <location line="+39"/>
         <source>OneShot and PWMSync output only works with Receiver Port settings marked with &apos;+OneShot&apos;&lt;br&gt;When using Receiver Port setting &apos;PPM_PIN8+OneShot&apos; &lt;b&gt;&lt;font color=&apos;%1&apos;&gt;Bank %2&lt;/font&gt;&lt;/b&gt; must be set to PWM</source>
         <translation>OneShot et PWMSync fonctionnent uniquement avec les ports récepteur marqués avec &apos;+OneShot&apos;&lt;br&gt;Lors de l&apos;utilisation de la configuration &apos;PPM_PIN8+OneShot&apos; &lt;b&gt;&lt;font color=&apos;%1&apos;&gt;la Banque %2&lt;/font&gt;&lt;/b&gt; doit être réglée sur PWM</translation>
     </message>

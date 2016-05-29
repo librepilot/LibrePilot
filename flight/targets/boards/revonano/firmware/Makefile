@@ -51,9 +51,9 @@ MODULES += PathFollower
 MODULES += Telemetry
 MODULES += Notify
 
+OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
-OPTMODULES += AutoTune
 
 SRC += $(FLIGHTLIB)/notification.c
 

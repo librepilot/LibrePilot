@@ -52,9 +52,9 @@ MODULES += Telemetry
 
 SRC += $(FLIGHTLIB)/notification.c
 
+OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
-OPTMODULES += AutoTune
 
 # Include all camera options
 CDEFS += -DUSE_INPUT_LPF -DUSE_GIMBAL_LPF -DUSE_GIMBAL_FF

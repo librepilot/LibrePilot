@@ -55,9 +55,9 @@ MODULES += Osd/osdoutout
 MODULES += Logging
 MODULES += Telemetry
 
+OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
-OPTMODULES += AutoTune
 
 SRC += $(FLIGHTLIB)/notification.c
 

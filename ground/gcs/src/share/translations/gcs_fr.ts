@@ -14,7 +14,12 @@
         <translation>Impossible de passer les arguments de la ligne de commande à l&apos;instance en cours d&apos;exécution. Elle semble ne pas répondre.</translation>
     </message>
     <message>
-        <location line="+347"/>
+        <location line="+6"/>
+        <source>Failed to open log file %1</source>
+        <translation>Échec de l&apos;ouverture du fichier log %1</translation>
+    </message>
+    <message>
+        <location line="+364"/>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
         <translatorcomment>[Platypus]Ajout de &quot;est&quot;</translatorcomment>
         <translation>&apos;Core.pluginspec&apos; est introuvable dans %1</translation>
@@ -1446,17 +1451,17 @@ Raison : %3</translation>
 <context>
     <name>Welcome::WelcomeMode</name>
     <message>
-        <location filename="../../plugins/welcome/welcomemode.cpp" line="+107"/>
+        <location filename="../../plugins/welcome/welcomemode.cpp" line="+89"/>
         <source>Welcome</source>
         <translation>Accueil</translation>
     </message>
     <message>
-        <location line="+60"/>
+        <location line="+61"/>
         <source>Update Available: %1</source>
         <translation>Mise à jour disponible : %1</translation>
     </message>
     <message>
-        <location filename="../../plugins/welcome/welcomemode.h" line="+73"/>
+        <location filename="../../plugins/welcome/welcomemode.h" line="+71"/>
         <source>%1 Version: %2 </source>
         <translation>%1 Version: %2 </translation>
     </message>
@@ -1971,47 +1976,39 @@ Raison : %3</translation>
 <context>
     <name>ModelViewOptionsPage</name>
     <message>
-        <location filename="../../plugins/modelview/modelviewoptionspage.ui"/>
         <source>Form</source>
-        <translation>Formulaire</translation>
+        <translation type="vanished">Formulaire</translation>
     </message>
     <message>
-        <location/>
         <source>3D model:</source>
-        <translation>Modèle 3D :</translation>
+        <translation type="vanished">Modèle 3D :</translation>
     </message>
     <message>
-        <location/>
         <source>Background image:</source>
-        <translation>Image d&apos;arrière plan :</translation>
+        <translation type="vanished">Image d&apos;arrière plan :</translation>
     </message>
     <message>
-        <location/>
         <source>VBO allow for performance gains for GPUs that support it (most cards).  This may cause cards with faulty drivers to crash.</source>
         <translatorcomment>Les VBOs (de l&apos;anglais Vertex Buffer Object dont une traduction pourrait être objet tampon de vertex) @Wikipedia</translatorcomment>
-        <translation>VBO permet des gains de performance avec les cartes graphiques le supportant (la plupart). Cela peut entraîner des plantages avec des pilotes défectueux.</translation>
+        <translation type="vanished">VBO permet des gains de performance avec les cartes graphiques le supportant (la plupart). Cela peut entraîner des plantages avec des pilotes défectueux.</translation>
     </message>
     <message>
-        <location/>
         <source>Enable VBOs:</source>
-        <translation>Activer les VBOs :</translation>
+        <translation type="vanished">Activer les VBOs :</translation>
     </message>
     <message>
-        <location/>
         <source>Select the image that is shown in the background.</source>
-        <translation>Sélectionner l&apos;image affichée en fond.</translation>
+        <translation type="vanished">Sélectionner l&apos;image affichée en fond.</translation>
     </message>
     <message>
-        <location/>
         <source>Select the 3D model file here.</source>
-        <translation>Sélectionner ici le modèle 3D.</translation>
+        <translation type="vanished">Sélectionner ici le modèle 3D.</translation>
     </message>
     <message>
-        <location/>
         <source>Click to enable the use of Vertical Blanking.
 It is not enabled by default because some graphic cards do not
 support it, and crash the GCS. Enabling improves performance, though, so you can experiment at your own risk.</source>
-        <translation>Cocher pour activer VBO.
+        <translation type="vanished">Cocher pour activer VBO.
 Ce n&apos;est pas activé par défaut car certaines cartes ne le supportent pas et plantent GCS.
 Cela améliore les performances, mais c&apos;est à utiliser à vos risques et périls.</translation>
     </message>
@@ -2576,7 +2573,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>Add a new curve to the scope, or update it if the UAVObject and UAVField is the same.</source>
-        <translatorcomment>Oscilloscope ?</translatorcomment>
         <translation>Ajoute une nouvelle courbe au graphique, ou l&apos;actualise si UAVObject et UAVField sont identiques.</translation>
     </message>
     <message>
@@ -2723,6 +2719,16 @@ p, li { white-space: pre-wrap; }
         <source>This space shows a description of the selected UAVObject.</source>
         <translation>Cet espace affiche une description de l&apos;UAVObject sélectionné.</translation>
     </message>
+    <message>
+        <location/>
+        <source>type filter text</source>
+        <translation type="unfinished">tapez le mot à rechercher</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Clear</source>
+        <translation>Effacer</translation>
+    </message>
 </context>
 <context>
     <name>UAVObjectBrowserOptionsPage</name>
@@ -2761,9 +2767,8 @@ uniquement lorsque les valeurs changent</translation>
 <context>
     <name>QuaZipFile</name>
     <message>
-        <location filename="../../libs/glc_lib/3rdparty/quazip/quazipfile.cpp" line="+141"/>
         <source>ZIP/UNZIP API error %1</source>
-        <translation>Erreur %1 de l&apos;API ZIP/UNZIP</translation>
+        <translation type="vanished">Erreur %1 de l&apos;API ZIP/UNZIP</translation>
     </message>
 </context>
 <context>
@@ -2866,24 +2871,16 @@ uniquement lorsque les valeurs changent</translation>
 <context>
     <name>ModelViewGadgetOptionsPage</name>
     <message>
-        <location filename="../../plugins/modelview/modelviewgadgetoptionspage.cpp" line="+46"/>
         <source>3D model (*.dae *.3ds)</source>
-        <translation>Modèle 3D (*.dae *.3ds)</translation>
+        <translation type="vanished">Modèle 3D (*.dae *.3ds)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Choose 3D model</source>
-        <translation>Choisir le modèle 3D</translation>
+        <translation type="vanished">Choisir le modèle 3D</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Images (*.png *.jpg *.bmp *.xpm)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Choose background image</source>
-        <translation>Choisir l&apos;image d&apos;arrière plan</translation>
+        <translation type="vanished">Choisir l&apos;image d&apos;arrière plan</translation>
     </message>
 </context>
 <context>
@@ -3380,7 +3377,7 @@ uniquement lorsque les valeurs changent</translation>
 <context>
     <name>UAVObjectTreeModel</name>
     <message>
-        <location filename="../../plugins/uavobjectbrowser/uavobjecttreemodel.cpp" line="+73"/>
+        <location filename="../../plugins/uavobjectbrowser/uavobjecttreemodel.cpp" line="+81"/>
         <source>Property</source>
         <translation>Propriété</translation>
     </message>
@@ -3395,17 +3392,17 @@ uniquement lorsque les valeurs changent</translation>
         <translation>Unité</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-10"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+4"/>
         <source>Data Objects</source>
         <translation>Objets Données</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+82"/>
         <source>Meta Data</source>
         <translation>Métadonnées</translation>
     </message>
@@ -4002,7 +3999,7 @@ uniquement lorsque les valeurs changent</translation>
     <message>
         <location/>
         <source>LibrePilot GCS Edit Waypoint</source>
-        <translation type="unfinished">Éditeur Waypoint LibrePilot GCS</translation>
+        <translation>Éditeur Waypoint LibrePilot GCS</translation>
     </message>
 </context>
 <context>
@@ -4218,7 +4215,7 @@ uniquement lorsque les valeurs changent</translation>
         <translation>Tous les Gadgets</translation>
     </message>
     <message>
-        <location filename="../../plugins/importexport/importexportgadgetwidget.cpp" line="+76"/>
+        <location filename="../../plugins/importexport/importexportgadgetwidget.cpp" line="+77"/>
         <location line="+78"/>
         <source>GCS Settings file (*.xml)</source>
         <translation>Fichier Paramètres GCS (*.xml)</translation>
@@ -4259,12 +4256,7 @@ uniquement lorsque les valeurs changent</translation>
         <translation>. Redémarrer le programme.</translation>
     </message>
     <message>
-        <location line="+30"/>
-        <source>http://wiki.openpilot.org/x/OQBj</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location line="+38"/>
         <source>All your settings will be deleted!</source>
         <translation>Tous vos réglages seront effacés !</translation>
     </message>
@@ -5511,27 +5503,27 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     <message>
         <location/>
         <source>USB HID Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonction HID USB</translation>
     </message>
     <message>
         <location/>
         <source>USB VCP Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonction HID USB</translation>
     </message>
     <message>
         <location/>
         <source>Main Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Main</translation>
     </message>
     <message>
         <location/>
         <source>Flexi Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Flexi</translation>
     </message>
     <message>
         <location/>
         <source>Receiver Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Récepteur</translation>
     </message>
     <message>
         <location/>
@@ -5648,17 +5640,17 @@ accéléromètres dans la mémoire Flash de la carte.</translation>
     <message>
         <location/>
         <source>Roll</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Yaw</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Pitch</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -6006,9 +5998,8 @@ p, li { white-space: pre-wrap; }
         <translation>Formulaire</translation>
     </message>
     <message>
-        <location/>
         <source>RC Input</source>
-        <translation>Entrées RC</translation>
+        <translation type="vanished">Entrées RC</translation>
     </message>
     <message>
         <location/>
@@ -6367,6 +6358,73 @@ Be sure to set the Neutral position on all sliders before sending!</source>
         <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
 Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !</translation>
     </message>
+    <message>
+        <location/>
+        <source>Remote Control Input</source>
+        <translation>Entrées Télécommande</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Config Status</source>
+        <translation>Statut Config</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Failsafe Settings</source>
+        <translation>Paramètres Failsafe</translation>
+    </message>
+    <message>
+        <location/>
+        <source>On failsafe change flight mode to:</source>
+        <translation>Lors du failsafe, basculer sur le mode de vol :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>When triggering failsafe switch to this flight mode.</source>
+        <translation>Lorsque le failsafe est activé, basculer sur ce mode de vol.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default</source>
+        <translation>Défaut</translation>
+    </message>
+    <message>
+        <location/>
+        <source>objname:ManualControlSettings</source>
+        <translatorcomment>Ne pas toucher !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>button:default</source>
+        <translatorcomment>Ne pas toucher !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>buttongroup:555</source>
+        <translatorcomment>Ne pas toucher !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Channel input settings on failsafe:</source>
+        <translation>Paramètres des canaux d&apos;entrée lors du failsafe :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Failsafe Information</source>
+        <translation>Information Failsafe</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Failsafe is a function that is triggered when the connection between the transmitter and receiver is lost. Failsafe gives the user a chance to configure some basic behaviour and specify what input the flight controller should get even if no control signals from the transmitter is present.
+The failsafe is triggered differently for different receivers. Failsafe should always be tested before every flight.</source>
+        <translation>Le failsafe est une fonction qui est activée lorsque la connexion entre l&apos;émetteur et le récepteur est coupée.
+Le failsafe donne l&apos;occasion à l&apos;utilisateur de configurer le comportement et les entrées reçues par le contrôleur si le signal de l&apos;émetteur disparait.
+Le failsafe est activé différement suivant les récepteurs.
+Le failsafe doit toujours être testé avant chaque vol.</translation>
+    </message>
 </context>
 <context>
     <name>MixerCurve</name>
@@ -6505,9 +6563,8 @@ Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !
         <translation>Fréquence de rafraîchissement :</translation>
     </message>
     <message>
-        <location/>
         <source>Motors spin at neutral output when armed and throttle below zero (be careful)</source>
-        <translation>Armés, les moteurs tournent avec la sortie au neutre et les gaz à zéro (soyez prudent)</translation>
+        <translation type="vanished">Armés, les moteurs tournent avec la sortie au neutre et les gaz à zéro (soyez prudent)</translation>
     </message>
     <message>
         <location/>
@@ -6586,6 +6643,22 @@ Applique et Enregistre tous les paramètres sur la SD</translation>
 Be sure to set the Neutral position on all sliders before sending!</source>
         <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
 Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Motors spin at neutral output when armed and throttle below zero (Be careful).</source>
+        <translation>Armés, les moteurs tournent avec la sortie au neutre et les gaz à zéro (Soyez prudent).</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Multirotor is Always Stabilized When Armed using:</source>
+        <translatorcomment>Le Multirotor est Toujours Stabilisé Lorsque Armé avec : ?</translatorcomment>
+        <translation type="unfinished">Le Multirotor est Always Stabilized When Armed avec :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>(Really be careful!).</source>
+        <translation>(Soyez très prudent !).</translation>
     </message>
 </context>
 <context>
@@ -6881,12 +6954,6 @@ Une valeur de 0.00 désactive le filtre.</translation>
     </message>
     <message>
         <location/>
-        <source>button:help</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>button:apply</source>
         <translatorcomment>Pas toucher !</translatorcomment>
         <translation></translation>
@@ -7054,6 +7121,144 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Ceci permet un certain niveau de correction sur la variation des ajustements en fonction des changements de température. Il améliore à la fois le maintien d&apos;altitude et les performances sur l&apos;axe de lacet.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Pour effectuer cet étalonnage, déconnectez toutes les alimentations de la carte et laissez-là refroidir à température ambiante pendant 15-20 minutes. Branchez ensuite la prise USB sur la carte, appuyez sur &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;Démarrer&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; et ne bougez plus la carte. Attendez jusqu&apos;à la fin du processus.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Magnetometer</source>
+        <translation>Magnétomètre</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Auxiliary Magnetometer Orientation Help</source>
+        <translation>Aide Orientation Magnétomètre Auxiliaire</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Y axis</source>
+        <translation>Axe Y</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Z axis</source>
+        <translation>Axe Z</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Difference on Z axis</source>
+        <translation>Différence sur l&apos;axe Z</translation>
+    </message>
+    <message>
+        <location/>
+        <source>%v</source>
+        <translatorcomment>Do not translate</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Difference on Y axis</source>
+        <translation>Différence sur l&apos;axe Y</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The bargraphs show the difference between the onboard and auxiliary magnetometer measurements. &lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;When the auxiliary magnetometer rotation is set correctlly, all bargraphs should show all zero (bargraph centered) &lt;a name=&quot;result_box&quot;&gt;&lt;/a&gt;whatever the vehicle&apos;s orientation.&lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This assumes both magnetometers are calibrated and without alarm.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Cantarell&apos;; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Les barres horizontales ci-dessous affichent la différence de mesure entre le magnétomètre interne et le magnétomètre auxiliaire. &lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Lorsque l&apos;orientation du magnétomètre auxiliaire est ajustée correctement, toutes les barres restent à zéro (centrées)&lt;a name=&quot;result_box&quot;&gt;&lt;/a&gt; quelque soit l&apos;orientation ou la position du véhicule.&lt;/p&gt;
+&lt;p align=&quot;justify&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Cela suppose que les deux magnétomètres sont calibrés et sans aucune alarme.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Difference on X axis</source>
+        <translation>Différence sur l&apos;axe X</translation>
+    </message>
+    <message>
+        <location/>
+        <source>X axis</source>
+        <translation>Axe X</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Magnetometer Settings</source>
+        <translation>Paramètres Magnétomètre</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Mag type:</source>
+        <translation>Type de Mag :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Mag usage:</source>
+        <translation>Utilisation Mag :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select the magnetometer type.</source>
+        <translation>Sélectionner le type de magnétomètre.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select how to use available magnetometers.</source>
+        <translation>Sélectionner comment utiliser les magnétomètres disponibles.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Warning level in percent (default 5%)</source>
+        <translation>Niveau d&apos;Alerte en pourcent (défaut 5%)</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Error level in percent (default 15%)</source>
+        <translation>Niveau d&apos;Erreur en pourcent (défaut 15%)</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Warning / Error levels:</source>
+        <translation>Niveaux d&apos;Alerte / Erreur :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Magnetometer Status</source>
+        <translation>Statut Magnétomètre</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Onboard</source>
+        <translation>Interne</translation>
+    </message>
+    <message>
+        <location/>
+        <source>AuxMag</source>
+        <translation>Auxiliaire</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Mag source:</source>
+        <translation>Source Mag :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Mag alarms:</source>
+        <translation>Alarmes Mag :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>external</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Auxiliary Magnetometer Orientation</source>
+        <translation>Orientation Magnétomètre Auxiliaire</translation>
     </message>
 </context>
 <context>
@@ -7230,12 +7435,6 @@ value as the Kp.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:YawPI</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Zero the integral when throttle is low</source>
         <translation>Mettre l&apos;intégrale à zéro lorsque les gaz sont bas</translation>
     </message>
@@ -7335,12 +7534,6 @@ value as the Kp.</source>
     <message>
         <location/>
         <source>element:Yaw</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:YawMax</source>
         <translatorcomment>pas toucher !</translatorcomment>
         <translation></translation>
     </message>
@@ -8074,7 +8267,7 @@ response (deg)</source>
     <message>
         <location/>
         <source>Enable TPS</source>
-        <translation type="unfinished">Activer TPS</translation>
+        <translation>Activer TPS</translation>
     </message>
     <message>
         <location/>
@@ -8138,12 +8331,12 @@ response (deg)</source>
     <message>
         <location/>
         <source>Rate</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
         <source>Rate yaw</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8254,6 +8447,38 @@ response (deg)</source>
         <location/>
         <source>Pitch Factor</source>
         <translation>Facteur Pitch</translation>
+    </message>
+    <message>
+        <location/>
+        <source>FPV Camera Tilt Compensation</source>
+        <translation>Compensation Angle Caméra FPV</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reset value to GCS defaults</source>
+        <translation>Raz à la valeur par défaut de GCS</translation>
+    </message>
+    <message>
+        <location/>
+        <source>buttongroup:56</source>
+        <translatorcomment>Ne pas toucher !</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Camera Tilt Angle (deg)</source>
+        <translation>Angle Inclinaison Caméra (degrés)</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Camera tilt angle from 0 to 50 degrees (0 to disable compensation).</source>
+        <translation>Angle d&apos;inclinaison de la caméra, de 0 à 50degrés (0 pour désactiver le compensation).</translation>
+    </message>
+    <message>
+        <location/>
+        <source>fieldname:FpvCamTiltCompensation</source>
+        <translatorcomment>Ne pas toucher !</translatorcomment>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -8978,29 +9203,24 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
         <translation>Fichier  QML :</translation>
     </message>
     <message>
-        <location/>
         <source>Use OpenGL</source>
-        <translation>Utiliser OpenGL</translation>
+        <translation type="vanished">Utiliser OpenGL</translation>
     </message>
     <message>
-        <location/>
         <source>Show Terrain:</source>
-        <translation>Afficher terrain :</translation>
+        <translation type="vanished">Afficher terrain :</translation>
     </message>
     <message>
-        <location/>
         <source>OsgEarth file:</source>
-        <translation>Fichier OsgEarth :</translation>
+        <translation type="vanished">Fichier OsgEarth :</translation>
     </message>
     <message>
-        <location/>
         <source>Use actual location</source>
-        <translation>Utiliser la position actuelle</translation>
+        <translation type="vanished">Utiliser la position actuelle</translation>
     </message>
     <message>
-        <location/>
         <source>Use pre-defined location:</source>
-        <translation>Utiliser une position prédéfinie :</translation>
+        <translation type="vanished">Utiliser une position prédéfinie :</translation>
     </message>
     <message>
         <location/>
@@ -9029,24 +9249,47 @@ les données en cache</translation>
         <translation>Précharger le cache terrain</translation>
     </message>
     <message>
-        <location filename="../../plugins/pfdqml/pfdqmlgadgetoptionspage.cpp" line="+45"/>
+        <location filename="../../plugins/pfdqml/pfdqmlgadgetoptionspage.cpp" line="+54"/>
         <source>QML file (*.qml)</source>
         <translation>Fichier QML (*.qml)</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Choose QML file</source>
-        <translation>Choisir un fichier QML</translation>
+        <source>Choose QML File</source>
+        <translation>Sélectionner un fichier QML</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+25"/>
+        <source>Choose Terrain File</source>
+        <translation>Sélectionner le fichier Terrain</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Model file (*.3ds)</source>
+        <translation>Modèle 3D (*.3ds)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Choose Model File</source>
+        <translation>Sélectionner le fichier Modèle 3D</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Choose Background Image File</source>
+        <translation>Sélectionner le fichier d&apos;Image de Fond</translation>
+    </message>
+    <message>
+        <source>Choose QML file</source>
+        <translation type="vanished">Choisir un fichier QML</translation>
+    </message>
+    <message>
+        <location line="-32"/>
         <source>OsgEarth (*.earth)</source>
         <translation></translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Choose OsgEarth terrain file</source>
-        <translation>Choisir un fichier de terrain OsgEarth</translation>
+        <translation type="vanished">Choisir un fichier de terrain OsgEarth</translation>
     </message>
     <message>
         <location filename="../../plugins/pfdqml/pfdqmlgadgetoptionspage.ui"/>
@@ -9057,6 +9300,86 @@ les données en cache</translation>
         <location/>
         <source>Altitude Unit:</source>
         <translation>Unité d&apos;Altitude :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Terrain</source>
+        <translation>Terrain</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show Terrain</source>
+        <translation>Afficher Terrain</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Terrain file:</source>
+        <translation>Fichier Terrain :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This location will be used if no GPS fix or Home location are available</source>
+        <translation>Cette position sera utilisée si un fix GPS ou une position Home ne sont pas disponibles</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default Location</source>
+        <translation>Position par Défaut</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Model</source>
+        <translation>Modèle</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show Model</source>
+        <translation>Afficher Modèle</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use automatic model selection</source>
+        <translation>Utiliser la sélection automatique du modèle</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use this model:</source>
+        <translation>Utiliser ce modèle :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Background image:</source>
+        <translation>Image d&apos;arrière plan :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Environment</source>
+        <translation>Environnement</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Time</source>
+        <translation>Date/Heure</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use local time</source>
+        <translation>Utiliser la date/heure locale</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use this time:</source>
+        <translation>Utiliser cette date/heure :</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Actualize</source>
+        <translation>Actualiser</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Minimum ambient light:</source>
+        <translation>Lumière ambiante minimale :</translation>
     </message>
 </context>
 <context>
@@ -9133,7 +9456,7 @@ les données en cache</translation>
         <translation>Diagramme de Connexion</translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+254"/>
         <source>Save File</source>
         <translation>Enregistrer Fichier</translation>
     </message>
@@ -9264,12 +9587,12 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="+235"/>
+        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="+244"/>
         <source>Connect</source>
         <translation>Connecter</translation>
     </message>
     <message>
-        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="-100"/>
+        <location filename="../../plugins/setupwizard/pages/controllerpage.cpp" line="-106"/>
         <source>&lt;Unknown&gt;</source>
         <translation>&lt;Inconnu&gt;</translation>
     </message>
@@ -9301,6 +9624,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+1"/>
         <source>OpenPilot Nano</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TauLabs Sparky 2.0</source>
         <translation></translation>
     </message>
     <message>
@@ -9471,6 +9799,26 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration des Signaux d&apos;Entrée&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Le contrôleur de vol supporte plusieurs types de signaux d&apos;entrée. Veuillez sélectionner le type d&apos;entrée qui correspond à votre configuration de récepteur. Si vous avez un doute, laissez l&apos;option sélectionnée par défaut et continuez l&apos;assistant.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Certaines configurations demandent un redémarrage du contrôleur de vol pour que les changements soient effectifs. Vous serrez informé si un redémarrage est nécessaire à l&apos;écran suivant de cet assistant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Graupner HoTT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>HoTT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Jeti EX.Bus</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>EX.Bus</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -9789,7 +10137,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Appuyer sur le bouton Enregistrer pour enregistrer la configuration.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../plugins/setupwizard/pages/savepage.cpp" line="+61"/>
+        <location filename="../../plugins/setupwizard/pages/savepage.cpp" line="+64"/>
         <source>A compatible flight controller must be connected to your computer to save the configuration.
 Please connect your flight controller to your computer and try again.</source>
         <translation>Un contrôleur de vol compatible doit être connecté à votre PC pour enregistrer la configuration.
@@ -9832,9 +10180,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>SurfacePage</name>
     <message>
-        <location filename="../../plugins/setupwizard/pages/surfacepage.ui"/>
         <source>WizardPage</source>
-        <translation>Page d&apos;Assistant</translation>
+        <translation type="vanished">Page d&apos;Assistant</translation>
     </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/surfacepage.cpp" line="+51"/>
@@ -9879,11 +10226,6 @@ Veuillez sélectionner le type de véhicule terrestre dont vous voulez créer la
         <location line="+1"/>
         <source>This setup currently expects a motorcyle setup, using one motor and one servo for steering.</source>
         <translation>Cette configuration correspond à une moto utilisant un moteur et un servo pour la direction.</translation>
-    </message>
-    <message>
-        <location filename="../../plugins/setupwizard/pages/surfacepage.ui"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;The Surface Vehicle section of the Setup Wizard is not yet implemented&lt;/span&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10016,14 +10358,9 @@ persistant de la carte, et ensuite ferme la boite de dialogue.</translation>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="../../plugins/uavsettingsimportexport/importsummary.cpp" line="+34"/>
+        <location filename="../../plugins/uavsettingsimportexport/importsummary.cpp" line="+39"/>
         <source>Import Summary</source>
         <translation>Sommaire d&apos;Importation</translation>
-    </message>
-    <message>
-        <location line="+28"/>
-        <source>http://wiki.openpilot.org/display/Doc/UAV+Settings+import-export</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -10482,7 +10819,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigMultiRotorWidget</name>
     <message>
-        <location filename="../../plugins/config/cfg_vehicletypes/configmultirotorwidget.cpp" line="+174"/>
+        <location filename="../../plugins/config/cfg_vehicletypes/configmultirotorwidget.cpp" line="+177"/>
         <source>Input</source>
         <translation>Entrée</translation>
     </message>
@@ -10492,7 +10829,7 @@ p, li { white-space: pre-wrap; }
         <translation>Sortie</translation>
     </message>
     <message>
-        <location line="+427"/>
+        <location line="+471"/>
         <location line="+24"/>
         <location line="+31"/>
         <location line="+31"/>
@@ -10534,7 +10871,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigCCHWWidget</name>
     <message>
-        <location filename="../../plugins/config/config_cc_hw_widget.cpp" line="+92"/>
+        <location filename="../../plugins/config/config_cc_hw_widget.cpp" line="+97"/>
         <source>Enable GPS module and reboot the board to be able to select GPS protocol</source>
         <translation>Activez le module GPS et redémarrez la carte pour pouvoir choisir le protocole GPS</translation>
     </message>
@@ -10563,7 +10900,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigCCAttitudeWidget</name>
     <message>
-        <location filename="../../plugins/config/configccattitudewidget.cpp" line="+160"/>
+        <location filename="../../plugins/config/configccattitudewidget.cpp" line="+165"/>
         <source>Calibration timed out before receiving required updates.</source>
         <translation>Temps d&apos;attente dépassé avant d&apos;avoir reçu les mises à jour demandées.</translation>
     </message>
@@ -10571,7 +10908,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigGadgetWidget</name>
     <message>
-        <location filename="../../plugins/config/configgadgetwidget.cpp" line="+221"/>
+        <location filename="../../plugins/config/configgadgetwidget.cpp" line="+229"/>
         <source>Unsaved changes</source>
         <translation>Modifications non sauvegardées</translation>
     </message>
@@ -10586,7 +10923,7 @@ Voulez-vous toujours continuer ?</translation>
 <context>
     <name>ConfigInputWidget</name>
     <message>
-        <location filename="../../plugins/config/configinputwidget.cpp" line="+422"/>
+        <location filename="../../plugins/config/configinputwidget.cpp" line="+509"/>
         <source>Arming Settings are now set to &apos;Always Disarmed&apos; for your safety.</source>
         <translatorcomment>Contexte : Onglet &quot;Paramètres d&apos;Armement&quot;</translatorcomment>
         <translation>Pour des raisons de sécurité les Paramètres d&apos;Armement ont été modifiés à &apos;Toujours Désarmé&apos;.</translation>
@@ -10598,7 +10935,7 @@ Voulez-vous toujours continuer ?</translation>
         <translation>Vous devrez reconfigurer manuellement les paramètres d&apos;armement lorsque l&apos;assistant sera terminé. Après la dernière étape de l&apos;assistant, vous serez redirigé vers l&apos;écran des Paramètres d&apos;Armement.</translation>
     </message>
     <message>
-        <location line="+222"/>
+        <location line="+224"/>
         <source>Next</source>
         <translation>Suivant</translation>
     </message>
@@ -10671,7 +11008,7 @@ Voulez-vous toujours continuer ?</translation>
         <translation>Pour un Quadricoptère : Profondeur correspond à la Rotation Avant, Ailerons à Roulis et Dérive correspond à Lacet.</translation>
     </message>
     <message>
-        <location line="+209"/>
+        <location line="+214"/>
         <source>&lt;p&gt;Please enable throttle hold mode.&lt;/p&gt;&lt;p&gt;Move the Collective Pitch stick.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Veuillez activer les gaz en position maintenue.&lt;/p&gt;&lt;p&gt;Bougez le manche du Collectif de tangage.&lt;/p&gt;</translation>
     </message>
@@ -10696,17 +11033,43 @@ Voulez-vous toujours continuer ?</translation>
         <translation>&lt;p&gt;Vous avez la possibilité d&apos;appuyer sur Suivant pour ignorer ce canal.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+822"/>
+        <location line="+851"/>
+        <source>Config OK</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>All fine, no config alarm!</source>
+        <translation>Tout va bien, pas d&apos;alarme de configuration !</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Config error</source>
+        <translation>Erreur config</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>There is something wrong with your config,
+usually a Thrust mode or Assisted mode not supported.
+
+Tip: Reduce the Flight Mode Count to find the culprit.</source>
+        <translation>Il y a quelque choose d&apos;incorrect dans votre configuration,
+généralement un mode de poussée ou un mode d&apos;assistance non-supporté.
+
+Conseil : Réduire le nombre de modes de vol pour trouver le coupable.</translation>
+    </message>
+    <message>
+        <location line="+89"/>
         <source>Ground Vehicle</source>
         <translation>Véhicule terrestre</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>&lt;p&gt;Please &lt;b&gt;center&lt;/b&gt; throttle control and press OK when ready.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Veuillez &lt;b&gt;centrer&lt;/b&gt; le contrôle des gaz et appuyez sur OK lorsque vous êtes prêt.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Veuillez &lt;b&gt;centrer&lt;/b&gt; le contrôle des gaz et appuyez sur OK lorsque vous êtes prêt.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="-1025"/>
+        <location line="-1156"/>
         <source>Please center all controls and trims and press Next when ready.
 
 For a ground vehicle, this center position will be used as neutral value of each channel.</source>
@@ -10715,12 +11078,12 @@ For a ground vehicle, this center position will be used as neutral value of each
 Pour un véhicule terrestre, ces positions centrales seront utilisées comme neutre de chaque canal.</translation>
     </message>
     <message>
-        <location line="+208"/>
+        <location line="+213"/>
         <source>Next / Skip</source>
         <translation>Suivant / Sauter</translation>
     </message>
     <message>
-        <location line="+774"/>
+        <location line="+900"/>
         <source>Stop Manual Calibration</source>
         <translation>Arrêter Calibration Manuelle</translation>
     </message>
@@ -10735,7 +11098,7 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
         <translation>Vous devrez reconfigurer les paramètres d&apos;armement manuellement lorsque la calibration manuelle sera terminée.</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+71"/>
         <source>Start Manual Calibration</source>
         <translation>Démarrer Calibration Manuelle</translation>
     </message>
@@ -10785,7 +11148,7 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
 <context>
     <name>DebugGadgetWidget</name>
     <message>
-        <location filename="../../plugins/debuggadget/debuggadgetwidget.cpp" line="+114"/>
+        <location filename="../../plugins/debuggadget/debuggadgetwidget.cpp" line="+120"/>
         <source>Save log File As</source>
         <translation>Enregistrer Fichier Journal Sous</translation>
     </message>
@@ -10901,9 +11264,8 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
 <context>
     <name>ModelViewGadgetFactory</name>
     <message>
-        <location filename="../../plugins/modelview/modelviewgadgetfactory.cpp" line="+36"/>
         <source>ModelView</source>
-        <translation type="unfinished">VueModèle</translation>
+        <translation type="obsolete">VueModèle</translation>
     </message>
 </context>
 <context>
@@ -11052,12 +11414,12 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>SetupWizard</name>
     <message>
-        <location filename="../../plugins/setupwizard/setupwizard.cpp" line="+64"/>
+        <location filename="../../plugins/setupwizard/setupwizard.cpp" line="+65"/>
         <source>Setup Wizard</source>
         <translation>Assistant de Configuration</translation>
     </message>
     <message>
-        <location line="+179"/>
+        <location line="+183"/>
         <source>Controller type: </source>
         <translation>Type de contrôleur : </translation>
     </message>
@@ -11083,6 +11445,11 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
     </message>
     <message>
         <location line="+3"/>
+        <source>TauLabs Sparky 2.0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>OpenPilot OPLink Radio Modem</source>
         <translation></translation>
     </message>
@@ -11097,15 +11464,15 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <location line="+21"/>
         <location line="+24"/>
         <location line="+6"/>
-        <location line="+19"/>
+        <location line="+28"/>
         <location line="+19"/>
         <location line="+16"/>
-        <location line="+38"/>
+        <location line="+45"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location line="-185"/>
+        <location line="-201"/>
         <source>Vehicle type: </source>
         <translation>Type de véhicule : </translation>
     </message>
@@ -11247,6 +11614,21 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation></translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Multiplex SRXL</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Graupner HoTT</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Jeti EX.Bus</source>
+        <translation></translation>
+    </message>
+    <message>
         <location line="+7"/>
         <source>Speed Controller (ESC) type: </source>
         <translation>Type Contrôleur (Esc) : </translation>
@@ -11298,6 +11680,16 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
     </message>
     <message>
         <location line="+3"/>
+        <source>Naza GPS</source>
+        <translation>GPS Naza</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Generic UBLOX + I2C Magnetometer</source>
+        <translation>UBlox générique + Magnétomètre I2C</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>OpenPilot v8 or Generic UBLOX GPS</source>
         <translation>OpenPilot v8 ou GPS Ublox générique</translation>
     </message>
@@ -11312,7 +11704,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Aucun</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Airspeed Sensor: </source>
         <translation>Capteur Vitesse Air : </translation>
     </message>
@@ -11348,7 +11740,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>VehicleConfigurationHelper</name>
     <message>
-        <location filename="../../plugins/setupwizard/vehicleconfigurationhelper.cpp" line="+86"/>
+        <location filename="../../plugins/setupwizard/vehicleconfigurationhelper.cpp" line="+91"/>
         <location line="+12"/>
         <source>Done!</source>
         <translation>Terminé !</translation>
@@ -11360,9 +11752,15 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Échoué !</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+204"/>
+        <location line="+13"/>
         <source>Writing External Mag sensor settings</source>
-        <translation>Écriture paramètres Compas Externe</translation>
+        <translation>Écriture paramètres Magnétomètre Externe</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Writing I2C Mag sensor settings</source>
+        <translation>Écriture paramètres Magnétomètre I2C</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -11370,7 +11768,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Écriture paramètres capteur GPS</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+42"/>
         <source>Writing Airspeed sensor settings</source>
         <translation>Écriture paramètres capteur Vitesse Air</translation>
     </message>
@@ -11380,9 +11778,9 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Écriture paramètres matériels</translation>
     </message>
     <message>
-        <location line="+203"/>
-        <location line="+40"/>
-        <location line="+45"/>
+        <location line="+205"/>
+        <location line="+41"/>
+        <location line="+46"/>
         <source>Writing actuator settings</source>
         <translation>Écriture paramètres actionneurs</translation>
     </message>
@@ -11402,8 +11800,8 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Écriture paramètres d&apos;ajustement gyro et accéléromètres</translation>
     </message>
     <message>
-        <location line="+14"/>
         <location line="+13"/>
+        <location line="+14"/>
         <source>Writing board settings</source>
         <translation>Écriture paramètres carte</translation>
     </message>
@@ -11423,7 +11821,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Écriture paramètres véhicule</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+44"/>
         <source>Writing manual control defaults</source>
         <translation>Écriture contrôles manuels par défaut</translation>
     </message>
@@ -11462,7 +11860,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>UAVObjectField</name>
     <message>
-        <location filename="../../plugins/uavobjects/uavobjectfield.cpp" line="+91"/>
+        <location filename="../../plugins/uavobjects/uavobjectfield.cpp" line="+95"/>
         <source>0</source>
         <translation></translation>
     </message>
@@ -11625,7 +12023,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
 <context>
     <name>UploaderGadgetWidget</name>
     <message>
-        <location filename="../../plugins/uploader/uploadergadgetwidget.cpp" line="+286"/>
+        <location filename="../../plugins/uploader/uploadergadgetwidget.cpp" line="+287"/>
         <source>Connected Device</source>
         <translation>Périphérique Connecté</translation>
     </message>
@@ -11642,35 +12040,30 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
     </message>
     <message>
         <location line="+30"/>
-        <location line="+487"/>
+        <location line="+491"/>
         <source>Device</source>
         <translation>Périphérique</translation>
     </message>
     <message>
-        <location line="-406"/>
-        <source>http://wiki.openpilot.org/display/Doc/Erase+board+settings</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+93"/>
+        <location line="-316"/>
         <source>Running</source>
         <translation>En cours d&apos;exécution</translation>
     </message>
     <message>
-        <location line="+258"/>
+        <location line="+261"/>
         <source>Timed out while waiting for all boards to be disconnected!</source>
         <translatorcomment>Bof</translatorcomment>
         <translation type="unfinished">Expiration du temps d&apos;attente de la déconnexion de toutes les cartes !</translation>
     </message>
     <message>
-        <location line="-196"/>
-        <location line="+211"/>
+        <location line="-199"/>
+        <location line="+214"/>
         <source>Timed out while waiting for a board to be connected!</source>
         <translatorcomment>Bof</translatorcomment>
         <translation type="unfinished">Expiration du temps dans l&apos;attente d&apos;une connexion de carte !</translation>
     </message>
     <message>
-        <location line="-241"/>
+        <location line="-244"/>
         <source>To upgrade the OPLinkMini board please disconnect it from the USB port, press the Upgrade again button and follow instructions on screen.</source>
         <translation>Pour mettre à jour une carte OPLinkMini veuillez la déconnecterdu port USB, appuyez à nouveau sur le bouton de mise à jour et suivez les instructions à l&apos;écran.</translation>
     </message>
@@ -11686,7 +12079,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Échec du passage en mode bootloader.</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+34"/>
         <source>Unknown board id &apos;0x%1&apos;</source>
         <translation>Carte inconnue id &apos;0x%1&apos;</translation>
     </message>
@@ -11734,7 +12127,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>La carte doit être connectée à un port USB !</translation>
     </message>
     <message>
-        <location line="+159"/>
+        <location line="+160"/>
         <location line="+7"/>
         <source>Timing out in %1 seconds</source>
         <translation>Expiration dans %1 secondes</translation>
@@ -11780,7 +12173,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Préparation du téléversement firmware sur la carte.</translation>
     </message>
     <message>
-        <location line="-190"/>
+        <location line="-191"/>
         <source>Please disconnect your board.</source>
         <translation>Veuillez déconnecter votre carte.</translation>
     </message>
@@ -11790,7 +12183,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Veuillez connecter votre carte.</translation>
     </message>
     <message>
-        <location line="+155"/>
+        <location line="+156"/>
         <source>Waiting for all boards to be disconnected from USB.</source>
         <translation>Attente de la déconnexion de toutes les cartes connectées en USB.</translation>
     </message>
@@ -11810,12 +12203,7 @@ Double clic sur la légende ou le tracé pour afficher/cacher la légende.</tran
         <translation>Téléversement de la description du nouveau firmware sur la carte.</translation>
     </message>
     <message>
-        <location line="+56"/>
-        <source>http://wiki.openpilot.org/x/AoBZ</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location line="+64"/>
         <source>Confirm Settings Erase?</source>
         <translation>Confirmer l&apos;Effacement des Paramètres ?</translation>
     </message>
@@ -11862,7 +12250,7 @@ La carte sera redémarrée et tous les paramètres effacés.</translation>
         <translation>Veuillez vérifier que la carte n&apos;est pas armée et appuyez à nouveau Réinitialiser pour continuer ou allumer/éteindre la carte pour forcer la réinitialisation.</translation>
     </message>
     <message>
-        <location line="-476"/>
+        <location line="-483"/>
         <source></source>
         <translation>Annuler</translation>
     </message>
@@ -12440,6 +12828,96 @@ La carte sera redémarrée et tous les paramètres effacés.</translation>
         <source>0</source>
         <translation></translation>
     </message>
+    <message>
+        <location/>
+        <source>Select output curve for Accessory1 RcInput</source>
+        <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory1</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output channel for Accessory0 RcInput</source>
+        <translation>Sélectionnez le canal de sortie pour l&apos;entrée RC Accessory0</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Accessory0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>RC Input</source>
+        <translation>Entrées RC</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Accessory1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>RcOutput channels</source>
+        <translation>Canaux de sortie RC</translation>
+    </message>
+    <message>
+        <location/>
+        <source>RC Output 1</source>
+        <translation>Sortie RC 1</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output channel for Accessory2 RcInput</source>
+        <translation>Sélectionnez le canal de sortie pour l&apos;entrée RC Accessory2</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output channel for Accessory1 RcInput</source>
+        <translation>Sélectionnez le canal de sortie pour l&apos;entrée RC Accessory1</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Accessory2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>RcOutput curve</source>
+        <translation>Courbe de sortie RC</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Curve</source>
+        <translation>Courbe</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output curve for Accessory0 RcInput</source>
+        <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory0</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output curve for Accessory3 RcInput</source>
+        <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory3</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output curve for Accessory2 RcInput</source>
+        <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory2</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Accessory3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Select output channel for Accessory3 RcInput</source>
+        <translation>Sélectionnez le canal de sortie pour l&apos;entrée RC Accessory3</translation>
+    </message>
+    <message>
+        <location/>
+        <source>RC Output 2</source>
+        <translation>Sortie RC 2</translation>
+    </message>
 </context>
 <context>
     <name>GroundConfigWidget</name>
@@ -12601,9 +13079,8 @@ Les valeurs classiques sont de 50% en configuration + et X sur les quadricoptèr
         <translation>Canaux de sortie moteurs</translation>
     </message>
     <message>
-        <location/>
         <source>1</source>
-        <translation>1</translation>
+        <translation type="vanished">1</translation>
     </message>
     <message>
         <location/>
@@ -12611,39 +13088,32 @@ Les valeurs classiques sont de 50% en configuration + et X sur les quadricoptèr
         <translation>Affecter les canaux de sortie des moteurs en utilisant le dessin ci-dessus comme référence. Respectez le sens des moteurs.</translation>
     </message>
     <message>
-        <location/>
         <source>2</source>
-        <translation>2</translation>
+        <translation type="vanished">2</translation>
     </message>
     <message>
-        <location/>
         <source>3</source>
-        <translation>3</translation>
+        <translation type="vanished">3</translation>
     </message>
     <message>
-        <location/>
         <source>4</source>
-        <translation>4</translation>
+        <translation type="vanished">4</translation>
     </message>
     <message>
-        <location/>
         <source>5</source>
-        <translation>5</translation>
+        <translation type="vanished">5</translation>
     </message>
     <message>
-        <location/>
         <source>6</source>
-        <translation>6</translation>
+        <translation type="vanished">6</translation>
     </message>
     <message>
-        <location/>
         <source>7</source>
-        <translation>7</translation>
+        <translation type="vanished">7</translation>
     </message>
     <message>
-        <location/>
         <source>8</source>
-        <translation>8</translation>
+        <translation type="vanished">8</translation>
     </message>
     <message>
         <location/>
@@ -12767,6 +13237,46 @@ Les valeurs classiques sont de 100% en configuration + et 50% en configuration X
         <source>Select output curve for Accessory3 RcInput</source>
         <translation>Sélectionnez la courbe de mixage pour l&apos;entrée RC Accessory3</translation>
     </message>
+    <message>
+        <location/>
+        <source>Pos5</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos6</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos7</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos8</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos1</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos2</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pos4</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>RevoHWWidget</name>
@@ -12783,7 +13293,7 @@ Les valeurs classiques sont de 100% en configuration + et 50% en configuration X
     <message>
         <location/>
         <source>USB HID Function</source>
-        <translation></translation>
+        <translation>Fonction HID USB</translation>
     </message>
     <message>
         <location/>
@@ -12793,27 +13303,27 @@ Les valeurs classiques sont de 100% en configuration + et 50% en configuration X
     <message>
         <location/>
         <source>Flexi Port</source>
-        <translation></translation>
+        <translation>Port Flexi</translation>
     </message>
     <message>
         <location/>
         <source>Main Port</source>
-        <translation></translation>
+        <translation>Port Main</translation>
     </message>
     <message>
         <location/>
         <source>Sonar Port</source>
-        <translation></translation>
+        <translation>Port Sonar</translation>
     </message>
     <message>
         <location/>
         <source>Receiver Port</source>
-        <translation></translation>
+        <translation>Port Récepteur</translation>
     </message>
     <message>
         <location/>
         <source>USB VCP Function</source>
-        <translation></translation>
+        <translation>Fonction VCP USB</translation>
     </message>
     <message>
         <location/>
@@ -12869,9 +13379,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>Send settings to the board but do not save to the non-volatile memory</source>
-        <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire non volatile</translation>
+        <translation type="vanished">Envoyer les paramètres sur la carte sans enregistrer dans la mémoire non volatile</translation>
     </message>
     <message>
         <location/>
@@ -12879,9 +13388,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Appliquer</translation>
     </message>
     <message>
-        <location/>
         <source>Send settings to the board and save to the non-volatile memory</source>
-        <translation>Envoyer les paramètres sur la carte et enregistrer dans la mémoire non volatile</translation>
+        <translation type="vanished">Envoyer les paramètres sur la carte et enregistrer dans la mémoire non volatile</translation>
     </message>
     <message>
         <location/>
@@ -12895,18 +13403,12 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
     <message>
         <location/>
-        <source>12345678</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Link State</source>
         <translation>État Liaison</translation>
     </message>
     <message>
-        <location/>
         <source>The modems current state</source>
-        <translation>L&apos;état actuel du modem</translation>
+        <translation type="vanished">L&apos;état actuel du modem</translation>
     </message>
     <message>
         <location/>
@@ -13009,9 +13511,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Tx Perdus</translation>
     </message>
     <message>
-        <location/>
         <source>Tx Failure</source>
-        <translation>TX Défaillants</translation>
+        <translation type="vanished">TX Défaillants</translation>
     </message>
     <message>
         <location/>
@@ -13049,9 +13550,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>%v dBm</translation>
     </message>
     <message>
-        <location/>
         <source>Bind</source>
-        <translation>Associer</translation>
+        <translation type="vanished">Associer</translation>
     </message>
     <message>
         <location/>
@@ -13081,27 +13581,24 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     <message>
         <location/>
         <source>VCP Port</source>
-        <translation></translation>
+        <translation>Port VCP</translation>
     </message>
     <message>
-        <location/>
         <source>Choose the function for the flexi port</source>
-        <translation>Choisir la fonction pour le flexi port</translation>
+        <translation type="vanished">Choisir la fonction pour le flexi port</translation>
     </message>
     <message>
         <location/>
         <source>Main Port</source>
-        <translation></translation>
+        <translation>Port Main</translation>
     </message>
     <message>
-        <location/>
         <source>Choose the function for the main port</source>
-        <translation>Choisir la fonction pour le main port</translation>
+        <translation type="vanished">Choisir la fonction pour le main port</translation>
     </message>
     <message>
-        <location/>
         <source>Set the maximum TX output power the modem will use (mW)</source>
-        <translation>Ajuste la puissance maximale de sortie utilisée par le modem (mW)</translation>
+        <translation type="vanished">Ajuste la puissance maximale de sortie utilisée par le modem (mW)</translation>
     </message>
     <message>
         <location/>
@@ -13109,19 +13606,18 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Puissance Maxi</translation>
     </message>
     <message>
-        <location/>
         <source>Choose the function for the USB virtual com port</source>
-        <translation>Choisir la fonction pour le USB virtual com port</translation>
+        <translation type="vanished">Choisir la fonction pour le USB virtual com port</translation>
     </message>
     <message>
         <location/>
         <source>FlexiIO Port</source>
-        <translation></translation>
+        <translation>Port FlexiIO</translation>
     </message>
     <message>
         <location/>
         <source>Flexi Port</source>
-        <translation></translation>
+        <translation>Port Flexi</translation>
     </message>
     <message>
         <location/>
@@ -13129,9 +13625,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Si coché, les données sont uniquement transmises du coordinateur vers le modem Rx.</translation>
     </message>
     <message>
-        <location/>
         <source>Only PPM packets will be transmitted.</source>
-        <translation>Seulement les paquets PPM seront transmis.</translation>
+        <translation type="vanished">Seulement les paquets PPM seront transmis.</translation>
     </message>
     <message>
         <location/>
@@ -13149,9 +13644,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Canal Mini</translation>
     </message>
     <message>
-        <location/>
         <source>PPM packets will be received by this modem.  Must be selected if Coordinator modem is configured for PPM.</source>
-        <translation>Les paquets PPM sont reçus par ce modem. Doit être sélectionné si le modem coordinateur est configuré en PPM.</translation>
+        <translation type="vanished">Les paquets PPM sont reçus par ce modem. Doit être sélectionné si le modem coordinateur est configuré en PPM.</translation>
     </message>
     <message>
         <location/>
@@ -13159,9 +13653,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation></translation>
     </message>
     <message>
-        <location/>
         <source>OPLink configuration</source>
-        <translation>Configuration OPLink</translation>
+        <translation type="vanished">Configuration OPLink</translation>
     </message>
     <message>
         <location/>
@@ -13169,9 +13662,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Unidirectionnel</translation>
     </message>
     <message>
-        <location/>
         <source>Remote modems</source>
-        <translation>Modems distants</translation>
+        <translation type="vanished">Modems distants</translation>
     </message>
     <message>
         <location/>
@@ -13179,9 +13671,8 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>ID Coordinateur</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the coordinator id we currently are bound to.&lt;/p&gt;&lt;p&gt;To manually bind to a specific coordinator, just type&lt;/p&gt;&lt;p&gt;or paste its device id in this box and save.&lt;/p&gt;&lt;p&gt;The device must be rebooted for the binding to take place.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ceci est l&apos;identifiant coordinateur avec lequel vous êtes associé.&lt;/p&gt;&lt;p&gt;Pour s&apos;associer manuellement avec un coordinateur particulier, tapez simplement ou copier/coller l&apos;identifiant de l&apos;appareil dans ce champ puis enregistrer.&lt;/p&gt;&lt;p&gt;L&apos;appareil doit être redémarré pour que l&apos;association soit effective.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ceci est l&apos;identifiant coordinateur avec lequel vous êtes associé.&lt;/p&gt;&lt;p&gt;Pour s&apos;associer manuellement avec un coordinateur particulier, tapez simplement ou copier/coller l&apos;identifiant de l&apos;appareil dans ce champ puis enregistrer.&lt;/p&gt;&lt;p&gt;L&apos;appareil doit être redémarré pour que l&apos;association soit effective.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -13197,6 +13688,107 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <location/>
         <source>430.000 (MHz)</source>
         <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>OPLink Configuration</source>
+        <translation>Configuration OPLink</translation>
+    </message>
+    <message>
+        <location/>
+        <source>AA00FF99</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>The modems current state.</source>
+        <translation>L&apos;état actuel du modem.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>TX Failure</source>
+        <translation>TX Défaillants</translation>
+    </message>
+    <message>
+        <location/>
+        <source>TX Packet Rate</source>
+        <translation>Paquets TX/s</translation>
+    </message>
+    <message>
+        <location/>
+        <source>RX Packet Rate</source>
+        <translation>Paquets RX/s</translation>
+    </message>
+    <message>
+        <location/>
+        <source>RX Level</source>
+        <translation>Niveau RX</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Choose the function for the main port.</source>
+        <translation>Choisir la fonction pour le main port.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Set the maximum TX output power the modem will use (mW)
+0 to disable the modem.</source>
+        <translation>Ajuste la puissance de sortie maximale utilisée par le modem (mW)
+0 pour désactiver le modem.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Only PPM packets will be transmitted and baudrate set to 9600bauds by default.</source>
+        <translation>Seulement les paquets PPM seront transmis et la vitesse fixée à 9600bauds par défaut.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>PPM packets will be received by this modem.
+Must be selected if Coordinator modem is configured for PPM.</source>
+        <translation>Les paquets PPM sont reçus par ce modem.
+Doit être sélectionné si le modem coordinateur est configuré en PPM.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Enter your custom ID for this device as a hexadecimal value,
+this allows device clones. Be sure only one device with this
+ID transmits at the same time!
+Leave blank to use autogenerated Device ID.</source>
+        <translation>Entrez la valeur hexadécimale de l&apos;ID personnalisé pour cet appareil,
+cela permet de cloner des appareils. Soyez certain que seulement un
+seul appareil avec cet ID va émettre à un moment donné !
+Laisser vide pour utiliser l&apos;ID automatiquement généré.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This is the coordinator ID we currently are bound to.
+To manually bind to a specific coordinator, just type
+or paste its device ID in this box and save.
+The device must be rebooted for the binding to take place.</source>
+        <translation>Ceci est l&apos;ID du coordinateur avec lequel vous êtes associé.
+Pour vous associer avec un modem coordinateur particulier,
+tapez ou collez son ID dans cette case et enregistrez.
+L&apos;appareil doit être redémarré pour que l&apos;association soit effective.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Choose the function for the flexi port.</source>
+        <translation>Choisir la fonction pour le flexi port.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Choose the function for the USB virtual com port.</source>
+        <translation>Choisir la fonction pour le port com virtuel USB.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Send settings to the board but do not save to the non-volatile memory.</source>
+        <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Send settings to the board and save to the non-volatile memory.</source>
+        <translation>Envoyer les paramètres sur la carte et enregistrer dans la mémoire.</translation>
     </message>
 </context>
 <context>
@@ -13339,18 +13931,18 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigOutputWidget</name>
     <message>
-        <location filename="../../plugins/config/configoutputwidget.cpp" line="+112"/>
+        <location filename="../../plugins/config/configoutputwidget.cpp" line="+126"/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+265"/>
+        <location line="+269"/>
         <source>%1 Hz</source>
         <translation>%1 Hz</translation>
     </message>
     <message>
-        <location line="-205"/>
+        <location line="-209"/>
         <source>The actuator module is in an error state. This can also occur because there are no inputs. Please fix these before testing outputs.</source>
         <translation>Le module actionneur est en erreur. Cela peut aussi arriver lorsque il n&apos;y a pas d&apos;entrées (Rx radiocommande). Veuillez corriger cela avant de tester les sorties.</translation>
     </message>
@@ -13365,7 +13957,7 @@ p, li { white-space: pre-wrap; }
         <translation>Vous pouvez enregistrer vos changements des réglages de neutre.</translation>
     </message>
     <message>
-        <location line="+256"/>
+        <location line="+296"/>
         <source>OneShot and PWMSync output only works with Receiver Port settings marked with &apos;+OneShot&apos;&lt;br&gt;When using Receiver Port setting &apos;PPM_PIN8+OneShot&apos; &lt;b&gt;&lt;font color=&apos;%1&apos;&gt;Bank %2&lt;/font&gt;&lt;/b&gt; must be set to PWM</source>
         <translation>OneShot et PWMSync fonctionnent uniquement avec les ports récepteur marqués avec &apos;+OneShot&apos;&lt;br&gt;Lors de l&apos;utilisation de la configuration &apos;PPM_PIN8+OneShot&apos; &lt;b&gt;&lt;font color=&apos;%1&apos;&gt;la Banque %2&lt;/font&gt;&lt;/b&gt; doit être réglée sur PWM</translation>
     </message>
@@ -13373,7 +13965,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigRevoHWWidget</name>
     <message>
-        <location filename="../../plugins/config/configrevohwwidget.cpp" line="+96"/>
+        <location filename="../../plugins/config/configrevohwwidget.cpp" line="+99"/>
         <source>Disabled</source>
         <translation>Désactivé</translation>
     </message>
@@ -13442,7 +14034,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PfdQmlGadgetFactory</name>
     <message>
-        <location filename="../../plugins/pfdqml/pfdqmlgadgetfactory.cpp" line="+25"/>
+        <location filename="../../plugins/pfdqml/pfdqmlgadgetfactory.cpp" line="+36"/>
         <source>PFD</source>
         <translation></translation>
     </message>
@@ -13458,7 +14050,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DeviceWidget</name>
     <message>
-        <location filename="../../plugins/uploader/devicewidget.cpp" line="+81"/>
+        <location filename="../../plugins/uploader/devicewidget.cpp" line="+82"/>
         <source>Device ID: </source>
         <translation>ID Périphérique : </translation>
     </message>
@@ -13468,7 +14060,7 @@ p, li { white-space: pre-wrap; }
         <translation>Révision Matériel :</translation>
     </message>
     <message>
-        <location line="+37"/>
+        <location line="+44"/>
         <source>Flash access: </source>
         <translation>Accès flash : </translation>
     </message>
@@ -13553,7 +14145,7 @@ p, li { white-space: pre-wrap; }
         <translation>Firmware chargé : </translation>
     </message>
     <message>
-        <location line="+227"/>
+        <location line="+230"/>
         <location line="+15"/>
         <source>Select firmware file</source>
         <translation>Sélectionner le fichier de firmware</translation>
@@ -13572,7 +14164,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>RunningDeviceWidget</name>
     <message>
-        <location filename="../../plugins/uploader/runningdevicewidget.cpp" line="+67"/>
+        <location filename="../../plugins/uploader/runningdevicewidget.cpp" line="+68"/>
         <source>HW Revision: </source>
         <translation>Révision Matériel : </translation>
     </message>
@@ -13582,7 +14174,7 @@ p, li { white-space: pre-wrap; }
         <translation>CRC Firmware : </translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+45"/>
         <source>BL version: </source>
         <translation>Version BL : </translation>
     </message>
@@ -13663,12 +14255,12 @@ Veuillez sélectionner une zone de la carte à télécharger avec &lt;CTRL&gt;+C
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../../plugins/coreplugin/qml/AboutDialog.qml" line="+86"/>
+        <location filename="../../plugins/coreplugin/qml/AboutDialog.qml" line="+75"/>
         <source>LibrePilot Ground Control Station</source>
         <translation>Station de Contrôle au Sol LibrePilot (GCS)</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+17"/>
         <source>This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</source>
         <translation>Ce programme est un logiciel libre ; vous pouvez le redistribuer et/ou le modifier dans le cadre des termes de la licence GNU General Public Licence publiée par la Free Software Foundation; soit à la version 3 de la Licence, ou (en option) à une version ultérieure. Le programme est fourni EN L&apos;ÉTAT sans AUCUNE GARANTIE D&apos;UN QUELCONQUE TYPE, COMPRENANT LA GARANTIE DE DESIGN, DE COMMERCIALISATION ET D&apos;ERGONOMIE POUR UN USAGE PARTICULIER.</translation>
@@ -14183,7 +14775,7 @@ Veuillez vérifier le fichier.
 <context>
     <name>MonitorWidget</name>
     <message>
-        <location filename="../../plugins/telemetry/monitorwidget.cpp" line="+218"/>
+        <location filename="../../plugins/telemetry/monitorwidget.cpp" line="+206"/>
         <source>Connected</source>
         <translation>Connecté</translation>
     </message>
@@ -14196,7 +14788,7 @@ Veuillez vérifier le fichier.
 <context>
     <name>ConfigStabilizationWidget</name>
     <message>
-        <location filename="../../plugins/config/configstabilizationwidget.cpp" line="+177"/>
+        <location filename="../../plugins/config/configstabilizationwidget.cpp" line="+187"/>
         <source>Settings Bank %1</source>
         <translation>Banque Paramètres %1</translation>
     </message>
@@ -14278,7 +14870,7 @@ pas seulement les champs visibles à l&apos;écran.</translation>
         <translation>avec %1</translation>
     </message>
     <message>
-        <location line="+99"/>
+        <location line="+96"/>
         <source>Input %</source>
         <translation>Entrée %</translation>
     </message>
@@ -14291,7 +14883,7 @@ pas seulement les champs visibles à l&apos;écran.</translation>
 <context>
     <name>ModelUavoProxy</name>
     <message>
-        <location filename="../../plugins/opmap/modeluavoproxy.cpp" line="+358"/>
+        <location filename="../../plugins/opmap/modeluavoproxy.cpp" line="+359"/>
         <source>Path Plan Upload Failed</source>
         <translation>Échec Téléversement Projet de Trajet</translation>
     </message>
@@ -14474,11 +15066,16 @@ et même conduire au crash. A utiliser avec prudence.</translation>
         <source>Channel Value</source>
         <translation>Valeur Canal</translation>
     </message>
+    <message>
+        <location/>
+        <source>Channel input value (µs)</source>
+        <translation>Valeur Canal d&apos;Entrée (µs)</translation>
+    </message>
 </context>
 <context>
     <name>ConfigVehicleTypeWidget</name>
     <message>
-        <location filename="../../plugins/config/configvehicletypewidget.cpp" line="+140"/>
+        <location filename="../../plugins/config/configvehicletypewidget.cpp" line="+143"/>
         <source>Multirotor</source>
         <translation>Multirotor</translation>
     </message>
@@ -14519,7 +15116,7 @@ et même conduire au crash. A utiliser avec prudence.</translation>
 <context>
     <name>OpenPilot::LevelCalibrationModel</name>
     <message>
-        <location filename="../../plugins/config/calibration/levelcalibrationmodel.cpp" line="+72"/>
+        <location filename="../../plugins/config/calibration/levelcalibrationmodel.cpp" line="+73"/>
         <source>Place horizontally and press Save Position...</source>
         <translation>Positionner horizontalement et cliquer sur le bouton Enregistrer Position...</translation>
     </message>
@@ -14542,7 +15139,7 @@ et même conduire au crash. A utiliser avec prudence.</translation>
 <context>
     <name>OpenPilot::SixPointCalibrationModel</name>
     <message>
-        <location filename="../../plugins/config/calibration/sixpointcalibrationmodel.cpp" line="+60"/>
+        <location filename="../../plugins/config/calibration/sixpointcalibrationmodel.cpp" line="+61"/>
         <source>Place horizontally, nose pointing north and press Save Position...</source>
         <translation>Positionner horizontalement, le nez en direction du nord et cliquer sur le bouton Enregistrer Position...</translation>
     </message>
@@ -14671,7 +15268,7 @@ et même conduire au crash. A utiliser avec prudence.</translation>
 <context>
     <name>TimedDialog</name>
     <message>
-        <location filename="../../plugins/uploader/uploadergadgetwidget.cpp" line="-653"/>
+        <location filename="../../plugins/uploader/uploadergadgetwidget.cpp" line="-652"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
@@ -14777,7 +15374,7 @@ et même conduire au crash. A utiliser avec prudence.</translation>
 <context>
     <name>ConfigRevoWidget</name>
     <message>
-        <location filename="../../plugins/config/configrevowidget.cpp" line="+331"/>
+        <location filename="../../plugins/config/configrevowidget.cpp" line="+383"/>
         <source>Temperature: %1°C</source>
         <translation>Température : %1°C</translation>
     </message>
@@ -14790,6 +15387,31 @@ et même conduire au crash. A utiliser avec prudence.</translation>
         <location line="+5"/>
         <source>Sampled range: %1°C</source>
         <translation>Plage d&apos;échantillonnage : %1°C</translation>
+    </message>
+    <message>
+        <location line="+294"/>
+        <source>Source invalid</source>
+        <translation>Source invalide</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Currently no attitude estimation algorithm uses magnetometer or there is something wrong</source>
+        <translation>Actuellement l&apos;algorithme d&apos;estimation de l&apos;attitude n&apos;utilise pas de magnétomètre ou quelque chose ne va pas</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Onboard magnetometer</source>
+        <translation>Magnétomètre interne</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Auxiliary magnetometer</source>
+        <translation>Magnétomètre auxiliaire</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Unknown</source>
+        <translation>Inconnu</translation>
     </message>
 </context>
 <context>
@@ -14823,9 +15445,8 @@ p, li { white-space: pre-wrap; }
         <translation>Page d&apos;Assistant</translation>
     </message>
     <message>
-        <location/>
         <source>Standard ESC 50Hz</source>
-        <translation>Variateur Standard 50Hz</translation>
+        <translation type="vanished">Variateur Standard 50Hz</translation>
     </message>
     <message>
         <location/>
@@ -14833,10 +15454,9 @@ p, li { white-space: pre-wrap; }
         <translation>Variateur Standard</translation>
     </message>
     <message>
-        <location/>
         <source>Turbo PWM ESC 400Hz</source>
-        <translatorcomment>or 500Hz ?</translatorcomment>
-        <translation type="unfinished">Variateur Turbo PWM 400Hz</translation>
+        <translatorcomment>TODO: or 500Hz ?</translatorcomment>
+        <translation type="obsolete">Variateur Turbo PWM 400Hz</translation>
     </message>
     <message>
         <location/>
@@ -14864,6 +15484,21 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt; font-weight:600;&quot;&gt;Configuration des Signaux de Sortie&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Afin de régler de manière optimale la configuration des signaux de sortie qui pilotent vos moteurs, l&apos;assistant doit connaître le type de contrôleur de vitesse (ESC) utilisé et leurs capacités.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:10pt;&quot;&gt;Veuillez sélectionner une des options ci-dessous. En cas de doute sur les possibilités de vos ESC, laissez l&apos;option sélectionnée par défaut et continuez l&apos;assistant.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Standard ESC: Slow refresh rate (50Hz), not recommended for Multirotors.</source>
+        <translation>Esc Standard : Vitesse de rafraîchissement lente (50Hz), non recommandé pour les multirotors.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Rapid ESC: Usually Simonk, 490Hz refresh rate.</source>
+        <translation>Esc rapide : Généralement Simonk, vitesse de rafraîchissement de 490Hz.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>OneShot ESC: BLHeli, Kiss...</source>
+        <translation>ESC OneShot : BLHeli, Kiss...</translation>
     </message>
 </context>
 <context>
@@ -15247,16 +15882,21 @@ Veuillez essayer à nouveau.</translation>
         <source>Import</source>
         <translation>Importer</translation>
     </message>
+    <message>
+        <location/>
+        <source>Sparky2</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>AirSpeedPage</name>
     <message>
-        <location filename="../../plugins/setupwizard/pages/airspeedpage.cpp" line="+69"/>
+        <location filename="../../plugins/setupwizard/pages/airspeedpage.cpp" line="+77"/>
         <source>Estimated</source>
         <translation>Estimée</translation>
     </message>
     <message>
-        <location line="-6"/>
+        <location line="-7"/>
         <source>Airspeed Sensor Selection</source>
         <translation>Sélection Capteur Vitesse Air</translation>
     </message>
@@ -15274,7 +15914,7 @@ Note : si une configuration d&apos;entrée Rc utilise le port Flexi, seule l&apo
 </translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>This option uses an intelligent estimation algorithm which utilizes the INS/GPS to estimate wind speed and subtract it from ground speed obtained from the GPS.
 
 This solution is highly accurate in normal level flight with the drawback of being less accurate in rapid altitude changes.
@@ -15318,7 +15958,7 @@ Le choix de cette option va paramétrer le Flexi-Port de votre carte en mode I2C
 <context>
     <name>GpsPage</name>
     <message>
-        <location filename="../../plugins/setupwizard/pages/gpspage.cpp" line="+55"/>
+        <location filename="../../plugins/setupwizard/pages/gpspage.cpp" line="+71"/>
         <source>Please select the type of GPS you wish to use. As well as OpenPilot hardware, 3rd party GPSs are supported also, although please note that performance could be less than optimal as not all GPSs are created equal.
 
 Note: NMEA only GPSs perform poorly on VTOL aircraft and are not recommended for Helis and MultiRotors.
@@ -15355,7 +15995,32 @@ Note: for the OpenPilot v8 GPS please select the U-Blox option.</source>
 A noter : Pour le GPS OpenPilot v8, veuillez choisir l&apos;option GPS U-Blox.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
+        <source>Naza GPS</source>
+        <translation>GPS Naza</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select this option to use the Naza GPS with integrated Magnetometer.</source>
+        <translation>Sélectionnez cette option pour utiliser le GPS Naza avec Magnétomètre intégré.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>U-Blox Based + Magnetometer</source>
+        <translation>GPS U-Blox + Magnétomètre</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select this option for the generic U-Blox chipset based GPS + I2C Magnetometer.
+
+GPS is connected to MainPort and two wires I2C to FlexiPort.</source>
+        <translation>Sélectionnez cette option pour utiliser le GPS U-Blox générique + Magnétomètre I2C.
+
+Le GPS est connecté au port Main et les deux fils de l&apos;I2C sur le port Flexi.
+</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Select this option for the OpenPilot V8 GPS or generic U-Blox chipset based GPS.</source>
         <translation>Sélectionnez cette option pour utiliser le GPS OpenPilot v8 ou un GPS U-Blox générique.</translation>
     </message>
@@ -15370,12 +16035,12 @@ A noter : Pour le GPS OpenPilot v8, veuillez choisir l&apos;option GPS U-Blox.</
         <translation>Basé sur U-Blox</translation>
     </message>
     <message>
-        <location line="-19"/>
+        <location line="-30"/>
         <source>GPS Selection</source>
         <translation>Sélection GPS</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+35"/>
         <source>NMEA Based</source>
         <translation>Basé sur NMEA</translation>
     </message>
@@ -15393,8 +16058,8 @@ A noter : Pour le GPS OpenPilot v8, veuillez choisir l&apos;option GPS U-Blox.</
         <translation>Démarrer</translation>
     </message>
     <message>
-        <location filename="../../plugins/setupwizard/pages/esccalibrationpage.cpp" line="+49"/>
-        <location line="+58"/>
+        <location filename="../../plugins/setupwizard/pages/esccalibrationpage.cpp" line="+50"/>
+        <location line="+63"/>
         <location line="+42"/>
         <location line="+7"/>
         <location line="+9"/>
@@ -15462,7 +16127,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>UAVObjectBrowserWidget</name>
     <message>
-        <location filename="../../plugins/uavobjectbrowser/uavobjectbrowserwidget.cpp" line="+294"/>
+        <location filename="../../plugins/uavobjectbrowser/uavobjectbrowserwidget.cpp" line="+341"/>
         <location line="+17"/>
         <source>Name</source>
         <translation>Nom</translation>
@@ -15591,35 +16256,50 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigOPLinkWidget</name>
     <message>
-        <location filename="../../plugins/config/configoplinkwidget.cpp" line="+154"/>
-        <location line="+9"/>
-        <location line="+9"/>
-        <location line="+9"/>
         <source>Unbind</source>
-        <translation>Dissocier</translation>
+        <translation type="vanished">Dissocier</translation>
     </message>
     <message>
-        <location line="-27"/>
-        <location line="+9"/>
-        <location line="+9"/>
-        <location line="+9"/>
         <source>Bind</source>
-        <translation>Associer</translation>
+        <translation type="vanished">Associer</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location filename="../../plugins/config/configoplinkwidget.cpp" line="+180"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
     <message>
-        <location line="+107"/>
-        <source>Information</source>
-        <translation>Information</translation>
+        <location line="+110"/>
+        <source>Please select a port for PPM function.</source>
+        <translation>Veuillez sélectionner un port pour la fonction PPM.</translation>
     </message>
     <message>
-        <location line="+0"/>
+        <location line="+5"/>
+        <source>Only PPM packets will be transmitted and baudrate set to 9600 bauds by default.</source>
+        <translation>Seulement les paquets PPM seront transmis et la vitesse fixée à 9600bauds par défaut.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PPM packets will be transmitted by this modem.</source>
+        <translation>Les paquets PPM seront transmis par ce modem.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Only PPM packets will be received and baudrate set to 9600 bauds by default.</source>
+        <translation>Seulement les paquets PPM seront reçus et la vitesse fixée à 9600bauds par défaut.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PPM packets will be received by this modem.</source>
+        <translation>Les paquets PPM seront reçus par ce modem.</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="vanished">Information</translation>
+    </message>
+    <message>
         <source>To apply the changes when binding/unbinding the board must be rebooted or power cycled.</source>
-        <translation>Pour appliquer les changements d&apos;association/dissociation la carte doit être redémarrée ou débranchée/rebranchée.</translation>
+        <translation type="vanished">Pour appliquer les changements d&apos;association/dissociation la carte doit être redémarrée ou débranchée/rebranchée.</translation>
     </message>
 </context>
 <context>
@@ -15740,18 +16420,18 @@ IMPORTANT : Ces nouveaux paramètres ne sont pas encore enregistrés sur la cart
     <message>
         <location/>
         <source>Surface: has reversible motor controlled by throttle stick, plus yaw control (2 channels)</source>
-        <translation>Terrestre : A un moteur inversable contrôlé par le manche des gaz plus une direction Yaw (2 canaux)</translation>
+        <translation>Terrestre : possède un moteur inversable contrôlé par le manche des gaz plus une direction (2 canaux)</translation>
     </message>
     <message>
         <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If selecting the Helicopter option, please engage throttle hold now.&lt;/p&gt;&lt;p&gt;If selecting the Surface option, the &lt;b&gt;Flight Mode Count&lt;/b&gt; will be set to be 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si l&apos;option Hélicoptère est sélectionnée, veuillez maintenir le manche des gaz maintenant.&lt;/p&gt;&lt;p&gt;Si l&apos;option Terrestre est sélectionnée, le nombre de &lt;b&gt;Modes de Vol&lt;/b&gt; sera fixé à 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Si l&apos;option Hélicoptère est sélectionnée, veuillez maintenir le manche des gaz maintenant.&lt;/p&gt;&lt;p&gt;Si l&apos;option Terrestre est sélectionnée, le nombre de &lt;b&gt;Modes de Vol&lt;/b&gt; sera fixé à 1.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>ConfigCcpmWidget</name>
     <message>
-        <location filename="../../plugins/config/cfg_vehicletypes/configccpmwidget.cpp" line="+1112"/>
+        <location filename="../../plugins/config/cfg_vehicletypes/configccpmwidget.cpp" line="+1118"/>
         <source>&lt;h1&gt;Swashplate Leveling Routine&lt;/h1&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15994,7 +16674,7 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
         <translation>&amp;Ne pas afficher ce message à nouveau.</translation>
     </message>
     <message>
-        <location line="+152"/>
+        <location line="+161"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
     </message>
@@ -16024,22 +16704,22 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
     <message>
         <location/>
         <source>Receiver Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Récepteur</translation>
     </message>
     <message>
         <location/>
         <source>USB HID Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonction HID USB</translation>
     </message>
     <message>
         <location/>
         <source>USB VCP Function</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonction VCP USB</translation>
     </message>
     <message>
         <location/>
         <source>Main Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Main</translation>
     </message>
     <message>
         <location/>
@@ -16049,7 +16729,7 @@ Il est suggéré que si cela est une première configuration de votre contrôleu
     <message>
         <location/>
         <source>Flexi Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Flexi</translation>
     </message>
     <message>
         <location/>
@@ -16084,7 +16764,7 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
 <context>
     <name>ConfigFixedWingWidget</name>
     <message>
-        <location filename="../../plugins/config/cfg_vehicletypes/configfixedwingwidget.cpp" line="+616"/>
+        <location filename="../../plugins/config/cfg_vehicletypes/configfixedwingwidget.cpp" line="+835"/>
         <source>Rudders are optional for Elevon frame</source>
         <translation>Les dérives sont optionnelles sur une aile volante (elevon)</translation>
     </message>
@@ -16115,8 +16795,163 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
     <message>
         <location line="+9"/>
+        <location line="+22"/>
+        <location line="+17"/>
         <source>Channel already used</source>
         <translation>Canal déjà utilisé</translation>
+    </message>
+    <message>
+        <location line="-13"/>
+        <source>Select first output channel for Accessory%1 RcInput</source>
+        <translation>Sélectionnez le premier canal de sortie pour l&apos;entrée RC Accessory%1</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Select second output channel for Accessory%1 RcInput</source>
+        <translation>Sélectionnez le deuxième canal de sortie pour l&apos;entrée RC Accessory%1</translation>
+    </message>
+</context>
+<context>
+    <name>Sparky2HWWidget</name>
+    <message>
+        <location filename="../../plugins/config/configsparky2hwwidget.ui"/>
+        <source>Form</source>
+        <translation>Formulaire</translation>
+    </message>
+    <message>
+        <location/>
+        <source>HW settings</source>
+        <translation>Paramètres Matériels</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Changes on this page only take effect after board reset or power cycle</source>
+        <translation>Les changements sur cette page ne prendront effet qu&apos;après un reset ou une coupure d&apos;alimentation</translation>
+    </message>
+    <message>
+        <location/>
+        <source>I2C (under)</source>
+        <translation>I2C (en dessous)</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Speed</source>
+        <translation>Vitesse</translation>
+    </message>
+    <message>
+        <location/>
+        <source>USB VCP Function</source>
+        <translation>Fonction VCP USB</translation>
+    </message>
+    <message>
+        <location/>
+        <source>USB HID Function</source>
+        <translation>Fonction HID USB</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Receiver Port</source>
+        <translation>Port Récepteur</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Flexi Port</source>
+        <translation>Port Flexi</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Protocol</source>
+        <translation>Protocole</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Main Port</source>
+        <translation>Port Main</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Takes you to the wiki page</source>
+        <translation>Vous renvoie à la page wiki</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Send to board but don&apos;t write in SD.
+Beware of not locking yourself out!</source>
+        <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
+Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Apply</source>
+        <translation>Appliquer</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Applies and Saves all settings to SD.
+Beware of not locking yourself out!</source>
+        <translation>Applique et Enregistre tous les paramètres dans la SD.
+Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Save</source>
+        <translation>Enregistrer</translation>
+    </message>
+</context>
+<context>
+    <name>FailsafeChannelForm</name>
+    <message>
+        <location filename="../../plugins/config/failsafechannelform.ui"/>
+        <source>Form</source>
+        <translation>Formulaire</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Channel value</source>
+        <translation>Valeur canal</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Channel Value relative to channel Neutral</source>
+        <translation type="unfinished">Valeur Canal, relative au Neutre</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Value</source>
+        <translation>Valeur</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Channel value in %</source>
+        <translation>Valeur canal en %</translation>
+    </message>
+    <message>
+        <location/>
+        <source>%</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Channel function</source>
+        <translation>Fonction canal</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Function</source>
+        <translation>Fonction</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Text</source>
+        <translation>Texte</translation>
+    </message>
+</context>
+<context>
+    <name>StreamServicePlugin</name>
+    <message>
+        <location filename="../../plugins/streamservice/streamserviceplugin.cpp" line="+69"/>
+        <source>Couldn&apos;t start StreamService: </source>
+        <translation>Impossible de démarrer le service de diffusion : </translation>
     </message>
 </context>
 </TS>

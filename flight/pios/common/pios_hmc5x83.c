@@ -48,6 +48,7 @@ typedef struct {
     uint16_t magCountMax;
     uint16_t magCount;
     volatile bool data_ready;
+    int16_t  magData[3];
     bool     hw_error;
     uint32_t lastConfigTime;
 } pios_hmc5x83_dev_data_t;
@@ -712,7 +713,6 @@ int32_t PIOS_HMC5x83_I2C_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint
 bool PIOS_HMC5x83_driver_Test(__attribute__((unused)) uintptr_t context)
 {
     return true; // Do not do tests now, Sensors module takes this rather too seriously.
-// return !PIOS_HMC5x83_Test((pios_hmc5x83_dev_t)context);
 }
 
 void PIOS_HMC5x83_driver_Reset(__attribute__((unused)) uintptr_t context) {}
@@ -726,26 +726,14 @@ void PIOS_HMC5x83_driver_get_scale(float *scales, uint8_t size, __attribute__((u
 void PIOS_HMC5x83_driver_fetch(void *data, uint8_t size, uintptr_t context)
 {
     PIOS_Assert(size > 0);
-    int16_t mag[3];
-
     pios_hmc5x83_dev_data_t *dev = dev_validate((pios_hmc5x83_dev_t)context);
 
     PIOS_SENSORS_3Axis_SensorsWithTemp *tmp = data;
 
-    if (!dev->hw_error && (PIOS_HMC5x83_ReadMag((pios_hmc5x83_dev_t)context, mag) == 0)) {
-        tmp->count = 1;
-        tmp->sample[0].x = mag[0];
-        tmp->sample[0].y = mag[1];
-        tmp->sample[0].z = mag[2];
-    } else {
-        tmp->count = 1;
-        tmp->sample[0].x = 0;
-        tmp->sample[0].y = 0;
-        tmp->sample[0].z = 0;
-
-        dev->hw_error    = true;
-    }
-
+    tmp->count = 1;
+    tmp->sample[0].x = dev->magData[0];
+    tmp->sample[0].y = dev->magData[1];
+    tmp->sample[0].z = dev->magData[2];
     tmp->temperature = 0;
 }
 
@@ -769,7 +757,20 @@ bool PIOS_HMC5x83_driver_poll(uintptr_t context)
         }
     }
 
-    return PIOS_HMC5x83_NewDataAvailable((pios_hmc5x83_dev_t)context);
+    if (dev->hw_error) {
+        return false;
+    }
+
+    if (!PIOS_HMC5x83_NewDataAvailable((pios_hmc5x83_dev_t)context)) {
+        return false;
+    }
+
+    if (PIOS_HMC5x83_ReadMag((pios_hmc5x83_dev_t)context, dev->magData) != 0) {
+        dev->hw_error = true;
+        return false;
+    }
+
+    return true;
 }
 
 #endif /* PIOS_INCLUDE_HMC5x83 */

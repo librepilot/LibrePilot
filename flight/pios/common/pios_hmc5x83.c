@@ -48,6 +48,8 @@ typedef struct {
     uint16_t magCountMax;
     uint16_t magCount;
     volatile bool data_ready;
+    bool hw_error;
+    uint32_t lastConfigTime;
 } pios_hmc5x83_dev_data_t;
 
 static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev);
@@ -162,7 +164,7 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
     }
 
     if (PIOS_HMC5x83_Config(dev) != 0) {
-        return (pios_hmc5x83_dev_t)NULL;
+        dev->hw_error = true;
     }
 
     dev->data_ready = false;
@@ -241,6 +243,8 @@ static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev)
     uint8_t CTRLA = 0x00;
     uint8_t MODE  = 0x00;
 
+    dev->lastConfigTime = PIOS_DELAY_GetRaw();
+
     const struct pios_hmc5x83_cfg *cfg = dev->cfg;
 
     dev->CTRLB = 0;
@@ -262,6 +266,15 @@ static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev)
 
     // Mode register
     if (cfg->Driver->Write((pios_hmc5x83_dev_t)dev, PIOS_HMC5x83_MODE_REG, MODE) != 0) {
+        return -1;
+    }
+
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+
+    if (PIOS_HMC5x83_Test((pios_hmc5x83_dev_t)dev) != 0) {
         return -1;
     }
 
@@ -433,6 +446,12 @@ int32_t PIOS_HMC5x83_Test(pios_hmc5x83_dev_t handler)
     uint8_t mode_read;
     int16_t values[3];
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
+
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+    PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
 
     /* Verify that ID matches (HMC5x83 ID is null-terminated ASCII string "H43") */
     char id[4];
@@ -690,9 +709,10 @@ int32_t PIOS_HMC5x83_I2C_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint
 #endif /* PIOS_INCLUDE_I2C */
 
 /* PIOS sensor driver implementation */
-bool PIOS_HMC5x83_driver_Test(uintptr_t context)
+bool PIOS_HMC5x83_driver_Test(__attribute__((unused)) uintptr_t context)
 {
-    return !PIOS_HMC5x83_Test((pios_hmc5x83_dev_t)context);
+    return true; // Do not do tests now, Sensors module takes this rather too seriously.
+//    return !PIOS_HMC5x83_Test((pios_hmc5x83_dev_t)context);
 }
 
 void PIOS_HMC5x83_driver_Reset(__attribute__((unused)) uintptr_t context) {}
@@ -707,17 +727,54 @@ void PIOS_HMC5x83_driver_fetch(void *data, uint8_t size, uintptr_t context)
 {
     PIOS_Assert(size > 0);
     int16_t mag[3];
-    PIOS_HMC5x83_ReadMag((pios_hmc5x83_dev_t)context, mag);
+
+    pios_hmc5x83_dev_data_t *dev = dev_validate((pios_hmc5x83_dev_t)context);
+
     PIOS_SENSORS_3Axis_SensorsWithTemp *tmp = data;
-    tmp->count = 1;
-    tmp->sample[0].x = mag[0];
-    tmp->sample[0].y = mag[1];
-    tmp->sample[0].z = mag[2];
+    
+    if(!dev->hw_error && (PIOS_HMC5x83_ReadMag((pios_hmc5x83_dev_t)context, mag) == 0))
+    {
+        tmp->count = 1;
+        tmp->sample[0].x = mag[0];
+        tmp->sample[0].y = mag[1];
+        tmp->sample[0].z = mag[2];
+    }
+    else
+    {
+        tmp->count = 1;
+        tmp->sample[0].x = 0;
+        tmp->sample[0].y = 0;
+        tmp->sample[0].z = 0;
+        
+        dev->hw_error = true;
+    }
+
     tmp->temperature = 0;
+
 }
+
 
 bool PIOS_HMC5x83_driver_poll(uintptr_t context)
 {
+    pios_hmc5x83_dev_data_t *dev = dev_validate((pios_hmc5x83_dev_t)context);
+    
+    if(dev->hw_error) {
+
+        if(PIOS_DELAY_DiffuS(dev->lastConfigTime) < 1000000) {
+            return false;
+        }
+
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+
+        if(PIOS_HMC5x83_Config(dev) == 0) {
+            dev->hw_error = false;
+        }
+
+    }
+
     return PIOS_HMC5x83_NewDataAvailable((pios_hmc5x83_dev_t)context);
 }
 

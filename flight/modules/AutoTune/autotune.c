@@ -662,6 +662,7 @@ static void InitSmoothQuick(bool loadToggle)
         accessoryToUse = SmoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
         systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
+
     case SMOOTH_QUICK_TOGGLE_BASE + 3: // use flight mode switch toggle with 3 points
     case SMOOTH_QUICK_TOGGLE_BASE + 5: // use flight mode switch toggle with 5 points
     case SMOOTH_QUICK_TOGGLE_BASE + 7: // use flight mode switch toggle with 7 points
@@ -674,6 +675,7 @@ static void InitSmoothQuick(bool loadToggle)
         }
         systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
+
     case SMOOTH_QUICK_DISABLED:
     default:
         // disable PID changing with flight mode switch

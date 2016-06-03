@@ -274,23 +274,7 @@ static bool check_stabilization_settings(int index, bool multirotor, bool copter
             if (modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_MANUAL) {
                 return false;
             }
-#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
-            // we want to be able to use systemident with or without autotune
-            // If this axis allows enabling an autotune behavior without the module
-            // running then set an alarm now that autotune module initializes the
-            // appropriate objects
-            // if ((modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) &&
-            // (!TaskMonitorQueryRunning(TASKINFO_RUNNING_AUTOTUNE))) {
-            // return false;
-            // }
-#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         }
-#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
-        // don't allow playing with systemident (autotune) on thrust (yet)
-        if (modes[FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_THRUST] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_SYSTEMIDENT) {
-            return false;
-        }
-#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
     }
 
     if (gpsassisted) {

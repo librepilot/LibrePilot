@@ -1974,46 +1974,6 @@ Raison : %3</translation>
     </message>
 </context>
 <context>
-    <name>ModelViewOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Formulaire</translation>
-    </message>
-    <message>
-        <source>3D model:</source>
-        <translation type="vanished">Modèle 3D :</translation>
-    </message>
-    <message>
-        <source>Background image:</source>
-        <translation type="vanished">Image d&apos;arrière plan :</translation>
-    </message>
-    <message>
-        <source>VBO allow for performance gains for GPUs that support it (most cards).  This may cause cards with faulty drivers to crash.</source>
-        <translatorcomment>Les VBOs (de l&apos;anglais Vertex Buffer Object dont une traduction pourrait être objet tampon de vertex) @Wikipedia</translatorcomment>
-        <translation type="vanished">VBO permet des gains de performance avec les cartes graphiques le supportant (la plupart). Cela peut entraîner des plantages avec des pilotes défectueux.</translation>
-    </message>
-    <message>
-        <source>Enable VBOs:</source>
-        <translation type="vanished">Activer les VBOs :</translation>
-    </message>
-    <message>
-        <source>Select the image that is shown in the background.</source>
-        <translation type="vanished">Sélectionner l&apos;image affichée en fond.</translation>
-    </message>
-    <message>
-        <source>Select the 3D model file here.</source>
-        <translation type="vanished">Sélectionner ici le modèle 3D.</translation>
-    </message>
-    <message>
-        <source>Click to enable the use of Vertical Blanking.
-It is not enabled by default because some graphic cards do not
-support it, and crash the GCS. Enabling improves performance, though, so you can experiment at your own risk.</source>
-        <translation type="vanished">Cocher pour activer VBO.
-Ce n&apos;est pas activé par défaut car certaines cartes ne le supportent pas et plantent GCS.
-Cela améliore les performances, mais c&apos;est à utiliser à vos risques et périls.</translation>
-    </message>
-</context>
-<context>
     <name>NotifyPluginOptionsPage</name>
     <message>
         <location filename="../../plugins/notify/notifypluginoptionspage.ui"/>
@@ -2765,13 +2725,6 @@ uniquement lorsque les valeurs changent</translation>
     </message>
 </context>
 <context>
-    <name>QuaZipFile</name>
-    <message>
-        <source>ZIP/UNZIP API error %1</source>
-        <translation type="vanished">Erreur %1 de l&apos;API ZIP/UNZIP</translation>
-    </message>
-</context>
-<context>
     <name>ConfigGadgetFactory</name>
     <message>
         <location filename="../../plugins/config/configgadgetfactory.cpp" line="+36"/>
@@ -2866,21 +2819,6 @@ uniquement lorsque les valeurs changent</translation>
         <location filename="../../plugins/hitl/hitlfactory.cpp" line="+35"/>
         <source>HITL Simulation</source>
         <translation>Simulation HITL</translation>
-    </message>
-</context>
-<context>
-    <name>ModelViewGadgetOptionsPage</name>
-    <message>
-        <source>3D model (*.dae *.3ds)</source>
-        <translation type="vanished">Modèle 3D (*.dae *.3ds)</translation>
-    </message>
-    <message>
-        <source>Choose 3D model</source>
-        <translation type="vanished">Choisir le modèle 3D</translation>
-    </message>
-    <message>
-        <source>Choose background image</source>
-        <translation type="vanished">Choisir l&apos;image d&apos;arrière plan</translation>
     </message>
 </context>
 <context>
@@ -5998,10 +5936,6 @@ p, li { white-space: pre-wrap; }
         <translation>Formulaire</translation>
     </message>
     <message>
-        <source>RC Input</source>
-        <translation type="vanished">Entrées RC</translation>
-    </message>
-    <message>
         <location/>
         <source>Roll/Pitch/Yaw stick deadband</source>
         <translation>Zone morte des manches Roll/Pitch/Yaw</translation>
@@ -6561,10 +6495,6 @@ Le failsafe doit toujours être testé avant chaque vol.</translation>
         <location/>
         <source>Update rate:</source>
         <translation>Fréquence de rafraîchissement :</translation>
-    </message>
-    <message>
-        <source>Motors spin at neutral output when armed and throttle below zero (be careful)</source>
-        <translation type="vanished">Armés, les moteurs tournent avec la sortie au neutre et les gaz à zéro (soyez prudent)</translation>
     </message>
     <message>
         <location/>
@@ -9203,26 +9133,6 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
         <translation>Fichier  QML :</translation>
     </message>
     <message>
-        <source>Use OpenGL</source>
-        <translation type="vanished">Utiliser OpenGL</translation>
-    </message>
-    <message>
-        <source>Show Terrain:</source>
-        <translation type="vanished">Afficher terrain :</translation>
-    </message>
-    <message>
-        <source>OsgEarth file:</source>
-        <translation type="vanished">Fichier OsgEarth :</translation>
-    </message>
-    <message>
-        <source>Use actual location</source>
-        <translation type="vanished">Utiliser la position actuelle</translation>
-    </message>
-    <message>
-        <source>Use pre-defined location:</source>
-        <translation type="vanished">Utiliser une position prédéfinie :</translation>
-    </message>
-    <message>
         <location/>
         <source>Latitude:</source>
         <translation>Latitude :</translation>
@@ -9279,17 +9189,9 @@ les données en cache</translation>
         <translation>Sélectionner le fichier d&apos;Image de Fond</translation>
     </message>
     <message>
-        <source>Choose QML file</source>
-        <translation type="vanished">Choisir un fichier QML</translation>
-    </message>
-    <message>
         <location line="-32"/>
         <source>OsgEarth (*.earth)</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Choose OsgEarth terrain file</source>
-        <translation type="vanished">Choisir un fichier de terrain OsgEarth</translation>
     </message>
     <message>
         <location filename="../../plugins/pfdqml/pfdqmlgadgetoptionspage.ui"/>
@@ -10179,10 +10081,6 @@ p, li { white-space: pre-wrap; }
 </context>
 <context>
     <name>SurfacePage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Page d&apos;Assistant</translation>
-    </message>
     <message>
         <location filename="../../plugins/setupwizard/pages/surfacepage.cpp" line="+51"/>
         <source>Ground Vehicle Configuration</source>
@@ -11259,13 +11157,6 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
         <location filename="../../plugins/magicwaypoint/magicwaypointgadgetfactory.cpp" line="+35"/>
         <source>Magic Waypoint</source>
         <translation>Waypoint Magique </translation>
-    </message>
-</context>
-<context>
-    <name>ModelViewGadgetFactory</name>
-    <message>
-        <source>ModelView</source>
-        <translation type="obsolete">VueModèle</translation>
     </message>
 </context>
 <context>
@@ -13079,41 +12970,9 @@ Les valeurs classiques sont de 50% en configuration + et X sur les quadricoptèr
         <translation>Canaux de sortie moteurs</translation>
     </message>
     <message>
-        <source>1</source>
-        <translation type="vanished">1</translation>
-    </message>
-    <message>
         <location/>
         <source>Assign your motor output channels using the drawing above as a reference. Respect propeller rotation.</source>
         <translation>Affecter les canaux de sortie des moteurs en utilisant le dessin ci-dessus comme référence. Respectez le sens des moteurs.</translation>
-    </message>
-    <message>
-        <source>2</source>
-        <translation type="vanished">2</translation>
-    </message>
-    <message>
-        <source>3</source>
-        <translation type="vanished">3</translation>
-    </message>
-    <message>
-        <source>4</source>
-        <translation type="vanished">4</translation>
-    </message>
-    <message>
-        <source>5</source>
-        <translation type="vanished">5</translation>
-    </message>
-    <message>
-        <source>6</source>
-        <translation type="vanished">6</translation>
-    </message>
-    <message>
-        <source>7</source>
-        <translation type="vanished">7</translation>
-    </message>
-    <message>
-        <source>8</source>
-        <translation type="vanished">8</translation>
     </message>
     <message>
         <location/>
@@ -13379,17 +13238,9 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation></translation>
     </message>
     <message>
-        <source>Send settings to the board but do not save to the non-volatile memory</source>
-        <translation type="vanished">Envoyer les paramètres sur la carte sans enregistrer dans la mémoire non volatile</translation>
-    </message>
-    <message>
         <location/>
         <source>Apply</source>
         <translation>Appliquer</translation>
-    </message>
-    <message>
-        <source>Send settings to the board and save to the non-volatile memory</source>
-        <translation type="vanished">Envoyer les paramètres sur la carte et enregistrer dans la mémoire non volatile</translation>
     </message>
     <message>
         <location/>
@@ -13405,10 +13256,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <location/>
         <source>Link State</source>
         <translation>État Liaison</translation>
-    </message>
-    <message>
-        <source>The modems current state</source>
-        <translation type="vanished">L&apos;état actuel du modem</translation>
     </message>
     <message>
         <location/>
@@ -13511,10 +13358,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Tx Perdus</translation>
     </message>
     <message>
-        <source>Tx Failure</source>
-        <translation type="vanished">TX Défaillants</translation>
-    </message>
-    <message>
         <location/>
         <source>Free Heap</source>
         <translation type="unfinished"></translation>
@@ -13550,10 +13393,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>%v dBm</translation>
     </message>
     <message>
-        <source>Bind</source>
-        <translation type="vanished">Associer</translation>
-    </message>
-    <message>
         <location/>
         <source>This modem will be a coordinator and other modems will bind to it.</source>
         <translation>Ce modem sera coordinateur et les autres modems s&apos;associeront avec lui.</translation>
@@ -13584,30 +13423,14 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Port VCP</translation>
     </message>
     <message>
-        <source>Choose the function for the flexi port</source>
-        <translation type="vanished">Choisir la fonction pour le flexi port</translation>
-    </message>
-    <message>
         <location/>
         <source>Main Port</source>
         <translation>Port Main</translation>
     </message>
     <message>
-        <source>Choose the function for the main port</source>
-        <translation type="vanished">Choisir la fonction pour le main port</translation>
-    </message>
-    <message>
-        <source>Set the maximum TX output power the modem will use (mW)</source>
-        <translation type="vanished">Ajuste la puissance maximale de sortie utilisée par le modem (mW)</translation>
-    </message>
-    <message>
         <location/>
         <source>Max Power</source>
         <translation>Puissance Maxi</translation>
-    </message>
-    <message>
-        <source>Choose the function for the USB virtual com port</source>
-        <translation type="vanished">Choisir la fonction pour le USB virtual com port</translation>
     </message>
     <message>
         <location/>
@@ -13625,10 +13448,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Si coché, les données sont uniquement transmises du coordinateur vers le modem Rx.</translation>
     </message>
     <message>
-        <source>Only PPM packets will be transmitted.</source>
-        <translation type="vanished">Seulement les paquets PPM seront transmis.</translation>
-    </message>
-    <message>
         <location/>
         <source>PPM Only</source>
         <translation>PPM Seul</translation>
@@ -13644,17 +13463,9 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Canal Mini</translation>
     </message>
     <message>
-        <source>PPM packets will be received by this modem.  Must be selected if Coordinator modem is configured for PPM.</source>
-        <translation type="vanished">Les paquets PPM sont reçus par ce modem. Doit être sélectionné si le modem coordinateur est configuré en PPM.</translation>
-    </message>
-    <message>
         <location/>
         <source>PPM</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>OPLink configuration</source>
-        <translation type="vanished">Configuration OPLink</translation>
     </message>
     <message>
         <location/>
@@ -13662,17 +13473,9 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <translation>Unidirectionnel</translation>
     </message>
     <message>
-        <source>Remote modems</source>
-        <translation type="vanished">Modems distants</translation>
-    </message>
-    <message>
         <location/>
         <source>Coordinator ID</source>
         <translation>ID Coordinateur</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the coordinator id we currently are bound to.&lt;/p&gt;&lt;p&gt;To manually bind to a specific coordinator, just type&lt;/p&gt;&lt;p&gt;or paste its device id in this box and save.&lt;/p&gt;&lt;p&gt;The device must be rebooted for the binding to take place.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ceci est l&apos;identifiant coordinateur avec lequel vous êtes associé.&lt;/p&gt;&lt;p&gt;Pour s&apos;associer manuellement avec un coordinateur particulier, tapez simplement ou copier/coller l&apos;identifiant de l&apos;appareil dans ce champ puis enregistrer.&lt;/p&gt;&lt;p&gt;L&apos;appareil doit être redémarré pour que l&apos;association soit effective.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
@@ -15455,18 +15258,9 @@ p, li { white-space: pre-wrap; }
         <translation>Page d&apos;Assistant</translation>
     </message>
     <message>
-        <source>Standard ESC 50Hz</source>
-        <translation type="vanished">Variateur Standard 50Hz</translation>
-    </message>
-    <message>
         <location/>
         <source>Standard ESC</source>
         <translation>Variateur Standard</translation>
-    </message>
-    <message>
-        <source>Turbo PWM ESC 400Hz</source>
-        <translatorcomment>TODO: or 500Hz ?</translatorcomment>
-        <translation type="obsolete">Variateur Turbo PWM 400Hz</translation>
     </message>
     <message>
         <location/>
@@ -16266,14 +16060,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ConfigOPLinkWidget</name>
     <message>
-        <source>Unbind</source>
-        <translation type="vanished">Dissocier</translation>
-    </message>
-    <message>
-        <source>Bind</source>
-        <translation type="vanished">Associer</translation>
-    </message>
-    <message>
         <location filename="../../plugins/config/configoplinkwidget.cpp" line="+180"/>
         <source>Unknown</source>
         <translation>Inconnu</translation>
@@ -16302,14 +16088,6 @@ p, li { white-space: pre-wrap; }
         <location line="+1"/>
         <source>PPM packets will be received by this modem.</source>
         <translation>Les paquets PPM seront reçus par ce modem.</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">Information</translation>
-    </message>
-    <message>
-        <source>To apply the changes when binding/unbinding the board must be rebooted or power cycled.</source>
-        <translation type="vanished">Pour appliquer les changements d&apos;association/dissociation la carte doit être redémarrée ou débranchée/rebranchée.</translation>
     </message>
 </context>
 <context>

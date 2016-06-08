@@ -7,7 +7,7 @@
         <field name="MagBiasNullingRate" units="" type="float" elements="1" defaultvalue="0"/>
         <field name="BoardRotation" units="deg" type="int16" elementnames="Roll,Pitch,Yaw" defaultvalue="0,0,0"/>
         <field name="Type" units="" type="enum" elements="1" options="GPSV9,Flexi,I2C,DJI" defaultvalue="GPSV9"
-               limits="%0905NE:I2C,%0903NE:I2C;"/>
+               limits="%0905NE:I2C,%0904NE:I2C,%0903NE:I2C,%0902NE:I2C;"/>
         <field name="Usage" units="" type="enum" elements="1" options="Both,OnboardOnly,AuxOnly" defaultvalue="Both"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>

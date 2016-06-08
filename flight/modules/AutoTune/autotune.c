@@ -67,10 +67,8 @@
 
 // Private constants
 #undef  STACK_SIZE_BYTES
-// Nano locks up it seems in UAVObjSav() with 1340
-// why did it lock up? 1540 now works (after a long initial delay) with 360 bytes left
+// Pull Request version tested on Nano. 120 bytes of stack left when configured with 1340
 #define STACK_SIZE_BYTES            1340
-// #define TASK_PRIORITY PIOS_THREAD_PRIO_NORMAL
 #define TASK_PRIORITY               (tskIDLE_PRIORITY + 1)
 
 #define AF_NUMX                     13

@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_ppm.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      PPM Input functions (STM32 dependent)
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -50,7 +51,7 @@ const struct pios_rcvr_driver pios_ppm_rcvr_driver = {
 #define PIOS_PPM_IN_MIN_NUM_CHANNELS     4
 #define PIOS_PPM_IN_MAX_NUM_CHANNELS     PIOS_PPM_NUM_INPUTS
 #define PIOS_PPM_STABLE_CHANNEL_COUNT    25      // frames
-#define PIOS_PPM_IN_MIN_SYNC_PULSE_US    3000    // microseconds
+#define PIOS_PPM_IN_MIN_SYNC_PULSE_US    2700    // microseconds
 #define PIOS_PPM_IN_MIN_CHANNEL_PULSE_US 750 // microseconds
 #define PIOS_PPM_IN_MAX_CHANNEL_PULSE_US 2250 // microseconds
 

@@ -491,9 +491,9 @@ void ConfigOutputWidget::updateAlwaysStabilizeStatus()
     FlightStatus::DataFields flightStatus = flightStatusObj->getData();
 
     if (flightStatus.AlwaysStabilizeWhenArmed == FlightStatus::ALWAYSSTABILIZEWHENARMED_TRUE) {
-        m_ui->alwayStabilizedLabel2->setText("AlwaysStabilizeWhenArmed is <b>ACTIVE</b>. This prevents arming!.");
+        m_ui->alwayStabilizedLabel2->setText(tr("AlwaysStabilizeWhenArmed is <b>ACTIVE</b>. This prevents arming!."));
     } else {
-        m_ui->alwayStabilizedLabel2->setText("(Really be careful!).");
+        m_ui->alwayStabilizedLabel2->setText(tr("(Really be careful!)."));
     }
 }
 

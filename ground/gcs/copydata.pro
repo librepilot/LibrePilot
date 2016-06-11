@@ -88,9 +88,9 @@ win32 {
         Qt5Quick$${DS}.dll \
         Qt5QuickWidgets$${DS}.dll \
         Qt5Qml$${DS}.dll \
-        libicuin56.dll \
-        libicudt56.dll \
-        libicuuc56.dll \
+        libicuin57.dll \
+        libicudt57.dll \
+        libicuuc57.dll \
         libstdc++-6.dll \
         libwinpthread-1.dll \
         libpcre-1.dll \

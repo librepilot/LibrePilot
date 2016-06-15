@@ -70,14 +70,4 @@ Item {
 
         running: osgViewport.busy
     }
-
-    BusyIndicator {
-        width: 24
-        height: 24
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: 4
-
-        running: osgViewport.busy
-    }
 }

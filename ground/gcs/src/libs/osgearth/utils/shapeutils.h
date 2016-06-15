@@ -16,6 +16,7 @@ osg::PositionAttitudeTransform *createArrow(const osg::Vec4 &color);
 osg::Node *create3DAxis();
 osg::Node *createOrientatedTorus(float innerRadius, float outerRadius);
 osg::Geode *createTorus(float innerRadius, float outerRadius, float sweepCuts, float sphereCuts);
+osg::Geode *createRhombicuboctahedron();
 }
 
 #endif /* SHAPE_UTILS_H */

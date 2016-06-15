@@ -68,6 +68,9 @@ public:
         case ShapeType::Axis:
             node = ShapeUtils::create3DAxis();
             break;
+        case ShapeType::Rhombicuboctahedron:
+            node = ShapeUtils::createRhombicuboctahedron();
+            break;
         }
         self->setNode(node);
     }

@@ -493,6 +493,9 @@ public:
             if (!h->viewer->isRealized()) {
                 h->viewer->realize();
             }
+            // workaround https://bugreports.qt.io/browse/QTBUG-54073
+            h->self->setBusy(true);
+            h->self->setBusy(false);
         }
 
         // we always want to draw the first frame

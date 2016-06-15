@@ -86,7 +86,6 @@ protected:
     bool _initialized;
     bool _valid;
     bool _realized;
-    bool _closing;
 
     bool _owned;
 
@@ -98,7 +97,6 @@ GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
     _initialized(false),
     _valid(false),
     _realized(false),
-    _closing(false),
     _owned(false),
     _glContext(NULL),
     _surface(NULL)
@@ -111,13 +109,13 @@ GraphicsWindowQt::GraphicsWindowQt(osg::GraphicsContext::Traits *traits) :
 GraphicsWindowQt::~GraphicsWindowQt()
 {
     // qDebug() << "GraphicsWindowQt::~GraphicsWindowQt";
-    close();
+    close(true);
 }
 
 void GraphicsWindowQt::init()
 {
     // qDebug() << "GraphicsWindowQt::init";
-    if (_closing || _initialized) {
+    if (_initialized) {
         return;
     }
 
@@ -238,19 +236,17 @@ bool GraphicsWindowQt::realizeImplementation()
 
     // make current
     _realized = true;
-    bool result = makeCurrent();
-    _realized = false;
+    bool current = makeCurrent();
 
     // fail if we do not have current context
-    if (!result) {
+    if (!current) {
         // if ( savedContext )
         // const_cast< QGLContext* >( savedContext )->makeCurrent();
         //
         qWarning() << "GraphicsWindowQt::realizeImplementation - can not make context current.";
+        _realized = false;
         return false;
     }
-
-    _realized = true;
 
     // make sure the event queue has the correct window rectangle size and input range
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 4, 0)
@@ -270,7 +266,7 @@ bool GraphicsWindowQt::realizeImplementation()
 // if ( savedContext )
 // const_cast< QGLContext* >( savedContext )->makeCurrent();
 
-    return true;
+    return _realized;
 }
 
 bool GraphicsWindowQt::isRealizedImplementation() const
@@ -294,11 +290,15 @@ void GraphicsWindowQt::runOperations()
 
 bool GraphicsWindowQt::makeCurrentImplementation()
 {
+    if (!_glContext) {
+        qWarning() << "GraphicsWindowQt::makeCurrentImplementation() - no context.";
+        return false;
+    }
     if (!_realized) {
         qWarning() << "GraphicsWindowQt::makeCurrentImplementation() - not realized; cannot make current.";
         return false;
     }
-    if (_owned && _glContext) {
+    if (_owned) {
         if (!_glContext->makeCurrent(_surface)) {
             qWarning() << "GraphicsWindowQt::makeCurrentImplementation : failed to make context current";
             return false;
@@ -306,6 +306,7 @@ bool GraphicsWindowQt::makeCurrentImplementation()
     }
     if (_glContext != QOpenGLContext::currentContext()) {
         qWarning() << "GraphicsWindowQt::makeCurrentImplementation : context is not current";
+        // abort();
         return false;
     }
     return true;
@@ -313,13 +314,20 @@ bool GraphicsWindowQt::makeCurrentImplementation()
 
 bool GraphicsWindowQt::releaseContextImplementation()
 {
+    if (!_glContext) {
+        qWarning() << "GraphicsWindowQt::releaseContextImplementation() - no context.";
+        return false;
+    }
     if (_glContext != QOpenGLContext::currentContext()) {
         qWarning() << "GraphicsWindowQt::releaseContextImplementation : context is not current";
         return false;
     }
-    if (_owned && _glContext) {
+    if (_owned) {
         // qDebug() << "GraphicsWindowQt::releaseContextImplementation";
         _glContext->doneCurrent();
+        if (_glContext == QOpenGLContext::currentContext()) {
+            qWarning() << "GraphicsWindowQt::releaseContextImplementation : context is still current";
+        }
     }
     return true;
 }
@@ -327,7 +335,6 @@ bool GraphicsWindowQt::releaseContextImplementation()
 void GraphicsWindowQt::closeImplementation()
 {
     // qDebug() << "GraphicsWindowQt::closeImplementation";
-    _closing     = true;
     _initialized = false;
     _valid = false;
     _realized    = false;

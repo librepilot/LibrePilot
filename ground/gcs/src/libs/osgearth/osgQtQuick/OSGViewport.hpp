@@ -78,10 +78,9 @@ public:
     void setUpdateMode(UpdateMode::Enum mode);
 
     bool busy() const;
-    void setBusy(const bool busy);
+    void setBusy(bool busy);
 
     Renderer *createRenderer() const;
-    void releaseResources();
 
     osgViewer::View *asView() const;
 

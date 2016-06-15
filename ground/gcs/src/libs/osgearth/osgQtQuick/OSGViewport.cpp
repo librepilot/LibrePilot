@@ -35,8 +35,6 @@
 
 #include <osg/Node>
 #include <osg/Vec4>
-#include <osg/DeleteHandler>
-#include <osg/GLObjects>
 #include <osg/ApplicationUsage>
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
@@ -52,6 +50,8 @@
 #include <QOpenGLFunctions>
 
 #include <QDebug>
+
+#include <iterator>
 
 /*
    Debugging tips
@@ -102,6 +102,58 @@ namespace osgQtQuick {
 
 class ViewportRenderer;
 
+class MyViewer : public osgViewer::CompositeViewer {
+public:
+    MyViewer() : osgViewer::CompositeViewer()
+    {}
+    virtual bool checkNeedToDoFrame()
+    {
+        if (_requestRedraw) {
+            return true;
+        }
+        if (_requestContinousUpdate) {
+            return true;
+        }
+
+        for (RefViews::iterator itr = _views.begin(); itr != _views.end(); ++itr) {
+            osgViewer::View *view = itr->get();
+            if (view) {
+                // If the database pager is going to update the scene the render flag is
+                // set so that the updates show up
+                if (view->getDatabasePager()->requiresUpdateSceneGraph()) {
+                    return true;
+                }
+                // if (view->getDatabasePager()->getRequestsInProgress()) return true;
+
+                // if there update callbacks then we need to do frame.
+                if (view->getCamera()->getUpdateCallback()) {
+                    return true;
+                }
+                if (view->getSceneData() && view->getSceneData()->getUpdateCallback()) {
+                    return true;
+                }
+                if (view->getSceneData() && view->getSceneData()->getNumChildrenRequiringUpdateTraversal() > 0) {
+                    return true;
+                }
+            }
+        }
+
+        // check if events are available and need processing
+        if (checkEvents()) {
+            return true;
+        }
+
+        if (_requestRedraw) {
+            return true;
+        }
+        if (_requestContinousUpdate) {
+            return true;
+        }
+
+        return false;
+    }
+};
+
 struct OSGViewport::Hidden : public QObject {
     Q_OBJECT
 
@@ -143,32 +195,56 @@ public:
 
     ~Hidden()
     {
-        disconnect(self);
-
         stopTimer();
 
-        destroyViewer();
+        disconnect(self);
     }
 
-public slots:
+private slots:
     void onWindowChanged(QQuickWindow *window)
     {
         // qDebug() << "OSGViewport::onWindowChanged" << window;
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "onWindowChanged");
         if (window) {
-            // window->setClearBeforeRendering(false);
-// connect(window, &QQuickWindow::sceneGraphInitialized, this, &Hidden::onSceneGraphInitialized, Qt::DirectConnection);
-// connect(window, &QQuickWindow::sceneGraphAboutToStop, this, &Hidden::onSceneGraphAboutToStop, Qt::DirectConnection);
-// connect(window, &QQuickWindow::sceneGraphInvalidated, this, &Hidden::onSceneGraphInvalidated, Qt::DirectConnection);
-// connect(window, &QQuickWindow::visibleChanged, this, &Hidden::visibleChanged, Qt::DirectConnection);
-// connect(window, &QQuickWindow::widthChanged, this, &Hidden::widthChanged, Qt::DirectConnection);
-// connect(window, &QQuickWindow::heightChanged, this, &Hidden::heightChanged, Qt::DirectConnection);
-        } else {
-// if (this->window) {
-// disconnect(this->window);
-// }
+            // when hiding the QQuickWidget (happens when switching tab or re-parenting) the renderer is destroyed and sceneGraphInvalidated is signaled
+            // same happens when deleting the QQuickWidget
+            // problem is that there is no way to distinguish a hide and a delete so there is no good place to release gl objects, etc.
+            // it can't be done from other destructors as the gl context is not active at that time
+            // so we must delete the gl objects when hiding (and release it again when showing)
+            // deletion of the osg viewer will happen when the QQuickWidget is deleted. the gl context will not be active but it is ok because the
+            // viewer has no more gl objects to delete (we hope...)
+            // bad side effect is that when showing the scene after hiding it there is delay (on heavy scenes) to realise again the gl context.
+            // this is not happening on a separate thread (because of a limitation of QQuickWidget and Qt on windows related limitations)
+            // a workaround would be to not invalidate the scene when hiding/showing but that is not working atm...
+            // see https://bugreports.qt.io/browse/QTBUG-54133 for more details
+            // window->setPersistentSceneGraph(true);
+
+            // connect(window, &QQuickWindow::sceneGraphInitialized, this, &Hidden::onSceneGraphInitialized, Qt::DirectConnection);
+            connect(window, &QQuickWindow::sceneGraphInvalidated, this, &Hidden::onSceneGraphInvalidated, Qt::DirectConnection);
+            // connect(window, &QQuickWindow::afterSynchronizing, this, &Hidden::onAfterSynchronizing, Qt::DirectConnection);
+            connect(window, &QQuickWindow::afterSynchronizing, this, &Hidden::onAfterSynchronizing, Qt::DirectConnection);
         }
         this->window = window;
+    }
+
+    // emitted from the scene graph rendering thread (gl context bound)
+    void onSceneGraphInitialized()
+    {
+        // qDebug() << "OSGViewport::onSceneGraphInitialized";
+        initializeResources();
+    }
+
+    // emitted from the scene graph rendering thread (gl context bound)
+    void onSceneGraphInvalidated()
+    {
+        // qDebug() << "OSGViewport::onSceneGraphInvalidated";
+        releaseResources();
+    }
+
+    // emitted from the scene graph rendering thread (gl context bound)
+    void onAfterSynchronizing()
+    {
+        // qDebug() << "OSGViewport::onAfterSynchronizing";
     }
 
 public:
@@ -224,16 +300,20 @@ public:
         return true;
     }
 
+private:
     void initializeResources()
     {
+        // qDebug() << "OSGViewport::Hidden::initializeResources";
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "OSGViewport::Hidden::initializeResources");
         if (gc.valid()) {
             // qWarning() << "OSGViewport::initializeResources - gc already created!";
             return;
         }
-        // qDebug() << "OSGViewport::initializeResources";
 
         // setup graphics context and camera
         gc = createGraphicsContext();
+
+        // connect(QOpenGLContext::currentContext(), &QOpenGLContext::aboutToBeDestroyed, this, &Hidden::onAboutToBeDestroyed, Qt::DirectConnection);
 
         cameraNode->setGraphicsContext(gc);
 
@@ -254,7 +334,6 @@ public:
             if (node) {
                 m->setNode(node);
             }
-
             view->home();
         } else {
             view->setCameraManipulator(NULL, false);
@@ -262,24 +341,55 @@ public:
 
         installHanders();
 
+        view->init();
+        viewer->realize();
+
         startTimer();
     }
 
-    void releaseResources()
+    void onAboutToBeDestroyed()
     {
-        // qDebug() << "OSGViewport::releaseResources";
-        if (!gc.valid()) {
-            qWarning() << "OSGViewport::releaseResources - gc is not valid!";
-            return;
-        }
-        osg::deleteAllGLObjects(gc->getState()->getContextID());
-        // view->getSceneData()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
-        // view->getCamera()->releaseGLObjects(view->getCamera()->getGraphicsContext()->getState());
-        // view->getCamera()->getGraphicsContext()->close();
-        // view->getCamera()->setGraphicsContext(NULL);
+        qDebug() << "OSGViewport::Hidden::onAboutToBeDestroyed";
+        osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "OSGViewport::Hidden::onAboutToBeDestroyed");
+        // context is not current and don't know how to make it current...
     }
 
-private:
+    // see https://github.com/openscenegraph/OpenSceneGraph/commit/161246d864ea0514543ed0493422e1bf0e99afb7#diff-91ee382a4d543072ea66aab422e5106f
+    // see https://github.com/openscenegraph/OpenSceneGraph/commit/3e0435febd677f14aae5f42ef1f43e81307fec41#diff-cadcd928403543a531cf42712a3d1126
+    void releaseResources()
+    {
+        // qDebug() << "OSGViewport::Hidden::releaseResources";
+        // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "OSGViewport::Hidden::releaseResources");
+        if (!gc.valid()) {
+            qWarning() << "OSGViewport::Hidden::releaseResources - gc is not valid!";
+            return;
+        }
+        deleteAllGLObjects();
+    }
+
+    // there should be a simpler way to do that...
+    // for now, we mimic what is done in GraphicsContext::close()
+    // calling gc->close() and later gc->realize() does not work
+    void deleteAllGLObjects()
+    {
+        // TODO switch off the graphics thread (see GraphicsContext::close()) ?
+        // setGraphicsThread(0);
+
+        for (osg::GraphicsContext::Cameras::iterator itr = gc->getCameras().begin();
+             itr != gc->getCameras().end();
+             ++itr) {
+            osg::Camera *camera = (*itr);
+            if (camera) {
+                OSG_INFO << "Releasing GL objects for Camera=" << camera << " _state=" << gc->getState() << std::endl;
+                camera->releaseGLObjects(gc->getState());
+            }
+        }
+        gc->getState()->releaseGLObjects();
+        osg::deleteAllGLObjects(gc->getState()->getContextID());
+        osg::flushAllDeletedGLObjects(gc->getState()->getContextID());
+        osg::discardAllGLObjects(gc->getState()->getContextID());
+    }
+
     void createViewer()
     {
         if (viewer.valid()) {
@@ -288,9 +398,9 @@ private:
         }
         // qDebug() << "OSGViewport::createViewer";
 
-        viewer = new osgViewer::CompositeViewer();
+        viewer = new MyViewer();
+        // viewer = new osgViewer::CompositeViewer();
         viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
-
 
         // disable the default setting of viewer.done() by pressing Escape.
         viewer->setKeyEventSetsDone(0);
@@ -298,17 +408,6 @@ private:
 
         view = createView();
         viewer->addView(view);
-    }
-
-    void destroyViewer()
-    {
-        if (!viewer.valid()) {
-            qWarning() << "OSGViewport::destroyViewer - viewer is not valid";
-            return;
-        }
-        // qDebug() << "OSGViewport::destroyViewer";
-
-        viewer = NULL;
     }
 
     osgViewer::View *createView()
@@ -382,6 +481,7 @@ private:
         // if (traits->displayNum < 0) {
         // traits->displayNum = 0;
         // }
+        traits->windowingSystemPreference = "QT";
 
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 3)
         // The MyQt windowing system is registered in osgearth.cpp
@@ -410,7 +510,7 @@ private:
 
     void startTimer()
     {
-        if ((updateMode != UpdateMode::Continuous) && (frameTimer < 0)) {
+        if ((frameTimer < 0) && (updateMode != UpdateMode::Continuous)) {
             // qDebug() << "OSGViewport::startTimer - starting timer";
             frameTimer = QObject::startTimer(33, Qt::PreciseTimer);
         }
@@ -426,7 +526,6 @@ private:
     }
 
 protected:
-
     void timerEvent(QTimerEvent *event)
     {
         if (event->timerId() == frameTimer) {
@@ -439,7 +538,6 @@ protected:
 
 
 private slots:
-
     void onSceneNodeChanged(osg::Node *node)
     {
         qWarning() << "OSGViewport::onSceneNodeChanged - not implemented";
@@ -465,7 +563,6 @@ public:
     {
         // qDebug() << "ViewportRenderer::ViewportRenderer";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
-
         h->initializeResources();
     }
 
@@ -473,6 +570,7 @@ public:
     {
         // qDebug() << "ViewportRenderer::~ViewportRenderer";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::~ViewportRenderer");
+        // h->releaseResources();
     }
 
     // This function is the only place when it is safe for the renderer and the item to read and write each others members.
@@ -491,13 +589,10 @@ public:
             return;
         }
 
-        // TODO this is not correct : switching workspaces in GCS will destroy and recreate the renderer (and frameCount is thus reset to 0).
+        // NOTE switching workspaces in GCS will destroy and recreate the renderer (and frameCount is thus reset to 0).
         if (frameCount == 0) {
-            h->view->init();
-            if (!h->viewer->isRealized()) {
-                h->viewer->realize();
-            }
-            // workaround https://bugreports.qt.io/browse/QTBUG-54073
+            // workaround for https://bugreports.qt.io/browse/QTBUG-54073
+            // busy indicator starting to spin indefinitly when switching tabs
             h->self->setBusy(true);
             h->self->setBusy(false);
         }
@@ -512,6 +607,8 @@ public:
 
         // check if viewport needs to be resized
         // a redraw will be requested if necessary
+        // TODO this code feels wrong... and there are resize issues
+        // in particular the statistics HUD ('s' key to display) behaves strangely when resizing
         osg::Viewport *viewport = h->view->getCamera()->getViewport();
         int dpr    = h->self->window()->devicePixelRatio();
         int width  = item->width() * dpr;
@@ -529,27 +626,8 @@ public:
             }
         }
 
-        // refresh busy state
-        // TODO state becomes busy when scene is loading or downloading tiles (should do it only for download)
-        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
-        // TODO also expose request list size to Qml
-        if (h->view->getDatabasePager()->getFileRequestListSize() > 0) {
-            // qDebug() << h->view->getDatabasePager()->getFileRequestListSize();
-        }
-
         if (!needToDoFrame) {
-            needToDoFrame = h->viewer->checkNeedToDoFrame();
-        }
-        // workarounds to osg issues
-        if (!needToDoFrame) {
-            // issue 1 : if only root node has an update callback checkNeedToDoFrame should return true but does not
-            // a fix will be submitted to osg (current version is 3.5.1)
-            if (h->view->getSceneData()) {
-                needToDoFrame |= !(h->view->getSceneData()->getUpdateCallback() == NULL);
-            }
-        }
-        if (!needToDoFrame) {
-            // issue 2 : UI events don't trigger a redraw
+            // issue : UI events don't trigger a redraw
             // this issue should be fixed here...
             // event handling needs a lot of attention :
             // - sometimes the scene is redrawing continuously (after a drag for example, and single click will stop continuous redraw)
@@ -557,12 +635,22 @@ public:
             // - in Earth View : continuous zoom (triggered by holding right button and moving mouse up/down) sometimes stops working when holding mouse still after initiating
             needToDoFrame = !h->view->getEventQueue()->empty();
         }
+
+        if (!needToDoFrame) {
+            needToDoFrame = h->viewer->checkNeedToDoFrame();
+        }
         if (needToDoFrame) {
             // qDebug() << "ViewportRenderer::synchronize - update scene" << frameCount;
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
         }
+
+        // refresh busy state
+        // TODO state becomes busy when scene is loading or downloading tiles (should do it only for download)
+        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
+        // TODO also expose request list size to Qml
+        // if (h->view->getDatabasePager()->getFileRequestListSize() > 0) {
     }
 
     // This function is called when the FBO should be rendered into.
@@ -582,7 +670,9 @@ public:
 
             // needed to properly render models without terrain (Qt bug?)
             QOpenGLContext::currentContext()->functions()->glUseProgram(0);
+
             h->viewer->renderingTraversals();
+
             needToDoFrame = false;
         }
 
@@ -698,7 +788,7 @@ bool OSGViewport::busy() const
     return h->busy;
 }
 
-void OSGViewport::setBusy(const bool busy)
+void OSGViewport::setBusy(bool busy)
 {
     if (h->busy != busy) {
         h->busy = busy;
@@ -716,12 +806,6 @@ QQuickFramebufferObject::Renderer *OSGViewport::createRenderer() const
     // qDebug() << "OSGViewport::createRenderer";
     // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "createRenderer");
     return new ViewportRenderer(h);
-}
-
-void OSGViewport::releaseResources()
-{
-    // qDebug() << "OSGViewport::releaseResources" << this;
-    Inherited::releaseResources();
 }
 
 void OSGViewport::classBegin()

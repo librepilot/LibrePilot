@@ -230,14 +230,22 @@ static void manualControlTask(void)
     FlightModeSettingsData modeSettings;
     FlightModeSettingsGet(&modeSettings);
 
+    static uint8_t lastPosition      = 0;
     uint8_t position = cmd.FlightModeSwitchPosition;
-    uint8_t newMode  = flightStatus.FlightMode;
+    uint8_t newMode = flightStatus.FlightMode;
     uint8_t newAlwaysStabilized      = flightStatus.AlwaysStabilizeWhenArmed;
     uint8_t newFlightModeAssist      = flightStatus.FlightModeAssist;
     uint8_t newAssistedControlState  = flightStatus.AssistedControlState;
     uint8_t newAssistedThrottleState = flightStatus.AssistedThrottleState;
     if (position < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM) {
         newMode = modeSettings.FlightModePosition[position];
+    }
+
+    // Ignore change to AutoTakeOff and keep last flight mode position
+    // if vehicle is already armed and maybe in air...
+    if ((newMode == FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF) && flightStatus.Armed) {
+        newMode  = flightStatus.FlightMode;
+        position = lastPosition;
     }
 
     // if a mode change occurs we default the assist mode and states here
@@ -507,6 +515,7 @@ static void manualControlTask(void)
         flightStatus.AssistedThrottleState    = newAssistedThrottleState;
         FlightStatusSet(&flightStatus);
         newinit = true;
+        lastPosition = position;
     }
     if (handler->handler) {
         handler->handler(newinit);

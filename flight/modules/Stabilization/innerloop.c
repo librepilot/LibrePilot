@@ -123,7 +123,7 @@ void stabilizationInnerloopInit()
     measuredDterm_enabled = (stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
 #if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
     // Settings for system identification
-    systemIdentTimeVal = PIOS_DELAY_GetRaw();
+    systemIdentTimeVal    = PIOS_DELAY_GetRaw();
 #endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 }
 
@@ -393,7 +393,7 @@ static void stabilizationInnerloopTask()
                                  StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
                                  );
                 pid_scaler scaler = create_pid_scaler(t);
-                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
+                actuatorDesiredAxis[t]  = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
                 actuatorDesiredAxis[t] += identOffsets[t];
             }
             break;

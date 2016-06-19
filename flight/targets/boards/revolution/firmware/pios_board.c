@@ -849,13 +849,12 @@ void PIOS_Board_Init(void)
 
     /* Is the radio turned on? */
     bool is_coordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
-    bool openlrs = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPENLRS);
+    bool openlrs   = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPENLRS);
     bool is_oneway = (oplinkSettings.OneWay == OPLINKSETTINGS_ONEWAY_TRUE);
     bool ppm_mode  = (oplinkSettings.PPM == OPLINKSETTINGS_PPM_TRUE);
     bool ppm_only  = (oplinkSettings.PPMOnly == OPLINKSETTINGS_PPMONLY_TRUE);
     if (oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) {
         if (openlrs) {
-            
 #if defined(PIOS_INCLUDE_OPENLRS_RCVR)
             const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(bdinfo->board_rev);
             uint32_t openlrs_id;
@@ -871,9 +870,7 @@ void PIOS_Board_Init(void)
                 pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_OPENLRS] = openlrsrcvr_rcvr_id;
             }
 #endif /* PIOS_INCLUDE_OPENLRS_RCVR */
-            
         } else {
-
             /* Configure the RFM22B device. */
             const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
             if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg)) {
@@ -916,46 +913,46 @@ void PIOS_Board_Init(void)
                 break;
             }
 
-        /* Set the radio configuration parameters. */
-        PIOS_RFM22B_SetDeviceID(pios_rfm22b_id, oplinkSettings.CustomDeviceID);
-        PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
-        PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, is_oneway, ppm_mode, ppm_only);
+            /* Set the radio configuration parameters. */
+            PIOS_RFM22B_SetDeviceID(pios_rfm22b_id, oplinkSettings.CustomDeviceID);
+            PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
+            PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, is_oneway, ppm_mode, ppm_only);
 
             /* Set the PPM callback if we should be receiving PPM. */
             if (ppm_mode || (ppm_only && !is_coordinator)) {
                 PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
             }
 
-        /* Set the modem Tx power level */
-        switch (oplinkSettings.MaxRFPower) {
-        case OPLINKSETTINGS_MAXRFPOWER_125:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_0);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_16:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_1);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_316:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_2);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_63:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_3);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_126:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_4);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_25:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_5);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_50:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_6);
-            break;
-        case OPLINKSETTINGS_MAXRFPOWER_100:
-            PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_7);
-            break;
-        default:
-            // do nothing
-            break;
-        }
+            /* Set the modem Tx power level */
+            switch (oplinkSettings.MaxRFPower) {
+            case OPLINKSETTINGS_MAXRFPOWER_125:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_0);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_16:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_1);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_316:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_2);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_63:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_3);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_126:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_4);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_25:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_5);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_50:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_6);
+                break;
+            case OPLINKSETTINGS_MAXRFPOWER_100:
+                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_7);
+                break;
+            default:
+                // do nothing
+                break;
+            }
 
             /* Reinitialize the modem. */
             PIOS_RFM22B_Reinit(pios_rfm22b_id);

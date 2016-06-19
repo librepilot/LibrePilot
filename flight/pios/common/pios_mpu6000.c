@@ -104,6 +104,8 @@ static mpu6000_data_t mpu6000_data;
 static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
 #define SENSOR_COUNT     2
 #define SENSOR_DATA_SIZE (sizeof(PIOS_SENSORS_3Axis_SensorsWithTemp) + sizeof(Vector3i16) * SENSOR_COUNT)
+uint32_t gyroReadTime;
+
 // ! Private functions
 static struct mpu6000_dev *PIOS_MPU6000_alloc(const struct pios_mpu6000_cfg *cfg);
 static int32_t PIOS_MPU6000_Validate(struct mpu6000_dev *dev);
@@ -550,6 +552,7 @@ bool PIOS_MPU6000_IRQHandler(void)
     read_ok = PIOS_MPU6000_ReadSensor(&woken);
 
     if (read_ok) {
+        gyroReadTime = PIOS_DELAY_GetRaw();
         bool woken2 = PIOS_MPU6000_HandleData();
         woken |= woken2;
     }

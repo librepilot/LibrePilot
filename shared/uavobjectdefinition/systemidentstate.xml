@@ -11,6 +11,7 @@
         <field name="NumSpilledPts" units="" type="uint32" elements="1" defaultvalue="0"/>
         <field name="HoverThrottle" units="%/100" type="float" elements="1" defaultvalue="0"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+        <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.0005"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
         <telemetryflight acked="false" updatemode="periodic" period="1000"/>

@@ -114,6 +114,10 @@ struct at_queued_data {
 };
 
 
+// Global variables
+extern uint32_t gyroReadTime;
+
+
 // Private variables
 static xTaskHandle taskHandle;
 static bool moduleEnabled;
@@ -128,6 +132,10 @@ static SystemIdentSettingsData systemIdentSettings;
 static SystemIdentStateData systemIdentState;
 static int8_t accessoryToUse;
 static int8_t flightModeSwitchTogglePosition;
+
+static float gyroReadTimeAverage;
+static float gyroReadTimeAverageAlpha;
+#define GYRO_READ_TIME_DECAY_TIME_CONSTANT 2.0f
 
 
 // Private functions
@@ -188,6 +196,9 @@ int32_t AutoTuneInitialize(void)
         if (!atQueue) {
             moduleEnabled = false;
         }
+        // 0.002 is gyro period
+        // make the smoothing decay about 1 second
+        gyroReadTimeAverageAlpha = expf(-0.002f / GYRO_READ_TIME_DECAY_TIME_CONSTANT);
     }
 
     return 0;
@@ -556,6 +567,8 @@ static void AtNewGyroData(UAVObjEvent *ev)
     GyroStateGet(&gyro);
     ActuatorDesiredGet(&actuators);
 
+    gyroReadTimeAverage = gyroReadTimeAverage * gyroReadTimeAverageAlpha + PIOS_DELAY_DiffuS(gyroReadTime) * 1.0e-6f * (1 - gyroReadTimeAverageAlpha);
+
     if (last_sample_unpushed) {
         /* Last time we were unable to queue up the gyro data.
          * Try again, last chance! */
@@ -565,9 +578,17 @@ static void AtNewGyroData(UAVObjEvent *ev)
     }
 
     q_item.raw_time = PIOS_DELAY_GetRaw();
+#if 0
+    gyro_filtered[0] = gyro_filtered[0] * stabSettings.gyro_alpha + gyroState.x * (1 - stabSettings.gyro_alpha);
+    gyro_filtered[1] = gyro_filtered[1] * stabSettings.gyro_alpha + gyroState.y * (1 - stabSettings.gyro_alpha);
+    gyro_filtered[2] = gyro_filtered[2] * stabSettings.gyro_alpha + gyroState.z * (1 - stabSettings.gyro_alpha);
     q_item.y[0]     = gyro.x;
     q_item.y[1]     = gyro.y;
     q_item.y[2]     = gyro.z;
+#endif
+    q_item.y[0] = q_item.y[0] * stabSettings.gyro_alpha + gyro.x * (1 - stabSettings.gyro_alpha);
+    q_item.y[1] = q_item.y[1] * stabSettings.gyro_alpha + gyro.y * (1 - stabSettings.gyro_alpha);
+    q_item.y[2] = q_item.y[2] * stabSettings.gyro_alpha + gyro.z * (1 - stabSettings.gyro_alpha);
     q_item.u[0]     = actuators.Roll;
     q_item.u[1]     = actuators.Pitch;
     q_item.u[2]     = actuators.Yaw;
@@ -633,12 +654,14 @@ static void InitSystemIdent(bool loadDefaults)
         // Tau, Beta, and the Complete flag get default values
         // in preparation for running AutoTune
         systemIdentSettings.Tau = systemIdentState.Tau;
+systemIdentSettings.GyroReadTimeAverage = systemIdentState.GyroReadTimeAverage;
         memcpy(&systemIdentSettings.Beta, &systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
         systemIdentSettings.Complete = systemIdentState.Complete;
     } else {
         // Tau, Beta, and the Complete flag get stored values
         // so the user can fly another battery to select and test PIDs with the slider/knob
         systemIdentState.Tau = systemIdentSettings.Tau;
+systemIdentState.GyroReadTimeAverage = systemIdentSettings.GyroReadTimeAverage;
         memcpy(&systemIdentState.Beta, &systemIdentSettings.Beta, sizeof(SystemIdentStateBetaData));
         systemIdentState.Complete = systemIdentSettings.Complete;
     }
@@ -714,6 +737,9 @@ static void UpdateSystemIdentState(const float *X, const float *noise,
     systemIdentState.NumAfPredicts = predicts;
     systemIdentState.NumSpilledPts = spills;
     systemIdentState.HoverThrottle = hover_throttle;
+
+    systemIdentState.GyroReadTimeAverage = gyroReadTimeAverage;
+    systemIdentSettings.GyroReadTimeAverage = systemIdentState.GyroReadTimeAverage;
 
     SystemIdentStateSet(&systemIdentState);
 }
@@ -838,7 +864,7 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     const double ghf  = (double)noiseRate / 1000.0d;
     const double damp = (double)dampRate / 100.0d;
 
-    double tau = exp(systemIdentState.Tau);
+    double tau = exp(systemIdentState.Tau) + (double) systemIdentSettings.GyroReadTimeAverage;
     double exp_beta_roll_times_ghf  = exp(systemIdentState.Beta.Roll) * ghf;
     double exp_beta_pitch_times_ghf = exp(systemIdentState.Beta.Pitch) * ghf;
 

@@ -129,6 +129,7 @@ static volatile bool mag_ready = false;
 static struct mpu9250_dev *dev;
 volatile bool mpu9250_configured = false;
 static mpu9250_data_t mpu9250_data;
+uint32_t gyroReadTime;
 
 // ! Private functions
 static struct mpu9250_dev *PIOS_MPU9250_alloc(const struct pios_mpu9250_cfg *cfg);
@@ -829,6 +830,7 @@ bool PIOS_MPU9250_IRQHandler(void)
     read_ok = PIOS_MPU9250_ReadSensor(&woken);
 
     if (read_ok) {
+        gyroReadTime = PIOS_DELAY_GetRaw();
         bool woken2 = PIOS_MPU9250_HandleData();
         woken |= woken2;
     }

@@ -208,7 +208,9 @@ void MyManipulator::updateCamera(osg::Camera & camera)
 /* class OSGGeoTransformManipulator */
 
 OSGGeoTransformManipulator::OSGGeoTransformManipulator(QObject *parent) : Inherited(parent), h(new Hidden(this))
-{}
+{
+    setDirty(Position | Attitude | Clamp);
+}
 
 OSGGeoTransformManipulator::~OSGGeoTransformManipulator()
 {

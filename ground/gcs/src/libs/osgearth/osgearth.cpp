@@ -98,8 +98,8 @@ void OsgEarth::initialize()
     // setenv("OSG_ASSIGN_PBO_TO_IMAGES", "on", 0);
 
     // Number of threads in the DatbasePager set up, inclusive of the number of http dedicated threads.
-    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(6);
-    osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(3);
+    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(8);
+    osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(4);
 
     initializePathes();
 

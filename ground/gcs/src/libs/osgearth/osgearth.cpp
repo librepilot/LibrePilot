@@ -229,7 +229,13 @@ void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
     }
 }
 
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 3)
+REGISTER_WINDOWINGSYSTEMINTERFACE(MyQt, QtWindowingSystem)
+#endif
+
 void OsgEarth::initWindowingSystem()
 {
+#if OSG_VERSION_LESS_THAN(3, 5, 3)
     osg::GraphicsContext::setWindowingSystemInterface(QtWindowingSystem::getInterface());
+#endif
 }

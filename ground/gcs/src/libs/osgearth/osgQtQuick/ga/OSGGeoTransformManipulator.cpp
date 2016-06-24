@@ -38,6 +38,7 @@
 
 #include <osgEarth/GeoData>
 #include <osgEarth/MapNode>
+#include <osgEarth/Terrain>
 
 #include <QDebug>
 

@@ -383,6 +383,10 @@ private:
         // traits->displayNum = 0;
         // }
 
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 3)
+        // The MyQt windowing system is registered in osgearth.cpp
+        traits->windowingSystemPreference = "MyQt";
+#endif
         traits->windowDecoration = false;
         traits->x       = 0;
         traits->y       = 0;

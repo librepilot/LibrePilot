@@ -2,7 +2,7 @@
 # copy osg and osgearth libraries and data to build dir
 #
 
-OSG_VERSION = 3.5.1
+OSG_VERSION = 3.5.3
 
 contains(QT_ARCH, x86_64)  {
     LIB_DIR_NAME = lib64

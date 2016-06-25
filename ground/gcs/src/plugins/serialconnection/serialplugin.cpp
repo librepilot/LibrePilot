@@ -162,6 +162,8 @@ QIODevice *SerialConnection::openDevice(const QString &deviceName)
             // don't specify a parent when constructing the QSerialPort as this object will be moved
             // to a different thread later on (see telemetrymanager.cpp)
             serialHandle = new QSerialPort(port);
+            connect(serialHandle, static_cast<void(QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
+                [=](QSerialPort::SerialPortError error) { qWarning() << "serial port error:" << error; });
             // we need to handle port settings here...
             if (serialHandle->open(QIODevice::ReadWrite)) {
                 if (serialHandle->setBaudRate(m_config->speed().toInt())
@@ -172,6 +174,8 @@ QIODevice *SerialConnection::openDevice(const QString &deviceName)
                     qDebug() << "Serial telemetry running at " << m_config->speed();
                     m_deviceOpened = true;
                 }
+                // see https://librepilot.atlassian.net/browse/LP-341
+                serialHandle->setDataTerminalReady(true);
             }
             return serialHandle;
         }

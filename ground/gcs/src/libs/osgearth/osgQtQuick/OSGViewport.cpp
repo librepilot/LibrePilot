@@ -181,12 +181,21 @@ public:
 
     bool busy;
 
+    static osg::ref_ptr<osg::GraphicsContext> dummyGC;
+
     static QtKeyboardMap keyMap;
 
     Hidden(OSGViewport *self) : QObject(self), self(self), window(NULL), frameTimer(-1),
         sceneNode(NULL), cameraNode(NULL), manipulator(NULL), updateMode(UpdateMode::OnDemand), busy(false)
     {
         OsgEarth::initialize();
+
+        // workaround to avoid using GraphicsContext #0
+        // when switching tabs textures are not rebound (see https://librepilot.atlassian.net/secure/attachment/11500/lost_textures.png)
+        // so we create and retain GraphicsContext #0 so it won't be used elsewhere
+        if (!dummyGC.valid()) {
+            dummyGC = createGraphicsContext();
+        }
 
         createViewer();
 
@@ -491,7 +500,7 @@ private:
         traits->x       = 0;
         traits->y       = 0;
 
-        int dpr = self->window()->devicePixelRatio();
+        int dpr = self->window() ? self->window()->devicePixelRatio() : 1;
         traits->width   = self->width() * dpr;
         traits->height  = self->height() * dpr;
 
@@ -698,6 +707,8 @@ public:
 };
 
 QtKeyboardMap OSGViewport::Hidden::keyMap = QtKeyboardMap();
+
+osg::ref_ptr<osg::GraphicsContext> OSGViewport::Hidden::dummyGC;
 
 /* class OSGViewport */
 

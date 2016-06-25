@@ -239,6 +239,21 @@ win32 {
 # Explicit setting of C++11
 CONFIG += c++11
 
+address_sanitizer {
+    # enable asan by adding "address_sanitizer" to your root config file
+    # see https://github.com/google/sanitizers
+    # see https://blog.qt.io/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt/
+    #
+    # to use, simply compile and run, asan will crash with a report if an error is found.
+    # if you don't see symbols, try this: ./build/librepilot-gcs_debug/bin/librepilot-gcs 2>&1 | ./make/scripts/asan_symbolize.py
+    #
+    # Note: asan will apply only to GCS and not to third party libraries (Qt, osg, ...).
+
+    QMAKE_CXXFLAGS += -fsanitize=address -g -fno-omit-frame-pointer
+    QMAKE_CFLAGS += -fsanitize=address -g -fno-omit-frame-pointer
+    QMAKE_LFLAGS += -fsanitize=address -g
+}
+
 # Stricter warnings turned on for OS X.
 macx {
     CONFIG += warn_on

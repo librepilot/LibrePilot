@@ -43,7 +43,7 @@
 #include "openlrs.h"
 #include "flightstatus.h"
 #include "flightbatterystate.h"
-#include "openlrsstatus.h"
+#include "oplinkstatus.h"
 
 #include "pios_rfm22b_regs.h"
 
@@ -56,7 +56,8 @@ static void rfmSetCarrierFrequency(struct pios_openlrs_dev *openlrs_dev, uint32_
 static uint8_t rfmGetRSSI(struct pios_openlrs_dev *openlrs_dev);
 static void to_rx_mode(struct pios_openlrs_dev *openlrs_dev);
 static void tx_packet(struct pios_openlrs_dev *openlrs_dev, uint8_t *pkt, uint8_t size);
-static OpenLRSStatusData openlrs_status;
+
+static OPLinkStatusData oplink_status;
 
 static struct pios_openlrs_dev *pios_openlrs_alloc();
 static bool pios_openlrs_validate(struct pios_openlrs_dev *openlrs_dev);
@@ -858,8 +859,8 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
 
         openlrs_dev->lastPacketTimeUs    = timeUs;
         openlrs_dev->numberOfLostPackets = 0;
-        openlrs_status.LinkQuality <<= 1;
-        openlrs_status.LinkQuality  |= 1;
+        oplink_status.LinkQuality <<= 1;
+        oplink_status.LinkQuality  |= 1;
 
         if ((openlrs_dev->rx_buf[0] & 0x3e) == 0x00) {
             // This flag indicates receiving PPM data
@@ -890,7 +891,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
 
         // Flag to indicate ever got a link
         openlrs_dev->link_acquired   |= true;
-        openlrs_status.FailsafeActive = OPENLRSSTATUS_FAILSAFEACTIVE_INACTIVE;
+        oplink_status.LinkState = OPLINKSTATUS_LINKSTATE_CONNECTED;
         openlrs_dev->beacon_armed     = false; // when receiving packets make sure beacon cannot emit
 
         // When telemetry is enabled we ack packets and send info about FC back
@@ -914,7 +915,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
                     tx_buf[0] |= (0x37 + bytes);
                 } else {
                     // tx_buf[0] lowest 6 bits left at 0
-                    tx_buf[1] = openlrs_status.LastRSSI;
+                    tx_buf[1] = oplink_status.RSSI;
                     if (FlightBatteryStateHandle()) {
                         FlightBatteryStateData bat;
                         FlightBatteryStateGet(&bat);
@@ -928,7 +929,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
                     }
                     tx_buf[4] = (openlrs_dev->lastAFCCvalue >> 8);
                     tx_buf[5] = openlrs_dev->lastAFCCvalue & 0xff;
-                    tx_buf[6] = countSetBits(openlrs_status.LinkQuality & 0x7fff);
+                    tx_buf[6] = countSetBits(oplink_status.LinkQuality & 0x7fff);
                 }
             }
 
@@ -949,7 +950,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
         if ((openlrs_dev->numberOfLostPackets < openlrs_dev->hopcount) && (PIOS_DELAY_GetuSSince(openlrs_dev->lastPacketTimeUs) > (getInterval(&openlrs_dev->bind_data) + packet_timeout_us))) {
             DEBUG_PRINTF(2, "OLRS WARN: Lost packet: %d\r\n", openlrs_dev->numberOfLostPackets);
             // we lost packet, hop to next channel
-            openlrs_status.LinkQuality <<= 1;
+            oplink_status.LinkQuality <<= 1;
             openlrs_dev->willhop = 1;
             if (openlrs_dev->numberOfLostPackets == 0) {
                 openlrs_dev->linkLossTimeMs   = timeMs;
@@ -961,7 +962,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
         } else if ((openlrs_dev->numberOfLostPackets >= openlrs_dev->hopcount) && (PIOS_DELAY_GetuSSince(openlrs_dev->lastPacketTimeUs) > (getInterval(&openlrs_dev->bind_data) * openlrs_dev->hopcount))) {
             DEBUG_PRINTF(2, "ORLS WARN: Trying to resync\r\n");
             // hop slowly to allow resync with TX
-            openlrs_status.LinkQuality    = 0;
+            oplink_status.LinkQuality    = 0;
             openlrs_dev->willhop = 1;
             openlrs_dev->lastPacketTimeUs = timeUs;
         }
@@ -972,10 +973,10 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
 #endif /* PIOS_LED_LINK */
 
             if (openlrs_dev->failsafeDelay &&
-                (openlrs_status.FailsafeActive == OPENLRSSTATUS_FAILSAFEACTIVE_INACTIVE) &&
+                (oplink_status.LinkState == OPLINKSTATUS_LINKSTATE_CONNECTED) &&
                 ((timeMs - openlrs_dev->linkLossTimeMs) > ((uint32_t)openlrs_dev->failsafeDelay))) {
                 DEBUG_PRINTF(2, "Failsafe activated: %d %d\r\n", timeMs, openlrs_dev->linkLossTimeMs);
-                openlrs_status.FailsafeActive = OPENLRSSTATUS_FAILSAFEACTIVE_ACTIVE;
+                oplink_status.LinkState = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
                 // failsafeApply();
                 openlrs_dev->nextBeaconTimeMs = (timeMs + 1000UL * openlrs_dev->beacon_period) | 1; // beacon activating...
             }
@@ -1030,18 +1031,18 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
     }
 
     // Update UAVO
-    OpenLRSStatusSet(&openlrs_status);
+    OPLinkStatusSet(&oplink_status);
 }
 
 uint8_t PIOS_OpenLRS_RSSI_Get(void)
 {
-    if (openlrs_status.FailsafeActive == OPENLRSSTATUS_FAILSAFEACTIVE_ACTIVE) {
+    if (oplink_status.LinkState != OPLINKSTATUS_LINKSTATE_CONNECTED) {
         return 0;
     } else {
         OpenLRSData openlrs_data;
         OpenLRSGet(&openlrs_data);
 
-        uint16_t LQ = openlrs_status.LinkQuality & 0x7fff;
+        uint16_t LQ = oplink_status.LinkQuality & 0x7fff;
         // count number of 1s in LinkQuality
         LQ  = LQ - ((LQ >> 1) & 0x5555);
         LQ  = (LQ & 0x3333) + ((LQ >> 2) & 0x3333);
@@ -1052,12 +1053,12 @@ uint8_t PIOS_OpenLRS_RSSI_Get(void)
         switch (openlrs_data.RSSI_Type) {
         case OPENLRS_RSSI_TYPE_COMBINED:
             if ((uint8_t)LQ == 15) {
-                return (uint8_t)((openlrs_status.LastRSSI >> 1) + 128);
+                return (uint8_t)((oplink_status.RSSI >> 1) + 128);
             } else {
                 return LQ * 9;
             }
         case OPENLRS_RSSI_TYPE_RSSI:
-            return openlrs_status.LastRSSI;
+            return oplink_status.RSSI;
 
         case OPENLRS_RSSI_TYPE_LINKQUALITY:
             return (uint8_t)(LQ << 4);
@@ -1143,7 +1144,7 @@ int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
     openlrs_dev->openlrs_rcvr_id = 0;
 
     OpenLRSInitialize();
-    OpenLRSStatusInitialize();
+    OPLinkStatusInitialize();
     DEBUG_PRINTF(2, "OpenLRS UAVOs Initialized\r\n");
     OpenLRSData binding;
     OpenLRSGet(&binding);
@@ -1257,9 +1258,9 @@ static void pios_openlrs_task(void *parameters)
                 // We timed out to sample RSSI
                 if (openlrs_dev->numberOfLostPackets < 2) {
                     openlrs_dev->lastRSSITimeUs = openlrs_dev->lastPacketTimeUs;
-                    openlrs_status.LastRSSI     = rfmGetRSSI(openlrs_dev); // Read the RSSI value
+                    oplink_status.RSSI     = rfmGetRSSI(openlrs_dev); // Read the RSSI value
 
-                    // DEBUG_PRINTF(3, "Sampled RSSI: %d %d\r\n", openlrs_status.LastRSSI, delay);
+                    // DEBUG_PRINTF(3, "Sampled RSSI: %d %d\r\n", oplink_status.RSSI, delay);
                 }
             } else {
                 // We timed out because packet was missed

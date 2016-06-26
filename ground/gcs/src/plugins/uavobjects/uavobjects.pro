@@ -104,7 +104,6 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/nedaccel.xml \
     $${UAVOBJ_XML_DIR}/objectpersistence.xml \
     $${UAVOBJ_XML_DIR}/openlrs.xml \
-    $${UAVOBJ_XML_DIR}/openlrsstatus.xml \
     $${UAVOBJ_XML_DIR}/oplinkreceiver.xml \
     $${UAVOBJ_XML_DIR}/oplinksettings.xml \
     $${UAVOBJ_XML_DIR}/oplinkstatus.xml \

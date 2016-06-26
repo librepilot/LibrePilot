@@ -797,7 +797,7 @@ void PIOS_Board_Init(void)
     if (oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) {
         if (openlrs) {
 #if defined(PIOS_INCLUDE_OPENLRS_RCVR)
-            const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(bdinfo->board_rev);
+            const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg();
             uint32_t openlrs_id;
 
             PIOS_OpenLRS_Init(&openlrs_id, PIOS_RFM22_SPI_PORT, 0, openlrs_cfg);

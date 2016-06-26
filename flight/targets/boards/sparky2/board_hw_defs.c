@@ -431,7 +431,7 @@ static const struct pios_exti_cfg pios_exti_rfm22b_cfg __exti_config = {
     },
 };
 
-const struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
+const struct pios_rfm22b_cfg pios_rfm22b_cfg = {
     .spi_cfg   = &pios_spi_telem_flash_cfg,
     .exti_cfg  = &pios_exti_rfm22b_cfg,
     .RFXtalCap = 0x7f,
@@ -441,7 +441,7 @@ const struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
 
 const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(__attribute__((unused)) uint32_t board_revision)
 {
-    return &pios_rfm22b_rm2_cfg;
+    return &pios_rfm22b_cfg;
 }
 
 #endif /* PIOS_INCLUDE_RFM22B */
@@ -483,7 +483,7 @@ static const struct pios_exti_cfg pios_exti_openlrs_cfg __exti_config = {
 
 const struct pios_openlrs_cfg pios_openlrs_cfg = {
     .spi_cfg  = &pios_spi_telem_flash_cfg,
-    .exti_cfg = &pios_exti_rfm22b_cfg,
+    .exti_cfg = &pios_exti_openlrs_cfg,
     .gpio_direction = GPIO0_TX_GPIO1_RX,
 };
 

@@ -627,7 +627,8 @@ public:
             needToDoFrame = true;
 
             // h->view->getCamera()->resize(width, height);
-            h->view->getCamera()->getGraphicsContext()->resized(0, 0, width, height);
+            h->gc->resized(0, 0, width, height);
+            h->view->getEventQueue()->windowResize(0, 0, width, height /*, resizeTime*/);
 
             // trick to force a "home" on first few frames to absorb initial spurious resizes
             if (frameCount <= 2) {
@@ -831,14 +832,6 @@ void OSGViewport::componentComplete()
     Inherited::componentComplete();
 }
 
-QPointF OSGViewport::mousePoint(QMouseEvent *event)
-{
-    qreal x = 2.0 * (event->x() - width() / 2) / width();
-    qreal y = 2.0 * (event->y() - height() / 2) / height();
-
-    return QPointF(x, y);
-}
-
 void OSGViewport::mousePressEvent(QMouseEvent *event)
 {
     int button = 0;
@@ -853,26 +846,7 @@ void OSGViewport::mousePressEvent(QMouseEvent *event)
     setKeyboardModifiers(event);
     QPointF pos = mousePoint(event);
     if (h->view.valid()) {
-        h->view.get()->getEventQueue()->mouseButtonPress(pos.x(), pos.y(), button);
-    }
-}
-
-void OSGViewport::setKeyboardModifiers(QInputEvent *event)
-{
-    int modkey = event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
-    unsigned int mask = 0;
-
-    if (modkey & Qt::ShiftModifier) {
-        mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
-    }
-    if (modkey & Qt::ControlModifier) {
-        mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
-    }
-    if (modkey & Qt::AltModifier) {
-        mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
-    }
-    if (h->view.valid()) {
-        h->view.get()->getEventQueue()->getCurrentEventState()->setModKeyMask(mask);
+        h->view->getEventQueue()->mouseButtonPress(pos.x(), pos.y(), button);
     }
 }
 
@@ -881,7 +855,7 @@ void OSGViewport::mouseMoveEvent(QMouseEvent *event)
     setKeyboardModifiers(event);
     QPointF pos = mousePoint(event);
     if (h->view.valid()) {
-        h->view.get()->getEventQueue()->mouseMotion(pos.x(), pos.y());
+        h->view->getEventQueue()->mouseMotion(pos.x(), pos.y());
     }
 }
 
@@ -899,7 +873,7 @@ void OSGViewport::mouseReleaseEvent(QMouseEvent *event)
     setKeyboardModifiers(event);
     QPointF pos = mousePoint(event);
     if (h->view.valid()) {
-        h->view.get()->getEventQueue()->mouseButtonRelease(pos.x(), pos.y(), button);
+        h->view->getEventQueue()->mouseButtonRelease(pos.x(), pos.y(), button);
     }
 }
 
@@ -911,7 +885,7 @@ void OSGViewport::wheelEvent(QWheelEvent *event)
         (event->delta() > 0 ? osgGA::GUIEventAdapter::SCROLL_LEFT : osgGA::GUIEventAdapter::SCROLL_RIGHT);
 
     if (h->view.valid()) {
-        h->view.get()->getEventQueue()->mouseScroll(motion);
+        h->view->getEventQueue()->mouseScroll(motion);
     }
 }
 
@@ -920,7 +894,7 @@ void OSGViewport::keyPressEvent(QKeyEvent *event)
     setKeyboardModifiers(event);
     int value = h->keyMap.remapKey(event);
     if (h->view.valid()) {
-        h->view.get()->getEventQueue()->keyPress(value);
+        h->view->getEventQueue()->keyPress(value);
     }
 
     // this passes the event to the regular Qt key event processing,
@@ -938,7 +912,7 @@ void OSGViewport::keyReleaseEvent(QKeyEvent *event)
         setKeyboardModifiers(event);
         int value = h->keyMap.remapKey(event);
         if (h->view.valid()) {
-            h->view.get()->getEventQueue()->keyRelease(value);
+            h->view->getEventQueue()->keyRelease(value);
         }
     }
 
@@ -947,6 +921,39 @@ void OSGViewport::keyReleaseEvent(QKeyEvent *event)
     // TODO implement
     // if( _forwardKeyEvents )
     // Inherited::keyReleaseEvent(event);
+}
+
+QPointF OSGViewport::mousePoint(QMouseEvent *event)
+{
+    qreal x, y;
+
+    if (h->view.valid() && h->view->getEventQueue()->getUseFixedMouseInputRange()) {
+        x = 2.0 * (event->x() - width() / 2) / width();
+        y = 2.0 * (event->y() - height() / 2) / height();
+    } else {
+        x = event->x();
+        y = event->y();
+    }
+    return QPointF(x, y);
+}
+
+void OSGViewport::setKeyboardModifiers(QInputEvent *event)
+{
+    int modkey = event->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier);
+    unsigned int mask = 0;
+
+    if (modkey & Qt::ShiftModifier) {
+        mask |= osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    }
+    if (modkey & Qt::ControlModifier) {
+        mask |= osgGA::GUIEventAdapter::MODKEY_CTRL;
+    }
+    if (modkey & Qt::AltModifier) {
+        mask |= osgGA::GUIEventAdapter::MODKEY_ALT;
+    }
+    if (h->view.valid()) {
+        h->view->getEventQueue()->getCurrentEventState()->setModKeyMask(mask);
+    }
 }
 } // namespace osgQtQuick
 

@@ -80,9 +80,9 @@ public:
     bool busy() const;
     void setBusy(bool busy);
 
-    Renderer *createRenderer() const;
-
     osgViewer::View *asView() const;
+
+    Renderer *createRenderer() const;
 
 signals:
     void sceneNodeChanged(OSGNode *node);
@@ -92,9 +92,10 @@ signals:
     void busyChanged(bool busy);
 
 protected:
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    QSGNode *updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData) override;
-#endif
+    // QQmlParserStatus
+    void classBegin();
+    void componentComplete();
+
     // QQuickItem
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -103,16 +104,17 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    void setKeyboardModifiers(QInputEvent *event);
-    QPointF mousePoint(QMouseEvent *event);
-
-    // QQmlParserStatus
-    void classBegin();
-    void componentComplete();
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    // QQuickFramebufferObject
+    QSGNode *updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData) override;
+#endif
 
 private:
     struct Hidden;
     Hidden *const h;
+
+    void setKeyboardModifiers(QInputEvent *event);
+    QPointF mousePoint(QMouseEvent *event);
 };
 } // namespace osgQtQuick
 

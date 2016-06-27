@@ -41,6 +41,7 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgGA/StateSetManipulator>
 #include <osgGA/CameraManipulator>
+#include <osgUtil/IncrementalCompileOperation>
 
 #include <QOpenGLContext>
 #include <QQuickWindow>
@@ -98,7 +99,7 @@
  */
 
 namespace osgQtQuick {
-// enum DirtyFlag { Scene = 1 << 0, Camera = 1 << 1 };
+// enum DirtyFlag { Scene = 1 << 0, Camera = 1 << 1, Manipulator = 1 << 2, UpdateMode = 1 << 3, IncrementalCompile = 1 << 4 };
 
 class ViewportRenderer;
 
@@ -106,6 +107,7 @@ class MyViewer : public osgViewer::CompositeViewer {
 public:
     MyViewer() : osgViewer::CompositeViewer()
     {}
+
     virtual bool checkNeedToDoFrame()
     {
         if (_requestRedraw) {
@@ -120,9 +122,13 @@ public:
             if (view) {
                 // If the database pager is going to update the scene the render flag is
                 // set so that the updates show up
-                if (view->getDatabasePager()->requiresUpdateSceneGraph()) {
+                if (view->getDatabasePager()->getDataToCompileListSize() > 0) {
                     return true;
                 }
+                if (view->getDatabasePager()->getDataToMergeListSize() > 0) {
+                    return true;
+                }
+                // if (view->getDatabasePager()->requiresUpdateSceneGraph()) return true;
                 // if (view->getDatabasePager()->getRequestsInProgress()) return true;
 
                 // if there update callbacks then we need to do frame.
@@ -181,6 +187,8 @@ public:
 
     UpdateMode::Enum     updateMode;
 
+    bool incrementalCompile;
+
     bool busy;
 
     static osg::ref_ptr<osg::GraphicsContext> dummyGC;
@@ -188,7 +196,8 @@ public:
     static QtKeyboardMap keyMap;
 
     Hidden(OSGViewport *self) : QObject(self), self(self), window(NULL), frameTimer(-1), frameCount(0),
-        sceneNode(NULL), cameraNode(NULL), manipulator(NULL), updateMode(UpdateMode::OnDemand), busy(false)
+        sceneNode(NULL), cameraNode(NULL), manipulator(NULL),
+        updateMode(UpdateMode::OnDemand), incrementalCompile(false), busy(false)
     {
         OsgEarth::initialize();
 
@@ -411,6 +420,7 @@ private:
 
         viewer = new MyViewer();
         // viewer = new osgViewer::CompositeViewer();
+
         viewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
 
         // disable the default setting of viewer.done() by pressing Escape.
@@ -782,7 +792,6 @@ OSGCameraManipulator *OSGViewport::manipulator() const
 void OSGViewport::setManipulator(OSGCameraManipulator *manipulator)
 {
     if (h->acceptManipulator(manipulator)) {
-        // setDirty(Manipulator);
         emit manipulatorChanged(manipulator);
     }
 }
@@ -797,6 +806,22 @@ void OSGViewport::setUpdateMode(UpdateMode::Enum mode)
     if (h->updateMode != mode) {
         h->updateMode = mode;
         emit updateModeChanged(mode);
+    }
+}
+
+bool OSGViewport::incrementalCompile() const
+{
+    return h->incrementalCompile;
+}
+
+void OSGViewport::setIncrementalCompile(bool incrementalCompile)
+{
+    if (h->incrementalCompile != incrementalCompile) {
+        h->incrementalCompile = incrementalCompile;
+        // setDirty(IncrementalCompile);
+        // TODO not thread safe...
+        h->viewer->setIncrementalCompileOperation(incrementalCompile ? new osgUtil::IncrementalCompileOperation() : NULL);
+        emit incrementalCompileChanged(incrementalCompile);
     }
 }
 

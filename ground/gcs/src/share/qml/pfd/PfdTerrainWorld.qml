@@ -43,6 +43,7 @@ OSGViewport {
     sceneNode: skyNode
     camera: camera
     manipulator: geoTransformManipulator
+    //incrementalCompile: true
 
     OSGCamera {
         id: camera

@@ -35,6 +35,7 @@ Item {
         sceneNode: skyNode
         camera: camera
         manipulator: earthManipulator
+        incrementalCompile: true
 
         OSGCamera {
             id: camera

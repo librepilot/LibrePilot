@@ -296,7 +296,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         float const gyrovary = pseudo_windowed_variance_get(&this->gyro_var[1]);
         float const gyrovarz = pseudo_windowed_variance_get(&this->gyro_var[2]);
 
-        if ((fabsf(gyrovarx) + fabsf(gyrovary) + fabsf(gyrovarz)) > 1.0f) {
+        if ((fabsf(gyrovarx) + fabsf(gyrovary) + fabsf(gyrovarz)) > this->attitudeSettings.BoardSteadyMaxVariance) {
             this->starttime = xTaskGetTickCount();
             this->first_run = 1;
             return FILTERRESULT_WARNING;

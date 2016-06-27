@@ -166,6 +166,8 @@ private:
 
     int frameTimer;
 
+    int frameCount;
+
     osg::ref_ptr<osg::GraphicsContext> gc;
 
 public:
@@ -185,7 +187,7 @@ public:
 
     static QtKeyboardMap keyMap;
 
-    Hidden(OSGViewport *self) : QObject(self), self(self), window(NULL), frameTimer(-1),
+    Hidden(OSGViewport *self) : QObject(self), self(self), window(NULL), frameTimer(-1), frameCount(0),
         sceneNode(NULL), cameraNode(NULL), manipulator(NULL), updateMode(UpdateMode::OnDemand), busy(false)
     {
         OsgEarth::initialize();
@@ -564,11 +566,11 @@ class ViewportRenderer : public QQuickFramebufferObject::Renderer {
 private:
     OSGViewport::Hidden *const h;
 
-    int frameCount;
+    bool initFrame;
     bool needToDoFrame;
 
 public:
-    ViewportRenderer(OSGViewport::Hidden *h) : h(h), frameCount(0), needToDoFrame(false)
+    ViewportRenderer(OSGViewport::Hidden *h) : h(h), initFrame(true), needToDoFrame(false)
     {
         // qDebug() << "ViewportRenderer::ViewportRenderer";
         // osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "ViewportRenderer::ViewportRenderer");
@@ -598,16 +600,21 @@ public:
             return;
         }
 
-        // NOTE switching workspaces in GCS will destroy and recreate the renderer (and frameCount is thus reset to 0).
-        if (frameCount == 0) {
+        if (initFrame) {
             // workaround for https://bugreports.qt.io/browse/QTBUG-54073
             // busy indicator starting to spin indefinitly when switching tabs
             h->self->setBusy(true);
             h->self->setBusy(false);
         }
 
-        // we always want to draw the first frame
-        needToDoFrame = (frameCount == 0);
+        // NOTES:
+        // - needToDoFrame is always orred so "last" value is preserved. Make sure to set it to false if needed.
+        // - when switching tabs or re-parenting, the renderer is destroyed and recreated
+        // some special care is taken in case a renderer is (re)created;
+        // a new renderer will have initFrame set to true for the duration of the first frame
+
+        // draw first frame of freshly initialized renderer
+        needToDoFrame |= initFrame;
 
         // if not on-demand then do frame
         if (h->updateMode != UpdateMode::OnDemand) {
@@ -616,22 +623,20 @@ public:
 
         // check if viewport needs to be resized
         // a redraw will be requested if necessary
-        // TODO this code feels wrong... and there are resize issues
-        // in particular the statistics HUD ('s' key to display) behaves strangely when resizing
-        osg::Viewport *viewport = h->view->getCamera()->getViewport();
+        // not really event driven...
         int dpr    = h->self->window()->devicePixelRatio();
         int width  = item->width() * dpr;
         int height = item->height() * dpr;
-        if ((viewport->width() != width) || (viewport->height() != height)) {
-            // qDebug() << "*** RESIZE" << frameCount << viewport->width() << "x" << viewport->height() << "->" << width << "x" << height;
+        osg::Viewport *viewport = h->view->getCamera()->getViewport();
+        if (initFrame || (viewport->width() != width) || (viewport->height() != height)) {
+            // qDebug() << "*** RESIZE" << h->frameCount << << initFrame << viewport->width() << "x" << viewport->height() << "->" << width << "x" << height;
             needToDoFrame = true;
 
-            // h->view->getCamera()->resize(width, height);
             h->gc->resized(0, 0, width, height);
             h->view->getEventQueue()->windowResize(0, 0, width, height /*, resizeTime*/);
 
             // trick to force a "home" on first few frames to absorb initial spurious resizes
-            if (frameCount <= 2) {
+            if (h->frameCount <= 2) {
                 h->view->home();
             }
         }
@@ -650,7 +655,7 @@ public:
             needToDoFrame = h->viewer->checkNeedToDoFrame();
         }
         if (needToDoFrame) {
-            // qDebug() << "ViewportRenderer::synchronize - update scene" << frameCount;
+            // qDebug() << "ViewportRenderer::synchronize - update scene" << h->frameCount;
             h->viewer->advance();
             h->viewer->eventTraversal();
             h->viewer->updateTraversal();
@@ -658,9 +663,8 @@ public:
 
         // refresh busy state
         // TODO state becomes busy when scene is loading or downloading tiles (should do it only for download)
-        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
         // TODO also expose request list size to Qml
-        // if (h->view->getDatabasePager()->getFileRequestListSize() > 0) {
+        h->self->setBusy(h->view->getDatabasePager()->getRequestsInProgress());
     }
 
     // This function is called when the FBO should be rendered into.
@@ -676,7 +680,7 @@ public:
         }
 
         if (needToDoFrame) {
-            // qDebug() << "ViewportRenderer::render - render scene" << frameCount;
+            // qDebug() << "ViewportRenderer::render - render scene" << h->frameCount;
 
             // needed to properly render models without terrain (Qt bug?)
             QOpenGLContext::currentContext()->functions()->glUseProgram(0);
@@ -691,7 +695,8 @@ public:
             update();
         }
 
-        ++frameCount;
+        ++(h->frameCount);
+        initFrame = false;
     }
 
     QOpenGLFramebufferObject *createFramebufferObject(const QSize &size)

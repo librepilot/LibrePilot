@@ -209,6 +209,7 @@ osgearth:win32 {
         mingw_osgdb_osgearth_engine_mp$${DS}.dll \
         mingw_osgdb_osgearth_sky_simple$${DS}.dll \
         mingw_osgdb_osgearth_tms$${DS}.dll \
+        mingw_osgdb_osgearth_xyz$${DS}.dll \
         mingw_osgdb_osgearth_cache_filesystem$${DS}.dll
 
     osgearth_extra:OSGEARTH_PLUGINS += \

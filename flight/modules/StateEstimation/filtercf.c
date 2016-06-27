@@ -288,7 +288,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         return FILTERRESULT_OK; // must return OK on initial initialization, so attitude will init with a valid quaternion
     }
     // check whether copter is steady
-    if (this->init == 0) {
+    if (this->init == 0 && this->attitudeSettings.InitialZeroWhenBoardSteady == ATTITUDESETTINGS_INITIALZEROWHENBOARDSTEADY_TRUE) {
         pseudo_windowed_variance_push_sample(&this->gyro_var[0], gyro[0]);
         pseudo_windowed_variance_push_sample(&this->gyro_var[1], gyro[1]);
         pseudo_windowed_variance_push_sample(&this->gyro_var[2], gyro[2]);

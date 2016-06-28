@@ -83,25 +83,27 @@ PERF_DEFINE_COUNTER(counterAtt);
 // - 0xA7710004 number of accel samples read for each loop (cc only).
 
 // Private constants
-#define STACK_SIZE_BYTES    540
-#define TASK_PRIORITY       (tskIDLE_PRIORITY + 3)
+#define STACK_SIZE_BYTES     540
+#define TASK_PRIORITY        (tskIDLE_PRIORITY + 3)
 
 // Attitude module loop interval (defined by sensor rate in pios_config.h)
 static const uint32_t sensor_period_ms = ((uint32_t)1000.0f / PIOS_SENSOR_RATE);
 
-#define UPDATE_RATE         25.0f
+#define UPDATE_RATE          25.0f
 
 // Interval in number of sample to recalculate temp bias
-#define TEMP_CALIB_INTERVAL 30
+#define TEMP_CALIB_INTERVAL  30
 // LPF
-#define TEMP_DT             (1.0f / PIOS_SENSOR_RATE)
-#define TEMP_LPF_FC         5.0f
+#define TEMP_DT              (1.0f / PIOS_SENSOR_RATE)
+#define TEMP_LPF_FC          5.0f
 static const float temp_alpha = TEMP_DT / (TEMP_DT + 1.0f / (2.0f * M_PI_F * TEMP_LPF_FC));
 
-#define UPDATE_EXPECTED     (1.0f / PIOS_SENSOR_RATE)
-#define UPDATE_MIN          1.0e-6f
-#define UPDATE_MAX          1.0f
-#define UPDATE_ALPHA        1.0e-2f
+#define UPDATE_EXPECTED      (1.0f / PIOS_SENSOR_RATE)
+#define UPDATE_MIN           1.0e-6f
+#define UPDATE_MAX           1.0f
+#define UPDATE_ALPHA         1.0e-2f
+
+#define VARIANCE_WINDOW_SIZE 40
 
 // Private types
 
@@ -152,6 +154,9 @@ static uint8_t temp_calibration_count = 0;
 static AccelGyroSettingsgyro_scaleData gyro_scale;
 static AccelGyroSettingsaccel_scaleData accel_scale;
 
+static pw_variance_t gyro_var[3];
+static bool initialZeroWhenBoardSteady = true;
+static float boardSteadyMaxVariance;
 
 // For running trim flights
 static volatile bool trim_requested   = false;
@@ -243,6 +248,14 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
 
     bool cc3d = BOARDISCC3D;
 
+    AccelStateData accelState;
+    GyroStateData gyros;
+    int32_t retval = 0;
+
+    gyros.x = 0.0f;
+    gyros.y = 0.0f;
+    gyros.z = 0.0f;
+
     if (cc3d) {
 #if defined(PIOS_INCLUDE_MPU6000)
 
@@ -280,12 +293,31 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
 
     PIOS_DELTATIME_Init(&dtconfig, UPDATE_EXPECTED, UPDATE_MIN, UPDATE_MAX, UPDATE_ALPHA);
     portTickType lastSysTime = xTaskGetTickCount();
+    portTickType startTime   = xTaskGetTickCount();
+    pseudo_windowed_variance_init(&gyro_var[0], VARIANCE_WINDOW_SIZE);
+    pseudo_windowed_variance_init(&gyro_var[1], VARIANCE_WINDOW_SIZE);
+    pseudo_windowed_variance_init(&gyro_var[2], VARIANCE_WINDOW_SIZE);
+
     // Main task loop
     while (1) {
         FlightStatusData flightStatus;
         FlightStatusGet(&flightStatus);
 
-        if ((xTaskGetTickCount() < 7000) && (xTaskGetTickCount() > 1000)) {
+        if (init == 0 && initialZeroWhenBoardSteady) {
+            pseudo_windowed_variance_push_sample(&gyro_var[0], gyros.x);
+            pseudo_windowed_variance_push_sample(&gyro_var[1], gyros.y);
+            pseudo_windowed_variance_push_sample(&gyro_var[2], gyros.z);
+            float const gyrovarx = pseudo_windowed_variance_get(&gyro_var[0]);
+            float const gyrovary = pseudo_windowed_variance_get(&gyro_var[1]);
+            float const gyrovarz = pseudo_windowed_variance_get(&gyro_var[2]);
+
+            if ((fabsf(gyrovarx) + fabsf(gyrovary) + fabsf(gyrovarz)) > boardSteadyMaxVariance) {
+                startTime = xTaskGetTickCount();
+            }
+        }
+        if (xTaskGetTickCount() - startTime < 1000) {
+            PIOS_NOTIFY_StartNotification(NOTIFY_OK, NOTIFY_PRIORITY_REGULAR);
+        } else if ((xTaskGetTickCount() - startTime < 7000)) {
             // Use accels to initialise attitude and calculate gyro bias
             accelKp     = 1.0f;
             accelKi     = 0.0f;
@@ -316,9 +348,6 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
 #ifdef PIOS_INCLUDE_WDG
         PIOS_WDG_UpdateFlag(PIOS_WDG_ATTITUDE);
 #endif
-        AccelStateData accelState;
-        GyroStateData gyros;
-        int32_t retval = 0;
 
         if (cc3d) {
             retval = updateSensorsCC3D(&accelState, &gyros);
@@ -749,6 +778,9 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
     accelKp     = attitudeSettings.AccelKp;
     accelKi     = attitudeSettings.AccelKi;
     yawBiasRate = attitudeSettings.YawBiasRate;
+
+    initialZeroWhenBoardSteady = (attitudeSettings.InitialZeroWhenBoardSteady == ATTITUDESETTINGS_INITIALZEROWHENBOARDSTEADY_TRUE);
+    boardSteadyMaxVariance     = attitudeSettings.BoardSteadyMaxVariance;
 
     // Calculate accel filter alpha, in the same way as for gyro data in stabilization module.
     const float fakeDt = 0.0025f;

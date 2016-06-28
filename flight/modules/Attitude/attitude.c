@@ -356,7 +356,8 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
         }
 
         // Only update attitude when sensor data is good
-        if (retval != 0) {
+        // raise alarm if gyro has not been yet calibrated to prevent arming
+        if (retval != 0 || init == 0) {
             AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_ERROR);
         } else {
             // Do not update attitude data in simulation mode

@@ -160,6 +160,9 @@ struct pios_openlrs_dev {
     // RFM22B RCVR interface
     uintptr_t openlrs_rcvr_id;
 
+    // PPM callback.
+    PIOS_OpenLRS_PPMReceivedCallback ppm_callback;
+
     // Flag to indicate if link every acquired
     bool link_acquired;
 

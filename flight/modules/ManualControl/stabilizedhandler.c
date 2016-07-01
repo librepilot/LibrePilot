@@ -51,14 +51,14 @@ static float sinAngle = 0.0f;
 static float applyExpo(float value, float expo)
 {
     // note: fastPow makes a small error, therefore result needs to be bound
-    float exp = boundf(fastPow(1.00695f, expo), 0.5f, 2.0f);
+    float exp = boundf(fastPow(1.01395948f, expo), 0.25f, 4.0f);
 
     // magic number scales expo
     // so that
     // expo=100 yields value**10
     // expo=0 yields value**1
     // expo=-100 yields value**(1/10)
-    // (pow(2.0,1/100)~=1.00695)
+    // (pow(4.0,1/100)~=1.01395948)
     if (value > 0.0f) {
         return boundf(fastPow(value, exp), 0.0f, 1.0f);
     } else if (value < -0.0f) {

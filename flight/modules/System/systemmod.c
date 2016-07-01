@@ -266,6 +266,7 @@ static void systemTask(__attribute__((unused)) void *parameters)
         // Update the OPLinkStatus UAVO
         OPLinkStatusData oplinkStatus;
         OPLinkStatusGet(&oplinkStatus);
+        oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
 
         if (pios_rfm22b_id) {
             // Get the other device stats.
@@ -282,7 +283,6 @@ static void systemTask(__attribute__((unused)) void *parameters)
             static uint16_t prev_tx_seq   = 0;
             static uint16_t prev_rx_seq   = 0;
 
-            oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
             oplinkStatus.DeviceID = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
             oplinkStatus.RxGood = radio_stats.rx_good;
             oplinkStatus.RxCorrected   = radio_stats.rx_corrected;

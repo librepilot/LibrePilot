@@ -1,10 +1,8 @@
 <xml>
 	<object name="OPLinkSettings" singleinstance="true" settings="true" category="System">
 		<description>OPLink configurations options.</description>
-                <field name="Protocol" units="" type="enum" elements="1" options="OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="OPLinkReceiver"/>
-                <field name="OneWay" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
-                <field name="PPM" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
-                <field name="PPMOnly" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+                <field name="Protocol" units="" type="enum" elements="1" options="Disabled,OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="Disabled"/>
+                <field name="LinkType" units="" type="enum" elements="1" options="Data,Control,DataAndControl" defaultvalue="Data"/>
 		<field name="CoordID" units="hex" type="uint32" elements="1" defaultvalue="0"/>
 		<field name="MainPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
 		<field name="FlexiPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
@@ -19,7 +17,7 @@
 		<field name="version" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="serial_baudrate" units="" type="uint32" elements="1" defaultvalue="0"/>
 		<field name="rf_frequency" units="" type="uint32" elements="1" defaultvalue="0"/>
-		<field name="rf_magic" units="" type="uint32" elements="1" defaultvalue="0"/>
+                <!-- rf_magic === CoordID -->
 		<field name="rf_power" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="rf_channel_spacing" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="hopchannel" units="" type="uint8" elements="24" defaultvalue="0"/>

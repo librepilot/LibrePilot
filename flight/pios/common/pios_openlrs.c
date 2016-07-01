@@ -726,7 +726,7 @@ static uint8_t pios_openlrs_bind_receive(struct pios_openlrs_dev *openlrs_dev, u
                     binding.version            = openlrs_dev->bind_data.version;
                     binding.serial_baudrate    = openlrs_dev->bind_data.serial_baudrate;
                     binding.rf_frequency       = openlrs_dev->bind_data.rf_frequency;
-                    binding.rf_magic           = openlrs_dev->bind_data.rf_magic;
+                    binding.CoordID            = openlrs_dev->bind_data.rf_magic;
                     binding.rf_power           = openlrs_dev->bind_data.rf_power;
                     binding.rf_channel_spacing = openlrs_dev->bind_data.rf_channel_spacing;
                     binding.modem_params       = openlrs_dev->bind_data.modem_params;
@@ -1180,7 +1180,7 @@ int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
         openlrs_dev->bind_data.version            = binding.version;
         openlrs_dev->bind_data.serial_baudrate    = binding.serial_baudrate;
         openlrs_dev->bind_data.rf_frequency       = binding.rf_frequency;
-        openlrs_dev->bind_data.rf_magic           = binding.rf_magic;
+        openlrs_dev->bind_data.rf_magic           = binding.CoordID;
         openlrs_dev->bind_data.rf_power           = binding.rf_power;
         openlrs_dev->bind_data.rf_channel_spacing = binding.rf_channel_spacing;
         openlrs_dev->bind_data.modem_params       = binding.modem_params;

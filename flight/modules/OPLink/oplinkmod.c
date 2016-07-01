@@ -153,10 +153,10 @@ static void systemTask(__attribute__((unused)) void *parameters)
         // Get the stats from the radio device
         struct rfm22b_stats radio_stats;
         PIOS_RFM22B_GetStats(pios_rfm22b_id, &radio_stats);
+        oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
 
         if (pios_rfm22b_id) {
             // Update the status
-            oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
             oplinkStatus.DeviceID = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
             oplinkStatus.RxGood = radio_stats.rx_good;
             oplinkStatus.RxCorrected   = radio_stats.rx_corrected;

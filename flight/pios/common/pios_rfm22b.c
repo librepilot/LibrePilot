@@ -40,7 +40,7 @@
 // 6-byte (32-bit) preamble .. alternating 0's & 1's
 // 4-byte (32-bit) sync
 // 1-byte packet length (number of data bytes to follow)
-// 0 to 255 user data bytes
+// 0 to 251 user data bytes
 // 4 byte ECC
 //
 // OR in PPM only mode:
@@ -437,7 +437,7 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
 
     // Initialize the channels.
     PIOS_RFM22B_SetChannelConfig(*rfm22b_id, RFM22B_DEFAULT_RX_DATARATE, RFM22B_DEFAULT_MIN_CHANNEL,
-                                 RFM22B_DEFAULT_MAX_CHANNEL, false, false, false, false);
+                                 RFM22B_DEFAULT_MAX_CHANNEL, false, true, false);
 
     // Create the event queue
     rfm22b_dev->eventQueue = xQueueCreate(EVENT_QUEUE_SIZE, sizeof(enum pios_radio_event));
@@ -591,18 +591,18 @@ void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr)
  * @param[in] min_chan  The minimum channel.
  * @param[in] max_chan  The maximum channel.
  * @param[in] coordinator Is this modem an coordinator.
+ * @param[in] data_mode Should this modem send/receive data packets?
  * @param[in] ppm_mode Should this modem send/receive ppm packets?
- * @param[in] oneway Only the coordinator can send packets if true.
- * @param[in] ppm_only Should this modem run in ppm only mode?
  */
-void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool oneway, bool ppm_mode, bool ppm_only)
+void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool data_mode, bool ppm_mode)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
+    bool ppm_only = ppm_mode && !data_mode;
 
     if (!PIOS_RFM22B_Validate(rfm22b_dev)) {
         return;
     }
-    ppm_mode = ppm_mode || ppm_only;
+    ppm_mode = ppm_mode;
     rfm22b_dev->coordinator   = coordinator;
     rfm22b_dev->ppm_send_mode = ppm_mode && coordinator;
     rfm22b_dev->ppm_recv_mode = ppm_mode && !coordinator;
@@ -615,7 +615,7 @@ void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datar
         datarate = RFM22B_PPM_ONLY_DATARATE;
         rfm22b_dev->datarate     = RFM22B_PPM_ONLY_DATARATE;
     } else {
-        rfm22b_dev->one_way_link = oneway;
+        rfm22b_dev->one_way_link = false;
         rfm22b_dev->datarate     = datarate;
     }
     rfm22b_dev->packet_time = (ppm_mode ? packet_time_ppm[datarate] : packet_time[datarate]);

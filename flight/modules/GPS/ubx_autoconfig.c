@@ -312,7 +312,7 @@ static void config_nav(uint16_t *bytes_to_send)
     status->working_packet.message.payload.cfg_nav5.dynModel = status->currentSettings.dynamicModel;
     status->working_packet.message.payload.cfg_nav5.fixMode  = UBX_CFG_NAV5_FIXMODE_3D_ONLY;
     // mask LSB=dyn|minEl|posFixMode|drLim|posMask|statisticHoldMask|dgpsMask|......|reservedBit0 = MSB
-    status->working_packet.message.payload.cfg_nav5.mask     = UBX_CFG_NAV5_DYNMODEL_MASK + UBX_CFG_NAV5_FIXMODE_MASK;
+    status->working_packet.message.payload.cfg_nav5.mask     = UBX_CFG_NAV5_DYNMODEL + UBX_CFG_NAV5_FIXMODE;
 
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_NAV5, sizeof(ubx_cfg_nav5_t));
 }
@@ -321,7 +321,7 @@ static void config_navx(uint16_t *bytes_to_send)
 {
     memset((uint8_t *)status->working_packet.buffer, 0, sizeof(UBXSentHeader_t) + sizeof(ubx_cfg_navx5_t));
     status->working_packet.message.payload.cfg_navx5.useAOP = status->currentSettings.AssistNowAutonomous;
-    status->working_packet.message.payload.cfg_navx5.mask1  = UBX_CFG_NAVX5_AOP_MASK;
+    status->working_packet.message.payload.cfg_navx5.mask1  = UBX_CFG_NAVX5_AOP;
 
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_NAVX5, sizeof(ubx_cfg_navx5_t));
 }

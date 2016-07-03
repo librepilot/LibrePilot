@@ -505,18 +505,20 @@ struct UBX_CFG_GNSS {
     struct UBX_CFG_GNSS_CFGBLOCK cfgBlocks[UBX_GNSS_ID_MAX];
 } __attribute__((packed));
 
-#define UBX_CFG_NAV5_FIXMODE_2D_ONLY   1
-#define UBX_CFG_NAV5_FIXMODE_3D_ONLY   2
-#define UBX_CFG_NAV5_FIXMODE_AUTO_2D3D 3
+// CFG-NAV5: Position Fixing Mode
+#define UBX_CFG_NAV5_FIXMODE_2D_ONLY   0x01
+#define UBX_CFG_NAV5_FIXMODE_3D_ONLY   0x02
+#define UBX_CFG_NAV5_FIXMODE_AUTO_2D3D 0x03
 
-#define UBX_CFG_NAV5_DYNMODEL_MASK     1
-#define UBX_CFG_NAV5_MINELEV_MASK      2
-#define UBX_CFG_NAV5_FIXMODE_MASK      4
-#define UBX_CFG_NAV5_DRLIMIT_MASK      8
-#define UBX_CFG_NAV5_POSITION_MASK     16
-#define UBX_CFG_NAV5_TIME_MASK         32
-#define UBX_CFG_NAV5_STATICHOLD_MASK   64
-#define UBX_CFG_NAV5_DGPS_MASK         128
+// CFG-NAV5: Bitfield mask
+#define UBX_CFG_NAV5_DYNMODEL          (1 << 0) // Apply dynamic model settings
+#define UBX_CFG_NAV5_MINELEV           (1 << 1) // Apply minimum elevation settings
+#define UBX_CFG_NAV5_FIXMODE           (1 << 2) // Apply fix mode settings
+#define UBX_CFG_NAV5_DRLIMIT           (1 << 3) // Reserved
+#define UBX_CFG_NAV5_POSITION          (1 << 4) // Apply position mask settings
+#define UBX_CFG_NAV5_TIME              (1 << 5) // Apply time mask settings
+#define UBX_CFG_NAV5_STATICHOLD        (1 << 6) // Apply static hold settings
+#define UBX_CFG_NAV5_DGPS              (1 << 7) // Reserved
 
 struct UBX_CFG_NAV5 {
     uint16_t mask;
@@ -539,12 +541,13 @@ struct UBX_CFG_NAV5 {
     uint32_t reserved4;
 } __attribute__((packed));
 
-#define UBX_CFG_NAVX5_MIN_MAX_MASK    4
-#define UBX_CFG_NAVX5_MIN_CNO_MASK    8
-#define UBX_CFG_NAVX5_INIT_3DFIX_MASK 64
-#define UBX_CFG_NAVX5_WKN_ROLL_MASK   512
-#define UBX_CFG_NAVX5_PPP_MASK        8192
-#define UBX_CFG_NAVX5_AOP_MASK        16384
+// CFG-NAVX5: Bitfield mask1
+#define UBX_CFG_NAVX5_MIN_MAX    (1 << 2) // Apply min/max SVs settings
+#define UBX_CFG_NAVX5_MIN_CNO    (1 << 3) // Apply minimum C/N0 setting
+#define UBX_CFG_NAVX5_INIT_3DFIX (1 << 6) // Apply initial 3D fix settings
+#define UBX_CFG_NAVX5_WKN_ROLL   (1 << 9) // Apply GPS weeknumber rollover settings
+#define UBX_CFG_NAVX5_PPP        (1 << 13) // Apply PPP flag, only supported on certain product variants
+#define UBX_CFG_NAVX5_AOP        (1 << 14) // Apply useAOP flag and aopOrbMaxErr setting (AssistNow Autonomous)
 
 struct UBX_CFG_NAVX5 {
     uint16_t version;

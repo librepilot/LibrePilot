@@ -188,16 +188,7 @@ static void pathPlannerTask()
     FlightStatusGet(&flightStatus);
     if (flightStatus.ControlChain.PathPlanner != FLIGHTSTATUS_CONTROLCHAIN_TRUE) {
         pathplanner_active = false;
-        if (!validPathPlan) {
-            // unverified path plans are only a warning while we are not in pathplanner mode
-            // so it does not prevent arming. However manualcontrols safety check
-            // shall test for this warning when pathplan is on the flight mode selector
-            // thus a valid flight plan is a prerequirement for arming
-            AlarmsSet(SYSTEMALARMS_ALARM_PATHPLAN, SYSTEMALARMS_ALARM_WARNING);
-        } else {
-            AlarmsClear(SYSTEMALARMS_ALARM_PATHPLAN);
-        }
-
+        AlarmsClear(SYSTEMALARMS_ALARM_PATHPLAN);
         return;
     }
 

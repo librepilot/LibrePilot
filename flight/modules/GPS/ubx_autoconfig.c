@@ -2,7 +2,7 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
+ * @addtogroup GPSModule GPS Module
  * @brief Support code for UBX AutoConfig
  * @{
  *
@@ -317,6 +317,15 @@ static void config_nav(uint16_t *bytes_to_send)
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_NAV5, sizeof(ubx_cfg_nav5_t));
 }
 
+static void config_navx(uint16_t *bytes_to_send)
+{
+    memset((uint8_t *)status->working_packet.buffer, 0, sizeof(UBXSentHeader_t) + sizeof(ubx_cfg_navx5_t));
+    status->working_packet.message.payload.cfg_navx5.useAOP = status->currentSettings.AssistNowAutonomous;
+    status->working_packet.message.payload.cfg_navx5.mask1  = 0x4000; // aop configuration
+
+    *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_NAVX5, sizeof(ubx_cfg_navx5_t));
+}
+
 
 static void config_sbas(uint16_t *bytes_to_send)
 {
@@ -409,7 +418,6 @@ static void config_save(uint16_t *bytes_to_send)
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_CFG, sizeof(ubx_cfg_cfg_t));
 }
 
-
 static void configure(uint16_t *bytes_to_send)
 {
     switch (status->lastConfigSent) {
@@ -423,6 +431,15 @@ static void configure(uint16_t *bytes_to_send)
         break;
 
     case LAST_CONFIG_SENT_START + 2:
+        if (ubxHwVersion > UBX_HW_VERSION_5) {
+            config_navx(bytes_to_send);
+            break;
+        } else {
+            // Skip and fall through to next step
+            status->lastConfigSent++;
+        }
+
+    case LAST_CONFIG_SENT_START + 3:
         if (status->currentSettings.enableGLONASS || status->currentSettings.enableGPS) {
             config_gnss(bytes_to_send);
             break;
@@ -432,7 +449,7 @@ static void configure(uint16_t *bytes_to_send)
         }
     // in the else case we must fall through because we must send something each time because successful send is tested externally
 
-    case LAST_CONFIG_SENT_START + 3:
+    case LAST_CONFIG_SENT_START + 4:
         config_sbas(bytes_to_send);
         break;
 

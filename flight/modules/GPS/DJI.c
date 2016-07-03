@@ -2,7 +2,7 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
+ * @addtogroup GPSModule GPS Module
  * @brief Process GPS information (DJI-Naza binary format)
  * @{
  *

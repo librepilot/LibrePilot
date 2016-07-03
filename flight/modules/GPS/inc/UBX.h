@@ -2,14 +2,14 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
- * @brief Process GPS information
+ * @addtogroup GPSModule GPS Module
+ * @brief Process GPS information (UBX binary format)
  * @{
  *
  * @file       UBX.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      GPS module, handles GPS and NMEA stream
+ * @brief      GPS module, handles GPS and UBX stream
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -42,6 +42,8 @@
 
 #define UBX_HW_VERSION_8 80000
 #define UBX_HW_VERSION_7 70000
+
+#define UBX_HW_VERSION_5 50000
 
 #define UBX_SYNC1        0xb5 // UBX protocol synchronization characters
 #define UBX_SYNC2        0x62
@@ -98,13 +100,14 @@ typedef enum {
 } ubx_class_mon_id;
 
 typedef enum {
-    UBX_ID_CFG_NAV5 = 0x24,
-    UBX_ID_CFG_RATE = 0x08,
-    UBX_ID_CFG_MSG  = 0x01,
-    UBX_ID_CFG_CFG  = 0x09,
-    UBX_ID_CFG_SBAS = 0x16,
-    UBX_ID_CFG_GNSS = 0x3E,
-    UBX_ID_CFG_PRT  = 0x00
+    UBX_ID_CFG_NAV5  = 0x24,
+    UBX_ID_CFG_NAVX5 = 0x23,
+    UBX_ID_CFG_RATE  = 0x08,
+    UBX_ID_CFG_MSG   = 0x01,
+    UBX_ID_CFG_CFG   = 0x09,
+    UBX_ID_CFG_SBAS  = 0x16,
+    UBX_ID_CFG_GNSS  = 0x3E,
+    UBX_ID_CFG_PRT   = 0x00
 } ubx_class_cfg_id;
 
 typedef enum {
@@ -523,6 +526,33 @@ struct UBX_CFG_NAV5 {
     uint32_t reserved4;
 } __attribute__((packed));
 
+struct UBX_CFG_NAVX5 {
+    uint16_t version;
+    uint16_t mask1;
+    uint32_t reserved0;
+    uint8_t  reserved1;
+    uint8_t  reserved2;
+    uint8_t  minSVs;
+    uint8_t  maxSVs;
+    uint8_t  minCN0;
+    uint8_t  reserved5;
+    uint8_t  iniFix3D;
+    uint8_t  reserved6;
+    uint8_t  reserved7;
+    uint8_t  reserved8;
+    uint16_t wknRollover;
+    uint32_t reserved9;
+    uint8_t  reserved10;
+    uint8_t  reserved11;
+    uint8_t  usePPP;
+    uint8_t  useAOP;
+    uint8_t  reserved12;
+    uint8_t  reserved13;
+    uint16_t aopOrbMaxErr;
+    uint32_t reserved3;
+    uint32_t reserved4;
+} __attribute__((packed));
+
 // MON message Class
 #define UBX_MON_MAX_EXT 5
 struct UBX_MON_VER {
@@ -599,13 +629,14 @@ union UBXSENTPACKET {
     struct {
         struct UBXSENTHEADER header;
         union {
-            struct UBX_CFG_CFG  cfg_cfg;
-            struct UBX_CFG_MSG  cfg_msg;
-            struct UBX_CFG_NAV5 cfg_nav5;
-            struct UBX_CFG_PRT  cfg_prt;
-            struct UBX_CFG_RATE cfg_rate;
-            struct UBX_CFG_SBAS cfg_sbas;
-            struct UBX_CFG_GNSS cfg_gnss;
+            struct UBX_CFG_CFG   cfg_cfg;
+            struct UBX_CFG_MSG   cfg_msg;
+            struct UBX_CFG_NAV5  cfg_nav5;
+            struct UBX_CFG_NAVX5 cfg_navx5;
+            struct UBX_CFG_PRT   cfg_prt;
+            struct UBX_CFG_RATE  cfg_rate;
+            struct UBX_CFG_SBAS  cfg_sbas;
+            struct UBX_CFG_GNSS  cfg_gnss;
         } payload;
         uint8_t resvd[2]; // added space for checksum bytes
     } message;

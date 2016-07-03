@@ -2,14 +2,14 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
+ * @addtogroup GPSModule GPS Module
  * @brief Process GPS information
  * @{
  *
  * @file       GPS.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      GPS module, handles GPS and NMEA stream
+ * @brief      GPS module, handles GPS and various streams
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -669,6 +669,7 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
     // because ubx auto config never gets called
     // setting it up completely means that if we switch from the other protocol to UBX or disabled to enabled, that it will start normally
     newconfig.UbxAutoConfig = gpsSettings.UbxAutoConfig;
+    newconfig.AssistNowAutonomous = gpsSettings.UbxAssistNowAutonomous;
     newconfig.navRate = gpsSettings.UbxRate;
     newconfig.dynamicModel  = gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_PORTABLE ? UBX_DYNMODEL_PORTABLE :
                               gpsSettings.UbxDynamicModel == GPSSETTINGS_UBXDYNAMICMODEL_STATIONARY ? UBX_DYNMODEL_STATIONARY :

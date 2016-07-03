@@ -40,7 +40,7 @@ static void PIOS_RFM22B_COM_RegisterRxCallback(uint32_t rfm22b_id, pios_com_call
 static void PIOS_RFM22B_COM_RegisterTxCallback(uint32_t rfm22b_id, pios_com_callback tx_out_cb, uint32_t context);
 static void PIOS_RFM22B_COM_TxStart(uint32_t rfm22b_id, uint16_t tx_bytes_avail);
 static void PIOS_RFM22B_COM_RxStart(uint32_t rfm22b_id, uint16_t rx_bytes_avail);
-static bool PIOS_RFM22B_COM_Available(uint32_t rfm22b_com_id);
+static uint32_t PIOS_RFM22B_COM_Available(uint32_t rfm22b_com_id);
 
 /* Local variables */
 const struct pios_com_driver pios_rfm22b_com_driver = {
@@ -135,9 +135,9 @@ static void PIOS_RFM22B_COM_RegisterTxCallback(uint32_t rfm22b_id, pios_com_call
  * @param[in] rfm22b_dev  The device ID.
  * @return True of the device is available.
  */
-static bool PIOS_RFM22B_COM_Available(uint32_t rfm22b_id)
+static uint32_t PIOS_RFM22B_COM_Available(uint32_t rfm22b_id)
 {
-    return PIOS_RFM22B_LinkStatus(rfm22b_id);
+    return PIOS_RFM22B_LinkStatus(rfm22b_id) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
 
 #endif /* PIOS_INCLUDE_RFM22B_COM */

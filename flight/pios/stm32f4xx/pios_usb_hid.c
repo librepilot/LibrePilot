@@ -41,13 +41,14 @@ static void PIOS_USB_HID_RegisterTxCallback(uint32_t usbhid_id, pios_com_callbac
 static void PIOS_USB_HID_RegisterRxCallback(uint32_t usbhid_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USB_HID_TxStart(uint32_t usbhid_id, uint16_t tx_bytes_avail);
 static void PIOS_USB_HID_RxStart(uint32_t usbhid_id, uint16_t rx_bytes_avail);
+static uint32_t PIOS_USB_HID_Available(uint32_t usbhid_id);
 
 const struct pios_com_driver pios_usb_hid_com_driver = {
     .tx_start   = PIOS_USB_HID_TxStart,
     .rx_start   = PIOS_USB_HID_RxStart,
     .bind_tx_cb = PIOS_USB_HID_RegisterTxCallback,
     .bind_rx_cb = PIOS_USB_HID_RegisterRxCallback,
-    .available  = PIOS_USB_CheckAvailable,
+    .available  = PIOS_USB_HID_Available,
 };
 
 enum pios_usb_hid_dev_magic {
@@ -547,6 +548,11 @@ static bool PIOS_USB_HID_EP_OUT_Callback(uint32_t usb_hid_id, __attribute__((unu
 #endif /* PIOS_INCLUDE_FREERTOS */
 
     return rc;
+}
+
+static uint32_t PIOS_USB_HID_Available(uint32_t usbhid_id)
+{
+    return PIOS_USB_CheckAvailable(usbhid_id) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
 
 #endif /* PIOS_INCLUDE_USB_HID */

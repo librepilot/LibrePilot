@@ -997,8 +997,11 @@ margin-top: -1px;
                     </item>
                     <item row="1" column="0">
                      <widget class="QCheckBox" name="basicResponsivenessCheckBox">
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected the simplified version of the configuration view will be used. &lt;/p&gt;&lt;p&gt;This view hides some settings that are considered advanced and will make it easier for users to get a first working configuration.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
                       <property name="text">
-                       <string>Use Basic Configuration</string>
+                       <string>Use Basic Configuration View</string>
                       </property>
                       <property name="checked">
                        <bool>false</bool>
@@ -7873,8 +7876,11 @@ border-radius: 5;</string>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When this option is selected the advanced version of the configuration view will be used. &lt;/p&gt;&lt;p&gt;This view shows all settings that are considered advanced and will enable users to to tweak all possible settings to fine tune configuration.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
                      <property name="text">
-                      <string>Use Advanced Configuration</string>
+                      <string>Use Advanced Configuration View</string>
                      </property>
                     </widget>
                    </item>

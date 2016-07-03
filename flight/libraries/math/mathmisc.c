@@ -5,8 +5,9 @@
  * @addtogroup Reuseable math functions
  * @{
  *
- * @file       mathmisc.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @file       mathmisc.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Reuseable math functions
  *
  * @see        The GNU Public License (GPL) Version 3

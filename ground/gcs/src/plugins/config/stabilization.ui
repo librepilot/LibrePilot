@@ -149,6 +149,12 @@
            </item>
            <item>
             <widget class="QFrame" name="basicPidBankFrame">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="cursor">
               <cursorShape>ArrowCursor</cursorShape>
              </property>
@@ -167,16 +173,22 @@ margin-top: -1px;
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <item>
                <widget class="QFrame" name="horizontalFrame_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>340</height>
+                  <height>400</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>340</height>
+                  <height>400</height>
                  </size>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_31">
@@ -189,287 +201,32 @@ margin-top: -1px;
                  <property name="rightMargin">
                   <number>0</number>
                  </property>
-                 <item row="1" column="0">
-                  <widget class="QGroupBox" name="groupBox_9">
-                   <property name="title">
-                    <string>Acro+</string>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_26">
-                    <item row="0" column="0">
-                     <widget class="QCheckBox" name="checkBoxLinkAcroFactors">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
-                      </property>
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Link roll &amp;amp; pitch sliders to move together&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true"/>
-                      </property>
-                      <property name="text">
-                       <string>Link Roll and Pitch</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QPushButton" name="pushButton_21">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>Reset all values to GCS defaults</string>
-                      </property>
-                      <property name="autoFillBackground">
-                       <bool>false</bool>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true"/>
-                      </property>
-                      <property name="text">
-                       <string>Default</string>
-                      </property>
-                      <property name="objrelation" stdset="0">
-                       <stringlist>
-                        <string>button:default</string>
-                        <string>buttongroup:77</string>
-                       </stringlist>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0" colspan="2">
-                     <layout class="QGridLayout" name="gridLayout_29">
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <item row="1" column="1">
-                       <widget class="QSlider" name="AcroFactorRollSlider">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro + slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                        </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>100</number>
-                        </property>
-                        <property name="singleStep">
-                         <number>1</number>
-                        </property>
-                        <property name="value">
-                         <number>50</number>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="tickPosition">
-                         <enum>QSlider::TicksBelow</enum>
-                        </property>
-                        <property name="tickInterval">
-                         <number>5</number>
-                        </property>
-                        <property name="objrelation" stdset="0">
-                         <stringlist>
-                          <string>objname:StabilizationSettingsBankX</string>
-                          <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:1</string>
-                          <string>buttongroup:77</string>
-                          <string>element:Roll</string>
-                         </stringlist>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <widget class="QSpinBox" name="AcroFactorRollSpinBox">
-                        <property name="minimumSize">
-                         <size>
-                          <width>60</width>
-                          <height>22</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>60</width>
-                          <height>22</height>
-                         </size>
-                        </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>100</number>
-                        </property>
-                        <property name="value">
-                         <number>50</number>
-                        </property>
-                        <property name="objrelation" stdset="0">
-                         <stringlist>
-                          <string>objname:StabilizationSettingsBankX</string>
-                          <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:1</string>
-                          <string>buttongroup:77</string>
-                          <string>element:Roll</string>
-                         </stringlist>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="AcroFactorRollLabel">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>80</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>Roll Factor</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <widget class="QSlider" name="AcroFactorPitchSlider">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro + slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                        </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>100</number>
-                        </property>
-                        <property name="singleStep">
-                         <number>1</number>
-                        </property>
-                        <property name="value">
-                         <number>50</number>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="tickPosition">
-                         <enum>QSlider::TicksBelow</enum>
-                        </property>
-                        <property name="tickInterval">
-                         <number>5</number>
-                        </property>
-                        <property name="objrelation" stdset="0">
-                         <stringlist>
-                          <string>objname:StabilizationSettingsBankX</string>
-                          <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:1</string>
-                          <string>buttongroup:77</string>
-                          <string>element:Pitch</string>
-                         </stringlist>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="2">
-                       <widget class="QSpinBox" name="AcroFactorPitchSpinBox">
-                        <property name="minimumSize">
-                         <size>
-                          <width>60</width>
-                          <height>22</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>60</width>
-                          <height>22</height>
-                         </size>
-                        </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>100</number>
-                        </property>
-                        <property name="value">
-                         <number>50</number>
-                        </property>
-                        <property name="objrelation" stdset="0">
-                         <stringlist>
-                          <string>objname:StabilizationSettingsBankX</string>
-                          <string>fieldname:AcroInsanityFactor</string>
-                          <string>scale:1</string>
-                          <string>buttongroup:77</string>
-                          <string>element:Pitch</string>
-                         </stringlist>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="AcroFactorPitchLabel_13">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>80</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>Pitch Factor</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
+                 <property name="bottomMargin">
+                  <number>9</number>
+                 </property>
+                 <property name="verticalSpacing">
+                  <number>10</number>
+                 </property>
                  <item row="0" column="1" rowspan="2">
                   <widget class="QGroupBox" name="groupBox_7">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="maximumSize">
                     <size>
-                     <width>300</width>
+                     <width>260</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -627,10 +384,28 @@ margin-top: -1px;
                        <item row="0" column="0" colspan="6">
                         <widget class="QwtPlot" name="expoPlot" native="true">
                          <property name="sizePolicy">
-                          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                            <horstretch>0</horstretch>
                            <verstretch>0</verstretch>
                           </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>220</width>
+                           <height>220</height>
+                          </size>
+                         </property>
+                         <property name="sizeIncrement">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="baseSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
                          </property>
                          <property name="toolTip">
                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This graph shows the Expo curves for all axis. The color of the curves corresponds with the colors of the slider labels below.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -934,7 +709,7 @@ margin-top: -1px;
                   <widget class="QGroupBox" name="basicResponsivenessGroupBox">
                    <property name="minimumSize">
                     <size>
-                     <width>550</width>
+                     <width>450</width>
                      <height>0</height>
                     </size>
                    </property>
@@ -1018,7 +793,7 @@ margin-top: -1px;
                         <number>0</number>
                        </property>
                        <property name="bottomMargin">
-                        <number>0</number>
+                        <number>6</number>
                        </property>
                        <item row="4" column="4">
                         <widget class="QSpinBox" name="spinBox_2">
@@ -1066,7 +841,7 @@ margin-top: -1px;
                          <property name="minimumSize">
                           <size>
                            <width>80</width>
-                           <height>16</height>
+                           <height>0</height>
                           </size>
                          </property>
                          <property name="text">
@@ -1641,11 +1416,11 @@ border-radius: 5;</string>
                          <property name="minimumSize">
                           <size>
                            <width>80</width>
-                           <height>16</height>
+                           <height>0</height>
                           </size>
                          </property>
                          <property name="text">
-                          <string>Rate yaw</string>
+                          <string>Rate Yaw</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2254,7 +2029,7 @@ border-radius: 5;</string>
                           <number>100</number>
                          </property>
                          <property name="maximum">
-                          <number>800</number>
+                          <number>1000</number>
                          </property>
                          <property name="value">
                           <number>400</number>
@@ -2326,7 +2101,7 @@ border-radius: 5;</string>
                          <property name="minimumSize">
                           <size>
                            <width>80</width>
-                           <height>16</height>
+                           <height>0</height>
                           </size>
                          </property>
                          <property name="text">
@@ -3002,6 +2777,288 @@ border-radius: 5;</string>
                        </item>
                       </layout>
                      </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QGroupBox" name="groupBox_9">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="title">
+                    <string>Acro+</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_26">
+                    <item row="0" column="0">
+                     <widget class="QCheckBox" name="checkBoxLinkAcroFactors">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Link roll &amp;amp; pitch sliders to move together&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>Link Roll and Pitch</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QPushButton" name="pushButton_21">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Reset all values to GCS defaults</string>
+                      </property>
+                      <property name="autoFillBackground">
+                       <bool>false</bool>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>Default</string>
+                      </property>
+                      <property name="objrelation" stdset="0">
+                       <stringlist>
+                        <string>button:default</string>
+                        <string>buttongroup:77</string>
+                       </stringlist>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0" colspan="2">
+                     <layout class="QGridLayout" name="gridLayout_29">
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <item row="1" column="1">
+                       <widget class="QSlider" name="AcroFactorRollSlider">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>25</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro + slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>50</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="tickPosition">
+                         <enum>QSlider::TicksBelow</enum>
+                        </property>
+                        <property name="tickInterval">
+                         <number>5</number>
+                        </property>
+                        <property name="objrelation" stdset="0">
+                         <stringlist>
+                          <string>objname:StabilizationSettingsBankX</string>
+                          <string>fieldname:AcroInsanityFactor</string>
+                          <string>scale:1</string>
+                          <string>buttongroup:77</string>
+                          <string>element:Roll</string>
+                         </stringlist>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QSpinBox" name="AcroFactorRollSpinBox">
+                        <property name="minimumSize">
+                         <size>
+                          <width>60</width>
+                          <height>22</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>60</width>
+                          <height>22</height>
+                         </size>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="value">
+                         <number>50</number>
+                        </property>
+                        <property name="objrelation" stdset="0">
+                         <stringlist>
+                          <string>objname:StabilizationSettingsBankX</string>
+                          <string>fieldname:AcroInsanityFactor</string>
+                          <string>scale:1</string>
+                          <string>buttongroup:77</string>
+                          <string>element:Roll</string>
+                         </stringlist>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="AcroFactorRollLabel">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>80</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Roll Factor</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QSlider" name="AcroFactorPitchSlider">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>25</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro + slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>50</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="tickPosition">
+                         <enum>QSlider::TicksBelow</enum>
+                        </property>
+                        <property name="tickInterval">
+                         <number>5</number>
+                        </property>
+                        <property name="objrelation" stdset="0">
+                         <stringlist>
+                          <string>objname:StabilizationSettingsBankX</string>
+                          <string>fieldname:AcroInsanityFactor</string>
+                          <string>scale:1</string>
+                          <string>buttongroup:77</string>
+                          <string>element:Pitch</string>
+                         </stringlist>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="2">
+                       <widget class="QSpinBox" name="AcroFactorPitchSpinBox">
+                        <property name="minimumSize">
+                         <size>
+                          <width>60</width>
+                          <height>22</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>60</width>
+                          <height>22</height>
+                         </size>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="value">
+                         <number>50</number>
+                        </property>
+                        <property name="objrelation" stdset="0">
+                         <stringlist>
+                          <string>objname:StabilizationSettingsBankX</string>
+                          <string>fieldname:AcroInsanityFactor</string>
+                          <string>scale:1</string>
+                          <string>buttongroup:77</string>
+                          <string>element:Pitch</string>
+                         </stringlist>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QLabel" name="AcroFactorPitchLabel_13">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>80</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Pitch Factor</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </widget>
@@ -9030,7 +9087,7 @@ response (deg/s)</string>
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <double>1000000.000000000000000</double>
+                         <double>2000.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>1.000000000000000</double>
@@ -9083,7 +9140,7 @@ response (deg/s)</string>
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <double>1000000.000000000000000</double>
+                         <double>2000.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>1.000000000000000</double>
@@ -9700,7 +9757,7 @@ border-radius: 5;</string>
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <double>1000000.000000000000000</double>
+                         <double>2000.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>1.000000000000000</double>
@@ -10358,7 +10415,7 @@ border-radius: 5;</string>
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <double>1000000.000000000000000</double>
+                         <double>2000.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>1.000000000000000</double>
@@ -10411,7 +10468,7 @@ border-radius: 5;</string>
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <double>1000000.000000000000000</double>
+                         <double>2000.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>1.000000000000000</double>
@@ -10464,7 +10521,7 @@ border-radius: 5;</string>
                          <number>0</number>
                         </property>
                         <property name="maximum">
-                         <double>1000000.000000000000000</double>
+                         <double>2000.000000000000000</double>
                         </property>
                         <property name="singleStep">
                          <double>1.000000000000000</double>

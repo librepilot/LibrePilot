@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2016, The LibrePilot Project, http://www.librepilot.org
-# Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
+# Copyright (C) 2016, The LibrePilot Project, http://www.librepilot.org
+# Copyright (C) 2009-2013, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -126,6 +126,8 @@ UAVOBJSRCFILENAMES += txpidsettings
 UAVOBJSRCFILENAMES += txpidstatus
 UAVOBJSRCFILENAMES += takeofflocation
 UAVOBJSRCFILENAMES += perfcounter
-
+UAVOBJSRCFILENAMES += systemidentsettings
+UAVOBJSRCFILENAMES += systemidentstate
+ 
 UAVOBJSRC = $(foreach UAVOBJSRCFILE,$(UAVOBJSRCFILENAMES),$(FLIGHT_UAVOBJ_DIR)/$(UAVOBJSRCFILE).c )
 UAVOBJDEFINE = $(foreach UAVOBJSRCFILE,$(UAVOBJSRCFILENAMES),-DUAVOBJ_INIT_$(UAVOBJSRCFILE) )

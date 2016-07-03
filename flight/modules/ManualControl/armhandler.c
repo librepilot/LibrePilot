@@ -7,7 +7,8 @@
  * @{
  *
  * @file       armhandler.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  *
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -342,6 +343,9 @@ static bool okToArm(void)
 
         break;
     case FLIGHTSTATUS_FLIGHTMODE_LAND:
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         return false;
 
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF:

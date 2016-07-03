@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2015-2016, The LibrePilot Project, http://www.librepilot.org
-# Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
-# Copyright (c) 2012, PhoenixPilot, http://github.com/PhoenixPilot
+# Copyright (C) 2015-2016, The LibrePilot Project, http://www.librepilot.org
+# Copyright (C) 2009-2013, The OpenPilot Team, http://www.openpilot.org
+# Copyright (C) 2012, PhoenixPilot, http://github.com/PhoenixPilot
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ MODULES += Osd/osdoutout
 MODULES += Logging
 MODULES += Telemetry
 
+OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
 

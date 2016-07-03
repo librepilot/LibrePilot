@@ -1,0 +1,59 @@
+<xml>
+    <object name="SystemIdentSettings" singleinstance="true" settings="true" category="Control">
+        <description>The input to the PID tuning.</description>
+        <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0"/>
+        <!-- Beta default valuses 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
+        <field name="Beta" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="10.0,10.0,7.0"/>
+        <!-- Decrease damping to make your aircraft response more rapidly. Increase it for more stability. -->
+        <!-- Increasing noise (sensitivity) will make your aircraft respond more rapidly, but will cause twitches due to noise. -->
+        <!-- Use RateDamp 130 with RateNoise 08 for very smooth flight. -->
+        <!-- Use RateDamp 110 with RateNoise 10 for default flight. -->
+        <!-- Use RateDamp 100 with RateNoise 13 for very snappy flight. -->
+        <!-- RateNoise is [0,30] default 10. -->
+        <!-- RateDamp is [50,150] default 110. -->
+        <!-- per https://github.com/d-ronin/dRonin/pull/811/files change min ratedamp to 85. -->
+        <!-- So RateDamp is [85,150] default 110. -->
+        <!-- Extrapolated multiplicatively: -->
+        <!-- Use RateDamp 153.636363636 with RateNoise 06.4 for very very smooth flight. -->
+        <!-- Use RateDamp  90.909090909 with RateNoise 16.9 for very very snappy flight. -->
+        <!-- Extrapolated additively: -->
+        <!-- Use RateDamp 150 with RateNoise 06 for very very smooth flight. -->
+        <!-- Use RateDamp  90 with RateNoise 16 for very very snappy flight. -->
+        <!-- use additive so the piecewise algorithm will give the exact recommended pairs at 25%, 50%, and 75% of slider -->
+        <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="90"/>
+        <field name="DampRate" units="" type="uint8" elements="1" defaultvalue="110"/>
+        <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="150"/>
+        <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="6"/>
+        <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
+        <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="16"/>
+        <!-- <field name="CalculateYaw" units="" type="enum" elements="1" options="False,True,TrueIgnoreError" defaultvalue="True"/> -->
+        <field name="CalculateYaw" units="" type="enum" elements="1" options="False,TrueLimitToRatio,TrueIgnoreLimit" defaultvalue="TrueLimitToRatio"/>
+        <!-- <field name="YawBetaMin" units="" type="float" elements="1" defaultvalue="5.6"/> -->
+        <!-- Mateuze quad needs yaw P to be at most 2.6 times roll/pitch P to avoid yaw oscillation -->
+        <!-- Cliff sluggish 500 quad thinks that yaw P should be about 5.8 times roll/pitch P, but can easily (and better) live with 2.6 -->
+        <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0"/>
+        <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5"/>
+        <!-- <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/> -->
+        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
+        <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
+        <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
+        <!-- 0 = disabled -->
+        <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
+        <!-- an accessory knob works as expected, with full left being smoothest and full right being quickest -->
+        <!-- 23, 25, and 27 are discrete 3, 5, and 7 position rount robin selectors -->
+        <!-- incremented by quickly double toggling the fms 3 times (starting outside autotune mode -->
+        <!-- with each double toggle going into and back out of autotune) to go to the next position -->
+        <!-- think of the positions on a scale from 0 to 100, with smoothest being 0 and quickest being 100, and you start out at 50 -->
+        <!-- 23 (3 stops) means stops at 50, then 100, then 0 then back to 50 -->
+        <!-- 25 (5 stops) means stops at 50, 75, 100, 0, 25 (repeat as you toggle) -->
+        <!-- 27 (7 stops) means stops at 50, 67, 83, 100, 0, 17, 33 (repeat as you toggle) -->
+        <!-- 25 is special in that the 3 middle values (25, 50, 75) are exactly those that are recommended for smooth, normal, and quick responses -->
+        <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25"/>
+        <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+        <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+        <access gcs="readwrite" flight="readwrite"/>
+        <telemetrygcs acked="true" updatemode="onchange" period="0"/>
+        <telemetryflight acked="true" updatemode="onchange" period="0"/>
+        <logging updatemode="manual" period="0"/>
+    </object>
+</xml>

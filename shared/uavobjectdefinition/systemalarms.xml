@@ -37,6 +37,7 @@
 			<option>FlightMode</option>
 			<option>UnsupportedConfig_OneShot</option>
 			<option>BadThrottleOrCollectiveInputRange</option>
+			<option>AutoTune</option>
 		</options>
 	</field>
 	<field name="ExtendedAlarmSubStatus" units="" type="uint8" defaultvalue="0">

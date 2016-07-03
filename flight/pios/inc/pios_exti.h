@@ -35,14 +35,14 @@
 
 #include <pios_stm32.h>
 
-typedef bool (* pios_exti_vector_t)(void);
+typedef bool (*pios_exti_vector_t)(void);
 
 struct pios_exti_cfg {
     pios_exti_vector_t vector;
     uint32_t line; /* use EXTI_LineN macros */
-    struct stm32_gpio pin;
-    struct stm32_irq  irq;
-    struct stm32_exti exti;
+    struct stm32_gpio  pin;
+    struct stm32_irq   irq;
+    struct stm32_exti  exti;
 };
 
 /* must be added to any pios_exti_cfg definition for it to be valid */

@@ -34,7 +34,7 @@
 #ifdef PIOS_INCLUDE_EXTI
 
 /* Map EXTI line to full config */
-#define EXTI_MAX_LINES    16
+#define EXTI_MAX_LINES 16
 
 static pios_exti_vector_t pios_exti_vector[EXTI_MAX_LINES];
 
@@ -161,7 +161,7 @@ int32_t PIOS_EXTI_Init(const struct pios_exti_cfg *cfg)
     /* Following is not entirely correct! There is cfg->pin.pin_source to serve this purpose, and GPIO_Pin can also contain more than one bit set */
     uint8_t exti_source_pin  = PIOS_EXTI_gpio_pin_to_exti_source_pin(cfg->pin.init.GPIO_Pin);
     SYSCFG_EXTILineConfig(exti_source_port, exti_source_pin);
-    EXTI_Init((EXTI_InitTypeDef*)&cfg->exti.init);
+    EXTI_Init((EXTI_InitTypeDef *)&cfg->exti.init);
 
     /* Enable the interrupt channel */
     NVIC_Init(&cfg->irq.init);
@@ -173,26 +173,25 @@ int32_t PIOS_EXTI_DeInit(const struct pios_exti_cfg *cfg)
 {
     uint8_t line_index = PIOS_EXTI_line_to_index(cfg->line);
 
-    if(pios_exti_vector[line_index] == cfg->vector) {
-
+    if (pios_exti_vector[line_index] == cfg->vector) {
         EXTI_InitTypeDef disable = cfg->exti.init;
         disable.EXTI_LineCmd = DISABLE;
-        
+
         EXTI_Init(&disable);
         pios_exti_vector[line_index] = 0;
 
         return 0;
     }
-    
+
     return -1;
 }
 
 static bool PIOS_EXTI_generic_irq_handler(uint8_t line_index)
 {
-    if(pios_exti_vector[line_index]) {
+    if (pios_exti_vector[line_index]) {
         return pios_exti_vector[line_index]();
     }
-    
+
     /* Unconfigured interrupt just fired! */
     return false;
 }

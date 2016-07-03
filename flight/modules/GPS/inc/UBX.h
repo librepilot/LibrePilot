@@ -42,7 +42,7 @@
 
 #define UBX_HW_VERSION_8 80000
 #define UBX_HW_VERSION_7 70000
-
+#define UBX_HW_VERSION_6 60000
 #define UBX_HW_VERSION_5 50000
 
 #define UBX_SYNC1        0xb5 // UBX protocol synchronization characters
@@ -505,6 +505,19 @@ struct UBX_CFG_GNSS {
     struct UBX_CFG_GNSS_CFGBLOCK cfgBlocks[UBX_GNSS_ID_MAX];
 } __attribute__((packed));
 
+#define UBX_CFG_NAV5_FIXMODE_2D_ONLY   1
+#define UBX_CFG_NAV5_FIXMODE_3D_ONLY   2
+#define UBX_CFG_NAV5_FIXMODE_AUTO_2D3D 3
+
+#define UBX_CFG_NAV5_DYNMODEL_MASK     1
+#define UBX_CFG_NAV5_MINELEV_MASK      2
+#define UBX_CFG_NAV5_FIXMODE_MASK      4
+#define UBX_CFG_NAV5_DRLIMIT_MASK      8
+#define UBX_CFG_NAV5_POSITION_MASK     16
+#define UBX_CFG_NAV5_TIME_MASK         32
+#define UBX_CFG_NAV5_STATICHOLD_MASK   64
+#define UBX_CFG_NAV5_DGPS_MASK         128
+
 struct UBX_CFG_NAV5 {
     uint16_t mask;
     uint8_t  dynModel;
@@ -525,6 +538,13 @@ struct UBX_CFG_NAV5 {
     uint32_t reserved3;
     uint32_t reserved4;
 } __attribute__((packed));
+
+#define UBX_CFG_NAVX5_MIN_MAX_MASK    4
+#define UBX_CFG_NAVX5_MIN_CNO_MASK    8
+#define UBX_CFG_NAVX5_INIT_3DFIX_MASK 64
+#define UBX_CFG_NAVX5_WKN_ROLL_MASK   512
+#define UBX_CFG_NAVX5_PPP_MASK        8192
+#define UBX_CFG_NAVX5_AOP_MASK        16384
 
 struct UBX_CFG_NAVX5 {
     uint16_t version;

@@ -6,7 +6,8 @@
  * @{
  *
  * @file       mathmisc.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Reuseable math functions
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -33,6 +34,38 @@
 
 #include <math.h>
 #include <stdint.h>
+
+typedef struct {
+    float p1;
+    float p2;
+    float new_sma;
+    float new_smsa;
+} pw_variance_t;
+
+/***
+ * initialize pseudo windowed
+ * @param variance the instance to be initialized
+ * @param window_size size of the sample window
+ */
+void pseudo_windowed_variance_init(pw_variance_t *variance, int32_t window_size);
+
+/***
+ * Push a new sample
+ * @param variance the working instance
+ * @param sample the new sample
+ */
+static inline void pseudo_windowed_variance_push_sample(pw_variance_t *variance, float sample)
+{
+    variance->new_sma  = variance->new_sma * variance->p2 + sample * variance->p1;
+    variance->new_smsa = variance->new_smsa * variance->p2 + sample * sample * variance->p1;
+}
+
+/***
+ * Get the current variance value
+ * @param variance the working instance
+ * @return
+ */
+float pseudo_windowed_variance_get(pw_variance_t *variance);
 
 // returns min(boundary1,boundary2) if val<min(boundary1,boundary2)
 // returns max(boundary1,boundary2) if val>max(boundary1,boundary2)

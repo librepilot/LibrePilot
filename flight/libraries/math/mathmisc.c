@@ -5,8 +5,9 @@
  * @addtogroup Reuseable math functions
  * @{
  *
- * @file       mathmisc.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @file       mathmisc.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Reuseable math functions
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -28,5 +29,17 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <mathmisc.h>
 
-// space deliberately left empty, any non inline misc math functions can go here
+void pseudo_windowed_variance_init(pw_variance_t *variance, int32_t window_size)
+{
+    variance->new_sma  = 0.0f;
+    variance->new_smsa = 0.0f;
+    variance->p1 = 1.0f / (float)window_size;
+    variance->p2 = 1.0f - variance->p1;
+}
+
+float pseudo_windowed_variance_get(pw_variance_t *variance)
+{
+    return variance->new_smsa - variance->new_sma * variance->new_sma;
+}

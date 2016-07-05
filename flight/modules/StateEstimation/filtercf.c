@@ -40,7 +40,7 @@
 #include <flightstatus.h>
 #include <homelocation.h>
 #include <revocalibration.h>
-
+#include <mathmisc.h>
 #include <CoordinateConversions.h>
 #include <pios_notify.h>
 // Private constants
@@ -49,7 +49,7 @@
 
 #define CALIBRATION_DELAY_MS    4000
 #define CALIBRATION_DURATION_MS 6000
-
+#define VARIANCE_WINDOW_SIZE    40
 // Private types
 struct data {
     AttitudeSettingsData attitudeSettings;
@@ -70,6 +70,7 @@ struct data {
     int32_t starttime;
     uint8_t init;
     bool    magCalibrated;
+    pw_variance_t gyro_var[3];
 };
 
 // Private variables
@@ -158,7 +159,6 @@ static int32_t maininit(stateFilter *self)
     this->gyroBias[0] = 0.0f;
     this->gyroBias[1] = 0.0f;
     this->gyroBias[2] = 0.0f;
-
     return 0;
 }
 
@@ -231,6 +231,11 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         mag[1] = 0.0f;
         mag[2] = 0.0f;
 #endif
+
+        pseudo_windowed_variance_init(&this->gyro_var[0], VARIANCE_WINDOW_SIZE);
+        pseudo_windowed_variance_init(&this->gyro_var[1], VARIANCE_WINDOW_SIZE);
+        pseudo_windowed_variance_init(&this->gyro_var[2], VARIANCE_WINDOW_SIZE);
+
         float magBias[3];
         RevoCalibrationmag_biasArrayGet(magBias);
         // don't trust Mag for initial orientation if it has not been calibrated
@@ -282,6 +287,22 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
 
         return FILTERRESULT_OK; // must return OK on initial initialization, so attitude will init with a valid quaternion
     }
+    // check whether copter is steady
+    if (this->init == 0 && this->attitudeSettings.InitialZeroWhenBoardSteady == ATTITUDESETTINGS_INITIALZEROWHENBOARDSTEADY_TRUE) {
+        pseudo_windowed_variance_push_sample(&this->gyro_var[0], gyro[0]);
+        pseudo_windowed_variance_push_sample(&this->gyro_var[1], gyro[1]);
+        pseudo_windowed_variance_push_sample(&this->gyro_var[2], gyro[2]);
+        float const gyrovarx = pseudo_windowed_variance_get(&this->gyro_var[0]);
+        float const gyrovary = pseudo_windowed_variance_get(&this->gyro_var[1]);
+        float const gyrovarz = pseudo_windowed_variance_get(&this->gyro_var[2]);
+
+        if ((fabsf(gyrovarx) + fabsf(gyrovary) + fabsf(gyrovarz)) > this->attitudeSettings.BoardSteadyMaxVariance) {
+            this->starttime = xTaskGetTickCount();
+            this->first_run = 1;
+            return FILTERRESULT_WARNING;
+        }
+    }
+
 
     if (this->init == 0 && xTaskGetTickCount() - this->starttime < CALIBRATION_DELAY_MS / portTICK_RATE_MS) {
         // wait 4 seconds for the user to get his hands off in case the board was just powered

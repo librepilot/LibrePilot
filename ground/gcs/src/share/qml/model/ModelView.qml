@@ -55,7 +55,7 @@ Item {
 
         OSGImageNode {
             id: backgroundImageNode
-            imageFile: pfdContext.backgroundImageFile
+            imageUrl: pfdContext.backgroundImageFile
         }
 
         OSGTransformNode {

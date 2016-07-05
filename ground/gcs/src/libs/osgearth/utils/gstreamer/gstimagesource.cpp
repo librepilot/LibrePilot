@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGImageNode.hpp
+ * @file       gstimagesource.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,35 +25,66 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#pragma once
+#include "gstimagesource.hpp"
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "gstimagestream.hpp"
+
+#include <osg/Image>
 
 #include <QUrl>
+#include <QDebug>
 
-namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGImageNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QUrl imageUrl READ imageUrl WRITE setImageUrl NOTIFY imageUrlChanged)
+GstImageSource::GstImageSource() : is(NULL)
+{}
 
-    typedef OSGNode Inherited;
+GstImageSource::~GstImageSource()
+{
+    if (is) {
+        delete is;
+    }
+}
 
-public:
-    OSGImageNode(QObject *parent = 0);
-    virtual ~OSGImageNode();
+osg::Image *GstImageSource::createImage(QUrl &url)
+{
+    // qDebug() << "GstImageSource::createImage - reading image file" << url.path();
 
-    const QUrl imageUrl() const;
-    void setImageUrl(QUrl &url);
+    QString pipeline   = url.query(QUrl::FullyDecoded);
 
-signals:
-    void imageUrlChanged(const QUrl &url);
+    GSTImageStream *is = new GSTImageStream();
 
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+    is->setPipeline(pipeline.toStdString());
 
-private:
-    struct Hidden;
-    Hidden *const h;
-};
-} // namespace osgQtQuick
+    this->is = is;
+
+    play();
+
+    return this->is;
+}
+
+void GstImageSource::play()
+{
+    if (is) {
+        is->play();
+    }
+}
+
+void GstImageSource::pause()
+{
+    if (is) {
+        is->pause();
+    }
+}
+
+void GstImageSource::rewind()
+{
+    if (is) {
+        is->rewind();
+    }
+}
+
+void GstImageSource::seek(double time)
+{
+    if (is) {
+        is->seek(time);
+    }
+}

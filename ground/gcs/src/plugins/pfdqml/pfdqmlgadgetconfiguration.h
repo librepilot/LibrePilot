@@ -200,6 +200,15 @@ public:
         m_backgroundImageFile = fileName;
     }
 
+    QString gstPipeline() const
+    {
+        return m_gstPipeline;
+    }
+    void setGstPipeline(const QString &pipeline)
+    {
+        m_gstPipeline = pipeline;
+    }
+
     QMapIterator<double, QString> speedMapIterator()
     {
         return QMapIterator<double, QString>(m_speedMap);
@@ -233,6 +242,8 @@ private:
     ModelSelectionMode::Enum m_modelSelectionMode;
 
     QString m_backgroundImageFile;
+
+    QString m_gstPipeline;
 
     QMap<double, QString> m_speedMap;
     QMap<double, QString> m_altitudeMap;

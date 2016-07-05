@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGImageNode.hpp
+ * @file       gstimagesource.hpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -27,33 +27,26 @@
 
 #pragma once
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include "utils/imagesource.hpp"
 
-#include <QUrl>
+namespace osg {
+class Image;
+}
 
-namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGImageNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QUrl imageUrl READ imageUrl WRITE setImageUrl NOTIFY imageUrlChanged)
+class GSTImageStream;
 
-    typedef OSGNode Inherited;
-
+class GstImageSource : public ImageSource {
 public:
-    OSGImageNode(QObject *parent = 0);
-    virtual ~OSGImageNode();
+    GstImageSource();
+    virtual ~GstImageSource();
 
-    const QUrl imageUrl() const;
-    void setImageUrl(QUrl &url);
+    virtual osg::Image *createImage(QUrl &url);
 
-signals:
-    void imageUrlChanged(const QUrl &url);
-
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
+    virtual void play();
+    virtual void pause();
+    virtual void rewind();
+    virtual void seek(double time);
 
 private:
-    struct Hidden;
-    Hidden *const h;
+    GSTImageStream *is;
 };
-} // namespace osgQtQuick

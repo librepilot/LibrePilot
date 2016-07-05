@@ -35,6 +35,7 @@
 PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent)
 {
+    // TODO move to some conversion utility class
     m_speedMap[1.0]       = "m/s";
     m_speedMap[3.6]       = "km/h";
     m_speedMap[2.2369]    = "mph";
@@ -73,6 +74,9 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
     // background image
     m_backgroundImageFile = settings.value("backgroundImageFile", "Unknown").toString();
     m_backgroundImageFile = Utils::InsertDataPath(m_backgroundImageFile);
+
+    // gstreamer pipeline
+    m_gstPipeline         = settings.value("gstPipeline").toString();
 }
 
 PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(const PfdQmlGadgetConfiguration &obj) :
@@ -104,6 +108,9 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(const PfdQmlGadgetConfigura
 
     // background image
     m_backgroundImageFile = obj.m_backgroundImageFile;
+
+    // gstreamer pipeline
+    m_gstPipeline         = obj.m_gstPipeline;
 }
 
 /**
@@ -152,4 +159,7 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings &settings) const
     // background image
     QString backgroundImageFile = Utils::RemoveDataPath(m_backgroundImageFile);
     settings.setValue("backgroundImageFile", backgroundImageFile);
+
+    // gstreamer pipeline
+    settings.setValue("gstPipeline", m_gstPipeline);
 }

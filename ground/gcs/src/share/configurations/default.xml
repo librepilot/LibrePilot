@@ -1665,6 +1665,31 @@
           <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
       </PFD__PCT__20__PCT__28ArcGis__PCT__29>
+      <PFD__PCT__20__PCT__28Video__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/PfdVideo.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+          <gstPipeline>ksvideosrc device-index=0 ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink emit-signals=true</gstPipeline>
+        </data>
+      </PFD__PCT__20__PCT__28Video__PCT__29>
       <Model__PCT__20View>
         <configInfo>
           <locked>false</locked>

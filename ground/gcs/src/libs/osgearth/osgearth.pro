@@ -38,13 +38,15 @@ HEADERS += \
     osgearth.h \
     utils/qtwindowingsystem.h \
     utils/utility.h \
-    utils/shapeutils.h
+    utils/shapeutils.h \
+    utils/imagesource.hpp
 
 SOURCES += \
     osgearth.cpp \
     utils/qtwindowingsystem.cpp \
     utils/utility.cpp \
-    utils/shapeutils.cpp
+    utils/shapeutils.cpp \
+    utils/imagesource.cpp
 
 HEADERS += \
     osgQtQuick/Export.hpp \
@@ -82,6 +84,14 @@ SOURCES += \
     osgQtQuick/ga/OSGCameraManipulator.cpp \
     osgQtQuick/ga/OSGNodeTrackerManipulator.cpp \
     osgQtQuick/ga/OSGTrackballManipulator.cpp
+
+gstreamer:HEADERS += \
+    utils/gstreamer/gstimagestream.hpp \
+    utils/gstreamer/gstimagesource.hpp
+
+gstreamer:SOURCES += \
+    utils/gstreamer/gstimagestream.cpp \
+    utils/gstreamer/gstimagesource.cpp
 
 osgearth:HEADERS += \
     osgQtQuick/OSGSkyNode.hpp \

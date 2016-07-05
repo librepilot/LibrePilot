@@ -138,7 +138,7 @@
          <property name="currentIndex">
           <number>0</number>
          </property>
-         <widget class="QWidget" name="tab">
+         <widget class="QWidget" name="terrainTab">
           <attribute name="title">
            <string>Terrain</string>
           </attribute>
@@ -295,7 +295,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_3">
+         <widget class="QWidget" name="modelTab">
           <attribute name="title">
            <string>Model</string>
           </attribute>
@@ -391,7 +391,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_2">
+         <widget class="QWidget" name="environmentTab">
           <attribute name="title">
            <string>Environment</string>
           </attribute>
@@ -498,6 +498,43 @@
            </item>
            <item>
             <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="videoTab">
+          <attribute name="title">
+           <string>Video</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_10">
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Pipeline:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="pipelineTextEdit">
+             <property name="plainText">
+              <string notr="true"/>
+             </property>
+             <property name="placeholderText">
+              <string>&lt;enter your gstreamer pipeline here&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_4">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>

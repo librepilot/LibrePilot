@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       OSGImageNode.hpp
+ * @file       imagesource.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
@@ -25,35 +25,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#pragma once
+#include "imagesource.hpp"
 
-#include "Export.hpp"
-#include "OSGNode.hpp"
+#include <osg/Image>
+#include <osgDB/ReadFile>
 
-#include <QUrl>
+#include <QDebug>
 
-namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGImageNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QUrl imageUrl READ imageUrl WRITE setImageUrl NOTIFY imageUrlChanged)
-
-    typedef OSGNode Inherited;
-
-public:
-    OSGImageNode(QObject *parent = 0);
-    virtual ~OSGImageNode();
-
-    const QUrl imageUrl() const;
-    void setImageUrl(QUrl &url);
-
-signals:
-    void imageUrlChanged(const QUrl &url);
-
-protected:
-    virtual osg::Node *createNode();
-    virtual void updateNode();
-
-private:
-    struct Hidden;
-    Hidden *const h;
-};
-} // namespace osgQtQuick
+osg::Image *ImageSource::createImage(QUrl &url)
+{
+    qDebug() << "ImageSource::createImage - reading image file" << url.path();
+    osg::Image *image = osgDB::readImageFile(url.path().toStdString());
+    return image;
+}

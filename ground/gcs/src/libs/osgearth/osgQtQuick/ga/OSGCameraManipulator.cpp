@@ -59,7 +59,7 @@ public:
 
     osg::Node *nodeToUpdate() const
     {
-        return manipulator->getNode();
+        return manipulator ? manipulator->getNode() : NULL;
     }
 
     void update()

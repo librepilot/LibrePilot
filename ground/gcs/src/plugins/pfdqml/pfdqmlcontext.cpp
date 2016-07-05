@@ -282,6 +282,19 @@ void PfdQmlContext::resetConsumedEnergy()
     batterySettings->setData(batterySettings->getData());
 }
 
+QString PfdQmlContext::gstPipeline() const
+{
+    return m_gstPipeline;
+}
+
+void PfdQmlContext::setGstPipeline(const QString &arg)
+{
+    if (m_gstPipeline != arg) {
+        m_gstPipeline = arg;
+        emit gstPipelineChanged(gstPipeline());
+    }
+}
+
 void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
     setSpeedFactor(config->speedFactor());
@@ -307,6 +320,9 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
     // background image
     setBackgroundImageFile(config->backgroundImageFile());
+
+    // gstreamer pipeline
+    setGstPipeline(config->gstPipeline());
 }
 
 

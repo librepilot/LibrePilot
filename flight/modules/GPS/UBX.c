@@ -2,14 +2,14 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
+ * @addtogroup GPSModule GPS Module
  * @brief Process GPS information (UBX binary format)
  * @{
  *
  * @file       UBX.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @brief      GPS module, handles GPS and NMEA stream
+ * @brief      GPS module, handles GPS and UBX stream
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/

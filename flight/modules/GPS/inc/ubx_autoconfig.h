@@ -1,13 +1,17 @@
 /**
  ******************************************************************************
+ * @addtogroup OpenPilotModules OpenPilot Modules
+ * @{
+ * @addtogroup GPSModule GPS Module
+ * @brief Support code for UBX AutoConfig
+ * @{
  *
- * @file       %FILENAME%
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
- * @addtogroup [Group]
- * @{
- * @addtogroup %CLASS%
- * @{
- * @brief [Brief]
+ * @file       ubx_autoconfig.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @brief      Support code for UBX AutoConfig
+ * @see        The GNU Public License (GPL) Version 3
+ *
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -85,6 +89,7 @@ typedef enum {
 #define UBX_
 typedef struct {
     GPSSettingsUbxAutoConfigOptions UbxAutoConfig;
+    GPSSettingsUbxAssistNowAutonomousOptions AssistNowAutonomous;
     bool    SBASRanging;
     bool    SBASCorrection;
     bool    SBASIntegrity;
@@ -102,6 +107,7 @@ typedef struct {
 // Sent messages for configuration support
 typedef struct UBX_CFG_CFG ubx_cfg_cfg_t;
 typedef struct UBX_CFG_NAV5 ubx_cfg_nav5_t;
+typedef struct UBX_CFG_NAVX5 ubx_cfg_navx5_t;
 typedef struct UBX_CFG_RATE ubx_cfg_rate_t;
 typedef struct UBX_CFG_MSG ubx_cfg_msg_t;
 typedef struct UBX_CFG_PRT ubx_cfg_prt_t;

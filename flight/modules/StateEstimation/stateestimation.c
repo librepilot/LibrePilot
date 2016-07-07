@@ -251,6 +251,29 @@ static const filterPipeline *ekf13Queue = &(filterPipeline) {
     }
 };
 
+static const filterPipeline *ekf13NavCFAttQueue = &(filterPipeline) {
+    .filter = &magFilter,
+    .next   = &(filterPipeline) {
+        .filter = &airFilter,
+        .next   = &(filterPipeline) {
+            .filter = &llaFilter,
+            .next   = &(filterPipeline) {
+                .filter = &baroFilter,
+                .next   = &(filterPipeline) {
+                    .filter = &ekf13Filter,
+                    .next   = &(filterPipeline) {
+                        .filter = &velocityFilter,
+                        .next   = &(filterPipeline) {
+                            .filter = &cfmFilter,
+                            .next   = NULL,
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
 // Private functions
 
 static void settingsUpdatedCb(UAVObjEvent *objEv);
@@ -397,6 +420,9 @@ static void StateEstimationCb(void)
                 break;
             case REVOSETTINGS_FUSIONALGORITHM_GPSNAVIGATIONINS13:
                 newFilterChain = ekf13Queue;
+                break;
+            case REVOSETTINGS_FUSIONALGORITHM_GPSNAVIGATIONINS13CF:
+                newFilterChain = ekf13NavCFAttQueue;
                 break;
             default:
                 newFilterChain = NULL;

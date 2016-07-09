@@ -87,7 +87,7 @@ $(TOOL_REMOVE_TARGETS):
 TOOLS_URL := http://librepilot.github.io/tools
 
 QT_SHORT_VERSION := 5.6
-QT_VERSION := 5.6.0
+QT_VERSION := 5.6.1
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)

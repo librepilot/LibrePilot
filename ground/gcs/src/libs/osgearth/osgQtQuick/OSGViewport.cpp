@@ -404,10 +404,12 @@ private:
                 camera->releaseGLObjects(gc->getState());
             }
         }
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 0)
         gc->getState()->releaseGLObjects();
         osg::deleteAllGLObjects(gc->getState()->getContextID());
         osg::flushAllDeletedGLObjects(gc->getState()->getContextID());
         osg::discardAllGLObjects(gc->getState()->getContextID());
+#endif
     }
 
     void createViewer()
@@ -502,7 +504,6 @@ private:
         // if (traits->displayNum < 0) {
         // traits->displayNum = 0;
         // }
-        traits->windowingSystemPreference = "QT";
 
 #if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 3)
         // The MyQt windowing system is registered in osgearth.cpp

@@ -55,6 +55,7 @@ class OSGQTQUICK_EXPORT OSGViewport : public QQuickFramebufferObject {
     Q_PROPERTY(osgQtQuick::OSGCamera * camera READ cameraNode WRITE setCameraNode NOTIFY cameraNodeChanged)
     Q_PROPERTY(osgQtQuick::OSGCameraManipulator * manipulator READ manipulator WRITE setManipulator NOTIFY manipulatorChanged)
     Q_PROPERTY(osgQtQuick::UpdateMode::Enum updateMode READ updateMode WRITE setUpdateMode NOTIFY updateModeChanged)
+    Q_PROPERTY(bool incrementalCompile READ incrementalCompile WRITE setIncrementalCompile NOTIFY incrementalCompileChanged)
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
 
     typedef QQuickFramebufferObject Inherited;
@@ -77,25 +78,29 @@ public:
     UpdateMode::Enum updateMode() const;
     void setUpdateMode(UpdateMode::Enum mode);
 
-    bool busy() const;
-    void setBusy(const bool busy);
+    bool incrementalCompile() const;
+    void setIncrementalCompile(bool busy);
 
-    Renderer *createRenderer() const;
-    void releaseResources();
+    bool busy() const;
+    void setBusy(bool busy);
 
     osgViewer::View *asView() const;
 
+    Renderer *createRenderer() const;
+
 signals:
-    void sceneNodeChanged(OSGNode *node);
-    void cameraNodeChanged(OSGCamera *node);
-    void manipulatorChanged(OSGCameraManipulator *manipulator);
-    void updateModeChanged(UpdateMode::Enum mode);
+    void sceneNodeChanged(OSGNode *);
+    void cameraNodeChanged(OSGCamera *);
+    void manipulatorChanged(OSGCameraManipulator *);
+    void updateModeChanged(UpdateMode::Enum);
+    void incrementalCompileChanged(bool);
     void busyChanged(bool busy);
 
 protected:
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-    QSGNode *updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData) override;
-#endif
+    // QQmlParserStatus
+    void classBegin();
+    void componentComplete();
+
     // QQuickItem
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -104,16 +109,17 @@ protected:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    void setKeyboardModifiers(QInputEvent *event);
-    QPointF mousePoint(QMouseEvent *event);
-
-    // QQmlParserStatus
-    void classBegin();
-    void componentComplete();
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+    // QQuickFramebufferObject
+    QSGNode *updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *nodeData) override;
+#endif
 
 private:
     struct Hidden;
     Hidden *const h;
+
+    void setKeyboardModifiers(QInputEvent *event);
+    QPointF mousePoint(QMouseEvent *event);
 };
 } // namespace osgQtQuick
 

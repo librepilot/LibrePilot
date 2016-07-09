@@ -35,6 +35,7 @@ Item {
         sceneNode: skyNode
         camera: camera
         manipulator: earthManipulator
+        incrementalCompile: true
 
         OSGCamera {
             id: camera
@@ -59,16 +60,6 @@ Item {
             async: false
         }
 
-    }
-
-    BusyIndicator {
-        width: 24
-        height: 24
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: 4
-
-        running: osgViewport.busy
     }
 
     BusyIndicator {

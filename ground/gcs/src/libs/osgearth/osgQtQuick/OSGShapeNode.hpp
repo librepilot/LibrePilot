@@ -35,7 +35,7 @@ namespace osgQtQuick {
 class ShapeType : public QObject {
     Q_OBJECT
 public:
-    enum Enum { Cube, Sphere, Torus, Axis };
+    enum Enum { Cube, Sphere, Torus, Axis, Rhombicuboctahedron };
     Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5
 };
 

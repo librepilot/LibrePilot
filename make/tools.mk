@@ -94,7 +94,7 @@ ifeq ($(UNAME), Linux)
         QT_SDK_ARCH    := gcc_64
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-linux-x64-$(QT_VERSION).run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/md5sums.txt
-        OSG_URL        := $(TOOLS_URL)/osg-3.5.1-linux-x64-qt-$(QT_VERSION).tar.gz
+        OSG_URL        := $(TOOLS_URL)/osg-3.5.3-linux-x64-qt-$(QT_VERSION).tar.gz
         OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-linux-x64-qt-$(QT_VERSION).tar.gz
     else
 			# x32 for linux no longer provided as pre-built binaries.
@@ -109,7 +109,7 @@ else ifeq ($(UNAME), Darwin)
     QT_SDK_MAINTENANCE_TOOL := /Volumes/qt-opensource-mac-x64-clang-$(QT_VERSION)/qt-opensource-mac-x64-clang-$(QT_VERSION).app/Contents/MacOS/qt-opensource-mac-x64-clang-$(QT_VERSION)
     UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
-    OSG_URL        := $(TOOLS_URL)/osg-3.5.1-clang_64-qt-$(QT_VERSION).tar.gz
+    OSG_URL        := $(TOOLS_URL)/osg-3.5.3-clang_64-qt-$(QT_VERSION).tar.gz
     OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-clang_64-qt-$(QT_VERSION).tar.gz
 else ifeq ($(UNAME), Windows)
     QT_SDK_ARCH    := mingw492_32
@@ -133,14 +133,14 @@ CCACHE_DIR     := $(TOOLS_DIR)/ccache
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.1-linux-x64-qt-$(QT_VERSION)
+        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.3-linux-x64-qt-$(QT_VERSION)
         OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-linux-x64-qt-$(QT_VERSION)
     else
-        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.1-linux-x86-qt-$(QT_VERSION)
+        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.3-linux-x86-qt-$(QT_VERSION)
         OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-linux-x86-qt-$(QT_VERSION)
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.1-clang_64-qt-$(QT_VERSION)
+    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.3-clang_64-qt-$(QT_VERSION)
     OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
 else ifeq ($(UNAME), Windows)
     ifeq ($(ARCH), x86_64)

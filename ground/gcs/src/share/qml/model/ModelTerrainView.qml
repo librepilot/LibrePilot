@@ -36,6 +36,7 @@ Item {
         sceneNode: skyNode
         camera: camera
         manipulator: nodeTrackerManipulator
+        //incrementalCompile: true
 
         OSGCamera {
             id: camera

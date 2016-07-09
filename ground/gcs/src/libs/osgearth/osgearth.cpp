@@ -98,8 +98,8 @@ void OsgEarth::initialize()
     // setenv("OSG_ASSIGN_PBO_TO_IMAGES", "on", 0);
 
     // Number of threads in the DatbasePager set up, inclusive of the number of http dedicated threads.
-    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(6);
-    osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(3);
+    osg::DisplaySettings::instance()->setNumOfDatabaseThreadsHint(8);
+    osg::DisplaySettings::instance()->setNumOfHttpDatabaseThreadsHint(4);
 
     initializePathes();
 
@@ -128,27 +128,19 @@ void OsgEarth::initializePathes()
 void OsgEarth::initializeCache()
 {
 #ifdef USE_OSGEARTH
+
     QString cachePath = Utils::GetStoragePath() + "osgearth/cache";
 
-    osgEarth::Drivers::FileSystemCacheOptions cacheOptions;
+    qputenv("OSGEARTH_CACHE_PATH", cachePath.toLatin1());
 
-    cacheOptions.rootPath() = cachePath.toStdString();
+    const osgEarth::CachePolicy cachePolicy(osgEarth::CachePolicy::USAGE_READ_WRITE);
 
-    osg::ref_ptr<osgEarth::Cache> cache = osgEarth::CacheFactory::create(cacheOptions);
-    if (cache->isOK()) {
-        // set cache
-        osgEarth::Registry::instance()->setCache(cache.get());
+    // The default cache policy used when no policy is set elsewhere
+    osgEarth::Registry::instance()->setDefaultCachePolicy(cachePolicy);
 
-        // set cache policy
-        const osgEarth::CachePolicy cachePolicy(osgEarth::CachePolicy::USAGE_READ_WRITE);
+    // The override cache policy (overrides all others if set)
+    // osgEarth::Registry::instance()->setOverrideCachePolicy(cachePolicy);
 
-        // The default cache policy used when no policy is set elsewhere
-        osgEarth::Registry::instance()->setDefaultCachePolicy(cachePolicy);
-        // The override cache policy (overrides all others if set)
-        // osgEarth::Registry::instance()->setOverrideCachePolicy(cachePolicy);
-    } else {
-        qWarning() << "OsgEarth::initializeCache - Failed to initialize cache";
-    }
 #endif // ifdef USE_OSGEARTH
 }
 
@@ -229,7 +221,13 @@ void QtNotifyHandler::notify(osg::NotifySeverity severity, const char *message)
     }
 }
 
+#if OSG_VERSION_GREATER_OR_EQUAL(3, 5, 3)
+REGISTER_WINDOWINGSYSTEMINTERFACE(MyQt, QtWindowingSystem)
+#endif
+
 void OsgEarth::initWindowingSystem()
 {
+#if OSG_VERSION_LESS_THAN(3, 5, 3)
     osg::GraphicsContext::setWindowingSystemInterface(QtWindowingSystem::getInterface());
+#endif
 }

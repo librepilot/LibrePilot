@@ -123,6 +123,7 @@ public:
         if (mapNode) {
             geoPoint = osgQtQuick::toGeoPoint(mapNode->getTerrain()->getSRS(), position);
         } else {
+            qWarning() << "OSGGeoTransformNode::onChildNodeChanged - no map node";
             geoPoint = osgQtQuick::toGeoPoint(position);
         }
         if (clampToTerrain && mapNode) {

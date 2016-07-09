@@ -15,13 +15,8 @@ contains(QT_ARCH, x86_64)  {
 }
 
 osg {
-    win32 {
-        OSG_SDK_DIR = $$clean_path($$[QT_INSTALL_BINS]/..)
-    } else {
-        OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
-    }
+    OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
     message(Using osg from here: $$OSG_SDK_DIR)
-
 
     linux|macx {
         INCLUDEPATH += $$OSG_SDK_DIR/include
@@ -37,13 +32,8 @@ osg {
 }
 
 osgearth {
-    win32 {
-        OSGEARTH_SDK_DIR = $$clean_path($$[QT_INSTALL_BINS]/..)
-    } else {
-        OSGEARTH_SDK_DIR = $$clean_path($$(OSGEARTH_SDK_DIR))
-    }
+    OSGEARTH_SDK_DIR = $$clean_path($$(OSGEARTH_SDK_DIR))
     message(Using osgearth from here: $$OSGEARTH_SDK_DIR)
-
 
     linux|macx {
         INCLUDEPATH += $$OSGEARTH_SDK_DIR/include

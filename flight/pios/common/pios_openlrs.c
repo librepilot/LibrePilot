@@ -57,8 +57,6 @@ static uint8_t rfmGetRSSI(struct pios_openlrs_dev *openlrs_dev);
 static void to_rx_mode(struct pios_openlrs_dev *openlrs_dev);
 static void tx_packet(struct pios_openlrs_dev *openlrs_dev, uint8_t *pkt, uint8_t size);
 
-static OPLinkStatusData oplink_status;
-
 static struct pios_openlrs_dev *pios_openlrs_alloc();
 static bool pios_openlrs_validate(struct pios_openlrs_dev *openlrs_dev);
 
@@ -789,6 +787,9 @@ static void pios_openlrs_setup(struct pios_openlrs_dev *openlrs_dev, bool bind)
     printVersion(OPENLRSNG_VERSION);
 #endif
 
+    // Get the OPLinkStatus UAVO
+    OPLinkStatusData oplink_status;
+    OPLinkStatusGet(&oplink_status);
     if (bind) {
         oplink_status.LinkState = OPLINKSTATUS_LINKSTATE_BINDING;
         if (pios_openlrs_bind_receive(openlrs_dev, 0)) {
@@ -817,6 +818,9 @@ static void pios_openlrs_setup(struct pios_openlrs_dev *openlrs_dev, bool bind)
     openlrs_dev->link_acquired    = 0;
     openlrs_dev->lastPacketTimeUs = micros();
 
+    // Update the OPLinkStatus UAVO
+    OPLinkStatusSet(&oplink_status);
+
     DEBUG_PRINTF(2, "OpenLRSng RX setup complete\r\n");
 }
 
@@ -834,6 +838,13 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
         init_rfm(openlrs_dev, 0);
         to_rx_mode(openlrs_dev);
     }
+
+    // Get the OPLinkStatus UAVO
+    OPLinkStatusData oplink_status;
+    OPLinkStatusGet(&oplink_status);
+
+    // Update the RSSI
+    oplink_status.RSSI = openlrs_dev->rssi;
 
     timeUs = micros();
     timeMs = millis();
@@ -922,7 +933,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
                     tx_buf[0] |= (0x37 + bytes);
                 } else {
                     // tx_buf[0] lowest 6 bits left at 0
-                    tx_buf[1] = oplink_status.RSSI;
+                    tx_buf[1] = openlrs_dev->rssi;
                     if (FlightBatteryStateHandle()) {
                         FlightBatteryStateData bat;
                         FlightBatteryStateGet(&bat);
@@ -1043,6 +1054,11 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
 
 uint8_t PIOS_OpenLRS_RSSI_Get(void)
 {
+    // Get the OPLinkStatus UAVO
+    OPLinkStatusData oplink_status;
+
+    OPLinkStatusGet(&oplink_status);
+
     if (oplink_status.LinkState != OPLINKSTATUS_LINKSTATE_CONNECTED) {
         return 0;
     } else {
@@ -1286,9 +1302,9 @@ static void pios_openlrs_task(void *parameters)
                 // We timed out to sample RSSI
                 if (openlrs_dev->numberOfLostPackets < 2) {
                     openlrs_dev->lastRSSITimeUs = openlrs_dev->lastPacketTimeUs;
-                    oplink_status.RSSI = rfmGetRSSI(openlrs_dev); // Read the RSSI value
+                    openlrs_dev->rssi = rfmGetRSSI(openlrs_dev); // Read the RSSI value
 
-                    // DEBUG_PRINTF(3, "Sampled RSSI: %d %d\r\n", oplink_status.RSSI, delay);
+                    // DEBUG_PRINTF(3, "Sampled RSSI: %d %d\r\n", openlrs_dev->RSSI, delay);
                 }
             } else {
                 // We timed out because packet was missed

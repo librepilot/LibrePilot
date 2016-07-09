@@ -170,13 +170,13 @@ static int32_t RadioComBridgeStart(void)
         }
 
         // Configure our UAVObjects for updates.
-        UAVObjConnectQueue(UAVObjGetByID(OPLINKSTATUS_OBJID), data->uavtalkEventQueue, EV_UPDATED | EV_UPDATED_MANUAL | EV_UPDATE_REQ);
         UAVObjConnectQueue(UAVObjGetByID(OBJECTPERSISTENCE_OBJID), data->uavtalkEventQueue, EV_UPDATED | EV_UPDATED_MANUAL);
         if (data->isCoordinator) {
             UAVObjConnectQueue(UAVObjGetByID(OPLINKRECEIVER_OBJID), data->radioEventQueue, EV_UPDATED | EV_UPDATED_MANUAL | EV_UPDATE_REQ);
         } else {
             UAVObjConnectQueue(UAVObjGetByID(OPLINKRECEIVER_OBJID), data->uavtalkEventQueue, EV_UPDATED | EV_UPDATED_MANUAL | EV_UPDATE_REQ);
         }
+        registerObject(OPLinkStatusHandle());
 
         if (data->isCoordinator) {
             registerObject(RadioComBridgeStatsHandle());

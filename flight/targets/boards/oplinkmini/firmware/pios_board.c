@@ -230,8 +230,8 @@ void PIOS_Board_Init(void)
     bool ppm_only    = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
     bool data_mode   = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATA) ||
                         (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool is_enabled = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
-                       ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
+    bool is_enabled  = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
+                        ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
     bool ppm_mode    = false;
     bool servo_main  = false;
     bool servo_flexi = false;

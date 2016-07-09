@@ -157,17 +157,17 @@ static void systemTask(__attribute__((unused)) void *parameters)
 
         if (pios_rfm22b_id) {
             // Update the status
-            oplinkStatus.DeviceID = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
-            oplinkStatus.RxGood = radio_stats.rx_good;
-            oplinkStatus.RxCorrected   = radio_stats.rx_corrected;
-            oplinkStatus.RxErrors = radio_stats.rx_error;
-            oplinkStatus.RxMissed = radio_stats.rx_missed;
-            oplinkStatus.RxFailure     = radio_stats.rx_failure;
-            oplinkStatus.TxDropped     = radio_stats.tx_dropped;
-            oplinkStatus.TxFailure     = radio_stats.tx_failure;
+            oplinkStatus.DeviceID    = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
+            oplinkStatus.RxGood      = radio_stats.rx_good;
+            oplinkStatus.RxCorrected = radio_stats.rx_corrected;
+            oplinkStatus.RxErrors    = radio_stats.rx_error;
+            oplinkStatus.RxMissed    = radio_stats.rx_missed;
+            oplinkStatus.RxFailure   = radio_stats.rx_failure;
+            oplinkStatus.TxDropped   = radio_stats.tx_dropped;
+            oplinkStatus.TxFailure   = radio_stats.tx_failure;
             oplinkStatus.Resets      = radio_stats.resets;
             oplinkStatus.Timeouts    = radio_stats.timeouts;
-            oplinkStatus.RSSI        = radio_stats.rssi;
+            oplinkStatus.RSSI = radio_stats.rssi;
             oplinkStatus.LinkQuality = radio_stats.link_quality;
             if (first_time) {
                 first_time = false;
@@ -190,8 +190,6 @@ static void systemTask(__attribute__((unused)) void *parameters)
             oplinkStatus.TXSeq     = radio_stats.tx_seq;
             oplinkStatus.RXSeq     = radio_stats.rx_seq;
             oplinkStatus.LinkState = radio_stats.link_state;
-        } else {
-            oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
         }
 
         if (radio_stats.link_state == OPLINKSTATUS_LINKSTATE_CONNECTED) {

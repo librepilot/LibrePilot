@@ -184,6 +184,8 @@ struct pios_openlrs_dev {
     uint8_t      rx_buf[64];
     uint8_t      tx_buf[9];
 
+    int8_t       rssi;
+
     // Variables from OpenLRS for radio control
     uint8_t      hopcount;
     uint32_t     lastPacketTimeUs;

@@ -602,7 +602,6 @@ void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datar
     if (!PIOS_RFM22B_Validate(rfm22b_dev)) {
         return;
     }
-    ppm_mode = ppm_mode;
     rfm22b_dev->coordinator   = coordinator;
     rfm22b_dev->ppm_send_mode = ppm_mode && coordinator;
     rfm22b_dev->ppm_recv_mode = ppm_mode && !coordinator;

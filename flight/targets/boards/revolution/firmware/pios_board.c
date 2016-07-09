@@ -850,12 +850,12 @@ void PIOS_Board_Init(void)
 
     /* Is the radio turned on? */
     bool is_coordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
-    bool openlrs   = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPENLRS);
-    bool data_mode = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATA) ||
-                      (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool ppm_mode  = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
-                      (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool ppm_only  = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
+    bool openlrs    = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPENLRS);
+    bool data_mode  = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATA) ||
+                       (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
+    bool ppm_mode   = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
+                       (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
+    bool ppm_only   = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
     bool is_enabled = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
                        ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
     if (is_enabled) {

@@ -259,8 +259,8 @@ void ConfigOPLinkWidget::protocolChanged()
     bool is_receiver    = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKRECEIVER);
     bool is_openlrs     = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS);
     bool is_ppm_only    = isComboboxOptionSelected(m_oplink->LinkType, OPLinkSettings::LINKTYPE_CONTROL);
-    bool is_oplm        = m_oplink->MainPort->isVisible();
-    bool is_bound       = (m_oplink->CoordID->text() != "");
+    bool is_oplm  = m_oplink->MainPort->isVisible();
+    bool is_bound = (m_oplink->CoordID->text() != "");
 
     m_oplink->ComSpeed->setEnabled(!is_ppm_only && is_oplm && !is_openlrs && is_enabled);
     m_oplink->CoordID->setEnabled(is_receiver & is_enabled);
@@ -268,8 +268,8 @@ void ConfigOPLinkWidget::protocolChanged()
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);
     m_oplink->MinimumChannel->setEnabled(is_receiver || is_coordinator);
     m_oplink->MaximumChannel->setEnabled(is_receiver || is_coordinator);
-    m_oplink->MainPort->setEnabled((is_receiver || is_coordinator) && is_oplm);
-    m_oplink->FlexiPort->setEnabled((is_receiver || is_coordinator) && is_oplm);
+    m_oplink->MainPort->setEnabled(is_oplm);
+    m_oplink->FlexiPort->setEnabled(is_oplm);
     m_oplink->VCPPort->setEnabled((is_receiver || is_coordinator) && is_oplm);
     m_oplink->LinkType->setEnabled(is_enabled && !is_openlrs);
     m_oplink->MaxRFTxPower->setEnabled(is_enabled && !is_openlrs);
@@ -346,7 +346,6 @@ void ConfigOPLinkWidget::updateCustomDeviceID()
 void ConfigOPLinkWidget::unbind()
 {
     if (settingsUpdated) {
-
         // Clear the coordinator ID
         oplinkSettingsObj->getField("CoordID")->setValue(0);
         m_oplink->CoordID->setText("0");

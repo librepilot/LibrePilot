@@ -125,7 +125,6 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/receiverstatus.xml \
     $${UAVOBJ_XML_DIR}/revocalibration.xml \
     $${UAVOBJ_XML_DIR}/revosettings.xml \
-    $${UAVOBJ_XML_DIR}/rfm22breceiver.xml \
     $${UAVOBJ_XML_DIR}/sonaraltitude.xml \
     $${UAVOBJ_XML_DIR}/stabilizationbank.xml \
     $${UAVOBJ_XML_DIR}/stabilizationdesired.xml \

@@ -35,7 +35,7 @@
 #include "pios_openlrs_priv.h"
 
 #include <uavobjectmanager.h>
-#include <rfm22breceiver.h>
+#include <oplinkreceiver.h>
 #include <pios_openlrs_priv.h>
 #include <pios_openlrs_rcvr_priv.h>
 
@@ -99,7 +99,7 @@ extern int32_t PIOS_OpenLRS_Rcvr_Init(uint32_t *openlrs_rcvr_id, uintptr_t openl
     }
 
     /* Register uavobj callback */
-    RFM22BReceiverInitialize();
+    OPLinkReceiverInitialize();
 
     *openlrs_rcvr_id = (uintptr_t)openlrs_rcvr_dev;
     PIOS_OpenLRS_RegisterRcvr(openlrs_id, *openlrs_rcvr_id);
@@ -116,7 +116,7 @@ extern int32_t PIOS_OpenLRS_Rcvr_Init(uint32_t *openlrs_rcvr_id, uintptr_t openl
 /**
  * Called from the core driver to set the channel values whenever a
  * PPM packet is received. This method stores the data locally as well
- * as sets the data into the RFM22BReceiver UAVO for visibility
+ * as sets the data into the OPLinkReceiver UAVO for visibility
  */
 int32_t PIOS_OpenLRS_Rcvr_UpdateChannels(uint32_t openlrs_rcvr_id, int16_t *channels)
 {
@@ -188,7 +188,7 @@ static void PIOS_OpenLRS_Rcvr_Supervisor(uint32_t openlrs_rcvr_id)
     openlrs_rcvr_dev->supv_timer = 0;
 
     if (!openlrs_rcvr_dev->fresh) {
-        for (int32_t i = 0; i < RFM22BRECEIVER_CHANNEL_NUMELEM;
+        for (int32_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM;
              i++) {
             openlrs_rcvr_dev->channels[i] = PIOS_RCVR_TIMEOUT;
         }
@@ -202,17 +202,17 @@ static void openlrs_rcvr_update_uavo(struct pios_openlrs_rcvr_dev *rcvr_dev)
     // Also store the received data in a UAVO for easy
     // debugging. However this is not what is used in
     // ManualControl (it fetches directly from this driver)
-    RFM22BReceiverData rcvr;
+    OPLinkReceiverData rcvr;
 
     for (uint8_t i = 0; i < OPENLRS_PPM_NUM_CHANNELS; i++) {
-        if (i < RFM22BRECEIVER_CHANNEL_NUMELEM) {
+        if (i < OPLINKRECEIVER_CHANNEL_NUMELEM) {
             rcvr.Channel[i] = rcvr_dev->channels[i];
         }
     }
-    for (int i = OPENLRS_PPM_NUM_CHANNELS - 1; i < RFM22BRECEIVER_CHANNEL_NUMELEM; i++) {
+    for (int i = OPENLRS_PPM_NUM_CHANNELS - 1; i < OPLINKRECEIVER_CHANNEL_NUMELEM; i++) {
         rcvr.Channel[i] = PIOS_RCVR_INVALID;
     }
-    RFM22BReceiverSet(&rcvr);
+    OPLinkReceiverSet(&rcvr);
 }
 
 #endif /* PIOS_INCLUDE_OPENLRS */

@@ -2,7 +2,6 @@
 #include "ui_inputchannelform.h"
 
 #include "manualcontrolsettings.h"
-#include "rfm22breceiver.h"
 #include "gcsreceiver.h"
 
 InputChannelForm::InputChannelForm(const int index, QWidget *parent) :
@@ -155,6 +154,7 @@ void InputChannelForm::groupUpdated()
     case ManualControlSettings::CHANNELGROUPS_PPM:
     case ManualControlSettings::CHANNELGROUPS_SRXL:
     case ManualControlSettings::CHANNELGROUPS_EXBUS:
+    case ManualControlSettings::CHANNELGROUPS_OPENLRS:
         count = 16;
         break;
     case ManualControlSettings::CHANNELGROUPS_SBUS:
@@ -165,9 +165,6 @@ void InputChannelForm::groupUpdated()
         break;
     case ManualControlSettings::CHANNELGROUPS_GCS:
         count = GCSReceiver::CHANNEL_NUMELEM;
-        break;
-    case ManualControlSettings::CHANNELGROUPS_OPENLRS:
-        count = RFM22BReceiver::CHANNEL_NUMELEM;
         break;
     case ManualControlSettings::CHANNELGROUPS_NONE:
         count = 0;

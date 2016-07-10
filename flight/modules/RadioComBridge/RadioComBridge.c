@@ -475,12 +475,12 @@ static void PPMInputTask(__attribute__((unused)) void *parameters)
         // Wait for the receiver semaphore.
         if (xSemaphoreTake(sem, PPM_INPUT_TIMEOUT) == pdTRUE) {
             // Read the receiver inputs.
-            for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+            for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
                 channels[i] = PIOS_RCVR_Read(PIOS_PPM_RECEIVER, i + 1);
             }
         } else {
             // Failsafe
-            for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+            for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
                 channels[i] = PIOS_RCVR_INVALID;
             }
         }

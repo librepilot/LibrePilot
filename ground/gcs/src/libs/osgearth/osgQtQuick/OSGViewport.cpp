@@ -36,6 +36,7 @@
 #include <osg/Node>
 #include <osg/Vec4>
 #include <osg/ApplicationUsage>
+#include <osg/Version>
 #include <osgDB/WriteFile>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>

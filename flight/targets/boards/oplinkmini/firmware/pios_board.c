@@ -232,7 +232,8 @@ void PIOS_Board_Init(void)
                         (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
     bool is_enabled  = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
                         ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
-    bool ppm_mode    = false;
+    bool ppm_mode   = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
+                       (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
     bool servo_main  = false;
     bool servo_flexi = false;
     switch (oplinkSettings.MainPort) {
@@ -274,7 +275,6 @@ void PIOS_Board_Init(void)
             PIOS_PPM_Out_Init(&pios_ppm_out_id, &pios_main_ppm_out_cfg);
         }
 #endif /* PIOS_INCLUDE_PPM_OUT */
-        ppm_mode = true;
 #endif /* PIOS_INCLUDE_PPM */
         break;
     }
@@ -321,7 +321,6 @@ void PIOS_Board_Init(void)
             PIOS_PPM_Out_Init(&pios_ppm_out_id, &pios_flexi_ppm_out_cfg);
         }
 #endif /* PIOS_INCLUDE_PPM */
-        ppm_mode = true;
         break;
     }
     case OPLINKSETTINGS_FLEXIPORT_PWM:
@@ -353,7 +352,6 @@ void PIOS_Board_Init(void)
         servo_count = 2;
         PIOS_Servo_Init(&pios_servo_flexi_cfg);
     }
-    ppm_mode = ppm_mode || (servo_count > 0);
 #endif
 
     // Initialize out status object.

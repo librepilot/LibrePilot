@@ -821,7 +821,11 @@ $(eval $(call TOOL_INSTALL_TEMPLATE,ccache,$(CCACHE_BUILD_DIR),$(CCACHE_URL),$(C
 #
 ##############################
 
-$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_SDK_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+ifneq ($(UNAME), Windows)
+
+    $(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_SDK_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+
+endif
 
 ifeq ($(shell [ -d "$(OSG_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export OSG_SDK_DIR := $(OSG_SDK_DIR)
@@ -840,7 +844,11 @@ osg_version:
 #
 ##############################
 
-$(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_SDK_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+ifneq ($(UNAME), Windows)
+
+    $(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_SDK_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+
+endif
 
 ifeq ($(shell [ -d "$(OSGEARTH_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export OSGEARTH_SDK_DIR := $(OSGEARTH_SDK_DIR)

@@ -117,8 +117,8 @@ extern bool PIOS_RFM22B_TransmitPacket(uint32_t rfm22b_id, uint8_t *p, uint8_t l
 extern pios_rfm22b_int_result PIOS_RFM22B_ProcessTx(uint32_t rfm22b_id);
 extern pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id);
 extern void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb);
-extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels);
-extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels);
+extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan);
+extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan);
 
 /* Global Variables */
 extern const struct pios_com_driver pios_rfm22b_com_driver;

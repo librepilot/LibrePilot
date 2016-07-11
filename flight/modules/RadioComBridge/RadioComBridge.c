@@ -486,7 +486,7 @@ static void PPMInputTask(__attribute__((unused)) void *parameters)
         }
 
         // Pass the channel values to the radio device.
-        PIOS_RFM22B_PPMSet(pios_rfm22b_id, channels);
+        PIOS_RFM22B_PPMSet(pios_rfm22b_id, channels, RFM22B_PPM_NUM_CHANNELS);
     }
 }
 

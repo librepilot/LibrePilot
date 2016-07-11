@@ -368,11 +368,10 @@ static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
 
 static void PIOS_Board_PPM_callback(const int16_t *channels)
 {
-    uint8_t max_chan = (RFM22B_PPM_NUM_CHANNELS < OPLINKRECEIVER_CHANNEL_NUMELEM) ? RFM22B_PPM_NUM_CHANNELS : OPLINKRECEIVER_CHANNEL_NUMELEM;
     OPLinkReceiverData opl_rcvr;
 
-    for (uint8_t i = 0; i < max_chan; ++i) {
-        opl_rcvr.Channel[i] = channels[i];
+    for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+        opl_rcvr.Channel[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? channels[i] : PIOS_RCVR_TIMEOUT;
     }
     OPLinkReceiverSet(&opl_rcvr);
 }

@@ -1105,8 +1105,9 @@ void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb)
  *
  * @param[in] rfm22b_dev  The RFM22B device ID.
  * @param[in] channels    The PPM channel values.
+ * @param[out] nchan      The number of channels to set.
  */
-extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels)
+extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1115,7 +1116,7 @@ extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels)
     }
 
     for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-        rfm22b_dev->ppm[i] = channels[i];
+        rfm22b_dev->ppm[i] = (i < nchan) ? channels[i] : PIOS_RCVR_INVALID;
     }
 }
 
@@ -1124,8 +1125,9 @@ extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels)
  *
  * @param[in] rfm22b_dev  The RFM22B device structure pointer.
  * @param[out] channels   The PPM channel values.
+ * @param[out] nchan      The number of channels to get.
  */
-extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels)
+extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1141,8 +1143,8 @@ extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels)
         return;
     }
 
-    for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-        channels[i] = rfm22b_dev->ppm[i];
+    for (uint8_t i = 0; i < nchan; ++i) {
+        channels[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? rfm22b_dev->ppm[i] : PIOS_RCVR_INVALID;
     }
 }
 

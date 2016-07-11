@@ -6,9 +6,10 @@
  * @brief PIOS interface for RFM22B Radio
  * @{
  *
- * @file       pios_rfm22b_priv.h
+ * @file       pios_rfm22b_regs.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @author     Tau Labs, http://taulabs.org, Copyright (C) 2014
+ * @author     LibrePilot, http://librepilot.org, Copyright (C) 2016
  * @brief      RFM22B private definitions.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -31,11 +32,6 @@
 
 #ifndef PIOS_RFM22B_REGS_H
 #define PIOS_RFM22B_REGS_H
-
-// ************************************
-
-#define RFM22B_MAX_PACKET_LEN                     64
-#define RFM22B_NUM_CHANNELS                       250
 
 // ************************************
 
@@ -298,8 +294,8 @@
 #define RFM22_temp_sensor_calib                   0x12  // R/W
 #define RFM22_tsc_tstrim_mask                     0x0F  // Temperature Sensor Trim Value.
 #define RFM22_tsc_entstrim                        0x10  // Temperature Sensor Trim Enable.
-#define RFM22_tsc_entsoffs                        0x20  // Temperature Sensor Offset to Convert from K to �C.
-#define RFM22_tsc_tsrange0                        0x00  // Temperature Sensor Range Selection. �64C to +64C 0.5C resolution
+#define RFM22_tsc_entsoffs                        0x20  // Temperature Sensor Offset to Convert from K to C.
+#define RFM22_tsc_tsrange0                        0x00  // Temperature Sensor Range Selection. -40C to +64C 0.5C resolution
 #define RFM22_tsc_tsrange1                        0x40  // -40 to +85C with 1.0C resolution
 #define RFM22_tsc_tsrange2                        0x80  // 0C to 85C with 0.5C resolution
 #define RFM22_tsc_tsrange3                        0xC0  // -40F to 216F with 1.0F resolution

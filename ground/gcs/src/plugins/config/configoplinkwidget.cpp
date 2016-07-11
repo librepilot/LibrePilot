@@ -26,8 +26,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <iostream>
-
 #include "configoplinkwidget.h"
 
 #include "ui_oplink.h"
@@ -262,7 +260,7 @@ void ConfigOPLinkWidget::protocolChanged()
     bool is_oplm  = m_oplink->MainPort->isVisible();
     bool is_bound = (m_oplink->CoordID->text() != "");
 
-    m_oplink->ComSpeed->setEnabled(!is_ppm_only && is_oplm && !is_openlrs && is_enabled);
+    m_oplink->ComSpeed->setEnabled(!is_ppm_only && !is_openlrs && is_enabled);
     m_oplink->CoordID->setEnabled(is_receiver & is_enabled);
     m_oplink->UnbindButton->setEnabled(is_bound && !is_coordinator && is_enabled);
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);
@@ -351,13 +349,13 @@ void ConfigOPLinkWidget::unbind()
         m_oplink->CoordID->setText("0");
 
         // Clear the OpenLRS settings
-        oplinkSettingsObj->getField("version")->setValue(0);
-        oplinkSettingsObj->getField("serial_baudrate")->setValue(0);
-        oplinkSettingsObj->getField("rf_frequency")->setValue(0);
-        oplinkSettingsObj->getField("rf_power")->setValue(0);
-        oplinkSettingsObj->getField("rf_channel_spacing")->setValue(0);
-        oplinkSettingsObj->getField("modem_params")->setValue(0);
-        oplinkSettingsObj->getField("flags")->setValue(0);
+        oplinkSettingsObj->getField("Version")->setValue(0);
+        oplinkSettingsObj->getField("SerialBaudrate")->setValue(0);
+        oplinkSettingsObj->getField("RFFrequency")->setValue(0);
+        oplinkSettingsObj->getField("RFPower")->setValue(0);
+        oplinkSettingsObj->getField("RFChannelSpacing")->setValue(0);
+        oplinkSettingsObj->getField("ModemParams")->setValue(0);
+        oplinkSettingsObj->getField("Flags")->setValue(0);
     }
 }
 

@@ -118,9 +118,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-391</y>
-            <width>754</width>
-            <height>783</height>
+            <y>-317</y>
+            <width>748</width>
+            <height>724</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -892,7 +892,7 @@ font:bold;</string>
                </widget>
               </item>
               <item row="2" column="0">
-               <widget class="QLabel" name="fullPID_RP_I_FactorLabel">
+               <widget class="QLabel" name="fullPID_RP_D_FactorLabel">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                   <horstretch>0</horstretch>

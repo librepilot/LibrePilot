@@ -197,7 +197,7 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="servoNeutral">
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -217,7 +217,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -628,7 +628,7 @@ QSlider::handle:horizontal:hover {
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_1">
             <property name="text">
              <string>Min</string>
             </property>
@@ -669,7 +669,7 @@ QSlider::handle:horizontal:hover {
      <widget class="QWidget" name="dualservoNeutral">
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="label_11">
          <property name="text">
           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1130,7 +1130,7 @@ QSlider::handle:horizontal:hover {
        </item>
        <item>
         <widget class="QWidget" name="widget2" native="true">
-         <layout class="QFormLayout" name="formLayout">
+         <layout class="QFormLayout" name="formLayout_3">
           <property name="horizontalSpacing">
            <number>6</number>
           </property>
@@ -1520,21 +1520,21 @@ QSlider::handle:horizontal:hover {
            </widget>
           </item>
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_14">
             <property name="text">
              <string>Min</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
+           <widget class="QLabel" name="label_12">
             <property name="text">
              <string>Center</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="label_7">
+           <widget class="QLabel" name="label_13">
             <property name="text">
              <string>Max</string>
             </property>

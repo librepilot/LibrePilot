@@ -83,7 +83,7 @@ typedef struct PIOS_SENSORS_3Axis_SensorsWithTemp {
 } PIOS_SENSORS_3Axis_SensorsWithTemp;
 
 typedef struct PIOS_SENSORS_1Axis_SensorsWithTemp {
-    float sample;      // sample
+    float sample; // sample
     float temperature; // Degrees Celsius
 } PIOS_SENSORS_1Axis_SensorsWithTemp;
 

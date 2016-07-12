@@ -111,7 +111,7 @@ struct at_queued_data {
     float    u[3];                       /* Actuator desired */
     float    throttle;                   /* Throttle desired */
     uint32_t gyroStateCallbackTimestamp; /* PIOS_DELAY_GetRaw() time of GyroState callback */
-    uint32_t sensorReadTimestamp;        /* PIOS_DELAY_GetRaw() time of sensor read */
+    uint32_t sensorReadTimestamp; /* PIOS_DELAY_GetRaw() time of sensor read */
 };
 
 
@@ -227,15 +227,15 @@ MODULE_INITCALL(AutoTuneInitialize, AutoTuneStart);
  */
 static void AutoTuneTask(__attribute__((unused)) void *parameters)
 {
-    float noise[3]         = { 0 };
-    float dT_s             = 0.0f;
+    float noise[3]            = { 0 };
+    float dT_s                = 0.0f;
     uint32_t lastUpdateTime   = 0; // initialization is only for compiler warning
-    uint32_t lastTime      = 0.0f;
-    uint32_t measureTime   = 0;
-    uint32_t updateCounter = 0;
+    uint32_t lastTime         = 0.0f;
+    uint32_t measureTime      = 0;
+    uint32_t updateCounter    = 0;
     enum AUTOTUNE_STATE state = AT_INIT;
-    bool saveSiNeeded      = false;
-    bool savePidNeeded     = false;
+    bool saveSiNeeded         = false;
+    bool savePidNeeded        = false;
 
     // wait for the accessory values to stabilize
     // otherwise they come up as zero, then change to their real value
@@ -360,7 +360,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                     // we also save the new knob/toggle value for startup next time
                     // this avoids rewriting the PIDs at each startup
                     // because knob is unknown / not where it is expected / looks like knob moved
-                    saveSiNeeded  = true;
+                    saveSiNeeded = true;
                 }
             } else {
                 savePidDelay = 0;
@@ -512,7 +512,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                     ProportionPidsSmoothToQuick();
                     savePidNeeded = true;
                     // mark these results as good in the log settings so they can be viewed in playback
-                    u.systemIdentState.Complete    = true;
+                    u.systemIdentState.Complete = true;
                     SystemIdentStateCompleteSet(&u.systemIdentState.Complete);
                     // mark these results as good in the permanent settings so they can be used next flight too
                     // this is written to the UAVO below, outside of the ARMED and CheckSettings() checks
@@ -580,14 +580,14 @@ static void AtNewGyroData(UAVObjEvent *ev)
         }
     }
 
-    q_item.gyroStateCallbackTimestamp  = timestamp;
-    q_item.y[0]      = q_item.y[0] * stabSettings.gyro_alpha + gyro.x * (1 - stabSettings.gyro_alpha);
-    q_item.y[1]      = q_item.y[1] * stabSettings.gyro_alpha + gyro.y * (1 - stabSettings.gyro_alpha);
-    q_item.y[2]      = q_item.y[2] * stabSettings.gyro_alpha + gyro.z * (1 - stabSettings.gyro_alpha);
-    q_item.u[0]      = actuators.Roll;
-    q_item.u[1]      = actuators.Pitch;
-    q_item.u[2]      = actuators.Yaw;
-    q_item.throttle  = actuators.Thrust;
+    q_item.gyroStateCallbackTimestamp = timestamp;
+    q_item.y[0]     = q_item.y[0] * stabSettings.gyro_alpha + gyro.x * (1 - stabSettings.gyro_alpha);
+    q_item.y[1]     = q_item.y[1] * stabSettings.gyro_alpha + gyro.y * (1 - stabSettings.gyro_alpha);
+    q_item.y[2]     = q_item.y[2] * stabSettings.gyro_alpha + gyro.z * (1 - stabSettings.gyro_alpha);
+    q_item.u[0]     = actuators.Roll;
+    q_item.u[1]     = actuators.Pitch;
+    q_item.u[2]     = actuators.Yaw;
+    q_item.throttle = actuators.Thrust;
     q_item.sensorReadTimestamp = gyro.SensorReadTimestamp;
 
     if (xQueueSend(atQueue, &q_item, 0) != pdTRUE) {
@@ -668,9 +668,9 @@ static void InitSystemIdent(bool loadDefaults)
     // (1.0f / PIOS_SENSOR_RATE) is gyro period
     // the -1/10 makes it converge nicely, the other values make it converge the same way if the configuration is changed
     // gyroReadTimeAverageAlphaAlpha is 0.9996 when the tuning duration is the default of 60 seconds
-    gyroReadTimeAverageAlphaAlpha = expapprox(-1.0f / PIOS_SENSOR_RATE / ((float)systemIdentSettings.TuningDuration/10.0f));
+    gyroReadTimeAverageAlphaAlpha = expapprox(-1.0f / PIOS_SENSOR_RATE / ((float)systemIdentSettings.TuningDuration / 10.0f));
     if (!IS_REAL(gyroReadTimeAverageAlphaAlpha)) {
-        gyroReadTimeAverageAlphaAlpha = expapprox(-1.0f / 500.0f / (60/10)); // basically 0.9996
+        gyroReadTimeAverageAlphaAlpha = expapprox(-1.0f / 500.0f / (60 / 10)); // basically 0.9996
     }
     // 0.99999988f is as close to 1.0f as possible to make final average as smooth as possible
     gyroReadTimeAverageAlpha = 0.99999988f;
@@ -746,7 +746,7 @@ static void UpdateSystemIdentState(const float *X, const float *noise,
     systemIdentSettings.Tau = u.systemIdentState.Tau;
     memcpy(&systemIdentSettings.Beta, &u.systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
     systemIdentSettings.GyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
-    systemIdentSettings.SmoothQuickSetting = smoothQuickSetting;
+    systemIdentSettings.SmoothQuickSetting  = smoothQuickSetting;
 
     SystemIdentStateSet(&u.systemIdentState);
 }
@@ -807,7 +807,7 @@ static uint8_t CheckSettingsRaw()
     }
     // Check gyroReadTimeAverage
     // Sanity check: CPU is too slow compared to gyro rate
-    if (gyroReadTimeAverage > (1.0f/PIOS_SENSOR_RATE)) {
+    if (gyroReadTimeAverage > (1.0f / PIOS_SENSOR_RATE)) {
         retVal |= CPU_TOO_SLOW;
     }
 
@@ -888,7 +888,7 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
 
     float kpMax = 0.0f;
     float betaMinLn    = 1000.0f;
-    StabilizationBankRollRatePIDData volatile * rollPitchPid = NULL; // satisfy compiler warning only
+    StabilizationBankRollRatePIDData volatile *rollPitchPid = NULL; // satisfy compiler warning only
 
     for (int i = 0; i < ((systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_FALSE) ? 3 : 2); i++) {
         float betaLn = SystemIdentStateBetaToArray(u.systemIdentState.Beta)[i];
@@ -910,10 +910,10 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
                 // point to one
                 // this pointer arithmetic no longer works as expected in a gcc 64 bit test program
                 // rollPitchPid = &(&stabSettingsBank.RollRatePID)[i];
-                if (i==0) {
+                if (i == 0) {
                     rollPitchPid = &stabSettingsBank.RollRatePID;
                 } else {
-                    rollPitchPid = (StabilizationBankRollRatePIDData *) &stabSettingsBank.PitchRatePID;
+                    rollPitchPid = (StabilizationBankRollRatePIDData *)&stabSettingsBank.PitchRatePID;
                 }
             }
             break;

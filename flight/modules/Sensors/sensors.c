@@ -110,7 +110,7 @@ static const float temp_alpha_baro = TEMP_DT_BARO / (TEMP_DT_BARO + 1.0f / (2.0f
 typedef struct {
     // used to accumulate all samples in a task iteration
     uint64_t   timestamp;      // sum of "PIOS_DELAY_GetRaw() times of sensor read" in this averaged set
-    Vector3i32 accum[2];       // summed 16 bit sensor values in this averaged set
+    Vector3i32 accum[2]; // summed 16 bit sensor values in this averaged set
     int32_t    temperature;    // sum of 16 bit temperatures in this averaged set
     uint32_t   prev_timestamp; // to detect timer wrap around
     uint16_t   count;          // number of sensor reads in this averaged set
@@ -359,10 +359,10 @@ static void clearContext(sensor_fetch_context *sensor_context)
         sensor_context->accum[i].y = 0;
         sensor_context->accum[i].z = 0;
     }
-    sensor_context->temperature = 0;
+    sensor_context->temperature    = 0;
     sensor_context->prev_timestamp = 0;
-    sensor_context->timestamp   = 0LL;
-    sensor_context->count = 0;
+    sensor_context->timestamp = 0LL;
+    sensor_context->count     = 0;
 }
 
 static void accumulateSamples(sensor_fetch_context *sensor_context, sensor_data *sample)

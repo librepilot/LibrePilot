@@ -598,7 +598,7 @@ static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp)
     const int16_t temp = GET_SENSOR_DATA(mpu6000_data, Temperature);
     // Temperature in degrees C = (TEMP_OUT Register Value as a signed quantity)/340 + 36.53
     queue_data->temperature = 3653 + (temp * 100) / 340;
-    queue_data->timestamp = gyro_read_timestamp;
+    queue_data->timestamp   = gyro_read_timestamp;
 
     BaseType_t higherPriorityTaskWoken;
     xQueueSendToBackFromISR(dev->queue, (void *)queue_data, &higherPriorityTaskWoken);

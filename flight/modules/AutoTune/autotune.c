@@ -67,8 +67,8 @@
 
 // Private constants
 #undef  STACK_SIZE_BYTES
-// Pull Request version tested on Nano. 120 bytes of stack left when configured with 1340
-#define STACK_SIZE_BYTES            1340
+// Pull Request version tested on Sparky2. 292 bytes of stack left when configured with 1340
+#define STACK_SIZE_BYTES            1240
 #define TASK_PRIORITY               (tskIDLE_PRIORITY + 1)
 
 #define AF_NUMX                     13

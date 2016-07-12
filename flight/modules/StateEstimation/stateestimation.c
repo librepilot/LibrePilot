@@ -572,6 +572,7 @@ static void sensorUpdatedCb(UAVObjEvent *ev)
         t.x = s.x + gyroDelta[0];
         t.y = s.y + gyroDelta[1];
         t.z = s.z + gyroDelta[2];
+        t.SensorReadTimestamp = s.SensorReadTimestamp;
         GyroStateSet(&t);
     }
 

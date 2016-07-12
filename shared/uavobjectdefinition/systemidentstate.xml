@@ -1,5 +1,5 @@
 <xml>
-    <object name="SystemIdentState" singleinstance="true" settings="false" category="Control">
+    <object name="SystemIdentState" singleinstance="true" settings="false" category="State">
         <description>The input to the PID tuning.</description>
         <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0"/>
         <!-- Beta default valuses 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
@@ -10,8 +10,8 @@
         <field name="NumAfPredicts" units="" type="uint32" elements="1" defaultvalue="0"/>
         <field name="NumSpilledPts" units="" type="uint32" elements="1" defaultvalue="0"/>
         <field name="HoverThrottle" units="%/100" type="float" elements="1" defaultvalue="0"/>
+        <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.001"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
-        <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.0005"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
         <telemetryflight acked="false" updatemode="periodic" period="1000"/>

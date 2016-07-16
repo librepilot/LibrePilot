@@ -97,7 +97,7 @@ ifeq ($(UNAME), Linux)
         OSG_URL        := $(TOOLS_URL)/osg-3.5.3-linux-x64-qt-$(QT_VERSION).tar.gz
         OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-linux-x64-qt-$(QT_VERSION).tar.gz
     else
-			# x32 for linux no longer provided as pre-built binaries.
+        # x32 for linux no longer provided as pre-built binaries.
     endif
     UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
@@ -121,7 +121,7 @@ else ifeq ($(UNAME), Windows)
     DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1-windows.tar.bz2
 endif
 
-GTEST_URL 	   := $(TOOLS_URL)/gtest-1.7.0.zip
+GTEST_URL      := $(TOOLS_URL)/gtest-1.7.0.zip
 CCACHE_URL     := http://samba.org/ftp/ccache/ccache-3.2.2.tar.bz2
 CCACHE_MD5_URL := $(TOOLS_URL)/ccache-3.2.2.tar.bz2.md5
 
@@ -587,15 +587,13 @@ endif
 .PHONY: mingw_version
 mingw_version: gcc_version
 
-else # Linux or Mac
-
-all_sdk_version: gcc_version
-
 endif
 
 .PHONY: gcc_version
 gcc_version:
 	-$(V1) gcc --version | head -n1
+
+all_sdk_version: gcc_version
 
 ##############################
 #
@@ -821,7 +819,11 @@ $(eval $(call TOOL_INSTALL_TEMPLATE,ccache,$(CCACHE_BUILD_DIR),$(CCACHE_URL),$(C
 #
 ##############################
 
-$(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_SDK_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+ifneq ($(UNAME), Windows)
+
+    $(eval $(call TOOL_INSTALL_TEMPLATE,osg,$(OSG_SDK_DIR),$(OSG_URL),,$(notdir $(OSG_URL))))
+
+endif
 
 ifeq ($(shell [ -d "$(OSG_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export OSG_SDK_DIR := $(OSG_SDK_DIR)
@@ -840,7 +842,11 @@ osg_version:
 #
 ##############################
 
-$(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_SDK_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+ifneq ($(UNAME), Windows)
+
+    $(eval $(call TOOL_INSTALL_TEMPLATE,osgearth,$(OSGEARTH_SDK_DIR),$(OSGEARTH_URL),,$(notdir $(OSGEARTH_URL))))
+
+endif
 
 ifeq ($(shell [ -d "$(OSGEARTH_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export OSGEARTH_SDK_DIR := $(OSGEARTH_SDK_DIR)

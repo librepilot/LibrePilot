@@ -329,7 +329,10 @@ SectionEnd
 Section "un.Maps cache" UnSecCache
   ; Remove local app data (maps cache, ...)
   SetShellVarContext current
+  ; disable status updates as there is potentially a lot of cached files...
+  SetDetailsPrint none
   RMDir /r /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}"
+  SetDetailsPrint both
   ; Only remove if no other versions have data here
   RMDir /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}"
 SectionEnd

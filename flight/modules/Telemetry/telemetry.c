@@ -272,7 +272,8 @@ int32_t TelemetryInitialize(void)
     OPLinkSettingsData data;
 
     OPLinkSettingsGet(&data);
-    if (data.PPMOnly) {
+    bool ppm_only = (data.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
+    if (ppm_only) {
         radio_port = 0;
     } else {
         radio_port = PIOS_COM_RF;

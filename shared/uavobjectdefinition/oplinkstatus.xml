@@ -18,12 +18,12 @@
 		<field name="Resets" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="Timeouts" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="RSSI" units="dBm" type="int8" elements="1" defaultvalue="0"/>
-		<field name="LinkQuality" units="" type="uint8" elements="1" defaultvalue="0"/>
+		<field name="LinkQuality" units="" type="uint16" elements="1" defaultvalue="0"/>
 		<field name="TXRate" units="Bps" type="uint16" elements="1" defaultvalue="0"/>
 		<field name="RXRate" units="Bps" type="uint16" elements="1" defaultvalue="0"/>
 		<field name="TXSeq" units="" type="uint16" elements="1" defaultvalue="0"/>
 		<field name="RXSeq" units="" type="uint16" elements="1" defaultvalue="0"/>
-		<field name="LinkState" units="function" type="enum" elements="1" options="Disabled,Enabled,Disconnected,Connecting,Connected" defaultvalue="Disabled"/>
+		<field name="LinkState" units="function" type="enum" elements="1" options="Disabled,Enabled,Binding,Bound,Disconnected,Connecting,Connected" defaultvalue="Disabled"/>
 		<field name="PairIDs" units="hex" type="uint32" elements="4" defaultvalue="0"/>
 		<field name="PairSignalStrengths" units="dBm" type="int8" elements="4" defaultvalue="-127"/>
 		<field name="TXPacketRate" units="packet/s" type="uint16" elements="1" defaultvalue="0"/>
@@ -31,7 +31,7 @@
 
 		<access gcs="readonly" flight="readwrite"/>
 		<telemetrygcs acked="false" updatemode="manual" period="0"/>
-		<telemetryflight acked="false" updatemode="throttled" period="500"/>
+		<telemetryflight acked="false" updatemode="periodic" period="500"/>
 		<logging updatemode="manual" period="0"/>
 	</object>
 </xml>

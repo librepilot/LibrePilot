@@ -113,6 +113,7 @@
 #define PIOS_INCLUDE_EXBUS
 #define PIOS_INCLUDE_GCSRCVR
 #define PIOS_INCLUDE_OPLINKRCVR
+#define PIOS_INCLUDE_OPENLRS_RCVR
 
 /* PIOS abstract receiver interface */
 #define PIOS_INCLUDE_RCVR
@@ -138,6 +139,7 @@
 /* PIOS radio modules */
 #define PIOS_INCLUDE_RFM22B
 #define PIOS_INCLUDE_RFM22B_COM
+#define PIOS_INCLUDE_OPENLRS
 /* #define PIOS_INCLUDE_PPM_OUT */
 /* #define PIOS_RFM22B_DEBUG_ON_TELEM */
 

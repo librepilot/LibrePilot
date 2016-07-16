@@ -75,10 +75,8 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "MinChannel", m_oplink->MinimumChannel);
     addWidgetBinding("OPLinkSettings", "MaxChannel", m_oplink->MaximumChannel);
     addWidgetBinding("OPLinkSettings", "CoordID", m_oplink->CoordID);
-    addWidgetBinding("OPLinkSettings", "Coordinator", m_oplink->Coordinator);
-    addWidgetBinding("OPLinkSettings", "OneWay", m_oplink->OneWayLink);
-    addWidgetBinding("OPLinkSettings", "PPMOnly", m_oplink->PPMOnly);
-    addWidgetBinding("OPLinkSettings", "PPM", m_oplink->PPM);
+    addWidgetBinding("OPLinkSettings", "Protocol", m_oplink->Protocol);
+    addWidgetBinding("OPLinkSettings", "LinkType", m_oplink->LinkType);
     addWidgetBinding("OPLinkSettings", "ComSpeed", m_oplink->ComSpeed);
     addWidgetBinding("OPLinkSettings", "CustomDeviceID", m_oplink->CustomDeviceID);
 
@@ -104,11 +102,14 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
 
     // Connect the selection changed signals.
-    connect(m_oplink->PPMOnly, SIGNAL(toggled(bool)), this, SLOT(ppmOnlyChanged()));
-    connect(m_oplink->Coordinator, SIGNAL(toggled(bool)), this, SLOT(updateCoordID()));
+    connect(m_oplink->Protocol, SIGNAL(valueChanged(int)), this, SLOT(protocolChanged()));
+    connect(m_oplink->LinkType, SIGNAL(valueChanged(int)), this, SLOT(linkTypeChanged()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
     connect(m_oplink->CustomDeviceID, SIGNAL(editingFinished()), this, SLOT(updateCustomDeviceID()));
+
+    // Connect the Unbind button
+    connect(m_oplink->UnbindButton, SIGNAL(released()), this, SLOT(unbind()));
 
     m_oplink->CustomDeviceID->setInputMask("HHHHHHHH");
     m_oplink->CoordID->setInputMask("HHHHHHHH");
@@ -215,9 +216,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             m_oplink->FlexiPortLabel->setVisible(false);
             m_oplink->VCPPort->setVisible(false);
             m_oplink->VCPPortLabel->setVisible(false);
-            m_oplink->FlexiIOPort->setVisible(false);
-            m_oplink->FlexiIOPortLabel->setVisible(false);
-            m_oplink->PPM->setEnabled(true);
+            m_oplink->LinkType->setEnabled(true);
             break;
         case 0x03: // OPLinkMini
             m_oplink->MainPort->setVisible(true);
@@ -226,24 +225,7 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
             m_oplink->FlexiPortLabel->setVisible(true);
             m_oplink->VCPPort->setVisible(true);
             m_oplink->VCPPortLabel->setVisible(true);
-            m_oplink->FlexiIOPort->setVisible(false);
-            m_oplink->FlexiIOPortLabel->setVisible(false);
-            m_oplink->PPM->setEnabled(false);
-            connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
-            connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
-            break;
-        case 0x0a: // OPLink? (No. This is wrong. 0x0A is gpsplatinum.)
-            m_oplink->MainPort->setVisible(true);
-            m_oplink->MainPortLabel->setVisible(true);
-            m_oplink->FlexiPort->setVisible(true);
-            m_oplink->FlexiPortLabel->setVisible(true);
-            m_oplink->VCPPort->setVisible(true);
-            m_oplink->VCPPortLabel->setVisible(true);
-            m_oplink->FlexiIOPort->setVisible(true);
-            m_oplink->FlexiIOPortLabel->setVisible(true);
-            m_oplink->PPM->setEnabled(false);
-            connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
-            connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(updatePPMOptions()));
+            m_oplink->LinkType->setEnabled(true);
             break;
         default:
             // This shouldn't happen.
@@ -256,10 +238,9 @@ void ConfigOPLinkWidget::updateSettings(UAVObject *object)
 void ConfigOPLinkWidget::updateEnableControls()
 {
     enableControls(true);
-    updatePPMOptions();
     updateCustomDeviceID();
     updateCoordID();
-    ppmOnlyChanged();
+    protocolChanged();
 }
 
 void ConfigOPLinkWidget::disconnected()
@@ -269,47 +250,32 @@ void ConfigOPLinkWidget::disconnected()
     }
 }
 
-void ConfigOPLinkWidget::updatePPMOptions()
+void ConfigOPLinkWidget::protocolChanged()
 {
-    bool is_oplm = m_oplink->MainPort->isVisible();
+    bool is_enabled     = !isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_DISABLED);
+    bool is_coordinator = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKCOORDINATOR);
+    bool is_receiver    = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKRECEIVER);
+    bool is_openlrs     = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS);
+    bool is_ppm_only    = isComboboxOptionSelected(m_oplink->LinkType, OPLinkSettings::LINKTYPE_CONTROL);
+    bool is_oplm  = m_oplink->MainPort->isVisible();
+    bool is_bound = (m_oplink->CoordID->text() != "");
 
-    if (!is_oplm) {
-        return;
-    }
-
-    bool is_coordinator = m_oplink->Coordinator->isChecked();
-    bool is_ppm_active  = ((isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_PPM)) ||
-                           (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_PPM)));
-
-    m_oplink->PPM->setEnabled(false);
-    m_oplink->PPM->setChecked(is_ppm_active);
-    m_oplink->PPMOnly->setEnabled(is_ppm_active);
-
-    if (!is_ppm_active) {
-        m_oplink->PPMOnly->setChecked(false);
-        QString selectPort = tr("Please select a port for PPM function.");
-        m_oplink->PPMOnly->setToolTip(selectPort);
-        m_oplink->PPM->setToolTip(selectPort);
-    } else {
-        if (is_coordinator) {
-            m_oplink->PPMOnly->setToolTip(tr("Only PPM packets will be transmitted and baudrate set to 9600 bauds by default."));
-            m_oplink->PPM->setToolTip(tr("PPM packets will be transmitted by this modem."));
-        } else {
-            m_oplink->PPMOnly->setToolTip(tr("Only PPM packets will be received and baudrate set to 9600 bauds by default."));
-            m_oplink->PPM->setToolTip(tr("PPM packets will be received by this modem."));
-        }
-    }
+    m_oplink->ComSpeed->setEnabled(!is_ppm_only && !is_openlrs && is_enabled);
+    m_oplink->CoordID->setEnabled(is_receiver & is_enabled);
+    m_oplink->UnbindButton->setEnabled(is_bound && !is_coordinator && is_enabled);
+    m_oplink->CustomDeviceID->setEnabled(is_coordinator);
+    m_oplink->MinimumChannel->setEnabled(is_receiver || is_coordinator);
+    m_oplink->MaximumChannel->setEnabled(is_receiver || is_coordinator);
+    m_oplink->MainPort->setEnabled(is_oplm);
+    m_oplink->FlexiPort->setEnabled(is_oplm);
+    m_oplink->VCPPort->setEnabled((is_receiver || is_coordinator) && is_oplm);
+    m_oplink->LinkType->setEnabled(is_enabled && !is_openlrs);
+    m_oplink->MaxRFTxPower->setEnabled(is_enabled && !is_openlrs);
 }
 
-
-void ConfigOPLinkWidget::ppmOnlyChanged()
+void ConfigOPLinkWidget::linkTypeChanged()
 {
-    bool is_ppm_only = m_oplink->PPMOnly->isChecked();
-    bool is_oplm     = m_oplink->MainPort->isVisible();
-
-    m_oplink->PPM->setEnabled(!is_ppm_only && !is_oplm);
-    m_oplink->OneWayLink->setEnabled(!is_ppm_only);
-    m_oplink->ComSpeed->setEnabled(!is_ppm_only);
+    protocolChanged();
 }
 
 void ConfigOPLinkWidget::minChannelChanged()
@@ -358,13 +324,11 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
 
 void ConfigOPLinkWidget::updateCoordID()
 {
-    bool is_coordinator    = m_oplink->Coordinator->isChecked();
     bool coordinatorNotSet = (m_oplink->CoordID->text() == "0");
 
     if (settingsUpdated && coordinatorNotSet) {
         m_oplink->CoordID->clear();
     }
-    m_oplink->CoordID->setEnabled(!is_coordinator);
 }
 
 void ConfigOPLinkWidget::updateCustomDeviceID()
@@ -376,6 +340,25 @@ void ConfigOPLinkWidget::updateCustomDeviceID()
         m_oplink->CustomDeviceID->setPlaceholderText("AutoGen");
     }
 }
+
+void ConfigOPLinkWidget::unbind()
+{
+    if (settingsUpdated) {
+        // Clear the coordinator ID
+        oplinkSettingsObj->getField("CoordID")->setValue(0);
+        m_oplink->CoordID->setText("0");
+
+        // Clear the OpenLRS settings
+        oplinkSettingsObj->getField("Version")->setValue(0);
+        oplinkSettingsObj->getField("SerialBaudrate")->setValue(0);
+        oplinkSettingsObj->getField("RFFrequency")->setValue(0);
+        oplinkSettingsObj->getField("RFPower")->setValue(0);
+        oplinkSettingsObj->getField("RFChannelSpacing")->setValue(0);
+        oplinkSettingsObj->getField("ModemParams")->setValue(0);
+        oplinkSettingsObj->getField("Flags")->setValue(0);
+    }
+}
+
 /**
    @}
    @}

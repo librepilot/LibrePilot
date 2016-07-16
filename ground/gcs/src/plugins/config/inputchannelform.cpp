@@ -154,6 +154,7 @@ void InputChannelForm::groupUpdated()
     case ManualControlSettings::CHANNELGROUPS_PPM:
     case ManualControlSettings::CHANNELGROUPS_SRXL:
     case ManualControlSettings::CHANNELGROUPS_EXBUS:
+    case ManualControlSettings::CHANNELGROUPS_OPENLRS:
         count = 16;
         break;
     case ManualControlSettings::CHANNELGROUPS_SBUS:

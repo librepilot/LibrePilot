@@ -104,7 +104,7 @@ struct rfm22b_stats {
 extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg);
 extern void PIOS_RFM22B_Reinit(uint32_t rfb22b_id);
 extern void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr);
-extern void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool oneway, bool ppm_mode, bool ppm_only);
+extern void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool ppm_mode, bool ppm_only);
 extern void PIOS_RFM22B_SetCoordinatorID(uint32_t rfm22b_id, uint32_t coord_id);
 extern void PIOS_RFM22B_SetDeviceID(uint32_t rfm22b_id, uint32_t device_id);
 extern uint32_t PIOS_RFM22B_DeviceID(uint32_t rfb22b_id);
@@ -117,8 +117,8 @@ extern bool PIOS_RFM22B_TransmitPacket(uint32_t rfm22b_id, uint8_t *p, uint8_t l
 extern pios_rfm22b_int_result PIOS_RFM22B_ProcessTx(uint32_t rfm22b_id);
 extern pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id);
 extern void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb);
-extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels);
-extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels);
+extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan);
+extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan);
 
 /* Global Variables */
 extern const struct pios_com_driver pios_rfm22b_com_driver;

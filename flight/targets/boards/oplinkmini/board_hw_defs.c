@@ -298,8 +298,6 @@ static const struct pios_exti_cfg pios_exti_rfm22b_cfg __exti_config = {
     },
 };
 
-#include <pios_rfm22b_priv.h>
-
 struct pios_rfm22b_cfg pios_rfm22b_cfg = {
     .spi_cfg   = &pios_spi_rfm22b_cfg,
     .exti_cfg  = &pios_exti_rfm22b_cfg,
@@ -313,6 +311,51 @@ const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(__attribute__((unus
 {
     return &pios_rfm22b_cfg;
 }
+
+#if defined(PIOS_INCLUDE_OPENLRS)
+
+#include <pios_openlrs_priv.h>
+
+static const struct pios_exti_cfg pios_exti_openlrs_cfg __exti_config = {
+    .vector = PIOS_OpenLRS_EXT_Int,
+    .line   = EXTI_Line2,
+    .pin    = {
+        .gpio = GPIOA,
+        .init = {
+            .GPIO_Pin  = GPIO_Pin_2,
+            .GPIO_Mode = GPIO_Mode_IN_FLOATING,
+        },
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = EXTI2_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .exti                                      = {
+        .init                                  = {
+            .EXTI_Line    = EXTI_Line2,
+            .EXTI_Mode    = EXTI_Mode_Interrupt,
+            .EXTI_Trigger = EXTI_Trigger_Falling,
+            .EXTI_LineCmd = ENABLE,
+        },
+    },
+};
+
+struct pios_openlrs_cfg pios_openlrs_cfg = {
+    .spi_cfg  = &pios_spi_rfm22b_cfg,
+    .exti_cfg = &pios_exti_openlrs_cfg,
+};
+
+// ! Compatibility layer for various hardware revisions
+const struct pios_openlrs_cfg *PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_openlrs_cfg;
+}
+
+#endif /* PIOS_INCLUDE_OpenLRS */
 
 #endif /* PIOS_INCLUDE_RFM22B */
 

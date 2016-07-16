@@ -131,7 +131,7 @@ static int32_t RadioComBridgeStart(void)
         OPLinkSettingsGet(&oplinkSettings);
 
         // Check if this is the coordinator modem
-        data->isCoordinator = (oplinkSettings.Coordinator == OPLINKSETTINGS_COORDINATOR_TRUE);
+        data->isCoordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
 
         // We will not parse/send UAVTalk if any ports are configured as Serial (except for over the USB HID port).
         data->parseUAVTalk  = ((oplinkSettings.MainPort != OPLINKSETTINGS_MAINPORT_SERIAL) &&
@@ -170,13 +170,13 @@ static int32_t RadioComBridgeStart(void)
         }
 
         // Configure our UAVObjects for updates.
-        UAVObjConnectQueue(UAVObjGetByID(OPLINKSTATUS_OBJID), data->uavtalkEventQueue, EV_UPDATED | EV_UPDATED_MANUAL | EV_UPDATE_REQ);
         UAVObjConnectQueue(UAVObjGetByID(OBJECTPERSISTENCE_OBJID), data->uavtalkEventQueue, EV_UPDATED | EV_UPDATED_MANUAL);
         if (data->isCoordinator) {
             UAVObjConnectQueue(UAVObjGetByID(OPLINKRECEIVER_OBJID), data->radioEventQueue, EV_UPDATED | EV_UPDATED_MANUAL | EV_UPDATE_REQ);
         } else {
             UAVObjConnectQueue(UAVObjGetByID(OPLINKRECEIVER_OBJID), data->uavtalkEventQueue, EV_UPDATED | EV_UPDATED_MANUAL | EV_UPDATE_REQ);
         }
+        registerObject(OPLinkStatusHandle());
 
         if (data->isCoordinator) {
             registerObject(RadioComBridgeStatsHandle());
@@ -475,18 +475,18 @@ static void PPMInputTask(__attribute__((unused)) void *parameters)
         // Wait for the receiver semaphore.
         if (xSemaphoreTake(sem, PPM_INPUT_TIMEOUT) == pdTRUE) {
             // Read the receiver inputs.
-            for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+            for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
                 channels[i] = PIOS_RCVR_Read(PIOS_PPM_RECEIVER, i + 1);
             }
         } else {
             // Failsafe
-            for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+            for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
                 channels[i] = PIOS_RCVR_INVALID;
             }
         }
 
         // Pass the channel values to the radio device.
-        PIOS_RFM22B_PPMSet(pios_rfm22b_id, channels);
+        PIOS_RFM22B_PPMSet(pios_rfm22b_id, channels, RFM22B_PPM_NUM_CHANNELS);
     }
 }
 

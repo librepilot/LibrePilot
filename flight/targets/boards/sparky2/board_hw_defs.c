@@ -431,7 +431,7 @@ static const struct pios_exti_cfg pios_exti_rfm22b_cfg __exti_config = {
     },
 };
 
-const struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
+const struct pios_rfm22b_cfg pios_rfm22b_cfg = {
     .spi_cfg   = &pios_spi_telem_flash_cfg,
     .exti_cfg  = &pios_exti_rfm22b_cfg,
     .RFXtalCap = 0x7f,
@@ -441,10 +441,59 @@ const struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
 
 const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(__attribute__((unused)) uint32_t board_revision)
 {
-    return &pios_rfm22b_rm2_cfg;
+    return &pios_rfm22b_cfg;
 }
 
 #endif /* PIOS_INCLUDE_RFM22B */
+
+#if defined(PIOS_INCLUDE_OPENLRS)
+
+#include <pios_openlrs_priv.h>
+
+static const struct pios_exti_cfg pios_exti_openlrs_cfg __exti_config = {
+    .vector = PIOS_OpenLRS_EXT_Int,
+    .line   = EXTI_Line2,
+    .pin    = {
+        .gpio = GPIOD,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_2,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_Mode  = GPIO_Mode_IN,
+            .GPIO_OType = GPIO_OType_OD,
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+        },
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = EXTI2_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .exti                                      = {
+        .init                                  = {
+            .EXTI_Line    = EXTI_Line2, // matches above GPIO pin
+            .EXTI_Mode    = EXTI_Mode_Interrupt,
+            .EXTI_Trigger = EXTI_Trigger_Falling,
+            .EXTI_LineCmd = ENABLE,
+        },
+    },
+};
+
+const struct pios_openlrs_cfg pios_openlrs_cfg = {
+    .spi_cfg  = &pios_spi_telem_flash_cfg,
+    .exti_cfg = &pios_exti_openlrs_cfg,
+    .gpio_direction = GPIO0_TX_GPIO1_RX,
+};
+
+const struct pios_openlrs_cfg *PIOS_BOARD_HW_DEFS_GetOpenLRSCfg()
+{
+    return &pios_openlrs_cfg;
+}
+
+#endif /* PIOS_INCLUDE_OPENLRS */
+
 
 #endif /* PIOS_INCLUDE_SPI */
 

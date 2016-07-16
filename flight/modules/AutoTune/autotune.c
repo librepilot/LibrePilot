@@ -91,12 +91,14 @@
 #define YIELD_MS                    2    /* delay this long between processing sessions see MAX_PTS_PER_CYCLE and consider gyro rate */
 
 // CheckSettings() returned error bits
-#define ROLL_BETA_LOW               1
-#define PITCH_BETA_LOW              2
-#define YAW_BETA_LOW                4
-#define TAU_TOO_LONG                8
-#define TAU_TOO_SHORT               16
-#define CPU_TOO_SLOW                32
+#define TAU_NAN                     1
+#define BETA_NAN                    2
+#define ROLL_BETA_LOW               4
+#define PITCH_BETA_LOW              8
+#define YAW_BETA_LOW                16
+#define TAU_TOO_LONG                32
+#define TAU_TOO_SHORT               64
+#define CPU_TOO_SLOW                128
 
 // smooth-quick modes
 #define SMOOTH_QUICK_DISABLED       0
@@ -470,8 +472,8 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 dT_s = PIOS_DELAY_DiffuS2(lastTime, pt.gyroStateCallbackTimestamp) * 1.0e-6f;
                 /* This is for the first point, but
                 * also if we have extended drops */
-                if (dT_s > 0.010f) {
-                    dT_s = 0.010f;
+                if (dT_s > 5.0f/PIOS_SENSOR_RATE) {
+                    dT_s = 5.0f/PIOS_SENSOR_RATE;
                 }
                 lastTime = pt.gyroStateCallbackTimestamp;
                 // original algorithm handles time from GyroStateGet() to detected motion
@@ -641,7 +643,6 @@ static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode)
 static void InitSystemIdent(bool loadDefaults)
 {
     SystemIdentSettingsGet(&systemIdentSettings);
-
     if (loadDefaults) {
         // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
         // so that if they are changed there (mainly for future code changes), they will be changed here too
@@ -664,6 +665,7 @@ static void InitSystemIdent(bool loadDefaults)
         memcpy(&u.systemIdentState.Beta, &systemIdentSettings.Beta, sizeof(SystemIdentStateBetaData));
         u.systemIdentState.Complete = systemIdentSettings.Complete;
     }
+    SystemIdentStateSet(&u.systemIdentState);
 
     // (1.0f / PIOS_SENSOR_RATE) is gyro period
     // the -1/10 makes it converge nicely, the other values make it converge the same way if the configuration is changed
@@ -677,7 +679,6 @@ static void InitSystemIdent(bool loadDefaults)
     gyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
 
     uint8_t SmoothQuickSource = systemIdentSettings.SmoothQuickSource;
-
     switch (SmoothQuickSource) {
     case SMOOTH_QUICK_ACCESSORY_BASE + 0: // use accessory0
     case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
@@ -689,7 +690,6 @@ static void InitSystemIdent(bool loadDefaults)
         // enable PID changing with accessory0-3
         accessoryToUse = SmoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
         break;
-
     case SMOOTH_QUICK_TOGGLE_BASE + 3: // use flight mode switch toggle with 3 points
     case SMOOTH_QUICK_TOGGLE_BASE + 5: // use flight mode switch toggle with 5 points
     case SMOOTH_QUICK_TOGGLE_BASE + 7: // use flight mode switch toggle with 7 points
@@ -703,7 +703,6 @@ static void InitSystemIdent(bool loadDefaults)
         // disable PID changing with accessory0-3
         accessoryToUse = -1;
         break;
-
     case SMOOTH_QUICK_DISABLED:
     default:
         // leave smoothQuickSetting alone so user can set it to a different value and have it stay that value
@@ -788,6 +787,21 @@ static uint8_t CheckSettingsRaw()
 {
     uint8_t retVal = 0;
 
+    // inverting the comparisons then negating the bool result should catch the nans but it doesn't
+    // so explictly check for nans
+    if (!IS_REAL(expapprox(u.systemIdentState.Tau))) {
+        retVal |= TAU_NAN;
+    }
+    if (!IS_REAL(expapprox(u.systemIdentState.Beta.Roll))) {
+        retVal |= BETA_NAN;
+    }
+    if (!IS_REAL(expapprox(u.systemIdentState.Beta.Pitch))) {
+        retVal |= BETA_NAN;
+    }
+    if (!IS_REAL(expapprox(u.systemIdentState.Beta.Yaw))) {
+        retVal |= BETA_NAN;
+    }
+
     // Check the axis gains
     // Extreme values: Your roll or pitch gain was lower than expected. This will result in large PID values.
     if (u.systemIdentState.Beta.Roll < 6) {
@@ -796,6 +810,11 @@ static uint8_t CheckSettingsRaw()
     if (u.systemIdentState.Beta.Pitch < 6) {
         retVal |= PITCH_BETA_LOW;
     }
+    // yaw gain is no longer checked, because the yaw options only include:
+    // - not calculating yaw
+    // - limiting yaw gain between two sane values (default)
+    // - ignoring errors and accepting the calculated yaw
+
     // Check the response speed
     // Extreme values: Your estimated response speed (tau) is slower than normal. This will result in large PID values.
     if (expapprox(u.systemIdentState.Tau) > 0.1f) {
@@ -805,7 +824,7 @@ static uint8_t CheckSettingsRaw()
     else if (expapprox(u.systemIdentState.Tau) < 0.008f) {
         retVal |= TAU_TOO_SHORT;
     }
-    // Check gyroReadTimeAverage
+
     // Sanity check: CPU is too slow compared to gyro rate
     if (gyroReadTimeAverage > (1.0f / PIOS_SENSOR_RATE)) {
         retVal |= CPU_TOO_SLOW;
@@ -822,11 +841,9 @@ static uint8_t CheckSettingsRaw()
 static uint8_t CheckSettings()
 {
     uint8_t retVal = CheckSettingsRaw();
-
     if (systemIdentSettings.DisableSanityChecks) {
         retVal = 0;
     }
-
     return retVal;
 }
 
@@ -975,6 +992,45 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
             kp /= ratio;
             ki /= ratio;
             kd /= ratio;
+        }
+
+        // reduce kd if so configured
+        // both of the quads tested for d term oscillation exhibit some degree of it with the stock autotune PIDs
+        // if may be that adjusting stabSettingsBank.DerivativeCutoff would have a similar affect
+        // reducing kd requires that kp and ki be reduced to avoid ringing
+        // the amount to reduce kp and ki is taken from ZN tuning
+        // specifically kp is parameterized based on the ratio between kp(PID) and kp(PI) as the D factor varies from 1 to 0
+        // https://en.wikipedia.org/wiki/PID_controller
+        //         Kp        Ki        Kd
+        // -----------------------------------
+        // P    0.50*Ku      -         -
+        // PI   0.45*Ku  1.2*Kp/Tu     -
+        // PID  0.60*Ku  2.0*Kp/Tu  Kp*Tu/8
+        //
+        // so  Kp is multiplied by (.45/.60) if Kd is reduced to 0
+        // and Ki is multiplied by (1.2/2.0) if Kd is reduced to 0
+        #define KP_REDUCTION (.45f/.60f)
+        #define KI_REDUCTION (1.2f/2.0f)
+
+        // this link gives some additional ratios that are different
+        // the reduced overshoot ratios are invalid for this purpose
+        // https://en.wikipedia.org/wiki/Ziegler%E2%80%93Nichols_method
+        //                         Kp       Ki    Kd
+        // ------------------------------------------------
+        // P                     0.50*Ku     -     -
+        // PI                    0.45*Ku  Tu/1.2   -
+        // PD                    0.80*Ku     -    Tu/8
+        // classic PID           0.60*Ku  Tu/2.0  Tu/8       #define KP_REDUCTION (.45f/.60f)  #define KI_REDUCTION (1.2f/2.0f)
+        // Pessen Integral Rule  0.70*Ku  Tu/2.5  3.0*Tu/20  #define KP_REDUCTION (.45f/.70f)  #define KI_REDUCTION (1.2f/2.5f)
+        // some overshoot        0.33*Ku  Tu/2.0  Tu/3       #define KP_REDUCTION (.45f/.33f)  #define KI_REDUCTION (1.2f/2.0f)
+        // no overshoot          0.20*Ku  Tu/2.0  Tu/3       #define KP_REDUCTION (.45f/.20f)  #define KI_REDUCTION (1.2f/2.0f)
+
+        // reduce roll and pitch, but not yaw
+        // yaw PID is entirely based on roll or pitch PIDs which have already been reduced
+        if (i < 2) {
+            kp = kp * KP_REDUCTION + kp * systemIdentSettings.DerivativeFactor * (1.0f-KP_REDUCTION);
+            ki = ki * KI_REDUCTION + ki * systemIdentSettings.DerivativeFactor * (1.0f-KI_REDUCTION);
+            kd *= systemIdentSettings.DerivativeFactor;
         }
 
         switch (i) {
@@ -1241,11 +1297,11 @@ __attribute__((always_inline)) static inline void AfPredict(float X[AF_NUMX], fl
     P[1]  = -D[1] * (D[1] / S[1] - 1);
     P[2]  = -D[2] * (D[2] / S[2] - 1);
     P[3]  = -D[3] * (D[0] / S[0] - 1);
-    P[4]  = D[4] - D[3] * D[3] / S[0];
+    P[4]  = D[4] - D[3] * (D[3] / S[0]);
     P[5]  = -D[5] * (D[1] / S[1] - 1);
-    P[6]  = D[6] - D[5] * D[5] / S[1];
+    P[6]  = D[6] - D[5] * (D[5] / S[1]);
     P[7]  = -D[7] * (D[2] / S[2] - 1);
-    P[8]  = D[8] - D[7] * D[7] / S[2];
+    P[8]  = D[8] - D[7] * (D[7] / S[2]);
     P[9]  = -D[9] * (D[0] / S[0] - 1);
     P[10] = D[10] - D[3] * (D[9] / S[0]);
     P[11] = D[11] - D[9] * (D[9] / S[0]);

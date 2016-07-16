@@ -26,16 +26,14 @@
         <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="6"/>
         <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
         <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="16"/>
-        <!-- <field name="CalculateYaw" units="" type="enum" elements="1" options="False,True,TrueIgnoreError" defaultvalue="True"/> -->
         <field name="CalculateYaw" units="" type="enum" elements="1" options="False,TrueLimitToRatio,TrueIgnoreLimit" defaultvalue="TrueLimitToRatio"/>
-        <!-- <field name="YawBetaMin" units="" type="float" elements="1" defaultvalue="5.6"/> -->
         <!-- Mateuze quad needs yaw P to be at most 2.6 times roll/pitch P to avoid yaw oscillation -->
         <!-- Cliff sluggish 500 quad thinks that yaw P should be about 5.8 times roll/pitch P, but can easily (and better) live with 2.6 -->
         <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0"/>
         <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5"/>
-        <!-- <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/> -->
+        <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
-        <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60" limits="%BI:0;" />
+        <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" />
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
         <!-- 0 = disabled -->
         <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->

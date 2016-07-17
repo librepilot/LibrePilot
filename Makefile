@@ -425,12 +425,18 @@ define UNCRUSTIFY_TEMPLATE
 uncrustify_$(1):
 	@$(ECHO) "Auto-formatting $(1) source code"
 	$(V1) UNCRUSTIFY_CONFIG="$(ROOT_DIR)/make/uncrustify/uncrustify.cfg" $(SHELL) make/scripts/uncrustify.sh $(call toprel, $(2))
+
+.PHONY: pretty_$(1)
+pretty_$(1): uncrustify_$(1)
 endef
 
 $(foreach uncrustify_targ, $(UNCRUSTIFY_TARGETS), $(eval $(call UNCRUSTIFY_TEMPLATE,$(uncrustify_targ),$(ROOT_DIR)/$(uncrustify_targ))))
 
 .PHONY: uncrustify_all
 uncrustify_all: $(addprefix uncrustify_,$(UNCRUSTIFY_TARGETS))
+
+.PHONY: pretty
+pretty: $(addprefix pretty_,$(UNCRUSTIFY_TARGETS))
 
 ##############################
 #
@@ -651,9 +657,9 @@ help:
 	@$(ECHO) "     install              - Install GCS to \"DESTDIR\" with prefix \"prefix\" (Linux only)"
 	@$(ECHO)
 	@$(ECHO) "   [Code Formatting]"
-	@$(ECHO) "     uncrustify_<source>  - Reformat <source> code according to the project's standards"
+	@$(ECHO) "     pretty_<source>      - Reformat <source> code according to the project's standards"
 	@$(ECHO) "                            Supported sources are ($(UNCRUSTIFY_TARGETS))"
-	@$(ECHO) "     uncrustify_all       - Reformat all source code"
+	@$(ECHO) "     pretty               - Reformat all source code"
 	@$(ECHO)
 	@$(ECHO) "   [Code Documentation]"
 	@$(ECHO) "     docs_<source>        - Generate HTML documentation for <source>"

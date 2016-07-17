@@ -265,7 +265,7 @@ void INSPosVelReset(const float pos[3], const float vel[3])
     ekf.X[4]    = vel[1];
     ekf.X[5]    = vel[2];
 }
-void INSSetPosVelVar(float PosVar[3], float VelVar[3])
+void INSSetPosVelVar(const float PosVar[3], const float VelVar[3])
 // void INSSetPosVelVar(float PosVar, float VelVar, float VertPosVar)
 {
     ekf.R[0] = PosVar[0];

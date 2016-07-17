@@ -355,7 +355,6 @@ static void StateEstimationCb(void)
     static stateEstimation states;
     static uint32_t last_time;
     static uint16_t bootDelay = 64;
-
     // after system startup, first few sensor readings might be messed up, delay until everything has settled
     if (bootDelay) {
         bootDelay--;
@@ -373,12 +372,13 @@ static void StateEstimationCb(void)
     } else {
         last_time = PIOS_DELAY_GetRaw();
     }
+    FlightStatusArmedOptions fsarmed;
+    FlightStatusArmedGet(&fsarmed);
+    states.armed = fsarmed != FLIGHTSTATUS_ARMED_DISARMED;
 
     // check if a new filter chain should be initialized
     if (fusionAlgorithm != revoSettings.FusionAlgorithm) {
-        FlightStatusData fs;
-        FlightStatusGet(&fs);
-        if (fs.Armed == FLIGHTSTATUS_ARMED_DISARMED || fusionAlgorithm == FILTER_INIT_FORCE) {
+        if (fsarmed == FLIGHTSTATUS_ARMED_DISARMED || fusionAlgorithm == FILTER_INIT_FORCE) {
             const filterPipeline *newFilterChain;
             switch ((RevoSettingsFusionAlgorithmOptions)revoSettings.FusionAlgorithm) {
             case REVOSETTINGS_FUSIONALGORITHM_BASICCOMPLEMENTARY:

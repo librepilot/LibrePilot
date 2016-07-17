@@ -70,8 +70,9 @@ typedef struct {
     float   airspeed[2];
     float   baro[1];
     float   auxMag[3];
-    uint8_t magStatus;
     float   boardMag[3];
+    uint8_t magStatus;
+    bool    armed;
     sensorUpdates updated;
 } stateEstimation;
 

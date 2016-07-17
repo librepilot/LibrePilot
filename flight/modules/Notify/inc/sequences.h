@@ -35,25 +35,26 @@
 // This represent the list of basic light sequences, defined later
 typedef enum {
     NOTIFY_SEQUENCE_ARMED_FM_MANUAL = 0,
-    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED1 = 1,
-    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED2 = 2,
-    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED3 = 3,
-    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED4 = 4,
-    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED5 = 5,
-    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED6 = 6,
-    NOTIFY_SEQUENCE_ARMED_FM_GPS      = 8,
-    NOTIFY_SEQUENCE_ARMED_FM_RTH      = 9,
-    NOTIFY_SEQUENCE_ARMED_FM_LAND     = 10,
-    NOTIFY_SEQUENCE_ARMED_FM_AUTO     = 11,
-    NOTIFY_SEQUENCE_ALM_WARN_GPS      = 12,
-    NOTIFY_SEQUENCE_ALM_ERROR_GPS     = 13,
-    NOTIFY_SEQUENCE_ALM_WARN_BATTERY  = 14,
-    NOTIFY_SEQUENCE_ALM_ERROR_BATTERY = 15,
-    NOTIFY_SEQUENCE_ALM_MAG = 16,
-    NOTIFY_SEQUENCE_ALM_CONFIG = 17,
-    NOTIFY_SEQUENCE_ALM_RECEIVER      = 18,
-    NOTIFY_SEQUENCE_DISARMED = 19,
-    NOTIFY_SEQUENCE_ALM_ATTITUDE      = 20,
+    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED1,
+    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED2,
+    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED3,
+    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED4,
+    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED5,
+    NOTIFY_SEQUENCE_ARMED_FM_STABILIZED6,
+    NOTIFY_SEQUENCE_ARMED_FM_GPS,
+    NOTIFY_SEQUENCE_ARMED_FM_RTH,
+    NOTIFY_SEQUENCE_ARMED_FM_LAND,
+    NOTIFY_SEQUENCE_ARMED_FM_AUTO,
+    NOTIFY_SEQUENCE_ALM_WARN_GPS,
+    NOTIFY_SEQUENCE_ALM_ERROR_GPS,
+    NOTIFY_SEQUENCE_ALM_WARN_BATTERY,
+    NOTIFY_SEQUENCE_ALM_ERROR_BATTERY,
+    NOTIFY_SEQUENCE_ALM_WARN_MAG,
+    NOTIFY_SEQUENCE_ALM_ERROR_MAG,
+    NOTIFY_SEQUENCE_ALM_CONFIG,
+    NOTIFY_SEQUENCE_ALM_RECEIVER,
+    NOTIFY_SEQUENCE_DISARMED,
+    NOTIFY_SEQUENCE_ALM_ATTITUDE,
     NOTIFY_SEQUENCE_NULL = 255, // skips any signalling for this condition
 } NotifySequences;
 
@@ -66,6 +67,21 @@ typedef struct {
     uint8_t  errorNotification; // index of the sequence to be used when alarm is in error status(pick one from NotifySequences enum)
 } AlarmDefinition_t;
 
+#define STANDARD_ERROR_SEQUENCE(alarm_color, alarm_repeats) \
+    { .repeats = alarm_repeats, .steps = { \
+          { .time_off = 200, .time_on = 10,  .color = COLOR_BLACK,   .repeats = 1, }, \
+          { .time_off = 100, .time_on = 300, .color = COLOR_DARKRED, .repeats = 1, }, \
+          { .time_off = 100, .time_on = 300, .color = alarm_color,   .repeats = 2, }, \
+          { .time_off = 100, .time_on = 10,  .color = COLOR_BLACK,   .repeats = 1, }, \
+      }, }
+
+#define STANDARD_WARN_SEQUENCE(alarm_color, alarm_repeats) \
+    { .repeats = alarm_repeats, .steps = { \
+          { .time_off = 200, .time_on = 10,  .color = COLOR_BLACK,  .repeats = 1, }, \
+          { .time_off = 100, .time_on = 300, .color = COLOR_ORANGE, .repeats = 1, }, \
+          { .time_off = 100, .time_on = 300, .color = alarm_color,  .repeats = 1, }, \
+          { .time_off = 200, .time_on = 10,  .color = COLOR_BLACK,  .repeats = 1, }, \
+      }, }
 
 // This is the list of defined light sequences
 /* how each sequence is defined
@@ -90,10 +106,12 @@ typedef struct {
  */
 const LedSequence_t notifications[] = {
     [NOTIFY_SEQUENCE_DISARMED] =                   { .repeats  = -1,  .steps    = {
-                                                   { .time_off = 500, .time_on  = 500, .color = COLOR_TEAL, .repeats = 1, },
+                                                   { .time_off = 200, .time_on  = 10,  .color = COLOR_BLACK, .repeats = 1, },
+                                                   { .time_off = 100, .time_on  = 100, .color = COLOR_WHITE, .repeats = 1, },
+                                                   { .time_off = 200, .time_on  = 10,  .color = COLOR_BLACK, .repeats = 1, },
                                                      }, },
     [NOTIFY_SEQUENCE_ARMED_FM_MANUAL] =            { .repeats  = -1,  .steps    = {
-                                                   { .time_off = 900, .time_on  = 100, .color = COLOR_YELLOW, .repeats = 1, },
+                                                   { .time_off = 900, .time_on  = 100, .color = COLOR_BLUE, .repeats = 1, },
                                                      }, },
     [NOTIFY_SEQUENCE_ARMED_FM_STABILIZED1] =       { .repeats  = -1,  .steps    = {
                                                    { .time_off = 900, .time_on  = 100, .color = COLOR_BLUE, .repeats = 1, },
@@ -132,34 +150,19 @@ const LedSequence_t notifications[] = {
                                                    { .time_off = 100, .time_on  = 200, .color = COLOR_GREEN, .repeats = 2, },
                                                    { .time_off = 500, .time_on  = 200, .color = COLOR_GREEN, .repeats = 1, },
                                                      }, },
-
-    [NOTIFY_SEQUENCE_ALM_WARN_GPS] =               { .repeats  = 2,   .steps     = {
-                                                   { .time_off = 300, .time_on   = 300, .color = COLOR_ORANGE, .repeats = 2, },
-                                                   { .time_off = 300, .time_on   = 300, .color = COLOR_GREEN,  .repeats = 1, },
-                                                     }, },
-    [NOTIFY_SEQUENCE_ALM_ERROR_GPS] =              { .repeats  = 2,   .steps     = {
-                                                   { .time_off = 300, .time_on   = 300, .color = COLOR_RED,   .repeats = 2, },
-                                                   { .time_off = 300, .time_on   = 300, .color = COLOR_GREEN, .repeats = 1, },
-                                                     }, },
+    [NOTIFY_SEQUENCE_ALM_WARN_GPS]      = STANDARD_WARN_SEQUENCE(COLOR_GREEN, 1),
+    [NOTIFY_SEQUENCE_ALM_ERROR_GPS]     = STANDARD_ERROR_SEQUENCE(COLOR_GREEN, 1),
     [NOTIFY_SEQUENCE_ALM_WARN_BATTERY]  =          { .repeats  = 1,   .steps     = {
-                                                   { .time_off = 100, .time_on   = 100, .color = COLOR_ORANGE, .repeats = 10, },
+                                                   { .time_off = 100, .time_on   = 100, .color = COLOR_ORANGE, .repeats = 5, },
                                                      }, },
     [NOTIFY_SEQUENCE_ALM_ERROR_BATTERY] =          { .repeats  = 1,   .steps     = {
-                                                   { .time_off = 100, .time_on   = 100, .color = COLOR_RED, .repeats = 10, },
+                                                   { .time_off = 100, .time_on   = 100, .color = COLOR_RED, .repeats = 5, },
                                                      }, },
-    [NOTIFY_SEQUENCE_ALM_MAG] =                    { .repeats  = 1,   .steps     = {
-                                                   { .time_off = 300, .time_on   = 300, .color = COLOR_RED,    .repeats = 2, },
-                                                   { .time_off = 300, .time_on   = 300, .color = COLOR_PURPLE, .repeats = 1, },
-                                                     }, },
-    [NOTIFY_SEQUENCE_ALM_CONFIG] =                 { .repeats  = 1,   .steps     = {
-                                                   { .time_off = 50,  .time_on    = 50, .color = COLOR_RED, .repeats = 9, },
-                                                   { .time_off = 500, .time_on    = 50, .color = COLOR_RED, .repeats = 1, },
-                                                     }, },
-    [NOTIFY_SEQUENCE_ALM_RECEIVER] =               { .repeats  = 1,   .steps     = {
-                                                   { .time_off = 50,  .time_on    = 50, .color = COLOR_ORANGE, .repeats = 9, },
-                                                   { .time_off = 500, .time_on    = 50, .color = COLOR_ORANGE, .repeats = 1, },
-                                                     }, },
-    [NOTIFY_SEQUENCE_ALM_ATTITUDE] =               { .repeats  = 10, .steps     = {
+    [NOTIFY_SEQUENCE_ALM_ERROR_MAG]     = STANDARD_ERROR_SEQUENCE(COLOR_PURPLE, 1),
+    [NOTIFY_SEQUENCE_ALM_WARN_MAG]      = STANDARD_WARN_SEQUENCE(COLOR_PURPLE, 1),
+    [NOTIFY_SEQUENCE_ALM_CONFIG] = STANDARD_ERROR_SEQUENCE(COLOR_RED, 2),
+    [NOTIFY_SEQUENCE_ALM_RECEIVER]      = STANDARD_ERROR_SEQUENCE(COLOR_YELLOW, 1),
+    [NOTIFY_SEQUENCE_ALM_ATTITUDE]      =          { .repeats  = 10, .steps     = {
                                                    { .time_off = 0, .time_on    = 50, .color = COLOR_RED,  .repeats = 1, },
                                                    { .time_off = 0, .time_on    = 50, .color = COLOR_BLUE, .repeats = 1, },
                                                      }, },
@@ -193,7 +196,7 @@ const LedSequence_t *flightModeMap[] = {
 // List of alarms to show with attached sequences for each status
 const AlarmDefinition_t alarmsMap[] = {
     {
-        .timeBetweenNotifications = 10000,
+        .timeBetweenNotifications = 5000,
         .alarmIndex = SYSTEMALARMS_ALARM_GPS,
         .warnNotification = NOTIFY_SEQUENCE_ALM_WARN_GPS,
         .criticalNotification     = NOTIFY_SEQUENCE_ALM_ERROR_GPS,
@@ -202,9 +205,9 @@ const AlarmDefinition_t alarmsMap[] = {
     {
         .timeBetweenNotifications = 5000,
         .alarmIndex = SYSTEMALARMS_ALARM_MAGNETOMETER,
-        .warnNotification = NOTIFY_SEQUENCE_NULL,
-        .criticalNotification     = NOTIFY_SEQUENCE_ALM_MAG,
-        .errorNotification = NOTIFY_SEQUENCE_ALM_MAG,
+        .warnNotification = NOTIFY_SEQUENCE_ALM_WARN_MAG,
+        .criticalNotification     = NOTIFY_SEQUENCE_ALM_ERROR_MAG,
+        .errorNotification = NOTIFY_SEQUENCE_ALM_ERROR_MAG,
     },
     {
         .timeBetweenNotifications = 15000,
@@ -221,7 +224,7 @@ const AlarmDefinition_t alarmsMap[] = {
         .errorNotification = NOTIFY_SEQUENCE_ALM_CONFIG,
     },
     {
-        .timeBetweenNotifications = 2000,
+        .timeBetweenNotifications = 5000,
         .alarmIndex = SYSTEMALARMS_ALARM_RECEIVER,
         .warnNotification = NOTIFY_SEQUENCE_ALM_RECEIVER,
         .criticalNotification     = NOTIFY_SEQUENCE_ALM_RECEIVER,

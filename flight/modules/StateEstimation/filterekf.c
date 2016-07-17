@@ -202,8 +202,8 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     float dT;
     uint16_t sensors = 0;
 
-    this->work.updated |= state->updated;
 
+    this->work.updated |= state->updated;
     // check magnetometer alarm, discard any magnetometer readings if not OK
     // during initialization phase (but let them through afterwards)
     SystemAlarmsAlarmData alarms;
@@ -241,10 +241,9 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
             // Reset the INS algorithm
             INSGPSInit();
             // variance is measured in mGaus, but internally the EKF works with a normalized  vector. Scale down by Be^2
-            float Be2 = this->homeLocation.Be[0] * this->homeLocation.Be[0] + this->homeLocation.Be[1] * this->homeLocation.Be[1] + this->homeLocation.Be[2] * this->homeLocation.Be[2];
-            INSSetMagVar((float[3]) { this->ekfConfiguration.R.MagX / Be2,
-                                      this->ekfConfiguration.R.MagY / Be2,
-                                      this->ekfConfiguration.R.MagZ / Be2 }
+            INSSetMagVar((float[3]) { this->ekfConfiguration.R.MagX,
+                                      this->ekfConfiguration.R.MagY,
+                                      this->ekfConfiguration.R.MagZ }
                          );
             INSSetAccelVar((float[3]) { this->ekfConfiguration.Q.AccelX,
                                         this->ekfConfiguration.Q.AccelY,
@@ -421,7 +420,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
     EKFStateVarianceData vardata;
     EKFStateVarianceGet(&vardata);
-    INSGetP(EKFStateVariancePToArray(vardata.P));
+    INSGetVariance(EKFStateVariancePToArray(vardata.P));
     EKFStateVarianceSet(&vardata);
     int t;
     for (t = 0; t < EKFSTATEVARIANCE_P_NUMELEM; t++) {

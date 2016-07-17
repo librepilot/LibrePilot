@@ -106,7 +106,7 @@ void onTimerCb(__attribute__((unused)) UAVObjEvent *ev)
 
     SystemAlarmsAlarmGet(&alarms);
     for (uint8_t i = 0; i < alarmsMapSize; i++) {
-        uint8_t alarm = ((uint8_t *)&alarms)[alarmsMap[i].alarmIndex];
+        uint8_t alarm = SystemAlarmsAlarmToArray(alarms)[alarmsMap[i].alarmIndex];
         checkAlarm(alarm,
                    &alarmStatus[i].lastAlarm,
                    &alarmStatus[i].lastAlarmTime,
@@ -121,16 +121,23 @@ void checkAlarm(uint8_t alarm, uint8_t *last_alarm, uint32_t *last_alm_time, uin
 {
     if (alarm > SYSTEMALARMS_ALARM_OK) {
         uint32_t current_time = PIOS_DELAY_GetuS();
-        if (*last_alarm < alarm || *last_alm_time + timeBetweenNotifications * 1000 > current_time) {
+        if (*last_alarm < alarm || (*last_alm_time + timeBetweenNotifications * 1000) < current_time) {
             uint8_t sequence = (alarm == SYSTEMALARMS_ALARM_WARNING) ? warn_sequence :
                                ((alarm == SYSTEMALARMS_ALARM_CRITICAL) ? critical_sequence : error_sequence);
+            bool updated     = true;
             if (sequence != NOTIFY_SEQUENCE_NULL) {
-                PIOS_NOTIFICATION_Default_Ext_Led_Play(
+                updated = PIOS_NOTIFICATION_Default_Ext_Led_Play(
                     &notifications[sequence],
                     alarm == SYSTEMALARMS_ALARM_WARNING ? NOTIFY_PRIORITY_REGULAR : NOTIFY_PRIORITY_CRITICAL);
             }
-            *last_alarm    = alarm;
-            *last_alm_time = current_time;
+            if (updated) {
+                *last_alarm    = alarm;
+                *last_alm_time = current_time;
+            }
+        }
+        // workaround timer overflow
+        if (*last_alm_time > current_time) {
+            *last_alm_time = 0;
         }
     } else {
         *last_alarm = SYSTEMALARMS_ALARM_OK;

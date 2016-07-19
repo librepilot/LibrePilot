@@ -420,36 +420,42 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             diffTime = xTaskGetTickCount() - lastUpdateTime;
             // after 2 seconds start systemident flight mode
             if (diffTime > SYSTEMIDENT_TIME_DELAY_MS) {
+                // load default tune and clean up any NANs from previous tune
+                InitSystemIdent(true);
+                AfInit(gX, gP);
+                // and write it out to the UAVO so innerloop can see the default values
+                UpdateSystemIdentState(gX, NULL, 0.0f, 0, 0, 0.0f);
+                // before starting SystemIdent stabilization mode
                 doingIdent = true;
-                // after an additional .5 seconds start capturing data
-                if (diffTime > INIT_TIME_DELAY2_MS) {
-                    // Reset save status
-                    // save SI data even if partial or bad, aids in diagnostics
-                    saveSiNeeded  = true;
-                    // don't save PIDs until data gathering is complete
-                    // and the complete data has been sanity checked
-                    savePidNeeded = false;
-                    InitSystemIdent(true);
-                    AfInit(gX, gP);
-                    UpdateSystemIdentState(gX, NULL, 0.0f, 0, 0, 0.0f);
-                    measureTime = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
-                    state = AT_START;
-                }
+                state = AT_START;
             }
             break;
 
         case AT_START:
-            lastTime   = PIOS_DELAY_GetRaw();
+            diffTime = xTaskGetTickCount() - lastUpdateTime;
             doingIdent = true;
-            /* Drain the queue of all current data */
-            xQueueReset(atQueue);
-            /* And reset the point spill counter */
-            updateCounter       = 0;
-            atPointsSpilled     = 0;
-            throttleAccumulator = 0;
-            alpha = 0.0f;
-            state = AT_RUN;
-            lastUpdateTime      = xTaskGetTickCount();
+            // after an additional short delay, start capturing data
+            if (diffTime > INIT_TIME_DELAY2_MS) {
+                // Reset save status
+                // save SI data even if partial or bad, aids in diagnostics
+                saveSiNeeded  = true;
+                // don't save PIDs until data gathering is complete
+                // and the complete data has been sanity checked
+                savePidNeeded = false;
+                // get the tuning duration in case the user just changed it
+                measureTime = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
+                // init the "previous packet timestamp"
+                lastTime   = PIOS_DELAY_GetRaw();
+                /* Drain the queue of all current data */
+                xQueueReset(atQueue);
+                /* And reset the point spill counter */
+                updateCounter       = 0;
+                atPointsSpilled     = 0;
+                throttleAccumulator = 0;
+                alpha = 0.0f;
+                state = AT_RUN;
+                lastUpdateTime      = xTaskGetTickCount();
+            }
             break;
 
         case AT_RUN:

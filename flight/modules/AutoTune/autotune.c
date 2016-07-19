@@ -134,7 +134,7 @@ static float gyroReadTimeAverage;
 static float gyroReadTimeAverageAlpha;
 static float gyroReadTimeAverageAlphaAlpha;
 static float alpha;
-static float smoothQuickSetting;
+static float smoothQuickValue;
 static volatile uint32_t atPointsSpilled;
 static uint32_t throttleAccumulator;
 static uint8_t rollMax, pitchMax;
@@ -232,7 +232,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     float noise[3]            = { 0 };
     float dT_s                = 0.0f;
     uint32_t lastUpdateTime   = 0; // initialization is only for compiler warning
-    uint32_t lastTime         = 0.0f;
+    uint32_t lastTime         = 0;
     uint32_t measureTime      = 0;
     uint32_t updateCounter    = 0;
     enum AUTOTUNE_STATE state = AT_INIT;
@@ -254,7 +254,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     // based on what is in SystemIdent
     // so that the user can use the PID smooth->quick slider in flights following the autotune flight
     InitSystemIdent(false);
-    smoothQuickSetting = systemIdentSettings.SmoothQuickSetting;
+    smoothQuickValue = systemIdentSettings.SmoothQuickValue;
 
     while (1) {
         uint32_t diffTime;
@@ -297,15 +297,15 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // if user toggled while armed set PID's to next in sequence
                 // if you assume that smoothest is -1 and quickest is +1
                 // this corresponds to 0,+.50,+1.00,-1.00,-.50 (for 5 position toggle)
-                smoothQuickSetting += 1.0f / (float)flightModeSwitchTogglePosition;
-                if (smoothQuickSetting > 1.001f) {
-                    smoothQuickSetting = -1.0f;
+                smoothQuickValue += 1.0f / (float)flightModeSwitchTogglePosition;
+                if (smoothQuickValue > 1.001f) {
+                    smoothQuickValue = -1.0f;
                 }
             } else {
                 // if they did the 3x FMS toggle while disarmed, set PID's back to the middle of smoothquick
-                smoothQuickSetting = 0.0f;
+                smoothQuickValue = 0.0f;
             }
-            // calculate PIDs based on new smoothQuickSetting and save to the PID bank
+            // calculate PIDs based on new smoothQuickValue and save to the PID bank
             ProportionPidsSmoothToQuick();
             // save new PIDs permanently when / if disarmed
             savePidNeeded = true;
@@ -347,9 +347,9 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // a test Taranis transmitter knob has about 0.0233 slop out of a range of 2.0
                 // what we are doing here does not need any higher precision than that
                 // user must move the knob more than 1/85th of the total range (of 2.0) for it to register as changed
-                if (fabsf(smoothQuickSetting - accessoryValue.AccessoryVal) > (2.0f / 85.0f)) {
-                    smoothQuickSetting = accessoryValue.AccessoryVal;
-                    // calculate PIDs based on new smoothQuickSetting and save to the PID bank
+                if (fabsf(smoothQuickValue - accessoryValue.AccessoryVal) > (2.0f / 85.0f)) {
+                    smoothQuickValue = accessoryValue.AccessoryVal;
+                    // calculate PIDs based on new smoothQuickValue and save to the PID bank
                     ProportionPidsSmoothToQuick();
                     // this schedules the first possible write of the PIDs to occur a fraction of a second or so from now
                     // and changes the scheduled time if it is already scheduled
@@ -432,7 +432,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             break;
 
         case AT_START:
-            diffTime = xTaskGetTickCount() - lastUpdateTime;
+            diffTime   = xTaskGetTickCount() - lastUpdateTime;
             doingIdent = true;
             // after an additional short delay, start capturing data
             if (diffTime > INIT_TIME_DELAY2_MS) {
@@ -443,9 +443,9 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // and the complete data has been sanity checked
                 savePidNeeded = false;
                 // get the tuning duration in case the user just changed it
-                measureTime = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
+                measureTime   = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
                 // init the "previous packet timestamp"
-                lastTime   = PIOS_DELAY_GetRaw();
+                lastTime = PIOS_DELAY_GetRaw();
                 /* Drain the queue of all current data */
                 xQueueReset(atQueue);
                 /* And reset the point spill counter */
@@ -478,8 +478,8 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 dT_s = PIOS_DELAY_DiffuS2(lastTime, pt.gyroStateCallbackTimestamp) * 1.0e-6f;
                 /* This is for the first point, but
                 * also if we have extended drops */
-                if (dT_s > 5.0f/PIOS_SENSOR_RATE) {
-                    dT_s = 5.0f/PIOS_SENSOR_RATE;
+                if (dT_s > 5.0f / PIOS_SENSOR_RATE) {
+                    dT_s = 5.0f / PIOS_SENSOR_RATE;
                 }
                 lastTime = pt.gyroStateCallbackTimestamp;
                 // original algorithm handles time from GyroStateGet() to detected motion
@@ -690,7 +690,7 @@ static void InitSystemIdent(bool loadDefaults)
     case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
     case SMOOTH_QUICK_ACCESSORY_BASE + 2: // use accessory2
     case SMOOTH_QUICK_ACCESSORY_BASE + 3: // use accessory3
-        // leave smoothQuickSetting alone since it is always controlled by knob
+        // leave smoothQuickValue alone since it is always controlled by knob
         // disable PID changing with flight mode switch
         flightModeSwitchTogglePosition = -1;
         // enable PID changing with accessory0-3
@@ -702,7 +702,7 @@ static void InitSystemIdent(bool loadDefaults)
         // don't allow init of current toggle position in the middle of 3x fms toggle
         if (loadDefaults) {
             // set toggle to middle of range
-            smoothQuickSetting = 0.0f;
+            smoothQuickValue = 0.0f;
         }
         // enable PID changing with flight mode switch
         flightModeSwitchTogglePosition = (SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
@@ -711,7 +711,7 @@ static void InitSystemIdent(bool loadDefaults)
         break;
     case SMOOTH_QUICK_DISABLED:
     default:
-        // leave smoothQuickSetting alone so user can set it to a different value and have it stay that value
+        // leave smoothQuickValue alone so user can set it to a different value and have it stay that value
         // disable PID changing with flight mode switch
         flightModeSwitchTogglePosition = -1;
         // disable PID changing with accessory0-3
@@ -751,7 +751,7 @@ static void UpdateSystemIdentState(const float *X, const float *noise,
     systemIdentSettings.Tau = u.systemIdentState.Tau;
     memcpy(&systemIdentSettings.Beta, &u.systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
     systemIdentSettings.GyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
-    systemIdentSettings.SmoothQuickSetting  = smoothQuickSetting;
+    systemIdentSettings.SmoothQuickValue    = smoothQuickValue;
 
     SystemIdentStateSet(&u.systemIdentState);
 }
@@ -847,6 +847,7 @@ static uint8_t CheckSettingsRaw()
 static uint8_t CheckSettings()
 {
     uint8_t retVal = CheckSettingsRaw();
+
     if (systemIdentSettings.DisableSanityChecks) {
         retVal = 0;
     }
@@ -1007,7 +1008,7 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
         // the amount to reduce kp and ki is taken from ZN tuning
         // specifically kp is parameterized based on the ratio between kp(PID) and kp(PI) as the D factor varies from 1 to 0
         // https://en.wikipedia.org/wiki/PID_controller
-        //         Kp        Ki        Kd
+        // Kp        Ki        Kd
         // -----------------------------------
         // P    0.50*Ku      -         -
         // PI   0.45*Ku  1.2*Kp/Tu     -
@@ -1015,13 +1016,13 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
         //
         // so  Kp is multiplied by (.45/.60) if Kd is reduced to 0
         // and Ki is multiplied by (1.2/2.0) if Kd is reduced to 0
-        #define KP_REDUCTION (.45f/.60f)
-        #define KI_REDUCTION (1.2f/2.0f)
+        #define KP_REDUCTION (.45f / .60f)
+        #define KI_REDUCTION (1.2f / 2.0f)
 
         // this link gives some additional ratios that are different
         // the reduced overshoot ratios are invalid for this purpose
         // https://en.wikipedia.org/wiki/Ziegler%E2%80%93Nichols_method
-        //                         Kp       Ki    Kd
+        // Kp       Ki    Kd
         // ------------------------------------------------
         // P                     0.50*Ku     -     -
         // PI                    0.45*Ku  Tu/1.2   -
@@ -1034,8 +1035,8 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
         // reduce roll and pitch, but not yaw
         // yaw PID is entirely based on roll or pitch PIDs which have already been reduced
         if (i < 2) {
-            kp = kp * KP_REDUCTION + kp * systemIdentSettings.DerivativeFactor * (1.0f-KP_REDUCTION);
-            ki = ki * KI_REDUCTION + ki * systemIdentSettings.DerivativeFactor * (1.0f-KI_REDUCTION);
+            kp  = kp * KP_REDUCTION + kp * systemIdentSettings.DerivativeFactor * (1.0f - KP_REDUCTION);
+            ki  = ki * KI_REDUCTION + ki * systemIdentSettings.DerivativeFactor * (1.0f - KI_REDUCTION);
             kd *= systemIdentSettings.DerivativeFactor;
         }
 
@@ -1105,7 +1106,7 @@ static void ProportionPidsSmoothToQuick()
 {
     float ratio, damp, noise;
     float min = -1.0f;
-    float val = smoothQuickSetting;
+    float val = smoothQuickValue;
     float max = 1.0f;
 
     // translate from range [min, max] to range [0, max-min]
@@ -1128,7 +1129,7 @@ static void ProportionPidsSmoothToQuick()
 
     ComputeStabilizationAndSetPidsFromDampAndNoise(damp, noise);
     // save it to the system, but not yet written to flash
-    SystemIdentSettingsSmoothQuickSettingSet(&smoothQuickSetting);
+    SystemIdentSettingsSmoothQuickValueSet(&smoothQuickValue);
 }
 
 

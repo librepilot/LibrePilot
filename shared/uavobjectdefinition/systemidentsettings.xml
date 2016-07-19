@@ -33,7 +33,7 @@
         <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5"/>
         <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="3" limits="%BE:1:3"/>
-        <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" />
+        <field name="TuningDuration" units="s" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" />
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
         <!-- 0 = disabled -->
         <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
@@ -47,7 +47,7 @@
         <!-- 27 (7 stops) means stops at 50, 67, 83, 100, 0, 17, 33 (repeat as you toggle) -->
         <!-- 25 is special in that the 3 middle values (25, 50, 75) are exactly those that are recommended for smooth, normal, and quick responses -->
         <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25"/>
-        <field name="SmoothQuickSetting" units="" type="float" elements="1" defaultvalue="0.0"/>
+        <field name="SmoothQuickValue" units="" type="float" elements="1" defaultvalue="0.0"/>
         <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.001"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>

@@ -32,7 +32,7 @@
         <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0"/>
         <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5"/>
         <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1"/>
-        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
+        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="3" limits="%BE:1:3"/>
         <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" />
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
         <!-- 0 = disabled -->

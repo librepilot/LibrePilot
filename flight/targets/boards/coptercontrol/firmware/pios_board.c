@@ -78,6 +78,8 @@ static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 #define PIOS_COM_MSP_TX_BUF_LEN          128
 #define PIOS_COM_MSP_RX_BUF_LEN          64
 
+#define PIOS_COM_MAVLINK_TX_BUF_LEN      128
+
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 #define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
 uint32_t pios_com_debug_id;
@@ -90,6 +92,7 @@ uint32_t pios_com_gps_id;
 uint32_t pios_com_bridge_id;
 uint32_t pios_com_hkosd_id;
 uint32_t pios_com_msp_id;
+uint32_t pios_com_mavlink_id;
 uint32_t pios_usb_rctx_id;
 
 uintptr_t pios_uavo_settings_fs_id;
@@ -544,6 +547,9 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_CC_MAINPORT_MSP:
         PIOS_Board_configure_com(&pios_usart_generic_main_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
         break;
+    case HWSETTINGS_CC_MAINPORT_MAVLINK:
+        PIOS_Board_configure_com(&pios_usart_generic_main_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
+        break;
     case HWSETTINGS_CC_MAINPORT_OSDHK:
         PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, -1, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
@@ -566,6 +572,9 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_CC_FLEXIPORT_MSP:
         PIOS_Board_configure_com(&pios_usart_generic_flexi_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
+        break;
+    case HWSETTINGS_CC_FLEXIPORT_MAVLINK:
+        PIOS_Board_configure_com(&pios_usart_generic_flexi_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
         break;
     case HWSETTINGS_CC_FLEXIPORT_GPS:
 #if defined(PIOS_INCLUDE_GPS)

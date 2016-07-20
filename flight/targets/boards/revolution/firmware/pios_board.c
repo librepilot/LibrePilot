@@ -556,6 +556,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_FLEXIPORT_MSP:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
+        break;
     case HWSETTINGS_RM_FLEXIPORT_MAVLINK:
         PIOS_Board_configure_com(&pios_usart_flexi_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
         break;
@@ -825,6 +826,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_MAINPORT_MSP:
         PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
+        break;
     case HWSETTINGS_RM_MAINPORT_MAVLINK:
         PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
         break;
@@ -1028,6 +1030,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RM_RCVRPORT_MSP:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
+        break;
     case HWSETTINGS_RM_RCVRPORT_MAVLINK:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
         break;

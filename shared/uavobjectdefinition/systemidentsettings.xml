@@ -2,8 +2,15 @@
     <object name="SystemIdentSettings" singleinstance="true" settings="true" category="Control">
         <description>The input to and results of the PID tuning.</description>
         <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0" description="Measured delay between inner loop and detected gyro response"/>
-        <!-- Beta default valuses 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
+        <!-- Beta default values 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
         <field name="Beta" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="10.0,10.0,7.0" description="(Natural log of) Measured control gain"/>
+        <!-- The following comments come from / are extrapolated from various TauLabs / dRonin sources. -->
+        <!-- TL / dRonin requires you to adjust two sliders, one called RateDamp and the other called RateNoise. -->
+        <!-- They have documented that certain pairings of damp and noise go together well. -->
+        <!-- The LP code uses these "known good pairs" to weld the damp and noise scales together into the SmoothQuick slider. -->
+        <!-- When using the SmoothQuick slider you automatically get an interpolated matching pair of damp and noise. -->
+        <!-- So be aware that these comments refer to the TL/dRronin slider names. -->
+        <!-- -->
         <!-- Decrease damping to make your aircraft response more rapidly. Increase it for more stability. -->
         <!-- Increasing noise (sensitivity) will make your aircraft respond more rapidly, but will cause twitches due to noise. -->
         <!-- Use RateDamp 130 with RateNoise 08 for very smooth flight. -->
@@ -20,6 +27,22 @@
         <!-- Use RateDamp 150 with RateNoise 06 for very very smooth flight. -->
         <!-- Use RateDamp  90 with RateNoise 16 for very very snappy flight. -->
         <!-- use additive so the piecewise algorithm will give the exact recommended pairs at 25%, 50%, and 75% of slider -->
+        <!-- -->
+        <!-- So the following 6 fields set up the SmoothQuick slider using 3 known good damp and noise pairings. -->
+        <!-- You can adjust just one end of SmoothQuick by changing e.g. the DampMin and NoiseMax pairing. -->
+        <!-- You can maintain the known good ratio to simply extend or shrink the SmoothQuick scale. -->
+        <!-- You can change the known good ratio e.g. if you find that the quick end of SmoothQuick tends to oscillate. -->
+        <!-- You can change the default PIDs by changing the "center" values DampRate and NoiseRate. -->
+        <!-- You can change the whole SmoothQuick slider uniformly by e.g. multiplying all Damp* fields by .75 -->
+        <!-- You can shift the whole SmoothQuick slider up or down -->
+        <!-- etc! -->
+        <!-- on the SmoothQuick value scale of [-1,+1]: -->
+        <!-- the default SmoothQuick value of 0.0 gives recommended default damp and rate for normal flight -->
+        <!-- a SmoothQuick value of -0.5 gives the recommended damp and rate for very smooth flight -->
+        <!-- a SmoothQuick value of +0.5 gives the recommended damp and rate for very quick flight -->
+        <!-- a SmoothQuick value of -1.0 is extrapolated to give very very smooth flight while still being inside the range of sane values-->
+        <!-- a SmoothQuick value of +1.0 is extrapolated to give very very quick flight while still being inside the range of sane values-->
+        <!-- other values of SmoothQuick are interpolated or extrapolated from these -->
         <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="90" description="Setting: Part of smoothquick slider (expert)"/>
         <field name="DampRate" units="" type="uint8" elements="1" defaultvalue="110" description="Setting: Part of smoothquick slider (expert)"/>
         <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="150" description="Setting: Part of smoothquick slider (expert)"/>

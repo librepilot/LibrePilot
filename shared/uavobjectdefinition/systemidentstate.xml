@@ -2,7 +2,7 @@
     <object name="SystemIdentState" singleinstance="true" settings="false" category="State">
         <description>Used for logging PID tuning.</description>
         <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0" description="Measured delay between inner loop and detected gyro response"/>
-        <!-- Beta default valuses 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
+        <!-- Beta default values 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
         <field name="Beta" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="10.0,10.0,7.0" description="(Natural log of) Measured control gain"/>
         <field name="Bias" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="0" description="Measured amount and direction of control stick that stabilization automatically adds for motionless hover"/>
         <field name="Noise" units="(deg/s)^2" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="0" description="Measured vibration: Usually 10's to 1000's"/>

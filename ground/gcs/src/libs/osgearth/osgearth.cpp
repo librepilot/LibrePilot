@@ -71,9 +71,9 @@ void OsgEarth::registerQmlTypes()
     }
     registered = true;
 
-    // redirect osg logging to Qt (and export OSG_NOTIFY_LEVEL=DEBUG to enable osg logging)
-    // Note : enabling the notify handler seems to cause crashes (the notifier is probably not thread safe)
-    // osg::setNotifyHandler(new QtNotifyHandler());
+    // use "export OSG_NOTIFY_LEVEL=DEBUG" on command line to enable osg logging
+    // redirect osg logging to Qt
+    osg::setNotifyHandler(new QtNotifyHandler());
 
     // initialize();
 

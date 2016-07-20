@@ -84,6 +84,7 @@
 #include "qtsingleapplication.h"
 #include "utils/xmlconfig.h"
 #include "utils/pathutils.h"
+#include "utils/filelogger.h"
 #include "gcssplashscreen.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -108,7 +109,6 @@
 #include <QSplashScreen>
 #include <QSurfaceFormat>
 
-namespace {
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 typedef QMap<QString, bool> AppOptions;
 typedef QMap<QString, QString> AppOptionValues;
@@ -286,48 +286,21 @@ void systemInit()
     QSurfaceFormat::setDefaultFormat(format);
 }
 
-static QTextStream *logStream;
+static FileLogger *logger;
 
 void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    Q_UNUSED(context);
-
-    QTextStream &out = *logStream;
-
-    // logStream << QTime::currentTime().toString("hh:mm:ss.zzz ");
-
-    switch (type) {
-    case QtDebugMsg:
-        out << "DBG: ";
-        break;
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
-    case QtInfoMsg:
-        out << "INF: ";
-        break;
-#endif
-    case QtWarningMsg:
-        out << "WRN: ";
-        break;
-    case QtCriticalMsg:
-        out << "CRT: ";
-        break;
-    case QtFatalMsg:
-        out << "FTL: ";
-        break;
-    }
-
-    out << msg << '\n';
-    out.flush();
+    logger->log(type, context, msg);
 }
+
+Q_DECLARE_METATYPE(QtMsgType)
 
 void logInit(QString fileName)
 {
-    QFile *file = new QFile(fileName);
-
-    if (file->open(QIODevice::WriteOnly | QIODevice::Text)) {
-        logStream = new QTextStream(file);
-        qInstallMessageHandler(mainMessageOutput);
-    } else {
+    qRegisterMetaType<QtMsgType>();
+    qInstallMessageHandler(mainMessageOutput);
+    logger = new FileLogger();
+    if (!logger->start(fileName)) {
         displayError(msgLogfileOpenFailed(fileName));
     }
 }
@@ -456,7 +429,6 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
         translator.load(QString());
     }
 }
-} // namespace anonymous
 
 int main(int argc, char * *argv)
 {
@@ -494,6 +466,8 @@ int main(int argc, char * *argv)
     if (appOptionValues.contains(LOG_FILE_OPTION)) {
         QString logFileName = appOptionValues.value(LOG_FILE_OPTION);
         logInit(logFileName);
+        // relog command line arguments for the benefit of the file logger...
+        qDebug() << "Command line" << app.arguments();
     }
 
     // load user settings
@@ -643,6 +617,10 @@ int main(int argc, char * *argv)
     int ret = app.exec();
 
     qDebug() << "main - GCS ran for" << timer.elapsed() << "ms";
+
+    if (logger) {
+        delete logger;
+    }
 
     return ret;
 }

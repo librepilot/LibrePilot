@@ -121,7 +121,8 @@ HEADERS += \
     logfile.h \
     crc.h \
     mustache.h \
-    textbubbleslider.h
+    textbubbleslider.h \
+    filelogger.h
 
 HEADERS += xmlconfig.h
 

@@ -180,6 +180,7 @@ static void send_message()
 
 static void mavlink_send_extended_status()
 {
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     FlightBatteryStateData batState;
     SystemStatsData systemStats;
 
@@ -230,6 +231,7 @@ static void mavlink_send_extended_status()
                                 0);
 
     send_message();
+#endif /* PIOS_EXCLUDE_ADVANCED_FEATURES */
 }
 
 static void mavlink_send_rc_channels()
@@ -349,6 +351,7 @@ static void mavlink_send_position()
         send_message();
     }
 
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     if (HomeLocationHandle() != NULL) {
         HomeLocationData homeLocation;
         HomeLocationGet(&homeLocation);
@@ -363,6 +366,7 @@ static void mavlink_send_position()
 
         send_message();
     }
+#endif /* PIOS_EXCLUDE_ADVANCED_FEATURES */
 
     // TODO add waypoint nav stuff
     // wp_target_bearing
@@ -411,27 +415,21 @@ static inline float Sq(float x)
 
 static void mavlink_send_extra2()
 {
-    float airspeed = 0;
+    float airspeed    = 0;
+    float altitude    = 0;
+    float groundspeed = 0;
+    float climbrate   = 0;
 
+
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
     if (AirspeedStateHandle() != NULL) {
         AirspeedStateTrueAirspeedGet(&airspeed);
     }
-
-    float altitude = 0;
 
     if (PositionStateHandle() != NULL) {
         PositionStateDownGet(&altitude);
         altitude *= -1;
     }
-
-    float attitudeYaw = 0;
-    // round attState.Yaw to nearest int and transfer from (-180 ... 180) to (0 ... 360)
-    int16_t heading   = lroundf(attitudeYaw);
-    if (heading < 0) {
-        heading += 360;
-    }
-
-    float groundspeed = 0, climbrate = 0;
 
     if (VelocityStateHandle() != NULL) {
         VelocityStateData velocityState;
@@ -440,6 +438,17 @@ static void mavlink_send_extra2()
         groundspeed = sqrtf(Sq(velocityState.North) + Sq(velocityState.East));
         climbrate   = velocityState.Down * -1;
     }
+#endif
+
+    float attitudeYaw = 0;
+
+    AttitudeStateYawGet(&attitudeYaw);
+    // round attState.Yaw to nearest int and transfer from (-180 ... 180) to (0 ... 360)
+    int16_t heading = lroundf(attitudeYaw);
+    if (heading < 0) {
+        heading += 360;
+    }
+
 
     float thrust;
     ActuatorDesiredThrustGet(&thrust);
@@ -495,11 +504,9 @@ static void mavlink_send_extra2()
     case FLIGHTSTATUS_FLIGHTMODE_MANUAL:
         custom_mode = CUSTOM_MODE_ACRO; // or
         break;
-#if 0 /* TODO: enable this when AUTOTUNE gets merged */
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
         custom_mode = CUSTOM_MODE_ATUN;
         break;
-#endif
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED1:
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED2:
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED3:

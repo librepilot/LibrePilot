@@ -251,6 +251,7 @@ uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 
 #define PIOS_COM_MSP_TX_BUF_LEN          128
 #define PIOS_COM_MSP_RX_BUF_LEN          64
+
 #define PIOS_COM_MAVLINK_TX_BUF_LEN      128
 
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)

@@ -183,6 +183,7 @@ QByteArray OPMaps::GetImageFrom(const MapType::Types &type, const Point &pos, co
             }
 #ifdef DEBUG_GMAPS
             qDebug() << "Timeout is " << Timeout;
+            qDebug() << "Get " << qheader.url();
 #endif // DEBUG_GMAPS
             reply = network.get(qheader);
 #ifdef DEBUG_GMAPS
@@ -199,7 +200,7 @@ QByteArray OPMaps::GetImageFrom(const MapType::Types &type, const Point &pos, co
 #endif // DEBUG_GMAPS
             // If you are seeing Error 6 here you are dealing with a QT SSL Bug!!!
             if ((reply->error() != QNetworkReply::NoError) | (time.elapsed() > Timeout * 6)) {
-                qDebug() << "reply error: " << reply->error() << " see table at - http://doc.qt.io/qt-5/qnetworkreply.html";
+                qWarning() << "Reply error: " << reply->errorString() << qheader.url();
                 return ret;
             }
             ret = reply->readAll();

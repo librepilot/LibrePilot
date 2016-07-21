@@ -76,14 +76,15 @@ typedef struct PIOS_SENSORS_Instance {
  * A 3d Accel sample with temperature
  */
 typedef struct PIOS_SENSORS_3Axis_SensorsWithTemp {
-    uint16_t   count; // number of sensor instances
+    uint32_t   timestamp;    // PIOS_DELAY_GetRaw() time of sensor read
+    uint16_t   count;        // number of sensor instances
     int16_t    temperature;  // Degrees Celsius * 100
     Vector3i16 sample[];
 } PIOS_SENSORS_3Axis_SensorsWithTemp;
 
 typedef struct PIOS_SENSORS_1Axis_SensorsWithTemp {
-    float temperature; // Degrees Celsius
     float sample; // sample
+    float temperature; // Degrees Celsius
 } PIOS_SENSORS_1Axis_SensorsWithTemp;
 
 /**

@@ -1,9 +1,16 @@
 <xml>
     <object name="SystemIdentSettings" singleinstance="true" settings="true" category="Control">
-        <description>The input to the PID tuning.</description>
-        <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0"/>
-        <!-- Beta default valuses 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
-        <field name="Beta" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="10.0,10.0,7.0"/>
+        <description>The input to and results of the PID tuning.</description>
+        <field name="Tau" units="ln(sec)" type="float" elements="1" defaultvalue="-4.0" description="Measured delay between inner loop and detected gyro response"/>
+        <!-- Beta default values 10.0 10.0 7.0 so that SystemIdent mode can be run without AutoTune -->
+        <field name="Beta" units="" type="float" elementnames="Roll,Pitch,Yaw" defaultvalue="10.0,10.0,7.0" description="(Natural log of) Measured control gain"/>
+        <!-- The following comments come from / are extrapolated from various TauLabs / dRonin sources. -->
+        <!-- TL / dRonin requires you to adjust two sliders, one called RateDamp and the other called RateNoise. -->
+        <!-- They have documented that certain pairings of damp and noise go together well. -->
+        <!-- The LP code uses these "known good pairs" to weld the damp and noise scales together into the SmoothQuick slider. -->
+        <!-- When using the SmoothQuick slider you automatically get an interpolated matching pair of damp and noise. -->
+        <!-- So be aware that these comments refer to the TL/dRronin slider names. -->
+        <!-- -->
         <!-- Decrease damping to make your aircraft response more rapidly. Increase it for more stability. -->
         <!-- Increasing noise (sensitivity) will make your aircraft respond more rapidly, but will cause twitches due to noise. -->
         <!-- Use RateDamp 130 with RateNoise 08 for very smooth flight. -->
@@ -20,22 +27,36 @@
         <!-- Use RateDamp 150 with RateNoise 06 for very very smooth flight. -->
         <!-- Use RateDamp  90 with RateNoise 16 for very very snappy flight. -->
         <!-- use additive so the piecewise algorithm will give the exact recommended pairs at 25%, 50%, and 75% of slider -->
-        <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="90"/>
-        <field name="DampRate" units="" type="uint8" elements="1" defaultvalue="110"/>
-        <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="150"/>
-        <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="6"/>
-        <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10"/>
-        <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="16"/>
-        <!-- <field name="CalculateYaw" units="" type="enum" elements="1" options="False,True,TrueIgnoreError" defaultvalue="True"/> -->
-        <field name="CalculateYaw" units="" type="enum" elements="1" options="False,TrueLimitToRatio,TrueIgnoreLimit" defaultvalue="TrueLimitToRatio"/>
-        <!-- <field name="YawBetaMin" units="" type="float" elements="1" defaultvalue="5.6"/> -->
+        <!-- -->
+        <!-- So the following 6 fields set up the SmoothQuick slider using 3 known good damp and noise pairings. -->
+        <!-- You can adjust just one end of SmoothQuick by changing e.g. the DampMin and NoiseMax pairing. -->
+        <!-- You can maintain the known good ratio to simply extend or shrink the SmoothQuick scale. -->
+        <!-- You can change the known good ratio e.g. if you find that the quick end of SmoothQuick tends to oscillate. -->
+        <!-- You can change the default PIDs by changing the "center" values DampRate and NoiseRate. -->
+        <!-- You can change the whole SmoothQuick slider uniformly by e.g. multiplying all Damp* fields by .75 -->
+        <!-- You can shift the whole SmoothQuick slider up or down -->
+        <!-- etc! -->
+        <!-- on the SmoothQuick value scale of [-1,+1]: -->
+        <!-- the default SmoothQuick value of 0.0 gives recommended default damp and rate for normal flight -->
+        <!-- a SmoothQuick value of -0.5 gives the recommended damp and rate for very smooth flight -->
+        <!-- a SmoothQuick value of +0.5 gives the recommended damp and rate for very quick flight -->
+        <!-- a SmoothQuick value of -1.0 is extrapolated to give very very smooth flight while still being inside the range of sane values-->
+        <!-- a SmoothQuick value of +1.0 is extrapolated to give very very quick flight while still being inside the range of sane values-->
+        <!-- other values of SmoothQuick are interpolated or extrapolated from these -->
+        <field name="DampMin" units="" type="uint8" elements="1" defaultvalue="90" description="Setting: Part of smoothquick slider (expert)"/>
+        <field name="DampRate" units="" type="uint8" elements="1" defaultvalue="110" description="Setting: Part of smoothquick slider (expert)"/>
+        <field name="DampMax" units="" type="uint8" elements="1" defaultvalue="150" description="Setting: Part of smoothquick slider (expert)"/>
+        <field name="NoiseMin" units="" type="uint8" elements="1" defaultvalue="6" description="Setting: Part of smoothquick slider (expert)"/>
+        <field name="NoiseRate" units="" type="uint8" elements="1" defaultvalue="10" description="Setting: Part of smoothquick slider (expert)"/>
+        <field name="NoiseMax" units="" type="uint8" elements="1" defaultvalue="16" description="Setting: Part of smoothquick slider (expert)"/>
+        <field name="CalculateYaw" units="" type="enum" elements="1" options="False,TrueLimitToRatio,TrueIgnoreLimit" defaultvalue="TrueLimitToRatio" description="Setting: Whether to calculate yaw and whether to use YawToRollPitchPIDRatio"/>
         <!-- Mateuze quad needs yaw P to be at most 2.6 times roll/pitch P to avoid yaw oscillation -->
         <!-- Cliff sluggish 500 quad thinks that yaw P should be about 5.8 times roll/pitch P, but can easily (and better) live with 2.6 -->
-        <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0"/>
-        <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5"/>
-        <!-- <field name="YawPIDRatioFunction" units="" type="enum" elements="1" options="Disable,Limit" defaultvalue="Limit"/> -->
-        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="2"/>
-        <field name="TuningDuration" units="sec" type="uint8" elements="1" defaultvalue="60"/>
+        <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0" description="Setting: Yaw PID will be at least this times Pitch PID (if enabled)"/>
+        <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5" description="Setting: Yaw PID will be at most this times Pitch PID (if enabled)"/>
+        <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1" description="Setting: Reduce this toward zero if you have D term oscillations, it will reduce PID D terms"/>
+        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="3" limits="%BE:1:3" description="Setting: Which bank the calculated PIDs will be stored in after tuning"/>
+        <field name="TuningDuration" units="s" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" description="Setting: Duration of the tuning motions (expert)"/>
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
         <!-- 0 = disabled -->
         <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
@@ -48,9 +69,11 @@
         <!-- 25 (5 stops) means stops at 50, 75, 100, 0, 25 (repeat as you toggle) -->
         <!-- 27 (7 stops) means stops at 50, 67, 83, 100, 0, 17, 33 (repeat as you toggle) -->
         <!-- 25 is special in that the 3 middle values (25, 50, 75) are exactly those that are recommended for smooth, normal, and quick responses -->
-        <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25"/>
-        <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
-        <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False"/>
+        <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25" description="Setting: 10-13 to use one of accessory0-3, 23 25 27 for FMS 3x toggle method with 3 5 7 positions"/>
+        <field name="SmoothQuickValue" units="" type="float" elements="1" defaultvalue="0.0" description="Remembers the value of the FMS 3x toggle"/>
+        <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False" description="Setting: Debugging tool (expert)"/>
+        <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.001" description="Measured delay from gyro read to inner loop"/>
+        <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False" description="Automatically set True for a good complete tune or False for incomplete or bad"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>
         <telemetryflight acked="true" updatemode="onchange" period="0"/>

@@ -67,7 +67,8 @@
 
 // Private constants
 #undef  STACK_SIZE_BYTES
-// Pull Request version tested on Nano. 120 bytes of stack left when configured with 1340
+// Pull Request version tested on Sparky2. 292 bytes of stack left when configured with 1340
+// Beware that Nano needs 156 bytes more stack than Sparky2
 #define STACK_SIZE_BYTES            1340
 #define TASK_PRIORITY               (tskIDLE_PRIORITY + 1)
 
@@ -78,6 +79,7 @@
 #define AT_QUEUE_NUMELEM            18
 #endif
 
+#define TASK_STARTUP_DELAY_MS       250                                           /* delay task startup this much, waiting on accessory valid */
 #define NOT_AT_MODE_DELAY_MS        50                                            /* delay this many ms if not in autotune mode */
 #define NOT_AT_MODE_RATE            (1000.0f / NOT_AT_MODE_DELAY_MS)              /* this many loops per second if not in autotune mode */
 #define SMOOTH_QUICK_FLUSH_DELAY    0.5f                                          /* wait this long after last change to flush to permanent storage */
@@ -90,11 +92,14 @@
 #define YIELD_MS                    2    /* delay this long between processing sessions see MAX_PTS_PER_CYCLE and consider gyro rate */
 
 // CheckSettings() returned error bits
-#define ROLL_BETA_LOW               1
-#define PITCH_BETA_LOW              2
-#define YAW_BETA_LOW                4
-#define TAU_TOO_LONG                8
-#define TAU_TOO_SHORT               16
+#define TAU_NAN                     1
+#define BETA_NAN                    2
+#define ROLL_BETA_LOW               4
+#define PITCH_BETA_LOW              8
+#define YAW_BETA_LOW                16
+#define TAU_TOO_LONG                32
+#define TAU_TOO_SHORT               64
+#define CPU_TOO_SLOW                128
 
 // smooth-quick modes
 #define SMOOTH_QUICK_DISABLED       0
@@ -104,47 +109,54 @@
 
 // Private types
 enum AUTOTUNE_STATE { AT_INIT, AT_INIT_DELAY, AT_INIT_DELAY2, AT_START, AT_RUN, AT_FINISHED, AT_WAITING };
-
 struct at_queued_data {
-    float    y[3];        /* Gyro measurements */
-    float    u[3];        /* Actuator desired */
-    float    throttle;    /* Throttle desired */
-
-    uint32_t raw_time; /* From PIOS_DELAY_GetRaw() */
+    float    y[3];                       /* Gyro measurements */
+    float    u[3];                       /* Actuator desired */
+    float    throttle;                   /* Throttle desired */
+    uint32_t gyroStateCallbackTimestamp; /* PIOS_DELAY_GetRaw() time of GyroState callback */
+    uint32_t sensorReadTimestamp; /* PIOS_DELAY_GetRaw() time of sensor read */
 };
 
 
 // Private variables
+static SystemIdentSettingsData systemIdentSettings;
+// save memory because metadata is only briefly accessed, when normal data struct is not being used
+// unnamed union issues a warning
+static union {
+    SystemIdentStateData systemIdentState;
+    UAVObjMetadata systemIdentStateMetaData;
+} u;
+static StabilizationBankManualRateData manualRate;
 static xTaskHandle taskHandle;
-static bool moduleEnabled;
 static xQueueHandle atQueue;
+static float gX[AF_NUMX] = { 0 };
+static float gP[AF_NUMP] = { 0 };
+static float gyroReadTimeAverage;
+static float gyroReadTimeAverageAlpha;
+static float gyroReadTimeAverageAlphaAlpha;
+static float alpha;
+static float smoothQuickValue;
 static volatile uint32_t atPointsSpilled;
 static uint32_t throttleAccumulator;
 static uint8_t rollMax, pitchMax;
-static StabilizationBankManualRateData manualRate;
-static float gX[AF_NUMX] = { 0 };
-static float gP[AF_NUMP] = { 0 };
-static SystemIdentSettingsData systemIdentSettings;
-static SystemIdentStateData systemIdentState;
 static int8_t accessoryToUse;
 static int8_t flightModeSwitchTogglePosition;
+static bool moduleEnabled;
 
 
 // Private functions
-static void AutoTuneTask(void *parameters);
-static void AfPredict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in);
-static void AfInit(float X[AF_NUMX], float P[AF_NUMP]);
-static uint8_t CheckSettingsRaw();
-static uint8_t CheckSettings();
-static void ComputeStabilizationAndSetPidsFromDampAndNoise(float damp, float noise);
-static void ComputeStabilizationAndSetPids();
-static void ProportionPidsSmoothToQuick(float min, float val, float max);
 static void AtNewGyroData(UAVObjEvent *ev);
+static void AutoTuneTask(void *parameters);
+static void AfInit(float X[AF_NUMX], float P[AF_NUMP]);
+static void AfPredict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in);
+static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode);
+static uint8_t CheckSettings();
+static uint8_t CheckSettingsRaw();
+static void ComputeStabilizationAndSetPidsFromDampAndNoise(float damp, float noise);
+static void InitSystemIdent(bool loadDefaults);
+static void ProportionPidsSmoothToQuick();
 static void UpdateSystemIdentState(const float *X, const float *noise, float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle);
 static void UpdateStabilizationDesired(bool doingIdent);
-static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode);
-static void InitSystemIdent(bool loadDefaults);
-static void InitSmoothQuick(bool loadToggle);
 
 
 /**
@@ -202,9 +214,6 @@ int32_t AutoTuneStart(void)
 {
     // Start main task if it is enabled
     if (moduleEnabled) {
-        // taskHandle = PIOS_Thread_Create(AutoTuneTask, "Autotune", STACK_SIZE_BYTES, NULL, TASK_PRIORITY);
-        // TaskMonitorAdd(TASKINFO_RUNNING_AUTOTUNE, taskHandle);
-        // PIOS_WDG_RegisterFlag(PIOS_WDG_AUTOTUNE);
         GyroStateConnectCallback(AtNewGyroData);
         xTaskCreate(AutoTuneTask, "AutoTune", STACK_SIZE_BYTES / 4, NULL, TASK_PRIORITY, &taskHandle);
         PIOS_TASK_MONITOR_RegisterTask(TASKINFO_RUNNING_AUTOTUNE, taskHandle);
@@ -221,14 +230,20 @@ MODULE_INITCALL(AutoTuneInitialize, AutoTuneStart);
  */
 static void AutoTuneTask(__attribute__((unused)) void *parameters)
 {
-    enum AUTOTUNE_STATE state = AT_INIT;
+    float noise[3]            = { 0 };
+    float dT_s                = 0.0f;
     uint32_t lastUpdateTime   = 0; // initialization is only for compiler warning
-    float noise[3]         = { 0 };
-    uint32_t lastTime      = 0.0f;
-    uint32_t measureTime   = 0;
-    uint32_t updateCounter = 0;
-    bool saveSiNeeded      = false;
-    bool savePidNeeded     = false;
+    uint32_t lastTime         = 0;
+    uint32_t measureTime      = 0;
+    uint32_t updateCounter    = 0;
+    enum AUTOTUNE_STATE state = AT_INIT;
+    bool saveSiNeeded         = false;
+    bool savePidNeeded        = false;
+
+    // wait for the accessory values to stabilize
+    // otherwise they come up as zero, then change to their real value
+    // and that causes the PIDs to be re-exported (if smoothquick is active), which the user may not want
+    vTaskDelay(TASK_STARTUP_DELAY_MS / portTICK_RATE_MS);
 
     // get max attitude / max rate
     // for use in generating Attitude mode commands from this module
@@ -238,9 +253,9 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     StabilizationBankManualRateGet(&manualRate);
     // correctly set accessoryToUse and flightModeSwitchTogglePosition
     // based on what is in SystemIdent
-    // so that the user can use the PID smooth->quick slider in following flights
+    // so that the user can use the PID smooth->quick slider in flights following the autotune flight
     InitSystemIdent(false);
-    InitSmoothQuick(true);
+    smoothQuickValue = systemIdentSettings.SmoothQuickValue;
 
     while (1) {
         uint32_t diffTime;
@@ -248,9 +263,6 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
         bool canSleep   = true;
         FlightStatusData flightStatus;
         FlightStatusGet(&flightStatus);
-
-        // I have never seen this module misbehave in a way that requires a watchdog, so not bothering making one
-        // PIOS_WDG_UpdateFlag(PIOS_WDG_AUTOTUNE);
 
         if (flightStatus.Armed == FLIGHTSTATUS_ARMED_DISARMED) {
             if (saveSiNeeded) {
@@ -284,21 +296,23 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             && systemIdentSettings.Complete && !CheckSettings()) {
             if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
                 // if user toggled while armed set PID's to next in sequence
-                // 2,3,4,0,1 (5 positions) or 1,2,0 (3 positions) or 3,4,5,6,0,1,2 (7 positions)
-                // if you assume that smoothest is -100 and quickest is +100
-                // this corresponds to 0,+50,+100,-100,-50 (for 5 position toggle)
-                ++flightModeSwitchTogglePosition;
-                if (flightModeSwitchTogglePosition > systemIdentSettings.SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) {
-                    flightModeSwitchTogglePosition = 0;
+                // if you assume that smoothest is -1 and quickest is +1
+                // this corresponds to 0,+.50,+1.00,-1.00,-.50 (for 5 position toggle)
+                smoothQuickValue += 1.0f / (float)flightModeSwitchTogglePosition;
+                if (smoothQuickValue > 1.001f) {
+                    smoothQuickValue = -1.0f;
                 }
             } else {
-                // if they did it disarmed, then set PID's back to AutoTune default
-                flightModeSwitchTogglePosition = (systemIdentSettings.SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+                // if they did the 3x FMS toggle while disarmed, set PID's back to the middle of smoothquick
+                smoothQuickValue = 0.0f;
             }
-            ProportionPidsSmoothToQuick(0.0f,
-                                        (float)flightModeSwitchTogglePosition,
-                                        (float)(systemIdentSettings.SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE));
+            // calculate PIDs based on new smoothQuickValue and save to the PID bank
+            ProportionPidsSmoothToQuick();
+            // save new PIDs permanently when / if disarmed
             savePidNeeded = true;
+            // we also save the new knob/toggle value for startup next time
+            // this keeps the PIDs in sync with the toggle position
+            saveSiNeeded  = true;
         }
 
         //////////////////////////////////////////////////////////////////////////////////////
@@ -321,43 +335,35 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
         // - the state machine needs to be reset
         // - the local version of Attitude mode gets skipped
         if (flightStatus.FlightMode != FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE) {
-            static bool savePidActive = false;
             // if accessory0-3 is configured as a PID changing slider/knob over the smooth to quick range
             // and FC is not currently running autotune
-            // and accessory0-3 changed by at least 1/160 of full range (2)
+            // and accessory0-3 changed by at least 1/85 of full range (2)
             // (don't bother checking to see if the requested accessory# is configured properly
             // if it isn't, the value will be 0 which is the center of [-1,1] anyway)
             if (accessoryToUse != -1 && systemIdentSettings.Complete && !CheckSettings()) {
-                static AccessoryDesiredData accessoryValueOld = { 0.0f };
                 AccessoryDesiredData accessoryValue;
                 AccessoryDesiredInstGet(accessoryToUse, &accessoryValue);
-                // if the accessory changed more than 1/80
-                // (this test is intended to remove one unit jitter)
-                // some old PPM receivers use a low resolution chip which only allows about 180 steps
+                // if the accessory changed more than some percent of total range
+                // some old PPM receivers use a low resolution chip which only allows about 180 steps out of a range of 2.0
+                // a test Taranis transmitter knob has about 0.0233 slop out of a range of 2.0
                 // what we are doing here does not need any higher precision than that
-                if (fabsf(accessoryValueOld.AccessoryVal - accessoryValue.AccessoryVal) > (2.0f / 160.0f)) {
-                    accessoryValueOld = accessoryValue;
-                    // this copies the PIDs to memory and makes them active
-                    // but does not write them to permanent storage
-                    ProportionPidsSmoothToQuick(-1.0f, accessoryValue.AccessoryVal, 1.0f);
-                    // don't save PID to perm storage the first time
-                    // that usually means at power up
-                    //
-                    // that keeps it from writing the same value at each boot
-                    // but means that it won't be permanent if they move the slider before FC power on
-                    // (note that the PIDs will be changed, just not saved permanently)
-                    if (savePidActive) {
-                        // this schedules the first possible write of the PIDs to occur a fraction of a second or so from now
-                        // and moves the scheduled time if it is already scheduled
-                        savePidDelay = SMOOTH_QUICK_FLUSH_TICKS;
-                    } else {
-                        savePidActive = true;
-                    }
+                // user must move the knob more than 1/85th of the total range (of 2.0) for it to register as changed
+                if (fabsf(smoothQuickValue - accessoryValue.AccessoryVal) > (2.0f / 85.0f)) {
+                    smoothQuickValue = accessoryValue.AccessoryVal;
+                    // calculate PIDs based on new smoothQuickValue and save to the PID bank
+                    ProportionPidsSmoothToQuick();
+                    // this schedules the first possible write of the PIDs to occur a fraction of a second or so from now
+                    // and changes the scheduled time if it is already scheduled
+                    savePidDelay = SMOOTH_QUICK_FLUSH_TICKS;
                 } else if (savePidDelay && --savePidDelay == 0) {
                     // this flags that the PIDs can be written to permanent storage right now
                     // but they will only be written when the FC is disarmed
                     // so this means immediate (after NOT_AT_MODE_DELAY_MS) or wait till FC is disarmed
                     savePidNeeded = true;
+                    // we also save the new knob/toggle value for startup next time
+                    // this avoids rewriting the PIDs at each startup
+                    // because knob is unknown / not where it is expected / looks like knob moved
+                    saveSiNeeded = true;
                 }
             } else {
                 savePidDelay = 0;
@@ -395,7 +401,6 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 // load SystemIdentSettings so that they can change it
                 // and do smooth-quick on changed values
                 InitSystemIdent(false);
-                InitSmoothQuick(false);
                 // wait for FC to arm in case they are doing this without a flight mode switch
                 // that causes the 2+ second delay that follows to happen after arming
                 // which gives them a chance to take off before the shakes start
@@ -416,36 +421,42 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             diffTime = xTaskGetTickCount() - lastUpdateTime;
             // after 2 seconds start systemident flight mode
             if (diffTime > SYSTEMIDENT_TIME_DELAY_MS) {
+                // load default tune and clean up any NANs from previous tune
+                InitSystemIdent(true);
+                AfInit(gX, gP);
+                // and write it out to the UAVO so innerloop can see the default values
+                UpdateSystemIdentState(gX, NULL, 0.0f, 0, 0, 0.0f);
+                // before starting SystemIdent stabilization mode
                 doingIdent = true;
-                // after an additional .5 seconds start capturing data
-                if (diffTime > INIT_TIME_DELAY2_MS) {
-                    // Reset save status
-                    // save SI data even if partial or bad, aids in diagnostics
-                    saveSiNeeded  = true;
-                    // don't save PIDs until data gathering is complete
-                    // and the complete data has been sanity checked
-                    savePidNeeded = false;
-                    InitSystemIdent(true);
-                    InitSmoothQuick(true);
-                    AfInit(gX, gP);
-                    UpdateSystemIdentState(gX, NULL, 0.0f, 0, 0, 0.0f);
-                    measureTime = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
-                    state = AT_START;
-                }
+                state = AT_START;
             }
             break;
 
         case AT_START:
-            lastTime   = PIOS_DELAY_GetRaw();
+            diffTime   = xTaskGetTickCount() - lastUpdateTime;
             doingIdent = true;
-            /* Drain the queue of all current data */
-            xQueueReset(atQueue);
-            /* And reset the point spill counter */
-            updateCounter       = 0;
-            atPointsSpilled     = 0;
-            throttleAccumulator = 0;
-            state = AT_RUN;
-            lastUpdateTime      = xTaskGetTickCount();
+            // after an additional short delay, start capturing data
+            if (diffTime > INIT_TIME_DELAY2_MS) {
+                // Reset save status
+                // save SI data even if partial or bad, aids in diagnostics
+                saveSiNeeded  = true;
+                // don't save PIDs until data gathering is complete
+                // and the complete data has been sanity checked
+                savePidNeeded = false;
+                // get the tuning duration in case the user just changed it
+                measureTime   = (uint32_t)systemIdentSettings.TuningDuration * (uint32_t)1000;
+                // init the "previous packet timestamp"
+                lastTime = PIOS_DELAY_GetRaw();
+                /* Drain the queue of all current data */
+                xQueueReset(atQueue);
+                /* And reset the point spill counter */
+                updateCounter       = 0;
+                atPointsSpilled     = 0;
+                throttleAccumulator = 0;
+                alpha = 0.0f;
+                state = AT_RUN;
+                lastUpdateTime      = xTaskGetTickCount();
+            }
             break;
 
         case AT_RUN:
@@ -465,13 +476,18 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                     break;
                 }
                 /* calculate time between successive points */
-                float dT_s = PIOS_DELAY_DiffuS2(lastTime, pt.raw_time) * 1.0e-6f;
+                dT_s = PIOS_DELAY_DiffuS2(lastTime, pt.gyroStateCallbackTimestamp) * 1.0e-6f;
                 /* This is for the first point, but
                 * also if we have extended drops */
-                if (dT_s > 0.010f) {
-                    dT_s = 0.010f;
+                if (dT_s > 5.0f / PIOS_SENSOR_RATE) {
+                    dT_s = 5.0f / PIOS_SENSOR_RATE;
                 }
-                lastTime = pt.raw_time;
+                lastTime = pt.gyroStateCallbackTimestamp;
+                // original algorithm handles time from GyroStateGet() to detected motion
+                // this algorithm also includes the time from raw gyro read to GyroStateGet()
+                gyroReadTimeAverage = gyroReadTimeAverage * alpha
+                                      + PIOS_DELAY_DiffuS2(pt.sensorReadTimestamp, pt.gyroStateCallbackTimestamp) * 1.0e-6f * (1.0f - alpha);
+                alpha = alpha * gyroReadTimeAverageAlphaAlpha + gyroReadTimeAverageAlpha * (1.0f - gyroReadTimeAverageAlphaAlpha);
                 AfPredict(gX, gP, pt.u, pt.y, dT_s, pt.throttle);
                 for (int j = 0; j < 3; ++j) {
                     const float NOISE_ALPHA = 0.9997f; // 10 second time constant at 300 Hz
@@ -481,7 +497,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 throttleAccumulator += 10000 * pt.throttle;
                 // Update uavo every 256 cycles to avoid
                 // telemetry spam
-                if (((updateCounter++) & 0xff) == 0) {
+                if (((++updateCounter) & 0xff) == 0) {
                     float hoverThrottle = ((float)(throttleAccumulator / updateCounter)) / 10000.0f;
                     UpdateSystemIdentState(gX, noise, dT_s, updateCounter, atPointsSpilled, hoverThrottle);
                 }
@@ -493,16 +509,23 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             break;
 
         case AT_FINISHED:
+            // update with info from the last few data points
+            if ((updateCounter & 0xff) != 0) {
+                float hoverThrottle = ((float)(throttleAccumulator / updateCounter)) / 10000.0f;
+                UpdateSystemIdentState(gX, noise, dT_s, updateCounter, atPointsSpilled, hoverThrottle);
+            }
             // data is automatically considered bad if FC was disarmed at the time AT completed
             if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
                 // always calculate and save PIDs if disabling sanity checks
                 if (!CheckSettings()) {
-                    ComputeStabilizationAndSetPids();
+                    ProportionPidsSmoothToQuick();
                     savePidNeeded = true;
-                    // mark these results as good in the permanent settings so they can be used next flight too
-                    systemIdentSettings.Complete = true;
                     // mark these results as good in the log settings so they can be viewed in playback
-                    systemIdentState.Complete    = true;
+                    u.systemIdentState.Complete = true;
+                    SystemIdentStateCompleteSet(&u.systemIdentState.Complete);
+                    // mark these results as good in the permanent settings so they can be used next flight too
+                    // this is written to the UAVO below, outside of the ARMED and CheckSettings() checks
+                    systemIdentSettings.Complete = true;
                 }
                 // always raise an alarm if sanity checks failed
                 // even if disabling sanity checks
@@ -514,8 +537,8 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                                       SYSTEMALARMS_EXTENDEDALARMSTATUS_AUTOTUNE, failureBits);
                 }
             }
-            float hoverThrottle = ((float)(throttleAccumulator / updateCounter)) / 10000.0f;
-            UpdateSystemIdentState(gX, noise, 0, updateCounter, atPointsSpilled, hoverThrottle);
+            // need to save UAVO after .Complete gets potentially set
+            // SystemIdentSettings needs the whole UAVO saved so it is saved outside the previous checks
             SystemIdentSettingsSet(&systemIdentSettings);
             state = AT_WAITING;
             break;
@@ -546,6 +569,7 @@ static void AtNewGyroData(UAVObjEvent *ev)
     static bool last_sample_unpushed = false;
     GyroStateData gyro;
     ActuatorDesiredData actuators;
+    uint32_t timestamp;
 
     if (!ev || !ev->obj || ev->instId != 0 || ev->event != EV_UPDATED) {
         return;
@@ -553,6 +577,7 @@ static void AtNewGyroData(UAVObjEvent *ev)
 
     // object will at times change asynchronously so must copy data here, with locking
     // and do it as soon as possible
+    timestamp = PIOS_DELAY_GetRaw();
     GyroStateGet(&gyro);
     ActuatorDesiredGet(&actuators);
 
@@ -564,14 +589,15 @@ static void AtNewGyroData(UAVObjEvent *ev)
         }
     }
 
-    q_item.raw_time = PIOS_DELAY_GetRaw();
-    q_item.y[0]     = gyro.x;
-    q_item.y[1]     = gyro.y;
-    q_item.y[2]     = gyro.z;
+    q_item.gyroStateCallbackTimestamp = timestamp;
+    q_item.y[0]     = q_item.y[0] * stabSettings.gyro_alpha + gyro.x * (1 - stabSettings.gyro_alpha);
+    q_item.y[1]     = q_item.y[1] * stabSettings.gyro_alpha + gyro.y * (1 - stabSettings.gyro_alpha);
+    q_item.y[2]     = q_item.y[2] * stabSettings.gyro_alpha + gyro.z * (1 - stabSettings.gyro_alpha);
     q_item.u[0]     = actuators.Roll;
     q_item.u[1]     = actuators.Pitch;
     q_item.u[2]     = actuators.Yaw;
     q_item.throttle = actuators.Thrust;
+    q_item.sensorReadTimestamp = gyro.SensorReadTimestamp;
 
     if (xQueueSend(atQueue, &q_item, 0) != pdTRUE) {
         last_sample_unpushed = true;
@@ -620,68 +646,77 @@ static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode)
 // and set some flags based on the values
 // it is used two ways:
 // - on startup it reads settings so the user can reuse an old tune with smooth-quick
-// - at tune time, it inits the state in preparation for tuning
+// - at tune time, it inits the state to default values of uavo xml file, in preparation for tuning
 static void InitSystemIdent(bool loadDefaults)
 {
     SystemIdentSettingsGet(&systemIdentSettings);
-
     if (loadDefaults) {
         // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
         // so that if they are changed there (mainly for future code changes), they will be changed here too
+        // save metadata from being changed by the following SetDefaults()
+        SystemIdentStateGetMetadata(&u.systemIdentStateMetaData);
         SystemIdentStateSetDefaults(SystemIdentStateHandle(), 0);
-        SystemIdentStateGet(&systemIdentState);
-        // Tau, Beta, and the Complete flag get default values
+        SystemIdentStateSetMetadata(&u.systemIdentStateMetaData);
+        SystemIdentStateGet(&u.systemIdentState);
+        // Tau, GyroReadTimeAverage, Beta, and the Complete flag get default values
         // in preparation for running AutoTune
-        systemIdentSettings.Tau = systemIdentState.Tau;
-        memcpy(&systemIdentSettings.Beta, &systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
-        systemIdentSettings.Complete = systemIdentState.Complete;
+        systemIdentSettings.Tau = u.systemIdentState.Tau;
+        systemIdentSettings.GyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
+        memcpy(&systemIdentSettings.Beta, &u.systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
+        systemIdentSettings.Complete = u.systemIdentState.Complete;
     } else {
-        // Tau, Beta, and the Complete flag get stored values
+        // Tau, GyroReadTimeAverage, Beta, and the Complete flag get stored values
         // so the user can fly another battery to select and test PIDs with the slider/knob
-        systemIdentState.Tau = systemIdentSettings.Tau;
-        memcpy(&systemIdentState.Beta, &systemIdentSettings.Beta, sizeof(SystemIdentStateBetaData));
-        systemIdentState.Complete = systemIdentSettings.Complete;
+        u.systemIdentState.Tau = systemIdentSettings.Tau;
+        u.systemIdentState.GyroReadTimeAverage = systemIdentSettings.GyroReadTimeAverage;
+        memcpy(&u.systemIdentState.Beta, &systemIdentSettings.Beta, sizeof(SystemIdentStateBetaData));
+        u.systemIdentState.Complete = systemIdentSettings.Complete;
     }
-}
+    SystemIdentStateSet(&u.systemIdentState);
 
+    // (1.0f / PIOS_SENSOR_RATE) is gyro period
+    // the -1/10 makes it converge nicely, the other values make it converge the same way if the configuration is changed
+    // gyroReadTimeAverageAlphaAlpha is 0.9996 when the tuning duration is the default of 60 seconds
+    gyroReadTimeAverageAlphaAlpha = expapprox(-1.0f / PIOS_SENSOR_RATE / ((float)systemIdentSettings.TuningDuration / 10.0f));
+    if (!IS_REAL(gyroReadTimeAverageAlphaAlpha)) {
+        gyroReadTimeAverageAlphaAlpha = expapprox(-1.0f / 500.0f / (60 / 10)); // basically 0.9996
+    }
+    // 0.99999988f is as close to 1.0f as possible to make final average as smooth as possible
+    gyroReadTimeAverageAlpha = 0.99999988f;
+    gyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
 
-static void InitSmoothQuick(bool loadToggle)
-{
     uint8_t SmoothQuickSource = systemIdentSettings.SmoothQuickSource;
-
     switch (SmoothQuickSource) {
     case SMOOTH_QUICK_ACCESSORY_BASE + 0: // use accessory0
     case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
     case SMOOTH_QUICK_ACCESSORY_BASE + 2: // use accessory2
     case SMOOTH_QUICK_ACCESSORY_BASE + 3: // use accessory3
+        // leave smoothQuickValue alone since it is always controlled by knob
         // disable PID changing with flight mode switch
-        // ignore loadToggle if user is also switching to use knob as source
         flightModeSwitchTogglePosition = -1;
+        // enable PID changing with accessory0-3
         accessoryToUse = SmoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
-        systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
-
     case SMOOTH_QUICK_TOGGLE_BASE + 3: // use flight mode switch toggle with 3 points
     case SMOOTH_QUICK_TOGGLE_BASE + 5: // use flight mode switch toggle with 5 points
     case SMOOTH_QUICK_TOGGLE_BASE + 7: // use flight mode switch toggle with 7 points
+        // don't allow init of current toggle position in the middle of 3x fms toggle
+        if (loadDefaults) {
+            // set toggle to middle of range
+            smoothQuickValue = 0.0f;
+        }
+        // enable PID changing with flight mode switch
+        flightModeSwitchTogglePosition = (SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
         // disable PID changing with accessory0-3
         accessoryToUse = -1;
-        // don't allow init of current toggle position in the middle of 3x fms toggle
-        if (loadToggle) {
-            // first test PID is in the middle of the smooth -> quick range
-            flightModeSwitchTogglePosition = (SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
-        }
-        systemIdentSettings.SmoothQuickSource = SmoothQuickSource;
         break;
-
     case SMOOTH_QUICK_DISABLED:
     default:
+        // leave smoothQuickValue alone so user can set it to a different value and have it stay that value
         // disable PID changing with flight mode switch
-        // ignore loadToggle since user is disabling toggle
         flightModeSwitchTogglePosition = -1;
         // disable PID changing with accessory0-3
         accessoryToUse = -1;
-        systemIdentSettings.SmoothQuickSource = SMOOTH_QUICK_DISABLED;
         break;
     }
 }
@@ -693,34 +728,38 @@ static void InitSmoothQuick(bool loadToggle)
 static void UpdateSystemIdentState(const float *X, const float *noise,
                                    float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle)
 {
-    systemIdentState.Beta.Roll  = X[6];
-    systemIdentState.Beta.Pitch = X[7];
-    systemIdentState.Beta.Yaw   = X[8];
-    systemIdentState.Bias.Roll  = X[10];
-    systemIdentState.Bias.Pitch = X[11];
-    systemIdentState.Bias.Yaw   = X[12];
-    systemIdentState.Tau = X[9];
-    // 'settings' beta and tau have same value as 'state' versions
+    u.systemIdentState.Beta.Roll  = X[6];
+    u.systemIdentState.Beta.Pitch = X[7];
+    u.systemIdentState.Beta.Yaw   = X[8];
+    u.systemIdentState.Bias.Roll  = X[10];
+    u.systemIdentState.Bias.Pitch = X[11];
+    u.systemIdentState.Bias.Yaw   = X[12];
+    u.systemIdentState.Tau = X[9];
+    if (noise) {
+        u.systemIdentState.Noise.Roll  = noise[0];
+        u.systemIdentState.Noise.Pitch = noise[1];
+        u.systemIdentState.Noise.Yaw   = noise[2];
+    }
+    u.systemIdentState.Period = dT_s * 1000.0f;
+    u.systemIdentState.NumAfPredicts = predicts;
+    u.systemIdentState.NumSpilledPts = spills;
+    u.systemIdentState.HoverThrottle = hover_throttle;
+    u.systemIdentState.GyroReadTimeAverage = gyroReadTimeAverage;
+
+    // 'settings' tau, beta, and GyroReadTimeAverage have same value as 'state' versions
     // the state version produces a GCS log
     // the settings version is remembered after power off/on
-    systemIdentSettings.Tau = systemIdentState.Tau;
-    memcpy(&systemIdentSettings.Beta, &systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
-    if (noise) {
-        systemIdentState.Noise.Roll  = noise[0];
-        systemIdentState.Noise.Pitch = noise[1];
-        systemIdentState.Noise.Yaw   = noise[2];
-    }
-    systemIdentState.Period = dT_s * 1000.0f;
-    systemIdentState.NumAfPredicts = predicts;
-    systemIdentState.NumSpilledPts = spills;
-    systemIdentState.HoverThrottle = hover_throttle;
+    systemIdentSettings.Tau = u.systemIdentState.Tau;
+    memcpy(&systemIdentSettings.Beta, &u.systemIdentState.Beta, sizeof(SystemIdentSettingsBetaData));
+    systemIdentSettings.GyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
+    systemIdentSettings.SmoothQuickValue    = smoothQuickValue;
 
-    SystemIdentStateSet(&systemIdentState);
+    SystemIdentStateSet(&u.systemIdentState);
 }
 
 
 // when running AutoTune mode, this bypasses manualcontrol.c / stabilizedhandler.c
-// to control exactly when the multicopter should be in Attitude mode vs. SystemIdent mode
+// to control whether the multicopter should be in Attitude mode vs. SystemIdent mode
 static void UpdateStabilizationDesired(bool doingIdent)
 {
     StabilizationDesiredData stabDesired;
@@ -755,29 +794,47 @@ static uint8_t CheckSettingsRaw()
 {
     uint8_t retVal = 0;
 
+    // inverting the comparisons then negating the bool result should catch the nans but it doesn't
+    // so explictly check for nans
+    if (!IS_REAL(expapprox(u.systemIdentState.Tau))) {
+        retVal |= TAU_NAN;
+    }
+    if (!IS_REAL(expapprox(u.systemIdentState.Beta.Roll))) {
+        retVal |= BETA_NAN;
+    }
+    if (!IS_REAL(expapprox(u.systemIdentState.Beta.Pitch))) {
+        retVal |= BETA_NAN;
+    }
+    if (!IS_REAL(expapprox(u.systemIdentState.Beta.Yaw))) {
+        retVal |= BETA_NAN;
+    }
+
     // Check the axis gains
     // Extreme values: Your roll or pitch gain was lower than expected. This will result in large PID values.
-    if (systemIdentState.Beta.Roll < 6) {
+    if (u.systemIdentState.Beta.Roll < 6) {
         retVal |= ROLL_BETA_LOW;
     }
-    if (systemIdentState.Beta.Pitch < 6) {
+    if (u.systemIdentState.Beta.Pitch < 6) {
         retVal |= PITCH_BETA_LOW;
     }
-// previously we didn't save PID if there was too little yaw beta (too big a yaw PID), now we correct it (limit yaw PID) by default
-#if 0
-    // if (systemIdentState.Beta.Yaw < 4) {
-    if (systemIdentState.Beta.Yaw < systemIdentSettings.YawBetaMin) {
-        retVal |= YAW_BETA_LOW;
-    }
-#endif
+    // yaw gain is no longer checked, because the yaw options only include:
+    // - not calculating yaw
+    // - limiting yaw gain between two sane values (default)
+    // - ignoring errors and accepting the calculated yaw
+
     // Check the response speed
     // Extreme values: Your estimated response speed (tau) is slower than normal. This will result in large PID values.
-    if (expf(systemIdentState.Tau) > 0.1f) {
+    if (expapprox(u.systemIdentState.Tau) > 0.1f) {
         retVal |= TAU_TOO_LONG;
     }
     // Extreme values: Your estimated response speed (tau) is faster than normal. This will result in large PID values.
-    else if (expf(systemIdentState.Tau) < 0.008f) {
+    else if (expapprox(u.systemIdentState.Tau) < 0.008f) {
         retVal |= TAU_TOO_SHORT;
+    }
+
+    // Sanity check: CPU is too slow compared to gyro rate
+    if (gyroReadTimeAverage > (1.0f / PIOS_SENSOR_RATE)) {
+        retVal |= CPU_TOO_SLOW;
     }
 
     return retVal;
@@ -795,27 +852,16 @@ static uint8_t CheckSettings()
     if (systemIdentSettings.DisableSanityChecks) {
         retVal = 0;
     }
-// previously we didn't save PID if there was too little yaw beta (too big a yaw PID), now we correct it (limit yaw PID) by default
-#if 0
-    // if not calculating yaw, or if calculating yaw but ignoring errors
-    else if (systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_TRUE) {
-        // clear the yaw error bit
-        retVal &= ~YAW_BETA_LOW;
-    }
-#endif
-
     return retVal;
 }
 
 
-// given Tau(delay) and Beta(gain) from the tune (and user selection of smooth to quick) calculate the PIDs
-// this code came from dRonin GCS and uses double precision math
-// most of the doubles could be replaced with floats
+// given Tau"+"GyroReadTimeAverage(delay) and Beta(gain) from the tune (and user selection of smooth to quick) calculate the PIDs
+// this code came from dRonin GCS and has been converted from double precision math to single precision
 static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float noiseRate)
 {
     _Static_assert(sizeof(StabilizationSettingsBank1Data) == sizeof(StabilizationBankData), "sizeof(StabilizationSettingsBank1Data) != sizeof(StabilizationBankData)");
-    StabilizationBankData stabSettingsBank;
-
+    StabilizationBankData volatile stabSettingsBank;
     switch (systemIdentSettings.DestinationPidBank) {
     case 1:
         StabilizationSettingsBank1Get((void *)&stabSettingsBank);
@@ -835,59 +881,65 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     // make oscillations less likely
     // - ghf is the amount of high frequency gain and limits the influence
     // of noise
-    const double ghf  = (double)noiseRate / 1000.0d;
-    const double damp = (double)dampRate / 100.0d;
+    const float ghf  = noiseRate / 1000.0f;
+    const float damp = dampRate / 100.0f;
 
-    double tau = exp(systemIdentState.Tau);
-    double exp_beta_roll_times_ghf  = exp(systemIdentState.Beta.Roll) * ghf;
-    double exp_beta_pitch_times_ghf = exp(systemIdentState.Beta.Pitch) * ghf;
+    float tau = expapprox(u.systemIdentState.Tau) + systemIdentSettings.GyroReadTimeAverage;
+    float exp_beta_roll_times_ghf  = expapprox(u.systemIdentState.Beta.Roll) * ghf;
+    float exp_beta_pitch_times_ghf = expapprox(u.systemIdentState.Beta.Pitch) * ghf;
 
-    double wn    = 1.0d / tau;
-    double tau_d = 0.0d;
+    float wn    = 1.0f / tau;
+    float tau_d = 0.0f;
     for (int i = 0; i < 30; i++) {
-        double tau_d_roll  = (2.0d * damp * tau * wn - 1.0d) / (4.0d * tau * damp * damp * wn * wn - 2.0d * damp * wn - tau * wn * wn + exp_beta_roll_times_ghf);
-        double tau_d_pitch = (2.0d * damp * tau * wn - 1.0d) / (4.0d * tau * damp * damp * wn * wn - 2.0d * damp * wn - tau * wn * wn + exp_beta_pitch_times_ghf);
+        float tau_d_roll  = (2.0f * damp * tau * wn - 1.0f) / (4.0f * tau * damp * damp * wn * wn - 2.0f * damp * wn - tau * wn * wn + exp_beta_roll_times_ghf);
+        float tau_d_pitch = (2.0f * damp * tau * wn - 1.0f) / (4.0f * tau * damp * damp * wn * wn - 2.0f * damp * wn - tau * wn * wn + exp_beta_pitch_times_ghf);
         // Select the slowest filter property
         tau_d = (tau_d_roll > tau_d_pitch) ? tau_d_roll : tau_d_pitch;
-        wn    = (tau + tau_d) / (tau * tau_d) / (2.0d * damp + 2.0d);
+        wn    = (tau + tau_d) / (tau * tau_d) / (2.0f * damp + 2.0f);
     }
 
     // Set the real pole position. The first pole is quite slow, which
     // prevents the integral being too snappy and driving too much
     // overshoot.
-    const double a = ((tau + tau_d) / tau / tau_d - 2.0d * damp * wn) / 20.0d;
-    const double b = ((tau + tau_d) / tau / tau_d - 2.0d * damp * wn - a);
+    const float a = ((tau + tau_d) / tau / tau_d - 2.0f * damp * wn) / 20.0f;
+    const float b = ((tau + tau_d) / tau / tau_d - 2.0f * damp * wn - a);
 
     // Calculate the gain for the outer loop by approximating the
     // inner loop as a single order lpf. Set the outer loop to be
     // critically damped;
-    const double zeta_o = 1.3d;
-    const double kp_o   = 1.0d / 4.0d / (zeta_o * zeta_o) / (1.0d / wn);
-    const double ki_o   = 0.75d * kp_o / (2.0d * M_PI_D * tau * 10.0d);
+    const float zeta_o = 1.3f;
+    const float kp_o   = 1.0f / 4.0f / (zeta_o * zeta_o) / (1.0f / wn);
+    const float ki_o   = 0.75f * kp_o / (2.0f * M_PI_F * tau * 10.0f);
 
     float kpMax = 0.0f;
-    double betaMinLn    = 1000.0d;
-    StabilizationBankRollRatePIDData *rollPitchPid = NULL; // satisfy compiler warning only
+    float betaMinLn    = 1000.0f;
+    StabilizationBankRollRatePIDData volatile *rollPitchPid = NULL; // satisfy compiler warning only
 
     for (int i = 0; i < ((systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_FALSE) ? 3 : 2); i++) {
-        double betaLn = SystemIdentStateBetaToArray(systemIdentState.Beta)[i];
-        double beta   = exp(betaLn);
-        double ki;
-        double kp;
-        double kd;
+        float betaLn = SystemIdentStateBetaToArray(u.systemIdentState.Beta)[i];
+        float beta   = expapprox(betaLn);
+        float ki;
+        float kp;
+        float kd;
 
         switch (i) {
         case 0: // Roll
         case 1: // Pitch
             ki = a * b * wn * wn * tau * tau_d / beta;
-            kp = tau * tau_d * ((a + b) * wn * wn + 2.0d * a * b * damp * wn) / beta - ki * tau_d;
-            kd = (tau * tau_d * (a * b + wn * wn + (a + b) * 2.0d * damp * wn) - 1.0d) / beta - kp * tau_d;
+            kp = tau * tau_d * ((a + b) * wn * wn + 2.0f * a * b * damp * wn) / beta - ki * tau_d;
+            kd = (tau * tau_d * (a * b + wn * wn + (a + b) * 2.0f * damp * wn) - 1.0f) / beta - kp * tau_d;
             if (betaMinLn > betaLn) {
                 betaMinLn = betaLn;
                 // RollRatePID PitchRatePID YawRatePID
                 // form an array of structures
                 // point to one
-                rollPitchPid = &(&stabSettingsBank.RollRatePID)[i];
+                // this pointer arithmetic no longer works as expected in a gcc 64 bit test program
+                // rollPitchPid = &(&stabSettingsBank.RollRatePID)[i];
+                if (i == 0) {
+                    rollPitchPid = &stabSettingsBank.RollRatePID;
+                } else {
+                    rollPitchPid = (StabilizationBankRollRatePIDData *)&stabSettingsBank.PitchRatePID;
+                }
             }
             break;
         case 2: // Yaw
@@ -907,16 +959,17 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
             // which is xp / (betaMin * betaYaw^0.6 / betaMin^0.6)
             // which is xp / (betaMin^0.4 * betaYaw^0.6)
             // hence the new effective betaYaw for Yaw P is (betaMin^0.4)*(betaYaw^0.6)
-            beta = exp(0.6d * (betaMinLn - (double)systemIdentState.Beta.Yaw));
-            kp   = (double)rollPitchPid->Kp * beta;
-            ki   = 0.8d * (double)rollPitchPid->Ki * beta;
-            kd   = 0.8d * (double)rollPitchPid->Kd * beta;
+            beta = expapprox(0.6f * (betaMinLn - u.systemIdentState.Beta.Yaw));
+            // this casting assumes that RollRatePID is the same as PitchRatePID
+            kp   = rollPitchPid->Kp * beta;
+            ki   = 0.8f * rollPitchPid->Ki * beta;
+            kd   = 0.8f * rollPitchPid->Kd * beta;
             break;
         }
 
         if (i < 2) {
-            if (kpMax < (float)kp) {
-                kpMax = (float)kp;
+            if (kpMax < kp) {
+                kpMax = kp;
             }
         } else {
             // use the ratio with the largest roll/pitch kp to limit yaw kp to a reasonable value
@@ -939,14 +992,53 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
             }
 
             float ratio = 1.0f;
-            if (min > 0.0f && (float)kp < min) {
-                ratio = (float)kp / min;
-            } else if (max > 0.0f && (float)kp > max) {
-                ratio = (float)kp / max;
+            if (min > 0.0f && kp < min) {
+                ratio = kp / min;
+            } else if (max > 0.0f && kp > max) {
+                ratio = kp / max;
             }
-            kp /= (double)ratio;
-            ki /= (double)ratio;
-            kd /= (double)ratio;
+            kp /= ratio;
+            ki /= ratio;
+            kd /= ratio;
+        }
+
+        // reduce kd if so configured
+        // both of the quads tested for d term oscillation exhibit some degree of it with the stock autotune PIDs
+        // if may be that adjusting stabSettingsBank.DerivativeCutoff would have a similar affect
+        // reducing kd requires that kp and ki be reduced to avoid ringing
+        // the amount to reduce kp and ki is taken from ZN tuning
+        // specifically kp is parameterized based on the ratio between kp(PID) and kp(PI) as the D factor varies from 1 to 0
+        // https://en.wikipedia.org/wiki/PID_controller
+        // Kp        Ki        Kd
+        // -----------------------------------
+        // P    0.50*Ku      -         -
+        // PI   0.45*Ku  1.2*Kp/Tu     -
+        // PID  0.60*Ku  2.0*Kp/Tu  Kp*Tu/8
+        //
+        // so  Kp is multiplied by (.45/.60) if Kd is reduced to 0
+        // and Ki is multiplied by (1.2/2.0) if Kd is reduced to 0
+        #define KP_REDUCTION (.45f / .60f)
+        #define KI_REDUCTION (1.2f / 2.0f)
+
+        // this link gives some additional ratios that are different
+        // the reduced overshoot ratios are invalid for this purpose
+        // https://en.wikipedia.org/wiki/Ziegler%E2%80%93Nichols_method
+        // Kp       Ki    Kd
+        // ------------------------------------------------
+        // P                     0.50*Ku     -     -
+        // PI                    0.45*Ku  Tu/1.2   -
+        // PD                    0.80*Ku     -    Tu/8
+        // classic PID           0.60*Ku  Tu/2.0  Tu/8       #define KP_REDUCTION (.45f/.60f)  #define KI_REDUCTION (1.2f/2.0f)
+        // Pessen Integral Rule  0.70*Ku  Tu/2.5  3.0*Tu/20  #define KP_REDUCTION (.45f/.70f)  #define KI_REDUCTION (1.2f/2.5f)
+        // some overshoot        0.33*Ku  Tu/2.0  Tu/3       #define KP_REDUCTION (.45f/.33f)  #define KI_REDUCTION (1.2f/2.0f)
+        // no overshoot          0.20*Ku  Tu/2.0  Tu/3       #define KP_REDUCTION (.45f/.20f)  #define KI_REDUCTION (1.2f/2.0f)
+
+        // reduce roll and pitch, but not yaw
+        // yaw PID is entirely based on roll or pitch PIDs which have already been reduced
+        if (i < 2) {
+            kp  = kp * KP_REDUCTION + kp * systemIdentSettings.DerivativeFactor * (1.0f - KP_REDUCTION);
+            ki  = ki * KI_REDUCTION + ki * systemIdentSettings.DerivativeFactor * (1.0f - KI_REDUCTION);
+            kd *= systemIdentSettings.DerivativeFactor;
         }
 
         switch (i) {
@@ -980,8 +1072,9 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     }
 
     // Librepilot might do something more with this some time
-    // stabSettingsBank.DerivativeCutoff = 1.0d / (2.0d*M_PI*tau_d);
+    // stabSettingsBank.DerivativeCutoff = 1.0f / (2.0f*M_PI_F*tau_d);
     // SystemIdentSettingsDerivativeCutoffSet(&systemIdentSettings.DerivativeCutoff);
+    // then something to schedule saving this permanently to flash when disarmed
 
     // Save PIDs to UAVO RAM (not permanently yet)
     switch (systemIdentSettings.DestinationPidBank) {
@@ -998,13 +1091,6 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
 }
 
 
-// calculate PIDs using default smooth-quick settings
-static void ComputeStabilizationAndSetPids()
-{
-    ComputeStabilizationAndSetPidsFromDampAndNoise(systemIdentSettings.DampRate, systemIdentSettings.NoiseRate);
-}
-
-
 // scale the damp and the noise to generate PIDs according to how a slider or other user specified ratio is set
 //
 // when val is half way between min and max, it generates the default PIDs
@@ -1017,9 +1103,12 @@ static void ComputeStabilizationAndSetPids()
 // this is done piecewise because we are not guaranteed that default-min == max-default
 // but we are given that [smoothDamp,smoothNoise] [defaultDamp,defaultNoise] [quickDamp,quickNoise] are all good parameterizations
 // this code guarantees that we will get those exact parameterizations at (val =) min, (max+min)/2, and max
-static void ProportionPidsSmoothToQuick(float min, float val, float max)
+static void ProportionPidsSmoothToQuick()
 {
     float ratio, damp, noise;
+    float min = -1.0f;
+    float val = smoothQuickValue;
+    float max = 1.0f;
 
     // translate from range [min, max] to range [0, max-min]
     // that takes care of min < 0 case too
@@ -1040,6 +1129,8 @@ static void ProportionPidsSmoothToQuick(float min, float val, float max)
     }
 
     ComputeStabilizationAndSetPidsFromDampAndNoise(damp, noise);
+    // save it to the system, but not yet written to flash
+    SystemIdentSettingsSmoothQuickValueSet(&smoothQuickValue);
 }
 
 
@@ -1214,11 +1305,11 @@ __attribute__((always_inline)) static inline void AfPredict(float X[AF_NUMX], fl
     P[1]  = -D[1] * (D[1] / S[1] - 1);
     P[2]  = -D[2] * (D[2] / S[2] - 1);
     P[3]  = -D[3] * (D[0] / S[0] - 1);
-    P[4]  = D[4] - D[3] * D[3] / S[0];
+    P[4]  = D[4] - D[3] * (D[3] / S[0]);
     P[5]  = -D[5] * (D[1] / S[1] - 1);
-    P[6]  = D[6] - D[5] * D[5] / S[1];
+    P[6]  = D[6] - D[5] * (D[5] / S[1]);
     P[7]  = -D[7] * (D[2] / S[2] - 1);
-    P[8]  = D[8] - D[7] * D[7] / S[2];
+    P[8]  = D[8] - D[7] * (D[7] / S[2]);
     P[9]  = -D[9] * (D[0] / S[0] - 1);
     P[10] = D[10] - D[3] * (D[9] / S[0]);
     P[11] = D[11] - D[9] * (D[9] / S[0]);
@@ -1302,8 +1393,8 @@ static void AfInit(float X[AF_NUMX], float P[AF_NUMP])
     memset(X, 0, AF_NUMX * sizeof(X[0]));
     // get these 10.0 10.0 7.0 -4.0 from default values of SystemIdent (.Beta and .Tau)
     // so that if they are changed there (mainly for future code changes), they will be changed here too
-    memcpy(&X[6], &systemIdentState.Beta, sizeof(systemIdentState.Beta));
-    X[9] = systemIdentState.Tau;
+    memcpy(&X[6], &u.systemIdentState.Beta, sizeof(u.systemIdentState.Beta));
+    X[9] = u.systemIdentState.Tau;
 
     // P initialization
     memset(P, 0, AF_NUMP * sizeof(P[0]));

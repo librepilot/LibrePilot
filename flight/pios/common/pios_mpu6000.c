@@ -104,6 +104,7 @@ static mpu6000_data_t mpu6000_data;
 static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
 #define SENSOR_COUNT     2
 #define SENSOR_DATA_SIZE (sizeof(PIOS_SENSORS_3Axis_SensorsWithTemp) + sizeof(Vector3i16) * SENSOR_COUNT)
+
 // ! Private functions
 static struct mpu6000_dev *PIOS_MPU6000_alloc(const struct pios_mpu6000_cfg *cfg);
 static int32_t PIOS_MPU6000_Validate(struct mpu6000_dev *dev);
@@ -111,7 +112,7 @@ static void PIOS_MPU6000_Config(struct pios_mpu6000_cfg const *cfg);
 static int32_t PIOS_MPU6000_SetReg(uint8_t address, uint8_t buffer);
 static int32_t PIOS_MPU6000_GetReg(uint8_t address);
 static void PIOS_MPU6000_SetSpeed(const bool fast);
-static bool PIOS_MPU6000_HandleData();
+static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp);
 static bool PIOS_MPU6000_ReadSensor(bool *woken);
 
 static int32_t PIOS_MPU6000_Test(void);
@@ -540,24 +541,21 @@ static int32_t PIOS_MPU6000_Test(void)
 
 bool PIOS_MPU6000_IRQHandler(void)
 {
+    uint32_t gyro_read_timestamp = PIOS_DELAY_GetRaw();
     bool woken = false;
 
     if (!mpu6000_configured) {
         return false;
     }
 
-    bool read_ok = false;
-    read_ok = PIOS_MPU6000_ReadSensor(&woken);
-
-    if (read_ok) {
-        bool woken2 = PIOS_MPU6000_HandleData();
-        woken |= woken2;
+    if (PIOS_MPU6000_ReadSensor(&woken)) {
+        woken |= PIOS_MPU6000_HandleData(gyro_read_timestamp);
     }
 
     return woken;
 }
 
-static bool PIOS_MPU6000_HandleData()
+static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp)
 {
     if (!queue_data) {
         return false;
@@ -600,6 +598,7 @@ static bool PIOS_MPU6000_HandleData()
     const int16_t temp = GET_SENSOR_DATA(mpu6000_data, Temperature);
     // Temperature in degrees C = (TEMP_OUT Register Value as a signed quantity)/340 + 36.53
     queue_data->temperature = 3653 + (temp * 100) / 340;
+    queue_data->timestamp   = gyro_read_timestamp;
 
     BaseType_t higherPriorityTaskWoken;
     xQueueSendToBackFromISR(dev->queue, (void *)queue_data, &higherPriorityTaskWoken);

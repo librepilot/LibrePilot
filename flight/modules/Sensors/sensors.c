@@ -109,9 +109,11 @@ static const float temp_alpha_baro = TEMP_DT_BARO / (TEMP_DT_BARO + 1.0f / (2.0f
 // Private types
 typedef struct {
     // used to accumulate all samples in a task iteration
-    Vector3i32 accum[2];
-    int32_t    temperature;
-    uint32_t   count;
+    uint64_t   timestamp;      // sum of "PIOS_DELAY_GetRaw() times of sensor read" in this averaged set
+    Vector3i32 accum[2]; // summed 16 bit sensor values in this averaged set
+    int32_t    temperature;    // sum of 16 bit temperatures in this averaged set
+    uint32_t   prev_timestamp; // to detect timer wrap around
+    uint16_t   count;          // number of sensor reads in this averaged set
 } sensor_fetch_context;
 
 #define MAX_SENSOR_DATA_SIZE (sizeof(PIOS_SENSORS_3Axis_SensorsWithTemp) + MAX_SENSORS_PER_INSTANCE * sizeof(Vector3i16))
@@ -145,7 +147,7 @@ static void processSamples1d(PIOS_SENSORS_1Axis_SensorsWithTemp *sample, const P
 static void clearContext(sensor_fetch_context *sensor_context);
 
 static void handleAccel(float *samples, float temperature);
-static void handleGyro(float *samples, float temperature);
+static void handleGyro(float *samples, float temperature, uint32_t timestamp);
 static void handleMag(float *samples, float temperature);
 #if defined(PIOS_INCLUDE_HMC5X83)
 static void handleAuxMag(float *samples);
@@ -254,8 +256,6 @@ int32_t mag_test;
  * stabilization and to the attitude loop
  *
  */
-
-uint32_t sensor_dt_us;
 static void SensorsTask(__attribute__((unused)) void *parameters)
 {
     portTickType lastSysTime;
@@ -359,8 +359,10 @@ static void clearContext(sensor_fetch_context *sensor_context)
         sensor_context->accum[i].y = 0;
         sensor_context->accum[i].z = 0;
     }
-    sensor_context->temperature = 0;
-    sensor_context->count = 0;
+    sensor_context->temperature    = 0;
+    sensor_context->prev_timestamp = 0;
+    sensor_context->timestamp = 0LL;
+    sensor_context->count     = 0;
 }
 
 static void accumulateSamples(sensor_fetch_context *sensor_context, sensor_data *sample)
@@ -371,6 +373,14 @@ static void accumulateSamples(sensor_fetch_context *sensor_context, sensor_data 
         sensor_context->accum[i].z += sample->sensorSample3Axis.sample[i].z;
     }
     sensor_context->temperature += sample->sensorSample3Axis.temperature;
+    sensor_context->timestamp   += sample->sensorSample3Axis.timestamp;
+    if (sensor_context->prev_timestamp > sample->sensorSample3Axis.timestamp) {
+        // we've wrapped so add the dropped top bit
+        // this makes the average come out correct instead of (0xfd+0x01)/2 = 0x7f or such
+        sensor_context->timestamp += 0x100000000LL;
+    } else {
+        sensor_context->prev_timestamp = sample->sensorSample3Axis.timestamp;
+    }
     sensor_context->count++;
 }
 
@@ -416,6 +426,7 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
 
     if (sensor->type & PIOS_SENSORS_TYPE_3AXIS_GYRO) {
         uint8_t index = 0;
+        uint32_t timestamp;
         if (sensor->type == PIOS_SENSORS_TYPE_3AXIS_GYRO_ACCEL) {
             index = 1;
         }
@@ -424,7 +435,8 @@ static void processSamples3d(sensor_fetch_context *sensor_context, const PIOS_SE
         samples[1]  = ((float)sensor_context->accum[index].y * t);
         samples[2]  = ((float)sensor_context->accum[index].z * t);
         temperature = (float)sensor_context->temperature * inv_count * 0.01f;
-        handleGyro(samples, temperature);
+        timestamp   = (uint32_t)(sensor_context->timestamp / sensor_context->count);
+        handleGyro(samples, temperature, timestamp);
         return;
     }
 }
@@ -456,10 +468,11 @@ static void handleAccel(float *samples, float temperature)
     accelSensorData.y = samples[1];
     accelSensorData.z = samples[2];
     accelSensorData.temperature = temperature;
+
     AccelSensorSet(&accelSensorData);
 }
 
-static void handleGyro(float *samples, float temperature)
+static void handleGyro(float *samples, float temperature, uint32_t timestamp)
 {
     GyroSensorData gyroSensorData;
 
@@ -469,10 +482,11 @@ static void handleGyro(float *samples, float temperature)
                            samples[2] * agcal.gyro_scale.Z - agcal.gyro_bias.Z - gyro_temp_bias[2] };
 
     rot_mult(R, gyros_out, samples);
-    gyroSensorData.temperature = temperature;
     gyroSensorData.x = samples[0];
     gyroSensorData.y = samples[1];
     gyroSensorData.z = samples[2];
+    gyroSensorData.temperature = temperature;
+    gyroSensorData.SensorReadTimestamp = timestamp;
 
     GyroSensorSet(&gyroSensorData);
 }

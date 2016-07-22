@@ -5,11 +5,11 @@
 		<field name="CC_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Telemetry"/>
 		<field name="CC_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,PPM,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 		<field name="RV_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+Outputs,Outputs" defaultvalue="PWM"/>
-		<field name="RV_AuxPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,DSM,ComAux,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
-		<field name="RV_AuxSBusPort" units="function" type="enum" elements="1" options="Disabled,S.Bus,DSM,ComAux,ComBridge,OsdHk,MSP" defaultvalue="Disabled"/>
-		<field name="RV_FlexiPort" units="function" type="enum" elements="1" options="Disabled,I2C,DSM,ComAux,ComBridge,MSP" defaultvalue="Disabled"/>
-		<field name="RV_TelemetryPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,ComAux,ComBridge,MSP" defaultvalue="Telemetry"/>
-		<field name="RV_GPSPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,ComAux,ComBridge,MSP" defaultvalue="GPS"/>
+		<field name="RV_AuxPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,DSM,ComAux,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="RV_AuxSBusPort" units="function" type="enum" elements="1" options="Disabled,S.Bus,DSM,ComAux,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="RV_FlexiPort" units="function" type="enum" elements="1" options="Disabled,I2C,DSM,ComAux,ComBridge,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="RV_TelemetryPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,ComAux,ComBridge,MSP,MAVLink" defaultvalue="Telemetry"/>
+		<field name="RV_GPSPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,ComAux,ComBridge,MSP,MAVLink" defaultvalue="GPS"/>
 
 		<field name="RM_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+PWM,PPM+Telemetry,PPM+Outputs,Outputs,Telemetry,ComBridge,MSP,MAVLink"
 			defaultvalue="PWM"

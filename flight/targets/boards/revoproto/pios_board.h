@@ -127,6 +127,8 @@ extern uint32_t pios_com_bridge_id;
 extern uint32_t pios_com_vcp_id;
 extern uint32_t pios_com_hkosd_id;
 extern uint32_t pios_com_msp_id;
+extern uint32_t pios_com_mavlink_id;
+
 #define PIOS_COM_AUX          (pios_com_aux_id)
 #define PIOS_COM_GPS          (pios_com_gps_id)
 #define PIOS_COM_TELEM_USB    (pios_com_telem_usb_id)
@@ -136,6 +138,7 @@ extern uint32_t pios_com_msp_id;
 #define PIOS_COM_DEBUG        PIOS_COM_AUX
 #define PIOS_COM_OSDHK        (pios_com_hkosd_id)
 #define PIOS_COM_MSP          (pios_com_msp_id)
+#define PIOS_COM_MAVLINK      (pios_com_mavlink_id)
 
 // ------------------------
 // TELEMETRY

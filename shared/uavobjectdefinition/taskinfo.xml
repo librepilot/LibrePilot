@@ -33,7 +33,7 @@
 			<elementname>OSDGen</elementname>
 			<elementname>UAVOMSPBridge</elementname>
 			<elementname>AutoTune</elementname>
-			<elementname>UAVOMavlinkBridge</elementname>
+			<elementname>UAVOMAVLinkBridge</elementname>
 		</elementnames>
 	</field> 
 	<field name="Running" units="bool" type="enum">
@@ -68,7 +68,7 @@
 			<elementname>OSDGen</elementname>
 			<elementname>UAVOMSPBridge</elementname>
 			<elementname>AutoTune</elementname>
-			<elementname>UAVOMavlinkBridge</elementname>
+			<elementname>UAVOMAVLinkBridge</elementname>
 		</elementnames>
 		<options>
 			<option>False</option>
@@ -107,7 +107,7 @@
 			<elementname>OSDGen</elementname>
 			<elementname>UAVOMSPBridge</elementname>
 			<elementname>AutoTune</elementname>
-			<elementname>UAVOMavlinkBridge</elementname>
+			<elementname>UAVOMAVLinkBridge</elementname>
 		</elementnames>
 	</field> 
         <access gcs="readonly" flight="readwrite"/>

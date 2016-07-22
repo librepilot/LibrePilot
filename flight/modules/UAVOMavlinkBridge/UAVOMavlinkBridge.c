@@ -1,12 +1,12 @@
 /**
  ******************************************************************************
- * @addtogroup TauLabsModules TauLabs Modules
+ * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
  * @addtogroup UAVOMavlinkBridge UAVO to Mavlink Bridge Module
  * @{
  *
  * @file       UAVOMavlinkBridge.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2016.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             dRonin, http://dRonin.org/, Copyright (C) 2015-2016
  *             Tau Labs, http://taulabs.org, Copyright (C) 2013-2014
  * @brief      Bridges selected UAVObjects to Mavlink
@@ -55,11 +55,6 @@
 #include "oplinkstatus.h"
 #include "receiverstatus.h"
 #include "manualcontrolsettings.h"
-
-// #include "pios_thread.h"
-// #include "pios_modules.h"
-
-// #include <pios_hal.h>
 
 #include "custom_types.h"
 

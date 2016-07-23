@@ -373,10 +373,10 @@ bool flightDataModel::insertRows(int row, int count, const QModelIndex & /*paren
         data->lngPosition         = 0;
         data->disRelative         = 0;
         data->beaRelative         = 0;
-        data->altitudeRelative    = 0;
+        data->altitudeRelative    = defaultWaypointAltitude();
         data->isRelative          = true;
         data->altitude            = 0;
-        data->velocity            = 0;
+        data->velocity            = defaultWaypointVelocity();
         data->mode = 1;
         data->mode_params[0]      = 0;
         data->mode_params[1]      = 0;
@@ -667,4 +667,24 @@ void flightDataModel::readFromFile(QString fileName)
         }
         node = node.nextSibling();
     }
+}
+
+qreal flightDataModel::defaultWaypointAltitude() const
+{
+    return m_defaultWaypointAltitude;
+}
+
+qreal flightDataModel::defaultWaypointVelocity() const
+{
+    return m_defaultWaypointVelocity;
+}
+
+void flightDataModel::setDefaultWaypointAltitude(qreal default_altitude)
+{
+    m_defaultWaypointAltitude = default_altitude;
+}
+
+void flightDataModel::setDefaultWaypointVelocity(qreal default_velocity)
+{
+    m_defaultWaypointVelocity = default_velocity;
 }

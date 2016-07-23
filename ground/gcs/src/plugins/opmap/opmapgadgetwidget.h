@@ -113,6 +113,8 @@ public:
     void setMaxUpdateRate(int update_rate);
     void setHomePosition(QPointF pos);
     void setOverlayOpacity(qreal value);
+    void setDefaultWaypointAltitude(qreal default_altitude);
+    void setDefaultWaypointVelocity(qreal default_velocity);
     bool getGPSPositionSensor(double &latitude, double &longitude, double &altitude);
 signals:
     void defaultLocationAndZoomChanged(double lng, double lat, double zoom);
@@ -212,6 +214,9 @@ private slots:
     void on_leFind_returnPressed();
 
 private:
+    qreal m_defaultWaypointAltitude;
+    qreal m_defaultWaypointVelocity;
+
     int m_min_zoom;
     int m_max_zoom;
     double m_heading; // uav heading

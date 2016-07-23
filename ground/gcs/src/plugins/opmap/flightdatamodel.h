@@ -70,10 +70,17 @@ public:
     bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
     bool writeToFile(QString filename);
     void readFromFile(QString fileName);
+    qreal defaultWaypointAltitude() const;
+    qreal defaultWaypointVelocity() const;
+
+    void setDefaultWaypointAltitude(qreal default_altitude);
+    void setDefaultWaypointVelocity(qreal default_velocity);
 private:
     QList<pathPlanData *> dataStorage;
     QVariant getColumnByIndex(const pathPlanData *row, const int index) const;
     bool setColumnByIndex(pathPlanData *row, const int index, const QVariant value);
+    qreal m_defaultWaypointAltitude;
+    qreal m_defaultWaypointVelocity;
 };
 
 #endif // FLIGHTDATAMODEL_H

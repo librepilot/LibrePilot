@@ -43,7 +43,9 @@ OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings *q
     m_uavSymbol(QString::fromUtf8(":/uavs/images/mapquad.png")),
     m_maxUpdateRate(2000), // ms
     m_settings(qSettings),
-    m_opacity(1)
+    m_opacity(1),
+    m_defaultWaypointAltitude(15),
+    m_defaultWaypointVelocity(2)
 {
     // if a saved configuration exists load it
     if (qSettings != 0) {

@@ -220,6 +220,8 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     }
 #ifdef USE_PATHPLANNER
     model    = new flightDataModel(this);
+    model->setDefaultWaypointAltitude(m_defaultWaypointAltitude);
+    model->setDefaultWaypointVelocity(m_defaultWaypointVelocity);
     table    = new pathPlanner();
     selectionModel = new QItemSelectionModel(model);
     mapProxy = new modelMapProxy(this, m_map, model, selectionModel);
@@ -2371,4 +2373,20 @@ void OPMapGadgetWidget::onOverlayOpacityActGroup_triggered(QAction *action)
 void OPMapGadgetWidget::on_leFind_returnPressed()
 {
     on_tbFind_clicked();
+}
+
+void OPMapGadgetWidget::setDefaultWaypointAltitude(qreal default_altitude)
+{
+    m_defaultWaypointAltitude = default_altitude;
+    if (model) {
+        model->setDefaultWaypointAltitude(default_altitude);
+    }
+}
+
+void OPMapGadgetWidget::setDefaultWaypointVelocity(qreal default_velocity)
+{
+    m_defaultWaypointVelocity = default_velocity;
+    if (model) {
+        model->setDefaultWaypointVelocity(default_velocity);
+    }
 }

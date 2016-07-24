@@ -60,7 +60,8 @@ OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings *q
         QString cacheLocation  = qSettings->value("cacheLocation").toString();
         QString uavSymbol      = qSettings->value("uavSymbol").toString();
         int max_update_rate    = qSettings->value("maxUpdateRate").toInt();
-
+        m_defaultWaypointAltitude = qSettings->value("defaultWaypointAltitude", 15).toReal();
+        m_defaultWaypointVelocity = qSettings->value("defaultWaypointVelocity", 2).toReal();
         m_opacity = qSettings->value("overlayOpacity", 1).toReal();
 
         if (!mapProvider.isEmpty()) {
@@ -104,6 +105,8 @@ IUAVGadgetConfiguration *OPMapGadgetConfiguration::clone()
     m->m_uavSymbol = m_uavSymbol;
     m->m_maxUpdateRate     = m_maxUpdateRate;
     m->m_opacity = m_opacity;
+    m->m_defaultWaypointAltitude = m_defaultWaypointAltitude;
+    m->m_defaultWaypointVelocity = m_defaultWaypointVelocity;
 
     return m;
 }
@@ -129,6 +132,9 @@ void OPMapGadgetConfiguration::saveConfig(QSettings *qSettings) const
     qSettings->setValue("cacheLocation", Utils::RemoveStoragePath(m_cacheLocation));
     qSettings->setValue("maxUpdateRate", m_maxUpdateRate);
     qSettings->setValue("overlayOpacity", m_opacity);
+
+    qSettings->setValue("defaultWaypointAltitude", m_defaultWaypointAltitude);
+    qSettings->setValue("defaultWaypointVelocity", m_defaultWaypointVelocity);
 }
 void OPMapGadgetConfiguration::setCacheLocation(QString cacheLocation)
 {

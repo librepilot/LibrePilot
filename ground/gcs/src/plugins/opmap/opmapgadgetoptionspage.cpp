@@ -109,6 +109,8 @@ QWidget *OPMapGadgetOptionsPage::createPage(QWidget *parent)
         }
     }
 
+    m_page->defaultWaypointAltitude->setValue(m_config->defaultWaypointAltitude());
+    m_page->defaultWaypointVelocity->setValue(m_config->defaultWaypointVelocity());
     connect(m_page->pushButtonCacheDefaults, SIGNAL(clicked()), this, SLOT(on_pushButtonCacheDefaults_clicked()));
 
     return w;

@@ -143,7 +143,9 @@ void plan_setup_returnToBase()
     // For a safer RTB destination altitude will be the higher between takeofflocation and current position (corrected with safety margin)
 
     float destDown;
+    float destVelocity;
     FlightModeSettingsReturnToBaseAltitudeOffsetGet(&destDown);
+    FlightModeSettingsReturnToBaseVelocityGet(&destVelocity);
     destDown = MIN(positionStateDown, takeoffLocation.Down) - destDown;
     FlightModeSettingsPositionHoldOffsetData offset;
     FlightModeSettingsPositionHoldOffsetGet(&offset);
@@ -156,8 +158,8 @@ void plan_setup_returnToBase()
     pathDesired.Start.East       = takeoffLocation.East;
     pathDesired.Start.Down       = destDown;
 
-    pathDesired.StartingVelocity = 0.0f;
-    pathDesired.EndingVelocity   = 0.0f;
+    pathDesired.StartingVelocity = destVelocity;
+    pathDesired.EndingVelocity   = destVelocity;
 
     FlightModeSettingsReturnToBaseNextCommandOptions ReturnToBaseNextCommand;
     FlightModeSettingsReturnToBaseNextCommandGet(&ReturnToBaseNextCommand);

@@ -305,6 +305,10 @@ function estimatedTimeAlarmColor() {
  * Pathplan and Waypoints
  *
 */
+function isPathPlanEnabled() {
+    return (flightStatus.flightMode == FlightStatus.FlightMode.PathPlanner);
+}
+
 function isPathPlanValid() {
     return (systemAlarms.alarmPathPlan == SystemAlarms.Alarm.OK);
 }
@@ -379,13 +383,13 @@ function isVtolPathFollowerSettingsThrustAuto() {
 function flightModeName() {
     return ["MANUAL", "STAB 1", "STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
             "POS HOLD", "COURSELOCK", "VEL ROAM", "HOME LEASH", "ABS POS", "RTB",
-            "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"][flightStatus.flightMode];
+            "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF", "AUTOTUNE"][flightStatus.flightMode];
 }
 
 function flightModeColor() {
     return ["gray", "green", "green", "green", "green", "green", "green",
             "cyan", "cyan", "cyan", "cyan", "cyan", "cyan",
-            "cyan", "cyan", "cyan", "cyan", "cyan"][flightStatus.flightMode];
+            "cyan", "cyan", "cyan", "cyan", "cyan", "cyan"][flightStatus.flightMode];
 }
 
 function thrustMode() {
@@ -399,12 +403,12 @@ function thrustModeName() {
     // Last "Auto" Thrust mode is added to UAVO enum list
     // Lower case modes are never displayed/used for Thrust
     return ["MANUAL", "rate", "ratetrainer", "attitude", "axislock", "weakleveling", "virtualbar", "acro+ ", "rattitude",
-            "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrustMode()]
+            "ALT HOLD", "ALT VARIO", "CRUISECTRL", "systemident", "AUTO"][thrustMode()]
 }
 
 function thrustModeColor() {
     return ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey",
-            "green", "green", "green", "cyan"][thrustMode()];
+            "green", "green", "green", "grey", "cyan"][thrustMode()];
 }
 
 function armStatusName() {

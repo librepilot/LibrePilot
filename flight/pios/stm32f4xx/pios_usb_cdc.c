@@ -454,7 +454,7 @@ static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id)
     PIOS_Assert(valid);
 
     return (PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) &&
-            (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT)) ? COM_AVAILABLE_NONE : COM_AVAILABLE_RXTX;
+            (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT)) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
 
 /**

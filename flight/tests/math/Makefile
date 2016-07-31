@@ -32,7 +32,10 @@ endif
 include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
 EXTRAINCDIRS += $(TOPDIR)
-EXTRAINCDIRS += $(FLIGHT_ROOT_DIR)/flight/libraries/math
+EXTRAINCDIRS += $(FLIGHTLIB)/math
+EXTRAINCDIRS += $(FLIGHTLIB)
 EXTRAINCDIRS += $(PIOS)/inc
+
+SRC += $(FLIGHTLIB)/CoordinateConversions.c
 
 include $(FLIGHT_ROOT_DIR)/make/unittest.mk

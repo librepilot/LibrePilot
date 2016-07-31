@@ -29,14 +29,23 @@
 
 #ifndef COORDINATECONVERSIONS_H_
 #define COORDINATECONVERSIONS_H_
+#include <math.h>
 
 // ****** convert Lat,Lon,Alt to ECEF  ************
-void LLA2ECEF(int32_t LLAi[3], double ECEF[3]);
+void LLA2ECEF(const int32_t LLAi[3], float ECEF[3]);
 
-// ****** convert ECEF to Lat,Lon,Alt (ITERATIVE!) *********
-uint16_t ECEF2LLA(double ECEF[3], float LLA[3]);
+// ****** convert ECEF to Lat,Lon,Alt *********
+void ECEF2LLA(const float ECEF[3], int32_t LLA[3]);
 
-void RneFromLLA(int32_t LLAi[3], float Rne[3][3]);
+void RneFromLLA(const int32_t LLAi[3], float Rne[3][3]);
+
+// ****** Express LLA in a local NED Base Frame and back ********
+void LLA2Base(const int32_t LLAi[3], const float BaseECEF[3], float Rne[3][3], float NED[3]);
+void Base2LLA(const float NED[3], const float BaseECEF[3], float Rne[3][3], int32_t LLAi[3]);
+
+// ****** Express ECEF in a local NED Base Frame and back ********
+void ECEF2Base(const float ECEF[3], const float BaseECEF[3], float Rne[3][3], float NED[3]);
+void Base2ECEF(const float NED[3], const float BaseECEF[3], float Rne[3][3], float ECEF[3]);
 
 // ****** find rotation matrix from rotation vector
 void Rv2Rot(float Rv[3], float R[3][3]);
@@ -64,12 +73,6 @@ void Quaternion2yB(const float q[4], float y[3]);
 // ** This vector corresponds to the vertical/yaw vector zB **
 void QuaternionC2zB(const float q0, const float q1, const float q2, const float q3, float z[3]);
 void Quaternion2zB(const float q[4], float z[3]);
-
-// ****** Express LLA in a local NED Base Frame ********
-void LLA2Base(int32_t LLAi[3], double BaseECEF[3], float Rne[3][3], float NED[3]);
-
-// ****** Express ECEF in a local NED Base Frame ********
-void ECEF2Base(double ECEF[3], double BaseECEF[3], float Rne[3][3], float NED[3]);
 
 // ****** convert Rotation Matrix to Quaternion ********
 // ****** if R converts from e to b, q is rotation from e to b ****

@@ -260,7 +260,8 @@ function receiverQuality() {
 }
 
 function oplmLinkState() {
-    return ["Disabled", "Enabled", "Disconnected", "Connecting", "Connected"][opLinkStatus.linkState];
+    return ["Disabled", "Enabled", "Binding", "Bound", "Disconnected", "Connecting", "Connected"][opLinkStatus.linkState];
+
 }
 
 /*

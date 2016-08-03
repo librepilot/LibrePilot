@@ -1,7 +1,8 @@
 /**
  ******************************************************************************
  * @file       pios_ibus.c
- * @author     dRonin, http://dRonin.org/, Copyright (C) 2016
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             dRonin, http://dRonin.org/, Copyright (C) 2016
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
  * @addtogroup PIOS_IBus PiOS IBus receiver driver
@@ -32,10 +33,8 @@
 
 #ifdef PIOS_INCLUDE_IBUS
 
-// private
-#define PIOS_IBUS_CHANNELS 10
 // 1 sync byte, 1 unknown byte, 10x channels (uint16_t), 8 unknown bytes, 2 crc bytes
-#define PIOS_IBUS_BUFLEN   (1 + 1 + PIOS_IBUS_CHANNELS * 2 + 8 + 2)
+#define PIOS_IBUS_BUFLEN   (1 + 1 + PIOS_IBUS_NUM_INPUTS * 2 + 8 + 2)
 #define PIOS_IBUS_SYNCBYTE 0x20
 #define PIOS_IBUS_MAGIC    0x84fd9a39
 
@@ -48,7 +47,7 @@ struct pios_ibus_dev {
     int      rx_timer;
     int      failsafe_timer;
     uint16_t checksum;
-    uint16_t channel_data[PIOS_IBUS_CHANNELS];
+    uint16_t channel_data[PIOS_IBUS_NUM_INPUTS];
     uint8_t  rx_buf[PIOS_IBUS_BUFLEN];
 };
 
@@ -154,7 +153,7 @@ int32_t PIOS_IBUS_Init(uint32_t *ibus_id, const struct pios_com_driver *driver,
 
 static int32_t PIOS_IBUS_Read(uint32_t context, uint8_t channel)
 {
-    if (channel > PIOS_IBUS_CHANNELS) {
+    if (channel > PIOS_IBUS_NUM_INPUTS) {
         return PIOS_RCVR_INVALID;
     }
 
@@ -168,7 +167,7 @@ static int32_t PIOS_IBUS_Read(uint32_t context, uint8_t channel)
 
 static void PIOS_IBUS_SetAllChannels(struct pios_ibus_dev *ibus_dev, uint16_t value)
 {
-    for (int i = 0; i < PIOS_IBUS_CHANNELS; i++) {
+    for (int i = 0; i < PIOS_IBUS_NUM_INPUTS; i++) {
         ibus_dev->channel_data[i] = value;
     }
 }
@@ -223,7 +222,7 @@ static void PIOS_IBUS_UnpackFrame(struct pios_ibus_dev *ibus_dev)
     }
 
     uint16_t *chan = (uint16_t *)&ibus_dev->rx_buf[2];
-    for (int i = 0; i < PIOS_IBUS_CHANNELS; i++) {
+    for (int i = 0; i < PIOS_IBUS_NUM_INPUTS; i++) {
         ibus_dev->channel_data[i] = *chan++;
     }
 

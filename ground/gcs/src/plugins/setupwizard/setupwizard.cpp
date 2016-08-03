@@ -394,6 +394,9 @@ QString SetupWizard::getSummaryText()
     case INPUT_EXBUS:
         summary.append(tr("Jeti EX.Bus"));
         break;
+    case INPUT_IBUS:
+        summary.append(tr("FlySky IBus"));
+        break;
     default:
         summary.append(tr("Unknown"));
     }

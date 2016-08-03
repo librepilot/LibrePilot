@@ -180,6 +180,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         case VehicleConfigurationSource::INPUT_EXBUS:
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_EXBUS;
             break;
+        case VehicleConfigurationSource::INPUT_IBUS:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_IBUS;
+            break;
         default:
             break;
         }
@@ -259,6 +262,13 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_EXBUS;
             } else {
                 data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
+            }
+            break;
+        case VehicleConfigurationSource::INPUT_IBUS:
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_IBUS;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_IBUS;
             }
             break;
         default:
@@ -998,6 +1008,9 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
         break;
     case VehicleConfigurationSource::INPUT_EXBUS:
         channelType = ManualControlSettings::CHANNELGROUPS_EXBUS;
+        break;
+    case VehicleConfigurationSource::INPUT_IBUS:
+        channelType = ManualControlSettings::CHANNELGROUPS_IBUS;
         break;
     default:
         break;

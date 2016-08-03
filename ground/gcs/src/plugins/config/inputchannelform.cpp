@@ -146,6 +146,9 @@ void InputChannelForm::groupUpdated()
     case ManualControlSettings::CHANNELGROUPS_OPLINK:
         count = 8; // Need to make this 6 for CC
         break;
+    case ManualControlSettings::CHANNELGROUPS_IBUS:
+        count = 10;
+        break;
     case ManualControlSettings::CHANNELGROUPS_DSMMAINPORT:
     case ManualControlSettings::CHANNELGROUPS_DSMFLEXIPORT:
     case ManualControlSettings::CHANNELGROUPS_DSMRCVRPORT:

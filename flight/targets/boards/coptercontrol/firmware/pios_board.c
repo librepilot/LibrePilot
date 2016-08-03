@@ -382,7 +382,6 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_USB_VCPPORT_USBTELEMETRY:
 #if defined(PIOS_INCLUDE_COM)
-        
         {
             uint32_t pios_usb_cdc_id;
             if (PIOS_USB_CDC_Init(&pios_usb_cdc_id, &pios_usb_cdc_cfg, pios_usb_id)) {
@@ -668,6 +667,28 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
         }
 #endif /* PIOS_INCLUDE_SRXL */
+        break;
+
+    case HWSETTINGS_CC_FLEXIPORT_IBUS:
+#if defined(PIOS_INCLUDE_IBUS)
+        {
+            uint32_t pios_usart_ibus_id;
+            if (PIOS_USART_Init(&pios_usart_ibus_id, &pios_usart_ibus_flexi_cfg)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_ibus_id;
+            if (PIOS_IBUS_Init(&pios_ibus_id, &pios_usart_com_driver, pios_usart_ibus_id)) {
+                PIOS_Assert(0);
+            }
+
+            uint32_t pios_ibus_rcvr_id;
+            if (PIOS_RCVR_Init(&pios_ibus_rcvr_id, &pios_ibus_rcvr_driver, pios_ibus_id)) {
+                PIOS_Assert(0);
+            }
+            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_IBUS] = pios_ibus_rcvr_id;
+        }
+#endif /* PIOS_INCLUDE_IBUS */
         break;
 
     case HWSETTINGS_CC_FLEXIPORT_DEBUGCONSOLE:

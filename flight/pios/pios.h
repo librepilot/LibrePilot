@@ -241,6 +241,10 @@ extern "C" {
 #include <pios_srxl.h>
 #endif
 
+#ifdef PIOS_INCLUDE_IBUS
+#include <pios_ibus.h>
+#endif
+
 /* PIOS abstract receiver interface */
 #ifdef PIOS_INCLUDE_RCVR
 #include <pios_rcvr.h>

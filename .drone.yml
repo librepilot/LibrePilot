@@ -1,10 +1,12 @@
 build:
-  image: teaci/msys32
+  image: teaci/msys$$arch
   pull: true
-  shell: mingw32
+  shell: mingw$$arch
   commands:
+    - if [ $$arch = 32 ]; then target=i686; fi
+    - if [ $$arch = 64 ]; then target=x86_64; fi
     - echo -e "[librepilot-mingw]\nSigLevel = Optional TrustAll\nServer = http://download.librepilot.org/repo/mingw" >> /etc/pacman.conf
-    - pacman -Syu --noconfirm --noprogressbar --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-ccache mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl mingw-w64-i686-gdal-minimal mingw-w64-i686-OpenSceneGraph mingw-w64-i686-osgearth
+    - pacman -Syu --noconfirm --noprogressbar --needed git unzip tar mingw-w64-${target}-toolchain mingw-w64-${target}-ccache mingw-w64-${target}-qt5 mingw-w64-${target}-SDL mingw-w64-${target}-mesa mingw-w64-${target}-openssl mingw-w64-${target}-gdal-minimal mingw-w64-${target}-OpenSceneGraph mingw-w64-${target}-osgearth
     - mingw32-make all_sdk_install
     - git config core.filemode false
     - mingw32-make build-info && cat build/build-info.txt
@@ -15,3 +17,8 @@ build:
 clone:
   depth: 1000
   tags: true
+
+matrix:
+    arch:
+        - 32
+        - 64

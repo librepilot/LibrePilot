@@ -159,7 +159,7 @@ function frameType() {
 
     if (frameTypeText.length != SystemSettings.SystemSettingsConstants.AirframeTypeCount) {
         console.log("uav.js: frameType() do not match systemSettings.airframeType uavo");
-        return "Unknow"        
+        return "FixMe"        
     } else { 
         return frameTypeText[systemSettings.airframeType]
     }
@@ -438,7 +438,7 @@ function flightModeName() {
 
     if (flightModeNameText.length != FlightStatus.FlightStatusConstants.FlightModeCount) {
         console.log("uav.js: flightModeName() do not match flightStatus.flightMode uavo");
-        return "UNKNOW"        
+        return "FixMe"        
     } else {
         return flightModeNameText[flightStatus.flightMode];
     }

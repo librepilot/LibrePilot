@@ -230,6 +230,7 @@ private slots:
     void resetFlightModeSettings();
     void resetActuatorSettings();
     void forceOneFlightMode();
+    void updateReceiverActivityStatus();
 
     void failsafeFlightModeChanged(int index);
     void failsafeFlightModeCbToggled(bool checked);

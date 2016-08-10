@@ -438,7 +438,6 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
         break;
     case HwSettings::RM_RCVRPORT_DEBUGCONSOLE:
     case HwSettings::RM_RCVRPORT_PPMDEBUGCONSOLE:
-        m_ui->cbRcvrComSpeed->setVisible(true);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }

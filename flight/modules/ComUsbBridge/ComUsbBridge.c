@@ -32,7 +32,6 @@
 
 #include <openpilot.h>
 
-#include "hwsettings.h"
 #include "taskinfo.h"
 
 #include <stdbool.h>
@@ -114,10 +113,6 @@ static int32_t comUsbBridgeInitialize(void)
 #ifdef MODULE_COMUSBBRIDGE_BUILTIN
     bridge_enabled = true;
 #else
-    HwSettingsInitialize();
-    HwSettingsOptionalModulesData optionalModules;
-
-    HwSettingsOptionalModulesGet(&optionalModules);
 
     if (usart_port && vcp_port) {
         bridge_enabled = true;

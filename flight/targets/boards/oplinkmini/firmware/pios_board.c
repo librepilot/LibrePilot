@@ -65,6 +65,8 @@ uint32_t pios_com_telem_vcp_id = 0;
 uint32_t pios_com_telem_uart_main_id = 0;
 uint32_t pios_com_telem_uart_flexi_id = 0;
 uint32_t pios_com_telemetry_id = 0;
+uint32_t pios_com_bridge_id    = 0;
+uint32_t pios_com_vcp_id    = 0;
 #if defined(PIOS_INCLUDE_PPM)
 uint32_t pios_ppm_rcvr_id   = 0;
 #endif
@@ -76,13 +78,46 @@ uint32_t pios_rfm22b_id     = 0;
 uint32_t pios_com_rfm22b_id = 0;
 uint32_t pios_com_radio_id  = 0;
 #endif
-uint8_t *pios_uart_rx_buffer;
-uint8_t *pios_uart_tx_buffer;
 
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id = 0;
 
 uint8_t servo_count = 0;
+
+/*
+ * Setup a com port based on the passed cfg, driver and buffer sizes.
+ * tx size of -1 make the port rx only
+ * rx size of -1 make the port tx only
+ * having both tx and rx size of -1 is not valid and will fail further down in PIOS_COM_Init()
+ */
+static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, size_t rx_buf_len, size_t tx_buf_len,
+                                     const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
+{
+    uint32_t pios_usart_id;
+
+    if (PIOS_USART_Init(&pios_usart_id, usart_port_cfg)) {
+        PIOS_Assert(0);
+    }
+
+    uint8_t *rx_buffer = 0, *tx_buffer = 0;
+
+    if (rx_buf_len > 0) {
+        rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
+        PIOS_Assert(rx_buffer);
+    }
+
+    if (tx_buf_len > 0) {
+        tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
+        PIOS_Assert(tx_buffer);
+    }
+
+    if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
+                      rx_buffer, rx_buf_len,
+                      tx_buffer, tx_buf_len)) {
+        PIOS_Assert(0);
+    }
+}
+
 
 // Forward definitions
 static void PIOS_Board_PPM_callback(const int16_t *channels);
@@ -218,10 +253,6 @@ void PIOS_Board_Init(void)
     }
 #endif
 
-    /* Allocate the uart buffers. */
-    pios_uart_rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_RX_BUF_LEN);
-    pios_uart_tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_TX_BUF_LEN);
-
     // Configure the main port
     OPLinkSettingsData oplinkSettings;
     OPLinkSettingsGet(&oplinkSettings);
@@ -242,21 +273,19 @@ void PIOS_Board_Init(void)
     {
         /* Configure the main port for uart serial */
 #ifndef PIOS_RFM22B_DEBUG_ON_TELEM
-        uint32_t pios_usart1_id;
-        if (PIOS_USART_Init(&pios_usart1_id, &pios_usart_serial_cfg)) {
-            PIOS_Assert(0);
-        }
-        PIOS_Assert(pios_uart_rx_buffer);
-        PIOS_Assert(pios_uart_tx_buffer);
-        if (PIOS_COM_Init(&pios_com_telem_uart_main_id, &pios_usart_com_driver, pios_usart1_id,
-                          pios_uart_rx_buffer, PIOS_COM_TELEM_RX_BUF_LEN,
-                          pios_uart_tx_buffer, PIOS_COM_TELEM_TX_BUF_LEN)) {
-            PIOS_Assert(0);
-        }
+        PIOS_Board_configure_com(&pios_usart_serial_cfg,
+                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
+                                 &pios_usart_com_driver, &pios_com_telem_uart_main_id);
+
         PIOS_COM_TELEMETRY = PIOS_COM_TELEM_UART_MAIN;
 #endif
         break;
     }
+    case OPLINKSETTINGS_MAINPORT_COMBRIDGE:
+        PIOS_Board_configure_com(&pios_usart_serial_cfg,
+                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
+                                 &pios_usart_com_driver, &pios_com_bridge_id);
+        break;
     case OPLINKSETTINGS_MAINPORT_PPM:
     {
 #if defined(PIOS_INCLUDE_PPM)
@@ -291,21 +320,19 @@ void PIOS_Board_Init(void)
     case OPLINKSETTINGS_FLEXIPORT_SERIAL:
     {
         /* Configure the flexi port as uart serial */
-        uint32_t pios_usart3_id;
-
-        if (PIOS_USART_Init(&pios_usart3_id, &pios_usart_telem_flexi_cfg)) {
-            PIOS_Assert(0);
-        }
-        PIOS_Assert(pios_uart_rx_buffer);
-        PIOS_Assert(pios_uart_tx_buffer);
-        if (PIOS_COM_Init(&pios_com_telem_uart_flexi_id, &pios_usart_com_driver, pios_usart3_id,
-                          pios_uart_rx_buffer, PIOS_COM_TELEM_RX_BUF_LEN,
-                          pios_uart_tx_buffer, PIOS_COM_TELEM_TX_BUF_LEN)) {
-            PIOS_Assert(0);
-        }
+        PIOS_Board_configure_com(&pios_usart_telem_flexi_cfg,
+                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
+                                 &pios_usart_com_driver,
+                                 &pios_com_telem_uart_flexi_id);
         PIOS_COM_TELEMETRY = PIOS_COM_TELEM_UART_FLEXI;
         break;
     }
+    case OPLINKSETTINGS_FLEXIPORT_COMBRIDGE:
+        PIOS_Board_configure_com(&pios_usart_telem_flexi_cfg,
+                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
+                                 &pios_usart_com_driver,
+                                 &pios_com_bridge_id);
+        break;
     case OPLINKSETTINGS_FLEXIPORT_PPM:
     {
 #if defined(PIOS_INCLUDE_PPM)
@@ -334,6 +361,9 @@ void PIOS_Board_Init(void)
     switch (oplinkSettings.VCPPort) {
     case OPLINKSETTINGS_VCPPORT_SERIAL:
         PIOS_COM_TELEMETRY = PIOS_COM_TELEM_USB_VCP;
+        break;
+    case OPLINKSETTINGS_VCPPORT_COMBRIDGE:
+        PIOS_COM_VCP = PIOS_COM_TELEM_USB_VCP;
         break;
     case OPLINKSETTINGS_VCPPORT_DISABLED:
         break;

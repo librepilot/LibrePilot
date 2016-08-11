@@ -29,6 +29,7 @@ override USE_DSP_LIB := NO
 
 # List of mandatory modules to include
 MODULES += RadioComBridge
+MODULES += ComUsbBridge
 
 # List of optional modules to include
 OPTMODULES =

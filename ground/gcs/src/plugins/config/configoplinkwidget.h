@@ -70,6 +70,9 @@ private slots:
     void updateCustomDeviceID();
     void unbind();
     void channelChanged(bool isMax);
+    void mainPortChanged();
+    void flexiPortChanged();
+    void vcpPortChanged();
 };
 
 #endif // CONFIGOPLINKWIDGET_H

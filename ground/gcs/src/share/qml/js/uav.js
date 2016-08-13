@@ -160,9 +160,8 @@ function frameType() {
     if (frameTypeText.length != SystemSettings.SystemSettingsConstants.AirframeTypeCount) {
         console.log("uav.js: frameType() do not match systemSettings.airframeType uavo");
         return "FixMe"        
-    } else { 
-        return frameTypeText[systemSettings.airframeType]
     }
+    return frameTypeText[systemSettings.airframeType]
 }
 
 function isVtolOrMultirotor() {
@@ -238,9 +237,8 @@ function magSourceName() {
         (magStateSourceText.length != MagState.MagStateConstants.SourceCount)) {
         console.log("uav.js: magSourceName() do not match magState.source or auxMagSettings.type uavo");
         return "FixMe"        
-    } else {
-        return [magState.source == MagState.Source.Aux ? auxMagTypeText[auxMagSettings.type] + " " : ""] + magStateSourceText[magState.source];
     }
+    return [magState.source == MagState.Source.Aux ? auxMagTypeText[auxMagSettings.type] + " " : ""] + magStateSourceText[magState.source];
 }
 
 function gpsSensorType() {
@@ -249,9 +247,8 @@ function gpsSensorType() {
     if (gpsSensorTypeText.length != GPSPositionSensor.GPSPositionSensorConstants.SensorTypeCount) {
         console.log("uav.js: gpsSensorType() do not match gpsPositionSensor.sensorType uavo");
         return "FixMe"        
-    } else {
-        return gpsSensorTypeText[gpsPositionSensor.sensorType];
     }
+    return gpsSensorTypeText[gpsPositionSensor.sensorType];
 }
 
 function gpsNumSat() {
@@ -276,9 +273,8 @@ function gpsStatus() {
     if (gpsStatusText.length != GPSPositionSensor.GPSPositionSensorConstants.StatusCount) {
         console.log("uav.js: gpsStatus() do not match gpsPositionSensor.status uavo");
         return "FixMe"        
-    } else {
-        return gpsStatusText[gpsPositionSensor.status];
     }
+    return gpsStatusText[gpsPositionSensor.status];
 }
 
 function fusionAlgorithm() {
@@ -287,9 +283,8 @@ function fusionAlgorithm() {
     if (fusionAlgorithmText.length != RevoSettings.RevoSettingsConstants.FusionAlgorithmCount) {
         console.log("uav.js: fusionAlgorithm() do not match revoSettings.fusionAlgorithm uavo");
         return "FixMe"        
-    } else {
-        return fusionAlgorithmText[revoSettings.fusionAlgorithm];
     }
+    return fusionAlgorithmText[revoSettings.fusionAlgorithm];
 }
 
 function receiverQuality() {
@@ -302,9 +297,8 @@ function oplmLinkState() {
     if (oplmLinkStateText.length != OPLinkStatus.OPLinkStatusConstants.LinkStateCount) {
         console.log("uav.js: oplmLinkState() do not match opLinkStatus.linkState uavo");
         return "FixMe"        
-    } else {
-        return oplmLinkStateText[opLinkStatus.linkState];
     }
+    return oplmLinkStateText[opLinkStatus.linkState];
 }
 
 /*
@@ -372,9 +366,8 @@ function pathModeDesired() {
     if (pathModeDesiredText.length != PathDesired.PathDesiredConstants.ModeCount) {
         console.log("uav.js: pathModeDesired() do not match pathDesired.mode uavo");
         return "FixMe"        
-    } else {
-        return pathModeDesiredText[pathDesired.mode];
     }
+    return pathModeDesiredText[pathDesired.mode];
 }
 
 function velocityDesiredDown() {
@@ -439,9 +432,8 @@ function flightModeName() {
     if (flightModeNameText.length != FlightStatus.FlightStatusConstants.FlightModeCount) {
         console.log("uav.js: flightModeName() do not match flightStatus.flightMode uavo");
         return "FixMe"        
-    } else {
-        return flightModeNameText[flightStatus.flightMode];
     }
+    return flightModeNameText[flightStatus.flightMode];
 }
 
 function flightModeColor() {
@@ -452,9 +444,8 @@ function flightModeColor() {
     if (flightModeColorText.length != FlightStatus.FlightStatusConstants.FlightModeCount) {
         console.log("uav.js: flightModeColor() do not match flightStatus.flightMode uavo");
         return "gray"        
-    } else {
-        return flightModeColorText[flightStatus.flightMode];
     }
+    return flightModeColorText[flightStatus.flightMode];
 }
 
 function thrustMode() {
@@ -475,9 +466,8 @@ function thrustModeName() {
     if (thrustModeNameText.length != StabilizationDesired.StabilizationDesiredConstants.StabilizationModeCount + 1) {
         console.log("uav.js: thrustModeName() do not match stabilizationDesired.StabilizationMode uavo");
         return "FixMe"        
-    } else {
-        return thrustModeNameText[thrustMode()];
     }
+    return thrustModeNameText[thrustMode()];
 }
 
 function thrustModeColor() {
@@ -490,9 +480,8 @@ function thrustModeColor() {
     if (thrustModeColorText.length != StabilizationDesired.StabilizationDesiredConstants.StabilizationModeCount + 1) {
         console.log("uav.js: thrustModeColor() do not match stabilizationDesired.StabilizationMode uavo");
         return "gray"        
-    } else {
-        return thrustModeColorText[thrustMode()];
     }
+    return thrustModeColorText[thrustMode()];
 }
 
 function armStatusName() {
@@ -501,9 +490,8 @@ function armStatusName() {
     if (armStatusNameText.length != FlightStatus.FlightStatusConstants.ArmedCount) {
         console.log("uav.js: armStatusName() do not match flightStatus.armed uavo");
         return "FixMe"        
-    } else {
-        return armStatusNameText[flightStatus.armed];
     }
+    return armStatusNameText[flightStatus.armed];
 }
 
 function armStatusColor() {
@@ -512,9 +500,8 @@ function armStatusColor() {
     if (armStatusColorText.length != FlightStatus.FlightStatusConstants.ArmedCount) {
         console.log("uav.js: armStatusColor() do not match flightStatus.armed uavo");
         return "gray"        
-    } else {
-        return armStatusColorText[flightStatus.armed];
     }
+    return armStatusColorText[flightStatus.armed];
 }
 
 /*

@@ -165,7 +165,8 @@ endif
 BUILD_SDK_TARGETS := arm_sdk
 ifeq ($(UNAME), Windows)
     BUILD_SDK_TARGETS += nsis mesawin
-else
+endif
+ifeq ($(UNAME), Darwin)
     BUILD_SDK_TARGETS += qt_sdk osg
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen

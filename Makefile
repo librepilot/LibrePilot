@@ -140,9 +140,12 @@ export UAVOBJGENERATOR
 GCS_BUILD_CONF := release
 
 # Set extra configuration
-GCS_EXTRA_CONF += osg copy_osg
+GCS_EXTRA_CONF += osg
+ifeq ($(UNAME), Darwin)
+    GCS_EXTRA_CONF += copy_osg
+endif
 ifeq ($(UNAME), Windows)
-    GCS_EXTRA_CONF += osgearth
+    GCS_EXTRA_CONF += osgearth copy_osg
 endif
 
 ##############################

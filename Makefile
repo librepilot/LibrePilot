@@ -127,11 +127,20 @@ include $(ROOT_DIR)/make/tools.mk
 
 # We almost need to consider autoconf/automake instead of this
 ifeq ($(UNAME), Linux)
-    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    UAVOBJGENERATOR   := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    GCS_WITH_OSG      := 1
+    GCS_WITH_OSGEARTH := 0
+    GCS_COPY_OSG      := 0
 else ifeq ($(UNAME), Darwin)
-    UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    UAVOBJGENERATOR   := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
+    GCS_WITH_OSG      := 1
+    GCS_WITH_OSGEARTH := 0
+    GCS_COPY_OSG      := 1
 else ifeq ($(UNAME), Windows)
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
+    GCS_WITH_OSG      := 1
+    GCS_WITH_OSGEARTH := 1
+    GCS_COPY_OSG      := 1
 endif
 
 export UAVOBJGENERATOR
@@ -140,12 +149,14 @@ export UAVOBJGENERATOR
 GCS_BUILD_CONF := release
 
 # Set extra configuration
-GCS_EXTRA_CONF += osg
-ifeq ($(UNAME), Darwin)
-    GCS_EXTRA_CONF += copy_osg
-endif
-ifeq ($(UNAME), Windows)
-    GCS_EXTRA_CONF += osgearth copy_osg
+ifeq ($(GCS_WITH_OSG), 1)
+    GCS_EXTRA_CONF += osg
+    ifeq ($(GCS_COPY_OSG), 1)
+        GCS_EXTRA_CONF += copy_osg
+    endif
+    ifeq ($(GCS_WITH_OSGEARTH), 1)
+        GCS_EXTRA_CONF += osgearth
+    endif
 endif
 
 ##############################
@@ -513,11 +524,58 @@ config_append:
 
 .PHONY: config_show
 config_show:
-	@cat $(CONFIG_FILE)
+	@cat $(CONFIG_FILE) | sed 's/override *//'
 
 .PHONY: config_clean
 config_clean:
 	rm -f $(CONFIG_FILE)
+
+.PHONY: config_help
+config_help:
+	@$(ECHO) "   The build system has a simple system for persistent configuration"
+	@$(ECHO)
+	@$(ECHO) "   To set persistent configuration variables you, for example, do:"
+	@$(ECHO) "       $(MAKE) config_new CCACHE=ccache GCS_WITH_OSG=0"
+	@$(ECHO)
+	@$(ECHO) "   To add to the existing configuration do:"
+	@$(ECHO) "       $(MAKE) config_append GCS_BUILD_CONF=debug"
+	@$(ECHO)
+	@$(ECHO) "   To reset the configuration to defaults do:"
+	@$(ECHO) "       $(MAKE) config_clean"
+	@$(ECHO)
+	@$(ECHO) "   To show the current configuration:"
+	@$(ECHO) "       $(MAKE) config_show"
+	@$(ECHO)
+	@$(ECHO) "   You can override any make variable this way, but these are the useful ones"
+	@$(ECHO) "   shown with their current (or default values):"
+	@$(ECHO)
+	@$(ECHO) "   GCS_BUILD_CONF=$(GCS_BUILD_CONF)"
+	@$(ECHO) "       GCS build type"
+	@$(ECHO) "       Options: debug or release"
+	@$(ECHO)
+	@$(ECHO) "   GCS_WITH_OSG=$(GCS_WITH_OSG)"
+	@$(ECHO) "       Build the GCS with OpenSceneGraph support, this enables the PFD Model View"
+	@$(ECHO) "       Options: 0 or 1"
+	@$(ECHO)
+	@$(ECHO) "   GCS_WITH_OSGEARTH=$(GCS_WITH_OSGEARTH)"
+	@$(ECHO) "       Build the GCS with osgEarth support, this enables extra PFD terrain views"
+	@$(ECHO) "       Options: 0 or 1"
+	@$(ECHO)
+	@$(ECHO) "   GCS_COPY_OSG=$(GCS_COPY_OSG)"
+	@$(ECHO) "       Copy OpenSceneGraph/osgEarth libraries into the build"
+	@$(ECHO) "       (Needed unless using system versions)"
+	@$(ECHO) "       Options: 0 or 1"
+	@$(ECHO)
+	@$(ECHO) "   CCACHE=$(CCACHE)"
+	@$(ECHO) "       A prefix to compiler invocations, usually 'ccache' or 'path/to/ccache'"
+	@$(ECHO)
+	@$(ECHO) "   QMAKE=$(QMAKE)"
+	@$(ECHO) "       How to invoke qmake, usually 'qmake', 'qmake-qt5' or 'path/to/qmake'"
+	@$(ECHO)
+	@$(ECHO) "   WITH_PREBUILT_FIRMWARE=$(WITH_PREBUILT_FIRMWARE)"
+	@$(ECHO) "       Set to path of prebuilt firmware or empty to build firmware when needed"
+# TODO: add other things like downloads and tools directories, linux make install parameters
+
 
 
 ##############################
@@ -672,6 +730,7 @@ help:
 	@$(ECHO) "     docs_all_clean       - Delete all generated documentation"
 	@$(ECHO)
 	@$(ECHO) "   [Configuration]"
+	@$(ECHO) "     config_help          - Show information on how to configure the build"
 	@$(ECHO) "     config_new           - Place your make arguments in the config file"
 	@$(ECHO) "     config_append        - Place your make arguments in the config file but append"
 	@$(ECHO) "     config_clean         - Removes the config file"

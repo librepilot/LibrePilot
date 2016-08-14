@@ -60,7 +60,7 @@ make config_new                             \
     QMAKE=qmake-qt5                         \
     udevrulesdir=%{_udevrulesdir}           \
     WITH_PREBUILT_FW=$(pwd)/build/firmware  \
-    GCS_EXTRA_CONF='osg%{!?fc22: osgearth}'
+    GCS_WITH_OSGEARTH=1
 
 make %{?_smp_mflags} opfw_resource gcs
 

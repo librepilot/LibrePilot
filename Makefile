@@ -129,7 +129,7 @@ include $(ROOT_DIR)/make/tools.mk
 ifeq ($(UNAME), Linux)
     UAVOBJGENERATOR   := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
     GCS_WITH_OSG      := 1
-    GCS_WITH_OSGEARTH := 0
+    GCS_WITH_OSGEARTH := 1
     GCS_COPY_OSG      := 0
 else ifeq ($(UNAME), Darwin)
     UAVOBJGENERATOR   := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator

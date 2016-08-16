@@ -59,8 +59,7 @@ make config_new                             \
     prefix=%{_prefix}                       \
     QMAKE=qmake-qt5                         \
     udevrulesdir=%{_udevrulesdir}           \
-    WITH_PREBUILT_FW=$(pwd)/build/firmware  \
-    GCS_WITH_OSGEARTH=1
+    WITH_PREBUILT_FW=$(pwd)/build/firmware
 
 make %{?_smp_mflags} opfw_resource gcs
 

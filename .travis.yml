@@ -11,7 +11,7 @@ before_install:
         - make build_sdk_install
 
 script:
-        - make config_new CCACHE=ccache GCS_WITH_OSGEARTH=1
+        - make config_new CCACHE=ccache
         - make all_flight
         - make opfw_resource
         - make gcs

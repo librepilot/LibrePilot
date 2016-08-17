@@ -3,7 +3,7 @@
 		<description>Selection of optional hardware configurations.</description>
 		<field name="CC_RcvrPort" units="function" type="enum" elements="1" options="Disabled+OneShot,PWM+NoOneShot,PPM+NoOneShot,PPM+PWM+NoOneShot,PPM+Outputs+NoOneShot,PPM_PIN8+OneShot, Outputs+OneShot" defaultvalue="PWM+NoOneShot"/>
 		<field name="CC_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Telemetry"/>
-		<field name="CC_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,PPM,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="CC_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,PPM,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 		<field name="RV_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+Outputs,Outputs" defaultvalue="PWM"/>
 		<field name="RV_AuxPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,DSM,ComAux,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 		<field name="RV_AuxSBusPort" units="function" type="enum" elements="1" options="Disabled,S.Bus,DSM,ComAux,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
@@ -15,11 +15,11 @@
 			defaultvalue="PWM"
                         limits="%0905NE:PPM+PWM:PPM+Telemetry:Telemetry:ComBridge:MSP:MAVLink;"/>
 		<field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
-		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 
-		<field name="SPK2_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PPM,S.Bus,DSM,SRXL,EX.Bus,HoTT SUMD,HoTT SUMH" defaultvalue="PPM"/>
+		<field name="SPK2_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PPM,S.Bus,DSM,SRXL,IBus,EX.Bus,HoTT SUMD,HoTT SUMH" defaultvalue="PPM"/>
 		<field name="SPK2_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
-		<field name="SPK2_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="SPK2_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 		<field name="SPK2_I2CPort" units="function" type="enum" elements="1" options="Disabled,I2C" defaultvalue="Disabled"/>
 
 		<field name="TelemetrySpeed" units="bps" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200" defaultvalue="57600"/>

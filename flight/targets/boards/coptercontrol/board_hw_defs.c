@@ -1151,6 +1151,50 @@ static const struct pios_usart_cfg pios_usart_srxl_flexi_cfg = {
 
 #endif /* PIOS_INCLUDE_SRXL */
 
+#if defined(PIOS_INCLUDE_IBUS)
+/*
+ * IBUS USART
+ */
+#include <pios_ibus_priv.h>
+
+static const struct pios_usart_cfg pios_usart_ibus_flexi_cfg = {
+    .regs = USART3,
+    .init = {
+        .USART_BaudRate   = 115200,
+        .USART_WordLength = USART_WordLength_8b,
+        .USART_Parity     = USART_Parity_No,
+        .USART_StopBits   = USART_StopBits_1,
+        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
+        .USART_Mode                            = USART_Mode_Rx,
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = USART3_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .rx                                        = {
+        .gpio = GPIOB,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_11,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_IPU,
+        },
+    },
+    .tx                                        = {
+        .gpio = GPIOB,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_10,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_IN_FLOATING,
+        },
+    },
+};
+
+#endif /* PIOS_INCLUDE_IBUS */
+
 #if defined(PIOS_INCLUDE_SBUS)
 /*
  * S.Bus USART

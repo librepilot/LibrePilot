@@ -288,6 +288,12 @@ extern uint32_t pios_packet_handler;
 #define PIOS_DSM_NUM_INPUTS          12
 
 // -------------------------
+// Receiver FlySky IBus input
+// -------------------------
+#define PIOS_IBUS_MAX_DEVS           1
+#define PIOS_IBUS_NUM_INPUTS         10
+
+// -------------------------
 // Servo outputs
 // -------------------------
 #define PIOS_SERVO_UPDATE_HZ         50

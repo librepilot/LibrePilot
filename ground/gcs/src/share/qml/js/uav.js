@@ -32,6 +32,7 @@
 .import UAVTalk.TakeOffLocation 1.0 as TakeOffLocation
 
 // Sensors
+.import UAVTalk.AuxMagSettings 1.0 as AuxMagSettings
 .import UAVTalk.FlightBatterySettings 1.0 as FlightBatterySettings
 
 // State
@@ -152,9 +153,15 @@ function isCC3D() {
 }
 
 function frameType() {
-    return ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
+    var frameTypeText = ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
             "Hexa+", "Octo+", "Custom", "HexaX", "HexaH", "OctoV", "OctoCoaxP", "OctoCoaxX", "OctoX", "HexaCoax",
-            "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"][systemSettings.airframeType]
+            "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"];
+
+    if (frameTypeText.length != SystemSettings.SystemSettingsConstants.AirframeTypeCount) {
+        console.log("uav.js: frameType() do not match systemSettings.airframeType uavo");
+        return "FixMe"        
+    }
+    return frameTypeText[systemSettings.airframeType]
 }
 
 function isVtolOrMultirotor() {
@@ -223,12 +230,25 @@ function isOplmConnected() {
 }
 
 function magSourceName() {
-    return [magState.source == MagState.Source.Aux ? ["GPSv9", "Flexi", "I2C", "DJI"][auxMagSettings.type] + " " : ""] +
-           ["Invalid", "OnBoard", "ExtMag"][magState.source];
+    var auxMagTypeText = ["GPSv9", "Flexi", "I2C", "DJI"];
+    var magStateSourceText = ["Invalid", "OnBoard", "ExtMag"];
+
+    if ((auxMagTypeText.length != AuxMagSettings.AuxMagSettingsConstants.TypeCount) ||
+        (magStateSourceText.length != MagState.MagStateConstants.SourceCount)) {
+        console.log("uav.js: magSourceName() do not match magState.source or auxMagSettings.type uavo");
+        return "FixMe"        
+    }
+    return [magState.source == MagState.Source.Aux ? auxMagTypeText[auxMagSettings.type] + " " : ""] + magStateSourceText[magState.source];
 }
 
 function gpsSensorType() {
-    return ["Unknown", "NMEA", "UBX", "UBX7", "UBX8", "DJI"][gpsPositionSensor.sensorType]
+    var gpsSensorTypeText = ["Unknown", "NMEA", "UBX", "UBX7", "UBX8", "DJI"];
+
+    if (gpsSensorTypeText.length != GPSPositionSensor.GPSPositionSensorConstants.SensorTypeCount) {
+        console.log("uav.js: gpsSensorType() do not match gpsPositionSensor.sensorType uavo");
+        return "FixMe"        
+    }
+    return gpsSensorTypeText[gpsPositionSensor.sensorType];
 }
 
 function gpsNumSat() {
@@ -248,11 +268,23 @@ function gpsAltitude() {
 }
 
 function gpsStatus() {
-    return ["NO GPS", "NO FIX", "2D", "3D"][gpsPositionSensor.status];
+    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D"];
+
+    if (gpsStatusText.length != GPSPositionSensor.GPSPositionSensorConstants.StatusCount) {
+        console.log("uav.js: gpsStatus() do not match gpsPositionSensor.status uavo");
+        return "FixMe"        
+    }
+    return gpsStatusText[gpsPositionSensor.status];
 }
 
 function fusionAlgorithm() {
-    return ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"][revoSettings.fusionAlgorithm];
+    var fusionAlgorithmText = ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"];
+
+    if (fusionAlgorithmText.length != RevoSettings.RevoSettingsConstants.FusionAlgorithmCount) {
+        console.log("uav.js: fusionAlgorithm() do not match revoSettings.fusionAlgorithm uavo");
+        return "FixMe"        
+    }
+    return fusionAlgorithmText[revoSettings.fusionAlgorithm];
 }
 
 function receiverQuality() {
@@ -260,7 +292,13 @@ function receiverQuality() {
 }
 
 function oplmLinkState() {
-    return ["Disabled", "Enabled", "Disconnected", "Connecting", "Connected"][opLinkStatus.linkState];
+    var oplmLinkStateText = ["Disabled", "Enabled", "Binding", "Bound", "Disconnected", "Connecting", "Connected"];
+
+    if (oplmLinkStateText.length != OPLinkStatus.OPLinkStatusConstants.LinkStateCount) {
+        console.log("uav.js: oplmLinkState() do not match opLinkStatus.linkState uavo");
+        return "FixMe"        
+    }
+    return oplmLinkStateText[opLinkStatus.linkState];
 }
 
 /*
@@ -305,6 +343,10 @@ function estimatedTimeAlarmColor() {
  * Pathplan and Waypoints
  *
 */
+function isPathPlanEnabled() {
+    return (flightStatus.flightMode == FlightStatus.FlightMode.PathPlanner);
+}
+
 function isPathPlanValid() {
     return (systemAlarms.alarmPathPlan == SystemAlarms.Alarm.OK);
 }
@@ -318,8 +360,14 @@ function isTakeOffLocationValid() {
 }
 
 function pathModeDesired() {
-    return ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE",
-            "SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"][pathDesired.mode]
+    var pathModeDesiredText = ["GOTO ENDPOINT","FOLLOW VECTOR","CIRCLE RIGHT","CIRCLE LEFT","FIXED ATTITUDE",
+                               "SET ACCESSORY","DISARM ALARM","LAND","BRAKE","VELOCITY","AUTO TAKEOFF"];
+
+    if (pathModeDesiredText.length != PathDesired.PathDesiredConstants.ModeCount) {
+        console.log("uav.js: pathModeDesired() do not match pathDesired.mode uavo");
+        return "FixMe"        
+    }
+    return pathModeDesiredText[pathDesired.mode];
 }
 
 function velocityDesiredDown() {
@@ -377,15 +425,27 @@ function isVtolPathFollowerSettingsThrustAuto() {
 }
 
 function flightModeName() {
-    return ["MANUAL", "STAB 1", "STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
-            "POS HOLD", "COURSELOCK", "VEL ROAM", "HOME LEASH", "ABS POS", "RTB",
-            "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF"][flightStatus.flightMode];
+    var flightModeNameText = ["MANUAL", "STAB 1", "STAB 2", "STAB 3", "STAB 4", "STAB 5", "STAB 6",
+                              "POS HOLD", "COURSELOCK", "VEL ROAM", "HOME LEASH", "ABS POS", "RTB",
+                              "LAND", "PATHPLAN", "POI", "AUTOCRUISE", "AUTOTAKEOFF", "AUTOTUNE"];
+
+    if (flightModeNameText.length != FlightStatus.FlightStatusConstants.FlightModeCount) {
+        console.log("uav.js: flightModeName() do not match flightStatus.flightMode uavo");
+        return "FixMe"        
+    }
+    return flightModeNameText[flightStatus.flightMode];
 }
 
 function flightModeColor() {
-    return ["gray", "green", "green", "green", "green", "green", "green",
-            "cyan", "cyan", "cyan", "cyan", "cyan", "cyan",
-            "cyan", "cyan", "cyan", "cyan", "cyan"][flightStatus.flightMode];
+    var flightModeColorText = ["gray", "green", "green", "green", "green", "green", "green",
+                               "cyan", "cyan", "cyan", "cyan", "cyan", "cyan",
+                               "cyan", "cyan", "cyan", "cyan", "cyan", "cyan"];
+
+    if (flightModeColorText.length != FlightStatus.FlightStatusConstants.FlightModeCount) {
+        console.log("uav.js: flightModeColor() do not match flightStatus.flightMode uavo");
+        return "gray"        
+    }
+    return flightModeColorText[flightStatus.flightMode];
 }
 
 function thrustMode() {
@@ -396,23 +456,52 @@ function thrustMode() {
 }
 
 function thrustModeName() {
-    // Last "Auto" Thrust mode is added to UAVO enum list
     // Lower case modes are never displayed/used for Thrust
-    return ["MANUAL", "rate", "ratetrainer", "attitude", "axislock", "weakleveling", "virtualbar", "acro+ ", "rattitude",
-            "ALT HOLD", "ALT VARIO", "CRUISECTRL", "AUTO"][thrustMode()]
+    var thrustModeNameText = ["MANUAL", "rate", "ratetrainer", "attitude", "axislock", "weakleveling", "virtualbar", "acro+ ", "rattitude",
+                              "ALT HOLD", "ALT VARIO", "CRUISECTRL", "systemident"];
+
+    // Last "Auto" Thrust mode is added to current UAVO enum list for display.
+    thrustModeNameText.push("AUTO");
+
+    if (thrustModeNameText.length != StabilizationDesired.StabilizationDesiredConstants.StabilizationModeCount + 1) {
+        console.log("uav.js: thrustModeName() do not match stabilizationDesired.StabilizationMode uavo");
+        return "FixMe"        
+    }
+    return thrustModeNameText[thrustMode()];
 }
 
 function thrustModeColor() {
-    return ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey",
-            "green", "green", "green", "cyan"][thrustMode()];
+    var thrustModeColorText = ["green", "grey", "grey", "grey", "grey", "grey", "grey", "grey", "grey",
+                               "green", "green", "green", "grey"];
+
+    // Add the cyan color for AUTO
+    thrustModeColorText.push("cyan");
+
+    if (thrustModeColorText.length != StabilizationDesired.StabilizationDesiredConstants.StabilizationModeCount + 1) {
+        console.log("uav.js: thrustModeColor() do not match stabilizationDesired.StabilizationMode uavo");
+        return "gray"        
+    }
+    return thrustModeColorText[thrustMode()];
 }
 
 function armStatusName() {
-    return ["DISARMED","ARMING","ARMED"][flightStatus.armed];
+    var armStatusNameText = ["DISARMED","ARMING","ARMED"];
+
+    if (armStatusNameText.length != FlightStatus.FlightStatusConstants.ArmedCount) {
+        console.log("uav.js: armStatusName() do not match flightStatus.armed uavo");
+        return "FixMe"        
+    }
+    return armStatusNameText[flightStatus.armed];
 }
 
 function armStatusColor() {
-    return ["gray", "orange", "green"][flightStatus.armed];
+    var armStatusColorText = ["gray", "orange", "green"];
+
+    if (armStatusColorText.length != FlightStatus.FlightStatusConstants.ArmedCount) {
+        console.log("uav.js: armStatusColor() do not match flightStatus.armed uavo");
+        return "gray"        
+    }
+    return armStatusColorText[flightStatus.armed];
 }
 
 /*

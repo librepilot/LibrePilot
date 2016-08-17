@@ -134,7 +134,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
     }
 
     SvgElementPositionItem {
@@ -143,7 +143,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
 
         Text {
             text: UAV.isPathPlanValid() ? "   " + UAV.waypointHeading().toFixed(1) + "°" : "   0°"
@@ -164,7 +164,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
 
         Text {
             text: UAV.isPathPlanValid() ? "  " + UAV.waypointDistance().toFixed(0) + " m" : "  0 m"
@@ -185,7 +185,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
 
         MouseArea { id: total_dist_mouseArea; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: reset_distance()}
 
@@ -213,7 +213,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
 
         Text {
             text: UAV.isPathPlanValid() ? Utils.estimatedTimeOfArrival(UAV.waypointDistance(), UAV.currentVelocity()) : "00:00:00"
@@ -234,7 +234,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
 
         Text {
             text: UAV.isPathPlanValid() ? UAV.currentWaypointActive() + " / " + UAV.waypointCount() : "0 / 0"
@@ -255,7 +255,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: UAV.isPathPlanValid()
+        visible: UAV.isPathPlanEnabled()
 
         Text {
             text: UAV.isPathPlanValid() ? UAV.pathModeDesired() : ""
@@ -281,7 +281,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
@@ -296,7 +296,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled())
     }
 
     SvgElementPositionItem {
@@ -307,7 +307,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
@@ -334,7 +334,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
@@ -361,7 +361,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanValid() && UAV.batteryModuleEnabled())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled())
 
         Rectangle {
             anchors.fill: parent
@@ -406,7 +406,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: !UAV.isPathPlanValid()
+        visible: !UAV.isPathPlanEnabled()
     }
 
     SvgElementPositionItem {
@@ -415,7 +415,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: !UAV.isPathPlanValid()
+        visible: !UAV.isPathPlanEnabled()
 
         TooltipArea {
             text: "Reset distance counter"

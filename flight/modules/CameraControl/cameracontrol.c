@@ -265,6 +265,7 @@ static void FillActivityInfo()
         activity->TriggerHour   = time.Hour;
         activity->TriggerMinute = time.Minute;
         activity->TriggerSecond = time.Second;
+        activity->TriggerMilliSecond = time.MilliSecond;
     }
         activity->SysTS = PIOS_DELAY_GetuS();
     {
@@ -275,4 +276,5 @@ static void FillActivityInfo()
         activity->Pitch = attitude.Pitch;
         activity->Yaw   = attitude.Yaw;
     }
+
 }

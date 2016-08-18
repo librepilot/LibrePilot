@@ -1,0 +1,19 @@
+<xml>
+    <object name="CameraControlSettings" singleinstance="true" settings="true" category="Control">
+        <description>Settings for the @ref CameraControl module</description>
+        <field name="Input" units="channel" type="enum" elements="1" options="Accessory0,Accessory1,Accessory2,Accessory3,Accessory4,Accessory5,None" defaultvalue="None"/>
+        <field name="AutoTriggerMode" units="mode" type="enum" elements="1" options="Disabled,WhenArmed,Always,Input" defaultvalue="Armed"/>
+        <field name="OutputValues" units="%" type="float" elementnames="Standby,Shot,Video" defaultvalue="0.5,1.0,0" />
+        <field name="TriggerResponseTime" units="ms" type="uint8" elements="1" defaultvalue="0"/>
+        <field name="TimeInterval" units="s" type="float" elements="1" defaultvalue="0"/>
+        <field name="SpaceInterval" units="m" type="float" elements="1" defaultvalue="0"/>
+        <access gcs="readwrite" flight="readwrite"/>
+        <telemetrygcs acked="true" updatemode="onchange" period="0"/>
+        <telemetryflight acked="true" updatemode="onchange" period="0"/>
+        <logging updatemode="manual" period="0"/>
+	</object>
+</xml>
+
+
+
+

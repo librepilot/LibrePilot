@@ -12,6 +12,7 @@
 			<elementname>PathPlanner0</elementname>
 			<elementname>PathPlanner1</elementname>
 			<elementname>ManualControl</elementname>
+			<elementname>CameraControl</elementname>
 		</elementnames>
 	</field> 
 	<field name="Running" units="bool" type="enum">
@@ -25,6 +26,7 @@
 			<elementname>PathPlanner0</elementname>
 			<elementname>PathPlanner1</elementname>
 			<elementname>ManualControl</elementname>
+			<elementname>CameraControl</elementname>
 		</elementnames>
 		<options>
 			<option>False</option>
@@ -42,6 +44,7 @@
 			<elementname>PathPlanner0</elementname>
 			<elementname>PathPlanner1</elementname>
 			<elementname>ManualControl</elementname>
+			<elementname>CameraControl</elementname>
 		</elementnames>
 	</field> 
         <access gcs="readonly" flight="readwrite"/>

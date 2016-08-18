@@ -32,6 +32,7 @@
 			<option>CameraRollOrServo1</option>
 			<option>CameraPitchOrServo2</option>
 			<option>CameraYaw</option>
+			<option>CameraTrigger</option>
 			<option>Accessory0</option>
 			<option>Accessory1</option>
 			<option>Accessory2</option>

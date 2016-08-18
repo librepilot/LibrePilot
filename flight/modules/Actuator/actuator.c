@@ -471,6 +471,9 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                         case MIXERSETTINGS_MIXER1TYPE_CAMERAYAW:
                             status[ct] = cameraDesired.Yaw;
                             break;
+                        case MIXERSETTINGS_MIXER1TYPE_CAMERATRIGGER:
+                            status[ct] = cameraDesired.Trigger;
+                            break;
                         default:
                             break;
                         }

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configinputwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -31,6 +31,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
 #include <utils/stylehelper.h>
+#include <uavobjecthelper.h>
 
 #include "ui_input.h"
 #include "ui_input_wizard.h"
@@ -60,6 +61,9 @@
 #define ACCESS_MAX_MOVE            3
 #define STICK_MIN_MOVE             -8
 #define STICK_MAX_MOVE             8
+
+#define MIN_INPUT_US               100
+#define MAX_INPUT_US               2500
 
 #define CHANNEL_NUMBER_NONE        0
 #define DEFAULT_FLIGHT_MODE_NUMBER 0
@@ -839,6 +843,10 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
                 manualSettingsData.ChannelMax[i] = manualSettingsData.ChannelNeutral[i];
             }
         }
+        UAVObjectUpdaterHelper updateHelper;
+        manualSettingsObj->setData(manualSettingsData, false);
+        updateHelper.doObjectAndWait(manualSettingsObj);
+
         connect(manualCommandObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(identifyLimits()));
         connect(manualCommandObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(moveSticks()));
         connect(flightStatusObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(moveSticks()));
@@ -881,6 +889,8 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
 
 void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
 {
+    UAVObjectUpdaterHelper updateHelper;
+
     Q_ASSERT(step == wizardStep);
     switch (step) {
     case wizardWelcome:
@@ -935,7 +945,8 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
                 manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
             }
         }
-        manualSettingsObj->setData(manualSettingsData);
+        manualSettingsObj->setData(manualSettingsData, false);
+        updateHelper.doObjectAndWait(manualSettingsObj);
         setTxMovement(nothing);
         break;
     case wizardIdentifyLimits:
@@ -943,7 +954,8 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
         disconnect(manualCommandObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(moveSticks()));
         disconnect(flightStatusObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(moveSticks()));
         disconnect(accessoryDesiredObj0, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(moveSticks()));
-        manualSettingsObj->setData(manualSettingsData);
+        manualSettingsObj->setData(manualSettingsData, false);
+        updateHelper.doObjectAndWait(manualSettingsObj);
         setTxMovement(nothing);
         break;
     case wizardIdentifyInverted:
@@ -1178,59 +1190,77 @@ void ConfigInputWidget::identifyControls()
 
 void ConfigInputWidget::identifyLimits()
 {
+    uint16_t inputValue;
+    bool newLimitValue = false;
+    bool newFlightModeValue = false;
+
     manualCommandData = manualCommandObj->getData();
     for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
-        if (manualSettingsData.ChannelMin[i] <= manualSettingsData.ChannelMax[i]) {
-            // Non inverted channel
-            if (manualSettingsData.ChannelMin[i] > manualCommandData.Channel[i]) {
-                manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
+        inputValue = manualCommandData.Channel[i];
+        // Check if channel is already detected and prevent glitches
+        if ((manualSettingsData.ChannelNumber[i] != CHANNEL_NUMBER_NONE) &&
+            (inputValue > MIN_INPUT_US) && (inputValue < MAX_INPUT_US)) {
+            if (manualSettingsData.ChannelMin[i] <= manualSettingsData.ChannelMax[i]) {
+                // Non inverted channel
+                if (manualSettingsData.ChannelMin[i] > inputValue) {
+                    manualSettingsData.ChannelMin[i] = inputValue;
+                    newLimitValue = true;
+                }
+                if (manualSettingsData.ChannelMax[i] < inputValue) {
+                    manualSettingsData.ChannelMax[i] = inputValue;
+                    newLimitValue = true;
+                }
+            } else {
+                // Inverted channel
+                if (manualSettingsData.ChannelMax[i] > inputValue) {
+                    manualSettingsData.ChannelMax[i] = inputValue;
+                    newLimitValue = true;
+                }
+                if (manualSettingsData.ChannelMin[i] < inputValue) {
+                    manualSettingsData.ChannelMin[i] = inputValue;
+                    newLimitValue = true;
+                }
             }
-            if (manualSettingsData.ChannelMax[i] < manualCommandData.Channel[i]) {
-                manualSettingsData.ChannelMax[i] = manualCommandData.Channel[i];
-            }
-        } else {
-            // Inverted channel
-            if (manualSettingsData.ChannelMax[i] > manualCommandData.Channel[i]) {
-                manualSettingsData.ChannelMax[i] = manualCommandData.Channel[i];
-            }
-            if (manualSettingsData.ChannelMin[i] < manualCommandData.Channel[i]) {
-                manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
-            }
-        }
-        // Flightmode channel
-        if (i == ManualControlSettings::CHANNELGROUPS_FLIGHTMODE) {
-            bool newFlightModeValue = true;
-            // Avoid duplicate values too close and error due to RcTx drift
-            int minSpacing = 100; // 100µs
-            for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
-                if (flightModeSignalValue[pos] == 0) {
-                    // A new flightmode value can be set now
-                    for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
-                        // Check if value is already used, MinSpacing needed between values.
-                        if ((flightModeSignalValue[checkpos] < manualCommandData.Channel[i] + minSpacing) &&
-                            (flightModeSignalValue[checkpos] > manualCommandData.Channel[i] - minSpacing)) {
-                            newFlightModeValue = false;
+            // Flightmode channel
+            if (i == ManualControlSettings::CHANNELGROUPS_FLIGHTMODE) {
+                // Avoid duplicate values too close and error due to RcTx drift
+                int minSpacing = 100; // 100µs
+                for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
+                    if (flightModeSignalValue[pos] == 0) {
+                        newFlightModeValue = true;
+                        // A new flightmode value can be set now
+                        for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
+                            // Check if value is already used, MinSpacing needed between values.
+                            if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
+                                (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
+                                newFlightModeValue = false;
+                            }
                         }
-                    }
-                    // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
-                    if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
-                        // Start from 0, erase previous count
-                        if (pos == 0) {
-                            manualSettingsData.FlightModeNumber = 0;
+                        // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
+                        if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
+                            // Start from 0, erase previous count
+                            if (pos == 0) {
+                                manualSettingsData.FlightModeNumber = 0;
+                            }
+                            // Store new value and increase FlightModeNumber
+                            flightModeSignalValue[pos] = inputValue;
+                            manualSettingsData.FlightModeNumber++;
+                            // Show flight mode number
+                            m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
+                            m_txFlightModeCountText->setVisible(true);
+                            m_txFlightModeCountBG->setVisible(true);
                         }
-                        // Store new value and increase FlightModeNumber
-                        flightModeSignalValue[pos] = manualCommandData.Channel[i];
-                        manualSettingsData.FlightModeNumber++;
-                        // Show flight mode number
-                        m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
-                        m_txFlightModeCountText->setVisible(true);
-                        m_txFlightModeCountBG->setVisible(true);
                     }
                 }
             }
         }
     }
-    manualSettingsObj->setData(manualSettingsData);
+    // Save only if something changed
+    if (newLimitValue || newFlightModeValue) {
+        UAVObjectUpdaterHelper updateHelper;
+        manualSettingsObj->setData(manualSettingsData, false);
+        updateHelper.doObjectAndWait(manualSettingsObj);
+    }
 }
 
 void ConfigInputWidget::setMoveFromCommand(int command)
@@ -1671,7 +1701,9 @@ void ConfigInputWidget::invertControls()
             }
         }
     }
-    manualSettingsObj->setData(manualSettingsData);
+    UAVObjectUpdaterHelper updateHelper;
+    manualSettingsObj->setData(manualSettingsData, false);
+    updateHelper.doObjectAndWait(manualSettingsObj);
 }
 
 void ConfigInputWidget::moveFMSlider()
@@ -1922,8 +1954,9 @@ void ConfigInputWidget::updateCalibration()
             }
         }
     }
-
-    manualSettingsObj->setData(manualSettingsData);
+    UAVObjectUpdaterHelper updateHelper;
+    manualSettingsObj->setData(manualSettingsData, false);
+    updateHelper.doObjectAndWait(manualSettingsObj);
     manualSettingsObj->updated();
 }
 
@@ -2067,7 +2100,9 @@ void ConfigInputWidget::resetChannelSettings()
     for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_NUMELEM; channel++) {
         manualSettingsData.ChannelGroups[channel] = ManualControlSettings::CHANNELGROUPS_NONE;
         manualSettingsData.ChannelNumber[channel] = CHANNEL_NUMBER_NONE;
-        manualSettingsObj->setData(manualSettingsData);
+        UAVObjectUpdaterHelper updateHelper;
+        manualSettingsObj->setData(manualSettingsData, false);
+        updateHelper.doObjectAndWait(manualSettingsObj);
     }
     resetFlightModeSettings();
 }
@@ -2076,7 +2111,9 @@ void ConfigInputWidget::resetFlightModeSettings()
 {
     // Reset FlightMode settings
     manualSettingsData.FlightModeNumber = DEFAULT_FLIGHT_MODE_NUMBER;
-    manualSettingsObj->setData(manualSettingsData);
+    UAVObjectUpdaterHelper updateHelper;
+    manualSettingsObj->setData(manualSettingsData, false);
+    updateHelper.doObjectAndWait(manualSettingsObj);
     for (uint8_t pos = 0; pos < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; pos++) {
         flightModeSignalValue[pos] = 0;
     }
@@ -2110,7 +2147,9 @@ void ConfigInputWidget::resetActuatorSettings()
             actuatorSettingsData.ChannelMin[output]     = 1500;
             actuatorSettingsData.ChannelNeutral[output] = 1500;
         }
-        actuatorSettingsObj->setData(actuatorSettingsData);
+        UAVObjectUpdaterHelper updateHelper;
+        actuatorSettingsObj->setData(actuatorSettingsData, false);
+        updateHelper.doObjectAndWait(actuatorSettingsObj);
     }
 }
 

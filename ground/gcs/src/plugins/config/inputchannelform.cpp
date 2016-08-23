@@ -91,8 +91,8 @@ void InputChannelForm::updateNeutralMark()
 
     ui->channelNeutral->setStyleSheet(
         "QSlider::groove:horizontal { border: 1px solid rgb(196, 196, 196); margin: 0px 23px 0px 23px; height: 6px; border-radius: 2px; "
-        "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:" + QString::number(neutralPosition - 0.01) + " transparent, stop:"
-        + QString::number(neutralPosition) + " red, stop:" + QString::number(neutralPosition + 0.01) + " transparent); }"
+        "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:" + QString::number(qBound(0., neutralPosition - 0.01, 1.)) + " transparent, stop:"
+        + QString::number(qBound<double>(0., neutralPosition, 1.)) + " red, stop:" + QString::number(qBound(0., neutralPosition + 0.01, 1.)) + " transparent); }"
         "QSlider::add-page:horizontal { background: rgba(255,255,255,120); border: 1px solid #777; margin: 0px 23px 0px 2px; border-radius: 4px; }"
         "QSlider::sub-page:horizontal { background: rgba(78,147,246,120); border: 1px solid #777; margin: 0px 2px 0px 23px; border-radius: 4px; }"
 

@@ -59,6 +59,7 @@ static struct CameraControl_data {
     CameraStatus outputStatus;
     CameraStatus lastOutputStatus;
     CameraStatus manualInput;
+    CameraStatus lastManualInput;
     bool autoTriggerEnabled;
 } *ccd;
 
@@ -94,6 +95,7 @@ int32_t CameraControlInitialize(void)
         CameraDesiredInitialize();
         CameraControlSettingsInitialize();
         CameraControlSettingsConnectCallback(SettingsUpdateCb);
+
         SettingsUpdateCb(NULL);
 
         // init output:
@@ -119,27 +121,54 @@ MODULE_INITCALL(CameraControlInitialize, CameraControlStart);
 
 static void CameraControlTask()
 {
+    bool trigger = false;
+    PositionStateData pos;
+
     if (checkActivation()) {
-        // Manual override
-        if (ccd->manualInput != CAMERASTATUS_Idle) {
+        if (ccd->manualInput != ccd->lastManualInput && ccd->manualInput != CAMERASTATUS_Idle) {
+            // Manual override
             ccd->outputStatus    = ccd->manualInput;
             ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_MANUAL;
         } else {
             if (ccd->autoTriggerEnabled) {
-                ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTOTIME;
-                ccd->outputStatus    = CAMERASTATUS_Shot;
+                // check trigger conditions
+                if (ccd->settings.TimeInterval > 0) {
+                    if (PIOS_DELAY_DiffuS(ccd->lastTriggerTimeRaw) > ccd->settings.TimeInterval * (1000 * 1000)) {
+                        trigger = true;
+                        ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTOTIME;
+                    }
+                }
+
+                if (ccd->settings.SpaceInterval > 0) {
+                    PositionStateGet(&pos);
+                    float dn = pos.North - ccd->lastTriggerNEDPosition[0];
+                    float de = pos.East - ccd->lastTriggerNEDPosition[1];
+                    float distance = sqrtf((dn * dn) + (de * de));
+                    ccd->activity.TriggerMilliSecond = (int16_t)distance * 10.0f;
+                    if (distance > ccd->settings.SpaceInterval) {
+                        trigger = true;
+                        ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTODISTANCE;
+                    }
+                }
             }
         }
+    }
+    if (trigger) {
+        ccd->outputStatus = CAMERASTATUS_Shot;
+        ccd->lastTriggerTimeRaw = PIOS_DELAY_GetRaw();
+        ccd->lastTriggerNEDPosition[0] = pos.North;
+        ccd->lastTriggerNEDPosition[1] = pos.East;
+        ccd->lastTriggerNEDPosition[2] = pos.Down;
     } else {
         ccd->outputStatus = CAMERASTATUS_Idle;
+        ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_IDLE;
     }
 
-    UpdateOutput();
+    ccd->lastManualInput = ccd->manualInput;
     PublishActivity();
-    ccd->lastOutputStatus = ccd->outputStatus;
+    UpdateOutput();
     PIOS_CALLBACKSCHEDULER_Schedule(ccd->callbackHandle, CALLBACK_STD_PERIOD, CALLBACK_UPDATEMODE_SOONER);
 }
-
 
 static void SettingsUpdateCb(__attribute__((unused)) UAVObjEvent *ev)
 {
@@ -203,7 +232,14 @@ static void UpdateOutput()
     if (ccd->outputStatus != ccd->lastOutputStatus) {
         switch (ccd->outputStatus) {
         case CAMERASTATUS_Idle:
-            CameraDesiredTriggerSet(&ccd->settings.OutputValues.Idle);
+            if (CAMERASTATUS_Shot == ccd->lastOutputStatus) {
+                if (PIOS_DELAY_DiffuS(ccd->lastTriggerTimeRaw) > ccd->settings.TriggerPulseWidth * 1000) {
+                    CameraDesiredTriggerSet(&ccd->settings.OutputValues.Idle);
+                } else {
+                    // skip updating lastOutputStatus until TriggerPulseWidth elapsed
+                    return;
+                }
+            }
             break;
         case CAMERASTATUS_Shot:
             CameraDesiredTriggerSet(&ccd->settings.OutputValues.Shot);
@@ -213,6 +249,7 @@ static void UpdateOutput()
             break;
         }
     }
+    ccd->lastOutputStatus = ccd->outputStatus;
 }
 
 static void PublishActivity()
@@ -223,7 +260,7 @@ static void PublishActivity()
             if (ccd->lastOutputStatus == CAMERASTATUS_Video) {
                 ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_STOPVIDEO;
             } else {
-                ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_NONE;
+                ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_IDLE;
             }
             break;
         case CAMERASTATUS_Shot:
@@ -233,11 +270,12 @@ static void PublishActivity()
             if (ccd->lastOutputStatus != CAMERASTATUS_Video) {
                 ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_STARTVIDEO;
             } else {
-                ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_NONE;
+                ccd->activity.Activity = CAMERACONTROLACTIVITY_ACTIVITY_IDLE;
             }
             break;
         }
-        if (ccd->activity.Activity != CAMERACONTROLACTIVITY_ACTIVITY_NONE) {
+        if (ccd->activity.Activity != CAMERACONTROLACTIVITY_ACTIVITY_IDLE
+            || ccd->lastOutputStatus != CAMERASTATUS_Shot) {
             FillActivityInfo();
             CameraControlActivitySet(&ccd->activity);
         }
@@ -251,9 +289,9 @@ static void FillActivityInfo()
         PositionStateData position;
         PositionStateGet(&position);
 
-        activity->Latitude  = position.North;
-        activity->Longitude = position.East;
-        activity->Altitude  = -position.Down;
+        activity->Latitude  = position.North * 1e3f;
+        activity->Longitude = position.East * 1e3f;
+        activity->Altitude  = -position.Down * 1e3f;
     }
     {
         GPSTimeData time;
@@ -267,7 +305,8 @@ static void FillActivityInfo()
         activity->TriggerSecond = time.Second;
         activity->TriggerMilliSecond = time.MilliSecond;
     }
-        activity->SysTS = PIOS_DELAY_GetuS();
+
+    activity->SysTS = PIOS_DELAY_GetuS();
     {
         AttitudeStateData attitude;
         AttitudeStateGet(&attitude);
@@ -276,5 +315,4 @@ static void FillActivityInfo()
         activity->Pitch = attitude.Pitch;
         activity->Yaw   = attitude.Yaw;
     }
-
 }

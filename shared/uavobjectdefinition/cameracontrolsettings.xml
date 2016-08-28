@@ -6,7 +6,7 @@
         <field name="AutoTriggerMode" units="mode" type="enum" elements="1" options="Disabled,WhenArmed,Always,Input,Mission" defaultvalue="WhenArmed"/>
         <field name="OutputValues" units="%" type="float" elementnames="Idle,Shot,Video" defaultvalue="0,-1,1" />
         <field name="InputValues" units="%" type="float" elementnames="Idle,Shot,Video" defaultvalue="0,-1,1" />
-        <field name="TriggerResponseTime" units="ms" type="uint8" elements="1" defaultvalue="0"/>
+        <field name="TriggerPulseWidth" units="ms" type="uint8" elements="1" defaultvalue="50"/>
         <field name="TimeInterval" units="s" type="float" elements="1" defaultvalue="0"/>
         <field name="SpaceInterval" units="m" type="float" elements="1" defaultvalue="0"/>
         <access gcs="readwrite" flight="readwrite"/>

@@ -165,7 +165,8 @@ endif
 BUILD_SDK_TARGETS := arm_sdk
 ifeq ($(UNAME), Windows)
     BUILD_SDK_TARGETS += nsis mesawin
-else
+endif
+ifeq ($(UNAME), Darwin)
     BUILD_SDK_TARGETS += qt_sdk osg
 endif
 ALL_SDK_TARGETS := $(BUILD_SDK_TARGETS) gtest uncrustify doxygen
@@ -829,7 +830,7 @@ ifeq ($(shell [ -d "$(OSG_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export OSG_SDK_DIR := $(OSG_SDK_DIR)
 else
     # not installed, hope it's in the path...
-    $(info $(EMPTY) WARNING     $(call toprel, $(OSG_SDK_DIR)) not found (make osg_install), using system PATH)
+    # $(info $(EMPTY) WARNING     $(call toprel, $(OSG_SDK_DIR)) not found (make osg_install), using system PATH)
 endif
 
 .PHONY: osg_version
@@ -852,7 +853,7 @@ ifeq ($(shell [ -d "$(OSGEARTH_SDK_DIR)" ] && $(ECHO) "exists"), exists)
     export OSGEARTH_SDK_DIR := $(OSGEARTH_SDK_DIR)
 else
     # not installed, hope it's in the path...
-    $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_SDK_DIR)) not found (make osgearth_install), using system PATH)
+    # $(info $(EMPTY) WARNING     $(call toprel, $(OSGEARTH_SDK_DIR)) not found (make osgearth_install), using system PATH)
 endif
 
 .PHONY: osgearth_version

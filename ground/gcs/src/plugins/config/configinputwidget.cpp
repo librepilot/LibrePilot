@@ -203,6 +203,10 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(wizardUi->wzCancel, SIGNAL(clicked()), this, SLOT(wzCancel()));
     connect(wizardUi->wzBack, SIGNAL(clicked()), this, SLOT(wzBack()));
 
+    connect(ReceiverActivity::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+    ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
+                                               border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+
     ui->stackedWidget->setCurrentIndex(0);
     QList<QWidget *> widgets = QList<QWidget *>() << ui->fmsModePos1 << ui->fmsModePos2 << ui->fmsModePos3 <<
                                ui->fmsModePos4 << ui->fmsModePos5 << ui->fmsModePos6;
@@ -2115,6 +2119,32 @@ void ConfigInputWidget::forceOneFlightMode()
     manualSettingsData = manualSettingsObj->getData();
     manualSettingsData.FlightModeNumber = 1;
     manualSettingsObj->setData(manualSettingsData);
+}
+
+void ConfigInputWidget::updateReceiverActivityStatus()
+{
+    ReceiverActivity *receiverActivity = ReceiverActivity::GetInstance(getObjectManager());
+
+    Q_ASSERT(receiverActivity);
+
+    UAVObjectField *activeGroup   = receiverActivity->getField(QString("ActiveGroup"));
+    Q_ASSERT(activeGroup);
+
+    UAVObjectField *activeChannel = receiverActivity->getField(QString("ActiveChannel"));
+    Q_ASSERT(activeChannel);
+
+    QString activeGroupText   = activeGroup->getValue().toString();
+    QString activeChannelText = activeChannel->getValue().toString();
+
+    if (activeGroupText != "None") {
+        ui->receiverActivityStatus->setText(tr("%1 input - Channel %2").arg(activeGroupText).arg(activeChannelText));
+        ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
+                                                   border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+    } else {
+        ui->receiverActivityStatus->setText(tr("No activity"));
+        ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
+                                                   border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+    }
 }
 
 void ConfigInputWidget::failsafeFlightModeChanged(int index)

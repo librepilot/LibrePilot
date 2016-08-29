@@ -197,6 +197,9 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addWidgetBinding("AttitudeSettings", "BoardRotation", m_ui->yawRotation, AttitudeSettings::BOARDROTATION_YAW);
     addWidgetBinding("AttitudeSettings", "AccelTau", m_ui->accelTau);
 
+    addWidgetBinding("AttitudeSettings", "ZeroDuringArming", m_ui->zeroGyroBiasOnArming);
+    addWidgetBinding("AttitudeSettings", "InitialZeroWhenBoardSteady", m_ui->initGyroWhenBoardSteady);
+
     addWidgetBinding("AuxMagSettings", "Usage", m_ui->auxMagUsage, 0, 1, true);
     addWidgetBinding("AuxMagSettings", "Type", m_ui->auxMagType, 0, 1, true);
 

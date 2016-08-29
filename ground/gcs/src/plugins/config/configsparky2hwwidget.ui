@@ -377,38 +377,12 @@
                  <item>
                   <widget class="QComboBox" name="cbMainGPSSpeed"/>
                  </item>
-                 <item>
-                  <widget class="QComboBox" name="cbMainComSpeed"/>
-                 </item>
                 </layout>
                </item>
               </layout>
              </item>
-             <item row="16" column="0">
-              <widget class="QComboBox" name="cbUSBVCPSpeed">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
              <item row="12" column="0">
               <widget class="QComboBox" name="cbUSBHIDFunction"/>
-             </item>
-             <item row="15" column="0" alignment="Qt::AlignHCenter">
-              <widget class="QLabel" name="lblUSBVCPSpeed">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Speed</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-               </property>
-              </widget>
              </item>
              <item row="13" column="0" alignment="Qt::AlignHCenter">
               <widget class="QLabel" name="label_8">
@@ -503,13 +477,6 @@
                </item>
                <item>
                 <widget class="QComboBox" name="cbFlexiGPSSpeed"/>
-               </item>
-               <item>
-                <widget class="QComboBox" name="cbFlexiComSpeed">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                </widget>
                </item>
               </layout>
              </item>

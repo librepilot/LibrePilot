@@ -42,8 +42,9 @@
 
 static void com2UsbBridgeTask(void *parameters);
 static void usb2ComBridgeTask(void *parameters);
-static void updateSettings(UAVObjEvent *ev);
 static void usb2ComBridgeSetCtrlLine(uint32_t com_id, uint32_t mask, uint32_t state);
+static void usb2ComBridgeSetBaudRate(uint32_t com_id, uint32_t baud);
+
 
 // ****************
 // Private constants
@@ -105,6 +106,9 @@ static int32_t comUsbBridgeInitialize(void)
         PIOS_COM_RegisterCtrlLineCallback(vcp_port,
                                           usb2ComBridgeSetCtrlLine,
                                           usart_port);
+        PIOS_COM_RegisterBaudRateCallback(vcp_port,
+                                          usb2ComBridgeSetBaudRate,
+                                          usart_port);
     }
 
 #ifdef MODULE_COMUSBBRIDGE_BUILTIN
@@ -127,8 +131,6 @@ static int32_t comUsbBridgeInitialize(void)
         PIOS_Assert(com2usb_buf);
         usb2com_buf = pios_malloc(BRIDGE_BUF_LEN);
         PIOS_Assert(usb2com_buf);
-        HwSettingsConnectCallback(&updateSettings);
-        updateSettings(0);
     }
 
     return 0;
@@ -186,36 +188,7 @@ static void usb2ComBridgeSetCtrlLine(uint32_t com_id, uint32_t mask, uint32_t st
     PIOS_COM_SetCtrlLine(com_id, mask, state);
 }
 
-static void updateSettings(__attribute__((unused)) UAVObjEvent *ev)
+static void usb2ComBridgeSetBaudRate(uint32_t com_id, uint32_t baud)
 {
-    if (usart_port) {
-        // Retrieve settings
-        uint8_t speed;
-        HwSettingsComUsbBridgeSpeedGet(&speed);
-
-        // Set port speed
-        switch (speed) {
-        case HWSETTINGS_COMUSBBRIDGESPEED_2400:
-            PIOS_COM_ChangeBaud(usart_port, 2400);
-            break;
-        case HWSETTINGS_COMUSBBRIDGESPEED_4800:
-            PIOS_COM_ChangeBaud(usart_port, 4800);
-            break;
-        case HWSETTINGS_COMUSBBRIDGESPEED_9600:
-            PIOS_COM_ChangeBaud(usart_port, 9600);
-            break;
-        case HWSETTINGS_COMUSBBRIDGESPEED_19200:
-            PIOS_COM_ChangeBaud(usart_port, 19200);
-            break;
-        case HWSETTINGS_COMUSBBRIDGESPEED_38400:
-            PIOS_COM_ChangeBaud(usart_port, 38400);
-            break;
-        case HWSETTINGS_COMUSBBRIDGESPEED_57600:
-            PIOS_COM_ChangeBaud(usart_port, 57600);
-            break;
-        case HWSETTINGS_COMUSBBRIDGESPEED_115200:
-            PIOS_COM_ChangeBaud(usart_port, 115200);
-            break;
-        }
-    }
+    PIOS_COM_ChangeBaud(com_id, baud);
 }

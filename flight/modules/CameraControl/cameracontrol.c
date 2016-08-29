@@ -141,7 +141,8 @@ static void CameraControlTask()
     if (checkActivation()) {
         if (ccd->manualInput != ccd->lastManualInput && ccd->manualInput != CAMERASTATUS_Idle) {
             // Manual override
-            ccd->outputStatus    = ccd->manualInput;
+            trigger = true;
+            ccd->outputStatus = ccd->manualInput;
             ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_MANUAL;
         } else {
             if (ccd->autoTriggerEnabled) {
@@ -264,7 +265,6 @@ static void UpdateOutput()
         }
     }
     ccd->lastOutputStatus = ccd->outputStatus;
-
 }
 
 static void PublishActivity()

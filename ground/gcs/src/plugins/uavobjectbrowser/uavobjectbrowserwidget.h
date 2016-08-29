@@ -90,10 +90,7 @@ public:
     void setSplitterState(QByteArray state);
 
 public slots:
-    void showMetaData(bool show);
     void showDescription(bool show);
-    void categorize(bool categorize);
-    void useScientificNotation(bool scientific);
 
 private slots:
     void sendUpdate();
@@ -103,7 +100,7 @@ private slots:
     void eraseObject();
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
     void viewSlot();
-    void viewOptionsChangedSlot();
+    void updateViewOptions();
     void searchLineChanged(QString searchText);
     void searchTextCleared();
     void splitterMoved();

@@ -37,10 +37,11 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QDebug>
 
-UAVObjectTreeModel::UAVObjectTreeModel(QObject *parent, bool categorize, bool useScientificNotation) :
+UAVObjectTreeModel::UAVObjectTreeModel(QObject *parent, bool categorize, bool showMetadata, bool useScientificNotation) :
     QAbstractItemModel(parent),
-    m_useScientificFloatNotation(useScientificNotation),
     m_categorize(categorize),
+    m_showMetadata(showMetadata),
+    m_useScientificFloatNotation(useScientificNotation),
     m_recentlyUpdatedTimeout(500), // ms
     m_recentlyUpdatedColor(QColor(255, 230, 230)),
     m_manuallyChangedColor(QColor(230, 230, 255)),
@@ -124,9 +125,11 @@ void UAVObjectTreeModel::addDataObject(UAVDataObject *obj)
         connect(dataTreeItem, SIGNAL(updateIsKnown(TreeItem *)), this, SLOT(updateIsKnown(TreeItem *)));
         parent->insertChild(dataTreeItem);
         root->addObjectTreeItem(obj->getObjID(), dataTreeItem);
-        UAVMetaObject *meta = obj->getMetaObject();
-        MetaObjectTreeItem *metaTreeItem = addMetaObject(meta, dataTreeItem);
-        root->addMetaObjectTreeItem(meta->getObjID(), metaTreeItem);
+        if (m_showMetadata) {
+            UAVMetaObject *meta = obj->getMetaObject();
+            MetaObjectTreeItem *metaTreeItem = addMetaObject(meta, dataTreeItem);
+            root->addMetaObjectTreeItem(meta->getObjID(), metaTreeItem);
+        }
         addInstance(obj, dataTreeItem);
     }
 }

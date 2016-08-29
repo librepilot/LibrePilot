@@ -48,7 +48,8 @@ class QTimer;
 class UAVObjectTreeModel : public QAbstractItemModel {
     Q_OBJECT
 public:
-    explicit UAVObjectTreeModel(QObject *parent = 0, bool categorize = false, bool useScientificNotation = false);
+    explicit UAVObjectTreeModel(QObject *parent, bool categorize, bool showMetadata, bool useScientificNotation);
+    explicit UAVObjectTreeModel(bool categorize, bool showMetadata, bool useScientificNotation);
     ~UAVObjectTreeModel();
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -116,8 +117,9 @@ private:
     TreeItem *m_rootItem;
     TopTreeItem *m_settingsTree;
     TopTreeItem *m_nonSettingsTree;
-    bool m_useScientificFloatNotation;
     bool m_categorize;
+    bool m_showMetadata;
+    bool m_useScientificFloatNotation;
     int m_recentlyUpdatedTimeout;
     QColor m_recentlyUpdatedColor;
     QColor m_manuallyChangedColor;

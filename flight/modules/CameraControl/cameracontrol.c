@@ -30,6 +30,7 @@
 
 #include <openpilot.h>
 #include "inc/cameracontrol.h"
+#include <CoordinateConversions.h>
 #include <cameradesired.h>
 #include <cameracontrolsettings.h>
 #include <cameracontrolactivity.h>
@@ -38,6 +39,7 @@
 #include <callbackinfo.h>
 #include <flightstatus.h>
 #include <gpstime.h>
+#include <homelocation.h>
 #include <hwsettings.h>
 #include <positionstate.h>
 #include <velocitystate.h>
@@ -60,7 +62,9 @@ static struct CameraControl_data {
     CameraStatus lastOutputStatus;
     CameraStatus manualInput;
     CameraStatus lastManualInput;
-    bool autoTriggerEnabled;
+    bool  autoTriggerEnabled;
+    float HomeECEF[3];
+    float HomeRne[3][3];
 } *ccd;
 
 #define CALLBACK_PRIORITY   CALLBACK_PRIORITY_REGULAR
@@ -71,6 +75,7 @@ static struct CameraControl_data {
 
 static void CameraControlTask();
 static void SettingsUpdateCb(__attribute__((unused)) UAVObjEvent *ev);
+static void HomeLocationUpdateCb(__attribute__((unused)) UAVObjEvent *ev);
 static void UpdateOutput();
 static void PublishActivity();
 static bool checkActivation();
@@ -95,8 +100,17 @@ int32_t CameraControlInitialize(void)
         CameraDesiredInitialize();
         CameraControlSettingsInitialize();
         CameraControlSettingsConnectCallback(SettingsUpdateCb);
+        HomeLocationInitialize();
+        HomeLocationConnectCallback(HomeLocationUpdateCb);
+        GPSTimeInitialize();
+        PositionStateInitialize();
+        AttitudeStateInitialize();
+        AccessoryDesiredInitialize();
+        FlightStatusInitialize();
+
 
         SettingsUpdateCb(NULL);
+        HomeLocationUpdateCb(NULL);
 
         // init output:
         ccd->outputStatus = CAMERASTATUS_Idle;
@@ -250,6 +264,7 @@ static void UpdateOutput()
         }
     }
     ccd->lastOutputStatus = ccd->outputStatus;
+
 }
 
 static void PublishActivity()
@@ -288,10 +303,17 @@ static void FillActivityInfo()
     {
         PositionStateData position;
         PositionStateGet(&position);
+        int32_t LLAi[3];
+        const float pos[3] = {
+            position.North,
+            position.East,
+            position.Down
+        };
+        Base2LLA(pos, ccd->HomeECEF, ccd->HomeRne, LLAi);
 
-        activity->Latitude  = position.North * 1e3f;
-        activity->Longitude = position.East * 1e3f;
-        activity->Altitude  = -position.Down * 1e3f;
+        activity->Latitude  = LLAi[0];
+        activity->Longitude = LLAi[1];
+        activity->Altitude  = ((float)LLAi[2]) * 1e-4f;
     }
     {
         GPSTimeData time;
@@ -315,4 +337,19 @@ static void FillActivityInfo()
         activity->Pitch = attitude.Pitch;
         activity->Yaw   = attitude.Yaw;
     }
+}
+
+static void HomeLocationUpdateCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    HomeLocationData home;
+
+    HomeLocationGet(&home);
+
+    int32_t LLAi[3] = {
+        home.Latitude,
+        home.Longitude,
+        home.Altitude
+    };
+    LLA2ECEF(LLAi, ccd->HomeECEF);
+    RneFromLLA(LLAi, ccd->HomeRne);
 }

@@ -137,6 +137,7 @@ static void CameraControlTask()
 {
     bool trigger = false;
     PositionStateData pos;
+    uint32_t timeSinceLastShot = PIOS_DELAY_DiffuS(ccd->lastTriggerTimeRaw);
 
     if (checkActivation()) {
         if (ccd->manualInput != ccd->lastManualInput && ccd->manualInput != CAMERASTATUS_Idle) {
@@ -145,10 +146,12 @@ static void CameraControlTask()
             ccd->outputStatus = ccd->manualInput;
             ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_MANUAL;
         } else {
-            if (ccd->autoTriggerEnabled) {
+            // MinimumTimeInterval sets a hard limit on time between two consecutive shots, i.e. the minimum time between shots the camera can achieve
+            if (ccd->autoTriggerEnabled &&
+                timeSinceLastShot > (ccd->settings.MinimumTimeInterval * 1000 * 1000)) {
                 // check trigger conditions
                 if (ccd->settings.TimeInterval > 0) {
-                    if (PIOS_DELAY_DiffuS(ccd->lastTriggerTimeRaw) > ccd->settings.TimeInterval * (1000 * 1000)) {
+                    if (timeSinceLastShot > ccd->settings.TimeInterval * (1000 * 1000)) {
                         trigger = true;
                         ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTOTIME;
                     }

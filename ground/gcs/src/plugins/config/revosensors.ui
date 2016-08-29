@@ -594,7 +594,7 @@ p, li { white-space: pre-wrap; }
             <item row="0" column="0" colspan="6">
              <widget class="QLabel" name="label_11">
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This information must be set to enable calibration the Revolution controllers sensors. &lt;br/&gt;Set home location using context menu in the map widget.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This information must be set to enable calibration the Revolution controller's sensors. &lt;br/&gt;Set home location using context menu in the map widget.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -897,7 +897,7 @@ font:bold;</string>
                <widget class="QCheckBox" name="zeroGyroBiasOnArming">
                 <property name="toolTip">
                  <string>If enabled, a fast recalibration of gyro zero point will be done
-whenever the frame is armed. Do not move the airframe while
+whenever the board is armed. Do not move the vehicle while
 arming it in that case!</string>
                 </property>
                 <property name="text">
@@ -908,10 +908,10 @@ arming it in that case!</string>
               <item row="1" column="0">
                <widget class="QCheckBox" name="initGyroWhenBoardSteady">
                 <property name="toolTip">
-                 <string>If enabled, this option prevent gyro initialisation while the board is moving.</string>
+                 <string>If enabled, this option prevents gyro initialization while the board is moving.</string>
                 </property>
                 <property name="text">
-                 <string>Wait the board is steady</string>
+                 <string>Wait until the board is steady</string>
                 </property>
                </widget>
               </item>

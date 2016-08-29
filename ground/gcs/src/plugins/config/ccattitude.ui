@@ -299,7 +299,7 @@ font:bold;</string>
                 <item>
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Place aircraft very flat, and then click level to compute the accelerometer and gyro bias</string>
+                   <string>Place vehicle very flat, and then click level to compute the accelerometer and gyro bias</string>
                   </property>
                   <property name="wordWrap">
                    <bool>true</bool>
@@ -371,10 +371,10 @@ font:bold;</string>
                 <item>
                  <widget class="QCheckBox" name="initGyroWhenBoardSteady">
                   <property name="toolTip">
-                   <string>If enabled, this option prevent gyro initialisation while the board is moving.</string>
+                   <string>If enabled, this option prevents gyro initialization while the board is moving.</string>
                   </property>
                   <property name="text">
-                   <string>Wait the board is steady</string>
+                   <string>Wait until the board is steady</string>
                   </property>
                  </widget>
                 </item>
@@ -399,7 +399,7 @@ font:bold;</string>
                  <widget class="QCheckBox" name="zeroGyroBiasOnArming">
                   <property name="toolTip">
                    <string>If enabled, a fast recalibration of gyro zero point will be done
-whenever the frame is armed. Do not move the airframe while
+whenever the board is armed. Do not move the vehicle while
 arming it in that case!</string>
                   </property>
                   <property name="text">

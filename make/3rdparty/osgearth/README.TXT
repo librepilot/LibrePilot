@@ -65,7 +65,43 @@ Building
 $ make all_osg
 
 This will:
-- clone git repositories in ./3rdparty
+- clone osg and osgearth git repositories in ./3rdparty
 - build osg and osgEarth libraries in ./build/3rdparty
-- install osg in ./build/3rdparty/install
 - create distribution files (tar & md5) in ./build/3rdparty/install
+
+Installing
+----------------------------------
+
+Copy the built osg and osgearth libraries into the tools directory:
+
+cp -R build/3rdparty/install/osg*[.0-9][0-9] tools/
+
+Configure LibrePilot GCS to use osg and osgearth:
+
+echo "override GCS_EXTRA_CONF=osg osgearth copy_osg" > config
+
+You'll then need to do a full rebuild of LibrePilot GCS.
+
+Building LibrePilot GCS
+----------------------------------
+
+Clean and build all
+
+make clean
+make -j8 all
+
+Replace the 8 in "-j8" with the number of CPU cores your PC has (maybe one more or less than your PC has).
+
+Running LibrePilot GCS
+----------------------------------
+
+Start LibrePilot GCS with:
+
+./build/librepilot-gcs_release/bin/librepilot-gcs -reset &
+
+Only use the -reset option once (if at all).
+It will reset your LibrePilot GCS setup to factory defaults which is necessary to see new gadget configuration options.
+Your setup for workspaces, gadgets, scopes, etc.  will be lost.
+
+In LibrePilot GCS, go to the Flight data workspace and use menu Window/Edit Gadgets Mode,
+Select PFD gadget in one of the gadget panes and choose the PFD (ArcGis) or PFD (ReadyMap) configuration.

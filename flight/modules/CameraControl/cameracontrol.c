@@ -331,7 +331,7 @@ static void FillActivityInfo()
         activity->TriggerMilliSecond = time.MilliSecond;
     }
 
-    activity->SysTS = PIOS_DELAY_GetuS();
+    activity->SystemTS = xTaskGetTickCount() * portTICK_RATE_MS;
     {
         AttitudeStateData attitude;
         AttitudeStateGet(&attitude);

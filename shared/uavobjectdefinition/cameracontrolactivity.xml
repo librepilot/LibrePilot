@@ -16,7 +16,7 @@
         <field name="TriggerMilliSecond" units="" type="int16" elements="1"/>
         <field name="Activity" units="" type="enum" elements="1" options="Idle,TriggerPicture,StartVideo,StopVideo" default="None"/>
         <field name="Reason" units="" type="enum" elements="1" options="Manual,AutoDistance,AutoTime" default="Manual"/>
-        <field name="SysTS" units="us" type="uint32" elements="1"/>
+        <field name="SystemTS" units="ms" type="uint32" elements="1"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
         <telemetryflight acked="false" updatemode="periodic" period="1000"/>

@@ -327,6 +327,27 @@ static void PIOS_Board_configure_srxl(const struct pios_usart_cfg *usart_cfg)
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
 }
 
+static void PIOS_Board_configure_ibus(const struct pios_usart_cfg *usart_cfg)
+{
+    uint32_t pios_usart_ibus_id;
+
+    if (PIOS_USART_Init(&pios_usart_ibus_id, usart_cfg)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_ibus_id;
+    if (PIOS_IBUS_Init(&pios_ibus_id, &pios_usart_com_driver, pios_usart_ibus_id)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_ibus_rcvr_id;
+    if (PIOS_RCVR_Init(&pios_ibus_rcvr_id, &pios_ibus_rcvr_driver, pios_ibus_id)) {
+        PIOS_Assert(0);
+    }
+
+    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_IBUS] = pios_ibus_rcvr_id;
+}
+
 
 static void PIOS_Board_configure_exbus(const struct pios_usart_cfg *usart_cfg)
 {
@@ -580,6 +601,12 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_SRXL)
         PIOS_Board_configure_srxl(&pios_usart_srxl_flexi_cfg);
 #endif /* PIOS_INCLUDE_SRXL */
+        break;
+
+    case HWSETTINGS_SPK2_FLEXIPORT_IBUS:
+#if defined(PIOS_INCLUDE_IBUS)
+        PIOS_Board_configure_ibus(&pios_usart_ibus_flexi_cfg);
+#endif /* PIOS_INCLUDE_IBUS */
         break;
 
     case HWSETTINGS_SPK2_FLEXIPORT_HOTTSUMD:
@@ -926,7 +953,7 @@ void PIOS_Board_Init(void)
 
     // Configure the receiver port
     // Sparky2 receiver input on PC7 TIM8 CH2
-    // include PPM,S.Bus,DSM,SRXL,EX.Bus,HoTT SUMD,HoTT SUMH
+    // include PPM,S.Bus,DSM,SRXL,IBus,EX.Bus,HoTT SUMD,HoTT SUMH
     uint8_t hwsettings_rcvrport;
     HwSettingsSPK2_RcvrPortGet(&hwsettings_rcvrport);
 
@@ -961,6 +988,11 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_SRXL)
         PIOS_Board_configure_srxl(&pios_usart_srxl_rcvr_cfg);
 #endif /* PIOS_INCLUDE_SRXL */
+        break;
+    case HWSETTINGS_SPK2_RCVRPORT_IBUS:
+#if defined(PIOS_INCLUDE_IBUS)
+        PIOS_Board_configure_ibus(&pios_usart_ibus_rcvr_cfg);
+#endif /* PIOS_INCLUDE_IBUS */
         break;
     case HWSETTINGS_SPK2_RCVRPORT_HOTTSUMD:
     case HWSETTINGS_SPK2_RCVRPORT_HOTTSUMH:

@@ -25,7 +25,7 @@ BuildRequires:  qt5-qtsvg-devel
 BuildRequires:  qt5-qttools-devel
 BuildRequires:  qt5-qttranslations
 BuildRequires:  OpenSceneGraph-devel
-%{!?fc22:BuildRequires:  osgearth-devel}
+BuildRequires:  osgearth-devel
 BuildRequires:  dwz
 BuildRequires:  pkgconfig
 BuildRequires:  python
@@ -41,7 +41,7 @@ Requires:       qt5-qtscript
 Requires:       qt5-qtserialport
 Requires:       qt5-qtsvg
 Requires:       OpenSceneGraph-libs
-%{!?fc22:Requires:  osgearth}
+Requires:       osgearth
 
 
 %description
@@ -59,8 +59,7 @@ make config_new                             \
     prefix=%{_prefix}                       \
     QMAKE=qmake-qt5                         \
     udevrulesdir=%{_udevrulesdir}           \
-    WITH_PREBUILT_FW=$(pwd)/build/firmware  \
-    GCS_EXTRA_CONF='osg%{!?fc22: osgearth}'
+    WITH_PREBUILT_FW=$(pwd)/build/firmware
 
 make %{?_smp_mflags} opfw_resource gcs
 

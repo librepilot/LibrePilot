@@ -213,6 +213,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::INPUT_EXBUS:
             elementsToShow << QString("%1exbus").arg(prefix);
             break;
+        case VehicleConfigurationSource::INPUT_IBUS:
+            elementsToShow << QString("%1ibus").arg(prefix);
+            break;
         default:
             break;
         }

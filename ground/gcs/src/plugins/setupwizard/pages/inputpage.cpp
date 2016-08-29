@@ -69,6 +69,8 @@ bool InputPage::validatePage()
         getWizard()->setInputType(SetupWizard::INPUT_HOTT_SUMD);
     } else if (ui->jetiButton->isChecked()) {
         getWizard()->setInputType(SetupWizard::INPUT_EXBUS);
+    } else if (ui->flyskyButton->isChecked()) {
+        getWizard()->setInputType(SetupWizard::INPUT_IBUS);
     } else if (ui->spectrumButton->isChecked()) {
         getWizard()->setInputType(SetupWizard::INPUT_DSM);
     } else if (ui->multiplexButton->isChecked()) {
@@ -112,6 +114,9 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
         case VehicleConfigurationSource::INPUT_EXBUS:
             return data.CC_FlexiPort != HwSettings::CC_FLEXIPORT_EXBUS;
 
+        case VehicleConfigurationSource::INPUT_IBUS:
+            return data.CC_FlexiPort != HwSettings::CC_FLEXIPORT_IBUS;
+
         case VehicleConfigurationSource::INPUT_DSM:
             // TODO: Handle all of the DSM types ?? Which is most common?
             return data.CC_MainPort != HwSettings::CC_MAINPORT_DSM;
@@ -139,6 +144,9 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
 
         case VehicleConfigurationSource::INPUT_EXBUS:
             return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_EXBUS;
+
+        case VehicleConfigurationSource::INPUT_IBUS:
+            return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_IBUS;
 
         case VehicleConfigurationSource::INPUT_SRXL:
             return data.RM_FlexiPort != HwSettings::RM_FLEXIPORT_SRXL;
@@ -172,6 +180,9 @@ bool InputPage::restartNeeded(VehicleConfigurationSource::INPUT_TYPE selectedTyp
 
         case VehicleConfigurationSource::INPUT_EXBUS:
             return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_EXBUS;
+
+        case VehicleConfigurationSource::INPUT_IBUS:
+            return data.SPK2_RcvrPort != HwSettings::SPK2_RCVRPORT_IBUS;
 
         default: return true;
         }

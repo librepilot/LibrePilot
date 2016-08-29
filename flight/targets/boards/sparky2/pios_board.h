@@ -290,6 +290,12 @@ extern uint32_t pios_packet_handler;
 #define PIOS_DSM_NUM_INPUTS          12
 
 // -------------------------
+// Receiver FlySky IBus input
+// -------------------------
+#define PIOS_IBUS_MAX_DEVS           1
+#define PIOS_IBUS_NUM_INPUTS         10
+
+// -------------------------
 // Servo outputs
 // -------------------------
 #define PIOS_SERVO_UPDATE_HZ         50
@@ -304,13 +310,14 @@ extern uint32_t pios_packet_handler;
 // ADC
 // PIOS_ADC_PinGet(0) = Current sensor
 // PIOS_ADC_PinGet(1) = Voltage sensor
-// PIOS_ADC_PinGet(4) = VREF
-// PIOS_ADC_PinGet(5) = Temperature sensor
+// PIOS_ADC_PinGet(7) = VREF
+// PIOS_ADC_PinGet(8) = Temperature sensor
 // -------------------------
 #define PIOS_DMA_PIN_CONFIG                            \
     {                                                  \
-        { GPIOC, GPIO_Pin_3, ADC_Channel_13, false }, /* batt/sonar pin 3   */  \
-        { GPIOC, GPIO_Pin_2, ADC_Channel_12, false }, /* batt/sonar pin 4   */  \
+        { GPIOC, GPIO_Pin_2, ADC_Channel_12, false }, /* Analog port pin 3   */  \
+        { GPIOC, GPIO_Pin_3, ADC_Channel_13, false }, /* Analog port pin 4   */  \
+        { GPIOA, GPIO_Pin_4, ADC_Channel_4, false }, /* Analog port pin2 (DAC)  */  \
         { GPIOA, GPIO_Pin_3, ADC_Channel_3, false }, /* Servo pin 3        */  \
         { GPIOA, GPIO_Pin_2, ADC_Channel_2, false }, /* Servo pin 4        */  \
         { GPIOA, GPIO_Pin_1, ADC_Channel_1, false }, /* Servo pin 5        */  \
@@ -322,12 +329,12 @@ extern uint32_t pios_packet_handler;
 /* we have to do all this to satisfy the PIOS_ADC_MAX_SAMPLES define in pios_adc.h */
 /* which is annoying because this then determines the rate at which we generate buffer turnover events */
 /* the objective here is to get enough buffer space to support 100Hz averaging rate */
-#define PIOS_ADC_NUM_CHANNELS     8
+#define PIOS_ADC_NUM_CHANNELS     9
 #define PIOS_ADC_MAX_OVERSAMPLING 2
 #define PIOS_ADC_USE_ADC2         0
 
 #define PIOS_ADC_USE_TEMP_SENSOR
-#define PIOS_ADC_TEMPERATURE_PIN  7
+#define PIOS_ADC_TEMPERATURE_PIN  8
 
 // -------------------------
 // USB

@@ -46,6 +46,7 @@ void GpsPage::initializePage(VehicleConfigurationSource *settings)
                       settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
                       settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
                       settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
+                      settings->getInputType() == VehicleConfigurationSource::INPUT_IBUS ||
                       settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS)) {
         // Disable GPS+I2C Mag
         setItemDisabled(VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG, true);

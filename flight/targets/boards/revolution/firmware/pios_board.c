@@ -341,6 +341,27 @@ static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm
     pios_rcvr_group_map[channelgroup] = pios_dsm_rcvr_id;
 }
 
+static void PIOS_Board_configure_ibus(const struct pios_usart_cfg *usart_cfg)
+{
+    uint32_t pios_usart_ibus_id;
+
+    if (PIOS_USART_Init(&pios_usart_ibus_id, usart_cfg)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_ibus_id;
+    if (PIOS_IBUS_Init(&pios_ibus_id, &pios_usart_com_driver, pios_usart_ibus_id)) {
+        PIOS_Assert(0);
+    }
+
+    uint32_t pios_ibus_rcvr_id;
+    if (PIOS_RCVR_Init(&pios_ibus_rcvr_id, &pios_ibus_rcvr_driver, pios_ibus_id)) {
+        PIOS_Assert(0);
+    }
+
+    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_IBUS] = pios_ibus_rcvr_id;
+}
+
 static void PIOS_Board_configure_pwm(const struct pios_pwm_cfg *pwm_cfg)
 {
     /* Set up the receiver port.  Later this should be optional */
@@ -584,6 +605,12 @@ void PIOS_Board_Init(void)
             pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
         }
 #endif /* PIOS_INCLUDE_SRXL */
+        break;
+
+    case HWSETTINGS_RM_FLEXIPORT_IBUS:
+#if defined(PIOS_INCLUDE_IBUS)
+        PIOS_Board_configure_ibus(&pios_usart_ibus_flexi_cfg);
+#endif /* PIOS_INCLUDE_IBUS */
         break;
 
     case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
@@ -985,10 +1012,9 @@ void PIOS_Board_Init(void)
     /* Configure the receiver port*/
     uint8_t hwsettings_rcvrport;
     HwSettingsRM_RcvrPortGet(&hwsettings_rcvrport);
-    //
+
+    // Configure rcvrport PPM/PWM/OUTPUTS
     switch (hwsettings_rcvrport) {
-    case HWSETTINGS_RM_RCVRPORT_DISABLED:
-        break;
     case HWSETTINGS_RM_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
         /* Set up the receiver port.  Later this should be optional */
@@ -999,6 +1025,11 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
     case HWSETTINGS_RM_RCVRPORT_PPMPWM:
     case HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY:
+    case HWSETTINGS_RM_RCVRPORT_PPMDEBUGCONSOLE:
+    case HWSETTINGS_RM_RCVRPORT_PPMCOMBRIDGE:
+    case HWSETTINGS_RM_RCVRPORT_PPMMSP:
+    case HWSETTINGS_RM_RCVRPORT_PPMMAVLINK:
+    case HWSETTINGS_RM_RCVRPORT_PPMGPS:
 #if defined(PIOS_INCLUDE_PPM)
         PIOS_Board_configure_ppm(&pios_ppm_cfg);
 
@@ -1012,27 +1043,41 @@ void PIOS_Board_Init(void)
             PIOS_Board_configure_pwm(&pios_pwm_ppm_cfg);
         }
 
-        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY) {
-            PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
-        }
-
         break;
 #endif /* PIOS_INCLUDE_PPM */
     case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
         // configure only the servo outputs
         pios_servo_cfg = &pios_servo_cfg_out_in;
         break;
+    }
+
+    // Configure rcvrport usart
+    switch (hwsettings_rcvrport) {
     case HWSETTINGS_RM_RCVRPORT_TELEMETRY:
+    case HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
         break;
+    case HWSETTINGS_RM_RCVRPORT_DEBUGCONSOLE:
+    case HWSETTINGS_RM_RCVRPORT_PPMDEBUGCONSOLE:
+#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
+        PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
+        break;
     case HWSETTINGS_RM_RCVRPORT_COMBRIDGE:
+    case HWSETTINGS_RM_RCVRPORT_PPMCOMBRIDGE:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
         break;
     case HWSETTINGS_RM_RCVRPORT_MSP:
+    case HWSETTINGS_RM_RCVRPORT_PPMMSP:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
         break;
     case HWSETTINGS_RM_RCVRPORT_MAVLINK:
+    case HWSETTINGS_RM_RCVRPORT_PPMMAVLINK:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
+        break;
+    case HWSETTINGS_RM_RCVRPORT_GPS:
+    case HWSETTINGS_RM_RCVRPORT_PPMGPS:
+        PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
     }
 

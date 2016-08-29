@@ -60,5 +60,7 @@
         <file>resources/bttn-hott-up.png</file>
         <file>resources/bttn-exbus-down.png</file>
         <file>resources/bttn-exbus-up.png</file>
+        <file>resources/bttn-ibus-down.png</file>
+        <file>resources/bttn-ibus-up.png</file>
     </qresource>
 </RCC>

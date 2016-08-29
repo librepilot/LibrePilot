@@ -196,7 +196,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
             // Revolution family
             QWidget *qwd = new ConfigRevoWidget(this);
             stackWidget->replaceTab(ConfigGadgetWidget::sensors, qwd);
-            if (board == 0x0903) {
+            if (board == 0x0903 || board == 0x0904) {
                 qwd = new ConfigRevoHWWidget(this);
             } else if (board == 0x0905) {
                 qwd = new ConfigRevoNanoHWWidget(this);

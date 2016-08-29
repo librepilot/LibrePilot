@@ -46,6 +46,7 @@ void AirSpeedPage::initializePage(VehicleConfigurationSource *settings)
                        settings->getInputType() == VehicleConfigurationSource::INPUT_DSM ||
                        settings->getInputType() == VehicleConfigurationSource::INPUT_SRXL ||
                        settings->getInputType() == VehicleConfigurationSource::INPUT_HOTT_SUMD ||
+                       settings->getInputType() == VehicleConfigurationSource::INPUT_IBUS ||
                        settings->getInputType() == VehicleConfigurationSource::INPUT_EXBUS)) ||
         settings->getGpsType() == VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG) {
         // Disable non estimated sensors if ports are taken by receivers or I2C Mag

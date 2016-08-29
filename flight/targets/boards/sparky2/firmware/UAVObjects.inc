@@ -17,7 +17,7 @@
 # 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
 
-# These are the UAVObjects supposed to be build as part of the target
+# These are the UAVObjects supposed to be build as part of the OpenPilot target
 # (all architectures)
 UAVOBJSRCFILENAMES =
 UAVOBJSRCFILENAMES += statusgrounddrive
@@ -112,6 +112,8 @@ UAVOBJSRCFILENAMES += receiveractivity
 UAVOBJSRCFILENAMES += receiverstatus
 UAVOBJSRCFILENAMES += cameradesired
 UAVOBJSRCFILENAMES += camerastabsettings
+UAVOBJSRCFILENAMES += cameracontrolsettings
+UAVOBJSRCFILENAMES += cameracontrolactivity
 UAVOBJSRCFILENAMES += altitudeholdsettings
 UAVOBJSRCFILENAMES += oplinksettings
 UAVOBJSRCFILENAMES += oplinkstatus

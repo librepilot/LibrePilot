@@ -42,6 +42,7 @@ MODULES += Actuator
 MODULES += GPS
 MODULES += TxPID
 MODULES += CameraStab
+MODULES += CameraControl
 MODULES += Battery
 MODULES += FirmwareIAP
 MODULES += Radio

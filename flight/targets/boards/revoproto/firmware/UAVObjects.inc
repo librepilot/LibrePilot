@@ -21,9 +21,9 @@
 # (all architectures)
 UAVOBJSRCFILENAMES =
 UAVOBJSRCFILENAMES += statusgrounddrive
-UAVOBJSRCFILENAMES += statusvtolland
 UAVOBJSRCFILENAMES += statusvtolautotakeoff
 UAVOBJSRCFILENAMES += pidstatus
+UAVOBJSRCFILENAMES += statusvtolland
 UAVOBJSRCFILENAMES += vtolselftuningstats
 UAVOBJSRCFILENAMES += accelgyrosettings
 UAVOBJSRCFILENAMES += accessorydesired
@@ -112,6 +112,8 @@ UAVOBJSRCFILENAMES += receiveractivity
 UAVOBJSRCFILENAMES += receiverstatus
 UAVOBJSRCFILENAMES += cameradesired
 UAVOBJSRCFILENAMES += camerastabsettings
+UAVOBJSRCFILENAMES += cameracontrolsettings
+UAVOBJSRCFILENAMES += cameracontrolactivity
 UAVOBJSRCFILENAMES += altitudeholdsettings
 UAVOBJSRCFILENAMES += oplinksettings
 UAVOBJSRCFILENAMES += oplinkstatus
@@ -125,7 +127,7 @@ UAVOBJSRCFILENAMES += mpugyroaccelsettings
 UAVOBJSRCFILENAMES += txpidsettings
 UAVOBJSRCFILENAMES += txpidstatus
 UAVOBJSRCFILENAMES += takeofflocation
-# UAVOBJSRCFILENAMES += perfcounter
+UAVOBJSRCFILENAMES += perfcounter
 UAVOBJSRCFILENAMES += systemidentsettings
 UAVOBJSRCFILENAMES += systemidentstate
 

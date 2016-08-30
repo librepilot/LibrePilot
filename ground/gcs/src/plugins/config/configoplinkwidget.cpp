@@ -102,11 +102,14 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
 
     // Connect the selection changed signals.
-    connect(m_oplink->Protocol, SIGNAL(valueChanged(int)), this, SLOT(protocolChanged()));
-    connect(m_oplink->LinkType, SIGNAL(valueChanged(int)), this, SLOT(linkTypeChanged()));
+    connect(m_oplink->Protocol, SIGNAL(currentIndexChanged(int)), this, SLOT(protocolChanged()));
+    connect(m_oplink->LinkType, SIGNAL(currentIndexChanged(int)), this, SLOT(linkTypeChanged()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
     connect(m_oplink->CustomDeviceID, SIGNAL(editingFinished()), this, SLOT(updateCustomDeviceID()));
+    connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(mainPortChanged()));
+    connect(m_oplink->FlexiPort, SIGNAL(currentIndexChanged(int)), this, SLOT(flexiPortChanged()));
+    connect(m_oplink->VCPPort, SIGNAL(currentIndexChanged(int)), this, SLOT(vcpPortChanged()));
 
     // Connect the Unbind button
     connect(m_oplink->UnbindButton, SIGNAL(released()), this, SLOT(unbind()));
@@ -268,7 +271,14 @@ void ConfigOPLinkWidget::protocolChanged()
     m_oplink->MaximumChannel->setEnabled(is_receiver || is_coordinator);
     m_oplink->MainPort->setEnabled(is_oplm);
     m_oplink->FlexiPort->setEnabled(is_oplm);
-    m_oplink->VCPPort->setEnabled((is_receiver || is_coordinator) && is_oplm);
+    m_oplink->VCPPort->setEnabled(is_oplm);
+
+    enableComboBoxOptionItem(m_oplink->VCPPort, OPLinkSettings::VCPPORT_SERIAL, (is_receiver || is_coordinator));
+
+    if (isComboboxOptionSelected(m_oplink->VCPPort, OPLinkSettings::VCPPORT_SERIAL) && !(is_receiver || is_coordinator)) {
+        setComboboxSelectedOption(m_oplink->VCPPort, OPLinkSettings::VCPPORT_DISABLED);
+    }
+
     m_oplink->LinkType->setEnabled(is_enabled && !is_openlrs);
     m_oplink->MaxRFTxPower->setEnabled(is_enabled && !is_openlrs);
 }
@@ -321,6 +331,70 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
     m_oplink->MinFreq->setText("(" + QString::number(minFrequency, 'f', 3) + " MHz)");
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");
 }
+
+void ConfigOPLinkWidget::mainPortChanged()
+{
+    switch (getComboboxSelectedOption(m_oplink->MainPort)) {
+    case OPLinkSettings::MAINPORT_TELEMETRY:
+    case OPLinkSettings::MAINPORT_SERIAL:
+        if (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_TELEMETRY)
+            || isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_SERIAL)) {
+            setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        }
+        break;
+    case OPLinkSettings::MAINPORT_COMBRIDGE:
+        if (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_COMBRIDGE)) {
+            setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        }
+        break;
+    case OPLinkSettings::MAINPORT_PPM:
+        if (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_PPM)) {
+            setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        }
+        break;
+    }
+}
+
+void ConfigOPLinkWidget::flexiPortChanged()
+{
+    switch (getComboboxSelectedOption(m_oplink->FlexiPort)) {
+    case OPLinkSettings::FLEXIPORT_TELEMETRY:
+    case OPLinkSettings::FLEXIPORT_SERIAL:
+        if (isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_TELEMETRY)
+            || isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_SERIAL)) {
+            setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        }
+        break;
+    case OPLinkSettings::FLEXIPORT_COMBRIDGE:
+        if (isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_COMBRIDGE)) {
+            setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        }
+        break;
+    case OPLinkSettings::FLEXIPORT_PPM:
+        if (isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_PPM)) {
+            setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        }
+        break;
+    }
+}
+
+void ConfigOPLinkWidget::vcpPortChanged()
+{
+    bool vcpComBridgeEnabled = isComboboxOptionSelected(m_oplink->VCPPort, OPLinkSettings::VCPPORT_COMBRIDGE);
+
+    enableComboBoxOptionItem(m_oplink->MainPort, OPLinkSettings::MAINPORT_COMBRIDGE, vcpComBridgeEnabled);
+    enableComboBoxOptionItem(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_COMBRIDGE, vcpComBridgeEnabled);
+
+    if (!vcpComBridgeEnabled) {
+        if (isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_COMBRIDGE)) {
+            setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_COMBRIDGE)) {
+            setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        }
+    }
+}
+
 
 void ConfigOPLinkWidget::updateCoordID()
 {

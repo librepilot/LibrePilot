@@ -60,15 +60,12 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
 
     addWidgetBinding("HwSettings", "USB_HIDPort", m_ui->cbUSBHIDFunction);
     addWidgetBinding("HwSettings", "USB_VCPPort", m_ui->cbUSBVCPFunction);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbUSBVCPSpeed);
 
     addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbFlexiTelemSpeed);
     addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbFlexiGPSSpeed);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbFlexiComSpeed);
 
     addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbMainTelemSpeed);
     addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbMainGPSSpeed);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbMainComSpeed);
 
     // Add Gps protocol configuration
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
@@ -138,9 +135,6 @@ void ConfigSparky2HWWidget::usbVCPPortChanged(int index)
 
     bool vcpComBridgeEnabled = isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_COMBRIDGE);
 
-    m_ui->lblUSBVCPSpeed->setVisible(vcpComBridgeEnabled);
-    m_ui->cbUSBVCPSpeed->setVisible(vcpComBridgeEnabled);
-
     if (!vcpComBridgeEnabled && isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_COMBRIDGE)) {
         setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_DISABLED);
     }
@@ -185,7 +179,6 @@ void ConfigSparky2HWWidget::flexiPortChanged(int index)
 
     m_ui->cbFlexiTelemSpeed->setVisible(false);
     m_ui->cbFlexiGPSSpeed->setVisible(false);
-    m_ui->cbFlexiComSpeed->setVisible(false);
     m_ui->lblFlexiSpeed->setVisible(true);
 
     // Add Gps protocol configuration
@@ -210,13 +203,13 @@ void ConfigSparky2HWWidget::flexiPortChanged(int index)
         }
         break;
     case HwSettings::SPK2_FLEXIPORT_COMBRIDGE:
-        m_ui->cbFlexiComSpeed->setVisible(true);
+        m_ui->lblFlexiSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::SPK2_MAINPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::SPK2_MAINPORT_DISABLED);
         }
         break;
     case HwSettings::SPK2_FLEXIPORT_DEBUGCONSOLE:
-        m_ui->cbFlexiComSpeed->setVisible(true);
+        m_ui->lblFlexiSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::SPK2_MAINPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::SPK2_MAINPORT_DISABLED);
         }
@@ -236,7 +229,6 @@ void ConfigSparky2HWWidget::mainPortChanged(int index)
 
     m_ui->cbMainTelemSpeed->setVisible(false);
     m_ui->cbMainGPSSpeed->setVisible(false);
-    m_ui->cbMainComSpeed->setVisible(false);
     m_ui->lblMainSpeed->setVisible(true);
 
     // Add Gps protocol configuration
@@ -261,13 +253,13 @@ void ConfigSparky2HWWidget::mainPortChanged(int index)
         }
         break;
     case HwSettings::SPK2_MAINPORT_COMBRIDGE:
-        m_ui->cbMainComSpeed->setVisible(true);
+        m_ui->lblMainSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_DISABLED);
         }
         break;
     case HwSettings::SPK2_MAINPORT_DEBUGCONSOLE:
-        m_ui->cbMainComSpeed->setVisible(true);
+        m_ui->lblMainSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_DISABLED);
         }

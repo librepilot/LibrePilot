@@ -83,6 +83,9 @@ enum usb_ep_attr {
 #define htousbl(v)     (v)
 #endif
 
+#define usbstoh(v)     htousbs(v)
+#define usbltoh(v)     htousbl(v)
+
 #define USB_EP_IN(ep)  ((uint8_t)(0x80 | ((ep) & 0xF)))
 #define USB_EP_OUT(ep) ((uint8_t)(0x00 | ((ep) & 0xF)))
 

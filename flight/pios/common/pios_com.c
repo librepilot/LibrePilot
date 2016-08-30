@@ -333,6 +333,30 @@ int32_t PIOS_COM_RegisterCtrlLineCallback(uint32_t com_id, pios_com_callback_ctr
     return 0;
 }
 
+/**
+ * Set baud rate callback associated with the port
+ * \param[in] port COM port
+ * \param[in] baud_rate_cb Callback function
+ * \param[in] context context to pass to the callback function
+ * \return -1 if port not available
+ * \return 0 on success
+ */
+int32_t PIOS_COM_RegisterBaudRateCallback(uint32_t com_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    /* Invoke the driver function if it exists */
+    if (com_dev->driver->bind_baud_rate_cb) {
+        com_dev->driver->bind_baud_rate_cb(com_dev->lower_id, baud_rate_cb, context);
+    }
+
+    return 0;
+}
 
 static int32_t PIOS_COM_SendBufferNonBlockingInternal(struct pios_com_dev *com_dev, const uint8_t *buffer, uint16_t len)
 {

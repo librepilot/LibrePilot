@@ -99,7 +99,6 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
         addWidgetBinding("GPSSettings", "DataProtocol", m_telemetry->gpsProtocol);
     }
 
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_telemetry->comUsbBridgeSpeed);
     connect(m_telemetry->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
     enableSaveButtons(false);
     populateWidgets();

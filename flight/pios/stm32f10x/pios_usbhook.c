@@ -42,6 +42,8 @@
 /* STM32 USB Library Definitions */
 #include "usb_lib.h"
 
+static void (*ep0_rxready_cb)(void) = 0;
+
 static ONE_DESCRIPTOR Device_Descriptor;
 
 void PIOS_USBHOOK_RegisterDevice(const uint8_t *desc, uint16_t desc_size)
@@ -275,7 +277,13 @@ static void PIOS_USBHOOK_SetDeviceAddress(void)
 * Return         : None.
 *******************************************************************************/
 static void PIOS_USBHOOK_Status_In(void)
-{}
+{
+    /* this callback gets executed after sending ZLP and doing In0_Process(), to ack  */
+    if (ep0_rxready_cb) {
+        ep0_rxready_cb();
+        ep0_rxready_cb = 0;
+    }
+}
 
 /*******************************************************************************
 * Function Name  : PIOS_USBHOOK_Status_Out
@@ -296,6 +304,7 @@ static void PIOS_USBHOOK_Status_Out(void)
 *******************************************************************************/
 extern uint8_t *PIOS_USB_CDC_SetLineCoding(uint16_t Length);
 extern const uint8_t *PIOS_USB_CDC_GetLineCoding(uint16_t Length);
+extern void PIOS_USB_CDC_SetLineCoding_Completed();
 
 static RESULT PIOS_USBHOOK_Data_Setup(uint8_t RequestNo)
 {
@@ -304,6 +313,7 @@ static RESULT PIOS_USBHOOK_Data_Setup(uint8_t RequestNo)
 
     CopyInRoutine  = NULL;
     CopyOutRoutine = NULL;
+
 
     switch (Type_Recipient) {
     case (STANDARD_REQUEST | INTERFACE_RECIPIENT):
@@ -346,6 +356,7 @@ static RESULT PIOS_USBHOOK_Data_Setup(uint8_t RequestNo)
             switch (RequestNo) {
             case USB_CDC_REQ_SET_LINE_CODING:
                 CopyOutRoutine = PIOS_USB_CDC_SetLineCoding;
+                ep0_rxready_cb = PIOS_USB_CDC_SetLineCoding_Completed;
                 break;
             case USB_CDC_REQ_GET_LINE_CODING:
                 CopyInRoutine  = PIOS_USB_CDC_GetLineCoding;

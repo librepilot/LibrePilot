@@ -101,9 +101,9 @@ uintptr_t pios_user_fs_id = 0;
 
 /*
  * Setup a com port based on the passed cfg, driver and buffer sizes.
- * tx size of -1 make the port rx only
- * rx size of -1 make the port tx only
- * having both tx and rx size of -1 is not valid and will fail further down in PIOS_COM_Init()
+ * tx size <= 0 make the port rx only
+ * rx size <= 0 make the port tx only
+ * having both tx and rx size <= 0 is not valid and will fail further down in PIOS_COM_Init()
  */
 static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, size_t rx_buf_len, size_t tx_buf_len,
                                      const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
@@ -544,7 +544,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_CC_MAINPORT_GPS:
 #if defined(PIOS_INCLUDE_GPS)
-        PIOS_Board_configure_com(&pios_usart_generic_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_usart_com_driver, &pios_com_gps_id);
+        PIOS_Board_configure_com(&pios_usart_generic_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, 0, &pios_usart_com_driver, &pios_com_gps_id);
 #endif /* PIOS_INCLUDE_GPS */
         break;
     case HWSETTINGS_CC_MAINPORT_DSM:
@@ -556,7 +556,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_CC_MAINPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_COM)
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-        PIOS_Board_configure_com(&pios_usart_generic_main_cfg, -1, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+        PIOS_Board_configure_com(&pios_usart_generic_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
 #endif /* PIOS_INCLUDE_COM */
         break;
@@ -570,7 +570,7 @@ void PIOS_Board_Init(void)
         PIOS_Board_configure_com(&pios_usart_generic_main_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
         break;
     case HWSETTINGS_CC_MAINPORT_OSDHK:
-        PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, -1, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
+        PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, 0, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     }
 
@@ -597,7 +597,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_CC_FLEXIPORT_GPS:
 #if defined(PIOS_INCLUDE_GPS)
-        PIOS_Board_configure_com(&pios_usart_generic_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_usart_com_driver, &pios_com_gps_id);
+        PIOS_Board_configure_com(&pios_usart_generic_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, 0, &pios_usart_com_driver, &pios_com_gps_id);
 #endif /* PIOS_INCLUDE_GPS */
         break;
     case HWSETTINGS_CC_FLEXIPORT_PPM:
@@ -698,7 +698,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_CC_FLEXIPORT_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_COM)
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-        PIOS_Board_configure_com(&pios_usart_generic_flexi_cfg, -1, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
+        PIOS_Board_configure_com(&pios_usart_generic_flexi_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
 #endif /* PIOS_INCLUDE_COM */
         break;
@@ -712,7 +712,7 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_I2C */
         break;
     case HWSETTINGS_CC_FLEXIPORT_OSDHK:
-        PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, -1, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
+        PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, 0, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
         break;
     }
 

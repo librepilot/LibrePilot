@@ -286,9 +286,9 @@ uintptr_t pios_user_fs_id;
 
 /*
  * Setup a com port based on the passed cfg, driver and buffer sizes.
- * tx size of -1 make the port rx only
- * rx size of -1 make the port tx only
- * having both tx and rx size of -1 is not valid and will fail further down in PIOS_COM_Init()
+ * tx size <= 0 make the port rx only
+ * rx size <= 0 make the port tx only
+ * having both tx and rx size <= 0 is not valid and will fail further down in PIOS_COM_Init()
  */
 static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, size_t rx_buf_len, size_t tx_buf_len,
                                      const struct pios_com_driver *com_driver, uint32_t *pios_com_id)

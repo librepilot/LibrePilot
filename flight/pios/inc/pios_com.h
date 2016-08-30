@@ -57,7 +57,7 @@ struct pios_com_driver {
 #define COM_CTRL_LINE_RTS_MASK 0x02
 
 /* Public Functions */
-extern int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, uint32_t lower_id, uint8_t *rx_buffer, uint16_t rx_buffer_len, uint8_t *tx_buffer, uint16_t tx_buffer_len);
+extern int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, uint32_t lower_id, uint8_t *rx_buffer, size_t rx_buffer_len, uint8_t *tx_buffer, size_t tx_buffer_len);
 extern int32_t PIOS_COM_ChangeBaud(uint32_t com_id, uint32_t baud);
 extern int32_t PIOS_COM_SetCtrlLine(uint32_t com_id, uint32_t mask, uint32_t state);
 extern int32_t PIOS_COM_RegisterCtrlLineCallback(uint32_t usart_id, pios_com_callback_ctrl_line ctrl_line_cb, uint32_t context);

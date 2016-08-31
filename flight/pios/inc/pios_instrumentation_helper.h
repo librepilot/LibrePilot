@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       pios_instrumentation_helper.h
- * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2016
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (C) 2016
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Macros to easily add optional performance monitoring to a module
  *

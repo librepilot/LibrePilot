@@ -40,7 +40,7 @@
 #include <QUrl>
 #include <QMessageBox>
 
-ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
+ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_Sparky2HWWidget();
     m_ui->setupUi(this);
@@ -79,7 +79,6 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     populateWidgets();
     refreshWidgetsValues();
     forceConnectedState();
-    m_refreshing = false;
 }
 
 ConfigSparky2HWWidget::~ConfigSparky2HWWidget()
@@ -102,13 +101,16 @@ void ConfigSparky2HWWidget::setupCustomCombos()
 
 void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
 {
-    m_refreshing = true;
     ConfigTaskWidget::refreshWidgetsValues(obj);
+
+    // make sure to unset at the end
+    setRefreshing(true);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
-    m_refreshing = false;
+
+    setRefreshing(false);
 }
 
 void ConfigSparky2HWWidget::updateObjectsFromWidgets()

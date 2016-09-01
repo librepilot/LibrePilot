@@ -45,8 +45,10 @@ public:
 
 private:
     Ui_CameraStabilizationWidget *ui;
-    void refreshWidgetsValues(UAVObject *obj);
-    void updateObjectsFromWidgets();
+
+protected slots:
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    virtual void updateObjectsFromWidgets();
 
 private slots:
     void defaultRequestedSlot(int group);

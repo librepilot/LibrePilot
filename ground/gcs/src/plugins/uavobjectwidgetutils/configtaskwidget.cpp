@@ -46,8 +46,8 @@
 #include <QUrl>
 #include <QWidget>
 
-ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_wikiURL("Welcome"),
-    m_saveButton(NULL), m_isDirty(false), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
+ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_isDirty(false), m_refreshing(false),
+    m_wikiURL("Welcome"), m_saveButton(NULL), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
 {
     m_pluginManager     = ExtensionSystem::PluginManager::instance();
     TelemetryManager *telMngr = m_pluginManager->getObject<TelemetryManager>();
@@ -190,7 +190,8 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
 
     Q_ASSERT(object);
 
-    bool dirtyBack = isDirty();
+    // make sure to unset at the end
+    setRefreshing(true);
 
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject.values(object)) {
         binding->setIsEnabled(enabled);
@@ -202,7 +203,8 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
             }
         }
     }
-    setDirty(dirtyBack);
+
+    setRefreshing(false);
 }
 
 ConfigTaskWidget::~ConfigTaskWidget()
@@ -325,7 +327,8 @@ void ConfigTaskWidget::onAutopilotConnect()
 
 void ConfigTaskWidget::populateWidgets()
 {
-    bool dirtyBack = isDirty();
+    setRefreshing(true);
+
     emit populateWidgetsRequested();
 
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
@@ -333,7 +336,8 @@ void ConfigTaskWidget::populateWidgets()
             setWidgetFromField(binding->widget(), binding->field(), binding);
         }
     }
-    setDirty(dirtyBack);
+
+    setRefreshing(false);
 }
 
 void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
@@ -342,7 +346,9 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
         return;
     }
 
-    bool dirtyBack = isDirty();
+    // make sure to unset at the end
+    setRefreshing(true);
+
     emit refreshWidgetsValuesRequested();
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
     foreach(WidgetBinding * binding, bindings) {
@@ -354,7 +360,8 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
             }
         }
     }
-    setDirty(dirtyBack);
+
+    setRefreshing(false);
 }
 
 void ConfigTaskWidget::updateObjectsFromWidgets()
@@ -510,6 +517,9 @@ void ConfigTaskWidget::clearDirty()
 
 void ConfigTaskWidget::setDirty(bool value)
 {
+    if (isRefreshing()) {
+        return;
+    }
     m_isDirty = value;
 }
 
@@ -540,6 +550,16 @@ void ConfigTaskWidget::enableObjectUpdates()
             connect(binding->object(), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(refreshWidgetsValues(UAVObject *)), Qt::UniqueConnection);
         }
     }
+}
+
+bool ConfigTaskWidget::isRefreshing()
+{
+    return m_refreshing;
+}
+
+void ConfigTaskWidget::setRefreshing(bool refreshing)
+{
+    m_refreshing = refreshing;
 }
 
 void ConfigTaskWidget::objectUpdated(UAVObject *object)

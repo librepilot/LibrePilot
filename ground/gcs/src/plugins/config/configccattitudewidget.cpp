@@ -144,7 +144,8 @@ void ConfigCCAttitudeWidget::sensorsUpdated(UAVObject *obj)
         attitudeSettingsData.BiasCorrectGyro = AttitudeSettings::BIASCORRECTGYRO_TRUE;
         AttitudeSettings::GetInstance(getObjectManager())->setData(attitudeSettingsData);
         AccelGyroSettings::GetInstance(getObjectManager())->setData(accelGyroSettingsData);
-        this->setDirty(true);
+
+        setDirty(true);
 
         // reenable controls
         enableControls(true);

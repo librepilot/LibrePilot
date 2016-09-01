@@ -211,8 +211,12 @@ private:
     };
 
     int m_currentBoardId;
+
     bool m_isConnected;
     bool m_isWidgetUpdatesAllowed;
+    bool m_isDirty;
+    bool m_refreshing;
+
     QStringList m_objects;
     QString m_wikiURL; // Wiki address for help button
                        // Concatenated with WIKI_URL_ROOT
@@ -227,7 +231,7 @@ private:
     QHash<UAVObject *, bool> m_updatedObjects;
     QHash<QPushButton *, QString> m_helpButtons;
     QList<QPushButton *> m_reloadButtons;
-    bool m_isDirty;
+
     QString m_outOfLimitsStyle;
     QTimer *m_realtimeUpdateTimer;
 
@@ -250,6 +254,8 @@ protected slots:
     virtual void disableObjectUpdates();
     virtual void enableObjectUpdates();
     virtual void clearDirty();
+    bool isRefreshing();
+    void setRefreshing(bool refreshing);
     virtual void widgetsContentsChanged();
     virtual void populateWidgets();
     virtual void refreshWidgetsValues(UAVObject *obj = NULL);

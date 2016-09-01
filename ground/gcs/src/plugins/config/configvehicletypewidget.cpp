@@ -178,15 +178,16 @@ void ConfigVehicleTypeWidget::switchAirframeType(int index)
    Note: The default behavior of ConfigTaskWidget is bypassed.
    Therefore no automatic synchronization of UAV Objects to UI is done.
  */
-void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *object)
+void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(object);
+    ConfigTaskWidget::refreshWidgetsValues(obj);
 
     if (!allObjectsUpdated()) {
         return;
     }
 
-    bool dirty = isDirty();
+    // make sure to unset at the end
+    setRefreshing(true);
 
     // Get the Airframe type from the system settings:
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
@@ -234,7 +235,7 @@ void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *object)
     }
     m_aircraft->nameEdit->setText(name);
 
-    setDirty(dirty);
+    setRefreshing(false);
 }
 
 /**

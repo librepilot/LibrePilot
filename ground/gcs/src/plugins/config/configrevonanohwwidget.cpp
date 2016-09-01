@@ -40,7 +40,7 @@
 #include <QUrl>
 #include <QMessageBox>
 
-ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
+ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_RevoNanoHWWidget();
     m_ui->setupUi(this);
@@ -79,7 +79,6 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
     populateWidgets();
     refreshWidgetsValues();
     setDirty(false);
-    m_refreshing = false;
 }
 
 ConfigRevoNanoHWWidget::~ConfigRevoNanoHWWidget()
@@ -99,14 +98,17 @@ void ConfigRevoNanoHWWidget::setupCustomCombos()
 
 void ConfigRevoNanoHWWidget::refreshWidgetsValues(UAVObject *obj)
 {
-    m_refreshing = true;
     ConfigTaskWidget::refreshWidgetsValues(obj);
+
+    // make sure to unset at the end
+    setRefreshing(true);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
     rcvrPortChanged(0);
-    m_refreshing = false;
+
+    setRefreshing(false);
 }
 
 void ConfigRevoNanoHWWidget::updateObjectsFromWidgets()

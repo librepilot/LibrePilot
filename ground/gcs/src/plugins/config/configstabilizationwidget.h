@@ -90,8 +90,8 @@ protected:
     QString mapObjectName(const QString objectName);
 
 protected slots:
-    void refreshWidgetsValues(UAVObject *o = NULL);
-    void updateObjectsFromWidgets();
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    virtual void updateObjectsFromWidgets();
 
 private slots:
     void realtimeUpdatesSlot(bool value);

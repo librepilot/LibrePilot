@@ -44,12 +44,11 @@ public:
 
 private:
     Ui_RevoNanoHWWidget *m_ui;
-    bool m_refreshing;
     void setupCustomCombos();
 
 protected slots:
-    void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    virtual void updateObjectsFromWidgets();
 
 private slots:
     void usbVCPPortChanged(int index);

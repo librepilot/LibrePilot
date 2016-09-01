@@ -119,7 +119,10 @@ ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()
  */
 void ConfigCameraStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
 {
-    bool dirty = isDirty();
+    ConfigTaskWidget::refreshWidgetsValues(obj);
+
+    // make sure to unset at the end
+    setRefreshing(true);
 
     // Set module enable checkbox from OptionalModules UAVObject item.
     // It needs special processing because ConfigTaskWidget uses TRUE/FALSE
@@ -169,9 +172,7 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
         }
     }
 
-    setDirty(dirty);
-
-    ConfigTaskWidget::refreshWidgetsValues(obj);
+    setRefreshing(false);
 }
 
 /*

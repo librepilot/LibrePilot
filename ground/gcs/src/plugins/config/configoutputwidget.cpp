@@ -316,9 +316,10 @@ void ConfigOutputWidget::setColor(QWidget *widget, const QColor color)
  */
 void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
 {
-    bool dirty = isDirty();
-
     ConfigTaskWidget::refreshWidgetsValues(obj);
+
+    // make sure to unset at the end
+    setRefreshing(true);
 
     // Get Actuator Settings
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
@@ -423,7 +424,7 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
 
     updateSpinStabilizeCheckComboBoxes();
 
-    setDirty(dirty);
+    setRefreshing(false);
 }
 
 /**

@@ -73,6 +73,10 @@ private:
     int auxMagWarningCount;
     int auxMagErrorCount;
 
+protected slots:
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    virtual void updateObjectsFromWidgets();
+
 private slots:
     void storeAndClearBoardRotation();
     void recallBoardRotation();
@@ -82,10 +86,6 @@ private slots:
     void displayTemperature(float tempareture);
     void displayTemperatureGradient(float temparetureGradient);
     void displayTemperatureRange(float temparetureRange);
-
-    // ! Overriden method from the configTaskWidget to update UI
-    virtual void refreshWidgetsValues(UAVObject *object = NULL);
-    virtual void updateObjectsFromWidgets();
 
     // Slot for clearing home location
     void clearHomeLocation();

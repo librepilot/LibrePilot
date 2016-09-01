@@ -102,13 +102,15 @@ private:
     void setColor(QWidget *widget, const QColor color);
     void sendAllChannelTests();
 
+protected slots:
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    virtual void updateObjectsFromWidgets();
+
 private slots:
     void updateWarnings(UAVObject *);
     void updateSpinStabilizeCheckComboBoxes();
     void updateAlwaysStabilizeStatus();
     void stopTests();
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
     void runChannelTests(bool state);
     void sendChannelTest(int index, int value);
     void openHelp();

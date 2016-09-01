@@ -65,7 +65,7 @@ public:
     ~ConfigVehicleTypeWidget();
 
 protected slots:
-    virtual void refreshWidgetsValues(UAVObject *object = NULL);
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
 
 private:

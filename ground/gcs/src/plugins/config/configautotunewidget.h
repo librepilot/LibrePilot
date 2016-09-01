@@ -52,9 +52,10 @@ private:
 
 signals:
 
-public slots:
-    void refreshWidgetsValues(UAVObject *obj);
-    void updateObjectsFromWidgets();
+protected slots:
+    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    virtual void updateObjectsFromWidgets();
+
 private slots:
     void recomputeStabilization();
     void saveStabilization();

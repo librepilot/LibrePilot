@@ -40,7 +40,7 @@
 #include <QUrl>
 #include <QMessageBox>
 
-ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
+ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_RevoHWWidget();
     m_ui->setupUi(this);
@@ -82,7 +82,6 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     populateWidgets();
     refreshWidgetsValues();
     forceConnectedState();
-    m_refreshing = false;
 }
 
 ConfigRevoHWWidget::~ConfigRevoHWWidget()
@@ -106,14 +105,17 @@ void ConfigRevoHWWidget::setupCustomCombos()
 
 void ConfigRevoHWWidget::refreshWidgetsValues(UAVObject *obj)
 {
-    m_refreshing = true;
     ConfigTaskWidget::refreshWidgetsValues(obj);
+
+    // make sure to unset at the end
+    setRefreshing(true);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
     rcvrPortChanged(0);
-    m_refreshing = false;
+
+    setRefreshing(false);
 }
 
 void ConfigRevoHWWidget::updateObjectsFromWidgets()

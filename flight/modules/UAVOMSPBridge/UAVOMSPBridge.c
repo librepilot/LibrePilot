@@ -64,6 +64,7 @@
 #include "stabilizationsettingsbank2.h"
 #include "stabilizationsettingsbank3.h"
 #include "magstate.h"
+#include "objectpersistence.h"
 
 #include "pios_sensors.h"
 
@@ -761,7 +762,14 @@ static void msp_set_pid(struct msp_bridge *m)
         FlightStatusArmedGet(&armed);
 
         if (armed == FLIGHTSTATUS_ARMED_DISARMED) {
-            UAVObjSave(m->current_pid_bank, 0);
+            ObjectPersistenceData op;
+
+            op.ObjectID   = UAVObjGetID(m->current_pid_bank);
+            op.InstanceID = 0;
+            op.Selection  = OBJECTPERSISTENCE_SELECTION_SINGLEOBJECT;
+            op.Operation  = OBJECTPERSISTENCE_OPERATION_SAVE;
+
+            ObjectPersistenceSet(&op);
         }
     }
 

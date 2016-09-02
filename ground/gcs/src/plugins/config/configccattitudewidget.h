@@ -44,7 +44,8 @@ public:
     explicit ConfigCCAttitudeWidget(QWidget *parent = 0);
     ~ConfigCCAttitudeWidget();
 
-    virtual void updateObjectsFromWidgets();
+protected:
+    virtual void updateObjectsFromWidgetsImpl();
 
 private slots:
     void sensorsUpdated(UAVObject *obj);

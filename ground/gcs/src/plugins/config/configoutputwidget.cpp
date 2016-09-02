@@ -425,10 +425,8 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 /**
  * Sends the config to the board, without saving to the SD card (RC Output)
  */
-void ConfigOutputWidget::updateObjectsFromWidgets()
+void ConfigOutputWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
 
     Q_ASSERT(actuatorSettings);

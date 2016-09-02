@@ -55,10 +55,9 @@ public:
 
 protected:
     QString mapObjectName(const QString objectName);
-    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
-protected slots:
-    virtual void updateObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     Ui_StabilizationWidget *ui;

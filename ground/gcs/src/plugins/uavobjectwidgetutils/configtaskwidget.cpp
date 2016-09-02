@@ -375,6 +375,9 @@ void ConfigTaskWidget::updateObjectsFromWidgets()
             binding->updateObjectFieldFromValue();
         }
     }
+
+    // call specific implementation
+    updateObjectsFromWidgetsImpl();
 }
 
 void ConfigTaskWidget::helpButtonPressed()

@@ -175,7 +175,7 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
  * to any of widgets. Aftewards it calls base class function to take care of
  * other object to widget relations which were dynamically added.
  */
-void ConfigCameraStabilizationWidget::updateObjectsFromWidgets()
+void ConfigCameraStabilizationWidget::updateObjectsFromWidgetsImpl()
 {
     // Save state of the module enable checkbox first.
     // Do not use setData() member on whole object, if possible, since it triggers
@@ -253,8 +253,6 @@ void ConfigCameraStabilizationWidget::updateObjectsFromWidgets()
     // FIXME: Should not use setData() to prevent double updates.
     // It should be refactored after the reformatting of MixerSettings UAVObject.
     mixerSettings->setData(mixerSettingsData);
-
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 /*

@@ -108,10 +108,8 @@ void ConfigSparky2HWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     flexiPortChanged(0);
 }
 
-void ConfigSparky2HWWidget::updateObjectsFromWidgets()
+void ConfigSparky2HWWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
     HwSettings::DataFields data = hwSettings->getData();
 

@@ -113,10 +113,8 @@ void ConfigRevoHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     rcvrPortChanged(0);
 }
 
-void ConfigRevoHWWidget::updateObjectsFromWidgets()
+void ConfigRevoHWWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
     HwSettings::DataFields data = hwSettings->getData();
 

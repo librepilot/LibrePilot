@@ -52,9 +52,7 @@ private:
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
-
-protected slots:
-    virtual void updateObjectsFromWidgets();
+    virtual void updateObjectsFromWidgetsImpl();
 
 private slots:
     void recomputeStabilization();

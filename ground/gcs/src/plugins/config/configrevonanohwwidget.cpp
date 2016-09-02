@@ -106,10 +106,8 @@ void ConfigRevoNanoHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     rcvrPortChanged(0);
 }
 
-void ConfigRevoNanoHWWidget::updateObjectsFromWidgets()
+void ConfigRevoNanoHWWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
     HwSettings::DataFields data = hwSettings->getData();
 

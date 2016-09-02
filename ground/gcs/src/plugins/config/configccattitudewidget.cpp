@@ -242,9 +242,7 @@ void ConfigCCAttitudeWidget::enableControls(bool enable)
     ConfigTaskWidget::enableControls(enable);
 }
 
-void ConfigCCAttitudeWidget::updateObjectsFromWidgets()
+void ConfigCCAttitudeWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     ui->zeroBiasProgress->setValue(0);
 }

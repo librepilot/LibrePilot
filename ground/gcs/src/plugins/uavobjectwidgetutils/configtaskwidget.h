@@ -252,6 +252,7 @@ private:
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *) {};
+    virtual void updateObjectsFromWidgetsImpl() {};
 
 protected slots:
     virtual void disableObjectUpdates();
@@ -260,7 +261,7 @@ protected slots:
     virtual void widgetsContentsChanged();
     virtual void populateWidgets();
     void refreshWidgetsValues(UAVObject *obj = NULL);
-    virtual void updateObjectsFromWidgets();
+    void updateObjectsFromWidgets();
     virtual void helpButtonPressed();
 
 protected:

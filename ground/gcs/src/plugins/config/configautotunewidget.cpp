@@ -160,7 +160,7 @@ void ConfigAutotuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     }
 }
 
-void ConfigAutotuneWidget::updateObjectsFromWidgets()
+void ConfigAutotuneWidget::updateObjectsFromWidgetsImpl()
 {
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
     HwSettings::DataFields hwSettingsData = hwSettings->getData();
@@ -168,5 +168,4 @@ void ConfigAutotuneWidget::updateObjectsFromWidgets()
     hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_AUTOTUNE] =
         m_autotune->enableAutoTune->isChecked() ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
     hwSettings->setData(hwSettingsData);
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }

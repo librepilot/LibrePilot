@@ -88,10 +88,9 @@ public:
 protected:
     void enableControls(bool enable);
     void setWarning(QString message);
-    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
-protected slots:
-    virtual void updateObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     Ui_OutputWidget *m_ui;

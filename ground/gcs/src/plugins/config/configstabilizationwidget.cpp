@@ -269,10 +269,9 @@ void ConfigStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     }
 }
 
-void ConfigStabilizationWidget::updateObjectsFromWidgets()
+void ConfigStabilizationWidget::updateObjectsFromWidgetsImpl()
 {
     updateObjectFromThrottleCurve();
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 void ConfigStabilizationWidget::updateThrottleCurveFromObject()

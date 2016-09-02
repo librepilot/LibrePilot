@@ -431,10 +431,8 @@ void ConfigRevoWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     onBoardAuxMagError();
 }
 
-void ConfigRevoWidget::updateObjectsFromWidgets()
+void ConfigRevoWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     if (m_accelCalibrationModel->dirty()) {
         m_accelCalibrationModel->save();
     }

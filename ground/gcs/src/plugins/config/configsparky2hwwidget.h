@@ -45,9 +45,7 @@ public:
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
-
-protected slots:
-    virtual void updateObjectsFromWidgets();
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     Ui_Sparky2HWWidget *m_ui;

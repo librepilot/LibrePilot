@@ -239,11 +239,8 @@ void ConfigVehicleTypeWidget::refreshWidgetsValuesImpl(UAVObject *obj)
    We do all the tasks common to all airframes, or family of airframes, and
    we call additional methods for specific frames, so that we do not have a code
    that is too heavy.
-
-   Note: The default behavior of ConfigTaskWidget is bypassed.
-   Therefore no automatic synchronization of UI to UAV Objects is done.
  */
-void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
+void ConfigVehicleTypeWidget::updateObjectsFromWidgetsImpl()
 {
     // Airframe type defaults to Custom
     QString airframeType = "Custom";
@@ -275,8 +272,8 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
     }
 
     // call refreshWidgetsValues() to reflect actual saved values
+    // TODO is this needed ?
     refreshWidgetsValues();
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 int ConfigVehicleTypeWidget::frameCategory(QString frameType)

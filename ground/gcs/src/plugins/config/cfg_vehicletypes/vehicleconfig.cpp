@@ -125,7 +125,7 @@ void VehicleConfig::refreshWidgetsValuesImpl(UAVObject *obj)
     Q_UNUSED(obj);
 }
 
-void VehicleConfig::updateObjectsFromWidgets()
+void VehicleConfig::updateObjectsFromWidgetsImpl()
 {}
 
 void VehicleConfig::resetActuators(GUIConfigDataUnion *configData)

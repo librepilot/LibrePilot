@@ -48,6 +48,12 @@ public:
     ConfigRevoWidget(QWidget *parent = 0);
     ~ConfigRevoWidget();
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+
+protected slots:
+    virtual void updateObjectsFromWidgets();
+
 private:
     OpenPilot::SixPointCalibrationModel *m_accelCalibrationModel;
     OpenPilot::SixPointCalibrationModel *m_magCalibrationModel;
@@ -72,10 +78,6 @@ private:
     int magErrorCount;
     int auxMagWarningCount;
     int auxMagErrorCount;
-
-protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    virtual void updateObjectsFromWidgets();
 
 private slots:
     void storeAndClearBoardRotation();

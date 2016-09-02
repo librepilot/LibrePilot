@@ -247,12 +247,9 @@ ConfigStabilizationWidget::~ConfigStabilizationWidget()
     // Do nothing
 }
 
-void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
+    Q_UNUSED(obj);
 
     updateThrottleCurveFromObject();
 
@@ -270,8 +267,6 @@ void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
             ui->advancedResponsivenessCheckBox->setChecked(true);
         }
     }
-
-    setRefreshing(false);
 }
 
 void ConfigStabilizationWidget::updateObjectsFromWidgets()

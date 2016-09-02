@@ -190,8 +190,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
 
     Q_ASSERT(object);
 
-    // make sure to unset at the end
-    setRefreshing(true);
+    m_refreshing = true;
 
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject.values(object)) {
         binding->setIsEnabled(enabled);
@@ -204,7 +203,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
         }
     }
 
-    setRefreshing(false);
+    m_refreshing = true;
 }
 
 ConfigTaskWidget::~ConfigTaskWidget()
@@ -327,7 +326,7 @@ void ConfigTaskWidget::onAutopilotConnect()
 
 void ConfigTaskWidget::populateWidgets()
 {
-    setRefreshing(true);
+    m_refreshing = true;
 
     emit populateWidgetsRequested();
 
@@ -337,7 +336,7 @@ void ConfigTaskWidget::populateWidgets()
         }
     }
 
-    setRefreshing(false);
+    m_refreshing = false;
 }
 
 void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
@@ -346,10 +345,10 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
         return;
     }
 
-    // make sure to unset at the end
-    setRefreshing(true);
+    m_refreshing = true;
 
     emit refreshWidgetsValuesRequested();
+
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
     foreach(WidgetBinding * binding, bindings) {
         if (binding->field() != NULL && binding->widget() != NULL) {
@@ -361,7 +360,10 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
         }
     }
 
-    setRefreshing(false);
+    // call specific implementation
+    refreshWidgetsValuesImpl(obj);
+
+    m_refreshing = false;
 }
 
 void ConfigTaskWidget::updateObjectsFromWidgets()
@@ -517,7 +519,7 @@ void ConfigTaskWidget::clearDirty()
 
 void ConfigTaskWidget::setDirty(bool value)
 {
-    if (isRefreshing()) {
+    if (m_refreshing) {
         return;
     }
     m_isDirty = value;
@@ -550,16 +552,6 @@ void ConfigTaskWidget::enableObjectUpdates()
             connect(binding->object(), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(refreshWidgetsValues(UAVObject *)), Qt::UniqueConnection);
         }
     }
-}
-
-bool ConfigTaskWidget::isRefreshing()
-{
-    return m_refreshing;
-}
-
-void ConfigTaskWidget::setRefreshing(bool refreshing)
-{
-    m_refreshing = refreshing;
 }
 
 void ConfigTaskWidget::objectUpdated(UAVObject *object)

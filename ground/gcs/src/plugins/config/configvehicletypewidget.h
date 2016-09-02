@@ -41,10 +41,7 @@ class Ui_AircraftWidget;
 class QWidget;
 
 /*
- * This class derives from ConfigTaskWidget and overrides its default "binding" mechanism.
- * This widget bypasses automatic synchronization of UAVObjects and UI by providing its own implementations of
- *     virtual void refreshWidgetsValues(UAVObject *obj = NULL);
- *     virtual void updateObjectsFromWidgets();
+ * This class derives from ConfigTaskWidget but almost bypasses the need its default "binding" mechanism.
  *
  * It does use the "dirty" state management and registers its relevant widgets with ConfigTaskWidget to do so.
  *
@@ -52,7 +49,6 @@ class QWidget;
  * Note: for "dirty" state management it is important to register the fields of child widgets with the parent
  * ConfigVehicleTypeWidget class.
  *
- * TODO consider to call "super" to benefit from default logic...
  * TODO improve handling of relationship with VehicleConfig derived classes (i.e. ConfigTaskWidget within ConfigTaskWidget)
  */
 class ConfigVehicleTypeWidget : public ConfigTaskWidget {
@@ -64,8 +60,10 @@ public:
     ConfigVehicleTypeWidget(QWidget *parent = 0);
     ~ConfigVehicleTypeWidget();
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+
 protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
 
 private:

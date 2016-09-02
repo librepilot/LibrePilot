@@ -88,6 +88,10 @@ public:
 protected:
     void enableControls(bool enable);
     void setWarning(QString message);
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+
+protected slots:
+    virtual void updateObjectsFromWidgets();
 
 private:
     Ui_OutputWidget *m_ui;
@@ -101,10 +105,6 @@ private:
     void assignOutputChannel(UAVDataObject *obj, QString &str);
     void setColor(QWidget *widget, const QColor color);
     void sendAllChannelTests();
-
-protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    virtual void updateObjectsFromWidgets();
 
 private slots:
     void updateWarnings(UAVObject *);

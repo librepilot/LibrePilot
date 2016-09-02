@@ -250,15 +250,16 @@ private:
     void doAddWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index = 0, double scale = 1,
                             bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *) {};
+
 protected slots:
     virtual void disableObjectUpdates();
     virtual void enableObjectUpdates();
     virtual void clearDirty();
-    bool isRefreshing();
-    void setRefreshing(bool refreshing);
     virtual void widgetsContentsChanged();
     virtual void populateWidgets();
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
+    void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
     virtual void helpButtonPressed();
 

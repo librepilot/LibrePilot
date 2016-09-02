@@ -314,12 +314,9 @@ void ConfigOutputWidget::setColor(QWidget *widget, const QColor color)
 /**
    Request the current config from the board (RC Output)
  */
-void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
+    Q_UNUSED(obj);
 
     // Get Actuator Settings
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
@@ -423,8 +420,6 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
     }
 
     updateSpinStabilizeCheckComboBoxes();
-
-    setRefreshing(false);
 }
 
 /**

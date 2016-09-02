@@ -120,7 +120,7 @@ QString VehicleConfig::updateConfigObjectsFromWidgets()
     return NULL;
 }
 
-void VehicleConfig::refreshWidgetsValues(UAVObject *obj)
+void VehicleConfig::refreshWidgetsValuesImpl(UAVObject *obj)
 {
     Q_UNUSED(obj);
 }

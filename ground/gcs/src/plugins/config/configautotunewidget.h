@@ -50,10 +50,10 @@ private:
     Ui_AutotuneWidget *m_autotune;
     StabilizationSettings::DataFields stabSettings;
 
-signals:
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
 
 private slots:

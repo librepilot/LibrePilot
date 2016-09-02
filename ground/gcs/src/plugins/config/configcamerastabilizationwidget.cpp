@@ -117,12 +117,9 @@ ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()
  * from UAVObjects, and then restores it. Aftewards it calls base class
  * function to take care of other widgets which were dynamically added.
  */
-void ConfigCameraStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
+    Q_UNUSED(obj);
 
     // Set module enable checkbox from OptionalModules UAVObject item.
     // It needs special processing because ConfigTaskWidget uses TRUE/FALSE
@@ -171,8 +168,6 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
             }
         }
     }
-
-    setRefreshing(false);
 }
 
 /*

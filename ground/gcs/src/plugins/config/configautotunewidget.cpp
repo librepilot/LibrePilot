@@ -149,13 +149,8 @@ void ConfigAutotuneWidget::recomputeStabilization()
     m_autotune->pitchAttitudeKi->setText(QString().number(stabSettings.PitchPI[StabilizationSettings::PITCHPI_KI]));
 }
 
-void ConfigAutotuneWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigAutotuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
-
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
 
     if (obj == hwSettings) {
@@ -163,8 +158,6 @@ void ConfigAutotuneWidget::refreshWidgetsValues(UAVObject *obj)
         m_autotune->enableAutoTune->setChecked(
             hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_AUTOTUNE] == HwSettings::OPTIONALMODULES_ENABLED);
     }
-
-    setRefreshing(false);
 }
 
 void ConfigAutotuneWidget::updateObjectsFromWidgets()

@@ -42,13 +42,16 @@ public:
     ConfigRevoNanoHWWidget(QWidget *parent = 0);
     ~ConfigRevoNanoHWWidget();
 
-private:
-    Ui_RevoNanoHWWidget *m_ui;
-    void setupCustomCombos();
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
+
+private:
+    Ui_RevoNanoHWWidget *m_ui;
+
+    void setupCustomCombos();
 
 private slots:
     void usbVCPPortChanged(int index);

@@ -42,14 +42,16 @@ public:
     ConfigRevoHWWidget(QWidget *parent = 0);
     ~ConfigRevoHWWidget();
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+
+protected slots:
+    virtual void updateObjectsFromWidgets();
+
 private:
     Ui_RevoHWWidget *m_ui;
 
     void setupCustomCombos();
-
-protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    virtual void updateObjectsFromWidgets();
 
 private slots:
     void usbVCPPortChanged(int index);

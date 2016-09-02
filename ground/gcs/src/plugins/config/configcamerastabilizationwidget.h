@@ -43,12 +43,14 @@ public:
     ConfigCameraStabilizationWidget(QWidget *parent = 0);
     ~ConfigCameraStabilizationWidget();
 
-private:
-    Ui_CameraStabilizationWidget *ui;
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
+
+private:
+    Ui_CameraStabilizationWidget *ui;
 
 private slots:
     void defaultRequestedSlot(int group);

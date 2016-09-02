@@ -103,19 +103,14 @@ void ConfigRevoHWWidget::setupCustomCombos()
     connect(m_ui->cbRcvr, SIGNAL(currentIndexChanged(int)), this, SLOT(rcvrPortChanged(int)));
 }
 
-void ConfigRevoHWWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigRevoHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
+    Q_UNUSED(obj);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
     rcvrPortChanged(0);
-
-    setRefreshing(false);
 }
 
 void ConfigRevoHWWidget::updateObjectsFromWidgets()

@@ -414,12 +414,9 @@ void ConfigRevoWidget::displayTemperatureRange(float temperatureRange)
  * Called by the ConfigTaskWidget parent when RevoCalibration is updated
  * to update the UI
  */
-void ConfigRevoWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigRevoWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
+    Q_UNUSED(obj);
 
     m_ui->isSetCheckBox->setEnabled(false);
 
@@ -432,8 +429,6 @@ void ConfigRevoWidget::refreshWidgetsValues(UAVObject *obj)
 
     updateMagBeVector();
     onBoardAuxMagError();
-
-    setRefreshing(false);
 }
 
 void ConfigRevoWidget::updateObjectsFromWidgets()

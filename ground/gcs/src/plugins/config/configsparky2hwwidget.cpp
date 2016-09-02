@@ -99,18 +99,13 @@ void ConfigSparky2HWWidget::setupCustomCombos()
     connect(m_ui->cbMain, SIGNAL(currentIndexChanged(int)), this, SLOT(mainPortChanged(int)));
 }
 
-void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigSparky2HWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
-
-    // make sure to unset at the end
-    setRefreshing(true);
+    Q_UNUSED(obj);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
-
-    setRefreshing(false);
 }
 
 void ConfigSparky2HWWidget::updateObjectsFromWidgets()

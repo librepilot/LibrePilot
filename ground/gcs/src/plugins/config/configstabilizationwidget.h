@@ -53,6 +53,13 @@ public:
     ~ConfigStabilizationWidget();
     bool shouldObjectBeSaved(UAVObject *object);
 
+protected:
+    QString mapObjectName(const QString objectName);
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+
+protected slots:
+    virtual void updateObjectsFromWidgets();
+
 private:
     Ui_StabilizationWidget *ui;
     QTimer *realtimeUpdates;
@@ -85,13 +92,6 @@ private:
     void setupStabBanksGUI();
     void resetStabBank(int bank);
     void restoreStabBank(int bank);
-
-protected:
-    QString mapObjectName(const QString objectName);
-
-protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    virtual void updateObjectsFromWidgets();
 
 private slots:
     void realtimeUpdatesSlot(bool value);

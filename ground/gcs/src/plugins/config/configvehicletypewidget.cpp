@@ -139,7 +139,7 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     addUAVObject("MixerSettings");
     addUAVObject("ActuatorSettings");
 
-    // The order of the tabs is important since they correspond with the AirframCategory enum
+    // The order of the tabs is important since they correspond with the AirframeCategory enum
     m_aircraft->aircraftType->addTab(tr("Multirotor"));
     m_aircraft->aircraftType->addTab(tr("Fixed Wing"));
     m_aircraft->aircraftType->addTab(tr("Helicopter"));
@@ -174,20 +174,17 @@ void ConfigVehicleTypeWidget::switchAirframeType(int index)
 }
 
 /**
-   Refreshes the current value of the SystemSettings which holds the aircraft type
-   Note: The default behavior of ConfigTaskWidget is bypassed.
-   Therefore no automatic synchronization of UAV Objects to UI is done.
+   Refreshes the current value of the SystemSettings which holds the aircraft type.
+   Note: no widgets are bound so the default behavior of ConfigTaskWidget will not do much.
+   Almost everything is handled here to the exception of one case (see ConfigCustomWidget...)
  */
-void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigVehicleTypeWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(obj);
+    Q_UNUSED(obj);
 
     if (!allObjectsUpdated()) {
         return;
     }
-
-    // make sure to unset at the end
-    setRefreshing(true);
 
     // Get the Airframe type from the system settings:
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
@@ -234,8 +231,6 @@ void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *obj)
         }
     }
     m_aircraft->nameEdit->setText(name);
-
-    setRefreshing(false);
 }
 
 /**

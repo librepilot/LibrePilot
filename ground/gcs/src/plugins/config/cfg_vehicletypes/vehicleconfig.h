@@ -244,8 +244,9 @@ protected:
     double  getCurveMin(QList<double> *curve);
     double  getCurveMax(QList<double> *curve);
 
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+
 protected slots:
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
     virtual void updateObjectsFromWidgets();
 
 private:

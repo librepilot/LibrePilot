@@ -12,7 +12,7 @@
         <field name="ZeroDuringArming" units="channel" type="enum" elements="1" options="False,True" defaultvalue="True"/>
         <field name="BiasCorrectGyro" units="channel" type="enum" elements="1" options="False,True" defaultvalue="True"/>
         <field name="InitialZeroWhenBoardSteady" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
-        <field name="BoardSteadyMaxVariance" units="(deg/s)^2" type="float" elements="1" defaultvalue="2"/>
+        <field name="BoardSteadyMaxVariance" units="(deg/s)^2" type="float" elements="1" defaultvalue="5"/>
         <field name="TrimFlight" units="channel" type="enum" elements="1" options="NORMAL,START,LOAD" defaultvalue="NORMAL"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>

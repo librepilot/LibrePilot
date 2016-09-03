@@ -3,7 +3,7 @@
         <description>Contains position and timestamp of each camera operation</description>
         <field name="Latitude" units="degrees x 10^-7" type="int32" elements="1"/>
         <field name="Longitude" units="degrees x 10^-7" type="int32" elements="1"/>
-        <field name="Altitude" units="meters" type="float" elements="1"/>
+        <field name="Altitude" units="m" type="float" elements="1"/>
         <field name="Roll" units="degrees" type="float" elements="1"/>
         <field name="Pitch" units="degrees" type="float" elements="1"/>
         <field name="Yaw" units="degrees" type="float" elements="1"/>
@@ -13,7 +13,7 @@
         <field name="TriggerHour" units="" type="int8" elements="1"/>
         <field name="TriggerMinute" units="" type="int8" elements="1"/>
         <field name="TriggerSecond" units="" type="int8" elements="1"/>
-        <field name="TriggerMilliSecond" units="" type="int16" elements="1"/>
+        <field name="TriggerMillisecond" units="ms" type="int16" elements="1"/>
         <field name="Activity" units="" type="enum" elements="1" options="Idle,TriggerPicture,StartVideo,StopVideo" default="None"/>
         <field name="Reason" units="" type="enum" elements="1" options="Manual,AutoDistance,AutoTime" default="Manual"/>
         <field name="SystemTS" units="ms" type="uint32" elements="1"/>

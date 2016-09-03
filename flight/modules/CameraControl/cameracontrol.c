@@ -162,7 +162,7 @@ static void CameraControlTask()
                     float dn = pos.North - ccd->lastTriggerNEDPosition[0];
                     float de = pos.East - ccd->lastTriggerNEDPosition[1];
                     float distance = sqrtf((dn * dn) + (de * de));
-                    ccd->activity.TriggerMilliSecond = (int16_t)distance * 10.0f;
+                    ccd->activity.TriggerMillisecond = (int16_t)distance * 10.0f;
                     if (distance > ccd->settings.SpaceInterval) {
                         trigger = true;
                         ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTODISTANCE;
@@ -328,7 +328,7 @@ static void FillActivityInfo()
         activity->TriggerHour   = time.Hour;
         activity->TriggerMinute = time.Minute;
         activity->TriggerSecond = time.Second;
-        activity->TriggerMilliSecond = time.MilliSecond;
+        activity->TriggerMillisecond = time.Millisecond;
     }
 
     activity->SystemTS = xTaskGetTickCount() * portTICK_RATE_MS;

@@ -439,7 +439,7 @@ static void parse_ubx_nav_timeutc(struct UBXPacket *ubx, __attribute__((unused))
         GpsTime.Hour   = timeutc->hour;
         GpsTime.Minute = timeutc->min;
         GpsTime.Second = timeutc->sec;
-        GpsTime.MilliSecond = (int16_t)timeutc->nano / 1000000;
+        GpsTime.Millisecond = (int16_t)(timeutc->nano / 1000000);
         GPSTimeSet(&GpsTime);
     } else {
         // Time is not valid, nothing to do

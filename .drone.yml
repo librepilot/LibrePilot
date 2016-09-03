@@ -14,8 +14,6 @@ build:
     - mingw32-make gcs
     - mingw32-make package
     - mv `ls build/LibrePilot-*.exe` build/$$BRANCH-$$COMMIT-$$arch-package.exe 
-    - >
-      curl -X POST --data-urlencode 'payload={"text": "Tea-CI just finished a build: $$BRANCH $${COMMIT:0:8} ($$arch bit)"}' https://hooks.slack.com/services/$$SLACK_HOOK
 
 clone:
   depth: 1000
@@ -30,7 +28,6 @@ publish:
   bintray:
     username: marcproe
     api_key: $$BINTRAY_API_KEY
-    debug: true
     artifacts:
       - file: build/$$BRANCH-$$COMMIT-$$arch-package.exe
         owner: librepilot

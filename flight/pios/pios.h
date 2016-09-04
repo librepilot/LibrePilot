@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       pios.h
- * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2015
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (C) 2015
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013
  *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @brief      Main PiOS header.

@@ -50,7 +50,10 @@ UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent
     m_viewoptions = new Ui_viewoptions();
     m_viewoptions->setupUi(m_viewoptionsDialog);
 
-    m_model = new UAVObjectTreeModel(this);
+    m_model = new UAVObjectTreeModel(this,
+                                     m_viewoptions->cbCategorized->isChecked(),
+                                     m_viewoptions->cbMetaData->isChecked(),
+                                     m_viewoptions->cbScientific->isChecked());
 
     m_modelProxy = new TreeSortFilterProxyModel(this);
     m_modelProxy->setSourceModel(m_model);
@@ -67,7 +70,6 @@ UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent
 
     m_mustacheTemplate = loadFileIntoString(QString(":/uavobjectbrowser/resources/uavodescription.mustache"));
 
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
     showDescription(m_viewoptions->cbDescription->isChecked());
 
     connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
@@ -80,14 +82,11 @@ UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent
     connect(m_browser->tbView, SIGNAL(clicked()), this, SLOT(viewSlot()));
     connect(m_browser->splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(splitterMoved()));
 
-    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(showMetaData(bool)));
-    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(categorize(bool)));
-    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
     connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(showDescription(bool)));
-    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(useScientificNotation(bool)));
-    connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
+
+    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(updateViewOptions()));
+    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(updateViewOptions()));
+    connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(updateViewOptions()));
 
     // search field and button
     connect(m_browser->searchLine, SIGNAL(textChanged(QString)), this, SLOT(searchLineChanged(QString)));
@@ -114,68 +113,13 @@ void UAVObjectBrowserWidget::setSplitterState(QByteArray state)
     m_browser->splitter->restoreState(state);
 }
 
-void UAVObjectBrowserWidget::showMetaData(bool show)
-{
-    // TODO update the model directly instead of hiding rows...
-    QList<QModelIndex> metaIndexes = m_model->getMetaDataIndexes();
-    foreach(QModelIndex modelIndex, metaIndexes) {
-        QModelIndex proxyModelIndex = m_modelProxy->mapFromSource(modelIndex);
-
-        m_browser->treeView->setRowHidden(proxyModelIndex.row(), proxyModelIndex.parent(), !show);
-    }
-}
-
 void UAVObjectBrowserWidget::showDescription(bool show)
 {
     m_browser->descriptionText->setVisible(show);
-}
 
-void UAVObjectBrowserWidget::categorize(bool categorize)
-{
-    // TODO we should update the model instead of rebuilding it
-    // a side effect of rebuilding is that some state is lost (expand state, ...)
-    UAVObjectTreeModel *model = new UAVObjectTreeModel(0, categorize, m_viewoptions->cbScientific->isChecked());
-
-    model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
-    model->setManuallyChangedColor(m_manuallyChangedColor);
-    model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
-    model->setUnknowObjectColor(m_unknownObjectColor);
-
-    UAVObjectTreeModel *tmpModel = m_model;
-    m_model = model;
-    m_modelProxy->setSourceModel(m_model);
-    delete tmpModel;
-
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
-
-    // force an expand all if search text is not empty
-    if (!m_browser->searchLine->text().isEmpty()) {
-        searchLineChanged(m_browser->searchLine->text());
-    }
-}
-
-void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
-{
-    // TODO we should update the model instead of rebuilding it
-    // a side effect of rebuilding is that some state is lost (expand state, ...)
-    UAVObjectTreeModel *model = new UAVObjectTreeModel(0, m_viewoptions->cbCategorized->isChecked(), scientific);
-
-    model->setManuallyChangedColor(m_manuallyChangedColor);
-    model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    model->setUnknowObjectColor(m_unknownObjectColor);
-
-    UAVObjectTreeModel *tmpModel = m_model;
-    m_model = model;
-    m_modelProxy->setSourceModel(m_model);
-    delete tmpModel;
-
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
-
-    // force an expand all if search text is not empty
-    if (!m_browser->searchLine->text().isEmpty()) {
-        searchLineChanged(m_browser->searchLine->text());
-    }
+    // persist options
+    emit viewOptionsChanged(m_viewoptions->cbCategorized->isChecked(), m_viewoptions->cbScientific->isChecked(),
+                            m_viewoptions->cbMetaData->isChecked(), m_viewoptions->cbDescription->isChecked());
 }
 
 void UAVObjectBrowserWidget::sendUpdate()
@@ -321,8 +265,30 @@ void UAVObjectBrowserWidget::viewSlot()
     }
 }
 
-void UAVObjectBrowserWidget::viewOptionsChangedSlot()
+void UAVObjectBrowserWidget::updateViewOptions()
 {
+    // TODO we should update the model instead of rebuilding it
+    // a side effect of rebuilding is that some state is lost (expand state, ...)
+    UAVObjectTreeModel *model = new UAVObjectTreeModel(this,
+                                                       m_viewoptions->cbCategorized->isChecked(),
+                                                       m_viewoptions->cbMetaData->isChecked(),
+                                                       m_viewoptions->cbScientific->isChecked());
+
+    model->setManuallyChangedColor(m_manuallyChangedColor);
+    model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
+    model->setUnknowObjectColor(m_unknownObjectColor);
+
+    UAVObjectTreeModel *tmpModel = m_model;
+    m_model = model;
+    m_modelProxy->setSourceModel(m_model);
+    delete tmpModel;
+
+    // force an expand all if search text is not empty
+    if (!m_browser->searchLine->text().isEmpty()) {
+        searchLineChanged(m_browser->searchLine->text());
+    }
+
+    // persist options
     emit viewOptionsChanged(m_viewoptions->cbCategorized->isChecked(), m_viewoptions->cbScientific->isChecked(),
                             m_viewoptions->cbMetaData->isChecked(), m_viewoptions->cbDescription->isChecked());
 }

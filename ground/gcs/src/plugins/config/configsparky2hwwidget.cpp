@@ -31,6 +31,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+#include <uavobjecthelper.h>
 
 #include "hwsettings.h"
 
@@ -126,7 +127,9 @@ void ConfigSparky2HWWidget::updateObjectsFromWidgets()
         data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_DISABLED;
     }
 
-    hwSettings->setData(data);
+    UAVObjectUpdaterHelper updateHelper;
+    hwSettings->setData(data, false);
+    updateHelper.doObjectAndWait(hwSettings);
 }
 
 void ConfigSparky2HWWidget::usbVCPPortChanged(int index)

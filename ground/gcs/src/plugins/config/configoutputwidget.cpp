@@ -37,6 +37,7 @@
 #include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+#include <uavobjecthelper.h>
 
 #include "mixersettings.h"
 #include "actuatorcommand.h"
@@ -459,7 +460,9 @@ void ConfigOutputWidget::updateObjectsFromWidgets()
                                                     ActuatorSettings::MOTORSSPINWHILEARMED_FALSE;
 
         // Apply settings
-        actuatorSettings->setData(actuatorSettingsData);
+        UAVObjectUpdaterHelper updateHelper;
+        actuatorSettings->setData(actuatorSettingsData, false);
+        updateHelper.doObjectAndWait(actuatorSettings);
     }
 
     FlightModeSettings *flightModeSettings = FlightModeSettings::GetInstance(getObjectManager());

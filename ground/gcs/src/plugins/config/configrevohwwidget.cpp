@@ -31,6 +31,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
+#include <uavobjecthelper.h>
 
 #include "hwsettings.h"
 
@@ -131,7 +132,9 @@ void ConfigRevoHWWidget::updateObjectsFromWidgets()
         data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_DISABLED;
     }
 
-    hwSettings->setData(data);
+    UAVObjectUpdaterHelper updateHelper;
+    hwSettings->setData(data, false);
+    updateHelper.doObjectAndWait(hwSettings);
 }
 
 void ConfigRevoHWWidget::usbVCPPortChanged(int index)

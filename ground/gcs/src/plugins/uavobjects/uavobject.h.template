@@ -77,7 +77,7 @@ $(DATAFIELDINFO)
     $(NAME)();
 
     DataFields getData();
-    void setData(const DataFields& data);
+    void setData(const DataFields& data, bool emitUpdateEvents = true);
     Metadata getDefaultMetadata();
     UAVDataObject* clone(quint32 instID);
     UAVDataObject* dirtyClone();

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       ConfigRevoWidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -28,6 +29,7 @@
 
 #include "ui_revosensors.h"
 
+#include <uavobjecthelper.h>
 #include <attitudestate.h>
 #include <attitudesettings.h>
 #include <revocalibration.h>
@@ -258,6 +260,8 @@ void ConfigRevoWidget::updateVisualHelp()
 void ConfigRevoWidget::storeAndClearBoardRotation()
 {
     if (!isBoardRotationStored) {
+        UAVObjectUpdaterHelper updateHelper;
+
         // Store current board rotation
         isBoardRotationStored = true;
         AttitudeSettings *attitudeSettings = AttitudeSettings::GetInstance(getObjectManager());
@@ -271,7 +275,9 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]    = 0;
         data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]   = 0;
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]  = 0;
-        attitudeSettings->setData(data);
+
+        attitudeSettings->setData(data, false);
+        updateHelper.doObjectAndWait(attitudeSettings);
 
         // Store current aux mag board rotation
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
@@ -285,13 +291,17 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]    = 0;
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]   = 0;
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH]  = 0;
-        auxMagSettings->setData(auxMagData);
+
+        auxMagSettings->setData(auxMagData, false);
+        updateHelper.doObjectAndWait(auxMagSettings);
     }
 }
 
 void ConfigRevoWidget::recallBoardRotation()
 {
     if (isBoardRotationStored) {
+        UAVObjectUpdaterHelper updateHelper;
+
         // Recall current board rotation
         isBoardRotationStored = false;
 
@@ -302,7 +312,9 @@ void ConfigRevoWidget::recallBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]   = storedBoardRotation[AttitudeSettings::BOARDROTATION_YAW];
         data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]  = storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
-        attitudeSettings->setData(data);
+
+        attitudeSettings->setData(data, false);
+        updateHelper.doObjectAndWait(attitudeSettings);
 
         // Restore the aux mag board rotation
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
@@ -311,7 +323,9 @@ void ConfigRevoWidget::recallBoardRotation()
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW];
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
         auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH] = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_PITCH];
-        auxMagSettings->setData(auxMagData);
+
+        auxMagSettings->setData(auxMagData, false);
+        updateHelper.doObjectAndWait(auxMagSettings);
     }
 }
 

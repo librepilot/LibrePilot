@@ -29,6 +29,7 @@
 #include "vehicleconfigurationhelper.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectutilmanager.h"
+#include <uavobjecthelper.h>
 
 #include "hwsettings.h"
 #include "actuatorsettings.h"
@@ -403,7 +404,10 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
     default:
         break;
     }
-    hwSettings->setData(data);
+    UAVObjectUpdaterHelper updateHelper;
+    hwSettings->setData(data, false);
+    updateHelper.doObjectAndWait(hwSettings);
+
     addModifiedObject(hwSettings, tr("Writing hardware settings"));
 }
 
@@ -747,9 +751,15 @@ void VehicleConfigurationHelper::applyFlightModeConfiguration()
     data.FlightModePosition[3]     = FlightModeSettings::FLIGHTMODEPOSITION_STABILIZED4;
     data.FlightModePosition[4]     = FlightModeSettings::FLIGHTMODEPOSITION_STABILIZED5;
     data.FlightModePosition[5]     = FlightModeSettings::FLIGHTMODEPOSITION_STABILIZED6;
-    modeSettings->setData(data);
+
+    UAVObjectUpdaterHelper updateHelper;
+
+    modeSettings->setData(data, false);
+    updateHelper.doObjectAndWait(modeSettings);
     addModifiedObject(modeSettings, tr("Writing flight mode settings 1/2"));
-    controlSettings->setData(data2);
+
+    controlSettings->setData(data2, false);
+    updateHelper.doObjectAndWait(controlSettings);
     addModifiedObject(controlSettings, tr("Writing flight mode settings 2/2"));
 }
 
@@ -814,8 +824,10 @@ void VehicleConfigurationHelper::applyStabilizationConfiguration()
 
     Q_ASSERT(stabSettings);
 
+    UAVObjectUpdaterHelper updateHelper;
     StabilizationSettings defaultSettings;
-    stabSettings->setData(defaultSettings.getData());
+    stabSettings->setData(defaultSettings.getData(), false);
+    updateHelper.doObjectAndWait(stabSettings);
     addModifiedObject(stabSettings, tr("Writing stabilization settings"));
 }
 
@@ -959,7 +971,9 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
     }
 
     // Apply updates
-    mSettings->setData(mSettings->getData());
+    UAVObjectUpdaterHelper updateHelper;
+    mSettings->setData(mSettings->getData(), false);
+    updateHelper.doObjectAndWait(mSettings);
     addModifiedObject(mSettings, tr("Writing mixer settings"));
 }
 
@@ -975,7 +989,9 @@ void VehicleConfigurationHelper::applyMultiGUISettings(SystemSettings::AirframeT
         data.GUIConfigData[i] = guiConfig.UAVObject[i];
     }
 
-    sSettings->setData(data);
+    UAVObjectUpdaterHelper updateHelper;
+    sSettings->setData(data, false);
+    updateHelper.doObjectAndWait(sSettings);
     addModifiedObject(sSettings, tr("Writing vehicle settings"));
 }
 

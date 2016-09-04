@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       sixpointcalibrationmodel.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  *
  * @brief      Six point calibration for Magnetometer and Accelerometer
  * @see        The GNU Public License (GPL) Version 3
@@ -29,6 +30,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include "calibration/calibrationuiutils.h"
 #include "uavobjectmanager.h"
+#include <uavobjecthelper.h>
 
 #include <math.h>
 #include <QThread>
@@ -156,6 +158,8 @@ void SixPointCalibrationModel::start(bool calibrateAccel, bool calibrateMag)
     // Store and reset board rotation before calibration starts
     storeAndClearBoardRotation();
 
+    UAVObjectUpdaterHelper updateHelper;
+
     // Calibration accel
     AccelGyroSettings::DataFields accelGyroSettingsData = accelGyroSettings->getData();
     memento.accelGyroSettingsData = accelGyroSettingsData;
@@ -167,7 +171,8 @@ void SixPointCalibrationModel::start(bool calibrateAccel, bool calibrateMag)
     accelGyroSettingsData.accel_bias[AccelGyroSettings::ACCEL_BIAS_Y]   = 0;
     accelGyroSettingsData.accel_bias[AccelGyroSettings::ACCEL_BIAS_Z]   = 0;
 
-    accelGyroSettings->setData(accelGyroSettingsData);
+    accelGyroSettings->setData(accelGyroSettingsData, false);
+    updateHelper.doObjectAndWait(accelGyroSettings);
 
     // Calibration mag
     RevoCalibration::DataFields revoCalibrationData = revoCalibration->getData();
@@ -187,7 +192,8 @@ void SixPointCalibrationModel::start(bool calibrateAccel, bool calibrateMag)
     // Disable adaptive mag nulling
     revoCalibrationData.MagBiasNullingRate = 0;
 
-    revoCalibration->setData(revoCalibrationData);
+    revoCalibration->setData(revoCalibrationData, false);
+    updateHelper.doObjectAndWait(revoCalibration);
 
     // Calibration AuxMag
     AuxMagSettings::DataFields auxMagSettingsData = auxMagSettings->getData();
@@ -207,9 +213,8 @@ void SixPointCalibrationModel::start(bool calibrateAccel, bool calibrateMag)
     // Disable adaptive mag nulling
     auxMagSettingsData.MagBiasNullingRate = 0;
 
-    auxMagSettings->setData(auxMagSettingsData);
-
-    QThread::usleep(100000);
+    auxMagSettings->setData(auxMagSettingsData, false);
+    updateHelper.doObjectAndWait(auxMagSettings);
 
     mag_accum_x.clear();
     mag_accum_y.clear();

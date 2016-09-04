@@ -11,7 +11,7 @@
 		defaultvalue="Attitude,Attitude,AxisLock,Manual"
 		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
 			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
 			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization2Settings" units="" type="enum"
@@ -20,7 +20,7 @@
 		defaultvalue="Attitude,Attitude,Rate,Manual"
 		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
 			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
 			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization3Settings" units="" type="enum"
@@ -29,7 +29,7 @@
 		defaultvalue="Rate,Rate,Rate,Manual"
 		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
 			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
 			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization4Settings" units="" type="enum"
@@ -38,7 +38,7 @@
 		defaultvalue="Attitude,Attitude,AxisLock,CruiseControl"
 		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
 			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
 			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization5Settings" units="" type="enum"
@@ -47,7 +47,7 @@
 		defaultvalue="Attitude,Attitude,Rate,CruiseControl"
 		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
 			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
 			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization6Settings" units="" type="enum"
@@ -56,7 +56,7 @@
 		defaultvalue="Rate,Rate,Rate,Manual"
 		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
 			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
 			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
 

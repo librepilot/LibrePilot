@@ -2869,7 +2869,7 @@ border-radius: 5;</string>
                          </size>
                         </property>
                         <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro + slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro+ slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="minimum">
                          <number>0</number>
@@ -2968,7 +2968,7 @@ border-radius: 5;</string>
                          </size>
                         </property>
                         <property name="toolTip">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro + slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro+ slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                         </property>
                         <property name="minimum">
                          <number>0</number>
@@ -3037,7 +3037,7 @@ border-radius: 5;</string>
                        </widget>
                       </item>
                       <item row="2" column="0">
-                       <widget class="QLabel" name="AcroFactorPitchLabel_13">
+                       <widget class="QLabel" name="AcroFactorPitchLabel">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                           <horstretch>0</horstretch>
@@ -3052,6 +3052,105 @@ border-radius: 5;</string>
                         </property>
                         <property name="text">
                          <string>Pitch Factor</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="2">
+                       <widget class="QSpinBox" name="AcroFactorYawSpinBox">
+                        <property name="minimumSize">
+                         <size>
+                          <width>60</width>
+                          <height>22</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>60</width>
+                          <height>22</height>
+                         </size>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="value">
+                         <number>50</number>
+                        </property>
+                        <property name="objrelation" stdset="0">
+                         <stringlist>
+                          <string>objname:StabilizationSettingsBankX</string>
+                          <string>fieldname:AcroInsanityFactor</string>
+                          <string>scale:1</string>
+                          <string>buttongroup:77</string>
+                          <string>element:Yaw</string>
+                         </stringlist>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="1">
+                       <widget class="QSlider" name="AcroFactorYawSlider">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>25</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Acro+ slider can be adjusted to change the amount of manual control blending.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>100</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>50</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="tickPosition">
+                         <enum>QSlider::TicksBelow</enum>
+                        </property>
+                        <property name="tickInterval">
+                         <number>5</number>
+                        </property>
+                        <property name="objrelation" stdset="0">
+                         <stringlist>
+                          <string>objname:StabilizationSettingsBankX</string>
+                          <string>fieldname:AcroInsanityFactor</string>
+                          <string>scale:1</string>
+                          <string>buttongroup:77</string>
+                          <string>element:Yaw</string>
+                         </stringlist>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="QLabel" name="AcroFactorYawLabel">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>80</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Yaw Factor</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

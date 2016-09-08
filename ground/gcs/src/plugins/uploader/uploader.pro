@@ -63,8 +63,9 @@ FORMS += \
 
 RESOURCES += uploader.qrc
 
-exists( ../../../../../build/gcs-synthetics/opfw_resource.qrc ) {
-    RESOURCES += ../../../../../build/gcs-synthetics/opfw_resource.qrc
+# TODO should use GCS_SYNTH_DIR... but that will break QtCreator  
+exists( ../../../../../build/gcs-synthetics/fw_resource.qrc ) {
+    RESOURCES += ../../../../../build/gcs-synthetics/fw_resource.qrc
 } else {
-    message("opfw_resource.qrc is not available, automatic firmware upgrades are disabled")
+    message("fw_resource.qrc is not available, automatic firmware upgrades are disabled")
 }

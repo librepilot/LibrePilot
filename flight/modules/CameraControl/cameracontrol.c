@@ -62,7 +62,8 @@ static struct CameraControl_data {
     CameraStatus lastOutputStatus;
     CameraStatus manualInput;
     CameraStatus lastManualInput;
-    bool  autoTriggerEnabled;
+    bool autoTriggerEnabled;
+    uint16_t     ImageId;
     float HomeECEF[3];
     float HomeRne[3][3];
 } *ccd;
@@ -138,12 +139,13 @@ static void CameraControlTask()
     bool trigger = false;
     PositionStateData pos;
     uint32_t timeSinceLastShot = PIOS_DELAY_DiffuS(ccd->lastTriggerTimeRaw);
+    CameraStatus newStatus;
 
     if (checkActivation()) {
         if (ccd->manualInput != ccd->lastManualInput && ccd->manualInput != CAMERASTATUS_Idle) {
             // Manual override
-            trigger = true;
-            ccd->outputStatus = ccd->manualInput;
+            trigger   = true;
+            newStatus = ccd->manualInput;
             ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_MANUAL;
         } else {
             // MinimumTimeInterval sets a hard limit on time between two consecutive shots, i.e. the minimum time between shots the camera can achieve
@@ -152,7 +154,8 @@ static void CameraControlTask()
                 // check trigger conditions
                 if (ccd->settings.TimeInterval > 0) {
                     if (timeSinceLastShot > ccd->settings.TimeInterval * (1000 * 1000)) {
-                        trigger = true;
+                        trigger   = true;
+                        newStatus = CAMERASTATUS_Shot;
                         ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTOTIME;
                     }
                 }
@@ -164,7 +167,8 @@ static void CameraControlTask()
                     float distance = sqrtf((dn * dn) + (de * de));
                     ccd->activity.TriggerMillisecond = (int16_t)distance * 10.0f;
                     if (distance > ccd->settings.SpaceInterval) {
-                        trigger = true;
+                        trigger   = true;
+                        newStatus = CAMERASTATUS_Shot;
                         ccd->activity.Reason = CAMERACONTROLACTIVITY_REASON_AUTODISTANCE;
                     }
                 }
@@ -172,7 +176,8 @@ static void CameraControlTask()
         }
     }
     if (trigger) {
-        ccd->outputStatus = CAMERASTATUS_Shot;
+        ccd->outputStatus = newStatus;
+        ccd->ImageId++;
         ccd->lastTriggerTimeRaw = PIOS_DELAY_GetRaw();
         ccd->lastTriggerNEDPosition[0] = pos.North;
         ccd->lastTriggerNEDPosition[1] = pos.East;
@@ -331,6 +336,7 @@ static void FillActivityInfo()
         activity->TriggerMillisecond = time.Millisecond;
     }
 
+    activity->ImageId  = ccd->ImageId;
     activity->SystemTS = xTaskGetTickCount() * portTICK_RATE_MS;
     {
         AttitudeStateData attitude;

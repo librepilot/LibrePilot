@@ -7,6 +7,7 @@
         <field name="Roll" units="degrees" type="float" elements="1"/>
         <field name="Pitch" units="degrees" type="float" elements="1"/>
         <field name="Yaw" units="degrees" type="float" elements="1"/>
+        <field name="ImageId" units="" type="uint16" elements="1"/>
         <field name="TriggerMonth" units="" type="int8" elements="1"/>
         <field name="TriggerDay" units="" type="int8" elements="1"/>
         <field name="TriggerYear" units="" type="int16" elements="1"/>

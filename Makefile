@@ -50,9 +50,9 @@ export TOOLS_DIR
 export BUILD_DIR     := $(CURDIR)/build
 export PACKAGE_DIR   := $(BUILD_DIR)/package
 export DIST_DIR      := $(BUILD_DIR)/dist
-export OPGCSSYNTHDIR := $(BUILD_DIR)/gcs-synthetics
+export GCS_SYNTH_DIR := $(BUILD_DIR)/gcs-synthetics
 
-DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(OPGCSSYNTHDIR)
+DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(GCS_SYNTH_DIR)
 
 # Naming for binaries and packaging etc,.
 export ORG_BIG_NAME := LibrePilot
@@ -225,9 +225,9 @@ uavobjects_clean:
 
 # When building any of the "all_*" targets, tell all sub makefiles to display
 # additional details on each line of output to describe which build and target
-# that each line applies to. The same applies also to all, opfw_resource,
+# that each line applies to. The same applies also to all, fw_resource,
 # package targets
-ifneq ($(strip $(filter all_% all opfw_resource package,$(MAKECMDGOALS))),)
+ifneq ($(strip $(filter all_% all fw_resource package,$(MAKECMDGOALS))),)
     export ENABLE_MSG_EXTRA := yes
 endif
 
@@ -323,38 +323,39 @@ PACKAGE_FW_TARGETS := fw_coptercontrol fw_oplinkmini fw_revolution fw_osd fw_rev
 # Rules to generate GCS resources used to embed firmware binaries into the GCS.
 # They are used later by the vehicle setup wizard to update board firmware.
 # To open a firmware image use ":/firmware/fw_coptercontrol.opfw"
-OPFW_RESOURCE := $(OPGCSSYNTHDIR)/opfw_resource.qrc
+FW_RESOURCE := $(GCS_SYNTH_DIR)/fw_resource.qrc
 
 ifeq ($(WITH_PREBUILT_FW),)
 FIRMWARE_DIR := $(FLIGHT_OUT_DIR)
 # We need to build the FW targets
-$(OPFW_RESOURCE): $(PACKAGE_FW_TARGETS)
+$(FW_RESOURCE): $(PACKAGE_FW_TARGETS)
 else
 FIRMWARE_DIR := $(WITH_PREBUILT_FW)
 endif
 
-OPFW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(FIRMWARE_DIR)/$(fw_targ)/$(fw_targ).opfw)
-OPFW_CONTENTS := \
+FW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(FIRMWARE_DIR)/$(fw_targ)/$(fw_targ).opfw)
+FW_CONTENTS := \
 <!DOCTYPE RCC><RCC version="1.0"> \
     <qresource prefix="/firmware"> \
-        $(foreach fw_file, $(OPFW_FILES), <file alias="$(notdir $(fw_file))">$(call system_path,$(fw_file))</file>) \
+        $(foreach fw_file, $(FW_FILES), <file alias="$(notdir $(fw_file))">$(call system_path,$(fw_file))</file>) \
     </qresource> \
 </RCC>
 
-.PHONY: opfw_resource
-opfw_resource: $(OPFW_RESOURCE)
+.PHONY: fw_resource
+fw_resource: $(FW_RESOURCE)
+fw_resource: $(FW_RESOURCE)
 
-$(OPFW_RESOURCE): | $(OPGCSSYNTHDIR)
-	@$(ECHO) Generating OPFW resource file $(call toprel, $@)
-	$(V1) $(ECHO) $(QUOTE)$(OPFW_CONTENTS)$(QUOTE) > $@
+$(FW_RESOURCE): | $(GCS_SYNTH_DIR)
+	@$(ECHO) Generating FW resource file $(call toprel, $@)
+	$(V1) $(ECHO) $(QUOTE)$(FW_CONTENTS)$(QUOTE) > $@
 
-# If opfw_resource or all firmware are requested, GCS should depend on the resource
-ifneq ($(strip $(filter opfw_resource all all_fw all_flight package,$(MAKECMDGOALS))),)
-$(GCS_MAKEFILE): $(OPFW_RESOURCE)
+# If fw_resource or all firmware are requested, GCS should depend on the resource
+ifneq ($(strip $(filter fw_resource all all_fw all_flight package,$(MAKECMDGOALS))),)
+$(GCS_MAKEFILE): $(FW_RESOURCE)
 endif
 
 # Packaging targets: package
-#  - builds all firmware, opfw_resource, gcs
+#  - builds all firmware, fw_resource, gcs
 #  - copies firmware into a package directory
 #  - calls paltform-specific packaging script
 
@@ -712,7 +713,7 @@ help:
 	@$(ECHO)
 	@$(ECHO) "   [Packaging]"
 	@$(ECHO) "     package              - Build and package the platform-dependent package (no clean)"
-	@$(ECHO) "     opfw_resource        - Generate resources to embed firmware binaries into the GCS"
+	@$(ECHO) "     fw_resource          - Generate resources to embed firmware binaries into the GCS"
 	@$(ECHO) "     dist                 - Generate source archive for distribution"
 	@$(ECHO) "     fw_dist              - Generate archive of firmware"
 	@$(ECHO) "     install              - Install GCS to \"DESTDIR\" with prefix \"prefix\" (Linux only)"

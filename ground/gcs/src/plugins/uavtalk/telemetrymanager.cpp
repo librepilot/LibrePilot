@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       telemetrymanager.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVTalkPlugin UAVTalk Plugin
@@ -32,9 +33,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/threadmanager.h>
 
-TelemetryManager::TelemetryManager() : m_connectionState(TELEMETRY_DISCONNECTED)
+TelemetryManager::TelemetryManager() : QObject(), m_connectionState(TELEMETRY_DISCONNECTED)
 {
     moveToThread(Core::ICore::instance()->threadManager()->getRealTimeThread());
+
     // Get UAVObjectManager instance
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     m_uavobjectManager = pm->getObject<UAVObjectManager>();

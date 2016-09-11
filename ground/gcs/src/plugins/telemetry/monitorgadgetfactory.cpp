@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       monitorgadgetfactory.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   telemetryplugin
@@ -57,11 +58,11 @@ MonitorWidget *MonitorGadgetFactory::createMonitorWidget(QWidget *parent)
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     TelemetryManager *tm = pm->getObject<TelemetryManager>();
 
-    connect(tm, SIGNAL(connected()), widget, SLOT(telemetryConnected()));
-    connect(tm, SIGNAL(disconnected()), widget, SLOT(telemetryDisconnected()));
+    // connect(tm, SIGNAL(connected()), widget, SLOT(telemetryConnected()));
+    // connect(tm, SIGNAL(disconnected()), widget, SLOT(telemetryDisconnected()));
     connect(tm, SIGNAL(telemetryUpdated(double, double)), widget, SLOT(telemetryUpdated(double, double)));
 
-    // and connect widget to connection manager (for retro compatibility)
+    // connect widget to connection manager
     Core::ConnectionManager *cm = Core::ICore::instance()->connectionManager();
 
     connect(cm, SIGNAL(deviceConnected(QIODevice *)), widget, SLOT(telemetryConnected()));

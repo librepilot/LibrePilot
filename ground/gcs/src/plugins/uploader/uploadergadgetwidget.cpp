@@ -687,7 +687,7 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     if (opLinkManager->isConnected() &&
         opLinkManager->opLinkType() == OPLinkManager::OPLINK_MINI) {
         emit progressUpdate(FAILURE, QVariant(tr("To upgrade the OPLinkMini board please disconnect it from the USB port, "
-                                                 "press the Upgrade again button and follow instructions on screen.")));
+                                                 "press the Upgrade button again and follow instructions on screen.")));
         emit autoUpdateFailed();
         return false;
     }

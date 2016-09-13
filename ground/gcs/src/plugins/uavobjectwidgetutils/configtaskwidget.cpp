@@ -965,8 +965,17 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
         }
         return ok;
     } else if (QLabel * cb = qobject_cast<QLabel *>(widget)) {
-        if (scale == 0) {
-            cb->setText(value.toString());
+        if ((scale == 0) || (scale == 1)) {
+            if (binding->units() == "hex") {
+                if (value.toUInt()) {
+                    cb->setText(QString::number(value.toUInt(), 16).toUpper());
+                } else {
+                    // display 0 as an empty string
+                    cb->setText("");
+                }
+            } else {
+                cb->setText(value.toString());
+            }
         } else {
             cb->setText(QString::number(value.toDouble() / scale));
         }

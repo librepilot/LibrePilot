@@ -68,6 +68,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     layout->addWidget(stackWidget);
     setLayout(layout);
 
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
 
     QWidget *widget;
     QIcon *icon;

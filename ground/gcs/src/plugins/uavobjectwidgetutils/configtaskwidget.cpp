@@ -931,7 +931,7 @@ QVariant ConfigTaskWidget::getVariantFromWidget(QWidget *widget, WidgetBinding *
         if (binding->isInteger()) {
             return QVariant(getComboboxSelectedOption(cb));
         }
-        return (QString)cb->currentText();
+        return cb->currentText();
     } else if (QDoubleSpinBox * cb = qobject_cast<QDoubleSpinBox *>(widget)) {
         return (double)(cb->value() * scale);
     } else if (QSpinBox * cb = qobject_cast<QSpinBox *>(widget)) {
@@ -939,18 +939,17 @@ QVariant ConfigTaskWidget::getVariantFromWidget(QWidget *widget, WidgetBinding *
     } else if (QSlider * cb = qobject_cast<QSlider *>(widget)) {
         return (double)(cb->value() * scale);
     } else if (QCheckBox * cb = qobject_cast<QCheckBox *>(widget)) {
-        return (QString)(cb->isChecked() ? "True" : "False");
+        return cb->isChecked() ? "True" : "False";
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {
-        QString value = (QString)cb->displayText();
+        QString value = cb->displayText();
         if (binding->units() == "hex") {
             bool ok;
             return value.toUInt(&ok, 16);
         } else {
             return value;
         }
-    } else {
-        return QVariant();
     }
+    return QVariant();
 }
 
 bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, WidgetBinding *binding)
@@ -969,7 +968,7 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
         if (scale == 0) {
             cb->setText(value.toString());
         } else {
-            cb->setText(QString::number((value.toDouble() / scale)));
+            cb->setText(QString::number(value.toDouble() / scale));
         }
         return true;
     } else if (QDoubleSpinBox * cb = qobject_cast<QDoubleSpinBox *>(widget)) {
@@ -982,8 +981,7 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
         cb->setValue((int)qRound(value.toDouble() / scale));
         return true;
     } else if (QCheckBox * cb = qobject_cast<QCheckBox *>(widget)) {
-        bool bvalue = value.toString() == "True";
-        cb->setChecked(bvalue);
+        cb->setChecked(value.toString() == "True");
         return true;
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {
         if ((scale == 0) || (scale == 1)) {
@@ -993,12 +991,11 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
                 cb->setText(value.toString());
             }
         } else {
-            cb->setText(QString::number((value.toDouble() / scale)));
+            cb->setText(QString::number(value.toDouble() / scale));
         }
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 bool ConfigTaskWidget::setWidgetFromField(QWidget *widget, UAVObjectField *field, WidgetBinding *binding)

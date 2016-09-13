@@ -99,9 +99,17 @@ class UAVOBJECTWIDGETUTILS_EXPORT ConfigTaskWidget : public QWidget {
     Q_OBJECT
 
 public:
-    ConfigTaskWidget(QWidget *parent = 0);
+    ConfigTaskWidget(QWidget *parent = 0, bool autopilot = true);
     virtual ~ConfigTaskWidget();
 
+    void forceConnectedState();
+
+    bool isDirty();
+    void setDirty(bool value);
+
+    virtual bool shouldObjectBeSaved(UAVObject *object);
+
+protected:
     // Combobox helper functions
     static bool isComboboxOptionSelected(QComboBox *combo, int optionValue);
     static int getComboboxSelectedOption(QComboBox *combo);
@@ -118,6 +126,8 @@ public:
     void addUAVObject(QString objectName, QList<int> *reloadGroups = NULL);
     void addUAVObject(UAVObject *objectName, QList<int> *reloadGroups = NULL);
 
+// TODO should be protected (see VehicleConfig::registerWidgets(ConfigTaskWidget &parent)
+public:
     void addWidget(QWidget *widget);
 
     void addWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index = 0, double scale = 1,
@@ -125,6 +135,7 @@ public:
     void addWidgetBinding(UAVObject *object, UAVObjectField *field, QWidget *widget, int index = 0, double scale = 1,
                           bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
 
+protected:
     void addWidgetBinding(QString objectName, QString fieldName, QWidget *widget, QString elementName, double scale,
                           bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
     void addWidgetBinding(UAVObject *object, UAVObjectField *field, QWidget *widget, QString elementName, double scale,
@@ -144,9 +155,6 @@ public:
 
     void autoLoadWidgets();
 
-    bool isDirty();
-    virtual void setDirty(bool value);
-
     bool allObjectsUpdated();
     void setOutOfLimitsStyle(QString style)
     {
@@ -155,37 +163,55 @@ public:
     void addHelpButton(QPushButton *button, QString url);
     void setWikiURL(QString url);
     void forceShadowUpdates();
-    void forceConnectedState();
-    virtual bool shouldObjectBeSaved(UAVObject *object);
 
-public slots:
-    void onAutopilotDisconnect();
-    void onAutopilotConnect();
-    void invalidateObjects();
+protected slots:
     void apply();
     void save();
-    void setWidgetBindingObjectEnabled(QString objectName, bool enabled);
 
 signals:
-    // fired when a widgets contents changes
     void widgetContentsChanged(QWidget *widget);
-    // fired when the framework requests that the widgets values be populated, use for custom behaviour
-    void populateWidgetsRequested();
-    // fired when the framework requests that the widgets values be refreshed, use for custom behaviour
-    void refreshWidgetsValuesRequested();
-    // fired when the framework requests that the UAVObject values be updated from the widgets value, use for custom behaviour
-    void updateObjectsFromWidgetsRequested();
-    // fired when the autopilot connects
-    void autoPilotConnected();
-    // fired when the autopilot disconnects
-    void autoPilotDisconnected();
     void defaultRequested(int group);
     void enableControlsChanged(bool enable);
 
+protected:
+    int boardModel()
+    {
+        return m_currentBoardId;
+    }
+    virtual void enableControls(bool enable);
+    virtual QString mapObjectName(const QString objectName);
+    virtual UAVObject *getObject(const QString name, quint32 instId = 0);
+    virtual void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
+    void updateEnableControls();
+
+    bool isConnected() const;
+
+    virtual void onConnectImpl() {};
+    virtual void onDisconnectImpl() {};
+    virtual void refreshWidgetsValuesImpl(UAVObject *) {};
+    virtual void updateObjectsFromWidgetsImpl() {};
+
+protected slots:
+    void setWidgetBindingObjectEnabled(QString objectName, bool enabled);
+
+    void clearDirty();
+    virtual void widgetsContentsChanged();
+    // void populateWidgets();
+    void refreshWidgetsValues(UAVObject *obj = NULL);
+    void updateObjectsFromWidgets();
+
 private slots:
+    void onConnect();
+    void onDisconnect();
+
+    void disableObjectUpdates();
+    void enableObjectUpdates();
     void objectUpdated(UAVObject *object);
+    void invalidateObjects();
+
     void defaultButtonClicked();
     void reloadButtonClicked();
+    void helpButtonPressed();
 
 private:
     struct objectComparator {
@@ -210,6 +236,11 @@ private:
         bool    haslimits;
     };
 
+    // indicates if this is an "autopilot" widget (CC3D, Revolution, ...) or an OPLink widget
+    // TODO the logic that this flag controls should be moved to derived classes
+    bool m_autopilot;
+
+    // only valid for "autopilot" widgets
     int m_currentBoardId;
 
     bool m_isConnected;
@@ -218,8 +249,9 @@ private:
     bool m_refreshing;
 
     QStringList m_objects;
-    QString m_wikiURL; // Wiki address for help button
-                       // Concatenated with WIKI_URL_ROOT
+
+    // Wiki address for help button (will be concatenated with WIKI_URL_ROOT)
+    QString m_wikiURL;
 
     QMultiHash<int, WidgetBinding *> m_reloadGroups;
     QMultiHash<QWidget *, WidgetBinding *> m_widgetBindingsPerWidget;
@@ -243,34 +275,18 @@ private:
     void connectWidgetUpdatesToSlot(QWidget *widget, const char *function);
     void disconnectWidgetUpdatesToSlot(QWidget *widget, const char *function);
 
+    void resetLimits();
+
     void loadWidgetLimits(QWidget *widget, UAVObjectField *field, int index, bool applyLimits, double scale);
+
+    void checkWidgetsLimits(QWidget *widget, UAVObjectField *field, int index, bool hasLimits, QVariant value, double scale);
+
+    void dumpBindings();
 
     int fieldIndexFromElementName(QString objectName, QString fieldName, QString elementName);
 
     void doAddWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index = 0, double scale = 1,
                             bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
-
-protected:
-    virtual void refreshWidgetsValuesImpl(UAVObject *) {};
-    virtual void updateObjectsFromWidgetsImpl() {};
-
-protected slots:
-    virtual void disableObjectUpdates();
-    virtual void enableObjectUpdates();
-    virtual void clearDirty();
-    virtual void widgetsContentsChanged();
-    virtual void populateWidgets();
-    void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
-    virtual void helpButtonPressed();
-
-protected:
-    virtual void enableControls(bool enable);
-    virtual QString mapObjectName(const QString objectName);
-    virtual UAVObject *getObject(const QString name, quint32 instId = 0);
-    virtual void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
-    void checkWidgetsLimits(QWidget *widget, UAVObjectField *field, int index, bool hasLimits, QVariant value, double scale);
-    void updateEnableControls();
 };
 
 #endif // CONFIGTASKWIDGET_H

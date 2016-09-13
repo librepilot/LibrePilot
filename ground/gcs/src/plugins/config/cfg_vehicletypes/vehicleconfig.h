@@ -163,7 +163,7 @@ class ConfigTaskWidget;
  * This class handles vehicle specific configuration UI and associated logic.
  *
  * This class derives from ConfigTaskWidget and overrides its the default "binding" mechanism.
- * It does not use the "dirty" state management directlyand registers its relevant widgets with ConfigTaskWidget to do so.
+ * It does not use the "dirty" state management directly and registers its relevant widgets with ConfigTaskWidget to do so.
  */
 class VehicleConfig : public ConfigTaskWidget {
     Q_OBJECT

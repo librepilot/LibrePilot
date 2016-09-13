@@ -30,7 +30,8 @@
 
 #include "configtaskwidget.h"
 
-#include "oplinksettings.h"
+class OPLinkStatus;
+class OPLinkSettings;
 
 class Ui_OPLinkWidget;
 
@@ -41,38 +42,36 @@ public:
     ConfigOPLinkWidget(QWidget *parent = 0);
     ~ConfigOPLinkWidget();
 
-public slots:
-    void updateStatus(UAVObject *object1);
-    void updateSettings(UAVObject *object1);
+protected:
+    virtual void onConnectImpl();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 private:
     Ui_OPLinkWidget *m_oplink;
 
-    // The OPLink status UAVObject
-    UAVDataObject *oplinkStatusObj;
-
-    // The OPLink ssettins UAVObject
+    OPLinkStatus *oplinkStatusObj;
     OPLinkSettings *oplinkSettingsObj;
 
-    // Are the settings current?
-    bool settingsUpdated;
+    // Is the status current?
+    bool statusUpdated;
 
-protected:
-    void updateEnableControls();
+    void updateStatus();
+    void updateInfo();
+    void updateSettings();
 
 private slots:
-    void disconnected();
-    void linkTypeChanged();
     void protocolChanged();
+    void linkTypeChanged();
+
     void minChannelChanged();
     void maxChannelChanged();
-    void updateCoordID();
-    void updateCustomDeviceID();
-    void unbind();
     void channelChanged(bool isMax);
+
     void mainPortChanged();
     void flexiPortChanged();
     void vcpPortChanged();
+
+    void unbind();
 };
 
 #endif // CONFIGOPLINKWIDGET_H

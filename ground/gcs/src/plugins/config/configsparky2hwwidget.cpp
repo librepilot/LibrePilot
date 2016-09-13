@@ -75,10 +75,6 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     setupCustomCombos();
-    enableControls(true);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
 }
 
 ConfigSparky2HWWidget::~ConfigSparky2HWWidget()

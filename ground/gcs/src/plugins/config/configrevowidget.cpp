@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       ConfigRevoWidget.h
+ * @file       configrevowidget.h
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
@@ -226,13 +226,7 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     // Connect the help button
     connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
-    populateWidgets();
     enableAllCalibrations();
-
-    updateEnableControls();
-
-    forceConnectedState();
-    refreshWidgetsValues();
 }
 
 ConfigRevoWidget::~ConfigRevoWidget()

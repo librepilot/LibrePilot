@@ -176,8 +176,6 @@ ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
 
     m_aircraft->multiThrottleCurve->setXAxisLabel(tr("Input"));
     m_aircraft->multiThrottleCurve->setYAxisLabel(tr("Output"));
-
-    updateEnableControls();
 }
 
 ConfigMultiRotorWidget::~ConfigMultiRotorWidget()

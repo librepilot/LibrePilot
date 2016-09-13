@@ -98,9 +98,6 @@ ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
 
     addWidget(m_txpid->TxPIDEnable);
     addWidget(m_txpid->enableAutoCalcYaw);
-    enableControls(false);
-    populateWidgets();
-    refreshWidgetsValues();
 
     disableMouseWheelEvents();
 }

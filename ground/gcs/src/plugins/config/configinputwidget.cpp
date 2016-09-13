@@ -266,9 +266,6 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     autoLoadWidgets();
 
-    populateWidgets();
-    refreshWidgetsValues();
-
     // Connect the help button
     connect(ui->inputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
@@ -451,8 +448,6 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     groundChannelOrder << ManualControlSettings::CHANNELGROUPS_THROTTLE <<
         ManualControlSettings::CHANNELGROUPS_YAW <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY0;
-
-    updateEnableControls();
 }
 
 void ConfigInputWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)

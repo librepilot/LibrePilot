@@ -101,9 +101,6 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 
     connect(m_telemetry->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
     enableSaveButtons(false);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
 }
 
 ConfigCCHWWidget::~ConfigCCHWWidget()

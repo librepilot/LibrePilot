@@ -31,7 +31,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/generalsettings.h>
-#include "uavobjectutilmanager.h"
 
 #include "objectpersistence.h"
 #include "altitudeholdsettings.h"
@@ -58,7 +57,7 @@
 #include <QAction>
 
 ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTaskWidget(parent),
-    boardModel(0), m_stabSettingsBankCount(0), m_currentStabSettingsBank(0)
+    m_stabSettingsBankCount(0), m_currentStabSettingsBank(0)
 {
     ui = new Ui_StabilizationWidget();
     ui->setupUi(this);
@@ -144,15 +143,14 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->thrustPIDScalingCurve);
     connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
-    connect(this, SIGNAL(autoPilotConnected()), this, SLOT(onBoardConnected()));
-
     addWidget(ui->expoPlot);
     connect(ui->expoSpinnerRoll, SIGNAL(valueChanged(int)), this, SLOT(replotExpoRoll(int)));
     connect(ui->expoSpinnerPitch, SIGNAL(valueChanged(int)), this, SLOT(replotExpoPitch(int)));
     connect(ui->expoSpinnerYaw, SIGNAL(valueChanged(int)), this, SLOT(replotExpoYaw(int)));
 
+    ui->AltitudeHold->setEnabled(false);
+
     disableMouseWheelEvents();
-    updateEnableControls();
 }
 
 void ConfigStabilizationWidget::setupStabBanksGUI()
@@ -646,15 +644,17 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
     }
 }
 
-void ConfigStabilizationWidget::onBoardConnected()
+void ConfigStabilizationWidget::onConnectImpl()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
-
-    Q_ASSERT(utilMngr);
-    boardModel = utilMngr->getBoardModel();
     // If Revolution/Sparky2 board enable Althold tab, otherwise disable it
-    ui->AltitudeHold->setEnabled(((boardModel & 0xff00) == 0x0900) || ((boardModel & 0xff00) == 0x9200));
+    bool enableAltitudeHold = (((boardModel() & 0xff00) == 0x0900) || ((boardModel() & 0xff00) == 0x9200));
+
+    ui->AltitudeHold->setEnabled(enableAltitudeHold);
+}
+
+void ConfigStabilizationWidget::onDisconnectImpl()
+{
+    ui->AltitudeHold->setEnabled(false);
 }
 
 void ConfigStabilizationWidget::stabBankChanged(int index)
@@ -686,7 +686,7 @@ void ConfigStabilizationWidget::stabBankChanged(int index)
 bool ConfigStabilizationWidget::shouldObjectBeSaved(UAVObject *object)
 {
     // AltitudeHoldSettings should only be saved for Revolution/Sparky2 board to avoid error.
-    if (((boardModel & 0xff00) != 0x0900) && ((boardModel & 0xff00) != 0x9200)) {
+    if (((boardModel() & 0xff00) != 0x0900) && ((boardModel() & 0xff00) != 0x9200)) {
         return dynamic_cast<AltitudeHoldSettings *>(object) == 0;
     } else {
         return true;

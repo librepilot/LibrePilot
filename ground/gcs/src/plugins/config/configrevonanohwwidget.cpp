@@ -54,8 +54,6 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
 
     addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
 
-    forceConnectedState();
-
     addWidgetBinding("HwSettings", "RM_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "RM_MainPort", m_ui->cbMain);
     addWidgetBinding("HwSettings", "RM_RcvrPort", m_ui->cbRcvr, 0, 1, true);
@@ -75,10 +73,6 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
 
     connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
     setupCustomCombos();
-    enableControls(true);
-    populateWidgets();
-    refreshWidgetsValues();
-    setDirty(false);
 }
 
 ConfigRevoNanoHWWidget::~ConfigRevoNanoHWWidget()

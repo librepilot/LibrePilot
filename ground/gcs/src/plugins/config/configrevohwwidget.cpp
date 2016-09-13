@@ -78,10 +78,6 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     setupCustomCombos();
-    enableControls(true);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
 }
 
 ConfigRevoHWWidget::~ConfigRevoHWWidget()

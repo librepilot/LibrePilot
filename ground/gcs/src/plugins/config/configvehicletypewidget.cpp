@@ -152,12 +152,9 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     // Connect the help pushbutton
     connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
-    refreshWidgetsValues();
-
     addWidget(m_aircraft->nameEdit);
 
     disableMouseWheelEvents();
-    updateEnableControls();
 }
 
 /**
@@ -316,6 +313,8 @@ VehicleConfig *ConfigVehicleTypeWidget::getVehicleConfigWidget(int frameCategory
         // add config widget to UI
         int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehiculeConfig);
         m_vehicleIndexMap[frameCategory] = index;
+
+        // and enable controls (needed?)
         updateEnableControls();
     }
     int index = m_vehicleIndexMap.value(frameCategory);

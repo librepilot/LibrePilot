@@ -103,7 +103,6 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
     connect(this, SIGNAL(defaultRequested(int)), this, SLOT(defaultRequestedSlot(int)));
 
     disableMouseWheelEvents();
-    updateEnableControls();
 }
 
 ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()
@@ -114,8 +113,7 @@ ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()
 /*
  * This overridden function refreshes widgets which have no direct relation
  * to any of UAVObjects. It saves their dirty state first because update comes
- * from UAVObjects, and then restores it. Aftewards it calls base class
- * function to take care of other widgets which were dynamically added.
+ * from UAVObjects, and then restores it.
  */
 void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
@@ -172,8 +170,7 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 
 /*
  * This overridden function updates UAVObjects which have no direct relation
- * to any of widgets. Aftewards it calls base class function to take care of
- * other object to widget relations which were dynamically added.
+ * to any of widgets.
  */
 void ConfigCameraStabilizationWidget::updateObjectsFromWidgetsImpl()
 {

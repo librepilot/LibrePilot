@@ -31,6 +31,7 @@
 #include "uavobject.h"
 #include "uavobjectutilmanager.h"
 #include "uavtalk/telemetrymanager.h"
+#include "uavtalk/oplinkmanager.h"
 #include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
 #include "smartsavebutton.h"
 #include "mixercurvewidget.h"
@@ -46,18 +47,29 @@
 #include <QUrl>
 #include <QWidget>
 
-ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_isDirty(false), m_refreshing(false),
+ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, bool autopilot) : QWidget(parent),
+    m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_isDirty(false), m_refreshing(false),
     m_wikiURL("Welcome"), m_saveButton(NULL), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
 {
+    m_autopilot         = autopilot;
+
     m_pluginManager     = ExtensionSystem::PluginManager::instance();
-    TelemetryManager *telMngr = m_pluginManager->getObject<TelemetryManager>();
+
     m_objectUtilManager = m_pluginManager->getObject<UAVObjectUtilManager>();
-    connect(telMngr, SIGNAL(connected()), this, SLOT(onAutopilotConnect()), Qt::UniqueConnection);
-    connect(telMngr, SIGNAL(disconnected()), this, SLOT(onAutopilotDisconnect()), Qt::UniqueConnection);
-    connect(telMngr, SIGNAL(connected()), this, SIGNAL(autoPilotConnected()), Qt::UniqueConnection);
-    connect(telMngr, SIGNAL(disconnected()), this, SIGNAL(autoPilotDisconnected()), Qt::UniqueConnection);
     UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
+
+    if (m_autopilot) {
+        // connect to telemetry manager
+        TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
+        connect(tm, SIGNAL(connected()), this, SLOT(onConnect()));
+        connect(tm, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+    } else {
+        // connect to oplink manager
+        OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
+        connect(om, SIGNAL(connected()), this, SLOT(onConnect()));
+        connect(om, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+    }
 }
 
 void ConfigTaskWidget::addWidget(QWidget *widget)
@@ -280,63 +292,56 @@ UAVObjectManager *ConfigTaskWidget::getObjectManager()
     return objMngr;
 }
 
+bool ConfigTaskWidget::isConnected() const
+{
+    bool connected = false;
 
-void ConfigTaskWidget::onAutopilotDisconnect()
+    if (m_autopilot) {
+        TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
+        connected = tm->isConnected();
+    } else {
+        OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
+        connected = om->isConnected();
+    }
+    return connected;
+}
+
+// dynamic widgets don't receive the connected signal. This should be called instead.
+void ConfigTaskWidget::forceConnectedState()
+{
+    onConnect();
+}
+
+void ConfigTaskWidget::onConnect()
+{
+    if (m_autopilot) {
+        m_currentBoardId = m_objectUtilManager->getBoardModel();
+    }
+    invalidateObjects();
+    m_isConnected = true;
+
+    resetLimits();
+
+    setDirty(false);
+    refreshWidgetsValues();
+    updateEnableControls();
+
+    // call specific implementation
+    onConnectImpl();
+}
+
+void ConfigTaskWidget::onDisconnect()
 {
     m_isConnected = false;
 
-    // Reset board ID and clear bound combo box lists to force repopulation
-    // when we get another connected signal. This means that we get the
-    // correct values in combo boxes bound to fields with limits applied.
-    m_currentBoardId = -1;
-
-    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        QComboBox *cb;
-
-        if (binding->widget() && (cb = qobject_cast<QComboBox *>(binding->widget()))) {
-            cb->clear();
-        }
-    }
-
     enableControls(false);
     invalidateObjects();
-}
 
-// dynamic widgets don't recieve the connected signal. This should be called instead.
-void ConfigTaskWidget::forceConnectedState()
-{
-    if (m_objectUtilManager) {
-        m_currentBoardId = m_objectUtilManager->getBoardModel();
-    }
-    m_isConnected = true;
-    setDirty(false);
-}
+    // call specific implementation
+    onDisconnectImpl();
 
-void ConfigTaskWidget::onAutopilotConnect()
-{
-    if (m_objectUtilManager) {
-        m_currentBoardId = m_objectUtilManager->getBoardModel();
-    }
-    invalidateObjects();
-    m_isConnected = true;
-    setDirty(false);
-    enableControls(true);
-    refreshWidgetsValues();
-}
-
-void ConfigTaskWidget::populateWidgets()
-{
-    m_refreshing = true;
-
-    emit populateWidgetsRequested();
-
-    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        if (binding->isEnabled() && binding->object() != NULL && binding->field() != NULL && binding->widget() != NULL) {
-            setWidgetFromField(binding->widget(), binding->field(), binding);
-        }
-    }
-
-    m_refreshing = false;
+    // reset board ID
+    m_currentBoardId = -1;
 }
 
 void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
@@ -346,8 +351,6 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
     }
 
     m_refreshing = true;
-
-    emit refreshWidgetsValuesRequested();
 
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
     foreach(WidgetBinding * binding, bindings) {
@@ -368,8 +371,6 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
 
 void ConfigTaskWidget::updateObjectsFromWidgets()
 {
-    emit updateObjectsFromWidgetsRequested();
-
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
         if (binding->object() != NULL && binding->field() != NULL) {
             binding->updateObjectFieldFromValue();
@@ -567,7 +568,10 @@ bool ConfigTaskWidget::allObjectsUpdated()
     bool result = true;
 
     foreach(UAVObject * object, m_updatedObjects.keys()) {
-        result = result & m_updatedObjects[object];
+        result &= m_updatedObjects[object];
+        if (!result) {
+            break;
+        }
     }
     return result;
 }
@@ -736,11 +740,16 @@ void ConfigTaskWidget::autoLoadWidgets()
             }
         }
     }
-    refreshWidgetsValues();
-    forceShadowUpdates();
 
-    /*
-       foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
+    // TODO is this refresh necessary ?
+    refreshWidgetsValues();
+    // TODO is this necessary ?
+    forceShadowUpdates();
+}
+
+void ConfigTaskWidget::dumpBindings()
+{
+    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
         if (binding->widget()) {
             qDebug() << "Binding  :" << binding->widget()->objectName();
             qDebug() << "  Object :" << binding->object()->getName();
@@ -754,8 +763,7 @@ void ConfigTaskWidget::autoLoadWidgets()
                 qDebug() << "  Scale :" << shadow->scale();
             }
         }
-       }
-     */
+    }
 }
 
 void ConfigTaskWidget::addWidgetToReloadGroups(QWidget *widget, QList<int> *reloadGroupIDs)
@@ -1033,6 +1041,20 @@ bool ConfigTaskWidget::setWidgetFromField(QWidget *widget, UAVObjectField *field
     }
 }
 
+void ConfigTaskWidget::resetLimits()
+{
+    // clear bound combo box lists to force repopulation
+    // when we get another connected signal. This means that we get the
+    // correct values in combo boxes bound to fields with limits applied.
+    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
+        QComboBox *cb;
+
+        if (binding->widget() && (cb = qobject_cast<QComboBox *>(binding->widget()))) {
+            cb->clear();
+        }
+    }
+}
+
 void ConfigTaskWidget::checkWidgetsLimits(QWidget *widget, UAVObjectField *field, int index, bool hasLimits, QVariant value, double scale)
 {
     if (!hasLimits) {
@@ -1126,19 +1148,17 @@ QString ConfigTaskWidget::mapObjectName(const QString objectName)
 
 void ConfigTaskWidget::updateEnableControls()
 {
-    TelemetryManager *telMngr = m_pluginManager->getObject<TelemetryManager>();
-
-    Q_ASSERT(telMngr);
-
-    enableControls(telMngr->isConnected());
+    enableControls(isConnected());
 }
 
 void ConfigTaskWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)
 {
     QStringList options = field->getOptions();
 
+    // qDebug() << "buildOptionComboBox" << field << applyLimits << m_currentBoardId;
     for (int optionIndex = 0; optionIndex < options.count(); optionIndex++) {
         if (applyLimits) {
+            // qDebug() << "     " << options.at(optionIndex) << field->isWithinLimits(options.at(optionIndex), index, m_currentBoardId);
             if (m_currentBoardId > -1 && field->isWithinLimits(options.at(optionIndex), index, m_currentBoardId)) {
                 combo->addItem(options.at(optionIndex), QVariant(optionIndex));
             }
@@ -1278,11 +1298,9 @@ QVariant WidgetBinding::value() const
 void WidgetBinding::setValue(const QVariant &value)
 {
     m_value = value;
-    /*
-       if (m_object && m_field) {
-        qDebug() << "WidgetBinding" << m_object->getName() << ":" << m_field->getName() << "value =" << value.toString();
-       }
-     */
+    // if (m_object && m_field) {
+    // qDebug() << "WidgetBinding" << m_object->getName() << ":" << m_field->getName() << "value =" << value.toString();
+    // }
 }
 
 void WidgetBinding::updateObjectFieldFromValue()

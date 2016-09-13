@@ -137,12 +137,8 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     connect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateWarnings(UAVObject *)));
 
+    // TODO why do we do that ?
     disconnect(this, SLOT(refreshWidgetsValues(UAVObject *)));
-
-    populateWidgets();
-    refreshWidgetsValues();
-
-    updateEnableControls();
 }
 
 ConfigOutputWidget::~ConfigOutputWidget()

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configstabilizationwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -51,11 +52,14 @@ class ConfigStabilizationWidget : public ConfigTaskWidget {
 public:
     ConfigStabilizationWidget(QWidget *parent = 0);
     ~ConfigStabilizationWidget();
+
     bool shouldObjectBeSaved(UAVObject *object);
 
 protected:
     QString mapObjectName(const QString objectName);
 
+    virtual void onConnectImpl();
+    virtual void onDisconnectImpl();
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
@@ -71,7 +75,6 @@ private:
     static const int EXPO_CURVE_POINTS_COUNT = 100;
     constexpr static const double EXPO_CURVE_CONSTANT = 1.01395948;
 
-    int boardModel;
     int m_stabSettingsBankCount;
     int m_currentStabSettingsBank;
 
@@ -96,7 +99,6 @@ private slots:
     void realtimeUpdatesSlot(bool value);
     void linkCheckBoxes(bool value);
     void processLinkedWidgets(QWidget *);
-    void onBoardConnected();
     void stabBankChanged(int index);
     void resetThrottleCurveToDefault();
     void throttleCurveUpdated();

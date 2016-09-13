@@ -74,9 +74,6 @@ ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->pitchBias, AttitudeSettings::BOARDROTATION_PITCH);
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->yawBias, AttitudeSettings::BOARDROTATION_YAW);
     addWidget(ui->zeroBias);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
 }
 
 ConfigCCAttitudeWidget::~ConfigCCAttitudeWidget()

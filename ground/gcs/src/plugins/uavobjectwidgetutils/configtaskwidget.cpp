@@ -986,7 +986,12 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {
         if ((scale == 0) || (scale == 1)) {
             if (binding->units() == "hex") {
-                cb->setText(QString::number(value.toUInt(), 16).toUpper());
+                if (value.toUInt()) {
+                    cb->setText(QString::number(value.toUInt(), 16).toUpper());
+                } else {
+                    // display 0 as an empty string
+                    cb->setText("");
+                }
             } else {
                 cb->setText(value.toString());
             }

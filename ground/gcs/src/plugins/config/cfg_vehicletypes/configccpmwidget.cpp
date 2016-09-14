@@ -124,8 +124,9 @@ QStringList ConfigCcpmWidget::getChannelDescriptions()
 }
 
 ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_CcpmConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_CcpmConfigWidget();
     m_aircraft->setupUi(this);
 
     SwashLvlConfigurationInProgress = 0;

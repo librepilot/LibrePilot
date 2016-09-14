@@ -46,11 +46,19 @@
 #include <QUrl>
 
 ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
-    ConfigTaskWidget(parent),
-    ui(new Ui_ccattitude)
+    ConfigTaskWidget(parent), accelUpdates(0), gyroUpdates(0)
 {
+    ui = new Ui_ccattitude(),
     ui->setupUi(this);
-    connect(ui->zeroBias, SIGNAL(clicked()), this, SLOT(startAccelCalibration()));
+
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    connect(ui->ccAttitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(ui->applyButton, ui->saveButton);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
@@ -58,12 +66,8 @@ ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
         ui->applyButton->setVisible(false);
     }
 
-    addApplySaveButtons(ui->applyButton, ui->saveButton);
     addUAVObject("AttitudeSettings");
     addUAVObject("AccelGyroSettings");
-
-    // Connect the help button
-    connect(ui->ccAttitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addWidgetBinding("AttitudeSettings", "ZeroDuringArming", ui->zeroGyroBiasOnArming);
     addWidgetBinding("AttitudeSettings", "InitialZeroWhenBoardSteady", ui->initGyroWhenBoardSteady);
@@ -74,6 +78,8 @@ ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->pitchBias, AttitudeSettings::BOARDROTATION_PITCH);
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->yawBias, AttitudeSettings::BOARDROTATION_YAW);
     addWidget(ui->zeroBias);
+
+    connect(ui->zeroBias, SIGNAL(clicked()), this, SLOT(startAccelCalibration()));
 }
 
 ConfigCCAttitudeWidget::~ConfigCCAttitudeWidget()

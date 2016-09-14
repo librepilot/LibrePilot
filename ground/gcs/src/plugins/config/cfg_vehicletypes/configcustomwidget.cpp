@@ -149,9 +149,11 @@ QStringList ConfigCustomWidget::getChannelDescriptions()
 }
 
 ConfigCustomWidget::ConfigCustomWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_CustomConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_CustomConfigWidget();
     m_aircraft->setupUi(this);
+
     m_aircraft->customMixerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Put combo boxes in line one of the custom mixer table:

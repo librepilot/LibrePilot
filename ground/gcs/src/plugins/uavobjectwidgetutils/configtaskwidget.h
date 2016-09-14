@@ -102,7 +102,7 @@ public:
     ConfigTaskWidget(QWidget *parent = 0, bool autopilot = true);
     virtual ~ConfigTaskWidget();
 
-    void forceConnectedState();
+    void bind();
 
     bool isDirty();
     void setDirty(bool value);
@@ -136,6 +136,8 @@ public:
                           bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
 
 protected:
+    void addAutoBindings();
+
     void addWidgetBinding(QString objectName, QString fieldName, QWidget *widget, QString elementName, double scale,
                           bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
     void addWidgetBinding(UAVObject *object, UAVObjectField *field, QWidget *widget, QString elementName, double scale,
@@ -153,8 +155,6 @@ protected:
     bool addShadowWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index = 0, double scale = 1,
                                 bool isLimited = false, QList<int> *m_reloadGroups = NULL, quint32 instID = 0);
 
-    void autoLoadWidgets();
-
     bool allObjectsUpdated();
     void setOutOfLimitsStyle(QString style)
     {
@@ -162,7 +162,6 @@ protected:
     }
     void addHelpButton(QPushButton *button, QString url);
     void setWikiURL(QString url);
-    void forceShadowUpdates();
 
 protected slots:
     void apply();

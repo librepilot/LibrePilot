@@ -78,12 +78,19 @@ public:
 };
 
 ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
-    ConfigTaskWidget(parent),
-    m_ui(new Ui_RevoSensorsWidget()),
-    isBoardRotationStored(false)
+    ConfigTaskWidget(parent), isBoardRotationStored(false)
 {
+    m_ui = new Ui_RevoSensorsWidget();
     m_ui->setupUi(this);
     m_ui->tabWidget->setCurrentIndex(0);
+
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    // Connect the help button
+    connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addApplySaveButtons(m_ui->revoCalSettingsSaveRAM, m_ui->revoCalSettingsSaveSD);
 
@@ -108,7 +115,6 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addUAVObject("RevoSettings");
     addUAVObject("AccelGyroSettings");
     addUAVObject("AuxMagSettings");
-    autoLoadWidgets();
 
     // accel calibration
     m_accelCalibrationModel = new OpenPilot::SixPointCalibrationModel(this);
@@ -222,9 +228,6 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addWidget(m_ui->internalAuxErrorZ);
 
     displayMagError = false;
-
-    // Connect the help button
-    connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     enableAllCalibrations();
 }

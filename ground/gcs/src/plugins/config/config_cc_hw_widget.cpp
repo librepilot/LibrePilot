@@ -49,16 +49,23 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
     m_telemetry = new Ui_CC_HW_Widget();
     m_telemetry->setupUi(this);
 
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    connect(m_telemetry->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(m_telemetry->saveTelemetryToRAM, m_telemetry->saveTelemetryToSD);
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     if (!settings->useExpertMode()) {
         m_telemetry->saveTelemetryToRAM->setVisible(false);
     }
 
-
     UAVObjectUtilManager *utilMngr = pm->getObject<UAVObjectUtilManager>();
     int id = utilMngr->getBoardModel();
-
     switch (id) {
     case 0x0101:
         m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0101.svg"));
@@ -79,7 +86,7 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
         m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
         break;
     }
-    addApplySaveButtons(m_telemetry->saveTelemetryToRAM, m_telemetry->saveTelemetryToSD);
+
     addWidgetBinding("HwSettings", "CC_FlexiPort", m_telemetry->cbFlexi);
     addWidgetBinding("HwSettings", "CC_MainPort", m_telemetry->cbTele);
     addWidgetBinding("HwSettings", "CC_RcvrPort", m_telemetry->cbRcvr);
@@ -99,7 +106,6 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
         addWidgetBinding("GPSSettings", "DataProtocol", m_telemetry->gpsProtocol);
     }
 
-    connect(m_telemetry->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
     enableSaveButtons(false);
 }
 

@@ -85,6 +85,24 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     accessoryDesiredObj2(NULL),
     accessoryDesiredObj3(NULL)
 {
+    ui = new Ui_InputWidget();
+    ui->setupUi(this);
+
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    connect(ui->inputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(ui->saveRCInputToRAM, ui->saveRCInputToSD);
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
+    if (!settings->useExpertMode()) {
+        ui->saveRCInputToRAM->setVisible(false);
+    }
+
     manualCommandObj      = ManualControlCommand::GetInstance(getObjectManager());
     manualSettingsObj     = ManualControlSettings::GetInstance(getObjectManager());
     flightModeSettingsObj = FlightModeSettings::GetInstance(getObjectManager());
@@ -100,22 +118,6 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     // Only instance 0 is present if the board is not connected.
     // The other instances are populated lazily.
     Q_ASSERT(accessoryDesiredObj0);
-
-    ui = new Ui_InputWidget();
-    ui->setupUi(this);
-
-    wizardUi = new Ui_InputWizardWidget();
-    wizardUi->setupUi(ui->wizard);
-
-    addApplySaveButtons(ui->saveRCInputToRAM, ui->saveRCInputToSD);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        ui->saveRCInputToRAM->setVisible(false);
-    }
-
-    addApplySaveButtons(ui->saveRCInputToRAM, ui->saveRCInputToSD);
 
     // Generate the rows of buttons in the input channel form GUI
     quint32 index   = 0;
@@ -203,10 +205,6 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(ui->stackedWidget, SIGNAL(currentChanged(int)), this, SLOT(disableWizardButton(int)));
     connect(ui->runCalibration, SIGNAL(toggled(bool)), this, SLOT(simpleCalibration(bool)));
 
-    connect(wizardUi->wzNext, SIGNAL(clicked()), this, SLOT(wzNext()));
-    connect(wizardUi->wzCancel, SIGNAL(clicked()), this, SLOT(wzCancel()));
-    connect(wizardUi->wzBack, SIGNAL(clicked()), this, SLOT(wzBack()));
-
     connect(ReceiverActivity::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
     ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
@@ -264,10 +262,13 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addWidget(ui->runCalibration);
     addWidget(ui->failsafeFlightModeCb);
 
-    autoLoadWidgets();
+    // Wizard
+    wizardUi = new Ui_InputWizardWidget();
+    wizardUi->setupUi(ui->wizard);
 
-    // Connect the help button
-    connect(ui->inputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+    connect(wizardUi->wzNext, SIGNAL(clicked()), this, SLOT(wzNext()));
+    connect(wizardUi->wzCancel, SIGNAL(clicked()), this, SLOT(wzCancel()));
+    connect(wizardUi->wzBack, SIGNAL(clicked()), this, SLOT(wzBack()));
 
     wizardUi->graphicsView->setScene(new QGraphicsScene(this));
     wizardUi->graphicsView->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);

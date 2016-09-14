@@ -23,8 +23,11 @@ ConfigAutotuneWidget::ConfigAutotuneWidget(QWidget *parent) :
     m_autotune = new Ui_AutotuneWidget();
     m_autotune->setupUi(this);
 
-    // Connect automatic signals
-    autoLoadWidgets();
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
     disableMouseWheelEvents();
 
     // Whenever any value changes compute new potential stabilization settings

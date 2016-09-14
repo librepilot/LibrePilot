@@ -77,51 +77,57 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     icon->addFile(":/configgadget/images/hardware_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/hardware_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new DefaultHwSettingsWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::hardware, widget, *icon, QString("Hardware"));
+    stackWidget->insertTab(ConfigGadgetWidget::Hardware, widget, *icon, QString("Hardware"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/vehicle_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/vehicle_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigVehicleTypeWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::aircraft, widget, *icon, QString("Vehicle"));
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::Aircraft, widget, *icon, QString("Vehicle"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/input_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/input_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigInputWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::input, widget, *icon, QString("Input"));
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::Input, widget, *icon, QString("Input"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/output_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/output_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigOutputWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::output, widget, *icon, QString("Output"));
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::Output, widget, *icon, QString("Output"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/ins_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/ins_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new DefaultAttitudeWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::sensors, widget, *icon, QString("Attitude"));
+    stackWidget->insertTab(ConfigGadgetWidget::Sensors, widget, *icon, QString("Attitude"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/stabilization_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/stabilization_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigStabilizationWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::stabilization, widget, *icon, QString("Stabilization"));
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::Stabilization, widget, *icon, QString("Stabilization"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/camstab_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/camstab_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigCameraStabilizationWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::camerastabilization, widget, *icon, QString("Gimbal"));
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::CameraStabilization, widget, *icon, QString("Gimbal"));
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/txpid_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/txpid_selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigTxPIDWidget(this);
-    stackWidget->insertTab(ConfigGadgetWidget::txpid, widget, *icon, QString("TxPID"));
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::TxPid, widget, *icon, QString("TxPID"));
 
-    stackWidget->setCurrentIndex(ConfigGadgetWidget::hardware);
+    stackWidget->setCurrentIndex(ConfigGadgetWidget::Hardware);
 
     // connect to autopilot connection events
     TelemetryManager *tm = pm->getObject<TelemetryManager>();
@@ -152,8 +158,8 @@ ConfigGadgetWidget::~ConfigGadgetWidget()
 
 void ConfigGadgetWidget::startInputWizard()
 {
-    stackWidget->setCurrentIndex(ConfigGadgetWidget::input);
-    ConfigInputWidget *inputWidget = dynamic_cast<ConfigInputWidget *>(stackWidget->getWidget(ConfigGadgetWidget::input));
+    stackWidget->setCurrentIndex(ConfigGadgetWidget::Input);
+    ConfigInputWidget *inputWidget = dynamic_cast<ConfigInputWidget *>(stackWidget->getWidget(ConfigGadgetWidget::Input));
     Q_ASSERT(inputWidget);
     inputWidget->startInputWizard();
 }
@@ -176,33 +182,33 @@ void ConfigGadgetWidget::onAutopilotConnect()
             // CopterControl family
             ConfigTaskWidget *widget;
             widget = new ConfigCCAttitudeWidget(this);
-            widget->forceConnectedState();
-            stackWidget->replaceTab(ConfigGadgetWidget::sensors, widget);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
             widget = new ConfigCCHWWidget(this);
-            widget->forceConnectedState();
-            stackWidget->replaceTab(ConfigGadgetWidget::hardware, widget);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
         } else if ((board & 0xff00) == 0x0900) {
             // Revolution family
             ConfigTaskWidget *widget;
             widget = new ConfigRevoWidget(this);
-            widget->forceConnectedState();
-            stackWidget->replaceTab(ConfigGadgetWidget::sensors, widget);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
             if (board == 0x0903 || board == 0x0904) {
                 widget = new ConfigRevoHWWidget(this);
             } else if (board == 0x0905) {
                 widget = new ConfigRevoNanoHWWidget(this);
             }
-            widget->forceConnectedState();
-            stackWidget->replaceTab(ConfigGadgetWidget::hardware, widget);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
         } else if ((board & 0xff00) == 0x9200) {
             // Sparky2
             ConfigTaskWidget *widget;
             widget = new ConfigRevoWidget(this);
-            widget->forceConnectedState();
-            stackWidget->replaceTab(ConfigGadgetWidget::sensors, widget);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
             widget = new ConfigSparky2HWWidget(this);
-            widget->forceConnectedState();
-            stackWidget->replaceTab(ConfigGadgetWidget::hardware, widget);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
         } else {
             // Unknown board
             qDebug() << "Unknown board " << board;
@@ -216,10 +222,10 @@ void ConfigGadgetWidget::onAutopilotDisconnect()
     QWidget *widget;
 
     widget = new DefaultAttitudeWidget(this);
-    stackWidget->replaceTab(ConfigGadgetWidget::sensors, widget);
+    stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
 
     widget = new DefaultHwSettingsWidget(this);
-    stackWidget->replaceTab(ConfigGadgetWidget::hardware, widget);
+    stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
 }
 
 void ConfigGadgetWidget::onOPLinkConnect()
@@ -233,18 +239,18 @@ void ConfigGadgetWidget::onOPLinkConnect()
     icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new ConfigOPLinkWidget(this);
-    widget->forceConnectedState();
-    stackWidget->insertTab(ConfigGadgetWidget::oplink, widget, *icon, QString("OPLink"));
+    widget->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::OPLink, widget, *icon, QString("OPLink"));
 }
 
 void ConfigGadgetWidget::onOPLinkDisconnect()
 {
     qDebug() << "ConfigGadgetWidget::onOPLinkDisconnect";
 
-    if (stackWidget->currentIndex() == ConfigGadgetWidget::oplink) {
+    if (stackWidget->currentIndex() == ConfigGadgetWidget::OPLink) {
         stackWidget->setCurrentIndex(0);
     }
-    stackWidget->removeTab(ConfigGadgetWidget::oplink);
+    stackWidget->removeTab(ConfigGadgetWidget::OPLink);
 }
 
 void ConfigGadgetWidget::tabAboutToChange(int i, bool *proceed)

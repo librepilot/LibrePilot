@@ -37,7 +37,7 @@ class ConfigGadgetWidget : public QWidget {
     Q_OBJECT
 
 public:
-    enum widgetTabs { hardware = 0, aircraft, input, output, sensors, stabilization, camerastabilization, txpid, oplink };
+    enum WidgetTabs { Hardware = 0, Aircraft, Input, Output, Sensors, Stabilization, CameraStabilization, TxPid, OPLink };
 
     ConfigGadgetWidget(QWidget *parent = 0);
     ~ConfigGadgetWidget();

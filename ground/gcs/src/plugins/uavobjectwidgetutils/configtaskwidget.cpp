@@ -72,6 +72,23 @@ ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, bool autopilot) : QWidget(pa
     }
 }
 
+ConfigTaskWidget::~ConfigTaskWidget()
+{
+    if (m_saveButton) {
+        delete m_saveButton;
+    }
+    QSet<WidgetBinding *> deleteSet = m_widgetBindingsPerWidget.values().toSet();
+    foreach(WidgetBinding * binding, deleteSet) {
+        if (binding) {
+            delete binding;
+        }
+    }
+    if (m_realtimeUpdateTimer) {
+        delete m_realtimeUpdateTimer;
+        m_realtimeUpdateTimer = NULL;
+    }
+}
+
 void ConfigTaskWidget::addWidget(QWidget *widget)
 {
     addWidgetBinding("", "", widget);
@@ -148,9 +165,13 @@ void ConfigTaskWidget::addWidgetBinding(QString objectName, QString fieldName, Q
 void ConfigTaskWidget::doAddWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index, double scale,
                                           bool isLimited, QList<int> *reloadGroupIDs, quint32 instID)
 {
+    // add a shadow binding to an existing binding (if any)
     if (addShadowWidgetBinding(objectName, fieldName, widget, index, scale, isLimited, reloadGroupIDs, instID)) {
+        // no need to go further if successful
         return;
     }
+
+    // qDebug() << "ConfigTaskWidget::doAddWidgetBinding - add binding for " << objectName << fieldName << widget;
 
     UAVObject *object     = NULL;
     UAVObjectField *field = NULL;
@@ -216,23 +237,6 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
     }
 
     m_refreshing = true;
-}
-
-ConfigTaskWidget::~ConfigTaskWidget()
-{
-    if (m_saveButton) {
-        delete m_saveButton;
-    }
-    QSet<WidgetBinding *> deleteSet = m_widgetBindingsPerWidget.values().toSet();
-    foreach(WidgetBinding * binding, deleteSet) {
-        if (binding) {
-            delete binding;
-        }
-    }
-    if (m_realtimeUpdateTimer) {
-        delete m_realtimeUpdateTimer;
-        m_realtimeUpdateTimer = NULL;
-    }
 }
 
 bool ConfigTaskWidget::isComboboxOptionSelected(QComboBox *combo, int optionValue)
@@ -307,9 +311,14 @@ bool ConfigTaskWidget::isConnected() const
 }
 
 // dynamic widgets don't receive the connected signal. This should be called instead.
-void ConfigTaskWidget::forceConnectedState()
+void ConfigTaskWidget::bind()
 {
-    onConnect();
+    if (isConnected()) {
+        onConnect();
+    } else {
+        refreshWidgetsValues();
+        updateEnableControls();
+    }
 }
 
 void ConfigTaskWidget::onConnect()
@@ -317,24 +326,27 @@ void ConfigTaskWidget::onConnect()
     if (m_autopilot) {
         m_currentBoardId = m_objectUtilManager->getBoardModel();
     }
-    invalidateObjects();
+
     m_isConnected = true;
+
+    invalidateObjects();
 
     resetLimits();
 
-    setDirty(false);
-    refreshWidgetsValues();
-    updateEnableControls();
-
     // call specific implementation
     onConnectImpl();
+
+    setDirty(false);
+
+    refreshWidgetsValues();
+    updateEnableControls();
 }
 
 void ConfigTaskWidget::onDisconnect()
 {
     m_isConnected = false;
 
-    enableControls(false);
+    updateEnableControls();
     invalidateObjects();
 
     // call specific implementation
@@ -430,6 +442,7 @@ void ConfigTaskWidget::enableControls(bool enable)
             }
         }
     }
+
     emit enableControlsChanged(enable);
 }
 
@@ -439,28 +452,6 @@ bool ConfigTaskWidget::shouldObjectBeSaved(UAVObject *object)
     return true;
 }
 
-void ConfigTaskWidget::forceShadowUpdates()
-{
-    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        if (!binding->isEnabled()) {
-            continue;
-        }
-        QVariant widgetValue = getVariantFromWidget(binding->widget(), binding);
-
-        foreach(ShadowWidgetBinding * shadow, binding->shadows()) {
-            disconnectWidgetUpdatesToSlot(shadow->widget(), SLOT(widgetsContentsChanged()));
-
-            checkWidgetsLimits(shadow->widget(), binding->field(), binding->index(), shadow->isLimited(), widgetValue, shadow->scale());
-
-            WidgetBinding tmpBinding(shadow->widget(), binding->object(), binding->field(), binding->index(), shadow->scale(), shadow->isLimited());
-            setWidgetFromVariant(shadow->widget(), widgetValue, &tmpBinding);
-
-            emit widgetContentsChanged(shadow->widget());
-            connectWidgetUpdatesToSlot(shadow->widget(), SLOT(widgetsContentsChanged()));
-        }
-    }
-    setDirty(true);
-}
 
 void ConfigTaskWidget::widgetsContentsChanged()
 {
@@ -616,6 +607,7 @@ bool ConfigTaskWidget::addShadowWidgetBinding(QString objectName, QString fieldN
             continue;
         }
         if (binding->matches(objectName, fieldName, index, instID)) {
+            // qDebug() << "ConfigTaskWidget::addShadowWidgetBinding - add shadow binding for " << objectName << fieldName << widget;
             binding->addShadow(widget, scale, isLimited);
 
             m_widgetBindingsPerWidget.insert(widget, binding);
@@ -632,8 +624,10 @@ bool ConfigTaskWidget::addShadowWidgetBinding(QString objectName, QString fieldN
     return false;
 }
 
-void ConfigTaskWidget::autoLoadWidgets()
+void ConfigTaskWidget::addAutoBindings()
 {
+    // qDebug() << "ConfigTaskWidget::addAutoBindings() - auto binding" << this;
+
     QPushButton *saveButtonWidget  = NULL;
     QPushButton *applyButtonWidget = NULL;
 
@@ -691,7 +685,7 @@ void ConfigTaskWidget::autoLoadWidgets()
                     uiRelation.url = str.mid(str.indexOf(":") + 1);
                 }
             }
-            if (!(uiRelation.buttonType == none)) {
+            if (uiRelation.buttonType != none) {
                 QPushButton *button = NULL;
                 switch (uiRelation.buttonType) {
                 case save_button:
@@ -740,11 +734,7 @@ void ConfigTaskWidget::autoLoadWidgets()
             }
         }
     }
-
-    // TODO is this refresh necessary ?
-    refreshWidgetsValues();
-    // TODO is this necessary ?
-    forceShadowUpdates();
+    // qDebug() << "ConfigTaskWidget::addAutoBindings() - auto binding done for" << this;
 }
 
 void ConfigTaskWidget::dumpBindings()
@@ -1298,9 +1288,6 @@ QVariant WidgetBinding::value() const
 void WidgetBinding::setValue(const QVariant &value)
 {
     m_value = value;
-    // if (m_object && m_field) {
-    // qDebug() << "WidgetBinding" << m_object->getName() << ":" << m_field->getName() << "value =" << value.toString();
-    // }
 }
 
 void WidgetBinding::updateObjectFieldFromValue()

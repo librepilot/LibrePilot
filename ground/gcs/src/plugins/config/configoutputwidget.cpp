@@ -61,7 +61,15 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     m_ui = new Ui_OutputWidget();
     m_ui->setupUi(this);
 
-    m_ui->gvFrame->setVisible(false);
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    // Connect the help button
+    connect(m_ui->outputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(m_ui->saveRCOutputToRAM, m_ui->saveRCOutputToSD);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
@@ -69,16 +77,14 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
         m_ui->saveRCOutputToRAM->setVisible(false);
     }
 
+    m_ui->gvFrame->setVisible(false);
+
     UAVSettingsImportExportFactory *importexportplugin = pm->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(stopTests()));
 
     connect(m_ui->channelOutTest, SIGNAL(clicked(bool)), this, SLOT(runChannelTests(bool)));
 
     // Configure the task widget
-    // Connect the help button
-    connect(m_ui->outputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveRCOutputToRAM, m_ui->saveRCOutputToSD);
 
     // Track the ActuatorSettings object
     addUAVObject("ActuatorSettings");
@@ -98,7 +104,6 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
         addWidget(form->ui->actuatorRev);
         addWidget(form->ui->actuatorLink);
     }
-
 
     // Associate the buttons with their UAVO fields
     addWidget(m_ui->spinningArmed);

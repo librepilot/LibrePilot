@@ -132,8 +132,9 @@ QStringList ConfigMultiRotorWidget::getChannelDescriptions()
 }
 
 ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_MultiRotorConfigWidget()), invertMotors(false)
+    VehicleConfig(parent), invertMotors(false)
 {
+    m_aircraft = new Ui_MultiRotorConfigWidget();
     m_aircraft->setupUi(this);
 
     populateChannelComboBoxes();

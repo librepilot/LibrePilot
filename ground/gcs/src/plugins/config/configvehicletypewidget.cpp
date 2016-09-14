@@ -120,6 +120,17 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     m_aircraft = new Ui_AircraftWidget();
     m_aircraft->setupUi(this);
 
+    // must be done before auto binding !
+    setWikiURL("TxPID");
+
+    addAutoBindings();
+
+    disableMouseWheelEvents();
+
+    connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(m_aircraft->saveAircraftToRAM, m_aircraft->saveAircraftToSD);
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     if (!settings->useExpertMode()) {
@@ -133,11 +144,11 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     Q_ASSERT(syssettings);
     m_aircraft->nameEdit->setMaxLength(syssettings->VEHICLENAME_NUMELEM);
 
-    addApplySaveButtons(m_aircraft->saveAircraftToRAM, m_aircraft->saveAircraftToSD);
-
     addUAVObject("SystemSettings");
     addUAVObject("MixerSettings");
     addUAVObject("ActuatorSettings");
+
+    addWidget(m_aircraft->nameEdit);
 
     // The order of the tabs is important since they correspond with the AirframeCategory enum
     m_aircraft->aircraftType->addTab(tr("Multirotor"));
@@ -145,16 +156,10 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     m_aircraft->aircraftType->addTab(tr("Helicopter"));
     m_aircraft->aircraftType->addTab(tr("Ground"));
     m_aircraft->aircraftType->addTab(tr("Custom"));
+    // switchAirframeType(0);
 
     // Connect aircraft type selection dropbox to callback function
     connect(m_aircraft->aircraftType, SIGNAL(currentChanged(int)), this, SLOT(switchAirframeType(int)));
-
-    // Connect the help pushbutton
-    connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addWidget(m_aircraft->nameEdit);
-
-    disableMouseWheelEvents();
 }
 
 /**
@@ -302,41 +307,54 @@ int ConfigVehicleTypeWidget::frameCategory(QString frameType)
 
 VehicleConfig *ConfigVehicleTypeWidget::getVehicleConfigWidget(int frameCategory)
 {
-    VehicleConfig *vehiculeConfig;
+    VehicleConfig *vehicleConfig;
 
     if (!m_vehicleIndexMap.contains(frameCategory)) {
         // create config widget
-        vehiculeConfig = createVehicleConfigWidget(frameCategory);
-        // bind config widget "field" to this ConfigTaskWodget
-        // this is necessary to get "dirty" state management
-        vehiculeConfig->registerWidgets(*this);
+        vehicleConfig = createVehicleConfigWidget(frameCategory);
 
         // add config widget to UI
-        int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehiculeConfig);
+        int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehicleConfig);
         m_vehicleIndexMap[frameCategory] = index;
 
         // and enable controls (needed?)
         updateEnableControls();
     }
     int index = m_vehicleIndexMap.value(frameCategory);
-    vehiculeConfig = (VehicleConfig *)m_aircraft->airframesWidget->widget(index);
-    return vehiculeConfig;
+    vehicleConfig = (VehicleConfig *)m_aircraft->airframesWidget->widget(index);
+    return vehicleConfig;
 }
 
 VehicleConfig *ConfigVehicleTypeWidget::createVehicleConfigWidget(int frameCategory)
 {
-    if (frameCategory == ConfigVehicleTypeWidget::FIXED_WING) {
-        return new ConfigFixedWingWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::MULTIROTOR) {
-        return new ConfigMultiRotorWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::HELICOPTER) {
-        return new ConfigCcpmWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::GROUND) {
-        return new ConfigGroundVehicleWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::CUSTOM) {
-        return new ConfigCustomWidget();
+    VehicleConfig *vehicleConfig;
+
+    switch (frameCategory) {
+    case ConfigVehicleTypeWidget::FIXED_WING:
+        vehicleConfig = new ConfigFixedWingWidget();
+        break;
+    case ConfigVehicleTypeWidget::MULTIROTOR:
+        vehicleConfig = new ConfigMultiRotorWidget();
+        break;
+    case ConfigVehicleTypeWidget::HELICOPTER:
+        vehicleConfig = new ConfigCcpmWidget();
+        break;
+    case ConfigVehicleTypeWidget::GROUND:
+        vehicleConfig = new ConfigGroundVehicleWidget();
+        break;
+    case ConfigVehicleTypeWidget::CUSTOM:
+        vehicleConfig = new ConfigCustomWidget();
+        break;
+    default:
+        vehicleConfig = NULL;
+        break;
     }
-    return NULL;
+    if (vehicleConfig) {
+        // bind config widget "field" to this ConfigTaskWodget
+        // this is necessary to get "dirty" state management
+        vehicleConfig->registerWidgets(*this);
+    }
+    return vehicleConfig;
 }
 
 /**

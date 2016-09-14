@@ -62,20 +62,21 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     ui = new Ui_StabilizationWidget();
     ui->setupUi(this);
 
+    // must be done before auto binding !
+    setupStabBanksGUI();
     setWikiURL("Stabilization+Configuration");
 
-    setupExpoPlot();
+    addAutoBindings();
 
-    setupStabBanksGUI();
+    disableMouseWheelEvents();
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-
     if (!settings->useExpertMode()) {
         ui->saveStabilizationToRAM_6->setVisible(false);
     }
 
-    autoLoadWidgets();
+    setupExpoPlot();
 
     realtimeUpdates = new QTimer(this);
     connect(realtimeUpdates, SIGNAL(timeout()), this, SLOT(apply()));
@@ -122,6 +123,7 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->basicResponsivenessGroupBox);
     addWidget(ui->basicResponsivenessCheckBox);
     connect(ui->basicResponsivenessCheckBox, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
+
     addWidget(ui->advancedResponsivenessGroupBox);
     addWidget(ui->advancedResponsivenessCheckBox);
     connect(ui->advancedResponsivenessCheckBox, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
@@ -150,8 +152,6 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     connect(ui->expoSpinnerYaw, SIGNAL(valueChanged(int)), this, SLOT(replotExpoYaw(int)));
 
     ui->AltitudeHold->setEnabled(false);
-
-    disableMouseWheelEvents();
 }
 
 void ConfigStabilizationWidget::setupStabBanksGUI()

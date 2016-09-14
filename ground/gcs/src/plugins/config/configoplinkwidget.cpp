@@ -31,7 +31,6 @@
 #include "ui_oplink.h"
 
 #include <coreplugin/generalsettings.h>
-#include <uavobjectmanager.h>
 
 #include <uavobjectutilmanager.h>
 
@@ -39,7 +38,6 @@
 #include <oplinkstatus.h>
 
 #include <QMessageBox>
-#include <QDateTime>
 #include <QDebug>
 
 // Channel range and Frequency display
@@ -53,18 +51,26 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     m_oplink = new Ui_OPLinkWidget();
     m_oplink->setupUi(this);
 
-    oplinkStatusObj   = dynamic_cast<OPLinkStatus *>(getObject("OPLinkStatus"));
-    Q_ASSERT(oplinkStatusObj);
+    // must be done before auto binding !
+    setWikiURL("OPLink+Configuration");
 
-    oplinkSettingsObj = dynamic_cast<OPLinkSettings *>(getObject("OPLinkSettings"));
-    Q_ASSERT(oplinkSettingsObj);
+    addAutoBindings();
+
+    disableMouseWheelEvents();
+
+    addApplySaveButtons(m_oplink->Apply, m_oplink->Save);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     if (!settings->useExpertMode()) {
         m_oplink->Apply->setVisible(false);
     }
-    addApplySaveButtons(m_oplink->Apply, m_oplink->Save);
+
+    oplinkStatusObj   = dynamic_cast<OPLinkStatus *>(getObject("OPLinkStatus"));
+    Q_ASSERT(oplinkStatusObj);
+
+    oplinkSettingsObj = dynamic_cast<OPLinkSettings *>(getObject("OPLinkSettings"));
+    Q_ASSERT(oplinkSettingsObj);
 
     addWidget(m_oplink->FirmwareVersion);
     addWidget(m_oplink->SerialNumber);
@@ -130,11 +136,6 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     m_oplink->MaximumChannel->setMaximum(MAX_CHANNEL_NUM);
     m_oplink->MinimumChannel->setMaximum(MAX_CHANNEL_NUM - MIN_CHANNEL_RANGE);
-
-    setWikiURL("OPLink+Configuration");
-
-    disableMouseWheelEvents();
-    autoLoadWidgets();
 }
 
 ConfigOPLinkWidget::~ConfigOPLinkWidget()

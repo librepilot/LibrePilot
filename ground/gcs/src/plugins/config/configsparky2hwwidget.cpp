@@ -45,14 +45,21 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     m_ui = new Ui_Sparky2HWWidget();
     m_ui->setupUi(this);
 
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     if (!settings->useExpertMode()) {
         m_ui->saveTelemetryToRAM->setEnabled(false);
         m_ui->saveTelemetryToRAM->setVisible(false);
     }
-
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
 
     addWidgetBinding("HwSettings", "SPK2_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "SPK2_MainPort", m_ui->cbMain);
@@ -71,8 +78,6 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     // Add Gps protocol configuration
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
-
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     setupCustomCombos();
 }

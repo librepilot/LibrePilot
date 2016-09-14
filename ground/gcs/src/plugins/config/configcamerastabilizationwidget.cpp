@@ -51,6 +51,13 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
     ui = new Ui_CameraStabilizationWidget();
     ui->setupUi(this);
 
+    // must be done before auto binding !
+    setWikiURL("Camera+Stabilisation+Configuration");
+
+    addAutoBindings();
+
+    disableMouseWheelEvents();
+
     addApplySaveButtons(ui->camerastabilizationSaveRAM, ui->camerastabilizationSaveSD);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -59,14 +66,9 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
         ui->camerastabilizationSaveRAM->setVisible(false);
     }
 
-
     // These widgets don't have direct relation to UAVObjects
     // and need special processing
-    QComboBox *outputs[] = {
-        ui->rollChannel,
-        ui->pitchChannel,
-        ui->yawChannel,
-    };
+    QComboBox *outputs[]  = { ui->rollChannel, ui->pitchChannel, ui->yawChannel, };
     const int NUM_OUTPUTS = sizeof(outputs) / sizeof(outputs[0]);
 
     // Populate widgets with channel numbers
@@ -77,11 +79,6 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
             outputs[i]->addItem(QString("Channel %1").arg(j + 1));
         }
     }
-
-    setWikiURL("Camera+Stabilisation+Configuration");
-    // Load UAVObjects to widget relations from UI file
-    // using objrelation dynamic property
-    autoLoadWidgets();
 
     // Add some widgets to track their UI dirty state and handle smartsave
     addWidget(ui->enableCameraStabilization);
@@ -101,8 +98,6 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
 
     // To set special widgets to defaults when requested
     connect(this, SIGNAL(defaultRequested(int)), this, SLOT(defaultRequestedSlot(int)));
-
-    disableMouseWheelEvents();
 }
 
 ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()

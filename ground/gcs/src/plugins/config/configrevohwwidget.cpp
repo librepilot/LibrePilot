@@ -45,14 +45,21 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     m_ui = new Ui_RevoHWWidget();
     m_ui->setupUi(this);
 
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
+    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+
+    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     if (!settings->useExpertMode()) {
         m_ui->saveTelemetryToRAM->setEnabled(false);
         m_ui->saveTelemetryToRAM->setVisible(false);
     }
-
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
 
     addWidgetBinding("HwSettings", "RM_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "RM_MainPort", m_ui->cbMain);
@@ -74,8 +81,6 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbRcvrGPSProtocol);
-
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     setupCustomCombos();
 }

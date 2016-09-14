@@ -366,7 +366,7 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
 
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
     foreach(WidgetBinding * binding, bindings) {
-        if (binding->field() != NULL && binding->widget() != NULL) {
+        if (binding->field() && binding->widget()) {
             if (binding->isEnabled()) {
                 setWidgetFromField(binding->widget(), binding->field(), binding);
             } else {
@@ -384,7 +384,7 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
 void ConfigTaskWidget::updateObjectsFromWidgets()
 {
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        if (binding->object() != NULL && binding->field() != NULL) {
+        if (binding->object() && binding->field()) {
             binding->updateObjectFieldFromValue();
         }
     }
@@ -419,9 +419,10 @@ void ConfigTaskWidget::addApplySaveButtons(QPushButton *update, QPushButton *sav
         m_saveButton->addSaveButton(save);
     }
     foreach(WidgetBinding * binding, m_widgetBindingsPerWidget) {
-        m_saveButton->addObject((UAVDataObject *)binding->object());
+        if (binding->object()) {
+            m_saveButton->addObject((UAVDataObject *)binding->object());
+        }
     }
-    updateEnableControls();
 }
 
 void ConfigTaskWidget::enableControls(bool enable)
@@ -824,7 +825,7 @@ void ConfigTaskWidget::reloadButtonClicked()
 
     QList<objectComparator> temp;
     foreach(WidgetBinding * binding, bindings) {
-        if (binding->isEnabled() && binding->object() != NULL) {
+        if (binding->isEnabled() && binding->object()) {
             objectComparator value;
             value.objid     = binding->object()->getObjID();
             value.objinstid = binding->object()->getInstID();

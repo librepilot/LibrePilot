@@ -262,7 +262,7 @@ void ConfigGadgetWidget::tabAboutToChange(int i, bool *proceed)
         return;
     }
     if (wid->isDirty()) {
-        int ans = QMessageBox::warning(this, tr("Unsaved changes"), tr("The tab you are leaving has unsaved changes,"
+        int ans = QMessageBox::warning(this, tr("Unsaved changes"), tr("The tab you are leaving has unsaved changes, "
                                                                        "if you proceed they will be lost.\n"
                                                                        "Do you still want to proceed?"), QMessageBox::Yes, QMessageBox::No);
         if (ans == QMessageBox::No) {

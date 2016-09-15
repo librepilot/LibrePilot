@@ -56,6 +56,8 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#define ALWAYS_SHOW_OPLM 1
+
 ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -126,6 +128,15 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     widget = new ConfigTxPIDWidget(this);
     static_cast<ConfigTaskWidget *>(widget)->bind();
     stackWidget->insertTab(ConfigGadgetWidget::TxPid, widget, *icon, QString("TxPID"));
+
+#ifdef ALWAYS_SHOW_OPLM
+    icon   = new QIcon();
+    icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
+    icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
+    widget = new ConfigOPLinkWidget(this);
+    static_cast<ConfigTaskWidget *>(widget)->bind();
+    stackWidget->insertTab(ConfigGadgetWidget::OPLink, widget, *icon, QString("OPLink"));
+#endif
 
     stackWidget->setCurrentIndex(ConfigGadgetWidget::Hardware);
 
@@ -232,6 +243,7 @@ void ConfigGadgetWidget::onOPLinkConnect()
 {
     qDebug() << "ConfigGadgetWidget::onOPLinkConnect";
 
+#ifndef ALWAYS_SHOW_OPLM
     ConfigTaskWidget *widget;
     QIcon *icon;
 
@@ -241,16 +253,19 @@ void ConfigGadgetWidget::onOPLinkConnect()
     widget = new ConfigOPLinkWidget(this);
     widget->bind();
     stackWidget->insertTab(ConfigGadgetWidget::OPLink, widget, *icon, QString("OPLink"));
+#endif
 }
 
 void ConfigGadgetWidget::onOPLinkDisconnect()
 {
     qDebug() << "ConfigGadgetWidget::onOPLinkDisconnect";
 
+#ifndef ALWAYS_SHOW_OPLM
     if (stackWidget->currentIndex() == ConfigGadgetWidget::OPLink) {
         stackWidget->setCurrentIndex(0);
     }
     stackWidget->removeTab(ConfigGadgetWidget::OPLink);
+#endif
 }
 
 void ConfigGadgetWidget::tabAboutToChange(int i, bool *proceed)

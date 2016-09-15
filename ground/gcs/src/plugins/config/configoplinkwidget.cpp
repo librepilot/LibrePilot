@@ -161,8 +161,9 @@ void ConfigOPLinkWidget::updateStatus()
     // qDebug() << "ConfigOPLinkWidget::updateStatus";
 
     // Update the link state
-    // TODO link state should be shown
-    // m_oplink->LinkState->setText(oplinkStatusObj->linkState().toString());
+    UAVObjectField *linkField = oplinkStatusObj->getField("LinkState");
+
+    m_oplink->LinkState->setText(linkField->getValue().toString());
     bool linkConnected = (oplinkStatusObj->linkState() == OPLinkStatus_LinkState::Connected);
 
     m_oplink->PairSignalStrengthBar1->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);

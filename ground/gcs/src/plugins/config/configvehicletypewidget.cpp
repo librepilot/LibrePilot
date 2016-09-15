@@ -31,7 +31,6 @@
 
 #include "configgadgetfactory.h"
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -130,13 +129,9 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addApplySaveButtons(m_aircraft->saveAircraftToRAM, m_aircraft->saveAircraftToSD);
+    m_aircraft->saveAircraftToRAM->setVisible(expertMode());
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_aircraft->saveAircraftToRAM->setVisible(false);
-    }
-
     ConfigGadgetFactory *configGadgetFactory = pm->getObject<ConfigGadgetFactory>();
     connect(m_aircraft->vehicleSetupWizardButton, SIGNAL(clicked()), configGadgetFactory, SIGNAL(onOpenVehicleConfigurationWizard()));
 
@@ -258,7 +253,7 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgetsImpl()
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
     Q_ASSERT(system);
 
-    QPointer<UAVObjectField> field = system->getField(QString("AirframeType"));
+    UAVObjectField *field = system->getField(QString("AirframeType"));
     if (field) {
         field->setValue(airframeType);
     }

@@ -28,11 +28,6 @@
 
 #include "configinputwidget.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-#include <utils/stylehelper.h>
-#include <uavobjecthelper.h>
-
 #include "ui_input.h"
 #include "ui_input_wizard.h"
 
@@ -41,6 +36,9 @@
 
 #include "failsafechannelform.h"
 #include "ui_failsafechannelform.h"
+
+#include <utils/stylehelper.h>
+#include <uavobjecthelper.h>
 
 #include <systemalarms.h>
 
@@ -96,12 +94,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(ui->inputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addApplySaveButtons(ui->saveRCInputToRAM, ui->saveRCInputToSD);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        ui->saveRCInputToRAM->setVisible(false);
-    }
+    ui->saveRCInputToRAM->setVisible(expertMode());
 
     manualCommandObj      = ManualControlCommand::GetInstance(getObjectManager());
     manualSettingsObj     = ManualControlSettings::GetInstance(getObjectManager());

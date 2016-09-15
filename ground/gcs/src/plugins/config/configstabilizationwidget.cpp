@@ -29,9 +29,6 @@
 
 #include "ui_stabilization.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 #include "objectpersistence.h"
 #include "altitudeholdsettings.h"
 #include "stabilizationsettings.h"
@@ -70,11 +67,7 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
 
     disableMouseWheelEvents();
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        ui->saveStabilizationToRAM_6->setVisible(false);
-    }
+    ui->saveStabilizationToRAM_6->setVisible(expertMode());
 
     setupExpoPlot();
 

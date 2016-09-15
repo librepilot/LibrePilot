@@ -38,9 +38,6 @@
 #include <accelstate.h>
 #include <magstate.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 #include "assertions.h"
 #include "calibration.h"
 #include "calibration/calibrationutils.h"
@@ -93,12 +90,7 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addApplySaveButtons(m_ui->revoCalSettingsSaveRAM, m_ui->revoCalSettingsSaveSD);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->revoCalSettingsSaveRAM->setVisible(false);
-    }
+    m_ui->revoCalSettingsSaveRAM->setVisible(expertMode());
 
     // Initialization of the visual help
     m_ui->calibrationVisualHelp->setScene(new QGraphicsScene(this));

@@ -27,6 +27,7 @@
  */
 #include "configtaskwidget.h"
 
+#include <coreplugin/generalsettings.h>
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 #include "uavobjectutilmanager.h"
@@ -88,6 +89,14 @@ ConfigTaskWidget::~ConfigTaskWidget()
         m_realtimeUpdateTimer = NULL;
     }
 }
+
+bool ConfigTaskWidget::expertMode() const
+{
+    Core::Internal::GeneralSettings *settings = m_pluginManager->getObject<Core::Internal::GeneralSettings>();
+
+    return settings->useExpertMode();
+}
+
 
 void ConfigTaskWidget::addWidget(QWidget *widget)
 {

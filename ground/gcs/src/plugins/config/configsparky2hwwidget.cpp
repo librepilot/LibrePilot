@@ -29,8 +29,6 @@
 
 #include "ui_configsparky2hwwidget.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 #include <uavobjecthelper.h>
 
 #include "hwsettings.h"
@@ -53,13 +51,7 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->saveTelemetryToRAM->setEnabled(false);
-        m_ui->saveTelemetryToRAM->setVisible(false);
-    }
+    m_ui->saveTelemetryToRAM->setVisible(expertMode());
 
     addWidgetBinding("HwSettings", "SPK2_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "SPK2_MainPort", m_ui->cbMain);

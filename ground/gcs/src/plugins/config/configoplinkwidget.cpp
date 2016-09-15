@@ -30,8 +30,6 @@
 
 #include "ui_oplink.h"
 
-#include <coreplugin/generalsettings.h>
-
 #include <uavobjectutilmanager.h>
 
 #include <oplinksettings.h>
@@ -59,12 +57,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     disableMouseWheelEvents();
 
     addApplySaveButtons(m_oplink->Apply, m_oplink->Save);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_oplink->Apply->setVisible(false);
-    }
+    m_oplink->Apply->setVisible(expertMode());
 
     oplinkStatusObj   = dynamic_cast<OPLinkStatus *>(getObject("OPLinkStatus"));
     Q_ASSERT(oplinkStatusObj);

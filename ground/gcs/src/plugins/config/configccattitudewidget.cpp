@@ -30,8 +30,6 @@
 #include "ui_ccattitude.h"
 
 #include "utils/coordinateconversions.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 #include <calibration/calibrationutils.h>
 
 #include "attitudesettings.h"
@@ -60,11 +58,7 @@ ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
 
     addApplySaveButtons(ui->applyButton, ui->saveButton);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        ui->applyButton->setVisible(false);
-    }
+    ui->applyButton->setVisible(expertMode());
 
     addUAVObject("AttitudeSettings");
     addUAVObject("AccelGyroSettings");

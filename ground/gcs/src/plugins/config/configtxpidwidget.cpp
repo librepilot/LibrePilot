@@ -30,9 +30,6 @@
 
 #include "ui_txpid.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 #include "txpidsettings.h"
 #include "hwsettings.h"
 #include "attitudesettings.h"
@@ -54,12 +51,7 @@ ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
     disableMouseWheelEvents();
 
     addApplySaveButtons(m_txpid->Apply, m_txpid->Save);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_txpid->Apply->setVisible(false);
-    }
+    m_txpid->Apply->setVisible(expertMode());
 
     // Cannot use addUAVObjectToWidgetRelation() for OptionaModules enum because
     // QCheckBox returns bool (0 or -1) and this value is then set to enum instead

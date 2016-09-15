@@ -173,10 +173,11 @@ signals:
     void enableControlsChanged(bool enable);
 
 protected:
-    int boardModel()
+    int boardModel() const
     {
         return m_currentBoardId;
     }
+    bool expertMode() const;
     virtual void enableControls(bool enable);
     virtual QString mapObjectName(const QString objectName);
     virtual UAVObject *getObject(const QString name, quint32 instId = 0);

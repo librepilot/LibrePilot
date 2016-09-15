@@ -31,7 +31,6 @@
 #include "ui_cc_hw_settings.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 #include "hwsettings.h"
 
@@ -58,13 +57,10 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 
     addApplySaveButtons(m_telemetry->saveTelemetryToRAM, m_telemetry->saveTelemetryToSD);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_telemetry->saveTelemetryToRAM->setVisible(false);
-    }
+    m_telemetry->saveTelemetryToRAM->setVisible(expertMode());
 
-    UAVObjectUtilManager *utilMngr = pm->getObject<UAVObjectUtilManager>();
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
     int id = utilMngr->getBoardModel();
     switch (id) {
     case 0x0101:

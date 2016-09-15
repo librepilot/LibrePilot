@@ -36,7 +36,6 @@
 
 #include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 #include <uavobjecthelper.h>
 
 #include "mixersettings.h"
@@ -70,15 +69,11 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     connect(m_ui->outputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
 
     addApplySaveButtons(m_ui->saveRCOutputToRAM, m_ui->saveRCOutputToSD);
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->saveRCOutputToRAM->setVisible(false);
-    }
+    m_ui->saveRCOutputToRAM->setVisible(expertMode());
 
     m_ui->gvFrame->setVisible(false);
 
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVSettingsImportExportFactory *importexportplugin = pm->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(stopTests()));
 

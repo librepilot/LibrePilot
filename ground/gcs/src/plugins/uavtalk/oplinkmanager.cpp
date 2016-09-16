@@ -70,7 +70,8 @@ void OPLinkManager::onDeviceConnect()
     m_opLinkStatus = OPLinkStatus::GetInstance(objManager);
     Q_ASSERT(m_opLinkStatus);
 
-    onOPLinkStatusUpdate();
+    // start monitoring OPLinkStatus
+    connect(m_opLinkStatus, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(onOPLinkStatusUpdate()), Qt::UniqueConnection);
 }
 
 void OPLinkManager::onDeviceDisconnect()
@@ -80,7 +81,7 @@ void OPLinkManager::onDeviceDisconnect()
 
 void OPLinkManager::onOPLinkStatusUpdate()
 {
-    quint8 type = m_opLinkStatus->getBoardType();
+    int type = m_opLinkStatus->boardType();
 
     switch (type) {
     case 0x03:
@@ -93,10 +94,8 @@ void OPLinkManager::onOPLinkStatusUpdate()
         break;
     default:
         m_opLinkType = OPLINK_UNKNOWN;
-        // disconnect if connected
-        onOPLinkDisconnect();
-        // and start monitoring OPLinkStatus to see if a board shows up
-        connect(m_opLinkStatus, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(onOPLinkStatusUpdate()));
+        // stop monitoring status updates...
+        m_opLinkStatus->disconnect(this);
         break;
     }
 }
@@ -106,7 +105,7 @@ void OPLinkManager::onOPLinkConnect()
     if (m_isConnected) {
         return;
     }
-    // stop listening to status updates...
+    // stop monitoring status updates...
     m_opLinkStatus->disconnect(this);
 
     m_isConnected = true;
@@ -118,7 +117,7 @@ void OPLinkManager::onOPLinkDisconnect()
     if (!m_isConnected) {
         return;
     }
-    // stop listening to status updates...
+    // stop monitoring status updates...
     m_opLinkStatus->disconnect(this);
 
     m_isConnected = false;

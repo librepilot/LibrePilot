@@ -58,8 +58,6 @@ public:
 protected:
     QString mapObjectName(const QString objectName);
 
-    virtual void onConnectImpl();
-    virtual void onDisconnectImpl();
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
@@ -96,6 +94,8 @@ private:
     void restoreStabBank(int bank);
 
 private slots:
+    void enableControlsChanged(bool enable);
+
     void realtimeUpdatesSlot(bool value);
     void linkCheckBoxes(bool value);
     void processLinkedWidgets(QWidget *);

@@ -69,6 +69,8 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
 
     ui->saveStabilizationToRAM_6->setVisible(expertMode());
 
+    connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
+
     setupExpoPlot();
 
     realtimeUpdates = new QTimer(this);
@@ -638,17 +640,12 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
     }
 }
 
-void ConfigStabilizationWidget::onConnectImpl()
+void ConfigStabilizationWidget::enableControlsChanged(bool enable)
 {
     // If Revolution/Sparky2 board enable Althold tab, otherwise disable it
     bool enableAltitudeHold = (((boardModel() & 0xff00) == 0x0900) || ((boardModel() & 0xff00) == 0x9200));
 
-    ui->AltitudeHold->setEnabled(enableAltitudeHold);
-}
-
-void ConfigStabilizationWidget::onDisconnectImpl()
-{
-    ui->AltitudeHold->setEnabled(false);
+    ui->AltitudeHold->setEnabled(enable && enableAltitudeHold);
 }
 
 void ConfigStabilizationWidget::stabBankChanged(int index)

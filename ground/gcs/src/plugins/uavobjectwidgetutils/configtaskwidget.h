@@ -168,6 +168,8 @@ protected slots:
     void save();
 
 signals:
+    void connected();
+    void disconnected();
     void widgetContentsChanged(QWidget *widget);
     void defaultRequested(int group);
     void enableControlsChanged(bool enable);
@@ -186,8 +188,6 @@ protected:
 
     bool isConnected() const;
 
-    virtual void onConnectImpl() {};
-    virtual void onDisconnectImpl() {};
     virtual void refreshWidgetsValuesImpl(UAVObject *) {};
     virtual void updateObjectsFromWidgetsImpl() {};
 

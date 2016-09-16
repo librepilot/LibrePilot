@@ -59,6 +59,8 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addApplySaveButtons(m_oplink->Apply, m_oplink->Save);
     m_oplink->Apply->setVisible(expertMode());
 
+    connect(this, SIGNAL(connected()), this, SLOT(connected()));
+
     oplinkStatusObj   = dynamic_cast<OPLinkStatus *>(getObject("OPLinkStatus"));
     Q_ASSERT(oplinkStatusObj);
 
@@ -137,9 +139,9 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
 ConfigOPLinkWidget::~ConfigOPLinkWidget()
 {}
 
-void ConfigOPLinkWidget::onConnectImpl()
+void ConfigOPLinkWidget::connected()
 {
-    // qDebug() << "ConfigOPLinkWidget::onConnectImpl()";
+    // qDebug() << "ConfigOPLinkWidget::connected()";
     statusUpdated = false;
 
     // Request and update of the setting object if we haven't received it yet.

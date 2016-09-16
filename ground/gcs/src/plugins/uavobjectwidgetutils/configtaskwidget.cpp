@@ -341,25 +341,23 @@ void ConfigTaskWidget::onConnect()
     invalidateObjects();
 
     resetLimits();
+    updateEnableControls();
 
-    // call specific implementation
-    onConnectImpl();
-
-    setDirty(false);
+    emit connected();
 
     refreshWidgetsValues();
-    updateEnableControls();
+
+    setDirty(false);
 }
 
 void ConfigTaskWidget::onDisconnect()
 {
     m_isConnected = false;
 
+    emit disconnected();
+
     updateEnableControls();
     invalidateObjects();
-
-    // call specific implementation
-    onDisconnectImpl();
 
     // reset board ID
     m_currentBoardId = -1;

@@ -96,6 +96,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addApplySaveButtons(ui->saveRCInputToRAM, ui->saveRCInputToSD);
     ui->saveRCInputToRAM->setVisible(expertMode());
 
+    connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
+
     manualCommandObj      = ManualControlCommand::GetInstance(getObjectManager());
     manualSettingsObj     = ManualControlSettings::GetInstance(getObjectManager());
     flightModeSettingsObj = FlightModeSettings::GetInstance(getObjectManager());
@@ -248,8 +250,6 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     connect(ui->failsafeFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeFlightModeChanged(int)));
     connect(ui->failsafeFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeFlightModeCbToggled(bool)));
-
-    connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
 
     addWidget(ui->configurationWizard);
     addWidget(ui->runCalibration);
@@ -2188,5 +2188,5 @@ void ConfigInputWidget::failsafeFlightModeCbToggled(bool checked)
 
 void ConfigInputWidget::enableControlsChanged(bool enabled)
 {
-    ui->failsafeFlightMode->setEnabled(enabled && ui->failsafeFlightMode->currentIndex() != -1);
+    ui->failsafeFlightMode->setEnabled(enabled && (ui->failsafeFlightMode->currentIndex() != -1));
 }

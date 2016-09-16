@@ -34,9 +34,11 @@
 
 #include <oplinkstatus.h>
 
+#include <QDebug>
+
 OPLinkManager::OPLinkManager() : QObject(), m_isConnected(false), m_opLinkType(OPLinkManager::OPLINK_UNKNOWN)
 {
-    // conenct to the connection manager
+    // connect to the connection manager
     Core::ConnectionManager *cm = Core::ICore::instance()->connectionManager();
 
     connect(cm, SIGNAL(deviceConnected(QIODevice *)), this, SLOT(onDeviceConnect()));

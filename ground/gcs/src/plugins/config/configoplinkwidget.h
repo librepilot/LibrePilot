@@ -43,7 +43,6 @@ public:
     ~ConfigOPLinkWidget();
 
 protected:
-    virtual void onConnectImpl();
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 private:
@@ -62,6 +61,8 @@ private:
     void setPortsVisible(bool visible);
 
 private slots:
+    void connected();
+
     void protocolChanged();
     void linkTypeChanged();
 

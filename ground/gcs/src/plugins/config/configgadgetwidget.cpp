@@ -53,6 +53,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QSettings>
 #include <QDebug>
 
 #define OPLINK_TIMEOUT 2000
@@ -169,6 +170,18 @@ void ConfigGadgetWidget::startInputWizard()
     ConfigInputWidget *inputWidget = dynamic_cast<ConfigInputWidget *>(stackWidget->getWidget(ConfigGadgetWidget::Input));
     Q_ASSERT(inputWidget);
     inputWidget->startInputWizard();
+}
+
+void ConfigGadgetWidget::saveState(QSettings *settings)
+{
+    settings->setValue("currentIndex", stackWidget->currentIndex());
+}
+
+void ConfigGadgetWidget::restoreState(QSettings *settings)
+{
+    int index = settings->value("currentIndex", 0).toInt();
+
+    stackWidget->setCurrentIndex(index);
 }
 
 void ConfigGadgetWidget::resizeEvent(QResizeEvent *event)

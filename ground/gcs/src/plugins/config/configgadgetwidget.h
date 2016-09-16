@@ -31,6 +31,7 @@
 #include <QWidget>
 
 class QTextBrowser;
+class QSettings;
 class MyTabbedStackWidget;
 
 class ConfigGadgetWidget : public QWidget {
@@ -43,6 +44,9 @@ public:
     ~ConfigGadgetWidget();
 
     void startInputWizard();
+
+    void saveState(QSettings *settings);
+    void restoreState(QSettings *settings);
 
 protected:
     void resizeEvent(QResizeEvent *event);

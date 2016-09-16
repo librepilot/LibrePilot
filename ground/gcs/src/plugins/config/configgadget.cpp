@@ -25,7 +25,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configgadget.h"
+
 #include "configgadgetwidget.h"
+
+#include "../uavobjectwidgetutils/configtaskwidget.h"
 
 ConfigGadget::ConfigGadget(QString classId, ConfigGadgetWidget *widget, QWidget *parent) :
     IUAVGadget(classId, parent), m_widget(widget)
@@ -39,4 +42,14 @@ ConfigGadget::~ConfigGadget()
 void ConfigGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     Q_UNUSED(config);
+}
+
+void ConfigGadget::saveState(QSettings *settings)
+{
+    m_widget->saveState(settings);
+}
+
+void ConfigGadget::restoreState(QSettings *settings)
+{
+    m_widget->restoreState(settings);
 }

@@ -92,6 +92,10 @@ void OPLinkManager::onOPLinkStatusUpdate()
         m_opLinkType = OPLINK_REVOLUTION;
         onOPLinkConnect();
         break;
+    case 0x92:
+        m_opLinkType = OPLINK_SPARKY2;
+        onOPLinkConnect();
+        break;
     default:
         m_opLinkType = OPLINK_UNKNOWN;
         // stop monitoring status updates...

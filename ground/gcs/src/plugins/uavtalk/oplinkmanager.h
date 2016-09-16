@@ -41,7 +41,8 @@ public:
     enum OPLinkType {
         OPLINK_UNKNOWN,
         OPLINK_MINI,
-        OPLINK_REVOLUTION
+        OPLINK_REVOLUTION,
+        OPLINK_SPARKY2
     };
 
     OPLinkManager();
@@ -52,40 +53,20 @@ public:
         return m_opLinkType;
     }
 
-    // void start(QIODevice *dev);
-    // void stop();
     bool isConnected() const;
-    // ConnectionState connectionState() const;
 
 signals:
-    // void connecting();
     void connected();
-    // void disconnecting();
     void disconnected();
-    // void telemetryUpdated(double txRate, double rxRate);
-    // void myStart();
-    // void myStop();
 
 private slots:
-    // void onConnect();
-    // void onDisconnect();
     void onDeviceConnect();
     void onDeviceDisconnect();
     void onOPLinkStatusUpdate();
     void onOPLinkConnect();
     void onOPLinkDisconnect();
-    // void onOPLinkUpdate(double txRate, double rxRate);
-    // void onStart();
-    // void onStop();
 
 private:
-    // UAVObjectManager *m_uavobjectManager;
-    // UAVTalk *m_uavTalk;
-    // OPLink *m_telemetry;
-    // OPLinkMonitor *m_telemetryMonitor;
-    // QIODevice *m_telemetryDevice;
-    // ConnectionState m_connectionState;
-    // QThread m_telemetryReaderThread;
     bool m_isConnected;
     OPLinkType m_opLinkType;
     OPLinkStatus *m_opLinkStatus;

@@ -842,7 +842,7 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
     {
         setTxMovement(nothing);
         manualSettingsData = manualSettingsObj->getData();
-        for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+        for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
             // Preserve the inverted status
             if (manualSettingsData.ChannelMin[i] <= manualSettingsData.ChannelMax[i]) {
                 manualSettingsData.ChannelMin[i] = manualSettingsData.ChannelNeutral[i];
@@ -948,7 +948,7 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
         manualCommandData  = manualCommandObj->getData();
         manualSettingsData = manualSettingsObj->getData();
         // Ignore last Rssi channel
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM - 1; ++i) {
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
             // Set Accessory neutral to middle range
             if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
                 manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
@@ -1206,7 +1206,7 @@ void ConfigInputWidget::identifyLimits()
     bool newFlightModeValue = false;
 
     manualCommandData = manualCommandObj->getData();
-    for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+    for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
         inputValue = manualCommandData.Channel[i];
         // Check if channel is already detected and prevent glitches
         if ((manualSettingsData.ChannelNumber[i] != CHANNEL_NUMBER_NONE) &&
@@ -1945,20 +1945,18 @@ void ConfigInputWidget::updateConfigAlarmStatus()
 void ConfigInputWidget::updateCalibration()
 {
     manualCommandData = manualCommandObj->getData();
-    for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
-        if (i != ManualControlSettings::CHANNELNUMBER_RSSI) {
-            if ((!reverse[i] && manualSettingsData.ChannelMin[i] > manualCommandData.Channel[i]) ||
-                (reverse[i] && manualSettingsData.ChannelMin[i] < manualCommandData.Channel[i])) {
-                manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
-            }
-            if ((!reverse[i] && manualSettingsData.ChannelMax[i] < manualCommandData.Channel[i]) ||
-                (reverse[i] && manualSettingsData.ChannelMax[i] > manualCommandData.Channel[i])) {
-                manualSettingsData.ChannelMax[i] = manualCommandData.Channel[i];
-            }
+    for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
+        if ((!reverse[i] && manualSettingsData.ChannelMin[i] > manualCommandData.Channel[i]) ||
+            (reverse[i] && manualSettingsData.ChannelMin[i] < manualCommandData.Channel[i])) {
+            manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
+        }
+        if ((!reverse[i] && manualSettingsData.ChannelMax[i] < manualCommandData.Channel[i]) ||
+            (reverse[i] && manualSettingsData.ChannelMax[i] > manualCommandData.Channel[i])) {
+            manualSettingsData.ChannelMax[i] = manualCommandData.Channel[i];
         }
         if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
             adjustSpecialNeutrals();
-        } else if (i != ManualControlSettings::CHANNELNUMBER_RSSI) {
+        } else {
             // Set Accessory neutral to middle range
             if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
                 manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
@@ -1998,7 +1996,7 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         flightModeSettingsData.Arming = FlightModeSettings::ARMING_ALWAYSDISARMED;
         flightModeSettingsObj->setData(flightModeSettingsData);
         // Ignore last Rssi channel
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM - 1; i++) {
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             reverse[i] = manualSettingsData.ChannelMax[i] < manualSettingsData.ChannelMin[i];
             manualSettingsData.ChannelMin[i]     = manualCommandData.Channel[i];
             manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
@@ -2036,11 +2034,11 @@ void ConfigInputWidget::simpleCalibration(bool enable)
             forceOneFlightMode();
         }
 
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; i++) {
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
                 adjustSpecialNeutrals();
                 checkThrottleRange();
-            } else if (i != ManualControlSettings::CHANNELNUMBER_RSSI) {
+            } else {
                 // Set Accessory neutral to middle range
                 if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
                     manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
@@ -2110,7 +2108,7 @@ void ConfigInputWidget::resetChannelSettings()
 {
     manualSettingsData = manualSettingsObj->getData();
     // Clear all channel data : Channel Type (PPM,PWM..) and Number, except for Rssi
-    for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_NUMELEM - 1; channel++) {
+    for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_RSSI; channel++) {
         manualSettingsData.ChannelGroups[channel] = ManualControlSettings::CHANNELGROUPS_NONE;
         manualSettingsData.ChannelNumber[channel] = CHANNEL_NUMBER_NONE;
         UAVObjectUpdaterHelper updateHelper;

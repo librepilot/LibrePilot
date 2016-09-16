@@ -802,11 +802,7 @@ static bool updateRcvrStatus(
     bool activity_updated = false;
     int8_t quality;
 
-    if (rssiValue > 0) {
-        quality = rssiValue;
-    } else {
-        quality = PIOS_RCVR_GetQuality(pios_rcvr_group_map[group]);
-    }
+    quality = (rssiValue > 0) ? rssiValue : PIOS_RCVR_GetQuality(pios_rcvr_group_map[group]);
 
     /* If no driver is detected or any other error then return */
     if (quality < 0) {

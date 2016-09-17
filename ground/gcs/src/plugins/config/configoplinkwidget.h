@@ -8,7 +8,7 @@
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief The Configuration Gadget used to configure the OPLink and Revo modem
+ * @brief The Configuration Gadget used to configure the OPLink, Revo and Sparky2 modems
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       configrevowidget.h
+ * @file       configrevowidget.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins

@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       configtelemetrytwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       config_cc_hw_widget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief Telemetry configuration panel
+ * @brief The Configuration Gadget used to update hardware settings in the firmware
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

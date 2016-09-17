@@ -106,6 +106,9 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "RXPacketRate", m_oplink->RXPacketRate);
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
 
+    // initially hide port combo boxes
+    setPortsVisible(false);
+
     // Connect the selection changed signals.
     connect(m_oplink->Protocol, SIGNAL(currentIndexChanged(int)), this, SLOT(protocolChanged()));
     connect(m_oplink->LinkType, SIGNAL(currentIndexChanged(int)), this, SLOT(linkTypeChanged()));
@@ -173,20 +176,10 @@ void ConfigOPLinkWidget::updateStatus()
     switch (oplinkStatusObj->boardType()) {
     case 0x09: // Revolution, DiscoveryF4Bare, RevoNano, RevoProto
     case 0x92: // Sparky2
-        m_oplink->MainPort->setVisible(false);
-        m_oplink->MainPortLabel->setVisible(false);
-        m_oplink->FlexiPort->setVisible(false);
-        m_oplink->FlexiPortLabel->setVisible(false);
-        m_oplink->VCPPort->setVisible(false);
-        m_oplink->VCPPortLabel->setVisible(false);
+        setPortsVisible(false);
         break;
     case 0x03: // OPLinkMini
-        m_oplink->MainPort->setVisible(true);
-        m_oplink->MainPortLabel->setVisible(true);
-        m_oplink->FlexiPort->setVisible(true);
-        m_oplink->FlexiPortLabel->setVisible(true);
-        m_oplink->VCPPort->setVisible(true);
-        m_oplink->VCPPortLabel->setVisible(true);
+        setPortsVisible(true);
         break;
     default:
         // This shouldn't happen.
@@ -198,6 +191,16 @@ void ConfigOPLinkWidget::updateStatus()
         // update static info
         updateInfo();
     }
+}
+
+void ConfigOPLinkWidget::setPortsVisible(bool visible)
+{
+    m_oplink->MainPort->setVisible(visible);
+    m_oplink->MainPortLabel->setVisible(visible);
+    m_oplink->FlexiPort->setVisible(visible);
+    m_oplink->FlexiPortLabel->setVisible(visible);
+    m_oplink->VCPPort->setVisible(visible);
+    m_oplink->VCPPortLabel->setVisible(visible);
 }
 
 void ConfigOPLinkWidget::updateInfo()
@@ -246,7 +249,6 @@ void ConfigOPLinkWidget::updateSettings()
     bool is_receiver    = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKRECEIVER);
     bool is_openlrs     = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS);
     bool is_ppm_only    = isComboboxOptionSelected(m_oplink->LinkType, OPLinkSettings::LINKTYPE_CONTROL);
-    bool is_oplm  = m_oplink->MainPort->isVisible();
     bool is_bound = (m_oplink->CoordID->text() != "");
 
     m_oplink->ComSpeed->setEnabled(is_enabled && !is_ppm_only && !is_openlrs);
@@ -256,11 +258,6 @@ void ConfigOPLinkWidget::updateSettings()
 
     m_oplink->MinimumChannel->setEnabled(is_receiver || is_coordinator);
     m_oplink->MaximumChannel->setEnabled(is_receiver || is_coordinator);
-
-    // ports
-    m_oplink->MainPort->setEnabled(is_oplm);
-    m_oplink->FlexiPort->setEnabled(is_oplm);
-    m_oplink->VCPPort->setEnabled(is_oplm);
 
     enableComboBoxOptionItem(m_oplink->VCPPort, OPLinkSettings::VCPPORT_SERIAL, (is_receiver || is_coordinator));
 

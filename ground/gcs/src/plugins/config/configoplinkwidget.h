@@ -59,6 +59,8 @@ private:
     void updateInfo();
     void updateSettings();
 
+    void setPortsVisible(bool visible);
+
 private slots:
     void protocolChanged();
     void linkTypeChanged();

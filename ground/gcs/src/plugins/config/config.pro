@@ -25,8 +25,7 @@ HEADERS += \
     configccattitudewidget.h \
     configstabilizationwidget.h \
     assertions.h \
-    defaultattitudewidget.h \
-    defaulthwsettingswidget.h \
+    defaultconfigwidget.h \
     channelform.h \
     inputchannelform.h \
     configcamerastabilizationwidget.h \
@@ -74,8 +73,7 @@ SOURCES += \
     config_cc_hw_widget.cpp \
     configccattitudewidget.cpp \
     configstabilizationwidget.cpp \
-    defaultattitudewidget.cpp \
-    defaulthwsettingswidget.cpp \
+    defaultconfigwidget.cpp \
     channelform.cpp \
     inputchannelform.cpp \
     configcamerastabilizationwidget.cpp \
@@ -118,8 +116,7 @@ FORMS += \
     input_wizard.ui \
     output.ui \
     ccattitude.ui \
-    defaultattitude.ui \
-    defaulthwsettings.ui \
+    defaultconfig.ui \
     inputchannelform.ui \
     camerastabilization.ui \
     outputchannelform.ui \

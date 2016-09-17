@@ -41,8 +41,7 @@
 #include "configrevowidget.h"
 #include "configrevonanohwwidget.h"
 #include "configsparky2hwwidget.h"
-#include "defaultattitudewidget.h"
-#include "defaulthwsettingswidget.h"
+#include "defaultconfigwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <uavobjectutilmanager.h>
@@ -56,7 +55,7 @@
 #include <QMessageBox>
 #include <QDebug>
 
-#define ALWAYS_SHOW_OPLM 1
+#define OPLINK_TIMEOUT 2000
 
 ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
 {
@@ -78,7 +77,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/hardware_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/hardware_selected.png", QSize(), QIcon::Selected, QIcon::Off);
-    widget = new DefaultHwSettingsWidget(this);
+    widget = new DefaultConfigWidget(this, tr("Hardware"));
     stackWidget->insertTab(ConfigGadgetWidget::Hardware, widget, *icon, QString("Hardware"));
 
     icon   = new QIcon();
@@ -105,7 +104,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/ins_normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/ins_selected.png", QSize(), QIcon::Selected, QIcon::Off);
-    widget = new DefaultAttitudeWidget(this);
+    widget = new DefaultConfigWidget(this, tr("Attitude"));
     stackWidget->insertTab(ConfigGadgetWidget::Sensors, widget, *icon, QString("Attitude"));
 
     icon   = new QIcon();
@@ -129,14 +128,11 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     static_cast<ConfigTaskWidget *>(widget)->bind();
     stackWidget->insertTab(ConfigGadgetWidget::TxPid, widget, *icon, QString("TxPID"));
 
-#ifdef ALWAYS_SHOW_OPLM
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
-    widget = new ConfigOPLinkWidget(this);
-    static_cast<ConfigTaskWidget *>(widget)->bind();
+    widget = new DefaultConfigWidget(this, tr("OPLink Configuration"));
     stackWidget->insertTab(ConfigGadgetWidget::OPLink, widget, *icon, QString("OPLink"));
-#endif
 
     stackWidget->setCurrentIndex(ConfigGadgetWidget::Hardware);
 
@@ -232,10 +228,10 @@ void ConfigGadgetWidget::onAutopilotDisconnect()
     qDebug() << "ConfigGadgetWidget::onAutopilotDiconnect";
     QWidget *widget;
 
-    widget = new DefaultAttitudeWidget(this);
+    widget = new DefaultConfigWidget(this, tr("Attitude"));
     stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
 
-    widget = new DefaultHwSettingsWidget(this);
+    widget = new DefaultConfigWidget(this, tr("Hardware"));
     stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
 }
 
@@ -243,34 +239,22 @@ void ConfigGadgetWidget::onOPLinkConnect()
 {
     qDebug() << "ConfigGadgetWidget::onOPLinkConnect";
 
-#ifndef ALWAYS_SHOW_OPLM
-    ConfigTaskWidget *widget;
-    QIcon *icon;
-
-    icon   = new QIcon();
-    icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
-    icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
-    widget = new ConfigOPLinkWidget(this);
+    ConfigTaskWidget *widget = new ConfigOPLinkWidget(this);
     widget->bind();
-    stackWidget->insertTab(ConfigGadgetWidget::OPLink, widget, *icon, QString("OPLink"));
-#endif
+    stackWidget->replaceTab(ConfigGadgetWidget::OPLink, widget);
 }
 
 void ConfigGadgetWidget::onOPLinkDisconnect()
 {
     qDebug() << "ConfigGadgetWidget::onOPLinkDisconnect";
 
-#ifndef ALWAYS_SHOW_OPLM
-    if (stackWidget->currentIndex() == ConfigGadgetWidget::OPLink) {
-        stackWidget->setCurrentIndex(0);
-    }
-    stackWidget->removeTab(ConfigGadgetWidget::OPLink);
-#endif
+    QWidget *widget = new DefaultConfigWidget(this, tr("OPLink Configuration"));
+    stackWidget->replaceTab(ConfigGadgetWidget::OPLink, widget);
 }
 
-void ConfigGadgetWidget::tabAboutToChange(int i, bool *proceed)
+void ConfigGadgetWidget::tabAboutToChange(int index, bool *proceed)
 {
-    Q_UNUSED(i);
+    Q_UNUSED(index);
     *proceed = true;
     ConfigTaskWidget *wid = qobject_cast<ConfigTaskWidget *>(stackWidget->currentWidget());
     if (!wid) {

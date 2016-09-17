@@ -52,7 +52,7 @@ private slots:
     void onAutopilotDisconnect();
     void onOPLinkConnect();
     void onOPLinkDisconnect();
-    void tabAboutToChange(int i, bool *);
+    void tabAboutToChange(int index, bool *proceed);
 
 private:
     MyTabbedStackWidget *stackWidget;

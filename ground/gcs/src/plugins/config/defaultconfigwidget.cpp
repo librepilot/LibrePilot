@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       DefaultHwSettingsWidget.cpp
+ * @file       defaultattitudewidget.cpp
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -24,22 +24,25 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#include "defaulthwsettingswidget.h"
+#include "defaultconfigwidget.h"
 
-#include "ui_defaulthwsettings.h"
+#include "ui_defaultconfig.h"
 
-#include <QMutexLocker>
-#include <QErrorMessage>
-#include <QDebug>
-
-DefaultHwSettingsWidget::DefaultHwSettingsWidget(QWidget *parent) :
+DefaultConfigWidget::DefaultConfigWidget(QWidget *parent, QString title) :
     QWidget(parent),
-    ui(new Ui_defaulthwsettings)
+    ui(new Ui_defaultconfig)
 {
     ui->setupUi(this);
+
+    ui->tabWidget->setTabText(0, title);
+
+    ui->helpButton->setEnabled(false);
+    ui->saveButton->setEnabled(false);
+    ui->applyButton->setVisible(false);
+    ui->applyButton->setEnabled(false);
 }
 
-DefaultHwSettingsWidget::~DefaultHwSettingsWidget()
+DefaultConfigWidget::~DefaultConfigWidget()
 {
     delete ui;
 }

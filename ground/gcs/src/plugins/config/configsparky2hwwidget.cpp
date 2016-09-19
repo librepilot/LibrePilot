@@ -29,8 +29,6 @@
 
 #include "ui_configsparky2hwwidget.h"
 
-#include <uavobjecthelper.h>
-
 #include "hwsettings.h"
 
 #include <QDebug>
@@ -97,21 +95,17 @@ void ConfigSparky2HWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 
 void ConfigSparky2HWWidget::updateObjectsFromWidgetsImpl()
 {
-    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields data = hwSettings->getData();
-
     // If any port is configured to be GPS port, enable GPS module if it is not enabled.
     // Otherwise disable GPS module.
+    quint8 enableModule = HwSettings::OPTIONALMODULES_DISABLED;
+
     if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_GPS)
         || isComboboxOptionSelected(m_ui->cbMain, HwSettings::SPK2_MAINPORT_GPS)) {
-        data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_ENABLED;
-    } else {
-        data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_DISABLED;
+        enableModule = HwSettings::OPTIONALMODULES_ENABLED;
     }
 
-    UAVObjectUpdaterHelper updateHelper;
-    hwSettings->setData(data, false);
-    updateHelper.doObjectAndWait(hwSettings);
+    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
+    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_GPS, enableModule);
 }
 
 void ConfigSparky2HWWidget::usbVCPPortChanged(int index)

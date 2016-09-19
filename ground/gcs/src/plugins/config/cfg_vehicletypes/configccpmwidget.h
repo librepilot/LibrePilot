@@ -31,8 +31,7 @@
 #include "cfg_vehicletypes/vehicleconfig.h"
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
 
 class Ui_CcpmConfigWidget;
@@ -69,7 +68,6 @@ public:
 public slots:
     void getMixer();
     void setMixer();
-    void saveccpmUpdate();
 
 protected:
     void showEvent(QShowEvent *event);

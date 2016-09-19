@@ -1074,23 +1074,6 @@ void ConfigCcpmWidget::setMixer()
     updatingToHardware = false;
 }
 
-/**
-   Send ccpm type to the board and request saving to SD card
- */
-void ConfigCcpmWidget::saveccpmUpdate()
-{
-    if (SwashLvlConfigurationInProgress) {
-        return;
-    }
-    ShowDisclaimer(0);
-    // Send update so that the latest value is saved
-    // sendccpmUpdate();
-    setMixer();
-    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-    Q_ASSERT(obj);
-    saveObjectToSD(obj);
-}
-
 void ConfigCcpmWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);

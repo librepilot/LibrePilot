@@ -108,10 +108,9 @@ void ConfigTxPIDWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     // It needs special processing because ConfigTaskWidget uses TRUE/FALSE
     // for QCheckBox, but OptionalModules uses Enabled/Disabled enum values.
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
 
     m_txpid->TxPIDEnable->setChecked(
-        hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_TXPID] == HwSettings::OPTIONALMODULES_ENABLED);
+        hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_TXPID) == HwSettings::OPTIONALMODULES_ENABLED);
 }
 
 /*

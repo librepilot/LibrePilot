@@ -107,10 +107,9 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     // It needs special processing because ConfigTaskWidget uses TRUE/FALSE
     // for QCheckBox, but OptionalModules uses Enabled/Disabled enum values.
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
 
     ui->enableCameraStabilization->setChecked(
-        hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_CAMERASTAB] == HwSettings::OPTIONALMODULES_ENABLED);
+        hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_CAMERASTAB) == HwSettings::OPTIONALMODULES_ENABLED);
 
     // Load mixer outputs which are mapped to camera controls
     MixerSettings *mixerSettings = MixerSettings::GetInstance(getObjectManager());
@@ -242,18 +241,6 @@ void ConfigCameraStabilizationWidget::updateObjectsFromWidgetsImpl()
 void ConfigCameraStabilizationWidget::defaultRequestedSlot(int group)
 {
     Q_UNUSED(group);
-
-    // Here is the example of how to reset the state of QCheckBox. It is
-    // commented out because we normally don't want to reset the module
-    // enable state to default "disabled" (or we don't care about values at all).
-    // But if you want, you could use the dirtyClone() function to get default
-    // values of an object and then use them to set a widget state.
-    //
-    // HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    // HwSettings *hwSettingsDefault=(HwSettings*)hwSettings->dirtyClone();
-    // HwSettings::DataFields hwSettingsData = hwSettingsDefault->getData();
-    // m_camerastabilization->enableCameraStabilization->setChecked(
-    // hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_CAMERASTAB] == HwSettings::OPTIONALMODULES_ENABLED);
 
     // For outputs we set them all to none, so don't use any UAVObject to get defaults
     QComboBox *outputs[] = {

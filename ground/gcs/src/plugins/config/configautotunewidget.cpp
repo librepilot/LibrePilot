@@ -157,18 +157,17 @@ void ConfigAutotuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
 
     if (obj == hwSettings) {
-        HwSettings::DataFields hwSettingsData = hwSettings->getData();
-        m_autotune->enableAutoTune->setChecked(
-            hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_AUTOTUNE] == HwSettings::OPTIONALMODULES_ENABLED);
+        bool enabled = (hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
+        m_autotune->enableAutoTune->setChecked(enabled);
     }
 }
 
 void ConfigAutotuneWidget::updateObjectsFromWidgetsImpl()
 {
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
 
-    hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_AUTOTUNE] =
-        m_autotune->enableAutoTune->isChecked() ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
-    hwSettings->setData(hwSettingsData);
+    quint8 enableModule    = (m_autotune->enableAutoTune->isChecked()) ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
+
+    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE, enableModule);
+    ;
 }

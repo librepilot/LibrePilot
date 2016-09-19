@@ -118,9 +118,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-317</y>
-            <width>748</width>
-            <height>724</height>
+            <y>0</y>
+            <width>751</width>
+            <height>768</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -1426,7 +1426,7 @@ font:bold;</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -1484,7 +1484,7 @@ font:bold;</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Apply">
+      <widget class="QPushButton" name="applyButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1500,10 +1500,13 @@ font:bold;</string>
        <property name="text">
         <string>Apply</string>
        </property>
+       <property name="objrelation" stdset="0">
+        <string>button:apply</string>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Save">
+      <widget class="QPushButton" name="saveButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1522,6 +1525,9 @@ font:bold;</string>
        <property name="checked">
         <bool>false</bool>
        </property>
+       <property name="objrelation" stdset="0">
+        <string>button:save</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -1529,8 +1535,8 @@ font:bold;</string>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>Apply</tabstop>
-  <tabstop>Save</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>saveButton</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>PID1</tabstop>
   <tabstop>Input1</tabstop>

@@ -37,21 +37,15 @@
 #include "failsafechannelform.h"
 #include "ui_failsafechannelform.h"
 
-#include <utils/stylehelper.h>
+#include <uavobjectmanager.h>
 #include <uavobjecthelper.h>
+#include <utils/stylehelper.h>
 
 #include <systemalarms.h>
 
 #include <QDebug>
-#include <QStringList>
 #include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
 #include <QMessageBox>
-#include <QEventLoop>
 #include <QGraphicsSvgItem>
 #include <QSvgRenderer>
 
@@ -87,14 +81,9 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     ui->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("Input+Configuration");
 
     addAutoBindings();
-
-    connect(ui->inputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(ui->saveRCInputToRAM, ui->saveRCInputToSD);
-    ui->saveRCInputToRAM->setVisible(expertMode());
 
     connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
 
@@ -491,12 +480,6 @@ void ConfigInputWidget::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 
     wizardUi->graphicsView->fitInView(m_txBackground, Qt::KeepAspectRatio);
-}
-
-void ConfigInputWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Input+Configuration"),
-                                   QUrl::StrictMode));
 }
 
 void ConfigInputWidget::goToWizard()
@@ -1953,8 +1936,8 @@ void ConfigInputWidget::simpleCalibration(bool enable)
 {
     if (enable) {
         ui->configurationWizard->setEnabled(false);
-        ui->saveRCInputToRAM->setEnabled(false);
-        ui->saveRCInputToSD->setEnabled(false);
+        ui->applyButton->setEnabled(false);
+        ui->saveButton->setEnabled(false);
         ui->runCalibration->setText(tr("Stop Manual Calibration"));
         throttleError = false;
 
@@ -2031,8 +2014,8 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         actuatorSettingsObj->setData(memento.actuatorSettingsData);
 
         ui->configurationWizard->setEnabled(true);
-        ui->saveRCInputToRAM->setEnabled(true);
-        ui->saveRCInputToSD->setEnabled(true);
+        ui->applyButton->setEnabled(true);
+        ui->saveButton->setEnabled(true);
         ui->runCalibration->setText(tr("Start Manual Calibration"));
 
         disconnect(manualCommandObj, SIGNAL(objectUnpacked(UAVObject *)), this, SLOT(updateCalibration()));

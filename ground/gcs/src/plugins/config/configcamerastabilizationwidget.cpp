@@ -55,10 +55,6 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
 
     disableMouseWheelEvents();
 
-    addApplySaveButtons(ui->camerastabilizationSaveRAM, ui->camerastabilizationSaveSD);
-
-    ui->camerastabilizationSaveRAM->setVisible(expertMode());
-
     // These widgets don't have direct relation to UAVObjects
     // and need special processing
     QComboBox *outputs[]  = { ui->rollChannel, ui->pitchChannel, ui->yawChannel, };
@@ -163,8 +159,7 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 void ConfigCameraStabilizationWidget::updateObjectsFromWidgetsImpl()
 {
     // Save state of the module enable checkbox first.
-    // Do not use setData() member on whole object, if possible, since it triggers
-    // unnessesary UAVObect update.
+    // Do not use setData() member on whole object, if possible, since it triggers unnecessary UAVObect update.
     quint8 enableModule    = ui->enableCameraStabilization->isChecked() ?
                              HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());

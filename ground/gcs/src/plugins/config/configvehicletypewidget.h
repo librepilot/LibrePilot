@@ -80,7 +80,6 @@ private:
 
 private slots:
     void switchAirframeType(int index);
-    void openHelp();
 };
 
 #endif // CONFIGVEHICLETYPEWIDGET_H

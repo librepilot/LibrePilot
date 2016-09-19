@@ -29,7 +29,9 @@
 
 #include "ui_revosensors.h"
 
+#include <uavobjectmanager.h>
 #include <uavobjecthelper.h>
+
 #include <attitudestate.h>
 #include <attitudesettings.h>
 #include <revocalibration.h>
@@ -42,22 +44,13 @@
 #include "calibration.h"
 #include "calibration/calibrationutils.h"
 
-#include "math.h"
-#include <QDebug>
-#include <QTimer>
-#include <QStringList>
-#include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QThread>
-#include <QErrorMessage>
-#include <QDesktopServices>
-#include <QUrl>
+#include <math.h>
 #include <iostream>
 
-#include <math.h>
+#include <QDebug>
+#include <QStringList>
+#include <QWidget>
+#include <QThread>
 
 // #define DEBUG
 
@@ -82,15 +75,9 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     m_ui->tabWidget->setCurrentIndex(0);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("Revo+Attitude+Configuration");
 
     addAutoBindings();
-
-    // Connect the help button
-    connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->revoCalSettingsSaveRAM, m_ui->revoCalSettingsSaveSD);
-    m_ui->revoCalSettingsSaveRAM->setVisible(expertMode());
 
     // Initialization of the visual help
     m_ui->calibrationVisualHelp->setScene(new QGraphicsScene(this));
@@ -700,10 +687,4 @@ void ConfigRevoWidget::updateMagStatus()
         m_ui->magStatusSource->setText(tr("Unknown"));
         m_ui->magStatusSource->setToolTip("");
     }
-}
-
-void ConfigRevoWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revo+Attitude+Configuration"),
-                                   QUrl::StrictMode));
 }

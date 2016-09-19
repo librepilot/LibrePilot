@@ -72,7 +72,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-103</y>
+            <y>0</y>
             <width>748</width>
             <height>811</height>
            </rect>
@@ -1321,7 +1321,7 @@ The same value is used for all axes.</string>
       </spacer>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="camerastabilizationHelp">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -1369,7 +1369,7 @@ The same value is used for all axes.</string>
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QPushButton" name="camerastabilizationResetToDefaults">
+      <widget class="QPushButton" name="defaultButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1400,7 +1400,7 @@ Apply or Save button afterwards.</string>
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="reloadButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1433,7 +1433,7 @@ Apply or Save button afterwards.</string>
       </widget>
      </item>
      <item row="0" column="4">
-      <widget class="QPushButton" name="camerastabilizationSaveRAM">
+      <widget class="QPushButton" name="applyButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1460,7 +1460,7 @@ Apply or Save button afterwards.</string>
       </widget>
      </item>
      <item row="0" column="5">
-      <widget class="QPushButton" name="camerastabilizationSaveSD">
+      <widget class="QPushButton" name="saveButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1528,10 +1528,10 @@ Apply or Save button afterwards.</string>
   <tabstop>yawDecelTime</tabstop>
   <tabstop>gimbalType</tabstop>
   <tabstop>maxAccel</tabstop>
-  <tabstop>camerastabilizationResetToDefaults</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>camerastabilizationSaveRAM</tabstop>
-  <tabstop>camerastabilizationSaveSD</tabstop>
+  <tabstop>defaultButton</tabstop>
+  <tabstop>reloadButton</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>saveButton</tabstop>
  </tabstops>
  <resources>
   <include location="../coreplugin/core.qrc"/>

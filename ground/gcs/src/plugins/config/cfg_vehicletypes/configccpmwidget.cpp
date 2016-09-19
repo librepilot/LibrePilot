@@ -29,6 +29,9 @@
 
 #include "ui_airframe_ccpm.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <uavobjectutilmanager.h>
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorcommand.h"
@@ -1415,6 +1418,16 @@ void ConfigCcpmWidget::SwashLvlFinishButtonPressed()
     // ShowDisclaimer(2);
 
     ccpmSwashplateUpdate();
+}
+
+void ConfigCcpmWidget::saveObjectToSD(UAVObject *obj)
+{
+    // saveObjectToSD is now handled by the UAVUtils plugin in one
+    // central place (and one central queue)
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
+
+    utilMngr->saveObjectToSD(obj);
 }
 
 int ConfigCcpmWidget::ShowDisclaimer(int messageID)

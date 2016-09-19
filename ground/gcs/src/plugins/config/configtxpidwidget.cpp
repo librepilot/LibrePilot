@@ -50,19 +50,7 @@ ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
 
     disableMouseWheelEvents();
 
-    addApplySaveButtons(m_txpid->Apply, m_txpid->Save);
-    m_txpid->Apply->setVisible(expertMode());
-
-    // Cannot use addUAVObjectToWidgetRelation() for OptionaModules enum because
-    // QCheckBox returns bool (0 or -1) and this value is then set to enum instead
-    // or enum options
-    connect(HwSettings::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(refreshValues()));
-    connect(m_txpid->Apply, SIGNAL(clicked()), this, SLOT(applySettings()));
-    connect(m_txpid->Save, SIGNAL(clicked()), this, SLOT(saveSettings()));
-
-    connect(m_txpid->PID1, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSpinBoxProperties(int)));
-    connect(m_txpid->PID2, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSpinBoxProperties(int)));
-    connect(m_txpid->PID3, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSpinBoxProperties(int)));
+    addUAVObject("HwSettings");
 
     addWidgetBinding("TxPIDSettings", "BankNumber", m_txpid->pidBank, 0, 1, true);
 
@@ -92,16 +80,55 @@ ConfigTxPIDWidget::ConfigTxPIDWidget(QWidget *parent) : ConfigTaskWidget(parent)
 
     addWidgetBinding("TxPIDSettings", "UpdateMode", m_txpid->UpdateMode);
 
-    connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
-
     addWidget(m_txpid->TxPIDEnable);
     addWidget(m_txpid->enableAutoCalcYaw);
+
+    connect(m_txpid->PID1, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSpinBoxProperties(int)));
+    connect(m_txpid->PID2, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSpinBoxProperties(int)));
+    connect(m_txpid->PID3, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSpinBoxProperties(int)));
+
+    connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 }
 
 ConfigTxPIDWidget::~ConfigTxPIDWidget()
 {
     // Do nothing
 }
+
+/*
+ * This overridden function refreshes widgets which have no direct relation
+ * to any of UAVObjects. It saves their dirty state first because update comes
+ * from UAVObjects, and then restores it.
+ */
+void ConfigTxPIDWidget::refreshWidgetsValuesImpl(UAVObject *obj)
+{
+    Q_UNUSED(obj);
+
+    // Set module enable checkbox from OptionalModules UAVObject item.
+    // It needs special processing because ConfigTaskWidget uses TRUE/FALSE
+    // for QCheckBox, but OptionalModules uses Enabled/Disabled enum values.
+    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
+    HwSettings::DataFields hwSettingsData = hwSettings->getData();
+
+    m_txpid->TxPIDEnable->setChecked(
+        hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_TXPID] == HwSettings::OPTIONALMODULES_ENABLED);
+}
+
+/*
+ * This overridden function updates UAVObjects which have no direct relation
+ * to any of widgets.
+ */
+void ConfigTxPIDWidget::updateObjectsFromWidgetsImpl()
+{
+    // Save state of the module enable checkbox first.
+    // Do not use setData() member on whole object, if possible, since it triggers unnecessary UAVObect update.
+    quint8 enableModule    = m_txpid->TxPIDEnable->isChecked() ?
+                             HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
+    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
+
+    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_TXPID, enableModule);
+}
+
 
 static bool isResponsivenessOption(int pidOption)
 {
@@ -435,32 +462,6 @@ void ConfigTxPIDWidget::updateSpinBoxProperties(int selectedPidOption)
 
     minPID->setValue(value);
     maxPID->setValue(value);
-}
-
-void ConfigTxPIDWidget::refreshValues()
-{
-    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
-
-    m_txpid->TxPIDEnable->setChecked(
-        hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_TXPID] == HwSettings::OPTIONALMODULES_ENABLED);
-}
-
-void ConfigTxPIDWidget::applySettings()
-{
-    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
-
-    hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_TXPID] =
-        m_txpid->TxPIDEnable->isChecked() ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
-    hwSettings->setData(hwSettingsData);
-}
-
-void ConfigTxPIDWidget::saveSettings()
-{
-    applySettings();
-    UAVObject *obj = HwSettings::GetInstance(getObjectManager());
-    saveObjectToSD(obj);
 }
 
 void ConfigTxPIDWidget::processLinkedWidgets(QWidget *widget)

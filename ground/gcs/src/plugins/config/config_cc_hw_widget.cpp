@@ -31,17 +31,14 @@
 #include "ui_cc_hw_settings.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <uavobjectutilmanager.h>
 
 #include "hwsettings.h"
 
 #include <QDebug>
 #include <QStringList>
 #include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
+#include <QSvgRenderer>
 
 ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -49,15 +46,9 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
     m_telemetry->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("CC+Hardware+Configuration");
 
     addAutoBindings();
-
-    connect(m_telemetry->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_telemetry->saveTelemetryToRAM, m_telemetry->saveTelemetryToSD);
-
-    m_telemetry->saveTelemetryToRAM->setVisible(expertMode());
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
@@ -101,8 +92,6 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
     } else {
         addWidgetBinding("GPSSettings", "DataProtocol", m_telemetry->gpsProtocol);
     }
-
-    enableSaveButtons(false);
 }
 
 ConfigCCHWWidget::~ConfigCCHWWidget()
@@ -145,17 +134,6 @@ void ConfigCCHWWidget::widgetsContentsChanged()
 
 void ConfigCCHWWidget::enableSaveButtons(bool enable)
 {
-    m_telemetry->saveTelemetryToRAM->setEnabled(enable);
-    m_telemetry->saveTelemetryToSD->setEnabled(enable);
+    m_telemetry->applyButton->setEnabled(enable);
+    m_telemetry->saveButton->setEnabled(enable);
 }
-
-void ConfigCCHWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("CC+Hardware+Configuration"),
-                                   QUrl::StrictMode));
-}
-
-/**
- * @}
- * @}
- */

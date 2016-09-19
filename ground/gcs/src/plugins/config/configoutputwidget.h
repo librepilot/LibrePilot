@@ -112,7 +112,6 @@ private slots:
     void stopTests();
     void runChannelTests(bool state);
     void sendChannelTest(int index, int value);
-    void openHelp();
     void onBankTypeChange();
 };
 

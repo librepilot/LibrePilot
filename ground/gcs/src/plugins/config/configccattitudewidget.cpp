@@ -29,7 +29,7 @@
 
 #include "ui_ccattitude.h"
 
-#include "utils/coordinateconversions.h"
+#include <utils/coordinateconversions.h>
 #include <calibration/calibrationutils.h>
 
 #include "attitudesettings.h"
@@ -37,11 +37,8 @@
 #include "accelgyrosettings.h"
 #include "gyrostate.h"
 
-#include <QMutexLocker>
 #include <QMessageBox>
 #include <QDebug>
-#include <QDesktopServices>
-#include <QUrl>
 
 ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
     ConfigTaskWidget(parent), accelUpdates(0), gyroUpdates(0)
@@ -50,15 +47,9 @@ ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
     ui->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("CC+Attitude+Configuration");
 
     addAutoBindings();
-
-    connect(ui->ccAttitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(ui->applyButton, ui->saveButton);
-
-    ui->applyButton->setVisible(expertMode());
 
     addUAVObject("AttitudeSettings");
     addUAVObject("AccelGyroSettings");
@@ -216,12 +207,6 @@ void ConfigCCAttitudeWidget::startAccelCalibration()
     timer.start(5000 + (NUM_SENSOR_UPDATES * qMax(accelStateMdata.flightTelemetryUpdatePeriod,
                                                   gyroStateMdata.flightTelemetryUpdatePeriod)));
     connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
-}
-
-void ConfigCCAttitudeWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("CC+Attitude+Configuration"),
-                                   QUrl::StrictMode));
 }
 
 void ConfigCCAttitudeWidget::setAccelFiltering(bool active)

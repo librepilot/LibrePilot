@@ -34,9 +34,6 @@
 #include "hwsettings.h"
 
 #include <QDebug>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QMessageBox>
 
 ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -44,14 +41,11 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
     m_ui->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("Revo+Nano+Configuration");
 
     addAutoBindings();
 
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
-    m_ui->saveTelemetryToRAM->setVisible(expertMode());
+    addUAVObject("HwSettings");
 
     addWidgetBinding("HwSettings", "RM_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "RM_MainPort", m_ui->cbMain);
@@ -265,10 +259,4 @@ void ConfigRevoNanoHWWidget::rcvrPortChanged(int index)
 {
     Q_UNUSED(index);
     /* Nano has no USART at rcvrPort */
-}
-
-void ConfigRevoNanoHWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revo+Nano+Configuration"),
-                                   QUrl::StrictMode));
 }

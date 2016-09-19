@@ -46,11 +46,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <math.h>
-#include <QDesktopServices>
-#include <QUrl>
 
 /**
    Static function to get currently assigned channelDescriptions
@@ -120,16 +116,11 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     m_aircraft->setupUi(this);
 
     // must be done before auto binding !
-    setWikiURL("TxPID");
+    setWikiURL("Vehicle+Configuration");
 
     addAutoBindings();
 
     disableMouseWheelEvents();
-
-    connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_aircraft->saveAircraftToRAM, m_aircraft->saveAircraftToSD);
-    m_aircraft->saveAircraftToRAM->setVisible(expertMode());
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ConfigGadgetFactory *configGadgetFactory = pm->getObject<ConfigGadgetFactory>();
@@ -350,13 +341,4 @@ VehicleConfig *ConfigVehicleTypeWidget::createVehicleConfigWidget(int frameCateg
         vehicleConfig->registerWidgets(*this);
     }
     return vehicleConfig;
-}
-
-/**
-   Opens the wiki from the user's default browser
- */
-void ConfigVehicleTypeWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Vehicle+Configuration"),
-                                   QUrl::StrictMode));
 }

@@ -30,13 +30,6 @@
 SmartSaveButton::SmartSaveButton(ConfigTaskWidget *configTaskWidget) : configWidget(configTaskWidget)
 {}
 
-void SmartSaveButton::addButtons(QPushButton *save, QPushButton *apply)
-{
-    buttonList.insert(save, save_button);
-    buttonList.insert(apply, apply_button);
-    connect(save, SIGNAL(clicked()), this, SLOT(processClick()));
-    connect(apply, SIGNAL(clicked()), this, SLOT(processClick()));
-}
 void SmartSaveButton::addApplyButton(QPushButton *apply)
 {
     buttonList.insert(apply, apply_button);

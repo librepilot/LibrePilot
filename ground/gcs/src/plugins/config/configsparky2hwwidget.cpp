@@ -34,9 +34,6 @@
 #include "hwsettings.h"
 
 #include <QDebug>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QMessageBox>
 
 ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -44,14 +41,11 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     m_ui->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("Sparky2+Configuration");
 
     addAutoBindings();
 
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
-    m_ui->saveTelemetryToRAM->setVisible(expertMode());
+    addUAVObject("HwSettings");
 
     addWidgetBinding("HwSettings", "SPK2_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "SPK2_MainPort", m_ui->cbMain);
@@ -262,10 +256,4 @@ void ConfigSparky2HWWidget::mainPortChanged(int index)
         m_ui->lblMainSpeed->setVisible(false);
         break;
     }
-}
-
-void ConfigSparky2HWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Sparky2+Configuration"),
-                                   QUrl::StrictMode));
 }

@@ -29,8 +29,7 @@
 #define CONFIGREVOWIDGET_H
 
 #include "configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
 
 #include "calibration/thermal/thermalcalibrationmodel.h"
@@ -102,7 +101,6 @@ private slots:
     float getMagError(float mag[3]);
 
     void updateVisualHelp();
-    void openHelp();
 
 protected:
     void showEvent(QShowEvent *event);

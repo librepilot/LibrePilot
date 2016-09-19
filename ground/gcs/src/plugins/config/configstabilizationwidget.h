@@ -29,11 +29,8 @@
 #define CONFIGSTABILIZATIONWIDGET_H
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
 
-#include "stabilizationsettings.h"
+#include "uavobject.h"
 
 #include "qwt/src/qwt_plot_curve.h"
 #include "qwt/src/qwt_plot_grid.h"

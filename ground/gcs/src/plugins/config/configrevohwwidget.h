@@ -58,7 +58,6 @@ private slots:
     void flexiPortChanged(int index);
     void mainPortChanged(int index);
     void rcvrPortChanged(int index);
-    void openHelp();
 };
 
 #endif // CONFIGREVOHWWIDGET_H

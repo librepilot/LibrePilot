@@ -29,16 +29,10 @@
 #define CONFIGCCHWWIDGET_H
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include "smartsavebutton.h"
-
-#include <QWidget>
-#include <QList>
-#include <QSvgRenderer>
 
 class Ui_CC_HW_Widget;
+class QWidget;
+class QSvgRenderer;
 
 class ConfigCCHWWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -47,7 +41,6 @@ public:
     ConfigCCHWWidget(QWidget *parent = 0);
     ~ConfigCCHWWidget();
 private slots:
-    void openHelp();
     void refreshValues();
     void widgetsContentsChanged();
     void enableSaveButtons(bool enable);

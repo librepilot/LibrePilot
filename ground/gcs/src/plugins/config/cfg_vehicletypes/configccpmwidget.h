@@ -112,6 +112,8 @@ private:
 
     QString updateConfigObjects();
 
+    void saveObjectToSD(UAVObject *obj);
+
 private slots:
     virtual void setupUI(QString airframeType);
     virtual bool throwConfigError(int typeInt);

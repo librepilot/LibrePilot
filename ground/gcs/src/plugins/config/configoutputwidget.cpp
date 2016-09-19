@@ -49,11 +49,7 @@
 #include <QStringList>
 #include <QWidget>
 #include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <QMessageBox>
-#include <QDesktopServices>
-#include <QUrl>
 
 ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -61,15 +57,9 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     m_ui->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("Output+Configuration");
 
     addAutoBindings();
-
-    // Connect the help button
-    connect(m_ui->outputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveRCOutputToRAM, m_ui->saveRCOutputToSD);
-    m_ui->saveRCOutputToRAM->setVisible(expertMode());
 
     m_ui->gvFrame->setVisible(false);
 
@@ -488,12 +478,6 @@ void ConfigOutputWidget::updateAlwaysStabilizeStatus()
     } else {
         m_ui->alwayStabilizedLabel2->setText(tr("(Really be careful!)."));
     }
-}
-
-void ConfigOutputWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Output+Configuration"),
-                                   QUrl::StrictMode));
 }
 
 void ConfigOutputWidget::onBankTypeChange()

@@ -56,9 +56,6 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     disableMouseWheelEvents();
 
-    addApplySaveButtons(m_oplink->Apply, m_oplink->Save);
-    m_oplink->Apply->setVisible(expertMode());
-
     connect(this, SIGNAL(connected()), this, SLOT(connected()));
 
     oplinkStatusObj   = dynamic_cast<OPLinkStatus *>(getObject("OPLinkStatus"));

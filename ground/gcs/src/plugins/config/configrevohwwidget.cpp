@@ -34,9 +34,6 @@
 #include "hwsettings.h"
 
 #include <QDebug>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QMessageBox>
 
 ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -44,14 +41,11 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     m_ui->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("Revolution+Configuration");
 
     addAutoBindings();
 
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
-    m_ui->saveTelemetryToRAM->setVisible(expertMode());
+    addUAVObject("HwSettings");
 
     addWidgetBinding("HwSettings", "RM_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "RM_MainPort", m_ui->cbMain);
@@ -475,10 +469,4 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
         m_ui->lblRcvrSpeed->setVisible(false);
         break;
     }
-}
-
-void ConfigRevoHWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revolution+Configuration"),
-                                   QUrl::StrictMode));
 }

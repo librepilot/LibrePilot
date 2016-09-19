@@ -29,12 +29,13 @@
 
 #include "uavobjectwidgetutils_global.h"
 
-#include "extensionsystem/pluginmanager.h"
-
 #include <QWidget>
 #include <QList>
 #include <QVariant>
 
+namespace ExtensionSystem {
+class PluginManager;
+}
 class UAVObject;
 class UAVObjectField;
 class UAVObjectManager;
@@ -120,7 +121,6 @@ protected:
     void disableMouseWheelEvents();
     bool eventFilter(QObject *obj, QEvent *evt);
 
-    void saveObjectToSD(UAVObject *obj);
     UAVObjectManager *getObjectManager();
 
     void addUAVObject(QString objectName, QList<int> *reloadGroups = NULL);
@@ -145,10 +145,6 @@ protected:
 
     void addWidgetBinding(QString objectName, QString fieldName, QWidget *widget, QString elementName);
     void addWidgetBinding(UAVObject *object, UAVObjectField *field, QWidget *widget, QString elementName);
-
-    void addApplySaveButtons(QPushButton *update, QPushButton *save);
-    void addReloadButton(QPushButton *button, int buttonGroup);
-    void addDefaultButton(QPushButton *button, int buttonGroup);
 
     void addWidgetToReloadGroups(QWidget *widget, QList<int> *reloadGroupIDs);
 
@@ -259,8 +255,10 @@ private:
 
     ExtensionSystem::PluginManager *m_pluginManager;
     UAVObjectUtilManager *m_objectUtilManager;
-    SmartSaveButton *m_saveButton;
+
     QHash<UAVObject *, bool> m_updatedObjects;
+
+    SmartSaveButton *m_saveButton;
     QHash<QPushButton *, QString> m_helpButtons;
     QList<QPushButton *> m_reloadButtons;
 
@@ -287,6 +285,11 @@ private:
 
     void doAddWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index = 0, double scale = 1,
                             bool isLimited = false, QList<int> *reloadGroupIDs = 0, quint32 instID = 0);
+
+    void addApplyButton(QPushButton *button);
+    void addSaveButton(QPushButton *button);
+    void addReloadButton(QPushButton *button, int buttonGroup);
+    void addDefaultButton(QPushButton *button, int buttonGroup);
 };
 
 #endif // CONFIGTASKWIDGET_H

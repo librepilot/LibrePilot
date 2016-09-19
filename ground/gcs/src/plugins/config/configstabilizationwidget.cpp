@@ -29,7 +29,9 @@
 
 #include "ui_stabilization.h"
 
+#include <uavobjectmanager.h>
 #include "objectpersistence.h"
+
 #include "altitudeholdsettings.h"
 #include "stabilizationsettings.h"
 
@@ -41,14 +43,8 @@
 #include <QDebug>
 #include <QStringList>
 #include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
 #include <QList>
 #include <QTabBar>
-#include <QMessageBox>
 #include <QToolButton>
 #include <QMenu>
 #include <QAction>
@@ -60,14 +56,13 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     ui->setupUi(this);
 
     // must be done before auto binding !
-    setupStabBanksGUI();
     setWikiURL("Stabilization+Configuration");
+
+    setupStabBanksGUI();
 
     addAutoBindings();
 
     disableMouseWheelEvents();
-
-    ui->saveStabilizationToRAM_6->setVisible(expertMode());
 
     connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
 
@@ -113,7 +108,6 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->pushButton_20);
     addWidget(ui->pushButton_21);
     addWidget(ui->pushButton_22);
-    addWidget(ui->pushButton_23);
 
     addWidget(ui->basicResponsivenessGroupBox);
     addWidget(ui->basicResponsivenessCheckBox);

@@ -60,6 +60,12 @@ ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, bool autopilot) : QWidget(pa
     UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
 
+    m_saveButton = new SmartSaveButton(this);
+    connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
+    connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
+    connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
+    connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+
     if (m_autopilot) {
         // connect to telemetry manager
         TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
@@ -286,20 +292,9 @@ void ConfigTaskWidget::enableComboBoxOptionItem(QComboBox *combo, int optionValu
                             !enable ? QVariant(0) : QVariant(1 | 32), Qt::UserRole - 1);
 }
 
-void ConfigTaskWidget::saveObjectToSD(UAVObject *obj)
-{
-    // saveObjectToSD is now handled by the UAVUtils plugin in one
-    // central place (and one central queue)
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
-
-    utilMngr->saveObjectToSD(obj);
-}
-
 UAVObjectManager *ConfigTaskWidget::getObjectManager()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectManager *objMngr = pm->getObject<UAVObjectManager>();
+    UAVObjectManager *objMngr = m_pluginManager->getObject<UAVObjectManager>();
 
     Q_ASSERT(objMngr);
     return objMngr;
@@ -409,27 +404,15 @@ void ConfigTaskWidget::helpButtonPressed()
     }
 }
 
-void ConfigTaskWidget::addApplySaveButtons(QPushButton *update, QPushButton *save)
+void ConfigTaskWidget::addApplyButton(QPushButton *button)
 {
-    if (!m_saveButton) {
-        m_saveButton = new SmartSaveButton(this);
-        connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
-        connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
-        connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
-        connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
-    }
-    if (update && save) {
-        m_saveButton->addButtons(save, update);
-    } else if (update) {
-        m_saveButton->addApplyButton(update);
-    } else if (save) {
-        m_saveButton->addSaveButton(save);
-    }
-    foreach(WidgetBinding * binding, m_widgetBindingsPerWidget) {
-        if (binding->object()) {
-            m_saveButton->addObject((UAVDataObject *)binding->object());
-        }
-    }
+    m_saveButton->addApplyButton(button);
+    button->setVisible(expertMode());
+}
+
+void ConfigTaskWidget::addSaveButton(QPushButton *button)
+{
+    m_saveButton->addSaveButton(button);
 }
 
 void ConfigTaskWidget::enableControls(bool enable)
@@ -636,9 +619,6 @@ void ConfigTaskWidget::addAutoBindings()
 {
     // qDebug() << "ConfigTaskWidget::addAutoBindings() - auto binding" << this;
 
-    QPushButton *saveButtonWidget  = NULL;
-    QPushButton *applyButtonWidget = NULL;
-
     foreach(QWidget * widget, this->findChildren<QWidget *>()) {
         QVariant info = widget->property("objrelation");
 
@@ -697,15 +677,15 @@ void ConfigTaskWidget::addAutoBindings()
                 QPushButton *button = NULL;
                 switch (uiRelation.buttonType) {
                 case save_button:
-                    saveButtonWidget = qobject_cast<QPushButton *>(widget);
-                    if (saveButtonWidget) {
-                        addApplySaveButtons(NULL, saveButtonWidget);
+                    button = qobject_cast<QPushButton *>(widget);
+                    if (button) {
+                        addSaveButton(button);
                     }
                     break;
                 case apply_button:
-                    applyButtonWidget = qobject_cast<QPushButton *>(widget);
-                    if (applyButtonWidget) {
-                        addApplySaveButtons(applyButtonWidget, NULL);
+                    button = qobject_cast<QPushButton *>(widget);
+                    if (button) {
+                        addApplyButton(button);
                     }
                     break;
                 case default_button:
@@ -739,6 +719,11 @@ void ConfigTaskWidget::addAutoBindings()
                         addWidgetBinding(uiRelation.objectName, uiRelation.fieldName, wid, uiRelation.elementName, uiRelation.scale, uiRelation.haslimits, &uiRelation.buttonGroup);
                     }
                 }
+            }
+        }
+        foreach(WidgetBinding * binding, m_widgetBindingsPerWidget) {
+            if (binding->object()) {
+                m_saveButton->addObject((UAVDataObject *)binding->object());
             }
         }
     }

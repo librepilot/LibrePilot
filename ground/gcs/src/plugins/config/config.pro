@@ -5,8 +5,10 @@ DEFINES += CONFIG_LIBRARY
 QT += widgets svg opengl qml quick
 
 # silence eigen warnings
-QMAKE_CXXFLAGS_WARN_ON += -Wno-ignored-attributes -Wno-deprecated-declarations
-#QMAKE_CFLAGS_WARN_ON   += -Wno-ignored-attributes
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-declarations
+win32 {
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-ignored-attributes
+}
 
 include(config_dependencies.pri)
 

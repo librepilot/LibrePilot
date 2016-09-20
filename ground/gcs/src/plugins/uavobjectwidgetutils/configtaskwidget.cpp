@@ -43,6 +43,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QProgressBar>
 #include <QTableWidget>
 #include <QToolButton>
 #include <QUrl>
@@ -879,8 +880,12 @@ void ConfigTaskWidget::connectWidgetUpdatesToSlot(QWidget *widget, const char *f
         connect(cb, SIGNAL(clicked()), this, function, Qt::UniqueConnection);
     } else if (QToolButton * cb = qobject_cast<QToolButton *>(widget)) {
         connect(cb, SIGNAL(clicked()), this, function, Qt::UniqueConnection);
+    } else if (qobject_cast<QLabel *>(widget)) {
+        // read only
+    } else if (qobject_cast<QProgressBar *>(widget)) {
+        // read only
     } else {
-        qDebug() << __FUNCTION__ << "widget binding not implemented" << widget->metaObject()->className();
+        qDebug() << __FUNCTION__ << "widget binding not implemented for" << widget->metaObject()->className();
     }
 }
 
@@ -909,8 +914,12 @@ void ConfigTaskWidget::disconnectWidgetUpdatesToSlot(QWidget *widget, const char
         disconnect(cb, SIGNAL(clicked()), this, function);
     } else if (QToolButton * cb = qobject_cast<QToolButton *>(widget)) {
         disconnect(cb, SIGNAL(clicked()), this, function);
+    } else if (qobject_cast<QLabel *>(widget)) {
+        // read only
+    } else if (qobject_cast<QProgressBar *>(widget)) {
+        // read only
     } else {
-        qDebug() << __FUNCTION__ << "widget binding not implemented" << widget->metaObject()->className();
+        qDebug() << __FUNCTION__ << "widget binding not implemented for" << widget->metaObject()->className();
     }
 }
 
@@ -1019,7 +1028,7 @@ bool ConfigTaskWidget::setWidgetFromField(QWidget *widget, UAVObjectField *field
     if (result) {
         return true;
     } else {
-        qDebug() << __FUNCTION__ << "widget to uavobject relation not implemented" << widget->metaObject()->className();
+        qDebug() << __FUNCTION__ << "widget to uavobject relation not implemented for" << widget->metaObject()->className();
         return false;
     }
 }

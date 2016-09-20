@@ -97,7 +97,7 @@ public:
     void updateClearColor()
     {
         if (!camera.valid()) {
-            qDebug() << "OSGCamera::updateClearColor - invalid camera";
+            qWarning() << "OSGCamera::updateClearColor - invalid camera";
             return;
         }
         // qDebug() << "OSGCamera::updateClearColor" << clearColor;
@@ -107,11 +107,11 @@ public:
     void updateFieldOfView()
     {
         if (!camera.valid()) {
-            qDebug() << "OSGCamera::updateFieldOfView - invalid camera";
+            qWarning() << "OSGCamera::updateFieldOfView - invalid camera";
             return;
         }
 
-        qDebug() << "OSGCamera::updateFieldOfView" << fieldOfView;
+        // qDebug() << "OSGCamera::updateFieldOfView" << fieldOfView;
 
         double fovy, ar, zn, zf;
         camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
@@ -122,18 +122,18 @@ public:
     void updateAspectRatio()
     {
         if (!camera.valid()) {
-            qDebug() << "OSGCamera::updateAspectRatio - invalid camera";
+            qWarning() << "OSGCamera::updateAspectRatio - invalid camera";
             return;
         }
         osg::Viewport *viewport = camera->getViewport();
         if (!viewport) {
-            qDebug() << "OSGCamera::updateAspectRatio - no viewport" << viewport;
+            qWarning() << "OSGCamera::updateAspectRatio - no viewport" << viewport;
             return;
         }
 
         double aspectRatio = static_cast<double>(viewport->width()) / static_cast<double>(viewport->height());
 
-        qDebug() << "OSGCamera::updateAspectRatio" << aspectRatio;
+        // qDebug() << "OSGCamera::updateAspectRatio" << aspectRatio;
 
         double fovy, ar, zn, zf;
         camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
@@ -152,12 +152,12 @@ public:
 #ifdef USE_OSGEARTH
         // install log depth buffer if requested
         if (logDepthBufferEnabled && !logDepthBuffer) {
-            qDebug() << "OSGCamera::updateLogDepthBuffer - installing logarithmic depth buffer";
+            // qDebug() << "OSGCamera::updateLogDepthBuffer - installing logarithmic depth buffer";
             logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
             logDepthBuffer->setUseFragDepth(true);
             logDepthBuffer->install(camera);
         } else if (!logDepthBufferEnabled && logDepthBuffer) {
-            qDebug() << "OSGCamera::updateLogDepthBuffer - uninstalling logarithmic depth buffer";
+            // qDebug() << "OSGCamera::updateLogDepthBuffer - uninstalling logarithmic depth buffer";
             logDepthBuffer->uninstall(camera);
             delete logDepthBuffer;
             logDepthBuffer = NULL;
@@ -168,11 +168,11 @@ public:
     void setGraphicsContext(osg::GraphicsContext *gc)
     {
         if (!camera.valid()) {
-            qDebug() << "OSGCamera::setGraphicsContext - invalid camera";
+            qWarning() << "OSGCamera::setGraphicsContext - invalid camera";
             return;
         }
 
-        qDebug() << "OSGCamera::setGraphicsContext" << gc;
+        // qDebug() << "OSGCamera::setGraphicsContext" << gc;
 
         camera->setGraphicsContext(gc);
         camera->setViewport(0, 0, gc->getTraits()->width, gc->getTraits()->height);

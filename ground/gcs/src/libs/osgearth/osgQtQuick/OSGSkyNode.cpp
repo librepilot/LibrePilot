@@ -70,7 +70,7 @@ public:
 
     bool acceptSceneNode(OSGNode *node)
     {
-        qDebug() << "OSGSkyNode::acceptSceneNode" << node;
+        // qDebug() << "OSGSkyNode::acceptSceneNode" << node;
         if (sceneNode == node) {
             return false;
         }
@@ -95,7 +95,7 @@ public:
             self->setNode(NULL);
             return;
         }
-        qDebug() << "OSGSkyNode::updateScene - scene node" << sceneNode->node();
+        // qDebug() << "OSGSkyNode::updateScene - scene node" << sceneNode->node();
         osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
         if (!mapNode) {
             qWarning() << "OSGSkyNode::updateScene - scene node does not contain a map node";
@@ -151,12 +151,12 @@ public:
 
     void updateViewport()
     {
-        qDebug() << "OSGSkyNode::updateViewport" << skyNode;
+        // qDebug() << "OSGSkyNode::updateViewport" << skyNode;
         if (!skyNode.valid()) {
             qWarning() << "OSGSkyNode::updateViewport - invalid sky node" << skyNode;
             return;
         }
-        qDebug() << "OSGSkyNode::updateViewport - attaching to" << viewport->asView();
+        // qDebug() << "OSGSkyNode::updateViewport - attaching to" << viewport->asView();
         skyNode->attach(viewport->asView());
     }
 
@@ -216,7 +216,7 @@ public:
 private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGSkyNode::onSceneNodeChanged" << node;
+        // qDebug() << "OSGSkyNode::onSceneNodeChanged" << node;
         updateScene();
     }
 };

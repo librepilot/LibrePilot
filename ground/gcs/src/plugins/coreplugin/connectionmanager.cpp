@@ -441,7 +441,7 @@ void ConnectionManager::devChanged(IConnection *connection)
 
     updateConnectionDropdown();
 
-    qDebug() << "# devices " << m_devList.count();
+    qDebug() << "ConnectionManager::devChanged - device count:" << m_devList.count();
     emit availableDevicesChanged(m_devList);
 
 
@@ -464,9 +464,8 @@ void ConnectionManager::updateConnectionDropdown()
                 m_availableDevList->setCurrentIndex(m_availableDevList->count() - 1);
             }
             if (m_mainWindow->generalSettings()->autoConnect() && polling) {
-                qDebug() << "Automatically opening device";
+                qDebug() << "ConnectionManager::updateConnectionDropdown - auto-connecting USB device";
                 connectDevice(d);
-                qDebug() << "ConnectionManager::updateConnectionDropdown autoconnected USB device";
             }
         }
     }

@@ -874,7 +874,7 @@ void ConfigMultiRotorWidget::reverseMultirotorMotor()
 
 void ConfigMultiRotorWidget::updateAirframe(QString frameType)
 {
-    qDebug() << "ConfigMultiRotorWidget::updateAirframe - frame type" << frameType;
+    // qDebug() << "ConfigMultiRotorWidget::updateAirframe - frame type" << frameType;
 
     QString elementId;
     if (frameType == "Tri" || frameType == "Tricopter Y") {

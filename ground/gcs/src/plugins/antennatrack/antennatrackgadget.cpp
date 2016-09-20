@@ -89,7 +89,7 @@ void AntennaTrackGadget::loadConfiguration(IUAVGadgetConfiguration *config)
         }
     }
     m_widget->dataStreamGroupBox->setHidden(false);
-    qDebug() << "Using Telemetry parser";
+
     parser = new TelemetryParser();
 
     connect(parser, SIGNAL(position(double, double, double)), m_widget, SLOT(setPosition(double, double, double)));

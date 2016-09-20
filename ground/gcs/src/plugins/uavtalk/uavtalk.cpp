@@ -59,7 +59,9 @@ UAVTalk::UAVTalk(QIODevice *iodev, UAVObjectManager *objMngr) : io(iodev), objMn
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     useUDPMirror = settings->useUDPMirror();
-    qDebug() << "USE UDP:::::::::::." << useUDPMirror;
+    if (useUDPMirror) {
+        qDebug() << "UAVTalk::UAVTalk -*** UDP mirror is enabled ***";
+    }
     if (useUDPMirror) {
         udpSocketTx = new QUdpSocket(this);
         udpSocketRx = new QUdpSocket(this);

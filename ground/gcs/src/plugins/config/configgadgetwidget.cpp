@@ -191,7 +191,7 @@ void ConfigGadgetWidget::resizeEvent(QResizeEvent *event)
 
 void ConfigGadgetWidget::onAutopilotConnect()
 {
-    qDebug() << "ConfigGadgetWidget::onAutopilotConnect";
+    // qDebug() << "ConfigGadgetWidget::onAutopilotConnect";
 
     // Check what Board type we are talking to, and if necessary, remove/add tabs in the config gadget
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -231,14 +231,14 @@ void ConfigGadgetWidget::onAutopilotConnect()
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
         } else {
             // Unknown board
-            qDebug() << "Unknown board " << board;
+            qWarning() << "Unknown board " << board;
         }
     }
 }
 
 void ConfigGadgetWidget::onAutopilotDisconnect()
 {
-    qDebug() << "ConfigGadgetWidget::onAutopilotDiconnect";
+    // qDebug() << "ConfigGadgetWidget::onAutopilotDiconnect";
     QWidget *widget;
 
     widget = new DefaultConfigWidget(this, tr("Attitude"));
@@ -250,7 +250,7 @@ void ConfigGadgetWidget::onAutopilotDisconnect()
 
 void ConfigGadgetWidget::onOPLinkConnect()
 {
-    qDebug() << "ConfigGadgetWidget::onOPLinkConnect";
+    // qDebug() << "ConfigGadgetWidget::onOPLinkConnect";
 
     ConfigTaskWidget *widget = new ConfigOPLinkWidget(this);
     widget->bind();
@@ -259,7 +259,7 @@ void ConfigGadgetWidget::onOPLinkConnect()
 
 void ConfigGadgetWidget::onOPLinkDisconnect()
 {
-    qDebug() << "ConfigGadgetWidget::onOPLinkDisconnect";
+    // qDebug() << "ConfigGadgetWidget::onOPLinkDisconnect";
 
     QWidget *widget = new DefaultConfigWidget(this, tr("OPLink Configuration"));
     stackWidget->replaceTab(ConfigGadgetWidget::OPLink, widget);

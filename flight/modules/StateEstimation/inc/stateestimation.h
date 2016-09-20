@@ -71,6 +71,7 @@ typedef struct {
     float   baro[1];
     float   auxMag[3];
     float   boardMag[3];
+    float   debugNavYaw;
     uint8_t magStatus;
     bool    armed;
     sensorUpdates updated;
@@ -95,6 +96,8 @@ int32_t filterCFInitialize(stateFilter *handle);
 int32_t filterCFMInitialize(stateFilter *handle);
 int32_t filterEKF13iInitialize(stateFilter *handle);
 int32_t filterEKF13Initialize(stateFilter *handle);
+int32_t filterEKF13NavOnlyInitialize(stateFilter *handle);
+int32_t filterEKF13iNavOnlyInitialize(stateFilter *handle);
 int32_t filterEKF16iInitialize(stateFilter *handle);
 int32_t filterEKF16Initialize(stateFilter *handle);
 

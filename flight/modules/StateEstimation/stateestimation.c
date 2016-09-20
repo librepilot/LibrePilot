@@ -157,6 +157,8 @@ static stateFilter cfFilter;
 static stateFilter cfmFilter;
 static stateFilter ekf13iFilter;
 static stateFilter ekf13Filter;
+static stateFilter ekf13iNavFilter;
+static stateFilter ekf13NavFilter;
 
 // this is a hack to provide a computational shortcut for faster gyro state progression
 static float gyroRaw[3];
@@ -260,7 +262,30 @@ static const filterPipeline *ekf13NavCFAttQueue = &(filterPipeline) {
             .next   = &(filterPipeline) {
                 .filter = &baroFilter,
                 .next   = &(filterPipeline) {
-                    .filter = &ekf13Filter,
+                    .filter = &ekf13NavFilter,
+                    .next   = &(filterPipeline) {
+                        .filter = &velocityFilter,
+                        .next   = &(filterPipeline) {
+                            .filter = &cfmFilter,
+                            .next   = NULL,
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+static const filterPipeline *ekf13iNavCFAttQueue = &(filterPipeline) {
+    .filter = &magFilter,
+    .next   = &(filterPipeline) {
+        .filter = &airFilter,
+        .next   = &(filterPipeline) {
+            .filter = &baroiFilter,
+            .next   = &(filterPipeline) {
+                .filter = &stationaryFilter,
+                .next   = &(filterPipeline) {
+                    .filter = &ekf13iNavFilter,
                     .next   = &(filterPipeline) {
                         .filter = &velocityFilter,
                         .next   = &(filterPipeline) {
@@ -343,6 +368,8 @@ int32_t StateEstimationInitialize(void)
     stack_required = maxint32_t(stack_required, filterCFMInitialize(&cfmFilter));
     stack_required = maxint32_t(stack_required, filterEKF13iInitialize(&ekf13iFilter));
     stack_required = maxint32_t(stack_required, filterEKF13Initialize(&ekf13Filter));
+    stack_required = maxint32_t(stack_required, filterEKF13NavOnlyInitialize(&ekf13NavFilter));
+    stack_required = maxint32_t(stack_required, filterEKF13iNavOnlyInitialize(&ekf13iNavFilter));
 
     stateEstimationCallback = PIOS_CALLBACKSCHEDULER_Create(&StateEstimationCb, CALLBACK_PRIORITY, TASK_PRIORITY, CALLBACKINFO_RUNNING_STATEESTIMATION, stack_required);
 
@@ -424,12 +451,16 @@ static void StateEstimationCb(void)
             case REVOSETTINGS_FUSIONALGORITHM_GPSNAVIGATIONINS13CF:
                 newFilterChain = ekf13NavCFAttQueue;
                 break;
+            case REVOSETTINGS_FUSIONALGORITHM_TESTINGINSINDOORCF:
+                newFilterChain = ekf13iNavCFAttQueue;
+                break;
             default:
                 newFilterChain = NULL;
             }
             // initialize filters in chain
             current = newFilterChain;
             bool error = 0;
+            states.debugNavYaw = 0;
             while (current != NULL) {
                 int32_t result = current->filter->init((stateFilter *)current->filter);
                 if (result != 0) {
@@ -524,6 +555,7 @@ static void StateEstimationCb(void)
         s.q3 = states.attitude[2];
         s.q4 = states.attitude[3];
         Quaternion2RPY(&s.q1, &s.Roll);
+        s.NavYaw = states.debugNavYaw;
         AttitudeStateSet(&s);
     }
     // throttle alarms, raise alarm flags immediately

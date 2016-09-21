@@ -202,7 +202,7 @@ Section "-Drivers" InSecDrivers
 SectionEnd
 
 ; Preinstall OpenPilot CDC driver
-Section "CDC driver" InSecInstallDrivers
+Section /o "CDC driver" InSecInstallDrivers
   InitPluginsDir
   SetOutPath "$PLUGINSDIR"
   ${If} ${RunningX64}

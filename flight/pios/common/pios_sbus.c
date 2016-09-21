@@ -125,6 +125,7 @@ static void PIOS_SBus_ResetChannels(struct pios_sbus_state *state)
 {
     for (int i = 0; i < PIOS_SBUS_NUM_INPUTS; i++) {
         state->channel_data[i] = PIOS_RCVR_TIMEOUT;
+        state->quality = 0.0f;
     }
 }
 
@@ -302,6 +303,7 @@ static void PIOS_SBus_UpdateState(struct pios_sbus_state *state, uint8_t b)
             }
 #ifndef SBUS_GOOD_FRAME_COUNT
             /* Present quality as a weighted average of good frames */
+            // TODO: Refactor quality computation, give 4% (quality_trend / SBUS_FL_WEIGHTED_AVE) at minimum
             state->quality = ((state->quality * (SBUS_FL_WEIGHTED_AVE - 1)) +
                               quality_trend) / SBUS_FL_WEIGHTED_AVE;
 #endif /* SBUS_GOOD_FRAME_COUNT */

@@ -114,7 +114,8 @@ static bool updateRcvrActivity(struct rcvr_activity_fsm *fsm);
 static void resetRcvrStatus(struct rcvr_activity_fsm *fsm);
 static bool updateRcvrStatus(
     struct rcvr_activity_fsm *fsm,
-    ManualControlSettingsChannelGroupsOptions group);
+    ManualControlSettingsChannelGroupsOptions group,
+    int8_t rssiValue);
 
 #define assumptions \
     ( \
@@ -209,6 +210,9 @@ static void receiverTask(__attribute__((unused)) void *parameters)
     AccessoryDesiredCreateInstance();
     AccessoryDesiredCreateInstance();
 
+    // Rssi input
+    AccessoryDesiredCreateInstance();
+
     // Whenever the configuration changes, make sure it is safe to fly
 
     ManualControlCommandGet(&cmd);
@@ -232,6 +236,8 @@ static void receiverTask(__attribute__((unused)) void *parameters)
         PIOS_WDG_UpdateFlag(PIOS_WDG_MANUAL);
 #endif
 
+        int8_t rssiValue = -1;
+
         // Read settings
         ManualControlSettingsGet(&settings);
         SystemSettingsThrustControlGet(&thrustType);
@@ -244,7 +250,8 @@ static void receiverTask(__attribute__((unused)) void *parameters)
             }
             /* Read signal quality from the group used for the throttle */
             (void)updateRcvrStatus(&activity_fsm,
-                                   settings.ChannelGroups.Throttle);
+                                   settings.ChannelGroups.Throttle,
+                                   rssiValue);
         }
         if (timeDifferenceMs(lastActivityTime, lastSysTime) > 5000) {
             resetRcvrActivity(&activity_fsm);
@@ -267,6 +274,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
         }
 
         bool valid_input_detected = true;
+        bool valid_rssi_input     = false;
 
         // Read channel values in us
         for (uint8_t n = 0; n < MANUALCONTROLSETTINGS_CHANNELGROUPS_NUMELEM && n < MANUALCONTROLCOMMAND_CHANNEL_NUMELEM; ++n) {
@@ -285,16 +293,27 @@ static void receiverTask(__attribute__((unused)) void *parameters)
             if (cmd.Channel[n] == (uint16_t)PIOS_RCVR_TIMEOUT) {
                 valid_input_detected = false;
             } else {
+                int16_t neutralValue = ManualControlSettingsChannelNeutralToArray(settings.ChannelNeutral)[n];
+
+                if (n == MANUALCONTROLSETTINGS_CHANNELGROUPS_RSSI) {
+                    // Rssi neutral is ignored and set to min, for 0 - 100% output range
+                    neutralValue     = ManualControlSettingsChannelMinToArray(settings.ChannelMin)[n];
+                    valid_rssi_input = true;
+                }
                 scaledChannel[n] = scaleChannel(cmd.Channel[n],
                                                 ManualControlSettingsChannelMaxToArray(settings.ChannelMax)[n],
                                                 ManualControlSettingsChannelMinToArray(settings.ChannelMin)[n],
-                                                ManualControlSettingsChannelNeutralToArray(settings.ChannelNeutral)[n]);
+                                                neutralValue);
             }
         }
 
+        if (valid_rssi_input) {
+            rssiValue = (int8_t)(scaledChannel[MANUALCONTROLSETTINGS_CHANNELGROUPS_RSSI] * 100);
+        }
         /* Read signal quality from the group used for the throttle */
         (void)updateRcvrStatus(&activity_fsm,
-                               settings.ChannelGroups.Throttle);
+                               settings.ChannelGroups.Throttle,
+                               rssiValue);
 
         // Sanity Check Throttle and Yaw
         if (settings.ChannelGroups.Yaw >= MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE
@@ -382,6 +401,10 @@ static void receiverTask(__attribute__((unused)) void *parameters)
         if (settings.ChannelGroups.Accessory3 != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
             valid_input_detected &= validInputRange(settings.ChannelMin.Accessory3,
                                                     settings.ChannelMax.Accessory3, cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_ACCESSORY3]);
+        }
+        if (settings.ChannelGroups.Rssi != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+            valid_input_detected &= validInputRange(settings.ChannelMin.Rssi,
+                                                    settings.ChannelMax.Rssi, cmd.Channel[MANUALCONTROLSETTINGS_CHANNELGROUPS_RSSI]);
         }
 
         // Implement hysteresis loop on connection status
@@ -569,6 +592,18 @@ static void receiverTask(__attribute__((unused)) void *parameters)
                     AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
                 }
             }
+            // Set Rssi input
+            if (settings.ChannelGroups.Rssi != MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE) {
+                accessory.AccessoryVal = scaledChannel[MANUALCONTROLSETTINGS_CHANNELGROUPS_RSSI];
+#ifdef USE_INPUT_LPF
+                // Allow some Rssi filtering without deadband
+                applyLPF(&accessory.AccessoryVal, MANUALCONTROLSETTINGS_RESPONSETIME_RSSI, &settings.ResponseTime, 0.0f, dT);
+#endif
+
+                if (AccessoryDesiredInstSet(4, &accessory) != 0) {
+                    AlarmsSet(SYSTEMALARMS_ALARM_RECEIVER, SYSTEMALARMS_ALARM_WARNING);
+                }
+            }
         }
 
         // Update cmd object
@@ -625,6 +660,9 @@ static void updateRcvrActivitySample(uint32_t rcvr_id, uint16_t samples[], uint8
 static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm *fsm)
 {
     bool activity_updated = false;
+    ManualControlSettingsData settings;
+
+    ManualControlSettingsGet(&settings);
 
     /* Compare the current value to the previous sampled value */
     for (uint8_t channel = 1; channel <= RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP; channel++) {
@@ -635,6 +673,13 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
             delta = curr - prev;
         } else {
             delta = prev - curr;
+        }
+
+        // Ignore activity from this Group/Channel because already used/set for Rssi input
+        // Without that, the ReceiverActivity will be saturated just with Rssi value activity.
+        if ((ManualControlSettingsChannelGroupsToArray(settings.ChannelGroups)[MANUALCONTROLSETTINGS_CHANNELGROUPS_RSSI] == fsm->group) &&
+            (ManualControlSettingsChannelNumberToArray(settings.ChannelNumber)[MANUALCONTROLSETTINGS_CHANNELNUMBER_RSSI] == channel)) {
+            delta = 0;
         }
 
         if (delta > RCVR_ACTIVITY_MONITOR_MIN_RANGE) {
@@ -748,16 +793,16 @@ group_completed:
     return activity_updated;
 }
 
-/* Read signal quality from the specified group */
+/* Read signal quality from the specified group or use Rssi input value if any */
 static bool updateRcvrStatus(
     struct rcvr_activity_fsm *fsm,
-    ManualControlSettingsChannelGroupsOptions group)
+    ManualControlSettingsChannelGroupsOptions group, int8_t rssiValue)
 {
     extern uint32_t pios_rcvr_group_map[];
     bool activity_updated = false;
     int8_t quality;
 
-    quality = PIOS_RCVR_GetQuality(pios_rcvr_group_map[group]);
+    quality = (rssiValue > 0) ? rssiValue : PIOS_RCVR_GetQuality(pios_rcvr_group_map[group]);
 
     /* If no driver is detected or any other error then return */
     if (quality < 0) {

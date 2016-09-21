@@ -83,7 +83,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     accessoryDesiredObj0(NULL),
     accessoryDesiredObj1(NULL),
     accessoryDesiredObj2(NULL),
-    accessoryDesiredObj3(NULL)
+    accessoryDesiredObj3(NULL),
+    rssiDesiredObj4(NULL)
 {
     manualCommandObj      = ManualControlCommand::GetInstance(getObjectManager());
     manualSettingsObj     = ManualControlSettings::GetInstance(getObjectManager());
@@ -94,6 +95,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     accessoryDesiredObj1  = AccessoryDesired::GetInstance(getObjectManager(), 1);
     accessoryDesiredObj2  = AccessoryDesired::GetInstance(getObjectManager(), 2);
     accessoryDesiredObj3  = AccessoryDesired::GetInstance(getObjectManager(), 3);
+    rssiDesiredObj4 = AccessoryDesired::GetInstance(getObjectManager(), 4);
     actuatorSettingsObj   = ActuatorSettings::GetInstance(getObjectManager());
     systemSettingsObj     = SystemSettings::GetInstance(getObjectManager());
 
@@ -138,7 +140,12 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         // Slider position based on real time Rcinput (allow monitoring)
         addWidgetBinding("ManualControlCommand", "Channel", inputChannelForm->ui->channelNeutral, index);
         // Neutral value stored on board (SpinBox)
-        addWidgetBinding("ManualControlSettings", "ChannelNeutral", inputChannelForm->ui->neutralValue, index);
+        // Rssi neutral is always set to min
+        if (index == ManualControlSettings::CHANNELGROUPS_RSSI) {
+            addWidgetBinding("ManualControlSettings", "ChannelMin", inputChannelForm->ui->neutralValue, index);
+        } else {
+            addWidgetBinding("ManualControlSettings", "ChannelNeutral", inputChannelForm->ui->neutralValue, index);
+        }
         addWidgetBinding("ManualControlSettings", "ChannelMax", inputChannelForm->ui->channelMax, index);
         addWidgetBinding("ManualControlSettings", "ChannelMin", inputChannelForm->ui->channelMin, index);
         addWidgetBinding("ManualControlSettings", "ChannelMax", inputChannelForm->ui->channelMax, index);
@@ -153,7 +160,10 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         inputChannelForm->ui->channelRev->setVisible(reversable);
 
         // Input filter response time fields supported for some channels only
+        // Set Neutral field to readonly for Rssi
         switch (index) {
+        case ManualControlSettings::CHANNELGROUPS_RSSI:
+            inputChannelForm->ui->neutralValue->setReadOnly(true);
         case ManualControlSettings::CHANNELGROUPS_ROLL:
         case ManualControlSettings::CHANNELGROUPS_PITCH:
         case ManualControlSettings::CHANNELGROUPS_YAW:
@@ -832,7 +842,7 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
     {
         setTxMovement(nothing);
         manualSettingsData = manualSettingsObj->getData();
-        for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+        for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
             // Preserve the inverted status
             if (manualSettingsData.ChannelMin[i] <= manualSettingsData.ChannelMax[i]) {
                 manualSettingsData.ChannelMin[i] = manualSettingsData.ChannelNeutral[i];
@@ -937,7 +947,8 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
     case wizardIdentifyCenter:
         manualCommandData  = manualCommandObj->getData();
         manualSettingsData = manualSettingsObj->getData();
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; ++i) {
+        // Ignore last Rssi channel
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
             // Set Accessory neutral to middle range
             if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
                 manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
@@ -1195,7 +1206,7 @@ void ConfigInputWidget::identifyLimits()
     bool newFlightModeValue = false;
 
     manualCommandData = manualCommandObj->getData();
-    for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+    for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
         inputValue = manualCommandData.Channel[i];
         // Check if channel is already detected and prevent glitches
         if ((manualSettingsData.ChannelNumber[i] != CHANNEL_NUMBER_NONE) &&
@@ -1934,7 +1945,7 @@ void ConfigInputWidget::updateConfigAlarmStatus()
 void ConfigInputWidget::updateCalibration()
 {
     manualCommandData = manualCommandObj->getData();
-    for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+    for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
         if ((!reverse[i] && manualSettingsData.ChannelMin[i] > manualCommandData.Channel[i]) ||
             (reverse[i] && manualSettingsData.ChannelMin[i] < manualCommandData.Channel[i])) {
             manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
@@ -1984,8 +1995,8 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         flightModeSettingsData = flightModeSettingsObj->getData();
         flightModeSettingsData.Arming = FlightModeSettings::ARMING_ALWAYSDISARMED;
         flightModeSettingsObj->setData(flightModeSettingsData);
-
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; i++) {
+        // Ignore last Rssi channel
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             reverse[i] = manualSettingsData.ChannelMax[i] < manualSettingsData.ChannelMin[i];
             manualSettingsData.ChannelMin[i]     = manualCommandData.Channel[i];
             manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
@@ -2023,7 +2034,7 @@ void ConfigInputWidget::simpleCalibration(bool enable)
             forceOneFlightMode();
         }
 
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; i++) {
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
                 adjustSpecialNeutrals();
                 checkThrottleRange();
@@ -2096,8 +2107,8 @@ bool ConfigInputWidget::shouldObjectBeSaved(UAVObject *object)
 void ConfigInputWidget::resetChannelSettings()
 {
     manualSettingsData = manualSettingsObj->getData();
-    // Clear all channel data : Channel Type (PPM,PWM..) and Number
-    for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_NUMELEM; channel++) {
+    // Clear all channel data : Channel Type (PPM,PWM..) and Number, except for Rssi
+    for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_RSSI; channel++) {
         manualSettingsData.ChannelGroups[channel] = ManualControlSettings::CHANNELGROUPS_NONE;
         manualSettingsData.ChannelNumber[channel] = CHANNEL_NUMBER_NONE;
         UAVObjectUpdaterHelper updateHelper;

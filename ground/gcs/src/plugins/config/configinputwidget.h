@@ -130,6 +130,7 @@ private:
     AccessoryDesired *accessoryDesiredObj1;
     AccessoryDesired *accessoryDesiredObj2;
     AccessoryDesired *accessoryDesiredObj3;
+    AccessoryDesired *rssiDesiredObj4;
 
     ManualControlSettings *manualSettingsObj;
     ManualControlSettings::DataFields manualSettingsData;

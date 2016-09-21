@@ -61,7 +61,6 @@ private:
     void setSource(const QUrl &url);
     QQmlEngine *engine() const;
     QList<QQmlError> errors() const;
-
 };
 
 #endif /* PFDQMLGADGETWIDGET_H_ */

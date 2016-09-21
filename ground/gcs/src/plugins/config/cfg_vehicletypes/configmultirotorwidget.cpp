@@ -877,6 +877,7 @@ void ConfigMultiRotorWidget::updateAirframe(QString frameType)
     // qDebug() << "ConfigMultiRotorWidget::updateAirframe - frame type" << frameType;
 
     QString elementId;
+
     if (frameType == "Tri" || frameType == "Tricopter Y") {
         elementId = "tri";
     } else if (frameType == "QuadX" || frameType == "Quad X") {

@@ -159,6 +159,19 @@ static void UpdateSystemIdentState(const float *X, const float *noise, float dT_
 static void UpdateStabilizationDesired(bool doingIdent);
 
 
+static void flightModeSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    FlightModeSettingsFlightModePositionOptions fms[FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM];
+
+    FlightModeSettingsFlightModePositionGet(fms);
+    for (uint8_t i = 0; i < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM; ++i) {
+        if (fms[i] == FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE) {
+            ExtendedAlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED, 0);
+            break;
+        }
+    }
+}
+
 /**
  * Initialise the module, called on startup
  * \returns 0 on success or -1 if initialisation failed
@@ -200,6 +213,10 @@ int32_t AutoTuneInitialize(void)
         if (!atQueue) {
             moduleEnabled = false;
         }
+    }
+
+    if (!moduleEnabled) {
+        FlightModeSettingsConnectCallback(flightModeSettingsUpdatedCb);
     }
 
     return 0;

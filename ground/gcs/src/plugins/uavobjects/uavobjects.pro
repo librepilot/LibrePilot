@@ -59,6 +59,8 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/auxmagsettings.xml \
     $${UAVOBJ_XML_DIR}/barosensor.xml \
     $${UAVOBJ_XML_DIR}/callbackinfo.xml \
+    $${UAVOBJ_XML_DIR}/cameracontrolactivity.xml \
+    $${UAVOBJ_XML_DIR}/cameracontrolsettings.xml \
     $${UAVOBJ_XML_DIR}/cameradesired.xml \
     $${UAVOBJ_XML_DIR}/camerastabsettings.xml \
     $${UAVOBJ_XML_DIR}/debuglogcontrol.xml \

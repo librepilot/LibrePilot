@@ -1,0 +1,18 @@
+<xml>
+    <object name="CameraControlSettings" singleinstance="true" settings="true" category="Control">
+        <description>Settings for the @ref CameraControl module</description>
+        <field name="AutoTriggerInput" units="channel" type="enum" elements="1" options="None,Accessory0,Accessory1,Accessory2,Accessory3,Accessory4,Accessory5" defaultvalue="None"/>
+        <field name="ManualTriggerInput" units="channel" type="enum" elements="1" options="None,Accessory0,Accessory1,Accessory2,Accessory3,Accessory4,Accessory5" defaultvalue="None"/>
+        <field name="AutoTriggerMode" units="mode" type="enum" elements="1" options="Disabled,WhenArmed,Always,Input,Mission" defaultvalue="WhenArmed"/>
+        <field name="OutputValues" units="%" type="float" elementnames="Idle,Shot,Video" defaultvalue="0,-1,1" />
+        <field name="InputValues" units="%" type="float" elementnames="Idle,Shot,Video" defaultvalue="0,-1,1" />
+        <field name="TriggerPulseWidth" units="ms" type="uint16" elements="1" defaultvalue="50"/>
+        <field name="TimeInterval" units="s" type="float" elements="1" defaultvalue="5"/>
+        <field name="SpaceInterval" units="m" type="float" elements="1" defaultvalue="0"/>
+        <field name="MinimumTimeInterval" units="s" type="float" elements="1" defaultvalue="2.5"/>
+        <access gcs="readwrite" flight="readwrite"/>
+        <telemetrygcs acked="true" updatemode="onchange" period="0"/>
+        <telemetryflight acked="true" updatemode="onchange" period="0"/>
+        <logging updatemode="manual" period="0"/>
+	</object>
+</xml>

@@ -44,7 +44,7 @@
 struct data {
     GPSSettingsData  settings;
     HomeLocationData home;
-    double HomeECEF[3];
+    float HomeECEF[3];
     float HomeRne[3][3];
 };
 

@@ -89,6 +89,7 @@ static xTaskHandle taskHandle;
 static FrameType_t frameType = FRAME_TYPE_MULTIROTOR;
 static SystemSettingsThrustControlOptions thrustType = SYSTEMSETTINGS_THRUSTCONTROL_THROTTLE;
 static bool camStabEnabled;
+static bool camControlEnabled;
 
 static uint8_t pinsMode[MAX_MIX_ACTUATORS];
 // used to inform the actuator thread that actuator update rate is changed
@@ -165,8 +166,8 @@ int32_t ActuatorInitialize()
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsInitialize();
     HwSettingsOptionalModulesGet(&optionalModules);
-    camStabEnabled = (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED);
-
+    camStabEnabled    = (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED);
+    camControlEnabled = (optionalModules.CameraControl == HWSETTINGS_OPTIONALMODULES_ENABLED);
     // Primary output of this module
     ActuatorCommandInitialize();
 
@@ -481,6 +482,14 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                     // Disable camera actuators for CAMERA_BOOT_DELAY_MS after boot
                     if (thisSysTime < (CAMERA_BOOT_DELAY_MS / portTICK_RATE_MS)) {
                         command.Channel[ct] = 0;
+                    }
+                }
+
+                if (mixer_type == MIXERSETTINGS_MIXER1TYPE_CAMERATRIGGER) {
+                    if (camControlEnabled) {
+                        CameraDesiredTriggerGet(&status[ct]);
+                    } else {
+                        status[ct] = 0;
                     }
                 }
             }

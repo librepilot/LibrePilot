@@ -50,16 +50,18 @@ public:
     void restoreState(QSettings *);
 
 private:
+    QuickWidgetProxy *m_quickWidgetProxy;
+
+    PfdQmlContext *m_pfdQmlContext;
+    QString m_qmlFileName;
+
     void setQmlFile(QString);
+    void clear();
 
     void setSource(const QUrl &url);
     QQmlEngine *engine() const;
     QList<QQmlError> errors() const;
 
-    QuickWidgetProxy *m_quickWidgetProxy;
-
-    PfdQmlContext *m_pfdQmlContext;
-    QString m_qmlFileName;
 };
 
 #endif /* PFDQMLGADGETWIDGET_H_ */

@@ -271,7 +271,7 @@ private slots:
 public:
     bool acceptSceneNode(OSGNode *node)
     {
-        qDebug() << "OSGViewport::acceptSceneNode" << node;
+        // qDebug() << "OSGViewport::acceptSceneNode" << node;
         if (sceneNode == node) {
             return true;
         }
@@ -291,7 +291,7 @@ public:
 
     bool acceptCameraNode(OSGCamera *node)
     {
-        qDebug() << "OSGViewport::acceptCameraNode" << node;
+        // qDebug() << "OSGViewport::acceptCameraNode" << node;
         if (cameraNode == node) {
             return true;
         }
@@ -311,7 +311,7 @@ public:
 
     bool acceptManipulator(OSGCameraManipulator *m)
     {
-        qDebug() << "OSGViewport::acceptManipulator" << manipulator;
+        // qDebug() << "OSGViewport::acceptManipulator" << manipulator;
         if (manipulator == m) {
             return true;
         }
@@ -370,7 +370,7 @@ private:
 
     void onAboutToBeDestroyed()
     {
-        qDebug() << "OSGViewport::Hidden::onAboutToBeDestroyed";
+        // qDebug() << "OSGViewport::Hidden::onAboutToBeDestroyed";
         osgQtQuick::openGLContextInfo(QOpenGLContext::currentContext(), "OSGViewport::Hidden::onAboutToBeDestroyed");
         // context is not current and don't know how to make it current...
     }

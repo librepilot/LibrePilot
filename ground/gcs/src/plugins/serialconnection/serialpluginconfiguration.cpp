@@ -73,12 +73,12 @@ void SerialPluginConfiguration::restoresettings()
 {
     settings->beginGroup(QLatin1String("SerialConnection"));
     QString str = (settings->value(QLatin1String("speed"), tr("")).toString());
-    qDebug() << "SerialPluginConfiguration::restoresettings - speed" << str;
     if (str.isEmpty()) {
         m_speed = "57600";
     } else {
         m_speed = str;
     }
+    // qDebug() << "SerialPluginConfiguration::restoresettings - speed" << str;
     settings->endGroup();
 }
 

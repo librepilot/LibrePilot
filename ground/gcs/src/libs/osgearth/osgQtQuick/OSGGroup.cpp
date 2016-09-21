@@ -88,7 +88,7 @@ public:
 
     void updateChildren()
     {
-        qDebug() << "OSGGroup::updateChildren";
+        // qDebug() << "OSGGroup::updateChildren";
 
         osg::Group *group = static_cast<osg::Group *>(self->node());
         if (!group) {

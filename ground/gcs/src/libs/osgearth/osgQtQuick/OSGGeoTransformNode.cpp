@@ -72,7 +72,7 @@ public:
 
     bool acceptSceneNode(OSGNode *node)
     {
-        qDebug() << "OSGGeoTransformNode::acceptSceneNode" << node;
+        // qDebug() << "OSGGeoTransformNode::acceptSceneNode" << node;
         if (sceneNode == node) {
             return false;
         }
@@ -92,7 +92,7 @@ public:
 
     void updateSceneNode()
     {
-        qDebug() << "OSGGeoTransformNode::updateSceneNode" << sceneNode;
+        // qDebug() << "OSGGeoTransformNode::updateSceneNode" << sceneNode;
         if (sceneNode && sceneNode->node()) {
             osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
             if (mapNode) {
@@ -148,7 +148,7 @@ public:
 private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGGeoTransformNode::onSceneNodeChanged" << node;
+        // qDebug() << "OSGGeoTransformNode::onSceneNodeChanged" << node;
         updateSceneNode();
         updatePosition();
     }

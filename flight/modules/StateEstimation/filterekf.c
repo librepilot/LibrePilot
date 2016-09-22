@@ -90,8 +90,8 @@ static int32_t globalInit(stateFilter *handle, bool usePos, bool navOnly)
     handle->filter    = &filter;
     handle->localdata = pios_malloc(sizeof(struct data));
     struct data *this = (struct data *)handle->localdata;
-    this->usePos = usePos;
-    this->navOnly = navOnly;
+    this->usePos      = usePos;
+    this->navOnly     = navOnly;
     EKFConfigurationInitialize();
     EKFStateVarianceInitialize();
     HomeLocationInitialize();
@@ -284,7 +284,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
             // Copy the attitude into the state
             // NOTE: updating gyr correctly is valid, because this code is reached only when SENSORUPDATES_gyro is already true
-            if(!this->navOnly){
+            if (!this->navOnly) {
                 state->attitude[0] = Nav.q[0];
                 state->attitude[1] = Nav.q[1];
                 state->attitude[2] = Nav.q[2];
@@ -305,6 +305,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
         this->init_stage++;
         if (this->init_stage > 10) {
+            state->navOk = true;
             this->inited = true;
         }
 
@@ -312,7 +313,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     }
 
     if (!this->inited) {
-        return FILTERRESULT_CRITICAL;
+        return this->navOnly ? FILTERRESULT_OK : FILTERRESULT_CRITICAL;
     }
 
     float gyros[3] = { DEG2RAD(this->work.gyro[0]), DEG2RAD(this->work.gyro[1]), DEG2RAD(this->work.gyro[2]) };
@@ -322,8 +323,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
     // Copy the attitude into the state
     // NOTE: updating gyr correctly is valid, because this code is reached only when SENSORUPDATES_gyro is already true
-    if(!this->navOnly){
-
+    if (!this->navOnly) {
         state->attitude[0] = Nav.q[0];
         state->attitude[1] = Nav.q[1];
         state->attitude[2] = Nav.q[2];
@@ -428,7 +428,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     this->work.updated = 0;
 
     if (this->init_stage < 0) {
-        return FILTERRESULT_WARNING;
+        return this->navOnly ? FILTERRESULT_OK : FILTERRESULT_WARNING;
     } else {
         return FILTERRESULT_OK;
     }

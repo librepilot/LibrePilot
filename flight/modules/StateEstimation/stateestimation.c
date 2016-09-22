@@ -398,13 +398,16 @@ MODULE_INITCALL(StateEstimationInitialize, StateEstimationStart);
  */
 static void StateEstimationCb(void)
 {
-    static filterResult alarm     = FILTERRESULT_OK;
-    static filterResult lastAlarm = FILTERRESULT_UNINITIALISED;
-    static uint16_t alarmcounter  = 0;
+    static filterResult alarm        = FILTERRESULT_OK;
+    static filterResult lastAlarm    = FILTERRESULT_UNINITIALISED;
+    static bool lastNavStatus        = false;
+    static uint16_t alarmcounter     = 0;
+    static uint16_t navstatuscounter = 0;
     static const filterPipeline *current;
     static stateEstimation states;
     static uint32_t last_time;
     static uint16_t bootDelay = 64;
+
     // after system startup, first few sensor readings might be messed up, delay until everything has settled
     if (bootDelay) {
         bootDelay--;
@@ -461,6 +464,7 @@ static void StateEstimationCb(void)
             current = newFilterChain;
             bool error = 0;
             states.debugNavYaw = 0;
+            states.navOk = false;
             while (current != NULL) {
                 int32_t result = current->filter->init((stateFilter *)current->filter);
                 if (result != 0) {
@@ -550,10 +554,10 @@ static void StateEstimationCb(void)
     if (IS_SET(states.updated, SENSORUPDATES_attitude)) { \
         AttitudeStateData s;
         AttitudeStateGet(&s);
-        s.q1 = states.attitude[0];
-        s.q2 = states.attitude[1];
-        s.q3 = states.attitude[2];
-        s.q4 = states.attitude[3];
+        s.q1     = states.attitude[0];
+        s.q2     = states.attitude[1];
+        s.q3     = states.attitude[2];
+        s.q4     = states.attitude[3];
         Quaternion2RPY(&s.q1, &s.Roll);
         s.NavYaw = states.debugNavYaw;
         AttitudeStateSet(&s);
@@ -573,6 +577,18 @@ static void StateEstimationCb(void)
         }
     }
 
+    if (lastNavStatus < states.navOk) {
+        lastNavStatus    = states.navOk;
+        navstatuscounter = 0;
+    } else {
+        if (navstatuscounter < 100) {
+            navstatuscounter++;
+        } else {
+            lastNavStatus    = states.navOk;
+            navstatuscounter = 0;
+        }
+    }
+
     // clear alarms if everything is alright, then schedule callback execution after timeout
     if (lastAlarm == FILTERRESULT_WARNING) {
         AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_WARNING);
@@ -582,6 +598,12 @@ static void StateEstimationCb(void)
         AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_ERROR);
     } else {
         AlarmsClear(SYSTEMALARMS_ALARM_ATTITUDE);
+    }
+
+    if (states.navOk) {
+        AlarmsClear(SYSTEMALARMS_ALARM_NAV);
+    } else {
+        AlarmsSet(SYSTEMALARMS_ALARM_NAV, SYSTEMALARMS_ALARM_CRITICAL);
     }
 
     if (updatedSensors) {

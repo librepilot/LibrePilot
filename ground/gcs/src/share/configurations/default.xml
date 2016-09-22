@@ -2785,6 +2785,128 @@
         </data>
       </default>
     </UAVObjectBrowser>
+    <VideoGadget>
+      <Default>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>true</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>videotestsrc ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </Default>
+      <Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>dx9screencapsrc monitor=0 cursor=true ! tee name=t
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! timeoverlay ! autovideosink
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! videoconvert ! x264enc interlaced=true pass=quant quantizer=0 speed-preset=ultrafast byte-stream=true ! mpegpsmux ! filesink location=capture_fast.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+      <Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>dx9screencapsrc monitor=0 cursor=true ! tee name=t
+    t. ! queue ! timeoverlay ! autovideosink
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+      <Screen__PCT__20-__PCT__20Play__PCT__20__PCT__28640x480__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>dx9screencapsrc monitor=0 cursor=true x=0 y=0 width=640 height=480 ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Play__PCT__20__PCT__28640x480__PCT__29>
+      <Screen__PCT__20-__PCT__20Play>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>true</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>dx9screencapsrc monitor=0 cursor=true ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Play>
+      <USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>ksvideosrc device-index=0 ! tee name=t
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! timeoverlay ! autovideosink
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! videoconvert ! x264enc interlaced=true pass=quant quantizer=0 speed-preset=ultrafast byte-stream=true ! mpegpsmux ! filesink location=capture_fast.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+      <USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>ksvideosrc device-index=0 ! tee name=t
+    t. ! queue ! timeoverlay ! autovideosink
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+      <USB__PCT__20Camera__PCT__20-__PCT__20Play>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>true</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>ksvideosrc device-index=0 ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </USB__PCT__20Camera__PCT__20-__PCT__20Play>
+    </VideoGadget>
     <configInfo>
       <locked>false</locked>
       <version>1.2.0</version>

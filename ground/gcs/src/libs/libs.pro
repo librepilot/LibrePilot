@@ -11,6 +11,6 @@ SUBDIRS = \
     qwt \
     sdlgamepad
 
-osg {
-    SUBDIRS += osgearth
-}
+gstreamer:SUBDIRS += gstreamer
+
+osg:SUBDIRS += osgearth

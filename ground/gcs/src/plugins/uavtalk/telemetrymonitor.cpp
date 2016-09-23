@@ -89,7 +89,7 @@ void TelemetryMonitor::startRetrievingObjects()
         }
     }
     // Start retrieving
-    qDebug() << "TelemetryMonitor::startRetrievingObjects() - retrieving" << queue.length() << "objects";
+    qDebug() << "TelemetryMonitor::startRetrievingObjects - retrieving" << queue.length() << "objects";
     retrieveNextObject();
 }
 
@@ -98,7 +98,7 @@ void TelemetryMonitor::startRetrievingObjects()
  */
 void TelemetryMonitor::stopRetrievingObjects()
 {
-    qDebug("Object retrieval has been cancelled");
+    qDebug() << "TelemetryMonitor::stopRetrievingObjects - object retrieval has been cancelled";
     queue.clear();
 }
 
@@ -109,7 +109,7 @@ void TelemetryMonitor::retrieveNextObject()
 {
     // If queue is empty return
     if (queue.isEmpty()) {
-        qDebug() << "TelemetryMonitor::retrieveNextObject - Object retrieval completed";
+        qDebug() << "TelemetryMonitor::retrieveNextObject - object retrieval completed";
         if (firmwareIAPObj->getBoardType()) {
             emit connected();
         } else {
@@ -254,12 +254,12 @@ void TelemetryMonitor::processStatsUpdates()
     // Act on new connections or disconnections
     if (gcsStats.Status == GCSTelemetryStats::STATUS_CONNECTED && gcsStats.Status != oldStatus) {
         statsTimer->setInterval(STATS_UPDATE_PERIOD_MS);
-        qDebug() << "TelemetryMonitor::processStatsUpdates() - connection with the autopilot established";
+        qDebug() << "TelemetryMonitor::processStatsUpdates - connection with the autopilot established";
         startRetrievingObjects();
     }
     if (gcsStats.Status == GCSTelemetryStats::STATUS_DISCONNECTED && gcsStats.Status != oldStatus) {
         statsTimer->setInterval(STATS_CONNECT_PERIOD_MS);
-        qDebug() << "TelemetryMonitor::processStatsUpdates() - Connection with the autopilot lost";
+        qDebug() << "TelemetryMonitor::processStatsUpdates - connection with the autopilot lost";
         emit disconnected();
     }
 }

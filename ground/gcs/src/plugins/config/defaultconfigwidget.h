@@ -1,13 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       defaultccattitudewidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       defaultconfigwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief Placeholder for attitude settings widget until board connected.
+ * @brief Placeholder for config widget until board connected.
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

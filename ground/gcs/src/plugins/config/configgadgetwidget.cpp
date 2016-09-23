@@ -196,6 +196,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
     // Check what Board type we are talking to, and if necessary, remove/add tabs in the config gadget
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
+
     if (utilMngr) {
         int board = utilMngr->getBoardModel();
         if ((board & 0xff00) == 0x0400) {
@@ -253,6 +254,7 @@ void ConfigGadgetWidget::onOPLinkConnect()
     // qDebug() << "ConfigGadgetWidget::onOPLinkConnect";
 
     ConfigTaskWidget *widget = new ConfigOPLinkWidget(this);
+
     widget->bind();
     stackWidget->replaceTab(ConfigGadgetWidget::OPLink, widget);
 }
@@ -262,6 +264,7 @@ void ConfigGadgetWidget::onOPLinkDisconnect()
     // qDebug() << "ConfigGadgetWidget::onOPLinkDisconnect";
 
     QWidget *widget = new DefaultConfigWidget(this, tr("OPLink Configuration"));
+
     stackWidget->replaceTab(ConfigGadgetWidget::OPLink, widget);
 }
 

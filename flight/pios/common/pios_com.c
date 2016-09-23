@@ -674,6 +674,31 @@ uint32_t PIOS_COM_Available(uint32_t com_id)
     return (com_dev->driver->available)(com_dev->lower_id);
 }
 
+/*
+ * Set available callback
+ * \param[in] port COM port
+ * \param[in] available_cb Callback function
+ * \param[in] context context to pass to the callback function
+ * \return -1 if port not available
+ * \return 0 on success
+ */
+int32_t PIOS_COM_RegisterAvailableCallback(uint32_t com_id, pios_com_callback_available available_cb, uint32_t context)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    /* Invoke the driver function if it exists */
+    if (com_dev->driver->bind_available_cb) {
+        com_dev->driver->bind_available_cb(com_dev->lower_id, available_cb, context);
+    }
+
+    return 0;
+}
+
 #endif /* PIOS_INCLUDE_COM */
 
 /**

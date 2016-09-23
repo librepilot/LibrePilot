@@ -40,7 +40,14 @@
 /* Rx/Tx status */
 static uint8_t transfer_possible = 0;
 
+#ifdef PIOS_INCLUDE_FREERTOS
 static void(*disconnection_cb_list[3]) (void);
+
+struct {
+    void     (*callback)(bool connected, uint32_t context);
+    uint32_t context;
+} connectionState_cb_list[3];
+#endif
 
 enum pios_usb_dev_magic {
     PIOS_USB_DEV_MAGIC = 0x17365904,
@@ -55,6 +62,7 @@ struct pios_usb_dev {
 };
 #ifdef PIOS_INCLUDE_FREERTOS
 static void raiseDisconnectionCallbacks(void);
+static void raiseConnectionStateCallback(bool connected);
 #endif
 /**
  * @brief Validate the usb device structure
@@ -158,6 +166,10 @@ int32_t PIOS_USB_ChangeConnectionState(bool connected)
 #endif
     }
 
+#ifdef PIOS_INCLUDE_FREERTOS
+    raiseConnectionStateCallback(connected);
+#endif
+
     return 0;
 }
 
@@ -204,6 +216,7 @@ bool PIOS_USB_CheckAvailable(__attribute__((unused)) uint32_t id)
  * Register a physical disconnection callback
  *
  */
+#ifdef PIOS_INCLUDE_FREERTOS
 void PIOS_USB_RegisterDisconnectionCallback(void (*disconnectionCB)(void))
 {
     PIOS_Assert(disconnectionCB);
@@ -215,7 +228,6 @@ void PIOS_USB_RegisterDisconnectionCallback(void (*disconnectionCB)(void))
     }
     PIOS_Assert(0);
 }
-#ifdef PIOS_INCLUDE_FREERTOS
 static void raiseDisconnectionCallbacks(void)
 {
     uint32_t i = 0;
@@ -224,7 +236,38 @@ static void raiseDisconnectionCallbacks(void)
         (disconnection_cb_list[i++])();
     }
 }
-#endif
+
+void PIOS_USB_RegisterConnectionStateCallback(void (*connectionStateCallback)(bool connected, uint32_t context), uint32_t context)
+{
+    PIOS_Assert(connectionStateCallback);
+
+    for (uint32_t i = 0; i < NELEMENTS(connectionState_cb_list); i++) {
+        if (connectionState_cb_list[i].callback == NULL) {
+            connectionState_cb_list[i].callback = connectionStateCallback;
+            connectionState_cb_list[i].context  = context;
+            return;
+        }
+    }
+
+    PIOS_Assert(0);
+}
+
+static void raiseConnectionStateCallback(bool connected)
+{
+    uint32_t i = 0;
+
+    while (i < NELEMENTS(connectionState_cb_list) && connectionState_cb_list[i].callback != NULL) {
+        connectionState_cb_list[i].callback(connected, connectionState_cb_list[i].context);
+        i++;
+    }
+}
+#else /* PIOS_INCLUDE_FREERTOS */
+void PIOS_USB_RegisterDisconnectionCallback(__attribute__((unused)) void (*disconnectionCB)(void))
+{}
+void PIOS_USB_RegisterConnectionStateCallback(__attribute__((unused)) void (*connectionStateCallback)(bool connected, uint32_t context), __attribute__((unused)) uint32_t context)
+{}
+#endif /* PIOS_INCLUDE_FREERTOS */
+
 /*
  *
  * Provide STM32 USB OTG BSP layer API

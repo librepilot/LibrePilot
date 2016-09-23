@@ -38,6 +38,7 @@
 typedef uint16_t (*pios_com_callback)(uint32_t context, uint8_t *buf, uint16_t buf_len, uint16_t *headroom, bool *task_woken);
 typedef void (*pios_com_callback_ctrl_line)(uint32_t context, uint32_t mask, uint32_t state);
 typedef void (*pios_com_callback_baud_rate)(uint32_t context, uint32_t baud);
+typedef void (*pios_com_callback_available)(uint32_t context, uint32_t available);
 
 struct pios_com_driver {
     void     (*init)(uint32_t id);
@@ -50,6 +51,7 @@ struct pios_com_driver {
     void     (*bind_ctrl_line_cb)(uint32_t id, pios_com_callback_ctrl_line ctrl_line_cb, uint32_t context);
     void     (*bind_baud_rate_cb)(uint32_t id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context);
     uint32_t (*available)(uint32_t id);
+    void     (*bind_available_cb)(uint32_t id, pios_com_callback_available available_cb, uint32_t context);
 };
 
 /* Control line definitions */
@@ -72,6 +74,7 @@ extern int32_t PIOS_COM_SendFormattedStringNonBlocking(uint32_t com_id, const ch
 extern int32_t PIOS_COM_SendFormattedString(uint32_t com_id, const char *format, ...);
 extern uint16_t PIOS_COM_ReceiveBuffer(uint32_t com_id, uint8_t *buf, uint16_t buf_len, uint32_t timeout_ms);
 extern uint32_t PIOS_COM_Available(uint32_t com_id);
+extern int32_t PIOS_COM_RegisterAvailableCallback(uint32_t com_id, pios_com_callback_available, uint32_t context);
 
 #define COM_AVAILABLE_NONE (0)
 #define COM_AVAILABLE_RX   (1 << 0)

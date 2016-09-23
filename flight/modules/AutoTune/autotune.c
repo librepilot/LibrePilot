@@ -146,6 +146,7 @@ static bool moduleEnabled;
 
 // Private functions
 static void AtNewGyroData(UAVObjEvent *ev);
+static bool AutoTuneFoundInFMS();
 static void AutoTuneTask(void *parameters);
 static void AfInit(float X[AF_NUMX], float P[AF_NUMP]);
 static void AfPredict(float X[AF_NUMX], float P[AF_NUMP], const float u_in[3], const float gyro[3], const float dT_s, const float t_in);
@@ -153,24 +154,12 @@ static bool CheckFlightModeSwitchForPidRequest(uint8_t flightMode);
 static uint8_t CheckSettings();
 static uint8_t CheckSettingsRaw();
 static void ComputeStabilizationAndSetPidsFromDampAndNoise(float damp, float noise);
+static void FlightModeSettingsUpdatedCb(UAVObjEvent *ev);
 static void InitSystemIdent(bool loadDefaults);
 static void ProportionPidsSmoothToQuick();
 static void UpdateSystemIdentState(const float *X, const float *noise, float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle);
 static void UpdateStabilizationDesired(bool doingIdent);
 
-
-static void flightModeSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
-{
-    FlightModeSettingsFlightModePositionOptions fms[FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM];
-
-    FlightModeSettingsFlightModePositionGet(fms);
-    for (uint8_t i = 0; i < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM; ++i) {
-        if (fms[i] == FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE) {
-            ExtendedAlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED, 0);
-            break;
-        }
-    }
-}
 
 /**
  * Initialise the module, called on startup
@@ -178,10 +167,15 @@ static void flightModeSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
  */
 int32_t AutoTuneInitialize(void)
 {
-    // Create a queue, connect to manual control command and flightstatus
-#ifdef MODULE_AutoTune_BUILTIN
+    // do this here since module can become disabled for several reasons
+    // even for MODULE_AutoTune_BUILTIN
+    FlightModeSettingsInitialize();
+
+#if defined(MODULE_AutoTune_BUILTIN)
     moduleEnabled = true;
 #else
+    // HwSettings is only used right here, so init here
+    HwSettingsInitialize();
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
     if (optionalModules.AutoTune == HWSETTINGS_OPTIONALMODULES_ENABLED) {
@@ -191,32 +185,33 @@ int32_t AutoTuneInitialize(void)
         // that allows PIDs to be adjusted in flight
         moduleEnabled = true;
     } else {
-        // if the user did not enable the autotune module
+        // if the user did not manually enable the autotune module
         // do it for them if they have autotune on their flight mode switch
-        FlightModeSettingsFlightModePositionOptions fms[FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM];
-        moduleEnabled = false;
-        FlightModeSettingsInitialize();
-        FlightModeSettingsFlightModePositionGet(fms);
-        for (uint8_t i = 0; i < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM; ++i) {
-            if (fms[i] == FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE) {
-                moduleEnabled = true;
-                break;
-            }
-        }
+        moduleEnabled = AutoTuneFoundInFMS();
     }
-#endif /* ifdef MODULE_AutoTune_BUILTIN */
+#endif /* defined(MODULE_AutoTune_BUILTIN) */
 
     if (moduleEnabled) {
+        AccessoryDesiredInitialize();
+        ActuatorDesiredInitialize();
+        FlightStatusInitialize();
+        GyroStateInitialize();
+        ManualControlCommandInitialize();
+        StabilizationBankInitialize();
+        StabilizationSettingsBank1Initialize();
+        StabilizationSettingsBank2Initialize();
+        StabilizationSettingsBank3Initialize();
         SystemIdentSettingsInitialize();
         SystemIdentStateInitialize();
+
         atQueue = xQueueCreate(AT_QUEUE_NUMELEM, sizeof(struct at_queued_data));
         if (!atQueue) {
             moduleEnabled = false;
         }
     }
-
     if (!moduleEnabled) {
-        FlightModeSettingsConnectCallback(flightModeSettingsUpdatedCb);
+        // only need to watch for enabling AutoTune in FMS if AutoTune module is _not_ running
+        FlightModeSettingsConnectCallback(FlightModeSettingsUpdatedCb);
     }
 
     return 0;
@@ -577,6 +572,24 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
 }
 
 
+// FlightModeSettings callback
+// determine if autotune is enabled in the flight mode switch
+static bool AutoTuneFoundInFMS()
+{
+    bool found = false;
+    FlightModeSettingsFlightModePositionOptions fms[FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM];
+
+    FlightModeSettingsFlightModePositionGet(fms);
+    for (uint8_t i = 0; i < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM; ++i) {
+        if (fms[i] == FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE) {
+            found = true;
+            break;
+        }
+    }
+    return found;
+}
+
+
 // gyro sensor callback
 // get gyro data and actuatordesired into a packet
 // and put it in the queue for later processing
@@ -620,6 +633,16 @@ static void AtNewGyroData(UAVObjEvent *ev)
         last_sample_unpushed = true;
     } else {
         last_sample_unpushed = false;
+    }
+}
+
+
+// this callback is only enabled if the AutoTune module is not running
+// if it sees that AutoTune was added to the FMS it issues BOOT and ? alarms
+static void FlightModeSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    if (AutoTuneFoundInFMS()) {
+        ExtendedAlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED, 0);
     }
 }
 
@@ -929,7 +952,7 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     const float ki_o   = 0.75f * kp_o / (2.0f * M_PI_F * tau * 10.0f);
 
     float kpMax = 0.0f;
-    float betaMinLn    = 1000.0f;
+    float betaMinLn  = 1000.0f;
     StabilizationBankRollRatePIDData volatile *rollPitchPid = NULL; // satisfy compiler warning only
 
     for (int i = 0; i < ((systemIdentSettings.CalculateYaw != SYSTEMIDENTSETTINGS_CALCULATEYAW_FALSE) ? 3 : 2); i++) {

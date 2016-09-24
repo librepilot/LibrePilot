@@ -96,6 +96,7 @@ SRC += $(PIOSCOMMON)/pios_exbus.c
 SRC += $(PIOSCOMMON)/pios_ibus.c
 SRC += $(PIOSCOMMON)/pios_sdcard.c
 SRC += $(PIOSCOMMON)/pios_sensors.c
+SRC += $(PIOSCOMMON)/pios_servo.c
 SRC += $(PIOSCOMMON)/pios_openlrs.c
 SRC += $(PIOSCOMMON)/pios_openlrs_rcvr.c
 

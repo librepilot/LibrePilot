@@ -71,7 +71,13 @@ extern void PIOS_Servo_Disable()
 
         GPIO_InitTypeDef init = chan->pin.init;
 
+#if defined(STM32F40_41xxx) || defined(STM32F446xx)
         init.GPIO_Mode = GPIO_Mode_OUT;
+#elif defined(STM32F10X_MD)
+        init.GPIO_Mode = GPIO_Mode_Out_PP;
+#else
+#error Unsupported MCU
+#endif
         GPIO_Init(chan->pin.gpio, &init);
 
         GPIO_ResetBits(chan->pin.gpio, chan->pin.init.GPIO_Pin);
@@ -244,13 +250,28 @@ void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t ban
             if (clock[i]) {
                 new_clock = clock[i];
             }
+
+            uint32_t apb_clock;
+
             // Choose the correct prescaler value for the APB the timer is attached
-            if (timer == TIM1 || timer == TIM8 || timer == TIM9 || timer == TIM10 || timer == TIM11) {
-                TIM_TimeBaseStructure.TIM_Prescaler = (PIOS_PERIPHERAL_APB2_CLOCK / new_clock) - 1;
+
+#if defined(STM32F10X_MD)
+            if (timer == TIM1 || timer == TIM8) {
+                apb_clock = PIOS_PERIPHERAL_APB2_CLOCK;
             } else {
-                TIM_TimeBaseStructure.TIM_Prescaler = (PIOS_PERIPHERAL_APB1_CLOCK / new_clock) - 1;
+                apb_clock = PIOS_PERIPHERAL_APB1_CLOCK;
             }
-            TIM_TimeBaseStructure.TIM_Period = ((new_clock / speeds[i]) - 1);
+#elif defined(STM32F40_41xxx) || defined(STM32F446xx)
+            if (timer == TIM1 || timer == TIM8 || timer == TIM9 || timer == TIM10 || timer == TIM11) {
+                apb_clock = PIOS_PERIPHERAL_APB2_CLOCK;
+            } else {
+                apb_clock = PIOS_PERIPHERAL_APB1_CLOCK;
+            }
+#else
+#error Unsupported MCU
+#endif
+            TIM_TimeBaseStructure.TIM_Prescaler = (apb_clock / new_clock) - 1;
+            TIM_TimeBaseStructure.TIM_Period    = ((new_clock / speeds[i]) - 1);
             TIM_TimeBaseInit((TIM_TypeDef *)timer, &TIM_TimeBaseStructure);
         }
     }

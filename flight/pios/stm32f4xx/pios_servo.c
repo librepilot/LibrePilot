@@ -50,19 +50,83 @@ static TIM_TypeDef *pios_servo_bank_timer[PIOS_SERVO_BANKS] = { 0 };
 // index of bank used for each pin
 static uint8_t *pios_servo_pin_bank;
 
+static bool pios_servo_enabled = true;
+
 #define PIOS_SERVO_TIMER_CLOCK 1000000
 #define PIOS_SERVO_SAFE_MARGIN 50
+
+extern void PIOS_Servo_Disable()
+{
+    if (!servo_cfg) {
+        return;
+    }
+    pios_servo_enabled = false;
+
+    /* NOTE: Following will stop pulses and force low level on output pins.
+     * this is ok with ESC and servos, but brushed motors could be in trouble
+     * if using inverted setup */
+
+    for (uint8_t i = 0; (i < servo_cfg->num_channels); i++) {
+        const struct pios_tim_channel *chan = &servo_cfg->channels[i];
+
+        GPIO_InitTypeDef init = chan->pin.init;
+
+        init.GPIO_Mode = GPIO_Mode_OUT;
+        GPIO_Init(chan->pin.gpio, &init);
+
+        GPIO_ResetBits(chan->pin.gpio, chan->pin.init.GPIO_Pin);
+    }
+}
+
+extern void PIOS_Servo_Enable()
+{
+    if (!servo_cfg) {
+        return;
+    }
+
+    for (uint8_t i = 0; (i < servo_cfg->num_channels); i++) {
+        const struct pios_tim_channel *chan = &servo_cfg->channels[i];
+
+        GPIO_Init(chan->pin.gpio, &chan->pin.init);
+
+        /* Set up for output compare function */
+        switch (chan->timer_chan) {
+        case TIM_Channel_1:
+            TIM_OC1Init(chan->timer, &servo_cfg->tim_oc_init);
+            TIM_OC1PreloadConfig(chan->timer, TIM_OCPreload_Enable);
+            break;
+        case TIM_Channel_2:
+            TIM_OC2Init(chan->timer, &servo_cfg->tim_oc_init);
+            TIM_OC2PreloadConfig(chan->timer, TIM_OCPreload_Enable);
+            break;
+        case TIM_Channel_3:
+            TIM_OC3Init(chan->timer, &servo_cfg->tim_oc_init);
+            TIM_OC3PreloadConfig(chan->timer, TIM_OCPreload_Enable);
+            break;
+        case TIM_Channel_4:
+            TIM_OC4Init(chan->timer, &servo_cfg->tim_oc_init);
+            TIM_OC4PreloadConfig(chan->timer, TIM_OCPreload_Enable);
+            break;
+        }
+    }
+
+    for (uint8_t i = 0; (i < PIOS_SERVO_BANKS); i++) {
+        TIM_TypeDef *timer = pios_servo_bank_timer[i];
+
+        if (timer && (pios_servo_bank_mode[i] != PIOS_SERVO_BANK_MODE_NONE)) {
+            TIM_SelectOnePulseMode(timer, TIM_OPMode_Repetitive);
+            TIM_Cmd(timer, ENABLE);
+        }
+    }
+
+    pios_servo_enabled = true;
+}
+
 /**
  * Initialise Servos
  */
 int32_t PIOS_Servo_Init(const struct pios_servo_cfg *cfg)
 {
-    uint32_t tim_id;
-
-    if (PIOS_TIM_InitChannels(&tim_id, cfg->channels, cfg->num_channels, NULL, 0)) {
-        return -1;
-    }
-
     /* Store away the requested configuration */
     servo_cfg = cfg;
     pios_servo_pin_bank = pios_malloc(sizeof(uint8_t) * cfg->num_channels);
@@ -91,27 +155,9 @@ int32_t PIOS_Servo_Init(const struct pios_servo_cfg *cfg)
 
             bank++;
         }
-
-        /* Set up for output compare function */
-        switch (chan->timer_chan) {
-        case TIM_Channel_1:
-            TIM_OC1Init(chan->timer, &servo_cfg->tim_oc_init);
-            TIM_OC1PreloadConfig(chan->timer, TIM_OCPreload_Enable);
-            break;
-        case TIM_Channel_2:
-            TIM_OC2Init(chan->timer, &servo_cfg->tim_oc_init);
-            TIM_OC2PreloadConfig(chan->timer, TIM_OCPreload_Enable);
-            break;
-        case TIM_Channel_3:
-            TIM_OC3Init(chan->timer, &servo_cfg->tim_oc_init);
-            TIM_OC3PreloadConfig(chan->timer, TIM_OCPreload_Enable);
-            break;
-        case TIM_Channel_4:
-            TIM_OC4Init(chan->timer, &servo_cfg->tim_oc_init);
-            TIM_OC4PreloadConfig(chan->timer, TIM_OCPreload_Enable);
-            break;
-        }
     }
+
+    PIOS_Servo_Enable();
 
     return 0;
 }
@@ -121,28 +167,11 @@ void PIOS_Servo_SetBankMode(uint8_t bank, uint8_t mode)
     PIOS_Assert(bank < PIOS_SERVO_BANKS);
     pios_servo_bank_mode[bank] = mode;
 
-    if (pios_servo_bank_timer[bank]) {
-        for (uint8_t i = 0; (i < servo_cfg->num_channels); i++) {
-            if (pios_servo_pin_bank[i] == bank) {
-                const struct pios_tim_channel *chan = &servo_cfg->channels[i];
-                /* Set up for output compare function */
-                switch (chan->timer_chan) {
-                case TIM_Channel_1:
-                    TIM_OC1PolarityConfig(chan->timer, TIM_OCPolarity_High);
-                    break;
-                case TIM_Channel_2:
-                    TIM_OC2PolarityConfig(chan->timer, TIM_OCPolarity_High);
-                    break;
-                case TIM_Channel_3:
-                    TIM_OC3PolarityConfig(chan->timer, TIM_OCPolarity_High);
-                    break;
-                case TIM_Channel_4:
-                    TIM_OC4PolarityConfig(chan->timer, TIM_OCPolarity_High);
-                    break;
-                }
-            }
-        }
+    if (!pios_servo_enabled) {
+        return;
+    }
 
+    if (pios_servo_bank_timer[bank]) {
         // Setup the timer accordingly
         TIM_SelectOnePulseMode(pios_servo_bank_timer[bank], TIM_OPMode_Repetitive);
         TIM_Cmd(pios_servo_bank_timer[bank], ENABLE);
@@ -152,6 +181,10 @@ void PIOS_Servo_SetBankMode(uint8_t bank, uint8_t mode)
 
 void PIOS_Servo_Update()
 {
+    if (!pios_servo_enabled) {
+        return;
+    }
+
     for (uint8_t i = 0; (i < PIOS_SERVO_BANKS); i++) {
         const TIM_TypeDef *timer = pios_servo_bank_timer[i];
         if (timer && pios_servo_bank_mode[i] == PIOS_SERVO_BANK_MODE_SINGLE_PULSE) {
@@ -231,7 +264,7 @@ void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t ban
 void PIOS_Servo_Set(uint8_t servo, uint16_t position)
 {
     /* Make sure servo exists */
-    if (!servo_cfg || servo >= servo_cfg->num_channels) {
+    if (!pios_servo_enabled || !servo_cfg || servo >= servo_cfg->num_channels) {
         return;
     }
 
@@ -271,6 +304,11 @@ uint8_t PIOS_Servo_GetPinBank(uint8_t pin)
     } else {
         return 0;
     }
+}
+
+const struct pios_servo_cfg *PIOS_Servo_Config()
+{
+    return servo_cfg;
 }
 
 #endif /* PIOS_INCLUDE_SERVO */

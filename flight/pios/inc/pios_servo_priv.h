@@ -45,6 +45,7 @@ struct pios_servo_cfg {
 };
 
 extern int32_t PIOS_Servo_Init(const struct pios_servo_cfg *cfg);
+const struct pios_servo_cfg *PIOS_Servo_Config();
 
 #endif /* PIOS_SERVO_PRIV_H */
 

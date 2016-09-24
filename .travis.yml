@@ -13,7 +13,7 @@ before_install:
 script:
         - make config_new CCACHE=ccache
         - make all_flight
-        - make opfw_resource
+        - make fw_resource
         - make gcs
 
 git:

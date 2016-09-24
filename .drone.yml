@@ -10,7 +10,7 @@ build:
     - mingw32-make all_sdk_install
     - git config core.filemode false
     - mingw32-make build-info && cat build/build-info.txt
-    - mingw32-make opfw_resource
+    - mingw32-make fw_resource
     - mingw32-make gcs
     - mingw32-make package
     - mv `ls build/LibrePilot-*.exe` build/$$BRANCH-$$COMMIT-$$arch-package.exe 

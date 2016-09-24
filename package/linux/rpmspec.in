@@ -61,7 +61,7 @@ make config_new                             \
     udevrulesdir=%{_udevrulesdir}           \
     WITH_PREBUILT_FW=$(pwd)/build/firmware
 
-make %{?_smp_mflags} opfw_resource gcs
+make %{?_smp_mflags} fw_resource gcs
 
 
 %install

@@ -29,30 +29,21 @@
 
 #include "ui_configsparky2hwwidget.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-#include <uavobjecthelper.h>
-
 #include "hwsettings.h"
 
 #include <QDebug>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QMessageBox>
 
-ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
+ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_Sparky2HWWidget();
     m_ui->setupUi(this);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->saveTelemetryToRAM->setEnabled(false);
-        m_ui->saveTelemetryToRAM->setVisible(false);
-    }
+    // must be done before auto binding !
+    setWikiURL("Sparky2+Configuration");
 
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
+    addAutoBindings();
+
+    addUAVObject("HwSettings");
 
     addWidgetBinding("HwSettings", "SPK2_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "SPK2_MainPort", m_ui->cbMain);
@@ -72,14 +63,7 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
 
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
     setupCustomCombos();
-    enableControls(true);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
-    m_refreshing = false;
 }
 
 ConfigSparky2HWWidget::~ConfigSparky2HWWidget()
@@ -100,36 +84,28 @@ void ConfigSparky2HWWidget::setupCustomCombos()
     connect(m_ui->cbMain, SIGNAL(currentIndexChanged(int)), this, SLOT(mainPortChanged(int)));
 }
 
-void ConfigSparky2HWWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigSparky2HWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    m_refreshing = true;
-    ConfigTaskWidget::refreshWidgetsValues(obj);
+    Q_UNUSED(obj);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
-    m_refreshing = false;
 }
 
-void ConfigSparky2HWWidget::updateObjectsFromWidgets()
+void ConfigSparky2HWWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
-    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields data = hwSettings->getData();
-
     // If any port is configured to be GPS port, enable GPS module if it is not enabled.
     // Otherwise disable GPS module.
+    quint8 enableModule = HwSettings::OPTIONALMODULES_DISABLED;
+
     if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_GPS)
         || isComboboxOptionSelected(m_ui->cbMain, HwSettings::SPK2_MAINPORT_GPS)) {
-        data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_ENABLED;
-    } else {
-        data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_DISABLED;
+        enableModule = HwSettings::OPTIONALMODULES_ENABLED;
     }
 
-    UAVObjectUpdaterHelper updateHelper;
-    hwSettings->setData(data, false);
-    updateHelper.doObjectAndWait(hwSettings);
+    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
+    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_GPS, enableModule);
 }
 
 void ConfigSparky2HWWidget::usbVCPPortChanged(int index)
@@ -274,10 +250,4 @@ void ConfigSparky2HWWidget::mainPortChanged(int index)
         m_ui->lblMainSpeed->setVisible(false);
         break;
     }
-}
-
-void ConfigSparky2HWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Sparky2+Configuration"),
-                                   QUrl::StrictMode));
 }

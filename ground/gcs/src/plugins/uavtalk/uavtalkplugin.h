@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uavtalkplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVTalkPlugin UAVTalk Plugin
@@ -28,10 +29,9 @@
 #define UAVTALKPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
-#include <QtPlugin>
 #include "uavtalk.h"
-#include "telemetrymanager.h"
+
+class TelemetryManager;
 
 class UAVTALK_EXPORT UAVTalkPlugin : public ExtensionSystem::IPlugin {
     Q_OBJECT
@@ -50,7 +50,7 @@ protected slots:
     void onDeviceDisconnect();
 
 private:
-    TelemetryManager *telMngr;
+    TelemetryManager *telemetryManager;
 };
 
 #endif // UAVTALKPLUGIN_H

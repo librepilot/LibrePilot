@@ -109,8 +109,9 @@ QStringList ConfigFixedWingWidget::getChannelDescriptions()
 }
 
 ConfigFixedWingWidget::ConfigFixedWingWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_FixedWingConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_FixedWingConfigWidget();
     m_aircraft->setupUi(this);
 
     populateChannelComboBoxes();

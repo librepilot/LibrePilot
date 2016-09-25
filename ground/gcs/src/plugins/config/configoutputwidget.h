@@ -89,6 +89,9 @@ protected:
     void enableControls(bool enable);
     void setWarning(QString message);
 
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
 private:
     Ui_OutputWidget *m_ui;
     QList<QSlider> m_sliders;
@@ -107,11 +110,8 @@ private slots:
     void updateSpinStabilizeCheckComboBoxes();
     void updateAlwaysStabilizeStatus();
     void stopTests();
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
     void runChannelTests(bool state);
     void sendChannelTest(int index, int value);
-    void openHelp();
     void onBankTypeChange();
 };
 

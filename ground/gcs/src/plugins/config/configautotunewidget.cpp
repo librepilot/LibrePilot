@@ -23,8 +23,11 @@ ConfigAutotuneWidget::ConfigAutotuneWidget(QWidget *parent) :
     m_autotune = new Ui_AutotuneWidget();
     m_autotune->setupUi(this);
 
-    // Connect automatic signals
-    autoLoadWidgets();
+    // must be done before auto binding !
+    // setWikiURL("");
+
+    addAutoBindings();
+
     disableMouseWheelEvents();
 
     // Whenever any value changes compute new potential stabilization settings
@@ -148,26 +151,23 @@ void ConfigAutotuneWidget::recomputeStabilization()
     m_autotune->pitchAttitudeKp->setText(QString().number(stabSettings.PitchPI[StabilizationSettings::PITCHPI_KP]));
     m_autotune->pitchAttitudeKi->setText(QString().number(stabSettings.PitchPI[StabilizationSettings::PITCHPI_KI]));
 }
-void ConfigAutotuneWidget::refreshWidgetsValues(UAVObject *obj)
+
+void ConfigAutotuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
 
     if (obj == hwSettings) {
-        bool dirtyBack = isDirty();
-        HwSettings::DataFields hwSettingsData = hwSettings->getData();
-        m_autotune->enableAutoTune->setChecked(
-            hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_AUTOTUNE] == HwSettings::OPTIONALMODULES_ENABLED);
-        setDirty(dirtyBack);
+        bool enabled = (hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
+        m_autotune->enableAutoTune->setChecked(enabled);
     }
-    ConfigTaskWidget::refreshWidgetsValues(obj);
 }
-void ConfigAutotuneWidget::updateObjectsFromWidgets()
+
+void ConfigAutotuneWidget::updateObjectsFromWidgetsImpl()
 {
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
 
-    hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_AUTOTUNE] =
-        m_autotune->enableAutoTune->isChecked() ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
-    hwSettings->setData(hwSettingsData);
-    ConfigTaskWidget::updateObjectsFromWidgets();
+    quint8 enableModule    = (m_autotune->enableAutoTune->isChecked()) ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
+
+    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE, enableModule);
+    ;
 }

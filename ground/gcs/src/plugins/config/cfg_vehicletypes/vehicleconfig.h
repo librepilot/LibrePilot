@@ -162,8 +162,13 @@ class ConfigTaskWidget;
 /*
  * This class handles vehicle specific configuration UI and associated logic.
  *
- * This class derives from ConfigTaskWidget and overrides its the default "binding" mechanism.
- * It does not use the "dirty" state management directlyand registers its relevant widgets with ConfigTaskWidget to do so.
+ * VehicleConfig derives from ConfigTaskWidget but is not a top level ConfigTaskWidget.
+ * VehicleConfig objects are nested within the ConfigVehicleConfigWidget and have particularities:
+ * - bindings are added to the parent (i.e. ConfigVehicleConfigWidget)
+ * - auto bindings are not supported
+ * - as a consequence things like dirty state management are bypassed and delegated to the parent class.
+ *
+ * It does not use the "dirty" state management directly and registers its relevant widgets with ConfigTaskWidget to do so.
  */
 class VehicleConfig : public ConfigTaskWidget {
     Q_OBJECT
@@ -244,9 +249,8 @@ protected:
     double  getCurveMin(QList<double> *curve);
     double  getCurveMax(QList<double> *curve);
 
-protected slots:
-    virtual void refreshWidgetsValues(UAVObject *o = NULL);
-    virtual void updateObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     static UAVObjectManager *getUAVObjectManager();

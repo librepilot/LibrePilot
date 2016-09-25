@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       telemetrymanager.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       telemetrymanager.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVTalkPlugin UAVTalk Plugin
@@ -25,8 +26,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef TELEMETRYMANAGER_H
-#define TELEMETRYMANAGER_H
+#ifndef TELEMETRY_MANAGER_H
+#define TELEMETRY_MANAGER_H
 
 #include "uavtalk_global.h"
 #include "uavtalk.h"
@@ -94,4 +95,4 @@ public slots:
     void read();
 };
 
-#endif // TELEMETRYMANAGER_H
+#endif // TELEMETRY_MANAGER_H

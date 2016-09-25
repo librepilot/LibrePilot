@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       configahrstwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configrevowidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -28,8 +29,7 @@
 #define CONFIGREVOWIDGET_H
 
 #include "configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
 
 #include "calibration/thermal/thermalcalibrationmodel.h"
@@ -47,6 +47,10 @@ class ConfigRevoWidget : public ConfigTaskWidget {
 public:
     ConfigRevoWidget(QWidget *parent = 0);
     ~ConfigRevoWidget();
+
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     OpenPilot::SixPointCalibrationModel *m_accelCalibrationModel;
@@ -83,10 +87,6 @@ private slots:
     void displayTemperatureGradient(float temparetureGradient);
     void displayTemperatureRange(float temparetureRange);
 
-    // ! Overriden method from the configTaskWidget to update UI
-    virtual void refreshWidgetsValues(UAVObject *object = NULL);
-    virtual void updateObjectsFromWidgets();
-
     // Slot for clearing home location
     void clearHomeLocation();
 
@@ -101,7 +101,6 @@ private slots:
     float getMagError(float mag[3]);
 
     void updateVisualHelp();
-    void openHelp();
 
 protected:
     void showEvent(QShowEvent *event);

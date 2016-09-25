@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       telemetrymonitor.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVTalkPlugin UAVTalk Plugin
@@ -88,8 +89,7 @@ void TelemetryMonitor::startRetrievingObjects()
         }
     }
     // Start retrieving
-    qDebug() << tr("Starting to retrieve meta and settings objects from the autopilot (%1 objects)")
-        .arg(queue.length());
+    qDebug() << "TelemetryMonitor::startRetrievingObjects - retrieving" << queue.length() << "objects";
     retrieveNextObject();
 }
 
@@ -98,7 +98,7 @@ void TelemetryMonitor::startRetrievingObjects()
  */
 void TelemetryMonitor::stopRetrievingObjects()
 {
-    qDebug("Object retrieval has been cancelled");
+    qDebug() << "TelemetryMonitor::stopRetrievingObjects - object retrieval has been cancelled";
     queue.clear();
 }
 
@@ -109,7 +109,7 @@ void TelemetryMonitor::retrieveNextObject()
 {
     // If queue is empty return
     if (queue.isEmpty()) {
-        qDebug("Object retrieval completed");
+        qDebug() << "TelemetryMonitor::retrieveNextObject - object retrieval completed";
         if (firmwareIAPObj->getBoardType()) {
             emit connected();
         } else {
@@ -142,14 +142,16 @@ void TelemetryMonitor::transactionCompleted(UAVObject *obj, bool success)
         // Disconnect from sending object
         obj->disconnect(this);
         objPending = NULL;
+
         // Process next object if telemetry is still available
         GCSTelemetryStats::DataFields gcsStats = gcsStatsObj->getData();
-
         if (gcsStats.Status == GCSTelemetryStats::STATUS_CONNECTED) {
             retrieveNextObject();
         } else {
             stopRetrievingObjects();
         }
+    } else {
+        qCritical() << "TelemetryMonitor::retrieveNextObject - unexpected object" << obj;
     }
 }
 
@@ -252,13 +254,12 @@ void TelemetryMonitor::processStatsUpdates()
     // Act on new connections or disconnections
     if (gcsStats.Status == GCSTelemetryStats::STATUS_CONNECTED && gcsStats.Status != oldStatus) {
         statsTimer->setInterval(STATS_UPDATE_PERIOD_MS);
-        qDebug("Connection with the autopilot established");
+        qDebug() << "TelemetryMonitor::processStatsUpdates - connection with the autopilot established";
         startRetrievingObjects();
     }
     if (gcsStats.Status == GCSTelemetryStats::STATUS_DISCONNECTED && gcsStats.Status != oldStatus) {
         statsTimer->setInterval(STATS_CONNECT_PERIOD_MS);
-        qDebug("Connection with the autopilot lost");
-        qDebug("Trying to connect to the autopilot");
+        qDebug() << "TelemetryMonitor::processStatsUpdates - connection with the autopilot lost";
         emit disconnected();
     }
 }

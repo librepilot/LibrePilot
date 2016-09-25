@@ -1,13 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       defaultattitudewidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       defaultconfigwidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief Placeholder for attitude panel until board is connected.
+ * @brief Placeholder for config widget until board connected.
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -24,22 +24,24 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#include "defaultattitudewidget.h"
+#include "defaultconfigwidget.h"
 
-#include "ui_defaultattitude.h"
+#include "ui_defaultconfig.h"
 
-#include <QMutexLocker>
-#include <QErrorMessage>
-#include <QDebug>
-
-DefaultAttitudeWidget::DefaultAttitudeWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui_defaultattitude)
+DefaultConfigWidget::DefaultConfigWidget(QWidget *parent, QString title) : QWidget(parent)
 {
+    ui = new Ui_defaultconfig();
     ui->setupUi(this);
+
+    ui->tabWidget->setTabText(0, title);
+
+    ui->helpButton->setEnabled(false);
+    ui->saveButton->setEnabled(false);
+    ui->applyButton->setVisible(false);
+    ui->applyButton->setEnabled(false);
 }
 
-DefaultAttitudeWidget::~DefaultAttitudeWidget()
+DefaultConfigWidget::~DefaultConfigWidget()
 {
     delete ui;
 }

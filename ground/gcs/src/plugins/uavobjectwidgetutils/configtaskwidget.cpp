@@ -27,10 +27,12 @@
  */
 #include "configtaskwidget.h"
 
+#include <coreplugin/generalsettings.h>
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 #include "uavobjectutilmanager.h"
 #include "uavtalk/telemetrymanager.h"
+#include "uavtalk/oplinkmanager.h"
 #include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
 #include "smartsavebutton.h"
 #include "mixercurvewidget.h"
@@ -41,24 +43,67 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QProgressBar>
 #include <QTableWidget>
 #include <QToolButton>
 #include <QUrl>
 #include <QWidget>
 
-ConfigTaskWidget::ConfigTaskWidget(QWidget *parent) : QWidget(parent), m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_wikiURL("Welcome"),
-    m_saveButton(NULL), m_isDirty(false), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
+ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, bool autopilot) : QWidget(parent),
+    m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_isDirty(false), m_refreshing(false),
+    m_wikiURL("Welcome"), m_saveButton(NULL), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
 {
+    m_autopilot         = autopilot;
+
     m_pluginManager     = ExtensionSystem::PluginManager::instance();
-    TelemetryManager *telMngr = m_pluginManager->getObject<TelemetryManager>();
+
     m_objectUtilManager = m_pluginManager->getObject<UAVObjectUtilManager>();
-    connect(telMngr, SIGNAL(connected()), this, SLOT(onAutopilotConnect()), Qt::UniqueConnection);
-    connect(telMngr, SIGNAL(disconnected()), this, SLOT(onAutopilotDisconnect()), Qt::UniqueConnection);
-    connect(telMngr, SIGNAL(connected()), this, SIGNAL(autoPilotConnected()), Qt::UniqueConnection);
-    connect(telMngr, SIGNAL(disconnected()), this, SIGNAL(autoPilotDisconnected()), Qt::UniqueConnection);
     UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
+
+    m_saveButton = new SmartSaveButton(this);
+    connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
+    connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
+    connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
+    connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+
+    if (m_autopilot) {
+        // connect to telemetry manager
+        TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
+        connect(tm, SIGNAL(connected()), this, SLOT(onConnect()));
+        connect(tm, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+    } else {
+        // connect to oplink manager
+        OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
+        connect(om, SIGNAL(connected()), this, SLOT(onConnect()));
+        connect(om, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+    }
 }
+
+ConfigTaskWidget::~ConfigTaskWidget()
+{
+    if (m_saveButton) {
+        delete m_saveButton;
+    }
+    QSet<WidgetBinding *> deleteSet = m_widgetBindingsPerWidget.values().toSet();
+    foreach(WidgetBinding * binding, deleteSet) {
+        if (binding) {
+            delete binding;
+        }
+    }
+    if (m_realtimeUpdateTimer) {
+        delete m_realtimeUpdateTimer;
+        m_realtimeUpdateTimer = NULL;
+    }
+}
+
+bool ConfigTaskWidget::expertMode() const
+{
+    Core::Internal::GeneralSettings *settings = m_pluginManager->getObject<Core::Internal::GeneralSettings>();
+
+    return settings->useExpertMode();
+}
+
 
 void ConfigTaskWidget::addWidget(QWidget *widget)
 {
@@ -136,9 +181,13 @@ void ConfigTaskWidget::addWidgetBinding(QString objectName, QString fieldName, Q
 void ConfigTaskWidget::doAddWidgetBinding(QString objectName, QString fieldName, QWidget *widget, int index, double scale,
                                           bool isLimited, QList<int> *reloadGroupIDs, quint32 instID)
 {
+    // add a shadow binding to an existing binding (if any)
     if (addShadowWidgetBinding(objectName, fieldName, widget, index, scale, isLimited, reloadGroupIDs, instID)) {
+        // no need to go further if successful
         return;
     }
+
+    // qDebug() << "ConfigTaskWidget::doAddWidgetBinding - add binding for " << objectName << fieldName << widget;
 
     UAVObject *object     = NULL;
     UAVObjectField *field = NULL;
@@ -190,7 +239,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
 
     Q_ASSERT(object);
 
-    bool dirtyBack = isDirty();
+    m_refreshing = true;
 
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject.values(object)) {
         binding->setIsEnabled(enabled);
@@ -202,24 +251,8 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
             }
         }
     }
-    setDirty(dirtyBack);
-}
 
-ConfigTaskWidget::~ConfigTaskWidget()
-{
-    if (m_saveButton) {
-        delete m_saveButton;
-    }
-    QSet<WidgetBinding *> deleteSet = m_widgetBindingsPerWidget.values().toSet();
-    foreach(WidgetBinding * binding, deleteSet) {
-        if (binding) {
-            delete binding;
-        }
-    }
-    if (m_realtimeUpdateTimer) {
-        delete m_realtimeUpdateTimer;
-        m_realtimeUpdateTimer = NULL;
-    }
+    m_refreshing = true;
 }
 
 bool ConfigTaskWidget::isComboboxOptionSelected(QComboBox *combo, int optionValue)
@@ -260,80 +293,70 @@ void ConfigTaskWidget::enableComboBoxOptionItem(QComboBox *combo, int optionValu
                             !enable ? QVariant(0) : QVariant(1 | 32), Qt::UserRole - 1);
 }
 
-void ConfigTaskWidget::saveObjectToSD(UAVObject *obj)
-{
-    // saveObjectToSD is now handled by the UAVUtils plugin in one
-    // central place (and one central queue)
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
-
-    utilMngr->saveObjectToSD(obj);
-}
-
 UAVObjectManager *ConfigTaskWidget::getObjectManager()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectManager *objMngr = pm->getObject<UAVObjectManager>();
+    UAVObjectManager *objMngr = m_pluginManager->getObject<UAVObjectManager>();
 
     Q_ASSERT(objMngr);
     return objMngr;
 }
 
+bool ConfigTaskWidget::isConnected() const
+{
+    bool connected = false;
 
-void ConfigTaskWidget::onAutopilotDisconnect()
+    if (m_autopilot) {
+        TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
+        connected = tm->isConnected();
+    } else {
+        OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
+        connected = om->isConnected();
+    }
+    return connected;
+}
+
+// dynamic widgets don't receive the connected signal. This should be called instead.
+void ConfigTaskWidget::bind()
+{
+    if (isConnected()) {
+        onConnect();
+    } else {
+        refreshWidgetsValues();
+        updateEnableControls();
+    }
+}
+
+void ConfigTaskWidget::onConnect()
+{
+    if (m_autopilot) {
+        m_currentBoardId = m_objectUtilManager->getBoardModel();
+    }
+
+    m_isConnected = true;
+
+    invalidateObjects();
+
+    resetLimits();
+    updateEnableControls();
+
+    emit connected();
+
+    refreshWidgetsValues();
+
+    setDirty(false);
+}
+
+void ConfigTaskWidget::onDisconnect()
 {
     m_isConnected = false;
 
-    // Reset board ID and clear bound combo box lists to force repopulation
-    // when we get another connected signal. This means that we get the
-    // correct values in combo boxes bound to fields with limits applied.
+    emit disconnected();
+
+    updateEnableControls();
+    invalidateObjects();
+
+    // reset board ID
     m_currentBoardId = -1;
-
-    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        QComboBox *cb;
-
-        if (binding->widget() && (cb = qobject_cast<QComboBox *>(binding->widget()))) {
-            cb->clear();
-        }
-    }
-
-    enableControls(false);
-    invalidateObjects();
-}
-
-// dynamic widgets don't recieve the connected signal. This should be called instead.
-void ConfigTaskWidget::forceConnectedState()
-{
-    if (m_objectUtilManager) {
-        m_currentBoardId = m_objectUtilManager->getBoardModel();
-    }
-    m_isConnected = true;
-    setDirty(false);
-}
-
-void ConfigTaskWidget::onAutopilotConnect()
-{
-    if (m_objectUtilManager) {
-        m_currentBoardId = m_objectUtilManager->getBoardModel();
-    }
-    invalidateObjects();
-    m_isConnected = true;
-    setDirty(false);
-    enableControls(true);
-    refreshWidgetsValues();
-}
-
-void ConfigTaskWidget::populateWidgets()
-{
-    bool dirtyBack = isDirty();
-    emit populateWidgetsRequested();
-
-    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        if (binding->isEnabled() && binding->object() != NULL && binding->field() != NULL && binding->widget() != NULL) {
-            setWidgetFromField(binding->widget(), binding->field(), binding);
-        }
-    }
-    setDirty(dirtyBack);
 }
 
 void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
@@ -342,11 +365,11 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
         return;
     }
 
-    bool dirtyBack = isDirty();
-    emit refreshWidgetsValuesRequested();
+    m_refreshing = true;
+
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
     foreach(WidgetBinding * binding, bindings) {
-        if (binding->field() != NULL && binding->widget() != NULL) {
+        if (binding->field() && binding->widget()) {
             if (binding->isEnabled()) {
                 setWidgetFromField(binding->widget(), binding->field(), binding);
             } else {
@@ -354,18 +377,23 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
             }
         }
     }
-    setDirty(dirtyBack);
+
+    // call specific implementation
+    refreshWidgetsValuesImpl(obj);
+
+    m_refreshing = false;
 }
 
 void ConfigTaskWidget::updateObjectsFromWidgets()
 {
-    emit updateObjectsFromWidgetsRequested();
-
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        if (binding->object() != NULL && binding->field() != NULL) {
+        if (binding->object() && binding->field()) {
             binding->updateObjectFieldFromValue();
         }
     }
+
+    // call specific implementation
+    updateObjectsFromWidgetsImpl();
 }
 
 void ConfigTaskWidget::helpButtonPressed()
@@ -377,26 +405,15 @@ void ConfigTaskWidget::helpButtonPressed()
     }
 }
 
-void ConfigTaskWidget::addApplySaveButtons(QPushButton *update, QPushButton *save)
+void ConfigTaskWidget::addApplyButton(QPushButton *button)
 {
-    if (!m_saveButton) {
-        m_saveButton = new SmartSaveButton(this);
-        connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
-        connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
-        connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
-        connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
-    }
-    if (update && save) {
-        m_saveButton->addButtons(save, update);
-    } else if (update) {
-        m_saveButton->addApplyButton(update);
-    } else if (save) {
-        m_saveButton->addSaveButton(save);
-    }
-    foreach(WidgetBinding * binding, m_widgetBindingsPerWidget) {
-        m_saveButton->addObject((UAVDataObject *)binding->object());
-    }
-    updateEnableControls();
+    m_saveButton->addApplyButton(button);
+    button->setVisible(expertMode());
+}
+
+void ConfigTaskWidget::addSaveButton(QPushButton *button)
+{
+    m_saveButton->addSaveButton(button);
 }
 
 void ConfigTaskWidget::enableControls(bool enable)
@@ -417,6 +434,7 @@ void ConfigTaskWidget::enableControls(bool enable)
             }
         }
     }
+
     emit enableControlsChanged(enable);
 }
 
@@ -426,28 +444,6 @@ bool ConfigTaskWidget::shouldObjectBeSaved(UAVObject *object)
     return true;
 }
 
-void ConfigTaskWidget::forceShadowUpdates()
-{
-    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
-        if (!binding->isEnabled()) {
-            continue;
-        }
-        QVariant widgetValue = getVariantFromWidget(binding->widget(), binding);
-
-        foreach(ShadowWidgetBinding * shadow, binding->shadows()) {
-            disconnectWidgetUpdatesToSlot(shadow->widget(), SLOT(widgetsContentsChanged()));
-
-            checkWidgetsLimits(shadow->widget(), binding->field(), binding->index(), shadow->isLimited(), widgetValue, shadow->scale());
-
-            WidgetBinding tmpBinding(shadow->widget(), binding->object(), binding->field(), binding->index(), shadow->scale(), shadow->isLimited());
-            setWidgetFromVariant(shadow->widget(), widgetValue, &tmpBinding);
-
-            emit widgetContentsChanged(shadow->widget());
-            connectWidgetUpdatesToSlot(shadow->widget(), SLOT(widgetsContentsChanged()));
-        }
-    }
-    setDirty(true);
-}
 
 void ConfigTaskWidget::widgetsContentsChanged()
 {
@@ -510,6 +506,9 @@ void ConfigTaskWidget::clearDirty()
 
 void ConfigTaskWidget::setDirty(bool value)
 {
+    if (m_refreshing) {
+        return;
+    }
     m_isDirty = value;
 }
 
@@ -552,7 +551,10 @@ bool ConfigTaskWidget::allObjectsUpdated()
     bool result = true;
 
     foreach(UAVObject * object, m_updatedObjects.keys()) {
-        result = result & m_updatedObjects[object];
+        result &= m_updatedObjects[object];
+        if (!result) {
+            break;
+        }
     }
     return result;
 }
@@ -597,6 +599,7 @@ bool ConfigTaskWidget::addShadowWidgetBinding(QString objectName, QString fieldN
             continue;
         }
         if (binding->matches(objectName, fieldName, index, instID)) {
+            // qDebug() << "ConfigTaskWidget::addShadowWidgetBinding - add shadow binding for " << objectName << fieldName << widget;
             binding->addShadow(widget, scale, isLimited);
 
             m_widgetBindingsPerWidget.insert(widget, binding);
@@ -613,10 +616,9 @@ bool ConfigTaskWidget::addShadowWidgetBinding(QString objectName, QString fieldN
     return false;
 }
 
-void ConfigTaskWidget::autoLoadWidgets()
+void ConfigTaskWidget::addAutoBindings()
 {
-    QPushButton *saveButtonWidget  = NULL;
-    QPushButton *applyButtonWidget = NULL;
+    // qDebug() << "ConfigTaskWidget::addAutoBindings() - auto binding" << this;
 
     foreach(QWidget * widget, this->findChildren<QWidget *>()) {
         QVariant info = widget->property("objrelation");
@@ -672,19 +674,19 @@ void ConfigTaskWidget::autoLoadWidgets()
                     uiRelation.url = str.mid(str.indexOf(":") + 1);
                 }
             }
-            if (!(uiRelation.buttonType == none)) {
+            if (uiRelation.buttonType != none) {
                 QPushButton *button = NULL;
                 switch (uiRelation.buttonType) {
                 case save_button:
-                    saveButtonWidget = qobject_cast<QPushButton *>(widget);
-                    if (saveButtonWidget) {
-                        addApplySaveButtons(NULL, saveButtonWidget);
+                    button = qobject_cast<QPushButton *>(widget);
+                    if (button) {
+                        addSaveButton(button);
                     }
                     break;
                 case apply_button:
-                    applyButtonWidget = qobject_cast<QPushButton *>(widget);
-                    if (applyButtonWidget) {
-                        addApplySaveButtons(applyButtonWidget, NULL);
+                    button = qobject_cast<QPushButton *>(widget);
+                    if (button) {
+                        addApplyButton(button);
                     }
                     break;
                 case default_button:
@@ -720,12 +722,18 @@ void ConfigTaskWidget::autoLoadWidgets()
                 }
             }
         }
+        foreach(WidgetBinding * binding, m_widgetBindingsPerWidget) {
+            if (binding->object()) {
+                m_saveButton->addObject((UAVDataObject *)binding->object());
+            }
+        }
     }
-    refreshWidgetsValues();
-    forceShadowUpdates();
+    // qDebug() << "ConfigTaskWidget::addAutoBindings() - auto binding done for" << this;
+}
 
-    /*
-       foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
+void ConfigTaskWidget::dumpBindings()
+{
+    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
         if (binding->widget()) {
             qDebug() << "Binding  :" << binding->widget()->objectName();
             qDebug() << "  Object :" << binding->object()->getName();
@@ -739,8 +747,7 @@ void ConfigTaskWidget::autoLoadWidgets()
                 qDebug() << "  Scale :" << shadow->scale();
             }
         }
-       }
-     */
+    }
 }
 
 void ConfigTaskWidget::addWidgetToReloadGroups(QWidget *widget, QList<int> *reloadGroupIDs)
@@ -811,7 +818,7 @@ void ConfigTaskWidget::reloadButtonClicked()
 
     QList<objectComparator> temp;
     foreach(WidgetBinding * binding, bindings) {
-        if (binding->isEnabled() && binding->object() != NULL) {
+        if (binding->isEnabled() && binding->object()) {
             objectComparator value;
             value.objid     = binding->object()->getObjID();
             value.objinstid = binding->object()->getInstID();
@@ -873,8 +880,12 @@ void ConfigTaskWidget::connectWidgetUpdatesToSlot(QWidget *widget, const char *f
         connect(cb, SIGNAL(clicked()), this, function, Qt::UniqueConnection);
     } else if (QToolButton * cb = qobject_cast<QToolButton *>(widget)) {
         connect(cb, SIGNAL(clicked()), this, function, Qt::UniqueConnection);
+    } else if (qobject_cast<QLabel *>(widget)) {
+        // read only
+    } else if (qobject_cast<QProgressBar *>(widget)) {
+        // read only
     } else {
-        qDebug() << __FUNCTION__ << "widget binding not implemented" << widget->metaObject()->className();
+        qDebug() << __FUNCTION__ << "widget binding not implemented for" << widget->metaObject()->className();
     }
 }
 
@@ -903,8 +914,12 @@ void ConfigTaskWidget::disconnectWidgetUpdatesToSlot(QWidget *widget, const char
         disconnect(cb, SIGNAL(clicked()), this, function);
     } else if (QToolButton * cb = qobject_cast<QToolButton *>(widget)) {
         disconnect(cb, SIGNAL(clicked()), this, function);
+    } else if (qobject_cast<QLabel *>(widget)) {
+        // read only
+    } else if (qobject_cast<QProgressBar *>(widget)) {
+        // read only
     } else {
-        qDebug() << __FUNCTION__ << "widget binding not implemented" << widget->metaObject()->className();
+        qDebug() << __FUNCTION__ << "widget binding not implemented for" << widget->metaObject()->className();
     }
 }
 
@@ -916,7 +931,7 @@ QVariant ConfigTaskWidget::getVariantFromWidget(QWidget *widget, WidgetBinding *
         if (binding->isInteger()) {
             return QVariant(getComboboxSelectedOption(cb));
         }
-        return (QString)cb->currentText();
+        return cb->currentText();
     } else if (QDoubleSpinBox * cb = qobject_cast<QDoubleSpinBox *>(widget)) {
         return (double)(cb->value() * scale);
     } else if (QSpinBox * cb = qobject_cast<QSpinBox *>(widget)) {
@@ -924,18 +939,17 @@ QVariant ConfigTaskWidget::getVariantFromWidget(QWidget *widget, WidgetBinding *
     } else if (QSlider * cb = qobject_cast<QSlider *>(widget)) {
         return (double)(cb->value() * scale);
     } else if (QCheckBox * cb = qobject_cast<QCheckBox *>(widget)) {
-        return (QString)(cb->isChecked() ? "True" : "False");
+        return cb->isChecked() ? "True" : "False";
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {
-        QString value = (QString)cb->displayText();
+        QString value = cb->displayText();
         if (binding->units() == "hex") {
             bool ok;
             return value.toUInt(&ok, 16);
         } else {
             return value;
         }
-    } else {
-        return QVariant();
     }
+    return QVariant();
 }
 
 bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, WidgetBinding *binding)
@@ -951,10 +965,19 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
         }
         return ok;
     } else if (QLabel * cb = qobject_cast<QLabel *>(widget)) {
-        if (scale == 0) {
-            cb->setText(value.toString());
+        if ((scale == 0) || (scale == 1)) {
+            if (binding->units() == "hex") {
+                if (value.toUInt()) {
+                    cb->setText(QString::number(value.toUInt(), 16).toUpper());
+                } else {
+                    // display 0 as an empty string
+                    cb->setText("");
+                }
+            } else {
+                cb->setText(value.toString());
+            }
         } else {
-            cb->setText(QString::number((value.toDouble() / scale)));
+            cb->setText(QString::number(value.toDouble() / scale));
         }
         return true;
     } else if (QDoubleSpinBox * cb = qobject_cast<QDoubleSpinBox *>(widget)) {
@@ -967,23 +990,26 @@ bool ConfigTaskWidget::setWidgetFromVariant(QWidget *widget, QVariant value, Wid
         cb->setValue((int)qRound(value.toDouble() / scale));
         return true;
     } else if (QCheckBox * cb = qobject_cast<QCheckBox *>(widget)) {
-        bool bvalue = value.toString() == "True";
-        cb->setChecked(bvalue);
+        cb->setChecked(value.toString() == "True");
         return true;
     } else if (QLineEdit * cb = qobject_cast<QLineEdit *>(widget)) {
         if ((scale == 0) || (scale == 1)) {
             if (binding->units() == "hex") {
-                cb->setText(QString::number(value.toUInt(), 16).toUpper());
+                if (value.toUInt()) {
+                    cb->setText(QString::number(value.toUInt(), 16).toUpper());
+                } else {
+                    // display 0 as an empty string
+                    cb->setText("");
+                }
             } else {
                 cb->setText(value.toString());
             }
         } else {
-            cb->setText(QString::number((value.toDouble() / scale)));
+            cb->setText(QString::number(value.toDouble() / scale));
         }
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 bool ConfigTaskWidget::setWidgetFromField(QWidget *widget, UAVObjectField *field, WidgetBinding *binding)
@@ -1002,8 +1028,22 @@ bool ConfigTaskWidget::setWidgetFromField(QWidget *widget, UAVObjectField *field
     if (result) {
         return true;
     } else {
-        qDebug() << __FUNCTION__ << "widget to uavobject relation not implemented" << widget->metaObject()->className();
+        qDebug() << __FUNCTION__ << "widget to uavobject relation not implemented for" << widget->metaObject()->className();
         return false;
+    }
+}
+
+void ConfigTaskWidget::resetLimits()
+{
+    // clear bound combo box lists to force repopulation
+    // when we get another connected signal. This means that we get the
+    // correct values in combo boxes bound to fields with limits applied.
+    foreach(WidgetBinding * binding, m_widgetBindingsPerObject) {
+        QComboBox *cb;
+
+        if (binding->widget() && (cb = qobject_cast<QComboBox *>(binding->widget()))) {
+            cb->clear();
+        }
     }
 }
 
@@ -1100,19 +1140,17 @@ QString ConfigTaskWidget::mapObjectName(const QString objectName)
 
 void ConfigTaskWidget::updateEnableControls()
 {
-    TelemetryManager *telMngr = m_pluginManager->getObject<TelemetryManager>();
-
-    Q_ASSERT(telMngr);
-
-    enableControls(telMngr->isConnected());
+    enableControls(isConnected());
 }
 
 void ConfigTaskWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)
 {
     QStringList options = field->getOptions();
 
+    // qDebug() << "buildOptionComboBox" << field << applyLimits << m_currentBoardId;
     for (int optionIndex = 0; optionIndex < options.count(); optionIndex++) {
         if (applyLimits) {
+            // qDebug() << "     " << options.at(optionIndex) << field->isWithinLimits(options.at(optionIndex), index, m_currentBoardId);
             if (m_currentBoardId > -1 && field->isWithinLimits(options.at(optionIndex), index, m_currentBoardId)) {
                 combo->addItem(options.at(optionIndex), QVariant(optionIndex));
             }
@@ -1252,11 +1290,6 @@ QVariant WidgetBinding::value() const
 void WidgetBinding::setValue(const QVariant &value)
 {
     m_value = value;
-    /*
-       if (m_object && m_field) {
-        qDebug() << "WidgetBinding" << m_object->getName() << ":" << m_field->getName() << "value =" << value.toString();
-       }
-     */
 }
 
 void WidgetBinding::updateObjectFieldFromValue()

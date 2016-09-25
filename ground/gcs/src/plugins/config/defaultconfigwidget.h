@@ -1,13 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       DefaultHwSettingsWidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       defaultconfigwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief Placeholder for attitude panel until board is connected.
+ * @brief Placeholder for config widget until board connected.
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -24,22 +24,22 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#include "defaulthwsettingswidget.h"
+#ifndef DEFAULTCONFIGWIDGET_H
+#define DEFAULTCONFIGWIDGET_H
 
-#include "ui_defaulthwsettings.h"
+#include <QWidget>
 
-#include <QMutexLocker>
-#include <QErrorMessage>
-#include <QDebug>
+class Ui_defaultconfig;
 
-DefaultHwSettingsWidget::DefaultHwSettingsWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui_defaulthwsettings)
-{
-    ui->setupUi(this);
-}
+class DefaultConfigWidget : public QWidget {
+    Q_OBJECT
 
-DefaultHwSettingsWidget::~DefaultHwSettingsWidget()
-{
-    delete ui;
-}
+public:
+    explicit DefaultConfigWidget(QWidget *parent, QString title);
+    ~DefaultConfigWidget();
+
+private:
+    Ui_defaultconfig *ui;
+};
+
+#endif // DEFAULTCONFIGWIDGET_H

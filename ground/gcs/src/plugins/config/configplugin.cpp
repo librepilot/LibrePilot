@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       configplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configplugin.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -25,12 +26,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configplugin.h"
+
 #include "configgadgetfactory.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <uavobjects/uavobjectmanager.h>
+
 #include <QtPlugin>
 #include <QStringList>
 #include <QTimer>
-#include <extensionsystem/pluginmanager.h>
-#include "objectpersistence.h"
 
 ConfigPlugin::ConfigPlugin()
 {
@@ -46,7 +50,8 @@ bool ConfigPlugin::initialize(const QStringList & args, QString *errMsg)
 {
     Q_UNUSED(args);
     Q_UNUSED(errMsg);
-    cf = new ConfigGadgetFactory(this);
+
+    ConfigGadgetFactory *cf = new ConfigGadgetFactory(this);
     addAutoReleasedObject(cf);
 
     return true;

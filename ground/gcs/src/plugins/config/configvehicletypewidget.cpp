@@ -31,7 +31,6 @@
 
 #include "configgadgetfactory.h"
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -47,11 +46,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <math.h>
-#include <QDesktopServices>
-#include <QUrl>
 
 /**
    Static function to get currently assigned channelDescriptions
@@ -120,12 +115,14 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     m_aircraft = new Ui_AircraftWidget();
     m_aircraft->setupUi(this);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_aircraft->saveAircraftToRAM->setVisible(false);
-    }
+    // must be done before auto binding !
+    setWikiURL("Vehicle+Configuration");
 
+    addAutoBindings();
+
+    disableMouseWheelEvents();
+
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     ConfigGadgetFactory *configGadgetFactory = pm->getObject<ConfigGadgetFactory>();
     connect(m_aircraft->vehicleSetupWizardButton, SIGNAL(clicked()), configGadgetFactory, SIGNAL(onOpenVehicleConfigurationWizard()));
 
@@ -133,31 +130,22 @@ ConfigVehicleTypeWidget::ConfigVehicleTypeWidget(QWidget *parent) : ConfigTaskWi
     Q_ASSERT(syssettings);
     m_aircraft->nameEdit->setMaxLength(syssettings->VEHICLENAME_NUMELEM);
 
-    addApplySaveButtons(m_aircraft->saveAircraftToRAM, m_aircraft->saveAircraftToSD);
-
     addUAVObject("SystemSettings");
     addUAVObject("MixerSettings");
     addUAVObject("ActuatorSettings");
 
-    // The order of the tabs is important since they correspond with the AirframCategory enum
+    addWidget(m_aircraft->nameEdit);
+
+    // The order of the tabs is important since they correspond with the AirframeCategory enum
     m_aircraft->aircraftType->addTab(tr("Multirotor"));
     m_aircraft->aircraftType->addTab(tr("Fixed Wing"));
     m_aircraft->aircraftType->addTab(tr("Helicopter"));
     m_aircraft->aircraftType->addTab(tr("Ground"));
     m_aircraft->aircraftType->addTab(tr("Custom"));
+    // switchAirframeType(0);
 
     // Connect aircraft type selection dropbox to callback function
     connect(m_aircraft->aircraftType, SIGNAL(currentChanged(int)), this, SLOT(switchAirframeType(int)));
-
-    // Connect the help pushbutton
-    connect(m_aircraft->airframeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    refreshWidgetsValues();
-
-    addWidget(m_aircraft->nameEdit);
-
-    disableMouseWheelEvents();
-    updateEnableControls();
 }
 
 /**
@@ -171,22 +159,21 @@ ConfigVehicleTypeWidget::~ConfigVehicleTypeWidget()
 void ConfigVehicleTypeWidget::switchAirframeType(int index)
 {
     m_aircraft->airframesWidget->setCurrentWidget(getVehicleConfigWidget(index));
+    setDirty(true);
 }
 
 /**
-   Refreshes the current value of the SystemSettings which holds the aircraft type
-   Note: The default behavior of ConfigTaskWidget is bypassed.
-   Therefore no automatic synchronization of UAV Objects to UI is done.
+   Refreshes the current value of the SystemSettings which holds the aircraft type.
+   Note: no widgets are bound so the default behavior of ConfigTaskWidget will not do much.
+   Almost everything is handled here to the exception of one case (see ConfigCustomWidget...)
  */
-void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *object)
+void ConfigVehicleTypeWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(object);
+    Q_UNUSED(obj);
 
     if (!allObjectsUpdated()) {
         return;
     }
-
-    bool dirty = isDirty();
 
     // Get the Airframe type from the system settings:
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
@@ -233,8 +220,6 @@ void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *object)
         }
     }
     m_aircraft->nameEdit->setText(name);
-
-    setDirty(dirty);
 }
 
 /**
@@ -243,11 +228,8 @@ void ConfigVehicleTypeWidget::refreshWidgetsValues(UAVObject *object)
    We do all the tasks common to all airframes, or family of airframes, and
    we call additional methods for specific frames, so that we do not have a code
    that is too heavy.
-
-   Note: The default behavior of ConfigTaskWidget is bypassed.
-   Therefore no automatic synchronization of UI to UAV Objects is done.
  */
-void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
+void ConfigVehicleTypeWidget::updateObjectsFromWidgetsImpl()
 {
     // Airframe type defaults to Custom
     QString airframeType = "Custom";
@@ -262,7 +244,7 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
     Q_ASSERT(system);
 
-    QPointer<UAVObjectField> field = system->getField(QString("AirframeType"));
+    UAVObjectField *field = system->getField(QString("AirframeType"));
     if (field) {
         field->setValue(airframeType);
     }
@@ -279,8 +261,8 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgets()
     }
 
     // call refreshWidgetsValues() to reflect actual saved values
+    // TODO is this needed ?
     refreshWidgetsValues();
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 int ConfigVehicleTypeWidget::frameCategory(QString frameType)
@@ -311,46 +293,52 @@ int ConfigVehicleTypeWidget::frameCategory(QString frameType)
 
 VehicleConfig *ConfigVehicleTypeWidget::getVehicleConfigWidget(int frameCategory)
 {
-    VehicleConfig *vehiculeConfig;
+    VehicleConfig *vehicleConfig;
 
     if (!m_vehicleIndexMap.contains(frameCategory)) {
         // create config widget
-        vehiculeConfig = createVehicleConfigWidget(frameCategory);
-        // bind config widget "field" to this ConfigTaskWodget
-        // this is necessary to get "dirty" state management
-        vehiculeConfig->registerWidgets(*this);
+        vehicleConfig = createVehicleConfigWidget(frameCategory);
 
         // add config widget to UI
-        int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehiculeConfig);
+        int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehicleConfig);
         m_vehicleIndexMap[frameCategory] = index;
+
+        // and enable controls (needed?)
         updateEnableControls();
     }
     int index = m_vehicleIndexMap.value(frameCategory);
-    vehiculeConfig = (VehicleConfig *)m_aircraft->airframesWidget->widget(index);
-    return vehiculeConfig;
+    vehicleConfig = (VehicleConfig *)m_aircraft->airframesWidget->widget(index);
+    return vehicleConfig;
 }
 
 VehicleConfig *ConfigVehicleTypeWidget::createVehicleConfigWidget(int frameCategory)
 {
-    if (frameCategory == ConfigVehicleTypeWidget::FIXED_WING) {
-        return new ConfigFixedWingWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::MULTIROTOR) {
-        return new ConfigMultiRotorWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::HELICOPTER) {
-        return new ConfigCcpmWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::GROUND) {
-        return new ConfigGroundVehicleWidget();
-    } else if (frameCategory == ConfigVehicleTypeWidget::CUSTOM) {
-        return new ConfigCustomWidget();
-    }
-    return NULL;
-}
+    VehicleConfig *vehicleConfig;
 
-/**
-   Opens the wiki from the user's default browser
- */
-void ConfigVehicleTypeWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Vehicle+Configuration"),
-                                   QUrl::StrictMode));
+    switch (frameCategory) {
+    case ConfigVehicleTypeWidget::FIXED_WING:
+        vehicleConfig = new ConfigFixedWingWidget();
+        break;
+    case ConfigVehicleTypeWidget::MULTIROTOR:
+        vehicleConfig = new ConfigMultiRotorWidget();
+        break;
+    case ConfigVehicleTypeWidget::HELICOPTER:
+        vehicleConfig = new ConfigCcpmWidget();
+        break;
+    case ConfigVehicleTypeWidget::GROUND:
+        vehicleConfig = new ConfigGroundVehicleWidget();
+        break;
+    case ConfigVehicleTypeWidget::CUSTOM:
+        vehicleConfig = new ConfigCustomWidget();
+        break;
+    default:
+        vehicleConfig = NULL;
+        break;
+    }
+    if (vehicleConfig) {
+        // bind config widget "field" to this ConfigTaskWodget
+        // this is necessary to get "dirty" state management
+        vehicleConfig->registerWidgets(*this);
+    }
+    return vehicleConfig;
 }

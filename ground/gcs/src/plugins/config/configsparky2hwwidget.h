@@ -43,21 +43,20 @@ public:
     ConfigSparky2HWWidget(QWidget *parent = 0);
     ~ConfigSparky2HWWidget();
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
 private:
     Ui_Sparky2HWWidget *m_ui;
-    bool m_refreshing;
-    void setupCustomCombos();
 
-protected slots:
-    void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
+    void setupCustomCombos();
 
 private slots:
     void usbVCPPortChanged(int index);
     void usbHIDPortChanged(int index);
     void flexiPortChanged(int index);
     void mainPortChanged(int index);
-    void openHelp();
 };
 
 #endif // CONFIGSPARKY2HWWIDGET_H

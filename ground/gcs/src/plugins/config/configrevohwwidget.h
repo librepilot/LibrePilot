@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configrevohwwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -42,14 +43,14 @@ public:
     ConfigRevoHWWidget(QWidget *parent = 0);
     ~ConfigRevoHWWidget();
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
 private:
     Ui_RevoHWWidget *m_ui;
-    bool m_refreshing;
-    void setupCustomCombos();
 
-protected slots:
-    void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
+    void setupCustomCombos();
 
 private slots:
     void usbVCPPortChanged(int index);
@@ -57,7 +58,6 @@ private slots:
     void flexiPortChanged(int index);
     void mainPortChanged(int index);
     void rcvrPortChanged(int index);
-    void openHelp();
 };
 
 #endif // CONFIGREVOHWWIDGET_H

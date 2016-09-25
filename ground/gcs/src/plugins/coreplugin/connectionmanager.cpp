@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       connectionmanager.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -71,9 +72,11 @@ ConnectionManager::ConnectionManager(Internal::MainWindow *mainWindow) :
     QObject::connect(m_availableDevList, SIGNAL(currentIndexChanged(int)), this, SLOT(onDeviceSelectionChanged(int)));
 
     // setup our reconnect timers
+    // TODO these are never started because telemetryConnected is not called anymore
     reconnect = new QTimer(this);
-    reconnectCheck = new QTimer(this);
     connect(reconnect, SIGNAL(timeout()), this, SLOT(reconnectSlot()));
+
+    reconnectCheck = new QTimer(this);
     connect(reconnectCheck, SIGNAL(timeout()), this, SLOT(reconnectCheckSlot()));
 }
 
@@ -90,7 +93,6 @@ void ConnectionManager::init()
     QObject::connect(ExtensionSystem::PluginManager::instance(), SIGNAL(objectAdded(QObject *)), this, SLOT(objectAdded(QObject *)));
     QObject::connect(ExtensionSystem::PluginManager::instance(), SIGNAL(aboutToRemoveObject(QObject *)), this, SLOT(aboutToRemoveObject(QObject *)));
 }
-
 
 // TODO needs documentation?
 void ConnectionManager::addWidget(QWidget *widget)
@@ -271,7 +273,7 @@ void ConnectionManager::onConnectClicked()
  */
 void ConnectionManager::telemetryConnected()
 {
-    qDebug() << "TelemetryMonitor: connected";
+    qDebug() << "ConnectionManager::telemetryConnected";
 
     if (reconnectCheck->isActive()) {
         reconnectCheck->stop();
@@ -283,7 +285,7 @@ void ConnectionManager::telemetryConnected()
  */
 void ConnectionManager::telemetryDisconnected()
 {
-    qDebug() << "TelemetryMonitor: disconnected";
+    qDebug() << "ConnectionManager::telemetryDisconnected";
 
     if (m_ioDev) {
         if (m_connectionDevice.connection->shortName() == "Serial") {
@@ -296,17 +298,18 @@ void ConnectionManager::telemetryDisconnected()
 
 void ConnectionManager::reconnectSlot()
 {
-    qDebug() << "reconnect";
+    qDebug() << "ConnectionManager::reconnectSlot";
+
     if (m_ioDev->isOpen()) {
         m_ioDev->close();
     }
 
     if (m_ioDev->open(QIODevice::ReadWrite)) {
-        qDebug() << "reconnect successfull";
+        qDebug() << "ConnectionManager::reconnectSlot - reconnect successful";
         reconnect->stop();
         reconnectCheck->start(20000);
     } else {
-        qDebug() << "reconnect NOT successfull";
+        qDebug() << "ConnectionManager::reconnectSlot - reconnect NOT successful";
     }
 }
 
@@ -327,7 +330,7 @@ DevListItem ConnectionManager::findDevice(const QString &devName)
         }
     }
 
-    qDebug() << "findDevice: cannot find " << devName << " in device list";
+    qWarning() << "ConnectionManager::findDevice - cannot find " << devName << " in device list";
 
     DevListItem d;
     d.connection = NULL;

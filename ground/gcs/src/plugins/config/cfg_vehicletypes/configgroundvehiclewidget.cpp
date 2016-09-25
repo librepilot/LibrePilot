@@ -73,8 +73,9 @@ QStringList ConfigGroundVehicleWidget::getChannelDescriptions()
 }
 
 ConfigGroundVehicleWidget::ConfigGroundVehicleWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_GroundConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_GroundConfigWidget();
     m_aircraft->setupUi(this);
 
     populateChannelComboBoxes();

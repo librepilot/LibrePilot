@@ -136,8 +136,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>877</width>
-            <height>764</height>
+            <width>863</width>
+            <height>821</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -7932,8 +7932,8 @@ border-radius: 5;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>877</width>
-            <height>765</height>
+            <width>776</width>
+            <height>706</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_29">
@@ -17354,8 +17354,8 @@ border-radius: 5;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>877</width>
-            <height>671</height>
+            <width>797</width>
+            <height>604</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,0,0,0,0,0">
@@ -23200,8 +23200,8 @@ font:bold;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>877</width>
-            <height>671</height>
+            <width>500</width>
+            <height>600</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -26214,7 +26214,7 @@ border-radius: 5;</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_23">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -26263,7 +26263,7 @@ border-radius: 5;</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="stabilizationReloadBoardData_6">
+      <widget class="QPushButton" name="reloadButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -26307,7 +26307,7 @@ Useful if you have accidentally changed some settings.</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="saveStabilizationToRAM_6">
+      <widget class="QPushButton" name="applyButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -26343,7 +26343,7 @@ Useful if you have accidentally changed some settings.</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="saveStabilizationToSD_6">
+      <widget class="QPushButton" name="saveButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -26520,10 +26520,10 @@ Useful if you have accidentally changed some settings.</string>
   <tabstop>AltThrRateSlider_2</tabstop>
   <tabstop>AltThrRate_2</tabstop>
   <tabstop>realTimeUpdates_7</tabstop>
-  <tabstop>pushButton_23</tabstop>
-  <tabstop>stabilizationReloadBoardData_6</tabstop>
-  <tabstop>saveStabilizationToRAM_6</tabstop>
-  <tabstop>saveStabilizationToSD_6</tabstop>
+  <tabstop>helpButton</tabstop>
+  <tabstop>reloadButton</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>saveButton</tabstop>
   <tabstop>checkBoxLinkAcroFactors</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>AttitudeResponsivenessSlider</tabstop>

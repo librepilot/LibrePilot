@@ -1,14 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       configtelemetrywidget.h
+ * @file       config_cc_hw_widget.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief The Configuration Gadget used to update settings in the firmware
+ * @brief The Configuration Gadget used to update hardware settings in the firmware
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -31,34 +31,28 @@
 #include "ui_cc_hw_settings.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
+#include <uavobjectutilmanager.h>
 
 #include "hwsettings.h"
 
 #include <QDebug>
 #include <QStringList>
 #include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
+#include <QSvgRenderer>
 
 ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_telemetry = new Ui_CC_HW_Widget();
     m_telemetry->setupUi(this);
 
+    // must be done before auto binding !
+    setWikiURL("CC+Hardware+Configuration");
+
+    addAutoBindings();
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_telemetry->saveTelemetryToRAM->setVisible(false);
-    }
-
-
-    UAVObjectUtilManager *utilMngr = pm->getObject<UAVObjectUtilManager>();
+    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
     int id = utilMngr->getBoardModel();
-
     switch (id) {
     case 0x0101:
         m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0101.svg"));
@@ -79,7 +73,7 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
         m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
         break;
     }
-    addApplySaveButtons(m_telemetry->saveTelemetryToRAM, m_telemetry->saveTelemetryToSD);
+
     addWidgetBinding("HwSettings", "CC_FlexiPort", m_telemetry->cbFlexi);
     addWidgetBinding("HwSettings", "CC_MainPort", m_telemetry->cbTele);
     addWidgetBinding("HwSettings", "CC_RcvrPort", m_telemetry->cbRcvr);
@@ -90,20 +84,13 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
     // Add Gps protocol configuration
 
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
 
-    if (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_GPS] != HwSettings::OPTIONALMODULES_ENABLED) {
+    if (hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_GPS) != HwSettings::OPTIONALMODULES_ENABLED) {
         m_telemetry->gpsProtocol->setEnabled(false);
         m_telemetry->gpsProtocol->setToolTip(tr("Enable GPS module and reboot the board to be able to select GPS protocol"));
     } else {
         addWidgetBinding("GPSSettings", "DataProtocol", m_telemetry->gpsProtocol);
     }
-
-    connect(m_telemetry->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-    enableSaveButtons(false);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
 }
 
 ConfigCCHWWidget::~ConfigCCHWWidget()
@@ -146,17 +133,6 @@ void ConfigCCHWWidget::widgetsContentsChanged()
 
 void ConfigCCHWWidget::enableSaveButtons(bool enable)
 {
-    m_telemetry->saveTelemetryToRAM->setEnabled(enable);
-    m_telemetry->saveTelemetryToSD->setEnabled(enable);
+    m_telemetry->applyButton->setEnabled(enable);
+    m_telemetry->saveButton->setEnabled(enable);
 }
-
-void ConfigCCHWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("CC+Hardware+Configuration"),
-                                   QUrl::StrictMode));
-}
-
-/**
- * @}
- * @}
- */

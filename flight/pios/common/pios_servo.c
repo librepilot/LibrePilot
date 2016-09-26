@@ -72,7 +72,7 @@ extern void PIOS_Servo_Disable()
 
         GPIO_InitTypeDef init = chan->pin.init;
 
-#if defined(STM32F40_41xxx) || defined(STM32F446xx)
+#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
         init.GPIO_Mode = GPIO_Mode_OUT;
 #elif defined(STM32F10X_MD)
         init.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -262,7 +262,7 @@ void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t ban
             } else {
                 apb_clock = PIOS_PERIPHERAL_APB1_CLOCK;
             }
-#elif defined(STM32F40_41xxx) || defined(STM32F446xx)
+#elif defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
             if (timer == TIM1 || timer == TIM8 || timer == TIM9 || timer == TIM10 || timer == TIM11) {
                 apb_clock = PIOS_PERIPHERAL_APB2_CLOCK;
             } else {

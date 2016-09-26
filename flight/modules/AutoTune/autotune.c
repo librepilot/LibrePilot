@@ -948,8 +948,26 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     // inner loop as a single order lpf. Set the outer loop to be
     // critically damped;
     const float zeta_o = 1.3f;
-    const float kp_o   = 1.0f / 4.0f / (zeta_o * zeta_o) / (1.0f / wn);
-    const float ki_o   = 0.75f * kp_o / (2.0f * M_PI_F * tau * 10.0f);
+    float kp_o = 1.0f / 4.0f / (zeta_o * zeta_o) / (1.0f / wn);
+
+    // Except, if this is very high, we may be slew rate limited and pick
+    // up oscillation that way.  Fix it with very soft clamping.
+    // (dRonin) MaximumRate defaults to 350, 6.5 corresponds to where we begin
+    // clamping rate ourselves.  ESCs, etc, it depends upon gains
+    // and any pre-emphasis they do.   Still give ourselves partial credit
+    // for inner loop bandwidth.
+
+    // In dRonin, MaximumRate defaults to 350 and they begin clamping at outer Kp 6.5
+    // To avoid oscillation, find the minimum rate, calculate the ratio of that to 350,
+    // and scale (linearly) with that.  Skip yaw.  There is no outer yaw in the GUI.
+    const uint16_t minRate = MIN(stabSettingsBank.MaximumRate.Roll, stabSettingsBank.MaximumRate.Pitch);
+    const float kp_o_clamp = systemIdentSettings.OuterLoopKpSoftClamp * ((float)minRate / 350.0f);
+    if (kp_o > kp_o_clamp) {
+        kp_o = kp_o_clamp - sqrtf(kp_o_clamp) + sqrtf(kp_o);
+    }
+    kp_o *= 0.95f; // Pick up some margin.
+    // Add a zero at 1/15th the innermost bandwidth.
+    const float ki_o = 0.75f * kp_o / (2.0f * M_PI_F * tau * 15.0f);
 
     float kpMax = 0.0f;
     float betaMinLn  = 1000.0f;

@@ -2696,7 +2696,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location/>
         <source>type filter text</source>
-        <translation>tapez le mot à rechercher</translation>
+        <translation>entrez le mot à rechercher</translation>
     </message>
     <message>
         <location/>
@@ -5623,7 +5623,7 @@ accéléromètres dans la mémoire Flash de la carte.</translation>
     <message>
         <location/>
         <source>If enabled, this option prevents gyro initialization while the board is moving.</source>
-        <translation>Si activé, cette option empêche l&apos;initialisation des gyros lorsque la carte bouge.</translation>
+        <translation>Si activé, cette option empêche l&apos;initialisation des gyros lorsque la carte est en mouvement.</translation>
     </message>
     <message>
         <location/>
@@ -5786,13 +5786,12 @@ du canal de sortie pour chaque mode de vol.</translation>
     <message>
         <location/>
         <source>Indicate the control used for arming the airframe, in addition to setting the throttle to its minimum position. In other terms &quot;Throttle Off&quot;.</source>
-        <translation>Indique la combinaison utilisée pour armer l&apos;appareil en plus de 
-placer les gaz au minimum. Autrement dit, manche des gaz à zéro.</translation>
+        <translation>Indique la combinaison utilisée pour armer l&apos;appareil en plus de placer les gaz au minimum. Autrement dit, manche des gaz à zéro.</translation>
     </message>
     <message>
         <location/>
         <source>Arming timeout:</source>
-        <translation>Temps de latence d&apos;armement :</translation>
+        <translation>Délai d&apos;expiration de l&apos;armement :</translation>
     </message>
     <message>
         <location/>
@@ -6898,7 +6897,7 @@ la carte est armée. Dans ce cas ne bougez pas l&apos;appareil lors de l&apos;ar
     <message>
         <location/>
         <source>If enabled, this option prevents gyro initialization while the board is moving.</source>
-        <translation>Si activé, cette option empêche l&apos;initialisation des gyros lorsque la carte bouge.</translation>
+        <translation>Si activé, cette option empêche l&apos;initialisation des gyros lorsque la carte est en mouvement.</translation>
     </message>
     <message>
         <location/>

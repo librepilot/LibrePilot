@@ -6,7 +6,8 @@
  * @{
  *
  * @file       pios_servo.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      RC Servo functions header.
  * @see        The GNU Public License (GPL) Version 3
  *

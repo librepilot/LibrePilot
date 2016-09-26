@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       pios_board.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Defines PiOS board hardware for the OpenPilot OPLink Mini board.
  * @see        The GNU Public License (GPL) Version 3
  *

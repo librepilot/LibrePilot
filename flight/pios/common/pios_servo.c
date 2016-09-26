@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_servo.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      RC Servo routines (STM32 dependent)
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -327,7 +328,7 @@ uint8_t PIOS_Servo_GetPinBank(uint8_t pin)
     }
 }
 
-const struct pios_servo_cfg *PIOS_Servo_Config()
+const struct pios_servo_cfg *PIOS_Servo_GetConfig()
 {
     return servo_cfg;
 }

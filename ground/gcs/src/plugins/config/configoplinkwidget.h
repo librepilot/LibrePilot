@@ -46,6 +46,10 @@ protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 private:
+    // Frequency display settings
+    float frequency_base;
+    float frequency_step;
+
     Ui_OPLinkWidget *m_oplink;
 
     OPLinkStatus *oplinkStatusObj;
@@ -68,7 +72,9 @@ private slots:
 
     void minChannelChanged();
     void maxChannelChanged();
+    void rfBandChanged();
     void channelChanged(bool isMax);
+    void updateFrequencyDisplay();
 
     void mainPortChanged();
     void flexiPortChanged();

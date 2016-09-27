@@ -41,7 +41,6 @@
 // Channel range and Frequency display
 static const int MAX_CHANNEL_NUM   = 250;
 static const int MIN_CHANNEL_RANGE = 10;
-static const float FIRST_FREQUENCY = 430.000;
 static const float FREQUENCY_STEP  = 0.040;
 
 ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(parent, false), statusUpdated(false)
@@ -76,6 +75,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "LinkType", m_oplink->LinkType);
     addWidgetBinding("OPLinkSettings", "CoordID", m_oplink->CoordID);
     addWidgetBinding("OPLinkSettings", "CustomDeviceID", m_oplink->CustomDeviceID);
+    addWidgetBinding("OPLinkSettings", "RFBand", m_oplink->RFBand);
     addWidgetBinding("OPLinkSettings", "MinChannel", m_oplink->MinimumChannel);
     addWidgetBinding("OPLinkSettings", "MaxChannel", m_oplink->MaximumChannel);
     addWidgetBinding("OPLinkSettings", "MaxRFPower", m_oplink->MaxRFTxPower);
@@ -111,6 +111,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     // Connect the selection changed signals.
     connect(m_oplink->Protocol, SIGNAL(currentIndexChanged(int)), this, SLOT(protocolChanged()));
     connect(m_oplink->LinkType, SIGNAL(currentIndexChanged(int)), this, SLOT(linkTypeChanged()));
+    connect(m_oplink->RFBand, SIGNAL(currentIndexChanged(int)), this, SLOT(rfBandChanged()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
     connect(m_oplink->MainPort, SIGNAL(currentIndexChanged(int)), this, SLOT(mainPortChanged()));
@@ -256,6 +257,7 @@ void ConfigOPLinkWidget::updateSettings()
     m_oplink->UnbindButton->setEnabled(is_enabled && is_bound && !is_coordinator);
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);
 
+    m_oplink->RFBand->setEnabled(is_receiver || is_coordinator);
     m_oplink->MinimumChannel->setEnabled(is_receiver || is_coordinator);
     m_oplink->MaximumChannel->setEnabled(is_receiver || is_coordinator);
 
@@ -289,6 +291,27 @@ void ConfigOPLinkWidget::maxChannelChanged()
     channelChanged(true);
 }
 
+void ConfigOPLinkWidget::rfBandChanged()
+{
+    switch (getComboboxSelectedOption(m_oplink->RFBand)) {
+    case OPLinkSettings::RFBAND_915MHZ:
+        frequency_base = 900.0f;
+        frequency_step = FREQUENCY_STEP * 2.0f;
+        break;
+    case OPLinkSettings::RFBAND_868MHZ:
+        frequency_base = 860.0f;
+        frequency_step = FREQUENCY_STEP * 2.0f;
+        break;
+    case OPLinkSettings::RFBAND_433MHZ:
+        frequency_base = 430.0f;
+        frequency_step = FREQUENCY_STEP;
+        break;
+    }
+
+    // Update frequency display according to the RF band change
+    updateFrequencyDisplay();
+}
+
 void ConfigOPLinkWidget::channelChanged(bool isMax)
 {
     int minChannel = m_oplink->MinimumChannel->value();
@@ -315,9 +338,14 @@ void ConfigOPLinkWidget::channelChanged(bool isMax)
     m_oplink->MaximumChannel->setValue(maxChannel);
     m_oplink->MinimumChannel->setValue(minChannel);
 
+    updateFrequencyDisplay();
+}
+
+void ConfigOPLinkWidget::updateFrequencyDisplay()
+{
     // Calculate and Display frequency in MHz
-    float minFrequency = FIRST_FREQUENCY + (minChannel * FREQUENCY_STEP);
-    float maxFrequency = FIRST_FREQUENCY + (maxChannel * FREQUENCY_STEP);
+    float minFrequency = frequency_base + (m_oplink->MinimumChannel->value() * frequency_step);
+    float maxFrequency = frequency_base + (m_oplink->MaximumChannel->value() * frequency_step);
 
     m_oplink->MinFreq->setText("(" + QString::number(minFrequency, 'f', 3) + " MHz)");
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");

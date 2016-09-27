@@ -283,6 +283,9 @@ struct pios_rfm22b_dev {
     // Are we sending / receiving only PPM data?
     bool         ppm_only_mode;
 
+    // The base freq in Hertz
+    uint32_t     base_freq;
+
     // The channel list
     uint8_t      channels[RFM22B_NUM_CHANNELS];
     // The number of frequency hopping channels.

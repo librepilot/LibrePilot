@@ -101,7 +101,7 @@ struct rfm22b_stats {
 };
 
 /* Public Functions */
-extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg);
+extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg, OPLinkSettingsRFBandOptions band);
 extern void PIOS_RFM22B_Reinit(uint32_t rfb22b_id);
 extern void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr);
 extern void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool ppm_mode, bool ppm_only);

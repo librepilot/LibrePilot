@@ -95,6 +95,15 @@ extern void PIOS_Servo_Enable()
         const struct pios_tim_channel *chan = &servo_cfg->channels[i];
 
         GPIO_Init(chan->pin.gpio, &chan->pin.init);
+#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
+        GPIO_PinAFConfig(chan->pin.gpio, chan->pin.pin_source, chan->remap);
+#elif defined(STM32F10X_MD)
+        if (chan->remap) {
+            GPIO_PinRemapConfig(chan->remap, ENABLE);
+        }
+#else
+#error Unsupported MCU
+#endif
 
         /* Set up for output compare function */
         switch (chan->timer_chan) {

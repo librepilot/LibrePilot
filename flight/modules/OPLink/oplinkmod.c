@@ -138,11 +138,6 @@ static void systemTask(__attribute__((unused)) void *parameters)
 
     // Main system loop
     while (1) {
-        // Flash the heartbeat LED
-#if defined(PIOS_LED_HEARTBEAT)
-        PIOS_LED_Toggle(PIOS_LED_HEARTBEAT);
-#endif /* PIOS_LED_HEARTBEAT */
-
         // Update the OPLinkStatus UAVO
         OPLinkStatusData oplinkStatus;
         OPLinkStatusGet(&oplinkStatus);
@@ -192,10 +187,11 @@ static void systemTask(__attribute__((unused)) void *parameters)
             oplinkStatus.LinkState = radio_stats.link_state;
         }
 
+        // Turn on the link/heartbeat ID if we're connected, otherwise flash it.
         if (radio_stats.link_state == OPLINKSTATUS_LINKSTATE_CONNECTED) {
             LINK_LED_ON;
         } else {
-            LINK_LED_OFF;
+            LINK_LED_TOGGLE;
         }
 
         // Update the object

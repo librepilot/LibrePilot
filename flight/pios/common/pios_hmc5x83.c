@@ -539,6 +539,9 @@ int32_t PIOS_HMC5x83_Test(pios_hmc5x83_dev_t handler)
  */
 bool PIOS_HMC5x83_IRQHandler(pios_hmc5x83_dev_t handler)
 {
+    if (!handler) { // handler is not set on first call
+        return false;
+    }
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
 
     dev->data_ready = true;

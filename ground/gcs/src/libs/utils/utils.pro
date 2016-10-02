@@ -29,6 +29,7 @@ SOURCES += \
     detailswidget.cpp \
     coordinateconversions.cpp \
     pathutils.cpp \
+    settingsutils.cpp \
     worldmagmodel.cpp \
     homelocationutil.cpp \
     mytabbedstackwidget.cpp \
@@ -74,6 +75,7 @@ HEADERS += \
     detailswidget.h \
     coordinateconversions.h \
     pathutils.h \
+    settingsutils.h \
     worldmagmodel.h \
     homelocationutil.h \
     mytabbedstackwidget.h \

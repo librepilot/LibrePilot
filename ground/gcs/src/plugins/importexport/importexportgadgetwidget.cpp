@@ -125,8 +125,7 @@ void ImportExportGadgetWidget::exportConfiguration(const QString & fileName)
     bool doAllGadgets = ui->checkBoxAllGadgets->isChecked();
     bool doPlugins    = ui->checkBoxPlugins->isChecked();
 
-    QSettings::Format format = XmlConfig::XmlSettingsFormat;
-    QSettings qs(fileName, format);
+    QSettings qs(fileName, XmlConfig::XmlFormat);
 
     if (doGeneral) {
         Core::ICore::instance()->saveMainSettings(&qs);
@@ -184,7 +183,7 @@ void ImportExportGadgetWidget::importConfiguration(const QString & fileName)
     bool doAllGadgets = ui->checkBoxAllGadgets->isChecked();
     bool doPlugins    = ui->checkBoxPlugins->isChecked();
 
-    QSettings qs(fileName, XmlConfig::XmlSettingsFormat);
+    QSettings qs(fileName, XmlConfig::XmlFormat);
 
     if (doAllGadgets) {
         Core::ICore::instance()->uavGadgetInstanceManager()->readSettings(&qs);

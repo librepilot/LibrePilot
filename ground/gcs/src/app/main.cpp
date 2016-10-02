@@ -392,7 +392,7 @@ void loadFactoryDefaults(QSettings &settings, AppOptionValues &appOptionValues)
     }
 
     // create settings from file
-    QSettings qs(fileName, XmlConfig::XmlSettingsFormat);
+    QSettings qs(fileName, XmlConfig::XmlFormat);
 
     // transfer loaded settings to application settings
     QStringList keys = qs.allKeys();
@@ -454,7 +454,7 @@ int runApplication(int argc, char * *argv)
 
     QCoreApplication::setApplicationName(APP_NAME);
     QCoreApplication::setOrganizationName(ORG_NAME);
-    QSettings::setDefaultFormat(XmlConfig::XmlSettingsFormat);
+    QSettings::setDefaultFormat(XmlConfig::XmlFormat);
 
     // initialize the plugin manager
     ExtensionSystem::PluginManager pluginManager;
@@ -485,7 +485,7 @@ int runApplication(int argc, char * *argv)
     // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
     QString settingsPath = Utils::GetDataPath();
     qDebug() << "Loading system settings from" << settingsPath;
-    QSettings::setPath(XmlConfig::XmlSettingsFormat, QSettings::SystemScope, settingsPath);
+    QSettings::setPath(XmlConfig::XmlFormat, QSettings::SystemScope, settingsPath);
     QSettings settings;
     qDebug() << "Loading user settings from" << settings.fileName();
 

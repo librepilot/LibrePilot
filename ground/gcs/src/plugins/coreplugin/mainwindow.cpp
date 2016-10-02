@@ -104,7 +104,7 @@ MainWindow::MainWindow() :
     m_additionalContexts(m_globalContext),
     // keep this in sync with main() in app/main.cpp
     m_settings(new QSettings(this)),
-    m_globalSettings(new QSettings(XmlConfig::XmlSettingsFormat, QSettings::SystemScope,
+    m_globalSettings(new QSettings(XmlConfig::XmlFormat, QSettings::SystemScope,
                                    m_settings->organizationName(), m_settings->applicationName(), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
                                             QFileInfo(m_settings->fileName()).baseName(),

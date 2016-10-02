@@ -173,14 +173,14 @@ void ConfigGadgetWidget::startInputWizard()
     inputWidget->startInputWizard();
 }
 
-void ConfigGadgetWidget::saveState(QSettings *settings)
+void ConfigGadgetWidget::saveState(QSettings &settings)
 {
-    settings->setValue("currentIndex", stackWidget->currentIndex());
+    settings.setValue("currentIndex", stackWidget->currentIndex());
 }
 
-void ConfigGadgetWidget::restoreState(QSettings *settings)
+void ConfigGadgetWidget::restoreState(QSettings &settings)
 {
-    int index = settings->value("currentIndex", 0).toInt();
+    int index = settings.value("currentIndex", 0).toInt();
 
     stackWidget->setCurrentIndex(index);
 }

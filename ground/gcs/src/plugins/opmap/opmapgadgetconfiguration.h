@@ -29,7 +29,8 @@
 #define OPMAP_GADGETCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
-#include <QtCore/QString>
+
+#include <QString>
 
 using namespace Core;
 
@@ -50,10 +51,13 @@ class OPMapGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_PROPERTY(qreal defaultWaypointVelocity READ defaultWaypointVelocity WRITE setDefaultWaypointVelocity)
 
 public:
-    explicit OPMapGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit OPMapGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit OPMapGadgetConfiguration(const OPMapGadgetConfiguration &obj);
 
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
+
+    void save() const;
 
     QString mapProvider() const
     {
@@ -114,7 +118,6 @@ public:
         return m_defaultWaypointVelocity;
     }
 
-    void save() const;
 public slots:
     void setMapProvider(QString provider)
     {
@@ -184,7 +187,6 @@ private:
     QString m_cacheLocation;
     QString m_uavSymbol;
     int m_maxUpdateRate;
-    QSettings *m_settings;
     qreal m_opacity;
     qreal m_defaultWaypointAltitude;
     qreal m_defaultWaypointVelocity;

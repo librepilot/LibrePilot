@@ -27,64 +27,55 @@
 
 #include "uavobjectbrowserconfiguration.h"
 
-UAVObjectBrowserConfiguration::UAVObjectBrowserConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    m_unknownObjectColor(QColor(Qt::gray)),
-    m_recentlyUpdatedColor(QColor(255, 230, 230)),
-    m_manuallyChangedColor(QColor(230, 230, 255)),
-    m_onlyHilightChangedValues(false),
-    m_recentlyUpdatedTimeout(500),
-    m_useCategorizedView(false),
-    m_useScientificView(false),
-    m_showMetaData(false),
-    m_showDescription(false)
+UAVObjectBrowserConfiguration::UAVObjectBrowserConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        m_unknownObjectColor       = qSettings->value("unknownObjectColor", QVariant(QColor(Qt::gray))).value<QColor>();
-        m_useCategorizedView       = qSettings->value("CategorizedView").toBool();
-        m_useScientificView        = qSettings->value("ScientificView").toBool();
-        m_showMetaData = qSettings->value("showMetaData").toBool();
-        m_showDescription          = qSettings->value("showDescription").toBool();
-        m_splitterState = qSettings->value("splitterState").toByteArray();
-        m_recentlyUpdatedColor     = qSettings->value("recentlyUpdatedColor").value<QColor>();
-        m_manuallyChangedColor     = qSettings->value("manuallyChangedColor").value<QColor>();
-        m_recentlyUpdatedTimeout   = qSettings->value("recentlyUpdatedTimeout").toInt();
-        m_onlyHilightChangedValues = qSettings->value("onlyHilightChangedValues").toBool();
-    }
+    m_unknownObjectColor       = settings.value("unknownObjectColor", QColor(Qt::gray)).value<QColor>();
+    m_useCategorizedView       = settings.value("CategorizedView", false).toBool();
+    m_useScientificView        = settings.value("ScientificView", false).toBool();
+    m_showMetaData = settings.value("showMetaData", false).toBool();
+    m_showDescription          = settings.value("showDescription", false).toBool();
+    m_splitterState = settings.value("splitterState").toByteArray();
+    m_recentlyUpdatedColor     = settings.value("recentlyUpdatedColor", QColor(255, 230, 230)).value<QColor>();
+    m_manuallyChangedColor     = settings.value("manuallyChangedColor", QColor(230, 230, 255)).value<QColor>();
+    m_recentlyUpdatedTimeout   = settings.value("recentlyUpdatedTimeout", 500).toInt();
+    m_onlyHilightChangedValues = settings.value("onlyHilightChangedValues", false).toBool();
 }
 
-IUAVGadgetConfiguration *UAVObjectBrowserConfiguration::clone()
+UAVObjectBrowserConfiguration::UAVObjectBrowserConfiguration(const UAVObjectBrowserConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
 {
-    UAVObjectBrowserConfiguration *m = new UAVObjectBrowserConfiguration(this->classId());
+    m_recentlyUpdatedColor     = obj.m_recentlyUpdatedColor;
+    m_manuallyChangedColor     = obj.m_manuallyChangedColor;
+    m_recentlyUpdatedTimeout   = obj.m_recentlyUpdatedTimeout;
+    m_onlyHilightChangedValues = obj.m_onlyHilightChangedValues;
+    m_useCategorizedView = obj.m_useCategorizedView;
+    m_useScientificView  = obj.m_useScientificView;
+    m_splitterState = obj.m_splitterState;
+    m_showMetaData = obj.m_showMetaData;
+    m_unknownObjectColor = obj.m_unknownObjectColor;
+    m_showDescription    = obj.m_showDescription;
+}
 
-    m->m_recentlyUpdatedColor     = m_recentlyUpdatedColor;
-    m->m_manuallyChangedColor     = m_manuallyChangedColor;
-    m->m_recentlyUpdatedTimeout   = m_recentlyUpdatedTimeout;
-    m->m_onlyHilightChangedValues = m_onlyHilightChangedValues;
-    m->m_useCategorizedView = m_useCategorizedView;
-    m->m_useScientificView  = m_useScientificView;
-    m->m_splitterState = m_splitterState;
-    m->m_showMetaData = m_showMetaData;
-    m->m_unknownObjectColor = m_unknownObjectColor;
-    m->m_showDescription    = m_showDescription;
-    return m;
+IUAVGadgetConfiguration *UAVObjectBrowserConfiguration::clone() const
+{
+    return new UAVObjectBrowserConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void UAVObjectBrowserConfiguration::saveConfig(QSettings *qSettings) const
+void UAVObjectBrowserConfiguration::saveConfig(QSettings &settings) const
 {
-    qSettings->setValue("unknownObjectColor", m_unknownObjectColor);
-    qSettings->setValue("recentlyUpdatedColor", m_recentlyUpdatedColor);
-    qSettings->setValue("manuallyChangedColor", m_manuallyChangedColor);
-    qSettings->setValue("recentlyUpdatedTimeout", m_recentlyUpdatedTimeout);
-    qSettings->setValue("onlyHilightChangedValues", m_onlyHilightChangedValues);
-    qSettings->setValue("CategorizedView", m_useCategorizedView);
-    qSettings->setValue("ScientificView", m_useScientificView);
-    qSettings->setValue("showMetaData", m_showMetaData);
-    qSettings->setValue("showDescription", m_showDescription);
-    qSettings->setValue("splitterState", m_splitterState);
+    settings.setValue("unknownObjectColor", m_unknownObjectColor);
+    settings.setValue("recentlyUpdatedColor", m_recentlyUpdatedColor);
+    settings.setValue("manuallyChangedColor", m_manuallyChangedColor);
+    settings.setValue("recentlyUpdatedTimeout", m_recentlyUpdatedTimeout);
+    settings.setValue("onlyHilightChangedValues", m_onlyHilightChangedValues);
+    settings.setValue("CategorizedView", m_useCategorizedView);
+    settings.setValue("ScientificView", m_useScientificView);
+    settings.setValue("showMetaData", m_showMetaData);
+    settings.setValue("showDescription", m_showDescription);
+    settings.setValue("splitterState", m_splitterState);
 }

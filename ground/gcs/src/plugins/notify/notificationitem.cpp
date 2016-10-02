@@ -104,42 +104,42 @@ void NotificationItem::copyTo(NotificationItem *that) const
 }
 
 
-void NotificationItem::saveState(QSettings *settings) const
+void NotificationItem::saveState(QSettings &settings) const
 {
-    settings->setValue("SoundCollectionPath", Utils::RemoveDataPath(getSoundCollectionPath()));
-    settings->setValue(QLatin1String("CurrentLanguage"), getCurrentLanguage());
-    settings->setValue(QLatin1String("ObjectField"), getObjectField());
-    settings->setValue(QLatin1String("DataObject"), getDataObject());
-    settings->setValue(QLatin1String("RangeLimit"), getCondition());
-    settings->setValue(QLatin1String("Value1"), singleValue());
-    settings->setValue(QLatin1String("Value2"), valueRange2());
-    settings->setValue(QLatin1String("Sound1"), getSound1());
-    settings->setValue(QLatin1String("Sound2"), getSound2());
-    settings->setValue(QLatin1String("Sound3"), getSound3());
-    settings->setValue(QLatin1String("SayOrder"), getSayOrder());
-    settings->setValue(QLatin1String("Repeat"), retryValue());
-    settings->setValue(QLatin1String("ExpireTimeout"), lifetime());
-    settings->setValue(QLatin1String("Mute"), mute());
+    settings.setValue("SoundCollectionPath", Utils::RemoveDataPath(getSoundCollectionPath()));
+    settings.setValue(QLatin1String("CurrentLanguage"), getCurrentLanguage());
+    settings.setValue(QLatin1String("ObjectField"), getObjectField());
+    settings.setValue(QLatin1String("DataObject"), getDataObject());
+    settings.setValue(QLatin1String("RangeLimit"), getCondition());
+    settings.setValue(QLatin1String("Value1"), singleValue());
+    settings.setValue(QLatin1String("Value2"), valueRange2());
+    settings.setValue(QLatin1String("Sound1"), getSound1());
+    settings.setValue(QLatin1String("Sound2"), getSound2());
+    settings.setValue(QLatin1String("Sound3"), getSound3());
+    settings.setValue(QLatin1String("SayOrder"), getSayOrder());
+    settings.setValue(QLatin1String("Repeat"), retryValue());
+    settings.setValue(QLatin1String("ExpireTimeout"), lifetime());
+    settings.setValue(QLatin1String("Mute"), mute());
 }
 
-void NotificationItem::restoreState(QSettings *settings)
+void NotificationItem::restoreState(QSettings &settings)
 {
     // settings = Core::ICore::instance()->settings();
-    setSoundCollectionPath(Utils::InsertDataPath(settings->value(QLatin1String("SoundCollectionPath"), tr("")).toString()));
-    setCurrentLanguage(settings->value(QLatin1String("CurrentLanguage"), tr("")).toString());
-    setDataObject(settings->value(QLatin1String("DataObject"), tr("")).toString());
-    setObjectField(settings->value(QLatin1String("ObjectField"), tr("")).toString());
-    setCondition(settings->value(QLatin1String("RangeLimit"), tr("")).toInt());
-    setSound1(settings->value(QLatin1String("Sound1"), tr("")).toString());
-    setSound2(settings->value(QLatin1String("Sound2"), tr("")).toString());
-    setSound3(settings->value(QLatin1String("Sound3"), tr("")).toString());
-    setSayOrder(settings->value(QLatin1String("SayOrder"), tr("")).toInt());
-    QVariant value = settings->value(QLatin1String("Value1"), tr(""));
+    setSoundCollectionPath(Utils::InsertDataPath(settings.value(QLatin1String("SoundCollectionPath"), tr("")).toString()));
+    setCurrentLanguage(settings.value(QLatin1String("CurrentLanguage"), tr("")).toString());
+    setDataObject(settings.value(QLatin1String("DataObject"), tr("")).toString());
+    setObjectField(settings.value(QLatin1String("ObjectField"), tr("")).toString());
+    setCondition(settings.value(QLatin1String("RangeLimit"), tr("")).toInt());
+    setSound1(settings.value(QLatin1String("Sound1"), tr("")).toString());
+    setSound2(settings.value(QLatin1String("Sound2"), tr("")).toString());
+    setSound3(settings.value(QLatin1String("Sound3"), tr("")).toString());
+    setSayOrder(settings.value(QLatin1String("SayOrder"), tr("")).toInt());
+    QVariant value = settings.value(QLatin1String("Value1"), tr(""));
     setSingleValue(value);
-    setValueRange2(settings->value(QLatin1String("Value2"), tr("")).toDouble());
-    setRetryValue(settings->value(QLatin1String("Repeat"), tr("")).toInt());
-    setLifetime(settings->value(QLatin1String("ExpireTimeout"), tr("")).toInt());
-    setMute(settings->value(QLatin1String("Mute"), tr("")).toInt());
+    setValueRange2(settings.value(QLatin1String("Value2"), tr("")).toDouble());
+    setRetryValue(settings.value(QLatin1String("Repeat"), tr("")).toInt());
+    setLifetime(settings.value(QLatin1String("ExpireTimeout"), tr("")).toInt());
+    setMute(settings.value(QLatin1String("Mute"), tr("")).toInt());
 }
 
 void NotificationItem::serialize(QDataStream & stream)
@@ -149,7 +149,7 @@ void NotificationItem::serialize(QDataStream & stream)
     stream << this->_dataObject;
     stream << this->_objectField;
     stream << this->_condition;
-    qNotifyDebug() << "getOptionsPageValues seriaize" << _condition;
+    qNotifyDebug() << "getOptionsPageValues serialize" << _condition;
     stream << this->_sound1;
     stream << this->_sound2;
     stream << this->_sound3;

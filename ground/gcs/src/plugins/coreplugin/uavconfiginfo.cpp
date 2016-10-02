@@ -48,12 +48,9 @@
 
     Typically a plugin can handle version-changes like this:
     \code
-    MyGadgetConfiguration::MyGadgetConfiguration(QString classId, QSettings* qSettings, UAVConfigInfo *configInfo, QObject *parent) :
+    MyGadgetConfiguration::MyGadgetConfiguration(QString classId, QSettings &settings, UAVConfigInfo *configInfo, QObject *parent) :
         IUAVGadgetConfiguration(classId, parent)
     {
-        if ( ! qSettings )
-            return;
-
         if ( configInfo->version() == UAVConfigVersion() )
             configInfo->setVersion("1.0.0");
 
@@ -63,7 +60,7 @@
         ... read the config ...
     }
 
-    void MyGadgetConfiguration::saveConfig(QSettings* qSettings, Core::UAVConfigInfo *configInfo) const {
+    void MyGadgetConfiguration::saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const {
 
         configInfo->setVersion(CURRENT_VERSION);
 
@@ -118,11 +115,11 @@ UAVConfigInfo::UAVConfigInfo(QObject *parent) :
     m_nameOfConfigurable("")
 {}
 
-UAVConfigInfo::UAVConfigInfo(QSettings *qs, QObject *parent) :
+UAVConfigInfo::UAVConfigInfo(QSettings &settings, QObject *parent) :
     QObject(parent),
     m_version(VERSION_DEFAULT)
 {
-    read(qs);
+    read(settings);
 }
 
 UAVConfigInfo::UAVConfigInfo(UAVConfigVersion version, QString nameOfConfigurable, QObject *parent) :
@@ -139,20 +136,20 @@ UAVConfigInfo::UAVConfigInfo(IUAVGadgetConfiguration *config, QObject *parent) :
     m_nameOfConfigurable = config->classId() + "-" + config->name();
 }
 
-void UAVConfigInfo::save(QSettings *qs)
+void UAVConfigInfo::save(QSettings &settings) const
 {
-    qs->beginGroup("configInfo");
-    qs->setValue("version", m_version.toString());
-    qs->setValue("locked", m_locked);
-    qs->endGroup();
+    settings.beginGroup("configInfo");
+    settings.setValue("version", m_version.toString());
+    settings.setValue("locked", m_locked);
+    settings.endGroup();
 }
 
-void UAVConfigInfo::read(QSettings *qs)
+void UAVConfigInfo::read(QSettings &settings)
 {
-    qs->beginGroup("configInfo");
-    m_version = UAVConfigVersion(qs->value("version", VERSION_DEFAULT).toString());
-    m_locked  = qs->value("locked", false).toBool();
-    qs->endGroup();
+    settings.beginGroup("configInfo");
+    m_version = UAVConfigVersion(settings.value("version", VERSION_DEFAULT).toString());
+    m_locked  = settings.value("locked", false).toBool();
+    settings.endGroup();
 }
 
 bool UAVConfigInfo::askToAbort(int compat, QString message)

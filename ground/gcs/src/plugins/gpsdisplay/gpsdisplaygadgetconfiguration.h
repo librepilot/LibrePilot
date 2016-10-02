@@ -49,7 +49,11 @@ struct PortSettings {
 class GpsDisplayGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit GpsDisplayGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit GpsDisplayGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit GpsDisplayGadgetConfiguration(const GpsDisplayGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     void setConnectionMode(QString mode)
     {
@@ -59,7 +63,6 @@ public:
     {
         return m_connectionMode;
     }
-
     // set port configuration functions
     void setSpeed(QSerialPort::BaudRate speed)
     {
@@ -119,9 +122,6 @@ public:
     {
         return m_defaultTimeOut;
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     QString m_connectionMode;

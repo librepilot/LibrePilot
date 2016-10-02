@@ -46,8 +46,8 @@ public:
     virtual ~PfdQmlGadgetWidget();
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
-    void saveState(QSettings *);
-    void restoreState(QSettings *);
+    void saveState(QSettings &);
+    void restoreState(QSettings &);
 
 private:
     QuickWidgetProxy *m_quickWidgetProxy;

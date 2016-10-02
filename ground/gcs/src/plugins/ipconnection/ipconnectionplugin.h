@@ -80,7 +80,6 @@ private:
     QAbstractSocket *ipSocket;
     IPconnectionConfiguration *m_config;
     IPconnectionOptionsPage *m_optionspage;
-    // QSettings* settings;
 };
 
 class IPconnection_EXPORT IPconnectionPlugin : public ExtensionSystem::IPlugin {

@@ -28,13 +28,14 @@
 #ifndef UAVGADGETINSTANCEMANAGER_H
 #define UAVGADGETINSTANCEMANAGER_H
 
-#include <QObject>
-#include <QSettings>
-#include <QtCore/QMap>
-#include <QtCore/QStringList>
-#include <QIcon>
 #include "core_global.h"
 #include "uavconfiginfo.h"
+
+#include <QObject>
+#include <QSettings>
+#include <QMap>
+#include <QStringList>
+#include <QIcon>
 
 namespace ExtensionSystem {
 class PluginManager;
@@ -58,8 +59,8 @@ public:
     explicit UAVGadgetInstanceManager(QObject *parent = 0);
     ~UAVGadgetInstanceManager();
 
-    void readSettings(QSettings *qs);
-    void saveSettings(QSettings *qs);
+    void readSettings(QSettings &settings);
+    void saveSettings(QSettings &settings) const;
 
     IUAVGadget *createGadget(QString classId, QWidget *parent, bool loadDefaultConfiguration = true);
     void removeGadget(IUAVGadget *gadget);
@@ -116,8 +117,8 @@ private:
 
     int indexForConfig(QList<IUAVGadgetConfiguration *> configurations, QString classId, QString configName);
 
-    void readConfigs_1_1_0(QSettings *qs);
-    void readConfigs_1_2_0(QSettings *qs);
+    void readConfigs_1_1_0(QSettings &settings);
+    void readConfigs_1_2_0(QSettings &settings);
 };
 } // namespace Core
 

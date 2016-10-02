@@ -29,6 +29,7 @@
 #define UAVOBJECTBROWSERCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
+
 #include <QColor>
 
 using namespace Core;
@@ -44,11 +45,13 @@ class UAVObjectBrowserConfiguration : public IUAVGadgetConfiguration {
     Q_PROPERTY(bool m_showDescription READ showDescription WRITE setShowDescription)
     Q_PROPERTY(bool m_showMetaData READ showMetaData WRITE setShowMetaData)
     Q_PROPERTY(QByteArray m_splitterState READ splitterState WRITE setSplitterState)
-public:
-    explicit UAVObjectBrowserConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
 
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
+public:
+    explicit UAVObjectBrowserConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit UAVObjectBrowserConfiguration(const UAVObjectBrowserConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     QColor unknownObjectColor() const
     {
@@ -86,13 +89,10 @@ public:
     {
         return m_showDescription;
     }
-
     QByteArray splitterState() const
     {
         return m_splitterState;
     }
-
-signals:
 
 public slots:
     void setUnknownObjectColor(QColor color)
@@ -131,7 +131,6 @@ public slots:
     {
         m_showDescription = value;
     }
-
     void setSplitterState(QByteArray arg)
     {
         m_splitterState = arg;

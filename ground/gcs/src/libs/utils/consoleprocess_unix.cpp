@@ -254,17 +254,17 @@ QString ConsoleProcess::defaultTerminalEmulator()
 #endif
 }
 
-QString ConsoleProcess::terminalEmulator(const QSettings *settings)
+QString ConsoleProcess::terminalEmulator(const QSettings &settings)
 {
     const QString dflt = defaultTerminalEmulator() + QLatin1String(" -e");
 
     if (!settings) {
         return dflt;
     }
-    return settings->value(QLatin1String("General/TerminalEmulator"), dflt).toString();
+    return settings.value(QLatin1String("General/TerminalEmulator"), dflt).toString();
 }
 
-void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)
+void ConsoleProcess::setTerminalEmulator(QSettings &settings, const QString &term)
 {
-    return settings->setValue(QLatin1String("General/TerminalEmulator"), term);
+    return settings.setValue(QLatin1String("General/TerminalEmulator"), term);
 }

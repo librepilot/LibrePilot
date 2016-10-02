@@ -26,12 +26,14 @@
  */
 
 #include "workspacesettings.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uavgadgetmanager/uavgadgetmanager.h>
-#include <QtCore/QSettings>
 
 #include "ui_workspacesettings.h"
+
+#include <QSettings>
 
 using namespace Core;
 using namespace Core::Internal;
@@ -100,62 +102,63 @@ QWidget *WorkspaceSettings::createPage(QWidget *parent)
     return w;
 }
 
-void WorkspaceSettings::readSettings(QSettings *qs)
+void WorkspaceSettings::readSettings(QSettings &settings)
 {
     m_names.clear();
     m_iconNames.clear();
     m_modeNames.clear();
 
-    qs->beginGroup(QLatin1String("Workspace"));
-    m_numberOfWorkspaces = qs->value(QLatin1String("NumberOfWorkspaces"), 2).toInt();
+    settings.beginGroup(QLatin1String("Workspace"));
+    m_numberOfWorkspaces = settings.value(QLatin1String("NumberOfWorkspaces"), 2).toInt();
     m_previousNumberOfWorkspaces = m_numberOfWorkspaces;
     for (int i = 1; i <= MAX_WORKSPACES; ++i) {
         QString numberString    = QString::number(i);
         QString defaultName     = "Workspace" + numberString;
         QString defaultIconName = "Icon" + numberString;
-        QString name     = qs->value(defaultName, defaultName).toString();
-        QString iconName = qs->value(defaultIconName, ":/core/images/librepilot_logo_64.png").toString();
+        QString name     = settings.value(defaultName, defaultName).toString();
+        QString iconName = settings.value(defaultIconName, ":/core/images/librepilot_logo_64.png").toString();
         m_names.append(name);
         m_iconNames.append(iconName);
         m_modeNames.append(QString("Mode") + QString::number(i));
     }
-    m_tabBarPlacementIndex     = qs->value(QLatin1String("TabBarPlacementIndex"), 1).toInt(); // 1 == "Bottom"
-    m_allowTabBarMovement      = qs->value(QLatin1String("AllowTabBarMovement"), false).toBool();
-    m_restoreSelectedOnStartup = qs->value(QLatin1String("RestoreSelectedOnStartup"), false).toBool();
+    m_tabBarPlacementIndex     = settings.value(QLatin1String("TabBarPlacementIndex"), 1).toInt(); // 1 == "Bottom"
+    m_allowTabBarMovement      = settings.value(QLatin1String("AllowTabBarMovement"), false).toBool();
+    m_restoreSelectedOnStartup = settings.value(QLatin1String("RestoreSelectedOnStartup"), false).toBool();
 
-    qs->endGroup();
+    settings.endGroup();
 
     QTabWidget::TabPosition pos = m_tabBarPlacementIndex == 0 ? QTabWidget::North : QTabWidget::South;
     emit tabBarSettingsApplied(pos, m_allowTabBarMovement);
 }
 
-void WorkspaceSettings::saveSettings(QSettings *qs)
+void WorkspaceSettings::saveSettings(QSettings &settings) const
 {
-    qs->beginGroup(QLatin1String("Workspace"));
-    qs->setValue(QLatin1String("NumberOfWorkspaces"), m_numberOfWorkspaces);
+    settings.beginGroup(QLatin1String("Workspace"));
+    settings.setValue(QLatin1String("NumberOfWorkspaces"), m_numberOfWorkspaces);
     for (int i = 0; i < MAX_WORKSPACES; ++i) {
         QString mode = QString("Mode") + QString::number(i + 1);
         int j = m_modeNames.indexOf(mode);
         QString numberString    = QString::number(i + 1);
         QString defaultName     = "Workspace" + numberString;
         QString defaultIconName = "Icon" + numberString;
-        qs->setValue(defaultName, m_names.at(j));
-        qs->setValue(defaultIconName, m_iconNames.at(j));
+        settings.setValue(defaultName, m_names.at(j));
+        settings.setValue(defaultIconName, m_iconNames.at(j));
     }
-    qs->setValue(QLatin1String("TabBarPlacementIndex"), m_tabBarPlacementIndex);
-    qs->setValue(QLatin1String("AllowTabBarMovement"), m_allowTabBarMovement);
-    qs->setValue(QLatin1String("RestoreSelectedOnStartup"), m_restoreSelectedOnStartup);
-    qs->endGroup();
+    settings.setValue(QLatin1String("TabBarPlacementIndex"), m_tabBarPlacementIndex);
+    settings.setValue(QLatin1String("AllowTabBarMovement"), m_allowTabBarMovement);
+    settings.setValue(QLatin1String("RestoreSelectedOnStartup"), m_restoreSelectedOnStartup);
+    settings.endGroup();
 }
 
 void WorkspaceSettings::apply()
 {
     selectWorkspace(m_currentIndex, true);
 
-    saveSettings(Core::ICore::instance()->settings());
+    QSettings settings;
+    saveSettings(settings);
 
     if (m_numberOfWorkspaces != m_previousNumberOfWorkspaces) {
-        Core::ICore::instance()->readMainSettings(Core::ICore::instance()->settings(), true);
+        Core::ICore::instance()->readMainSettings(settings, true);
         m_previousNumberOfWorkspaces = m_numberOfWorkspaces;
     }
 

@@ -42,8 +42,10 @@ IPconnectionOptionsPage::IPconnectionOptionsPage(IPconnectionConfiguration *conf
     IOptionsPage(parent),
     m_config(config)
 {}
+
 IPconnectionOptionsPage::~IPconnectionOptionsPage()
 {}
+
 QWidget *IPconnectionOptionsPage::createPage(QWidget *parent)
 {
     m_page = new Ui::IPconnectionOptionsPage();
@@ -63,7 +65,7 @@ void IPconnectionOptionsPage::apply()
     m_config->setPort(m_page->Port->value());
     m_config->setHostName(m_page->HostName->text());
     m_config->setUseTCP(m_page->UseTCP->isChecked() ? 1 : 0);
-    m_config->savesettings();
+    m_config->saveSettings();
 
     emit availableDevChanged();
 }

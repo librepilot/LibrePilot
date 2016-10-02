@@ -29,8 +29,8 @@
 #define IPconnectionCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
-#include <QtCore/QString>
-#include <QtCore/QSettings>
+
+#include <QString>
 
 using namespace Core;
 
@@ -40,15 +40,16 @@ class IPconnectionConfiguration : public IUAVGadgetConfiguration {
     Q_PROPERTY(int UseTCP READ UseTCP WRITE setUseTCP)
 
 public:
-    explicit IPconnectionConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit IPconnectionConfiguration(QString classId, QObject *parent = 0);
+    explicit IPconnectionConfiguration(const IPconnectionConfiguration &obj);
 
     virtual ~IPconnectionConfiguration();
-    void saveConfig(QSettings *settings) const;
-    // void savesettings(QSettings* settings) const;
-    // void restoresettings(QSettings* settings);
-    void savesettings() const;
-    void restoresettings();
-    IUAVGadgetConfiguration *clone();
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
+
+    void saveSettings() const;
+    void restoreSettings();
 
     QString HostName() const
     {
@@ -62,7 +63,6 @@ public:
     {
         return m_UseTCP;
     }
-
 
 public slots:
     void setHostName(QString HostName)
@@ -82,7 +82,6 @@ private:
     QString m_HostName;
     int m_Port;
     int m_UseTCP;
-    QSettings *settings;
 };
 
 #endif // IPconnectionCONFIGURATION_H

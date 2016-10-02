@@ -45,8 +45,8 @@ public:
 
     void startInputWizard();
 
-    void saveState(QSettings *settings);
-    void restoreState(QSettings *settings);
+    void saveState(QSettings &settings);
+    void restoreState(QSettings &settings);
 
 protected:
     void resizeEvent(QResizeEvent *event);

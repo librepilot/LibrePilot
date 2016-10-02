@@ -90,7 +90,7 @@ QWidget *SerialPluginOptionsPage::createPage(QWidget *parent)
 void SerialPluginOptionsPage::apply()
 {
     m_config->setSpeed(options_page->cb_speed->currentText());
-    m_config->savesettings();
+    m_config->saveSettings();
 }
 
 

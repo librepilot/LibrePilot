@@ -86,13 +86,9 @@ public:
     }
 
 #ifdef Q_OS_UNIX
-    void setSettings(QSettings *settings)
-    {
-        m_settings = settings;
-    }
     static QString defaultTerminalEmulator();
-    static QString terminalEmulator(const QSettings *settings);
-    static void setTerminalEmulator(QSettings *settings, const QString &term);
+    static QString terminalEmulator(const QSettings &settings);
+    static void setTerminalEmulator(QSettings &settings, const QString &term);
 #endif
 
 signals:
@@ -146,7 +142,6 @@ private:
 #else
     QProcess m_process;
     QByteArray m_stubServerDir;
-    QSettings *m_settings;
 #endif
 };
 } // namespace Utils

@@ -32,36 +32,35 @@
  * Loads a saved configuration or defaults if non exist.
  *
  */
-SystemHealthGadgetConfiguration::SystemHealthGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    systemFile("Unknown")
+SystemHealthGadgetConfiguration::SystemHealthGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        QString diagram = qSettings->value("diagram").toString();
-        systemFile = Utils::InsertDataPath(diagram);
-    }
+    systemFile = settings.value("diagram", "Unknown").toString();
+    systemFile = Utils::InsertDataPath(systemFile);
+}
+
+SystemHealthGadgetConfiguration::SystemHealthGadgetConfiguration(const SystemHealthGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{
+    systemFile = obj.systemFile;
 }
 
 /**
  * Clones a configuration.
  *
  */
-IUAVGadgetConfiguration *SystemHealthGadgetConfiguration::clone()
+IUAVGadgetConfiguration *SystemHealthGadgetConfiguration::clone() const
 {
-    SystemHealthGadgetConfiguration *m = new SystemHealthGadgetConfiguration(this->classId());
-
-    m->systemFile = systemFile;
-    return m;
+    return new SystemHealthGadgetConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void SystemHealthGadgetConfiguration::saveConfig(QSettings *qSettings) const
+void SystemHealthGadgetConfiguration::saveConfig(QSettings &settings) const
 {
     QString diagram = Utils::RemoveDataPath(systemFile);
 
-    qSettings->setValue("diagram", diagram);
+    settings.setValue("diagram", diagram);
 }

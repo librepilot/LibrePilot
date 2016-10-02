@@ -56,8 +56,8 @@ public:
 
     void extensionsInitialized();
     bool initialize(const QStringList & arguments, QString *errorString);
-    void readConfig(QSettings *qSettings, Core::UAVConfigInfo *configInfo);
-    void saveConfig(QSettings *qSettings, Core::UAVConfigInfo *configInfo);
+    void readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo);
+    void saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const;
     void shutdown();
 
 

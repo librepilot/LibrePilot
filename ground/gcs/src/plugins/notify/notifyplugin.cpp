@@ -81,48 +81,48 @@ void SoundNotifyPlugin::extensionsInitialized()
     connectNotifications();
 }
 
-void SoundNotifyPlugin::saveConfig(QSettings *settings, UAVConfigInfo *configInfo)
+void SoundNotifyPlugin::saveConfig(QSettings &settings, UAVConfigInfo *configInfo) const
 {
     configInfo->setVersion(VERSION);
 
-    settings->beginWriteArray("Current");
-    settings->setArrayIndex(0);
+    settings.beginWriteArray("Current");
+    settings.setArrayIndex(0);
     currentNotification.saveState(settings);
-    settings->endArray();
+    settings.endArray();
 
-    settings->beginGroup("listNotifies");
-    settings->remove("");
-    settings->endGroup();
+    settings.beginGroup("listNotifies");
+    settings.remove("");
+    settings.endGroup();
 
-    settings->beginWriteArray("listNotifies");
+    settings.beginWriteArray("listNotifies");
     for (int i = 0; i < _notificationList.size(); i++) {
-        settings->setArrayIndex(i);
+        settings.setArrayIndex(i);
         _notificationList.at(i)->saveState(settings);
     }
-    settings->endArray();
-    settings->setValue(QLatin1String("EnableSound"), enableSound);
+    settings.endArray();
+    settings.setValue(QLatin1String("EnableSound"), enableSound);
 }
 
-void SoundNotifyPlugin::readConfig(QSettings *settings, UAVConfigInfo * /* configInfo */)
+void SoundNotifyPlugin::readConfig(QSettings &settings, UAVConfigInfo * /* configInfo */)
 {
     // Just for migration to the new format.
     // Q_ASSERT(configInfo->version() == UAVConfigVersion());
 
-    settings->beginReadArray("Current");
-    settings->setArrayIndex(0);
+    settings.beginReadArray("Current");
+    settings.setArrayIndex(0);
     currentNotification.restoreState(settings);
-    settings->endArray();
+    settings.endArray();
 
     // read list of notifications from settings
-    int size = settings->beginReadArray("listNotifies");
+    int size = settings.beginReadArray("listNotifies");
     for (int i = 0; i < size; ++i) {
-        settings->setArrayIndex(i);
+        settings.setArrayIndex(i);
         NotificationItem *notification = new NotificationItem;
         notification->restoreState(settings);
         _notificationList.append(notification);
     }
-    settings->endArray();
-    setEnableSound(settings->value(QLatin1String("EnableSound"), 0).toBool());
+    settings.endArray();
+    setEnableSound(settings.value(QLatin1String("EnableSound"), 0).toBool());
 }
 
 void SoundNotifyPlugin::onTelemetryManagerAdded(QObject *obj)

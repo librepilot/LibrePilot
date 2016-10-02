@@ -121,8 +121,8 @@ IPconnectionConnection::IPconnectionConnection()
 {
     ipSocket = NULL;
     // create all our objects
-    m_config = new IPconnectionConfiguration("IP Network Telemetry", NULL, this);
-    m_config->restoresettings();
+    m_config = new IPconnectionConfiguration("IP Network Telemetry", this);
+    m_config->restoreSettings();
 
     m_optionspage = new IPconnectionOptionsPage(m_config, this);
 

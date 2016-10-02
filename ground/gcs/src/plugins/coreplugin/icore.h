@@ -30,13 +30,12 @@
 #define ICORE_H
 
 #include "core_global.h"
-#include <QtCore/QObject>
-#include <QSettings>
+
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;
 class QSettings;
-template <class T> class QList;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -84,12 +83,14 @@ public:
     virtual UAVGadgetInstanceManager *uavGadgetInstanceManager() const = 0;
     virtual MimeDatabase *mimeDatabase() const = 0;
 
-    virtual QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const = 0;
     virtual SettingsDatabase *settingsDatabase() const = 0;
-    virtual void readMainSettings(QSettings *qs, bool workspaceDiffOnly = false)     = 0;
-    virtual void saveMainSettings(QSettings *qs) = 0;
-    virtual void readSettings(IConfigurablePlugin *plugin, QSettings *qs = 0) = 0;
-    virtual void saveSettings(IConfigurablePlugin *plugin, QSettings *qs = 0) = 0;
+
+    virtual void readMainSettings(QSettings &settings, bool workspaceDiffOnly = false) = 0;
+    virtual void saveMainSettings(QSettings &settings) const     = 0;
+    virtual void readSettings(IConfigurablePlugin *plugin)       = 0;
+    virtual void saveSettings(IConfigurablePlugin *plugin) const = 0;
+    virtual void readSettings(IConfigurablePlugin *plugin, QSettings &settings) = 0;
+    virtual void saveSettings(IConfigurablePlugin *plugin, QSettings &settings) const = 0;
     virtual void deleteSettings() = 0;
 
     virtual QString resourcePath() const    = 0;

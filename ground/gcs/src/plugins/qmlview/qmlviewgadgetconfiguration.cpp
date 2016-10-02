@@ -32,39 +32,38 @@
  * Loads a saved configuration or defaults if non exist.
  *
  */
-QmlViewGadgetConfiguration::QmlViewGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    m_defaultDial("Unknown")
+QmlViewGadgetConfiguration::QmlViewGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        QString dialFile = qSettings->value("dialFile").toString();
-        useOpenGLFlag = qSettings->value("useOpenGLFlag").toBool();
-        m_defaultDial = Utils::InsertDataPath(dialFile);
-    }
+    m_defaultDial = settings.value("dialFile", "Unknown").toString();
+    m_defaultDial = Utils::InsertDataPath(m_defaultDial);
+    useOpenGLFlag = settings.value("useOpenGLFlag").toBool();
+}
+
+QmlViewGadgetConfiguration::QmlViewGadgetConfiguration(const QmlViewGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{
+    m_defaultDial = obj.m_defaultDial;
+    useOpenGLFlag = obj.useOpenGLFlag;
 }
 
 /**
  * Clones a configuration.
  *
  */
-IUAVGadgetConfiguration *QmlViewGadgetConfiguration::clone()
+IUAVGadgetConfiguration *QmlViewGadgetConfiguration::clone() const
 {
-    QmlViewGadgetConfiguration *m = new QmlViewGadgetConfiguration(this->classId());
-
-    m->m_defaultDial = m_defaultDial;
-    m->useOpenGLFlag = useOpenGLFlag;
-    return m;
+    return new QmlViewGadgetConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void QmlViewGadgetConfiguration::saveConfig(QSettings *qSettings) const
+void QmlViewGadgetConfiguration::saveConfig(QSettings &settings) const
 {
     QString dialFile = Utils::RemoveDataPath(m_defaultDial);
 
-    qSettings->setValue("dialFile", dialFile);
-    qSettings->setValue("useOpenGLFlag", useOpenGLFlag);
+    settings.setValue("dialFile", dialFile);
+    settings.setValue("useOpenGLFlag", useOpenGLFlag);
 }

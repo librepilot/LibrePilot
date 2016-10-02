@@ -28,10 +28,8 @@
 #ifndef SCOPEGADGETCONFIGURATION_H
 #define SCOPEGADGETCONFIGURATION_H
 
-#include "plotdata.h"
 #include <coreplugin/iuavgadgetconfiguration.h>
-
-#include <QVector>
+#include "plotdata.h"
 
 using namespace Core;
 
@@ -50,9 +48,13 @@ struct PlotCurveConfiguration {
 class ScopeGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit ScopeGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit ScopeGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit ScopeGadgetConfiguration(const ScopeGadgetConfiguration &obj);
 
-    ~ScopeGadgetConfiguration();
+    virtual ~ScopeGadgetConfiguration();
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     // configuration setter functions
     void setPlotType(int value)
@@ -99,9 +101,6 @@ public:
         return m_plotCurveConfigs;
     }
 
-    void saveConfig(QSettings *settings) const; // THIS SEEMS TO BE UNUSED
-    IUAVGadgetConfiguration *clone();
-
     bool getLoggingEnabled()
     {
         return m_loggingEnabled;
@@ -128,7 +127,6 @@ public:
     }
 
 private:
-
     // Increment this if the stream format is not compatible with previous versions. This would cause existing configs to be discarded.
     static const uint m_configurationStreamVersion = 1000;
     // The type of the plot

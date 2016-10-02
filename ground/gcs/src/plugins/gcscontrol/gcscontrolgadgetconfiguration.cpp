@@ -31,39 +31,43 @@
  * Loads a saved configuration or defaults if non exist.
  *
  */
-GCSControlGadgetConfiguration::GCSControlGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    rollChannel(-1),
-    pitchChannel(-1),
-    yawChannel(-1),
-    throttleChannel(-1)
+GCSControlGadgetConfiguration::GCSControlGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    int i;
+    controlsMode    = settings.value("controlsMode").toInt();
+    rollChannel     = settings.value("rollChannel", -1).toInt();
+    pitchChannel    = settings.value("pitchChannel", -1).toInt();
+    yawChannel      = settings.value("yawChannel", -1).toInt();
+    throttleChannel = settings.value("throttleChannel", -1).toInt();
 
-    for (i = 0; i < 8; i++) {
-        buttonSettings[i].ActionID   = 0;
-        buttonSettings[i].FunctionID = 0;
-        buttonSettings[i].Amount     = 0;
-        channelReverse[i] = 0;
+    udp_port = settings.value("controlPortUDP").toUInt();
+    udp_host = QHostAddress(settings.value("controlHostUDP").toString());
+
+    for (int i = 0; i < 8; i++) {
+        buttonSettings[i].ActionID   = settings.value(QString().sprintf("button%dAction", i)).toInt();
+        buttonSettings[i].FunctionID = settings.value(QString().sprintf("button%dFunction", i)).toInt();
+        buttonSettings[i].Amount     = settings.value(QString().sprintf("button%dAmount", i)).toDouble();
+        channelReverse[i] = settings.value(QString().sprintf("channel%dReverse", i)).toBool();
     }
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        controlsMode    = qSettings->value("controlsMode").toInt();
-        rollChannel     = qSettings->value("rollChannel").toInt();
-        pitchChannel    = qSettings->value("pitchChannel").toInt();
-        yawChannel      = qSettings->value("yawChannel").toInt();
-        throttleChannel = qSettings->value("throttleChannel").toInt();
+}
 
-        udp_port = qSettings->value("controlPortUDP").toUInt();
-        udp_host = QHostAddress(qSettings->value("controlHostUDP").toString());
+GCSControlGadgetConfiguration::GCSControlGadgetConfiguration(const GCSControlGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{
+    controlsMode    = obj.controlsMode;
+    rollChannel     = obj.rollChannel;
+    pitchChannel    = obj.pitchChannel;
+    yawChannel      = obj.yawChannel;
+    throttleChannel = obj.throttleChannel;
 
-        int i;
-        for (i = 0; i < 8; i++) {
-            buttonSettings[i].ActionID   = qSettings->value(QString().sprintf("button%dAction", i)).toInt();
-            buttonSettings[i].FunctionID = qSettings->value(QString().sprintf("button%dFunction", i)).toInt();
-            buttonSettings[i].Amount     = qSettings->value(QString().sprintf("button%dAmount", i)).toDouble();
-            channelReverse[i] = qSettings->value(QString().sprintf("channel%dReverse", i)).toBool();
-        }
+    udp_host = obj.udp_host;
+    udp_port = obj.udp_port;
+
+    for (int i = 0; i < 8; i++) {
+        buttonSettings[i].ActionID   = obj.buttonSettings[i].ActionID;
+        buttonSettings[i].FunctionID = obj.buttonSettings[i].FunctionID;
+        buttonSettings[i].Amount     = obj.buttonSettings[i].Amount;
+        channelReverse[i] = obj.channelReverse[i];
     }
 }
 
@@ -77,6 +81,7 @@ int GCSControlGadgetConfiguration::getUDPControlPort()
 {
     return udp_port;
 }
+
 QHostAddress GCSControlGadgetConfiguration::getUDPControlHost()
 {
     return udp_host;
@@ -96,14 +101,13 @@ QList<int> GCSControlGadgetConfiguration::getChannelsMapping()
     ql << rollChannel << pitchChannel << yawChannel << throttleChannel;
     return ql;
 }
+
 QList<bool> GCSControlGadgetConfiguration::getChannelsReverse()
 {
     QList<bool> ql;
-    int i;
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         ql << channelReverse[i];
     }
-
     return ql;
 }
 
@@ -111,51 +115,30 @@ QList<bool> GCSControlGadgetConfiguration::getChannelsReverse()
  * Clones a configuration.
  *
  */
-IUAVGadgetConfiguration *GCSControlGadgetConfiguration::clone()
+IUAVGadgetConfiguration *GCSControlGadgetConfiguration::clone() const
 {
-    GCSControlGadgetConfiguration *m = new GCSControlGadgetConfiguration(this->classId());
-
-    m->controlsMode    = controlsMode;
-    m->rollChannel     = rollChannel;
-    m->pitchChannel    = pitchChannel;
-    m->yawChannel      = yawChannel;
-    m->throttleChannel = throttleChannel;
-
-    m->udp_host = udp_host;
-    m->udp_port = udp_port;
-
-    int i;
-    for (i = 0; i < 8; i++) {
-        m->buttonSettings[i].ActionID   = buttonSettings[i].ActionID;
-        m->buttonSettings[i].FunctionID = buttonSettings[i].FunctionID;
-        m->buttonSettings[i].Amount     = buttonSettings[i].Amount;
-        m->channelReverse[i] = channelReverse[i];
-    }
-
-
-    return m;
+    return new GCSControlGadgetConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void GCSControlGadgetConfiguration::saveConfig(QSettings *settings) const
+void GCSControlGadgetConfiguration::saveConfig(QSettings &settings) const
 {
-    settings->setValue("controlsMode", controlsMode);
-    settings->setValue("rollChannel", rollChannel);
-    settings->setValue("pitchChannel", pitchChannel);
-    settings->setValue("yawChannel", yawChannel);
-    settings->setValue("throttleChannel", throttleChannel);
+    settings.setValue("controlsMode", controlsMode);
+    settings.setValue("rollChannel", rollChannel);
+    settings.setValue("pitchChannel", pitchChannel);
+    settings.setValue("yawChannel", yawChannel);
+    settings.setValue("throttleChannel", throttleChannel);
 
-    settings->setValue("controlPortUDP", QString::number(udp_port));
-    settings->setValue("controlHostUDP", udp_host.toString());
+    settings.setValue("controlPortUDP", QString::number(udp_port));
+    settings.setValue("controlHostUDP", udp_host.toString());
 
-    int i;
-    for (i = 0; i < 8; i++) {
-        settings->setValue(QString().sprintf("button%dAction", i), buttonSettings[i].ActionID);
-        settings->setValue(QString().sprintf("button%dFunction", i), buttonSettings[i].FunctionID);
-        settings->setValue(QString().sprintf("button%dAmount", i), buttonSettings[i].Amount);
-        settings->setValue(QString().sprintf("channel%dReverse", i), channelReverse[i]);
+    for (int i = 0; i < 8; i++) {
+        settings.setValue(QString().sprintf("button%dAction", i), buttonSettings[i].ActionID);
+        settings.setValue(QString().sprintf("button%dFunction", i), buttonSettings[i].FunctionID);
+        settings.setValue(QString().sprintf("button%dAmount", i), buttonSettings[i].Amount);
+        settings.setValue(QString().sprintf("channel%dReverse", i), channelReverse[i]);
     }
 }

@@ -29,10 +29,14 @@
 #ifndef SPLITTERORVIEW_H
 #define SPLITTERORVIEW_H
 
-#include <QWidget>
-#include <QMouseEvent>
 #include "uavgadgetmanager.h"
 #include "uavgadgetview.h"
+
+#include <QWidget>
+#include <QMouseEvent>
+#include <QSplitter>
+
+class QSettings;
 
 namespace Core {
 namespace Internal {
@@ -82,8 +86,8 @@ public:
     QSplitter *takeSplitter();
     UAVGadgetView *takeView();
 
-    void saveState(QSettings *) const;
-    void restoreState(QSettings *);
+    void saveState(QSettings &) const;
+    void restoreState(QSettings &);
 
     SplitterOrView *findView(Core::IUAVGadget *uavGadget);
     SplitterOrView *findView(UAVGadgetView *view);

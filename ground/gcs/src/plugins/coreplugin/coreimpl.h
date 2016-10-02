@@ -60,12 +60,14 @@ public:
     ModeManager *modeManager() const;
     MimeDatabase *mimeDatabase() const;
 
-    QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const;
     SettingsDatabase *settingsDatabase() const;
-    void readMainSettings(QSettings *qs, bool workspaceDiffOnly);
-    void saveMainSettings(QSettings *qs);
-    void readSettings(IConfigurablePlugin *plugin, QSettings *qs = 0);
-    void saveSettings(IConfigurablePlugin *plugin, QSettings *qs = 0);
+
+    void readMainSettings(QSettings &settings, bool workspaceDiffOnly);
+    void saveMainSettings(QSettings &settings) const;
+    void readSettings(IConfigurablePlugin *plugin);
+    void saveSettings(IConfigurablePlugin *plugin) const;
+    void readSettings(IConfigurablePlugin *plugin, QSettings &settings);
+    void saveSettings(IConfigurablePlugin *plugin, QSettings &settings) const;
     void deleteSettings();
 
     QString resourcePath() const;

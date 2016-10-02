@@ -27,136 +27,138 @@
 
 #include "hitlconfiguration.h"
 
-HITLConfiguration::HITLConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
+// Default settings values
+#define DFLT_SIMULATOR_ID           ""
+#define DFLT_BIN_PATH               ""
+#define DFLT_DATA_PATH              ""
+#define DFLT_START_SIM              false
+#define DFLT_addNoise               false
+#define DFLT_ADD_NOISE              false
+#define DFLT_HOST_ADDRESS           "127.0.0.1"
+#define DFLT_REMOTE_ADDRESS         "127.0.0.1"
+#define DFLT_OUT_PORT               0
+#define DFLT_IN_PORT                0
+#define DFLT_LATITUDE               ""
+#define DFLT_LONGITUDE              ""
+
+#define DFLT_ATT_RAW_ENABLED        false
+#define DFLT_ATT_RAW_RATE           20
+
+#define DFLT_ATT_STATE_ENABLED      true
+#define DFLT_ATT_ACT_HW             false
+#define DFLT_ATT_ACT_SIM            true
+#define DFLT_ATT_ACT_CALC           false
+
+#define DFLT_BARO_SENSOR_ENABLED    false
+#define DFLT_BARO_ALT_RATE          0
+
+#define DFLT_GPS_POSITION_ENABLED   false
+#define DFLT_GPS_POS_RATE           100
+
+#define DFLT_GROUND_TRUTH_ENABLED   false
+#define DFLT_GROUND_TRUTH_RATE      100
+
+#define DFLT_INPUT_COMMAND          false
+#define DFLT_GCS_RECEIVER_ENABLED   false
+#define DFLT_MANUAL_CONTROL_ENABLED false
+#define DFLT_MIN_INPUT_PERIOD       100
+
+#define DFLT_AIRSPEED_STATE_ENABLED false
+#define DFLT_AIRSPEED_STATE_RATE    100
+
+HITLConfiguration::HITLConfiguration(QString classId, QSettings &settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent)
 {
-    // Default settings values
-    settings.simulatorId          = "";
-    settings.binPath              = "";
-    settings.dataPath             = "";
-    settings.manualControlEnabled = true;
-    settings.startSim             = false;
-    settings.addNoise             = false;
-    settings.hostAddress          = "127.0.0.1";
-    settings.remoteAddress        = "127.0.0.1";
-    settings.outPort              = 0;
-    settings.inPort = 0;
-    settings.latitude             = "";
-    settings.longitude            = "";
+    simSettings.simulatorId   = settings.value("simulatorId", DFLT_SIMULATOR_ID).toString();
+    simSettings.binPath       = settings.value("binPath", DFLT_BIN_PATH).toString();
+    simSettings.dataPath      = settings.value("dataPath", DFLT_DATA_PATH).toString();
 
-    settings.attRawEnabled        = false;
-    settings.attRawRate           = 20;
+    simSettings.hostAddress   = settings.value("hostAddress", DFLT_HOST_ADDRESS).toString();
+    simSettings.remoteAddress = settings.value("remoteAddress", DFLT_REMOTE_ADDRESS).toString();
+    simSettings.outPort       = settings.value("outPort", DFLT_OUT_PORT).toInt();
+    simSettings.inPort = settings.value("inPort", DFLT_IN_PORT).toInt();
 
-    settings.attStateEnabled      = true;
-    settings.attActHW             = false;
-    settings.attActSim            = true;
-    settings.attActCalc           = false;
+    simSettings.latitude      = settings.value("latitude", DFLT_LATITUDE).toString();
+    simSettings.longitude     = settings.value("longitude", DFLT_LONGITUDE).toString();
+    simSettings.startSim      = settings.value("startSim", DFLT_START_SIM).toBool();
+    simSettings.addNoise      = settings.value("noiseCheckBox", DFLT_ADD_NOISE).toBool();
 
-    settings.gpsPositionEnabled   = false;
-    settings.gpsPosRate           = 100;
+    simSettings.gcsReceiverEnabled   = settings.value("gcsReceiverEnabled", DFLT_GCS_RECEIVER_ENABLED).toBool();
+    simSettings.manualControlEnabled = settings.value("manualControlEnabled", DFLT_MANUAL_CONTROL_ENABLED).toBool();
 
-    settings.groundTruthEnabled   = false;
-    settings.groundTruthRate      = 100;
+    simSettings.attRawEnabled        = settings.value("attRawEnabled", DFLT_ATT_RAW_ENABLED).toBool();
+    simSettings.attRawRate           = settings.value("attRawRate", DFLT_ATT_RAW_RATE).toInt();
 
-    settings.inputCommand         = false;
-    settings.gcsReceiverEnabled   = false;
-    settings.manualControlEnabled = false;
-    settings.minOutputPeriod      = 100;
+    simSettings.attStateEnabled      = settings.value("attStateEnabled", DFLT_ATT_STATE_ENABLED).toBool();
+    simSettings.attActHW = settings.value("attActHW", DFLT_ATT_ACT_HW).toBool();
+    simSettings.attActSim = settings.value("attActSim", DFLT_ATT_ACT_SIM).toBool();
+    simSettings.attActCalc           = settings.value("attActCalc", DFLT_ATT_ACT_CALC).toBool();
 
-    settings.airspeedStateEnabled = false;
-    settings.airspeedStateRate    = 100;
+    simSettings.baroSensorEnabled    = settings.value("baroSensorEnabled", DFLT_BARO_SENSOR_ENABLED).toBool();
+    simSettings.baroAltRate          = settings.value("baroAltRate", DFLT_BARO_ALT_RATE).toInt();
 
+    simSettings.gpsPositionEnabled   = settings.value("gpsPositionEnabled", DFLT_GPS_POSITION_ENABLED).toBool();
+    simSettings.gpsPosRate           = settings.value("gpsPosRate", DFLT_GPS_POS_RATE).toInt();
 
-    // if a saved configuration exists load it, and overwrite defaults
-    if (qSettings != 0) {
-        settings.simulatorId   = qSettings->value("simulatorId").toString();
-        settings.binPath       = qSettings->value("binPath").toString();
-        settings.dataPath      = qSettings->value("dataPath").toString();
+    simSettings.groundTruthEnabled   = settings.value("groundTruthEnabled", DFLT_GROUND_TRUTH_ENABLED).toBool();
+    simSettings.groundTruthRate      = settings.value("groundTruthRate", DFLT_GROUND_TRUTH_RATE).toInt();
 
-        settings.hostAddress   = qSettings->value("hostAddress").toString();
-        settings.remoteAddress = qSettings->value("remoteAddress").toString();
-        settings.outPort       = qSettings->value("outPort").toInt();
-        settings.inPort = qSettings->value("inPort").toInt();
+    simSettings.inputCommand         = settings.value("inputCommand", DFLT_INPUT_COMMAND).toBool();
+    simSettings.minOutputPeriod      = settings.value("minOutputPeriod", DFLT_MIN_INPUT_PERIOD).toInt();
 
-        settings.latitude      = qSettings->value("latitude").toString();
-        settings.longitude     = qSettings->value("longitude").toString();
-        settings.startSim      = qSettings->value("startSim").toBool();
-        settings.addNoise      = qSettings->value("noiseCheckBox").toBool();
-
-        settings.gcsReceiverEnabled   = qSettings->value("gcsReceiverEnabled").toBool();
-        settings.manualControlEnabled = qSettings->value("manualControlEnabled").toBool();
-
-        settings.attRawEnabled        = qSettings->value("attRawEnabled").toBool();
-        settings.attRawRate           = qSettings->value("attRawRate").toInt();
-
-        settings.attStateEnabled      = qSettings->value("attStateEnabled").toBool();
-        settings.attActHW = qSettings->value("attActHW").toBool();
-        settings.attActSim = qSettings->value("attActSim").toBool();
-        settings.attActCalc           = qSettings->value("attActCalc").toBool();
-
-        settings.baroSensorEnabled    = qSettings->value("baroSensorEnabled").toBool();
-        settings.baroAltRate          = qSettings->value("baroAltRate").toInt();
-
-        settings.gpsPositionEnabled   = qSettings->value("gpsPositionEnabled").toBool();
-        settings.gpsPosRate           = qSettings->value("gpsPosRate").toInt();
-
-        settings.groundTruthEnabled   = qSettings->value("groundTruthEnabled").toBool();
-        settings.groundTruthRate      = qSettings->value("groundTruthRate").toInt();
-
-        settings.inputCommand         = qSettings->value("inputCommand").toBool();
-        settings.minOutputPeriod      = qSettings->value("minOutputPeriod").toInt();
-
-        settings.airspeedStateEnabled = qSettings->value("airspeedStateEnabled").toBool();
-        settings.airspeedStateRate    = qSettings->value("airspeedStateRate").toInt();
-    }
+    simSettings.airspeedStateEnabled = settings.value("airspeedStateEnabled", DFLT_AIRSPEED_STATE_ENABLED).toBool();
+    simSettings.airspeedStateRate    = settings.value("airspeedStateRate", DFLT_AIRSPEED_STATE_RATE).toInt();
 }
 
-IUAVGadgetConfiguration *HITLConfiguration::clone()
+HITLConfiguration::HITLConfiguration(const HITLConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
 {
-    HITLConfiguration *m = new HITLConfiguration(this->classId());
+    simSettings = obj.simSettings;
+}
 
-    m->settings = settings;
-    return m;
+IUAVGadgetConfiguration *HITLConfiguration::clone() const
+{
+    return new HITLConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void HITLConfiguration::saveConfig(QSettings *qSettings) const
+void HITLConfiguration::saveConfig(QSettings &settings) const
 {
-    qSettings->setValue("simulatorId", settings.simulatorId);
-    qSettings->setValue("binPath", settings.binPath);
-    qSettings->setValue("dataPath", settings.dataPath);
+    settings.setValue("simulatorId", simSettings.simulatorId);
+    settings.setValue("binPath", simSettings.binPath);
+    settings.setValue("dataPath", simSettings.dataPath);
 
-    qSettings->setValue("hostAddress", settings.hostAddress);
-    qSettings->setValue("remoteAddress", settings.remoteAddress);
-    qSettings->setValue("outPort", settings.outPort);
-    qSettings->setValue("inPort", settings.inPort);
+    settings.setValue("hostAddress", simSettings.hostAddress);
+    settings.setValue("remoteAddress", simSettings.remoteAddress);
+    settings.setValue("outPort", simSettings.outPort);
+    settings.setValue("inPort", simSettings.inPort);
 
-    qSettings->setValue("latitude", settings.latitude);
-    qSettings->setValue("longitude", settings.longitude);
-    qSettings->setValue("addNoise", settings.addNoise);
-    qSettings->setValue("startSim", settings.startSim);
+    settings.setValue("latitude", simSettings.latitude);
+    settings.setValue("longitude", simSettings.longitude);
+    settings.setValue("addNoise", simSettings.addNoise);
+    settings.setValue("startSim", simSettings.startSim);
 
-    qSettings->setValue("gcsReceiverEnabled", settings.gcsReceiverEnabled);
-    qSettings->setValue("manualControlEnabled", settings.manualControlEnabled);
+    settings.setValue("gcsReceiverEnabled", simSettings.gcsReceiverEnabled);
+    settings.setValue("manualControlEnabled", simSettings.manualControlEnabled);
 
-    qSettings->setValue("attRawEnabled", settings.attRawEnabled);
-    qSettings->setValue("attRawRate", settings.attRawRate);
-    qSettings->setValue("attStateEnabled", settings.attStateEnabled);
-    qSettings->setValue("attActHW", settings.attActHW);
-    qSettings->setValue("attActSim", settings.attActSim);
-    qSettings->setValue("attActCalc", settings.attActCalc);
-    qSettings->setValue("baroSensorEnabled", settings.baroSensorEnabled);
-    qSettings->setValue("baroAltRate", settings.baroAltRate);
-    qSettings->setValue("gpsPositionEnabled", settings.gpsPositionEnabled);
-    qSettings->setValue("gpsPosRate", settings.gpsPosRate);
-    qSettings->setValue("groundTruthEnabled", settings.groundTruthEnabled);
-    qSettings->setValue("groundTruthRate", settings.groundTruthRate);
-    qSettings->setValue("inputCommand", settings.inputCommand);
-    qSettings->setValue("minOutputPeriod", settings.minOutputPeriod);
+    settings.setValue("attRawEnabled", simSettings.attRawEnabled);
+    settings.setValue("attRawRate", simSettings.attRawRate);
+    settings.setValue("attStateEnabled", simSettings.attStateEnabled);
+    settings.setValue("attActHW", simSettings.attActHW);
+    settings.setValue("attActSim", simSettings.attActSim);
+    settings.setValue("attActCalc", simSettings.attActCalc);
+    settings.setValue("baroSensorEnabled", simSettings.baroSensorEnabled);
+    settings.setValue("baroAltRate", simSettings.baroAltRate);
+    settings.setValue("gpsPositionEnabled", simSettings.gpsPositionEnabled);
+    settings.setValue("gpsPosRate", simSettings.gpsPosRate);
+    settings.setValue("groundTruthEnabled", simSettings.groundTruthEnabled);
+    settings.setValue("groundTruthRate", simSettings.groundTruthRate);
+    settings.setValue("inputCommand", simSettings.inputCommand);
+    settings.setValue("minOutputPeriod", simSettings.minOutputPeriod);
 
-    qSettings->setValue("airspeedStateEnabled", settings.airspeedStateEnabled);
-    qSettings->setValue("airspeedStateRate", settings.airspeedStateRate);
+    settings.setValue("airspeedStateEnabled", simSettings.airspeedStateEnabled);
+    settings.setValue("airspeedStateRate", simSettings.airspeedStateRate);
 }

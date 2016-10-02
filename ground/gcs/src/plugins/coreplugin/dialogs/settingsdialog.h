@@ -31,7 +31,7 @@
 
 #include "ui_settingsdialog.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 #include "coreplugin/dialogs/ioptionspage.h"
 

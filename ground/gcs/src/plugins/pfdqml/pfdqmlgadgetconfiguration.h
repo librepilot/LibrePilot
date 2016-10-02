@@ -39,7 +39,11 @@ using namespace Core;
 class PfdQmlGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit PfdQmlGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit PfdQmlGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit PfdQmlGadgetConfiguration(const PfdQmlGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     QString qmlFile() const
     {
@@ -205,9 +209,6 @@ public:
     {
         return QMapIterator<double, QString>(m_altitudeMap);
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     QString m_qmlFile; // The name of the dial's SVG source file

@@ -77,9 +77,9 @@ public:
         return 0;
     }
     virtual void loadConfiguration(IUAVGadgetConfiguration *) {}
-    virtual void saveState(QSettings * /*qSettings*/) {}
+    virtual void saveState(QSettings &) const {}
     virtual void restoreState(QByteArray) {}
-    virtual void restoreState(QSettings * /*qSettings*/) {}
+    virtual void restoreState(QSettings &) {}
 public slots:
     virtual void configurationChanged(IUAVGadgetConfiguration *) {}
     virtual void configurationAdded(IUAVGadgetConfiguration *) {}

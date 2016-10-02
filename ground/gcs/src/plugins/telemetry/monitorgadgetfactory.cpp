@@ -75,9 +75,9 @@ MonitorWidget *MonitorGadgetFactory::createMonitorWidget(QWidget *parent)
     return widget;
 }
 
-IUAVGadgetConfiguration *MonitorGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *MonitorGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new MonitorGadgetConfiguration(QString("TelemetryMonitorGadget"), qSettings);
+    return new MonitorGadgetConfiguration(QString("TelemetryMonitorGadget"), settings);
 }
 
 IOptionsPage *MonitorGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

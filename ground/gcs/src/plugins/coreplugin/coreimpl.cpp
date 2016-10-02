@@ -28,10 +28,10 @@
 
 #include "coreimpl.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QCoreApplication>
-
 #include "utils/pathutils.h"
+
+#include <QDir>
+#include <QSettings>
 
 namespace Core {
 namespace Internal {
@@ -117,11 +117,6 @@ MimeDatabase *CoreImpl::mimeDatabase() const
     return m_mainwindow->mimeDatabase();
 }
 
-QSettings *CoreImpl::settings(QSettings::Scope scope) const
-{
-    return m_mainwindow->settings(scope);
-}
-
 SettingsDatabase *CoreImpl::settingsDatabase() const
 {
     return m_mainwindow->settingsDatabase();
@@ -136,7 +131,6 @@ IContext *CoreImpl::currentContextObject() const
 {
     return m_mainwindow->currentContextObject();
 }
-
 
 QMainWindow *CoreImpl::mainWindow() const
 {
@@ -181,24 +175,40 @@ void CoreImpl::openFiles(const QStringList &arguments)
     // m_mainwindow->openFiles(arguments);
 }
 
-void CoreImpl::readMainSettings(QSettings *qs, bool workspaceDiffOnly)
+void CoreImpl::readSettings(IConfigurablePlugin *plugin)
 {
-    m_mainwindow->readSettings(qs, workspaceDiffOnly);
+    QSettings settings;
+
+    readSettings(plugin, settings);
 }
 
-void CoreImpl::saveMainSettings(QSettings *qs)
+void CoreImpl::saveSettings(IConfigurablePlugin *plugin) const
 {
-    m_mainwindow->saveSettings(qs);
+    QSettings settings;
+
+    saveSettings(plugin, settings);
 }
 
-void CoreImpl::readSettings(IConfigurablePlugin *plugin, QSettings *qs)
+void CoreImpl::readMainSettings(QSettings &settings, bool workspaceDiffOnly)
 {
-    m_mainwindow->readSettings(plugin, qs);
+    m_mainwindow->readSettings(settings, workspaceDiffOnly);
 }
-void CoreImpl::saveSettings(IConfigurablePlugin *plugin, QSettings *qs)
+
+void CoreImpl::saveMainSettings(QSettings &settings) const
 {
-    m_mainwindow->saveSettings(plugin, qs);
+    m_mainwindow->saveSettings(settings);
 }
+
+void CoreImpl::readSettings(IConfigurablePlugin *plugin, QSettings &settings)
+{
+    m_mainwindow->readSettings(plugin, settings);
+}
+
+void CoreImpl::saveSettings(IConfigurablePlugin *plugin, QSettings &settings) const
+{
+    m_mainwindow->saveSettings(plugin, settings);
+}
+
 void CoreImpl::deleteSettings()
 {
     m_mainwindow->deleteSettings();

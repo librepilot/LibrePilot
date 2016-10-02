@@ -26,10 +26,11 @@
  */
 
 #include "uavgadgetdecorator.h"
+
 #include "iuavgadgetconfiguration.h"
+
 #include <QComboBox>
-#include <QtCore/QByteArray>
-#include <QtCore/QDebug>
+#include <QDebug>
 
 using namespace Core;
 
@@ -123,20 +124,20 @@ void UAVGadgetDecorator::updateToolbar()
     m_toolbar->setEnabled(m_toolbar->count() > 1);
 }
 
-void UAVGadgetDecorator::saveState(QSettings *qSettings)
+void UAVGadgetDecorator::saveState(QSettings &settings) const
 {
     if (m_activeConfiguration) {
-        qSettings->setValue("activeConfiguration", m_activeConfiguration->name());
+        settings.setValue("activeConfiguration", m_activeConfiguration->name());
     }
     // save gadget individual state
-    qSettings->beginGroup("state");
-    m_gadget->saveState(qSettings);
-    qSettings->endGroup();
+    settings.beginGroup("state");
+    m_gadget->saveState(settings);
+    settings.endGroup();
 }
 
-void UAVGadgetDecorator::restoreState(QSettings *qSettings)
+void UAVGadgetDecorator::restoreState(QSettings &settings)
 {
-    QString configName = qSettings->value("activeConfiguration").toString();
+    QString configName = settings.value("activeConfiguration").toString();
 
     foreach(IUAVGadgetConfiguration * config, *m_configurations) {
         if (config->name() == configName) {
@@ -145,7 +146,7 @@ void UAVGadgetDecorator::restoreState(QSettings *qSettings)
         }
     }
     // restore gadget individual state
-    qSettings->beginGroup("state");
-    m_gadget->restoreState(qSettings);
-    qSettings->endGroup();
+    settings.beginGroup("state");
+    m_gadget->restoreState(settings);
+    settings.endGroup();
 }

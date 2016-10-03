@@ -653,6 +653,21 @@ void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datar
 }
 
 /**
+ * Set a XtalCap
+ *
+ * @param[in] rfm22b_id The RFM22B device index.
+ * @param[in] XtalCap Value.
+ */
+void PIOS_RFM22B_SetXtalCap(uint32_t rfm22b_id, uint8_t xtal_cap)
+{
+    struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
+
+    if (PIOS_RFM22B_Validate(rfm22b_dev)) {
+        rfm22b_dev->cfg.RFXtalCap = xtal_cap;
+    }
+}
+
+/**
  * Set a modem to be a coordinator or not.
  *
  * @param[in] rfm22b_id The RFM22B device index.

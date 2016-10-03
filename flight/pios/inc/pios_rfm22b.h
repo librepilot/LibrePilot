@@ -105,6 +105,7 @@ extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t s
 extern void PIOS_RFM22B_Reinit(uint32_t rfb22b_id);
 extern void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr);
 extern void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool ppm_mode, bool ppm_only);
+extern void PIOS_RFM22B_SetXtalCap(uint32_t rfm22b_id, uint8_t xtal_cap);
 extern void PIOS_RFM22B_SetCoordinatorID(uint32_t rfm22b_id, uint32_t coord_id);
 extern void PIOS_RFM22B_SetDeviceID(uint32_t rfm22b_id, uint32_t device_id);
 extern uint32_t PIOS_RFM22B_DeviceID(uint32_t rfb22b_id);

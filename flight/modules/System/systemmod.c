@@ -129,6 +129,11 @@ static void updateWDGstats();
 static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 #endif
 
+#ifdef PIOS_INCLUDE_RFM22B
+static OPLinkSettingsData previousOPLinkSettings;
+static void checkOPLinkSettingsUpdatedCb(UAVObjEvent *ev);
+#endif
+
 extern uintptr_t pios_uavo_settings_fs_id;
 extern uintptr_t pios_user_fs_id;
 
@@ -230,6 +235,10 @@ static void systemTask(__attribute__((unused)) void *parameters)
     // Whenever the configuration changes, make sure it is safe to fly
     HwSettingsConnectCallback(checkSettingsUpdatedCb);
     SystemSettingsConnectCallback(checkSettingsUpdatedCb);
+
+#ifdef PIOS_INCLUDE_RFM22B
+    OPLinkSettingsConnectCallback(checkOPLinkSettingsUpdatedCb);
+#endif
 
 #ifdef DIAG_TASKS
     TaskInfoData taskInfoData;
@@ -453,6 +462,24 @@ static void checkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
         ExtendedAlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED, 0);
     }
 }
+
+#ifdef PIOS_INCLUDE_RFM22B
+/**
+ * Called whenever OPLink settings changed
+ */
+static void checkOPLinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    OPLinkSettingsData currentOPLinkSettings;
+
+    OPLinkSettingsGet(&currentOPLinkSettings);
+    // Check if RFXtalCap value changed
+    if (currentOPLinkSettings.RFXtalCap != previousOPLinkSettings.RFXtalCap) {
+        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentOPLinkSettings.RFXtalCap);
+        PIOS_RFM22B_Reinit(pios_rfm22b_id);
+        previousOPLinkSettings = currentOPLinkSettings;
+    }
+}
+#endif /* ifdef PIOS_INCLUDE_RFM22B */
 
 #ifdef DIAG_TASKS
 static void taskMonitorForEachCallback(uint16_t task_id, const struct pios_task_info *task_info, void *context)

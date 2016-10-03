@@ -427,16 +427,17 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     rfm22b_dev->stats.packets_per_sec = 0;
     rfm22b_dev->stats.rx_good = 0;
     rfm22b_dev->stats.rx_corrected    = 0;
-    rfm22b_dev->stats.rx_error     = 0;
-    rfm22b_dev->stats.rx_missed    = 0;
-    rfm22b_dev->stats.tx_dropped   = 0;
-    rfm22b_dev->stats.resets       = 0;
-    rfm22b_dev->stats.timeouts     = 0;
-    rfm22b_dev->stats.link_quality = 0;
+    rfm22b_dev->stats.rx_error       = 0;
+    rfm22b_dev->stats.rx_missed      = 0;
+    rfm22b_dev->stats.tx_dropped     = 0;
+    rfm22b_dev->stats.resets         = 0;
+    rfm22b_dev->stats.timeouts       = 0;
+    rfm22b_dev->stats.link_quality   = 0;
     rfm22b_dev->stats.rssi = 0;
-    rfm22b_dev->stats.tx_seq       = 0;
-    rfm22b_dev->stats.rx_seq       = 0;
-    rfm22b_dev->stats.tx_failure   = 0;
+    rfm22b_dev->stats.afc_correction = 0;
+    rfm22b_dev->stats.tx_seq         = 0;
+    rfm22b_dev->stats.rx_seq         = 0;
+    rfm22b_dev->stats.tx_failure     = 0;
 
     // Set the frequency band
     switch (band) {
@@ -1072,13 +1073,13 @@ pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id)
 
         // read the 10-bit signed afc correction value
         // bits 9 to 2
-        uint16_t afc_correction = (uint16_t)rfm22_read(rfm22b_dev, RFM22_afc_correction_read) << 8;
+        int16_t afc_correction = (uint16_t)rfm22_read(rfm22b_dev, RFM22_afc_correction_read) << 8;
         // bits 1 & 0
-        afc_correction  |= (uint16_t)rfm22_read(rfm22b_dev, RFM22_ook_counter_value1) & 0x00c0;
+        afc_correction  |= (int16_t)rfm22_read(rfm22b_dev, RFM22_ook_counter_value1) & 0x00c0;
         afc_correction >>= 6;
         // convert the afc value to Hz
         int32_t afc_corr = (int32_t)(rfm22b_dev->frequency_step_size * afc_correction + 0.5f);
-        rfm22b_dev->afc_correction_Hz = (afc_corr < -127) ? -127 : ((afc_corr > 127) ? 127 : afc_corr);
+        rfm22b_dev->afc_correction_Hz = afc_corr;
 
         // read rx signal strength .. 45 = -100dBm, 205 = -20dBm
         uint8_t rssi = rfm22_read(rfm22b_dev, RFM22_rssi);
@@ -1699,8 +1700,8 @@ static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev,
     // Set the frequency hopping step size.
     rfm22_write(rfm22b_dev, RFM22_frequency_hopping_step_size, freq_hop_step_size);
 
-    // frequency hopping channel (0-255)
-    rfm22b_dev->frequency_step_size = 156.25f * hbsel;
+    // frequency step
+    rfm22b_dev->frequency_step_size = 156.25f * (hbsel + 1);
 
     // frequency hopping channel (0-255)
     rfm22b_dev->channel = init_chan;
@@ -2063,9 +2064,10 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
             radio_dev->rx_destination_id == rfm22_destinationID(radio_dev)) {
             rfm22_synchronizeClock(radio_dev);
         }
-        radio_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_CONNECTED;
-        radio_dev->last_contact     = xTaskGetTickCount();
+        radio_dev->stats.link_state     = OPLINKSTATUS_LINKSTATE_CONNECTED;
+        radio_dev->last_contact         = xTaskGetTickCount();
         radio_dev->stats.rssi = radio_dev->rssi_dBm;
+        radio_dev->stats.afc_correction = radio_dev->afc_correction_Hz;
     } else {
         ret_event = RADIO_EVENT_RX_COMPLETE;
     }

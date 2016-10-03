@@ -292,18 +292,19 @@ static void systemTask(__attribute__((unused)) void *parameters)
             static uint16_t prev_tx_seq   = 0;
             static uint16_t prev_rx_seq   = 0;
 
-            oplinkStatus.DeviceID    = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
-            oplinkStatus.RxGood      = radio_stats.rx_good;
-            oplinkStatus.RxCorrected = radio_stats.rx_corrected;
-            oplinkStatus.RxErrors    = radio_stats.rx_error;
-            oplinkStatus.RxMissed    = radio_stats.rx_missed;
-            oplinkStatus.RxFailure   = radio_stats.rx_failure;
-            oplinkStatus.TxDropped   = radio_stats.tx_dropped;
-            oplinkStatus.TxFailure   = radio_stats.tx_failure;
-            oplinkStatus.Resets      = radio_stats.resets;
-            oplinkStatus.Timeouts    = radio_stats.timeouts;
+            oplinkStatus.DeviceID      = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
+            oplinkStatus.RxGood        = radio_stats.rx_good;
+            oplinkStatus.RxCorrected   = radio_stats.rx_corrected;
+            oplinkStatus.RxErrors      = radio_stats.rx_error;
+            oplinkStatus.RxMissed      = radio_stats.rx_missed;
+            oplinkStatus.RxFailure     = radio_stats.rx_failure;
+            oplinkStatus.TxDropped     = radio_stats.tx_dropped;
+            oplinkStatus.TxFailure     = radio_stats.tx_failure;
+            oplinkStatus.Resets        = radio_stats.resets;
+            oplinkStatus.Timeouts      = radio_stats.timeouts;
             oplinkStatus.RSSI = radio_stats.rssi;
-            oplinkStatus.LinkQuality = radio_stats.link_quality;
+            oplinkStatus.LinkQuality   = radio_stats.link_quality;
+            oplinkStatus.AFCCorrection = radio_stats.afc_correction;
             if (first_time) {
                 first_time = false;
             } else {

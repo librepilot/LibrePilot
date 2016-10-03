@@ -297,7 +297,7 @@ struct pios_rfm22b_dev {
     // current frequency hop channel index
     uint8_t      channel_index;
     // afc correction reading (in Hz)
-    int8_t       afc_correction_Hz;
+    int32_t      afc_correction_Hz;
 
     // The packet timers.
     portTickType packet_start_ticks;

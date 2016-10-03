@@ -96,7 +96,7 @@ struct rfm22b_stats {
     uint8_t  timeouts;
     uint8_t  link_quality;
     int8_t   rssi;
-    int8_t   afc_correction;
+    int32_t  afc_correction;
     uint8_t  link_state;
 };
 

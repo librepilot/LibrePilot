@@ -1573,8 +1573,13 @@ static enum pios_radio_event rfm22_init(struct pios_rfm22b_dev *rfm22b_dev)
     // RX FIFO Almost Full Threshold (0 - 63)
     rfm22_write(rfm22b_dev, RFM22_rx_fifo_control, RX_FIFO_HI_WATERMARK);
 
-    // Set the frequency calibration
-    rfm22_write(rfm22b_dev, RFM22_xtal_osc_load_cap, rfm22b_dev->cfg.RFXtalCap);
+    // Set the xtal capacitor for frequency calibration
+    // Cint = 1.8 pF + 0.085 pF x xlc[6:0] + 3.7 pF x xlc[7] (xtalshift)
+    // cfg.RFXtalCap 0 to 171 range give Cint = 1.8pF to 16.295pF range
+    // Default is 127, equal to 12.595pF
+    rfm22_write(rfm22b_dev,
+                RFM22_xtal_osc_load_cap,
+                (rfm22b_dev->cfg.RFXtalCap < 128) ? rfm22b_dev->cfg.RFXtalCap : (rfm22b_dev->cfg.RFXtalCap + 84));
 
     // Release the bus
     rfm22_releaseBus(rfm22b_dev);

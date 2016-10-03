@@ -912,6 +912,11 @@ void PIOS_Board_Init(void)
         } else {
             /* Configure the RFM22B device. */
             const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
+
+            // Set the Xtal capacitor value
+            pios_rfm22b_rm1_cfg.RFXtalCap = oplinkSettings.RFXtalCap;
+            pios_rfm22b_rm2_cfg.RFXtalCap = oplinkSettings.RFXtalCap;
+
             if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg, oplinkSettings.RFBand)) {
                 PIOS_Assert(0);
             }

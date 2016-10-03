@@ -84,6 +84,9 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "FlexiPort", m_oplink->FlexiPort);
     addWidgetBinding("OPLinkSettings", "VCPPort", m_oplink->VCPPort);
 
+    addWidgetBinding("OPLinkSettings", "RFXtalCap", m_oplink->RFXtalCapValue);
+    addWidgetBinding("OPLinkSettings", "RFXtalCap", m_oplink->RFXtalCapSlider);
+
     addWidgetBinding("OPLinkStatus", "DeviceID", m_oplink->DeviceID);
     addWidgetBinding("OPLinkStatus", "RxGood", m_oplink->Good);
     addWidgetBinding("OPLinkStatus", "RxCorrected", m_oplink->Corrected);
@@ -104,6 +107,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "TXRate", m_oplink->TXRate);
     addWidgetBinding("OPLinkStatus", "RXPacketRate", m_oplink->RXPacketRate);
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
+    addWidgetBinding("OPLinkStatus", "AFCCorrection", m_oplink->AFCCorrection);
 
     // initially hide port combo boxes
     setPortsVisible(false);
@@ -171,6 +175,9 @@ void ConfigOPLinkWidget::updateStatus()
 
     m_oplink->PairSignalStrengthBar1->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);
     m_oplink->PairSignalStrengthLabel1->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar1->value()));
+
+    int afc_valueKHz = m_oplink->AFCCorrection->text().toInt() / 1000;
+    m_oplink->AFCCorrectionBar->setValue(afc_valueKHz);
 
     // Enable components based on the board type connected.
     switch (oplinkStatusObj->boardType()) {

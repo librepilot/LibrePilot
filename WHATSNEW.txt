@@ -1,7 +1,43 @@
+-- RELEASE-16.09-RC2 - Second LibrePilot Release --
+This is the second LibrePilot release.
+
+Known issues:
+    * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
+    * [LP-303] - GCS menus broken when in full screen mode
+    * [LP-397] - ModelView misbehaving on MacOSX
+    * [LP-402] - GCS message - Invalid value for "Running"
+    * [LP-408] - No serial telemetry without OPLink 
+    * [LP-421] - GCS setup wizard welcome panel is too big on high dpi screens
+
+The full list of bug fixes and enhancements in this release is available here:
+https://librepilot.atlassian.net/issues/?filter=10800
+
+
+** Bug
+    * [LP-245] - GCS unsaved data prompt when nothing changed
+    * [LP-333] - Sparky2 I2CPort needs GPIO_PuPd_UP instead of NOPULL
+    * [LP-400] - Doxygen document build fails with latex errors
+    * [LP-401] - Reboot is required after AutoTune is set in FMS
+    * [LP-406] - Windows driver fails to install
+    * [LP-409] - make fw_dist fails on windows
+    * [LP-423] - HMC5x83 driver dereferences null pointer
+    * [LP-424] - pios_openlrs.c has incorrect reference to rfm22b_id
+
+** New Feature
+    * [LP-425] - Add Credits to the About dialog
+
+** Task
+    * [LP-315] - Update vehicle templates
+
+** Improvement
+    * [LP-410] - silence GCS logs
+    * [LP-417] - Heartbeat LED on OPLink
+
+
 -- RELEASE-16.09-RC1 - Second LibrePilot Release --
 This is the second LibrePilot release.
 
-Know issues:
+Known issues:
     * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
     * [LP-303] - GCS menus broken when in full screen mode
     * [LP-397] - ModelView misbehaving on MacOSX
@@ -9,6 +45,7 @@ Know issues:
 
 The full list of bug fixes and enhancements in this release is available here:
 https://librepilot.atlassian.net/issues/?filter=10500
+
 
 Release Notes - LibrePilot - Version REL-16.09
 
@@ -87,6 +124,15 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-392] - Revo attitude settings is missing the "Zero gyro when arming" checkbox
     * [LP-395] - Raise BoardSteadyMaxVariance to support some boards having higher gyro noise
     * [LP-397] - ModelView misbehaving on MacOSX
+    * [LP-400] - Doxygen document build fails with latex errors
+    * [LP-401] - Reboot is required after AutoTune is set in FMS
+    * [LP-402] - GCS message - Invalid value for "Running"
+    * [LP-406] - Windows driver fails to install
+    * [LP-408] - No serial telemetry without OPLink 
+    * [LP-409] - make fw_dist fails on windows
+    * [LP-421] - GCS setup wizard welcome panel is too big on high dpi screens
+    * [LP-423] - HMC5x83 driver dereferences null pointer
+    * [LP-424] - pios_openlrs.c has incorrect reference to rfm22b_id
 
 
 ** Story
@@ -104,6 +150,7 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-298] - Create iBus support for RX
     * [LP-327] - Wait for board to be steady before calibrating gyro
     * [LP-364] - Port and improve MavLink support from dRonin
+    * [LP-425] - Add Credits to the About dialog
 
 ** Task
     * [LP-2] - Upgrade to Qt 5.5
@@ -190,6 +237,10 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-379] - Add receiverActivity to RC Input tab
     * [LP-390] - Fix UAVO telemetry errors
     * [LP-396] - Yaw AcroPlus controls in GUI
+    * [LP-399] - Add GUI for configuring the AutoTune feature
+    * [LP-410] - silence GCS logs
+    * [LP-411] - AutoTune Limit Outer PIDs on Powerful Multicopters - dRonin PR 1283
+    * [LP-417] - Heartbeat LED on OPLink
 
 
 

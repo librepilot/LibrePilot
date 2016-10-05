@@ -207,16 +207,17 @@ void ConfigOPLinkWidget::updateInfo()
     // qDebug() << "ConfigOPLinkWidget::updateInfo";
 
     // Update the Description field
-    quint8 *desc = oplinkStatusObj->getData().Description;
 
     // extract desc into byte array
+    OPLinkStatus::DataFields oplinkStatusData = oplinkStatusObj->getData();
+    quint8 *desc = oplinkStatusData.Description;
     QByteArray ba;
 
     for (unsigned int i = 0; i < OPLinkStatus::DESCRIPTION_NUMELEM; i++) {
         ba.append(desc[i]);
     }
 
-    // parse byte array intto device descriptor
+    // parse byte array into device descriptor
     deviceDescriptorStruct dds;
     UAVObjectUtilManager::descriptionToStructure(ba, dds);
 

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       serialplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup SerialPlugin Serial Connection Plugin
@@ -29,12 +30,16 @@
 #define SERIALPLUGIN_H
 
 // #include "serial_global.h"
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
-#include "coreplugin/iconnection.h"
 #include <extensionsystem/iplugin.h>
+#include <coreplugin/iconfigurableplugin.h>
+#include "coreplugin/iconnection.h"
+
 #include "serialpluginconfiguration.h"
 #include "serialpluginoptionspage.h"
+
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
+
 #include <QThread>
 
 class IConnection;
@@ -70,12 +75,10 @@ protected:
  *   Plugin will add a instance of this class to the pool,
  *   so the connection manager can use it.
  */
-// class SERIAL_EXPORT SerialConnection
-class SerialConnection
-    : public Core::IConnection {
+class SerialConnection : public Core::IConnection {
     Q_OBJECT
 public:
-    SerialConnection();
+    SerialConnection(SerialPluginConfiguration *config);
     virtual ~SerialConnection();
 
     virtual QList <Core::IConnection::device> availableDevices();
@@ -91,37 +94,34 @@ public:
     {
         return m_deviceOpened;
     }
-    SerialPluginConfiguration *Config() const
+
+    SerialPluginOptionsPage *optionsPage() const
     {
-        return m_config;
+        return m_optionsPage;
     }
-    SerialPluginOptionsPage *Optionspage() const
-    {
-        return m_optionspage;
-    }
+
+protected slots:
+    void onEnumerationChanged();
 
 
 private:
     QSerialPort *serialHandle;
     bool enablePolling;
-    SerialPluginConfiguration *m_config;
-    SerialPluginOptionsPage *m_optionspage;
 
-    QList<QSerialPortInfo> availablePorts();
-
-protected slots:
-    void onEnumerationChanged();
-
-protected:
     SerialEnumerationThread m_enumerateThread;
     bool m_deviceOpened;
+
+    // FIXME m_config and m_optionsPage belong in IPConnectionPlugin
+    SerialPluginConfiguration *m_config;
+    SerialPluginOptionsPage *m_optionsPage;
+
+    QList<QSerialPortInfo> availablePorts();
 };
 
 
-// class SERIAL_EXPORT SerialPlugin
-class SerialPlugin : public ExtensionSystem::IPlugin {
+class SerialPlugin : public Core::IConfigurablePlugin {
     Q_OBJECT
-                                             Q_PLUGIN_METADATA(IID "OpenPilot.Serial")
+                                  Q_PLUGIN_METADATA(IID "OpenPilot.Serial")
 
 public:
     SerialPlugin();
@@ -129,8 +129,13 @@ public:
 
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
+
+    void readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo);
+    void saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const;
+
 private:
     SerialConnection *m_connection;
+    SerialPluginConfiguration *m_config;
 };
 
 #endif // SERIALPLUGIN_H

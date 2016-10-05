@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       serialpluginconfiguration.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -37,10 +38,14 @@
  * Loads a saved configuration or defaults if non exist.
  *
  */
-SerialPluginConfiguration::SerialPluginConfiguration(QString classId, QObject *parent) :
+SerialPluginConfiguration::SerialPluginConfiguration(QString classId, QSettings &settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent),
     m_speed("57600")
 {
+    m_speed = settings.value("speed", "57600").toString();
+    if (m_speed.isEmpty()) {
+        m_speed = "57600";
+    }
 }
 
 SerialPluginConfiguration::SerialPluginConfiguration(const SerialPluginConfiguration &obj) :
@@ -68,31 +73,4 @@ IUAVGadgetConfiguration *SerialPluginConfiguration::clone() const
 void SerialPluginConfiguration::saveConfig(QSettings &settings) const
 {
     settings.setValue("speed", m_speed);
-}
-
-void SerialPluginConfiguration::restoreSettings()
-{
-    QSettings settings;
-
-    settings.beginGroup("SerialConnection");
-
-    QString str = settings.value("speed", "").toString();
-    if (str.isEmpty()) {
-        m_speed = "57600";
-    } else {
-        m_speed = str;
-    }
-
-    settings.endGroup();
-}
-
-void SerialPluginConfiguration::saveSettings() const
-{
-    QSettings settings;
-
-    settings.beginGroup("SerialConnection");
-
-    settings.setValue("speed", m_speed);
-
-    settings.endGroup();
 }

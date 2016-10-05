@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       serialpluginoptionspage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -26,18 +27,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef SERIALpluginOPTIONSPAGE_H
-#define SERIALpluginOPTIONSPAGE_H
+#ifndef SERIALPLUGINOPTIONSPAGE_H
+#define SERIALPLUGINOPTIONSPAGE_H
 
 #include "coreplugin/dialogs/ioptionspage.h"
-#include "QString"
-#include <QStringList>
-#include <QDebug>
-#include <QFont>
 
-namespace Core {
-class IUAVpluginConfiguration;
-}
+#include "QString"
 
 class SerialPluginConfiguration;
 
@@ -72,9 +67,12 @@ public:
     void apply();
     void finish();
 
+signals:
+    void availableDevChanged();
+
 private:
-    Ui::SerialPluginOptionsPage *options_page;
+    Ui::SerialPluginOptionsPage *m_page;
     SerialPluginConfiguration *m_config;
 };
 
-#endif // SERIALpluginOPTIONSPAGE_H
+#endif // SERIALPLUGINOPTIONSPAGE_H

@@ -119,7 +119,7 @@ int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, ui
 
     bool has_rx = (rx_buffer && rx_buffer_len > 0);
     bool has_tx = (tx_buffer && tx_buffer_len > 0);
-    PIOS_Assert(has_rx || has_tx);
+
     PIOS_Assert(driver->bind_tx_cb || !has_tx);
     PIOS_Assert(driver->bind_rx_cb || !has_rx);
 
@@ -153,12 +153,10 @@ int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, ui
         fifoBuf_init(&com_dev->tx, tx_buffer, tx_buffer_len);
 #if defined(PIOS_INCLUDE_FREERTOS)
         vSemaphoreCreateBinary(com_dev->tx_sem);
+        com_dev->sendbuffer_sem = xSemaphoreCreateMutex();
 #endif /* PIOS_INCLUDE_FREERTOS */
         (com_dev->driver->bind_tx_cb)(lower_id, PIOS_COM_TxOutCallback, (uint32_t)com_dev);
     }
-#if defined(PIOS_INCLUDE_FREERTOS)
-    com_dev->sendbuffer_sem = xSemaphoreCreateMutex();
-#endif /* PIOS_INCLUDE_FREERTOS */
 
     *com_id = (uint32_t)com_dev;
     return 0;
@@ -358,6 +356,74 @@ int32_t PIOS_COM_RegisterBaudRateCallback(uint32_t com_id, pios_com_callback_bau
     return 0;
 }
 
+int32_t PIOS_COM_ASYNC_TxStart(uint32_t com_id, uint16_t tx_bytes_avail)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    /* Invoke the driver function if it exists */
+    if (com_dev->driver->tx_start) {
+        com_dev->driver->tx_start(com_dev->lower_id, tx_bytes_avail);
+    }
+
+    return 0;
+}
+
+int32_t PIOS_COM_ASYNC_RxStart(uint32_t com_id, uint16_t rx_bytes_avail)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    /* Invoke the driver function if it exists */
+    if (com_dev->driver->rx_start) {
+        com_dev->driver->rx_start(com_dev->lower_id, rx_bytes_avail);
+    }
+
+    return 0;
+}
+
+int32_t PIOS_COM_ASYNC_RegisterRxCallback(uint32_t com_id, pios_com_callback rx_in_cb, uint32_t context)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    /* Invoke the driver function if it exists */
+    if (com_dev->driver->bind_rx_cb) {
+        com_dev->driver->bind_rx_cb(com_dev->lower_id, rx_in_cb, context);
+    }
+
+    return 0;
+}
+
+int32_t PIOS_COM_ASYNC_RegisterTxCallback(uint32_t com_id, pios_com_callback tx_out_cb, uint32_t context)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    /* Invoke the driver function if it exists */
+    if (com_dev->driver->bind_tx_cb) {
+        com_dev->driver->bind_tx_cb(com_dev->lower_id, tx_out_cb, context);
+    }
+
+    return 0;
+}
+
 static int32_t PIOS_COM_SendBufferNonBlockingInternal(struct pios_com_dev *com_dev, const uint8_t *buffer, uint16_t len)
 {
     PIOS_Assert(com_dev);
@@ -411,6 +477,7 @@ int32_t PIOS_COM_SendBufferNonBlocking(uint32_t com_id, const uint8_t *buffer, u
         /* Undefined COM port for this board (see pios_board.c) */
         return -1;
     }
+    PIOS_Assert(com_dev->has_tx);
 #if defined(PIOS_INCLUDE_FREERTOS)
     if (xSemaphoreTake(com_dev->sendbuffer_sem, 0) != pdTRUE) {
         return -3;
@@ -668,7 +735,7 @@ uint32_t PIOS_COM_Available(uint32_t com_id)
             return COM_AVAILABLE_TX;
         }
 
-        return COM_AVAILABLE_NONE; /* can this really happen? */
+        return COM_AVAILABLE_RXTX; /* This is the case for com_dev without buffers - for async use only */
     }
 
     return (com_dev->driver->available)(com_dev->lower_id);

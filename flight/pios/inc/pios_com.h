@@ -73,6 +73,12 @@ extern int32_t PIOS_COM_SendFormattedString(uint32_t com_id, const char *format,
 extern uint16_t PIOS_COM_ReceiveBuffer(uint32_t com_id, uint8_t *buf, uint16_t buf_len, uint32_t timeout_ms);
 extern uint32_t PIOS_COM_Available(uint32_t com_id);
 
+/* Event driven asynchronous API */
+extern int32_t PIOS_COM_ASYNC_TxStart(uint32_t id, uint16_t tx_bytes_avail);
+extern int32_t PIOS_COM_ASYNC_RxStart(uint32_t id, uint16_t rx_bytes_avail);
+extern int32_t PIOS_COM_ASYNC_RegisterRxCallback(uint32_t id, pios_com_callback rx_in_cb, uint32_t context);
+extern int32_t PIOS_COM_ASYNC_RegisterTxCallback(uint32_t id, pios_com_callback tx_out_cb, uint32_t context);
+
 #define COM_AVAILABLE_NONE (0)
 #define COM_AVAILABLE_RX   (1 << 0)
 #define COM_AVAILABLE_TX   (1 << 1)

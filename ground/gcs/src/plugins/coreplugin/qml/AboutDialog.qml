@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       aboutdialog.qml
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Team http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  *
  *****************************************************************************/
 /*
@@ -20,23 +21,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-import QtQuick 2.1
-import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0
+import QtQuick 2.6
+import QtQuick.Layouts 1.2
+import QtQuick.Controls 1.2
 
 Rectangle {
     id: container
     width: 600
-    height: 400
+    height: 480
 
     property AuthorsModel authors: AuthorsModel {}
 
     ColumnLayout {
-        id: columnLayout1
         anchors.fill: parent
         spacing: 10
         RowLayout {
-            id: rowLayout1
             opacity: 1
             Image {
                 id: logo
@@ -72,10 +71,10 @@ Rectangle {
                     anchors.fill: parent
                     Text {
                         id: headerLabel
-                        text: qsTr("LibrePilot Ground Control Station")
                         Layout.fillWidth: true
                         font.pixelSize: 14
                         font.bold: true
+                        text: qsTr("LibrePilot Ground Control Station")
                     }
                     Text {
                         id: versionLabel
@@ -84,56 +83,66 @@ Rectangle {
                         wrapMode: Text.WordWrap
                         text: version
                     }
-                    Text {
-                        id: licenseLabel
-                        Layout.fillWidth: true
-                        font.pixelSize: 9
-                        wrapMode: Text.WordWrap
-                        text: qsTr("This program is free software; you can redistribute it and/or " +
-                                   "modify it under the terms of the GNU General Public License " +
-                                   "as published by the Free Software Foundation; either version 3 " +
-                                   "of the License, or (at your option) any later version.\n" +
-                                   "The program is provided AS IS with NO WARRANTY OF ANY KIND, " +
-                                   "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.")
-                    }
-
-                    Text {
-                        id: contributorLabel
-                        text: qsTr("Contributors")
-                        Layout.fillWidth: true
-                        font.pixelSize: 14
-                        font.bold: true
-
-                    }
-                    ScrollView {
+                    TabView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        frameVisible: true
-                        ListView {
-                            id: authorsView
-                            anchors.fill: parent
-
-                            spacing: 3
-                            model: authors
-                            delegate: Text {
-                                font.pixelSize: 12
-                                text: name
+                        Tab {
+                            title: qsTr("Contributors")
+                            anchors.leftMargin: 6
+                            ScrollView {
+                                frameVisible: false
+                                ListView {
+                                    id: authorsView
+                                    anchors.fill: parent
+                                    spacing: 3
+                                    model: authors
+                                    delegate: Text {
+                                        font.pixelSize: 12
+                                        text: name
+                                    }
+                                    clip: true
+                                }
                             }
-                            clip: true
                         }
+                        Tab {
+                            title: qsTr("Credits")
+                            // margin hack to fix broken UI when frameVisible is false
+                            anchors.margins: 1
+                            anchors.rightMargin: 0
+                            TextArea {
+                                readOnly: true
+                                frameVisible: false
+                                wrapMode: TextEdit.WordWrap
+                                textFormat: TextEdit.RichText
+                                text: credits
+                                onLinkActivated: Qt.openUrlExternally(link)
+                            }
+                        }
+                        Tab {
+                            title: qsTr("License")
+                            // margin hack to fix broken UI when frameVisible is false
+                            anchors.margins: 1
+                            anchors.rightMargin: 0
+                            TextArea {
+                                readOnly: true
+                                frameVisible: false
+                                wrapMode: TextEdit.WordWrap
+                                textFormat: TextEdit.RichText
+                                text: license
+                                onLinkActivated: Qt.openUrlExternally(link)
+                            }
+                        }
+                    }
+                    Button {
+                        id: button
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        text: qsTr("Ok")
+                        activeFocusOnPress: true
+                        onClicked: dialog.close()
                     }
                 }
             }
-        }
-        Button {
-            id: button
-            text: qsTr("Ok")
-            activeFocusOnPress: true
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 10
-            onClicked: dialog.close()
         }
     }
 }

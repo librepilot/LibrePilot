@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionconfiguration.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionconfiguration.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
@@ -25,8 +26,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef IPconnectionCONFIGURATION_H
-#define IPconnectionCONFIGURATION_H
+#ifndef IPCONFIGURATIONCONFIGURATION_H
+#define IPCONFIGURATIONCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
 
@@ -35,12 +36,12 @@
 using namespace Core;
 
 class IPconnectionConfiguration : public IUAVGadgetConfiguration {
-    Q_OBJECT Q_PROPERTY(QString HostName READ HostName WRITE setHostName)
-    Q_PROPERTY(int Port READ Port WRITE setPort)
-    Q_PROPERTY(int UseTCP READ UseTCP WRITE setUseTCP)
+    Q_OBJECT Q_PROPERTY(QString HostName READ hostName WRITE setHostName)
+    Q_PROPERTY(int Port READ port WRITE setPort)
+    Q_PROPERTY(int UseTCP READ useTCP WRITE setUseTCP)
 
 public:
-    explicit IPconnectionConfiguration(QString classId, QObject *parent = 0);
+    explicit IPconnectionConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
     explicit IPconnectionConfiguration(const IPconnectionConfiguration &obj);
 
     virtual ~IPconnectionConfiguration();
@@ -48,40 +49,37 @@ public:
     IUAVGadgetConfiguration *clone() const;
     void saveConfig(QSettings &settings) const;
 
-    void saveSettings() const;
-    void restoreSettings();
-
-    QString HostName() const
+    QString hostName() const
     {
-        return m_HostName;
+        return m_hostName;
     }
-    int Port() const
+    int port() const
     {
-        return m_Port;
+        return m_port;
     }
-    int UseTCP() const
+    int useTCP() const
     {
-        return m_UseTCP;
+        return m_useTCP;
     }
 
 public slots:
-    void setHostName(QString HostName)
+    void setHostName(QString hostName)
     {
-        m_HostName = HostName;
+        m_hostName = hostName;
     }
-    void setPort(int Port)
+    void setPort(int port)
     {
-        m_Port = Port;
+        m_port = port;
     }
-    void setUseTCP(int UseTCP)
+    void setUseTCP(int useTCP)
     {
-        m_UseTCP = UseTCP;
+        m_useTCP = useTCP;
     }
 
 private:
-    QString m_HostName;
-    int m_Port;
-    int m_UseTCP;
+    QString m_hostName;
+    int m_port;
+    int m_useTCP;
 };
 
-#endif // IPconnectionCONFIGURATION_H
+#endif // IPCONFIGURATIONCONFIGURATION_H

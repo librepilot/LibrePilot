@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionoptionspage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionoptionspage.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
@@ -25,16 +26,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef IPconnectionOPTIONSPAGE_H
-#define IPconnectionOPTIONSPAGE_H
+#ifndef IPCONNECTIONOPTIONSPAGE_H
+#define IPCONNECTIONOPTIONSPAGE_H
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
 class IPconnectionConfiguration;
-
-namespace Core {
-class IUAVGadgetConfiguration;
-}
 
 namespace Ui {
 class IPconnectionOptionsPage;
@@ -72,10 +69,9 @@ public:
 signals:
     void availableDevChanged();
 
-public slots:
 private:
     IPconnectionConfiguration *m_config;
     Ui::IPconnectionOptionsPage *m_page;
 };
 
-#endif // IPconnectionOPTIONSPAGE_H
+#endif // IPCONNECTIONOPTIONSPAGE_H

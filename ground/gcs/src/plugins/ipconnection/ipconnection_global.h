@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnection_global.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnection_global.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
@@ -25,8 +26,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef IPconnection_GLOBAL_H
-#define IPconnection_GLOBAL_H
+#ifndef IPCONNECTION_GLOBAL_H
+#define IPCONNECTION_GLOBAL_H
 
 #include <QtCore/qglobal.h>
 
@@ -36,4 +37,4 @@
 #  define IPconnection_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // IPconnection_GLOBAL_H
+#endif // IPCONNECTION_GLOBAL_H

@@ -42,6 +42,8 @@ static void PIOS_USB_CDC_RegisterTxCallback(uint32_t usbcdc_id, pios_com_callbac
 static void PIOS_USB_CDC_RegisterRxCallback(uint32_t usbcdc_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USB_CDC_RegisterCtrlLineCallback(uint32_t usbcdc_id, pios_com_callback_ctrl_line ctrl_line_cb, uint32_t context);
 static void PIOS_USB_CDC_RegisterBaudRateCallback(uint32_t usbcdc_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context);
+static void PIOS_USB_CDC_RegisterAvailableCallback(uint32_t usbcdc_id, pios_com_callback_available baud_rate_cb, uint32_t context);
+static void PIOS_USB_CDC_ChangeConnectionState(bool connected, uint32_t usbcdc_id);
 static void PIOS_USB_CDC_TxStart(uint32_t usbcdc_id, uint16_t tx_bytes_avail);
 static void PIOS_USB_CDC_RxStart(uint32_t usbcdc_id, uint16_t rx_bytes_avail);
 static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id);
@@ -54,6 +56,7 @@ const struct pios_com_driver pios_usb_cdc_com_driver = {
     .bind_ctrl_line_cb = PIOS_USB_CDC_RegisterCtrlLineCallback,
     .bind_baud_rate_cb = PIOS_USB_CDC_RegisterBaudRateCallback,
     .available  = PIOS_USB_CDC_Available,
+    .bind_available_cb = PIOS_USB_CDC_RegisterAvailableCallback,
 };
 
 enum pios_usb_cdc_dev_magic {
@@ -74,6 +77,8 @@ struct pios_usb_cdc_dev {
     uint32_t ctrl_line_context;
     pios_com_callback_baud_rate baud_rate_cb;
     uint32_t baud_rate_context;
+    pios_com_callback_available available_cb;
+    uint32_t available_context;
 
     bool     usb_ctrl_if_enabled;
     bool     usb_data_if_enabled;
@@ -204,6 +209,8 @@ int32_t PIOS_USB_CDC_Init(uint32_t *usbcdc_id, const struct pios_usb_cdc_cfg *cf
     /* Register class specific interface callbacks with the USBHOOK layer */
     usb_cdc_dev->usb_data_if_enabled = false;
     PIOS_USBHOOK_RegisterIfOps(cfg->data_if, &usb_cdc_data_ifops, (uint32_t)usb_cdc_dev);
+
+    PIOS_USB_RegisterConnectionStateCallback(PIOS_USB_CDC_ChangeConnectionState, (uint32_t)usb_cdc_dev);
 
     *usbcdc_id = (uint32_t)usb_cdc_dev;
 
@@ -390,7 +397,7 @@ static void PIOS_USB_CDC_CTRL_IF_DeInit(uint32_t usb_cdc_id)
     }
 
     /* DeRegister endpoint specific callbacks with the USBHOOK layer */
-    usb_cdc_dev->usb_data_if_enabled = false;
+    usb_cdc_dev->usb_ctrl_if_enabled = false;
 }
 
 static uint8_t cdc_altset;
@@ -472,8 +479,7 @@ static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id)
 
     PIOS_Assert(valid);
 
-    return (PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) &&
-            (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT)) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
+    return PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
 
 /**
@@ -719,6 +725,36 @@ static bool PIOS_USB_CDC_DATA_EP_OUT_Callback(
 #endif /* PIOS_INCLUDE_FREERTOS */
 
     return rc;
+}
+
+static void PIOS_USB_CDC_ChangeConnectionState(__attribute__((unused)) bool connected, uint32_t usbcdc_id)
+{
+    struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)usbcdc_id;
+
+    bool valid = PIOS_USB_CDC_validate(usb_cdc_dev);
+
+    PIOS_Assert(valid);
+
+    if (usb_cdc_dev->available_cb) {
+        (usb_cdc_dev->available_cb)(usb_cdc_dev->available_context, PIOS_USB_CDC_Available(usbcdc_id));
+    }
+}
+
+
+static void PIOS_USB_CDC_RegisterAvailableCallback(uint32_t usbcdc_id, pios_com_callback_available available_cb, uint32_t context)
+{
+    struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)usbcdc_id;
+
+    bool valid = PIOS_USB_CDC_validate(usb_cdc_dev);
+
+    PIOS_Assert(valid);
+
+    /*
+     * Order is important in these assignments since ISR uses _cb
+     * field to determine if it's ok to dereference _cb and _context
+     */
+    usb_cdc_dev->available_context = context;
+    usb_cdc_dev->available_cb = available_cb;
 }
 
 #endif /* PIOS_INCLUDE_USB_CDC */

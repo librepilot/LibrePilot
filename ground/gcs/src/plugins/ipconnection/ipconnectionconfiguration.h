@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -35,16 +35,16 @@
 
 using namespace Core;
 
-class IPconnectionConfiguration : public IUAVGadgetConfiguration {
+class IPConnectionConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT Q_PROPERTY(QString HostName READ hostName WRITE setHostName)
     Q_PROPERTY(int Port READ port WRITE setPort)
     Q_PROPERTY(int UseTCP READ useTCP WRITE setUseTCP)
 
 public:
-    explicit IPconnectionConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
-    explicit IPconnectionConfiguration(const IPconnectionConfiguration &obj);
+    explicit IPConnectionConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit IPConnectionConfiguration(const IPConnectionConfiguration &obj);
 
-    virtual ~IPconnectionConfiguration();
+    virtual ~IPConnectionConfiguration();
 
     IUAVGadgetConfiguration *clone() const;
     void saveConfig(QSettings &settings) const;

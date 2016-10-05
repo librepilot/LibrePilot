@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
-class IPconnectionConfiguration;
+class IPConnectionConfiguration;
 
 namespace Ui {
 class IPconnectionOptionsPage;
@@ -39,11 +39,11 @@ class IPconnectionOptionsPage;
 
 using namespace Core;
 
-class IPconnectionOptionsPage : public IOptionsPage {
+class IPConnectionOptionsPage : public IOptionsPage {
     Q_OBJECT
 public:
-    explicit IPconnectionOptionsPage(IPconnectionConfiguration *config, QObject *parent = 0);
-    virtual ~IPconnectionOptionsPage();
+    explicit IPConnectionOptionsPage(IPConnectionConfiguration *config, QObject *parent = 0);
+    virtual ~IPConnectionOptionsPage();
 
     QString id() const
     {
@@ -70,8 +70,8 @@ signals:
     void availableDevChanged();
 
 private:
-    IPconnectionConfiguration *m_config;
     Ui::IPconnectionOptionsPage *m_page;
+    IPConnectionConfiguration *m_config;
 };
 
 #endif // IPCONNECTIONOPTIONSPAGE_H

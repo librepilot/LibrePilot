@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -48,12 +48,12 @@ class IConnection;
  *   Plugin will add a instance of this class to the pool,
  *   so the connection manager can use it.
  */
-class IPconnection_EXPORT IPconnectionConnection : public Core::IConnection {
+class IPCONNECTION_EXPORT IPConnectionConnection : public Core::IConnection {
     Q_OBJECT
 
 public:
-    IPconnectionConnection(IPconnectionConfiguration *config);
-    virtual ~IPconnectionConnection();
+    IPConnectionConnection(IPConnectionConfiguration *config);
+    virtual ~IPConnectionConnection();
 
     virtual QList <Core::IConnection::device> availableDevices();
     virtual QIODevice *openDevice(const QString &deviceName);
@@ -62,7 +62,7 @@ public:
     virtual QString connectionName();
     virtual QString shortName();
 
-    IPconnectionOptionsPage *optionsPage() const
+    IPConnectionOptionsPage *optionsPage() const
     {
         return m_optionsPage;
     }
@@ -79,26 +79,27 @@ signals:
 private:
     QAbstractSocket *m_ipSocket;
     // FIXME m_config and m_optionsPage belong in IPConnectionPlugin
-    IPconnectionConfiguration *m_config;
-    IPconnectionOptionsPage *m_optionsPage;
+    IPConnectionConfiguration *m_config;
+    IPConnectionOptionsPage *m_optionsPage;
 };
 
-class IPconnection_EXPORT IPconnectionPlugin : public Core::IConfigurablePlugin {
+class IPCONNECTION_EXPORT IPConnectionPlugin : public Core::IConfigurablePlugin {
     Q_OBJECT
-                          Q_PLUGIN_METADATA(IID "OpenPilot.IPconnection")
+                          Q_PLUGIN_METADATA(IID "OpenPilot.IPConnection")
 
 public:
-    IPconnectionPlugin();
-    ~IPconnectionPlugin();
+    IPConnectionPlugin();
+    ~IPConnectionPlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
+
     void readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo);
     void saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const;
 
 private:
-    IPconnectionConnection *m_connection;
-    IPconnectionConfiguration *m_config;
+    IPConnectionConnection *m_connection;
+    IPConnectionConfiguration *m_config;
 };
 
 #endif // IPCONNECTIONPLUGIN_H

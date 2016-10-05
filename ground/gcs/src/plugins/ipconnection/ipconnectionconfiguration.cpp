@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 
 #include <coreplugin/icore.h>
 
-IPconnectionConfiguration::IPconnectionConfiguration(QString classId, QSettings &settings, QObject *parent) :
+IPConnectionConfiguration::IPConnectionConfiguration(QString classId, QSettings &settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent)
 {
     m_hostName = settings.value("HostName", "").toString();
@@ -38,7 +38,7 @@ IPconnectionConfiguration::IPconnectionConfiguration(QString classId, QSettings 
     m_useTCP   = settings.value("UseTCP", true).toInt();
 }
 
-IPconnectionConfiguration::IPconnectionConfiguration(const IPconnectionConfiguration &obj) :
+IPConnectionConfiguration::IPConnectionConfiguration(const IPConnectionConfiguration &obj) :
     IUAVGadgetConfiguration(obj.classId(), obj.parent())
 {
     m_hostName = obj.m_hostName;
@@ -46,19 +46,19 @@ IPconnectionConfiguration::IPconnectionConfiguration(const IPconnectionConfigura
     m_useTCP   = obj.m_useTCP;
 }
 
-IPconnectionConfiguration::~IPconnectionConfiguration()
+IPConnectionConfiguration::~IPConnectionConfiguration()
 {}
 
-IUAVGadgetConfiguration *IPconnectionConfiguration::clone() const
+IUAVGadgetConfiguration *IPConnectionConfiguration::clone() const
 {
-    return new IPconnectionConfiguration(*this);
+    return new IPConnectionConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void IPconnectionConfiguration::saveConfig(QSettings &settings) const
+void IPConnectionConfiguration::saveConfig(QSettings &settings) const
 {
     settings.setValue("HostName", m_hostName);
     settings.setValue("Port", m_port);

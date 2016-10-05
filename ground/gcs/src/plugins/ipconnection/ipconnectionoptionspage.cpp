@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -32,14 +32,14 @@
 
 #include "ipconnectionconfiguration.h"
 
-IPconnectionOptionsPage::IPconnectionOptionsPage(IPconnectionConfiguration *config, QObject *parent) :
-    IOptionsPage(parent), m_config(config), m_page(0)
+IPConnectionOptionsPage::IPConnectionOptionsPage(IPConnectionConfiguration *config, QObject *parent) :
+    IOptionsPage(parent), m_page(0), m_config(config)
 {}
 
-IPconnectionOptionsPage::~IPconnectionOptionsPage()
+IPConnectionOptionsPage::~IPConnectionOptionsPage()
 {}
 
-QWidget *IPconnectionOptionsPage::createPage(QWidget *parent)
+QWidget *IPConnectionOptionsPage::createPage(QWidget *parent)
 {
     m_page = new Ui::IPconnectionOptionsPage();
     QWidget *w = new QWidget(parent);
@@ -53,7 +53,7 @@ QWidget *IPconnectionOptionsPage::createPage(QWidget *parent)
     return w;
 }
 
-void IPconnectionOptionsPage::apply()
+void IPConnectionOptionsPage::apply()
 {
     m_config->setPort(m_page->Port->value());
     m_config->setHostName(m_page->HostName->text());
@@ -64,7 +64,7 @@ void IPconnectionOptionsPage::apply()
     emit availableDevChanged();
 }
 
-void IPconnectionOptionsPage::finish()
+void IPConnectionOptionsPage::finish()
 {
     delete m_page;
 }

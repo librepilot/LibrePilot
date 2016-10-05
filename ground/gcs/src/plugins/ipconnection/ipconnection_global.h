@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -31,10 +31,10 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(IPconnection_LIBRARY)
-#  define IPconnection_EXPORT Q_DECL_EXPORT
+#if defined(IPCONNECTION_LIBRARY)
+#  define IPCONNECTION_EXPORT Q_DECL_EXPORT
 #else
-#  define IPconnection_EXPORT Q_DECL_IMPORT
+#  define IPCONNECTION_EXPORT Q_DECL_IMPORT
 #endif
 
 #endif // IPCONNECTION_GLOBAL_H

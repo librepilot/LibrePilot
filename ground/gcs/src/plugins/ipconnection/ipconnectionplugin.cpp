@@ -8,7 +8,7 @@
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -30,13 +30,12 @@
 
 #include "ipconnectionplugin.h"
 
+#include "ipconnection_internal.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
-#include "ipconnection_internal.h"
 #include <coreplugin/threadmanager.h>
 
-#include <QtCore/QtPlugin>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QtNetwork/QAbstractSocket>
@@ -44,10 +43,9 @@
 #include <QtNetwork/QUdpSocket>
 #include <QWaitCondition>
 #include <QMutex>
-
 #include <QDebug>
 
-// Communication between IPconnectionConnection::OpenDevice() and IPConnection::onOpenDevice()
+// Communication between IPConnectionConnection::OpenDevice() and IPConnection::onOpenDevice()
 QString errorMsg;
 QWaitCondition openDeviceWait;
 QWaitCondition closeDeviceWait;
@@ -55,7 +53,7 @@ QWaitCondition closeDeviceWait;
 QMutex ipConMutex;
 QAbstractSocket *ret;
 
-IPConnection::IPConnection(IPconnectionConnection *connection) : QObject()
+IPConnection::IPConnection(IPConnectionConnection *connection) : QObject()
 {
     moveToThread(Core::ICore::instance()->threadManager()->getRealTimeThread());
 
@@ -118,11 +116,11 @@ void IPConnection::onCloseDevice(QAbstractSocket *ipSocket)
 
 IPConnection *connection = 0;
 
-IPconnectionConnection::IPconnectionConnection(IPconnectionConfiguration *config) : m_config(config)
+IPConnectionConnection::IPConnectionConnection(IPConnectionConfiguration *config) : m_config(config)
 {
     m_ipSocket    = NULL;
 
-    m_optionsPage = new IPconnectionOptionsPage(m_config, this);
+    m_optionsPage = new IPConnectionOptionsPage(m_config, this);
 
     if (!connection) {
         connection = new IPConnection(this);
@@ -134,7 +132,7 @@ IPconnectionConnection::IPconnectionConnection(IPconnectionConfiguration *config
     QObject::connect(m_optionsPage, SIGNAL(availableDevChanged()), this, SLOT(onEnumerationChanged()));
 }
 
-IPconnectionConnection::~IPconnectionConnection()
+IPConnectionConnection::~IPConnectionConnection()
 {
     // clean up out resources...
     if (m_ipSocket) {
@@ -148,12 +146,12 @@ IPconnectionConnection::~IPconnectionConnection()
     }
 }
 
-void IPconnectionConnection::onEnumerationChanged()
+void IPConnectionConnection::onEnumerationChanged()
 {
     emit availableDevChanged(this);
 }
 
-QList <Core::IConnection::device> IPconnectionConnection::availableDevices()
+QList <Core::IConnection::device> IPConnectionConnection::availableDevices()
 {
     QList <Core::IConnection::device> list;
     device d;
@@ -169,7 +167,7 @@ QList <Core::IConnection::device> IPconnectionConnection::availableDevices()
     return list;
 }
 
-QIODevice *IPconnectionConnection::openDevice(const QString &)
+QIODevice *IPConnectionConnection::openDevice(const QString &)
 {
     QString hostName;
     int port;
@@ -202,7 +200,7 @@ QIODevice *IPconnectionConnection::openDevice(const QString &)
     return m_ipSocket;
 }
 
-void IPconnectionConnection::closeDevice(const QString &)
+void IPConnectionConnection::closeDevice(const QString &)
 {
     if (m_ipSocket) {
         ipConMutex.lock();
@@ -214,12 +212,12 @@ void IPconnectionConnection::closeDevice(const QString &)
 }
 
 
-QString IPconnectionConnection::connectionName()
+QString IPConnectionConnection::connectionName()
 {
     return QString("Network telemetry port");
 }
 
-QString IPconnectionConnection::shortName()
+QString IPConnectionConnection::shortName()
 {
     if (m_config->useTCP()) {
         return QString("TCP");
@@ -229,25 +227,24 @@ QString IPconnectionConnection::shortName()
 }
 
 
-IPconnectionPlugin::IPconnectionPlugin() : m_connection(0), m_config(0)
+IPConnectionPlugin::IPConnectionPlugin() : m_connection(0), m_config(0)
 {}
 
-IPconnectionPlugin::~IPconnectionPlugin()
+IPConnectionPlugin::~IPConnectionPlugin()
 {
     // manually remove the options page object
     removeObject(m_connection->optionsPage());
 }
 
-bool IPconnectionPlugin::initialize(const QStringList &arguments, QString *errorString)
+bool IPConnectionPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    qDebug() << "*** INIT";
-
     Core::ICore::instance()->readSettings(this);
 
-    m_connection = new IPconnectionConnection(m_config);
+    m_connection = new IPConnectionConnection(m_config);
+
     // must manage this registration of child object ourselves
     // if we use an autorelease here it causes the GCS to crash
     // as it is deleting objects as the app closes...
@@ -255,26 +252,26 @@ bool IPconnectionPlugin::initialize(const QStringList &arguments, QString *error
 
     // FIXME this is really a contrived way to save the settings...
     // needs to be done centrally from
-    QObject::connect(m_connection, &IPconnectionConnection::availableDevChanged,
+    QObject::connect(m_connection, &IPConnectionConnection::availableDevChanged,
                      [this]() { Core::ICore::instance()->saveSettings(this); }
                      );
 
     return true;
 }
 
-void IPconnectionPlugin::extensionsInitialized()
+void IPConnectionPlugin::extensionsInitialized()
 {
     addAutoReleasedObject(m_connection);
 }
 
-void IPconnectionPlugin::readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo)
+void IPConnectionPlugin::readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo)
 {
     Q_UNUSED(configInfo);
 
-    m_config = new IPconnectionConfiguration("IPConnection", settings, this);
+    m_config = new IPConnectionConfiguration("IPConnection", settings, this);
 }
 
-void IPconnectionPlugin::saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const
+void IPConnectionPlugin::saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const
 {
     Q_UNUSED(configInfo);
 

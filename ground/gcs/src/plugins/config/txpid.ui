@@ -814,7 +814,7 @@ font:bold;</string>
                 </property>
                 <property name="objrelation" stdset="0">
                  <stringlist>
-                  <string>button:default</string>
+                  <string notr="true">button:default</string>
                   <string>buttongroup:10</string>
                  </stringlist>
                 </property>
@@ -1243,7 +1243,7 @@ font:bold;</string>
                 </property>
                 <property name="objrelation" stdset="0">
                  <stringlist>
-                  <string>button:default</string>
+                  <string notr="true">button:default</string>
                   <string>buttongroup:11</string>
                  </stringlist>
                 </property>
@@ -1478,7 +1478,7 @@ font:bold;</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:help</string>
+         <string notr="true">button:help</string>
         </stringlist>
        </property>
       </widget>
@@ -1501,7 +1501,7 @@ font:bold;</string>
         <string>Apply</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:apply</string>
+        <string notr="true">button:apply</string>
        </property>
       </widget>
      </item>
@@ -1526,7 +1526,7 @@ font:bold;</string>
         <bool>false</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:save</string>
+        <string notr="true">button:save</string>
        </property>
       </widget>
      </item>

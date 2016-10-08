@@ -688,7 +688,7 @@ will alter settings for the next autotuning flight</string>
         </size>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:help</string>
+        <string notr="true">button:help</string>
        </property>
       </widget>
      </item>
@@ -712,7 +712,7 @@ Useful if you have accidentally changed some settings.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:reload</string>
+         <string notr="true">button:reload</string>
          <string>buttongroup:10</string>
         </stringlist>
        </property>
@@ -737,7 +737,7 @@ Useful if you have accidentally changed some settings.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:apply</string>
+         <string notr="true">button:apply</string>
         </stringlist>
        </property>
       </widget>
@@ -761,7 +761,7 @@ Useful if you have accidentally changed some settings.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:save</string>
+         <string notr="true">button:save</string>
         </stringlist>
        </property>
       </widget>

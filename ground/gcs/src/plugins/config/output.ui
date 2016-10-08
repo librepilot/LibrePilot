@@ -1008,7 +1008,7 @@
         <bool>true</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:help</string>
+        <string notr="true">button:help</string>
        </property>
       </widget>
      </item>
@@ -1037,7 +1037,7 @@ Be sure to set the Neutral position on all sliders before sending!</string>
         <string>Apply</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:apply</string>
+        <string notr="true">button:apply</string>
        </property>
       </widget>
      </item>
@@ -1066,7 +1066,7 @@ Applies and Saves all settings to SD</string>
         <string>Save</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:save</string>
+        <string notr="true">button:save</string>
        </property>
       </widget>
      </item>

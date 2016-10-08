@@ -696,7 +696,7 @@ margin-top: -1px;
                       <property name="objrelation" stdset="0">
                        <stringlist>
                         <string>objname:StabilizationSettings</string>
-                        <string>button:default</string>
+                        <string notr="true">button:default</string>
                         <string>buttongroup:66</string>
                        </stringlist>
                       </property>
@@ -764,7 +764,7 @@ margin-top: -1px;
                       <property name="objrelation" stdset="0">
                        <stringlist>
                         <string>objname:StabilizationSettings</string>
-                        <string>button:default</string>
+                        <string notr="true">button:default</string>
                         <string>buttongroup:6</string>
                        </stringlist>
                       </property>
@@ -2849,7 +2849,7 @@ border-radius: 5;</string>
                       </property>
                       <property name="objrelation" stdset="0">
                        <stringlist>
-                        <string>button:default</string>
+                        <string notr="true">button:default</string>
                         <string>buttongroup:77</string>
                        </stringlist>
                       </property>
@@ -3266,7 +3266,7 @@ border-radius: 5;</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
-                     <string>button:default</string>
+                     <string notr="true">button:default</string>
                      <string>buttongroup:1</string>
                     </stringlist>
                    </property>
@@ -5961,7 +5961,7 @@ Then lower the value by 5 or so.</string>
                    </property>
                    <property name="objrelation" stdset="0">
                     <stringlist>
-                     <string>button:default</string>
+                     <string notr="true">button:default</string>
                      <string>buttongroup:2</string>
                     </stringlist>
                    </property>
@@ -8072,7 +8072,7 @@ border-radius: 5;</string>
                      <property name="objrelation" stdset="0">
                       <stringlist>
                        <string>objname:StabilizationSettings</string>
-                       <string>button:default</string>
+                       <string notr="true">button:default</string>
                        <string>buttongroup:6</string>
                       </stringlist>
                      </property>
@@ -12417,7 +12417,7 @@ border-radius: 5;</string>
                         <property name="objrelation" stdset="0">
                          <stringlist>
                           <string>objname:StabilizationSettings</string>
-                          <string>button:default</string>
+                          <string notr="true">button:default</string>
                           <string>buttongroup:99</string>
                          </stringlist>
                         </property>
@@ -12534,7 +12534,7 @@ border-radius: 5;</string>
                      <property name="objrelation" stdset="0">
                       <stringlist>
                        <string>objname:StabilizationSettings</string>
-                       <string>button:default</string>
+                       <string notr="true">button:default</string>
                        <string>buttongroup:4</string>
                       </stringlist>
                      </property>
@@ -15248,7 +15248,7 @@ border-radius: 5;</string>
                      <property name="objrelation" stdset="0">
                       <stringlist>
                        <string>objname:StabilizationSettings</string>
-                       <string>button:default</string>
+                       <string notr="true">button:default</string>
                        <string>buttongroup:5</string>
                       </stringlist>
                      </property>
@@ -17104,7 +17104,7 @@ border-radius: 5;</string>
                      <property name="objrelation" stdset="0">
                       <stringlist>
                        <string>objname:StabilizationSettings</string>
-                       <string>button:default</string>
+                       <string notr="true">button:default</string>
                        <string>buttongroup:55</string>
                       </stringlist>
                      </property>
@@ -17145,7 +17145,7 @@ border-radius: 5;</string>
                      <property name="objrelation" stdset="0">
                       <stringlist>
                        <string>objname:StabilizationSettings</string>
-                       <string>button:default</string>
+                       <string notr="true">button:default</string>
                        <string>buttongroup:56</string>
                       </stringlist>
                      </property>
@@ -17399,7 +17399,7 @@ border-radius: 5;</string>
                   <property name="objrelation" stdset="0">
                    <stringlist>
                     <string>objname:StabilizationSettings</string>
-                    <string>button:default</string>
+                    <string notr="true">button:default</string>
                     <string>buttongroup:25</string>
                    </stringlist>
                   </property>
@@ -18666,7 +18666,7 @@ font:bold;</string>
                   <property name="objrelation" stdset="0">
                    <stringlist>
                     <string>objname:StabilizationSettings</string>
-                    <string>button:default</string>
+                    <string notr="true">button:default</string>
                     <string>buttongroup:31</string>
                    </stringlist>
                   </property>
@@ -19937,7 +19937,7 @@ font:bold;</string>
                   <property name="objrelation" stdset="0">
                    <stringlist>
                     <string>objname:StabilizationSettings</string>
-                    <string>button:default</string>
+                    <string notr="true">button:default</string>
                     <string>buttongroup:15</string>
                    </stringlist>
                   </property>
@@ -20780,7 +20780,7 @@ border-radius: 5;</string>
                   <property name="objrelation" stdset="0">
                    <stringlist>
                     <string>objname:StabilizationSettings</string>
-                    <string>button:default</string>
+                    <string notr="true">button:default</string>
                     <string>buttongroup:16</string>
                    </stringlist>
                   </property>
@@ -20844,7 +20844,7 @@ border-radius: 5;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:StabilizationSettings</string>
-                  <string>button:default</string>
+                  <string notr="true">button:default</string>
                   <string>buttongroup:8</string>
                  </stringlist>
                 </property>
@@ -23282,7 +23282,7 @@ font:bold;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:AltitudeHoldSettings</string>
-                  <string>button:default</string>
+                  <string notr="true">button:default</string>
                   <string>buttongroup:98</string>
                  </stringlist>
                 </property>
@@ -24899,7 +24899,7 @@ border-radius: 5;</string>
                 <property name="objrelation" stdset="0">
                  <stringlist>
                   <string>objname:AltitudeHoldSettings</string>
-                  <string>button:default</string>
+                  <string notr="true">button:default</string>
                   <string>buttongroup:99</string>
                  </stringlist>
                 </property>
@@ -26257,7 +26257,7 @@ border-radius: 5;</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:help</string>
+         <string notr="true">button:help</string>
         </stringlist>
        </property>
       </widget>
@@ -26300,7 +26300,7 @@ Useful if you have accidentally changed some settings.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:reload</string>
+         <string notr="true">button:reload</string>
          <string>buttongroup:10</string>
         </stringlist>
        </property>
@@ -26337,7 +26337,7 @@ Useful if you have accidentally changed some settings.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:apply</string>
+         <string notr="true">button:apply</string>
         </stringlist>
        </property>
       </widget>
@@ -26373,7 +26373,7 @@ Useful if you have accidentally changed some settings.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:save</string>
+         <string notr="true">button:save</string>
         </stringlist>
        </property>
       </widget>

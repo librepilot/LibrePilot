@@ -583,7 +583,7 @@ A setting of 0.00 disables the filter.</string>
         <bool>true</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:help</string>
+        <string notr="true">button:help</string>
        </property>
       </widget>
      </item>
@@ -599,7 +599,7 @@ A setting of 0.00 disables the filter.</string>
         <string>Apply</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:apply</string>
+        <string notr="true">button:apply</string>
        </property>
       </widget>
      </item>
@@ -618,7 +618,7 @@ A setting of 0.00 disables the filter.</string>
         <string>Save</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:save</string>
+        <string notr="true">button:save</string>
        </property>
       </widget>
      </item>

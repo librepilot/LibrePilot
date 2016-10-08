@@ -495,7 +495,7 @@
         <bool>true</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:help</string>
+        <string notr="true">button:help</string>
        </property>
       </widget>
      </item>
@@ -600,7 +600,7 @@ Beware of not locking yourself out!</string>
         <bool>false</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:apply</string>
+        <string notr="true">button:apply</string>
        </property>
       </widget>
      </item>
@@ -632,7 +632,7 @@ Beware of not locking yourself out!</string>
         <string>Save</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:save</string>
+        <string notr="true">button:save</string>
        </property>
       </widget>
      </item>

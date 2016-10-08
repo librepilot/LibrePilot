@@ -21,7 +21,7 @@
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>&lt;place holder - do not translate&gt;</string>
+       <string notr="true">&lt;place holder - do not translate&gt;</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="leftMargin">

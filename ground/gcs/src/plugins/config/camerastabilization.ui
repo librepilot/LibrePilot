@@ -1363,7 +1363,7 @@ The same value is used for all axes.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:help</string>
+         <string notr="true">button:help</string>
         </stringlist>
        </property>
       </widget>
@@ -1393,7 +1393,7 @@ Apply or Save button afterwards.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:default</string>
+         <string notr="true">button:default</string>
          <string>buttongroup:1</string>
         </stringlist>
        </property>
@@ -1426,7 +1426,7 @@ Apply or Save button afterwards.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:reload</string>
+         <string notr="true">button:reload</string>
          <string>buttongroup:1</string>
         </stringlist>
        </property>
@@ -1454,7 +1454,7 @@ Apply or Save button afterwards.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:apply</string>
+         <string notr="true">button:apply</string>
         </stringlist>
        </property>
       </widget>
@@ -1484,7 +1484,7 @@ Apply or Save button afterwards.</string>
        </property>
        <property name="objrelation" stdset="0">
         <stringlist>
-         <string>button:save</string>
+         <string notr="true">button:save</string>
         </stringlist>
        </property>
       </widget>

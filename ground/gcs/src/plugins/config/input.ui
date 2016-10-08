@@ -2403,7 +2403,7 @@ font:bold;</string>
                   <property name="objrelation" stdset="0">
                    <stringlist>
                     <string>objname:ManualControlSettings</string>
-                    <string>button:default</string>
+                    <string notr="true">button:default</string>
                     <string>buttongroup:555</string>
                    </stringlist>
                   </property>
@@ -2794,7 +2794,7 @@ Set to 0 to disable (recommended for soaring fixed wings).</string>
         <bool>true</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:help</string>
+        <string notr="true">button:help</string>
        </property>
       </widget>
      </item>
@@ -2823,7 +2823,7 @@ Be sure to set the Neutral position on all sliders before sending!</string>
         <string>Apply</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:apply</string>
+        <string notr="true">button:apply</string>
        </property>
       </widget>
      </item>
@@ -2852,7 +2852,7 @@ Applies and Saves all settings to SD</string>
         <string>Save</string>
        </property>
        <property name="objrelation" stdset="0">
-        <string>button:save</string>
+        <string notr="true">button:save</string>
        </property>
       </widget>
      </item>

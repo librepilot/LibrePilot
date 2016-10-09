@@ -135,6 +135,7 @@ int32_t ManualControlStart()
     // Whenever the configuration changes, make sure it is safe to fly
     SystemSettingsConnectCallback(configurationUpdatedCb);
     ManualControlSettingsConnectCallback(configurationUpdatedCb);
+    FlightModeSettingsConnectCallback(configurationUpdatedCb);
     ManualControlCommandConnectCallback(commandUpdatedCb);
 
     // clear alarms

@@ -660,9 +660,12 @@ static void updateRcvrActivitySample(uint32_t rcvr_id, uint16_t samples[], uint8
 static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm *fsm)
 {
     bool activity_updated = false;
-    ManualControlSettingsData settings;
 
-    ManualControlSettingsGet(&settings);
+    ManualControlSettingsChannelGroupsData channelGroups;
+    ManualControlSettingsChannelNumberData channelNumber;
+
+    ManualControlSettingsChannelGroupsGet(&channelGroups);
+    ManualControlSettingsChannelNumberGet(&channelNumber);
 
     /* Compare the current value to the previous sampled value */
     for (uint8_t channel = 1; channel <= RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP; channel++) {
@@ -677,8 +680,7 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
 
         // Ignore activity from this Group/Channel because already used/set for Rssi input
         // Without that, the ReceiverActivity will be saturated just with Rssi value activity.
-        if ((ManualControlSettingsChannelGroupsToArray(settings.ChannelGroups)[MANUALCONTROLSETTINGS_CHANNELGROUPS_RSSI] == fsm->group) &&
-            (ManualControlSettingsChannelNumberToArray(settings.ChannelNumber)[MANUALCONTROLSETTINGS_CHANNELNUMBER_RSSI] == channel)) {
+        if(channelGroups.Rssi == fsm->group && channelNumber.Rssi == channel) {
             delta = 0;
         }
 

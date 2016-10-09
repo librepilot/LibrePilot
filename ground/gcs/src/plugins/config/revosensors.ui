@@ -435,7 +435,7 @@
               <enum>QAbstractScrollArea::AdjustIgnored</enum>
              </property>
              <property name="html">
-              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+              <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -528,7 +528,7 @@ p, li { white-space: pre-wrap; }
                <bool>true</bool>
               </property>
               <property name="objrelation" stdset="0">
-               <stringlist>
+               <stringlist notr="true">
                 <string>objname:HomeLocation</string>
                 <string>fieldname:g_e</string>
                </stringlist>
@@ -544,7 +544,7 @@ p, li { white-space: pre-wrap; }
                <bool>true</bool>
               </property>
               <property name="objrelation" stdset="0">
-               <stringlist>
+               <stringlist notr="true">
                 <string>objname:HomeLocation</string>
                 <string>fieldname:Latitude</string>
                </stringlist>
@@ -577,7 +577,7 @@ p, li { white-space: pre-wrap; }
                <bool>true</bool>
               </property>
               <property name="objrelation" stdset="0">
-               <stringlist>
+               <stringlist notr="true">
                 <string>objname:HomeLocation</string>
                 <string>fieldname:Altitude</string>
                </stringlist>
@@ -607,7 +607,7 @@ p, li { white-space: pre-wrap; }
                <bool>true</bool>
               </property>
               <property name="objrelation" stdset="0">
-               <stringlist>
+               <stringlist notr="true">
                 <string>objname:HomeLocation</string>
                 <string>fieldname:Longitude</string>
                </stringlist>
@@ -626,7 +626,7 @@ p, li { white-space: pre-wrap; }
                <bool>true</bool>
               </property>
               <property name="objrelation" stdset="0">
-               <stringlist>
+               <stringlist notr="true">
                 <string>objname:HomeLocation</string>
                 <string>fieldname:Set</string>
                </stringlist>
@@ -1502,7 +1502,7 @@ font:bold;</string>
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>external</string>
+                 <string notr="true">external</string>
                 </property>
                </widget>
               </item>

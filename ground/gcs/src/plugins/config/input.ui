@@ -1671,7 +1671,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeMap</string>
                      <string>index:0</string>
@@ -1697,7 +1697,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeMap</string>
                      <string>index:1</string>
@@ -1723,7 +1723,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeMap</string>
                      <string>index:2</string>
@@ -1752,7 +1752,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeMap</string>
                      <string>index:3</string>
@@ -1781,7 +1781,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeMap</string>
                      <string>index:4</string>
@@ -1810,7 +1810,7 @@ Setup the flight mode channel on the RC Input tab if you have not done so alread
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeMap</string>
                      <string>index:5</string>
@@ -2063,7 +2063,7 @@ font:bold;</string>
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeAssistMap</string>
                      <string>index:0</string>
@@ -2089,7 +2089,7 @@ font:bold;</string>
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeAssistMap</string>
                      <string>index:1</string>
@@ -2115,7 +2115,7 @@ font:bold;</string>
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeAssistMap</string>
                      <string>index:2</string>
@@ -2144,7 +2144,7 @@ font:bold;</string>
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeAssistMap</string>
                      <string>index:3</string>
@@ -2173,7 +2173,7 @@ font:bold;</string>
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeAssistMap</string>
                      <string>index:4</string>
@@ -2202,7 +2202,7 @@ font:bold;</string>
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPSAssist adds a brake/hold sequence to Stabilization when pitch &amp; roll is centered, and on initiation of PositionHold. GPSAssist also enables pitch &amp; roll control during the auto landing flight mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="objrelation" stdset="0">
-                    <stringlist>
+                    <stringlist notr="true">
                      <string>objname:StabilizationSettings</string>
                      <string>fieldname:FlightModeAssistMap</string>
                      <string>index:5</string>
@@ -2401,9 +2401,9 @@ font:bold;</string>
                    <string>Default</string>
                   </property>
                   <property name="objrelation" stdset="0">
-                   <stringlist>
+                   <stringlist notr="true">
                     <string>objname:ManualControlSettings</string>
-                    <string notr="true">button:default</string>
+                    <string>button:default</string>
                     <string>buttongroup:555</string>
                    </stringlist>
                   </property>

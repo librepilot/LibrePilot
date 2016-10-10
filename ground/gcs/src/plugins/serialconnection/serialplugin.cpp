@@ -139,11 +139,16 @@ QList <Core::IConnection::device> SerialConnection::availableDevices()
 
         // sort the list by port number (nice idea from PT_Dreamer :))
         qSort(ports.begin(), ports.end(), sortPorts);
+
         foreach(QSerialPortInfo port, ports) {
             device d;
 
-            d.displayName = port.portName();
             d.name = port.portName();
+            d.displayName = port.portName();
+            if (!port.description().isEmpty()) {
+                d.displayName += " - " + port.description();
+            }
+
             list.append(d);
         }
     }

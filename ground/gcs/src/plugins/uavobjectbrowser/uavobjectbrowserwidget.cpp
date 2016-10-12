@@ -27,21 +27,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "uavobjectbrowserwidget.h"
+
+#include "ui_uavobjectbrowser.h"
+#include "ui_viewoptions.h"
+
 #include "uavobjecttreemodel.h"
 #include "browseritemdelegate.h"
 #include "treeitem.h"
-#include "ui_uavobjectbrowser.h"
-#include "ui_viewoptions.h"
 #include "uavobjectmanager.h"
-#include <QStringList>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QComboBox>
-#include <QtCore/QDebug>
-#include <QItemEditorFactory>
 #include "extensionsystem/pluginmanager.h"
 #include "utils/mustache.h"
+
+#include <QDebug>
 
 UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent)
 {
@@ -403,14 +400,14 @@ void UAVObjectBrowserWidget::updateDescription()
 }
 
 /**
- * @brief UAVObjectBrowserWidget::searchTextChanged Looks for matching text in the UAVO fields
+ * @brief UAVObjectBrowserWidget::searchLineChanged Looks for matching text in the UAVO fields
  */
-
 void UAVObjectBrowserWidget::searchLineChanged(QString searchText)
 {
     m_modelProxy->setFilterRegExp(QRegExp(searchText, Qt::CaseInsensitive, QRegExp::FixedString));
     if (!searchText.isEmpty()) {
-        m_browser->treeView->expandAll();
+        int depth = m_viewoptions->cbCategorized->isChecked() ? 2 : 1;
+        m_browser->treeView->expandToDepth(depth);
     } else {
         m_browser->treeView->collapseAll();
     }

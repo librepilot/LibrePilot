@@ -35,8 +35,6 @@
 #include "objectpersistence.h"
 
 #include <QWidget>
-#include <QTreeView>
-#include <QKeyEvent>
 #include <QSortFilterProxyModel>
 
 class QPushButton;

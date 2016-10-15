@@ -41,7 +41,7 @@
 #endif
 
 // Private constants
-#define ARMED_THRESHOLD     0.50f
+#define ARMED_THRESHOLD     0.20f
 #define GROUND_LOW_THROTTLE 0.01f
 
 // Private types

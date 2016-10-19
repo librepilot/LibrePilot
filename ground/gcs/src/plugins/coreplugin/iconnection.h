@@ -50,6 +50,7 @@ public:
     struct device {
         QString name;
         QString displayName;
+        QString description;
         bool operator==(device i)
         {
             return this->name == i.name;

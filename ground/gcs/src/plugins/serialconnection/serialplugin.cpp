@@ -145,9 +145,7 @@ QList <Core::IConnection::device> SerialConnection::availableDevices()
 
             d.name = port.portName();
             d.displayName = port.portName();
-            if (!port.description().isEmpty()) {
-                d.displayName += " - " + port.description();
-            }
+            d.description = port.description();
 
             list.append(d);
         }

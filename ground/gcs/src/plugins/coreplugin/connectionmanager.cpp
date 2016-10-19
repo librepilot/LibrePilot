@@ -40,6 +40,30 @@
 #include <QEventLoop>
 
 namespace Core {
+QString DevListItem::getConName() const
+{
+    if (connection == NULL) {
+        return "";
+    }
+    return connection->shortName() + ": " + device.displayName;
+}
+
+QString DevListItem::getConDescription() const
+{
+    if (connection == NULL) {
+        return "";
+    }
+    QString description = device.displayName;
+    if (!device.description.isEmpty()) {
+        description += " - " + device.description;
+    }
+    // truncate description if too long
+    if (description.length() > 50) {
+        description = description.left(50) + "...";
+    }
+    return description;
+}
+
 ConnectionManager::ConnectionManager(Internal::MainWindow *mainWindow) :
     QWidget(mainWindow),
     m_availableDevList(0),
@@ -458,7 +482,7 @@ void ConnectionManager::updateConnectionDropdown()
     // add all the list again to the combobox
     foreach(DevListItem d, m_devList) {
         m_availableDevList->addItem(d.getConName());
-        m_availableDevList->setItemData(m_availableDevList->count() - 1, d.getConName(), Qt::ToolTipRole);
+        m_availableDevList->setItemData(m_availableDevList->count() - 1, d.getConDescription(), Qt::ToolTipRole);
         if (!m_ioDev && d.getConName().startsWith("USB")) {
             if (m_mainWindow->generalSettings()->autoConnect() || m_mainWindow->generalSettings()->autoSelect()) {
                 m_availableDevList->setCurrentIndex(m_availableDevList->count() - 1);

@@ -578,9 +578,11 @@ static bool AutoTuneFoundInFMS()
 {
     bool found = false;
     FlightModeSettingsFlightModePositionOptions fms[FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM];
+    uint8_t num_flightMode;
 
     FlightModeSettingsFlightModePositionGet(fms);
-    for (uint8_t i = 0; i < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM; ++i) {
+    ManualControlSettingsFlightModeNumberGet(&num_flightMode);
+    for (uint8_t i = 0; i < num_flightMode; ++i) {
         if (fms[i] == FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE) {
             found = true;
             break;

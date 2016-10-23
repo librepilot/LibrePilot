@@ -3947,46 +3947,6 @@ uniquement lorsque les valeurs changent</translation>
     </message>
 </context>
 <context>
-    <name>opmap_overlay_widget</name>
-    <message>
-        <location filename="../../plugins/opmap/opmap_overlay_widget.ui"/>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <location/>
-        <source>labelStatus</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>%v</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>opmap_statusbar_widget</name>
-    <message>
-        <location filename="../../plugins/opmap/opmap_statusbar_widget.ui"/>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
-        <location/>
-        <source>labelStatus</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>%v</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>opmap_zoom_slider_widget</name>
     <message>
         <location filename="../../plugins/opmap/opmap_zoom_slider_widget.ui"/>
@@ -4092,24 +4052,6 @@ uniquement lorsque les valeurs changent</translation>
         <location/>
         <source>Vehicle Setup Wizard...</source>
         <translation>Assistant Configuration Véhicule...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -4492,36 +4434,6 @@ uniquement lorsque les valeurs changent</translation>
     </message>
     <message>
         <location/>
-        <source>objname:RelayTuningSettings</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:RateGain</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:0.01</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>haslimits:no</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:AttitudeGain</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Measured Properties</source>
         <translation>Propriétés Mesurées</translation>
     </message>
@@ -4538,30 +4450,6 @@ uniquement lorsque les valeurs changent</translation>
     </message>
     <message>
         <location/>
-        <source>objname:RelayTuning</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:Period</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Roll</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:Gain</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Period (ms)</source>
         <translation>Période (ms)</translation>
     </message>
@@ -4573,12 +4461,6 @@ uniquement lorsque les valeurs changent</translation>
     <message>
         <location/>
         <source>Pitch</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Pitch</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
         <translation></translation>
     </message>
     <message>
@@ -4623,12 +4505,6 @@ uniquement lorsque les valeurs changent</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:Amplitude</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>The Apply and Save buttons below save the autotuning settings which
 will alter settings for the next autotuning flight</source>
         <translation>Les boutons Appliquer et Enregistrer ci-dessous enregistrent les paramètres de réglage automatique qui seront pris en compte pour le prochain vol en mode Autotune</translation>
@@ -4646,18 +4522,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>button:reload</source>
-        <translatorcomment>Pas toucher </translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:10</source>
-        <translatorcomment>Pas toucher </translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board but do not save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire</translation>
     </message>
@@ -4668,12 +4532,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>button:apply</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board and save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte et enregistrer dans la mémoire</translation>
     </message>
@@ -4681,12 +4539,6 @@ Useful if you have accidentally changed some settings.</source>
         <location/>
         <source>Save</source>
         <translation>Enregistrer</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -4725,12 +4577,6 @@ p, li { white-space: pre-wrap; }
 &lt;li style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Nous vous recommandons de vérifier vos paramètres de stabilisation avant de les essayer (ex : comparer à ce que vous utilisez actuellement, si elles sont TRES différentes, c&apos;est probablement une bonne indication d&apos;un dysfonctionnement).&lt;br /&gt;&lt;/li&gt;
 &lt;li style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Tester les nouveau paramètres en vol.&lt;/li&gt;
 &lt;li style=&quot; font-family:&apos;Lucida Grande&apos;; font-size:13pt;&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Si vous êtes prêt à continuer, cochez &lt;span style=&quot; font-style:italic;&quot;&gt;Activer le module Autotune&lt;/span&gt; ci-dessus, &lt;span style=&quot; font-style:italic;&quot;&gt;enregistrez&lt;/span&gt; et passez à l&apos;onglet suivant.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -4777,42 +4623,6 @@ Cette valeur doit être ajustée en fonction de la nacelle et du servo. Vous dev
     </message>
     <message>
         <location/>
-        <source>objname:CameraStabSettings</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:OutputRange</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Yaw</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>haslimits:no</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:1</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:1</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Camera pitch angle for 100% output value, deg.
 
 This value should be tuned for particular gimbal and servo. You also
@@ -4823,12 +4633,6 @@ Cette valeur doit être ajustée en fonction de la nacelle et du servo. Vous dev
     </message>
     <message>
         <location/>
-        <source>element:Pitch</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Camera roll angle for 100% output value, deg.
 
 This value should be tuned for particular gimbal and servo. You also
@@ -4836,12 +4640,6 @@ have to define channel output range using Output configuration tab.</source>
         <translation>Angle caméra en Roll pour une valeur de sortie de 100%, en degrés.
 
 Cette valeur doit être ajustée en fonction de la nacelle et du servo. Vous devez également ajuster la plage de sortie du canal dans l&apos;onglet Output.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Roll</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -4903,12 +4701,6 @@ N&apos;oubliez pas de déclarer ce canal dans l&apos;onglet Input.</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:Input</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Input channel to control camera pitch
 
 Don&apos;t forget to map this channel using Input configuration tab.</source>
@@ -4943,12 +4735,6 @@ AxisLock: La caméra se souvient de l&apos;orientation. L&apos;entrée contrôle
     </message>
     <message>
         <location/>
-        <source>fieldname:StabilizationMode</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Attitude</source>
         <translatorcomment>Pas toucher, terme technique ?</translatorcomment>
         <translation>Attitude</translation>
@@ -4960,26 +4746,8 @@ AxisLock: La caméra se souvient de l&apos;orientation. L&apos;entrée contrôle
     </message>
     <message>
         <location/>
-        <source>fieldname:InputRange</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Maximum camera yaw rate for 100% input in AxisLock mode, deg/s.</source>
         <translation>Vitesse maximale sur le Yaw pour une entrée de 100% en mode AxisLock, en degrés/s.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:InputRate</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:ResponseTime</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5037,12 +4805,6 @@ valeur.</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:MaxAxisLockRate</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Messages</source>
         <translation>Messages</translation>
     </message>
@@ -5050,12 +4812,6 @@ valeur.</translation>
         <location/>
         <source>Ctrl+S</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5072,12 +4828,6 @@ sur Appliquer ou Enregistrer par la suite.</translation>
         <location/>
         <source>Reset To Defaults</source>
         <translation>Restaurer les paramètres par défaut</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:default</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5100,12 +4850,6 @@ sur Appliquer ou Enregistrer par la suite.</translation>
     </message>
     <message>
         <location/>
-        <source>button:reload</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board but do not save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire non volatile</translation>
     </message>
@@ -5116,12 +4860,6 @@ sur Appliquer ou Enregistrer par la suite.</translation>
     </message>
     <message>
         <location/>
-        <source>button:apply</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board and save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte et enregistrer dans la mémoire non volatile</translation>
     </message>
@@ -5129,12 +4867,6 @@ sur Appliquer ou Enregistrer par la suite.</translation>
         <location/>
         <source>Save</source>
         <translation>Enregistrer</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5232,12 +4964,6 @@ Une valeur trop élevée peut griller votre servo !</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:FeedForward</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Pitch servo feed forward acceleration
 
 Range: 0-25, 0 disables feed forward for the axis (default).
@@ -5282,12 +5008,6 @@ Plage : 0-50ms, 5 par défaut.</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:AccelTime</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Pitch servo feed forward acceleration time constant
 
 Range: 0-50ms, default is 5.</source>
@@ -5317,12 +5037,6 @@ Range: 0-50ms, default is 5.</source>
         <translation>Constante de temps de décélération feed forward pour le servo de Roll
 
 Plage : 0-50ms, 5 par défaut.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:DecelTime</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5360,12 +5074,6 @@ Le type générique ne propose pas de limitation.</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:GimbalType</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Yaw-Roll-Pitch</source>
         <translation></translation>
     </message>
@@ -5386,12 +5094,6 @@ The same value is used for all axes.</source>
 Plage : 0-1000, 500 par défaut.
 
 La même valeur est utilisé pour tous les axes.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:MaxAccel</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5494,24 +5196,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
 Beware of not locking yourself out!</source>
         <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
 Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -5642,24 +5326,6 @@ la carte est armée. Dans ce cas ne bougez pas l&apos;appareil lors de l&apos;ar
         <location/>
         <source>Zero gyros while arming</source>
         <translation>Mettre les gyros à zéro lors de l&apos;armement</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -5872,74 +5538,8 @@ Applique et Enregistre tous les paramètres sur la SD</translation>
     </message>
     <message>
         <location/>
-        <source>objname:StabilizationSettings</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>index:0</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>haslimits:no</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:1</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:16</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>index:1</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>index:2</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>index:3</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>index:4</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>index:5</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select which set of roll rates / max bank angles / PIDs you want active on this switch position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sélectionnez quels paramètres de vitesse / angle d&apos;inclinaison / PID vous souhaitez utiliser pour cette position d&apos;interrupteur.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:FlightModeMap</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -5998,18 +5598,6 @@ Applique et Enregistre tous les paramètres sur la SD</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:FlightModeAssistMap</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>haslimits:yes</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Never select &amp;quot;Manual&amp;quot; as Flight Mode when flying a multitrotor! Never select &amp;quot;Altitude&amp;quot; or &amp;quot;CruiseControl&amp;quot; in Stabilization Modes when using a fixed wing!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Éviter &amp;quot;Manuel&amp;quot; comme Mode de Vol pour les multirotors ! Ne jamais sélectionner &amp;quot;Altitude&amp;quot; ou &amp;quot;CruiseControl&amp;quot; comme Mode de Stabilisation sur une aile volante !&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -6057,24 +5645,6 @@ Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !
     </message>
     <message>
         <location/>
-        <source>objname:ManualControlSettings</source>
-        <translatorcomment>Ne pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:default</source>
-        <translatorcomment>Ne pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:555</source>
-        <translatorcomment>Ne pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Channel input settings on failsafe:</source>
         <translation>Paramètres des canaux d&apos;entrée lors du failsafe :</translation>
     </message>
@@ -6109,24 +5679,6 @@ lorsqu&apos;un seul manche ou interrupteur bouge à la fois.</translation>
         <source>No activity</source>
         <translation>Pas d&apos;activité</translation>
     </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>MixerCurve</name>
@@ -6148,21 +5700,6 @@ lorsqu&apos;un seul manche ou interrupteur bouge à la fois.</translation>
     </message>
     <message>
         <location/>
-        <source>4</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>3</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>2</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Min</source>
         <translation>Mini</translation>
     </message>
@@ -6170,31 +5707,6 @@ lorsqu&apos;un seul manche ou interrupteur bouge à la fois.</translation>
         <location/>
         <source>Value</source>
         <translation>Valeur</translation>
-    </message>
-    <message>
-        <location/>
-        <source>1.0</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>.75</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>.50</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>.25</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>.00</source>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -6357,24 +5869,6 @@ Soyez certain de régler la position de tous les curseurs avant d&apos;envoyer !
         <location/>
         <source>(Really be careful!).</source>
         <translation>(Soyez très prudent !).</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -6609,32 +6103,8 @@ Une valeur de 0.00 désactive le filtre.</translation>
     </message>
     <message>
         <location/>
-        <source>objname:HomeLocation</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:g_e</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:Latitude</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Altitude:</source>
         <translation>Altitude :</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:Altitude</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -6643,37 +6113,13 @@ Une valeur de 0.00 désactive le filtre.</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:Longitude</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Is Set</source>
         <translation>Est Réglé</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:Set</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Longitude:</source>
         <translation>Longitude :</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -6863,11 +6309,6 @@ Une valeur de 0.00 désactive le filtre.</translation>
     </message>
     <message>
         <location/>
-        <source>external</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location/>
         <source>Auxiliary Magnetometer Orientation</source>
         <translation>Orientation Magnétomètre Auxiliaire</translation>
     </message>
@@ -6903,16 +6344,6 @@ la carte est armée. Dans ce cas ne bougez pas l&apos;appareil lors de l&apos;ar
         <location/>
         <source>Wait until the board is steady</source>
         <translation>Attendre jusqu&apos;à ce que la carte soit stable</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Ubuntu&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;MS Shell Dlg 2&apos;; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translatorcomment>Vide, ne pas traduire</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7004,12 +6435,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Pour effectuer cet étalonnage, déconnectez toutes les alimentations de la carte et laissez-là refroidir à température ambiante pendant 15-20 minutes. Branchez ensuite la prise USB sur la carte, appuyez sur &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;Démarrer&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; et ne bougez plus la carte. Attendez jusqu&apos;à la fin du processus.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>StabilizationWidget</name>
@@ -7045,18 +6470,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>button:default</source>
-        <translatorcomment>pas toucher ?</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:1</source>
-        <translatorcomment>pas toucher ?</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Roll</source>
         <translation></translation>
     </message>
@@ -7084,54 +6497,6 @@ oscillations claires en vol. Baissez ensuite la valeur de 5 ou plus.</translatio
     </message>
     <message>
         <location/>
-        <source>objname:StabilizationSettings</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:RollRatePID</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Kp</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>haslimits:yes</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:0.0001</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:1,10</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:PitchRatePID</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:YawRatePID</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Integral</source>
         <translation>Intégrale</translation>
     </message>
@@ -7144,44 +6509,8 @@ value as the Kp.</source>
     </message>
     <message>
         <location/>
-        <source>element:Ki</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Attitude Stabilization (Outer Loop)</source>
         <translation>Stabilisation Attitude (Boucle Extérieure)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:2</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:RollPI</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:0.1</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:2,10</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:PitchPI</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7190,44 +6519,8 @@ value as the Kp.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:LowThrottleZeroIntegral</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Advanced</source>
         <translation>Avancé</translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:4</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Kd</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>haslimits:no</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:1</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:4,20</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7236,79 +6529,8 @@ value as the Kp.</source>
     </message>
     <message>
         <location/>
-        <source>buttongroup:5</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:5,20</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:6</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:PitchMax</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:6,20</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:MaximumRate</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Roll</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:ManualRate</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Yaw</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Pitch</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:RollMax</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Expert</source>
         <translation>Expert</translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:10</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7327,79 +6549,13 @@ value as the Kp.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:WeakLevelingKp</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:MaxWeakLevelingRate</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:MaxAxisLock</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:MaxAxisLockRate</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Sensor Tuning</source>
         <translation>Réglages Capteurs</translation>
     </message>
     <message>
         <location/>
-        <source>buttongroup:8</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>objname:AttitudeSettings</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:AccelKp</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:8,10</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:GyroTau</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:AccelKi</source>
-        <translatorcomment>pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Takes you to the wiki page</source>
         <translation>Vous renvoie à la page wiki</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7414,12 +6570,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>button:reload</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board but do not save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire</translation>
     </message>
@@ -7430,12 +6580,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>button:apply</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board and save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte et enregistrer dans la mémoire</translation>
     </message>
@@ -7443,12 +6587,6 @@ Useful if you have accidentally changed some settings.</source>
         <location/>
         <source>Save</source>
         <translation>Enregistrer</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7578,18 +6716,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>objname:AltitudeHoldSettings</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:99</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Vario Altitude</source>
         <translation>Altitude Vario</translation>
     </message>
@@ -7656,25 +6782,7 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>objname:StabilizationSettingsBankX</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Rattitude</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:15</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:98</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
         <translation></translation>
     </message>
     <message>
@@ -7694,12 +6802,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>scale:0.01</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Control Coefficients</source>
         <translation>Coefficients de Contrôle</translation>
     </message>
@@ -7710,32 +6812,8 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>buttongroup:16</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:CruiseControlMaxAngle</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:CruiseControlMaxPowerFactor</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>PowerTrim</source>
         <translation>AjustPuissance</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:CruiseControlPowerTrim</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7754,18 +6832,6 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>buttongroup:98,10</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:99,10</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How much the vehicle should throttle up or down to compensate or achieve a certain vertical speed. Higher values lead to more aggressive throttle changes and could lead to oscillations. This is the most likely candidate to change depending on the crafts engine thrust. Heavy craft with weak engines might require higher values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Détermine de combien le véhicule augmente ou diminue les gaz pour compenser ou atteindre une certaine vitesse verticale. Des valeurs plus élevées entraînent des variations de gaz plus agressives qui peuvent produire des oscillations. C&apos;est le paramètre à changer en fonction de la poussée moteur de l&apos;appareil. Des appareils chargés avec des moteurs faibles peuvent demander des valeurs plus élevées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -7776,20 +6842,8 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:RattitudeModeTransition</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CP helis can set this to Reversed to automatically reverse the direction of thrust when inverted. Fixed pitch copters, including multicopters, should leave this set at Unreversed. Unreversed direction with Boosted power may be dangerous because it adds power and the thrust direction moves the aircraft towards the ground.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les hélicos CP peuvent régler ceci à Reversed pour inverser automatiquement la direction de la poussée en vol dos. Les hélicos à pas fixe, multicoptères inclus, doivent laisser ce paramètre à Unreversed. L&apos;association du paramètre Unreversed avec Boosted ci-dessous peut-être dangereuse car elle ajoute de la puissance et la direction de la poussée déplace l&apos;appareil vers le sol.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:CruiseControlInvertedThrustReversing</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7823,31 +6877,13 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:CruiseControlMinThrust</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Multi-copters should probably use 80% to 90% to leave some headroom for stabilization. CP helis can set this to 100%.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les multicoptères devraient probablement utiliser une valeur de 80% à 90% afin de laisser une certaine marge pour la stabilisation. Les hélicos CP peuvent définir cette valeur à 100%.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location/>
-        <source>fieldname:CruiseControlMaxThrust</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>MaxThrust</source>
         <translation>PousséeMaxi</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:CruiseControlPowerDelayComp</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7861,26 +6897,8 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:CruiseControlInvertedPowerOutput</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:ThrustRate</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Thrust exponential value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Valeur exponentielle de la poussée.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:ThrustExp</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7899,24 +6917,12 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>buttongroup:25</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Weak Leveling Gain </source>
         <translation>Gain Weak Leveling </translation>
     </message>
     <message>
         <location/>
         <source>Axis Lock</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:31</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
         <translation></translation>
     </message>
     <message>
@@ -7946,20 +6952,8 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:EnableThrustPIDScaling</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Source</source>
         <translation>Source</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:ThrustPIDScaleSource</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -7968,20 +6962,8 @@ Useful if you have accidentally changed some settings.</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:ThrustPIDScaleTarget</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Axis</source>
         <translation>Axe(s)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:ThrustPIDScaleAxes</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8016,31 +6998,7 @@ response (deg)</source>
     </message>
     <message>
         <location/>
-        <source>buttongroup:77</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:AcroInsanityFactor</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Expo</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:StickExpo</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:66</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
         <translation></translation>
     </message>
     <message>
@@ -8085,18 +7043,6 @@ response (deg)</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:EnablePiroComp</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:55</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This adjusts how much stability your vehicle will have when flying tilted (ie forward flight) in Rate mode. A good starting point for Integral is double the  Proportional value&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ceci ajuste le niveau de stabilité que votre véhicule aura en vol incliné (ex. vol en avançant) en mode Rate. Un bon point de départ pour l&apos;Intégrale est le double de la valeur Proportionnel&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -8112,20 +7058,8 @@ response (deg)</source>
     </message>
     <message>
         <location/>
-        <source>fieldname:VerticalPosP</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How fast the vehicle should attain its target velocity.  For neutral throttle estimation,  the altitude module assumes that when engaged the throttle thrust limit neutral setting is in the range required to hover. If the throttle required is a lot higher or lower, it needs to adjust this &amp;quot;throttle trim&amp;quot;. Higher values make it do this adjustment faster, but this could lead to ugly oscillations. Leave at default unless you know what you are doing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Détermine la rapidité à laquelle le véhicule doit atteindre la vitesse désirée. Pour l&apos;estimation du neutre de manche des gaz, le module Altitude suppose que lorsqu&apos;il est activé le manche des gaz est dans la zone nécessaire à un vol stabilisé. Si la valeur de gaz est beaucoup plus haute ou basse, il doit ajuster son &amp;quot;Trim de Gaz&amp;quot;. Des valeurs élevées donneront un ajustement plus rapide mais cela peut entrainer de vilaines oscillations. Laissez par défaut si vous ne savez pas ce que vous faites.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:VerticalVelPID</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8146,12 +7080,6 @@ response (deg)</source>
         <location/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The beta value applies a setpoint weighting that reduces the sensitivity to quick changes in the desired velocity.  Transitions from altitude hold to descent/climb can be made smooth applying a Beta value of around 80 to 90%.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;La valeur de Beta applique une pondération de consigne qui réduit la sensibilité à des changements rapides de la vitesse souhaitée. Les transitions montée/descente en maintien d&apos;altitude peuvent être adoucies en mettant une valeur de Beta entre 80 et 90%.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:Beta</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8190,12 +7118,6 @@ response (deg)</source>
     </message>
     <message>
         <location/>
-        <source>buttongroup:56</source>
-        <translatorcomment>Ne pas toucher !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Camera Tilt Angle (deg)</source>
         <translation>Angle Inclinaison Caméra (degrés)</translation>
     </message>
@@ -8203,12 +7125,6 @@ response (deg)</source>
         <location/>
         <source>Camera tilt angle from 0 to 50 degrees (0 to disable compensation).</source>
         <translation>Angle d&apos;inclinaison de la caméra, de 0 à 50degrés (0 pour désactiver le compensation).</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:FpvCamTiltCompensation</source>
-        <translatorcomment>Ne pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8412,12 +7328,6 @@ d&apos;une valeur de gaz supérieure ou égale à la la valeur maximale des gaz.
     </message>
     <message>
         <location/>
-        <source>button:help</source>
-        <translatorcomment>Pas toucher.</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Send settings to the board but do not save to the non-volatile memory</source>
         <translation>Envoyer les paramètres sur la carte sans enregistrer dans la mémoire</translation>
     </message>
@@ -8486,61 +7396,13 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
     </message>
     <message>
         <location/>
-        <source>button:default</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:10</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Roll/Pitch I Factor</source>
         <translation>Facteur I Roll/Pitch</translation>
     </message>
     <message>
         <location/>
-        <source>objname:TxPIDSettings</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:EasyTunePitchRollRateFactors</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:0.1</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:I</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Roll/Pitch D Factor</source>
         <translation>Facteur D Roll/Pitch</translation>
-    </message>
-    <message>
-        <location/>
-        <source>scale:1</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:D</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8554,32 +7416,8 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
     </message>
     <message>
         <location/>
-        <source>fieldname:EasyTuneRatePIDRecalculateYaw</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>buttongroup:11</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Yaw P Factor</source>
         <translation>Facteur P Yaw</translation>
-    </message>
-    <message>
-        <location/>
-        <source>fieldname:EasyTuneYawRateFactors</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>element:P</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -8635,18 +7473,6 @@ uniquement lorsque le système est armé, sans désactiver le module.</translati
         <location/>
         <source>Yaw D factor for EasyTune mode</source>
         <translation>Facteur D Yaw pour le mode EasyTune</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -10132,30 +8958,6 @@ persistant de la carte, et ensuite ferme la boite de dialogue.</translation>
     </message>
     <message>
         <location/>
-        <source>lblDevName</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>DeviceID</source>
-        <translatorcomment>Champs. Pas toucher ?</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblHWRev</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>RW</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>BL Version</source>
         <translatorcomment>Pas toucher</translatorcomment>
         <translation></translation>
@@ -10243,56 +9045,8 @@ persistant de la carte, et ensuite ferme la boite de dialogue.</translation>
     </message>
     <message>
         <location/>
-        <source>lblBrdName</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblDescription</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblBuildDate</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblGitTag</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblCRC</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblCertified</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Loaded</source>
         <translation>Chargé</translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblDescritpionL</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>lblCertifiedL</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -10324,11 +9078,6 @@ persistant de la carte, et ensuite ferme la boite de dialogue.</translation>
     </message>
     <message>
         <location/>
-        <source>TextLabel</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>CPU Serial:</source>
         <translation>N° Série CPU :</translation>
     </message>
@@ -10336,11 +9085,6 @@ persistant de la carte, et ensuite ferme la boite de dialogue.</translation>
         <location/>
         <source>Firmware Information</source>
         <translation>Information Firmware</translation>
-    </message>
-    <message>
-        <location/>
-        <source>BlRevision</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11001,17 +9745,9 @@ Pour un véhicule terrestre, ces positions centrales seront utilisées comme neu
     </message>
 </context>
 <context>
-    <name>LoggingThread</name>
-    <message>
-        <location line="+164"/>
-        <source>Logging: retrieve settings objects from the autopilot (%1 objects)</source>
-        <translation>Journalisation : récupération des objets de configuration de l&apos;autopilote (%1 objets)</translation>
-    </message>
-</context>
-<context>
     <name>LoggingPlugin</name>
     <message>
-        <location line="+114"/>
+        <location line="+278"/>
         <source>Start Log</source>
         <translation>Démarrer Journal</translation>
     </message>
@@ -13114,24 +11850,6 @@ Beware of not locking yourself out!</source>
         <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
 Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>OPLinkWidget</name>
@@ -13139,12 +11857,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <location filename="../../plugins/config/oplink.ui"/>
         <source>Form</source>
         <translation>Formulaire</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Pas toucher !</translatorcomment>
-        <translation></translation>
     </message>
     <message>
         <location/>
@@ -13474,18 +12186,6 @@ L&apos;appareil doit être redémarré pour que l&apos;association soit effectiv
         <location/>
         <source>Configure what type of packets will be sent over the link</source>
         <translation>Configure le type de paquets qui vont être envoyés à travers la liaison</translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -15218,18 +13918,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>placeholder_text</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>TextLabel</source>
-        <translatorcomment>Pas toucher</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
         <source>Select:</source>
         <translation>Sélectionner :</translation>
     </message>
@@ -16427,24 +15115,6 @@ Beware of not locking yourself out!</source>
         <translation>Envoie vers la carte mais n&apos;écrit pas dans la SD.
 Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
     </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>ConfigFixedWingWidget</name>
@@ -16582,24 +15252,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <source>Save</source>
         <translation>Enregistrer</translation>
     </message>
-    <message>
-        <location/>
-        <source>button:help</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:apply</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
-    <message>
-        <location/>
-        <source>button:save</source>
-        <translatorcomment>Do not translate !</translatorcomment>
-        <translation></translation>
-    </message>
 </context>
 <context>
     <name>FailsafeChannelForm</name>
@@ -16663,11 +15315,6 @@ Méfiez-vous de ne pas vous verrouiller l&apos;accès !</translation>
         <location filename="../../plugins/config/defaultconfig.ui"/>
         <source>Form</source>
         <translation>Formulaire</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&lt;place holder - do not translate&gt;</source>
-        <translation></translation>
     </message>
     <message>
         <location/>

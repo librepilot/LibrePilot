@@ -285,7 +285,7 @@ p, li { white-space: pre-wrap; }
                  <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:RelayTuningSettings</string>
                   <string>fieldname:RateGain</string>
                   <string>scale:0.01</string>
@@ -303,7 +303,7 @@ p, li { white-space: pre-wrap; }
                  <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:RelayTuningSettings</string>
                   <string>fieldname:AttitudeGain</string>
                   <string>scale:0.01</string>
@@ -337,7 +337,7 @@ p, li { white-space: pre-wrap; }
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:RelayTuning</string>
                   <string>fieldname:Period</string>
                   <string>element:Roll</string>
@@ -354,7 +354,7 @@ p, li { white-space: pre-wrap; }
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:RelayTuning</string>
                   <string>fieldname:Gain</string>
                   <string>element:Roll</string>
@@ -392,7 +392,7 @@ p, li { white-space: pre-wrap; }
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:RelayTuning</string>
                   <string>fieldname:Period</string>
                   <string>element:Pitch</string>
@@ -409,7 +409,7 @@ p, li { white-space: pre-wrap; }
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:RelayTuning</string>
                   <string>fieldname:Gain</string>
                   <string>element:Pitch</string>
@@ -561,7 +561,7 @@ p, li { white-space: pre-wrap; }
                    <enum>Qt::Horizontal</enum>
                   </property>
                   <property name="objrelation" stdset="0">
-                   <stringlist>
+                   <stringlist notr="true">
                     <string>objname:RelayTuningSettings</string>
                     <string>fieldname:Amplitude</string>
                     <string>scale:0.01</string>
@@ -711,8 +711,8 @@ Useful if you have accidentally changed some settings.</string>
         <string>Reload Board Data</string>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
-         <string notr="true">button:reload</string>
+        <stringlist notr="true">
+         <string>button:reload</string>
          <string>buttongroup:10</string>
         </stringlist>
        </property>
@@ -736,8 +736,8 @@ Useful if you have accidentally changed some settings.</string>
         <string>Apply</string>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
-         <string notr="true">button:apply</string>
+        <stringlist notr="true">
+         <string>button:apply</string>
         </stringlist>
        </property>
       </widget>
@@ -760,8 +760,8 @@ Useful if you have accidentally changed some settings.</string>
         <string>Save</string>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
-         <string notr="true">button:save</string>
+        <stringlist notr="true">
+         <string>button:save</string>
         </stringlist>
        </property>
       </widget>

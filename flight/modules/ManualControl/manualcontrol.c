@@ -129,13 +129,14 @@ static void SettingsUpdatedCb(UAVObjEvent *ev);
  */
 int32_t ManualControlStart()
 {
-    // Run this initially to make sure the configuration is checked
-    configuration_check();
-
     // Whenever the configuration changes, make sure it is safe to fly
     SystemSettingsConnectCallback(configurationUpdatedCb);
     ManualControlSettingsConnectCallback(configurationUpdatedCb);
+    FlightModeSettingsConnectCallback(configurationUpdatedCb);
     ManualControlCommandConnectCallback(commandUpdatedCb);
+
+    // Run this initially to make sure the configuration is checked
+    configuration_check();
 
     // clear alarms
     AlarmsClear(SYSTEMALARMS_ALARM_MANUALCONTROL);

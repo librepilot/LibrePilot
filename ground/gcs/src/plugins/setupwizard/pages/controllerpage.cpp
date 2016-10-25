@@ -170,8 +170,11 @@ void ControllerPage::devicesChanged(QLinkedList<Core::DevListItem> devices)
     // Loop and fill the combo with items from connectionmanager
     foreach(Core::DevListItem deviceItem, devices) {
         ui->deviceCombo->addItem(deviceItem.getConName());
+        // TODO - have tooltips similar to how connection manager does
         QString deviceName = (const QString)deviceItem.getConName();
         ui->deviceCombo->setItemData(ui->deviceCombo->count() - 1, deviceName, Qt::ToolTipRole);
+        // we fill a combobox with items in the same order as the connectionmanager, so they should have the same numerical ids. if not, things break.
+        Q_ASSERT(ui->deviceCombo->count() - 1 == deviceItem.displayNumber);
         if (!deviceName.startsWith("USB:", Qt::CaseInsensitive)) {
             ui->deviceCombo->setItemData(ui->deviceCombo->count() - 1, QVariant(0), Qt::UserRole - 1);
         }
@@ -194,13 +197,7 @@ void ControllerPage::connectionStatusChanged()
         ui->deviceCombo->setEnabled(false);
         ui->connectButton->setText(tr("Disconnect"));
         ui->boardTypeCombo->setEnabled(false);
-        QString connectedDeviceName = m_connectionManager->getCurrentDevice().getConName();
-        for (int i = 0; i < ui->deviceCombo->count(); ++i) {
-            if (connectedDeviceName == ui->deviceCombo->itemData(i, Qt::ToolTipRole).toString()) {
-                ui->deviceCombo->setCurrentIndex(i);
-                break;
-            }
-        }
+        ui->deviceCombo->setCurrentIndex(m_connectionManager->getCurrentDevice().displayNumber);
 
         SetupWizard::CONTROLLER_TYPE type = getControllerType();
         setControllerType(type);
@@ -256,7 +253,7 @@ void ControllerPage::connectDisconnect()
     if (m_connectionManager->isConnected()) {
         m_connectionManager->disconnectDevice();
     } else {
-        m_connectionManager->connectDevice(m_connectionManager->findDevice(ui->deviceCombo->itemData(ui->deviceCombo->currentIndex(), Qt::ToolTipRole).toString()));
+        m_connectionManager->connectDevice(m_connectionManager->findDevice(ui->deviceCombo->currentIndex()));
     }
     emit completeChanged();
 }

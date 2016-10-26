@@ -65,11 +65,23 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QToolButton" name="illustrationButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Show connection diagram for configuration</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">QToolButton { border: none }</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string/>
@@ -80,8 +92,8 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="iconSize">
         <size>
-         <width>170</width>
-         <height>170</height>
+         <width>210</width>
+         <height>210</height>
         </size>
        </property>
        <property name="checkable">

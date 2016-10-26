@@ -65,6 +65,7 @@ public:
         return connection == rhs.connection && device == rhs.device;
     }
 
+    int displayNumber = -1;
     IConnection *connection;
     IConnection::device device;
 };
@@ -83,7 +84,7 @@ public:
     {
         return m_connectionDevice;
     }
-    DevListItem findDevice(const QString &devName);
+    DevListItem findDevice(int devNumber);
 
     QLinkedList<DevListItem> getAvailableDevices()
     {

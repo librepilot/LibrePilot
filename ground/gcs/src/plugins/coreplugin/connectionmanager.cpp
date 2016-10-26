@@ -130,8 +130,7 @@ void ConnectionManager::addWidget(QWidget *widget)
 bool ConnectionManager::connectDevice(DevListItem device)
 {
     Q_UNUSED(device);
-    QString deviceName = m_availableDevList->itemData(m_availableDevList->currentIndex(), Qt::ToolTipRole).toString();
-    DevListItem connection_device = findDevice(deviceName);
+    DevListItem connection_device = findDevice(m_availableDevList->currentIndex());
 
     if (!connection_device.connection) {
         return false;
@@ -279,8 +278,7 @@ void ConnectionManager::onConnectClicked()
     // Check if we have a ioDev already created:
     if (!m_ioDev) {
         // connecting to currently selected device
-        QString deviceName = m_availableDevList->itemData(m_availableDevList->currentIndex(), Qt::ToolTipRole).toString();
-        DevListItem device = findDevice(deviceName);
+        DevListItem device = findDevice(m_availableDevList->currentIndex());
         if (device.connection) {
             connectDevice(device);
         }
@@ -343,15 +341,15 @@ void ConnectionManager::reconnectCheckSlot()
 /**
  *   Find a device by its displayed (visible on screen) name
  */
-DevListItem ConnectionManager::findDevice(const QString &devName)
+DevListItem ConnectionManager::findDevice(int devNumber)
 {
     foreach(DevListItem d, m_devList) {
-        if (d.getConName() == devName) {
+        if (d.displayNumber == devNumber) {
             return d;
         }
     }
 
-    qDebug() << "findDevice: cannot find " << devName << " in device list";
+    qDebug() << "findDevice: cannot find item in device list";
 
     DevListItem d;
     d.connection = NULL;
@@ -480,28 +478,25 @@ void ConnectionManager::devChanged(IConnection *connection)
 void ConnectionManager::updateConnectionDropdown()
 {
     // add all the list again to the combobox
-    foreach(DevListItem d, m_devList) {
-        m_availableDevList->addItem(d.getConName());
-        m_availableDevList->setItemData(m_availableDevList->count() - 1, d.getConDescription(), Qt::ToolTipRole);
-        if (!m_ioDev && d.getConName().startsWith("USB")) {
+    for (QLinkedList<DevListItem>::iterator iter = m_devList.begin(); iter != m_devList.end(); ++iter) {
+        m_availableDevList->addItem(iter->getConName());
+        // record position in the box in the device
+        iter->displayNumber = m_availableDevList->count() - 1;
+        m_availableDevList->setItemData(m_availableDevList->count() - 1, iter->getConDescription(), Qt::ToolTipRole);
+        if (!m_ioDev && iter->getConName().startsWith("USB")) {
             if (m_mainWindow->generalSettings()->autoConnect() || m_mainWindow->generalSettings()->autoSelect()) {
                 m_availableDevList->setCurrentIndex(m_availableDevList->count() - 1);
             }
             if (m_mainWindow->generalSettings()->autoConnect() && polling) {
                 qDebug() << "Automatically opening device";
-                connectDevice(d);
+                connectDevice(*iter);
                 qDebug() << "ConnectionManager::updateConnectionDropdown autoconnected USB device";
             }
         }
     }
     if (m_ioDev) {
         // if a device is connected make it the one selected on the dropbox
-        for (int i = 0; i < m_availableDevList->count(); i++) {
-            QString deviceName = m_availableDevList->itemData(i, Qt::ToolTipRole).toString();
-            if (m_connectionDevice.getConName() == deviceName) {
-                m_availableDevList->setCurrentIndex(i);
-            }
-        }
+        m_availableDevList->setCurrentIndex(m_connectionDevice.displayNumber);
     }
     // update combo box tooltip
     onDeviceSelectionChanged(m_availableDevList->currentIndex());

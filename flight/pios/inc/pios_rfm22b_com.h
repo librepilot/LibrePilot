@@ -28,12 +28,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PIOS_RFM22B_H
-#define PIOS_RFM22B_H
+#ifndef PIOS_RFM22B_COM_H
+#define PIOS_RFM22B_COM_H
 
 extern const struct pios_com_driver pios_rfm22b_com_driver;
+extern const struct pios_com_driver pios_rfm22b_aux_com_driver;
 
-#endif /* PIOS_RFM22B_H */
+#endif /* PIOS_RFM22B_COM_H */
 
 /**
  * @}

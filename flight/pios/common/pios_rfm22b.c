@@ -420,6 +420,8 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     rfm22b_dev->rx_in_cb      = NULL;
     rfm22b_dev->tx_out_cb     = NULL;
 
+    rfm22b_dev->aux_rx_in_cb  = NULL;
+    rfm22b_dev->aux_tx_out_cb = NULL;
     // Initialize the PPM callback.
     rfm22b_dev->ppm_callback  = NULL;
 
@@ -1905,10 +1907,28 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
     }
 
     // Append data from the com interface if applicable.
-    if (!radio_dev->ppm_only_mode && radio_dev->tx_out_cb) {
-        // Try to get some data to send
+    if (!radio_dev->ppm_only_mode) {
+        uint8_t newlen  = 0;
         bool need_yield = false;
-        len += (radio_dev->tx_out_cb)(radio_dev->tx_out_context, p + len, max_data_len - len, NULL, &need_yield);
+        uint8_t i = 0;
+        // Try to get some data to send
+        while (newlen == 0 && i < 2) {
+            radio_dev->last_stream_sent = (radio_dev->last_stream_sent + 1) % 2;
+            if (!radio_dev->last_stream_sent) {
+                if (radio_dev->tx_out_cb) {
+                    newlen = (radio_dev->tx_out_cb)(radio_dev->tx_out_context, p + len + 1, max_data_len - len - 1, NULL, &need_yield);
+                }
+            } else {
+                if (radio_dev->aux_tx_out_cb) {
+                    newlen = (radio_dev->aux_tx_out_cb)(radio_dev->aux_tx_out_context, p + len + 1, max_data_len - len - 1, NULL, &need_yield);
+                }
+            }
+            i++;
+        }
+        if (newlen) {
+            *(p + len) = radio_dev->last_stream_sent;
+            len += newlen + 1;
+        }
     }
 
     // Always send a packet if this modem is a coordinator.
@@ -1990,9 +2010,10 @@ static enum pios_radio_event radio_setRxMode(struct pios_rfm22b_dev *rfm22b_dev)
  */
 static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_dev, uint8_t *p, uint16_t rx_len)
 {
-    bool good_packet = true;
+    bool good_packet      = true;
     bool corrected_packet = false;
-    uint8_t data_len = rx_len;
+    uint8_t stream_num    = 0;
+    uint8_t data_len      = rx_len;
 
     // We don't rsencode ppm only packets.
     if (!radio_dev->ppm_only_mode) {
@@ -2073,10 +2094,22 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
     if (good_packet || corrected_packet) {
         // Send the data to the com port
         bool rx_need_yield;
-        if (radio_dev->rx_in_cb && (data_len > 0) && !radio_dev->ppm_only_mode) {
-            (radio_dev->rx_in_cb)(radio_dev->rx_in_context, p, data_len, NULL, &rx_need_yield);
-        }
 
+
+        if ((data_len > 0) && !radio_dev->ppm_only_mode) {
+            stream_num = *p;
+            p++;
+            data_len--;
+            if (!stream_num) {
+                if (radio_dev->rx_in_cb) {
+                    (radio_dev->rx_in_cb)(radio_dev->rx_in_context, p, data_len, NULL, &rx_need_yield);
+                }
+            } else {
+                if (radio_dev->aux_rx_in_cb) {
+                    (radio_dev->aux_rx_in_cb)(radio_dev->aux_rx_in_context, p, data_len, NULL, &rx_need_yield);
+                }
+            }
+        }
         /*
          * If the packet is valid and destined for us we synchronize the clock.
          */

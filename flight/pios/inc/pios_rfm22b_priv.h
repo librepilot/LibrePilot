@@ -206,12 +206,18 @@ struct pios_rfm22b_dev {
     // ISR pending semaphore
     xSemaphoreHandle  isrPending;
 
-    // The COM callback functions.
+    // The main COM callback functions.
     pios_com_callback rx_in_cb;
     uint32_t rx_in_context;
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
 
+    uint8_t last_stream_sent;
+    // The Aux COM callback functions.
+    pios_com_callback aux_rx_in_cb;
+    uint32_t aux_rx_in_context;
+    pios_com_callback aux_tx_out_cb;
+    uint32_t aux_tx_out_context;
     // the transmit power to use for data transmissions
     uint8_t  tx_power;
 

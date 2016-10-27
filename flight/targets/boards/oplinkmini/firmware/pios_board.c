@@ -66,18 +66,20 @@ uint32_t pios_com_telem_uart_main_id = 0;
 uint32_t pios_com_telem_uart_flexi_id = 0;
 uint32_t pios_com_telemetry_id = 0;
 uint32_t pios_com_bridge_id    = 0;
-uint32_t pios_com_vcp_id    = 0;
+uint32_t pios_com_vcp_id  = 0;
 #if defined(PIOS_INCLUDE_PPM)
-uint32_t pios_ppm_rcvr_id   = 0;
+uint32_t pios_ppm_rcvr_id = 0;
 #endif
 #if defined(PIOS_INCLUDE_PPM_OUT)
-uint32_t pios_ppm_out_id    = 0;
+uint32_t pios_ppm_out_id  = 0;
 #endif
 #if defined(PIOS_INCLUDE_RFM22B)
+#include <pios_rfm22b_com.h>
 uint32_t pios_rfm22b_id     = 0;
 uint32_t pios_com_rfm22b_id = 0;
 uint32_t pios_com_radio_id  = 0;
 #endif
+
 
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id = 0;
@@ -496,6 +498,24 @@ void PIOS_Board_Init(void)
 
             // Reinitialize the modem to affect the changes.
             PIOS_RFM22B_Reinit(pios_rfm22b_id);
+            uint8_t oplinksettings_radioaux;
+            OPLinkSettingsRadioAuxStreamGet(&oplinksettings_radioaux);
+            switch (oplinksettings_radioaux) {
+            case OPLINKSETTINGS_RADIOAUXSTREAM_DISABLED:
+                break;
+            case OPLINKSETTINGS_RADIOAUXSTREAM_COMBRIDGE:
+            {
+                uint8_t *auxrx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_RX_BUF_LEN);
+                uint8_t *auxtx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_TX_BUF_LEN);
+                PIOS_Assert(auxrx_buffer);
+                PIOS_Assert(auxtx_buffer);
+                if (PIOS_COM_Init(&pios_com_bridge_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
+                                  auxrx_buffer, PIOS_COM_TELEM_RX_BUF_LEN,
+                                  auxtx_buffer, PIOS_COM_TELEM_TX_BUF_LEN)) {
+                    PIOS_Assert(0);
+                }
+            }
+            }
         } // openlrs
     } else {
         oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;

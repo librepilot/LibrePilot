@@ -28,7 +28,8 @@
 		<field name="MSPSpeed" units="bps" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200" defaultvalue="115200"/>
 		<field name="MAVLinkSpeed" units="bps" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200" defaultvalue="57600"/>
 		<field name="USB_HIDPort" units="function" type="enum" elements="1" options="USBTelemetry,RCTransmitter,Disabled" defaultvalue="USBTelemetry"/>
-		<field name="USB_VCPPort" units="function" type="enum" elements="1" options="USBTelemetry,ComBridge,DebugConsole,Disabled" defaultvalue="Disabled"/>
+		<field name="USB_VCPPort" units="function" type="enum" elements="1" options="USBTelemetry,ComBridge,DebugConsole,Disabled,MAVLink" defaultvalue="Disabled"/>
+        <field name="RadioAuxStream" units="function" type="enum" elements="1" options="DebugConsole,Disabled,MAVLink" defaultvalue="Disabled"/>
 
 		<field name="OptionalModules" units="" type="enum" elementnames="CameraStab,CameraControl,GPS,Fault,Altitude,Airspeed,TxPID,Battery,Overo,MagBaro,OsdHk,AutoTune" options="Disabled,Enabled" defaultvalue="Disabled"/>
 		<field name="ADCRouting" units="" type="enum" elementnames="adc0,adc1,adc2,adc3,adc4,adc5,adc6,adc7" options="Disabled,BatteryVoltage,BatteryCurrent,AnalogAirspeed,Generic" defaultvalue="Disabled"/>

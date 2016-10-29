@@ -212,6 +212,7 @@ uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 #define PIOS_COM_MSP_RX_BUF_LEN          64
 
 #define PIOS_COM_MAVLINK_TX_BUF_LEN      128
+#define PIOS_COM_MAVLINK_RX_BUF_LEN      128
 
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 #define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
@@ -231,6 +232,7 @@ uint32_t pios_com_vcp_id       = 0;
 
 #if defined(PIOS_INCLUDE_RFM22B)
 uint32_t pios_rfm22b_id        = 0;
+#include <pios_rfm22b_com.h>
 #endif
 
 uintptr_t pios_uavo_settings_fs_id;
@@ -937,6 +939,32 @@ void PIOS_Board_Init(void)
 
             /* Reinitialize the modem. */
             PIOS_RFM22B_Reinit(pios_rfm22b_id);
+            // TODO: this is in preparation for full mavlink support and is used by LP-368
+            uint16_t mavlink_rx_size = PIOS_COM_MAVLINK_RX_BUF_LEN;
+
+            uint8_t hwsettings_radioaux;
+            HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
+
+            switch (hwsettings_radioaux) {
+            case HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE:
+            case HWSETTINGS_RADIOAUXSTREAM_DISABLED:
+                break;
+            case HWSETTINGS_RADIOAUXSTREAM_MAVLINK:
+            {
+                uint8_t *auxrx_buffer = 0;
+                if (mavlink_rx_size) {
+                    auxrx_buffer = (uint8_t *)pios_malloc(mavlink_rx_size);
+                }
+                uint8_t *auxtx_buffer = (uint8_t *)pios_malloc(PIOS_COM_MAVLINK_TX_BUF_LEN);
+                PIOS_Assert(auxrx_buffer);
+                PIOS_Assert(auxtx_buffer);
+                if (PIOS_COM_Init(&pios_com_mavlink_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
+                                  auxrx_buffer, mavlink_rx_size,
+                                  auxtx_buffer, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
+                    PIOS_Assert(0);
+                }
+            }
+            }
         }
     } else {
         oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;

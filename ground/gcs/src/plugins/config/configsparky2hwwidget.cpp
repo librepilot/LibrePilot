@@ -63,6 +63,8 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
 
+    addWidgetBinding("HwSettings", "RadioAuxStream", m_ui->cbRadioAux);
+
     setupCustomCombos();
 }
 

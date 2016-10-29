@@ -83,6 +83,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "MainPort", m_oplink->MainPort);
     addWidgetBinding("OPLinkSettings", "FlexiPort", m_oplink->FlexiPort);
     addWidgetBinding("OPLinkSettings", "VCPPort", m_oplink->VCPPort);
+    addWidgetBinding("OPLinkSettings", "RadioAuxStream", m_oplink->RadioAuxPort);
 
     addWidgetBinding("OPLinkSettings", "RFXtalCap", m_oplink->RFXtalCapValue);
     addWidgetBinding("OPLinkSettings", "RFXtalCap", m_oplink->RFXtalCapSlider);

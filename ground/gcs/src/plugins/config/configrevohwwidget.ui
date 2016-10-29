@@ -530,6 +530,19 @@
                </property>
               </widget>
              </item>
+             <item row="12" column="2" alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="label_">
+               <property name="text">
+                <string>Radio aux Stream</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="2">
+              <widget class="QComboBox" name="cbRadioAux"/>
+             </item>
              <item row="0" column="1" rowspan="12" colspan="4" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
               <widget class="QLabel" name="label_2">
                <property name="sizePolicy">

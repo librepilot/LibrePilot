@@ -4,7 +4,7 @@ echo "
 Setup a build environment
 "
 
-ANDROID_ENV=true
+ANDROID_ENV=false
 ANDROID_STUDIO_VERSION=1.1.0
 ANDROID_STUDIO_BUILD=135.1740770
 ANDROID_STUDIO_FILE=android-studio-ide-$ANDROID_STUDIO_BUILD-linux.zip
@@ -78,14 +78,5 @@ git clone https://bitbucket.org/librepilot/librepilot.git
 cd librepilot
 git checkout next
 
-# The build_sdk_install do not install the ARM build correctly. Add this line for now
-# sudo apt --yes --force-yes install gcc-arm-none-eabi
-sudo apt-get --yes --force-yes remove gcc-arm-none-eabi
-
 # Dev Tools Installation
 make build_sdk_install
-
-# Done
-echo Ready to go
-
-

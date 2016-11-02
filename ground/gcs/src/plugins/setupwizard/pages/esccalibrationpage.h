@@ -54,8 +54,10 @@ private slots:
     void resetAllSecurityCheckboxes();
 
 private:
-    static const int LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS  = 1050;
     static const int OFF_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS  = 900;
+
+    // Min value should match min value defined in vehicleconfigurationsource.h
+    static const int LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS  = 1000;
     static const int HIGH_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS = 1900;
     static const int HIGH_ONESHOT125_OUTPUT_PULSE_LENGTH_MICROSECONDS = 2000;
     Ui::EscCalibrationPage *ui;

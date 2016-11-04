@@ -177,6 +177,9 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     addWidgetBinding("ManualControlSettings", "FailsafeFlightModeSwitchPosition", ui->failsafeFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
 
+    addWidgetBinding("FlightModeSettings", "BatteryFailsafeSwitchPositions", ui->failsafeBatteryWarningFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
+    addWidgetBinding("FlightModeSettings", "BatteryFailsafeSwitchPositions", ui->failsafeBatteryCriticalFlightMode, 1, 1, true, new QList<int>(failsafeReloadGroup));
+
     // Generate the rows for the failsafe channel form GUI
     index = 0;
     foreach(QString name, manualSettingsObj->getField("FailsafeChannel")->getElementNames()) {
@@ -251,6 +254,13 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     connect(ui->failsafeFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeFlightModeChanged(int)));
     connect(ui->failsafeFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeFlightModeCbToggled(bool)));
+
+    connect(ui->failsafeBatteryWarningFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeBatteryWarningFlightModeChanged(int)));
+    connect(ui->failsafeBatteryWarningFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeBatteryWarningFlightModeCbToggled(bool)));
+
+    connect(ui->failsafeBatteryCriticalFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeBatteryCriticalFlightModeChanged(int)));
+    connect(ui->failsafeBatteryCriticalFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeBatteryCriticalFlightModeCbToggled(bool)));
+
 
     addWidget(ui->configurationWizard);
     addWidget(ui->runCalibration);
@@ -448,9 +458,9 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
 void ConfigInputWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)
 {
-    if (combo == ui->failsafeFlightMode) {
+    if (combo == ui->failsafeFlightMode || combo == ui->failsafeBatteryCriticalFlightMode || combo == ui->failsafeBatteryWarningFlightMode) {
         for (quint32 i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
-            ui->failsafeFlightMode->addItem(QString("Position %1").arg(i + 1), QVariant(i));
+            combo->addItem(QString("Position %1").arg(i + 1), QVariant(i));
         }
     } else {
         ConfigTaskWidget::buildOptionComboBox(combo, field, index, applyLimits);
@@ -2175,6 +2185,17 @@ void ConfigInputWidget::updateReceiverActivityStatus()
     }
 }
 
+void ConfigInputWidget::failsafeBatteryWarningFlightModeChanged(int index)
+{
+    ui->failsafeBatteryWarningFlightMode->setEnabled(index != -1);
+    ui->failsafeBatteryWarningFlightModeCb->setChecked(index != -1);
+}
+void ConfigInputWidget::failsafeBatteryCriticalFlightModeChanged(int index)
+{
+    ui->failsafeBatteryCriticalFlightMode->setEnabled(index != -1);
+    ui->failsafeBatteryCriticalFlightModeCb->setChecked(index != -1);
+}
+
 void ConfigInputWidget::failsafeFlightModeChanged(int index)
 {
     ui->failsafeFlightMode->setEnabled(index != -1);
@@ -2184,6 +2205,16 @@ void ConfigInputWidget::failsafeFlightModeChanged(int index)
 void ConfigInputWidget::failsafeFlightModeCbToggled(bool checked)
 {
     ui->failsafeFlightMode->setCurrentIndex(checked ? 0 : -1);
+}
+
+void ConfigInputWidget::failsafeBatteryWarningFlightModeCbToggled(bool checked)
+{
+    ui->failsafeBatteryWarningFlightMode->setCurrentIndex(checked ? 0 : -1);
+}
+
+void ConfigInputWidget::failsafeBatteryCriticalFlightModeCbToggled(bool checked)
+{
+    ui->failsafeBatteryCriticalFlightMode->setCurrentIndex(checked ? 0 : -1);
 }
 
 void ConfigInputWidget::enableControlsChanged(bool enabled)

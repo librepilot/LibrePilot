@@ -232,6 +232,10 @@ private slots:
 
     void failsafeFlightModeChanged(int index);
     void failsafeFlightModeCbToggled(bool checked);
+    void failsafeBatteryWarningFlightModeChanged(int index);
+    void failsafeBatteryWarningFlightModeCbToggled(bool checked);
+    void failsafeBatteryCriticalFlightModeChanged(int index);
+    void failsafeBatteryCriticalFlightModeCbToggled(bool checked);
     void enableControlsChanged(bool enabled);
 
 protected:

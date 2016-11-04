@@ -209,6 +209,8 @@ void ConfigOPLinkWidget::setPortsVisible(bool visible)
     m_oplink->FlexiPortLabel->setVisible(visible);
     m_oplink->VCPPort->setVisible(visible);
     m_oplink->VCPPortLabel->setVisible(visible);
+    m_oplink->RadioAuxPort->setVisible(visible);
+    m_oplink->RadioAuxPortLabel->setVisible(visible);
 }
 
 void ConfigOPLinkWidget::updateInfo()
@@ -264,6 +266,8 @@ void ConfigOPLinkWidget::updateSettings()
     m_oplink->CoordID->setEnabled(is_enabled && is_receiver);
     m_oplink->UnbindButton->setEnabled(is_enabled && is_bound && !is_coordinator);
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);
+
+    m_oplink->RadioAuxPort->setEnabled(is_receiver || is_coordinator);
 
     m_oplink->RFBand->setEnabled(is_receiver || is_coordinator);
     m_oplink->MinimumChannel->setEnabled(is_receiver || is_coordinator);

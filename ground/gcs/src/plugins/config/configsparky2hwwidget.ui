@@ -461,7 +461,7 @@
              <item row="0" column="2" alignment="Qt::AlignHCenter">
               <widget class="QLabel" name="label_">
                <property name="text">
-                <string>Radio aux Stream</string>
+                <string>Radio Aux Stream</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignBottom|Qt::AlignHCenter</set>

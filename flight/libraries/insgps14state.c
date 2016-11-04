@@ -90,7 +90,7 @@ uint16_t ins_get_num_states()
     return NUMX;
 }
 
-void INSGPSInit() // pretty much just a place holder for now
+void INSGPSInit()
 {
     ekf.Be[0] = 1.0f;
     ekf.Be[1] = 0;
@@ -266,7 +266,6 @@ void INSPosVelReset(const float pos[3], const float vel[3])
     ekf.X[5]    = vel[2];
 }
 void INSSetPosVelVar(const float PosVar[3], const float VelVar[3])
-// void INSSetPosVelVar(float PosVar, float VelVar, float VertPosVar)
 {
     ekf.R[0] = PosVar[0];
     ekf.R[1] = PosVar[1];
@@ -787,7 +786,7 @@ void StateEq(float X[NUMX], float U[NUMU], float Xdot[NUMX])
     // For accels to make sure things stay stable, assume bias always walks weakly
     // towards zero for the horizontal axis. This prevents drifting around an
     // unobservable manifold of possible attitudes and gyro biases. The z-axis
-    // we assume no drift becaues this is teh one we want to estimate most accurately.
+    // we assume no drift because this is the one we want to estimate most accurately.
     Xdot[13] = 0.0f;
 }
 

@@ -184,7 +184,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     uint16_t sensors = 0;
 
     INSSetArmed(state->armed);
-
+    state->navUsed      = (this->usePos || this->navOnly);
     this->work.updated |= state->updated;
     // check magnetometer alarm, discard any magnetometer readings if not OK
     // during initialization phase (but let them through afterwards)

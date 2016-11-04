@@ -465,6 +465,7 @@ static void StateEstimationCb(void)
             bool error = 0;
             states.debugNavYaw = 0;
             states.navOk = false;
+            states.navUsed     = false;
             while (current != NULL) {
                 int32_t result = current->filter->init((stateFilter *)current->filter);
                 if (result != 0) {
@@ -600,10 +601,14 @@ static void StateEstimationCb(void)
         AlarmsClear(SYSTEMALARMS_ALARM_ATTITUDE);
     }
 
-    if (states.navOk) {
-        AlarmsClear(SYSTEMALARMS_ALARM_NAV);
+    if (!states.navUsed) {
+        AlarmsSet(SYSTEMALARMS_ALARM_NAV, SYSTEMALARMS_ALARM_UNINITIALISED);
     } else {
-        AlarmsSet(SYSTEMALARMS_ALARM_NAV, SYSTEMALARMS_ALARM_CRITICAL);
+        if (states.navOk) {
+            AlarmsClear(SYSTEMALARMS_ALARM_NAV);
+        } else {
+            AlarmsSet(SYSTEMALARMS_ALARM_NAV, SYSTEMALARMS_ALARM_CRITICAL);
+        }
     }
 
     if (updatedSensors) {

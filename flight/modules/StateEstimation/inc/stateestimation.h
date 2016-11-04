@@ -74,6 +74,7 @@ typedef struct {
     float   debugNavYaw;
     uint8_t magStatus;
     bool    navOk;
+    bool    navUsed;
     bool    armed;
     sensorUpdates updated;
 } stateEstimation;

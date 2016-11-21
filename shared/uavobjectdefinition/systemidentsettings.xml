@@ -54,7 +54,8 @@
         <!-- Cliff sluggish 500 quad thinks that yaw P should be about 5.8 times roll/pitch P, but can easily (and better) live with 2.6 -->
         <field name="YawToRollPitchPIDRatioMin" units="" type="float" elements="1" defaultvalue="1.0" description="Setting: Yaw PID will be at least this times Pitch PID (if enabled)"/>
         <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5" description="Setting: Yaw PID will be at most this times Pitch PID (if enabled)"/>
-        <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1" description="Setting: Reduce this toward zero if you have D term oscillations, it will reduce PID D terms"/>
+        <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1" description="Setting: Multiplicative factor. If you have D term oscillations, reduce it toward zero and it will reduce PID D terms."/>
+        <field name="OuterLoopKpSoftClamp" units="" type="float" elements="1" defaultvalue="6.5" limits="%BE:0:100" description="Setting: Change this to change the outer loop Kp and Ki limiting"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="3" limits="%BE:1:3" description="Setting: Which bank the calculated PIDs will be stored in after tuning"/>
         <field name="TuningDuration" units="s" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" description="Setting: Duration of the tuning motions (expert)"/>
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->

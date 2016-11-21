@@ -6,14 +6,12 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "ubuntu/trusty64"
-  #config.vm.box = "jhartman/xubuntu14.04.1"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.gui = true
+    # GUI can be enabled after provisioning. For now SSH and GUI is not compatible
+    # vb.gui = true
     vb.customize ["modifyvm", :id, "--memory", "4096"]
   end
-
-  #config.vm.synced_folder "../../projects", "/home/vagrant/projects"
 
   config.vm.provision :shell, :path => "bootstrap.sh"
 

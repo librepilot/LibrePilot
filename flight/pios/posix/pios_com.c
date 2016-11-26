@@ -118,7 +118,7 @@ static void PIOS_COM_UnblockTx(struct pios_com_dev *com_dev, bool *need_yield);
  * \param[in] id
  * \return < 0 if initialisation failed
  */
-int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, uint32_t lower_id, uint8_t *rx_buffer, size_t rx_buffer_len, uint8_t *tx_buffer, size_t tx_buffer_len)
+int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, uint32_t lower_id, uint8_t *rx_buffer, uint16_t rx_buffer_len, uint8_t *tx_buffer, uint16_t tx_buffer_len)
 {
     PIOS_Assert(com_id);
     PIOS_Assert(driver);

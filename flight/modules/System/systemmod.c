@@ -124,11 +124,8 @@ static void updateWDGstats();
 #endif
 
 #ifdef PIOS_INCLUDE_I2C
-
 #define I2C_ERROR_ACTIVITY_TIMEOUT_SECONDS 2
-
 #define I2C_ERROR_ACTIVITY_TIMEOUT         (I2C_ERROR_ACTIVITY_TIMEOUT_SECONDS * 1000 / SYSTEM_UPDATE_PERIOD_MS)
-
 static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 #endif
 

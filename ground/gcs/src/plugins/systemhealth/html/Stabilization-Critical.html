@@ -9,8 +9,10 @@
     <p>
     One of the following conditions may be present:
     <ul>
-      <li>Something is wrong with the Stabilization module</li>
-      <li>Waiting for good data from the Magnetometer or for GPS lock to perform module initialization.</li>
+      <li>Waiting for the board to be steady before gyro init.</li>
+      <li>Rate loop skipped more than 4 executions.</li>
+      <li>Missed 3 gyro updates.</li>
+      <li>Waiting for good data from the magnetometer or for GPS lock to perform module initialization.</li>
     </ul>
     </p>
   </body>

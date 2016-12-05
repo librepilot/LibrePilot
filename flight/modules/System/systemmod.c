@@ -698,24 +698,25 @@ static void updateSystemAlarms()
     }
 
 #ifdef PIOS_INCLUDE_I2C
-    static const SystemAlarmsAlarmOptions i2c_alarm_by_error[] = {
-        [PIOS_I2C_BAD_EVENT_COUNTER] = SYSTEMALARMS_ALARM_ERROR,
-        [PIOS_I2C_FSM_FAULT_COUNT]   = SYSTEMALARMS_ALARM_ERROR,
-        [PIOS_I2C_ERROR_INTERRUPT_COUNTER] = SYSTEMALARMS_ALARM_ERROR,
-        [PIOS_I2C_NACK_COUNTER] = SYSTEMALARMS_ALARM_CRITICAL,
-        [PIOS_I2C_TIMEOUT_COUNTER]   = SYSTEMALARMS_ALARM_ERROR,
-    };
+    if (AlarmsGet(SYSTEMALARMS_ALARM_I2C) != SYSTEMALARMS_ALARM_UNINITIALISED) {
+        static const SystemAlarmsAlarmOptions i2c_alarm_by_error[] = {
+            [PIOS_I2C_BAD_EVENT_COUNTER] = SYSTEMALARMS_ALARM_ERROR,
+            [PIOS_I2C_FSM_FAULT_COUNT]   = SYSTEMALARMS_ALARM_ERROR,
+            [PIOS_I2C_ERROR_INTERRUPT_COUNTER] = SYSTEMALARMS_ALARM_ERROR,
+            [PIOS_I2C_NACK_COUNTER] = SYSTEMALARMS_ALARM_CRITICAL,
+            [PIOS_I2C_TIMEOUT_COUNTER]   = SYSTEMALARMS_ALARM_ERROR,
+        };
 
-    SystemAlarmsAlarmOptions i2c_alarm = SYSTEMALARMS_ALARM_OK;
+        SystemAlarmsAlarmOptions i2c_alarm = SYSTEMALARMS_ALARM_OK;
 
-    for (uint8_t i = 0; i < PIOS_I2C_ERROR_COUNT_NUMELEM; i++) {
-        if ((i2c_error_activity[i] > 0) && (i2c_alarm < i2c_alarm_by_error[i])) {
-            i2c_alarm = i2c_alarm_by_error[i];
+        for (uint8_t i = 0; i < PIOS_I2C_ERROR_COUNT_NUMELEM; i++) {
+            if ((i2c_error_activity[i] > 0) && (i2c_alarm < i2c_alarm_by_error[i])) {
+                i2c_alarm = i2c_alarm_by_error[i];
+            }
         }
+
+        AlarmsSet(SYSTEMALARMS_ALARM_I2C, i2c_alarm);
     }
-
-    AlarmsSet(SYSTEMALARMS_ALARM_I2C, i2c_alarm);
-
 #endif /* PIOS_INCLUDE_I2C */
 }
 

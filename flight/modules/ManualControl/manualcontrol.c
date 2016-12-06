@@ -568,6 +568,7 @@ void HandleBatteryFailsafe(uint8_t *position, FlightModeSettingsData *modeSettin
         break;
     default:
         failsafeStatus = BATTERYFAILSAFE_NONE;
+        break;
     }
     uint32_t debounceTimerms = PIOS_DELAY_DiffuS(changeTimestamp) / 1000;
 

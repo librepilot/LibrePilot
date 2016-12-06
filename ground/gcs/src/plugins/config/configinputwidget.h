@@ -41,7 +41,7 @@
 #include "flightstatus.h"
 #include "accessorydesired.h"
 #include "systemsettings.h"
-
+#include "hwsettings.h"
 #include <QPointer>
 #include <QWidget>
 #include <QList>
@@ -144,6 +144,9 @@ private:
 
     SystemSettings *systemSettingsObj;
     SystemSettings::DataFields systemSettingsData;
+
+    HwSettings *hwSettingsObj;
+    HwSettings::DataFields hwSettingsData;
 
     typedef struct {
         ManualControlSettings::DataFields manualSettingsData;

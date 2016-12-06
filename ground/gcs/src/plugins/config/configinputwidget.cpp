@@ -100,7 +100,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     rssiDesiredObj4 = AccessoryDesired::GetInstance(getObjectManager(), 4);
     actuatorSettingsObj   = ActuatorSettings::GetInstance(getObjectManager());
     systemSettingsObj     = SystemSettings::GetInstance(getObjectManager());
-
+    hwSettingsObj = HwSettings::GetInstance(getObjectManager());
     // Only instance 0 is present if the board is not connected.
     // The other instances are populated lazily.
     Q_ASSERT(accessoryDesiredObj0);
@@ -265,6 +265,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     addWidget(ui->configurationWizard);
     addWidget(ui->runCalibration);
     addWidget(ui->failsafeFlightModeCb);
+    addWidget(ui->failsafeBatteryWarningFlightModeCb);
+    addWidget(ui->failsafeBatteryCriticalFlightModeCb);
 
     // Wizard
     wizardUi = new Ui_InputWizardWidget();
@@ -1797,88 +1799,40 @@ void ConfigInputWidget::updatePositionSlider()
 {
     ManualControlSettings::DataFields manualSettingsDataPriv = manualSettingsObj->getData();
 
-    switch (manualSettingsDataPriv.FlightModeNumber) {
-    default:
-    case 6:
-        ui->fmsModePos6->setEnabled(true);
-        ui->pidBankSs1_5->setEnabled(true);
-        ui->assistControlPos6->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 5);
-    // pass through
-    case 5:
-        ui->fmsModePos5->setEnabled(true);
-        ui->pidBankSs1_4->setEnabled(true);
-        ui->assistControlPos5->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 4);
-    // pass through
-    case 4:
-        ui->fmsModePos4->setEnabled(true);
-        ui->pidBankSs1_3->setEnabled(true);
-        ui->assistControlPos4->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 3);
-    // pass through
-    case 3:
-        ui->fmsModePos3->setEnabled(true);
-        ui->pidBankSs1_2->setEnabled(true);
-        ui->assistControlPos3->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 2);
-    // pass through
-    case 2:
-        ui->fmsModePos2->setEnabled(true);
-        ui->pidBankSs1_1->setEnabled(true);
-        ui->assistControlPos2->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 1);
-    // pass through
-    case 1:
-        ui->fmsModePos1->setEnabled(true);
-        ui->pidBankSs1_0->setEnabled(true);
-        ui->assistControlPos1->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 0);
-    // pass through
-    case 0:
-        break;
-    }
+    QWidget *fmodes[] = {
+        ui->fmsModePos1,
+        ui->fmsModePos2,
+        ui->fmsModePos3,
+        ui->fmsModePos4,
+        ui->fmsModePos5,
+        ui->fmsModePos6
+    };
+    QWidget *pidbanks[] = {
+        ui->pidBankSs1_0,
+        ui->pidBankSs1_1,
+        ui->pidBankSs1_2,
+        ui->pidBankSs1_3,
+        ui->pidBankSs1_4,
+        ui->pidBankSs1_5
+    };
+    QWidget *assisstecontrols[] = {
+        ui->assistControlPos1,
+        ui->assistControlPos2,
+        ui->assistControlPos3,
+        ui->assistControlPos4,
+        ui->assistControlPos5,
+        ui->assistControlPos6
+    };
 
-    switch (manualSettingsDataPriv.FlightModeNumber) {
-    case 0:
-        ui->fmsModePos1->setEnabled(false);
-        ui->pidBankSs1_0->setEnabled(false);
-        ui->assistControlPos1->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 0, false);
-    // pass through
-    case 1:
-        ui->fmsModePos2->setEnabled(false);
-        ui->pidBankSs1_1->setEnabled(false);
-        ui->assistControlPos2->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 1, false);
-    // pass through
-    case 2:
-        ui->fmsModePos3->setEnabled(false);
-        ui->pidBankSs1_2->setEnabled(false);
-        ui->assistControlPos3->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 2, false);
-    // pass through
-    case 3:
-        ui->fmsModePos4->setEnabled(false);
-        ui->pidBankSs1_3->setEnabled(false);
-        ui->assistControlPos4->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 3, false);
-    // pass through
-    case 4:
-        ui->fmsModePos5->setEnabled(false);
-        ui->pidBankSs1_4->setEnabled(false);
-        ui->assistControlPos5->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 4, false);
-    // pass through
-    case 5:
-        ui->fmsModePos6->setEnabled(false);
-        ui->pidBankSs1_5->setEnabled(false);
-        ui->assistControlPos6->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 5, false);
-    // pass through
-    case 6:
-    default:
-        break;
+    for (quint32 i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
+        bool enabled = i < manualSettingsDataPriv.FlightModeNumber;
+
+        fmodes[i]->setEnabled(enabled);
+        pidbanks[i]->setEnabled(enabled);
+        assisstecontrols[i]->setEnabled(enabled);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, i, enabled);
+        setComboBoxItemEnabled(ui->failsafeBatteryCriticalFlightMode, i, enabled);
+        setComboBoxItemEnabled(ui->failsafeBatteryWarningFlightMode, i, enabled);
     }
 
     QString fmNumber = QString().setNum(manualSettingsDataPriv.FlightModeNumber);
@@ -2187,12 +2141,19 @@ void ConfigInputWidget::updateReceiverActivityStatus()
 
 void ConfigInputWidget::failsafeBatteryWarningFlightModeChanged(int index)
 {
-    ui->failsafeBatteryWarningFlightMode->setEnabled(index != -1);
+    hwSettingsData = hwSettingsObj->getData();
+    bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
+
+    ui->failsafeBatteryWarningFlightMode->setEnabled(batteryModuleEnabled && index != -1);
     ui->failsafeBatteryWarningFlightModeCb->setChecked(index != -1);
 }
+
 void ConfigInputWidget::failsafeBatteryCriticalFlightModeChanged(int index)
 {
-    ui->failsafeBatteryCriticalFlightMode->setEnabled(index != -1);
+    hwSettingsData = hwSettingsObj->getData();
+    bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
+
+    ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && index != -1);
     ui->failsafeBatteryCriticalFlightModeCb->setChecked(index != -1);
 }
 
@@ -2219,5 +2180,12 @@ void ConfigInputWidget::failsafeBatteryCriticalFlightModeCbToggled(bool checked)
 
 void ConfigInputWidget::enableControlsChanged(bool enabled)
 {
-    ui->failsafeFlightMode->setEnabled(enabled && (ui->failsafeFlightMode->currentIndex() != -1));
+    ui->failsafeFlightMode->setEnabled(enabled && ui->failsafeFlightMode->currentIndex() != -1);
+
+    hwSettingsData = hwSettingsObj->getData();
+    bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
+    ui->failsafeBatteryWarningFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryWarningFlightMode->currentIndex() != -1);
+    ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryCriticalFlightMode->currentIndex() != -1);
+    ui->failsafeBatteryWarningFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
+    ui->failsafeBatteryCriticalFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
 }

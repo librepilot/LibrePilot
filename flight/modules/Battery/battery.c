@@ -256,6 +256,10 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
         voltageMin = 3.6f;
         voltageMax = 4.2f;
         break;
+    case FLIGHTBATTERYSETTINGS_TYPE_LIHV:
+        voltageMin = 3.6f;
+        voltageMax = 4.35f;
+        break;
     case FLIGHTBATTERYSETTINGS_TYPE_A123:
         voltageMin = 2.01f;
         voltageMax = 3.59f;

@@ -2,7 +2,7 @@
     <object name="FlightBatterySettings" singleinstance="true" settings="true" category="Sensors">
         <description>Flight Battery configuration.</description>
         
-        <field name="Type" units="" type="enum" elements="1" options="LiPo,A123,LiCo,LiFeSO4,None" defaultvalue="LiPo"/>
+        <field name="Type" units="" type="enum" elements="1" options="LiPo,LiHV,A123,LiCo,LiFeSO4,None" defaultvalue="LiPo"/>
         <field name="NbCells" units=""  type="uint8"  elements="1" defaultvalue="0"/>
         <field name="Capacity" units="mAh"  type="uint32"  elements="1" defaultvalue="0"/>
         <field name="CellVoltageThresholds" units="V"  type="float" elementnames="Warning, Critical" defaultvalue="3.4,3.1"/>

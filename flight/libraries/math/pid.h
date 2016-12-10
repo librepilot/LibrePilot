@@ -49,7 +49,7 @@ struct pid {
 // pid2 structure for a PID+setpoint weighting, anti-windup and filtered derivative control
 struct pid2 {
     float   u0;   // Initial value of r & y - for bumpless transfer
-    float   va;   // Actuator 
+    float   va;   // Actuator settings for scaling 
     float   vb;
     float   kp;   // proportional gain
     float   bi;   // Integral gain . dT

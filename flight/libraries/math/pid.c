@@ -6,7 +6,8 @@
  * @{
  *
  * @file       pid.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Methods to work with PID structure
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -159,7 +160,7 @@ void pid_configure(struct pid *pid, float p, float i, float d, float iLim)
  * @param[in] kp proportional gain
  * @param[in] ki integral gain.  Time constant Ti = kp/ki
  * @param[in] kd derivative gain. Time constant Td = kd/kp
- * @param[in] Tf filtering time = (kd/k)/N, N is in the range of 2 to 20
+ * @param[in] Tf filtering time = (kd/kp)/N, N is in the range of 2 to 20
  * @param[in] kt tracking gain for anti-windup. Tt = √TiTd and Tt = (Ti + Td)/2
  * @param[in] dt delta time increment
  * @param[in] beta setpoint weight on setpoint in P component.  beta=1 error feedback. beta=0 smoothes out response to changes in setpoint

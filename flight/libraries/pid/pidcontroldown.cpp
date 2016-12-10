@@ -91,26 +91,39 @@ void PIDControlDown::Activate()
 void PIDControlDown::UpdateParameters(float kp, float ki, float kd, float beta, float dT, float velocityMax)
 {
     // pid_configure(&PID, kp, ki, kd, ilimit);
-    float Ti = kp / ki;
-    float Td = kd / kp;
-    float Tt = (Ti + Td) / 2.0f;
-    float kt = 1.0f / Tt;
+    float Td;
+    float Ti;
+    float Tt;
+    float kt;
     float N  = 10.0f;
-    float Tf = Td / N;
+    float Tf;
 
-    if (ki < 1e-6f) {
-        // Avoid Ti being infinite
+    // Define Td, handling zero kp term (for I or ID controller)
+    if (kp < 1e-6f) {
+        Td = 1e6f;
+    } else {
+        Td = kd / kp;
+    }
+
+    // Define Ti, Tt and kt, handling zero ki term (for P or PD controller)
+    if (ki < 1e-6f) { // Avoid Ti being infinite
         Ti = 1e6f;
         // Tt antiwindup time constant - we don't need antiwindup with no I term
         Tt = 1e6f;
         kt = 0.0f;
+    } else {
+        Ti = kp / ki;
+        Tt = (Ti + Td) / 2.0f;
+        kt = 1.0f / Tt;
     }
-
+    // Define Tf, according to controller type 
     if (kd < 1e-6f) {
         // PI Controller or P Controller
         Tf = Ti / N;
+    } else {
+        Tf = Td / N;
     }
-
+    
     if (beta > 1.0f) {
         beta = 1.0f;
     } else if (beta < 0.4f) {

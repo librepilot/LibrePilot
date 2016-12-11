@@ -118,9 +118,15 @@ static void callbackSchedulerForEachCallback(int16_t callback_id, const struct p
 static void updateStats();
 static void updateSystemAlarms();
 static void systemTask(void *parameters);
-#ifdef DIAG_I2C_WDG_STATS
 static void updateI2Cstats();
+#ifdef DIAG_I2C_WDG_STATS
 static void updateWDGstats();
+#endif
+
+#ifdef PIOS_INCLUDE_I2C
+#define I2C_ERROR_ACTIVITY_TIMEOUT_SECONDS 2
+#define I2C_ERROR_ACTIVITY_TIMEOUT         (I2C_ERROR_ACTIVITY_TIMEOUT_SECONDS * 1000 / SYSTEM_UPDATE_PERIOD_MS)
+static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 #endif
 
 extern uintptr_t pios_uavo_settings_fs_id;
@@ -234,10 +240,13 @@ static void systemTask(__attribute__((unused)) void *parameters)
         NotificationUpdateStatus();
         // Update the system statistics
         updateStats();
+
+        // Update I2C stats
+        updateI2Cstats();
+
         // Update the system alarms
         updateSystemAlarms();
 #ifdef DIAG_I2C_WDG_STATS
-        updateI2Cstats();
         updateWDGstats();
 #endif
 
@@ -480,17 +489,36 @@ static void callbackSchedulerForEachCallback(int16_t callback_id, const struct p
 #endif /* ifdef DIAG_TASKS */
 
 /**
- * Called periodically to update the I2C statistics
+ * Called periodically (every SYSTEM_UPDATE_PERIOD_MS milliseconds) to update the I2C statistics
  */
-#ifdef DIAG_I2C_WDG_STATS
 static void updateI2Cstats()
 {
 #if defined(PIOS_INCLUDE_I2C)
+    static uint8_t previous_error_counts[PIOS_I2C_ERROR_COUNT_NUMELEM];
+
+    struct pios_i2c_fault_history history;
+    uint8_t error_counts[PIOS_I2C_ERROR_COUNT_NUMELEM];
+
+    PIOS_I2C_GetDiagnostics(&history, error_counts);
+
+    // every time a counter changes, set activity timeout counter to ( I2C_ERROR_ACTIVITY_TIMEOUT ).
+    // every time a counter does not change, decrease activity counter.
+
+    for (uint8_t i = 0; i < PIOS_I2C_ERROR_COUNT_NUMELEM; i++) {
+        if (error_counts[i] != previous_error_counts[i]) {
+            i2c_error_activity[i] = I2C_ERROR_ACTIVITY_TIMEOUT;
+        } else if (i2c_error_activity[i] > 0) {
+            i2c_error_activity[i]--;
+        }
+
+        previous_error_counts[i] = error_counts[i];
+    }
+
+#ifdef DIAG_I2C_WDG_STATS
     I2CStatsData i2cStats;
     I2CStatsGet(&i2cStats);
 
-    struct pios_i2c_fault_history history;
-    PIOS_I2C_GetDiagnostics(&history, &i2cStats.event_errors);
+    memcpy(&i2cStats.event_errors, &error_counts, sizeof(error_counts));
 
     for (uint8_t i = 0; (i < I2C_LOG_DEPTH) && (i < I2CSTATS_EVENT_LOG_NUMELEM); i++) {
         i2cStats.evirq_log[i] = history.evirq[i];
@@ -500,9 +528,11 @@ static void updateI2Cstats()
     }
     i2cStats.last_error_type = history.type;
     I2CStatsSet(&i2cStats);
-#endif
+#endif /* DIAG_I2C_WDG_STATS */
+#endif /* PIOS_INCLUDE_I2C */
 }
 
+#ifdef DIAG_I2C_WDG_STATS
 static void updateWDGstats()
 {
     WatchdogStatusData watchdogStatus;
@@ -663,6 +693,28 @@ static void updateSystemAlarms()
         sysStats.ObjectManagerQueueID    = objStats.lastQueueErrorID;
         SystemStatsSet(&sysStats);
     }
+
+#ifdef PIOS_INCLUDE_I2C
+    if (AlarmsGet(SYSTEMALARMS_ALARM_I2C) != SYSTEMALARMS_ALARM_UNINITIALISED) {
+        static const SystemAlarmsAlarmOptions i2c_alarm_by_error[] = {
+            [PIOS_I2C_BAD_EVENT_COUNTER] = SYSTEMALARMS_ALARM_ERROR,
+            [PIOS_I2C_FSM_FAULT_COUNT]   = SYSTEMALARMS_ALARM_ERROR,
+            [PIOS_I2C_ERROR_INTERRUPT_COUNTER] = SYSTEMALARMS_ALARM_ERROR,
+            [PIOS_I2C_NACK_COUNTER] = SYSTEMALARMS_ALARM_CRITICAL,
+            [PIOS_I2C_TIMEOUT_COUNTER]   = SYSTEMALARMS_ALARM_ERROR,
+        };
+
+        SystemAlarmsAlarmOptions i2c_alarm = SYSTEMALARMS_ALARM_OK;
+
+        for (uint8_t i = 0; i < PIOS_I2C_ERROR_COUNT_NUMELEM; i++) {
+            if ((i2c_error_activity[i] > 0) && (i2c_alarm < i2c_alarm_by_error[i])) {
+                i2c_alarm = i2c_alarm_by_error[i];
+            }
+        }
+
+        AlarmsSet(SYSTEMALARMS_ALARM_I2C, i2c_alarm);
+    }
+#endif /* PIOS_INCLUDE_I2C */
 }
 
 /**

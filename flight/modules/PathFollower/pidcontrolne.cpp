@@ -89,7 +89,7 @@ void PIDControlNE::UpdateParameters(float kp, float ki, float kd, float beta, fl
     float Tf; // Low pass filter time constant for derivative filtering
 
     float u0 = 0.0f;
-    
+
     // Define Td, handling zero kp term (for I or ID controller)
     if (kp < 1e-6f) {
         Td = 1e6f;
@@ -108,8 +108,7 @@ void PIDControlNE::UpdateParameters(float kp, float ki, float kd, float beta, fl
     // Define Tf, according to controller type
     if (kd < 1e-6f) {
         // PI Controller or P Controller
-        Tf = 0; // Originally this: (Ti / N) - which creates a D term from
-                // the integral time constant!
+        Tf = 0;
     } else {
         Tf = Td / N;
     }
@@ -119,8 +118,6 @@ void PIDControlNE::UpdateParameters(float kp, float ki, float kd, float beta, fl
     } else if (beta < 0.4f) {
         beta = 0.4f;
     }
-
-
 
     pid2_configure(&PIDvel[0], kp, ki, kd, Tf, kt, dT, beta, u0, 0.0f, 1.0f);
     pid2_configure(&PIDvel[1], kp, ki, kd, Tf, kt, dT, beta, u0, 0.0f, 1.0f);

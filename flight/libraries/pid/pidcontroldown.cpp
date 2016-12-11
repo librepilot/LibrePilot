@@ -117,8 +117,7 @@ void PIDControlDown::UpdateParameters(float kp, float ki, float kd, float beta, 
     // Define Tf, according to controller type
     if (kd < 1e-6f) {
         // PI Controller or P Controller
-        Tf = 0; // Originally this: (Ti / N) - which creates a D term from
-                // the integral time constant!
+        Tf = 0;
     } else {
         Tf = Td / N;
     }

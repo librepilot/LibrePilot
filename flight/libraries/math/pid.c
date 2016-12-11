@@ -7,7 +7,7 @@
  *
  * @file       pid.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Methods to work with PID structure
  *
  * @see        The GNU Public License (GPL) Version 3

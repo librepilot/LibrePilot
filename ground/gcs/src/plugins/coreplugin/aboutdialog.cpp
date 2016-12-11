@@ -80,7 +80,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     const QString credits = "<table width=\"100%\">"
                             + creditRow.arg("Tau Labs", "", "http://www.taulabs.org")
                             + creditRow.arg("dRonin", "", "http://www.dronin.org")
-                            + creditRow.arg("OpenSceneGraph", "<br/>Open source high performance 3D graphics toolkit", "http://www.openscenegraph.org", "http://www.openscenegraph.org/images/osg64.png")
+                            + creditRow.arg("OpenSceneGraph", "<br/>Open source high performance 3D graphics toolkit", "http://www.openscenegraph.org")
                             + creditRow.arg("osgEarth", "<br/>Geospatial SDK for OpenSceneGraph", "http://osgearth.org")
                             + creditRow.arg("MSYS2", "<br/>An independent rewrite of MSYS", "https://sourceforge.net/p/msys2/wiki/Home")
                             + creditRow.arg("The Qt Company", "", "http://www.qt.io")

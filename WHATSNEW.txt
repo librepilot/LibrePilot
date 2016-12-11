@@ -1,47 +1,29 @@
--- RELEASE-16.09-RC2 - Second LibrePilot Release --
+-- RELEASE-16.09 - Second LibrePilot Release -- Black Rhino
 This is the second LibrePilot release.
+
+This release introduces new features and new hardware support like Sparky2 board and improved external mag support.
+
+New hardware support: 
+    Sparky2 board, Auxiliary Magnetometer: I2C and Naza GPS, Revo FlexiIO port usage e.g. PPM+GPS
+
+New input modes: 
+    Jeti Ex.Bus, Graupner Hott, FlySky IBus, PPM up to 16 channels, Revo/Sparky2 as OpenLRS receiver.
+
+New telemetry protocols: 
+    MSP, MAVLink. OSD devices that use those protocols may now be connected directly (e.g.: minimosd with MWOSD).
+
+New Flight oriented features: 
+    AlwaysStabilizeWhenArmed (Airmode) using switch, Measurement based D term gives smoother flight
+    SuperExpo (you may need half expo value compared to rel15.09), Camera tilt compensation,
+    Autotune module (except CC3D).
+
+GCS improvements:
+    PFD with terrain / OsgEarth improvements
+    Failsafe settings using GUI
+    Vehicle and Transmitter wizard improvements
 
 Known issues:
     * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
-    * [LP-303] - GCS menus broken when in full screen mode
-    * [LP-397] - ModelView misbehaving on MacOSX
-    * [LP-402] - GCS message - Invalid value for "Running"
-    * [LP-408] - No serial telemetry without OPLink 
-    * [LP-421] - GCS setup wizard welcome panel is too big on high dpi screens
-
-The full list of bug fixes and enhancements in this release is available here:
-https://librepilot.atlassian.net/issues/?filter=10800
-
-
-** Bug
-    * [LP-245] - GCS unsaved data prompt when nothing changed
-    * [LP-333] - Sparky2 I2CPort needs GPIO_PuPd_UP instead of NOPULL
-    * [LP-400] - Doxygen document build fails with latex errors
-    * [LP-401] - Reboot is required after AutoTune is set in FMS
-    * [LP-406] - Windows driver fails to install
-    * [LP-409] - make fw_dist fails on windows
-    * [LP-423] - HMC5x83 driver dereferences null pointer
-    * [LP-424] - pios_openlrs.c has incorrect reference to rfm22b_id
-
-** New Feature
-    * [LP-425] - Add Credits to the About dialog
-
-** Task
-    * [LP-315] - Update vehicle templates
-
-** Improvement
-    * [LP-410] - silence GCS logs
-    * [LP-417] - Heartbeat LED on OPLink
-
-
--- RELEASE-16.09-RC1 - Second LibrePilot Release --
-This is the second LibrePilot release.
-
-Known issues:
-    * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
-    * [LP-303] - GCS menus broken when in full screen mode
-    * [LP-397] - ModelView misbehaving on MacOSX
-
 
 The full list of bug fixes and enhancements in this release is available here:
 https://librepilot.atlassian.net/issues/?filter=10500
@@ -104,7 +86,6 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
     * [LP-290] - Windows GCS uninstall is very long
     * [LP-299] - gcc5 building isnan issue
-    * [LP-303] - GCS menus broken when in full screen mode
     * [LP-305] - GCS crashes shortly after start on OSX - when loading OPMap gadget
     * [LP-309] - When arming with accessory switch, disarming timeout doesn't work.
     * [LP-310] - osg: random GCS crashes when switching or closing PFDQml gadgets
@@ -123,16 +104,16 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-391] - Some CC3D ports cause a boot issue and re-init to defaults.
     * [LP-392] - Revo attitude settings is missing the "Zero gyro when arming" checkbox
     * [LP-395] - Raise BoardSteadyMaxVariance to support some boards having higher gyro noise
-    * [LP-397] - ModelView misbehaving on MacOSX
     * [LP-400] - Doxygen document build fails with latex errors
     * [LP-401] - Reboot is required after AutoTune is set in FMS
-    * [LP-402] - GCS message - Invalid value for "Running"
     * [LP-406] - Windows driver fails to install
-    * [LP-408] - No serial telemetry without OPLink 
     * [LP-409] - make fw_dist fails on windows
     * [LP-421] - GCS setup wizard welcome panel is too big on high dpi screens
     * [LP-423] - HMC5x83 driver dereferences null pointer
     * [LP-424] - pios_openlrs.c has incorrect reference to rfm22b_id
+    * [LP-429] - changes to FlightModeSettings do not trigger a configuration check
+    * [LP-444] - I2C alarm
+    * [LP-447] - ESC calibration failure with FVT LitteBee 20A
 
 
 ** Story
@@ -179,7 +160,6 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-325] - Reduce the threshold for ASWA switch
     * [LP-328] - Sparky2 reboots constantly with only USB power and unpowered external mag
     * [LP-330] - Fix copyright symbol in all code, make it consistent
-    * [LP-336] - Add automatic dependency calculation for GCS on windows
     * [LP-349] - shut up the plan warning alarm
     * [LP-373] - Add bitbucket pipelines
     * [LP-374] - Build x86_64 windows on TeaCI as well.
@@ -237,11 +217,11 @@ Release Notes - LibrePilot - Version REL-16.09
     * [LP-379] - Add receiverActivity to RC Input tab
     * [LP-390] - Fix UAVO telemetry errors
     * [LP-396] - Yaw AcroPlus controls in GUI
-    * [LP-399] - Add GUI for configuring the AutoTune feature
     * [LP-410] - silence GCS logs
     * [LP-411] - AutoTune Limit Outer PIDs on Powerful Multicopters - dRonin PR 1283
     * [LP-417] - Heartbeat LED on OPLink
-
+    * [LP-428] - Reduce the threshold for arming switch
+    * [LP-441] - Template - Wizard dialog on small screens
 
 
 -- RELEASE-15.09 - First LibrePilot Release -- Supermoon Eclipse

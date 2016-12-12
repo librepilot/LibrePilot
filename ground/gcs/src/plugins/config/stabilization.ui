@@ -24741,6 +24741,9 @@ border-radius: 5;</string>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
                    <property name="maximum">
                     <number>100</number>
                    </property>
@@ -24791,6 +24794,9 @@ border-radius: 5;</string>
                   <widget class="QSlider" name="VelKpSlider">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;How much the vehicle should throttle up or down to compensate or achieve a certain vertical speed. Higher values lead to more aggressive throttle changes and could lead to oscillations. This is the most likely candidate to change depending on the crafts engine thrust. Heavy craft with weak engines might require higher values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
                    </property>
                    <property name="maximum">
                     <number>100</number>

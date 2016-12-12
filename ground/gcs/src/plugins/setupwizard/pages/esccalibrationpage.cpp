@@ -47,7 +47,7 @@ EscCalibrationPage::EscCalibrationPage(SetupWizard *wizard, QWidget *parent) :
     ui->outputHigh->setEnabled(false);
     ui->outputLow->setEnabled(true);
     ui->outputLevel->setEnabled(true);
-    ui->outputLevel->setText(QString(tr("%1 µs")).arg(OFF_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS));
+    ui->outputLevel->setText(QString(tr("%1 µs")).arg(LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS));
 
     connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startButtonClicked()));
     connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopButtonClicked()));
@@ -149,6 +149,7 @@ void EscCalibrationPage::stopButtonClicked()
     if (m_isCalibrating) {
         ui->stopButton->setEnabled(false);
         ui->outputHigh->setEnabled(false);
+        ui->outputLow->setEnabled(true);
 
         // Set to low pwm out
         m_outputUtil.setChannelOutputValue(LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS);
@@ -156,21 +157,10 @@ void EscCalibrationPage::stopButtonClicked()
         QApplication::processEvents();
         QThread::msleep(2000);
 
-        // Ramp down to off pwm out
-        for (int i = LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS; i >= OFF_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS; i -= 10) {
-            m_outputUtil.setChannelOutputValue(i);
-            ui->outputLevel->setText(QString(tr("%1 µs")).arg(i));
-            QApplication::processEvents();
-            QThread::msleep(200);
-        }
-
-        // Stop output
+        // Stop output, back to minimal value (1000) defined in vehicleconfigurationsource.h
         m_outputUtil.stopChannelOutput();
         OutputCalibrationUtil::stopOutputCalibration();
 
-        ui->outputLevel->setText(QString(tr("%1 µs")).arg(OFF_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS));
-        ui->outputHigh->setEnabled(false);
-        ui->outputLow->setEnabled(true);
         ui->nonconnectedLabel->setEnabled(true);
         ui->connectedLabel->setEnabled(false);
         m_outputChannels.clear();

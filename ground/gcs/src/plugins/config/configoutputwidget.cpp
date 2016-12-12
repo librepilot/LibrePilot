@@ -36,7 +36,6 @@
 
 #include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 #include <uavobjecthelper.h>
 
 #include "mixersettings.h"
@@ -50,35 +49,27 @@
 #include <QStringList>
 #include <QWidget>
 #include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <QMessageBox>
-#include <QDesktopServices>
-#include <QUrl>
 
 ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_OutputWidget();
     m_ui->setupUi(this);
 
+    // must be done before auto binding !
+    setWikiURL("Output+Configuration");
+
+    addAutoBindings();
+
     m_ui->gvFrame->setVisible(false);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->saveRCOutputToRAM->setVisible(false);
-    }
-
     UAVSettingsImportExportFactory *importexportplugin = pm->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(stopTests()));
 
     connect(m_ui->channelOutTest, SIGNAL(clicked(bool)), this, SLOT(runChannelTests(bool)));
 
     // Configure the task widget
-    // Connect the help button
-    connect(m_ui->outputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveRCOutputToRAM, m_ui->saveRCOutputToSD);
 
     // Track the ActuatorSettings object
     addUAVObject("ActuatorSettings");
@@ -98,7 +89,6 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
         addWidget(form->ui->actuatorRev);
         addWidget(form->ui->actuatorLink);
     }
-
 
     // Associate the buttons with their UAVO fields
     addWidget(m_ui->spinningArmed);
@@ -137,12 +127,8 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     connect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateWarnings(UAVObject *)));
 
+    // TODO why do we do that ?
     disconnect(this, SLOT(refreshWidgetsValues(UAVObject *)));
-
-    populateWidgets();
-    refreshWidgetsValues();
-
-    updateEnableControls();
 }
 
 ConfigOutputWidget::~ConfigOutputWidget()
@@ -314,11 +300,9 @@ void ConfigOutputWidget::setColor(QWidget *widget, const QColor color)
 /**
    Request the current config from the board (RC Output)
  */
-void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    bool dirty = isDirty();
-
-    ConfigTaskWidget::refreshWidgetsValues(obj);
+    Q_UNUSED(obj);
 
     // Get Actuator Settings
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
@@ -422,17 +406,13 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
     }
 
     updateSpinStabilizeCheckComboBoxes();
-
-    setDirty(dirty);
 }
 
 /**
  * Sends the config to the board, without saving to the SD card (RC Output)
  */
-void ConfigOutputWidget::updateObjectsFromWidgets()
+void ConfigOutputWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
 
     Q_ASSERT(actuatorSettings);
@@ -498,12 +478,6 @@ void ConfigOutputWidget::updateAlwaysStabilizeStatus()
     } else {
         m_ui->alwayStabilizedLabel2->setText(tr("(Really be careful!)."));
     }
-}
-
-void ConfigOutputWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Output+Configuration"),
-                                   QUrl::StrictMode));
 }
 
 void ConfigOutputWidget::onBankTypeChange()

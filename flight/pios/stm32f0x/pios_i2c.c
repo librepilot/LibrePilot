@@ -458,17 +458,17 @@ void PIOS_I2C_GetDiagnostics(struct pios_i2c_fault_history *data, uint8_t *count
 {
 #if defined(PIOS_I2C_DIAGNOSTICS)
     memcpy(data, &i2c_adapter_fault_history, sizeof(i2c_adapter_fault_history));
-    counts[0] = i2c_bad_event_counter;
-    counts[1] = i2c_fsm_fault_count;
-    counts[2] = i2c_error_interrupt_counter;
-    counts[3] = i2c_nack_counter;
-    counts[4] = i2c_timeout_counter;
+    counts[PIOS_I2C_BAD_EVENT_COUNTER] = i2c_bad_event_counter;
+    counts[PIOS_I2C_FSM_FAULT_COUNT]   = i2c_fsm_fault_count;
+    counts[PIOS_I2C_ERROR_INTERRUPT_COUNTER] = i2c_error_interrupt_counter;
+    counts[PIOS_I2C_NACK_COUNTER] = i2c_nack_counter;
+    counts[PIOS_I2C_TIMEOUT_COUNTER]   = i2c_timeout_counter;
 #else
     struct pios_i2c_fault_history i2c_adapter_fault_history;
-    i2c_adapter_fault_history.type = PIOS_I2C_ERROR_EVENT;
+    i2c_adapter_fault_history.type     = PIOS_I2C_ERROR_EVENT;
 
     memcpy(data, &i2c_adapter_fault_history, sizeof(i2c_adapter_fault_history));
-    counts[0] = counts[1] = counts[2] = 0;
+    memset(counts, 0, sizeof(*counts) * PIOS_I2C_ERROR_COUNT_NUMELEM);
 #endif
 }
 

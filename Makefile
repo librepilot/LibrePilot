@@ -411,6 +411,7 @@ $(FW_DIST_TAR): $(PACKAGE_FW_TARGETS) | $(DIST_DIR)
 	$(V1) tar -c --file="$(FW_DIST_TAR)" --directory=$(FLIGHT_OUT_DIR) \
 		--owner=root --group=root --mtime="`git show -s --format=%ci`" \
 		--transform='s,^,firmware/,' \
+		--force-local \
 		$(foreach fw_targ,$(PACKAGE_FW_TARGETS),$(fw_targ)/$(fw_targ).opfw)
 
 $(FW_DIST_TAR_GZ): $(FW_DIST_TAR)

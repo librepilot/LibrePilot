@@ -132,8 +132,9 @@ QStringList ConfigMultiRotorWidget::getChannelDescriptions()
 }
 
 ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_MultiRotorConfigWidget()), invertMotors(false)
+    VehicleConfig(parent), invertMotors(false)
 {
+    m_aircraft = new Ui_MultiRotorConfigWidget();
     m_aircraft->setupUi(this);
 
     populateChannelComboBoxes();
@@ -176,8 +177,6 @@ ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
 
     m_aircraft->multiThrottleCurve->setXAxisLabel(tr("Input"));
     m_aircraft->multiThrottleCurve->setYAxisLabel(tr("Output"));
-
-    updateEnableControls();
 }
 
 ConfigMultiRotorWidget::~ConfigMultiRotorWidget()
@@ -874,9 +873,10 @@ void ConfigMultiRotorWidget::reverseMultirotorMotor()
 
 void ConfigMultiRotorWidget::updateAirframe(QString frameType)
 {
-    qDebug() << "ConfigMultiRotorWidget::updateAirframe - frame type" << frameType;
+    // qDebug() << "ConfigMultiRotorWidget::updateAirframe - frame type" << frameType;
 
     QString elementId;
+
     if (frameType == "Tri" || frameType == "Tricopter Y") {
         elementId = "tri";
     } else if (frameType == "QuadX" || frameType == "Quad X") {

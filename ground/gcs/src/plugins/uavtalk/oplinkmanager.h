@@ -1,13 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       oplinkwatchdog.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @addtogroup [Group]
+ * @file       oplinkmanager.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @addtogroup GCSPlugins GCS Plugins
  * @{
- * @addtogroup OPLinkWatchdog
+ * @addtogroup UAVTalkPlugin UAVTalk Plugin
  * @{
- * @brief [Brief]
+ * @brief The UAVTalk protocol plugin
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,46 +25,51 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef OPLINKWATCHDOG_H
-#define OPLINKWATCHDOG_H
+#ifndef OPLINK_MANAGER_H
+#define OPLINK_MANAGER_H
 
-#include <QTimer>
+#include "uavtalk_global.h"
+
+#include <QObject>
 
 class OPLinkStatus;
-class OPLinkWatchdog : public QObject {
+
+class UAVTALK_EXPORT OPLinkManager : public QObject {
     Q_OBJECT
+
 public:
     enum OPLinkType {
+        OPLINK_UNKNOWN,
         OPLINK_MINI,
         OPLINK_REVOLUTION,
-        OPLINK_UNKNOWN
+        OPLINK_SPARKY2
     };
 
-    OPLinkWatchdog();
-    ~OPLinkWatchdog();
-    bool isConnected() const
-    {
-        return m_isConnected;
-    }
-    OPLinkWatchdog::OPLinkType opLinkType() const
+    OPLinkManager();
+    ~OPLinkManager();
+
+    OPLinkManager::OPLinkType opLinkType() const
     {
         return m_opLinkType;
     }
 
+    bool isConnected() const;
+
 signals:
     void connected();
-    void opLinkMiniConnected();
-    void opLinkRevolutionConnected();
     void disconnected();
 
 private slots:
+    void onDeviceConnect();
+    void onDeviceDisconnect();
     void onOPLinkStatusUpdate();
-    void onTimeout();
+    void onOPLinkConnect();
+    void onOPLinkDisconnect();
 
 private:
     bool m_isConnected;
     OPLinkType m_opLinkType;
-    QTimer *m_watchdog;
     OPLinkStatus *m_opLinkStatus;
 };
-#endif // OPLINKWATCHDOG_H
+
+#endif // OPLINK_MANAGER_H

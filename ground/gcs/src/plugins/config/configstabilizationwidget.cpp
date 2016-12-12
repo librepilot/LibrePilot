@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configstabilizationwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -29,11 +29,9 @@
 
 #include "ui_stabilization.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-#include "uavobjectutilmanager.h"
-
+#include <uavobjectmanager.h>
 #include "objectpersistence.h"
+
 #include "altitudeholdsettings.h"
 #include "stabilizationsettings.h"
 
@@ -45,38 +43,30 @@
 #include <QDebug>
 #include <QStringList>
 #include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
 #include <QList>
 #include <QTabBar>
-#include <QMessageBox>
 #include <QToolButton>
 #include <QMenu>
 #include <QAction>
 
 ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTaskWidget(parent),
-    boardModel(0), m_stabSettingsBankCount(0), m_currentStabSettingsBank(0)
+    m_stabSettingsBankCount(0), m_currentStabSettingsBank(0)
 {
     ui = new Ui_StabilizationWidget();
     ui->setupUi(this);
 
+    // must be done before auto binding !
     setWikiURL("Stabilization+Configuration");
-
-    setupExpoPlot();
 
     setupStabBanksGUI();
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
+    addAutoBindings();
 
-    if (!settings->useExpertMode()) {
-        ui->saveStabilizationToRAM_6->setVisible(false);
-    }
+    disableMouseWheelEvents();
 
-    autoLoadWidgets();
+    connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
+
+    setupExpoPlot();
 
     realtimeUpdates = new QTimer(this);
     connect(realtimeUpdates, SIGNAL(timeout()), this, SLOT(apply()));
@@ -116,12 +106,13 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->pushButton_13);
     addWidget(ui->pushButton_14);
     addWidget(ui->pushButton_20);
+    addWidget(ui->pushButton_21);
     addWidget(ui->pushButton_22);
-    addWidget(ui->pushButton_23);
 
     addWidget(ui->basicResponsivenessGroupBox);
     addWidget(ui->basicResponsivenessCheckBox);
     connect(ui->basicResponsivenessCheckBox, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
+
     addWidget(ui->advancedResponsivenessGroupBox);
     addWidget(ui->advancedResponsivenessCheckBox);
     connect(ui->advancedResponsivenessCheckBox, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
@@ -144,15 +135,12 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->thrustPIDScalingCurve);
     connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
-    connect(this, SIGNAL(autoPilotConnected()), this, SLOT(onBoardConnected()));
-
     addWidget(ui->expoPlot);
     connect(ui->expoSpinnerRoll, SIGNAL(valueChanged(int)), this, SLOT(replotExpoRoll(int)));
     connect(ui->expoSpinnerPitch, SIGNAL(valueChanged(int)), this, SLOT(replotExpoPitch(int)));
     connect(ui->expoSpinnerYaw, SIGNAL(valueChanged(int)), this, SLOT(replotExpoYaw(int)));
 
-    disableMouseWheelEvents();
-    updateEnableControls();
+    ui->AltitudeHold->setEnabled(false);
 }
 
 void ConfigStabilizationWidget::setupStabBanksGUI()
@@ -247,9 +235,9 @@ ConfigStabilizationWidget::~ConfigStabilizationWidget()
     // Do nothing
 }
 
-void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *o)
+void ConfigStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(o);
+    Q_UNUSED(obj);
 
     updateThrottleCurveFromObject();
 
@@ -269,10 +257,9 @@ void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *o)
     }
 }
 
-void ConfigStabilizationWidget::updateObjectsFromWidgets()
+void ConfigStabilizationWidget::updateObjectsFromWidgetsImpl()
 {
     updateObjectFromThrottleCurve();
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 void ConfigStabilizationWidget::updateThrottleCurveFromObject()
@@ -647,15 +634,12 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
     }
 }
 
-void ConfigStabilizationWidget::onBoardConnected()
+void ConfigStabilizationWidget::enableControlsChanged(bool enable)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
-
-    Q_ASSERT(utilMngr);
-    boardModel = utilMngr->getBoardModel();
     // If Revolution/Sparky2 board enable Althold tab, otherwise disable it
-    ui->AltitudeHold->setEnabled(((boardModel & 0xff00) == 0x0900) || ((boardModel & 0xff00) == 0x9200));
+    bool enableAltitudeHold = (((boardModel() & 0xff00) == 0x0900) || ((boardModel() & 0xff00) == 0x9200));
+
+    ui->AltitudeHold->setEnabled(enable && enableAltitudeHold);
 }
 
 void ConfigStabilizationWidget::stabBankChanged(int index)
@@ -687,7 +671,7 @@ void ConfigStabilizationWidget::stabBankChanged(int index)
 bool ConfigStabilizationWidget::shouldObjectBeSaved(UAVObject *object)
 {
     // AltitudeHoldSettings should only be saved for Revolution/Sparky2 board to avoid error.
-    if (((boardModel & 0xff00) != 0x0900) && ((boardModel & 0xff00) != 0x9200)) {
+    if (((boardModel() & 0xff00) != 0x0900) && ((boardModel() & 0xff00) != 0x9200)) {
         return dynamic_cast<AltitudeHoldSettings *>(object) == 0;
     } else {
         return true;

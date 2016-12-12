@@ -1130,9 +1130,9 @@ static void pios_openlrs_task(void *parameters);
 static struct pios_openlrs_dev *g_openlrs_dev;
 
 /**
- * Initialise an RFM22B device
+ * Initialise an OPENLRS device
  *
- * @param[out] rfm22b_id  A pointer to store the device ID in.
+ * @param[out] openlrs_id  A pointer to store the device ID in.
  * @param[in] spi_id  The SPI bus index.
  * @param[in] slave_num  The SPI bus slave number.
  * @param[in] cfg  The device configuration.
@@ -1141,7 +1141,7 @@ int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
                           uint32_t slave_num,
                           const struct pios_openlrs_cfg *cfg)
 {
-    PIOS_DEBUG_Assert(rfm22b_id);
+    PIOS_DEBUG_Assert(openlrs_id);
     PIOS_DEBUG_Assert(cfg);
 
     // Allocate the device structure.

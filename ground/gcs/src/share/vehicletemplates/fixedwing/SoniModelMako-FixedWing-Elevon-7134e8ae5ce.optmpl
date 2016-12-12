@@ -1598,7 +1598,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "Motor"
+                            "value": "Disabled"
                         }
                     ]
                 },
@@ -1609,7 +1609,7 @@
                     "values": [
                         {
                             "name": "ThrottleCurve1",
-                            "value": 127
+                            "value": 0
                         },
                         {
                             "name": "ThrottleCurve2",
@@ -1636,7 +1636,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "Disabled"
+                            "value": "Motor"
                         }
                     ]
                 },
@@ -1647,7 +1647,7 @@
                     "values": [
                         {
                             "name": "ThrottleCurve1",
-                            "value": 0
+                            "value": 127
                         },
                         {
                             "name": "ThrottleCurve2",

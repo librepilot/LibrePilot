@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  *
- * @file       ConfigRevoWidget.h
+ * @file       configrevowidget.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
@@ -29,7 +29,9 @@
 
 #include "ui_revosensors.h"
 
+#include <uavobjectmanager.h>
 #include <uavobjecthelper.h>
+
 #include <attitudestate.h>
 #include <attitudesettings.h>
 #include <revocalibration.h>
@@ -38,29 +40,17 @@
 #include <accelstate.h>
 #include <magstate.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 #include "assertions.h"
 #include "calibration.h"
 #include "calibration/calibrationutils.h"
 
-#include "math.h"
-#include <QDebug>
-#include <QTimer>
-#include <QStringList>
-#include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QThread>
-#include <QErrorMessage>
-#include <QDesktopServices>
-#include <QUrl>
+#include <math.h>
 #include <iostream>
 
-#include <math.h>
+#include <QDebug>
+#include <QStringList>
+#include <QWidget>
+#include <QThread>
 
 // #define DEBUG
 
@@ -78,20 +68,16 @@ public:
 };
 
 ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
-    ConfigTaskWidget(parent),
-    m_ui(new Ui_RevoSensorsWidget()),
-    isBoardRotationStored(false)
+    ConfigTaskWidget(parent), isBoardRotationStored(false)
 {
+    m_ui = new Ui_RevoSensorsWidget();
     m_ui->setupUi(this);
     m_ui->tabWidget->setCurrentIndex(0);
 
-    addApplySaveButtons(m_ui->revoCalSettingsSaveRAM, m_ui->revoCalSettingsSaveSD);
+    // must be done before auto binding !
+    setWikiURL("Revo+Attitude+Configuration");
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->revoCalSettingsSaveRAM->setVisible(false);
-    }
+    addAutoBindings();
 
     // Initialization of the visual help
     m_ui->calibrationVisualHelp->setScene(new QGraphicsScene(this));
@@ -108,7 +94,6 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addUAVObject("RevoSettings");
     addUAVObject("AccelGyroSettings");
     addUAVObject("AuxMagSettings");
-    autoLoadWidgets();
 
     // accel calibration
     m_accelCalibrationModel = new OpenPilot::SixPointCalibrationModel(this);
@@ -223,16 +208,7 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
 
     displayMagError = false;
 
-    // Connect the help button
-    connect(m_ui->attitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    populateWidgets();
     enableAllCalibrations();
-
-    updateEnableControls();
-
-    forceConnectedState();
-    refreshWidgetsValues();
 }
 
 ConfigRevoWidget::~ConfigRevoWidget()
@@ -414,9 +390,9 @@ void ConfigRevoWidget::displayTemperatureRange(float temperatureRange)
  * Called by the ConfigTaskWidget parent when RevoCalibration is updated
  * to update the UI
  */
-void ConfigRevoWidget::refreshWidgetsValues(UAVObject *object)
+void ConfigRevoWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(object);
+    Q_UNUSED(obj);
 
     m_ui->isSetCheckBox->setEnabled(false);
 
@@ -431,10 +407,8 @@ void ConfigRevoWidget::refreshWidgetsValues(UAVObject *object)
     onBoardAuxMagError();
 }
 
-void ConfigRevoWidget::updateObjectsFromWidgets()
+void ConfigRevoWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     if (m_accelCalibrationModel->dirty()) {
         m_accelCalibrationModel->save();
     }
@@ -713,10 +687,4 @@ void ConfigRevoWidget::updateMagStatus()
         m_ui->magStatusSource->setText(tr("Unknown"));
         m_ui->magStatusSource->setToolTip("");
     }
-}
-
-void ConfigRevoWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revo+Attitude+Configuration"),
-                                   QUrl::StrictMode));
 }

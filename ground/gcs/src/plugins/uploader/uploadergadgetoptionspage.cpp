@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uploadergadgetoptionspage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup YModemUploader YModem Serial Uploader Plugin
@@ -26,7 +27,9 @@
  */
 
 #include "uploadergadgetoptionspage.h"
+
 #include "uploadergadgetconfiguration.h"
+
 #include <QLabel>
 #include <QSpinBox>
 #include <QDoubleSpinBox>

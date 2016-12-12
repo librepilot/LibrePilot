@@ -156,7 +156,7 @@
 ; Installer sections
 
 ; Copy GCS core files
-Section "Core files" InSecCore
+Section "${GCS_BIG_NAME}" InSecCore
   SectionIn RO
   SetOutPath "$INSTDIR\bin"
   File /r "${GCS_BUILD_TREE}\bin\*"
@@ -195,36 +195,6 @@ Section "-Utilities" InSecUtilities
   File "/oname=OPLogConvert-${PACKAGE_LBL}.m" "${UAVO_SYNTH_TREE}\matlab\OPLogConvert.m"
 SectionEnd
 
-; Copy driver files
-Section "-Drivers" InSecDrivers
-  SetOutPath "$INSTDIR\drivers"
-  File /r "${PROJECT_ROOT}\flight\Project\Windows USB\*"
-SectionEnd
-
-; Preinstall OpenPilot CDC driver
-Section "CDC driver" InSecInstallDrivers
-  InitPluginsDir
-  SetOutPath "$PLUGINSDIR"
-  ${If} ${RunningX64}
-    File "/oname=dpinst.exe" "${NSIS_DATA_TREE}\redist\dpinst_x64.exe"
-  ${Else}
-    File "/oname=dpinst.exe" "${NSIS_DATA_TREE}\redist\dpinst_x86.exe"
-  ${EndIf}
-  ExecWait '"$PLUGINSDIR\dpinst.exe" /lm /path "$INSTDIR\drivers"'
-SectionEnd
-
-; Copy Opengl32.dll if needed (disabled by default)
-Section /o "Mesa OpenGL driver" InSecInstallOpenGL
-  SetOutPath "$INSTDIR\bin"
-  File /r "${GCS_BUILD_TREE}\bin\opengl32\opengl32.dll"
-SectionEnd
-
-; AeroSimRC plugin files
-Section "AeroSimRC plugin" InSecAeroSimRC
-  SetOutPath "$INSTDIR\misc\AeroSIM-RC"
-  File /r "${AEROSIMRC_TREE}\*"
-SectionEnd
-
 Section "Shortcuts" InSecShortcuts
   ; Create desktop and start menu shortcuts
   SetOutPath "$INSTDIR"
@@ -250,6 +220,36 @@ Section "Shortcuts" InSecShortcuts
   CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
   	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
   CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
+SectionEnd
+
+; AeroSimRC plugin files
+Section "AeroSimRC plugin" InSecAeroSimRC
+  SetOutPath "$INSTDIR\misc\AeroSIM-RC"
+  File /r "${AEROSIMRC_TREE}\*"
+SectionEnd
+
+; Copy driver files (hidden, driver is always copied to install directory)
+Section "-Drivers" InSecDrivers
+  SetOutPath "$INSTDIR\drivers"
+  File /r "${PROJECT_ROOT}\flight\Project\WindowsUSB\*"
+SectionEnd
+
+; Preinstall OpenPilot CDC driver (disabled by default)
+Section /o "CDC driver" InSecInstallDrivers
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  ${If} ${RunningX64}
+    File "/oname=dpinst.exe" "${NSIS_DATA_TREE}\redist\dpinst_x64.exe"
+  ${Else}
+    File "/oname=dpinst.exe" "${NSIS_DATA_TREE}\redist\dpinst_x86.exe"
+  ${EndIf}
+  ExecWait '"$PLUGINSDIR\dpinst.exe" /lm /path "$INSTDIR\drivers"'
+SectionEnd
+
+; Copy Opengl32.dll if needed (disabled by default)
+Section /o "Mesa OpenGL driver" InSecInstallOpenGL
+  SetOutPath "$INSTDIR\bin"
+  File /r "${GCS_BUILD_TREE}\bin\opengl32\opengl32.dll"
 SectionEnd
 
 Section ; create uninstall info

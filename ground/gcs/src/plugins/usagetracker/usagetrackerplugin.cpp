@@ -78,19 +78,20 @@ void UsageTrackerPlugin::onAutopilotConnect()
     if (settings->collectUsageData()) {
         if (settings->showUsageDataDisclaimer()) {
             QMessageBox message;
+            // QMessageBox hack to define window size.
+            message.setStyleSheet("QLabel{min-width: 780px; max-height: 520px;}");
             message.setWindowTitle(tr("Usage feedback"));
-            message.setIcon(QMessageBox::Information);
             message.addButton(tr("Yes, count me in"), QMessageBox::AcceptRole);
             message.addButton(tr("No, I will not help"), QMessageBox::RejectRole);
-            message.setText(tr("%1 has a function to collect limited anonymous information about "
-                               "the usage of the application itself and the hardware connected to it.<p>"
-                               "The intention is to not include anything that can be considered sensitive "
+            message.setText(tr("<p>%1 has a function to collect limited anonymous information about "
+                               "the usage of the application itself and the hardware connected to it.</p>"
+                               "<p>The intention is to not include anything that can be considered sensitive "
                                "or a threat to the users integrity. The collected information will be sent "
                                "using a secure protocol to an %2 web service and stored in a database "
-                               "for later analysis and statistical purposes.<br>"
+                               "for later analysis and statistical purposes. "
                                "No information will be sold or given to any third party. The sole purpose is "
                                "to collect statistics about the usage of our software and hardware to enable us "
-                               "to make things better for you.<p>"
+                               "to make things better for you.</p>"
                                "The following things are collected:<ul>"
                                "<li>Bootloader version</li>"
                                "<li>Firmware version, tag and git hash</li>"
@@ -99,11 +100,11 @@ void UsageTrackerPlugin::onAutopilotConnect()
                                "<li>GCS version</li>"
                                "<li>Operating system version and architecture</li>"
                                "<li>Current local time</li></ul>"
-                               "The information is collected only at the time when a board is connecting to GCS.<p>"
+                               "<p>The information is collected only at the time when a board is connecting to GCS. "
                                "It is possible to enable or disable this functionality in the general "
-                               "settings part of the options for the GCS application at any time.<p>"
-                               "We need your help, with your feedback we know where to improve things and what "
-                               "platforms are in use. This is a community project that depends on people being involved.<br>"
+                               "settings part of the options for the GCS application at any time.</p>"
+                               "<p>We need your help, with your feedback we know where to improve things and what "
+                               "platforms are in use. This is a community project that depends on people being involved.</p>"
                                "Thank You for helping us making things better and for supporting %2!").arg(GCS_BIG_NAME).arg(ORG_BIG_NAME));
             QCheckBox *disclaimerCb = new QCheckBox(tr("&Don't show this message again."));
             disclaimerCb->setChecked(true);

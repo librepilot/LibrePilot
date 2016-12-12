@@ -41,7 +41,6 @@
 #include <QtCore/QDebug>
 #include <QMessageBox>
 
-
 using namespace Core;
 
 static const UAVConfigVersion m_versionUAVGadgetConfigurations = UAVConfigVersion("1.2.0");
@@ -116,7 +115,7 @@ void UAVGadgetInstanceManager::readConfigs_1_2_0(QSettings *qs)
 
         configs = qs->childGroups();
         foreach(QString configName, configs) {
-            qDebug() << "Loading config: " << classId << "," << configName;
+            // qDebug() << "Loading config: " << classId << "," << configName;
             qs->beginGroup(configName);
             configInfo.read(qs);
             configInfo.setNameOfConfigurable(classId + "-" + configName);
@@ -166,7 +165,7 @@ void UAVGadgetInstanceManager::readConfigs_1_1_0(QSettings *qs)
 
         configs = qs->childGroups();
         foreach(QString configName, configs) {
-            qDebug().nospace() << "Loading config: " << classId << ", " << configName;
+            // qDebug().nospace() << "Loading config: " << classId << ", " << configName;
             qs->beginGroup(configName);
             bool locked = qs->value("config.locked").toBool();
             configInfo.setNameOfConfigurable(classId + "-" + configName);
@@ -250,8 +249,8 @@ void UAVGadgetInstanceManager::createOptionsPages()
             m_pm->addObject(page);
         } else {
             qWarning()
-                << "UAVGadgetInstanceManager::createOptionsPages - failed to create options page for configuration "
-                + config->classId() + ":" + config->name() + ", configuration will be removed.";
+                << "UAVGadgetInstanceManager::createOptionsPages - failed to create options page for configuration"
+                << (config->classId() + ":" + config->name()) << ", configuration will be removed.";
             // The m_optionsPages list and m_configurations list must be in synch otherwise nasty issues happen later
             // so if we fail to create an options page we must remove the associated configuration
             ite.remove();

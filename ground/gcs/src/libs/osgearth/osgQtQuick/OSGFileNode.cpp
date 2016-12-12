@@ -90,7 +90,7 @@ public:
 
     void updateSource()
     {
-        qDebug() << "OSGFileNode::updateNode" << source;
+        // qDebug() << "OSGFileNode::updateNode" << source;
         if (!source.isValid()) {
             self->setNode(NULL);
             if (!source.isEmpty()) {

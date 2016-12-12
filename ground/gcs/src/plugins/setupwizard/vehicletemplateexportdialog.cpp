@@ -361,9 +361,18 @@ QString VehicleTemplateExportDialog::getTypeDirectory()
 
 void VehicleTemplateExportDialog::updateStatus()
 {
-    bool enabled = m_autopilotConnected && ui->Name->text().length() > 3 && ui->Owner->text().length() > 2 &&
+    bool enabled = m_autopilotConnected && ui->Name->text().length() > 2 && ui->Owner->text().length() > 2 &&
                    ui->ForumNick->text().length() > 2 && ui->Size->text().length() > 0 &&
                    ui->Weight->text().length() > 0;
+
+    ui->Motor->setEnabled(enabled);
+    ui->Esc->setEnabled(enabled);
+    ui->Servo->setEnabled(enabled);
+    ui->Battery->setEnabled(enabled);
+    ui->Propeller->setEnabled(enabled);
+    ui->Controllers->setEnabled(enabled);
+    ui->Comment->setEnabled(enabled);
+    ui->ImportButton->setEnabled(enabled);
 
     ui->exportBtn->setEnabled(enabled);
     ui->saveAsBtn->setEnabled(enabled);

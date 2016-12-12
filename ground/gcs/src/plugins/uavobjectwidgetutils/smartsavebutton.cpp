@@ -30,23 +30,18 @@
 SmartSaveButton::SmartSaveButton(ConfigTaskWidget *configTaskWidget) : configWidget(configTaskWidget)
 {}
 
-void SmartSaveButton::addButtons(QPushButton *save, QPushButton *apply)
-{
-    buttonList.insert(save, save_button);
-    buttonList.insert(apply, apply_button);
-    connect(save, SIGNAL(clicked()), this, SLOT(processClick()));
-    connect(apply, SIGNAL(clicked()), this, SLOT(processClick()));
-}
 void SmartSaveButton::addApplyButton(QPushButton *apply)
 {
     buttonList.insert(apply, apply_button);
     connect(apply, SIGNAL(clicked()), this, SLOT(processClick()));
 }
+
 void SmartSaveButton::addSaveButton(QPushButton *save)
 {
     buttonList.insert(save, save_button);
     connect(save, SIGNAL(clicked()), this, SLOT(processClick()));
 }
+
 void SmartSaveButton::processClick()
 {
     emit beginOp();
@@ -76,6 +71,9 @@ void SmartSaveButton::processOperation(QPushButton *button, bool save)
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
     foreach(UAVDataObject * obj, objects) {
+        if (!obj) {
+            continue;
+        }
         UAVObject::Metadata mdata = obj->getMetadata();
 
         // Should we really save this object to the board?
@@ -165,24 +163,29 @@ void SmartSaveButton::setObjects(QList<UAVDataObject *> list)
 void SmartSaveButton::addObject(UAVDataObject *obj)
 {
     Q_ASSERT(obj);
-    if (!objects.contains(obj)) {
+    if (obj && !objects.contains(obj)) {
         objects.append(obj);
     }
 }
+
 void SmartSaveButton::removeObject(UAVDataObject *obj)
 {
-    if (objects.contains(obj)) {
+    Q_ASSERT(obj);
+    if (obj && objects.contains(obj)) {
         objects.removeAll(obj);
     }
 }
+
 void SmartSaveButton::removeAllObjects()
 {
     objects.clear();
 }
+
 void SmartSaveButton::clearObjects()
 {
     objects.clear();
 }
+
 void SmartSaveButton::transaction_finished(UAVObject *obj, bool result)
 {
     if (current_object == obj) {

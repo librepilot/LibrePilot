@@ -38,9 +38,6 @@
 
 #include "ui_camerastabilization.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 #include "camerastabsettings.h"
 #include "hwsettings.h"
 #include "mixersettings.h"
@@ -51,22 +48,16 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
     ui = new Ui_CameraStabilizationWidget();
     ui->setupUi(this);
 
-    addApplySaveButtons(ui->camerastabilizationSaveRAM, ui->camerastabilizationSaveSD);
+    // must be done before auto binding !
+    setWikiURL("Camera+Stabilisation+Configuration");
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        ui->camerastabilizationSaveRAM->setVisible(false);
-    }
+    addAutoBindings();
 
+    disableMouseWheelEvents();
 
     // These widgets don't have direct relation to UAVObjects
     // and need special processing
-    QComboBox *outputs[] = {
-        ui->rollChannel,
-        ui->pitchChannel,
-        ui->yawChannel,
-    };
+    QComboBox *outputs[]  = { ui->rollChannel, ui->pitchChannel, ui->yawChannel, };
     const int NUM_OUTPUTS = sizeof(outputs) / sizeof(outputs[0]);
 
     // Populate widgets with channel numbers
@@ -77,11 +68,6 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
             outputs[i]->addItem(QString("Channel %1").arg(j + 1));
         }
     }
-
-    setWikiURL("Camera+Stabilisation+Configuration");
-    // Load UAVObjects to widget relations from UI file
-    // using objrelation dynamic property
-    autoLoadWidgets();
 
     // Add some widgets to track their UI dirty state and handle smartsave
     addWidget(ui->enableCameraStabilization);
@@ -101,9 +87,6 @@ ConfigCameraStabilizationWidget::ConfigCameraStabilizationWidget(QWidget *parent
 
     // To set special widgets to defaults when requested
     connect(this, SIGNAL(defaultRequested(int)), this, SLOT(defaultRequestedSlot(int)));
-
-    disableMouseWheelEvents();
-    updateEnableControls();
 }
 
 ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()
@@ -114,21 +97,19 @@ ConfigCameraStabilizationWidget::~ConfigCameraStabilizationWidget()
 /*
  * This overridden function refreshes widgets which have no direct relation
  * to any of UAVObjects. It saves their dirty state first because update comes
- * from UAVObjects, and then restores it. Aftewards it calls base class
- * function to take care of other widgets which were dynamically added.
+ * from UAVObjects, and then restores it.
  */
-void ConfigCameraStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigCameraStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    bool dirty = isDirty();
+    Q_UNUSED(obj);
 
     // Set module enable checkbox from OptionalModules UAVObject item.
     // It needs special processing because ConfigTaskWidget uses TRUE/FALSE
     // for QCheckBox, but OptionalModules uses Enabled/Disabled enum values.
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields hwSettingsData = hwSettings->getData();
 
     ui->enableCameraStabilization->setChecked(
-        hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_CAMERASTAB] == HwSettings::OPTIONALMODULES_ENABLED);
+        hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_CAMERASTAB) == HwSettings::OPTIONALMODULES_ENABLED);
 
     // Load mixer outputs which are mapped to camera controls
     MixerSettings *mixerSettings = MixerSettings::GetInstance(getObjectManager());
@@ -168,22 +149,16 @@ void ConfigCameraStabilizationWidget::refreshWidgetsValues(UAVObject *obj)
             }
         }
     }
-
-    setDirty(dirty);
-
-    ConfigTaskWidget::refreshWidgetsValues(obj);
 }
 
 /*
  * This overridden function updates UAVObjects which have no direct relation
- * to any of widgets. Aftewards it calls base class function to take care of
- * other object to widget relations which were dynamically added.
+ * to any of widgets.
  */
-void ConfigCameraStabilizationWidget::updateObjectsFromWidgets()
+void ConfigCameraStabilizationWidget::updateObjectsFromWidgetsImpl()
 {
     // Save state of the module enable checkbox first.
-    // Do not use setData() member on whole object, if possible, since it triggers
-    // unnessesary UAVObect update.
+    // Do not use setData() member on whole object, if possible, since it triggers unnecessary UAVObect update.
     quint8 enableModule    = ui->enableCameraStabilization->isChecked() ?
                              HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
@@ -257,8 +232,6 @@ void ConfigCameraStabilizationWidget::updateObjectsFromWidgets()
     // FIXME: Should not use setData() to prevent double updates.
     // It should be refactored after the reformatting of MixerSettings UAVObject.
     mixerSettings->setData(mixerSettingsData);
-
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 /*
@@ -268,18 +241,6 @@ void ConfigCameraStabilizationWidget::updateObjectsFromWidgets()
 void ConfigCameraStabilizationWidget::defaultRequestedSlot(int group)
 {
     Q_UNUSED(group);
-
-    // Here is the example of how to reset the state of QCheckBox. It is
-    // commented out because we normally don't want to reset the module
-    // enable state to default "disabled" (or we don't care about values at all).
-    // But if you want, you could use the dirtyClone() function to get default
-    // values of an object and then use them to set a widget state.
-    //
-    // HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    // HwSettings *hwSettingsDefault=(HwSettings*)hwSettings->dirtyClone();
-    // HwSettings::DataFields hwSettingsData = hwSettingsDefault->getData();
-    // m_camerastabilization->enableCameraStabilization->setChecked(
-    // hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_CAMERASTAB] == HwSettings::OPTIONALMODULES_ENABLED);
 
     // For outputs we set them all to none, so don't use any UAVObject to get defaults
     QComboBox *outputs[] = {

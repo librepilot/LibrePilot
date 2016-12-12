@@ -8,7 +8,7 @@
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief Servo input/output configuration panel for the config gadget
+ * @brief Servo input configuration panel for the config gadget
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -29,8 +29,7 @@
 #define CONFIGINPUTWIDGET_H
 
 #include "uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
 
 #include "manualcontrolcommand.h"
@@ -213,7 +212,6 @@ private slots:
     void wzCancel();
     void goToWizard();
     void disableWizardButton(int);
-    void openHelp();
     void identifyControls();
     void identifyLimits();
     void moveTxControls();

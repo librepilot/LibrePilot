@@ -4,6 +4,12 @@ DEFINES += CONFIG_LIBRARY
 
 QT += widgets svg opengl qml quick
 
+# silence eigen warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-declarations
+win32 {
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-ignored-attributes
+}
+
 include(config_dependencies.pri)
 
 INCLUDEPATH += ../../libs/eigen
@@ -21,8 +27,7 @@ HEADERS += \
     configccattitudewidget.h \
     configstabilizationwidget.h \
     assertions.h \
-    defaultattitudewidget.h \
-    defaulthwsettingswidget.h \
+    defaultconfigwidget.h \
     channelform.h \
     inputchannelform.h \
     configcamerastabilizationwidget.h \
@@ -70,8 +75,7 @@ SOURCES += \
     config_cc_hw_widget.cpp \
     configccattitudewidget.cpp \
     configstabilizationwidget.cpp \
-    defaultattitudewidget.cpp \
-    defaulthwsettingswidget.cpp \
+    defaultconfigwidget.cpp \
     channelform.cpp \
     inputchannelform.cpp \
     configcamerastabilizationwidget.cpp \
@@ -114,8 +118,7 @@ FORMS += \
     input_wizard.ui \
     output.ui \
     ccattitude.ui \
-    defaultattitude.ui \
-    defaulthwsettings.ui \
+    defaultconfig.ui \
     inputchannelform.ui \
     camerastabilization.ui \
     outputchannelform.ui \

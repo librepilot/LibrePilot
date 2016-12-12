@@ -237,7 +237,7 @@ void LoggingThread::retrieveSettings()
         }
     }
     // Start retrieving
-    qDebug() << tr("Logging: retrieve settings objects from the autopilot (%1 objects)")
+    qDebug() << QString("Logging: retrieve settings objects from the autopilot (%1 objects)")
         .arg(queue.length());
     retrieveNextObject();
 }

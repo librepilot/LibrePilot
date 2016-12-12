@@ -1322,7 +1322,7 @@ static const struct pios_i2c_adapter_cfg pios_i2c_mag_pressure_adapter_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+            .GPIO_PuPd  = GPIO_PuPd_UP,
         },
     },
     .sda                                       = {
@@ -1332,7 +1332,7 @@ static const struct pios_i2c_adapter_cfg pios_i2c_mag_pressure_adapter_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+            .GPIO_PuPd  = GPIO_PuPd_UP,
         },
     },
     .event                                     = {
@@ -1394,7 +1394,7 @@ static const struct pios_i2c_adapter_cfg pios_i2c_flexiport_adapter_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+            .GPIO_PuPd  = GPIO_PuPd_UP,
         },
     },
     .sda                                       = {
@@ -1404,7 +1404,7 @@ static const struct pios_i2c_adapter_cfg pios_i2c_flexiport_adapter_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+            .GPIO_PuPd  = GPIO_PuPd_UP,
         },
     },
     .event                                     = {

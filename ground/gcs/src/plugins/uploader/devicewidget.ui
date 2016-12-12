@@ -68,28 +68,28 @@
               <item>
                <widget class="QLabel" name="lblDevName">
                 <property name="text">
-                 <string>lblDevName</string>
+                 <string notr="true">lblDevName</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="lbldevID">
                 <property name="text">
-                 <string>DeviceID</string>
+                 <string notr="true">DeviceID</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="lblHWRev">
                 <property name="text">
-                 <string>lblHWRev</string>
+                 <string notr="true">lblHWRev</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="lblAccess">
                 <property name="text">
-                 <string>RW</string>
+                 <string notr="true">RW</string>
                 </property>
                </widget>
               </item>
@@ -328,35 +328,35 @@
             <item>
              <widget class="QLabel" name="lblBrdName">
               <property name="text">
-               <string>lblBrdName</string>
+               <string notr="true">lblBrdName</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblDescription">
               <property name="text">
-               <string>lblDescription</string>
+               <string notr="true">lblDescription</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblBuildDate">
               <property name="text">
-               <string>lblBuildDate</string>
+               <string notr="true">lblBuildDate</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblGitTag">
               <property name="text">
-               <string>lblGitTag</string>
+               <string notr="true">lblGitTag</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblCRC">
               <property name="text">
-               <string>lblCRC</string>
+               <string notr="true">lblCRC</string>
               </property>
              </widget>
             </item>
@@ -365,7 +365,7 @@
           <item>
            <widget class="QLabel" name="lblCertified">
             <property name="text">
-             <string>lblCertified</string>
+             <string notr="true">lblCertified</string>
             </property>
             <property name="scaledContents">
              <bool>false</bool>
@@ -405,35 +405,35 @@
             <item>
              <widget class="QLabel" name="lblBrdNameL">
               <property name="text">
-               <string>lblBrdName</string>
+               <string notr="true">lblBrdName</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblDescritpionL">
               <property name="text">
-               <string>lblDescritpionL</string>
+               <string notr="true">lblDescritpionL</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblBuildDateL">
               <property name="text">
-               <string>lblBuildDate</string>
+               <string notr="true">lblBuildDate</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblGitTagL">
               <property name="text">
-               <string>lblGitTag</string>
+               <string notr="true">lblGitTag</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QLabel" name="lblCRCL">
               <property name="text">
-               <string>lblCRC</string>
+               <string notr="true">lblCRC</string>
               </property>
              </widget>
             </item>
@@ -442,7 +442,7 @@
           <item>
            <widget class="QLabel" name="lblCertifiedL">
             <property name="text">
-             <string>lblCertifiedL</string>
+             <string notr="true">lblCertifiedL</string>
             </property>
            </widget>
           </item>

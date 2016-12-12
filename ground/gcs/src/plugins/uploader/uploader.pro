@@ -33,8 +33,7 @@ HEADERS += \
     runningdevicewidget.h \
     uploader_global.h \
     enums.h \
-    rebootdialog.h \
-    oplinkwatchdog.h
+    rebootdialog.h
 
 SOURCES += \
     uploadergadget.cpp \
@@ -50,8 +49,7 @@ SOURCES += \
     SSP/qssp.cpp \
     SSP/qsspt.cpp \
     runningdevicewidget.cpp \
-    rebootdialog.cpp \
-    oplinkwatchdog.cpp
+    rebootdialog.cpp
 
 OTHER_FILES += Uploader.pluginspec
 

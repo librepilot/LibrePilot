@@ -69,7 +69,7 @@ public:
 
     bool acceptSceneNode(OSGNode *node)
     {
-        qDebug() << "OSGCameraManipulator::acceptSceneNode" << node;
+        // qDebug() << "OSGCameraManipulator::acceptSceneNode" << node;
         if (sceneNode == node) {
             return true;
         }
@@ -93,14 +93,14 @@ public:
             qWarning() << "OSGCameraManipulator::updateSceneNode - no scene node";
             return;
         }
-        qDebug() << "OSGCameraManipulator::updateSceneNode" << sceneNode;
+        // qDebug() << "OSGCameraManipulator::updateSceneNode" << sceneNode;
         manipulator->setNode(sceneNode->node());
     }
 
 private slots:
     void onSceneNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGCameraManipulator::onSceneNodeChanged" << node;
+        // qDebug() << "OSGCameraManipulator::onSceneNodeChanged" << node;
         updateSceneNode();
     }
 };
@@ -150,7 +150,7 @@ void OSGCameraManipulator::classBegin()
 
 void OSGCameraManipulator::componentComplete()
 {
-    qDebug() << "OSGCameraManipulator::componentComplete" << this;
+    // qDebug() << "OSGCameraManipulator::componentComplete" << this;
     update();
     clearDirty();
 }

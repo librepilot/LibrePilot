@@ -67,7 +67,7 @@ QList<QQmlError> PfdQmlGadgetWidget::errors() const
 
 void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
-    qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
+    // qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
 
     if (!m_quickWidgetProxy) {
         m_quickWidgetProxy = new QuickWidgetProxy(this);
@@ -85,7 +85,7 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
         layout()->addWidget(m_quickWidgetProxy->widget());
     }
 
-    setQmlFile("");
+    clear();
 
     m_pfdQmlContext->loadConfiguration(config);
 
@@ -110,28 +110,35 @@ void PfdQmlGadgetWidget::setQmlFile(QString fn)
     m_qmlFileName = fn;
 
     if (fn.isEmpty()) {
-        setSource(QUrl());
-
-        engine()->removeImageProvider("svg");
-        engine()->rootContext()->setContextProperty("svgRenderer", NULL);
-
-        // calling clearComponentCache() causes crashes (see https://bugreports.qt-project.org/browse/QTBUG-41465)
-        // but not doing it causes almost systematic crashes when switching PFD gadget to "Model View (Without Terrain)" configuration
-        engine()->clearComponentCache();
-    } else {
-        SvgImageProvider *svgProvider = new SvgImageProvider(fn);
-        engine()->addImageProvider("svg", svgProvider);
-
-        // it's necessary to allow qml side to query svg element position
-        engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
-
-        QUrl url = QUrl::fromLocalFile(fn);
-        engine()->setBaseUrl(url);
-
-        setSource(url);
+        clear();
+        return;
     }
+    SvgImageProvider *svgProvider = new SvgImageProvider(fn);
+    engine()->addImageProvider("svg", svgProvider);
+
+    // it's necessary to allow qml side to query svg element position
+    engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
+
+    QUrl url = QUrl::fromLocalFile(fn);
+    engine()->setBaseUrl(url);
+
+    setSource(url);
 
     foreach(const QQmlError &error, errors()) {
         qDebug() << "PfdQmlGadgetWidget - " << error.description();
     }
+}
+
+void PfdQmlGadgetWidget::clear()
+{
+    // qDebug() << "PfdQmlGadgetWidget::clear";
+
+    setSource(QUrl());
+
+    engine()->removeImageProvider("svg");
+    engine()->rootContext()->setContextProperty("svgRenderer", NULL);
+
+    // calling clearComponentCache() causes crashes (see https://bugreports.qt-project.org/browse/QTBUG-41465)
+    // but not doing it causes almost systematic crashes when switching PFD gadget to "Model View (Without Terrain)" configuration
+    engine()->clearComponentCache();
 }

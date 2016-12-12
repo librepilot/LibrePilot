@@ -118,9 +118,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-317</y>
-            <width>748</width>
-            <height>724</height>
+            <y>0</y>
+            <width>751</width>
+            <height>768</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -813,7 +813,7 @@ font:bold;</string>
                  <string>Default</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>button:default</string>
                   <string>buttongroup:10</string>
                  </stringlist>
@@ -881,7 +881,7 @@ font:bold;</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTunePitchRollRateFactors</string>
                   <string>scale:0.1</string>
@@ -946,7 +946,7 @@ font:bold;</string>
                  <double>0.013500000000000</double>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTunePitchRollRateFactors</string>
                   <string>scale:1</string>
@@ -971,7 +971,7 @@ font:bold;</string>
                  <string>AutoCalc Yaw</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTuneRatePIDRecalculateYaw</string>
                   <string>buttongroup:11</string>
@@ -1037,7 +1037,7 @@ font:bold;</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:0.1</string>
@@ -1099,7 +1099,7 @@ font:bold;</string>
                  <double>1.900000000000000</double>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:1</string>
@@ -1164,7 +1164,7 @@ font:bold;</string>
                  <double>0.008500000000000</double>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:1</string>
@@ -1242,7 +1242,7 @@ font:bold;</string>
                  <string>Default</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>button:default</string>
                   <string>buttongroup:11</string>
                  </stringlist>
@@ -1282,7 +1282,7 @@ font:bold;</string>
                  <double>2.500000000000000</double>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTuneYawRateFactors</string>
                   <string>scale:1</string>
@@ -1322,7 +1322,7 @@ font:bold;</string>
                  <double>4.000000000000000</double>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:TxPIDSettings</string>
                   <string>fieldname:EasyTunePitchRollRateFactors</string>
                   <string>scale:1</string>
@@ -1426,7 +1426,7 @@ font:bold;</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -1477,14 +1477,14 @@ font:bold;</string>
         <bool>true</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
+        <stringlist notr="true">
          <string>button:help</string>
         </stringlist>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Apply">
+      <widget class="QPushButton" name="applyButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1500,10 +1500,13 @@ font:bold;</string>
        <property name="text">
         <string>Apply</string>
        </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:apply</string>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="Save">
+      <widget class="QPushButton" name="saveButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1522,6 +1525,9 @@ font:bold;</string>
        <property name="checked">
         <bool>false</bool>
        </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:save</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -1529,8 +1535,8 @@ font:bold;</string>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>Apply</tabstop>
-  <tabstop>Save</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>saveButton</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>PID1</tabstop>
   <tabstop>Input1</tabstop>

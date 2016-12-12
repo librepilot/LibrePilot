@@ -24,7 +24,7 @@
       </font>
      </property>
      <property name="text">
-      <string>placeholder_text</string>
+      <string notr="true">placeholder_text</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>
@@ -40,7 +40,7 @@
    <item>
     <widget class="QLabel" name="text">
      <property name="text">
-      <string>TextLabel</string>
+      <string notr="true">TextLabel</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

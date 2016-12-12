@@ -65,7 +65,7 @@ public:
 
     bool acceptTrackNode(OSGNode *node)
     {
-        qDebug() << "OSGNodeTrackerManipulator::acceptTrackNode" << node;
+        // qDebug() << "OSGNodeTrackerManipulator::acceptTrackNode" << node;
         if (trackNode == node) {
             return false;
         }
@@ -89,7 +89,7 @@ public:
             qWarning() << "OSGNodeTrackerManipulator::updateTrackNode - no track node";
             return;
         }
-        qDebug() << "OSGNodeTrackerManipulator::updateTrackNode" << trackNode->node();
+        // qDebug() << "OSGNodeTrackerManipulator::updateTrackNode" << trackNode->node();
         manipulator->setTrackNode(trackNode->node());
     }
 
@@ -117,7 +117,7 @@ public:
 private slots:
     void onTrackNodeChanged(osg::Node *node)
     {
-        qDebug() << "OSGNodeTrackerManipulator::onTrackNodeChanged" << node;
+        // qDebug() << "OSGNodeTrackerManipulator::onTrackNodeChanged" << node;
         qWarning() << "OSGNodeTrackerManipulator::onTrackNodeChanged - needs to be implemented";
     }
 };

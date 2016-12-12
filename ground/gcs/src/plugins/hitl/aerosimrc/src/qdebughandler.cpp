@@ -29,6 +29,7 @@
 
 void myQDebugHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    Q_UNUSED(context);
     static bool firstRun = true;
     QString txt;
 
@@ -36,6 +37,11 @@ void myQDebugHandler(QtMsgType type, const QMessageLogContext &context, const QS
     case QtDebugMsg:
         txt = QString("Debug: %1").arg(msg);
         break;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    case QtInfoMsg:
+        txt = QString("Info: %1").arg(msg);
+        break;
+#endif
     case QtWarningMsg:
         txt = QString("Warning: %1").arg(msg);
         break;

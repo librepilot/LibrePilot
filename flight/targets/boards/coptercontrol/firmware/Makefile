@@ -54,6 +54,8 @@ OPTMODULES += TxPID
 OPTMODULES += Osd/osdoutput
 #OPTMODULES += Altitude
 #OPTMODULES += Fault
+OPTMODULES += UAVOMSPBridge
+OPTMODULES += UAVOMavlinkBridge
 
 SRC += $(FLIGHTLIB)/notification.c
 

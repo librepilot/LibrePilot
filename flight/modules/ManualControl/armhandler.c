@@ -7,7 +7,8 @@
  * @{
  *
  * @file       armhandler.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  *
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -40,7 +41,7 @@
 #endif
 
 // Private constants
-#define ARMED_THRESHOLD     0.50f
+#define ARMED_THRESHOLD     0.20f
 #define GROUND_LOW_THROTTLE 0.01f
 
 // Private types
@@ -104,6 +105,10 @@ void armHandler(bool newinit, FrameType_t frameType)
         break;
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY2:
         AccessoryDesiredInstGet(2, &acc);
+        armSwitch = true;
+        break;
+    case FLIGHTMODESETTINGS_ARMING_ACCESSORY3:
+        AccessoryDesiredInstGet(3, &acc);
         armSwitch = true;
         break;
     default:
@@ -181,6 +186,7 @@ void armHandler(bool newinit, FrameType_t frameType)
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY0:
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY1:
     case FLIGHTMODESETTINGS_ARMING_ACCESSORY2:
+    case FLIGHTMODESETTINGS_ARMING_ACCESSORY3:
         armingInputLevel = -1.0f * acc.AccessoryVal;
         break;
     default:
@@ -190,11 +196,26 @@ void armHandler(bool newinit, FrameType_t frameType)
     bool manualArm    = false;
     bool manualDisarm = false;
 
-    if (armingInputLevel <= -ARMED_THRESHOLD) {
+    static FlightModeSettingsArmingOptions previousArmingSettings = -1;
+    static float previousArmingInputLevel = 0.0f;
+
+    if (previousArmingSettings != settings.Arming) {
+        previousArmingSettings   = settings.Arming;
+        previousArmingInputLevel = 0.0f;
+    }
+
+    // ignore previous arming input level if not transitioning from fully ARMED/DISARMED states.
+    if ((armState != ARM_STATE_DISARMED) && (armState != ARM_STATE_ARMED)) {
+        previousArmingInputLevel = 0.0f;
+    }
+
+    if ((armingInputLevel <= -ARMED_THRESHOLD) && (previousArmingInputLevel > -ARMED_THRESHOLD)) {
         manualArm = true;
-    } else if (armingInputLevel >= +ARMED_THRESHOLD) {
+    } else if ((armingInputLevel >= +ARMED_THRESHOLD) && (previousArmingInputLevel < +ARMED_THRESHOLD)) {
         manualDisarm = true;
     }
+
+    previousArmingInputLevel = armingInputLevel;
 
     switch (armState) {
     case ARM_STATE_DISARMED:
@@ -313,14 +334,26 @@ static bool okToArm(void)
             return false;
         }
 
+        // Avoid arming while AlwaysStabilizeWhenArmed is active
+        if (flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE) {
+            return false;
+        }
+
         return true;
 
         break;
     case FLIGHTSTATUS_FLIGHTMODE_LAND:
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         return false;
 
     case FLIGHTSTATUS_FLIGHTMODE_AUTOTAKEOFF:
     case FLIGHTSTATUS_FLIGHTMODE_PATHPLANNER:
+        // Avoid arming while AlwaysStabilizeWhenArmed is active
+        if (flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE) {
+            return false;
+        }
         return true;
 
     default:

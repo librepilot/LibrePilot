@@ -29,9 +29,12 @@
 
 #include "channelform.h"
 #include "configoutputwidget.h"
-#include "ui_outputchannelform.h"
 
-#include <QWidget>
+namespace Ui {
+class outputChannelForm;
+}
+
+class QWidget;
 
 class OutputChannelForm : public ChannelForm {
     Q_OBJECT
@@ -64,7 +67,7 @@ signals:
     void channelChanged(int index, int value);
 
 private:
-    Ui::outputChannelForm ui;
+    Ui::outputChannelForm *ui;
     bool m_inChannelTest;
     QString m_mixerType;
 

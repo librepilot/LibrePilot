@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       summarypage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup SummaryPage
@@ -40,8 +41,8 @@ class SummaryPage : public AbstractWizardPage {
 public:
     explicit SummaryPage(SetupWizard *wizard, QWidget *parent = 0);
     ~SummaryPage();
-    bool validatePage();
     void initializePage();
+    bool validatePage();
 
 private:
     Ui::SummaryPage *ui;

@@ -27,6 +27,10 @@
  */
 #include "importsummary.h"
 
+#include <QCheckBox>
+#include <QDesktopServices>
+#include <QUrl>
+
 ImportSummaryDialog::ImportSummaryDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ImportSummaryDialog)
@@ -79,8 +83,8 @@ void ImportSummaryDialog::addLine(QString uavObjectName, QString text, bool stat
     ui->importSummaryList->setItem(row, 2, new QTableWidgetItem(text));
 
     // Disable editability and selectability in table elements
-    ui->importSummaryList->item(row, 1)->setFlags(!Qt::ItemIsEditable);
-    ui->importSummaryList->item(row, 2)->setFlags(!Qt::ItemIsEditable);
+    ui->importSummaryList->item(row, 1)->setFlags(ui->importSummaryList->item(row, 1)->flags() &= ~Qt::ItemIsEditable);
+    ui->importSummaryList->item(row, 2)->setFlags(ui->importSummaryList->item(row, 2)->flags() &= ~Qt::ItemIsEditable);
 
     if (status) {
         box->setChecked(true);

@@ -6,7 +6,12 @@
 QT += xml
 QT -= gui
 macx {
-    QMAKE_CXXFLAGS  += -fpermissive
+    CONFIG += warn_on
+    !warn_off {
+        QMAKE_CXXFLAGS_WARN_ON += -Werror
+        QMAKE_CFLAGS_WARN_ON   += -Werror
+        QMAKE_CXXFLAGS  += -fpermissive
+    }
 }
 # use ccache when available
 QMAKE_CC = $$(CCACHE) $$QMAKE_CC

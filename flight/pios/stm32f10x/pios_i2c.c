@@ -711,6 +711,12 @@ static bool i2c_adapter_wait_for_stopped(struct pios_i2c_adapter *i2c_adapter)
 
 static void i2c_adapter_reset_bus(struct pios_i2c_adapter *i2c_adapter)
 {
+    // retry with wait code from
+    // TauLabs 20150718 - Prevent F3 I2C Init Lockup #1728
+    uint8_t retry_count;
+    uint8_t retry_count_clk;
+    static const uint8_t MAX_I2C_RETRY_COUNT = 10;
+
     /* Reset the I2C block */
     I2C_DeInit(i2c_adapter->cfg->regs);
 
@@ -731,11 +737,13 @@ static void i2c_adapter_reset_bus(struct pios_i2c_adapter *i2c_adapter)
     /* have to be repeated (due to futher bus errors) but better than clocking 0xFF into an */
     /* ESC */
     // bool sda_hung = GPIO_ReadInputDataBit(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.init.GPIO_Pin) == Bit_RESET;
-    while (GPIO_ReadInputDataBit(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.init.GPIO_Pin) == Bit_RESET) {
+    retry_count_clk = 0;
+    while (GPIO_ReadInputDataBit(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.init.GPIO_Pin) == Bit_RESET && (retry_count_clk++ < MAX_I2C_RETRY_COUNT)) {
+        retry_count = 0;
         /* Set clock high and wait for any clock stretching to finish. */
         GPIO_SetBits(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.init.GPIO_Pin);
-        while (GPIO_ReadInputDataBit(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.init.GPIO_Pin) == Bit_RESET) {
-            ;
+        while (GPIO_ReadInputDataBit(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.init.GPIO_Pin) == Bit_RESET && (retry_count++ < MAX_I2C_RETRY_COUNT)) {
+            PIOS_DELAY_WaituS(1);
         }
         PIOS_DELAY_WaituS(2);
 
@@ -759,12 +767,14 @@ static void i2c_adapter_reset_bus(struct pios_i2c_adapter *i2c_adapter)
     /* Set data and clock high and wait for any clock stretching to finish. */
     GPIO_SetBits(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.init.GPIO_Pin);
     GPIO_SetBits(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.init.GPIO_Pin);
-    while (GPIO_ReadInputDataBit(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.init.GPIO_Pin) == Bit_RESET) {
-        ;
+    retry_count = 0;
+    while (GPIO_ReadInputDataBit(i2c_adapter->cfg->scl.gpio, i2c_adapter->cfg->scl.init.GPIO_Pin) == Bit_RESET && (retry_count++ < MAX_I2C_RETRY_COUNT)) {
+        PIOS_DELAY_WaituS(1);
     }
     /* Wait for data to be high */
-    while (GPIO_ReadInputDataBit(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.init.GPIO_Pin) != Bit_SET) {
-        ;
+    retry_count = 0;
+    while (GPIO_ReadInputDataBit(i2c_adapter->cfg->sda.gpio, i2c_adapter->cfg->sda.init.GPIO_Pin) != Bit_SET && (retry_count++ < MAX_I2C_RETRY_COUNT)) {
+        PIOS_DELAY_WaituS(1);
     }
 
 
@@ -847,17 +857,17 @@ void PIOS_I2C_GetDiagnostics(struct pios_i2c_fault_history *data, uint8_t *count
 {
 #if defined(PIOS_I2C_DIAGNOSTICS)
     memcpy(data, &i2c_adapter_fault_history, sizeof(i2c_adapter_fault_history));
-    counts[0] = i2c_bad_event_counter;
-    counts[1] = i2c_fsm_fault_count;
-    counts[2] = i2c_error_interrupt_counter;
-    counts[3] = i2c_nack_counter;
-    counts[4] = i2c_timeout_counter;
+    counts[PIOS_I2C_BAD_EVENT_COUNTER] = i2c_bad_event_counter;
+    counts[PIOS_I2C_FSM_FAULT_COUNT]   = i2c_fsm_fault_count;
+    counts[PIOS_I2C_ERROR_INTERRUPT_COUNTER] = i2c_error_interrupt_counter;
+    counts[PIOS_I2C_NACK_COUNTER] = i2c_nack_counter;
+    counts[PIOS_I2C_TIMEOUT_COUNTER]   = i2c_timeout_counter;
 #else
     struct pios_i2c_fault_history i2c_adapter_fault_history;
-    i2c_adapter_fault_history.type = PIOS_I2C_ERROR_EVENT;
+    i2c_adapter_fault_history.type     = PIOS_I2C_ERROR_EVENT;
 
     memcpy(data, &i2c_adapter_fault_history, sizeof(i2c_adapter_fault_history));
-    counts[0] = counts[1] = counts[2] = 0;
+    memset(counts, 0, sizeof(*counts) * PIOS_I2C_ERROR_COUNT_NUMELEM);
 #endif
 }
 

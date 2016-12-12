@@ -191,7 +191,7 @@ static void PIOS_oplinkrcvr_Supervisor(uint32_t oplinkrcvr_id)
 
 static uint8_t PIOS_OPLinkRCVR_Quality_Get(__attribute__((unused)) uint32_t oplinkrcvr_id)
 {
-    uint8_t oplink_quality;
+    uint16_t oplink_quality;
 
     OPLinkStatusLinkQualityGet(&oplink_quality);
 

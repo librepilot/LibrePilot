@@ -34,41 +34,42 @@
 #include "gps9protocol.h"
 
 uint32_t lastUnsentData = 0;
-uint8_t buffer[BUFFER_SIZE];
+uint8_t gpsBuffer[GPS_BUFFER_SIZE];
+uint8_t fcBuffer[FC_BUFFER_SIZE];
 
 void handleGPS()
 {
-    bool completeSentenceSent = false;
+    bool completeSentenceInBuffer = false;
     int8_t maxCount = 2;
 
     do {
         int32_t datacounter = PIOS_UBX_DDC_GetAvailableBytes(PIOS_I2C_GPS);
         if (datacounter > 0) {
-            uint8_t toRead = (uint32_t)datacounter > BUFFER_SIZE - lastUnsentData ? BUFFER_SIZE - lastUnsentData : (uint8_t)datacounter;
-            uint8_t toSend = toRead;
-            PIOS_UBX_DDC_ReadData(PIOS_I2C_GPS, buffer, toRead);
+            uint8_t toRead = (uint32_t)datacounter > GPS_BUFFER_SIZE - lastUnsentData ? GPS_BUFFER_SIZE - lastUnsentData : (uint8_t)datacounter;
+            uint8_t toSend = toRead + lastUnsentData;
+            PIOS_UBX_DDC_ReadData(PIOS_I2C_GPS, gpsBuffer + lastUnsentData, toRead);
 
             uint8_t *lastSentence;
             uint16_t lastSentenceLength;
-            completeSentenceSent = ubx_getLastSentence(buffer, toRead, &lastSentence, &lastSentenceLength);
-            if (completeSentenceSent) {
-                toSend = (uint8_t)(lastSentence - buffer + lastSentenceLength);
+            completeSentenceInBuffer = ubx_getLastSentence(gpsBuffer, toSend, &lastSentence, &lastSentenceLength);
+            if (completeSentenceInBuffer) {
+                toSend = (uint8_t)(lastSentence - gpsBuffer + lastSentenceLength);
+                PIOS_COM_SendBuffer(pios_com_main_id, gpsBuffer, toSend);
+                // move unsent data to the beginning of gpsBuffer to be sent next time
+                lastUnsentData = lastUnsentData > toSend ? lastUnsentData - toSend : 0;
+                if (lastUnsentData > 0) {
+                    memcpy(gpsBuffer, (gpsBuffer + toSend), lastUnsentData);
+                }
             } else {
-                lastUnsentData = 0;
-            }
-
-            PIOS_COM_SendBuffer(pios_com_main_id, buffer, toSend);
-
-            if (toRead > toSend) {
-                // move unsent data at the beginning of buffer to be sent next time
-                lastUnsentData = toRead - toSend;
-                memcpy(buffer, (buffer + toSend), lastUnsentData);
+                // toss the buffer contents if it's full and there are no complete
+                // ublox sentences in it.  This happens if the module is sending NMEA
+                lastUnsentData = toSend < GPS_BUFFER_SIZE ? toSend : 0;
             }
         }
 
-        datacounter = PIOS_COM_ReceiveBuffer(pios_com_main_id, buffer, BUFFER_SIZE, 0);
+        datacounter = PIOS_COM_ReceiveBuffer(pios_com_main_id, fcBuffer, FC_BUFFER_SIZE, 0);
         if (datacounter > 0) {
-            PIOS_UBX_DDC_WriteData(PIOS_I2C_GPS, buffer, datacounter);
+            PIOS_UBX_DDC_WriteData(PIOS_I2C_GPS, fcBuffer, datacounter);
         }
         if (maxCount) {
             // Note: this delay is needed as querying too quickly the UBX module's I2C(DDC)

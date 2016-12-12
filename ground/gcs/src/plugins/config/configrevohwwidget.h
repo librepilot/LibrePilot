@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configrevohwwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -27,14 +28,13 @@
 #ifndef CONFIGREVOHWWIDGET_H
 #define CONFIGREVOHWWIDGET_H
 
-#include "ui_configrevohwwidget.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include <QWidget>
-#include <QList>
 
+class Ui_RevoHWWidget;
+
+class UAVObject;
+
+class QWidget;
 
 class ConfigRevoHWWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -43,14 +43,14 @@ public:
     ConfigRevoHWWidget(QWidget *parent = 0);
     ~ConfigRevoHWWidget();
 
-private:
-    bool m_refreshing;
-    Ui_RevoHWWidget *m_ui;
-    void setupCustomCombos();
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
-protected slots:
-    void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
+private:
+    Ui_RevoHWWidget *m_ui;
+
+    void setupCustomCombos();
 
 private slots:
     void usbVCPPortChanged(int index);
@@ -58,7 +58,6 @@ private slots:
     void flexiPortChanged(int index);
     void mainPortChanged(int index);
     void rcvrPortChanged(int index);
-    void openHelp();
 };
 
 #endif // CONFIGREVOHWWIDGET_H

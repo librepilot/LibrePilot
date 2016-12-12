@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       setupwizard.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Setup Wizard  Plugin
@@ -67,8 +68,8 @@ SetupWizard::SetupWizard(QWidget *parent) : QWizard(parent), VehicleConfiguratio
         m_actuatorSettings << actuatorChannelSettings();
     }
     setWizardStyle(QWizard::ModernStyle);
-    setMinimumSize(780, 600);
-    resize(780, 600);
+    setMinimumSize(780, 560);
+    resize(780, 560);
     createPages();
 }
 
@@ -98,6 +99,7 @@ int SetupWizard::nextId() const
         case CONTROLLER_CC:
         case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
+        case CONTROLLER_SPARKY2:
         case CONTROLLER_DISCOVERYF4:
             return PAGE_INPUT;
 
@@ -156,6 +158,7 @@ int SetupWizard::nextId() const
             switch (getControllerType()) {
             case CONTROLLER_REVO:
             case CONTROLLER_NANO:
+            case CONTROLLER_SPARKY2:
                 return PAGE_GPS;
 
             default:
@@ -168,6 +171,7 @@ int SetupWizard::nextId() const
         switch (getControllerType()) {
         case CONTROLLER_REVO:
         case CONTROLLER_NANO:
+        case CONTROLLER_SPARKY2:
             return PAGE_GPS;
 
         default:
@@ -213,6 +217,7 @@ int SetupWizard::nextId() const
         case CONTROLLER_CC3D:
         case CONTROLLER_REVO:
         case CONTROLLER_NANO:
+        case CONTROLLER_SPARKY2:
         case CONTROLLER_DISCOVERYF4:
             switch (getVehicleType()) {
             case VEHICLE_FIXEDWING:
@@ -253,6 +258,9 @@ QString SetupWizard::getSummaryText()
         break;
     case CONTROLLER_NANO:
         summary.append(tr("OpenPilot Nano"));
+        break;
+    case CONTROLLER_SPARKY2:
+        summary.append(tr("TauLabs Sparky 2.0"));
         break;
     case CONTROLLER_OPLINK:
         summary.append(tr("OpenPilot OPLink Radio Modem"));
@@ -377,6 +385,18 @@ QString SetupWizard::getSummaryText()
     case INPUT_DSM:
         summary.append(tr("Spektrum Satellite"));
         break;
+    case INPUT_SRXL:
+        summary.append(tr("Multiplex SRXL"));
+        break;
+    case INPUT_HOTT_SUMD:
+        summary.append(tr("Graupner HoTT"));
+        break;
+    case INPUT_EXBUS:
+        summary.append(tr("Jeti EX.Bus"));
+        break;
+    case INPUT_IBUS:
+        summary.append(tr("FlySky IBus"));
+        break;
     default:
         summary.append(tr("Unknown"));
     }
@@ -418,12 +438,18 @@ QString SetupWizard::getSummaryText()
     }
 
     // Show GPS Type
-    if (getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO) {
+    if (getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO || getControllerType() == CONTROLLER_SPARKY2) {
         summary.append("<br>");
         summary.append("<b>").append(tr("GPS type: ")).append("</b>");
         switch (getGpsType()) {
         case GPS_PLATINUM:
             summary.append(tr("OpenPilot Platinum"));
+            break;
+        case GPS_NAZA:
+            summary.append(tr("Naza GPS"));
+            break;
+        case GPS_UBX_FLEXI_I2CMAG:
+            summary.append(tr("Generic UBLOX + I2C Magnetometer"));
             break;
         case GPS_UBX:
             summary.append(tr("OpenPilot v8 or Generic UBLOX GPS"));
@@ -437,7 +463,8 @@ QString SetupWizard::getSummaryText()
     }
 
     // Show Airspeed sensor type
-    if ((getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO) && getVehicleType() == VEHICLE_FIXEDWING) {
+    if ((getControllerType() == CONTROLLER_REVO || getControllerType() == CONTROLLER_NANO || getControllerType() == CONTROLLER_SPARKY2)
+        && getVehicleType() == VEHICLE_FIXEDWING) {
         summary.append("<br>");
         summary.append("<b>").append(tr("Airspeed Sensor: ")).append("</b>");
         switch (getAirspeedType()) {

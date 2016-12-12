@@ -372,19 +372,21 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
     {
         // http://wiki.openstreetmap.org/wiki/MapSurfer.NET -> Mapsurfernet.com -> dead
         // http://wiki.openstreetmap.org/wiki/OpenMapSurfer mentions: http://korona.geog.uni-heidelberg.de
+        // http://korona.geog.uni-heidelberg.de/contact.html
 
-        // Searched Google for tms_r.ashx and found korona.geog.uni-heidelberg.de has a service on port 8001
-        // http://129.206.74.245:8001/tms_r.ashx?x=37378&y=20826&z=16
+        // OSM Roads layer: http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}
+        // or http://129.206.66.245:8001/tms_r.ashx?x={x}&y={y}&z={z}
 
 #ifdef DEBUG_URLFACTORY
-        qDebug() << QString("http://129.206.74.245:8001/tms_r.ashx?x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
+        qDebug() << QString("http://korona.geog.uni-heidelberg.de/tiles/roads/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
 #endif
-        return QString("http://129.206.74.245:8001/tms_r.ashx?x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
+        return QString("http://korona.geog.uni-heidelberg.de/tiles/roads/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);
     }
     break;
     case MapType::OpenStreetMapSurferTerrain:
     {
-        // http://korona.geog.uni-heidelberg.de/tiles/asterh/x=501&y=388&z=10
+        // ASTER GDEM & SRTM Hillshade layer: http://korona.geog.uni-heidelberg.de/tiles/asterh/
+        // or http://129.206.66.245:8004/tms_hs.ashx?x={x}&y={y}&z={z}
 
 #ifdef DEBUG_URLFACTORY
         qDebug() << QString("http://korona.geog.uni-heidelberg.de/tiles/asterh/x=%1&y=%2&z=%3").arg(pos.X()).arg(pos.Y()).arg(zoom);

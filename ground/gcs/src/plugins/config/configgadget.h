@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configgadget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -28,14 +29,10 @@
 #define CONFIGGADGET_H
 
 #include <coreplugin/iuavgadget.h>
-#include "../uavobjectwidgetutils/configtaskwidget.h"
 
-class IUAVGadget;
-// class QList<int>;
 class QWidget;
 class QString;
 class ConfigGadgetWidget;
-class Ui_ConfigGadget;
 
 using namespace Core;
 
@@ -49,7 +46,11 @@ public:
     {
         return (QWidget *)m_widget;
     }
+
     void loadConfiguration(IUAVGadgetConfiguration *config);
+
+    void saveState(QSettings *settings);
+    void restoreState(QSettings *settings);
 
 private:
     ConfigGadgetWidget *m_widget;

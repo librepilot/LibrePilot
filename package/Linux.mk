@@ -16,14 +16,16 @@ s,<GITWEB_URL>,$(GITWEB_URL),g; \
 
 # Are we using a debian based distro?
 ifneq ($(wildcard /etc/apt/sources.list),)
-	include $(ROOT_DIR)/package/linux/deb.mk
+	PKG_TYPE := deb
 # Are we using a rpm based distro?
 else ifneq ($(wildcard /etc/yum.repos.d/*),)
-	include $(ROOT_DIR)/package/linux/rpm.mk
+	PKG_TYPE := rpm
 # Are we using an Arch based distro?
 else ifneq ($(wildcard /etc/pacman.conf),)
     $(info TODO: built in arch package)
 endif
+
+-include $(ROOT_DIR)/package/linux/$(PKG_TYPE).mk
 
 ##############################
 #
@@ -52,9 +54,9 @@ install: uninstall
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/applications
 	$(V1) $(MKDIR) -p $(DESTDIR)$(datadir)/pixmaps
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/$(libbasename)/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
-	$(V1) $(INSTALL) $(BUILD_DIR)/$(GCS_SMALL_NAME)_$(GCS_BUILD_CONF)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
+	$(V1) $(INSTALL) $(GCS_DIR)/bin/$(GCS_SMALL_NAME) $(DESTDIR)$(bindir)
+	$(V1) $(INSTALL) $(GCS_DIR)/$(libbasename)/$(GCS_SMALL_NAME) $(DESTDIR)$(libdir)
+	$(V1) $(INSTALL) $(GCS_DIR)/share/$(GCS_SMALL_NAME) $(DESTDIR)$(datadir)
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/package/linux/gcs.desktop $(DESTDIR)$(datadir)/applications/$(ORG_SMALL_NAME).desktop
 	$(V1) $(INSTALL) -T $(ROOT_DIR)/ground/gcs/src/plugins/coreplugin/images/$(ORG_SMALL_NAME)_logo_128.png \
 		$(DESTDIR)$(datadir)/pixmaps/$(ORG_SMALL_NAME).png

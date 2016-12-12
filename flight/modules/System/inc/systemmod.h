@@ -1,12 +1,13 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
+ * @addtogroup LibrePilotModules LibrePilot Modules
  * @{
  * @addtogroup SystemModule System Module
  * @{
  *
  * @file       systemmod.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      System module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -30,6 +31,6 @@
 #ifndef SYSTEMMOD_H
 #define SYSTEMMOD_H
 
-int32_t SystemModInitialize(void);
+int32_t SystemModStart(void);
 
 #endif // SYSTEMMOD_H

@@ -100,30 +100,35 @@
 #ifdef PIOS_INCLUDE_RFM22B
 #define HAS_RADIO
 #endif
+
 // Private types
 typedef struct {
     // Determine port on which to communicate telemetry information
     uint32_t (*getPort)();
     // Main telemetry queue
     xQueueHandle queue;
+
 #ifdef PIOS_TELEM_PRIORITY_QUEUE
     // Priority telemetry queue
     xQueueHandle priorityQueue;
 #endif /* PIOS_TELEM_PRIORITY_QUEUE */
+
     // Transmit/receive task handles
-    xTaskHandle  txTaskHandle;
-    xTaskHandle  rxTaskHandle;
+    xTaskHandle txTaskHandle;
+    xTaskHandle rxTaskHandle;
     // Telemetry stream
     UAVTalkConnection uavTalkCon;
 } channelContext;
+
 #ifdef HAS_RADIO
 // Main telemetry channel
 static channelContext localChannel;
 static int32_t transmitLocalData(uint8_t *data, int32_t length);
 static void registerLocalObject(UAVObjHandle obj);
 static uint32_t localPort();
+#endif /* ifdef HAS_RADIO */
+
 static void updateSettings(channelContext *channel);
-#endif
 
 // OPLink telemetry channel
 static channelContext radioChannel;
@@ -195,6 +200,7 @@ int32_t TelemetryStart(void)
                                        localChannel.rxTaskHandle);
     }
 #endif /* ifdef HAS_RADIO */
+
     // Start the telemetry tasks associated with Radio/USB
     UAVObjIterate(&registerRadioObject);
 
@@ -231,6 +237,7 @@ void TelemetryInitializeChannel(channelContext *channel)
     // Create object queues
     channel->queue = xQueueCreate(MAX_QUEUE_SIZE,
                                   sizeof(UAVObjEvent));
+
 #if defined(PIOS_TELEM_PRIORITY_QUEUE)
     channel->priorityQueue = xQueueCreate(MAX_QUEUE_SIZE,
                                           sizeof(UAVObjEvent));
@@ -265,7 +272,8 @@ int32_t TelemetryInitialize(void)
     OPLinkSettingsData data;
 
     OPLinkSettingsGet(&data);
-    if (data.PPMOnly) {
+    bool ppm_only = (data.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
+    if (ppm_only) {
         radio_port = 0;
     } else {
         radio_port = PIOS_COM_RF;
@@ -283,6 +291,7 @@ int32_t TelemetryInitialize(void)
     // Reset link stats
     txErrors  = 0;
     txRetries = 0;
+
 #ifdef HAS_RADIO
     // Set channel port handlers
     localChannel.getPort = localPort;
@@ -297,10 +306,14 @@ int32_t TelemetryInitialize(void)
         // Initialise UAVTalk
         localChannel.uavTalkCon = UAVTalkInitialize(&transmitLocalData);
     }
+#endif /* ifdef HAS_RADIO */
 
-#endif
     // Set channel port handlers
     radioChannel.getPort = radioPort;
+
+    // Set the channel port baud rate
+    updateSettings(&radioChannel);
+
     // Initialise channel
     TelemetryInitializeChannel(&radioChannel);
     // Initialise UAVTalk
@@ -310,6 +323,7 @@ int32_t TelemetryInitialize(void)
 }
 
 MODULE_INITCALL(TelemetryInitialize, TelemetryStart);
+
 #ifdef HAS_RADIO
 /**
  * Register a new object, adds object to local list and connects the queue depending on the object's
@@ -333,7 +347,8 @@ static void registerLocalObject(UAVObjHandle obj)
             EV_NONE);
     }
 }
-#endif
+#endif /* ifdef HAS_RADIO */
+
 static void registerRadioObject(UAVObjHandle obj)
 {
     if (UAVObjIsMetaobject(obj)) {
@@ -459,6 +474,7 @@ static void updateObject(
         UAVObjConnectQueue(obj, channel->priorityQueue, eventMask);
     } else
 #endif /* PIOS_TELEM_PRIORITY_QUEUE */
+
     UAVObjConnectQueue(obj, channel->queue, eventMask);
 }
 
@@ -584,6 +600,7 @@ static void telemetryTxTask(void *parameters)
         /**
          * Tries to empty the high priority queue before handling any standard priority item
          */
+
 #ifdef PIOS_TELEM_PRIORITY_QUEUE
         // empty priority queue, non-blocking
         while (xQueueReceive(channel->priorityQueue, &ev, 0) == pdTRUE) {
@@ -650,7 +667,8 @@ static uint32_t localPort()
 {
     return PIOS_COM_TELEM_RF;
 }
-#endif
+
+#endif /* ifdef HAS_RADIO */
 
 /**
  * Determine the port to be used for communication on the radio channel
@@ -688,7 +706,7 @@ static int32_t transmitLocalData(uint8_t *data, int32_t length)
 
     return -1;
 }
-#endif
+#endif /* ifdef HAS_RADIO */
 
 /**
  * Transmit data buffer to the radioport.
@@ -811,9 +829,11 @@ static void updateTelemetryStats()
 
     // Get stats
     UAVTalkGetStats(radioChannel.uavTalkCon, &utalkStats, true);
+
 #ifdef HAS_RADIO
     UAVTalkAddStats(localChannel.uavTalkCon, &utalkStats, true);
 #endif
+
     // Get object data
     FlightTelemetryStatsGet(&flightStats);
     GCSTelemetryStatsGet(&gcsStats);
@@ -895,7 +915,6 @@ static void updateTelemetryStats()
     }
 }
 
-#ifdef HAS_RADIO
 /**
  * Update the telemetry settings, called on startup.
  * FIXME: This should be in the TelemetrySettings object. But objects
@@ -939,7 +958,6 @@ static void updateSettings(channelContext *channel)
     }
 }
 
-#endif /* ifdef HAS_RADIO */
 /**
  * @}
  * @}

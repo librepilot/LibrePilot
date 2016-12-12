@@ -79,9 +79,9 @@ uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
 /*
- * Setup a com port based on the passed cfg, driver and buffer sizes. tx size of -1 make the port rx only
+ * Setup a com port based on the passed cfg, driver and buffer sizes. tx size = 0 make the port rx only
  */
-static void PIOS_Board_configure_com(const struct pios_udp_cfg *usart_port_cfg, size_t rx_buf_len, size_t tx_buf_len,
+static void PIOS_Board_configure_com(const struct pios_udp_cfg *usart_port_cfg, uint16_t rx_buf_len, uint16_t tx_buf_len,
                                      const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
 {
     uint32_t pios_usart_id;
@@ -92,7 +92,7 @@ static void PIOS_Board_configure_com(const struct pios_udp_cfg *usart_port_cfg, 
 
     uint8_t *rx_buffer = (uint8_t *)pvPortMalloc(rx_buf_len);
     PIOS_Assert(rx_buffer);
-    if (tx_buf_len != -1) { // this is the case for rx/tx ports
+    if (tx_buf_len > 0) { // this is the case for rx/tx ports
         uint8_t *tx_buffer = (uint8_t *)pvPortMalloc(tx_buf_len);
         PIOS_Assert(tx_buffer);
 
@@ -180,7 +180,7 @@ void PIOS_Board_Init(void)
         break;
 
     case HWSETTINGS_RV_GPSPORT_GPS:
-        PIOS_Board_configure_com(&pios_udp_gps_cfg, PIOS_COM_GPS_RX_BUF_LEN, -1, &pios_udp_com_driver, &pios_com_gps_id);
+        PIOS_Board_configure_com(&pios_udp_gps_cfg, PIOS_COM_GPS_RX_BUF_LEN, 0, &pios_udp_com_driver, &pios_com_gps_id);
         break;
 
     case HWSETTINGS_RV_GPSPORT_COMAUX:

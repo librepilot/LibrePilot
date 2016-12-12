@@ -195,6 +195,25 @@ class Repo:
         except:
             return None
 
+    def version_four_num(self):
+        """Return package version in format X.X.X.X using only numbers"""
+
+        try:
+            (release, junk, candidate) = self._last_tag.partition("-RC")
+            (year, dot, month_and_patch) = release.partition(".")
+            (month, dot, patch) = month_and_patch.partition(".")
+
+            if candidate == "":
+                candidate = "64" # Need to stay below 65536 for last part
+
+            if patch == "":
+                patch = "0"
+
+            return "{}.{}.{}.{}{:0>3.3}".format(year,month,patch,candidate,self._num_commits_past_tag)
+        except:
+            return None
+
+
     def revision(self):
         """Return full revison string (tag if defined, or branch:hash date time if no tag)"""
         try:
@@ -233,8 +252,29 @@ class Repo:
         json_data['dirty'] = False
 
         json_path = os.path.join(path, 'version-info.json')
-        with open(json_path, 'w') as json_file:
-           json.dump(json_data, json_file)
+
+        write_if_different(json_path, json.dumps(json_data))
+
+
+def write_if_different(out_name, out):
+    """Write ouput to file only if it differs from current"""
+
+    # Check if output file already exists
+    try:
+        of = open(out_name, "rb")
+    except IOError:
+        # No file - create new
+        of = open(out_name, "wb")
+        of.write(out)
+        of.close()
+    else:
+        # File exists - overwite only if content is different
+        inp = of.read()
+        of.close()
+        if inp != out:
+            of = open(out_name, "wb")
+            of.write(out)
+            of.close()
 
 def escape_dict(dictionary):
     """Escapes dictionary values for C"""
@@ -281,22 +321,8 @@ def file_from_template(tpl_name, out_name, dictionary):
     # Replace placeholders using dictionary
     out = Template(tpl).substitute(dictionary)
 
-    # Check if output file already exists
-    try:
-        of = open(out_name, "rb")
-    except IOError:
-        # No file - create new
-        of = open(out_name, "wb")
-        of.write(out)
-        of.close()
-    else:
-        # File exists - overwite only if content is different
-        inp = of.read()
-        of.close()
-        if inp != out:
-            of = open(out_name, "wb")
-            of.write(out)
-            of.close()
+    write_if_different(out_name, out)
+
 
 def sha1(file):
     """Provides C source representation of sha1 sum of file"""
@@ -340,30 +366,31 @@ def get_hash_of_dirs(directory, verbose = 0, raw = 0, n = 40):
                 files.sort()
 
             for names in files:
-                if verbose == 1:
-                    print 'Hashing', names
-                filepath = os.path.join(root, names)
-                try:
-                    f1 = open(filepath, 'rU')
-                except:
-                    # You can't open the file for some reason
-                    continue
+                if names.endswith('.xml'):
+                    if verbose == 1:
+                        print 'Hashing', names
+                    filepath = os.path.join(root, names)
+                    try:
+                        f1 = open(filepath, 'rU')
+                    except:
+                        # You can't open the file for some reason
+                        continue
 
-                # Compute file hash. Same as running "sha1sum <file>".
-                f1hash = hashlib.sha1()
-                while 1:
-                    # Read file in as little chunks
-                    buf = f1.read(4096)
-                    if not buf:
-                        break
-                    f1hash.update(buf)
-                f1.close()
+                    # Compute file hash. Same as running "sha1sum <file>".
+                    f1hash = hashlib.sha1()
+                    while 1:
+                        # Read file in as little chunks
+                        buf = f1.read(4096)
+                        if not buf:
+                            break
+                        f1hash.update(buf)
+                    f1.close()
 
-                if verbose == 1:
-                    print 'Hash is', f1hash.hexdigest()
+                    if verbose == 1:
+                        print 'Hash is', f1hash.hexdigest()
 
-                # Append the hex representation of the current file's hash into the cumulative hash
-                SHAhash.update(f1hash.hexdigest())
+                    # Append the hex representation of the current file's hash into the cumulative hash
+                    SHAhash.update(f1hash.hexdigest())
 
     except:
         import traceback
@@ -463,6 +490,7 @@ string given.
         TAG_OR_BRANCH = r.tag(r.branch('unreleased')),
         TAG_OR_HASH8 = r.tag(r.hash(8, 'untagged')),
         LABEL = r.label(),
+        VERSION_FOUR_NUM = r.version_four_num(),
         REVISION = r.revision(),
         DIRTY = r.dirty(),
         FWTAG = xtrim(r.tag(r.branch('unreleased')), r.dirty(), 25),

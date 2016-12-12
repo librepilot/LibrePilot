@@ -27,15 +27,14 @@
 #ifndef CCATTITUDEWIDGET_H
 #define CCATTITUDEWIDGET_H
 
-#include "ui_ccattitude.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
+
 #include <QWidget>
 #include <QTimer>
 
-class Ui_Widget;
+class Ui_ccattitude;
 
 class ConfigCCAttitudeWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -44,13 +43,13 @@ public:
     explicit ConfigCCAttitudeWidget(QWidget *parent = 0);
     ~ConfigCCAttitudeWidget();
 
-    virtual void updateObjectsFromWidgets();
+protected:
+    virtual void updateObjectsFromWidgetsImpl();
 
 private slots:
     void sensorsUpdated(UAVObject *obj);
     void timeout();
     void startAccelCalibration();
-    void openHelp();
     void setAccelFiltering(bool active);
 
 private:
@@ -65,8 +64,8 @@ private:
     QList<double> x_accum, y_accum, z_accum;
     QList<double> x_gyro_accum, y_gyro_accum, z_gyro_accum;
 
-    static const float DEFAULT_ENABLED_ACCEL_TAU = 0.1;
     static const int NUM_SENSOR_UPDATES = 300;
+
 protected:
     virtual void enableControls(bool enable);
 };

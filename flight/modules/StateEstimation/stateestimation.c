@@ -383,6 +383,8 @@ static void StateEstimationCb(void)
             switch ((RevoSettingsFusionAlgorithmOptions)revoSettings.FusionAlgorithm) {
             case REVOSETTINGS_FUSIONALGORITHM_BASICCOMPLEMENTARY:
                 newFilterChain = cfQueue;
+                // reinit Mag alarm
+                AlarmsSet(SYSTEMALARMS_ALARM_MAGNETOMETER, SYSTEMALARMS_ALARM_UNINITIALISED);
                 break;
             case REVOSETTINGS_FUSIONALGORITHM_COMPLEMENTARYMAG:
                 newFilterChain = cfmiQueue;
@@ -414,7 +416,7 @@ static void StateEstimationCb(void)
                 AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_ERROR);
                 return;
             } else {
-                // set new fusion algortithm
+                // set new fusion algorithm
                 filterChain     = newFilterChain;
                 fusionAlgorithm = revoSettings.FusionAlgorithm;
             }
@@ -570,6 +572,7 @@ static void sensorUpdatedCb(UAVObjEvent *ev)
         t.x = s.x + gyroDelta[0];
         t.y = s.y + gyroDelta[1];
         t.z = s.z + gyroDelta[2];
+        t.SensorReadTimestamp = s.SensorReadTimestamp;
         GyroStateSet(&t);
     }
 

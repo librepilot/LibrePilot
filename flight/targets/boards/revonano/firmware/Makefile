@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
-# Copyright (c) 2009-2014, The OpenPilot Team, http://www.openpilot.org
+# Copyright (C) 2015-2016, The LibrePilot Project, http://www.librepilot.org
+# Copyright (C) 2009-2014, The OpenPilot Team, http://www.openpilot.org
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,7 +51,10 @@ MODULES += PathFollower
 MODULES += Telemetry
 MODULES += Notify
 
+OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
+OPTMODULES += UAVOMSPBridge
+OPTMODULES += UAVOMavlinkBridge
 
 SRC += $(FLIGHTLIB)/notification.c
 
@@ -91,7 +94,6 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/plans.c
     SRC += $(FLIGHTLIB)/WorldMagModel.c
     SRC += $(FLIGHTLIB)/insgps13state.c
-    CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
     SRC += $(FLIGHTLIB)/lednotification.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     ## UAVObjects

@@ -41,9 +41,10 @@
 static void PIOS_USB_CDC_RegisterTxCallback(uint32_t usbcdc_id, pios_com_callback tx_out_cb, uint32_t context);
 static void PIOS_USB_CDC_RegisterRxCallback(uint32_t usbcdc_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USB_CDC_RegisterCtrlLineCallback(uint32_t usbcdc_id, pios_com_callback_ctrl_line ctrl_line_cb, uint32_t context);
+static void PIOS_USB_CDC_RegisterBaudRateCallback(uint32_t usbcdc_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context);
 static void PIOS_USB_CDC_TxStart(uint32_t usbcdc_id, uint16_t tx_bytes_avail);
 static void PIOS_USB_CDC_RxStart(uint32_t usbcdc_id, uint16_t rx_bytes_avail);
-static bool PIOS_USB_CDC_Available(uint32_t usbcdc_id);
+static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id);
 
 const struct pios_com_driver pios_usb_cdc_com_driver = {
     .tx_start   = PIOS_USB_CDC_TxStart,
@@ -51,6 +52,7 @@ const struct pios_com_driver pios_usb_cdc_com_driver = {
     .bind_tx_cb = PIOS_USB_CDC_RegisterTxCallback,
     .bind_rx_cb = PIOS_USB_CDC_RegisterRxCallback,
     .bind_ctrl_line_cb = PIOS_USB_CDC_RegisterCtrlLineCallback,
+    .bind_baud_rate_cb = PIOS_USB_CDC_RegisterBaudRateCallback,
     .available  = PIOS_USB_CDC_Available,
 };
 
@@ -70,6 +72,8 @@ struct pios_usb_cdc_dev {
     uint32_t tx_out_context;
     pios_com_callback_ctrl_line ctrl_line_cb;
     uint32_t ctrl_line_context;
+    pios_com_callback_baud_rate baud_rate_cb;
+    uint32_t baud_rate_context;
 
     bool     usb_ctrl_if_enabled;
     bool     usb_data_if_enabled;
@@ -343,6 +347,21 @@ static void PIOS_USB_CDC_RegisterCtrlLineCallback(uint32_t usbcdc_id, pios_com_c
     usb_cdc_dev->ctrl_line_cb = ctrl_line_cb;
 }
 
+static void PIOS_USB_CDC_RegisterBaudRateCallback(uint32_t usbcdc_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context)
+{
+    struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)usbcdc_id;
+
+    bool valid = PIOS_USB_CDC_validate(usb_cdc_dev);
+
+    PIOS_Assert(valid);
+
+    /*
+     * Order is important in these assignments since ISR uses _cb
+     * field to determine if it's ok to dereference _cb and _context
+     */
+    usb_cdc_dev->baud_rate_context = context;
+    usb_cdc_dev->baud_rate_cb = baud_rate_cb;
+}
 
 static bool PIOS_USB_CDC_CTRL_EP_IN_Callback(uint32_t usb_cdc_id, uint8_t epnum, uint16_t len);
 
@@ -445,7 +464,7 @@ static bool PIOS_USB_CDC_CTRL_IF_Setup(uint32_t usb_cdc_id, struct usb_setup_req
     return true;
 }
 
-static bool PIOS_USB_CDC_Available(uint32_t usbcdc_id)
+static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id)
 {
     struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)usbcdc_id;
 
@@ -453,8 +472,8 @@ static bool PIOS_USB_CDC_Available(uint32_t usbcdc_id)
 
     PIOS_Assert(valid);
 
-    return PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) &&
-           (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT);
+    return (PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) &&
+            (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT)) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
 
 /**
@@ -488,13 +507,9 @@ static void PIOS_USB_CDC_CTRL_IF_CtrlDataOut(uint32_t usb_cdc_id, const struct u
     case (USB_REQ_TYPE_CLASS | USB_REQ_RECIPIENT_INTERFACE):
         switch (req->bRequest) {
         case USB_CDC_REQ_SET_LINE_CODING:
-            /*
-             * If we cared to, this is where we would apply the new line coding
-             * that is now stored in the line_coding struct.  This could be used
-             * to notify the upper COM layer that the baud rate has changed.  This
-             * may be useful in the case of a COM USB bridge where we would
-             * auto-adjust the USART baud rate based on the line coding set here.
-             */
+            if (usb_cdc_dev->baud_rate_cb) {
+                usb_cdc_dev->baud_rate_cb(usb_cdc_dev->baud_rate_context, usbltoh(line_coding.dwDTERate));
+            }
             break;
         default:
             /* Unhandled class request */

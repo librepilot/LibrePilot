@@ -1,11 +1,13 @@
 TEMPLATE = lib
 TARGET = HITL
-QT += network
+
+QT += widgets network
 
 include(../../plugin.pri)
 include(hitl_dependencies.pri)
 
-HEADERS += hitlplugin.h \
+HEADERS += \
+    hitlplugin.h \
     hitlwidget.h \
     hitloptionspage.h \
     hitlfactory.h \
@@ -18,7 +20,9 @@ HEADERS += hitlplugin.h \
     il2simulator.h \
     xplanesimulator9.h \
     xplanesimulator10.h
-SOURCES += hitlplugin.cpp \
+
+SOURCES += \
+    hitlplugin.cpp \
     hitlwidget.cpp \
     hitloptionspage.cpp \
     hitlfactory.cpp \
@@ -31,9 +35,13 @@ SOURCES += hitlplugin.cpp \
     il2simulator.cpp \
     xplanesimulator9.cpp \
     xplanesimulator10.cpp
+
 OTHER_FILES += hitl.pluginspec
-FORMS += hitloptionspage.ui \
+
+FORMS += \
+    hitloptionspage.ui \
     hitlwidget.ui
+
 RESOURCES += hitlresources.qrc
 
 

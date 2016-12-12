@@ -29,6 +29,7 @@ override USE_DSP_LIB := NO
 
 # List of mandatory modules to include
 MODULES += RadioComBridge
+MODULES += ComUsbBridge
 
 # List of optional modules to include
 OPTMODULES =
@@ -59,6 +60,8 @@ ifndef TESTAPP
     SRC += $(FLIGHT_UAVOBJ_DIR)/objectpersistence.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/oplinkreceiver.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/radiocombridgestats.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flightbatterystate.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/flightstatus.c
 else
     ## Test Code
     SRC += $(OPTESTS)/test_common.c

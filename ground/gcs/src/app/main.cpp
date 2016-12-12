@@ -84,6 +84,7 @@
 #include "qtsingleapplication.h"
 #include "utils/xmlconfig.h"
 #include "utils/pathutils.h"
+#include "utils/filelogger.h"
 #include "gcssplashscreen.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -108,7 +109,6 @@
 #include <QSplashScreen>
 #include <QSurfaceFormat>
 
-namespace {
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 typedef QMap<QString, bool> AppOptions;
 typedef QMap<QString, QString> AppOptionValues;
@@ -209,6 +209,11 @@ inline QString msgSendArgumentFailed()
                                        "Unable to send command line arguments to the already running instance. It appears to be not responding.");
 }
 
+inline QString msgLogfileOpenFailed(const QString &fileName)
+{
+    return QCoreApplication::translate("Application", "Failed to open log file %1").arg(fileName);
+}
+
 // Prepare a remote argument: If it is a relative file, add the current directory
 // since the the central instance might be running in a different directory.
 inline QString prepareRemoteArgument(const QString &arg)
@@ -261,6 +266,16 @@ void systemInit()
     // TODO revisit this...
     QApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings, true);
 
+#ifdef Q_OS_WIN
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    // see https://doc-snapshots.qt.io/qt5-5.6/highdpi.html
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+#else
+    // see http://doc.qt.io/qt-5/highdpi.html
+    qputenv("QT_DEVICE_PIXEL_RATIO", "auto");
+#endif
+#endif
+
     // Force "basic" render loop
     // Only Mac uses "threaded" by default and that mode currently does not work well with OSGViewport
     qputenv("QSG_RENDER_LOOP", "basic");
@@ -271,44 +286,22 @@ void systemInit()
     QSurfaceFormat::setDefaultFormat(format);
 }
 
-static QTextStream *logStream;
+static FileLogger *logger;
 
 void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    Q_UNUSED(context);
-
-    QTextStream &out = *logStream;
-
-    // logStream << QTime::currentTime().toString("hh:mm:ss.zzz ");
-
-    switch (type) {
-    case QtDebugMsg:
-        out << "DBG: ";
-        break;
-    case QtWarningMsg:
-        out << "WRN: ";
-        break;
-    case QtCriticalMsg:
-        out << "CRT: ";
-        break;
-    case QtFatalMsg:
-        out << "FTL: ";
-        break;
-    }
-
-    out << msg << '\n';
-    out.flush();
+    logger->log(type, context, msg);
 }
+
+Q_DECLARE_METATYPE(QtMsgType)
 
 void logInit(QString fileName)
 {
-    QFile *file = new QFile(fileName);
-
-    if (file->open(QIODevice::WriteOnly | QIODevice::Text)) {
-        logStream = new QTextStream(file);
-        qInstallMessageHandler(mainMessageOutput);
-    } else {
-        // TODO error popup
+    qRegisterMetaType<QtMsgType>();
+    qInstallMessageHandler(mainMessageOutput);
+    logger = new FileLogger();
+    if (!logger->start(fileName)) {
+        displayError(msgLogfileOpenFailed(fileName));
     }
 }
 
@@ -421,19 +414,21 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
     const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
 
     if (translator.load(QLatin1String("gcs_") + language, creatorTrPath)) {
+        // Install gcs_xx.qm translation file
+        QCoreApplication::installTranslator(&translator);
+
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &qtTrFile = QLatin1String("qt_") + language;
         // Binary installer puts Qt tr files into creatorTrPath
         if (qtTranslator.load(qtTrFile, qtTrPath) || qtTranslator.load(qtTrFile, creatorTrPath)) {
-            QCoreApplication::installTranslator(&translator);
+            // Install main qt_xx.qm translation file
             QCoreApplication::installTranslator(&qtTranslator);
-        } else {
-            // unload()
-            translator.load(QString());
         }
+    } else {
+        // unload(), no gcs translation found
+        translator.load(QString());
     }
 }
-} // namespace anonymous
 
 int main(int argc, char * *argv)
 {
@@ -471,6 +466,8 @@ int main(int argc, char * *argv)
     if (appOptionValues.contains(LOG_FILE_OPTION)) {
         QString logFileName = appOptionValues.value(LOG_FILE_OPTION);
         logInit(logFileName);
+        // relog command line arguments for the benefit of the file logger...
+        qDebug() << "Command line" << app.arguments();
     }
 
     // load user settings
@@ -620,6 +617,10 @@ int main(int argc, char * *argv)
     int ret = app.exec();
 
     qDebug() << "main - GCS ran for" << timer.elapsed() << "ms";
+
+    if (logger) {
+        delete logger;
+    }
 
     return ret;
 }

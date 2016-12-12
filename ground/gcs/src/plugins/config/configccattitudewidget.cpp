@@ -26,50 +26,45 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configccattitudewidget.h"
+
 #include "ui_ccattitude.h"
-#include "utils/coordinateconversions.h"
+
+#include <utils/coordinateconversions.h>
+#include <calibration/calibrationutils.h>
+
 #include "attitudesettings.h"
-#include <QMutexLocker>
-#include <QMessageBox>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QUrl>
 #include "accelstate.h"
 #include "accelgyrosettings.h"
 #include "gyrostate.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-#include <calibration/calibrationutils.h>
+
+#include <QMessageBox>
+#include <QDebug>
+
 ConfigCCAttitudeWidget::ConfigCCAttitudeWidget(QWidget *parent) :
-    ConfigTaskWidget(parent),
-    ui(new Ui_ccattitude)
+    ConfigTaskWidget(parent), accelUpdates(0), gyroUpdates(0)
 {
+    ui = new Ui_ccattitude(),
     ui->setupUi(this);
-    connect(ui->zeroBias, SIGNAL(clicked()), this, SLOT(startAccelCalibration()));
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        ui->applyButton->setVisible(false);
-    }
+    // must be done before auto binding !
+    setWikiURL("CC+Attitude+Configuration");
 
-    addApplySaveButtons(ui->applyButton, ui->saveButton);
+    addAutoBindings();
+
     addUAVObject("AttitudeSettings");
     addUAVObject("AccelGyroSettings");
 
-    // Connect the help button
-    connect(ui->ccAttitudeHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
     addWidgetBinding("AttitudeSettings", "ZeroDuringArming", ui->zeroGyroBiasOnArming);
+    addWidgetBinding("AttitudeSettings", "InitialZeroWhenBoardSteady", ui->initGyroWhenBoardSteady);
+
     addWidgetBinding("AttitudeSettings", "AccelTau", ui->accelTauSpinbox);
 
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->rollBias, AttitudeSettings::BOARDROTATION_ROLL);
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->pitchBias, AttitudeSettings::BOARDROTATION_PITCH);
     addWidgetBinding("AttitudeSettings", "BoardRotation", ui->yawBias, AttitudeSettings::BOARDROTATION_YAW);
     addWidget(ui->zeroBias);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
+
+    connect(ui->zeroBias, SIGNAL(clicked()), this, SLOT(startAccelCalibration()));
 }
 
 ConfigCCAttitudeWidget::~ConfigCCAttitudeWidget()
@@ -137,7 +132,8 @@ void ConfigCCAttitudeWidget::sensorsUpdated(UAVObject *obj)
         attitudeSettingsData.BiasCorrectGyro = AttitudeSettings::BIASCORRECTGYRO_TRUE;
         AttitudeSettings::GetInstance(getObjectManager())->setData(attitudeSettingsData);
         AccelGyroSettings::GetInstance(getObjectManager())->setData(accelGyroSettingsData);
-        this->setDirty(true);
+
+        setDirty(true);
 
         // reenable controls
         enableControls(true);
@@ -213,12 +209,6 @@ void ConfigCCAttitudeWidget::startAccelCalibration()
     connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
-void ConfigCCAttitudeWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("CC+Attitude+Configuration"),
-                                   QUrl::StrictMode));
-}
-
 void ConfigCCAttitudeWidget::setAccelFiltering(bool active)
 {
     Q_UNUSED(active);
@@ -229,13 +219,12 @@ void ConfigCCAttitudeWidget::enableControls(bool enable)
 {
     ui->zeroBias->setEnabled(enable);
     ui->zeroGyroBiasOnArming->setEnabled(enable);
+    ui->initGyroWhenBoardSteady->setEnabled(enable);
     ui->accelTauSpinbox->setEnabled(enable);
     ConfigTaskWidget::enableControls(enable);
 }
 
-void ConfigCCAttitudeWidget::updateObjectsFromWidgets()
+void ConfigCCAttitudeWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     ui->zeroBiasProgress->setValue(0);
 }

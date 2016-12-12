@@ -65,7 +65,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include <coreplugin/icore.h>
 #include <coreplugin/threadmanager.h>
-#include <math.h>
+#include <cmath>
 
 const float IL2Simulator::FT2M     = 12 * .254;
 const float IL2Simulator::KT2MPS   = 0.514444444;
@@ -194,13 +194,13 @@ void IL2Simulator::processUpdate(const QByteArray & inp)
     current.Y  = old.Y + (current.dY * current.dT);
 
     // accelerations (filtered)
-    if (isnan(old.ddX) || isinf(old.ddX)) {
+    if (std::isnan(old.ddX) || std::isinf(old.ddX)) {
         old.ddX = 0;
     }
-    if (isnan(old.ddY) || isinf(old.ddY)) {
+    if (std::isnan(old.ddY) || std::isinf(old.ddY)) {
         old.ddY = 0;
     }
-    if (isnan(old.ddZ) || isinf(old.ddZ)) {
+    if (std::isnan(old.ddZ) || std::isinf(old.ddZ)) {
         old.ddZ = 0;
     }
 #define SPEED_FILTER 10
@@ -210,13 +210,13 @@ void IL2Simulator::processUpdate(const QByteArray & inp)
 
 #define TURN_FILTER  10
     // turn speeds (filtered)
-    if (isnan(old.dAzimuth) || isinf(old.dAzimuth)) {
+    if (std::isnan(old.dAzimuth) || std::isinf(old.dAzimuth)) {
         old.dAzimuth = 0;
     }
-    if (isnan(old.dPitch) || isinf(old.dPitch)) {
+    if (std::isnan(old.dPitch) || std::isinf(old.dPitch)) {
         old.dPitch = 0;
     }
-    if (isnan(old.dRoll) || isinf(old.dRoll)) {
+    if (std::isnan(old.dRoll) || std::isinf(old.dRoll)) {
         old.dRoll = 0;
     }
     current.dAzimuth = (angleDifference(current.azimuth, old.azimuth) / current.dT + TURN_FILTER * (old.dAzimuth)) / (TURN_FILTER + 1);

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configrevohwwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -27,28 +27,23 @@
  */
 #include "configrevohwwidget.h"
 
-#include <QDebug>
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
+#include "ui_configrevohwwidget.h"
+
 #include "hwsettings.h"
-#include <QDesktopServices>
-#include <QUrl>
-#include <QMessageBox>
 
+#include <QDebug>
 
-ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(parent), m_refreshing(true)
+ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_RevoHWWidget();
     m_ui->setupUi(this);
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->saveTelemetryToRAM->setEnabled(false);
-        m_ui->saveTelemetryToRAM->setVisible(false);
-    }
+    // must be done before auto binding !
+    setWikiURL("Revolution+Configuration");
 
-    addApplySaveButtons(m_ui->saveTelemetryToRAM, m_ui->saveTelemetryToSD);
+    addAutoBindings();
+
+    addUAVObject("HwSettings");
 
     addWidgetBinding("HwSettings", "RM_FlexiPort", m_ui->cbFlexi);
     addWidgetBinding("HwSettings", "RM_MainPort", m_ui->cbMain);
@@ -56,31 +51,22 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     addWidgetBinding("HwSettings", "USB_HIDPort", m_ui->cbUSBHIDFunction);
     addWidgetBinding("HwSettings", "USB_VCPPort", m_ui->cbUSBVCPFunction);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbUSBVCPSpeed);
 
     addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbFlexiTelemSpeed);
     addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbFlexiGPSSpeed);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbFlexiComSpeed);
 
     addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbMainTelemSpeed);
     addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbMainGPSSpeed);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbMainComSpeed);
 
     addWidgetBinding("HwSettings", "TelemetrySpeed", m_ui->cbRcvrTelemSpeed);
-    addWidgetBinding("HwSettings", "ComUsbBridgeSpeed", m_ui->cbRcvrComSpeed);
+    addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbRcvrGPSSpeed);
 
     // Add Gps protocol configuration
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbMainGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
-
-    connect(m_ui->cchwHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
+    addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbRcvrGPSProtocol);
 
     setupCustomCombos();
-    enableControls(true);
-    populateWidgets();
-    refreshWidgetsValues();
-    forceConnectedState();
-    m_refreshing = false;
 }
 
 ConfigRevoHWWidget::~ConfigRevoHWWidget()
@@ -102,35 +88,29 @@ void ConfigRevoHWWidget::setupCustomCombos()
     connect(m_ui->cbRcvr, SIGNAL(currentIndexChanged(int)), this, SLOT(rcvrPortChanged(int)));
 }
 
-void ConfigRevoHWWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigRevoHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    m_refreshing = true;
-    ConfigTaskWidget::refreshWidgetsValues(obj);
+    Q_UNUSED(obj);
 
     usbVCPPortChanged(0);
     mainPortChanged(0);
     flexiPortChanged(0);
     rcvrPortChanged(0);
-    m_refreshing = false;
 }
 
-void ConfigRevoHWWidget::updateObjectsFromWidgets()
+void ConfigRevoHWWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
-    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    HwSettings::DataFields data = hwSettings->getData();
-
     // If any port is configured to be GPS port, enable GPS module if it is not enabled.
     // Otherwise disable GPS module.
+    quint8 enableModule = HwSettings::OPTIONALMODULES_DISABLED;
+
     if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS)
         || isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS)) {
-        data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_ENABLED;
-    } else {
-        data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = HwSettings::OPTIONALMODULES_DISABLED;
+        enableModule = HwSettings::OPTIONALMODULES_ENABLED;
     }
 
-    hwSettings->setData(data);
+    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
+    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_GPS, enableModule);
 }
 
 void ConfigRevoHWWidget::usbVCPPortChanged(int index)
@@ -138,9 +118,6 @@ void ConfigRevoHWWidget::usbVCPPortChanged(int index)
     Q_UNUSED(index);
 
     bool vcpComBridgeEnabled = isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_COMBRIDGE);
-
-    m_ui->lblUSBVCPSpeed->setVisible(vcpComBridgeEnabled);
-    m_ui->cbUSBVCPSpeed->setVisible(vcpComBridgeEnabled);
 
     if (!vcpComBridgeEnabled && isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_COMBRIDGE)) {
         setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
@@ -155,7 +132,12 @@ void ConfigRevoHWWidget::usbVCPPortChanged(int index)
     if (!vcpComBridgeEnabled && isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_COMBRIDGE)) {
         setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
     }
+    if (!vcpComBridgeEnabled && isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMCOMBRIDGE)) {
+        setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+    }
+
     enableComboBoxOptionItem(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_COMBRIDGE, vcpComBridgeEnabled);
+    enableComboBoxOptionItem(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMCOMBRIDGE, vcpComBridgeEnabled);
 
     // _DEBUGCONSOLE modes are mutual exclusive
     if (isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_DEBUGCONSOLE)) {
@@ -164,6 +146,12 @@ void ConfigRevoHWWidget::usbVCPPortChanged(int index)
         }
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMDEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
         }
     }
 
@@ -191,7 +179,6 @@ void ConfigRevoHWWidget::flexiPortChanged(int index)
 
     m_ui->cbFlexiTelemSpeed->setVisible(false);
     m_ui->cbFlexiGPSSpeed->setVisible(false);
-    m_ui->cbFlexiComSpeed->setVisible(false);
     m_ui->lblFlexiSpeed->setVisible(true);
 
     // Add Gps protocol configuration
@@ -204,8 +191,10 @@ void ConfigRevoHWWidget::flexiPortChanged(int index)
         if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_TELEMETRY)) {
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
         }
-        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMTELEMETRY)
-            || isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_TELEMETRY)) {
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMTELEMETRY)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_TELEMETRY)) {
             setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
         }
         break;
@@ -218,23 +207,69 @@ void ConfigRevoHWWidget::flexiPortChanged(int index)
         if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS)) {
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
         }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMGPS)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_GPS)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+
         break;
     case HwSettings::RM_FLEXIPORT_COMBRIDGE:
-        m_ui->cbFlexiComSpeed->setVisible(true);
+        m_ui->lblFlexiSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
         }
         if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
         }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMCOMBRIDGE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
         break;
     case HwSettings::RM_FLEXIPORT_DEBUGCONSOLE:
-        m_ui->cbFlexiComSpeed->setVisible(true);
+        m_ui->lblFlexiSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
         }
         if (isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMDEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_FLEXIPORT_OSDHK:
+        m_ui->lblFlexiSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_OSDHK)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_FLEXIPORT_MSP:
+        m_ui->lblFlexiSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_MSP)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_MSP)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMMSP)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        break;
+    case HwSettings::RM_FLEXIPORT_MAVLINK:
+        m_ui->lblFlexiSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_MAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_MAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMMAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
         }
         break;
     default:
@@ -249,7 +284,6 @@ void ConfigRevoHWWidget::mainPortChanged(int index)
 
     m_ui->cbMainTelemSpeed->setVisible(false);
     m_ui->cbMainGPSSpeed->setVisible(false);
-    m_ui->cbMainComSpeed->setVisible(false);
     m_ui->lblMainSpeed->setVisible(true);
 
     // Add Gps protocol configuration
@@ -262,8 +296,10 @@ void ConfigRevoHWWidget::mainPortChanged(int index)
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_TELEMETRY)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }
-        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMTELEMETRY)
-            || isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_TELEMETRY)) {
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMTELEMETRY)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_TELEMETRY)) {
             setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
         }
         break;
@@ -276,23 +312,68 @@ void ConfigRevoHWWidget::mainPortChanged(int index)
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMGPS)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_GPS)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
         break;
     case HwSettings::RM_MAINPORT_COMBRIDGE:
-        m_ui->cbMainComSpeed->setVisible(true);
+        m_ui->lblMainSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }
         if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
         }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMCOMBRIDGE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
         break;
     case HwSettings::RM_MAINPORT_DEBUGCONSOLE:
-        m_ui->cbMainComSpeed->setVisible(true);
+        m_ui->lblMainSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }
         if (isComboboxOptionSelected(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_DEBUGCONSOLE)) {
             setComboboxSelectedOption(m_ui->cbUSBVCPFunction, HwSettings::USB_VCPPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMDEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_MAINPORT_OSDHK:
+        m_ui->lblMainSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_OSDHK)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_MAINPORT_MSP:
+        m_ui->lblMainSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_MSP)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_MSP)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMMSP)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
+        }
+        break;
+    case HwSettings::RM_MAINPORT_MAVLINK:
+        m_ui->lblMainSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_MAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_MAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPMMAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbRcvr, HwSettings::RM_RCVRPORT_PPM);
         }
         break;
     default:
@@ -306,7 +387,11 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
     Q_UNUSED(index);
     m_ui->lblRcvrSpeed->setVisible(true);
     m_ui->cbRcvrTelemSpeed->setVisible(false);
-    m_ui->cbRcvrComSpeed->setVisible(false);
+    m_ui->cbRcvrGPSSpeed->setVisible(false);
+
+    // Add Gps protocol configuration
+    m_ui->cbRcvrGPSProtocol->setVisible(false);
+    m_ui->lblRcvrGPSProtocol->setVisible(false);
 
     switch (getComboboxSelectedOption(m_ui->cbRcvr)) {
     case HwSettings::RM_RCVRPORT_TELEMETRY:
@@ -321,7 +406,8 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
         }
         break;
     case HwSettings::RM_RCVRPORT_COMBRIDGE:
-        m_ui->cbRcvrComSpeed->setVisible(true);
+    case HwSettings::RM_RCVRPORT_PPMCOMBRIDGE:
+        m_ui->lblRcvrSpeed->setVisible(false);
         if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_COMBRIDGE)) {
             setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
         }
@@ -329,14 +415,52 @@ void ConfigRevoHWWidget::rcvrPortChanged(int index)
             setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
         }
         break;
+    case HwSettings::RM_RCVRPORT_DEBUGCONSOLE:
+    case HwSettings::RM_RCVRPORT_PPMDEBUGCONSOLE:
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_DEBUGCONSOLE)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_RCVRPORT_GPS:
+    case HwSettings::RM_RCVRPORT_PPMGPS:
+        // Add Gps protocol configuration
+        m_ui->cbRcvrGPSProtocol->setVisible(true);
+        m_ui->lblRcvrGPSProtocol->setVisible(true);
+
+        m_ui->cbRcvrGPSSpeed->setVisible(true);
+
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_RCVRPORT_MSP:
+    case HwSettings::RM_RCVRPORT_PPMMSP:
+        m_ui->lblRcvrSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_MSP)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_MSP)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        break;
+    case HwSettings::RM_RCVRPORT_MAVLINK:
+    case HwSettings::RM_RCVRPORT_PPMMAVLINK:
+        m_ui->lblRcvrSpeed->setVisible(false);
+        if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_MAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_DISABLED);
+        }
+        if (isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_MAVLINK)) {
+            setComboboxSelectedOption(m_ui->cbMain, HwSettings::RM_MAINPORT_DISABLED);
+        }
+        break;
     default:
         m_ui->lblRcvrSpeed->setVisible(false);
         break;
     }
-}
-
-void ConfigRevoHWWidget::openHelp()
-{
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Revolution+Configuration"),
-                                   QUrl::StrictMode));
 }

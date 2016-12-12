@@ -28,13 +28,16 @@
 #ifndef VEHICLECONFIGURATIONHELPER_H
 #define VEHICLECONFIGURATIONHELPER_H
 
-#include <QList>
-#include <QPair>
 #include "vehicleconfigurationsource.h"
 #include "uavobjectmanager.h"
-#include "systemsettings.h"
 #include "cfg_vehicletypes/vehicleconfig.h"
+
+#include "systemsettings.h"
 #include "actuatorsettings.h"
+
+#include <QList>
+#include <QPair>
+#include <QEventLoop>
 
 struct mixerChannelSettings {
     int type;
@@ -73,8 +76,6 @@ signals:
     void saveProgress(int total, int current, QString description);
 
 private:
-    static const float DEFAULT_ENABLED_ACCEL_TAU = 0.1;
-
     VehicleConfigurationSource *m_configSource;
     UAVObjectManager *m_uavoManager;
 

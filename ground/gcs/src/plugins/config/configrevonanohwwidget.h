@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       configrevohwwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configrevonanohwwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -27,14 +28,13 @@
 #ifndef CONFIGREVONANOHWWIDGET_H
 #define CONFIGREVONANOHWWIDGET_H
 
-#include "ui_configrevonanohwwidget.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include <QWidget>
-#include <QList>
 
+class Ui_RevoNanoHWWidget;
+
+class UAVObject;
+
+class QWidget;
 
 class ConfigRevoNanoHWWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -43,14 +43,14 @@ public:
     ConfigRevoNanoHWWidget(QWidget *parent = 0);
     ~ConfigRevoNanoHWWidget();
 
-private:
-    bool m_refreshing;
-    Ui_RevoNanoHWWidget *m_ui;
-    void setupCustomCombos();
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
-protected slots:
-    void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
+private:
+    Ui_RevoNanoHWWidget *m_ui;
+
+    void setupCustomCombos();
 
 private slots:
     void usbVCPPortChanged(int index);
@@ -58,7 +58,6 @@ private slots:
     void flexiPortChanged(int index);
     void mainPortChanged(int index);
     void rcvrPortChanged(int index);
-    void openHelp();
 };
 
 #endif // CONFIGREVONANOHWWIDGET_H

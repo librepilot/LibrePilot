@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>626</width>
-    <height>461</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <property name="bottomMargin">
         <number>6</number>
@@ -43,7 +43,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>300</height>
+             <height>250</height>
             </size>
            </property>
            <property name="verticalScrollBarPolicy">

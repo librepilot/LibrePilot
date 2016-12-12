@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGNode.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,16 +27,64 @@
 
 #include "OSGNode.hpp"
 
+#include "DirtySupport.hpp"
+
 #include <osg/Node>
 
-#include <QListIterator>
+#include <QDebug>
 
 namespace osgQtQuick {
-struct OSGNode::Hidden {
+class OSGNode;
+
+struct OSGNode::Hidden : public QObject, public DirtySupport {
+    Q_OBJECT
+
+    friend class OSGNode;
+
+private:
+    OSGNode *const self;
+
     osg::ref_ptr<osg::Node> node;
+
+    bool complete;
+
+public:
+    Hidden(OSGNode *self) : QObject(self), self(self), complete(false) /*, dirty(0)*/
+    {}
+
+    osg::Node *nodeToUpdate() const
+    {
+        return self->node();
+    }
+
+    void update()
+    {
+        return self->updateNode();
+    }
+
+    bool acceptNode(osg::Node *aNode)
+    {
+        if (node == aNode) {
+            return false;
+        }
+
+        int flags = dirty();
+        if (flags) {
+            clearDirty();
+        }
+        node = aNode;
+        if (node) {
+            if (flags) {
+                setDirty(flags);
+            }
+        }
+        return true;
+    }
 };
 
-OSGNode::OSGNode(QObject *parent) : QObject(parent), h(new Hidden)
+/* class OSGNode */
+
+OSGNode::OSGNode(QObject *parent) : QObject(parent), QQmlParserStatus(), h(new Hidden(this))
 {}
 
 OSGNode::~OSGNode()
@@ -51,33 +99,59 @@ osg::Node *OSGNode::node() const
 
 void OSGNode::setNode(osg::Node *node)
 {
-    if (h->node.get() != node) {
-        h->node = node;
-        emit nodeChanged(node);
+    if (h->acceptNode(node)) {
+        emitNodeChanged();
     }
 }
 
-bool OSGNode::attach(osgViewer::View *view)
+bool OSGNode::isDirty(int mask) const
 {
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        OSGNode *node = qobject_cast<OSGNode *>(i.next());
-        if (node) {
-            node->attach(view);
-        }
-    }
-    return true;
+    return h->isDirty(mask);
 }
 
-bool OSGNode::detach(osgViewer::View *view)
+void OSGNode::setDirty(int mask)
 {
-    QListIterator<QObject *> i(children());
-    while (i.hasNext()) {
-        OSGNode *node = qobject_cast<OSGNode *>(i.next());
-        if (node) {
-            node->detach(view);
-        }
+    h->setDirty(mask);
+}
+
+void OSGNode::clearDirty()
+{
+    h->clearDirty();
+}
+
+osg::Node *OSGNode::createNode()
+{
+    return NULL;
+}
+
+void OSGNode::updateNode()
+{}
+
+void OSGNode::emitNodeChanged()
+{
+    if (h->complete) {
+        emit nodeChanged(node());
     }
-    return true;
+}
+
+void OSGNode::classBegin()
+{
+    // qDebug() << "OSGNode::classBegin" << this;
+
+    setNode(createNode());
+}
+
+void OSGNode::componentComplete()
+{
+    // qDebug() << "OSGNode::componentComplete" << this;
+
+    updateNode();
+    clearDirty();
+    h->complete = true;
+    if (!h->node.valid()) {
+        qWarning() << "OSGNode::componentComplete - node is not valid!" << this;
+    }
 }
 } // namespace osgQtQuick
+
+#include "OSGNode.moc"

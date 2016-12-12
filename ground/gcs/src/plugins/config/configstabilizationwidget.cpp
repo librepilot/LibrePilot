@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configstabilizationwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -27,23 +27,11 @@
  */
 #include "configstabilizationwidget.h"
 
-#include <QDebug>
-#include <QStringList>
-#include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QList>
-#include <QTabBar>
-#include <QMessageBox>
-#include <QToolButton>
-#include <QMenu>
-#include <QAction>
+#include "ui_stabilization.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
+#include <uavobjectmanager.h>
+#include "objectpersistence.h"
+
 #include "altitudeholdsettings.h"
 #include "stabilizationsettings.h"
 
@@ -52,26 +40,33 @@
 #include "qwt/src/qwt_plot_canvas.h"
 #include "qwt/src/qwt_scale_widget.h"
 
+#include <QDebug>
+#include <QStringList>
+#include <QWidget>
+#include <QList>
+#include <QTabBar>
+#include <QToolButton>
+#include <QMenu>
+#include <QAction>
+
 ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTaskWidget(parent),
-    boardModel(0), m_stabSettingsBankCount(0), m_currentStabSettingsBank(0)
+    m_stabSettingsBankCount(0), m_currentStabSettingsBank(0)
 {
     ui = new Ui_StabilizationWidget();
     ui->setupUi(this);
 
+    // must be done before auto binding !
     setWikiURL("Stabilization+Configuration");
-
-    setupExpoPlot();
 
     setupStabBanksGUI();
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
+    addAutoBindings();
 
-    if (!settings->useExpertMode()) {
-        ui->saveStabilizationToRAM_6->setVisible(false);
-    }
+    disableMouseWheelEvents();
 
-    autoLoadWidgets();
+    connect(this, SIGNAL(enableControlsChanged(bool)), this, SLOT(enableControlsChanged(bool)));
+
+    setupExpoPlot();
 
     realtimeUpdates = new QTimer(this);
     connect(realtimeUpdates, SIGNAL(timeout()), this, SLOT(apply()));
@@ -107,13 +102,17 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->pushButton_9);
     addWidget(ui->pushButton_10);
     addWidget(ui->pushButton_11);
+    addWidget(ui->pushButton_12);
+    addWidget(ui->pushButton_13);
+    addWidget(ui->pushButton_14);
     addWidget(ui->pushButton_20);
+    addWidget(ui->pushButton_21);
     addWidget(ui->pushButton_22);
-    addWidget(ui->pushButton_23);
 
     addWidget(ui->basicResponsivenessGroupBox);
     addWidget(ui->basicResponsivenessCheckBox);
     connect(ui->basicResponsivenessCheckBox, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
+
     addWidget(ui->advancedResponsivenessGroupBox);
     addWidget(ui->advancedResponsivenessCheckBox);
     connect(ui->advancedResponsivenessCheckBox, SIGNAL(toggled(bool)), this, SLOT(linkCheckBoxes(bool)));
@@ -136,15 +135,12 @@ ConfigStabilizationWidget::ConfigStabilizationWidget(QWidget *parent) : ConfigTa
     addWidget(ui->thrustPIDScalingCurve);
     connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
-    connect(this, SIGNAL(autoPilotConnected()), this, SLOT(onBoardConnected()));
-
     addWidget(ui->expoPlot);
     connect(ui->expoSpinnerRoll, SIGNAL(valueChanged(int)), this, SLOT(replotExpoRoll(int)));
     connect(ui->expoSpinnerPitch, SIGNAL(valueChanged(int)), this, SLOT(replotExpoPitch(int)));
     connect(ui->expoSpinnerYaw, SIGNAL(valueChanged(int)), this, SLOT(replotExpoYaw(int)));
 
-    disableMouseWheelEvents();
-    updateEnableControls();
+    ui->AltitudeHold->setEnabled(false);
 }
 
 void ConfigStabilizationWidget::setupStabBanksGUI()
@@ -239,20 +235,31 @@ ConfigStabilizationWidget::~ConfigStabilizationWidget()
     // Do nothing
 }
 
-void ConfigStabilizationWidget::refreshWidgetsValues(UAVObject *o)
+void ConfigStabilizationWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(o);
+    Q_UNUSED(obj);
 
     updateThrottleCurveFromObject();
 
-    ui->basicResponsivenessCheckBox->setChecked(ui->rateRollKp_3->value() == ui->ratePitchKp_4->value() &&
-                                                ui->rateRollKi_3->value() == ui->ratePitchKi_4->value());
+    // Check and update basic/advanced checkboxes only if something connected
+    // if something not "basic": Rate value out of slider limits or different Pitch/Roll values
+    if (ui->lowThrottleZeroIntegral_8->isEnabled() && !realtimeUpdates->isActive()) {
+        if ((ui->attitudeRollResponse->value() == ui->attitudePitchResponse->value()) &&
+            (ui->rateRollResponse->value() == ui->ratePitchResponse->value()) &&
+            (ui->rateRollResponse->value() <= ui->RateResponsivenessSlider->maximum()) &&
+            (ui->ratePitchResponse->value() <= ui->RateResponsivenessSlider->maximum())) {
+            ui->basicResponsivenessCheckBox->setChecked(true);
+            ui->advancedResponsivenessCheckBox->setChecked(false);
+        } else {
+            ui->basicResponsivenessCheckBox->setChecked(false);
+            ui->advancedResponsivenessCheckBox->setChecked(true);
+        }
+    }
 }
 
-void ConfigStabilizationWidget::updateObjectsFromWidgets()
+void ConfigStabilizationWidget::updateObjectsFromWidgetsImpl()
 {
     updateObjectFromThrottleCurve();
-    ConfigTaskWidget::updateObjectsFromWidgets();
 }
 
 void ConfigStabilizationWidget::updateThrottleCurveFromObject()
@@ -275,7 +282,7 @@ void ConfigStabilizationWidget::updateThrottleCurveFromObject()
     field = stabBank->getField("EnableThrustPIDScaling");
     Q_ASSERT(field);
 
-    bool enabled = field->getValue() == "TRUE";
+    bool enabled = field->getValue() == "True";
     ui->enableThrustPIDScalingCheckBox->setChecked(enabled);
     ui->thrustPIDScalingCurve->setEnabled(enabled);
     setDirty(dirty);
@@ -297,7 +304,7 @@ void ConfigStabilizationWidget::updateObjectFromThrottleCurve()
 
     field = stabBank->getField("EnableThrustPIDScaling");
     Q_ASSERT(field);
-    field->setValue(ui->enableThrustPIDScalingCheckBox->isChecked() ? "TRUE" : "FALSE");
+    field->setValue(ui->enableThrustPIDScalingCheckBox->isChecked() ? "True" : "False");
 }
 
 void ConfigStabilizationWidget::setupExpoPlot()
@@ -371,7 +378,7 @@ void ConfigStabilizationWidget::resetThrottleCurveToDefault()
     field = defaultStabBank->getField("EnableThrustPIDScaling");
     Q_ASSERT(field);
 
-    bool enabled = field->getValue() == "TRUE";
+    bool enabled = field->getValue() == "True";
     ui->enableThrustPIDScalingCheckBox->setChecked(enabled);
     ui->thrustPIDScalingCurve->setEnabled(enabled);
 
@@ -611,9 +618,11 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
 
     if (ui->basicResponsivenessCheckBox->isChecked()) {
         if (widget == ui->AttitudeResponsivenessSlider) {
-            ui->ratePitchKp_4->setValue(ui->AttitudeResponsivenessSlider->value());
+            ui->attitudePitchResponse->setValue(ui->AttitudeResponsivenessSlider->value());
+            ui->attitudeRollResponse->setValue(ui->AttitudeResponsivenessSlider->value());
         } else if (widget == ui->RateResponsivenessSlider) {
-            ui->ratePitchKi_4->setValue(ui->RateResponsivenessSlider->value());
+            ui->ratePitchResponse->setValue(ui->RateResponsivenessSlider->value());
+            ui->rateRollResponse->setValue(ui->RateResponsivenessSlider->value());
         }
     }
     if (ui->checkBoxLinkAcroFactors->isChecked()) {
@@ -625,20 +634,19 @@ void ConfigStabilizationWidget::processLinkedWidgets(QWidget *widget)
     }
 }
 
-void ConfigStabilizationWidget::onBoardConnected()
+void ConfigStabilizationWidget::enableControlsChanged(bool enable)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
+    // If Revolution/Sparky2 board enable Althold tab, otherwise disable it
+    bool enableAltitudeHold = (((boardModel() & 0xff00) == 0x0900) || ((boardModel() & 0xff00) == 0x9200));
 
-    Q_ASSERT(utilMngr);
-    boardModel = utilMngr->getBoardModel();
-    // If Revolution board enable Althold tab, otherwise disable it
-    ui->AltitudeHold->setEnabled((boardModel & 0xff00) == 0x0900);
+    ui->AltitudeHold->setEnabled(enable && enableAltitudeHold);
 }
 
 void ConfigStabilizationWidget::stabBankChanged(int index)
 {
     bool dirty = isDirty();
+
+    disconnect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
 
     updateObjectFromThrottleCurve();
     foreach(QTabBar * tabBar, m_stabTabBars) {
@@ -655,13 +663,15 @@ void ConfigStabilizationWidget::stabBankChanged(int index)
 
     m_currentStabSettingsBank = index;
     updateThrottleCurveFromObject();
+
+    connect(this, SIGNAL(widgetContentsChanged(QWidget *)), this, SLOT(processLinkedWidgets(QWidget *)));
     setDirty(dirty);
 }
 
 bool ConfigStabilizationWidget::shouldObjectBeSaved(UAVObject *object)
 {
-    // AltitudeHoldSettings should only be saved for Revolution board to avoid error.
-    if ((boardModel & 0xff00) != 0x0900) {
+    // AltitudeHoldSettings should only be saved for Revolution/Sparky2 board to avoid error.
+    if (((boardModel() & 0xff00) != 0x0900) && ((boardModel() & 0xff00) != 0x9200)) {
         return dynamic_cast<AltitudeHoldSettings *>(object) == 0;
     } else {
         return true;

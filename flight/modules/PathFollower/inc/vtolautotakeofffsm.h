@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
+ * @addtogroup LibrePilotModules LibrePilot Modules
  * @{
  * @addtogroup PathFollower FSM
  * @brief Executes landing sequence via an FSM
  * @{
  *
  * @file       vtollandfsm.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Executes FSM for landing sequence
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -47,7 +48,7 @@ typedef enum {
     AUTOTAKEOFF_STATE_THRUSTDOWN, // Thrust down sequence
     AUTOTAKEOFF_STATE_THRUSTOFF, // Thrust is now off
     AUTOTAKEOFF_STATE_DISARMED, // Disarmed
-    AUTOTAKEOFF_STATE_ABORT, // Abort on error triggerig fallback to hold
+    AUTOTAKEOFF_STATE_ABORT, // Abort on error triggers fallback to land
     AUTOTAKEOFF_STATE_SIZE
 } PathFollowerFSM_AutoTakeoffState_T;
 

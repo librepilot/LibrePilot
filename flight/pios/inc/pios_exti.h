@@ -35,18 +35,23 @@
 
 #include <pios_stm32.h>
 
+typedef bool (*pios_exti_vector_t)(void);
+
 struct pios_exti_cfg {
-    bool     (*vector)(void);
+    pios_exti_vector_t vector;
     uint32_t line; /* use EXTI_LineN macros */
-    struct stm32_gpio pin;
-    struct stm32_irq  irq;
-    struct stm32_exti exti;
+    struct stm32_gpio  pin;
+    struct stm32_irq   irq;
+    struct stm32_exti  exti;
 };
 
 /* must be added to any pios_exti_cfg definition for it to be valid */
-#define __exti_config __attribute__((section("_exti")))
+// #define __exti_config __attribute__((section("_exti")))
+
+#define __exti_config
 
 extern int32_t PIOS_EXTI_Init(const struct pios_exti_cfg *cfg);
+extern int32_t PIOS_EXTI_DeInit(const struct pios_exti_cfg *cfg);
 
 #endif /* PIOS_EXTI_H */
 

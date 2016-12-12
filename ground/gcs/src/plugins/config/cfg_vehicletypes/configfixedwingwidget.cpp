@@ -26,6 +26,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configfixedwingwidget.h"
+
+#include "ui_airframe_fixedwing.h"
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -51,7 +54,8 @@ QStringList ConfigFixedWingWidget::getChannelDescriptions()
     }
 
     // get the gui config data
-    GUIConfigDataUnion configData = getConfigData();
+    GUIConfigDataUnion configData    = getConfigData();
+    fixedGUISettingsStruct fixedwing = configData.fixedwing;
 
     if (configData.fixedwing.FixedWingPitch1 > 0) {
         channelDesc[configData.fixedwing.FixedWingPitch1 - 1] = QString("FixedWingPitch1");
@@ -74,15 +78,50 @@ QStringList ConfigFixedWingWidget::getChannelDescriptions()
     if (configData.fixedwing.FixedWingThrottle > 0) {
         channelDesc[configData.fixedwing.FixedWingThrottle - 1] = QString("FixedWingThrottle");
     }
+
+    if (fixedwing.Accessory0 > 0 && fixedwing.Accessory0 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory0 - 1] = QString("Accessory0-1");
+    }
+    if (fixedwing.Accessory1 > 0 && fixedwing.Accessory1 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory1 - 1] = QString("Accessory1-1");
+    }
+    if (fixedwing.Accessory2 > 0 && fixedwing.Accessory2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory2 - 1] = QString("Accessory2-1");
+    }
+    if (fixedwing.Accessory3 > 0 && fixedwing.Accessory3 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory3 - 1] = QString("Accessory3-1");
+    }
+
+    if (fixedwing.Accessory0_2 > 0 && fixedwing.Accessory0_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory0_2 - 1] = QString("Accessory0-2");
+    }
+    if (fixedwing.Accessory1_2 > 0 && fixedwing.Accessory1_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory1_2 - 1] = QString("Accessory1-2");
+    }
+    if (fixedwing.Accessory2_2 > 0 && fixedwing.Accessory2_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory2_2 - 1] = QString("Accessory2-2");
+    }
+    if (fixedwing.Accessory3_2 > 0 && fixedwing.Accessory3_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
+        channelDesc[fixedwing.Accessory3_2 - 1] = QString("Accessory3-2");
+    }
+
     return channelDesc;
 }
 
 ConfigFixedWingWidget::ConfigFixedWingWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_FixedWingConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_FixedWingConfigWidget();
     m_aircraft->setupUi(this);
 
     populateChannelComboBoxes();
+
+    QStringList mixerCurveList;
+    mixerCurveList << "Curve1" << "Curve2";
+    m_aircraft->rcOutputCurveBoxFw1->addItems(mixerCurveList);
+    m_aircraft->rcOutputCurveBoxFw2->addItems(mixerCurveList);
+    m_aircraft->rcOutputCurveBoxFw3->addItems(mixerCurveList);
+    m_aircraft->rcOutputCurveBoxFw4->addItems(mixerCurveList);
 
     QStringList fixedWingTypes;
     fixedWingTypes << "Aileron" << "Elevon" << "Vtail";
@@ -238,6 +277,18 @@ void ConfigFixedWingWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->elevonSlider1);
     parent.addWidget(m_aircraft->elevonSlider2);
     parent.addWidget(m_aircraft->elevonSlider3);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw1);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw2);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw3);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw4);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw1_2);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw2_2);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw3_2);
+    parent.addWidget(m_aircraft->rcOutputChannelBoxFw4_2);
+    parent.addWidget(m_aircraft->rcOutputCurveBoxFw1);
+    parent.addWidget(m_aircraft->rcOutputCurveBoxFw2);
+    parent.addWidget(m_aircraft->rcOutputCurveBoxFw3);
+    parent.addWidget(m_aircraft->rcOutputCurveBoxFw4);
 }
 
 void ConfigFixedWingWidget::resetActuators(GUIConfigDataUnion *configData)
@@ -249,6 +300,44 @@ void ConfigFixedWingWidget::resetActuators(GUIConfigDataUnion *configData)
     configData->fixedwing.FixedWingYaw1     = 0;
     configData->fixedwing.FixedWingYaw2     = 0;
     configData->fixedwing.FixedWingThrottle = 0;
+}
+
+void ConfigFixedWingWidget::resetRcOutputs(GUIConfigDataUnion *configData)
+{
+    configData->fixedwing.Accessory0   = 0;
+    configData->fixedwing.Accessory1   = 0;
+    configData->fixedwing.Accessory2   = 0;
+    configData->fixedwing.Accessory3   = 0;
+    configData->fixedwing.Accessory0_2 = 0;
+    configData->fixedwing.Accessory1_2 = 0;
+    configData->fixedwing.Accessory2_2 = 0;
+    configData->fixedwing.Accessory3_2 = 0;
+}
+
+
+void ConfigFixedWingWidget::updateRcCurvesUsed()
+{
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+
+    Q_ASSERT(mixer);
+
+    setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw1, VehicleConfig::MIXER_THROTTLECURVE1);
+    setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw2, VehicleConfig::MIXER_THROTTLECURVE1);
+    setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw3, VehicleConfig::MIXER_THROTTLECURVE1);
+    setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw4, VehicleConfig::MIXER_THROTTLECURVE1);
+
+    for (int channel = 0; channel < (int)ConfigFixedWingWidget::CHANNEL_NUMELEM; channel++) {
+        QString mixerType = getMixerType(mixer, channel);
+        if (mixerType == "Accessory0" && getMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2)) {
+            setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw1, VehicleConfig::MIXER_THROTTLECURVE2);
+        } else if (mixerType == "Accessory1" && getMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2)) {
+            setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw2, VehicleConfig::MIXER_THROTTLECURVE2);
+        } else if (mixerType == "Accessory2" && getMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2)) {
+            setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw3, VehicleConfig::MIXER_THROTTLECURVE2);
+        } else if (mixerType == "Accessory3" && getMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2)) {
+            setComboCurrentIndex(m_aircraft->rcOutputCurveBoxFw4, VehicleConfig::MIXER_THROTTLECURVE2);
+        }
+    }
 }
 
 /**
@@ -287,6 +376,18 @@ void ConfigFixedWingWidget::refreshWidgetsValues(QString frameType)
     setComboCurrentIndex(m_aircraft->fwRudder1ChannelBox, fixed.FixedWingYaw1);
     setComboCurrentIndex(m_aircraft->fwRudder2ChannelBox, fixed.FixedWingYaw2);
 
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw1, fixed.Accessory0);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw2, fixed.Accessory1);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw3, fixed.Accessory2);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw4, fixed.Accessory3);
+
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw1_2, fixed.Accessory0_2);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw2_2, fixed.Accessory1_2);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw3_2, fixed.Accessory2_2);
+    setComboCurrentIndex(m_aircraft->rcOutputChannelBoxFw4_2, fixed.Accessory3_2);
+
+    updateRcCurvesUsed();
+
     // Get mixing values for GUI sliders (values stored onboard)
     m_aircraft->elevonSlider3->setValue(getMixerValue(mixer, "RollDifferential"));
     if (frameType == "FixedWingElevon" || frameType == "Elevon") {
@@ -309,6 +410,13 @@ QString ConfigFixedWingWidget::updateConfigObjectsFromWidgets()
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
 
     Q_ASSERT(mixer);
+
+    // Reset all Mixers type
+    resetAllMixersType(mixer);
+
+    QList<QString> rcOutputList;
+    rcOutputList << "Accessory0" << "Accessory1" << "Accessory2" << "Accessory3";
+    setupRcOutputs(rcOutputList);
 
     // Set the throttle curve
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->fixedWingThrottle->getCurve());
@@ -580,6 +688,118 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
     return true;
 }
 
+/**
+   Helper function: setup rc outputs. Takes a list of channel names in input.
+ */
+void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
+{
+    QList<QComboBox *> rcList;
+    rcList << m_aircraft->rcOutputChannelBoxFw1 << m_aircraft->rcOutputChannelBoxFw2
+           << m_aircraft->rcOutputChannelBoxFw3 << m_aircraft->rcOutputChannelBoxFw4;
+
+    QList<QComboBox *> rcList2;
+    rcList2 << m_aircraft->rcOutputChannelBoxFw1_2 << m_aircraft->rcOutputChannelBoxFw2_2
+            << m_aircraft->rcOutputChannelBoxFw3_2 << m_aircraft->rcOutputChannelBoxFw4_2;
+
+    GUIConfigDataUnion configData = getConfigData();
+    resetRcOutputs(&configData);
+
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
+    Q_ASSERT(mixer);
+
+    int curveAccessory0  = m_aircraft->rcOutputCurveBoxFw1->currentIndex();
+    int curveAccessory1  = m_aircraft->rcOutputCurveBoxFw2->currentIndex();
+    int curveAccessory2  = m_aircraft->rcOutputCurveBoxFw3->currentIndex();
+    int curveAccessory3  = m_aircraft->rcOutputCurveBoxFw4->currentIndex();
+
+    foreach(QString rc_output, rcOutputList) {
+        int index  = rcList.takeFirst()->currentIndex();
+        int index2 = rcList2.takeFirst()->currentIndex();
+
+        if (rc_output == "Accessory0") {
+            // First output for Accessory0
+            configData.fixedwing.Accessory0 = index;
+            if (index) {
+                setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY0);
+                if (curveAccessory0) {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+            // Second output for Accessory0
+            configData.fixedwing.Accessory0_2 = index2;
+            if (index2) {
+                setMixerType(mixer, index2 - 1, VehicleConfig::MIXERTYPE_ACCESSORY0);
+                if (curveAccessory0) {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+        } else if (rc_output == "Accessory1") {
+            configData.fixedwing.Accessory1   = index;
+            configData.fixedwing.Accessory1_2 = index2;
+            if (index) {
+                setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY1);
+                if (curveAccessory1) {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+            if (index2) {
+                setMixerType(mixer, index2 - 1, VehicleConfig::MIXERTYPE_ACCESSORY1);
+                if (curveAccessory1) {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+        } else if (rc_output == "Accessory2") {
+            configData.fixedwing.Accessory2   = index;
+            configData.fixedwing.Accessory2_2 = index2;
+            if (index) {
+                setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY2);
+                if (curveAccessory2) {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+            if (index2) {
+                setMixerType(mixer, index2 - 1, VehicleConfig::MIXERTYPE_ACCESSORY2);
+                if (curveAccessory2) {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+        } else if (rc_output == "Accessory3") {
+            configData.fixedwing.Accessory3   = index;
+            configData.fixedwing.Accessory3_2 = index2;
+            if (index) {
+                setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY3);
+                if (curveAccessory3) {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+            if (index2) {
+                setMixerType(mixer, index2 - 1, VehicleConfig::MIXERTYPE_ACCESSORY3);
+                if (curveAccessory3) {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+                } else {
+                    setMixerVectorValue(mixer, index2 - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+                }
+            }
+        }
+    }
+    setConfigData(configData);
+}
+
+
 void ConfigFixedWingWidget::enableControls(bool enable)
 {
     ConfigTaskWidget::enableControls(enable);
@@ -646,6 +866,44 @@ bool ConfigFixedWingWidget::throwConfigError(QString airframeType)
                 }
             }
             channelNames += (combobox->currentText() == "None") ? "" : combobox->currentText();
+        }
+    }
+
+    // Iterate through all instances of rcOutputChannelBoxFw
+    for (int i = 0; i < 5; i++) {
+        // Find widgets with his name "rcOutputChannelBoxFw.x", where x is an integer
+        QComboBox *combobox = this->findChild<QComboBox *>("rcOutputChannelBoxFw" + QString::number(i + 1));
+        if (combobox) {
+            if (channelNames.contains(combobox->currentText(), Qt::CaseInsensitive)) {
+                int size = combobox->style()->pixelMetric(QStyle::PM_SmallIconSize);
+                QPixmap pixmap(size, size);
+                pixmap.fill(QColor("orange"));
+                combobox->setItemData(combobox->currentIndex(), pixmap, Qt::DecorationRole); // Set color palettes
+                combobox->setToolTip(tr("Channel already used"));
+            } else {
+                for (int index = 0; index < (int)ConfigFixedWingWidget::CHANNEL_NUMELEM; index++) {
+                    combobox->setItemData(index, 0, Qt::DecorationRole); // Reset all color palettes
+                    combobox->setToolTip(tr("Select first output channel for Accessory%1 RcInput").arg(i));
+                }
+            }
+            channelNames += (combobox->currentText() == "None") ? "" : combobox->currentText();
+        }
+        // Find duplicates in second output comboboxes
+        QComboBox *combobox2 = this->findChild<QComboBox *>("rcOutputChannelBoxFw" + QString::number(i + 1) + "_2");
+        if (combobox2) {
+            if (channelNames.contains(combobox2->currentText(), Qt::CaseInsensitive)) {
+                int size = combobox2->style()->pixelMetric(QStyle::PM_SmallIconSize);
+                QPixmap pixmap(size, size);
+                pixmap.fill(QColor("orange"));
+                combobox2->setItemData(combobox2->currentIndex(), pixmap, Qt::DecorationRole); // Set color palettes
+                combobox2->setToolTip(tr("Channel already used"));
+            } else {
+                for (int index = 0; index < (int)ConfigFixedWingWidget::CHANNEL_NUMELEM; index++) {
+                    combobox2->setItemData(index, 0, Qt::DecorationRole); // Reset all color palettes
+                    combobox2->setToolTip(tr("Select second output channel for Accessory%1 RcInput").arg(i));
+                }
+            }
+            channelNames += (combobox2->currentText() == "None") ? "" : combobox2->currentText();
         }
     }
     return error;

@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  * @file       pios.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013
- * @author     PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (C) 2015
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2013
+ *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  * @brief      Main PiOS header.
  * @see        The GNU Public License (GPL) Version 3
  *****************************************************************************/
@@ -228,8 +229,20 @@ extern "C" {
 #include <pios_sbus.h>
 #endif
 
+#ifdef PIOS_INCLUDE_HOTT
+#include <pios_hott.h>
+#endif
+
+#ifdef PIOS_INCLUDE_EXBUS
+#include <pios_exbus.h>
+#endif
+
 #ifdef PIOS_INCLUDE_SRXL
 #include <pios_srxl.h>
+#endif
+
+#ifdef PIOS_INCLUDE_IBUS
+#include <pios_ibus.h>
 #endif
 
 /* PIOS abstract receiver interface */

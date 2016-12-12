@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_rfm22b.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Implements a driver the the RFM22B driver
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -39,7 +40,7 @@
 // 6-byte (32-bit) preamble .. alternating 0's & 1's
 // 4-byte (32-bit) sync
 // 1-byte packet length (number of data bytes to follow)
-// 0 to 255 user data bytes
+// 0 to 251 user data bytes
 // 4 byte ECC
 //
 // OR in PPM only mode:
@@ -58,6 +59,7 @@
 #ifdef PIOS_INCLUDE_RFM22B
 
 #include <pios_spi_priv.h>
+#include <pios_rfm22b_regs.h>
 #include <pios_rfm22b_priv.h>
 #include <pios_ppm_out.h>
 #include <ecc.h>
@@ -187,8 +189,10 @@ static enum pios_radio_event rfm22_fatal_error(struct pios_rfm22b_dev *rfm22b_de
 static void rfm22b_add_rx_status(struct pios_rfm22b_dev *rfm22b_dev, enum pios_rfm22b_rx_packet_status status);
 static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan);
 static bool rfm22_setFreqHopChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t channel);
+static void rfm22_generateDeviceID(struct pios_rfm22b_dev *rfm22b_dev);
 static void rfm22_updatePairStatus(struct pios_rfm22b_dev *radio_dev);
-static void rfm22_calculateLinkQuality(struct pios_rfm22b_dev *rfm22b_dev);
+static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev);
+static bool rfm22_checkTimeOut(struct pios_rfm22b_dev *rfm22b_dev);
 static bool rfm22_isConnected(struct pios_rfm22b_dev *rfm22b_dev);
 static bool rfm22_isCoordinator(struct pios_rfm22b_dev *rfm22b_dev);
 static uint32_t rfm22_destinationID(struct pios_rfm22b_dev *rfm22b_dev);
@@ -414,7 +418,7 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     rfm22b_dev->rx_in_cb      = NULL;
     rfm22b_dev->tx_out_cb     = NULL;
 
-    // Initialzie the PPM callback.
+    // Initialize the PPM callback.
     rfm22b_dev->ppm_callback  = NULL;
 
     // Initialize the stats.
@@ -434,7 +438,7 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
 
     // Initialize the channels.
     PIOS_RFM22B_SetChannelConfig(*rfm22b_id, RFM22B_DEFAULT_RX_DATARATE, RFM22B_DEFAULT_MIN_CHANNEL,
-                                 RFM22B_DEFAULT_MAX_CHANNEL, false, false, false, false);
+                                 RFM22B_DEFAULT_MAX_CHANNEL, false, true, false);
 
     // Create the event queue
     rfm22b_dev->eventQueue = xQueueCreate(EVENT_QUEUE_SIZE, sizeof(enum pios_radio_event));
@@ -445,18 +449,8 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     // Create a semaphore to know if an ISR needs responding to
     vSemaphoreCreateBinary(rfm22b_dev->isrPending);
 
-    // Create our (hopefully) unique 32 bit id from the processor serial number.
-    uint8_t crcs[] = { 0, 0, 0, 0 };
-    {
-        char serial_no_str[33];
-        PIOS_SYS_SerialNumberGet(serial_no_str);
-        // Create a 32 bit value using 4 8 bit CRC values.
-        for (uint8_t i = 0; serial_no_str[i] != 0; ++i) {
-            crcs[i % 4] = PIOS_CRC_updateByte(crcs[i % 4], serial_no_str[i]);
-        }
-    }
-    rfm22b_dev->deviceID = crcs[0] | crcs[1] << 8 | crcs[2] << 16 | crcs[3] << 24;
-    DEBUG_PRINTF(2, "RF device ID: %x\n\r", rfm22b_dev->deviceID);
+    // Create default (hopefully) unique 32 bit id from the processor serial number.
+    rfm22_generateDeviceID(rfm22b_dev);
 
     // Initialize the external interrupt.
     PIOS_EXTI_Init(cfg->exti_cfg);
@@ -507,6 +501,26 @@ bool PIOS_RFM22_EXT_Int(void)
     // Inject an interrupt event into the state machine.
     pios_rfm22_inject_event(g_rfm22b_dev, RADIO_EVENT_INT_RECEIVED, true);
     return false;
+}
+
+
+/**
+ * Set the device ID for the RFM22B device.
+ *
+ * @param[in] rfm22b_id The RFM22B device index.
+ *
+ */
+void PIOS_RFM22B_SetDeviceID(uint32_t rfm22b_id, uint32_t custom_device_id)
+{
+    struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
+
+    if (custom_device_id > 0) {
+        rfm22b_dev->deviceID = custom_device_id;
+    } else {
+        rfm22_generateDeviceID(rfm22b_dev);
+    }
+
+    DEBUG_PRINTF(2, "RF device ID: %x\n\r", rfm22b_dev->deviceID);
 }
 
 /**
@@ -578,18 +592,17 @@ void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr)
  * @param[in] min_chan  The minimum channel.
  * @param[in] max_chan  The maximum channel.
  * @param[in] coordinator Is this modem an coordinator.
+ * @param[in] data_mode Should this modem send/receive data packets?
  * @param[in] ppm_mode Should this modem send/receive ppm packets?
- * @param[in] oneway Only the coordinator can send packets if true.
- * @param[in] ppm_only Should this modem run in ppm only mode?
  */
-void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool oneway, bool ppm_mode, bool ppm_only)
+void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool data_mode, bool ppm_mode)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
+    bool ppm_only = ppm_mode && !data_mode;
 
     if (!PIOS_RFM22B_Validate(rfm22b_dev)) {
         return;
     }
-    ppm_mode = ppm_mode || ppm_only;
     rfm22b_dev->coordinator   = coordinator;
     rfm22b_dev->ppm_send_mode = ppm_mode && coordinator;
     rfm22b_dev->ppm_recv_mode = ppm_mode && !coordinator;
@@ -602,7 +615,7 @@ void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datar
         datarate = RFM22B_PPM_ONLY_DATARATE;
         rfm22b_dev->datarate     = RFM22B_PPM_ONLY_DATARATE;
     } else {
-        rfm22b_dev->one_way_link = oneway;
+        rfm22b_dev->one_way_link = false;
         rfm22b_dev->datarate     = datarate;
     }
     rfm22b_dev->packet_time = (ppm_mode ? packet_time_ppm[datarate] : packet_time[datarate]);
@@ -666,8 +679,8 @@ void PIOS_RFM22B_GetStats(uint32_t rfm22b_id, struct rfm22b_stats *stats)
         return;
     }
 
-    // Calculate the current link quality
-    rfm22_calculateLinkQuality(rfm22b_dev);
+    // Update the current stats
+    rfm22_updateStats(rfm22b_dev);
 
     // Return the stats.
     *stats = rfm22b_dev->stats;
@@ -681,7 +694,7 @@ void PIOS_RFM22B_GetStats(uint32_t rfm22b_id, struct rfm22b_stats *stats)
  * @param[in] mx_pairs  The length of the pdevice_ids and RSSIs arrays.
  * @return  The number of pair stats returned.
  */
-uint8_t PIOS_RFM2B_GetPairStats(uint32_t rfm22b_id, uint32_t *device_ids, int8_t *RSSIs, uint8_t max_pairs)
+uint8_t PIOS_RFM22B_GetPairStats(uint32_t rfm22b_id, uint32_t *device_ids, int8_t *RSSIs, uint8_t max_pairs)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1092,8 +1105,9 @@ void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb)
  *
  * @param[in] rfm22b_dev  The RFM22B device ID.
  * @param[in] channels    The PPM channel values.
+ * @param[out] nchan      The number of channels to set.
  */
-extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels)
+extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1102,7 +1116,7 @@ extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels)
     }
 
     for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-        rfm22b_dev->ppm[i] = channels[i];
+        rfm22b_dev->ppm[i] = (i < nchan) ? channels[i] : PIOS_RCVR_INVALID;
     }
 }
 
@@ -1111,8 +1125,9 @@ extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels)
  *
  * @param[in] rfm22b_dev  The RFM22B device structure pointer.
  * @param[out] channels   The PPM channel values.
+ * @param[out] nchan      The number of channels to get.
  */
-extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels)
+extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1120,8 +1135,16 @@ extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels)
         return;
     }
 
-    for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-        channels[i] = rfm22b_dev->ppm[i];
+    if (!rfm22_isCoordinator(rfm22b_dev) && !rfm22_isConnected(rfm22b_dev)) {
+        // Set the PPM channels values to INVALID
+        for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
+            channels[i] = PIOS_RCVR_INVALID;
+        }
+        return;
+    }
+
+    for (uint8_t i = 0; i < nchan; ++i) {
+        channels[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? rfm22b_dev->ppm[i] : PIOS_RCVR_INVALID;
     }
 }
 
@@ -1703,6 +1726,29 @@ static bool rfm22_setFreqHopChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t 
 }
 
 /**
+ * Generate the unique device ID for the RFM22B device.
+ *
+ * @param[in] rfm22b_id The RFM22B device index.
+ *
+ */
+void rfm22_generateDeviceID(struct pios_rfm22b_dev *rfm22b_dev)
+{
+    // Create our (hopefully) unique 32 bit id from the processor serial number.
+    uint8_t crcs[] = { 0, 0, 0, 0 };
+    {
+        char serial_no_str[33];
+        PIOS_SYS_SerialNumberGet(serial_no_str);
+        // Create a 32 bit value using 4 8 bit CRC values.
+        for (uint8_t i = 0; serial_no_str[i] != 0; ++i) {
+            crcs[i % 4] = PIOS_CRC_updateByte(crcs[i % 4], serial_no_str[i]);
+        }
+    }
+
+    rfm22b_dev->deviceID = crcs[0] | crcs[1] << 8 | crcs[2] << 16 | crcs[3] << 24;
+    DEBUG_PRINTF(2, "Generated RF device ID: %x\n\r", rfm22b_dev->deviceID);
+}
+
+/**
  * Read the RFM22B interrupt and device status registers
  *
  * @param[in] rfm22b_dev  The device structure
@@ -1959,7 +2005,8 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
                 if (val != RFM22B_PPM_INVALID) {
                     radio_dev->ppm[i] = (uint16_t)(RFM22B_PPM_MIN_US + (val - RFM22B_PPM_MIN) * RFM22B_PPM_SCALE);
                 } else {
-                    radio_dev->ppm[i] = PIOS_RCVR_INVALID;
+                    // Set failsafe value
+                    radio_dev->ppm[i] = PIOS_RCVR_TIMEOUT;
                 }
             }
 
@@ -1984,6 +2031,9 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
         rfm22b_add_rx_status(radio_dev, RADIO_ERROR_RX_PACKET);
     }
 
+    // Increment the packet sequence number.
+    radio_dev->stats.rx_seq++;
+
     enum pios_radio_event ret_event = RADIO_EVENT_RX_COMPLETE;
     if (good_packet || corrected_packet) {
         // Send the data to the com port
@@ -1998,10 +2048,10 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
         if (!rfm22_isCoordinator(radio_dev) &&
             radio_dev->rx_destination_id == rfm22_destinationID(radio_dev)) {
             rfm22_synchronizeClock(radio_dev);
-            radio_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_CONNECTED;
         }
-
-        radio_dev->last_contact = xTaskGetTickCount();
+        radio_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_CONNECTED;
+        radio_dev->last_contact     = xTaskGetTickCount();
+        radio_dev->stats.rssi = radio_dev->rssi_dBm;
     } else {
         ret_event = RADIO_EVENT_RX_COMPLETE;
     }
@@ -2096,17 +2146,31 @@ static void rfm22_updatePairStatus(struct pios_rfm22b_dev *radio_dev)
 }
 
 /**
- * Calculate the link quality from the packet receipt, tranmittion statistics.
+ * Calculate stats from the packet receipt, transmission statistics.
  *
  * @param[in] rfm22b_dev  The device structure
  */
-static void rfm22_calculateLinkQuality(struct pios_rfm22b_dev *rfm22b_dev)
+static void rfm22_updateStats(struct pios_rfm22b_dev *rfm22b_dev)
 {
     // Add the RX packet statistics
     rfm22b_dev->stats.rx_good      = 0;
     rfm22b_dev->stats.rx_corrected = 0;
     rfm22b_dev->stats.rx_error     = 0;
     rfm22b_dev->stats.rx_failure   = 0;
+
+    if (!rfm22_isConnected(rfm22b_dev)) {
+        // Set link_quality to 0 and Rssi to noise floor if disconnected
+        rfm22b_dev->stats.link_quality = 0;
+        rfm22b_dev->stats.rssi = -127;
+        return;
+    }
+
+    // Check if connection is timed out
+    if (rfm22_checkTimeOut(rfm22b_dev)) {
+        // Set the link state to disconnected.
+        rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
+    }
+
     for (uint8_t i = 0; i < RFM22B_RX_PACKET_STATS_LEN; ++i) {
         uint32_t val = rfm22b_dev->rx_packet_stats[i];
         for (uint8_t j = 0; j < 16; ++j) {
@@ -2132,6 +2196,16 @@ static void rfm22_calculateLinkQuality(struct pios_rfm22b_dev *rfm22b_dev)
     // Using this equation, error and resent packets are counted as -2, and corrected packets are counted as -1.
     // The range is 0 (all error or resent packets) to 128 (all good packets).
     rfm22b_dev->stats.link_quality = 64 + rfm22b_dev->stats.rx_good - rfm22b_dev->stats.rx_error - rfm22b_dev->stats.rx_failure;
+}
+
+/**
+ * A timeout occured ?
+ *
+ * @param[in] rfm22b_dev  The device structure
+ */
+static bool rfm22_checkTimeOut(struct pios_rfm22b_dev *rfm22b_dev)
+{
+    return pios_rfm22_time_difference_ms(rfm22b_dev->last_contact, xTaskGetTickCount()) >= CONNECTED_TIMEOUT;
 }
 
 /**
@@ -2262,25 +2336,16 @@ static uint8_t rfm22_calcChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t ind
     uint8_t idx = index % rfm22b_dev->num_channels;
 
     // Are we switching to a new channel?
-    if (idx != rfm22b_dev->channel_index) {
-        if (!rfm22_isCoordinator(rfm22b_dev) &&
-            pios_rfm22_time_difference_ms(rfm22b_dev->last_contact, xTaskGetTickCount()) >=
-            CONNECTED_TIMEOUT) {
-            // Set the link state to disconnected.
-            if (rfm22b_dev->stats.link_state == OPLINKSTATUS_LINKSTATE_CONNECTED) {
-                rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
-                // Set the PPM outputs to INVALID
-                for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-                    rfm22b_dev->ppm[i] = PIOS_RCVR_INVALID;
-                }
-            }
-
-            // Stay on first channel.
-            idx = 0;
-        }
-
-        rfm22b_dev->channel_index = idx;
+    if ((idx != rfm22b_dev->channel_index) && !rfm22_isCoordinator(rfm22b_dev) && rfm22_checkTimeOut(rfm22b_dev)) {
+        // Set the link state to disconnected.
+        rfm22b_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
+        // Update stats
+        rfm22_updateStats(rfm22b_dev);
+        // Stay on first channel.
+        idx = 0;
     }
+
+    rfm22b_dev->channel_index = idx;
 
     return rfm22b_dev->channels[idx];
 }

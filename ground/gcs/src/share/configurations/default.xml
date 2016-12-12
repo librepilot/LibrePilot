@@ -1542,272 +1542,6 @@
         </data>
       </Yaw>
     </LineardialGadget>
-    <ModelViewGadget>
-      <Aeroquad__PCT__20__PCT__2B>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/aeroquad/aeroquad_+.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Aeroquad__PCT__20__PCT__2B>
-      <CopterControl>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/boards/CopterControl/CopterControl.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </CopterControl>
-      <CC3D>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/boards/CC3D/CC3D.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </CC3D>
-      <Revolution>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/boards/Revolution/revolution.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Revolution>
-      <Blackout_MiniH>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/blackout/BlackoutMiniHQuad.3DS</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Blackout_MiniH>
-      <Zagi>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/planes/zagi/zagi.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Zagi>
-      <Easyquad__PCT__20X>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/easy_quad/easy_quad_X.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Easyquad__PCT__20X>
-      <Easystar>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/planes/Easystar/easystar.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Easystar>
-      <Firecracker>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/planes/firecracker/firecracker.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Firecracker>
-      <Funjet>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/planes/funjet/funjet.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Funjet>
-      <Gaui__PCT__20330X>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/gaui_330x/gaui_330x.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Gaui__PCT__20330X>
-      <Helicopter__PCT__20-__PCT__20TRex__PCT__20450>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/helis/t-rex/t-rex_450_xl.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Helicopter__PCT__20-__PCT__20TRex__PCT__20450>
-      <Hexacopter>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/mikrokopter/MK_Hexa.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Hexacopter>
-      <Joe__PCT__27s__PCT__2014__PCT__22__PCT__20Quad__PCT__20__PCT__2B>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/joes_cnc/J14-Q_+.3DS</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Joe__PCT__27s__PCT__2014__PCT__22__PCT__20Quad__PCT__20__PCT__2B>
-      <Joe__PCT__27s__PCT__2014__PCT__22__PCT__20Quad__PCT__20X__PCT__20>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/joes_cnc/J14-Q_X.3DS</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Joe__PCT__27s__PCT__2014__PCT__22__PCT__20Quad__PCT__20X__PCT__20>
-      <Joe__PCT__27s__PCT__2014__PCT__22__PCT__20T__PCT__20Quad__PCT__20__PCT__2B>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/joes_cnc/J14-QT_+.3DS</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Joe__PCT__27s__PCT__2014__PCT__22__PCT__20T__PCT__20Quad__PCT__20__PCT__2B>
-      <Joe__PCT__27s__PCT__2014__PCT__22__PCT__20T__PCT__20Quad__PCT__20X>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/joes_cnc/J14-QT_X.3DS</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Joe__PCT__27s__PCT__2014__PCT__22__PCT__20T__PCT__20Quad__PCT__20X>
-      <Quadcopter>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/mikrokopter/MK_L4-ME.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Quadcopter>
-      <Ricoo>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/ricoo/ricoo.3DS</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Ricoo>
-      <Scorpion__PCT__20Tricopter>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/scorpion_tricopter/scorpion_tricopter.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Scorpion__PCT__20Tricopter>
-      <MattL__PCT__27s__PCT__20Y6>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/mattL_Y6/mattL_Y6.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </MattL__PCT__27s__PCT__20Y6>
-      <Test__PCT__20Quad__PCT__20__PCT__2B>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/test_quad/test_quad_+.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Test__PCT__20Quad__PCT__20__PCT__2B>
-      <Test__PCT__20Quad__PCT__20X>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/test_quad/test_quad_X.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Test__PCT__20Quad__PCT__20X>
-      <Danker__PCT__27s__PCT__20Quad>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <acFilename>%%DATAPATH%%models/multi/dankers_quad/dankers_quad.3ds</acFilename>
-          <bgFilename>%%DATAPATH%%models/backgrounds/default_background.png</bgFilename>
-          <enableVbo>false</enableVbo>
-        </data>
-      </Danker__PCT__27s__PCT__20Quad>
-    </ModelViewGadget>
     <OPMapGadget>
       <Google__PCT__20Sat>
         <configInfo>
@@ -1820,7 +1554,7 @@
           <defaultLatitude>0</defaultLatitude>
           <defaultLongitude>0</defaultLongitude>
           <defaultZoom>2</defaultZoom>
-          <mapProvider>GoogleSatellite</mapProvider>
+          <mapProvider>GoogleHybrid</mapProvider>
           <maxUpdateRate>2000</maxUpdateRate>
           <overlayOpacity>1</overlayOpacity>
           <showTileGridLines>false</showTileGridLines>
@@ -1871,55 +1605,175 @@
       </default>
     </OPMapGadget>    
     <PfdQmlGadget>
-      <NoTerrain>
+      <PFD>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <actualPositionUsed>false</actualPositionUsed>
-          <altitude>2000</altitude>
+          <qmlFile>%%DATAPATH%%qml/Pfd.qml</qmlFile>
           <altitudeFactor>1</altitudeFactor>
-          <cacheOnly>false</cacheOnly>
-          <earthFile>%%DATAPATH%%pfd/default/readymap.earth</earthFile>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <openGLEnabled>true</openGLEnabled>
-          <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
           <speedFactor>1</speedFactor>
           <terrainEnabled>false</terrainEnabled>
-        </data>
-      </NoTerrain>
-      <Terrain>
-        <configInfo>
-          <locked>false</locked>
-          <version>0.0.0</version>
-        </configInfo>
-        <data>
-          <actualPositionUsed>false</actualPositionUsed>
-          <altitude>2000</altitude>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
           <cacheOnly>false</cacheOnly>
-          <earthFile>%%DATAPATH%%pfd/default/readymap.earth</earthFile>
-          <latitude>46.6715</latitude>
-          <longitude>10.1589</longitude>
-          <openGLEnabled>true</openGLEnabled>
-          <qmlFile>%%DATAPATH%%pfd/default/Pfd.qml</qmlFile>
-          <terrainEnabled>false</terrainEnabled>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
-      </Terrain>
-    </PfdQmlGadget>
-    <QmlViewGadget>
-      <default>
+      </PFD>
+      <PFD__PCT__20__PCT__28ReadyMap__PCT__29>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
         </configInfo>
         <data>
-          <dialFile>Unknown</dialFile>
-          <useOpenGLFlag>true</useOpenGLFlag>
+          <qmlFile>%%DATAPATH%%qml/PfdTerrain.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
         </data>
-      </default>
-    </QmlViewGadget>
+      </PFD__PCT__20__PCT__28ReadyMap__PCT__29>
+      <PFD__PCT__20__PCT__28ArcGis__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/PfdTerrain.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </PFD__PCT__20__PCT__28ArcGis__PCT__29>
+      <Model__PCT__20View>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/Model.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>false</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>true</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </Model__PCT__20View>
+      <Model__PCT__20View__PCT__20__PCT__28ReadyMap__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/ModelTerrain.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/readymap.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>true</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </Model__PCT__20View__PCT__20__PCT__28ReadyMap__PCT__29>
+      <Model__PCT__20View__PCT__20__PCT__28ArcGis__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/ModelTerrain.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>true</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </Model__PCT__20View__PCT__20__PCT__28ArcGis__PCT__29>
+      <Earth__PCT__20View>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/Earth.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+        </data>
+      </Earth__PCT__20View>
+    </PfdQmlGadget>
     <ScopeGadget>
       <Accel>
         <configInfo>
@@ -1974,12 +1828,14 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>20</dataSize>
           <plotCurve0>
-            <color>4294901760</color>
+            <color>4278190080</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-4</uavField>
+            <uavField>Channel-0</uavField>
             <uavObject>ActuatorCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1987,9 +1843,10 @@
             <yScalePower>0</yScalePower>
           </plotCurve0>
           <plotCurve1>
-            <color>4294901760</color>
+            <color>4289352960</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-5</uavField>
+            <uavField>Channel-1</uavField>
             <uavObject>ActuatorCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -1997,9 +1854,10 @@
             <yScalePower>0</yScalePower>
           </plotCurve1>
           <plotCurve2>
-            <color>4289374847</color>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-6</uavField>
+            <uavField>Channel-2</uavField>
             <uavObject>ActuatorCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -2007,7 +1865,52 @@
             <yScalePower>0</yScalePower>
           </plotCurve2>
           <plotCurve3>
-            <color>4289374847</color>
+            <color>4294923520</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-3</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-4</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4283825920</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-5</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurve6>
+            <color>4278190335</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-6</uavField>
+            <uavObject>ActuatorCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve6>
+          <plotCurve7>
+            <color>4289331455</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Channel-7</uavField>
             <uavObject>ActuatorCommand</uavObject>
@@ -2015,8 +1918,8 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
-          </plotCurve3>
-          <plotCurveCount>4</plotCurveCount>
+          </plotCurve7>
+          <plotCurveCount>8</plotCurveCount>
           <plotType>1</plotType>
           <refreshInterval>100</refreshInterval>
         </data>
@@ -2074,10 +1977,34 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>60</dataSize>
           <plotCurve0>
+            <color>4278212095</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Altitude</uavField>
+            <uavObject>BaroSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Temperature</uavField>
+            <uavObject>BaroSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
             <color>4278190080</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Pressure</uavField>
             <uavObject>BaroSensor</uavObject>
@@ -2085,12 +2012,138 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
-          </plotCurve0>
-          <plotCurveCount>1</plotCurveCount>
+          </plotCurve2>
+          <plotCurveCount>3</plotCurveCount>
           <plotType>1</plotType>
-          <refreshInterval>1000</refreshInterval>
+          <refreshInterval>300</refreshInterval>
         </data>
       </Barometer>
+      <GPS>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <LoggingEnabled>false</LoggingEnabled>
+          <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
+          <configurationStreamVersion>1000</configurationStreamVersion>
+          <dataSize>60</dataSize>
+          <plotCurve0>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Satellites</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4278255615</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>AutoConfigStatus</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
+            <color>4283804415</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>BaudRate</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve2>
+          <plotCurve3>
+            <color>4294923520</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>SatsInView</uavField>
+            <uavObject>GPSSatellites</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Status</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4294901887</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Groundspeed</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurve6>
+            <color>4283804287</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>PDOP</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve6>
+          <plotCurve7>
+            <color>4283826047</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>HDOP</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve7>
+          <plotCurve8>
+            <color>4289396607</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>VDOP</uavField>
+            <uavObject>GPSPositionSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve8>
+          <plotCurve9>
+            <color>4289353215</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Alarm-GPS</uavField>
+            <uavObject>SystemAlarms</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve9>
+          <plotCurveCount>10</plotCurveCount>
+          <plotType>1</plotType>
+          <refreshInterval>100</refreshInterval>
+        </data>
+      </GPS>
       <Inputs>
         <configInfo>
           <locked>false</locked>
@@ -2099,12 +2152,14 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>40</dataSize>
           <plotCurve0>
-            <color>4278190207</color>
+            <color>4278190080</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-1</uavField>
+            <uavField>Channel-0</uavField>
             <uavObject>ManualControlCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -2112,9 +2167,10 @@
             <yScalePower>0</yScalePower>
           </plotCurve0>
           <plotCurve1>
-            <color>4294901760</color>
+            <color>4289352960</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-4</uavField>
+            <uavField>Channel-1</uavField>
             <uavObject>ManualControlCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -2123,36 +2179,7 @@
           </plotCurve1>
           <plotCurve2>
             <color>4294901760</color>
-            <mathFunction>None</mathFunction>
-            <uavField>Channel-5</uavField>
-            <uavObject>ManualControlCommand</uavObject>
-            <yMaximum>0</yMaximum>
-            <yMeanSamples>1</yMeanSamples>
-            <yMinimum>0</yMinimum>
-            <yScalePower>0</yScalePower>
-          </plotCurve2>
-          <plotCurve3>
-            <color>4294901760</color>
-            <mathFunction>None</mathFunction>
-            <uavField>Channel-6</uavField>
-            <uavObject>ManualControlCommand</uavObject>
-            <yMaximum>0</yMaximum>
-            <yMeanSamples>1</yMeanSamples>
-            <yMinimum>0</yMinimum>
-            <yScalePower>0</yScalePower>
-          </plotCurve3>
-          <plotCurve4>
-            <color>4294901760</color>
-            <mathFunction>None</mathFunction>
-            <uavField>Channel-7</uavField>
-            <uavObject>ManualControlCommand</uavObject>
-            <yMaximum>0</yMaximum>
-            <yMeanSamples>1</yMeanSamples>
-            <yMinimum>0</yMinimum>
-            <yScalePower>0</yScalePower>
-          </plotCurve4>
-          <plotCurve5>
-            <color>4283825920</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Channel-2</uavField>
             <uavObject>ManualControlCommand</uavObject>
@@ -2160,9 +2187,10 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
-          </plotCurve5>
-          <plotCurve6>
+          </plotCurve2>
+          <plotCurve3>
             <color>4294923520</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>Channel-3</uavField>
             <uavObject>ManualControlCommand</uavObject>
@@ -2170,11 +2198,45 @@
             <yMeanSamples>1</yMeanSamples>
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-4</uavField>
+            <uavObject>ManualControlCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4278255360</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-5</uavField>
+            <uavObject>ManualControlCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurve6>
+            <color>4278190335</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Channel-6</uavField>
+            <uavObject>ManualControlCommand</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
           </plotCurve6>
           <plotCurve7>
-            <color>4294967040</color>
+            <color>4289331455</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
-            <uavField>Channel-0</uavField>
+            <uavField>Channel-7</uavField>
             <uavObject>ManualControlCommand</uavObject>
             <yMaximum>0</yMaximum>
             <yMeanSamples>1</yMeanSamples>
@@ -2186,6 +2248,77 @@
           <refreshInterval>200</refreshInterval>
         </data>
       </Inputs>
+      <OPLink>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <LoggingEnabled>false</LoggingEnabled>
+          <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
+          <configurationStreamVersion>1000</configurationStreamVersion>
+          <dataSize>60</dataSize>
+          <plotCurve0>
+            <color>4278212095</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>LinkState</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4278255615</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>RSSI</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>LinkQuality</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve2>
+          <plotCurve3>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>TXRate</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4278255360</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>RXRate</uavField>
+            <uavObject>OPLinkStatus</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurveCount>5</plotCurveCount>
+          <plotType>1</plotType>
+          <refreshInterval>100</refreshInterval>
+        </data>
+      </OPLink>
       <Raw__PCT__20AccelState>
         <configInfo>
           <locked>false</locked>
@@ -2276,7 +2409,7 @@
           <refreshInterval>500</refreshInterval>
         </data>
       </Raw__PCT__20GyroState>
-      <Raw__PCT__20magnetometers>
+      <Raw__PCT__20Magnetometers>
         <configInfo>
           <locked>false</locked>
           <version>0.0.0</version>
@@ -2284,10 +2417,94 @@
         <data>
           <LoggingEnabled>false</LoggingEnabled>
           <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
+          <configurationStreamVersion>1000</configurationStreamVersion>
+          <dataSize>40</dataSize>
+          <plotCurve0>
+            <color>4278233600</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>x</uavField>
+            <uavObject>MagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve0>
+          <plotCurve1>
+            <color>4278233855</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>y</uavField>
+            <uavObject>MagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve1>
+          <plotCurve2>
+            <color>4294967167</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>z</uavField>
+            <uavObject>MagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve2>
+          <plotCurve3>
+            <color>4278255360</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>x</uavField>
+            <uavObject>AuxMagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4278255615</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>y</uavField>
+            <uavObject>AuxMagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurve5>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>z</uavField>
+            <uavObject>AuxMagSensor</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve5>
+          <plotCurveCount>6</plotCurveCount>
+          <plotType>1</plotType>
+          <refreshInterval>200</refreshInterval>
+        </data>
+      </Raw__PCT__20Magnetometers>
+      <Magnetometer>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <LoggingEnabled>false</LoggingEnabled>
+          <LoggingNewFileOnConnect>false</LoggingNewFileOnConnect>
+          <LoggingPath></LoggingPath>
           <configurationStreamVersion>1000</configurationStreamVersion>
           <dataSize>60</dataSize>
           <plotCurve0>
-            <color>4294901760</color>
+            <color>4278233600</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>x</uavField>
             <uavObject>MagState</uavObject>
@@ -2297,7 +2514,8 @@
             <yScalePower>0</yScalePower>
           </plotCurve0>
           <plotCurve1>
-            <color>4283782655</color>
+            <color>4278190335</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>y</uavField>
             <uavObject>MagState</uavObject>
@@ -2307,7 +2525,8 @@
             <yScalePower>0</yScalePower>
           </plotCurve1>
           <plotCurve2>
-            <color>4283804160</color>
+            <color>4294967040</color>
+            <drawAntialiased>true</drawAntialiased>
             <mathFunction>None</mathFunction>
             <uavField>z</uavField>
             <uavObject>MagState</uavObject>
@@ -2316,11 +2535,33 @@
             <yMinimum>0</yMinimum>
             <yScalePower>0</yScalePower>
           </plotCurve2>
-          <plotCurveCount>3</plotCurveCount>
+          <plotCurve3>
+            <color>4294901760</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Alarm-Magnetometer</uavField>
+            <uavObject>SystemAlarms</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve3>
+          <plotCurve4>
+            <color>4283826175</color>
+            <drawAntialiased>true</drawAntialiased>
+            <mathFunction>None</mathFunction>
+            <uavField>Source</uavField>
+            <uavObject>MagState</uavObject>
+            <yMaximum>0</yMaximum>
+            <yMeanSamples>1</yMeanSamples>
+            <yMinimum>0</yMinimum>
+            <yScalePower>0</yScalePower>
+          </plotCurve4>
+          <plotCurveCount>5</plotCurveCount>
           <plotType>1</plotType>
           <refreshInterval>500</refreshInterval>
         </data>
-      </Raw__PCT__20magnetometers>
+      </Magnetometer>
       <Stacks__PCT__20monitor>
         <configInfo>
           <locked>false</locked>
@@ -2569,16 +2810,16 @@
           <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>NoTerrain</activeConfiguration>
+                <activeConfiguration>PFD</activeConfiguration>
               </gadget>
               <type>uavGadget</type>
           </side0>
           <side1>
             <side0>
-              <classId>ModelViewGadget</classId>
+              <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>Blackout_MiniH</activeConfiguration>
-              </gadget>
+                <activeConfiguration>Model View</activeConfiguration>
+             </gadget>
               <type>uavGadget</type>
             </side0>
             <side1>
@@ -2714,7 +2955,7 @@
             <side0>
               <classId>PfdQmlGadget</classId>
               <gadget>
-                <activeConfiguration>NoTerrain</activeConfiguration>
+                <activeConfiguration>PFD</activeConfiguration>
               </gadget>
               <type>uavGadget</type>
             </side0>

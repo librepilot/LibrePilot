@@ -34,16 +34,17 @@
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
-#include "objectpersistence.h"
 #include "devicedescriptorstruct.h"
+
+#include "objectpersistence.h"
+#include "firmwareiapobj.h"
+
 #include <QtGlobal>
 #include <QObject>
 #include <QTimer>
 #include <QMutex>
 #include <QQueue>
-#include <QComboBox>
 #include <QDateTime>
-#include <firmwareiapobj.h>
 
 class UAVOBJECTUTIL_EXPORT UAVObjectUtilManager : public QObject {
     Q_OBJECT

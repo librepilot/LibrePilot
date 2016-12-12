@@ -5,7 +5,8 @@
  * @addtogroup OpenPilotCore OpenPilot Core
  * @{
  * @file       pios_board.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Defines board hardware for the OpenPilot Version 1.1 hardware.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -147,6 +148,9 @@ extern uint32_t pios_com_telem_usb_id;
 extern uint32_t pios_com_bridge_id;
 extern uint32_t pios_com_vcp_id;
 extern uint32_t pios_com_hkosd_id;
+extern uint32_t pios_com_msp_id;
+extern uint32_t pios_com_mavlink_id;
+
 #define PIOS_COM_GPS       (pios_com_gps_id)
 #define PIOS_COM_TELEM_USB (pios_com_telem_usb_id)
 #define PIOS_COM_TELEM_RF  (pios_com_telem_rf_id)
@@ -154,6 +158,8 @@ extern uint32_t pios_com_hkosd_id;
 #define PIOS_COM_BRIDGE    (pios_com_bridge_id)
 #define PIOS_COM_VCP       (pios_com_vcp_id)
 #define PIOS_COM_OSDHK     (pios_com_hkosd_id)
+#define PIOS_COM_MSP       (pios_com_msp_id)
+#define PIOS_COM_MAVLINK   (pios_com_mavlink_id)
 
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
 extern uint32_t pios_com_debug_id;
@@ -237,7 +243,7 @@ extern uint32_t pios_packet_handler;
 // Receiver PPM input
 // -------------------------
 #define PIOS_PPM_MAX_DEVS            1
-#define PIOS_PPM_NUM_INPUTS          12
+#define PIOS_PPM_NUM_INPUTS          16
 
 // -------------------------
 // Receiver PWM input
@@ -258,6 +264,18 @@ extern uint32_t pios_packet_handler;
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
 
 // -------------------------
+// Receiver HOTT input
+// -------------------------
+#define PIOS_HOTT_MAX_DEVS           1
+#define PIOS_HOTT_NUM_INPUTS         32
+
+// -------------------------
+// Receiver EX.Bus input
+// -------------------------
+#define PIOS_EXBUS_MAX_DEVS          1
+#define PIOS_EXBUS_NUM_INPUTS        16
+
+// -------------------------
 // Receiver Multiplex SRXL input
 // -------------------------
 #define PIOS_SRXL_MAX_DEVS           1
@@ -268,6 +286,12 @@ extern uint32_t pios_packet_handler;
 // -------------------------
 #define PIOS_DSM_MAX_DEVS            2
 #define PIOS_DSM_NUM_INPUTS          12
+
+// -------------------------
+// Receiver FlySky IBus input
+// -------------------------
+#define PIOS_IBUS_MAX_DEVS           1
+#define PIOS_IBUS_NUM_INPUTS         10
 
 // -------------------------
 // Servo outputs

@@ -26,6 +26,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configgroundvehiclewidget.h"
+
+#include "ui_airframe_ground.h"
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -70,8 +73,9 @@ QStringList ConfigGroundVehicleWidget::getChannelDescriptions()
 }
 
 ConfigGroundVehicleWidget::ConfigGroundVehicleWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_GroundConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_GroundConfigWidget();
     m_aircraft->setupUi(this);
 
     populateChannelComboBoxes();

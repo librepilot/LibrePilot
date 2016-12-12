@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGGroup.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -33,117 +33,194 @@
 #include <QDebug>
 
 namespace osgQtQuick {
+enum DirtyFlag { Children = 1 << 0 };
+
 struct OSGGroup::Hidden : public QObject {
     Q_OBJECT
 
-public:
-    Hidden(OSGGroup *parent) : QObject(parent), self(parent)
-    {
-        group = new osg::Group;
-    }
-
-    OSGGroup *self;
-
-    osg::ref_ptr<osg::Group> group;
-
-    QList<OSGNode *> children;
+private:
+    OSGGroup * const self;
 
     QMap<OSGNode *, osg::Node *> cache;
 
-    static void append_child(QQmlListProperty<OSGNode> *list, OSGNode *child)
-    {
-        OSGGroup *group = qobject_cast<OSGGroup *>(list->object);
+    QList<OSGNode *> children;
 
-        if (group && child) {
-            group->h->cache[child] = child->node();
-            group->h->children.append(child);
-            if (child->node()) {
-                group->h->group->addChild(child->node());
-                emit group->nodeChanged(group->h->group);
-            }
-            QObject::connect(child, SIGNAL(nodeChanged(osg::Node *)), group->h, SLOT(onNodeChanged(osg::Node *)));
+public:
+    Hidden(OSGGroup *self) : QObject(self), self(self)
+    {}
+
+    osg::Node *createNode()
+    {
+        return new osg::Group();
+    }
+
+    void appendChild(OSGNode *childNode)
+    {
+        // qDebug() << "OSGGroup::appendChild" << childNode;
+        children.append(childNode);
+        connect(childNode, &OSGNode::nodeChanged, this, &osgQtQuick::OSGGroup::Hidden::onChildNodeChanged, Qt::UniqueConnection);
+        self->setDirty(Children);
+    }
+
+    int countChild() const
+    {
+        return children.size();
+    }
+
+    OSGNode *atChild(int index) const
+    {
+        if (index >= 0 && index < children.size()) {
+            return children[index];
         }
+        return 0;
+    }
+
+    void clearChild()
+    {
+        while (!children.isEmpty()) {
+            OSGNode *node = children.takeLast();
+            disconnect(node);
+        }
+        children.clear();
+        cache.clear();
+        self->setDirty(Children);
+    }
+
+    void updateChildren()
+    {
+        // qDebug() << "OSGGroup::updateChildren";
+
+        osg::Group *group = static_cast<osg::Group *>(self->node());
+
+        if (!group) {
+            qWarning() << "OSGGroup::updateChildren - null group";
+            return;
+        }
+
+        bool updated = false;
+        unsigned int index = 0;
+
+        QListIterator<OSGNode *> i(children);
+        while (i.hasNext()) {
+            OSGNode *childNode = i.next();
+            // qDebug() << "OSGGroup::updateChildren - child" << childNode;
+            if (childNode->node()) {
+                if (index < group->getNumChildren()) {
+                    updated |= group->replaceChild(group->getChild(index), childNode->node());
+                } else {
+                    updated |= group->addChild(childNode->node());
+                }
+                cache.insert(childNode, childNode->node());
+                index++;
+            }
+        }
+        // removing eventual left overs
+        if (index < group->getNumChildren()) {
+            updated |= group->removeChild(index, group->getNumChildren() - index);
+        }
+        // if (updated) {
+        // self->emitNodeChanged();
+        // }
+    }
+
+    /* QQmlListProperty<OSGNode> */
+
+    static void append_child(QQmlListProperty<OSGNode> *list, OSGNode *childNode)
+    {
+        Hidden *h = qobject_cast<Hidden *>(list->object);
+
+        h->appendChild(childNode);
     }
 
     static int count_child(QQmlListProperty<OSGNode> *list)
     {
-        OSGGroup *group = qobject_cast<OSGGroup *>(list->object);
+        Hidden *h = qobject_cast<Hidden *>(list->object);
 
-        if (group) {
-            return group->h->children.size();
-        }
-
-        return 0;
+        return h->countChild();
     }
 
     static OSGNode *at_child(QQmlListProperty<OSGNode> *list, int index)
     {
-        OSGGroup *group = qobject_cast<OSGGroup *>(list->object);
+        Hidden *h = qobject_cast<Hidden *>(list->object);
 
-        if (group && index >= 0 && index < group->h->children.size()) {
-            return group->h->children[index];
-        }
-
-        return 0;
+        return h->atChild(index);
     }
 
     static void clear_child(QQmlListProperty<OSGNode> *list)
     {
-        OSGGroup *group = qobject_cast<OSGGroup *>(list->object);
+        Hidden *h = qobject_cast<Hidden *>(list->object);
 
-        if (group) {
-            while (!group->h->children.isEmpty()) {
-                OSGNode *node = group->h->children.takeLast();
-                if (node->parent() == group) {
-                    node->deleteLater();
-                }
-                if (!node->parent()) {
-                    node->deleteLater();
-                }
-            }
-            group->h->group->removeChild(0, group->h->group->getNumChildren());
-            group->h->cache.clear();
-        }
+        h->clearChild();
     }
 
-public slots:
-    void onNodeChanged(osg::Node *node)
+private slots:
+    void onChildNodeChanged(osg::Node *child)
     {
-        qDebug() << "OSGGroup::nodeChanged" << node;
-        OSGNode *obj = qobject_cast<OSGNode *>(sender());
-        if (obj) {
-            osg::Node *cacheNode = cache.value(obj, NULL);
-            if (cacheNode) {
-                group->removeChild(cacheNode);
-            }
-            if (node) {
-                group->addChild(node);
-            }
-            cache[obj] = node;
-            emit self->nodeChanged(group.get());
+        // qDebug() << "OSGGroup::onChildNodeChanged" << node;
+
+        osg::Group *group = static_cast<osg::Group *>(self->node());
+
+        if (!group) {
+            qWarning() << "OSGGroup::onChildNodeChanged - null group";
+            return;
         }
+
+        OSGNode *childNode = qobject_cast<OSGNode *>(sender());
+        // qDebug() << "OSGGroup::onChildNodeChanged - child node" << obj;
+        if (!childNode) {
+            qWarning() << "OSGGroup::onChildNodeChanged - sender is not an OSGNode" << sender();
+            return;
+        }
+        if (childNode->node() != child) {
+            qWarning() << "OSGGroup::onChildNodeChanged - child node is not valid" << childNode;
+            return;
+        }
+        bool updated = false;
+        osg::Node *current = cache.value(childNode, NULL);
+        if (current) {
+            updated |= group->replaceChild(current, child);
+        } else {
+            // should not happen...
+            qWarning() << "OSGGroup::onChildNodeChanged - child node is not a child" << childNode;
+        }
+        cache[childNode] = childNode->node();
+        // if (updated) {
+        // emit self->nodeChanged(group.get());
+        // }
     }
 };
 
-OSGGroup::OSGGroup(QObject *parent) :
-    OSGNode(parent), h(new Hidden(this))
-{
-    qDebug() << "OSGGroup::OSGGroup";
-    setNode(h->group.get());
-}
+/* class OSGGGroupNode */
+
+OSGGroup::OSGGroup(QObject *parent) : Inherited(parent), h(new Hidden(this))
+{}
 
 OSGGroup::~OSGGroup()
 {
-    qDebug() << "OSGGroup::~OSGGroup";
+    delete h;
 }
 
-QQmlListProperty<OSGNode> OSGGroup::children()
+QQmlListProperty<OSGNode> OSGGroup::children() const
 {
-    return QQmlListProperty<OSGNode>(this, 0,
+    return QQmlListProperty<OSGNode>(h, 0,
                                      &Hidden::append_child,
                                      &Hidden::count_child,
                                      &Hidden::at_child,
                                      &Hidden::clear_child);
+}
+
+osg::Node *OSGGroup::createNode()
+{
+    return h->createNode();
+}
+
+void OSGGroup::updateNode()
+{
+    Inherited::updateNode();
+
+    if (isDirty(Children)) {
+        h->updateChildren();
+    }
 }
 } // namespace osgQtQuick
 

@@ -89,10 +89,17 @@ typedef struct {
     uint    FixedWingPitch2 : 4;
     uint    FixedWingYaw1 : 4;
     uint    FixedWingYaw2 : 4;
-    uint    padding : 4; // 32 bits
+    uint    Accessory0 : 4;  // 32 bits
+    uint    Accessory1 : 4;
+    uint    Accessory2 : 4;
+    uint    Accessory3 : 4;
+    uint    Accessory0_2 : 4;
+    uint    Accessory1_2 : 4;
+    uint    Accessory2_2 : 4;
+    uint    Accessory3_2 : 4;
+    quint32 padding : 4; // 64bits
     quint32 padding1;
-    quint32 padding2;
-    quint32 padding3; // 128 bits
+    quint32 padding2; // 128 bits
 } __attribute__((packed))  fixedGUISettingsStruct;
 
 typedef struct {
@@ -155,8 +162,13 @@ class ConfigTaskWidget;
 /*
  * This class handles vehicle specific configuration UI and associated logic.
  *
- * This class derives from ConfigTaskWidget and overrides its the default "binding" mechanism.
- * It does not use the "dirty" state management directlyand registers its relevant widgets with ConfigTaskWidget to do so.
+ * VehicleConfig derives from ConfigTaskWidget but is not a top level ConfigTaskWidget.
+ * VehicleConfig objects are nested within the ConfigVehicleConfigWidget and have particularities:
+ * - bindings are added to the parent (i.e. ConfigVehicleConfigWidget)
+ * - auto bindings are not supported
+ * - as a consequence things like dirty state management are bypassed and delegated to the parent class.
+ *
+ * It does not use the "dirty" state management directly and registers its relevant widgets with ConfigTaskWidget to do so.
  */
 class VehicleConfig : public ConfigTaskWidget {
     Q_OBJECT
@@ -228,6 +240,7 @@ protected:
     void    setMixerVectorValue(UAVDataObject *mixer, int channel, MixerVectorElem elementName, double value);
     void    resetMixerVector(UAVDataObject *mixer, int channel);
     void    resetMotorAndServoMixers(UAVDataObject *mixer);
+    void    resetAllMixersType(UAVDataObject *mixer);
     QString getMixerType(UAVDataObject *mixer, int channel);
     void    setMixerType(UAVDataObject *mixer, int channel, MixerTypeElem mixerType);
     void    setThrottleCurve(UAVDataObject *mixer, MixerThrottleCurveElem curveType, QList<double> curve);
@@ -236,9 +249,8 @@ protected:
     double  getCurveMin(QList<double> *curve);
     double  getCurveMax(QList<double> *curve);
 
-protected slots:
-    virtual void refreshWidgetsValues(UAVObject *o = NULL);
-    virtual void updateObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     static UAVObjectManager *getUAVObjectManager();

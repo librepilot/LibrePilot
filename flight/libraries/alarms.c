@@ -6,7 +6,8 @@
  * @brief OpenPilot System libraries are available to all OP modules.
  * @{
  * @file       alarms.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Library for setting and clearing system alarms
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -279,6 +280,107 @@ SystemAlarmsAlarmOptions AlarmsGetHighestSeverity()
 
     xSemaphoreGiveRecursive(lock);
     return highest;
+}
+
+
+static const char *const systemalarms_severity_names[] = {
+    [SYSTEMALARMS_ALARM_UNINITIALISED] = "UNINITIALISED",
+    [SYSTEMALARMS_ALARM_OK]       = "OK",
+    [SYSTEMALARMS_ALARM_WARNING]  = "WARNING",
+    [SYSTEMALARMS_ALARM_CRITICAL] = "CRITICAL",
+    [SYSTEMALARMS_ALARM_ERROR]    = "ERROR"
+};
+
+static const char *const systemalarms_alarm_names[] = {
+    [SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION] = "CONFIG",
+    [SYSTEMALARMS_ALARM_BOOTFAULT]     = "BOOT",
+    [SYSTEMALARMS_ALARM_OUTOFMEMORY]   = "MEM",
+    [SYSTEMALARMS_ALARM_STACKOVERFLOW] = "STACK",
+    [SYSTEMALARMS_ALARM_CPUOVERLOAD]   = "CPU",
+    [SYSTEMALARMS_ALARM_EVENTSYSTEM]   = "EVENT",
+    [SYSTEMALARMS_ALARM_TELEMETRY]     = "TELEMETRY",
+    [SYSTEMALARMS_ALARM_RECEIVER] = "INPUT",
+    [SYSTEMALARMS_ALARM_MANUALCONTROL] = "MANUAL",
+    [SYSTEMALARMS_ALARM_ACTUATOR]      = "ACTUATOR",
+    [SYSTEMALARMS_ALARM_ATTITUDE]      = "ATTI",
+    [SYSTEMALARMS_ALARM_SENSORS]       = "SENSOR",
+    [SYSTEMALARMS_ALARM_MAGNETOMETER]  = "MAG",
+    [SYSTEMALARMS_ALARM_AIRSPEED]      = "AIRSPD",
+    [SYSTEMALARMS_ALARM_STABILIZATION] = "STAB",
+    [SYSTEMALARMS_ALARM_GUIDANCE]      = "GUIDANCE",
+    [SYSTEMALARMS_ALARM_PATHPLAN]      = "PLAN",
+    [SYSTEMALARMS_ALARM_BATTERY]       = "BATT",
+    [SYSTEMALARMS_ALARM_FLIGHTTIME]    = "TIME",
+    [SYSTEMALARMS_ALARM_I2C] = "I2C",
+    [SYSTEMALARMS_ALARM_GPS] = "GPS",
+};
+
+static const char *const systemalarms_extendedalarmstatus_names[] = {
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED] = "CFG:REBOOT",
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_FLIGHTMODE]     = "CFG:FLIGHTMODE",
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT] = "CFG:ONESHOT",
+    [SYSTEMALARMS_EXTENDEDALARMSTATUS_BADTHROTTLEORCOLLECTIVEINPUTRANGE] = "CFG:THR-COL",
+};
+
+size_t AlarmString(SystemAlarmsData *alarm, char *buffer, size_t buffer_size, SystemAlarmsAlarmOptions level, SystemAlarmsAlarmOptions *highestSeverity)
+{
+    size_t pos = 0;
+
+    PIOS_STATIC_ASSERT(NELEMENTS(systemalarms_alarm_names) == SYSTEMALARMS_ALARM_NUMELEM);
+
+    for (unsigned severity = SYSTEMALARMS_ALARM_ERROR; severity >= level; --severity) {
+        // should we prepend severity level here? No, not for now.
+
+        for (unsigned i = 0; i < SYSTEMALARMS_ALARM_NUMELEM; ++i) {
+            if ((SystemAlarmsAlarmToArray(alarm->Alarm)[i] == severity)
+                && (systemalarms_alarm_names[i])) {
+                if (highestSeverity) { // they are already sorted by severity as we are processing in specific order
+                    *highestSeverity = severity;
+                    highestSeverity  = 0;
+                }
+
+                // in which case should we dig into extended alarm status?
+                // looks like SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION sets most of the extended alarms
+                // except SYSTEMALARMS_ALARM_BOOTFAULT which also sets SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED
+
+                const char *current_msg = systemalarms_alarm_names[i];
+
+                switch (i) {
+                case SYSTEMALARMS_ALARM_SYSTEMCONFIGURATION:
+                    if (alarm->ExtendedAlarmStatus.SystemConfiguration < NELEMENTS(systemalarms_extendedalarmstatus_names)) {
+                        current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.SystemConfiguration];
+                    }
+                    break;
+
+                case SYSTEMALARMS_ALARM_BOOTFAULT:
+                    if (alarm->ExtendedAlarmStatus.BootFault < NELEMENTS(systemalarms_extendedalarmstatus_names)) {
+                        current_msg = systemalarms_extendedalarmstatus_names[alarm->ExtendedAlarmStatus.BootFault];
+                    }
+                    break;
+                }
+
+                int current_len = strlen(current_msg);
+
+                if ((pos + current_len + 1) > buffer_size) {
+                    break;
+                }
+
+                memcpy(buffer + pos, current_msg, current_len);
+
+                pos += current_len;
+
+                buffer[pos++] = ',';
+            }
+        }
+    }
+
+    if (pos > 0) {
+        --pos; // get rid of that trailing separator.
+    }
+
+    buffer[pos] = 0;
+
+    return pos; // return length of the string in buffer. Actual bytes written is +1
 }
 
 /**

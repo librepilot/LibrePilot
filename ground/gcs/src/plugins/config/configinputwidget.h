@@ -8,7 +8,7 @@
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief Servo input/output configuration panel for the config gadget
+ * @brief Servo input configuration panel for the config gadget
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -28,32 +28,32 @@
 #ifndef CONFIGINPUTWIDGET_H
 #define CONFIGINPUTWIDGET_H
 
-#include "ui_input.h"
-#include "ui_input_wizard.h"
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+#include "uavobjectwidgetutils/configtaskwidget.h"
+
 #include "uavobject.h"
-#include <QWidget>
-#include <QList>
-#include "inputchannelform.h"
-#include "ui_inputchannelform.h"
-#include <QRadioButton>
+
 #include "manualcontrolcommand.h"
 #include "manualcontrolsettings.h"
 #include "actuatorsettings.h"
 #include "mixersettings.h"
 #include "flightmodesettings.h"
 #include "receiveractivity.h"
-#include <QGraphicsView>
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
 #include "flightstatus.h"
 #include "accessorydesired.h"
-#include <QPointer>
 #include "systemsettings.h"
 
+#include <QPointer>
+#include <QWidget>
+#include <QList>
+#include <QTimer>
+
 class Ui_InputWidget;
+class Ui_InputWizardWidget;
+
+class QEventLoop;
+class QSvgRenderer;
+class QGraphicsSvgItem;
+class QGraphicsSimpleTextItem;
 
 class ConfigInputWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -115,6 +115,8 @@ private:
     QList<int> acroChannelOrder;
     QList<int> groundChannelOrder;
 
+    uint16_t flightModeSignalValue[FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM];
+
     UAVObject::Metadata manualControlMdata;
     ManualControlCommand *manualCommandObj;
     ManualControlCommand::DataFields manualCommandData;
@@ -161,6 +163,8 @@ private:
     QGraphicsSvgItem *m_txAccess2;
     QGraphicsSvgItem *m_txAccess3;
     QGraphicsSvgItem *m_txFlightMode;
+    QGraphicsSvgItem *m_txFlightModeCountBG;
+    QGraphicsSimpleTextItem *m_txFlightModeCountText;
     QGraphicsSvgItem *m_txBackground;
     QGraphicsSvgItem *m_txArrows;
     QTransform m_txLeftStickOrig;
@@ -172,6 +176,8 @@ private:
     QTransform m_txFlightModeCOrig;
     QTransform m_txFlightModeLOrig;
     QTransform m_txFlightModeROrig;
+    QTransform m_txFlightModeCountBGOrig;
+    QTransform m_txFlightModeCountTextOrig;
     QTransform m_txMainBodyOrig;
     QTransform m_txArrowsOrig;
     QTimer *animate;
@@ -196,6 +202,8 @@ private:
     AccessoryDesired *getAccessoryDesiredInstance(int instance);
     float getAccessoryDesiredValue(int instance);
 
+    void highlightStabilizationMode(int pos);
+
 private slots:
     void wzNext();
     void wzNextDelayed();
@@ -203,7 +211,6 @@ private slots:
     void wzCancel();
     void goToWizard();
     void disableWizardButton(int);
-    void openHelp();
     void identifyControls();
     void identifyLimits();
     void moveTxControls();
@@ -211,17 +218,25 @@ private slots:
     void dimOtherControls(bool value);
     void moveFMSlider();
     void updatePositionSlider();
+    void updateConfigAlarmStatus();
     void invertControls();
     void simpleCalibration(bool state);
     void adjustSpecialNeutrals();
     void checkThrottleRange();
     void updateCalibration();
     void resetChannelSettings();
+    void resetFlightModeSettings();
     void resetActuatorSettings();
     void forceOneFlightMode();
+    void updateReceiverActivityStatus();
+
+    void failsafeFlightModeChanged(int index);
+    void failsafeFlightModeCbToggled(bool checked);
+    void enableControlsChanged(bool enabled);
 
 protected:
     void resizeEvent(QResizeEvent *event);
+    void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
 };
 
 #endif // ifndef CONFIGINPUTWIDGET_H

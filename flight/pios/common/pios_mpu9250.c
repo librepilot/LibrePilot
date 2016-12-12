@@ -137,7 +137,7 @@ static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg);
 static int32_t PIOS_MPU9250_SetReg(uint8_t address, uint8_t buffer);
 static int32_t PIOS_MPU9250_GetReg(uint8_t address);
 static void PIOS_MPU9250_SetSpeed(const bool fast);
-static bool PIOS_MPU9250_HandleData();
+static bool PIOS_MPU9250_HandleData(uint32_t gyro_read_timestamp);
 static bool PIOS_MPU9250_ReadSensor(bool *woken);
 static int32_t PIOS_MPU9250_Test(void);
 #if defined(PIOS_MPU9250_MAG)
@@ -812,9 +812,9 @@ static bool PIOS_MPU9250_ReadMag(bool *woken)
  * @return a boolean to the EXTI IRQ Handler wrapper indicating if a
  *         higher priority task is now eligible to run
  */
-
 bool PIOS_MPU9250_IRQHandler(void)
 {
+    uint32_t gyro_read_timestamp = PIOS_DELAY_GetRaw();
     bool woken = false;
 
     if (!mpu9250_configured) {
@@ -825,18 +825,14 @@ bool PIOS_MPU9250_IRQHandler(void)
     PIOS_MPU9250_ReadMag(&woken);
 #endif
 
-    bool read_ok = false;
-    read_ok = PIOS_MPU9250_ReadSensor(&woken);
-
-    if (read_ok) {
-        bool woken2 = PIOS_MPU9250_HandleData();
-        woken |= woken2;
+    if (PIOS_MPU9250_ReadSensor(&woken)) {
+        woken |= PIOS_MPU9250_HandleData(gyro_read_timestamp);
     }
 
     return woken;
 }
 
-static bool PIOS_MPU9250_HandleData()
+static bool PIOS_MPU9250_HandleData(uint32_t gyro_read_timestamp)
 {
     // Rotate the sensor to OP convention.  The datasheet defines X as towards the right
     // and Y as forward.  OP convention transposes this.  Also the Z is defined negatively
@@ -916,6 +912,7 @@ static bool PIOS_MPU9250_HandleData()
     queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu9250_data, Gyro_Z));
     const int16_t temp = GET_SENSOR_DATA(mpu9250_data, Temperature);
     queue_data->temperature = 2100 + ((float)(temp - PIOS_MPU9250_TEMP_OFFSET)) * (100.0f / PIOS_MPU9250_TEMP_SENSITIVITY);
+    queue_data->timestamp   = gyro_read_timestamp;
     mag_data->temperature   = queue_data->temperature;
 #ifdef PIOS_MPU9250_MAG
     if (mag_valid) {

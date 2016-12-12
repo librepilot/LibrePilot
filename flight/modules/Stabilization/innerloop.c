@@ -9,7 +9,7 @@
  * @{
  *
  * @file       innerloop.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Attitude stabilization module.
  *
@@ -51,14 +51,28 @@
 #include <virtualflybar.h>
 #include <cruisecontrol.h>
 #include <sanitycheck.h>
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+#include <systemidentstate.h>
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+
 // Private constants
 
-#define CALLBACK_PRIORITY CALLBACK_PRIORITY_CRITICAL
+#define CALLBACK_PRIORITY   CALLBACK_PRIORITY_CRITICAL
 
-#define UPDATE_EXPECTED   (1.0f / PIOS_SENSOR_RATE)
-#define UPDATE_MIN        1.0e-6f
-#define UPDATE_MAX        1.0f
-#define UPDATE_ALPHA      1.0e-2f
+#define UPDATE_EXPECTED     (1.0f / PIOS_SENSOR_RATE)
+#define UPDATE_MIN          1.0e-6f
+#define UPDATE_MAX          1.0f
+#define UPDATE_ALPHA        1.0e-2f
+
+#define SYSTEM_IDENT_PERIOD ((uint32_t)75)
+
+#if defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+#define powapprox           fastpow
+#define expapprox           fastexp
+#else
+#define powapprox           powf
+#define expapprox           expf
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 // Private variables
 static DelayedCallbackInfo *callbackHandle;
@@ -68,6 +82,10 @@ static uint8_t previous_mode[AXES] = { 255, 255, 255, 255 };
 static PiOSDeltatimeConfig timeval;
 static float speedScaleFactor = 1.0f;
 static bool frame_is_multirotor;
+static bool measuredDterm_enabled;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+static uint32_t systemIdentTimeVal = 0;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 // Private functions
 static void stabilizationInnerloopTask();
@@ -86,6 +104,9 @@ void stabilizationInnerloopInit()
     ManualControlCommandInitialize();
     StabilizationDesiredInitialize();
     ActuatorDesiredInitialize();
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    SystemIdentStateInitialize();
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 #ifdef REVOLUTION
     AirspeedStateInitialize();
     AirspeedStateConnectCallback(AirSpeedUpdatedCb);
@@ -98,7 +119,12 @@ void stabilizationInnerloopInit()
     // schedule dead calls every FAILSAFE_TIMEOUT_MS to have the watchdog cleared
     PIOS_CALLBACKSCHEDULER_Schedule(callbackHandle, FAILSAFE_TIMEOUT_MS, CALLBACK_UPDATEMODE_LATER);
 
-    frame_is_multirotor = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR);
+    frame_is_multirotor   = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR);
+    measuredDterm_enabled = (stabSettings.settings.MeasureBasedDTerm == STABILIZATIONSETTINGS_MEASUREBASEDDTERM_TRUE);
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    // Settings for system identification
+    systemIdentTimeVal    = PIOS_DELAY_GetRaw();
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 }
 
 static float get_pid_scale_source_value()
@@ -229,7 +255,6 @@ static void stabilizationInnerloopTask()
         }
     }
 
-
     RateDesiredData rateDesired;
     ActuatorDesiredData actuator;
     StabilizationStatusInnerLoopData enabled;
@@ -249,6 +274,7 @@ static void stabilizationInnerloopTask()
     StabilizationStatusOuterLoopData outerLoop;
     StabilizationStatusOuterLoopGet(&outerLoop);
     bool allowPiroComp = true;
+
 
     for (t = 0; t < AXES; t++) {
         bool reinit = (StabilizationStatusInnerLoopToArray(enabled)[t] != previous_mode[t]);
@@ -284,14 +310,16 @@ static void stabilizationInnerloopTask()
             // IMPORTANT: deliberately no "break;" here, execution continues with regular RATE control loop to avoid code duplication!
             // keep order as it is, RATE must follow!
             case STABILIZATIONSTATUS_INNERLOOP_RATE:
+            {
                 // limit rate to maximum configured limits (once here instead of 5 times in outer loop)
                 rate[t] = boundf(rate[t],
                                  -StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t],
                                  StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
                                  );
                 pid_scaler scaler = create_pid_scaler(t);
-                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT);
-                break;
+                actuatorDesiredAxis[t] = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
+            }
+            break;
             case STABILIZATIONSTATUS_INNERLOOP_ACRO:
             {
                 float stickinput[3];
@@ -305,11 +333,72 @@ static void stabilizationInnerloopTask()
 
                 pid_scaler ascaler = create_pid_scaler(t);
                 ascaler.i *= boundf(1.0f - (1.5f * fabsf(stickinput[t])), 0.0f, 1.0f); // this prevents Integral from getting too high while controlled manually
-                float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT);
+                float arate  = pid_apply_setpoint(&stabSettings.innerPids[t], &ascaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
                 float factor = fabsf(stickinput[t]) * stabSettings.acroInsanityFactors[t];
                 actuatorDesiredAxis[t] = factor * stickinput[t] + (1.0f - factor) * arate;
             }
             break;
+
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+            case STABILIZATIONSTATUS_INNERLOOP_SYSTEMIDENT:
+            {
+                static int8_t identIteration = 0;
+                static float identOffsets[3] = { 0 };
+
+                if (PIOS_DELAY_DiffuS(systemIdentTimeVal) / 1000.0f > SYSTEM_IDENT_PERIOD) {
+                    const float SCALE_BIAS = 7.1f;
+                    SystemIdentStateBetaData systemIdentBeta;
+
+                    SystemIdentStateBetaGet(&systemIdentBeta);
+                    systemIdentTimeVal = PIOS_DELAY_GetRaw();
+                    identOffsets[0]    = 0.0f;
+                    identOffsets[1]    = 0.0f;
+                    identOffsets[2]    = 0.0f;
+                    identIteration     = (identIteration + 1) & 7;
+                    // why does yaw change twice a cycle and roll/pitch change only once?
+                    uint8_t index = ((uint8_t[]) { '\2', '\0', '\2', '\0', '\2', '\1', '\2', '\1' }
+                                     )[identIteration];
+                    float scale   = expapprox(SCALE_BIAS - SystemIdentStateBetaToArray(systemIdentBeta)[index]);
+                    // if roll or pitch limit to 25% of range
+                    if (identIteration & 1) {
+                        if (scale > 0.25f) {
+                            scale = 0.25f;
+                        }
+                    }
+                    // else it is yaw that can be a little more radical
+                    else {
+                        if (scale > 0.45f) {
+                            scale = 0.45f;
+                        }
+                    }
+                    if (identIteration & 2) {
+                        scale = -scale;
+                    }
+                    identOffsets[index] = scale;
+                    // this results in:
+                    // when identIteration==0: identOffsets[2] = yaw_scale;
+                    // when identIteration==1: identOffsets[0] = roll_scale;
+                    // when identIteration==2: identOffsets[2] = -yaw_scale;
+                    // when identIteration==3: identOffsets[0] = -roll_scale;
+                    // when identIteration==4: identOffsets[2] = yaw_scale;
+                    // when identIteration==5: identOffsets[1] = pitch_scale;
+                    // when identIteration==6: identOffsets[2] = -yaw_scale;
+                    // when identIteration==7: identOffsets[1] = -pitch_scale;
+                    // each change has one axis with an offset
+                    // and another axis coming back to zero from having an offset
+                }
+
+                rate[t] = boundf(rate[t],
+                                 -StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t],
+                                 StabilizationBankMaximumRateToArray(stabSettings.stabBank.MaximumRate)[t]
+                                 );
+                pid_scaler scaler = create_pid_scaler(t);
+                actuatorDesiredAxis[t]  = pid_apply_setpoint(&stabSettings.innerPids[t], &scaler, rate[t], gyro_filtered[t], dT, measuredDterm_enabled);
+                actuatorDesiredAxis[t] += identOffsets[t];
+            }
+            break;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
+
             case STABILIZATIONSTATUS_INNERLOOP_DIRECT:
             default:
                 actuatorDesiredAxis[t] = rate[t];

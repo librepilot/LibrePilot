@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       biascalibrationpage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup BiasCalibrationPage
@@ -42,8 +43,8 @@ class EscCalibrationPage : public AbstractWizardPage {
 public:
     explicit EscCalibrationPage(SetupWizard *wizard, QWidget *parent = 0);
     ~EscCalibrationPage();
-    bool validatePage();
     void initializePage();
+    bool validatePage();
 
 private slots:
     void startButtonClicked();
@@ -53,8 +54,10 @@ private slots:
     void resetAllSecurityCheckboxes();
 
 private:
-    static const int LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS  = 1050;
     static const int OFF_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS  = 900;
+
+    // Min value should match min value defined in vehicleconfigurationsource.h
+    static const int LOW_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS  = 1000;
     static const int HIGH_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS = 1900;
     static const int HIGH_ONESHOT125_OUTPUT_PULSE_LENGTH_MICROSECONDS = 2000;
     Ui::EscCalibrationPage *ui;

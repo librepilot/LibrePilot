@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGSkyNode.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -43,42 +43,52 @@ class QUrl;
 QT_END_NAMESPACE
 
 namespace osgQtQuick {
-class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneData READ sceneData WRITE setSceneData NOTIFY sceneDataChanged)
+class OSGViewport;
 
+// TODO should derive from OSGGroup
+class OSGQTQUICK_EXPORT OSGSkyNode : public OSGNode {
+    Q_OBJECT Q_PROPERTY(osgQtQuick::OSGNode *sceneNode READ sceneNode WRITE setSceneNode NOTIFY sceneNodeChanged)
+    Q_PROPERTY(osgQtQuick::OSGViewport * viewport READ viewport WRITE setViewport NOTIFY viewportChanged)
     Q_PROPERTY(bool sunLightEnabled READ sunLightEnabled WRITE setSunLightEnabled NOTIFY sunLightEnabledChanged)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
     Q_PROPERTY(double minimumAmbientLight READ minimumAmbientLight WRITE setMinimumAmbientLight NOTIFY minimumAmbientLightChanged)
+
+    typedef OSGNode Inherited;
 
 public:
     OSGSkyNode(QObject *parent = 0);
     virtual ~OSGSkyNode();
 
-    OSGNode *sceneData();
-    void setSceneData(OSGNode *node);
+    OSGNode *sceneNode() const;
+    void setSceneNode(OSGNode *node);
 
-    bool sunLightEnabled();
+    OSGViewport *viewport() const;
+    void setViewport(OSGViewport *viewport);
+
+    bool sunLightEnabled() const;
     void setSunLightEnabled(bool arg);
 
-    QDateTime dateTime();
+    QDateTime dateTime() const;
     void setDateTime(QDateTime arg);
 
-    double minimumAmbientLight();
+    double minimumAmbientLight() const;
     void setMinimumAmbientLight(double arg);
 
-    virtual bool attach(osgViewer::View *view);
-    virtual bool detach(osgViewer::View *view);
-
 signals:
-    void sceneDataChanged(OSGNode *node);
+    void sceneNodeChanged(OSGNode *node);
+    void viewportChanged(OSGViewport *viewport);
 
     void sunLightEnabledChanged(bool arg);
     void dateTimeChanged(QDateTime arg);
     void minimumAmbientLightChanged(double arg);
 
+protected:
+    virtual osg::Node *createNode();
+    virtual void updateNode();
+
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

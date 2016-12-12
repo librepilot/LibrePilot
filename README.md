@@ -30,9 +30,16 @@ Links for the LibrePilot Project
 
 - [Main project web site](https://www.librepilot.org)
 - [Project forums](https://forum.librepilot.org)
+- [Software downloads](https://librepilot.atlassian.net/wiki/display/LPDOC/Downloads)
+- [Wiki](https://librepilot.atlassian.net/wiki/display/LPDOC/Welcome)
 - [Source code repository](https://bitbucket.org/librepilot)
 - [Mirror](https://github.com/librepilot)
 - [Issue tracker](https://librepilot.atlassian.net)
 - [Gitter Chat](https://gitter.im/librepilot/LibrePilot)
 - IRC: #LibrePilot on FreeNode
 
+
+| Builder      | Status        |
+|:-------------|:--------------|
+| Travis CI    |[![Build Status](https://travis-ci.org/librepilot/LibrePilot.svg?branch=next)](https://travis-ci.org/librepilot/LibrePilot)|
+| Tea CI       |[![Build Status](https://tea-ci.org/api/badges/librepilot/LibrePilot/status.svg?branch=next)](https://tea-ci.org/librepilot/LibrePilot)|

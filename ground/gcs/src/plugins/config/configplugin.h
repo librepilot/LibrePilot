@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       configgadgetplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configplugin.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -28,14 +29,11 @@
 #define CONFIGPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include "objectpersistence.h"
 
-#include <QMessageBox>
+#include <QString>
+#include <QStringList>
 
-class ConfigGadgetFactory;
+class UAVObjectManager;
 
 class ConfigPlugin : public ExtensionSystem::IPlugin {
     Q_OBJECT
@@ -49,9 +47,6 @@ public:
     void extensionsInitialized();
     bool initialize(const QStringList & arguments, QString *errorString);
     void shutdown();
-
-private:
-    ConfigGadgetFactory *cf;
 };
 
 #endif // CONFIGPLUGIN_H

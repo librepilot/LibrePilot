@@ -1,3 +1,229 @@
+-- RELEASE-16.09 - Second LibrePilot Release -- Black Rhino
+This is the second LibrePilot release.
+
+This release introduces new features and new hardware support like Sparky2 board and improved external mag support.
+
+New hardware support: 
+    Sparky2 board, Auxiliary Magnetometer: I2C and Naza GPS, Revo FlexiIO port usage e.g. PPM+GPS
+
+New input modes: 
+    Jeti Ex.Bus, Graupner Hott, FlySky IBus, PPM up to 16 channels, Revo/Sparky2 as OpenLRS receiver.
+
+New telemetry protocols: 
+    MSP, MAVLink. OSD devices that use those protocols may now be connected directly (e.g.: minimosd with MWOSD).
+
+New Flight oriented features: 
+    AlwaysStabilizeWhenArmed (Airmode) using switch, Measurement based D term gives smoother flight
+    SuperExpo (you may need half expo value compared to rel15.09), Camera tilt compensation,
+    Autotune module (except CC3D).
+
+GCS improvements:
+    PFD with terrain / OsgEarth improvements
+    Failsafe settings using GUI
+    Vehicle and Transmitter wizard improvements
+
+Known issues:
+    * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
+
+The full list of bug fixes and enhancements in this release is available here:
+https://librepilot.atlassian.net/issues/?filter=10500
+
+
+Release Notes - LibrePilot - Version REL-16.09
+
+** Sub-task
+    * [LP-120] - Add Ublox GPS + I2C Mag to Wizard
+
+** Bug
+    * [LP-59] - Replace openpilot email address in packaging
+    * [LP-83] - Bricking of Revo and Sparky2
+    * [LP-111] - Fix directory hash calculated to only include tracked files
+    * [LP-119] - #if used instead of #ifdef in pios_msheap.c
+    * [LP-139] - Erroneous warning about missing pfd.svg
+    * [LP-143] - Fix the "firmware upload no responding" issue
+    * [LP-145] - CC3D GPS issue
+    * [LP-154] - Fix gitignore - bare config causes all config directories to be ignored.
+    * [LP-160] - Set default AccelTau value
+    * [LP-165] - Acro+ factor range in TxPID
+    * [LP-167] - Stable version checker points to bad url
+    * [LP-171] - Acro+ Link Roll and Pitch affects all banks
+    * [LP-175] - Fix src rpm name
+    * [LP-181] - QT5.5 : PFD parts are broken
+    * [LP-182] - CC3D/Revonano OPlink Telemetry issue @38400
+    * [LP-184] - make: incremental build issues
+    * [LP-185] - Debian dist detection broken
+    * [LP-191] - Make TxWizard more robust
+    * [LP-193] - Remove Libpng warnings 
+    * [LP-197] - QT-5.5.1 broken translations
+    * [LP-198] - Cannot detect lost of PPM signal 
+    * [LP-204] - Fast_invsqrtf() issue
+    * [LP-205] - Rate trainer wobble at max angle
+    * [LP-206] - AlwaysStabilizeWhenArmed need to be disabled at takeoff/landing
+    * [LP-209] - Oplm link_quality still good with link lost
+    * [LP-215] - OpLink controller Tx should force failsafe if PPM stream fails
+    * [LP-216] - GCS misbehaves on high DPI devices
+    * [LP-218] - msys2 provided opengl library breaks GCS
+    * [LP-221] - Increase Revo System stack size
+    * [LP-222] - Building osg and osgearth fails
+    * [LP-223] - Unit tests build is broken
+    * [LP-228] - CC3D reboot while import config file
+    * [LP-241] - Allow CruiseControl for Rate mode at least
+    * [LP-245] - GCS unsaved data prompt when nothing changed
+    * [LP-249] - Fix bug introduced in LP-235
+    * [LP-251] - UAVObjectGeneratorGCS::process_object uses incorrect param null check
+    * [LP-252] - GPSv9 drops packets
+    * [LP-257] - OSX compile issue introduced by a93f182
+    * [LP-258] - Update flight controller in real time locks to basic tab
+    * [LP-261] - Upgrade GCS map versions
+    * [LP-263] - GCS default config updates
+    * [LP-266] - pitch virtual board rotation in gui is limited to 90 degrees
+    * [LP-273] - Reset Mag alarm when going back to Basic complementary fusion algorithm
+    * [LP-274] - Consistent Attitude board rotation values for all boards
+    * [LP-275] - OSX build errors
+    * [LP-277] - OPMap compilation warning
+    * [LP-281] - PIOS_SENSORS_GetInstanceByType() has incorrect matching operator
+    * [LP-285] - Tx Wizard : Set Accessory neutral to middle range
+    * [LP-289] - pidcontrol ne and down have nan dz if kp is zero
+    * [LP-290] - Windows GCS uninstall is very long
+    * [LP-299] - gcc5 building isnan issue
+    * [LP-305] - GCS crashes shortly after start on OSX - when loading OPMap gadget
+    * [LP-309] - When arming with accessory switch, disarming timeout doesn't work.
+    * [LP-310] - osg: random GCS crashes when switching or closing PFDQml gadgets
+    * [LP-312] - GCS config - attitude - mag tab offers sparky2 i2c port on revo
+    * [LP-313] - using UAVObjectBrowser filter text always enables metadata display
+    * [LP-321] - MSP in ReceiverPort menu for RevoNano
+    * [LP-333] - Sparky2 I2CPort needs GPIO_PuPd_UP instead of NOPULL
+    * [LP-339] - Avoid AutoTakeOff flight mode while already armed
+    * [LP-341] - VCP doesn't work on Windows 10 or 8.1
+    * [LP-362] - GCS crashes when logging to file with -log command line argument
+    * [LP-363] - OPMap missing tiles
+    * [LP-369] - Fix availability condition for VCP
+    * [LP-382] - MSP stack overflow on PID save op.
+    * [LP-387] - Sparky2 analog port mapping
+    * [LP-388] - Wrong AuxMag calibration due to wrong initial settings
+    * [LP-391] - Some CC3D ports cause a boot issue and re-init to defaults.
+    * [LP-392] - Revo attitude settings is missing the "Zero gyro when arming" checkbox
+    * [LP-395] - Raise BoardSteadyMaxVariance to support some boards having higher gyro noise
+    * [LP-400] - Doxygen document build fails with latex errors
+    * [LP-401] - Reboot is required after AutoTune is set in FMS
+    * [LP-406] - Windows driver fails to install
+    * [LP-409] - make fw_dist fails on windows
+    * [LP-421] - GCS setup wizard welcome panel is too big on high dpi screens
+    * [LP-423] - HMC5x83 driver dereferences null pointer
+    * [LP-424] - pios_openlrs.c has incorrect reference to rfm22b_id
+    * [LP-429] - changes to FlightModeSettings do not trigger a configuration check
+    * [LP-444] - I2C alarm
+    * [LP-447] - ESC calibration failure with FVT LitteBee 20A
+
+
+** Story
+    * [LP-32] - osgearth integration (follow up cleanups)
+
+** New Feature
+    * [LP-29] - osgearth integration
+    * [LP-149] - Add STM32F427/429/437/439 chip support, preparation for brand new board.
+    * [LP-212] - Support DJI GPS and mag combo uses one port
+    * [LP-214] - Camera tilt compensation
+    * [LP-233] - OneShot42 / MultiShot support
+    * [LP-280] - After firmware boots, start calibration when vehicle is not moving
+    * [LP-286] - Port search field in UAVBrowser from TL
+    * [LP-291] - Port MSP support from dRonin
+    * [LP-298] - Create iBus support for RX
+    * [LP-327] - Wait for board to be steady before calibrating gyro
+    * [LP-364] - Port and improve MavLink support from dRonin
+    * [LP-425] - Add Credits to the About dialog
+
+** Task
+    * [LP-2] - Upgrade to Qt 5.5
+    * [LP-30] - osg/osgearth/marble build scripts
+    * [LP-40] - Add support for TravisCI
+    * [LP-72] - Sparky 2 support
+    * [LP-73] - External Mags on I2C
+    * [LP-76] - Port Tau Labs Autotune to LP
+    * [LP-88] - Remove OpenPilot branding from .commit-template
+    * [LP-140] - Update Logo files in Artwork
+    * [LP-186] - Add copyright to qml and js files
+    * [LP-187] - Use Msys2
+    * [LP-194] - Hide Yaw Attitude related parameter from Stabilization panel
+    * [LP-195] - Update World Magnetic Model
+    * [LP-200] - Remove Opie
+    * [LP-201] - Update Y6 mixer
+    * [LP-208] - Upgrade to Qt 5.6
+    * [LP-230] - PFD refresh after recent additions
+    * [LP-247] - Add Naza GPS/Mag to Wizard
+    * [LP-267] - Enable more options in the current GUI for fusion algorithm
+    * [LP-292] - Oplink tab cleanup
+    * [LP-306] - Update Ubuntu PPA to build with osgearth
+    * [LP-307] - Set up Tea CI
+    * [LP-315] - Update vehicle templates
+    * [LP-317] - Update RPM packaging for osgearth
+    * [LP-325] - Reduce the threshold for ASWA switch
+    * [LP-328] - Sparky2 reboots constantly with only USB power and unpowered external mag
+    * [LP-330] - Fix copyright symbol in all code, make it consistent
+    * [LP-349] - shut up the plan warning alarm
+    * [LP-373] - Add bitbucket pipelines
+    * [LP-374] - Build x86_64 windows on TeaCI as well.
+    * [LP-394] - Upload build results from Tea-Ci
+
+** Improvement
+    * [LP-96] - Review CPU idle time counter
+    * [LP-97] - Unify Init process between revo*-cc3d boards
+    * [LP-104] - HOTT SUMD support
+    * [LP-147] - Rc transmitter wizard : Auto detect flight mode number
+    * [LP-150] - Run Attitude calculation on CC/CC3D at slower rate than gyro samples
+    * [LP-151] - Settable OPLink (and FC) Device ID
+    * [LP-164] - change OSX dmg .webloc to point to LP website
+    * [LP-168] - Copy the same content and url list as www.librepilot.org in README.md 
+    * [LP-174] - Add current value display to RcInput tab
+    * [LP-176] - Allow overriding of package type
+    * [LP-177] - Make debian package src use pre-compiled firmware
+    * [LP-178] - Add pass through feature for FixedWing
+    * [LP-179] - Highlight stabilization mode currently used
+    * [LP-183] - upgrade GCS uav object generator to Qt 5.5
+    * [LP-190] - Add openLRSng Rx support to OPLink/Revo
+    * [LP-196] - JETI EX Bus communication protocol support
+    * [LP-207] - EventDispatcher: Add "fast" callbacks
+    * [LP-219] - OPLink module should accept more than 8 PPM channels
+    * [LP-232] - Display flight mode alarm while setup
+    * [LP-235] - Make Failsafe settings more user friendly by allowing them to be set in the Configuration tab
+    * [LP-238] - Consolidate CPP firmware requirements within apps/boot-defs.mk
+    * [LP-239] - GPS on Flexi IO on Revo
+    * [LP-240] - Aux Mag setup help and GUI
+    * [LP-254] - Set CruiseControl default CruiseControlMaxThrust to 100
+    * [LP-256] - Sparky2 timers and output banks and PPM
+    * [LP-268] - Add TX and RX packet rates to OPLink stats.
+    * [LP-269] - IoT Stream Service
+    * [LP-272] - Altitude velocity Integral default value is set too high
+    * [LP-276] - Measurement based D term
+    * [LP-293] - Add AlarmString() to alarms library.
+    * [LP-295] - OP-1900 fix autotakeoff/landing to not break fixed wing
+    * [LP-302] - Change motor numbering on config - vehicle tab to directional like NW
+    * [LP-304] - Improvements for performance counters
+    * [LP-311] - GCS jumps back to Basic Stabilization if FC changes anything
+    * [LP-322] - USB Com Bridge functionality on OPLink
+    * [LP-324] - MSP on Sparky2
+    * [LP-326] - supporting 16 channels PPM
+    * [LP-335] - add support for address sanitizer in GCS build system
+    * [LP-338] - upgrade GCS to Qt 5.6.1
+    * [LP-340] - AutoTune fix some time measurement issues in original code
+    * [LP-342] - pios_exti to allow runtime (re)configuration
+    * [LP-343] - PIOS_COM_Available() needs to give out more details about RX and TX availability
+    * [LP-352] - Increase Expo effect for high rates
+    * [LP-354] - Add Ublox AssistNow Autonomous setting
+    * [LP-361] - Led notification improvements
+    * [LP-365] - Cleanup com port setup in pios_board.c for coptercontrol
+    * [LP-366] - Set default velocity and altitude in gcs for new waypoints 
+    * [LP-377] - ComBridge Speed settings delete
+    * [LP-379] - Add receiverActivity to RC Input tab
+    * [LP-390] - Fix UAVO telemetry errors
+    * [LP-396] - Yaw AcroPlus controls in GUI
+    * [LP-410] - silence GCS logs
+    * [LP-411] - AutoTune Limit Outer PIDs on Powerful Multicopters - dRonin PR 1283
+    * [LP-417] - Heartbeat LED on OPLink
+    * [LP-428] - Reduce the threshold for arming switch
+    * [LP-441] - Template - Wizard dialog on small screens
+
+
 -- RELEASE-15.09 - First LibrePilot Release -- Supermoon Eclipse
 This is the first LibrePilot release. 
 The main focus of this release is to bring back support for CC3D and a general re-branding of the GCS.

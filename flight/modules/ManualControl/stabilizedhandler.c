@@ -7,7 +7,8 @@
  * @{
  *
  * @file       stabilizedhandler.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  *
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -30,10 +31,12 @@
 
 #include "inc/manualcontrol.h"
 #include <mathmisc.h>
+#include <sin_lookup.h>
 #include <manualcontrolcommand.h>
 #include <stabilizationdesired.h>
 #include <flightmodesettings.h>
 #include <stabilizationbank.h>
+#include <flightstatus.h>
 
 // Private constants
 
@@ -42,18 +45,23 @@
 // Private functions
 static float applyExpo(float value, float expo);
 
+// Private variables
+static uint8_t currentFpvTiltAngle = 0;
+static float cosAngle = 0.0f;
+static float sinAngle = 0.0f;
+
 
 static float applyExpo(float value, float expo)
 {
     // note: fastPow makes a small error, therefore result needs to be bound
-    float exp = boundf(fastPow(1.00695f, expo), 0.5f, 2.0f);
+    float exp = boundf(fastPow(1.01395948f, expo), 0.25f, 4.0f);
 
     // magic number scales expo
     // so that
     // expo=100 yields value**10
     // expo=0 yields value**1
     // expo=-100 yields value**(1/10)
-    // (pow(2.0,1/100)~=1.00695)
+    // (pow(4.0,1/100)~=1.01395948)
     if (value > 0.0f) {
         return boundf(fastPow(value, exp), 0.0f, 1.0f);
     } else if (value < -0.0f) {
@@ -69,12 +77,16 @@ static float applyExpo(float value, float expo)
  * @input: ManualControlCommand
  * @output: StabilizationDesired
  */
-void stabilizedHandler(bool newinit)
+void stabilizedHandler(__attribute__((unused)) bool newinit)
 {
-    if (newinit) {
+    static bool inited = false;
+
+    if (!inited) {
+        inited = true;
         StabilizationDesiredInitialize();
         StabilizationBankInitialize();
     }
+
     ManualControlCommandData cmd;
     ManualControlCommandGet(&cmd);
 
@@ -90,10 +102,27 @@ void stabilizedHandler(bool newinit)
     cmd.Roll  = applyExpo(cmd.Roll, stabSettings.StickExpo.Roll);
     cmd.Pitch = applyExpo(cmd.Pitch, stabSettings.StickExpo.Pitch);
     cmd.Yaw   = applyExpo(cmd.Yaw, stabSettings.StickExpo.Yaw);
+
+    if (stabSettings.FpvCamTiltCompensation > 0) {
+        // Reduce Cpu load
+        if (currentFpvTiltAngle != stabSettings.FpvCamTiltCompensation) {
+            cosAngle = cos_lookup_deg((float)stabSettings.FpvCamTiltCompensation);
+            sinAngle = sin_lookup_deg((float)stabSettings.FpvCamTiltCompensation);
+            currentFpvTiltAngle = stabSettings.FpvCamTiltCompensation;
+        }
+        float rollCommand = cmd.Roll;
+        float yawCommand  = cmd.Yaw;
+
+        // http://shrediquette.blogspot.de/2016/01/some-thoughts-on-camera-tilt.html
+        // When Roll right, add negative Yaw.
+        // When Yaw left, add negative Roll.
+        cmd.Roll = boundf((cosAngle * rollCommand) + (sinAngle * yawCommand), -1.0f, 1.0f);
+        cmd.Yaw  = boundf((cosAngle * yawCommand) - (sinAngle * rollCommand), -1.0f, 1.0f);
+    }
+
     uint8_t *stab_settings;
     FlightStatusData flightStatus;
     FlightStatusGet(&flightStatus);
-
     switch (flightStatus.FlightMode) {
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED1:
         stab_settings = (uint8_t *)FlightModeSettingsStabilization1SettingsToArray(settings.Stabilization1Settings);
@@ -113,6 +142,13 @@ void stabilizedHandler(bool newinit)
     case FLIGHTSTATUS_FLIGHTMODE_STABILIZED6:
         stab_settings = (uint8_t *)FlightModeSettingsStabilization6SettingsToArray(settings.Stabilization6Settings);
         break;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+    case FLIGHTSTATUS_FLIGHTMODE_AUTOTUNE:
+        // let autotune.c handle it
+        // because it must switch to Attitude after <user configurable> seconds
+        return;
+
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
     default:
         // Major error, this should not occur because only enter this block when one of these is true
         AlarmsSet(SYSTEMALARMS_ALARM_MANUALCONTROL, SYSTEMALARMS_ALARM_CRITICAL);
@@ -130,6 +166,9 @@ void stabilizedHandler(bool newinit)
         (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_VIRTUALBAR) ? cmd.Roll :
         (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO) ? cmd.Roll * stabSettings.ManualRate.Roll :
         (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE) ? cmd.Roll * stabSettings.RollMax :
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        (stab_settings[0] == STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT) ? cmd.Roll * stabSettings.RollMax :
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         0; // this is an invalid mode
 
     stabilization.Pitch =
@@ -142,6 +181,9 @@ void stabilizedHandler(bool newinit)
         (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_VIRTUALBAR) ? cmd.Pitch :
         (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO) ? cmd.Pitch * stabSettings.ManualRate.Pitch :
         (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE) ? cmd.Pitch * stabSettings.PitchMax :
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        (stab_settings[1] == STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT) ? cmd.Pitch * stabSettings.PitchMax :
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         0; // this is an invalid mode
 
     // TOOD: Add assumption about order of stabilization desired and manual control stabilization mode fields having same order
@@ -164,6 +206,9 @@ void stabilizedHandler(bool newinit)
             (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_VIRTUALBAR) ? cmd.Yaw :
             (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_ACRO) ? cmd.Yaw * stabSettings.ManualRate.Yaw :
             (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_RATTITUDE) ? cmd.Yaw * stabSettings.YawMax :
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+            (stab_settings[2] == STABILIZATIONDESIRED_STABILIZATIONMODE_SYSTEMIDENT) ? cmd.Yaw * stabSettings.ManualRate.Yaw :
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
             0; // this is an invalid mode
     }
 

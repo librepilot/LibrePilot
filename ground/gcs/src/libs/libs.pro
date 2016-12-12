@@ -7,12 +7,11 @@ SUBDIRS = \
     qtconcurrent \
     aggregation \
     extensionsystem \
-    glc_lib \
     utils \
     opmapcontrol \
     qwt \
     sdlgamepad
 
-exists( $(OSG_SDK_DIR) ) {
+osg {
     SUBDIRS += osgearth
 }

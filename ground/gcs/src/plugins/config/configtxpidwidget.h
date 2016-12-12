@@ -27,8 +27,9 @@
 #ifndef CONFIGTXPIDWIDGET_H
 #define CONFIGTXPIDWIDGET_H
 
-#include "ui_txpid.h"
 #include "configtaskwidget.h"
+
+class Ui_TxPIDWidget;
 
 class ConfigTxPIDWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -36,15 +37,18 @@ class ConfigTxPIDWidget : public ConfigTaskWidget {
 public:
     ConfigTxPIDWidget(QWidget *parent = 0);
     ~ConfigTxPIDWidget();
+
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
 private:
     Ui_TxPIDWidget *m_txpid;
+
 private slots:
     void processLinkedWidgets(QWidget *widget);
     void updateSpinBoxProperties(int selectedPidOption);
     float getDefaultValueForPidOption(int pidOption);
-    void refreshValues();
-    void applySettings();
-    void saveSettings();
 };
 
 #endif // CONFIGTXPIDWIDGET_H

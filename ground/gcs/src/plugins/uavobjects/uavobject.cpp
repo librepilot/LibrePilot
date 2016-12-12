@@ -31,7 +31,10 @@
 
 #include <QtEndian>
 #include <QDebug>
-#include <QtWidgets>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QJsonObject>
+#include <QJsonArray>
 
 using namespace Utils;
 

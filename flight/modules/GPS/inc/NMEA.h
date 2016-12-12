@@ -2,8 +2,8 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
- * @brief Process GPS information
+ * @addtogroup GPSModule GPS Module
+ * @brief Process GPS information (NMEA format)
  * @{
  *
  * @file       NMEA.h

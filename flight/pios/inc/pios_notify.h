@@ -84,8 +84,9 @@ pios_notify_notification PIOS_NOTIFY_GetActiveNotification(bool clear);
  * are repeated only once if repeat = -1
  * @param sequence Sequence to be played
  * @param priority Priority of the sequence being played
+ * @return true if sequence is enqueued, false otherwise
  */
-void PIOS_NOTIFICATION_Default_Ext_Led_Play(const LedSequence_t *sequence, pios_notify_priority priority);
+bool PIOS_NOTIFICATION_Default_Ext_Led_Play(const LedSequence_t *sequence, pios_notify_priority priority);
 
 /*
  * Play a sequence on an external rgb led. Sequences with priority higher than NOTIFY_PRIORITY_LOW

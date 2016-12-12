@@ -34,7 +34,11 @@ FLIGHTLIBINC	= $(FLIGHTLIB)/inc
 OPUAVOBJINC	= $(OPUAVOBJ)/inc
 OPUAVTALKINC	= $(OPUAVTALK)/inc
 
-## PID 
+## MAVLink
+MAVLINKINC = $(FLIGHTLIB)/mavlink/v1.0/common
+
+
+## PID
 PIDLIB		=$(FLIGHTLIB)/pid
 PIDLIBINC	=$(FLIGHTLIB)/pid
 
@@ -86,9 +90,14 @@ SRC += $(PIOSCOMMON)/pios_rfm22b.c
 SRC += $(PIOSCOMMON)/pios_rfm22b_com.c
 SRC += $(PIOSCOMMON)/pios_rcvr.c
 SRC += $(PIOSCOMMON)/pios_sbus.c
+SRC += $(PIOSCOMMON)/pios_hott.c
 SRC += $(PIOSCOMMON)/pios_srxl.c
+SRC += $(PIOSCOMMON)/pios_exbus.c
+SRC += $(PIOSCOMMON)/pios_ibus.c
 SRC += $(PIOSCOMMON)/pios_sdcard.c
 SRC += $(PIOSCOMMON)/pios_sensors.c
+SRC += $(PIOSCOMMON)/pios_openlrs.c
+SRC += $(PIOSCOMMON)/pios_openlrs_rcvr.c
 
 ## Misc library functions
 SRC += $(FLIGHTLIB)/sanitycheck.c
@@ -109,6 +118,8 @@ SRC += $(PIOSCOMMON)/pios_com_msg.c
 SRC += $(PIOSCOMMON)/pios_crc.c
 SRC += $(PIOSCOMMON)/pios_deltatime.c
 SRC += $(PIOSCOMMON)/pios_led.c
+SRC += $(PIOSCOMMON)/pios_semaphore.c
+SRC += $(PIOSCOMMON)/pios_thread.c
 
 ifneq ($(PIOS_OMITS_USB),YES)
 ## PIOS USB related files
@@ -129,6 +140,11 @@ SRC += $(MATHLIB)/mathmisc.c
 SRC += $(MATHLIB)/butterworth.c
 SRC += $(FLIGHTLIB)/printf-stdarg.c
 SRC += $(FLIGHTLIB)/optypes.c
+
+## CPP support
+ifeq ($(USE_CXX),YES)
+CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
+endif
 
 ## Modules
 SRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c)))
@@ -178,6 +194,7 @@ EXTRAINCDIRS += $(PIDLIBINC)
 EXTRAINCDIRS += $(OPUAVOBJINC)
 EXTRAINCDIRS += $(OPUAVTALKINC)
 EXTRAINCDIRS += $(FLIGHT_UAVOBJ_DIR)
+EXTRAINCDIRS += $(MAVLINKINC)
 
 # Modules
 EXTRAINCDIRS += $(foreach mod, $(OPTMODULES) $(MODULES), $(OPMODULEDIR)/$(mod)/inc) $(OPMODULEDIR)/System/inc

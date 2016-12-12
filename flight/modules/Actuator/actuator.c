@@ -45,6 +45,7 @@
 #include "mixersettings.h"
 #include "mixerstatus.h"
 #include "cameradesired.h"
+#include "hwsettings.h"
 #include "manualcontrolcommand.h"
 #include "taskinfo.h"
 #include <systemsettings.h>
@@ -60,23 +61,25 @@ static int8_t counter;
 #endif
 
 // Private constants
-#define MAX_QUEUE_SIZE                  2
+#define MAX_QUEUE_SIZE                   2
 
 #if defined(PIOS_ACTUATOR_STACK_SIZE)
-#define STACK_SIZE_BYTES                PIOS_ACTUATOR_STACK_SIZE
+#define STACK_SIZE_BYTES                 PIOS_ACTUATOR_STACK_SIZE
 #else
-#define STACK_SIZE_BYTES                1312
+#define STACK_SIZE_BYTES                 1312
 #endif
 
-#define TASK_PRIORITY                   (tskIDLE_PRIORITY + 4) // device driver
-#define FAILSAFE_TIMEOUT_MS             100
-#define MAX_MIX_ACTUATORS               ACTUATORCOMMAND_CHANNEL_NUMELEM
+#define TASK_PRIORITY                    (tskIDLE_PRIORITY + 4) // device driver
+#define FAILSAFE_TIMEOUT_MS              100
+#define MAX_MIX_ACTUATORS                ACTUATORCOMMAND_CHANNEL_NUMELEM
 
-#define CAMERA_BOOT_DELAY_MS            7000
+#define CAMERA_BOOT_DELAY_MS             7000
 
-#define ACTUATOR_ONESHOT125_CLOCK       2000000
-#define ACTUATOR_ONESHOT125_PULSE_SCALE 4
-#define ACTUATOR_PWM_CLOCK              1000000
+#define ACTUATOR_ONESHOT_CLOCK           12000000
+#define ACTUATOR_ONESHOT125_PULSE_FACTOR 1.5f
+#define ACTUATOR_ONESHOT42_PULSE_FACTOR  0.5f
+#define ACTUATOR_MULTISHOT_PULSE_FACTOR  0.24f
+#define ACTUATOR_PWM_CLOCK               1000000
 // Private types
 
 
@@ -85,6 +88,7 @@ static xQueueHandle queue;
 static xTaskHandle taskHandle;
 static FrameType_t frameType = FRAME_TYPE_MULTIROTOR;
 static SystemSettingsThrustControlOptions thrustType = SYSTEMSETTINGS_THRUSTCONTROL_THROTTLE;
+static bool camStabEnabled;
 
 static uint8_t pinsMode[MAX_MIX_ACTUATORS];
 // used to inform the actuator thread that actuator update rate is changed
@@ -98,7 +102,7 @@ static int mixer_settings_count = 2;
 // Private functions
 static void actuatorTask(void *parameters);
 static int16_t scaleChannel(float value, int16_t max, int16_t min, int16_t neutral);
-static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired);
+static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool alwaysStabilizeWhenArmed, float throttleDesired);
 static void setFailsafe();
 static float MixerCurveFullRangeProportional(const float input, const float *curve, uint8_t elements, bool multirotor);
 static float MixerCurveFullRangeAbsolute(const float input, const float *curve, uint8_t elements, bool multirotor);
@@ -156,6 +160,12 @@ int32_t ActuatorInitialize()
 
     // Register AccessoryDesired (Secondary input to this module)
     AccessoryDesiredInitialize();
+
+    // Check if CameraStab module is enabled
+    HwSettingsOptionalModulesData optionalModules;
+    HwSettingsInitialize();
+    HwSettingsOptionalModulesGet(&optionalModules);
+    camStabEnabled = (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED);
 
     // Primary output of this module
     ActuatorCommandInitialize();
@@ -270,10 +280,10 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
         bool multirotor  = (GetCurrentFrameType() == FRAME_TYPE_MULTIROTOR); // check if frame is a multirotor.
         bool fixedwing   = (GetCurrentFrameType() == FRAME_TYPE_FIXED_WING); // check if frame is a fixedwing.
         bool alwaysArmed = settings.Arming == FLIGHTMODESETTINGS_ARMING_ALWAYSARMED;
-        bool AlwaysStabilizeWhenArmed = settings.AlwaysStabilizeWhenArmed == FLIGHTMODESETTINGS_ALWAYSSTABILIZEWHENARMED_TRUE;
+        bool alwaysStabilizeWhenArmed = flightStatus.AlwaysStabilizeWhenArmed == FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE;
 
         if (alwaysArmed) {
-            AlwaysStabilizeWhenArmed = false; // Do not allow always stabilize when alwaysArmed is active. This is dangerous.
+            alwaysStabilizeWhenArmed = false; // Do not allow always stabilize when alwaysArmed is active. This is dangerous.
         }
         // safety settings
         if (!armed) {
@@ -284,7 +294,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
             // throttleDesired should never be 0 or go below 0.
             // force set all other controls to zero if throttle is cut (previously set in Stabilization)
             // todo: can probably remove this
-            if (!(multirotor && AlwaysStabilizeWhenArmed && armed)) { // we don't do this if this is a multirotor AND AlwaysStabilizeWhenArmed is true and the model is armed
+            if (!(multirotor && alwaysStabilizeWhenArmed && armed)) { // we don't do this if this is a multirotor AND AlwaysStabilizeWhenArmed is true and the model is armed
                 if (actuatorSettings.LowThrottleZeroAxis.Roll == ACTUATORSETTINGS_LOWTHROTTLEZEROAXIS_TRUE) {
                     desired.Roll = 0.00f;
                 }
@@ -448,8 +458,9 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
 
                 if ((mixer_type >= MIXERSETTINGS_MIXER1TYPE_CAMERAROLLORSERVO1) &&
                     (mixer_type <= MIXERSETTINGS_MIXER1TYPE_CAMERAYAW)) {
-                    CameraDesiredData cameraDesired;
-                    if (CameraDesiredGet(&cameraDesired) == 0) {
+                    if (camStabEnabled) {
+                        CameraDesiredData cameraDesired;
+                        CameraDesiredGet(&cameraDesired);
                         switch (mixer_type) {
                         case MIXERSETTINGS_MIXER1TYPE_CAMERAROLLORSERVO1:
                             status[ct] = cameraDesired.RollOrServo1;
@@ -498,7 +509,7 @@ static void actuatorTask(__attribute__((unused)) void *parameters)
                                                     maxMotor,
                                                     minMotor,
                                                     armed,
-                                                    AlwaysStabilizeWhenArmed,
+                                                    alwaysStabilizeWhenArmed,
                                                     throttleDesired);
                 } else { // else we scale the channel
                     command.Channel[i] = scaleChannel(status[i],
@@ -746,7 +757,7 @@ static inline int16_t scaleMotorMoveAndCompress(float valueMotor, int16_t max, i
 /**
  * Constrain motor values to keep any one motor value from going too far out of range of another motor
  */
-static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool AlwaysStabilizeWhenArmed, float throttleDesired)
+static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral, float maxMotor, float minMotor, bool armed, bool alwaysStabilizeWhenArmed, float throttleDesired)
 {
     int16_t valueScaled;
 
@@ -757,7 +768,7 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
         valueScaled = scaleChannel(value, max, min, neutral);
     }
 
-    // I've added the bool AlwaysStabilizeWhenArmed to this function. Right now we command the motors at min or a range between neutral and max.
+    // I've added the bool alwaysStabilizeWhenArmed to this function. Right now we command the motors at min or a range between neutral and max.
     // NEVER should a motor be command at between min and neutral. I don't like the idea of stabilization ever commanding a motor to min, but we give people the option
     // This prevents motors startup sync issues causing possible ESC failures.
 
@@ -765,8 +776,8 @@ static int16_t scaleMotor(float value, int16_t max, int16_t min, int16_t neutral
     if (!armed) {
         // if not armed return min EVERYTIME!
         valueScaled = min;
-    } else if (!AlwaysStabilizeWhenArmed && (throttleDesired <= 0.0f) && spinWhileArmed) {
-        // all motors idle is AlwaysStabilizeWhenArmed is false, throttle is less than or equal to neutral and spin while armed
+    } else if (!alwaysStabilizeWhenArmed && (throttleDesired <= 0.0f) && spinWhileArmed) {
+        // all motors idle is alwaysStabilizeWhenArmed is false, throttle is less than or equal to neutral and spin while armed
         // stabilize when armed?
         valueScaled = neutral;
     } else if (!spinWhileArmed && (throttleDesired <= 0.0f)) {
@@ -929,8 +940,16 @@ static bool set_channel(uint8_t mixer_channel, uint16_t value)
         uint8_t mode = pinsMode[actuatorSettings.ChannelAddr[mixer_channel]];
         switch (mode) {
         case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
-            // Remap 1000-2000 range to 125-250
-            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value / ACTUATOR_ONESHOT125_PULSE_SCALE);
+            // Remap 1000-2000 range to 125-250µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value * ACTUATOR_ONESHOT125_PULSE_FACTOR);
+            break;
+        case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
+            // Remap 1000-2000 range to 41,666-83,333µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value * ACTUATOR_ONESHOT42_PULSE_FACTOR);
+            break;
+        case ACTUATORSETTINGS_BANKMODE_MULTISHOT:
+            // Remap 1000-2000 range to 5-25µs
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], (value * ACTUATOR_MULTISHOT_PULSE_FACTOR) - 180);
             break;
         default:
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value);
@@ -982,8 +1001,10 @@ static void actuator_update_rate_if_changed(bool force_update)
             }
             switch (actuatorSettings.BankMode[i]) {
             case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
+            case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
+            case ACTUATORSETTINGS_BANKMODE_MULTISHOT:
                 freq[i]  = 100; // Value must be small enough so CCr isn't update until the PIOS_Servo_Update is triggered
-                clock[i] = ACTUATOR_ONESHOT125_CLOCK; // Setup an 2MHz timer clock
+                clock[i] = ACTUATOR_ONESHOT_CLOCK; // Setup an 12MHz timer clock
                 break;
             case ACTUATORSETTINGS_BANKMODE_PWMSYNC:
                 freq[i]  = 100;

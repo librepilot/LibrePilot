@@ -103,6 +103,9 @@ equals(TEST, 1) {
     DEFINES += WITH_TESTS
 }
 
+# don't build both debug and release
+CONFIG -= debug_and_release
+
 #ideally, we would want a qmake.conf patch, but this does the trick...
 win32:!isEmpty(QMAKE_SH):QMAKE_COPY_DIR = cp -r -f
 
@@ -159,7 +162,6 @@ macx {
     GCS_DOC_PATH     = $$GCS_DATA_PATH/doc
     copydata = 1
     copyqt = 1
-    copyosg = 1
 } else {
     GCS_APP_TARGET = $$GCS_SMALL_NAME
     GCS_PATH         = $$GCS_BUILD_TREE
@@ -172,20 +174,10 @@ macx {
     !isEqual(GCS_SOURCE_TREE, $$GCS_BUILD_TREE):copydata = 1
 
     win32 {
-        SDL_DIR = $$(SDL_DIR)
-        isEmpty(SDL_DIR):SDL_DIR = $${TOOLS_DIR}/SDL-1.2.15
-
-        OPENSSL_DIR = $$(OPENSSL_DIR)
-        isEmpty(OPENSSL_DIR):OPENSSL_DIR = $${TOOLS_DIR}/openssl-1.0.1e-win32
-
-        MESAWIN_DIR = $$(MESAWIN_DIR)
-        isEmpty(MESAWIN_DIR):MESAWIN_DIR = $${TOOLS_DIR}/mesawin
-
         GCS_QT_PLUGINS_PATH = $$GCS_APP_PATH
         GCS_QT_QML_PATH = $$GCS_APP_PATH
 
         copyqt = $$copydata
-        copyosg = $$copydata
     } else {
         GCS_QT_BASEPATH = $$GCS_LIBRARY_PATH/qt5
         GCS_QT_LIBRARY_PATH = $$GCS_QT_BASEPATH/lib
@@ -198,10 +190,8 @@ macx {
         } else {
             copyqt = 0
         }
-        copyosg = 1
     }
 }
-
 
 INCLUDEPATH += \
     $$GCS_SOURCE_TREE/src/libs
@@ -246,7 +236,25 @@ win32 {
     QMAKE_CXXFLAGS += -mno-ms-bitfields
 }
 
-# Stricter warnigs turned on for OS X.
+# Explicit setting of C++11
+CONFIG += c++11
+
+address_sanitizer {
+    # enable asan by adding "address_sanitizer" to your root config file
+    # see https://github.com/google/sanitizers
+    # see https://blog.qt.io/blog/2013/04/17/using-gccs-4-8-0-address-sanitizer-with-qt/
+    #
+    # to use, simply compile and run, asan will crash with a report if an error is found.
+    # if you don't see symbols, try this: ./build/librepilot-gcs_debug/bin/librepilot-gcs 2>&1 | ./make/scripts/asan_symbolize.py
+    #
+    # Note: asan will apply only to GCS and not to third party libraries (Qt, osg, ...).
+
+    QMAKE_CXXFLAGS += -fsanitize=address -g -fno-omit-frame-pointer
+    QMAKE_CFLAGS += -fsanitize=address -g -fno-omit-frame-pointer
+    QMAKE_LFLAGS += -fsanitize=address -g
+}
+
+# Stricter warnings turned on for OS X.
 macx {
     CONFIG += warn_on
     !warn_off {
@@ -254,10 +262,11 @@ macx {
         QMAKE_CFLAGS_WARN_ON   += -Werror
         QMAKE_CXXFLAGS_WARN_ON += -Wno-gnu-static-float-init
     }
+    # building with libc++ is needed when linking with osg/gdal
+    QMAKE_CXXFLAGS += -stdlib=libc++
+    QMAKE_LFLAGS += -stdlib=libc++
 }
-
 
 # use ccache when available
 QMAKE_CC = $$(CCACHE) $$QMAKE_CC
 QMAKE_CXX = $$(CCACHE) $$QMAKE_CXX
-

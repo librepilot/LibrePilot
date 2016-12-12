@@ -1,17 +1,21 @@
-
 TEMPLATE = lib
-QT += xml
-
 TARGET = UAVSettingsImportExport
+
+QT += widgets xml
+
 DEFINES += UAVSETTINGSIMPORTEXPORT_LIBRARY
+
 include(../../plugin.pri)
 include(uavsettingsimportexport_dependencies.pri)
 include(../../libs/version_info/version_info.pri)
 
-HEADERS += uavsettingsimportexport.h \
+HEADERS += \
+    uavsettingsimportexport.h \
     importsummary.h \
     uavsettingsimportexportfactory.h
-SOURCES += uavsettingsimportexport.cpp \
+
+SOURCES += \
+    uavsettingsimportexport.cpp \
     importsummary.cpp \
     uavsettingsimportexportfactory.cpp
  

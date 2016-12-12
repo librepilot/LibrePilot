@@ -93,7 +93,9 @@
 /* #define PIOS_INCLUDE_ETASV3 */
 /* #define PIOS_INCLUDE_HCSR04 */
 
-#define PIOS_SENSOR_RATE 500.0f
+#define PIOS_SENSOR_RATE            500.0f
+#define STABILIZATION_ATTITUDE_DOWNSAMPLED
+#define ATTITUDE_SENSORS_DOWNSAMPLE 4
 
 /* PIOS receiver drivers */
 #define PIOS_INCLUDE_PWM
@@ -101,7 +103,10 @@
 #define PIOS_INCLUDE_PPM_FLEXI
 #define PIOS_INCLUDE_DSM
 #define PIOS_INCLUDE_SBUS
+#define PIOS_INCLUDE_EXBUS
 #define PIOS_INCLUDE_SRXL
+#define PIOS_INCLUDE_HOTT
+#define PIOS_INCLUDE_IBUS
 /* #define PIOS_INCLUDE_GCSRCVR */
 /* #define PIOS_INCLUDE_OPLINKRCVR */
 
@@ -146,6 +151,7 @@
 #define PIOS_GPS_MINIMAL
 /* #define PIOS_INCLUDE_GPS_NMEA_PARSER */
 #define PIOS_INCLUDE_GPS_UBX_PARSER
+/* #define PIOS_INCLUDE_GPS_DJI_PARSER */
 /* #define PIOS_GPS_SETS_HOMELOCATION */
 
 /* Stabilization options */
@@ -165,7 +171,7 @@
 /* Task stack sizes */
 #define PIOS_ACTUATOR_STACK_SIZE        700
 #define PIOS_MANUAL_STACK_SIZE          735
-#define PIOS_RECEIVER_STACK_SIZE        620
+#define PIOS_RECEIVER_STACK_SIZE        640
 #define PIOS_STABILIZATION_STACK_SIZE   400
 
 #ifdef DIAG_TASKS

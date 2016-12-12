@@ -5,7 +5,8 @@
  * @addtogroup OpenPilot Libraries OpenPilot System Libraries
  * @{
  * @file       sanitycheck.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Utilities to validate a flight configuration
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -163,6 +164,14 @@ int32_t configuration_check()
             ADDSEVERITY(!coptercontrol);
             ADDSEVERITY(navCapableFusion);
             break;
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+        case FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_AUTOTUNE:
+            ADDSEVERITY(!gps_assisted);
+            // it would be fun to try autotune on a fixed wing
+            // but that should only be attempted by devs at first
+            ADDSEVERITY(multirotor);
+            break;
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
         default:
             // Uncovered modes are automatically an error
             ADDSEVERITY(false);
@@ -225,7 +234,7 @@ int32_t configuration_check()
 }
 
 /**
- * Checks the stabiliation settings for a paritcular mode and makes
+ * Checks the stabilization settings for a particular mode and makes
  * sure it is appropriate for the airframe
  * @param[in] index Which stabilization mode to check
  * @returns true or false
@@ -304,12 +313,11 @@ static bool check_stabilization_settings(int index, bool multirotor, bool copter
         return false;
     }
 
-
-    // if cruise control, ensure rate or acro are not set
+    // if cruise control, ensure Acro+ is not set
     if (modes[FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_THRUST] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_CRUISECONTROL) {
         for (uint32_t i = 0; i < FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_YAW; i++) {
-            if ((modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_RATE ||
-                 modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ACRO)) {
+            // Do not allow Acro+, attitude estimation is not safe.
+            if (modes[i] == FLIGHTMODESETTINGS_STABILIZATION1SETTINGS_ACRO) {
                 return false;
             }
         }

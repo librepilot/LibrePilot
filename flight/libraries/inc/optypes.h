@@ -50,15 +50,18 @@ extern const Color_t Color_White;
 #define COLOR_BLACK   { .R = 0x00, .G = 0x00, .B = 0x00 }
 #define COLOR_OFF     COLOR_BLACK
 #define COLOR_RED     { .R = 0xFF, .G = 0x00, .B = 0x00 }
+#define COLOR_DARKRED { .R = 0x80, .G = 0x00, .B = 0x00 }
 #define COLOR_LIME    { .R = 0x00, .G = 0xFF, .B = 0x00 }
 #define COLOR_BLUE    { .R = 0x00, .G = 0x00, .B = 0xFF }
-#define COLOR_YELLOW  { .R = 0xFF, .G = 0xFF, .B = 0x00 }
+#define COLOR_YELLOW  { .R = 0xCC, .G = 0xCC, .B = 0x00 }
 #define COLOR_CIAN    { .R = 0x00, .G = 0xFF, .B = 0xFF }
 #define COLOR_MAGENTA { .R = 0xFF, .G = 0x00, .B = 0xFF }
 #define COLOR_NAVY    { .R = 0x00, .G = 0x00, .B = 0x80 }
 #define COLOR_GREEN   { .R = 0x00, .G = 0x80, .B = 0x00 }
 #define COLOR_PURPLE  { .R = 0x80, .G = 0x00, .B = 0x80 }
 #define COLOR_TEAL    { .R = 0x00, .G = 0x80, .B = 0x80 }
-#define COLOR_ORANGE  { .R = 0xFF, .G = 0xA5, .B = 0x00 }
+#define COLOR_ORANGE  { .R = 0xAA, .G = 0x44, .B = 0x00 }
 #define COLOR_WHITE   { .R = 0xAA, .G = 0xAA, .B = 0xAA }
+
+
 #endif /* UTIL_H */

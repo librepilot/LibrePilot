@@ -109,6 +109,8 @@ QWidget *OPMapGadgetOptionsPage::createPage(QWidget *parent)
         }
     }
 
+    m_page->defaultWaypointAltitude->setValue(m_config->defaultWaypointAltitude());
+    m_page->defaultWaypointVelocity->setValue(m_config->defaultWaypointVelocity());
     connect(m_page->pushButtonCacheDefaults, SIGNAL(clicked()), this, SLOT(on_pushButtonCacheDefaults_clicked()));
 
     return w;
@@ -138,6 +140,8 @@ void OPMapGadgetOptionsPage::apply()
     m_config->setCacheLocation(m_page->lineEditCacheLocation->path());
     m_config->setUavSymbol(m_page->uavSymbolComboBox->itemData(m_page->uavSymbolComboBox->currentIndex()).toString());
     m_config->setMaxUpdateRate(m_page->maxUpdateRateComboBox->itemData(m_page->maxUpdateRateComboBox->currentIndex()).toInt());
+    m_config->setDefaultWaypointAltitude(m_page->defaultWaypointAltitude->value());
+    m_config->setDefaultWaypointVelocity(m_page->defaultWaypointVelocity->value());
 }
 
 void OPMapGadgetOptionsPage::finish()

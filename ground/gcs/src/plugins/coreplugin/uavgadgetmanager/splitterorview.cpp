@@ -301,34 +301,45 @@ void SplitterOrView::unsplit(IUAVGadget *gadget)
     if (!m_splitter) {
         return;
     }
-    SplitterOrView *view = findView(gadget);
-    if (!view || view == this) {
+    SplitterOrView *gadgetView = findView(gadget);
+    if (!gadgetView || gadgetView == this) {
         return;
     }
 
     // find the other gadgets
     // TODO handle case where m_splitter->count() > 2
-    SplitterOrView *splitterOrView = NULL;
+    SplitterOrView *otherView = NULL;
     for (int i = 0; i < m_splitter->count(); ++i) {
-        splitterOrView = qobject_cast<SplitterOrView *>(m_splitter->widget(i));
-        if (splitterOrView && (splitterOrView != view)) {
+        SplitterOrView *view = qobject_cast<SplitterOrView *>(m_splitter->widget(i));
+        if (view && (view != gadgetView)) {
+            otherView = view;
             break;
         }
     }
-    if (splitterOrView) {
-        if (splitterOrView->isView()) {
-            layout()->addWidget(splitterOrView->m_view);
+    if (otherView) {
+        // update UI
+        if (otherView->isView()) {
+            layout()->addWidget(otherView->m_view);
         } else {
-            layout()->addWidget(splitterOrView->m_splitter);
+            layout()->addWidget(otherView->m_splitter);
         }
         layout()->removeWidget(m_splitter);
 
-        m_uavGadgetManager->emptyView(view->m_view);
-        delete view;
-        delete m_splitter;
+        // transfer other view to this view
+        QSplitter *oldSplitter = m_splitter;
 
-        m_view     = splitterOrView->m_view;
-        m_splitter = splitterOrView->m_splitter;
+        m_view     = otherView->m_view;
+        m_splitter = otherView->m_splitter;
+
+        // cleanup gadget view
+        m_uavGadgetManager->emptyView(gadgetView->m_view);
+
+        // delete child views (not necessary...)
+        delete gadgetView;
+        delete otherView;
+
+        // delete old splitter (and remaining SplitterOrView children...)
+        delete oldSplitter;
     }
 }
 

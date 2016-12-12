@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
-# Copyright (c) 2009-2013, The OpenPilot Team, http://www.openpilot.org
-# Copyright (c) 2012, PhoenixPilot, http://github.com/PhoenixPilot
+# Copyright (C) 2015-2016, The LibrePilot Project, http://www.librepilot.org
+# Copyright (C) 2009-2013, The OpenPilot Team, http://www.openpilot.org
+# Copyright (C) 2012, PhoenixPilot, http://github.com/PhoenixPilot
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ USE_CXX = YES
 USE_DSP_LIB ?= NO
 
 # List of mandatory modules to include
-#MODULES += Sensors
+MODULES += Sensors
 #MODULES += Attitude/revolution
 #MODULES += StateEstimation # use instead of Attitude
 #MODULES += Altitude/revolution
@@ -55,7 +55,10 @@ MODULES += Osd/osdoutout
 MODULES += Logging
 MODULES += Telemetry
 
+OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
+OPTMODULES += UAVOMSPBridge
+OPTMODULES += UAVOMavlinkBridge
 
 SRC += $(FLIGHTLIB)/notification.c
 
@@ -97,7 +100,6 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/insgps13state.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     SRC += $(FLIGHTLIB)/lednotification.c    
-    CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
 
     ## UAVObjects
     include ./UAVObjects.inc

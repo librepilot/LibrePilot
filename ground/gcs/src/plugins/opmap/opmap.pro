@@ -1,10 +1,12 @@
-QT += xml
 TEMPLATE = lib
+TARGET = OPMapGadget
+
+QT += widgets xml
+
 PATHPLANNER {
     DEFINES += USE_PATHPLANNER
 }
 
-TARGET = OPMapGadget
 include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../libs/opmapcontrol/opmapcontrol.pri)
@@ -13,7 +15,8 @@ include(../../plugins/uavobjectutil/uavobjectutil.pri)
 include(../../plugins/uavtalk/uavtalk.pri)
 include(../../libs/utils/utils.pri)
 
-HEADERS += opmapplugin.h \
+HEADERS += \
+    opmapplugin.h \
     opmapgadgetoptionspage.h \
     opmapgadgetfactory.h \
     opmapgadgetconfiguration.h \
@@ -29,7 +32,8 @@ HEADERS += opmapplugin.h \
     modeluavoproxy.h \
     homeeditor.h
 
-SOURCES += opmapplugin.cpp \
+SOURCES += \
+    opmapplugin.cpp \
     opmapgadgetwidget.cpp \
     opmapgadgetoptionspage.cpp \
     opmapgadgetfactory.cpp \
@@ -47,7 +51,8 @@ SOURCES += opmapplugin.cpp \
 
 OTHER_FILES += OPMapGadget.pluginspec
 
-FORMS += opmapgadgetoptionspage.ui \
+FORMS += \
+    opmapgadgetoptionspage.ui \
     opmap_widget.ui \
     opmap_edit_waypoint_dialog.ui \
     opmap_zoom_slider_widget.ui \

@@ -156,6 +156,12 @@ extern uint32_t pios_com_debug_id;
 extern uint32_t pios_com_hkosd_id;
 #define PIOS_COM_OSDHK     (pios_com_hkosd_id)
 
+extern uint32_t pios_com_msp_id;
+#define PIOS_COM_MSP       (pios_com_msp_id)
+
+extern uint32_t pios_com_mavlink_id;
+#define PIOS_COM_MAVLINK   (pios_com_mavlink_id)
+
 // -------------------------
 // ADC
 // PIOS_ADC_PinGet(0) = Gyro Z
@@ -228,7 +234,7 @@ extern uint32_t pios_com_hkosd_id;
 // Receiver PPM input
 // -------------------------
 #define PIOS_PPM_MAX_DEVS            1
-#define PIOS_PPM_NUM_INPUTS          12
+#define PIOS_PPM_NUM_INPUTS          16
 
 // -------------------------
 // Receiver PWM input
@@ -249,10 +255,28 @@ extern uint32_t pios_com_hkosd_id;
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
 
 // -------------------------
+// Receiver HOTT input
+// -------------------------
+#define PIOS_HOTT_MAX_DEVS           1
+#define PIOS_HOTT_NUM_INPUTS         32
+
+// -------------------------
+// Receiver EX.Bus input
+// -------------------------
+#define PIOS_EXBUS_MAX_DEVS          1
+#define PIOS_EXBUS_NUM_INPUTS        16
+
+// -------------------------
 // Receiver Multiplex SRXL input
 // -------------------------
 #define PIOS_SRXL_MAX_DEVS           1
 #define PIOS_SRXL_NUM_INPUTS         16
+
+// -------------------------
+// Receiver FlySky IBus input
+// -------------------------
+#define PIOS_IBUS_MAX_DEVS           1
+#define PIOS_IBUS_NUM_INPUTS         10
 
 // -------------------------
 // Servo outputs

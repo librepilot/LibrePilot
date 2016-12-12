@@ -1,0 +1,22 @@
+language: cpp
+
+sudo: required
+
+dist: trusty
+
+before_install:
+        - sudo add-apt-repository ppa:librepilot/tools -y
+        - sudo apt-get update -q
+        - sudo apt-get install -y libc6-i386 libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev libosgearth-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools
+        - make build_sdk_install
+
+script:
+        - make config_new CCACHE=ccache
+        - make all_flight
+        - make opfw_resource
+        - make gcs
+
+git:
+        depth: 500
+
+cache: ccache

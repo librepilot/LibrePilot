@@ -2,6 +2,7 @@
 #
 # TODO: This file should be reworked. It will be done as a part of sim target refactoring.
 #
+# Copyright (C) 2015-2016 The LibrePilot Project, http://www.librepilot.org
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2009.
 #
 #
@@ -48,6 +49,8 @@ MODULES += Airspeed
 #MODULES += OveroSync
 
 SRC += $(FLIGHTLIB)/notification.c
+
+OPTMODULES += AutoTune
 
 # Paths
 OPSYSTEM = .
@@ -323,31 +326,31 @@ endif
 
 
 # Link: create ELF output file from object files.
-$(eval $(call LINK_CXX_TEMPLATE, $(OUTDIR)/$(TARGET).elf, $(ALLOBJ)))
+$(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ)))
 
 # Assemble: create object files from assembler source files.
-$(foreach src, $(ASRC), $(eval $(call ASSEMBLE_TEMPLATE, $(src))))
+$(foreach src, $(ASRC), $(eval $(call ASSEMBLE_TEMPLATE,$(src))))
 
 # Assemble: create object files from assembler source files. ARM-only
-$(foreach src, $(ASRCARM), $(eval $(call ASSEMBLE_ARM_TEMPLATE, $(src))))
+$(foreach src, $(ASRCARM), $(eval $(call ASSEMBLE_ARM_TEMPLATE,$(src))))
 
 # Compile: create object files from C source files.
-$(foreach src, $(SRC), $(eval $(call COMPILE_C_TEMPLATE, $(src))))
+$(foreach src, $(SRC), $(eval $(call COMPILE_C_TEMPLATE,$(src))))
 
 # Compile: create object files from C source files. ARM-only
-$(foreach src, $(SRCARM), $(eval $(call COMPILE_C_ARM_TEMPLATE, $(src))))
+$(foreach src, $(SRCARM), $(eval $(call COMPILE_C_ARM_TEMPLATE,$(src))))
 
 # Compile: create object files from C++ source files.
-$(foreach src, $(CPPSRC), $(eval $(call COMPILE_CXX_TEMPLATE, $(src))))
+$(foreach src, $(CPPSRC), $(eval $(call COMPILE_CXX_TEMPLATE,$(src))))
 
 # Compile: create object files from C++ source files. ARM-only
-$(foreach src, $(CPPSRCARM), $(eval $(call COMPILE_CPP_ARM_TEMPLATE, $(src))))
+$(foreach src, $(CPPSRCARM), $(eval $(call COMPILE_CPP_ARM_TEMPLATE,$(src))))
 
 # Compile: create assembler files from C source files. ARM/Thumb
-$(eval $(call PARTIAL_COMPILE_TEMPLATE, SRC))
+$(eval $(call PARTIAL_COMPILE_TEMPLATE,SRC))
 
 # Compile: create assembler files from C source files. ARM only
-$(eval $(call PARTIAL_COMPILE_ARM_TEMPLATE, SRCARM))
+$(eval $(call PARTIAL_COMPILE_ARM_TEMPLATE,SRCARM))
 
 $(OUTDIR)/$(TARGET).bin.o: $(OUTDIR)/$(TARGET).bin
 

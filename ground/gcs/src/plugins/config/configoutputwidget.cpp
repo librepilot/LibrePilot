@@ -27,50 +27,49 @@
  */
 
 #include "configoutputwidget.h"
+
+#include "ui_output.h"
+#include "ui_outputchannelform.h"
+
 #include "outputchannelform.h"
 #include "configvehicletypewidget.h"
+
+#include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
+#include <extensionsystem/pluginmanager.h>
+#include <uavobjecthelper.h>
 
 #include "mixersettings.h"
 #include "actuatorcommand.h"
 #include "actuatorsettings.h"
+#include "flightmodesettings.h"
+#include "flightstatus.h"
 #include "systemsettings.h"
-#include "uavsettingsimportexport/uavsettingsimportexportfactory.h"
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
 
 #include <QDebug>
 #include <QStringList>
 #include <QWidget>
 #include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <QMessageBox>
-#include <QDesktopServices>
-#include <QUrl>
 
 ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_OutputWidget();
     m_ui->setupUi(this);
 
+    // must be done before auto binding !
+    setWikiURL("Output+Configuration");
+
+    addAutoBindings();
+
     m_ui->gvFrame->setVisible(false);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->saveRCOutputToRAM->setVisible(false);
-    }
-
     UAVSettingsImportExportFactory *importexportplugin = pm->getObject<UAVSettingsImportExportFactory>();
     connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(stopTests()));
 
     connect(m_ui->channelOutTest, SIGNAL(clicked(bool)), this, SLOT(runChannelTests(bool)));
 
     // Configure the task widget
-    // Connect the help button
-    connect(m_ui->outputHelp, SIGNAL(clicked()), this, SLOT(openHelp()));
-
-    addApplySaveButtons(m_ui->saveRCOutputToRAM, m_ui->saveRCOutputToSD);
 
     // Track the ActuatorSettings object
     addUAVObject("ActuatorSettings");
@@ -84,16 +83,22 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
         connect(m_ui->channelOutTest, SIGNAL(toggled(bool)), form, SLOT(enableChannelTest(bool)));
         connect(form, SIGNAL(channelChanged(int, int)), this, SLOT(sendChannelTest(int, int)));
 
-        addWidget(form->ui.actuatorMin);
-        addWidget(form->ui.actuatorNeutral);
-        addWidget(form->ui.actuatorMax);
-        addWidget(form->ui.actuatorRev);
-        addWidget(form->ui.actuatorLink);
+        addWidget(form->ui->actuatorMin);
+        addWidget(form->ui->actuatorNeutral);
+        addWidget(form->ui->actuatorMax);
+        addWidget(form->ui->actuatorRev);
+        addWidget(form->ui->actuatorLink);
     }
-
 
     // Associate the buttons with their UAVO fields
     addWidget(m_ui->spinningArmed);
+    connect(m_ui->spinningArmed, SIGNAL(clicked(bool)), this, SLOT(updateSpinStabilizeCheckComboBoxes()));
+
+    addUAVObject("FlightModeSettings");
+    addWidgetBinding("FlightModeSettings", "AlwaysStabilizeWhenArmedSwitch", m_ui->alwaysStabilizedSwitch);
+
+    connect(FlightStatus::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateAlwaysStabilizeStatus()));
+
     MixerSettings *mixer = MixerSettings::GetInstance(getObjectManager());
     Q_ASSERT(mixer);
     m_banks << OutputBankControls(mixer, m_ui->chBank1, QColor("#C6ECAE"), m_ui->cb_outputRate1, m_ui->cb_outputMode1);
@@ -122,12 +127,8 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     connect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateWarnings(UAVObject *)));
 
+    // TODO why do we do that ?
     disconnect(this, SLOT(refreshWidgetsValues(UAVObject *)));
-
-    populateWidgets();
-    refreshWidgetsValues();
-
-    updateEnableControls();
 }
 
 ConfigOutputWidget::~ConfigOutputWidget()
@@ -299,11 +300,9 @@ void ConfigOutputWidget::setColor(QWidget *widget, const QColor color)
 /**
    Request the current config from the board (RC Output)
  */
-void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
+void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    bool dirty = isDirty();
-
-    ConfigTaskWidget::refreshWidgetsValues(obj);
+    Q_UNUSED(obj);
 
     // Get Actuator Settings
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
@@ -367,6 +366,10 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
             // Revolution Nano
             bankLabels << "1 (1)" << "2 (2,7,11)" << "3 (3)" << "4 (4)" << "5 (5-6)" << "6 (8-10,12)";
             channelBanks << 1 << 2 << 3 << 4 << 5 << 5 << 2 << 6 << 6 << 6 << 2 << 6;
+        } else if (board == 0x9201) {
+            // Sparky2
+            bankLabels << "1 (1-2)" << "2 (3)" << "3 (4)" << "4 (5-6)" << "5 (7-8)" << "6 (9-10)";
+            channelBanks << 1 << 1 << 2 << 3 << 4 << 4 << 5 << 5 << 6 << 6;
         }
     }
 
@@ -402,16 +405,14 @@ void ConfigOutputWidget::refreshWidgetsValues(UAVObject *obj)
         outputChannelForm->setNeutral(neutral);
     }
 
-    setDirty(dirty);
+    updateSpinStabilizeCheckComboBoxes();
 }
 
 /**
  * Sends the config to the board, without saving to the SD card (RC Output)
  */
-void ConfigOutputWidget::updateObjectsFromWidgets()
+void ConfigOutputWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     ActuatorSettings *actuatorSettings = ActuatorSettings::GetInstance(getObjectManager());
 
     Q_ASSERT(actuatorSettings);
@@ -439,14 +440,44 @@ void ConfigOutputWidget::updateObjectsFromWidgets()
                                                     ActuatorSettings::MOTORSSPINWHILEARMED_FALSE;
 
         // Apply settings
-        actuatorSettings->setData(actuatorSettingsData);
+        UAVObjectUpdaterHelper updateHelper;
+        actuatorSettings->setData(actuatorSettingsData, false);
+        updateHelper.doObjectAndWait(actuatorSettings);
+    }
+
+    FlightModeSettings *flightModeSettings = FlightModeSettings::GetInstance(getObjectManager());
+    Q_ASSERT(flightModeSettings);
+
+    if (flightModeSettings) {
+        FlightModeSettings::DataFields flightModeSettingsData = flightModeSettings->getData();
+        flightModeSettingsData.AlwaysStabilizeWhenArmedSwitch = m_ui->alwaysStabilizedSwitch->currentIndex();
+
+        // Apply settings
+        flightModeSettings->setData(flightModeSettingsData);
     }
 }
 
-void ConfigOutputWidget::openHelp()
+void ConfigOutputWidget::updateSpinStabilizeCheckComboBoxes()
 {
-    QDesktopServices::openUrl(QUrl(QString(WIKI_URL_ROOT) + QString("Output+Configuration"),
-                                   QUrl::StrictMode));
+    m_ui->alwayStabilizedLabel1->setEnabled(m_ui->spinningArmed->isChecked());
+    m_ui->alwayStabilizedLabel2->setEnabled(m_ui->spinningArmed->isChecked());
+    m_ui->alwaysStabilizedSwitch->setEnabled(m_ui->spinningArmed->isChecked());
+
+    if (!m_ui->spinningArmed->isChecked()) {
+        m_ui->alwaysStabilizedSwitch->setCurrentIndex(FlightModeSettings::ALWAYSSTABILIZEWHENARMEDSWITCH_DISABLED);
+    }
+}
+
+void ConfigOutputWidget::updateAlwaysStabilizeStatus()
+{
+    FlightStatus *flightStatusObj = FlightStatus::GetInstance(getObjectManager());
+    FlightStatus::DataFields flightStatus = flightStatusObj->getData();
+
+    if (flightStatus.AlwaysStabilizeWhenArmed == FlightStatus::ALWAYSSTABILIZEWHENARMED_TRUE) {
+        m_ui->alwayStabilizedLabel2->setText(tr("AlwaysStabilizeWhenArmed is <b>ACTIVE</b>. This prevents arming!."));
+    } else {
+        m_ui->alwayStabilizedLabel2->setText(tr("(Really be careful!)."));
+    }
 }
 
 void ConfigOutputWidget::onBankTypeChange()

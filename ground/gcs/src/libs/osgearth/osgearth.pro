@@ -2,6 +2,14 @@ TEMPLATE = lib
 TARGET = GCSOsgEarth
 DEFINES += OSGEARTH_LIBRARY
 
+#DEFINES += OSG_VERBOSE
+
+osg:DEFINES += USE_OSG
+osgQt:DEFINES += USE_OSG_QT
+
+osgearth:DEFINES += USE_OSGEARTH
+osgearthQt:DEFINES += USE_OSGEARTH_QT
+
 #DEFINES += OSG_USE_QT_PRIVATE
 
 QT += widgets opengl qml quick
@@ -11,6 +19,8 @@ contains(DEFINES, OSG_USE_QT_PRIVATE) {
 
 include(../../library.pri)
 include(../utils/utils.pri)
+
+include(osgearth_dependencies.pri)
 
 linux {
     QMAKE_RPATHDIR = $$shell_quote(\$$ORIGIN/$$relative_path($$GCS_LIBRARY_PATH/osg, $$GCS_LIBRARY_PATH))
@@ -23,82 +33,70 @@ macx:CONFIG += warn_off
 # osg and osgearth emit a lot of unused parameter warnings...
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
-OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
-message(Using osg from here: $$OSG_SDK_DIR)
-
 HEADERS += \
     osgearth_global.h \
-    utility.h \
-    qtwindowingsystem.h \
-    osgearth.h
+    osgearth.h \
+    utils/qtwindowingsystem.h \
+    utils/utility.h \
+    utils/shapeutils.h
 
 SOURCES += \
-    utility.cpp \
-    qtwindowingsystem.cpp \
-    osgearth.cpp
+    osgearth.cpp \
+    utils/qtwindowingsystem.cpp \
+    utils/utility.cpp \
+    utils/shapeutils.cpp
 
 HEADERS += \
     osgQtQuick/Export.hpp \
+    osgQtQuick/DirtySupport.hpp \
     osgQtQuick/OSGNode.hpp \
     osgQtQuick/OSGGroup.hpp \
     osgQtQuick/OSGTransformNode.hpp \
-    osgQtQuick/OSGCubeNode.hpp \
+    osgQtQuick/OSGShapeNode.hpp \
+    osgQtQuick/OSGImageNode.hpp \
     osgQtQuick/OSGTextNode.hpp \
     osgQtQuick/OSGFileNode.hpp \
-    osgQtQuick/OSGModelNode.hpp \
-    osgQtQuick/OSGBackgroundNode.hpp \
-    osgQtQuick/OSGSkyNode.hpp \
+    osgQtQuick/OSGBillboardNode.hpp \
     osgQtQuick/OSGCamera.hpp \
     osgQtQuick/OSGViewport.hpp
 
 SOURCES += \
+    osgQtQuick/DirtySupport.cpp \
     osgQtQuick/OSGNode.cpp \
     osgQtQuick/OSGGroup.cpp \
     osgQtQuick/OSGTransformNode.cpp \
-    osgQtQuick/OSGCubeNode.cpp \
+    osgQtQuick/OSGShapeNode.cpp \
+    osgQtQuick/OSGImageNode.cpp \
     osgQtQuick/OSGTextNode.cpp \
     osgQtQuick/OSGFileNode.cpp \
-    osgQtQuick/OSGModelNode.cpp \
-    osgQtQuick/OSGBackgroundNode.cpp \
-    osgQtQuick/OSGSkyNode.cpp \
+    osgQtQuick/OSGBillboardNode.cpp \
     osgQtQuick/OSGCamera.cpp \
     osgQtQuick/OSGViewport.cpp
 
-INCLUDEPATH += $$OSG_SDK_DIR/include
+HEADERS += \
+    osgQtQuick/ga/OSGCameraManipulator.hpp \
+    osgQtQuick/ga/OSGNodeTrackerManipulator.hpp \
+    osgQtQuick/ga/OSGTrackballManipulator.hpp
 
-linux {
-    exists( $$OSG_SDK_DIR/lib64 ) {
-        LIBS += -L$$OSG_SDK_DIR/lib64
-    } else {
-        LIBS += -L$$OSG_SDK_DIR/lib
-    }
+SOURCES += \
+    osgQtQuick/ga/OSGCameraManipulator.cpp \
+    osgQtQuick/ga/OSGNodeTrackerManipulator.cpp \
+    osgQtQuick/ga/OSGTrackballManipulator.cpp
 
-    LIBS +=-lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-}
+osgearth:HEADERS += \
+    osgQtQuick/OSGSkyNode.hpp \
+    osgQtQuick/OSGGeoTransformNode.hpp
 
-macx {
-    LIBS += -L$$OSG_SDK_DIR/lib
+osgearth:SOURCES += \
+    osgQtQuick/OSGSkyNode.cpp \
+    osgQtQuick/OSGGeoTransformNode.cpp
 
-    LIBS += -lOpenThreads
-    LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-    LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-}
+osgearth:HEADERS += \
+    osgQtQuick/ga/OSGEarthManipulator.hpp \
+    osgQtQuick/ga/OSGGeoTransformManipulator.hpp
 
-win32 {
-    LIBS += -L$$OSG_SDK_DIR/lib
+osgearth:SOURCES += \
+    osgQtQuick/ga/OSGEarthManipulator.cpp \
+    osgQtQuick/ga/OSGGeoTransformManipulator.cpp
 
-    CONFIG(release, debug|release) {
-        LIBS += -lOpenThreads
-        LIBS += -losg -losgUtil -losgDB -losgGA -losgViewer -losgText -losgQt
-        LIBS += -losgEarth -losgEarthUtil -losgEarthFeatures -losgEarthSymbology -losgEarthAnnotation -losgEarthQt
-    }
-    CONFIG(debug, debug|release) {
-        LIBS += -lOpenThreadsd
-        LIBS += -losgd -losgUtild -losgDBd -losgGAd -losgViewerd -losgTextd -losgQtd
-        LIBS += -losgEarthd -losgEarthUtild -losgEarthFeaturesd -losgEarthSymbologyd -losgEarthAnnotationd -losgEarthQtd
-    }
-}
-
-include(copydata.pro)
+copy_osg:include(copydata.pro)

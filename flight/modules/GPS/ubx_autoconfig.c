@@ -2,12 +2,13 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
+ * @addtogroup GPSModule GPS Module
  * @brief Support code for UBX AutoConfig
  * @{
  *
  * @file       ubx_autoconfig.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Support code for UBX AutoConfig
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -238,10 +239,10 @@ void gps_ubx_reset_sensor_type()
     // is this needed?
     // what happens if two tasks / threads try to do an XyzSet() at the same time?
     if (__sync_fetch_and_add(&mutex, 1) == 0) {
-        ubxHwVersion = -1;
+        ubxHwVersion       = -1;
         baud_to_try_index -= 1; // undo postincrement and start with the one that was most recently successful
-        sensorType   = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
-        GPSPositionSensorSensorTypeSet(&sensorType);
+        ubxSensorType      = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
+        GPSPositionSensorSensorTypeSet(&ubxSensorType);
         // make the sensor type / autobaud code time out immediately to send the request immediately
         status->lastStepTimestampRaw += 0x8000000UL;
     }
@@ -309,11 +310,20 @@ static void config_nav(uint16_t *bytes_to_send)
 {
     memset((uint8_t *)status->working_packet.buffer, 0, sizeof(UBXSentHeader_t) + sizeof(ubx_cfg_nav5_t));
     status->working_packet.message.payload.cfg_nav5.dynModel = status->currentSettings.dynamicModel;
-    status->working_packet.message.payload.cfg_nav5.fixMode  = 2; // 1=2D only, 2=3D only, 3=Auto 2D/3D
+    status->working_packet.message.payload.cfg_nav5.fixMode  = UBX_CFG_NAV5_FIXMODE_3D_ONLY;
     // mask LSB=dyn|minEl|posFixMode|drLim|posMask|statisticHoldMask|dgpsMask|......|reservedBit0 = MSB
-    status->working_packet.message.payload.cfg_nav5.mask     = 0x01 + 0x04; // Dyn Model | posFixMode configuration
+    status->working_packet.message.payload.cfg_nav5.mask     = UBX_CFG_NAV5_DYNMODEL + UBX_CFG_NAV5_FIXMODE;
 
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_NAV5, sizeof(ubx_cfg_nav5_t));
+}
+
+static void config_navx(uint16_t *bytes_to_send)
+{
+    memset((uint8_t *)status->working_packet.buffer, 0, sizeof(UBXSentHeader_t) + sizeof(ubx_cfg_navx5_t));
+    status->working_packet.message.payload.cfg_navx5.useAOP = status->currentSettings.AssistNowAutonomous;
+    status->working_packet.message.payload.cfg_navx5.mask1  = UBX_CFG_NAVX5_AOP;
+
+    *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_NAVX5, sizeof(ubx_cfg_navx5_t));
 }
 
 
@@ -408,7 +418,6 @@ static void config_save(uint16_t *bytes_to_send)
     *bytes_to_send = prepare_packet((UBXSentPacket_t *)&status->working_packet, UBX_CLASS_CFG, UBX_ID_CFG_CFG, sizeof(ubx_cfg_cfg_t));
 }
 
-
 static void configure(uint16_t *bytes_to_send)
 {
     switch (status->lastConfigSent) {
@@ -422,6 +431,15 @@ static void configure(uint16_t *bytes_to_send)
         break;
 
     case LAST_CONFIG_SENT_START + 2:
+        if (ubxHwVersion > UBX_HW_VERSION_5) {
+            config_navx(bytes_to_send);
+            break;
+        } else {
+            // Skip and fall through to next step
+            status->lastConfigSent++;
+        }
+
+    case LAST_CONFIG_SENT_START + 3:
         if (status->currentSettings.enableGLONASS || status->currentSettings.enableGPS) {
             config_gnss(bytes_to_send);
             break;
@@ -431,7 +449,7 @@ static void configure(uint16_t *bytes_to_send)
         }
     // in the else case we must fall through because we must send something each time because successful send is tested externally
 
-    case LAST_CONFIG_SENT_START + 3:
+    case LAST_CONFIG_SENT_START + 4:
         config_sbas(bytes_to_send);
         break;
 
@@ -849,6 +867,8 @@ void gps_ubx_autoconfig_run(char * *buffer, uint16_t *bytes_to_send)
 }
 
 
+// (re)init the autoconfig stuff so that it will run if called
+//
 // this can be called from a different thread
 // so everything it touches must be declared volatile
 void gps_ubx_autoconfig_set(ubx_autoconfig_settings_t *config)
@@ -883,17 +903,17 @@ void gps_ubx_autoconfig_set(ubx_autoconfig_settings_t *config)
     status->currentStep     = new_step;
     status->currentStepSave = new_step;
 
+    // this forces the sensor type detection to occur outside the FSM
+    // and _can_ also engage the autobaud detection that is outside the FSM
+    // don't do it if FSM is enabled as FSM can change the baud itself
+    // (don't do it because the baud rates are already in sync)
+    gps_ubx_reset_sensor_type();
+
     if (status->currentSettings.UbxAutoConfig >= GPSSETTINGS_UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE) {
         // enabled refers to autoconfigure
         // note that sensor type (gps type) detection happens even if completely disabled
-        // also note that AutoBaud is less than Configure
+        // also note that AutoBaud is less than AutoBaudAndConfigure
         enabled = true;
-    } else {
-        // this forces the sensor type detection to occur outside the FSM
-        // and _can_ also engage the autobaud detection that is outside the FSM
-        // don't do it if FSM is enabled as FSM can change the baud itself
-        // (don't do it because the baud rates are already in sync)
-        gps_ubx_reset_sensor_type();
     }
 }
 

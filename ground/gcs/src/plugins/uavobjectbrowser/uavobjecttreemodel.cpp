@@ -37,10 +37,11 @@
 #include <QtCore/QSignalMapper>
 #include <QtCore/QDebug>
 
-UAVObjectTreeModel::UAVObjectTreeModel(QObject *parent, bool categorize, bool useScientificNotation) :
+UAVObjectTreeModel::UAVObjectTreeModel(QObject *parent, bool categorize, bool showMetadata, bool useScientificNotation) :
     QAbstractItemModel(parent),
-    m_useScientificFloatNotation(useScientificNotation),
     m_categorize(categorize),
+    m_showMetadata(showMetadata),
+    m_useScientificFloatNotation(useScientificNotation),
     m_recentlyUpdatedTimeout(500), // ms
     m_recentlyUpdatedColor(QColor(255, 230, 230)),
     m_manuallyChangedColor(QColor(230, 230, 255)),
@@ -68,20 +69,23 @@ UAVObjectTreeModel::~UAVObjectTreeModel()
 
 void UAVObjectTreeModel::setupModelData(UAVObjectManager *objManager)
 {
+    m_settingsTree = new TopTreeItem(tr("Settings"));
+    m_settingsTree->setHighlightManager(m_highlightManager);
+    connect(m_settingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
+
+    m_nonSettingsTree = new TopTreeItem(tr("Data Objects"));
+    m_nonSettingsTree->setHighlightManager(m_highlightManager);
+    connect(m_nonSettingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
+
     // root
     QList<QVariant> rootData;
     rootData << tr("Property") << tr("Value") << tr("Unit");
-    m_rootItem        = new TreeItem(rootData);
-
-    m_settingsTree    = new TopTreeItem(tr("Settings"), m_rootItem);
-    m_settingsTree->setHighlightManager(m_highlightManager);
-    m_rootItem->appendChild(m_settingsTree);
-    m_nonSettingsTree = new TopTreeItem(tr("Data Objects"), m_rootItem);
-    m_nonSettingsTree->setHighlightManager(m_highlightManager);
-    m_rootItem->appendChild(m_nonSettingsTree);
+    m_rootItem = new TreeItem(rootData);
     m_rootItem->setHighlightManager(m_highlightManager);
-    connect(m_settingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
-    connect(m_nonSettingsTree, SIGNAL(updateHighlight(TreeItem *)), this, SLOT(updateHighlight(TreeItem *)));
+
+    // tree item takes ownership of its children
+    m_rootItem->appendChild(m_settingsTree);
+    m_rootItem->appendChild(m_nonSettingsTree);
 
     QList< QList<UAVDataObject *> > objList = objManager->getDataObjects();
     foreach(QList<UAVDataObject *> list, objList) {
@@ -121,9 +125,11 @@ void UAVObjectTreeModel::addDataObject(UAVDataObject *obj)
         connect(dataTreeItem, SIGNAL(updateIsKnown(TreeItem *)), this, SLOT(updateIsKnown(TreeItem *)));
         parent->insertChild(dataTreeItem);
         root->addObjectTreeItem(obj->getObjID(), dataTreeItem);
-        UAVMetaObject *meta = obj->getMetaObject();
-        MetaObjectTreeItem *metaTreeItem = addMetaObject(meta, dataTreeItem);
-        root->addMetaObjectTreeItem(meta->getObjID(), metaTreeItem);
+        if (m_showMetadata) {
+            UAVMetaObject *meta = obj->getMetaObject();
+            MetaObjectTreeItem *metaTreeItem = addMetaObject(meta, dataTreeItem);
+            root->addMetaObjectTreeItem(meta->getObjID(), metaTreeItem);
+        }
         addInstance(obj, dataTreeItem);
     }
 }
@@ -258,8 +264,7 @@ void UAVObjectTreeModel::addSingleField(int index, UAVObjectField *field, TreeIt
     parent->appendChild(item);
 }
 
-QModelIndex UAVObjectTreeModel::index(int row, int column, const QModelIndex &parent)
-const
+QModelIndex UAVObjectTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent)) {
         return QModelIndex();
@@ -306,10 +311,11 @@ QModelIndex UAVObjectTreeModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    TreeItem *childItem  = static_cast<TreeItem *>(index.internalPointer());
-    TreeItem *parentItem = childItem->parent();
+    TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
 
-    if (parentItem == m_rootItem) {
+    TreeItem *parentItem = item->parent();
+    if (!parentItem) {
+        // item is root has no parent...
         return QModelIndex();
     }
 
@@ -363,50 +369,56 @@ QVariant UAVObjectTreeModel::data(const QModelIndex &index, int role) const
 
     TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
 
-    if (index.column() == TreeItem::DATA_COLUMN && role == Qt::EditRole) {
+    switch (role) {
+    case Qt::DisplayRole:
+        if (index.column() == TreeItem::DATA_COLUMN) {
+            EnumFieldTreeItem *fieldItem = dynamic_cast<EnumFieldTreeItem *>(item);
+            if (fieldItem) {
+                int enumIndex = fieldItem->data(index.column()).toInt();
+                return fieldItem->enumOptions(enumIndex);
+            }
+        }
         return item->data(index.column());
-    }
 
-    if (role == Qt::ToolTipRole) {
+    case Qt::EditRole:
+        if (index.column() == TreeItem::DATA_COLUMN) {
+            return item->data(index.column());
+        }
+        return QVariant();
+
+    case Qt::ToolTipRole:
         return item->description();
-    }
 
-    if (role == Qt::ForegroundRole) {
+    case Qt::ForegroundRole:
         if (!dynamic_cast<TopTreeItem *>(item) && !item->isKnown()) {
-            return QVariant(m_unknownObjectColor);
+            return m_unknownObjectColor;
         }
-    }
+        return QVariant();
 
-    if (index.column() == 0 && role == Qt::BackgroundRole) {
-        if (!dynamic_cast<TopTreeItem *>(item) && item->highlighted()) {
-            return QVariant(m_recentlyUpdatedColor);
+    case Qt::BackgroundRole:
+        if (index.column() == TreeItem::TITLE_COLUMN) {
+            if (!dynamic_cast<TopTreeItem *>(item) && item->highlighted()) {
+                return m_recentlyUpdatedColor;
+            }
+        } else if (index.column() == TreeItem::DATA_COLUMN) {
+            FieldTreeItem *fieldItem = dynamic_cast<FieldTreeItem *>(item);
+            if (fieldItem && fieldItem->highlighted()) {
+                return m_recentlyUpdatedColor;
+            }
+            if (fieldItem && fieldItem->changed()) {
+                return m_manuallyChangedColor;
+            }
         }
-    }
+        return QVariant();
 
-    if (index.column() == TreeItem::DATA_COLUMN && role == Qt::BackgroundRole) {
-        FieldTreeItem *fieldItem = dynamic_cast<FieldTreeItem *>(item);
-        if (fieldItem && fieldItem->highlighted()) {
-            return QVariant(m_recentlyUpdatedColor);
-        }
+    case Qt::UserRole:
+        // UserRole gives access to TreeItem
+        // cast to void* is necessary
+        return qVariantFromValue((void *)item);
 
-        if (fieldItem && fieldItem->changed()) {
-            return QVariant(m_manuallyChangedColor);
-        }
-    }
-
-    if (role != Qt::DisplayRole) {
+    default:
         return QVariant();
     }
-
-    if (index.column() == TreeItem::DATA_COLUMN) {
-        EnumFieldTreeItem *fieldItem = dynamic_cast<EnumFieldTreeItem *>(item);
-        if (fieldItem) {
-            int enumIndex = fieldItem->data(index.column()).toInt();
-            return fieldItem->enumOptions(enumIndex);
-        }
-    }
-
-    return item->data(index.column());
 }
 
 bool UAVObjectTreeModel::setData(const QModelIndex &index, const QVariant & value, int role)

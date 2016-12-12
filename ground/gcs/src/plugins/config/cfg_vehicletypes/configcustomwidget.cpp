@@ -26,6 +26,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configcustomwidget.h"
+
+#include "ui_airframe_custom.h"
+
 #include "mixersettings.h"
 
 #include <QDebug>
@@ -146,9 +149,11 @@ QStringList ConfigCustomWidget::getChannelDescriptions()
 }
 
 ConfigCustomWidget::ConfigCustomWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_CustomConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_CustomConfigWidget();
     m_aircraft->setupUi(this);
+
     m_aircraft->customMixerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Put combo boxes in line one of the custom mixer table:
@@ -187,6 +192,7 @@ void ConfigCustomWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->customThrottle1Curve);
     parent.addWidget(m_aircraft->customThrottle2Curve->getCurveWidget());
     parent.addWidget(m_aircraft->customThrottle2Curve);
+    // TODO why is curve2SourceCombo registered twice ?
     parent.addWidgetBinding("MixerSettings", "Curve2Source", m_aircraft->curve2SourceCombo);
     parent.addWidget(m_aircraft->curve2SourceCombo);
 }

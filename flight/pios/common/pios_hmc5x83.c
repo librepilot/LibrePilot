@@ -45,7 +45,12 @@ typedef struct {
     uint32_t port_id;
     uint8_t  slave_num;
     uint8_t  CTRLB;
+    uint16_t magCountMax;
+    uint16_t magCount;
     volatile bool data_ready;
+    int16_t  magData[3];
+    bool     hw_error;
+    uint32_t lastConfigTime;
 } pios_hmc5x83_dev_data_t;
 
 static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev);
@@ -66,6 +71,7 @@ const PIOS_SENSORS_Driver PIOS_HMC5x83_Driver = {
     .get_scale = PIOS_HMC5x83_driver_get_scale,
     .is_polled = true,
 };
+
 /**
  * Allocate the device setting structure
  * @return pios_hmc5x83_dev_data_t pointer to newly created structure
@@ -104,20 +110,73 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
     dev->cfg       = cfg; // store config before enabling interrupt
     dev->port_id   = port_id;
     dev->slave_num = slave_num;
-#ifdef PIOS_HMC5X83_HAS_GPIOS
-    PIOS_EXTI_Init(cfg->exti_cfg);
-#endif
 
-    int32_t val = PIOS_HMC5x83_Config(dev);
-    PIOS_Assert(val == 0);
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    if (cfg->exti_cfg) {
+        PIOS_EXTI_Init(cfg->exti_cfg);
+    } else
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
+    {
+// if PIOS_SENSOR_RATE is defined, there is a sensor loop that is called at that frequency
+// and "is data available" can simply return false a few times to save some CPU
+#ifdef PIOS_SENSOR_RATE
+        // for external mags that have no interrupt line, just poll them with a timer
+        // use the configured Output Data Rate to calculate the number of interations (of the main sensor task loop)
+        // to return false, before returning true
+        uint16_t rate100;
+        switch (cfg->M_ODR) {
+        case PIOS_HMC5x83_ODR_0_75:
+            rate100 = 75;
+            break;
+        case PIOS_HMC5x83_ODR_1_5:
+            rate100 = 150;
+            break;
+        case PIOS_HMC5x83_ODR_3:
+            rate100 = 300;
+            break;
+        case PIOS_HMC5x83_ODR_7_5:
+            rate100 = 750;
+            break;
+        case PIOS_HMC5x83_ODR_15:
+            rate100 = 1500;
+            break;
+        case PIOS_HMC5x83_ODR_30:
+            rate100 = 3000;
+            break;
+        default:
+        case PIOS_HMC5x83_ODR_75:
+            rate100 = 7500;
+            break;
+        }
+        // if the application sensor rate is fast enough to warrant skipping some slow hardware sensor reads
+        if ((PIOS_SENSOR_RATE * 100.0f / 3.0f) > rate100) {
+            // count the number of "return false" up to this number
+            dev->magCountMax = ((uint16_t)PIOS_SENSOR_RATE * 100 / rate100) + 1;
+        } else {
+            // return true every time (do a hardware sensor poll every time)
+            dev->magCountMax = 1;
+        }
+#else /* PIOS_SENSOR_RATE */
+        // return true every time (do a hardware sensor poll every time)
+        dev->magCountMax = 1;
+#endif /* PIOS_SENSOR_RATE */
+        // with this counter
+        dev->magCount    = 0;
+    }
+
+    if (PIOS_HMC5x83_Config(dev) != 0) {
+        dev->hw_error = true;
+    }
 
     dev->data_ready = false;
     return (pios_hmc5x83_dev_t)dev;
 }
 
-void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler)
+void PIOS_HMC5x83_Register(pios_hmc5x83_dev_t handler, PIOS_SENSORS_TYPE sensortype)
 {
-    PIOS_SENSORS_Register(&PIOS_HMC5x83_Driver, PIOS_SENSORS_TYPE_3AXIS_MAG, handler);
+    if (handler) {
+        PIOS_SENSORS_Register(&PIOS_HMC5x83_Driver, sensortype, handler);
+    }
 }
 
 /**
@@ -185,6 +244,8 @@ static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev)
     uint8_t CTRLA = 0x00;
     uint8_t MODE  = 0x00;
 
+    dev->lastConfigTime = PIOS_DELAY_GetRaw();
+
     const struct pios_hmc5x83_cfg *cfg = dev->cfg;
 
     dev->CTRLB = 0;
@@ -209,7 +270,62 @@ static int32_t PIOS_HMC5x83_Config(pios_hmc5x83_dev_data_t *dev)
         return -1;
     }
 
+#ifdef PIOS_INCLUDE_WDG
+    // give HMC5x83 on I2C some extra time
+    PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+
+    if (PIOS_HMC5x83_Test((pios_hmc5x83_dev_t)dev) != 0) {
+        return -1;
+    }
+
     return 0;
+}
+
+static void PIOS_HMC5x83_Orient(enum PIOS_HMC5X83_ORIENTATION orientation, int16_t in[3], int16_t out[3])
+{
+    switch (orientation) {
+    case PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP:
+        out[0] = in[2];
+        out[1] = in[0];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_SOUTH_EAST_UP:
+        out[0] = -in[0];
+        out[1] = in[2];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_WEST_SOUTH_UP:
+        out[0] = -in[2];
+        out[1] = -in[0];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_NORTH_WEST_UP:
+        out[0] = in[0];
+        out[1] = -in[2];
+        out[2] = -in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_EAST_SOUTH_DOWN:
+        out[0] = in[2];
+        out[1] = -in[0];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_SOUTH_WEST_DOWN:
+        out[0] = -in[0];
+        out[1] = -in[2];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_WEST_NORTH_DOWN:
+        out[0] = -in[2];
+        out[1] = in[0];
+        out[2] = in[1];
+        break;
+    case PIOS_HMC5X83_ORIENTATION_NORTH_EAST_DOWN:
+        out[0] = in[0];
+        out[1] = in[2];
+        out[2] = in[1];
+        break;
+    }
 }
 
 /**
@@ -265,50 +381,14 @@ int32_t PIOS_HMC5x83_ReadMag(pios_hmc5x83_dev_t handler, int16_t out[3])
         temp[i] = v;
     }
 
-    switch (dev->cfg->Orientation) {
-    case PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP:
-        out[0] = temp[2];
-        out[1] = temp[0];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_SOUTH_EAST_UP:
-        out[0] = -temp[0];
-        out[1] = temp[2];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_WEST_SOUTH_UP:
-        out[0] = -temp[2];
-        out[1] = -temp[0];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_NORTH_WEST_UP:
-        out[0] = temp[0];
-        out[1] = -temp[2];
-        out[2] = -temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_EAST_SOUTH_DOWN:
-        out[0] = temp[2];
-        out[1] = -temp[0];
-        out[2] = temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_SOUTH_WEST_DOWN:
-        out[0] = -temp[0];
-        out[1] = -temp[2];
-        out[2] = temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_WEST_NORTH_DOWN:
-        out[0] = -temp[2];
-        out[1] = temp[0];
-        out[2] = temp[1];
-        break;
-    case PIOS_HMC5X83_ORIENTATION_NORTH_EAST_DOWN:
-        out[0] = temp[0];
-        out[1] = temp[2];
-        out[2] = temp[1];
-        break;
-    }
+    PIOS_HMC5x83_Orient(dev->cfg->Orientation, temp, out);
 
-    // This should not be necessary but for some reason it is coming out of continuous conversion mode
+    // "This should not be necessary but for some reason it is coming out of continuous conversion mode"
+    //
+    // By default the chip is in single read mode meaning after reading from it once, it will go idle to save power.
+    // Once idle, we have write to it to turn it on before we can read from it again.
+    // To conserve current between measurements, the device is placed in a state similar to idle mode, but the
+    // Mode Register is not changed to Idle Mode.  That is, MD[n] bits are unchanged.
     dev->cfg->Driver->Write(handler, PIOS_HMC5x83_MODE_REG, PIOS_HMC5x83_MODE_CONTINUOUS);
 
     return 0;
@@ -334,11 +414,23 @@ uint8_t PIOS_HMC5x83_ReadID(pios_hmc5x83_dev_t handler, uint8_t out[4])
  * \return true if new data is available
  * \return false if new data is not available
  */
-bool PIOS_HMC5x83_NewDataAvailable(pios_hmc5x83_dev_t handler)
+bool PIOS_HMC5x83_NewDataAvailable(__attribute__((unused)) pios_hmc5x83_dev_t handler)
 {
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
 
-    return dev->data_ready;
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    if (dev->cfg->exti_cfg) { // if this device has an interrupt line attached, then wait for interrupt to say data is ready
+        return dev->data_ready;
+    } else
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
+    { // else poll to see if data is ready or just say "true" and set polling interval elsewhere
+        if (++(dev->magCount) >= dev->magCountMax) {
+            dev->magCount = 0;
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 /**
@@ -355,6 +447,12 @@ int32_t PIOS_HMC5x83_Test(pios_hmc5x83_dev_t handler)
     uint8_t mode_read;
     int16_t values[3];
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
+
+#ifdef PIOS_INCLUDE_WDG
+    // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
+    // this is not in a loop, so it is safe
+    PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
 
     /* Verify that ID matches (HMC5x83 ID is null-terminated ASCII string "H43") */
     char id[4];
@@ -435,16 +533,22 @@ int32_t PIOS_HMC5x83_Test(pios_hmc5x83_dev_t handler)
     return failed;
 }
 
+#ifdef PIOS_HMC5X83_HAS_GPIOS
 /**
  * @brief IRQ Handler
  */
 bool PIOS_HMC5x83_IRQHandler(pios_hmc5x83_dev_t handler)
 {
+    if (!handler) { // handler is not set on first call
+        return false;
+    }
     pios_hmc5x83_dev_data_t *dev = dev_validate(handler);
 
     dev->data_ready = true;
+
     return false;
 }
+#endif /* PIOS_HMC5X83_HAS_GPIOS */
 
 #ifdef PIOS_INCLUDE_SPI
 int32_t PIOS_HMC5x83_SPI_Read(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t *buffer, uint8_t len);
@@ -529,8 +633,8 @@ int32_t PIOS_HMC5x83_SPI_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint
     return 0;
 }
 #endif /* PIOS_INCLUDE_SPI */
-#ifdef PIOS_INCLUDE_I2C
 
+#ifdef PIOS_INCLUDE_I2C
 int32_t PIOS_HMC5x83_I2C_Read(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t *buffer, uint8_t len);
 int32_t PIOS_HMC5x83_I2C_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint8_t buffer);
 
@@ -609,9 +713,9 @@ int32_t PIOS_HMC5x83_I2C_Write(pios_hmc5x83_dev_t handler, uint8_t address, uint
 #endif /* PIOS_INCLUDE_I2C */
 
 /* PIOS sensor driver implementation */
-bool PIOS_HMC5x83_driver_Test(uintptr_t context)
+bool PIOS_HMC5x83_driver_Test(__attribute__((unused)) uintptr_t context)
 {
-    return !PIOS_HMC5x83_Test((pios_hmc5x83_dev_t)context);
+    return true; // Do not do tests now, Sensors module takes this rather too seriously.
 }
 
 void PIOS_HMC5x83_driver_Reset(__attribute__((unused)) uintptr_t context) {}
@@ -625,19 +729,51 @@ void PIOS_HMC5x83_driver_get_scale(float *scales, uint8_t size, __attribute__((u
 void PIOS_HMC5x83_driver_fetch(void *data, uint8_t size, uintptr_t context)
 {
     PIOS_Assert(size > 0);
-    int16_t mag[3];
-    PIOS_HMC5x83_ReadMag((pios_hmc5x83_dev_t)context, mag);
+    pios_hmc5x83_dev_data_t *dev = dev_validate((pios_hmc5x83_dev_t)context);
+
     PIOS_SENSORS_3Axis_SensorsWithTemp *tmp = data;
+
     tmp->count = 1;
-    tmp->sample[0].x = mag[0];
-    tmp->sample[0].y = mag[1];
-    tmp->sample[0].z = mag[2];
+    tmp->sample[0].x = dev->magData[0];
+    tmp->sample[0].y = dev->magData[1];
+    tmp->sample[0].z = dev->magData[2];
     tmp->temperature = 0;
 }
 
+
 bool PIOS_HMC5x83_driver_poll(uintptr_t context)
 {
-    return PIOS_HMC5x83_NewDataAvailable((pios_hmc5x83_dev_t)context);
+    pios_hmc5x83_dev_data_t *dev = dev_validate((pios_hmc5x83_dev_t)context);
+
+    if (dev->hw_error) {
+        if (PIOS_DELAY_DiffuS(dev->lastConfigTime) < 1000000) {
+            return false;
+        }
+
+#ifdef PIOS_INCLUDE_WDG
+        // give HMC5x83 on I2C some extra time
+        PIOS_WDG_Clear();
+#endif /* PIOS_INCLUDE_WDG */
+
+        if (PIOS_HMC5x83_Config(dev) == 0) {
+            dev->hw_error = false;
+        }
+    }
+
+    if (dev->hw_error) {
+        return false;
+    }
+
+    if (!PIOS_HMC5x83_NewDataAvailable((pios_hmc5x83_dev_t)context)) {
+        return false;
+    }
+
+    if (PIOS_HMC5x83_ReadMag((pios_hmc5x83_dev_t)context, dev->magData) != 0) {
+        dev->hw_error = true;
+        return false;
+    }
+
+    return true;
 }
 
 #endif /* PIOS_INCLUDE_HMC5x83 */

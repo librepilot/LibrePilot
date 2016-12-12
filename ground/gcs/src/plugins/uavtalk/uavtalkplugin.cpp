@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       uavtalkplugin.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVTalkPlugin UAVTalk Plugin
@@ -26,14 +27,18 @@
  */
 #include "uavtalkplugin.h"
 
+#include "telemetrymanager.h"
+#include "oplinkmanager.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/connectionmanager.h>
 
-UAVTalkPlugin::UAVTalkPlugin()
+UAVTalkPlugin::UAVTalkPlugin() : telemetryManager(0)
 {}
 
 UAVTalkPlugin::~UAVTalkPlugin()
 {}
+
 /**
  * Called once all the plugins which depend on us have been loaded
  */
@@ -50,15 +55,18 @@ bool UAVTalkPlugin::initialize(const QStringList & arguments, QString *errorStri
     Q_UNUSED(errorString);
 
     // Create TelemetryManager
-    telMngr = new TelemetryManager();
-    addAutoReleasedObject(telMngr);
+    telemetryManager = new TelemetryManager();
+    addAutoReleasedObject(telemetryManager);
+
+    // Create OPLinkManager
+    OPLinkManager *opLinkManager = new OPLinkManager();
+    addAutoReleasedObject(opLinkManager);
 
     // Connect to connection manager so we get notified when the user connect to his device
     Core::ConnectionManager *cm = Core::ICore::instance()->connectionManager();
-    QObject::connect(cm, SIGNAL(deviceConnected(QIODevice *)),
-                     this, SLOT(onDeviceConnect(QIODevice *)));
-    QObject::connect(cm, SIGNAL(deviceAboutToDisconnect()),
-                     this, SLOT(onDeviceDisconnect()));
+    QObject::connect(cm, SIGNAL(deviceConnected(QIODevice *)), this, SLOT(onDeviceConnect(QIODevice *)));
+    QObject::connect(cm, SIGNAL(deviceAboutToDisconnect()), this, SLOT(onDeviceDisconnect()));
+
     return true;
 }
 
@@ -67,10 +75,10 @@ void UAVTalkPlugin::shutdown()
 
 void UAVTalkPlugin::onDeviceConnect(QIODevice *dev)
 {
-    telMngr->start(dev);
+    telemetryManager->start(dev);
 }
 
 void UAVTalkPlugin::onDeviceDisconnect()
 {
-    telMngr->stop();
+    telemetryManager->stop();
 }

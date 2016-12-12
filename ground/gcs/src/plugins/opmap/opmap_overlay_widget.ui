@@ -20,7 +20,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string notr="true">Form</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: transparent;
@@ -301,7 +301,7 @@ border-radius: 10px;
            <enum>QFrame::NoFrame</enum>
           </property>
           <property name="text">
-           <string>labelStatus</string>
+           <string notr="true">labelStatus</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -366,7 +366,7 @@ border-radius: 3px;
            <set>Qt::AlignCenter</set>
           </property>
           <property name="format">
-           <string>%v</string>
+           <string notr="true">%v</string>
           </property>
          </widget>
         </item>

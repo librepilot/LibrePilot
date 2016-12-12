@@ -59,7 +59,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="toolTip">
-        <string>Standard ESC 50Hz</string>
+        <string>Standard ESC: Slow refresh rate (50Hz), not recommended for Multirotors.</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QToolButton { border: none }</string>
@@ -103,7 +103,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="toolTip">
-        <string>Turbo PWM ESC 400Hz</string>
+        <string>Rapid ESC: Usually Simonk, 490Hz refresh rate.</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QToolButton { border: none }</string>
@@ -150,7 +150,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="toolTip">
-        <string>Turbo PWM ESC 400Hz</string>
+        <string>OneShot ESC: BLHeli, Kiss...</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QToolButton { border: none }</string>

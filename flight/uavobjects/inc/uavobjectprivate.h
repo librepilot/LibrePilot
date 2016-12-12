@@ -73,6 +73,7 @@ struct ObjectEventEntry {
     xQueueHandle queue;
     UAVObjEventCallback     cb;
     uint8_t eventMask;
+    bool fast;
 };
 
 /*

@@ -25,13 +25,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "cfg_vehicletypes/vehicleconfig.h"
+
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
-#include "systemsettings.h"
-#include <QtCore/qmath.h>
 
+#include "systemsettings.h"
+
+#include <QtCore/qmath.h>
 #include <QDebug>
+#include <QComboBox>
+#include <QPushButton>
+#include <QPointer>
 
 VehicleConfig::VehicleConfig(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -115,12 +120,12 @@ QString VehicleConfig::updateConfigObjectsFromWidgets()
     return NULL;
 }
 
-void VehicleConfig::refreshWidgetsValues(UAVObject *o)
+void VehicleConfig::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_UNUSED(o);
+    Q_UNUSED(obj);
 }
 
-void VehicleConfig::updateObjectsFromWidgets()
+void VehicleConfig::updateObjectsFromWidgetsImpl()
 {}
 
 void VehicleConfig::resetActuators(GUIConfigDataUnion *configData)
@@ -229,6 +234,15 @@ void VehicleConfig::resetMotorAndServoMixers(UAVDataObject *mixer)
             setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_DISABLED);
             resetMixerVector(mixer, channel);
         }
+    }
+}
+
+// Disable all mixers types
+void VehicleConfig::resetAllMixersType(UAVDataObject *mixer)
+{
+    for (int channel = 0; channel < (int)VehicleConfig::CHANNEL_NUMELEM; channel++) {
+        resetMixerVector(mixer, channel);
+        setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_DISABLED);
     }
 }
 

@@ -139,17 +139,17 @@
         </row>
         <row>
          <property name="text">
-          <string>4</string>
+          <string notr="true">4</string>
          </property>
         </row>
         <row>
          <property name="text">
-          <string>3</string>
+          <string notr="true">3</string>
          </property>
         </row>
         <row>
          <property name="text">
-          <string>2</string>
+          <string notr="true">2</string>
          </property>
         </row>
         <row>
@@ -167,27 +167,27 @@
         </column>
         <item row="0" column="0">
          <property name="text">
-          <string>1.0</string>
+          <string notr="true">1.0</string>
          </property>
         </item>
         <item row="1" column="0">
          <property name="text">
-          <string>.75</string>
+          <string notr="true">.75</string>
          </property>
         </item>
         <item row="2" column="0">
          <property name="text">
-          <string>.50</string>
+          <string notr="true">.50</string>
          </property>
         </item>
         <item row="3" column="0">
          <property name="text">
-          <string>.25</string>
+          <string notr="true">.25</string>
          </property>
         </item>
         <item row="4" column="0">
          <property name="text">
-          <string>.00</string>
+          <string notr="true">.00</string>
          </property>
         </item>
        </widget>

@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_delay.c
- * @author     Michael Smith Copyright (C) 2012
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             Michael Smith Copyright (C) 2012
  * @brief      Delay Functions
  *                 - Provides a micro-second granular delay using the CPU
  *                   cycle counter.
@@ -167,6 +168,17 @@ uint32_t PIOS_DELAY_DiffuS(uint32_t raw)
 
     return diff / us_ticks;
 }
+
+#if !defined(PIOS_EXCLUDE_ADVANCED_FEATURES)
+/**
+ * @brief Subtract two raw times and convert to us.
+ * @return Interval between raw times in microseconds
+ */
+uint32_t PIOS_DELAY_DiffuS2(uint32_t raw, uint32_t later)
+{
+    return (later - raw) / us_ticks;
+}
+#endif /* !defined(PIOS_EXCLUDE_ADVANCED_FEATURES) */
 
 #endif /* PIOS_INCLUDE_DELAY */
 

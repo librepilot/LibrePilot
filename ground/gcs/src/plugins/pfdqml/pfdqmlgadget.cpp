@@ -1,4 +1,15 @@
-/*
+/**
+ ******************************************************************************
+ *
+ * @file       pfdqmlgadget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
+ *****************************************************************************//*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -18,51 +29,35 @@
 #include "pfdqmlgadgetwidget.h"
 #include "pfdqmlgadgetconfiguration.h"
 
-PfdQmlGadget::PfdQmlGadget(QString classId, PfdQmlGadgetWidget *widget, QWidget *parent) :
-    IUAVGadget(classId, parent),
-    m_widget(widget)
+PfdQmlGadget::PfdQmlGadget(QString classId, QWidget *parent) :
+    IUAVGadget(classId, parent)
 {
-    m_container = NULL;
-    m_parent    = parent;
+    m_qmlGadgetWidget = new PfdQmlGadgetWidget(parent);
 }
 
 PfdQmlGadget::~PfdQmlGadget()
 {
-    delete m_widget;
+    delete m_qmlGadgetWidget;
 }
 
-/*
-   This is called when a configuration is loaded, and updates the plugin's settings.
-   Careful: the plugin is already drawn before the loadConfiguration method is called the
-   first time, so you have to be careful not to assume all the plugin values are initialized
-   the first time you use them
- */
+QWidget *PfdQmlGadget::widget()
+{
+    return m_qmlGadgetWidget;
+}
+
 void PfdQmlGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     PfdQmlGadgetConfiguration *m = qobject_cast<PfdQmlGadgetConfiguration *>(config);
 
-    m_widget->setOpenGLEnabled(m->openGLEnabled());
-    m_widget->setQmlFile(m->qmlFile());
-    m_widget->setEarthFile(m->earthFile());
-    m_widget->setTerrainEnabled(m->terrainEnabled());
-    m_widget->setActualPositionUsed(m->actualPositionUsed());
-    m_widget->setLatitude(m->latitude());
-    m_widget->setLongitude(m->longitude());
-    m_widget->setAltitude(m->altitude());
-    m_widget->setSpeedFactor(m->speedFactor());
-    m_widget->setSpeedUnit(m->speedUnit());
-    m_widget->setAltitudeFactor(m->altitudeFactor());
-    m_widget->setAltitudeUnit(m->altitudeUnit());
+    m_qmlGadgetWidget->loadConfiguration(m);
+}
 
-    // setting OSGEARTH_CACHE_ONLY seems to work the most reliably
-    // between osgEarth versions I tried
-    if (m->cacheOnly()) {
-        qputenv("OSGEARTH_CACHE_ONLY", "true");
-    } else {
-#ifdef Q_OS_WIN32
-        qputenv("OSGEARTH_CACHE_ONLY", "");
-#else
-        unsetenv("OSGEARTH_CACHE_ONLY");
-#endif
-    }
+void PfdQmlGadget::saveState(QSettings *settings)
+{
+    m_qmlGadgetWidget->saveState(settings);
+}
+
+void PfdQmlGadget::restoreState(QSettings *settings)
+{
+    m_qmlGadgetWidget->restoreState(settings);
 }

@@ -46,6 +46,8 @@ class OPMapGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_PROPERTY(QString uavSymbol READ uavSymbol WRITE setUavSymbol)
     Q_PROPERTY(int maxUpdateRate READ maxUpdateRate WRITE setMaxUpdateRate)
     Q_PROPERTY(qreal overlayOpacity READ opacity WRITE setOpacity)
+    Q_PROPERTY(qreal defaultWaypointAltitude READ defaultWaypointAltitude WRITE setDefaultWaypointAltitude)
+    Q_PROPERTY(qreal defaultWaypointVelocity READ defaultWaypointVelocity WRITE setDefaultWaypointVelocity)
 
 public:
     explicit OPMapGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
@@ -101,6 +103,17 @@ public:
     {
         return m_opacity;
     }
+
+    qreal defaultWaypointAltitude() const
+    {
+        return m_defaultWaypointAltitude;
+    }
+
+    qreal defaultWaypointVelocity() const
+    {
+        return m_defaultWaypointVelocity;
+    }
+
     void save() const;
 public slots:
     void setMapProvider(QString provider)
@@ -149,6 +162,16 @@ public slots:
         m_maxUpdateRate = update_rate;
     }
 
+    void setDefaultWaypointAltitude(qreal default_altitude)
+    {
+        m_defaultWaypointAltitude = default_altitude;
+    }
+
+    void setDefaultWaypointVelocity(qreal default_velocity)
+    {
+        m_defaultWaypointVelocity = default_velocity;
+    }
+
 private:
     QString m_mapProvider;
     int m_defaultZoom;
@@ -163,6 +186,8 @@ private:
     int m_maxUpdateRate;
     QSettings *m_settings;
     qreal m_opacity;
+    qreal m_defaultWaypointAltitude;
+    qreal m_defaultWaypointVelocity;
 };
 
 #endif // OPMAP_GADGETCONFIGURATION_H

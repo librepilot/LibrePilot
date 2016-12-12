@@ -1,0 +1,11 @@
+pipelines:
+  default:
+    - step:
+        script:
+          - add-apt-repository ppa:librepilot/tools -y
+          - apt-get update -q
+          - apt-get install -y libc6-i386 libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev libosgearth-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools
+          - make build_sdk_install
+          - make all_flight
+          - make opfw_resource
+          - make gcs

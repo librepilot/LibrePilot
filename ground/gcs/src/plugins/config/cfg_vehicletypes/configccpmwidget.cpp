@@ -26,6 +26,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "configccpmwidget.h"
+
+#include "ui_airframe_ccpm.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <uavobjectutilmanager.h>
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorcommand.h"
@@ -38,6 +44,9 @@
 #include <QPushButton>
 #include <QBrush>
 #include <QMessageBox>
+#include <QSpinBox>
+#include <QtSvg/QGraphicsSvgItem>
+#include <QGraphicsEllipseItem>
 
 #include <math.h>
 
@@ -118,8 +127,9 @@ QStringList ConfigCcpmWidget::getChannelDescriptions()
 }
 
 ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
-    VehicleConfig(parent), m_aircraft(new Ui_CcpmConfigWidget())
+    VehicleConfig(parent)
 {
+    m_aircraft = new Ui_CcpmConfigWidget();
     m_aircraft->setupUi(this);
 
     SwashLvlConfigurationInProgress = 0;
@@ -1064,23 +1074,6 @@ void ConfigCcpmWidget::setMixer()
     updatingToHardware = false;
 }
 
-/**
-   Send ccpm type to the board and request saving to SD card
- */
-void ConfigCcpmWidget::saveccpmUpdate()
-{
-    if (SwashLvlConfigurationInProgress) {
-        return;
-    }
-    ShowDisclaimer(0);
-    // Send update so that the latest value is saved
-    // sendccpmUpdate();
-    setMixer();
-    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
-    Q_ASSERT(obj);
-    saveObjectToSD(obj);
-}
-
 void ConfigCcpmWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
@@ -1408,6 +1401,16 @@ void ConfigCcpmWidget::SwashLvlFinishButtonPressed()
     // ShowDisclaimer(2);
 
     ccpmSwashplateUpdate();
+}
+
+void ConfigCcpmWidget::saveObjectToSD(UAVObject *obj)
+{
+    // saveObjectToSD is now handled by the UAVUtils plugin in one
+    // central place (and one central queue)
+    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
+    UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
+
+    utilMngr->saveObjectToSD(obj);
 }
 
 int ConfigCcpmWidget::ShowDisclaimer(int messageID)

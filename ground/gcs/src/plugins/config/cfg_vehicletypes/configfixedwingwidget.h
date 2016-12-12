@@ -28,17 +28,18 @@
 #define CONFIGFIXEDWINGWIDGET_H
 
 #include "cfg_vehicletypes/vehicleconfig.h"
-#include "ui_airframe_fixedwing.h"
+
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 
-#include <QWidget>
 #include <QList>
-#include <QItemDelegate>
 
-class Ui_Widget;
+class Ui_FixedWingConfigWidget;
+
+class QWidget;
+class QGraphicsSvgItem;
 
 class ConfigFixedWingWidget : public VehicleConfig {
     Q_OBJECT
@@ -58,10 +59,13 @@ private:
 
     virtual void registerWidgets(ConfigTaskWidget &parent);
     virtual void resetActuators(GUIConfigDataUnion *configData);
+    virtual void resetRcOutputs(GUIConfigDataUnion *configData);
 
     bool setupFrameFixedWing(QString airframeType);
     bool setupFrameElevon(QString airframeType);
     bool setupFrameVtail(QString airframeType);
+    void setupRcOutputs(QList<QString> rcOutputList);
+    void updateRcCurvesUsed();
 
 protected:
     void enableControls(bool enable);

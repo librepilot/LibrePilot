@@ -882,7 +882,7 @@ GeneralSettings *MainWindow::generalSettings() const
 
 IContext *MainWindow::contextObject(QWidget *widget)
 {
-    return m_contextWidgets.value(widget);
+    return m_contextWidgets.value(widget, NULL);
 }
 
 void MainWindow::addContextObject(IContext *context)
@@ -955,7 +955,7 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
         IContext *context = 0;
         QWidget *p = focusWidget();
         while (p) {
-            context = m_contextWidgets.value(p);
+            context = m_contextWidgets.value(p, NULL);
             if (context) {
                 newContext = context;
                 break;

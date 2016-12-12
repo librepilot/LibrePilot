@@ -64,6 +64,10 @@ static AttitudeStateData attitude;
 
 static uint8_t previous_mode[AXES] = { 255, 255, 255, 255 };
 static PiOSDeltatimeConfig timeval;
+static bool pitchMin = false;
+static bool pitchMax = false;
+static bool rollMin  = false;
+static bool rollMax  = false;
 
 // Private functions
 static void stabilizationOuterloopTask();
@@ -281,31 +285,51 @@ static void stabilizationOuterloopTask()
             rateDesiredAxis[t] = stabilizationDesiredAxis[t]; // default for all axes
             // now test limits for pitch and/or roll
             if (t == 1) { // pitch
-                if (attitudeState.Pitch < -stabSettings.stabBank.PitchMax) {
-                    // attitude exceeds pitch max.
-                    // zero rate desired if also -ve
-                    if (rateDesiredAxis[t] < 0.0f) {
-                        rateDesiredAxis[t] = 0.0f;
+                if ((attitudeState.Pitch < -stabSettings.stabBank.PitchMax) || pitchMin) {
+                    pitchMin = true;
+                    // Attitude exceeds pitch min,
+                    // Do Attitude stabilisation at min pitch angle while user still maintain negative pitch
+                    if (stabilizationDesiredAxis[t] < 0.0f) {
+                        local_error[t]     = -stabSettings.stabBank.PitchMax - attitudeState.Pitch;
+                        rateDesiredAxis[t] = pid_apply(&stabSettings.outerPids[t], local_error[t], dT);
+                    } else {
+                        // Stop Attitude stabilization and return to Rate
+                        pitchMin = false;
                     }
-                } else if (attitudeState.Pitch > stabSettings.stabBank.PitchMax) {
-                    // attitude exceeds pitch max
-                    // zero rate desired if also +ve
-                    if (rateDesiredAxis[t] > 0.0f) {
-                        rateDesiredAxis[t] = 0.0f;
+                } else if ((attitudeState.Pitch > stabSettings.stabBank.PitchMax) || pitchMax) {
+                    pitchMax = true;
+                    // Attitude exceeds pitch max
+                    // Do Attitude stabilisation at max pitch angle while user still maintain positive pitch
+                    if (stabilizationDesiredAxis[t] > 0.0f) {
+                        local_error[t]     = stabSettings.stabBank.PitchMax - attitudeState.Pitch;
+                        rateDesiredAxis[t] = pid_apply(&stabSettings.outerPids[t], local_error[t], dT);
+                    } else {
+                        // Stop Attitude stabilization and return to Rate
+                        pitchMax = false;
                     }
                 }
             } else if (t == 0) { // roll
-                if (attitudeState.Roll < -stabSettings.stabBank.RollMax) {
-                    // attitude exceeds roll max.
-                    // zero rate desired if also -ve
-                    if (rateDesiredAxis[t] < 0.0f) {
-                        rateDesiredAxis[t] = 0.0f;
+                if ((attitudeState.Roll < -stabSettings.stabBank.RollMax) || rollMin) {
+                    rollMin = true;
+                    // Attitude exceeds roll min,
+                    // Do Attitude stabilisation at min roll angle while user still maintain negative roll
+                    if (stabilizationDesiredAxis[t] < 0.0f) {
+                        local_error[t]     = -stabSettings.stabBank.RollMax - attitudeState.Roll;
+                        rateDesiredAxis[t] = pid_apply(&stabSettings.outerPids[t], local_error[t], dT);
+                    } else {
+                        // Stop Attitude stabilization and return to Rate
+                        rollMin = false;
                     }
-                } else if (attitudeState.Roll > stabSettings.stabBank.RollMax) {
-                    // attitude exceeds roll max
-                    // zero rate desired if also +ve
-                    if (rateDesiredAxis[t] > 0.0f) {
-                        rateDesiredAxis[t] = 0.0f;
+                } else if ((attitudeState.Roll > stabSettings.stabBank.RollMax) || rollMax) {
+                    rollMax = true;
+                    // Attitude exceeds roll max
+                    // Do Attitude stabilisation at max roll angle while user still maintain positive roll
+                    if (stabilizationDesiredAxis[t] > 0.0f) {
+                        local_error[t]     = stabSettings.stabBank.RollMax - attitudeState.Roll;
+                        rateDesiredAxis[t] = pid_apply(&stabSettings.outerPids[t], local_error[t], dT);
+                    } else {
+                        // Stop Attitude stabilization and return to Rate
+                        rollMax = false;
                     }
                 }
             }
@@ -341,14 +365,19 @@ static void stabilizationOuterloopTask()
 
 static void AttitudeStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
+#ifndef STABILIZATION_ATTITUDE_DOWNSAMPLED
     // to reduce CPU utilization, outer loop is not executed on every state update
     static uint8_t cpusaver = 0;
 
     if ((cpusaver++ % OUTERLOOP_SKIPCOUNT) == 0) {
-        // this does not need mutex protection as both eventdispatcher and stabi run in same callback task!
-        AttitudeStateGet(&attitude);
-        PIOS_CALLBACKSCHEDULER_Dispatch(callbackHandle);
-    }
+#endif
+    // this does not need mutex protection as both eventdispatcher and stabi run in same callback task!
+    AttitudeStateGet(&attitude);
+    PIOS_CALLBACKSCHEDULER_Dispatch(callbackHandle);
+
+#ifndef STABILIZATION_ATTITUDE_DOWNSAMPLED
+}
+#endif
 }
 
 /**

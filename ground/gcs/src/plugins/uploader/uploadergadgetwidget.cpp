@@ -27,8 +27,9 @@
  */
 #include "uploadergadgetwidget.h"
 
+#include "ui_uploader.h"
+
 #include "flightstatus.h"
-#include "oplinkstatus.h"
 #include "delay.h"
 #include "devicewidget.h"
 #include "runningdevicewidget.h"
@@ -38,12 +39,13 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/connectionmanager.h>
 #include <uavtalk/telemetrymanager.h>
+#include <uavtalk/oplinkmanager.h>
+#include "rebootdialog.h"
 
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QDebug>
-#include "rebootdialog.h"
 
 #define DFU_DEBUG true
 
@@ -675,16 +677,21 @@ bool UploaderGadgetWidget::autoUpdateCapable()
 
 bool UploaderGadgetWidget::autoUpdate(bool erase)
 {
-    if (m_oplinkwatchdog.isConnected() &&
-        m_oplinkwatchdog.opLinkType() == OPLinkWatchdog::OPLINK_MINI) {
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+
+    Q_ASSERT(pluginManager);
+
+    OPLinkManager *opLinkManager = pluginManager->getObject<OPLinkManager>();
+    Q_ASSERT(opLinkManager);
+
+    if (opLinkManager->isConnected() &&
+        opLinkManager->opLinkType() == OPLinkManager::OPLINK_MINI) {
         emit progressUpdate(FAILURE, QVariant(tr("To upgrade the OPLinkMini board please disconnect it from the USB port, "
-                                                 "press the Upgrade again button and follow instructions on screen.")));
+                                                 "press the Upgrade button again and follow instructions on screen.")));
         emit autoUpdateFailed();
         return false;
     }
 
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    Q_ASSERT(pluginManager);
     TelemetryManager *telemetryManager = pluginManager->getObject<TelemetryManager>();
     Q_ASSERT(telemetryManager);
 
@@ -751,27 +758,30 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     QString filename;
     emit progressUpdate(LOADING_FW, QVariant());
     switch (m_dfu->devices[0].ID) {
-    case 0x301:
+    case 0x0301:
         filename = "fw_oplinkmini";
         break;
-    case 0x401:
-    case 0x402:
+    case 0x0401:
+    case 0x0402:
         filename = "fw_coptercontrol";
         break;
-    case 0x501:
+    case 0x0501:
         filename = "fw_osd";
         break;
-    case 0x902:
+    case 0x0902:
         filename = "fw_revoproto";
         break;
-    case 0x903:
+    case 0x0903:
         filename = "fw_revolution";
         break;
-    case 0x904:
+    case 0x0904:
         filename = "fw_discoveryf4bare";
         break;
-    case 0x905:
+    case 0x0905:
         filename = "fw_revonano";
+        break;
+    case 0x9201:
+        filename = "fw_sparky2";
         break;
     default:
         emit progressUpdate(FAILURE, QVariant(tr("Unknown board id '0x%1'").arg(QString::number(m_dfu->devices[0].ID, 16))));
@@ -821,11 +831,11 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     // Wait for board to connect to GCS again after boot and erase
     // For older board like CC3D this can take some time
     // Theres a special case with OPLink
-    if (!telemetryManager->isConnected() && !m_oplinkwatchdog.isConnected()) {
+    if (!telemetryManager->isConnected() && !opLinkManager->isConnected()) {
         progressUpdate(erase ? BOOTING_AND_ERASING : BOOTING, QVariant());
         ResultEventLoop eventLoop;
         connect(telemetryManager, SIGNAL(connected()), &eventLoop, SLOT(success()));
-        connect(&m_oplinkwatchdog, SIGNAL(opLinkMiniConnected()), &eventLoop, SLOT(success()));
+        connect(opLinkManager, SIGNAL(connected()), &eventLoop, SLOT(success()));
 
         if (eventLoop.run(REBOOT_TIMEOUT + (erase ? ERASE_TIMEOUT : 0)) != 0) {
             emit progressUpdate(FAILURE, QVariant(tr("Timed out while booting.")));
@@ -833,7 +843,7 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
             return false;
         }
 
-        disconnect(&m_oplinkwatchdog, SIGNAL(opLinkMiniConnected()), &eventLoop, SLOT(success()));
+        disconnect(opLinkManager, SIGNAL(connected()), &eventLoop, SLOT(success()));
         disconnect(telemetryManager, SIGNAL(connected()), &eventLoop, SLOT(success()));
     }
 
@@ -1020,7 +1030,8 @@ void UploaderGadgetWidget::startAutoUpdateErase()
     UAVObjectUtilManager *utilMngr     = pm->getObject<UAVObjectUtilManager>();
     int id = utilMngr->getBoardModel();
 
-    if (id == 0x905) {
+    // reset if Nano
+    if (id == 0x0905) {
         systemReset();
     }
 }

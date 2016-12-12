@@ -45,7 +45,7 @@ GCSSplashScreen::GCSSplashScreen() :
     m_painter->setFont(font);
 
     m_painter->drawText(405, 170, QString(CopyrightSymbol) +
-                        QString(" ") + VersionInfo::year() +
+                        QString(" 2015-") + VersionInfo::year() +
                         QString(tr(" The %1 Project - All Rights Reserved").arg(ORG_BIG_NAME)));
 
     m_painter->drawText(405, 182, QString(CopyrightSymbol) +

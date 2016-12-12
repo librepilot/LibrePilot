@@ -27,12 +27,14 @@
 #ifndef PathActionEditorGADGETWIDGET_H_
 #define PathActionEditorGADGETWIDGET_H_
 
+#include "pathactioneditortreemodel.h"
+
+#include "pathaction.h"
+#include "waypoint.h"
+
 #include <QLabel>
 #include <QWidget>
 #include <QTreeView>
-#include "pathaction.h"
-#include "waypoint.h"
-#include "pathactioneditortreemodel.h"
 
 class Ui_PathActionEditor;
 

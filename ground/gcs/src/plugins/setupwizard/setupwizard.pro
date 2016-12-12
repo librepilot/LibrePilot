@@ -1,8 +1,7 @@
-
 TEMPLATE = lib 
 TARGET = SetupWizard 
-QT += svg
 
+QT += widgets svg
 
 include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
@@ -10,7 +9,9 @@ include(../../plugins/uavobjectutil/uavobjectutil.pri)
 include(../../plugins/config/config.pri)
 
 LIBS *= -l$$qtLibraryName(Uploader)
-HEADERS += setupwizardplugin.h \ 
+
+HEADERS += \
+    setupwizardplugin.h \
     setupwizard.h \
     pages/opstartpage.h \
     pages/opendpage.h \
@@ -44,7 +45,8 @@ HEADERS += setupwizardplugin.h \
     vehicletemplateexportdialog.h \
     vehicletemplateselectorwidget.h
 
-SOURCES += setupwizardplugin.cpp \
+SOURCES += \
+    setupwizardplugin.cpp \
     setupwizard.cpp \
     pages/opstartpage.cpp \
     pages/opendpage.cpp \
@@ -87,7 +89,6 @@ FORMS += \
     pages/vehiclepage.ui \
     pages/notyetimplementedpage.ui \
     pages/helipage.ui \
-    pages/surfacepage.ui \
     pages/inputpage.ui \
     pages/summarypage.ui \
     connectiondiagram.ui \

@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotModules OpenPilot Modules
+ * @addtogroup LibrePilotModules LibrePilot Modules
  * @{
  * @addtogroup FixedWing CONTROL interface class
  * @brief CONTROL interface class for pathfollower fixed wing fly controller
  * @{
  *
- * @file       FixedWingCONTROL.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @file       fixedwingflycontroller.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Executes CONTROL for fixed wing fly objectives
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -33,7 +34,7 @@
 #include "pathfollowercontrol.h"
 
 class FixedWingFlyController : public PathFollowerControl {
-private:
+protected:
     static FixedWingFlyController *p_inst;
     FixedWingFlyController();
 
@@ -57,24 +58,26 @@ public:
     uint8_t Mode(void);
     void AirspeedStateUpdatedCb(__attribute__((unused)) UAVObjEvent * ev);
 
+protected:
+    FixedWingPathFollowerSettingsData *fixedWingSettings;
+
+    uint8_t mActive;
+    uint8_t mMode;
+    // correct speed by measured airspeed
+    float indicatedAirspeedStateBias;
 private:
     void resetGlobals();
     uint8_t updateAutoPilotFixedWing();
     void updatePathVelocity(float kFF, bool limited);
     uint8_t updateFixedDesiredAttitude();
     bool correctCourse(float *C, float *V, float *F, float s);
-
-    FixedWingPathFollowerSettingsData *fixedWingSettings;
-    uint8_t mActive;
-    uint8_t mMode;
+    int32_t lastAirspeedUpdate;
 
     struct pid PIDposH[2];
     struct pid PIDposV;
     struct pid PIDcourse;
     struct pid PIDspeed;
     struct pid PIDpower;
-    // correct speed by measured airspeed
-    float indicatedAirspeedStateBias;
 };
 
 #endif // FIXEDWINGFLYCONTROLLER_H

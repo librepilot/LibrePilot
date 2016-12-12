@@ -11,6 +11,9 @@ export DH_OPTIONS
 %:
 	dh $@ 
 
+override_dh_auto_configure:
+	$(MAKE) config_new WITH_PREBUILT_FW=$(CURDIR)/firmware
+
 override_dh_auto_build:
 	dh_auto_build -- opfw_resource gcs
 

@@ -17,9 +17,11 @@ endif
 	  BUILD_DIR="$(BUILD_DIR)" \
 	  GCS_BIG_NAME="$(GCS_BIG_NAME)" \
 	  GCS_SMALL_NAME="$(GCS_SMALL_NAME)" \
+	  WIKI_URL_ROOT="${WIKI_URL_ROOT}" \
 	  PACKAGE_LBL="$(PACKAGE_LBL)" \
 	  PACKAGE_DIR="$(PACKAGE_DIR)" \
 	  PACKAGE_NAME="$(PACKAGE_NAME)" \
 	  PACKAGE_SEP="$(PACKAGE_SEP)" \
+	  QT_DIR="$(QT_SDK_PREFIX)/lib" \
 	  "$(ROOT_DIR)/package/osx/package" \
 	)

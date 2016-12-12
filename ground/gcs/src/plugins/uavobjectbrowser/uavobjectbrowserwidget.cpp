@@ -2,7 +2,9 @@
  ******************************************************************************
  *
  * @file       uavobjectbrowserwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2013
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup UAVObjectBrowserPlugin UAVObject Browser Plugin
@@ -43,39 +45,53 @@
 
 UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent)
 {
-    m_browser     = new Ui_UAVObjectBrowser();
-    m_viewoptions = new Ui_viewoptions();
     m_viewoptionsDialog = new QDialog(this);
+
+    m_viewoptions = new Ui_viewoptions();
     m_viewoptions->setupUi(m_viewoptionsDialog);
+
+    m_model = new UAVObjectTreeModel(this,
+                                     m_viewoptions->cbCategorized->isChecked(),
+                                     m_viewoptions->cbMetaData->isChecked(),
+                                     m_viewoptions->cbScientific->isChecked());
+
+    m_modelProxy = new TreeSortFilterProxyModel(this);
+    m_modelProxy->setSourceModel(m_model);
+    m_modelProxy->setDynamicSortFilter(true);
+
+    m_browser = new Ui_UAVObjectBrowser();
     m_browser->setupUi(this);
-    m_model = new UAVObjectTreeModel();
-    m_browser->treeView->setModel(m_model);
+    m_browser->treeView->setModel(m_modelProxy);
     m_browser->treeView->setColumnWidth(0, 300);
 
-    BrowserItemDelegate *m_delegate = new BrowserItemDelegate();
-    m_browser->treeView->setItemDelegate(m_delegate);
+    m_browser->treeView->setItemDelegate(new BrowserItemDelegate());
     m_browser->treeView->setEditTriggers(QAbstractItemView::AllEditTriggers);
     m_browser->treeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+
     m_mustacheTemplate = loadFileIntoString(QString(":/uavobjectbrowser/resources/uavodescription.mustache"));
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
+
     showDescription(m_viewoptions->cbDescription->isChecked());
+
     connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
             this, SLOT(currentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
-    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(showMetaData(bool)));
-    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(categorize(bool)));
-    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(showDescription(bool)));
     connect(m_browser->saveSDButton, SIGNAL(clicked()), this, SLOT(saveObject()));
     connect(m_browser->readSDButton, SIGNAL(clicked()), this, SLOT(loadObject()));
-    connect(m_browser->eraseSDButton, SIGNAL(clicked()), this, SLOT(eraseObject()));
     connect(m_browser->sendButton, SIGNAL(clicked()), this, SLOT(sendUpdate()));
     connect(m_browser->requestButton, SIGNAL(clicked()), this, SLOT(requestUpdate()));
+    connect(m_browser->eraseSDButton, SIGNAL(clicked()), this, SLOT(eraseObject()));
     connect(m_browser->tbView, SIGNAL(clicked()), this, SLOT(viewSlot()));
-    connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(useScientificNotation(bool)));
-    connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
-    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(viewOptionsChangedSlot()));
     connect(m_browser->splitter, SIGNAL(splitterMoved(int, int)), this, SLOT(splitterMoved()));
+
+    connect(m_viewoptions->cbDescription, SIGNAL(toggled(bool)), this, SLOT(showDescription(bool)));
+
+    connect(m_viewoptions->cbCategorized, SIGNAL(toggled(bool)), this, SLOT(updateViewOptions()));
+    connect(m_viewoptions->cbMetaData, SIGNAL(toggled(bool)), this, SLOT(updateViewOptions()));
+    connect(m_viewoptions->cbScientific, SIGNAL(toggled(bool)), this, SLOT(updateViewOptions()));
+
+    // search field and button
+    connect(m_browser->searchLine, SIGNAL(textChanged(QString)), this, SLOT(searchLineChanged(QString)));
+    connect(m_browser->searchClearButton, SIGNAL(clicked(bool)), this, SLOT(searchTextCleared()));
+
     enableSendRequest(false);
 }
 
@@ -97,77 +113,45 @@ void UAVObjectBrowserWidget::setSplitterState(QByteArray state)
     m_browser->splitter->restoreState(state);
 }
 
-void UAVObjectBrowserWidget::showMetaData(bool show)
-{
-    QList<QModelIndex> metaIndexes = m_model->getMetaDataIndexes();
-    foreach(QModelIndex index, metaIndexes) {
-        m_browser->treeView->setRowHidden(index.row(), index.parent(), !show);
-    }
-}
-
 void UAVObjectBrowserWidget::showDescription(bool show)
 {
     m_browser->descriptionText->setVisible(show);
-}
 
-void UAVObjectBrowserWidget::categorize(bool categorize)
-{
-    UAVObjectTreeModel *tmpModel = m_model;
-
-    m_model = new UAVObjectTreeModel(0, categorize, m_viewoptions->cbScientific->isChecked());
-    m_model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
-    m_model->setManuallyChangedColor(m_manuallyChangedColor);
-    m_model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    m_model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
-    m_model->setUnknowObjectColor(m_unknownObjectColor);
-    m_browser->treeView->setModel(m_model);
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
-    connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(currentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
-
-    delete tmpModel;
-}
-
-void UAVObjectBrowserWidget::useScientificNotation(bool scientific)
-{
-    UAVObjectTreeModel *tmpModel = m_model;
-
-    m_model = new UAVObjectTreeModel(0, m_viewoptions->cbCategorized->isChecked(), scientific);
-    m_model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
-    m_model->setManuallyChangedColor(m_manuallyChangedColor);
-    m_model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    m_model->setUnknowObjectColor(m_unknownObjectColor);
-    m_browser->treeView->setModel(m_model);
-    showMetaData(m_viewoptions->cbMetaData->isChecked());
-    connect(m_browser->treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(currentChanged(QModelIndex, QModelIndex)), Qt::UniqueConnection);
-
-    delete tmpModel;
+    // persist options
+    emit viewOptionsChanged(m_viewoptions->cbCategorized->isChecked(), m_viewoptions->cbScientific->isChecked(),
+                            m_viewoptions->cbMetaData->isChecked(), m_viewoptions->cbDescription->isChecked());
 }
 
 void UAVObjectBrowserWidget::sendUpdate()
 {
+    // TODO why steal focus ?
     this->setFocus();
+
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
-    Q_ASSERT(objItem);
-    objItem->apply();
-    UAVObject *obj = objItem->object();
-    Q_ASSERT(obj);
-    obj->updated();
+
+    if (objItem != NULL) {
+        objItem->apply();
+        UAVObject *obj = objItem->object();
+        Q_ASSERT(obj);
+        obj->updated();
+    }
 }
 
 void UAVObjectBrowserWidget::requestUpdate()
 {
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
 
-    Q_ASSERT(objItem);
-    UAVObject *obj = objItem->object();
-    Q_ASSERT(obj);
-    obj->requestUpdate();
+    if (objItem != NULL) {
+        UAVObject *obj = objItem->object();
+        Q_ASSERT(obj);
+        obj->requestUpdate();
+    }
 }
 
 ObjectTreeItem *UAVObjectBrowserWidget::findCurrentObjectTreeItem()
 {
     QModelIndex current     = m_browser->treeView->currentIndex();
-    TreeItem *item = static_cast<TreeItem *>(current.internalPointer());
+    TreeItem *item = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
     ObjectTreeItem *objItem = 0;
 
     while (item) {
@@ -193,15 +177,20 @@ QString UAVObjectBrowserWidget::loadFileIntoString(QString fileName)
 
 void UAVObjectBrowserWidget::saveObject()
 {
+    // TODO why steal focus ?
     this->setFocus();
+
     // Send update so that the latest value is saved
     sendUpdate();
+
     // Save object
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
-    Q_ASSERT(objItem);
-    UAVObject *obj = objItem->object();
-    Q_ASSERT(obj);
-    updateObjectPersistance(ObjectPersistence::OPERATION_SAVE, obj);
+
+    if (objItem != NULL) {
+        UAVObject *obj = objItem->object();
+        Q_ASSERT(obj);
+        updateObjectPersistance(ObjectPersistence::OPERATION_SAVE, obj);
+    }
 }
 
 void UAVObjectBrowserWidget::loadObject()
@@ -209,22 +198,24 @@ void UAVObjectBrowserWidget::loadObject()
     // Load object
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
 
-    Q_ASSERT(objItem);
-    UAVObject *obj = objItem->object();
-    Q_ASSERT(obj);
-    updateObjectPersistance(ObjectPersistence::OPERATION_LOAD, obj);
-    // Retrieve object so that latest value is displayed
-    requestUpdate();
+    if (objItem != NULL) {
+        UAVObject *obj = objItem->object();
+        Q_ASSERT(obj);
+        updateObjectPersistance(ObjectPersistence::OPERATION_LOAD, obj);
+        // Retrieve object so that latest value is displayed
+        requestUpdate();
+    }
 }
 
 void UAVObjectBrowserWidget::eraseObject()
 {
     ObjectTreeItem *objItem = findCurrentObjectTreeItem();
 
-    Q_ASSERT(objItem);
-    UAVObject *obj = objItem->object();
-    Q_ASSERT(obj);
-    updateObjectPersistance(ObjectPersistence::OPERATION_DELETE, obj);
+    if (objItem != NULL) {
+        UAVObject *obj = objItem->object();
+        Q_ASSERT(obj);
+        updateObjectPersistance(ObjectPersistence::OPERATION_DELETE, obj);
+    }
 }
 
 void UAVObjectBrowserWidget::updateObjectPersistance(ObjectPersistence::OperationOptions op, UAVObject *obj)
@@ -248,9 +239,9 @@ void UAVObjectBrowserWidget::currentChanged(const QModelIndex &current, const QM
 {
     Q_UNUSED(previous);
 
-    TreeItem *item = static_cast<TreeItem *>(current.internalPointer());
+    TreeItem *item = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
     bool enable    = true;
-    if (current == QModelIndex()) {
+    if (!current.isValid()) {
         enable = false;
     }
     TopTreeItem *top     = dynamic_cast<TopTreeItem *>(item);
@@ -274,8 +265,30 @@ void UAVObjectBrowserWidget::viewSlot()
     }
 }
 
-void UAVObjectBrowserWidget::viewOptionsChangedSlot()
+void UAVObjectBrowserWidget::updateViewOptions()
 {
+    // TODO we should update the model instead of rebuilding it
+    // a side effect of rebuilding is that some state is lost (expand state, ...)
+    UAVObjectTreeModel *model = new UAVObjectTreeModel(this,
+                                                       m_viewoptions->cbCategorized->isChecked(),
+                                                       m_viewoptions->cbMetaData->isChecked(),
+                                                       m_viewoptions->cbScientific->isChecked());
+
+    model->setManuallyChangedColor(m_manuallyChangedColor);
+    model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
+    model->setUnknowObjectColor(m_unknownObjectColor);
+
+    UAVObjectTreeModel *tmpModel = m_model;
+    m_model = model;
+    m_modelProxy->setSourceModel(m_model);
+    delete tmpModel;
+
+    // force an expand all if search text is not empty
+    if (!m_browser->searchLine->text().isEmpty()) {
+        searchLineChanged(m_browser->searchLine->text());
+    }
+
+    // persist options
     emit viewOptionsChanged(m_viewoptions->cbCategorized->isChecked(), m_viewoptions->cbScientific->isChecked(),
                             m_viewoptions->cbMetaData->isChecked(), m_viewoptions->cbDescription->isChecked());
 }
@@ -387,4 +400,95 @@ void UAVObjectBrowserWidget::updateDescription()
         }
     }
     m_browser->descriptionText->setText("");
+}
+
+/**
+ * @brief UAVObjectBrowserWidget::searchTextChanged Looks for matching text in the UAVO fields
+ */
+
+void UAVObjectBrowserWidget::searchLineChanged(QString searchText)
+{
+    m_modelProxy->setFilterRegExp(QRegExp(searchText, Qt::CaseInsensitive, QRegExp::FixedString));
+    if (!searchText.isEmpty()) {
+        m_browser->treeView->expandAll();
+    } else {
+        m_browser->treeView->collapseAll();
+    }
+}
+
+void UAVObjectBrowserWidget::searchTextCleared()
+{
+    m_browser->searchLine->clear();
+}
+
+TreeSortFilterProxyModel::TreeSortFilterProxyModel(QObject *p) :
+    QSortFilterProxyModel(p)
+{
+    Q_ASSERT(p);
+}
+
+/**
+ * @brief TreeSortFilterProxyModel::filterAcceptsRow  Taken from
+ * http://qt-project.org/forums/viewthread/7782. This proxy model
+ * will accept rows:
+ *   - That match themselves, or
+ *   - That have a parent that matches (on its own), or
+ *   - That have a child that matches.
+ * @param sourceRow
+ * @param sourceParent
+ * @return
+ */
+bool TreeSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if (filterAcceptsRowItself(source_row, source_parent)) {
+        return true;
+    }
+
+    // accept if any of the parents is accepted on it's own merits
+    QModelIndex parent = source_parent;
+    while (parent.isValid()) {
+        if (filterAcceptsRowItself(parent.row(), parent.parent())) {
+            return true;
+        }
+        parent = parent.parent();
+    }
+
+    // accept if any of the children is accepted on it's own merits
+    if (hasAcceptedChildren(source_row, source_parent)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool TreeSortFilterProxyModel::filterAcceptsRowItself(int source_row, const QModelIndex &source_parent) const
+{
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
+
+bool TreeSortFilterProxyModel::hasAcceptedChildren(int source_row, const QModelIndex &source_parent) const
+{
+    QModelIndex item = sourceModel()->index(source_row, 0, source_parent);
+
+    if (!item.isValid()) {
+        return false;
+    }
+
+    // check if there are children
+    int childCount = item.model()->rowCount(item);
+    if (childCount == 0) {
+        return false;
+    }
+
+    for (int i = 0; i < childCount; ++i) {
+        if (filterAcceptsRowItself(i, item)) {
+            return true;
+        }
+
+        if (hasAcceptedChildren(i, item)) {
+            return true;
+        }
+    }
+
+    return false;
 }

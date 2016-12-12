@@ -69,4 +69,6 @@ void OPMapGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setPosition(QPointF(m_config->longitude(), m_config->latitude()));
     m_widget->setHomePosition(QPointF(m_config->longitude(), m_config->latitude()));
     m_widget->setOverlayOpacity(m_config->opacity());
+    m_widget->setDefaultWaypointAltitude(m_config->defaultWaypointAltitude());
+    m_widget->setDefaultWaypointVelocity(m_config->defaultWaypointVelocity());
 }

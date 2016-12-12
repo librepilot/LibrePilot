@@ -5,8 +5,7 @@
 /3rdparty
 
 # Ignore user config
-config
-
+/config
 
 # Exclude temporary and system files
 Thumbs.db
@@ -37,9 +36,10 @@ ground/gcs/.settings
 # Ignore .pro.user files
 *.pro.user
 
-
 # Misc artifacts
 *.exe
+*.log
+*.opl
 /ground/gcs/share/translations/extract-mimetypes.xq
 /ground/gcs/src/experimental/tools/DocumentationHelper/ui_mainwindow.h
 /ground/gcs/src/libs/qextserialport/.hg
@@ -59,8 +59,8 @@ ground/gcs/.settings
 /androidgcs/gen/
 
 # Ignore Eclipse Projects and Metadata
-/.cproject
-/.project
+.cproject
+.project
 /.metadata
 /.settings
 /.pydevproject

@@ -8,7 +8,8 @@
  * @{
  *
  * @file       attitude.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Module to handle all comms to the AHRS on a periodic basis.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -83,25 +84,27 @@ PERF_DEFINE_COUNTER(counterAtt);
 // - 0xA7710004 number of accel samples read for each loop (cc only).
 
 // Private constants
-#define STACK_SIZE_BYTES    540
-#define TASK_PRIORITY       (tskIDLE_PRIORITY + 3)
+#define STACK_SIZE_BYTES     540
+#define TASK_PRIORITY        (tskIDLE_PRIORITY + 3)
 
 // Attitude module loop interval (defined by sensor rate in pios_config.h)
 static const uint32_t sensor_period_ms = ((uint32_t)1000.0f / PIOS_SENSOR_RATE);
 
-#define UPDATE_RATE         25.0f
+#define UPDATE_RATE          25.0f
 
 // Interval in number of sample to recalculate temp bias
-#define TEMP_CALIB_INTERVAL 30
+#define TEMP_CALIB_INTERVAL  30
 // LPF
-#define TEMP_DT             (1.0f / PIOS_SENSOR_RATE)
-#define TEMP_LPF_FC         5.0f
+#define TEMP_DT              (1.0f / PIOS_SENSOR_RATE)
+#define TEMP_LPF_FC          5.0f
 static const float temp_alpha = TEMP_DT / (TEMP_DT + 1.0f / (2.0f * M_PI_F * TEMP_LPF_FC));
 
-#define UPDATE_EXPECTED     (1.0f / PIOS_SENSOR_RATE)
-#define UPDATE_MIN          1.0e-6f
-#define UPDATE_MAX          1.0f
-#define UPDATE_ALPHA        1.0e-2f
+#define UPDATE_EXPECTED      (1.0f / PIOS_SENSOR_RATE)
+#define UPDATE_MIN           1.0e-6f
+#define UPDATE_MAX           1.0f
+#define UPDATE_ALPHA         1.0e-2f
+
+#define VARIANCE_WINDOW_SIZE 40
 
 // Private types
 
@@ -152,6 +155,9 @@ static uint8_t temp_calibration_count = 0;
 static AccelGyroSettingsgyro_scaleData gyro_scale;
 static AccelGyroSettingsaccel_scaleData accel_scale;
 
+static pw_variance_t gyro_var[3];
+static bool initialZeroWhenBoardSteady = true;
+static float boardSteadyMaxVariance;
 
 // For running trim flights
 static volatile bool trim_requested   = false;
@@ -243,6 +249,14 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
 
     bool cc3d = BOARDISCC3D;
 
+    AccelStateData accelState;
+    GyroStateData gyros;
+    int32_t retval = 0;
+
+    gyros.x = 0.0f;
+    gyros.y = 0.0f;
+    gyros.z = 0.0f;
+
     if (cc3d) {
 #if defined(PIOS_INCLUDE_MPU6000)
 
@@ -280,12 +294,31 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
 
     PIOS_DELTATIME_Init(&dtconfig, UPDATE_EXPECTED, UPDATE_MIN, UPDATE_MAX, UPDATE_ALPHA);
     portTickType lastSysTime = xTaskGetTickCount();
+    portTickType startTime   = xTaskGetTickCount();
+    pseudo_windowed_variance_init(&gyro_var[0], VARIANCE_WINDOW_SIZE);
+    pseudo_windowed_variance_init(&gyro_var[1], VARIANCE_WINDOW_SIZE);
+    pseudo_windowed_variance_init(&gyro_var[2], VARIANCE_WINDOW_SIZE);
+
     // Main task loop
     while (1) {
         FlightStatusData flightStatus;
         FlightStatusGet(&flightStatus);
 
-        if ((xTaskGetTickCount() < 7000) && (xTaskGetTickCount() > 1000)) {
+        if (init == 0 && initialZeroWhenBoardSteady) {
+            pseudo_windowed_variance_push_sample(&gyro_var[0], gyros.x);
+            pseudo_windowed_variance_push_sample(&gyro_var[1], gyros.y);
+            pseudo_windowed_variance_push_sample(&gyro_var[2], gyros.z);
+            float const gyrovarx = pseudo_windowed_variance_get(&gyro_var[0]);
+            float const gyrovary = pseudo_windowed_variance_get(&gyro_var[1]);
+            float const gyrovarz = pseudo_windowed_variance_get(&gyro_var[2]);
+
+            if ((fabsf(gyrovarx) + fabsf(gyrovary) + fabsf(gyrovarz)) > boardSteadyMaxVariance) {
+                startTime = xTaskGetTickCount();
+            }
+        }
+        if (xTaskGetTickCount() - startTime < 1000) {
+            PIOS_NOTIFY_StartNotification(NOTIFY_OK, NOTIFY_PRIORITY_REGULAR);
+        } else if ((xTaskGetTickCount() - startTime < 7000)) {
             // Use accels to initialise attitude and calculate gyro bias
             accelKp     = 1.0f;
             accelKi     = 0.0f;
@@ -316,9 +349,6 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
 #ifdef PIOS_INCLUDE_WDG
         PIOS_WDG_UpdateFlag(PIOS_WDG_ATTITUDE);
 #endif
-        AccelStateData accelState;
-        GyroStateData gyros;
-        int32_t retval = 0;
 
         if (cc3d) {
             retval = updateSensorsCC3D(&accelState, &gyros);
@@ -327,16 +357,14 @@ static void AttitudeTask(__attribute__((unused)) void *parameters)
         }
 
         // Only update attitude when sensor data is good
-        if (retval != 0) {
+        // raise alarm if gyro has not been yet calibrated to prevent arming
+        if (retval != 0 || init == 0) {
             AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_ERROR);
         } else {
             // Do not update attitude data in simulation mode
             if (!AttitudeStateReadOnly()) {
-                PERF_TIMED_SECTION_START(counterAtt);
                 updateAttitude(&accelState, &gyros);
-                PERF_TIMED_SECTION_END(counterAtt);
             }
-            PERF_MEASURE_PERIOD(counterPeriod);
             AlarmsClear(SYSTEMALARMS_ALARM_ATTITUDE);
         }
         vTaskDelayUntil(&lastSysTime, sensor_period_ms / portTICK_PERIOD_MS);
@@ -606,17 +634,41 @@ static inline void apply_accel_filter(const float *raw, float *filtered)
 
 __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accelStateData, GyroStateData *gyrosData)
 {
-    float dT      = PIOS_DELTATIME_GetAverageSeconds(&dtconfig);
+    static uint32_t samples = 0;
+    static float gyros_accum[3];
+    static float accels_accum[3];
+
 
     // Bad practice to assume structure order, but saves memory
     float *gyros  = &gyrosData->x;
     float *accels = &accelStateData->x;
 
+    if (samples < ATTITUDE_SENSORS_DOWNSAMPLE - 1) {
+        gyros_accum[0]  += gyros[0];
+        gyros_accum[1]  += gyros[1];
+        gyros_accum[2]  += gyros[2];
+        accels_accum[0] += accels[0];
+        accels_accum[1] += accels[1];
+        accels_accum[2] += accels[2];
+        samples++;
+        return;
+    }
+    float dT = PIOS_DELTATIME_GetAverageSeconds(&dtconfig);
+    PERF_TIMED_SECTION_START(counterAtt);
+    float inv_samples_count = 1.0f / (float)samples;
+    samples = 0;
+    gyros_accum[0]  *= inv_samples_count;
+    gyros_accum[1]  *= inv_samples_count;
+    gyros_accum[2]  *= inv_samples_count;
+    accels_accum[0] *= inv_samples_count;
+    accels_accum[1] *= inv_samples_count;
+    accels_accum[2] *= inv_samples_count;
+
     float grot[3];
     float accel_err[3];
 
     // Apply smoothing to accel values, to reduce vibration noise before main calculations.
-    apply_accel_filter(accels, accels_filtered);
+    apply_accel_filter(accels_accum, accels_filtered);
 
     // Rotate gravity unit vector to body frame, filter and cross with accels
     grot[0] = -(2 * (q[1] * q[3] - q[0] * q[2]));
@@ -628,7 +680,7 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
     CrossProduct((const float *)accels_filtered, (const float *)grot_filtered, accel_err);
 
     // Account for accel magnitude
-    float inv_accel_mag = fast_invsqrtf(accels_filtered[0] * accels_filtered[0] + accels_filtered[1] * accels_filtered[1] + accels_filtered[2] * accels_filtered[2]);
+    float inv_accel_mag = invsqrtf(accels_filtered[0] * accels_filtered[0] + accels_filtered[1] * accels_filtered[1] + accels_filtered[2] * accels_filtered[2]);
     if (inv_accel_mag > 1e3f) {
         return;
     }
@@ -637,7 +689,7 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
     float inv_grot_mag;
 
     if (accel_filter_enabled) {
-        inv_grot_mag = fast_invsqrtf(grot_filtered[0] * grot_filtered[0] + grot_filtered[1] * grot_filtered[1] + grot_filtered[2] * grot_filtered[2]);
+        inv_grot_mag = invsqrtf(grot_filtered[0] * grot_filtered[0] + grot_filtered[1] * grot_filtered[1] + grot_filtered[2] * grot_filtered[2]);
     } else {
         inv_grot_mag = 1.0f;
     }
@@ -658,18 +710,18 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
 
     // Correct rates based on error, integral component dealt with in updateSensors
     const float kpInvdT = accelKp / dT;
-    gyros[0] += accel_err[0] * kpInvdT;
-    gyros[1] += accel_err[1] * kpInvdT;
-    gyros[2] += accel_err[2] * kpInvdT;
+    gyros_accum[0] += accel_err[0] * kpInvdT;
+    gyros_accum[1] += accel_err[1] * kpInvdT;
+    gyros_accum[2] += accel_err[2] * kpInvdT;
 
     { // scoping variables to save memory
       // Work out time derivative from INSAlgo writeup
       // Also accounts for the fact that gyros are in deg/s
         float qdot[4];
-        qdot[0] = (-q[1] * gyros[0] - q[2] * gyros[1] - q[3] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
-        qdot[1] = (q[0] * gyros[0] - q[3] * gyros[1] + q[2] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
-        qdot[2] = (q[3] * gyros[0] + q[0] * gyros[1] - q[1] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
-        qdot[3] = (-q[2] * gyros[0] + q[1] * gyros[1] + q[0] * gyros[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[0] = (-q[1] * gyros_accum[0] - q[2] * gyros_accum[1] - q[3] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[1] = (q[0] * gyros_accum[0] - q[3] * gyros_accum[1] + q[2] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[2] = (q[3] * gyros_accum[0] + q[0] * gyros_accum[1] - q[1] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
+        qdot[3] = (-q[2] * gyros_accum[0] + q[1] * gyros_accum[1] + q[0] * gyros_accum[2]) * dT * (M_PI_F / 180.0f / 2.0f);
 
         // Take a time step
         q[0]    = q[0] + qdot[0];
@@ -685,8 +737,8 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
         }
     }
 
-    // Renomalize
-    float inv_qmag = fast_invsqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+    // Renormalize
+    float inv_qmag = invsqrtf(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
 
     // If quaternion has become inappropriately short or is nan reinit.
     // THIS SHOULD NEVER ACTUALLY HAPPEN
@@ -711,6 +763,10 @@ __attribute__((optimize("O3"))) static void updateAttitude(AccelStateData *accel
     Quaternion2RPY(&attitudeState.q1, &attitudeState.Roll);
 
     AttitudeStateSet(&attitudeState);
+    gyros_accum[0]  = gyros_accum[1] = gyros_accum[2] = 0.0f;
+    accels_accum[0] = accels_accum[1] = accels_accum[2] = 0.0f;
+    PERF_TIMED_SECTION_END(counterAtt);
+    PERF_MEASURE_PERIOD(counterPeriod);
 }
 
 static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
@@ -724,6 +780,9 @@ static void settingsUpdatedCb(__attribute__((unused)) UAVObjEvent *objEv)
     accelKp     = attitudeSettings.AccelKp;
     accelKi     = attitudeSettings.AccelKi;
     yawBiasRate = attitudeSettings.YawBiasRate;
+
+    initialZeroWhenBoardSteady = (attitudeSettings.InitialZeroWhenBoardSteady == ATTITUDESETTINGS_INITIALZEROWHENBOARDSTEADY_TRUE);
+    boardSteadyMaxVariance     = attitudeSettings.BoardSteadyMaxVariance;
 
     // Calculate accel filter alpha, in the same way as for gyro data in stabilization module.
     const float fakeDt = 0.0025f;

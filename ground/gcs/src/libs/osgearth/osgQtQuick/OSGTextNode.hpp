@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGTextNode.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -38,6 +38,8 @@ class OSGQTQUICK_EXPORT OSGTextNode : public OSGNode {
     Q_OBJECT Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
+    typedef OSGNode Inherited;
+
 public:
     explicit OSGTextNode(QObject *parent = 0);
     virtual ~OSGTextNode();
@@ -52,11 +54,13 @@ signals:
     void textChanged(const QString &text);
     void colorChanged(const QColor &color);
 
-public slots:
+protected:
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       ConfigRevoWidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configrevowidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -26,6 +27,11 @@
  */
 #include "configrevowidget.h"
 
+#include "ui_revosensors.h"
+
+#include <uavobjectmanager.h>
+#include <uavobjecthelper.h>
+
 #include <attitudestate.h>
 #include <attitudesettings.h>
 #include <revocalibration.h>
@@ -34,34 +40,24 @@
 #include <accelstate.h>
 #include <magstate.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <coreplugin/generalsettings.h>
-
 #include "assertions.h"
 #include "calibration.h"
 #include "calibration/calibrationutils.h"
 
-#include "math.h"
-#include <QDebug>
-#include <QTimer>
-#include <QStringList>
-#include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QThread>
-#include <QErrorMessage>
-#include <QDesktopServices>
-#include <QUrl>
+#include <math.h>
 #include <iostream>
 
-#include <math.h>
+#include <QDebug>
+#include <QStringList>
+#include <QWidget>
+#include <QThread>
 
 // #define DEBUG
 
+#define MAG_ALARM_THRESHOLD 5
+
 // Uncomment this to enable 6 point calibration on the accels
-#define NOISE_SAMPLES 50
+#define NOISE_SAMPLES       50
 
 class Thread : public QThread {
 public:
@@ -72,20 +68,16 @@ public:
 };
 
 ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
-    ConfigTaskWidget(parent),
-    m_ui(new Ui_RevoSensorsWidget()),
-    isBoardRotationStored(false)
+    ConfigTaskWidget(parent), isBoardRotationStored(false)
 {
+    m_ui = new Ui_RevoSensorsWidget();
     m_ui->setupUi(this);
     m_ui->tabWidget->setCurrentIndex(0);
 
-    addApplySaveButtons(m_ui->revoCalSettingsSaveRAM, m_ui->revoCalSettingsSaveSD);
+    // must be done before auto binding !
+    setWikiURL("Revo+Attitude+Configuration");
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
-    if (!settings->useExpertMode()) {
-        m_ui->revoCalSettingsSaveRAM->setVisible(false);
-    }
+    addAutoBindings();
 
     // Initialization of the visual help
     m_ui->calibrationVisualHelp->setScene(new QGraphicsScene(this));
@@ -102,7 +94,6 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addUAVObject("RevoSettings");
     addUAVObject("AccelGyroSettings");
     addUAVObject("AuxMagSettings");
-    autoLoadWidgets();
 
     // accel calibration
     m_accelCalibrationModel = new OpenPilot::SixPointCalibrationModel(this);
@@ -193,13 +184,31 @@ ConfigRevoWidget::ConfigRevoWidget(QWidget *parent) :
     addWidgetBinding("AttitudeSettings", "BoardRotation", m_ui->yawRotation, AttitudeSettings::BOARDROTATION_YAW);
     addWidgetBinding("AttitudeSettings", "AccelTau", m_ui->accelTau);
 
-    populateWidgets();
+    addWidgetBinding("AttitudeSettings", "ZeroDuringArming", m_ui->zeroGyroBiasOnArming);
+    addWidgetBinding("AttitudeSettings", "InitialZeroWhenBoardSteady", m_ui->initGyroWhenBoardSteady);
+
+    addWidgetBinding("AuxMagSettings", "Usage", m_ui->auxMagUsage, 0, 1, true);
+    addWidgetBinding("AuxMagSettings", "Type", m_ui->auxMagType, 0, 1, true);
+
+    addWidgetBinding("RevoSettings", "MagnetometerMaxDeviation", m_ui->maxDeviationWarning, RevoSettings::MAGNETOMETERMAXDEVIATION_WARNING);
+    addWidgetBinding("RevoSettings", "MagnetometerMaxDeviation", m_ui->maxDeviationError, RevoSettings::MAGNETOMETERMAXDEVIATION_ERROR);
+
+    addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagRollRotation, AuxMagSettings::BOARDROTATION_ROLL);
+    addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagPitchRotation, AuxMagSettings::BOARDROTATION_PITCH);
+    addWidgetBinding("AuxMagSettings", "BoardRotation", m_ui->auxMagYawRotation, AuxMagSettings::BOARDROTATION_YAW);
+
+    connect(m_ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(onBoardAuxMagError()));
+    connect(MagSensor::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(onBoardAuxMagError()));
+    connect(MagState::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateMagStatus()));
+    connect(HomeLocation::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateMagBeVector()));
+
+    addWidget(m_ui->internalAuxErrorX);
+    addWidget(m_ui->internalAuxErrorY);
+    addWidget(m_ui->internalAuxErrorZ);
+
+    displayMagError = false;
+
     enableAllCalibrations();
-
-    updateEnableControls();
-
-    forceConnectedState();
-    refreshWidgetsValues();
 }
 
 ConfigRevoWidget::~ConfigRevoWidget()
@@ -227,6 +236,8 @@ void ConfigRevoWidget::updateVisualHelp()
 void ConfigRevoWidget::storeAndClearBoardRotation()
 {
     if (!isBoardRotationStored) {
+        UAVObjectUpdaterHelper updateHelper;
+
         // Store current board rotation
         isBoardRotationStored = true;
         AttitudeSettings *attitudeSettings = AttitudeSettings::GetInstance(getObjectManager());
@@ -240,23 +251,33 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]    = 0;
         data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]   = 0;
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]  = 0;
-        attitudeSettings->setData(data);
+
+        attitudeSettings->setData(data, false);
+        updateHelper.doObjectAndWait(attitudeSettings);
 
         // Store current aux mag board rotation
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
         Q_ASSERT(auxMagSettings);
         AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
-        auxMagStoredBoardRotation = auxMagData.Orientation;
+        auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW];
+        auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
+        auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_PITCH] = auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH];
 
         // Set aux mag board rotation to no rotation
-        auxMagData.Orientation = 0.0f;
-        auxMagSettings->setData(auxMagData);
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]    = 0;
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]   = 0;
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH]  = 0;
+
+        auxMagSettings->setData(auxMagData, false);
+        updateHelper.doObjectAndWait(auxMagSettings);
     }
 }
 
 void ConfigRevoWidget::recallBoardRotation()
 {
     if (isBoardRotationStored) {
+        UAVObjectUpdaterHelper updateHelper;
+
         // Recall current board rotation
         isBoardRotationStored = false;
 
@@ -267,14 +288,20 @@ void ConfigRevoWidget::recallBoardRotation()
         data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]   = storedBoardRotation[AttitudeSettings::BOARDROTATION_YAW];
         data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]  = storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
         data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
-        attitudeSettings->setData(data);
+
+        attitudeSettings->setData(data, false);
+        updateHelper.doObjectAndWait(attitudeSettings);
 
         // Restore the aux mag board rotation
         AuxMagSettings *auxMagSettings = AuxMagSettings::GetInstance(getObjectManager());
         Q_ASSERT(auxMagSettings);
         AuxMagSettings::DataFields auxMagData = auxMagSettings->getData();
-        auxMagData.Orientation = auxMagStoredBoardRotation;
-        auxMagSettings->setData(auxMagData);
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_YAW]   = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_YAW];
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_ROLL]  = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_ROLL];
+        auxMagData.BoardRotation[AuxMagSettings::BOARDROTATION_PITCH] = auxMagStoredBoardRotation[AuxMagSettings::BOARDROTATION_PITCH];
+
+        auxMagSettings->setData(auxMagData, false);
+        updateHelper.doObjectAndWait(auxMagSettings);
     }
 }
 
@@ -363,9 +390,9 @@ void ConfigRevoWidget::displayTemperatureRange(float temperatureRange)
  * Called by the ConfigTaskWidget parent when RevoCalibration is updated
  * to update the UI
  */
-void ConfigRevoWidget::refreshWidgetsValues(UAVObject *object)
+void ConfigRevoWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    ConfigTaskWidget::refreshWidgetsValues(object);
+    Q_UNUSED(obj);
 
     m_ui->isSetCheckBox->setEnabled(false);
 
@@ -375,12 +402,13 @@ void ConfigRevoWidget::refreshWidgetsValues(UAVObject *object)
 
     QString beStr = QString("%1:%2:%3").arg(QString::number(homeLocationData.Be[0]), QString::number(homeLocationData.Be[1]), QString::number(homeLocationData.Be[2]));
     m_ui->beBox->setText(beStr);
+
+    updateMagBeVector();
+    onBoardAuxMagError();
 }
 
-void ConfigRevoWidget::updateObjectsFromWidgets()
+void ConfigRevoWidget::updateObjectsFromWidgetsImpl()
 {
-    ConfigTaskWidget::updateObjectsFromWidgets();
-
     if (m_accelCalibrationModel->dirty()) {
         m_accelCalibrationModel->save();
     }
@@ -440,4 +468,223 @@ void ConfigRevoWidget::enableAllCalibrations()
     m_ui->boardLevelStart->setEnabled(true);
     m_ui->gyroBiasStart->setEnabled(true);
     m_ui->thermalBiasStart->setEnabled(true);
+}
+
+void ConfigRevoWidget::onBoardAuxMagError()
+{
+    MagSensor *magSensor = MagSensor::GetInstance(getObjectManager());
+
+    Q_ASSERT(magSensor);
+    AuxMagSensor *auxMagSensor = AuxMagSensor::GetInstance(getObjectManager());
+    Q_ASSERT(auxMagSensor);
+
+    if (m_ui->tabWidget->currentIndex() != 2) {
+        // Apply default metadata
+        if (displayMagError) {
+            magSensor->setMetadata(magSensor->getDefaultMetadata());
+            auxMagSensor->setMetadata(auxMagSensor->getDefaultMetadata());
+            displayMagError = false;
+        }
+        return;
+    }
+
+    if (!displayMagError) {
+        // Apply new rates
+        UAVObject::Metadata mdata = magSensor->getMetadata();
+        UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
+        mdata.flightTelemetryUpdatePeriod = 300;
+        magSensor->setMetadata(mdata);
+
+        mdata = auxMagSensor->getMetadata();
+        UAVObject::SetFlightTelemetryUpdateMode(mdata, UAVObject::UPDATEMODE_PERIODIC);
+        mdata.flightTelemetryUpdatePeriod = 300;
+        auxMagSensor->setMetadata(mdata);
+
+        displayMagError = true;
+        return;
+    }
+
+    float onboardMag[3];
+    float auxMag[3];
+
+    onboardMag[0] = magSensor->x();
+    onboardMag[1] = magSensor->y();
+    onboardMag[2] = magSensor->z();
+
+    float normalizedMag[3];
+    float normalizedAuxMag[3];
+    float xDiff     = 0.0f;
+    float yDiff     = 0.0f;
+    float zDiff     = 0.0f;
+
+    // Smooth Mag readings
+    float alpha     = 0.7f;
+    float inv_alpha = (1.0f - alpha);
+    // Onboard mag
+    onboardMagFiltered[0] = (onboardMagFiltered[0] * alpha) + (onboardMag[0] * inv_alpha);
+    onboardMagFiltered[1] = (onboardMagFiltered[1] * alpha) + (onboardMag[1] * inv_alpha);
+    onboardMagFiltered[2] = (onboardMagFiltered[2] * alpha) + (onboardMag[2] * inv_alpha);
+
+    // Normalize vector
+    float magLength = sqrt((onboardMagFiltered[0] * onboardMagFiltered[0]) +
+                           (onboardMagFiltered[1] * onboardMagFiltered[1]) +
+                           (onboardMagFiltered[2] * onboardMagFiltered[2]));
+
+    normalizedMag[0] = onboardMagFiltered[0] / magLength;
+    normalizedMag[1] = onboardMagFiltered[1] / magLength;
+    normalizedMag[2] = onboardMagFiltered[2] / magLength;
+
+    if (auxMagSensor->status() > (int)AuxMagSensor::STATUS_NONE) {
+        auxMag[0] = auxMagSensor->x();
+        auxMag[1] = auxMagSensor->y();
+        auxMag[2] = auxMagSensor->z();
+
+        auxMagFiltered[0] = (auxMagFiltered[0] * alpha) + (auxMag[0] * inv_alpha);
+        auxMagFiltered[1] = (auxMagFiltered[1] * alpha) + (auxMag[1] * inv_alpha);
+        auxMagFiltered[2] = (auxMagFiltered[2] * alpha) + (auxMag[2] * inv_alpha);
+
+        // Normalize vector
+        float auxMagLength = sqrt((auxMagFiltered[0] * auxMagFiltered[0]) +
+                                  (auxMagFiltered[1] * auxMagFiltered[1]) +
+                                  (auxMagFiltered[2] * auxMagFiltered[2]));
+
+        normalizedAuxMag[0] = auxMagFiltered[0] / auxMagLength;
+        normalizedAuxMag[1] = auxMagFiltered[1] / auxMagLength;
+        normalizedAuxMag[2] = auxMagFiltered[2] / auxMagLength;
+
+        // Calc diff and scale
+        xDiff = (normalizedMag[0] - normalizedAuxMag[0]) * 25.0f;
+        yDiff = (normalizedMag[1] - normalizedAuxMag[1]) * 25.0f;
+        zDiff = (normalizedMag[2] - normalizedAuxMag[2]) * 25.0f;
+    } else {
+        auxMag[0] = auxMag[1] = auxMag[2] = 0.0f;
+        auxMagFiltered[0] = auxMagFiltered[1] = auxMagFiltered[2] = 0.0f;
+    }
+
+    // Display Mag/AuxMag diff for every axis
+    m_ui->internalAuxErrorX->setValue(xDiff > 50.0f ? 50.0f : xDiff < -50.0f ? -50.0f : xDiff);
+    m_ui->internalAuxErrorY->setValue(yDiff > 50.0f ? 50.0f : yDiff < -50.0f ? -50.0f : yDiff);
+    m_ui->internalAuxErrorZ->setValue(zDiff > 50.0f ? 50.0f : zDiff < -50.0f ? -50.0f : zDiff);
+
+    updateMagAlarm(getMagError(onboardMag), (auxMagSensor->status() == (int)AuxMagSensor::STATUS_NONE) ? -1.0f : getMagError(auxMag));
+}
+
+void ConfigRevoWidget::updateMagAlarm(float errorMag, float errorAuxMag)
+{
+    RevoSettings *revoSettings = RevoSettings::GetInstance(getObjectManager());
+
+    Q_ASSERT(revoSettings);
+    RevoSettings::DataFields revoSettingsData = revoSettings->getData();
+
+    QStringList AlarmColor;
+    AlarmColor << "grey" << "green" << "orange" << "red";
+    enum magAlarmState { MAG_NOT_FOUND = 0, MAG_OK = 1, MAG_WARNING = 2, MAG_ERROR = 3 };
+
+    QString bgColorMag    = AlarmColor[MAG_OK];
+    QString bgColorAuxMag = AlarmColor[MAG_OK];
+
+    // Onboard Mag
+    if (errorMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_WARNING]) {
+        magWarningCount = 0;
+        magErrorCount   = 0;
+    }
+
+    if (errorMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_ERROR]) {
+        magErrorCount = 0;
+        if (magWarningCount > MAG_ALARM_THRESHOLD) {
+            bgColorMag = AlarmColor[MAG_WARNING];
+        } else {
+            magWarningCount++;
+        }
+    }
+
+    if (magErrorCount > MAG_ALARM_THRESHOLD) {
+        bgColorMag = AlarmColor[MAG_ERROR];
+    } else {
+        magErrorCount++;
+    }
+
+    // Auxiliary Mag
+    if (errorAuxMag > -1.0f) {
+        if (errorAuxMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_WARNING]) {
+            auxMagWarningCount = 0;
+            auxMagErrorCount   = 0;
+        }
+
+        if (errorAuxMag < revoSettingsData.MagnetometerMaxDeviation[RevoSettings::MAGNETOMETERMAXDEVIATION_ERROR]) {
+            auxMagErrorCount = 0;
+            if (auxMagWarningCount > MAG_ALARM_THRESHOLD) {
+                bgColorAuxMag = AlarmColor[MAG_WARNING];
+            } else {
+                auxMagWarningCount++;
+            }
+        }
+
+        if (auxMagErrorCount > MAG_ALARM_THRESHOLD) {
+            bgColorAuxMag = AlarmColor[MAG_ERROR];
+        } else {
+            auxMagErrorCount++;
+        }
+        errorAuxMag = ((errorAuxMag * 100.0f) <= 100.0f) ? errorAuxMag * 100.0f : 100.0f;
+        m_ui->auxMagStatus->setText("AuxMag\n" + QString::number(errorAuxMag, 'f', 1) + "%");
+    } else {
+        // Disable aux mag alarm
+        bgColorAuxMag = AlarmColor[MAG_NOT_FOUND];
+        m_ui->auxMagStatus->setText("AuxMag\nnot found");
+    }
+
+    errorMag = ((errorMag * 100.0f) <= 100.0f) ? errorMag * 100.0f : 100.0f;
+    m_ui->onBoardMagStatus->setText("Onboard\n" + QString::number(errorMag, 'f', 1) + "%");
+    m_ui->onBoardMagStatus->setStyleSheet(
+        "QLabel { background-color: " + bgColorMag + ";"
+        "color: rgb(255, 255, 255); border-radius: 5; margin:1px; font:bold; }");
+    m_ui->auxMagStatus->setStyleSheet(
+        "QLabel { background-color: " + bgColorAuxMag + ";"
+        "color: rgb(255, 255, 255); border-radius: 5; margin:1px; font:bold; }");
+}
+
+float ConfigRevoWidget::getMagError(float mag[3])
+{
+    float magnitude      = sqrt((mag[0] * mag[0]) + (mag[1] * mag[1]) + (mag[2] * mag[2]));
+    float magnitudeBe    = sqrt((magBe[0] * magBe[0]) + (magBe[1] * magBe[1]) + (magBe[2] * magBe[2]));
+    float invMagnitudeBe = 1.0f / magnitudeBe;
+    // Absolute value of relative error against Be
+    float error = fabsf(magnitude - magnitudeBe) * invMagnitudeBe;
+
+    return error;
+}
+
+void ConfigRevoWidget::updateMagBeVector()
+{
+    HomeLocation *homeLocation = HomeLocation::GetInstance(getObjectManager());
+
+    Q_ASSERT(homeLocation);
+    HomeLocation::DataFields homeLocationData = homeLocation->getData();
+
+    magBe[0] = homeLocationData.Be[0];
+    magBe[1] = homeLocationData.Be[1];
+    magBe[2] = homeLocationData.Be[2];
+}
+
+void ConfigRevoWidget::updateMagStatus()
+{
+    MagState *magState = MagState::GetInstance(getObjectManager());
+
+    Q_ASSERT(magState);
+
+    MagState::DataFields magStateData = magState->getData();
+
+    if (magStateData.Source == MagState::SOURCE_INVALID) {
+        m_ui->magStatusSource->setText(tr("Source invalid"));
+        m_ui->magStatusSource->setToolTip(tr("Currently no attitude estimation algorithm uses magnetometer or there is something wrong"));
+    } else if (magStateData.Source == MagState::SOURCE_ONBOARD) {
+        m_ui->magStatusSource->setText(tr("Onboard magnetometer"));
+        m_ui->magStatusSource->setToolTip("");
+    } else if (magStateData.Source == MagState::SOURCE_AUX) {
+        m_ui->magStatusSource->setText(tr("Auxiliary magnetometer"));
+        m_ui->magStatusSource->setToolTip("");
+    } else {
+        m_ui->magStatusSource->setText(tr("Unknown"));
+        m_ui->magStatusSource->setToolTip("");
+    }
 }

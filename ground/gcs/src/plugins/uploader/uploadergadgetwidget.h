@@ -28,22 +28,21 @@
 #ifndef UPLOADERGADGETWIDGET_H
 #define UPLOADERGADGETWIDGET_H
 
-#include "ui_uploader.h"
 #include "uploader_global.h"
 
 #include "enums.h"
 #include "op_dfu.h"
 
+#include <QEventLoop>
 #include <QProgressDialog>
-#include "oplinkwatchdog.h"
 
 using namespace OP_DFU;
 using namespace uploader;
 
+class Ui_UploaderWidget;
+
 class FlightStatus;
 class UAVObject;
-class OPLinkStatus;
-class OPLinkWatchdog;
 
 class TimedDialog : public QProgressDialog {
     Q_OBJECT
@@ -146,7 +145,6 @@ private:
     DFUObject *m_dfu;
     IAPStep m_currentIAPStep;
     bool m_resetOnly;
-    OPLinkWatchdog m_oplinkwatchdog;
     bool m_autoUpdateClosing;
 
     void clearLog();

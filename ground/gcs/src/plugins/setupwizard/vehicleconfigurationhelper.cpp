@@ -1,5 +1,5 @@
 /**
- ******************************************************************************
+ ***********************************************************************************
  *
  * @file       vehicleconfigurationhelper.cpp
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
@@ -9,7 +9,7 @@
  * @addtogroup VehicleConfigurationHelper
  * @{
  * @brief
- *****************************************************************************/
+ **********************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@
 
 #include "vehicleconfigurationhelper.h"
 #include "extensionsystem/pluginmanager.h"
+#include "uavobjectutilmanager.h"
+#include <uavobjecthelper.h>
+
 #include "hwsettings.h"
 #include "actuatorsettings.h"
 #include "attitudesettings.h"
@@ -42,9 +45,12 @@
 #include "accelgyrosettings.h"
 #include "gpssettings.h"
 #include "airspeedsettings.h"
-#include <QtCore/qmath.h>
-#include <QJsonObject>
 #include "auxmagsettings.h"
+
+#include <QtCore/qmath.h>
+#include <QDebug>
+#include <QJsonObject>
+#include <QTimer>
 
 VehicleConfigurationHelper::VehicleConfigurationHelper(VehicleConfigurationSource *configSource)
     : m_configSource(configSource), m_uavoManager(0),
@@ -159,12 +165,24 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             }
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            // We have to set teletry on flexport since s.bus needs the mainport.
+            // We have to set telemetry on flexiport since s.bus needs the mainport.
             data.CC_MainPort  = HwSettings::CC_MAINPORT_SBUS;
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_TELEMETRY;
             break;
         case VehicleConfigurationSource::INPUT_DSM:
             data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_DSM;
+            break;
+        case VehicleConfigurationSource::INPUT_SRXL:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_SRXL;
+            break;
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_HOTTSUMD;
+            break;
+        case VehicleConfigurationSource::INPUT_EXBUS:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_EXBUS;
+            break;
+        case VehicleConfigurationSource::INPUT_IBUS:
+            data.CC_FlexiPort = HwSettings::CC_FLEXIPORT_IBUS;
             break;
         default:
             break;
@@ -172,37 +190,87 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
         break;
     case VehicleConfigurationSource::CONTROLLER_REVO:
     case VehicleConfigurationSource::CONTROLLER_NANO:
+    case VehicleConfigurationSource::CONTROLLER_SPARKY2:
     case VehicleConfigurationSource::CONTROLLER_DISCOVERYF4:
         // Reset all ports to their defaults
-        data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
-        data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+        if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+            data.SPK2_RcvrPort  = HwSettings::SPK2_RCVRPORT_DISABLED;
+            data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_DISABLED;
+        } else {
+            data.RM_RcvrPort  = HwSettings::RM_RCVRPORT_DISABLED;
+            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DISABLED;
+        }
 
-        // Revo uses inbuilt Modem do not set mainport to be active telemetry link for the Revo
+        // Revo/Sparky2 uses inbuilt Modem do not set mainport to be active telemetry link for Revo/Sparky2
         if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
             data.RM_MainPort = HwSettings::RM_MAINPORT_DISABLED;
+        } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+            data.SPK2_MainPort = HwSettings::SPK2_MAINPORT_DISABLED;
         } else {
             data.RM_MainPort = HwSettings::RM_MAINPORT_TELEMETRY;
         }
 
         switch (m_configSource->getInputType()) {
         case VehicleConfigurationSource::INPUT_PWM:
-            data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PWM;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                // this should not happen, sparky2 does not allow pwm
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DISABLED;
+            } else {
+                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PWM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_PPM:
-            data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_PPM;
+            } else {
+                data.RM_RcvrPort = HwSettings::RM_RCVRPORT_PPM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_SBUS:
-            data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
-            // We have to set telemetry on flexport since s.bus needs the mainport on all but Revo.
-            if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SBUS;
+            } else {
+                data.RM_MainPort = HwSettings::RM_MAINPORT_SBUS;
+                // We have to set telemetry to flexiport on all except Revo (and except Sparky2) since s.bus needs mainport.
+                if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_REVO) {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_TELEMETRY;
+                }
             }
             break;
         case VehicleConfigurationSource::INPUT_DSM:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_DSM;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_DSM;
+            }
             break;
         case VehicleConfigurationSource::INPUT_SRXL:
-            data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_SRXL;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_SRXL;
+            }
+            break;
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_HOTTSUMD;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_HOTTSUMD;
+            }
+            break;
+        case VehicleConfigurationSource::INPUT_EXBUS:
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_EXBUS;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_EXBUS;
+            }
+            break;
+        case VehicleConfigurationSource::INPUT_IBUS:
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                data.SPK2_RcvrPort = HwSettings::SPK2_RCVRPORT_IBUS;
+            } else {
+                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_IBUS;
+            }
             break;
         default:
             break;
@@ -212,10 +280,16 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.OptionalModules[HwSettings::OPTIONALMODULES_GPS] = 1;
             data.GPSSpeed = HwSettings::GPSSPEED_57600;
 
-            if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
+            // if using GPS and SBUS on Revo or Nano, we must use FlexiPort for GPS
+            // since we must use MainPort for SBUS
+            if (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_GPS;
+                } else {
+                    data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
+                }
             } else {
-                data.RM_MainPort = HwSettings::RM_MAINPORT_GPS;
+                data.SPK2_MainPort = HwSettings::SPK2_MAINPORT_GPS;
             }
 
             GPSSettings *gpsSettings = GPSSettings::GetInstance(m_uavoManager);
@@ -238,11 +312,44 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Type  = AuxMagSettings::TYPE_GPSV9;
                 magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
                 magSettings->setData(magsData);
                 addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
                 break;
             }
+            case VehicleConfigurationSource::GPS_NAZA:
+            {
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_DJI;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_DISABLED;
+                AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
+                Q_ASSERT(magSettings);
+                AuxMagSettings::DataFields magsData = magSettings->getData();
+                magsData.Type  = AuxMagSettings::TYPE_DJI;
+                magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
+                magSettings->setData(magsData);
+                addModifiedObject(magSettings, tr("Writing External Mag sensor settings"));
+                break;
+            }
+            case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
+            {
+                AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
+                Q_ASSERT(magSettings);
+                AuxMagSettings::DataFields magsData = magSettings->getData();
+
+                gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
+                gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
+                } else {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                }
+                magsData.Type  = AuxMagSettings::TYPE_FLEXI;
+                magsData.Usage = AuxMagSettings::USAGE_AUXONLY;
+                magSettings->setData(magsData);
+                addModifiedObject(magSettings, tr("Writing I2C Mag sensor settings"));
+            }
+
             case VehicleConfigurationSource::GPS_DISABLED:
                 // Should not be able to reach here
                 break;
@@ -267,12 +374,22 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
                 break;
             case VehicleConfigurationSource::AIRSPEED_EAGLETREE:
                 data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 1;
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                    // sparky2: put I2C airspeed on flexiport, but it could be put on i2cport
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
+                } else {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                }
                 airspeedData.AirspeedSensorType = AirspeedSettings::AIRSPEEDSENSORTYPE_EAGLETREEAIRSPEEDV3;
                 break;
             case VehicleConfigurationSource::AIRSPEED_MS4525:
                 data.OptionalModules[HwSettings::OPTIONALMODULES_AIRSPEED] = 1;
-                data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
+                    // sparky2: put I2C airspeed on flexiport, but it could be put on i2cport
+                    data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
+                } else {
+                    data.RM_FlexiPort = HwSettings::RM_FLEXIPORT_I2C;
+                }
                 airspeedData.AirspeedSensorType = AirspeedSettings::AIRSPEEDSENSORTYPE_PIXHAWKAIRSPEEDMS4525DO;
                 break;
             default:
@@ -287,7 +404,10 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
     default:
         break;
     }
-    hwSettings->setData(data);
+    UAVObjectUpdaterHelper updateHelper;
+    hwSettings->setData(data, false);
+    updateHelper.doObjectAndWait(hwSettings);
+
     addModifiedObject(hwSettings, tr("Writing hardware settings"));
 }
 
@@ -435,7 +555,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             // Servo always on channel 4
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
-            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.BankUpdateFreq[1] = escFrequence;
                 data.BankMode[1] = bankMode;
                 data.BankUpdateFreq[2] = servoFrequence;
@@ -453,7 +574,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;
             data.BankMode[1] = bankMode;
-            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 data.BankUpdateFreq[2] = escFrequence;
                 data.BankMode[2] = bankMode;
             } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_NANO) {
@@ -517,7 +639,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
                 }
-            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                       || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 2) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -562,7 +685,8 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
                 }
-            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO) {
+            } else if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
+                       || m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                 // Motor output4, bank3
                 if (i == 1) {
                     data.BankUpdateFreq[i] = escFrequence;
@@ -627,9 +751,15 @@ void VehicleConfigurationHelper::applyFlightModeConfiguration()
     data.FlightModePosition[3]     = FlightModeSettings::FLIGHTMODEPOSITION_STABILIZED4;
     data.FlightModePosition[4]     = FlightModeSettings::FLIGHTMODEPOSITION_STABILIZED5;
     data.FlightModePosition[5]     = FlightModeSettings::FLIGHTMODEPOSITION_STABILIZED6;
-    modeSettings->setData(data);
+
+    UAVObjectUpdaterHelper updateHelper;
+
+    modeSettings->setData(data, false);
+    updateHelper.doObjectAndWait(modeSettings);
     addModifiedObject(modeSettings, tr("Writing flight mode settings 1/2"));
-    controlSettings->setData(data2);
+
+    controlSettings->setData(data2, false);
+    updateHelper.doObjectAndWait(controlSettings);
     addModifiedObject(controlSettings, tr("Writing flight mode settings 2/2"));
 }
 
@@ -661,7 +791,6 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
             Q_ASSERT(copterControlCalibration);
             AttitudeSettings::DataFields data = copterControlCalibration->getData();
 
-            data.AccelTau = DEFAULT_ENABLED_ACCEL_TAU;
             data.BiasCorrectGyro = AttitudeSettings::BIASCORRECTGYRO_TRUE;
 
             copterControlCalibration->setData(data);
@@ -670,6 +799,7 @@ void VehicleConfigurationHelper::applySensorBiasConfiguration()
         }
         case VehicleConfigurationSource::CONTROLLER_REVO:
         case VehicleConfigurationSource::CONTROLLER_NANO:
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
         {
             RevoCalibration *revolutionCalibration = RevoCalibration::GetInstance(m_uavoManager);
             Q_ASSERT(revolutionCalibration);
@@ -694,8 +824,10 @@ void VehicleConfigurationHelper::applyStabilizationConfiguration()
 
     Q_ASSERT(stabSettings);
 
+    UAVObjectUpdaterHelper updateHelper;
     StabilizationSettings defaultSettings;
-    stabSettings->setData(defaultSettings.getData());
+    stabSettings->setData(defaultSettings.getData(), false);
+    updateHelper.doObjectAndWait(stabSettings);
     addModifiedObject(stabSettings, tr("Writing stabilization settings"));
 }
 
@@ -753,30 +885,30 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA:
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_H:
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_X:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(100);
-            mSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
-            mSettings->setMixerValueRoll(50);
-            mSettings->setMixerValuePitch(50);
-            mSettings->setMixerValueYaw(50);
+            mSettings->setMixerValueRoll((qint8)50);
+            mSettings->setMixerValuePitch((qint8)50);
+            mSettings->setMixerValueYaw((qint8)50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(100);
-            mSettings->setMixerValueYaw(50);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)50);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_HEXA_COAX_Y:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(50);
-            mSettings->setMixerValueYaw(66);
+            mSettings->setMixerValueRoll((qint8)86);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_X:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(100);
-            mSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_X:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_PLUS:
@@ -788,9 +920,9 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         break;
     }
     case VehicleConfigurationSource::VEHICLE_FIXEDWING:
-        mSettings->setMixerValueRoll(100);
-        mSettings->setMixerValuePitch(100);
-        mSettings->setMixerValueYaw(100);
+        mSettings->setMixerValueRoll((qint8)100);
+        mSettings->setMixerValuePitch((qint8)100);
+        mSettings->setMixerValueYaw((qint8)100);
         maxThrottle = 1;
         break;
     case VehicleConfigurationSource::VEHICLE_HELI:
@@ -799,22 +931,22 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
     {
         switch (m_configSource->getVehicleSubType()) {
         case VehicleConfigurationSource::GROUNDVEHICLE_MOTORCYCLE:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(100);
-            mSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             maxThrottle = 1;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_CAR:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(100);
-            mSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             maxThrottle = 1;
             minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL:
-            mSettings->setMixerValueRoll(100);
-            mSettings->setMixerValuePitch(100);
-            mSettings->setMixerValueYaw(100);
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
             maxThrottle = 0.8;
             minThrottle = 0;
             break;
@@ -839,7 +971,9 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
     }
 
     // Apply updates
-    mSettings->setData(mSettings->getData());
+    UAVObjectUpdaterHelper updateHelper;
+    mSettings->setData(mSettings->getData(), false);
+    updateHelper.doObjectAndWait(mSettings);
     addModifiedObject(mSettings, tr("Writing mixer settings"));
 }
 
@@ -855,7 +989,9 @@ void VehicleConfigurationHelper::applyMultiGUISettings(SystemSettings::AirframeT
         data.GUIConfigData[i] = guiConfig.UAVObject[i];
     }
 
-    sSettings->setData(data);
+    UAVObjectUpdaterHelper updateHelper;
+    sSettings->setData(data, false);
+    updateHelper.doObjectAndWait(sSettings);
     addModifiedObject(sSettings, tr("Writing vehicle settings"));
 }
 
@@ -882,6 +1018,15 @@ void VehicleConfigurationHelper::applyManualControlDefaults()
         break;
     case VehicleConfigurationSource::INPUT_SRXL:
         channelType = ManualControlSettings::CHANNELGROUPS_SRXL;
+        break;
+    case VehicleConfigurationSource::INPUT_HOTT_SUMD:
+        channelType = ManualControlSettings::CHANNELGROUPS_HOTT;
+        break;
+    case VehicleConfigurationSource::INPUT_EXBUS:
+        channelType = ManualControlSettings::CHANNELGROUPS_EXBUS;
+        break;
+    case VehicleConfigurationSource::INPUT_IBUS:
+        channelType = ManualControlSettings::CHANNELGROUPS_IBUS;
         break;
     default:
         break;
@@ -1303,42 +1448,43 @@ void VehicleConfigurationHelper::setupHexaCopter()
         channels[0].throttle2 = 0;
         channels[0].roll      = 100;
         channels[0].pitch     = 25;
-        channels[0].yaw = -66;
+        channels[0].yaw       = -66;
+
 
         channels[1].type      = MIXER_TYPE_MOTOR;
         channels[1].throttle1 = 100;
         channels[1].throttle2 = 0;
         channels[1].roll      = 100;
         channels[1].pitch     = 25;
-        channels[1].yaw = 66;
+        channels[1].yaw       = 66;
 
         channels[2].type      = MIXER_TYPE_MOTOR;
         channels[2].throttle1 = 100;
         channels[2].throttle2 = 0;
         channels[2].roll      = -100;
         channels[2].pitch     = 25;
-        channels[2].yaw = -66;
+        channels[2].yaw       = -66;
 
         channels[3].type      = MIXER_TYPE_MOTOR;
         channels[3].throttle1 = 100;
         channels[3].throttle2 = 0;
         channels[3].roll      = -100;
         channels[3].pitch     = 25;
-        channels[3].yaw = 66;
+        channels[3].yaw       = 66;
 
         channels[4].type      = MIXER_TYPE_MOTOR;
         channels[4].throttle1 = 100;
         channels[4].throttle2 = 0;
         channels[4].roll      = 0;
         channels[4].pitch     = -50;
-        channels[4].yaw = -66;
+        channels[4].yaw       = -66;
 
         channels[5].type      = MIXER_TYPE_MOTOR;
         channels[5].throttle1 = 100;
         channels[5].throttle2 = 0;
         channels[5].roll      = 0;
         channels[5].pitch     = -50;
-        channels[5].yaw = 66;
+        channels[5].yaw       = 66;
 
         guiSettings.multi.VTOLMotorNW = 1;
         guiSettings.multi.VTOLMotorW  = 2;
@@ -1783,6 +1929,7 @@ void VehicleConfigurationHelper::setupOctoCopter()
         guiSettings.multi.VTOLMotorE  = 3;
         guiSettings.multi.VTOLMotorSE = 4;
         guiSettings.multi.VTOLMotorS  = 5;
+
         guiSettings.multi.VTOLMotorSW = 6;
         guiSettings.multi.VTOLMotorW  = 7;
         guiSettings.multi.VTOLMotorNW = 8;

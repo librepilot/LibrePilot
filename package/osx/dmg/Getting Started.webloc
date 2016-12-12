@@ -3,6 +3,6 @@
 <plist version="1.0">
 <dict>
 	<key>URL</key>
-	<string>http://wiki.openpilot.org/display/Doc/Getting+Started+Guide</string>
+	<string>@URL@</string>
 </dict>
 </plist>

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       pios_instrumentation_helper.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (C) 2016
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Macros to easily add optional performance monitoring to a module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -51,10 +52,16 @@
  * The following code needs to be added to a function called at module initialization.
  * the second parameter is a unique counter Id.
  * A good pracice is to use the upper half word as module id and lower as counter id
- * <pre>PERF_INIT_COUNTER(counterUpd, 0xA7710001);
- * PERF_INIT_COUNTER(counterAtt, 0xA7710002);
- * PERF_INIT_COUNTER(counterPeriod, 0xA7710003);
- * PERF_INIT_COUNTER(counterAccelSamples, 0xA7710004);</pre>
+ * Optionally three strings containing Module Name, Counter description and unit of measure can be passed.
+ * Those strings will be used in future to automatically extract the list of counters from code to managed
+ * by GCS or some other custom tool.
+ *
+ * PERF_INIT_COUNTER(counterVariable, id, "MODULE NAME","COUNTER DESCRIPTION","UNIT OF MEASURE");
+ *
+ * <pre>PERF_INIT_COUNTER(counterUpd, 0xA7710001, "ATTITUDE", "Sensor update execution time", "us");
+ * PERF_INIT_COUNTER(counterAtt, 0xA7710002, "ATTITUDE", "Attitude estimation execution time", "us");
+ * PERF_INIT_COUNTER(counterPeriod, 0xA7710003, "ATTITUDE", "Sensor update period", "us");
+ * PERF_INIT_COUNTER(counterAccelSamples, 0xA7710004, "ATTITUDE", "Samples for each sensor cycle", "count");</pre>
  *
  * At this point you can start using the counters as in the following samples
  *
@@ -84,31 +91,31 @@
 /**
  * include the following macro together with modules variable declaration
  */
-#define PERF_DEFINE_COUNTER(x)      pios_counter_t x
+#define PERF_DEFINE_COUNTER(x)        static pios_counter_t x
 
 /**
  * this mast be called at some module init code
  */
-#define PERF_INIT_COUNTER(x, id)    x = PIOS_Instrumentation_CreateCounter(id)
+#define PERF_INIT_COUNTER(x, id, ...) x = PIOS_Instrumentation_CreateCounter(id)
 
 /**
  * those are the monitoring macros
  */
-#define PERF_TIMED_SECTION_START(x) PIOS_Instrumentation_TimeStart(x)
-#define PERF_TIMED_SECTION_END(x)   PIOS_Instrumentation_TimeEnd(x)
-#define PERF_MEASURE_PERIOD(x)      PIOS_Instrumentation_TrackPeriod(x)
-#define PERF_TRACK_VALUE(x, y)      PIOS_Instrumentation_updateCounter(x, y)
-#define PERF_INCREMENT_VALUE(x)     PIOS_Instrumentation_incrementCounter(x, 1)
-#define PERF_DECREMENT_VALUE(x)     PIOS_Instrumentation_incrementCounter(x, -1)
+#define PERF_TIMED_SECTION_START(x)   PIOS_Instrumentation_TimeStart(x)
+#define PERF_TIMED_SECTION_END(x)     PIOS_Instrumentation_TimeEnd(x)
+#define PERF_MEASURE_PERIOD(x)        PIOS_Instrumentation_TrackPeriod(x)
+#define PERF_TRACK_VALUE(x, y)        PIOS_Instrumentation_updateCounter(x, y)
+#define PERF_INCREMENT_VALUE(x)       PIOS_Instrumentation_incrementCounter(x, 1)
+#define PERF_DECREMENT_VALUE(x)       PIOS_Instrumentation_incrementCounter(x, -1)
 
 #else
 
 #define PERF_DEFINE_COUNTER(x)
-#define PERF_INIT_COUNTER(x, id)
+#define PERF_INIT_COUNTER(x, id, ...)
 #define PERF_TIMED_SECTION_START(x)
 #define PERF_TIMED_SECTION_END(x)
 #define PERF_MEASURE_PERIOD(x)
-#define PERF_TRACK_VALUE(x, y)
+#define PERF_TRACK_VALUE(x, y) (void)y
 #define PERF_INCREMENT_VALUE(x)
 #define PERF_DECREMENT_VALUE(x)
 #endif /* PIOS_INCLUDE_INSTRUMENTATION */

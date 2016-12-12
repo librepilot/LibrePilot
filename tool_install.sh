@@ -76,12 +76,7 @@ function download_file
 #2 The output directory
 function zip_extract
 {
-	if [ "$uname" = Windows ]
-	then
-		7za.exe x -o"$2" "$1"
-	else
-		unzip "$1" -d "$2"
-	fi
+	unzip -q "$1" -d "$2"
 }
 
 ## Extracts a 7zip file

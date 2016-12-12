@@ -59,7 +59,9 @@ UAVTalk::UAVTalk(QIODevice *iodev, UAVObjectManager *objMngr) : io(iodev), objMn
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     Core::Internal::GeneralSettings *settings = pm->getObject<Core::Internal::GeneralSettings>();
     useUDPMirror = settings->useUDPMirror();
-    qDebug() << "USE UDP:::::::::::." << useUDPMirror;
+    if (useUDPMirror) {
+        qDebug() << "UAVTalk::UAVTalk -*** UDP mirror is enabled ***";
+    }
     if (useUDPMirror) {
         udpSocketTx = new QUdpSocket(this);
         udpSocketRx = new QUdpSocket(this);
@@ -815,12 +817,12 @@ bool UAVTalk::transmitSingleObject(quint8 type, quint32 objId, quint16 instId, U
 UAVTalk::Transaction *UAVTalk::findTransaction(quint32 objId, quint16 instId)
 {
     // Lookup the transaction in the transaction map
-    QMap<quint32, Transaction *> *objTransactions = transMap.value(objId);
+    QMap<quint32, Transaction *> *objTransactions = transMap.value(objId, NULL);
     if (objTransactions != NULL) {
-        Transaction *trans = objTransactions->value(instId);
+        Transaction *trans = objTransactions->value(instId, NULL);
         if (trans == NULL) {
             // see if there is an ALL_INSTANCES transaction
-            trans = objTransactions->value(ALL_INSTANCES);
+            trans = objTransactions->value(ALL_INSTANCES, NULL);
         }
         return trans;
     }
@@ -835,7 +837,7 @@ void UAVTalk::openTransaction(quint8 type, quint32 objId, quint16 instId)
     trans->respObjId  = objId;
     trans->respInstId = instId;
 
-    QMap<quint32, Transaction *> *objTransactions = transMap.value(trans->respObjId);
+    QMap<quint32, Transaction *> *objTransactions = transMap.value(trans->respObjId, NULL);
     if (objTransactions == NULL) {
         objTransactions = new QMap<quint32, Transaction *>();
         transMap.insert(trans->respObjId, objTransactions);
@@ -845,7 +847,7 @@ void UAVTalk::openTransaction(quint8 type, quint32 objId, quint16 instId)
 
 void UAVTalk::closeTransaction(Transaction *trans)
 {
-    QMap<quint32, Transaction *> *objTransactions = transMap.value(trans->respObjId);
+    QMap<quint32, Transaction *> *objTransactions = transMap.value(trans->respObjId, NULL);
     if (objTransactions != NULL) {
         objTransactions->remove(trans->respInstId);
         // Keep the map even if it is empty
@@ -857,9 +859,9 @@ void UAVTalk::closeTransaction(Transaction *trans)
 void UAVTalk::closeAllTransactions()
 {
     foreach(quint32 objId, transMap.keys()) {
-        QMap<quint32, Transaction *> *objTransactions = transMap.value(objId);
+        QMap<quint32, Transaction *> *objTransactions = transMap.value(objId, NULL);
         foreach(quint32 instId, objTransactions->keys()) {
-            Transaction *trans = objTransactions->value(instId);
+            Transaction *trans = objTransactions->value(instId, NULL);
 
             qWarning() << "UAVTalk - closing active transaction for object" << trans->respObjId;
             objTransactions->remove(instId);

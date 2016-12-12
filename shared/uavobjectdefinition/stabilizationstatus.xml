@@ -3,7 +3,7 @@
         <description>Contains status information to control submodules for stabilization.</description>
 
 
-	<field name="OuterLoop" units="" type="enum" options="Direct,DirectWithLimits,Attitude,Rattitude,Weakleveling,Altitude,AltitudeVario">
+	<field name="OuterLoop" units="" type="enum" options="Direct,DirectWithLimits,Attitude,Rattitude,Weakleveling,Altitude,AltitudeVario,SystemIdent">
 		<elementnames>
 			<elementname>Roll</elementname>
 			<elementname>Pitch</elementname>
@@ -11,7 +11,7 @@
 			<elementname>Thrust</elementname>
 		</elementnames>
 	</field>
-	<field name="InnerLoop" units="" type="enum" options="Direct,VirtualFlyBar,Acro+,AxisLock,Rate,CruiseControl">
+	<field name="InnerLoop" units="" type="enum" options="Direct,VirtualFlyBar,Acro+,AxisLock,Rate,CruiseControl,SystemIdent">
 		<elementnames>
 			<elementname>Roll</elementname>
 			<elementname>Pitch</elementname>

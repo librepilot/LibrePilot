@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       devicewidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -100,13 +101,20 @@ void DeviceWidget::populate()
         devicePic.load(":/uploader/images/gcs-board-cc3d.png");
         break;
     case 0x0903:
+        // Revo
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
     case 0x0904:
+        // DiscoveryF4Bare
         devicePic.load(":/uploader/images/gcs-board-revo.png");
         break;
     case 0x0905:
+        // Nano
         devicePic.load(":/uploader/images/gcs-board-nano.png");
+        break;
+    case 0x9201:
+        // Sparky2
+        devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
     default:
         // Clear
@@ -195,7 +203,7 @@ bool DeviceWidget::populateBoardStructuredDescription(QByteArray desc)
             myDevice->lblCertified->setToolTip(tr("Untagged or custom firmware build"));
         }
 
-        myDevice->lblBrdName->setText(deviceDescriptorStruct::idToBoardName(onBoardDescription.boardType << 8 | onBoardDescription.boardRevision));
+        myDevice->lblBrdName->setText(deviceDescriptorStruct::idToBoardName(((quint16)onBoardDescription.boardType << 8) | onBoardDescription.boardRevision));
 
         return true;
     }
@@ -219,7 +227,7 @@ bool DeviceWidget::populateLoadedStructuredDescription(QByteArray desc)
             myDevice->lblCertifiedL->setPixmap(QPixmap(":uploader/images/warning.svg"));
             myDevice->lblCertifiedL->setToolTip(tr("Untagged or custom firmware build"));
         }
-        myDevice->lblBrdNameL->setText(deviceDescriptorStruct::idToBoardName(LoadedDescription.boardType << 8 | LoadedDescription.boardRevision));
+        myDevice->lblBrdNameL->setText(deviceDescriptorStruct::idToBoardName(((quint16)LoadedDescription.boardType << 8) | LoadedDescription.boardRevision));
 
         return true;
     }
@@ -363,13 +371,16 @@ void DeviceWidget::uploadFirmware()
         // Now do sanity checking:
         // - Check whether board type matches firmware:
         int board = m_dfu->devices[deviceID].ID;
-        int firmwareBoard = ((desc.at(12) & 0xff) << 8) + (desc.at(13) & 0xff);
-        if ((board == 0x401 && firmwareBoard == 0x402) ||
-            (board == 0x901 && firmwareBoard == 0x902) || // L3GD20 revo supports Revolution firmware
-            (board == 0x902 && firmwareBoard == 0x903)) { // RevoMini1 supporetd by RevoMini2 firmware
+        int firmwareBoard = ((quint16)(quint8)desc.at(12) << 8) + (quint16)(quint8)desc.at(13);
+        if ((board == 0x0401 && firmwareBoard == 0x0402) ||
+            (board == 0x0901 && firmwareBoard == 0x0902) || // L3GD20 revo supports Revolution firmware
+            (board == 0x0902 && firmwareBoard == 0x0903) || // RevoMini1 supported by RevoMini2 firmware
+            (board == 0x0b01 && firmwareBoard == 0x9201)) { // Sparky2 before and after TL BL compatibility change
             // These firmwares are designed to be backwards compatible
         } else if (firmwareBoard != board) {
-            status("Error: firmware does not match board", STATUSICON_FAIL);
+            char buf[100];
+            sprintf(buf, "Error: Device ID: firmware 0x%x does not match board 0x%x", firmwareBoard, board);
+            status(buf, STATUSICON_FAIL);
             updateButtons(true);
             return;
         }

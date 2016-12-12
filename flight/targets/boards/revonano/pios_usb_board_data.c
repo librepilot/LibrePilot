@@ -33,7 +33,7 @@
 #include <pios_usbhook.h> /* PIOS_USBHOOK_* */
 #include <pios_usb_util.h> /* PIOS_USB_UTIL_AsciiToUtf8 */
 
-static const uint8_t usb_product_id[22] = {
+static const uint8_t usb_product_id[10] = {
     sizeof(usb_product_id),
     USB_DESC_TYPE_STRING,
     'N',                   0,

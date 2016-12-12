@@ -18,9 +18,11 @@
 
 	<field name="AcroInsanityFactor" units="percent" type="uint8" elementnames="Roll,Pitch,Yaw" defaultvalue="40" limits="%BE:0:100"/>
 
-	<field name="EnablePiroComp" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="TRUE"/>
+	<field name="EnablePiroComp" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
 
-	<field name="EnableThrustPIDScaling" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="FALSE"/>
+	<field name="FpvCamTiltCompensation" units="deg" type="uint8" elements="1" defaultvalue="0"/>
+
+	<field name="EnableThrustPIDScaling" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
 	<field name="ThrustPIDScaleCurve" units="percent" type="int8" elementnames="0,25,50,75,100" defaultvalue="30,15,0,-15,-30"/>
 	<field name="ThrustPIDScaleSource" units="" type="enum" elements="1" options="ManualControlThrottle,StabilizationDesiredThrust,ActuatorDesiredThrust" defaultvalue="ActuatorDesiredThrust" />
 	<field name="ThrustPIDScaleTarget" units="" type="enum" elements="1" options="PID,PI,PD,ID,P,I,D" defaultvalue="PID" />

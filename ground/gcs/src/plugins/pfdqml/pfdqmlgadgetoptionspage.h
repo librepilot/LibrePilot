@@ -1,4 +1,15 @@
-/*
+/**
+ ******************************************************************************
+ *
+ * @file       pfdqmlgadgetoptionspage.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
+ *****************************************************************************//*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -43,6 +54,9 @@ public:
     void apply();
     void finish();
 
+private slots:
+    void actualizeDateTime();
+
 private:
     Ui::PfdQmlGadgetOptionsPage *options_page;
     PfdQmlGadgetConfiguration *m_config;
@@ -50,4 +64,4 @@ private:
 private slots:
 };
 
-#endif // PfdQmlGADGETOPTIONSPAGE_H
+#endif // PFDQMLGADGETOPTIONSPAGE_H

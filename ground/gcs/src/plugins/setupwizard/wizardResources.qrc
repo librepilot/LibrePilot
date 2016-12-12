@@ -56,5 +56,11 @@
         <file>resources/bttn-oneshot-up.png</file>
         <file>resources/bttn-srxl-down.png</file>
         <file>resources/bttn-srxl-up.png</file>
+        <file>resources/bttn-hott-down.png</file>
+        <file>resources/bttn-hott-up.png</file>
+        <file>resources/bttn-exbus-down.png</file>
+        <file>resources/bttn-exbus-up.png</file>
+        <file>resources/bttn-ibus-down.png</file>
+        <file>resources/bttn-ibus-up.png</file>
     </qresource>
 </RCC>

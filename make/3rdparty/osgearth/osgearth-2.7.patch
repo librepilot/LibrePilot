@@ -1,0 +1,66 @@
+diff --git a/src/osgEarth/ElevationQuery b/src/osgEarth/ElevationQuery
+index d8e4d14..50db567 100644
+--- a/src/osgEarth/ElevationQuery
++++ b/src/osgEarth/ElevationQuery
+@@ -37,7 +37,11 @@ namespace osgEarth
+ 
+             void pruneUnusedDatabaseCache();
+ 
++#if OSG_VERSION_GREATER_OR_EQUAL(3,5,0)
++            virtual osg::ref_ptr<osg::Node> readNodeFile(const std::string& filename);
++#else
+             virtual osg::Node* readNodeFile(const std::string& filename);
++#endif
+ 
+         protected:
+ 
+diff --git a/src/osgEarth/ElevationQuery.cpp b/src/osgEarth/ElevationQuery.cpp
+index 5fb8222..8c03309 100644
+--- a/src/osgEarth/ElevationQuery.cpp
++++ b/src/osgEarth/ElevationQuery.cpp
+@@ -55,7 +55,11 @@ void ElevationQueryCacheReadCallback::pruneUnusedDatabaseCache()
+ {
+ }
+ 
++#if OSG_VERSION_GREATER_OR_EQUAL(3,5,0)
++osg::ref_ptr<osg::Node> ElevationQueryCacheReadCallback::readNodeFile(const std::string& filename)
++#else
+ osg::Node* ElevationQueryCacheReadCallback::readNodeFile(const std::string& filename)
++#endif
+ {
+     // first check to see if file is already loaded.
+     {
+@@ -71,7 +75,7 @@ osg::Node* ElevationQueryCacheReadCallback::readNodeFile(const std::string& file
+     }
+ 
+     // now load the file.
+-    osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(filename);
++    osg::ref_ptr<osg::Node> node = osgDB::readRefNodeFile(filename);
+ 
+     // insert into the cache.
+     if (node.valid())
+@@ -105,7 +109,11 @@ osg::Node* ElevationQueryCacheReadCallback::readNodeFile(const std::string& file
+         }
+     }
+ 
++#if OSG_VERSION_GREATER_OR_EQUAL(3,5,0)
++    return node;
++#else
+     return node.release();
++#endif
+ }
+ 
+ ElevationQuery::ElevationQuery(const Map* map) :
+diff --git a/src/osgEarthSymbology/Resource b/src/osgEarthSymbology/Resource
+index a8a1441..934fc7d 100644
+--- a/src/osgEarthSymbology/Resource
++++ b/src/osgEarthSymbology/Resource
+@@ -33,7 +33,7 @@ namespace osgEarth { namespace Symbology
+     class OSGEARTHSYMBOLOGY_EXPORT Resource : public Taggable<osg::Object>
+     {
+     protected:
+-        Resource(const Resource& rhs,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY) {};
++        Resource(const Resource& rhs,const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY) : Taggable() {};
+         Resource( const Config& config =Config() );
+ 
+         /** dtor */

@@ -509,18 +509,26 @@ check_again:
  * used to check a link is established even if the device
  * is valid.
  */
-bool PIOS_COM_Available(uint32_t com_id)
+uint32_t PIOS_COM_Available(uint32_t com_id)
 {
     struct pios_com_dev *com_dev = PIOS_COM_find_dev(com_id);
 
     if (!PIOS_COM_validate(com_dev)) {
-        return false;
+        return COM_AVAILABLE_NONE;
     }
 
     // If a driver does not provide a query method assume always
     // available if valid
     if (com_dev->driver->available == NULL) {
-        return true;
+        if (com_dev->has_rx && com_dev->has_tx) {
+            return COM_AVAILABLE_RXTX;
+        } else if (com_dev->has_rx) {
+            return COM_AVAILABLE_RX;
+        } else if (com_dev->has_tx) {
+            return COM_AVAILABLE_TX;
+        }
+
+        return COM_AVAILABLE_NONE; /* can this really happen? */
     }
 
     return (com_dev->driver->available)(com_dev->lower_id);

@@ -1,21 +1,22 @@
-
 TEMPLATE = lib 
 TARGET = NotifyPlugin 
  
+QT += widgets multimedia
+
 include(../../plugin.pri) 
 include(../../plugins/coreplugin/coreplugin.pri) 
 include(notifyplugin_dependencies.pri)
 
-QT        += multimedia
-
-HEADERS += notifyplugin.h \  
+HEADERS += \
+    notifyplugin.h \
     notifypluginoptionspage.h \
     notifyitemdelegate.h \
     notifytablemodel.h \
     notificationitem.h \
     notifylogging.h
 
-SOURCES += notifyplugin.cpp \  
+SOURCES += \
+    notifyplugin.cpp \
     notifypluginoptionspage.cpp \
     notifyitemdelegate.cpp \
     notifytablemodel.cpp \
@@ -29,5 +30,3 @@ FORMS += \
 
 RESOURCES += \
     res.qrc
-
-

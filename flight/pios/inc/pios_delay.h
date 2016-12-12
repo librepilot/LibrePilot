@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_settings.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Settings functions header
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -39,6 +40,7 @@ extern uint32_t PIOS_DELAY_GetuS();
 extern uint32_t PIOS_DELAY_GetuSSince(uint32_t t);
 extern uint32_t PIOS_DELAY_GetRaw();
 extern uint32_t PIOS_DELAY_DiffuS(uint32_t raw);
+extern uint32_t PIOS_DELAY_DiffuS2(uint32_t raw, uint32_t later);
 
 #endif /* PIOS_DELAY_H */
 

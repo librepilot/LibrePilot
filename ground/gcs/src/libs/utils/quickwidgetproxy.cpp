@@ -127,16 +127,16 @@ void QuickWidgetProxy::onStatusChanged(QQuickWidget::Status status)
 {
     switch (status) {
     case QQuickWidget::Null:
-        qDebug() << "QuickWidgetProxy - status Null";
+        qWarning() << "QuickWidgetProxy - status Null";
         break;
     case QQuickWidget::Ready:
-        qDebug() << "QuickWidgetProxy - status Ready";
+        // qDebug() << "QuickWidgetProxy - status Ready";
         break;
     case QQuickWidget::Loading:
-        qDebug() << "QuickWidgetProxy - status Loading";
+        // qDebug() << "QuickWidgetProxy - status Loading";
         break;
     case QQuickWidget::Error:
-        qDebug() << "QuickWidgetProxy - status Error";
+        qWarning() << "QuickWidgetProxy - status Error";
         foreach(const QQmlError &error, errors()) {
             qWarning() << error.description();
         }
@@ -148,16 +148,16 @@ void QuickWidgetProxy::onStatusChanged(QQuickView::Status status)
 {
     switch (status) {
     case QQuickView::Null:
-        qDebug() << "QuickWidgetProxy - status Null";
+        qWarning() << "QuickWidgetProxy - status Null";
         break;
     case QQuickView::Ready:
-        qDebug() << "QuickWidgetProxy - status Ready";
+        // qDebug() << "QuickWidgetProxy - status Ready";
         break;
     case QQuickView::Loading:
-        qDebug() << "QuickWidgetProxy - status Loading";
+        // qDebug() << "QuickWidgetProxy - status Loading";
         break;
     case QQuickView::Error:
-        qDebug() << "QuickWidgetProxy - status Error";
+        qWarning() << "QuickWidgetProxy - status Error";
         foreach(const QQmlError &error, errors()) {
             qWarning() << error.description();
         }

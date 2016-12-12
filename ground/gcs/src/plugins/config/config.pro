@@ -2,15 +2,17 @@ TEMPLATE = lib
 TARGET = Config
 DEFINES += CONFIG_LIBRARY
 
-QT += svg opengl qml quick
+QT += widgets svg opengl qml quick
+
+# silence eigen warnings
+QMAKE_CXXFLAGS_WARN_ON += -Wno-deprecated-declarations
+win32 {
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-ignored-attributes
+}
 
 include(config_dependencies.pri)
 
 INCLUDEPATH += ../../libs/eigen
-
-OTHER_FILES += \
-    Config.pluginspec \
-    calibration/WizardStepIndicator.qml
 
 HEADERS += \
     configplugin.h \
@@ -25,8 +27,7 @@ HEADERS += \
     configccattitudewidget.h \
     configstabilizationwidget.h \
     assertions.h \
-    defaultattitudewidget.h \
-    defaulthwsettingswidget.h \
+    defaultconfigwidget.h \
     channelform.h \
     inputchannelform.h \
     configcamerastabilizationwidget.h \
@@ -58,7 +59,9 @@ HEADERS += \
     calibration/gyrobiascalibrationmodel.h \
     calibration/calibrationuiutils.h \
     configoplinkwidget.h \
-    configrevonanohwwidget.h
+    configrevonanohwwidget.h \
+    configsparky2hwwidget.h \
+    failsafechannelform.h
 
 SOURCES += \
     configplugin.cpp \
@@ -72,8 +75,7 @@ SOURCES += \
     config_cc_hw_widget.cpp \
     configccattitudewidget.cpp \
     configstabilizationwidget.cpp \
-    defaultattitudewidget.cpp \
-    defaulthwsettingswidget.cpp \
+    defaultconfigwidget.cpp \
     channelform.cpp \
     inputchannelform.cpp \
     configcamerastabilizationwidget.cpp \
@@ -99,7 +101,9 @@ SOURCES += \
     calibration/levelcalibrationmodel.cpp \
     calibration/gyrobiascalibrationmodel.cpp \
     configoplinkwidget.cpp \
-    configrevonanohwwidget.cpp
+    configrevonanohwwidget.cpp \
+    configsparky2hwwidget.cpp \
+    failsafechannelform.cpp
 
 FORMS += \
     airframe.ui \
@@ -114,8 +118,7 @@ FORMS += \
     input_wizard.ui \
     output.ui \
     ccattitude.ui \
-    defaultattitude.ui \
-    defaulthwsettings.ui \
+    defaultconfig.ui \
     inputchannelform.ui \
     camerastabilization.ui \
     outputchannelform.ui \
@@ -124,6 +127,12 @@ FORMS += \
     mixercurve.ui \
     configrevohwwidget.ui \
     oplink.ui \
-    configrevonanohwwidget.ui
+    configrevonanohwwidget.ui \
+    configsparky2hwwidget.ui \
+    failsafechannelform.ui
+
+OTHER_FILES += \
+    Config.pluginspec \
+    calibration/WizardStepIndicator.qml
 
 RESOURCES += configgadget.qrc

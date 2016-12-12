@@ -574,7 +574,20 @@ OP_DFU::Status DFUObject::StatusRequest()
     buf[8] = 0;
     buf[9] = 0;
 
-    int result = sendData(buf, BUF_LEN);
+    int result    = sendData(buf, BUF_LEN);
+    int retry_cnt = 0;
+    const int MaxSendRetry = 10, SendRetryIntervalMS = 1000;
+    while (result < 0 && retry_cnt < MaxSendRetry) {
+        retry_cnt++;
+        qWarning() << "StatusRequest failed, sleeping" << SendRetryIntervalMS << "ms";
+        delay::msleep(SendRetryIntervalMS);
+        qWarning() << "StatusRequest retry attempt" << retry_cnt;
+        result = sendData(buf, BUF_LEN);
+    }
+    if (retry_cnt >= MaxSendRetry) {
+        qWarning() << "StatusRequest failed too many times, aborting";
+        return OP_DFU::abort;
+    }
     if (debug) {
         qDebug() << "StatusRequest: " << result << " bytes sent";
     }
@@ -1071,11 +1084,12 @@ int DFUObject::receiveData(void *data, int size)
     }
 }
 
-#define BOARD_ID_MB   1
-#define BOARD_ID_INS  2
-#define BOARD_ID_PIP  3
-#define BOARD_ID_CC   4
-#define BOARD_ID_REVO 9
+#define BOARD_ID_MB      1
+#define BOARD_ID_INS     2
+#define BOARD_ID_PIP     3
+#define BOARD_ID_CC      4
+#define BOARD_ID_REVO    9
+#define BOARD_ID_SPARKY2 0x92
 
 /**
    Gets the type of board connected
@@ -1103,6 +1117,9 @@ OP_DFU::eBoardType DFUObject::GetBoardType(int boardNum)
         break;
     case BOARD_ID_REVO: // Revo board
         brdType = eBoardRevo;
+        break;
+    case BOARD_ID_SPARKY2: // Sparky2 board
+        brdType = eBoardSparky2;
         break;
     }
     return brdType;

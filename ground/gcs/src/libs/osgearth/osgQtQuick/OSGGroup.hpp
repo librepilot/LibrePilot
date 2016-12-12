@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGGroup.hpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -39,15 +39,21 @@ class OSGQTQUICK_EXPORT OSGGroup : public OSGNode {
 
     Q_CLASSINFO("DefaultProperty", "children")
 
+    typedef OSGNode Inherited;
+
 public:
     explicit OSGGroup(QObject *parent = 0);
     virtual ~OSGGroup();
 
-    QQmlListProperty<OSGNode> children();
+    QQmlListProperty<OSGNode> children() const;
+
+protected:
+    virtual osg::Node *createNode();
+    virtual void updateNode();
 
 private:
     struct Hidden;
-    Hidden *h;
+    Hidden *const h;
 };
 } // namespace osgQtQuick
 

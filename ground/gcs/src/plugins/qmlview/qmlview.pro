@@ -1,8 +1,7 @@
 TEMPLATE = lib
 TARGET = QMLView
-QT += svg
-QT += opengl
-QT += qml quick
+
+QT += svg opengl qml quick
 
 include(../../plugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)

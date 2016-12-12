@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configstabilizationwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -27,17 +28,20 @@
 #ifndef CONFIGSTABILIZATIONWIDGET_H
 #define CONFIGSTABILIZATIONWIDGET_H
 
-#include "ui_stabilization.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
-#include "stabilizationsettings.h"
-#include <QWidget>
-#include <QTimer>
-#include <QSignalMapper>
+
 #include "qwt/src/qwt_plot_curve.h"
 #include "qwt/src/qwt_plot_grid.h"
+
+#include <QTimer>
+#include <QSignalMapper>
+
+class Ui_StabilizationWidget;
+
+class QWidget;
+class QTabBar;
 
 class ConfigStabilizationWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -45,7 +49,14 @@ class ConfigStabilizationWidget : public ConfigTaskWidget {
 public:
     ConfigStabilizationWidget(QWidget *parent = 0);
     ~ConfigStabilizationWidget();
+
     bool shouldObjectBeSaved(UAVObject *object);
+
+protected:
+    QString mapObjectName(const QString objectName);
+
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     Ui_StabilizationWidget *ui;
@@ -57,9 +68,8 @@ private:
     static const int AUTOMATIC_UPDATE_RATE   = 500;
 
     static const int EXPO_CURVE_POINTS_COUNT = 100;
-    static const double EXPO_CURVE_CONSTANT  = 1.00695;
+    constexpr static const double EXPO_CURVE_CONSTANT = 1.01395948;
 
-    int boardModel;
     int m_stabSettingsBankCount;
     int m_currentStabSettingsBank;
 
@@ -80,18 +90,12 @@ private:
     void resetStabBank(int bank);
     void restoreStabBank(int bank);
 
-protected:
-    QString mapObjectName(const QString objectName);
-
-protected slots:
-    void refreshWidgetsValues(UAVObject *o = NULL);
-    void updateObjectsFromWidgets();
-
 private slots:
+    void enableControlsChanged(bool enable);
+
     void realtimeUpdatesSlot(bool value);
     void linkCheckBoxes(bool value);
     void processLinkedWidgets(QWidget *);
-    void onBoardConnected();
     void stabBankChanged(int index);
     void resetThrottleCurveToDefault();
     void throttleCurveUpdated();

@@ -2,62 +2,62 @@
     <object name="FlightModeSettings" singleinstance="true" settings="true" category="Control">
         <description>Settings to control arming and flight mode</description>
 
-        <field name="Arming" units="" type="enum" elements="1" options="Always Disarmed,Always Armed,Roll Left,Roll Right,Pitch Forward,Pitch Aft,Yaw Left,Yaw Right,Accessory 0,Accessory 1,Accessory 2" defaultvalue="Always Disarmed"/>
+        <field name="Arming" units="" type="enum" elements="1" options="Always Disarmed,Always Armed,Roll Left,Roll Right,Pitch Forward,Pitch Aft,Yaw Left,Yaw Right,Accessory 0,Accessory 1,Accessory 2,Accessory 3" defaultvalue="Always Disarmed"/>
 
 	<!-- Note these options should be identical to those in StabilizationDesired.StabilizationMode -->
         <field name="Stabilization1Settings" units="" type="enum"
 		elementnames="Roll,Pitch,Yaw,Thrust"
-		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl"
+		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl,SystemIdent"
 		defaultvalue="Attitude,Attitude,AxisLock,Manual"
-		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar; \
-			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude;"
+		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization2Settings" units="" type="enum"
 		elementnames="Roll,Pitch,Yaw,Thrust"
-		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl"
+		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl,SystemIdent"
 		defaultvalue="Attitude,Attitude,Rate,Manual"
-		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar; \
-			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude;"
+		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization3Settings" units="" type="enum"
 		elementnames="Roll,Pitch,Yaw,Thrust"
-		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl"
+		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl,SystemIdent"
 		defaultvalue="Rate,Rate,Rate,Manual"
-		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar; \
-			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude;"
+		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization4Settings" units="" type="enum"
 		elementnames="Roll,Pitch,Yaw,Thrust"
-		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl"
+		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl,SystemIdent"
 		defaultvalue="Attitude,Attitude,AxisLock,CruiseControl"
-		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar; \
-			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude;"
+		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization5Settings" units="" type="enum"
 		elementnames="Roll,Pitch,Yaw,Thrust"
-		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl"
+		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl,SystemIdent"
 		defaultvalue="Attitude,Attitude,Rate,CruiseControl"
-		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar; \
-			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude;"
+		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
         <field name="Stabilization6Settings" units="" type="enum"
 		elementnames="Roll,Pitch,Yaw,Thrust"
-		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl"
+		options="Manual,Rate,RateTrainer,Attitude,AxisLock,WeakLeveling,VirtualBar,Acro+,Rattitude,AltitudeHold,AltitudeVario,CruiseControl,SystemIdent"
 		defaultvalue="Rate,Rate,Rate,Manual"
-		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:AltitudeHold:AltitudeVario:CruiseControl; \
-			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:Acro+:WeakLeveling:VirtualBar; \
-			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude;"
+		limits="%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:AltitudeHold:AltitudeVario:CruiseControl:SystemIdent; \
+			%NE:RateTrainer:AltitudeHold:AltitudeVario:CruiseControl:Attitude:Rattitude:WeakLeveling:VirtualBar:SystemIdent; \
+			%NE:Rate:RateTrainer:Attitude:AxisLock:WeakLeveling:VirtualBar:Acro+:Rattitude:SystemIdent;"
 			/>
 
 	<!-- Note these options values should be identical to those defined in FlightMode -->
@@ -66,7 +66,7 @@
                units=""
                type="enum"
                elements="6"
-               options="Manual,Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6,PositionHold,CourseLock,VelocityRoam,HomeLeash,AbsolutePosition,ReturnToBase,Land,PathPlanner,POI,AutoCruise,AutoTakeoff"
+               options="Manual,Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6,PositionHold,CourseLock,VelocityRoam,HomeLeash,AbsolutePosition,ReturnToBase,Land,PathPlanner,POI,AutoCruise,AutoTakeoff,AutoTune"
                defaultvalue="Stabilized1,Stabilized2,Stabilized3,Stabilized4,Stabilized5,Stabilized6"
                limits="%NE:POI:AutoCruise; \
                		   %NE:POI:AutoCruise; \
@@ -75,18 +75,27 @@
                		   %NE:POI:AutoCruise; \
                		   %NE:POI:AutoCruise;" />
 
-		<field name="AlwaysStabilizeWhenArmed" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="FALSE" description="For Multirotors. Always stabilize no matter the throttle setting when vehicle is armed. Does not work when vehicle is set to Always Armed."/>
+        <field name="AlwaysStabilizeWhenArmedSwitch"
+               units=""
+               type="enum"
+               elements="1"
+               options="Disabled,Accessory 0,Accessory 1,Accessory 2,Accessory 3"
+               defaultvalue="Disabled"
+               description="For Multirotors. Always stabilize no matter the throttle setting when vehicle is armed. Does not work when vehicle is set to Always Armed."/>
+
         <field name="ArmedTimeout" units="ms" type="uint16" elements="1" defaultvalue="30000"/>
         <field name="ArmingSequenceTime" units="ms" type="uint16" elements="1" defaultvalue="1000"/>
         <field name="DisarmingSequenceTime" units="ms" type="uint16" elements="1" defaultvalue="1000"/>
-	<field name="DisableSanityChecks" units="" type="enum" elements="1" options="FALSE,TRUE" defaultvalue="FALSE"/>
+	<field name="DisableSanityChecks" units="" type="enum" elements="1" options="False,True" defaultvalue="False"/>
         <field name="ReturnToBaseAltitudeOffset" units="m" type="float" elements="1" defaultvalue="10"/>
+        <field name="ReturnToBaseVelocity" units="m/s" type="float" elements="1" defaultvalue="2"/>
         <field name="ReturnToBaseNextCommand" units="" type="enum" elements="1" options="Hold,Land" defaultvalue="Hold"/>
         <field name="LandingVelocity" units="m" type="float" elements="1" defaultvalue="0.6"/>
         <field name="AutoTakeOffVelocity" units="m" type="float" elements="1" defaultvalue="0.6"/>
         <field name="AutoTakeOffHeight" units="m" type="float" elements="1" defaultvalue="2.5" description="height in meters above arming altitude to climb to during autotakeoff"/>
         <field name="PositionHoldOffset" units="m" type="float" elementnames="Horizontal,Vertical" defaultvalue="30,15" description="stick sensitivity for position roam modes"/>
 	<field name="VarioControlLowPassAlpha" units="" type="float" elements="1" defaultvalue="0.98" description="stick low pass filter for position roam modes"/>
+	<field name="FlightModeChangeRestartsPathPlan" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True" description="wether a path plan should continue when interrupted by flight mode change (False), or restart from waypoint 0 (True)"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>
         <telemetryflight acked="true" updatemode="onchange" period="0"/>

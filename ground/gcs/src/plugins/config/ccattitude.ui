@@ -117,7 +117,7 @@
             <x>0</x>
             <y>0</y>
             <width>758</width>
-            <height>486</height>
+            <height>480</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
@@ -157,12 +157,12 @@ font:bold;</string>
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QSpinBox" name="rollBias">
+               <widget class="QDoubleSpinBox" name="rollBias">
                 <property name="minimum">
-                 <number>-180</number>
+                 <double>-180.000000000000000</double>
                 </property>
                 <property name="maximum">
-                 <number>180</number>
+                 <double>180.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -180,12 +180,12 @@ font:bold;</string>
                </spacer>
               </item>
               <item row="1" column="5">
-               <widget class="QSpinBox" name="yawBias">
+               <widget class="QDoubleSpinBox" name="yawBias">
                 <property name="minimum">
-                 <number>-180</number>
+                 <double>-180.000000000000000</double>
                 </property>
                 <property name="maximum">
-                 <number>180</number>
+                 <double>180.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -237,12 +237,12 @@ font:bold;</string>
                </widget>
               </item>
               <item row="1" column="3">
-               <widget class="QSpinBox" name="pitchBias">
+               <widget class="QDoubleSpinBox" name="pitchBias">
                 <property name="minimum">
-                 <number>-90</number>
+                 <double>-180.000000000000000</double>
                 </property>
                 <property name="maximum">
-                 <number>90</number>
+                 <double>180.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -299,7 +299,7 @@ font:bold;</string>
                 <item>
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Place aircraft very flat, and then click level to compute the accelerometer and gyro bias</string>
+                   <string>Place vehicle very flat, and then click level to compute the accelerometer and gyro bias</string>
                   </property>
                   <property name="wordWrap">
                    <bool>true</bool>
@@ -366,17 +366,44 @@ font:bold;</string>
                 </property>
                </widget>
               </item>
+              <item row="3" column="0" colspan="3">
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <item>
+                 <widget class="QCheckBox" name="initGyroWhenBoardSteady">
+                  <property name="toolTip">
+                   <string>If enabled, this option prevents gyro initialization while the board is moving.</string>
+                  </property>
+                  <property name="text">
+                   <string>Wait until the board is steady</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_14">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
               <item row="2" column="0" colspan="3">
                <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <item>
                  <widget class="QCheckBox" name="zeroGyroBiasOnArming">
                   <property name="toolTip">
                    <string>If enabled, a fast recalibration of gyro zero point will be done
-whenever the frame is armed. Do not move the airframe while
+whenever the board is armed. Do not move the vehicle while
 arming it in that case!</string>
                   </property>
                   <property name="text">
-                   <string>Zero gyros while arming aircraft</string>
+                   <string>Zero gyros while arming</string>
                   </property>
                  </widget>
                 </item>
@@ -523,7 +550,7 @@ A setting of 0.00 disables the filter.</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="ccAttitudeHelp">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -555,6 +582,9 @@ A setting of 0.00 disables the filter.</string>
        <property name="flat">
         <bool>true</bool>
        </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:help</string>
+       </property>
       </widget>
      </item>
      <item>
@@ -567,6 +597,9 @@ A setting of 0.00 disables the filter.</string>
        </property>
        <property name="text">
         <string>Apply</string>
+       </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:apply</string>
        </property>
       </widget>
      </item>
@@ -583,6 +616,9 @@ A setting of 0.00 disables the filter.</string>
        </property>
        <property name="text">
         <string>Save</string>
+       </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:save</string>
        </property>
       </widget>
      </item>

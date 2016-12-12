@@ -39,7 +39,6 @@ private:
     bool process_object(ObjectInfo *info);
 
     QString gcsCodeTemplate, gcsIncludeTemplate;
-    QStringList fieldTypeStrCPP, fieldTypeStrCPPClass;
     QDir gcsCodePath;
     QDir gcsOutputPath;
 };

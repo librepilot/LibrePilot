@@ -3,6 +3,7 @@
 #
 # Makefile for OpenPilot UAVObject code
 #
+# Copyright (C) 2016, The LibrePilot Project, http://www.librepilot.org
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2011.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -119,6 +120,9 @@ UAVOBJSRCFILENAMES += altitudeholdstatus
 UAVOBJSRCFILENAMES += ekfconfiguration
 UAVOBJSRCFILENAMES += ekfstatevariance
 UAVOBJSRCFILENAMES += takeofflocation
+# UAVOBJSRCFILENAMES += perfcounter
+UAVOBJSRCFILENAMES += systemidentsettings
+UAVOBJSRCFILENAMES += systemidentstate
 
 UAVOBJSRC = $(foreach UAVOBJSRCFILE,$(UAVOBJSRCFILENAMES),$(FLIGHT_UAVOBJ_DIR)/$(UAVOBJSRCFILE).c )
 UAVOBJDEFINE = $(foreach UAVOBJSRCFILE,$(UAVOBJSRCFILENAMES),-DUAVOBJ_INIT_$(UAVOBJSRCFILE) )

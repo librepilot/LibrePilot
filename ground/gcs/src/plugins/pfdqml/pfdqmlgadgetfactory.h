@@ -1,4 +1,15 @@
-/*
+/**
+ ******************************************************************************
+ *
+ * @file       pfdqmlgadgetfactory.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
+ *****************************************************************************//*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -37,4 +48,4 @@ public:
     IOptionsPage *createOptionsPage(IUAVGadgetConfiguration *config);
 };
 
-#endif // PfdQmlGADGETFACTORY_H_
+#endif // PFDQMLGADGETFACTORY_H_

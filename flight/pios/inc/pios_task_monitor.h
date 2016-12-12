@@ -1,15 +1,17 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilotSystem OpenPilot System
+ * @addtogroup LibrePilotSystem LibrePilot System
  * @{
- * @addtogroup OpenPilotLibraries OpenPilot System Libraries
+ * @addtogroup LibrePilotLibraries LibrePilot System Libraries
  * @{
- * @file       task_monitor.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @file       pios_task_monitor.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      Task monitoring functions
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
+
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +31,8 @@
 #define PIOS_TASK_MONITOR_H
 
 #include <stdbool.h>
-
+extern volatile uint32_t idleCounter;
+extern volatile bool idleCounterClear;
 /**
  * Initializes the Task Monitor.
  *
@@ -108,5 +111,27 @@ extern void PIOS_TASK_MONITOR_ForEachTask(TaskMonitorTaskInfoCallback callback, 
  * Return the idle task running time percentage.
  */
 extern uint8_t PIOS_TASK_MONITOR_GetIdlePercentage();
+
+static inline void PIOS_TASK_MONITOR_IdleHook()
+{
+    if (!idleCounterClear) {
+        ++idleCounter;
+    } else {
+        idleCounter = 0;
+        idleCounterClear = false;
+    }
+}
+
+/**
+ * Calibrate the idle counter. it should be run with a single task (caller) created
+ */
+extern void PIOS_TASK_MONITOR_CalibrateIdleCounter();
+/**
+ * return the number of idle hook execution per second
+ * @return number of idle hook execution per second
+ */
+extern uint32_t PIOS_TASK_MONITOR_GetIdleTicksCount();
+
+extern uint32_t PIOS_TASK_MONITOR_GetZeroLoadTicksCount();
 
 #endif // PIOS_TASK_MONITOR_H

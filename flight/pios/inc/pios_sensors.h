@@ -54,15 +54,16 @@ typedef struct PIOS_SENSORS_Driver {
 } PIOS_SENSORS_Driver;
 
 typedef enum PIOS_SENSORS_TYPE {
-    PIOS_SENSORS_TYPE_3AXIS_ACCEL = 0x01,
-    PIOS_SENSORS_TYPE_3AXIS_GYRO  = 0x02,
+    PIOS_SENSORS_TYPE_3AXIS_ACCEL      = 0x01,
+    PIOS_SENSORS_TYPE_3AXIS_GYRO       = 0x02,
     PIOS_SENSORS_TYPE_3AXIS_GYRO_ACCEL = 0x03,
-    PIOS_SENSORS_TYPE_3AXIS_MAG   = 0x04,
-    PIOS_SENSORS_TYPE_1AXIS_BARO  = 0x08,
+    PIOS_SENSORS_TYPE_3AXIS_MAG        = 0x04,
+    PIOS_SENSORS_TYPE_3AXIS_AUXMAG     = 0x08,
+    PIOS_SENSORS_TYPE_1AXIS_BARO       = 0x10,
 } PIOS_SENSORS_TYPE;
 
 #define PIOS_SENSORS_TYPE_1D (PIOS_SENSORS_TYPE_1AXIS_BARO)
-#define PIOS_SENSORS_TYPE_3D (PIOS_SENSORS_TYPE_3AXIS_ACCEL | PIOS_SENSORS_TYPE_3AXIS_GYRO | PIOS_SENSORS_TYPE_3AXIS_MAG)
+#define PIOS_SENSORS_TYPE_3D (PIOS_SENSORS_TYPE_3AXIS_ACCEL | PIOS_SENSORS_TYPE_3AXIS_GYRO | PIOS_SENSORS_TYPE_3AXIS_MAG | PIOS_SENSORS_TYPE_3AXIS_AUXMAG)
 
 typedef struct PIOS_SENSORS_Instance {
     const PIOS_SENSORS_Driver    *driver;
@@ -75,14 +76,15 @@ typedef struct PIOS_SENSORS_Instance {
  * A 3d Accel sample with temperature
  */
 typedef struct PIOS_SENSORS_3Axis_SensorsWithTemp {
-    uint16_t   count; // number of sensor instances
+    uint32_t   timestamp;    // PIOS_DELAY_GetRaw() time of sensor read
+    uint16_t   count;        // number of sensor instances
     int16_t    temperature;  // Degrees Celsius * 100
     Vector3i16 sample[];
 } PIOS_SENSORS_3Axis_SensorsWithTemp;
 
 typedef struct PIOS_SENSORS_1Axis_SensorsWithTemp {
-    float temperature; // Degrees Celsius
     float sample; // sample
+    float temperature; // Degrees Celsius
 } PIOS_SENSORS_1Axis_SensorsWithTemp;
 
 /**

@@ -1,5 +1,6 @@
 TEMPLATE = lib
 TARGET = Uploader
+
 DEFINES += UPLOADER_LIBRARY
 
 QT += svg serialport
@@ -15,7 +16,8 @@ macx {
     QMAKE_CXXFLAGS += -Wno-enum-compare
 }
 
-HEADERS += uploadergadget.h \
+HEADERS += \
+    uploadergadget.h \
     uploadergadgetconfiguration.h \
     uploadergadgetfactory.h \
     uploadergadgetoptionspage.h \
@@ -31,10 +33,10 @@ HEADERS += uploadergadget.h \
     runningdevicewidget.h \
     uploader_global.h \
     enums.h \
-    rebootdialog.h \
-    oplinkwatchdog.h
+    rebootdialog.h
 
-SOURCES += uploadergadget.cpp \
+SOURCES += \
+    uploadergadget.cpp \
     uploadergadgetconfiguration.cpp \
     uploadergadgetfactory.cpp \
     uploadergadgetoptionspage.cpp \
@@ -47,8 +49,7 @@ SOURCES += uploadergadget.cpp \
     SSP/qssp.cpp \
     SSP/qsspt.cpp \
     runningdevicewidget.cpp \
-    rebootdialog.cpp \
-    oplinkwatchdog.cpp
+    rebootdialog.cpp
 
 OTHER_FILES += Uploader.pluginspec
 

@@ -27,22 +27,26 @@
 #ifndef CONFIGOUTPUTWIDGET_H
 #define CONFIGOUTPUTWIDGET_H
 
-#include "ui_output.h"
+#include "cfg_vehicletypes/vehicleconfig.h"
+
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 #include "uavobjectutilmanager.h"
-#include "cfg_vehicletypes/vehicleconfig.h"
-#include <QWidget>
-#include <QList>
-#include <QSignalMapper>
 
 #include "systemalarms.h"
+
+#include <QList>
+#include <QSlider>
 
 class Ui_OutputWidget;
 class OutputChannelForm;
 class MixerSettings;
+
+class QLabel;
+class QCheckBox;
+class QWidget;
 
 class OutputBankControls {
 public:
@@ -85,6 +89,9 @@ protected:
     void enableControls(bool enable);
     void setWarning(QString message);
 
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
 private:
     Ui_OutputWidget *m_ui;
     QList<QSlider> m_sliders;
@@ -100,12 +107,11 @@ private:
 
 private slots:
     void updateWarnings(UAVObject *);
+    void updateSpinStabilizeCheckComboBoxes();
+    void updateAlwaysStabilizeStatus();
     void stopTests();
-    virtual void refreshWidgetsValues(UAVObject *obj = NULL);
-    void updateObjectsFromWidgets();
     void runChannelTests(bool state);
     void sendChannelTest(int index, int value);
-    void openHelp();
     void onBankTypeChange();
 };
 

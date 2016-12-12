@@ -3,6 +3,7 @@ Sergiy Anikeyev
 David Ankers
 Fredrik Arvidsson
 Pedro Assuncao
+Rafael Bachmann
 Werner Backes
 Jose Barros
 Alex Beck
@@ -24,6 +25,7 @@ James Cotton
 Kalyn Doerr
 Steve Doll
 James Duley
+Heikko Ellermaa
 Piotr Esden-Tempski
 Steve Evans
 Peter Farnworth
@@ -43,6 +45,7 @@ Nuno Guedes
 Peter Gunnarsson
 Erik Gustavsson
 Dean Hall
+Harold Hankins
 Joe Hlebasko
 Andy Honecker
 Patrick Huebner
@@ -50,6 +53,7 @@ Ryan Hunt
 Mark James
 Paul Jewell
 Michael Johnston
+Mateusz Kaduk
 Stefan Karlsson
 Ricky King
 Thorsten Klose
@@ -68,6 +72,7 @@ Pablo Lema
 Matt Lipski
 David Llama
 Jasper Van Loenen
+Ákos Máté
 Ben Matthews
 Greg Matthews
 Guy McCaldin
@@ -79,6 +84,7 @@ Ken Northup
 Craig Nuttall
 Bertrand Oresve
 Angus Peart
+Pablo Francisco Pérez Hidalgo
 John Pike
 Jorge Pombo Marcos
 Dmytro Poplavskiy
@@ -116,9 +122,12 @@ Kevin Vertucio
 Alex Vrubel
 Mike Walters
 Sam Wang
+Tianhe Wang
 Brian Webb
 Justin Welander
 Mat Wellington
 Kendal Wells
 David Willis
 Dmitriy Zaitsev
+Vladimir Zidar
+

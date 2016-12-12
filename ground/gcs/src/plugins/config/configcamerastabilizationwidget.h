@@ -27,12 +27,13 @@
 #ifndef CONFIGCAMERASTABILIZATIONWIDGET_H
 #define CONFIGCAMERASTABILIZATIONWIDGET_H
 
-#include "ui_camerastabilization.h"
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
+
 #include "camerastabsettings.h"
+
+class Ui_CameraStabilizationWidget;
 
 class ConfigCameraStabilizationWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -41,10 +42,12 @@ public:
     ConfigCameraStabilizationWidget(QWidget *parent = 0);
     ~ConfigCameraStabilizationWidget();
 
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
 private:
     Ui_CameraStabilizationWidget *ui;
-    void refreshWidgetsValues(UAVObject *obj);
-    void updateObjectsFromWidgets();
 
 private slots:
     void defaultRequestedSlot(int group);

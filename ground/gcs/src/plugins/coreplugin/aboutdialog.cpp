@@ -58,8 +58,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
         "Built on %4 at %5<br/>"
         "Based on Qt %6 (%7 bit)<br/>"
         "<br/>"
-        "&copy; The %8 Project, %9. All rights reserved.<br/>"
-        "&copy; The OpenPilot Project 2010-2015. All rights reserved.<br/>"
+        "\u00A9 The %8 Project, 2015-%9. All rights reserved.<br/>"
+        "\u00A9 The OpenPilot Project, 2010-2015. All rights reserved.<br/>"
         ).arg(
         VersionInfo::revision().left(60), // %1
         VersionInfo::uavoHash().left(8), // %2
@@ -72,9 +72,35 @@ AboutDialog::AboutDialog(QWidget *parent) :
         VersionInfo::year() // %9
         );
 
+    // %1 = name, %2 = description, %3 = url, %4 = image url (not used)
+    // <td><img src=\"%4\" size=\"32\"></td>
+    QString creditRow     = "<tr padding=10><td><b>%1</b>%2<br/></td><td><a href=\"%3\">%3</a></td></tr>";
+
+    // uses Text.StyledText (see http://doc.qt.io/qt-5/qml-qtquick-text.html#textFormat-prop)
+    const QString credits = "<table width=\"100%\">"
+                            + creditRow.arg("Tau Labs", "", "http://www.taulabs.org")
+                            + creditRow.arg("dRonin", "", "http://www.dronin.org")
+                            + creditRow.arg("OpenSceneGraph", "<br/>Open source high performance 3D graphics toolkit", "http://www.openscenegraph.org")
+                            + creditRow.arg("osgEarth", "<br/>Geospatial SDK for OpenSceneGraph", "http://osgearth.org")
+                            + creditRow.arg("MSYS2", "<br/>An independent rewrite of MSYS", "https://sourceforge.net/p/msys2/wiki/Home")
+                            + creditRow.arg("The Qt Company", "", "http://www.qt.io")
+                            + "</table>";
+
+    // uses Text.StyledText (see http://doc.qt.io/qt-5/qml-qtquick-text.html#textFormat-prop)
+    const QString license = tr("This program is free software; you can redistribute it and/or "
+                               "modify it under the terms of the GNU General Public License "
+                               "as published by the Free Software Foundation; either version 3 "
+                               "of the License, or (at your option) any later version.\n"
+                               "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
+                               "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
+                               );
+
+
     QQuickView *view = new QQuickView();
     view->rootContext()->setContextProperty("dialog", this);
     view->rootContext()->setContextProperty("version", description);
+    view->rootContext()->setContextProperty("credits", credits);
+    view->rootContext()->setContextProperty("license", license);
     view->setResizeMode(QQuickView::SizeRootObjectToView);
     view->setSource(QUrl("qrc:/core/qml/AboutDialog.qml"));
 

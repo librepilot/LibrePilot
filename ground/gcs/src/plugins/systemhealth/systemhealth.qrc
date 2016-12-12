@@ -11,6 +11,7 @@
         <file>html/EventSystem-Warning.html</file>
         <file>html/FlightTime-Critical.html</file>
         <file>html/AlarmOK.html</file>
+        <file>html/Attitude-Warning.html</file>
         <file>html/Attitude-Critical.html</file>
         <file>html/Attitude-Error.html</file>
         <file>html/Battery-Critical.html</file>
@@ -20,10 +21,14 @@
         <file>html/GPS-Error.html</file>
         <file>html/GPS-Warning.html</file>
         <file>html/Guidance-Warning.html</file>
+        <file>html/I2C-Critical.html</file>
+        <file>html/I2C-Error.html</file>
         <file>html/OutOfMemory-Critical.html</file>
         <file>html/OutOfMemory-Warning.html</file>
         <file>html/Sensors-Critical.html</file>
         <file>html/Stabilization-Warning.html</file>
+        <file>html/Stabilization-Critical.html</file>
+        <file>html/Stabilization-Error.html</file>
         <file>html/StackOverflow-Critical.html</file>
         <file>html/Telemetry-Error.html</file>
         <file>html/SystemConfiguration-Critical.html</file>
@@ -48,6 +53,7 @@
         <file alias="html/EventSystem-Warning.html">html/fr/EventSystem-Warning.html</file>
         <file alias="html/FlightTime-Critical.html">html/fr/FlightTime-Critical.html</file>
         <file alias="html/AlarmOK.html">html/fr/AlarmOK.html</file>
+        <file alias="html/Attitude-Warning.html">html/fr/Attitude-Warning.html</file>
         <file alias="html/Attitude-Critical.html">html/fr/Attitude-Critical.html</file>
         <file alias="html/Attitude-Error.html">html/fr/Attitude-Error.html</file>
         <file alias="html/Battery-Critical.html">html/fr/Battery-Critical.html</file>
@@ -57,10 +63,14 @@
         <file alias="html/GPS-Error.html">html/fr/GPS-Error.html</file>
         <file alias="html/GPS-Warning.html">html/fr/GPS-Warning.html</file>
         <file alias="html/Guidance-Warning.html">html/fr/Guidance-Warning.html</file>
+        <file alias="html/I2C-Critical.html">html/fr/I2C-Critical.html</file>
+        <file alias="html/I2C-Error.html">html/fr/I2C-Error.html</file>
         <file alias="html/OutOfMemory-Critical.html">html/fr/OutOfMemory-Critical.html</file>
         <file alias="html/OutOfMemory-Warning.html">html/fr/OutOfMemory-Warning.html</file>
         <file alias="html/Sensors-Critical.html">html/fr/Sensors-Critical.html</file>
         <file alias="html/Stabilization-Warning.html">html/fr/Stabilization-Warning.html</file>
+        <file alias="html/Stabilization-Critical.html">html/fr/Stabilization-Critical.html</file>
+        <file alias="html/Stabilization-Error.html">html/fr/Stabilization-Error.html</file>
         <file alias="html/StackOverflow-Critical.html">html/fr/StackOverflow-Critical.html</file>
         <file alias="html/Telemetry-Error.html">html/fr/Telemetry-Error.html</file>
         <file alias="html/SystemConfiguration-Critical.html">html/fr/SystemConfiguration-Critical.html</file>

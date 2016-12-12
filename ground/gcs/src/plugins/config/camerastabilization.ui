@@ -72,7 +72,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-103</y>
+            <y>0</y>
             <width>748</width>
             <height>811</height>
            </rect>
@@ -143,7 +143,7 @@ have to define channel output range using Output configuration tab.</string>
                  <number>20</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:OutputRange</string>
                   <string>element:Yaw</string>
@@ -172,7 +172,7 @@ have to define channel output range using Output configuration tab.</string>
                  <number>20</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:OutputRange</string>
                   <string>element:Pitch</string>
@@ -201,7 +201,7 @@ have to define channel output range using Output configuration tab.</string>
                  <number>20</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:OutputRange</string>
                   <string>element:Roll</string>
@@ -429,7 +429,7 @@ font:bold;</string>
 Don't forget to map this channel using Input configuration tab.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:Input</string>
                   <string>element:Yaw</string>
@@ -454,7 +454,7 @@ Don't forget to map this channel using Input configuration tab.</string>
 Don't forget to map this channel using Input configuration tab.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:Input</string>
                   <string>element:Pitch</string>
@@ -479,7 +479,7 @@ Don't forget to map this channel using Input configuration tab.</string>
 Don't forget to map this channel using Input configuration tab.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:Input</string>
                   <string>element:Roll</string>
@@ -512,7 +512,7 @@ Attitude: camera tracks level for the axis. Input controls the deflection.
 AxisLock: camera remembers tracking attitude. Input controls the rate of deflection.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:StabilizationMode</string>
                   <string>element:Yaw</string>
@@ -541,7 +541,7 @@ AxisLock: camera remembers tracking attitude. Input controls the rate of deflect
                  <number>20</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:InputRange</string>
                   <string>element:Yaw</string>
@@ -567,7 +567,7 @@ AxisLock: camera remembers tracking attitude. Input controls the rate of deflect
                  <number>50</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:InputRate</string>
                   <string>element:Yaw</string>
@@ -590,7 +590,7 @@ Attitude: camera tracks level for the axis. Input controls the deflection.
 AxisLock: camera remembers tracking attitude. Input controls the rate of deflection.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:StabilizationMode</string>
                   <string>element:Pitch</string>
@@ -619,7 +619,7 @@ AxisLock: camera remembers tracking attitude. Input controls the rate of deflect
                  <number>20</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:InputRange</string>
                   <string>element:Pitch</string>
@@ -645,7 +645,7 @@ AxisLock: camera remembers tracking attitude. Input controls the rate of deflect
                  <number>50</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:InputRate</string>
                   <string>element:Pitch</string>
@@ -668,7 +668,7 @@ Attitude: camera tracks level for the axis. Input controls the deflection.
 AxisLock: camera remembers tracking attitude. Input controls the rate of deflection.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:StabilizationMode</string>
                   <string>element:Roll</string>
@@ -697,7 +697,7 @@ AxisLock: camera remembers tracking attitude. Input controls the rate of deflect
                  <number>20</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:InputRange</string>
                   <string>element:Roll</string>
@@ -723,7 +723,7 @@ AxisLock: camera remembers tracking attitude. Input controls the rate of deflect
                  <number>50</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:InputRate</string>
                   <string>element:Roll</string>
@@ -794,7 +794,7 @@ value.</string>
                  <double>1.000000000000000</double>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:MaxAxisLockRate</string>
                   <string>haslimits:no</string>
@@ -902,7 +902,7 @@ Smoothes estimated airframe attitude used by camera stabilization.</string>
                  <number>250</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:ResponseTime</string>
                   <string>element:Roll</string>
@@ -924,7 +924,7 @@ Smoothes estimated airframe attitude used by camera stabilization.</string>
                  <number>250</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:ResponseTime</string>
                   <string>element:Pitch</string>
@@ -946,7 +946,7 @@ Smoothes estimated airframe attitude used by camera stabilization.</string>
                  <number>250</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:ResponseTime</string>
                   <string>element:Yaw</string>
@@ -976,7 +976,7 @@ Too high value may burn your servo!</string>
                  <number>25</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:FeedForward</string>
                   <string>element:Roll</string>
@@ -1001,7 +1001,7 @@ Too high value may burn your servo!</string>
                  <number>25</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:FeedForward</string>
                   <string>element:Pitch</string>
@@ -1026,7 +1026,7 @@ Too high value may burn your servo!</string>
                  <number>25</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:FeedForward</string>
                   <string>element:Yaw</string>
@@ -1058,7 +1058,7 @@ Range: 0-50ms, default is 5.</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:AccelTime</string>
                   <string>element:Roll</string>
@@ -1081,7 +1081,7 @@ Range: 0-50ms, default is 5.</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:AccelTime</string>
                   <string>element:Pitch</string>
@@ -1104,7 +1104,7 @@ Range: 0-50ms, default is 5.</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:AccelTime</string>
                   <string>element:Yaw</string>
@@ -1134,7 +1134,7 @@ Range: 0-50ms, default is 5.</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:DecelTime</string>
                   <string>element:Roll</string>
@@ -1157,7 +1157,7 @@ Range: 0-50ms, default is 5.</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:DecelTime</string>
                   <string>element:Pitch</string>
@@ -1180,7 +1180,7 @@ Range: 0-50ms, default is 5.</string>
                  <number>5</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:DecelTime</string>
                   <string>element:Yaw</string>
@@ -1208,7 +1208,7 @@ Used to limit feed forward acceleration at extreme angles.
 Generic type provides no limit.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:GimbalType</string>
                   <string>buttongroup:1</string>
@@ -1244,7 +1244,7 @@ The same value is used for all axes.</string>
                  <number>500</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:CameraStabSettings</string>
                   <string>fieldname:MaxAccel</string>
                   <string>buttongroup:1</string>
@@ -1321,7 +1321,7 @@ The same value is used for all axes.</string>
       </spacer>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="camerastabilizationHelp">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -1362,14 +1362,14 @@ The same value is used for all axes.</string>
         <bool>true</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
+        <stringlist notr="true">
          <string>button:help</string>
         </stringlist>
        </property>
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QPushButton" name="camerastabilizationResetToDefaults">
+      <widget class="QPushButton" name="defaultButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1392,7 +1392,7 @@ Apply or Save button afterwards.</string>
         <string>Reset To Defaults</string>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
+        <stringlist notr="true">
          <string>button:default</string>
          <string>buttongroup:1</string>
         </stringlist>
@@ -1400,7 +1400,7 @@ Apply or Save button afterwards.</string>
       </widget>
      </item>
      <item row="0" column="3">
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="reloadButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1425,7 +1425,7 @@ Apply or Save button afterwards.</string>
         <string>Reload Board Data</string>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
+        <stringlist notr="true">
          <string>button:reload</string>
          <string>buttongroup:1</string>
         </stringlist>
@@ -1433,7 +1433,7 @@ Apply or Save button afterwards.</string>
       </widget>
      </item>
      <item row="0" column="4">
-      <widget class="QPushButton" name="camerastabilizationSaveRAM">
+      <widget class="QPushButton" name="applyButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1453,14 +1453,14 @@ Apply or Save button afterwards.</string>
         <string>Apply</string>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
+        <stringlist notr="true">
          <string>button:apply</string>
         </stringlist>
        </property>
       </widget>
      </item>
      <item row="0" column="5">
-      <widget class="QPushButton" name="camerastabilizationSaveSD">
+      <widget class="QPushButton" name="saveButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -1483,7 +1483,7 @@ Apply or Save button afterwards.</string>
         <bool>false</bool>
        </property>
        <property name="objrelation" stdset="0">
-        <stringlist>
+        <stringlist notr="true">
          <string>button:save</string>
         </stringlist>
        </property>
@@ -1528,10 +1528,10 @@ Apply or Save button afterwards.</string>
   <tabstop>yawDecelTime</tabstop>
   <tabstop>gimbalType</tabstop>
   <tabstop>maxAccel</tabstop>
-  <tabstop>camerastabilizationResetToDefaults</tabstop>
-  <tabstop>pushButton</tabstop>
-  <tabstop>camerastabilizationSaveRAM</tabstop>
-  <tabstop>camerastabilizationSaveSD</tabstop>
+  <tabstop>defaultButton</tabstop>
+  <tabstop>reloadButton</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>saveButton</tabstop>
  </tabstops>
  <resources>
   <include location="../coreplugin/core.qrc"/>

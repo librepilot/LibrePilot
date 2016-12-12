@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = UAVTalk
 
-QT += network
+QT += widgets network
 
 DEFINES += UAVTALK_LIBRARY
 
@@ -12,18 +12,20 @@ include(../../plugin.pri)
 include(uavtalk_dependencies.pri)
 
 HEADERS += \
+    uavtalk_global.h \
     uavtalk.h \
-    uavtalkplugin.h \
+    telemetry.h \
     telemetrymonitor.h \
     telemetrymanager.h \
-    uavtalk_global.h \
-    telemetry.h
+    oplinkmanager.h \
+    uavtalkplugin.h
 
 SOURCES += \
     uavtalk.cpp \
-    uavtalkplugin.cpp \
+    telemetry.cpp \
     telemetrymonitor.cpp \
     telemetrymanager.cpp \
-    telemetry.cpp
+    oplinkmanager.cpp \
+    uavtalkplugin.cpp
 
 OTHER_FILES += UAVTalk.pluginspec

@@ -32,3 +32,8 @@
 /Makefile	text eol=lf
 
 # More attributes are defined in per-directory .gitattributes which override this file
+
+# Not needed in source distribution for building GCS
+/artwork/       export-ignore
+/flight/        export-ignore
+/hardware/      export-ignore

@@ -1,6 +1,8 @@
 TEMPLATE = lib
 TARGET = opHID
 
+QT += widgets
+
 DEFINES += OPHID_LIBRARY
 
 //DEFINES += OPHID_DEBUG_ON
@@ -25,7 +27,9 @@ SOURCES += \
     src/ophid_hidapi.cpp
 
 FORMS += 
+
 RESOURCES += 
+
 OTHER_FILES += opHID.pluginspec
 
 INCLUDEPATH += ./inc

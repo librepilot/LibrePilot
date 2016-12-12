@@ -6,7 +6,8 @@
  * @{
  *
  * @file       mathmisc.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Reuseable math functions
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -33,6 +34,38 @@
 
 #include <math.h>
 #include <stdint.h>
+
+typedef struct {
+    float p1;
+    float p2;
+    float new_sma;
+    float new_smsa;
+} pw_variance_t;
+
+/***
+ * initialize pseudo windowed
+ * @param variance the instance to be initialized
+ * @param window_size size of the sample window
+ */
+void pseudo_windowed_variance_init(pw_variance_t *variance, int32_t window_size);
+
+/***
+ * Push a new sample
+ * @param variance the working instance
+ * @param sample the new sample
+ */
+static inline void pseudo_windowed_variance_push_sample(pw_variance_t *variance, float sample)
+{
+    variance->new_sma  = variance->new_sma * variance->p2 + sample * variance->p1;
+    variance->new_smsa = variance->new_smsa * variance->p2 + sample * sample * variance->p1;
+}
+
+/***
+ * Get the current variance value
+ * @param variance the working instance
+ * @return
+ */
+float pseudo_windowed_variance_get(pw_variance_t *variance);
 
 // returns min(boundary1,boundary2) if val<min(boundary1,boundary2)
 // returns max(boundary1,boundary2) if val>max(boundary1,boundary2)
@@ -119,28 +152,12 @@ static inline float y_on_curve(float x, const pointf points[], int num_points)
     // Find the y value on the selected line.
     return y_on_line(x, &points[end_point - 1], &points[end_point]);
 }
-// Fast inverse square root implementation from "quake3-1.32b/code/game/q_math.c"
-// http://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-static inline float fast_invsqrtf(float number)
+static inline float invsqrtf(float number)
 {
-    float x2, y;
-    const float threehalfs = 1.5F;
+    float y;
 
-    union {
-        float    f;
-        uint32_t u;
-    } i;
-
-    x2  = number * 0.5F;
-    y   = number;
-
-    i.f = y; // evil floating point bit level hacking
-    i.u = 0x5f3759df - (i.u >> 1); // what the fxck?
-    y   = i.f;
-    y   = y * (threehalfs - (x2 * y * y));   // 1st iteration
-// y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
-
+    y = 1.0f / sqrtf(number);
     return y;
 }
 

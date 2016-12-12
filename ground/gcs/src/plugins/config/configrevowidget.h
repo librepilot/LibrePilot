@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       configahrstwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configrevowidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -27,24 +28,18 @@
 #ifndef CONFIGREVOWIDGET_H
 #define CONFIGREVOWIDGET_H
 
-#include "ui_revosensors.h"
 #include "configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
+
 #include "uavobject.h"
+
 #include "calibration/thermal/thermalcalibrationmodel.h"
 #include "calibration/sixpointcalibrationmodel.h"
 #include "calibration/levelcalibrationmodel.h"
 #include "calibration/gyrobiascalibrationmodel.h"
 
-#include <QWidget>
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
-#include <QList>
-#include <QTimer>
-#include <QMutex>
+class Ui_RevoSensorsWidget;
 
-class Ui_Widget;
+class QWidget;
 
 class ConfigRevoWidget : public ConfigTaskWidget {
     Q_OBJECT
@@ -52,6 +47,10 @@ class ConfigRevoWidget : public ConfigTaskWidget {
 public:
     ConfigRevoWidget(QWidget *parent = 0);
     ~ConfigRevoWidget();
+
+protected:
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
 private:
     OpenPilot::SixPointCalibrationModel *m_accelCalibrationModel;
@@ -64,8 +63,19 @@ private:
 
     // Board rotation store/recall for FC and for aux mag
     qint16 storedBoardRotation[3];
-    float auxMagStoredBoardRotation;
+    qint16 auxMagStoredBoardRotation[3];
     bool isBoardRotationStored;
+
+    bool displayMagError;
+
+    float onboardMagFiltered[3];
+    float auxMagFiltered[3];
+    float magBe[3];
+
+    int magWarningCount;
+    int magErrorCount;
+    int auxMagWarningCount;
+    int auxMagErrorCount;
 
 private slots:
     void storeAndClearBoardRotation();
@@ -77,15 +87,18 @@ private slots:
     void displayTemperatureGradient(float temparetureGradient);
     void displayTemperatureRange(float temparetureRange);
 
-    // ! Overriden method from the configTaskWidget to update UI
-    virtual void refreshWidgetsValues(UAVObject *object = NULL);
-    virtual void updateObjectsFromWidgets();
-
     // Slot for clearing home location
     void clearHomeLocation();
 
     void disableAllCalibrations();
     void enableAllCalibrations();
+
+    void onBoardAuxMagError();
+    void updateMagStatus();
+    void updateMagBeVector();
+    void updateMagAlarm(float errorMag, float errorAuxMag);
+
+    float getMagError(float mag[3]);
 
     void updateVisualHelp();
 

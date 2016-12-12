@@ -1,7 +1,8 @@
 #
-# Project: OpenPilot
-# NSIS configuration file for OpenPilot GCS
+# Project: LibrePilot
+# NSIS configuration file for LibrePilot GCS
 # The OpenPilot Team, http://www.openpilot.org, Copyright (C) 2010-2015.
+# The LibrePilot Team, http://www.librepilot.org, Copyright (C) 2015-2016.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,20 +30,19 @@
 ; Includes
 
 !include "x64.nsh"
-!include "..\..\build\gcs-synthetics\gcs.nsh"
 
 ;--------------------------------
 ; Paths
 
-  ; Tree root locations (relative to this script location)
-  !define PROJECT_ROOT   "..\.."
   !define NSIS_DATA_TREE "."
-  !define GCS_BUILD_TREE "..\..\build\${GCS_SMALL_NAME}_release"
-  !define UAVO_SYNTH_TREE "..\..\build\uavobject-synthetics"
   !define AEROSIMRC_TREE "${GCS_BUILD_TREE}\misc\AeroSIM-RC"
 
   ; Default installation folder
-  InstallDir "$PROGRAMFILES\${ORG_BIG_NAME}"
+!ifdef W64
+  InstallDir "$PROGRAMFILES64\${ORG_BIG_NAME}"
+!else
+  InstallDir "$PROGRAMFILES32\${ORG_BIG_NAME}"
+!endif
 
   ; Get installation folder from registry if available
   InstallDirRegKey HKLM "Software\${ORG_BIG_NAME}" "Install Location"
@@ -50,21 +50,15 @@
 ;--------------------------------
 ; Version information
 
-  ; Program name and installer file
-  !define PRODUCT_NAME "${GCS_BIG_NAME}"
-  !define INSTALLER_NAME "${GCS_BIG_NAME} Installer"
+  Name "${GCS_BIG_NAME}"
+  OutFile "${OUT_FILE}"
 
-  Name "${PRODUCT_NAME}"
-  OutFile "${PACKAGE_DIR}\..\${OUT_FILE}"
-
-  VIProductVersion ${PRODUCT_VERSION}
-  VIAddVersionKey "ProductName" "${INSTALLER_NAME}"
-  VIAddVersionKey "FileVersion" "${FILE_VERSION}"
-  VIAddVersionKey "Comments" "${INSTALLER_NAME}. ${BUILD_DESCRIPTION}"
+  VIProductVersion ${VERSION_FOUR_NUM}
+  VIAddVersionKey "ProductName" "${GCS_BIG_NAME}"
+  VIAddVersionKey "ProductVersion" "${VERSION_FOUR_NUM}"
   VIAddVersionKey "CompanyName" "The LibrePilot Team, http://www.librepilot.org"
-  VIAddVersionKey "LegalTrademarks" "${PRODUCT_NAME} is a trademark of The LibrePilot Team"
-  VIAddVersionKey "LegalCopyright" "© 2015 The LibrePilot Team"
-  VIAddVersionKey "FileDescription" "${INSTALLER_NAME}"
+  VIAddVersionKey "LegalCopyright" "© 2015-2016 The LibrePilot Team"
+  VIAddVersionKey "FileDescription" "${GCS_BIG_NAME} Installer"
 
 ;--------------------------------
 ; Installer interface and base settings
@@ -84,7 +78,7 @@
 ;--------------------------------
 ; Branding
 
-  BrandingText "© 2015 The LibrePilot Team, http://www.librepilot.org"
+  BrandingText "© 2015-2016 The LibrePilot Team, http://www.librepilot.org"
 
   !define MUI_ICON "${NSIS_DATA_TREE}\resources\installer_icon.ico"
   !define MUI_HEADERIMAGE
@@ -162,7 +156,7 @@
 ; Installer sections
 
 ; Copy GCS core files
-Section "Core files" InSecCore
+Section "${GCS_BIG_NAME}" InSecCore
   SectionIn RO
   SetOutPath "$INSTDIR\bin"
   File /r "${GCS_BUILD_TREE}\bin\*"
@@ -182,8 +176,8 @@ Section "-Plugins" InSecPlugins
   File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\plugins\*.pluginspec"
 SectionEnd
 
-; Copy OSG libs
-Section "-OsgLibs" InSecOsgLibs
+; Copy GCS third party libs
+Section "-Libs" InSecLibs
   SectionIn RO
   SetOutPath "$INSTDIR\lib\${GCS_SMALL_NAME}\osg"
   File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\osg\*.dll"
@@ -201,14 +195,47 @@ Section "-Utilities" InSecUtilities
   File "/oname=OPLogConvert-${PACKAGE_LBL}.m" "${UAVO_SYNTH_TREE}\matlab\OPLogConvert.m"
 SectionEnd
 
-; Copy driver files
-Section "-Drivers" InSecDrivers
-  SetOutPath "$INSTDIR\drivers"
-  File /r "${PROJECT_ROOT}\flight\Project\Windows USB\*"
+Section "Shortcuts" InSecShortcuts
+  ; Create desktop and start menu shortcuts
+  SetOutPath "$INSTDIR"
+  CreateDirectory "$SMPROGRAMS\${ORG_BIG_NAME}"
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
+	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\License.lnk" "$INSTDIR\LICENSE.txt" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReadMe.lnk" "$INSTDIR\README.txt" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Website.lnk" "http://www.librepilot.org" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Wiki.lnk" "https://librepilot.atlassian.net/wiki/display/LPDOC/LibrePilot+Documentation" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forum.librepilot.org" \
+	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
+  	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
+  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
 SectionEnd
 
-; Preinstall OpenPilot CDC driver
-Section "CDC driver" InSecInstallDrivers
+; AeroSimRC plugin files
+Section "AeroSimRC plugin" InSecAeroSimRC
+  SetOutPath "$INSTDIR\misc\AeroSIM-RC"
+  File /r "${AEROSIMRC_TREE}\*"
+SectionEnd
+
+; Copy driver files (hidden, driver is always copied to install directory)
+Section "-Drivers" InSecDrivers
+  SetOutPath "$INSTDIR\drivers"
+  File /r "${PROJECT_ROOT}\flight\Project\WindowsUSB\*"
+SectionEnd
+
+; Preinstall OpenPilot CDC driver (disabled by default)
+Section /o "CDC driver" InSecInstallDrivers
   InitPluginsDir
   SetOutPath "$PLUGINSDIR"
   ${If} ${RunningX64}
@@ -222,40 +249,7 @@ SectionEnd
 ; Copy Opengl32.dll if needed (disabled by default)
 Section /o "Mesa OpenGL driver" InSecInstallOpenGL
   SetOutPath "$INSTDIR\bin"
-  File /r "${GCS_BUILD_TREE}\bin\opengl32_32\opengl32.dll"
-SectionEnd
-
-; AeroSimRC plugin files
-Section "AeroSimRC plugin" InSecAeroSimRC
-  SetOutPath "$INSTDIR\misc\AeroSIM-RC"
-  File /r "${AEROSIMRC_TREE}\*"
-SectionEnd
-
-Section "Shortcuts" InSecShortcuts
-  ; Create desktop and start menu shortcuts
-  SetOutPath "$INSTDIR"
-  CreateDirectory "$SMPROGRAMS\${ORG_BIG_NAME}"
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\${GCS_BIG_NAME} (clean configuration).lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
-	"-reset" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\License.lnk" "$INSTDIR\LICENSE.txt" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReadMe.lnk" "$INSTDIR\README.txt" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\ReleaseNotes.lnk" "$INSTDIR\WHATSNEW.txt" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Milestones.lnk" "$INSTDIR\MILESTONES.txt" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Website.lnk" "http://www.librepilot.org" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Wiki.lnk" "http://wiki.openpilot.org" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Forums.lnk" "http://forums.librepilot.org" \
-	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0
-  CreateShortCut "$DESKTOP\${GCS_BIG_NAME}.lnk" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" \
-  	"" "$INSTDIR\bin\${GCS_SMALL_NAME}.exe" 0 "" "" "${PRODUCT_NAME} ${PRODUCT_VERSION}. ${BUILD_DESCRIPTION}"
-  CreateShortCut "$SMPROGRAMS\${ORG_BIG_NAME}\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
+  File /r "${GCS_BUILD_TREE}\bin\opengl32\opengl32.dll"
 SectionEnd
 
 Section ; create uninstall info
@@ -268,7 +262,7 @@ Section ; create uninstall info
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "DisplayIcon" '"$INSTDIR\bin\${GCS_SMALL_NAME}.exe"'
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "Publisher" "LibrePilot Team"
   WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "URLInfoAbout" "http://www.librepilot.org"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "HelpLink" "http://wiki.openpilot.org"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "HelpLink" "https://librepilot.atlassian.net/wiki/display/LPDOC/LibrePilot+Documentation"
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "EstimatedSize" 100600
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "NoModify" 1
   WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ORG_BIG_NAME}" "NoRepair" 1
@@ -283,6 +277,7 @@ SectionEnd
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecCore} $(DESC_InSecCore)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecPlugins} $(DESC_InSecPlugins)
+    !insertmacro MUI_DESCRIPTION_TEXT ${InSecLibs} $(DESC_InSecLibs)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecResources} $(DESC_InSecResources)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecUtilities} $(DESC_InSecUtilities)
     !insertmacro MUI_DESCRIPTION_TEXT ${InSecDrivers} $(DESC_InSecDrivers)
@@ -332,9 +327,12 @@ Section "un.${GCS_BIG_NAME}" UnSecProgram
 SectionEnd
 
 Section "un.Maps cache" UnSecCache
-  ; Remove maps cache
+  ; Remove local app data (maps cache, ...)
   SetShellVarContext current
+  ; disable status updates as there is potentially a lot of cached files...
+  SetDetailsPrint none
   RMDir /r /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}\${GCS_BIG_NAME}"
+  SetDetailsPrint both
   ; Only remove if no other versions have data here
   RMDir /rebootok "$LOCALAPPDATA\${ORG_BIG_NAME}"
 SectionEnd

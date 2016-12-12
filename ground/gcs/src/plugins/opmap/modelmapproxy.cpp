@@ -293,10 +293,8 @@ void modelMapProxy::rowsInserted(const QModelIndex &parent, int first, int last)
 {
     Q_UNUSED(parent);
 
-
     for (int x = first; x < last + 1; x++) {
         QModelIndex index;
-        WayPointItem *item;
         internals::PointLatLng latlng;
         distBearingAltitude distBearing;
         double altitude;
@@ -318,9 +316,9 @@ void modelMapProxy::rowsInserted(const QModelIndex &parent, int first, int last)
         index    = model->index(x, flightDataModel::ALTITUDE);
         altitude = index.data(Qt::DisplayRole).toDouble();
         if (relative) {
-            item = myMap->WPInsert(distBearing, desc, x);
+            myMap->WPInsert(distBearing, desc, x);
         } else {
-            item = myMap->WPInsert(latlng, altitude, desc, x);
+            myMap->WPInsert(latlng, altitude, desc, x);
         }
     }
 

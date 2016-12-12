@@ -1,4 +1,15 @@
-/*
+/**
+ ******************************************************************************
+ *
+ * @file       pfdqmlgadgetwidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup
+ * @{
+ * @addtogroup
+ * @{
+ * @brief
+ *****************************************************************************//*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
@@ -15,226 +26,119 @@
  */
 
 #include "pfdqmlgadgetwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-#include "flightbatterysettings.h"
-#include "utils/svgimageprovider.h"
-#ifdef USE_OSG
-#include "osgearth.h"
-#endif
-#include <QDebug>
-#include <QSvgRenderer>
-#include <QtOpenGL/QGLWidget>
-#include <QtCore/qfileinfo.h>
-#include <QtCore/qdir.h>
-#include <QMouseEvent>
+#include "pfdqmlcontext.h"
 
+#include "utils/quickwidgetproxy.h"
+#include "utils/svgimageprovider.h"
+
+#include <QLayout>
+#include <QStackedLayout>
 #include <QQmlEngine>
 #include <QQmlContext>
+#include <QDebug>
 
-PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWindow *parent) :
-    QQuickView(parent),
-    m_openGLEnabled(false),
-    m_terrainEnabled(false),
-    m_actualPositionUsed(false),
-    m_latitude(46.671478),
-    m_longitude(10.158932),
-    m_altitude(2000),
-    m_speedUnit("m/s"),
-    m_speedFactor(1.0),
-    m_altitudeUnit("m"),
-    m_altitudeFactor(1.0)
+PfdQmlGadgetWidget::PfdQmlGadgetWidget(QWidget *parent) :
+    QWidget(parent), m_quickWidgetProxy(NULL), m_pfdQmlContext(NULL), m_qmlFileName()
 {
-    setResizeMode(SizeRootObjectToView);
-
-    // setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
-
-    QStringList objectsToExport;
-    objectsToExport <<
-        "VelocityState" <<
-        "PositionState" <<
-        "AttitudeState" <<
-        "AccelState" <<
-        "VelocityDesired" <<
-        "PathDesired" <<
-        "AltitudeHoldDesired" <<
-        "GPSPositionSensor" <<
-        "GPSSatellites" <<
-        "GCSTelemetryStats" <<
-        "SystemAlarms" <<
-        "NedAccel" <<
-        "FlightBatteryState" <<
-        "ActuatorDesired" <<
-        "TakeOffLocation" <<
-        "PathPlan" <<
-        "WaypointActive" <<
-        "OPLinkStatus" <<
-        "FlightStatus" <<
-        "SystemStats" <<
-        "StabilizationDesired" <<
-        "VtolPathFollowerSettings" <<
-        "HwSettings" <<
-        "ManualControlCommand" <<
-        "SystemSettings" <<
-        "RevoSettings" <<
-        "MagState" <<
-        "FlightBatterySettings" <<
-        "ReceiverStatus";
-
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
-    m_uavoManager = pm->getObject<UAVObjectManager>();
-    Q_ASSERT(m_uavoManager);
-
-    foreach(const QString &objectName, objectsToExport) {
-        UAVObject *object = objManager->getObject(objectName);
-
-        if (object) {
-            engine()->rootContext()->setContextProperty(objectName, object);
-        } else {
-            qWarning() << "Failed to load object" << objectName;
-        }
-    }
-
-    // to expose settings values
-    engine()->rootContext()->setContextProperty("qmlWidget", this);
-#ifdef USE_OSG
-    qmlRegisterType<OsgEarthItem>("org.OpenPilot", 1, 0, "OsgEarth");
-#endif
+    setLayout(new QStackedLayout());
 }
 
 PfdQmlGadgetWidget::~PfdQmlGadgetWidget()
-{}
+{
+    if (m_pfdQmlContext) {
+        delete m_pfdQmlContext;
+    }
+}
+
+void PfdQmlGadgetWidget::setSource(const QUrl &url)
+{
+    m_quickWidgetProxy->setSource(url);
+}
+
+QQmlEngine *PfdQmlGadgetWidget::engine() const
+{
+    return m_quickWidgetProxy->engine();
+}
+
+QList<QQmlError> PfdQmlGadgetWidget::errors() const
+{
+    return m_quickWidgetProxy->errors();
+}
+
+void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
+{
+    // qDebug() << "PfdQmlGadgetWidget::loadConfiguration" << config->name();
+
+    if (!m_quickWidgetProxy) {
+        m_quickWidgetProxy = new QuickWidgetProxy(this);
+
+#if 0
+        qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent OpenGL context" << isPersistentOpenGLContext();
+        qDebug() << "PfdQmlGadgetWidget::PfdQmlGadgetWidget - persistent scene graph" << isPersistentSceneGraph();
+#endif
+
+        // expose context
+        m_pfdQmlContext = new PfdQmlContext(this);
+        m_pfdQmlContext->apply(engine()->rootContext());
+
+        // add widget
+        layout()->addWidget(m_quickWidgetProxy->widget());
+    }
+
+    clear();
+
+    m_pfdQmlContext->loadConfiguration(config);
+
+    // go!
+    setQmlFile(config->qmlFile());
+}
+
+void PfdQmlGadgetWidget::saveState(QSettings *settings)
+{
+    m_pfdQmlContext->saveState(settings);
+}
+
+void PfdQmlGadgetWidget::restoreState(QSettings *settings)
+{
+    m_pfdQmlContext->restoreState(settings);
+}
 
 void PfdQmlGadgetWidget::setQmlFile(QString fn)
 {
+    qDebug() << "PfdQmlGadgetWidget::setQmlFile" << fn;
+
     m_qmlFileName = fn;
 
-    engine()->removeImageProvider("svg");
+    if (fn.isEmpty()) {
+        clear();
+        return;
+    }
     SvgImageProvider *svgProvider = new SvgImageProvider(fn);
     engine()->addImageProvider("svg", svgProvider);
 
-    engine()->clearComponentCache();
-
     // it's necessary to allow qml side to query svg element position
     engine()->rootContext()->setContextProperty("svgRenderer", svgProvider);
-    engine()->setBaseUrl(QUrl::fromLocalFile(fn));
 
-    qDebug() << Q_FUNC_INFO << fn;
-    setSource(QUrl::fromLocalFile(fn));
+    QUrl url = QUrl::fromLocalFile(fn);
+    engine()->setBaseUrl(url);
+
+    setSource(url);
 
     foreach(const QQmlError &error, errors()) {
-        qDebug() << error.description();
+        qDebug() << "PfdQmlGadgetWidget - " << error.description();
     }
 }
 
-void PfdQmlGadgetWidget::resetConsumedEnergy()
+void PfdQmlGadgetWidget::clear()
 {
-    FlightBatterySettings *mBatterySettings = FlightBatterySettings::GetInstance(m_uavoManager);
+    // qDebug() << "PfdQmlGadgetWidget::clear";
 
-    mBatterySettings->setResetConsumedEnergy(true);
-    mBatterySettings->setData(mBatterySettings->getData());
-}
+    setSource(QUrl());
 
-void PfdQmlGadgetWidget::setEarthFile(QString arg)
-{
-    if (m_earthFile != arg) {
-        m_earthFile = arg;
-        emit earthFileChanged(arg);
-    }
-}
+    engine()->removeImageProvider("svg");
+    engine()->rootContext()->setContextProperty("svgRenderer", NULL);
 
-void PfdQmlGadgetWidget::setTerrainEnabled(bool arg)
-{
-    bool wasEnabled = terrainEnabled();
-
-    m_terrainEnabled = arg;
-
-    if (wasEnabled != terrainEnabled()) {
-        emit terrainEnabledChanged(terrainEnabled());
-    }
-}
-
-void PfdQmlGadgetWidget::setSpeedUnit(QString unit)
-{
-    if (m_speedUnit != unit) {
-        m_speedUnit = unit;
-        emit speedUnitChanged(unit);
-    }
-}
-
-void PfdQmlGadgetWidget::setSpeedFactor(double factor)
-{
-    if (m_speedFactor != factor) {
-        m_speedFactor = factor;
-        emit speedFactorChanged(factor);
-    }
-}
-
-void PfdQmlGadgetWidget::setAltitudeUnit(QString unit)
-{
-    if (m_altitudeUnit != unit) {
-        m_altitudeUnit = unit;
-        emit altitudeUnitChanged(unit);
-    }
-}
-
-void PfdQmlGadgetWidget::setAltitudeFactor(double factor)
-{
-    if (m_altitudeFactor != factor) {
-        m_altitudeFactor = factor;
-        emit altitudeFactorChanged(factor);
-    }
-}
-
-void PfdQmlGadgetWidget::setOpenGLEnabled(bool arg)
-{
-    Q_UNUSED(arg);
-    setTerrainEnabled(m_terrainEnabled);
-}
-
-// Switch between PositionState UAVObject position
-// and pre-defined latitude/longitude/altitude properties
-void PfdQmlGadgetWidget::setActualPositionUsed(bool arg)
-{
-    if (m_actualPositionUsed != arg) {
-        m_actualPositionUsed = arg;
-        emit actualPositionUsedChanged(arg);
-    }
-}
-
-void PfdQmlGadgetWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    // Reload the schene on the middle mouse button click.
-    if (event->button() == Qt::MiddleButton) {
-        setQmlFile(m_qmlFileName);
-    }
-
-    QQuickView::mouseReleaseEvent(event);
-}
-
-void PfdQmlGadgetWidget::setLatitude(double arg)
-{
-    // not sure qFuzzyCompare is accurate enough for geo coordinates
-    if (m_latitude != arg) {
-        m_latitude = arg;
-        emit latitudeChanged(arg);
-    }
-}
-
-void PfdQmlGadgetWidget::setLongitude(double arg)
-{
-    if (m_longitude != arg) {
-        m_longitude = arg;
-        emit longitudeChanged(arg);
-    }
-}
-
-void PfdQmlGadgetWidget::setAltitude(double arg)
-{
-    if (!qFuzzyCompare(m_altitude, arg)) {
-        m_altitude = arg;
-        emit altitudeChanged(arg);
-    }
+    // calling clearComponentCache() causes crashes (see https://bugreports.qt-project.org/browse/QTBUG-41465)
+    // but not doing it causes almost systematic crashes when switching PFD gadget to "Model View (Without Terrain)" configuration
+    engine()->clearComponentCache();
 }

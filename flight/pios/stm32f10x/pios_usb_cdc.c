@@ -41,15 +41,17 @@
 
 static void PIOS_USB_CDC_RegisterTxCallback(uint32_t usbcdc_id, pios_com_callback tx_out_cb, uint32_t context);
 static void PIOS_USB_CDC_RegisterRxCallback(uint32_t usbcdc_id, pios_com_callback rx_in_cb, uint32_t context);
+static void PIOS_USB_CDC_RegisterBaudRateCallback(uint32_t usbcdc_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context);
 static void PIOS_USB_CDC_TxStart(uint32_t usbcdc_id, uint16_t tx_bytes_avail);
 static void PIOS_USB_CDC_RxStart(uint32_t usbcdc_id, uint16_t rx_bytes_avail);
-static bool PIOS_USB_CDC_Available(uint32_t usbcdc_id);
+static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id);
 
 const struct pios_com_driver pios_usb_cdc_com_driver = {
     .tx_start   = PIOS_USB_CDC_TxStart,
     .rx_start   = PIOS_USB_CDC_RxStart,
     .bind_tx_cb = PIOS_USB_CDC_RegisterTxCallback,
     .bind_rx_cb = PIOS_USB_CDC_RegisterRxCallback,
+    .bind_baud_rate_cb = PIOS_USB_CDC_RegisterBaudRateCallback,
     .available  = PIOS_USB_CDC_Available,
 };
 
@@ -67,6 +69,9 @@ struct pios_usb_cdc_dev {
     uint32_t rx_in_context;
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
+
+    pios_com_callback_baud_rate baud_rate_cb;
+    uint32_t baud_rate_context;
 
     uint8_t  rx_packet_buffer[PIOS_USB_BOARD_CDC_DATA_LENGTH];
     /*
@@ -353,7 +358,7 @@ RESULT PIOS_USB_CDC_SetControlLineState(void)
     return USB_SUCCESS;
 }
 
-static bool PIOS_USB_CDC_Available(uint32_t usbcdc_id)
+static uint32_t PIOS_USB_CDC_Available(uint32_t usbcdc_id)
 {
     struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)usbcdc_id;
 
@@ -361,8 +366,8 @@ static bool PIOS_USB_CDC_Available(uint32_t usbcdc_id)
 
     PIOS_Assert(valid);
 
-    return PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) &&
-           (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT);
+    return (PIOS_USB_CheckAvailable(usb_cdc_dev->lower_id) &&
+            (control_line_state & USB_CDC_CONTROL_LINE_STATE_DTE_PRESENT)) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
 
 static struct usb_cdc_line_coding line_coding = {
@@ -449,5 +454,38 @@ static void PIOS_USB_CDC_CTRL_EP_IN_Callback(void)
     SetEPTxCount(usb_cdc_dev->cfg->ctrl_tx_ep, PIOS_USB_BOARD_CDC_MGMT_LENGTH);
     SetEPTxValid(usb_cdc_dev->cfg->ctrl_tx_ep);
 }
+
+static void PIOS_USB_CDC_RegisterBaudRateCallback(uint32_t usbcdc_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context)
+{
+    struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)usbcdc_id;
+
+    bool valid = PIOS_USB_CDC_validate(usb_cdc_dev);
+
+    PIOS_Assert(valid);
+
+    /*
+     * Order is important in these assignments since ISR uses _cb
+     * field to determine if it's ok to dereference _cb and _context
+     */
+    usb_cdc_dev->baud_rate_context = context;
+    usb_cdc_dev->baud_rate_cb = baud_rate_cb;
+}
+
+void PIOS_USB_CDC_SetLineCoding_Completed()
+{
+    struct pios_usb_cdc_dev *usb_cdc_dev = (struct pios_usb_cdc_dev *)pios_usb_cdc_id;
+
+    bool valid = PIOS_USB_CDC_validate(usb_cdc_dev);
+
+    if (!valid) {
+        /* No CDC interface is configured */
+        return;
+    }
+
+    if (usb_cdc_dev->baud_rate_cb) {
+        usb_cdc_dev->baud_rate_cb(usb_cdc_dev->baud_rate_context, usbltoh(line_coding.dwDTERate));
+    }
+}
+
 
 #endif /* PIOS_INCLUDE_USB_CDC */

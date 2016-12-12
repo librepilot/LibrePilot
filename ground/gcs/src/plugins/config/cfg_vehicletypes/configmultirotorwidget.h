@@ -28,17 +28,18 @@
 #define CONFIGMULTIROTORWIDGET_H
 
 #include "cfg_vehicletypes/vehicleconfig.h"
-#include "ui_airframe_multirotor.h"
+
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 #include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 #include "uavobject.h"
 
-#include <QtCore/QList>
-#include <QWidget>
-#include <QItemDelegate>
+#include <QList>
 
-class Ui_Widget;
+class Ui_MultiRotorConfigWidget;
+
+class QWidget;
+class QGraphicsSvgItem;
 
 class ConfigMultiRotorWidget : public VehicleConfig {
     Q_OBJECT
@@ -73,12 +74,12 @@ private:
     bool setupMultiRotorMixer(double mixerFactors[8][3]);
     void setupMotors(QList<QString> motorList);
     void setupRcOutputs(QList<QString> rcOutputList);
-    void resetMixers();
     void setupQuadMotor(int channel, double roll, double pitch, double yaw);
 
     void setYawMixLevel(int);
     void updateRcCurvesUsed();
     void updateAirframe(QString multiRotorType);
+    void updateMotorsPositionLabels(QStringList motorLabels);
     void setupEnabledControls(QString multiRotorType);
 
 private slots:

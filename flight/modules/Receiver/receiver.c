@@ -99,8 +99,8 @@ static uint8_t isAssistedFlightMode(uint8_t position);
 static void applyLPF(float *value, ManualControlSettingsResponseTimeElem channel, ManualControlSettingsResponseTimeData *responseTime, uint8_t deadband, float dT);
 #endif
 
-#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 12
-#define RCVR_ACTIVITY_MONITOR_MIN_RANGE          10
+#define RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP 18 // Sbus max channel
+#define RCVR_ACTIVITY_MONITOR_MIN_RANGE          15
 struct rcvr_activity_fsm {
     ManualControlSettingsChannelGroupsOptions group;
     uint16_t prev[RCVR_ACTIVITY_MONITOR_CHANNELS_PER_GROUP];
@@ -655,17 +655,32 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_DSMFLEXIPORT;
                 break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMRCVRPORT:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_DSMRCVRPORT;
+                break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_EXBUS;
+                break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_SBUS;
                 break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_HOTT;
+                break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_SRXL;
+                break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_IBUS:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_IBUS;
                 break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_GCS:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_GCS;
                 break;
             case MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK:
                 group = RECEIVERACTIVITY_ACTIVEGROUP_OPLINK;
+                break;
+            case MANUALCONTROLSETTINGS_CHANNELGROUPS_OPENLRS:
+                group = RECEIVERACTIVITY_ACTIVEGROUP_OPENLRS;
                 break;
             default:
                 PIOS_Assert(0);

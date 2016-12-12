@@ -94,6 +94,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::CONTROLLER_NANO:
             elementsToShow << "controller-nano";
             break;
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
+            elementsToShow << "controller-sparky2";
+            break;
         case VehicleConfigurationSource::CONTROLLER_OPLINK:
         default:
             elementsToShow << "controller-cc";
@@ -181,6 +184,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::CONTROLLER_NANO:
             prefix = "nano-";
             break;
+        case VehicleConfigurationSource::CONTROLLER_SPARKY2:
+            prefix = "sparky2-";
+            break;
         default:
             break;
         }
@@ -201,6 +207,15 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::INPUT_DSM:
             elementsToShow << QString("%1satellite").arg(prefix);
             break;
+        case VehicleConfigurationSource::INPUT_HOTT_SUMD:
+            elementsToShow << QString("%1hott").arg(prefix);
+            break;
+        case VehicleConfigurationSource::INPUT_EXBUS:
+            elementsToShow << QString("%1exbus").arg(prefix);
+            break;
+        case VehicleConfigurationSource::INPUT_IBUS:
+            elementsToShow << QString("%1ibus").arg(prefix);
+            break;
         default:
             break;
         }
@@ -219,7 +234,8 @@ void ConnectionDiagram::setupGraphicsScene()
             }
         }
 
-        if (m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) {
+        if ((m_configSource->getInputType() == VehicleConfigurationSource::INPUT_SBUS) &&
+            (m_configSource->getControllerType() != VehicleConfigurationSource::CONTROLLER_SPARKY2)) {
             prefix = QString("flexi-%1").arg(prefix);
         }
         switch (m_configSource->getGpsType()) {
@@ -231,8 +247,14 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::GPS_PLATINUM:
             elementsToShow << QString("%1OPGPS-v9").arg(prefix);
             break;
+        case VehicleConfigurationSource::GPS_NAZA:
+            elementsToShow << QString("%1NazaGPS").arg(prefix);
+            break;
         case VehicleConfigurationSource::GPS_UBX:
             elementsToShow << QString("%1OPGPS-v8-ublox").arg(prefix);
+            break;
+        case VehicleConfigurationSource::GPS_UBX_FLEXI_I2CMAG:
+            elementsToShow << QString("%1generic-ublox-mag").arg(prefix);
             break;
         default:
             break;

@@ -7,7 +7,8 @@ QT += svg
 include(telemetry_dependencies.pri)
 include(../../libs/version_info/version_info.pri)
 
-HEADERS += telemetry_global.h \
+HEADERS += \
+    telemetry_global.h \
     telemetryplugin.h \
     monitorwidget.h \
     monitorgadgetconfiguration.h \
@@ -15,7 +16,8 @@ HEADERS += telemetry_global.h \
     monitorgadgetfactory.h \
     monitorgadgetoptionspage.h
 
-SOURCES += telemetryplugin.cpp \
+SOURCES += \
+    telemetryplugin.cpp \
     monitorwidget.cpp \
     monitorgadgetconfiguration.cpp \
     monitorgadget.cpp \

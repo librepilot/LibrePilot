@@ -27,7 +27,8 @@
  */
 #include "uavobjectmanager.h"
 
-#include <QtWidgetsDepends>
+#include <QJsonObject>
+#include <QJsonArray>
 
 /**
  * Constructor

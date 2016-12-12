@@ -25,11 +25,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "mixercurve.h"
+
+#include "ui_mixercurve.h"
+
+#include "dblspindelegate.h"
+
 #include <QWidget>
 #include <QResizeEvent>
 #include <math.h>
-#include "mixercurve.h"
-#include "dblspindelegate.h"
 
 MixerCurve::MixerCurve(QWidget *parent) :
     QFrame(parent),

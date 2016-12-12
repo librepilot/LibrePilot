@@ -817,9 +817,78 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>Motors spin at neutral output when armed and throttle below zero (be careful)</string>
+                 <string>Motors spin at neutral output when armed and throttle below zero (Be careful).</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="alwaysStabilizeGroup">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="alwayStabilizedLabel1">
+                  <property name="text">
+                   <string>Multirotor is Always Stabilized When Armed using:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="alwaysStabilizedSwitch">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>120</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="alwayStabilizedLabel2">
+                  <property name="text">
+                   <string>(Really be careful!).</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
               </item>
               <item>
                <spacer name="verticalSpacer">
@@ -900,7 +969,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="outputHelp">
+      <widget class="QPushButton" name="helpButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -938,10 +1007,13 @@
        <property name="flat">
         <bool>true</bool>
        </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:help</string>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="saveRCOutputToRAM">
+      <widget class="QPushButton" name="applyButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -964,10 +1036,13 @@ Be sure to set the Neutral position on all sliders before sending!</string>
        <property name="text">
         <string>Apply</string>
        </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:apply</string>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="saveRCOutputToSD">
+      <widget class="QPushButton" name="saveButton">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -990,6 +1065,9 @@ Applies and Saves all settings to SD</string>
        <property name="text">
         <string>Save</string>
        </property>
+       <property name="objrelation" stdset="0">
+        <string notr="true">button:save</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -997,8 +1075,8 @@ Applies and Saves all settings to SD</string>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>saveRCOutputToRAM</tabstop>
-  <tabstop>saveRCOutputToSD</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>saveButton</tabstop>
  </tabstops>
  <resources>
   <include location="../coreplugin/core.qrc"/>

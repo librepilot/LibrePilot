@@ -2,13 +2,14 @@
  ******************************************************************************
  * @addtogroup OpenPilotModules OpenPilot Modules
  * @{
- * @addtogroup GSPModule GPS Module
- * @brief Process GPS information
+ * @addtogroup GPSModule GPS Module
+ * @brief Process GPS information (UBX binary format)
  * @{
  *
  * @file       UBX.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      GPS module, handles GPS and NMEA stream
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @brief      GPS module, handles GPS and UBX stream
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -41,6 +42,8 @@
 
 #define UBX_HW_VERSION_8 80000
 #define UBX_HW_VERSION_7 70000
+#define UBX_HW_VERSION_6 60000
+#define UBX_HW_VERSION_5 50000
 
 #define UBX_SYNC1        0xb5 // UBX protocol synchronization characters
 #define UBX_SYNC2        0x62
@@ -97,13 +100,14 @@ typedef enum {
 } ubx_class_mon_id;
 
 typedef enum {
-    UBX_ID_CFG_NAV5 = 0x24,
-    UBX_ID_CFG_RATE = 0x08,
-    UBX_ID_CFG_MSG  = 0x01,
-    UBX_ID_CFG_CFG  = 0x09,
-    UBX_ID_CFG_SBAS = 0x16,
-    UBX_ID_CFG_GNSS = 0x3E,
-    UBX_ID_CFG_PRT  = 0x00
+    UBX_ID_CFG_NAV5  = 0x24,
+    UBX_ID_CFG_NAVX5 = 0x23,
+    UBX_ID_CFG_RATE  = 0x08,
+    UBX_ID_CFG_MSG   = 0x01,
+    UBX_ID_CFG_CFG   = 0x09,
+    UBX_ID_CFG_SBAS  = 0x16,
+    UBX_ID_CFG_GNSS  = 0x3E,
+    UBX_ID_CFG_PRT   = 0x00
 } ubx_class_cfg_id;
 
 typedef enum {
@@ -501,6 +505,21 @@ struct UBX_CFG_GNSS {
     struct UBX_CFG_GNSS_CFGBLOCK cfgBlocks[UBX_GNSS_ID_MAX];
 } __attribute__((packed));
 
+// CFG-NAV5: Position Fixing Mode
+#define UBX_CFG_NAV5_FIXMODE_2D_ONLY   0x01
+#define UBX_CFG_NAV5_FIXMODE_3D_ONLY   0x02
+#define UBX_CFG_NAV5_FIXMODE_AUTO_2D3D 0x03
+
+// CFG-NAV5: Bitfield mask
+#define UBX_CFG_NAV5_DYNMODEL          (1 << 0) // Apply dynamic model settings
+#define UBX_CFG_NAV5_MINELEV           (1 << 1) // Apply minimum elevation settings
+#define UBX_CFG_NAV5_FIXMODE           (1 << 2) // Apply fix mode settings
+#define UBX_CFG_NAV5_DRLIMIT           (1 << 3) // Reserved
+#define UBX_CFG_NAV5_POSITION          (1 << 4) // Apply position mask settings
+#define UBX_CFG_NAV5_TIME              (1 << 5) // Apply time mask settings
+#define UBX_CFG_NAV5_STATICHOLD        (1 << 6) // Apply static hold settings
+#define UBX_CFG_NAV5_DGPS              (1 << 7) // Reserved
+
 struct UBX_CFG_NAV5 {
     uint16_t mask;
     uint8_t  dynModel;
@@ -518,6 +537,41 @@ struct UBX_CFG_NAV5 {
     uint8_t  cnoThreshNumSVs;
     uint8_t  cnoThresh;
     uint16_t reserved2;
+    uint32_t reserved3;
+    uint32_t reserved4;
+} __attribute__((packed));
+
+// CFG-NAVX5: Bitfield mask1
+#define UBX_CFG_NAVX5_MIN_MAX    (1 << 2) // Apply min/max SVs settings
+#define UBX_CFG_NAVX5_MIN_CNO    (1 << 3) // Apply minimum C/N0 setting
+#define UBX_CFG_NAVX5_INIT_3DFIX (1 << 6) // Apply initial 3D fix settings
+#define UBX_CFG_NAVX5_WKN_ROLL   (1 << 9) // Apply GPS weeknumber rollover settings
+#define UBX_CFG_NAVX5_PPP        (1 << 13) // Apply PPP flag, only supported on certain product variants
+#define UBX_CFG_NAVX5_AOP        (1 << 14) // Apply useAOP flag and aopOrbMaxErr setting (AssistNow Autonomous)
+
+struct UBX_CFG_NAVX5 {
+    uint16_t version;
+    uint16_t mask1;
+    uint32_t reserved0;
+    uint8_t  reserved1;
+    uint8_t  reserved2;
+    uint8_t  minSVs;
+    uint8_t  maxSVs;
+    uint8_t  minCN0;
+    uint8_t  reserved5;
+    uint8_t  iniFix3D;
+    uint8_t  reserved6;
+    uint8_t  reserved7;
+    uint8_t  reserved8;
+    uint16_t wknRollover;
+    uint32_t reserved9;
+    uint8_t  reserved10;
+    uint8_t  reserved11;
+    uint8_t  usePPP;
+    uint8_t  useAOP;
+    uint8_t  reserved12;
+    uint8_t  reserved13;
+    uint16_t aopOrbMaxErr;
     uint32_t reserved3;
     uint32_t reserved4;
 } __attribute__((packed));
@@ -598,13 +652,14 @@ union UBXSENTPACKET {
     struct {
         struct UBXSENTHEADER header;
         union {
-            struct UBX_CFG_CFG  cfg_cfg;
-            struct UBX_CFG_MSG  cfg_msg;
-            struct UBX_CFG_NAV5 cfg_nav5;
-            struct UBX_CFG_PRT  cfg_prt;
-            struct UBX_CFG_RATE cfg_rate;
-            struct UBX_CFG_SBAS cfg_sbas;
-            struct UBX_CFG_GNSS cfg_gnss;
+            struct UBX_CFG_CFG   cfg_cfg;
+            struct UBX_CFG_MSG   cfg_msg;
+            struct UBX_CFG_NAV5  cfg_nav5;
+            struct UBX_CFG_NAVX5 cfg_navx5;
+            struct UBX_CFG_PRT   cfg_prt;
+            struct UBX_CFG_RATE  cfg_rate;
+            struct UBX_CFG_SBAS  cfg_sbas;
+            struct UBX_CFG_GNSS  cfg_gnss;
         } payload;
         uint8_t resvd[2]; // added space for checksum bytes
     } message;
@@ -612,7 +667,7 @@ union UBXSENTPACKET {
 
 // Used by AutoConfig code
 extern int32_t ubxHwVersion;
-extern GPSPositionSensorSensorTypeOptions sensorType;
+extern GPSPositionSensorSensorTypeOptions ubxSensorType;
 extern struct UBX_ACK_ACK ubxLastAck;
 extern struct UBX_ACK_NAK ubxLastNak;
 
@@ -620,6 +675,7 @@ bool checksum_ubx_message(struct UBXPacket *);
 uint32_t parse_ubx_message(struct UBXPacket *, GPSPositionSensorData *);
 
 int parse_ubx_stream(uint8_t *rx, uint16_t len, char *, GPSPositionSensorData *, struct GPS_RX_STATS *);
-void load_mag_settings();
+void op_gpsv9_load_mag_settings();
+void aux_hmc5x83_load_mag_settings();
 
 #endif /* UBX_H */

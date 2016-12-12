@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       OSGCamera.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
  * @addtogroup
  * @{
  * @addtogroup
@@ -27,450 +27,189 @@
 
 #include "OSGCamera.hpp"
 
-#include "OSGNode.hpp"
-
-#include "../utility.h"
-
 #include <osg/Camera>
-#include <osg/Matrix>
 #include <osg/Node>
-#include <osg/Vec3d>
 
-#include <osgGA/NodeTrackerManipulator>
-#include <osgGA/TrackballManipulator>
-
-#include <osgViewer/View>
-
-#include <osgEarth/GeoData>
-#include <osgEarth/SpatialReference>
-#include <osgEarthUtil/EarthManipulator>
+#ifdef USE_OSGEARTH
 #include <osgEarthUtil/LogarithmicDepthBuffer>
+#endif
 
 #include <QDebug>
-#include <QThread>
-#include <QApplication>
 
 namespace osgQtQuick {
+enum DirtyFlag { FieldOfView = 1 << 0, ClearColor = 1 << 1, LogDepthBuffer = 1 << 4 };
+
 struct OSGCamera::Hidden : public QObject {
     Q_OBJECT
 
-    struct CameraUpdateCallback : public osg::NodeCallback {
-public:
-        CameraUpdateCallback(Hidden *h) : h(h) {}
+private:
+    OSGCamera * const self;
 
-        void operator()(osg::Node *node, osg::NodeVisitor *nv);
-
-        mutable Hidden *h;
-    };
-    friend class CameraUpdateCallback;
+    osg::ref_ptr<osg::Camera> camera;
 
 public:
+    // Camera vertical field of view in degrees
+    // fov depends on the scenery space (probably distance)
+    // here are some value: 75°, 60°, 45° many gamers use
+    // x-plane uses 45° for 4:3 and 60° for 16:9/16:10
+    // flightgear uses 55° / 70°
+    qreal  fieldOfView;
 
-    Hidden(OSGCamera *parent) :
-        QObject(parent), sceneData(NULL), manipulatorMode(Default), node(NULL),
-        trackerMode(NodeCenterAndAzim), trackNode(NULL),
-        logDepthBufferEnabled(false), logDepthBuffer(NULL), clampToTerrain(false)
+    QColor clearColor;
+
+    bool   logDepthBufferEnabled;
+
+#ifdef USE_OSGEARTH
+    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
+#endif
+
+public:
+    Hidden(OSGCamera *self) : QObject(self), self(self), fieldOfView(90), clearColor(0, 0, 0, 255), logDepthBufferEnabled(false)
     {
-        fieldOfView = 90.0;
-
-        first     = true;
-
-        dirty     = false;
-
-        sizeDirty = false;
-        x = 0;
-        y = 0;
-        width     = 0;
-        height    = 0;
+#ifdef USE_OSGEARTH
+        logDepthBuffer = NULL;
+#endif
     }
 
     ~Hidden()
     {
-        if (logDepthBuffer) {
-            delete logDepthBuffer;
-            logDepthBuffer = NULL;
-        }
-    }
-
-    bool acceptSceneData(OSGNode *node)
-    {
-        qDebug() << "OSGCamera::acceptSceneData" << node;
-        if (sceneData == node) {
-            return true;
-        }
-
-        if (sceneData) {
-            disconnect(sceneData);
-        }
-
-        sceneData = node;
-
-        if (sceneData) {
-            // connect(sceneData, &OSGNode::nodeChanged, this, &Hidden::onSceneDataChanged);
-        }
-
-        return true;
-    }
-
-    bool acceptManipulatorMode(ManipulatorMode mode)
-    {
-        // qDebug() << "OSGCamera::acceptManipulatorMode" << mode;
-        if (manipulatorMode == mode) {
-            return false;
-        }
-
-        manipulatorMode = mode;
-
-        return true;
-    }
-
-    bool acceptNode(OSGNode *node)
-    {
-        qDebug() << "OSGCamera::acceptNode" << node;
-        if (this->node == node) {
-            return false;
-        }
-
-        if (this->node) {
-            disconnect(this->node);
-        }
-
-        this->node = node;
-
-        if (this->node) {
-            connect(this->node, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onNodeChanged(osg::Node *)));
-        }
-
-        return true;
-    }
-
-    bool acceptTrackNode(OSGNode *node)
-    {
-        qDebug() << "OSGCamera::acceptTrackNode" << node;
-        if (trackNode == node) {
-            return false;
-        }
-
-        if (trackNode) {
-            disconnect(trackNode);
-        }
-
-        trackNode = node;
-
-        if (trackNode) {
-            connect(trackNode, SIGNAL(nodeChanged(osg::Node *)), this, SLOT(onTrackNodeChanged(osg::Node *)));
-        }
-
-        return true;
-    }
-
-    bool attach(osgViewer::View *view)
-    {
-        attachCamera(view->getCamera());
-        attachManipulator(view);
-        return true;
-    }
-
-    bool detach(osgViewer::View *view)
-    {
-        detachManipulator(view);
-        detachCamera(view->getCamera());
-        return true;
-    }
-
-    void attachCamera(osg::Camera *camera)
-    {
-        qDebug() << "OSGCamera::attach" << camera;
-
-        this->camera = camera;
-
-        cameraUpdateCallback = new CameraUpdateCallback(this);
-        camera->addUpdateCallback(cameraUpdateCallback);
-
-        // install log depth buffer if requested
-        if (logDepthBufferEnabled) {
-            qDebug() << "OSGCamera::attach - install logarithmic depth buffer";
-            logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
-            // logDepthBuffer->setUseFragDepth(true);
-            logDepthBuffer->install(camera);
-        }
-
-        dirty     = true;
-        sizeDirty = true;
-        updateCamera();
-    }
-
-    void detachCamera(osg::Camera *camera)
-    {
-        qDebug() << "OSGCamera::detach" << camera;
-
-        if (camera != this->camera) {
-            qWarning() << "OSGCamera::detach - camera not attached" << camera;
-            return;
-        }
-        this->camera = NULL;
-
-        if (cameraUpdateCallback.valid()) {
-            camera->removeUpdateCallback(cameraUpdateCallback);
-            cameraUpdateCallback = NULL;
-        }
-
+#ifdef USE_OSGEARTH
         if (logDepthBuffer) {
             logDepthBuffer->uninstall(camera);
             delete logDepthBuffer;
             logDepthBuffer = NULL;
         }
-
-        // reset viewport
-        x = y = width = height = 0;
+#endif
     }
 
-    void attachManipulator(osgViewer::View *view)
+    osg::Node *createNode()
     {
-        qDebug() << "OSGCamera::attachManipulator" << view;
+        camera = new osg::Camera();
 
-        osgGA::CameraManipulator *cm = NULL;
+        camera->setClearColor(osg::Vec4(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()));
 
-        switch (manipulatorMode) {
-        case OSGCamera::Default:
-        {
-            qDebug() << "OSGCamera::attachManipulator - use TrackballManipulator";
-            osgGA::TrackballManipulator *tm = new osgGA::TrackballManipulator();
-            // Set the minimum distance of the eye point from the center before the center is pushed forward.
-            // tm->setMinimumDistance(1, true);
-            cm = tm;
-            break;
-        }
-        case OSGCamera::User:
-            qDebug() << "OSGCamera::attachManipulator - no camera manipulator";
-            // disable any installed camera manipulator
-            cm = NULL;
-            break;
-        case OSGCamera::Earth:
-        {
-            qDebug() << "OSGCamera::attachManipulator - use EarthManipulator";
-            osgEarth::Util::EarthManipulator *em = new osgEarth::Util::EarthManipulator();
-            em->getSettings()->setThrowingEnabled(true);
-            cm = em;
-            break;
-        }
-        case OSGCamera::Track:
-            qDebug() << "OSGCamera::attachManipulator - use NodeTrackerManipulator";
-            if (trackNode && trackNode->node()) {
-                // setup tracking camera
-                // TODO when camera is thrown, then changing attitude has jitter (could be due to different frequency between refresh and animation)
-                // TODO who takes ownership?
-                osgGA::NodeTrackerManipulator *ntm = new osgGA::NodeTrackerManipulator(
-                    /*osgGA::StandardManipulator::COMPUTE_HOME_USING_BBOX | osgGA::StandardManipulator::DEFAULT_SETTINGS*/);
-                switch (trackerMode) {
-                case NodeCenter:
-                    ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER);
-                    break;
-                case NodeCenterAndAzim:
-                    ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_AZIM);
-                    break;
-                case NodeCenterAndRotation:
-                    ntm->setTrackerMode(osgGA::NodeTrackerManipulator::NODE_CENTER_AND_ROTATION);
-                    break;
-                }
-                ntm->setTrackNode(trackNode->node());
-                // ntm->setRotationMode(trackRotationMode)
-                // ntm->setMinimumDistance(2, false);
-                ntm->setVerticalAxisFixed(false);
-                // ntm->setAutoComputeHomePosition(true);
-                // ntm->setDistance(100);
-                cm = ntm;
-            } else {
-                qWarning() << "OSGCamera::attachManipulator - no track node provided.";
-                cm = NULL;
-            }
-            break;
-        default:
-            qWarning() << "OSGCamera::attachManipulator - should not reach here!";
-            break;
-        }
+        osg::StateSet *stateset = camera->getOrCreateStateSet();
+        stateset->setGlobalDefaults();
 
-        view->setCameraManipulator(cm, false);
-        if (cm && node && node->node()) {
-            qDebug() << "OSGCamera::attachManipulator - camera node" << node;
-            // set node used to auto compute home position
-            // needs to be done after setting the manipulator on the view as the view will set its scene as the node
-            cm->setNode(node->node());
-        }
-        if (cm) {
-            view->home();
-        }
+        return camera;
     }
 
-    void detachManipulator(osgViewer::View *view)
+    void updateClearColor()
     {
-        qDebug() << "OSGCamera::detachManipulator" << view;
-
-        view->setCameraManipulator(NULL, false);
-    }
-
-    void updateCamera()
-    {
-        if (first) {
-            first = false;
-            updateCameraFOV();
-        }
-        updateCameraSize();
-        if (manipulatorMode == User) {
-            updateCameraPosition();
-        }
-    }
-
-    void updateCameraSize()
-    {
-        if (!sizeDirty || !camera.valid()) {
+        if (!camera.valid()) {
+            qWarning() << "OSGCamera::updateClearColor - invalid camera";
             return;
         }
-        sizeDirty = false;
-
-        // qDebug() << "OSGCamera::updateCamera size" << x << y << width << height << fieldOfView;
-        camera->getGraphicsContext()->resized(x, y, width, height);
-        camera->setViewport(x, y, width, height);
-        updateAspectRatio();
+        // qDebug() << "OSGCamera::updateClearColor" << clearColor;
+        camera->setClearColor(osg::Vec4(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF()));
     }
 
-    void updateCameraFOV()
+    void updateFieldOfView()
     {
-        // qDebug() << "OSGCamera::updateCameraFOV";
+        if (!camera.valid()) {
+            qWarning() << "OSGCamera::updateFieldOfView - invalid camera";
+            return;
+        }
+
+        // qDebug() << "OSGCamera::updateFieldOfView" << fieldOfView;
+
         double fovy, ar, zn, zf;
-
         camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
-
         fovy = fieldOfView;
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
     }
 
     void updateAspectRatio()
     {
+        if (!camera.valid()) {
+            qWarning() << "OSGCamera::updateAspectRatio - invalid camera";
+            return;
+        }
+        osg::Viewport *viewport = camera->getViewport();
+        if (!viewport) {
+            qWarning() << "OSGCamera::updateAspectRatio - no viewport" << viewport;
+            return;
+        }
+
+        double aspectRatio = static_cast<double>(viewport->width()) / static_cast<double>(viewport->height());
+
+        // qDebug() << "OSGCamera::updateAspectRatio" << aspectRatio;
+
         double fovy, ar, zn, zf;
-
         camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
-
-        ar = static_cast<double>(width) / static_cast<double>(height);
+        ar = aspectRatio;
         camera->setProjectionMatrixAsPerspective(fovy, ar, zn, zf);
     }
 
-    void updateCameraPosition()
+    void updateLogDepthBuffer()
     {
-        if (!dirty || !camera.valid()) {
+        if (!camera.valid()) {
+            qWarning() << "OSGCamera::updateLogDepthBuffer - invalid camera";
             return;
         }
-        dirty = false;
+        // qDebug() << "OSGCamera::updateLogDepthBuffer" << logDepthBufferEnabled;
 
-        // Altitude mode is absolute (absolute height above MSL/HAE)
-        // HAE : Height above ellipsoid. This is the default.
-        // MSL : Height above Mean Sea Level (MSL) if a geoid separation value is specified.
-        // TODO handle the case where the terrain SRS is not "wgs84"
-        // TODO check if position is not below terrain?
-        // TODO compensate antenna height when source of position is GPS (i.e. subtract antenna height from altitude) ;)
+#ifdef USE_OSGEARTH
+        // install log depth buffer if requested
+        if (logDepthBufferEnabled && !logDepthBuffer) {
+            // qDebug() << "OSGCamera::updateLogDepthBuffer - installing logarithmic depth buffer";
+            logDepthBuffer = new osgEarth::Util::LogarithmicDepthBuffer();
+            logDepthBuffer->setUseFragDepth(true);
+            logDepthBuffer->install(camera);
+        } else if (!logDepthBufferEnabled && logDepthBuffer) {
+            // qDebug() << "OSGCamera::updateLogDepthBuffer - uninstalling logarithmic depth buffer";
+            logDepthBuffer->uninstall(camera);
+            delete logDepthBuffer;
+            logDepthBuffer = NULL;
+        }
+#endif
+    }
 
-        // Camera position
-        osgEarth::GeoPoint geoPoint = osgQtQuick::toGeoPoint(position);
-        if (clampToTerrain) {
-            if (sceneData) {
-                osgEarth::MapNode *mapNode = osgEarth::MapNode::findMapNode(sceneData->node());
-                if (mapNode) {
-                    intoTerrain = clampGeoPoint(geoPoint, 0.5f, mapNode);
-                } else {
-                    qWarning() << "OSGCamera::updateNode - scene data does not contain a map node";
-                }
-            }
+    void setGraphicsContext(osg::GraphicsContext *gc)
+    {
+        if (!camera.valid()) {
+            qWarning() << "OSGCamera::setGraphicsContext - invalid camera";
+            return;
         }
 
-        osg::Matrix cameraPosition;
-        geoPoint.createLocalToWorld(cameraPosition);
+        // qDebug() << "OSGCamera::setGraphicsContext" << gc;
 
-        // Camera orientation
-        // By default the camera looks toward -Z, we must rotate it so it looks toward Y
-        osg::Matrix cameraRotation;
-        cameraRotation.makeRotate(osg::DegreesToRadians(90.0), osg::Vec3(1.0, 0.0, 0.0),
-                                  osg::DegreesToRadians(0.0), osg::Vec3(0.0, 1.0, 0.0),
-                                  osg::DegreesToRadians(0.0), osg::Vec3(0.0, 0.0, 1.0));
+        camera->setGraphicsContext(gc);
+        camera->setViewport(0, 0, gc->getTraits()->width, gc->getTraits()->height);
 
-        // Final camera matrix
-        osg::Matrix cameraMatrix = cameraRotation
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.x()), osg::Vec3(1.0, 0.0, 0.0))
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.y()), osg::Vec3(0.0, 1.0, 0.0))
-                                   * osg::Matrix::rotate(osg::DegreesToRadians(attitude.z()), osg::Vec3(0.0, 0.0, 1.0)) * cameraPosition;
+        double aspectRatio = static_cast<double>(gc->getTraits()->width) / static_cast<double>(gc->getTraits()->height);
 
-        // Inverse the camera's position and orientation matrix to obtain the view matrix
-        cameraMatrix = osg::Matrix::inverse(cameraMatrix);
-        camera->setViewMatrix(cameraMatrix);
-    }
+        camera->setProjectionMatrixAsPerspective(fieldOfView, aspectRatio, 1.0f, 10000.0f);
 
-    qreal   fieldOfView;
+        double fovy, ar, zn, zf;
+        camera->getProjectionMatrixAsPerspective(fovy, ar, zn, zf);
 
-    OSGNode *sceneData;
-
-    ManipulatorMode manipulatorMode;
-
-    // to compute home position
-    OSGNode     *node;
-
-    // for NodeTrackerManipulator
-    TrackerMode trackerMode;
-    OSGNode     *trackNode;
-
-    bool logDepthBufferEnabled;
-    osgEarth::Util::LogarithmicDepthBuffer *logDepthBuffer;
-
-    bool first;
-
-    // for User manipulator
-    bool dirty;
-
-    bool clampToTerrain;
-    bool intoTerrain;
-
-    QVector3D attitude;
-    QVector3D position;
-
-    bool sizeDirty;
-    int  x;
-    int  y;
-    int  width;
-    int  height;
-
-    osg::ref_ptr<osg::Camera> camera;
-    osg::ref_ptr<CameraUpdateCallback> cameraUpdateCallback;
-
-private slots:
-    void onNodeChanged(osg::Node *node)
-    {
-        qDebug() << "OSGCamera::onNodeChanged" << node;
-        qWarning() << "OSGCamera::onNodeChanged - needs to be implemented";
-    }
-
-    void onTrackNodeChanged(osg::Node *node)
-    {
-        qDebug() << "OSGCamera::onTrackNodeChanged" << node;
-        qWarning() << "OSGCamera::onTrackNodeChanged - needs to be implemented";
+        // FIXME this is needed for PFD + Terrain (because of "user" mode)
+        // updatePosition();
     }
 };
 
-/* struct Hidden::CameraUpdateCallback */
-
-void OSGCamera::Hidden::CameraUpdateCallback::operator()(osg::Node *node, osg::NodeVisitor *nv)
-{
-    h->updateCamera();
-    // traverse(node, nv);
-}
-
 /* class OSGCamera */
 
-OSGCamera::OSGCamera(QObject *parent) : QObject(parent), h(new Hidden(this))
-{
-    qDebug() << "OSGCamera::OSGCamera";
-}
+OSGCamera::OSGCamera(QObject *parent) : Inherited(parent), h(new Hidden(this))
+{}
 
 OSGCamera::~OSGCamera()
 {
-    qDebug() << "OSGCamera::~OSGCamera";
+    delete h;
+}
+
+QColor OSGCamera::clearColor() const
+{
+    return h->clearColor;
+}
+
+void OSGCamera::setClearColor(const QColor &color)
+{
+    if (h->clearColor != color) {
+        h->clearColor = color;
+        emit clearColorChanged(color);
+    }
 }
 
 qreal OSGCamera::fieldOfView() const
@@ -478,135 +217,16 @@ qreal OSGCamera::fieldOfView() const
     return h->fieldOfView;
 }
 
-// ! Camera vertical field of view in degrees
 void OSGCamera::setFieldOfView(qreal arg)
 {
     if (h->fieldOfView != arg) {
         h->fieldOfView = arg;
-        h->sizeDirty   = true;
+        setDirty(FieldOfView);
         emit fieldOfViewChanged(fieldOfView());
-
-        // it should be a queued call to OSGCameraRenderer instead
-        /*if (h->viewer.get()) {
-            h->viewer->getCamera()->setProjectionMatrixAsPerspective(
-                        h->fieldOfView,
-                        qreal(h->currentSize.width())/h->currentSize.height(),
-                        1.0f, 10000.0f);
-           }*/
-
-        // updateFrame();
     }
 }
 
-OSGNode *OSGCamera::sceneData()
-{
-    return h->sceneData;
-}
-
-void OSGCamera::setSceneData(OSGNode *node)
-{
-    if (h->acceptSceneData(node)) {
-        emit sceneDataChanged(node);
-    }
-}
-
-OSGCamera::ManipulatorMode OSGCamera::manipulatorMode() const
-{
-    return h->manipulatorMode;
-}
-
-void OSGCamera::setManipulatorMode(ManipulatorMode mode)
-{
-    if (h->acceptManipulatorMode(mode)) {
-        emit manipulatorModeChanged(manipulatorMode());
-    }
-}
-
-OSGNode *OSGCamera::node() const
-{
-    return h->node;
-}
-
-void OSGCamera::setNode(OSGNode *node)
-{
-    if (h->acceptNode(node)) {
-        emit nodeChanged(node);
-    }
-}
-
-OSGNode *OSGCamera::trackNode() const
-{
-    return h->trackNode;
-}
-
-void OSGCamera::setTrackNode(OSGNode *node)
-{
-    if (h->acceptTrackNode(node)) {
-        emit trackNodeChanged(node);
-    }
-}
-
-OSGCamera::TrackerMode OSGCamera::trackerMode() const
-{
-    return h->trackerMode;
-}
-
-void OSGCamera::setTrackerMode(TrackerMode mode)
-{
-    if (h->trackerMode != mode) {
-        h->trackerMode = mode;
-        emit trackerModeChanged(trackerMode());
-    }
-}
-
-bool OSGCamera::clampToTerrain() const
-{
-    return h->clampToTerrain;
-}
-
-void OSGCamera::setClampToTerrain(bool arg)
-{
-    if (h->clampToTerrain != arg) {
-        h->clampToTerrain = arg;
-        h->dirty = true;
-        emit clampToTerrainChanged(clampToTerrain());
-    }
-}
-
-bool OSGCamera::intoTerrain() const
-{
-    return h->intoTerrain;
-}
-
-QVector3D OSGCamera::attitude() const
-{
-    return h->attitude;
-}
-
-void OSGCamera::setAttitude(QVector3D arg)
-{
-    if (h->attitude != arg) {
-        h->attitude = arg;
-        h->dirty    = true;
-        emit attitudeChanged(attitude());
-    }
-}
-
-QVector3D OSGCamera::position() const
-{
-    return h->position;
-}
-
-void OSGCamera::setPosition(QVector3D arg)
-{
-    if (h->position != arg) {
-        h->position = arg;
-        h->dirty    = true;
-        emit positionChanged(position());
-    }
-}
-
-bool OSGCamera::logarithmicDepthBuffer()
+bool OSGCamera::logarithmicDepthBuffer() const
 {
     return h->logDepthBufferEnabled;
 }
@@ -615,35 +235,40 @@ void OSGCamera::setLogarithmicDepthBuffer(bool enabled)
 {
     if (h->logDepthBufferEnabled != enabled) {
         h->logDepthBufferEnabled = enabled;
+        setDirty(LogDepthBuffer);
         emit logarithmicDepthBufferChanged(logarithmicDepthBuffer());
     }
 }
 
-void OSGCamera::setViewport(int x, int y, int width, int height)
+osg::Node *OSGCamera::createNode()
 {
-    // qDebug() << "OSGCamera::setViewport" << x << y << width << "x" << heigth;
-    if (width <= 0 || height <= 0) {
-        qWarning() << "OSGCamera::setViewport - invalid size" << width << "x" << height;
-        return;
+    return h->createNode();
+}
+
+void OSGCamera::updateNode()
+{
+    Inherited::updateNode();
+
+    if (isDirty(ClearColor)) {
+        h->updateClearColor();
     }
-    if (h->x != x || h->y != y || h->width != width || h->height != height) {
-        qWarning() << "OSGCamera::setViewport" << width << "x" << height;
-        h->x         = x;
-        h->y         = y;
-        h->width     = width;
-        h->height    = height;
-        h->sizeDirty = true;
+    if (isDirty(FieldOfView)) {
+        h->updateFieldOfView();
+    }
+    if (isDirty(LogDepthBuffer)) {
+        h->updateLogDepthBuffer();
     }
 }
 
-bool OSGCamera::attach(osgViewer::View *view)
+osg::Camera *OSGCamera::asCamera() const
 {
-    return h->attach(view);
+    // BAD introduce templating
+    return (osg::Camera *)node();
 }
 
-bool OSGCamera::detach(osgViewer::View *view)
+void OSGCamera::setGraphicsContext(osg::GraphicsContext *gc)
 {
-    return h->detach(view);
+    h->setGraphicsContext(gc);
 }
 } // namespace osgQtQuick
 

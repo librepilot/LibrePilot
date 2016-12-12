@@ -30,15 +30,17 @@
 
 #include "uavobjects_global.h"
 #include "uavobject.h"
+
 #include <QStringList>
 #include <QVariant>
 #include <QList>
 #include <QMap>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-#include <QJsonObject>
 
 class UAVObject;
+
+class QXmlStreamWriter;
+class QXmlStreamReader;
+class QJsonObject;
 
 class UAVOBJECTS_EXPORT UAVObjectField : public QObject {
     Q_OBJECT

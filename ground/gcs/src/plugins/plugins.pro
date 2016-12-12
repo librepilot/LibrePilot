@@ -77,12 +77,6 @@ plugin_uavobjectbrowser.depends = plugin_coreplugin
 plugin_uavobjectbrowser.depends += plugin_uavobjects
 SUBDIRS += plugin_uavobjectbrowser
 
-# ModelView UAVGadget
-plugin_modelview.subdir = modelview
-plugin_modelview.depends = plugin_coreplugin
-plugin_modelview.depends += plugin_uavobjects
-SUBDIRS += plugin_modelview
-
 #Qt 4.8.0 / phonon may crash on Mac, fixed in Qt 4.8.1, QTBUG-23128
 macx:contains(QT_VERSION, ^4\\.8\\.0): CONFIG += disable_notify_plugin
 
@@ -140,10 +134,10 @@ plugin_gpsdisplay.depends += plugin_uavobjects
 SUBDIRS += plugin_gpsdisplay
 
 # QML viewer gadget
-plugin_qmlview.subdir = qmlview
-plugin_qmlview.depends = plugin_coreplugin
-plugin_qmlview.depends += plugin_uavobjects
-SUBDIRS += plugin_qmlview
+#plugin_qmlview.subdir = qmlview
+#plugin_qmlview.depends = plugin_coreplugin
+#plugin_qmlview.depends += plugin_uavobjects
+#SUBDIRS += plugin_qmlview
 
 # PathAction Editor gadget
 plugin_pathactioneditor.subdir = pathactioneditor
@@ -162,7 +156,7 @@ plugin_ipconnection.subdir = ipconnection
 plugin_ipconnection.depends = plugin_coreplugin
 SUBDIRS += plugin_ipconnection
 
-#HITL Simulation gadget
+# HITL Simulation gadget
 plugin_hitl.subdir = hitl
 plugin_hitl.depends = plugin_coreplugin
 plugin_hitl.depends += plugin_uavobjects
@@ -193,12 +187,6 @@ SUBDIRS += plugin_gcscontrol
 #plugin_antennatrack.depends = plugin_coreplugin
 #plugin_antennatrack.depends += plugin_uavobjects
 #SUBDIRS += plugin_antennatrack
-
-# Scope OpenGL Gadget
-#plugin_scopeogl.subdir = scopeogl
-#plugin_scopeogl.depends = plugin_coreplugin
-#plugin_scopeogl.depends += plugin_uavobjects
-#SUBDIRS += plugin_scopeogl
 
 # UAV Object Utility plugin
 plugin_uavobjectutil.subdir = uavobjectutil
@@ -251,3 +239,9 @@ plugin_usagetracker.depends += plugin_uavtalk
 plugin_setupwizard.depends += plugin_uavobjectutil
 SUBDIRS += plugin_usagetracker
 
+# Stream Service Plugin
+plugin_streamservice.subdir = streamservice
+plugin_streamservice.depends = plugin_coreplugin
+plugin_streamservice.depends += plugin_uavobjects
+plugin_streamservice.depends += plugin_uavtalk
+SUBDIRS += plugin_streamservice

@@ -37,15 +37,13 @@ OPMaps *OPMaps::Instance()
     }
     return m_pInstance;
 }
+
 OPMaps::OPMaps() : RetryLoadTile(2), useMemoryCache(true)
 {
     accessmode  = AccessMode::ServerAndCache;
-    // Need to figure out why this is *fixed* to Portugese. This casues pt-PT to be sent with every Google request
-    Language    = LanguageType::PortuguesePortugal;
-    LanguageStr = LanguageType().toShortString(Language);
+    LanguageStr = QLocale().bcp47Name();
     Cache::Instance();
 }
-
 
 OPMaps::~OPMaps()
 {
@@ -183,20 +181,26 @@ QByteArray OPMaps::GetImageFrom(const MapType::Types &type, const Point &pos, co
             default:
                 break;
             }
+#ifdef DEBUG_GMAPS
             qDebug() << "Timeout is " << Timeout;
+            qDebug() << "Get " << qheader.url();
+#endif // DEBUG_GMAPS
             reply = network.get(qheader);
+#ifdef DEBUG_GMAPS
             qDebug() << "reply " << reply;
+#endif // DEBUG_GMAPS
 
             QTime time;
             while ((!(reply->isFinished()) || (time.elapsed() > (6 * Timeout)))) {
                 QCoreApplication::processEvents(QEventLoop::AllEvents);
             }
 
+#ifdef DEBUG_GMAPS
             qDebug() << "Finished?" << reply->error() << " abort?" << (time.elapsed() > Timeout * 6);
+#endif // DEBUG_GMAPS
             // If you are seeing Error 6 here you are dealing with a QT SSL Bug!!!
-
             if ((reply->error() != QNetworkReply::NoError) | (time.elapsed() > Timeout * 6)) {
-                qDebug() << "reply error: " << reply->error() << " see table at - http://doc.qt.io/qt-5/qnetworkreply.html";
+                qWarning() << "Reply error: " << reply->errorString() << qheader.url();
                 return ret;
             }
             ret = reply->readAll();

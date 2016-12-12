@@ -26,12 +26,14 @@
  */
 
 #include "svgimageprovider.h"
+
 #include <QDebug>
 #include <QPainter>
 #include <QUrl>
+#include <QFileInfo>
+#include <QSvgRenderer>
 
 SvgImageProvider::SvgImageProvider(const QString &basePath) :
-    QObject(),
     QQuickImageProvider(QQuickImageProvider::Image),
     m_basePath(basePath)
 {}
@@ -43,18 +45,15 @@ SvgImageProvider::~SvgImageProvider()
 
 QSvgRenderer *SvgImageProvider::loadRenderer(const QString &svgFile)
 {
-    QSvgRenderer *renderer = m_renderers.value(svgFile);
+    QSvgRenderer *renderer = m_renderers.value(svgFile, NULL);
 
     if (!renderer) {
-        renderer = new QSvgRenderer(svgFile);
+        QFileInfo fi(svgFile);
 
-        QString fn = QUrl::fromLocalFile(m_basePath).resolved(svgFile).toLocalFile();
+        // if svgFile is relative, make it relative to base
+        QString fn = fi.isRelative() ? QUrl::fromLocalFile(m_basePath).resolved(svgFile).toLocalFile() : svgFile;
 
-        // convert path to be relative to base
-        if (!renderer->isValid()) {
-            renderer->load(fn);
-        }
-
+        renderer = new QSvgRenderer(fn);
         if (!renderer->isValid()) {
             qWarning() << "Failed to load svg file:" << svgFile << fn;
             delete renderer;

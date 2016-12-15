@@ -56,8 +56,8 @@ osg:win32 {
         libp11-kit-0.dll \
         libffi-6.dll \
         libtasn1-6.dll \
-        libhogweed-4-2.dll \
-        libnettle-6-2.dll \
+        libhogweed-4.dll \
+        libnettle-6.dll \
         libssh2-1.dll \
         libnghttp2-14.dll
 

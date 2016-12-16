@@ -16,7 +16,7 @@
  * @{
  *
  * @file       systemmod.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      System module
  *
@@ -131,7 +131,7 @@ static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 
 #ifdef PIOS_INCLUDE_RFM22B
 static OPLinkSettingsData previousOPLinkSettings;
-static void checkOPLinkSettingsUpdatedCb(UAVObjEvent *ev);
+static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
 #endif
 
 extern uintptr_t pios_uavo_settings_fs_id;
@@ -237,7 +237,10 @@ static void systemTask(__attribute__((unused)) void *parameters)
     SystemSettingsConnectCallback(checkSettingsUpdatedCb);
 
 #ifdef PIOS_INCLUDE_RFM22B
-    OPLinkSettingsConnectCallback(checkOPLinkSettingsUpdatedCb);
+    // Initialize previousOPLinkSettings used by callback
+    OPLinkSettingsGet(&previousOPLinkSettings);
+
+    OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
 #endif
 
 #ifdef DIAG_TASKS
@@ -467,7 +470,7 @@ static void checkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 /**
  * Called whenever OPLink settings changed
  */
-static void checkOPLinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
     OPLinkSettingsData currentOPLinkSettings;
 

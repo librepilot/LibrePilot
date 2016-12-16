@@ -16,7 +16,8 @@
  * @{
  *
  * @file       oplinkmod.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      System module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -71,7 +72,7 @@ static OPLinkSettingsData previousOPLinkSettings;
 
 // Private functions
 static void systemTask(void *parameters);
-static void checkOPLinkSettingsUpdatedCb(UAVObjEvent *ev);
+static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
 
 /**
  * Create the module task.
@@ -135,7 +136,10 @@ static void systemTask(__attribute__((unused)) void *parameters)
         PIOS_SYS_Reset();
     }
 
-    OPLinkSettingsConnectCallback(checkOPLinkSettingsUpdatedCb);
+    // Initialize previousOPLinkSettings used by callback
+    OPLinkSettingsGet(&previousOPLinkSettings);
+
+    OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
 
     // Initialize vars
     lastSysTime = xTaskGetTickCount();
@@ -249,7 +253,7 @@ void vApplicationMallocFailedHook(void)
 /**
  * Called whenever OPLink settings changed
  */
-static void checkOPLinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
     OPLinkSettingsData currentOPLinkSettings;
 

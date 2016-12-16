@@ -807,10 +807,10 @@ void PIOS_Board_Init(void)
     } /*        hwsettings_spk2_mainport */
 
 
-    /* Initalize the RFM22B radio COM device. */
+    /* Initialize the RFM22B radio COM device. */
 #if defined(PIOS_INCLUDE_RFM22B)
 
-    /* Fetch the OPinkSettings object. */
+    /* Fetch the OPLinkSettings object. */
     OPLinkSettingsData oplinkSettings;
     OPLinkSettingsGet(&oplinkSettings);
 

@@ -867,10 +867,10 @@ void PIOS_Board_Init(void)
         GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
     }
 
-    /* Initalize the RFM22B radio COM device. */
+    /* Initialize the RFM22B radio COM device. */
 #if defined(PIOS_INCLUDE_RFM22B)
 
-    /* Fetch the OPinkSettings object. */
+    /* Fetch the OPLinkSettings object. */
     OPLinkSettingsData oplinkSettings;
     OPLinkSettingsGet(&oplinkSettings);
 

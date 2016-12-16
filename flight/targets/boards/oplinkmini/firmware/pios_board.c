@@ -396,7 +396,7 @@ void PIOS_Board_Init(void)
     PIOS_SYS_SerialNumberGetBinary(oplinkStatus.CPUSerial);
     oplinkStatus.BoardRevision = bdinfo->board_rev;
 
-    /* Initalize the RFM22B radio COM device. */
+    /* Initialize the RFM22B radio COM device. */
     if (is_enabled) {
         if (openlrs) {
 #if defined(PIOS_INCLUDE_OPENLRS)

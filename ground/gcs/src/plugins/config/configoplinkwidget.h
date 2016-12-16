@@ -46,14 +46,14 @@ protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
 
 private:
-    // Frequency display settings
-    float frequency_base;
-    float frequency_step;
-
     Ui_OPLinkWidget *m_oplink;
 
     OPLinkStatus *oplinkStatusObj;
     OPLinkSettings *oplinkSettingsObj;
+
+    // Frequency display settings
+    float frequency_base;
+    float frequency_step;
 
     // Is the status current?
     bool statusUpdated;

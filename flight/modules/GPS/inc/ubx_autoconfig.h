@@ -102,6 +102,7 @@ typedef struct {
     bool    enableGPS;
     bool    enableGLONASS;
     bool    enableBeiDou;
+    bool    enableGalileo;
 } ubx_autoconfig_settings_t;
 
 // Sent messages for configuration support

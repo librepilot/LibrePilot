@@ -112,13 +112,13 @@ void GpsSnrWidget::drawSat(int index)
         //  GLONASS 65-96, 255 if unidentified
         //  Galileo 211-246
         if ((prn > 119 && prn < 159) || (prn > 192 && prn < 198)) {
-            boxes[index]->setBrush(QColor("#fd700b"));
+            boxes[index]->setBrush(QColor("#fd700b"));  // orange
         } else if ((prn > 64 && prn < 97) || 255 == prn) {
             boxes[index]->setBrush(QColor("Cyan"));
         } else if ((prn > 32 && prn < 65) || (prn > 158 && prn < 164)) {
             boxes[index]->setBrush(QColor("Red"));
         } else if (prn > 210 && prn < 247) {
-            boxes[index]->setBrush(QColor("#e162f3"));
+            boxes[index]->setBrush(QColor("#e162f3")); // magenta
         } else {
             boxes[index]->setBrush(QColor("Green"));
         }

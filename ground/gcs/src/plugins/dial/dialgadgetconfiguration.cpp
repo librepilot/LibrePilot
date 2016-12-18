@@ -125,12 +125,12 @@ void DialGadgetConfiguration::saveConfig(QSettings &settings) const
     settings.setValue("dialNeedleID2", dialNeedleID2);
     settings.setValue("dialNeedleID3", dialNeedleID3);
 
-    settings.setValue("needle1MinValue", needle1MinValue);
-    settings.setValue("needle1MaxValue", needle1MaxValue);
-    settings.setValue("needle2MinValue", needle2MinValue);
-    settings.setValue("needle2MaxValue", needle2MaxValue);
-    settings.setValue("needle3MinValue", needle3MinValue);
-    settings.setValue("needle3MaxValue", needle3MaxValue);
+    settings.setValue("needle1MinValue", QString::number(needle1MinValue));
+    settings.setValue("needle1MaxValue", QString::number(needle1MaxValue));
+    settings.setValue("needle2MinValue", QString::number(needle2MinValue));
+    settings.setValue("needle2MaxValue", QString::number(needle2MaxValue));
+    settings.setValue("needle3MinValue", QString::number(needle3MinValue));
+    settings.setValue("needle3MaxValue", QString::number(needle3MaxValue));
 
     settings.setValue("needle1DataObject", needle1DataObject);
     settings.setValue("needle1ObjectField", needle1ObjectField);
@@ -139,9 +139,9 @@ void DialGadgetConfiguration::saveConfig(QSettings &settings) const
     settings.setValue("needle3DataObject", needle3DataObject);
     settings.setValue("needle3ObjectField", needle3ObjectField);
 
-    settings.setValue("needle1Factor", needle1Factor);
-    settings.setValue("needle2Factor", needle2Factor);
-    settings.setValue("needle3Factor", needle3Factor);
+    settings.setValue("needle1Factor", QString::number(needle1Factor));
+    settings.setValue("needle2Factor", QString::number(needle2Factor));
+    settings.setValue("needle3Factor", QString::number(needle3Factor));
 
     settings.setValue("needle1Move", needle1Move);
     settings.setValue("needle2Move", needle2Move);

@@ -304,11 +304,21 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             case VehicleConfigurationSource::GPS_UBX:
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_SURFACE) {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AUTOMOTIVE;
+                } else {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AIRBORNE1G;
+                }
                 break;
             case VehicleConfigurationSource::GPS_PLATINUM:
             {
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_SURFACE) {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AUTOMOTIVE;
+                } else {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AIRBORNE1G;
+                }
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
@@ -339,6 +349,11 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
 
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_SURFACE) {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AUTOMOTIVE;
+                } else {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AIRBORNE1G;
+                }
                 if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                     data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
                 } else {

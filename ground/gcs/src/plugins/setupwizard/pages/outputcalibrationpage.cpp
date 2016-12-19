@@ -82,9 +82,11 @@ void OutputCalibrationPage::setupActuatorMinMaxAndNeutral(int motorChannelStart,
             m_actuatorSettings[servoid].channelNeutral    = LOW_OUTPUT_RATE_MILLISECONDS;
             m_actuatorSettings[servoid].channelMax        = getHighOutputRate();
             m_actuatorSettings[servoid].isReversableMotor = false;
-            // Car and Tank should use reversable Esc/motors
+            // Car, Tank, Boat and Boat differential should use reversable Esc/motors
             if ((getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_CAR)
-                || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_DIFFERENTIAL)) {
+                || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_DIFFERENTIAL)
+                || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_BOAT)
+                || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_DIFFERENTIAL_BOAT)) {
                 m_actuatorSettings[servoid].channelNeutral    = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
                 m_actuatorSettings[servoid].isReversableMotor = true;
                 // Set initial output value
@@ -289,6 +291,30 @@ void OutputCalibrationPage::setupVehicle()
         m_channelIndex << 0 << 3 << 0;
 
         setupActuatorMinMaxAndNeutral(3, 3, 2);
+
+        getWizard()->setActuatorSettings(m_actuatorSettings);
+        break;
+    case SetupWizard::GROUNDVEHICLE_BOAT:
+        loadSVGFile(GROUND_SVG_FILE);
+        m_wizardIndexes << 0 << 1 << 2;
+        m_vehicleElementIds << "boat" << "boat-frame" << "boat-motor" << "boat-rudder";
+        m_vehicleElementTypes << FULL << FRAME << MOTOR << SERVO;
+        m_vehicleHighlightElementIndexes << 0 << 1 << 2;
+        m_channelIndex << 0 << 3 << 0;
+
+        setupActuatorMinMaxAndNeutral(3, 3, 2);
+
+        getWizard()->setActuatorSettings(m_actuatorSettings);
+        break;
+    case SetupWizard::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
+        loadSVGFile(GROUND_SVG_FILE);
+        m_wizardIndexes << 0 << 1 << 1;
+        m_vehicleElementIds << "boat_diff" << "boat_diff-frame" << "boat_diff-left-motor" << "boat_diff-right-motor";
+        m_vehicleElementTypes << FULL << FRAME << MOTOR << MOTOR;
+        m_vehicleHighlightElementIndexes << 0 << 1 << 2;
+        m_channelIndex << 0 << 0 << 1;
+
+        setupActuatorMinMaxAndNeutral(0, 1, 2);
 
         getWizard()->setActuatorSettings(m_actuatorSettings);
         break;

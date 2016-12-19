@@ -2,7 +2,7 @@
  ***********************************************************************************
  *
  * @file       vehicleconfigurationhelper.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
@@ -478,6 +478,12 @@ void VehicleConfigurationHelper::applyVehicleConfiguration()
         case VehicleConfigurationSource::GROUNDVEHICLE_MOTORCYCLE:
             setupMotorcycle();
             break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_BOAT:
+            setupBoat();
+            break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
+            setupBoatDiff();
+            break;
         default:
             break;
         }
@@ -944,6 +950,20 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
             minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL:
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
+            maxThrottle = 0.8;
+            minThrottle = 0;
+            break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_BOAT:
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
+            maxThrottle = 1;
+            minThrottle = 0;
+            break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
@@ -2325,4 +2345,70 @@ void VehicleConfigurationHelper::setupMotorcycle()
 
     applyMixerConfiguration(channels);
     applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE, guiSettings);
+}
+
+void VehicleConfigurationHelper::setupBoat()
+{
+    // Typical vehicle setup
+    // 1. Setup mixer data
+    // 2. Setup GUI data
+    // 3. Apply changes
+
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
+    GUIConfigDataUnion guiSettings = getGUIConfigData();
+
+    // Rudder Servo (Chan 1)
+    channels[0].type      = MIXER_TYPE_SERVO;
+    channels[0].throttle1 = 0;
+    channels[0].throttle2 = 0;
+    channels[0].roll      = 0;
+    channels[0].pitch     = 0;
+    channels[0].yaw       = 100;
+
+    // Motor (Chan 4)
+    channels[3].type      = MIXER_TYPE_REVERSABLEMOTOR;
+    channels[3].throttle1 = 100;
+    channels[3].throttle2 = 0;
+    channels[3].roll      = 0;
+    channels[3].pitch     = 0;
+    channels[3].yaw       = 0;
+
+    guiSettings.ground.GroundVehicleSteering1 = 1;
+    guiSettings.ground.GroundVehicleThrottle2 = 4;
+
+    applyMixerConfiguration(channels);
+    applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT, guiSettings);
+}
+
+void VehicleConfigurationHelper::setupBoatDiff()
+{
+    // Typical vehicle setup
+    // 1. Setup mixer data
+    // 2. Setup GUI data
+    // 3. Apply changes
+
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
+    GUIConfigDataUnion guiSettings = getGUIConfigData();
+
+    // Left Motor (Chan 1)
+    channels[0].type      = MIXER_TYPE_REVERSABLEMOTOR;
+    channels[0].throttle1 = 100;
+    channels[0].throttle2 = 0;
+    channels[0].roll      = 0;
+    channels[0].pitch     = 0;
+    channels[0].yaw       = 100;
+
+    // Right Motor (Chan 2)
+    channels[1].type      = MIXER_TYPE_REVERSABLEMOTOR;
+    channels[1].throttle1 = 100;
+    channels[1].throttle2 = 0;
+    channels[1].roll      = 0;
+    channels[1].pitch     = 0;
+    channels[1].yaw       = -100;
+
+    guiSettings.ground.GroundVehicleThrottle1 = 1;
+    guiSettings.ground.GroundVehicleThrottle2 = 2;
+
+    applyMixerConfiguration(channels);
+    applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT, guiSettings);
 }

@@ -155,7 +155,7 @@ function isCC3D() {
 function frameType() {
     var frameTypeText = ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
             "Hexa+", "Octo+", "Custom", "HexaX", "HexaH", "OctoV", "OctoCoaxP", "OctoCoaxX", "OctoX", "HexaCoax",
-            "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"];
+            "Tricopter", "GroundCar", "GroundDiff", "GroundMoto", "GroundBoat", "GroundDiffBoat"];
 
     if (frameTypeText.length != SystemSettings.SystemSettingsConstants.AirframeTypeCount) {
         console.log("uav.js: frameType() do not match systemSettings.airframeType uavo");

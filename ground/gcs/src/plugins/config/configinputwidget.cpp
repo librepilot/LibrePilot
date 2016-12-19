@@ -882,10 +882,18 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
             transmitterType = acro;
         } else if (wizardUi->typeGround->isChecked()) {
             transmitterType    = ground;
-            /* Make sure to tell controller, this is really a ground vehicle. */
+
             systemSettingsData = systemSettingsObj->getData();
-            systemSettingsData.AirframeType = SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR;
-            systemSettingsObj->setData(systemSettingsData);
+            /* Make sure to tell controller, this is really a ground vehicle. */
+            if ((systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIAL) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT)) {
+                // Apply default ground vehicle airframe
+                systemSettingsData.AirframeType = SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR;
+                systemSettingsObj->setData(systemSettingsData);
+            }
         } else {
             transmitterType = heli;
         }
@@ -1990,7 +1998,11 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         manualSettingsData = manualSettingsObj->getData();
         systemSettingsData = systemSettingsObj->getData();
 
-        if (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR) {
+        if ((systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIAL) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT)) {
             QMessageBox::warning(this, tr("Ground Vehicle"),
                                  tr("<p>Please <b>center</b> throttle control and press OK when ready.</p>"));
 

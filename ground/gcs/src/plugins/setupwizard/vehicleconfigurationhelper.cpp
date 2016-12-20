@@ -944,7 +944,6 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         mSettings->setMixerValueRoll((qint8)100);
         mSettings->setMixerValuePitch((qint8)100);
         mSettings->setMixerValueYaw((qint8)100);
-        maxThrottle = 1;
         break;
     case VehicleConfigurationSource::VEHICLE_HELI:
         break;
@@ -955,14 +954,11 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
-            maxThrottle = 1;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_CAR:
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
-            maxThrottle = 1;
-            minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL:
             mSettings->setMixerValueRoll((qint8)100);
@@ -975,8 +971,6 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
-            maxThrottle = 1;
-            minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
             mSettings->setMixerValueRoll((qint8)100);
@@ -995,7 +989,7 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         break;
     }
 
-    // Apply Throttle curve max 90% for Multis, 100% for FixedWing/car/Motorbike, 80% for Tank
+    // Apply Throttle curve 0-100% for all vehicles except differential vehicles at 0-80%
     QString throttlePattern = "ThrottleCurve%1";
     for (int i = 1; i <= 2; i++) {
         UAVObjectField *field = mSettings->getField(throttlePattern.arg(i));
@@ -1216,7 +1210,7 @@ void VehicleConfigurationHelper::resetVehicleConfig()
     for (int i = 1; i <= 2; i++) {
         UAVObjectField *field = mSettings->getField(throttlePattern.arg(i));
         Q_ASSERT(field);
-        // Set default curve at 90% max for Multirotors
+        // Set default 0 -100% Throttle curve
         for (quint32 i = 0; i < field->getNumElements(); i++) {
             field->setValue(i * (1.0f / (field->getNumElements() - 1)), i);
         }

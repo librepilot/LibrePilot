@@ -65,10 +65,9 @@ private:
     virtual void registerWidgets(ConfigTaskWidget &parent);
     virtual void resetActuators(GUIConfigDataUnion *configData);
 
-    bool setupGroundVehicleCar(QString airframeType);
+    bool setupGroundVehicleTurnable(QString airframeType);
     bool setupGroundVehicleDifferential(QString airframeType);
     bool setupGroundVehicleMotorcycle(QString airframeType);
-    bool setupGroundVehicleBoat(QString airframeType);
 
 private slots:
     virtual void setupUI(QString airframeType);

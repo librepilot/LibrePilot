@@ -287,7 +287,7 @@ int ConfigVehicleTypeWidget::frameCategory(QString frameType)
     } else if (frameType == "GroundVehicleCar" || frameType == "Turnable (car)"
                || frameType == "GroundVehicleDifferential" || frameType == "Differential (tank)"
                || frameType == "GroundVehicleMotorcycle" || frameType == "Motorcycle"
-               || frameType == "GroundVehicleBoat" || frameType == "Boat"
+               || frameType == "GroundVehicleBoat" || frameType == "Turnable (boat)"
                || frameType == "GroundVehicleDifferentialBoat" || frameType == "Differential (boat)") {
         return ConfigVehicleTypeWidget::GROUND;
     } else {

@@ -81,7 +81,7 @@ ConfigGroundVehicleWidget::ConfigGroundVehicleWidget(QWidget *parent) :
     populateChannelComboBoxes();
 
     QStringList groundVehicleTypes;
-    groundVehicleTypes << "Turnable (car)" << "Differential (tank)" << "Motorcycle" << "Boat" << "Differential (boat)";
+    groundVehicleTypes << "Turnable (car)" << "Differential (tank)" << "Motorcycle" << "Turnable (boat)" << "Differential (boat)";
     m_aircraft->groundVehicleType->addItems(groundVehicleTypes);
 
     m_aircraft->groundShape->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -126,10 +126,10 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
 
     initMixerCurves(frameType);
 
-    if (frameType == "GroundVehicleBoat" || frameType == "Boat") {
+    if (frameType == "GroundVehicleBoat" || frameType == "Turnable (boat)") {
         // Boat
         m_vehicleImg->setElementId("boat");
-        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Boat"));
+        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Turnable (boat)"));
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(true);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
@@ -214,8 +214,8 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         m_vehicleImg->setElementId("motorbike");
         setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Motorcycle"));
 
-        m_aircraft->gvMotor1ChannelBox->setEnabled(true);
-        m_aircraft->gvMotor2ChannelBox->setEnabled(false);
+        m_aircraft->gvMotor1ChannelBox->setEnabled(false);
+        m_aircraft->gvMotor2ChannelBox->setEnabled(true);
 
         m_aircraft->gvMotor2Label->setText("Rear motor");
 
@@ -258,10 +258,10 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         m_aircraft->gvSteering1Label->setText("Front steering");
         m_aircraft->gvSteering2Label->setText("Rear steering");
 
-        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle curve1");
+        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Front Motor Throttle curve");
         m_aircraft->gvThrottleCurve1GroupBox->setEnabled(true);
-        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle curve2");
-        m_aircraft->gvThrottleCurve2GroupBox->setEnabled(false);
+        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Rear Motor Throttle curve");
+        m_aircraft->gvThrottleCurve2GroupBox->setEnabled(true);
 
         m_aircraft->groundVehicleThrottle2->setMixerType(MixerCurve::MIXERCURVE_THROTTLE);
         m_aircraft->groundVehicleThrottle1->setMixerType(MixerCurve::MIXERCURVE_THROTTLE);
@@ -411,12 +411,12 @@ QString ConfigGroundVehicleWidget::updateConfigObjectsFromWidgets()
     if (m_aircraft->groundVehicleType->currentText() == "Differential (boat)") {
         airframeType = "GroundVehicleDifferentialBoat";
         setupGroundVehicleDifferential(airframeType);
-    } else if (m_aircraft->groundVehicleType->currentText() == "Boat") {
+    } else if (m_aircraft->groundVehicleType->currentText() == "Turnable (boat)") {
         airframeType = "GroundVehicleBoat";
-        setupGroundVehicleCar(airframeType);
+        setupGroundVehicleTurnable(airframeType);
     } else if (m_aircraft->groundVehicleType->currentText() == "Turnable (car)") {
         airframeType = "GroundVehicleCar";
-        setupGroundVehicleCar(airframeType);
+        setupGroundVehicleTurnable(airframeType);
     } else if (m_aircraft->groundVehicleType->currentText() == "Differential (tank)") {
         airframeType = "GroundVehicleDifferential";
         setupGroundVehicleDifferential(airframeType);
@@ -531,7 +531,7 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleDifferential(QString airframeT
 
    Returns False if impossible to create the mixer.
  */
-bool ConfigGroundVehicleWidget::setupGroundVehicleCar(QString airframeType)
+bool ConfigGroundVehicleWidget::setupGroundVehicleTurnable(QString airframeType)
 {
     // Check coherence:
     // Show any config errors in GUI
@@ -568,8 +568,13 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleCar(QString airframeType)
 
     channel = m_aircraft->gvMotor2ChannelBox->currentIndex() - 1;
     setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_REVERSABLEMOTOR);
-    setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
-
+    if (airframeType == "GroundVehicleCar") {
+        // Car: Throttle2 curve for 2nd motor
+        setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
+    } else {
+        // Boat: Throttle1 curve for both motors
+        setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
+    }
     // Output success message
     m_aircraft->gvStatusLabel->setText("Mixer generated");
 

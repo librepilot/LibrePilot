@@ -284,11 +284,11 @@ int ConfigVehicleTypeWidget::frameCategory(QString frameType)
         return ConfigVehicleTypeWidget::MULTIROTOR;
     } else if (frameType == "HeliCP") {
         return ConfigVehicleTypeWidget::HELICOPTER;
-    } else if (frameType == "GroundVehicleCar" || frameType == "Turnable (car)"
-               || frameType == "GroundVehicleDifferential" || frameType == "Differential (tank)"
+    } else if (frameType == "GroundVehicleCar" || frameType == "Car (Turnable)"
+               || frameType == "GroundVehicleDifferential" || frameType == "Tank (Differential)"
                || frameType == "GroundVehicleMotorcycle" || frameType == "Motorcycle"
-               || frameType == "GroundVehicleBoat" || frameType == "Turnable (boat)"
-               || frameType == "GroundVehicleDifferentialBoat" || frameType == "Differential (boat)") {
+               || frameType == "GroundVehicleBoat" || frameType == "Boat (Turnable)"
+               || frameType == "GroundVehicleDifferentialBoat" || frameType == "Boat (Differential)") {
         return ConfigVehicleTypeWidget::GROUND;
     } else {
         return ConfigVehicleTypeWidget::CUSTOM;

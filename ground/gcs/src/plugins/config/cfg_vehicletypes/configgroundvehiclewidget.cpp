@@ -81,15 +81,15 @@ ConfigGroundVehicleWidget::ConfigGroundVehicleWidget(QWidget *parent) :
     populateChannelComboBoxes();
 
     QStringList groundVehicleTypes;
-    groundVehicleTypes << "Turnable (car)" << "Differential (tank)" << "Motorcycle" << "Turnable (boat)" << "Differential (boat)";
+    groundVehicleTypes << "Car (Turnable)" << "Tank (Differential)" << "Motorcycle" << "Boat (Turnable)" << "Boat (Differential)";
     m_aircraft->groundVehicleType->addItems(groundVehicleTypes);
 
     m_aircraft->groundShape->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_aircraft->groundShape->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    // Set default model to "Turnable (car)"
+    // Set default model to "Car (Turnable)"
     connect(m_aircraft->groundVehicleType, SIGNAL(currentIndexChanged(QString)), this, SLOT(setupUI(QString)));
-    m_aircraft->groundVehicleType->setCurrentIndex(m_aircraft->groundVehicleType->findText("Turnable (car)"));
+    m_aircraft->groundVehicleType->setCurrentIndex(m_aircraft->groundVehicleType->findText("Car (Turnable)"));
     setupUI(m_aircraft->groundVehicleType->currentText());
 }
 
@@ -126,10 +126,10 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
 
     initMixerCurves(frameType);
 
-    if (frameType == "GroundVehicleBoat" || frameType == "Turnable (boat)") {
+    if (frameType == "GroundVehicleBoat" || frameType == "Boat (Turnable)") {
         // Boat
         m_vehicleImg->setElementId("boat");
-        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Turnable (boat)"));
+        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Boat (Turnable)"));
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(true);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
@@ -143,9 +143,9 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         m_aircraft->gvSteering1Label->setText("First rudder");
         m_aircraft->gvSteering2Label->setText("Second rudder");
 
-        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle curve1");
+        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle Curve 1");
         m_aircraft->gvThrottleCurve1GroupBox->setEnabled(true);
-        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle curve2");
+        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle Curve 2");
         m_aircraft->gvThrottleCurve2GroupBox->setEnabled(false);
 
         m_aircraft->groundVehicleThrottle2->setMixerType(MixerCurve::MIXERCURVE_THROTTLE);
@@ -158,22 +158,22 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
             m_aircraft->groundVehicleThrottle1->initLinearCurve(5, 1.0, 0.0);
             m_aircraft->groundVehicleThrottle2->initLinearCurve(5, 1.0, 0.0);
         }
-    } else if ((frameType == "GroundVehicleDifferential") || (frameType == "Differential (tank)") ||
-               (frameType == "GroundVehicleDifferentialBoat") || (frameType == "Differential (boat)")) {
-        bool is_Boat = frameType.contains("oat");
+    } else if ((frameType == "GroundVehicleDifferential") || (frameType == "Tank (Differential)") ||
+               (frameType == "GroundVehicleDifferentialBoat") || (frameType == "Boat (Differential)")) {
+        bool is_Boat = frameType.contains("Boat");
 
         if (is_Boat) {
             // Boat differential
             m_vehicleImg->setElementId("boat_diff");
             setComboCurrentIndex(m_aircraft->groundVehicleType,
-                                 m_aircraft->groundVehicleType->findText("Differential (boat)"));
+                                 m_aircraft->groundVehicleType->findText("Boat (Differential)"));
             m_aircraft->gvSteering1Label->setText("First rudder");
             m_aircraft->gvSteering2Label->setText("Second rudder");
         } else {
             // Tank
             m_vehicleImg->setElementId("tank");
             setComboCurrentIndex(m_aircraft->groundVehicleType,
-                                 m_aircraft->groundVehicleType->findText("Differential (tank)"));
+                                 m_aircraft->groundVehicleType->findText("Tank (Differential)"));
             m_aircraft->gvSteering1Label->setText("Front steering");
             m_aircraft->gvSteering2Label->setText("Rear steering");
         }
@@ -191,9 +191,9 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         m_aircraft->differentialSteeringSlider1->setEnabled(true);
         m_aircraft->differentialSteeringSlider2->setEnabled(true);
 
-        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle curve1");
+        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle Curve 1");
         m_aircraft->gvThrottleCurve1GroupBox->setEnabled(true);
-        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle curve2 ");
+        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle Curve 2 ");
         m_aircraft->gvThrottleCurve2GroupBox->setEnabled(false);
 
         m_aircraft->groundVehicleThrottle2->setMixerType(MixerCurve::MIXERCURVE_THROTTLE);
@@ -226,9 +226,9 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         m_aircraft->gvSteering2Label->setText("Balancing");
 
         // Curve1 for Motorcyle
-        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle curve1");
+        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Throttle Curve 1");
         m_aircraft->gvThrottleCurve1GroupBox->setEnabled(true);
-        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle curve2");
+        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Throttle Curve 2");
         m_aircraft->gvThrottleCurve2GroupBox->setEnabled(false);
 
         m_aircraft->groundVehicleThrottle2->setMixerType(MixerCurve::MIXERCURVE_THROTTLE);
@@ -244,7 +244,7 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
     } else {
         // Car
         m_vehicleImg->setElementId("car");
-        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Turnable (car)"));
+        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Car (Turnable)"));
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(true);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
@@ -258,9 +258,9 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         m_aircraft->gvSteering1Label->setText("Front steering");
         m_aircraft->gvSteering2Label->setText("Rear steering");
 
-        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Front Motor Throttle curve");
+        m_aircraft->gvThrottleCurve1GroupBox->setTitle("Front Motor Throttle Curve");
         m_aircraft->gvThrottleCurve1GroupBox->setEnabled(true);
-        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Rear Motor Throttle curve");
+        m_aircraft->gvThrottleCurve2GroupBox->setTitle("Rear Motor Throttle Curve");
         m_aircraft->gvThrottleCurve2GroupBox->setEnabled(true);
 
         m_aircraft->groundVehicleThrottle2->setMixerType(MixerCurve::MIXERCURVE_THROTTLE);
@@ -408,16 +408,16 @@ QString ConfigGroundVehicleWidget::updateConfigObjectsFromWidgets()
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE2, m_aircraft->groundVehicleThrottle2->getCurve());
 
     // All airframe types must start with "GroundVehicle"
-    if (m_aircraft->groundVehicleType->currentText() == "Differential (boat)") {
+    if (m_aircraft->groundVehicleType->currentText() == "Boat (Differential)") {
         airframeType = "GroundVehicleDifferentialBoat";
         setupGroundVehicleDifferential(airframeType);
-    } else if (m_aircraft->groundVehicleType->currentText() == "Turnable (boat)") {
+    } else if (m_aircraft->groundVehicleType->currentText() == "Boat (Turnable)") {
         airframeType = "GroundVehicleBoat";
         setupGroundVehicleTurnable(airframeType);
-    } else if (m_aircraft->groundVehicleType->currentText() == "Turnable (car)") {
+    } else if (m_aircraft->groundVehicleType->currentText() == "Car (Turnable)") {
         airframeType = "GroundVehicleCar";
         setupGroundVehicleTurnable(airframeType);
-    } else if (m_aircraft->groundVehicleType->currentText() == "Differential (tank)") {
+    } else if (m_aircraft->groundVehicleType->currentText() == "Tank (Differential)") {
         airframeType = "GroundVehicleDifferential";
         setupGroundVehicleDifferential(airframeType);
     } else {
@@ -615,7 +615,7 @@ bool ConfigGroundVehicleWidget::throwConfigError(QString airframeType)
             m_aircraft->gvSteering1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
             m_aircraft->gvSteering2ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
         }
-    } else if (airframeType.contains("GroundVehicleDifferential")) { // Tank and differential Boat
+    } else if (airframeType.contains("GroundVehicleDifferential")) { // differential Tank and Boat
         if (m_aircraft->gvMotor1ChannelBox->currentText() == "None"
             || m_aircraft->gvMotor2ChannelBox->currentText() == "None") {
             m_aircraft->gvMotor1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes

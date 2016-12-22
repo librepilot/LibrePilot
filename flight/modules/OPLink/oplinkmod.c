@@ -68,7 +68,7 @@ static xTaskHandle systemTaskHandle;
 static bool stackOverflow;
 static bool mallocFailed;
 volatile int initTaskDone = 0;
-static OPLinkSettingsData previousOPLinkSettings;
+static uint8_t previousRFXtalCap;
 
 // Private functions
 static void systemTask(void *parameters);
@@ -136,9 +136,8 @@ static void systemTask(__attribute__((unused)) void *parameters)
         PIOS_SYS_Reset();
     }
 
-    // Initialize previousOPLinkSettings used by callback
-    OPLinkSettingsGet(&previousOPLinkSettings);
-
+    // Initialize previousRFXtalCap used by callback
+    OPLinkSettingsRFXtalCapGet(&previousRFXtalCap);
     OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
 
     // Initialize vars
@@ -255,14 +254,15 @@ void vApplicationMallocFailedHook(void)
  */
 static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
-    OPLinkSettingsData currentOPLinkSettings;
+    uint8_t currentRFXtalCap;
 
-    OPLinkSettingsGet(&currentOPLinkSettings);
+    OPLinkSettingsRFXtalCapGet(&currentRFXtalCap);
+
     // Check if RFXtalCap value changed
-    if (currentOPLinkSettings.RFXtalCap != previousOPLinkSettings.RFXtalCap) {
-        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentOPLinkSettings.RFXtalCap);
+    if (currentRFXtalCap != previousRFXtalCap) {
+        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentRFXtalCap);
         PIOS_RFM22B_Reinit(pios_rfm22b_id);
-        previousOPLinkSettings = currentOPLinkSettings;
+        previousRFXtalCap = currentRFXtalCap;
     }
 }
 

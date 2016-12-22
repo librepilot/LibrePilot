@@ -130,7 +130,7 @@ static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 #endif
 
 #ifdef PIOS_INCLUDE_RFM22B
-static OPLinkSettingsData previousOPLinkSettings;
+static uint8_t previousRFXtalCap;
 static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
 #endif
 
@@ -237,9 +237,8 @@ static void systemTask(__attribute__((unused)) void *parameters)
     SystemSettingsConnectCallback(checkSettingsUpdatedCb);
 
 #ifdef PIOS_INCLUDE_RFM22B
-    // Initialize previousOPLinkSettings used by callback
-    OPLinkSettingsGet(&previousOPLinkSettings);
-
+    // Initialize previousRFXtalCap used by callback
+    OPLinkSettingsRFXtalCapGet(&previousRFXtalCap);
     OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
 #endif
 
@@ -472,14 +471,15 @@ static void checkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
  */
 static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
-    OPLinkSettingsData currentOPLinkSettings;
+    uint8_t currentRFXtalCap;
 
-    OPLinkSettingsGet(&currentOPLinkSettings);
+    OPLinkSettingsRFXtalCapGet(&currentRFXtalCap);
+
     // Check if RFXtalCap value changed
-    if (currentOPLinkSettings.RFXtalCap != previousOPLinkSettings.RFXtalCap) {
-        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentOPLinkSettings.RFXtalCap);
+    if (currentRFXtalCap != previousRFXtalCap) {
+        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentRFXtalCap);
         PIOS_RFM22B_Reinit(pios_rfm22b_id);
-        previousOPLinkSettings = currentOPLinkSettings;
+        previousRFXtalCap = currentRFXtalCap;
     }
 }
 #endif /* ifdef PIOS_INCLUDE_RFM22B */

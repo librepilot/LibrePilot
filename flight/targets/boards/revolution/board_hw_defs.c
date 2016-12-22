@@ -640,7 +640,7 @@ static const struct pios_exti_cfg pios_exti_rfm22b_cfg __exti_config = {
     },
 };
 
-struct pios_rfm22b_cfg pios_rfm22b_rm1_cfg = {
+const struct pios_rfm22b_cfg pios_rfm22b_rm1_cfg = {
     .spi_cfg   = &pios_spi_telem_flash_cfg,
     .exti_cfg  = &pios_exti_rfm22b_cfg,
     .RFXtalCap = 0x7f,
@@ -648,7 +648,7 @@ struct pios_rfm22b_cfg pios_rfm22b_rm1_cfg = {
     .gpio_direction = GPIO0_RX_GPIO1_TX,
 };
 
-struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
+const struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
     .spi_cfg   = &pios_spi_telem_flash_cfg,
     .exti_cfg  = &pios_exti_rfm22b_cfg,
     .RFXtalCap = 0x7f,

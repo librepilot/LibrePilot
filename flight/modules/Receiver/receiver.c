@@ -64,8 +64,7 @@
 
 #define TASK_PRIORITY                    (tskIDLE_PRIORITY + 3) // 3 = flight control
 #define UPDATE_PERIOD_MS                 20
-#define THROTTLE_FAILSAFE                -0.1f
-#define ARMED_THRESHOLD                  0.50f
+
 // safe band to allow a bit of calibration error or trim offset (in microseconds)
 #define CONNECTION_OFFSET                250
 

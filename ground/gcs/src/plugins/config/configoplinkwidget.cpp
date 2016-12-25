@@ -174,7 +174,7 @@ void ConfigOPLinkWidget::updateStatus()
     bool linkConnected = (oplinkStatusObj->linkState() == OPLinkStatus_LinkState::Connected);
 
     m_oplink->PairSignalStrengthBar1->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);
-    m_oplink->PairSignalStrengthLabel1->setText(QString("%1dB").arg(m_oplink->PairSignalStrengthBar1->value()));
+    m_oplink->PairSignalStrengthLabel1->setText(QString("%1dBm").arg(m_oplink->PairSignalStrengthBar1->value()));
 
     int afc_valueKHz = m_oplink->AFCCorrection->text().toInt() / 1000;
     m_oplink->AFCCorrectionBar->setValue(afc_valueKHz);

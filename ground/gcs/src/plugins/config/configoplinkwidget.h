@@ -51,6 +51,10 @@ private:
     OPLinkStatus *oplinkStatusObj;
     OPLinkSettings *oplinkSettingsObj;
 
+    // Frequency display settings
+    float frequency_base;
+    float frequency_step;
+
     // Is the status current?
     bool statusUpdated;
 
@@ -68,7 +72,9 @@ private slots:
 
     void minChannelChanged();
     void maxChannelChanged();
+    void rfBandChanged();
     void channelChanged(bool isMax);
+    void updateFrequencyDisplay();
 
     void mainPortChanged();
     void flexiPortChanged();

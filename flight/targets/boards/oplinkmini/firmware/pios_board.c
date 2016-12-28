@@ -396,7 +396,7 @@ void PIOS_Board_Init(void)
     PIOS_SYS_SerialNumberGetBinary(oplinkStatus.CPUSerial);
     oplinkStatus.BoardRevision = bdinfo->board_rev;
 
-    /* Initalize the RFM22B radio COM device. */
+    /* Initialize the RFM22B radio COM device. */
     if (is_enabled) {
         if (openlrs) {
 #if defined(PIOS_INCLUDE_OPENLRS)
@@ -413,7 +413,8 @@ void PIOS_Board_Init(void)
 
             // Configure the RFM22B device
             const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
-            if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg)) {
+
+            if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg, oplinkSettings.RFBand)) {
                 PIOS_Assert(0);
             }
 
@@ -485,6 +486,7 @@ void PIOS_Board_Init(void)
             // Set the radio configuration parameters.
             PIOS_RFM22B_SetDeviceID(pios_rfm22b_id, oplinkSettings.CustomDeviceID);
             PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
+            PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, oplinkSettings.RFXtalCap);
             PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, data_mode, ppm_mode);
 
             /* Set the PPM callback if we should be receiving PPM. */

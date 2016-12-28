@@ -96,15 +96,16 @@ struct rfm22b_stats {
     uint8_t  timeouts;
     uint8_t  link_quality;
     int8_t   rssi;
-    int8_t   afc_correction;
+    int32_t  afc_correction;
     uint8_t  link_state;
 };
 
 /* Public Functions */
-extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg);
+extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg, OPLinkSettingsRFBandOptions band);
 extern void PIOS_RFM22B_Reinit(uint32_t rfb22b_id);
 extern void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr);
 extern void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool ppm_mode, bool ppm_only);
+extern void PIOS_RFM22B_SetXtalCap(uint32_t rfm22b_id, uint8_t xtal_cap);
 extern void PIOS_RFM22B_SetCoordinatorID(uint32_t rfm22b_id, uint32_t coord_id);
 extern void PIOS_RFM22B_SetDeviceID(uint32_t rfm22b_id, uint32_t device_id);
 extern uint32_t PIOS_RFM22B_DeviceID(uint32_t rfb22b_id);

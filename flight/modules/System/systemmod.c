@@ -16,7 +16,7 @@
  * @{
  *
  * @file       systemmod.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      System module
  *
@@ -129,6 +129,11 @@ static void updateWDGstats();
 static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 #endif
 
+#ifdef PIOS_INCLUDE_RFM22B
+static uint8_t previousRFXtalCap;
+static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
+#endif
+
 extern uintptr_t pios_uavo_settings_fs_id;
 extern uintptr_t pios_user_fs_id;
 
@@ -231,6 +236,12 @@ static void systemTask(__attribute__((unused)) void *parameters)
     HwSettingsConnectCallback(checkSettingsUpdatedCb);
     SystemSettingsConnectCallback(checkSettingsUpdatedCb);
 
+#ifdef PIOS_INCLUDE_RFM22B
+    // Initialize previousRFXtalCap used by callback
+    OPLinkSettingsRFXtalCapGet(&previousRFXtalCap);
+    OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
+#endif
+
 #ifdef DIAG_TASKS
     TaskInfoData taskInfoData;
     CallbackInfoData callbackInfoData;
@@ -292,18 +303,19 @@ static void systemTask(__attribute__((unused)) void *parameters)
             static uint16_t prev_tx_seq   = 0;
             static uint16_t prev_rx_seq   = 0;
 
-            oplinkStatus.DeviceID    = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
-            oplinkStatus.RxGood      = radio_stats.rx_good;
-            oplinkStatus.RxCorrected = radio_stats.rx_corrected;
-            oplinkStatus.RxErrors    = radio_stats.rx_error;
-            oplinkStatus.RxMissed    = radio_stats.rx_missed;
-            oplinkStatus.RxFailure   = radio_stats.rx_failure;
-            oplinkStatus.TxDropped   = radio_stats.tx_dropped;
-            oplinkStatus.TxFailure   = radio_stats.tx_failure;
-            oplinkStatus.Resets      = radio_stats.resets;
-            oplinkStatus.Timeouts    = radio_stats.timeouts;
+            oplinkStatus.DeviceID      = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
+            oplinkStatus.RxGood        = radio_stats.rx_good;
+            oplinkStatus.RxCorrected   = radio_stats.rx_corrected;
+            oplinkStatus.RxErrors      = radio_stats.rx_error;
+            oplinkStatus.RxMissed      = radio_stats.rx_missed;
+            oplinkStatus.RxFailure     = radio_stats.rx_failure;
+            oplinkStatus.TxDropped     = radio_stats.tx_dropped;
+            oplinkStatus.TxFailure     = radio_stats.tx_failure;
+            oplinkStatus.Resets        = radio_stats.resets;
+            oplinkStatus.Timeouts      = radio_stats.timeouts;
             oplinkStatus.RSSI = radio_stats.rssi;
-            oplinkStatus.LinkQuality = radio_stats.link_quality;
+            oplinkStatus.LinkQuality   = radio_stats.link_quality;
+            oplinkStatus.AFCCorrection = radio_stats.afc_correction;
             if (first_time) {
                 first_time = false;
             } else {
@@ -452,6 +464,25 @@ static void checkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
         ExtendedAlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED, 0);
     }
 }
+
+#ifdef PIOS_INCLUDE_RFM22B
+/**
+ * Called whenever OPLink settings changed
+ */
+static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    uint8_t currentRFXtalCap;
+
+    OPLinkSettingsRFXtalCapGet(&currentRFXtalCap);
+
+    // Check if RFXtalCap value changed
+    if (currentRFXtalCap != previousRFXtalCap) {
+        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentRFXtalCap);
+        PIOS_RFM22B_Reinit(pios_rfm22b_id);
+        previousRFXtalCap = currentRFXtalCap;
+    }
+}
+#endif /* ifdef PIOS_INCLUDE_RFM22B */
 
 #ifdef DIAG_TASKS
 static void taskMonitorForEachCallback(uint16_t task_id, const struct pios_task_info *task_info, void *context)

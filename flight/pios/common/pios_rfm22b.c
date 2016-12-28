@@ -66,54 +66,56 @@
 #include <sha1.h>
 
 /* Local Defines */
-#define STACK_SIZE_BYTES                 200
-#define TASK_PRIORITY                    (tskIDLE_PRIORITY + 4) // flight control relevant device driver (ppm link)
-#define ISR_TIMEOUT                      1 // ms
-#define EVENT_QUEUE_SIZE                 5
-#define RFM22B_DEFAULT_RX_DATARATE       RFM22_datarate_9600
-#define RFM22B_DEFAULT_TX_POWER          RFM22_tx_pwr_txpow_0
-#define RFM22B_NOMINAL_CARRIER_FREQUENCY 430000000
-#define RFM22B_LINK_QUALITY_THRESHOLD    20
-#define RFM22B_DEFAULT_MIN_CHANNEL       0
-#define RFM22B_DEFAULT_MAX_CHANNEL       250
-#define RFM22B_PPM_ONLY_DATARATE         RFM22_datarate_9600
+#define STACK_SIZE_BYTES                     200
+#define TASK_PRIORITY                        (tskIDLE_PRIORITY + 4) // flight control relevant device driver (ppm link)
+#define ISR_TIMEOUT                          1 // ms
+#define EVENT_QUEUE_SIZE                     5
+#define RFM22B_DEFAULT_RX_DATARATE           RFM22_datarate_9600
+#define RFM22B_DEFAULT_TX_POWER              RFM22_tx_pwr_txpow_0
+#define RFM22B_NOMINAL_CARRIER_FREQUENCY_433 430000000
+#define RFM22B_NOMINAL_CARRIER_FREQUENCY_868 860000000
+#define RFM22B_NOMINAL_CARRIER_FREQUENCY_915 900000000
+#define RFM22B_LINK_QUALITY_THRESHOLD        20
+#define RFM22B_DEFAULT_MIN_CHANNEL           0
+#define RFM22B_DEFAULT_MAX_CHANNEL           250
+#define RFM22B_PPM_ONLY_DATARATE             RFM22_datarate_9600
 
 // PPM encoding limits
-#define RFM22B_PPM_MIN                   1
-#define RFM22B_PPM_MAX                   511
-#define RFM22B_PPM_INVALID               0
-#define RFM22B_PPM_SCALE                 2
-#define RFM22B_PPM_MIN_US                990
-#define RFM22B_PPM_MAX_US                (RFM22B_PPM_MIN_US + (RFM22B_PPM_MAX - RFM22B_PPM_MIN) * RFM22B_PPM_SCALE)
+#define RFM22B_PPM_MIN                       1
+#define RFM22B_PPM_MAX                       511
+#define RFM22B_PPM_INVALID                   0
+#define RFM22B_PPM_SCALE                     2
+#define RFM22B_PPM_MIN_US                    990
+#define RFM22B_PPM_MAX_US                    (RFM22B_PPM_MIN_US + (RFM22B_PPM_MAX - RFM22B_PPM_MIN) * RFM22B_PPM_SCALE)
 
 // The maximum amount of time without activity before initiating a reset.
-#define PIOS_RFM22B_SUPERVISOR_TIMEOUT   150  // ms
+#define PIOS_RFM22B_SUPERVISOR_TIMEOUT       150  // ms
 
 // this is too adjust the RF module so that it is on frequency
-#define OSC_LOAD_CAP                     0x7F  // cap = 12.5pf .. default
+#define OSC_LOAD_CAP                         0x7F  // cap = 12.5pf .. default
 
-#define TX_PREAMBLE_NIBBLES              12  // 7 to 511 (number of nibbles)
-#define RX_PREAMBLE_NIBBLES              6   // 5 to 31 (number of nibbles)
-#define SYNC_BYTES                       4
-#define HEADER_BYTES                     4
-#define LENGTH_BYTES                     1
+#define TX_PREAMBLE_NIBBLES                  12  // 7 to 511 (number of nibbles)
+#define RX_PREAMBLE_NIBBLES                  6   // 5 to 31 (number of nibbles)
+#define SYNC_BYTES                           4
+#define HEADER_BYTES                         4
+#define LENGTH_BYTES                         1
 
 // the size of the rf modules internal FIFO buffers
-#define FIFO_SIZE                        64
+#define FIFO_SIZE                            64
 
-#define TX_FIFO_HI_WATERMARK             62  // 0-63
-#define TX_FIFO_LO_WATERMARK             32  // 0-63
+#define TX_FIFO_HI_WATERMARK                 62  // 0-63
+#define TX_FIFO_LO_WATERMARK                 32  // 0-63
 
-#define RX_FIFO_HI_WATERMARK             32 // 0-63
+#define RX_FIFO_HI_WATERMARK                 32 // 0-63
 
 // preamble byte (preceeds SYNC_BYTE's)
-#define PREAMBLE_BYTE                    0x55
+#define PREAMBLE_BYTE                        0x55
 
 // RF sync bytes (32-bit in all)
-#define SYNC_BYTE_1                      0x2D
-#define SYNC_BYTE_2                      0xD4
-#define SYNC_BYTE_3                      0x4B
-#define SYNC_BYTE_4                      0x59
+#define SYNC_BYTE_1                          0x2D
+#define SYNC_BYTE_2                          0xD4
+#define SYNC_BYTE_3                          0x4B
+#define SYNC_BYTE_4                          0x59
 
 #ifndef RX_LED_ON
 #define RX_LED_ON
@@ -187,7 +189,7 @@ static enum pios_radio_event rfm22_timeout(struct pios_rfm22b_dev *rfm22b_dev);
 static enum pios_radio_event rfm22_error(struct pios_rfm22b_dev *rfm22b_dev);
 static enum pios_radio_event rfm22_fatal_error(struct pios_rfm22b_dev *rfm22b_dev);
 static void rfm22b_add_rx_status(struct pios_rfm22b_dev *rfm22b_dev, enum pios_rfm22b_rx_packet_status status);
-static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan);
+static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan, uint32_t frequency_hz);
 static bool rfm22_setFreqHopChannel(struct pios_rfm22b_dev *rfm22b_dev, uint8_t channel);
 static void rfm22_generateDeviceID(struct pios_rfm22b_dev *rfm22b_dev);
 static void rfm22_updatePairStatus(struct pios_rfm22b_dev *radio_dev);
@@ -391,7 +393,7 @@ static struct pios_rfm22b_dev *g_rfm22b_dev = NULL;
  * @param[in] slave_num  The SPI bus slave number.
  * @param[in] cfg  The device configuration.
  */
-int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg)
+int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg, OPLinkSettingsRFBandOptions band)
 {
     PIOS_DEBUG_Assert(rfm22b_id);
     PIOS_DEBUG_Assert(cfg);
@@ -425,16 +427,31 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     rfm22b_dev->stats.packets_per_sec = 0;
     rfm22b_dev->stats.rx_good = 0;
     rfm22b_dev->stats.rx_corrected    = 0;
-    rfm22b_dev->stats.rx_error     = 0;
-    rfm22b_dev->stats.rx_missed    = 0;
-    rfm22b_dev->stats.tx_dropped   = 0;
-    rfm22b_dev->stats.resets       = 0;
-    rfm22b_dev->stats.timeouts     = 0;
-    rfm22b_dev->stats.link_quality = 0;
+    rfm22b_dev->stats.rx_error       = 0;
+    rfm22b_dev->stats.rx_missed      = 0;
+    rfm22b_dev->stats.tx_dropped     = 0;
+    rfm22b_dev->stats.resets         = 0;
+    rfm22b_dev->stats.timeouts       = 0;
+    rfm22b_dev->stats.link_quality   = 0;
     rfm22b_dev->stats.rssi = 0;
-    rfm22b_dev->stats.tx_seq       = 0;
-    rfm22b_dev->stats.rx_seq       = 0;
-    rfm22b_dev->stats.tx_failure   = 0;
+    rfm22b_dev->stats.afc_correction = 0;
+    rfm22b_dev->stats.tx_seq         = 0;
+    rfm22b_dev->stats.rx_seq         = 0;
+    rfm22b_dev->stats.tx_failure     = 0;
+
+    // Set the frequency band
+    switch (band) {
+    case OPLINKSETTINGS_RFBAND_915MHZ:
+        rfm22b_dev->base_freq = RFM22B_NOMINAL_CARRIER_FREQUENCY_915;
+        break;
+    case OPLINKSETTINGS_RFBAND_868MHZ:
+        rfm22b_dev->base_freq = RFM22B_NOMINAL_CARRIER_FREQUENCY_868;
+        break;
+    case OPLINKSETTINGS_RFBAND_433MHZ:
+    default:
+        rfm22b_dev->base_freq = RFM22B_NOMINAL_CARRIER_FREQUENCY_433;
+        break;
+    }
 
     // Initialize the channels.
     PIOS_RFM22B_SetChannelConfig(*rfm22b_id, RFM22B_DEFAULT_RX_DATARATE, RFM22B_DEFAULT_MIN_CHANNEL,
@@ -632,6 +649,21 @@ void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datar
     rfm22b_dev->max_packet_len = bytes_per_period - TX_PREAMBLE_NIBBLES / 2 - SYNC_BYTES - HEADER_BYTES - LENGTH_BYTES;
     if (rfm22b_dev->max_packet_len > RFM22B_MAX_PACKET_LEN) {
         rfm22b_dev->max_packet_len = RFM22B_MAX_PACKET_LEN;
+    }
+}
+
+/**
+ * Set a XtalCap
+ *
+ * @param[in] rfm22b_id The RFM22B device index.
+ * @param[in] XtalCap Value.
+ */
+void PIOS_RFM22B_SetXtalCap(uint32_t rfm22b_id, uint8_t xtal_cap)
+{
+    struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
+
+    if (PIOS_RFM22B_Validate(rfm22b_dev)) {
+        rfm22b_dev->cfg.RFXtalCap = xtal_cap;
     }
 }
 
@@ -1056,13 +1088,13 @@ pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id)
 
         // read the 10-bit signed afc correction value
         // bits 9 to 2
-        uint16_t afc_correction = (uint16_t)rfm22_read(rfm22b_dev, RFM22_afc_correction_read) << 8;
+        int16_t afc_correction = (uint16_t)rfm22_read(rfm22b_dev, RFM22_afc_correction_read) << 8;
         // bits 1 & 0
-        afc_correction  |= (uint16_t)rfm22_read(rfm22b_dev, RFM22_ook_counter_value1) & 0x00c0;
+        afc_correction  |= (int16_t)rfm22_read(rfm22b_dev, RFM22_ook_counter_value1) & 0x00c0;
         afc_correction >>= 6;
         // convert the afc value to Hz
         int32_t afc_corr = (int32_t)(rfm22b_dev->frequency_step_size * afc_correction + 0.5f);
-        rfm22b_dev->afc_correction_Hz = (afc_corr < -127) ? -127 : ((afc_corr > 127) ? 127 : afc_corr);
+        rfm22b_dev->afc_correction_Hz = afc_corr;
 
         // read rx signal strength .. 45 = -100dBm, 205 = -20dBm
         uint8_t rssi = rfm22_read(rfm22b_dev, RFM22_rssi);
@@ -1556,8 +1588,13 @@ static enum pios_radio_event rfm22_init(struct pios_rfm22b_dev *rfm22b_dev)
     // RX FIFO Almost Full Threshold (0 - 63)
     rfm22_write(rfm22b_dev, RFM22_rx_fifo_control, RX_FIFO_HI_WATERMARK);
 
-    // Set the frequency calibration
-    rfm22_write(rfm22b_dev, RFM22_xtal_osc_load_cap, rfm22b_dev->cfg.RFXtalCap);
+    // Set the xtal capacitor for frequency calibration
+    // Cint = 1.8 pF + 0.085 pF x xlc[6:0] + 3.7 pF x xlc[7] (xtalshift)
+    // cfg.RFXtalCap 0 to 171 range give Cint = 1.8pF to 16.295pF range
+    // Default is 127, equal to 12.595pF
+    rfm22_write(rfm22b_dev,
+                RFM22_xtal_osc_load_cap,
+                (rfm22b_dev->cfg.RFXtalCap < 128) ? rfm22b_dev->cfg.RFXtalCap : (rfm22b_dev->cfg.RFXtalCap + 84));
 
     // Release the bus
     rfm22_releaseBus(rfm22b_dev);
@@ -1566,7 +1603,7 @@ static enum pios_radio_event rfm22_init(struct pios_rfm22b_dev *rfm22b_dev)
     vTaskDelay(1 + (1 / (portTICK_RATE_MS + 1)));
 
     // Initialize the frequency and datarate to te default.
-    rfm22_setNominalCarrierFrequency(rfm22b_dev, 0);
+    rfm22_setNominalCarrierFrequency(rfm22b_dev, 0, rfm22b_dev->base_freq);
     pios_rfm22_setDatarate(rfm22b_dev);
 
     return RADIO_EVENT_INITIALIZED;
@@ -1656,10 +1693,8 @@ static void pios_rfm22_setDatarate(struct pios_rfm22b_dev *rfm22b_dev)
  * @param[in] rfm33b_dev  The device structure pointer.
  * @param[in] init_chan  The initial channel to tune to.
  */
-static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan)
+static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev, uint8_t init_chan, uint32_t frequency_hz)
 {
-    // Set the frequency channels to start at 430MHz
-    uint32_t frequency_hz = RFM22B_NOMINAL_CARRIER_FREQUENCY;
     // The step size is 10MHz / 250 = 40khz, and the step size is specified in 10khz increments.
     uint8_t freq_hop_step_size = 4;
 
@@ -1682,11 +1717,11 @@ static void rfm22_setNominalCarrierFrequency(struct pios_rfm22b_dev *rfm22b_dev,
     // Claim the SPI bus.
     rfm22_claimBus(rfm22b_dev);
 
-    // Setthe frequency hopping step size.
+    // Set the frequency hopping step size.
     rfm22_write(rfm22b_dev, RFM22_frequency_hopping_step_size, freq_hop_step_size);
 
-    // frequency hopping channel (0-255)
-    rfm22b_dev->frequency_step_size = 156.25f * hbsel;
+    // frequency step
+    rfm22b_dev->frequency_step_size = 156.25f * (hbsel + 1);
 
     // frequency hopping channel (0-255)
     rfm22b_dev->channel = init_chan;
@@ -2049,9 +2084,10 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
             radio_dev->rx_destination_id == rfm22_destinationID(radio_dev)) {
             rfm22_synchronizeClock(radio_dev);
         }
-        radio_dev->stats.link_state = OPLINKSTATUS_LINKSTATE_CONNECTED;
-        radio_dev->last_contact     = xTaskGetTickCount();
+        radio_dev->stats.link_state     = OPLINKSTATUS_LINKSTATE_CONNECTED;
+        radio_dev->last_contact         = xTaskGetTickCount();
         radio_dev->stats.rssi = radio_dev->rssi_dBm;
+        radio_dev->stats.afc_correction = radio_dev->afc_correction_Hz;
     } else {
         ret_event = RADIO_EVENT_RX_COMPLETE;
     }

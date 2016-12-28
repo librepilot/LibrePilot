@@ -283,6 +283,9 @@ struct pios_rfm22b_dev {
     // Are we sending / receiving only PPM data?
     bool         ppm_only_mode;
 
+    // The base freq in Hertz
+    uint32_t     base_freq;
+
     // The channel list
     uint8_t      channels[RFM22B_NUM_CHANNELS];
     // The number of frequency hopping channels.
@@ -294,7 +297,7 @@ struct pios_rfm22b_dev {
     // current frequency hop channel index
     uint8_t      channel_index;
     // afc correction reading (in Hz)
-    int8_t       afc_correction_Hz;
+    int32_t      afc_correction_Hz;
 
     // The packet timers.
     portTickType packet_start_ticks;

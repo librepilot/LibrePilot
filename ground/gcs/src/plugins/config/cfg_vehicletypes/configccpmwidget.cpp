@@ -170,13 +170,13 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
 
-    QBrush brush(Qt::darkBlue);
+    QBrush brush(Qt::darkYellow);
     // creates a default pen
     QPen pen2;
 
     // pen2.setStyle(Qt::DotLine);
     pen2.setWidth(1);
-    pen2.setBrush(Qt::blue);
+    pen2.setBrush(Qt::yellow);
     // pen2.setCapStyle(Qt::RoundCap);
     // pen2.setJoinStyle(Qt::RoundJoin);
 

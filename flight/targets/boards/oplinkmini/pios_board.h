@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       pios_board.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Defines PiOS board hardware for the OpenPilot OPLink Mini board.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -137,16 +138,17 @@
 // -------------------------
 // System Settings
 // -------------------------
-#define PIOS_MASTER_CLOCK     72000000
-#define PIOS_PERIPHERAL_CLOCK (PIOS_MASTER_CLOCK / 2)
+#define PIOS_MASTER_CLOCK          72000000
+#define PIOS_PERIPHERAL_APB1_CLOCK (PIOS_MASTER_CLOCK / 2)
+#define PIOS_PERIPHERAL_APB2_CLOCK (PIOS_MASTER_CLOCK / 1)
 
 // -------------------------
 // Interrupt Priorities
 // -------------------------
-#define PIOS_IRQ_PRIO_LOW     12              // lower than RTOS
-#define PIOS_IRQ_PRIO_MID     8               // higher than RTOS
-#define PIOS_IRQ_PRIO_HIGH    5               // for SPI, ADC, I2C etc...
-#define PIOS_IRQ_PRIO_HIGHEST 4 // for USART etc...
+#define PIOS_IRQ_PRIO_LOW          12              // lower than RTOS
+#define PIOS_IRQ_PRIO_MID          8               // higher than RTOS
+#define PIOS_IRQ_PRIO_HIGH         5               // for SPI, ADC, I2C etc...
+#define PIOS_IRQ_PRIO_HIGHEST      4 // for USART etc...
 
 // ------------------------
 // PIOS_I2C

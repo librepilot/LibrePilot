@@ -680,7 +680,7 @@ static bool updateRcvrActivityCompare(uint32_t rcvr_id, struct rcvr_activity_fsm
 
         // Ignore activity from this Group/Channel because already used/set for Rssi input
         // Without that, the ReceiverActivity will be saturated just with Rssi value activity.
-        if(channelGroups.Rssi == fsm->group && channelNumber.Rssi == channel) {
+        if (channelGroups.Rssi == fsm->group && channelNumber.Rssi == channel) {
             delta = 0;
         }
 

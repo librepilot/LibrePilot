@@ -460,8 +460,8 @@ struct UBX_CFG_CFG {
 // ------------------------------------10987654321098765432109876543210
 // WAAS 122, 133, 134, 135, 138---------|---------|---------|---------|
 #define UBX_CFG_SBAS_SCANMODE1_WAAS  0b00000000000001001110000000000100
-// EGNOS 120, 124, 126, 131-------------|---------|---------|---------|
-#define UBX_CFG_SBAS_SCANMODE1_EGNOS 0b00000000000000000000100001010001
+// EGNOS 120, 123, 136------------------|---------|---------|---------|
+#define UBX_CFG_SBAS_SCANMODE1_EGNOS 0b00000000000000010000000000001001
 // MSAS 129, 137------------------------|---------|---------|---------|
 #define UBX_CFG_SBAS_SCANMODE1_MSAS  0b00000000000000100000001000000000
 // GAGAN 127, 128-----------------------|---------|---------|---------|
@@ -485,6 +485,7 @@ struct UBX_CFG_SBAS {
 #define UBX_CFG_GNSS_FLAGS_QZSS_L1CA    0x010000
 #define UBX_CFG_GNSS_FLAGS_QZSS_L1SAIF  0x040000
 #define UBX_CFG_GNSS_FLAGS_GLONASS_L1OF 0x010000
+#define UBX_CFG_GNSS_FLAGS_GALILEO_E1   0x010000
 
 #define UBX_CFG_GNSS_NUMCH_VER7         22
 #define UBX_CFG_GNSS_NUMCH_VER8         32

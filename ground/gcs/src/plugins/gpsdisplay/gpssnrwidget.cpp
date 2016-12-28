@@ -104,14 +104,21 @@ void GpsSnrWidget::drawSat(int index)
 
         QRectF boxRect = boxes[index]->boundingRect();
 
-        // Change color for SBAS & QZSS 120-158, 193-197 range
-        // GLONASS range 65-96 or 255, BeiDou 33-64 or 159-163
+        // Show satellite constellations in a separate color
+        // The UBX SVID numbers are defined in appendix A of u-blox8-M8_ReceiverDescrProtSpec_(UBX-13003221)_Public.pdf
+        //  GPS = default
+        //  SBAS 120-158, QZSS 193-197
+        //  BeiDou 33-64, 159-163
+        //  GLONASS 65-96, 255 if unidentified
+        //  Galileo 211-246
         if ((prn > 119 && prn < 159) || (prn > 192 && prn < 198)) {
-            boxes[index]->setBrush(QColor("#fd700b"));
+            boxes[index]->setBrush(QColor("#fd700b"));  // orange
         } else if ((prn > 64 && prn < 97) || 255 == prn) {
             boxes[index]->setBrush(QColor("Cyan"));
         } else if ((prn > 32 && prn < 65) || (prn > 158 && prn < 164)) {
             boxes[index]->setBrush(QColor("Red"));
+        } else if (prn > 210 && prn < 247) {
+            boxes[index]->setBrush(QColor("#e162f3")); // magenta
         } else {
             boxes[index]->setBrush(QColor("Green"));
         }

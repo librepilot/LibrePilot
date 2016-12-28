@@ -727,31 +727,49 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
         newconfig.enableGPS     = true;
         newconfig.enableGLONASS = true;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GLONASS:
         newconfig.enableGPS     = false;
         newconfig.enableGLONASS = true;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GPS:
         newconfig.enableGPS     = true;
         newconfig.enableGLONASS = false;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GPSBEIDOU:
         newconfig.enableGPS     = true;
         newconfig.enableGLONASS = false;
         newconfig.enableBeiDou  = true;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GLONASSBEIDOU:
         newconfig.enableGPS     = false;
         newconfig.enableGLONASS = true;
         newconfig.enableBeiDou  = true;
+        newconfig.enableGalileo = false;
+        break;
+    case GPSSETTINGS_UBXGNSSMODE_GPSGALILEO:
+        newconfig.enableGPS     = true;
+        newconfig.enableGLONASS = false;
+        newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = true;
+        break;
+    case GPSSETTINGS_UBXGNSSMODE_GPSGLONASSGALILEO:
+        newconfig.enableGPS     = true;
+        newconfig.enableGLONASS = true;
+        newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = true;
         break;
     default:
         newconfig.enableGPS     = false;
         newconfig.enableGLONASS = false;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     }
 

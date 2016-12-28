@@ -18,7 +18,7 @@
         <field name="UbxSBASChannelsUsed" units="" type="uint8" elements="1" defaultvalue="3"/>
         <field name="UbxSBASSats" units="" type="enum" elements="1" options="AutoScan,WAAS,EGNOS,MSAS,GAGAN,SDCM" defaultvalue="AutoScan" />
         <!-- Ubx GNSS configuration, only applies to Ublox generation 7+ and concurrent GNSS only to generation 8 -->
-        <field name="UbxGNSSMode" units="" type="enum" elements="1" options="Default,GPS,GLONASS,GPS+GLONASS,GPS+BeiDou,GLONASS+BeiDou" defaultvalue="Default" />
+        <field name="UbxGNSSMode" units="" type="enum" elements="1" options="Default,GPS,GLONASS,GPS+GLONASS,GPS+BeiDou,GLONASS+BeiDou,GPS+GALILEO,GPS+GLONASS+GALILEO" defaultvalue="Default" />
         <field name="UbxAssistNowAutonomous" units="" type="enum" elements="1" options="False,True" defaultvalue="True"
                description="Enable or disable the AssistNow Autonomous feature"/> 
         <access gcs="readwrite" flight="readwrite"/>

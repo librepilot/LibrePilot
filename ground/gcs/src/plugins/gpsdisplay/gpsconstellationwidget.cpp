@@ -118,7 +118,7 @@ void GpsConstellationWidget::updateSat(int index, int prn, int elevation, int az
     }
 
     // TODO: add range checking
-    satellites[index][0] = prn;
+    satellites[index][0] = prn; // UBX SVID
     satellites[index][1] = elevation;
     satellites[index][2] = azimuth;
     satellites[index][3] = snr;
@@ -129,7 +129,13 @@ void GpsConstellationWidget::updateSat(int index, int prn, int elevation, int az
                        -satIcons[index]->boundingRect().center().y());
         satIcons[index]->setTransform(QTransform::fromTranslate(opd.x(), opd.y()), false);
 
-        // Show normal GPS, SBAS/QZSS (120-158,193-197 range), BeiDou (33-64, 159-163) or GLONASS (65-96, 255 if unidentified)
+        // Show satellite constellations in a separate color
+        // The UBX SVID numbers are defined in appendix A of u-blox8-M8_ReceiverDescrProtSpec_(UBX-13003221)_Public.pdf
+        //  GPS = default
+        //  SBAS 120-158, QZSS 193-197
+        //  BeiDou 33-64, 159-163
+        //  GLONASS 65-96, 255 if unidentified
+        //  Galileo 211-246
         if ((prn > 119 && prn < 159) || (prn > 192 && prn < 198)) {
             if (snr) {
                 satIcons[index]->setElementId("satellite-sbas");
@@ -147,6 +153,12 @@ void GpsConstellationWidget::updateSat(int index, int prn, int elevation, int az
                 satIcons[index]->setElementId("satellite-beidou");
             } else {
                 satIcons[index]->setElementId("sat-beidou-notSeen");
+            }
+        } else if (prn > 210 && prn < 247) {
+            if (snr) {
+                satIcons[index]->setElementId("satellite-galileo");
+            } else {
+                satIcons[index]->setElementId("sat-galileo-notSeen");
             }
         } else {
             if (snr) {

@@ -676,14 +676,18 @@ static void msp_send_pidnames(struct msp_bridge *m)
 static void pid_native2msp(const float *native, msp_pid_t *piditem, float scale, unsigned numelem)
 {
     for (unsigned i = 0; i < numelem; ++i) {
-        piditem->values[i] = lroundf(native[i] * scale);
+        // Handle Dterm scale
+        float s = (i == 2) ? scale * 100 : scale;
+        piditem->values[i] = lroundf(native[i] * s);
     }
 }
 
 static void pid_msp2native(const msp_pid_t *piditem, float *native, float scale, unsigned numelem)
 {
     for (unsigned i = 0; i < numelem; ++i) {
-        native[i] = (float)piditem->values[i] / scale;
+        // Handle Dterm scale
+        float s = (i == 2) ? scale * 100 : scale;
+        native[i] = (float)piditem->values[i] / s;
     }
 }
 

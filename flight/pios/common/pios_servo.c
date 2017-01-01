@@ -261,26 +261,23 @@ void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t ban
                 new_clock = clock[i];
             }
 
-            uint32_t apb_clock;
+            uint32_t timer_clock;
 
             // Choose the correct prescaler value for the APB the timer is attached
 
 #if defined(STM32F10X_MD)
-            if (timer == TIM1 || timer == TIM8) {
-                apb_clock = PIOS_PERIPHERAL_APB2_CLOCK;
-            } else {
-                apb_clock = PIOS_PERIPHERAL_APB1_CLOCK;
-            }
+            // F1 has both timer clock domains running at master clock speed
+            timer_clock = PIOS_MASTER_CLOCK;
 #elif defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
             if (timer == TIM1 || timer == TIM8 || timer == TIM9 || timer == TIM10 || timer == TIM11) {
-                apb_clock = PIOS_PERIPHERAL_APB2_CLOCK;
+                timer_clock = PIOS_PERIPHERAL_APB2_CLOCK;
             } else {
-                apb_clock = PIOS_PERIPHERAL_APB1_CLOCK;
+                timer_clock = PIOS_PERIPHERAL_APB1_CLOCK;
             }
 #else
 #error Unsupported MCU
 #endif
-            TIM_TimeBaseStructure.TIM_Prescaler = (apb_clock / new_clock) - 1;
+            TIM_TimeBaseStructure.TIM_Prescaler = (timer_clock / new_clock) - 1;
             TIM_TimeBaseStructure.TIM_Period    = ((new_clock / speeds[i]) - 1);
             TIM_TimeBaseInit((TIM_TypeDef *)timer, &TIM_TimeBaseStructure);
         }

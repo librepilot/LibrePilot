@@ -280,6 +280,10 @@ void systemInit()
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     format.setSwapInterval(0);
     QSurfaceFormat::setDefaultFormat(format);
+
+    // see https://bugreports.qt.io/browse/QTBUG-40332
+    int timeout = std::numeric_limits<int>::max();
+    qputenv("QT_BEARER_POLL_TIMEOUT", QString::number(timeout).toLatin1());
 }
 
 static FileLogger *logger = NULL;

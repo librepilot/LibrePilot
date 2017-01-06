@@ -73,6 +73,8 @@ protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
 
+    virtual void enableControls(bool enable);
+
 private:
     Ui_CcpmConfigWidget *m_aircraft;
 
@@ -100,10 +102,6 @@ private:
     virtual void resetActuators(GUIConfigDataUnion *configData);
 
     int ShowDisclaimer(int messageID);
-    virtual void enableControls(bool enable)
-    {
-        Q_UNUSED(enable)
-    }; // Not used by this widget
 
     bool updatingFromHardware;
     bool updatingToHardware;
@@ -127,9 +125,6 @@ private slots:
     void SwashLvlPrevNextButtonPressed();
     void SwashLvlCancelButtonPressed();
     void SwashLvlFinishButtonPressed();
-
-    // void UpdateCCPMOptionsFromUI();
-    // void UpdateCCPMUIFromOptions();
 
     void SetUIComponentVisibilities();
 

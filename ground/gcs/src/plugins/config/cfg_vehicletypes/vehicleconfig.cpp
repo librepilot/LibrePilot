@@ -133,6 +133,12 @@ void VehicleConfig::resetActuators(GUIConfigDataUnion *configData)
     Q_UNUSED(configData);
 }
 
+void VehicleConfig::enableControls(bool enable)
+{
+    Q_UNUSED(enable);
+
+    // do nothing. no need to call parent.
+}
 
 void VehicleConfig::registerWidgets(ConfigTaskWidget &parent)
 {

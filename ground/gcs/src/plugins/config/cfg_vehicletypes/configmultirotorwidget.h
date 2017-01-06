@@ -57,7 +57,8 @@ public:
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
-    void enableControls(bool enable);
+
+    virtual void enableControls(bool enable);
 
 private:
     Ui_MultiRotorConfigWidget *m_aircraft;

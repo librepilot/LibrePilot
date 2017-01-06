@@ -1317,8 +1317,6 @@ void ConfigMultiRotorWidget::resizeEvent(QResizeEvent *event)
 
 void ConfigMultiRotorWidget::enableControls(bool enable)
 {
-    ConfigTaskWidget::enableControls(enable);
-
     if (enable) {
         setupEnabledControls(m_aircraft->multirotorFrameType->currentText());
     }

@@ -61,6 +61,7 @@ public:
     ~ConfigVehicleTypeWidget();
 
 protected:
+    virtual void enableControls(bool enable);
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
@@ -73,7 +74,8 @@ private:
     QMap<int, int> m_vehicleIndexMap;
 
 
-    int frameCategory(QString frameType);
+    QString frameType();
+    static int frameCategory(QString frameType);
 
     VehicleConfig *getVehicleConfigWidget(int frameCategory);
     VehicleConfig *createVehicleConfigWidget(int frameCategory);

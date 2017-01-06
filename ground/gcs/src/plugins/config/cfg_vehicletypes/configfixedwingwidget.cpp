@@ -802,8 +802,6 @@ void ConfigFixedWingWidget::setupRcOutputs(QList<QString> rcOutputList)
 
 void ConfigFixedWingWidget::enableControls(bool enable)
 {
-    ConfigTaskWidget::enableControls(enable);
-
     if (enable) {
         setupUI(m_aircraft->fixedWingType->currentText());
     }

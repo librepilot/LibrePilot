@@ -337,6 +337,13 @@ void ConfigCcpmWidget::resetActuators(GUIConfigDataUnion *configData)
     configData->heli.ServoIndexZ = 0;
 }
 
+void ConfigCcpmWidget::enableControls(bool enable)
+{
+    if (enable) {
+        SetUIComponentVisibilities();
+    }
+}
+
 void ConfigCcpmWidget::refreshWidgetsValues(QString frameType)
 {
     Q_UNUSED(frameType);
@@ -411,28 +418,28 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleY->setEnabled(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleY->setEnabled(false);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoYChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoYChannel->setEnabled(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoYChannel->setEnabled(false);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 2;
     } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 180, 360));
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 3;
     } else if (typeText.compare(QString::fromUtf8("CCPM 4 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 180, 360));
         m_aircraft->ccpmAngleZ->setValue(fmod(AdjustmentAngle + 270, 360));
-        m_aircraft->ccpmSingleServo->setEnabled(0);
+        m_aircraft->ccpmSingleServo->setEnabled(false);
         m_aircraft->ccpmSingleServo->setCurrentIndex(0);
         NumServosDefined = 4;
     } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 120º"), Qt::CaseInsensitive) == 0) {
@@ -440,33 +447,33 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 120, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 240, 360));
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 3;
     } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 140º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 140, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 220, 360));
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 3;
     } else if (typeText.compare(QString::fromUtf8("FP 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleY->setEnabled(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleY->setEnabled(false);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoYChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoYChannel->setEnabled(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoYChannel->setEnabled(false);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
 
-        m_aircraft->ccpmCollectivespinBox->setEnabled(0);
-        m_aircraft->ccpmCollectiveSlider->setEnabled(0);
+        m_aircraft->ccpmCollectivespinBox->setEnabled(false);
+        m_aircraft->ccpmCollectiveSlider->setEnabled(false);
         m_aircraft->ccpmCollectivespinBox->setValue(0);
         m_aircraft->ccpmCollectiveSlider->setValue(0);
         m_aircraft->PitchCurve->setVisible(0);
@@ -476,15 +483,15 @@ void ConfigCcpmWidget::UpdateType()
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleY->setEnabled(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleY->setEnabled(false);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoYChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoYChannel->setEnabled(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoYChannel->setEnabled(false);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
 
-        m_aircraft->ccpmCollectivespinBox->setEnabled(0);
-        m_aircraft->ccpmCollectiveSlider->setEnabled(0);
+        m_aircraft->ccpmCollectivespinBox->setEnabled(false);
+        m_aircraft->ccpmCollectiveSlider->setEnabled(false);
         m_aircraft->ccpmCollectivespinBox->setValue(0);
         m_aircraft->ccpmCollectiveSlider->setValue(0);
         m_aircraft->PitchCurve->setVisible(0);
@@ -1291,7 +1298,7 @@ void ConfigCcpmWidget::SwashLvlPrevNextButtonPressed()
         m_aircraft->SwashLvlPrevButton->setEnabled(true);
         m_aircraft->SwashLvlCancelButton->setEnabled(true);
         m_aircraft->SwashLvlFinishButton->setEnabled(true);
-
+        break;
     default:
         // restore collective/cyclic setting
         // restore pitch curve
@@ -1481,7 +1488,7 @@ void ConfigCcpmWidget::enableSwashplateLevellingControl(bool state)
         m_aircraft->TabObject->setTabEnabled(0, 0);
         m_aircraft->TabObject->setTabEnabled(2, 0);
         m_aircraft->TabObject->setTabEnabled(3, 0);
-        m_aircraft->ccpmType->setEnabled(0);
+        m_aircraft->ccpmType->setEnabled(false);
     } else {
         // Restore metadata
         mdata = SwashLvlaccInitialData;
@@ -1490,7 +1497,7 @@ void ConfigCcpmWidget::enableSwashplateLevellingControl(bool state)
         m_aircraft->TabObject->setTabEnabled(0, 1);
         m_aircraft->TabObject->setTabEnabled(2, 1);
         m_aircraft->TabObject->setTabEnabled(3, 1);
-        m_aircraft->ccpmType->setEnabled(1);
+        m_aircraft->ccpmType->setEnabled(true);
     }
     obj->setMetadata(mdata);
 }

@@ -176,10 +176,12 @@ protected:
         return m_currentBoardId;
     }
     bool expertMode() const;
-    virtual void enableControls(bool enable);
     virtual QString mapObjectName(const QString objectName);
     virtual UAVObject *getObject(const QString name, quint32 instId = 0);
     virtual void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
+
+    virtual void enableControls(bool enable);
+
     void updateEnableControls();
 
     bool isConnected() const;
@@ -192,7 +194,6 @@ protected slots:
 
     void clearDirty();
     virtual void widgetsContentsChanged();
-    // void populateWidgets();
     void refreshWidgetsValues(UAVObject *obj = NULL);
     void updateObjectsFromWidgets();
 

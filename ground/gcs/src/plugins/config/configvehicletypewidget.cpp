@@ -160,8 +160,26 @@ ConfigVehicleTypeWidget::~ConfigVehicleTypeWidget()
 
 void ConfigVehicleTypeWidget::switchAirframeType(int index)
 {
-    m_aircraft->airframesWidget->setCurrentWidget(getVehicleConfigWidget(index));
-    setDirty(true);
+    VehicleConfig *vehicleConfig = getVehicleConfigWidget(index);
+    if (vehicleConfig) {
+        m_aircraft->airframesWidget->setCurrentWidget(vehicleConfig);
+        // enable controls
+        enableControls(isConnected());
+        // and flag vehicle config as dirty (frame type was changed...)
+        setDirty(true);
+    }
+}
+
+void ConfigVehicleTypeWidget::enableControls(bool enable)
+{
+    ConfigTaskWidget::enableControls(enable);
+
+    int category = frameCategory(frameType());
+
+    VehicleConfig *vehicleConfig = getVehicleConfigWidget(category);
+    if (vehicleConfig) {
+        vehicleConfig->enableControls(enable);
+    }
 }
 
 /**
@@ -267,6 +285,18 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgetsImpl()
     refreshWidgetsValues();
 }
 
+QString ConfigVehicleTypeWidget::frameType()
+{
+    // Get the Airframe type from the system settings
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
+    Q_ASSERT(system);
+
+    UAVObjectField *field = system->getField("AirframeType");
+    Q_ASSERT(field);
+
+    return field->getValue().toString();
+}
+
 int ConfigVehicleTypeWidget::frameCategory(QString frameType)
 {
     if (frameType == "FixedWing" || frameType == "Aileron" || frameType == "FixedWingElevon"
@@ -303,12 +333,11 @@ VehicleConfig *ConfigVehicleTypeWidget::getVehicleConfigWidget(int frameCategory
         // create config widget
         vehicleConfig = createVehicleConfigWidget(frameCategory);
 
-        // add config widget to UI
-        int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehicleConfig);
-        m_vehicleIndexMap[frameCategory] = index;
-
-        // and enable controls (needed?)
-        updateEnableControls();
+        if (vehicleConfig) {
+            // add config widget to UI
+            int index = m_aircraft->airframesWidget->insertWidget(m_aircraft->airframesWidget->count(), vehicleConfig);
+            m_vehicleIndexMap[frameCategory] = index;
+        }
     }
     int index = m_vehicleIndexMap.value(frameCategory);
     vehicleConfig = (VehicleConfig *)m_aircraft->airframesWidget->widget(index);
@@ -340,7 +369,7 @@ VehicleConfig *ConfigVehicleTypeWidget::createVehicleConfigWidget(int frameCateg
         break;
     }
     if (vehicleConfig) {
-        // bind config widget "field" to this ConfigTaskWodget
+        // bind config widget "field" to this ConfigTaskWidget
         // this is necessary to get "dirty" state management
         vehicleConfig->registerWidgets(*this);
     }

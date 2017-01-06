@@ -68,9 +68,10 @@ private:
     void updateRcCurvesUsed();
 
 protected:
-    void enableControls(bool enable);
     void resizeEvent(QResizeEvent *);
     void showEvent(QShowEvent *);
+
+    virtual void enableControls(bool enable);
 
 private slots:
     virtual void setupUI(QString airframeType);

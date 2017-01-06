@@ -157,7 +157,7 @@ typedef union {
     customGUISettingsStruct custom;
 } GUIConfigDataUnion;
 
-class ConfigTaskWidget;
+class ConfigVehicleTypeWidget;
 
 /*
  * This class handles vehicle specific configuration UI and associated logic.
@@ -172,6 +172,8 @@ class ConfigTaskWidget;
  */
 class VehicleConfig : public ConfigTaskWidget {
     Q_OBJECT
+
+    friend ConfigVehicleTypeWidget;
 
 public:
 
@@ -223,6 +225,7 @@ public:
     virtual void registerWidgets(ConfigTaskWidget &parent);
 
     virtual void refreshWidgetsValues(QString frameType);
+
     virtual QString updateConfigObjectsFromWidgets();
 
     double getMixerValue(UAVDataObject *mixer, QString elementName);
@@ -249,6 +252,7 @@ protected:
     double  getCurveMin(QList<double> *curve);
     double  getCurveMax(QList<double> *curve);
 
+    virtual void enableControls(bool enable);
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 

@@ -284,8 +284,6 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
 
 void ConfigGroundVehicleWidget::enableControls(bool enable)
 {
-    ConfigTaskWidget::enableControls(enable);
-
     if (enable) {
         setupUI(m_aircraft->groundVehicleType->currentText());
     }

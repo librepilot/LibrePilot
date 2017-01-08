@@ -49,12 +49,12 @@ public:
     ConfigCustomWidget(QWidget *parent = 0);
     ~ConfigCustomWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
-
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
+
+    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString updateConfigObjectsFromWidgets();
 
 private:
     Ui_CustomConfigWidget *m_aircraft;

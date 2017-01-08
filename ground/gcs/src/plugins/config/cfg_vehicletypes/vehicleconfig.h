@@ -222,12 +222,6 @@ public:
     VehicleConfig(QWidget *parent = 0);
     ~VehicleConfig();
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-
-    virtual void refreshWidgetsValues(QString frameType);
-
-    virtual QString updateConfigObjectsFromWidgets();
-
     double getMixerValue(UAVDataObject *mixer, QString elementName);
     void setMixerValue(UAVDataObject *mixer, QString elementName, double value);
 
@@ -255,6 +249,10 @@ protected:
     virtual void enableControls(bool enable);
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString updateConfigObjectsFromWidgets();
 
 private:
     static UAVObjectManager *getUAVObjectManager();

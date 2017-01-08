@@ -75,6 +75,11 @@ private:
 
 
     QString frameType();
+    void setFrameType(QString frameType);
+
+    QString vehicleName();
+    void setVehicleName(QString name);
+
     static int frameCategory(QString frameType);
 
     VehicleConfig *getVehicleConfigWidget(int frameCategory);

@@ -161,6 +161,7 @@ ConfigVehicleTypeWidget::~ConfigVehicleTypeWidget()
 void ConfigVehicleTypeWidget::switchAirframeType(int index)
 {
     VehicleConfig *vehicleConfig = getVehicleConfigWidget(index);
+
     if (vehicleConfig) {
         m_aircraft->airframesWidget->setCurrentWidget(vehicleConfig);
         // enable controls
@@ -177,6 +178,7 @@ void ConfigVehicleTypeWidget::enableControls(bool enable)
     int category = frameCategory(frameType());
 
     VehicleConfig *vehicleConfig = getVehicleConfigWidget(category);
+
     if (vehicleConfig) {
         vehicleConfig->enableControls(enable);
     }
@@ -195,50 +197,26 @@ void ConfigVehicleTypeWidget::refreshWidgetsValuesImpl(UAVObject *obj)
         return;
     }
 
-    // Get the Airframe type from the system settings:
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
-    Q_ASSERT(system);
-
-    UAVObjectField *field = system->getField(QString("AirframeType"));
-    Q_ASSERT(field);
-
-    // At this stage, we will need to have some hardcoded settings in this code
-    QString frameType = field->getValue().toString();
-
-    // Always update custom tab from others airframe settings : debug/learn hardcoded mixers
-    int category = frameCategory("Custom");
+    // update current vehicle tab
+    QString ft   = frameType();
+    int category = frameCategory(ft);
     m_aircraft->aircraftType->setCurrentIndex(category);
-
     VehicleConfig *vehicleConfig = getVehicleConfigWidget(category);
-
     if (vehicleConfig) {
-        vehicleConfig->refreshWidgetsValues("Custom");
+        vehicleConfig->refreshWidgetsValues(ft);
     }
 
-    // Switch to Airframe currently used
-    category = frameCategory(frameType);
-
-    if (frameType != "Custom") {
-        m_aircraft->aircraftType->setCurrentIndex(category);
-
-        VehicleConfig *vehicleConfig = getVehicleConfigWidget(category);
-
+    // update custom tab from others frame settings (to debug/learn hard coded mixers)
+    if (ft != "Custom") {
+        int customCategory = frameCategory("Custom");
+        VehicleConfig *vehicleConfig = getVehicleConfigWidget(customCategory);
         if (vehicleConfig) {
-            vehicleConfig->refreshWidgetsValues(frameType);
+            vehicleConfig->refreshWidgetsValues("Custom");
         }
     }
 
-    field = system->getField(QString("VehicleName"));
-    Q_ASSERT(field);
-    QString name;
-    for (uint i = 0; i < field->getNumElements(); ++i) {
-        QChar chr = field->getValue(i).toChar();
-        if (chr != 0) {
-            name.append(chr);
-        } else {
-            break;
-        }
-    }
+    // update vehicle name
+    QString name = vehicleName();
     m_aircraft->nameEdit->setText(name);
 }
 
@@ -252,26 +230,87 @@ void ConfigVehicleTypeWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 void ConfigVehicleTypeWidget::updateObjectsFromWidgetsImpl()
 {
     // Airframe type defaults to Custom
-    QString airframeType = "Custom";
+    QString ft = "Custom";
 
     VehicleConfig *vehicleConfig = (VehicleConfig *)m_aircraft->airframesWidget->currentWidget();
 
     if (vehicleConfig) {
-        airframeType = vehicleConfig->updateConfigObjectsFromWidgets();
+        ft = vehicleConfig->updateConfigObjectsFromWidgets();
     }
 
-    // set the airframe type
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
+    // airframe type
+    setFrameType(ft);
+
+    // vehicle name
+    QString name = m_aircraft->nameEdit->text();
+    setVehicleName(name);
+
+    // update custom tab from others frame settings (to debug/learn hard coded mixers)
+    if (ft != "Custom") {
+        int customCategory = frameCategory("Custom");
+        VehicleConfig *vehicleConfig = getVehicleConfigWidget(customCategory);
+        if (vehicleConfig) {
+            vehicleConfig->refreshWidgetsValues("Custom");
+        }
+    }
+}
+
+QString ConfigVehicleTypeWidget::frameType()
+{
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
+
     Q_ASSERT(system);
 
-    UAVObjectField *field = system->getField(QString("AirframeType"));
-    if (field) {
-        field->setValue(airframeType);
-    }
-
-    field = system->getField(QString("VehicleName"));
+    UAVObjectField *field = system->getField("AirframeType");
     Q_ASSERT(field);
-    QString name = m_aircraft->nameEdit->text();
+
+    return field->getValue().toString();
+}
+
+void ConfigVehicleTypeWidget::setFrameType(QString frameType)
+{
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
+
+    Q_ASSERT(system);
+
+    UAVObjectField *field = system->getField("AirframeType");
+    Q_ASSERT(field);
+
+    if (field) {
+        field->setValue(frameType);
+    }
+}
+
+QString ConfigVehicleTypeWidget::vehicleName()
+{
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
+
+    Q_ASSERT(system);
+
+    UAVObjectField *field = system->getField("VehicleName");
+    Q_ASSERT(field);
+
+    QString name;
+    for (uint i = 0; i < field->getNumElements(); ++i) {
+        QChar chr = field->getValue(i).toChar();
+        if (chr != 0) {
+            name.append(chr);
+        } else {
+            break;
+        }
+    }
+    return name;
+}
+
+void ConfigVehicleTypeWidget::setVehicleName(QString name)
+{
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
+
+    Q_ASSERT(system);
+
+    UAVObjectField *field = system->getField("VehicleName");
+    Q_ASSERT(field);
+
     for (uint i = 0; i < field->getNumElements(); ++i) {
         if (i < (uint)name.length()) {
             field->setValue(name.at(i).toLatin1(), i);
@@ -279,22 +318,6 @@ void ConfigVehicleTypeWidget::updateObjectsFromWidgetsImpl()
             field->setValue(0, i);
         }
     }
-
-    // call refreshWidgetsValues() to reflect actual saved values
-    // TODO is this needed ?
-    refreshWidgetsValues();
-}
-
-QString ConfigVehicleTypeWidget::frameType()
-{
-    // Get the Airframe type from the system settings
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
-    Q_ASSERT(system);
-
-    UAVObjectField *field = system->getField("AirframeType");
-    Q_ASSERT(field);
-
-    return field->getValue().toString();
 }
 
 int ConfigVehicleTypeWidget::frameCategory(QString frameType)

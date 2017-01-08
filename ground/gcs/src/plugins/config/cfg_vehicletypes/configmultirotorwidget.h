@@ -51,21 +51,21 @@ public:
     ConfigMultiRotorWidget(QWidget *parent = 0);
     ~ConfigMultiRotorWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
-
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
 
     virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString updateConfigObjectsFromWidgets();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
 
 private:
     Ui_MultiRotorConfigWidget *m_aircraft;
     QGraphicsSvgItem *quad;
     bool invertMotors;
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
     virtual void resetActuators(GUIConfigDataUnion *configData);
     virtual void resetRcOutputs(GUIConfigDataUnion *configData);
 

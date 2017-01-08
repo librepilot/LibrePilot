@@ -62,9 +62,6 @@ public:
     ConfigCcpmWidget(QWidget *parent = 0);
     ~ConfigCcpmWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
-
 public slots:
     void getMixer();
     void setMixer();
@@ -74,6 +71,8 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
     virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString updateConfigObjectsFromWidgets();
 
 private:
     Ui_CcpmConfigWidget *m_aircraft;

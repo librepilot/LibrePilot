@@ -49,15 +49,15 @@ public:
     ConfigGroundVehicleWidget(QWidget *parent = 0);
     ~ConfigGroundVehicleWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
     virtual void initMixerCurves(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
 
 protected:
     void resizeEvent(QResizeEvent *);
     void showEvent(QShowEvent *);
 
     virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString updateConfigObjectsFromWidgets();
 
 private:
     Ui_GroundConfigWidget *m_aircraft;

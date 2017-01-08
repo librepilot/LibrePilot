@@ -50,9 +50,6 @@ public:
     ConfigFixedWingWidget(QWidget *parent = 0);
     ~ConfigFixedWingWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
-
 private:
     Ui_FixedWingConfigWidget *m_aircraft;
     QGraphicsSvgItem *planeimg;
@@ -72,6 +69,8 @@ protected:
     void showEvent(QShowEvent *);
 
     virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString updateConfigObjectsFromWidgets();
 
 private slots:
     virtual void setupUI(QString airframeType);

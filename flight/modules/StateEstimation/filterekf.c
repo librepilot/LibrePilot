@@ -71,87 +71,68 @@ struct data {
     bool inited;
 
     PiOSDeltatimeConfig dtconfig;
+    bool navOnly;
 };
-
-// Private variables
-static bool initialized = 0;
 
 
 // Private functions
 
-static int32_t init13i(stateFilter *self);
-static int32_t init13(stateFilter *self);
-static int32_t maininit(stateFilter *self);
+static int32_t init(stateFilter *self);
 static filterResult filter(stateFilter *self, stateEstimation *state);
 static inline bool invalid_var(float data);
 
-static void globalInit(void);
+static int32_t globalInit(stateFilter *handle, bool usePos, bool navOnly);
 
 
-static void globalInit(void)
+static int32_t globalInit(stateFilter *handle, bool usePos, bool navOnly)
 {
-    if (!initialized) {
-        initialized = 1;
-        EKFConfigurationInitialize();
-        EKFStateVarianceInitialize();
-        HomeLocationInitialize();
-    }
+    handle->init      = &init;
+    handle->filter    = &filter;
+    handle->localdata = pios_malloc(sizeof(struct data));
+    struct data *this = (struct data *)handle->localdata;
+    this->usePos      = usePos;
+    this->navOnly     = navOnly;
+    EKFConfigurationInitialize();
+    EKFStateVarianceInitialize();
+    HomeLocationInitialize();
+    return STACK_REQUIRED;
 }
 
 int32_t filterEKF13iInitialize(stateFilter *handle)
 {
-    globalInit();
-    handle->init      = &init13i;
-    handle->filter    = &filter;
-    handle->localdata = pios_malloc(sizeof(struct data));
-    return STACK_REQUIRED;
+    return globalInit(handle, false, false);
 }
+
 int32_t filterEKF13Initialize(stateFilter *handle)
 {
-    globalInit();
-    handle->init      = &init13;
-    handle->filter    = &filter;
-    handle->localdata = pios_malloc(sizeof(struct data));
-    return STACK_REQUIRED;
+    return globalInit(handle, true, false);
 }
+
+int32_t filterEKF13iNavOnlyInitialize(stateFilter *handle)
+{
+    return globalInit(handle, false, true);
+}
+
+int32_t filterEKF13NavOnlyInitialize(stateFilter *handle)
+{
+    return globalInit(handle, true, true);
+}
+
+#ifdef FALSE
 // XXX
 // TODO: Until the 16 state EKF is implemented, run 13 state, so compilation runs through
 // XXX
 int32_t filterEKF16iInitialize(stateFilter *handle)
 {
-    globalInit();
-    handle->init      = &init13i;
-    handle->filter    = &filter;
-    handle->localdata = pios_malloc(sizeof(struct data));
-    return STACK_REQUIRED;
+    return filterEKFi13Initialize(handle);
 }
 int32_t filterEKF16Initialize(stateFilter *handle)
 {
-    globalInit();
-    handle->init      = &init13;
-    handle->filter    = &filter;
-    handle->localdata = pios_malloc(sizeof(struct data));
-    return STACK_REQUIRED;
+    return filterEKF13Initialize(handle);
 }
+#endif
 
-
-static int32_t init13i(stateFilter *self)
-{
-    struct data *this = (struct data *)self->localdata;
-
-    this->usePos = 0;
-    return maininit(self);
-}
-
-static int32_t init13(stateFilter *self)
-{
-    struct data *this = (struct data *)self->localdata;
-
-    this->usePos = 1;
-    return maininit(self);
-}
-
-static int32_t maininit(stateFilter *self)
+static int32_t init(stateFilter *self)
 {
     struct data *this = (struct data *)self->localdata;
 
@@ -202,8 +183,9 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     float dT;
     uint16_t sensors = 0;
 
+    INSSetArmed(state->armed);
+    state->navUsed      = (this->usePos || this->navOnly);
     this->work.updated |= state->updated;
-
     // check magnetometer alarm, discard any magnetometer readings if not OK
     // during initialization phase (but let them through afterwards)
     SystemAlarmsAlarmData alarms;
@@ -241,10 +223,9 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
             // Reset the INS algorithm
             INSGPSInit();
             // variance is measured in mGaus, but internally the EKF works with a normalized  vector. Scale down by Be^2
-            float Be2 = this->homeLocation.Be[0] * this->homeLocation.Be[0] + this->homeLocation.Be[1] * this->homeLocation.Be[1] + this->homeLocation.Be[2] * this->homeLocation.Be[2];
-            INSSetMagVar((float[3]) { this->ekfConfiguration.R.MagX / Be2,
-                                      this->ekfConfiguration.R.MagY / Be2,
-                                      this->ekfConfiguration.R.MagZ / Be2 }
+            INSSetMagVar((float[3]) { this->ekfConfiguration.R.MagX,
+                                      this->ekfConfiguration.R.MagY,
+                                      this->ekfConfiguration.R.MagZ }
                          );
             INSSetAccelVar((float[3]) { this->ekfConfiguration.Q.AccelX,
                                         this->ekfConfiguration.Q.AccelY,
@@ -303,13 +284,16 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
             // Copy the attitude into the state
             // NOTE: updating gyr correctly is valid, because this code is reached only when SENSORUPDATES_gyro is already true
-            state->attitude[0] = Nav.q[0];
-            state->attitude[1] = Nav.q[1];
-            state->attitude[2] = Nav.q[2];
-            state->attitude[3] = Nav.q[3];
-            state->gyro[0]    -= RAD2DEG(Nav.gyro_bias[0]);
-            state->gyro[1]    -= RAD2DEG(Nav.gyro_bias[1]);
-            state->gyro[2]    -= RAD2DEG(Nav.gyro_bias[2]);
+            if (!this->navOnly) {
+                state->attitude[0] = Nav.q[0];
+                state->attitude[1] = Nav.q[1];
+                state->attitude[2] = Nav.q[2];
+                state->attitude[3] = Nav.q[3];
+
+                state->gyro[0]    -= RAD2DEG(Nav.gyro_bias[0]);
+                state->gyro[1]    -= RAD2DEG(Nav.gyro_bias[1]);
+                state->gyro[2]    -= RAD2DEG(Nav.gyro_bias[2]);
+            }
             state->pos[0]   = Nav.Pos[0];
             state->pos[1]   = Nav.Pos[1];
             state->pos[2]   = Nav.Pos[2];
@@ -321,6 +305,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
         this->init_stage++;
         if (this->init_stage > 10) {
+            state->navOk = true;
             this->inited = true;
         }
 
@@ -328,7 +313,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     }
 
     if (!this->inited) {
-        return FILTERRESULT_CRITICAL;
+        return this->navOnly ? FILTERRESULT_OK : FILTERRESULT_CRITICAL;
     }
 
     float gyros[3] = { DEG2RAD(this->work.gyro[0]), DEG2RAD(this->work.gyro[1]), DEG2RAD(this->work.gyro[2]) };
@@ -338,13 +323,20 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
     // Copy the attitude into the state
     // NOTE: updating gyr correctly is valid, because this code is reached only when SENSORUPDATES_gyro is already true
-    state->attitude[0] = Nav.q[0];
-    state->attitude[1] = Nav.q[1];
-    state->attitude[2] = Nav.q[2];
-    state->attitude[3] = Nav.q[3];
-    state->gyro[0]    -= RAD2DEG(Nav.gyro_bias[0]);
-    state->gyro[1]    -= RAD2DEG(Nav.gyro_bias[1]);
-    state->gyro[2]    -= RAD2DEG(Nav.gyro_bias[2]);
+    if (!this->navOnly) {
+        state->attitude[0] = Nav.q[0];
+        state->attitude[1] = Nav.q[1];
+        state->attitude[2] = Nav.q[2];
+        state->attitude[3] = Nav.q[3];
+        state->gyro[0]    -= RAD2DEG(Nav.gyro_bias[0]);
+        state->gyro[1]    -= RAD2DEG(Nav.gyro_bias[1]);
+        state->gyro[2]    -= RAD2DEG(Nav.gyro_bias[2]);
+    }
+    {
+        float tmp[3];
+        Quaternion2RPY(Nav.q, tmp);
+        state->debugNavYaw = tmp[2];
+    }
     state->pos[0]   = Nav.Pos[0];
     state->pos[1]   = Nav.Pos[1];
     state->pos[2]   = Nav.Pos[2];
@@ -421,7 +413,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
     EKFStateVarianceData vardata;
     EKFStateVarianceGet(&vardata);
-    INSGetP(EKFStateVariancePToArray(vardata.P));
+    INSGetVariance(EKFStateVariancePToArray(vardata.P));
     EKFStateVarianceSet(&vardata);
     int t;
     for (t = 0; t < EKFSTATEVARIANCE_P_NUMELEM; t++) {
@@ -436,7 +428,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     this->work.updated = 0;
 
     if (this->init_stage < 0) {
-        return FILTERRESULT_WARNING;
+        return this->navOnly ? FILTERRESULT_OK : FILTERRESULT_WARNING;
     } else {
         return FILTERRESULT_OK;
     }

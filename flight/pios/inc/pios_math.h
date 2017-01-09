@@ -79,7 +79,7 @@
 #define MAX(a, b)               ((a) > (b) ? (a) : (b))
 #define MIN(a, b)               ((a) < (b) ? (a) : (b))
 
-#define IS_REAL(f)              (!isnan(f) && !isinf(f))
+#define IS_REAL(f)              (isfinite(f))
 
 // Bitfield access
 #define IS_SET(field, mask)     (((field) & (mask)) == (mask))

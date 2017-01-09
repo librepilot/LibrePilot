@@ -278,7 +278,7 @@ function gpsStatus() {
 }
 
 function fusionAlgorithm() {
-    var fusionAlgorithmText = ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"];
+    var fusionAlgorithmText = ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS)", "GPSNav (INS+CF)", "Testing (INS Indoor+CF)"];
 
     if (fusionAlgorithmText.length != RevoSettings.RevoSettingsConstants.FusionAlgorithmCount) {
         console.log("uav.js: fusionAlgorithm() do not match revoSettings.fusionAlgorithm uavo");

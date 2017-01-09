@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       main.cpp
- * @author     The LibrePilot Team http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      UAVObjectGenerator main.
  *
@@ -32,6 +32,7 @@
 
 #include "generators/java/uavobjectgeneratorjava.h"
 #include "generators/flight/uavobjectgeneratorflight.h"
+#include "generators/arduino/uavobjectgeneratorarduino.h"
 #include "generators/gcs/uavobjectgeneratorgcs.h"
 #include "generators/matlab/uavobjectgeneratormatlab.h"
 #include "generators/python/uavobjectgeneratorpython.h"
@@ -52,6 +53,7 @@ void usage()
     cout << "Languages: " << endl;
     cout << "\t-gcs           build groundstation code" << endl;
     cout << "\t-flight        build flight code" << endl;
+    cout << "\t-arduino       build arduino code" << endl;
     cout << "\t-java          build java code" << endl;
     cout << "\t-python        build python code" << endl;
     cout << "\t-matlab        build matlab code" << endl;
@@ -105,6 +107,7 @@ int main(int argc, char *argv[])
     bool verbose       = (arguments_stringlist.removeAll("-v") > 0);
     bool do_gcs        = (arguments_stringlist.removeAll("-gcs") > 0);
     bool do_flight     = (arguments_stringlist.removeAll("-flight") > 0);
+    bool do_arduino    = (arguments_stringlist.removeAll("-arduino") > 0);
     bool do_java       = (arguments_stringlist.removeAll("-java") > 0);
     bool do_python     = (arguments_stringlist.removeAll("-python") > 0);
     bool do_matlab     = (arguments_stringlist.removeAll("-matlab") > 0);
@@ -208,6 +211,11 @@ int main(int argc, char *argv[])
         cout << "generating flight code" << endl;
         UAVObjectGeneratorFlight flightgen;
         flightgen.generate(parser, templatepath, outputpath);
+    } else if (do_arduino) {
+        // generate arduino code if wanted
+        cout << "generating arduino code" << endl;
+        UAVObjectGeneratorArduino arduinogen;
+        arduinogen.generate(parser, templatepath, outputpath);
     } else if (do_gcs) {
         // generate gcs code if wanted
         cout << "generating gcs code" << endl;

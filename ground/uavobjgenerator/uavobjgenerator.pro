@@ -1,5 +1,6 @@
 #
 # Qmake project for UAVObjGenerator.
+# Copyright (c) 2017, The LibrePilot Project, https://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 #
 
@@ -27,6 +28,7 @@ SOURCES += main.cpp \
     generators/generator_io.cpp \
     generators/java/uavobjectgeneratorjava.cpp \
     generators/flight/uavobjectgeneratorflight.cpp \
+    generators/arduino/uavobjectgeneratorarduino.cpp \
     generators/gcs/uavobjectgeneratorgcs.cpp \
     generators/matlab/uavobjectgeneratormatlab.cpp \
     generators/python/uavobjectgeneratorpython.cpp \
@@ -36,6 +38,7 @@ HEADERS += uavobjectparser.h \
     generators/generator_io.h \
     generators/java/uavobjectgeneratorjava.h \
     generators/gcs/uavobjectgeneratorgcs.h \
+    generators/arduino/uavobjectgeneratorarduino.h \
     generators/matlab/uavobjectgeneratormatlab.h \
     generators/python/uavobjectgeneratorpython.h \
     generators/wireshark/uavobjectgeneratorwireshark.h \

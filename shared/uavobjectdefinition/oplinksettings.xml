@@ -21,8 +21,8 @@
 		<field name="RFFrequency" units="Hz" type="uint32" elements="1" defaultvalue="0"/>
 		<field name="FailsafeDelay" units="ms" type="uint32" elements="1" defaultvalue="1000"/>
 		<field name="RSSIType" units="function" type="enum" elements="1" options="Combined,RSSI,LinkQuality" defaultvalue="Combined"/> 
-
-                <!-- rf_magic === CoordID -->
+        <field name="RadioAuxStream" units="function" type="enum" elements="1" options="ComBridge,Disabled" defaultvalue="Disabled"/>
+        <!-- rf_magic === CoordID -->
 		<field name="RFPower" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="RFChannelSpacing" units="Hz" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="HopChannel" units="" type="uint8" elements="24" defaultvalue="0"/>

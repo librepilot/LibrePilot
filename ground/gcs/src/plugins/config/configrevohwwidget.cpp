@@ -66,6 +66,8 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbFlexiGPSProtocol);
     addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbRcvrGPSProtocol);
 
+    addWidgetBinding("HwSettings", "RadioAuxStream", m_ui->cbRadioAux);
+
     setupCustomCombos();
 }
 

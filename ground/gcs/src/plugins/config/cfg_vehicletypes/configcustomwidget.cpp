@@ -29,6 +29,8 @@
 
 #include "ui_airframe_custom.h"
 
+#include "uavobjectmanager.h"
+
 #include "mixersettings.h"
 
 #include <QDebug>
@@ -179,6 +181,11 @@ ConfigCustomWidget::~ConfigCustomWidget()
     delete m_aircraft;
 }
 
+QString ConfigCustomWidget::getFrameType()
+{
+    return "Custom";
+}
+
 void ConfigCustomWidget::setupUI(QString frameType)
 {
     Q_UNUSED(frameType);
@@ -190,11 +197,11 @@ void ConfigCustomWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->customMixerTable);
     parent.addWidget(m_aircraft->customThrottle1Curve->getCurveWidget());
     parent.addWidget(m_aircraft->customThrottle1Curve);
+    // There is no MixerSettings.Curve1Source (i.e. it is always Throttle)
+    // parent.addWidgetBinding("MixerSettings", "Curve1Source", m_aircraft->curve1SourceCombo);
     parent.addWidget(m_aircraft->customThrottle2Curve->getCurveWidget());
     parent.addWidget(m_aircraft->customThrottle2Curve);
-    // TODO why is curve2SourceCombo registered twice ?
     parent.addWidgetBinding("MixerSettings", "Curve2Source", m_aircraft->curve2SourceCombo);
-    parent.addWidget(m_aircraft->curve2SourceCombo);
 }
 
 void ConfigCustomWidget::resetActuators(GUIConfigDataUnion *configData)
@@ -234,14 +241,13 @@ void ConfigCustomWidget::resetActuators(GUIConfigDataUnion *configData)
 /**
    Helper function to refresh the UI widget values
  */
-void ConfigCustomWidget::refreshWidgetsValues(QString frameType)
+void ConfigCustomWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_ASSERT(m_aircraft);
-
-    setupUI(frameType);
+    Q_UNUSED(obj);
 
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
     Q_ASSERT(system);
+
     QPointer<UAVObjectField> field = system->getField(QString("AirframeType"));
 
     // Do not allow table edit until AirframeType == Custom
@@ -314,10 +320,7 @@ void ConfigCustomWidget::refreshWidgetsValues(QString frameType)
 }
 
 
-/**
-   Helper function to
- */
-QString ConfigCustomWidget::updateConfigObjectsFromWidgets()
+void ConfigCustomWidget::updateObjectsFromWidgetsImpl()
 {
     UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
 
@@ -438,7 +441,6 @@ QString ConfigCustomWidget::updateConfigObjectsFromWidgets()
         }
         setConfigData(configData);
     }
-    return "Custom";
 }
 
 /**

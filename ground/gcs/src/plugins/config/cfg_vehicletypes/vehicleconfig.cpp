@@ -38,7 +38,7 @@
 #include <QPushButton>
 #include <QPointer>
 
-VehicleConfig::VehicleConfig(QWidget *parent) : ConfigTaskWidget(parent)
+VehicleConfig::VehicleConfig(QWidget *parent) : ConfigTaskWidget(parent, Child)
 {
     // Generate lists of mixerTypeNames, mixerVectorNames, channelNames
     channelNames << "None";
@@ -105,19 +105,21 @@ void VehicleConfig::setConfigData(GUIConfigDataUnion configData)
     }
 }
 
-void VehicleConfig::setupUI(QString frameType)
+QString VehicleConfig::getFrameType()
 {
-    Q_UNUSED(frameType);
+    return "None";
 }
 
-void VehicleConfig::refreshWidgetsValues(QString frameType)
+void VehicleConfig::frameTypeChanged(QString frameType)
 {
-    Q_UNUSED(frameType);
+    setupUI(frameType);
 }
 
-QString VehicleConfig::updateConfigObjectsFromWidgets()
+void VehicleConfig::enableControls(bool enable)
 {
-    return NULL;
+    Q_UNUSED(enable);
+
+    // do nothing. no need to call parent.
 }
 
 void VehicleConfig::refreshWidgetsValuesImpl(UAVObject *obj)
@@ -128,21 +130,14 @@ void VehicleConfig::refreshWidgetsValuesImpl(UAVObject *obj)
 void VehicleConfig::updateObjectsFromWidgetsImpl()
 {}
 
-void VehicleConfig::resetActuators(GUIConfigDataUnion *configData)
-{
-    Q_UNUSED(configData);
-}
-
-void VehicleConfig::enableControls(bool enable)
-{
-    Q_UNUSED(enable);
-
-    // do nothing. no need to call parent.
-}
-
 void VehicleConfig::registerWidgets(ConfigTaskWidget &parent)
 {
     Q_UNUSED(parent);
+}
+
+void VehicleConfig::setupUI(QString frameType)
+{
+    Q_UNUSED(frameType);
 }
 
 // NEW STYLE: Loop through the widgets looking for all widgets that have "ChannelBox" in their name

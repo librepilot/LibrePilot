@@ -29,11 +29,6 @@
 
 #include "cfg_vehicletypes/vehicleconfig.h"
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
 #include <QList>
 
 class Ui_FixedWingConfigWidget;
@@ -50,31 +45,33 @@ public:
     ConfigFixedWingWidget(QWidget *parent = 0);
     ~ConfigFixedWingWidget();
 
-private:
-    Ui_FixedWingConfigWidget *m_aircraft;
-    QGraphicsSvgItem *planeimg;
-
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
-    virtual void resetRcOutputs(GUIConfigDataUnion *configData);
-
-    bool setupFrameFixedWing(QString airframeType);
-    bool setupFrameElevon(QString airframeType);
-    bool setupFrameVtail(QString airframeType);
-    void setupRcOutputs(QList<QString> rcOutputList);
-    void updateRcCurvesUsed();
+    virtual QString getFrameType();
 
 protected:
     void resizeEvent(QResizeEvent *);
     void showEvent(QShowEvent *);
 
     virtual void enableControls(bool enable);
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
 
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(QString airframeType);
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
+
+private:
+    Ui_FixedWingConfigWidget *m_aircraft;
+    QGraphicsSvgItem *planeimg;
+
+    void resetActuators(GUIConfigDataUnion *configData);
+    void resetRcOutputs(GUIConfigDataUnion *configData);
+
+    bool setupFrameFixedWing(QString frameType);
+    bool setupFrameElevon(QString frameType);
+    bool setupFrameVtail(QString frameType);
+    void setupRcOutputs(QList<QString> rcOutputList);
+    void updateRcCurvesUsed();
+
+    bool throwConfigError(QString frameType);
 };
 
 #endif // CONFIGFIXEDWINGWIDGET_H

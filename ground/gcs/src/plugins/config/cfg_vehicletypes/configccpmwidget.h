@@ -25,14 +25,10 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef CONFIGccpmWIDGET_H
-#define CONFIGccpmWIDGET_H
+#ifndef CONFIGCCPMWIDGET_H
+#define CONFIGCCPMWIDGET_H
 
 #include "cfg_vehicletypes/vehicleconfig.h"
-
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-
-#include "uavobject.h"
 
 class Ui_CcpmConfigWidget;
 
@@ -62,6 +58,8 @@ public:
     ConfigCcpmWidget(QWidget *parent = 0);
     ~ConfigCcpmWidget();
 
+    virtual QString getFrameType();
+
 public slots:
     void getMixer();
     void setMixer();
@@ -71,8 +69,11 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
     virtual void enableControls(bool enable);
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
 
 private:
     Ui_CcpmConfigWidget *m_aircraft;
@@ -97,22 +98,20 @@ private:
 
     int MixerChannelData[6];
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
+    void resetActuators(GUIConfigDataUnion *configData);
 
     int ShowDisclaimer(int messageID);
 
     bool updatingFromHardware;
     bool updatingToHardware;
 
-    QString updateConfigObjects();
+    void updateConfigObjects();
 
     void saveObjectToSD(UAVObject *obj);
 
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(int typeInt);
+    bool throwConfigError(int typeInt);
 
+private slots:
     void ccpmSwashplateUpdate();
     void ccpmSwashplateRedraw();
     void UpdateMixer();
@@ -130,7 +129,6 @@ private slots:
     void enableSwashplateLevellingControl(bool state);
     void setSwashplateLevel(int percent);
     void SwashLvlSpinBoxChanged(int value);
-    virtual void refreshValues() {}; // Not used
 };
 
-#endif // CONFIGccpmWIDGET_H
+#endif // CONFIGCCPMWIDGET_H

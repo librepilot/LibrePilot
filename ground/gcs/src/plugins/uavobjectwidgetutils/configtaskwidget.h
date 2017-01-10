@@ -100,7 +100,9 @@ class UAVOBJECTWIDGETUTILS_EXPORT ConfigTaskWidget : public QWidget {
     Q_OBJECT
 
 public:
-    ConfigTaskWidget(QWidget *parent = 0, bool autopilot = true);
+    enum ConfigTaskType { AutoPilot, OPLink, Child };
+
+    ConfigTaskWidget(QWidget *parent = 0, ConfigTaskType configType = AutoPilot);
     virtual ~ConfigTaskWidget();
 
     void bind();
@@ -181,13 +183,11 @@ protected:
     virtual void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
 
     virtual void enableControls(bool enable);
-
-    void updateEnableControls();
-
-    bool isConnected() const;
-
     virtual void refreshWidgetsValuesImpl(UAVObject *) {};
     virtual void updateObjectsFromWidgetsImpl() {};
+
+    bool isConnected() const;
+    void updateEnableControls();
 
 protected slots:
     void setWidgetBindingObjectEnabled(QString objectName, bool enabled);
@@ -233,9 +233,9 @@ private:
         bool    haslimits;
     };
 
-    // indicates if this is an "autopilot" widget (CC3D, Revolution, ...) or an OPLink widget
+    // indicates if this is an "autopilot" widget (CC3D, Revolution, ...), an OPLink widget or a Child widget (for vehicle config)
     // TODO the logic that this flag controls should be moved to derived classes
-    bool m_autopilot;
+    ConfigTaskType m_configType;
 
     // only valid for "autopilot" widgets
     int m_currentBoardId;

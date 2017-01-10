@@ -245,8 +245,6 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     m_aircraft->ccpmType->addItems(Types);
     m_aircraft->ccpmType->setCurrentIndex(m_aircraft->ccpmType->count() - 1);
 
-    // refreshWidgetsValues(QString("HeliCP"));
-
     connect(m_aircraft->ccpmAngleW, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
     connect(m_aircraft->ccpmAngleX, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
     connect(m_aircraft->ccpmAngleY, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
@@ -282,6 +280,11 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
 ConfigCcpmWidget::~ConfigCcpmWidget()
 {
     delete m_aircraft;
+}
+
+QString ConfigCcpmWidget::getFrameType()
+{
+    return "HeliCP";
 }
 
 void ConfigCcpmWidget::setupUI(QString frameType)
@@ -344,11 +347,9 @@ void ConfigCcpmWidget::enableControls(bool enable)
     }
 }
 
-void ConfigCcpmWidget::refreshWidgetsValues(QString frameType)
+void ConfigCcpmWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_UNUSED(frameType);
-
-    setupUI(frameType);
+    Q_UNUSED(obj);
 
     GUIConfigDataUnion config = getConfigData();
 
@@ -390,13 +391,10 @@ void ConfigCcpmWidget::refreshWidgetsValues(QString frameType)
     getMixer();
 }
 
-QString ConfigCcpmWidget::updateConfigObjectsFromWidgets()
+void ConfigCcpmWidget::updateObjectsFromWidgetsImpl()
 {
-    QString airframeType = updateConfigObjects();
-
+    updateConfigObjects();
     setMixer();
-
-    return airframeType;
 }
 
 void ConfigCcpmWidget::UpdateType()
@@ -811,17 +809,11 @@ void ConfigCcpmWidget::UpdateMixer()
     }
 }
 
-QString ConfigCcpmWidget::updateConfigObjects()
+void ConfigCcpmWidget::updateConfigObjects()
 {
-    QString airframeType = "HeliCP";
-
-    bool useCCPM;
-    bool useCyclic;
-
     if (updatingFromHardware == true) {
-        return airframeType;
+        return;
     }
-
     updatingFromHardware = true;
 
     // get the user options
@@ -835,8 +827,8 @@ QString ConfigCcpmWidget::updateConfigObjects()
     config.heli.ccpmCollectivePassthroughState = m_aircraft->ccpmCollectivePassthrough->isChecked();
     config.heli.ccpmLinkCyclicState = m_aircraft->ccpmLinkCyclic->isChecked();
     config.heli.ccpmLinkRollState   = m_aircraft->ccpmLinkRoll->isChecked();
-    useCCPM   = !(config.heli.ccpmCollectivePassthroughState || !config.heli.ccpmLinkCyclicState);
-    useCyclic = config.heli.ccpmLinkRollState;
+    bool useCCPM   = !(config.heli.ccpmCollectivePassthroughState || !config.heli.ccpmLinkCyclicState);
+    bool useCyclic = config.heli.ccpmLinkRollState;
 
     // correction angle
     config.heli.CorrectionAngle = m_aircraft->ccpmCorrectionAngle->value();
@@ -868,7 +860,6 @@ QString ConfigCcpmWidget::updateConfigObjects()
     setConfigData(config);
 
     updatingFromHardware = false;
-    return airframeType;
 }
 
 void ConfigCcpmWidget::SetUIComponentVisibilities()

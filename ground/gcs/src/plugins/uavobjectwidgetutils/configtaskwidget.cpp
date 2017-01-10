@@ -49,34 +49,48 @@
 #include <QUrl>
 #include <QWidget>
 
-ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, bool autopilot) : QWidget(parent),
+ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, ConfigTaskType configType) : QWidget(parent),
     m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_isDirty(false), m_refreshing(false),
     m_wikiURL("Welcome"), m_saveButton(NULL), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
 {
-    m_autopilot         = autopilot;
+    m_configType        = configType;
 
     m_pluginManager     = ExtensionSystem::PluginManager::instance();
 
     m_objectUtilManager = m_pluginManager->getObject<UAVObjectUtilManager>();
-    UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
-    connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
 
-    m_saveButton = new SmartSaveButton(this);
-    connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
-    connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
-    connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
-    connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+    if (m_configType != Child) {
+        UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
+        connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
 
-    if (m_autopilot) {
+        m_saveButton = new SmartSaveButton(this);
+        connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
+        connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
+        connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
+        connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+    }
+
+    switch (m_configType) {
+    case AutoPilot:
+    {
         // connect to telemetry manager
         TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
         connect(tm, SIGNAL(connected()), this, SLOT(onConnect()));
         connect(tm, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
-    } else {
+        break;
+    }
+    case OPLink:
+    {
         // connect to oplink manager
         OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
         connect(om, SIGNAL(connected()), this, SLOT(onConnect()));
         connect(om, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+        break;
+    }
+    case Child:
+    default:
+        // do nothing
+        break;
     }
 }
 
@@ -239,6 +253,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
 
     Q_ASSERT(object);
 
+    bool isRefreshing = m_refreshing;
     m_refreshing = true;
 
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject.values(object)) {
@@ -252,7 +267,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
         }
     }
 
-    m_refreshing = true;
+    m_refreshing = isRefreshing;
 }
 
 bool ConfigTaskWidget::isComboboxOptionSelected(QComboBox *combo, int optionValue)
@@ -305,13 +320,25 @@ bool ConfigTaskWidget::isConnected() const
 {
     bool connected = false;
 
-    if (m_autopilot) {
+    switch (m_configType) {
+    case AutoPilot:
+    {
         TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
         connected = tm->isConnected();
-    } else {
+        break;
+    }
+    case OPLink:
+    {
         OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
         connected = om->isConnected();
+        break;
     }
+    case Child:
+    default:
+        // do nothing
+        break;
+    }
+
     return connected;
 }
 
@@ -328,7 +355,7 @@ void ConfigTaskWidget::bind()
 
 void ConfigTaskWidget::onConnect()
 {
-    if (m_autopilot) {
+    if (m_configType == AutoPilot) {
         m_currentBoardId = m_objectUtilManager->getBoardModel();
     }
 
@@ -343,7 +370,7 @@ void ConfigTaskWidget::onConnect()
 
     refreshWidgetsValues();
 
-    setDirty(false);
+    clearDirty();
 }
 
 void ConfigTaskWidget::onDisconnect()
@@ -365,6 +392,7 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
         return;
     }
 
+    bool isRefreshing = m_refreshing;
     m_refreshing = true;
 
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
@@ -381,7 +409,7 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
     // call specific implementation
     refreshWidgetsValuesImpl(obj);
 
-    m_refreshing = false;
+    m_refreshing = isRefreshing;
 }
 
 void ConfigTaskWidget::updateObjectsFromWidgets()
@@ -407,8 +435,8 @@ void ConfigTaskWidget::helpButtonPressed()
 
 void ConfigTaskWidget::addApplyButton(QPushButton *button)
 {
-    m_saveButton->addApplyButton(button);
     button->setVisible(expertMode());
+    m_saveButton->addApplyButton(button);
 }
 
 void ConfigTaskWidget::addSaveButton(QPushButton *button)
@@ -443,7 +471,6 @@ bool ConfigTaskWidget::shouldObjectBeSaved(UAVObject *object)
     Q_UNUSED(object);
     return true;
 }
-
 
 void ConfigTaskWidget::widgetsContentsChanged()
 {
@@ -501,7 +528,7 @@ void ConfigTaskWidget::widgetsContentsChanged()
 
 void ConfigTaskWidget::clearDirty()
 {
-    setDirty(false);
+    m_isDirty = false;
 }
 
 void ConfigTaskWidget::setDirty(bool value)
@@ -514,11 +541,7 @@ void ConfigTaskWidget::setDirty(bool value)
 
 bool ConfigTaskWidget::isDirty()
 {
-    if (m_isConnected) {
-        return m_isDirty;
-    } else {
-        return false;
-    }
+    return m_isConnected ? m_isDirty : false;
 }
 
 void ConfigTaskWidget::disableObjectUpdates()

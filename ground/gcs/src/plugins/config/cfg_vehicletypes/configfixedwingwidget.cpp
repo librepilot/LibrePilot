@@ -29,6 +29,8 @@
 
 #include "ui_airframe_fixedwing.h"
 
+#include "uavobjectmanager.h"
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -131,7 +133,7 @@ ConfigFixedWingWidget::ConfigFixedWingWidget(QWidget *parent) :
     m_aircraft->planeShape->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // Set default model to "Aileron"
-    connect(m_aircraft->fixedWingType, SIGNAL(currentIndexChanged(QString)), this, SLOT(setupUI(QString)));
+    connect(m_aircraft->fixedWingType, SIGNAL(currentIndexChanged(QString)), this, SLOT(frameTypeChanged(QString)));
     m_aircraft->fixedWingType->setCurrentIndex(m_aircraft->fixedWingType->findText("Aileron"));
     setupUI(m_aircraft->fixedWingType->currentText());
 }
@@ -139,6 +141,21 @@ ConfigFixedWingWidget::ConfigFixedWingWidget(QWidget *parent) :
 ConfigFixedWingWidget::~ConfigFixedWingWidget()
 {
     delete m_aircraft;
+}
+
+QString ConfigFixedWingWidget::getFrameType()
+{
+    QString frameType = "FixedWing";
+
+    // All airframe types must start with "FixedWing"
+    if (m_aircraft->fixedWingType->currentText() == "Aileron") {
+        frameType = "FixedWing";
+    } else if (m_aircraft->fixedWingType->currentText() == "Elevon") {
+        frameType = "FixedWingElevon";
+    } else { // "Vtail"
+        frameType = "FixedWingVtail";
+    }
+    return frameType;
 }
 
 /**
@@ -343,11 +360,9 @@ void ConfigFixedWingWidget::updateRcCurvesUsed()
 /**
    Virtual function to refresh the UI widget values
  */
-void ConfigFixedWingWidget::refreshWidgetsValues(QString frameType)
+void ConfigFixedWingWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_ASSERT(m_aircraft);
-
-    setupUI(frameType);
+    Q_UNUSED(obj);
 
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
     Q_ASSERT(mixer);
@@ -390,6 +405,7 @@ void ConfigFixedWingWidget::refreshWidgetsValues(QString frameType)
 
     // Get mixing values for GUI sliders (values stored onboard)
     m_aircraft->elevonSlider3->setValue(getMixerValue(mixer, "RollDifferential"));
+    QString frameType = getFrameType();
     if (frameType == "FixedWingElevon" || frameType == "Elevon") {
         m_aircraft->elevonSlider1->setValue(getMixerValue(mixer, "MixerValueRoll"));
         m_aircraft->elevonSlider2->setValue(getMixerValue(mixer, "MixerValuePitch"));
@@ -402,10 +418,8 @@ void ConfigFixedWingWidget::refreshWidgetsValues(QString frameType)
 /**
    Virtual function to update the UI widget objects
  */
-QString ConfigFixedWingWidget::updateConfigObjectsFromWidgets()
+void ConfigFixedWingWidget::updateObjectsFromWidgetsImpl()
 {
-    QString airframeType = "FixedWing";
-
     // Save the curve (common to all Fixed wing frames)
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
 
@@ -421,19 +435,14 @@ QString ConfigFixedWingWidget::updateConfigObjectsFromWidgets()
     // Set the throttle curve
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->fixedWingThrottle->getCurve());
 
-    // All airframe types must start with "FixedWing"
+    QString frameType = getFrameType();
     if (m_aircraft->fixedWingType->currentText() == "Aileron") {
-        airframeType = "FixedWing";
-        setupFrameFixedWing(airframeType);
+        setupFrameFixedWing(frameType);
     } else if (m_aircraft->fixedWingType->currentText() == "Elevon") {
-        airframeType = "FixedWingElevon";
-        setupFrameElevon(airframeType);
+        setupFrameElevon(frameType);
     } else { // "Vtail"
-        airframeType = "FixedWingVtail";
-        setupFrameVtail(airframeType);
+        setupFrameVtail(frameType);
     }
-
-    return airframeType;
 }
 
 /**
@@ -443,11 +452,11 @@ QString ConfigFixedWingWidget::updateConfigObjectsFromWidgets()
 
    Returns False if impossible to create the mixer.
  */
-bool ConfigFixedWingWidget::setupFrameFixedWing(QString airframeType)
+bool ConfigFixedWingWidget::setupFrameFixedWing(QString frameType)
 {
     // Check coherence:
     // Show any config errors in GUI
-    if (throwConfigError(airframeType)) {
+    if (throwConfigError(frameType)) {
         return false;
     }
 
@@ -519,11 +528,11 @@ bool ConfigFixedWingWidget::setupFrameFixedWing(QString airframeType)
 /**
    Setup Elevon
  */
-bool ConfigFixedWingWidget::setupFrameElevon(QString airframeType)
+bool ConfigFixedWingWidget::setupFrameElevon(QString frameType)
 {
     // Check coherence:
     // Show any config errors in GUI
-    if (throwConfigError(airframeType)) {
+    if (throwConfigError(frameType)) {
         return false;
     }
 
@@ -602,11 +611,11 @@ bool ConfigFixedWingWidget::setupFrameElevon(QString airframeType)
 /**
    Setup VTail
  */
-bool ConfigFixedWingWidget::setupFrameVtail(QString airframeType)
+bool ConfigFixedWingWidget::setupFrameVtail(QString frameType)
 {
     // Check coherence:
     // Show any config errors in GUI
-    if (throwConfigError(airframeType)) {
+    if (throwConfigError(frameType)) {
         return false;
     }
 
@@ -810,7 +819,7 @@ void ConfigFixedWingWidget::enableControls(bool enable)
 /**
    This function displays text and color formatting in order to help the user understand what channels have not yet been configured.
  */
-bool ConfigFixedWingWidget::throwConfigError(QString airframeType)
+bool ConfigFixedWingWidget::throwConfigError(QString frameType)
 {
     // Initialize configuration error flag
     bool error = false;
@@ -828,15 +837,15 @@ bool ConfigFixedWingWidget::throwConfigError(QString airframeType)
             if (combobox->currentText() == "None") {
                 int size = combobox->style()->pixelMetric(QStyle::PM_SmallIconSize);
                 QPixmap pixmap(size, size);
-                if ((airframeType == "FixedWingElevon") && (i > 2)) {
+                if ((frameType == "FixedWingElevon") && (i > 2)) {
                     pixmap.fill(QColor("green"));
                     // Rudders are optional for elevon frame
                     combobox->setToolTip(tr("Rudders are optional for Elevon frame"));
-                } else if (((airframeType == "FixedWing") || (airframeType == "FixedWingVtail")) && (i == 2)) {
+                } else if (((frameType == "FixedWing") || (frameType == "FixedWingVtail")) && (i == 2)) {
                     pixmap.fill(QColor("green"));
                     // Second aileron servo is optional for FixedWing frame
                     combobox->setToolTip(tr("Second aileron servo is optional"));
-                } else if ((airframeType == "FixedWing") && (i > 3)) {
+                } else if ((frameType == "FixedWing") && (i > 3)) {
                     pixmap.fill(QColor("green"));
                     // Second elevator and rudders are optional for FixedWing frame
                     combobox->setToolTip(tr("Second elevator servo is optional"));

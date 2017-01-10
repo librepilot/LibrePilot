@@ -43,7 +43,7 @@ static const int MAX_CHANNEL_NUM   = 250;
 static const int MIN_CHANNEL_RANGE = 10;
 static const float FREQUENCY_STEP  = 0.040;
 
-ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(parent, false), statusUpdated(false)
+ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(parent, OPLink), statusUpdated(false)
 {
     m_oplink = new Ui_OPLinkWidget();
     m_oplink->setupUi(this);

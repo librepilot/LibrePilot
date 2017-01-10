@@ -29,6 +29,8 @@
 
 #include "ui_airframe_multirotor.h"
 
+#include "uavobjectmanager.h"
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -170,7 +172,7 @@ ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
     // Set default model to "Quad X"
     m_aircraft->multirotorFrameType->setCurrentIndex(m_aircraft->multirotorFrameType->findText("Quad X"));
 
-    connect(m_aircraft->multirotorFrameType, SIGNAL(currentIndexChanged(QString)), this, SLOT(setupUI(QString)));
+    connect(m_aircraft->multirotorFrameType, SIGNAL(currentIndexChanged(QString)), this, SLOT(frameTypeChanged(QString)));
 
     // Connect the multirotor motor reverse checkbox
     connect(m_aircraft->MultirotorRevMixerCheckBox, SIGNAL(clicked(bool)), this, SLOT(reverseMultirotorMotor()));
@@ -182,6 +184,38 @@ ConfigMultiRotorWidget::ConfigMultiRotorWidget(QWidget *parent) :
 ConfigMultiRotorWidget::~ConfigMultiRotorWidget()
 {
     delete m_aircraft;
+}
+
+QString ConfigMultiRotorWidget::getFrameType()
+{
+    QString frameType;
+
+    if (m_aircraft->multirotorFrameType->currentText() == "Quad +") {
+        frameType = "QuadP";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Quad X") {
+        frameType = "QuadX";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter") {
+        frameType = "Hexa";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter X") {
+        frameType = "HexaX";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter H") {
+        frameType = "HexaH";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter Y6") {
+        frameType = "HexaCoax";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Octocopter") {
+        frameType = "Octo";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Octocopter X") {
+        frameType = "OctoX";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Octocopter V") {
+        frameType = "OctoV";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Octo Coax +") {
+        frameType = "OctoCoaxP";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Octo Coax X") {
+        frameType = "OctoCoaxX";
+    } else if (m_aircraft->multirotorFrameType->currentText() == "Tricopter Y") {
+        frameType = "Tri";
+    }
+    return frameType;
 }
 
 void ConfigMultiRotorWidget::setupUI(QString frameType)
@@ -433,11 +467,9 @@ void ConfigMultiRotorWidget::updateRcCurvesUsed()
 /**
    Helper function to refresh the UI widget values
  */
-void ConfigMultiRotorWidget::refreshWidgetsValues(QString frameType)
+void ConfigMultiRotorWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_ASSERT(m_aircraft);
-
-    setupUI(frameType);
+    Q_UNUSED(obj);
 
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
     Q_ASSERT(mixer);
@@ -457,6 +489,7 @@ void ConfigMultiRotorWidget::refreshWidgetsValues(QString frameType)
     GUIConfigDataUnion config    = getConfigData();
     multiGUISettingsStruct multi = config.multi;
 
+    QString frameType = getFrameType();
     if (frameType == "QuadP") {
         // Motors 1/2/3/4 are: N / E / S / W
         setComboCurrentIndex(m_aircraft->multiMotorChannelBox1, multi.VTOLMotorN);
@@ -583,9 +616,9 @@ void ConfigMultiRotorWidget::updateMotorsPositionLabels(QStringList motorLabels)
 }
 
 /**
-   Helper function to update the UI widget objects
+   Function to update the UI widget objects
  */
-QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
+void ConfigMultiRotorWidget::updateObjectsFromWidgetsImpl()
 {
     UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
 
@@ -601,26 +634,19 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
     // Curve is also common to all quads:
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->multiThrottleCurve->getCurve());
 
-    QString airframeType;
     QList<QString> motorList;
     if (m_aircraft->multirotorFrameType->currentText() == "Quad +") {
-        airframeType = "QuadP";
         setupQuad(true);
     } else if (m_aircraft->multirotorFrameType->currentText() == "Quad X") {
-        airframeType = "QuadX";
         setupQuad(false);
     } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter") {
-        airframeType = "Hexa";
         setupHexa(true);
     } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter X") {
-        airframeType = "HexaX";
         setupHexa(false);
     } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter H") {
-        airframeType = "HexaH";
-
         // Show any config errors in GUI
         if (throwConfigError(6)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorNE" << "VTOLMotorE" << "VTOLMotorSE" << "VTOLMotorSW" << "VTOLMotorW" << "VTOLMotorNW";
         setupMotors(motorList);
@@ -647,11 +673,9 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(hMixer);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Hexacopter Y6") {
-        airframeType = "HexaCoax";
-
         // Show any config errors in GUI
         if (throwConfigError(6)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorNW" << "VTOLMotorW" << "VTOLMotorNE" << "VTOLMotorE" << "VTOLMotorS" << "VTOLMotorSE";
         setupMotors(motorList);
@@ -671,11 +695,9 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(mixerMatrix);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Octocopter") {
-        airframeType = "Octo";
-
         // Show any config errors in GUI
         if (throwConfigError(8)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorN" << "VTOLMotorNE" << "VTOLMotorE" << "VTOLMotorSE" << "VTOLMotorS" << "VTOLMotorSW"
                   << "VTOLMotorW" << "VTOLMotorNW";
@@ -702,11 +724,9 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(mixerMatrix);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Octocopter X") {
-        airframeType = "OctoX";
-
         // Show any config errors in GUI
         if (throwConfigError(8)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorNNE" << "VTOLMotorENE" << "VTOLMotorESE" << "VTOLMotorSSE" << "VTOLMotorSSW" << "VTOLMotorWSW"
                   << "VTOLMotorWNW" << "VTOLMotorNNW";
@@ -733,11 +753,9 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(mixerMatrix);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Octocopter V") {
-        airframeType = "OctoV";
-
         // Show any config errors in GUI
         if (throwConfigError(8)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorN" << "VTOLMotorNE" << "VTOLMotorE" << "VTOLMotorSE" << "VTOLMotorS" << "VTOLMotorSW"
                   << "VTOLMotorW" << "VTOLMotorNW";
@@ -758,11 +776,9 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(mixerMatrix);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Octo Coax +") {
-        airframeType = "OctoCoaxP";
-
         // Show any config errors in GUI
         if (throwConfigError(8)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorN" << "VTOLMotorNE" << "VTOLMotorE" << "VTOLMotorSE" << "VTOLMotorS" << "VTOLMotorSW"
                   << "VTOLMotorW" << "VTOLMotorNW";
@@ -782,11 +798,9 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(mixerMatrix);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Octo Coax X") {
-        airframeType = "OctoCoaxX";
-
         // Show any config errors in GUI
         if (throwConfigError(8)) {
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorNW" << "VTOLMotorN" << "VTOLMotorNE" << "VTOLMotorE" << "VTOLMotorSE" << "VTOLMotorS"
                   << "VTOLMotorSW" << "VTOLMotorW";
@@ -806,15 +820,13 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
         setupMultiRotorMixer(mixerMatrix);
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     } else if (m_aircraft->multirotorFrameType->currentText() == "Tricopter Y") {
-        airframeType = "Tri";
-
         // Show any config errors in GUI
         if (throwConfigError(3)) {
-            return airframeType;
+            return;
         }
         if (m_aircraft->triYawChannelBox->currentText() == "None") {
             m_aircraft->mrStatusLabel->setText(tr("<font color='red'>ERROR: Assign a Yaw channel</font>"));
-            return airframeType;
+            return;
         }
         motorList << "VTOLMotorNW" << "VTOLMotorNE" << "VTOLMotorS";
         setupMotors(motorList);
@@ -850,7 +862,6 @@ QString ConfigMultiRotorWidget::updateConfigObjectsFromWidgets()
 
         m_aircraft->mrStatusLabel->setText(tr("Configuration OK"));
     }
-    return airframeType;
 }
 
 void ConfigMultiRotorWidget::setYawMixLevel(int value)

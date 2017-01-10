@@ -73,7 +73,6 @@ private:
     // Maps a frame category to its index in the m_aircraft->airframesWidget QStackedWidget
     QMap<int, int> m_vehicleIndexMap;
 
-
     QString frameType();
     void setFrameType(QString frameType);
 
@@ -86,7 +85,7 @@ private:
     VehicleConfig *createVehicleConfigWidget(int frameCategory);
 
 private slots:
-    void switchAirframeType(int index);
+    void frameTypeChanged(int index);
 };
 
 #endif // CONFIGVEHICLETYPEWIDGET_H

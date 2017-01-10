@@ -30,11 +30,6 @@
 
 #include "cfg_vehicletypes/vehicleconfig.h"
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
 class Ui_GroundConfigWidget;
 
 class QWidget;
@@ -49,6 +44,8 @@ public:
     ConfigGroundVehicleWidget(QWidget *parent = 0);
     ~ConfigGroundVehicleWidget();
 
+    virtual QString getFrameType();
+
     virtual void initMixerCurves(QString frameType);
 
 protected:
@@ -56,23 +53,23 @@ protected:
     void showEvent(QShowEvent *);
 
     virtual void enableControls(bool enable);
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
 
 private:
     Ui_GroundConfigWidget *m_aircraft;
     QGraphicsSvgItem *m_vehicleImg;
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
+    void resetActuators(GUIConfigDataUnion *configData);
 
-    bool setupGroundVehicleTurnable(QString airframeType);
-    bool setupGroundVehicleDifferential(QString airframeType);
-    bool setupGroundVehicleMotorcycle(QString airframeType);
+    bool setupGroundVehicleTurnable(QString frameType);
+    bool setupGroundVehicleDifferential(QString frameType);
+    bool setupGroundVehicleMotorcycle(QString frameType);
 
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(QString airframeType);
+    bool throwConfigError(QString frameType);
 };
 
 #endif // CONFIGGROUNDVEHICLEWIDGET_H

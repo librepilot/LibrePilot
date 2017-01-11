@@ -1,6 +1,6 @@
 #
 # Top level Makefile for the LibrePilot Project build system.
-# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
+# Copyright (c) 2015-2017, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 # Use 'make help' for instructions.
 #
@@ -195,7 +195,7 @@ $(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
 	    CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' ) && \
 	    $(MAKE) --no-print-directory -w
 
-UAVOBJ_TARGETS := gcs flight python matlab java wireshark
+UAVOBJ_TARGETS := gcs flight arduino python matlab java wireshark
 
 .PHONY: uavobjects
 uavobjects:  $(addprefix uavobjects_, $(UAVOBJ_TARGETS))

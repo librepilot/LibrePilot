@@ -13,7 +13,7 @@
    height="400"
    id="svg2816"
    version="1.1"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="ccpm_setup.svg">
   <defs
      id="defs2818">
@@ -33,14 +33,6 @@
          id="feGaussianBlur4113" />
     </filter>
     <filter
-       inkscape:collect="always"
-       id="filter4149">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="1.990099"
-         id="feGaussianBlur4151" />
-    </filter>
-    <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
        id="filter4149-5">
@@ -56,17 +48,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="0"
-     inkscape:zoom="0.93625"
-     inkscape:cx="329.50243"
-     inkscape:cy="22.483153"
+     inkscape:zoom="2.6481149"
+     inkscape:cx="128.94767"
+     inkscape:cy="47.906303"
      inkscape:document-units="px"
      inkscape:current-layer="g4008"
      id="namedview2820"
      showgrid="false"
      showguides="false"
      inkscape:snap-global="true"
-     inkscape:window-width="1280"
-     inkscape:window-height="928"
+     inkscape:window-width="1920"
+     inkscape:window-height="1016"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
@@ -121,7 +113,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -148,7 +140,7 @@
            inkscape:connector-curvature="0"
            transform="matrix(1.0083769,0,0,1.0083769,2.0000001e-6,-3.35076)" />
         <path
-           style="fill:#2f82f4;fill-opacity:1;stroke:#0000ff;stroke-width:3.96039605;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;display:inline"
+           style="fill:#feb103;fill-opacity:1;stroke:#48adc6;stroke-width:3.96039605;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:0.40392157;display:inline"
            d="M 198.01981,400 C 198.01981,509.36332 109.36332,598.0198 0,598.0198 C -109.36332,598.0198 -198.0198,509.36332 -198.0198,400 C -198.0198,290.63669 -109.36332,201.9802 0,201.9802 C 109.36332,201.9802 198.01981,290.63669 198.01981,400 z"
            id="Ring"
            inkscape:connector-curvature="0" />
@@ -176,7 +168,7 @@
      style="display:inline">
     <path
        sodipodi:type="arc"
-       style="color:#000000;fill:#d86415;fill-opacity:1;fill-rule:evenodd;stroke:#00ff00;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:#ff6000;fill-opacity:1;fill-rule:evenodd;stroke:#47adc5;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="ServoW"
        sodipodi:cx="0"
        sodipodi:cy="397.5"
@@ -210,7 +202,7 @@
        sodipodi:cy="397.5"
        sodipodi:cx="0"
        id="ServoX"
-       style="color:#000000;fill:#d89615;fill-opacity:1;fill-rule:evenodd;stroke:#00ff00;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:#ff6000;fill-opacity:1;fill-rule:evenodd;stroke:#47adc5;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        sodipodi:type="arc"
        inkscape:label="#path3927" />
     <text
@@ -232,7 +224,7 @@
      style="display:inline">
     <path
        sodipodi:type="arc"
-       style="color:#000000;fill:#d8c815;fill-opacity:1;fill-rule:evenodd;stroke:#00ff00;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:#ff6000;fill-opacity:1;fill-rule:evenodd;stroke:#47adc5;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        id="ServoY"
        sodipodi:cx="0"
        sodipodi:cy="397.5"
@@ -266,7 +258,7 @@
        sodipodi:cy="397.5"
        sodipodi:cx="0"
        id="ServoZ"
-       style="color:#000000;fill:#d8f915;fill-opacity:1;fill-rule:evenodd;stroke:#00ff00;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       style="color:#000000;fill:#ff6000;fill-opacity:1;fill-rule:evenodd;stroke:#47adc5;stroke-width:1.0002594;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        sodipodi:type="arc"
        inkscape:label="#path3957" />
     <text

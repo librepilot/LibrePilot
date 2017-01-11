@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configccpmwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -31,6 +31,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <uavobjectutilmanager.h>
+#include <uavobjecthelper.h>
 
 #include "mixersettings.h"
 #include "systemsettings.h"
@@ -169,13 +170,13 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
 
-    QBrush brush(Qt::darkBlue);
+    QBrush brush(Qt::darkYellow);
     // creates a default pen
     QPen pen2;
 
     // pen2.setStyle(Qt::DotLine);
     pen2.setWidth(1);
-    pen2.setBrush(Qt::blue);
+    pen2.setBrush(Qt::yellow);
     // pen2.setCapStyle(Qt::RoundCap);
     // pen2.setJoinStyle(Qt::RoundJoin);
 
@@ -246,8 +247,6 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
 
     // refreshWidgetsValues(QString("HeliCP"));
 
-    UpdateType();
-
     connect(m_aircraft->ccpmAngleW, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
     connect(m_aircraft->ccpmAngleX, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
     connect(m_aircraft->ccpmAngleY, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
@@ -277,7 +276,7 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     connect(m_aircraft->ccpmLinkCyclic, SIGNAL(clicked()), this, SLOT(SetUIComponentVisibilities()));
     connect(m_aircraft->ccpmLinkRoll, SIGNAL(clicked()), this, SLOT(SetUIComponentVisibilities()));
 
-    ccpmSwashplateRedraw();
+    UpdateType();
 }
 
 ConfigCcpmWidget::~ConfigCcpmWidget()
@@ -397,8 +396,6 @@ void ConfigCcpmWidget::UpdateType()
 {
     int SingleServoIndex, NumServosDefined;
     double AdjustmentAngle = 0;
-
-    SetUIComponentVisibilities();
 
     typeText = m_aircraft->ccpmType->currentText();
     SingleServoIndex = m_aircraft->ccpmSingleServo->currentIndex();
@@ -977,26 +974,18 @@ void ConfigCcpmWidget::setMixer()
 
     int typeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
 
-    // Exit if currently updatingToHardware or ConfigError
+    // Exit if currently updatingToHardware, ConfigError or LevelConfigInProgress
     // Avoid mixer changes if something wrong in config
-    if (throwConfigError(typeInt) || updatingToHardware) {
+    if (throwConfigError(typeInt) || updatingToHardware || SwashLvlConfigurationInProgress) {
         return;
     }
 
-    if (SwashLvlConfigurationInProgress) {
-        return;
-    }
-    if (updatingToHardware == true) {
-        return;
-    }
-
+    UpdateMixer();
     updatingToHardware = true;
 
     MixerSettings *mixerSettings = MixerSettings::GetInstance(getObjectManager());
     Q_ASSERT(mixerSettings);
     MixerSettings::DataFields mixerSettingsData = mixerSettings->getData();
-
-    UpdateMixer();
 
     // Set up some helper pointers
     qint8 *mixers[12] = { mixerSettingsData.Mixer1Vector,
@@ -1069,8 +1058,11 @@ void ConfigCcpmWidget::setMixer()
         mixerSettingsData.Curve2Source = MixerSettings::CURVE2SOURCE_THROTTLE;
     }
 
-    mixerSettings->setData(mixerSettingsData);
-    mixerSettings->updated();
+    UAVObjectUpdaterHelper updateHelper;
+
+    mixerSettings->setData(mixerSettingsData, false);
+    updateHelper.doObjectAndWait(mixerSettings);
+
     updatingToHardware = false;
 }
 
@@ -1541,8 +1533,10 @@ void ConfigCcpmWidget::setSwashplateLevel(int percent)
         SwashLvlSpinBoxes[i]->setValue(value);
     }
 
-    actuatorCommand->setData(actuatorCommandData);
-    actuatorCommand->updated();
+    UAVObjectUpdaterHelper updateHelper;
+
+    actuatorCommand->setData(actuatorCommandData, false);
+    updateHelper.doObjectAndWait(actuatorCommand);
 
     SwashLvlServoInterlock = 0;
 }
@@ -1588,8 +1582,10 @@ void ConfigCcpmWidget::SwashLvlSpinBoxChanged(int value)
         actuatorCommandData.Channel[newSwashLvlConfiguration.ServoChannels[i]] = value;
     }
 
-    actuatorCommand->setData(actuatorCommandData);
-    actuatorCommand->updated();
+    UAVObjectUpdaterHelper updateHelper;
+
+    actuatorCommand->setData(actuatorCommandData, false);
+    updateHelper.doObjectAndWait(actuatorCommand);
 }
 
 /**

@@ -131,11 +131,11 @@ void GpsConstellationWidget::updateSat(int index, int prn, int elevation, int az
 
         // Show satellite constellations in a separate color
         // The UBX SVID numbers are defined in appendix A of u-blox8-M8_ReceiverDescrProtSpec_(UBX-13003221)_Public.pdf
-        //  GPS = default
-        //  SBAS 120-158, QZSS 193-197
-        //  BeiDou 33-64, 159-163
-        //  GLONASS 65-96, 255 if unidentified
-        //  Galileo 211-246
+        // GPS = default
+        // SBAS 120-158, QZSS 193-197
+        // BeiDou 33-64, 159-163
+        // GLONASS 65-96, 255 if unidentified
+        // Galileo 211-246
         if ((prn > 119 && prn < 159) || (prn > 192 && prn < 198)) {
             if (snr) {
                 satIcons[index]->setElementId("satellite-sbas");

@@ -34,11 +34,11 @@ bool UAVObjectGeneratorArduino::generate(UAVObjectParser *parser, QString templa
     fieldTypeStrC << "int8_t" << "int16_t" << "int32_t" << "uint8_t"
                   << "uint16_t" << "uint32_t" << "float" << "uint8_t";
 
-    arduinoCodePath            = QDir(templatepath + QString(ARDUINO_CODE_DIR));
-    arduinoOutputPath          = QDir(outputpath);
+    arduinoCodePath   = QDir(templatepath + QString(ARDUINO_CODE_DIR));
+    arduinoOutputPath = QDir(outputpath);
     arduinoOutputPath.mkpath(arduinoOutputPath.absolutePath());
 
-    arduinoIncludeTemplate     = readFile(arduinoCodePath.absoluteFilePath("inc/uavobject.h.template"));
+    arduinoIncludeTemplate = readFile(arduinoCodePath.absoluteFilePath("inc/uavobject.h.template"));
 
     if (arduinoIncludeTemplate.isNull()) {
         cerr << "Error: Could not open arduino template files." << endl;

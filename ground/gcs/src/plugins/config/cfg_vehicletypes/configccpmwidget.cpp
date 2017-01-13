@@ -323,10 +323,10 @@ void ConfigCcpmWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->ccpmRollScaleBox);
     parent.addWidget(m_aircraft->SwashLvlPositionSlider);
     parent.addWidget(m_aircraft->SwashLvlPositionSpinBox);
-    parent.addWidget(m_aircraft->ThrottleCurve->getCurveWidget());
+    parent.addWidget(m_aircraft->PitchCurve->getCurveWidget());
     parent.addWidget(m_aircraft->PitchCurve);
     parent.addWidget(m_aircraft->ThrottleCurve->getCurveWidget());
-    parent.addWidget(m_aircraft->PitchCurve);
+    parent.addWidget(m_aircraft->ThrottleCurve);
     parent.addWidget(m_aircraft->ccpmAdvancedSettingsTable);
 }
 

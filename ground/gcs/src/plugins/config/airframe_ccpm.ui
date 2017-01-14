@@ -1061,7 +1061,7 @@ margin:1px;
               </size>
              </property>
              <property name="title">
-              <string>Motor outputs</string>
+              <string>Motor Outputs</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -1206,7 +1206,7 @@ margin:1px;
               </size>
              </property>
              <property name="title">
-              <string>Swashplate outputs</string>
+              <string>Swashplate Outputs</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_19">
               <property name="leftMargin">

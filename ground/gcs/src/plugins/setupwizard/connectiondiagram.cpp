@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       connectiondiagram.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
@@ -158,6 +158,12 @@ void ConnectionDiagram::setupGraphicsScene()
                 break;
             case VehicleConfigurationSource::GROUNDVEHICLE_MOTORCYCLE:
                 elementsToShow << "motorbike";
+                break;
+            case VehicleConfigurationSource::GROUNDVEHICLE_BOAT:
+                elementsToShow << "boat";
+                break;
+            case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
+                elementsToShow << "boat_diff";
                 break;
             default:
                 break;

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configgroundvehiclewidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -64,7 +65,7 @@ private:
     virtual void registerWidgets(ConfigTaskWidget &parent);
     virtual void resetActuators(GUIConfigDataUnion *configData);
 
-    bool setupGroundVehicleCar(QString airframeType);
+    bool setupGroundVehicleTurnable(QString airframeType);
     bool setupGroundVehicleDifferential(QString airframeType);
     bool setupGroundVehicleMotorcycle(QString airframeType);
 

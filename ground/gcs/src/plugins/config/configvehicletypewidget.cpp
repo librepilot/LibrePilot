@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configvehicletypewidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             E. Lafargue, K. Sebesta & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -99,6 +99,8 @@ QStringList ConfigVehicleTypeWidget::getChannelDescriptions()
     case SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR:
     case SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIAL:
     case SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE:
+    case SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT:
+    case SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT:
         // ground
         channelDesc = ConfigGroundVehicleWidget::getChannelDescriptions();
         break;
@@ -282,9 +284,11 @@ int ConfigVehicleTypeWidget::frameCategory(QString frameType)
         return ConfigVehicleTypeWidget::MULTIROTOR;
     } else if (frameType == "HeliCP") {
         return ConfigVehicleTypeWidget::HELICOPTER;
-    } else if (frameType == "GroundVehicleCar" || frameType == "Turnable (car)"
-               || frameType == "GroundVehicleDifferential" || frameType == "Differential (tank)"
-               || frameType == "GroundVehicleMotorcycle" || frameType == "Motorcycle") {
+    } else if (frameType == "GroundVehicleCar" || frameType == "Car (Turnable)"
+               || frameType == "GroundVehicleDifferential" || frameType == "Tank (Differential)"
+               || frameType == "GroundVehicleMotorcycle" || frameType == "Motorcycle"
+               || frameType == "GroundVehicleBoat" || frameType == "Boat (Turnable)"
+               || frameType == "GroundVehicleDifferentialBoat" || frameType == "Boat (Differential)") {
         return ConfigVehicleTypeWidget::GROUND;
     } else {
         return ConfigVehicleTypeWidget::CUSTOM;

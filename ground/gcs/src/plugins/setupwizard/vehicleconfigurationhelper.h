@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vehicleconfigurationhelper.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup VehicleConfigurationHelper
@@ -121,6 +122,8 @@ private:
     void setupCar();
     void setupTank();
     void setupMotorcycle();
+    void setupBoat();
+    void setupBoatDiff();
 
 private slots:
     void uAVOTransactionCompleted(UAVObject *object, bool success);

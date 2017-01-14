@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vehicleconfigurationsource.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup VehicleConfigurationSource
@@ -63,7 +64,7 @@ public:
                             MULTI_ROTOR_HEXA, MULTI_ROTOR_HEXA_H, MULTI_ROTOR_HEXA_X, MULTI_ROTOR_HEXA_COAX_Y, MULTI_ROTOR_OCTO,
                             MULTI_ROTOR_OCTO_X, MULTI_ROTOR_OCTO_V, MULTI_ROTOR_OCTO_COAX_X, MULTI_ROTOR_OCTO_COAX_PLUS,
                             FIXED_WING_DUAL_AILERON, FIXED_WING_AILERON, FIXED_WING_ELEVON, FIXED_WING_VTAIL, HELI_CCPM,
-                            GROUNDVEHICLE_MOTORCYCLE, GROUNDVEHICLE_CAR, GROUNDVEHICLE_DIFFERENTIAL };
+                            GROUNDVEHICLE_MOTORCYCLE, GROUNDVEHICLE_CAR, GROUNDVEHICLE_DIFFERENTIAL, GROUNDVEHICLE_BOAT, GROUNDVEHICLE_DIFFERENTIAL_BOAT };
     enum ESC_TYPE { ESC_ONESHOT, ESC_SYNCHED, ESC_RAPID, ESC_STANDARD, ESC_UNKNOWN };
     enum SERVO_TYPE { SERVO_ANALOG, SERVO_DIGITAL, SERVO_UNKNOWN };
     enum INPUT_TYPE { INPUT_PWM, INPUT_PPM, INPUT_SBUS, INPUT_DSM, INPUT_SRXL, INPUT_HOTT_SUMD, INPUT_EXBUS, INPUT_IBUS, INPUT_UNKNOWN };

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       setupwizard.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -138,7 +138,8 @@ int SetupWizard::nextId() const
 
     case PAGE_FIXEDWING:
     case PAGE_SURFACE:
-        if (getVehicleSubType() == GROUNDVEHICLE_DIFFERENTIAL) {
+        if ((getVehicleSubType() == GROUNDVEHICLE_DIFFERENTIAL) ||
+            (getVehicleSubType() == GROUNDVEHICLE_DIFFERENTIAL_BOAT)) {
             return PAGE_ESC;
         } else {
             return PAGE_SERVO;
@@ -360,6 +361,12 @@ QString SetupWizard::getSummaryText()
         case SetupWizard::GROUNDVEHICLE_MOTORCYCLE:
             summary.append(tr("Motorcycle"));
             break;
+        case SetupWizard::GROUNDVEHICLE_BOAT:
+            summary.append(tr("Boat"));
+            break;
+        case SetupWizard::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
+            summary.append(tr("Boat differential"));
+            break;
         default:
             summary.append(tr("Unknown"));
             break;
@@ -422,7 +429,8 @@ QString SetupWizard::getSummaryText()
 
     // If Tricopter show tail servo speed
     if (getVehicleSubType() == MULTI_ROTOR_TRI_Y || getVehicleType() == VEHICLE_FIXEDWING
-        || getVehicleSubType() == GROUNDVEHICLE_MOTORCYCLE || getVehicleSubType() == GROUNDVEHICLE_CAR) {
+        || getVehicleSubType() == GROUNDVEHICLE_MOTORCYCLE || getVehicleSubType() == GROUNDVEHICLE_CAR
+        || getVehicleSubType() == GROUNDVEHICLE_BOAT) {
         summary.append("<br>");
         summary.append("<b>").append(tr("Servo type: ")).append("</b>");
         switch (getServoType()) {

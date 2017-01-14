@@ -509,7 +509,7 @@ Typical value is 50% for + or X configuration on quads.</string>
       </size>
      </property>
      <property name="title">
-      <string>Motor output channels</string>
+      <string>Motor Output Channels</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_7" columnstretch="1,1,0,0,1,0,0">
       <property name="leftMargin">

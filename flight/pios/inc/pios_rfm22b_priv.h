@@ -212,7 +212,7 @@ struct pios_rfm22b_dev {
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
 
-    uint8_t last_stream_sent;
+    uint8_t  last_stream_sent;
     // The Aux COM callback functions.
     pios_com_callback aux_rx_in_cb;
     uint32_t aux_rx_in_context;

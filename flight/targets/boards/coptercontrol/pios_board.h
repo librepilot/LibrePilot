@@ -59,57 +59,57 @@
 // ------------------------
 // BOOTLOADER_SETTINGS
 // ------------------------
-#define BOARD_READABLE             TRUE
-#define BOARD_WRITABLE             TRUE
-#define MAX_DEL_RETRYS             3
+#define BOARD_READABLE           TRUE
+#define BOARD_WRITABLE           TRUE
+#define MAX_DEL_RETRYS           3
 
 // ------------------------
 // WATCHDOG_SETTINGS
 // ------------------------
-#define PIOS_WATCHDOG_TIMEOUT      250
-#define PIOS_WDG_REGISTER          BKP_DR4
-#define PIOS_WDG_ACTUATOR          0x0001
-#define PIOS_WDG_STABILIZATION     0x0002
-#define PIOS_WDG_ATTITUDE          0x0004
-#define PIOS_WDG_MANUAL            0x0008
-#define PIOS_WDG_AUTOTUNE          0x0010
+#define PIOS_WATCHDOG_TIMEOUT    250
+#define PIOS_WDG_REGISTER        BKP_DR4
+#define PIOS_WDG_ACTUATOR        0x0001
+#define PIOS_WDG_STABILIZATION   0x0002
+#define PIOS_WDG_ATTITUDE        0x0004
+#define PIOS_WDG_MANUAL          0x0008
+#define PIOS_WDG_AUTOTUNE        0x0010
 
 // ------------------------
 // TELEMETRY
 // ------------------------
-#define TELEM_QUEUE_SIZE           10
+#define TELEM_QUEUE_SIZE         10
 
 // ------------------------
 // PIOS_LED
 // ------------------------
-#define PIOS_LED_HEARTBEAT         0
+#define PIOS_LED_HEARTBEAT       0
 
 // -------------------------
 // System Settings
 // -------------------------
-#define PIOS_MASTER_CLOCK          72000000
+#define PIOS_MASTER_CLOCK        72000000
 
 // -------------------------
 // Interrupt Priorities
 // -------------------------
-#define PIOS_IRQ_PRIO_LOW          12              // lower than RTOS
-#define PIOS_IRQ_PRIO_MID          8               // higher than RTOS
-#define PIOS_IRQ_PRIO_HIGH         5               // for SPI, ADC, I2C etc...
-#define PIOS_IRQ_PRIO_HIGHEST      4               // for USART etc...
+#define PIOS_IRQ_PRIO_LOW        12              // lower than RTOS
+#define PIOS_IRQ_PRIO_MID        8               // higher than RTOS
+#define PIOS_IRQ_PRIO_HIGH       5               // for SPI, ADC, I2C etc...
+#define PIOS_IRQ_PRIO_HIGHEST    4               // for USART etc...
 // ------------------------
 // PIOS_I2C
 // See also pios_board.c
 // ------------------------
-#define PIOS_I2C_MAX_DEVS          1
+#define PIOS_I2C_MAX_DEVS        1
 extern uint32_t pios_i2c_flexi_adapter_id;
-#define PIOS_I2C_MAIN_ADAPTER      (pios_i2c_flexi_adapter_id)
-#define PIOS_I2C_ESC_ADAPTER       (pios_i2c_flexi_adapter_id)
-#define PIOS_I2C_BMP085_ADAPTER    (pios_i2c_flexi_adapter_id)
+#define PIOS_I2C_MAIN_ADAPTER    (pios_i2c_flexi_adapter_id)
+#define PIOS_I2C_ESC_ADAPTER     (pios_i2c_flexi_adapter_id)
+#define PIOS_I2C_BMP085_ADAPTER  (pios_i2c_flexi_adapter_id)
 
 // ------------------------
 // PIOS_BMP085
 // ------------------------
-#define PIOS_BMP085_OVERSAMPLING   3
+#define PIOS_BMP085_OVERSAMPLING 3
 
 // -------------------------
 // SPI

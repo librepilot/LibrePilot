@@ -603,7 +603,7 @@ help:
 	@$(ECHO)
 	@$(ECHO) "   This Makefile is known to work on Linux and Mac in a standard shell environment."
 	@$(ECHO) "   It also works on Windows by following the instructions given on this wiki page:"
-	@$(ECHO) "       $(WIKI_ROOT_URL)Windows+Building+and+Packaging"
+	@$(ECHO) "       $(WIKI_URL_ROOT)Windows+Building+and+Packaging"
 	@$(ECHO)
 	@$(ECHO) "   Here is a summary of the available targets:"
 	@$(ECHO)

@@ -34,7 +34,6 @@
 
 #include "inc/ubx_autoconfig.h"
 #include <pios_mem.h>
-#include "taskinfo.h"
 
 // private type definitions
 

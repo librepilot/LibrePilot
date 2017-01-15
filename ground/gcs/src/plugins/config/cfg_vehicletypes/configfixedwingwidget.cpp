@@ -52,7 +52,7 @@ QStringList ConfigFixedWingWidget::getChannelDescriptions()
     QStringList channelDesc;
 
     for (int i = 0; i < (int)ConfigFixedWingWidget::CHANNEL_NUMELEM; i++) {
-        channelDesc.append(QString("-"));
+        channelDesc.append("-");
     }
 
     // get the gui config data
@@ -60,51 +60,51 @@ QStringList ConfigFixedWingWidget::getChannelDescriptions()
     fixedGUISettingsStruct fixedwing = configData.fixedwing;
 
     if (configData.fixedwing.FixedWingPitch1 > 0) {
-        channelDesc[configData.fixedwing.FixedWingPitch1 - 1] = QString("FixedWingPitch1");
+        channelDesc[configData.fixedwing.FixedWingPitch1 - 1] = "FixedWingPitch1";
     }
     if (configData.fixedwing.FixedWingPitch2 > 0) {
-        channelDesc[configData.fixedwing.FixedWingPitch2 - 1] = QString("FixedWingPitch2");
+        channelDesc[configData.fixedwing.FixedWingPitch2 - 1] = "FixedWingPitch2";
     }
     if (configData.fixedwing.FixedWingRoll1 > 0) {
-        channelDesc[configData.fixedwing.FixedWingRoll1 - 1] = QString("FixedWingRoll1");
+        channelDesc[configData.fixedwing.FixedWingRoll1 - 1] = "FixedWingRoll1";
     }
     if (configData.fixedwing.FixedWingRoll2 > 0) {
-        channelDesc[configData.fixedwing.FixedWingRoll2 - 1] = QString("FixedWingRoll2");
+        channelDesc[configData.fixedwing.FixedWingRoll2 - 1] = "FixedWingRoll2";
     }
     if (configData.fixedwing.FixedWingYaw1 > 0) {
-        channelDesc[configData.fixedwing.FixedWingYaw1 - 1] = QString("FixedWingYaw1");
+        channelDesc[configData.fixedwing.FixedWingYaw1 - 1] = "FixedWingYaw1";
     }
     if (configData.fixedwing.FixedWingYaw2 > 0) {
-        channelDesc[configData.fixedwing.FixedWingYaw2 - 1] = QString("FixedWingYaw2");
+        channelDesc[configData.fixedwing.FixedWingYaw2 - 1] = "FixedWingYaw2";
     }
     if (configData.fixedwing.FixedWingThrottle > 0) {
-        channelDesc[configData.fixedwing.FixedWingThrottle - 1] = QString("FixedWingThrottle");
+        channelDesc[configData.fixedwing.FixedWingThrottle - 1] = "FixedWingThrottle";
     }
 
     if (fixedwing.Accessory0 > 0 && fixedwing.Accessory0 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory0 - 1] = QString("Accessory0-1");
+        channelDesc[fixedwing.Accessory0 - 1] = "Accessory0-1";
     }
     if (fixedwing.Accessory1 > 0 && fixedwing.Accessory1 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory1 - 1] = QString("Accessory1-1");
+        channelDesc[fixedwing.Accessory1 - 1] = "Accessory1-1";
     }
     if (fixedwing.Accessory2 > 0 && fixedwing.Accessory2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory2 - 1] = QString("Accessory2-1");
+        channelDesc[fixedwing.Accessory2 - 1] = "Accessory2-1";
     }
     if (fixedwing.Accessory3 > 0 && fixedwing.Accessory3 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory3 - 1] = QString("Accessory3-1");
+        channelDesc[fixedwing.Accessory3 - 1] = "Accessory3-1";
     }
 
     if (fixedwing.Accessory0_2 > 0 && fixedwing.Accessory0_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory0_2 - 1] = QString("Accessory0-2");
+        channelDesc[fixedwing.Accessory0_2 - 1] = "Accessory0-2";
     }
     if (fixedwing.Accessory1_2 > 0 && fixedwing.Accessory1_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory1_2 - 1] = QString("Accessory1-2");
+        channelDesc[fixedwing.Accessory1_2 - 1] = "Accessory1-2";
     }
     if (fixedwing.Accessory2_2 > 0 && fixedwing.Accessory2_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory2_2 - 1] = QString("Accessory2-2");
+        channelDesc[fixedwing.Accessory2_2 - 1] = "Accessory2-2";
     }
     if (fixedwing.Accessory3_2 > 0 && fixedwing.Accessory3_2 <= ConfigFixedWingWidget::CHANNEL_NUMELEM) {
-        channelDesc[fixedwing.Accessory3_2 - 1] = QString("Accessory3-2");
+        channelDesc[fixedwing.Accessory3_2 - 1] = "Accessory3-2";
     }
 
     return channelDesc;
@@ -169,11 +169,11 @@ void ConfigFixedWingWidget::setupUI(QString frameType)
     planeimg = new QGraphicsSvgItem();
     planeimg->setSharedRenderer(renderer);
 
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
     Q_ASSERT(system);
-    QPointer<UAVObjectField> field = system->getField(QString("AirframeType"));
+    QPointer<UAVObjectField> field = system->getField("AirframeType");
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     if (frameType == "FixedWing" || frameType == "Aileron") {
@@ -334,7 +334,7 @@ void ConfigFixedWingWidget::resetRcOutputs(GUIConfigDataUnion *configData)
 
 void ConfigFixedWingWidget::updateRcCurvesUsed()
 {
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
 
@@ -364,7 +364,7 @@ void ConfigFixedWingWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
     Q_UNUSED(obj);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     QList<double> curveValues;
@@ -421,7 +421,7 @@ void ConfigFixedWingWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 void ConfigFixedWingWidget::updateObjectsFromWidgetsImpl()
 {
     // Save the curve (common to all Fixed wing frames)
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
 
@@ -474,7 +474,7 @@ bool ConfigFixedWingWidget::setupFrameFixedWing(QString frameType)
 
     setConfigData(config);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
 
@@ -547,7 +547,7 @@ bool ConfigFixedWingWidget::setupFrameElevon(QString frameType)
 
     setConfigData(config);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
 
@@ -630,7 +630,7 @@ bool ConfigFixedWingWidget::setupFrameVtail(QString frameType)
 
     setConfigData(config);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
 

@@ -47,7 +47,7 @@
 #include <math.h>
 #include <QMessageBox>
 
-const QString ConfigMultiRotorWidget::CHANNELBOXNAME = QString("multiMotorChannelBox");
+const QString ConfigMultiRotorWidget::CHANNELBOXNAME = "multiMotorChannelBox";
 
 QStringList ConfigMultiRotorWidget::getChannelDescriptions()
 {
@@ -55,7 +55,7 @@ QStringList ConfigMultiRotorWidget::getChannelDescriptions()
     QStringList channelDesc;
 
     for (int i = 0; i < (int)ConfigMultiRotorWidget::CHANNEL_NUMELEM; i++) {
-        channelDesc.append(QString("-"));
+        channelDesc.append("-");
     }
 
     // get the gui config data
@@ -64,70 +64,70 @@ QStringList ConfigMultiRotorWidget::getChannelDescriptions()
 
     // Octocopter X motor definition
     if (multi.VTOLMotorNNE > 0 && multi.VTOLMotorNNE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorNNE - 1] = QString("VTOLMotorNNE");
+        channelDesc[multi.VTOLMotorNNE - 1] = "VTOLMotorNNE";
     }
     if (multi.VTOLMotorENE > 0 && multi.VTOLMotorENE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorENE - 1] = QString("VTOLMotorENE");
+        channelDesc[multi.VTOLMotorENE - 1] = "VTOLMotorENE";
     }
     if (multi.VTOLMotorESE > 0 && multi.VTOLMotorESE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorESE - 1] = QString("VTOLMotorESE");
+        channelDesc[multi.VTOLMotorESE - 1] = "VTOLMotorESE";
     }
     if (multi.VTOLMotorSSE > 0 && multi.VTOLMotorSSE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorSSE - 1] = QString("VTOLMotorSSE");
+        channelDesc[multi.VTOLMotorSSE - 1] = "VTOLMotorSSE";
     }
     if (multi.VTOLMotorSSW > 0 && multi.VTOLMotorSSW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorSSW - 1] = QString("VTOLMotorSSW");
+        channelDesc[multi.VTOLMotorSSW - 1] = "VTOLMotorSSW";
     }
     if (multi.VTOLMotorWSW > 0 && multi.VTOLMotorWSW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorWSW - 1] = QString("VTOLMotorWSW");
+        channelDesc[multi.VTOLMotorWSW - 1] = "VTOLMotorWSW";
     }
     if (multi.VTOLMotorWNW > 0 && multi.VTOLMotorWNW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorWNW - 1] = QString("VTOLMotorWNW");
+        channelDesc[multi.VTOLMotorWNW - 1] = "VTOLMotorWNW";
     }
     if (multi.VTOLMotorNNW > 0 && multi.VTOLMotorNNW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorNNW - 1] = QString("VTOLMotorNNW");
+        channelDesc[multi.VTOLMotorNNW - 1] = "VTOLMotorNNW";
     }
     // End OctocopterX
 
     if (multi.VTOLMotorN > 0 && multi.VTOLMotorN <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorN - 1] = QString("VTOLMotorN");
+        channelDesc[multi.VTOLMotorN - 1] = "VTOLMotorN";
     }
     if (multi.VTOLMotorNE > 0 && multi.VTOLMotorNE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorNE - 1] = QString("VTOLMotorNE");
+        channelDesc[multi.VTOLMotorNE - 1] = "VTOLMotorNE";
     }
     if (multi.VTOLMotorNW > 0 && multi.VTOLMotorNW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorNW - 1] = QString("VTOLMotorNW");
+        channelDesc[multi.VTOLMotorNW - 1] = "VTOLMotorNW";
     }
     if (multi.VTOLMotorS > 0 && multi.VTOLMotorS <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorS - 1] = QString("VTOLMotorS");
+        channelDesc[multi.VTOLMotorS - 1] = "VTOLMotorS";
     }
     if (multi.VTOLMotorSE > 0 && multi.VTOLMotorSE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorSE - 1] = QString("VTOLMotorSE");
+        channelDesc[multi.VTOLMotorSE - 1] = "VTOLMotorSE";
     }
     if (multi.VTOLMotorSW > 0 && multi.VTOLMotorSW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorSW - 1] = QString("VTOLMotorSW");
+        channelDesc[multi.VTOLMotorSW - 1] = "VTOLMotorSW";
     }
     if (multi.VTOLMotorW > 0 && multi.VTOLMotorW <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorW - 1] = QString("VTOLMotorW");
+        channelDesc[multi.VTOLMotorW - 1] = "VTOLMotorW";
     }
     if (multi.VTOLMotorE > 0 && multi.VTOLMotorE <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.VTOLMotorE - 1] = QString("VTOLMotorE");
+        channelDesc[multi.VTOLMotorE - 1] = "VTOLMotorE";
     }
     if (multi.TRIYaw > 0 && multi.TRIYaw <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.TRIYaw - 1] = QString("Tri-Yaw");
+        channelDesc[multi.TRIYaw - 1] = "Tri-Yaw";
     }
 
     if (multi.Accessory0 > 0 && multi.Accessory0 <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.Accessory0 - 1] = QString("Accessory0");
+        channelDesc[multi.Accessory0 - 1] = "Accessory0";
     }
     if (multi.Accessory1 > 0 && multi.Accessory1 <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.Accessory1 - 1] = QString("Accessory1");
+        channelDesc[multi.Accessory1 - 1] = "Accessory1";
     }
     if (multi.Accessory2 > 0 && multi.Accessory2 <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.Accessory2 - 1] = QString("Accessory2");
+        channelDesc[multi.Accessory2 - 1] = "Accessory2";
     }
     if (multi.Accessory3 > 0 && multi.Accessory3 <= ConfigMultiRotorWidget::CHANNEL_NUMELEM) {
-        channelDesc[multi.Accessory3 - 1] = QString("Accessory3");
+        channelDesc[multi.Accessory3 - 1] = "Accessory3";
     }
 
     return channelDesc;
@@ -441,7 +441,7 @@ void ConfigMultiRotorWidget::resetRcOutputs(GUIConfigDataUnion *configData)
 
 void ConfigMultiRotorWidget::updateRcCurvesUsed()
 {
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
 
@@ -471,7 +471,7 @@ void ConfigMultiRotorWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
     Q_UNUSED(obj);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     QList<double> curveValues;
@@ -620,7 +620,7 @@ void ConfigMultiRotorWidget::updateMotorsPositionLabels(QStringList motorLabels)
  */
 void ConfigMultiRotorWidget::updateObjectsFromWidgetsImpl()
 {
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
 
@@ -931,7 +931,7 @@ void ConfigMultiRotorWidget::updateAirframe(QString frameType)
  */
 void ConfigMultiRotorWidget::setupQuadMotor(int channel, double pitch, double roll, double yaw)
 {
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
 
@@ -956,7 +956,7 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
     GUIConfigDataUnion configData = getConfigData();
     resetRcOutputs(&configData);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     int curveAccessory0  = m_aircraft->rcOutputCurveBox1->currentIndex();
@@ -967,7 +967,7 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
     foreach(QString rc_output, rcOutputList) {
         int index = rcList.takeFirst()->currentIndex();
 
-        if (rc_output == QString("Accessory0")) {
+        if (rc_output == "Accessory0") {
             configData.multi.Accessory0 = index;
             if (index) {
                 setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY0);
@@ -977,7 +977,7 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
                     setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
                 }
             }
-        } else if (rc_output == QString("Accessory1")) {
+        } else if (rc_output == "Accessory1") {
             configData.multi.Accessory1 = index;
             if (index) {
                 setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY1);
@@ -987,7 +987,7 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
                     setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
                 }
             }
-        } else if (rc_output == QString("Accessory2")) {
+        } else if (rc_output == "Accessory2") {
             configData.multi.Accessory2 = index;
             if (index) {
                 setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY2);
@@ -997,7 +997,7 @@ void ConfigMultiRotorWidget::setupRcOutputs(QList<QString> rcOutputList)
                     setMixerVectorValue(mixer, index - 1, VehicleConfig::MIXERVECTOR_THROTTLECURVE1, 127);
                 }
             }
-        } else if (rc_output == QString("Accessory3")) {
+        } else if (rc_output == "Accessory3") {
             configData.multi.Accessory3 = index;
             if (index) {
                 setMixerType(mixer, index - 1, VehicleConfig::MIXERTYPE_ACCESSORY3);
@@ -1029,38 +1029,38 @@ void ConfigMultiRotorWidget::setupMotors(QList<QString> motorList)
     foreach(QString motor, motorList) {
         int index = mmList.takeFirst()->currentIndex();
 
-        if (motor == QString("VTOLMotorN")) {
+        if (motor == "VTOLMotorN") {
             configData.multi.VTOLMotorN = index;
-        } else if (motor == QString("VTOLMotorNE")) {
+        } else if (motor == "VTOLMotorNE") {
             configData.multi.VTOLMotorNE = index;
-        } else if (motor == QString("VTOLMotorE")) {
+        } else if (motor == "VTOLMotorE") {
             configData.multi.VTOLMotorE = index;
-        } else if (motor == QString("VTOLMotorSE")) {
+        } else if (motor == "VTOLMotorSE") {
             configData.multi.VTOLMotorSE = index;
-        } else if (motor == QString("VTOLMotorS")) {
+        } else if (motor == "VTOLMotorS") {
             configData.multi.VTOLMotorS = index;
-        } else if (motor == QString("VTOLMotorSW")) {
+        } else if (motor == "VTOLMotorSW") {
             configData.multi.VTOLMotorSW = index;
-        } else if (motor == QString("VTOLMotorW")) {
+        } else if (motor == "VTOLMotorW") {
             configData.multi.VTOLMotorW = index;
-        } else if (motor == QString("VTOLMotorNW")) {
+        } else if (motor == "VTOLMotorNW") {
             configData.multi.VTOLMotorNW = index;
             // OctoX
-        } else if (motor == QString("VTOLMotorNNE")) {
+        } else if (motor == "VTOLMotorNNE") {
             configData.multi.VTOLMotorNNE = index;
-        } else if (motor == QString("VTOLMotorENE")) {
+        } else if (motor == "VTOLMotorENE") {
             configData.multi.VTOLMotorENE = index;
-        } else if (motor == QString("VTOLMotorESE")) {
+        } else if (motor == "VTOLMotorESE") {
             configData.multi.VTOLMotorESE = index;
-        } else if (motor == QString("VTOLMotorSSE")) {
+        } else if (motor == "VTOLMotorSSE") {
             configData.multi.VTOLMotorSSE = index;
-        } else if (motor == QString("VTOLMotorSSW")) {
+        } else if (motor == "VTOLMotorSSW") {
             configData.multi.VTOLMotorSSW = index;
-        } else if (motor == QString("VTOLMotorWSW")) {
+        } else if (motor == "VTOLMotorWSW") {
             configData.multi.VTOLMotorWSW = index;
-        } else if (motor == QString("VTOLMotorWNW")) {
+        } else if (motor == "VTOLMotorWNW") {
             configData.multi.VTOLMotorWNW = index;
-        } else if (motor == QString("VTOLMotorNNW")) {
+        } else if (motor == "VTOLMotorNNW") {
             configData.multi.VTOLMotorNNW = index;
         }
     }
@@ -1207,7 +1207,7 @@ bool ConfigMultiRotorWidget::setupHexa(bool pLayout)
  */
 bool ConfigMultiRotorWidget::setupMultiRotorMixer(double mixerFactors[8][3])
 {
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
@@ -1300,7 +1300,7 @@ bool ConfigMultiRotorWidget::throwConfigError(int numMotors)
 
     if (error) {
         m_aircraft->mrStatusLabel->setText(
-            QString(tr("<font color='red'>ERROR: Assign all %1 motor channels</font>")).arg(numMotors));
+            tr("<font color='red'>ERROR: Assign all %1 motor channels</font>").arg(numMotors));
     }
     return error;
 }

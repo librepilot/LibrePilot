@@ -28,8 +28,6 @@
 extern "C" {
 #include <openpilot.h>
 
-#include <callbackinfo.h>
-
 #include <math.h>
 #include <pid.h>
 #include <alarms.h>

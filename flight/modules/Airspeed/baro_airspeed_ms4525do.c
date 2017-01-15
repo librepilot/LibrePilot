@@ -41,7 +41,6 @@
 #include "airspeedsettings.h"
 #include "airspeedsensor.h" // object that will be updated by the module
 #include "airspeedalarm.h"
-#include "taskinfo.h"
 
 #if defined(PIOS_INCLUDE_MS4525DO)
 

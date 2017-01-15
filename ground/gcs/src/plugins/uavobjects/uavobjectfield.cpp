@@ -1024,7 +1024,7 @@ QVariant UAVObjectField::getValue(quint32 index)
         quint8 tmpenum;
         memcpy(&tmpenum, &data[offset + numBytesPerElement * index], numBytesPerElement);
         if (tmpenum >= options.length()) {
-            qDebug() << "Invalid value for" << name;
+            qDebug() << "Invalid enum" << tmpenum << "for field" << (obj->getName() + ":" + name + "[" + elementNames[index] + "]");
             tmpenum = 0;
         }
         return QVariant(options[tmpenum]);

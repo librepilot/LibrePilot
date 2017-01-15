@@ -64,10 +64,10 @@ ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, ConfigTaskType configType) :
         connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
 
         m_saveButton = new SmartSaveButton(this);
-        connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
-        connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
         connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
+        connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
         connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+        connect(m_saveButton, SIGNAL(saveSuccessful()), this, SLOT(saveSuccessful()));
     }
 
     switch (m_configType) {
@@ -424,6 +424,14 @@ void ConfigTaskWidget::updateObjectsFromWidgets()
     updateObjectsFromWidgetsImpl();
 }
 
+void ConfigTaskWidget::saveSuccessful()
+{
+    // refresh values to reflect saved values
+    refreshWidgetsValues(NULL);
+    clearDirty();
+    // in case of failure to save we do nothing, config stays "dirty" (unsaved changes are kept)
+}
+
 void ConfigTaskWidget::helpButtonPressed()
 {
     QString url = m_helpButtons.value((QPushButton *)sender(), QString());
@@ -526,9 +534,9 @@ void ConfigTaskWidget::widgetsContentsChanged()
     setDirty(true);
 }
 
-void ConfigTaskWidget::clearDirty()
+bool ConfigTaskWidget::isDirty()
 {
-    m_isDirty = false;
+    return m_isConnected ? m_isDirty : false;
 }
 
 void ConfigTaskWidget::setDirty(bool value)
@@ -539,9 +547,9 @@ void ConfigTaskWidget::setDirty(bool value)
     m_isDirty = value;
 }
 
-bool ConfigTaskWidget::isDirty()
+void ConfigTaskWidget::clearDirty()
 {
-    return m_isConnected ? m_isDirty : false;
+    m_isDirty = false;
 }
 
 void ConfigTaskWidget::disableObjectUpdates()

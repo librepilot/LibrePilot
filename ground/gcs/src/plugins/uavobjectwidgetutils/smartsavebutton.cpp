@@ -139,20 +139,18 @@ void SmartSaveButton::processOperation(QPushButton *button, bool save)
             }
         }
     }
+    emit endOp();
+    if (!error) {
+        emit saveSuccessful();
+    }
     if (button) {
         button->setEnabled(true);
-    }
-    if (!error) {
-        if (button) {
+        if (!error) {
             button->setIcon(QIcon(":/uploader/images/dialog-apply.svg"));
-        }
-        emit saveSuccessfull();
-    } else {
-        if (button) {
+        } else {
             button->setIcon(QIcon(":/uploader/images/process-stop.svg"));
         }
     }
-    emit endOp();
 }
 
 void SmartSaveButton::setObjects(QList<UAVDataObject *> list)

@@ -57,7 +57,7 @@ public:
 
 signals:
     void preProcessOperations();
-    void saveSuccessfull();
+    void saveSuccessful();
     void beginOp();
     void endOp();
 

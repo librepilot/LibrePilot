@@ -109,6 +109,7 @@ public:
 
     bool isDirty();
     void setDirty(bool value);
+    void clearDirty();
 
     virtual bool shouldObjectBeSaved(UAVObject *object);
 
@@ -192,7 +193,6 @@ protected:
 protected slots:
     void setWidgetBindingObjectEnabled(QString objectName, bool enabled);
 
-    void clearDirty();
     virtual void widgetsContentsChanged();
     void refreshWidgetsValues(UAVObject *obj = NULL);
     void updateObjectsFromWidgets();
@@ -205,6 +205,8 @@ private slots:
     void enableObjectUpdates();
     void objectUpdated(UAVObject *object);
     void invalidateObjects();
+
+    void saveSuccessful();
 
     void defaultButtonClicked();
     void reloadButtonClicked();

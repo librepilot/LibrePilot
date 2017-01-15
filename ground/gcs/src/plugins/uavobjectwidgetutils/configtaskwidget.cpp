@@ -647,8 +647,8 @@ void ConfigTaskWidget::addAutoBindings()
         QVariant info = widget->property("objrelation");
 
         if (info.isValid()) {
-            bindingStruct uiRelation;
-            uiRelation.buttonType  = none;
+            BindingStruct uiRelation;
+            uiRelation.buttonType  = None;
             uiRelation.scale = 1;
             uiRelation.index = -1;
             uiRelation.elementName = QString();
@@ -679,15 +679,15 @@ void ConfigTaskWidget::addAutoBindings()
                     }
                 } else if (prop == "button") {
                     if (value == "save") {
-                        uiRelation.buttonType = save_button;
+                        uiRelation.buttonType = SaveButton;
                     } else if (value == "apply") {
-                        uiRelation.buttonType = apply_button;
+                        uiRelation.buttonType = ApplyButton;
                     } else if (value == "reload") {
-                        uiRelation.buttonType = reload_button;
+                        uiRelation.buttonType = ReloadButton;
                     } else if (value == "default") {
-                        uiRelation.buttonType = default_button;
+                        uiRelation.buttonType = DefaultButton;
                     } else if (value == "help") {
-                        uiRelation.buttonType = help_button;
+                        uiRelation.buttonType = HelpButton;
                     }
                 } else if (prop == "buttongroup") {
                     foreach(QString s, value.split(",")) {
@@ -697,34 +697,34 @@ void ConfigTaskWidget::addAutoBindings()
                     uiRelation.url = str.mid(str.indexOf(":") + 1);
                 }
             }
-            if (uiRelation.buttonType != none) {
+            if (uiRelation.buttonType != None) {
                 QPushButton *button = NULL;
                 switch (uiRelation.buttonType) {
-                case save_button:
+                case SaveButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addSaveButton(button);
                     }
                     break;
-                case apply_button:
+                case ApplyButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addApplyButton(button);
                     }
                     break;
-                case default_button:
+                case DefaultButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addDefaultButton(button, uiRelation.buttonGroup.at(0));
                     }
                     break;
-                case reload_button:
+                case ReloadButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addReloadButton(button, uiRelation.buttonGroup.at(0));
                     }
                     break;
-                case help_button:
+                case HelpButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addHelpButton(button, WIKI_URL_ROOT + m_wikiURL);
@@ -839,10 +839,10 @@ void ConfigTaskWidget::reloadButtonClicked()
     connect(m_realtimeUpdateTimer, SIGNAL(timeout()), eventLoop, SLOT(quit()));
     connect(objper, SIGNAL(objectUpdated(UAVObject *)), eventLoop, SLOT(quit()));
 
-    QList<objectComparator> temp;
+    QList<ObjectComparator> temp;
     foreach(WidgetBinding * binding, bindings) {
         if (binding->isEnabled() && binding->object()) {
-            objectComparator value;
+            ObjectComparator value;
             value.objid     = binding->object()->getObjID();
             value.objinstid = binding->object()->getInstID();
             if (temp.contains(value)) {

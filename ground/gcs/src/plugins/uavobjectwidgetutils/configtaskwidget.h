@@ -211,23 +211,23 @@ private slots:
     void helpButtonPressed();
 
 private:
-    struct objectComparator {
+    struct ObjectComparator {
         quint32 objid;
         quint32 objinstid;
-        bool operator==(const objectComparator & lhs)
+        bool operator==(const ObjectComparator & lhs)
         {
             return lhs.objid == this->objid && lhs.objinstid == this->objinstid;
         }
     };
 
-    enum buttonTypeEnum { none, save_button, apply_button, reload_button, default_button, help_button };
-    struct bindingStruct {
+    enum ButtonTypeEnum { None, SaveButton, ApplyButton, ReloadButton, DefaultButton, HelpButton };
+    struct BindingStruct {
         QString objectName;
         QString fieldName;
         QString elementName;
         int     index;
         QString url;
-        buttonTypeEnum buttonType;
+        ButtonTypeEnum buttonType;
         QList<int>     buttonGroup;
         double  scale;
         bool    haslimits;

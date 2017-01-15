@@ -244,7 +244,9 @@ static void systemTask(__attribute__((unused)) void *parameters)
 
 #ifdef DIAG_TASKS
     TaskInfoData taskInfoData;
+    memset(&taskInfoData, 0, sizeof(TaskInfoData));
     CallbackInfoData callbackInfoData;
+    memset(&callbackInfoData, 0, sizeof(CallbackInfoData));
 #endif
     // Main system loop
     while (1) {

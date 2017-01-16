@@ -57,7 +57,7 @@ QString label;
 #define JUMP            "-j"
 #define USE_SERIAL      "-t"
 #define NO_COUNTDOWN    "-i"
-#define HELP            "-?"
+#define HELP            "-h"
 #define DEBUG           "-debug"
 #define USERMODERESET   "-ur"
 
@@ -315,43 +315,34 @@ void progressUpdated(int percent)
 
 void usage(QTextStream *standardOutput)
 {
-    *standardOutput << "_________________________________________________________________________\n";
-    *standardOutput << "| Commands                                                               |\n";
-    *standardOutput << "|                                                                        |\n";
-    *standardOutput << "| -ls                  : lists available devices                         |\n";
-    *standardOutput << "| -p <file>            : program hw (requires:-d - optionals:-v,-w)      |\n";
-    *standardOutput << "| -v                   : verify     (requires:-d)                        |\n";
-    *standardOutput << "| -dn <file>           : download firmware to file                       |\n";
-    // *standardOutput  << "| -dd <file>           : download discription (requires:-d)              |\n";
-    *standardOutput << "| -d <Device Number>   : target device number (default 0, first device)  |\n";
-    // *standardOutput  << "| -w <description>     : (requires: -p)                                  |\n";
-    *standardOutput << "| -ca <file>           : compares byte by byte current firmware with file|\n";
-    *standardOutput << "| -cc <file>           : compares CRC  of current firmware with file     |\n";
-    *standardOutput << "| -s                   : requests status of device                       |\n";
-    *standardOutput << "| -r                   : resets the device                               |\n";
-    *standardOutput << "| -j                   : exits bootloader and jumps to user FW           |\n";
-    *standardOutput << "| -debug               : prints debug information                        |\n";
-    *standardOutput << "| -t <port>            : uses serial port                                |\n";
-    *standardOutput << "| -i                   : immediate, doesn't show the connection countdown|\n";
-    // *standardOutput  << "| -ur <port>           : user mode reset*                                |\n";
-    *standardOutput << "|                                                                        |\n";
-    *standardOutput << "| examples:                                                              |\n";
-    *standardOutput << "|                                                                        |\n";
-    *standardOutput << "| program and verify the fist device device connected to COM1            |\n";
-    *standardOutput << "| OPUploadTool -p c:/gpsp.opfw -v -t COM1                                |\n";
-    *standardOutput << "|                                                                        |\n";
-    *standardOutput << "| program and verify the fist device device connected to COM1            |\n";
-    *standardOutput << "| OPUploadTool -p c:/gpsp.opfw -v -t COM1                                |\n";
-    *standardOutput << "|                                                                        |\n";
-    *standardOutput << "| Perform a quick compare of FW in file with FW in device #1             |\n";
-    *standardOutput << "| OPUploadTool -ch /home/user1/gpsp.opfw  -t ttyUSB0                     |\n";
-    *standardOutput << "|                                                                        |\n";
-    // *standardOutput  << "| *requires valid user space firmwares already running                   |\n";
-    *standardOutput << "|________________________________________________________________________|\n";
-    *standardOutput << endl;
+    *standardOutput << "Options:\n";
+    *standardOutput << "-ls                  : lists available devices\n";
+    *standardOutput << "-p <file>            : program hw (requires:-d - optionals:-v,-w)\n";
+    *standardOutput << "-v                   : verify (requires:-d)\n";
+    *standardOutput << "-dn <file>           : download firmware to file\n";
+    // *standardOutput  << "-dd <file>           : download discription (requires:-d)\n";
+    *standardOutput << "-d <Device Number>   : target device number (default 0, first device)\n";
+    // *standardOutput  << "-w <description>     : (requires: -p)\n";
+    *standardOutput << "-ca <file>           : compares byte by byte current firmware with file\n";
+    *standardOutput << "-cc <file>           : compares CRC  of current firmware with file\n";
+    *standardOutput << "-s                   : requests status of device\n";
+    *standardOutput << "-r                   : resets the device\n";
+    *standardOutput << "-j                   : exits bootloader and jumps to user FW\n";
+    *standardOutput << "-debug               : prints debug information\n";
+    *standardOutput << "-t <port>            : uses serial port\n";
+    *standardOutput << "-i                   : immediate, doesn't show the connection countdown\n";
+    *standardOutput << "-h                   : print usage\n";
+    // *standardOutput  << "-ur <port>           : user mode reset*\n";
+    // *standardOutput  << "  *requires valid user space firmwares already running\n";
+    *standardOutput << "\n";
+    *standardOutput << "Program and verify the first device connected to COM1\n";
+    *standardOutput << "  UploadTool -p c:/gpsp.opfw -v -t COM1\n";
+    *standardOutput << "\n";
+    *standardOutput << "Perform a quick compare of FW in file with FW on device #1\n";
+    *standardOutput << "  UploadTool -ca /home/user1/gpsp.opfw -t ttyUSB0\n";
 }
 
 void howToUsage(QTextStream *standardOutput)
 {
-    *standardOutput << "run the tool with -? for more informations" << endl;
+    *standardOutput << "run the tool with -h for more informations" << endl;
 }

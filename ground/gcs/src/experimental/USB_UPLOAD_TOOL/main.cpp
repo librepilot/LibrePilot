@@ -1,12 +1,66 @@
-#include <QtCore/QCoreApplication>
+/**
+ ******************************************************************************
+ *
+ * @file       main.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup GCSPlugins GCS Plugins
+ * @{
+ * @addtogroup Uploader Serial and USB Uploader tool
+ * @{
+ * @brief The USB and Serial protocol uploader tool
+ *****************************************************************************/
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+#include "dfu.h"
+
+#include <QCoreApplication>
+#include <QFile>
+#include <QByteArray>
 #include <QThread>
-#include "op_dfu.h"
 #include <QStringList>
+#include <QDebug>
+
+#include <iostream>
 
 void showProgress(QString status);
 void progressUpdated(int percent);
 void usage(QTextStream *standardOutput);
+
 QString label;
+
+// Command Line Options
+#define DOWNLOAD        "-dn"
+#define DEVICE          "-d"
+#define DOWNDESCRIPTION "-dd"
+#define PROGRAMFW       "-p"
+#define PROGRAMDESC     "-w"
+#define VERIFY          "-v"
+#define COMPARECRC      "-cc"
+#define COMPAREALL      "-ca"
+#define STATUSREQUEST   "-s"
+#define LISTDEVICES     "-ls"
+#define RESET           "-r"
+#define JUMP            "-j"
+#define USE_SERIAL      "-t"
+#define NO_COUNTDOWN    "-i"
+#define HELP            "-?"
+#define DEBUG           "-debug"
+#define USERMODERESET   "-ur"
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -16,20 +70,20 @@ int main(int argc, char *argv[])
     bool verify;
     bool debug = false;
     // bool umodereset   = false;
-    OP_DFU::Actions action = OP_DFU::actionNone;
+    DFU::Actions action = DFU::actionNone;
     QString file;
     QString serialport;
     QString description;
     int device = -1;
     QStringList args = QCoreApplication::arguments();
 
-    if (args.contains("-debug")) {
+    if (args.contains(DEBUG)) {
         debug = true;
     }
-    if (args.contains("-ur")) {
+    if (args.contains(USERMODERESET)) {
         // umodereset = true;
     }
-    standardOutput << "OpenPilot serial firmware uploader tool." << endl;
+    standardOutput << "Serial firmware uploader tool." << endl;
     if (args.indexOf(PROGRAMFW) + 1 < args.length()) {
         file = args[args.indexOf(PROGRAMFW) + 1];
     }
@@ -41,7 +95,7 @@ int main(int argc, char *argv[])
         device = 0;
     }
 
-    if (argumentCount == 0 || args.contains("-?") || !args.contains(USE_SERIAL)) {
+    if (argumentCount == 0 || args.contains(HELP) || !args.contains(USE_SERIAL)) {
         usage(&standardOutput);
         return -1;
     } else if (args.contains(PROGRAMFW)) {
@@ -55,30 +109,30 @@ int main(int argc, char *argv[])
                 description = (args[args.indexOf(PROGRAMDESC) + 1]);
             }
         }
-        action = OP_DFU::actionProgram;
+        action = DFU::actionProgram;
     } else if (args.contains(COMPARECRC) || args.contains(COMPAREALL)) {
         // int index;
         if (args.contains(COMPARECRC)) {
             // index  = args.indexOf(COMPARECRC);
-            action = OP_DFU::actionCompareCrc;
+            action = DFU::actionCompareCrc;
         } else {
             // index  = args.indexOf(COMPAREALL);
-            action = OP_DFU::actionCompareAll;
+            action = DFU::actionCompareAll;
         }
     } else if (args.contains(DOWNLOAD)) {
         // int index;
         // index  = args.indexOf(DOWNLOAD);
-        action = OP_DFU::actionDownload;
+        action = DFU::actionDownload;
     } else if (args.contains(STATUSREQUEST)) {
-        action = OP_DFU::actionStatusReq;
+        action = DFU::actionStatusReq;
     } else if (args.contains(RESET)) {
-        action = OP_DFU::actionReset;
+        action = DFU::actionReset;
     } else if (args.contains(JUMP)) {
-        action = OP_DFU::actionJump;
+        action = DFU::actionJump;
     } else if (args.contains(LISTDEVICES)) {
-        action = OP_DFU::actionListDevs;
+        action = DFU::actionListDevs;
     }
-    if ((file.isEmpty() || device == -1) && action != OP_DFU::actionReset && action != OP_DFU::actionStatusReq && action != OP_DFU::actionListDevs && action != OP_DFU::actionJump) {
+    if ((file.isEmpty() || device == -1) && action != DFU::actionReset && action != DFU::actionStatusReq && action != DFU::actionListDevs && action != DFU::actionJump) {
         usage(&standardOutput);
         return -1;
     }
@@ -89,20 +143,19 @@ int main(int argc, char *argv[])
         }
     }
     if (debug) {
-        qDebug() << "Action=" << (int)action << endl;
-        qDebug() << "File=" << file << endl;
-        qDebug() << "Device=" << device << endl;
-        qDebug() << "Action=" << action << endl;
-        qDebug() << "Desctription" << description << endl;
-        qDebug() << "Use Serial port" << use_serial << endl;
+        qDebug() << "Action=" << (int)action;
+        qDebug() << "File=" << file;
+        qDebug() << "Device=" << device;
+        qDebug() << "Action=" << action;
+        qDebug() << "Description" << description;
+        qDebug() << "Use Serial port" << use_serial;
         if (use_serial) {
-            qDebug() << "Port Name" << serialport << endl;
+            qDebug() << "Port Name" << serialport;
         }
     }
     if (use_serial) {
         if (args.contains(NO_COUNTDOWN)) {} else {
-            standardOutput << "Connect the board" << endl;
-            label = "";
+            showProgress("Connect the board");
             for (int i = 0; i < 6; i++) {
                 progressUpdated(i * 100 / 5);
                 QThread::msleep(500);
@@ -111,11 +164,13 @@ int main(int argc, char *argv[])
         standardOutput << endl << "Connect the board NOW" << endl;
         QThread::msleep(1000);
     }
-    ///////////////////////////////////ACTIONS START///////////////////////////////////////////////////
-    OP_DFU::DFUObject dfu(debug, use_serial, serialport);
 
-    QObject::connect(&dfu, &OP_DFU::DFUObject::operationProgress, showProgress);
-    QObject::connect(&dfu, &OP_DFU::DFUObject::progressUpdated, progressUpdated);
+    ///////////////////////////////////ACTIONS START///////////////////////////////////////////////////
+
+    DFU::DFUObject dfu(debug, use_serial, serialport);
+
+    QObject::connect(&dfu, &DFU::DFUObject::operationProgress, showProgress);
+    QObject::connect(&dfu, &DFU::DFUObject::progressUpdated, progressUpdated);
 
     if (!dfu.ready()) {
         return -1;
@@ -126,26 +181,26 @@ int main(int argc, char *argv[])
         return -1;
     }
     if (debug) {
-        OP_DFU::Status ret = dfu.StatusRequest();
+        DFU::Status ret = dfu.StatusRequest();
         qDebug() << dfu.StatusToString(ret);
     }
-    if (!(action == OP_DFU::actionStatusReq || action == OP_DFU::actionReset || action == OP_DFU::actionJump)) {
+    if (!(action == DFU::actionStatusReq || action == DFU::actionReset || action == DFU::actionJump)) {
         dfu.findDevices();
-        if (action == OP_DFU::actionListDevs) {
-            standardOutput << "Found " << dfu.numberOfDevices << "\n" << endl;
+        if (action == DFU::actionListDevs) {
+            standardOutput << "Found " << dfu.numberOfDevices << "\n";
             for (int x = 0; x < dfu.numberOfDevices; ++x) {
-                standardOutput << "Device #" << x << "\n" << endl;
-                standardOutput << "Device ID=" << dfu.devices[x].ID << "\n" << endl;
-                standardOutput << "Device Readable=" << dfu.devices[x].Readable << "\n" << endl;
-                standardOutput << "Device Writable=" << dfu.devices[x].Writable << "\n" << endl;
-                standardOutput << "Device SizeOfCode=" << dfu.devices[x].SizeOfCode << "\n" << endl;
-                standardOutput << "BL Version=" << dfu.devices[x].BL_Version << "\n" << endl;
-                standardOutput << "Device SizeOfDesc=" << dfu.devices[x].SizeOfDesc << "\n" << endl;
+                standardOutput << "Device #" << x << "\n";
+                standardOutput << "Device ID=" << dfu.devices[x].ID << "\n";
+                standardOutput << "Device Readable=" << dfu.devices[x].Readable << "\n";
+                standardOutput << "Device Writable=" << dfu.devices[x].Writable << "\n";
+                standardOutput << "Device SizeOfCode=" << dfu.devices[x].SizeOfCode << "\n";
+                standardOutput << "BL Version=" << dfu.devices[x].BL_Version << "\n";
+                standardOutput << "Device SizeOfDesc=" << dfu.devices[x].SizeOfDesc << "\n";
                 standardOutput << "FW CRC=" << dfu.devices[x].FW_CRC << "\n";
 
-                int size = ((OP_DFU::device)dfu.devices[x]).SizeOfDesc;
+                int size = ((DFU::device)dfu.devices[x]).SizeOfDesc;
                 dfu.enterDFU(x);
-                standardOutput << "Description:" << dfu.DownloadDescription(size).toLatin1().data() << "\n" << endl;
+                standardOutput << "Description:" << dfu.DownloadDescription(size).toLatin1().data() << "\n";
                 standardOutput << "\n";
             }
             return 0;
@@ -161,8 +216,8 @@ int main(int argc, char *argv[])
             standardOutput << "Error:Could not enter DFU mode\n" << endl;
             return -1;
         }
-        if (action == OP_DFU::actionProgram) {
-            if (((OP_DFU::device)dfu.devices[device]).Writable == false) {
+        if (action == DFU::actionProgram) {
+            if (((DFU::device)dfu.devices[device]).Writable == false) {
                 standardOutput << "ERROR device not Writable\n" << endl;
                 return false;
             }
@@ -177,22 +232,21 @@ int main(int argc, char *argv[])
                 QThread::msleep(500);
             }
             if (file.endsWith("opfw")) {
-                QByteArray firmware;
                 QFile fwfile(file);
                 if (!fwfile.open(QIODevice::ReadOnly)) {
                     standardOutput << "Cannot open file " << file << endl;
                     return -1;
                 }
-                firmware = fwfile.readAll();
-                QByteArray desc = firmware.right(100);
-                OP_DFU::Status status = dfu.UploadDescription(desc);
-                if (status != OP_DFU::Last_operation_Success) {
+                QByteArray firmware = fwfile.readAll();
+                QByteArray desc     = firmware.right(100);
+                DFU::Status status  = dfu.UploadDescription(desc);
+                if (status != DFU::Last_operation_Success) {
                     standardOutput << "Upload failed with code:" << retstatus << endl;
                     return -1;
                 }
             } else if (!description.isEmpty()) {
-                OP_DFU::Status status = dfu.UploadDescription(description);
-                if (status != OP_DFU::Last_operation_Success) {
+                DFU::Status status = dfu.UploadDescription(description);
+                if (status != DFU::Last_operation_Success) {
                     standardOutput << "Upload failed with code:" << status << endl;
                     return -1;
                 }
@@ -200,9 +254,9 @@ int main(int argc, char *argv[])
             while (!dfu.isFinished()) {
                 QThread::msleep(500);
             }
-            standardOutput << "Uploading Succeded!\n" << endl;
-        } else if (action == OP_DFU::actionDownload) {
-            if (((OP_DFU::device)dfu.devices[device]).Readable == false) {
+            standardOutput << "Uploading Succeeded!\n" << endl;
+        } else if (action == DFU::actionDownload) {
+            if (((DFU::device)dfu.devices[device]).Readable == false) {
                 standardOutput << "ERROR device not readable\n" << endl;
                 return false;
             }
@@ -210,22 +264,22 @@ int main(int argc, char *argv[])
             dfu.DownloadFirmware(&fw, 0);
             bool ret = dfu.SaveByteArrayToFile(file.toLatin1(), fw);
             return ret;
-        } else if (action == OP_DFU::actionCompareCrc) {
-            dfu.CompareFirmware(file.toLatin1(), OP_DFU::crccompare, device);
+        } else if (action == DFU::actionCompareCrc) {
+            dfu.CompareFirmware(file.toLatin1(), DFU::crccompare, device);
             return 1;
-        } else if (action == OP_DFU::actionCompareAll) {
-            if (((OP_DFU::device)dfu.devices[device]).Readable == false) {
+        } else if (action == DFU::actionCompareAll) {
+            if (((DFU::device)dfu.devices[device]).Readable == false) {
                 standardOutput << "ERROR device not readable\n" << endl;
                 return false;
             }
-            dfu.CompareFirmware(file.toLatin1(), OP_DFU::bytetobytecompare, device);
+            dfu.CompareFirmware(file.toLatin1(), DFU::bytetobytecompare, device);
             return 1;
         }
-    } else if (action == OP_DFU::actionStatusReq) {
+    } else if (action == DFU::actionStatusReq) {
         standardOutput << "Current device status=" << dfu.StatusToString(dfu.StatusRequest()).toLatin1().data() << "\n" << endl;
-    } else if (action == OP_DFU::actionReset) {
+    } else if (action == DFU::actionReset) {
         dfu.ResetDevice();
-    } else if (action == OP_DFU::actionJump) {
+    } else if (action == DFU::actionJump) {
         dfu.JumpToApp(false, false);
     }
     return 0;
@@ -254,10 +308,11 @@ void progressUpdated(int percent)
             bar.replace(i, 1, " ");
         }
     }
-    std::cout << "\r" << label.toLatin1().data() << "[" << bar << "] ";
+    std::cout << "\r" << label.toLatin1().data() << " [" << bar << "] ";
     std::cout.width(3);
     std::cout << percent << "%     " << std::flush;
 }
+
 void usage(QTextStream *standardOutput)
 {
     *standardOutput << "_________________________________________________________________________\n";

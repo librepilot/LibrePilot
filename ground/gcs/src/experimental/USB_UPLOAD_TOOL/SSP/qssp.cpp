@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       qssp.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -26,11 +27,11 @@
  */
 #include "qssp.h"
 
+#include <QDebug>
 
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-
 
 /** PRIVATE DEFINITIONS **/
 #define SYNC     225                     // Sync character used in Serial Protocol
@@ -144,7 +145,7 @@ void qssp::ssp_Init(const PortConfig_t *const info)
     thisport->txSeqNo = 255;
     thisport->SendState     = SSP_IDLE;
     thisport->InputState    = (ReceiveState)0;
-    thisport->DecodeState   = (decodeState_)0;
+    thisport->DecodeState   = (DecodeState)0;
     thisport->TxError = 0;
     thisport->RxError = 0;
     thisport->txSeqNo = 0;
@@ -174,7 +175,7 @@ int16_t qssp::ssp_SendProcess()
                 sf_SetSendTimeout();
                 value = SSP_TX_WAITING;
             } else {
-                // Give up, # of trys has exceded the limit
+                // Give up, # of tries has exceeded the limit
                 value = SSP_TX_TIMEOUT;
                 CLEARBIT(thisport->flags, ACK_RECEIVED);
                 thisport->SendState = SSP_IDLE;
@@ -343,7 +344,7 @@ int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
 }
 
 /*!
- * \brief   Attempts to synchronize the sequence numbers with the other end of the connectin.
+ * \brief   Attempts to synchronize the sequence numbers with the other end of the connection.
  * \param   thisport = which port to use
  * \return  true = success
  * \return	false = failed to receive an ACK to our synch request
@@ -374,7 +375,7 @@ uint16_t qssp::ssp_Synchronise()
     packet_status = ssp_SendData(NULL, 0);
 #endif
     while (packet_status == SSP_TX_WAITING) { // we loop until we time out.
-        (void)ssp_ReceiveProcess(); // do the receive process
+        ssp_ReceiveProcess(); // do the receive process
         packet_status = ssp_SendProcess(); // do the send process
     }
     thisport->sendSynch = FALSE;
@@ -391,7 +392,6 @@ uint16_t qssp::ssp_Synchronise()
         retval = FALSE;
         break;
     }
-    ;
     return retval;
 }
 
@@ -416,7 +416,6 @@ void qssp::sf_SendPacket()
     }
     thisport->retryCount++;
 }
-
 
 /*!
  * \brief   converts data to transport layer protocol packet format.
@@ -525,7 +524,6 @@ uint16_t qssp::sf_crc16(uint16_t crc, uint8_t data)
 {
 #ifdef SPP_USES_CRC
     return (crc >> 8) ^ CRC_TABLE[(crc ^ data) & 0x00FF];
-
 #else
     uint8_t cka = crc & 0xff;
     uint8_t ckb = (crc >> 8) & 0xff;
@@ -794,6 +792,7 @@ int16_t qssp::sf_ReceivePacket()
     }
     return value;
 }
+
 qssp::qssp(port *info, bool debug) : debug(debug)
 {
     thisport = info;
@@ -809,12 +808,13 @@ qssp::qssp(port *info, bool debug) : debug(debug)
     thisport->txSeqNo = 255;
     thisport->SendState     = SSP_IDLE;
     thisport->InputState    = (ReceiveState)0;
-    thisport->DecodeState   = (decodeState_)0;
+    thisport->DecodeState   = (DecodeState)0;
     thisport->TxError = 0;
     thisport->RxError = 0;
     thisport->txSeqNo = 0;
     thisport->rxSeqNo = 0;
 }
+
 void qssp::pfCallBack(uint8_t *buf, uint16_t size)
 {
     Q_UNUSED(size);

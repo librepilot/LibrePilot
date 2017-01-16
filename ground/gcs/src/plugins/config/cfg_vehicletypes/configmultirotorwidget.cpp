@@ -188,7 +188,7 @@ ConfigMultiRotorWidget::~ConfigMultiRotorWidget()
 
 QString ConfigMultiRotorWidget::getFrameType()
 {
-    QString frameType;
+    QString frameType = "QuadX";
 
     if (m_aircraft->multirotorFrameType->currentText() == "Quad +") {
         frameType = "QuadP";

@@ -272,13 +272,9 @@ static void systemTask(__attribute__((unused)) void *parameters)
         PIOS_TASK_MONITOR_ForEachTask(taskMonitorForEachCallback, &taskInfoData);
         TaskInfoSet(&taskInfoData);
         // Update the callback status object
-// if(FALSE){
         PIOS_CALLBACKSCHEDULER_ForEachCallback(callbackSchedulerForEachCallback, &callbackInfoData);
         CallbackInfoSet(&callbackInfoData);
-// }
 #endif
-// }
-
 
         UAVObjEvent ev;
         int delayTime = SYSTEM_UPDATE_PERIOD_MS;

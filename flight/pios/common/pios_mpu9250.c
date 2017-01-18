@@ -651,8 +651,6 @@ static int32_t PIOS_MPU9250_Mag_SetReg(uint8_t reg, uint8_t data)
  */
 static int32_t PIOS_MPU9250_Mag_Sensitivity(void)
 {
-    int i;
-
     /* Put mag in power down state before changing mode */
     PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_POWER_DOWN_MODE);
     PIOS_DELAY_WaitmS(1);
@@ -661,33 +659,32 @@ static int32_t PIOS_MPU9250_Mag_Sensitivity(void)
     PIOS_MPU9250_Mag_SetReg(PIOS_MPU9250_CNTL1, PIOS_MPU9250_MAG_FUSE_ROM_MODE);
     PIOS_DELAY_WaitmS(1);
 
+    /* Set addres and read flag */
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_ADDR, PIOS_MPU9250_MAG_I2C_ADDR | PIOS_MPU9250_MAG_I2C_READ_FLAG);
+
+    /* Set the address of the register to read. */
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_REG, PIOS_MPU9250_ASAX);
+
+    /* Trigger the byte transfer. */
+    PIOS_MPU9250_SetReg(PIOS_MPU9250_I2C_SLV0_CTRL, PIOS_MPU9250_I2C_SLV_ENABLE | 0x3);
+
+    PIOS_DELAY_WaitmS(1);
+
     if (PIOS_MPU9250_ClaimBus(false) != 0) {
         return -1;
     }
 
-    /* Set addres and read flag */
-    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_ADDR);
-    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_MAG_I2C_ADDR | PIOS_MPU9250_MAG_I2C_READ_FLAG);
-
-    /* Set the address of the register to read. */
-    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_REG);
-    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_ASAX);
-
-    /* Trigger the byte transfer. */
-    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV0_CTRL);
-    PIOS_SPI_TransferByte(dev->spi_id, PIOS_MPU9250_I2C_SLV_ENABLE | 0x3);
-
-    PIOS_DELAY_WaitmS(1);
-
     /* Read the mag data from SPI block */
-    for (i = 0; i < 0x3; i++) {
-        PIOS_SPI_TransferByte(dev->spi_id, (PIOS_MPU9250_EXT_SENS_DATA_00 | 0x80) + i);
-        int32_t ret = PIOS_SPI_TransferByte(dev->spi_id, 0x0);
-        if (ret < 0) {
-            PIOS_MPU9250_ReleaseBus();
-            return -1;
+
+    uint8_t mpu9250_send_buf[4] = { PIOS_MPU9250_EXT_SENS_DATA_00 | 0x80 };
+
+    if (PIOS_SPI_TransferBlock(dev->spi_id, mpu9250_send_buf, mpu9250_send_buf, sizeof(mpu9250_send_buf), 0) == 0) {
+        for (int i = 0; i < 3; ++i) {
+            dev->mag_sens_adj[i] = 1.0f + ((float)((uint8_t)mpu9250_send_buf[i + 1] - 128)) / 256.0f;
         }
-        dev->mag_sens_adj[i] = 1.0f; // 1.0f + ((float)((uint8_t)ret - 128)) / 256.0f;
+    } else {
+        PIOS_MPU9250_ReleaseBus();
+        return -1;
     }
 
     PIOS_MPU9250_ReleaseBus();

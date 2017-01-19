@@ -117,7 +117,7 @@ typedef union {
     } data;
 } __attribute__((__packed__)) mpu9250_data_t;
 
-#define GET_SENSOR_DATA(mpudataptr, sensor) (mpudataptr.data.sensor##_h << 8 | mpudataptr.data.sensor##_l)
+#define GET_SENSOR_DATA(mpudataptr, sensor) ((int16_t)((mpudataptr.data.sensor##_h << 8 | mpudataptr.data.sensor##_l)))
 
 static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
 static PIOS_SENSORS_3Axis_SensorsWithTemp *mag_data   = 0;

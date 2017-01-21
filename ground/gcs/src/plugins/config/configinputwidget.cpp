@@ -58,7 +58,7 @@
 #define MAX_INPUT_US               2500
 
 #define CHANNEL_NUMBER_NONE        0
-#define DEFAULT_FLIGHT_MODE_NUMBER 0
+#define DEFAULT_FLIGHT_MODE_NUMBER 1
 
 ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     ConfigTaskWidget(parent),
@@ -662,12 +662,8 @@ void ConfigInputWidget::wzNext()
         throttleError = false;
         checkThrottleRange();
 
-        // Force flight mode number to be 1 if 2 CH ground vehicle was selected
-        if (transmitterType == ground) {
-            forceOneFlightMode();
-        }
-
         manualSettingsObj->setData(manualSettingsData);
+
         // move to Arming Settings tab
         ui->stackedWidget->setCurrentIndex(0);
         ui->tabWidget->setCurrentIndex(3);
@@ -917,12 +913,6 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
         disconnect(receiverActivityObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(identifyControls()));
         wizardUi->wzNext->setEnabled(true);
         setTxMovement(nothing);
-        /* If flight mode stick isn't identified, force flight mode number to be 1 */
-        manualSettingsData = manualSettingsObj->getData();
-        if (manualSettingsData.ChannelGroups[ManualControlSettings::CHANNELNUMBER_FLIGHTMODE] ==
-            ManualControlSettings::CHANNELGROUPS_NONE) {
-            forceOneFlightMode();
-        }
         break;
     case wizardIdentifyCenter:
         manualCommandData  = manualCommandObj->getData();
@@ -2013,11 +2003,6 @@ void ConfigInputWidget::simpleCalibration(bool enable)
 
         restoreMdataSingle(manualCommandObj, &manualControlMdata);
 
-        // Force flight mode number to be 1 if 2 channel ground vehicle was confirmed
-        if (transmitterType == ground) {
-            forceOneFlightMode();
-        }
-
         for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
                 adjustSpecialNeutrals();
@@ -2146,13 +2131,6 @@ void ConfigInputWidget::resetActuatorSettings()
         actuatorSettingsObj->setData(actuatorSettingsData, false);
         updateHelper.doObjectAndWait(actuatorSettingsObj);
     }
-}
-
-void ConfigInputWidget::forceOneFlightMode()
-{
-    manualSettingsData = manualSettingsObj->getData();
-    manualSettingsData.FlightModeNumber = 1;
-    manualSettingsObj->setData(manualSettingsData);
 }
 
 void ConfigInputWidget::updateReceiverActivityStatus()

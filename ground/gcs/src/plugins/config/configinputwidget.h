@@ -228,7 +228,6 @@ private slots:
     void resetChannelSettings();
     void resetFlightModeSettings();
     void resetActuatorSettings();
-    void forceOneFlightMode();
     void updateReceiverActivityStatus();
 
     void failsafeFlightModeChanged(int index);

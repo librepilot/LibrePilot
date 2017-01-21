@@ -1172,6 +1172,7 @@ void ConfigInputWidget::identifyControls()
 void ConfigInputWidget::identifyLimits()
 {
     uint16_t inputValue;
+    static uint16_t previousInputFMValue;
     bool newLimitValue = false;
     bool newFlightModeValue = false;
 
@@ -1204,32 +1205,37 @@ void ConfigInputWidget::identifyLimits()
             }
             // Flightmode channel
             if (i == ManualControlSettings::CHANNELGROUPS_FLIGHTMODE) {
-                // Avoid duplicate values too close and error due to RcTx drift
-                int minSpacing = 100; // 100µs
-                for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
-                    if (flightModeSignalValue[pos] == 0) {
-                        newFlightModeValue = true;
-                        // A new flightmode value can be set now
-                        for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
-                            // Check if value is already used, MinSpacing needed between values.
-                            if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
-                                (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
-                                newFlightModeValue = false;
+                int deltaInput = abs(previousInputFMValue - inputValue);
+                previousInputFMValue = inputValue;
+                // Expecting two consecutive readings within a close value
+                if (deltaInput < 5) {
+                    // Avoid duplicate values too close and error due to RcTx drift
+                    int minSpacing = 100; // 100µs
+                    for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
+                        if (flightModeSignalValue[pos] == 0) {
+                            newFlightModeValue = true;
+                            // A new flightmode value can be set now
+                            for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
+                                // Check if value is already used, MinSpacing needed between values.
+                                if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
+                                    (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
+                                    newFlightModeValue = false;
+                                }
                             }
-                        }
-                        // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
-                        if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
-                            // Start from 0, erase previous count
-                            if (pos == 0) {
-                                manualSettingsData.FlightModeNumber = 0;
+                            // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
+                            if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
+                                // Start from 0, erase previous count
+                                if (pos == 0) {
+                                    manualSettingsData.FlightModeNumber = 0;
+                                }
+                                // Store new value and increase FlightModeNumber
+                                flightModeSignalValue[pos] = inputValue;
+                                manualSettingsData.FlightModeNumber++;
+                                // Show flight mode number
+                                m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
+                                m_txFlightModeCountText->setVisible(true);
+                                m_txFlightModeCountBG->setVisible(true);
                             }
-                            // Store new value and increase FlightModeNumber
-                            flightModeSignalValue[pos] = inputValue;
-                            manualSettingsData.FlightModeNumber++;
-                            // Show flight mode number
-                            m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
-                            m_txFlightModeCountText->setVisible(true);
-                            m_txFlightModeCountBG->setVisible(true);
                         }
                     }
                 }

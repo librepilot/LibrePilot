@@ -200,6 +200,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(ui->runCalibration, SIGNAL(toggled(bool)), this, SLOT(simpleCalibration(bool)));
 
     connect(ReceiverActivity::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+    connect(FlightStatus::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+
     ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
 
@@ -2146,6 +2148,10 @@ void ConfigInputWidget::updateReceiverActivityStatus()
 
     Q_ASSERT(receiverActivity);
 
+    FlightStatus *flightStatus = FlightStatus::GetInstance(getObjectManager());
+
+    Q_ASSERT(flightStatus);
+
     UAVObjectField *activeGroup   = receiverActivity->getField(QString("ActiveGroup"));
     Q_ASSERT(activeGroup);
 
@@ -2155,12 +2161,15 @@ void ConfigInputWidget::updateReceiverActivityStatus()
     QString activeGroupText   = activeGroup->getValue().toString();
     QString activeChannelText = activeChannel->getValue().toString();
 
+
     if (activeGroupText != "None") {
         ui->receiverActivityStatus->setText(tr("%1 input - Channel %2").arg(activeGroupText).arg(activeChannelText));
         ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
                                                    border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
     } else {
-        ui->receiverActivityStatus->setText(tr("No activity"));
+        bool armed = (flightStatus->getArmed() == FlightStatus::ARMED_ARMED);
+        QString receiverActivityText = armed ? tr("Disabled (Armed)") : tr("No activity");
+        ui->receiverActivityStatus->setText(receiverActivityText);
         ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                    border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
     }

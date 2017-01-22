@@ -10,7 +10,7 @@
  * pass it to ManualControl
  *
  * @file       receiver.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @brief      Receiver module. Handles safety R/C link and flight mode.
  *
@@ -68,7 +68,7 @@
 // safe band to allow a bit of calibration error or trim offset (in microseconds)
 #define CONNECTION_OFFSET                250
 
-#define ASSISTEDCONTROL_DEADBAND_MINIMUM 2 // minimum value for a well bahaved Tx, in percent.
+#define ASSISTEDCONTROL_DEADBAND_MINIMUM 2 // minimum value for a well behaved Tx, in percent.
 
 // Private types
 
@@ -205,14 +205,13 @@ static void receiverTask(__attribute__((unused)) void *parameters)
 
     // For now manual instantiate extra instances of Accessory Desired.  In future should be done dynamically
     // this includes not even registering it if not used
-    AccessoryDesiredCreateInstance();
-    AccessoryDesiredCreateInstance();
-    AccessoryDesiredCreateInstance();
+    AccessoryDesiredCreateInstance(); // Accessory1
+    AccessoryDesiredCreateInstance(); // Accessory2
+    AccessoryDesiredCreateInstance(); // Accessory3
 
     // Rssi input
     AccessoryDesiredCreateInstance();
 
-    // Whenever the configuration changes, make sure it is safe to fly
     ManualControlCommandGet(&cmd);
 
     /* Initialize the RcvrActivty FSM */
@@ -795,7 +794,9 @@ group_completed:
     return activity_updated;
 }
 
-/* Read signal quality from the specified group or use Rssi input value if any */
+/**
+ * Read signal quality from the specified group or use Rssi input value if any
+ */
 static bool updateRcvrStatus(
     struct rcvr_activity_fsm *fsm,
     ManualControlSettingsChannelGroupsOptions group, int8_t rssiValue)

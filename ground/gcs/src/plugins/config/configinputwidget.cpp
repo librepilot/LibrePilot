@@ -440,6 +440,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     groundChannelOrder << ManualControlSettings::CHANNELGROUPS_THROTTLE <<
         ManualControlSettings::CHANNELGROUPS_YAW <<
+        ManualControlSettings::CHANNELGROUPS_FLIGHTMODE <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY0;
 }
 

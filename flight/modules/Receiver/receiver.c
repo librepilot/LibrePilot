@@ -198,8 +198,8 @@ static void receiverTask(__attribute__((unused)) void *parameters)
 {
     ManualControlSettingsData settings;
     ManualControlCommandData cmd;
-    FlightStatusData flightStatus;
 
+    uint8_t armed;
     uint8_t disconnected_count = 0;
     uint8_t connected_count    = 0;
 
@@ -213,9 +213,7 @@ static void receiverTask(__attribute__((unused)) void *parameters)
     AccessoryDesiredCreateInstance();
 
     // Whenever the configuration changes, make sure it is safe to fly
-
     ManualControlCommandGet(&cmd);
-    FlightStatusGet(&flightStatus);
 
     /* Initialize the RcvrActivty FSM */
     portTickType lastActivityTime = xTaskGetTickCount();
@@ -241,17 +239,20 @@ static void receiverTask(__attribute__((unused)) void *parameters)
         ManualControlSettingsGet(&settings);
         SystemSettingsThrustControlGet(&thrustType);
 
+        FlightStatusArmedGet(&armed);
         /* Update channel activity monitor */
-        if (flightStatus.Armed == FLIGHTSTATUS_ARMED_DISARMED) {
+        if (armed == FLIGHTSTATUS_ARMED_DISARMED) {
             if (updateRcvrActivity(&activity_fsm)) {
                 /* Reset the aging timer because activity was detected */
                 lastActivityTime = lastSysTime;
             }
-            /* Read signal quality from the group used for the throttle */
-            (void)updateRcvrStatus(&activity_fsm,
-                                   settings.ChannelGroups.Throttle,
-                                   rssiValue);
         }
+
+        /* Read signal quality from the group used for the throttle */
+        (void)updateRcvrStatus(&activity_fsm,
+                               settings.ChannelGroups.Throttle,
+                               rssiValue);
+
         if (timeDifferenceMs(lastActivityTime, lastSysTime) > 5000) {
             resetRcvrActivity(&activity_fsm);
             resetRcvrStatus(&activity_fsm);

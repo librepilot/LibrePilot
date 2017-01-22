@@ -839,12 +839,12 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
         extraWidgets.clear();
         for (int index = 0; index < manualSettingsObj->getField("ChannelMax")->getElementNames().length(); index++) {
             QString name = manualSettingsObj->getField("ChannelMax")->getElementNames().at(index);
-            if (!name.contains("Access") && !name.contains("Flight") &&
+            if (!name.contains("Access") && !name.contains("Flight") && !name.contains("Rssi") &&
                 (!name.contains("Collective") || transmitterType == heli)) {
                 QCheckBox *cb = new QCheckBox(name, this);
                 // Make sure checked status matches current one
                 cb->setChecked(manualSettingsData.ChannelMax[index] < manualSettingsData.ChannelMin[index]);
-                wizardUi->checkBoxesLayout->addWidget(cb, extraWidgets.size() / 4, extraWidgets.size() % 4);
+                wizardUi->checkBoxesLayout->addWidget(cb, extraWidgets.size() / 5, extraWidgets.size() % 5);
                 extraWidgets.append(cb);
                 connect(cb, SIGNAL(toggled(bool)), this, SLOT(invertControls()));
             }

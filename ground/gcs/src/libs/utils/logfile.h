@@ -34,6 +34,9 @@
 #include <QDebug>
 #include <QBuffer>
 #include <QFile>
+#include <QVector>
+
+typedef enum { PLAYING, PAUSED, STOPPED } ReplayState;
 
 class QTCREATOR_UTILS_EXPORT LogFile : public QIODevice {
     Q_OBJECT
@@ -75,32 +78,34 @@ public:
         m_providedTimeStamp = providedTimestamp;
     }
 
+    ReplayState getReplayStatus();
+
 public slots:
-    void setReplaySpeed(double val)
-    {
-        m_playbackSpeed = val;
-        qDebug() << "Playback speed is now" << m_playbackSpeed;
-    };
+    void setReplaySpeed(double val);
     bool startReplay();
     bool stopReplay();
     bool pauseReplay();
     bool resumeReplay();
+    void resumeReplayFrom(quint32);
+    void restartReplay();
+    void haltReplay();
 
 protected slots:
     void timerFired();
 
 signals:
-    void readReady();
     void replayStarted();
     void replayFinished();
+    void replayPosition(quint32);
+    void updateBeginAndEndtimes(quint32, quint32);
 
 protected:
     QByteArray m_dataBuffer;
     QTimer m_timer;
     QTime m_myTime;
     QFile m_file;
-    qint32 m_previousTimeStamp;
-    qint32 m_nextTimeStamp;
+    quint32 m_previousTimeStamp;
+    quint32 m_nextTimeStamp;
     double m_lastPlayed;
     // QMutex wants to be mutable
     // http://stackoverflow.com/questions/25521570/can-mutex-locking-function-be-marked-as-const
@@ -108,11 +113,18 @@ protected:
 
     int m_timeOffset;
     double m_playbackSpeed;
-    bool paused;
+    ReplayState m_replayStatus;
 
 private:
     bool m_useProvidedTimeStamp;
     qint32 m_providedTimeStamp;
+    quint32 m_beginTimeStamp;
+    quint32 m_endTimeStamp;
+    quint32 m_timer_tick;
+    QVector<quint32> m_timeStamps;
+    QVector<qint64> m_timeStampPositions;
+
+    bool buildIndex();
 };
 
 #endif // LOGFILE_H

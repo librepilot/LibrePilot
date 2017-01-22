@@ -37,6 +37,7 @@
 #include <QWidget>
 
 class Ui_Logging;
+class QTimer;
 
 class LoggingGadgetWidget : public QWidget {
     Q_OBJECT
@@ -48,15 +49,32 @@ public:
 
 protected slots:
     void stateChanged(LoggingPlugin::State state);
+    void updateBeginAndEndtimes(quint32 startTimeStamp, quint32 endTimeStamp);
+    void replayPosition(quint32 positionTimeStamp);
+    void playButton();
+    void pauseButton();
+    void stopButton();
+    void enableButtons();
+    void disableButtons();
+    void sliderMoved(int);
+    void sendResumeReplayFrom();
 
 signals:
-    void pause();
-    void play();
+    void startReplay();
+    void stopReplay();
+    void pauseReplay();
+    void resumeReplay();
+    void resumeReplayFrom(quint32 positionTimeStamp);
 
 private:
     Ui_Logging *m_logging;
     LoggingPlugin *loggingPlugin;
     ScopeGadgetFactory *scpPlugin;
+    QTimer sliderActionDelay;
+    quint32 m_storedPosition;
+
+    void updatePositionLabel(quint32 positionTimeStamp);
+
 };
 
 #endif /* LoggingGADGETWIDGET_H_ */

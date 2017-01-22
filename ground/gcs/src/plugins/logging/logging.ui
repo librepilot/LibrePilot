@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>439</width>
-    <height>122</height>
+    <height>150</height>
    </rect>
   </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>100</horstretch>
-    <verstretch>80</verstretch>
+    <horstretch>1</horstretch>
+    <verstretch>1</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
     <width>100</width>
-    <height>80</height>
+    <height>150</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -27,9 +27,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,2,0,0,0">
        <property name="sizeConstraint">
         <enum>QLayout::SetNoConstraint</enum>
        </property>
@@ -71,11 +71,34 @@
           </size>
          </property>
          <property name="text">
-          <string notr="true">Pause</string>
+          <string>Pause</string>
          </property>
          <property name="icon">
           <iconset resource="../notify/res.qrc">
            <normaloff>:/notify/images/stop.png</normaloff>:/notify/images/stop.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="stopButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Stop</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../notify/res.qrc">
+           <normaloff>:/notify/images/delete.png</normaloff>:/notify/images/delete.png</iconset>
          </property>
         </widget>
        </item>
@@ -125,11 +148,17 @@
        </item>
        <item>
         <widget class="QDoubleSpinBox" name="playbackSpeed">
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="minimum">
+          <double>0.10000000000000</double>
+         </property>
          <property name="maximum">
           <double>10.000000000000000</double>
          </property>
          <property name="singleStep">
-          <double>0.100000000000000</double>
+          <double>0.10000000000000</double>
          </property>
          <property name="value">
           <double>1.000000000000000</double>
@@ -148,6 +177,106 @@
           </size>
          </property>
         </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QSlider" name="playBackPosition">
+       <property name="tracking">
+        <bool>true</bool>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
+       </property>
+       <property name="tickPosition">
+        <enum>QSlider::TicksBothSides</enum>
+       </property>
+       <property name="tickInterval">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="startTimeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="positionTimestampLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="endTimeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

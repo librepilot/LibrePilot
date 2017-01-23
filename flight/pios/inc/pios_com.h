@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_com.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Thorsten Klose (tk@midibox.org)
  * @brief      COM layer functions header
  * @see        The GNU Public License (GPL) Version 3

@@ -7,7 +7,7 @@
  * @{
  *
  * @file       pios_com.c
- * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2015
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2015-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      COM layer functions
  * @see        The GNU Public License (GPL) Version 3

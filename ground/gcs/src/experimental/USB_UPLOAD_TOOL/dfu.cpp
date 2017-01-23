@@ -50,7 +50,7 @@ DFUObject::DFUObject(bool _debug, bool _use_serial, QString portname) :
 {
     numberOfDevices = 0;
     serialhandle    = NULL;
-    info = NULL;
+    port *info = NULL;
 
     qRegisterMetaType<DFU::Status>("Status");
 
@@ -82,6 +82,11 @@ DFUObject::DFUObject(bool _debug, bool _use_serial, QString portname) :
             return;
         }
 
+        // transfer ownership of port to serialhandle thread
+        info->moveToThread(serialhandle);
+        connect(serialhandle, SIGNAL(finished()), info, SLOT(deleteLater()));
+
+        // start the serialhandle thread
         serialhandle->start();
     } else {
 /*
@@ -142,7 +147,6 @@ DFUObject::~DFUObject()
 {
     if (use_serial) {
         delete serialhandle;
-        delete info;
     } else {
 /*
         if (hidHandle) {

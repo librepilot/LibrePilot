@@ -40,7 +40,6 @@
 #define BUF_LEN             64
 
 // serial
-class port;
 class qsspt;
 
 // usb
@@ -190,7 +189,6 @@ private:
     int RWFlags;
 
     // Serial
-    port *info;
     qsspt *serialhandle;
 
     // USB

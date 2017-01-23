@@ -33,8 +33,7 @@
 port::port(QString name, bool debug) : mstatus(port::closed), debug(debug)
 {
     timer.start();
-    sport = new QSerialPort();
-    sport->setPortName(name);
+    sport = new QSerialPort(name, this);
     if (sport->open(QIODevice::ReadWrite)) {
         if (sport->setBaudRate(QSerialPort::Baud57600)
             && sport->setDataBits(QSerialPort::Data8)

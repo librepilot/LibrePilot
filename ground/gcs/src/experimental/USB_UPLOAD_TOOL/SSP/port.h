@@ -37,7 +37,9 @@
 
 class QSerialPort;
 
-class port {
+class port : public QObject {
+    Q_OBJECT;
+
 public:
     enum portstatus { open, closed, error };
 

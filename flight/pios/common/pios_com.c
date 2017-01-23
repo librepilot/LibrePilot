@@ -282,7 +282,7 @@ int32_t PIOS_COM_ChangeBaud(uint32_t com_id, uint32_t baud)
     return 0;
 }
 
-int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity)
+int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode)
 {
     struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
 
@@ -293,12 +293,11 @@ int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_le
 
     /* Invoke the driver function if it exists */
     if (com_dev->driver->set_config) {
-        com_dev->driver->set_config(com_dev->lower_id, word_len, stop_bits, parity);
+        com_dev->driver->set_config(com_dev->lower_id, word_len, stop_bits, parity, baud_rate, mode);
     }
 
     return 0;
 }
-
 
 /**
  * Set control lines associated with the port

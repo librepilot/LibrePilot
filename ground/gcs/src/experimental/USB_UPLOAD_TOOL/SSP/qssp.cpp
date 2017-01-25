@@ -524,6 +524,7 @@ uint16_t qssp::sf_crc16(uint16_t crc, uint8_t data)
 {
 #ifdef SPP_USES_CRC
     return (crc >> 8) ^ CRC_TABLE[(crc ^ data) & 0x00FF];
+
 #else
     uint8_t cka = crc & 0xff;
     uint8_t ckb = (crc >> 8) & 0xff;
@@ -658,6 +659,12 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         retval = SSP_RX_IDLE;
         break;
     case decode_len1_e:
+        if (c == 0) {
+            thisport->DecodeState = decode_idle_e;
+            thisport->RxError++;
+            retval = SSP_RX_IDLE;
+            break;
+        }
         thisport->rxBuf[LENGTH] = c;
         thisport->rxBufLen = c;
         if (thisport->rxBufLen <= thisport->rxBufSize) {

@@ -29,6 +29,8 @@
 
 #include "ui_airframe_ground.h"
 
+#include "uavobjectmanager.h"
+
 #include "mixersettings.h"
 #include "systemsettings.h"
 #include "actuatorsettings.h"
@@ -51,23 +53,23 @@ QStringList ConfigGroundVehicleWidget::getChannelDescriptions()
     QStringList channelDesc;
 
     for (int i = 0; i < (int)ConfigGroundVehicleWidget::CHANNEL_NUMELEM; i++) {
-        channelDesc.append(QString("-"));
+        channelDesc.append("-");
     }
 
     // get the gui config data
     GUIConfigDataUnion configData = getConfigData();
 
     if (configData.ground.GroundVehicleSteering1 > 0) {
-        channelDesc[configData.ground.GroundVehicleSteering1 - 1] = QString("GroundSteering1");
+        channelDesc[configData.ground.GroundVehicleSteering1 - 1] = "GroundSteering1";
     }
     if (configData.ground.GroundVehicleSteering2 > 0) {
-        channelDesc[configData.ground.GroundVehicleSteering2 - 1] = QString("GroundSteering2");
+        channelDesc[configData.ground.GroundVehicleSteering2 - 1] = "GroundSteering2";
     }
     if (configData.ground.GroundVehicleThrottle1 > 0) {
-        channelDesc[configData.ground.GroundVehicleThrottle1 - 1] = QString("GroundMotor1");
+        channelDesc[configData.ground.GroundVehicleThrottle1 - 1] = "GroundMotor1";
     }
     if (configData.ground.GroundVehicleThrottle2 > 0) {
-        channelDesc[configData.ground.GroundVehicleThrottle2 - 1] = QString("GroundMotor2");
+        channelDesc[configData.ground.GroundVehicleThrottle2 - 1] = "GroundMotor2";
     }
     return channelDesc;
 }
@@ -88,14 +90,35 @@ ConfigGroundVehicleWidget::ConfigGroundVehicleWidget(QWidget *parent) :
     m_aircraft->groundShape->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // Set default model to "Car (Turnable)"
-    connect(m_aircraft->groundVehicleType, SIGNAL(currentIndexChanged(QString)), this, SLOT(setupUI(QString)));
     m_aircraft->groundVehicleType->setCurrentIndex(m_aircraft->groundVehicleType->findText("Car (Turnable)"));
+
+    connect(m_aircraft->groundVehicleType, SIGNAL(currentIndexChanged(QString)), this, SLOT(frameTypeChanged(QString)));
+
     setupUI(m_aircraft->groundVehicleType->currentText());
 }
 
 ConfigGroundVehicleWidget::~ConfigGroundVehicleWidget()
 {
     delete m_aircraft;
+}
+
+QString ConfigGroundVehicleWidget::getFrameType()
+{
+    QString frameType = "GroundVehicleCar";
+
+    // All frame types must start with "GroundVehicle"
+    if (m_aircraft->groundVehicleType->currentText() == "Boat (Differential)") {
+        frameType = "GroundVehicleDifferentialBoat";
+    } else if (m_aircraft->groundVehicleType->currentText() == "Boat (Turnable)") {
+        frameType = "GroundVehicleBoat";
+    } else if (m_aircraft->groundVehicleType->currentText() == "Car (Turnable)") {
+        frameType = "GroundVehicleCar";
+    } else if (m_aircraft->groundVehicleType->currentText() == "Tank (Differential)") {
+        frameType = "GroundVehicleDifferential";
+    } else {
+        frameType = "GroundVehicleMotorcycle";
+    }
+    return frameType;
 }
 
 /**
@@ -111,9 +134,9 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
     m_vehicleImg = new QGraphicsSvgItem();
     m_vehicleImg->setSharedRenderer(renderer);
 
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
     Q_ASSERT(system);
-    QPointer<UAVObjectField> frameTypeSaved = system->getField(QString("AirframeType"));
+    QPointer<UAVObjectField> frameTypeSaved = system->getField("AirframeType");
 
     m_aircraft->differentialSteeringSlider1->setEnabled(false);
     m_aircraft->differentialSteeringSlider2->setEnabled(false);
@@ -129,7 +152,6 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
     if (frameType == "GroundVehicleBoat" || frameType == "Boat (Turnable)") {
         // Boat
         m_vehicleImg->setElementId("boat");
-        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Boat (Turnable)"));
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(true);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
@@ -160,27 +182,22 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         }
     } else if ((frameType == "GroundVehicleDifferential") || (frameType == "Tank (Differential)") ||
                (frameType == "GroundVehicleDifferentialBoat") || (frameType == "Boat (Differential)")) {
-        bool is_Boat = frameType.contains("Boat");
+        bool isBoat = frameType.contains("Boat");
 
-        if (is_Boat) {
+        if (isBoat) {
             // Boat differential
             m_vehicleImg->setElementId("boat_diff");
-            setComboCurrentIndex(m_aircraft->groundVehicleType,
-                                 m_aircraft->groundVehicleType->findText("Boat (Differential)"));
             m_aircraft->gvSteering1Label->setText("First rudder");
             m_aircraft->gvSteering2Label->setText("Second rudder");
         } else {
             // Tank
             m_vehicleImg->setElementId("tank");
-            setComboCurrentIndex(m_aircraft->groundVehicleType,
-                                 m_aircraft->groundVehicleType->findText("Tank (Differential)"));
             m_aircraft->gvSteering1Label->setText("Front steering");
             m_aircraft->gvSteering2Label->setText("Rear steering");
         }
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(true);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
-
 
         m_aircraft->gvMotor1Label->setText("Left motor");
         m_aircraft->gvMotor2Label->setText("Right motor");
@@ -202,8 +219,8 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         initMixerCurves(frameType);
 
         // If new setup, set sliders to defaults and set curves values
-        if ((!is_Boat && (frameTypeSaved->getValue().toString() != "GroundVehicleDifferential")) ||
-            (is_Boat && (frameTypeSaved->getValue().toString() != "GroundVehicleDifferentialBoat"))) {
+        if ((!isBoat && (frameTypeSaved->getValue().toString() != "GroundVehicleDifferential")) ||
+            (isBoat && (frameTypeSaved->getValue().toString() != "GroundVehicleDifferentialBoat"))) {
             m_aircraft->differentialSteeringSlider1->setValue(100);
             m_aircraft->differentialSteeringSlider2->setValue(100);
             m_aircraft->groundVehicleThrottle1->initLinearCurve(5, 0.8, 0.0);
@@ -212,7 +229,6 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
     } else if (frameType == "GroundVehicleMotorcycle" || frameType == "Motorcycle") {
         // Motorcycle
         m_vehicleImg->setElementId("motorbike");
-        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Motorcycle"));
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(false);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
@@ -244,7 +260,6 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
     } else {
         // Car
         m_vehicleImg->setElementId("car");
-        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Car (Turnable)"));
 
         m_aircraft->gvMotor1ChannelBox->setEnabled(true);
         m_aircraft->gvMotor2ChannelBox->setEnabled(true);
@@ -284,8 +299,6 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
 
 void ConfigGroundVehicleWidget::enableControls(bool enable)
 {
-    ConfigTaskWidget::enableControls(enable);
-
     if (enable) {
         setupUI(m_aircraft->groundVehicleType->currentText());
     }
@@ -315,13 +328,15 @@ void ConfigGroundVehicleWidget::resetActuators(GUIConfigDataUnion *configData)
 /**
    Virtual function to refresh the UI widget values
  */
-void ConfigGroundVehicleWidget::refreshWidgetsValues(QString frameType)
+void ConfigGroundVehicleWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    setupUI(frameType);
+    Q_UNUSED(obj);
+
+    QString frameType = getFrameType();
 
     initMixerCurves(frameType);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     GUIConfigDataUnion config = getConfigData();
@@ -354,7 +369,7 @@ void ConfigGroundVehicleWidget::refreshWidgetsValues(QString frameType)
  */
 void ConfigGroundVehicleWidget::initMixerCurves(QString frameType)
 {
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     Q_ASSERT(mixer);
 
@@ -376,7 +391,7 @@ void ConfigGroundVehicleWidget::initMixerCurves(QString frameType)
         }
     }
 
-    // Setup all Throttle2 curves for all types of airframes
+    // Setup all Throttle2 curves for all types of frames
     getThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE2, &curveValues);
 
     if (isValidThrottleCurve(&curveValues)) {
@@ -396,36 +411,27 @@ void ConfigGroundVehicleWidget::initMixerCurves(QString frameType)
 /**
    Virtual function to update the UI widget objects
  */
-QString ConfigGroundVehicleWidget::updateConfigObjectsFromWidgets()
+void ConfigGroundVehicleWidget::updateObjectsFromWidgetsImpl()
 {
-    QString airframeType = "GroundVehicleCar";
-
     // Save the curve (common to all ground vehicle frames)
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
     // set the throttle curves
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE1, m_aircraft->groundVehicleThrottle1->getCurve());
     setThrottleCurve(mixer, VehicleConfig::MIXER_THROTTLECURVE2, m_aircraft->groundVehicleThrottle2->getCurve());
 
-    // All airframe types must start with "GroundVehicle"
+    QString frameType = getFrameType();
     if (m_aircraft->groundVehicleType->currentText() == "Boat (Differential)") {
-        airframeType = "GroundVehicleDifferentialBoat";
-        setupGroundVehicleDifferential(airframeType);
+        setupGroundVehicleDifferential(frameType);
     } else if (m_aircraft->groundVehicleType->currentText() == "Boat (Turnable)") {
-        airframeType = "GroundVehicleBoat";
-        setupGroundVehicleTurnable(airframeType);
+        setupGroundVehicleTurnable(frameType);
     } else if (m_aircraft->groundVehicleType->currentText() == "Car (Turnable)") {
-        airframeType = "GroundVehicleCar";
-        setupGroundVehicleTurnable(airframeType);
+        setupGroundVehicleTurnable(frameType);
     } else if (m_aircraft->groundVehicleType->currentText() == "Tank (Differential)") {
-        airframeType = "GroundVehicleDifferential";
-        setupGroundVehicleDifferential(airframeType);
+        setupGroundVehicleDifferential(frameType);
     } else {
-        airframeType = "GroundVehicleMotorcycle";
-        setupGroundVehicleMotorcycle(airframeType);
+        setupGroundVehicleMotorcycle(frameType);
     }
-
-    return airframeType;
 }
 
 /**
@@ -433,11 +439,11 @@ QString ConfigGroundVehicleWidget::updateConfigObjectsFromWidgets()
 
    Returns False if impossible to create the mixer.
  */
-bool ConfigGroundVehicleWidget::setupGroundVehicleMotorcycle(QString airframeType)
+bool ConfigGroundVehicleWidget::setupGroundVehicleMotorcycle(QString frameType)
 {
     // Check coherence:
     // Show any config errors in GUI
-    if (throwConfigError(airframeType)) {
+    if (throwConfigError(frameType)) {
         return false;
     }
 
@@ -451,7 +457,7 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleMotorcycle(QString airframeTyp
 
     setConfigData(config);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
 
@@ -483,12 +489,12 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleMotorcycle(QString airframeTyp
 
    Returns False if impossible to create the mixer.
  */
-bool ConfigGroundVehicleWidget::setupGroundVehicleDifferential(QString airframeType)
+bool ConfigGroundVehicleWidget::setupGroundVehicleDifferential(QString frameType)
 {
     // Check coherence:
     // Show any config errors in GUI
 
-    if (throwConfigError(airframeType)) {
+    if (throwConfigError(frameType)) {
         return false;
     }
 
@@ -501,7 +507,7 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleDifferential(QString airframeT
 
     setConfigData(config);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
 
@@ -531,11 +537,11 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleDifferential(QString airframeT
 
    Returns False if impossible to create the mixer.
  */
-bool ConfigGroundVehicleWidget::setupGroundVehicleTurnable(QString airframeType)
+bool ConfigGroundVehicleWidget::setupGroundVehicleTurnable(QString frameType)
 {
     // Check coherence:
     // Show any config errors in GUI
-    if (throwConfigError(airframeType)) {
+    if (throwConfigError(frameType)) {
         return false;
     }
 
@@ -550,7 +556,7 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleTurnable(QString airframeType)
 
     setConfigData(config);
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
     resetMotorAndServoMixers(mixer);
 
@@ -568,7 +574,7 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleTurnable(QString airframeType)
 
     channel = m_aircraft->gvMotor2ChannelBox->currentIndex() - 1;
     setMixerType(mixer, channel, VehicleConfig::MIXERTYPE_REVERSABLEMOTOR);
-    if (airframeType == "GroundVehicleCar") {
+    if (frameType == "GroundVehicleCar") {
         // Car: Throttle2 curve for 2nd motor
         setMixerVectorValue(mixer, channel, VehicleConfig::MIXERVECTOR_THROTTLECURVE2, 127);
     } else {
@@ -584,7 +590,7 @@ bool ConfigGroundVehicleWidget::setupGroundVehicleTurnable(QString airframeType)
 /**
    This function displays text and color formatting in order to help the user understand what channels have not yet been configured.
  */
-bool ConfigGroundVehicleWidget::throwConfigError(QString airframeType)
+bool ConfigGroundVehicleWidget::throwConfigError(QString frameType)
 {
     // Initialize configuration error flag
     bool error = false;
@@ -595,7 +601,7 @@ bool ConfigGroundVehicleWidget::throwConfigError(QString airframeType)
 
     pixmap.fill(QColor("red"));
 
-    if ((airframeType == "GroundVehicleCar") || (airframeType == "GroundVehicleBoat")) { // Car
+    if ((frameType == "GroundVehicleCar") || (frameType == "GroundVehicleBoat")) { // Car
         if (m_aircraft->gvMotor1ChannelBox->currentText() == "None"
             && m_aircraft->gvMotor2ChannelBox->currentText() == "None") {
             m_aircraft->gvMotor1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
@@ -615,7 +621,7 @@ bool ConfigGroundVehicleWidget::throwConfigError(QString airframeType)
             m_aircraft->gvSteering1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
             m_aircraft->gvSteering2ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
         }
-    } else if (airframeType.contains("GroundVehicleDifferential")) { // differential Tank and Boat
+    } else if (frameType.contains("GroundVehicleDifferential")) { // differential Tank and Boat
         if (m_aircraft->gvMotor1ChannelBox->currentText() == "None"
             || m_aircraft->gvMotor2ChannelBox->currentText() == "None") {
             m_aircraft->gvMotor1ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
@@ -629,7 +635,7 @@ bool ConfigGroundVehicleWidget::throwConfigError(QString airframeType)
         // Always reset
         m_aircraft->gvSteering1ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
         m_aircraft->gvSteering2ChannelBox->setItemData(0, 0, Qt::DecorationRole); // Reset color palettes
-    } else if (airframeType == "GroundVehicleMotorcycle") { // Motorcycle
+    } else if (frameType == "GroundVehicleMotorcycle") { // Motorcycle
         if (m_aircraft->gvMotor2ChannelBox->currentText() == "None") {
             m_aircraft->gvMotor2ChannelBox->setItemData(0, pixmap, Qt::DecorationRole); // Set color palettes
             error = true;
@@ -651,7 +657,7 @@ bool ConfigGroundVehicleWidget::throwConfigError(QString airframeType)
     }
 
     if (error) {
-        m_aircraft->gvStatusLabel->setText(QString("<font color='red'>ERROR: Assign all necessary channels</font>"));
+        m_aircraft->gvStatusLabel->setText("<font color='red'>ERROR: Assign all necessary channels</font>");
     }
     return error;
 }

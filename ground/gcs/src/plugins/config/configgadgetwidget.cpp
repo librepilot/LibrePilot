@@ -283,7 +283,7 @@ void ConfigGadgetWidget::tabAboutToChange(int index, bool *proceed)
         if (ans == QMessageBox::No) {
             *proceed = false;
         } else {
-            wid->setDirty(false);
+            wid->clearDirty();
         }
     }
 }

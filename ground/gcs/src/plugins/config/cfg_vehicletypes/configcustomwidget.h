@@ -29,16 +29,12 @@
 
 #include "cfg_vehicletypes/vehicleconfig.h"
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
-#include <QWidget>
 #include <QList>
 #include <QItemDelegate>
 
 class Ui_CustomConfigWidget;
+
+class QWidget;
 
 class ConfigCustomWidget : public VehicleConfig {
     Q_OBJECT
@@ -49,22 +45,24 @@ public:
     ConfigCustomWidget(QWidget *parent = 0);
     ~ConfigCustomWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual QString getFrameType();
 
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
 
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
+
 private:
     Ui_CustomConfigWidget *m_aircraft;
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
+    void resetActuators(GUIConfigDataUnion *configData);
 
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(int numMotors);
+    bool throwConfigError(int numMotors);
 };
 
 class SpinBoxDelegate : public QItemDelegate {

@@ -27,8 +27,12 @@
  */
 
 #include "outputcalibrationpage.h"
+
 #include "ui_outputcalibrationpage.h"
+
 #include "systemalarms.h"
+
+#include "extensionsystem/pluginmanager.h"
 #include "uavobjectmanager.h"
 
 const QString OutputCalibrationPage::MULTI_SVG_FILE     = QString(":/setupwizard/resources/multirotor-shapes.svg");

@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_com.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Thorsten Klose (tk@midibox.org)
  * @brief      COM layer functions header
  * @see        The GNU Public License (GPL) Version 3
@@ -40,9 +41,38 @@ typedef void (*pios_com_callback_ctrl_line)(uint32_t context, uint32_t mask, uin
 typedef void (*pios_com_callback_baud_rate)(uint32_t context, uint32_t baud);
 typedef void (*pios_com_callback_available)(uint32_t context, uint32_t available);
 
+enum PIOS_COM_Word_Length {
+    PIOS_COM_Word_length_Unchanged = 0,
+    PIOS_COM_Word_length_8b,
+    PIOS_COM_Word_length_9b,
+};
+
+enum PIOS_COM_StopBits {
+    PIOS_COM_StopBits_Unchanged = 0,
+    PIOS_COM_StopBits_0_5,
+    PIOS_COM_StopBits_1,
+    PIOS_COM_StopBits_1_5,
+    PIOS_COM_StopBits_2,
+};
+
+enum PIOS_COM_Parity {
+    PIOS_COM_Parity_Unchanged = 0,
+    PIOS_COM_Parity_No,
+    PIOS_COM_Parity_Even,
+    PIOS_COM_Parity_Odd,
+};
+
+enum PIOS_COM_Mode {
+    PIOS_COM_Mode_Unchanged = 0,
+    PIOS_COM_Mode_Rx   = (1 << 0),
+    PIOS_COM_Mode_Tx   = (1 << 1),
+    PIOS_COM_Mode_RxTx = (PIOS_COM_Mode_Rx | PIOS_COM_Mode_Tx),
+};
+
 struct pios_com_driver {
     void     (*init)(uint32_t id);
     void     (*set_baud)(uint32_t id, uint32_t baud);
+    void     (*set_config)(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
     void     (*set_ctrl_line)(uint32_t id, uint32_t mask, uint32_t state);
     void     (*tx_start)(uint32_t id, uint16_t tx_bytes_avail);
     void     (*rx_start)(uint32_t id, uint16_t rx_bytes_avail);
@@ -61,6 +91,7 @@ struct pios_com_driver {
 /* Public Functions */
 extern int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, uint32_t lower_id, uint8_t *rx_buffer, uint16_t rx_buffer_len, uint8_t *tx_buffer, uint16_t tx_buffer_len);
 extern int32_t PIOS_COM_ChangeBaud(uint32_t com_id, uint32_t baud);
+extern int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
 extern int32_t PIOS_COM_SetCtrlLine(uint32_t com_id, uint32_t mask, uint32_t state);
 extern int32_t PIOS_COM_RegisterCtrlLineCallback(uint32_t usart_id, pios_com_callback_ctrl_line ctrl_line_cb, uint32_t context);
 extern int32_t PIOS_COM_RegisterBaudRateCallback(uint32_t usart_id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context);

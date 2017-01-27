@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_usart.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2016-2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      USART commands. Inits USARTs, controls USARTs & Interupt handlers. (STM32 dependent)
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -37,6 +38,7 @@
 #define PIOS_UART_TX_BUFFER 10
 /* Provide a COM driver */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud);
+static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
 static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback tx_out_cb, uint32_t context);
 static void PIOS_USART_TxStart(uint32_t usart_id, uint16_t tx_bytes_avail);
@@ -44,6 +46,7 @@ static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 
 const struct pios_com_driver pios_usart_com_driver = {
     .set_baud   = PIOS_USART_ChangeBaud,
+    .set_config = PIOS_USART_ChangeConfig,
     .tx_start   = PIOS_USART_TxStart,
     .rx_start   = PIOS_USART_RxStart,
     .bind_tx_cb = PIOS_USART_RegisterTxCallback,
@@ -57,7 +60,7 @@ enum pios_usart_dev_magic {
 struct pios_usart_dev {
     enum pios_usart_dev_magic   magic;
     const struct pios_usart_cfg *cfg;
-
+    USART_InitTypeDef init;
     pios_com_callback rx_in_cb;
     uint32_t rx_in_context;
     pios_com_callback tx_out_cb;
@@ -159,7 +162,10 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     }
 
     /* Bind the configuration to the device instance */
-    usart_dev->cfg = cfg;
+    usart_dev->cfg  = cfg;
+
+    /* Copy the comm parameter structure */
+    usart_dev->init = cfg->init;
 
     /* Enable the USART Pins Software Remapping */
     if (usart_dev->cfg->remap) {
@@ -188,7 +194,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     }
 
     /* Configure the USART */
-    USART_Init(cfg->regs, (USART_InitTypeDef *)&cfg->init);
+    USART_Init(cfg->regs, (USART_InitTypeDef *)&usart_dev->init);
     *usart_id = (uint32_t)usart_dev;
 
     NVIC_Init((NVIC_InitTypeDef *)&cfg->irq.init);
@@ -222,19 +228,99 @@ static void PIOS_USART_TxStart(uint32_t usart_id, __attribute__((unused)) uint16
  */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
 {
-    const struct pios_usart_dev *usart_dev = PIOS_USART_validate(usart_id);
+    struct pios_usart_dev *usart_dev = PIOS_USART_validate(usart_id);
 
-    USART_InitTypeDef USART_InitStructure;
+    /* Use our working copy of the usart init structure */
+    usart_dev->init.USART_BaudRate = baud;
 
-    /* Start with a copy of the default configuration for the peripheral */
-    USART_InitStructure = usart_dev->cfg->init;
+    /* Write back the modified configuration */
+    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
 
-    /* Adjust the baud rate */
-    USART_InitStructure.USART_BaudRate = baud;
+    USART_Cmd(usart_dev->cfg->regs, ENABLE);
+}
 
-    /* Write back the new configuration */
-    USART_Init(usart_dev->cfg->regs, &USART_InitStructure);
+/**
+ * Changes configuration of the USART peripheral without re-initialising.
+ * \param[in] usart_id USART name (GPS, TELEM, AUX)
+ * \param[in] word_len Requested word length
+ * \param[in] stop_bits Requested stop bits
+ * \param[in] parity Requested parity
+ * \param[in] baud_rate Requested baud rate
+ * \param[in] mode Requested mode
+ *
+ */
+static void PIOS_USART_ChangeConfig(uint32_t usart_id,
+                                    enum PIOS_COM_Word_Length word_len,
+                                    enum PIOS_COM_StopBits stop_bits,
+                                    enum PIOS_COM_Parity parity,
+                                    uint32_t baud_rate,
+                                    enum PIOS_COM_Mode mode)
+{
+    struct pios_usart_dev *usart_dev = PIOS_USART_validate(usart_id);
 
+    switch (word_len) {
+    case PIOS_COM_Word_length_8b:
+        usart_dev->init.USART_WordLength = USART_WordLength_8b;
+        break;
+    case PIOS_COM_Word_length_9b:
+        usart_dev->init.USART_WordLength = USART_WordLength_9b;
+        break;
+    default:
+        break;
+    }
+
+    switch (stop_bits) {
+    case PIOS_COM_StopBits_1:
+        usart_dev->init.USART_StopBits = USART_StopBits_1;
+        break;
+    case PIOS_COM_StopBits_1_5:
+        usart_dev->init.USART_StopBits = USART_StopBits_1_5;
+        break;
+    case PIOS_COM_StopBits_2:
+        usart_dev->init.USART_StopBits = USART_StopBits_2;
+        break;
+    default:
+        break;
+    }
+
+    switch (parity) {
+    case PIOS_COM_Parity_No:
+        usart_dev->init.USART_Parity = USART_Parity_No;
+        break;
+    case PIOS_COM_Parity_Even:
+        usart_dev->init.USART_Parity = USART_Parity_Even;
+        break;
+    case PIOS_COM_Parity_Odd:
+        usart_dev->init.USART_Parity = USART_Parity_Odd;
+        break;
+    default:
+        break;
+    }
+
+    if (baud_rate) {
+        usart_dev->init.USART_BaudRate = baud_rate;
+    }
+
+    switch (mode) {
+    case PIOS_COM_Mode_Rx:
+        usart_dev->init.USART_Mode = USART_Mode_Rx;
+        break;
+    case PIOS_COM_Mode_Tx:
+        usart_dev->init.USART_Mode = USART_Mode_Tx;
+        break;
+    case PIOS_COM_Mode_RxTx:
+        usart_dev->init.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+        break;
+    default:
+        break;
+    }
+
+    /* Write back the modified configuration */
+    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+
+    /*
+     * Re enable USART.
+     */
     USART_Cmd(usart_dev->cfg->regs, ENABLE);
 }
 

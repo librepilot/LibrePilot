@@ -58,7 +58,7 @@
 #define MAX_INPUT_US               2500
 
 #define CHANNEL_NUMBER_NONE        0
-#define DEFAULT_FLIGHT_MODE_NUMBER 0
+#define DEFAULT_FLIGHT_MODE_NUMBER 1
 
 ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     ConfigTaskWidget(parent),
@@ -200,6 +200,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(ui->runCalibration, SIGNAL(toggled(bool)), this, SLOT(simpleCalibration(bool)));
 
     connect(ReceiverActivity::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+    connect(FlightStatus::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+
     ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
 
@@ -440,6 +442,7 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     groundChannelOrder << ManualControlSettings::CHANNELGROUPS_THROTTLE <<
         ManualControlSettings::CHANNELGROUPS_YAW <<
+        ManualControlSettings::CHANNELGROUPS_FLIGHTMODE <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY0;
 }
 
@@ -662,12 +665,8 @@ void ConfigInputWidget::wzNext()
         throttleError = false;
         checkThrottleRange();
 
-        // Force flight mode number to be 1 if 2 CH ground vehicle was selected
-        if (transmitterType == ground) {
-            forceOneFlightMode();
-        }
-
         manualSettingsObj->setData(manualSettingsData);
+
         // move to Arming Settings tab
         ui->stackedWidget->setCurrentIndex(0);
         ui->tabWidget->setCurrentIndex(3);
@@ -843,12 +842,12 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
         extraWidgets.clear();
         for (int index = 0; index < manualSettingsObj->getField("ChannelMax")->getElementNames().length(); index++) {
             QString name = manualSettingsObj->getField("ChannelMax")->getElementNames().at(index);
-            if (!name.contains("Access") && !name.contains("Flight") &&
+            if (!name.contains("Access") && !name.contains("Flight") && !name.contains("Rssi") &&
                 (!name.contains("Collective") || transmitterType == heli)) {
                 QCheckBox *cb = new QCheckBox(name, this);
                 // Make sure checked status matches current one
                 cb->setChecked(manualSettingsData.ChannelMax[index] < manualSettingsData.ChannelMin[index]);
-                wizardUi->checkBoxesLayout->addWidget(cb, extraWidgets.size() / 4, extraWidgets.size() % 4);
+                wizardUi->checkBoxesLayout->addWidget(cb, extraWidgets.size() / 5, extraWidgets.size() % 5);
                 extraWidgets.append(cb);
                 connect(cb, SIGNAL(toggled(bool)), this, SLOT(invertControls()));
             }
@@ -917,12 +916,6 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
         disconnect(receiverActivityObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(identifyControls()));
         wizardUi->wzNext->setEnabled(true);
         setTxMovement(nothing);
-        /* If flight mode stick isn't identified, force flight mode number to be 1 */
-        manualSettingsData = manualSettingsObj->getData();
-        if (manualSettingsData.ChannelGroups[ManualControlSettings::CHANNELNUMBER_FLIGHTMODE] ==
-            ManualControlSettings::CHANNELGROUPS_NONE) {
-            forceOneFlightMode();
-        }
         break;
     case wizardIdentifyCenter:
         manualCommandData  = manualCommandObj->getData();
@@ -1182,6 +1175,7 @@ void ConfigInputWidget::identifyControls()
 void ConfigInputWidget::identifyLimits()
 {
     uint16_t inputValue;
+    static uint16_t previousInputFMValue;
     bool newLimitValue = false;
     bool newFlightModeValue = false;
 
@@ -1214,32 +1208,37 @@ void ConfigInputWidget::identifyLimits()
             }
             // Flightmode channel
             if (i == ManualControlSettings::CHANNELGROUPS_FLIGHTMODE) {
-                // Avoid duplicate values too close and error due to RcTx drift
-                int minSpacing = 100; // 100µs
-                for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
-                    if (flightModeSignalValue[pos] == 0) {
-                        newFlightModeValue = true;
-                        // A new flightmode value can be set now
-                        for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
-                            // Check if value is already used, MinSpacing needed between values.
-                            if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
-                                (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
-                                newFlightModeValue = false;
+                int deltaInput = abs(previousInputFMValue - inputValue);
+                previousInputFMValue = inputValue;
+                // Expecting two consecutive readings within a close value
+                if (deltaInput < 5) {
+                    // Avoid duplicate values too close and error due to RcTx drift
+                    int minSpacing = 100; // 100µs
+                    for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
+                        if (flightModeSignalValue[pos] == 0) {
+                            newFlightModeValue = true;
+                            // A new flightmode value can be set now
+                            for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
+                                // Check if value is already used, MinSpacing needed between values.
+                                if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
+                                    (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
+                                    newFlightModeValue = false;
+                                }
                             }
-                        }
-                        // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
-                        if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
-                            // Start from 0, erase previous count
-                            if (pos == 0) {
-                                manualSettingsData.FlightModeNumber = 0;
+                            // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
+                            if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
+                                // Start from 0, erase previous count
+                                if (pos == 0) {
+                                    manualSettingsData.FlightModeNumber = 0;
+                                }
+                                // Store new value and increase FlightModeNumber
+                                flightModeSignalValue[pos] = inputValue;
+                                manualSettingsData.FlightModeNumber++;
+                                // Show flight mode number
+                                m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
+                                m_txFlightModeCountText->setVisible(true);
+                                m_txFlightModeCountBG->setVisible(true);
                             }
-                            // Store new value and increase FlightModeNumber
-                            flightModeSignalValue[pos] = inputValue;
-                            manualSettingsData.FlightModeNumber++;
-                            // Show flight mode number
-                            m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
-                            m_txFlightModeCountText->setVisible(true);
-                            m_txFlightModeCountBG->setVisible(true);
                         }
                     }
                 }
@@ -2013,11 +2012,6 @@ void ConfigInputWidget::simpleCalibration(bool enable)
 
         restoreMdataSingle(manualCommandObj, &manualControlMdata);
 
-        // Force flight mode number to be 1 if 2 channel ground vehicle was confirmed
-        if (transmitterType == ground) {
-            forceOneFlightMode();
-        }
-
         for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
                 adjustSpecialNeutrals();
@@ -2148,18 +2142,15 @@ void ConfigInputWidget::resetActuatorSettings()
     }
 }
 
-void ConfigInputWidget::forceOneFlightMode()
-{
-    manualSettingsData = manualSettingsObj->getData();
-    manualSettingsData.FlightModeNumber = 1;
-    manualSettingsObj->setData(manualSettingsData);
-}
-
 void ConfigInputWidget::updateReceiverActivityStatus()
 {
     ReceiverActivity *receiverActivity = ReceiverActivity::GetInstance(getObjectManager());
 
     Q_ASSERT(receiverActivity);
+
+    FlightStatus *flightStatus = FlightStatus::GetInstance(getObjectManager());
+
+    Q_ASSERT(flightStatus);
 
     UAVObjectField *activeGroup   = receiverActivity->getField(QString("ActiveGroup"));
     Q_ASSERT(activeGroup);
@@ -2170,12 +2161,15 @@ void ConfigInputWidget::updateReceiverActivityStatus()
     QString activeGroupText   = activeGroup->getValue().toString();
     QString activeChannelText = activeChannel->getValue().toString();
 
+
     if (activeGroupText != "None") {
         ui->receiverActivityStatus->setText(tr("%1 input - Channel %2").arg(activeGroupText).arg(activeChannelText));
         ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
                                                    border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
     } else {
-        ui->receiverActivityStatus->setText(tr("No activity"));
+        bool armed = (flightStatus->getArmed() == FlightStatus::ARMED_ARMED);
+        QString receiverActivityText = armed ? tr("Disabled (Armed)") : tr("No activity");
+        ui->receiverActivityStatus->setText(receiverActivityText);
         ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                    border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
     }

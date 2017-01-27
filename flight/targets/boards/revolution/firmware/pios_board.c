@@ -1109,6 +1109,11 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PPMGPS:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
         break;
+    case HWSETTINGS_RM_RCVRPORT_IBUS:
+#if defined(PIOS_INCLUDE_IBUS)
+        PIOS_Board_configure_ibus(&pios_usart_ibus_rcvr_cfg);
+#endif /* PIOS_INCLUDE_IBUS */
+        break;
     }
 
 #if defined(PIOS_INCLUDE_GCSRCVR)

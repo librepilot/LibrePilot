@@ -31,7 +31,6 @@
 #include <hwsettings.h>
 #include <manualcontrolsettings.h>
 #include <gcsreceiver.h>
-#include <taskinfo.h>
 
 /*
  * Pull in the board-specific static HW definitions.

@@ -274,6 +274,9 @@ int main(int argc, char *argv[])
             }
             QByteArray fw;
             dfu.DownloadFirmware(&fw, 0);
+            while (!dfu.isFinished()) {
+                QThread::msleep(500);
+            }
             bool ret = dfu.SaveByteArrayToFile(file.toLatin1(), fw);
             return ret;
         } else if (action == DFU::actionCompareCrc) {

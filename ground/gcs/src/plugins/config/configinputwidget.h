@@ -146,7 +146,6 @@ private:
     SystemSettings::DataFields systemSettingsData;
 
     HwSettings *hwSettingsObj;
-    HwSettings::DataFields hwSettingsData;
 
     typedef struct {
         ManualControlSettings::DataFields manualSettingsData;

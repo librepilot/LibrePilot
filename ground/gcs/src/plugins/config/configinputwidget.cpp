@@ -1792,7 +1792,7 @@ void ConfigInputWidget::updatePositionSlider()
 {
     ManualControlSettings::DataFields manualSettingsDataPriv = manualSettingsObj->getData();
 
-    QWidget *fmodes[] = {
+    QWidget *fmsModes[] = {
         ui->fmsModePos1,
         ui->fmsModePos2,
         ui->fmsModePos3,
@@ -1800,7 +1800,7 @@ void ConfigInputWidget::updatePositionSlider()
         ui->fmsModePos5,
         ui->fmsModePos6
     };
-    QWidget *pidbanks[] = {
+    QWidget *pidBanks[] = {
         ui->pidBankSs1_0,
         ui->pidBankSs1_1,
         ui->pidBankSs1_2,
@@ -1808,7 +1808,7 @@ void ConfigInputWidget::updatePositionSlider()
         ui->pidBankSs1_4,
         ui->pidBankSs1_5
     };
-    QWidget *assisstecontrols[] = {
+    QWidget *assistControls[] = {
         ui->assistControlPos1,
         ui->assistControlPos2,
         ui->assistControlPos3,
@@ -1820,9 +1820,9 @@ void ConfigInputWidget::updatePositionSlider()
     for (quint32 i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
         bool enabled = i < manualSettingsDataPriv.FlightModeNumber;
 
-        fmodes[i]->setEnabled(enabled);
-        pidbanks[i]->setEnabled(enabled);
-        assisstecontrols[i]->setEnabled(enabled);
+        fmsModes[i]->setEnabled(enabled);
+        pidBanks[i]->setEnabled(enabled);
+        assistControls[i]->setEnabled(enabled);
         setComboBoxItemEnabled(ui->failsafeFlightMode, i, enabled);
         setComboBoxItemEnabled(ui->failsafeBatteryCriticalFlightMode, i, enabled);
         setComboBoxItemEnabled(ui->failsafeBatteryWarningFlightMode, i, enabled);
@@ -2135,7 +2135,7 @@ void ConfigInputWidget::updateReceiverActivityStatus()
 
 void ConfigInputWidget::failsafeBatteryWarningFlightModeChanged(int index)
 {
-    hwSettingsData = hwSettingsObj->getData();
+    HwSettings::DataFields hwSettingsData = hwSettingsObj->getData();
     bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
 
     ui->failsafeBatteryWarningFlightMode->setEnabled(batteryModuleEnabled && index != -1);
@@ -2144,7 +2144,7 @@ void ConfigInputWidget::failsafeBatteryWarningFlightModeChanged(int index)
 
 void ConfigInputWidget::failsafeBatteryCriticalFlightModeChanged(int index)
 {
-    hwSettingsData = hwSettingsObj->getData();
+    HwSettings::DataFields hwSettingsData = hwSettingsObj->getData();
     bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
 
     ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && index != -1);
@@ -2176,7 +2176,7 @@ void ConfigInputWidget::enableControlsChanged(bool enabled)
 {
     ui->failsafeFlightMode->setEnabled(enabled && ui->failsafeFlightMode->currentIndex() != -1);
 
-    hwSettingsData = hwSettingsObj->getData();
+    HwSettings::DataFields hwSettingsData = hwSettingsObj->getData();
     bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
     ui->failsafeBatteryWarningFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryWarningFlightMode->currentIndex() != -1);
     ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryCriticalFlightMode->currentIndex() != -1);

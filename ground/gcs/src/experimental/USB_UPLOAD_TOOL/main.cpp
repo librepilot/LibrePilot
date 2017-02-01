@@ -84,9 +84,6 @@ int main(int argc, char *argv[])
         // umodereset = true;
     }
     standardOutput << "Serial firmware uploader tool." << endl;
-    if (args.indexOf(PROGRAMFW) + 1 < args.length()) {
-        file = args[args.indexOf(PROGRAMFW) + 1];
-    }
     if (args.contains(DEVICE)) {
         if (args.indexOf(DEVICE) + 1 < args.length()) {
             device = (args[args.indexOf(DEVICE) + 1]).toInt();
@@ -109,19 +106,34 @@ int main(int argc, char *argv[])
                 description = (args[args.indexOf(PROGRAMDESC) + 1]);
             }
         }
+        if (args.indexOf(PROGRAMFW) + 1 < args.length()) {
+            file = args[args.indexOf(PROGRAMFW) + 1];
+        } else {
+            // error
+        }
         action = DFU::actionProgram;
     } else if (args.contains(COMPARECRC) || args.contains(COMPAREALL)) {
-        // int index;
         if (args.contains(COMPARECRC)) {
-            // index  = args.indexOf(COMPARECRC);
+            if (args.indexOf(COMPARECRC) + 1 < args.length()) {
+                file = args[args.indexOf(COMPARECRC) + 1];
+            } else {
+                // error
+            }
             action = DFU::actionCompareCrc;
         } else {
-            // index  = args.indexOf(COMPAREALL);
+            if (args.indexOf(COMPAREALL) + 1 < args.length()) {
+                file = args[args.indexOf(COMPAREALL) + 1];
+            } else {
+                // error
+            }
             action = DFU::actionCompareAll;
         }
     } else if (args.contains(DOWNLOAD)) {
-        // int index;
-        // index  = args.indexOf(DOWNLOAD);
+        if (args.indexOf(DOWNLOAD) + 1 < args.length()) {
+            file = args[args.indexOf(DOWNLOAD) + 1];
+        } else {
+            // error
+        }
         action = DFU::actionDownload;
     } else if (args.contains(STATUSREQUEST)) {
         action = DFU::actionStatusReq;

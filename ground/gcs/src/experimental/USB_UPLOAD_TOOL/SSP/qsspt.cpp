@@ -41,6 +41,7 @@ qsspt::~qsspt()
 
 void qsspt::run()
 {
+    // TODO the loop is non blocking and will spin as fast as the CPU allows
     while (!endthread) {
         receivestatus = ssp_ReceiveProcess();
         sendstatus    = ssp_SendProcess();
@@ -70,6 +71,8 @@ bool qsspt::sendData(uint8_t *buf, uint16_t size)
     mbuf  = buf;
     msize = size;
     sendbufmutex.unlock();
+    // TODO why do we wait 10 seconds ? why do we then ignore the timeout ?
+    // There is a ssp_SendDataBlock method...
     msendwait.lock();
     sendwait.wait(&msendwait, 10000);
     msendwait.unlock();

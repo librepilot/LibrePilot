@@ -234,6 +234,9 @@ int main(int argc, char *argv[])
                 return false;
             }
             standardOutput << "Uploading..." << endl;
+
+            // this call is asynchronous so the only false status it will report
+            // is when it is already running...
             bool retstatus = dfu.UploadFirmware(file.toLatin1(), verify, device);
 
             if (!retstatus) {
@@ -243,6 +246,7 @@ int main(int argc, char *argv[])
             while (!dfu.isFinished()) {
                 QThread::msleep(500);
             }
+            // TODO check if upload went well...
             if (file.endsWith("opfw")) {
                 QFile fwfile(file);
                 if (!fwfile.open(QIODevice::ReadOnly)) {

@@ -62,6 +62,7 @@ int16_t port::pfSerialRead(void)
 {
     char c[1];
 
+    // TODO why the wait ? (gcs uploader dfu does not have it)
     sport->waitForBytesWritten(1);
     if (sport->bytesAvailable() || sport->waitForReadyRead(0)) {
         sport->read(c, 1);
@@ -91,6 +92,7 @@ void port::pfSerialWrite(uint8_t c)
         }
         txDebugBuff.append(cc[0]);
     }
+    // TODO why the wait ? (gcs uploader dfu does not have it)
     sport->waitForBytesWritten(1);
 }
 

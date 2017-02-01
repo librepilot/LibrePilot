@@ -259,6 +259,7 @@ uint16_t qssp::ssp_SendDataBlock(uint8_t *data, uint16_t length)
     uint16_t retval = FALSE;
 
     packet_status = ssp_SendData(data, length); // send the data
+    // TODO the loop is non blocking and will spin as fast as the CPU allows
     while (packet_status == SSP_TX_WAITING) { // check the status
         (void)ssp_ReceiveProcess(); // process any bytes received.
         packet_status = ssp_SendProcess(); // check the send status

@@ -27,6 +27,11 @@
  */
 #include "devicewidget.h"
 
+#include <QFileDialog>
+#include <QDebug>
+#include <QDir>
+#include <QCryptographicHash>
+
 DeviceWidget::DeviceWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -132,7 +137,7 @@ void DeviceWidget::populate()
     myDevice->lblMaxCode->setText(tr("Max code size: ") + QString::number(m_dfu->devices[deviceID].SizeOfCode));
     myDevice->lblCRC->setText(QString::number(m_dfu->devices[deviceID].FW_CRC));
     myDevice->lblBLVer->setText(tr("BL version: ") + QString::number(m_dfu->devices[deviceID].BL_Version));
-    int size = ((OP_DFU::device)m_dfu->devices[deviceID]).SizeOfDesc;
+    int size = ((DFU::device)m_dfu->devices[deviceID]).SizeOfDesc;
     m_dfu->enterDFU(deviceID);
     QByteArray desc = m_dfu->DownloadDescriptionAsBA(size);
 
@@ -409,13 +414,13 @@ void DeviceWidget::uploadFirmware()
         updateButtons(true);
         return;
     }
-    OP_DFU::Status ret = m_dfu->StatusRequest();
+    DFU::Status ret = m_dfu->StatusRequest();
     qDebug() << m_dfu->StatusToString(ret);
     m_dfu->AbortOperation(); // Necessary, otherwise I get random failures.
 
     connect(m_dfu, SIGNAL(progressUpdated(int)), this, SLOT(setProgress(int)));
     connect(m_dfu, SIGNAL(operationProgress(QString)), this, SLOT(dfuStatus(QString)));
-    connect(m_dfu, SIGNAL(uploadFinished(OP_DFU::Status)), this, SLOT(uploadFinished(OP_DFU::Status)));
+    connect(m_dfu, SIGNAL(uploadFinished(DFU::Status)), this, SLOT(uploadFinished(DFU::Status)));
     bool retstatus = m_dfu->UploadFirmware(filename, verify, deviceID);
     if (!retstatus) {
         emit uploadEnded(false);
@@ -478,7 +483,7 @@ void DeviceWidget::downloadFinished()
     disconnect(m_dfu, SIGNAL(downloadFinished()), this, SLOT(downloadFinished()));
     disconnect(m_dfu, SIGNAL(progressUpdated(int)), this, SLOT(setProgress(int)));
 
-    // Now save the result (use the utility function from OP_DFU)
+    // Now save the result (use the utility function from DFU)
     m_dfu->SaveByteArrayToFile(filename, downloadedFirmware);
 
     emit downloadEnded(true);
@@ -489,13 +494,13 @@ void DeviceWidget::downloadFinished()
 /**
    Callback for the firmware upload result
  */
-void DeviceWidget::uploadFinished(OP_DFU::Status retstatus)
+void DeviceWidget::uploadFinished(DFU::Status retstatus)
 {
-    disconnect(m_dfu, SIGNAL(uploadFinished(OP_DFU::Status)), this, SLOT(uploadFinished(OP_DFU::Status)));
+    disconnect(m_dfu, SIGNAL(uploadFinished(DFU::Status)), this, SLOT(uploadFinished(DFU::Status)));
     disconnect(m_dfu, SIGNAL(progressUpdated(int)), this, SLOT(setProgress(int)));
     disconnect(m_dfu, SIGNAL(operationProgress(QString)), this, SLOT(dfuStatus(QString)));
 
-    if (retstatus != OP_DFU::Last_operation_Success) {
+    if (retstatus != DFU::Last_operation_Success) {
         emit uploadEnded(false);
         status(QString("Upload failed with code: ") + m_dfu->StatusToString(retstatus).toLatin1().data(), STATUSICON_FAIL);
         updateButtons(true);
@@ -505,7 +510,7 @@ void DeviceWidget::uploadFinished(OP_DFU::Status retstatus)
         status(QString("Updating description"), STATUSICON_RUNNING);
         repaint(); // Make sure the text above shows right away
         retstatus = m_dfu->UploadDescription(descriptionArray);
-        if (retstatus != OP_DFU::Last_operation_Success) {
+        if (retstatus != DFU::Last_operation_Success) {
             emit uploadEnded(false);
             status(QString("Upload failed with code: ") + m_dfu->StatusToString(retstatus).toLatin1().data(), STATUSICON_FAIL);
             updateButtons(true);
@@ -516,7 +521,7 @@ void DeviceWidget::uploadFinished(OP_DFU::Status retstatus)
         status(QString("Updating description"), STATUSICON_RUNNING);
         repaint(); // Make sure the text above shows right away
         retstatus = m_dfu->UploadDescription(myDevice->description->text());
-        if (retstatus != OP_DFU::Last_operation_Success) {
+        if (retstatus != DFU::Last_operation_Success) {
             emit uploadEnded(false);
             status(QString("Upload failed with code: ") + m_dfu->StatusToString(retstatus).toLatin1().data(), STATUSICON_FAIL);
             updateButtons(true);

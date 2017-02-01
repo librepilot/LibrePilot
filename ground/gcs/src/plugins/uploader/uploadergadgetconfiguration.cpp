@@ -26,8 +26,8 @@
  */
 
 #include "uploadergadgetconfiguration.h"
+
 #include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
 
 /**
  * Loads a saved configuration or defaults if non exist.

@@ -1,44 +1,87 @@
-/**
- ******************************************************************************
- *
- * @file       qssp.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @addtogroup GCSPlugins GCS Plugins
- * @{
- * @addtogroup Uploader Serial and USB Uploader Plugin
- * @{
- * @brief The USB and Serial protocol uploader plugin
- *****************************************************************************/
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
-#include "qssp.h"
+/***********************************************************************************************************
+*
+*  NAME:          ssp.c
+*  DESCRIPTION:   simple serial protocol - packet based serial transport layer.
+*  AUTHOR:        Joe Hlebasko
+*  HISTORY:       Created 1/1/2010
+*
+* Packet Formats
+*   Format:
+*    +------+----+------+---------------------------+--------+
+*    | 225  | L1 | S#   | App Data (0-254 bytes)    | CRC 16 |
+*    +------+----+------+---------------------------+--------+
+*
+* 225 = sync byte, indicates start of a packet
+* L1 = 1 byte for size of data payload. (sequence number is part of data payload.)
+* S# = 1 byte for sequence number.
+*                       Seq of 0 = seq # synchronise request, forces other end to reset receive sequence number to 1.
+*                               sender of synchronise request will reset the tx seq number to 1
+*                       Seq # of 1..127 = normal data packets. Sequence number is incremented by for each transmitted
+*                               packet.  Rolls over from 127 to 1.
+*                       if most sig. bit is set then the packet is an ACK packet of data packet sequence number of the
+*                               lower 7 bits (1..127)
+* App Data may contain 0..254 bytes. The sequence number is consider part of the payload.
+* CRC 16 - 16 bits of CRC values of Sequence # and data bytes.
+*
+* Protocol has two types of packets: data and ack packets. ACK packets have the most sig. bit set in the
+* sequence number, this implies that valid sequence numbers are 1..127
+*
+* This protocol uses the concept of sequences numbers to determine if a given packet has been received. This
+* requires both devices to be able to synchronize sequence numbers. This is accomplished by sending a packet
+* length 1 and sequence number = 0. The receive then resets it's transmit sequence number to 1.
+*
+* ACTIVE_SYNCH is a version that will automatically send a synch request if it receives a synch packet. Only
+* one device in the communication should do otherwise you end up with an endless loops of synchronization.
+* Right now each side needs to manually issues a synch request.
+*
+* This protocol is best used in cases where one device is the master and the other is the slave, or a don't
+* speak unless spoken to type of approach.
+*
+* The following are items are required to initialize a port for communications:
+* 1. The number attempts for each packet
+* 2. time to wait for an ack.
+* 3. pointer to buffer to be used for receiving.
+* 4. pointer to a buffer to be used for transmission
+* 5. length of each buffer (rx and tx)
+* 6. Four functions:
+*       1. write byte = writes a byte out the serial port (or other comm device)
+*       2. read byte = retrieves a byte from the serial port. Returns -1 if a byte is not available
+*       3. callback = function to call when a valid data packet has been received. This function is responsible
+*               to do what needs to be done with the data when it is received. The primary mission of this function
+*               should be to copy the data to a private buffer out of the working receive buffer to prevent overrun.
+*               processing should be kept to a minimum.
+*       4. get time = function should return the current time. Note that time units are not specified it just
+*               needs to be some measure of time that increments as time passes by.  The timeout values for a given
+*               port should the units used/returned by the get time function.
+*
+* All of the state information of a communication port is contained in a Port_t structure. This allows this
+* module to operature on multiple communication ports with a single code base.
+*
+* The ssp_ReceiveProcess and ssp_SendProcess functions need to be called to process data through the
+* respective state machines. Typical implementation would have a serial ISR to pull bytes out of the UART
+* and place into a circular buffer.  The serial read function would then pull bytes out this buffer
+* processing. The TX side has the write function placing bytes into a circular buffer with the TX ISR
+* pulling bytes out of the buffer and putting into the UART.  It is possible to run the receive process from
+* the receive ISR but care must be taken on processing data when it is received to avoid holding up the ISR
+* and sending ACK packets from the receive ISR.
+*
+***********************************************************************************************************/
 
-#include <QDebug>
+/** INCLUDE FILES **/
+
 
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "ssp.h"
 
 /** PRIVATE DEFINITIONS **/
 #define SYNC     225                     // Sync character used in Serial Protocol
 #define ESC      224                     // ESC character used in Serial Protocol
 #define ESC_SYNC 1 // ESC_SYNC character used in Serial Protocol
 #define ACK_BIT  0x80                    // Ack bit, bit 7 of sequence number, 1 = Acknowledge, 0 =
-// new packet
+                                         // new packet
 // packet location definitions.
 #define LENGTH   0
 #define SEQNUM   1
@@ -66,6 +109,19 @@
 #define ISBITSET(a, b)              (((a) & (b)) == (b) ? TRUE : FALSE)
 #define ISBITCLEAR(a, b)            ((~(a) & (b)) == (b) ? TRUE : FALSE)
 
+/** PRIVATE FUNCTIONS **/
+// static void          sf_SendSynchPacket( Port_t *thisport );
+static uint16_t sf_crc16(uint16_t crc, uint8_t data);
+static void     sf_write_byte(Port_t *thisport, uint8_t c);
+static void     sf_SetSendTimeout(Port_t *thisport);
+static uint16_t sf_CheckTimeout(Port_t *thisport);
+static int16_t  sf_DecodeState(Port_t *thisport, uint8_t c);
+static int16_t  sf_ReceiveState(Port_t *thisport, uint8_t c);
+
+static void     sf_SendPacket(Port_t *thisport);
+static void     sf_SendAckPacket(Port_t *thisport, uint8_t seqNumber);
+static void     sf_MakePacket(uint8_t *buf, const uint8_t *pdata, uint16_t length, uint8_t seqNo);
+static int16_t  sf_ReceivePacket(Port_t *thisport);
 
 /* Flag bit masks...*/
 #define SENT_SYNCH       (0x01)
@@ -131,8 +187,13 @@ static const uint16_t CRC_TABLE[] = {
  * Must be called before calling the Send or REceive process functions.
  */
 
-void qssp::ssp_Init(const PortConfig_t *const info)
+void ssp_Init(Port_t *thisport, const PortConfig_t *const info)
 {
+    thisport->pfCallBack    = info->pfCallBack;
+    thisport->pfSerialRead  = info->pfSerialRead;
+    thisport->pfSerialWrite = info->pfSerialWrite;
+    thisport->pfGetTime     = info->pfGetTime;
+
     thisport->maxRetryCount = info->max_retry;
     thisport->timeoutLen    = info->timeoutLen;
     thisport->txBufSize     = info->txBufSize;
@@ -144,12 +205,6 @@ void qssp::ssp_Init(const PortConfig_t *const info)
     thisport->rxSeqNo = 255;
     thisport->txSeqNo = 255;
     thisport->SendState     = SSP_IDLE;
-    thisport->InputState    = (ReceiveState)0;
-    thisport->DecodeState   = (DecodeState)0;
-    thisport->TxError = 0;
-    thisport->RxError = 0;
-    thisport->txSeqNo = 0;
-    thisport->rxSeqNo = 0;
 }
 
 /*!
@@ -163,25 +218,22 @@ void qssp::ssp_Init(const PortConfig_t *const info)
  * \note
  *
  */
-int16_t qssp::ssp_SendProcess()
+int16_t ssp_SendProcess(Port_t *thisport)
 {
     int16_t value = SSP_TX_WAITING;
 
     if (thisport->SendState == SSP_AWAITING_ACK) {
-        if (sf_CheckTimeout() == TRUE) {
+        if (sf_CheckTimeout(thisport) == TRUE) {
             if (thisport->retryCount < thisport->maxRetryCount) {
                 // Try again
-                sf_SendPacket();
-                sf_SetSendTimeout();
+                sf_SendPacket(thisport);
+                sf_SetSendTimeout(thisport);
                 value = SSP_TX_WAITING;
             } else {
-                // Give up, # of tries has exceeded the limit
+                // Give up, # of trys has exceded the limit
                 value = SSP_TX_TIMEOUT;
                 CLEARBIT(thisport->flags, ACK_RECEIVED);
                 thisport->SendState = SSP_IDLE;
-                if (debug) {
-                    qDebug() << "Send TimeOut!";
-                }
             }
         } else {
             value = SSP_TX_WAITING;
@@ -205,7 +257,7 @@ int16_t qssp::ssp_SendProcess()
  * \note
  *
  */
-int16_t qssp::ssp_ReceiveProcess()
+int16_t ssp_ReceiveProcess(Port_t *thisport)
 {
     int16_t b;
     int16_t packet_status = SSP_RX_IDLE;
@@ -213,11 +265,10 @@ int16_t qssp::ssp_ReceiveProcess()
     do {
         b = thisport->pfSerialRead(); // attempt to read a char from the serial buffer
         if (b != -1) {
-            packet_status = sf_ReceiveState(b); // process the newly received byte in the receive state machine
+            packet_status = sf_ReceiveState(thisport, b); // process the newly received byte in the receive state machine
         }
         // keep going until either we received a full packet or there are no more bytes to process
     } while (packet_status != SSP_RX_COMPLETE && b != -1);
-
     return packet_status;
 }
 
@@ -230,14 +281,14 @@ int16_t qssp::ssp_ReceiveProcess()
  *
  */
 
-int16_t qssp::ssp_ReceiveByte()
+int16_t ssp_ReceiveByte(Port_t *thisport)
 {
     int16_t b;
     int16_t packet_status = SSP_RX_IDLE;
 
     b = thisport->pfSerialRead();
     if (b != -1) {
-        packet_status = sf_ReceiveState(b);
+        packet_status = sf_ReceiveState(thisport, b);
     }
     return packet_status;
 }
@@ -253,16 +304,15 @@ int16_t qssp::ssp_ReceiveByte()
  * \note
  *
  */
-uint16_t qssp::ssp_SendDataBlock(uint8_t *data, uint16_t length)
+uint16_t   ssp_SendDataBlock(Port_t *thisport, uint8_t *data, uint16_t length)
 {
     int16_t packet_status = SSP_TX_WAITING;
     uint16_t retval = FALSE;
 
-    packet_status = ssp_SendData(data, length); // send the data
-    // TODO the loop is non blocking and will spin as fast as the CPU allows
+    packet_status = ssp_SendData(thisport, data, length); // send the data
     while (packet_status == SSP_TX_WAITING) { // check the status
-        (void)ssp_ReceiveProcess(); // process any bytes received.
-        packet_status = ssp_SendProcess(); // check the send status
+        (void)ssp_ReceiveProcess(thisport); // process any bytes received.
+        packet_status = ssp_SendProcess(thisport); // check the send status
     }
     if (packet_status == SSP_TX_ACKED) { // figure out what happened to the packet
         retval = TRUE;
@@ -284,7 +334,7 @@ uint16_t qssp::ssp_SendDataBlock(uint8_t *data, uint16_t length)
  * \note
  *
  */
-int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
+int16_t ssp_SendData(Port_t *thisport, const uint8_t *data, const uint16_t length)
 {
     int16_t value = SSP_TX_WAITING;
 
@@ -294,7 +344,7 @@ int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
     } else if (thisport->SendState == SSP_IDLE) {
 #ifdef ACTIVE_SYNCH
         if (thisport->sendSynch == TRUE) {
-            sf_SendSynchPacket();
+            sf_SendSynchPacket(thisport);
         }
 #endif
 
@@ -312,7 +362,7 @@ int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
             thisport->txSeqNo++; // update the sequence number.
             if (thisport->txSeqNo > 0x7F) { // check for sequence number rollover
                 thisport->txSeqNo = 1; // if we do have rollover then reset to 1 not zero,
-                // zero is reserviced for synchronization requests
+                                       // zero is reserviced for synchronization requests
             }
         }
 
@@ -321,7 +371,7 @@ int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
         thisport->txSeqNo++; // update the sequence number.
         if (thisport->txSeqNo > 0x7F) { // check for sequence number rollover
             thisport->txSeqNo = 1; // if we do have rollover then reset to 1 not zero,
-            // zero is reserved for synchronization requests
+                                   // zero is reserved for synchronization requests
         }
 #endif // ifdef SYNCH_SEND
         CLEARBIT(thisport->flags, ACK_RECEIVED);
@@ -329,23 +379,17 @@ int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
         value = SSP_TX_WAITING;
         thisport->retryCount = 0; // zero out the retry counter for this transmission
         sf_MakePacket(thisport->txBuf, data, length, thisport->txSeqNo);
-        sf_SendPacket(); // punch out the packet to the serial port
-        sf_SetSendTimeout(); // do the timeout values
-        if (debug) {
-            qDebug() << "Sent DATA PACKET:" << thisport->txSeqNo;
-        }
+        sf_SendPacket(thisport); // punch out the packet to the serial port
+        sf_SetSendTimeout(thisport); // do the timeout values
     } else {
         // error we are already sending a packet. Need to wait for the current packet to be acked or timeout.
         value = SSP_TX_BUSY;
-        if (debug) {
-            qDebug() << "Error sending TX was busy";
-        }
     }
     return value;
 }
 
 /*!
- * \brief   Attempts to synchronize the sequence numbers with the other end of the connection.
+ * \brief   Attempts to synchronize the sequence numbers with the other end of the connectin.
  * \param   thisport = which port to use
  * \return  true = success
  * \return	false = failed to receive an ACK to our synch request
@@ -358,7 +402,7 @@ int16_t qssp::ssp_SendData(const uint8_t *data, const uint16_t length)
  *              if number of tries exceed maximum try limit then exit
  * C. goto A
  */
-uint16_t qssp::ssp_Synchronise()
+uint16_t ssp_Synchronise(Port_t *thisport)
 {
     int16_t packet_status;
     uint16_t retval = FALSE;
@@ -368,16 +412,16 @@ uint16_t qssp::ssp_Synchronise()
     SETBIT(thisport->flags, SENT_SYNCH);
     // TODO - should this be using ssp_SendPacketData()??
     sf_MakePacket(thisport->txBuf, NULL, 0, thisport->txSeqNo); // construct the packet
-    sf_SendPacket();
-    sf_SetSendTimeout();
+    sf_SendPacket(thisport);
+    sf_SetSendTimeout(thisport);
     thisport->SendState = SSP_AWAITING_ACK;
     packet_status = SSP_TX_WAITING;
 #else
-    packet_status = ssp_SendData(NULL, 0);
+    packet_status = ssp_SendData(thisport, NULL, 0);
 #endif
     while (packet_status == SSP_TX_WAITING) { // we loop until we time out.
-        ssp_ReceiveProcess(); // do the receive process
-        packet_status = ssp_SendProcess(); // do the send process
+        (void)ssp_ReceiveProcess(thisport); // do the receive process
+        packet_status = ssp_SendProcess(thisport); // do the send process
     }
     thisport->sendSynch = FALSE;
     switch (packet_status) {
@@ -393,6 +437,7 @@ uint16_t qssp::ssp_Synchronise()
         retval = FALSE;
         break;
     }
+    ;
     return retval;
 }
 
@@ -405,7 +450,7 @@ uint16_t qssp::ssp_Synchronise()
  * \note
  * Packet should be formed through the use of sf_MakePacket before calling this function.
  */
-void qssp::sf_SendPacket()
+static void sf_SendPacket(Port_t *thisport)
 {
     // add 3 to packet data length for: 1 length + 2 CRC (packet overhead)
     uint8_t packetLen = thisport->txBuf[LENGTH] + 3;
@@ -413,10 +458,11 @@ void qssp::sf_SendPacket()
     // use the raw serial write function so the SYNC byte does not get 'escaped'
     thisport->pfSerialWrite(SYNC);
     for (uint8_t x = 0; x < packetLen; x++) {
-        sf_write_byte(thisport->txBuf[x]);
+        sf_write_byte(thisport, thisport->txBuf[x]);
     }
     thisport->retryCount++;
 }
+
 
 /*!
  * \brief   converts data to transport layer protocol packet format.
@@ -434,7 +480,7 @@ void qssp::sf_SendPacket()
  *  3. TODO: Should this function return an error if data length to be sent is greater th tx buffer size?
  *
  */
-void qssp::sf_MakePacket(uint8_t *txBuf, const uint8_t *pdata, uint16_t length, uint8_t seqNo)
+void sf_MakePacket(uint8_t *txBuf, const uint8_t *pdata, uint16_t length, uint8_t seqNo)
 {
     uint16_t crc    = 0xffff;
     uint16_t bufPos = 0;
@@ -465,16 +511,13 @@ void qssp::sf_MakePacket(uint8_t *txBuf, const uint8_t *pdata, uint16_t length, 
  *
  */
 
-void qssp::sf_SendAckPacket(uint8_t seqNumber)
+static void sf_SendAckPacket(Port_t *thisport, uint8_t seqNumber)
 {
     uint8_t AckSeqNumber = SETBIT(seqNumber, ACK_BIT);
 
     // create the packet, note we pass AckSequenceNumber directly
     sf_MakePacket(thisport->txBuf, NULL, 0, AckSeqNumber);
-    sf_SendPacket();
-    if (debug) {
-        qDebug() << "Sent ACK PACKET:" << seqNumber;
-    }
+    sf_SendPacket(thisport);
     // we don't set the timeout for an ACK because we don't ACK our ACKs in this protocol
 }
 
@@ -487,7 +530,7 @@ void qssp::sf_SendAckPacket(uint8_t seqNumber)
  * \note
  *
  */
-void qssp::sf_write_byte(uint8_t c)
+static void sf_write_byte(Port_t *thisport, uint8_t c)
 {
     if (c == SYNC) { // check for SYNC byte
         thisport->pfSerialWrite(ESC); // since we are not starting a packet we must ESCAPE the SYNCH byte
@@ -521,20 +564,11 @@ void qssp::sf_write_byte(uint8_t c)
  *
  */
 
-uint16_t qssp::sf_crc16(uint16_t crc, uint8_t data)
+static uint16_t sf_crc16(uint16_t crc, uint8_t data)
 {
-#ifdef SPP_USES_CRC
     return (crc >> 8) ^ CRC_TABLE[(crc ^ data) & 0x00FF];
-
-#else
-    uint8_t cka = crc & 0xff;
-    uint8_t ckb = (crc >> 8) & 0xff;
-    cka += data;
-    ckb += cka;
-    return cka | ckb << 8;
-
-#endif
 }
+
 
 /*!
  * \brief   sets the timeout for the given packet
@@ -545,7 +579,7 @@ uint16_t qssp::sf_crc16(uint16_t crc, uint8_t data)
  *
  */
 
-void qssp::sf_SetSendTimeout()
+static void sf_SetSendTimeout(Port_t *thisport)
 {
     uint32_t timeout;
 
@@ -562,7 +596,7 @@ void qssp::sf_SetSendTimeout()
  * \note
  *
  */
-uint16_t qssp::sf_CheckTimeout()
+static uint16_t   sf_CheckTimeout(Port_t *thisport)
 {
     uint16_t retval = FALSE;
     uint32_t current_time;
@@ -570,11 +604,6 @@ uint16_t qssp::sf_CheckTimeout()
     current_time = thisport->pfGetTime();
     if (current_time > thisport->timeout) {
         retval = TRUE;
-    }
-    if (retval) {
-        if (debug) {
-            qDebug() << "timeout " << current_time << thisport->timeout;
-        }
     }
     return retval;
 }
@@ -599,7 +628,7 @@ uint16_t qssp::sf_CheckTimeout()
  * \note
  *
  */
-int16_t qssp::sf_ReceiveState(uint8_t c)
+static int16_t sf_ReceiveState(Port_t *thisport, uint8_t c)
 {
     int16_t retval = SSP_RX_RECEIVING;
 
@@ -610,7 +639,7 @@ int16_t qssp::sf_ReceiveState(uint8_t c)
         } else if (c == ESC) {
             thisport->InputState = state_escaped_e;
         } else {
-            retval = sf_DecodeState(c);
+            retval = sf_DecodeState(thisport, c);
         }
         break; // end of unescaped state.
     case state_escaped_e:
@@ -618,9 +647,9 @@ int16_t qssp::sf_ReceiveState(uint8_t c)
         if (c == SYNC) {
             thisport->DecodeState = decode_len1_e;
         } else if (c == ESC_SYNC) {
-            retval = sf_DecodeState(SYNC);
+            retval = sf_DecodeState(thisport, SYNC);
         } else {
-            retval = sf_DecodeState(c);
+            retval = sf_DecodeState(thisport, c);
         }
         break; // end of the escaped state.
     default:
@@ -649,7 +678,7 @@ int16_t qssp::sf_ReceiveState(uint8_t c)
  * \note
  *
  */
-int16_t qssp::sf_DecodeState(uint8_t c)
+static int16_t sf_DecodeState(Port_t *thisport, uint8_t c)
 {
     int16_t retval;
 
@@ -660,12 +689,6 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         retval = SSP_RX_IDLE;
         break;
     case decode_len1_e:
-        if (c == 0) {
-            thisport->DecodeState = decode_idle_e;
-            thisport->RxError++;
-            retval = SSP_RX_IDLE;
-            break;
-        }
         thisport->rxBuf[LENGTH] = c;
         thisport->rxBufLen = c;
         if (thisport->rxBufLen <= thisport->rxBufSize) {
@@ -708,7 +731,7 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         // verify the CRC value for the packet
         if (sf_crc16(thisport->crc, c) == 0) {
             // TODO shouldn't the return value of sf_ReceivePacket() be checked?
-            sf_ReceivePacket();
+            sf_ReceivePacket(thisport);
             retval = SSP_RX_COMPLETE;
         } else {
             thisport->RxError++;
@@ -747,7 +770,7 @@ int16_t qssp::sf_DecodeState(uint8_t c)
  *	Created: Oct 7, 2010 12:07:22 AM by joe
  */
 
-int16_t qssp::sf_ReceivePacket()
+static int16_t sf_ReceivePacket(Port_t *thisport)
 {
     int16_t value = FALSE;
 
@@ -758,76 +781,36 @@ int16_t qssp::sf_ReceivePacket()
             SETBIT(thisport->txSeqNo, ACK_BIT);
             thisport->SendState = SSP_ACKED;
             value = FALSE;
-            if (debug) {
-                qDebug() << "Received ACK:" << (thisport->txSeqNo & 0x7F);
-            }
         }
         // else ignore the ACK packet
     } else {
         // Received a 'data' packet, figure out what type of packet we received...
         if (thisport->rxBuf[SEQNUM] == 0) {
-            if (debug) {
-                qDebug() << "Received SYNC Request";
-            }
             // Synchronize sequence number with host
 #ifdef ACTIVE_SYNCH
             thisport->sendSynch = TRUE;
 #endif
-            sf_SendAckPacket(thisport->rxBuf[SEQNUM]);
+            sf_SendAckPacket(thisport, thisport->rxBuf[SEQNUM]);
             thisport->rxSeqNo   = 0;
             value = FALSE;
         } else if (thisport->rxBuf[SEQNUM] == thisport->rxSeqNo) {
             // Already seen this packet, just ack it, don't act on the packet.
-            sf_SendAckPacket(thisport->rxBuf[SEQNUM]);
+            sf_SendAckPacket(thisport, thisport->rxBuf[SEQNUM]);
             value = FALSE;
         } else {
             // New Packet
             thisport->rxSeqNo = thisport->rxBuf[SEQNUM];
             // Let the application do something with the data/packet.
-
-            // skip the first two bytes (length and seq. no.) in the buffer.
-            if (debug) {
-                qDebug() << "Received DATA PACKET seq=" << thisport->rxSeqNo << "Data=" << (uint8_t)thisport->rxBuf[2] << (uint8_t)thisport->rxBuf[3] << (uint8_t)thisport->rxBuf[4];
+            if (thisport->pfCallBack != NULL) {
+                // skip the first two bytes (length and seq. no.) in the buffer.
+                thisport->pfCallBack(&(thisport->rxBuf[2]), thisport->rxBufLen);
             }
-            pfCallBack(&(thisport->rxBuf[2]), thisport->rxBufLen);
-
             // after we send the ACK, it is possible for the host to send a new packet.
             // Thus the application needs to copy the data and reset the receive buffer
             // inside of thisport->pfCallBack()
-            sf_SendAckPacket(thisport->rxBuf[SEQNUM]);
+            sf_SendAckPacket(thisport, thisport->rxBuf[SEQNUM]);
             value = TRUE;
         }
     }
     return value;
-}
-
-qssp::qssp(port *info, bool debug) : debug(debug)
-{
-    thisport = info;
-    thisport->maxRetryCount = info->max_retry;
-    thisport->timeoutLen    = info->timeoutLen;
-    thisport->txBufSize     = info->txBufSize;
-    thisport->rxBufSize     = info->rxBufSize;
-    thisport->txBuf = info->txBuf;
-    thisport->rxBuf = info->rxBuf;
-    thisport->retryCount    = 0;
-    thisport->sendSynch     = FALSE;                // TRUE;
-    thisport->rxSeqNo = 255;
-    thisport->txSeqNo = 255;
-    thisport->SendState     = SSP_IDLE;
-    thisport->InputState    = (ReceiveState)0;
-    thisport->DecodeState   = (DecodeState)0;
-    thisport->TxError = 0;
-    thisport->RxError = 0;
-    thisport->txSeqNo = 0;
-    thisport->rxSeqNo = 0;
-}
-
-void qssp::pfCallBack(uint8_t *buf, uint16_t size)
-{
-    Q_UNUSED(size);
-
-    if (debug) {
-        qDebug() << "receive callback" << buf[0] << buf[1] << buf[2] << buf[3] << buf[4];
-    }
 }

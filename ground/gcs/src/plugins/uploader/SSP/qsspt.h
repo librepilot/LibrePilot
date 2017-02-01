@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       qsspt.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -28,20 +29,24 @@
 #define QSSPT_H
 
 #include "qssp.h"
+
 #include <QThread>
 #include <QQueue>
 #include <QWaitCondition>
 #include <QMutex>
+
 class qsspt : public qssp, public QThread {
 public:
     qsspt(port *info, bool debug);
+    ~qsspt();
+
     void run();
+
     int packets_Available();
     int read_Packet(void *);
-    ~qsspt();
     bool sendData(uint8_t *buf, uint16_t size);
+
 private:
-    virtual void pfCallBack(uint8_t *, uint16_t);
     uint8_t *mbuf;
     uint16_t msize;
     QQueue<QByteArray> queue;
@@ -54,6 +59,8 @@ private:
     QWaitCondition sendwait;
     QMutex msendwait;
     bool debug;
+
+    virtual void pfCallBack(uint8_t *, uint16_t);
 };
 
 #endif // QSSPT_H

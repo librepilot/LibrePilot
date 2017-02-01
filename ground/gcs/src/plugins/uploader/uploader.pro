@@ -23,8 +23,7 @@ HEADERS += \
     uploadergadgetoptionspage.h \
     uploadergadgetwidget.h \
     uploaderplugin.h \
-    op_dfu.h \
-    delay.h \
+    dfu.h \
     devicewidget.h \
     SSP/port.h \
     SSP/qssp.h \
@@ -42,8 +41,7 @@ SOURCES += \
     uploadergadgetoptionspage.cpp \
     uploadergadgetwidget.cpp \
     uploaderplugin.cpp \
-    op_dfu.cpp \
-    delay.cpp \
+    dfu.cpp \
     devicewidget.cpp \
     SSP/port.cpp \
     SSP/qssp.cpp \

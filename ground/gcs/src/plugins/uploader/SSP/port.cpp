@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       port.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -25,21 +26,24 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "port.h"
-#include "delay.h"
-port::port(QString name) : mstatus(port::closed)
+
+#include <QSerialPort>
+#include <QDebug>
+
+port::port(QString name, bool debug) : mstatus(port::closed), debug(debug)
 {
     timer.start();
-    sport = new QSerialPort(name);
-    if (sport->open(QIODevice::ReadWrite | QIODevice::Unbuffered)) {
-        if (sport->setBaudRate(57600)
+    sport = new QSerialPort(name, this);
+    if (sport->open(QIODevice::ReadWrite)) {
+        if (sport->setBaudRate(QSerialPort::Baud57600)
             && sport->setDataBits(QSerialPort::Data8)
             && sport->setParity(QSerialPort::NoParity)
             && sport->setStopBits(QSerialPort::OneStop)
             && sport->setFlowControl(QSerialPort::NoFlowControl)) {
             mstatus = port::open;
         }
-        // sport->setDtr();
     } else {
+        qDebug() << sport->error();
         mstatus = port::error;
     }
 }
@@ -53,13 +57,25 @@ port::portstatus port::status()
 {
     return mstatus;
 }
+
 int16_t port::pfSerialRead(void)
 {
     char c[1];
 
-    if (sport->bytesAvailable()) {
+    // TODO why the wait ? (gcs uploader dfu does not have it)
+    sport->waitForBytesWritten(1);
+    if (sport->bytesAvailable() || sport->waitForReadyRead(0)) {
         sport->read(c, 1);
-    } else { return -1; }
+        if (debug) {
+            if (((uint8_t)c[0]) == 0xe1 || rxDebugBuff.count() > 50) {
+                qDebug() << "PORT R " << rxDebugBuff.toHex();
+                rxDebugBuff.clear();
+            }
+            rxDebugBuff.append(c[0]);
+        }
+    } else {
+        return -1;
+    }
     return (uint8_t)c[0];
 }
 
@@ -69,6 +85,15 @@ void port::pfSerialWrite(uint8_t c)
 
     cc[0] = c;
     sport->write(cc, 1);
+    if (debug) {
+        if (((uint8_t)cc[0]) == 0xe1 || rxDebugBuff.count() > 50) {
+            qDebug() << "PORT T " << txDebugBuff.toHex();
+            txDebugBuff.clear();
+        }
+        txDebugBuff.append(cc[0]);
+    }
+    // TODO why the wait ? (gcs uploader dfu does not have it)
+    sport->waitForBytesWritten(1);
 }
 
 uint32_t port::pfGetTime(void)

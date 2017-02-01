@@ -30,13 +30,14 @@
 
 #include "uploader_global.h"
 
+#include "dfu.h"
 #include "enums.h"
-#include "op_dfu.h"
 
 #include <QEventLoop>
 #include <QProgressDialog>
+#include <QTimer>
 
-using namespace OP_DFU;
+using namespace DFU;
 using namespace uploader;
 
 class Ui_UploaderWidget;

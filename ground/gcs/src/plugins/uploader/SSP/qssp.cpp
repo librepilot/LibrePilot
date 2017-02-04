@@ -144,8 +144,8 @@ void qssp::ssp_Init(const PortConfig_t *const info)
     thisport->rxSeqNo = 255;
     thisport->txSeqNo = 255;
     thisport->SendState     = SSP_IDLE;
-    thisport->InputState    = (ReceiveState)0;
-    thisport->DecodeState   = (DecodeState)0;
+    thisport->inputState    = (ReceiveState)0;
+    thisport->decodeState   = (DecodeState)0;
     thisport->TxError = 0;
     thisport->RxError = 0;
     thisport->txSeqNo = 0;
@@ -603,20 +603,20 @@ int16_t qssp::sf_ReceiveState(uint8_t c)
 {
     int16_t retval = SSP_RX_RECEIVING;
 
-    switch (thisport->InputState) {
+    switch (thisport->inputState) {
     case state_unescaped_e:
         if (c == SYNC) {
-            thisport->DecodeState = decode_len1_e;
+            thisport->decodeState = decode_len1_e;
         } else if (c == ESC) {
-            thisport->InputState = state_escaped_e;
+            thisport->inputState = state_escaped_e;
         } else {
             retval = sf_DecodeState(c);
         }
         break; // end of unescaped state.
     case state_escaped_e:
-        thisport->InputState = state_unescaped_e;
+        thisport->inputState = state_unescaped_e;
         if (c == SYNC) {
-            thisport->DecodeState = decode_len1_e;
+            thisport->decodeState = decode_len1_e;
         } else if (c == ESC_SYNC) {
             retval = sf_DecodeState(SYNC);
         } else {
@@ -653,7 +653,7 @@ int16_t qssp::sf_DecodeState(uint8_t c)
 {
     int16_t retval;
 
-    switch (thisport->DecodeState) {
+    switch (thisport->decodeState) {
     case decode_idle_e:
         // 'c' is ignored in this state as the only way to leave the idle state is
         // recognition of the SYNC byte in the sf_ReceiveState function.
@@ -661,7 +661,7 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         break;
     case decode_len1_e:
         if (c == 0) {
-            thisport->DecodeState = decode_idle_e;
+            thisport->decodeState = decode_idle_e;
             thisport->RxError++;
             retval = SSP_RX_IDLE;
             break;
@@ -669,10 +669,10 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         thisport->rxBuf[LENGTH] = c;
         thisport->rxBufLen = c;
         if (thisport->rxBufLen <= thisport->rxBufSize) {
-            thisport->DecodeState = decode_seqNo_e;
+            thisport->decodeState = decode_seqNo_e;
             retval = SSP_RX_RECEIVING;
         } else {
-            thisport->DecodeState = decode_idle_e;
+            thisport->decodeState = decode_idle_e;
             retval = SSP_RX_IDLE;
         }
         break;
@@ -684,9 +684,9 @@ int16_t qssp::sf_DecodeState(uint8_t c)
 
         thisport->crc = sf_crc16(thisport->crc, c);
         if (thisport->rxBufLen > 0) {
-            thisport->DecodeState = decode_data_e;
+            thisport->decodeState = decode_data_e;
         } else {
-            thisport->DecodeState = decode_crc1_e;
+            thisport->decodeState = decode_crc1_e;
         }
         retval = SSP_RX_RECEIVING;
         break;
@@ -694,17 +694,17 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         thisport->rxBuf[(thisport->rxBufPos)++] = c;
         thisport->crc = sf_crc16(thisport->crc, c);
         if (thisport->rxBufPos == (thisport->rxBufLen + 2)) {
-            thisport->DecodeState = decode_crc1_e;
+            thisport->decodeState = decode_crc1_e;
         }
         retval = SSP_RX_RECEIVING;
         break;
     case decode_crc1_e:
         thisport->crc = sf_crc16(thisport->crc, c);
-        thisport->DecodeState = decode_crc2_e;
+        thisport->decodeState = decode_crc2_e;
         retval = SSP_RX_RECEIVING;
         break;
     case decode_crc2_e:
-        thisport->DecodeState = decode_idle_e;
+        thisport->decodeState = decode_idle_e;
         // verify the CRC value for the packet
         if (sf_crc16(thisport->crc, c) == 0) {
             // TODO shouldn't the return value of sf_ReceivePacket() be checked?
@@ -716,7 +716,7 @@ int16_t qssp::sf_DecodeState(uint8_t c)
         }
         break;
     default:
-        thisport->DecodeState = decode_idle_e; // unknown state so reset to idle state and wait for the next start of a packet.
+        thisport->decodeState = decode_idle_e; // unknown state so reset to idle state and wait for the next start of a packet.
         retval = SSP_RX_IDLE;
         break;
     }
@@ -815,8 +815,8 @@ qssp::qssp(port *info, bool debug) : debug(debug)
     thisport->rxSeqNo = 255;
     thisport->txSeqNo = 255;
     thisport->SendState     = SSP_IDLE;
-    thisport->InputState    = (ReceiveState)0;
-    thisport->DecodeState   = (DecodeState)0;
+    thisport->inputState    = (ReceiveState)0;
+    thisport->decodeState   = (DecodeState)0;
     thisport->TxError = 0;
     thisport->RxError = 0;
     thisport->txSeqNo = 0;

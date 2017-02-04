@@ -69,8 +69,8 @@ public:
     // and vice-versa. This fixes the firmware download timeout.
     // when this flag is set to true, the next time we send a packet we will first
     // send a synchronize packet.
-    ReceiveState InputState;
-    DecodeState DecodeState;
+    ReceiveState inputState;
+    DecodeState decodeState;
     uint16_t SendState;
     uint16_t crc;
     uint32_t RxError;

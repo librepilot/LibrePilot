@@ -103,8 +103,8 @@ void LogFile::timerFired()
         time = m_myTime.elapsed();
 
         // TODO: going back in time will be a problem
-        while ((m_lastPlayed + ((time - m_timeOffset) * m_playbackSpeed) > m_lastTimeStamp)) {
-            m_lastPlayed += ((time - m_timeOffset) * m_playbackSpeed);
+        while ((m_lastPlayed + ((double)(time - m_timeOffset) * m_playbackSpeed) > m_lastTimeStamp)) {
+            m_lastPlayed += ((double)(time - m_timeOffset) * m_playbackSpeed);
             if (m_file.bytesAvailable() < (qint64)sizeof(dataSize)) {
                 stopReplay();
                 return;

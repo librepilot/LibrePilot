@@ -63,7 +63,7 @@ protected:
     QTime m_myTime;
     QFile m_file;
     qint32 m_lastTimeStamp;
-    qint32 m_lastPlayed;
+    double m_lastPlayed;
     QMutex m_mutex;
 
 

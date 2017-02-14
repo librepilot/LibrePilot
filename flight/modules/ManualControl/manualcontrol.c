@@ -67,8 +67,6 @@
 
 #define ALWAYSTABILIZEACCESSORY_THRESHOLD              0.05f
 
-// Wait 5 seconds before triggering the battery failsafe mode
-#define BATTERY_FAILSAFE_DEBOUNCE_TIMER                5000
 // defined handlers
 
 static const controlHandler handler_MANUAL = {
@@ -574,7 +572,7 @@ void HandleBatteryFailsafe(uint8_t *position, FlightModeSettingsData *modeSettin
 
     if (failsafeStatus == lastFailsafeStatus) {
         changeTimestamp = PIOS_DELAY_GetRaw();
-    } else if ((debounceTimerms < BATTERY_FAILSAFE_DEBOUNCE_TIMER) || failsafeStatus < lastFailsafeStatus) {
+    } else if ((debounceTimerms < modeSettings->BatteryFailsafeDebounceTimer) || failsafeStatus < lastFailsafeStatus) {
         // do not change within the "grace" period and do not "downgrade" the failsafe mode
         failsafeStatus = lastFailsafeStatus;
     } else {

@@ -43,8 +43,19 @@
 import threading
 import struct
 
+UAVOBJ_ACCESS_SHIFT = 0
+UAVOBJ_GCS_ACCESS_SHIFT = 1
+UAVOBJ_TELEMETRY_ACKED_SHIFT = 2
+UAVOBJ_GCS_TELEMETRY_ACKED_SHIFT = 3
+UAVOBJ_TELEMETRY_UPDATE_MODE_SHIFT = 4
+UAVOBJ_GCS_TELEMETRY_UPDATE_MODE_SHIFT = 6
+UAVOBJ_LOGGING_UPDATE_MODE_SHIFT = 8
 
-class UAVObjectField:
+def _set_bits(var,shift,value,mask):
+    return (var & ~(mask << shift)) | (value << shift)
+
+
+class UAVObjectField(object):
     class FType:
         INT8 = 0
         INT16 = 1
@@ -110,7 +121,7 @@ class UAVObjectField:
             ser += map(ord, apply(self.struct.pack, self.value))
 
     def deserialize(self, data):
-        # DOTO: FIXME: This is getting very messy
+        # TODO: FIXME: This is getting very messy
         values = list(self.struct.unpack("".join(map(chr, data[:self.rawSize]))))
         if self.numElements == 1:
             self.value = values[0]
@@ -127,7 +138,7 @@ class Observer(object):
         self.methodToCall(args)
 
 
-class UAVObject:
+class UAVObject(object):
     def __init__(self, objId, name=None):
         self.metadata = self  # FIXME
         self.objId = objId
@@ -201,63 +212,68 @@ class UAVObject:
 #       pass # TODO
 
 
-
-class MetaFlightAccessField(UAVObjectField):
+class MetaFlagsField(UAVObjectField):
     def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
-
-
-class MetaGCSAccessField(UAVObjectField):
-    def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
-
-
-class MetaFlightTelemetryAcked(UAVObjectField):
-    def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
-
-
-class MetaFlightTelemetryUpdateMode(UAVObjectField):
-    def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+        UAVObjectField.__init__(self, UAVObjectField.FType.UINT16, 1)
 
 
 class MetaFlightTelemetryUpdatePeriod(UAVObjectField):
     def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.UINT32, 1)
-
-
-class MetaGCSTelemetryAcked(UAVObjectField):
-    def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
-
-
-class MetaGCSTelemetryUpdateMode(UAVObjectField):
-    def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+        UAVObjectField.__init__(self, UAVObjectField.FType.UINT16, 1)
 
 
 class MetaGCSTelemetryUpdatePeriod(UAVObjectField):
     def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.UINT32, 1)
-
-
-class MetaLoggingUpdateMode(UAVObjectField):
-    def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+        UAVObjectField.__init__(self, UAVObjectField.FType.UINT16, 1)
 
 
 class MetaLoggingUpdatePeriod(UAVObjectField):
     def __init__(self):
-        UAVObjectField.__init__(self, UAVObjectField.FType.UINT32, 1)
+        UAVObjectField.__init__(self, UAVObjectField.FType.UINT16, 1)
+
+
+# class MetaGCSTelemetryAcked(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+#
+#
+# class MetaGCSTelemetryUpdateMode(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+# class MetaFlightAccessField(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+#
+#
+# class MetaGCSAccessField(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+#
+#
+# class MetaFlightTelemetryAcked(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+#
+#
+# class MetaFlightTelemetryUpdateMode(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+#
+# class MetaLoggingUpdateMode(UAVObjectField):
+#     def __init__(self):
+#         UAVObjectField.__init__(self, UAVObjectField.FType.ENUM, 1)
+
+
 
 
 class UAVMetaDataObject(UAVObject):
+
+
     class UpdateMode:
-        PERIODIC = 0
-        ONCHANGE = 1
-        MANUAL = 2
-        NEVER = 3
+        MANUAL = 0
+        PERIODIC = 1
+        ONCHANGE = 2
+        THROTTLED = 3
 
     class Access:
         READWRITE = 0
@@ -265,30 +281,90 @@ class UAVMetaDataObject(UAVObject):
 
     def __init__(self, objId):
         UAVObject.__init__(self, objId)
+        self.flags = MetaFlagsField()
+        self.addField(self.flags)
 
-        self.access = MetaFlightAccessField()
-        self.addField(self.access)
-        self.gcsAccess = MetaGCSAccessField()
-        self.addField(self.gcsAccess)
+        # self.access = MetaFlightAccessField()
+        # self.addField(self.access)
+        # self.gcsAccess = MetaGCSAccessField()
+        # self.addField(self.gcsAccess)
+        # self.telemetryAcked = MetaFlightTelemetryAcked()
+        # self.addField(self.telemetryAcked)
 
-        self.telemetryAcked = MetaFlightTelemetryAcked()
-        self.addField(self.telemetryAcked)
-        self.telemetryUpdateMode = MetaFlightTelemetryUpdateMode()
-        self.addField(self.telemetryUpdateMode)
+        # self.gcsTelemetryAcked = MetaGCSTelemetryAcked()
+        # self.addField(self.gcsTelemetryAcked)
+        # self.telemetryUpdateMode = MetaFlightTelemetryUpdateMode()
+        # self.addField(self.telemetryUpdateMode)
+        # self.gcsTelemetryUpdateMode = MetaGCSTelemetryUpdateMode()
+        # self.addField(self.gcsTelemetryUpdateMode)
+        # self.loggingUpdateMode = MetaLoggingUpdateMode()
+        # self.addField(self.loggingUpdateMode)
+
         self.telemetryUpdatePeriod = MetaFlightTelemetryUpdatePeriod()
         self.addField(self.telemetryUpdatePeriod)
 
-        self.gcsTelemetryAcked = MetaGCSTelemetryAcked()
-        self.addField(self.gcsTelemetryAcked)
-        self.gcsTelemetryUpdateMode = MetaGCSTelemetryUpdateMode()
-        self.addField(self.gcsTelemetryUpdateMode)
         self.gcsTelemetryUpdatePeriod = MetaGCSTelemetryUpdatePeriod()
         self.addField(self.gcsTelemetryUpdatePeriod)
 
-        self.loggingUpdateMode = MetaLoggingUpdateMode()
-        self.addField(self.loggingUpdateMode)
         self.loggingUpdatePeriod = MetaLoggingUpdatePeriod()
         self.addField(self.loggingUpdatePeriod)
 
+    @property
+    def access(self):
+        return (self.flags.value >> UAVOBJ_ACCESS_SHIFT) & 0x01
+
+    @property
+    def gcsAccess(self):
+        return (self.flags.value >> UAVOBJ_GCS_ACCESS_SHIFT) & 0x01
+
+    @property
+    def telemetryAcked(self):
+        return (self.flags.value >> UAVOBJ_TELEMETRY_ACKED_SHIFT) & 0x01
+
+    @property
+    def gcsTelemetryAcked(self):
+        return (self.flags.value >> UAVOBJ_GCS_TELEMETRY_ACKED_SHIFT) & 0x01
+
+    @property
+    def telemetryUpdateMode(self):
+        return (self.flags.value >> UAVOBJ_TELEMETRY_UPDATE_MODE_SHIFT) & 0x03
+
+    @property
+    def gcsTelemetryUpdateMode(self):
+        return (self.flags.value >> UAVOBJ_GCS_TELEMETRY_UPDATE_MODE_SHIFT) & 0x03
+
+    @property
+    def loggingUpdateMode(self):
+        return (self.flags.value >> UAVOBJ_LOGGING_UPDATE_MODE_SHIFT) & 0x03
+
+    @access.setter
+    def access(self, v):
+        self.flags.value = _set_bits(self.flags.value, UAVOBJ_ACCESS_SHIFT, v, 0x01)
+
+    @gcsAccess.setter
+    def gcsAccess(self, v):
+        self.flags.value = _set_bits(self.flags.value, UAVOBJ_GCS_ACCESS_SHIFT, v, 0x01)
+
+    @gcsTelemetryAcked.setter
+    def gcsTelemetryAcked(self, v):
+        self.flags.value = _set_bits(self.flags.value, UAVOBJ_GCS_TELEMETRY_ACKED_SHIFT, v, 0x01)
+
+    @telemetryUpdateMode.setter
+    def telemetryUpdateMode(self, v):
+        self.flags.value = _set_bits(self.flags.value, UAVOBJ_TELEMETRY_UPDATE_MODE_SHIFT, v, 0x03)
+
+    @gcsTelemetryUpdateMode.setter
+    def gcsTelemetryUpdateMode(self, v):
+        self.flags.value = _set_bits(self.flags.value, UAVOBJ_GCS_TELEMETRY_UPDATE_MODE_SHIFT, v, 0x03)
+
+    @loggingUpdateMode.setter
+    def loggingUpdateMode(self, v):
+        self.flags.value = _set_bits(self.flags.value, UAVOBJ_LOGGING_UPDATE_MODE_SHIFT, v, 0x03)
+
     def isMetaData(self):
         return True
+
+    def __str__(self):
+        return str(self.objId) + " " + self.name + " [" + format(self.flags.value,'016b') + " " + \
+               str(self.telemetryUpdatePeriod.value) + " " + str(self.gcsTelemetryUpdatePeriod.value) + \
+               " " + str(self.loggingUpdatePeriod.value) + "]"

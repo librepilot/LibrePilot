@@ -30,7 +30,7 @@ import logging
 import time
 
 import objectManager
-from openpilot.uavtalk import flighttelemetrystats
+from librepilot.uavtalk import flighttelemetrystats
 import uavobject
 
 
@@ -40,15 +40,12 @@ class ConnectionManager(object):
         self.uavTalk = uavTalk
         self.objMan = objMan
         self.connected = False
-        
-        
-        
+
         self.ftsObj = self.objMan.FlightTelemetryStats
         self.gcsObj = self.objMan.GCSTelemetryStats
 
         self.statusFieldClss = flighttelemetrystats.StatusField
-        
-        
+
     def connect(self):
         timeout = True
         logging.debug("Connecting")
@@ -60,7 +57,7 @@ class ConnectionManager(object):
                 self._onFtsChange()
                 if self.connected:
                     self.objMan.waitObjUpdate(self.ftsObj.metadata)
-                    self.ftsObj.metadata.telemetryUpdateMode.value = uavobject.UAVMetaDataObject.UpdateMode.PERIODIC
+                    self.ftsObj.metadata.telemetryUpdateMode = uavobject.UAVMetaDataObject.UpdateMode.PERIODIC
                     self.ftsObj.metadata.telemetryUpdatePeriod.value = 1000
                     self.ftsObj.metadata.updated()
                     self.objMan.regObjectObserver(self.ftsObj, self, "_onFtsChange")
@@ -71,27 +68,32 @@ class ConnectionManager(object):
                 self.connected = False
                 logging.warning("Connecting TO")
                 pass
-        logging.debug("Connected in %.1fs" % (time.clock()-startTime))   
-        
-            
+        logging.debug("Connected in %.1fs" % (time.clock()-startTime))
+
+
     def _onFtsChange(self, args=None):
         connected = False
         logging.debug("FTS State=%d TxFail=%3d RxFail=%3d TxRetry=%3d" % \
                      (self.ftsObj.Status.value, self.ftsObj.TxFailures.value, self.ftsObj.RxFailures.value, self.ftsObj.TxRetries.value))
-        
-        if self.ftsObj.Status.value == self.statusFieldClss.DISCONNECTED:  
+
+        if self.ftsObj.Status.value == self.statusFieldClss.DISCONNECTED:
             logging.debug(" Handshake REQ")
             self.gcsObj.Status.value = self.statusFieldClss.HANDSHAKEREQ
             self.gcsObj.updated()
-            
+
         elif self.ftsObj.Status.value == self.statusFieldClss.HANDSHAKEACK:
             logging.debug(" Got Handshake ACK")
             self.gcsObj.Status.value = self.statusFieldClss.CONNECTED
             self.gcsObj.updated()
-        
+
         elif self.ftsObj.Status.value == self.statusFieldClss.CONNECTED:
             connected = True
-            
+            try:
+                self.gcsObj.updated()  # simulate update to the gcs stats.
+                                       # This will send a message and keep the connection from timeout
+            except objectManager.TimeoutException:
+                pass
+
         if self.connected:
             if not connected:
                 logging.warning("DISCONNECTED")

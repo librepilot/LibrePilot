@@ -31,10 +31,10 @@ import serial
 import traceback
 import sys
 
-from openpilot.uavtalk.uavobject import *
-from openpilot.uavtalk.uavtalk import *
-from openpilot.uavtalk.objectManager import *
-from openpilot.uavtalk.connectionManager import *
+from librepilot.uavtalk.uavobject import *
+from librepilot.uavtalk.uavtalk import *
+from librepilot.uavtalk.objectManager import *
+from librepilot.uavtalk.connectionManager import *
     
 
 
@@ -69,17 +69,17 @@ if __name__ == '__main__':
         import objectpersistence
 
         print "Getting Current Settings:"        
-	for _ in range(2): # Try only twice to get the settings
+        for _ in range(2): # Try only twice to get the settings
             try:
                 time.sleep(10)
                 objMan.StabilizationSettingsBank1.getUpdate()
             except TimeoutException:
                 print "Timeout"
-		pass
+                pass
             except KeyboardInterrupt:
-		os._exit(1)
-	    else:
-		raise
+                os._exit(1)
+            else:
+                raise
 
         while True:
             while True:        

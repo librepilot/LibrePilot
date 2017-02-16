@@ -28,7 +28,9 @@
 import time
 import logging
 import threading
-        
+
+from librepilot.uavtalk.objectManager import TimeoutException
+
 SYNC = 0x3C
 VERSION_MASK = 0xFC
 VERSION = 0x20
@@ -165,7 +167,8 @@ class UavTalkRecThread(threading.Thread):
             if self.rxCount == 2:    
                 # Received complete packet size, check for valid packet size
                 if (self.rxSize < HEADER_LENGTH) or (self.rxSize > HEADER_LENGTH + MAX_PAYLOAD_LENGTH):
-                    logging.error("INVALID Packet Size")
+                    logging.error("INVALID Packet Size. Should be: "+str(HEADER_LENGTH + self.obj.getSerialisedSize())+
+                                  " got "+str(self.rxSize) + " for obj "+str(self.obj.name))
                     self.rxState = UavTalkRecThread.STATE_SYNC
                 else:
                     self.rxCount = 0
@@ -198,7 +201,8 @@ class UavTalkRecThread(threading.Thread):
                 self.rxDataSize = self.obj.getSerialisedSize()
 
                 if HEADER_LENGTH + self.obj.getSerialisedSize() != self.rxSize:
-                    logging.error("packet Size MISMATCH")
+                    logging.error("packet Size MISMATCH. Should be: "+str(HEADER_LENGTH + self.obj.getSerialisedSize())+
+                                  " got "+str(self.rxSize) + " for obj "+str(self.obj.name))
                     self.rxState = UavTalkRecThread.STATE_SYNC
                 else:
 #                    print "Object: %s" % self.obj
@@ -258,12 +262,12 @@ class UavTalk(object):
         self.recThread.join()
         
     def _onRecevedPacket(self, obj, rxType, rxData): 
-        logging.debug("REC Obj %20s type %x cnt %d", obj, rxType, obj.updateCnt+1)
-#                for i in rxData: print hex(i),
-#                print
+        # logging.debug("REC Obj %20s type %x cnt %d", obj, rxType, obj.updateCnt+1)
+        #        for i in rxData: print hex(i),
+        #        print
                
         if rxType == TYPE_OBJ_ACK:
-            logging.debug("Sending ACK for Obj %s", obj)
+            # logging.debug("Sending ACK for Obj %s", obj)
             self.sendObjectAck(obj)
             
         self.objMan.objUpdate(obj, rxData)
@@ -274,38 +278,37 @@ class UavTalk(object):
     def sendObjectAck(self, obj):
         self._sendpacket(TYPE_ACK, obj.objId)
         
-    def sendObject(self, obj, reqAck=False):
+    def sendObject(self, obj, reqAck = False):
         if reqAck:
             type = TYPE_OBJ_ACK
         else:
             type = TYPE_OBJ
         self._sendpacket(type, obj.objId, obj.serialize())
                 
-    def _sendpacket(self, type, objId, data=None):
-        
+    def _sendpacket(self, obj_type, obj_id, data=None):
+        # name = self.objMan.objs[obj_id].name
+        # logging.debug("Enter lock " + str(obj_type) + " " + name)
         self.txLock.acquire()
-        
-        header = [SYNC, type | VERSION, 0, 0, 0, 0, 0, 0, 0, 0]
-        
-        length = HEADER_LENGTH
-        if data is not None:
-            length += len(data)
-        header[2] = length & 0xFF
-        header[3] = (length >>8) & 0xFF
-        for i in xrange(4,8): 
-            header[i] = objId & 0xff
-            objId >>= 8
-        
-        crc = Crc()
-        crc.addList(header)
-        self.serial.write("".join(map(chr,header)))
-        
-        if data is not None:
-            crc.addList(data)
-            self.serial.write("".join(map(chr,data)))
-        
-        self.serial.write(chr(crc.read()))
-        
-        self.txLock.release()
-        
+        try:
+            header = [SYNC, obj_type | VERSION, 0, 0, 0, 0, 0, 0, 0, 0]
+            length = HEADER_LENGTH
+            if data is not None:
+                length += len(data)
+            header[2] = length & 0xFF
+            header[3] = (length >>8) & 0xFF
+            for i in xrange(4,8):
+                header[i] = obj_id & 0xff
+                obj_id >>= 8
 
+            crc = Crc()
+            crc.addList(header)
+            self.serial.write("".join(map(chr,header)))
+
+            if data is not None:
+                crc.addList(data)
+                self.serial.write("".join(map(chr,data)))
+
+            self.serial.write(chr(crc.read()))
+        finally:
+            self.txLock.release()
+        # logging.debug("Released lock " + str(obj_type) + " " + name)

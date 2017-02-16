@@ -65,7 +65,14 @@ ground/gcs/.settings
 /.metadata
 /.settings
 /.pydevproject
+
+# python artifacts
+/**/*.py*
+
 /workspace
+
+#pycharm project files
+/python/.idea
 
 # Ignore Eclipse temp folder, git plugin based?
 RemoteSystemsTempFiles

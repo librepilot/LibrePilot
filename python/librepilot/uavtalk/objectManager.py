@@ -31,7 +31,7 @@ import sys
 import os
 import inspect
 
-from openpilot.uavtalk.uavobject import *
+from librepilot.uavtalk.uavobject import *
 
 
 class TimeoutException(Exception):

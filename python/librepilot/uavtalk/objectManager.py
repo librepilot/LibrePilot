@@ -2,7 +2,8 @@
 ##############################################################################
 #
 # @file       objectManager.py
-# @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+# @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) # 2017.
+#             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
 # @brief      Base classes for python UAVObject
 #   
 # @see        The GNU Public License (GPL) Version 3

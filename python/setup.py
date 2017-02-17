@@ -1,9 +1,9 @@
 from distutils.core import setup
 import glob
 
-setup(name='OpenPilot UavTalk',
+setup(name='LibrePilot UAVTalk',
       version='1.0',
-      description='OpenPilot UavTalk',
-      url='http://www.openpilot.org',
-      packages=['openpilot', 'openpilot.uavtalk', 'openpilot.uavobjects'],
+      description='LibrePilot UAVTalk',
+      url='http://www.librepilot.org',
+      packages=['librepilot', 'librepilot.uavtalk', 'librepilot.uavobjects'],
      )

@@ -52,11 +52,15 @@
 #include "flightbatterystate.h"
 #include "flightbatterysettings.h"
 #include "hwsettings.h"
+#include "systemstats.h"
 
 //
 // Configuration
 //
-#define SAMPLE_PERIOD_MS 500
+#define SAMPLE_PERIOD_MS    500
+
+// Time since power on the cells detection is active
+#define DETECTION_TIMEFRAME 60000
 // Private types
 
 // Private variables
@@ -71,7 +75,7 @@ static int8_t currentADCPin = -1; // ADC pin for current
 
 // Private functions
 static void onTimer(UAVObjEvent *ev);
-static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData);
+static void GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData);
 
 /**
  * Initialise the module, called on startup
@@ -82,6 +86,7 @@ int32_t BatteryInitialize(void)
 #ifdef MODULE_BATTERY_BUILTIN
     batteryEnabled = true;
 #else
+    HwSettingsInitialize();
     uint8_t optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
 
     HwSettingsOptionalModulesGet(optionalModules);
@@ -115,8 +120,7 @@ int32_t BatteryInitialize(void)
     if (batteryEnabled) {
         FlightBatteryStateInitialize();
         FlightBatterySettingsInitialize();
-
-        // FlightBatterySettingsConnectCallback(FlightBatterySettingsUpdatedCb);
+        SystemStatsInitialize();
 
         static UAVObjEvent ev;
 
@@ -218,31 +222,37 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
 }
 
 
-static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData)
+static void GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData)
 {
     // get flight status to check for armed
     uint8_t armed = 0;
+    static bool detected = false;
+
+    // prevent the cell number to change once the board is armed at least once
+    if (detected) {
+        return;
+    }
 
     FlightStatusArmedGet(&armed);
 
-
     // check only if not armed
     if (armed == FLIGHTSTATUS_ARMED_ARMED) {
-        return -2;
+        detected = true;
+        return;
     }
 
     // prescribed number of cells?
     if (batterySettings->NbCells != 0) {
         flightBatteryData->NbCells = batterySettings->NbCells;
         flightBatteryData->NbCellsAutodetected = 0;
-        return -3;
+        return;
     }
 
     // plausibility check
     if (flightBatteryData->Voltage <= 0.5f) {
         // cannot detect number of cells
         flightBatteryData->NbCellsAutodetected = 0;
-        return -1;
+        return;
     }
 
     float voltageMin = 0.f, voltageMax = 0.f;
@@ -267,7 +277,7 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
     case FLIGHTBATTERYSETTINGS_TYPE_LIFESO4:
     default:
         flightBatteryData->NbCellsAutodetected = 0;
-        return -1;
+        return;
     }
 
     // uniquely measurable under any condition iff n * voltageMax < (n+1) * voltageMin
@@ -276,14 +286,19 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
     // checking for v <= voltageMin * voltageMax / (voltageMax-voltageMin)
     if (flightBatteryData->Voltage > voltageMin * voltageMax / (voltageMax - voltageMin)) {
         flightBatteryData->NbCellsAutodetected = 0;
-        return -1;
+        return;
     }
 
+    // Prevent the battery discharging on the ground to change the detected number of cells:
+    // Detection is enabled in the first 60 seconds from powerup
+    uint32_t flightTime;
+    SystemStatsFlightTimeGet(&flightTime);
+    if (flightTime > DETECTION_TIMEFRAME) {
+        detected = true;
+    }
 
     flightBatteryData->NbCells = (int8_t)(flightBatteryData->Voltage / voltageMin);
     flightBatteryData->NbCellsAutodetected = 1;
-
-    return flightBatteryData->NbCells;
 }
 
 /**

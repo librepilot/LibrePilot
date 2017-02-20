@@ -8,7 +8,8 @@
  * @{
  *
  * @file       battery.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Module to read the battery Voltage and Current periodically and set alarms appropriately.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -204,7 +205,7 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
 
         // FIXME: should make the battery voltage detection dependent on battery type.
         /*Not so sure. Some users will want to run their batteries harder than others, so it should be the user's choice. [KDS]*/
-        if (flightBatteryData.Voltage < batterySettings.CellVoltageThresholds.Alarm * flightBatteryData.NbCells) {
+        if (flightBatteryData.Voltage < batterySettings.CellVoltageThresholds.Critical * flightBatteryData.NbCells) {
             AlarmsSet(SYSTEMALARMS_ALARM_BATTERY, SYSTEMALARMS_ALARM_CRITICAL);
         } else if (flightBatteryData.Voltage < batterySettings.CellVoltageThresholds.Warning * flightBatteryData.NbCells) {
             AlarmsSet(SYSTEMALARMS_ALARM_BATTERY, SYSTEMALARMS_ALARM_WARNING);
@@ -254,6 +255,10 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
     case FLIGHTBATTERYSETTINGS_TYPE_LICO:
         voltageMin = 3.6f;
         voltageMax = 4.2f;
+        break;
+    case FLIGHTBATTERYSETTINGS_TYPE_LIHV:
+        voltageMin = 3.6f;
+        voltageMax = 4.35f;
         break;
     case FLIGHTBATTERYSETTINGS_TYPE_A123:
         voltageMin = 2.01f;

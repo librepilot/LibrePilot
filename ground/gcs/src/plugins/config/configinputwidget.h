@@ -41,7 +41,7 @@
 #include "flightstatus.h"
 #include "accessorydesired.h"
 #include "systemsettings.h"
-
+#include "hwsettings.h"
 #include <QPointer>
 #include <QWidget>
 #include <QList>
@@ -145,6 +145,8 @@ private:
     SystemSettings *systemSettingsObj;
     SystemSettings::DataFields systemSettingsData;
 
+    HwSettings *hwSettingsObj;
+
     typedef struct {
         ManualControlSettings::DataFields manualSettingsData;
         ActuatorSettings::DataFields actuatorSettingsData;
@@ -232,6 +234,10 @@ private slots:
 
     void failsafeFlightModeChanged(int index);
     void failsafeFlightModeCbToggled(bool checked);
+    void failsafeBatteryWarningFlightModeChanged(int index);
+    void failsafeBatteryWarningFlightModeCbToggled(bool checked);
+    void failsafeBatteryCriticalFlightModeChanged(int index);
+    void failsafeBatteryCriticalFlightModeCbToggled(bool checked);
     void enableControlsChanged(bool enabled);
 
 protected:

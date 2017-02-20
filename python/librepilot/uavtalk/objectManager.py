@@ -2,7 +2,7 @@
 ##############################################################################
 #
 # @file       objectManager.py
-# @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) # 2017.
+# @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
 #             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
 # @brief      Base classes for python UAVObject
 #   

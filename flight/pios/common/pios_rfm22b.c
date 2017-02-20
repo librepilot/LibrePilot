@@ -424,6 +424,7 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     rfm22b_dev->aux_tx_out_cb = NULL;
     // Initialize the PPM callback.
     rfm22b_dev->ppm_callback  = NULL;
+    rfm22b_dev->ppm_context   = 0;
 
     // Initialize the stats.
     rfm22b_dev->stats.packets_per_sec = 0;
@@ -1123,7 +1124,7 @@ pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id)
  * @param[in] rfm22b_dev  The RFM22B device ID.
  * @param[in] cb          The callback function pointer.
  */
-void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb)
+void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb, uint32_t cb_context)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1131,6 +1132,7 @@ void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb)
         return;
     }
 
+    rfm22b_dev->ppm_context  = cb_context;
     rfm22b_dev->ppm_callback = cb;
 }
 
@@ -2071,7 +2073,7 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
 
             // Call the PPM received callback if it's available.
             if (radio_dev->ppm_callback) {
-                radio_dev->ppm_callback(radio_dev->ppm);
+                radio_dev->ppm_callback(radio_dev->ppm_context, radio_dev->ppm);
             }
         }
     }

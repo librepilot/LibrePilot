@@ -122,7 +122,7 @@ static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg
 
 
 // Forward definitions
-static void PIOS_Board_PPM_callback(const int16_t *channels);
+static void PIOS_Board_PPM_callback(uint32_t context, const int16_t *channels);
 
 /**
  * PIOS_Board_Init()
@@ -408,7 +408,7 @@ void PIOS_Board_Init(void)
             oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
 
             PIOS_OpenLRS_Init(&openlrs_id, PIOS_RFM22_SPI_PORT, 0, openlrs_cfg);
-            PIOS_OpenLRS_RegisterPPMCallback(openlrs_id, PIOS_Board_PPM_callback);
+            PIOS_OpenLRS_RegisterPPMCallback(openlrs_id, PIOS_Board_PPM_callback, 0);
 #endif /* PIOS_INCLUDE_OPENLRS */
         } else {
             oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
@@ -493,7 +493,7 @@ void PIOS_Board_Init(void)
 
             /* Set the PPM callback if we should be receiving PPM. */
             if (ppm_mode || (ppm_only && !is_coordinator)) {
-                PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
+                PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback, 0);
             }
 
             // Reinitialize the modem to affect the changes.
@@ -558,7 +558,7 @@ void PIOS_Board_Init(void)
 #endif
 }
 
-static void PIOS_Board_PPM_callback(const int16_t *channels)
+static void PIOS_Board_PPM_callback(__attribute__((unused)) uint32_t context, const int16_t *channels)
 {
 #if defined(PIOS_INCLUDE_PPM) && defined(PIOS_INCLUDE_PPM_OUT)
     if (pios_ppm_out_id) {

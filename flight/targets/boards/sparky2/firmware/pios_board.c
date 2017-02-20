@@ -391,16 +391,6 @@ static void PIOS_Board_configure_hott(const struct pios_usart_cfg *usart_cfg, en
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
 }
 
-static void PIOS_Board_PPM_callback(const int16_t *channels)
-{
-    OPLinkReceiverData opl_rcvr;
-
-    for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
-        opl_rcvr.Channel[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? channels[i] : PIOS_RCVR_TIMEOUT;
-    }
-    OPLinkReceiverSet(&opl_rcvr);
-}
-
 /**
  * PIOS_Board_Init()
  * initializes all the core subsystems on this specific hardware
@@ -831,7 +821,6 @@ void PIOS_Board_Init(void)
                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
     bool ppm_mode   = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool ppm_only   = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
     bool is_enabled = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
                        ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
     if (is_enabled) {
@@ -900,11 +889,6 @@ void PIOS_Board_Init(void)
             PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
             PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, oplinkSettings.RFXtalCap);
             PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, data_mode, ppm_mode);
-
-            /* Set the PPM callback if we should be receiving PPM. */
-            if (ppm_mode || (ppm_only && !is_coordinator)) {
-                PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
-            }
 
             /* Set the modem Tx poer level */
             switch (oplinkSettings.MaxRFPower) {
@@ -1066,7 +1050,7 @@ void PIOS_Board_Init(void)
     {
         OPLinkReceiverInitialize();
         uint32_t pios_oplinkrcvr_id;
-        PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id);
+        PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id, pios_rfm22b_id);
         uint32_t pios_oplinkrcvr_rcvr_id;
         if (PIOS_RCVR_Init(&pios_oplinkrcvr_rcvr_id, &pios_oplinkrcvr_rcvr_driver, pios_oplinkrcvr_id)) {
             PIOS_Assert(0);

@@ -39,13 +39,12 @@ struct pios_openlrs_cfg {
     enum gpio_direction gpio_direction; /* Definition comes from pios_rfm22b.h */
 };
 
-typedef void (*PIOS_OpenLRS_PPMReceivedCallback)(const int16_t *channels);
+typedef void (*PIOS_OpenLRS_PPMReceivedCallback)(uint32_t context, const int16_t *channels);
 
 extern int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
                                  uint32_t slave_num, const struct pios_openlrs_cfg *cfg);
 
-extern void PIOS_OpenLRS_RegisterRcvr(uint32_t openlrs_id, uint32_t rfm22b_rcvr_id);
-extern void PIOS_OpenLRS_RegisterPPMCallback(uint32_t openlrs_id, PIOS_OpenLRS_PPMReceivedCallback callback);
+extern void PIOS_OpenLRS_RegisterPPMCallback(uint32_t openlrs_id, PIOS_OpenLRS_PPMReceivedCallback callback, uint32_t context);
 extern uint8_t PIOS_OpenLRS_RSSI_Get(void);
 #endif /* PIOS_OPENLRS_H */
 /**

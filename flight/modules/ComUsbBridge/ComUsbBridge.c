@@ -110,16 +110,16 @@ static int32_t comUsbBridgeInitialize(void)
                                           usart_port);
     }
 
-#ifdef MODULE_COMUSBBRIDGE_BUILTIN
-    bridge_enabled = true;
-#else
-
+// #ifdef MODULE_COMUSBBRIDGE_BUILTIN
+// bridge_enabled = true;
+// #else
+//
     if (usart_port && vcp_port) {
         bridge_enabled = true;
     } else {
         bridge_enabled = false;
     }
-#endif
+// #endif
 
     if (bridge_enabled) {
         com2usb_buf = pios_malloc(BRIDGE_BUF_LEN);

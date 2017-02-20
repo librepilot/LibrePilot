@@ -35,7 +35,7 @@
 
 extern const struct pios_rcvr_driver pios_oplinkrcvr_rcvr_driver;
 
-extern int32_t PIOS_OPLinkRCVR_Init(uint32_t *oplinkrcvr_id);
+extern int32_t PIOS_OPLinkRCVR_Init(uint32_t *oplinkrcvr_id, uint32_t rfm22b_id);
 
 #endif /* PIOS_OPLINKRCVR_PRIV_H */
 

@@ -1094,6 +1094,10 @@ void PIOS_OpenLRS_RegisterPPMCallback(uint32_t openlrs_id, PIOS_OpenLRS_PPMRecei
         return;
     }
 
+    /*
+     * Order is important in these assignments since openlrs_task uses ppm_callback
+     * field to determine if it's ok to dereference ppm_callback and ppm_context
+     */
     openlrs_dev->ppm_context  = context;
     openlrs_dev->ppm_callback = callback;
 }
@@ -1148,8 +1152,9 @@ int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
     openlrs_dev->tx_out_cb    = NULL;
 
     // Initialize the "PPM" callback.
-    openlrs_dev->ppm_callback = 0;
     openlrs_dev->ppm_context  = 0;
+    openlrs_dev->ppm_callback = 0;
+
 
     OPLinkSettingsInitialize();
     OPLinkStatusInitialize();

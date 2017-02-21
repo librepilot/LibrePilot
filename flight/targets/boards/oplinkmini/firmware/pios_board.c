@@ -386,7 +386,6 @@ void PIOS_Board_Init(void)
     }
 
     // Set bank modes
-
     PIOS_Servo_SetBankMode(0, PIOS_SERVO_BANK_MODE_PWM);
     PIOS_Servo_SetBankMode(1, PIOS_SERVO_BANK_MODE_PWM);
 #endif

@@ -98,6 +98,11 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
     [HWSETTINGS_RM_FLEXIPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
 };
 
+static const PIOS_BOARD_IO_RADIOAUX_Function radioaux_function_map[] = {
+    [HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE] = PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
+    [HWSETTINGS_RADIOAUXSTREAM_MAVLINK] = PIOS_BOARD_IO_RADIOAUX_MAVLINK,
+    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE] = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
+};
 
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
@@ -280,7 +285,12 @@ void PIOS_Board_Init(void)
     }
     
 #if defined(PIOS_INCLUDE_RFM22B)
-    PIOS_BOARD_IO_Configure_RFM22B();
+    uint8_t hwsettings_radioaux;
+    HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
+
+    if(hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
+        PIOS_BOARD_IO_Configure_RFM22B(pios_spi_telem_flash_id, radioaux_function_map[hwsettings_radioaux]);
+    }
 #endif /* PIOS_INCLUDE_RFM22B */
 
     

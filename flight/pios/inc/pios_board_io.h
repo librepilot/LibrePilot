@@ -98,7 +98,8 @@ extern uint32_t pios_com_telem_rf_id;
 
 /* RFM22B telemetry */
 #ifdef PIOS_INCLUDE_RFM22B
-extern uint32_t pios_com_rf_id;
+extern uint32_t pios_rfm22b_id; /* RFM22B handle */
+extern uint32_t pios_com_rf_id; /* oplink telemetry */
 # define PIOS_COM_RF                    (pios_com_rf_id)
 # ifndef PIOS_COM_RFM22B_RF_RX_BUF_LEN
 #  define PIOS_COM_RFM22B_RF_RX_BUF_LEN 512
@@ -179,10 +180,34 @@ typedef enum {
     PIOS_BOARD_IO_UART_SRXL, /* rcvr */
     PIOS_BOARD_IO_UART_IBUS, /* rcvr */
     PIOS_BOARD_IO_UART_EXBUS, /* rcvr */
+//    PIOS_BOARD_IO_UART_FRSKY_SPORT_TELEMETRY, /* com */
 } PIOS_BOARD_IO_UART_Function;
 
+typedef enum {
+    PIOS_BOARD_IO_RADIOAUX_NONE,
+    PIOS_BOARD_IO_RADIOAUX_MAVLINK,
+    PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
+    PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
+//    PIOS_BOARD_IO_RADIOAUX_FRSKY_SPORT_TELEMETRY,
+} PIOS_BOARD_IO_RADIOAUX_Function;
+
+typedef enum {
+    PIOS_BOARD_IO_USB_HID_NONE,
+    PIOS_BOARD_IO_USB_HID_TELEMETRY,
+    PIOS_BOARD_IO_USB_HID_RCTX,
+} PIOS_BOARD_IO_USB_HID_Function;
+
+typedef enum {
+    PIOS_BOARD_IO_USB_CDC_NONE,
+    PIOS_BOARD_IO_USB_CDC_TELEMETRY,
+    PIOS_BOARD_IO_USB_CDC_COMBRIDGE,
+    PIOS_BOARD_IO_USB_CDC_MAVLINK,
+    PIOS_BOARD_IO_USB_CDC_DEBUGCONSOLE,
+// PIOS_BOARD_IO_USB_CDC_MSP,
+} PIOS_BOARD_IO_USB_CDC_Function;
+
 #ifdef PIOS_INCLUDE_USB
-void PIOS_BOARD_IO_Configure_USB();
+void PIOS_BOARD_IO_Configure_USB(PIOS_BOARD_IO_USB_HID_Function hid_function, PIOS_BOARD_IO_USB_CDC_Function cdc_function);
 # if defined(PIOS_INCLUDE_USB_HID)
 #  include <pios_usb_hid_priv.h>
 extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
@@ -198,7 +223,7 @@ void PIOS_BOARD_IO_Configure_PPM(const struct pios_ppm_cfg *ppm_cfg);
 void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *usart_cfg, PIOS_BOARD_IO_UART_Function function);
 
 #ifdef PIOS_INCLUDE_RFM22B
-void PIOS_BOARD_IO_Configure_RFM22B();
+void PIOS_BOARD_IO_Configure_RFM22B(uint32_t spi_id, PIOS_BOARD_IO_RADIOAUX_Function function);
 #endif
 
 #ifdef PIOS_INCLUDE_I2C

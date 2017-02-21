@@ -693,22 +693,6 @@ const struct pios_ppm_out_cfg pios_flexi_ppm_out_cfg = {
  */
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs = USART1,
-    .init = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART1_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
     .rx                                        = {
         .gpio = GPIOA,
         .init = {
@@ -729,22 +713,6 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
 
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs = USART3,
-    .init = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART3_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
     .rx                                        = {
         .gpio = GPIOB,
         .init = {
@@ -838,29 +806,6 @@ static const struct pios_usb_cfg pios_usb_main_cfg = {
 #include <pios_com_msg_priv.h>
 
 #endif /* PIOS_INCLUDE_COM_MSG */
-
-#if defined(PIOS_INCLUDE_USB_HID)
-#include <pios_usb_hid_priv.h>
-
-const struct pios_usb_hid_cfg pios_usb_hid_cfg = {
-    .data_if    = 2,
-    .data_rx_ep = 1,
-    .data_tx_ep = 1,
-};
-#endif /* PIOS_INCLUDE_USB_HID */
-
-#if defined(PIOS_INCLUDE_USB_CDC)
-#include <pios_usb_cdc_priv.h>
-
-const struct pios_usb_cdc_cfg pios_usb_cdc_cfg = {
-    .ctrl_if    = 0,
-    .ctrl_tx_ep = 2,
-
-    .data_if    = 1,
-    .data_rx_ep = 3,
-    .data_tx_ep = 3,
-};
-#endif /* PIOS_INCLUDE_USB_CDC */
 
 #if defined(PIOS_INCLUDE_FLASH_EEPROM)
 #include <pios_eeprom.h>

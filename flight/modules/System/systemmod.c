@@ -62,7 +62,7 @@
 #include <pios_notify.h>
 #include <pios_task_monitor.h>
 #include <pios_board_init.h>
-
+#include <pios_board_io.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <instrumentation.h>

@@ -331,11 +331,12 @@ const struct pios_usb_hid_cfg pios_usb_hid_cfg = {
     .data_rx_ep = 1,
     .data_tx_ep = 1,
 };
-
+#ifdef PIOS_INCLUDE_USB_RCTX
 const struct pios_usb_rctx_cfg pios_usb_rctx_cfg = {
     .data_if    = 2,
     .data_tx_ep = 1,
 };
+#endif
 
 int32_t PIOS_USB_DESC_HID_CDC_Init(void)
 {

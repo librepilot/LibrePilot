@@ -354,6 +354,17 @@ static const struct uart_function uart_function_map[] = {
         .com_rx_buf_len = PIOS_COM_HKOSD_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_HKOSD_TX_BUF_LEN,
     },
+#ifdef PIOS_INCLUDE_DEBUG_CONSOLE
+    [PIOS_BOARD_IO_UART_DEBUGCONSOLE] = {
+        .com_id         = &pios_com_debug_id,
+        .com_tx_buf_len = PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN,
+    },
+#endif
+    [PIOS_BOARD_IO_UART_COMBRIDGE]    = {
+        .com_id         = &pios_com_bridge_id,
+        .com_rx_buf_len = PIOS_COM_BRIDGE_RX_BUF_LEN,
+        .com_tx_buf_len = PIOS_COM_BRIDGE_TX_BUF_LEN,
+    },
 #ifdef PIOS_INCLUDE_RCVR
 # ifdef PIOS_INCLUDE_IBUS
     [PIOS_BOARD_IO_UART_IBUS] =      {
@@ -505,19 +516,7 @@ void PIOS_BOARD_IO_Configure_GCSRCVR()
 
 #ifdef PIOS_INCLUDE_RFM22B
 
-#if defined(PIOS_INCLUDE_OPLINKRCVR) && defined(PIOS_INCLUDE_RCVR)
-static void PIOS_Board_PPM_callback(const int16_t *channels)
-{
-    OPLinkReceiverData opl_rcvr;
-
-    for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
-        opl_rcvr.Channel[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? channels[i] : PIOS_RCVR_TIMEOUT;
-    }
-    OPLinkReceiverSet(&opl_rcvr);
-}
-#endif /* PIOS_INCLUDE_OPLINKRCVR && PIOS_INCLUDE_RCVR */
-
-void PIOS_BOARD_IO_Configure_RFM22B()
+void PIOS_BOARD_IO_Configure_RFM22B(uint32_t spi_id, PIOS_BOARD_IO_RADIOAUX_Function radioaux_function)
 {
 #if defined(PIOS_INCLUDE_RFM22B)
     OPLinkSettingsInitialize();
@@ -547,7 +546,6 @@ void PIOS_BOARD_IO_Configure_RFM22B()
                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
     bool ppm_mode   = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool ppm_only   = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
     bool is_enabled = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
                        ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
     if (is_enabled) {
@@ -556,22 +554,22 @@ void PIOS_BOARD_IO_Configure_RFM22B()
             uint32_t openlrs_id;
             const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(pios_board_info_blob.board_rev);
 
-            PIOS_OpenLRS_Init(&openlrs_id, PIOS_RFM22_SPI_PORT, 0, openlrs_cfg);
-            {
-                uint32_t openlrsrcvr_id;
-                PIOS_OpenLRS_Rcvr_Init(&openlrsrcvr_id, openlrs_id);
-                uint32_t openlrsrcvr_rcvr_id;
-                if (PIOS_RCVR_Init(&openlrsrcvr_rcvr_id, &pios_openlrs_rcvr_driver, openlrsrcvr_id)) {
-                    PIOS_Assert(0);
-                }
-                pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_OPENLRS] = openlrsrcvr_rcvr_id;
+            uint32_t openlrs_id;
+            PIOS_OpenLRS_Init(&openlrs_id, spi_id, 0, openlrs_cfg);
+
+            uint32_t openlrsrcvr_id;
+            PIOS_OpenLRS_Rcvr_Init(&openlrsrcvr_id, openlrs_id);
+            
+            uint32_t openlrsrcvr_rcvr_id;
+            if (PIOS_RCVR_Init(&openlrsrcvr_rcvr_id, &pios_openlrs_rcvr_driver, openlrsrcvr_id)) {
+                PIOS_Assert(0);
             }
 #endif /* PIOS_INCLUDE_OPENLRS_RCVR && PIOS_INCLUDE_RCVR */
         } else {
             /* Configure the RFM22B device. */
             const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(pios_board_info_blob.board_rev);
 
-            if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg, oplinkSettings.RFBand)) {
+            if (PIOS_RFM22B_Init(&pios_rfm22b_id, spi_id, rfm22b_cfg->slave_num, rfm22b_cfg, oplinkSettings.RFBand)) {
                 PIOS_Assert(0);
             }
 
@@ -622,12 +620,6 @@ void PIOS_BOARD_IO_Configure_RFM22B()
             PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, oplinkSettings.RFXtalCap);
             PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, data_mode, ppm_mode);
 
-#if defined(PIOS_INCLUDE_OPLINKRCVR) && defined(PIOS_INCLUDE_RCVR)
-            /* Set the PPM callback if we should be receiving PPM. */
-            if (ppm_mode || (ppm_only && !is_coordinator)) {
-                PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
-            }
-#endif
             /* Set the modem Tx power level */
             switch (oplinkSettings.MaxRFPower) {
             case OPLINKSETTINGS_MAXRFPOWER_125:
@@ -665,21 +657,31 @@ void PIOS_BOARD_IO_Configure_RFM22B()
             // TODO: this is in preparation for full mavlink support and is used by LP-368
             uint16_t mavlink_rx_size = PIOS_COM_MAVLINK_RX_BUF_LEN;
 
-            uint8_t hwsettings_radioaux;
-            HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
-
-            switch (hwsettings_radioaux) {
-            case HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE:
-            case HWSETTINGS_RADIOAUXSTREAM_DISABLED:
-                break;
-            case HWSETTINGS_RADIOAUXSTREAM_MAVLINK:
-            {
+            switch (radioaux_function) {
+                default: ;
+            case PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE:
+#ifdef PIOS_INCLUDE_DEBUG_CONSOLE
+                if (PIOS_COM_Init(&pios_com_debug_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
+                                  0, 0,
+                                  0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN)) {
+                    PIOS_Assert(0);
+                }
+#endif
+                    break;
+            case PIOS_BOARD_IO_RADIOAUX_COMBRIDGE:
+                if(PIOS_COM_Init(&pios_com_bridge_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
+                                 0, PIOS_COM_BRIDGE_RX_BUF_LEN,
+                                 0, PIOS_COM_BRIDGE_TX_BUF_LEN))
+                {
+                    PIOS_Assert(0);
+                }
+                    break;
+            case PIOS_BOARD_IO_RADIOAUX_MAVLINK:
                 if (PIOS_COM_Init(&pios_com_mavlink_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
                                   0, mavlink_rx_size,
                                   0, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
                     PIOS_Assert(0);
                 }
-            }
             }
         }
     } else {

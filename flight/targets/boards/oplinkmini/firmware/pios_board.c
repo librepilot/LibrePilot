@@ -384,6 +384,11 @@ void PIOS_Board_Init(void)
         servo_count = 2;
         PIOS_Servo_Init(&pios_servo_flexi_cfg);
     }
+
+    // Set bank modes
+
+    PIOS_Servo_SetBankMode(0, PIOS_SERVO_BANK_MODE_PWM);
+    PIOS_Servo_SetBankMode(1, PIOS_SERVO_BANK_MODE_PWM);
 #endif
 
     // Initialize out status object.

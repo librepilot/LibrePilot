@@ -318,7 +318,11 @@ uploader_clean:
 #
 ##############################
 # Firmware files to package
-PACKAGE_FW_TARGETS := fw_coptercontrol fw_oplinkmini fw_revolution fw_osd fw_revoproto fw_gpsplatinum fw_revonano fw_sparky2
+PACKAGE_FW_TARGETS := fw_coptercontrol fw_revolution fw_revonano fw_sparky2
+PACKAGE_FW_TARGETS += fw_oplinkmini
+PACKAGE_FW_TARGETS += fw_gpsplatinum
+PACKAGE_FW_TARGETS += fw_osd
+PACKAGE_FW_TARGETS += fw_revoproto
 
 # Rules to generate GCS resources used to embed firmware binaries into the GCS.
 # They are used later by the vehicle setup wizard to update board firmware.

@@ -823,7 +823,12 @@ static void UpdateStabilizationDesired(bool doingIdent)
         stabDesired.StabilizationMode.Pitch = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
         stabDesired.StabilizationMode.Yaw   = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
     }
-    stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_MANUAL;
+
+    if (systemIdentSettings.ThrustControl == SYSTEMIDENTSETTINGS_THRUSTCONTROL_AUTO) {
+        stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEVARIO;
+    } else {
+        stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_MANUAL;
+    }
 
     StabilizationDesiredSet(&stabDesired);
 }

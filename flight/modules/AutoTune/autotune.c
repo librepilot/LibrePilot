@@ -316,6 +316,10 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 if (smoothQuickValue > 1.001f) {
                     smoothQuickValue = -1.0f;
                 }
+                // Assume the value is 0
+                if (fabsf(smoothQuickValue) < 0.001f) {
+                    smoothQuickValue = 0.0f;
+                }
             } else {
                 // if they did the 3x FMS toggle while disarmed, set PID's back to the middle of smoothquick
                 smoothQuickValue = 0.0f;

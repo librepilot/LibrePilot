@@ -94,7 +94,7 @@ ifndef TESTAPP
     SRC += $(FLIGHTLIB)/paths.c
     SRC += $(FLIGHTLIB)/plans.c
     SRC += $(FLIGHTLIB)/WorldMagModel.c
-    SRC += $(FLIGHTLIB)/insgps14state.c
+    SRC += $(FLIGHTLIB)/insgps13state.c
     SRC += $(FLIGHTLIB)/lednotification.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c
     ## UAVObjects

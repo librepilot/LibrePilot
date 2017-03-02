@@ -92,6 +92,7 @@ static struct EKFData {
     float H[NUMV][NUMX];
     // local magnetic unit vector in NED frame
     float Be[3];
+    float BeScaleFactor;
     // covariance matrix and state vector
     float P[NUMX][NUMX];
     float X[NUMX];
@@ -280,14 +281,12 @@ void INSSetGyroBiasVar(const float gyro_bias_var[3])
     ekf.Q[8] = gyro_bias_var[2];
 }
 
+// must be called AFTER SetMagNorth
 void INSSetMagVar(const float mag_var[3])
 {
-    // scale variance down to unit vector
-    float invBmag = invsqrtf(mag_var[0] * mag_var[0] + mag_var[1] * mag_var[1] + mag_var[2] * mag_var[2]);
-
-    ekf.R[6] = mag_var[0] * invBmag;
-    ekf.R[7] = mag_var[1] * invBmag;
-    ekf.R[8] = mag_var[2] * invBmag;
+    ekf.R[6] = mag_var[0] * ekf.BeScaleFactor;
+    ekf.R[7] = mag_var[1] * ekf.BeScaleFactor;
+    ekf.R[8] = mag_var[2] * ekf.BeScaleFactor;
 }
 
 void INSSetBaroVar(float baro_var)
@@ -297,11 +296,11 @@ void INSSetBaroVar(float baro_var)
 
 void INSSetMagNorth(const float B[3])
 {
-    float invmag = invsqrtf(B[0] * B[0] + B[1] * B[1] + B[2] * B[2]);
+    ekf.BeScaleFactor = invsqrtf(B[0] * B[0] + B[1] * B[1] + B[2] * B[2]);
 
-    ekf.Be[0] = B[0] * invmag;
-    ekf.Be[1] = B[1] * invmag;
-    ekf.Be[2] = B[2] * invmag;
+    ekf.Be[0] = B[0] * ekf.BeScaleFactor;
+    ekf.Be[1] = B[1] * ekf.BeScaleFactor;
+    ekf.Be[2] = B[2] * ekf.BeScaleFactor;
 }
 
 void INSStatePrediction(const float gyro_data[3], const float accel_data[3], float dT)

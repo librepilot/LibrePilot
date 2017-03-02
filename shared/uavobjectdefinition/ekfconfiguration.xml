@@ -66,6 +66,9 @@
 			<elementname>FakeGPSVelAirspeed</elementname>
 		</elementnames>
 	</field>
+	<field name="MapMagnetometerToHorizontalPlane" type="enum" units="bool" elements="1"
+		options="False,True" defaultvalue="True"
+		description="Set to True to suppress effect of magnetometers on Roll+Pitch State estimate" />
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>
         <telemetryflight acked="true" updatemode="onchange" period="0"/>

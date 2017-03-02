@@ -76,7 +76,7 @@ static void LinearizeH(float X[NUMX], float Be[3], float H[NUMV][NUMX]);
 // 7.....oXoXXXXX.  XXX.......  ......XXXX....
 // 8.....oXXoXXXX.  XXX.......  ......XXXX....
 // 9.....oXXXoXXX.  XXX.......  ..X...........
-// a..............  ..........  ..............
+// a..............  ..........
 // b..............  ..........
 // c..............  ..........
 // d..............  ..........
@@ -84,8 +84,8 @@ static void LinearizeH(float X[NUMX], float Be[3], float H[NUMV][NUMX]);
 static int8_t FrowMin[NUMX] = { 3, 4, 5, 6, 6, 6, 5, 5, 5, 5, 14, 14, 14, 14 };
 static int8_t FrowMax[NUMX] = { 3, 4, 5, 13, 13, 13, 12, 12, 12, 12, -1, -1, -1, -1 };
 
-static int8_t GrowMin[NUMX] = { 10, 10, 10, 3, 3, 3, 0, 0, 0, 0, 10, 10, 10 };
-static int8_t GrowMax[NUMX] = { -1, -1, -1, 5, 5, 5, 2, 2, 2, 2, -1, -1, -1 };
+static int8_t GrowMin[NUMX] = { 10, 10, 10, 3, 3, 3, 0, 0, 0, 0, 10, 10, 10, 10 };
+static int8_t GrowMax[NUMX] = { -1, -1, -1, 5, 5, 5, 2, 2, 2, 2, -1, -1, -1, -1 };
 
 static int8_t HrowMin[NUMV] = { 0, 1, 2, 3, 4, 5, 6, 6, 6, 2 };
 static int8_t HrowMax[NUMV] = { 0, 1, 2, 3, 4, 5, 9, 9, 9, 2 };
@@ -461,6 +461,9 @@ void INSCorrection(const float mag_data[3], const float Pos[3], const float Vel[
         Z[6] = Rbe_a[0][0] * mag_data[0] + Rbe_a[1][0] * mag_data[1] + Rbe_a[2][0] * mag_data[2];
         Z[7] = Rbe_a[0][1] * mag_data[0] + Rbe_a[1][1] * mag_data[1] + Rbe_a[2][1] * mag_data[2];
         Z[8] = Rbe_a[0][2] * mag_data[0] + Rbe_a[1][2] * mag_data[1] + Rbe_a[2][2] * mag_data[2];
+        if (!(IS_REAL(Z[6]) && IS_REAL(Z[7]) && IS_REAL(Z[8]))) {
+            SensorsUsed = SensorsUsed & ~MAG_SENSORS;
+        }
     }
 
     // barometric altimeter in meters and in local NED frame

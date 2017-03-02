@@ -23,7 +23,7 @@
 		</elementnames>
 	</field>
 	<field name="Q" units="1^2" type="float" defaultvalue="
-		0.00001, 0.00001, 0.0001,
+		0.0001, 0.0001, 0.0001,
 		0.003, 0.003, 0.003,
 		0.000001, 0.000001, 0.000001">
 		<elementnames>
@@ -39,9 +39,9 @@
 		</elementnames>
 	</field>
 	<field name="R" units="1^2" type="float" defaultvalue="
-		0.01, .01, 1000000,
+		0.1, 0.1, 1000000,
 		0.01, 0.01, 0.01,
-		10, 10, 100,
+		10, 10, 10,
 		0.01">
 		<elementnames>
 			<elementname>GPSPosNorth</elementname>

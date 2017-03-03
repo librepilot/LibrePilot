@@ -58,7 +58,7 @@
         <field name="OuterLoopKpSoftClamp" units="" type="float" elements="1" defaultvalue="6.5" limits="%BE:0:100" description="Setting: Change this to change the outer loop Kp and Ki limiting"/>
         <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="3" limits="%BE:1:3" description="Setting: Which bank the calculated PIDs will be stored in after tuning"/>
         <field name="TuningDuration" units="s" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" description="Setting: Duration of the tuning motions (expert)"/>
-        <field name="ThrustControl" units="" type="enum" elements="1" options="Manual,Auto" defaultvalue="Manual" description="Setting: Manual is direct control and Auto uses AltitudeVario"/>
+        <field name="ThrustControl" units="" type="enum" elements="1" options="Manual,AltitudeVario" defaultvalue="Manual" description="Setting: Manual is direct control, AltitudeVario helps to maintain altitude"/>
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
         <!-- 0 = disabled -->
         <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->

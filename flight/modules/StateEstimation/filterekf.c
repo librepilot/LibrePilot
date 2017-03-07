@@ -380,7 +380,6 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
             rotvec[1] *= -this->magLockAlpha;
             rotvec[2] *= -this->magLockAlpha;
             // 3. rotate artificial magnetometer reading from straight down to correct roll+pitch
-            // rot_mult(R, (const float[3]) { 0, 0, VectorMagnitude(this->work.mag) }, this->work.mag);
             Rv2Rot(rotvec, R);
             float MagStrength = VectorMagnitude(this->homeLocation.Be);
             local_down[0] *= MagStrength;

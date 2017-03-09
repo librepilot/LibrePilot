@@ -1,10 +1,5 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilot Math Utilities
- * @{
- * @addtogroup Sine and cosine methods that use a cached lookup table
- * @{
- *
  * @file       pid.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.

@@ -221,7 +221,10 @@ float pid2_apply(
         pid->D    = 0.0f;
 
         // t=0, u=u0, y=y0, v=u
-        pid->I    = (pid->u0 - pid->va) / pid->vb - pid->kp * (pid->beta * r - y);
+        // pid->I = (pid->u0 - pid->va) / pid->vb - pid->kp * (pid->beta * r - y);
+        // this is dangerous, if pid->I starts nonzero with very low or zero kI, then
+        // it will never settle!
+        pid->I = 0.0f;
     }
 
     // compute proportional part

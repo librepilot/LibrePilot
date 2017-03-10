@@ -271,9 +271,11 @@ void UAVObjectBrowserWidget::updateViewOptions()
                                                        m_viewoptions->cbMetaData->isChecked(),
                                                        m_viewoptions->cbScientific->isChecked());
 
+    model->setUnknowObjectColor(m_unknownObjectColor);
+    model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
     model->setManuallyChangedColor(m_manuallyChangedColor);
     model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    model->setUnknowObjectColor(m_unknownObjectColor);
+    model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
 
     UAVObjectTreeModel *tmpModel = m_model;
     m_model = model;

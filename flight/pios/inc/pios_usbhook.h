@@ -74,4 +74,7 @@ extern void PIOS_USBHOOK_EndpointRx(uint8_t epnum, uint8_t *buf, uint16_t len);
 extern void PIOS_USBHOOK_Activate(void);
 extern void PIOS_USBHOOK_Deactivate(void);
 
+extern uint32_t PIOS_USBHOOK_EndpointGetStatus(uint8_t epnum);
+
+
 #endif /* PIOS_USBHOOK_H */

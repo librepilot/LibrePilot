@@ -86,16 +86,23 @@ $(TOOL_REMOVE_TARGETS):
 
 TOOLS_URL := http://librepilot.github.io/tools
 
+# versions given below are defaults
+# and are used only to install the tools on some OSes
+# don't assume actual versions to match
+
 QT_SHORT_VERSION := 5.6
 QT_VERSION := 5.6.2
+
+OSG_VERSION := 3.5.5
+OSGEARTH_VERSION := 2.8
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
         QT_SDK_ARCH    := gcc_64
         QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-linux-x64-$(QT_VERSION).run
         QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/md5sums.txt
-        OSG_URL        := $(TOOLS_URL)/osg-3.5.3-linux-x64-qt-$(QT_VERSION).tar.gz
-        OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-linux-x64-qt-$(QT_VERSION).tar.gz
+        OSG_URL        := $(TOOLS_URL)/osg-$(OSG_VERSION)-linux-x64.tar.gz
+        OSGEARTH_URL   := $(TOOLS_URL)/osgearth-$(OSGEARTH_VERSION)-linux-x64.tar.gz
     else
         # x32 for linux no longer provided as pre-built binaries.
     endif
@@ -109,8 +116,8 @@ else ifeq ($(UNAME), Darwin)
     QT_SDK_MAINTENANCE_TOOL := /Volumes/qt-opensource-mac-x64-clang-$(QT_VERSION)/qt-opensource-mac-x64-clang-$(QT_VERSION).app/Contents/MacOS/qt-opensource-mac-x64-clang-$(QT_VERSION)
     UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
-    OSG_URL        := $(TOOLS_URL)/osg-3.5.3-clang_64-qt-$(QT_VERSION).tar.gz
-    OSGEARTH_URL   := $(TOOLS_URL)/osgearth-2.7-clang_64-qt-$(QT_VERSION).tar.gz
+    OSG_URL        := $(TOOLS_URL)/osg-$(OSG_VERSION)-clang_64.tar.gz
+    OSGEARTH_URL   := $(TOOLS_URL)/osgearth-$(OSGEARTH_VERSION)-clang_64.tar.gz
 else ifeq ($(UNAME), Windows)
     QT_SDK_ARCH    := mingw492_32
     QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-windows-x86-mingw492-$(QT_VERSION).exe
@@ -133,15 +140,15 @@ CCACHE_DIR     := $(TOOLS_DIR)/ccache
 
 ifeq ($(UNAME), Linux)
     ifeq ($(ARCH), x86_64)
-        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.3-linux-x64-qt-$(QT_VERSION)
-        OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-linux-x64-qt-$(QT_VERSION)
+        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-$(OSG_VERSION)-linux-x64
+        OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-$(OSGEARTH_VERSION)-linux-x64
     else
-        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.3-linux-x86-qt-$(QT_VERSION)
-        OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-linux-x86-qt-$(QT_VERSION)
+        OSG_SDK_DIR      := $(TOOLS_DIR)/osg-$(OSG_VERSION)-linux-x86
+        OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-$(OSGEARTH_VERSION)-linux-x86
     endif
 else ifeq ($(UNAME), Darwin)
-    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-3.5.3-clang_64-qt-$(QT_VERSION)
-    OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-2.7-clang_64-qt-$(QT_VERSION)
+    OSG_SDK_DIR      := $(TOOLS_DIR)/osg-$(OSG_VERSION)-clang_64
+    OSGEARTH_SDK_DIR := $(TOOLS_DIR)/osgearth-$(OSGEARTH_VERSION)-clang_64
 else ifeq ($(UNAME), Windows)
     ifeq ($(ARCH), x86_64)
         MINGW_DIR := /mingw64

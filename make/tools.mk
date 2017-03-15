@@ -90,8 +90,8 @@ TOOLS_URL := http://librepilot.github.io/tools
 # and are used only to install the tools on some OSes
 # don't assume actual versions to match
 
-QT_SHORT_VERSION := 5.6
-QT_VERSION := 5.6.2
+QT_SHORT_VERSION := 5.8
+QT_VERSION := 5.8.0
 
 OSG_VERSION := 3.5.5
 OSGEARTH_VERSION := 2.8
@@ -119,8 +119,8 @@ else ifeq ($(UNAME), Darwin)
     OSG_URL        := $(TOOLS_URL)/osg-$(OSG_VERSION)-clang_64.tar.gz
     OSGEARTH_URL   := $(TOOLS_URL)/osgearth-$(OSGEARTH_VERSION)-clang_64.tar.gz
 else ifeq ($(UNAME), Windows)
-    QT_SDK_ARCH    := mingw492_32
-    QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-windows-x86-mingw492-$(QT_VERSION).exe
+    QT_SDK_ARCH    := mingw53_32
+    QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-windows-x86-mingw530-$(QT_VERSION).exe
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/md5sums.txt
     NSIS_URL       := $(TOOLS_URL)/nsis-2.46-unicode.tar.bz2
     MESAWIN_URL    := $(TOOLS_URL)/mesawin.tar.gz
@@ -349,7 +349,7 @@ endif
 ##############################
 
 define DOWNLOAD_TEMPLATE
-@$(ECHO) $(MSG_VERIFYING) $$(call toprel, $(DL_DIR)/$(2))
+	@$(ECHO) $(MSG_VERIFYING) $$(call toprel, $(DL_DIR)/$(2))
 	$(V1) ( \
 		cd "$(DL_DIR)" && \
 		$(CURL) $(CURL_OPTIONS) --silent -o "$(DL_DIR)/$(2).md5" "$(3)" && \

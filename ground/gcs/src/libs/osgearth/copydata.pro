@@ -53,6 +53,7 @@ osg:win32 {
         librtmp-1.dll \
         libgmp-10.dll \
         libgnutls-30.dll \
+        libunistring-2.dll \
         libp11-kit-0.dll \
         libffi-6.dll \
         libtasn1-6.dll \
@@ -184,7 +185,8 @@ osgearth:win32 {
         libosgEarthAnnotation$${DS}.dll \
         libosgEarthFeatures$${DS}.dll \
         libosgEarthSymbology$${DS}.dll \
-        libosgEarthUtil$${DS}.dll
+        libosgEarthUtil$${DS}.dll \
+        libprotobuf.dll
 
     # gdal
     OSGEARTH_LIBS += \

@@ -27,7 +27,6 @@ SOURCES += \
     newclasswidget.cpp \
     classnamevalidatinglineedit.cpp \
     linecolumnlabel.cpp \
-    fancylineedit.cpp \
     qtcolorbutton.cpp \
     savedaction.cpp \
     submiteditorwidget.cpp \
@@ -42,7 +41,6 @@ SOURCES += \
     stylehelper.cpp \
     welcomemodetreewidget.cpp \
     iwelcomepage.cpp \
-    fancymainwindow.cpp \
     detailsbutton.cpp \
     detailswidget.cpp \
     coordinateconversions.cpp \
@@ -89,7 +87,6 @@ HEADERS += \
     newclasswidget.h \
     classnamevalidatinglineedit.h \
     linecolumnlabel.h \
-    fancylineedit.h \
     qtcolorbutton.h \
     savedaction.h \
     submiteditorwidget.h \
@@ -106,7 +103,6 @@ HEADERS += \
     stylehelper.h \
     welcomemodetreewidget.h \
     iwelcomepage.h \
-    fancymainwindow.h \
     detailsbutton.h \
     detailswidget.h \
     coordinateconversions.h \

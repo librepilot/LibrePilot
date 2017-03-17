@@ -24,9 +24,6 @@ DEPENDPATH += \
 
 SOURCES += \
     mainwindow.cpp \
-    tabpositionindicator.cpp \
-    fancyactionbar.cpp \
-    fancytabwidget.cpp \
     generalsettings.cpp \
     uniqueidmanager.cpp \
     messagemanager.cpp \
@@ -49,11 +46,7 @@ SOURCES += \
     modemanager.cpp \
     coreimpl.cpp \
     plugindialog.cpp \
-    manhattanstyle.cpp \
     minisplitter.cpp \
-    styleanimator.cpp \
-    rightpane.cpp \
-    sidebar.cpp \
     mimedatabase.cpp \
     icore.cpp \
     dialogs/ioptionspage.cpp \
@@ -72,9 +65,6 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.h \
-    tabpositionindicator.h \
-    fancyactionbar.h \
-    fancytabwidget.h \
     generalsettings.h \
     uniqueidmanager.h \
     messagemanager.h \
@@ -112,11 +102,7 @@ HEADERS += \
     modemanager.h \
     coreimpl.h \
     plugindialog.h \
-    manhattanstyle.h \
     minisplitter.h \
-    styleanimator.h \
-    rightpane.h \
-    sidebar.h \
     mimedatabase.h \
     settingsdatabase.h \
     eventfilteringmainwindow.h \
@@ -139,8 +125,7 @@ FORMS += \
     workspacesettings.ui
 
 RESOURCES += \
-    core.qrc \
-    fancyactionbar.qrc
+    core.qrc
 
 unix:!macx { 
     images.files = images/librepilot_logo_*.png

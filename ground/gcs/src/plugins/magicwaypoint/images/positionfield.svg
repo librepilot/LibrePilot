@@ -148,14 +148,14 @@
        style="fill:#ff201d;fill-opacity:1;stroke:#ef7d7d;stroke-width:0.39996386;stroke-miterlimit:4;stroke-opacity:0.59336093;stroke-dasharray:none"
        sodipodi:type="arc" />
   </a>
-  <use
+  <!--use
      x="0"
      y="0"
      xlink:href="#a3867"
      id="use3944"
      transform="translate(-7.1291862,13.018514)"
      width="64"
-     height="64" />
+     height="64" /-->
   <path
      sodipodi:type="arc"
      style="fill:#ffffff;fill-opacity:1;stroke:#998ad7;stroke-width:0;stroke-miterlimit:4;stroke-opacity:0.59336093;stroke-dasharray:none"

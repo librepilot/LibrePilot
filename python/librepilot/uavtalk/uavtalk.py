@@ -122,12 +122,12 @@ class UavTalkRecThread(threading.Thread):
         self.stop = False
 
         if self.uavTalk.logFile is not None:
-            file = open(self.uavTalk.logFile)
+            file = open(self.uavTalk.logFile, "rb")
             while not self.stop:
                 rx = file.read(1)
                 if len(rx) > 0:
                     rx = ord(rx)
-                self._consumeByte(rx)
+                    self._consumeByte(rx)
         elif self.uavTalk.serial is not None:
             while not self.stop:
                 rx = self.uavTalk.serial.read(1)
@@ -233,7 +233,7 @@ class UavTalkRecThread(threading.Thread):
         elif self.rxState == UavTalkRecThread.STATE_CS:
             # by now, the CS has been added to the CRC calc, so now the CRC calc should read 0
             if self.rxCrc.read() != 0:
-                logging.error("CRC ERROR")
+                logging.debug("CRC ERROR")
             else:
                 self.uavTalk._onRecevedPacket(self.obj, self.rxType, self.rxData)    
                 self.rxState = UavTalkRecThread.STATE_SYNC

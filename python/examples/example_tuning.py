@@ -63,24 +63,25 @@ if __name__ == '__main__':
             
         serPort = serial.Serial(_port, 57600, timeout=.5)
         uavTalk = UavTalk(serPort, None)
+
+        print "Starting ObjectManager"
         objMan = ObjManager(uavTalk)
         objMan.importDefinitions()
+
+        print "Starting UavTalk"
         uavTalk.start()
-        
-        import objectpersistence
+
 
         print "Getting Current Settings:"        
         for _ in range(2): # Try only twice to get the settings
             try:
-                time.sleep(10)
+                time.sleep(1)
                 objMan.StabilizationSettingsBank1.getUpdate()
             except TimeoutException:
                 print "Timeout"
                 pass
             except KeyboardInterrupt:
-                os._exit(1)
-            else:
-                raise
+                exit(1)
 
         while True:
             while True:        

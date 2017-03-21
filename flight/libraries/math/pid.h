@@ -1,12 +1,8 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilot Math Utilities
- * @{
- * @addtogroup Sine and cosine methods that use a cached lookup table
- * @{
- *
  * @file       pid.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Methods to work with PID structure
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -46,17 +42,17 @@ struct pid {
 
 // pid2 structure for a PID+setpoint weighting, anti-windup and filtered derivative control
 struct pid2 {
-    float   u0;
-    float   va;
+    float   u0;   // Initial value of r & y - for bumpless transfer
+    float   va;   // Actuator settings for scaling
     float   vb;
-    float   kp;
-    float   bi;
-    float   ad;
-    float   bd;
-    float   br;
-    float   beta;
-    float   yold;
-    float   P;
+    float   kp;   // proportional gain
+    float   bi;   // Integral gain . dT
+    float   ad;   // Filtered factor for derivative calculation
+    float   bd;   // Constant for derivative calculation
+    float   br;   // Time constant for integral calculation
+    float   beta; // Scalar for proportional factor
+    float   yold; // t-1 y value for Integral calculation
+    float   P;    // Latest calculated P, I & D values
     float   I;
     float   D;
     uint8_t reconfigure;

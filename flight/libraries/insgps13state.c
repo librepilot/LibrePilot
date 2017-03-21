@@ -92,6 +92,7 @@ static struct EKFData {
     float H[NUMV][NUMX];
     // local magnetic unit vector in NED frame
     float Be[3];
+    float BeScaleFactor;
     // covariance matrix and state vector
     float P[NUMX][NUMX];
     float X[NUMX];
@@ -280,11 +281,12 @@ void INSSetGyroBiasVar(const float gyro_bias_var[3])
     ekf.Q[8] = gyro_bias_var[2];
 }
 
-void INSSetMagVar(const float scaled_mag_var[3])
+// must be called AFTER SetMagNorth
+void INSSetMagVar(const float mag_var[3])
 {
-    ekf.R[6] = scaled_mag_var[0];
-    ekf.R[7] = scaled_mag_var[1];
-    ekf.R[8] = scaled_mag_var[2];
+    ekf.R[6] = mag_var[0] * ekf.BeScaleFactor;
+    ekf.R[7] = mag_var[1] * ekf.BeScaleFactor;
+    ekf.R[8] = mag_var[2] * ekf.BeScaleFactor;
 }
 
 void INSSetBaroVar(float baro_var)
@@ -294,9 +296,11 @@ void INSSetBaroVar(float baro_var)
 
 void INSSetMagNorth(const float B[3])
 {
-    ekf.Be[0] = B[0];
-    ekf.Be[1] = B[1];
-    ekf.Be[2] = B[2];
+    ekf.BeScaleFactor = invsqrtf(B[0] * B[0] + B[1] * B[1] + B[2] * B[2]);
+
+    ekf.Be[0] = B[0] * ekf.BeScaleFactor;
+    ekf.Be[1] = B[1] * ekf.BeScaleFactor;
+    ekf.Be[2] = B[2] * ekf.BeScaleFactor;
 }
 
 void INSStatePrediction(const float gyro_data[3], const float accel_data[3], float dT)
@@ -403,27 +407,10 @@ void INSCorrection(const float mag_data[3], const float Pos[3], const float Vel[
 
     if (SensorsUsed & MAG_SENSORS) {
         // magnetometer data in any units (use unit vector) and in body frame
-        float Rbe_a[3][3];
-        float q0 = ekf.X[6];
-        float q1 = ekf.X[7];
-        float q2 = ekf.X[8];
-        float q3 = ekf.X[9];
-        float k1 = 1.0f / sqrtf(powf(q0 * q1 * 2.0f + q2 * q3 * 2.0f, 2.0f) + powf(q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3, 2.0f));
-        float k2 = sqrtf(-powf(q0 * q2 * 2.0f - q1 * q3 * 2.0f, 2.0f) + 1.0f);
-
-        Rbe_a[0][0] = k2;
-        Rbe_a[0][1] = 0.0f;
-        Rbe_a[0][2] = q0 * q2 * -2.0f + q1 * q3 * 2.0f;
-        Rbe_a[1][0] = k1 * (q0 * q1 * 2.0f + q2 * q3 * 2.0f) * (q0 * q2 * 2.0f - q1 * q3 * 2.0f);
-        Rbe_a[1][1] = k1 * (q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
-        Rbe_a[1][2] = k1 * sqrtf(-powf(q0 * q2 * 2.0f - q1 * q3 * 2.0f, 2.0f) + 1.0f) * (q0 * q1 * 2.0f + q2 * q3 * 2.0f);
-        Rbe_a[2][0] = k1 * (q0 * q2 * 2.0f - q1 * q3 * 2.0f) * (q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
-        Rbe_a[2][1] = -k1 * (q0 * q1 * 2.0f + q2 * q3 * 2.0f);
-        Rbe_a[2][2] = k1 * k2 * (q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
-
-        Z[6] = Rbe_a[0][0] * mag_data[0] + Rbe_a[1][0] * mag_data[1] + Rbe_a[2][0] * mag_data[2];
-        Z[7] = Rbe_a[0][1] * mag_data[0] + Rbe_a[1][1] * mag_data[1] + Rbe_a[2][1] * mag_data[2];
-        Z[8] = Rbe_a[0][2] * mag_data[0] + Rbe_a[1][2] * mag_data[1] + Rbe_a[2][2] * mag_data[2];
+        float invBmag = invsqrtf(mag_data[0] * mag_data[0] + mag_data[1] * mag_data[1] + mag_data[2] * mag_data[2]);
+        Z[6] = mag_data[0] * invBmag;
+        Z[7] = mag_data[1] * invBmag;
+        Z[8] = mag_data[2] * invBmag;
     }
 
     // barometric altimeter in meters and in local NED frame

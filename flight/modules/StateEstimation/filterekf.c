@@ -68,10 +68,11 @@ struct data {
 
     stateEstimation work;
 
-    bool inited;
+    bool  inited;
 
     PiOSDeltatimeConfig dtconfig;
-    bool navOnly;
+    bool  navOnly;
+    float magLockAlpha;
 };
 
 
@@ -166,6 +167,15 @@ static int32_t init(stateFilter *self)
         return 2;
     }
 
+    // calculate Angle between Down vector and homeLocation.Be
+    float cross[3];
+    float magnorm[3]    = { this->homeLocation.Be[0], this->homeLocation.Be[1], this->homeLocation.Be[2] };
+    vector_normalizef(magnorm, 3);
+    const float down[3] = { 0, 0, 1 };
+    CrossProduct(down, magnorm, cross);
+    // VectorMagnitude(cross) = sin(Alpha)
+    // [0,0,1] dot magnorm = magnorm[2] = cos(Alpha)
+    this->magLockAlpha = atan2f(VectorMagnitude(cross), magnorm[2]);
 
     return 0;
 }
@@ -184,6 +194,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
     uint16_t sensors = 0;
 
     INSSetArmed(state->armed);
+    INSSetMagNorth(this->homeLocation.Be);
     state->navUsed      = (this->usePos || this->navOnly);
     this->work.updated |= state->updated;
     // check magnetometer alarm, discard any magnetometer readings if not OK
@@ -212,6 +223,7 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
         UNSET_MASK(state->updated, SENSORUPDATES_vel);
         UNSET_MASK(state->updated, SENSORUPDATES_attitude);
         UNSET_MASK(state->updated, SENSORUPDATES_gyro);
+        UNSET_MASK(state->updated, SENSORUPDATES_mag);
         return FILTERRESULT_OK;
     }
 
@@ -350,13 +362,44 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
 
     if (IS_SET(this->work.updated, SENSORUPDATES_mag)) {
         sensors |= MAG_SENSORS;
+        if (this->ekfConfiguration.MapMagnetometerToHorizontalPlane == EKFCONFIGURATION_MAPMAGNETOMETERTOHORIZONTALPLANE_TRUE) {
+            // Map Magnetometer vector to correspond to the Roll+Pitch of the current Attitude State Estimate (no conflicting gravity)
+            // Idea: Alpha between Local Down and Mag is invariant of orientation, and identical to Alpha between [0,0,1] and HomeLocation.Be
+            // which is measured in init()
+            float R[3][3];
+
+            // 1. rotate down vector into body frame
+            Quaternion2R(Nav.q, R);
+            float local_down[3];
+            rot_mult(R, (float[3]) { 0, 0, 1 }, local_down);
+            // 2. create a rotation vector that is perpendicular to rotated down vector, magnetic field vector and of size magLockAlpha
+            float rotvec[3];
+            CrossProduct(local_down, this->work.mag, rotvec);
+            vector_normalizef(rotvec, 3);
+            rotvec[0] *= -this->magLockAlpha;
+            rotvec[1] *= -this->magLockAlpha;
+            rotvec[2] *= -this->magLockAlpha;
+            // 3. rotate artificial magnetometer reading from straight down to correct roll+pitch
+            Rv2Rot(rotvec, R);
+            float MagStrength = VectorMagnitude(this->homeLocation.Be);
+            local_down[0] *= MagStrength;
+            local_down[1] *= MagStrength;
+            local_down[2] *= MagStrength;
+            rot_mult(R, local_down, this->work.mag);
+        }
+        // debug rotated mags
+        state->mag[0]   = this->work.mag[0];
+        state->mag[1]   = this->work.mag[1];
+        state->mag[2]   = this->work.mag[2];
+        state->updated |= SENSORUPDATES_mag;
+    } else {
+        // mag state is delayed until EKF processed it, allows overriding/debugging magnetometer estimate
+        UNSET_MASK(state->updated, SENSORUPDATES_mag);
     }
 
     if (IS_SET(this->work.updated, SENSORUPDATES_baro)) {
         sensors |= BARO_SENSOR;
     }
-
-    INSSetMagNorth(this->homeLocation.Be);
 
     if (!this->usePos) {
         // position and velocity variance used in indoor mode

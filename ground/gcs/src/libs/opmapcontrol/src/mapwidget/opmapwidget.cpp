@@ -33,8 +33,8 @@
 #include <QOpenGLWidget>
 
 namespace mapcontrol {
-OPMapWidget::OPMapWidget(QWidget *parent, Configuration *config) : QGraphicsView(parent), configuration(config), UAV(0), GPS(0), Home(0)
-    , followmouse(true), compass(0), showuav(false), showhome(false), diagTimer(0), diagGraphItem(0), showDiag(false), overlayOpacity(1)
+OPMapWidget::OPMapWidget(QWidget *parent, Configuration *config) : QGraphicsView(parent), configuration(config), UAV(0), GPS(0), Home(0), Nav(0)
+    , followmouse(true), compass(0), showuav(false), showhome(false), diagTimer(0), diagGraphItem(0), showDiag(false), showNav(false), overlayOpacity(1)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     core = new internals::Core;
@@ -44,6 +44,9 @@ OPMapWidget::OPMapWidget(QWidget *parent, Configuration *config) : QGraphicsView
     Home = new HomeItem(map, this);
     Home->setParentItem(map);
     Home->setZValue(-1);
+    Nav  = new NavItem(map, this);
+    Nav->setParentItem(map);
+    Nav->setZValue(-1);
     setStyleSheet("QToolTip {font-size:8pt; color:blue;opacity: 223; padding:2px; border-width:2px; border-style:solid; border-color: rgb(170, 170, 127);border-radius:4px }");
     this->adjustSize();
     connect(map, SIGNAL(zoomChanged(double, double, double)), this, SIGNAL(zoomChanged(double, double, double)));
@@ -58,6 +61,7 @@ OPMapWidget::OPMapWidget(QWidget *parent, Configuration *config) : QGraphicsView
     connect(map, SIGNAL(wpdoubleclicked(WayPointItem *)), this, SIGNAL(OnWayPointDoubleClicked(WayPointItem *)));
     connect(&mscene, SIGNAL(selectionChanged()), this, SLOT(OnSelectionChanged()));
     SetShowDiagnostics(showDiag);
+    SetShowNav(showNav);
     this->setMouseTracking(followmouse);
     SetShowCompass(true);
     QPixmapCache::setCacheLimit(64 * 1024);
@@ -157,6 +161,10 @@ void OPMapWidget::SetShowUAV(const bool &value)
 void OPMapWidget::SetShowHome(const bool &value)
 {
     Home->setVisible(value);
+}
+void OPMapWidget::SetShowNav(const bool &value)
+{
+    Nav->setVisible(value);
 }
 
 void OPMapWidget::resizeEvent(QResizeEvent *event)

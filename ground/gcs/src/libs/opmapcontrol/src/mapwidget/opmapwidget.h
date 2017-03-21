@@ -37,6 +37,7 @@
 #include "uavitem.h"
 #include "gpsitem.h"
 #include "homeitem.h"
+#include "navitem.h"
 #include "mapripper.h"
 #include "waypointline.h"
 #include "waypointcircle.h"
@@ -50,6 +51,7 @@ namespace mapcontrol {
 class UAVItem;
 class GPSItem;
 class HomeItem;
+class NavItem;
 /**
  * @brief Collection of static functions to help dealing with various enums used
  *       Contains functions for enumToString conversio, StringToEnum, QStringList of enum values...
@@ -500,6 +502,7 @@ public:
     UAVItem *UAV;
     GPSItem *GPS;
     HomeItem *Home;
+    NavItem *Nav;
     void SetShowUAV(bool const & value);
     bool ShowUAV() const
     {
@@ -509,6 +512,11 @@ public:
     bool ShowHome() const
     {
         return showhome;
+    }
+    void SetShowNav(bool const & value);
+    bool ShowNav() const
+    {
+        return showNav;
     }
     void SetShowDiagnostics(bool const & value);
     void SetUavPic(QString UAVPic);
@@ -540,6 +548,7 @@ private:
     QTimer *diagTimer;
     QGraphicsTextItem *diagGraphItem;
     bool showDiag;
+    bool showNav;
     qreal overlayOpacity;
 private slots:
     void diagRefresh();

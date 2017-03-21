@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       mapgraphicitem.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      The main graphicsItem used on the widget, contains the map and map logic
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget
@@ -43,6 +44,7 @@
 namespace mapcontrol {
 class WayPointItem;
 class OPMapWidget;
+class HomeItem;
 /**
  * @brief The main graphicsItem used on the widget, contains the map and map logic
  *
@@ -105,6 +107,8 @@ public:
     double ZoomDigi();
     double ZoomTotal();
     void setOverlayOpacity(qreal value);
+
+    HomeItem *Home;
 protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

@@ -43,9 +43,10 @@ OPMapWidget::OPMapWidget(QWidget *parent, Configuration *config) : QGraphicsView
     mscene.addItem(map);
     this->setScene(&mscene);
     Home = new HomeItem(map, this);
+    map->Home = Home;
     Home->setParentItem(map);
     Home->setZValue(-1);
-    Nav  = new NavItem(map, this);
+    Nav = new NavItem(map, this);
     Nav->setParentItem(map);
     Nav->setZValue(-1);
     setStyleSheet("QToolTip {font-size:8pt; color:blue;opacity: 223; padding:2px; border-width:2px; border-style:solid; border-color: rgb(170, 170, 127);border-radius:4px }");

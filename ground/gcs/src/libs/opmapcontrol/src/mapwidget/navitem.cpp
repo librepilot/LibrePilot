@@ -2,8 +2,8 @@
  ******************************************************************************
  *
  * @file       navitem.cpp
- * @author     The LibrePilot Team, http://www.openpilot.org Copyright (C) 2017.
- * @brief      A graphicsItem representing a trail point
+ * @author     The LibrePilot Project, http://www.openpilot.org Copyright (C) 2017.
+ * @brief      A graphicsItem representing a WayPoint
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget
  * @{

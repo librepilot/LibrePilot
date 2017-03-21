@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmapwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      The Map Widget, this is the part exposed to the user
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget

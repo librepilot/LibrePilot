@@ -44,6 +44,7 @@
 /* Provide a RCVR driver */
 static int32_t PIOS_OpenLRS_Rcvr_Get(uint32_t rcvr_id, uint8_t channel);
 static void PIOS_OpenLRS_Rcvr_Supervisor(uint32_t ppm_id);
+static void PIOS_OpenLRS_Rcvr_ppm_callback(uint32_t openlrs_rcvr_id, const int16_t *channels);
 
 const struct pios_rcvr_driver pios_openlrs_rcvr_driver = {
     .read = PIOS_OpenLRS_Rcvr_Get,
@@ -102,7 +103,7 @@ extern int32_t PIOS_OpenLRS_Rcvr_Init(uint32_t *openlrs_rcvr_id, uintptr_t openl
     OPLinkReceiverInitialize();
 
     *openlrs_rcvr_id = (uintptr_t)openlrs_rcvr_dev;
-    PIOS_OpenLRS_RegisterRcvr(openlrs_id, *openlrs_rcvr_id);
+    PIOS_OpenLRS_RegisterPPMCallback(openlrs_id, PIOS_OpenLRS_Rcvr_ppm_callback, *openlrs_rcvr_id);
 
     /* Register the failsafe timer callback. */
     if (!PIOS_RTC_RegisterTickCallback
@@ -118,7 +119,7 @@ extern int32_t PIOS_OpenLRS_Rcvr_Init(uint32_t *openlrs_rcvr_id, uintptr_t openl
  * PPM packet is received. This method stores the data locally as well
  * as sets the data into the OPLinkReceiver UAVO for visibility
  */
-int32_t PIOS_OpenLRS_Rcvr_UpdateChannels(uint32_t openlrs_rcvr_id, int16_t *channels)
+static void PIOS_OpenLRS_Rcvr_ppm_callback(uint32_t openlrs_rcvr_id, const int16_t *channels)
 {
     /* Recover our device context */
     struct pios_openlrs_rcvr_dev *openlrs_rcvr_dev =
@@ -126,7 +127,7 @@ int32_t PIOS_OpenLRS_Rcvr_UpdateChannels(uint32_t openlrs_rcvr_id, int16_t *chan
 
     if (!PIOS_OpenLRS_Rcvr_Validate(openlrs_rcvr_dev)) {
         /* Invalid device specified */
-        return -1;
+        return;
     }
 
     for (uint32_t i = 0; i < OPENLRS_PPM_NUM_CHANNELS; i++) {
@@ -137,8 +138,6 @@ int32_t PIOS_OpenLRS_Rcvr_UpdateChannels(uint32_t openlrs_rcvr_id, int16_t *chan
 
     // let supervisor know we have new data
     openlrs_rcvr_dev->fresh = true;
-
-    return 0;
 }
 
 /**

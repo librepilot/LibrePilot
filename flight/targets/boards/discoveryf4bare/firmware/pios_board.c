@@ -780,7 +780,6 @@ void PIOS_Board_Init(void)
     bool is_coordinator = (oplinkSettings.Coordinator == OPLINKSETTINGS_COORDINATOR_TRUE);
     bool is_oneway = (oplinkSettings.OneWay == OPLINKSETTINGS_ONEWAY_TRUE);
     bool ppm_mode  = (oplinkSettings.PPM == OPLINKSETTINGS_PPM_TRUE);
-    bool ppm_only  = (oplinkSettings.PPMOnly == OPLINKSETTINGS_PPMONLY_TRUE);
     if (oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) {
         /* Configure the RFM22B device. */
         const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
@@ -828,11 +827,6 @@ void PIOS_Board_Init(void)
         PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
         PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, oplinkSettings.RFXtalCap);
         PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, data_mode, ppm_mode);
-
-        /* Set the PPM callback if we should be receiving PPM. */
-        if (ppm_mode || (ppm_only && !is_coordinator)) {
-            PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
-        }
 
         /* Set the modem Tx power level */
         switch (oplinkSettings.MaxRFPower) {
@@ -969,7 +963,7 @@ void PIOS_Board_Init(void)
     {
         OPLinkReceiverInitialize();
         uint32_t pios_oplinkrcvr_id;
-        PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id);
+        PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id, pios_rfm22b_id);
         uint32_t pios_oplinkrcvr_rcvr_id;
         if (PIOS_RCVR_Init(&pios_oplinkrcvr_rcvr_id, &pios_oplinkrcvr_rcvr_driver, pios_oplinkrcvr_id)) {
             PIOS_Assert(0);

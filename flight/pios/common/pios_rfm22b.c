@@ -407,39 +407,12 @@ int32_t PIOS_RFM22B_Init(uint32_t *rfm22b_id, uint32_t spi_id, uint32_t slave_nu
     g_rfm22b_dev = rfm22b_dev;
 
     // Store the SPI handle
-    rfm22b_dev->slave_num     = slave_num;
-    rfm22b_dev->spi_id        = spi_id;
+    rfm22b_dev->slave_num = slave_num;
+    rfm22b_dev->spi_id    = spi_id;
 
     // Initialize our configuration parameters
-    rfm22b_dev->datarate      = RFM22B_DEFAULT_RX_DATARATE;
-    rfm22b_dev->tx_power      = RFM22B_DEFAULT_TX_POWER;
-    rfm22b_dev->coordinator   = false;
-    rfm22b_dev->coordinatorID = 0;
-
-    // Initialize the com callbacks.
-    rfm22b_dev->rx_in_cb      = NULL;
-    rfm22b_dev->tx_out_cb     = NULL;
-
-    rfm22b_dev->aux_rx_in_cb  = NULL;
-    rfm22b_dev->aux_tx_out_cb = NULL;
-    // Initialize the PPM callback.
-    rfm22b_dev->ppm_callback  = NULL;
-
-    // Initialize the stats.
-    rfm22b_dev->stats.packets_per_sec = 0;
-    rfm22b_dev->stats.rx_good = 0;
-    rfm22b_dev->stats.rx_corrected    = 0;
-    rfm22b_dev->stats.rx_error       = 0;
-    rfm22b_dev->stats.rx_missed      = 0;
-    rfm22b_dev->stats.tx_dropped     = 0;
-    rfm22b_dev->stats.resets         = 0;
-    rfm22b_dev->stats.timeouts       = 0;
-    rfm22b_dev->stats.link_quality   = 0;
-    rfm22b_dev->stats.rssi = 0;
-    rfm22b_dev->stats.afc_correction = 0;
-    rfm22b_dev->stats.tx_seq         = 0;
-    rfm22b_dev->stats.rx_seq         = 0;
-    rfm22b_dev->stats.tx_failure     = 0;
+    rfm22b_dev->datarate  = RFM22B_DEFAULT_RX_DATARATE;
+    rfm22b_dev->tx_power  = RFM22B_DEFAULT_TX_POWER;
 
     // Set the frequency band
     switch (band) {
@@ -1123,7 +1096,7 @@ pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id)
  * @param[in] rfm22b_dev  The RFM22B device ID.
  * @param[in] cb          The callback function pointer.
  */
-void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb)
+void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb, uint32_t cb_context)
 {
     struct pios_rfm22b_dev *rfm22b_dev = (struct pios_rfm22b_dev *)rfm22b_id;
 
@@ -1131,6 +1104,11 @@ void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb)
         return;
     }
 
+    /*
+     * Order is important in these assignments since rfm22_task uses ppm_callback
+     * field to determine if it's ok to dereference ppm_callback and ppm_context
+     */
+    rfm22b_dev->ppm_context  = cb_context;
     rfm22b_dev->ppm_callback = cb;
 }
 
@@ -2071,7 +2049,7 @@ static enum pios_radio_event radio_receivePacket(struct pios_rfm22b_dev *radio_d
 
             // Call the PPM received callback if it's available.
             if (radio_dev->ppm_callback) {
-                radio_dev->ppm_callback(radio_dev->ppm);
+                radio_dev->ppm_callback(radio_dev->ppm_context, radio_dev->ppm);
             }
         }
     }
@@ -2572,12 +2550,13 @@ static struct pios_rfm22b_dev *pios_rfm22_alloc(void)
     struct pios_rfm22b_dev *rfm22b_dev;
 
     rfm22b_dev = (struct pios_rfm22b_dev *)pios_malloc(sizeof(*rfm22b_dev));
-    rfm22b_dev->spi_id = 0;
     if (!rfm22b_dev) {
         return NULL;
     }
 
+    memset(rfm22b_dev, 0, sizeof(*rfm22b_dev));
     rfm22b_dev->magic = PIOS_RFM22B_DEV_MAGIC;
+
     return rfm22b_dev;
 }
 #else
@@ -2592,6 +2571,8 @@ static struct pios_rfm22b_dev *pios_rfm22_alloc(void)
     }
 
     rfm22b_dev = &pios_rfm22b_devs[pios_rfm22b_num_devs++];
+
+    memset(rfm22b_dev, 0, sizeof(*rfm22b_dev));
     rfm22b_dev->magic = PIOS_RFM22B_DEV_MAGIC;
 
     return rfm22b_dev;

@@ -273,6 +273,8 @@ struct pios_rfm22b_dev {
     int16_t  ppm[RFM22B_PPM_NUM_CHANNELS];
     // The PPM packet received callback.
     PPMReceivedCallback ppm_callback;
+    // The PPM callback context
+    uint32_t     ppm_context;
 
     // The id that the packet was received from
     uint32_t     rx_destination_id;

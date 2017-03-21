@@ -870,13 +870,8 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
             rescaleChannels(openlrs_dev->ppm);
 
             // Call the PPM received callback if it's available.
-            if (openlrs_dev->openlrs_rcvr_id) {
-#if defined(PIOS_INCLUDE_OPENLRS_RCVR)
-                PIOS_OpenLRS_Rcvr_UpdateChannels(openlrs_dev->openlrs_rcvr_id, openlrs_dev->ppm);
-#endif
-            }
             if (openlrs_dev->ppm_callback) {
-                openlrs_dev->ppm_callback(openlrs_dev->ppm);
+                openlrs_dev->ppm_callback(openlrs_dev->ppm_context, openlrs_dev->ppm);
             }
         } else {
             // Not PPM data. Push into serial RX buffer.
@@ -1085,30 +1080,12 @@ uint8_t PIOS_OpenLRS_RSSI_Get(void)
 *****************************************************************************/
 
 /**
- * Register a OpenLRS_Rcvr interface to inform of PPM packets
- *
- * @param[in] rfm22b_dev     The RFM22B device ID.
- * @param[in] rfm22b_rcvr_id The receiver device to inform of PPM packets
- */
-void PIOS_OpenLRS_RegisterRcvr(uint32_t openlrs_id, uint32_t openlrs_rcvr_id)
-{
-    struct pios_openlrs_dev *openlrs_dev =
-        (struct pios_openlrs_dev *)openlrs_id;
-
-    if (!pios_openlrs_validate(openlrs_dev)) {
-        return;
-    }
-
-    openlrs_dev->openlrs_rcvr_id = openlrs_rcvr_id;
-}
-
-/**
  * Register a OpenLRS_Rcvr interface to inform of PPM packets using a generic callback.
  *
  * @param[in] openlrs_id  The OpenLRS device ID.
  * @param[in] callback    The callback function.
  */
-void PIOS_OpenLRS_RegisterPPMCallback(uint32_t openlrs_id, PIOS_OpenLRS_PPMReceivedCallback callback)
+void PIOS_OpenLRS_RegisterPPMCallback(uint32_t openlrs_id, PIOS_OpenLRS_PPMReceivedCallback callback, uint32_t context)
 {
     struct pios_openlrs_dev *openlrs_dev =
         (struct pios_openlrs_dev *)openlrs_id;
@@ -1117,6 +1094,11 @@ void PIOS_OpenLRS_RegisterPPMCallback(uint32_t openlrs_id, PIOS_OpenLRS_PPMRecei
         return;
     }
 
+    /*
+     * Order is important in these assignments since openlrs_task uses ppm_callback
+     * field to determine if it's ok to dereference ppm_callback and ppm_context
+     */
+    openlrs_dev->ppm_context  = context;
     openlrs_dev->ppm_callback = callback;
 }
 
@@ -1166,12 +1148,13 @@ int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
     }
 
     // Initialize the com callbacks.
-    openlrs_dev->rx_in_cb  = NULL;
-    openlrs_dev->tx_out_cb = NULL;
+    openlrs_dev->rx_in_cb     = NULL;
+    openlrs_dev->tx_out_cb    = NULL;
 
     // Initialize the "PPM" callback.
-    openlrs_dev->openlrs_rcvr_id = 0;
-    openlrs_dev->ppm_callback    = 0;
+    openlrs_dev->ppm_context  = 0;
+    openlrs_dev->ppm_callback = 0;
+
 
     OPLinkSettingsInitialize();
     OPLinkStatusInitialize();

@@ -103,6 +103,13 @@ int32_t PIOS_TIM_InitClock(const struct pios_tim_clock_cfg *cfg)
     /* Enable Interrupts */
     NVIC_Init(&cfg->irq.init);
 
+    /* Advanced TIM1 has additional IRQ */
+    if (cfg->timer == TIM1) {
+        NVIC_InitTypeDef init = cfg->irq.init;
+        init.NVIC_IRQChannel = TIM1_UP_IRQn;
+        NVIC_Init(&init);
+    }
+
     return 0;
 }
 

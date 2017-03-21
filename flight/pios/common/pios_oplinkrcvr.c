@@ -37,7 +37,6 @@
 #include <oplinkstatus.h>
 #include <pios_oplinkrcvr_priv.h>
 
-static OPLinkReceiverData oplinkreceiverdata;
 
 /* Provide a RCVR driver */
 static int32_t PIOS_OPLinkRCVR_Get(uint32_t rcvr_id, uint8_t channel);
@@ -56,16 +55,32 @@ enum pios_oplinkrcvr_dev_magic {
 
 struct pios_oplinkrcvr_dev {
     enum pios_oplinkrcvr_dev_magic magic;
-
     uint8_t supv_timer;
+    OPLinkReceiverData oplinkreceiverdata;
     bool    Fresh;
 };
-
-static struct pios_oplinkrcvr_dev *global_oplinkrcvr_dev;
 
 static bool PIOS_oplinkrcvr_validate(struct pios_oplinkrcvr_dev *oplinkrcvr_dev)
 {
     return oplinkrcvr_dev->magic == PIOS_OPLINKRCVR_DEV_MAGIC;
+}
+
+static void PIOS_oplinkrcvr_ppm_callback(uint32_t oplinkrcvr_id, const int16_t *channels)
+{
+    /* Recover our device context */
+    struct pios_oplinkrcvr_dev *oplinkrcvr_dev = (struct pios_oplinkrcvr_dev *)oplinkrcvr_id;
+
+    if (!PIOS_oplinkrcvr_validate(oplinkrcvr_dev)) {
+        /* Invalid device specified */
+        return;
+    }
+
+    for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+        oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? channels[i] : PIOS_RCVR_TIMEOUT;
+    }
+    OPLinkReceiverSet(&oplinkrcvr_dev->oplinkreceiverdata);
+
+    oplinkrcvr_dev->Fresh = true;
 }
 
 #if defined(PIOS_INCLUDE_FREERTOS)
@@ -81,9 +96,6 @@ static struct pios_oplinkrcvr_dev *PIOS_oplinkrcvr_alloc(void)
     oplinkrcvr_dev->magic = PIOS_OPLINKRCVR_DEV_MAGIC;
     oplinkrcvr_dev->Fresh = false;
     oplinkrcvr_dev->supv_timer = 0;
-
-    /* The update callback cannot receive the device pointer, so set it in a global */
-    global_oplinkrcvr_dev = oplinkrcvr_dev;
 
     return oplinkrcvr_dev;
 }
@@ -103,23 +115,11 @@ static struct pios_oplinkrcvr_dev *PIOS_oplinkrcvr_alloc(void)
     oplinkrcvr_dev->Fresh = false;
     oplinkrcvr_dev->supv_timer = 0;
 
-    global_oplinkrcvr_dev = oplinkrcvr_dev;
-
     return oplinkrcvr_dev;
 }
 #endif /* if defined(PIOS_INCLUDE_FREERTOS) */
 
-static void oplinkreceiver_updated(UAVObjEvent *ev)
-{
-    struct pios_oplinkrcvr_dev *oplinkrcvr_dev = global_oplinkrcvr_dev;
-
-    if (ev->obj == OPLinkReceiverHandle()) {
-        OPLinkReceiverGet(&oplinkreceiverdata);
-        oplinkrcvr_dev->Fresh = true;
-    }
-}
-
-extern int32_t PIOS_OPLinkRCVR_Init(__attribute__((unused)) uint32_t *oplinkrcvr_id)
+extern int32_t PIOS_OPLinkRCVR_Init(uint32_t *oplinkrcvr_id, uint32_t rfm22b_id)
 {
     struct pios_oplinkrcvr_dev *oplinkrcvr_dev;
 
@@ -131,16 +131,18 @@ extern int32_t PIOS_OPLinkRCVR_Init(__attribute__((unused)) uint32_t *oplinkrcvr
 
     for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; i++) {
         /* Flush channels */
-        oplinkreceiverdata.Channel[i] = PIOS_RCVR_TIMEOUT;
+        oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = PIOS_RCVR_TIMEOUT;
     }
 
-    /* Register uavobj callback */
-    OPLinkReceiverConnectCallback(oplinkreceiver_updated);
+    /* Register ppm callback */
+    PIOS_RFM22B_SetPPMCallback(rfm22b_id, PIOS_oplinkrcvr_ppm_callback, (uint32_t)oplinkrcvr_dev);
 
     /* Register the failsafe timer callback. */
     if (!PIOS_RTC_RegisterTickCallback(PIOS_oplinkrcvr_Supervisor, (uint32_t)oplinkrcvr_dev)) {
         PIOS_DEBUG_Assert(0);
     }
+
+    *oplinkrcvr_id = (uint32_t)oplinkrcvr_dev;
 
     return 0;
 }
@@ -152,14 +154,22 @@ extern int32_t PIOS_OPLinkRCVR_Init(__attribute__((unused)) uint32_t *oplinkrcvr
  * \output PIOS_RCVR_TIMEOUT failsafe condition or missing receiver
  * \output >=0 channel value
  */
-static int32_t PIOS_OPLinkRCVR_Get(__attribute__((unused)) uint32_t rcvr_id, uint8_t channel)
+static int32_t PIOS_OPLinkRCVR_Get(uint32_t oplinkrcvr_id, uint8_t channel)
 {
+    /* Recover our device context */
+    struct pios_oplinkrcvr_dev *oplinkrcvr_dev = (struct pios_oplinkrcvr_dev *)oplinkrcvr_id;
+
+    if (!PIOS_oplinkrcvr_validate(oplinkrcvr_dev)) {
+        /* Invalid device specified */
+        return PIOS_RCVR_INVALID;
+    }
+
     if (channel >= OPLINKRECEIVER_CHANNEL_NUMELEM) {
         /* channel is out of range */
         return PIOS_RCVR_INVALID;
     }
 
-    return oplinkreceiverdata.Channel[channel];
+    return oplinkrcvr_dev->oplinkreceiverdata.Channel[channel];
 }
 
 static void PIOS_oplinkrcvr_Supervisor(uint32_t oplinkrcvr_id)
@@ -182,7 +192,7 @@ static void PIOS_oplinkrcvr_Supervisor(uint32_t oplinkrcvr_id)
 
     if (!oplinkrcvr_dev->Fresh) {
         for (int32_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; i++) {
-            oplinkreceiverdata.Channel[i] = PIOS_RCVR_TIMEOUT;
+            oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = PIOS_RCVR_TIMEOUT;
         }
     }
 

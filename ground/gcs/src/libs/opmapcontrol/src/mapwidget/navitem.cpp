@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       navitem.cpp
- * @author     The LibrePilot Project, http://www.openpilot.org Copyright (C) 2017.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  * @brief      A graphicsItem representing a WayPoint
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget

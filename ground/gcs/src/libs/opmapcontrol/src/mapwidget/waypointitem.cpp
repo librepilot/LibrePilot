@@ -45,15 +45,6 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     RefreshToolTip();
     RefreshPos();
     myHome = map->Home;
-    // QList<QGraphicsItem *> list = map->childItems();   WTF?!?!?!?!????????
-    // foreach(QGraphicsItem * obj, list) {
-    // HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-    // if (h) {
-    // myHome = h;
-    // }
-    // }
-
     if (myHome) {
         map->Projection()->offSetFromLatLngs(myHome->Coord(), coord, relativeCoord.distance, relativeCoord.bearing);
         relativeCoord.altitudeRelative = Altitude() - myHome->Altitude();
@@ -89,15 +80,6 @@ WayPointItem::WayPointItem(MapGraphicItem *map, bool magicwaypoint) : reached(fa
     RefreshToolTip();
     RefreshPos();
     myHome = map->Home;
-    // QList<QGraphicsItem *> list = map->childItems();   WTF?!?!?!?!????????
-    // foreach(QGraphicsItem * obj, list) {
-    // HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-    // if (h) {
-    // myHome = h;
-    // }
-    // }
-
     if (myHome) {
         coord = map->Projection()->translate(myHome->Coord(), relativeCoord.distance, relativeCoord.bearing);
         SetAltitude(myHome->Altitude() + relativeCoord.altitudeRelative);
@@ -123,14 +105,6 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     RefreshToolTip();
     RefreshPos();
     myHome = map->Home;
-    // QList<QGraphicsItem *> list = map->childItems();   WTF?!?!?!?!????????
-    // foreach(QGraphicsItem * obj, list) {
-    // HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-    // if (h) {
-    // myHome = h;
-    // }
-    // }
     if (myHome) {
         map->Projection()->offSetFromLatLngs(myHome->Coord(), coord, relativeCoord.distance, relativeCoord.bearing);
         relativeCoord.altitudeRelative = Altitude() - myHome->Altitude();
@@ -145,14 +119,6 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
 WayPointItem::WayPointItem(const distBearingAltitude &relativeCoordenate, const QString &description, MapGraphicItem *map) : relativeCoord(relativeCoordenate), reached(false), description(description), shownumber(true), isDragging(false), map(map)
 {
     myHome = map->Home;
-    // QList<QGraphicsItem *> list = map->childItems();   WTF?!?!?!?!????????
-    // foreach(QGraphicsItem * obj, list) {
-    // HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-    // if (h) {
-    // myHome = h;
-    // }
-    // }
     if (myHome) {
         connect(myHome, SIGNAL(homePositionChanged(internals::PointLatLng, float)), this, SLOT(onHomePositionChanged(internals::PointLatLng, float)));
         coord = map->Projection()->translate(myHome->Coord(), relativeCoord.distance, relativeCoord.bearing);

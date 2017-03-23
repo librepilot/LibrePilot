@@ -209,6 +209,23 @@ uavobjects_%: $(UAVOBJGENERATOR)
 	    $(UAVOBJGENERATOR) -$* $(UAVOBJ_XML_DIR) $(ROOT_DIR) ; \
 	)
 
+OBJECTCOUNT := $(shell find $(ROOT_DIR)/python/librepilot/uavobjects/ -name '*.py' | wc -l)
+uavobjects_python_install: 
+	$(V1) if [ $(OBJECTCOUNT) -gt 2 ]; then echo "UAVObjects already exist"; else make uavobjects_python; fi
+	$(V1) mkdir -p $(ROOT_DIR)/python/librepilot/uavobjects/
+	$(V1) ( touch $(ROOT_DIR)/python/librepilot/uavobjects/__init__.py )
+	$(V1) ( cp $(UAVOBJ_OUT_DIR)/python/* $(ROOT_DIR)/python/librepilot/uavobjects/ )
+	$(V1) ( cd $(ROOT_DIR)/python/ && sudo python setup.py build && sudo python setup.py install)
+
+uavobjects_python_clean: 
+	@$(ECHO) " CLEAN      $(call toprel, $(ROOT_DIR)/python/librepilot/uavobjects/)"
+	$(V1) [ ! -d "$(ROOT_DIR)/python/librepilot/uavobjects/" ] || $(RM) -r "$(ROOT_DIR)/python/librepilot/uavobjects/"
+	@$(ECHO) " CLEAN      $(call toprel, $(ROOT_DIR)/python/librepilot/build/)"
+	$(V1) [ ! -d "$(ROOT_DIR)/python/librepilot/build/" ] || sudo $(RM) -r "$(ROOT_DIR)/python/librepilot/build/"
+	@$(ECHO) " CLEAN      $(call toprel, $(UAVOBJ_OUT_DIR)/python/)"
+	$(V1) [ ! -d "$(UAVOBJ_OUT_DIR)/python/" ] || $(RM) -r "$(UAVOBJ_OUT_DIR)/python/"
+
+
 uavobjects_test: $(UAVOBJGENERATOR)
 	$(V1) $(UAVOBJGENERATOR) -v $(UAVOBJ_XML_DIR) $(ROOT_DIR)
 
@@ -711,6 +728,10 @@ help:
 	@$(ECHO) "     uavobjects_test      - Parse xml-files - check for valid, duplicate ObjId's, ..."
 	@$(ECHO) "     uavobjects_<group>   - Generate source files from a subset of the UAVObject definition XML files"
 	@$(ECHO) "                            Supported groups are ($(UAVOBJ_TARGETS))"
+	@$(ECHO) "     uavobjects_python_install"
+	@$(ECHO) "     			    - Install generated python files as eggs for use with example Python scripts"
+	@$(ECHO) "     uavobjects_python_clean"
+	@$(ECHO) "     			    - Remove generated python UAVOs from build directory & pyuavtalk folder"
 	@$(ECHO)
 	@$(ECHO) "   [Packaging]"
 	@$(ECHO) "     package              - Build and package the platform-dependent package (no clean)"

@@ -177,11 +177,11 @@ if __name__ == '__main__':
             print     
             while True:
                 try:
-                    # get update of ManualControlCommand 
-                    objMan.ManualControlCommand.getUpdate(timeout=.5)  
-                    
-                    # calculate value out of Accessory1 input (-1 ... +1)
-                    txControl = objMan.ManualControlCommand.Accessory1.value
+                    # get update of AccessoryDesired
+                    objMan.AccessoryDesired.getUpdate(timeout=.5)
+
+                    # calculate value out of Accessory0 input (-1 ... +1)
+                    txControl = objMan.AccessoryDesired.AccessoryVal.value
                     value = tuneFrom + ((txControl+1)/2)*(tuneTo-tuneFrom)
                     PI[PIIndex] = value
                     objMan.StabilizationSettingsBank1.updated()

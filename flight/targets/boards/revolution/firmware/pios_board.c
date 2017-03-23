@@ -251,6 +251,9 @@ uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
 #define PIOS_COM_BRIDGE_RX_BUF_LEN       65
 #define PIOS_COM_BRIDGE_TX_BUF_LEN       12
 
+#define PIOS_COM_HOTT_RX_BUF_LEN         512
+#define PIOS_COM_HOTT_TX_BUF_LEN         512
+
 #define PIOS_COM_RFM22B_RF_RX_BUF_LEN    512
 #define PIOS_COM_RFM22B_RF_TX_BUF_LEN    512
 
@@ -272,6 +275,7 @@ uint32_t pios_com_telem_usb_id = 0;
 uint32_t pios_com_telem_rf_id  = 0;
 uint32_t pios_com_rf_id        = 0;
 uint32_t pios_com_bridge_id    = 0;
+uint32_t pios_com_hott_id      = 0;
 uint32_t pios_com_overo_id     = 0;
 uint32_t pios_com_hkosd_id     = 0;
 uint32_t pios_com_vcp_id       = 0;

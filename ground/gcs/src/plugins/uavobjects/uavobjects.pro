@@ -94,6 +94,7 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/gyrosensor.xml \
     $${UAVOBJ_XML_DIR}/gyrostate.xml \
     $${UAVOBJ_XML_DIR}/homelocation.xml \
+    $${UAVOBJ_XML_DIR}/hottbridgestatus.xml \
     $${UAVOBJ_XML_DIR}/hwsettings.xml \
     $${UAVOBJ_XML_DIR}/i2cstats.xml \
     $${UAVOBJ_XML_DIR}/magsensor.xml \

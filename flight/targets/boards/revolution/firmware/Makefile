@@ -55,6 +55,7 @@ MODULES += Notify
 
 OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
+OPTMODULES += UAVOHottBridge
 OPTMODULES += UAVOMSPBridge
 OPTMODULES += UAVOMavlinkBridge
 

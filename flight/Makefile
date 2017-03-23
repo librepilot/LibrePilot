@@ -8,7 +8,16 @@ export OPUAVTALK       := $(FLIGHT_ROOT_DIR)/uavtalk
 export FLIGHT_OUT_DIR  ?= $(CURDIR)
 
 # Define supported board lists
-ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano sparky2
+ALL_BOARDS := coptercontrol revolution revonano sparky2
+ALL_BOARDS += revoproto
+ALL_BOARDS += oplinkmini
+ALL_BOARDS += gpsplatinum
+ALL_BOARDS += osd
+ALL_BOARDS += discoveryf4bare
+# SimPosix only builds on Linux
+ifeq ($(UNAME), Linux)
+    ALL_BOARDS += simposix
+endif
 
 # Short names of each board (used to display board name in parallel builds)
 coptercontrol_short    := 'cc  '
@@ -22,12 +31,6 @@ simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'
 
-# SimPosix only builds on Linux so drop it from the list for
-# all other platforms.
-ifneq ($(UNAME), Linux)
-    ALL_BOARDS := $(filter-out simposix, $(ALL_BOARDS))
-endif
-
 # Start out assuming that we'll build fw, bl and bu for all boards
 FW_BOARDS  := $(ALL_BOARDS)
 BL_BOARDS  := $(ALL_BOARDS)
@@ -36,9 +39,9 @@ EF_BOARDS  := $(ALL_BOARDS)
 
 # SimPosix doesn't have a BL, BU or EF target so we need to
 # filter them out to prevent errors on the all_flight target.
-BL_BOARDS  := $(filter-out simposix, $(BL_BOARDS))
+BL_BOARDS  := $(filter-out simposix gpsplatinum, $(BL_BOARDS))
 BU_BOARDS  := $(filter-out simposix gpsplatinum, $(BU_BOARDS))
-EF_BOARDS  := $(filter-out simposix, $(EF_BOARDS))
+EF_BOARDS  := $(filter-out simposix gpsplatinum, $(EF_BOARDS))
 
 # Generate the targets for whatever boards are left in each list
 FW_TARGETS := $(addprefix fw_, $(FW_BOARDS))

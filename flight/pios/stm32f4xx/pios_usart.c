@@ -41,6 +41,7 @@
 
 /* Provide a COM driver */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud);
+static void PIOS_USART_SetHalfDuplex(uint32_t usart_id, bool halfduplex);
 static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
 static void PIOS_USART_SetCtrlLine(uint32_t usart_id, uint32_t mask, uint32_t state);
 static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback rx_in_cb, uint32_t context);
@@ -49,13 +50,14 @@ static void PIOS_USART_TxStart(uint32_t usart_id, uint16_t tx_bytes_avail);
 static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 
 const struct pios_com_driver pios_usart_com_driver = {
-    .set_baud      = PIOS_USART_ChangeBaud,
-    .set_config    = PIOS_USART_ChangeConfig,
-    .set_ctrl_line = PIOS_USART_SetCtrlLine,
-    .tx_start      = PIOS_USART_TxStart,
-    .rx_start      = PIOS_USART_RxStart,
-    .bind_tx_cb    = PIOS_USART_RegisterTxCallback,
-    .bind_rx_cb    = PIOS_USART_RegisterRxCallback,
+    .set_baud       = PIOS_USART_ChangeBaud,
+    .set_halfduplex = PIOS_USART_SetHalfDuplex,
+    .set_config     = PIOS_USART_ChangeConfig,
+    .set_ctrl_line  = PIOS_USART_SetCtrlLine,
+    .tx_start       = PIOS_USART_TxStart,
+    .rx_start       = PIOS_USART_RxStart,
+    .bind_tx_cb     = PIOS_USART_RegisterTxCallback,
+    .bind_rx_cb     = PIOS_USART_RegisterRxCallback,
 };
 
 enum pios_usart_dev_magic {
@@ -284,6 +286,22 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
 
     /* Write back the modified configuration */
     USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+}
+
+/**
+ * Sets the USART peripheral into half duplex mode
+ * \param[in] usart_id USART name (GPS, TELEM, AUX)
+ * \param[in] bool wether to set half duplex or not
+ */
+static void PIOS_USART_SetHalfDuplex(uint32_t usart_id, bool halfduplex)
+{
+    struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
+
+    bool valid = PIOS_USART_validate(usart_dev);
+
+    PIOS_Assert(valid);
+
+    USART_HalfDuplexCmd(usart_dev->cfg->regs, halfduplex ? ENABLE : DISABLE);
 }
 
 /**

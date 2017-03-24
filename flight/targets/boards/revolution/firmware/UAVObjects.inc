@@ -126,6 +126,7 @@ UAVOBJSRCFILENAMES += poilearnsettings
 UAVOBJSRCFILENAMES += mpugyroaccelsettings
 UAVOBJSRCFILENAMES += txpidsettings
 UAVOBJSRCFILENAMES += txpidstatus
+UAVOBJSRCFILENAMES += hottbridgesettings
 UAVOBJSRCFILENAMES += hottbridgestatus
 UAVOBJSRCFILENAMES += takeofflocation
 UAVOBJSRCFILENAMES += perfcounter

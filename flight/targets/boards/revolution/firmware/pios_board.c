@@ -1048,6 +1048,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PPMMSP:
     case HWSETTINGS_RM_RCVRPORT_PPMMAVLINK:
     case HWSETTINGS_RM_RCVRPORT_PPMGPS:
+    case HWSETTINGS_RM_RCVRPORT_PPMHOTT:
 #if defined(PIOS_INCLUDE_PPM)
         PIOS_Board_configure_ppm(&pios_ppm_cfg);
 
@@ -1096,6 +1097,10 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_GPS:
     case HWSETTINGS_RM_RCVRPORT_PPMGPS:
         PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
+        break;
+    case HWSETTINGS_RM_RCVRPORT_HOTT:
+    case HWSETTINGS_RM_RCVRPORT_PPMHOTT:
+        PIOS_Board_configure_com(&pios_usart_rcvrport_cfg, PIOS_COM_HOTT_RX_BUF_LEN, PIOS_COM_HOTT_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hott_id);
         break;
     case HWSETTINGS_RM_RCVRPORT_IBUS:
 #if defined(PIOS_INCLUDE_IBUS)

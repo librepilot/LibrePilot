@@ -133,7 +133,7 @@ void OutputChannelForm::linkToggled(bool state)
     if (!parent()) {
         return;
     }
-    int min = ui->actuatorValue->maximum();
+    int min = ui->actuatorMax->maximum();
     int linked_count = 0;
     QList<OutputChannelForm *> outputChannelForms = parent()->findChildren<OutputChannelForm *>();
     // set the linked channels of the parent widget to the same value

@@ -51,6 +51,9 @@
 #include <QTextEdit>
 #include <QMessageBox>
 
+#define MAXOUTPUT_VALUE 2500
+#define MINOUTPUT_VALUE 500
+
 ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
     m_ui = new Ui_OutputWidget();
@@ -396,11 +399,18 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
         int minValue = actuatorSettingsData.ChannelMin[outputChannelForm->index()];
         int maxValue = actuatorSettingsData.ChannelMax[outputChannelForm->index()];
 
-        outputChannelForm->setRange(minValue, maxValue);
         if (channelBanks.count() > i) {
-            outputChannelForm->setBank(QString("%1").arg(channelBanks.at(i)));
-            outputChannelForm->setColor(m_banks.at(channelBanks.at(i++) - 1).color());
+            int bankNumber = channelBanks.at(i);
+            OutputBankControls bankControls = m_banks.at(bankNumber - 1);
+
+            setChannelLimits(outputChannelForm, &bankControls);
+
+            outputChannelForm->setBank(QString("%1").arg(bankNumber));
+            outputChannelForm->setColor(bankControls.color());
+
+            i++;
         }
+        outputChannelForm->setRange(minValue, maxValue);
         int neutral = actuatorSettingsData.ChannelNeutral[outputChannelForm->index()];
         outputChannelForm->setNeutral(neutral);
     }
@@ -480,18 +490,41 @@ void ConfigOutputWidget::updateAlwaysStabilizeStatus()
     }
 }
 
+void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls)
+{
+    switch (bankControls->modeCombo()->currentIndex()) {
+    case ActuatorSettings::BANKMODE_DSHOT:
+        channelForm->setLimits(0, 0, 0, 2000);
+        break;
+    // case ActuatorSettings::BANKMODE_BRUSHED:
+    // channelForm->setLimits(0, 0, 0, 100); // 0 to 100%
+    // break;
+    default:;
+        channelForm->setLimits(MINOUTPUT_VALUE, MAXOUTPUT_VALUE, MINOUTPUT_VALUE, MAXOUTPUT_VALUE);
+    }
+}
+
 void ConfigOutputWidget::onBankTypeChange()
 {
     QComboBox *bankModeCombo = qobject_cast<QComboBox *>(sender());
 
     if (bankModeCombo != NULL) {
+        int bankNumber = 1;
+        QList<OutputChannelForm *> outputChannelForms = findChildren<OutputChannelForm *>();
         foreach(OutputBankControls controls, m_banks) {
             if (controls.modeCombo() == bankModeCombo) {
                 bool enabled = bankModeCombo->currentIndex() == ActuatorSettings::BANKMODE_PWM;
                 controls.rateCombo()->setEnabled(enabled);
                 controls.rateCombo()->setCurrentIndex(enabled ? 1 : 0);
+                foreach(OutputChannelForm * outputChannelForm, outputChannelForms) {
+                    if (outputChannelForm->bank().toInt() == bankNumber) {
+                        setChannelLimits(outputChannelForm, &controls);
+                    }
+                }
                 break;
             }
+
+            bankNumber++;
         }
     }
 }

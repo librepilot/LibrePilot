@@ -960,6 +960,12 @@ static bool set_channel(uint8_t mixer_channel, uint16_t value)
             // Remap 1000-2000 range to 5-25µs
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], (value * ACTUATOR_MULTISHOT_PULSE_FACTOR) - 180);
             break;
+        case ACTUATORSETTINGS_BANKMODE_DSHOT:
+            if (value > 0) {
+                value += 47; /* skip over reserved values */
+            }
+            PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value);
+            break;
         default:
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], value);
             break;
@@ -990,8 +996,14 @@ static void actuator_update_rate_if_changed(bool force_update)
 {
     static uint16_t prevBankUpdateFreq[ACTUATORSETTINGS_BANKUPDATEFREQ_NUMELEM];
     static uint8_t prevBankMode[ACTUATORSETTINGS_BANKMODE_NUMELEM];
+    static uint16_t prevDShotMode;
     bool updateMode = force_update || (memcmp(prevBankMode, actuatorSettings.BankMode, sizeof(prevBankMode)) != 0);
     bool updateFreq = force_update || (memcmp(prevBankUpdateFreq, actuatorSettings.BankUpdateFreq, sizeof(prevBankUpdateFreq)) != 0);
+
+    if (force_update || (prevDShotMode != actuatorSettings.DShotMode)) {
+        PIOS_Servo_DSHot_Rate(actuatorSettings.DShotMode);
+        prevDShotMode = actuatorSettings.DShotMode;
+    }
 
     // check if any setting is changed
     if (updateMode || updateFreq) {
@@ -1000,29 +1012,35 @@ static void actuator_update_rate_if_changed(bool force_update)
         uint16_t freq[ACTUATORSETTINGS_BANKUPDATEFREQ_NUMELEM];
         uint32_t clock[ACTUATORSETTINGS_BANKUPDATEFREQ_NUMELEM] = { 0 };
         for (uint8_t i = 0; i < ACTUATORSETTINGS_BANKMODE_NUMELEM; i++) {
-            if (force_update || (actuatorSettings.BankMode[i] != prevBankMode[i])) {
-                PIOS_Servo_SetBankMode(i,
-                                       actuatorSettings.BankMode[i] ==
-                                       ACTUATORSETTINGS_BANKMODE_PWM ?
-                                       PIOS_SERVO_BANK_MODE_PWM :
-                                       PIOS_SERVO_BANK_MODE_SINGLE_PULSE
-                                       );
-            }
+            enum pios_servo_bank_mode servo_bank_mode = PIOS_SERVO_BANK_MODE_PWM;
+
             switch (actuatorSettings.BankMode[i]) {
             case ACTUATORSETTINGS_BANKMODE_ONESHOT125:
             case ACTUATORSETTINGS_BANKMODE_ONESHOT42:
             case ACTUATORSETTINGS_BANKMODE_MULTISHOT:
                 freq[i]  = 100; // Value must be small enough so CCr isn't update until the PIOS_Servo_Update is triggered
                 clock[i] = ACTUATOR_ONESHOT_CLOCK; // Setup an 12MHz timer clock
+                servo_bank_mode = PIOS_SERVO_BANK_MODE_SINGLE_PULSE;
                 break;
             case ACTUATORSETTINGS_BANKMODE_PWMSYNC:
                 freq[i]  = 100;
                 clock[i] = ACTUATOR_PWM_CLOCK;
+                servo_bank_mode = PIOS_SERVO_BANK_MODE_SINGLE_PULSE;
+                break;
+            case ACTUATORSETTINGS_BANKMODE_DSHOT:
+                freq[i]  = 100;
+                clock[i] = ACTUATOR_PWM_CLOCK;
+                servo_bank_mode = PIOS_SERVO_BANK_MODE_DSHOT;
                 break;
             default: // PWM
                 freq[i]  = actuatorSettings.BankUpdateFreq[i];
                 clock[i] = ACTUATOR_PWM_CLOCK;
+                servo_bank_mode = PIOS_SERVO_BANK_MODE_PWM;
                 break;
+            }
+
+            if (force_update || (actuatorSettings.BankMode[i] != prevBankMode[i])) {
+                PIOS_Servo_SetBankMode(i, servo_bank_mode);
             }
         }
 

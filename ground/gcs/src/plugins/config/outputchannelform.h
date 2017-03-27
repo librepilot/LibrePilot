@@ -62,6 +62,7 @@ public slots:
     void setRange(int minimum, int maximum);
     void enableChannelTest(bool state);
     QString outputMixerType();
+    void setLimits(int min_low, int min_high, int max_low, int max_high);
 
 signals:
     void channelChanged(int index, int value);

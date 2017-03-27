@@ -6,8 +6,8 @@
  * @brief PiOS Delay functionality
  * @{
  *
- * @file       pios_settings.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @file       pios_delay_raw.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Settings functions header
  * @see        The GNU Public License (GPL) Version 3
@@ -28,24 +28,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#ifndef PIOS_DELAY_RAW_H
+#define PIOS_DELAY_RAW_H
 
-#ifndef PIOS_DELAY_H
-#define PIOS_DELAY_H
+/* these should be defined by CMSIS, but they aren't */
+#define DWT_CTRL   (*(volatile uint32_t *)0xe0001000)
+#define CYCCNTENA  (1 << 0)
+#define DWT_CYCCNT (*(volatile uint32_t *)0xe0001004)
 
-#include "pios_delay_raw.h"
+#define PIOS_DELAY_GetRaw() (DWT_CYCCNT)
 
-/* Public Functions */
-extern int32_t PIOS_DELAY_Init(void);
-extern int32_t PIOS_DELAY_WaituS(uint32_t uS);
-extern int32_t PIOS_DELAY_WaitmS(uint32_t mS);
-extern uint32_t PIOS_DELAY_GetuS();
-extern uint32_t PIOS_DELAY_GetuSSince(uint32_t t);
-extern uint32_t PIOS_DELAY_DiffuS(uint32_t raw);
-extern uint32_t PIOS_DELAY_DiffuS2(uint32_t raw, uint32_t later);
+extern uint32_t PIOS_DELAY_GetRawHz();
 
-#endif /* PIOS_DELAY_H */
-
-/**
- * @}
- * @}
- */
+#endif /* PIOS_DELAY_RAW_H */

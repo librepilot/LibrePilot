@@ -191,7 +191,7 @@ int32_t PIOS_USB_CDC_Init(uint32_t *usbcdc_id, const struct pios_usb_cdc_cfg *cf
 
     pios_usb_cdc_id  = (uint32_t)usb_cdc_dev;
 
-    /* Rx and Tx are not active yet */
+    /* Tx is not active yet */
     usb_cdc_dev->tx_active           = false;
 
     /* Clear stats */

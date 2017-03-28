@@ -5,7 +5,7 @@
  * @addtogroup UAVOHoTTBridge UAVO to HoTT Bridge Telemetry Module
  * @{
  *
- * @file       uavohottridge.c
+ * @file       uavohottbridge.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  *             Tau Labs, http://taulabs.org, Copyright (C) 2013-2014
  * @brief      sends telemery data on HoTT request

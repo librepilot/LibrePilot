@@ -1,7 +1,6 @@
 <xml>
     <object name="HoTTBridgeStatus" singleinstance="true" settings="false" category="System" priority="true">
         <description>HoTTBridge Status Information</description>
-       
 	 
         <field name="TxPackets" units="count" type="uint32" elements="1"/>
         <field name="RxPackets" units="count" type="uint32" elements="1"/>

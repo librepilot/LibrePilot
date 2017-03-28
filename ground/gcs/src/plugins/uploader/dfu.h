@@ -1,36 +1,51 @@
-#ifndef OP_DFU_H
-#define OP_DFU_H
+/**
+ ******************************************************************************
+ *
+ * @file       dfu.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @addtogroup GCSPlugins GCS Plugins
+ * @{
+ * @addtogroup Uploader Uploader Plugin
+ * @{
+ * @brief The uploader plugin
+ *****************************************************************************/
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+#ifndef DFU_H
+#define DFU_H
 
 #include <QByteArray>
-#include <ophid/inc/ophid_hidapi.h>
-#include <ophid/inc/ophid_usbmon.h>
-#include <ophid/inc/ophid_usbsignal.h>
-#include <QDebug>
-#include <QFile>
 #include <QThread>
 #include <QMutex>
-#include <QMutexLocker>
-#include <QMetaType>
-#include <QCryptographicHash>
 #include <QList>
 #include <QVariant>
-#include <iostream>
-#include "delay.h"
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
-#include <QTime>
-#include <QTimer>
-#include "SSP/qssp.h"
-#include "SSP/port.h"
-#include "SSP/qsspt.h"
-
-using namespace std;
-#define BUF_LEN             64
 
 #define MAX_PACKET_DATA_LEN 255
 #define MAX_PACKET_BUF_SIZE (1 + 1 + MAX_PACKET_DATA_LEN + 2)
 
-namespace OP_DFU {
+#define BUF_LEN             64
+
+// serial
+class qsspt;
+
+// usb
+class opHID_hidapi;
+
+namespace DFU {
 enum TransferTypes {
     FW,
     Descript
@@ -81,7 +96,7 @@ enum Commands {
     Reset, // 5
     Abort_Operation, // 6
     Upload, // 7
-    Op_END, // 8
+    END, // 8
     Download_Req, // 9
     Download, // 10
     Status_Request, // 11
@@ -108,13 +123,12 @@ struct device {
     bool    Writable;
 };
 
-
 class DFUObject : public QThread {
     Q_OBJECT;
 
 public:
     static quint32 CRCFromQBArray(QByteArray array, quint32 Size);
-    // DFUObject(bool debug);
+
     DFUObject(bool debug, bool use_serial, QString port);
 
     virtual ~DFUObject();
@@ -124,7 +138,7 @@ public:
     bool findDevices();
     int JumpToApp(bool safeboot, bool erase);
     int ResetDevice(void);
-    OP_DFU::Status StatusRequest();
+    DFU::Status StatusRequest();
     bool EndOperation();
     int AbortOperation(void);
     bool ready()
@@ -133,7 +147,7 @@ public:
     }
 
     // Upload (send to device) commands
-    OP_DFU::Status UploadDescription(QVariant description);
+    DFU::Status UploadDescription(QVariant description);
     bool UploadFirmware(const QString &sfile, const bool &verify, int device);
 
     // Download (get from device) commands:
@@ -146,10 +160,9 @@ public:
     bool DownloadFirmware(QByteArray *byteArray, int device);
 
     // Comparison functions (is this needed?)
-    OP_DFU::Status CompareFirmware(const QString &sfile, const CompareType &type, int device);
+    DFU::Status CompareFirmware(const QString &sfile, const CompareType &type, int device);
 
     bool SaveByteArrayToFile(QString const & file, QByteArray const &array);
-
 
     // Variables:
     QList<device> devices;
@@ -158,15 +171,14 @@ public:
     bool use_delay;
 
     // Helper functions:
-    QString StatusToString(OP_DFU::Status const & status);
+    QString StatusToString(DFU::Status const & status);
     static quint32 CRC32WideFast(quint32 Crc, quint32 Size, quint32 *Buffer);
-    OP_DFU::eBoardType GetBoardType(int boardNum);
-
+    DFU::eBoardType GetBoardType(int boardNum);
 
 signals:
     void progressUpdated(int);
     void downloadFinished();
-    void uploadFinished(OP_DFU::Status);
+    void uploadFinished(DFU::Status);
     void operationProgress(QString status);
 
 private:
@@ -175,16 +187,18 @@ private:
     bool use_serial;
     bool mready;
     int RWFlags;
+
+    // Serial
     qsspt *serialhandle;
+
+    // USB
+    opHID_hidapi *hidHandle;
+
     int sendData(void *, int);
     int receiveData(void *data, int size);
     uint8_t sspTxBuf[MAX_PACKET_BUF_SIZE];
     uint8_t sspRxBuf[MAX_PACKET_BUF_SIZE];
-    port *info;
 
-
-    // USB Bootloader:
-    opHID_hidapi hidHandle;
     int setStartBit(int command)
     {
         return command | 0x20;
@@ -198,11 +212,11 @@ private:
     // Thread management:
     // Same as startDownload except that we store in an external array:
     bool StartDownloadT(QByteArray *fw, qint32 const & numberOfBytes, TransferTypes const & type);
-    OP_DFU::Status UploadFirmwareT(const QString &sfile, const bool &verify, int device);
+    DFU::Status UploadFirmwareT(const QString &sfile, const bool &verify, int device);
     QMutex mutex;
-    OP_DFU::Commands requestedOperation;
+    DFU::Commands requestedOperation;
     qint32 requestSize;
-    OP_DFU::TransferTypes requestTransferType;
+    DFU::TransferTypes requestTransferType;
     QByteArray *requestStorage;
     QString requestFilename;
     bool requestVerify;
@@ -213,7 +227,7 @@ protected:
 };
 }
 
-Q_DECLARE_METATYPE(OP_DFU::Status)
+Q_DECLARE_METATYPE(DFU::Status)
 
 
-#endif // OP_DFU_H
+#endif // DFU_H

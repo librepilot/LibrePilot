@@ -29,22 +29,18 @@
 #define DEVICEWIDGET_H
 
 #include "ui_devicewidget.h"
+
+#include "uploader_global.h"
 #include "uploadergadgetwidget.h"
-#include "op_dfu.h"
-#include <QWidget>
-#include <QFileDialog>
-#include <QErrorMessage>
-#include <QByteArray>
-#include <QtSvg/QGraphicsSvgItem>
-#include <QtSvg/QSvgRenderer>
-#include <QCryptographicHash>
+
+#include "dfu.h"
 #include "uavobjectutilmanager.h"
 #include "devicedescriptorstruct.h"
-#include <QDir>
-#include <QCoreApplication>
-#include "uploader_global.h"
 
-using namespace OP_DFU;
+#include <QWidget>
+#include <QByteArray>
+
+using namespace DFU;
 class UPLOADER_EXPORT DeviceWidget : public QWidget {
     Q_OBJECT
 public:
@@ -87,7 +83,7 @@ public slots:
     void downloadFirmware();
     void setProgress(int);
     void downloadFinished();
-    void uploadFinished(OP_DFU::Status);
+    void uploadFinished(DFU::Status);
     void dfuStatus(QString);
     void confirmCB(int);
 

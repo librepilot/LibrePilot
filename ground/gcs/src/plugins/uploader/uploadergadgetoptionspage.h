@@ -30,14 +30,13 @@
 #define UPLOADERGADGETOPTIONSPAGE_H
 
 #include "uploader_global.h"
+
 #include "coreplugin/dialogs/ioptionspage.h"
 
 #include <QEventLoop>
 #include <QString>
 #include <QStringList>
 #include <QDebug>
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
 
 class UploaderGadgetConfiguration;
 

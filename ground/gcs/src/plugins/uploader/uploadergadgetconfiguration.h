@@ -28,10 +28,11 @@
 #ifndef UPLOADERGADGETCONFIGURATION_H
 #define UPLOADERGADGETCONFIGURATION_H
 
-#include <coreplugin/iuavgadgetconfiguration.h>
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
 #include "uploader_global.h"
+
+#include <coreplugin/iuavgadgetconfiguration.h>
+
+#include <QtSerialPort/QSerialPort>
 
 using namespace Core;
 

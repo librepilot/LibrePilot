@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmapgadgetwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup OPMapPlugin OpenPilot Map Plugin
@@ -174,6 +175,7 @@ private slots:
     void onCopyMouseLonToClipAct_triggered();
     void onShowCompassAct_toggled(bool show);
     void onShowDiagnostics_toggled(bool show);
+    void onShowNav_toggled(bool show);
     void onShowUAVInfo_toggled(bool show);
     void onShowUAVAct_toggled(bool show);
     void onShowHomeAct_toggled(bool show);
@@ -248,6 +250,7 @@ private:
     QAction *copyMouseLonToClipAct;
     QAction *showCompassAct;
     QAction *showDiagnostics;
+    QAction *showNav;
     QAction *showUAVInfo;
     QAction *showHomeAct;
     QAction *showUAVAct;
@@ -308,6 +311,7 @@ private:
     internals::PointLatLng destPoint(internals::PointLatLng source, double bear, double dist);
 
     bool getUAVPosition(double &latitude, double &longitude, double &altitude);
+    bool getNavPosition(double &latitude, double &longitude, double &altitude);
     double getUAV_Yaw();
 
     void setMapFollowingMode();

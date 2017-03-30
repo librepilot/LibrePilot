@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmapgadgetwidget.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup OPMapPlugin OpenPilot Map Plugin
@@ -50,6 +51,7 @@
 #include "uavobject.h"
 
 #include "positionstate.h"
+#include "pathdesired.h"
 #include "homelocation.h"
 #include "gpspositionsensor.h"
 #include "gyrostate.h"
@@ -166,6 +168,7 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
 
     m_map->SetShowHome(true); // display the HOME position on the map
     m_map->SetShowUAV(true); // display the UAV position on the map
+    m_map->SetShowNav(false); // initially don't display the NAV position on the map
 
     m_map->Home->SetSafeArea(safe_area_radius_list[0]); // set radius (meters) //SHOULDN'T THE DEFAULT BE USER DEFINED?
     m_map->Home->SetShowSafeArea(true); // show the safe area  //SHOULDN'T THE DEFAULT BE USER DEFINED?
@@ -213,6 +216,7 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     connect(m_map, SIGNAL(OnWayPointDoubleClicked(WayPointItem *)), this, SLOT(wpDoubleClickEvent(WayPointItem *)));
     m_map->SetCurrentPosition(m_home_position.coord); // set the map position
     m_map->Home->SetCoord(m_home_position.coord); // set the HOME position
+    m_map->Nav->SetCoord(m_home_position.coord); // set the NAV position
     m_map->UAV->SetUAVPos(m_home_position.coord, 0.0); // set the UAV position
     m_map->UAV->update();
     if (m_map->GPS) {
@@ -287,6 +291,7 @@ OPMapGadgetWidget::~OPMapGadgetWidget()
         disconnect(m_map, 0, 0, 0);
         m_map->SetShowHome(false); // doing this appears to stop the map lib crashing on exit
         m_map->SetShowUAV(false); // "          "
+        m_map->SetShowNav(false); // "          "
     }
 
     if (m_map) {
@@ -441,6 +446,8 @@ void OPMapGadgetWidget::contextMenuEvent(QContextMenuEvent *event)
     contextMenu.addAction(showCompassAct);
 
     contextMenu.addAction(showDiagnostics);
+
+    contextMenu.addAction(showNav);
 
     contextMenu.addAction(showUAVInfo);
 
@@ -670,6 +677,19 @@ void OPMapGadgetWidget::updatePosition()
     m_map->UAV->updateTextOverlay();
     m_map->UAV->update();
     // *************
+
+    // *************
+    // update active waypoint position at same update rate
+    if (m_map->Nav) {
+        double latitude, longitude, altitude;
+        getNavPosition(latitude, longitude, altitude);
+        m_map->Nav->SetCoord(internals::PointLatLng(latitude, longitude)); // set the maps Nav position
+        m_map->Nav->SetAltitude(altitude);
+        m_map->Nav->RefreshPos();
+        m_map->Nav->update();
+    }
+    m_map->UAV->updateTextOverlay();
+    m_map->UAV->update();
 }
 
 /**
@@ -1344,6 +1364,12 @@ void OPMapGadgetWidget::createActions()
     showDiagnostics->setChecked(false);
     connect(showDiagnostics, SIGNAL(toggled(bool)), this, SLOT(onShowDiagnostics_toggled(bool)));
 
+    showNav = new QAction(tr("Show Nav"), this);
+    showNav->setStatusTip(tr("Show/Hide pathfollower info"));
+    showNav->setCheckable(true);
+    showNav->setChecked(false);
+    connect(showNav, SIGNAL(toggled(bool)), this, SLOT(onShowNav_toggled(bool)));
+
     showUAVInfo = new QAction(tr("Show UAV Info"), this);
     showUAVInfo->setStatusTip(tr("Show/Hide the UAV info"));
     showUAVInfo->setCheckable(true);
@@ -1645,6 +1671,15 @@ void OPMapGadgetWidget::onShowDiagnostics_toggled(bool show)
     }
 
     m_map->SetShowDiagnostics(show);
+}
+
+void OPMapGadgetWidget::onShowNav_toggled(bool show)
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->SetShowNav(show);
 }
 
 void OPMapGadgetWidget::onShowUAVInfo_toggled(bool show)
@@ -2207,6 +2242,57 @@ bool OPMapGadgetWidget::getUAVPosition(double &latitude, double &longitude, doub
     NED[0]     = positionStateData.North;
     NED[1]     = positionStateData.East;
     NED[2]     = positionStateData.Down;
+
+    Utils::CoordinateConversions().NED2LLA_HomeLLA(homeLLA, NED, LLA);
+
+    latitude  = LLA[0];
+    longitude = LLA[1];
+    altitude  = LLA[2];
+
+    if (latitude != latitude) {
+        latitude = 0; // nan detection
+    } else if (latitude > 90) {
+        latitude = 90;
+    } else if (latitude < -90) {
+        latitude = -90;
+    }
+
+    if (longitude != longitude) {
+        longitude = 0; // nan detection
+    } else if (longitude > 180) {
+        longitude = 180;
+    } else if (longitude < -180) {
+        longitude = -180;
+    }
+
+    if (altitude != altitude) {
+        altitude = 0; // nan detection
+    }
+    return true;
+}
+
+bool OPMapGadgetWidget::getNavPosition(double &latitude, double &longitude, double &altitude)
+{
+    double NED[3];
+    double LLA[3];
+    double homeLLA[3];
+
+    Q_ASSERT(obm != NULL);
+
+    PathDesired *pathDesired   = PathDesired::GetInstance(obm);
+    Q_ASSERT(pathDesired != NULL);
+    PathDesired::DataFields pathDesiredData = pathDesired->getData();
+    HomeLocation *homeLocation = HomeLocation::GetInstance(obm);
+    Q_ASSERT(homeLocation != NULL);
+    HomeLocation::DataFields homeLocationData = homeLocation->getData();
+
+    homeLLA[0] = homeLocationData.Latitude / 1.0e7;
+    homeLLA[1] = homeLocationData.Longitude / 1.0e7;
+    homeLLA[2] = homeLocationData.Altitude;
+
+    NED[0]     = pathDesiredData.End[0];
+    NED[1]     = pathDesiredData.End[1];
+    NED[2]     = pathDesiredData.End[2];
 
     Utils::CoordinateConversions().NED2LLA_HomeLLA(homeLLA, NED, LLA);
 

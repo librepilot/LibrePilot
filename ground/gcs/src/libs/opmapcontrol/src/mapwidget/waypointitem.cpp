@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       waypointitem.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      A graphicsItem representing a WayPoint
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget
@@ -43,16 +44,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     SetShowNumber(shownumber);
     RefreshToolTip();
     RefreshPos();
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
-
+    myHome = map->Home;
     if (myHome) {
         map->Projection()->offSetFromLatLngs(myHome->Coord(), coord, relativeCoord.distance, relativeCoord.bearing);
         relativeCoord.altitudeRelative = Altitude() - myHome->Altitude();
@@ -87,16 +79,7 @@ WayPointItem::WayPointItem(MapGraphicItem *map, bool magicwaypoint) : reached(fa
     SetShowNumber(shownumber);
     RefreshToolTip();
     RefreshPos();
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
-
+    myHome = map->Home;
     if (myHome) {
         coord = map->Projection()->translate(myHome->Coord(), relativeCoord.distance, relativeCoord.bearing);
         SetAltitude(myHome->Altitude() + relativeCoord.altitudeRelative);
@@ -121,15 +104,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     SetShowNumber(shownumber);
     RefreshToolTip();
     RefreshPos();
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
+    myHome = map->Home;
     if (myHome) {
         map->Projection()->offSetFromLatLngs(myHome->Coord(), coord, relativeCoord.distance, relativeCoord.bearing);
         relativeCoord.altitudeRelative = Altitude() - myHome->Altitude();
@@ -143,15 +118,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
 
 WayPointItem::WayPointItem(const distBearingAltitude &relativeCoordenate, const QString &description, MapGraphicItem *map) : relativeCoord(relativeCoordenate), reached(false), description(description), shownumber(true), isDragging(false), map(map)
 {
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
+    myHome = map->Home;
     if (myHome) {
         connect(myHome, SIGNAL(homePositionChanged(internals::PointLatLng, float)), this, SLOT(onHomePositionChanged(internals::PointLatLng, float)));
         coord = map->Projection()->translate(myHome->Coord(), relativeCoord.distance, relativeCoord.bearing);

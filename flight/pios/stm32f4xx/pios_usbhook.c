@@ -218,6 +218,11 @@ void PIOS_USBHOOK_EndpointRx(uint8_t epnum, uint8_t *buf, uint16_t len)
     DCD_EP_PrepareRx(&pios_usb_otg_core_handle, epnum, buf, len);
 }
 
+uint32_t PIOS_USBHOOK_EndpointGetStatus(uint8_t epnum)
+{
+    return DCD_GetEPStatus(&pios_usb_otg_core_handle, epnum);
+}
+
 /*
  * Device level hooks into STM USB library
  */

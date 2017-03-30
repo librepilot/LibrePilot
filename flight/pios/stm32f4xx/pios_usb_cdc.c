@@ -36,6 +36,7 @@
 #include "pios_usb_cdc_priv.h"
 #include "pios_usb_board_data.h" /* PIOS_BOARD_*_DATA_LENGTH */
 #include "pios_usbhook.h" /* PIOS_USBHOOK_* */
+#include "usb_core.h" /* USB_OTG_EP_RX_VALID */
 
 /* Implement COM layer driver API */
 static void PIOS_USB_CDC_RegisterTxCallback(uint32_t usbcdc_id, pios_com_callback tx_out_cb, uint32_t context);
@@ -84,7 +85,6 @@ struct pios_usb_cdc_dev {
     bool     usb_data_if_enabled;
 
     uint8_t  rx_packet_buffer[PIOS_USB_BOARD_CDC_DATA_LENGTH] __attribute__((aligned(4)));
-    volatile bool rx_active;
 
     /*
      * NOTE: This is -1 as somewhat of a hack.  It ensures that we always send packets
@@ -191,8 +191,7 @@ int32_t PIOS_USB_CDC_Init(uint32_t *usbcdc_id, const struct pios_usb_cdc_cfg *cf
 
     pios_usb_cdc_id  = (uint32_t)usb_cdc_dev;
 
-    /* Rx and Tx are not active yet */
-    usb_cdc_dev->rx_active           = false;
+    /* Tx is not active yet */
     usb_cdc_dev->tx_active           = false;
 
     /* Clear stats */
@@ -275,11 +274,11 @@ static void PIOS_USB_CDC_RxStart(uint32_t usbcdc_id, uint16_t rx_bytes_avail)
     }
 
     // If endpoint was stalled and there is now space make it valid
-    if (!usb_cdc_dev->rx_active && (rx_bytes_avail >= PIOS_USB_BOARD_CDC_DATA_LENGTH)) {
+    if ((PIOS_USBHOOK_EndpointGetStatus(usb_cdc_dev->cfg->data_rx_ep) != USB_OTG_EP_RX_VALID)
+        && (rx_bytes_avail >= PIOS_USB_BOARD_CDC_DATA_LENGTH)) {
         PIOS_USBHOOK_EndpointRx(usb_cdc_dev->cfg->data_rx_ep,
                                 usb_cdc_dev->rx_packet_buffer,
                                 sizeof(usb_cdc_dev->rx_packet_buffer));
-        usb_cdc_dev->rx_active = true;
     }
 }
 
@@ -687,7 +686,6 @@ static bool PIOS_USB_CDC_DATA_EP_OUT_Callback(
 
     if (!usb_cdc_dev->rx_in_cb) {
         /* No Rx call back registered, disable the receiver */
-        usb_cdc_dev->rx_active = false;
         return false;
     }
 
@@ -714,7 +712,6 @@ static bool PIOS_USB_CDC_DATA_EP_OUT_Callback(
         rc = true;
     } else {
         /* Not enough room left for a message, apply backpressure */
-        usb_cdc_dev->rx_active = false;
         rc = false;
     }
 

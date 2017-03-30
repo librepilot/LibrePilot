@@ -785,6 +785,15 @@ bool UploaderGadgetWidget::autoUpdate(bool erase)
     case 0x9201:
         filename = "fw_sparky2";
         break;
+    case 0x1002:
+        filename = "fw_spracingf3evo";
+        break;
+    case 0x1001:
+        filename = "fw_spracingf3";
+        break;
+    case 0x1003:
+        filename = "fw_nucleof303re";
+        break;
     default:
         emit progressUpdate(FAILURE, QVariant(tr("Unknown board id '0x%1'").arg(QString::number(m_dfu->devices[0].ID, 16))));
         emit autoUpdateFailed();

@@ -148,7 +148,7 @@ static void StabilizationDesiredUpdatedCb(__attribute__((unused)) UAVObjEvent *e
             if (t <= 1) {
                 StabilizationStatusOuterLoopToArray(status.OuterLoop)[t] = STABILIZATIONSTATUS_OUTERLOOP_ATTITUDE;
             }
-            // else yaw (other modes don't worry about invalid thrust mode either)
+            // yaw
             else {
                 StabilizationStatusOuterLoopToArray(status.OuterLoop)[t] = STABILIZATIONSTATUS_OUTERLOOP_DIRECT;
             }

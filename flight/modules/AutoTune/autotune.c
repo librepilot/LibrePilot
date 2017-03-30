@@ -156,6 +156,7 @@ static uint8_t CheckSettingsRaw();
 static void ComputeStabilizationAndSetPidsFromDampAndNoise(float damp, float noise);
 static void FlightModeSettingsUpdatedCb(UAVObjEvent *ev);
 static void InitSystemIdent(bool loadDefaults);
+static void UpdateSmoothQuickSource(uint8_t smoothQuickSource, bool loadDefaults);
 static void ProportionPidsSmoothToQuick();
 static void UpdateSystemIdentState(const float *X, const float *noise, float dT_s, uint32_t predicts, uint32_t spills, float hover_throttle);
 static void UpdateStabilizationDesired(bool doingIdent);
@@ -249,6 +250,7 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
     uint32_t measureTime      = 0;
     uint32_t updateCounter    = 0;
     enum AUTOTUNE_STATE state = AT_INIT;
+    uint8_t currentSmoothQuickSource = 0;
     bool saveSiNeeded         = false;
     bool savePidNeeded        = false;
 
@@ -314,6 +316,10 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 if (smoothQuickValue > 1.001f) {
                     smoothQuickValue = -1.0f;
                 }
+                // Assume the value is 0
+                if (fabsf(smoothQuickValue) < 0.001f) {
+                    smoothQuickValue = 0.0f;
+                }
             } else {
                 // if they did the 3x FMS toggle while disarmed, set PID's back to the middle of smoothquick
                 smoothQuickValue = 0.0f;
@@ -325,6 +331,15 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             // we also save the new knob/toggle value for startup next time
             // this keeps the PIDs in sync with the toggle position
             saveSiNeeded  = true;
+        }
+
+        // Check if the SmoothQuickSource changed,
+        // allow config changes without reboot or reinit
+        uint8_t smoothQuickSource;
+        SystemIdentSettingsSmoothQuickSourceGet(&smoothQuickSource);
+        if (smoothQuickSource != currentSmoothQuickSource) {
+            UpdateSmoothQuickSource(smoothQuickSource, true);
+            currentSmoothQuickSource = smoothQuickSource;
         }
 
         //////////////////////////////////////////////////////////////////////////////////////
@@ -355,12 +370,9 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
             if (accessoryToUse != -1 && systemIdentSettings.Complete && !CheckSettings()) {
                 AccessoryDesiredData accessoryValue;
                 AccessoryDesiredInstGet(accessoryToUse, &accessoryValue);
-                // if the accessory changed more than some percent of total range
-                // some old PPM receivers use a low resolution chip which only allows about 180 steps out of a range of 2.0
-                // a test Taranis transmitter knob has about 0.0233 slop out of a range of 2.0
-                // what we are doing here does not need any higher precision than that
-                // user must move the knob more than 1/85th of the total range (of 2.0) for it to register as changed
-                if (fabsf(smoothQuickValue - accessoryValue.AccessoryVal) > (2.0f / 85.0f)) {
+                // if the accessory changed more than 2 percent of total range (~20µs)
+                // the smoothQuickValue will be changed
+                if (fabsf(smoothQuickValue - accessoryValue.AccessoryVal) > 0.02f) {
                     smoothQuickValue = accessoryValue.AccessoryVal;
                     // calculate PIDs based on new smoothQuickValue and save to the PID bank
                     ProportionPidsSmoothToQuick();
@@ -727,8 +739,14 @@ static void InitSystemIdent(bool loadDefaults)
     gyroReadTimeAverageAlpha = 0.99999988f;
     gyroReadTimeAverage = u.systemIdentState.GyroReadTimeAverage;
 
-    uint8_t SmoothQuickSource = systemIdentSettings.SmoothQuickSource;
-    switch (SmoothQuickSource) {
+    UpdateSmoothQuickSource(systemIdentSettings.SmoothQuickSource, loadDefaults);
+}
+
+
+// Update SmoothQuickSource to be used
+static void UpdateSmoothQuickSource(uint8_t smoothQuickSource, bool loadDefaults)
+{
+    switch (smoothQuickSource) {
     case SMOOTH_QUICK_ACCESSORY_BASE + 0: // use accessory0
     case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
     case SMOOTH_QUICK_ACCESSORY_BASE + 2: // use accessory2
@@ -737,7 +755,7 @@ static void InitSystemIdent(bool loadDefaults)
         // disable PID changing with flight mode switch
         flightModeSwitchTogglePosition = -1;
         // enable PID changing with accessory0-3
-        accessoryToUse = SmoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
+        accessoryToUse = smoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
         break;
     case SMOOTH_QUICK_TOGGLE_BASE + 3: // use flight mode switch toggle with 3 points
     case SMOOTH_QUICK_TOGGLE_BASE + 5: // use flight mode switch toggle with 5 points
@@ -748,7 +766,7 @@ static void InitSystemIdent(bool loadDefaults)
             smoothQuickValue = 0.0f;
         }
         // enable PID changing with flight mode switch
-        flightModeSwitchTogglePosition = (SmoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
+        flightModeSwitchTogglePosition = (smoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
         // disable PID changing with accessory0-3
         accessoryToUse = -1;
         break;
@@ -823,7 +841,12 @@ static void UpdateStabilizationDesired(bool doingIdent)
         stabDesired.StabilizationMode.Pitch = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
         stabDesired.StabilizationMode.Yaw   = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
     }
-    stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_MANUAL;
+
+    if (systemIdentSettings.ThrustControl == SYSTEMIDENTSETTINGS_THRUSTCONTROL_ALTITUDEVARIO) {
+        stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_ALTITUDEVARIO;
+    } else {
+        stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_MANUAL;
+    }
 
     StabilizationDesiredSet(&stabDesired);
 }

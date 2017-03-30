@@ -146,6 +146,7 @@ extern uint32_t pios_com_rf_id;
 extern uint32_t pios_com_gps_id;
 extern uint32_t pios_com_telem_usb_id;
 extern uint32_t pios_com_bridge_id;
+extern uint32_t pios_com_hott_id;
 extern uint32_t pios_com_vcp_id;
 extern uint32_t pios_com_hkosd_id;
 extern uint32_t pios_com_msp_id;
@@ -156,6 +157,7 @@ extern uint32_t pios_com_mavlink_id;
 #define PIOS_COM_TELEM_RF  (pios_com_telem_rf_id)
 #define PIOS_COM_RF        (pios_com_rf_id)
 #define PIOS_COM_BRIDGE    (pios_com_bridge_id)
+#define PIOS_COM_HOTT      (pios_com_hott_id)
 #define PIOS_COM_VCP       (pios_com_vcp_id)
 #define PIOS_COM_OSDHK     (pios_com_hkosd_id)
 #define PIOS_COM_MSP       (pios_com_msp_id)

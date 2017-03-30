@@ -72,6 +72,7 @@ enum PIOS_COM_Mode {
 struct pios_com_driver {
     void     (*init)(uint32_t id);
     void     (*set_baud)(uint32_t id, uint32_t baud);
+    void     (*set_halfduplex)(uint32_t id, bool halfduplex);
     void     (*set_config)(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
     void     (*set_ctrl_line)(uint32_t id, uint32_t mask, uint32_t state);
     void     (*tx_start)(uint32_t id, uint16_t tx_bytes_avail);
@@ -91,6 +92,7 @@ struct pios_com_driver {
 /* Public Functions */
 extern int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, uint32_t lower_id, uint8_t *rx_buffer, uint16_t rx_buffer_len, uint8_t *tx_buffer, uint16_t tx_buffer_len);
 extern int32_t PIOS_COM_ChangeBaud(uint32_t com_id, uint32_t baud);
+extern int32_t PIOS_COM_SetHalfDuplex(uint32_t com_id, bool halfduplex);
 extern int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
 extern int32_t PIOS_COM_SetCtrlLine(uint32_t com_id, uint32_t mask, uint32_t state);
 extern int32_t PIOS_COM_RegisterCtrlLineCallback(uint32_t usart_id, pios_com_callback_ctrl_line ctrl_line_cb, uint32_t context);

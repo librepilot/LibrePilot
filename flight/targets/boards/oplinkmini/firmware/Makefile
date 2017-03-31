@@ -31,7 +31,7 @@ override USE_DSP_LIB := NO
 MODULES += RadioComBridge
 
 # List of optional modules to include
-OPTMODULES = ComUsbBridge
+OPTMODULES =
 
 # List C source files here (C dependencies are automatically generated).
 # Use file-extension c for "c-only"-files

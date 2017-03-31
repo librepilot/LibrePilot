@@ -861,26 +861,35 @@ void PIOS_Board_Init(void)
 
             oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
 
-            // Set the RF data rate on the modem to ~2X the selected buad rate because the modem is half duplex.
+            // Set the modem (over the air) datarate.
             enum rfm22b_datarate datarate = RFM22_datarate_64000;
-            switch (oplinkSettings.ComSpeed) {
-            case OPLINKSETTINGS_COMSPEED_4800:
+            switch (oplinkSettings.AirDataRate) {
+            case OPLINKSETTINGS_AIRDATARATE_9600:
                 datarate = RFM22_datarate_9600;
                 break;
-            case OPLINKSETTINGS_COMSPEED_9600:
+            case OPLINKSETTINGS_AIRDATARATE_19200:
                 datarate = RFM22_datarate_19200;
                 break;
-            case OPLINKSETTINGS_COMSPEED_19200:
+            case OPLINKSETTINGS_AIRDATARATE_32000:
                 datarate = RFM22_datarate_32000;
                 break;
-            case OPLINKSETTINGS_COMSPEED_38400:
+            case OPLINKSETTINGS_AIRDATARATE_57600:
+                datarate = RFM22_datarate_57600;
+                break;
+            case OPLINKSETTINGS_AIRDATARATE_64000:
                 datarate = RFM22_datarate_64000;
                 break;
-            case OPLINKSETTINGS_COMSPEED_57600:
+            case OPLINKSETTINGS_AIRDATARATE_100000:
                 datarate = RFM22_datarate_100000;
                 break;
-            case OPLINKSETTINGS_COMSPEED_115200:
+            case OPLINKSETTINGS_AIRDATARATE_128000:
+                datarate = RFM22_datarate_128000;
+                break;
+            case OPLINKSETTINGS_AIRDATARATE_192000:
                 datarate = RFM22_datarate_192000;
+                break;
+            case OPLINKSETTINGS_AIRDATARATE_256000:
+                datarate = RFM22_datarate_256000;
                 break;
             }
 

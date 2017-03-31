@@ -808,9 +808,8 @@ bool PIOS_RFM22B_TransmitPacket(uint32_t rfm22b_id, uint8_t *p, uint8_t len)
         return false;
     }
 
-    rfm22b_dev->tx_packet_handle     = p;
-    rfm22b_dev->stats.tx_byte_count += len;
-    rfm22b_dev->packet_start_ticks   = xTaskGetTickCount();
+    rfm22b_dev->tx_packet_handle   = p;
+    rfm22b_dev->packet_start_ticks = xTaskGetTickCount();
     if (rfm22b_dev->packet_start_ticks == 0) {
         rfm22b_dev->packet_start_ticks = 1;
     }
@@ -872,8 +871,6 @@ bool PIOS_RFM22B_TransmitPacket(uint32_t rfm22b_id, uint8_t *p, uint8_t len)
 
     // We're in Tx mode.
     rfm22b_dev->rfm22b_state = RFM22B_STATE_TX_MODE;
-
-    TX_LED_ON;
 
 #ifdef PIOS_RFM22B_DEBUG_ON_TELEM
     D1_LED_ON;
@@ -1923,6 +1920,12 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
             encode_data((unsigned char *)p, len, (unsigned char *)p);
         }
         len += RS_ECC_NPARITY;
+    }
+
+    // Only count the packet if it contains valid data.
+    if (radio_dev->ppm_only_mode || (len > RS_ECC_NPARITY)) {
+        TX_LED_ON;
+        radio_dev->stats.tx_byte_count += len;
     }
 
     // Transmit the packet.

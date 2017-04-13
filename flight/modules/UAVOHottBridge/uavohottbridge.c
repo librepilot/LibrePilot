@@ -55,6 +55,8 @@
 #include "pios_sensors.h"
 #include "uavohottbridge.h"
 
+#include "pios_board_io.h"
+
 #if defined(PIOS_INCLUDE_HOTT_BRIDGE)
 
 #if defined(PIOS_HoTT_STACK_SIZE)

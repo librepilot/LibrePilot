@@ -82,8 +82,8 @@ void PIOS_SYS_Init(void)
                            RCC_APB1Periph_I2C1 |
                            RCC_APB1Periph_I2C2 |
                            RCC_APB1Periph_USB |
-                           RCC_APB1Periph_CAN1 |
-                           RCC_APB1Periph_CAN2 |
+//                           RCC_APB1Periph_CAN1 | /* bxCAN unfortunately interferes with USB */
+//                           RCC_APB1Periph_CAN2 |
                            RCC_APB1Periph_BKP |
                            RCC_APB1Periph_PWR |
                            RCC_APB1Periph_DAC,

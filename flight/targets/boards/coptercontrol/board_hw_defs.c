@@ -981,17 +981,7 @@ const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(uint32_t board_revision)
     return NULL;
 }
 
-#include "pios_usb_board_data_priv.h"
-#include "pios_usb_desc_hid_cdc_priv.h"
-#include "pios_usb_desc_hid_only_priv.h"
-
 #endif /* PIOS_INCLUDE_USB */
-
-#if defined(PIOS_INCLUDE_COM_MSG)
-
-#include <pios_com_msg_priv.h>
-
-#endif /* PIOS_INCLUDE_COM_MSG */
 
 /**
  * Configuration for MPU6000 chip

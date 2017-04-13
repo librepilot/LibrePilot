@@ -140,6 +140,18 @@ extern uint32_t pios_com_mavlink_id;
 # define PIOS_COM_MAVLINK_RX_BUF_LEN      128
 #endif
 
+/* HoTT Telemetry */
+#ifdef PIOS_INCLUDE_HOTT_BRIDGE
+# ifndef PIOS_COM_HOTT_BRIDGE_RX_BUF_LEN
+#  define PIOS_COM_HOTT_BRIDGE_RX_BUF_LEN 512
+# endif
+# ifndef PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN
+#  define PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN 512
+# endif
+extern uint32_t pios_com_hott_id;
+# define PIOS_COM_HOTT (pios_com_hott_id)
+#endif
+
 /* USB VCP */
 extern uint32_t pios_com_vcp_id;
 #define PIOS_COM_VCP                      (pios_com_vcp_id)
@@ -181,6 +193,7 @@ typedef enum {
     PIOS_BOARD_IO_UART_IBUS, /* rcvr */
     PIOS_BOARD_IO_UART_EXBUS, /* rcvr */
 //    PIOS_BOARD_IO_UART_FRSKY_SPORT_TELEMETRY, /* com */
+    PIOS_BOARD_IO_UART_HOTT_BRIDGE, /* com */
 } PIOS_BOARD_IO_UART_Function;
 
 typedef enum {
@@ -191,27 +204,12 @@ typedef enum {
 //    PIOS_BOARD_IO_RADIOAUX_FRSKY_SPORT_TELEMETRY,
 } PIOS_BOARD_IO_RADIOAUX_Function;
 
-typedef enum {
-    PIOS_BOARD_IO_USB_HID_NONE,
-    PIOS_BOARD_IO_USB_HID_TELEMETRY,
-    PIOS_BOARD_IO_USB_HID_RCTX,
-} PIOS_BOARD_IO_USB_HID_Function;
-
-typedef enum {
-    PIOS_BOARD_IO_USB_CDC_NONE,
-    PIOS_BOARD_IO_USB_CDC_TELEMETRY,
-    PIOS_BOARD_IO_USB_CDC_COMBRIDGE,
-    PIOS_BOARD_IO_USB_CDC_MAVLINK,
-    PIOS_BOARD_IO_USB_CDC_DEBUGCONSOLE,
-// PIOS_BOARD_IO_USB_CDC_MSP,
-} PIOS_BOARD_IO_USB_CDC_Function;
-
 #ifdef PIOS_INCLUDE_USB
-void PIOS_BOARD_IO_Configure_USB(PIOS_BOARD_IO_USB_HID_Function hid_function, PIOS_BOARD_IO_USB_CDC_Function cdc_function);
-# if defined(PIOS_INCLUDE_USB_HID)
-#  include <pios_usb_hid_priv.h>
-extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
-# endif /* PIOS_INCLUDE_USB_HID */
+void PIOS_BOARD_IO_Configure_USB();
+//# if defined(PIOS_INCLUDE_USB_HID)
+//#  include <pios_usb_hid_priv.h>
+//extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
+//# endif /* PIOS_INCLUDE_USB_HID */
 #endif /* PIOS_INCLUDE_USB */
 #ifdef PIOS_INCLUDE_PWM
 void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg);

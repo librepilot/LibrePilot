@@ -36,6 +36,10 @@
  */
 #include "../board_hw_defs.c"
 
+#include "pios_usb_board_data_priv.h"
+#include "pios_usb_desc_hid_only_priv.h"
+#include <pios_com_msg_priv.h>
+
 uint32_t pios_com_telem_usb_id;
 
 /**

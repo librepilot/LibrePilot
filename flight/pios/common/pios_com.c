@@ -119,12 +119,16 @@ int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, ui
     PIOS_Assert(driver);
 
     if ((rx_buffer_len > 0) && !rx_buffer) {
+#if defined(PIOS_INCLUDE_FREERTOS)
         rx_buffer = (uint8_t *)pios_malloc(rx_buffer_len);
+#endif
         PIOS_Assert(rx_buffer);
     }
 
     if ((tx_buffer_len > 0) && !tx_buffer) {
+#if defined(PIOS_INCLUDE_FREERTOS)
         tx_buffer = (uint8_t *)pios_malloc(tx_buffer_len);
+#endif
         PIOS_Assert(tx_buffer);
     }
 

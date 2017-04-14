@@ -70,9 +70,12 @@ void setupCom()
     if (PIOS_USART_Init(&pios_usart_generic_id, &pios_usart_generic_main_cfg)) {
         PIOS_Assert(0);
     }
+
     if (PIOS_COM_Init(&PIOS_COM_TELEM_USB, &pios_usart_com_driver, pios_usart_generic_id,
                       rx_buffer, PIOS_COM_MAIN_RX_BUF_LEN,
                       tx_buffer, PIOS_COM_MAIN_TX_BUF_LEN)) {
         PIOS_Assert(0);
     }
+
+    PIOS_COM_ChangeBaud(PIOS_COM_TELEM_USB, 57600);
 }

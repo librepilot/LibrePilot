@@ -252,13 +252,4 @@ void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function function);
 void PIOS_BOARD_IO_Configure_GCSRCVR();
 #endif
 
-#ifdef PIOS_INCLUDE_WS2811
-void PIOS_BOARD_IO_Configure_WS2811();
-#endif
-
-#ifdef PIOS_INCLUDE_ADC
-void PIOS_BOARD_IO_Configure_ADC();
-#endif
-
-
 #endif /* PIOS_BOARD_IO_H */

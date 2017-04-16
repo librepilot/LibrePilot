@@ -33,7 +33,9 @@
 #include <pios_usb_priv.h>
 #endif
 
+#ifdef PIOS_INCLUDE_USART
 #include <pios_usart_priv.h>
+#endif
 
 #ifdef PIOS_INCLUDE_PWM
 #include <pios_pwm_priv.h>
@@ -238,7 +240,9 @@ void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg);
 void PIOS_BOARD_IO_Configure_PPM(const struct pios_ppm_cfg *ppm_cfg);
 #endif
 
+#ifdef PIOS_INCLUDE_USART
 void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *usart_cfg, PIOS_BOARD_IO_UART_Function function);
+#endif
 
 #ifdef PIOS_INCLUDE_RFM22B
 void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function function);

@@ -209,7 +209,8 @@ typedef enum {
 
 #ifdef PIOS_INCLUDE_USB
 # ifndef BOOTLOADER
-# include "hwsettings.h"
+#  include "uavobjectmanager.h"
+#  include "hwsettings.h"
 
 void PIOS_BOARD_IO_Configure_USB();
 

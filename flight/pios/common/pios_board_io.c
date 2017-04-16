@@ -161,39 +161,15 @@ static void PIOS_BOARD_IO_HID_Init(uint32_t *com_id, uint16_t rx_buf_len, uint16
     }
 }
 
-PIOS_BOARD_IO_USB_HID_Function PIOS_BOARD_IO_HWSettings_USB_HID_Function()
-{
-    static const PIOS_BOARD_IO_USB_HID_Function map[] = {
-        [HWSETTINGS_USB_HIDPORT_USBTELEMETRY]  = PIOS_BOARD_IO_USB_HID_TELEMETRY,
-        [HWSETTINGS_USB_HIDPORT_RCTRANSMITTER] = PIOS_BOARD_IO_USB_HID_RCTX,
-    };
-    uint8_t hwsettings_usb_hidport;
-
-    HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
-
-    return (hwsettings_usb_hidport < NELEMENTS(map)) ? map[hwsettings_usb_hidport] : PIOS_BOARD_IO_USB_HID_NONE;
-}
-
-PIOS_BOARD_IO_USB_VCP_Function PIOS_BOARD_IO_HWSettings_USB_VCP_Function()
-{
-    static const PIOS_BOARD_IO_USB_VCP_Function map[] = {
-        [HWSETTINGS_USB_VCPPORT_USBTELEMETRY] = PIOS_BOARD_IO_USB_VCP_TELEMETRY,
-        [HWSETTINGS_USB_VCPPORT_COMBRIDGE]    = PIOS_BOARD_IO_USB_VCP_COMBRIDGE,
-        [HWSETTINGS_USB_VCPPORT_DEBUGCONSOLE] = PIOS_BOARD_IO_USB_VCP_DEBUGCONSOLE,
-        [HWSETTINGS_USB_VCPPORT_MAVLINK] = PIOS_BOARD_IO_USB_VCP_MAVLINK,
-    };
-
-    uint8_t hwsettings_usb_vcpport;
-
-    HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
-
-    return (hwsettings_usb_vcpport < NELEMENTS(map)) ? map[hwsettings_usb_vcpport] : PIOS_BOARD_IO_USB_VCP_NONE;
-}
-
 void PIOS_BOARD_IO_Configure_USB()
 {
-    PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_HWSettings_USB_HID_Function(),
-                                         PIOS_BOARD_IO_HWSettings_USB_VCP_Function());
+    uint8_t hwsettings_usb_hidport;
+    uint8_t hwsettings_usb_vcpport;
+    
+    HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
+    HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
+    
+    PIOS_BOARD_IO_Configure_USB_Function((PIOS_BOARD_IO_USB_HID_Function)hwsettings_usb_hidport, (PIOS_BOARD_IO_USB_VCP_Function)hwsettings_usb_vcpport);
 }
 
 void PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_USB_HID_Function hid_function, __attribute__((unused)) PIOS_BOARD_IO_USB_VCP_Function vcp_function)

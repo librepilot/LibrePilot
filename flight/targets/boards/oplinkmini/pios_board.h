@@ -159,12 +159,13 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 // PIOS_SPI
 // See also pios_board.c
 // ------------------------
-#define PIOS_SPI_MAX_DEVS   1
+#define PIOS_SPI_MAX_DEVS       1
+#define PIOS_SPI_RFM22B_ADAPTER (pios_spi_rfm22b_id)
 
 // -------------------------
 // PIOS_USART
 // -------------------------
-#define PIOS_USART_MAX_DEVS 3
+#define PIOS_USART_MAX_DEVS     3
 
 // -------------------------
 // PIOS_COM

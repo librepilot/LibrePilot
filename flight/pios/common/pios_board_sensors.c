@@ -42,7 +42,7 @@
 # include <pios_ms5611.h>
 #endif
 
-#if defined(PIOS_INCLUDE_ADXL345)
+#ifdef PIOS_INCLUDE_ADXL345
 # include <pios_adxl345.h>
 #endif
 
@@ -51,11 +51,19 @@
 # include <pios_mpu9250_config.h>
 #endif
 
-#if defined(PIOS_INCLUDE_HMC5X83)
+#ifdef PIOS_INCLUDE_HMC5X83
 # include "pios_hmc5x83.h"
-# if defined(PIOS_HMC5X83_HAS_GPIOS)
+# ifdef PIOS_HMC5X83_HAS_GPIOS
 pios_hmc5x83_dev_t pios_hmc5x83_internal_id;
 # endif
+#endif
+
+#ifdef PIOS_INCLUDE_L3GD20
+# include "pios_l3gd20.h"
+#endif
+
+#ifdef PIOS_INCLUDE_BMA180
+# include "pios_bma180.h"
 #endif
 
 #ifdef PIOS_INCLUDE_ADC
@@ -75,10 +83,6 @@ void PIOS_BOARD_Sensors_Configure()
     }
 #endif /* PIOS_INCLUDE_MPU6000 */
 
-#ifdef PIOS_INCLUDE_ADXL345
-    PIOS_ADXL345_Init(PIOS_SPI_ADXL345_ADAPTER, 0);
-#endif
-
 #ifdef PIOS_INCLUDE_MPU9250
     const struct pios_mpu9250_cfg *mpu9250_cfg = PIOS_BOARD_HW_DEFS_GetMPU9250Cfg(pios_board_info_blob.board_rev);
     if (mpu9250_cfg) {
@@ -89,6 +93,27 @@ void PIOS_BOARD_Sensors_Configure()
     }
 #endif /* PIOS_INCLUDE_MPU9250 */
 
+#ifdef PIOS_INCLUDE_ADXL345
+    if (PIOS_BOARD_HW_DEFS_GetADXL345Cfg(pios_board_info_blob.board_rev)) {
+        PIOS_ADXL345_Init(PIOS_SPI_ADXL345_ADAPTER, 0);
+    }
+#endif
+#if defined(PIOS_INCLUDE_L3GD20)
+    const struct pios_l3gd20_cfg *l3gd20_cfg = PIOS_BOARD_HW_DEFS_GetL3GD20Cfg(pios_board_info_blob.board_rev);
+    if (l3gd20_cfg) {
+        PIOS_Assert(0); // L3gd20 has not been ported to Sensor framework!!!
+        PIOS_L3GD20_Init(PIOS_SPI_L3GD20_ADAPTER, 0, l3gd20_cfg);
+        PIOS_Assert(PIOS_L3GD20_Test() == 0);
+    }
+#endif
+#if defined(PIOS_INCLUDE_BMA180)
+    const struct pios_bma180_cfg *bma180_cfg = PIOS_BOARD_HW_DEFS_GetBMA180Cfg(pios_board_info_blob.board_rev);
+    if (bma180_cfg) {
+        PIOS_Assert(0); // BMA180 has not been ported to Sensor framework!!!
+        PIOS_BMA180_Init(PIOS_SPI_BMA180_ADAPTER, 0, bma180_cfg);
+        PIOS_Assert(PIOS_BMA180_Test() == 0);
+    }
+#endif
 
     // internal HMC5x83 mag
 # ifdef PIOS_INCLUDE_HMC5X83_INTERNAL

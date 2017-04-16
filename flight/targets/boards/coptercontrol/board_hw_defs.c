@@ -486,9 +486,9 @@ void PIOS_ADC_handler()
     PIOS_ADC_DMA_Handler();
 }
 
-const struct pios_adc_cfg *PIOS_BOARD_HW_DEFS_GetAdcCfg(__attribute__((unused)) uint32_t board_revision)
+const struct pios_adc_cfg *PIOS_BOARD_HW_DEFS_GetAdcCfg(uint32_t board_revision)
 {
-    return &pios_adc_cfg;
+    return (board_revision == BOARD_REVISION_CC) ? &pios_adc_cfg : 0;
 }
 #endif /* if defined(PIOS_INCLUDE_ADC) */
 
@@ -1044,6 +1044,13 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
 
 const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(__attribute__((unused)) uint32_t board_revision)
 {
-    return &pios_mpu6000_cfg;
+    return (board_revision == BOARD_REVISION_CC3D) ? &pios_mpu6000_cfg : 0;
 }
 #endif /* PIOS_INCLUDE_MPU6000 */
+
+#ifdef PIOS_INCLUDE_ADXL345
+bool PIOS_BOARD_HW_DEFS_GetADXL345Cfg(uint32_t board_revision)
+{
+    return board_revision == BOARD_REVISION_CC;
+}
+#endif

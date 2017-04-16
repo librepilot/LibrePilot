@@ -184,7 +184,7 @@
 /* Begin PBXLegacyTarget section */
 		6581071511DE809D0049FB12 /* OpenPilotOSX */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = ef_gpsplatinum;
+			buildArgumentsString = ef_osd;
 			buildConfigurationList = 6581071A11DE80A30049FB12 /* Build configuration list for PBXLegacyTarget "OpenPilotOSX" */;
 			buildPhases = (
 			);

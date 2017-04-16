@@ -36,6 +36,7 @@
 #include <pios_usbhook.h> /* PIOS_USBHOOK_* */
 #include <stdbool.h>
 #include <pios_board_init.h>
+#include <pios_board_io.h>
 
 extern void FLASH_Download();
 void check_bor();

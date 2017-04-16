@@ -87,6 +87,10 @@ uint32_t pios_rfm22b_id; /* RFM22B handle */
 uint32_t pios_com_rf_id; /* RFM22B telemetry */
 #endif
 
+#ifdef PIOS_INCLUDE_OPENLRS
+uint32_t pios_openlrs_id; /* OpenLRS handle */
+#endif
+
 uint32_t pios_com_hkosd_id; /* HK OSD ?? */
 uint32_t pios_com_msp_id; /* MSP */
 uint32_t pios_com_mavlink_id; /* MAVLink */
@@ -157,18 +161,47 @@ static void PIOS_BOARD_IO_HID_Init(uint32_t *com_id, uint16_t rx_buf_len, uint16
     }
 }
 
+PIOS_BOARD_IO_USB_HID_Function PIOS_BOARD_IO_HWSettings_USB_HID_Function()
+{
+    static const PIOS_BOARD_IO_USB_HID_Function map[] = {
+        [HWSETTINGS_USB_HIDPORT_USBTELEMETRY]  = PIOS_BOARD_IO_USB_HID_TELEMETRY,
+        [HWSETTINGS_USB_HIDPORT_RCTRANSMITTER] = PIOS_BOARD_IO_USB_HID_RCTX,
+    };
+    uint8_t hwsettings_usb_hidport;
+
+    HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
+
+    return (hwsettings_usb_hidport < NELEMENTS(map)) ? map[hwsettings_usb_hidport] : PIOS_BOARD_IO_USB_HID_NONE;
+}
+
+PIOS_BOARD_IO_USB_VCP_Function PIOS_BOARD_IO_HWSettings_USB_VCP_Function()
+{
+    static const PIOS_BOARD_IO_USB_VCP_Function map[] = {
+        [HWSETTINGS_USB_VCPPORT_USBTELEMETRY] = PIOS_BOARD_IO_USB_VCP_TELEMETRY,
+        [HWSETTINGS_USB_VCPPORT_COMBRIDGE]    = PIOS_BOARD_IO_USB_VCP_COMBRIDGE,
+        [HWSETTINGS_USB_VCPPORT_DEBUGCONSOLE] = PIOS_BOARD_IO_USB_VCP_DEBUGCONSOLE,
+        [HWSETTINGS_USB_VCPPORT_MAVLINK] = PIOS_BOARD_IO_USB_VCP_MAVLINK,
+    };
+
+    uint8_t hwsettings_usb_vcpport;
+
+    HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
+
+    return (hwsettings_usb_vcpport < NELEMENTS(map)) ? map[hwsettings_usb_vcpport] : PIOS_BOARD_IO_USB_VCP_NONE;
+}
+
 void PIOS_BOARD_IO_Configure_USB()
+{
+    PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_HWSettings_USB_HID_Function(),
+                                         PIOS_BOARD_IO_HWSettings_USB_VCP_Function());
+}
+
+void PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_USB_HID_Function hid_function, __attribute__((unused)) PIOS_BOARD_IO_USB_VCP_Function vcp_function)
 {
     /* Initialize board specific USB data */
     PIOS_USB_BOARD_DATA_Init();
 
-    uint8_t hwsettings_usb_hidport;
-    HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
-
 #if defined(PIOS_INCLUDE_USB_CDC)
-    uint8_t hwsettings_usb_vcpport;
-    HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
-
     if (PIOS_USB_DESC_HID_CDC_Init()) {
         PIOS_Assert(0);
     }
@@ -182,21 +215,21 @@ void PIOS_BOARD_IO_Configure_USB()
     PIOS_USB_Init(&pios_usb_id, PIOS_BOARD_HW_DEFS_GetUsbCfg(pios_board_info_blob.board_rev));
 
 #if defined(PIOS_INCLUDE_USB_CDC)
-    switch (hwsettings_usb_vcpport) {
-    case HWSETTINGS_USB_VCPPORT_DISABLED:
+    switch (vcp_function) {
+    case PIOS_BOARD_IO_USB_VCP_NONE:
         break;
-    case HWSETTINGS_USB_VCPPORT_USBTELEMETRY:
+    case PIOS_BOARD_IO_USB_VCP_TELEMETRY:
         PIOS_BOARD_IO_VCP_Init(&pios_com_telem_usb_id, PIOS_COM_TELEM_USB_RX_BUF_LEN, PIOS_COM_TELEM_USB_TX_BUF_LEN, pios_usb_id);
         break;
-    case HWSETTINGS_USB_VCPPORT_COMBRIDGE:
+    case PIOS_BOARD_IO_USB_VCP_COMBRIDGE:
         PIOS_BOARD_IO_VCP_Init(&pios_com_vcp_id, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, pios_usb_id);
         break;
-    case HWSETTINGS_USB_VCPPORT_DEBUGCONSOLE:
+    case PIOS_BOARD_IO_USB_VCP_DEBUGCONSOLE:
 #if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
         PIOS_BOARD_IO_VCP_Init(&pios_com_debug_id, 0, PIOS_COM_BRIDGE_TX_BUF_LEN, pios_usb_id);
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
         break;
-    case HWSETTINGS_USB_VCPPORT_MAVLINK:
+    case PIOS_BOARD_IO_USB_VCP_MAVLINK:
         PIOS_BOARD_IO_VCP_Init(&pios_com_mavlink_id, PIOS_COM_MAVLINK_RX_BUF_LEN, PIOS_COM_MAVLINK_TX_BUF_LEN, pios_usb_id);
         break;
     }
@@ -205,13 +238,13 @@ void PIOS_BOARD_IO_Configure_USB()
 #if defined(PIOS_INCLUDE_USB_HID)
     /* Configure the usb HID port */
 
-    switch (hwsettings_usb_hidport) {
-    case HWSETTINGS_USB_HIDPORT_DISABLED:
+    switch (hid_function) {
+    case PIOS_BOARD_IO_USB_HID_NONE:
         break;
-    case HWSETTINGS_USB_HIDPORT_USBTELEMETRY:
+    case PIOS_BOARD_IO_USB_HID_TELEMETRY:
         PIOS_BOARD_IO_HID_Init(&pios_com_telem_usb_id, PIOS_COM_TELEM_USB_RX_BUF_LEN, PIOS_COM_TELEM_USB_TX_BUF_LEN, pios_usb_id);
         break;
-    case HWSETTINGS_USB_HIDPORT_RCTRANSMITTER:
+    case PIOS_BOARD_IO_USB_HID_RCTX:
 #if defined(PIOS_INCLUDE_USB_RCTX)
         if (PIOS_USB_RCTX_Init(&pios_usb_rctx_id, &pios_usb_rctx_cfg, pios_usb_id)) {
             PIOS_Assert(0);
@@ -274,9 +307,11 @@ struct uart_function {
     uint32_t *com_id;
     uint16_t com_rx_buf_len;
     uint16_t com_tx_buf_len;
+#ifdef PIOS_INCLUDE_RCVR
     int32_t  (*rcvr_init)(uint32_t *target, const struct pios_com_driver *driver, uint32_t lower_id);
     const struct pios_rcvr_driver *rcvr_driver;
     ManualControlSettingsChannelGroupsOptions rcvr_group;
+#endif
 };
 
 static const struct uart_function uart_function_map[] = {
@@ -297,13 +332,13 @@ static const struct uart_function uart_function_map[] = {
         .com_rx_buf_len = PIOS_COM_MSP_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_MSP_TX_BUF_LEN,
     },
-
+#ifdef PIOS_INCLUDE_GPS
     [PIOS_BOARD_IO_UART_GPS] =          {
         .com_id         = &pios_com_gps_id,
         .com_rx_buf_len = PIOS_COM_GPS_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_GPS_TX_BUF_LEN,
     },
-
+#endif
     [PIOS_BOARD_IO_UART_OSDHK] =        {
         .com_id         = &pios_com_hkosd_id,
         .com_rx_buf_len = PIOS_COM_HKOSD_RX_BUF_LEN,
@@ -409,7 +444,9 @@ void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *hw_config, PIOS_B
                           0, uart_function_map[function].com_tx_buf_len)) {
             PIOS_Assert(0);
         }
-    } else if (uart_function_map[function].rcvr_init) {
+    }
+#ifdef PIOS_INCLUDE_RCVR
+    else if (uart_function_map[function].rcvr_init) {
         uint32_t usart_id;
 
         if (PIOS_USART_Init(&usart_id, hw_config)) {
@@ -429,6 +466,7 @@ void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *hw_config, PIOS_B
 
         pios_rcvr_group_map[uart_function_map[function].rcvr_group] = rcvr_id;
     }
+#endif /* PIOS_INCLUDE_RCVR */
 }
 
 #ifdef PIOS_INCLUDE_PWM
@@ -513,13 +551,12 @@ void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function radioaux_fun
     if (is_enabled) {
         if (openlrs) {
 #if defined(PIOS_INCLUDE_OPENLRS_RCVR) && defined(PIOS_INCLUDE_RCVR)
-            uint32_t openlrs_id;
             const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(pios_board_info_blob.board_rev);
 
-            PIOS_OpenLRS_Init(&openlrs_id, PIOS_SPI_RFM22B_ADAPTER, 0, openlrs_cfg);
+            PIOS_OpenLRS_Init(&pios_openlrs_id, PIOS_SPI_RFM22B_ADAPTER, 0, openlrs_cfg);
 
             uint32_t openlrsrcvr_id;
-            PIOS_OpenLRS_Rcvr_Init(&openlrsrcvr_id, openlrs_id);
+            PIOS_OpenLRS_Rcvr_Init(&openlrsrcvr_id, pios_openlrs_id);
 
             uint32_t openlrsrcvr_rcvr_id;
             if (PIOS_RCVR_Init(&openlrsrcvr_rcvr_id, &pios_openlrs_rcvr_driver, openlrsrcvr_id)) {
@@ -529,7 +566,7 @@ void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function radioaux_fun
 #endif /* PIOS_INCLUDE_OPENLRS_RCVR && PIOS_INCLUDE_RCVR */
         } else {
             /* Configure the RFM22B device. */
-            const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(pios_board_info_blob.board_rev);
+            const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22bCfg(pios_board_info_blob.board_rev);
 
             if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_SPI_RFM22B_ADAPTER, rfm22b_cfg->slave_num, rfm22b_cfg, oplinkSettings.RFBand)) {
                 PIOS_Assert(0);

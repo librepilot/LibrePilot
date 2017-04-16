@@ -49,13 +49,6 @@ uint32_t pios_com_telem_usb_id;
  */
 static bool board_init_complete = false;
 
-#if defined(PIOS_INCLUDE_USART)
-static int32_t PIOS_BOARD_USART_Ioctl(__attribute__((unused)) uint32_t usart_id, __attribute__((unused)) uint32_t ctl, __attribute__((unused)) void *param)
-{
-    return -1;
-}
-#endif
-
 void PIOS_Board_Init(void)
 {
     if (board_init_complete) {

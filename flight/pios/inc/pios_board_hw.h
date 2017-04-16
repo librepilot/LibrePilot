@@ -33,7 +33,7 @@ const struct pios_gpio_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(uint32_t board_revision
 const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(uint32_t board_revision);
 #endif
 #ifdef PIOS_INCLUDE_RFM22B
-const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(uint32_t board_revision);
+const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22bCfg(uint32_t board_revision);
 #endif
 #ifdef PIOS_INCLUDE_OPENLRS
 const struct pios_openlrs_cfg *PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(uint32_t board_revision);
@@ -58,5 +58,14 @@ const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(uint32_t board_r
 #endif
 #ifdef PIOS_INCLUDE_MPU9250
 const struct pios_mpu9250_cfg *PIOS_BOARD_HW_DEFS_GetMPU9250Cfg(uint32_t board_revision);
+#endif
+#ifdef PIOS_INCLUDE_ADXL345
+bool PIOS_BOARD_HW_DEFS_GetADXL345Cfg(uint32_t board_revision);
+#endif
+#ifdef PIOS_INCLUDE_L3GD20
+const struct pios_l3gd20_cfg *PIOS_BOARD_HW_DEFS_GetL3GD20Cfg(uint32_t board_revision);
+#endif
+#ifdef PIOS_INCLUDE_BMA180
+const struct pios_bma180_cfg *PIOS_BOARD_HW_DEFS_GetBMA180Cfg(uint32_t board_revision);
 #endif
 #endif /* PIOS_BOARD_HW_H */

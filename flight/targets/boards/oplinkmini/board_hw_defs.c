@@ -307,7 +307,7 @@ struct pios_rfm22b_cfg pios_rfm22b_cfg = {
 };
 
 // ! Compatibility layer for various hardware revisions
-const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(__attribute__((unused)) uint32_t board_revision)
+const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22bCfg(__attribute__((unused)) uint32_t board_revision)
 {
     return &pios_rfm22b_cfg;
 }
@@ -794,6 +794,11 @@ static const struct pios_usb_cfg pios_usb_main_cfg = {
     },
     .vsense_active_low                         = false
 };
+
+const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_usb_main_cfg;
+}
 
 #include "pios_usb_board_data_priv.h"
 #include "pios_usb_desc_hid_cdc_priv.h"

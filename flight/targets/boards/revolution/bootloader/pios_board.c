@@ -27,6 +27,14 @@
 #include <pios_board_info.h>
 #include <pios_board_io.h>
 
+
+#include "pios_usb_board_data_priv.h"
+#include "pios_usb_desc_hid_cdc_priv.h"
+#include "pios_usb_desc_hid_only_priv.h"
+#include "pios_usbhook.h"
+
+#include <pios_com_msg_priv.h>
+
 /*
  * Pull in the board-specific static HW definitions.
  * Including .c files is a bit ugly but this allows all of
@@ -40,11 +48,6 @@
 uint32_t pios_com_telem_usb_id;
 
 static bool board_init_complete = false;
-
-static int32_t PIOS_BOARD_USART_Ioctl(__attribute__((unused)) uint32_t usart_id, __attribute__((unused)) uint32_t ctl, __attribute__((unused)) void *param)
-{
-    return -1;
-}
 
 void PIOS_Board_Init()
 {

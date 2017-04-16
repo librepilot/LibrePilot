@@ -439,7 +439,7 @@ const struct pios_rfm22b_cfg pios_rfm22b_cfg = {
     .gpio_direction = GPIO0_TX_GPIO1_RX,
 };
 
-const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(__attribute__((unused)) uint32_t board_revision)
+const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22bCfg(__attribute__((unused)) uint32_t board_revision)
 {
     return &pios_rfm22b_cfg;
 }
@@ -540,6 +540,7 @@ static const struct flashfs_logfs_cfg flashfs_internal_cfg = {
 
 #endif /* PIOS_INCLUDE_FLASH */
 
+#ifdef PIOS_INCLUDE_USART
 #include <pios_usart_priv.h>
 
 /*
@@ -628,6 +629,7 @@ static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
     },
     .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
+#endif /* PIOS_INCLUDE_USART */
 
 #if defined(PIOS_INCLUDE_COM)
 

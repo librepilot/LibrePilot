@@ -238,6 +238,7 @@ void PIOS_SPI_gyro_irq_handler(void)
 
 #endif /* PIOS_INCLUDE_SPI */
 
+#ifdef PIOS_INCLUDE_USART
 #include <pios_usart_priv.h>
 
 /*
@@ -308,6 +309,7 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
 // },
 // },
 };
+#endif /* PIOS_INCLUDE_USART */
 
 #if defined(PIOS_INCLUDE_COM)
 

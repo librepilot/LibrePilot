@@ -95,7 +95,6 @@ extern uint32_t pios_com_telem_rf_id;
 # define PIOS_COM_TELEM_RF_TX_BUF_LEN  512
 #endif
 
-
 /* RFM22B telemetry */
 #ifdef PIOS_INCLUDE_RFM22B
 extern uint32_t pios_rfm22b_id; /* RFM22B handle */
@@ -107,6 +106,10 @@ extern uint32_t pios_com_rf_id; /* oplink telemetry */
 # ifndef PIOS_COM_RFM22B_RF_TX_BUF_LEN
 # define PIOS_COM_RFM22B_RF_TX_BUF_LEN  512
 # endif
+#endif
+
+#ifdef PIOS_INCLUDE_OPENLRS
+extern uint32_t pios_openlrs_id; /* openlrs handle */
 #endif
 
 
@@ -175,7 +178,7 @@ extern pios_hmc5x83_dev_t pios_hmc5x83_internal_id;
 #endif
 
 typedef enum {
-    PIOS_BOARD_IO_UART_NONE,
+    PIOS_BOARD_IO_UART_NONE = 0,
     PIOS_BOARD_IO_UART_TELEMETRY, /* com */
     PIOS_BOARD_IO_UART_MAVLINK, /* com */
     PIOS_BOARD_IO_UART_MSP, /* com */
@@ -197,7 +200,7 @@ typedef enum {
 } PIOS_BOARD_IO_UART_Function;
 
 typedef enum {
-    PIOS_BOARD_IO_RADIOAUX_NONE,
+    PIOS_BOARD_IO_RADIOAUX_NONE = 0,
     PIOS_BOARD_IO_RADIOAUX_MAVLINK,
     PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
     PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
@@ -206,11 +209,23 @@ typedef enum {
 
 #ifdef PIOS_INCLUDE_USB
 void PIOS_BOARD_IO_Configure_USB();
-// # if defined(PIOS_INCLUDE_USB_HID)
-// #  include <pios_usb_hid_priv.h>
-// extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
-// # endif /* PIOS_INCLUDE_USB_HID */
-#endif /* PIOS_INCLUDE_USB */
+
+typedef enum {
+    PIOS_BOARD_IO_USB_HID_NONE = 0,
+    PIOS_BOARD_IO_USB_HID_TELEMETRY,
+    PIOS_BOARD_IO_USB_HID_RCTX,
+} PIOS_BOARD_IO_USB_HID_Function;
+
+typedef enum {
+    PIOS_BOARD_IO_USB_VCP_NONE = 0,
+    PIOS_BOARD_IO_USB_VCP_TELEMETRY,
+    PIOS_BOARD_IO_USB_VCP_COMBRIDGE,
+    PIOS_BOARD_IO_USB_VCP_DEBUGCONSOLE,
+    PIOS_BOARD_IO_USB_VCP_MAVLINK,
+} PIOS_BOARD_IO_USB_VCP_Function;
+
+void PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_USB_HID_Function hid_function, PIOS_BOARD_IO_USB_VCP_Function vcp_function);
+#endif
 #ifdef PIOS_INCLUDE_PWM
 void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg);
 #endif

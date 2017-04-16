@@ -537,7 +537,7 @@ const struct pios_rfm22b_cfg pios_rfm22b_rm2_cfg = {
     .gpio_direction = GPIO0_TX_GPIO1_RX,
 };
 
-const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22Cfg(uint32_t board_revision)
+const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22bCfg(uint32_t board_revision)
 {
     switch (board_revision) {
     case 2:
@@ -600,6 +600,7 @@ static const struct flashfs_logfs_cfg flashfs_internal_user_cfg = {
 };
 #endif /* PIOS_INCLUDE_FLASH */
 
+#ifdef PIOS_INCLUDE_USART
 #include <pios_usart_priv.h>
 
 /*
@@ -708,6 +709,7 @@ static const struct pios_usart_cfg pios_usart_flexiio_cfg = {
         .pin_source     = GPIO_PinSource7,
     }
 };
+#endif /* PIOS_INCLUDE_USART */
 
 #if defined(PIOS_INCLUDE_COM)
 

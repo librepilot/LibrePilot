@@ -185,16 +185,19 @@ void PIOS_BOARD_Sensors_Configure()
 #endif
 
 #ifdef PIOS_INCLUDE_ADC
-    PIOS_ADC_Init(PIOS_BOARD_HW_DEFS_GetAdcCfg(pios_board_info_blob.board_rev));
-#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
-    uint8_t adc_config[HWSETTINGS_ADCROUTING_NUMELEM];
-    HwSettingsADCRoutingArrayGet(adc_config);
-    for (uint32_t i = 0; i < HWSETTINGS_ADCROUTING_NUMELEM; i++) {
-        if (adc_config[i] != HWSETTINGS_ADCROUTING_DISABLED) {
-            PIOS_ADC_PinSetup(i);
+    const struct pios_adc_cfg *adc_cfg = PIOS_BOARD_HW_DEFS_GetAdcCfg(pios_board_info_blob.board_rev);
+    if(adc_cfg) {
+        PIOS_ADC_Init(adc_cfg);
+# ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
+        uint8_t adc_config[HWSETTINGS_ADCROUTING_NUMELEM];
+        HwSettingsADCRoutingArrayGet(adc_config);
+        for (uint32_t i = 0; i < HWSETTINGS_ADCROUTING_NUMELEM; i++) {
+            if (adc_config[i] != HWSETTINGS_ADCROUTING_DISABLED) {
+                PIOS_ADC_PinSetup(i);
+            }
         }
+# endif
     }
-#endif
 #endif /* PIOS_INCLUDE_ADC */
 
     // internal bmp280 baro

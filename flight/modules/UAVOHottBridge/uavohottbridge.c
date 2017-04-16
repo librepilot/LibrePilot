@@ -123,7 +123,8 @@ static int32_t uavoHoTTBridgeInitialize(void)
         // HoTT telemetry baudrate is fixed to 19200
 
         PIOS_COM_ChangeBaud(PIOS_COM_HOTT, 19200);
-        PIOS_COM_SetHalfDuplex(PIOS_COM_HOTT, true);
+        bool param = true;
+        PIOS_COM_Ioctl(PIOS_COM_HOTT, PIOS_IOCTL_USART_SET_HALFDUPLEX, &param);
         HoTTBridgeSettingsInitialize();
         HoTTBridgeStatusInitialize();
 

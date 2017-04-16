@@ -309,7 +309,7 @@ int32_t PIOS_EXBUS_Init(uint32_t *exbus_id,
 
     /* Set comm driver parameters */
     PIOS_DEBUG_Assert(driver->set_config);
-    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_StopBits_1, PIOS_COM_Parity_No, 125000, PIOS_COM_Mode_Rx);
+    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_No, PIOS_COM_StopBits_1, 125000);
 
     /* Set irq priority */
     if (driver->ioctl) {

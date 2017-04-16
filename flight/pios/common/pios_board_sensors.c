@@ -186,7 +186,7 @@ void PIOS_BOARD_Sensors_Configure()
 
 #ifdef PIOS_INCLUDE_ADC
     const struct pios_adc_cfg *adc_cfg = PIOS_BOARD_HW_DEFS_GetAdcCfg(pios_board_info_blob.board_rev);
-    if(adc_cfg) {
+    if (adc_cfg) {
         PIOS_ADC_Init(adc_cfg);
 # ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
         uint8_t adc_config[HWSETTINGS_ADCROUTING_NUMELEM];

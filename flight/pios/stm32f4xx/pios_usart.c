@@ -41,8 +41,7 @@
 
 /* Provide a COM driver */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud);
-static void PIOS_USART_SetHalfDuplex(uint32_t usart_id, bool halfduplex);
-static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
+static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_Parity parity, enum PIOS_COM_StopBits stop_bits, uint32_t baud_rate);
 static void PIOS_USART_SetCtrlLine(uint32_t usart_id, uint32_t mask, uint32_t state);
 static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback tx_out_cb, uint32_t context);
@@ -51,15 +50,14 @@ static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
 
 const struct pios_com_driver pios_usart_com_driver = {
-    .set_baud       = PIOS_USART_ChangeBaud,
-    .set_halfduplex = PIOS_USART_SetHalfDuplex,
-    .set_config     = PIOS_USART_ChangeConfig,
-    .set_ctrl_line  = PIOS_USART_SetCtrlLine,
-    .tx_start       = PIOS_USART_TxStart,
-    .rx_start       = PIOS_USART_RxStart,
-    .bind_tx_cb     = PIOS_USART_RegisterTxCallback,
-    .bind_rx_cb     = PIOS_USART_RegisterRxCallback,
-    .ioctl          = PIOS_USART_Ioctl,
+    .set_baud      = PIOS_USART_ChangeBaud,
+    .set_config    = PIOS_USART_ChangeConfig,
+    .set_ctrl_line = PIOS_USART_SetCtrlLine,
+    .tx_start      = PIOS_USART_TxStart,
+    .rx_start      = PIOS_USART_RxStart,
+    .bind_tx_cb    = PIOS_USART_RegisterTxCallback,
+    .bind_rx_cb    = PIOS_USART_RegisterRxCallback,
+    .ioctl         = PIOS_USART_Ioctl,
 };
 
 enum pios_usart_dev_magic {
@@ -211,29 +209,15 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     /* Initialize the comm parameter structure */
     USART_StructInit(&usart_dev->init); // 9600 8n1
 
-    /* Map pins to USART function */
-    /* note __builtin_ctz() due to the difference between GPIO_PinX and GPIO_PinSourceX */
-    if (usart_dev->cfg->remap) {
-        GPIO_PinAFConfig(usart_dev->cfg->rx.gpio,
-                         __builtin_ctz(usart_dev->cfg->rx.init.GPIO_Pin),
-                         usart_dev->cfg->remap);
-        GPIO_PinAFConfig(usart_dev->cfg->tx.gpio,
-                         __builtin_ctz(usart_dev->cfg->tx.init.GPIO_Pin),
-                         usart_dev->cfg->remap);
-    }
+    /* We will set modes later, depending on installed callbacks */
+    usart_dev->init.USART_Mode = 0;
 
-    /* Initialize the USART Rx and Tx pins */
-    GPIO_Init(usart_dev->cfg->rx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->rx.init);
-    GPIO_Init(usart_dev->cfg->tx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->tx.init);
 
     /* If a DTR line is specified, initialize it */
     if (usart_dev->cfg->dtr.gpio) {
         GPIO_Init(usart_dev->cfg->dtr.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->dtr.init);
         PIOS_USART_SetCtrlLine((uint32_t)usart_dev, COM_CTRL_LINE_DTR_MASK, 0);
     }
-
-    /* Configure the USART */
-    USART_Init(usart_dev->cfg->regs, (USART_InitTypeDef *)&usart_dev->init);
 
     *usart_id = (uint32_t)usart_dev;
 
@@ -267,18 +251,47 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
         break;
     }
     PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
-    USART_ITConfig(usart_dev->cfg->regs, USART_IT_RXNE, ENABLE);
-    USART_ITConfig(usart_dev->cfg->regs, USART_IT_TXE, ENABLE);
-
-    // FIXME XXX Clear / reset uart here - sends NUL char else
-
-    /* Enable USART */
-    USART_Cmd(usart_dev->cfg->regs, ENABLE);
 
     return 0;
 
 out_fail:
     return -1;
+}
+
+static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
+{
+    /* Configure RX GPIO */
+    if ((usart_dev->init.USART_Mode & USART_Mode_Rx) && (usart_dev->cfg->rx.gpio)) {
+        if (usart_dev->cfg->remap) {
+            GPIO_PinAFConfig(usart_dev->cfg->rx.gpio,
+                             __builtin_ctz(usart_dev->cfg->rx.init.GPIO_Pin),
+                             usart_dev->cfg->remap);
+        }
+
+        GPIO_Init(usart_dev->cfg->rx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->rx.init);
+
+        /* just enable RX right away, cause rcvr modules do not call rx_start method */
+        USART_ITConfig(usart_dev->cfg->regs, USART_IT_RXNE, ENABLE);
+    }
+
+    /* Configure TX GPIO */
+    if ((usart_dev->init.USART_Mode & USART_Mode_Tx) && usart_dev->cfg->tx.gpio) {
+        if (usart_dev->cfg->remap) {
+            GPIO_PinAFConfig(usart_dev->cfg->tx.gpio,
+                             __builtin_ctz(usart_dev->cfg->tx.init.GPIO_Pin),
+                             usart_dev->cfg->remap);
+        }
+
+        GPIO_Init(usart_dev->cfg->tx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->tx.init);
+    }
+
+    /* Write new configuration */
+    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+
+    /*
+     * Re enable USART.
+     */
+    USART_Cmd(usart_dev->cfg->regs, ENABLE);
 }
 
 static void PIOS_USART_RxStart(uint32_t usart_id, __attribute__((unused)) uint16_t rx_bytes_avail)
@@ -319,24 +332,7 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
     /* Use our working copy of the usart init structure */
     usart_dev->init.USART_BaudRate = baud;
 
-    /* Write back the modified configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
-}
-
-/**
- * Sets the USART peripheral into half duplex mode
- * \param[in] usart_id USART name (GPS, TELEM, AUX)
- * \param[in] bool wether to set half duplex or not
- */
-static void PIOS_USART_SetHalfDuplex(uint32_t usart_id, bool halfduplex)
-{
-    struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
-
-    bool valid = PIOS_USART_validate(usart_dev);
-
-    PIOS_Assert(valid);
-
-    USART_HalfDuplexCmd(usart_dev->cfg->regs, halfduplex ? ENABLE : DISABLE);
+    PIOS_USART_Setup(usart_dev);
 }
 
 /**
@@ -351,10 +347,9 @@ static void PIOS_USART_SetHalfDuplex(uint32_t usart_id, bool halfduplex)
  */
 static void PIOS_USART_ChangeConfig(uint32_t usart_id,
                                     enum PIOS_COM_Word_Length word_len,
-                                    enum PIOS_COM_StopBits stop_bits,
                                     enum PIOS_COM_Parity parity,
-                                    uint32_t baud_rate,
-                                    enum PIOS_COM_Mode mode)
+                                    enum PIOS_COM_StopBits stop_bits,
+                                    uint32_t baud_rate)
 {
     struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
 
@@ -408,27 +403,7 @@ static void PIOS_USART_ChangeConfig(uint32_t usart_id,
         usart_dev->init.USART_BaudRate = baud_rate;
     }
 
-    switch (mode) {
-    case PIOS_COM_Mode_Rx:
-        usart_dev->init.USART_Mode = USART_Mode_Rx;
-        break;
-    case PIOS_COM_Mode_Tx:
-        usart_dev->init.USART_Mode = USART_Mode_Tx;
-        break;
-    case PIOS_COM_Mode_RxTx:
-        usart_dev->init.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-        break;
-    default:
-        break;
-    }
-
-    /* Write back the modified configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
-
-    /*
-     * Re enable USART.
-     */
-    USART_Cmd(usart_dev->cfg->regs, ENABLE);
+    PIOS_USART_Setup(usart_dev);
 }
 
 static void PIOS_USART_SetCtrlLine(uint32_t usart_id, uint32_t mask, uint32_t state)
@@ -459,8 +434,12 @@ static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback r
      * Order is important in these assignments since ISR uses _cb
      * field to determine if it's ok to dereference _cb and _context
      */
-    usart_dev->rx_in_context = context;
+    usart_dev->rx_in_context    = context;
     usart_dev->rx_in_cb = rx_in_cb;
+
+    usart_dev->init.USART_Mode |= USART_Mode_Rx;
+
+    PIOS_USART_Setup(usart_dev);
 }
 
 static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback tx_out_cb, uint32_t context)
@@ -475,8 +454,12 @@ static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback t
      * Order is important in these assignments since ISR uses _cb
      * field to determine if it's ok to dereference _cb and _context
      */
-    usart_dev->tx_out_context = context;
+    usart_dev->tx_out_context   = context;
     usart_dev->tx_out_cb = tx_out_cb;
+
+    usart_dev->init.USART_Mode |= USART_Mode_Tx;
+
+    PIOS_USART_Setup(usart_dev);
 }
 
 static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
@@ -546,6 +529,9 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
         break;
     case PIOS_IOCTL_USART_GET_TXGPIO:
         *(struct stm32_gpio *)param = usart_dev->cfg->tx;
+        break;
+    case PIOS_IOCTL_USART_SET_HALFDUPLEX:
+        USART_HalfDuplexCmd(usart_dev->cfg->regs, *(bool *)param ? ENABLE : DISABLE);
         break;
     default:
         if (usart_dev->cfg->ioctl) {

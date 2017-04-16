@@ -165,10 +165,10 @@ void PIOS_BOARD_IO_Configure_USB()
 {
     uint8_t hwsettings_usb_hidport;
     uint8_t hwsettings_usb_vcpport;
-    
+
     HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
     HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
-    
+
     PIOS_BOARD_IO_Configure_USB_Function((PIOS_BOARD_IO_USB_HID_Function)hwsettings_usb_hidport, (PIOS_BOARD_IO_USB_VCP_Function)hwsettings_usb_vcpport);
 }
 

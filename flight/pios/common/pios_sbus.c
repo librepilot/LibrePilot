@@ -168,7 +168,7 @@ int32_t PIOS_SBus_Init(uint32_t *sbus_id,
 
     /* Set rest of the parameters */
     if (driver->set_config) {
-        driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_StopBits_2, PIOS_COM_Parity_Even, 100000, PIOS_COM_Mode_Rx);
+        driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_Even, PIOS_COM_StopBits_2, 100000);
     }
 
     /* Set inverted UART and IRQ priority */

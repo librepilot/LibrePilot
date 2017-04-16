@@ -327,7 +327,7 @@ int32_t PIOS_HOTT_Init(uint32_t *hott_id,
 
     /* Set comm driver parameters */
     PIOS_DEBUG_Assert(driver->set_config);
-    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_StopBits_1, PIOS_COM_Parity_No, 115200, PIOS_COM_Mode_Rx);
+    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_No, PIOS_COM_StopBits_1, 115200);
 
     /* Set irq priority */
     if (driver->ioctl) {

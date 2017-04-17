@@ -46,6 +46,9 @@ class qsspt;
 class opHID_hidapi;
 
 namespace DFU {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 8, 0)
+Q_NAMESPACE
+#endif
 enum TransferTypes {
     FW,
     Descript

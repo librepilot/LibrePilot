@@ -11,7 +11,7 @@ Make sure all LibrePilot SDKs are up to date as the osgEarth build relies on the
 More details can be found in osgearth.mk.
 
 
-Linux prerequisites
+Linux
 ----------------------------------
 
 $ sudo apt-get install libzip-dev libpng-dev lipjpeg-dev libtiff5-dev libcurl4-openssl-dev
@@ -20,22 +20,13 @@ $ sudo apt-get install libgeos++-dev libgdal-dev
 Alternative (not tested recently but could work):
 $ sudo apt-get build-dep openscenegraph
 
-Tested with:
-
-$ curl --version
-curl 7.35.0 (i686-pc-linux-gnu) libcurl/7.35.0 OpenSSL/1.0.1f zlib/1.2.8 libidn/1.28 librtmp/2.3
-
-$ gdal-config --version
-1.10.1
-
-
-OSX prerequisites
+OSX
 ----------------------------------
 
 brew install cmake
 brew install gdal
 
-Windows prerequisites
+Windows
 ----------------------------------
 
 pacman -S mingw-w64-i686-cmake mingw-w64-i686-gdal-minimal
@@ -58,6 +49,18 @@ Notes:
 Todo
 - declare provides=<original pkgname> and conflicts with origina gdal in PKGBUILD file
   (allows to substitute the minimal package when anything depends on the original package)
+
+Dependencies
+----------------------------------
+
+			GDAL		GEOS
+MSYS2 		2.0.1 		3.6.1
+Trusty					3.4.2
+Xenial					3.5.0
+OSX			1.11.5		3.6.1
+
+$ gdal-config --version
+$ geos-config --version
 
 Building
 ----------------------------------

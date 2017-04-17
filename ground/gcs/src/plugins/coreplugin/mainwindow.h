@@ -57,7 +57,6 @@ class ConnectionManager;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
-class RightPaneWidget;
 class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
@@ -70,7 +69,6 @@ class UAVGadgetInstanceManager;
 namespace Internal {
 class ActionManagerPrivate;
 class CoreImpl;
-class FancyTabWidget;
 class GeneralSettings;
 class ShortcutSettings;
 class WorkspaceSettings;

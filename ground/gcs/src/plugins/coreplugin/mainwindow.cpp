@@ -54,7 +54,6 @@
 
 #include <qstylefactory.h>
 
-#include "rightpane.h"
 #include "settingsdialog.h"
 #include "threadmanager.h"
 #include "uniqueidmanager.h"

@@ -19,7 +19,6 @@ HEADERS += \
     configgadgetwidget.h \
     configgadgetfactory.h \
     configgadget.h \
-    fancytabwidget.h \
     configinputwidget.h \
     configoutputwidget.h \
     configvehicletypewidget.h \
@@ -68,7 +67,6 @@ SOURCES += \
     configgadgetwidget.cpp \
     configgadgetfactory.cpp \
     configgadget.cpp \
-    fancytabwidget.cpp \
     configinputwidget.cpp \
     configoutputwidget.cpp \
     configvehicletypewidget.cpp \

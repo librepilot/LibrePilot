@@ -286,7 +286,7 @@ void systemInit()
     QSurfaceFormat::setDefaultFormat(format);
 }
 
-static FileLogger *logger;
+static FileLogger *logger = NULL;
 
 void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -295,14 +295,27 @@ void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const 
 
 Q_DECLARE_METATYPE(QtMsgType)
 
-void logInit(QString fileName)
+void logInit(QString &fileName)
 {
     qRegisterMetaType<QtMsgType>();
-    qInstallMessageHandler(mainMessageOutput);
-    logger = new FileLogger();
-    if (!logger->start(fileName)) {
+    logger = new FileLogger(fileName);
+    if (!logger->start()) {
+        delete logger;
+        logger = NULL;
         displayError(msgLogfileOpenFailed(fileName));
+        return;
     }
+    qInstallMessageHandler(mainMessageOutput);
+}
+
+void logDeinit()
+{
+    if (!logger) {
+        return;
+    }
+    qInstallMessageHandler(0);
+    delete logger;
+    logger = NULL;
 }
 
 AppOptions options()
@@ -618,9 +631,7 @@ int main(int argc, char * *argv)
 
     qDebug() << "main - GCS ran for" << timer.elapsed() << "ms";
 
-    if (logger) {
-        delete logger;
-    }
+    logDeinit();
 
     return ret;
 }

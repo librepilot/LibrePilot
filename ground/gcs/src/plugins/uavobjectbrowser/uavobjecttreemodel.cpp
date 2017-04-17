@@ -227,7 +227,7 @@ void UAVObjectTreeModel::addSingleField(int index, UAVObjectField *field, TreeIt
     case UAVObjectField::ENUM:
     {
         QStringList options = field->getOptions();
-        QVariant value = field->getValue();
+        QVariant value = field->getValue(index);
         data.append(options.indexOf(value.toString()));
         data.append(field->getUnits());
         item = new EnumFieldTreeItem(field, index, data);

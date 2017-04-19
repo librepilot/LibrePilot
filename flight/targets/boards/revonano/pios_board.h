@@ -103,30 +103,32 @@
 // PIOS_SPI
 // See also pios_board.c
 // ------------------------
-#define PIOS_SPI_MAX_DEVS      3
-
+#define PIOS_SPI_MAX_DEVS        3
+extern uint32_t pios_spi_gyro_adapter_id;
+#define PIOS_SPI_MPU9250_ADAPTER (pios_spi_gyro_adapter_id)
 // ------------------------
 // PIOS_WDG
 // ------------------------
-#define PIOS_WATCHDOG_TIMEOUT  500
-#define PIOS_WDG_REGISTER      RTC_BKP_DR4
-#define PIOS_WDG_ACTUATOR      0x0001
-#define PIOS_WDG_STABILIZATION 0x0002
-#define PIOS_WDG_ATTITUDE      0x0004
-#define PIOS_WDG_MANUAL        0x0008
-#define PIOS_WDG_SENSORS       0x0010
+#define PIOS_WATCHDOG_TIMEOUT    500
+#define PIOS_WDG_REGISTER        RTC_BKP_DR4
+#define PIOS_WDG_ACTUATOR        0x0001
+#define PIOS_WDG_STABILIZATION   0x0002
+#define PIOS_WDG_ATTITUDE        0x0004
+#define PIOS_WDG_MANUAL          0x0008
+#define PIOS_WDG_SENSORS         0x0010
 
 // ------------------------
 // PIOS_I2C
 // See also pios_board.c
 // ------------------------
-#define PIOS_I2C_MAX_DEVS         3
-extern uint32_t pios_i2c_mag_pressure_adapter_id;
-#define PIOS_I2C_MAIN_ADAPTER     (pios_i2c_mag_pressure_adapter_id)
+#define PIOS_I2C_MAX_DEVS                3
+extern uint32_t pios_i2c_eeprom_pressure_adapter_id;
+#define PIOS_I2C_MS5611_INTERNAL_ADAPTER (pios_i2c_eeprom_pressure_adapter_id)
 extern uint32_t pios_i2c_flexiport_adapter_id;
-#define PIOS_I2C_FLEXI_ADAPTER    (pios_i2c_flexiport_adapter_id)
-#define PIOS_I2C_ETASV3_ADAPTER   (PIOS_I2C_FLEXI_ADAPTER)
-#define PIOS_I2C_MS4525DO_ADAPTER (PIOS_I2C_FLEXI_ADAPTER)
+#define PIOS_I2C_FLEXI_ADAPTER           (pios_i2c_flexiport_adapter_id)
+#define PIOS_I2C_ETASV3_ADAPTER          (PIOS_I2C_FLEXI_ADAPTER)
+#define PIOS_I2C_MS4525DO_ADAPTER        (PIOS_I2C_FLEXI_ADAPTER)
+#define PIOS_I2C_EXTERNAL_ADAPTER        (PIOS_I2C_FLEXI_ADAPTER)
 
 // -------------------------
 // PIOS_USART
@@ -140,7 +142,7 @@ extern uint32_t pios_i2c_flexiport_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS 4
+#define PIOS_COM_MAX_DEVS       4
 // -------------------------
 // Packet Handler
 // -------------------------

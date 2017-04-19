@@ -693,7 +693,7 @@ const struct pios_ppm_out_cfg pios_flexi_ppm_out_cfg = {
  */
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs = USART1,
-    .rx                                        = {
+    .rx   = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -701,7 +701,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_Mode  = GPIO_Mode_IPU,
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_9,
@@ -713,7 +713,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
 
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs = USART3,
-    .rx                                        = {
+    .rx   = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_11,
@@ -721,7 +721,7 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_Mode  = GPIO_Mode_IPU,
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,

@@ -38,6 +38,7 @@
 #endif
 
 #include <pios_board_io.h>
+#include <pios_board_sensors.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -100,7 +101,7 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
 static const PIOS_BOARD_IO_RADIOAUX_Function radioaux_function_map[] = {
     [HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE] = PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
     [HWSETTINGS_RADIOAUXSTREAM_MAVLINK] = PIOS_BOARD_IO_RADIOAUX_MAVLINK,
-    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE] = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
+    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE]    = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
 };
 
 
@@ -143,12 +144,12 @@ void PIOS_Board_Init(void)
 #endif
 
     /* Set up the SPI interface to the gyro/acelerometer */
-    if (PIOS_SPI_Init(&pios_spi_gyro_id, &pios_spi_gyro_cfg)) {
+    if (PIOS_SPI_Init(&pios_spi_gyro_adapter_id, &pios_spi_gyro_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 
     /* Set up the SPI interface to the flash and rfm22b */
-    if (PIOS_SPI_Init(&pios_spi_telem_flash_id, &pios_spi_telem_flash_cfg)) {
+    if (PIOS_SPI_Init(&pios_spi_telem_flash_adapter_id, &pios_spi_telem_flash_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 
@@ -157,7 +158,7 @@ void PIOS_Board_Init(void)
     uintptr_t flash_id;
 
     // Initialize the external USER flash
-    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_id, 1)) {
+    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_adapter_id, 1)) {
         PIOS_DEBUG_Assert(0);
     }
 
@@ -246,8 +247,6 @@ void PIOS_Board_Init(void)
         }
         PIOS_DELAY_WaitmS(50);
     }
-
-    PIOS_BOARD_IO_Configure_I2C(pios_i2c_mag_pressure_adapter_id, pios_i2c_flexiport_adapter_id);
 #endif
 
     /* Moved this here to allow DSM binding on flexiport */
@@ -273,7 +272,7 @@ void PIOS_Board_Init(void)
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_UP
         };
-        
+
         GPIO_Init(MAIN_USART_INVERTER_GPIO, &inverterGPIOInit);
         GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
                       MAIN_USART_INVERTER_PIN,
@@ -290,9 +289,9 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_RFM22B)
     uint8_t hwsettings_radioaux;
     HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
-    
-    if(hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
-        PIOS_BOARD_IO_Configure_RFM22B(pios_spi_telem_flash_id, radioaux_function_map[hwsettings_radioaux]);
+
+    if (hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
+        PIOS_BOARD_IO_Configure_RFM22B(radioaux_function_map[hwsettings_radioaux]);
     }
 #endif /* PIOS_INCLUDE_RFM22B */
 
@@ -359,16 +358,12 @@ void PIOS_Board_Init(void)
     PIOS_DEBUG_Init(pios_tim_servoport_all_pins, NELEMENTS(pios_tim_servoport_all_pins));
 #endif
 
-#if defined(PIOS_INCLUDE_MPU6000)
-    PIOS_MPU6000_Init(pios_spi_gyro_id, 0, &pios_mpu6000_cfg);
-    PIOS_MPU6000_CONFIG_Configure();
-    PIOS_MPU6000_Register();
-#endif
+    PIOS_BOARD_Sensors_Configure();
 
 #ifdef PIOS_INCLUDE_WS2811
     HwSettingsWS2811LED_OutOptions ws2811_pin_settings;
     HwSettingsWS2811LED_OutGet(&ws2811_pin_settings);
-    
+
     if (ws2811_pin_settings != HWSETTINGS_WS2811LED_OUT_DISABLED && ws2811_pin_settings < NELEMENTS(pios_ws2811_pin_cfg)) {
         PIOS_WS2811_Init(&pios_ws2811_cfg, &pios_ws2811_pin_cfg[ws2811_pin_settings]);
     }
@@ -384,8 +379,6 @@ void PIOS_Board_Init(void)
         .GPIO_OType = GPIO_OType_OD,
     };
     GPIO_Init(GPIOA, &gpioA8);
-
-    PIOS_BOARD_IO_Configure_ADC();
 #endif // PIOS_INCLUDE_ADC
 
     DEBUG_PRINTF(2, "Board complete\r\n");

@@ -254,11 +254,11 @@ static const struct pios_spi_cfg pios_spi_gyro_cfg = {
     }
 };
 
-static uint32_t pios_spi_gyro_id;
+uint32_t pios_spi_gyro_adapter_id;
 void PIOS_SPI_gyro_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_gyro_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_gyro_adapter_id);
 }
 
 
@@ -389,11 +389,11 @@ static const struct pios_spi_cfg pios_spi_telem_flash_cfg = {
     },
 };
 
-uint32_t pios_spi_telem_flash_id;
+uint32_t pios_spi_telem_flash_adapter_id;
 void PIOS_SPI_telem_flash_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_telem_flash_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_telem_flash_adapter_id);
 }
 
 
@@ -549,7 +549,7 @@ static const struct flashfs_logfs_cfg flashfs_internal_cfg = {
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs  = USART1,
     .remap = GPIO_AF_USART1,
-    .rx                                        = {
+    .rx    = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -559,7 +559,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_9,
@@ -577,7 +577,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs  = USART3,
     .remap = GPIO_AF_USART3,
-    .rx                                        = {
+    .rx    = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_11,
@@ -587,7 +587,7 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -605,10 +605,10 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
  */
 
 // Inverter for SBUS handling
-#define RCVR_USART_INVERTER_GPIO         GPIOC
-#define RCVR_USART_INVERTER_PIN          GPIO_Pin_4
-#define RCVR_USART_INVERTER_ENABLE       Bit_SET
-#define RCVR_USART_INVERTER_DISABLE      Bit_RESET
+#define RCVR_USART_INVERTER_GPIO    GPIOC
+#define RCVR_USART_INVERTER_PIN     GPIO_Pin_4
+#define RCVR_USART_INVERTER_ENABLE  Bit_SET
+#define RCVR_USART_INVERTER_DISABLE Bit_RESET
 
 static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
 
@@ -616,7 +616,7 @@ static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *par
 static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
     .regs  = USART6,
     .remap = GPIO_AF_USART6,
-    .rx                                        = {
+    .rx    = {
         .gpio = GPIOC,
         .init = {
             .GPIO_Pin   = GPIO_Pin_7,
@@ -626,7 +626,7 @@ static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .ioctl = PIOS_BOARD_USART_Ioctl,
+    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 
 #if defined(PIOS_INCLUDE_COM)
@@ -642,14 +642,14 @@ static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
 /*
  * I2C Adapters
  */
-void PIOS_i2c_mag_pressure_adapter_ev_irq_handler(void);
-void PIOS_i2c_mag_pressure_adapter_er_irq_handler(void);
+void PIOS_i2c_pressure_adapter_ev_irq_handler(void);
+void PIOS_i2c_pressure_adapter_er_irq_handler(void);
 void I2C1_EV_IRQHandler()
-__attribute__((alias("PIOS_i2c_mag_pressure_adapter_ev_irq_handler")));
+__attribute__((alias("PIOS_i2c_pressure_adapter_ev_irq_handler")));
 void I2C1_ER_IRQHandler()
-__attribute__((alias("PIOS_i2c_mag_pressure_adapter_er_irq_handler")));
+__attribute__((alias("PIOS_i2c_pressure_adapter_er_irq_handler")));
 
-static const struct pios_i2c_adapter_cfg pios_i2c_mag_pressure_adapter_cfg = {
+static const struct pios_i2c_adapter_cfg pios_i2c_pressure_adapter_cfg = {
     .regs     = I2C1,
     .remapSCL = GPIO_AF_I2C1,
     .remapSDA = GPIO_AF_I2C1,
@@ -702,17 +702,17 @@ static const struct pios_i2c_adapter_cfg pios_i2c_mag_pressure_adapter_cfg = {
     },
 };
 
-uint32_t pios_i2c_mag_pressure_adapter_id;
-void PIOS_i2c_mag_pressure_adapter_ev_irq_handler(void)
+uint32_t pios_i2c_pressure_adapter_id;
+void PIOS_i2c_pressure_adapter_ev_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_I2C_EV_IRQ_Handler(pios_i2c_mag_pressure_adapter_id);
+    PIOS_I2C_EV_IRQ_Handler(pios_i2c_pressure_adapter_id);
 }
 
-void PIOS_i2c_mag_pressure_adapter_er_irq_handler(void)
+void PIOS_i2c_pressure_adapter_er_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_I2C_ER_IRQ_Handler(pios_i2c_mag_pressure_adapter_id);
+    PIOS_I2C_ER_IRQ_Handler(pios_i2c_pressure_adapter_id);
 }
 
 
@@ -788,8 +788,8 @@ void PIOS_I2C_flexiport_adapter_er_irq_handler(void)
 }
 
 
-void PIOS_i2c_mag_pressure_adapter_ev_irq_handler(void);
-void PIOS_i2c_mag_pressure_adapter_er_irq_handler(void);
+void PIOS_i2c_pressure_adapter_ev_irq_handler(void);
+void PIOS_i2c_pressure_adapter_er_irq_handler(void);
 
 #endif /* PIOS_INCLUDE_I2C */
 
@@ -1307,7 +1307,6 @@ const struct pios_ms5611_cfg *PIOS_BOARD_HW_DEFS_GetMS5611Cfg(__attribute__((unu
  */
 #if defined(PIOS_INCLUDE_MPU9250)
 #include "pios_mpu9250.h"
-#include "pios_mpu9250_config.h"
 static const struct pios_exti_cfg pios_exti_mpu9250_cfg __exti_config = {
     .vector = PIOS_MPU9250_IRQHandler,
     .line   = EXTI_Line5,
@@ -1358,5 +1357,9 @@ static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .std_prescaler  = PIOS_SPI_PRESCALER_64,
     .max_downsample = 26,
 };
-#endif /* PIOS_INCLUDE_MPU9250 */
 
+const struct pios_mpu9250_cfg *PIOS_BOARD_HW_DEFS_GetMPU9250Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_mpu9250_cfg;
+}
+#endif /* PIOS_INCLUDE_MPU9250 */

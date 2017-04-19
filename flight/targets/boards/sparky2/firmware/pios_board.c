@@ -41,7 +41,7 @@
 #endif
 
 #include <pios_board_io.h>
-
+#include <pios_board_sensors.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -57,24 +57,24 @@ uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
 static const PIOS_BOARD_IO_UART_Function rcvr_function_map[] = {
-    [HWSETTINGS_SPK2_RCVRPORT_SBUS] = PIOS_BOARD_IO_UART_SBUS,
-    [HWSETTINGS_SPK2_RCVRPORT_DSM] = PIOS_BOARD_IO_UART_DSM_RCVR,
-    [HWSETTINGS_SPK2_RCVRPORT_SRXL] = PIOS_BOARD_IO_UART_SRXL,
-    [HWSETTINGS_SPK2_RCVRPORT_IBUS] = PIOS_BOARD_IO_UART_IBUS,
-    [HWSETTINGS_SPK2_RCVRPORT_EXBUS] = PIOS_BOARD_IO_UART_EXBUS,
+    [HWSETTINGS_SPK2_RCVRPORT_SBUS]     = PIOS_BOARD_IO_UART_SBUS,
+    [HWSETTINGS_SPK2_RCVRPORT_DSM]      = PIOS_BOARD_IO_UART_DSM_RCVR,
+    [HWSETTINGS_SPK2_RCVRPORT_SRXL]     = PIOS_BOARD_IO_UART_SRXL,
+    [HWSETTINGS_SPK2_RCVRPORT_IBUS]     = PIOS_BOARD_IO_UART_IBUS,
+    [HWSETTINGS_SPK2_RCVRPORT_EXBUS]    = PIOS_BOARD_IO_UART_EXBUS,
     [HWSETTINGS_SPK2_RCVRPORT_HOTTSUMD] = PIOS_BOARD_IO_UART_HOTT_SUMD,
     [HWSETTINGS_SPK2_RCVRPORT_HOTTSUMH] = PIOS_BOARD_IO_UART_HOTT_SUMH,
 };
 
 static const PIOS_BOARD_IO_UART_Function main_function_map[] = {
-    [HWSETTINGS_SPK2_MAINPORT_TELEMETRY] = PIOS_BOARD_IO_UART_TELEMETRY,
-    [HWSETTINGS_SPK2_MAINPORT_GPS]          = PIOS_BOARD_IO_UART_GPS,
-    [HWSETTINGS_SPK2_MAINPORT_DSM]          = PIOS_BOARD_IO_UART_DSM_MAIN,
+    [HWSETTINGS_SPK2_MAINPORT_TELEMETRY]    = PIOS_BOARD_IO_UART_TELEMETRY,
+    [HWSETTINGS_SPK2_MAINPORT_GPS] = PIOS_BOARD_IO_UART_GPS,
+    [HWSETTINGS_SPK2_MAINPORT_DSM] = PIOS_BOARD_IO_UART_DSM_MAIN,
     [HWSETTINGS_SPK2_MAINPORT_DEBUGCONSOLE] = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
     [HWSETTINGS_SPK2_MAINPORT_COMBRIDGE]    = PIOS_BOARD_IO_UART_COMBRIDGE,
-    [HWSETTINGS_SPK2_MAINPORT_OSDHK]        = PIOS_BOARD_IO_UART_OSDHK,
-    [HWSETTINGS_SPK2_MAINPORT_MSP]          = PIOS_BOARD_IO_UART_MSP,
-    [HWSETTINGS_SPK2_MAINPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
+    [HWSETTINGS_SPK2_MAINPORT_OSDHK]   = PIOS_BOARD_IO_UART_OSDHK,
+    [HWSETTINGS_SPK2_MAINPORT_MSP]     = PIOS_BOARD_IO_UART_MSP,
+    [HWSETTINGS_SPK2_MAINPORT_MAVLINK] = PIOS_BOARD_IO_UART_MAVLINK,
 };
 
 static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
@@ -96,25 +96,25 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
 static const PIOS_BOARD_IO_RADIOAUX_Function radioaux_function_map[] = {
     [HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE] = PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
     [HWSETTINGS_RADIOAUXSTREAM_MAVLINK] = PIOS_BOARD_IO_RADIOAUX_MAVLINK,
-    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE] = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
+    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE]    = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
 };
 
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
-    
+
     switch (ctl) {
-        case PIOS_IOCTL_USART_SET_INVERTED:
-            if (usart_cfg->regs == pios_usart_rcvr_cfg.regs) { /* rcvr port */
-                GPIO_WriteBit(RCVR_USART_INVERTER_GPIO,
-                              RCVR_USART_INVERTER_PIN,
-                              (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? RCVR_USART_INVERTER_ENABLE : RCVR_USART_INVERTER_DISABLE);
-                
-                return 0;
-            }
-            break;
+    case PIOS_IOCTL_USART_SET_INVERTED:
+        if (usart_cfg->regs == pios_usart_rcvr_cfg.regs) { /* rcvr port */
+            GPIO_WriteBit(RCVR_USART_INVERTER_GPIO,
+                          RCVR_USART_INVERTER_PIN,
+                          (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? RCVR_USART_INVERTER_ENABLE : RCVR_USART_INVERTER_DISABLE);
+
+            return 0;
+        }
+        break;
     }
-    
+
     return -1;
 }
 
@@ -140,12 +140,12 @@ void PIOS_Board_Init(void)
 #endif
 
     /* Set up the SPI interface to the gyro/acelerometer */
-    if (PIOS_SPI_Init(&pios_spi_gyro_id, &pios_spi_gyro_cfg)) {
+    if (PIOS_SPI_Init(&pios_spi_gyro_adapter_id, &pios_spi_gyro_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 
     /* Set up the SPI interface to the flash and rfm22b */
-    if (PIOS_SPI_Init(&pios_spi_telem_flash_id, &pios_spi_telem_flash_cfg)) {
+    if (PIOS_SPI_Init(&pios_spi_telem_flash_adapter_id, &pios_spi_telem_flash_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 
@@ -154,7 +154,7 @@ void PIOS_Board_Init(void)
     uintptr_t flash_id = 0;
 
     // Initialize the external USER flash
-    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_id, 1)) {
+    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_adapter_id, 1)) {
         PIOS_DEBUG_Assert(0);
     }
 
@@ -224,26 +224,24 @@ void PIOS_Board_Init(void)
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
     HwSettingsSPK2_FlexiPortGet(&hwsettings_flexiport);
-    
+
     if (hwsettings_flexiport < NELEMENTS(flexi_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
     }
-    
+
 #if defined(PIOS_INCLUDE_I2C)
     /* Set up internal I2C bus */
-    if (PIOS_I2C_Init(&pios_i2c_mag_pressure_adapter_id, &pios_i2c_mag_pressure_adapter_cfg)) {
+    if (PIOS_I2C_Init(&pios_i2c_pressure_adapter_id, &pios_i2c_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
     PIOS_DELAY_WaitmS(50);
-    
+
     if (hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_I2C) {
         if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
             PIOS_Assert(0);
         }
         PIOS_DELAY_WaitmS(50);
     }
-    
-    PIOS_BOARD_IO_Configure_I2C(pios_i2c_mag_pressure_adapter_id, pios_i2c_flexiport_adapter_id);
 #endif
 
     /* Moved this here to allow binding on flexiport */
@@ -259,16 +257,17 @@ void PIOS_Board_Init(void)
 
     uint8_t hwsettings_mainport;
     HwSettingsSPK2_MainPortGet(&hwsettings_mainport);
+
     if (hwsettings_mainport < NELEMENTS(main_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_main_cfg, main_function_map[hwsettings_mainport]);
     }
-    
+
 #if defined(PIOS_INCLUDE_RFM22B)
     uint8_t hwsettings_radioaux;
     HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
-    
-    if(hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
-        PIOS_BOARD_IO_Configure_RFM22B(pios_spi_telem_flash_id, radioaux_function_map[hwsettings_radioaux]);
+
+    if (hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
+        PIOS_BOARD_IO_Configure_RFM22B(radioaux_function_map[hwsettings_radioaux]);
     }
 #endif /* PIOS_INCLUDE_RFM22B */
 
@@ -281,7 +280,7 @@ void PIOS_Board_Init(void)
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_UP
         };
-        
+
         GPIO_Init(RCVR_USART_INVERTER_GPIO, &inverterGPIOInit);
         GPIO_WriteBit(RCVR_USART_INVERTER_GPIO,
                       RCVR_USART_INVERTER_PIN,
@@ -292,16 +291,16 @@ void PIOS_Board_Init(void)
     // Sparky2 receiver input on PC7 TIM8 CH2
     // include PPM,S.Bus,DSM,SRXL,IBus,EX.Bus,HoTT SUMD,HoTT SUMH
     /* Configure the receiver port*/
-    
+
     uint8_t hwsettings_rcvrport;
     HwSettingsSPK2_RcvrPortGet(&hwsettings_rcvrport);
-    
+
     if (hwsettings_rcvrport < NELEMENTS(rcvr_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_rcvr_cfg, rcvr_function_map[hwsettings_rcvrport]);
     }
 
 #if defined(PIOS_INCLUDE_PPM)
-    if(hwsettings_rcvrport == HWSETTINGS_SPK2_RCVRPORT_PPM) {
+    if (hwsettings_rcvrport == HWSETTINGS_SPK2_RCVRPORT_PPM) {
         PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
     }
 #endif
@@ -316,12 +315,7 @@ void PIOS_Board_Init(void)
     PIOS_DEBUG_Init(pios_tim_servoport_all_pins, NELEMENTS(pios_tim_servoport_all_pins));
 #endif
 
-#if defined(PIOS_INCLUDE_MPU9250)
-    PIOS_MPU9250_Init(pios_spi_gyro_id, 0, &pios_mpu9250_cfg);
-    PIOS_MPU9250_CONFIG_Configure();
-    PIOS_MPU9250_MainRegister();
-    PIOS_MPU9250_MagRegister();
-#endif
+    PIOS_BOARD_Sensors_Configure();
 
 #ifdef PIOS_INCLUDE_WS2811
     HwSettingsWS2811LED_OutOptions ws2811_pin_settings;
@@ -342,10 +336,7 @@ void PIOS_Board_Init(void)
         .GPIO_OType = GPIO_OType_OD,
     };
     GPIO_Init(GPIOA, &gpioA8);
-    
-    PIOS_BOARD_IO_Configure_ADC();
 #endif /* PIOS_INCLUDE_ADC */
-
 }
 
 /**

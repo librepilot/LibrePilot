@@ -116,19 +116,23 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_SPI_MAX_DEVS   2
+#define PIOS_SPI_MAX_DEVS        2
+extern uint32_t pios_spi_gyro_adapter_id;
+#define PIOS_SPI_MPU6000_ADAPTER (pios_spi_gyro_adapter_id)
+extern uint32_t pios_spi_flash_accel_adapter_id;
+#define PIOS_SPI_ADXL345_ADAPTER (pios_spi_flash_accel_adapter_id)
 
 // -------------------------
 // PIOS_USART
 // -------------------------
-#define PIOS_USART_MAX_DEVS 2
+#define PIOS_USART_MAX_DEVS      2
 
 // -------------------------
 // PIOS_COM
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS  3
+#define PIOS_COM_MAX_DEVS                3
 
 #define PIOS_COM_TELEM_RF_RX_BUF_LEN     32
 #define PIOS_COM_TELEM_RF_TX_BUF_LEN     12

@@ -30,20 +30,20 @@
  * Generic servo pin configuration structure for an STM32F10x
  */
 #define TIM_SERVO_CHANNEL_CONFIG(_timer, _channel, _gpio, _pin, _remap) \
-{                                                     \
-    .timer = _timer,                                  \
-    .timer_chan = TIM_Channel_##_channel,             \
-    .pin   = {                                        \
-        .gpio = GPIO##_gpio,                          \
-        .init = {                                     \
-            .GPIO_Pin   = GPIO_Pin_##_pin,            \
-            .GPIO_Mode  = GPIO_Mode_IPD, \
-            .GPIO_Speed = GPIO_Speed_2MHz,\
-        },                                            \
-        .pin_source     = GPIO_PinSource##_pin,       \
-    },                                                \
-    .remap = _remap,                        \
-}
+    {                                                     \
+        .timer = _timer,                                  \
+        .timer_chan = TIM_Channel_##_channel,             \
+        .pin   = {                                        \
+            .gpio = GPIO##_gpio,                          \
+            .init = {                                     \
+                .GPIO_Pin   = GPIO_Pin_##_pin,            \
+                .GPIO_Mode  = GPIO_Mode_IPD, \
+                .GPIO_Speed = GPIO_Speed_2MHz, \
+            },                                            \
+            .pin_source     = GPIO_PinSource##_pin,       \
+        },                                                \
+        .remap = _remap,                        \
+    }
 
 
 #endif /* PIOS_SERVO_CONFIG_H_ */

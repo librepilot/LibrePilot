@@ -186,11 +186,11 @@ static const struct pios_spi_cfg pios_spi_gyro_cfg = {
     },
 };
 
-static uint32_t pios_spi_gyro_id;
+uint32_t pios_spi_gyro_adapter_id;
 void PIOS_SPI_gyro_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_gyro_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_gyro_adapter_id);
 }
 
 
@@ -402,11 +402,11 @@ static const struct pios_spi_cfg pios_spi_flash_accel_cfg_cc = {
     },
 };
 
-static uint32_t pios_spi_flash_accel_id;
+uint32_t pios_spi_flash_accel_adapter_id;
 void PIOS_SPI_flash_accel_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_flash_accel_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_flash_accel_adapter_id);
 }
 
 #endif /* PIOS_INCLUDE_SPI */
@@ -484,6 +484,11 @@ static const struct pios_adc_cfg pios_adc_cfg = {
 void PIOS_ADC_handler()
 {
     PIOS_ADC_DMA_Handler();
+}
+
+const struct pios_adc_cfg *PIOS_BOARD_HW_DEFS_GetAdcCfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_adc_cfg;
 }
 #endif /* if defined(PIOS_INCLUDE_ADC) */
 
@@ -593,16 +598,16 @@ static const struct pios_tim_channel pios_tim_ppm_flexi_port = TIM_SERVO_CHANNEL
 #include "pios_usart_priv.h"
 
 // Inverter for SBUS handling
-#define MAIN_USART_INVERTER_GPIO         GPIOB
-#define MAIN_USART_INVERTER_PIN          GPIO_Pin_2
-#define MAIN_USART_INVERTER_ENABLE       Bit_SET
-#define MAIN_USART_INVERTER_DISABLE      Bit_RESET
+#define MAIN_USART_INVERTER_GPIO    GPIOB
+#define MAIN_USART_INVERTER_PIN     GPIO_Pin_2
+#define MAIN_USART_INVERTER_ENABLE  Bit_SET
+#define MAIN_USART_INVERTER_DISABLE Bit_RESET
 
 static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
 
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs = USART1,
-    .rx                                        = {
+    .rx   = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -610,7 +615,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_Mode  = GPIO_Mode_IPU,
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_9,
@@ -618,12 +623,12 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF_PP,
         },
     },
-    .ioctl = PIOS_BOARD_USART_Ioctl,
+    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs = USART3,
-    .rx                                        = {
+    .rx   = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_11,
@@ -631,7 +636,7 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_Mode  = GPIO_Mode_IPU,
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -967,16 +972,16 @@ static const struct pios_usb_cfg pios_usb_main_cfg_cc3d = {
 const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(uint32_t board_revision)
 {
     switch (board_revision) {
-        case BOARD_REVISION_CC:
-            return &pios_usb_main_cfg_cc;
-            
-            break;
-        case BOARD_REVISION_CC3D:
-            return &pios_usb_main_cfg_cc3d;
-            
-            break;
-        default:
-            PIOS_DEBUG_Assert(0);
+    case BOARD_REVISION_CC:
+        return &pios_usb_main_cfg_cc;
+
+        break;
+    case BOARD_REVISION_CC3D:
+        return &pios_usb_main_cfg_cc3d;
+
+        break;
+    default:
+        PIOS_DEBUG_Assert(0);
     }
     return NULL;
 }
@@ -988,7 +993,6 @@ const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(uint32_t board_revision)
  */
 #if defined(PIOS_INCLUDE_MPU6000)
 #include "pios_mpu6000.h"
-#include "pios_mpu6000_config.h"
 static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
     .vector = PIOS_MPU6000_IRQHandler,
     .line   = EXTI_Line3,
@@ -1037,6 +1041,9 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
     .std_prescaler  = PIOS_SPI_PRESCALER_64,
     .max_downsample = 2
 };
+
+const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_mpu6000_cfg;
+}
 #endif /* PIOS_INCLUDE_MPU6000 */
-
-

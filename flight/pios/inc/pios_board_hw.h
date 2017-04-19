@@ -53,4 +53,10 @@ const struct pios_bmp280_cfg *PIOS_BOARD_HW_DEFS_GetBMP280Cfg(uint32_t board_rev
 #ifdef PIOS_INCLUDE_ADC
 const struct pios_adc_cfg *PIOS_BOARD_HW_DEFS_GetAdcCfg(uint32_t board_revision);
 #endif
+#ifdef PIOS_INCLUDE_MPU6000
+const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(uint32_t board_revision);
+#endif
+#ifdef PIOS_INCLUDE_MPU9250
+const struct pios_mpu9250_cfg *PIOS_BOARD_HW_DEFS_GetMPU9250Cfg(uint32_t board_revision);
+#endif
 #endif /* PIOS_BOARD_HW_H */

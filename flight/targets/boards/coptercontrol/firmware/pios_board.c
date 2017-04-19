@@ -38,11 +38,9 @@
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
 #endif
-#if defined(PIOS_INCLUDE_ADXL345)
-#include <pios_adxl345.h>
-#endif
 
 #include <pios_board_io.h>
+#include <pios_board_sensors.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -91,19 +89,19 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
-    
+
     switch (ctl) {
-        case PIOS_IOCTL_USART_SET_INVERTED:
-            if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
-                GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
-                              MAIN_USART_INVERTER_PIN,
-                              (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
-                
-                return 0;
-            }
-            break;
+    case PIOS_IOCTL_USART_SET_INVERTED:
+        if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
+            GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
+                          MAIN_USART_INVERTER_PIN,
+                          (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
+
+            return 0;
+        }
+        break;
     }
-    
+
     return -1;
 }
 
@@ -133,12 +131,12 @@ void PIOS_Board_Init(void)
 
     switch (bdinfo->board_rev) {
     case BOARD_REVISION_CC:
-        if (PIOS_SPI_Init(&pios_spi_flash_accel_id, &pios_spi_flash_accel_cfg_cc)) {
+        if (PIOS_SPI_Init(&pios_spi_flash_accel_adapter_id, &pios_spi_flash_accel_cfg_cc)) {
             PIOS_Assert(0);
         }
         break;
     case BOARD_REVISION_CC3D:
-        if (PIOS_SPI_Init(&pios_spi_flash_accel_id, &pios_spi_flash_accel_cfg_cc3d)) {
+        if (PIOS_SPI_Init(&pios_spi_flash_accel_adapter_id, &pios_spi_flash_accel_cfg_cc3d)) {
             PIOS_Assert(0);
         }
         break;
@@ -151,7 +149,7 @@ void PIOS_Board_Init(void)
     uintptr_t flash_id;
     switch (bdinfo->board_rev) {
     case BOARD_REVISION_CC:
-        if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_flash_accel_id, 1)) {
+        if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_flash_accel_adapter_id, 1)) {
             PIOS_DEBUG_Assert(0);
         }
         if (PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, &flashfs_w25x_cfg, &pios_jedec_flash_driver, flash_id)) {
@@ -159,7 +157,7 @@ void PIOS_Board_Init(void)
         }
         break;
     case BOARD_REVISION_CC3D:
-        if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_flash_accel_id, 0)) {
+        if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_flash_accel_adapter_id, 0)) {
             PIOS_DEBUG_Assert(0);
         }
         if (PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, &flashfs_m25p_cfg, &pios_jedec_flash_driver, flash_id)) {
@@ -233,28 +231,28 @@ void PIOS_Board_Init(void)
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
     HwSettingsCC_FlexiPortGet(&hwsettings_flexiport);
-    
+
     if (hwsettings_flexiport < NELEMENTS(flexi_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
     }
 
-    switch(hwsettings_flexiport) {
-        case HWSETTINGS_CC_FLEXIPORT_I2C:
+    switch (hwsettings_flexiport) {
+    case HWSETTINGS_CC_FLEXIPORT_I2C:
 #if defined(PIOS_INCLUDE_I2C)
-            if (PIOS_I2C_Init(&pios_i2c_flexi_adapter_id, &pios_i2c_flexi_adapter_cfg)) {
-                PIOS_Assert(0);
-            }
+        if (PIOS_I2C_Init(&pios_i2c_flexi_adapter_id, &pios_i2c_flexi_adapter_cfg)) {
+            PIOS_Assert(0);
+        }
 #endif /* PIOS_INCLUDE_I2C */
-            break;
-        case HWSETTINGS_CC_FLEXIPORT_PPM:
+        break;
+    case HWSETTINGS_CC_FLEXIPORT_PPM:
 #if defined(PIOS_INCLUDE_PPM_FLEXI)
-            PIOS_BOARD_IO_Configure_PPM(&pios_ppm_flexi_cfg);
+        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_flexi_cfg);
 #endif /* PIOS_INCLUDE_PPM_FLEXI */
-            break;
+        break;
     }
 
     /* Configure main USART port */
-    
+
     /* Initialize inverter gpio and set it to off */
     {
         GPIO_InitTypeDef inverterGPIOInit = {
@@ -262,16 +260,16 @@ void PIOS_Board_Init(void)
             .GPIO_Mode  = GPIO_Mode_Out_PP,
             .GPIO_Speed = GPIO_Speed_2MHz,
         };
-        
+
         GPIO_Init(MAIN_USART_INVERTER_GPIO, &inverterGPIOInit);
         GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
                       MAIN_USART_INVERTER_PIN,
                       MAIN_USART_INVERTER_DISABLE);
     }
-    
+
     uint8_t hwsettings_mainport;
     HwSettingsCC_MainPortGet(&hwsettings_mainport);
-    
+
     if (hwsettings_mainport < NELEMENTS(main_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_main_cfg, main_function_map[hwsettings_mainport]);
     }
@@ -298,7 +296,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_CC_RCVRPORT_PPMOUTPUTSNOONESHOT:
     case HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT:
 #if defined(PIOS_INCLUDE_PPM)
-            PIOS_BOARD_IO_Configure_PPM((hwsettings_rcvrport == HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT) ? &pios_ppm_pin8_cfg : &pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM((hwsettings_rcvrport == HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT) ? &pios_ppm_pin8_cfg : &pios_ppm_cfg);
 #endif /* PIOS_INCLUDE_PPM */
         break;
     case HWSETTINGS_CC_RCVRPORT_PPMPWMNOONESHOT:
@@ -341,32 +339,22 @@ void PIOS_Board_Init(void)
 
     switch (bdinfo->board_rev) {
     case BOARD_REVISION_CC:
-        // Revision 1 with invensense gyros, start the ADC
-#if defined(PIOS_INCLUDE_ADC)
-        PIOS_ADC_Init(&pios_adc_cfg);
-#endif
-#if defined(PIOS_INCLUDE_ADXL345)
-        PIOS_ADXL345_Init(pios_spi_flash_accel_id, 0);
-#endif
         break;
     case BOARD_REVISION_CC3D:
         // Revision 2 with MPU6000 gyros, start a SPI interface and connect to it
         GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
-#if defined(PIOS_INCLUDE_MPU6000)
-        // Set up the SPI interface to the serial flash
-        if (PIOS_SPI_Init(&pios_spi_gyro_id, &pios_spi_gyro_cfg)) {
+        // Set up the SPI interface to the mpu6000
+        if (PIOS_SPI_Init(&pios_spi_gyro_adapter_id, &pios_spi_gyro_cfg)) {
             PIOS_Assert(0);
         }
-        PIOS_MPU6000_Init(pios_spi_gyro_id, 0, &pios_mpu6000_cfg);
-        PIOS_MPU6000_CONFIG_Configure();
-        init_test = !PIOS_MPU6000_Driver.test(0);
-#endif /* PIOS_INCLUDE_MPU6000 */
 
         break;
     default:
         PIOS_Assert(0);
     }
+
+    PIOS_BOARD_Sensors_Configure();
 
     /* Make sure we have at least one telemetry link configured or else fail initialization */
     PIOS_Assert(pios_com_telem_rf_id || pios_com_telem_usb_id);

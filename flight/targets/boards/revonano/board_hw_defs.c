@@ -42,29 +42,29 @@
  *      o5  |   PA0     |   TIM5_CH1    |   ADC1_0
  *      o6  |   PA1     |   TIM5_CH2    |   ADC1_1
  */
-#define MAIN_USART_REGS                  USART2
-#define MAIN_USART_REMAP                 GPIO_AF_USART2
-#define MAIN_USART_IRQ                   USART2_IRQn
-#define MAIN_USART_RX_GPIO               GPIOA
-#define MAIN_USART_RX_PIN                GPIO_Pin_3
-#define MAIN_USART_TX_GPIO               GPIOA
-#define MAIN_USART_TX_PIN                GPIO_Pin_2
+#define MAIN_USART_REGS             USART2
+#define MAIN_USART_REMAP            GPIO_AF_USART2
+#define MAIN_USART_IRQ              USART2_IRQn
+#define MAIN_USART_RX_GPIO          GPIOA
+#define MAIN_USART_RX_PIN           GPIO_Pin_3
+#define MAIN_USART_TX_GPIO          GPIOA
+#define MAIN_USART_TX_PIN           GPIO_Pin_2
 // Inverter for SBUS handling
-#define MAIN_USART_INVERTER_GPIO         GPIOC
-#define MAIN_USART_INVERTER_PIN          GPIO_Pin_15
-#define MAIN_USART_INVERTER_ENABLE       Bit_SET
-#define MAIN_USART_INVERTER_DISABLE      Bit_RESET
+#define MAIN_USART_INVERTER_GPIO    GPIOC
+#define MAIN_USART_INVERTER_PIN     GPIO_Pin_15
+#define MAIN_USART_INVERTER_ENABLE  Bit_SET
+#define MAIN_USART_INVERTER_DISABLE Bit_RESET
 
-#define FLEXI_USART_REGS                 USART1
-#define FLEXI_USART_REMAP                GPIO_AF_USART1
-#define FLEXI_USART_IRQ                  USART1_IRQn
-#define FLEXI_USART_RX_GPIO              GPIOB
-#define FLEXI_USART_RX_PIN               GPIO_Pin_7
-#define FLEXI_USART_TX_GPIO              GPIOB
-#define FLEXI_USART_TX_PIN               GPIO_Pin_6
+#define FLEXI_USART_REGS            USART1
+#define FLEXI_USART_REMAP           GPIO_AF_USART1
+#define FLEXI_USART_IRQ             USART1_IRQn
+#define FLEXI_USART_RX_GPIO         GPIOB
+#define FLEXI_USART_RX_PIN          GPIO_Pin_7
+#define FLEXI_USART_TX_GPIO         GPIOB
+#define FLEXI_USART_TX_PIN          GPIO_Pin_6
 // ReceiverPort pin 3
-#define FLEXI_USART_DTR_GPIO             GPIOB
-#define FLEXI_USART_DTR_PIN              GPIO_Pin_10
+#define FLEXI_USART_DTR_GPIO        GPIOB
+#define FLEXI_USART_DTR_PIN         GPIO_Pin_10
 
 
 #if defined(PIOS_INCLUDE_LED)
@@ -115,8 +115,8 @@ const struct pios_gpio_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(__attribute__((unused))
 #include <pios_spi_priv.h>
 
 /*
- * SPI1 Interface
- * Used for MPU6000 gyro and accelerometer
+ * SPI2 Interface
+ * Used for MPU9250 gyro and accelerometer
  */
 void PIOS_SPI_gyro_irq_handler(void);
 void DMA1_Stream3_IRQHandler(void) __attribute__((alias("PIOS_SPI_gyro_irq_handler")));
@@ -229,11 +229,11 @@ static const struct pios_spi_cfg pios_spi_gyro_cfg = {
     }
 };
 
-static uint32_t pios_spi_gyro_id;
+uint32_t pios_spi_gyro_adapter_id;
 void PIOS_SPI_gyro_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_gyro_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_gyro_adapter_id);
 }
 
 #endif /* PIOS_INCLUDE_SPI */
@@ -249,7 +249,7 @@ static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *par
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs  = MAIN_USART_REGS,
     .remap = MAIN_USART_REMAP,
-    .rx                                        = {
+    .rx    = {
         .gpio = MAIN_USART_RX_GPIO,
         .init = {
             .GPIO_Pin   = MAIN_USART_RX_PIN,
@@ -259,7 +259,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = MAIN_USART_TX_GPIO,
         .init = {
             .GPIO_Pin   = MAIN_USART_TX_PIN,
@@ -278,7 +278,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs  = FLEXI_USART_REGS,
     .remap = FLEXI_USART_REMAP,
-    .rx                                        = {
+    .rx    = {
         .gpio = FLEXI_USART_RX_GPIO,
         .init = {
             .GPIO_Pin   = FLEXI_USART_RX_PIN,
@@ -288,7 +288,7 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = FLEXI_USART_TX_GPIO,
         .init = {
             .GPIO_Pin   = FLEXI_USART_TX_PIN,
@@ -298,15 +298,15 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-//    .dtr                                       = {
-//        .gpio = FLEXI_USART_DTR_GPIO,
-//        .init = {
-//            .GPIO_Pin   = FLEXI_USART_DTR_PIN,
-//            .GPIO_Speed = GPIO_Speed_25MHz,
-//            .GPIO_Mode  = GPIO_Mode_OUT,
-//            .GPIO_OType = GPIO_OType_PP,
-//        },
-//    },
+// .dtr                                       = {
+// .gpio = FLEXI_USART_DTR_GPIO,
+// .init = {
+// .GPIO_Pin   = FLEXI_USART_DTR_PIN,
+// .GPIO_Speed = GPIO_Speed_25MHz,
+// .GPIO_Mode  = GPIO_Mode_OUT,
+// .GPIO_OType = GPIO_OType_PP,
+// },
+// },
 };
 
 #if defined(PIOS_INCLUDE_COM)
@@ -329,7 +329,7 @@ __attribute__((alias("PIOS_I2C_pressure_adapter_ev_irq_handler")));
 void I2C3_ER_IRQHandler()
 __attribute__((alias("PIOS_I2C_pressure_adapter_er_irq_handler")));
 
-static const struct pios_i2c_adapter_cfg pios_i2c_pressure_adapter_cfg = {
+static const struct pios_i2c_adapter_cfg pios_i2c_eeprom_pressure_adapter_cfg = {
     .regs     = I2C3,
     .remapSCL = GPIO_AF_I2C3,
     .remapSDA = GPIO_AF9_I2C3,
@@ -382,17 +382,17 @@ static const struct pios_i2c_adapter_cfg pios_i2c_pressure_adapter_cfg = {
     },
 };
 
-uint32_t pios_i2c_pressure_adapter_id;
+uint32_t pios_i2c_eeprom_pressure_adapter_id;
 void PIOS_I2C_pressure_adapter_ev_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_I2C_EV_IRQ_Handler(pios_i2c_pressure_adapter_id);
+    PIOS_I2C_EV_IRQ_Handler(pios_i2c_eeprom_pressure_adapter_id);
 }
 
 void PIOS_I2C_pressure_adapter_er_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_I2C_ER_IRQ_Handler(pios_i2c_pressure_adapter_id);
+    PIOS_I2C_ER_IRQ_Handler(pios_i2c_eeprom_pressure_adapter_id);
 }
 
 
@@ -937,7 +937,6 @@ struct pios_flash_eeprom_cfg flash_main_chip_cfg = {
  */
 
 
-
 #if defined(PIOS_INCLUDE_ADC)
 
 #include "pios_adc_priv.h"
@@ -1019,7 +1018,6 @@ const struct pios_ms5611_cfg *PIOS_BOARD_HW_DEFS_GetMS5611Cfg(__attribute__((unu
  */
 #if defined(PIOS_INCLUDE_MPU9250)
 #include "pios_mpu9250.h"
-#include "pios_mpu9250_config.h"
 static const struct pios_exti_cfg pios_exti_mpu9250_cfg __exti_config = {
     .vector = PIOS_MPU9250_IRQHandler,
     .line   = EXTI_Line15,
@@ -1070,4 +1068,9 @@ static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .std_prescaler  = PIOS_SPI_PRESCALER_64,
     .max_downsample = 26,
 };
+
+const struct pios_mpu9250_cfg *PIOS_BOARD_HW_DEFS_GetMPU9250Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_mpu9250_cfg;
+}
 #endif /* PIOS_INCLUDE_MPU9250 */

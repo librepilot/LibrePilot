@@ -39,6 +39,7 @@
 #endif
 
 #include <pios_board_io.h>
+#include <pios_board_sensors.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -101,25 +102,25 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
 static const PIOS_BOARD_IO_RADIOAUX_Function radioaux_function_map[] = {
     [HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE] = PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
     [HWSETTINGS_RADIOAUXSTREAM_MAVLINK] = PIOS_BOARD_IO_RADIOAUX_MAVLINK,
-    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE] = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
+    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE]    = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
 };
 
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
-    
+
     switch (ctl) {
-        case PIOS_IOCTL_USART_SET_INVERTED:
-            if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
-                GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
-                              MAIN_USART_INVERTER_PIN,
-                              (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
-                
-                return 0;
-            }
-            break;
+    case PIOS_IOCTL_USART_SET_INVERTED:
+        if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
+            GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
+                          MAIN_USART_INVERTER_PIN,
+                          (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
+
+            return 0;
+        }
+        break;
     }
-    
+
     return -1;
 }
 
@@ -143,17 +144,20 @@ void PIOS_Board_Init(void)
 #endif
 
 
-#if false
+#ifdef PIOS_INCLUDE_MPU6000
     /* Set up the SPI interface to the gyro/acelerometer */
-    if (PIOS_SPI_Init(&pios_spi_gyro_id, &pios_spi_gyro_cfg)) {
+    if (PIOS_SPI_Init(&pios_spi_gyro_adapter_id, &pios_spi_gyro_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
+#endif /* PIOS_INCLUDE_MPU6000 */
 
-    /* Set up the SPI interface to the flash and rfm22b */
-    if (PIOS_SPI_Init(&pios_spi_telem_flash_id, &pios_spi_telem_flash_cfg)) {
+#ifdef PIOS_INCLUDE_RFM22B
+    /* Set up the SPI interface to the rfm22b */
+    if (PIOS_SPI_Init(&pios_spi_telem_flash_adapter_id, &pios_spi_telem_flash_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
-#endif
+#endif /* PIOS_INCLUDE_RFM22B */
+
 #if defined(PIOS_INCLUDE_FLASH)
     /* Connect flash to the appropriate interface and configure it */
     uintptr_t flash_id;
@@ -229,30 +233,28 @@ void PIOS_Board_Init(void)
     }
 
     /* Configure IO ports */
-    
+
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
     HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
-    
+
     if (hwsettings_flexiport < NELEMENTS(flexi_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
     }
-    
+
 #if defined(PIOS_INCLUDE_I2C)
     /* Set up internal I2C bus */
     if (PIOS_I2C_Init(&pios_i2c_mag_pressure_adapter_id, &pios_i2c_mag_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
     PIOS_DELAY_WaitmS(50);
-    
+
     if (hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_I2C) {
         if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
             PIOS_Assert(0);
         }
         PIOS_DELAY_WaitmS(50);
     }
-    
-    PIOS_BOARD_IO_Configure_I2C(pios_i2c_mag_pressure_adapter_id, pios_i2c_flexiport_adapter_id);
 #endif
 
 #if defined(PIOS_INCLUDE_USB)
@@ -260,7 +262,7 @@ void PIOS_Board_Init(void)
 #endif
 
     /* Configure main USART port */
-    
+
     /* Initialize inverter gpio and set it to off */
     {
         GPIO_InitTypeDef inverterGPIOInit = {
@@ -270,30 +272,30 @@ void PIOS_Board_Init(void)
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_UP
         };
-        
+
         GPIO_Init(MAIN_USART_INVERTER_GPIO, &inverterGPIOInit);
         GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
                       MAIN_USART_INVERTER_PIN,
                       MAIN_USART_INVERTER_DISABLE);
     }
-    
+
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
-    
+
     if (hwsettings_mainport < NELEMENTS(main_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_main_cfg, main_function_map[hwsettings_mainport]);
     }
-    
+
 #if defined(PIOS_INCLUDE_RFM22B)
     uint8_t hwsettings_radioaux;
     HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
 
-    if(hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
+    if (hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
         PIOS_BOARD_IO_Configure_RFM22B(pios_spi_telem_flash_id, radioaux_function_map[hwsettings_radioaux]);
     }
 #endif /* PIOS_INCLUDE_RFM22B */
 
-    
+
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PPM)
 
     const struct pios_servo_cfg *pios_servo_cfg;
@@ -304,47 +306,47 @@ void PIOS_Board_Init(void)
     /* Configure the receiver port*/
     uint8_t hwsettings_rcvrport;
     HwSettingsRM_RcvrPortGet(&hwsettings_rcvrport);
-    
+
     if (hwsettings_rcvrport < NELEMENTS(flexiio_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexiio_cfg, flexiio_function_map[hwsettings_rcvrport]);
     }
-    
+
     // Configure rcvrport PPM/PWM/OUTPUTS
     switch (hwsettings_rcvrport) {
-        case HWSETTINGS_RM_RCVRPORT_PWM:
+    case HWSETTINGS_RM_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
-            /* Set up the receiver port.  Later this should be optional */
-            PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
+        /* Set up the receiver port.  Later this should be optional */
+        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
-            break;
-        case HWSETTINGS_RM_RCVRPORT_PPM:
-        case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
-        case HWSETTINGS_RM_RCVRPORT_PPMPWM:
-        case HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY:
-        case HWSETTINGS_RM_RCVRPORT_PPMDEBUGCONSOLE:
-        case HWSETTINGS_RM_RCVRPORT_PPMCOMBRIDGE:
-        case HWSETTINGS_RM_RCVRPORT_PPMMSP:
-        case HWSETTINGS_RM_RCVRPORT_PPMMAVLINK:
-        case HWSETTINGS_RM_RCVRPORT_PPMGPS:
+        break;
+    case HWSETTINGS_RM_RCVRPORT_PPM:
+    case HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS:
+    case HWSETTINGS_RM_RCVRPORT_PPMPWM:
+    case HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY:
+    case HWSETTINGS_RM_RCVRPORT_PPMDEBUGCONSOLE:
+    case HWSETTINGS_RM_RCVRPORT_PPMCOMBRIDGE:
+    case HWSETTINGS_RM_RCVRPORT_PPMMSP:
+    case HWSETTINGS_RM_RCVRPORT_PPMMAVLINK:
+    case HWSETTINGS_RM_RCVRPORT_PPMGPS:
 #if defined(PIOS_INCLUDE_PPM)
-            PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
-            
-            if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS) {
-                // configure servo outputs and the remaining 5 inputs as outputs
-                pios_servo_cfg = &pios_servo_cfg_out_in_ppm;
-            }
-            
-            // enable pwm on the remaining channels
-            if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMPWM) {
-                PIOS_BOARD_IO_Configure_PWM(&pios_pwm_ppm_cfg);
-            }
-            
-            break;
+        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
+
+        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS) {
+            // configure servo outputs and the remaining 5 inputs as outputs
+            pios_servo_cfg = &pios_servo_cfg_out_in_ppm;
+        }
+
+        // enable pwm on the remaining channels
+        if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMPWM) {
+            PIOS_BOARD_IO_Configure_PWM(&pios_pwm_ppm_cfg);
+        }
+
+        break;
 #endif /* PIOS_INCLUDE_PPM */
-        case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
-            // configure only the servo outputs
-            pios_servo_cfg = &pios_servo_cfg_out_in;
-            break;
+    case HWSETTINGS_RM_RCVRPORT_OUTPUTS:
+        // configure only the servo outputs
+        pios_servo_cfg = &pios_servo_cfg_out_in;
+        break;
     }
 #ifdef PIOS_INCLUDE_GCSRCVR
     PIOS_BOARD_IO_Configure_GCSRCVR();
@@ -357,16 +359,12 @@ void PIOS_Board_Init(void)
     PIOS_DEBUG_Init(pios_tim_servoport_all_pins, NELEMENTS(pios_tim_servoport_all_pins));
 #endif
 
-#if defined(PIOS_INCLUDE_MPU6000)
-    PIOS_MPU6000_Init(pios_spi_gyro_id, 0, &pios_mpu6000_cfg);
-    PIOS_MPU6000_CONFIG_Configure();
-    PIOS_MPU6000_Register();
-#endif
-    
+    PIOS_BOARD_Sensors_Configure();
+
 #ifdef PIOS_INCLUDE_WS2811
     PIOS_WS2811_Init(&pios_ws2811_cfg, &pios_ws2811_pin_cfg);
 #endif // PIOS_INCLUDE_WS2811
-    
+
 #ifdef PIOS_INCLUDE_ADC
     // Disable GPIO_A8 Pullup to prevent wrong results on battery voltage readout
     GPIO_InitTypeDef gpioA8 = {
@@ -377,8 +375,6 @@ void PIOS_Board_Init(void)
         .GPIO_OType = GPIO_OType_OD,
     };
     GPIO_Init(GPIOA, &gpioA8);
-    
-    PIOS_BOARD_IO_Configure_ADC();
 #endif // PIOS_INCLUDE_ADC
 }
 

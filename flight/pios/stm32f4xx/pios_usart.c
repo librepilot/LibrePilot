@@ -59,7 +59,7 @@ const struct pios_com_driver pios_usart_com_driver = {
     .rx_start       = PIOS_USART_RxStart,
     .bind_tx_cb     = PIOS_USART_RegisterTxCallback,
     .bind_rx_cb     = PIOS_USART_RegisterRxCallback,
-    .ioctl         = PIOS_USART_Ioctl,
+    .ioctl          = PIOS_USART_Ioctl,
 };
 
 enum pios_usart_dev_magic {

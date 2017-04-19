@@ -112,32 +112,32 @@ extern uint32_t pios_com_rf_id; /* oplink telemetry */
 
 /* HK OSD ?? */
 extern uint32_t pios_com_hkosd_id;
-#define PIOS_COM_OSDHK                    (pios_com_hkosd_id)
+#define PIOS_COM_OSDHK               (pios_com_hkosd_id)
 #ifndef PIOS_COM_HKOSD_RX_BUF_LEN
-# define PIOS_COM_HKOSD_RX_BUF_LEN        22
+# define PIOS_COM_HKOSD_RX_BUF_LEN   22
 #endif
 #ifndef PIOS_COM_HKOSD_TX_BUF_LEN
-# define PIOS_COM_HKOSD_TX_BUF_LEN        22
+# define PIOS_COM_HKOSD_TX_BUF_LEN   22
 #endif
 
 /* MSP */
 extern uint32_t pios_com_msp_id;
-#define PIOS_COM_MSP                      (pios_com_msp_id)
+#define PIOS_COM_MSP                 (pios_com_msp_id)
 #ifndef PIOS_COM_MSP_TX_BUF_LEN
-# define PIOS_COM_MSP_TX_BUF_LEN          128
+# define PIOS_COM_MSP_TX_BUF_LEN     128
 #endif
 #ifndef PIOS_COM_MSP_RX_BUF_LEN
-# define PIOS_COM_MSP_RX_BUF_LEN          64
+# define PIOS_COM_MSP_RX_BUF_LEN     64
 #endif
 
 /* MAVLink */
 extern uint32_t pios_com_mavlink_id;
-#define PIOS_COM_MAVLINK                  (pios_com_mavlink_id)
+#define PIOS_COM_MAVLINK             (pios_com_mavlink_id)
 #ifndef PIOS_COM_MAVLINK_TX_BUF_LEN
-# define PIOS_COM_MAVLINK_TX_BUF_LEN      128
+# define PIOS_COM_MAVLINK_TX_BUF_LEN 128
 #endif
 #ifndef PIOS_COM_MAVLINK_RX_BUF_LEN
-# define PIOS_COM_MAVLINK_RX_BUF_LEN      128
+# define PIOS_COM_MAVLINK_RX_BUF_LEN 128
 #endif
 
 /* HoTT Telemetry */
@@ -149,7 +149,7 @@ extern uint32_t pios_com_mavlink_id;
 #  define PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN 512
 # endif
 extern uint32_t pios_com_hott_id;
-# define PIOS_COM_HOTT (pios_com_hott_id)
+# define PIOS_COM_HOTT                    (pios_com_hott_id)
 #endif
 
 /* USB VCP */
@@ -192,7 +192,7 @@ typedef enum {
     PIOS_BOARD_IO_UART_SRXL, /* rcvr */
     PIOS_BOARD_IO_UART_IBUS, /* rcvr */
     PIOS_BOARD_IO_UART_EXBUS, /* rcvr */
-//    PIOS_BOARD_IO_UART_FRSKY_SPORT_TELEMETRY, /* com */
+// PIOS_BOARD_IO_UART_FRSKY_SPORT_TELEMETRY, /* com */
     PIOS_BOARD_IO_UART_HOTT_BRIDGE, /* com */
 } PIOS_BOARD_IO_UART_Function;
 
@@ -201,15 +201,15 @@ typedef enum {
     PIOS_BOARD_IO_RADIOAUX_MAVLINK,
     PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
     PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
-//    PIOS_BOARD_IO_RADIOAUX_FRSKY_SPORT_TELEMETRY,
+// PIOS_BOARD_IO_RADIOAUX_FRSKY_SPORT_TELEMETRY,
 } PIOS_BOARD_IO_RADIOAUX_Function;
 
 #ifdef PIOS_INCLUDE_USB
 void PIOS_BOARD_IO_Configure_USB();
-//# if defined(PIOS_INCLUDE_USB_HID)
-//#  include <pios_usb_hid_priv.h>
-//extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
-//# endif /* PIOS_INCLUDE_USB_HID */
+// # if defined(PIOS_INCLUDE_USB_HID)
+// #  include <pios_usb_hid_priv.h>
+// extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
+// # endif /* PIOS_INCLUDE_USB_HID */
 #endif /* PIOS_INCLUDE_USB */
 #ifdef PIOS_INCLUDE_PWM
 void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg);
@@ -221,11 +221,7 @@ void PIOS_BOARD_IO_Configure_PPM(const struct pios_ppm_cfg *ppm_cfg);
 void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *usart_cfg, PIOS_BOARD_IO_UART_Function function);
 
 #ifdef PIOS_INCLUDE_RFM22B
-void PIOS_BOARD_IO_Configure_RFM22B(uint32_t spi_id, PIOS_BOARD_IO_RADIOAUX_Function function);
-#endif
-
-#ifdef PIOS_INCLUDE_I2C
-void PIOS_BOARD_IO_Configure_I2C(uint32_t i2c_internal_id, uint32_t i2c_external_id);
+void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function function);
 #endif
 
 #ifdef PIOS_INCLUDE_GCSRCVR

@@ -464,11 +464,11 @@ static const struct pios_spi_cfg pios_spi_gyro_cfg = {
     }
 };
 
-static uint32_t pios_spi_gyro_id;
+uint32_t pios_spi_gyro_adapter_id;
 void PIOS_SPI_gyro_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_gyro_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_gyro_adapter_id);
 }
 
 
@@ -599,11 +599,11 @@ static const struct pios_spi_cfg pios_spi_telem_flash_cfg = {
     },
 };
 
-uint32_t pios_spi_telem_flash_id;
+uint32_t pios_spi_telem_flash_adapter_id;
 void PIOS_SPI_telem_flash_irq_handler(void)
 {
     /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_telem_flash_id);
+    PIOS_SPI_IRQ_Handler(pios_spi_telem_flash_adapter_id);
 }
 
 
@@ -794,10 +794,10 @@ static const struct flashfs_logfs_cfg flashfs_internal_cfg = {
  */
 
 // Inverter for SBUS handling
-#define MAIN_USART_INVERTER_GPIO         GPIOC
-#define MAIN_USART_INVERTER_PIN          GPIO_Pin_0
-#define MAIN_USART_INVERTER_ENABLE       Bit_SET
-#define MAIN_USART_INVERTER_DISABLE      Bit_RESET
+#define MAIN_USART_INVERTER_GPIO    GPIOC
+#define MAIN_USART_INVERTER_PIN     GPIO_Pin_0
+#define MAIN_USART_INVERTER_ENABLE  Bit_SET
+#define MAIN_USART_INVERTER_DISABLE Bit_RESET
 
 static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
 
@@ -1254,18 +1254,18 @@ static const struct pios_tim_clock_cfg tim_12_cfg = {
 #include <pios_servo_config.h>
 
 static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
-    TIM_SERVO_CHANNEL_CONFIG(TIM3, 3, B, 0),
-    TIM_SERVO_CHANNEL_CONFIG(TIM3, 4, B, 1),
-    TIM_SERVO_CHANNEL_CONFIG(TIM9, 2, A, 3),
-    TIM_SERVO_CHANNEL_CONFIG(TIM2, 3, A, 2),
-    TIM_SERVO_CHANNEL_CONFIG(TIM5, 2, A, 1),
-    TIM_SERVO_CHANNEL_CONFIG(TIM5, 1, A, 0),
+    TIM_SERVO_CHANNEL_CONFIG(TIM3,  3, B, 0),
+    TIM_SERVO_CHANNEL_CONFIG(TIM3,  4, B, 1),
+    TIM_SERVO_CHANNEL_CONFIG(TIM9,  2, A, 3),
+    TIM_SERVO_CHANNEL_CONFIG(TIM2,  3, A, 2),
+    TIM_SERVO_CHANNEL_CONFIG(TIM5,  2, A, 1),
+    TIM_SERVO_CHANNEL_CONFIG(TIM5,  1, A, 0),
     // PWM pins on FlexiIO(receiver) port
     TIM_SERVO_CHANNEL_CONFIG(TIM12, 2, B, 15), // * 6: PB15 = SPI2 MOSI, TIM12 CH2
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 1, C, 6), // *  7: PC6 = TIM8 CH1, USART6 TX
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 2, C, 7), // *  8: PC7 = TIM8 CH2, USART6 RX
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 3, C, 8), // *  9: PC8 = TIM8 CH3
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 4, C, 9), // * 10: PC9 = TIM8 CH4
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  1, C, 6), // *  7: PC6 = TIM8 CH1, USART6 TX
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  2, C, 7), // *  8: PC7 = TIM8 CH2, USART6 RX
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  3, C, 8), // *  9: PC8 = TIM8 CH3
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  4, C, 9), // * 10: PC9 = TIM8 CH4
     TIM_SERVO_CHANNEL_CONFIG(TIM12, 1, B, 14), // *  5: PB14 = SPI2 MISO, TIM12 CH1, USART3 RTS
 };
 
@@ -1328,10 +1328,10 @@ const struct pios_servo_cfg pios_servo_cfg_out_in = {
 static const struct pios_tim_channel pios_tim_rcvrport_all_channels[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM12, 1, B, 14),
     TIM_SERVO_CHANNEL_CONFIG(TIM12, 2, B, 15),
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 1, C, 6),
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 2, C, 7),
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 3, C, 8),
-    TIM_SERVO_CHANNEL_CONFIG(TIM8, 4, C, 9),
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  1, C, 6),
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  2, C, 7),
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  3, C, 8),
+    TIM_SERVO_CHANNEL_CONFIG(TIM8,  4, C, 9),
 };
 
 const struct pios_pwm_cfg pios_pwm_cfg = {
@@ -1738,7 +1738,6 @@ const struct pios_ms5611_cfg *PIOS_BOARD_HW_DEFS_GetMS5611Cfg(__attribute__((unu
  */
 #if defined(PIOS_INCLUDE_MPU6000)
 #include "pios_mpu6000.h"
-#include "pios_mpu6000_config.h"
 static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
     .vector = PIOS_MPU6000_IRQHandler,
     .line   = EXTI_Line4,
@@ -1789,4 +1788,10 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
     .std_prescaler  = PIOS_SPI_PRESCALER_64,
     .max_downsample = 20,
 };
+
+const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_mpu6000_cfg;
+}
+
 #endif /* PIOS_INCLUDE_MPU6000 */

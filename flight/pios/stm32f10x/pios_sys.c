@@ -58,11 +58,11 @@ void PIOS_SYS_Init(void)
      * Micromanaging clocks makes no sense given the power situation in the system, so
      * light up everything we might reasonably use here and just leave it on.
      */
-    
+
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 |
                           RCC_AHBPeriph_DMA2,
                           ENABLE);
-    
+
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 |
                            RCC_APB1Periph_TIM3 |
                            RCC_APB1Periph_TIM4 |
@@ -82,13 +82,13 @@ void PIOS_SYS_Init(void)
                            RCC_APB1Periph_I2C1 |
                            RCC_APB1Periph_I2C2 |
                            RCC_APB1Periph_USB |
-//                           RCC_APB1Periph_CAN1 | /* bxCAN unfortunately interferes with USB */
-//                           RCC_APB1Periph_CAN2 |
+// RCC_APB1Periph_CAN1 | /* bxCAN unfortunately interferes with USB */
+// RCC_APB1Periph_CAN2 |
                            RCC_APB1Periph_BKP |
                            RCC_APB1Periph_PWR |
                            RCC_APB1Periph_DAC,
                            ENABLE);
-                           
+
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |
                            RCC_APB2Periph_GPIOB |

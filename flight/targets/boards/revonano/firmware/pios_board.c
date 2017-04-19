@@ -41,6 +41,7 @@
 #endif
 
 #include <pios_board_io.h>
+#include <pios_board_sensors.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -97,19 +98,19 @@ static const PIOS_BOARD_IO_UART_Function main_function_map[] = {
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
-    
+
     switch (ctl) {
-        case PIOS_IOCTL_USART_SET_INVERTED:
-            if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
-                GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
-                              MAIN_USART_INVERTER_PIN,
-                              (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
-                
-                return 0;
-            }
-            break;
+    case PIOS_IOCTL_USART_SET_INVERTED:
+        if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
+            GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
+                          MAIN_USART_INVERTER_PIN,
+                          (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
+
+            return 0;
+        }
+        break;
     }
-    
+
     return -1;
 }
 
@@ -129,18 +130,12 @@ void PIOS_Board_Init(void)
 #endif
 
     /* Set up the SPI interface to the gyro/acelerometer */
-    if (PIOS_SPI_Init(&pios_spi_gyro_id, &pios_spi_gyro_cfg)) {
+    if (PIOS_SPI_Init(&pios_spi_gyro_adapter_id, &pios_spi_gyro_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
-#if false
 
-    /* Set up the SPI interface to the flash and rfm22b */
-    if (PIOS_SPI_Init(&pios_spi_telem_flash_id, &pios_spi_telem_flash_cfg)) {
-        PIOS_DEBUG_Assert(0);
-    }
-#endif
 #ifdef PIOS_INCLUDE_I2C
-    if (PIOS_I2C_Init(&pios_i2c_pressure_adapter_id, &pios_i2c_pressure_adapter_cfg)) {
+    if (PIOS_I2C_Init(&pios_i2c_eeprom_pressure_adapter_id, &pios_i2c_eeprom_pressure_adapter_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 #endif
@@ -150,7 +145,7 @@ void PIOS_Board_Init(void)
     uintptr_t flash_id = 0;
 
     // Initialize the external USER flash
-    if (PIOS_Flash_EEPROM_Init(&flash_id, &flash_main_chip_cfg, pios_i2c_pressure_adapter_id, 0x50)) {
+    if (PIOS_Flash_EEPROM_Init(&flash_id, &flash_main_chip_cfg, pios_i2c_eeprom_pressure_adapter_id, 0x50)) {
         PIOS_DEBUG_Assert(0);
     }
 
@@ -213,7 +208,7 @@ void PIOS_Board_Init(void)
         HwSettingsSetDefaults(HwSettingsHandle(), 0);
         AlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL);
     }
-    
+
 #if defined(PIOS_INCLUDE_USB)
     PIOS_BOARD_IO_Configure_USB();
 #endif
@@ -221,21 +216,21 @@ void PIOS_Board_Init(void)
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
     HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
-    
+
     if (hwsettings_flexiport < NELEMENTS(flexi_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
     }
 
     /* Configure main USART port */
-    
+
     /* Initialize inverter gpio and set it to off */
     {
         GPIO_InitTypeDef inverterGPIOInit = {
-                .GPIO_Pin   = MAIN_USART_INVERTER_PIN,
-                .GPIO_Speed = GPIO_Speed_2MHz,
-                .GPIO_Mode  = GPIO_Mode_OUT,
-                .GPIO_OType = GPIO_OType_PP,
-                .GPIO_PuPd  = GPIO_PuPd_UP
+            .GPIO_Pin   = MAIN_USART_INVERTER_PIN,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_Mode  = GPIO_Mode_OUT,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_UP
         };
 
         GPIO_Init(MAIN_USART_INVERTER_GPIO, &inverterGPIOInit);
@@ -243,10 +238,10 @@ void PIOS_Board_Init(void)
                       MAIN_USART_INVERTER_PIN,
                       MAIN_USART_INVERTER_DISABLE);
     }
-    
+
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
-    
+
     if (hwsettings_mainport < NELEMENTS(main_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_main_cfg, main_function_map[hwsettings_mainport]);
     }
@@ -317,16 +312,7 @@ void PIOS_Board_Init(void)
 
     PIOS_DELAY_WaitmS(50);
 
-#if defined(PIOS_INCLUDE_ADC)
-    PIOS_BOARD_IO_Configure_ADC();
-#endif
-
-#if defined(PIOS_INCLUDE_MPU9250)
-    PIOS_MPU9250_Init(pios_spi_gyro_id, 0, &pios_mpu9250_cfg);
-    PIOS_MPU9250_CONFIG_Configure();
-    PIOS_MPU9250_MainRegister();
-    PIOS_MPU9250_MagRegister();
-#endif
+    PIOS_BOARD_Sensors_Configure();
 
     // Attach the board config check hook
     SANITYCHECK_AttachHook(&RevoNanoConfigHook);

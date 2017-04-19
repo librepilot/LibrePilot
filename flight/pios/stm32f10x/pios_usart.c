@@ -52,7 +52,7 @@ const struct pios_com_driver pios_usart_com_driver = {
     .rx_start   = PIOS_USART_RxStart,
     .bind_tx_cb = PIOS_USART_RegisterTxCallback,
     .bind_rx_cb = PIOS_USART_RegisterRxCallback,
-    .ioctl = PIOS_USART_Ioctl,
+    .ioctl      = PIOS_USART_Ioctl,
 };
 
 enum pios_usart_dev_magic {
@@ -69,7 +69,7 @@ struct pios_usart_dev {
     uint32_t tx_out_context;
 
     uint32_t rx_dropped;
-    uint8_t irq_channel;
+    uint8_t  irq_channel;
 };
 
 static bool PIOS_USART_validate(struct pios_usart_dev *usart_dev)
@@ -80,11 +80,11 @@ static bool PIOS_USART_validate(struct pios_usart_dev *usart_dev)
 const struct pios_usart_cfg *PIOS_USART_GetConfig(uint32_t usart_id)
 {
     struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
-    
+
     bool valid = PIOS_USART_validate(usart_dev);
-    
+
     PIOS_Assert(valid);
-    
+
     return usart_dev->cfg;
 }
 
@@ -95,9 +95,9 @@ static int32_t PIOS_USART_SetIrqPrio(struct pios_usart_dev *usart_dev, uint8_t i
         .NVIC_IRQChannelPreemptionPriority = irq_prio,
         .NVIC_IRQChannelCmd = ENABLE,
     };
-    
+
     NVIC_Init(&init);
-    
+
     return 0;
 }
 
@@ -180,7 +180,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     }
 
     /* Bind the configuration to the device instance */
-    usart_dev->cfg  = cfg;
+    usart_dev->cfg = cfg;
 
     /* Initialize the comm parameter structure */
     USART_StructInit(&usart_dev->init); // 9600 8n1
@@ -214,9 +214,9 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
         usart_dev->irq_channel = USART3_IRQn;
         break;
     }
-    
+
     PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
-    
+
     USART_ITConfig(usart_dev->cfg->regs, USART_IT_RXNE, ENABLE);
     USART_ITConfig(usart_dev->cfg->regs, USART_IT_TXE, ENABLE);
 
@@ -452,28 +452,28 @@ static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
 static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
-    
+
     bool valid = PIOS_USART_validate(usart_dev);
-    
+
     PIOS_Assert(valid);
-    
+
     switch (ctl) {
-        case PIOS_IOCTL_USART_SET_IRQ_PRIO:
-            return PIOS_USART_SetIrqPrio(usart_dev, *(uint8_t *)param);
-            
-        case PIOS_IOCTL_USART_GET_RXGPIO:
-            *(struct stm32_gpio *)param = usart_dev->cfg->rx;
-            break;
-        case PIOS_IOCTL_USART_GET_TXGPIO:
-            *(struct stm32_gpio *)param = usart_dev->cfg->tx;
-            break;
-        default:
-            if (usart_dev->cfg->ioctl) {
-                return usart_dev->cfg->ioctl(usart_id, ctl, param);
-            }
-            return -1;
+    case PIOS_IOCTL_USART_SET_IRQ_PRIO:
+        return PIOS_USART_SetIrqPrio(usart_dev, *(uint8_t *)param);
+
+    case PIOS_IOCTL_USART_GET_RXGPIO:
+        *(struct stm32_gpio *)param = usart_dev->cfg->rx;
+        break;
+    case PIOS_IOCTL_USART_GET_TXGPIO:
+        *(struct stm32_gpio *)param = usart_dev->cfg->tx;
+        break;
+    default:
+        if (usart_dev->cfg->ioctl) {
+            return usart_dev->cfg->ioctl(usart_id, ctl, param);
+        }
+        return -1;
     }
-    
+
     return 0;
 }
 

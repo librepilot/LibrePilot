@@ -109,15 +109,9 @@
  */
 // #define DSM_LOST_FRAME_COUNTER
 
-/* DSM receiver instance configuration */
-struct pios_dsm_cfg {
-    struct stm32_gpio bind;
-};
-
 extern const struct pios_rcvr_driver pios_dsm_rcvr_driver;
 
 extern int32_t PIOS_DSM_Init(uint32_t *dsm_id,
-                             const struct pios_dsm_cfg *cfg,
                              const struct pios_com_driver *driver,
                              uint32_t lower_id,
                              uint8_t bind);

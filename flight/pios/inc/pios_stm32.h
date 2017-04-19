@@ -60,7 +60,13 @@ struct stm32_dma {
 struct stm32_gpio {
     GPIO_TypeDef     *gpio;
     GPIO_InitTypeDef init;
-    uint8_t pin_source;
+    uint8_t pin_source; /* do we really need this, or we can get it from init.GPIO_Pin ? */
+};
+
+struct stm32_gpio_action {
+    struct stm32_gpio pin;
+    BitAction on;
+    BitAction off;
 };
 
 /**

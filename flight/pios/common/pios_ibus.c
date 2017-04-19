@@ -174,7 +174,17 @@ int32_t PIOS_IBUS_Init(uint32_t *ibus_id, const struct pios_com_driver *driver,
         PIOS_Assert(0);
     }
 
-    (driver->bind_rx_cb)(lower_id, PIOS_IBUS_Receive, *ibus_id);
+    /* Set comm driver parameters */
+    PIOS_DEBUG_Assert(driver->set_config);
+    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_StopBits_1, PIOS_COM_Parity_No, 115200, PIOS_COM_Mode_Rx);
+
+    /* Set irq priority */
+    if (driver->ioctl) {
+        uint8_t irq_prio = PIOS_IRQ_PRIO_HIGH;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_IRQ_PRIO, &irq_prio);
+    }
+
+    driver->bind_rx_cb(lower_id, PIOS_IBUS_Receive, *ibus_id);
 
     return 0;
 }

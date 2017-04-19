@@ -52,8 +52,8 @@
 // Inverter for SBUS handling
 #define MAIN_USART_INVERTER_GPIO         GPIOC
 #define MAIN_USART_INVERTER_PIN          GPIO_Pin_15
-#define MAIN_USART_INVERTER_CLOCK_FUNC   RCC_AHB1PeriphClockCmd
-#define MAIN_USART_INVERTER_CLOCK_PERIPH RCC_AHB1Periph_GPIOC
+#define MAIN_USART_INVERTER_ENABLE       Bit_SET
+#define MAIN_USART_INVERTER_DISABLE      Bit_RESET
 
 #define FLEXI_USART_REGS                 USART1
 #define FLEXI_USART_REMAP                GPIO_AF_USART1
@@ -240,30 +240,15 @@ void PIOS_SPI_gyro_irq_handler(void)
 
 #include <pios_usart_priv.h>
 
-#ifdef PIOS_INCLUDE_COM_TELEM
-
 /*
  * MAIN USART
  */
+
+static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
+
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs  = MAIN_USART_REGS,
     .remap = MAIN_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = MAIN_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
     .rx                                        = {
         .gpio = MAIN_USART_RX_GPIO,
         .init = {
@@ -284,166 +269,15 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-};
-#endif /* PIOS_INCLUDE_COM_TELEM */
-
-#ifdef PIOS_INCLUDE_DSM
-
-#include "pios_dsm_priv.h"
-static const struct pios_usart_cfg pios_usart_dsm_main_cfg = {
-    .regs  = MAIN_USART_REGS,
-    .remap = MAIN_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 115200,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = MAIN_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = MAIN_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = MAIN_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
+    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 
-// Because of the inverter on the main port this will not
-// work.  Notice the mode is set to IN to maintain API
-// compatibility but protect the pins
-static const struct pios_dsm_cfg pios_dsm_main_cfg = {
-    .bind               = {
-        .gpio = MAIN_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_IN,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_DSM */
-
-
-#include <pios_sbus_priv.h>
-#if defined(PIOS_INCLUDE_SBUS)
-/*
- * S.Bus USART
- */
-#include <pios_sbus_priv.h>
-
-static const struct pios_usart_cfg pios_usart_sbus_main_cfg = {
-    .regs  = MAIN_USART_REGS,
-    .remap = MAIN_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 99999,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_Even,
-        .USART_StopBits   = USART_StopBits_2,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = MAIN_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = MAIN_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = MAIN_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_SBUS */
-
-// Need this defined regardless to be able to turn it off
-static const struct pios_sbus_cfg pios_sbus_cfg = {
-    /* Inverter configuration */
-    .inv                = {
-        .gpio = MAIN_USART_INVERTER_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_INVERTER_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .gpio_inv_enable  = Bit_SET,
-    .gpio_inv_disable = Bit_RESET,
-    .gpio_clk_func    = MAIN_USART_INVERTER_CLOCK_FUNC,
-    .gpio_clk_periph  = MAIN_USART_INVERTER_CLOCK_PERIPH,
-};
-
-
-#ifdef PIOS_INCLUDE_COM_FLEXI
 /*
  * FLEXI PORT
  */
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs  = FLEXI_USART_REGS,
     .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             =
-            USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
     .rx                                        = {
         .gpio = FLEXI_USART_RX_GPIO,
         .init = {
@@ -464,357 +298,15 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .dtr                                       = {
-        .gpio = FLEXI_USART_DTR_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_DTR_PIN,
-            .GPIO_Speed = GPIO_Speed_25MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_COM_FLEXI */
-
-#ifdef PIOS_INCLUDE_DSM
-
-#include "pios_dsm_priv.h"
-static const struct pios_usart_cfg pios_usart_dsm_flexi_cfg = {
-    .regs  = FLEXI_USART_REGS,
-    .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 115200,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = FLEXI_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-};
-
-static const struct pios_dsm_cfg pios_dsm_flexi_cfg = {
-    .bind               = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_DSM */
-
-#if defined(PIOS_INCLUDE_HOTT)
-/*
- * HOTT USART
- */
-#include <pios_hott_priv.h>
-
-static const struct pios_usart_cfg pios_usart_hott_flexi_cfg = {
-    .regs  = FLEXI_USART_REGS,
-    .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 115200,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = FLEXI_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_HOTT */
-
-#if defined(PIOS_INCLUDE_SRXL)
-/*
- * SRXL USART
- */
-#include <pios_srxl_priv.h>
-
-static const struct pios_usart_cfg pios_usart_srxl_flexi_cfg = {
-    .regs  = FLEXI_USART_REGS,
-    .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 115200,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = FLEXI_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_SRXL */
-
-#if defined(PIOS_INCLUDE_IBUS)
-/*
- * IBUS USART
- */
-#include <pios_ibus_priv.h>
-
-static const struct pios_usart_cfg pios_usart_ibus_flexi_cfg = {
-    .regs  = FLEXI_USART_REGS,
-    .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 115200,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = FLEXI_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_IBUS */
-
-#if defined(PIOS_INCLUDE_EXBUS)
-/*
- * EXBUS USART
- */
-#include <pios_exbus_priv.h>
-
-static const struct pios_usart_cfg pios_usart_exbus_flexi_cfg = {
-    .regs  = FLEXI_USART_REGS,
-    .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 125000,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = FLEXI_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-};
-
-#endif /* PIOS_INCLUDE_EXBUS */
-
-/*
- * HK OSD
- */
-static const struct pios_usart_cfg pios_usart_hkosd_main_cfg = {
-    .regs  = MAIN_USART_REGS,
-    .remap = MAIN_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = MAIN_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = MAIN_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = MAIN_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = MAIN_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-};
-
-static const struct pios_usart_cfg pios_usart_hkosd_flexi_cfg = {
-    .regs  = FLEXI_USART_REGS,
-    .remap = FLEXI_USART_REMAP,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             = USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = FLEXI_USART_IRQ,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
-        .gpio = FLEXI_USART_RX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_RX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
-    .tx                                        = {
-        .gpio = FLEXI_USART_TX_GPIO,
-        .init = {
-            .GPIO_Pin   = FLEXI_USART_TX_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_AF,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        },
-    },
+//    .dtr                                       = {
+//        .gpio = FLEXI_USART_DTR_GPIO,
+//        .init = {
+//            .GPIO_Pin   = FLEXI_USART_DTR_PIN,
+//            .GPIO_Speed = GPIO_Speed_25MHz,
+//            .GPIO_Mode  = GPIO_Mode_OUT,
+//            .GPIO_OType = GPIO_OType_PP,
+//        },
+//    },
 };
 
 #if defined(PIOS_INCLUDE_COM)
@@ -1347,37 +839,6 @@ const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(uint32_t board_revision)
 
 #endif /* PIOS_INCLUDE_COM_MSG */
 
-#if defined(PIOS_INCLUDE_USB_HID) && !defined(PIOS_INCLUDE_USB_CDC)
-#include <pios_usb_hid_priv.h>
-
-const struct pios_usb_hid_cfg pios_usb_hid_cfg = {
-    .data_if    = 0,
-    .data_rx_ep = 1,
-    .data_tx_ep = 1,
-};
-#endif /* PIOS_INCLUDE_USB_HID && !PIOS_INCLUDE_USB_CDC */
-
-#if defined(PIOS_INCLUDE_USB_HID) && defined(PIOS_INCLUDE_USB_CDC)
-#include <pios_usb_cdc_priv.h>
-
-const struct pios_usb_cdc_cfg pios_usb_cdc_cfg = {
-    .ctrl_if    = 0,
-    .ctrl_tx_ep = 2,
-
-    .data_if    = 1,
-    .data_rx_ep = 3,
-    .data_tx_ep = 3,
-};
-
-#include <pios_usb_hid_priv.h>
-
-const struct pios_usb_hid_cfg pios_usb_hid_cfg = {
-    .data_if    = 2,
-    .data_rx_ep = 1,
-    .data_tx_ep = 1,
-};
-#endif /* PIOS_INCLUDE_USB_HID && PIOS_INCLUDE_USB_CDC */
-
 #ifdef PIOS_INCLUDE_WS2811
 #include <pios_ws2811_cfg.h>
 #include <hwsettings.h>
@@ -1470,3 +931,143 @@ struct pios_flash_eeprom_cfg flash_main_chip_cfg = {
 };
 // .i2c_address = 0x50,
 #endif /*  PIOS_INCLUDE_FLASH_EEPROM */
+
+/**
+ * Sensor configurations
+ */
+
+
+
+#if defined(PIOS_INCLUDE_ADC)
+
+#include "pios_adc_priv.h"
+void PIOS_ADC_DMC_irq_handler(void);
+void DMA2_Stream4_IRQHandler(void) __attribute__((alias("PIOS_ADC_DMC_irq_handler")));
+struct pios_adc_cfg pios_adc_cfg = {
+    .adc_dev = ADC1,
+    .dma     = {
+        .irq                                       = {
+            .flags = (DMA_FLAG_TCIF4 | DMA_FLAG_TEIF4 | DMA_FLAG_HTIF4),
+            .init  = {
+                .NVIC_IRQChannel    = DMA2_Stream4_IRQn,
+                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
+                .NVIC_IRQChannelSubPriority        = 0,
+                .NVIC_IRQChannelCmd = ENABLE,
+            },
+        },
+        .rx                                        = {
+            .channel = DMA2_Stream4,
+            .init    = {
+                .DMA_Channel                       = DMA_Channel_0,
+                .DMA_PeripheralBaseAddr            = (uint32_t)&ADC1->DR
+            },
+        }
+    },
+    .half_flag = DMA_IT_HTIF4,
+    .full_flag = DMA_IT_TCIF4,
+};
+void PIOS_ADC_DMC_irq_handler(void)
+{
+    /* Call into the generic code to handle the IRQ for this specific device */
+    PIOS_ADC_DMA_Handler();
+}
+
+const struct pios_adc_cfg *PIOS_BOARD_HW_DEFS_GetAdcCfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_adc_cfg;
+}
+#endif /* if defined(PIOS_INCLUDE_ADC) */
+
+#if defined(PIOS_INCLUDE_HMC5X83)
+#include "pios_hmc5x83.h"
+
+static const struct pios_hmc5x83_cfg pios_hmc5x83_external_cfg = {
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+    .exti_cfg  = NULL,
+#endif
+    .M_ODR     = PIOS_HMC5x83_ODR_75, // if you change this for auxmag, change AUX_MAG_SKIP in sensors.c
+    .Meas_Conf = PIOS_HMC5x83_MEASCONF_NORMAL,
+    .Gain   = PIOS_HMC5x83_GAIN_1_9,
+    .Mode   = PIOS_HMC5x83_MODE_CONTINUOUS,
+    .TempCompensation = false,
+    .Driver = &PIOS_HMC5x83_I2C_DRIVER,
+    .Orientation      = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
+};
+
+const struct pios_hmc5x83_cfg *PIOS_BOARD_HW_DEFS_GetExternalHMC5x83Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_hmc5x83_external_cfg;
+}
+#endif /* PIOS_INCLUDE_HMC5X83 */
+
+/**
+ * Configuration for the MS5611 chip
+ */
+#if defined(PIOS_INCLUDE_MS5611)
+#include "pios_ms5611.h"
+static const struct pios_ms5611_cfg pios_ms5611_cfg = {
+    .oversampling = MS5611_OSR_4096,
+};
+const struct pios_ms5611_cfg *PIOS_BOARD_HW_DEFS_GetMS5611Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_ms5611_cfg;
+}
+#endif /* PIOS_INCLUDE_MS5611 */
+
+/**
+ * Configuration for the MPU9250 chip
+ */
+#if defined(PIOS_INCLUDE_MPU9250)
+#include "pios_mpu9250.h"
+#include "pios_mpu9250_config.h"
+static const struct pios_exti_cfg pios_exti_mpu9250_cfg __exti_config = {
+    .vector = PIOS_MPU9250_IRQHandler,
+    .line   = EXTI_Line15,
+    .pin    = {
+        .gpio = GPIOA,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_15,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_Mode  = GPIO_Mode_IN,
+            .GPIO_OType = GPIO_OType_OD,
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+        },
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = EXTI15_10_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .exti                                      = {
+        .init                                  = {
+            .EXTI_Line    = EXTI_Line15, // matches above GPIO pin
+            .EXTI_Mode    = EXTI_Mode_Interrupt,
+            .EXTI_Trigger = EXTI_Trigger_Rising,
+            .EXTI_LineCmd = ENABLE,
+        },
+    },
+};
+
+static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
+    .exti_cfg   = &pios_exti_mpu9250_cfg,
+    .Fifo_store = 0,
+    // Clock at 8 khz
+    .Smpl_rate_div_no_dlp = 0,
+    // with dlp on output rate is 1000Hz
+    .Smpl_rate_div_dlp    = 0,
+    .interrupt_cfg  = PIOS_MPU9250_INT_CLR_ANYRD, // | PIOS_MPU9250_INT_LATCH_EN,
+    .interrupt_en   = PIOS_MPU9250_INTEN_DATA_RDY,
+    .User_ctl             = PIOS_MPU9250_USERCTL_DIS_I2C | PIOS_MPU9250_USERCTL_I2C_MST_EN,
+    .Pwr_mgmt_clk   = PIOS_MPU9250_PWRMGMT_PLL_Z_CLK,
+    .accel_range    = PIOS_MPU9250_ACCEL_8G,
+    .gyro_range     = PIOS_MPU9250_SCALE_2000_DEG,
+    .filter               = PIOS_MPU9250_LOWPASS_256_HZ,
+    .orientation    = PIOS_MPU9250_TOP_180DEG,
+    .fast_prescaler = PIOS_SPI_PRESCALER_4,
+    .std_prescaler  = PIOS_SPI_PRESCALER_64,
+    .max_downsample = 26,
+};
+#endif /* PIOS_INCLUDE_MPU9250 */

@@ -30,20 +30,17 @@
 #include <pios_board_info.h>
 #include <uavobjectsinit.h>
 #include <hwsettings.h>
-#include <manualcontrolsettings.h>
-#include <oplinksettings.h>
-#include <oplinkstatus.h>
-#include <oplinkreceiver.h>
-#include <pios_oplinkrcvr_priv.h>
 #include <taskinfo.h>
 #include <pios_ws2811.h>
-#include <sanitycheck.h>
-#include <actuatorsettings.h>
-#include <auxmagsettings.h>
+
+#include "sanitycheck.h"
+#include "actuatorsettings.h"
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
 #endif
+
+#include <pios_board_io.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -55,286 +52,11 @@
  */
 #include "../board_hw_defs.c"
 
-static SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook();
-static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
-/**
- * Sensor configurations
- */
-
-#if defined(PIOS_INCLUDE_ADC)
-
-#include "pios_adc_priv.h"
-void PIOS_ADC_DMC_irq_handler(void);
-void DMA2_Stream4_IRQHandler(void) __attribute__((alias("PIOS_ADC_DMC_irq_handler")));
-struct pios_adc_cfg pios_adc_cfg = {
-    .adc_dev = ADC1,
-    .dma     = {
-        .irq                                       = {
-            .flags = (DMA_FLAG_TCIF4 | DMA_FLAG_TEIF4 | DMA_FLAG_HTIF4),
-            .init  = {
-                .NVIC_IRQChannel    = DMA2_Stream4_IRQn,
-                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
-                .NVIC_IRQChannelSubPriority        = 0,
-                .NVIC_IRQChannelCmd = ENABLE,
-            },
-        },
-        .rx                                        = {
-            .channel = DMA2_Stream4,
-            .init    = {
-                .DMA_Channel                       = DMA_Channel_0,
-                .DMA_PeripheralBaseAddr            = (uint32_t)&ADC1->DR
-            },
-        }
-    },
-    .half_flag = DMA_IT_HTIF4,
-    .full_flag = DMA_IT_TCIF4,
-};
-void PIOS_ADC_DMC_irq_handler(void)
-{
-    /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_ADC_DMA_Handler();
-}
-#endif /* if defined(PIOS_INCLUDE_ADC) */
-
-#if defined(PIOS_INCLUDE_HMC5X83)
-#include "pios_hmc5x83.h"
-pios_hmc5x83_dev_t external_mag = 0;
-
-static const struct pios_hmc5x83_cfg pios_hmc5x83_external_cfg = {
-#ifdef PIOS_HMC5X83_HAS_GPIOS
-    .exti_cfg  = NULL,
-#endif
-    .M_ODR     = PIOS_HMC5x83_ODR_75, // if you change this for auxmag, change AUX_MAG_SKIP in sensors.c
-    .Meas_Conf = PIOS_HMC5x83_MEASCONF_NORMAL,
-    .Gain   = PIOS_HMC5x83_GAIN_1_9,
-    .Mode   = PIOS_HMC5x83_MODE_CONTINUOUS,
-    .TempCompensation = false,
-    .Driver = &PIOS_HMC5x83_I2C_DRIVER,
-    .Orientation      = PIOS_HMC5X83_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
-};
-#endif /* PIOS_INCLUDE_HMC5X83 */
-
-/**
- * Configuration for the MS5611 chip
- */
-#if defined(PIOS_INCLUDE_MS5611)
-#include "pios_ms5611.h"
-static const struct pios_ms5611_cfg pios_ms5611_cfg = {
-    .oversampling = MS5611_OSR_4096,
-};
-#endif /* PIOS_INCLUDE_MS5611 */
-
-/**
- * Configuration for the MPU9250 chip
- */
-#if defined(PIOS_INCLUDE_MPU9250)
-#include "pios_mpu9250.h"
-#include "pios_mpu9250_config.h"
-static const struct pios_exti_cfg pios_exti_mpu9250_cfg __exti_config = {
-    .vector = PIOS_MPU9250_IRQHandler,
-    .line   = EXTI_Line15,
-    .pin    = {
-        .gpio = GPIOA,
-        .init = {
-            .GPIO_Pin   = GPIO_Pin_15,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_Mode  = GPIO_Mode_IN,
-            .GPIO_OType = GPIO_OType_OD,
-            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
-        },
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = EXTI15_10_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_HIGH,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .exti                                      = {
-        .init                                  = {
-            .EXTI_Line    = EXTI_Line15, // matches above GPIO pin
-            .EXTI_Mode    = EXTI_Mode_Interrupt,
-            .EXTI_Trigger = EXTI_Trigger_Rising,
-            .EXTI_LineCmd = ENABLE,
-        },
-    },
-};
-
-static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
-    .exti_cfg   = &pios_exti_mpu9250_cfg,
-    .Fifo_store = 0,
-    // Clock at 8 khz
-    .Smpl_rate_div_no_dlp = 0,
-    // with dlp on output rate is 1000Hz
-    .Smpl_rate_div_dlp    = 0,
-    .interrupt_cfg  = PIOS_MPU9250_INT_CLR_ANYRD, // | PIOS_MPU9250_INT_LATCH_EN,
-    .interrupt_en   = PIOS_MPU9250_INTEN_DATA_RDY,
-    .User_ctl             = PIOS_MPU9250_USERCTL_DIS_I2C | PIOS_MPU9250_USERCTL_I2C_MST_EN,
-    .Pwr_mgmt_clk   = PIOS_MPU9250_PWRMGMT_PLL_Z_CLK,
-    .accel_range    = PIOS_MPU9250_ACCEL_8G,
-    .gyro_range     = PIOS_MPU9250_SCALE_2000_DEG,
-    .filter               = PIOS_MPU9250_LOWPASS_256_HZ,
-    .orientation    = PIOS_MPU9250_TOP_180DEG,
-    .fast_prescaler = PIOS_SPI_PRESCALER_4,
-    .std_prescaler  = PIOS_SPI_PRESCALER_64,
-    .max_downsample = 26,
-};
-#endif /* PIOS_INCLUDE_MPU9250 */
-
-
-/* One slot per selectable receiver group.
- *  eg. PWM, PPM, GCS, SPEKTRUM1, SPEKTRUM2, SBUS
- * NOTE: No slot in this map for NONE.
- */
-uint32_t pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_NONE];
-
-#define PIOS_COM_TELEM_RF_RX_BUF_LEN     512
-#define PIOS_COM_TELEM_RF_TX_BUF_LEN     512
-
-#define PIOS_COM_GPS_RX_BUF_LEN          128
-#define PIOS_COM_GPS_TX_BUF_LEN          32
-
-#define PIOS_COM_TELEM_USB_RX_BUF_LEN    65
-#define PIOS_COM_TELEM_USB_TX_BUF_LEN    65
-
-#define PIOS_COM_BRIDGE_RX_BUF_LEN       65
-#define PIOS_COM_BRIDGE_TX_BUF_LEN       12
-
-#define PIOS_COM_RFM22B_RF_RX_BUF_LEN    512
-#define PIOS_COM_RFM22B_RF_TX_BUF_LEN    512
-
-#define PIOS_COM_HKOSD_RX_BUF_LEN        22
-#define PIOS_COM_HKOSD_TX_BUF_LEN        22
-
-#define PIOS_COM_MSP_TX_BUF_LEN          128
-#define PIOS_COM_MSP_RX_BUF_LEN          64
-
-#define PIOS_COM_MAVLINK_TX_BUF_LEN      128
-
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-#define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
-uint32_t pios_com_debug_id;
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
-
-uint32_t pios_com_gps_id       = 0;
-uint32_t pios_com_telem_usb_id = 0;
-uint32_t pios_com_telem_rf_id  = 0;
-uint32_t pios_com_rf_id        = 0;
-uint32_t pios_com_bridge_id    = 0;
-uint32_t pios_com_overo_id     = 0;
-uint32_t pios_com_hkosd_id     = 0;
-uint32_t pios_com_msp_id       = 0;
-uint32_t pios_com_vcp_id       = 0;
-uint32_t pios_com_mavlink_id   = 0;
-
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
-/*
- * Setup a com port based on the passed cfg, driver and buffer sizes.
- * tx size = 0 make the port rx only
- * rx size = 0 make the port tx only
- * having both tx and rx size = 0 is not valid and will fail further down in PIOS_COM_Init()
- */
-static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, uint16_t rx_buf_len, uint16_t tx_buf_len,
-                                     const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
-{
-    uint32_t pios_usart_id;
-
-    if (PIOS_USART_Init(&pios_usart_id, usart_port_cfg)) {
-        PIOS_Assert(0);
-    }
-
-    uint8_t *rx_buffer = 0, *tx_buffer = 0;
-
-    if (rx_buf_len > 0) {
-        rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
-        PIOS_Assert(rx_buffer);
-    }
-
-    if (tx_buf_len > 0) {
-        tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
-        PIOS_Assert(tx_buffer);
-    }
-
-    if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
-                      rx_buffer, rx_buf_len,
-                      tx_buffer, tx_buf_len)) {
-        PIOS_Assert(0);
-    }
-}
-
-static void PIOS_Board_configure_dsm(const struct pios_usart_cfg *pios_usart_dsm_cfg, const struct pios_dsm_cfg *pios_dsm_cfg,
-                                     const struct pios_com_driver *usart_com_driver,
-                                     ManualControlSettingsChannelGroupsOptions channelgroup, uint8_t *bind)
-{
-    uint32_t pios_usart_dsm_id;
-
-    if (PIOS_USART_Init(&pios_usart_dsm_id, pios_usart_dsm_cfg)) {
-        PIOS_Assert(0);
-    }
-
-    uint32_t pios_dsm_id;
-    if (PIOS_DSM_Init(&pios_dsm_id, pios_dsm_cfg, usart_com_driver,
-                      pios_usart_dsm_id, *bind)) {
-        PIOS_Assert(0);
-    }
-
-    uint32_t pios_dsm_rcvr_id;
-    if (PIOS_RCVR_Init(&pios_dsm_rcvr_id, &pios_dsm_rcvr_driver, pios_dsm_id)) {
-        PIOS_Assert(0);
-    }
-    pios_rcvr_group_map[channelgroup] = pios_dsm_rcvr_id;
-}
-
-static void PIOS_Board_configure_ibus(const struct pios_usart_cfg *usart_cfg)
-{
-    uint32_t pios_usart_ibus_id;
-
-    if (PIOS_USART_Init(&pios_usart_ibus_id, usart_cfg)) {
-        PIOS_Assert(0);
-    }
-
-    uint32_t pios_ibus_id;
-    if (PIOS_IBUS_Init(&pios_ibus_id, &pios_usart_com_driver, pios_usart_ibus_id)) {
-        PIOS_Assert(0);
-    }
-
-    uint32_t pios_ibus_rcvr_id;
-    if (PIOS_RCVR_Init(&pios_ibus_rcvr_id, &pios_ibus_rcvr_driver, pios_ibus_id)) {
-        PIOS_Assert(0);
-    }
-
-    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_IBUS] = pios_ibus_rcvr_id;
-}
-
-static void PIOS_Board_configure_pwm(const struct pios_pwm_cfg *pwm_cfg)
-{
-    /* Set up the receiver port.  Later this should be optional */
-    uint32_t pios_pwm_id;
-
-    PIOS_PWM_Init(&pios_pwm_id, pwm_cfg);
-
-    uint32_t pios_pwm_rcvr_id;
-    if (PIOS_RCVR_Init(&pios_pwm_rcvr_id, &pios_pwm_rcvr_driver, pios_pwm_id)) {
-        PIOS_Assert(0);
-    }
-    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PWM] = pios_pwm_rcvr_id;
-}
-
-static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
-{
-    uint32_t pios_ppm_id;
-
-    PIOS_PPM_Init(&pios_ppm_id, ppm_cfg);
-
-    uint32_t pios_ppm_rcvr_id;
-    if (PIOS_RCVR_Init(&pios_ppm_rcvr_id, &pios_ppm_rcvr_driver, pios_ppm_id)) {
-        PIOS_Assert(0);
-    }
-    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PPM] = pios_ppm_rcvr_id;
-}
+static SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook();
+static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 
 /**
  * PIOS_Board_Init()
@@ -344,11 +66,55 @@ static void PIOS_Board_configure_ppm(const struct pios_ppm_cfg *ppm_cfg)
 
 #include <pios_board_info.h>
 
+static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
+    [HWSETTINGS_RM_FLEXIPORT_TELEMETRY]    = PIOS_BOARD_IO_UART_TELEMETRY,
+    [HWSETTINGS_RM_FLEXIPORT_GPS] = PIOS_BOARD_IO_UART_GPS,
+    [HWSETTINGS_RM_FLEXIPORT_DSM] = PIOS_BOARD_IO_UART_DSM_FLEXI,
+    [HWSETTINGS_RM_FLEXIPORT_EXBUS]        = PIOS_BOARD_IO_UART_EXBUS,
+    [HWSETTINGS_RM_FLEXIPORT_HOTTSUMD]     = PIOS_BOARD_IO_UART_HOTT_SUMD,
+    [HWSETTINGS_RM_FLEXIPORT_HOTTSUMH]     = PIOS_BOARD_IO_UART_HOTT_SUMH,
+    [HWSETTINGS_RM_FLEXIPORT_SRXL] = PIOS_BOARD_IO_UART_SRXL,
+    [HWSETTINGS_RM_FLEXIPORT_IBUS] = PIOS_BOARD_IO_UART_IBUS,
+    [HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE] = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
+    [HWSETTINGS_RM_FLEXIPORT_COMBRIDGE]    = PIOS_BOARD_IO_UART_COMBRIDGE,
+    [HWSETTINGS_RM_FLEXIPORT_OSDHK]        = PIOS_BOARD_IO_UART_OSDHK,
+    [HWSETTINGS_RM_FLEXIPORT_MSP] = PIOS_BOARD_IO_UART_MSP,
+    [HWSETTINGS_RM_FLEXIPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
+};
+
+static const PIOS_BOARD_IO_UART_Function main_function_map[] = {
+    [HWSETTINGS_RM_MAINPORT_TELEMETRY] = PIOS_BOARD_IO_UART_TELEMETRY,
+    [HWSETTINGS_RM_MAINPORT_GPS]          = PIOS_BOARD_IO_UART_GPS,
+    [HWSETTINGS_RM_MAINPORT_SBUS]         = PIOS_BOARD_IO_UART_SBUS,
+    [HWSETTINGS_RM_MAINPORT_DSM]          = PIOS_BOARD_IO_UART_DSM_MAIN,
+    [HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE] = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
+    [HWSETTINGS_RM_MAINPORT_COMBRIDGE]    = PIOS_BOARD_IO_UART_COMBRIDGE,
+    [HWSETTINGS_RM_MAINPORT_OSDHK]        = PIOS_BOARD_IO_UART_OSDHK,
+    [HWSETTINGS_RM_MAINPORT_MSP]          = PIOS_BOARD_IO_UART_MSP,
+    [HWSETTINGS_RM_MAINPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
+};
+
+int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
+{
+    const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
+    
+    switch (ctl) {
+        case PIOS_IOCTL_USART_SET_INVERTED:
+            if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
+                GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
+                              MAIN_USART_INVERTER_PIN,
+                              (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
+                
+                return 0;
+            }
+            break;
+    }
+    
+    return -1;
+}
+
 void PIOS_Board_Init(void)
 {
-    /* Delay system */
-    PIOS_DELAY_Init();
-
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
 
 #if defined(PIOS_INCLUDE_LED)
@@ -425,10 +191,6 @@ void PIOS_Board_Init(void)
     EventDispatcherInitialize();
     UAVObjInitialize();
     HwSettingsInitialize();
-#if defined(PIOS_INCLUDE_RFM22B)
-    OPLinkSettingsInitialize();
-    OPLinkStatusInitialize();
-#endif /* PIOS_INCLUDE_RFM22B */
 
     /* Initialize the alarms library */
     AlarmsInitialize();
@@ -451,365 +213,43 @@ void PIOS_Board_Init(void)
         HwSettingsSetDefaults(HwSettingsHandle(), 0);
         AlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL);
     }
-
-
-    // PIOS_IAP_Init();
-
+    
 #if defined(PIOS_INCLUDE_USB)
-    /* Initialize board specific USB data */
-    PIOS_USB_BOARD_DATA_Init();
-
-    /* Flags to determine if various USB interfaces are advertised */
-    bool usb_hid_present = false;
-    bool usb_cdc_present = false;
-
-#if defined(PIOS_INCLUDE_USB_CDC)
-    if (PIOS_USB_DESC_HID_CDC_Init()) {
-        PIOS_Assert(0);
-    }
-    usb_hid_present = true;
-    usb_cdc_present = true;
-#else
-    if (PIOS_USB_DESC_HID_ONLY_Init()) {
-        PIOS_Assert(0);
-    }
-    usb_hid_present = true;
+    PIOS_BOARD_IO_Configure_USB();
 #endif
-
-    uint32_t pios_usb_id;
-    PIOS_USB_Init(&pios_usb_id, PIOS_BOARD_HW_DEFS_GetUsbCfg(bdinfo->board_rev));
-
-#if defined(PIOS_INCLUDE_USB_CDC)
-
-    uint8_t hwsettings_usb_vcpport;
-    /* Configure the USB VCP port */
-    HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
-
-    if (!usb_cdc_present) {
-        /* Force VCP port function to disabled if we haven't advertised VCP in our USB descriptor */
-        hwsettings_usb_vcpport = HWSETTINGS_USB_VCPPORT_DISABLED;
-    }
-    uint32_t pios_usb_cdc_id;
-    if (PIOS_USB_CDC_Init(&pios_usb_cdc_id, &pios_usb_cdc_cfg, pios_usb_id)) {
-        PIOS_Assert(0);
-    }
-
-    uint32_t pios_usb_hid_id;
-    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_cfg, pios_usb_id)) {
-        PIOS_Assert(0);
-    }
-
-    switch (hwsettings_usb_vcpport) {
-    case HWSETTINGS_USB_VCPPORT_DISABLED:
-        break;
-    case HWSETTINGS_USB_VCPPORT_USBTELEMETRY:
-#if defined(PIOS_INCLUDE_COM)
-        {
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_telem_usb_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
-                              rx_buffer, PIOS_COM_TELEM_USB_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_TELEM_USB_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_COM */
-        break;
-    case HWSETTINGS_USB_VCPPORT_COMBRIDGE:
-#if defined(PIOS_INCLUDE_COM)
-        {
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_BRIDGE_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_BRIDGE_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_vcp_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
-                              rx_buffer, PIOS_COM_BRIDGE_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_COM */
-        break;
-    case HWSETTINGS_USB_VCPPORT_DEBUGCONSOLE:
-#if defined(PIOS_INCLUDE_COM)
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-        {
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_debug_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
-                              NULL, 0,
-                              tx_buffer, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
-#endif /* PIOS_INCLUDE_COM */
-
-        break;
-    }
-#endif /* PIOS_INCLUDE_USB_CDC */
-
-#if defined(PIOS_INCLUDE_USB_HID)
-    /* Configure the usb HID port */
-    uint8_t hwsettings_usb_hidport;
-    HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
-
-    if (!usb_hid_present) {
-        /* Force HID port function to disabled if we haven't advertised HID in our USB descriptor */
-        hwsettings_usb_hidport = HWSETTINGS_USB_HIDPORT_DISABLED;
-    }
-
-    switch (hwsettings_usb_hidport) {
-    case HWSETTINGS_USB_HIDPORT_DISABLED:
-        break;
-    case HWSETTINGS_USB_HIDPORT_USBTELEMETRY:
-#if defined(PIOS_INCLUDE_COM)
-        {
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_telem_usb_id, &pios_usb_hid_com_driver, pios_usb_hid_id,
-                              rx_buffer, PIOS_COM_TELEM_USB_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_TELEM_USB_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_COM */
-        break;
-    }
-
-#endif /* PIOS_INCLUDE_USB_HID */
-
-    if (usb_hid_present || usb_cdc_present) {
-        PIOS_USBHOOK_Activate();
-    }
-#endif /* PIOS_INCLUDE_USB */
-
-    /* Configure IO ports */
-    uint8_t hwsettings_DSMxBind;
-    HwSettingsDSMxBindGet(&hwsettings_DSMxBind);
-
-    /* Configure main USART port */
-    uint8_t hwsettings_mainport;
-    HwSettingsRM_MainPortGet(&hwsettings_mainport);
-    switch (hwsettings_mainport) {
-    case HWSETTINGS_RM_MAINPORT_DISABLED:
-        break;
-    case HWSETTINGS_RM_MAINPORT_TELEMETRY:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
-        break;
-    case HWSETTINGS_RM_MAINPORT_GPS:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
-        break;
-    case HWSETTINGS_RM_MAINPORT_SBUS:
-#if defined(PIOS_INCLUDE_SBUS)
-        {
-            uint32_t pios_usart_sbus_id;
-            if (PIOS_USART_Init(&pios_usart_sbus_id, &pios_usart_sbus_main_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_sbus_id;
-            if (PIOS_SBus_Init(&pios_sbus_id, &pios_sbus_cfg, &pios_usart_com_driver, pios_usart_sbus_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_sbus_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_sbus_rcvr_id, &pios_sbus_rcvr_driver, pios_sbus_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS] = pios_sbus_rcvr_id;
-        }
-#endif
-        break;
-    case HWSETTINGS_RM_MAINPORT_DSM:
-    {
-        // Force binding to zero on the main port
-        hwsettings_DSMxBind = 0;
-
-        // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
-        PIOS_Board_configure_dsm(&pios_usart_dsm_main_cfg, &pios_dsm_main_cfg,
-                                 &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT, &hwsettings_DSMxBind);
-    }
-    break;
-    case HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE:
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-        {
-            PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
-        }
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
-        break;
-    case HWSETTINGS_RM_MAINPORT_COMBRIDGE:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
-        break;
-    case HWSETTINGS_RM_MAINPORT_MSP:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
-        break;
-    case HWSETTINGS_RM_MAINPORT_MAVLINK:
-        PIOS_Board_configure_com(&pios_usart_main_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
-        break;
-    case HWSETTINGS_RM_MAINPORT_OSDHK:
-        PIOS_Board_configure_com(&pios_usart_hkosd_main_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
-        break;
-    } /*        hwsettings_rm_mainport */
-
-    if (hwsettings_mainport != HWSETTINGS_RM_MAINPORT_SBUS) {
-        GPIO_Init(pios_sbus_cfg.inv.gpio, &pios_sbus_cfg.inv.init);
-        GPIO_WriteBit(pios_sbus_cfg.inv.gpio, pios_sbus_cfg.inv.init.GPIO_Pin, pios_sbus_cfg.gpio_inv_disable);
-    }
 
     /* Configure FlexiPort */
     uint8_t hwsettings_flexiport;
     HwSettingsRM_FlexiPortGet(&hwsettings_flexiport);
-    switch (hwsettings_flexiport) {
-    case HWSETTINGS_RM_FLEXIPORT_DISABLED:
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_TELEMETRY:
-        PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_telem_rf_id);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_I2C:
-#if defined(PIOS_INCLUDE_I2C)
-        if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
-            PIOS_Assert(0);
-        }
-        PIOS_DELAY_WaitmS(50); // this was after the other PIOS_I2C_Init(), so I copied it here too
-#ifdef PIOS_INCLUDE_WDG
-        // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
-        // this is not in a loop, so it is safe
-        // leave this here even if PIOS_INCLUDE_HMC5X83 is undefined
-        // to avoid making something else fail when HMC5X83 is removed
-        PIOS_WDG_Clear();
-#endif /* PIOS_INCLUDE_WDG */
-#if defined(PIOS_INCLUDE_HMC5X83)
-        // get auxmag type
-        AuxMagSettingsTypeOptions option;
-        AuxMagSettingsInitialize();
-        AuxMagSettingsTypeGet(&option);
-        // if the aux mag type is FlexiPort then set it up
-        if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
-            // attach the 5x83 mag to the previously inited I2C2
-            external_mag = PIOS_HMC5x83_Init(&pios_hmc5x83_external_cfg, pios_i2c_flexiport_adapter_id, 0);
-#ifdef PIOS_INCLUDE_WDG
-            // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
-            // this is not in a loop, so it is safe
-            PIOS_WDG_Clear();
-#endif /* PIOS_INCLUDE_WDG */
-            // add this sensor to the sensor task's list
-            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
-            // and before registering some other fast and important sensor
-            // as that would cause delay and time jitter for the second fast sensor
-            PIOS_HMC5x83_Register(external_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
-            // mag alarm is cleared later, so use I2C
-            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (external_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
-        }
-#endif /* PIOS_INCLUDE_HMC5X83 */
-#endif /* PIOS_INCLUDE_I2C */
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_GPS:
-        PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_GPS_RX_BUF_LEN, PIOS_COM_GPS_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_gps_id);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_DSM:
-        // TODO: Define the various Channelgroup for Revo dsm inputs and handle here
-        PIOS_Board_configure_dsm(&pios_usart_dsm_flexi_cfg, &pios_dsm_flexi_cfg,
-                                 &pios_usart_com_driver, MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT, &hwsettings_DSMxBind);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_DEBUGCONSOLE:
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-        {
-            PIOS_Board_configure_com(&pios_usart_flexi_cfg, 0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_debug_id);
-        }
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_COMBRIDGE:
-        PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_BRIDGE_RX_BUF_LEN, PIOS_COM_BRIDGE_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_bridge_id);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_MSP:
-        PIOS_Board_configure_com(&pios_usart_flexi_cfg, PIOS_COM_MSP_RX_BUF_LEN, PIOS_COM_MSP_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_msp_id);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_MAVLINK:
-        PIOS_Board_configure_com(&pios_usart_flexi_cfg, 0, PIOS_COM_MAVLINK_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_mavlink_id);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_OSDHK:
-        PIOS_Board_configure_com(&pios_usart_hkosd_flexi_cfg, PIOS_COM_HKOSD_RX_BUF_LEN, PIOS_COM_HKOSD_TX_BUF_LEN, &pios_usart_com_driver, &pios_com_hkosd_id);
-        break;
-    case HWSETTINGS_RM_FLEXIPORT_SRXL:
-#if defined(PIOS_INCLUDE_SRXL)
-        {
-            uint32_t pios_usart_srxl_id;
-            if (PIOS_USART_Init(&pios_usart_srxl_id, &pios_usart_srxl_flexi_cfg)) {
-                PIOS_Assert(0);
-            }
+    
+    if (hwsettings_flexiport < NELEMENTS(flexi_function_map)) {
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
+    }
 
-            uint32_t pios_srxl_id;
-            if (PIOS_SRXL_Init(&pios_srxl_id, &pios_usart_com_driver, pios_usart_srxl_id)) {
-                PIOS_Assert(0);
-            }
+    /* Configure main USART port */
+    
+    /* Initialize inverter gpio and set it to off */
+    {
+        GPIO_InitTypeDef inverterGPIOInit = {
+                .GPIO_Pin   = MAIN_USART_INVERTER_PIN,
+                .GPIO_Speed = GPIO_Speed_2MHz,
+                .GPIO_Mode  = GPIO_Mode_OUT,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_PuPd  = GPIO_PuPd_UP
+        };
 
-            uint32_t pios_srxl_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_srxl_rcvr_id, &pios_srxl_rcvr_driver, pios_srxl_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL] = pios_srxl_rcvr_id;
-        }
-#endif /* PIOS_INCLUDE_SRXL */
-        break;
-
-    case HWSETTINGS_RM_FLEXIPORT_IBUS:
-#if defined(PIOS_INCLUDE_IBUS)
-        PIOS_Board_configure_ibus(&pios_usart_ibus_flexi_cfg);
-#endif /* PIOS_INCLUDE_IBUS */
-        break;
-
-    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMD:
-    case HWSETTINGS_RM_FLEXIPORT_HOTTSUMH:
-#if defined(PIOS_INCLUDE_HOTT)
-        {
-            uint32_t pios_usart_hott_id;
-            if (PIOS_USART_Init(&pios_usart_hott_id, &pios_usart_hott_flexi_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_hott_id;
-            if (PIOS_HOTT_Init(&pios_hott_id, &pios_usart_com_driver, pios_usart_hott_id,
-                               hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_HOTTSUMD ? PIOS_HOTT_PROTO_SUMD : PIOS_HOTT_PROTO_SUMH)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_hott_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_hott_rcvr_id, &pios_hott_rcvr_driver, pios_hott_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT] = pios_hott_rcvr_id;
-        }
-#endif /* PIOS_INCLUDE_HOTT */
-        break;
-
-    case HWSETTINGS_RM_FLEXIPORT_EXBUS:
-#if defined(PIOS_INCLUDE_EXBUS)
-        {
-            uint32_t pios_usart_exbus_id;
-            if (PIOS_USART_Init(&pios_usart_exbus_id, &pios_usart_exbus_flexi_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_id;
-            if (PIOS_EXBUS_Init(&pios_exbus_id, &pios_usart_com_driver, pios_usart_exbus_id)) {
-                PIOS_Assert(0);
-            }
-
-            uint32_t pios_exbus_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_exbus_rcvr_id, &pios_exbus_rcvr_driver, pios_exbus_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS] = pios_exbus_rcvr_id;
-        }
-#endif /* PIOS_INCLUDE_EXBUS */
-        break;
-    } /* hwsettings_rm_flexiport */
-
+        GPIO_Init(MAIN_USART_INVERTER_GPIO, &inverterGPIOInit);
+        GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
+                      MAIN_USART_INVERTER_PIN,
+                      MAIN_USART_INVERTER_DISABLE);
+    }
+    
+    uint8_t hwsettings_mainport;
+    HwSettingsRM_MainPortGet(&hwsettings_mainport);
+    
+    if (hwsettings_mainport < NELEMENTS(main_function_map)) {
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_main_cfg, main_function_map[hwsettings_mainport]);
+    }
 
 #if defined(PIOS_INCLUDE_PWM) || defined(PIOS_INCLUDE_PPM)
 
@@ -828,7 +268,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
         /* Set up the receiver port.  Later this should be optional */
-        PIOS_Board_configure_pwm(&pios_pwm_cfg);
+        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
     case HWSETTINGS_RM_RCVRPORT_PPM:
@@ -840,7 +280,7 @@ void PIOS_Board_Init(void)
             pios_servo_cfg = &pios_servo_cfg_out_in_ppm;
         }
 
-        PIOS_Board_configure_ppm(&pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
 
         break;
 #endif /* PIOS_INCLUDE_PPM */
@@ -851,16 +291,9 @@ void PIOS_Board_Init(void)
     }
 
 
-#if defined(PIOS_INCLUDE_GCSRCVR)
-    GCSReceiverInitialize();
-    uint32_t pios_gcsrcvr_id;
-    PIOS_GCSRCVR_Init(&pios_gcsrcvr_id);
-    uint32_t pios_gcsrcvr_rcvr_id;
-    if (PIOS_RCVR_Init(&pios_gcsrcvr_rcvr_id, &pios_gcsrcvr_rcvr_driver, pios_gcsrcvr_id)) {
-        PIOS_Assert(0);
-    }
-    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_GCS] = pios_gcsrcvr_rcvr_id;
-#endif /* PIOS_INCLUDE_GCSRCVR */
+#ifdef PIOS_INCLUDE_GCSRCVR
+    PIOS_BOARD_IO_Configure_GCSRCVR();
+#endif
 
 #ifdef PIOS_INCLUDE_WS2811
 #include <pios_ws2811.h>
@@ -885,7 +318,7 @@ void PIOS_Board_Init(void)
     PIOS_DELAY_WaitmS(50);
 
 #if defined(PIOS_INCLUDE_ADC)
-    PIOS_ADC_Init(&pios_adc_cfg);
+    PIOS_BOARD_IO_Configure_ADC();
 #endif
 
 #if defined(PIOS_INCLUDE_MPU9250)
@@ -893,21 +326,6 @@ void PIOS_Board_Init(void)
     PIOS_MPU9250_CONFIG_Configure();
     PIOS_MPU9250_MainRegister();
     PIOS_MPU9250_MagRegister();
-#endif
-
-#if defined(PIOS_INCLUDE_MS5611)
-    PIOS_MS5611_Init(&pios_ms5611_cfg, pios_i2c_pressure_adapter_id);
-    PIOS_MS5611_Register();
-#endif
-
-#ifdef PIOS_INCLUDE_ADC
-    uint8_t adc_config[HWSETTINGS_ADCROUTING_NUMELEM];
-    HwSettingsADCRoutingArrayGet(adc_config);
-    for (uint32_t i = 0; i < HWSETTINGS_ADCROUTING_NUMELEM; i++) {
-        if (adc_config[i] != HWSETTINGS_ADCROUTING_DISABLED) {
-            PIOS_ADC_PinSetup(i);
-        }
-    }
 #endif
 
     // Attach the board config check hook

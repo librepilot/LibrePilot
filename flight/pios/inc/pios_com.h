@@ -70,7 +70,6 @@ enum PIOS_COM_Mode {
 };
 
 struct pios_com_driver {
-    void     (*init)(uint32_t id);
     void     (*set_baud)(uint32_t id, uint32_t baud);
     void     (*set_halfduplex)(uint32_t id, bool halfduplex);
     void     (*set_config)(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
@@ -83,6 +82,7 @@ struct pios_com_driver {
     void     (*bind_baud_rate_cb)(uint32_t id, pios_com_callback_baud_rate baud_rate_cb, uint32_t context);
     uint32_t (*available)(uint32_t id);
     void     (*bind_available_cb)(uint32_t id, pios_com_callback_available available_cb, uint32_t context);
+    int32_t  (*ioctl)(uint32_t id, uint32_t ctl, void *param);
 };
 
 /* Control line definitions */
@@ -117,10 +117,36 @@ extern int32_t PIOS_COM_ASYNC_RegisterTxCallback(uint32_t id, pios_com_callback 
 
 extern void PIOS_COM_LinkComPair(uint32_t com1_id, uint32_t com2_id, bool link_ctrl_line, bool link_baud_rate);
 
-#define COM_AVAILABLE_NONE (0)
-#define COM_AVAILABLE_RX   (1 << 0)
-#define COM_AVAILABLE_TX   (1 << 1)
-#define COM_AVAILABLE_RXTX (COM_AVAILABLE_RX | COM_AVAILABLE_TX)
+#define COM_AVAILABLE_NONE  (0)
+#define COM_AVAILABLE_RX    (1 << 0)
+#define COM_AVAILABLE_TX    (1 << 1)
+#define COM_AVAILABLE_RXTX  (COM_AVAILABLE_RX | COM_AVAILABLE_TX)
+
+/* ioctl */
+extern int32_t PIOS_COM_Ioctl(uint32_t com_id, uint32_t ctl, void *param);
+
+#define COM_IOCTL_NRBITS    16
+#define COM_IOCTL_TYPEBITS  16
+
+#define COM_IOCTL_NRMASK    ((1 << COM_IOCTL_NRBITS) - 1)
+#define COM_IOCTL_TYPEMASK  ((1 << COM_IOCTL_TYPEBITS) - 1)
+
+#define COM_IOCTL_NRSHIFT   0
+#define COM_IOCTL_TYPESHIFT (COM_IOCTL_NRSHIFT + COM_IOCTL_NRBITS)
+
+#define COM_IOCTL(type, nr, pt) \
+    (((type) << COM_IOCTL_TYPESHIFT) | \
+     ((nr) << COM_IOCTL_NRSHIFT))
+
+/* used to decode ioctl numbers.. */
+#define COM_IOCTL_TYPE(nr) (((nr) >> COM_IOCTL_TYPESHIFT) & COM_IOCTL_TYPEMASK)
+#define COM_IOCTL_NR(nr)   (((nr) >> COM_IOCTL_NRSHIFT) & COM_IOCTL_NRMASK)
+
+enum pios_com_ioctl_type {
+    COM_IOCTL_TYPE_USART,
+    COM_IOCTL_TYPE_USB_CDC,
+    COM_IOCTL_TYPE_SOFT_UART,
+};
 
 #endif /* PIOS_COM_H */
 

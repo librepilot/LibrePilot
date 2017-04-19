@@ -166,13 +166,22 @@ int32_t PIOS_SBus_Init(uint32_t *sbus_id,
 
     *sbus_id = (uint32_t)sbus_dev;
 
-    /* Enable inverter clock and enable the inverter */
-    (*cfg->gpio_clk_func)(cfg->gpio_clk_periph, ENABLE);
-    GPIO_Init(cfg->inv.gpio, &cfg->inv.init);
-    GPIO_WriteBit(cfg->inv.gpio, cfg->inv.init.GPIO_Pin, cfg->gpio_inv_enable);
+    /* Set rest of the parameters */
+    if (driver->set_config) {
+        driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_StopBits_2, PIOS_COM_Parity_Even, 100000, PIOS_COM_Mode_Rx);
+    }
+
+    /* Set inverted UART and IRQ priority */
+    if (driver->ioctl) {
+        enum PIOS_USART_Inverted param = cfg->non_inverted ? 0 : PIOS_USART_Inverted_Rx;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_INVERTED, &param);
+
+        uint8_t irq_prio = PIOS_IRQ_PRIO_HIGH;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_IRQ_PRIO, &irq_prio);
+    }
 
     /* Set comm driver callback */
-    (driver->bind_rx_cb)(lower_id, PIOS_SBus_RxInCallback, *sbus_id);
+    driver->bind_rx_cb(lower_id, PIOS_SBus_RxInCallback, *sbus_id);
 
     if (!PIOS_RTC_RegisterTickCallback(PIOS_SBus_Supervisor, *sbus_id)) {
         PIOS_DEBUG_Assert(0);

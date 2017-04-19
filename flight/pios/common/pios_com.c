@@ -118,8 +118,18 @@ int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, ui
     PIOS_Assert(com_id);
     PIOS_Assert(driver);
 
-    bool has_rx = (rx_buffer && rx_buffer_len > 0);
-    bool has_tx = (tx_buffer && tx_buffer_len > 0);
+    if ((rx_buffer_len > 0) && !rx_buffer) {
+        rx_buffer = (uint8_t *)pios_malloc(rx_buffer_len);
+        PIOS_Assert(rx_buffer);
+    }
+
+    if ((tx_buffer_len > 0) && !tx_buffer) {
+        tx_buffer = (uint8_t *)pios_malloc(tx_buffer_len);
+        PIOS_Assert(tx_buffer);
+    }
+
+    bool has_rx = (rx_buffer_len > 0);
+    bool has_tx = (tx_buffer_len > 0);
 
     PIOS_Assert(driver->bind_tx_cb || !has_tx);
     PIOS_Assert(driver->bind_rx_cb || !has_rx);
@@ -844,6 +854,29 @@ void PIOS_COM_LinkComPair(uint32_t com1_id, uint32_t com2_id, bool link_ctrl_lin
         PIOS_COM_RegisterBaudRateCallback(com1_id, (pios_com_callback_baud_rate)PIOS_COM_ChangeBaud, com2_id);
         PIOS_COM_RegisterBaudRateCallback(com2_id, (pios_com_callback_baud_rate)PIOS_COM_ChangeBaud, com1_id);
     }
+}
+
+/*
+ * Invoke driver specific control functions
+ * \param[in] port COM port
+ * \param[in] ctl control function number
+ * \param[inout] control function parameter
+ * \return 0 on success
+ */
+int32_t PIOS_COM_Ioctl(uint32_t com_id, uint32_t ctl, void *param)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    if (!com_dev->driver->ioctl) {
+        return -1;
+    }
+
+    return com_dev->driver->ioctl(com_dev->lower_id, ctl, param);
 }
 
 #endif /* PIOS_INCLUDE_COM */

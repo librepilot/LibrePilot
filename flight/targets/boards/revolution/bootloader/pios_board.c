@@ -46,7 +46,6 @@ static int32_t PIOS_BOARD_USART_Ioctl(__attribute__((unused)) uint32_t usart_id,
     return -1;
 }
 
-
 void PIOS_Board_Init()
 {
     if (board_init_complete) {

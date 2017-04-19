@@ -708,14 +708,19 @@ void PIOS_BOARD_IO_Configure_I2C(uint32_t i2c_internal_id, uint32_t i2c_external
 
     if (hmc5x83_internal_cfg) {
         // attach the 5x83 mag to internal i2c bus
-        pios_hmc5x83_internal_id = PIOS_HMC5x83_Init(hmc5x83_internal_cfg, i2c_internal_id, 0);
+
+        pios_hmc5x83_dev_t internal_mag = PIOS_HMC5x83_Init(hmc5x83_internal_cfg, i2c_internal_id, 0);
 #  ifdef PIOS_INCLUDE_WDG
         // give HMC5x83 on I2C some extra time to allow for reset, etc. if needed
         // this is not in a loop, so it is safe
         PIOS_WDG_Clear();
 #  endif /* PIOS_INCLUDE_WDG */
+
+#ifdef PIOS_HMC5X83_HAS_GPIOS
+        pios_hmc5x83_internal_id = internal_mag;
+#endif
         // add this sensor to the sensor task's list
-        PIOS_HMC5x83_Register(pios_hmc5x83_internal_id, PIOS_SENSORS_TYPE_3AXIS_MAG);
+        PIOS_HMC5x83_Register(internal_mag, PIOS_SENSORS_TYPE_3AXIS_MAG);
     }
 
 # endif /* PIOS_INCLUDE_HMC5X83_INTERNAL */

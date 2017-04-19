@@ -126,9 +126,13 @@ static void PIOS_DSM_Bind(struct stm32_gpio *rxpin, uint8_t bind)
     GPIO_InitTypeDef bindInit = {
         .GPIO_Pin   = rxpin->init.GPIO_Pin,
         .GPIO_Speed = GPIO_Speed_2MHz,
+#ifdef STM32F10X
+        .GPIO_Mode  = GPIO_Mode_Out_PP,
+#else
         .GPIO_Mode  = GPIO_Mode_OUT,
         .GPIO_OType = GPIO_OType_PP,
         .GPIO_PuPd  = GPIO_PuPd_NOPULL
+#endif
     };
 
     GPIO_Init(rxpin->gpio, &bindInit);

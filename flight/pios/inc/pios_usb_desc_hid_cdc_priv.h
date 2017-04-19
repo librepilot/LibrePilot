@@ -33,11 +33,13 @@
 #include <stdint.h>
 #include <pios_usb_hid_priv.h>
 #include <pios_usb_cdc_priv.h>
+#include <pios_usb_rctx_priv.h>
 
 extern int32_t PIOS_USB_DESC_HID_CDC_Init(void);
 
 extern const struct pios_usb_cdc_cfg pios_usb_cdc_cfg;
 extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
+extern const struct pios_usb_rctx_cfg pios_usb_rctx_cfg;
 
 #endif /* PIOS_USB_DESC_HID_CDC_PRIV_H */
 

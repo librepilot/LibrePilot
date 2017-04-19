@@ -43,6 +43,8 @@
 #include "hwsettings.h"
 #include "flightstatus.h"
 
+#include <pios_board_io.h>
+
 static bool osdoutputEnabled;
 
 enum osd_hk_sync {

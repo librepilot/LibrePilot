@@ -110,6 +110,7 @@ uint32_t pios_com_debug_id; /* DebugConsole */
 uint32_t pios_com_telem_usb_id; /* USB telemetry */
 
 #ifdef PIOS_INCLUDE_USB_RCTX
+# include "pios_usb_rctx_priv.h"
 uint32_t pios_usb_rctx_id;
 #endif
 
@@ -255,10 +256,8 @@ void PIOS_BOARD_IO_Configure_USB()
         break;
     case HWSETTINGS_USB_HIDPORT_RCTRANSMITTER:
 #if defined(PIOS_INCLUDE_USB_RCTX)
-        {
-            if (PIOS_USB_RCTX_Init(&pios_usb_rctx_id, &pios_usb_rctx_cfg, pios_usb_id)) { /* this will reinstall endpoint callbacks */
-                PIOS_Assert(0);
-            }
+        if (PIOS_USB_RCTX_Init(&pios_usb_rctx_id, &pios_usb_rctx_cfg, pios_usb_id)) { /* this will reinstall endpoint callbacks */
+            PIOS_Assert(0);
         }
 #endif /* PIOS_INCLUDE_USB_RCTX */
         break;
@@ -266,9 +265,11 @@ void PIOS_BOARD_IO_Configure_USB()
 
 #endif /* PIOS_INCLUDE_USB_HID */
 
+#ifndef STM32F10X
     if (usb_hid_present || usb_cdc_present) {
         PIOS_USBHOOK_Activate();
     }
+#endif
 }
 
 #endif /* PIOS_INCLUDE_USB */

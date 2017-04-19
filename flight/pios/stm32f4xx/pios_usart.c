@@ -208,7 +208,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     /* Bind the configuration to the device instance */
     usart_dev->cfg = cfg;
 
-    /* Copy the comm parameter structure */
+    /* Initialize the comm parameter structure */
     USART_StructInit(&usart_dev->init); // 9600 8n1
 
     /* Map pins to USART function */

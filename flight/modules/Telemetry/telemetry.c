@@ -69,6 +69,8 @@
 #include "hwsettings.h"
 #include "taskinfo.h"
 
+#include <pios_board_io.h>
+
 // Private constants
 #define MAX_QUEUE_SIZE            TELEM_QUEUE_SIZE
 // Three different stack size parameter are accepted for Telemetry(RX PIOS_TELEM_RX_STACK_SIZE)

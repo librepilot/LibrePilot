@@ -36,6 +36,8 @@
 
 #include <stdbool.h>
 
+#include <pios_board_io.h>
+
 // ****************
 // Private functions
 

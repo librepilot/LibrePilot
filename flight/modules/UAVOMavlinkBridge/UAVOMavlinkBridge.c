@@ -58,6 +58,9 @@
 
 #include "custom_types.h"
 
+#include <pios_board_io.h>
+
+
 #define OPLINK_LOW_RSSI  -110
 #define OPLINK_HIGH_RSSI -10
 

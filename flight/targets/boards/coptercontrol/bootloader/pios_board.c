@@ -44,6 +44,14 @@ uint32_t pios_com_telem_usb_id;
  * called from System/openpilot.c
  */
 static bool board_init_complete = false;
+
+#if defined(PIOS_INCLUDE_USART)
+static int32_t PIOS_BOARD_USART_Ioctl(__attribute__((unused)) uint32_t usart_id, __attribute__((unused)) uint32_t ctl, __attribute__((unused)) void *param)
+{
+    return -1;
+}
+#endif
+
 void PIOS_Board_Init(void)
 {
     if (board_init_complete) {
@@ -84,7 +92,7 @@ void PIOS_Board_Init(void)
     }
 #if defined(PIOS_INCLUDE_USB_HID) && defined(PIOS_INCLUDE_COM_MSG)
     uint32_t pios_usb_hid_id;
-    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_cfg, pios_usb_id)) {
+    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_only_cfg, pios_usb_id)) {
         PIOS_Assert(0);
     }
     if (PIOS_COM_MSG_Init(&pios_com_telem_usb_id, &pios_usb_hid_com_driver, pios_usb_hid_id)) {

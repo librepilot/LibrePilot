@@ -143,36 +143,6 @@ extern uint32_t pios_i2c_flexiport_adapter_id;
 // See also pios_board.c
 // -------------------------
 #define PIOS_COM_MAX_DEVS 4
-extern uint32_t pios_com_telem_rf_id;
-extern uint32_t pios_com_rf_id;
-extern uint32_t pios_com_gps_id;
-extern uint32_t pios_com_telem_usb_id;
-extern uint32_t pios_com_bridge_id;
-extern uint32_t pios_com_vcp_id;
-extern uint32_t pios_com_hkosd_id;
-extern uint32_t pios_com_msp_id;
-extern uint32_t pios_com_mavlink_id;
-
-#define PIOS_COM_GPS       (pios_com_gps_id)
-#define PIOS_COM_TELEM_USB (pios_com_telem_usb_id)
-#define PIOS_COM_TELEM_RF  (pios_com_telem_rf_id)
-#define PIOS_COM_RF        (pios_com_rf_id)
-#define PIOS_COM_BRIDGE    (pios_com_bridge_id)
-#define PIOS_COM_VCP       (pios_com_vcp_id)
-#define PIOS_COM_OSDHK     (pios_com_hkosd_id)
-#define PIOS_COM_MSP       (pios_com_msp_id)
-#define PIOS_COM_MAVLINK   (pios_com_mavlink_id)
-
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-extern uint32_t pios_com_debug_id;
-#define PIOS_COM_DEBUG     (pios_com_debug_id)
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
-
-#if defined(PIOS_INCLUDE_RFM22B)
-extern uint32_t pios_rfm22b_id;
-extern uint32_t pios_spi_telem_flash_id;
-#define PIOS_RFM22_SPI_PORT (pios_spi_telem_flash_id)
-#endif /* PIOS_INCLUDE_RFM22B */
 
 // -------------------------
 // Packet Handler

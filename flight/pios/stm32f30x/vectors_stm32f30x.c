@@ -32,6 +32,7 @@ typedef void (vector)(void);
 /** default interrupt handler */
 static void default_io_handler(void)
 {
+    asm volatile("BKPT #01");
     for (;;) {
         ;
     }
@@ -108,30 +109,19 @@ HANDLER(USB_LP_IRQHandler); // USB Low Priority remap
 HANDLER(USB_WKUP_RMP_IRQHandler); // USB Wakup remap
 HANDLER(FPU_IRQHandler); // FPU
 
-/* STM32F303xE */
-HANDLER(TAMPER_STAMP_IRQHandler);
-HANDLER(I2C1_EV_IRQHandler);
-HANDLER(USART1_IRQHandler);
-HANDLER(USART2_IRQHandler);
-HANDLER(USART3_IRQHandler);
-HANDLER(USBWakeUp_IRQHandler);
+#if defined(STM32F303xD) || defined(STM32F303xE)
 HANDLER(FMC_IRQHandler);
-HANDLER(UART4_IRQHandler);
-HANDLER(UART5_IRQHandler);
 HANDLER(I2C3_EV_IRQHandler);
 HANDLER(I2C3_ER_IRQHandler);
-HANDLER(USBWakeUp_RMP_IRQHandler);
 HANDLER(TIM20_BRK_IRQHandler);
 HANDLER(TIM20_UP_IRQHandler);
 HANDLER(TIM20_TRG_COM_IRQHandler);
 HANDLER(TIM20_CC_IRQHandler);
 HANDLER(SPI4_IRQHandler);
-HANDLER(I2C2_EV_IRQHandler);
-
+#endif /* defined(STM32F303xD) || defined(STM32F303xE) */
 
 /** stm32f30x interrupt vector table */
 vector *io_vectors[] __attribute__((section(".io_vectors"))) = {
-#ifdef STM32F303xC
     WWDG_IRQHandler,    // Window WatchDog
     PVD_IRQHandler,     // PVD through EXTI Line detection
     TAMP_STAMP_IRQHandler, // Tamper and TimeStamps through the EXTI line
@@ -180,7 +170,11 @@ vector *io_vectors[] __attribute__((section(".io_vectors"))) = {
     TIM8_TRG_COM_IRQHandler, // TIM8 Trigger and Commutation
     TIM8_CC_IRQHandler, // TIM8 Capture Compare
     ADC3_IRQHandler,    // ADC3
+#if defined(STM32F303xD) || defined(STM32F303xE)
+    FMC_IRQHandler, // FMC_IRQHandler (Available in STM32F303xD/E only)
+#else
     Reserved_IRQHandler, // reserved
+#endif
     Reserved_IRQHandler, // reserved
     Reserved_IRQHandler, // reserved
     SPI3_IRQHandler,    // SPI3
@@ -204,104 +198,33 @@ vector *io_vectors[] __attribute__((section(".io_vectors"))) = {
     Reserved_IRQHandler, // reserved
     Reserved_IRQHandler, // reserved
     Reserved_IRQHandler, // reserved
+#if defined(STM32F303xD) || defined(STM32F303xE)
+    I2C3_EV_IRQHandler, /*!< I2C3 event interrupt    */
+    I2C3_ER_IRQHandler, /*!< I2C3 error interrupt */
+#else
     Reserved_IRQHandler, // reserved
     Reserved_IRQHandler, // reserved
+#endif
     USB_HP_IRQHandler,  // USB High Priority remap
     USB_LP_IRQHandler,  // USB Low Priority remap
     USB_WKUP_RMP_IRQHandler, // USB Wakup remap
-    Reserved_IRQHandler, // reserved
-    Reserved_IRQHandler, // reserved
-    Reserved_IRQHandler, // reserved
-    Reserved_IRQHandler, // reserved
-    FPU_IRQHandler,     // FPU
-#endif /* ifdef STM32F303xC */
-#ifdef STM32F303xE
-    WWDG_IRQHandler,    /*!< Window WatchDog Interrupt                                         */
-    PVD_IRQHandler,     /*!< PVD through EXTI Line detection Interrupt                         */
-    TAMPER_STAMP_IRQHandler, /*!< Tamper and TimeStamp interrupts                                   */
-    RTC_WKUP_IRQHandler, /*!< RTC Wakeup interrupt through the EXTI lines 17, 19 & 20           */
-    FLASH_IRQHandler,   /*!< FLASH global Interrupt                                            */
-    RCC_IRQHandler,     /*!< RCC global Interrupt                                              */
-    EXTI0_IRQHandler,   /*!< EXTI Line0 Interrupt                                              */
-    EXTI1_IRQHandler,   /*!< EXTI Line1 Interrupt                                              */
-    EXTI2_TS_IRQHandler, /*!< EXTI Line2 Interrupt and Touch Sense Interrupt                    */
-    EXTI3_IRQHandler,   /*!< EXTI Line3 Interrupt                                              */
-    EXTI4_IRQHandler,   /*!< EXTI Line4 Interrupt                                              */
-    DMA1_Channel1_IRQHandler, /*!< DMA1 Channel 1 Interrupt                                          */
-    DMA1_Channel2_IRQHandler, /*!< DMA1 Channel 2 Interrupt                                          */
-    DMA1_Channel3_IRQHandler, /*!< DMA1 Channel 3 Interrupt                                          */
-    DMA1_Channel4_IRQHandler, /*!< DMA1 Channel 4 Interrupt                                          */
-    DMA1_Channel5_IRQHandler, /*!< DMA1 Channel 5 Interrupt                                          */
-    DMA1_Channel6_IRQHandler, /*!< DMA1 Channel 6 Interrupt                                          */
-    DMA1_Channel7_IRQHandler, /*!< DMA1 Channel 7 Interrupt                                          */
-    ADC1_2_IRQHandler,  /*!< ADC1 & ADC2 Interrupts                                            */
-    USB_HP_CAN1_TX_IRQHandler, /*!< USB Device High Priority or CAN1 TX Interrupts                    */
-    USB_LP_CAN1_RX0_IRQHandler, /*!< USB Device Low Priority or CAN1 RX0 Interrupts                    */
-    CAN1_RX1_IRQHandler, /*!< CAN1 RX1 Interrupt                                                */
-    CAN1_SCE_IRQHandler, /*!< CAN1 SCE Interrupt                                                */
-    EXTI9_5_IRQHandler, /*!< External Line[9:5] Interrupts                                     */
-    TIM1_BRK_TIM15_IRQHandler, /*!< TIM1 Break and TIM15 Interrupts                                   */
-    TIM1_UP_TIM16_IRQHandler, /*!< TIM1 Update and TIM16 Interrupts                                  */
-    TIM1_TRG_COM_TIM17_IRQHandler, /*!< TIM1 Trigger and Commutation and TIM17 Interrupt                  */
-    TIM1_CC_IRQHandler, /*!< TIM1 Capture Compare Interrupt                                    */
-    TIM2_IRQHandler,    /*!< TIM2 global Interrupt                                             */
-    TIM3_IRQHandler,    /*!< TIM3 global Interrupt                                             */
-    TIM4_IRQHandler,    /*!< TIM4 global Interrupt                                             */
-    I2C1_EV_IRQHandler, /*!< I2C1 Event Interrupt                                              */
-    I2C1_ER_IRQHandler, /*!< I2C1 Error Interrupt                                              */
-    I2C2_EV_IRQHandler, /*!< I2C2 Event Interrupt                                              */
-    I2C2_ER_IRQHandler, /*!< I2C2 Error Interrupt                                              */
-    SPI1_IRQHandler,    /*!< SPI1 global Interrupt                                             */
-    SPI2_IRQHandler,    /*!< SPI2 global Interrupt                                             */
-    USART1_IRQHandler,  /*!< USART1 global Interrupt                                           */
-    USART2_IRQHandler,  /*!< USART2 global Interrupt                                           */
-    USART3_IRQHandler,  /*!< USART3 global Interrupt                                           */
-    EXTI15_10_IRQHandler, /*!< External Line[15:10] Interrupts                                   */
-    RTC_Alarm_IRQHandler, /*!< RTC Alarm (A and B) through EXTI Line Interrupt                   */
-    USBWakeUp_IRQHandler, /*!< USB Wakeup Interrupt                                              */
-    TIM8_BRK_IRQHandler, /*!< TIM8 Break Interrupt                                              */
-    TIM8_UP_IRQHandler, /*!< TIM8 Update Interrupt                                             */
-    TIM8_TRG_COM_IRQHandler, /*!< TIM8 Trigger and Commutation Interrupt                            */
-    TIM8_CC_IRQHandler, /*!< TIM8 Capture Compare Interrupt                                    */
-    ADC3_IRQHandler,    /*!< ADC3 global Interrupt                                             */
-    FMC_IRQHandler,     /*!< FMC global Interrupt                                              */
-    Reserved_IRQHandler,
-    Reserved_IRQHandler,
-    SPI3_IRQHandler,    /*!< SPI3 global Interrupt                                             */
-    UART4_IRQHandler,   /*!< UART4 global Interrupt                                            */
-    UART5_IRQHandler,   /*!< UART5 global Interrupt                                            */
-    TIM6_DAC_IRQHandler, /*!< TIM6 global and DAC1&2 underrun error  interrupts                 */
-    TIM7_IRQHandler,    /*!< TIM7 global Interrupt                                             */
-    DMA2_Channel1_IRQHandler, /*!< DMA2 Channel 1 global Interrupt                                   */
-    DMA2_Channel2_IRQHandler, /*!< DMA2 Channel 2 global Interrupt                                   */
-    DMA2_Channel3_IRQHandler, /*!< DMA2 Channel 3 global Interrupt                                   */
-    DMA2_Channel4_IRQHandler, /*!< DMA2 Channel 4 global Interrupt                                   */
-    DMA2_Channel5_IRQHandler, /*!< DMA2 Channel 5 global Interrupt                                   */
-    ADC4_IRQHandler,    /*!< ADC4  global Interrupt                                            */
-    Reserved_IRQHandler,
-    Reserved_IRQHandler,
-    COMP1_2_3_IRQHandler, /*!< COMP1, COMP2 and COMP3 global Interrupt                           */
-    COMP4_5_6_IRQHandler, /*!< COMP5, COMP6 and COMP4 global Interrupt                           */
-    COMP7_IRQHandler,   /*!< COMP7 global Interrupt                                            */
-    Reserved_IRQHandler,
-    Reserved_IRQHandler,
-    Reserved_IRQHandler,
-    Reserved_IRQHandler,
-    Reserved_IRQHandler,
-    I2C3_EV_IRQHandler, /*!< I2C3 event interrupt                                              */
-    I2C3_ER_IRQHandler, /*!< I2C3 error interrupt                                              */
-    USB_HP_IRQHandler,  /*!< USB High Priority global Interrupt remap                          */
-    USB_LP_IRQHandler,  /*!< USB Low Priority global Interrupt  remap                          */
-    USBWakeUp_RMP_IRQHandler, /*!< USB Wakeup Interrupt remap                                        */
+#if defined(STM32F303xD) || defined(STM32F303xE)
     TIM20_BRK_IRQHandler, /*!< TIM20 Break Interrupt                                             */
     TIM20_UP_IRQHandler, /*!< TIM20 Update Interrupt                                            */
     TIM20_TRG_COM_IRQHandler, /*!< TIM20 Trigger and Commutation Interrupt                           */
     TIM20_CC_IRQHandler, /*!< TIM20 Capture Compare Interrupt                                   */
-    FPU_IRQHandler,     /*!< Floating point Interrupt                                          */
+#else
+    Reserved_IRQHandler, // reserved
+    Reserved_IRQHandler, // reserved
+    Reserved_IRQHandler, // reserved
+    Reserved_IRQHandler, // reserved
+#endif
+    FPU_IRQHandler,     // FPU
+#if defined(STM32F303xD) || defined(STM32F303xE)
     Reserved_IRQHandler,
     Reserved_IRQHandler,
-    SPI4_IRQHandler /*!< SPI4 global Interrupt                                             */
-#endif /* ifdef STM32F303xE */
+    SPI4_IRQHandler /*!< SPI4 global Interrupt */
+#endif
 };
 
 /**

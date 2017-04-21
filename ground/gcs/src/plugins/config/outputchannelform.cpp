@@ -206,12 +206,12 @@ void OutputChannelForm::setNeutral(int value)
  *
  * Set
  */
-void OutputChannelForm::setLimits(int min_low, int min_high, int max_low, int max_high)
+void OutputChannelForm::setLimits(int actuatorMinMinimum, int actuatorMinMaximum, int actuatorMaxMinimum, int actuatorMaxMaximum)
 {
-    ui->actuatorMin->setMaximum(min_high);
-    ui->actuatorMax->setMaximum(max_high);
-    ui->actuatorMin->setMinimum(min_low);
-    ui->actuatorMax->setMinimum(max_low);
+    ui->actuatorMin->setMaximum(actuatorMinMaximum);
+    ui->actuatorMax->setMaximum(actuatorMaxMaximum);
+    ui->actuatorMin->setMinimum(actuatorMinMinimum);
+    ui->actuatorMax->setMinimum(actuatorMaxMinimum);
 }
 
 /**

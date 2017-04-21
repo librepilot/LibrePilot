@@ -28,6 +28,10 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+/*
+ * DShot: Tribute belongs to dRonin, http://dRonin.org/ for sparking the idea of
+ * using gpio bitbang as more general solution over using timer dma.
+ */
 
 #include "pios.h"
 
@@ -233,7 +237,7 @@ int32_t PIOS_Servo_Init(const struct pios_servo_cfg *cfg)
 
     memset(pios_servo_pins, 0, sizeof(*pios_servo_pins) * cfg->num_channels);
 
-    /* set default dshot timinig */
+    /* set default dshot timing */
     PIOS_Servo_DSHot_Rate(300);
 
 

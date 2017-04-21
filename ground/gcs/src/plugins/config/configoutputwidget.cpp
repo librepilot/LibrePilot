@@ -405,7 +405,7 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 
             setChannelLimits(outputChannelForm, &bankControls);
 
-            outputChannelForm->setBank(QString("%1").arg(bankNumber));
+            outputChannelForm->setBank(QString::number(bankNumber));
             outputChannelForm->setColor(bankControls.color());
 
             i++;
@@ -499,8 +499,9 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
     // case ActuatorSettings::BANKMODE_BRUSHED:
     // channelForm->setLimits(0, 0, 0, 100); // 0 to 100%
     // break;
-    default:;
+    default:
         channelForm->setLimits(MINOUTPUT_VALUE, MAXOUTPUT_VALUE, MINOUTPUT_VALUE, MAXOUTPUT_VALUE);
+        break;
     }
 }
 

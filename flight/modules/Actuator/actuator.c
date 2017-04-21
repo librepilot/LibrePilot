@@ -961,6 +961,7 @@ static bool set_channel(uint8_t mixer_channel, uint16_t value)
             PIOS_Servo_Set(actuatorSettings.ChannelAddr[mixer_channel], (value * ACTUATOR_MULTISHOT_PULSE_FACTOR) - 180);
             break;
         case ACTUATORSETTINGS_BANKMODE_DSHOT:
+            // Remap 0-2000 range to: 0 = disarmed, 1 to 47 = Reserved for special commands, 48 to 2047 = Active throttle control.
             if (value > 0) {
                 value += 47; /* skip over reserved values */
             }

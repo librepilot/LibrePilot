@@ -233,7 +233,7 @@ extern uint32_t pios_packet_handler;
 // -------------------------
 #define PIOS_SBUS_MAX_DEVS           1
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
-
+#define PIOS_SBUS_BAUD_RATE          99999 /* f411 / 96mhz sysclk / usart2 baud rate weirdness */
 // -------------------------
 // Receiver HOTT input
 // -------------------------

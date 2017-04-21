@@ -32,7 +32,9 @@
 #ifndef PIOS_DELAY_H
 #define PIOS_DELAY_H
 
+#ifndef USE_SIM_POSIX
 #include "pios_delay_raw.h"
+#endif
 
 /* Public Functions */
 extern int32_t PIOS_DELAY_Init(void);

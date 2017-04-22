@@ -691,7 +691,7 @@ const struct pios_ppm_out_cfg pios_flexi_ppm_out_cfg = {
 /*
  * SERIAL USART
  */
-static const struct pios_usart_cfg pios_usart_serial_cfg = {
+static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs = USART1,
     .init = {
         .USART_BaudRate   = 57600,
@@ -727,7 +727,7 @@ static const struct pios_usart_cfg pios_usart_serial_cfg = {
     },
 };
 
-static const struct pios_usart_cfg pios_usart_telem_flexi_cfg = {
+static const struct pios_usart_cfg pios_usart_flexi_cfg = {
     .regs = USART3,
     .init = {
         .USART_BaudRate   = 57600,

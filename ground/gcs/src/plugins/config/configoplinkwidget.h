@@ -78,7 +78,9 @@ private slots:
 
     void mainPortChanged();
     void flexiPortChanged();
-    void vcpPortChanged();
+    void radioPriStreamChanged();
+    void radioAuxStreamChanged();
+    void vcpBridgeChanged();
 
     void unbind();
 };

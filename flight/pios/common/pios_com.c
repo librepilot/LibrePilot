@@ -808,6 +808,44 @@ int32_t PIOS_COM_RegisterAvailableCallback(uint32_t com_id, pios_com_callback_av
     return 0;
 }
 
+/*
+ * Callback used to pass data from one ocm port to another in PIOS_COM_LinkComPare.
+ * \param[in] context     The "to" com port
+ * \param[in] buf         The data buffer
+ * \param[in] buf_len     The number of bytes received
+ * \param[in] headroom    Not used
+ * \param[in] task_woken  Not used
+ */
+static uint16_t PIOS_COM_LinkComPairRxCallback(uint32_t context, uint8_t *buf, uint16_t buf_len, __attribute__((unused)) uint16_t *headroom, __attribute__((unused)) bool *task_woken)
+{
+    int32_t sent = PIOS_COM_SendBufferNonBlocking(context, buf, buf_len);
+
+    if (sent > 0) {
+        return sent;
+    }
+    return 0;
+}
+
+/*
+ * Link a pair of com ports so that any data arriving on one is sent out the other.
+ * \param[in] com1_id  The first com port
+ * \param[in] com2_id  The second com port
+ */
+void PIOS_COM_LinkComPair(uint32_t com1_id, uint32_t com2_id, bool link_ctrl_line, bool link_baud_rate)
+{
+    PIOS_COM_ASYNC_RegisterRxCallback(com1_id, PIOS_COM_LinkComPairRxCallback, com2_id);
+    PIOS_COM_ASYNC_RegisterRxCallback(com2_id, PIOS_COM_LinkComPairRxCallback, com1_id);
+    // Optionally link the control like and baudrate changes between the two.
+    if (link_ctrl_line) {
+        PIOS_COM_RegisterCtrlLineCallback(com1_id, (pios_com_callback_ctrl_line)PIOS_COM_SetCtrlLine, com2_id);
+        PIOS_COM_RegisterCtrlLineCallback(com2_id, (pios_com_callback_ctrl_line)PIOS_COM_SetCtrlLine, com1_id);
+    }
+    if (link_baud_rate) {
+        PIOS_COM_RegisterBaudRateCallback(com1_id, (pios_com_callback_baud_rate)PIOS_COM_ChangeBaud, com2_id);
+        PIOS_COM_RegisterBaudRateCallback(com2_id, (pios_com_callback_baud_rate)PIOS_COM_ChangeBaud, com1_id);
+    }
+}
+
 #endif /* PIOS_INCLUDE_COM */
 
 /**

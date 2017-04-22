@@ -308,8 +308,7 @@ struct pios_rfm22b_dev {
     int32_t      afc_correction_Hz;
 
     // The packet timers.
-    portTickType packet_start_ticks;
-    portTickType tx_complete_ticks;
+    portTickType packet_start_time;
     portTickType time_delta;
     portTickType last_contact;
 };

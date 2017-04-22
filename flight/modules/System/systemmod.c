@@ -287,9 +287,6 @@ static void systemTask(__attribute__((unused)) void *parameters)
         oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
 
         if (pios_rfm22b_id) {
-            // Get the other device stats.
-            PIOS_RFM22B_GetPairStats(pios_rfm22b_id, oplinkStatus.PairIDs, oplinkStatus.PairSignalStrengths, OPLINKSTATUS_PAIRIDS_NUMELEM);
-
             // Get the stats from the radio device
             struct rfm22b_stats radio_stats;
             PIOS_RFM22B_GetStats(pios_rfm22b_id, &radio_stats);

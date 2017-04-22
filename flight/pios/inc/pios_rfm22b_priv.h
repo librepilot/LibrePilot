@@ -200,9 +200,6 @@ struct pios_rfm22b_dev {
     // The task handle
     xTaskHandle taskHandle;
 
-    // The potential paired statistics
-    rfm22b_pair_stats pair_stats[OPLINKSTATUS_PAIRIDS_NUMELEM];
-
     // ISR pending semaphore
     xSemaphoreHandle  isrPending;
 
@@ -212,12 +209,15 @@ struct pios_rfm22b_dev {
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
 
-    uint8_t  last_stream_sent;
     // The Aux COM callback functions.
     pios_com_callback aux_rx_in_cb;
     uint32_t aux_rx_in_context;
     pios_com_callback aux_tx_out_cb;
     uint32_t aux_tx_out_context;
+
+    // Send next packet on primary or aux channel?
+    bool     last_stream_sent;
+
     // the transmit power to use for data transmissions
     uint8_t  tx_power;
 

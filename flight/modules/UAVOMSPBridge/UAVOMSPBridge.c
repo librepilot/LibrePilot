@@ -531,7 +531,7 @@ static void msp_send_raw_gps(struct msp_bridge *m)
         data.raw_gps.lat     = gps_data.Latitude;
         data.raw_gps.lon     = gps_data.Longitude;
         data.raw_gps.alt     = (uint16_t)gps_data.Altitude;
-        data.raw_gps.speed   = (uint16_t)gps_data.Groundspeed;
+        data.raw_gps.speed   = (uint16_t)(gps_data.Groundspeed * 100.0f);
         data.raw_gps.ground_course = (int16_t)(gps_data.Heading * 10.0f);
 
         msp_send(m, MSP_RAW_GPS, data.buf, sizeof(data));

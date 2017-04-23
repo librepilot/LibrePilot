@@ -229,6 +229,14 @@ function isOplmConnected() {
     return (opLinkStatus.linkState == OPLinkStatus.LinkState.Connected);
 }
 
+function OplmRSSI() {
+    return (opLinkStatus.rssi);
+}
+
+function OplmDeviceID() {
+    return (opLinkStatus.deviceID);
+}
+
 function magSourceName() {
     var auxMagTypeText = ["GPSv9", "Flexi", "I2C", "DJI"];
     var magStateSourceText = ["Invalid", "OnBoard", "ExtMag"];

@@ -99,12 +99,6 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
     [HWSETTINGS_RM_FLEXIPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
 };
 
-static const PIOS_BOARD_IO_RADIOAUX_Function radioaux_function_map[] = {
-    [HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE] = PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
-    [HWSETTINGS_RADIOAUXSTREAM_MAVLINK] = PIOS_BOARD_IO_RADIOAUX_MAVLINK,
-    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE]    = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
-};
-
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
@@ -287,12 +281,12 @@ void PIOS_Board_Init(void)
     }
 
 #if defined(PIOS_INCLUDE_RFM22B)
+    PIOS_BOARD_IO_Configure_RFM22B();
+
     uint8_t hwsettings_radioaux;
     HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
 
-    if (hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
-        PIOS_BOARD_IO_Configure_RFM22B(pios_spi_telem_flash_id, radioaux_function_map[hwsettings_radioaux]);
-    }
+    PIOS_BOARD_IO_Configure_RadioAuxStream(hwsettings_radioaux);
 #endif /* PIOS_INCLUDE_RFM22B */
 
 
@@ -316,7 +310,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
         /* Set up the receiver port.  Later this should be optional */
-        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
+        PIOS_BOARD_IO_Configure_PWM_RCVR(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
     case HWSETTINGS_RM_RCVRPORT_PPM:
@@ -329,7 +323,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PPMMAVLINK:
     case HWSETTINGS_RM_RCVRPORT_PPMGPS:
 #if defined(PIOS_INCLUDE_PPM)
-        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
 
         if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMOUTPUTS) {
             // configure servo outputs and the remaining 5 inputs as outputs
@@ -338,7 +332,7 @@ void PIOS_Board_Init(void)
 
         // enable pwm on the remaining channels
         if (hwsettings_rcvrport == HWSETTINGS_RM_RCVRPORT_PPMPWM) {
-            PIOS_BOARD_IO_Configure_PWM(&pios_pwm_ppm_cfg);
+            PIOS_BOARD_IO_Configure_PWM_RCVR(&pios_pwm_ppm_cfg);
         }
 
         break;
@@ -349,7 +343,7 @@ void PIOS_Board_Init(void)
         break;
     }
 #ifdef PIOS_INCLUDE_GCSRCVR
-    PIOS_BOARD_IO_Configure_GCSRCVR();
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
 #ifndef PIOS_ENABLE_DEBUG_PINS

@@ -41,8 +41,9 @@
 #include <uavtalk_priv.h>
 #include <pios_rfm22b.h>
 #include <ecc.h>
-
+#include <pios_board_io.h>
 #include <stdbool.h>
+#include <manualcontrolsettings.h>
 
 // ****************
 // Private constants
@@ -57,6 +58,7 @@
 #define SERIAL_RX_BUF_LEN      100
 #define PPM_INPUT_TIMEOUT      100
 
+#define PIOS_PPM_RECEIVER      pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PPM]
 
 // ****************
 // Private types

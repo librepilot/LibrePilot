@@ -91,22 +91,31 @@ extern uint32_t pios_com_telem_usb_id;
 extern uint32_t pios_com_telem_rf_id;
 #define PIOS_COM_TELEM_RF              (pios_com_telem_rf_id)
 #ifndef PIOS_COM_TELEM_RF_RX_BUF_LEN
-# define PIOS_COM_TELEM_RF_RX_BUF_LEN  512
+# define PIOS_COM_TELEM_RF_RX_BUF_LEN  128
 #endif
 #ifndef PIOS_COM_TELEM_RF_TX_BUF_LEN
-# define PIOS_COM_TELEM_RF_TX_BUF_LEN  512
+# define PIOS_COM_TELEM_RF_TX_BUF_LEN  128
 #endif
 
 /* RFM22B telemetry */
 #ifdef PIOS_INCLUDE_RFM22B
 extern uint32_t pios_rfm22b_id; /* RFM22B handle */
-extern uint32_t pios_com_rf_id; /* oplink telemetry */
-# define PIOS_COM_RF                    (pios_com_rf_id)
-# ifndef PIOS_COM_RFM22B_RF_RX_BUF_LEN
-#  define PIOS_COM_RFM22B_RF_RX_BUF_LEN 512
+extern uint32_t pios_com_pri_radio_id; /* oplink primary com stream */
+extern uint32_t pios_com_aux_radio_id; /* oplink aux com stream */
+# define PIOS_COM_RF                    (pios_com_pri_radio_id)
+# define PIOS_COM_PRI_RADIO             (pios_com_pri_radio_id)
+# define PIOS_COM_AUX_RADIO             (pios_com_aux_radio_id)
+# ifndef PIOS_COM_PRI_RADIO_RX_BUF_LEN
+#  define PIOS_COM_PRI_RADIO_RX_BUF_LEN 128
 # endif
-# ifndef PIOS_COM_RFM22B_RF_TX_BUF_LEN
-# define PIOS_COM_RFM22B_RF_TX_BUF_LEN  512
+# ifndef PIOS_COM_PRI_RADIO_TX_BUF_LEN
+#  define PIOS_COM_PRI_RADIO_TX_BUF_LEN 128
+# endif
+# ifndef PIOS_COM_AUX_RADIO_RX_BUF_LEN
+#  define PIOS_COM_AUX_RADIO_RX_BUF_LEN 128
+# endif
+# ifndef PIOS_COM_AUX_RADIO_TX_BUF_LEN
+#  define PIOS_COM_AUX_RADIO_TX_BUF_LEN 128
 # endif
 #endif
 
@@ -201,13 +210,6 @@ typedef enum {
     PIOS_BOARD_IO_UART_HOTT_BRIDGE, /* com */
 } PIOS_BOARD_IO_UART_Function;
 
-typedef enum {
-    PIOS_BOARD_IO_RADIOAUX_NONE = 0,
-    PIOS_BOARD_IO_RADIOAUX_MAVLINK,
-    PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
-    PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
-// PIOS_BOARD_IO_RADIOAUX_FRSKY_SPORT_TELEMETRY,
-} PIOS_BOARD_IO_RADIOAUX_Function;
 
 #ifdef PIOS_INCLUDE_USB
 # ifndef BOOTLOADER
@@ -234,22 +236,26 @@ void PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_USB_HID_Function hid_fun
 # endif // ifndef BOOTLOADER
 #endif // ifdef PIOS_INCLUDE_USB
 #ifdef PIOS_INCLUDE_PWM
-void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg);
+void PIOS_BOARD_IO_Configure_PWM_RCVR(const struct pios_pwm_cfg *pwm_cfg);
 #endif
 #ifdef PIOS_INCLUDE_PPM
-void PIOS_BOARD_IO_Configure_PPM(const struct pios_ppm_cfg *ppm_cfg);
+void PIOS_BOARD_IO_Configure_PPM_RCVR(const struct pios_ppm_cfg *ppm_cfg);
 #endif
-
 #ifdef PIOS_INCLUDE_USART
 void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *usart_cfg, PIOS_BOARD_IO_UART_Function function);
+void PIOS_BOARD_IO_Configure_UART_COM(const struct pios_usart_cfg *hw_config,
+                                      uint16_t rx_buf_len,
+                                      uint16_t tx_buf_len,
+                                      uint32_t *com_id);
 #endif
 
 #ifdef PIOS_INCLUDE_RFM22B
-void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function function);
+void PIOS_BOARD_IO_Configure_RFM22B();
+void PIOS_BOARD_IO_Configure_RadioAuxStream(HwSettingsRadioAuxStreamOptions radioaux); /* not for OPLM */
 #endif
 
 #ifdef PIOS_INCLUDE_GCSRCVR
-void PIOS_BOARD_IO_Configure_GCSRCVR();
+void PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
 #endif /* PIOS_BOARD_IO_H */

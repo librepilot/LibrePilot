@@ -263,7 +263,7 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_RM_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
         /* Set up the receiver port.  Later this should be optional */
-        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
+        PIOS_BOARD_IO_Configure_PWM_RCVR(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
     case HWSETTINGS_RM_RCVRPORT_PPM:
@@ -275,7 +275,7 @@ void PIOS_Board_Init(void)
             pios_servo_cfg = &pios_servo_cfg_out_in_ppm;
         }
 
-        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
 
         break;
 #endif /* PIOS_INCLUDE_PPM */
@@ -287,7 +287,7 @@ void PIOS_Board_Init(void)
 
 
 #ifdef PIOS_INCLUDE_GCSRCVR
-    PIOS_BOARD_IO_Configure_GCSRCVR();
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
 #ifdef PIOS_INCLUDE_WS2811

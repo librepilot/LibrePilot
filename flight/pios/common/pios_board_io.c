@@ -84,7 +84,8 @@ uint32_t pios_com_telem_rf_id; /* Serial port telemetry */
 
 #ifdef PIOS_INCLUDE_RFM22B
 uint32_t pios_rfm22b_id; /* RFM22B handle */
-uint32_t pios_com_rf_id; /* RFM22B telemetry */
+uint32_t pios_com_pri_radio_id; /* oplink primary com stream */
+uint32_t pios_com_aux_radio_id; /* oplink aux com stream */
 #endif
 
 #ifdef PIOS_INCLUDE_OPENLRS
@@ -402,6 +403,24 @@ static const struct uart_function uart_function_map[] = {
 #endif /* PIOS_INCLUDE_RCVR */
 };
 
+void PIOS_BOARD_IO_Configure_UART_COM(const struct pios_usart_cfg *hw_config,
+                                      uint16_t rx_buf_len,
+                                      uint16_t tx_buf_len,
+                                      uint32_t *com_id)
+{
+    uint32_t usart_id;
+
+    if (PIOS_USART_Init(&usart_id, hw_config)) {
+        PIOS_Assert(0);
+    }
+
+    if (PIOS_COM_Init(com_id, &pios_usart_com_driver, usart_id,
+                      0, rx_buf_len,
+                      0, tx_buf_len)) {
+        PIOS_Assert(0);
+    }
+}
+
 void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *hw_config, PIOS_BOARD_IO_UART_Function function)
 {
     if (function >= NELEMENTS(uart_function_map)) {
@@ -409,17 +428,10 @@ void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *hw_config, PIOS_B
     }
 
     if (uart_function_map[function].com_id) {
-        uint32_t usart_id;
-
-        if (PIOS_USART_Init(&usart_id, hw_config)) {
-            PIOS_Assert(0);
-        }
-
-        if (PIOS_COM_Init(uart_function_map[function].com_id, &pios_usart_com_driver, usart_id,
-                          0, uart_function_map[function].com_rx_buf_len,
-                          0, uart_function_map[function].com_tx_buf_len)) {
-            PIOS_Assert(0);
-        }
+        PIOS_BOARD_IO_Configure_UART_COM(hw_config,
+                                         uart_function_map[function].com_rx_buf_len,
+                                         uart_function_map[function].com_tx_buf_len,
+                                         uart_function_map[function].com_id);
     }
 #ifdef PIOS_INCLUDE_RCVR
     else if (uart_function_map[function].rcvr_init) {
@@ -446,7 +458,7 @@ void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *hw_config, PIOS_B
 }
 
 #ifdef PIOS_INCLUDE_PWM
-void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg)
+void PIOS_BOARD_IO_Configure_PWM_RCVR(const struct pios_pwm_cfg *pwm_cfg)
 {
     /* Set up the receiver port.  Later this should be optional */
     uint32_t pios_pwm_id;
@@ -462,7 +474,7 @@ void PIOS_BOARD_IO_Configure_PWM(const struct pios_pwm_cfg *pwm_cfg)
 #endif /* PIOS_INCLUDE_PWM */
 
 #ifdef PIOS_INCLUDE_PPM
-void PIOS_BOARD_IO_Configure_PPM(const struct pios_ppm_cfg *ppm_cfg)
+void PIOS_BOARD_IO_Configure_PPM_RCVR(const struct pios_ppm_cfg *ppm_cfg)
 {
     uint32_t pios_ppm_id;
 
@@ -477,7 +489,7 @@ void PIOS_BOARD_IO_Configure_PPM(const struct pios_ppm_cfg *ppm_cfg)
 #endif /* PIOS_INCLUDE_PPM */
 
 #ifdef PIOS_INCLUDE_GCSRCVR
-void PIOS_BOARD_IO_Configure_GCSRCVR()
+void PIOS_BOARD_IO_Configure_GCS_RCVR()
 {
     GCSReceiverInitialize();
     uint32_t pios_gcsrcvr_id;
@@ -492,7 +504,7 @@ void PIOS_BOARD_IO_Configure_GCSRCVR()
 
 #ifdef PIOS_INCLUDE_RFM22B
 
-void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function radioaux_function)
+void PIOS_BOARD_IO_Configure_RFM22B()
 {
 #if defined(PIOS_INCLUDE_RFM22B)
     OPLinkSettingsInitialize();
@@ -558,9 +570,16 @@ void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function radioaux_fun
 #endif /* PIOS_INCLUDE_OPLINKRCVR && PIOS_INCLUDE_RCVR */
 
             /* Configure the radio com interface */
-            if (PIOS_COM_Init(&pios_com_rf_id, &pios_rfm22b_com_driver, pios_rfm22b_id,
-                              0, PIOS_COM_RFM22B_RF_RX_BUF_LEN,
-                              0, PIOS_COM_RFM22B_RF_TX_BUF_LEN)) {
+            if (PIOS_COM_Init(&pios_com_pri_radio_id, &pios_rfm22b_com_driver, pios_rfm22b_id,
+                              0, PIOS_COM_PRI_RADIO_RX_BUF_LEN,
+                              0, PIOS_COM_PRI_RADIO_TX_BUF_LEN)) {
+                PIOS_Assert(0);
+            }
+
+            // Initialize the aux radio com interface
+            if (PIOS_COM_Init(&pios_com_aux_radio_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
+                              0, PIOS_COM_AUX_RADIO_RX_BUF_LEN,
+                              0, PIOS_COM_AUX_RADIO_TX_BUF_LEN)) {
                 PIOS_Assert(0);
             }
 
@@ -637,40 +656,31 @@ void PIOS_BOARD_IO_Configure_RFM22B(PIOS_BOARD_IO_RADIOAUX_Function radioaux_fun
 
             /* Reinitialize the modem. */
             PIOS_RFM22B_Reinit(pios_rfm22b_id);
-
-            // TODO: this is in preparation for full mavlink support and is used by LP-368
-            uint16_t mavlink_rx_size = PIOS_COM_MAVLINK_RX_BUF_LEN;
-
-            switch (radioaux_function) {
-            default:;
-            case PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE:
-#ifdef PIOS_INCLUDE_DEBUG_CONSOLE
-                if (PIOS_COM_Init(&pios_com_debug_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
-                                  0, 0,
-                                  0, PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN)) {
-                    PIOS_Assert(0);
-                }
-#endif
-                break;
-            case PIOS_BOARD_IO_RADIOAUX_COMBRIDGE:
-                if (PIOS_COM_Init(&pios_com_bridge_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
-                                  0, PIOS_COM_BRIDGE_RX_BUF_LEN,
-                                  0, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
-                    PIOS_Assert(0);
-                }
-                break;
-            case PIOS_BOARD_IO_RADIOAUX_MAVLINK:
-                if (PIOS_COM_Init(&pios_com_mavlink_id, &pios_rfm22b_aux_com_driver, pios_rfm22b_id,
-                                  0, mavlink_rx_size,
-                                  0, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
-                    PIOS_Assert(0);
-                }
-            }
         }
     } else {
         oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
     }
 
     OPLinkStatusSet(&oplinkStatus);
+}
+
+
+void PIOS_BOARD_IO_Configure_RadioAuxStream(HwSettingsRadioAuxStreamOptions radioaux)
+{
+    switch (radioaux) {
+    case HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE:
+#ifdef PIOS_INCLUDE_DEBUG_CONSOLE
+        pios_com_debug_id = pios_com_aux_radio_id;
+#endif
+        break;
+    case HWSETTINGS_RADIOAUXSTREAM_MAVLINK:
+        pios_com_mavlink_id = pios_com_aux_radio_id;
+        break;
+    case HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE:
+        pios_com_bridge_id  = pios_com_aux_radio_id;
+        break;
+    case HWSETTINGS_RADIOAUXSTREAM_DISABLED:
+        break;
+    }
 }
 #endif /* ifdef PIOS_INCLUDE_RFM22B */

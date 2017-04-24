@@ -172,7 +172,13 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS 5
+#define PIOS_COM_MAX_DEVS             5
+
+#define PIOS_COM_TELEM_USB_RX_BUF_LEN 128
+#define PIOS_COM_TELEM_USB_TX_BUF_LEN 128
+
+#define PIOS_COM_TELEM_VCP_RX_BUF_LEN 128
+#define PIOS_COM_TELEM_VCP_TX_BUF_LEN 128
 
 // The direct com ports
 extern uint32_t pios_com_hid_id;
@@ -192,7 +198,6 @@ extern uint32_t pios_com_pri_radio_out_id;
 // The destination port for the auxiliary radio port.
 extern uint32_t pios_com_aux_radio_out_id;
 // The PPM IDs
-extern uint32_t pios_ppm_rcvr_id;
 extern uint32_t pios_ppm_out_id;
 #define PIOS_COM_HID           (pios_com_hid_id)
 #define PIOS_COM_VCP           (pios_com_vcp_id)
@@ -205,7 +210,6 @@ extern uint32_t pios_ppm_out_id;
 #define PIOS_COM_GCS           (pios_com_gcs_id)
 #define PIOS_COM_GCS_OUT       (pios_com_gcs_out_id)
 #define PIOS_COM_BRIDGE        (pios_com_bridge_id)
-#define PIOS_PPM_RECEIVER      (pios_ppm_rcvr_id)
 #define PIOS_PPM_OUTPUT        (pios_ppm_out_id)
 #define RFM22_DEBUG            1
 

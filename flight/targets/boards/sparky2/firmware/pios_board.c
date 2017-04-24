@@ -93,12 +93,6 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
     [HWSETTINGS_SPK2_FLEXIPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
 };
 
-static const PIOS_BOARD_IO_RADIOAUX_Function radioaux_function_map[] = {
-    [HWSETTINGS_RADIOAUXSTREAM_DEBUGCONSOLE] = PIOS_BOARD_IO_RADIOAUX_DEBUGCONSOLE,
-    [HWSETTINGS_RADIOAUXSTREAM_MAVLINK] = PIOS_BOARD_IO_RADIOAUX_MAVLINK,
-    [HWSETTINGS_RADIOAUXSTREAM_COMBRIDGE]    = PIOS_BOARD_IO_RADIOAUX_COMBRIDGE,
-};
-
 int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 {
     const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
@@ -263,12 +257,12 @@ void PIOS_Board_Init(void)
     }
 
 #if defined(PIOS_INCLUDE_RFM22B)
+    PIOS_BOARD_IO_Configure_RFM22B();
+
     uint8_t hwsettings_radioaux;
     HwSettingsRadioAuxStreamGet(&hwsettings_radioaux);
 
-    if (hwsettings_radioaux < NELEMENTS(radioaux_function_map)) {
-        PIOS_BOARD_IO_Configure_RFM22B(radioaux_function_map[hwsettings_radioaux]);
-    }
+    PIOS_BOARD_IO_Configure_RadioAuxStream(hwsettings_radioaux);
 #endif /* PIOS_INCLUDE_RFM22B */
 
     /* Initialize inverter gpio and set it to off */
@@ -301,12 +295,12 @@ void PIOS_Board_Init(void)
 
 #if defined(PIOS_INCLUDE_PPM)
     if (hwsettings_rcvrport == HWSETTINGS_SPK2_RCVRPORT_PPM) {
-        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
     }
 #endif
 
 #ifdef PIOS_INCLUDE_GCSRCVR
-    PIOS_BOARD_IO_Configure_GCSRCVR();
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
 #ifndef PIOS_ENABLE_DEBUG_PINS

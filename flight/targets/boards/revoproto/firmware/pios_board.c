@@ -313,13 +313,13 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_RV_RCVRPORT_PWM:
 #if defined(PIOS_INCLUDE_PWM)
-        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
+        PIOS_BOARD_IO_Configure_PWM_RCVR(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
     case HWSETTINGS_RV_RCVRPORT_PPM:
     case HWSETTINGS_RV_RCVRPORT_PPMOUTPUTS:
 #if defined(PIOS_INCLUDE_PPM)
-        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
 #endif /* PIOS_INCLUDE_PPM */
     case HWSETTINGS_RV_RCVRPORT_OUTPUTS:
 
@@ -359,7 +359,7 @@ void PIOS_Board_Init(void)
 #endif
 
 #ifdef PIOS_INCLUDE_GCSRCVR
-    PIOS_BOARD_IO_Configure_GCSRCVR();
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
 #ifndef PIOS_ENABLE_DEBUG_PINS

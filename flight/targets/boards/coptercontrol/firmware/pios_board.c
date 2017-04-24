@@ -246,7 +246,7 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_CC_FLEXIPORT_PPM:
 #if defined(PIOS_INCLUDE_PPM_FLEXI)
-        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_flexi_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_flexi_cfg);
 #endif /* PIOS_INCLUDE_PPM_FLEXI */
         break;
     }
@@ -289,23 +289,23 @@ void PIOS_Board_Init(void)
         break;
     case HWSETTINGS_CC_RCVRPORT_PWMNOONESHOT:
 #if defined(PIOS_INCLUDE_PWM)
-        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_cfg);
+        PIOS_BOARD_IO_Configure_PWM_RCVR(&pios_pwm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
     case HWSETTINGS_CC_RCVRPORT_PPMNOONESHOT:
     case HWSETTINGS_CC_RCVRPORT_PPMOUTPUTSNOONESHOT:
     case HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT:
 #if defined(PIOS_INCLUDE_PPM)
-        PIOS_BOARD_IO_Configure_PPM((hwsettings_rcvrport == HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT) ? &pios_ppm_pin8_cfg : &pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR((hwsettings_rcvrport == HWSETTINGS_CC_RCVRPORT_PPM_PIN8ONESHOT) ? &pios_ppm_pin8_cfg : &pios_ppm_cfg);
 #endif /* PIOS_INCLUDE_PPM */
         break;
     case HWSETTINGS_CC_RCVRPORT_PPMPWMNOONESHOT:
         /* This is a combination of PPM and PWM inputs */
 #if defined(PIOS_INCLUDE_PPM)
-        PIOS_BOARD_IO_Configure_PPM(&pios_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
 #endif /* PIOS_INCLUDE_PPM */
 #if defined(PIOS_INCLUDE_PWM)
-        PIOS_BOARD_IO_Configure_PWM(&pios_pwm_with_ppm_cfg);
+        PIOS_BOARD_IO_Configure_PWM_RCVR(&pios_pwm_with_ppm_cfg);
 #endif /* PIOS_INCLUDE_PWM */
         break;
     case HWSETTINGS_CC_RCVRPORT_OUTPUTSONESHOT:
@@ -313,7 +313,7 @@ void PIOS_Board_Init(void)
     }
 
 #ifdef PIOS_INCLUDE_GCSRCVR
-    PIOS_BOARD_IO_Configure_GCSRCVR();
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
     /* Remap AFIO pin for PB4 (Servo 5 Out)*/

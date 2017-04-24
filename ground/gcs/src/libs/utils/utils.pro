@@ -12,28 +12,13 @@ DEFINES += LIB_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_LIBRARY_PATH, $$GC
 DEFINES += PLUGIN_REL_PATH=$$shell_quote(\"$$relative_path($$GCS_PLUGIN_PATH, $$GCS_APP_PATH)\")
 
 SOURCES += \
-    reloadpromptutils.cpp \
     stringutils.cpp \
     pathchooser.cpp \
-    pathlisteditor.cpp \
-    filewizardpage.cpp \
-    filewizarddialog.cpp \
-    projectintropage.cpp \
     basevalidatinglineedit.cpp \
-    filenamevalidatinglineedit.cpp \
-    projectnamevalidatinglineedit.cpp \
-    codegeneration.cpp \
-    newclasswidget.cpp \
-    classnamevalidatinglineedit.cpp \
     linecolumnlabel.cpp \
     qtcolorbutton.cpp \
-    savedaction.cpp \
-    submiteditorwidget.cpp \
     synchronousprocess.cpp \
-    submitfieldwidget.cpp \
     consoleprocess.cpp \
-    uncommentselection.cpp \
-    parameteraction.cpp \
     treewidgetcolumnstretcher.cpp \
     checkablemessagebox.cpp \
     styledbar.cpp \
@@ -56,7 +41,6 @@ SOURCES += \
     mustache.cpp \
     textbubbleslider.cpp
 
-
 SOURCES += xmlconfig.cpp
 
 win32 {
@@ -70,30 +54,15 @@ else:SOURCES += consoleprocess_unix.cpp
 
 HEADERS += \
     utils_global.h \
-    reloadpromptutils.h \
     stringutils.h \
     listutils.h \
     pathchooser.h \
-    pathlisteditor.h \
-    filewizardpage.h \
-    filewizarddialog.h \
-    projectintropage.h \
     basevalidatinglineedit.h \
-    filenamevalidatinglineedit.h \
-    projectnamevalidatinglineedit.h \
-    codegeneration.h \
-    newclasswidget.h \
-    classnamevalidatinglineedit.h \
     linecolumnlabel.h \
     qtcolorbutton.h \
-    savedaction.h \
-    submiteditorwidget.h \
     abstractprocess.h \
     consoleprocess.h \
     synchronousprocess.h \
-    submitfieldwidget.h \
-    uncommentselection.h \
-    parameteraction.h \
     treewidgetcolumnstretcher.h \
     checkablemessagebox.h \
     qtcassert.h \
@@ -121,10 +90,6 @@ HEADERS += \
 HEADERS += xmlconfig.h
 
 FORMS += \
-    filewizardpage.ui \
-    projectintropage.ui \
-    newclasswidget.ui \
-    submiteditorwidget.ui \
     checkablemessagebox.ui
 
 RESOURCES += utils.qrc

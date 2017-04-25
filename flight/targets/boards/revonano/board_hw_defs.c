@@ -42,29 +42,24 @@
  *      o5  |   PA0     |   TIM5_CH1    |   ADC1_0
  *      o6  |   PA1     |   TIM5_CH2    |   ADC1_1
  */
-#define MAIN_USART_REGS             USART2
-#define MAIN_USART_REMAP            GPIO_AF_USART2
-#define MAIN_USART_IRQ              USART2_IRQn
-#define MAIN_USART_RX_GPIO          GPIOA
-#define MAIN_USART_RX_PIN           GPIO_Pin_3
-#define MAIN_USART_TX_GPIO          GPIOA
-#define MAIN_USART_TX_PIN           GPIO_Pin_2
-// Inverter for SBUS handling
-#define MAIN_USART_INVERTER_GPIO    GPIOC
-#define MAIN_USART_INVERTER_PIN     GPIO_Pin_15
-#define MAIN_USART_INVERTER_ENABLE  Bit_SET
-#define MAIN_USART_INVERTER_DISABLE Bit_RESET
+#define MAIN_USART_REGS      USART2
+#define MAIN_USART_REMAP     GPIO_AF_USART2
+#define MAIN_USART_IRQ       USART2_IRQn
+#define MAIN_USART_RX_GPIO   GPIOA
+#define MAIN_USART_RX_PIN    GPIO_Pin_3
+#define MAIN_USART_TX_GPIO   GPIOA
+#define MAIN_USART_TX_PIN    GPIO_Pin_2
 
-#define FLEXI_USART_REGS            USART1
-#define FLEXI_USART_REMAP           GPIO_AF_USART1
-#define FLEXI_USART_IRQ             USART1_IRQn
-#define FLEXI_USART_RX_GPIO         GPIOB
-#define FLEXI_USART_RX_PIN          GPIO_Pin_7
-#define FLEXI_USART_TX_GPIO         GPIOB
-#define FLEXI_USART_TX_PIN          GPIO_Pin_6
+#define FLEXI_USART_REGS     USART1
+#define FLEXI_USART_REMAP    GPIO_AF_USART1
+#define FLEXI_USART_IRQ      USART1_IRQn
+#define FLEXI_USART_RX_GPIO  GPIOB
+#define FLEXI_USART_RX_PIN   GPIO_Pin_7
+#define FLEXI_USART_TX_GPIO  GPIOB
+#define FLEXI_USART_TX_PIN   GPIO_Pin_6
 // ReceiverPort pin 3
-#define FLEXI_USART_DTR_GPIO        GPIOB
-#define FLEXI_USART_DTR_PIN         GPIO_Pin_10
+#define FLEXI_USART_DTR_GPIO GPIOB
+#define FLEXI_USART_DTR_PIN  GPIO_Pin_10
 
 
 #if defined(PIOS_INCLUDE_LED)
@@ -245,8 +240,6 @@ void PIOS_SPI_gyro_irq_handler(void)
  * MAIN USART
  */
 
-static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
-
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs  = MAIN_USART_REGS,
     .remap = MAIN_USART_REMAP,
@@ -270,7 +263,6 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 
 /*

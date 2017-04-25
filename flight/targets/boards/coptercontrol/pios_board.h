@@ -116,16 +116,23 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_SPI_MAX_DEVS        2
+#define PIOS_SPI_MAX_DEVS           2
 extern uint32_t pios_spi_gyro_adapter_id;
-#define PIOS_SPI_MPU6000_ADAPTER (pios_spi_gyro_adapter_id)
+#define PIOS_SPI_MPU6000_ADAPTER    (pios_spi_gyro_adapter_id)
 extern uint32_t pios_spi_flash_accel_adapter_id;
-#define PIOS_SPI_ADXL345_ADAPTER (pios_spi_flash_accel_adapter_id)
+#define PIOS_SPI_ADXL345_ADAPTER    (pios_spi_flash_accel_adapter_id)
 
 // -------------------------
 // PIOS_USART
 // -------------------------
-#define PIOS_USART_MAX_DEVS      2
+#define PIOS_USART_MAX_DEVS         2
+
+// Inverter for SBUS handling
+#define PIOS_USART_INVERTER_PORT    USART1
+#define PIOS_USART_INVERTER_GPIO    GPIOB
+#define PIOS_USART_INVERTER_PIN     GPIO_Pin_2
+#define PIOS_USART_INVERTER_ENABLE  Bit_SET
+#define PIOS_USART_INVERTER_DISABLE Bit_RESET
 
 // -------------------------
 // PIOS_COM

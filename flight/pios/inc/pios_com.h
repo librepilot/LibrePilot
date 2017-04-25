@@ -146,6 +146,8 @@ enum pios_com_ioctl_type {
     COM_IOCTL_TYPE_SOFT_UART,
 };
 
+#define COM_IOCTL_ENOSYS (-1) /* Function not implemented */
+
 #endif /* PIOS_COM_H */
 
 /**

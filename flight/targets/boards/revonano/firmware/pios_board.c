@@ -95,25 +95,6 @@ static const PIOS_BOARD_IO_UART_Function main_function_map[] = {
     [HWSETTINGS_RM_MAINPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
 };
 
-int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
-{
-    const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
-
-    switch (ctl) {
-    case PIOS_IOCTL_USART_SET_INVERTED:
-        if (usart_cfg->regs == pios_usart_main_cfg.regs) { /* main port */
-            GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
-                          MAIN_USART_INVERTER_PIN,
-                          (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? MAIN_USART_INVERTER_ENABLE : MAIN_USART_INVERTER_DISABLE);
-
-            return 0;
-        }
-        break;
-    }
-
-    return -1;
-}
-
 void PIOS_Board_Init(void)
 {
     const struct pios_board_info *bdinfo = &pios_board_info_blob;
@@ -222,23 +203,6 @@ void PIOS_Board_Init(void)
     }
 
     /* Configure main USART port */
-
-    /* Initialize inverter gpio and set it to off */
-    {
-        GPIO_InitTypeDef inverterGPIOInit = {
-            .GPIO_Pin   = MAIN_USART_INVERTER_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        };
-
-        GPIO_Init(MAIN_USART_INVERTER_GPIO, &inverterGPIOInit);
-        GPIO_WriteBit(MAIN_USART_INVERTER_GPIO,
-                      MAIN_USART_INVERTER_PIN,
-                      MAIN_USART_INVERTER_DISABLE);
-    }
-
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
 

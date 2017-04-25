@@ -318,7 +318,7 @@ int32_t PIOS_DSM_Init(uint32_t *dsm_id,
 
         PIOS_DEBUG_Assert(driver->ioctl);
 
-        if ((driver->ioctl)(lower_id, PIOS_IOCTL_USART_GET_RXGPIO, &rxpin) < 0) {
+        if ((driver->ioctl)(lower_id, PIOS_IOCTL_USART_GET_DSMBIND, &rxpin) < 0) {
             return -1;
         }
 

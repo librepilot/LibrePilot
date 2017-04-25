@@ -597,14 +597,6 @@ static const struct pios_tim_channel pios_tim_ppm_flexi_port = TIM_SERVO_CHANNEL
 
 #include "pios_usart_priv.h"
 
-// Inverter for SBUS handling
-#define MAIN_USART_INVERTER_GPIO    GPIOB
-#define MAIN_USART_INVERTER_PIN     GPIO_Pin_2
-#define MAIN_USART_INVERTER_ENABLE  Bit_SET
-#define MAIN_USART_INVERTER_DISABLE Bit_RESET
-
-static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
-
 static const struct pios_usart_cfg pios_usart_main_cfg = {
     .regs = USART1,
     .rx   = {
@@ -623,7 +615,6 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF_PP,
         },
     },
-    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 
 static const struct pios_usart_cfg pios_usart_flexi_cfg = {

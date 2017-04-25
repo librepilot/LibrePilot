@@ -605,15 +605,6 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
  * RCVR PORT
  */
 
-// Inverter for SBUS handling
-#define RCVR_USART_INVERTER_GPIO    GPIOC
-#define RCVR_USART_INVERTER_PIN     GPIO_Pin_4
-#define RCVR_USART_INVERTER_ENABLE  Bit_SET
-#define RCVR_USART_INVERTER_DISABLE Bit_RESET
-
-static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
-
-
 static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
     .regs  = USART6,
     .remap = GPIO_AF_USART6,
@@ -627,7 +618,6 @@ static const struct pios_usart_cfg pios_usart_rcvr_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 #endif /* PIOS_INCLUDE_USART */
 

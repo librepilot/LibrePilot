@@ -135,7 +135,13 @@ extern uint32_t pios_i2c_flexiport_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_USART_MAX_DEVS 5
+#define PIOS_USART_MAX_DEVS         5
+// Inverter for SBUS handling
+#define PIOS_USART_INVERTER_PORT    USART2
+#define PIOS_USART_INVERTER_GPIO    GPIOC
+#define PIOS_USART_INVERTER_PIN     GPIO_Pin_15
+#define PIOS_USART_INVERTER_ENABLE  Bit_SET
+#define PIOS_USART_INVERTER_DISABLE Bit_RESET
 
 // -------------------------
 // PIOS_COM

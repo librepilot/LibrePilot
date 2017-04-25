@@ -712,14 +712,6 @@ static const struct pios_usart_cfg pios_usart_aux_cfg = {
  * AUX USART SBUS ( UART/ S Bus label on rev2)
  */
 
-// Inverter for SBUS handling
-#define MAIN_USART_INVERTER_GPIO    GPIOC
-#define MAIN_USART_INVERTER_PIN     GPIO_Pin_3
-#define MAIN_USART_INVERTER_ENABLE  Bit_SET
-#define MAIN_USART_INVERTER_DISABLE Bit_RESET
-
-static int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
-
 static const struct pios_usart_cfg pios_usart_auxsbus_cfg = {
     .regs  = UART4,
     .remap = GPIO_AF_UART4,
@@ -743,7 +735,6 @@ static const struct pios_usart_cfg pios_usart_auxsbus_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .ioctl              = PIOS_BOARD_USART_Ioctl,
 };
 
 #endif /* PIOS_INCLUDE_COM_AUXSBUS */

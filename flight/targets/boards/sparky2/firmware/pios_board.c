@@ -93,25 +93,6 @@ static const PIOS_BOARD_IO_UART_Function flexi_function_map[] = {
     [HWSETTINGS_SPK2_FLEXIPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
 };
 
-int32_t PIOS_BOARD_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
-{
-    const struct pios_usart_cfg *usart_cfg = PIOS_USART_GetConfig(usart_id);
-
-    switch (ctl) {
-    case PIOS_IOCTL_USART_SET_INVERTED:
-        if (usart_cfg->regs == pios_usart_rcvr_cfg.regs) { /* rcvr port */
-            GPIO_WriteBit(RCVR_USART_INVERTER_GPIO,
-                          RCVR_USART_INVERTER_PIN,
-                          (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? RCVR_USART_INVERTER_ENABLE : RCVR_USART_INVERTER_DISABLE);
-
-            return 0;
-        }
-        break;
-    }
-
-    return -1;
-}
-
 /**
  * PIOS_Board_Init()
  * initializes all the core subsystems on this specific hardware
@@ -264,22 +245,6 @@ void PIOS_Board_Init(void)
 
     PIOS_BOARD_IO_Configure_RadioAuxStream(hwsettings_radioaux);
 #endif /* PIOS_INCLUDE_RFM22B */
-
-    /* Initialize inverter gpio and set it to off */
-    {
-        GPIO_InitTypeDef inverterGPIOInit = {
-            .GPIO_Pin   = RCVR_USART_INVERTER_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        };
-
-        GPIO_Init(RCVR_USART_INVERTER_GPIO, &inverterGPIOInit);
-        GPIO_WriteBit(RCVR_USART_INVERTER_GPIO,
-                      RCVR_USART_INVERTER_PIN,
-                      RCVR_USART_INVERTER_DISABLE);
-    }
 
     // Configure the receiver port
     // Sparky2 receiver input on PC7 TIM8 CH2

@@ -53,6 +53,9 @@ enum PIOS_USART_Inverted {
 /* PIOS_IRQ_PRIO_ values */
 #define PIOS_IOCTL_USART_SET_IRQ_PRIO   COM_IOCTL(COM_IOCTL_TYPE_USART, 6, uint8_t)
 
+#define PIOS_IOCTL_USART_GET_DSMBIND    COM_IOCTL(COM_IOCTL_TYPE_USART, 7, struct stm32_gpio)
+
+
 #endif /* PIOS_USART_H */
 
 /**

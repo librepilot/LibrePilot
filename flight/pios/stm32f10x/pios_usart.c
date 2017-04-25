@@ -190,7 +190,21 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
 
     /* DTR handling? */
 
-    *usart_id = (uint32_t)usart_dev;
+#ifdef PIOS_USART_INVERTER_PORT
+    /* Initialize inverter gpio and set it to off */
+    if (usart_dev->cfg->regs == PIOS_USART_INVERTER_PORT) {
+        GPIO_InitTypeDef inverterGPIOInit = {
+            .GPIO_Pin   = PIOS_USART_INVERTER_PIN,
+            .GPIO_Mode  = GPIO_Mode_Out_PP,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+        };
+        GPIO_Init(PIOS_USART_INVERTER_GPIO, &inverterGPIOInit);
+
+        GPIO_WriteBit(PIOS_USART_INVERTER_GPIO,
+                      PIOS_USART_INVERTER_PIN,
+                      PIOS_USART_INVERTER_DISABLE);
+    }
+#endif
 
     /* Configure USART Interrupts */
     switch ((uint32_t)usart_dev->cfg->regs) {
@@ -209,6 +223,8 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     }
 
     PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
+
+    *usart_id = (uint32_t)usart_dev;
 
     return 0;
 
@@ -462,10 +478,35 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
 
     PIOS_Assert(valid);
 
+    /* First try board specific IOCTL to allow overriding default functions */
+    if (usart_dev->cfg->ioctl) {
+        int32_t ret = usart_dev->cfg->ioctl(usart_id, ctl, param);
+        if (ret != COM_IOCTL_ENOSYS) {
+            return ret;
+        }
+    }
+
     switch (ctl) {
     case PIOS_IOCTL_USART_SET_IRQ_PRIO:
         return PIOS_USART_SetIrqPrio(usart_dev, *(uint8_t *)param);
 
+#ifdef PIOS_USART_INVERTER_PORT
+    case PIOS_IOCTL_USART_SET_INVERTED:
+        if (usart_dev->cfg->regs != PIOS_USART_INVERTER_PORT) {
+            return COM_IOCTL_ENOSYS; /* don't know how */
+        }
+        GPIO_WriteBit(PIOS_USART_INVERTER_GPIO,
+                      PIOS_USART_INVERTER_PIN,
+                      (*(enum PIOS_USART_Inverted *)param & PIOS_USART_Inverted_Rx) ? PIOS_USART_INVERTER_ENABLE : PIOS_USART_INVERTER_DISABLE);
+
+        break;
+#endif /* PIOS_USART_INVERTER_PORT */
+    case PIOS_IOCTL_USART_GET_DSMBIND:
+#ifdef PIOS_USART_INVERTER_PORT
+        if (usart_dev->cfg->regs == PIOS_USART_INVERTER_PORT) {
+            return -2; /* do not allow dsm bind on port with inverter */
+        }
+#endif /* otherwise, return RXGPIO */
     case PIOS_IOCTL_USART_GET_RXGPIO:
         *(struct stm32_gpio *)param = usart_dev->cfg->rx;
         break;
@@ -476,10 +517,7 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
         USART_HalfDuplexCmd(usart_dev->cfg->regs, *(bool *)param ? ENABLE : DISABLE);
         break;
     default:
-        if (usart_dev->cfg->ioctl) {
-            return usart_dev->cfg->ioctl(usart_id, ctl, param);
-        }
-        return -1;
+        return COM_IOCTL_ENOSYS; /* unknown ioctl */
     }
 
     return 0;

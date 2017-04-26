@@ -215,6 +215,10 @@ extern void PIOS_Servo_Enable()
 
 void PIOS_Servo_DSHot_Rate(uint32_t rate_in_khz)
 {
+    if (rate_in_khz < 150) {
+        rate_in_khz = 150;
+    }
+
     uint32_t raw_hz = PIOS_DELAY_GetRawHz();
 
     uint32_t tmp    = raw_hz / rate_in_khz;

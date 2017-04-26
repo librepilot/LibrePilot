@@ -14,7 +14,7 @@ ALL_BOARDS += oplinkmini
 ALL_BOARDS += gpsplatinum
 ALL_BOARDS += osd
 ALL_BOARDS += discoveryf4bare
-ALL_BOARDS += ccf3d spracingf3 spracingf3evo nucleof303re
+ALL_BOARDS += ccf3d spracingf3 spracingf3evo nucleof303re pikoblx
 # SimPosix only builds on Linux
 ifeq ($(UNAME), Linux)
     ALL_BOARDS += simposix
@@ -34,7 +34,8 @@ sparky2_short          := 'spk2'
 simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'
-nucleof303re_short     := 'nf3b'
+nucleof303re_short     := 'nf3r'
+pikoblx_short          := 'piko'
 
 # Start out assuming that we'll build fw, bl and bu for all boards
 FW_BOARDS  := $(ALL_BOARDS)

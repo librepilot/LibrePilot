@@ -119,16 +119,20 @@ static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
 static struct mpu6000_dev *PIOS_MPU6000_alloc(const struct pios_mpu6000_cfg *cfg);
 static int32_t PIOS_MPU6000_Validate(struct mpu6000_dev *dev);
 static void PIOS_MPU6000_Config(struct pios_mpu6000_cfg const *cfg);
+
+#ifdef PIOS_INCLUDE_SPI
 static int32_t PIOS_MPU6000_SPI_SetReg(uint8_t address, uint8_t buffer);
 static int32_t PIOS_MPU6000_SPI_GetReg(uint8_t address);
-static void PIOS_MPU6000_SetSpeed(const bool fast);
-static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp);
 static bool PIOS_MPU6000_SPI_ReadSensor(bool *woken);
+static void PIOS_MPU6000_SetSpeed(const bool fast);
 struct pios_mpu6000_io_driver spi_io_driver = {
     .SetReg     = PIOS_MPU6000_SPI_SetReg,
     .GetReg     = PIOS_MPU6000_SPI_GetReg,
     .ReadSensor = PIOS_MPU6000_SPI_ReadSensor,
 };
+
+#endif /* PIOS_INCLUDE_SPI */
+
 
 #ifdef PIOS_INCLUDE_I2C
 static int32_t PIOS_MPU6000_I2C_SetReg(uint8_t address, uint8_t buffer);
@@ -141,6 +145,7 @@ struct pios_mpu6000_io_driver i2c_io_driver = {
 };
 #endif /* PIOS_INCLUDE_I2C */
 
+static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp);
 static int32_t PIOS_MPU6000_Test(void);
 
 void PIOS_MPU6000_Register()
@@ -160,7 +165,11 @@ static struct mpu6000_dev *PIOS_MPU6000_alloc(const struct pios_mpu6000_cfg *cfg
     mpu6000_dev->magic = PIOS_MPU6000_DEV_MAGIC;
 
     if (cfg->i2c_addr == 0) {
+#ifdef PIOS_INCLUDE_SPI
         mpu6000_dev->driver = &spi_io_driver;
+#else
+        PIOS_Assert(0)
+#endif
     } else {
 #ifdef PIOS_INCLUDE_I2C
         mpu6000_dev->driver = &i2c_io_driver;
@@ -338,6 +347,7 @@ int32_t PIOS_MPU6000_ConfigureRanges(
     return 0;
 }
 
+#ifdef PIOS_INCLUDE_SPI
 /**
  * @brief Claim the SPI bus for the accel communications and select this chip
  * @return 0 if successful, -1 for invalid device, -2 if unable to claim bus
@@ -483,6 +493,22 @@ int32_t PIOS_MPU6000_DummyReadGyros()
 
     return 0;
 }
+
+static bool PIOS_MPU6000_SPI_ReadSensor(bool *woken)
+{
+    const uint8_t mpu6000_send_buf[1 + PIOS_MPU6000_SAMPLES_BYTES] = { PIOS_MPU6000_SENSOR_FIRST_REG | 0x80 };
+
+    if (PIOS_MPU6000_ClaimBusISR(woken, true) != 0) {
+        return false;
+    }
+    if (PIOS_SPI_TransferBlock(dev->port_id, &mpu6000_send_buf[0], &mpu6000_data.buffer[0], sizeof(mpu6000_data_t), NULL) < 0) {
+        PIOS_MPU6000_ReleaseBusISR(woken);
+        return false;
+    }
+    PIOS_MPU6000_ReleaseBusISR(woken);
+    return true;
+}
+#endif /* PIOS_INCLUDE_SPI */
 
 #ifdef PIOS_INCLUDE_I2C
 static int32_t PIOS_MPU6000_I2C_SetReg(uint8_t address, uint8_t buffer)
@@ -738,21 +764,6 @@ static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp_p)
     BaseType_t higherPriorityTaskWoken;
     xQueueSendToBackFromISR(dev->queue, (void *)queue_data, &higherPriorityTaskWoken);
     return higherPriorityTaskWoken == pdTRUE;
-}
-
-static bool PIOS_MPU6000_SPI_ReadSensor(bool *woken)
-{
-    const uint8_t mpu6000_send_buf[1 + PIOS_MPU6000_SAMPLES_BYTES] = { PIOS_MPU6000_SENSOR_FIRST_REG | 0x80 };
-
-    if (PIOS_MPU6000_ClaimBusISR(woken, true) != 0) {
-        return false;
-    }
-    if (PIOS_SPI_TransferBlock(dev->port_id, &mpu6000_send_buf[0], &mpu6000_data.buffer[0], sizeof(mpu6000_data_t), NULL) < 0) {
-        PIOS_MPU6000_ReleaseBusISR(woken);
-        return false;
-    }
-    PIOS_MPU6000_ReleaseBusISR(woken);
-    return true;
 }
 
 // Sensor driver implementation

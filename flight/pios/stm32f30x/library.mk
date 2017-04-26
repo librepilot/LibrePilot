@@ -5,6 +5,8 @@
 # Directory containing this makefile
 PIOS_DEVLIB		:= $(dir $(lastword $(MAKEFILE_LIST)))
 
+MCU := cortex-m4
+
 USE_USB ?= YES
 
 LDSRC = $(PIOS_DEVLIB)link_memory.lds $(PIOS_DEVLIB)link_sections.lds

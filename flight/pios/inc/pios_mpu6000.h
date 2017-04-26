@@ -149,8 +149,10 @@ struct pios_mpu6000_cfg {
     enum pios_mpu6000_range gyro_range;
     enum pios_mpu6000_filter filter;
     enum pios_mpu6000_orientation orientation;
+#ifdef PIOS_INCLUDE_SPI
     SPIPrescalerTypeDef fast_prescaler;
     SPIPrescalerTypeDef std_prescaler;
+#endif /* PIOS_INCLUDE_SPI */
     uint8_t max_downsample;
 };
 

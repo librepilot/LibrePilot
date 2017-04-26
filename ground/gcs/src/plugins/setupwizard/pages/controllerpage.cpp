@@ -125,7 +125,10 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
 
     case 0x1002:
         return SetupWizard::CONTROLLER_SPRACINGF3EVO;
-            
+
+    case 0x1005:
+        return SetupWizard::CONTROLLER_PIKOBLX;
+    
     default:
         return SetupWizard::CONTROLLER_UNKNOWN;
     }

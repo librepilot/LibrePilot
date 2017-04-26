@@ -250,8 +250,10 @@ void ConfigGadgetWidget::onAutopilotConnect()
             
             if (board == 0x1001) {
                 widget = new ConfigSPRacingF3HWWidget(this);
-            } else if (board == 0x1002) {
+            } else if (board == 0x1002 || board == 0x1003) { // SpracingF3 EVO or NucleoF303RE
                 //widget = new ConfigSPRacingF3EVOHWWidget(this);
+            } else if (board == 0x1005) {
+                //widget = new ConfigPikoBLXHWWidget(this);
             }
             if(widget) {
                 widget->bind();

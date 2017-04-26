@@ -68,7 +68,13 @@ public:
 
         case 0x1002:
             return QString("SPRacingF3EVO");
-                
+        
+        case 0x1003:
+            return QString("NucleoF303RE");
+        
+        case 0x1005:
+            return QString("PikoBLX");
+        
         default:
             return QString("");
 

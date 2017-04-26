@@ -42,7 +42,7 @@ static const struct pios_gpio pios_leds[] = {
                 .GPIO_PuPd  = GPIO_PuPd_NOPULL,
             },
         },
-        .active_low         = false
+        .active_low         = true
     },
     [PIOS_LED_ALARM] = { /* not really LED, but buzzer! */
         .pin                =             {

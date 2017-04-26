@@ -1,7 +1,7 @@
 <xml>
     <object name="HwSPRacingF3EVOSettings" singleinstance="true" settings="true" category="System">
         <description>Seriously Pro SPRacingF3 EVO hardware configuration.</description>
-        <field name="UARTPort" units="function" type="enum" elements="3" options="Disabled,Telemetry,GPS,S.Bus,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,MSP,MAVLink" defaultvalue="Disabled"/>
+        <field name="UARTPort" units="function" type="enum" elements="3" options="Disabled,Telemetry,GPS,S.Bus,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,MSP,MAVLink,PPM" defaultvalue="Disabled"/>
         <field name="I2CPort" units="function" type="enum" elements="1" options="Disabled,I2C" defaultvalue="Disabled"/>
         <field name="LEDPort" units="function" type="enum" elements="1" options="Disabled,WS2811,Output" defaultvalue="Disabled"/>
         <field name="BuzzerPort" units="function" type="enum" elements="1" options="Disabled,Output" defaultvalue="Disabled"/>

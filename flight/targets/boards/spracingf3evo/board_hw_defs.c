@@ -428,9 +428,6 @@ static const struct pios_tim_channel pios_tim_servoport_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM3,  4, B, 1), // bank 3
 };
 
-static const struct pios_tim_channel pios_tim_ppm_flexi_port = TIM_SERVO_CHANNEL_CONFIG(TIM2, 4, B, 11);
-
-
 #if defined(PIOS_INCLUDE_USART)
 
 #define GPIO_AF_USART1 GPIO_AF_7
@@ -513,18 +510,46 @@ const struct pios_servo_cfg pios_servo_cfg = {
 #if defined(PIOS_INCLUDE_PPM)
 #include <pios_ppm_priv.h>
 
-static const struct pios_tim_channel pios_tim_ppm_channel = TIM_SERVO_CHANNEL_CONFIG(TIM8, 1, A, 15);
+static const struct pios_tim_channel pios_tim_ppm_uart[] = {
+    TIM_SERVO_CHANNEL_CONFIG(TIM2, 4, A, 10),
+    TIM_SERVO_CHANNEL_CONFIG(TIM8, 1, A, 15),
+    TIM_SERVO_CHANNEL_CONFIG(TIM2, 4, B, 11)
+};
 
-const struct pios_ppm_cfg pios_ppm_cfg = {
-    .tim_ic_init         = {
-        .TIM_ICPolarity  = TIM_ICPolarity_Rising,
-        .TIM_ICSelection = TIM_ICSelection_DirectTI,
-        .TIM_ICPrescaler = TIM_ICPSC_DIV1,
-        .TIM_ICFilter    = 0x0,
+const struct pios_ppm_cfg pios_ppm_uart_cfg[] = {
+    [0] = {
+        .tim_ic_init         = {
+            .TIM_ICPolarity  = TIM_ICPolarity_Rising,
+            .TIM_ICSelection = TIM_ICSelection_DirectTI,
+            .TIM_ICPrescaler = TIM_ICPSC_DIV1,
+            .TIM_ICFilter    = 0x0,
+        },
+        /* Use only the first channel for ppm */
+        .channels     = &pios_tim_ppm_uart[0],
+        .num_channels = 1,
     },
-    /* Use only the first channel for ppm */
-    .channels     = &pios_tim_ppm_channel,
-    .num_channels = 1,
+    [1] = {
+        .tim_ic_init         = {
+            .TIM_ICPolarity  = TIM_ICPolarity_Rising,
+            .TIM_ICSelection = TIM_ICSelection_DirectTI,
+            .TIM_ICPrescaler = TIM_ICPSC_DIV1,
+            .TIM_ICFilter    = 0x0,
+        },
+        /* Use only the first channel for ppm */
+        .channels     = &pios_tim_ppm_uart[1],
+        .num_channels = 1,
+    },
+    [2] = {
+        .tim_ic_init         = {
+            .TIM_ICPolarity  = TIM_ICPolarity_Rising,
+            .TIM_ICSelection = TIM_ICSelection_DirectTI,
+            .TIM_ICPrescaler = TIM_ICPSC_DIV1,
+            .TIM_ICFilter    = 0x0,
+        },
+        /* Use only the first channel for ppm */
+        .channels     = &pios_tim_ppm_uart[2],
+        .num_channels = 1,
+    },
 };
 #endif /* PIOS_INCLUDE_PPM */
 

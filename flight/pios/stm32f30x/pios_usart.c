@@ -207,11 +207,11 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
         usart_dev->irq_channel = USART3_IRQn;
         break;
     case (uint32_t)UART4:
-        PIOS_UART_4_id  = (uint32_t)usart_dev;
+        PIOS_UART_4_id = (uint32_t)usart_dev;
         usart_dev->irq_channel = UART4_IRQn;
         break;
     case (uint32_t)UART5:
-        PIOS_UART_5_id  = (uint32_t)usart_dev;
+        PIOS_UART_5_id = (uint32_t)usart_dev;
         usart_dev->irq_channel = UART5_IRQn;
         break;
     }
@@ -476,6 +476,9 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
     uint32_t cr1_ue = usart_dev->cfg->regs->CR1 & USART_CR1_UE;
 
     switch (ctl) {
+    case PIOS_IOCTL_USART_SET_IRQ_PRIO:
+        return PIOS_USART_SetIrqPrio(usart_dev, *(uint8_t *)param);
+
     case PIOS_IOCTL_USART_SET_INVERTED:
     {
         enum PIOS_USART_Inverted inverted = *(enum PIOS_USART_Inverted *)param;
@@ -505,6 +508,7 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
         usart_dev->cfg->regs->CR1 &= ~((uint32_t)USART_CR1_UE);
         USART_HalfDuplexCmd(usart_dev->cfg->regs, *(bool *)param ? ENABLE : DISABLE);
         break;
+    case PIOS_IOCTL_USART_GET_DSMBIND:
     case PIOS_IOCTL_USART_GET_RXGPIO:
         *(struct stm32_gpio *)param = usart_dev->cfg->rx;
         break;

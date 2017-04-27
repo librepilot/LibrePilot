@@ -214,19 +214,15 @@ void PIOS_Board_Init(void)
         [HWSPRACINGF3EVOSETTINGS_UARTPORT_MAVLINK] = PIOS_BOARD_IO_UART_MAVLINK,
     };
 
-    const struct pios_ppm_cfg *ppm_cfg = 0;
-
     for (unsigned int i = 0; i < HWSPRACINGF3EVOSETTINGS_UARTPORT_NUMELEM; ++i) {
         if(boardHwSettings.UARTPort[i] < NELEMENTS(uart_function_map)) {
             PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[i], uart_function_map[boardHwSettings.UARTPort[i]]);
-            if(boardHwSettings.UARTPort[i] == HWSPRACINGF3EVOSETTINGS_UARTPORT_PPM) {
-                ppm_cfg = &pios_ppm_uart_cfg[i];
-            }
         }
     }
     
-    if(ppm_cfg) {
-        PIOS_BOARD_IO_Configure_PPM_RCVR(ppm_cfg);
+    /* allow PPM on uart2 only, to avoid uart1&3 TIM2_CH4 conflict with output PWMSync, OneShot and MultiShot modes */
+    if(boardHwSettings.UARTPort[1] == HWSPRACINGF3EVOSETTINGS_UARTPORT_PPM) {
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
     }
 
 #ifndef PIOS_ENABLE_DEBUG_PINS

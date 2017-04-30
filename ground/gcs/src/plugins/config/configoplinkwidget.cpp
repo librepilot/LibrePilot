@@ -113,8 +113,8 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
     addWidgetBinding("OPLinkStatus", "AFCCorrection", m_oplink->AFCCorrection);
 
-    // initially hide port combo boxes
-    setPortsVisible(false);
+    // initially hide Oplink Mini options
+    setOPLMOptionsVisible(false);
 
     // Connect the selection changed signals.
     connect(m_oplink->Protocol, SIGNAL(currentIndexChanged(int)), this, SLOT(protocolChanged()));
@@ -189,10 +189,10 @@ void ConfigOPLinkWidget::updateStatus()
     switch (oplinkStatusObj->boardType()) {
     case 0x09: // Revolution, DiscoveryF4Bare, RevoNano, RevoProto
     case 0x92: // Sparky2
-        setPortsVisible(false);
+        setOPLMOptionsVisible(false);
         break;
     case 0x03: // OPLinkMini
-        setPortsVisible(true);
+        setOPLMOptionsVisible(true);
         break;
     default:
         // This shouldn't happen.
@@ -206,24 +206,10 @@ void ConfigOPLinkWidget::updateStatus()
     }
 }
 
-void ConfigOPLinkWidget::setPortsVisible(bool visible)
+void ConfigOPLinkWidget::setOPLMOptionsVisible(bool visible)
 {
-    m_oplink->UartsLabel->setVisible(visible);
-    m_oplink->MainPort->setVisible(visible);
-    m_oplink->MainPortLabel->setVisible(visible);
-    m_oplink->FlexiPort->setVisible(visible);
-    m_oplink->FlexiPortLabel->setVisible(visible);
-    m_oplink->ConnectionsLabel->setVisible(visible);
-    m_oplink->RadioPriStream->setVisible(visible);
-    m_oplink->RadioPriStreamLabel->setVisible(visible);
-    m_oplink->RadioAuxStream->setVisible(visible);
-    m_oplink->RadioAuxStreamLabel->setVisible(visible);
-    m_oplink->MainComSpeed->setVisible(visible);
-    m_oplink->MainComSpeedLabel->setVisible(visible);
-    m_oplink->FlexiComSpeed->setVisible(visible);
-    m_oplink->FlexiComSpeedLabel->setVisible(visible);
-    m_oplink->VCPBridge->setVisible(visible);
-    m_oplink->VCPBridgeLabel->setVisible(visible);
+    m_oplink->UartsGroupBox->setVisible(visible);
+    m_oplink->ConnectionsGroupBox->setVisible(visible);
 }
 
 void ConfigOPLinkWidget::updateInfo()

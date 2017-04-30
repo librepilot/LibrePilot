@@ -62,7 +62,7 @@ private:
     void updateInfo();
     void updateSettings();
 
-    void setPortsVisible(bool visible);
+    void setOPLMOptionsVisible(bool visible);
 
 private slots:
     void connected();

@@ -34,14 +34,9 @@
 
 #ifdef PIOS_INCLUDE_DELAY
 
-/* these should be defined by CMSIS, but they aren't */
-#define DWT_CTRL   (*(volatile uint32_t *)0xe0001000)
-#define CYCCNTENA  (1 << 0)
-#define DWT_CYCCNT (*(volatile uint32_t *)0xe0001004)
-
-
 /* cycles per microsecond */
 static uint32_t us_ticks;
+static uint32_t raw_hz;
 
 /**
  * Initialises the Timer used by PIOS_DELAY functions.
@@ -57,6 +52,7 @@ int32_t PIOS_DELAY_Init(void)
     RCC_GetClocksFreq(&clocks);
     us_ticks = clocks.SYSCLK_Frequency / 1000000;
     PIOS_DEBUG_Assert(us_ticks > 1);
+    raw_hz   = clocks.SYSCLK_Frequency;
 
     /* turn on access to the DWT registers */
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -84,7 +80,7 @@ int32_t PIOS_DELAY_WaituS(uint32_t uS)
     uint32_t last_count = DWT_CYCCNT;
 
     for (;;) {
-        uint32_t current_count = DWT_CYCCNT;
+        uint32_t current_count = PIOS_DELAY_GetRaw();
         uint32_t elapsed_uS;
 
         /* measure the time elapsed since the last time we checked */
@@ -135,7 +131,7 @@ int32_t PIOS_DELAY_WaitmS(uint32_t mS)
  */
 uint32_t PIOS_DELAY_GetuS(void)
 {
-    return DWT_CYCCNT / us_ticks;
+    return PIOS_DELAY_GetRaw() / us_ticks;
 }
 
 /**
@@ -149,12 +145,12 @@ uint32_t PIOS_DELAY_GetuSSince(uint32_t t)
 }
 
 /**
- * @brief Get the raw delay timer, useful for timing
- * @return Unitless value (uint32 wrap around)
+ * @brief Get the raw delay timer frequency
+ * @return raw delay timer frequency in Hz
  */
-uint32_t PIOS_DELAY_GetRaw()
+uint32_t PIOS_DELAY_GetRawHz()
 {
-    return DWT_CYCCNT;
+    return raw_hz;
 }
 
 /**
@@ -163,7 +159,7 @@ uint32_t PIOS_DELAY_GetRaw()
  */
 uint32_t PIOS_DELAY_DiffuS(uint32_t raw)
 {
-    uint32_t diff = DWT_CYCCNT - raw;
+    uint32_t diff = PIOS_DELAY_GetRaw() - raw;
 
     return diff / us_ticks;
 }

@@ -29,9 +29,6 @@
 
 #include "ui_outputchannelform.h"
 
-#define MAXOUTPUT_VALUE 2500
-#define MINOUTPUT_VALUE 500
-
 OutputChannelForm::OutputChannelForm(const int index, QWidget *parent) :
     ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false)
 {
@@ -49,14 +46,6 @@ OutputChannelForm::OutputChannelForm(const int index, QWidget *parent) :
 
     ui->actuatorLink->setChecked(false);
     connect(ui->actuatorLink, SIGNAL(toggled(bool)), this, SLOT(linkToggled(bool)));
-
-    // Set limits
-    ui->actuatorMin->setMaximum(MAXOUTPUT_VALUE);
-    ui->actuatorMax->setMaximum(MAXOUTPUT_VALUE);
-    ui->actuatorValue->setMaximum(MAXOUTPUT_VALUE);
-    ui->actuatorMin->setMinimum(MINOUTPUT_VALUE);
-    ui->actuatorMax->setMinimum(MINOUTPUT_VALUE);
-    ui->actuatorValue->setMinimum(MINOUTPUT_VALUE);
 
     setChannelRange();
 
@@ -144,7 +133,7 @@ void OutputChannelForm::linkToggled(bool state)
     if (!parent()) {
         return;
     }
-    int min = MAXOUTPUT_VALUE;
+    int min = ui->actuatorMax->maximum();
     int linked_count = 0;
     QList<OutputChannelForm *> outputChannelForms = parent()->findChildren<OutputChannelForm *>();
     // set the linked channels of the parent widget to the same value
@@ -211,6 +200,18 @@ int OutputChannelForm::neutral() const
 void OutputChannelForm::setNeutral(int value)
 {
     ui->actuatorNeutral->setValue(value);
+}
+
+/**
+ *
+ * Set
+ */
+void OutputChannelForm::setLimits(int actuatorMinMinimum, int actuatorMinMaximum, int actuatorMaxMinimum, int actuatorMaxMaximum)
+{
+    ui->actuatorMin->setMaximum(actuatorMinMaximum);
+    ui->actuatorMax->setMaximum(actuatorMaxMaximum);
+    ui->actuatorMin->setMinimum(actuatorMinMinimum);
+    ui->actuatorMax->setMinimum(actuatorMaxMinimum);
 }
 
 /**

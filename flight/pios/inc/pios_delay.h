@@ -32,13 +32,16 @@
 #ifndef PIOS_DELAY_H
 #define PIOS_DELAY_H
 
+#ifndef USE_SIM_POSIX
+#include "pios_delay_raw.h"
+#endif
+
 /* Public Functions */
 extern int32_t PIOS_DELAY_Init(void);
 extern int32_t PIOS_DELAY_WaituS(uint32_t uS);
 extern int32_t PIOS_DELAY_WaitmS(uint32_t mS);
 extern uint32_t PIOS_DELAY_GetuS();
 extern uint32_t PIOS_DELAY_GetuSSince(uint32_t t);
-extern uint32_t PIOS_DELAY_GetRaw();
 extern uint32_t PIOS_DELAY_DiffuS(uint32_t raw);
 extern uint32_t PIOS_DELAY_DiffuS2(uint32_t raw, uint32_t later);
 

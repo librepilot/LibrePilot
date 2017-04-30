@@ -2,13 +2,14 @@
  ******************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
- * @addtogroup   PIOS_SERVO RC Servo Functions
+ * @addtogroup PIOS_DELAY Delay Functions
+ * @brief PiOS Delay functionality
  * @{
  *
- * @file       pios_servo.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @file       pios_delay_raw.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      RC Servo functions header.
+ * @brief      Settings functions header
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -27,32 +28,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#ifndef PIOS_DELAY_RAW_H
+#define PIOS_DELAY_RAW_H
 
-#ifndef PIOS_SERVO_H
-#define PIOS_SERVO_H
+/* these should be defined by CMSIS, but they aren't */
+#define DWT_CTRL   (*(volatile uint32_t *)0xe0001000)
+#define CYCCNTENA  (1 << 0)
+#define DWT_CYCCNT (*(volatile uint32_t *)0xe0001004)
 
-/* Global types */
-enum pios_servo_bank_mode {
-    PIOS_SERVO_BANK_MODE_NONE  = 0,
-    PIOS_SERVO_BANK_MODE_PWM   = 1,
-    PIOS_SERVO_BANK_MODE_SINGLE_PULSE = 2,
-    PIOS_SERVO_BANK_MODE_DSHOT = 3,
-};
-/* Public Functions */
-extern void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t banks);
-extern void PIOS_Servo_Set(uint8_t Servo, uint16_t Position);
-extern void PIOS_Servo_Update();
-extern void PIOS_Servo_SetBankMode(uint8_t bank, uint8_t mode);
-extern void PIOS_Servo_DSHot_Rate(uint32_t rate_in_khz);
-extern uint8_t PIOS_Servo_GetPinBank(uint8_t pin);
+#define PIOS_DELAY_GetRaw() (DWT_CYCCNT)
 
-/* ESC Bridge support */
-extern void PIOS_Servo_Disable();
-extern void PIOS_Servo_Enable();
+extern uint32_t PIOS_DELAY_GetRawHz();
 
-#endif /* PIOS_SERVO_H */
-
-/**
- * @}
- * @}
- */
+#endif /* PIOS_DELAY_RAW_H */

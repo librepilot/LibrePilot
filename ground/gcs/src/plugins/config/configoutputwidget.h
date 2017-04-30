@@ -104,6 +104,7 @@ private:
     void assignOutputChannel(UAVDataObject *obj, QString &str);
     void setColor(QWidget *widget, const QColor color);
     void sendAllChannelTests();
+    void setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls);
 
 private slots:
     void updateWarnings(UAVObject *);

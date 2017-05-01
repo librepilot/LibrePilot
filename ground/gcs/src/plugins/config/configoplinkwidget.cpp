@@ -267,10 +267,10 @@ void ConfigOPLinkWidget::updateSettings()
     bool is_vcp_flexi    = isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_FLEXI);
     bool is_bound = (m_oplink->CoordID->text() != "");
 
-    m_oplink->MainPort->setEnabled(is_enabled || is_vcp_main);
-    m_oplink->FlexiPort->setEnabled(is_enabled || is_vcp_flexi);
-    m_oplink->MainComSpeed->setEnabled((is_enabled || is_vcp_main) && !is_ppm_only && !is_openlrs && (is_main_serial || is_main_telem));
-    m_oplink->FlexiComSpeed->setEnabled((is_enabled || is_vcp_flexi) && !is_ppm_only && !is_openlrs && (is_flexi_serial || is_flexi_telem));
+    m_oplink->MainPort->setEnabled((is_enabled && !is_openlrs) || is_vcp_main);
+    m_oplink->FlexiPort->setEnabled((is_enabled && !is_openlrs) || is_vcp_flexi);
+    m_oplink->MainComSpeed->setEnabled(is_enabled && !is_openlrs && !is_ppm_only && !is_vcp_main && (is_main_serial || is_main_telem));
+    m_oplink->FlexiComSpeed->setEnabled(is_enabled && !is_openlrs && !is_ppm_only && !is_vcp_flexi && (is_flexi_serial || is_flexi_telem));
     m_oplink->CoordID->setEnabled(is_enabled && is_receiver);
     m_oplink->UnbindButton->setEnabled(is_enabled && is_bound && !is_coordinator);
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);

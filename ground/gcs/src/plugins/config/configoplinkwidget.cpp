@@ -267,6 +267,27 @@ void ConfigOPLinkWidget::updateSettings()
     bool is_vcp_flexi    = isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_FLEXI);
     bool is_bound = (m_oplink->CoordID->text() != "");
 
+    bool is_stream_main  = isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_MAIN) ||
+                           isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_MAIN);
+    bool is_stream_flexi = isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_FLEXI) ||
+                           isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_FLEXI);
+
+    if (!is_stream_main && !is_vcp_main && (is_main_serial || is_main_telem)) {
+        setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        is_main_serial = false;
+        is_main_telem  = false;
+    }
+    if (!is_stream_flexi && !is_vcp_flexi && (is_flexi_serial || is_flexi_telem)) {
+        setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        is_flexi_serial = false;
+        is_flexi_telem  = false;
+    }
+
+    enableComboBoxOptionItem(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_TELEMETRY, is_stream_flexi);
+    enableComboBoxOptionItem(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_SERIAL, (is_stream_flexi || is_vcp_flexi));
+    enableComboBoxOptionItem(m_oplink->MainPort, OPLinkSettings::MAINPORT_TELEMETRY, is_stream_main);
+    enableComboBoxOptionItem(m_oplink->MainPort, OPLinkSettings::MAINPORT_SERIAL, (is_stream_main || is_vcp_main));
+
     m_oplink->MainPort->setEnabled((is_enabled && !is_openlrs) || is_vcp_main);
     m_oplink->FlexiPort->setEnabled((is_enabled && !is_openlrs) || is_vcp_flexi);
     m_oplink->MainComSpeed->setEnabled(is_enabled && !is_openlrs && !is_ppm_only && !is_vcp_main && (is_main_serial || is_main_telem));

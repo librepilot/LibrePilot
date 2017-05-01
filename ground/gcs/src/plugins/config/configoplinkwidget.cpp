@@ -503,7 +503,7 @@ void ConfigOPLinkWidget::radioAuxStreamChanged()
         if (isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_FLEXI)) {
             setComboboxSelectedOption(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_DISABLED);
         }
-        if (isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_MAIN)) {
+        if (isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_FLEXI)) {
             setComboboxSelectedOption(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_DISABLED);
         }
         break;

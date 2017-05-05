@@ -54,6 +54,7 @@ private:
     // Frequency display settings
     float frequency_base;
     float frequency_step;
+    QString channel_tooltip;
 
     // Is the status current?
     bool statusUpdated;

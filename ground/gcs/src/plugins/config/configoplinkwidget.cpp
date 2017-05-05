@@ -332,16 +332,19 @@ void ConfigOPLinkWidget::rfBandChanged()
 {
     switch (getComboboxSelectedOption(m_oplink->RFBand)) {
     case OPLinkSettings::RFBAND_915MHZ:
-        frequency_base = 900.0f;
-        frequency_step = FREQUENCY_STEP * 2.0f;
+        frequency_base  = 900.0f;
+        frequency_step  = FREQUENCY_STEP * 2.0f;
+        channel_tooltip = tr("Channel 0 is 900 MHz, channel 250 is 920 MHz, and the channel spacing is 80 KHz.");
         break;
     case OPLinkSettings::RFBAND_868MHZ:
-        frequency_base = 860.0f;
-        frequency_step = FREQUENCY_STEP * 2.0f;
+        frequency_base  = 860.0f;
+        frequency_step  = FREQUENCY_STEP * 2.0f;
+        channel_tooltip = tr("Channel 0 is 860 MHz, channel 250 is 880 MHz, and the channel spacing is 80 KHz.");
         break;
     case OPLinkSettings::RFBAND_433MHZ:
-        frequency_base = 430.0f;
-        frequency_step = FREQUENCY_STEP;
+        frequency_base  = 430.0f;
+        frequency_step  = FREQUENCY_STEP;
+        channel_tooltip = tr("Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.");
         break;
     }
 
@@ -386,6 +389,9 @@ void ConfigOPLinkWidget::updateFrequencyDisplay()
 
     m_oplink->MinFreq->setText("(" + QString::number(minFrequency, 'f', 3) + " MHz)");
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");
+
+    m_oplink->MinimumChannel->setToolTip(channel_tooltip);
+    m_oplink->MaximumChannel->setToolTip(channel_tooltip);
 }
 
 void ConfigOPLinkWidget::mainPortChanged()

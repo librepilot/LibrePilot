@@ -1306,9 +1306,6 @@
                       <bold>false</bold>
                      </font>
                     </property>
-                    <property name="toolTip">
-                     <string>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</string>
-                    </property>
                     <property name="maximum">
                      <number>250</number>
                     </property>
@@ -1432,9 +1429,6 @@
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
-                    </property>
-                    <property name="toolTip">
-                     <string>Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.</string>
                     </property>
                     <property name="maximum">
                      <number>250</number>

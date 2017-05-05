@@ -86,7 +86,7 @@ Item {
     property real smeter_angle
 
     // Needed to get correctly int8 value
-    property int oplm_rssi: UAV.OplmRSSI()
+    property int oplm_rssi: telemetry_link ? UAV.oplmRSSI() : -127
 
     property real telemetry_sum
     property real telemetry_sum_old
@@ -772,7 +772,7 @@ Item {
         }
 
         Text {
-             text: UAV.OplmDeviceID() > 0 ? UAV.OplmDeviceID().toString(16) : "--  --  --  --"
+             text: (UAV.oplmDeviceID() > 0) ? UAV.oplmDeviceID().toString(16) : "--  --  --  --"
              anchors.centerIn: parent
              color: "white"
              font {

@@ -229,12 +229,12 @@ function isOplmConnected() {
     return (opLinkStatus.linkState == OPLinkStatus.LinkState.Connected);
 }
 
-function OplmRSSI() {
-    return (opLinkStatus.rssi);
+function oplmRSSI() {
+    return (opLinkStatus.rssi > -13) ? -13 : opLinkStatus.rssi;
 }
 
-function OplmDeviceID() {
-    return (opLinkStatus.deviceID);
+function oplmDeviceID() {
+    return opLinkStatus.deviceID;
 }
 
 function magSourceName() {

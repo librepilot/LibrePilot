@@ -1,7 +1,8 @@
 /**
  ******************************************************************************
  * @file       loggingplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -72,11 +73,9 @@ public:
         return &logFile;
     }
 
-
 private:
     LogFile logFile;
     LoggingPlugin *loggingPlugin;
-
 
 protected slots:
     void onEnumerationChanged();
@@ -86,19 +85,20 @@ protected:
     bool m_deviceOpened;
 };
 
-
 class LoggingThread : public QThread {
     Q_OBJECT
 public:
+    LoggingThread();
     virtual ~LoggingThread();
 
-    bool openFile(QString file, LoggingPlugin *parent);
+    bool openFile(QString file);
 
 private slots:
     void objectUpdated(UAVObject *obj);
     void transactionCompleted(UAVObject *obj, bool success);
 
 public slots:
+    void startLogging();
     void stopLogging();
 
 protected:
@@ -138,15 +138,12 @@ public:
     }
     void setLogMenuTitle(QString str);
 
-
 signals:
-    void stopLoggingSignal(void);
-    void stopReplaySignal(void);
     void stateChanged(QString);
-
 
 protected:
     enum { IDLE, LOGGING, REPLAY } state;
+
     LoggingThread *loggingThread;
 
     // These are used for replay, logging in its own thread
@@ -156,6 +153,7 @@ private slots:
     void toggleLogging();
     void startLogging(QString file);
     void stopLogging();
+    void loggingStarted();
     void loggingStopped();
     void replayStarted();
     void replayStopped();

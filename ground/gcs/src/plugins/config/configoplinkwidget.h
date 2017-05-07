@@ -84,6 +84,7 @@ private slots:
     void vcpBridgeChanged();
 
     void unbind();
+    void clearDeviceID();
 };
 
 #endif // CONFIGOPLINKWIDGET_H

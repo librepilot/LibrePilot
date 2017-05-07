@@ -70,6 +70,8 @@ private slots:
 
     void protocolChanged();
     void linkTypeChanged();
+    void customIDChanged();
+    void coordIDChanged();
 
     void minChannelChanged();
     void maxChannelChanged();

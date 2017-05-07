@@ -120,6 +120,8 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     // Connect the selection changed signals.
     connect(m_oplink->Protocol, SIGNAL(currentIndexChanged(int)), this, SLOT(protocolChanged()));
     connect(m_oplink->LinkType, SIGNAL(currentIndexChanged(int)), this, SLOT(linkTypeChanged()));
+    connect(m_oplink->CustomDeviceID, SIGNAL(textChanged(QString)), this, SLOT(customIDChanged()));
+    connect(m_oplink->CoordID, SIGNAL(textChanged(QString)), this, SLOT(coordIDChanged()));
     connect(m_oplink->RFBand, SIGNAL(currentIndexChanged(int)), this, SLOT(rfBandChanged()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
@@ -266,8 +268,8 @@ void ConfigOPLinkWidget::updateSettings()
     bool is_flexi_telem  = isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_TELEMETRY);
     bool is_vcp_main     = isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_MAIN);
     bool is_vcp_flexi    = isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_FLEXI);
-    bool is_custom_id    = (m_oplink->CustomDeviceID->text() != "");
-    bool is_bound = (m_oplink->CoordID->text() != "");
+    bool is_custom_id    = !m_oplink->CustomDeviceID->text().isEmpty();
+    bool is_bound = !m_oplink->CoordID->text().isEmpty();
 
     bool is_stream_main  = isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_MAIN) ||
                            isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_MAIN);
@@ -317,6 +319,16 @@ void ConfigOPLinkWidget::protocolChanged()
 }
 
 void ConfigOPLinkWidget::linkTypeChanged()
+{
+    updateSettings();
+}
+
+void ConfigOPLinkWidget::customIDChanged()
+{
+    updateSettings();
+}
+
+void ConfigOPLinkWidget::coordIDChanged()
 {
     updateSettings();
 }

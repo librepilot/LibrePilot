@@ -45,6 +45,10 @@ public:
         return m_file.bytesToWrite();
     };
     bool open(OpenMode mode);
+    QString fileName()
+    {
+        return m_file.fileName();
+    };
     void setFileName(QString name)
     {
         m_file.setFileName(name);
@@ -53,8 +57,6 @@ public:
     qint64 writeData(const char *data, qint64 dataSize);
     qint64 readData(char *data, qint64 maxlen);
 
-    bool startReplay();
-    bool stopReplay();
     void useProvidedTimeStamp(bool useProvidedTimeStamp)
     {
         m_useProvidedTimeStamp = useProvidedTimeStamp;
@@ -71,6 +73,8 @@ public slots:
         m_playbackSpeed = val;
         qDebug() << "Playback speed is now" << m_playbackSpeed;
     };
+    bool startReplay();
+    bool stopReplay();
     void pauseReplay();
     void resumeReplay();
 

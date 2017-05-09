@@ -30,6 +30,8 @@
 
 #include "loggingplugin.h"
 #include "logginggadgetfactory.h"
+
+#include <QApplication>
 #include <QDebug>
 #include <QtPlugin>
 #include <QThread>
@@ -45,17 +47,14 @@
 #include "uavobjectmanager.h"
 
 
-LoggingConnection::LoggingConnection(LoggingPlugin *loggingPlugin) :
-    loggingPlugin(loggingPlugin),
-    m_deviceOpened(false)
+LoggingConnection::LoggingConnection() :
+    m_deviceOpened(false), logFile()
 {}
 
 LoggingConnection::~LoggingConnection()
-{}
-
-void LoggingConnection::onEnumerationChanged()
 {
-    emit availableDevChanged(this);
+    // make sure to close device to kill timers appropriately
+    closeDevice("");
 }
 
 QList <Core::IConnection::device> LoggingConnection::availableDevices()
@@ -71,34 +70,37 @@ QList <Core::IConnection::device> LoggingConnection::availableDevices()
 
 QIODevice *LoggingConnection::openDevice(const QString &deviceName)
 {
-    loggingPlugin->stopLogging();
     closeDevice(deviceName);
 
     QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open file"), QString(""), tr("OpenPilot Log (*.opl)"));
     if (!fileName.isNull()) {
-        startReplay(fileName);
+        logFile.setFileName(fileName);
+        if (logFile.open(QIODevice::ReadOnly)) {
+            // call startReplay on correct thread to avoid error from LogFile's replay QTimer
+            // you can't start or stop the timer from a thread other than the QTimer owner thread.
+            // note that the LogFile IO device (and thus its owned QTimer) is moved to a dedicated thread by the TelemetryManager
+            Qt::ConnectionType ct = (QApplication::instance()->thread() == logFile.thread()) ? Qt::DirectConnection : Qt::BlockingQueuedConnection;
+            QMetaObject::invokeMethod(&logFile, "startReplay", ct);
+            m_deviceOpened = true;
+        }
         return &logFile;
     }
 
     return NULL;
 }
 
-void LoggingConnection::startReplay(QString file)
-{
-    logFile.setFileName(file);
-    if (logFile.open(QIODevice::ReadOnly)) {
-        qDebug() << "LoggingConnection - replaying " << file;
-        logFile.startReplay();
-    }
-}
-
 void LoggingConnection::closeDevice(const QString &deviceName)
 {
     Q_UNUSED(deviceName);
-    // we have to delete the serial connection we created
+
     if (logFile.isOpen()) {
-        logFile.close();
         m_deviceOpened = false;
+        // call stoptReplay on correct thread to avoid error from LogFile's replay QTimer
+        // you can't start or stop the timer from a thread other than the QTimer owner thread.
+        // note that the LogFile IO device (and thus its owned QTimer) is moved to a dedicated thread by the TelemetryManager
+        Qt::ConnectionType ct = (QApplication::instance()->thread() == logFile.thread()) ? Qt::DirectConnection : Qt::BlockingQueuedConnection;
+        QMetaObject::invokeMethod(&logFile, "stopReplay", ct);
+        logFile.close();
     }
 }
 
@@ -294,7 +296,7 @@ void LoggingThread::transactionCompleted(UAVObject *obj, bool success)
 LoggingPlugin::LoggingPlugin() :
     state(IDLE),
     loggingThread(NULL),
-    logConnection(new LoggingConnection(this)),
+    logConnection(new LoggingConnection()),
     mf(NULL),
     cmd(NULL)
 {}
@@ -302,6 +304,7 @@ LoggingPlugin::LoggingPlugin() :
 LoggingPlugin::~LoggingPlugin()
 {
     stopLogging();
+    // logConnection will be auto released
 }
 
 /**

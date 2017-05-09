@@ -29,6 +29,7 @@
 
 LogFile::LogFile(QObject *parent) :
     QIODevice(parent),
+    m_timer(this),
     m_lastTimeStamp(0),
     m_lastPlayed(0),
     m_timeOffset(0),
@@ -55,6 +56,7 @@ bool LogFile::open(OpenMode mode)
         // connection manager call...
         return true;
     }
+    qDebug() << "LogFile - open" << fileName();
 
     if (m_file.open(mode) == false) {
         qDebug() << "Unable to open " << m_file.fileName() << " for logging";
@@ -74,11 +76,8 @@ bool LogFile::open(OpenMode mode)
 
 void LogFile::close()
 {
+    qDebug() << "LogFile - close" << fileName();
     emit aboutToClose();
-
-    if (m_timer.isActive()) {
-        m_timer.stop();
-    }
     m_file.close();
     QIODevice::close();
 }
@@ -183,6 +182,7 @@ void LogFile::timerFired()
 
 bool LogFile::startReplay()
 {
+    qDebug() << "LogFile - startReplay";
     m_dataBuffer.clear();
     m_myTime.restart();
     m_timeOffset = 0;
@@ -196,7 +196,9 @@ bool LogFile::startReplay()
 
 bool LogFile::stopReplay()
 {
-    close();
+    qDebug() << "LogFile - stopReplay";
+    m_timer.stop();
+
     emit replayFinished();
     return true;
 }

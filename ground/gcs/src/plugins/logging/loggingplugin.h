@@ -50,14 +50,14 @@ class LoggingGadgetFactory;
  *   Plugin will add a instance of this class to the pool,
  *   so the connection manager can use it.
  */
-class LoggingConnection
-    : public Core::IConnection {
+class LoggingConnection : public Core::IConnection {
     Q_OBJECT
 public:
-    LoggingConnection(LoggingPlugin *loggingPlugin);
+    LoggingConnection();
     virtual ~LoggingConnection();
 
     virtual QList <Core::IConnection::device> availableDevices();
+
     virtual QIODevice *openDevice(const QString &deviceName);
     virtual void closeDevice(const QString &deviceName);
 
@@ -74,15 +74,8 @@ public:
     }
 
 private:
-    LogFile logFile;
-    LoggingPlugin *loggingPlugin;
-
-protected slots:
-    void onEnumerationChanged();
-    void startReplay(QString file);
-
-protected:
     bool m_deviceOpened;
+    LogFile logFile;
 };
 
 class LoggingThread : public QThread {
@@ -103,9 +96,11 @@ public slots:
 
 protected:
     void run();
+
     QReadWriteLock lock;
     LogFile logFile;
     UAVTalk *uavTalk;
+private slots:
 
 private:
     QQueue<UAVDataObject *> queue;

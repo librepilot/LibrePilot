@@ -258,6 +258,7 @@ void ConfigOPLinkWidget::updateSettings()
 {
     // qDebug() << "ConfigOPLinkWidget::updateSettings";
 
+    bool is_openlrs      = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS);
     bool is_coordinator  = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKCOORDINATOR);
     bool is_receiver     = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKRECEIVER);
     bool is_oplink = (is_receiver || is_coordinator);
@@ -296,8 +297,10 @@ void ConfigOPLinkWidget::updateSettings()
     m_oplink->FlexiPort->setEnabled(is_oplink || is_vcp_flexi);
     m_oplink->MainComSpeed->setEnabled(is_oplink && !is_ppm_only && !is_vcp_main && (is_main_serial || is_main_telem));
     m_oplink->FlexiComSpeed->setEnabled(is_oplink && !is_ppm_only && !is_vcp_flexi && (is_flexi_serial || is_flexi_telem));
-    m_oplink->CoordID->setEnabled(is_receiver);
-    m_oplink->UnbindButton->setEnabled(is_receiver && is_bound);
+    m_oplink->CoordID->setEnabled(is_receiver || is_openlrs);
+    m_oplink->CoordID->setReadOnly(is_openlrs);
+    m_oplink->UnbindButton->setEnabled((is_receiver && is_bound) || is_openlrs);
+
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);
     m_oplink->ClearDeviceButton->setEnabled(is_coordinator && is_custom_id);
 
@@ -601,22 +604,22 @@ void ConfigOPLinkWidget::vcpBridgeChanged()
 void ConfigOPLinkWidget::unbind()
 {
     // Clear the coordinator ID
-    oplinkSettingsObj->setCoordID(0);
     m_oplink->CoordID->clear();
 
-    // Clear the OpenLRS settings
-    oplinkSettingsObj->setVersion((quint16)0);
-    oplinkSettingsObj->setSerialBaudrate(0);
-    oplinkSettingsObj->setRFFrequency(0);
-    oplinkSettingsObj->setRFPower((quint16)0);
-    oplinkSettingsObj->setRFChannelSpacing((quint16)0);
-    oplinkSettingsObj->setModemParams((quint16)0);
-    oplinkSettingsObj->setFlags((quint16)0);
+    // Clear the OpenLRS settings when needed
+    if (isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS)) {
+        oplinkSettingsObj->setVersion((quint16)0);
+        oplinkSettingsObj->setSerialBaudrate(0);
+        oplinkSettingsObj->setRFFrequency(0);
+        oplinkSettingsObj->setRFPower((quint16)0);
+        oplinkSettingsObj->setRFChannelSpacing((quint16)0);
+        oplinkSettingsObj->setModemParams((quint16)0);
+        oplinkSettingsObj->setFlags((quint16)0);
+    }
 }
 
 void ConfigOPLinkWidget::clearDeviceID()
 {
-    // Clear the device ID
-    oplinkSettingsObj->setCustomDeviceID(0);
+    // Clear the OPLM device ID
     m_oplink->CustomDeviceID->clear();
 }

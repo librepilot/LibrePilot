@@ -39,6 +39,9 @@ class QTCREATOR_UTILS_EXPORT LogFile : public QIODevice {
     Q_OBJECT
 public:
     explicit LogFile(QObject *parent = 0);
+
+    bool isSequential() const;
+
     qint64 bytesAvailable() const;
     qint64 bytesToWrite() const
     {

@@ -38,6 +38,11 @@ LogFile::LogFile(QObject *parent) :
     m_useProvidedTimeStamp(false)
 {
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timerFired()));
+
+bool LogFile::isSequential() const
+{
+    // returning true fixes "UAVTalk - error : bad type" errors when replaying a log file
+    return true;
 }
 
 /**

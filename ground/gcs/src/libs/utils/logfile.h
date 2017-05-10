@@ -40,15 +40,7 @@ class QTCREATOR_UTILS_EXPORT LogFile : public QIODevice {
 public:
     explicit LogFile(QObject *parent = 0);
 
-    bool isSequential() const;
-
-    qint64 bytesAvailable() const;
-    qint64 bytesToWrite() const
-    {
-        return m_file.bytesToWrite();
-    };
-    bool open(OpenMode mode);
-    QString fileName()
+    QString fileName() const
     {
         return m_file.fileName();
     };
@@ -56,7 +48,18 @@ public:
     {
         m_file.setFileName(name);
     };
+
+    bool isSequential() const;
+
+    bool open(OpenMode mode);
     void close();
+
+    qint64 bytesAvailable() const;
+    qint64 bytesToWrite() const
+    {
+        return m_file.bytesToWrite();
+    };
+
     qint64 writeData(const char *data, qint64 dataSize);
     qint64 readData(char *data, qint64 maxlen);
 
@@ -65,9 +68,9 @@ public:
         m_useProvidedTimeStamp = useProvidedTimeStamp;
     }
 
-    void setNextTimeStamp(quint32 nextTimestamp)
+    void setNextTimeStamp(quint32 providedTimestamp)
     {
-        m_nextTimeStamp = nextTimestamp;
+        m_providedTimeStamp = providedTimestamp;
     }
 
 public slots:
@@ -94,16 +97,19 @@ protected:
     QTimer m_timer;
     QTime m_myTime;
     QFile m_file;
-    qint32 m_lastTimeStamp;
+    qint32 m_previousTimeStamp;
+    qint32 m_nextTimeStamp;
     double m_lastPlayed;
-    QMutex m_mutex;
+    // QMutex wants to be mutable
+    // http://stackoverflow.com/questions/25521570/can-mutex-locking-function-be-marked-as-const
+    mutable QMutex m_mutex;
 
     int m_timeOffset;
     double m_playbackSpeed;
 
 private:
-    quint32 m_nextTimeStamp;
     bool m_useProvidedTimeStamp;
+    qint32 m_providedTimeStamp;
 };
 
 #endif // LOGFILE_H

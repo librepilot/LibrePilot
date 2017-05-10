@@ -608,13 +608,13 @@ void ConfigOPLinkWidget::unbind()
 
     // Clear the OpenLRS settings when needed
     if (isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS)) {
-        oplinkSettingsObj->setVersion((quint16)0);
-        oplinkSettingsObj->setSerialBaudrate(0);
-        oplinkSettingsObj->setRFFrequency(0);
-        oplinkSettingsObj->setRFPower((quint16)0);
-        oplinkSettingsObj->setRFChannelSpacing((quint16)0);
-        oplinkSettingsObj->setModemParams((quint16)0);
-        oplinkSettingsObj->setFlags((quint16)0);
+        QStringList openLRS_settings;
+        openLRS_settings << "Version" << "SerialBaudrate" << "ModemParams" << "Flags" \
+                         << "RFFrequency" << "RFPower" << "RFChannelSpacing" << "HopChannel";
+
+        for (int i = 0; i < openLRS_settings.size(); ++i) {
+            oplinkSettingsObj->getField(openLRS_settings[i])->clear();
+        }
     }
 }
 

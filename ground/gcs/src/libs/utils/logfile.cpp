@@ -34,6 +34,7 @@ LogFile::LogFile(QObject *parent) : QIODevice(parent),
     m_lastPlayed(0),
     m_timeOffset(0),
     m_playbackSpeed(1.0),
+    paused(false),
     m_useProvidedTimeStamp(false),
     m_providedTimeStamp(0)
 {
@@ -203,6 +204,11 @@ void LogFile::timerFired()
     }
 }
 
+bool LogFile::isPlaying() const
+{
+    return m_file.isOpen() && m_timer.isActive();
+}
+
 bool LogFile::startReplay()
 {
     if (!m_file.isOpen() || m_timer.isActive()) {
@@ -226,6 +232,7 @@ bool LogFile::startReplay()
 
     m_timer.setInterval(10);
     m_timer.start();
+    paused = false;
 
     emit replayStarted();
     return true;
@@ -233,23 +240,42 @@ bool LogFile::startReplay()
 
 bool LogFile::stopReplay()
 {
-    if (!m_file.isOpen() || !m_timer.isActive()) {
+    if (!m_file.isOpen() || !(m_timer.isActive() || paused)) {
         return false;
     }
     qDebug() << "LogFile - stopReplay";
     m_timer.stop();
+    paused = false;
 
     emit replayFinished();
     return true;
 }
 
-void LogFile::pauseReplay()
+bool LogFile::pauseReplay()
 {
+    if (!m_timer.isActive()) {
+        return false;
+    }
+    qDebug() << "LogFile - pauseReplay";
     m_timer.stop();
+    paused = true;
+
+    // hack to notify UI that replay paused
+    emit replayStarted();
+    return true;
 }
 
-void LogFile::resumeReplay()
+bool LogFile::resumeReplay()
 {
+    if (m_timer.isActive()) {
+        return false;
+    }
+    qDebug() << "LogFile - resumeReplay";
     m_timeOffset = m_myTime.elapsed();
     m_timer.start();
+    paused = false;
+
+    // hack to notify UI that replay resumed
+    emit replayStarted();
+    return true;
 }

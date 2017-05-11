@@ -28,16 +28,17 @@
 #ifndef LoggingGADGETWIDGET_H_
 #define LoggingGADGETWIDGET_H_
 
-#include <QLabel>
+#include "loggingplugin.h"
+
 #include "extensionsystem/pluginmanager.h"
 #include "scope/scopeplugin.h"
 #include "scope/scopegadgetfactory.h"
 
+#include <QWidget>
 
 class Ui_Logging;
-class LoggingPlugin;
 
-class LoggingGadgetWidget : public QLabel {
+class LoggingGadgetWidget : public QWidget {
     Q_OBJECT
 
 public:
@@ -46,7 +47,7 @@ public:
     void setPlugin(LoggingPlugin *p);
 
 protected slots:
-    void stateChanged(QString status);
+    void stateChanged(LoggingPlugin::State state);
 
 signals:
     void pause();

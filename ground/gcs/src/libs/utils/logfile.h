@@ -51,6 +51,8 @@ public:
 
     bool isSequential() const;
 
+    bool isPlaying() const;
+
     bool open(OpenMode mode);
     void close();
 
@@ -81,8 +83,8 @@ public slots:
     };
     bool startReplay();
     bool stopReplay();
-    void pauseReplay();
-    void resumeReplay();
+    bool pauseReplay();
+    bool resumeReplay();
 
 protected slots:
     void timerFired();
@@ -106,6 +108,7 @@ protected:
 
     int m_timeOffset;
     double m_playbackSpeed;
+    bool paused;
 
 private:
     bool m_useProvidedTimeStamp;

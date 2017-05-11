@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>536</width>
+    <width>439</width>
     <height>122</height>
    </rect>
   </property>
@@ -29,15 +29,15 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
        <property name="sizeConstraint">
         <enum>QLayout::SetNoConstraint</enum>
        </property>
        <item>
-        <widget class="QCommandLinkButton" name="playButton">
+        <widget class="QPushButton" name="playButton">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-           <horstretch>30</horstretch>
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -57,10 +57,10 @@
         </widget>
        </item>
        <item>
-        <widget class="QCommandLinkButton" name="pauseButton">
+        <widget class="QPushButton" name="pauseButton">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-           <horstretch>30</horstretch>
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -71,13 +71,26 @@
           </size>
          </property>
          <property name="text">
-          <string>Pause</string>
+          <string notr="true">Pause</string>
          </property>
          <property name="icon">
           <iconset resource="../notify/res.qrc">
            <normaloff>:/notify/images/stop.png</normaloff>:/notify/images/stop.png</iconset>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item>
         <widget class="QLabel" name="label">
@@ -88,8 +101,14 @@
        </item>
        <item>
         <widget class="QLabel" name="statusLabel">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>Idle</string>
+          <string notr="true">&lt;Status&gt;</string>
          </property>
         </widget>
        </item>

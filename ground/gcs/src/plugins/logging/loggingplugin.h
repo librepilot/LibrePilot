@@ -30,20 +30,23 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/iconnection.h>
 #include <extensionsystem/iplugin.h>
-#include "uavobjectmanager.h"
-#include "gcstelemetrystats.h"
-#include <uavtalk/uavtalk.h>
 #include <utils/logfile.h>
 
 #include <QThread>
 #include <QQueue>
 #include <QReadWriteLock>
 
+class UAVObject;
+class UAVDataObject;
+class UAVTalk;
 class LoggingPlugin;
 class LoggingGadgetFactory;
+
+namespace Core {
+class Command;
+}
 
 /**
  *   Define a connection via the IConnection interface
@@ -86,10 +89,6 @@ public:
 
     bool openFile(QString file);
 
-private slots:
-    void objectUpdated(UAVObject *obj);
-    void transactionCompleted(UAVObject *obj, bool success);
-
 public slots:
     void startLogging();
     void stopLogging();
@@ -97,13 +96,15 @@ public slots:
 protected:
     void run();
 
-    QReadWriteLock lock;
-    LogFile logFile;
-    UAVTalk *uavTalk;
 private slots:
+    void objectUpdated(UAVObject *obj);
+    void transactionCompleted(UAVObject *obj, bool success);
 
 private:
+    QReadWriteLock lock;
     QQueue<UAVDataObject *> queue;
+    LogFile logFile;
+    UAVTalk *uavTalk;
 
     void retrieveSettings();
     void retrieveNextObject();
@@ -116,6 +117,8 @@ class LoggingPlugin : public ExtensionSystem::IPlugin {
     friend class LoggingConnection;
 
 public:
+    enum State { IDLE, LOGGING, REPLAY };
+
     LoggingPlugin();
     ~LoggingPlugin();
 
@@ -123,26 +126,18 @@ public:
     bool initialize(const QStringList & arguments, QString *errorString);
     void shutdown();
 
-    LoggingConnection *getLogConnection()
-    {
-        return logConnection;
-    };
     LogFile *getLogfile()
     {
         return logConnection->getLogfile();
     }
-    void setLogMenuTitle(QString str);
+
+    State getState()
+    {
+        return state;
+    }
 
 signals:
-    void stateChanged(QString);
-
-protected:
-    enum { IDLE, LOGGING, REPLAY } state;
-
-    LoggingThread *loggingThread;
-
-    // These are used for replay, logging in its own thread
-    LoggingConnection *logConnection;
+    void stateChanged(State);
 
 private slots:
     void toggleLogging();
@@ -154,8 +149,11 @@ private slots:
     void replayStopped();
 
 private:
-    LoggingGadgetFactory *mf;
-    Core::Command *cmd;
+    Core::Command *loggingCommand;
+    State state;
+    // These are used for replay, logging in its own thread
+    LoggingThread *loggingThread;
+    LoggingConnection *logConnection;
 };
 #endif /* LoggingPLUGIN_H_ */
 /**

@@ -25,17 +25,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "logginggadgetwidget.h"
+
 #include "ui_logging.h"
 
-#include <QDebug>
-#include <QStringList>
-#include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
 #include <loggingplugin.h>
 
-LoggingGadgetWidget::LoggingGadgetWidget(QWidget *parent) : QLabel(parent)
+#include <QWidget>
+#include <QPushButton>
+
+LoggingGadgetWidget::LoggingGadgetWidget(QWidget *parent) : QWidget(parent), loggingPlugin(NULL)
 {
     m_logging = new Ui_Logging();
     m_logging->setupUi(this);
@@ -52,20 +50,42 @@ LoggingGadgetWidget::~LoggingGadgetWidget()
 void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
 {
     loggingPlugin = p;
-    connect(p, SIGNAL(stateChanged(QString)), this, SLOT(stateChanged(QString)));
-    connect(m_logging->playButton, SIGNAL(clicked()), p->getLogfile(), SLOT(resumeReplay()));
-    connect(m_logging->playButton, SIGNAL(clicked()), scpPlugin, SLOT(startPlotting()));
-    connect(m_logging->pauseButton, SIGNAL(clicked()), p->getLogfile(), SLOT(pauseReplay()));
-    connect(m_logging->pauseButton, SIGNAL(clicked()), scpPlugin, SLOT(stopPlotting()));
-    connect(m_logging->playbackSpeed, SIGNAL(valueChanged(double)), p->getLogfile(), SLOT(setReplaySpeed(double)));
-    void pauseReplay();
-    void resumeReplay();
+
+    connect(m_logging->playButton, &QPushButton::clicked, scpPlugin, &ScopeGadgetFactory::startPlotting);
+    connect(m_logging->pauseButton, &QPushButton::clicked, scpPlugin, &ScopeGadgetFactory::stopPlotting);
+
+    LogFile *logFile = loggingPlugin->getLogfile();
+    connect(m_logging->playButton, &QPushButton::clicked, logFile, &LogFile::resumeReplay);
+    connect(m_logging->pauseButton, &QPushButton::clicked, logFile, &LogFile::pauseReplay);
+    connect(m_logging->playbackSpeed, static_cast<void(QDoubleSpinBox::*) (double)>(&QDoubleSpinBox::valueChanged), logFile, &LogFile::setReplaySpeed);
+
+    connect(loggingPlugin, &LoggingPlugin::stateChanged, this, &LoggingGadgetWidget::stateChanged);
+
+    stateChanged(loggingPlugin->getState());
 }
 
-
-void LoggingGadgetWidget::stateChanged(QString status)
+void LoggingGadgetWidget::stateChanged(LoggingPlugin::State state)
 {
+    QString status;
+    bool enabled = false;
+
+    switch (state) {
+    case LoggingPlugin::IDLE:
+        status  = tr("Idle");
+        break;
+    case LoggingPlugin::LOGGING:
+        status  = tr("Logging");
+        break;
+    case LoggingPlugin::REPLAY:
+        status  = tr("Replaying");
+        enabled = true;
+        break;
+    }
     m_logging->statusLabel->setText(status);
+
+    bool playing = loggingPlugin->getLogfile()->isPlaying();
+    m_logging->playButton->setEnabled(enabled && !playing);
+    m_logging->pauseButton->setEnabled(enabled && playing);
 }
 
 /**

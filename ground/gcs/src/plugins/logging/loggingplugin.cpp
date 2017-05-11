@@ -29,7 +29,14 @@
  */
 
 #include "loggingplugin.h"
+
+#include "gcstelemetrystats.h"
+
 #include "logginggadgetfactory.h"
+#include "uavobjectmanager.h"
+#include <uavtalk/uavtalk.h>
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -41,11 +48,7 @@
 #include <QList>
 #include <QErrorMessage>
 #include <QWriteLocker>
-
-#include <extensionsystem/pluginmanager.h>
 #include <QKeySequence>
-#include "uavobjectmanager.h"
-
 
 LoggingConnection::LoggingConnection() :
     m_deviceOpened(false), logFile()
@@ -159,7 +162,6 @@ void LoggingThread::objectUpdated(UAVObject *obj)
 
 void LoggingThread::run()
 {
-    qDebug() << "LoggingThread - run";
     startLogging();
 }
 
@@ -170,6 +172,7 @@ void LoggingThread::run()
 void LoggingThread::startLogging()
 {
     qDebug() << "LoggingThread - start logging";
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
 
@@ -181,7 +184,7 @@ void LoggingThread::startLogging()
 
     for (i = list.constBegin(); i != list.constEnd(); ++i) {
         for (j = (*i).constBegin(); j != (*i).constEnd(); ++j) {
-            connect(*j, SIGNAL(objectUpdated(UAVObject *)), (LoggingThread *)this, SLOT(objectUpdated(UAVObject *)));
+            connect(*j, &UAVObject::objectUpdated, this, &LoggingThread::objectUpdated);
             objects++;
         }
     }
@@ -199,12 +202,14 @@ void LoggingThread::startLogging()
 }
 
 /**
- * Pass this command to the correct thread then close the file
+ * Disconnect signals from all the objects, close the log file and stop
+ * the event loop
  */
 void LoggingThread::stopLogging()
 {
-    qDebug() << "LoggingThread - stop logging";
     QWriteLocker locker(&lock);
+
+    qDebug() << "LoggingThread - stop logging";
 
     // Disconnect all objects we registered with:
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
@@ -217,7 +222,7 @@ void LoggingThread::stopLogging()
 
     for (i = list.constBegin(); i != list.constEnd(); ++i) {
         for (j = (*i).constBegin(); j != (*i).constEnd(); ++j) {
-            disconnect(*j, SIGNAL(objectUpdated(UAVObject *)), (LoggingThread *)this, SLOT(objectUpdated(UAVObject *)));
+            disconnect(*j, &UAVObject::objectUpdated, this, &LoggingThread::objectUpdated);
         }
     }
 
@@ -248,8 +253,7 @@ void LoggingThread::retrieveSettings()
         }
     }
     // Start retrieving
-    qDebug() << QString("LoggingThread - retrieve settings objects from the autopilot (%1 objects)")
-        .arg(queue.length());
+    qDebug() << "LoggingThread - retrieving" << queue.length() << "objects";
     retrieveNextObject();
 }
 
@@ -266,7 +270,7 @@ void LoggingThread::retrieveNextObject()
     // Get next object from the queue
     UAVObject *obj = queue.dequeue();
     // Connect to object
-    connect(obj, SIGNAL(transactionCompleted(UAVObject *, bool)), this, SLOT(transactionCompleted(UAVObject *, bool)));
+    connect(obj, &UAVObject::transactionCompleted, this, &LoggingThread::transactionCompleted);
     // Request update
     obj->requestUpdate();
 }
@@ -294,11 +298,10 @@ void LoggingThread::transactionCompleted(UAVObject *obj, bool success)
 }
 
 LoggingPlugin::LoggingPlugin() :
+    loggingCommand(NULL),
     state(IDLE),
     loggingThread(NULL),
-    logConnection(new LoggingConnection()),
-    mf(NULL),
-    cmd(NULL)
+    logConnection(new LoggingConnection())
 {}
 
 LoggingPlugin::~LoggingPlugin()
@@ -319,26 +322,28 @@ bool LoggingPlugin::initialize(const QStringList & args, QString *errMsg)
     Core::ActionManager *am   = Core::ICore::instance()->actionManager();
     Core::ActionContainer *ac = am->actionContainer(Core::Constants::M_TOOLS);
 
-    // Command to start logging
-    cmd = am->registerAction(new QAction(this),
-                             "LoggingPlugin.Logging",
-                             QList<int>() <<
-                             Core::Constants::C_GLOBAL_ID);
-    cmd->setDefaultKeySequence(QKeySequence("Ctrl+L"));
-    cmd->action()->setText(tr("Start logging..."));
+    // Command to start/stop logging
+    loggingCommand = am->registerAction(new QAction(this),
+                                        "LoggingPlugin.Logging",
+                                        QList<int>() <<
+                                        Core::Constants::C_GLOBAL_ID);
+    loggingCommand->setDefaultKeySequence(QKeySequence("Ctrl+L"));
 
     ac->menu()->addSeparator();
     ac->appendGroup("Logging");
-    ac->addAction(cmd, "Logging");
+    ac->addAction(loggingCommand, "Logging");
 
-    connect(cmd->action(), SIGNAL(triggered(bool)), this, SLOT(toggleLogging()));
+    connect(loggingCommand->action(), &QAction::triggered, this, &LoggingPlugin::toggleLogging);
 
-    mf = new LoggingGadgetFactory(this);
+    LoggingGadgetFactory *mf = new LoggingGadgetFactory(this);
     addAutoReleasedObject(mf);
 
     // Map signal from end of replay to replay stopped
-    connect(getLogfile(), SIGNAL(replayFinished()), this, SLOT(replayStopped()));
-    connect(getLogfile(), SIGNAL(replayStarted()), this, SLOT(replayStarted()));
+    connect(getLogfile(), &LogFile::replayFinished, this, &LoggingPlugin::replayStopped);
+    connect(getLogfile(), &LogFile::replayStarted, this, &LoggingPlugin::replayStarted);
+
+    // update state and command
+    loggingStopped();
 
     return true;
 }
@@ -369,7 +374,6 @@ void LoggingPlugin::toggleLogging()
  */
 void LoggingPlugin::startLogging(QString file)
 {
-    qDebug() << "LoggingPlugin - start logging to " << file;
     // needed ?
     stopLogging();
     // Start logging thread
@@ -396,7 +400,6 @@ void LoggingPlugin::stopLogging()
         return;
     }
 
-    qDebug() << "LoggingPlugin - stop logging";
     loggingThread->stopLogging();
 
     delete loggingThread;
@@ -405,9 +408,11 @@ void LoggingPlugin::stopLogging()
 
 void LoggingPlugin::loggingStarted()
 {
-    state = LOGGING;
-    cmd->action()->setText(tr("Stop logging"));
-    emit stateChanged("LOGGING");
+    loggingCommand->action()->setText(tr("Stop logging"));
+    if (state == IDLE) {
+        state = LOGGING;
+        emit stateChanged(state);
+    }
 }
 
 /**
@@ -416,20 +421,11 @@ void LoggingPlugin::loggingStarted()
  */
 void LoggingPlugin::loggingStopped()
 {
+    loggingCommand->action()->setText(tr("Start logging..."));
     if (state == LOGGING) {
         state = IDLE;
-        cmd->action()->setText(tr("Start logging..."));
-        emit stateChanged("IDLE");
+        emit stateChanged(state);
     }
-}
-
-/**
- * Received the replay stopped signal from the LogFile
- */
-void LoggingPlugin::replayStopped()
-{
-    state = IDLE;
-    emit stateChanged("IDLE");
 }
 
 /**
@@ -437,10 +433,25 @@ void LoggingPlugin::replayStopped()
  */
 void LoggingPlugin::replayStarted()
 {
+    if (state == LOGGING) {
+        stopLogging();
+    }
+    loggingCommand->action()->setEnabled(false);
     state = REPLAY;
-    emit stateChanged("REPLAY");
+    emit stateChanged(state);
 }
 
+/**
+ * Received the replay stopped signal from the LogFile
+ */
+void LoggingPlugin::replayStopped()
+{
+    loggingCommand->action()->setEnabled(true);
+    if (state == REPLAY) {
+        state = IDLE;
+        emit stateChanged(state);
+    }
+}
 
 void LoggingPlugin::extensionsInitialized()
 {

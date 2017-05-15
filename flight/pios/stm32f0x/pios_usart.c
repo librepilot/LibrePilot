@@ -38,7 +38,9 @@
 #define PIOS_UART_TX_BUFFER 10
 /* Provide a COM driver */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud);
-static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode);
+#ifndef BOOTLOADER
+static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_Parity parity, enum PIOS_COM_StopBits stop_bits, uint32_t baud_rate);
+#endif
 static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback rx_in_cb, uint32_t context);
 static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback tx_out_cb, uint32_t context);
 static void PIOS_USART_TxStart(uint32_t usart_id, uint16_t tx_bytes_avail);
@@ -46,7 +48,9 @@ static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 
 const struct pios_com_driver pios_usart_com_driver = {
     .set_baud   = PIOS_USART_ChangeBaud,
+#ifndef BOOTLOADER
     .set_config = PIOS_USART_ChangeConfig,
+#endif
     .tx_start   = PIOS_USART_TxStart,
     .rx_start   = PIOS_USART_RxStart,
     .bind_tx_cb = PIOS_USART_RegisterTxCallback,
@@ -71,6 +75,7 @@ struct pios_usart_dev {
     uint8_t  tx_buffer[PIOS_UART_TX_BUFFER];
     uint8_t  tx_len;
     uint8_t  tx_pos;
+    uint8_t  irq_channel;
 };
 
 static struct pios_usart_dev *PIOS_USART_validate(uint32_t usart_id)
@@ -138,12 +143,26 @@ static void PIOS_USART_2_irq_handler(void)
 {
     PIOS_USART_generic_irq_handler(PIOS_USART_2_id);
 }
-
+#if defined(STM32F072)
 static uint32_t PIOS_USART_3_id;
 void USART3_IRQHandler(void) __attribute__((alias("PIOS_USART_3_irq_handler")));
 static void PIOS_USART_3_irq_handler(void)
 {
     PIOS_USART_generic_irq_handler(PIOS_USART_3_id);
+}
+#endif
+
+static int32_t PIOS_USART_SetIrqPrio(struct pios_usart_dev *usart_dev, uint8_t irq_prio)
+{
+    NVIC_InitTypeDef init = {
+        .NVIC_IRQChannel    = usart_dev->irq_channel,
+        .NVIC_IRQChannelPriority = irq_prio,
+        .NVIC_IRQChannelCmd = ENABLE,
+    };
+
+    NVIC_Init(&init);
+
+    return 0;
 }
 
 /**
@@ -162,50 +181,78 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     }
 
     /* Bind the configuration to the device instance */
-    usart_dev->cfg  = cfg;
+    usart_dev->cfg = cfg;
 
-    /* Copy the comm parameter structure */
-    usart_dev->init = cfg->init;
+    /* Initialize the comm parameter structure */
+    USART_StructInit(&usart_dev->init); // 9600 8n1
 
-    /* Enable the USART Pins Software Remapping */
-    if (usart_dev->cfg->remap) {
-        GPIO_PinAFConfig(cfg->rx.gpio, __builtin_ctz(cfg->rx.init.GPIO_Pin), cfg->remap);
-        GPIO_PinAFConfig(cfg->tx.gpio, __builtin_ctz(cfg->tx.init.GPIO_Pin), cfg->remap);
-    }
-
-    /* Initialize the USART Rx and Tx pins */
-    GPIO_Init(cfg->rx.gpio, (GPIO_InitTypeDef *)&cfg->rx.init);
-    GPIO_Init(cfg->tx.gpio, (GPIO_InitTypeDef *)&cfg->tx.init);
+    /* We will set modes later, depending on installed callbacks */
+    usart_dev->init.USART_Mode = 0;
 
     /* Enable USART clock */
     switch ((uint32_t)cfg->regs) {
     case (uint32_t)USART1:
         RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
         PIOS_USART_1_id = (uint32_t)usart_dev;
+        usart_dev->irq_channel = USART1_IRQn;
         break;
     case (uint32_t)USART2:
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
         PIOS_USART_2_id = (uint32_t)usart_dev;
+        usart_dev->irq_channel = USART2_IRQn;
         break;
+#if defined(STM32F072)
     case (uint32_t)USART3:
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
         PIOS_USART_3_id = (uint32_t)usart_dev;
+        usart_dev->irq_channel = USART3_4_IRQn;
         break;
+#endif
     }
 
-    /* Configure the USART */
-    USART_Init(cfg->regs, (USART_InitTypeDef *)&usart_dev->init);
     *usart_id = (uint32_t)usart_dev;
 
-    NVIC_Init((NVIC_InitTypeDef *)&cfg->irq.init);
-    USART_ITConfig(cfg->regs, USART_IT_RXNE, ENABLE);
-    USART_ITConfig(cfg->regs, USART_IT_TXE, ENABLE);
-    USART_ITConfig(cfg->regs, USART_IT_ORE, DISABLE);
-    USART_ITConfig(cfg->regs, USART_IT_TC, DISABLE);
-    /* Enable USART */
-    USART_Cmd(cfg->regs, ENABLE);
+    PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
+
+    /* Disable overrun detection */
+    USART_OverrunDetectionConfig(usart_dev->cfg->regs, USART_OVRDetection_Disable);
 
     return 0;
+}
+
+static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
+{
+    /* Configure RX GPIO */
+    if ((usart_dev->init.USART_Mode & USART_Mode_Rx) && (usart_dev->cfg->rx.gpio)) {
+        if (usart_dev->cfg->remap) {
+            GPIO_PinAFConfig(usart_dev->cfg->rx.gpio,
+                             __builtin_ctz(usart_dev->cfg->rx.init.GPIO_Pin),
+                             usart_dev->cfg->remap);
+        }
+
+        GPIO_Init(usart_dev->cfg->rx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->rx.init);
+
+        USART_ITConfig(usart_dev->cfg->regs, USART_IT_RXNE, ENABLE);
+    }
+
+    /* Configure TX GPIO */
+    if ((usart_dev->init.USART_Mode & USART_Mode_Tx) && usart_dev->cfg->tx.gpio) {
+        if (usart_dev->cfg->remap) {
+            GPIO_PinAFConfig(usart_dev->cfg->tx.gpio,
+                             __builtin_ctz(usart_dev->cfg->tx.init.GPIO_Pin),
+                             usart_dev->cfg->remap);
+        }
+
+        GPIO_Init(usart_dev->cfg->tx.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->tx.init);
+    }
+
+    /* Write new configuration */
+    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+
+    /*
+     * Re enable USART.
+     */
+    USART_Cmd(usart_dev->cfg->regs, ENABLE);
 }
 
 static void PIOS_USART_RxStart(uint32_t usart_id, __attribute__((unused)) uint16_t rx_bytes_avail)
@@ -233,12 +280,9 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
     /* Use our working copy of the usart init structure */
     usart_dev->init.USART_BaudRate = baud;
 
-    /* Write back the modified configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
-
-    USART_Cmd(usart_dev->cfg->regs, ENABLE);
+    PIOS_USART_Setup(usart_dev);
 }
-
+#ifndef BOOTLOADER
 /**
  * Changes configuration of the USART peripheral without re-initialising.
  * \param[in] usart_id USART name (GPS, TELEM, AUX)
@@ -251,10 +295,9 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
  */
 static void PIOS_USART_ChangeConfig(uint32_t usart_id,
                                     enum PIOS_COM_Word_Length word_len,
-                                    enum PIOS_COM_StopBits stop_bits,
                                     enum PIOS_COM_Parity parity,
-                                    uint32_t baud_rate,
-                                    enum PIOS_COM_Mode mode)
+                                    enum PIOS_COM_StopBits stop_bits,
+                                    uint32_t baud_rate)
 {
     struct pios_usart_dev *usart_dev = PIOS_USART_validate(usart_id);
 
@@ -301,28 +344,9 @@ static void PIOS_USART_ChangeConfig(uint32_t usart_id,
         usart_dev->init.USART_BaudRate = baud_rate;
     }
 
-    switch (mode) {
-    case PIOS_COM_Mode_Rx:
-        usart_dev->init.USART_Mode = USART_Mode_Rx;
-        break;
-    case PIOS_COM_Mode_Tx:
-        usart_dev->init.USART_Mode = USART_Mode_Tx;
-        break;
-    case PIOS_COM_Mode_RxTx:
-        usart_dev->init.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-        break;
-    default:
-        break;
-    }
-
-    /* Write back the modified configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
-
-    /*
-     * Re enable USART.
-     */
-    USART_Cmd(usart_dev->cfg->regs, ENABLE);
+    PIOS_USART_Setup(usart_dev);
 }
+#endif /* BOOTLOADER */
 
 static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback rx_in_cb, uint32_t context)
 {
@@ -332,8 +356,12 @@ static void PIOS_USART_RegisterRxCallback(uint32_t usart_id, pios_com_callback r
      * Order is important in these assignments since ISR uses _cb
      * field to determine if it's ok to dereference _cb and _context
      */
-    usart_dev->rx_in_context = context;
+    usart_dev->rx_in_context    = context;
     usart_dev->rx_in_cb = rx_in_cb;
+
+    usart_dev->init.USART_Mode |= USART_Mode_Rx;
+
+    PIOS_USART_Setup(usart_dev);
 }
 
 static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback tx_out_cb, uint32_t context)
@@ -344,8 +372,12 @@ static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback t
      * Order is important in these assignments since ISR uses _cb
      * field to determine if it's ok to dereference _cb and _context
      */
-    usart_dev->tx_out_context = context;
+    usart_dev->tx_out_context   = context;
     usart_dev->tx_out_cb = tx_out_cb;
+
+    usart_dev->init.USART_Mode |= USART_Mode_Tx;
+
+    PIOS_USART_Setup(usart_dev);
 }
 
 static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
@@ -358,8 +390,8 @@ static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
     /* Check if RXNE flag is set */
     bool rx_need_yield = false;
 
-    if (USART_GetITStatus(usart_dev->cfg->regs, USART_IT_RXNE) != RESET) {
-        uint8_t byte = USART_ReceiveData(usart_dev->cfg->regs) & 0x00FF;
+    if (usart_dev->cfg->regs->ISR & USART_ISR_RXNE) {
+        uint8_t byte = usart_dev->cfg->regs->RDR & 0xFF;
         if (usart_dev->rx_in_cb) {
             uint16_t rc;
             rc = (usart_dev->rx_in_cb)(usart_dev->rx_in_context, &byte, 1, NULL, &rx_need_yield);
@@ -372,7 +404,7 @@ static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
 
     /* Check if TXE flag is set */
     bool tx_need_yield = false;
-    if (USART_GetITStatus(usart_dev->cfg->regs, USART_IT_TXE) != RESET) {
+    if (usart_dev->cfg->regs->ISR & USART_ISR_TXE) {
         if (usart_dev->tx_out_cb) {
             if (!usart_dev->tx_len) {
                 usart_dev->tx_len = (usart_dev->tx_out_cb)(usart_dev->tx_out_context, usart_dev->tx_buffer, PIOS_UART_TX_BUFFER, NULL, &tx_need_yield);
@@ -380,19 +412,18 @@ static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
             }
             if (usart_dev->tx_len > 0) {
                 /* Send the byte we've been given */
-                USART_SendData(usart_dev->cfg->regs, usart_dev->tx_buffer[usart_dev->tx_pos++]);
+                usart_dev->cfg->regs->TDR = usart_dev->tx_buffer[usart_dev->tx_pos++];
                 usart_dev->tx_len--;
             } else {
                 /* No bytes to send, disable TXE interrupt */
-                USART_ITConfig(usart_dev->cfg->regs, USART_IT_TXE, DISABLE);
+                usart_dev->cfg->regs->CR1 &= ~(USART_CR1_TXEIE);
             }
         } else {
             /* No bytes to send, disable TXE interrupt */
-            USART_ITConfig(usart_dev->cfg->regs, USART_IT_TXE, DISABLE);
+            usart_dev->cfg->regs->CR1 &= ~(USART_CR1_TXEIE);
         }
     }
-    USART_ClearITPendingBit(usart_dev->cfg->regs, USART_IT_ORE);
-    USART_ClearITPendingBit(usart_dev->cfg->regs, USART_IT_TC);
+    usart_dev->cfg->regs->ICR = USART_ICR_ORECF | USART_ICR_TCCF;
 #if defined(PIOS_INCLUDE_FREERTOS)
     if (rx_need_yield || tx_need_yield) {
         vPortYield();

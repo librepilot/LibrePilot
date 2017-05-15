@@ -89,6 +89,7 @@ SRC += $(PIOSCOMMON)/pios_wavplay.c
 SRC += $(PIOSCOMMON)/pios_rfm22b.c
 SRC += $(PIOSCOMMON)/pios_rfm22b_com.c
 SRC += $(PIOSCOMMON)/pios_rcvr.c
+SRC += $(PIOSCOMMON)/pios_dsm.c
 SRC += $(PIOSCOMMON)/pios_sbus.c
 SRC += $(PIOSCOMMON)/pios_hott.c
 SRC += $(PIOSCOMMON)/pios_srxl.c
@@ -99,6 +100,8 @@ SRC += $(PIOSCOMMON)/pios_sensors.c
 SRC += $(PIOSCOMMON)/pios_servo.c
 SRC += $(PIOSCOMMON)/pios_openlrs.c
 SRC += $(PIOSCOMMON)/pios_openlrs_rcvr.c
+SRC += $(PIOSCOMMON)/pios_board_io.c
+SRC += $(PIOSCOMMON)/pios_board_sensors.c
 
 ## Misc library functions
 SRC += $(FLIGHTLIB)/sanitycheck.c

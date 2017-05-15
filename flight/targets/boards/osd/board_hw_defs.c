@@ -233,24 +233,7 @@ void PIOS_SPI_sdcard_irq_handler(void)
 static const struct pios_usart_cfg pios_usart_gps_cfg = {
     .regs  = USART1,
     .remap = GPIO_AF_USART1,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             =
-            USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART1_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
+    .rx    = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -260,7 +243,7 @@ static const struct pios_usart_cfg pios_usart_gps_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_9,
@@ -280,24 +263,7 @@ static const struct pios_usart_cfg pios_usart_gps_cfg = {
 static const struct pios_usart_cfg pios_usart_aux_cfg = {
     .regs  = USART2,
     .remap = GPIO_AF_USART2,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             =
-            USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = USART2_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
+    .rx    = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_3,
@@ -307,7 +273,7 @@ static const struct pios_usart_cfg pios_usart_aux_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_2,
@@ -328,24 +294,7 @@ static const struct pios_usart_cfg pios_usart_aux_cfg = {
 static const struct pios_usart_cfg pios_usart_telem_main_cfg = {
     .regs  = UART4,
     .remap = GPIO_AF_UART4,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl             =
-            USART_HardwareFlowControl_None,
-        .USART_Mode                            = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                                       = {
-        .init                                  = {
-            .NVIC_IRQChannel    = UART4_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelSubPriority        = 0,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                                        = {
+    .rx    = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_1,
@@ -355,7 +304,7 @@ static const struct pios_usart_cfg pios_usart_telem_main_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
-    .tx                                        = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_0,
@@ -509,41 +458,12 @@ static const struct pios_usb_cfg pios_usb_main_cfg = {
     .vsense_active_low                         = false
 };
 
-#include "pios_usb_board_data_priv.h"
-#include "pios_usb_desc_hid_cdc_priv.h"
-#include "pios_usb_desc_hid_only_priv.h"
-#include "pios_usbhook.h"
-
+const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_usb_main_cfg;
+}
 #endif /* PIOS_INCLUDE_USB */
 
-#if defined(PIOS_INCLUDE_COM_MSG)
-
-#include <pios_com_msg_priv.h>
-
-#endif /* PIOS_INCLUDE_COM_MSG */
-
-#if defined(PIOS_INCLUDE_USB_HID)
-#include <pios_usb_hid_priv.h>
-
-const struct pios_usb_hid_cfg pios_usb_hid_cfg = {
-    .data_if    = 2,
-    .data_rx_ep = 1,
-    .data_tx_ep = 1,
-};
-#endif /* PIOS_INCLUDE_USB_HID */
-
-#if defined(PIOS_INCLUDE_USB_CDC)
-#include <pios_usb_cdc_priv.h>
-
-const struct pios_usb_cdc_cfg pios_usb_cdc_cfg = {
-    .ctrl_if    = 0,
-    .ctrl_tx_ep = 2,
-
-    .data_if    = 1,
-    .data_rx_ep = 3,
-    .data_tx_ep = 3,
-};
-#endif /* PIOS_INCLUDE_USB_CDC */
 
 #if defined(PIOS_INCLUDE_VIDEO)
 

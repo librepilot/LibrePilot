@@ -7,7 +7,7 @@
  * @{
  *
  * @file       pios_dsm.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2011.
+ * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Code bind and read Spektrum/JR DSMx satellite receiver serial stream
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -36,6 +36,10 @@
 
 // *** UNTESTED CODE ***
 #undef DSM_LINK_QUALITY
+
+#ifndef PIOS_INCLUDE_RTC
+#error PIOS_INCLUDE_RTC must be used to use DSM
+#endif
 
 /* Forward Declarations */
 static int32_t PIOS_DSM_Get(uint32_t rcvr_id, uint8_t channel);
@@ -74,9 +78,8 @@ struct pios_dsm_state {
 #define DSM_FL_WEIGHTED_AVE 18
 
 struct pios_dsm_dev {
-    enum pios_dsm_dev_magic   magic;
-    const struct pios_dsm_cfg *cfg;
-    struct pios_dsm_state     state;
+    enum pios_dsm_dev_magic magic;
+    struct pios_dsm_state   state;
 };
 
 /* Allocate DSM device descriptor */
@@ -118,39 +121,46 @@ static bool PIOS_DSM_Validate(struct pios_dsm_dev *dsm_dev)
 }
 
 /* Try to bind DSMx satellite using specified number of pulses */
-static void PIOS_DSM_Bind(struct pios_dsm_dev *dsm_dev, uint8_t bind)
+static void PIOS_DSM_Bind(struct stm32_gpio *rxpin, uint8_t bind)
 {
-    const struct pios_dsm_cfg *cfg = dsm_dev->cfg;
+    GPIO_InitTypeDef bindInit = {
+        .GPIO_Pin   = rxpin->init.GPIO_Pin,
+        .GPIO_Speed = GPIO_Speed_2MHz,
+#ifdef STM32F10X
+        .GPIO_Mode  = GPIO_Mode_Out_PP,
+#else
+        .GPIO_Mode  = GPIO_Mode_OUT,
+        .GPIO_OType = GPIO_OType_PP,
+        .GPIO_PuPd  = GPIO_PuPd_NOPULL
+#endif
+    };
 
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_Init(rxpin->gpio, &bindInit);
 
-    GPIO_InitStructure.GPIO_Pin   = cfg->bind.init.GPIO_Pin;
-    GPIO_InitStructure.GPIO_Speed = cfg->bind.init.GPIO_Speed;
-    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IPU;
+    /* RX line, set high */
+    GPIO_SetBits(rxpin->gpio, rxpin->init.GPIO_Pin);
+
+    /* Wait until the bind window opens. */
+    while (PIOS_DELAY_GetuS() < DSM_BIND_MIN_DELAY_US) {
+        ;
+    }
 
     /* just to limit bind pulses */
     if (bind > 10) {
         bind = 10;
     }
 
-    GPIO_Init(cfg->bind.gpio, &cfg->bind.init);
-
-    /* RX line, set high */
-    GPIO_SetBits(cfg->bind.gpio, cfg->bind.init.GPIO_Pin);
-
-    /* on CC works up to 140ms, guess bind window is around 20-140ms after power up */
-    PIOS_DELAY_WaitmS(20);
-
     for (int i = 0; i < bind; i++) {
         /* RX line, drive low for 120us */
-        GPIO_ResetBits(cfg->bind.gpio, cfg->bind.init.GPIO_Pin);
+        GPIO_ResetBits(rxpin->gpio, rxpin->init.GPIO_Pin);
         PIOS_DELAY_WaituS(120);
         /* RX line, drive high for 120us */
-        GPIO_SetBits(cfg->bind.gpio, cfg->bind.init.GPIO_Pin);
+        GPIO_SetBits(rxpin->gpio, rxpin->init.GPIO_Pin);
         PIOS_DELAY_WaituS(120);
     }
+
     /* RX line, set input and wait for data */
-    GPIO_Init(cfg->bind.gpio, &GPIO_InitStructure);
+    GPIO_Init(rxpin->gpio, (GPIO_InitTypeDef *)&rxpin->init);
 }
 
 /* Reset channels in case of lost signal or explicit failsafe receiver flag */
@@ -288,13 +298,11 @@ static void PIOS_DSM_UpdateState(struct pios_dsm_dev *dsm_dev, uint8_t byte)
 
 /* Initialise DSM receiver interface */
 int32_t PIOS_DSM_Init(uint32_t *dsm_id,
-                      const struct pios_dsm_cfg *cfg,
                       const struct pios_com_driver *driver,
                       uint32_t lower_id,
                       uint8_t bind)
 {
     PIOS_DEBUG_Assert(dsm_id);
-    PIOS_DEBUG_Assert(cfg);
     PIOS_DEBUG_Assert(driver);
 
     struct pios_dsm_dev *dsm_dev;
@@ -304,20 +312,34 @@ int32_t PIOS_DSM_Init(uint32_t *dsm_id,
         return -1;
     }
 
-    /* Bind the configuration to the device instance */
-    dsm_dev->cfg = cfg;
-
     /* Bind the receiver if requested */
     if (bind) {
-        PIOS_DSM_Bind(dsm_dev, bind);
+        struct stm32_gpio rxpin;
+
+        PIOS_DEBUG_Assert(driver->ioctl);
+
+        if ((driver->ioctl)(lower_id, PIOS_IOCTL_USART_GET_DSMBIND, &rxpin) == 0) {
+            PIOS_DSM_Bind(&rxpin, bind);
+        }
     }
 
     PIOS_DSM_ResetState(dsm_dev);
 
     *dsm_id = (uint32_t)dsm_dev;
 
+
+    /* Set comm driver parameters */
+    PIOS_DEBUG_Assert(driver->set_config);
+    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_No, PIOS_COM_StopBits_1, 115200);
+
+    /* Set irq priority */
+    if (driver->ioctl) {
+        uint8_t irq_prio = PIOS_IRQ_PRIO_HIGH;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_IRQ_PRIO, &irq_prio);
+    }
+
     /* Set comm driver callback */
-    (driver->bind_rx_cb)(lower_id, PIOS_DSM_RxInCallback, *dsm_id);
+    driver->bind_rx_cb(lower_id, PIOS_DSM_RxInCallback, *dsm_id);
 
     if (!PIOS_RTC_RegisterTickCallback(PIOS_DSM_Supervisor, *dsm_id)) {
         PIOS_DEBUG_Assert(0);

@@ -307,8 +307,18 @@ int32_t PIOS_EXBUS_Init(uint32_t *exbus_id,
 
     *exbus_id = (uint32_t)exbus_dev;
 
+    /* Set comm driver parameters */
+    PIOS_DEBUG_Assert(driver->set_config);
+    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_No, PIOS_COM_StopBits_1, 125000);
+
+    /* Set irq priority */
+    if (driver->ioctl) {
+        uint8_t irq_prio = PIOS_IRQ_PRIO_HIGH;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_IRQ_PRIO, &irq_prio);
+    }
+
     /* Set comm driver callback */
-    (driver->bind_rx_cb)(lower_id, PIOS_EXBUS_RxInCallback, *exbus_id);
+    driver->bind_rx_cb(lower_id, PIOS_EXBUS_RxInCallback, *exbus_id);
 
     if (!PIOS_RTC_RegisterTickCallback(PIOS_EXBUS_Supervisor, *exbus_id)) {
         PIOS_DEBUG_Assert(0);

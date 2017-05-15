@@ -25,7 +25,7 @@
 
 #include <pios.h>
 #include <pios_board_info.h>
-
+#include <pios_board_io.h>
 /*
  * Pull in the board-specific static HW definitions.
  * Including .c files is a bit ugly but this allows all of
@@ -39,6 +39,7 @@
 uint32_t pios_com_telem_usb_id;
 
 static bool board_init_complete = false;
+
 void PIOS_Board_Init()
 {
     if (board_init_complete) {
@@ -68,7 +69,7 @@ void PIOS_Board_Init()
 
 #if defined(PIOS_INCLUDE_USB_HID) && defined(PIOS_INCLUDE_COM_MSG)
     uint32_t pios_usb_hid_id;
-    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_cfg, pios_usb_id)) {
+    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_only_cfg, pios_usb_id)) {
         PIOS_Assert(0);
     }
     if (PIOS_COM_MSG_Init(&pios_com_telem_usb_id, &pios_usb_hid_com_driver, pios_usb_hid_id)) {

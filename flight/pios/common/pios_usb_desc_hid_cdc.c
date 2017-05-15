@@ -317,6 +317,27 @@ static const struct usb_config_hid_cdc config_hid_cdc = {
     },
 };
 
+const struct pios_usb_cdc_cfg pios_usb_cdc_cfg = {
+    .ctrl_if    = 0,
+    .ctrl_tx_ep = 2,
+
+    .data_if    = 1,
+    .data_rx_ep = 3,
+    .data_tx_ep = 3,
+};
+
+const struct pios_usb_hid_cfg pios_usb_hid_cfg = {
+    .data_if    = 2,
+    .data_rx_ep = 1,
+    .data_tx_ep = 1,
+};
+#ifdef PIOS_INCLUDE_USB_RCTX
+const struct pios_usb_rctx_cfg pios_usb_rctx_cfg = {
+    .data_if    = 2,
+    .data_tx_ep = 1,
+};
+#endif
+
 int32_t PIOS_USB_DESC_HID_CDC_Init(void)
 {
     PIOS_USBHOOK_RegisterConfig(1, (uint8_t *)&config_hid_cdc, sizeof(config_hid_cdc));

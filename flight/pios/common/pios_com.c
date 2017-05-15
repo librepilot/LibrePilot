@@ -118,8 +118,22 @@ int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, ui
     PIOS_Assert(com_id);
     PIOS_Assert(driver);
 
-    bool has_rx = (rx_buffer && rx_buffer_len > 0);
-    bool has_tx = (tx_buffer && tx_buffer_len > 0);
+    if ((rx_buffer_len > 0) && !rx_buffer) {
+#if defined(PIOS_INCLUDE_FREERTOS)
+        rx_buffer = (uint8_t *)pios_malloc(rx_buffer_len);
+#endif
+        PIOS_Assert(rx_buffer);
+    }
+
+    if ((tx_buffer_len > 0) && !tx_buffer) {
+#if defined(PIOS_INCLUDE_FREERTOS)
+        tx_buffer = (uint8_t *)pios_malloc(tx_buffer_len);
+#endif
+        PIOS_Assert(tx_buffer);
+    }
+
+    bool has_rx = (rx_buffer_len > 0);
+    bool has_tx = (tx_buffer_len > 0);
 
     PIOS_Assert(driver->bind_tx_cb || !has_tx);
     PIOS_Assert(driver->bind_rx_cb || !has_rx);
@@ -282,31 +296,7 @@ int32_t PIOS_COM_ChangeBaud(uint32_t com_id, uint32_t baud)
     return 0;
 }
 
-/**
- * Change the port type to halfduplex (shared rx/tx medium)
- * \param[in] port COM port
- * \param[in] halfduplex enabled
- * \return -1 if port not available
- * \return 0 on success
- */
-int32_t PIOS_COM_SetHalfDuplex(uint32_t com_id, bool halfduplex)
-{
-    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
-
-    if (!PIOS_COM_validate(com_dev)) {
-        /* Undefined COM port for this board (see pios_board.c) */
-        return -1;
-    }
-
-    /* Invoke the driver function if it exists */
-    if (com_dev->driver->set_halfduplex) {
-        com_dev->driver->set_halfduplex(com_dev->lower_id, halfduplex);
-    }
-
-    return 0;
-}
-
-int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_StopBits stop_bits, enum PIOS_COM_Parity parity, uint32_t baud_rate, enum PIOS_COM_Mode mode)
+int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_Parity parity, enum PIOS_COM_StopBits stop_bits, uint32_t baud_rate)
 {
     struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
 
@@ -317,7 +307,7 @@ int32_t PIOS_COM_ChangeConfig(uint32_t com_id, enum PIOS_COM_Word_Length word_le
 
     /* Invoke the driver function if it exists */
     if (com_dev->driver->set_config) {
-        com_dev->driver->set_config(com_dev->lower_id, word_len, stop_bits, parity, baud_rate, mode);
+        com_dev->driver->set_config(com_dev->lower_id, word_len, parity, stop_bits, baud_rate);
     }
 
     return 0;
@@ -844,6 +834,29 @@ void PIOS_COM_LinkComPair(uint32_t com1_id, uint32_t com2_id, bool link_ctrl_lin
         PIOS_COM_RegisterBaudRateCallback(com1_id, (pios_com_callback_baud_rate)PIOS_COM_ChangeBaud, com2_id);
         PIOS_COM_RegisterBaudRateCallback(com2_id, (pios_com_callback_baud_rate)PIOS_COM_ChangeBaud, com1_id);
     }
+}
+
+/*
+ * Invoke driver specific control functions
+ * \param[in] port COM port
+ * \param[in] ctl control function number
+ * \param[inout] control function parameter
+ * \return 0 on success
+ */
+int32_t PIOS_COM_Ioctl(uint32_t com_id, uint32_t ctl, void *param)
+{
+    struct pios_com_dev *com_dev = (struct pios_com_dev *)com_id;
+
+    if (!PIOS_COM_validate(com_dev)) {
+        /* Undefined COM port for this board (see pios_board.c) */
+        return -1;
+    }
+
+    if (!com_dev->driver->ioctl) {
+        return -1;
+    }
+
+    return com_dev->driver->ioctl(com_dev->lower_id, ctl, param);
 }
 
 #endif /* PIOS_INCLUDE_COM */

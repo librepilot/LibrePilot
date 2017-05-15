@@ -45,6 +45,7 @@
 #include "WorldMagModel.h"
 #include "CoordinateConversions.h"
 #include <pios_com.h>
+#include <pios_board_io.h>
 
 #include "GPS.h"
 #include "NMEA.h"

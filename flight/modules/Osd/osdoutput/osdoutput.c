@@ -43,6 +43,8 @@
 #include "hwsettings.h"
 #include "flightstatus.h"
 
+#include <pios_board_io.h>
+
 static bool osdoutputEnabled;
 
 enum osd_hk_sync {
@@ -284,6 +286,11 @@ static int32_t osdoutputInitialize(void)
         osdoutputEnabled = 0;
     }
 #endif
+
+    if (osdoutputEnabled && osd_hk_com_id) {
+        PIOS_COM_ChangeBaud(osd_hk_com_id, 57600);
+    }
+
     return 0;
 }
 MODULE_INITCALL(osdoutputInitialize, osdoutputStart);

@@ -783,8 +783,8 @@ bool PIOS_RFM22B_TransmitPacket(uint32_t rfm22b_id, uint8_t *p, uint8_t len)
         return false;
     }
 
-    rfm22b_dev->tx_packet_handle     = p;
-    rfm22b_dev->packet_start_time    = pios_rfm22_time_ms();
+    rfm22b_dev->tx_packet_handle  = p;
+    rfm22b_dev->packet_start_time = pios_rfm22_time_ms();
     if (rfm22b_dev->packet_start_time == 0) {
         rfm22b_dev->packet_start_time = 1;
     }

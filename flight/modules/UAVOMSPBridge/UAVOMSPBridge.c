@@ -68,6 +68,8 @@
 
 #include "pios_sensors.h"
 
+#include <pios_board_io.h>
+
 
 #define PIOS_INCLUDE_MSP_BRIDGE
 

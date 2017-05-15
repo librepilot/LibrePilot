@@ -1,13 +1,10 @@
 /**
  ******************************************************************************
- * @addtogroup PIOS PIOS Core hardware abstraction layer
- * @{
- * @addtogroup PIOS_USB_DESC USB descriptor layer functions
- * @{
  *
- * @file       pios_usb_desc_hid_cdc_priv.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Defines the API to set up the HID + CDC USB descriptor config
+ * @file       pios_board_sensors.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ * @brief      board sensors setup
+ *             --
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -26,28 +23,11 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+#ifndef PIOS_BOARD_SENSORS_H
+#define PIOS_BOARD_SENSORS_H
 
-#ifndef PIOS_USB_DESC_HID_CDC_PRIV_H
-#define PIOS_USB_DESC_HID_CDC_PRIV_H
+#include "pios.h"
 
-#include <stdint.h>
-#include <pios_usb_hid_priv.h>
-#include <pios_usb_cdc_priv.h>
-#ifdef PIOS_INCLUDE_USB_RCTX
-# include <pios_usb_rctx_priv.h>
-#endif
+void PIOS_BOARD_Sensors_Configure();
 
-extern int32_t PIOS_USB_DESC_HID_CDC_Init(void);
-
-extern const struct pios_usb_cdc_cfg pios_usb_cdc_cfg;
-extern const struct pios_usb_hid_cfg pios_usb_hid_cfg;
-#ifdef PIOS_INCLUDE_USB_RCTX
-extern const struct pios_usb_rctx_cfg pios_usb_rctx_cfg;
-#endif
-
-#endif /* PIOS_USB_DESC_HID_CDC_PRIV_H */
-
-/**
- * @}
- * @}
- */
+#endif /* PIOS_BOARD_SENSORS_H */

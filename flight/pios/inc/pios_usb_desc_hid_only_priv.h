@@ -31,8 +31,12 @@
 #define PIOS_USB_DESC_HID_ONLY_PRIV_H
 
 #include <stdint.h>
+#include <pios_usb_hid_priv.h>
 
 extern int32_t PIOS_USB_DESC_HID_ONLY_Init(void);
+
+extern const struct pios_usb_hid_cfg pios_usb_hid_only_cfg;
+
 
 #endif /* PIOS_USB_DESC_HID_ONLY_PRIV_H */
 

@@ -85,11 +85,8 @@ Item {
 
     property real smeter_angle
 
-    // Needed to get correctly int8 value, reset value (-127) on disconnect
-    property int oplm0_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths0 : -127
-    property int oplm1_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths1 : -127
-    property int oplm2_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths2 : -127
-    property int oplm3_db: (telemetry_link == 1) ? opLinkStatus.pairSignalStrengths3 : -127
+    // Needed to get correctly int8 value
+    property int oplm_rssi: telemetry_link ? UAV.oplmRSSI() : -127
 
     property real telemetry_sum
     property real telemetry_sum_old
@@ -117,61 +114,10 @@ Item {
     // Filtering for S-meter. Smeter range -127dB <--> -13dB = S9+60dB
 
     Timer {
-         id: smeter_filter0
+         id: smeter_filter
          interval: 100; running: true; repeat: true
-         onTriggered: smeter_angle = (0.90 * smeter_angle) + (0.1 * (oplm0_db + 13))
+         onTriggered: smeter_angle = (0.90 * smeter_angle) + (0.1 * (oplm_rssi + 13))
     }
-
-    Timer {
-         id: smeter_filter1
-         interval: 100; repeat: true
-         onTriggered: smeter_angle = (0.90 * smeter_angle) + (0.1 * (oplm1_db + 13))
-    }
-
-    Timer {
-         id: smeter_filter2
-         interval: 100; repeat: true
-         onTriggered: smeter_angle = (0.90 * smeter_angle) + (0.1 * (oplm2_db + 13))
-     }
-
-    Timer {
-         id: smeter_filter3
-         interval: 100; repeat: true
-         onTriggered: smeter_angle = (0.90 * smeter_angle) + (0.1 * (oplm3_db + 13))
-    }
-
-    property int smeter_filter
-    property variant oplm_pair_id : opLinkStatus.pairIDs0
-
-    function select_oplm(index){
-         smeter_filter0.running = false;
-         smeter_filter1.running = false;
-         smeter_filter2.running = false;
-         smeter_filter3.running = false;
-
-         switch(index) {
-            case 0:
-                smeter_filter0.running = true;
-                smeter_filter = 0;
-                oplm_pair_id = opLinkStatus.pairIDs0
-                break;
-            case 1:
-                smeter_filter1.running = true;
-                smeter_filter = 1;
-                oplm_pair_id = opLinkStatus.pairIDs1
-                break;
-            case 2:
-                smeter_filter2.running = true;
-                smeter_filter = 2;
-                oplm_pair_id = opLinkStatus.pairIDs2
-                break;
-            case 3:
-                smeter_filter3.running = true;
-                smeter_filter = 3;
-                oplm_pair_id = opLinkStatus.pairIDs3
-                break;
-         }
-     }
 
     // End Functions
     //
@@ -784,73 +730,6 @@ Item {
     }
 
     SvgElementImage {
-        id: oplm_button_bg
-        elementName: "oplm-button-bg"
-        sceneSize: panels.sceneSize
-        y: Math.floor(scaledBounds.y * sceneItem.height)
-        width: smeter_mask.width
-
-        z: oplm_bg.z + 5
-
-        states: State {
-             name: "fading"
-             when: show_panels == true
-             PropertyChanges { target: oplm_button_bg; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
-        }
-
-        transitions: Transition {
-            SequentialAnimation {
-                PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
-            }
-        }
-    }
-
-    Repeater {
-        model: 4
-
-        SvgElementImage {
-            z: oplm_bg.z + 5
-            property variant idButton_oplm: "oplm_button_" + index
-            property variant idButton_oplm_mousearea: "oplm_button_mousearea" + index
-            property variant button_color: "button"+index+"_color"
-
-            id: idButton_oplm
-
-            elementName: "oplm-button-" + index
-            sceneSize: panels.sceneSize
-
-            Rectangle {
-                anchors.fill: parent
-                border.color: "red"
-                border.width: parent.width * 0.04
-                radius: border.width*3
-                color: "transparent"
-                opacity: smeter_filter == index ? 0.5 : 0
-            }
-
-            MouseArea {
-                 id: idButton_oplm_mousearea;
-                 anchors.fill: parent;
-                 cursorShape: Qt.PointingHandCursor;
-                 visible: display_oplm == true ? 1 : 0
-                 onClicked: select_oplm(index)
-            }
-
-            states: State {
-                 name: "fading"
-                 when: show_panels == true
-                 PropertyChanges { target: idButton_oplm; x: Math.floor(scaledBounds.x * sceneItem.width) + offset_value; }
-            }
-
-            transitions: Transition {
-                SequentialAnimation {
-                    PropertyAnimation { property: "x"; easing.type: anim_type; duration: anim_duration }
-                }
-            }
-        }
-    }
-
-    SvgElementImage {
         id: oplm_id_label
         elementName: "oplm-id-label"
         sceneSize: panels.sceneSize
@@ -893,7 +772,7 @@ Item {
         }
 
         Text {
-             text: oplm_pair_id > 0 ? oplm_pair_id.toString(16) : "--  --  --  --"
+             text: (UAV.oplmDeviceID() > 0) ? UAV.oplmDeviceID().toString(16) : "--  --  --  --"
              anchors.centerIn: parent
              color: "white"
              font {

@@ -1,7 +1,8 @@
 /**
  ******************************************************************************
  * @file       loggingplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -29,34 +30,37 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/iconnection.h>
 #include <extensionsystem/iplugin.h>
-#include "uavobjectmanager.h"
-#include "gcstelemetrystats.h"
-#include <uavtalk/uavtalk.h>
 #include <utils/logfile.h>
 
 #include <QThread>
 #include <QQueue>
 #include <QReadWriteLock>
 
+class UAVObject;
+class UAVDataObject;
+class UAVTalk;
 class LoggingPlugin;
 class LoggingGadgetFactory;
+
+namespace Core {
+class Command;
+}
 
 /**
  *   Define a connection via the IConnection interface
  *   Plugin will add a instance of this class to the pool,
  *   so the connection manager can use it.
  */
-class LoggingConnection
-    : public Core::IConnection {
+class LoggingConnection : public Core::IConnection {
     Q_OBJECT
 public:
-    LoggingConnection(LoggingPlugin *loggingPlugin);
+    LoggingConnection();
     virtual ~LoggingConnection();
 
     virtual QList <Core::IConnection::device> availableDevices();
+
     virtual QIODevice *openDevice(const QString &deviceName);
     virtual void closeDevice(const QString &deviceName);
 
@@ -72,43 +76,35 @@ public:
         return &logFile;
     }
 
-
 private:
-    LogFile logFile;
-    LoggingPlugin *loggingPlugin;
-
-
-protected slots:
-    void onEnumerationChanged();
-    void startReplay(QString file);
-
-protected:
     bool m_deviceOpened;
+    LogFile logFile;
 };
-
 
 class LoggingThread : public QThread {
     Q_OBJECT
 public:
+    LoggingThread();
     virtual ~LoggingThread();
 
-    bool openFile(QString file, LoggingPlugin *parent);
+    bool openFile(QString file);
+
+public slots:
+    void startLogging();
+    void stopLogging();
+
+protected:
+    void run();
 
 private slots:
     void objectUpdated(UAVObject *obj);
     void transactionCompleted(UAVObject *obj, bool success);
 
-public slots:
-    void stopLogging();
-
-protected:
-    void run();
+private:
     QReadWriteLock lock;
+    QQueue<UAVDataObject *> queue;
     LogFile logFile;
     UAVTalk *uavTalk;
-
-private:
-    QQueue<UAVDataObject *> queue;
 
     void retrieveSettings();
     void retrieveNextObject();
@@ -121,6 +117,8 @@ class LoggingPlugin : public ExtensionSystem::IPlugin {
     friend class LoggingConnection;
 
 public:
+    enum State { IDLE, LOGGING, REPLAY };
+
     LoggingPlugin();
     ~LoggingPlugin();
 
@@ -128,41 +126,34 @@ public:
     bool initialize(const QStringList & arguments, QString *errorString);
     void shutdown();
 
-    LoggingConnection *getLogConnection()
-    {
-        return logConnection;
-    };
     LogFile *getLogfile()
     {
         return logConnection->getLogfile();
     }
-    void setLogMenuTitle(QString str);
 
+    State getState()
+    {
+        return state;
+    }
 
 signals:
-    void stopLoggingSignal(void);
-    void stopReplaySignal(void);
-    void stateChanged(QString);
-
-
-protected:
-    enum { IDLE, LOGGING, REPLAY } state;
-    LoggingThread *loggingThread;
-
-    // These are used for replay, logging in its own thread
-    LoggingConnection *logConnection;
+    void stateChanged(State);
 
 private slots:
     void toggleLogging();
     void startLogging(QString file);
     void stopLogging();
+    void loggingStarted();
     void loggingStopped();
     void replayStarted();
     void replayStopped();
 
 private:
-    LoggingGadgetFactory *mf;
-    Core::Command *cmd;
+    Core::Command *loggingCommand;
+    State state;
+    // These are used for replay, logging in its own thread
+    LoggingThread *loggingThread;
+    LoggingConnection *logConnection;
 };
 #endif /* LoggingPLUGIN_H_ */
 /**

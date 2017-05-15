@@ -403,14 +403,14 @@ void loadFactoryDefaults(QSettings &settings, AppOptionValues &appOptionValues)
     qDebug() << "Configuration file" << fileName << "was loaded.";
 }
 
-void overrideSettings(QSettings &settings, int argc, char * *argv)
+void overrideSettings(QSettings &settings, const QStringList &arguments)
 {
     // Options like -D My/setting=test
     QRegExp rx("([^=]+)=(.*)");
 
-    for (int i = 0; i < argc; ++i) {
-        if (CONFIG_OPTION == QString(argv[i])) {
-            if (rx.indexIn(argv[++i]) > -1) {
+    for (int i = 0; i < arguments.size(); ++i) {
+        if (CONFIG_OPTION == arguments[i]) {
+            if (rx.indexIn(arguments[++i]) > -1) {
                 QString key   = rx.cap(1);
                 QString value = rx.cap(2);
                 qDebug() << "User setting" << key << "set to value" << value;
@@ -443,14 +443,11 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
     }
 }
 
-int main(int argc, char * *argv)
+int runApplication(int argc, char * *argv)
 {
     QElapsedTimer timer;
 
     timer.start();
-
-    // low level init
-    systemInit();
 
     // create application
     SharedTools::QtSingleApplication app(APP_NAME, argc, argv);
@@ -508,7 +505,7 @@ int main(int argc, char * *argv)
     // override settings with command line provided values
     // take notice that the overridden values will be saved in the user settings and will continue to be effective
     // in subsequent GCS runs
-    overrideSettings(settings, argc, argv);
+    overrideSettings(settings, app.arguments());
 
     // initialize GCS locale
     // use the value defined by the General/Locale setting or default to system Locale.
@@ -625,12 +622,21 @@ int main(int argc, char * *argv)
         delete splash;
     }
 
-    qDebug() << "main - main took" << timer.elapsed() << "ms";
-
+    qDebug() << "main - starting GCS took" << timer.elapsed() << "ms";
     int ret = app.exec();
-
     qDebug() << "main - GCS ran for" << timer.elapsed() << "ms";
 
+    return ret;
+}
+
+int main(int argc, char * *argv)
+{
+    // low level init
+    systemInit();
+
+    int ret = runApplication(argc, argv);
+
+    // close log file if needed
     logDeinit();
 
     return ret;

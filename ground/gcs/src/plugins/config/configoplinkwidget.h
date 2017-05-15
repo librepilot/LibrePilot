@@ -54,6 +54,7 @@ private:
     // Frequency display settings
     float frequency_base;
     float frequency_step;
+    QString channel_tooltip;
 
     // Is the status current?
     bool statusUpdated;
@@ -62,13 +63,15 @@ private:
     void updateInfo();
     void updateSettings();
 
-    void setPortsVisible(bool visible);
+    void setOPLMOptionsVisible(bool visible);
 
 private slots:
     void connected();
 
     void protocolChanged();
     void linkTypeChanged();
+    void customIDChanged();
+    void coordIDChanged();
 
     void minChannelChanged();
     void maxChannelChanged();
@@ -83,6 +86,7 @@ private slots:
     void vcpBridgeChanged();
 
     void unbind();
+    void clearDeviceID();
 };
 
 #endif // CONFIGOPLINKWIDGET_H

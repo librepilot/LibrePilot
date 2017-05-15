@@ -68,8 +68,9 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidget(m_oplink->MinFreq);
     addWidget(m_oplink->MaxFreq);
     addWidget(m_oplink->UnbindButton);
-    addWidget(m_oplink->PairSignalStrengthBar1);
-    addWidget(m_oplink->PairSignalStrengthLabel1);
+    addWidget(m_oplink->ClearDeviceButton);
+    addWidget(m_oplink->SignalStrengthBar);
+    addWidget(m_oplink->SignalStrengthLabel);
 
     addWidgetBinding("OPLinkSettings", "Protocol", m_oplink->Protocol);
     addWidgetBinding("OPLinkSettings", "LinkType", m_oplink->LinkType);
@@ -113,12 +114,14 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkStatus", "TXPacketRate", m_oplink->TXPacketRate);
     addWidgetBinding("OPLinkStatus", "AFCCorrection", m_oplink->AFCCorrection);
 
-    // initially hide port combo boxes
-    setPortsVisible(false);
+    // initially hide Oplink Mini options
+    setOPLMOptionsVisible(false);
 
     // Connect the selection changed signals.
     connect(m_oplink->Protocol, SIGNAL(currentIndexChanged(int)), this, SLOT(protocolChanged()));
     connect(m_oplink->LinkType, SIGNAL(currentIndexChanged(int)), this, SLOT(linkTypeChanged()));
+    connect(m_oplink->CustomDeviceID, SIGNAL(textChanged(QString)), this, SLOT(customIDChanged()));
+    connect(m_oplink->CoordID, SIGNAL(textChanged(QString)), this, SLOT(coordIDChanged()));
     connect(m_oplink->RFBand, SIGNAL(currentIndexChanged(int)), this, SLOT(rfBandChanged()));
     connect(m_oplink->MinimumChannel, SIGNAL(valueChanged(int)), this, SLOT(minChannelChanged()));
     connect(m_oplink->MaximumChannel, SIGNAL(valueChanged(int)), this, SLOT(maxChannelChanged()));
@@ -128,8 +131,9 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     connect(m_oplink->RadioAuxStream, SIGNAL(currentIndexChanged(int)), this, SLOT(radioAuxStreamChanged()));
     connect(m_oplink->VCPBridge, SIGNAL(currentIndexChanged(int)), this, SLOT(vcpBridgeChanged()));
 
-    // Connect the Unbind button
+    // Connect the Unbind and ClearDevice buttons
     connect(m_oplink->UnbindButton, SIGNAL(released()), this, SLOT(unbind()));
+    connect(m_oplink->ClearDeviceButton, SIGNAL(released()), this, SLOT(clearDeviceID()));
 
     // all upper case hex
     m_oplink->CustomDeviceID->setInputMask(">HHHHHHHH");
@@ -179,8 +183,8 @@ void ConfigOPLinkWidget::updateStatus()
     m_oplink->LinkState->setText(linkField->getValue().toString());
     bool linkConnected = (oplinkStatusObj->linkState() == OPLinkStatus_LinkState::Connected);
 
-    m_oplink->PairSignalStrengthBar1->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);
-    m_oplink->PairSignalStrengthLabel1->setText(QString("%1dBm").arg(m_oplink->PairSignalStrengthBar1->value()));
+    m_oplink->SignalStrengthBar->setValue(linkConnected ? m_oplink->RSSI->text().toInt() : -127);
+    m_oplink->SignalStrengthLabel->setText(QString("%1dBm").arg(m_oplink->SignalStrengthBar->value()));
 
     int afc_valueKHz = m_oplink->AFCCorrection->text().toInt() / 1000;
     m_oplink->AFCCorrectionBar->setValue(afc_valueKHz);
@@ -189,10 +193,10 @@ void ConfigOPLinkWidget::updateStatus()
     switch (oplinkStatusObj->boardType()) {
     case 0x09: // Revolution, DiscoveryF4Bare, RevoNano, RevoProto
     case 0x92: // Sparky2
-        setPortsVisible(false);
+        setOPLMOptionsVisible(false);
         break;
     case 0x03: // OPLinkMini
-        setPortsVisible(true);
+        setOPLMOptionsVisible(true);
         break;
     default:
         // This shouldn't happen.
@@ -206,24 +210,10 @@ void ConfigOPLinkWidget::updateStatus()
     }
 }
 
-void ConfigOPLinkWidget::setPortsVisible(bool visible)
+void ConfigOPLinkWidget::setOPLMOptionsVisible(bool visible)
 {
-    m_oplink->UartsLabel->setVisible(visible);
-    m_oplink->MainPort->setVisible(visible);
-    m_oplink->MainPortLabel->setVisible(visible);
-    m_oplink->FlexiPort->setVisible(visible);
-    m_oplink->FlexiPortLabel->setVisible(visible);
-    m_oplink->ConnectionsLabel->setVisible(visible);
-    m_oplink->RadioPriStream->setVisible(visible);
-    m_oplink->RadioPriStreamLabel->setVisible(visible);
-    m_oplink->RadioAuxStream->setVisible(visible);
-    m_oplink->RadioAuxStreamLabel->setVisible(visible);
-    m_oplink->MainComSpeed->setVisible(visible);
-    m_oplink->MainComSpeedLabel->setVisible(visible);
-    m_oplink->FlexiComSpeed->setVisible(visible);
-    m_oplink->FlexiComSpeedLabel->setVisible(visible);
-    m_oplink->VCPBridge->setVisible(visible);
-    m_oplink->VCPBridgeLabel->setVisible(visible);
+    m_oplink->UartsGroupBox->setVisible(visible);
+    m_oplink->ConnectionsGroupBox->setVisible(visible);
 }
 
 void ConfigOPLinkWidget::updateInfo()
@@ -268,10 +258,10 @@ void ConfigOPLinkWidget::updateSettings()
 {
     // qDebug() << "ConfigOPLinkWidget::updateSettings";
 
-    bool is_enabled      = !isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_DISABLED);
+    bool is_openlrs      = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS);
     bool is_coordinator  = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKCOORDINATOR);
     bool is_receiver     = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKRECEIVER);
-    bool is_openlrs      = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS);
+    bool is_oplink = (is_receiver || is_coordinator);
     bool is_ppm_only     = isComboboxOptionSelected(m_oplink->LinkType, OPLinkSettings::LINKTYPE_CONTROL);
     bool is_main_serial  = isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_SERIAL);
     bool is_main_telem   = isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_TELEMETRY);
@@ -279,26 +269,51 @@ void ConfigOPLinkWidget::updateSettings()
     bool is_flexi_telem  = isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_TELEMETRY);
     bool is_vcp_main     = isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_MAIN);
     bool is_vcp_flexi    = isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_FLEXI);
-    bool is_bound = (m_oplink->CoordID->text() != "");
+    bool is_custom_id    = !m_oplink->CustomDeviceID->text().isEmpty();
+    bool is_bound = !m_oplink->CoordID->text().isEmpty();
 
-    m_oplink->MainPort->setEnabled(is_enabled || is_vcp_main);
-    m_oplink->FlexiPort->setEnabled(is_enabled || is_vcp_flexi);
-    m_oplink->MainComSpeed->setEnabled((is_enabled || is_vcp_main) && !is_ppm_only && !is_openlrs && (is_main_serial || is_main_telem));
-    m_oplink->FlexiComSpeed->setEnabled((is_enabled || is_vcp_flexi) && !is_ppm_only && !is_openlrs && (is_flexi_serial || is_flexi_telem));
-    m_oplink->CoordID->setEnabled(is_enabled && is_receiver);
-    m_oplink->UnbindButton->setEnabled(is_enabled && is_bound && !is_coordinator);
+    bool is_stream_main  = isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_MAIN) ||
+                           isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_MAIN);
+    bool is_stream_flexi = isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_FLEXI) ||
+                           isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_FLEXI);
+
+    if (!is_stream_main && !is_vcp_main && (is_main_serial || is_main_telem)) {
+        setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        is_main_serial = false;
+        is_main_telem  = false;
+    }
+    if (!is_stream_flexi && !is_vcp_flexi && (is_flexi_serial || is_flexi_telem)) {
+        setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        is_flexi_serial = false;
+        is_flexi_telem  = false;
+    }
+
+    enableComboBoxOptionItem(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_TELEMETRY, is_stream_flexi);
+    enableComboBoxOptionItem(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_SERIAL, (is_stream_flexi || is_vcp_flexi));
+    enableComboBoxOptionItem(m_oplink->MainPort, OPLinkSettings::MAINPORT_TELEMETRY, is_stream_main);
+    enableComboBoxOptionItem(m_oplink->MainPort, OPLinkSettings::MAINPORT_SERIAL, (is_stream_main || is_vcp_main));
+
+    m_oplink->MainPort->setEnabled(is_oplink || is_vcp_main);
+    m_oplink->FlexiPort->setEnabled(is_oplink || is_vcp_flexi);
+    m_oplink->MainComSpeed->setEnabled(is_oplink && !is_ppm_only && !is_vcp_main && (is_main_serial || is_main_telem));
+    m_oplink->FlexiComSpeed->setEnabled(is_oplink && !is_ppm_only && !is_vcp_flexi && (is_flexi_serial || is_flexi_telem));
+    m_oplink->CoordID->setEnabled(is_receiver || is_openlrs);
+    m_oplink->CoordID->setReadOnly(is_openlrs);
+    m_oplink->UnbindButton->setEnabled((is_receiver && is_bound) || is_openlrs);
+
     m_oplink->CustomDeviceID->setEnabled(is_coordinator);
+    m_oplink->ClearDeviceButton->setEnabled(is_coordinator && is_custom_id);
 
-    m_oplink->RadioPriStream->setEnabled((is_receiver || is_coordinator) && !is_ppm_only);
-    m_oplink->RadioAuxStream->setEnabled((is_receiver || is_coordinator) && !is_ppm_only);
+    m_oplink->RadioPriStream->setEnabled(is_oplink && !is_ppm_only);
+    m_oplink->RadioAuxStream->setEnabled(is_oplink && !is_ppm_only);
 
-    m_oplink->AirDataRate->setEnabled((is_receiver || is_coordinator) && !is_ppm_only);
-    m_oplink->RFBand->setEnabled(is_receiver || is_coordinator);
-    m_oplink->MinimumChannel->setEnabled(is_receiver || is_coordinator);
-    m_oplink->MaximumChannel->setEnabled(is_receiver || is_coordinator);
+    m_oplink->AirDataRate->setEnabled(is_oplink && !is_ppm_only);
+    m_oplink->RFBand->setEnabled(is_oplink);
+    m_oplink->MinimumChannel->setEnabled(is_oplink);
+    m_oplink->MaximumChannel->setEnabled(is_oplink);
 
-    m_oplink->LinkType->setEnabled(is_enabled && !is_openlrs);
-    m_oplink->MaxRFTxPower->setEnabled(is_enabled && !is_openlrs);
+    m_oplink->LinkType->setEnabled(is_oplink);
+    m_oplink->MaxRFTxPower->setEnabled(is_oplink);
 }
 
 void ConfigOPLinkWidget::protocolChanged()
@@ -307,6 +322,16 @@ void ConfigOPLinkWidget::protocolChanged()
 }
 
 void ConfigOPLinkWidget::linkTypeChanged()
+{
+    updateSettings();
+}
+
+void ConfigOPLinkWidget::customIDChanged()
+{
+    updateSettings();
+}
+
+void ConfigOPLinkWidget::coordIDChanged()
 {
     updateSettings();
 }
@@ -325,16 +350,19 @@ void ConfigOPLinkWidget::rfBandChanged()
 {
     switch (getComboboxSelectedOption(m_oplink->RFBand)) {
     case OPLinkSettings::RFBAND_915MHZ:
-        frequency_base = 900.0f;
-        frequency_step = FREQUENCY_STEP * 2.0f;
+        frequency_base  = 900.0f;
+        frequency_step  = FREQUENCY_STEP * 2.0f;
+        channel_tooltip = tr("Channel 0 is 900 MHz, channel 250 is 920 MHz, and the channel spacing is 80 KHz.");
         break;
     case OPLinkSettings::RFBAND_868MHZ:
-        frequency_base = 860.0f;
-        frequency_step = FREQUENCY_STEP * 2.0f;
+        frequency_base  = 860.0f;
+        frequency_step  = FREQUENCY_STEP * 2.0f;
+        channel_tooltip = tr("Channel 0 is 860 MHz, channel 250 is 880 MHz, and the channel spacing is 80 KHz.");
         break;
     case OPLinkSettings::RFBAND_433MHZ:
-        frequency_base = 430.0f;
-        frequency_step = FREQUENCY_STEP;
+        frequency_base  = 430.0f;
+        frequency_step  = FREQUENCY_STEP;
+        channel_tooltip = tr("Channel 0 is 430 MHz, channel 250 is 440 MHz, and the channel spacing is 40 KHz.");
         break;
     }
 
@@ -379,6 +407,9 @@ void ConfigOPLinkWidget::updateFrequencyDisplay()
 
     m_oplink->MinFreq->setText("(" + QString::number(minFrequency, 'f', 3) + " MHz)");
     m_oplink->MaxFreq->setText("(" + QString::number(maxFrequency, 'f', 3) + " MHz)");
+
+    m_oplink->MinimumChannel->setToolTip(channel_tooltip);
+    m_oplink->MaximumChannel->setToolTip(channel_tooltip);
 }
 
 void ConfigOPLinkWidget::mainPortChanged()
@@ -517,7 +548,7 @@ void ConfigOPLinkWidget::radioAuxStreamChanged()
         if (isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_FLEXI)) {
             setComboboxSelectedOption(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_DISABLED);
         }
-        if (isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_MAIN)) {
+        if (isComboboxOptionSelected(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_FLEXI)) {
             setComboboxSelectedOption(m_oplink->VCPBridge, OPLinkSettings::VCPBRIDGE_DISABLED);
         }
         break;
@@ -573,15 +604,22 @@ void ConfigOPLinkWidget::vcpBridgeChanged()
 void ConfigOPLinkWidget::unbind()
 {
     // Clear the coordinator ID
-    oplinkSettingsObj->setCoordID(0);
     m_oplink->CoordID->clear();
 
-    // Clear the OpenLRS settings
-    oplinkSettingsObj->setVersion((quint16)0);
-    oplinkSettingsObj->setSerialBaudrate(0);
-    oplinkSettingsObj->setRFFrequency(0);
-    oplinkSettingsObj->setRFPower((quint16)0);
-    oplinkSettingsObj->setRFChannelSpacing((quint16)0);
-    oplinkSettingsObj->setModemParams((quint16)0);
-    oplinkSettingsObj->setFlags((quint16)0);
+    // Clear the OpenLRS settings when needed
+    if (isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPENLRS)) {
+        QStringList openLRS_settings;
+        openLRS_settings << "Version" << "SerialBaudrate" << "ModemParams" << "Flags" \
+                         << "RFFrequency" << "RFPower" << "RFChannelSpacing" << "HopChannel";
+
+        for (int i = 0; i < openLRS_settings.size(); ++i) {
+            oplinkSettingsObj->getField(openLRS_settings[i])->clear();
+        }
+    }
+}
+
+void ConfigOPLinkWidget::clearDeviceID()
+{
+    // Clear the OPLM device ID
+    m_oplink->CustomDeviceID->clear();
 }

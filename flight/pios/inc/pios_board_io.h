@@ -157,25 +157,35 @@ extern uint32_t pios_com_mavlink_id;
 /* HoTT Telemetry */
 #ifdef PIOS_INCLUDE_HOTT_BRIDGE
 # ifndef PIOS_COM_HOTT_BRIDGE_RX_BUF_LEN
-#  define PIOS_COM_HOTT_BRIDGE_RX_BUF_LEN 512
+#  define PIOS_COM_HOTT_BRIDGE_RX_BUF_LEN    512
 # endif
 # ifndef PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN
-#  define PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN 512
+#  define PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN    512
 # endif
 extern uint32_t pios_com_hott_id;
-# define PIOS_COM_HOTT                    (pios_com_hott_id)
+# define PIOS_COM_HOTT                       (pios_com_hott_id)
+#endif
+
+/* Frsky Sensorhub */
+extern uint32_t pios_com_frsky_sensorhub_id;
+#define PIOS_COM_FRSKY_SENSORHUB             (pios_com_frsky_sensorhub_id)
+#ifndef PIOS_COM_FRSKY_SENSORHUB_TX_BUF_LEN
+# define PIOS_COM_FRSKY_SENSORHUB_TX_BUF_LEN 128
+#endif
+#ifndef PIOS_COM_FRSKY_SENSORHUB_RX_BUF_LEN
+# define PIOS_COM_FRSKY_SENSORHUB_RX_BUF_LEN 128
 #endif
 
 /* USB VCP */
 extern uint32_t pios_com_vcp_id;
-#define PIOS_COM_VCP                      (pios_com_vcp_id)
+#define PIOS_COM_VCP                         (pios_com_vcp_id)
 
 
 #ifdef PIOS_INCLUDE_DEBUG_CONSOLE
 extern uint32_t pios_com_debug_id;
-#define PIOS_COM_DEBUG                    (pios_com_debug_id)
+#define PIOS_COM_DEBUG                       (pios_com_debug_id)
 #ifndef PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN
-# define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
+# define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN    40
 #endif
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
 
@@ -208,6 +218,7 @@ typedef enum {
     PIOS_BOARD_IO_UART_EXBUS, /* rcvr */
 // PIOS_BOARD_IO_UART_FRSKY_SPORT_TELEMETRY, /* com */
     PIOS_BOARD_IO_UART_HOTT_BRIDGE, /* com */
+    PIOS_BOARD_IO_UART_FRSKY_SENSORHUB, /* com */
 } PIOS_BOARD_IO_UART_Function;
 
 

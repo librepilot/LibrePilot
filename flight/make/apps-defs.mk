@@ -85,6 +85,7 @@ SRC += $(PIOSCOMMON)/pios_mpu9250.c
 SRC += $(PIOSCOMMON)/pios_mpxv.c
 SRC += $(PIOSCOMMON)/pios_ms4525do.c
 SRC += $(PIOSCOMMON)/pios_ms5611.c
+SRC += $(PIOSCOMMON)/pios_bmp280.c
 SRC += $(PIOSCOMMON)/pios_oplinkrcvr.c
 SRC += $(PIOSCOMMON)/pios_video.c
 SRC += $(PIOSCOMMON)/pios_wavplay.c

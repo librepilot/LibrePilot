@@ -90,6 +90,7 @@
 #define PIOS_INCLUDE_MPU9250
 #define PIOS_MPU9250_ACCEL
 /* #define PIOS_MPU9250_MAG */
+#define PIOS_INCLUDE_BMP280
 /* #define PIOS_INCLUDE_BMP085 */
 /* #define PIOS_INCLUDE_MS5611 */
 /* #define PIOS_INCLUDE_MPXV */

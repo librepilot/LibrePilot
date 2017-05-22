@@ -14,12 +14,16 @@ ALL_BOARDS += oplinkmini
 ALL_BOARDS += gpsplatinum
 ALL_BOARDS += osd
 ALL_BOARDS += discoveryf4bare
+ALL_BOARDS += ccf3d spracingf3 spracingf3evo
 # SimPosix only builds on Linux
 ifeq ($(UNAME), Linux)
     ALL_BOARDS += simposix
 endif
 
 # Short names of each board (used to display board name in parallel builds)
+spracingf3_short       := 'srf3'
+spracingf3evo_short    := 'spev'
+ccf3d_short            := 'cf3d'
 coptercontrol_short    := 'cc  '
 oplinkmini_short       := 'oplm'
 revolution_short       := 'revo'

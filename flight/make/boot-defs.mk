@@ -34,14 +34,16 @@ FLIGHTLIBINC	= $(FLIGHTLIB)/inc
 override USE_DSP_LIB := NO
 
 ## PIOS Hardware
-ifeq ($(MCU),cortex-m3)
+ifneq (,$(findstring STM32F10,$(CHIP)))
     include $(PIOS)/stm32f10x/library.mk
-else ifeq ($(MCU),cortex-m4)
+else ifneq (,$(findstring STM32F4,$(CHIP)))
     include $(PIOS)/stm32f4xx/library.mk
-else ifeq ($(MCU),cortex-m0)
+else ifneq (,$(findstring STM32F30,$(CHIP)))
+    include $(PIOS)/stm32f30x/library.mk
+else ifneq (,$(findstring STM32F0,$(CHIP)))
     include $(PIOS)/stm32f0x/library.mk
 else
-    $(error Unsupported MCU: $(MCU))
+    $(error Unsupported CHIP: $(CHIP))
 endif
 
 # List C source files here (C dependencies are automatically generated).

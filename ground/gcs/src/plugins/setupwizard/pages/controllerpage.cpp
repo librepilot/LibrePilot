@@ -120,6 +120,12 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
     case 0x9201:
         return SetupWizard::CONTROLLER_SPARKY2;
 
+    case 0x1001:
+        return SetupWizard::CONTROLLER_SPRACINGF3;
+
+    case 0x1002:
+        return SetupWizard::CONTROLLER_SPRACINGF3EVO;
+            
     default:
         return SetupWizard::CONTROLLER_UNKNOWN;
     }
@@ -143,6 +149,8 @@ void ControllerPage::setupBoardTypes()
     ui->boardTypeCombo->addItem(tr("OpenPilot DiscoveryF4"), SetupWizard::CONTROLLER_DISCOVERYF4);
     ui->boardTypeCombo->addItem(tr("OpenPilot Nano"), SetupWizard::CONTROLLER_NANO);
     ui->boardTypeCombo->addItem(tr("TauLabs Sparky 2.0"), SetupWizard::CONTROLLER_SPARKY2);
+    ui->boardTypeCombo->addItem(tr("SPRacing F3"), SetupWizard::CONTROLLER_SPRACINGF3);
+    ui->boardTypeCombo->addItem(tr("SPRacing F3 EVO"), SetupWizard::CONTROLLER_SPRACINGF3EVO);
 }
 
 void ControllerPage::setControllerType(SetupWizard::CONTROLLER_TYPE type)
@@ -231,6 +239,17 @@ void ControllerPage::connectionStatusChanged()
             ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
             break;
 
+        case SetupWizard::CONTROLLER_SPRACINGF3:
+            boardPic.load(":/configgadget/images/spracingf3_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+        case SetupWizard::CONTROLLER_SPRACINGF3EVO:
+            boardPic.load(":/configgadget/images/spracingf3evo_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
+
+                
         default:
             ui->boardImg->setPixmap(QPixmap());
             break;

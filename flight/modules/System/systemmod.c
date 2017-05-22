@@ -579,7 +579,11 @@ static uint16_t GetFreeIrqStackSize(void)
 #if !defined(ARCH_POSIX) && !defined(ARCH_WIN32) && defined(CHECK_IRQ_STACK)
     extern uint32_t _irq_stack_top;
     extern uint32_t _irq_stack_end;
-    uint32_t pattern    = 0x0000A5A5;
+#ifdef STM32F3
+    uint32_t pattern    = 0xA5A5A5A5;
+#else
+    uint32_t pattern    = 0xA5A5;
+#endif
     uint32_t *ptr       = &_irq_stack_end;
 
 #if 1 /* the ugly way accurate but takes more time, useful for debugging */

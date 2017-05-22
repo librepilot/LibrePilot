@@ -289,8 +289,6 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
  * \param[in] word_len Requested word length
  * \param[in] stop_bits Requested stop bits
  * \param[in] parity Requested parity
- * \param[in] baud_rate Requested baud rate
- * \param[in] mode Requested mode
  *
  */
 static void PIOS_USART_ChangeConfig(uint32_t usart_id,

@@ -233,7 +233,7 @@ void PIOS_BOARD_IO_Configure_USB_Function(PIOS_BOARD_IO_USB_HID_Function hid_fun
 
 #endif /* PIOS_INCLUDE_USB_HID */
 
-#ifndef STM32F10X
+#if !defined(STM32F1) && !defined(STM32F3)
     PIOS_USBHOOK_Activate();
 #endif
 }
@@ -671,7 +671,6 @@ void PIOS_BOARD_IO_Configure_RFM22B()
 
     OPLinkStatusSet(&oplinkStatus);
 }
-
 
 void PIOS_BOARD_IO_Configure_RadioAuxStream(HwSettingsRadioAuxStreamOptions radioaux)
 {

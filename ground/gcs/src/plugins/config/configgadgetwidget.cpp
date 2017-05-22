@@ -41,6 +41,7 @@
 #include "configrevowidget.h"
 #include "configrevonanohwwidget.h"
 #include "configsparky2hwwidget.h"
+#include "configspracingf3hwwidget.h"
 #include "defaultconfigwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -201,10 +202,18 @@ void ConfigGadgetWidget::onAutopilotConnect()
         int board = utilMngr->getBoardModel();
         if ((board & 0xff00) == 0x0400) {
             // CopterControl family
+
             ConfigTaskWidget *widget;
-            widget = new ConfigCCAttitudeWidget(this);
+
+            if((board & 0x00ff) == 0x03) {
+                widget = new ConfigRevoWidget(this);
+            } else {
+                widget = new ConfigCCAttitudeWidget(this);
+            }
+
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+
             widget = new ConfigCCHWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
@@ -230,6 +239,24 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigSparky2HWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
+        } else if(( board & 0xff00) == 0x1000) {
+            // SPRacingF3
+            ConfigTaskWidget *widget;
+            widget = new ConfigRevoWidget(this);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+            
+            widget = 0;
+            
+            if (board == 0x1001) {
+                widget = new ConfigSPRacingF3HWWidget(this);
+            } else if (board == 0x1002) {
+                //widget = new ConfigSPRacingF3EVOHWWidget(this);
+            }
+            if(widget) {
+                widget->bind();
+                stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
+            }
         } else {
             // Unknown board
             qWarning() << "Unknown board " << board;

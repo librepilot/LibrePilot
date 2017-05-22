@@ -97,6 +97,8 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/hottbridgesettings.xml \
     $${UAVOBJ_XML_DIR}/hottbridgestatus.xml \
     $${UAVOBJ_XML_DIR}/hwsettings.xml \
+    $${UAVOBJ_XML_DIR}/hwspracingf3settings.xml \
+    $${UAVOBJ_XML_DIR}/hwspracingf3evosettings.xml \
     $${UAVOBJ_XML_DIR}/i2cstats.xml \
     $${UAVOBJ_XML_DIR}/magsensor.xml \
     $${UAVOBJ_XML_DIR}/magstate.xml \

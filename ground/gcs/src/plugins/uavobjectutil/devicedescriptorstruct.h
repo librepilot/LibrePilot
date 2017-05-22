@@ -63,6 +63,12 @@ public:
             // Sparky 2.0
             return QString("Sparky2");
 
+        case 0x1001:
+            return QString("SPRacingF3");
+
+        case 0x1002:
+            return QString("SPRacingF3EVO");
+                
         default:
             return QString("");
 

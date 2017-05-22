@@ -340,6 +340,7 @@ PACKAGE_FW_TARGETS += fw_oplinkmini
 PACKAGE_FW_TARGETS += fw_gpsplatinum
 PACKAGE_FW_TARGETS += fw_osd
 PACKAGE_FW_TARGETS += fw_revoproto
+PACKAGE_FW_TARGETS += fw_spracingf3evo fw_spracingf3
 
 # Rules to generate GCS resources used to embed firmware binaries into the GCS.
 # They are used later by the vehicle setup wizard to update board firmware.

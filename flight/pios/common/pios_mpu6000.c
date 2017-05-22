@@ -35,12 +35,16 @@
 #include <stdint.h>
 #include <pios_constants.h>
 #include <pios_sensors.h>
+#include <pios_i2c.h>
 
 /* Global Variables */
 
 enum pios_mpu6000_dev_magic {
     PIOS_MPU6000_DEV_MAGIC = 0x9da9b3ed,
 };
+
+#define CALLBACK_TASK_STACKSIZE 256
+
 
 // sensor driver interface
 bool PIOS_MPU6000_driver_Test(uintptr_t context);
@@ -58,13 +62,18 @@ const PIOS_SENSORS_Driver PIOS_MPU6000_Driver = {
     .is_polled = false,
 };
 //
-
+struct pios_mpu6000_io_driver {
+    int32_t (*SetReg)(uint8_t address, uint8_t buffer);
+    int32_t (*GetReg)(uint8_t address);
+    bool    (*ReadSensor)(bool *woken);
+};
 
 struct mpu6000_dev {
-    uint32_t spi_id;
+    uint32_t port_id;
     uint32_t slave_num;
     QueueHandle_t queue;
     const struct pios_mpu6000_cfg *cfg;
+    struct pios_mpu6000_io_driver *driver;
     enum pios_mpu6000_range gyro_range;
     enum pios_mpu6000_accel_range accel_range;
     enum pios_mpu6000_filter filter;
@@ -101,6 +110,7 @@ typedef union {
 static struct mpu6000_dev *dev;
 volatile bool mpu6000_configured = false;
 static mpu6000_data_t mpu6000_data;
+static uint32_t gyro_read_timestamp;
 static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
 #define SENSOR_COUNT     2
 #define SENSOR_DATA_SIZE (sizeof(PIOS_SENSORS_3Axis_SensorsWithTemp) + sizeof(Vector3i16) * SENSOR_COUNT)
@@ -109,11 +119,27 @@ static PIOS_SENSORS_3Axis_SensorsWithTemp *queue_data = 0;
 static struct mpu6000_dev *PIOS_MPU6000_alloc(const struct pios_mpu6000_cfg *cfg);
 static int32_t PIOS_MPU6000_Validate(struct mpu6000_dev *dev);
 static void PIOS_MPU6000_Config(struct pios_mpu6000_cfg const *cfg);
-static int32_t PIOS_MPU6000_SetReg(uint8_t address, uint8_t buffer);
-static int32_t PIOS_MPU6000_GetReg(uint8_t address);
+static int32_t PIOS_MPU6000_SPI_SetReg(uint8_t address, uint8_t buffer);
+static int32_t PIOS_MPU6000_SPI_GetReg(uint8_t address);
 static void PIOS_MPU6000_SetSpeed(const bool fast);
 static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp);
-static bool PIOS_MPU6000_ReadSensor(bool *woken);
+static bool PIOS_MPU6000_SPI_ReadSensor(bool *woken);
+struct pios_mpu6000_io_driver spi_io_driver = {
+    .SetReg     = PIOS_MPU6000_SPI_SetReg,
+    .GetReg     = PIOS_MPU6000_SPI_GetReg,
+    .ReadSensor = PIOS_MPU6000_SPI_ReadSensor,
+};
+
+#ifdef PIOS_INCLUDE_I2C
+static int32_t PIOS_MPU6000_I2C_SetReg(uint8_t address, uint8_t buffer);
+static int32_t PIOS_MPU6000_I2C_GetReg(uint8_t address);
+static bool PIOS_MPU6000_I2C_ReadSensor(bool *woken);
+struct pios_mpu6000_io_driver i2c_io_driver = {
+    .SetReg     = PIOS_MPU6000_I2C_SetReg,
+    .GetReg     = PIOS_MPU6000_I2C_GetReg,
+    .ReadSensor = PIOS_MPU6000_I2C_ReadSensor,
+};
+#endif /* PIOS_INCLUDE_I2C */
 
 static int32_t PIOS_MPU6000_Test(void);
 
@@ -132,6 +158,16 @@ static struct mpu6000_dev *PIOS_MPU6000_alloc(const struct pios_mpu6000_cfg *cfg
     PIOS_Assert(mpu6000_dev);
 
     mpu6000_dev->magic = PIOS_MPU6000_DEV_MAGIC;
+
+    if (cfg->i2c_addr == 0) {
+        mpu6000_dev->driver = &spi_io_driver;
+    } else {
+#ifdef PIOS_INCLUDE_I2C
+        mpu6000_dev->driver = &i2c_io_driver;
+#else
+        PIOS_Assert(0);
+#endif
+    }
 
     mpu6000_dev->queue = xQueueCreate(cfg->max_downsample + 1, SENSOR_DATA_SIZE);
     PIOS_Assert(mpu6000_dev->queue);
@@ -154,7 +190,7 @@ static int32_t PIOS_MPU6000_Validate(struct mpu6000_dev *vdev)
     if (vdev->magic != PIOS_MPU6000_DEV_MAGIC) {
         return -2;
     }
-    if (vdev->spi_id == 0) {
+    if (vdev->port_id == 0) {
         return -3;
     }
     return 0;
@@ -164,14 +200,14 @@ static int32_t PIOS_MPU6000_Validate(struct mpu6000_dev *vdev)
  * @brief Initialize the MPU6000 3-axis gyro sensor.
  * @return 0 for success, -1 for failure
  */
-int32_t PIOS_MPU6000_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_mpu6000_cfg *cfg)
+int32_t PIOS_MPU6000_Init(uint32_t port_id, uint32_t slave_num, const struct pios_mpu6000_cfg *cfg)
 {
     dev = PIOS_MPU6000_alloc(cfg);
     if (dev == NULL) {
         return -1;
     }
 
-    dev->spi_id    = spi_id;
+    dev->port_id   = port_id;
     dev->slave_num = slave_num;
     dev->cfg = cfg;
 
@@ -194,13 +230,13 @@ static void PIOS_MPU6000_Config(struct pios_mpu6000_cfg const *cfg)
     PIOS_MPU6000_Test();
 
     // Reset chip
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_PWR_MGMT_REG, PIOS_MPU6000_PWRMGMT_IMU_RST) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_PWR_MGMT_REG, PIOS_MPU6000_PWRMGMT_IMU_RST) != 0) {
         ;
     }
     PIOS_DELAY_WaitmS(50);
 
     // Reset chip and fifo
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_USER_CTRL_REG,
+    while (dev->driver->SetReg(PIOS_MPU6000_USER_CTRL_REG,
                                PIOS_MPU6000_USERCTL_GYRO_RST |
                                PIOS_MPU6000_USERCTL_SIG_COND |
                                PIOS_MPU6000_USERCTL_FIFO_RST) != 0) {
@@ -208,7 +244,7 @@ static void PIOS_MPU6000_Config(struct pios_mpu6000_cfg const *cfg)
     }
 
     // Wait for reset to finish
-    while (PIOS_MPU6000_GetReg(PIOS_MPU6000_USER_CTRL_REG) &
+    while (dev->driver->GetReg(PIOS_MPU6000_USER_CTRL_REG) &
            (PIOS_MPU6000_USERCTL_GYRO_RST |
             PIOS_MPU6000_USERCTL_SIG_COND |
             PIOS_MPU6000_USERCTL_FIFO_RST)) {
@@ -216,45 +252,45 @@ static void PIOS_MPU6000_Config(struct pios_mpu6000_cfg const *cfg)
     }
     PIOS_DELAY_WaitmS(10);
     // Power management configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_PWR_MGMT_REG, cfg->Pwr_mgmt_clk) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_PWR_MGMT_REG, cfg->Pwr_mgmt_clk) != 0) {
         ;
     }
 
     // Interrupt configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_INT_CFG_REG, cfg->interrupt_cfg) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_INT_CFG_REG, cfg->interrupt_cfg) != 0) {
         ;
     }
 
     // Interrupt configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_INT_EN_REG, cfg->interrupt_en) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_INT_EN_REG, cfg->interrupt_en) != 0) {
         ;
     }
 
     // FIFO storage
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_FIFO_EN_REG, cfg->Fifo_store) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_FIFO_EN_REG, cfg->Fifo_store) != 0) {
         ;
     }
     PIOS_MPU6000_ConfigureRanges(cfg->gyro_range, cfg->accel_range, cfg->filter);
     // Interrupt configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_USER_CTRL_REG, cfg->User_ctl) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_USER_CTRL_REG, cfg->User_ctl) != 0) {
         ;
     }
 
     // Interrupt configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_PWR_MGMT_REG, cfg->Pwr_mgmt_clk) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_PWR_MGMT_REG, cfg->Pwr_mgmt_clk) != 0) {
         ;
     }
 
     // Interrupt configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_INT_CFG_REG, cfg->interrupt_cfg) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_INT_CFG_REG, cfg->interrupt_cfg) != 0) {
         ;
     }
 
     // Interrupt configuration
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_INT_EN_REG, cfg->interrupt_en) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_INT_EN_REG, cfg->interrupt_en) != 0) {
         ;
     }
-    if ((PIOS_MPU6000_GetReg(PIOS_MPU6000_INT_EN_REG)) != cfg->interrupt_en) {
+    if ((dev->driver->GetReg(PIOS_MPU6000_INT_EN_REG)) != cfg->interrupt_en) {
         return;
     }
 
@@ -274,12 +310,12 @@ int32_t PIOS_MPU6000_ConfigureRanges(
     }
 
     // update filter settings
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_DLPF_CFG_REG, filterSetting) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_DLPF_CFG_REG, filterSetting) != 0) {
         ;
     }
 
     // Sample rate divider, chosen upon digital filtering settings
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_SMPLRT_DIV_REG,
+    while (dev->driver->SetReg(PIOS_MPU6000_SMPLRT_DIV_REG,
                                filterSetting == PIOS_MPU6000_LOWPASS_256_HZ ?
                                dev->cfg->Smpl_rate_div_no_dlp : dev->cfg->Smpl_rate_div_dlp) != 0) {
         ;
@@ -288,13 +324,13 @@ int32_t PIOS_MPU6000_ConfigureRanges(
     dev->filter = filterSetting;
 
     // Gyro range
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_GYRO_CFG_REG, gyroRange) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_GYRO_CFG_REG, gyroRange) != 0) {
         ;
     }
 
     dev->gyro_range = gyroRange;
     // Set the accel range
-    while (PIOS_MPU6000_SetReg(PIOS_MPU6000_ACCEL_CFG_REG, accelRange) != 0) {
+    while (dev->driver->SetReg(PIOS_MPU6000_ACCEL_CFG_REG, accelRange) != 0) {
         ;
     }
 
@@ -311,11 +347,11 @@ static int32_t PIOS_MPU6000_ClaimBus(bool fast_spi)
     if (PIOS_MPU6000_Validate(dev) != 0) {
         return -1;
     }
-    if (PIOS_SPI_ClaimBus(dev->spi_id) != 0) {
+    if (PIOS_SPI_ClaimBus(dev->port_id) != 0) {
         return -2;
     }
     PIOS_MPU6000_SetSpeed(fast_spi);
-    PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 0);
+    PIOS_SPI_RC_PinSet(dev->port_id, dev->slave_num, 0);
     return 0;
 }
 
@@ -323,9 +359,9 @@ static int32_t PIOS_MPU6000_ClaimBus(bool fast_spi)
 static void PIOS_MPU6000_SetSpeed(const bool fast)
 {
     if (fast) {
-        PIOS_SPI_SetClockSpeed(dev->spi_id, dev->cfg->fast_prescaler);
+        PIOS_SPI_SetClockSpeed(dev->port_id, dev->cfg->fast_prescaler);
     } else {
-        PIOS_SPI_SetClockSpeed(dev->spi_id, dev->cfg->std_prescaler);
+        PIOS_SPI_SetClockSpeed(dev->port_id, dev->cfg->std_prescaler);
     }
 }
 
@@ -340,11 +376,11 @@ static int32_t PIOS_MPU6000_ClaimBusISR(bool *woken, bool fast_spi)
     if (PIOS_MPU6000_Validate(dev) != 0) {
         return -1;
     }
-    if (PIOS_SPI_ClaimBusISR(dev->spi_id, woken) != 0) {
+    if (PIOS_SPI_ClaimBusISR(dev->port_id, woken) != 0) {
         return -2;
     }
     PIOS_MPU6000_SetSpeed(fast_spi);
-    PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 0);
+    PIOS_SPI_RC_PinSet(dev->port_id, dev->slave_num, 0);
     return 0;
 }
 
@@ -357,8 +393,8 @@ static int32_t PIOS_MPU6000_ReleaseBus()
     if (PIOS_MPU6000_Validate(dev) != 0) {
         return -1;
     }
-    PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 1);
-    return PIOS_SPI_ReleaseBus(dev->spi_id);
+    PIOS_SPI_RC_PinSet(dev->port_id, dev->slave_num, 1);
+    return PIOS_SPI_ReleaseBus(dev->port_id);
 }
 
 /**
@@ -372,8 +408,8 @@ static int32_t PIOS_MPU6000_ReleaseBusISR(bool *woken)
     if (PIOS_MPU6000_Validate(dev) != 0) {
         return -1;
     }
-    PIOS_SPI_RC_PinSet(dev->spi_id, dev->slave_num, 1);
-    return PIOS_SPI_ReleaseBusISR(dev->spi_id, woken);
+    PIOS_SPI_RC_PinSet(dev->port_id, dev->slave_num, 1);
+    return PIOS_SPI_ReleaseBusISR(dev->port_id, woken);
 }
 
 /**
@@ -381,7 +417,7 @@ static int32_t PIOS_MPU6000_ReleaseBusISR(bool *woken)
  * @returns The register value or -1 if failure to get bus
  * @param reg[in] Register address to be read
  */
-static int32_t PIOS_MPU6000_GetReg(uint8_t reg)
+static int32_t PIOS_MPU6000_SPI_GetReg(uint8_t reg)
 {
     uint8_t data;
 
@@ -389,8 +425,8 @@ static int32_t PIOS_MPU6000_GetReg(uint8_t reg)
         return -1;
     }
 
-    PIOS_SPI_TransferByte(dev->spi_id, (0x80 | reg)); // request byte
-    data = PIOS_SPI_TransferByte(dev->spi_id, 0); // receive response
+    PIOS_SPI_TransferByte(dev->port_id, (0x80 | reg)); // request byte
+    data = PIOS_SPI_TransferByte(dev->port_id, 0); // receive response
 
     PIOS_MPU6000_ReleaseBus();
     return data;
@@ -404,18 +440,18 @@ static int32_t PIOS_MPU6000_GetReg(uint8_t reg)
  * \return -1 if unable to claim SPI bus
  * \return -2 if unable to claim i2c device
  */
-static int32_t PIOS_MPU6000_SetReg(uint8_t reg, uint8_t data)
+static int32_t PIOS_MPU6000_SPI_SetReg(uint8_t reg, uint8_t data)
 {
     if (PIOS_MPU6000_ClaimBus(false) != 0) {
         return -1;
     }
 
-    if (PIOS_SPI_TransferByte(dev->spi_id, 0x7f & reg) != 0) {
+    if (PIOS_SPI_TransferByte(dev->port_id, 0x7f & reg) != 0) {
         PIOS_MPU6000_ReleaseBus();
         return -2;
     }
 
-    if (PIOS_SPI_TransferByte(dev->spi_id, data) != 0) {
+    if (PIOS_SPI_TransferByte(dev->port_id, data) != 0) {
         PIOS_MPU6000_ReleaseBus();
         return -3;
     }
@@ -439,7 +475,7 @@ int32_t PIOS_MPU6000_DummyReadGyros()
         return -1;
     }
 
-    if (PIOS_SPI_TransferBlock(dev->spi_id, &buf[0], &rec[0], sizeof(buf), NULL) < 0) {
+    if (PIOS_SPI_TransferBlock(dev->port_id, &buf[0], &rec[0], sizeof(buf), NULL) < 0) {
         return -2;
     }
 
@@ -448,13 +484,111 @@ int32_t PIOS_MPU6000_DummyReadGyros()
     return 0;
 }
 
+#ifdef PIOS_INCLUDE_I2C
+static int32_t PIOS_MPU6000_I2C_SetReg(uint8_t address, uint8_t buffer)
+{
+    uint8_t data[] = {
+        address,
+        buffer,
+    };
+
+    const struct pios_i2c_txn txn_list[] = {
+        {
+            .info = __func__,
+            .addr = dev->cfg->i2c_addr,
+            .rw   = PIOS_I2C_TXN_WRITE,
+            .len  = sizeof(data),
+            .buf  = data,
+        }
+        ,
+    };
+
+    return PIOS_I2C_Transfer(dev->port_id, txn_list, NELEMENTS(txn_list));
+}
+
+static int32_t PIOS_MPU6000_I2C_Read(uint8_t address, uint8_t *buffer, uint8_t len)
+{
+    uint8_t addr_buffer[] = {
+        address,
+    };
+
+    const struct pios_i2c_txn txn_list[] = {
+        {
+            .info = __func__,
+            .addr = dev->cfg->i2c_addr,
+            .rw   = PIOS_I2C_TXN_WRITE,
+            .len  = sizeof(addr_buffer),
+            .buf  = addr_buffer,
+        }
+        ,
+        {
+            .info = __func__,
+            .addr = dev->cfg->i2c_addr,
+            .rw   = PIOS_I2C_TXN_READ,
+            .len  = len,
+            .buf  = buffer,
+        }
+    };
+
+    return PIOS_I2C_Transfer(dev->port_id, txn_list, NELEMENTS(txn_list));
+}
+
+static int32_t PIOS_MPU6000_I2C_GetReg(uint8_t address)
+{
+    uint8_t data;
+
+    if (PIOS_MPU6000_I2C_Read(address, &data, sizeof(data)) < 0) {
+        return -1;
+    }
+
+    return data;
+}
+
+static bool PIOS_MPU6000_I2C_Read_Completed()
+{
+    return PIOS_MPU6000_HandleData(gyro_read_timestamp);
+}
+
+static bool PIOS_MPU6000_I2C_ReadSensor(bool *woken)
+{
+    static uint8_t addr_buffer[] = {
+        PIOS_MPU6000_SENSOR_FIRST_REG,
+    };
+
+    static struct pios_i2c_txn txn_list[] = {
+        {
+            .info = __func__,
+// .addr = dev->cfg->i2c_addr,
+            .rw   = PIOS_I2C_TXN_WRITE,
+            .len  = sizeof(addr_buffer),
+            .buf  = addr_buffer,
+        }
+        ,
+        {
+            .info = __func__,
+// .addr = dev->cfg->i2c_addr,
+            .rw   = PIOS_I2C_TXN_READ,
+            .len  = sizeof(mpu6000_data_t) - 1,
+            .buf  = &mpu6000_data.buffer[1],
+        }
+    };
+
+    txn_list[0].addr = dev->cfg->i2c_addr;
+    txn_list[1].addr = dev->cfg->i2c_addr;
+
+    PIOS_I2C_Transfer_CallbackFromISR(dev->port_id, txn_list, NELEMENTS(txn_list), PIOS_MPU6000_I2C_Read_Completed, woken);
+
+    return false; /* we did not read anything now */
+}
+#endif /* PIOS_INCLUDE_I2C */
+
 /*
  * @brief Read the identification bytes from the MPU6000 sensor
  * \return ID read from MPU6000 or -1 if failure
  */
 int32_t PIOS_MPU6000_ReadID()
 {
-    int32_t mpu6000_id = PIOS_MPU6000_GetReg(PIOS_MPU6000_WHOAMI);
+    int32_t mpu6000_id = dev->driver->GetReg(PIOS_MPU6000_WHOAMI);
 
     if (mpu6000_id < 0) {
         return -1;
@@ -541,21 +675,21 @@ static int32_t PIOS_MPU6000_Test(void)
 
 bool PIOS_MPU6000_IRQHandler(void)
 {
-    uint32_t gyro_read_timestamp = PIOS_DELAY_GetRaw();
+    gyro_read_timestamp = PIOS_DELAY_GetRaw();
     bool woken = false;
 
     if (!mpu6000_configured) {
         return false;
     }
 
-    if (PIOS_MPU6000_ReadSensor(&woken)) {
+    if (dev->driver->ReadSensor(&woken)) {
         woken |= PIOS_MPU6000_HandleData(gyro_read_timestamp);
     }
 
     return woken;
 }
 
-static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp)
+static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp_p)
 {
     if (!queue_data) {
         return false;
@@ -598,21 +732,22 @@ static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp)
     const int16_t temp = GET_SENSOR_DATA(mpu6000_data, Temperature);
     // Temperature in degrees C = (TEMP_OUT Register Value as a signed quantity)/340 + 36.53
     queue_data->temperature = 3653 + (temp * 100) / 340;
-    queue_data->timestamp   = gyro_read_timestamp;
+    queue_data->timestamp   = gyro_read_timestamp_p;
+
 
     BaseType_t higherPriorityTaskWoken;
     xQueueSendToBackFromISR(dev->queue, (void *)queue_data, &higherPriorityTaskWoken);
     return higherPriorityTaskWoken == pdTRUE;
 }
 
-static bool PIOS_MPU6000_ReadSensor(bool *woken)
+static bool PIOS_MPU6000_SPI_ReadSensor(bool *woken)
 {
     const uint8_t mpu6000_send_buf[1 + PIOS_MPU6000_SAMPLES_BYTES] = { PIOS_MPU6000_SENSOR_FIRST_REG | 0x80 };
 
     if (PIOS_MPU6000_ClaimBusISR(woken, true) != 0) {
         return false;
     }
-    if (PIOS_SPI_TransferBlock(dev->spi_id, &mpu6000_send_buf[0], &mpu6000_data.buffer[0], sizeof(mpu6000_data_t), NULL) < 0) {
+    if (PIOS_SPI_TransferBlock(dev->port_id, &mpu6000_send_buf[0], &mpu6000_data.buffer[0], sizeof(mpu6000_data_t), NULL) < 0) {
         PIOS_MPU6000_ReleaseBusISR(woken);
         return false;
     }
@@ -628,7 +763,7 @@ bool PIOS_MPU6000_driver_Test(__attribute__((unused)) uintptr_t context)
 
 void PIOS_MPU6000_driver_Reset(__attribute__((unused)) uintptr_t context)
 {
-    PIOS_MPU6000_DummyReadGyros();
+// PIOS_MPU6000_DummyReadGyros();
 }
 
 void PIOS_MPU6000_driver_get_scale(float *scales, uint8_t size, __attribute__((unused)) uintptr_t contet)

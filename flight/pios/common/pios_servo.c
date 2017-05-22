@@ -100,7 +100,7 @@ extern void PIOS_Servo_Disable()
 
         GPIO_InitTypeDef init = chan->pin.init;
 
-#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
+#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE) || defined(STM32F3)
         init.GPIO_Mode = GPIO_Mode_OUT;
 #elif defined(STM32F10X_MD)
         init.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -147,7 +147,7 @@ static void PIOS_Servo_SetupBank(uint8_t bank_nr)
         switch (bank->mode) {
         case PIOS_SERVO_BANK_MODE_PWM:
         case PIOS_SERVO_BANK_MODE_SINGLE_PULSE:
-#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
+#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE) || defined(STM32F3)
             GPIO_PinAFConfig(chan->pin.gpio, chan->pin.pin_source, chan->remap);
 #elif defined(STM32F10X_MD)
             init.GPIO_Mode = GPIO_Mode_AF_PP;
@@ -162,28 +162,27 @@ static void PIOS_Servo_SetupBank(uint8_t bank_nr)
             /* Set up for output compare function */
             switch (chan->timer_chan) {
             case TIM_Channel_1:
-                TIM_OC1Init(chan->timer, &servo_cfg->tim_oc_init);
+                TIM_OC1Init(chan->timer, (TIM_OCInitTypeDef *)&servo_cfg->tim_oc_init);
                 TIM_OC1PreloadConfig(chan->timer, TIM_OCPreload_Enable);
                 break;
             case TIM_Channel_2:
-                TIM_OC2Init(chan->timer, &servo_cfg->tim_oc_init);
+                TIM_OC2Init(chan->timer, (TIM_OCInitTypeDef *)&servo_cfg->tim_oc_init);
                 TIM_OC2PreloadConfig(chan->timer, TIM_OCPreload_Enable);
                 break;
             case TIM_Channel_3:
-                TIM_OC3Init(chan->timer, &servo_cfg->tim_oc_init);
+                TIM_OC3Init(chan->timer, (TIM_OCInitTypeDef *)&servo_cfg->tim_oc_init);
                 TIM_OC3PreloadConfig(chan->timer, TIM_OCPreload_Enable);
                 break;
             case TIM_Channel_4:
-                TIM_OC4Init(chan->timer, &servo_cfg->tim_oc_init);
+                TIM_OC4Init(chan->timer, (TIM_OCInitTypeDef *)&servo_cfg->tim_oc_init);
                 TIM_OC4PreloadConfig(chan->timer, TIM_OCPreload_Enable);
                 break;
             }
-
             break;
 
         case PIOS_SERVO_BANK_MODE_DSHOT:
         {
-#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
+#if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE) || defined(STM32F3)
             init.GPIO_Mode = GPIO_Mode_OUT;
 #elif defined(STM32F10X_MD)
             init.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -504,8 +503,8 @@ void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t ban
 
             // Choose the correct prescaler value for the APB the timer is attached
 
-#if defined(STM32F10X_MD)
-            // F1 has both timer clock domains running at master clock speed
+#if defined(STM32F10X_MD) || defined(STM32F3)
+            // F1 & F3 have both timer clock domains running at master clock speed
             timer_clock = PIOS_MASTER_CLOCK;
 #elif defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
             if (timer == TIM1 || timer == TIM8 || timer == TIM9 || timer == TIM10 || timer == TIM11) {

@@ -165,6 +165,12 @@ static float gyroRaw[3];
 static float gyroDelta[3];
 
 // preconfigured filter chains selectable via revoSettings.FusionAlgorithm
+
+static const filterPipeline *acroQueue = &(filterPipeline) {
+    .filter = &cfFilter,
+    .next   = NULL,
+};
+
 static const filterPipeline *cfQueue = &(filterPipeline) {
     .filter = &airFilter,
     .next   = &(filterPipeline) {
@@ -434,6 +440,9 @@ static void StateEstimationCb(void)
         if (fsarmed == FLIGHTSTATUS_ARMED_DISARMED || fusionAlgorithm == FILTER_INIT_FORCE) {
             const filterPipeline *newFilterChain;
             switch ((RevoSettingsFusionAlgorithmOptions)revoSettings.FusionAlgorithm) {
+            case REVOSETTINGS_FUSIONALGORITHM_ACRONOSENSORS:
+                newFilterChain = acroQueue;
+                break;
             case REVOSETTINGS_FUSIONALGORITHM_BASICCOMPLEMENTARY:
                 newFilterChain = cfQueue;
                 // reinit Mag alarm

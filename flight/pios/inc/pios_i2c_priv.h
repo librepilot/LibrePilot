@@ -69,7 +69,7 @@ struct pios_i2c_adapter {
     const struct pios_i2c_txn *active_txn;
     const struct pios_i2c_txn *last_txn;
 
-    void    (*callback)();
+    pios_i2c_callback callback;
 
     uint8_t *active_byte;
     uint8_t *last_byte;

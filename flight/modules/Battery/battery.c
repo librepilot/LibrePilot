@@ -87,11 +87,10 @@ int32_t BatteryInitialize(void)
     batteryEnabled = true;
 #else
     HwSettingsInitialize();
-    uint8_t optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
+    HwSettingsOptionalModulesData optionalModules;
+    HwSettingsOptionalModulesGet(&optionalModules);
 
-    HwSettingsOptionalModulesGet(optionalModules);
-
-    if ((optionalModules[HWSETTINGS_OPTIONALMODULES_BATTERY] == HWSETTINGS_OPTIONALMODULES_ENABLED)) {
+    if (optionalModules.Battery == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         batteryEnabled = true;
     } else {
         batteryEnabled = false;
@@ -149,17 +148,19 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
         batterySettings.ResetConsumedEnergy = false;
         FlightBatterySettingsSet(&batterySettings);
     }
-
+#ifdef PIOS_INCLUDE_ADC
     // calculate the battery parameters
     if (voltageADCPin >= 0) {
         flightBatteryData.Voltage = (PIOS_ADC_PinGetVolt(voltageADCPin) - batterySettings.SensorCalibrations.VoltageZero) * batterySettings.SensorCalibrations.VoltageFactor; // in Volts
     } else {
         flightBatteryData.Voltage = 0; // Dummy placeholder value. This is in case we get another source of battery current which is not from the ADC
     }
-
+#else
+    flightBatteryData.Voltage = 0;
+#endif /* PIOS_INCLUDE_ADC */
     // voltage available: get the number of cells if possible, desired and not armed
     GetNbCells(&batterySettings, &flightBatteryData);
-
+#ifdef PIOS_INCLUDE_ADC
     // ad a plausibility check: zero voltage => zero current
     if (currentADCPin >= 0 && flightBatteryData.Voltage > 0.f) {
         flightBatteryData.Current = (PIOS_ADC_PinGetVolt(currentADCPin) - batterySettings.SensorCalibrations.CurrentZero) * batterySettings.SensorCalibrations.CurrentFactor; // in Amps
@@ -169,6 +170,9 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
     } else { // If there's no current measurement, we still need to assign one. Make it negative, so it can never trigger an alarm
         flightBatteryData.Current = -0; // Dummy placeholder value. This is in case we get another source of battery current which is not from the ADC
     }
+#else
+    flightBatteryData.Current = -0;
+#endif /* PIOS_INCLUDE_ADC */
 
     // For safety reasons consider only positive currents in energy comsumption, i.e. no charging up.
     // necesary when sensor are not perfectly calibrated

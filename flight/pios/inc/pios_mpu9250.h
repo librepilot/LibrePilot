@@ -153,6 +153,7 @@
 #define PIOS_MPU9250_ASAZ                     0X12
 
 /* IDs */
+#define PIOS_MPU6500_GYRO_ACC_ID              0x70
 #define PIOS_MPU9250_GYRO_ACC_ID              0x71
 #define PIOS_MPU9250_MAG_ID                   0x48
 

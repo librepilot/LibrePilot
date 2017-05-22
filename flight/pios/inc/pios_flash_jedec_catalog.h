@@ -72,6 +72,15 @@ const struct pios_flash_jedec_cfg pios_flash_jedec_catalog[] =
         .fast_read    = 0x0B,
         .fast_read_dummy_bytes = 1,
     },
+    { // 25q64
+        .expect_manufacturer = JEDEC_MANUFACTURER_WINBOND,
+        .expect_memorytype   = 0x40,
+        .expect_capacity     = 0x17,
+        .sector_erase = 0x20,
+        .chip_erase   = 0x60,
+        .fast_read    = 0x0B,
+        .fast_read_dummy_bytes = 1,
+    },
     { // 25q512
         .expect_manufacturer = JEDEC_MANUFACTURER_MICRON,
         .expect_memorytype   = 0xBA,

@@ -134,6 +134,7 @@ enum pios_mpu6000_orientation { // clockwise rotation from board forward
 
 struct pios_mpu6000_cfg {
     const struct pios_exti_cfg *exti_cfg; /* Pointer to the EXTI configuration */
+    uint8_t i2c_addr;
 
     uint8_t Fifo_store; /* FIFO storage of different readings (See datasheet page 31 for more details) */
 
@@ -154,7 +155,7 @@ struct pios_mpu6000_cfg {
 };
 
 /* Public Functions */
-extern int32_t PIOS_MPU6000_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_mpu6000_cfg *new_cfg);
+extern int32_t PIOS_MPU6000_Init(uint32_t port_id, uint32_t slave_num, const struct pios_mpu6000_cfg *new_cfg);
 extern int32_t PIOS_MPU6000_ConfigureRanges(enum pios_mpu6000_range gyroRange, enum pios_mpu6000_accel_range accelRange, enum pios_mpu6000_filter filterSetting);
 extern int32_t PIOS_MPU6000_ReadID();
 extern void PIOS_MPU6000_Register();

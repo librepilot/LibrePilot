@@ -42,6 +42,10 @@
 # include <pios_ms5611.h>
 #endif
 
+#ifdef PIOS_INCLUDE_BMP280
+# include <pios_bmp280.h>
+#endif
+
 #ifdef PIOS_INCLUDE_ADXL345
 # include <pios_adxl345.h>
 #endif
@@ -75,7 +79,13 @@ void PIOS_BOARD_Sensors_Configure()
 #ifdef PIOS_INCLUDE_MPU6000
     const struct pios_mpu6000_cfg *mpu6000_cfg = PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(pios_board_info_blob.board_rev);
     if (mpu6000_cfg) {
+#ifdef PIOS_SPI_MPU6000_ADAPTER
         PIOS_MPU6000_Init(PIOS_SPI_MPU6000_ADAPTER, 0, mpu6000_cfg);
+#elif defined(PIOS_I2C_MPU6000_ADAPTER)
+        PIOS_MPU6000_Init(PIOS_I2C_MPU6000_ADAPTER, 0, mpu6000_cfg);
+#else
+#error PIOS_INCLUDE_MPU6000 requires one of PIOS_SPI_MPU6000_ADAPTER or PIOS_I2C_MPU6000_ADAPTER
+#endif
         PIOS_MPU6000_CONFIG_Configure();
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
         PIOS_MPU6000_Register();
@@ -151,10 +161,14 @@ void PIOS_BOARD_Sensors_Configure()
 
         if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
             // i2c_external
+#ifdef PIOS_I2C_EXTERNAL_ADAPTER
             i2c_id = PIOS_I2C_EXTERNAL_ADAPTER;
+#endif
         } else if (option == AUXMAGSETTINGS_TYPE_I2C) {
             // i2c_internal (or Sparky2/F3 dedicated I2C port)
+#ifdef PIOS_I2C_FLEXI_ADAPTER
             i2c_id = PIOS_I2C_FLEXI_ADAPTER;
+#endif
         }
 
         if (i2c_id) {
@@ -181,6 +195,13 @@ void PIOS_BOARD_Sensors_Configure()
     if (ms5611_cfg) {
         PIOS_MS5611_Init(ms5611_cfg, PIOS_I2C_MS5611_INTERNAL_ADAPTER);
         PIOS_MS5611_Register();
+    }
+#endif
+
+#ifdef PIOS_INCLUDE_BMP280
+    const struct pios_bmp280_cfg *bmp280_cfg = PIOS_BOARD_HW_DEFS_GetBMP280Cfg(pios_board_info_blob.board_rev);
+    if(bmp280_cfg) {
+        PIOS_BMP280_Init(bmp280_cfg, PIOS_I2C_BMP280_INTERNAL_ADAPTER);
     }
 #endif
 

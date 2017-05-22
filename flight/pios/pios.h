@@ -64,6 +64,8 @@ extern "C" {
 #include <stm32f4xx_rcc.h>
 #elif defined(STM32F0)
 #include <stm32f0xx.h>
+#elif defined(STM32F3)
+#include <stm32f30x.h>
 #else
 #error "No Architecture defined"
 #endif

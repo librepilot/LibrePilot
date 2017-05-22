@@ -200,7 +200,7 @@ void PIOS_BOARD_Sensors_Configure()
 
 #ifdef PIOS_INCLUDE_BMP280
     const struct pios_bmp280_cfg *bmp280_cfg = PIOS_BOARD_HW_DEFS_GetBMP280Cfg(pios_board_info_blob.board_rev);
-    if(bmp280_cfg) {
+    if (bmp280_cfg) {
         PIOS_BMP280_Init(bmp280_cfg, PIOS_I2C_BMP280_INTERNAL_ADAPTER);
     }
 #endif

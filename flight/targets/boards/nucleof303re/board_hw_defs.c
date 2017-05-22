@@ -849,6 +849,3 @@ static const struct pios_mpu9250_cfg pios_mpu9250_cfg = {
     .max_downsample = 26,
 };
 #endif /* PIOS_INCLUDE_MPU9250 */
-
-
-

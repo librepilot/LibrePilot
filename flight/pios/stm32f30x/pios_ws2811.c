@@ -43,13 +43,13 @@
 // timer compare value for logical 0
 #define BIT_COMPARE_0              9
 
-#define PIOS_WS2811_MAGIC 0x00281100
+#define PIOS_WS2811_MAGIC          0x00281100
 
 struct pios_ws2811_dev {
     uint32_t magic;
     const struct pios_ws2811_cfg *config;
-    uint8_t dma_buffer[WS2811_DMA_BUFFER_SIZE];
-    bool dma_active;
+    uint8_t  dma_buffer[WS2811_DMA_BUFFER_SIZE];
+    bool     dma_active;
 };
 
 struct pios_ws2811_dev *ws2811_dev;
@@ -66,7 +66,7 @@ void PIOS_WS2811_Init(uint32_t *dev_id, const struct pios_ws2811_cfg *ws2811_cfg
 
     memset(ws2811_dev, 0, sizeof(*ws2811_dev));
 
-    ws2811_dev->magic = PIOS_WS2811_MAGIC;
+    ws2811_dev->magic  = PIOS_WS2811_MAGIC;
     ws2811_dev->config = ws2811_cfg;
 
 
@@ -148,8 +148,8 @@ void PIOS_WS2811_Init(uint32_t *dev_id, const struct pios_ws2811_cfg *ws2811_cfg
     TIM_DMACmd(ws2811_cfg->timer, ws2811_cfg->timer_dma_source, ENABLE);
 
     DMA_ITConfig(ws2811_cfg->dma_chan, DMA_IT_TC, ENABLE);
-    
-    *dev_id = (uint32_t) ws2811_dev;
+
+    *dev_id = (uint32_t)ws2811_dev;
 }
 
 void PIOS_WS2811_DMA_irq_handler()

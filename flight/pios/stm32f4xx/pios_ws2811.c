@@ -186,8 +186,8 @@ void PIOS_WS2811_Init(uint32_t *dev_id, const struct pios_ws2811_cfg *ws2811_cfg
     // Setup timers
     setupTimer();
     setupDMA();
- 
-    // 
+
+    //
     *dev_id = PIOS_WS2811_MAGIC;
 }
 

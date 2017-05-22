@@ -128,7 +128,7 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
 
     case 0x1005:
         return SetupWizard::CONTROLLER_PIKOBLX;
-    
+
     default:
         return SetupWizard::CONTROLLER_UNKNOWN;
     }
@@ -252,7 +252,7 @@ void ControllerPage::connectionStatusChanged()
             ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
             break;
 
-                
+
         default:
             ui->boardImg->setPixmap(QPixmap());
             break;

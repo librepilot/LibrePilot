@@ -12,7 +12,7 @@
     {                                                                       \
         .regs  = _usart,                                                    \
         .remap = GPIO_AF_##_usart,                                        \
-        .rx = {                                                           \
+        .rx    = {                                                           \
             .gpio = GPIO##_rx_gpio,                                               \
             .init = {                                                       \
                 .GPIO_Pin   = GPIO_Pin_##_rx_pin,                                      \

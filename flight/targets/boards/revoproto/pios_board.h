@@ -135,7 +135,7 @@ extern uint32_t pios_i2c_flexiport_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS 4
+#define PIOS_COM_MAX_DEVS  4
 
 #ifdef PIOS_INCLUDE_WS2811
 extern uint32_t pios_ws2811_id;

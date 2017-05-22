@@ -58,7 +58,7 @@ struct pios_adc_pin_config {
 };
 
 static const struct pios_adc_pin_config config[] = PIOS_DMA_PIN_CONFIG;
-#define PIOS_ADC_NUM_PINS (sizeof(config) / sizeof(config[0]))
+#define PIOS_ADC_NUM_PINS        (sizeof(config) / sizeof(config[0]))
 
 #define PIOS_ADC_DMA_BUFFER_SIZE (PIOS_ADC_MAX_SAMPLES * PIOS_ADC_NUM_PINS)
 
@@ -74,13 +74,13 @@ struct adc_accumulator {
 
 struct pios_adc_dev {
     const struct pios_adc_cfg *cfg;
-    ADCCallback      callback_function;
+    ADCCallback  callback_function;
 #if defined(PIOS_INCLUDE_FREERTOS)
-    xQueueHandle     data_queue;
+    xQueueHandle data_queue;
 #endif
     enum pios_adc_dev_magic magic;
     volatile uint16_t raw_data_buffer[PIOS_ADC_DMA_BUFFER_SIZE]  __attribute__((aligned(4))); // Double buffer that DMA just used
-    struct adc_accumulator accumulator[PIOS_ADC_NUM_PINS];
+    struct adc_accumulator  accumulator[PIOS_ADC_NUM_PINS];
 };
 
 struct pios_adc_dev *pios_adc_dev;
@@ -109,81 +109,82 @@ static void init_dma(struct pios_adc_dev *adc_dev)
     /* Disable interrupts */
     DMA_ITConfig(pios_adc_dev->cfg->dma.rx.channel, pios_adc_dev->cfg->dma.irq.flags, DISABLE);
 
-	/* Configure DMA channel */
-	DMA_DeInit(adc_dev->cfg->dma.rx.channel);
-	DMA_InitTypeDef DMAInit = adc_dev->cfg->dma.rx.init;
-    DMAInit.DMA_PeripheralBaseAddr = (uint32_t) &adc_dev->cfg->adc_dev->DR;
+    /* Configure DMA channel */
+    DMA_DeInit(adc_dev->cfg->dma.rx.channel);
+    DMA_InitTypeDef DMAInit = adc_dev->cfg->dma.rx.init;
+    DMAInit.DMA_PeripheralBaseAddr = (uint32_t)&adc_dev->cfg->adc_dev->DR;
 
-	DMAInit.DMA_MemoryBaseAddr = (uint32_t)&pios_adc_dev->raw_data_buffer[0];
-	DMAInit.DMA_BufferSize = PIOS_ADC_DMA_BUFFER_SIZE;
-	DMAInit.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMAInit.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMAInit.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMAInit.DMA_MemoryBaseAddr     = (uint32_t)&pios_adc_dev->raw_data_buffer[0];
+    DMAInit.DMA_BufferSize         = PIOS_ADC_DMA_BUFFER_SIZE;
+    DMAInit.DMA_DIR = DMA_DIR_PeripheralSRC;
+    DMAInit.DMA_PeripheralInc      = DMA_PeripheralInc_Disable;
+    DMAInit.DMA_MemoryInc          = DMA_MemoryInc_Enable;
     DMAInit.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-    DMAInit.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-	DMAInit.DMA_Mode = DMA_Mode_Circular;
-	DMAInit.DMA_M2M = DMA_M2M_Disable;
+    DMAInit.DMA_MemoryDataSize     = DMA_MemoryDataSize_HalfWord;
+    DMAInit.DMA_Mode = DMA_Mode_Circular;
+    DMAInit.DMA_M2M  = DMA_M2M_Disable;
 
-	DMA_Init(adc_dev->cfg->dma.rx.channel, &DMAInit); /* channel is actually stream ... */
+    DMA_Init(adc_dev->cfg->dma.rx.channel, &DMAInit); /* channel is actually stream ... */
 
-	/* enable DMA */
-	DMA_Cmd(adc_dev->cfg->dma.rx.channel, ENABLE);
+    /* enable DMA */
+    DMA_Cmd(adc_dev->cfg->dma.rx.channel, ENABLE);
 
-	/* Trigger interrupt when for half conversions too to indicate double buffer */
-	DMA_ITConfig(adc_dev->cfg->dma.rx.channel, DMA_IT_TC, ENABLE);
-	DMA_ITConfig(adc_dev->cfg->dma.rx.channel, DMA_IT_HT, ENABLE);
+    /* Trigger interrupt when for half conversions too to indicate double buffer */
+    DMA_ITConfig(adc_dev->cfg->dma.rx.channel, DMA_IT_TC, ENABLE);
+    DMA_ITConfig(adc_dev->cfg->dma.rx.channel, DMA_IT_HT, ENABLE);
 
-	/* Configure DMA interrupt */
-	NVIC_InitTypeDef NVICInit = adc_dev->cfg->dma.irq.init;
-	NVIC_Init(&NVICInit);
-
+    /* Configure DMA interrupt */
+    NVIC_InitTypeDef NVICInit = adc_dev->cfg->dma.irq.init;
+    NVIC_Init(&NVICInit);
 }
 
 static void init_adc(struct pios_adc_dev *adc_dev)
 {
-	ADC_DeInit(adc_dev->cfg->adc_dev);
+    ADC_DeInit(adc_dev->cfg->adc_dev);
 
-	if (adc_dev->cfg->adc_dev == ADC1 || adc_dev->cfg->adc_dev == ADC2 )
-		RCC_ADCCLKConfig(RCC_ADC12PLLCLK_Div32);
-	else
-		RCC_ADCCLKConfig(RCC_ADC34PLLCLK_Div32);
+    if (adc_dev->cfg->adc_dev == ADC1 || adc_dev->cfg->adc_dev == ADC2) {
+        RCC_ADCCLKConfig(RCC_ADC12PLLCLK_Div32);
+    } else {
+        RCC_ADCCLKConfig(RCC_ADC34PLLCLK_Div32);
+    }
 
-	ADC_VoltageRegulatorCmd(adc_dev->cfg->adc_dev, ENABLE);
-	PIOS_DELAY_WaituS(10);
-	ADC_SelectCalibrationMode(adc_dev->cfg->adc_dev, ADC_CalibrationMode_Single);
-	ADC_StartCalibration(adc_dev->cfg->adc_dev);
-	while (ADC_GetCalibrationStatus(adc_dev->cfg->adc_dev) != RESET)
-		;
+    ADC_VoltageRegulatorCmd(adc_dev->cfg->adc_dev, ENABLE);
+    PIOS_DELAY_WaituS(10);
+    ADC_SelectCalibrationMode(adc_dev->cfg->adc_dev, ADC_CalibrationMode_Single);
+    ADC_StartCalibration(adc_dev->cfg->adc_dev);
+    while (ADC_GetCalibrationStatus(adc_dev->cfg->adc_dev) != RESET) {
+        ;
+    }
 
-	/* Do common ADC init */
-	ADC_CommonInitTypeDef ADC_CommonInitStructure;
-	ADC_CommonStructInit(&ADC_CommonInitStructure);
+    /* Do common ADC init */
+    ADC_CommonInitTypeDef ADC_CommonInitStructure;
+    ADC_CommonStructInit(&ADC_CommonInitStructure);
 
-    ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+    ADC_CommonInitStructure.ADC_Mode    = ADC_Mode_Independent;
     ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
 
-	ADC_CommonInitStructure.ADC_Clock = ADC_Clock_AsynClkMode;
-	ADC_CommonInitStructure.ADC_DMAMode = ADC_DMAMode_Circular;
-	ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
-	ADC_DMAConfig(adc_dev->cfg->adc_dev, ADC_DMAMode_Circular);
-	ADC_CommonInit(adc_dev->cfg->adc_dev, &ADC_CommonInitStructure);
+    ADC_CommonInitStructure.ADC_Clock   = ADC_Clock_AsynClkMode;
+    ADC_CommonInitStructure.ADC_DMAMode = ADC_DMAMode_Circular;
+    ADC_CommonInitStructure.ADC_TwoSamplingDelay = 0;
+    ADC_DMAConfig(adc_dev->cfg->adc_dev, ADC_DMAMode_Circular);
+    ADC_CommonInit(adc_dev->cfg->adc_dev, &ADC_CommonInitStructure);
 
-	ADC_InitTypeDef ADC_InitStructure;
-	ADC_StructInit(&ADC_InitStructure);
-	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
-	ADC_InitStructure.ADC_ContinuousConvMode = ADC_ContinuousConvMode_Enable;
-	ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
-	ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
-	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+    ADC_InitTypeDef ADC_InitStructure;
+    ADC_StructInit(&ADC_InitStructure);
+    ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+    ADC_InitStructure.ADC_ContinuousConvMode    = ADC_ContinuousConvMode_Enable;
+    ADC_InitStructure.ADC_ExternalTrigConvEvent = ADC_ExternalTrigConvEvent_0;
+    ADC_InitStructure.ADC_ExternalTrigEventEdge = ADC_ExternalTrigEventEdge_None;
+    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 
-	ADC_InitStructure.ADC_NbrOfRegChannel = ((PIOS_ADC_NUM_PINS) /* >> 1*/);
+    ADC_InitStructure.ADC_NbrOfRegChannel = ((PIOS_ADC_NUM_PINS) /* >> 1*/);
 
-	ADC_Init(adc_dev->cfg->adc_dev, &ADC_InitStructure);
+    ADC_Init(adc_dev->cfg->adc_dev, &ADC_InitStructure);
 
-	/* Enable DMA request */
-	ADC_DMACmd(adc_dev->cfg->adc_dev, ENABLE);
+    /* Enable DMA request */
+    ADC_DMACmd(adc_dev->cfg->adc_dev, ENABLE);
 
-	/* Configure input scan */
+    /* Configure input scan */
 
     for (uint32_t i = 0; i < PIOS_ADC_NUM_PINS; i++) {
         ADC_RegularChannelConfig(adc_dev->cfg->adc_dev,
@@ -192,11 +193,13 @@ static void init_adc(struct pios_adc_dev *adc_dev)
                                  ADC_SampleTime_61Cycles5); /* XXX this is totally arbitrary... */
     }
 
-	ADC_Cmd(adc_dev->cfg->adc_dev, ENABLE);
+    ADC_Cmd(adc_dev->cfg->adc_dev, ENABLE);
 
-	while (!ADC_GetFlagStatus(adc_dev->cfg->adc_dev, ADC_FLAG_RDY));
+    while (!ADC_GetFlagStatus(adc_dev->cfg->adc_dev, ADC_FLAG_RDY)) {
+        ;
+    }
 
-	ADC_StartConversion(adc_dev->cfg->adc_dev);
+    ADC_StartConversion(adc_dev->cfg->adc_dev);
 }
 
 static bool PIOS_ADC_validate(struct pios_adc_dev *dev)
@@ -237,7 +240,7 @@ static struct pios_adc_dev *PIOS_ADC_Allocate()
 int32_t PIOS_ADC_Init(const struct pios_adc_cfg *cfg)
 {
     PIOS_Assert(cfg);
-    
+
     pios_adc_dev = PIOS_ADC_Allocate();
     if (pios_adc_dev == NULL) {
         return -1;
@@ -371,9 +374,9 @@ void accumulate(struct pios_adc_dev *dev, volatile uint16_t *buffer)
     /*
      * Accumulate sampled values.
      */
-    
+
     int count = (PIOS_ADC_MAX_SAMPLES / 2);
-    
+
     while (count--) {
         for (uint32_t i = 0; i < PIOS_ADC_NUM_PINS; ++i) {
             dev->accumulator[i].accumulator += *sp++;
@@ -416,7 +419,7 @@ void PIOS_ADC_DMA_Handler(void)
 
     if (DMA_GetFlagStatus(pios_adc_dev->cfg->full_flag)) { // whole double buffer filled
         DMA_ClearFlag(pios_adc_dev->cfg->full_flag);
-        accumulate(pios_adc_dev, &pios_adc_dev->raw_data_buffer[PIOS_ADC_DMA_BUFFER_SIZE/2]);
+        accumulate(pios_adc_dev, &pios_adc_dev->raw_data_buffer[PIOS_ADC_DMA_BUFFER_SIZE / 2]);
     } else if (DMA_GetFlagStatus(pios_adc_dev->cfg->half_flag)) {
         DMA_ClearFlag(pios_adc_dev->cfg->half_flag);
         accumulate(pios_adc_dev, &pios_adc_dev->raw_data_buffer[0]);

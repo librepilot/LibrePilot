@@ -191,21 +191,21 @@ static const struct pios_exti_cfg pios_exti_mpu6000_cfg __exti_config = {
 static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
     .exti_cfg   = &pios_exti_mpu6000_cfg,
 #ifdef PIOS_MPU6000_I2C_ADDR
-    .i2c_addr  = PIOS_MPU6000_I2C_ADDR,
+    .i2c_addr   = PIOS_MPU6000_I2C_ADDR,
 #endif
     .Fifo_store = PIOS_MPU6000_FIFO_TEMP_OUT | PIOS_MPU6000_FIFO_GYRO_X_OUT | PIOS_MPU6000_FIFO_GYRO_Y_OUT | PIOS_MPU6000_FIFO_GYRO_Z_OUT,
     // Clock at 8 khz, downsampled by 12 for 666Hz
     .Smpl_rate_div_no_dlp = 11,
     // Clock at 1 khz, downsampled by 1 for 1000 Hz
     .Smpl_rate_div_dlp    = 0,
-    .interrupt_cfg  = PIOS_MPU6000_INT_CLR_ANYRD,
-    .interrupt_en   = PIOS_MPU6000_INTEN_DATA_RDY,
+    .interrupt_cfg = PIOS_MPU6000_INT_CLR_ANYRD,
+    .interrupt_en  = PIOS_MPU6000_INTEN_DATA_RDY,
     .User_ctl             = PIOS_MPU6000_USERCTL_FIFO_EN,
-    .Pwr_mgmt_clk   = PIOS_MPU6000_PWRMGMT_PLL_X_CLK,
-    .accel_range    = PIOS_MPU6000_ACCEL_8G,
-    .gyro_range     = PIOS_MPU6000_SCALE_2000_DEG,
+    .Pwr_mgmt_clk  = PIOS_MPU6000_PWRMGMT_PLL_X_CLK,
+    .accel_range   = PIOS_MPU6000_ACCEL_8G,
+    .gyro_range    = PIOS_MPU6000_SCALE_2000_DEG,
     .filter               = PIOS_MPU6000_LOWPASS_256_HZ,
-    .orientation    = PIOS_MPU6000_TOP_180DEG,
+    .orientation   = PIOS_MPU6000_TOP_180DEG,
 };
 
 const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(__attribute__((unused)) uint32_t board_revision)
@@ -714,18 +714,18 @@ void I2C1_EV_EXTI23_IRQHandler() __attribute__((alias("PIOS_I2C_ev_irq_handler")
 void I2C1_ER_IRQHandler() __attribute__((alias("PIOS_I2C_er_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_cfg = {
-    .regs  = I2C1,
+    .regs     = I2C1,
     .remapSCL = GPIO_AF_4,
     .remapSDA = GPIO_AF_4,
-    .init  = {
+    .init     = {
         .I2C_Mode = I2C_Mode_I2C,
         .I2C_OwnAddress1                       = 0,
         .I2C_Ack  = I2C_Ack_Enable,
         .I2C_AcknowledgedAddress               = I2C_AcknowledgedAddress_7bit,
         .I2C_DigitalFilter = 0x00,
         .I2C_AnalogFilter  = I2C_AnalogFilter_Enable,
-//        .I2C_Timing                            = 0x70310309,                  // 50kHz I2C @ 8MHz input -> PRESC=0x7, SCLDEL=0x3, SDADEL=0x1, SCLH=0x03, SCLL=0x09
-        .I2C_Timing = 0x00E0257A, // 400 Khz, 72Mhz Clock, Analog Filter Delay ON, Rise 100, Fall 10.
+// .I2C_Timing                            = 0x70310309,                  // 50kHz I2C @ 8MHz input -> PRESC=0x7, SCLDEL=0x3, SDADEL=0x1, SCLH=0x03, SCLL=0x09
+        .I2C_Timing                            = 0x00E0257A,                  // 400 Khz, 72Mhz Clock, Analog Filter Delay ON, Rise 100, Fall 10.
     },
     .transfer_timeout_ms                       = 50,
     .scl                                       = {

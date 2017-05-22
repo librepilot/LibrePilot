@@ -172,7 +172,7 @@ void PIOS_Board_Init(void)
     uint8_t hwsettings_cc_mainport;
     HwSettingsCC_MainPortGet(&hwsettings_cc_mainport);
 
-    if(hwsettings_cc_mainport < NELEMENTS(usart_main_function_map)) {
+    if (hwsettings_cc_mainport < NELEMENTS(usart_main_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_main_cfg, usart_main_function_map[hwsettings_cc_mainport]);
     }
 
@@ -196,16 +196,16 @@ void PIOS_Board_Init(void)
 
     uint8_t hwsettings_cc_flexiport;
     HwSettingsCC_FlexiPortGet(&hwsettings_cc_flexiport);
-    
-    if(hwsettings_cc_flexiport < NELEMENTS(usart_flexi_function_map)) {
+
+    if (hwsettings_cc_flexiport < NELEMENTS(usart_flexi_function_map)) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, usart_flexi_function_map[hwsettings_cc_flexiport]);
     }
-    
-    if(hwsettings_cc_flexiport == HWSETTINGS_CC_FLEXIPORT_PPM) {
+
+    if (hwsettings_cc_flexiport == HWSETTINGS_CC_FLEXIPORT_PPM) {
 #if defined(PIOS_INCLUDE_PPM_FLEXI)
         PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_flexi_cfg);
 #endif /* PIOS_INCLUDE_PPM_FLEXI */
-    } else if(hwsettings_cc_flexiport == HWSETTINGS_CC_FLEXIPORT_I2C) {
+    } else if (hwsettings_cc_flexiport == HWSETTINGS_CC_FLEXIPORT_I2C) {
         // F303CC has no I2C on CC3D flexi.
     }
 
@@ -250,7 +250,6 @@ void PIOS_Board_Init(void)
     case HWSETTINGS_CC_RCVRPORT_OUTPUTSONESHOT:
         break;
     }
-
 
 
 #if defined(PIOS_INCLUDE_GCSRCVR)

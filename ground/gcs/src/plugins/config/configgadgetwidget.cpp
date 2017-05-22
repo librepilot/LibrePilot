@@ -205,7 +205,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
 
             ConfigTaskWidget *widget;
 
-            if((board & 0x00ff) == 0x03) {
+            if ((board & 0x00ff) == 0x03) {
                 widget = new ConfigRevoWidget(this);
             } else {
                 widget = new ConfigCCAttitudeWidget(this);
@@ -239,23 +239,23 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigSparky2HWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
-        } else if(( board & 0xff00) == 0x1000) {
+        } else if ((board & 0xff00) == 0x1000) {
             // SPRacingF3
             ConfigTaskWidget *widget;
             widget = new ConfigRevoWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
-            
+
             widget = 0;
-            
+
             if (board == 0x1001) {
                 widget = new ConfigSPRacingF3HWWidget(this);
             } else if (board == 0x1002 || board == 0x1003) { // SpracingF3 EVO or NucleoF303RE
-                //widget = new ConfigSPRacingF3EVOHWWidget(this);
+                // widget = new ConfigSPRacingF3EVOHWWidget(this);
             } else if (board == 0x1005) {
-                //widget = new ConfigPikoBLXHWWidget(this);
+                // widget = new ConfigPikoBLXHWWidget(this);
             }
-            if(widget) {
+            if (widget) {
                 widget->bind();
                 stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
             }

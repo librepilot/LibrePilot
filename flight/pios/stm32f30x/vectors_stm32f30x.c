@@ -32,7 +32,7 @@ typedef void (vector)(void);
 /** default interrupt handler */
 static void default_io_handler(void)
 {
-    asm volatile("BKPT #01");
+    asm volatile ("BKPT #01");
     for (;;) {
         ;
     }
@@ -171,7 +171,7 @@ vector *io_vectors[] __attribute__((section(".io_vectors"))) = {
     TIM8_CC_IRQHandler, // TIM8 Capture Compare
     ADC3_IRQHandler,    // ADC3
 #if defined(STM32F303xD) || defined(STM32F303xE)
-    FMC_IRQHandler, // FMC_IRQHandler (Available in STM32F303xD/E only)
+    FMC_IRQHandler,     // FMC_IRQHandler (Available in STM32F303xD/E only)
 #else
     Reserved_IRQHandler, // reserved
 #endif

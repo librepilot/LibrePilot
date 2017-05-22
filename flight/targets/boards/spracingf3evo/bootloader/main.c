@@ -199,7 +199,7 @@ void jump_to_app()
         Jump_To_Application();
     } else {
         DeviceState = failed_jump;
-        JumpToApp = FALSE;
+        JumpToApp   = FALSE;
         return;
     }
 }

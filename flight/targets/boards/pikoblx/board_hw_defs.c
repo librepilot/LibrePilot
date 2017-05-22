@@ -44,7 +44,7 @@ static const struct pios_gpio pios_leds[] = {
         },
         .active_low         = true
     },
-    [PIOS_LED_ALARM] = {
+    [PIOS_LED_ALARM] =     {
         .pin                =             {
             .gpio = GPIOB,
             .init =             {
@@ -57,7 +57,7 @@ static const struct pios_gpio pios_leds[] = {
         },
         .active_low         = true
     },
-    [PIOS_LED_BUZZER] =     { /* not really LED, but buzzer! */
+    [PIOS_LED_BUZZER] =    { /* not really LED, but buzzer! */
         .pin                =             {
             .gpio = GPIOA,
             .init =             {
@@ -290,34 +290,34 @@ static const struct pios_tim_clock_cfg tim_17_cfg = {
 
 #include <pios_servo_config.h>
 
-#define GPIO_AF_PA1_TIM2      GPIO_AF_1
-#define GPIO_AF_PA0_TIM2      GPIO_AF_1
-#define GPIO_AF_PA8_TIM1      GPIO_AF_6
-#define GPIO_AF_PA2_TIM2      GPIO_AF_1
-#define GPIO_AF_PB6_TIM4      GPIO_AF_2
-#define GPIO_AF_PB5_TIM3      GPIO_AF_2
-#define GPIO_AF_PB0_TIM3      GPIO_AF_2
-#define GPIO_AF_PB1_TIM3      GPIO_AF_2
-#define GPIO_AF_PB9_TIM4      GPIO_AF_2
-#define GPIO_AF_PB8_TIM4      GPIO_AF_2
-#define GPIO_AF_PB7_TIM4      GPIO_AF_2
-#define GPIO_AF_PB4_TIM3      GPIO_AF_2
-#define GPIO_AF_PB11_TIM2     GPIO_AF_1
-#define GPIO_AF_PA15_TIM8     GPIO_AF_2
-#define GPIO_AF_PA3_TIM15     GPIO_AF_9
-#define GPIO_AF_PA6_TIM3      GPIO_AF_2
-#define GPIO_AF_PA7_TIM3      GPIO_AF_2
-#define GPIO_AF_PA10_TIM2     GPIO_AF_10
+#define GPIO_AF_PA1_TIM2       GPIO_AF_1
+#define GPIO_AF_PA0_TIM2       GPIO_AF_1
+#define GPIO_AF_PA8_TIM1       GPIO_AF_6
+#define GPIO_AF_PA2_TIM2       GPIO_AF_1
+#define GPIO_AF_PB6_TIM4       GPIO_AF_2
+#define GPIO_AF_PB5_TIM3       GPIO_AF_2
+#define GPIO_AF_PB0_TIM3       GPIO_AF_2
+#define GPIO_AF_PB1_TIM3       GPIO_AF_2
+#define GPIO_AF_PB9_TIM4       GPIO_AF_2
+#define GPIO_AF_PB8_TIM4       GPIO_AF_2
+#define GPIO_AF_PB7_TIM4       GPIO_AF_2
+#define GPIO_AF_PB4_TIM3       GPIO_AF_2
+#define GPIO_AF_PB11_TIM2      GPIO_AF_1
+#define GPIO_AF_PA15_TIM8      GPIO_AF_2
+#define GPIO_AF_PA3_TIM15      GPIO_AF_9
+#define GPIO_AF_PA6_TIM3       GPIO_AF_2
+#define GPIO_AF_PA7_TIM3       GPIO_AF_2
+#define GPIO_AF_PA10_TIM2      GPIO_AF_10
 
-#define GPIO_AF_PA4_TIM3      GPIO_AF_2
-#define GPIO_AF_PA7_TIM17     GPIO_AF_1
-#define GPIO_AF_PB8_TIM16     GPIO_AF_1
+#define GPIO_AF_PA4_TIM3       GPIO_AF_2
+#define GPIO_AF_PA7_TIM17      GPIO_AF_1
+#define GPIO_AF_PB8_TIM16      GPIO_AF_1
 
-#define TIM1_CH1_DMA_INSTANCE 1
-#define TIM1_CH1_DMA_CHANNEL  2
+#define TIM1_CH1_DMA_INSTANCE  1
+#define TIM1_CH1_DMA_CHANNEL   2
 
 #define TIM16_CH1_DMA_INSTANCE 2
-#define TIM16_CH1_DMA_CHANNEL 3
+#define TIM16_CH1_DMA_CHANNEL  3
 
 static const struct pios_tim_channel pios_tim_servoport_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM3,  2, A, 4), // bank 1
@@ -341,8 +341,8 @@ static const struct pios_tim_channel pios_tim_servoport_pins[] = {
 #include "pios_usart_config.h"
 
 static const struct pios_usart_cfg pios_usart_cfg[] = {
-    USART_CONFIG(USART1, B, 7, B, 6),
-    USART_CONFIG(USART2, B, 4, B, 3),
+    USART_CONFIG(USART1, B, 7,  B, 6),
+    USART_CONFIG(USART2, B, 4,  B, 3),
     USART_CONFIG(USART3, B, 11, B, 10),
 };
 

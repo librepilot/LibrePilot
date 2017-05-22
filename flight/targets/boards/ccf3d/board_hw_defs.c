@@ -858,4 +858,3 @@ const struct pios_mpu6000_cfg *PIOS_BOARD_HW_DEFS_GetMPU6000Cfg(__attribute__((u
     return &pios_mpu6000_cfg;
 }
 #endif /* PIOS_INCLUDE_MPU6000 */
-

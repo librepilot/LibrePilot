@@ -44,7 +44,7 @@ static const struct pios_gpio pios_leds[] = {
         },
         .active_low         = true
     },
-    [PIOS_LED_ALARM] = { /* not really LED, but buzzer! */
+    [PIOS_LED_ALARM] =     { /* not really LED, but buzzer! */
         .pin                =             {
             .gpio = GPIOC,
             .init =             {
@@ -83,16 +83,16 @@ static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
         .SPI_Mode              = SPI_Mode_Master,
         .SPI_Direction         = SPI_Direction_2Lines_FullDuplex,
         .SPI_DataSize          = SPI_DataSize_8b,
-        .SPI_NSS                                   = SPI_NSS_Soft,
+        .SPI_NSS               = SPI_NSS_Soft,
         .SPI_FirstBit          = SPI_FirstBit_MSB,
         .SPI_CRCPolynomial     = 7,
         .SPI_CPOL              = SPI_CPOL_High,
         .SPI_CPHA              = SPI_CPHA_2Edge,
-        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16, /* 10 Mhz */
+        .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16,       /* 10 Mhz */
     },
     .use_crc = false,
-    .remap = GPIO_AF_5,
-    .sclk  = {
+    .remap   = GPIO_AF_5,
+    .sclk    = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_3,
@@ -102,7 +102,7 @@ static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_NOPULL,
         },
     },
-    .miso                                          = {
+    .miso                      = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_4,
@@ -112,7 +112,7 @@ static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_NOPULL,
         },
     },
-    .mosi                                          = {
+    .mosi                      = {
         .gpio = GPIOB,
         .init = {
             .GPIO_Pin   = GPIO_Pin_5,
@@ -122,8 +122,8 @@ static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_NOPULL,
         },
     },
-    .slave_count                                   = 1,
-    .ssel                                          = {
+    .slave_count               = 1,
+    .ssel                      = {
         {
             .gpio = GPIOB,
             .init = {
@@ -394,24 +394,24 @@ static const struct pios_tim_clock_cfg tim_17_cfg = {
 
 #include <pios_servo_config.h>
 
-#define GPIO_AF_PA1_TIM2  GPIO_AF_1
-#define GPIO_AF_PA0_TIM2  GPIO_AF_1
-#define GPIO_AF_PA8_TIM1  GPIO_AF_6
-#define GPIO_AF_PA2_TIM2  GPIO_AF_1
-#define GPIO_AF_PB6_TIM4  GPIO_AF_2
-#define GPIO_AF_PB5_TIM3  GPIO_AF_2
-#define GPIO_AF_PB0_TIM3  GPIO_AF_2
-#define GPIO_AF_PB1_TIM3  GPIO_AF_2
-#define GPIO_AF_PB9_TIM4  GPIO_AF_2
-#define GPIO_AF_PB8_TIM4  GPIO_AF_2
-#define GPIO_AF_PB7_TIM4  GPIO_AF_2
-#define GPIO_AF_PB4_TIM3  GPIO_AF_2
-#define GPIO_AF_PB11_TIM2 GPIO_AF_1
-#define GPIO_AF_PA15_TIM8 GPIO_AF_2
-#define GPIO_AF_PA3_TIM15 GPIO_AF_9
-#define GPIO_AF_PA6_TIM3  GPIO_AF_2
-#define GPIO_AF_PA7_TIM3  GPIO_AF_2
-#define GPIO_AF_PA10_TIM2 GPIO_AF_10
+#define GPIO_AF_PA1_TIM2      GPIO_AF_1
+#define GPIO_AF_PA0_TIM2      GPIO_AF_1
+#define GPIO_AF_PA8_TIM1      GPIO_AF_6
+#define GPIO_AF_PA2_TIM2      GPIO_AF_1
+#define GPIO_AF_PB6_TIM4      GPIO_AF_2
+#define GPIO_AF_PB5_TIM3      GPIO_AF_2
+#define GPIO_AF_PB0_TIM3      GPIO_AF_2
+#define GPIO_AF_PB1_TIM3      GPIO_AF_2
+#define GPIO_AF_PB9_TIM4      GPIO_AF_2
+#define GPIO_AF_PB8_TIM4      GPIO_AF_2
+#define GPIO_AF_PB7_TIM4      GPIO_AF_2
+#define GPIO_AF_PB4_TIM3      GPIO_AF_2
+#define GPIO_AF_PB11_TIM2     GPIO_AF_1
+#define GPIO_AF_PA15_TIM8     GPIO_AF_2
+#define GPIO_AF_PA3_TIM15     GPIO_AF_9
+#define GPIO_AF_PA6_TIM3      GPIO_AF_2
+#define GPIO_AF_PA7_TIM3      GPIO_AF_2
+#define GPIO_AF_PA10_TIM2     GPIO_AF_10
 
 
 #define TIM1_CH1_DMA_INSTANCE 1
@@ -581,18 +581,18 @@ void I2C1_EV_EXTI23_IRQHandler() __attribute__((alias("PIOS_I2C_ev_irq_handler")
 void I2C1_ER_IRQHandler() __attribute__((alias("PIOS_I2C_er_irq_handler")));
 
 static const struct pios_i2c_adapter_cfg pios_i2c_cfg = {
-    .regs  = I2C1,
+    .regs     = I2C1,
     .remapSCL = GPIO_AF_4,
     .remapSDA = GPIO_AF_4,
-    .init  = {
+    .init     = {
         .I2C_Mode = I2C_Mode_I2C,
         .I2C_OwnAddress1                       = 0,
         .I2C_Ack  = I2C_Ack_Enable,
         .I2C_AcknowledgedAddress               = I2C_AcknowledgedAddress_7bit,
         .I2C_DigitalFilter = 0x00,
         .I2C_AnalogFilter  = I2C_AnalogFilter_Enable,
-//        .I2C_Timing                            = 0x70310309,                  // 50kHz I2C @ 8MHz input -> PRESC=0x7, SCLDEL=0x3, SDADEL=0x1, SCLH=0x03, SCLL=0x09
-        .I2C_Timing = 0x00E0257A, // 400 Khz, 72Mhz Clock, Analog Filter Delay ON, Rise 100, Fall 10.
+// .I2C_Timing                            = 0x70310309,                  // 50kHz I2C @ 8MHz input -> PRESC=0x7, SCLDEL=0x3, SDADEL=0x1, SCLH=0x03, SCLL=0x09
+        .I2C_Timing                            = 0x00E0257A,                  // 400 Khz, 72Mhz Clock, Analog Filter Delay ON, Rise 100, Fall 10.
     },
     .transfer_timeout_ms                       = 50,
     .scl                                       = {

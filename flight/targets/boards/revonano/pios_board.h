@@ -132,7 +132,7 @@ extern uint32_t pios_i2c_flexiport_adapter_id;
 
 #ifdef PIOS_INCLUDE_WS2811
 extern uint32_t pios_ws2811_id;
-#define PIOS_WS2811_DEVICE  (pios_ws2811_id)
+#define PIOS_WS2811_DEVICE               (pios_ws2811_id)
 #endif
 
 // -------------------------

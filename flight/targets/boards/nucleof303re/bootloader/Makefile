@@ -26,4 +26,4 @@ include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 include $(FLIGHT_ROOT_DIR)/make/boot-defs.mk
 include $(FLIGHT_ROOT_DIR)/make/common-defs.mk
 
-$(info Making bootloader for SPRacingF3_EVO, board revision $(BOARD_REVISION))
+$(info Making bootloader for Nucleo F303RE, board revision $(BOARD_REVISION))

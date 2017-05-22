@@ -34,6 +34,7 @@
 #include <fifo_buffer.h>
 #include <pios_com_msg.h>
 #include <pios_board_init.h>
+#include <pios_board_io.h>
 
 extern void FLASH_Download();
 #define BSL_HOLD_STATE ((PIOS_USB_DETECT_GPIO_PORT->IDR & PIOS_USB_DETECT_GPIO_PIN) ? 0 : 1)
@@ -198,6 +199,7 @@ void jump_to_app()
         Jump_To_Application();
     } else {
         DeviceState = failed_jump;
+        JumpToApp   = FALSE;
         return;
     }
 }

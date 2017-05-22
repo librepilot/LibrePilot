@@ -39,6 +39,8 @@
 
 #include <pios_spi_priv.h>
 
+#define SPI_MAX_BLOCK_PIO 12800
+
 static bool PIOS_SPI_validate(__attribute__((unused)) struct pios_spi_dev *com_dev)
 {
     /* Should check device magic here */
@@ -168,16 +170,20 @@ int32_t PIOS_SPI_Init(uint32_t *spi_id, const struct pios_spi_cfg *cfg)
         break;
     }
 
+    bool use_dma = spi_dev->cfg->dma.rx.channel && spi_dev->cfg->dma.tx.channel;
+
     /* Enable DMA clock */
-    RCC_AHBPeriphClockCmd(spi_dev->cfg->dma.ahb_clk, ENABLE);
+    if (use_dma) {
+        RCC_AHBPeriphClockCmd(spi_dev->cfg->dma.ahb_clk, ENABLE);
 
-    /* Configure DMA for SPI Rx */
-    DMA_Cmd(spi_dev->cfg->dma.rx.channel, DISABLE);
-    DMA_Init(spi_dev->cfg->dma.rx.channel, (DMA_InitTypeDef *)&(spi_dev->cfg->dma.rx.init));
+        /* Configure DMA for SPI Rx */
+        DMA_Cmd(spi_dev->cfg->dma.rx.channel, DISABLE);
+        DMA_Init(spi_dev->cfg->dma.rx.channel, (DMA_InitTypeDef *)&(spi_dev->cfg->dma.rx.init));
 
-    /* Configure DMA for SPI Tx */
-    DMA_Cmd(spi_dev->cfg->dma.tx.channel, DISABLE);
-    DMA_Init(spi_dev->cfg->dma.tx.channel, (DMA_InitTypeDef *)&(spi_dev->cfg->dma.tx.init));
+        /* Configure DMA for SPI Tx */
+        DMA_Cmd(spi_dev->cfg->dma.tx.channel, DISABLE);
+        DMA_Init(spi_dev->cfg->dma.tx.channel, (DMA_InitTypeDef *)&(spi_dev->cfg->dma.tx.init));
+    }
 
     /* Initialize the SPI block */
     SPI_I2S_DeInit(spi_dev->cfg->regs);
@@ -197,7 +203,9 @@ int32_t PIOS_SPI_Init(uint32_t *spi_id, const struct pios_spi_cfg *cfg)
     SPI_Cmd(spi_dev->cfg->regs, ENABLE);
 
     /* Enable SPI interrupts to DMA */
-    SPI_I2S_DMACmd(spi_dev->cfg->regs, SPI_I2S_DMAReq_Tx | SPI_I2S_DMAReq_Rx, ENABLE);
+    if (use_dma) {
+        SPI_I2S_DMACmd(spi_dev->cfg->regs, SPI_I2S_DMAReq_Tx | SPI_I2S_DMAReq_Rx, ENABLE);
+    }
 
     /* Configure DMA interrupt */
     NVIC_Init((NVIC_InitTypeDef *)&(spi_dev->cfg->dma.irq.init));
@@ -455,6 +463,7 @@ int32_t PIOS_SPI_TransferByte(uint32_t spi_id, uint8_t b)
     return rx_byte;
 }
 
+
 /**
  * Transfers a block of bytes via PIO.
  *
@@ -467,14 +476,9 @@ int32_t PIOS_SPI_TransferByte(uint32_t spi_id, uint8_t b)
  * \return >= 0 if no error during transfer
  * \return -1 if disabled SPI port selected
  */
-int32_t PIOS_SPI_TransferBlock(uint32_t spi_id, const uint8_t *send_buffer, uint8_t *receive_buffer, uint16_t len, __attribute__((unused)) void *callback)
+static int32_t PIOS_SPI_TransferBlock_PIO(struct pios_spi_dev *spi_dev, const uint8_t *send_buffer, uint8_t *receive_buffer, uint16_t len, __attribute__((unused)) void *callback)
 {
-    struct pios_spi_dev *spi_dev = (struct pios_spi_dev *)spi_id;
     uint8_t b;
-
-    bool valid = PIOS_SPI_validate(spi_dev);
-
-    PIOS_Assert(valid)
 
     while (len--) {
         /* get the byte to send */
@@ -527,14 +531,8 @@ int32_t PIOS_SPI_TransferBlock(uint32_t spi_id, const uint8_t *send_buffer, uint
  * \return -1 if disabled SPI port selected
  * \return -3 if function has been called during an ongoing DMA transfer
  */
-int32_t _PIOS_SPI_TransferBlock(uint32_t spi_id, const uint8_t *send_buffer, uint8_t *receive_buffer, uint16_t len, void *callback)
+static int32_t PIOS_SPI_TransferBlock_DMA(struct pios_spi_dev *spi_dev, const uint8_t *send_buffer, uint8_t *receive_buffer, uint16_t len, void *callback)
 {
-    struct pios_spi_dev *spi_dev = (struct pios_spi_dev *)spi_id;
-
-    bool valid = PIOS_SPI_validate(spi_dev);
-
-    PIOS_Assert(valid)
-
     DMA_InitTypeDef dma_init;
 
     /* Exit if ongoing transfer */
@@ -657,6 +655,21 @@ int32_t _PIOS_SPI_TransferBlock(uint32_t spi_id, const uint8_t *send_buffer, uin
 
     /* No error */
     return 0;
+}
+
+int32_t PIOS_SPI_TransferBlock(uint32_t spi_id, const uint8_t *send_buffer, uint8_t *receive_buffer, uint16_t len, void *callback)
+{
+    struct pios_spi_dev *spi_dev = (struct pios_spi_dev *)spi_id;
+
+    bool valid = PIOS_SPI_validate(spi_dev);
+
+    PIOS_Assert(valid)
+
+    if ((len > SPI_MAX_BLOCK_PIO) && spi_dev->cfg->dma.rx.channel && spi_dev->cfg->dma.tx.channel) {
+        return PIOS_SPI_TransferBlock_DMA(spi_dev, send_buffer, receive_buffer, len, callback);
+    }
+
+    return PIOS_SPI_TransferBlock_PIO(spi_dev, send_buffer, receive_buffer, len, callback);
 }
 
 /**

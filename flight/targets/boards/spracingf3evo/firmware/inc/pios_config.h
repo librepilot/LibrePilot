@@ -99,6 +99,8 @@
 
 #define PIOS_SENSOR_RATE 500.0f
 
+#define PIOS_INCLUDE_WS2811
+
 /* PIOS receiver drivers */
 #define PIOS_INCLUDE_PWM
 #define PIOS_INCLUDE_PPM
@@ -174,7 +176,7 @@
 #define PIOS_ACTUATOR_STACK_SIZE        800
 #define PIOS_MANUAL_STACK_SIZE          935
 #define PIOS_RECEIVER_STACK_SIZE        840
-#define PIOS_SYSTEM_STACK_SIZE         1536
+#define PIOS_SYSTEM_STACK_SIZE          1536
 /* #define PIOS_STABILIZATION_STACK_SIZE   400 */
 
 #define PIOS_TELEM_STACK_SIZE           800

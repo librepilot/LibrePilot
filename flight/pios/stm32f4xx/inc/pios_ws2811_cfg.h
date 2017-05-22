@@ -130,7 +130,7 @@ struct pios_ws2811_cfg {
     struct stm32_irq   irq;
 };
 
-void PIOS_WS2811_Init(const struct pios_ws2811_cfg *ws2811_cfg, const struct pios_ws2811_pin_cfg *ws2811_pin_cfg);
+void PIOS_WS2811_Init(uint32_t *dev_id, const struct pios_ws2811_cfg *ws2811_cfg, const struct pios_ws2811_pin_cfg *ws2811_pin_cfg);
 
 void PIOS_WS2811_DMA_irq_handler();
 #endif /* PIOS_WS2811_H_ */

@@ -34,14 +34,31 @@
  * @return  number of elements in x.
  *
  */
-#define NELEMENTS(x)       (sizeof(x) / sizeof((x)[0]))
+#define NELEMENTS(x)            (sizeof(x) / sizeof((x)[0]))
 
+
+/**
+ * @brief preprocessor magic
+ *
+ */
+
+#define _CONCAT5(a, b, c, d, e) a##b##c##d##e
+#define _EVAL5(a, b, c, d, e)   _CONCAT5(a, b, c, d, e)
+
+#define _CONCAT4(a, b, c, d)    a##b##c##d
+#define _EVAL4(a, b, c, d)      _CONCAT4(a, b, c, d)
+
+#define _CONCAT3(a, b, c)       a##b##c
+#define _EVAL3(a, b, c)         _CONCAT3(a, b, c)
+
+#define _CONCAT2(a, b)          a##b
+#define _EVAL2(a, b)            _CONCAT4(a, b)
 
 /**
  * @brief Compiler barrier: Disables compiler load/store reordering across the barrier
  *
  */
-#define COMPILER_BARRIER() asm volatile ("" ::: "memory")
+#define COMPILER_BARRIER()      asm volatile ("" ::: "memory")
 
 // Memory barriers:
 // Note that on single core Cortex M3 & M4, the is generally no need to use a processor memory barrier instruction such as DMB.

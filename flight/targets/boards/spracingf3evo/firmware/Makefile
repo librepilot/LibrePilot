@@ -46,7 +46,7 @@ MODULES += FirmwareIAP
 #MODULES += Osd/osdoutout
 #MODULES += Logging
 MODULES += Telemetry
-#MODULES += Notify
+MODULES += Notify
 
 OPTMODULES += Airspeed
 OPTMODULES += AutoTune

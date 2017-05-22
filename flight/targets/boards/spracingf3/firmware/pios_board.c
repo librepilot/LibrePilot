@@ -70,6 +70,10 @@ static void hwSPRacingF3SettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *e
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id = 0;
 
+#ifdef PIOS_INCLUDE_WS2811
+uint32_t pios_ws2811_id;
+#endif
+
 /**
  * PIOS_Board_Init()
  * initializes all the core subsystems on this specific hardware
@@ -242,6 +246,9 @@ void PIOS_Board_Init(void)
 
     switch (boardHwSettings.LEDPort) {
     case HWSPRACINGF3SETTINGS_LEDPORT_WS2811:
+#if defined(PIOS_INCLUDE_WS2811)
+        PIOS_WS2811_Init(&pios_ws2811_id, &pios_ws2811_cfg);
+#endif
         break;
     case HWSPRACINGF3SETTINGS_LEDPORT_OUTPUT:
         break;

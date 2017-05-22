@@ -64,10 +64,6 @@ const struct pios_gpio_cfg *PIOS_BOARD_HW_DEFS_GetLedCfg(__attribute__((unused))
 
 /* Gyro interface */
 
-void PIOS_SPI_MPU9250_irq_handler(void);
-void DMA1_Channel2_IRQHandler() __attribute__((alias("PIOS_SPI_MPU9250_irq_handler")));
-void DMA1_Channel3_IRQHandler() __attribute__((alias("PIOS_SPI_MPU9250_irq_handler")));
-
 static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
     .regs = SPI1,
     .init = {
@@ -82,48 +78,6 @@ static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
         .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16, /* 10 Mhz */
     },
     .use_crc = false,
-    .dma     = {
-        .ahb_clk = RCC_AHBPeriph_DMA1,
-
-        .irq     = {
-            .flags = (DMA1_FLAG_TC2 | DMA1_FLAG_TE2 | DMA1_FLAG_HT2 | DMA1_FLAG_GL2),
-            .init  = {
-                .NVIC_IRQChannel    = DMA1_Channel2_IRQn,
-                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-                .NVIC_IRQChannelSubPriority        = 0,
-                .NVIC_IRQChannelCmd = ENABLE,
-            },
-        },
-
-        .rx                                        = {
-            .channel = DMA1_Channel2,
-            .init    = {
-                .DMA_PeripheralBaseAddr            = (uint32_t)&(SPI1->DR),
-                .DMA_DIR                           = DMA_DIR_PeripheralSRC,
-                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
-                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
-                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
-                .DMA_Mode     = DMA_Mode_Normal,
-                .DMA_Priority = DMA_Priority_Medium,
-                .DMA_M2M                           = DMA_M2M_Disable,
-            },
-        },
-        .tx                                        = {
-            .channel = DMA1_Channel3,
-            .init    = {
-                .DMA_PeripheralBaseAddr            = (uint32_t)&(SPI1->DR),
-                .DMA_DIR                           = DMA_DIR_PeripheralDST,
-                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
-                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
-                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Byte,
-                .DMA_Mode     = DMA_Mode_Normal,
-                .DMA_Priority = DMA_Priority_Medium,
-                .DMA_M2M                           = DMA_M2M_Disable,
-            },
-        },
-    },
     .remap = GPIO_AF_5,
     .sclk  = {
         .gpio = GPIOB,
@@ -171,11 +125,6 @@ static const struct pios_spi_cfg pios_spi_mpu9250_cfg = {
 };
 
 uint32_t pios_spi_mpu9250_id;
-void PIOS_SPI_MPU9250_irq_handler(void)
-{
-    /* Call into the generic code to handle the IRQ for this specific device */
-    PIOS_SPI_IRQ_Handler(pios_spi_mpu9250_id);
-}
 
 /* SDCARD Interface
  *
@@ -449,6 +398,11 @@ static const struct pios_tim_clock_cfg tim_17_cfg = {
 #define GPIO_AF_PA3_TIM15 GPIO_AF_9
 #define GPIO_AF_PA6_TIM3  GPIO_AF_2
 #define GPIO_AF_PA7_TIM3  GPIO_AF_2
+#define GPIO_AF_PA10_TIM2 GPIO_AF_10
+
+
+#define TIM1_CH1_DMA_INSTANCE 1
+#define TIM1_CH1_DMA_CHANNEL  2
 
 static const struct pios_tim_channel pios_tim_servoport_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM2,  1, A, 0), // bank 1
@@ -714,6 +668,17 @@ const struct pios_usb_cfg *PIOS_BOARD_HW_DEFS_GetUsbCfg(__attribute__((unused)) 
 }
 #endif /* PIOS_INCLUDE_USB */
 
+#if defined(PIOS_INCLUDE_WS2811)
+#include "pios_ws2811_cfg.h"
+
+static const struct pios_ws2811_cfg pios_ws2811_cfg = PIOS_WS2811_CONFIG(TIM1, 1, A, 8);
+
+void DMA1_Channel2_IRQHandler()
+{
+    PIOS_WS2811_DMA_irq_handler();
+}
+
+#endif /* PIOS_INCLUDE_WS2811 */
 
 #if defined(PIOS_INCLUDE_ADC)
 #include "pios_adc_priv.h"

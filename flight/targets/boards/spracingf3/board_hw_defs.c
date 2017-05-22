@@ -502,6 +502,8 @@ static const struct pios_tim_clock_cfg tim_17_cfg = {
 #define GPIO_AF_PA2_TIM15     GPIO_AF_9
 #define GPIO_AF_PA3_TIM15     GPIO_AF_9
 
+#define TIM1_CH1_DMA_INSTANCE 1
+#define TIM1_CH1_DMA_CHANNEL  2
 
 static const struct pios_tim_channel pios_tim_servoport_io1_io2_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM16, 1, A, 6), // bank 1
@@ -793,6 +795,17 @@ void PIOS_I2C_er_irq_handler(void)
 
 #endif /* PIOS_INCLUDE_RCVR */
 
+#if defined(PIOS_INCLUDE_WS2811)
+#include "pios_ws2811_cfg.h"
+
+static const struct pios_ws2811_cfg pios_ws2811_cfg = PIOS_WS2811_CONFIG(TIM1, 1, A, 8);
+
+void DMA1_Channel2_IRQHandler()
+{
+    PIOS_WS2811_DMA_irq_handler();
+}
+
+#endif /* PIOS_INCLUDE_WS2811 */
 
 #if defined(PIOS_INCLUDE_ADC)
 #include "pios_adc_priv.h"

@@ -54,6 +54,10 @@
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
+#ifdef PIOS_INCLUDE_WS2811
+uint32_t pios_ws2811_id;
+#endif
+
 static const PIOS_BOARD_IO_UART_Function flexiio_function_map[] = {
     [HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY]    = PIOS_BOARD_IO_UART_TELEMETRY,
     [HWSETTINGS_RM_RCVRPORT_PPMDEBUGCONSOLE] = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
@@ -325,7 +329,7 @@ void PIOS_Board_Init(void)
     HwSettingsWS2811LED_OutGet(&ws2811_pin_settings);
 
     if (ws2811_pin_settings != HWSETTINGS_WS2811LED_OUT_DISABLED && ws2811_pin_settings < NELEMENTS(pios_ws2811_pin_cfg)) {
-        PIOS_WS2811_Init(&pios_ws2811_cfg, &pios_ws2811_pin_cfg[ws2811_pin_settings]);
+        PIOS_WS2811_Init(&pios_ws2811_id, &pios_ws2811_cfg, &pios_ws2811_pin_cfg[ws2811_pin_settings]);
     }
 #endif // PIOS_INCLUDE_WS2811
 

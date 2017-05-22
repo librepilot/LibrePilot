@@ -326,52 +326,6 @@ static const struct flashfs_logfs_cfg flashfs_internal_cfg = {
 //};
 #endif /* PIOS_INCLUDE_FLASH */
 
-
-/*
- * ADC system
- */
-#if defined(PIOS_INCLUDE_ADC)
-#include "pios_adc_priv.h"
-extern void PIOS_ADC_handler(void);
-void DMA1_Channel1_IRQHandler() __attribute__((alias("PIOS_ADC_handler")));
-// Remap the ADC DMA handler to this one
-static const struct pios_adc_cfg pios_adc_cfg = {
-    .dma                                           = {
-        .ahb_clk = RCC_AHBPeriph_DMA1,
-        .irq     = {
-            .flags = (DMA1_FLAG_TC1 | DMA1_FLAG_TE1 | DMA1_FLAG_HT1 | DMA1_FLAG_GL1),
-            .init  = {
-                .NVIC_IRQChannel    = DMA1_Channel1_IRQn,
-                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
-                .NVIC_IRQChannelSubPriority        = 0,
-                .NVIC_IRQChannelCmd = ENABLE,
-            },
-        },
-        .rx                                        = {
-            .channel = DMA1_Channel1,
-            .init    = {
-                .DMA_PeripheralBaseAddr            = (uint32_t)&ADC1->DR,
-                .DMA_DIR                           = DMA_DIR_PeripheralSRC,
-                .DMA_PeripheralInc      = DMA_PeripheralInc_Disable,
-                .DMA_MemoryInc          = DMA_MemoryInc_Enable,
-                .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word,
-                .DMA_MemoryDataSize     = DMA_MemoryDataSize_Word,
-                .DMA_Mode     = DMA_Mode_Circular,
-                .DMA_Priority = DMA_Priority_High,
-                .DMA_M2M                           = DMA_M2M_Disable,
-            },
-        }
-    },
-    .half_flag = DMA1_IT_HT1,
-    .full_flag = DMA1_IT_TC1,
-};
-
-void PIOS_ADC_handler()
-{
-    PIOS_ADC_DMA_Handler();
-}
-#endif /* if defined(PIOS_INCLUDE_ADC) */
-
 #include "pios_tim_priv.h"
 
 static const TIM_TimeBaseInitTypeDef tim_time_base = {

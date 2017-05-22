@@ -32,7 +32,9 @@
 #ifndef PIOS_DELAY_H
 #define PIOS_DELAY_H
 
-#ifndef USE_SIM_POSIX
+#ifdef USE_SIM_POSIX
+extern uint32_t PIOS_DELAY_GetRaw();
+#else
 #include "pios_delay_raw.h"
 #endif
 

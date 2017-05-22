@@ -152,6 +152,14 @@ ifdef USER_EE_BANK_BASE
 BOARD_CDEFS += -DUSER_EE_BANK_BASE=$(USER_EE_BANK_BASE)
 BOARD_CDEFS += -DUSER_EE_BANK_SIZE=$(USER_EE_BANK_SIZE)
 endif
+ifdef SRAM_BANK_BASE
+BOARD_CDEFS += -DSRAM_BANK_BASE=$(SRAM_BANK_BASE)
+BOARD_CDEFS += -DSRAM_BANK_SIZE=$(SRAM_BANK_SIZE)
+endif
+ifdef CCSRAM_BANK_BASE
+BOARD_CDEFS += -DCCSRAM_BANK_BASE=$(CCSRAM_BANK_BASE)
+BOARD_CDEFS += -DCCSRAM_BANK_SIZE=$(CCSRAM_BANK_SIZE)
+endif
 CDEFS += $(BOARD_CDEFS)
 
 ifeq ($(DEBUG), YES)
@@ -214,6 +222,8 @@ ALLSRCBASE = $(notdir $(basename $(ALLSRC)))
 # Define all object files.
 ALLOBJ     = $(addprefix $(OUTDIR)/, $(addsuffix .o, $(ALLSRCBASE))) $(EXTRAOBJ)
 
+ALLLD      = $(addprefix $(OUTDIR)/, $(addsuffix .ld, $(notdir $(basename $(LDSRC)))))
+
 # Define all listing files (used for make clean).
 LSTFILES   = $(addprefix $(OUTDIR)/, $(addsuffix .lst, $(ALLSRCBASE)))
 # Define all depedency-files (used for make clean).
@@ -241,9 +251,9 @@ endif
 
 # Link: create ELF output file from object files.
 ifeq ($(USE_CXX), YES)
-$(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ),$(ALLLIB)))
+$(eval $(call LINK_CXX_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ),$(ALLLIB),$(ALLLD)))
 else
-$(eval $(call LINK_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ),$(ALLLIB)))
+$(eval $(call LINK_TEMPLATE,$(OUTDIR)/$(TARGET).elf,$(ALLOBJ),$(ALLLIB),$(ALLLD)))
 endif
 
 # Assemble: create object files from assembler source files.
@@ -271,6 +281,9 @@ $(eval $(call PARTIAL_COMPILE_TEMPLATE,SRC))
 
 # Compile: create assembler files from C source files. ARM only
 $(eval $(call PARTIAL_COMPILE_ARM_TEMPLATE,SRCARM))
+
+# Preprocess: create linker scripts from .lds files.
+$(foreach src, $(LDSRC), $(eval $(call PREPROCESS_LDS_TEMPLATE,$(src))))
 
 # Add opfw target
 $(eval $(call OPFW_TEMPLATE,$(OUTDIR)/$(TARGET).bin,$(BOARD_TYPE),$(BOARD_REVISION)))

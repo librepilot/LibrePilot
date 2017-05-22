@@ -7,14 +7,7 @@ PIOS_DEVLIB		:= $(dir $(lastword $(MAKEFILE_LIST)))
 
 USE_USB ?= YES
 
-# Hardcoded linker script names for now
-LINKER_SCRIPTS_APP	=  $(OPSYSTEM)/memory.ld \
-			   $(OPSYSTEM)/../common/sections.ld
-LINKER_SCRIPTS_BL	=  $(OPSYSTEM)/memory.ld \
-			   $(OPSYSTEM)/../common/sections.ld
-# _compat linker script are aimed at bootloader updater to guarantee to be compatible with earlier bootloaders.
-LINKER_SCRIPTS_COMPAT	=  $(PIOS_DEVLIB)link_$(BOARD)_fw_memory.ld \
-			   $(PIOS_DEVLIB)link_$(BOARD)_sections_compat.ld
+LDSRC = $(PIOS_DEVLIB)link_memory.lds $(PIOS_DEVLIB)link_sections.lds
 
 CDEFS				+= -D$(CHIP) -DSTM32F3
 CDEFS				+= -DHSE_VALUE=$(OSCILLATOR_FREQ)
@@ -38,7 +31,6 @@ EXTRAINCDIRS		+= $(PIOS_DEVLIB)inc
 # CMSIS for the F3
 include $(PIOSCOMMON)/libraries/CMSIS/library.mk
 CMSIS_DEVICEDIR	:= $(PIOS_DEVLIB)libraries/CMSIS3/Device/ST/STM32F30x
-SRC += $(OPSYSTEM)/../common/system.c
 EXTRAINCDIRS		+= $(CMSIS_DEVICEDIR)/Include
 
 # ST Peripheral library

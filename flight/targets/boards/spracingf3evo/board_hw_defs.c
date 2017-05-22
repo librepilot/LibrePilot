@@ -44,6 +44,19 @@ static const struct pios_gpio pios_leds[] = {
         },
         .active_low         = false
     },
+    [PIOS_LED_ALARM] = { /* not really LED, but buzzer! */
+        .pin                =             {
+            .gpio = GPIOC,
+            .init =             {
+                .GPIO_Pin   = GPIO_Pin_15,
+                .GPIO_Mode  = GPIO_Mode_OUT,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_Speed = GPIO_Speed_50MHz,
+                .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+            },
+        },
+        .active_low         = false
+    },
 };
 
 static const struct pios_gpio_cfg pios_led_cfg = {

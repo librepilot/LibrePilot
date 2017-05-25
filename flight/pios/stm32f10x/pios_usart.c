@@ -211,14 +211,17 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     case (uint32_t)USART1:
         PIOS_USART_1_id = (uint32_t)usart_dev;
         usart_dev->irq_channel = USART1_IRQn;
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
         break;
     case (uint32_t)USART2:
         PIOS_USART_2_id = (uint32_t)usart_dev;
         usart_dev->irq_channel = USART2_IRQn;
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
         break;
     case (uint32_t)USART3:
         PIOS_USART_3_id = (uint32_t)usart_dev;
         usart_dev->irq_channel = USART3_IRQn;
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
         break;
     }
 

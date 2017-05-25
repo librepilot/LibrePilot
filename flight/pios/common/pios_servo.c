@@ -142,19 +142,22 @@ static void PIOS_Servo_SetupBank(uint8_t bank_nr)
             continue;
         }
 
+        GPIO_InitTypeDef init = chan->pin.init;
+
         switch (bank->mode) {
         case PIOS_SERVO_BANK_MODE_PWM:
         case PIOS_SERVO_BANK_MODE_SINGLE_PULSE:
-            GPIO_Init(chan->pin.gpio, &chan->pin.init);
 #if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
             GPIO_PinAFConfig(chan->pin.gpio, chan->pin.pin_source, chan->remap);
 #elif defined(STM32F10X_MD)
+            init.GPIO_Mode = GPIO_Mode_AF_PP;
             if (chan->remap) {
                 GPIO_PinRemapConfig(chan->remap, ENABLE);
             }
 #else
 #error Unsupported MCU
 #endif
+            GPIO_Init(chan->pin.gpio, &init);
 
             /* Set up for output compare function */
             switch (chan->timer_chan) {
@@ -180,8 +183,6 @@ static void PIOS_Servo_SetupBank(uint8_t bank_nr)
 
         case PIOS_SERVO_BANK_MODE_DSHOT:
         {
-            GPIO_InitTypeDef init = chan->pin.init;
-
 #if defined(STM32F40_41xxx) || defined(STM32F446xx) || defined(STM32F411xE)
             init.GPIO_Mode = GPIO_Mode_OUT;
 #elif defined(STM32F10X_MD)

@@ -513,7 +513,7 @@ void SYSCFG_SRAMWRPEnable(uint32_t SYSCFG_SRAMWRP)
   *     @arg SYSCFG_FLAG_PE: SRAM parity error flag.
   * @retval The new state of SYSCFG_Flag (SET or RESET).
   */
-FlagStatus SYSCFG_GetFlagStatus(uint32_t SYSCFG_Flag)
+FlagStatus SYSCFG_GetFlagStatus(__attribute__((unused)) uint32_t SYSCFG_Flag)
 {
   FlagStatus bitstatus = RESET;
 

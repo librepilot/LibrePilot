@@ -248,7 +248,7 @@ void HRTIM_SimpleBase_Init(HRTIM_TypeDef* HRTIMx, uint32_t TimerIdx, HRTIM_BaseI
   * @param  HRTIMx: pointer to HRTIMx peripheral 
   * @retval None
   */
-void HRTIM_DeInit(HRTIM_TypeDef* HRTIMx)
+void HRTIM_DeInit(__attribute__((unused)) HRTIM_TypeDef* HRTIMx)
 {
   /* Check the parameters */
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_HRTIM1, ENABLE);
@@ -631,7 +631,7 @@ void HRTIM_SimplePWMStop(HRTIM_TypeDef * HRTIMx,
   */
 void HRTIM_SimpleCaptureStart(HRTIM_TypeDef * HRTIMx,
                                               uint32_t TimerIdx,
-                                              uint32_t CaptureChannel)
+                                              __attribute__((unused)) uint32_t CaptureChannel)
 {
   /* Enable the timer counter */
   __HRTIM_ENABLE(HRTIMx, TimerIdxToTimerId[TimerIdx]);
@@ -3208,7 +3208,7 @@ uint32_t HRTIM_WaveformGetOutputLevel(HRTIM_TypeDef * HRTIMx,
   * @retval Output state
   */
 uint32_t HRTIM_WaveformGetOutputState(HRTIM_TypeDef * HRTIMx,
-                                          uint32_t TimerIdx,
+                                          __attribute__((unused)) uint32_t TimerIdx,
                                           uint32_t Output)
 {
   uint32_t output_bit = 0;

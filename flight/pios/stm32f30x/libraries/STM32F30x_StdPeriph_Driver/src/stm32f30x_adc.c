@@ -945,7 +945,7 @@ void ADC_AnalogWatchdog3SingleChannelConfig(ADC_TypeDef* ADCx, uint8_t ADC_Chann
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void ADC_TempSensorCmd(ADC_TypeDef* ADCx, FunctionalState NewState)
+void ADC_TempSensorCmd(__attribute__((unused)) ADC_TypeDef* ADCx, FunctionalState NewState)
 {
   /* Check the parameters */
   assert_param(IS_FUNCTIONAL_STATE(NewState));
@@ -1010,7 +1010,7 @@ void ADC_VrefintCmd(ADC_TypeDef* ADCx, FunctionalState NewState)
   *   This parameter can be: ENABLE or DISABLE.
   * @retval None
   */
-void ADC_VbatCmd(ADC_TypeDef* ADCx, FunctionalState NewState)
+void ADC_VbatCmd(__attribute__((unused)) ADC_TypeDef* ADCx, FunctionalState NewState)
 {
   /* Check the parameters */
   assert_param(IS_FUNCTIONAL_STATE(NewState));

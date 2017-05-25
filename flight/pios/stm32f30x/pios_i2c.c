@@ -3,13 +3,14 @@
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
  * @addtogroup   PIOS_I2C I2C Functions
- * @brief STM32F4xx Hardware dependent I2C functionality
+ * @brief STM32F30x Hardware dependent I2C functionality
  * @{
  *
  * @file       pios_i2c.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
- * @author     dRonin, http://dronin.org, Copyright (C) 2016
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             dRonin, http://dronin.org, Copyright (C) 2016
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      I2C Enable/Disable routines
  * @see        The GNU Public License (GPL) Version 3
  *

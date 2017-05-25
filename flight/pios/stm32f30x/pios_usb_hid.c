@@ -8,9 +8,8 @@
  * @{
  *
  * @file       pios_usb_hid.c
+ * @author     The LibrePilot Project, htpp://www.librepilot.org Copyright (C) 2017.
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
- * @author     dRonin, http://dronin.org, Copyright (C) 2016
  * @brief      USB COM functions (STM32 dependent code)
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -31,12 +30,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* Project Includes */
 #include "pios.h"
 
-#if defined(PIOS_INCLUDE_USB_HID)
+#ifdef PIOS_INCLUDE_USB_HID
 
-#include "pios_usb.h"
 #include "pios_usb_hid_priv.h"
 #include "pios_usb_board_data.h" /* PIOS_BOARD_*_DATA_LENGTH */
 
@@ -200,6 +197,12 @@ static void PIOS_USB_HID_SendReport(struct pios_usb_hid_dev *usb_hid_dev)
     /* Is this correct?  Why do we always send the whole buffer? */
     SetEPTxCount(usb_hid_dev->cfg->data_tx_ep, sizeof(usb_hid_dev->tx_packet_buffer));
     SetEPTxValid(usb_hid_dev->cfg->data_tx_ep);
+
+#ifdef PIOS_INCLUDE_FREERTOS
+    if (need_yield) {
+        vPortYield();
+    }
+#endif /* PIOS_INCLUDE_FREERTOS */
 }
 
 static void PIOS_USB_HID_RxStart(uint32_t usbhid_id, uint16_t rx_bytes_avail)
@@ -361,12 +364,17 @@ static void PIOS_USB_HID_EP_OUT_Callback(void)
         /* Not enough room left for a message, apply backpressure */
         SetEPRxStatus(usb_hid_dev->cfg->data_rx_ep, EP_RX_NAK);
     }
+
+#ifdef PIOS_INCLUDE_FREERTOS
+    if (need_yield) {
+        vPortYield();
+    }
+#endif /* PIOS_INCLUDE_FREERTOS */
 }
 
 static uint32_t PIOS_USB_HID_Available(uint32_t usbhid_id)
 {
     return PIOS_USB_CheckAvailable(usbhid_id) ? COM_AVAILABLE_RXTX : COM_AVAILABLE_NONE;
 }
-
 
 #endif /* PIOS_INCLUDE_USB_HID */

@@ -1,16 +1,16 @@
 /**
  ******************************************************************************
  * @addtogroup LibrePilotSystem LibrePilot System
- * @brief These files are the core system files for CopterControl.
- * They are the ground layer just above PiOS. In practice, CopterControl actually starts
- * in the main() function of coptercontrol.c
+ * @brief These files are the core system files for LibrePilot.
+ * They are the ground layer just above PiOS. In practice, LibrePilot actually starts
+ * in the main() function of main.cpp
  * @{
  * @addtogroup LibrePilotCore LibrePilot Core
  * @brief This is where the LP firmware starts. Those files also define the compile-time
  * options of the firmware.
  * @{
- * @file       coptercontrol.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @file       main.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015
  * @brief      Sets up and runs main tasks.
  * @see        The GNU Public License (GPL) Version 3

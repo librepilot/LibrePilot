@@ -1,15 +1,11 @@
 /**
  ******************************************************************************
  * @file       board_hw_defs.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  *             PhoenixPilot, http://github.com/PhoenixPilot, Copyright (C) 2012
  *
- * @addtogroup OpenPilotSystem OpenPilot System
- * @{
- * @addtogroup OpenPilotCore OpenPilot Core
- * @{
- * @brief Defines board specific static initializers for hardware for the CopterControl board.
+ * @brief Defines board specific static initializers for hardware for the PikoBLX board.
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify

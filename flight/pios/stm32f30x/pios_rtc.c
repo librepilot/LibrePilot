@@ -2,14 +2,14 @@
  ******************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
- * @addtogroup   PIOS_PWM PWM Input Functions
- * @brief		Code to measure with PWM input
+ * @addtogroup   PIOS_RTC RTC Functions
+ * @brief       Code to manage initialization and interrups of RTC peripheral
  * @{
  *
- * @file       pios_pwm.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
- * @brief      PWM Input functions (STM32 dependent)
+ * @file       pios_rtc.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @brief      RTC Functions (STM32 dependent)
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -29,10 +29,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* Project Includes */
 #include "pios.h"
 
-#if defined(PIOS_INCLUDE_RTC)
+#ifdef PIOS_INCLUDE_RTC
+
 #include <pios_rtc_priv.h>
 
 #ifndef PIOS_RTC_PRESCALER
@@ -54,14 +54,14 @@ void PIOS_RTC_Init(const struct pios_rtc_cfg *cfg)
     RCC_BackupResetCmd(DISABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
     PWR_BackupAccessCmd(ENABLE);
-    // Divide external 8 MHz clock by 32 to 250kHz
+    // Divide external 8 MHz clock to 1 MHz
     RCC_RTCCLKConfig(cfg->clksrc);
     RCC_RTCCLKCmd(ENABLE);
 
     RTC_WakeUpCmd(DISABLE);
-    // Divide 250kHz Mhz clock by 16 to 15625Hz
+    // Divide 1 Mhz clock by 16 -> 62.5 khz
     RTC_WakeUpClockConfig(RTC_WakeUpClock_RTCCLK_Div16);
-    // Divide 15625Hz by 25 to get 625 Hz
+    // Divide 62.5 khz by 200 to get 625 Hz
     RTC_SetWakeUpCounter(cfg->prescaler); // cfg->prescaler);
     RTC_WakeUpCmd(ENABLE);
 
@@ -115,10 +115,6 @@ bool PIOS_RTC_RegisterTickCallback(void (*fn)(uint32_t id), uint32_t data)
 
 void PIOS_RTC_irq_handler(void)
 {
-#if defined(PIOS_INCLUDE_CHIBIOS)
-    CH_IRQ_PROLOGUE();
-#endif /* defined(PIOS_INCLUDE_CHIBIOS) */
-
     if (RTC_GetITStatus(RTC_IT_WUT)) {
         /* Call all registered callbacks */
         for (uint8_t i = 0; i < rtc_callback_next; i++) {
@@ -132,15 +128,12 @@ void PIOS_RTC_irq_handler(void)
         RTC_ClearITPendingBit(RTC_IT_WUT);
     }
 
-    if (EXTI_GetITStatus(EXTI_Line20) != RESET) {
-        EXTI_ClearITPendingBit(EXTI_Line20);
+    if (EXTI_GetITStatus(EXTI_Line22) != RESET) {
+        EXTI_ClearITPendingBit(EXTI_Line22);
     }
-
-#if defined(PIOS_INCLUDE_CHIBIOS)
-    CH_IRQ_EPILOGUE();
-#endif /* defined(PIOS_INCLUDE_CHIBIOS) */
 }
-#endif /* if defined(PIOS_INCLUDE_RTC) */
+
+#endif /* PIOS_INCLUDE_RTC */
 
 /**
  * @}

@@ -2,8 +2,9 @@
  ******************************************************************************
  *
  * @file       pios_board.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Defines board specific static initializers for hardware for the CopterControl board.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @brief      Defines board specific static initializers for hardware for the SPRacing F3 EVO board.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/

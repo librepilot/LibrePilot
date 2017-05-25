@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
- * @addtogroup CopterControlBL CopterControl BootLoader
- * @brief These files contain the code to the CopterControl Bootloader.
+ * @addtogroup BootLoader
+ *
  * @{
  * @file       pios_config.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.

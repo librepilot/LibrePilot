@@ -5,7 +5,7 @@
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *
- * @brief      Defines board hardware for the OpenPilot Version 1.1 hardware.
+ * @brief      Defines board hardware for the NucleoF303RE board.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -79,17 +79,17 @@
 // ------------------------
 // TELEMETRY
 // ------------------------
-#define TELEM_QUEUE_SIZE          10
+#define TELEM_QUEUE_SIZE   10
 
 // ------------------------
 // PIOS_LED
 // ------------------------
-#define PIOS_LED_HEARTBEAT        0
+#define PIOS_LED_HEARTBEAT 0
 
 // -------------------------
 // System Settings
 // -------------------------
-#define PIOS_MASTER_CLOCK         72000000
+#define PIOS_MASTER_CLOCK  72000000
 #define PIOS_RCC_HSE_BYPASS
 
 // -------------------------
@@ -131,7 +131,7 @@ extern uint32_t pios_i2c_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS  3
+#define PIOS_COM_MAX_DEVS 3
 
 // -------------------------
 // ADC

@@ -7,8 +7,9 @@
  * @notes      This implements a CDC Serial Port
  * @{
  *
- * @file       pios_usb_com_cdc.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       pios_usb_cdc.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      USB COM functions (STM32 dependent code)
  * @see        The GNU Public License (GPL) Version 3
  *

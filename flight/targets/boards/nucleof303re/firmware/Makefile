@@ -25,7 +25,7 @@ endif
 include ../board-info.mk
 include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
-# REVO C++ support
+# C++ support
 USE_CXX = YES
 
 # ARM DSP library

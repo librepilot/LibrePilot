@@ -1,12 +1,12 @@
 /**
  ******************************************************************************
- * @addtogroup CopterControlBL CopterControl BootLoader
- * @brief These files contain the code to the CopterControl Bootloader.
+ * @addtogroup BootLoader
  *
  * @{
  * @file       main.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      This is the file with the main function of the OpenPilot BootLoader
+ * @brief      This is the file with the main function of the LibrePilot BootLoader
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/

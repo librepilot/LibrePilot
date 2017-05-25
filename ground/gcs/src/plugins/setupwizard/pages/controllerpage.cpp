@@ -154,6 +154,7 @@ void ControllerPage::setupBoardTypes()
     ui->boardTypeCombo->addItem(tr("TauLabs Sparky 2.0"), SetupWizard::CONTROLLER_SPARKY2);
     ui->boardTypeCombo->addItem(tr("SPRacing F3"), SetupWizard::CONTROLLER_SPRACINGF3);
     ui->boardTypeCombo->addItem(tr("SPRacing F3 EVO"), SetupWizard::CONTROLLER_SPRACINGF3EVO);
+    ui->boardTypeCombo->addItem(tr("PikoBLX"), SetupWizard::CONTROLLER_PIKOBLX);
 }
 
 void ControllerPage::setControllerType(SetupWizard::CONTROLLER_TYPE type)
@@ -252,6 +253,10 @@ void ControllerPage::connectionStatusChanged()
             ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
             break;
 
+        case SetupWizard::CONTROLLER_PIKOBLX:
+            boardPic.load(":/configgadget/images/pikoblx_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
 
         default:
             ui->boardImg->setPixmap(QPixmap());

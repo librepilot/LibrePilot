@@ -25,7 +25,7 @@ endif
 include ../board-info.mk
 include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
-# REVO C++ support
+# C++ support
 USE_CXX = YES
 
 # ARM DSP library
@@ -76,7 +76,7 @@ ifndef TESTAPP
     ## Application Core
     SRC += ../pios_usb_board_data.c
     SRC += $(OPMODULEDIR)/System/systemmod.c
-    CPPSRC += $(OPSYSTEM)/coptercontrol.cpp
+    CPPSRC += $(OPSYSTEM)/main.cpp
     SRC += $(OPSYSTEM)/pios_board.c
     SRC += $(FLIGHTLIB)/alarms.c
     SRC += $(OPUAVTALK)/uavtalk.c

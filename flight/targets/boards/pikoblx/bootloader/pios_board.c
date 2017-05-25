@@ -2,8 +2,9 @@
  ******************************************************************************
  *
  * @file       pios_board.c
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Defines board specific static initializers for hardware for the CopterControl board.
+ * @brief      Defines board specific static initializers for hardware for the PikoBLX board.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/

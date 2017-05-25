@@ -187,7 +187,8 @@ void PIOS_WS2811_Init(uint32_t *dev_id, const struct pios_ws2811_cfg *ws2811_cfg
     setupTimer();
     setupDMA();
 
-    //
+    // This is required so client (for example Notify module)
+    // can test for != 0 to know if device is configured or not.
     *dev_id = PIOS_WS2811_MAGIC;
 }
 

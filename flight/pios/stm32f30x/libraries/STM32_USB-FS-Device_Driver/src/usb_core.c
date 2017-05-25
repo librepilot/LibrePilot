@@ -50,7 +50,7 @@
 /* Private variables ---------------------------------------------------------*/
 uint16_t_uint8_t StatusInfo;
 
-bool Data_Mul_MaxPacketSize = FALSE;
+uint8_t Data_Mul_MaxPacketSize = FALSE;
 /* Private function prototypes -----------------------------------------------*/
 static void DataStageOut(void);
 static void DataStageIn(void);
@@ -66,7 +66,7 @@ static void Data_Setup0(void);
 * Return         : Return 1 , if the request is invalid when "Length" is 0.
 *                  Return "Buffer" if the "Length" is not 0.
 *******************************************************************************/
-uint8_t *Standard_GetConfiguration(uint16_t Length)
+const uint8_t *Standard_GetConfiguration(uint16_t Length)
 {
   if (Length == 0)
   {
@@ -112,7 +112,7 @@ RESULT Standard_SetConfiguration(void)
 * Return         : Return 0, if the request is invalid when "Length" is 0.
 *                  Return "Buffer" if the "Length" is not 0.
 *******************************************************************************/
-uint8_t *Standard_GetInterface(uint16_t Length)
+const uint8_t *Standard_GetInterface(uint16_t Length)
 {
   if (Length == 0)
   {
@@ -168,7 +168,7 @@ RESULT Standard_SetInterface(void)
 * Return         : Return 0, if the request is at end of data block,
 *                  or is invalid when "Length" is 0.
 *******************************************************************************/
-uint8_t *Standard_GetStatus(uint16_t Length)
+const uint8_t *Standard_GetStatus(uint16_t Length)
 {
   if (Length == 0)
   {
@@ -430,7 +430,7 @@ uint8_t *Standard_GetDescriptorData(uint16_t Length, ONE_DESCRIPTOR *pDesc)
     return 0;
   }
 
-  return pDesc->Descriptor + wOffset;
+  return (uint8_t *)(pDesc->Descriptor + wOffset);
 }
 
 /*******************************************************************************
@@ -682,7 +682,7 @@ exit_NoData_Setup0:
 *******************************************************************************/
 void Data_Setup0(void)
 {
-  uint8_t *(*CopyRoutine)(uint16_t);
+  const uint8_t *(*CopyRoutine)(uint16_t);
   RESULT Result;
   uint32_t Request_No = pInformation->USBbRequest;
 
@@ -787,7 +787,7 @@ void Data_Setup0(void)
   if (CopyRoutine)
   {
     pInformation->Ctrl_Info.Usb_wOffset = wOffset;
-    pInformation->Ctrl_Info.CopyData = CopyRoutine;
+    pInformation->Ctrl_Info.CopyData = (typeof(pInformation->Ctrl_Info.CopyData))CopyRoutine;
     /* sb in the original the cast to word was directly */
     /* now the cast is made step by step */
     (*CopyRoutine)(0);
@@ -859,7 +859,7 @@ void Data_Setup0(void)
 * Output         : None.
 * Return         : Post0_Process.
 *******************************************************************************/
-uint8_t Setup0_Process(void)
+uint8_t __attribute__((optimize("O0"))) Setup0_Process(void)
 {
 
   union
@@ -867,9 +867,21 @@ uint8_t Setup0_Process(void)
     uint8_t* b;
     uint16_t* w;
   } pBuf;
+
+#ifdef STM32F10X_CL
+  USB_OTG_EP *ep;
+  uint16_t offset = 0;
+ 
+  ep = PCD_GetOutEP(ENDP0);
+  pBuf.b = ep->xfer_buff;
+#elif defined(STM32F303xD) || defined(STM32F303xE)
+  uint16_t offset = 0;
+  pBuf.b = (uint8_t *)(PMAAddr + _GetEPRxAddr(ENDP0));
+#else  
   uint16_t offset = 1;
   
   pBuf.b = PMAAddr + (uint8_t *)(_GetEPRxAddr(ENDP0) * 2); /* *2 for 32 bits addr */
+#endif /* STM32F10X_CL */
 
   if (pInformation->ControlState != PAUSE)
   {

@@ -31,7 +31,7 @@
 #define __USB_LIB_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "hw_config.h"
+#include "stm32f30x.h"
 #include "usb_type.h"
 #include "usb_regs.h"
 #include "usb_def.h"

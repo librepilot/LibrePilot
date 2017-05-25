@@ -30,6 +30,22 @@
 #ifndef __USB_REGS_H
 #define __USB_REGS_H
 
+#if defined(STM32F303xC)                         || \
+    defined(STM32F303x8) || defined(STM32F334x8) || \
+    defined(STM32F301x8)                         || \
+    defined(STM32F373xC) || defined(STM32F378xx) || \
+    defined(STM32F302xC)
+#define __USB_PMA_1x16
+typedef uint32_t usb_pma_t;
+#endif /* STM32F303xC                || */
+       /* STM32F303x8 || STM32F334x8 || */
+       /* STM32F301x8                || */
+       /* STM32F373xC || STM32F378xx    */
+#if defined(STM32F302xE) || defined(STM32F303xD) || defined(STM32F303xE)
+#define __USB_PMA_2x16
+typedef uint16_t usb_pma_t;
+#endif /* STM32F302xE || STM32F303xD || STM32F303xE */
+
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 typedef enum _EP_DBUF_DIR
@@ -448,11 +464,18 @@ enum EP_BUF_NUM
 *******************************************************************************/
 #define _GetEPAddress(bEpNum) ((uint8_t)(_GetENDPOINT(bEpNum) & EPADDR_FIELD))
 
-#define _pEPTxAddr(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8  )*2 + PMAAddr))
-#define _pEPTxCount(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8+2)*2 + PMAAddr))
-#define _pEPRxAddr(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8+4)*2 + PMAAddr))
-#define _pEPRxCount(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8+6)*2 + PMAAddr))
-
+#ifdef __USB_PMA_1x16
+#define _pEPTxAddr(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8  )*2 + PMAAddr))
+#define _pEPTxCount(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8+2)*2 + PMAAddr))
+#define _pEPRxAddr(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8+4)*2 + PMAAddr))
+#define _pEPRxCount(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8+6)*2 + PMAAddr))
+#endif /* __USB_PMA_1x16 */
+#ifdef __USB_PMA_2x16
+#define _pEPTxAddr(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8  ) + PMAAddr))
+#define _pEPTxCount(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8+2) + PMAAddr))
+#define _pEPRxAddr(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8+4) + PMAAddr))
+#define _pEPRxCount(bEpNum) ((usb_pma_t *)((_GetBTABLE()+bEpNum*8+6) + PMAAddr))
+#endif /* __USB_PMA_2x16 */
 /*******************************************************************************
 * Macro Name     : SetEPTxAddr / SetEPRxAddr.
 * Description    : sets address of the tx/rx buffer.
@@ -486,14 +509,14 @@ enum EP_BUF_NUM
     wNBlocks = wCount >> 5;\
     if((wCount & 0x1f) == 0)\
       wNBlocks--;\
-    *pdwReg = (uint32_t)((wNBlocks << 10) | 0x8000);\
+    *pdwReg = (usb_pma_t)((wNBlocks << 10) | 0x8000);\
   }/* _BlocksOf32 */
 
 #define _BlocksOf2(dwReg,wCount,wNBlocks) {\
     wNBlocks = wCount >> 1;\
     if((wCount & 0x1) != 0)\
       wNBlocks++;\
-    *pdwReg = (uint32_t)(wNBlocks << 10);\
+    *pdwReg = (usb_pma_t)(wNBlocks << 10);\
   }/* _BlocksOf2 */
 
 #define _SetEPCountRxReg(dwReg,wCount)  {\
@@ -505,7 +528,7 @@ enum EP_BUF_NUM
 
 
 #define _SetEPRxDblBuf0Count(bEpNum,wCount) {\
-    uint32_t *pdwReg = _pEPTxCount(bEpNum); \
+    usb_pma_t *pdwReg = _pEPTxCount(bEpNum); \
     _SetEPCountRxReg(pdwReg, wCount);\
   }
 /*******************************************************************************
@@ -518,7 +541,7 @@ enum EP_BUF_NUM
 *******************************************************************************/
 #define _SetEPTxCount(bEpNum,wCount) (*_pEPTxCount(bEpNum) = wCount)
 #define _SetEPRxCount(bEpNum,wCount) {\
-    uint32_t *pdwReg = _pEPRxCount(bEpNum); \
+    usb_pma_t *pdwReg = _pEPRxCount(bEpNum); \
     _SetEPCountRxReg(pdwReg, wCount);\
   }
 /*******************************************************************************
@@ -582,7 +605,7 @@ enum EP_BUF_NUM
     {_SetEPRxDblBuf0Count(bEpNum,wCount);} \
     else if(bDir == EP_DBUF_IN)\
       /* IN endpoint */ \
-      *_pEPTxCount(bEpNum) = (uint32_t)wCount;  \
+      *_pEPTxCount(bEpNum) = (usb_pma_t)wCount;  \
   } /* SetEPDblBuf0Count*/
 
 #define _SetEPDblBuf1Count(bEpNum, bDir, wCount)  { \
@@ -591,7 +614,7 @@ enum EP_BUF_NUM
     {_SetEPRxCount(bEpNum,wCount);}\
     else if(bDir == EP_DBUF_IN)\
       /* IN endpoint */\
-      *_pEPRxCount(bEpNum) = (uint32_t)wCount; \
+      *_pEPRxCount(bEpNum) = (usb_pma_t)wCount; \
   } /* SetEPDblBuf1Count */
 
 #define _SetEPDblBuffCount(bEpNum, bDir, wCount) {\

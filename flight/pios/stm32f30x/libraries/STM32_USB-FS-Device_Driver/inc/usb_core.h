@@ -48,7 +48,7 @@ typedef enum _CONTROL_STATE
 
 typedef struct OneDescriptor
 {
-  uint8_t *Descriptor;
+  const uint8_t *Descriptor;
   uint16_t Descriptor_Size;
 }
 ONE_DESCRIPTOR, *PONE_DESCRIPTOR;
@@ -182,9 +182,9 @@ typedef struct _DEVICE_PROP
 
   RESULT  (*Class_Get_Interface_Setting)(uint8_t Interface, uint8_t AlternateSetting);
 
-  uint8_t* (*GetDeviceDescriptor)(uint16_t Length);
-  uint8_t* (*GetConfigDescriptor)(uint16_t Length);
-  uint8_t* (*GetStringDescriptor)(uint16_t Length);
+  const uint8_t* (*GetDeviceDescriptor)(uint16_t Length);
+  const uint8_t* (*GetConfigDescriptor)(uint16_t Length);
+  const uint8_t* (*GetStringDescriptor)(uint16_t Length);
 
   /* This field is not used in current library version. It is kept only for 
    compatibility with previous versions */
@@ -234,13 +234,13 @@ uint8_t In0_Process(void);
 RESULT Standard_SetEndPointFeature(void);
 RESULT Standard_SetDeviceFeature(void);
 
-uint8_t *Standard_GetConfiguration(uint16_t Length);
+const uint8_t *Standard_GetConfiguration(uint16_t Length);
 RESULT Standard_SetConfiguration(void);
-uint8_t *Standard_GetInterface(uint16_t Length);
+const uint8_t *Standard_GetInterface(uint16_t Length);
 RESULT Standard_SetInterface(void);
 uint8_t *Standard_GetDescriptorData(uint16_t Length, PONE_DESCRIPTOR pDesc);
 
-uint8_t *Standard_GetStatus(uint16_t Length);
+const uint8_t *Standard_GetStatus(uint16_t Length);
 RESULT Standard_ClearFeature(void);
 void SetDeviceAddress(uint8_t);
 void NOP_Process(void);

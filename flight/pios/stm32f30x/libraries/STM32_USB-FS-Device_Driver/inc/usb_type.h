@@ -39,11 +39,13 @@
 #define NULL ((void *)0)
 #endif
 
+#if !defined(FALSE) && !defined(TRUE)
 typedef enum
 {
   FALSE = 0, TRUE  = !FALSE
 }
-bool;
+usb_fs_device_driver_bool;
+#endif
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */

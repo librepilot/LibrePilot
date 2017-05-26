@@ -253,7 +253,6 @@ void PIOS_Board_Init(void)
         if (is_coordinator) {
             PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_main_cfg);
         }
-        // For some reason, PPM output on the main port doesn't work.
 #if defined(PIOS_INCLUDE_PPM_OUT)
         else {
             PIOS_PPM_Out_Init(&pios_ppm_out_id, &pios_main_ppm_out_cfg);
@@ -307,7 +306,6 @@ void PIOS_Board_Init(void)
         if (is_coordinator) {
             PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_flexi_cfg);
         }
-        // For some reason, PPM output on the flexi port doesn't work.
 #if defined(PIOS_INCLUDE_PPM_OUT)
         else {
             PIOS_PPM_Out_Init(&pios_ppm_out_id, &pios_flexi_ppm_out_cfg);

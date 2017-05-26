@@ -57,6 +57,7 @@ uint32_t pios_com_gcs_id     = 0;
 uint32_t pios_com_gcs_out_id = 0;
 #if defined(PIOS_INCLUDE_PPM_OUT)
 uint32_t pios_ppm_out_id     = 0;
+bool ppm_rssi = false;
 #endif
 #if defined(PIOS_INCLUDE_RFM22B)
 #include <pios_rfm22b_com.h>
@@ -142,6 +143,7 @@ void PIOS_Board_Init(void)
     bool ppm_only    = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
     bool ppm_mode    = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
                         (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
+    ppm_rssi = (oplinkSettings.PPMOutRSSI == OPLINKSETTINGS_PPMOUTRSSI_CH9);
     bool servo_main  = false;
     bool servo_flexi = false;
 
@@ -440,6 +442,15 @@ static void PIOS_Board_PPM_callback(__attribute__((unused)) uint32_t context, co
             if (channels[i] != PIOS_RCVR_INVALID) {
                 PIOS_PPM_OUT_Set(PIOS_PPM_OUTPUT, i, channels[i]);
             }
+        }
+        // Rssi channel output is added after RC channels
+        // Output Rssi from 1000µs to 2000µs (-127dBm to -16dBm range)
+        if (ppm_rssi) {
+            int8_t rssi;
+            int16_t ppm_value;
+            OPLinkStatusRSSIGet(&rssi);
+            ppm_value = 1000 + ((rssi + 127) * 9);
+            PIOS_PPM_OUT_Set(PIOS_PPM_OUTPUT, RFM22B_PPM_NUM_CHANNELS, ppm_value);
         }
     }
 #if defined(PIOS_INCLUDE_SERVO)

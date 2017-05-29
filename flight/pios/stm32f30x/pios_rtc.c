@@ -128,8 +128,8 @@ void PIOS_RTC_irq_handler(void)
         RTC_ClearITPendingBit(RTC_IT_WUT);
     }
 
-    if (EXTI_GetITStatus(EXTI_Line22) != RESET) {
-        EXTI_ClearITPendingBit(EXTI_Line22);
+    if (EXTI_GetITStatus(EXTI_Line20) != RESET) {
+        EXTI_ClearITPendingBit(EXTI_Line20);
     }
 }
 

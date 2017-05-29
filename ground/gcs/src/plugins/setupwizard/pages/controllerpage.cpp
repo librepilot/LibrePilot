@@ -128,6 +128,9 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
 
     case 0x1005:
         return SetupWizard::CONTROLLER_PIKOBLX;
+        
+    case 0x1006:
+        return SetupWizard::CONTROLLER_TINYFISH;
 
     default:
         return SetupWizard::CONTROLLER_UNKNOWN;
@@ -258,6 +261,10 @@ void ControllerPage::connectionStatusChanged()
             ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
             break;
 
+        case SetupWizard::CONTROLLER_TINYFISH:
+            boardPic.load(":/configgadget/images/tinyfish_top.png");
+            ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
+            break;
         default:
             ui->boardImg->setPixmap(QPixmap());
             break;

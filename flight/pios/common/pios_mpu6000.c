@@ -724,8 +724,6 @@ static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp_p)
     // Rotate the sensor to OP convention.  The datasheet defines X as towards the right
     // and Y as forward.  OP convention transposes this.  Also the Z is defined negatively
     // to our convention
-
-    // Currently we only support rotations on top so switch X/Y accordingly
     switch (dev->cfg->orientation) {
     case PIOS_MPU6000_TOP_0DEG:
         queue_data->sample[0].y = GET_SENSOR_DATA(mpu6000_data, Accel_X); // chip X
@@ -752,9 +750,38 @@ static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp_p)
         queue_data->sample[1].y = GET_SENSOR_DATA(mpu6000_data, Gyro_Y); // chip Y
         queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_X)); // chip X
         break;
+    case PIOS_MPU6000_BOTTOM_0DEG:
+        queue_data->sample[0].y = GET_SENSOR_DATA(mpu6000_data, Accel_X); // chip X
+        queue_data->sample[0].x = -1 - GET_SENSOR_DATA(mpu6000_data, Accel_Y); // chip Y
+        queue_data->sample[1].y = GET_SENSOR_DATA(mpu6000_data, Gyro_X); // chip X
+        queue_data->sample[1].x = -1 - GET_SENSOR_DATA(mpu6000_data, Gyro_Y); // chip Y
+        break;
+    case PIOS_MPU6000_BOTTOM_90DEG:
+        queue_data->sample[0].y = GET_SENSOR_DATA(mpu6000_data, Accel_Y); // chip Y
+        queue_data->sample[0].x = GET_SENSOR_DATA(mpu6000_data, Accel_X); // chip X
+        queue_data->sample[1].y = GET_SENSOR_DATA(mpu6000_data, Gyro_Y); // chip Y
+        queue_data->sample[1].x = GET_SENSOR_DATA(mpu6000_data, Gyro_X); // chip X
+        break;
+    case PIOS_MPU6000_BOTTOM_180DEG:
+        queue_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_X)); // chip X
+        queue_data->sample[0].x = GET_SENSOR_DATA(mpu6000_data, Accel_Y); // chip Y
+        queue_data->sample[1].y = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_X)); // chip X
+        queue_data->sample[1].x = GET_SENSOR_DATA(mpu6000_data, Gyro_Y); // chip Y
+        break;
+    case PIOS_MPU6000_BOTTOM_270DEG:
+        queue_data->sample[0].y = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_Y)); // chip Y
+        queue_data->sample[0].x = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_X)); // chip X
+        queue_data->sample[1].y = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_Y)); // chip Y
+        queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_X)); // chip X
+        break;
     }
-    queue_data->sample[0].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_Z));
-    queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_Z));
+    if((dev->cfg->orientation & PIOS_MPU6000_LOCATION_MASK) == PIOS_MPU6000_LOCATION_TOP) {
+        queue_data->sample[0].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_Z));
+        queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_Z));
+    } else {
+        queue_data->sample[0].z = GET_SENSOR_DATA(mpu6000_data, Accel_Z);
+        queue_data->sample[1].z = GET_SENSOR_DATA(mpu6000_data, Gyro_Z);
+    }
     const int16_t temp = GET_SENSOR_DATA(mpu6000_data, Temperature);
     // Temperature in degrees C = (TEMP_OUT Register Value as a signed quantity)/340 + 36.53
     queue_data->temperature = 3653 + (temp * 100) / 340;

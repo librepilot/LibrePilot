@@ -125,12 +125,24 @@ enum pios_mpu6000_accel_range {
     PIOS_MPU6000_ACCEL_16G = 0x18
 };
 
-enum pios_mpu6000_orientation { // clockwise rotation from board forward
-    PIOS_MPU6000_TOP_0DEG   = 0x00,
-    PIOS_MPU6000_TOP_90DEG  = 0x01,
-    PIOS_MPU6000_TOP_180DEG = 0x02,
-    PIOS_MPU6000_TOP_270DEG = 0x03
+
+#define PIOS_MPU6000_LOCATION_TOP     0x00
+#define PIOS_MPU6000_LOCATION_BOTTOM  0x10
+
+#define PIOS_MPU6000_LOCATION_MASK    0xf0
+
+enum pios_mpu6000_orientation { // clockwise rotation from board forward, when looking at sensor itself, which can be also on the bottom side
+    PIOS_MPU6000_TOP_0DEG      = 0 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_TOP_90DEG     = 1 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_TOP_180DEG    = 2 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_TOP_270DEG    = 3 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_BOTTOM_0DEG   = 4 | PIOS_MPU6000_LOCATION_BOTTOM,
+    PIOS_MPU6000_BOTTOM_90DEG  = 5 | PIOS_MPU6000_LOCATION_BOTTOM,
+    PIOS_MPU6000_BOTTOM_180DEG = 6 | PIOS_MPU6000_LOCATION_BOTTOM,
+    PIOS_MPU6000_BOTTOM_270DEG = 7 | PIOS_MPU6000_LOCATION_BOTTOM,
 };
+
+
 
 struct pios_mpu6000_cfg {
     const struct pios_exti_cfg *exti_cfg; /* Pointer to the EXTI configuration */

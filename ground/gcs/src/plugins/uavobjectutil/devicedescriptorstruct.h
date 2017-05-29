@@ -74,6 +74,9 @@ public:
 
         case 0x1005:
             return QString("PikoBLX");
+        
+        case 0x1006:
+            return QString("tinyFISH");
 
         default:
             return QString("");

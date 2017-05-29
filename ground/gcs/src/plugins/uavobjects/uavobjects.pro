@@ -100,6 +100,7 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/hwspracingf3settings.xml \
     $${UAVOBJ_XML_DIR}/hwspracingf3evosettings.xml \
     $${UAVOBJ_XML_DIR}/hwpikoblxsettings.xml \
+    $${UAVOBJ_XML_DIR}/hwtinyfishsettings.xml \
     $${UAVOBJ_XML_DIR}/i2cstats.xml \
     $${UAVOBJ_XML_DIR}/magsensor.xml \
     $${UAVOBJ_XML_DIR}/magstate.xml \

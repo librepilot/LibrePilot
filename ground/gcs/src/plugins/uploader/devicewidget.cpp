@@ -121,6 +121,10 @@ void DeviceWidget::populate()
         // Sparky2
         devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
+    case 0x1006:
+        // tinyFISH
+        devicePic.load(":/uploader/images/gcs-board-tinyfish.png");
+        break;
     default:
         // Clear
         devicePic.load("");

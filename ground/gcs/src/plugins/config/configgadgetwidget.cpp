@@ -254,6 +254,8 @@ void ConfigGadgetWidget::onAutopilotConnect()
                 // widget = new ConfigSPRacingF3EVOHWWidget(this);
             } else if (board == 0x1005) {
                 // widget = new ConfigPikoBLXHWWidget(this);
+            } else if (board == 0x1006) {
+                // widget = new ConfigTinyFISHHWWidget(this);
             }
             if (widget) {
                 widget->bind();

@@ -379,6 +379,7 @@ enum usb_op_board_ids {
     USB_OP_BOARD_ID_SPRACINGF3EVO = 9,
     USB_OP_BOARD_ID_NUCLEOF303RE  = 10,
     USB_OP_BOARD_ID_PIKOBLX       = 11,
+    USB_OP_BOARD_ID_TINYFISH      = 12,
 } __attribute__((packed));
 
 enum usb_op_board_modes {

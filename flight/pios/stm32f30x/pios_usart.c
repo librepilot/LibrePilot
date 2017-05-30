@@ -65,7 +65,7 @@ struct pios_usart_dev {
     uint32_t rx_in_context;
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
-
+    bool     config_locked;
     uint32_t rx_dropped;
     uint8_t  irq_channel;
 };
@@ -176,33 +176,33 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
 
     uint32_t *local_id;
     uint8_t irq_channel;
-    
+
     switch ((uint32_t)cfg->regs) {
     case (uint32_t)USART1:
-        local_id = &PIOS_USART_1_id;
+        local_id    = &PIOS_USART_1_id;
         irq_channel = USART1_IRQn;
         break;
     case (uint32_t)USART2:
-        local_id = &PIOS_USART_2_id;
+        local_id    = &PIOS_USART_2_id;
         irq_channel = USART2_IRQn;
         break;
     case (uint32_t)USART3:
-        local_id = &PIOS_USART_3_id;
+        local_id    = &PIOS_USART_3_id;
         irq_channel = USART3_IRQn;
         break;
     case (uint32_t)UART4:
-        local_id = &PIOS_UART_4_id;
+        local_id    = &PIOS_UART_4_id;
         irq_channel = UART4_IRQn;
         break;
     case (uint32_t)UART5:
-        local_id = &PIOS_UART_5_id;
+        local_id    = &PIOS_UART_5_id;
         irq_channel = UART5_IRQn;
         break;
     default:
         goto out_fail;
     }
-    
-    if(*local_id) {
+
+    if (*local_id) {
         /* this port is already open */
         *usart_id = *local_id;
         return 0;
@@ -224,6 +224,8 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
 
     /* We will set modes later, depending on installed callbacks */
     usart_dev->init.USART_Mode = 0;
+
+    /* DTR handling? */
 
     *usart_id = (uint32_t)usart_dev;
     *local_id = (uint32_t)usart_dev;
@@ -266,7 +268,51 @@ static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
     }
 
     /* Write new configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+#if 0
+    const char *dbg_parity = "?";
+    switch (usart_dev->init.USART_Parity) {
+    case USART_Parity_No: dbg_parity   = "N"; break;
+    case USART_Parity_Even: dbg_parity = "E"; break;
+    case USART_Parity_Odd: dbg_parity  = "O"; break;
+    }
+    const char *dbg_mode = "???";
+    switch (usart_dev->init.USART_Mode) {
+    case USART_Mode_Rx: dbg_mode = "rx"; break;
+    case USART_Mode_Tx: dbg_mode = "tx"; break;
+    case USART_Mode_Rx | USART_Mode_Tx: dbg_mode = "rx_tx"; break;
+    }
+    const char *dbg_flow_control = "???";
+    switch (usart_dev->init.USART_HardwareFlowControl) {
+    case USART_HardwareFlowControl_None: dbg_flow_control    = "none"; break;
+    case USART_HardwareFlowControl_RTS: dbg_flow_control     = "rts"; break;
+    case USART_HardwareFlowControl_CTS: dbg_flow_control     = "cts"; break;
+    case USART_HardwareFlowControl_RTS_CTS: dbg_flow_control = "rts_cts"; break;
+    }
+    const char *dbg_stop_bits = "???";
+    switch (usart_dev->init.USART_StopBits) {
+    case USART_StopBits_1: dbg_stop_bits   = "1"; break;
+    case USART_StopBits_2: dbg_stop_bits   = "2"; break;
+    case USART_StopBits_1_5: dbg_stop_bits = "1.5"; break;
+    }
+
+    DEBUG_PRINTF(0, "PIOS_USART_Setup: 0x%08x %u %u%s%s mode=%s flow_control=%s\r\n",
+                 (uint32_t)usart_dev,
+                 usart_dev->init.USART_BaudRate,
+                 usart_dev->init.USART_WordLength == USART_WordLength_8b ? 8 : 9,
+                 dbg_parity,
+                 dbg_stop_bits,
+                 dbg_mode,
+                 dbg_flow_control);
+#endif /* if 0 */
+    { // fix parity stuff
+        USART_InitTypeDef init = usart_dev->init;
+
+        if ((init.USART_Parity != USART_Parity_No) && (init.USART_WordLength == USART_WordLength_8b)) {
+            init.USART_WordLength = USART_WordLength_9b;
+        }
+
+        USART_Init(usart_dev->cfg->regs, &init);
+    }
 
     /*
      * Re enable USART.
@@ -308,6 +354,10 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
 
     PIOS_Assert(valid);
 
+    if (usart_dev->config_locked) {
+        return;
+    }
+
     usart_dev->init.USART_BaudRate = baud;
 
     PIOS_USART_Setup(usart_dev);
@@ -332,6 +382,10 @@ static void PIOS_USART_ChangeConfig(uint32_t usart_id,
     bool valid = PIOS_USART_validate(usart_dev);
 
     PIOS_Assert(valid);
+
+    if (usart_dev->config_locked) {
+        return;
+    }
 
     switch (word_len) {
     case PIOS_COM_Word_length_8b:
@@ -526,6 +580,9 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
         break;
     case PIOS_IOCTL_USART_GET_TXGPIO:
         *(struct stm32_gpio *)param = usart_dev->cfg->tx;
+        break;
+    case PIOS_IOCTL_USART_LOCK_CONFIG:
+        usart_dev->config_locked    = *(bool *)param;
         break;
     default:
         return -1;

@@ -483,6 +483,12 @@ void PIOS_BOARD_IO_Configure_UART(const struct pios_usart_cfg *hw_config, PIOS_B
             PIOS_Assert(0);
         }
 
+        /* lock uart config */
+        if (pios_usart_com_driver.ioctl) {
+            bool lock = true;
+            pios_usart_com_driver.ioctl(usart_id, PIOS_IOCTL_USART_LOCK_CONFIG, &lock);
+        }
+
         pios_rcvr_group_map[uart_function_map[function].rcvr_group] = rcvr_id;
     }
 #endif /* PIOS_INCLUDE_RCVR */

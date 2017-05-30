@@ -71,6 +71,10 @@ int32_t $(NAME)Initialize(void)
     return handle ? 0 : -1;
 }
 
+static inline void DataOverrideDefaults(__attribute__((unused)) $(NAME)Data * data) {}
+
+void $(NAME)DataOverrideDefaults($(NAME)Data * data) __attribute__((weak, alias("DataOverrideDefaults")));
+
 /**
  * Initialize object fields and metadata with the default values.
  * If a default value is not specified the object fields
@@ -84,6 +88,7 @@ void $(NAME)SetDefaults(UAVObjHandle obj, uint16_t instId)
     UAVObjGetInstanceData(obj, instId, &data);
     memset(&data, 0, sizeof($(NAME)Data));
 $(INITFIELDS)
+    $(NAME)DataOverrideDefaults(&data);
     UAVObjSetInstanceData(obj, instId, &data);
 
     // Initialize object metadata to their default values

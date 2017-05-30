@@ -71,6 +71,8 @@ typedef struct {
  */
 typedef $(NAME)DataPacked __attribute__((aligned(4))) $(NAME)Data;
 
+void $(NAME)DataOverrideDefaults($(NAME)Data * data);
+
 /* Typesafe Object access functions */
 static inline int32_t $(NAME)Get($(NAME)Data * dataOut) {
     return UAVObjGetData($(NAME)Handle(), dataOut);

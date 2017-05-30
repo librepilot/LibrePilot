@@ -37,6 +37,7 @@
 #include <sanitycheck.h>
 #include <actuatorsettings.h>
 #include <auxmagsettings.h>
+#include <flightbatterysettings.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
@@ -62,6 +63,11 @@ uintptr_t pios_user_fs_id = 0;
 uint32_t pios_ws2811_id;
 #endif
 
+void FlightBatterySettingsDataOverrideDefaults(FlightBatterySettingsData * data)
+{
+    data->SensorCalibrations.VoltageFactor = 8.8f;
+    data->SensorCalibrations.CurrentFactor = 0.07f;
+}
 
 static HwTinyFISHSettingsData boardHwSettings;
 

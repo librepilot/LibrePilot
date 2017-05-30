@@ -221,27 +221,22 @@ void PIOS_Board_Init(void)
         PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
     }
 #endif
-    if(PIOS_COM_DEBUG) {
+    if (PIOS_COM_DEBUG) {
         PIOS_COM_ChangeBaud(PIOS_COM_DEBUG, 57600);
-    }
-    
-    /* Configure integrated RX protocols only if we did not already configure those (SBus rx/frsky telemetry) on external port
-     * Note: We will first configure FRSKY_SENSORHUB on this port. That module is TX only and will set
-     * baud rate to 9600. However, we will configure SBUS after that, which will reconfigure COM port there.
-     */
-    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "boardHwSettings.UART3Port = %d\r\n", boardHwSettings.UART3Port);
-    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "Another one\r\n");
-    if (boardHwSettings.UART3Port != HWTINYFISHSETTINGS_UART3PORT_FRSKYSENSORHUB) {
-    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "initializing PIOS_BOARD_IO_UART_FRSKY_SENSORHUB\r\n");
-        PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[1], PIOS_BOARD_IO_UART_FRSKY_SENSORHUB);
-    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "done: PIOS_COM_FRSKY_SENSORHUB = 0x%08x\r\n", PIOS_COM_FRSKY_SENSORHUB);
+        DEBUG_PRINTF(0, "\r\n\r\ntinyFISH FC booting\r\n");
     }
 
+    /* Configure SBus as primary usart client.
+     * PIOS_BOARD_IO_Configure_UART() will also lock COM port config so that secondary client cannot mess with settings */
     if (boardHwSettings.UART3Port != HWTINYFISHSETTINGS_UART3PORT_SBUS) {
-    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "initializing PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED\r\n");
         PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[1], PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED);
     }
-    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "Done with UART2\r\n");
+
+    /* Configure Frsky SensorHub as secondary client. */
+    if (boardHwSettings.UART3Port != HWTINYFISHSETTINGS_UART3PORT_FRSKYSENSORHUB) {
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[1], PIOS_BOARD_IO_UART_FRSKY_SENSORHUB);
+    }
+
     /* and what to do with UART1? There is RX_DEBUG only connected. Maybe make it into configurable ComBridge? */
     if (boardHwSettings.UART1Port == HWTINYFISHSETTINGS_UART1PORT_COMBRIDGE) {
         PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[0], PIOS_BOARD_IO_UART_COMBRIDGE);

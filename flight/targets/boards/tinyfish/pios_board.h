@@ -125,8 +125,8 @@ extern uint32_t pios_ws2811_id;
 // #define PIOS_ADC_USE_TEMP_SENSOR
 // #define PIOS_ADC_TEMPERATURE_PIN  4
 
-#define PIOS_ADC_CURRENT_PIN 0
-#define PIOS_ADC_VOLTAGE_PIN 1
+#define PIOS_ADC_CURRENT_PIN      0
+#define PIOS_ADC_VOLTAGE_PIN      1
 
 // ------------------------
 // PIOS_RCVR

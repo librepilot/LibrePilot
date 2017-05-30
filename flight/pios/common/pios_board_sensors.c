@@ -221,15 +221,9 @@ void PIOS_BOARD_Sensors_Configure()
     }
 #endif /* PIOS_INCLUDE_ADC */
 
-    // internal bmp280 baro
-    // internal MPU6000 imu (i2c)
-
     // external ETASV3 Eagletree Airspeed v3
     // external MS4525D PixHawk Airpeed based on MS4525DO
-
-    // BMA180 accelerometer?
     // bmp085/bmp180 baro
-
     // hmc5843 mag
     // i2c esc (?)
     // UBX DCC

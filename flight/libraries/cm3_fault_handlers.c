@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include "inc/dcc_stdio.h"
-#ifdef STM32F4XX
+#ifdef STM32F4
 # include <stm32f4xx.h>
 #endif
 #ifdef STM32F3
@@ -15,6 +15,9 @@
 #endif
 #ifdef STM32F2XX
 # include <stm32f2xx.h>
+#endif
+#ifdef STM32F1
+# include <stm32f10x.h>
 #endif
 
 #define FAULT_TRAMPOLINE(_vec)                                                                          \

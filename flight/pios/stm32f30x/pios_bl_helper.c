@@ -3,12 +3,12 @@
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
  * @addtogroup PIOS_BOOTLOADER Functions
- * @brief HAL code to interface to the OpenPilot AHRS module
- * @{
+ * @brief      Bootloader Helper Functions
+ *
  *
  * @file       pios_bl_helper.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Bootloader Helper Functions
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright(C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/

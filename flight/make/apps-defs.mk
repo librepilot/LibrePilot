@@ -153,6 +153,11 @@ ifeq ($(USE_CXX),YES)
 CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
 endif
 
+ifeq ($(DEBUG), YES)
+SRC += $(FLIGHTLIB)/dcc_stdio.c
+SRC += $(FLIGHTLIB)/cm3_fault_handlers.c
+endif
+
 ## Modules
 SRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c)))
 CPPSRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.cpp)))

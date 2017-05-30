@@ -6,7 +6,7 @@
  * @brief PIOS Comamnds to initialize and clear watchdog timer
  * @{
  *
- * @file       pios_spi.c
+ * @file       pios_wdg.c
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  *              Parts by Thorsten Klose (tk@midibox.org) (tk@midibox.org)
  * @brief      Hardware Abstraction Layer for SPI ports of STM32

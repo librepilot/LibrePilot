@@ -265,6 +265,7 @@ void ControllerPage::connectionStatusChanged()
             boardPic.load(":/configgadget/images/tinyfish_top.png");
             ui->boardImg->setPixmap(boardPic.scaled(picSize, Qt::KeepAspectRatio));
             break;
+
         default:
             ui->boardImg->setPixmap(QPixmap());
             break;

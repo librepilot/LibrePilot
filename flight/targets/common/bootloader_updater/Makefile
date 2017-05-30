@@ -56,16 +56,12 @@ else ifneq (,$(findstring STM32F4,$(CHIP)))
     # Using the _compat ld script ensure that the bootloader updated is compiled with irqstack in sram
     # This allow to be used with bootloader earlier than rel5
     LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))
-    SRC += $(HWDEFSINC)/firmware/cm3_fault_handlers.c
-    SRC += $(HWDEFSINC)/firmware/dcc_stdio.c
 else ifneq (,$(findstring STM32F30,$(CHIP)))
     include $(PIOS)/stm32f30x/library.mk
     # Set linker-script name depending on selected submodel name
     # Using the _compat ld script ensure that the bootloader updated is compiled with irqstack in sram
     # This allow to be used with bootloader earlier than rel5
 #    LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))
-    SRC += $(HWDEFSINC)/firmware/cm3_fault_handlers.c
-    SRC += $(HWDEFSINC)/firmware/dcc_stdio.c
 else
     $(error Unsupported MCU for BootloaderUpdater: $(CHIP))
 endif

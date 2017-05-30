@@ -1,8 +1,9 @@
 /**
  ******************************************************************************
  *
- * @file       pios_servp_config.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @file       pios_servo_config.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Architecture specific macros and definitions
  *             --
  * @see        The GNU Public License (GPL) Version 3
@@ -28,7 +29,7 @@
 
 
 /**
- * Generic servo pin configuration structure for an STM32F4xx
+ * Generic servo pin configuration structure for an STM32F30X
  */
 #define TIM_SERVO_CHANNEL_CONFIG(_timer, _channel, _gpio, _pin) \
     {                                                     \

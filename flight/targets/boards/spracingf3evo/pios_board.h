@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       pios_board.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *
  * @brief      Defines board hardware for the SPRacing F3 EVO board.

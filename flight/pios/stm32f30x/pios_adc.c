@@ -8,7 +8,7 @@
  *
  * @file       pios_adc.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
- * @brief      Analog to Digital converstion routines
+ * @brief      Analog to Digital conversion routines
  * @see        The GNU Public License (GPL) Version 3
  *****************************************************************************/
 /*

@@ -174,6 +174,40 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     PIOS_DEBUG_Assert(usart_id);
     PIOS_DEBUG_Assert(cfg);
 
+    uint32_t *local_id;
+    uint8_t irq_channel;
+    
+    switch ((uint32_t)cfg->regs) {
+    case (uint32_t)USART1:
+        local_id = &PIOS_USART_1_id;
+        irq_channel = USART1_IRQn;
+        break;
+    case (uint32_t)USART2:
+        local_id = &PIOS_USART_2_id;
+        irq_channel = USART2_IRQn;
+        break;
+    case (uint32_t)USART3:
+        local_id = &PIOS_USART_3_id;
+        irq_channel = USART3_IRQn;
+        break;
+    case (uint32_t)UART4:
+        local_id = &PIOS_UART_4_id;
+        irq_channel = UART4_IRQn;
+        break;
+    case (uint32_t)UART5:
+        local_id = &PIOS_UART_5_id;
+        irq_channel = UART5_IRQn;
+        break;
+    default:
+        goto out_fail;
+    }
+    
+    if(*local_id) {
+        /* this port is already open */
+        *usart_id = *local_id;
+        return 0;
+    }
+
     struct pios_usart_dev *usart_dev;
 
     usart_dev = (struct pios_usart_dev *)PIOS_USART_alloc();
@@ -183,6 +217,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
 
     /* Bind the configuration to the device instance */
     usart_dev->cfg = cfg;
+    usart_dev->irq_channel = irq_channel;
 
     /* Set some sane defaults */
     USART_StructInit(&usart_dev->init);
@@ -191,30 +226,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     usart_dev->init.USART_Mode = 0;
 
     *usart_id = (uint32_t)usart_dev;
-
-    /* Configure USART Interrupts */
-    switch ((uint32_t)usart_dev->cfg->regs) {
-    case (uint32_t)USART1:
-        PIOS_USART_1_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART1_IRQn;
-        break;
-    case (uint32_t)USART2:
-        PIOS_USART_2_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART2_IRQn;
-        break;
-    case (uint32_t)USART3:
-        PIOS_USART_3_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART3_IRQn;
-        break;
-    case (uint32_t)UART4:
-        PIOS_UART_4_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = UART4_IRQn;
-        break;
-    case (uint32_t)UART5:
-        PIOS_UART_5_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = UART5_IRQn;
-        break;
-    }
+    *local_id = (uint32_t)usart_dev;
 
     PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
 

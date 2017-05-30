@@ -126,10 +126,10 @@ enum pios_mpu6000_accel_range {
 };
 
 
-#define PIOS_MPU6000_LOCATION_TOP     0x00
-#define PIOS_MPU6000_LOCATION_BOTTOM  0x10
+#define PIOS_MPU6000_LOCATION_TOP    0x00
+#define PIOS_MPU6000_LOCATION_BOTTOM 0x10
 
-#define PIOS_MPU6000_LOCATION_MASK    0xf0
+#define PIOS_MPU6000_LOCATION_MASK   0xf0
 
 enum pios_mpu6000_orientation { // clockwise rotation from board forward, when looking at sensor itself, which can be also on the bottom side
     PIOS_MPU6000_TOP_0DEG      = 0 | PIOS_MPU6000_LOCATION_TOP,
@@ -141,7 +141,6 @@ enum pios_mpu6000_orientation { // clockwise rotation from board forward, when l
     PIOS_MPU6000_BOTTOM_180DEG = 6 | PIOS_MPU6000_LOCATION_BOTTOM,
     PIOS_MPU6000_BOTTOM_270DEG = 7 | PIOS_MPU6000_LOCATION_BOTTOM,
 };
-
 
 
 struct pios_mpu6000_cfg {

@@ -388,8 +388,8 @@ static const struct pios_tim_channel pios_tim_servoport_pins[] = {
     TIM_SERVO_CHANNEL_CONFIG(TIM15, 1, A, 2), // bank 3
 
     // following two are here so we can have two additional PWM outputs instead of UART3
-    TIM_SERVO_CHANNEL_CONFIG(TIM2, 4, B, 11), // bank 4 (UART3 RX)
-    TIM_SERVO_CHANNEL_CONFIG(TIM2, 3, B, 10), // bank 4 (UART3 TX)
+    TIM_SERVO_CHANNEL_CONFIG(TIM2,  4, B, 11), // bank 4 (UART3 RX)
+    TIM_SERVO_CHANNEL_CONFIG(TIM2,  3, B, 10), // bank 4 (UART3 TX)
 };
 
 #if defined(PIOS_INCLUDE_USART)
@@ -404,7 +404,7 @@ static const struct pios_tim_channel pios_tim_servoport_pins[] = {
 
 static const struct pios_usart_cfg pios_usart_cfg[] = {
     USART_CONFIG(USART1, B, 7,  B, 6), /* RX_DEBUG, TX_??? */
-    USART_CONFIG(USART2, A, 15,  A, 14), /* RX_SBUS, TX_FRSKY_TELEMETRY */
+    USART_CONFIG(USART2, A, 15, A, 14), /* RX_SBUS, TX_FRSKY_TELEMETRY */
     USART_CONFIG(USART3, B, 11, B, 10),
 };
 

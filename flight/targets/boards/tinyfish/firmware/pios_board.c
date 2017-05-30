@@ -120,7 +120,7 @@ void PIOS_Board_Init(void)
     }
 
     /* init SPI flash here */
-    
+
 #endif /* if defined(PIOS_INCLUDE_FLASH) */
 
     /* Initialize the task monitor */
@@ -179,12 +179,12 @@ void PIOS_Board_Init(void)
 
     PIOS_TIM_InitClock(&tim_1_cfg);
     PIOS_TIM_InitClock(&tim_2_cfg);
-//    PIOS_TIM_InitClock(&tim_3_cfg);
+// PIOS_TIM_InitClock(&tim_3_cfg);
     PIOS_TIM_InitClock(&tim_4_cfg);
     PIOS_TIM_InitClock(&tim_8_cfg);
     PIOS_TIM_InitClock(&tim_15_cfg);
-//    PIOS_TIM_InitClock(&tim_16_cfg);
-//    PIOS_TIM_InitClock(&tim_17_cfg);
+// PIOS_TIM_InitClock(&tim_16_cfg);
+// PIOS_TIM_InitClock(&tim_17_cfg);
 
 #if defined(PIOS_INCLUDE_USB)
     PIOS_BOARD_IO_Configure_USB();
@@ -195,42 +195,67 @@ void PIOS_Board_Init(void)
     HwTinyFISHSettingsGet(&boardHwSettings);
 
     static const PIOS_BOARD_IO_UART_Function uart_function_map[] = {
-        [HWTINYFISHSETTINGS_UARTPORT_TELEMETRY] = PIOS_BOARD_IO_UART_TELEMETRY,
-        [HWTINYFISHSETTINGS_UARTPORT_GPS]          = PIOS_BOARD_IO_UART_GPS,
-        [HWTINYFISHSETTINGS_UARTPORT_SBUS]         = PIOS_BOARD_IO_UART_SBUS,
-        [HWTINYFISHSETTINGS_UARTPORT_DSM]          = PIOS_BOARD_IO_UART_DSM_MAIN, // single DSM instance? ok.
-        [HWTINYFISHSETTINGS_UARTPORT_EXBUS]        = PIOS_BOARD_IO_UART_EXBUS,
-        [HWTINYFISHSETTINGS_UARTPORT_HOTTSUMD]     = PIOS_BOARD_IO_UART_HOTT_SUMD,
-        [HWTINYFISHSETTINGS_UARTPORT_HOTTSUMH]     = PIOS_BOARD_IO_UART_HOTT_SUMH,
-        [HWTINYFISHSETTINGS_UARTPORT_SRXL]         = PIOS_BOARD_IO_UART_SRXL,
-        [HWTINYFISHSETTINGS_UARTPORT_IBUS]         = PIOS_BOARD_IO_UART_IBUS,
-        [HWTINYFISHSETTINGS_UARTPORT_DEBUGCONSOLE] = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
-        [HWTINYFISHSETTINGS_UARTPORT_COMBRIDGE]    = PIOS_BOARD_IO_UART_COMBRIDGE,
-        [HWTINYFISHSETTINGS_UARTPORT_MSP]          = PIOS_BOARD_IO_UART_MSP,
-        [HWTINYFISHSETTINGS_UARTPORT_MAVLINK]      = PIOS_BOARD_IO_UART_MAVLINK,
+        [HWTINYFISHSETTINGS_UART3PORT_TELEMETRY] = PIOS_BOARD_IO_UART_TELEMETRY,
+        [HWTINYFISHSETTINGS_UART3PORT_GPS]            = PIOS_BOARD_IO_UART_GPS,
+        [HWTINYFISHSETTINGS_UART3PORT_SBUS]           = PIOS_BOARD_IO_UART_SBUS,
+        [HWTINYFISHSETTINGS_UART3PORT_DSM]            = PIOS_BOARD_IO_UART_DSM_MAIN, // single DSM instance? ok.
+        [HWTINYFISHSETTINGS_UART3PORT_EXBUS]          = PIOS_BOARD_IO_UART_EXBUS,
+        [HWTINYFISHSETTINGS_UART3PORT_HOTTSUMD]       = PIOS_BOARD_IO_UART_HOTT_SUMD,
+        [HWTINYFISHSETTINGS_UART3PORT_HOTTSUMH]       = PIOS_BOARD_IO_UART_HOTT_SUMH,
+        [HWTINYFISHSETTINGS_UART3PORT_SRXL]           = PIOS_BOARD_IO_UART_SRXL,
+        [HWTINYFISHSETTINGS_UART3PORT_IBUS]           = PIOS_BOARD_IO_UART_IBUS,
+        [HWTINYFISHSETTINGS_UART3PORT_DEBUGCONSOLE]   = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
+        [HWTINYFISHSETTINGS_UART3PORT_COMBRIDGE]      = PIOS_BOARD_IO_UART_COMBRIDGE,
+        [HWTINYFISHSETTINGS_UART3PORT_MSP]            = PIOS_BOARD_IO_UART_MSP,
+        [HWTINYFISHSETTINGS_UART3PORT_MAVLINK]        = PIOS_BOARD_IO_UART_MAVLINK,
+        [HWTINYFISHSETTINGS_UART3PORT_HOTTTELEMETRY]  = PIOS_BOARD_IO_UART_HOTT_BRIDGE,
+        [HWTINYFISHSETTINGS_UART3PORT_FRSKYSENSORHUB] = PIOS_BOARD_IO_UART_FRSKY_SENSORHUB,
     };
 
-    for (unsigned int i = 0; i < HWTINYFISHSETTINGS_UARTPORT_NUMELEM; ++i) {
-        if (boardHwSettings.UARTPort[i] < NELEMENTS(uart_function_map)) {
-            PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[i], uart_function_map[boardHwSettings.UARTPort[i]]);
-        }
-    }
-    
-    const struct pios_servo_cfg *servo_cfg = (boardHwSettings.UARTPort[2] == HWTINYFISHSETTINGS_UARTPORT_OUTPUTS) ? &pios_servo_uart3_cfg : &pios_servo_cfg;
-
-    if(boardHwSettings.UARTPort[2] == HWTINYFISHSETTINGS_UARTPORT_PPM) {
-        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
+    if (boardHwSettings.UART3Port < NELEMENTS(uart_function_map)) {
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[2], uart_function_map[boardHwSettings.UART3Port]);
     }
 
 #ifdef PIOS_INCLUDE_PPM
-    PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
+    if (boardHwSettings.UART3Port == HWTINYFISHSETTINGS_UART3PORT_PPM) {
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
+    }
 #endif
+    if(PIOS_COM_DEBUG) {
+        PIOS_COM_ChangeBaud(PIOS_COM_DEBUG, 57600);
+    }
+    
+    /* Configure integrated RX protocols only if we did not already configure those (SBus rx/frsky telemetry) on external port
+     * Note: We will first configure FRSKY_SENSORHUB on this port. That module is TX only and will set
+     * baud rate to 9600. However, we will configure SBUS after that, which will reconfigure COM port there.
+     */
+    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "boardHwSettings.UART3Port = %d\r\n", boardHwSettings.UART3Port);
+    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "Another one\r\n");
+    if (boardHwSettings.UART3Port != HWTINYFISHSETTINGS_UART3PORT_FRSKYSENSORHUB) {
+    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "initializing PIOS_BOARD_IO_UART_FRSKY_SENSORHUB\r\n");
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[1], PIOS_BOARD_IO_UART_FRSKY_SENSORHUB);
+    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "done: PIOS_COM_FRSKY_SENSORHUB = 0x%08x\r\n", PIOS_COM_FRSKY_SENSORHUB);
+    }
 
-#ifndef PIOS_ENABLE_DEBUG_PINS
-    PIOS_Servo_Init(servo_cfg);
-#else
+    if (boardHwSettings.UART3Port != HWTINYFISHSETTINGS_UART3PORT_SBUS) {
+    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "initializing PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED\r\n");
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[1], PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED);
+    }
+    PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, "Done with UART2\r\n");
+    /* and what to do with UART1? There is RX_DEBUG only connected. Maybe make it into configurable ComBridge? */
+    if (boardHwSettings.UART1Port == HWTINYFISHSETTINGS_UART1PORT_COMBRIDGE) {
+        PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[0], PIOS_BOARD_IO_UART_COMBRIDGE);
+    }
+
+#ifdef PIOS_ENABLE_DEBUG_PINS
     PIOS_DEBUG_Init(&pios_servo_cfg.channels, pios_servo_cfg.num_channels);
-#endif
+#else
+    if (boardHwSettings.UART3Port == HWTINYFISHSETTINGS_UART3PORT_OUTPUTS) {
+        PIOS_Servo_Init(&pios_servo_uart3_cfg);
+    } else {
+        PIOS_Servo_Init(&pios_servo_cfg);
+    }
+#endif /* PIOS_ENABLE_DEBUG_PINS */
 
     switch (boardHwSettings.LEDPort) {
     case HWTINYFISHSETTINGS_LEDPORT_WS2811:
@@ -249,9 +274,6 @@ void PIOS_Board_Init(void)
     PIOS_BOARD_Sensors_Configure();
 
     PIOS_LED_On(PIOS_LED_HEARTBEAT);
-
-    /* Make sure we have at least one telemetry link configured or else fail initialization */
-// PIOS_Assert(pios_com_telem_rf_id || pios_com_telem_usb_id);
 }
 
 

@@ -47,6 +47,8 @@ MODULES += FirmwareIAP
 #MODULES += Logging
 MODULES += Telemetry
 MODULES += Notify
+MODULES += Battery
+MODULES += UAVOFrSKYSensorHubBridge
 
 OPTMODULES += Airspeed
 OPTMODULES += AutoTune
@@ -54,7 +56,6 @@ OPTMODULES += GPS
 OPTMODULES += TxPID
 OPTMODULES += CameraStab
 OPTMODULES += CameraControl
-OPTMODULES += Battery
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
 OPTMODULES += UAVOMavlinkBridge

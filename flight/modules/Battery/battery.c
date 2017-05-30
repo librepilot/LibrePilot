@@ -66,12 +66,21 @@
 // Private variables
 static bool batteryEnabled = false;
 
+#ifndef PIOS_ADC_VOLTAGE_PIN
+#define PIOS_ADC_VOLTAGE_PIN -1
+#endif
+
+#ifndef PIOS_ADC_CURRENT_PIN
+#define PIOS_ADC_CURRENT_PIN -1
+#endif
+
+
 // THESE COULD BE BETTER AS SOME KIND OF UNION OR STRUCT, BY WHICH 4 BITS ARE USED FOR EACH
 // PIN VARIABLE, ONE OF WHICH INDICATES SIGN, AND THE OTHER 3 BITS INDICATE POSITION. THIS WILL
 // WORK FOR QUITE SOMETIME, UNTIL MORE THAN 8 ADC ARE AVAILABLE. EVEN AT THIS POINT, THE STRUCTURE
 // CAN SIMPLY BE MODIFIED TO SUPPORT 15 ADC PINS, BY USING ALL AVAILABLE BITS.
-static int8_t voltageADCPin = -1; // ADC pin for voltage
-static int8_t currentADCPin = -1; // ADC pin for current
+static int8_t voltageADCPin = PIOS_ADC_VOLTAGE_PIN; // ADC pin for voltage
+static int8_t currentADCPin = PIOS_ADC_CURRENT_PIN; // ADC pin for current
 
 // Private functions
 static void onTimer(UAVObjEvent *ev);

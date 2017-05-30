@@ -37,8 +37,8 @@
  * details.
  */
 
-/* #define PIOS_INCLUDE_DEBUG_CONSOLE */
-/* #define DEBUG_LEVEL 0 */
+#define PIOS_INCLUDE_DEBUG_CONSOLE
+#define DEBUG_LEVEL 0
 /* #define PIOS_ENABLE_DEBUG_PINS */
 
 /* PIOS FreeRTOS support */
@@ -113,6 +113,8 @@
 #define PIOS_INCLUDE_IBUS
 /* #define PIOS_INCLUDE_GCSRCVR */
 /* #define PIOS_INCLUDE_OPLINKRCVR */
+
+#define PIOS_INCLUDE_FRSKY_SENSORHUB
 
 /* PIOS abstract receiver interface */
 #define PIOS_INCLUDE_RCVR

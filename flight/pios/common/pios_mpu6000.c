@@ -775,7 +775,7 @@ static bool PIOS_MPU6000_HandleData(uint32_t gyro_read_timestamp_p)
         queue_data->sample[1].x = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_X)); // chip X
         break;
     }
-    if((dev->cfg->orientation & PIOS_MPU6000_LOCATION_MASK) == PIOS_MPU6000_LOCATION_TOP) {
+    if ((dev->cfg->orientation & PIOS_MPU6000_LOCATION_MASK) == PIOS_MPU6000_LOCATION_TOP) {
         queue_data->sample[0].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Accel_Z));
         queue_data->sample[1].z = -1 - (GET_SENSOR_DATA(mpu6000_data, Gyro_Z));
     } else {

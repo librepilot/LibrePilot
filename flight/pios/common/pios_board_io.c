@@ -266,8 +266,6 @@ static int32_t PIOS_DSM_Init_Helper(uint32_t *id, const struct pios_com_driver *
 # ifdef PIOS_INCLUDE_SBUS
 static int32_t PIOS_SBus_Init_Helper(uint32_t *id, const struct pios_com_driver *driver, uint32_t lower_id)
 {
-    // sbus-noninverted
-
     HwSettingsSBusModeOptions hwsettings_SBusMode;
 
     HwSettingsSBusModeGet(&hwsettings_SBusMode);
@@ -278,7 +276,23 @@ static int32_t PIOS_SBus_Init_Helper(uint32_t *id, const struct pios_com_driver 
 
     return PIOS_SBus_Init(id, &sbus_cfg, driver, lower_id);
 }
-# endif
+static int32_t PIOS_SBus_Normal_Init_Helper(uint32_t *id, const struct pios_com_driver *driver, uint32_t lower_id)
+{
+    struct pios_sbus_cfg sbus_cfg = {
+        .non_inverted = false,
+    };
+
+    return PIOS_SBus_Init(id, &sbus_cfg, driver, lower_id);
+}
+static int32_t PIOS_SBus_Not_Inverted_Init_Helper(uint32_t *id, const struct pios_com_driver *driver, uint32_t lower_id)
+{
+    struct pios_sbus_cfg sbus_cfg = {
+        .non_inverted = true,
+    };
+
+    return PIOS_SBus_Init(id, &sbus_cfg, driver, lower_id);
+}
+# endif /* ifdef PIOS_INCLUDE_SBUS */
 #endif /* ifdef PIOS_INCLUDE_RCVR */
 
 struct uart_function {
@@ -293,117 +307,126 @@ struct uart_function {
 };
 
 static const struct uart_function uart_function_map[] = {
-    [PIOS_BOARD_IO_UART_TELEMETRY] =       {
+    [PIOS_BOARD_IO_UART_TELEMETRY] =         {
         .com_id         = &pios_com_telem_rf_id,
         .com_rx_buf_len = PIOS_COM_TELEM_RF_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_TELEM_RF_TX_BUF_LEN,
     },
 
-    [PIOS_BOARD_IO_UART_MAVLINK] =         {
+    [PIOS_BOARD_IO_UART_MAVLINK] =           {
         .com_id         = &pios_com_mavlink_id,
         .com_rx_buf_len = PIOS_COM_MAVLINK_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_MAVLINK_TX_BUF_LEN,
     },
 
-    [PIOS_BOARD_IO_UART_MSP] =             {
+    [PIOS_BOARD_IO_UART_MSP] =               {
         .com_id         = &pios_com_msp_id,
         .com_rx_buf_len = PIOS_COM_MSP_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_MSP_TX_BUF_LEN,
     },
 #ifdef PIOS_INCLUDE_GPS
-    [PIOS_BOARD_IO_UART_GPS] =             {
+    [PIOS_BOARD_IO_UART_GPS] =               {
         .com_id         = &pios_com_gps_id,
         .com_rx_buf_len = PIOS_COM_GPS_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_GPS_TX_BUF_LEN,
     },
 #endif
-    [PIOS_BOARD_IO_UART_OSDHK] =           {
+    [PIOS_BOARD_IO_UART_OSDHK] =             {
         .com_id         = &pios_com_hkosd_id,
         .com_rx_buf_len = PIOS_COM_HKOSD_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_HKOSD_TX_BUF_LEN,
     },
 #ifdef PIOS_INCLUDE_FRSKY_SENSORHUB
-    [PIOS_BOARD_IO_UART_FRSKY_SENSORHUB] = {
+    [PIOS_BOARD_IO_UART_FRSKY_SENSORHUB] =   {
         .com_id         = &pios_com_frsky_sensorhub_id,
-        .com_rx_buf_len = PIOS_COM_FRSKY_SENSORHUB_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_FRSKY_SENSORHUB_TX_BUF_LEN,
     },
 #endif
 #ifdef PIOS_INCLUDE_HOTT_BRIDGE
-    [PIOS_BOARD_IO_UART_HOTT_BRIDGE] =     {
+    [PIOS_BOARD_IO_UART_HOTT_BRIDGE] =       {
         .com_id         = &pios_com_hott_id,
         .com_rx_buf_len = PIOS_COM_HOTT_BRIDGE_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_HOTT_BRIDGE_TX_BUF_LEN,
     },
 #endif
 #ifdef PIOS_INCLUDE_DEBUG_CONSOLE
-    [PIOS_BOARD_IO_UART_DEBUGCONSOLE] =    {
+    [PIOS_BOARD_IO_UART_DEBUGCONSOLE] =      {
         .com_id         = &pios_com_debug_id,
         .com_tx_buf_len = PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN,
     },
 #endif
-    [PIOS_BOARD_IO_UART_COMBRIDGE] =       {
+    [PIOS_BOARD_IO_UART_COMBRIDGE] =         {
         .com_id         = &pios_com_bridge_id,
         .com_rx_buf_len = PIOS_COM_BRIDGE_RX_BUF_LEN,
         .com_tx_buf_len = PIOS_COM_BRIDGE_TX_BUF_LEN,
     },
 #ifdef PIOS_INCLUDE_RCVR
 # ifdef PIOS_INCLUDE_IBUS
-    [PIOS_BOARD_IO_UART_IBUS] =            {
+    [PIOS_BOARD_IO_UART_IBUS] =              {
         .rcvr_init   = &PIOS_IBUS_Init,
         .rcvr_driver = &pios_ibus_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_IBUS,
     },
 # endif /* PIOS_INCLUDE_IBUS */
 # ifdef PIOS_INCLUDE_EXBUS
-    [PIOS_BOARD_IO_UART_EXBUS] =           {
+    [PIOS_BOARD_IO_UART_EXBUS] =             {
         .rcvr_init   = &PIOS_EXBUS_Init,
         .rcvr_driver = &pios_exbus_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_EXBUS,
     },
 # endif /* PIOS_INCLUDE_EXBUS */
 # ifdef PIOS_INCLUDE_SRXL
-    [PIOS_BOARD_IO_UART_SRXL] =            {
+    [PIOS_BOARD_IO_UART_SRXL] =              {
         .rcvr_init   = &PIOS_SRXL_Init,
         .rcvr_driver = &pios_srxl_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_SRXL,
     },
 # endif /* PIOS_INCLUDE_SRXL */
 # ifdef PIOS_INCLUDE_HOTT
-    [PIOS_BOARD_IO_UART_HOTT_SUMD] =       {
+    [PIOS_BOARD_IO_UART_HOTT_SUMD] =         {
         .rcvr_init   = &PIOS_HOTT_Init_SUMD,
         .rcvr_driver = &pios_hott_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT,
     },
 
-    [PIOS_BOARD_IO_UART_HOTT_SUMH] =       {
+    [PIOS_BOARD_IO_UART_HOTT_SUMH] =         {
         .rcvr_init   = &PIOS_HOTT_Init_SUMH,
         .rcvr_driver = &pios_hott_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_HOTT,
     },
 # endif /* PIOS_INCLUDE_HOTT */
 # ifdef PIOS_INCLUDE_DSM
-    [PIOS_BOARD_IO_UART_DSM_MAIN] =        {
+    [PIOS_BOARD_IO_UART_DSM_MAIN] =          {
         .rcvr_init   = &PIOS_DSM_Init_Helper,
         .rcvr_driver = &pios_dsm_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMMAINPORT,
     },
 
-    [PIOS_BOARD_IO_UART_DSM_FLEXI] =       {
+    [PIOS_BOARD_IO_UART_DSM_FLEXI] =         {
         .rcvr_init   = &PIOS_DSM_Init_Helper,
         .rcvr_driver = &pios_dsm_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMFLEXIPORT,
     },
 
-    [PIOS_BOARD_IO_UART_DSM_RCVR] =        {
+    [PIOS_BOARD_IO_UART_DSM_RCVR] =          {
         .rcvr_init   = &PIOS_DSM_Init_Helper,
         .rcvr_driver = &pios_dsm_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_DSMRCVRPORT,
     },
 # endif /* PIOS_INCLUDE_DSM */
 # ifdef PIOS_INCLUDE_SBUS
-    [PIOS_BOARD_IO_UART_SBUS] =            {
+    [PIOS_BOARD_IO_UART_SBUS] =              {
         .rcvr_init   = &PIOS_SBus_Init_Helper,
+        .rcvr_driver = &pios_sbus_rcvr_driver,
+        .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS,
+    },
+    [PIOS_BOARD_IO_UART_SBUS_NORMAL] =       {
+        .rcvr_init   = &PIOS_SBus_Normal_Init_Helper,
+        .rcvr_driver = &pios_sbus_rcvr_driver,
+        .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS,
+    },
+    [PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED] = {
+        .rcvr_init   = &PIOS_SBus_Not_Inverted_Init_Helper,
         .rcvr_driver = &pios_sbus_rcvr_driver,
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS,
     },

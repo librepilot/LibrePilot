@@ -113,7 +113,7 @@ extern uint32_t pios_ws2811_id;
 #define PIOS_DMA_PIN_CONFIG                            \
     {                                                  \
         { GPIOB, GPIO_Pin_0, ADC_Channel_12, false }, /* ADC_2 / Current   */  \
-        { GPIOB, GPIO_Pin_1, ADC_Channel_1, false },  /* ADC_1 / Voltage   */  \
+        { GPIOB, GPIO_Pin_1, ADC_Channel_1, false }, /* ADC_1 / Voltage   */  \
     }
 
 /* we have to do all this to satisfy the PIOS_ADC_MAX_SAMPLES define in pios_adc.h */
@@ -124,6 +124,9 @@ extern uint32_t pios_ws2811_id;
 
 // #define PIOS_ADC_USE_TEMP_SENSOR
 // #define PIOS_ADC_TEMPERATURE_PIN  4
+
+#define PIOS_ADC_CURRENT_PIN 0
+#define PIOS_ADC_VOLTAGE_PIN 1
 
 // ------------------------
 // PIOS_RCVR

@@ -7,8 +7,9 @@
  * @{
  *
  * @file       pios_usb.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @author     The LibrePilot Project, http://www.librepilot.org (C) 2017.
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      USB device functions (STM32 dependent code)
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -44,6 +45,13 @@
 /* Rx/Tx status */
 static bool transfer_possible = false;
 
+#ifdef PIOS_INCLUDE_FREERTOS
+struct {
+    void     (*callback)(bool connected, uint32_t context);
+    uint32_t context;
+} connectionState_cb_list[3];
+#endif
+
 /* USB activity detection */
 static volatile bool sof_seen_since_reset = false;
 
@@ -55,6 +63,9 @@ struct pios_usb_dev {
     enum pios_usb_dev_magic   magic;
     const struct pios_usb_cfg *cfg;
 };
+#ifdef PIOS_INCLUDE_FREERTOS
+static void raiseConnectionStateCallback(bool connected);
+#endif
 
 /**
  * @brief Validate the usb device structure
@@ -195,6 +206,10 @@ int32_t PIOS_USB_ChangeConnectionState(bool Connected)
 #endif
     }
 
+#ifdef PIOS_INCLUDE_FREERTOS
+    raiseConnectionStateCallback(Connected);
+#endif
+
     return 0;
 }
 
@@ -281,6 +296,36 @@ void SUSP_Callback(void)
 {
     sof_seen_since_reset = false;
 }
+
+#ifdef PIOS_INCLUDE_FREERTOS
+void PIOS_USB_RegisterConnectionStateCallback(void (*connectionStateCallback)(bool connected, uint32_t context), uint32_t context)
+{
+    PIOS_Assert(connectionStateCallback);
+
+    for (uint32_t i = 0; i < NELEMENTS(connectionState_cb_list); i++) {
+        if (connectionState_cb_list[i].callback == NULL) {
+            connectionState_cb_list[i].callback = connectionStateCallback;
+            connectionState_cb_list[i].context  = context;
+            return;
+        }
+    }
+
+    PIOS_Assert(0);
+}
+
+static void raiseConnectionStateCallback(bool connected)
+{
+    uint32_t i = 0;
+
+    while (i < NELEMENTS(connectionState_cb_list) && connectionState_cb_list[i].callback != NULL) {
+        connectionState_cb_list[i].callback(connected, connectionState_cb_list[i].context);
+        i++;
+    }
+}
+#else /* PIOS_INCLUDE_FREERTOS */
+void PIOS_USB_RegisterConnectionStateCallback(__attribute__((unused)) void (*connectionStateCallback)(bool connected, uint32_t context), __attribute__((unused)) uint32_t context)
+{}
+#endif /* PIOS_INCLUDE_FREERTOS */
 
 #endif /* if defined(PIOS_INCLUDE_USB) */
 

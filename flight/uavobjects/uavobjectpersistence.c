@@ -121,6 +121,8 @@ int32_t UAVObjLoad(UAVObjHandle obj_handle, uint16_t instId)
 int32_t UAVObjDelete(UAVObjHandle obj_handle, uint16_t instId)
 {
     PIOS_Assert(obj_handle);
-    PIOS_FLASHFS_ObjDelete(pios_uavo_settings_fs_id, UAVObjGetID(obj_handle), instId);
+    if (PIOS_FLASHFS_ObjDelete(pios_uavo_settings_fs_id, UAVObjGetID(obj_handle), instId) == 0) {
+        UAVObjSetInstanceDefaults(obj_handle, instId);
+    }
     return 0;
 }

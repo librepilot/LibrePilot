@@ -63,9 +63,15 @@ int32_t $(NAME)Initialize(void)
         return -2;
     }
 
+    static const UAVObjType objType = {
+       .id = $(NAMEUC)_OBJID,
+       .instance_size = $(NAMEUC)_NUMBYTES,
+       .init_callback = &$(NAME)SetDefaults,
+    };
+
     // Register object with the object manager
-    handle = UAVObjRegister($(NAMEUC)_OBJID,
-        $(NAMEUC)_ISSINGLEINST, $(NAMEUC)_ISSETTINGS, $(NAMEUC)_ISPRIORITY, $(NAMEUC)_NUMBYTES, &$(NAME)SetDefaults);
+    handle = UAVObjRegister(&objType,
+        $(NAMEUC)_ISSINGLEINST, $(NAMEUC)_ISSETTINGS, $(NAMEUC)_ISPRIORITY);
 
     // Done
     return handle ? 0 : -1;

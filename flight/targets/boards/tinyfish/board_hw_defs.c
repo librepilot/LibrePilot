@@ -53,7 +53,7 @@ static const struct pios_gpio pios_leds[] = {
         },
         .active_low         = false
     },
-    [PIOS_LED_BUZZER] =    { /* not really LED, but buzzer! (or PB2 ??) */
+    [PIOS_BUZZER_ALARM] =  { /* (or PB2 ??) */
         .pin                =             {
             .gpio = GPIOC,
             .init =             {

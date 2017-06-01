@@ -84,6 +84,7 @@
 // PIOS_LED
 // ------------------------
 #define PIOS_LED_HEARTBEAT                0
+#define PIOS_BUZZER_ALARM                 1
 
 // -------------------------
 // System Settings

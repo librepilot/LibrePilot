@@ -44,7 +44,19 @@ static const struct pios_gpio pios_leds[] = {
                 .GPIO_PuPd  = GPIO_PuPd_NOPULL,
             },
         },
-// .remap              = GPIO_Remap_SWJ_JTAGDisable,
+        .active_low         = false
+    },
+    [PIOS_BUZZER_ALARM] =  {
+        .pin                =             {
+            .gpio = GPIOC,
+            .init =             {
+                .GPIO_Pin   = GPIO_Pin_15,
+                .GPIO_Mode  = GPIO_Mode_OUT,
+                .GPIO_OType = GPIO_OType_PP,
+                .GPIO_Speed = GPIO_Speed_50MHz,
+                .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+            },
+        },
         .active_low         = false
     },
 };

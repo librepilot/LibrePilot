@@ -63,7 +63,7 @@ uintptr_t pios_user_fs_id = 0;
 uint32_t pios_ws2811_id;
 #endif
 
-void FlightBatterySettingsDataOverrideDefaults(FlightBatterySettingsData * data)
+void FlightBatterySettingsDataOverrideDefaults(FlightBatterySettingsData *data)
 {
     data->SensorCalibrations.VoltageFactor = 8.8f;
     data->SensorCalibrations.CurrentFactor = 0.07f;

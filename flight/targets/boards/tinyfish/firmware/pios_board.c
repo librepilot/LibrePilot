@@ -265,17 +265,13 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_ENABLE_DEBUG_PINS */
 
     switch (boardHwSettings.LEDPort) {
-    case HWTINYFISHSETTINGS_LEDPORT_WS2811:
+    case HWTINYFISHSETTINGS_LEDPORT_WS281X:
 #if defined(PIOS_INCLUDE_WS2811)
         PIOS_WS2811_Init(&pios_ws2811_id, &pios_ws2811_cfg);
 #endif
         break;
     default:
         break;
-    }
-
-    if (boardHwSettings.BuzzerPort == HWTINYFISHSETTINGS_BUZZERPORT_ENABLED) {
-        // enable buzzer somehow
     }
 
     PIOS_BOARD_Sensors_Configure();

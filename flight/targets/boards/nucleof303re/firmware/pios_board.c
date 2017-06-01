@@ -227,35 +227,21 @@ void PIOS_Board_Init(void)
 #endif
 
     switch (boardHwSettings.LEDPort) {
-    case HWSPRACINGF3EVOSETTINGS_LEDPORT_WS2811:
+    case HWSPRACINGF3EVOSETTINGS_LEDPORT_WS281X:
 #if defined(PIOS_INCLUDE_WS2811)
         PIOS_WS2811_Init(&pios_ws2811_id, &pios_ws2811_cfg);
 #endif
         break;
-    case HWSPRACINGF3EVOSETTINGS_LEDPORT_OUTPUT:
+    default:
         break;
-    default:;
-    }
-
-    if (boardHwSettings.BuzzerPort == HWSPRACINGF3EVOSETTINGS_BUZZERPORT_OUTPUT) {
-        // enable buzzer somehow
-    }
-
-    switch (boardHwSettings.SonarPort) {
-    case HWSPRACINGF3EVOSETTINGS_SONARPORT_HCSR04:
-        /* enable hcsr04 sonar on this port */
-        break;
-    default:;
     }
 
 #if defined(PIOS_INCLUDE_I2C)
-
     // init I2C1 for use with the internal baro
     if (PIOS_I2C_Init(&pios_i2c_id, &pios_i2c_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
     PIOS_DELAY_WaitmS(50);
-
 #endif
 
     PIOS_BOARD_Sensors_Configure();

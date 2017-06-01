@@ -62,7 +62,7 @@ uintptr_t pios_user_fs_id = 0;
 uint32_t pios_ws2811_id;
 #endif
 
-void RevoSettingsDataOverrideDefaults(RevoSettingsData * data)
+void RevoSettingsDataOverrideDefaults(RevoSettingsData *data)
 {
     /* This board has no barometer, so adjust default fusion algorithm to one that does not depend on working baro */
     data->FusionAlgorithm = REVOSETTINGS_FUSIONALGORITHM_ACRONOSENSORS;

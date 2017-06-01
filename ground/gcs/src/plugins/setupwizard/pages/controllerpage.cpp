@@ -128,7 +128,7 @@ SetupWizard::CONTROLLER_TYPE ControllerPage::getControllerType()
 
     case 0x1005:
         return SetupWizard::CONTROLLER_PIKOBLX;
-        
+
     case 0x1006:
         return SetupWizard::CONTROLLER_TINYFISH;
 

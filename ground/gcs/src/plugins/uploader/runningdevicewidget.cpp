@@ -106,7 +106,7 @@ void RunningDeviceWidget::populate()
         devicePic.load(":/uploader/images/gcs-board-spracingf3.png");
         break;
     case 0x1003:
-        // Nucleo F303RE
+    // Nucleo F303RE
     case 0x1002:
         // SPRacingF3 EVO
         devicePic.load(":/uploader/images/gcs-board-spracingf3evo.png");

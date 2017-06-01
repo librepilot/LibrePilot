@@ -38,7 +38,7 @@
 #include <actuatorsettings.h>
 #include <auxmagsettings.h>
 #include <flightbatterysettings.h>
-
+#include <revosettings.h>
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
 #endif
@@ -67,6 +67,12 @@ void FlightBatterySettingsDataOverrideDefaults(FlightBatterySettingsData * data)
 {
     data->SensorCalibrations.VoltageFactor = 8.8f;
     data->SensorCalibrations.CurrentFactor = 0.07f;
+}
+
+void RevoSettingsDataOverrideDefaults(RevoSettingsData * data)
+{
+    /* This board has no barometer, so adjust default fusion algorithm to one that does not depend on working baro */
+    data->FusionAlgorithm = REVOSETTINGS_FUSIONALGORITHM_ACRONOSENSORS;
 }
 
 static HwTinyFISHSettingsData boardHwSettings;

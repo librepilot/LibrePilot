@@ -37,7 +37,7 @@
 #include <sanitycheck.h>
 #include <actuatorsettings.h>
 #include <auxmagsettings.h>
-
+#include <revosettings.h>
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
 #endif
@@ -61,6 +61,12 @@ uintptr_t pios_user_fs_id = 0;
 #ifdef PIOS_INCLUDE_WS2811
 uint32_t pios_ws2811_id;
 #endif
+
+void RevoSettingsDataOverrideDefaults(RevoSettingsData * data)
+{
+    /* This board has no barometer, so adjust default fusion algorithm to one that does not depend on working baro */
+    data->FusionAlgorithm = REVOSETTINGS_FUSIONALGORITHM_ACRONOSENSORS;
+}
 
 
 static HwPikoBLXSettingsData boardHwSettings;

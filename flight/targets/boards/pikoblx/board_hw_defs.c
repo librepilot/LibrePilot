@@ -546,7 +546,7 @@ static const struct pios_mpu6000_cfg pios_mpu6000_cfg = {
     .accel_range    = PIOS_MPU6000_ACCEL_8G,
     .gyro_range     = PIOS_MPU6000_SCALE_2000_DEG,
     .filter               = PIOS_MPU6000_LOWPASS_256_HZ,
-    .orientation    = PIOS_MPU6000_TOP_180DEG,
+    .orientation    = PIOS_MPU6000_TOP_270DEG,
 #ifdef PIOS_INCLUDE_SPI
     .fast_prescaler = PIOS_SPI_PRESCALER_4,
     .std_prescaler  = PIOS_SPI_PRESCALER_64,

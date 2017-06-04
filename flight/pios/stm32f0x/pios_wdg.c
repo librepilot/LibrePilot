@@ -70,7 +70,6 @@ uint16_t PIOS_WDG_Init()
         delay = 0x0fff;
     }
 #if defined(PIOS_INCLUDE_WDG)
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
     DBGMCU_APB1PeriphConfig(DBGMCU_IWDG_STOP, ENABLE); // make the watchdog stop counting in debug mode
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
     IWDG_SetPrescaler(IWDG_Prescaler_32);

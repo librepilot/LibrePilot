@@ -47,8 +47,7 @@
 int32_t PIOS_DELAY_Init(void)
 {
     // unfortunately F0 does not allow access to DWT and CoreDebug functionality from CPU side
-    // thus we are going to use timer3 for timing measurement
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    // thus we are going to use timer2 for timing measurement
 
     const TIM_TimeBaseInitTypeDef timerInit = {
         .TIM_Prescaler         = (48000000 / 1000000),
@@ -57,6 +56,7 @@ int32_t PIOS_DELAY_Init(void)
         .TIM_Period            = 0xFFFFFFFF,
         .TIM_RepetitionCounter = 0x0000,
     };
+
     // Stop timer
     TIM_Cmd(TIM2, DISABLE);
     // Configure timebase and internal clock

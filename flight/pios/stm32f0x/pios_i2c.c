@@ -541,13 +541,9 @@ int32_t PIOS_I2C_Init(uint32_t *i2c_id, const struct pios_i2c_adapter_cfg *cfg)
     /* Enable the associated peripheral clock */
     switch ((uint32_t)i2c_adapter->cfg->regs) {
     case (uint32_t)I2C1:
-        /* Enable I2C peripheral clock (APB1 == slow speed) */
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
         RCC_I2CCLKConfig(RCC_I2C1CLK_HSI);
         break;
     case (uint32_t)I2C2:
-        /* Enable I2C peripheral clock (APB1 == slow speed) */
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
         break;
     }
 

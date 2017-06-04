@@ -72,13 +72,30 @@ void PIOS_SYS_Init(void)
     RCC_AHBPeriphClockCmd(
         RCC_AHBPeriph_GPIOA |
         RCC_AHBPeriph_GPIOB |
+        RCC_AHBPeriph_GPIOC |
         RCC_AHBPeriph_FLITF |
         RCC_AHBPeriph_SRAM |
-        RCC_AHBPeriph_DMA1
+        RCC_AHBPeriph_DMA1 |
+        RCC_AHBPeriph_CRC
+        , ENABLE);
+
+    RCC_APB1PeriphClockCmd(
+        RCC_APB1Periph_USART2 |
+        RCC_APB1Periph_USART3 |
+        RCC_APB1Periph_WWDG |
+        RCC_APB1Periph_PWR |
+        RCC_APB1Periph_TIM2 |
+        RCC_APB1Periph_TIM3 |
+        RCC_APB1Periph_I2C1 |
+        RCC_APB1Periph_I2C2 |
+        RCC_APB1Periph_SPI2
         , ENABLE);
 
     RCC_APB2PeriphClockCmd(
         RCC_APB2Periph_SYSCFG |
+        RCC_APB2Periph_USART1 |
+        RCC_APB2Periph_SPI1 |
+        RCC_APB2Periph_TIM1 |
         0, ENABLE);
 
     /*

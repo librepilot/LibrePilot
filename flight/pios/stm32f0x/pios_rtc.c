@@ -51,7 +51,6 @@ void PIOS_RTC_Init(const struct pios_rtc_cfg *cfg)
 {
     RCC_BackupResetCmd(ENABLE);
     RCC_BackupResetCmd(DISABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
     PWR_BackupAccessCmd(ENABLE);
     // Divide external 8 MHz clock to 1 MHz
     RCC_RTCCLKConfig(cfg->clksrc);

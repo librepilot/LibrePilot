@@ -119,8 +119,6 @@ void PIOS_BL_HELPER_FLASH_Read_Description(uint8_t *array, uint8_t size)
 }
 
 void PIOS_BL_HELPER_CRC_Ini()
-{
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
-}
+{}
 
 #endif /* PIOS_INCLUDE_BL_HELPER */

@@ -57,12 +57,6 @@ const uint32_t pios_bkp_registers_map[] = {
 
 void PIOS_BKP_Init(void)
 {
-    /* Enable CRC clock */
-    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
-
-    /* Enable PWR and BKP clock */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-
     /* Clear Tamper pin Event(TE) pending flag */
     RTC_ClearFlag(RTC_FLAG_TAMP1F | RTC_FLAG_TAMP2F);
 }

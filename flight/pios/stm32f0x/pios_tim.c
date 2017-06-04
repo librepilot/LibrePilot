@@ -61,36 +61,6 @@ int32_t PIOS_TIM_InitClock(const struct pios_tim_clock_cfg *cfg)
 {
     PIOS_DEBUG_Assert(cfg);
 
-    /* Enable appropriate clock to timer module */
-    switch ((uint32_t)cfg->timer) {
-    case (uint32_t)TIM1:
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-        break;
-    case (uint32_t)TIM2:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-        break;
-    case (uint32_t)TIM3:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-        break;
-    case (uint32_t)TIM4:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-        break;
-#ifdef STM32F10X_HD
-    case (uint32_t)TIM5:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
-        break;
-    case (uint32_t)TIM6:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
-        break;
-    case (uint32_t)TIM7:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
-        break;
-    case (uint32_t)TIM8:
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
-        break;
-#endif
-    }
-
     /* Configure the dividers for this timer */
     TIM_TimeBaseInit(cfg->timer, cfg->time_base_init);
 
@@ -127,21 +97,6 @@ int32_t PIOS_TIM_InitChannels(uint32_t *tim_id, const struct pios_tim_channel *c
     for (uint8_t i = 0; i < num_channels; i++) {
         const struct pios_tim_channel *chan = &(channels[i]);
 
-        /* Enable the peripheral clock for the GPIO */
-        switch ((uint32_t)chan->pin.gpio) {
-        case (uint32_t)GPIOA:
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-            break;
-        case (uint32_t)GPIOB:
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-            break;
-        case (uint32_t)GPIOC:
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
-            break;
-        default:
-            PIOS_Assert(0);
-            break;
-        }
         GPIO_Init(chan->pin.gpio, &chan->pin.init);
 
         if (chan->remap) {

@@ -61,9 +61,6 @@ void PIOS_SYS_Init(void)
     /* do this early to ensure that we take exceptions in the right place */
     NVIC_Configuration();
 
-    /* Init the delay system */
-    PIOS_DELAY_Init();
-
     /*
      * Turn on all the peripheral clocks.
      * Micromanaging clocks makes no sense given the power situation in the system, so
@@ -97,6 +94,9 @@ void PIOS_SYS_Init(void)
         RCC_APB2Periph_SPI1 |
         RCC_APB2Periph_TIM1 |
         0, ENABLE);
+
+    /* Init the delay system */
+    PIOS_DELAY_Init();
 
     /*
      * Configure all pins as input / pullup to avoid issues with

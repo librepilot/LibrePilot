@@ -31,7 +31,7 @@
 
 #include "pios.h"
 
-#ifdef PIOS_INCLUDE_FLASH
+#if defined(PIOS_INCLUDE_FLASH) && defined(PIOS_INCLUDE_SPI)
 
 #include "pios_flash_jedec_priv.h"
 #include "pios_flash_jedec_catalog.h"
@@ -632,4 +632,4 @@ const struct pios_flash_driver pios_jedec_flash_driver = {
     .read_data    = PIOS_Flash_Jedec_ReadData,
 };
 
-#endif /* PIOS_INCLUDE_FLASH */
+#endif /* PIOS_INCLUDE_FLASH && PIOS_INCLUDE_SPI */

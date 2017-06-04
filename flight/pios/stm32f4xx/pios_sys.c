@@ -204,12 +204,17 @@ int32_t PIOS_SYS_Reset(void)
     PIOS_IRQ_Disable();
 
     // turn off all board LEDs
-#if defined(PIOS_LED_HEARTBEAT)
+#ifdef PIOS_INCLUDE_LED
+# ifdef PIOS_LED_HEARTBEAT
     PIOS_LED_Off(PIOS_LED_HEARTBEAT);
-#endif /* PIOS_LED_HEARTBEAT */
-#if defined(PIOS_LED_ALARM)
+# endif /* PIOS_LED_HEARTBEAT */
+# ifdef PIOS_LED_ALARM
     PIOS_LED_Off(PIOS_LED_ALARM);
-#endif /* PIOS_LED_ALARM */
+# endif /* PIOS_LED_ALARM */
+# ifdef PIOS_BUZZER_ALARM
+    PIOS_LED_Off(PIOS_BUZZER_ALARM);
+# endif /* PIOS_BUZZER_ALARM */
+#endif /* PIOS_INCLUDE_LED */
 
     /* XXX F10x port resets most (but not all) peripherals ... do we care? */
 

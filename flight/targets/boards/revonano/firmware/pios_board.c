@@ -56,6 +56,10 @@
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id;
 
+#ifdef PIOS_INCLUDE_WS2811
+uint32_t pios_ws2811_id;
+#endif
+
 static SystemAlarmsExtendedAlarmStatusOptions RevoNanoConfigHook();
 static void ActuatorSettingsUpdatedCb(UAVObjEvent *ev);
 
@@ -203,7 +207,6 @@ void PIOS_Board_Init(void)
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
     }
 
-    /* Configure main USART port */
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
 
@@ -263,7 +266,7 @@ void PIOS_Board_Init(void)
     // No other choices but servo pin 1 on nano
     if (ws2811_pin_settings != HWSETTINGS_WS2811LED_OUT_DISABLED) {
         pios_tim_servoport_all_pins[0] = dummmy_timer; // free timer 1
-        PIOS_WS2811_Init(&pios_ws2811_cfg, &pios_ws2811_pin_cfg[0]);
+        PIOS_WS2811_Init(&pios_ws2811_id, &pios_ws2811_cfg, &pios_ws2811_pin_cfg[0]);
     }
 #endif // PIOS_INCLUDE_WS2811
 

@@ -72,7 +72,7 @@ static struct pios_com_dev *PIOS_COM_alloc(void)
 {
     struct pios_com_dev *com_dev;
 
-    com_dev = (struct pios_com_dev *)pios_malloc(sizeof(struct pios_com_dev));
+    com_dev = (struct pios_com_dev *)pios_fastheapmalloc(sizeof(struct pios_com_dev));
     if (!com_dev) {
         return NULL;
     }
@@ -120,14 +120,14 @@ int32_t PIOS_COM_Init(uint32_t *com_id, const struct pios_com_driver *driver, ui
 
     if ((rx_buffer_len > 0) && !rx_buffer) {
 #if defined(PIOS_INCLUDE_FREERTOS)
-        rx_buffer = (uint8_t *)pios_malloc(rx_buffer_len);
+        rx_buffer = (uint8_t *)pios_fastheapmalloc(rx_buffer_len);
 #endif
         PIOS_Assert(rx_buffer);
     }
 
     if ((tx_buffer_len > 0) && !tx_buffer) {
 #if defined(PIOS_INCLUDE_FREERTOS)
-        tx_buffer = (uint8_t *)pios_malloc(tx_buffer_len);
+        tx_buffer = (uint8_t *)pios_fastheapmalloc(tx_buffer_len);
 #endif
         PIOS_Assert(tx_buffer);
     }

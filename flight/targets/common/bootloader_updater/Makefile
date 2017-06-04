@@ -41,7 +41,7 @@ SRC += $(OPSYSTEM)/main.c
 SRC += $(OPSYSTEM)/pios_board.c
 SRC += $(PIOSCOMMON)/pios_led.c
 ## PIOS Hardware
-ifeq ($(MCU),cortex-m3)
+ifneq (,$(findstring STM32F10,$(CHIP)))
     include $(PIOS)/stm32f10x/library.mk
 
     ## The standard CMSIS startup
@@ -50,16 +50,20 @@ ifeq ($(MCU),cortex-m3)
     # Set linker-script name depending on selected submodel name
     LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_memory.ld
     LDFLAGS += -T$(LINKER_SCRIPTS_PATH)/link_$(BOARD)_sections.ld
-else ifeq  ($(MCU),cortex-m4)
+else ifneq (,$(findstring STM32F4,$(CHIP)))
     include $(PIOS)/stm32f4xx/library.mk
     # Set linker-script name depending on selected submodel name
     # Using the _compat ld script ensure that the bootloader updated is compiled with irqstack in sram
     # This allow to be used with bootloader earlier than rel5
     LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))
-    SRC += $(HWDEFSINC)/firmware/cm3_fault_handlers.c
-    SRC += $(HWDEFSINC)/firmware/dcc_stdio.c
+else ifneq (,$(findstring STM32F30,$(CHIP)))
+    include $(PIOS)/stm32f30x/library.mk
+    # Set linker-script name depending on selected submodel name
+    # Using the _compat ld script ensure that the bootloader updated is compiled with irqstack in sram
+    # This allow to be used with bootloader earlier than rel5
+#    LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))
 else
-    $(error Unsupported MCU for BootloaderUpdater: $(MCU))
+    $(error Unsupported MCU for BootloaderUpdater: $(CHIP))
 endif
 
 # List any extra directories to look for include files here.

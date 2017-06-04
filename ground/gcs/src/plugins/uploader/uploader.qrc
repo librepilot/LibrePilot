@@ -20,5 +20,9 @@
         <file>images/gcs-board-revo.png</file>
         <file>images/gcs-board-nano.png</file>
         <file>images/gcs-board-sparky2.png</file>
+        <file>images/gcs-board-tinyfish.png</file>
+        <file>images/gcs-board-pikoblx.png</file>
+        <file>images/gcs-board-spracingf3.png</file>
+        <file>images/gcs-board-spracingf3evo.png</file>
     </qresource>
 </RCC>

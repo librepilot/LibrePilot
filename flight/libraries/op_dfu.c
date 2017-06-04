@@ -157,7 +157,8 @@ void processComand(uint8_t *xReceive_Buffer)
     switch (Command) {
     case EnterDFU:
         if (((DeviceState == BLidle) && (Data0 < numberOfDevices))
-            || (DeviceState == DFUidle)) {
+            || (DeviceState == DFUidle)
+            || (DeviceState == failed_jump)) {
             if (Data0 > 0) {
                 OPDfuIni(true);
             }

@@ -172,9 +172,6 @@ extern uint32_t pios_com_frsky_sensorhub_id;
 #ifndef PIOS_COM_FRSKY_SENSORHUB_TX_BUF_LEN
 # define PIOS_COM_FRSKY_SENSORHUB_TX_BUF_LEN 128
 #endif
-#ifndef PIOS_COM_FRSKY_SENSORHUB_RX_BUF_LEN
-# define PIOS_COM_FRSKY_SENSORHUB_RX_BUF_LEN 128
-#endif
 
 /* USB VCP */
 extern uint32_t pios_com_vcp_id;
@@ -207,7 +204,9 @@ typedef enum {
     PIOS_BOARD_IO_UART_COMBRIDGE, /* com */
     PIOS_BOARD_IO_UART_DEBUGCONSOLE, /* com */
     PIOS_BOARD_IO_UART_OSDHK, /* com */
-    PIOS_BOARD_IO_UART_SBUS, /* rcvr */
+    PIOS_BOARD_IO_UART_SBUS, /* rcvr, normal vs not-inverted from HwSettings.SBusMode */
+    PIOS_BOARD_IO_UART_SBUS_NORMAL, /* helper only */
+    PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED, /* helper only */
     PIOS_BOARD_IO_UART_DSM_MAIN, /* rcvr  */
     PIOS_BOARD_IO_UART_DSM_FLEXI, /* rcvr  */
     PIOS_BOARD_IO_UART_DSM_RCVR, /* rcvr  */

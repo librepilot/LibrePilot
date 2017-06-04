@@ -101,6 +101,24 @@ void RunningDeviceWidget::populate()
         // Sparky2
         devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
+    case 0x1001:
+        // SPRacingF3
+        devicePic.load(":/uploader/images/gcs-board-spracingf3.png");
+        break;
+    case 0x1003:
+    // Nucleo F303RE
+    case 0x1002:
+        // SPRacingF3 EVO
+        devicePic.load(":/uploader/images/gcs-board-spracingf3evo.png");
+        break;
+    case 0x1005:
+        // pikoBLX
+        devicePic.load(":/uploader/images/gcs-board-pikoblx.png");
+        break;
+    case 0x1006:
+        // tinyFISH
+        devicePic.load(":/uploader/images/gcs-board-tinyfish.png");
+        break;
     default:
         // Clear
         devicePic.load("");

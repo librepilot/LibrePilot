@@ -1,0 +1,14 @@
+<xml>
+    <object name="HwSPRacingF3Settings" singleinstance="true" settings="true" category="System">
+        <description>Seriously Pro SPRacingF3 hardware configuration.</description>
+        <field name="UARTPort" units="function" type="enum" elements="3" options="Disabled,Telemetry,GPS,S.Bus,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,MSP,MAVLink,HoTT Telemetry,FrskySensorHub" defaultvalue="Disabled"/>
+        <field name="I2CPort" units="function" type="enum" elements="1" options="Disabled,I2C" defaultvalue="Disabled"/>
+        <field name="LEDPort" units="function" type="enum" elements="1" options="Disabled,WS281x" defaultvalue="Disabled"/>
+        <field name="IOPorts" units="function" type="enum" elements="1" options="Disabled,PPM,PWM,PPM+PWM,Outputs,PPM+Outputs" defaultvalue="Disabled"/>
+
+        <access gcs="readwrite" flight="readwrite"/>
+        <telemetrygcs acked="true" updatemode="onchange" period="0"/>
+        <telemetryflight acked="true" updatemode="onchange" period="0"/>
+        <logging updatemode="manual" period="0"/>
+    </object>
+</xml>

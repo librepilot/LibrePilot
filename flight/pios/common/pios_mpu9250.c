@@ -129,6 +129,7 @@ static volatile bool mag_ready = false;
 static struct mpu9250_dev *dev;
 volatile bool mpu9250_configured = false;
 static mpu9250_data_t mpu9250_data;
+static int32_t mpu9250_id;
 
 // ! Private functions
 static struct mpu9250_dev *PIOS_MPU9250_alloc(const struct pios_mpu9250_cfg *cfg);
@@ -186,7 +187,9 @@ void PIOS_MPU9250_MainRegister()
 
 void PIOS_MPU9250_MagRegister()
 {
-    PIOS_SENSORS_Register(&PIOS_MPU9250_Mag_Driver, PIOS_SENSORS_TYPE_3AXIS_MAG, 0);
+    if (mpu9250_id == PIOS_MPU9250_GYRO_ACC_ID) {
+        PIOS_SENSORS_Register(&PIOS_MPU9250_Mag_Driver, PIOS_SENSORS_TYPE_3AXIS_MAG, 0);
+    }
 }
 /**
  * @brief Allocate a new device
@@ -320,7 +323,9 @@ static void PIOS_MPU9250_Config(struct pios_mpu9250_cfg const *cfg)
     }
 
 #ifdef PIOS_MPU9250_MAG
-    PIOS_MPU9250_Mag_Init();
+    if (mpu9250_id == PIOS_MPU9250_GYRO_ACC_ID) {
+        PIOS_MPU9250_Mag_Init();
+    }
 #endif
 
     // Interrupt enable
@@ -514,12 +519,12 @@ static int32_t PIOS_MPU9250_SetReg(uint8_t reg, uint8_t data)
  */
 int32_t PIOS_MPU9250_ReadID()
 {
-    int32_t mpu9250_id = PIOS_MPU9250_GetReg(PIOS_MPU9250_WHOAMI);
+    int32_t id = PIOS_MPU9250_GetReg(PIOS_MPU9250_WHOAMI);
 
-    if (mpu9250_id < 0) {
+    if (id < 0) {
         return -1;
     }
-    return mpu9250_id;
+    return id;
 }
 
 static float PIOS_MPU9250_GetScale()
@@ -566,13 +571,13 @@ static float PIOS_MPU9250_GetAccelScale()
 static int32_t PIOS_MPU9250_Test(void)
 {
     /* Verify that ID matches */
-    int32_t mpu9250_id = PIOS_MPU9250_ReadID();
+    mpu9250_id = PIOS_MPU9250_ReadID();
 
     if (mpu9250_id < 0) {
         return -1;
     }
 
-    if (mpu9250_id != PIOS_MPU9250_GYRO_ACC_ID) {
+    if ((mpu9250_id != PIOS_MPU9250_GYRO_ACC_ID) && (mpu9250_id != PIOS_MPU6500_GYRO_ACC_ID)) {
         return -2;
     }
 

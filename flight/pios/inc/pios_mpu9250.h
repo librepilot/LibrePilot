@@ -33,6 +33,8 @@
 #define PIOS_MPU9250_H
 #include <pios_sensors.h>
 
+#ifdef PIOS_INCLUDE_MPU9250
+
 /* MPU9250 Addresses */
 #define PIOS_MPU9250_SMPLRT_DIV_REG           0X19
 #define PIOS_MPU9250_DLPF_CFG_REG             0X1A
@@ -153,6 +155,7 @@
 #define PIOS_MPU9250_ASAZ                     0X12
 
 /* IDs */
+#define PIOS_MPU6500_GYRO_ACC_ID              0x70
 #define PIOS_MPU9250_GYRO_ACC_ID              0x71
 #define PIOS_MPU9250_MAG_ID                   0x48
 
@@ -245,6 +248,8 @@ extern bool PIOS_MPU9250_IRQHandler(void);
 
 extern const PIOS_SENSORS_Driver PIOS_MPU9250_Main_Driver;
 extern const PIOS_SENSORS_Driver PIOS_MPU9250_Mag_Driver;
+
+#endif /* PIOS_INCLUDE_MPU9250 */
 
 #endif /* PIOS_MPU9250_H */
 

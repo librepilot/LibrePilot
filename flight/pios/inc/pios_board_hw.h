@@ -68,4 +68,7 @@ const struct pios_l3gd20_cfg *PIOS_BOARD_HW_DEFS_GetL3GD20Cfg(uint32_t board_rev
 #ifdef PIOS_INCLUDE_BMA180
 const struct pios_bma180_cfg *PIOS_BOARD_HW_DEFS_GetBMA180Cfg(uint32_t board_revision);
 #endif
+#ifdef PIOS_INCLUDE_BMP280
+const struct pios_bmp280_cfg *PIOS_BOARD_HW_DEFS_GetBMP280Cfg(uint32_t board_revision);
+#endif
 #endif /* PIOS_BOARD_HW_H */

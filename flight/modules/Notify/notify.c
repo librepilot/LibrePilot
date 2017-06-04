@@ -37,7 +37,6 @@
 #include "inc/notify.h"
 #include "inc/sequences.h"
 #include <pios_mem.h>
-#include <hwsettings.h>
 
 #define SAMPLE_PERIOD_MS 250
 // private types
@@ -54,13 +53,7 @@ static void checkAlarm(uint8_t alarm, uint8_t *last_alarm, uint32_t *last_alm_ti
 static AlarmStatus_t *alarmStatus;
 int32_t NotifyInitialize(void)
 {
-    uint8_t ws281xOutStatus;
-
-    HwSettingsWS2811LED_OutGet(&ws281xOutStatus);
-    // Todo: Until further applications exists for WS2811 notify enabled status is tied to ws281x output configuration
-    bool enabled = ws281xOutStatus != HWSETTINGS_WS2811LED_OUT_DISABLED;
-
-    if (enabled) {
+    if (PIOS_WS2811_DEVICE) {
         alarmStatus = (AlarmStatus_t *)pios_malloc(sizeof(AlarmStatus_t) * alarmsMapSize);
         for (uint8_t i = 0; i < alarmsMapSize; i++) {
             alarmStatus[i].lastAlarm     = SYSTEMALARMS_ALARM_OK;

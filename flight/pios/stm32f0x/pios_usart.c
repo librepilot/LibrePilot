@@ -173,6 +173,32 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     PIOS_DEBUG_Assert(usart_id);
     PIOS_DEBUG_Assert(cfg);
 
+    uint32_t *local_id;
+    uint8_t irq_channel;
+
+    /* Enable USART clock */
+    switch ((uint32_t)cfg->regs) {
+    case (uint32_t)USART1:
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+        local_id    = &PIOS_USART_1_id;
+        irq_channel = USART1_IRQn;
+        break;
+    case (uint32_t)USART2:
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+        local_id    = &PIOS_USART_2_id;
+        irq_channel = USART2_IRQn;
+        break;
+#if defined(STM32F072)
+    case (uint32_t)USART3:
+        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+        local_id    = &PIOS_USART_3_id;
+        irq_channel = USART3_4_IRQn;
+        break;
+#endif
+    default:
+        goto out_fail;
+    }
+
     struct pios_usart_dev *usart_dev;
 
     usart_dev = (struct pios_usart_dev *)PIOS_USART_alloc();
@@ -182,6 +208,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
 
     /* Bind the configuration to the device instance */
     usart_dev->cfg = cfg;
+    usart_dev->irq_channel = irq_channel;
 
     /* Initialize the comm parameter structure */
     USART_StructInit(&usart_dev->init); // 9600 8n1
@@ -189,28 +216,8 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     /* We will set modes later, depending on installed callbacks */
     usart_dev->init.USART_Mode = 0;
 
-    /* Enable USART clock */
-    switch ((uint32_t)cfg->regs) {
-    case (uint32_t)USART1:
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-        PIOS_USART_1_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART1_IRQn;
-        break;
-    case (uint32_t)USART2:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-        PIOS_USART_2_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART2_IRQn;
-        break;
-#if defined(STM32F072)
-    case (uint32_t)USART3:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-        PIOS_USART_3_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART3_4_IRQn;
-        break;
-#endif
-    }
-
     *usart_id = (uint32_t)usart_dev;
+    *local_id = (uint32_t)usart_dev;
 
     PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
 
@@ -218,6 +225,9 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     USART_OverrunDetectionConfig(usart_dev->cfg->regs, USART_OVRDetection_Disable);
 
     return 0;
+
+out_fail:
+    return -1;
 }
 
 static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
@@ -247,7 +257,15 @@ static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
     }
 
     /* Write new configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+    { // fix parity stuff
+        USART_InitTypeDef init = usart_dev->init;
+
+        if ((init.USART_Parity != USART_Parity_No) && (init.USART_WordLength == USART_WordLength_8b)) {
+            init.USART_WordLength = USART_WordLength_9b;
+        }
+
+        USART_Init(usart_dev->cfg->regs, &init);
+    }
 
     /*
      * Re enable USART.
@@ -289,8 +307,6 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
  * \param[in] word_len Requested word length
  * \param[in] stop_bits Requested stop bits
  * \param[in] parity Requested parity
- * \param[in] baud_rate Requested baud rate
- * \param[in] mode Requested mode
  *
  */
 static void PIOS_USART_ChangeConfig(uint32_t usart_id,

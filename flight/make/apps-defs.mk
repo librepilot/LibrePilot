@@ -54,14 +54,16 @@ include $(FREERTOS_DIR)/library.mk
 OPTESTS		= $(TOPDIR)/Tests
 
 ## PIOS Hardware
-ifeq ($(MCU),cortex-m3)
+ifneq (,$(findstring STM32F10,$(CHIP)))
     include $(PIOS)/stm32f10x/library.mk
-else ifeq ($(MCU),cortex-m4)
+else ifneq (,$(findstring STM32F4,$(CHIP)))
     include $(PIOS)/stm32f4xx/library.mk
-else ifeq ($(MCU),cortex-m0)
+else ifneq (,$(findstring STM32F30,$(CHIP)))
+    include $(PIOS)/stm32f30x/library.mk
+else ifneq (,$(findstring STM32F0,$(CHIP)))
     include $(PIOS)/stm32f0x/library.mk
 else
-    $(error Unsupported MCU: $(MCU))
+    $(error Unsupported CHIP: $(CHIP))
 endif
 
 # List C source files here (C dependencies are automatically generated).
@@ -83,6 +85,7 @@ SRC += $(PIOSCOMMON)/pios_mpu9250.c
 SRC += $(PIOSCOMMON)/pios_mpxv.c
 SRC += $(PIOSCOMMON)/pios_ms4525do.c
 SRC += $(PIOSCOMMON)/pios_ms5611.c
+SRC += $(PIOSCOMMON)/pios_bmp280.c
 SRC += $(PIOSCOMMON)/pios_oplinkrcvr.c
 SRC += $(PIOSCOMMON)/pios_video.c
 SRC += $(PIOSCOMMON)/pios_wavplay.c
@@ -148,6 +151,11 @@ SRC += $(FLIGHTLIB)/optypes.c
 ## CPP support
 ifeq ($(USE_CXX),YES)
 CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
+endif
+
+ifeq ($(DEBUG), YES)
+SRC += $(FLIGHTLIB)/dcc_stdio.c
+SRC += $(FLIGHTLIB)/cm3_fault_handlers.c
 endif
 
 ## Modules

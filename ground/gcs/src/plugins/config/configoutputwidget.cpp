@@ -373,6 +373,20 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
             // Sparky2
             bankLabels << "1 (1-2)" << "2 (3)" << "3 (4)" << "4 (5-6)" << "5 (7-8)" << "6 (9-10)";
             channelBanks << 1 << 1 << 2 << 3 << 4 << 4 << 5 << 5 << 6 << 6;
+        } else if (board == 0x1001) {
+            // SPRacingF3
+            bankLabels << "1 (1-3,7)" << "2 (4,8)" << "3 (5)" << "4 (6)";
+            channelBanks << 1 << 1 << 1 << 2 << 3 << 4 << 1 << 2;
+        } else if (board == 0x1002 || board == 0x1003) {
+            // SPRacingF3_EVO, NucleoF303RE
+            bankLabels << "1 (1-3)" << "2 (4)" << "3 (5-8)";
+            channelBanks << 1 << 1 << 1 << 2 << 3 << 3 << 3 << 3;
+        } else if (board == 0x1005) { // PikoBLX
+            bankLabels << "1 (1-4)" << "2 (5-6)" << "3 (7)" << "4 (8)";
+            channelBanks << 1 << 1 << 1 << 1 << 2 << 2 << 3 << 4;
+        } else if (board == 0x1006) { // tinyFISH
+            bankLabels << "1 (1)" << "2 (2)" << "3 (3-4)" << "4 (5-6)";
+            channelBanks << 1 << 2 << 3 << 3 << 4 << 4;
         }
     }
 

@@ -225,7 +225,7 @@ static struct UAVOData *UAVObjAllocSingle(uint32_t num_bytes)
     uint32_t object_size = sizeof(struct UAVOSingle) + num_bytes;
 
     /* Allocate the object from the heap */
-    struct UAVOSingle *uavo_single = (struct UAVOSingle *)pios_malloc(object_size);
+    struct UAVOSingle *uavo_single = (struct UAVOSingle *)pios_fastheapmalloc(object_size);
 
     if (!uavo_single) {
         return NULL;
@@ -250,7 +250,7 @@ static struct UAVOData *UAVObjAllocMulti(uint32_t num_bytes)
     uint32_t object_size = sizeof(struct UAVOMulti) + num_bytes;
 
     /* Allocate the object from the heap */
-    struct UAVOMulti *uavo_multi = (struct UAVOMulti *)pios_malloc(object_size);
+    struct UAVOMulti *uavo_multi = (struct UAVOMulti *)pios_fastheapmalloc(object_size);
 
     if (!uavo_multi) {
         return NULL;
@@ -1598,7 +1598,7 @@ static InstanceHandle createInstance(struct UAVOData *obj, uint16_t instId)
 
     /* Create the actual instance */
     uint32_t size = sizeof(struct UAVOMultiInst) + obj->instance_size;
-    instEntry = (struct UAVOMultiInst *)pios_malloc(size);
+    instEntry = (struct UAVOMultiInst *)pios_fastheapmalloc(size);
     if (!instEntry) {
         return NULL;
     }
@@ -1687,7 +1687,7 @@ static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue,
     }
 
     // Add queue to list
-    event = (struct ObjectEventEntry *)pios_malloc(sizeof(struct ObjectEventEntry));
+    event = (struct ObjectEventEntry *)pios_fastheapmalloc(sizeof(struct ObjectEventEntry));
     if (event == NULL) {
         return -1;
     }

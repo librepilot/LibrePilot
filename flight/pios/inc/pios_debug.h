@@ -32,17 +32,21 @@
 #define PIOS_DEBUG_H
 
 #ifdef PIOS_INCLUDE_DEBUG_CONSOLE
-#ifndef DEBUG_LEVEL
-#define DEBUG_LEVEL 0
-#endif
-#define DEBUG_PRINTF(level, ...) \
+# ifndef PIOS_COM_DEBUG
+extern uint32_t pios_com_debug_id;
+#  define PIOS_COM_DEBUG (pios_com_debug_id)
+# endif
+# ifndef DEBUG_LEVEL
+#  define DEBUG_LEVEL    0
+# endif
+# define DEBUG_PRINTF(level, ...) \
     { \
         if ((level <= DEBUG_LEVEL) && (PIOS_COM_DEBUG > 0)) { \
-            PIOS_COM_SendFormattedStringNonBlocking(PIOS_COM_DEBUG, __VA_ARGS__); \
+            PIOS_COM_SendFormattedString(PIOS_COM_DEBUG, __VA_ARGS__); \
         } \
     }
 #else
-#define DEBUG_PRINTF(level, ...)
+#  define DEBUG_PRINTF(level, ...)
 #endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
 
 extern const char *PIOS_DEBUG_AssertMsg;

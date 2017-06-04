@@ -72,7 +72,8 @@ struct pios_usart_dev {
     uint32_t rx_in_context;
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
-    uint8_t irq_channel;
+    bool     config_locked;
+    uint8_t  irq_channel;
 };
 
 static bool PIOS_USART_validate(struct pios_usart_dev *usart_dev)
@@ -196,6 +197,46 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     PIOS_DEBUG_Assert(usart_id);
     PIOS_DEBUG_Assert(cfg);
 
+    uint32_t *local_id;
+    uint8_t irq_channel;
+
+    switch ((uint32_t)cfg->regs) {
+    case (uint32_t)USART1:
+        local_id    = &PIOS_USART_1_id;
+        irq_channel = USART1_IRQn;
+        break;
+    case (uint32_t)USART2:
+        local_id    = &PIOS_USART_2_id;
+        irq_channel = USART2_IRQn;
+        break;
+#if !defined(STM32F411xE)
+    case (uint32_t)USART3:
+        local_id    = &PIOS_USART_3_id;
+        irq_channel = USART3_IRQn;
+        break;
+    case (uint32_t)UART4:
+        local_id    = &PIOS_USART_4_id;
+        irq_channel = UART4_IRQn;
+        break;
+    case (uint32_t)UART5:
+        local_id    = &PIOS_USART_5_id;
+        irq_channel = UART5_IRQn;
+        break;
+#endif /* STM32F411xE */
+    case (uint32_t)USART6:
+        local_id    = &PIOS_USART_6_id;
+        irq_channel = USART6_IRQn;
+        break;
+    default:
+        goto out_fail;
+    }
+
+    if (*local_id) {
+        /* this port is already open */
+        *usart_id = *local_id;
+        return 0;
+    }
+
     struct pios_usart_dev *usart_dev;
 
     usart_dev = (struct pios_usart_dev *)PIOS_USART_alloc();
@@ -205,6 +246,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
 
     /* Bind the configuration to the device instance */
     usart_dev->cfg = cfg;
+    usart_dev->irq_channel = irq_channel;
 
     /* Initialize the comm parameter structure */
     USART_StructInit(&usart_dev->init); // 9600 8n1
@@ -236,38 +278,10 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     }
 #endif
 
-    /* Configure USART Interrupts */
-    switch ((uint32_t)usart_dev->cfg->regs) {
-    case (uint32_t)USART1:
-        PIOS_USART_1_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART1_IRQn;
-        break;
-    case (uint32_t)USART2:
-        PIOS_USART_2_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART2_IRQn;
-        break;
-#if !defined(STM32F411xE)
-    case (uint32_t)USART3:
-        PIOS_USART_3_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART3_IRQn;
-        break;
-    case (uint32_t)UART4:
-        PIOS_USART_4_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = UART4_IRQn;
-        break;
-    case (uint32_t)UART5:
-        PIOS_USART_5_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = UART5_IRQn;
-        break;
-#endif /* STM32F411xE */
-    case (uint32_t)USART6:
-        PIOS_USART_6_id = (uint32_t)usart_dev;
-        usart_dev->irq_channel = USART6_IRQn;
-        break;
-    }
-    PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
-
     *usart_id = (uint32_t)usart_dev;
+    *local_id = (uint32_t)usart_dev;
+
+    PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
 
     return 0;
 
@@ -303,7 +317,15 @@ static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
     }
 
     /* Write new configuration */
-    USART_Init(usart_dev->cfg->regs, &usart_dev->init);
+    { // fix parity stuff
+        USART_InitTypeDef init = usart_dev->init;
+
+        if ((init.USART_Parity != USART_Parity_No) && (init.USART_WordLength == USART_WordLength_8b)) {
+            init.USART_WordLength = USART_WordLength_9b;
+        }
+
+        USART_Init(usart_dev->cfg->regs, &init);
+    }
 
     /*
      * Re enable USART.
@@ -345,6 +367,9 @@ static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud)
 
     PIOS_Assert(valid);
 
+    if (usart_dev->config_locked) {
+        return;
+    }
 
     /* Use our working copy of the usart init structure */
     usart_dev->init.USART_BaudRate = baud;
@@ -373,6 +398,10 @@ static void PIOS_USART_ChangeConfig(uint32_t usart_id,
     bool valid = PIOS_USART_validate(usart_dev);
 
     PIOS_Assert(valid);
+
+    if (usart_dev->config_locked) {
+        return;
+    }
 
     switch (word_len) {
     case PIOS_COM_Word_length_8b:
@@ -574,6 +603,9 @@ static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param)
         break;
     case PIOS_IOCTL_USART_SET_HALFDUPLEX:
         USART_HalfDuplexCmd(usart_dev->cfg->regs, *(bool *)param ? ENABLE : DISABLE);
+        break;
+    case PIOS_IOCTL_USART_LOCK_CONFIG:
+        usart_dev->config_locked = *(bool *)param;
         break;
     default:
         return COM_IOCTL_ENOSYS; /* unknown ioctl */

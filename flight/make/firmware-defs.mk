@@ -41,32 +41,33 @@ else
 endif
 
 # Define Messages
-MSG_FORMATERROR      = $(QUOTE) Can not handle output-format$(QUOTE)
-MSG_MODINIT          = $(QUOTE) MODINIT   $(MSG_EXTRA) $(QUOTE)
-MSG_SIZE             = $(QUOTE) SIZE      $(MSG_EXTRA) $(QUOTE)
-MSG_LOAD_FILE        = $(QUOTE) BIN/HEX   $(MSG_EXTRA) $(QUOTE)
-MSG_BIN_OBJ          = $(QUOTE) BINO      $(MSG_EXTRA) $(QUOTE)
-MSG_STRIP_FILE       = $(QUOTE) STRIP     $(MSG_EXTRA) $(QUOTE)
-MSG_EXTENDED_LISTING = $(QUOTE) LIS       $(MSG_EXTRA) $(QUOTE)
-MSG_SYMBOL_TABLE     = $(QUOTE) NM        $(MSG_EXTRA) $(QUOTE)
-MSG_ARCHIVING        = $(QUOTE) AR        $(MSG_EXTRA) $(QUOTE)
-MSG_LINKING          = $(QUOTE) LD        $(MSG_EXTRA) $(QUOTE)
-MSG_COMPILING        = $(QUOTE) CC        $(MSG_EXTRA) $(QUOTE)
-MSG_COMPILING_ARM    = $(QUOTE) CC-ARM    $(MSG_EXTRA) $(QUOTE)
-MSG_COMPILINGCXX     = $(QUOTE) CXX       $(MSG_EXTRA) $(QUOTE)
-MSG_COMPILINGCXX_ARM = $(QUOTE) CXX-ARM   $(MSG_EXTRA) $(QUOTE)
-MSG_ASSEMBLING       = $(QUOTE) AS        $(MSG_EXTRA) $(QUOTE)
-MSG_ASSEMBLING_ARM   = $(QUOTE) AS-ARM    $(MSG_EXTRA) $(QUOTE)
-MSG_CLEANING         = $(QUOTE) CLEAN     $(MSG_EXTRA) $(QUOTE)
-MSG_ASMFROMC         = $(QUOTE) AS(C)     $(MSG_EXTRA) $(QUOTE)
-MSG_ASMFROMC_ARM     = $(QUOTE) AS(C)-ARM $(MSG_EXTRA) $(QUOTE)
-MSG_PYMITEINIT       = $(QUOTE) PY        $(MSG_EXTRA) $(QUOTE)
-MSG_OPFIRMWARE       = $(QUOTE) OPFW      $(MSG_EXTRA) $(QUOTE)
-MSG_FWINFO           = $(QUOTE) FWINFO    $(MSG_EXTRA) $(QUOTE)
-MSG_JTAG_PROGRAM     = $(QUOTE) JTAG-PGM  $(MSG_EXTRA) $(QUOTE)
-MSG_JTAG_WIPE        = $(QUOTE) JTAG-WIPE $(MSG_EXTRA) $(QUOTE)
-MSG_PADDING          = $(QUOTE) PADDING   $(MSG_EXTRA) $(QUOTE)
-MSG_FLASH_IMG        = $(QUOTE) FLASH_IMG $(MSG_EXTRA) $(QUOTE)
+MSG_FORMATERROR       = $(QUOTE) Can not handle output-format$(QUOTE)
+MSG_MODINIT           = $(QUOTE) MODINIT   $(MSG_EXTRA) $(QUOTE)
+MSG_SIZE              = $(QUOTE) SIZE      $(MSG_EXTRA) $(QUOTE)
+MSG_LOAD_FILE         = $(QUOTE) BIN/HEX   $(MSG_EXTRA) $(QUOTE)
+MSG_BIN_OBJ           = $(QUOTE) BINO      $(MSG_EXTRA) $(QUOTE)
+MSG_STRIP_FILE        = $(QUOTE) STRIP     $(MSG_EXTRA) $(QUOTE)
+MSG_EXTENDED_LISTING  = $(QUOTE) LIS       $(MSG_EXTRA) $(QUOTE)
+MSG_SYMBOL_TABLE      = $(QUOTE) NM        $(MSG_EXTRA) $(QUOTE)
+MSG_ARCHIVING         = $(QUOTE) AR        $(MSG_EXTRA) $(QUOTE)
+MSG_LINKING           = $(QUOTE) LD        $(MSG_EXTRA) $(QUOTE)
+MSG_COMPILING         = $(QUOTE) CC        $(MSG_EXTRA) $(QUOTE)
+MSG_COMPILING_ARM     = $(QUOTE) CC-ARM    $(MSG_EXTRA) $(QUOTE)
+MSG_COMPILINGCXX      = $(QUOTE) CXX       $(MSG_EXTRA) $(QUOTE)
+MSG_COMPILINGCXX_ARM  = $(QUOTE) CXX-ARM   $(MSG_EXTRA) $(QUOTE)
+MSG_ASSEMBLING        = $(QUOTE) AS        $(MSG_EXTRA) $(QUOTE)
+MSG_ASSEMBLING_ARM    = $(QUOTE) AS-ARM    $(MSG_EXTRA) $(QUOTE)
+MSG_CLEANING          = $(QUOTE) CLEAN     $(MSG_EXTRA) $(QUOTE)
+MSG_ASMFROMC          = $(QUOTE) AS(C)     $(MSG_EXTRA) $(QUOTE)
+MSG_ASMFROMC_ARM      = $(QUOTE) AS(C)-ARM $(MSG_EXTRA) $(QUOTE)
+MSG_PYMITEINIT        = $(QUOTE) PY        $(MSG_EXTRA) $(QUOTE)
+MSG_OPFIRMWARE        = $(QUOTE) OPFW      $(MSG_EXTRA) $(QUOTE)
+MSG_FWINFO            = $(QUOTE) FWINFO    $(MSG_EXTRA) $(QUOTE)
+MSG_JTAG_PROGRAM      = $(QUOTE) JTAG-PGM  $(MSG_EXTRA) $(QUOTE)
+MSG_JTAG_WIPE         = $(QUOTE) JTAG-WIPE $(MSG_EXTRA) $(QUOTE)
+MSG_PADDING           = $(QUOTE) PADDING   $(MSG_EXTRA) $(QUOTE)
+MSG_FLASH_IMG         = $(QUOTE) FLASH_IMG $(MSG_EXTRA) $(QUOTE)
+MSG_PREPROCESSING_LDS = $(QUOTE) PP        $(MSG_EXTRA) $(QUOTE)
 
 # Function for converting an absolute path to one relative
 # to the top of the source tree.
@@ -175,6 +176,13 @@ $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
 	$(V1) $(CC) -c $(THUMB) $$(CFLAGS) $$(CONLYFLAGS) $$(CPPFLAGS) $$< -o $$@
 endef
 
+# Preprocess: create linker scripts from .lds files.
+define PREPROCESS_LDS_TEMPLATE
+$(OUTDIR)/$(notdir $(basename $(1))).ld : $(1)
+	@echo $(MSG_PREPROCESSING_LDS) $$(call toprel, $$<)
+	$(V1) $(CXX) -E -P -x c $(THUMB) $$(CFLAGS) $$(CPPFLAGS) $$< -o $$@
+endef
+
 # Compile: create object files from C source files. ARM-only
 define COMPILE_C_ARM_TEMPLATE
 $(OUTDIR)/$(notdir $(basename $(1))).o : $(1)
@@ -224,13 +232,16 @@ endef
 #   $1 = elf file to produce
 #   $2 = list of object files that make up the elf file
 #   $3 = optional list of libraries to build and link
+#   $4 = optional list of linker scripts to build and link
 define LINK_TEMPLATE
 .SECONDARY : $(1)
-.PRECIOUS : $(2) $(3)
-$(1).input_files:  $(2) $(3)
+.PRECIOUS : $(2) $(3) $(4)
+$(1).input_files:  $(2) $(3) $(4)
 	$(V1) rm -rf $(1).input_files
 	$(foreach file,$(2) $(3),
 	$(V1) echo $(file) >> $$@)
+	$(foreach file,$(4),
+	$(V1) echo -T$(file) >> $$@)
 
 $(1):  $(1).input_files
 	@echo $(MSG_LINKING) $$(call toprel, $$@)
@@ -240,13 +251,17 @@ endef
 # Link: create ELF output file from object files.
 #   $1 = elf file to produce
 #   $2 = list of object files that make up the elf file
+#   $3 = optional list of libraries to build and link
+#   $4 = optional list of linker scripts to build and link
 define LINK_CXX_TEMPLATE
 .SECONDARY : $(1)
-.PRECIOUS : $(2) $(3)
-$(1).input_files:  $(2) $(3)
+.PRECIOUS : $(2) $(3) $(4)
+$(1).input_files:  $(2) $(3) $(4)
 	$(V1) rm -rf $(1).input_files
 	$(foreach file,$(2) $(3),
 	$(V1) echo $(file) >> $$@)
+	$(foreach file,$(4),
+	$(V1) echo -T$(file) >> $$@)
 
 $(1): $(1).input_files
 	@echo $(MSG_LINKING) $$(call toprel, $$@)

@@ -81,9 +81,8 @@ struct pios_sbus_state {
 #define SBUS_FL_WEIGHTED_AVE 26
 
 struct pios_sbus_dev {
-    enum pios_sbus_dev_magic   magic;
-    const struct pios_sbus_cfg *cfg;
-    struct pios_sbus_state     state;
+    enum pios_sbus_dev_magic magic;
+    struct pios_sbus_state   state;
 };
 
 /* Allocate S.Bus device descriptor */
@@ -153,7 +152,6 @@ int32_t PIOS_SBus_Init(uint32_t *sbus_id,
                        uint32_t lower_id)
 {
     PIOS_DEBUG_Assert(sbus_id);
-    PIOS_DEBUG_Assert(cfg);
     PIOS_DEBUG_Assert(driver);
 
     struct pios_sbus_dev *sbus_dev;
@@ -162,9 +160,6 @@ int32_t PIOS_SBus_Init(uint32_t *sbus_id,
     if (!sbus_dev) {
         goto out_fail;
     }
-
-    /* Bind the configuration to the device instance */
-    sbus_dev->cfg = cfg;
 
     PIOS_SBus_ResetState(&(sbus_dev->state));
 

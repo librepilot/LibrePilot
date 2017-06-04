@@ -55,6 +55,7 @@ enum PIOS_USART_Inverted {
 
 #define PIOS_IOCTL_USART_GET_DSMBIND    COM_IOCTL(COM_IOCTL_TYPE_USART, 7, struct stm32_gpio)
 
+#define PIOS_IOCTL_USART_LOCK_CONFIG    COM_IOCTL(COM_IOCTL_TYPE_USART, 8, bool)
 
 #endif /* PIOS_USART_H */
 

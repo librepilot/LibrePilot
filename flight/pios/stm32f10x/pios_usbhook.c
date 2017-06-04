@@ -86,6 +86,9 @@ void PIOS_USB_HID_RegisterHidReport(const uint8_t *desc, uint16_t desc_size)
     Hid_Report_Descriptor.Descriptor_Size = desc_size;
 }
 
+void PIOS_USBHOOK_Deactivate(void)
+{}
+
 #include "stm32f10x.h" /* __IO */
 __IO uint8_t EXTI_Enable;
 

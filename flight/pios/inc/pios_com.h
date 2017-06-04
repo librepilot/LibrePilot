@@ -62,13 +62,6 @@ enum PIOS_COM_Parity {
     PIOS_COM_Parity_Odd,
 };
 
-enum PIOS_COM_Mode {
-    PIOS_COM_Mode_Unchanged = 0,
-    PIOS_COM_Mode_Rx   = (1 << 0),
-    PIOS_COM_Mode_Tx   = (1 << 1),
-    PIOS_COM_Mode_RxTx = (PIOS_COM_Mode_Rx | PIOS_COM_Mode_Tx),
-};
-
 struct pios_com_driver {
     void     (*set_baud)(uint32_t id, uint32_t baud);
     void     (*set_config)(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_Parity parity, enum PIOS_COM_StopBits stop_bits, uint32_t baud_rate);

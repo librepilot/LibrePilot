@@ -81,6 +81,9 @@ pios_general_malloc(void *ptr, size_t s, bool use_fast_heap)
 	vPortEnterCritical();
 	if(use_fast_heap){
 		p = msheap_alloc(&fast_heap, ptr, s);
+        if(!p) {
+            p = msheap_alloc(&sram_heap, ptr, s);
+        }
 	} else {
 		p = msheap_alloc(&sram_heap, ptr, s);
 	}

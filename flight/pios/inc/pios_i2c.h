@@ -73,9 +73,13 @@ enum pios_i2c_error_count {
     PIOS_I2C_ERROR_COUNT_NUMELEM,
 };
 
+typedef bool (*pios_i2c_callback)();
+
 /* Public Functions */
 extern int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns);
-extern int32_t PIOS_I2C_Transfer_Callback(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns, void *callback);
+extern int32_t PIOS_I2C_Transfer_Callback(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns, pios_i2c_callback callback);
+extern int32_t PIOS_I2C_Transfer_CallbackFromISR(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns, pios_i2c_callback callback, bool *woken);
+
 extern void PIOS_I2C_EV_IRQ_Handler(uint32_t i2c_id);
 extern void PIOS_I2C_ER_IRQ_Handler(uint32_t i2c_id);
 extern void PIOS_I2C_IRQ_Handler(uint32_t i2c_id);

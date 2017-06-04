@@ -49,6 +49,7 @@
 #include "airspeedstate.h"
 #include "actuatorsettings.h"
 #include "actuatordesired.h"
+#include "actuatorcommand.h"
 #include "flightstatus.h"
 #include "systemstats.h"
 #include "systemalarms.h"
@@ -665,6 +666,20 @@ static void msp_send_channels(struct msp_bridge *m)
     msp_send(m, MSP_RC, data.buf, sizeof(data));
 }
 
+static void msp_send_servo(struct msp_bridge *m)
+{
+    ActuatorCommandData ac;
+
+    ActuatorCommandGet(&ac);
+
+    // Only the first 8 channels are supported.
+    // Channels are 16 bits (2 bytes).
+    uint8_t channels[16];
+    memcpy(channels, (uint8_t *)ac.Channel, 16);
+
+    msp_send(m, MSP_SERVO, channels, sizeof(channels));
+}
+
 static void msp_send_boxids(struct msp_bridge *m) // This is actually sending a map of MSP_STATUS.flag bits to BOX ids.
 {
     msp_send(m, MSP_BOXIDS, msp_boxes, sizeof(msp_boxes));
@@ -870,6 +885,9 @@ static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
         break;
     case MSP_RC:
         msp_send_channels(m);
+        break;
+    case MSP_SERVO:
+        msp_send_servo(m);
         break;
     case MSP_BOXIDS:
         msp_send_boxids(m);

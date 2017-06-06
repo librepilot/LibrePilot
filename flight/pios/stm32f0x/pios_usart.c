@@ -179,18 +179,15 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
     /* Enable USART clock */
     switch ((uint32_t)cfg->regs) {
     case (uint32_t)USART1:
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
         local_id    = &PIOS_USART_1_id;
         irq_channel = USART1_IRQn;
         break;
     case (uint32_t)USART2:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
         local_id    = &PIOS_USART_2_id;
         irq_channel = USART2_IRQn;
         break;
 #if defined(STM32F072)
     case (uint32_t)USART3:
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
         local_id    = &PIOS_USART_3_id;
         irq_channel = USART3_4_IRQn;
         break;

@@ -91,22 +91,8 @@ int32_t PIOS_SPI_Init(uint32_t *spi_id, const struct pios_spi_cfg *cfg)
     vSemaphoreCreateBinary(spi_dev->busy);
     xSemaphoreGive(spi_dev->busy);
 #else
-    spi_dev->busy = 0;
+    spi_dev->busy     = 0;
 #endif
-    /* Enable the associated peripheral clock */
-    switch ((uint32_t)spi_dev->cfg->regs) {
-    case (uint32_t)SPI1:
-        /* Enable SPI peripheral clock (APB2 == high speed) */
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-        break;
-    case (uint32_t)SPI2:
-        /* Enable SPI peripheral clock (APB1 == slow speed) */
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-        break;
-    }
-    /* Enable DMA clock */
-    RCC_AHBPeriphClockCmd(spi_dev->cfg->dma.ahb_clk, ENABLE);
-
     /* Disable callback function */
     spi_dev->callback = NULL;
 

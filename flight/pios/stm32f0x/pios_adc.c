@@ -244,9 +244,6 @@ void PIOS_ADC_Config(uint32_t oversampling)
         pios_adc_dev->fir_coeffs[i] = 1;
     }
     pios_adc_dev->fir_coeffs[pios_adc_dev->adc_oversample] = pios_adc_dev->adc_oversample;
-
-    /* Enable DMA1 clock */
-    RCC_AHBPeriphClockCmd(pios_adc_dev->cfg->dma.ahb_clk, ENABLE);
 }
 
 /**

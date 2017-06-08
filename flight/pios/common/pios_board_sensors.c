@@ -161,13 +161,13 @@ void PIOS_BOARD_Sensors_Configure()
 
         if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
             // i2c_external
-#ifdef PIOS_I2C_EXTERNAL_ADAPTER
-            i2c_id = PIOS_I2C_EXTERNAL_ADAPTER;
+#ifdef PIOS_I2C_FLEXI_ADAPTER
+            i2c_id = PIOS_I2C_FLEXI_ADAPTER;
 #endif
         } else if (option == AUXMAGSETTINGS_TYPE_I2C) {
             // i2c_internal (or Sparky2/F3 dedicated I2C port)
-#ifdef PIOS_I2C_FLEXI_ADAPTER
-            i2c_id = PIOS_I2C_FLEXI_ADAPTER;
+#ifdef PIOS_I2C_EXTERNAL_ADAPTER
+            i2c_id = PIOS_I2C_EXTERNAL_ADAPTER;
 #endif
         }
 

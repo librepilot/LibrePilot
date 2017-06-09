@@ -260,6 +260,7 @@ static void go_starting(struct pios_i2c_adapter *i2c_adapter, __attribute__((unu
     i2c_adapter->active_byte = &(i2c_adapter->active_txn->buf[0]);
     i2c_adapter->last_byte   = &(i2c_adapter->active_txn->buf[i2c_adapter->active_txn->len - 1]);
 
+    I2C_ClearITPendingBit(i2c_adapter->cfg->regs, I2C_IT_STOPI | I2C_IT_NACKI | I2C_IT_ERRI);
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_NACKI | I2C_IT_RXI | I2C_IT_STOPI | I2C_IT_TXI, ENABLE);
 
     I2C_TransferHandling(
@@ -305,8 +306,9 @@ static void go_nack(struct pios_i2c_adapter *i2c_adapter, __attribute__((unused)
 {
     i2c_adapter->nack = true;
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_NACKI | I2C_IT_RXI | I2C_IT_STOPI | I2C_IT_TXI, DISABLE);
-    I2C_AcknowledgeConfig(i2c_adapter->cfg->regs, DISABLE);
-    I2C_GenerateSTOP(i2c_adapter->cfg->regs, ENABLE);
+    /* It seems that we don't need this with F3 i2c peripheral */
+    // I2C_AcknowledgeConfig(i2c_adapter->cfg->regs, DISABLE);
+    // I2C_GenerateSTOP(i2c_adapter->cfg->regs, ENABLE);
 }
 
 static void i2c_adapter_inject_event(struct pios_i2c_adapter *i2c_adapter, enum i2c_adapter_event event, bool *woken)

@@ -143,7 +143,7 @@ void PIOS_Board_Init(void)
     bool ppm_only    = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
     bool ppm_mode    = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
                         (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    ppm_rssi = (oplinkSettings.PPMOutRSSI == OPLINKSETTINGS_PPMOUTRSSI_CH9);
+    ppm_rssi = (oplinkSettings.PPMOutRSSI == OPLINKSETTINGS_PPMOUTRSSI_TRUE);
     bool servo_main  = false;
     bool servo_flexi = false;
 

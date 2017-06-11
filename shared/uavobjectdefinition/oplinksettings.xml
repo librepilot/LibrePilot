@@ -9,7 +9,7 @@
 		<!-- port options -->
 		<field name="MainPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
 		<field name="FlexiPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
-		<field name="PPMOutRSSI" units="" type="enum" elements="1" options="Disabled,Ch9" defaultvalue="Disabled"/>
+		<field name="PPMOutRSSI" units="" type="enum" elements="1" options="False,True" defaultvalue="False" description="Add RSSI to the PPM output stream (Ch9)"/>
 		<field name="RadioPriStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="HID"/>
 		<field name="RadioAuxStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="Disabled"/>
 		<field name="VCPBridge" units="connection" type="enum" elements="1" options="Disabled,Main,Flexi" defaultvalue="Disabled"/>

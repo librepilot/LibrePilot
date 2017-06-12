@@ -12,7 +12,13 @@ win32 {
 
 include(config_dependencies.pri)
 
-INCLUDEPATH += ../../libs/eigen
+MINGW_DIR = $$clean_path($$(MINGW_DIR))
+
+EIGEN_INCLUDE = ../../libs/eigen
+#EIGEN_INCLUDE = $$MINGW_DIR/include/eigen3
+message(Using eigen from here: $$EIGEN_INCLUDE)
+
+INCLUDEPATH += $$EIGEN_INCLUDE
 
 HEADERS += \
     configplugin.h \

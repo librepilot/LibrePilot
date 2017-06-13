@@ -1,10 +1,10 @@
 /*
 Silent installer script
 
-Known to work with Qt 5.8.0 and QtIFW 2.0.5
+Known to work with Qt 5.9.0 and QtIFW 2.0.5
 
 Test with:
-$ ./qt-opensource-windows-x86-mingw530-5.8.0.exe --verbose --script ../librepilot/make/tool_install/qt-install.qs
+$ ./qt-opensource-windows-x86-mingw530-5.9.0.exe --verbose --script ../librepilot/make/tool_install/qt-install.qs
 
 Known issues:
 - silent but not headless (QtIFW 2.1.0 should support gui.setSilent(true))
@@ -20,7 +20,7 @@ function Controller()
 
     var qtInstallTargetDir = installer.environmentVariable("QT_INSTALL_TARGET_DIR");
     if (qtInstallTargetDir == "") {
-        qtInstallTargetDir = installer.environmentVariable("PWD") + "/tools/qt-5.8.0";
+        qtInstallTargetDir = installer.environmentVariable("PWD") + "/tools/qt-5.9.0";
         console.log("Environment variable QT_INSTALL_TARGET_DIR not set, using default " + qtInstallTargetDir);
     }
     installer.setValue("TargetDir", qtInstallTargetDir);
@@ -107,18 +107,18 @@ Controller.prototype.ComponentSelectionPageCallback = function()
     var page = gui.currentPageWidget();
     page.deselectAll()
     if (installer.value("os") == "win") {
-        selectComponent(page, "qt.58.win32_mingw53");
+        selectComponent(page, "qt.59.win32_mingw53");
         selectComponent(page, "qt.tools.win32_mingw530");
     }
     else if (installer.value("os") == "x11") {
-        selectComponent(page, "qt.58.gcc");
-        selectComponent(page, "qt.58.gcc_64");
+        selectComponent(page, "qt.59.gcc");
+        selectComponent(page, "qt.59.gcc_64");
     }
     else if (installer.value("os") == "mac") {
-        selectComponent(page, "qt.58.clang_64");
+        selectComponent(page, "qt.59.clang_64");
     }
-    //selectComponent(page, "qt.58.qtquickcontrols");
-    selectComponent(page, "qt.58.qtscript");
+    //selectComponent(page, "qt.59.qtquickcontrols");
+    selectComponent(page, "qt.59.qtscript");
 
     gui.clickButton(buttons.NextButton);
 }

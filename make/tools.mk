@@ -90,8 +90,8 @@ TOOLS_URL := http://librepilot.github.io/tools
 # and are used only to install the tools on some OSes
 # don't assume actual versions to match
 
-QT_SHORT_VERSION := 5.8
-QT_VERSION := 5.8.0
+QT_SHORT_VERSION := 5.9
+QT_VERSION := 5.9.0
 
 OSG_VERSION := 3.5.5
 OSGEARTH_VERSION := 2.8
@@ -110,10 +110,10 @@ ifeq ($(UNAME), Linux)
     DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
 else ifeq ($(UNAME), Darwin)
     QT_SDK_ARCH    := clang_64
-    QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-mac-x64-clang-$(QT_VERSION).dmg
+    QT_SDK_URL     := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/qt-opensource-mac-x64-$(QT_VERSION).dmg
     QT_SDK_MD5_URL := http://download.qt.io/official_releases/qt/$(QT_SHORT_VERSION)/$(QT_VERSION)/md5sums.txt
-    QT_SDK_MOUNT_DIR        := /Volumes/qt-opensource-mac-x64-clang-$(QT_VERSION)
-    QT_SDK_MAINTENANCE_TOOL := /Volumes/qt-opensource-mac-x64-clang-$(QT_VERSION)/qt-opensource-mac-x64-clang-$(QT_VERSION).app/Contents/MacOS/qt-opensource-mac-x64-clang-$(QT_VERSION)
+    QT_SDK_MOUNT_DIR        := /Volumes/qt-opensource-mac-x64-$(QT_VERSION)
+    QT_SDK_MAINTENANCE_TOOL := /Volumes/qt-opensource-mac-x64-$(QT_VERSION)/qt-opensource-mac-x64-$(QT_VERSION).app/Contents/MacOS/qt-opensource-mac-x64-$(QT_VERSION)
     UNCRUSTIFY_URL := $(TOOLS_URL)/uncrustify-0.60.tar.gz
     DOXYGEN_URL    := $(TOOLS_URL)/doxygen-1.8.3.1.src.tar.gz
     OSG_URL        := $(TOOLS_URL)/osg-$(OSG_VERSION)-clang_64.tar.gz

@@ -313,7 +313,7 @@ QString UAVObjectUtilManager::getBoardDescriptionString()
 {
     QByteArray arr = getBoardDescription();
 
-    int index = arr.indexOf(255);
+    int index = arr.indexOf((char)255);
 
     return QString((index == -1) ? arr : arr.left(index));
 }

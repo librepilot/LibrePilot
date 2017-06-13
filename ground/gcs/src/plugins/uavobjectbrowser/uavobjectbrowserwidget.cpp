@@ -212,6 +212,8 @@ void UAVObjectBrowserWidget::eraseObject()
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
         updateObjectPersistance(ObjectPersistence::OPERATION_DELETE, obj);
+        // Retrieve object so that correct default value is displayed
+        requestUpdate();
     }
 }
 

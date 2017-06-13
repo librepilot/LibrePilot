@@ -15,6 +15,7 @@ GRTAGS
 GSYMS
 GTAGS
 core
+!core/
 *~
 
 # flight

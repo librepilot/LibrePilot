@@ -74,11 +74,11 @@ enum pios_i2c_error_count {
 };
 
 enum pios_i2c_transfer_result {
-    PIOS_I2C_TRANSFER_OK = 0,
-    PIOS_I2C_TRANSFER_BUSY = -2,
-    PIOS_I2C_TRANSFER_BUS_ERROR = -1,
-    PIOS_I2C_TRANSFER_NACK = -3,
-    PIOS_I2C_TRANSFER_TIMEOUT = -4,
+    PIOS_I2C_TRANSFER_OK           = 0,
+    PIOS_I2C_TRANSFER_BUSY         = -2,
+    PIOS_I2C_TRANSFER_BUS_ERROR    = -1,
+    PIOS_I2C_TRANSFER_NACK         = -3,
+    PIOS_I2C_TRANSFER_TIMEOUT      = -4,
     PIOS_I2C_TRANSFER_UNSPECIFIED_ERROR = -5,
     PIOS_I2C_TRANSFER_DEVICE_ERROR = -6,
 };

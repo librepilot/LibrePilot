@@ -73,7 +73,7 @@ struct pios_i2c_adapter {
 
     uint8_t *active_byte;
     uint8_t *last_byte;
-    
+
     enum pios_i2c_transfer_result *transfer_result;
 };
 

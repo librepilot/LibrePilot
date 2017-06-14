@@ -234,17 +234,17 @@ static void go_stopped(struct pios_i2c_adapter *i2c_adapter, bool *woken)
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_NACKI | I2C_IT_RXI | I2C_IT_STOPI | I2C_IT_TXI, DISABLE);
 
     enum pios_i2c_transfer_result result =
-                              i2c_adapter->bus_error ? PIOS_I2C_TRANSFER_BUS_ERROR :
-                              i2c_adapter->nack ? PIOS_I2C_TRANSFER_NACK :
-                              PIOS_I2C_TRANSFER_OK;
+        i2c_adapter->bus_error ? PIOS_I2C_TRANSFER_BUS_ERROR :
+        i2c_adapter->nack ? PIOS_I2C_TRANSFER_NACK :
+        PIOS_I2C_TRANSFER_OK;
 
     if (i2c_adapter->transfer_result) {
         *(i2c_adapter->transfer_result) = result;
     }
-    
+
     pios_i2c_callback cb = i2c_adapter->callback;
 
-    if(!cb) { /* No callback? Signal that we are done */
+    if (!cb) { /* No callback? Signal that we are done */
 #ifdef PIOS_INCLUDE_FREERTOS
         signed portBASE_TYPE pxHigherPriorityTaskWoken = pdFALSE;
         if (xSemaphoreGiveFromISR(i2c_adapter->sem_ready, &pxHigherPriorityTaskWoken) != pdTRUE) {
@@ -271,7 +271,7 @@ static void go_stopped(struct pios_i2c_adapter *i2c_adapter, bool *woken)
     PIOS_IRQ_Enable();
 #endif /* PIOS_INCLUDE_FREERTOS */
 
-    if(cb && cb(result)) { /* User provided callback? Do it, but with bus unlocked */
+    if (cb && cb(result)) { /* User provided callback? Do it, but with bus unlocked */
         *woken = true;
     }
 }
@@ -635,7 +635,7 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
     // FIXME: only supports transfer sizes up to 255 bytes
     struct pios_i2c_adapter *i2c_adapter = (struct pios_i2c_adapter *)i2c_id;
     enum pios_i2c_transfer_result result = PIOS_I2C_TRANSFER_UNSPECIFIED_ERROR;
-    
+
     bool valid = PIOS_I2C_validate(i2c_adapter);
 
     PIOS_Assert(valid)

@@ -570,9 +570,9 @@ static int32_t PIOS_MPU6000_I2C_GetReg(uint8_t address)
     return data;
 }
 
-static bool PIOS_MPU6000_I2C_Read_Completed()
+static bool PIOS_MPU6000_I2C_Read_Completed(enum pios_i2c_transfer_result result)
 {
-    return PIOS_MPU6000_HandleData(gyro_read_timestamp);
+    return (result == PIOS_I2C_TRANSFER_OK) ? PIOS_MPU6000_HandleData(gyro_read_timestamp) : false;
 }
 
 static bool PIOS_MPU6000_I2C_ReadSensor(bool *woken)

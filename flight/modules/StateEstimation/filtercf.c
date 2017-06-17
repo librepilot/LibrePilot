@@ -423,7 +423,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
     this->gyroBias[0] -= accel_err[0] * this->attitudeSettings.AccelKi - gyro[0] * this->rollPitchBiasRate;
     this->gyroBias[1] -= accel_err[1] * this->attitudeSettings.AccelKi - gyro[1] * this->rollPitchBiasRate;
     if (this->useMag) {
-        this->gyroBias[2] -= -mag_err[2] * this->attitudeSettings.MagKi - gyro[2] * this->rollPitchBiasRate;
+        this->gyroBias[2] -= mag_err[2] * this->attitudeSettings.MagKi - gyro[2] * this->rollPitchBiasRate;
     } else {
         this->gyroBias[2] -= -gyro[2] * this->rollPitchBiasRate;
     }

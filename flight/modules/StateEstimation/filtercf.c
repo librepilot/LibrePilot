@@ -7,7 +7,8 @@
  * @{
  *
  * @file       filtercf.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Complementary filter to calculate Attitude from Accels and Gyros
  *             and optionally magnetometers:
  *             WARNING: Will drift if the mean acceleration force doesn't point
@@ -49,7 +50,9 @@
 
 #define CALIBRATION_DELAY_MS    4000
 #define CALIBRATION_DURATION_MS 6000
+#define RELOADSETTINGS_DELAY_MS 1000
 #define VARIANCE_WINDOW_SIZE    40
+
 // Private types
 struct data {
     AttitudeSettingsData attitudeSettings;
@@ -68,6 +71,7 @@ struct data {
     float   rollPitchBiasRate;
     int32_t timeval;
     int32_t starttime;
+    int32_t inittime;
     uint8_t init;
     bool    magCalibrated;
     pw_variance_t gyro_var[3];
@@ -327,13 +331,17 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         this->init = 0;
         PIOS_NOTIFY_StartNotification(NOTIFY_DRAW_ATTENTION, NOTIFY_PRIORITY_REGULAR);
     } else if (this->init == 0) {
-        // Reload settings (all the rates)
-        AttitudeSettingsGet(&this->attitudeSettings);
         this->rollPitchBiasRate = 0.0f;
         if (this->accel_alpha > 0.0f) {
             this->accel_filter_enabled = true;
         }
-        this->init = 1;
+        this->inittime = xTaskGetTickCount();
+        this->init     = 1;
+        // Allow running filter with custom MagKp for some time before reload settings
+    } else if (this->init == 1 && (!this->magCalibrated || (xTaskGetTickCount() - this->inittime > RELOADSETTINGS_DELAY_MS / portTICK_RATE_MS))) {
+        // Reload settings (all the rates)
+        AttitudeSettingsGet(&this->attitudeSettings);
+        this->init = 2;
     }
 
     // Compute the dT using the cpu clock
@@ -473,7 +481,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         return FILTERRESULT_WARNING;
     }
 
-    if (this->init) {
+    if (this->init > 0) {
         return FILTERRESULT_OK;
     } else {
         return FILTERRESULT_CRITICAL; // return "critical" for now, so users can see the zeroing period, switch to more graceful notification later

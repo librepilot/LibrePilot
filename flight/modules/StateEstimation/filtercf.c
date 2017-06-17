@@ -315,7 +315,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         this->attitudeSettings.YawBiasRate = 0.23f;
         this->accel_filter_enabled   = false;
         this->rollPitchBiasRate      = 0.01f;
-        this->attitudeSettings.MagKp = this->magCalibrated ? 1.0f : 0.0f;
+        this->attitudeSettings.MagKp = this->magCalibrated ? 20.0f : 0.0f;
         PIOS_NOTIFY_StartNotification(NOTIFY_DRAW_ATTENTION, NOTIFY_PRIORITY_REGULAR);
     } else if ((this->attitudeSettings.ZeroDuringArming == ATTITUDESETTINGS_ZERODURINGARMING_TRUE) && (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMING)) {
         this->attitudeSettings.AccelKp     = 1.0f;
@@ -323,7 +323,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         this->attitudeSettings.YawBiasRate = 0.23f;
         this->accel_filter_enabled   = false;
         this->rollPitchBiasRate      = 0.01f;
-        this->attitudeSettings.MagKp = this->magCalibrated ? 1.0f : 0.0f;
+        this->attitudeSettings.MagKp = this->magCalibrated ? 20.0f : 0.0f;
         this->init = 0;
         PIOS_NOTIFY_StartNotification(NOTIFY_DRAW_ATTENTION, NOTIFY_PRIORITY_REGULAR);
     } else if (this->init == 0) {

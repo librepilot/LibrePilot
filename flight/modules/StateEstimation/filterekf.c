@@ -223,7 +223,6 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
         UNSET_MASK(state->updated, SENSORUPDATES_vel);
         UNSET_MASK(state->updated, SENSORUPDATES_attitude);
         UNSET_MASK(state->updated, SENSORUPDATES_gyro);
-        UNSET_MASK(state->updated, SENSORUPDATES_mag);
         return FILTERRESULT_OK;
     }
 
@@ -387,15 +386,18 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
             local_down[2] *= MagStrength;
             rot_mult(R, local_down, this->work.mag);
         }
+        // From Eric: "exporting it in MagState was meant for debugging, but I think it makes a
+        // lot of sense to have a "corrected" magnetometer reading available in the system."
+        // TODO: Should move above calc to filtermag, updating from here cause trouble with the state->MagStatus (LP-534)
         // debug rotated mags
-        state->mag[0]   = this->work.mag[0];
-        state->mag[1]   = this->work.mag[1];
-        state->mag[2]   = this->work.mag[2];
-        state->updated |= SENSORUPDATES_mag;
-    } else {
-        // mag state is delayed until EKF processed it, allows overriding/debugging magnetometer estimate
-        UNSET_MASK(state->updated, SENSORUPDATES_mag);
-    }
+        // state->mag[0]   = this->work.mag[0];
+        // state->mag[1]   = this->work.mag[1];
+        // state->mag[2]   = this->work.mag[2];
+        // state->updated |= SENSORUPDATES_mag;
+    } // else {
+      // mag state is delayed until EKF processed it, allows overriding/debugging magnetometer estimate
+      // UNSET_MASK(state->updated, SENSORUPDATES_mag);
+      // }
 
     if (IS_SET(this->work.updated, SENSORUPDATES_baro)) {
         sensors |= BARO_SENSOR;

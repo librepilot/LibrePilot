@@ -83,6 +83,12 @@
            </item>
            <item>
             <widget class="QLabel" name="coord_value">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Unknown</string>
              </property>
@@ -106,6 +112,12 @@
            </item>
            <item>
             <widget class="QLabel" name="coord_value_2">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Unknown</string>
              </property>
@@ -153,7 +165,7 @@
            <item>
             <widget class="QLabel" name="alt_label">
              <property name="text">
-              <string>Alt :</string>
+              <string>Altitude (AMSL):</string>
              </property>
             </widget>
            </item>
@@ -175,6 +187,12 @@
            </item>
            <item>
             <widget class="QLabel" name="coord_value_3">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Unknown</string>
              </property>
@@ -241,6 +259,12 @@
            </item>
            <item>
             <widget class="QLabel" name="speed_value">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Unknown</string>
              </property>
@@ -290,6 +314,12 @@
            </item>
            <item>
             <widget class="QLabel" name="bear_value">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>Unknown</string>
              </property>
@@ -363,6 +393,12 @@
            </item>
            <item>
             <widget class="QLabel" name="dop_value">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>0 / 0 / 0</string>
              </property>
@@ -410,7 +446,7 @@
           </spacer>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="infoHorizontalLayout4" stretch="0,0,1,0,0,0,0,0,0,0">
+          <layout class="QHBoxLayout" name="infoHorizontalLayout4" stretch="0,0,1,0,0,0,0,0,0">
            <property name="spacing">
             <number>0</number>
            </property>
@@ -456,6 +492,12 @@
                <width>100</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
              </property>
              <property name="text">
               <string>Unknown</string>
@@ -515,28 +557,18 @@
             </spacer>
            </item>
            <item>
-            <spacer name="horizontalSpacer_12">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>6</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
             <widget class="QLabel" name="fix_value">
              <property name="minimumSize">
               <size>
                <width>100</width>
                <height>0</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
              </property>
              <property name="text">
               <string>Unknown</string>
@@ -575,7 +607,7 @@
           </spacer>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="infoHorizontalLayout5" stretch="0,0">
+          <layout class="QHBoxLayout" name="infoHorizontalLayout5" stretch="0,0,0,0">
            <property name="spacing">
             <number>0</number>
            </property>
@@ -583,12 +615,41 @@
             <number>0</number>
            </property>
            <item>
+            <widget class="QLabel" name="datetime_label">
+             <property name="text">
+              <string>Date &amp; time:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_22">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Minimum</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>6</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QLabel" name="time_value">
              <property name="maximumSize">
               <size>
                <width>16777215</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
              </property>
              <property name="text">
               <string>Unknown</string>
@@ -611,11 +672,20 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <property name="topMargin">
-            <number>0</number>
+          <spacer name="verticalSpacer_1">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-          </layout>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>4</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <spacer name="verticalSpacer">
@@ -917,7 +987,7 @@
             </palette>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Displays the SNR for each detected sat.&lt;/p&gt; &lt;ul&gt;&lt;li&gt; GPS satellites are shown in green&lt;/li&gt;&lt;li&gt; GLONASS in cyan&lt;/li&gt;&lt;li&gt; BeiDou in red&lt;/li&gt;&lt;li&gt; Galileo in magenta &lt;/li&gt;&lt;li&gt; SBAS/QZSS in orange &lt;li&gt;&lt;/ul&gt;&lt;p&gt; Satellite number (PRN) is displayed below the bar. &lt;br/&gt; Satellite SNR is displayed above (in dBHz )&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Displays the SNR for each detected satellite.&lt;/p&gt; &lt;ul&gt;&lt;li&gt; GPS satellites are shown in green&lt;/li&gt;&lt;li&gt; GLONASS in cyan&lt;/li&gt;&lt;li&gt; BeiDou in red&lt;/li&gt;&lt;li&gt; Galileo in magenta &lt;/li&gt;&lt;li&gt; SBAS/QZSS in orange &lt;li&gt;&lt;/ul&gt;&lt;p&gt; Satellite SNR is displayed above (in dBHz ) &lt;br/&gt; Satellite number (PRN) is displayed below the bar. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>

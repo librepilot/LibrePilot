@@ -47,7 +47,7 @@ public slots:
 private slots:
 
 private:
-    static const int MAX_SATTELITES = 16;
+    static const int MAX_SATTELITES = 24;
     int satellites[MAX_SATTELITES][4];
     QGraphicsScene *scene;
     QSvgRenderer *renderer;

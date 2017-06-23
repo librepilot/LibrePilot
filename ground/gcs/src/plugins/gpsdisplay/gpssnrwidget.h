@@ -16,7 +16,7 @@ public slots:
     void updateSat(int index, int prn, int elevation, int azimuth, int snr);
 
 private:
-    static const int MAX_SATTELITES = 16;
+    static const int MAX_SATTELITES = 24;
     int satellites[MAX_SATTELITES][4];
     QGraphicsScene *scene;
     QGraphicsRectItem *boxes[MAX_SATTELITES];

@@ -917,7 +917,7 @@
             </palette>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Displays the SNR for each detected sat.&lt;/p&gt; &lt;ul&gt;&lt;li&gt; GPS satellites are shown in green&lt;/li&gt;&lt;li&gt; GLONASS in cyan&lt;/li&gt;&lt;li&gt; BeiDou in red&lt;/li&gt;&lt;li&gt; Galileo in magenta &lt;/li&gt;&lt;li&gt; SBAS/QZSS in orange &lt;li&gt;&lt;/ul&gt;&lt;p&gt; Satellite number (PRN) is displayed inside the bar. &lt;br/&gt; Sat SNR is displayed above (in dBHz )&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Displays the SNR for each detected sat.&lt;/p&gt; &lt;ul&gt;&lt;li&gt; GPS satellites are shown in green&lt;/li&gt;&lt;li&gt; GLONASS in cyan&lt;/li&gt;&lt;li&gt; BeiDou in red&lt;/li&gt;&lt;li&gt; Galileo in magenta &lt;/li&gt;&lt;li&gt; SBAS/QZSS in orange &lt;li&gt;&lt;/ul&gt;&lt;p&gt; Satellite number (PRN) is displayed below the bar. &lt;br/&gt; Satellite SNR is displayed above (in dBHz )&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="autoFillBackground">
             <bool>false</bool>

@@ -192,8 +192,8 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
 
                     The recommendation is to limit the maximum number of simultaneously used GNSS to a value of 2.
                     This will help keep the number of tracked satellites in line.
-                */
-                if ( (ubx->header.class == 0x01) && ( (ubx->header.id == 0x30) || (ubx->header.id == 0x35) ) ) {
+                 */
+                if ((ubx->header.class == 0x01) && ((ubx->header.id == 0x30) || (ubx->header.id == 0x35))) {
                     restart_state = RESTART_NO_ERROR;
                 } else {
                     restart_state = RESTART_WITH_ERROR;

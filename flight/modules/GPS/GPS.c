@@ -109,12 +109,14 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev);
 // GPS_READ_BUFFER is defined a few lines below in this file.
 //
 // 57600 bps = 5760 bytes per second
+//
 // For 32 bytes buffer: this is a maximum of 5760/32 = 180 buffers per second
-//               that is 1/180 = 0.0056 seconds per packet
-//               We must never wait more than 5ms since packet was last drained or it may overflow
+// that is 1/180 = 0.0056 seconds per packet
+// We must never wait more than 5ms since packet was last drained or it may overflow
+//
 // For 128 bytes buffer: this is a maximum of 5760/128 = 45 buffers per second
-//               that is 1/45 = 0.022 seconds per packet
-//               We must never wait more than 22ms since packet was last drained or it may overflow
+// that is 1/45 = 0.022 seconds per packet
+// We must never wait more than 22ms since packet was last drained or it may overflow
 
 // There are two delays in play for the GPS task:
 // - GPS_BLOCK_ON_NO_DATA_MS is the time to block while waiting to receive serial data from the GPS
@@ -124,31 +126,31 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev);
 // are run often enough.
 // GPS_LOOP_DELAY_MS on the other hand, should be less then 5.55 ms. A value set too high will cause data to be dropped.
 
-#define GPS_LOOP_DELAY_MS          5
-#define GPS_BLOCK_ON_NO_DATA_MS    20
+#define GPS_LOOP_DELAY_MS        5
+#define GPS_BLOCK_ON_NO_DATA_MS  20
 
 #ifdef PIOS_GPS_SETS_HOMELOCATION
 // Unfortunately need a good size stack for the WMM calculation
-        #define STACK_SIZE_BYTES   1024
+        #define STACK_SIZE_BYTES 1024
 #else
 #if defined(PIOS_GPS_MINIMAL)
-        #define GPS_READ_BUFFER    32
+        #define GPS_READ_BUFFER  32
 
 #ifdef PIOS_INCLUDE_GPS_NMEA_PARSER
-        #define STACK_SIZE_BYTES   580 // NMEA
-#else  // PIOS_INCLUDE_GPS_NMEA_PARSER
-        #define STACK_SIZE_BYTES   440 // UBX
+        #define STACK_SIZE_BYTES 580 // NMEA
+#else // PIOS_INCLUDE_GPS_NMEA_PARSER
+        #define STACK_SIZE_BYTES 440 // UBX
 #endif // PIOS_INCLUDE_GPS_NMEA_PARSER
-#else  // PIOS_GPS_MINIMAL
-        #define STACK_SIZE_BYTES   650
+#else // PIOS_GPS_MINIMAL
+        #define STACK_SIZE_BYTES 650
 #endif // PIOS_GPS_MINIMAL
 #endif // PIOS_GPS_SETS_HOMELOCATION
 
 #ifndef GPS_READ_BUFFER
-#define GPS_READ_BUFFER            128
+#define GPS_READ_BUFFER          128
 #endif
 
-#define TASK_PRIORITY              (tskIDLE_PRIORITY + 1)
+#define TASK_PRIORITY            (tskIDLE_PRIORITY + 1)
 
 // ****************
 // Private variables
@@ -304,8 +306,7 @@ MODULE_INITCALL(GPSInitialize, GPSStart);
 
 static void gpsTask(__attribute__((unused)) void *parameters)
 {
-
-    uint32_t timeNowMs  = xTaskGetTickCount() * portTICK_RATE_MS;
+    uint32_t timeNowMs = xTaskGetTickCount() * portTICK_RATE_MS;
 
 #ifdef PIOS_GPS_SETS_HOMELOCATION
     portTickType homelocationSetDelay = 0;

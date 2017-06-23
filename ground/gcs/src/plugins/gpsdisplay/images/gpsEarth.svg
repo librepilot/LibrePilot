@@ -23,7 +23,7 @@
       <stop
          id="stop4514"
          offset="0"
-         style="stop-color:#ce00e0;stop-opacity:1" />
+         style="stop-color:#ee2eff;stop-opacity:1" />
       <stop
          id="stop4516"
          offset="1"
@@ -1595,7 +1595,7 @@
            cx="569.28571"
            transform="translate(0.08444214,2.2540576e-8)"
            id="path3712-3"
-           style="fill:url(#linearGradient3859-7-2);fill-opacity:1;stroke:#8d029a;stroke-width:1.56471384;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+           style="fill:url(#linearGradient3859-7-2);fill-opacity:1;stroke:#b503c6;stroke-width:1.56471384;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
         <circle
            r="20.714285"
            cy="195.93361"
@@ -1613,7 +1613,7 @@
            r="20.714285"
            cy="195.93361"
            cx="569.28571"
-           style="fill:#ce00e0;fill-opacity:1;stroke:#8d029a;stroke-width:1.56471384;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:#ee2eff;fill-opacity:1;stroke:#b503c6;stroke-width:1.56471384;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            id="path3891-0"
            transform="translate(0.08444214,2.2540576e-8)" />
         <circle

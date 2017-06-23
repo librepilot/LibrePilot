@@ -337,7 +337,7 @@ static void parse_ubx_nav_sol(struct UBXPacket *ubx, GPSPositionSensorData *GpsP
                 GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_FIX2D;
                 break;
             case STATUS_GPSFIX_3DFIX:
-                GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_FIX3D;
+                GpsPosition->Status = (sol->flags & STATUS_FLAGS_DIFFSOLN) ? GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS : GPSPOSITIONSENSOR_STATUS_FIX3D;
                 break;
             default: GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
             }
@@ -399,10 +399,18 @@ static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsP
     GpsPosition->Longitude       = pvt->lon;
     GpsPosition->Satellites      = pvt->numSV;
     GpsPosition->PDOP = pvt->pDOP * 0.01f;
+
     if (pvt->flags & PVT_FLAGS_GNSSFIX_OK) {
-        GpsPosition->Status = pvt->fixType == PVT_FIX_TYPE_3D ?
-                              GPSPOSITIONSENSOR_STATUS_FIX3D : GPSPOSITIONSENSOR_STATUS_FIX2D;
-    } else {
+        switch (pvt->fixType) {
+        case PVT_FIX_TYPE_2D:
+            GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_FIX2D;
+            break;
+        case PVT_FIX_TYPE_3D:
+            GpsPosition->Status = (pvt->flags & PVT_FLAGS_DIFFSOLN) ? GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS : GPSPOSITIONSENSOR_STATUS_FIX3D;
+            break;
+        default: GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
+        }
+    } else { // fix is not valid so we make sure to treat is as NOFIX
         GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
     }
 

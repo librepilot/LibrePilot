@@ -276,7 +276,7 @@ function gpsAltitude() {
 }
 
 function gpsStatus() {
-    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D"];
+    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D", "3D"];
 
     if (gpsStatusText.length != GPSPositionSensor.GPSPositionSensorConstants.StatusCount) {
         console.log("uav.js: gpsStatus() do not match gpsPositionSensor.status uavo");

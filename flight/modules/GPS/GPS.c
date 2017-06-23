@@ -416,7 +416,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                 //
                 // if (the fix is good) {
                 if ((gpspositionsensor.PDOP < gpsSettings.MaxPDOP) && (gpspositionsensor.Satellites >= gpsSettings.MinSatellites) &&
-                    (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
+                    ((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) || (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS)) &&
                     (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
                     AlarmsClear(SYSTEMALARMS_ALARM_GPS);
 #ifdef PIOS_GPS_SETS_HOMELOCATION
@@ -436,7 +436,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                     }
 #endif
                     // else if (we are at least getting what might be usable GPS data to finish a flight with) {
-                } else if ((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
+                } else if (((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) || (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS)) &&
                            (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
                     AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_WARNING);
                     // else data is probably not good enough to fly

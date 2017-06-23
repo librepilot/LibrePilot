@@ -94,6 +94,8 @@ void GpsDisplayWidget::setFixType(const QString &fixtype)
         fix_value->setText("2D");
     } else if (fixtype == "Fix3D") {
         fix_value->setText("3D");
+    } else if (fixtype == "Fix3DDGNSS") {
+        fix_value->setText("3D/DGNSS");
     } else {
         fix_value->setText("Unknown");
     }

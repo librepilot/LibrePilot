@@ -357,6 +357,7 @@ uint16_t build_GPS_message(struct hott_gps_message *msg)
         msg->gps_fix_char = '2';
         break;
     case GPSPOSITIONSENSOR_STATUS_FIX3D:
+    case GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS:
         msg->gps_fix_char = '3';
         break;
     default:

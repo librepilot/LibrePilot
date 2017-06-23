@@ -81,7 +81,7 @@ void GpsDisplayWidget::setDateTime(double date, double time)
     dstring2.sprintf("%06.0f", time);
     dstring2.insert(dstring2.length() - 2, ":");
     dstring2.insert(dstring2.length() - 5, ":");
-    time_value->setText(dstring1 + "    " + dstring2 + " GMT");
+    time_value->setText(dstring1 + "    " + dstring2 + " UTC");
 }
 
 void GpsDisplayWidget::setFixType(const QString &fixtype)
@@ -117,7 +117,6 @@ void GpsDisplayWidget::setSVs(int sv)
 
     temp.append(QString::number(sv));
     status_value->setText(temp);
-    status_value->adjustSize();
 }
 
 void GpsDisplayWidget::setDOP(double hdop, double vdop, double pdop)

@@ -143,7 +143,7 @@ static void gpspSystemTask(__attribute__((unused)) void *parameters)
         PIOS_WDG_UpdateFlag(PIOS_WDG_SYSTEM);
 #endif
         uint32_t ledPeriod = PIOS_DELAY_DiffuS(ledTimer) / 1000;
-        if (ledPeriod < HB_LED_BLINK_ON_PERIOD_MS) {
+        if (ledPeriod < HB_LED_BLINK_OFF_PERIOD_MS) {
             PIOS_LED_Off(PIOS_LED_HEARTBEAT);
         } else {
             PIOS_LED_On(PIOS_LED_HEARTBEAT);

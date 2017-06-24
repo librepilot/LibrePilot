@@ -62,7 +62,7 @@ static const struct pios_gpio pios_leds_gpsp[] = {
                 .GPIO_Speed = GPIO_Speed_Level_1,
             },
         },
-        .active_low         = false
+        .active_low         = true
     },
 };
 

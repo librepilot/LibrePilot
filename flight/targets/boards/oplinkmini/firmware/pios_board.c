@@ -437,7 +437,7 @@ static void PIOS_Board_PPM_callback(__attribute__((unused)) uint32_t context, co
 #if defined(PIOS_INCLUDE_PPM) && defined(PIOS_INCLUDE_PPM_OUT)
     if (pios_ppm_out_id) {
         for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-            if (channels[i] != PIOS_RCVR_INVALID) {
+            if ((channels[i] != PIOS_RCVR_INVALID) && (channels[i] != PIOS_RCVR_TIMEOUT)) {
                 PIOS_PPM_OUT_Set(PIOS_PPM_OUTPUT, i, channels[i]);
             }
         }
@@ -453,7 +453,7 @@ static void PIOS_Board_PPM_callback(__attribute__((unused)) uint32_t context, co
     }
 #if defined(PIOS_INCLUDE_SERVO)
     for (uint8_t i = 0; i < servo_count; ++i) {
-        uint16_t val = (channels[i] == PIOS_RCVR_INVALID) ? 0 : channels[i];
+        uint16_t val = ((channels[i] == PIOS_RCVR_INVALID) || (channels[i] == PIOS_RCVR_TIMEOUT)) ? 0 : channels[i];
         PIOS_Servo_Set(i, val);
     }
 #endif /* PIOS_INCLUDE_SERVO */

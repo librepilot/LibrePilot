@@ -46,6 +46,27 @@ defineTest(addCopyFileTarget) {
     export($${file}.target)
     export($${file}.depends)
     export($${file}.commands)
+
+defineTest(addCopyDependenciesTarget) {
+    file = $$1
+    src  = $$2/$$1
+    dest = $$3
+
+    target_file = $${OUT_PWD}/deps/$${file}.deps
+
+    target = $${file}_deps
+    $${target}.target    = $$target_file
+    $${target}.depends   = $$src
+
+    $${target}.commands  = -@$(MKDIR) \"$$dirname(target_file)\" $$addNewline()
+    $${target}.commands  += $$(PYTHON) $$(ROOT_DIR)/make/copy_dependencies.py --dest \"$$dest\" --files \"$$src\" --excludes OPENGL32.DLL > \"$$target_file\"
+
+    QMAKE_EXTRA_TARGETS += $$target
+    POST_TARGETDEPS += $$eval($${target}.target)
+
+    export($${target}.target)
+    export($${target}.depends)
+    export($${target}.commands)
     export(QMAKE_EXTRA_TARGETS)
     export(POST_TARGETDEPS)
 

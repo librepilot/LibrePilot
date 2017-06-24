@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <pios_i2c.h>
 #include <pios_helpers.h>
-#define GPS_I2C_ADDRESS              (0x42 << 1)
+#define GPS_I2C_ADDRESS              0x42
 #define GPS_I2C_STREAM_REG           0xFF
 #define GPS_I2C_STREAM_SIZE_HIGH_REG 0xFD
 #define GPS_I2C_STREAM_SIZE_LOW_REG  0xFE

@@ -41,7 +41,7 @@ Add the following lines at the end of your /etc/pacman.conf file:
 Start a MinGW-w64 Win64 Shell or a MinGW-w64 Win32 Shell.
 
     pacman -Sy
-    pacman -S --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-ccache mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl mingw-w64-i686-gdal-minimal mingw-w64-i686-OpenSceneGraph mingw-w64-i686-osgearth
+    pacman -S --needed git unzip tar mingw-w64-i686-toolchain mingw-w64-i686-ccache mingw-w64-i686-ntldd mingw-w64-i686-qt5 mingw-w64-i686-SDL mingw-w64-i686-mesa mingw-w64-i686-openssl mingw-w64-i686-gdal-minimal mingw-w64-i686-OpenSceneGraph mingw-w64-i686-osgearth
 
 Optionally install debug packages:
 
@@ -52,7 +52,7 @@ Optionally install debug packages:
 Start a MinGW-w64 Win64 Shell.
 
     pacman -Sy
-    pacman -S --needed git unzip tar mingw-w64-x86_64-toolchain mingw-w64-x86_64-ccache mingw-w64-x86_64-qt5 mingw-w64-x86_64-SDL mingw-w64-x86_64-mesa mingw-w64-x86_64-openssl mingw-w64-x86_64-gdal-minimal mingw-w64-x86_64-OpenSceneGraph mingw-w64-x86_64-osgearth
+    pacman -S --needed git unzip tar mingw-w64-x86_64-toolchain mingw-w64-x86_64-ccache mingw-w64-x86_64-ntldd mingw-w64-x86_64-qt5 mingw-w64-x86_64-SDL mingw-w64-x86_64-mesa mingw-w64-x86_64-openssl mingw-w64-x86_64-gdal-minimal mingw-w64-x86_64-OpenSceneGraph mingw-w64-x86_64-osgearth
 
 Optionally install debug packages:
 

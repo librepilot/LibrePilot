@@ -44,6 +44,7 @@
 #include "inc/gps9flashhandler.h"
 #include "inc/gps9protocol.h"
 #include "pios_board_info.h"
+#include "pios_board_init.h"
 
 extern uint32_t pios_com_main_id;
 
@@ -107,9 +108,17 @@ static void gpspSystemTask(__attribute__((unused)) void *parameters)
 #ifdef PIOS_INCLUDE_WDG
     PIOS_WDG_UpdateFlag(PIOS_WDG_SYSTEM);
 #endif
+
+    /* board driver init */
+    PIOS_Board_Init();
+
+    /* Initialize all modules */
+    MODULE_INITIALISE_ALL;
+
     while (!initTaskDone) {
         vTaskDelay(10);
     }
+
 #ifndef PIOS_INCLUDE_WDG
 // if no watchdog is enabled, don't reset watchdog in MODULE_TASKCREATE_ALL loop
 #define PIOS_WDG_Clear()
@@ -127,6 +136,7 @@ static void gpspSystemTask(__attribute__((unused)) void *parameters)
 #if defined(PIOS_INCLUDE_IAP)
     PIOS_IAP_WriteBootCount(0);
 #endif
+
     /* Right now there is no configuration and uart speed is fixed at 57600.
      * TODO:
      * 1) add a tiny ubx parser on gps side to intercept CFG-RINV and use that for config storage;

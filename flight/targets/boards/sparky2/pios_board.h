@@ -145,7 +145,7 @@ extern uint32_t pios_i2c_flexiport_adapter_id;
 // Inverter for SBUS handling
 #define PIOS_USART_INVERTER_PORT    USART6
 #define PIOS_USART_INVERTER_GPIO    GPIOC
-#define PIOS_USART_INVERTER_PIN     GPIO_Pin_4
+#define PIOS_USART_INVERTER_PIN     GPIO_Pin_6
 #define PIOS_USART_INVERTER_ENABLE  Bit_SET
 #define PIOS_USART_INVERTER_DISABLE Bit_RESET
 

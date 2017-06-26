@@ -94,8 +94,7 @@ int32_t GPSPSystemModStart(void)
  */
 int32_t GPSPSystemModInitialize(void)
 {
-    GPSPSystemModStart();
-
+    // Module started in main
     return 0;
 }
 

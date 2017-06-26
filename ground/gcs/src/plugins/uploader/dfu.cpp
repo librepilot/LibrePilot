@@ -365,7 +365,7 @@ QString DFUObject::DownloadDescription(int const & numberOfChars)
 
     StartDownloadT(&arr, numberOfChars, DFU::Descript);
 
-    int index = arr.indexOf(255);
+    int index = arr.indexOf((char)255);
     return QString((index == -1) ? arr : arr.left(index));
 }
 
@@ -778,7 +778,7 @@ DFU::Status DFUObject::UploadFirmwareT(const QString &sfile, const bool &verify,
         ++pad;
         pad = pad * 4;
         pad = pad - arr.length();
-        arr.append(QByteArray(pad, 255));
+        arr.append(QByteArray(pad, (char)255));
     }
     if (devices[device].SizeOfCode < (quint32)arr.length()) {
         if (debug) {
@@ -884,7 +884,7 @@ DFU::Status DFUObject::CompareFirmware(const QString &sfile, const CompareType &
         ++pad;
         pad = pad * 4;
         pad = pad - arr.length();
-        arr.append(QByteArray(pad, 255));
+        arr.append(QByteArray(pad, (char)255));
     }
     if (type == DFU::crccompare) {
         quint32 crc = DFUObject::CRCFromQBArray(arr, devices[device].SizeOfCode);
@@ -1033,7 +1033,7 @@ quint32 DFUObject::CRCFromQBArray(QByteArray array, quint32 Size)
 {
     quint32 pad   = Size - array.length();
 
-    array.append(QByteArray(pad, 255));
+    array.append(QByteArray(pad, (char)255));
     int num_words = Size / 4;
     quint32 *t    = (quint32 *)malloc(Size);
     for (int x = 0; x < num_words; x++) {

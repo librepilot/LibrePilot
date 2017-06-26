@@ -180,12 +180,12 @@ void ConfigStabilizationWidget::setupStabBanksGUI()
                 if (j != i) {
                     menuAction = new QAction(tr("from %1").arg(j + 1), this);
                     connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
-                    m_bankActionSignalMapper.setMapping(menuAction, QString("copy:%1:%2").arg(i).arg(j));
+                    m_bankActionSignalMapper.setMapping(menuAction, QString("copy:%1:%2").arg(j).arg(i));
                     copyMenu->addAction(menuAction);
 
                     menuAction = new QAction(tr("to %1").arg(j + 1), this);
                     connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
-                    m_bankActionSignalMapper.setMapping(menuAction, QString("copy:%1:%2").arg(j).arg(i));
+                    m_bankActionSignalMapper.setMapping(menuAction, QString("copy:%1:%2").arg(i).arg(j));
                     copyMenu->addAction(menuAction);
 
                     menuAction = new QAction(tr("with %1").arg(j + 1), this);

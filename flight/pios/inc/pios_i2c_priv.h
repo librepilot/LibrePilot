@@ -73,6 +73,8 @@ struct pios_i2c_adapter {
 
     uint8_t *active_byte;
     uint8_t *last_byte;
+
+    enum pios_i2c_transfer_result *transfer_result;
 };
 
 int32_t PIOS_I2C_Init(uint32_t *i2c_id, const struct pios_i2c_adapter_cfg *cfg);

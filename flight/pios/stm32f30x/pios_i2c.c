@@ -135,7 +135,6 @@ static void i2c_adapter_process_auto(struct pios_i2c_adapter *i2c_adapter, bool 
 static void i2c_adapter_inject_event(struct pios_i2c_adapter *i2c_adapter, enum i2c_adapter_event event, bool *woken);
 static void i2c_adapter_fsm_init(struct pios_i2c_adapter *i2c_adapter);
 static void i2c_adapter_reset_bus(struct pios_i2c_adapter *i2c_adapter);
-static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter, bool *woken);
 
 #if defined(PIOS_I2C_DIAGNOSTICS)
 static void i2c_adapter_log_fault(struct pios_i2c_adapter *i2c_adapter, enum pios_i2c_error_type type);
@@ -234,9 +233,18 @@ static void go_stopped(struct pios_i2c_adapter *i2c_adapter, bool *woken)
 {
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_NACKI | I2C_IT_RXI | I2C_IT_STOPI | I2C_IT_TXI, DISABLE);
 
-    if (i2c_adapter->callback) {
-        i2c_adapter_callback_handler(i2c_adapter, woken);
-    } else {
+    enum pios_i2c_transfer_result result =
+        i2c_adapter->bus_error ? PIOS_I2C_TRANSFER_BUS_ERROR :
+        i2c_adapter->nack ? PIOS_I2C_TRANSFER_NACK :
+        PIOS_I2C_TRANSFER_OK;
+
+    if (i2c_adapter->transfer_result) {
+        *(i2c_adapter->transfer_result) = result;
+    }
+
+    pios_i2c_callback cb = i2c_adapter->callback;
+
+    if (!cb) { /* No callback? Signal that we are done */
 #ifdef PIOS_INCLUDE_FREERTOS
         signed portBASE_TYPE pxHigherPriorityTaskWoken = pdFALSE;
         if (xSemaphoreGiveFromISR(i2c_adapter->sem_ready, &pxHigherPriorityTaskWoken) != pdTRUE) {
@@ -249,6 +257,23 @@ static void go_stopped(struct pios_i2c_adapter *i2c_adapter, bool *woken)
         }
 #endif /* PIOS_INCLUDE_FREERTOS */
     }
+
+#ifdef PIOS_INCLUDE_FREERTOS
+    /* Unlock the bus */
+    signed portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(i2c_adapter->sem_busy, &xHigherPriorityTaskWoken);
+    if (xHigherPriorityTaskWoken == pdTRUE) {
+        *woken = true;
+    }
+#else
+    PIOS_IRQ_Disable();
+    i2c_adapter->busy = 0;
+    PIOS_IRQ_Enable();
+#endif /* PIOS_INCLUDE_FREERTOS */
+
+    if (cb && cb(result)) { /* User provided callback? Do it, but with bus unlocked */
+        *woken = true;
+    }
 }
 
 static void go_starting(struct pios_i2c_adapter *i2c_adapter, __attribute__((unused)) bool *woken)
@@ -260,6 +285,7 @@ static void go_starting(struct pios_i2c_adapter *i2c_adapter, __attribute__((unu
     i2c_adapter->active_byte = &(i2c_adapter->active_txn->buf[0]);
     i2c_adapter->last_byte   = &(i2c_adapter->active_txn->buf[i2c_adapter->active_txn->len - 1]);
 
+    I2C_ClearITPendingBit(i2c_adapter->cfg->regs, I2C_IT_STOPI | I2C_IT_NACKI | I2C_IT_ERRI);
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_NACKI | I2C_IT_RXI | I2C_IT_STOPI | I2C_IT_TXI, ENABLE);
 
     I2C_TransferHandling(
@@ -305,8 +331,9 @@ static void go_nack(struct pios_i2c_adapter *i2c_adapter, __attribute__((unused)
 {
     i2c_adapter->nack = true;
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_ERRI | I2C_IT_TCI | I2C_IT_NACKI | I2C_IT_RXI | I2C_IT_STOPI | I2C_IT_TXI, DISABLE);
-    I2C_AcknowledgeConfig(i2c_adapter->cfg->regs, DISABLE);
-    I2C_GenerateSTOP(i2c_adapter->cfg->regs, ENABLE);
+    /* It seems that we don't need this with F3 i2c peripheral */
+    // I2C_AcknowledgeConfig(i2c_adapter->cfg->regs, DISABLE);
+    // I2C_GenerateSTOP(i2c_adapter->cfg->regs, ENABLE);
 }
 
 static void i2c_adapter_inject_event(struct pios_i2c_adapter *i2c_adapter, enum i2c_adapter_event event, bool *woken)
@@ -607,6 +634,7 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
 {
     // FIXME: only supports transfer sizes up to 255 bytes
     struct pios_i2c_adapter *i2c_adapter = (struct pios_i2c_adapter *)i2c_id;
+    enum pios_i2c_transfer_result result = PIOS_I2C_TRANSFER_UNSPECIFIED_ERROR;
 
     bool valid = PIOS_I2C_validate(i2c_adapter);
 
@@ -622,13 +650,13 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
     portTickType timeout;
     timeout = i2c_adapter->cfg->transfer_timeout_ms / portTICK_RATE_MS;
     if (xSemaphoreTake(i2c_adapter->sem_busy, timeout) == pdFALSE) {
-        return -2;
+        return PIOS_I2C_TRANSFER_BUSY;
     }
 #else
     PIOS_IRQ_Disable();
     if (i2c_adapter->busy) {
         PIOS_IRQ_Enable();
-        return -2;
+        return PIOS_I2C_TRANSFER_BUSY;
     }
     i2c_adapter->busy = 1;
     PIOS_IRQ_Enable();
@@ -636,6 +664,7 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
 
     PIOS_DEBUG_Assert(i2c_adapter->curr_state == I2C_STATE_STOPPED);
 
+    i2c_adapter->transfer_result = &result;
     i2c_adapter->last_txn   = &txn_list[num_txns - 1];
     i2c_adapter->active_txn = &txn_list[0];
     i2c_adapter->bus_error  = false;
@@ -657,30 +686,22 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
     xSemaphoreGive(i2c_adapter->sem_ready);
 #endif /* PIOS_INCLUDE_FREERTOS */
 
-#ifdef PIOS_INCLUDE_FREERTOS
-    /* Unlock the bus */
-    xSemaphoreGive(i2c_adapter->sem_busy);
+    /* After this point, the bus is already unlocked from ISR
+     * Touching i2c_adapter is not allowed */
 #if defined(PIOS_I2C_DIAGNOSTICS)
     if (!semaphore_success) {
         i2c_timeout_counter++;
+        result = PIOS_I2C_TRANSFER_TIMEOUT;
     }
 #endif
-#else
-    PIOS_IRQ_Disable();
-    i2c_adapter->busy = 0;
-    PIOS_IRQ_Enable();
-#endif /* PIOS_INCLUDE_FREERTOS */
-
-    return !semaphore_success ? -2 :
-           i2c_adapter->bus_error ? -1 :
-           i2c_adapter->nack ? -3 :
-           0;
+    return result;
 }
 
 static int32_t PIOS_I2C_Transfer_Callback_Internal(struct pios_i2c_adapter *i2c_adapter, const struct pios_i2c_txn txn_list[], uint32_t num_txns, pios_i2c_callback callback)
 {
     PIOS_DEBUG_Assert(i2c_adapter->curr_state == I2C_STATE_STOPPED);
 
+    i2c_adapter->transfer_result = 0;
     i2c_adapter->last_txn   = &txn_list[num_txns - 1];
     i2c_adapter->active_txn = &txn_list[0];
     i2c_adapter->bus_error  = false;
@@ -770,33 +791,6 @@ int32_t PIOS_I2C_Transfer_CallbackFromISR(uint32_t i2c_id, const struct pios_i2c
 
     return PIOS_I2C_Transfer_Callback_Internal(i2c_adapter, txn_list, num_txns, callback);
 }
-
-
-static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter, bool *woken)
-{
-#ifdef PIOS_INCLUDE_FREERTOS
-    /* Unlock the bus */
-    signed portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR(i2c_adapter->sem_busy, &xHigherPriorityTaskWoken);
-    if (xHigherPriorityTaskWoken == pdTRUE) {
-        *woken = true;
-    }
-#else
-    PIOS_IRQ_Disable();
-    i2c_adapter->busy = 0;
-    PIOS_IRQ_Enable();
-#endif /* PIOS_INCLUDE_FREERTOS */
-
-
-    // Execute user supplied function
-
-    if (i2c_adapter->callback()) {
-        *woken = true;
-    }
-
-    return !i2c_adapter->bus_error;
-}
-
 
 void PIOS_I2C_EV_IRQ_Handler(uint32_t i2c_id)
 {

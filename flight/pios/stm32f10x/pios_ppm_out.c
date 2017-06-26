@@ -35,7 +35,7 @@
 #include "pios_ppm_out_priv.h"
 
 #define PIOS_PPM_OUT_MAX_DEVS             1
-#define PIOS_PPM_OUT_MAX_CHANNELS         8
+#define PIOS_PPM_OUT_MAX_CHANNELS         8 + 1  // 8 RC channels + Rssi
 #define PIOS_PPM_OUT_FRAME_PERIOD_US      22500  // microseconds
 #define PIOS_PPM_OUT_HIGH_PULSE_US        400    // microseconds
 #define PIOS_PPM_OUT_MIN_CHANNEL_PULSE_US 1000 // microseconds

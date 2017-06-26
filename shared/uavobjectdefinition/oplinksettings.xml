@@ -1,22 +1,23 @@
 <xml>
 	<object name="OPLinkSettings" singleinstance="true" settings="true" category="System">
 		<description>OPLink configurations options.</description>
-                <field name="Protocol" units="" type="enum" elements="1" options="Disabled,OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="Disabled"/>
-                <field name="LinkType" units="" type="enum" elements="1" options="Data,Control,DataAndControl" defaultvalue="Data"/>
-                <field name="CoordID" units="hex" type="uint32" elements="1" defaultvalue="0"/>
+		<field name="Protocol" units="" type="enum" elements="1" options="Disabled,OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="Disabled"/>
+		<field name="LinkType" units="" type="enum" elements="1" options="Data,Control,DataAndControl" defaultvalue="Data"/>
+		<field name="CoordID" units="hex" type="uint32" elements="1" defaultvalue="0"/>
 		<field name="CustomDeviceID" units="hex" type="uint32" elements="1" defaultvalue="0"/>
 
-                <!-- port options -->
+		<!-- port options -->
 		<field name="MainPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
 		<field name="FlexiPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
+		<field name="PPMOutRSSI" units="" type="enum" elements="1" options="False,True" defaultvalue="False" description="Add RSSI to the PPM output stream (Ch9)"/>
 		<field name="RadioPriStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="HID"/>
-                <field name="RadioAuxStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="Disabled"/>
-                <field name="VCPBridge" units="connection" type="enum" elements="1" options="Disabled,Main,Flexi" defaultvalue="Disabled"/>
-                <field name="MainComSpeed" units="bps" type="enum" elements="1" options="Disabled,4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
-                <field name="FlexiComSpeed" units="bps" type="enum" elements="1" options="Disabled,4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
-                <field name="AirDataRate" units="bps" type="enum" elements="1" options="9600,19200,32000,57600,64000,100000,128000,192000,256000" defaultvalue="64000"/>
+		<field name="RadioAuxStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="Disabled"/>
+		<field name="VCPBridge" units="connection" type="enum" elements="1" options="Disabled,Main,Flexi" defaultvalue="Disabled"/>
+		<field name="MainComSpeed" units="bps" type="enum" elements="1" options="Disabled,4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
+		<field name="FlexiComSpeed" units="bps" type="enum" elements="1" options="Disabled,4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
+		<field name="AirDataRate" units="bps" type="enum" elements="1" options="9600,19200,32000,57600,64000,100000,128000,192000,256000" defaultvalue="64000"/>
 
-                <!-- OpenLRS options -->
+		<!-- OpenLRS options -->
 		<field name="Version" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="SerialBaudrate" units="bps" type="uint32" elements="1" defaultvalue="0"/>
 		<field name="RFFrequency" units="Hz" type="uint32" elements="1" defaultvalue="0"/>
@@ -24,7 +25,7 @@
 		<field name="RSSIType" units="function" type="enum" elements="1" options="Combined,RSSI,LinkQuality" defaultvalue="Combined"/> 
 		<field name="RFPower" units="" type="uint8" elements="1" defaultvalue="0"/>
 
-                <!-- RF options -->
+		<!-- RF options -->
 		<field name="RFXtalCap" units="" type="uint8" elements="1" defaultvalue="127" limits="%BE:0:171" description="0 to 171 range, default 127"/>
 		<field name="MinChannel" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="MaxChannel" units="" type="uint8" elements="1" defaultvalue="250"/>

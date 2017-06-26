@@ -82,6 +82,7 @@ ConfigOPLinkWidget::ConfigOPLinkWidget(QWidget *parent) : ConfigTaskWidget(paren
     addWidgetBinding("OPLinkSettings", "MaxRFPower", m_oplink->MaxRFTxPower);
     addWidgetBinding("OPLinkSettings", "MainPort", m_oplink->MainPort);
     addWidgetBinding("OPLinkSettings", "FlexiPort", m_oplink->FlexiPort);
+    addWidgetBinding("OPLinkSettings", "PPMOutRSSI", m_oplink->PPMoutRssi);
     addWidgetBinding("OPLinkSettings", "RadioPriStream", m_oplink->RadioPriStream);
     addWidgetBinding("OPLinkSettings", "RadioAuxStream", m_oplink->RadioAuxStream);
     addWidgetBinding("OPLinkSettings", "VCPBridge", m_oplink->VCPBridge);
@@ -263,6 +264,7 @@ void ConfigOPLinkWidget::updateSettings()
     bool is_receiver     = isComboboxOptionSelected(m_oplink->Protocol, OPLinkSettings::PROTOCOL_OPLINKRECEIVER);
     bool is_oplink = (is_receiver || is_coordinator);
     bool is_ppm_only     = isComboboxOptionSelected(m_oplink->LinkType, OPLinkSettings::LINKTYPE_CONTROL);
+    bool is_ppm = isComboboxOptionSelected(m_oplink->LinkType, OPLinkSettings::LINKTYPE_DATAANDCONTROL);
     bool is_main_serial  = isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_SERIAL);
     bool is_main_telem   = isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_TELEMETRY);
     bool is_flexi_serial = isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_SERIAL);
@@ -276,6 +278,9 @@ void ConfigOPLinkWidget::updateSettings()
                            isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_MAIN);
     bool is_stream_flexi = isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_FLEXI) ||
                            isComboboxOptionSelected(m_oplink->RadioAuxStream, OPLinkSettings::RADIOAUXSTREAM_FLEXI);
+
+    bool is_flexi_ppm    = isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_PPM);
+    bool is_main_ppm     = isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_PPM);
 
     if (!is_stream_main && !is_vcp_main && (is_main_serial || is_main_telem)) {
         setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
@@ -295,6 +300,9 @@ void ConfigOPLinkWidget::updateSettings()
 
     m_oplink->MainPort->setEnabled(is_oplink || is_vcp_main);
     m_oplink->FlexiPort->setEnabled(is_oplink || is_vcp_flexi);
+
+    m_oplink->PPMoutRssi->setEnabled(is_receiver && (is_ppm || is_ppm_only) && (is_flexi_ppm || is_main_ppm));
+
     m_oplink->MainComSpeed->setEnabled(is_oplink && !is_ppm_only && !is_vcp_main && (is_main_serial || is_main_telem));
     m_oplink->FlexiComSpeed->setEnabled(is_oplink && !is_ppm_only && !is_vcp_flexi && (is_flexi_serial || is_flexi_telem));
     m_oplink->CoordID->setEnabled(is_receiver || is_openlrs);
@@ -416,6 +424,9 @@ void ConfigOPLinkWidget::mainPortChanged()
 {
     switch (getComboboxSelectedOption(m_oplink->MainPort)) {
     case OPLinkSettings::MAINPORT_PPM:
+        if (isComboboxOptionSelected(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_PPM)) {
+            setComboboxSelectedOption(m_oplink->FlexiPort, OPLinkSettings::FLEXIPORT_DISABLED);
+        }
     case OPLinkSettings::MAINPORT_PWM:
     case OPLinkSettings::MAINPORT_DISABLED:
         if (isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_MAIN)) {
@@ -439,12 +450,16 @@ void ConfigOPLinkWidget::mainPortChanged()
     default:
         break;
     }
+    updateSettings();
 }
 
 void ConfigOPLinkWidget::flexiPortChanged()
 {
     switch (getComboboxSelectedOption(m_oplink->FlexiPort)) {
     case OPLinkSettings::FLEXIPORT_PPM:
+        if (isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_PPM)) {
+            setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_DISABLED);
+        }
     case OPLinkSettings::FLEXIPORT_PWM:
     case OPLinkSettings::FLEXIPORT_DISABLED:
         if (isComboboxOptionSelected(m_oplink->RadioPriStream, OPLinkSettings::RADIOPRISTREAM_FLEXI)) {
@@ -462,14 +477,13 @@ void ConfigOPLinkWidget::flexiPortChanged()
         if (isComboboxOptionSelected(m_oplink->MainPort, OPLinkSettings::MAINPORT_TELEMETRY)) {
             setComboboxSelectedOption(m_oplink->MainPort, OPLinkSettings::MAINPORT_SERIAL);
         }
-        m_oplink->FlexiComSpeed->setEnabled(true);
-        break;
     case OPLinkSettings::FLEXIPORT_SERIAL:
         m_oplink->FlexiComSpeed->setEnabled(true);
         break;
     default:
         break;
     }
+    updateSettings();
 }
 
 void ConfigOPLinkWidget::radioPriStreamChanged()

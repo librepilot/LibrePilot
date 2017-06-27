@@ -2,6 +2,7 @@
  ******************************************************************************
  *
  * @file       gpsdisplaywidget.h
+ * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
  * @author     Edouard Lafargue Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -56,6 +57,5 @@ private slots:
 
 private:
     GpsConstellationWidget *gpsConstellation;
-    QGraphicsSvgItem *marker;
 };
 #endif /* GPSDISPLAYWIDGET_H_ */

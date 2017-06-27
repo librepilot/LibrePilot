@@ -2,6 +2,7 @@
  ******************************************************************************
  *
  * @file       gpsdisplaywidget.cpp
+ * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
  * @author     Edouard Lafargue Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -45,19 +46,6 @@
 GpsDisplayWidget::GpsDisplayWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
-
-    // Not elegant, just load the image for now
-    QGraphicsScene *fescene = new QGraphicsScene(this);
-    QPixmap earthpix(":/gpsgadget/images/flatEarth.png");
-    fescene->addPixmap(earthpix);
-    flatEarth->setScene(fescene);
-    marker = new QGraphicsSvgItem();
-    QSvgRenderer *renderer = new QSvgRenderer();
-    renderer->load(QString(":/gpsgadget/images/marker.svg"));
-    marker->setSharedRenderer(renderer);
-    fescene->addItem(marker);
-    double scale = earthpix.width() / (marker->boundingRect().width() * 20);
-    marker->setScale(scale);
 }
 
 GpsDisplayWidget::~GpsDisplayWidget()
@@ -158,10 +146,5 @@ void GpsDisplayWidget::setPosition(double lat, double lon, double alt)
     str3.sprintf("%.2f m", alt);
     coord_value_3->setText(str3);
 
-    // Now place the marker:
-    double wscale = flatEarth->sceneRect().width() / 360;
-    double hscale = flatEarth->sceneRect().height() / 180;
-    QPointF opd   = QPointF((lon + 180) * wscale - marker->boundingRect().width() * marker->scale() / 2,
-                            (90 - lat) * hscale - marker->boundingRect().height() * marker->scale() / 2);
-    marker->setTransform(QTransform::fromTranslate(opd.x(), opd.y()), false);
+    flatEarth->setPosition(lat, lon);
 }

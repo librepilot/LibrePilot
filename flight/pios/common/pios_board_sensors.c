@@ -38,9 +38,7 @@
 # include <pios_mpu6000_config.h>
 #endif
 
-#ifdef PIOS_INCLUDE_MS5611
-# include <pios_ms5611.h>
-#endif
+# include <pios_ms56xx.h>
 
 #ifdef PIOS_INCLUDE_BMP280
 # include <pios_bmp280.h>
@@ -190,13 +188,13 @@ void PIOS_BOARD_Sensors_Configure()
 # endif /* PIOS_INCLUDE_HMC5X83 */
 
     // internal ms5611 baro
-#if defined(PIOS_INCLUDE_MS5611)
-    const struct pios_ms5611_cfg *ms5611_cfg = PIOS_BOARD_HW_DEFS_GetMS5611Cfg(pios_board_info_blob.board_rev);
-    if (ms5611_cfg) {
-        PIOS_MS5611_Init(ms5611_cfg, PIOS_I2C_MS5611_INTERNAL_ADAPTER);
-        PIOS_MS5611_Register();
+#ifdef PIOS_INCLUDE_MS56XX
+    const struct pios_ms56xx_cfg *ms56xx_cfg = PIOS_BOARD_HW_DEFS_GetMS56xxCfg(pios_board_info_blob.board_rev);
+    if (ms56xx_cfg) {
+        PIOS_MS56xx_Init(ms56xx_cfg, PIOS_I2C_MS56XX_INTERNAL_ADAPTER);
+        PIOS_MS56xx_Register();
     }
-#endif
+#endif /* PIOS_INCLUDE_MS56XX */
 
 #ifdef PIOS_INCLUDE_BMP280
     const struct pios_bmp280_cfg *bmp280_cfg = PIOS_BOARD_HW_DEFS_GetBMP280Cfg(pios_board_info_blob.board_rev);

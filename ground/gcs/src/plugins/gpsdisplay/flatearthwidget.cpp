@@ -3,7 +3,7 @@
  *
  * @file       flatearthwidget.cpp
  * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
- * @author     Edouard Lafargue Copyright (C) 2010.
+ *             Edouard Lafargue Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup FlatEarthWidget FlatEarth Widget Plugin
@@ -26,6 +26,8 @@
  */
 
 #include "flatearthwidget.h"
+#include <QtSvg/QSvgRenderer>
+#include <QtSvg/QGraphicsSvgItem>
 #include <math.h> /* fabs */
 
 #define MARKER_SIZE 40.0
@@ -44,7 +46,7 @@ FlatEarthWidget::FlatEarthWidget(QWidget *parent) : QGraphicsView(parent)
 
     // Draw the earth
     earthScene = new QGraphicsScene(this);
-    QPixmap earthpix(":/gpsgadget/images/flatEarth.png");
+    QPixmap earthpix(":/gpsgadget/images/flatEarth.jpg");
     earthPixmapItem = earthScene->addPixmap(earthpix);
     this->setScene(earthScene);
 
@@ -57,7 +59,10 @@ FlatEarthWidget::FlatEarthWidget(QWidget *parent) : QGraphicsView(parent)
 }
 
 FlatEarthWidget::~FlatEarthWidget()
-{}
+{
+    delete earthScene;
+    earthScene = NULL;
+}
 
 /*
  * Refresh the map on first showing
@@ -86,24 +91,20 @@ void FlatEarthWidget::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event)
 
-    // toggle zoom state
-    if (zoomedin) {
-        zoomedin = false;
-    } else {
-        zoomedin = true;
-    }
+    // toggle zoom state and refresh the map
+    zoomedin = !zoomedin;
     refreshMap();
 }
 
 /*
  * Update the position of the marker on the map
  */
-void FlatEarthWidget::setPosition(double lat, double lon)
+void FlatEarthWidget::setPosition(double lat, double lon, bool forceUpdate)
 {
     /* Only perform this expensive graphics operation if the position has changed enough
-       to be visible on the map.
+       to be visible on the map. Or if an update is requested by force.
      */
-    if (fabs(oldLat - lat) > 0.1 || fabs(oldLon - lon) > 0.1) {
+    if (fabs(oldLat - lat) > 0.1 || fabs(oldLon - lon) > 0.1 || forceUpdate) {
         double wscale = this->sceneRect().width() / 360;
         double hscale = this->sceneRect().height() / 180;
         QPointF opd   = QPointF((lon + 180) * wscale - marker->boundingRect().width() * marker->scale() / 2,
@@ -127,6 +128,9 @@ void FlatEarthWidget::refreshMap(void)
     double markerScale;
 
     if (zoomedin) {
+        // Hide the marker
+        marker->setVisible(false);
+
         // Zoom the map to it's native resolution
         this->resetTransform();
 
@@ -136,14 +140,23 @@ void FlatEarthWidget::refreshMap(void)
         // Rescale the marker dimensions to keep the same appearance in both zoom levels
         markerScale = MARKER_SIZE / 100.0 * (double)this->rect().width() / (double)(earthPixmapItem->boundingRect().width());
         marker->setScale(markerScale);
+
+        // Show the marker again
+        marker->setVisible(true);
     } else {
+        // Hide the marker
+        marker->setVisible(false);
+
         // Fit the whole world
         this->fitInView(earthPixmapItem, Qt::KeepAspectRatio);
 
         // Rescale the marker dimensions to keep the same appearance in both zoom levels
         markerScale = MARKER_SIZE / 100.0;
         marker->setScale(markerScale);
+
+        // Show the marker again
+        marker->setVisible(true);
     }
-    // force an update of the marker position by giving the position a nudge
-    this->setPosition(oldLat - 0.2, oldLon);
+    // force an update of the marker position
+    this->setPosition(oldLat, oldLon, true);
 }

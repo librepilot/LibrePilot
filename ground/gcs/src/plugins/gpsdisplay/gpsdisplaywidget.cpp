@@ -3,7 +3,7 @@
  *
  * @file       gpsdisplaywidget.cpp
  * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
- * @author     Edouard Lafargue Copyright (C) 2010.
+ *             Edouard Lafargue Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup GPSGadgetPlugin GPS Gadget Plugin

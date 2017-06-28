@@ -28,8 +28,7 @@
 #define FLATEARTHWIDGET_H_
 
 #include <QGraphicsView>
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
+class QGraphicsSvgItem;
 
 class FlatEarthWidget : public QGraphicsView {
     Q_OBJECT
@@ -37,7 +36,7 @@ class FlatEarthWidget : public QGraphicsView {
 public:
     explicit FlatEarthWidget(QWidget *parent = 0);
     ~FlatEarthWidget();
-    void setPosition(double, double);
+    void setPosition(double, double, bool forceUpdate = false);
 
 protected:
     void showEvent(QShowEvent *event);

@@ -20,7 +20,7 @@ GpsSnrWidget::GpsSnrWidget(QWidget *parent) :
 
         satTexts[i] = new QGraphicsSimpleTextItem("###", boxes[i]);
         satTexts[i]->setBrush(QColor("Black"));
-        satTexts[i]->setFont(QFont("Arial"));
+        satTexts[i]->setFont(QFont("Digital-7"));
 
         satSNRs[i] = new QGraphicsSimpleTextItem("##", boxes[i]);
         satSNRs[i]->setBrush(QColor("Black"));
@@ -69,6 +69,7 @@ void GpsSnrWidget::updateSat(int index, int prn, int elevation, int azimuth, int
 }
 
 #define PRN_TEXTAREA_HEIGHT 20
+#define SIDE_MARGIN         15
 
 void GpsSnrWidget::drawSat(int index)
 {
@@ -80,8 +81,6 @@ void GpsSnrWidget::drawSat(int index)
     const int prn = satellites[index][0];
     const int snr = satellites[index][3];
     if (prn && snr) {
-        boxes[index]->show();
-
         // When using integer values, width and height are the
         // box width and height, but the left and bottom borders are drawn on the box,
         // and the top and right borders are drawn just next to the box.
@@ -90,14 +89,21 @@ void GpsSnrWidget::drawSat(int index)
 
         // Casting to int rounds down, which is what I want.
         // Minus 2 to allow a pixel of white left and right.
-        int availableWidth = (int)((scene->width() - 2) / MAX_SATELLITES);
+        int availableWidth = (int)((scene->width() - 2 - 2 * SIDE_MARGIN) / MAX_SATELLITES);
 
-        // 2 pixels, one on each side.
+        // If there is no space, don't draw anything.
+        if (availableWidth <= 0) {
+            return;
+        }
+
+        boxes[index]->show();
+
+        // 2 pixels extra one on each side.
         qreal width  = availableWidth - 2;
         // SNR = 1-99 (0 is special)..
         qreal height = int(((scene->height() - PRN_TEXTAREA_HEIGHT) / 99) * snr + 0.5);
-        // 1 for showing a pixel of white to the left.
-        qreal x = availableWidth * index + 1;
+        // 1 for showing a pixel of white extra to the left.
+        qreal x = availableWidth * index + 1 + SIDE_MARGIN;
         // Rember, 0 is at the top.
         qreal y = scene->height() - height - PRN_TEXTAREA_HEIGHT;
         // Compensate for the extra pixel for the border.
@@ -136,7 +142,7 @@ void GpsSnrWidget::drawSat(int index)
         // Reposition PRN numbers below the bar and rescale
         QTransform matrix;
         // rescale based on the textRect height because it depends less on the number of digits:
-        qreal scale = 0.56 * (boxRect.width() / textRect.height());
+        qreal scale = 0.68 * (boxRect.width() / textRect.height());
         matrix.translate(boxRect.width() / 2, boxRect.height());
         matrix.scale(scale, scale);
         matrix.translate(-textRect.width() / 2, 0);

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configgadgetwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2017.
  *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -37,6 +37,7 @@
 #include "configtxpidwidget.h"
 #include "configrevohwwidget.h"
 #include "config_cc_hw_widget.h"
+#include "configautotunewidget.h"
 #include "configoplinkwidget.h"
 #include "configrevowidget.h"
 #include "configrevonanohwwidget.h"
@@ -131,6 +132,12 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     stackWidget->insertTab(ConfigGadgetWidget::TxPid, widget, *icon, QString("TxPID"));
 
     icon   = new QIcon();
+    icon->addFile(":/configgadget/images/autotune_normal.png", QSize(), QIcon::Normal, QIcon::Off);
+    icon->addFile(":/configgadget/images/autotune_selected.png", QSize(), QIcon::Selected, QIcon::Off);
+    widget = new DefaultConfigWidget(this, tr("AutoTune Configuration"));
+    stackWidget->insertTab(ConfigGadgetWidget::AutoTune, widget, *icon, QString("AutoTune"));
+
+    icon   = new QIcon();
     icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new DefaultConfigWidget(this, tr("OPLink Configuration"));
@@ -223,6 +230,9 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigRevoWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+            widget = new ConfigAutoTuneWidget(this);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::AutoTune, widget);
             if (board == 0x0903 || board == 0x0904) {
                 widget = new ConfigRevoHWWidget(this);
             } else if (board == 0x0905) {
@@ -236,6 +246,9 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigRevoWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+            widget = new ConfigAutoTuneWidget(this);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::AutoTune, widget);
             widget = new ConfigSparky2HWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
@@ -278,6 +291,9 @@ void ConfigGadgetWidget::onAutopilotDisconnect()
 
     widget = new DefaultConfigWidget(this, tr("Hardware"));
     stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
+
+    widget = new DefaultConfigWidget(this, tr("AutoTune"));
+    stackWidget->replaceTab(ConfigGadgetWidget::AutoTune, widget);
 }
 
 void ConfigGadgetWidget::onOPLinkConnect()

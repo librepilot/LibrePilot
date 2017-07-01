@@ -1,173 +1,100 @@
+/**
+ ****************************************************************************************
+ *
+ * @file       configautotunewidget.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @addtogroup GCSPlugins GCS Plugins
+ * @{
+ * @addtogroup ConfigPlugin Config Plugin
+ * @{
+ * @brief The Configuration Gadget used to configure autotune module
+ ***************************************************************************************/
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #include "configautotunewidget.h"
 
 #include "ui_autotune.h"
 
-#include "relaytuningsettings.h"
-#include "relaytuning.h"
-#include "stabilizationsettings.h"
+#include <uavobjectutilmanager.h>
+
+#include <systemidentsettings.h>
+#include <systemidentstate.h>
 #include "hwsettings.h"
 
+#include <QMessageBox>
 #include <QDebug>
-#include <QStringList>
-#include <QWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDesktopServices>
-#include <QUrl>
-#include <QList>
 
-ConfigAutotuneWidget::ConfigAutotuneWidget(QWidget *parent) :
-    ConfigTaskWidget(parent)
+
+ConfigAutoTuneWidget::ConfigAutoTuneWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
-    m_autotune = new Ui_AutotuneWidget();
+    m_autotune = new Ui_AutoTuneWidget();
     m_autotune->setupUi(this);
 
     // must be done before auto binding !
-    // setWikiURL("");
+    setWikiURL("AutoTune+Configuration");
 
     addAutoBindings();
 
+    addUAVObject("HwSettings");
+
     disableMouseWheelEvents();
 
-    // Whenever any value changes compute new potential stabilization settings
-    connect(m_autotune->rateTuning, SIGNAL(valueChanged(int)), this, SLOT(recomputeStabilization()));
-    connect(m_autotune->attitudeTuning, SIGNAL(valueChanged(int)), this, SLOT(recomputeStabilization()));
+    systemIdentStateObj    = dynamic_cast<SystemIdentState *>(getObject("SystemIdentState"));
+    Q_ASSERT(systemIdentStateObj);
 
-    addUAVObject("HwSettings");
-    addWidget(m_autotune->enableAutoTune);
+    systemIdentSettingsObj = dynamic_cast<SystemIdentSettings *>(getObject("SystemIdentSettings"));
+    Q_ASSERT(systemIdentSettingsObj);
 
-    RelayTuning *relayTuning = RelayTuning::GetInstance(getObjectManager());
-    Q_ASSERT(relayTuning);
-    if (relayTuning) {
-        connect(relayTuning, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(recomputeStabilization()));
-    }
-
-    // Connect the apply button for the stabilization settings
-    connect(m_autotune->useComputedValues, SIGNAL(pressed()), this, SLOT(saveStabilization()));
+    addWidget(m_autotune->AutotuneEnable);
 }
 
-/**
- * Apply the stabilization settings computed
+ConfigAutoTuneWidget::~ConfigAutoTuneWidget()
+{
+    // Do nothing
+}
+
+/*
+ * This overridden function refreshes widgets which have no direct relation
+ * to any of UAVObjects. It saves their dirty state first because update comes
+ * from UAVObjects, and then restores it.
  */
-void ConfigAutotuneWidget::saveStabilization()
+void ConfigAutoTuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    StabilizationSettings *stabilizationSettings = StabilizationSettings::GetInstance(getObjectManager());
+    if (obj == systemIdentStateObj) {
+        m_autotune->stateComplete->setText((systemIdentStateObj->getComplete() == SystemIdentState::COMPLETE_TRUE) ? tr("True") : tr("False"));
+    } else {
+        HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
 
-    Q_ASSERT(stabilizationSettings);
-    if (!stabilizationSettings) {
-        return;
+        m_autotune->AutotuneEnable->setChecked(hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
     }
-
-    // Make sure to recompute in case the other stab settings changed since
-    // the last time
-    recomputeStabilization();
-
-    // Apply this data to the board
-    stabilizationSettings->setData(stabSettings);
-    stabilizationSettings->updated();
 }
 
-/**
- * Called whenever the gain ratios or measured values
- * are changed
+/*
+ * This overridden function updates UAVObjects which have no direct relation
+ * to any of widgets.
  */
-void ConfigAutotuneWidget::recomputeStabilization()
+void ConfigAutoTuneWidget::updateObjectsFromWidgetsImpl()
 {
-    RelayTuningSettings *relayTuningSettings = RelayTuningSettings::GetInstance(getObjectManager());
-
-    Q_ASSERT(relayTuningSettings);
-    if (!relayTuningSettings) {
-        return;
-    }
-
-    RelayTuning *relayTuning = RelayTuning::GetInstance(getObjectManager());
-    Q_ASSERT(relayTuning);
-    if (!relayTuning) {
-        return;
-    }
-
-    StabilizationSettings *stabilizationSettings = StabilizationSettings::GetInstance(getObjectManager());
-    Q_ASSERT(stabilizationSettings);
-    if (!stabilizationSettings) {
-        return;
-    }
-
-    RelayTuning::DataFields relayTuningData = relayTuning->getData();
-    RelayTuningSettings::DataFields tuningSettingsData = relayTuningSettings->getData();
-    stabSettings = stabilizationSettings->getData();
-
-    // Need to divide these by 100 because that is what the .ui file does
-    // to get the UAVO
-    const double gain_ratio_r = m_autotune->rateTuning->value() / 100.0;
-    const double zero_ratio_r = m_autotune->rateTuning->value() / 100.0;
-    const double gain_ratio_p = m_autotune->attitudeTuning->value() / 100.0;
-    const double zero_ratio_p = m_autotune->attitudeTuning->value() / 100.0;
-
-    // For now just run over roll and pitch
-    for (int i = 0; i < 2; i++) {
-        if (relayTuningData.Period[i] == 0 || relayTuningData.Gain[i] == 0) {
-            continue;
-        }
-
-        double wu  = 1000.0 * 2 * M_PI / relayTuningData.Period[i]; // ultimate freq = output osc freq (rad/s)
-
-        double wc  = wu * gain_ratio_r;      // target openloop crossover frequency (rad/s)
-        double zc  = wc * zero_ratio_r;      // controller zero location (rad/s)
-        double kpu = 4.0f / M_PI / relayTuningData.Gain[i]; // ultimate gain, i.e. the proportional gain for instablity
-        double kp  = kpu * gain_ratio_r;     // proportional gain
-        double ki  = zc * kp;                // integral gain
-
-        // Now calculate gains for the next loop out knowing it is the integral of
-        // the inner loop -- the plant is position/velocity = scale*1/s
-        double wc2 = wc * gain_ratio_p; // crossover of the attitude loop
-        double kp2 = wc2; // kp of attitude
-        double ki2 = wc2 * zero_ratio_p * kp2; // ki of attitude
-
-        switch (i) {
-        case 0: // Roll
-
-            stabSettings.RollRatePID[StabilizationSettings::ROLLRATEPID_KP] = kp;
-            stabSettings.RollRatePID[StabilizationSettings::ROLLRATEPID_KI] = ki;
-            stabSettings.RollPI[StabilizationSettings::ROLLPI_KP] = kp2;
-            stabSettings.RollPI[StabilizationSettings::ROLLPI_KI] = ki2;
-            break;
-        case 1: // Pitch
-            stabSettings.PitchRatePID[StabilizationSettings::PITCHRATEPID_KP] = kp;
-            stabSettings.PitchRatePID[StabilizationSettings::PITCHRATEPID_KI] = ki;
-            stabSettings.PitchPI[StabilizationSettings::PITCHPI_KP] = kp2;
-            stabSettings.PitchPI[StabilizationSettings::PITCHPI_KI] = ki2;
-            break;
-        }
-    }
-
-    // Display these computed settings
-    m_autotune->rollRateKp->setText(QString().number(stabSettings.RollRatePID[StabilizationSettings::ROLLRATEPID_KP]));
-    m_autotune->rollRateKi->setText(QString().number(stabSettings.RollRatePID[StabilizationSettings::ROLLRATEPID_KI]));
-    m_autotune->rollAttitudeKp->setText(QString().number(stabSettings.RollPI[StabilizationSettings::ROLLPI_KP]));
-    m_autotune->rollAttitudeKi->setText(QString().number(stabSettings.RollPI[StabilizationSettings::ROLLPI_KI]));
-    m_autotune->pitchRateKp->setText(QString().number(stabSettings.PitchRatePID[StabilizationSettings::PITCHRATEPID_KP]));
-    m_autotune->pitchRateKi->setText(QString().number(stabSettings.PitchRatePID[StabilizationSettings::PITCHRATEPID_KI]));
-    m_autotune->pitchAttitudeKp->setText(QString().number(stabSettings.PitchPI[StabilizationSettings::PITCHPI_KP]));
-    m_autotune->pitchAttitudeKi->setText(QString().number(stabSettings.PitchPI[StabilizationSettings::PITCHPI_KI]));
-}
-
-void ConfigAutotuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
-{
+    // Save state of the module enable checkbox first.
+    // Do not use setData() member on whole object, if possible, since it triggers unnecessary UAVObect update.
+    quint8 enableModule    = m_autotune->AutotuneEnable->isChecked() ?
+                             HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-
-    if (obj == hwSettings) {
-        bool enabled = (hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
-        m_autotune->enableAutoTune->setChecked(enabled);
-    }
-}
-
-void ConfigAutotuneWidget::updateObjectsFromWidgetsImpl()
-{
-    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-
-    quint8 enableModule    = (m_autotune->enableAutoTune->isChecked()) ? HwSettings::OPTIONALMODULES_ENABLED : HwSettings::OPTIONALMODULES_DISABLED;
 
     hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE, enableModule);
-    ;
 }

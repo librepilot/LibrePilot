@@ -258,19 +258,16 @@ int32_t PIOS_MS56xx_ReadADC(void)
             Sens2 = 0;
         }
         RawPressure = ((Data[0] << 16) | (Data[1] << 8) | Data[2]);
-        // Offset at actual temperature
+
+        // Offset and sensitivity at actual temperature
         if (version == MS56XX_VERSION_5611) {
             // OFF = OFFT1 + TCO * dT = C2 * 2^16 + (C4 * dT) / 2^7
             Offset   = ((int64_t)CalibData.C[1]) * POW2(16) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(7) - Offset2;
-        } else {
-            // OFF = OFFT1 + TCO * dT = C2 * 2^17 + (C4 * dT) / 2^6
-            Offset   = ((int64_t)CalibData.C[1]) * POW2(17) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(6) - Offset2;
-        }
-        // Sensitivity at actual temperature
-        if (version == MS56XX_VERSION_5611) {
             // SENS = SENST1 + TCS * dT = C1 * 2^15 + (C3 * dT) / 2^8
             Sens     = ((int64_t)CalibData.C[0]) * POW2(15) + (((int64_t)CalibData.C[2]) * deltaTemp) / POW2(8) - Sens2;
         } else {
+            // OFF = OFFT1 + TCO * dT = C2 * 2^17 + (C4 * dT) / 2^6
+            Offset   = ((int64_t)CalibData.C[1]) * POW2(17) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(6) - Offset2;
             // SENS = SENST1 + TCS * dT = C1 * 2^16 + (C3 * dT) / 2^7
             Sens     = ((int64_t)CalibData.C[0]) * POW2(16) + (((int64_t)CalibData.C[2]) * deltaTemp) / POW2(7) - Sens2;
         }

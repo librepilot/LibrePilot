@@ -2,13 +2,13 @@
  ******************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
- * @addtogroup PIOS_MS5611 MS5611 Functions
+ * @addtogroup PIOS_MS5611 MS56XX Functions
  * @brief Hardware functions to deal with the altitude pressure sensor
  * @{
  *
- * @file       pios_ms5611.h
+ * @file       pios_ms56xx.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @brief      MS5611 functions header.
+ * @brief      MS56XX functions header.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -28,8 +28,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PIOS_MS5611_H
-#define PIOS_MS5611_H
+#ifndef PIOS_MS56XX_H
+#define PIOS_MS56XX_H
 
 #ifdef PIOS_INCLUDE_MS56XX
 
@@ -41,7 +41,7 @@ enum pios_ms56xx_version {
     MS56XX_VERSION_5637 = 2,
 };
 
-enum pios_ms5611_osr {
+enum pios_ms56xx_osr {
     MS56XX_OSR_256  = 0,
     MS56XX_OSR_512  = 2,
     MS56XX_OSR_1024 = 4,
@@ -54,7 +54,7 @@ enum pios_ms5611_osr {
 struct pios_ms56xx_cfg {
     uint8_t address;
     enum pios_ms56xx_version version;
-    enum pios_ms5611_osr oversampling;
+    enum pios_ms56xx_osr oversampling;
 };
 
 /* Public Functions */

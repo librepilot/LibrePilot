@@ -14332,7 +14332,7 @@ border-radius: 5;</string>
                           <string>element:Kd</string>
                           <string>haslimits:no</string>
                           <string>scale:1</string>
-                          <string>buttongroup:4,20</string>
+                          <string>buttongroup:1,4,20</string>
                          </stringlist>
                         </property>
                        </widget>
@@ -14451,7 +14451,7 @@ border-radius: 5;</string>
                           <string>element:Kd</string>
                           <string>haslimits:no</string>
                           <string>scale:1</string>
-                          <string>buttongroup:4,20</string>
+                          <string>buttongroup:1,4,20</string>
                          </stringlist>
                         </property>
                        </widget>
@@ -15132,7 +15132,7 @@ border-radius: 5;</string>
                           <string>element:Kd</string>
                           <string>haslimits:no</string>
                           <string>scale:1</string>
-                          <string>buttongroup:4,20</string>
+                          <string>buttongroup:1,4,20</string>
                          </stringlist>
                         </property>
                        </widget>

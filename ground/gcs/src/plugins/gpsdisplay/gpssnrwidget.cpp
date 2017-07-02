@@ -201,7 +201,7 @@ void GpsSnrWidget::drawSat(int index)
             boxes[index]->setBrush(QColor("Green"));
         }
 
-        // Add leading 0 to PRN number
+        // Add leading 0 to PRN numbers to make them at least two digits wide
         QString prnString = QString().number(prn);
         if (prnString.length() == 1) {
             prnString = "0" + prnString;
@@ -209,7 +209,7 @@ void GpsSnrWidget::drawSat(int index)
         satTexts[index]->setText(prnString);
         QRectF textRect = satTexts[index]->boundingRect();
 
-        // Reposition PRN levels below the bar and rescale to fit the available space
+        // Reposition PRN number below the bar and rescale to fit the available space
         QTransform matrix;
         qreal scale = 0.85 * (boxRect.width() / prnReferenceTextRect.width());
 
@@ -225,14 +225,14 @@ void GpsSnrWidget::drawSat(int index)
         satTexts[index]->setTransform(matrix, false);
 
 
-        // Add leading 0 to SNR values
+        // Add leading 0 to SNR values to make them at least two digits wide
         QString snrString = QString().number(snr);
         if (snrString.length() == 1) {
             snrString = "0" + snrString;
         }
         satSNRs[index]->setText(snrString);
 
-        // Reposition SNR levels above the bar and rescale to fit the available space
+        // Reposition SNR value above the bar and rescale to fit the available space
         matrix.reset();
         textRect = satSNRs[index]->boundingRect();
         if (!heightLimited) {

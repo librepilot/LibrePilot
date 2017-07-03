@@ -80,7 +80,7 @@ void ConfigAutoTuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     TaskInfo *taskInfo     = TaskInfo::GetInstance(getObjectManager());
 
     bool moduleEnabled     = (hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
-    bool moduleRunning     = (taskInfo->runningAutoTune() == true);
+    bool moduleRunning     = (taskInfo->runningAutoTune() == TaskInfo_Running::True);
 
     if (obj == systemIdentStateObj) {
         m_autotune->stateComplete->setText((systemIdentStateObj->getComplete() == SystemIdentState::COMPLETE_TRUE) ? tr("True") : tr("False"));

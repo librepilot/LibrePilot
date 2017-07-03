@@ -35,10 +35,10 @@
 #include <systemidentsettings.h>
 #include <systemidentstate.h>
 #include "hwsettings.h"
+#include "taskinfo.h"
 
 #include <QMessageBox>
 #include <QDebug>
-
 
 ConfigAutoTuneWidget::ConfigAutoTuneWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -75,12 +75,40 @@ ConfigAutoTuneWidget::~ConfigAutoTuneWidget()
  */
 void ConfigAutoTuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
+    HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
+
+    TaskInfo *taskInfo     = TaskInfo::GetInstance(getObjectManager());
+
+    bool moduleEnabled     = (hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
+    bool moduleRunning     = (taskInfo->runningAutoTune() == true);
+
     if (obj == systemIdentStateObj) {
         m_autotune->stateComplete->setText((systemIdentStateObj->getComplete() == SystemIdentState::COMPLETE_TRUE) ? tr("True") : tr("False"));
+        if (moduleRunning && moduleEnabled) {
+            m_autotune->autotuneModuleStatus->setText(tr("Running"));
+            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is running because is enabled to be started all the time."));
+            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
+                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+        } else if (moduleRunning && !moduleEnabled) {
+            m_autotune->autotuneModuleStatus->setText(tr("Running"));
+            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is running, due to a Flightmode setup with Autotune on it."));
+            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
+                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+        } else if (!moduleRunning && moduleEnabled) {
+            m_autotune->autotuneModuleStatus->setText(tr("Please Reboot"));
+            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is enabled but not running yet, need a reboot."));
+            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: orange; color: rgb(255, 255, 255); \
+                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+        } else {
+            m_autotune->autotuneModuleStatus->setText(tr("Stopped"));
+            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is stopped. He can be enabled by adding a Autotune flightmode or force the module to be started all the time."));
+            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: gray; color: rgb(255, 255, 255); \
+                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+        }
     } else {
-        HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-
-        m_autotune->AutotuneEnable->setChecked(hwSettings->getOptionalModules(HwSettings::OPTIONALMODULES_AUTOTUNE) == HwSettings::OPTIONALMODULES_ENABLED);
+        m_autotune->AutotuneEnable->setChecked(moduleEnabled);
+        // Request TaskInfo update at start
+        taskInfo->requestUpdate();
     }
 }
 

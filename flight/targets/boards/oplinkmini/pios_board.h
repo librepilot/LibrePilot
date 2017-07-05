@@ -174,9 +174,11 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 // -------------------------
 #define PIOS_COM_MAX_DEVS             5
 
-#define PIOS_COM_TELEM_USB_RX_BUF_LEN 128
-#define PIOS_COM_TELEM_USB_TX_BUF_LEN 128
+/* USB telemetry */
+#define PIOS_COM_TELEM_USB_RX_BUF_LEN 256
+#define PIOS_COM_TELEM_USB_TX_BUF_LEN 256
 
+/* VCP Bridge */
 #define PIOS_COM_TELEM_VCP_RX_BUF_LEN 128
 #define PIOS_COM_TELEM_VCP_TX_BUF_LEN 128
 

@@ -48,7 +48,7 @@ ConfigAutoTuneWidget::ConfigAutoTuneWidget(QWidget *parent) : ConfigTaskWidget(p
     // must be done before auto binding !
     setWikiURL("AutoTune+Configuration");
 
-    // Add HwSettings before auto binding and give priority while saving
+    // Add HwSettings before auto binding to give priority while saving
     addUAVObject("HwSettings");
 
     addAutoBindings();
@@ -85,27 +85,33 @@ void ConfigAutoTuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 
     if (obj == systemIdentStateObj) {
         m_autotune->stateComplete->setText((systemIdentStateObj->getComplete() == SystemIdentState::COMPLETE_TRUE) ? tr("True") : tr("False"));
+
+        QString message;
+        QString tooltip_message;
+        QString color;
         if (moduleRunning && moduleEnabled) {
-            m_autotune->autotuneModuleStatus->setText(tr("Running"));
-            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is running because is enabled to be started all the time."));
-            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
-                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+            message = tr("Running");
+            tooltip_message = tr("Module is running because it is enabled to be started at all times");
+            color   = "green";
         } else if (moduleRunning && !moduleEnabled) {
-            m_autotune->autotuneModuleStatus->setText(tr("Running"));
-            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is running, due to a Flightmode setup with Autotune on it."));
-            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
-                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+            message = tr("Running");
+            tooltip_message = tr("Module is running, due to a Flightmode setup with Autotune on it.");
+            color   = "green";
         } else if (!moduleRunning && moduleEnabled) {
-            m_autotune->autotuneModuleStatus->setText(tr("Please Reboot"));
-            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is enabled but not running yet, need a reboot."));
-            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: orange; color: rgb(255, 255, 255); \
-                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+            message = tr("Please Reboot");
+            tooltip_message = tr("Module is enabled but not running yet, needs a reboot.");
+            color   = "orange";
         } else {
-            m_autotune->autotuneModuleStatus->setText(tr("Stopped"));
-            m_autotune->autotuneModuleStatus->setToolTip(tr("Module is stopped. He can be enabled by adding a Autotune flightmode or force the module to be started all the time."));
-            m_autotune->autotuneModuleStatus->setStyleSheet("QLabel { background-color: gray; color: rgb(255, 255, 255); \
-                                                             border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
+            message = tr("Stopped");
+            tooltip_message = tr("Module is stopped. It can be enabled by adding an AutoTune flightmode or force the module to be started at all times.");
+            color   = "gray";
         }
+
+        QString style = QString("QLabel { background-color: %1; color: rgb(255, 255, 255); \
+                                          border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}").arg(color);
+        m_autotune->autotuneModuleStatus->setStyleSheet(style);
+        m_autotune->autotuneModuleStatus->setText(message);
+        m_autotune->autotuneModuleStatus->setToolTip(tooltip_message);
     } else {
         m_autotune->AutotuneEnable->setChecked(moduleEnabled);
         // Request TaskInfo update at start

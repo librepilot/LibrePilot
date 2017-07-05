@@ -585,6 +585,7 @@ ifeq ($(UNAME), Windows)
 
 ifeq ($(shell [ -d "$(MINGW_DIR)" ] && $(ECHO) "exists"), exists)
     # set MinGW binary and library paths (QTMINGW is used by qmake, do not rename)
+    export MINGW_DIR := $(MINGW_DIR)
     export QTMINGW := $(MINGW_DIR)/bin
     export PATH    := $(QTMINGW):$(PATH)
 else

@@ -299,12 +299,11 @@ QString ConfigVehicleTypeWidget::vehicleName()
 
     QString name;
     for (uint i = 0; i < field->getNumElements(); ++i) {
-        QChar chr = field->getValue(i).toChar();
-        if (chr != 0) {
-            name.append(chr);
-        } else {
+        QVariant value = field->getValue(i);
+        if (value == 0) {
             break;
         }
+        name.append(value.toChar());
     }
     return name;
 }

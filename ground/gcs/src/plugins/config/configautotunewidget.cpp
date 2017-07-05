@@ -48,9 +48,10 @@ ConfigAutoTuneWidget::ConfigAutoTuneWidget(QWidget *parent) : ConfigTaskWidget(p
     // must be done before auto binding !
     setWikiURL("AutoTune+Configuration");
 
-    addAutoBindings();
-
+    // Add HwSettings before auto binding and give priority while saving
     addUAVObject("HwSettings");
+
+    addAutoBindings();
 
     disableMouseWheelEvents();
 

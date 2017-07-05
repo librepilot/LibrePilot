@@ -91,7 +91,10 @@ VideoWidget::VideoWidget(QWidget *parent) :
 
     // make the widget native so it gets its own native window id that we will pass to gstreamer
     setAttribute(Qt::WA_NativeWindow);
-    // setAttribute(Qt::WA_DontCreateNativeAncestors);
+#ifdef Q_OS_MAC
+    // WA_DontCreateNativeAncestors is needed on mac
+    setAttribute(Qt::WA_DontCreateNativeAncestors);
+#endif
 
     // set black background
     QPalette pal(palette());

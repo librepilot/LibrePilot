@@ -39,6 +39,8 @@ Upgrade to latest version of the packages using Synaptic Package Manager or CLI
 # Mac
 ###############################################################################
 
+brew install gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav libav x264
+
 ###############################################################################
 # How to find required libraries (for copydata.pro)
 ###############################################################################

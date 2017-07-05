@@ -274,12 +274,12 @@ void go_txn_setup(struct pios_i2c_adapter *i2c_adapter)
 
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
     if (i2c_adapter->active_txn->rw == PIOS_I2C_TXN_READ) {
-        I2C_TransferHandling(i2c_adapter->cfg->regs, i2c_adapter->active_txn->addr, i2c_adapter->active_txn->len,
+        I2C_TransferHandling(i2c_adapter->cfg->regs, (i2c_adapter->active_txn->addr << 1), i2c_adapter->active_txn->len,
                              /* Only last transaction generates Auto End */
                              i2c_adapter->active_txn == i2c_adapter->last_txn ? I2C_AutoEnd_Mode : I2C_SoftEnd_Mode,
                              I2C_Generate_Start_Read);
     } else {
-        I2C_TransferHandling(i2c_adapter->cfg->regs, i2c_adapter->active_txn->addr, i2c_adapter->active_txn->len,
+        I2C_TransferHandling(i2c_adapter->cfg->regs, (i2c_adapter->active_txn->addr << 1), i2c_adapter->active_txn->len,
                              /* Only last transaction generates Auto End */
                              i2c_adapter->active_txn == i2c_adapter->last_txn ? I2C_AutoEnd_Mode : I2C_SoftEnd_Mode,
                              I2C_Generate_Start_Write);

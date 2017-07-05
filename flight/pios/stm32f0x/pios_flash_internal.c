@@ -28,7 +28,7 @@
 
 #ifdef PIOS_INCLUDE_FLASH_INTERNAL
 
-#include "stm32f10x_flash.h"
+#include "stm32f0xx_flash.h"
 #include "pios_flash_internal_priv.h"
 #include "pios_flash.h"
 #include <stdbool.h>

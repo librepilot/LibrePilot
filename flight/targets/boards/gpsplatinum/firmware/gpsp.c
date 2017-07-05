@@ -42,6 +42,7 @@
 /* Global Variables */
 
 extern void Stack_Change(void);
+extern void GPSPSystemModStart(void);
 
 /**
  * OpenPilot Main function:
@@ -54,32 +55,19 @@ extern void Stack_Change(void);
  */
 int main()
 {
-    /* NOTE: Do NOT modify the following start-up sequence */
-    /* Any new initialization functions should be added in OpenPilotInit() */
-
     /* Brings up System using CMSIS functions, enables the LEDs. */
     PIOS_SYS_Init();
 
-    /* Architecture dependant Hardware and
-     * core subsystem initialisation
-     * (see pios_board.c for your arch)
-     * */
-    PIOS_Board_Init();
+    /*
+     * Initialize the system module, which configures the board and
+     * starts the other modules.
+     */
+    GPSPSystemModStart();
 
-    /* Initialize modules */
-    MODULE_INITIALISE_ALL
     /* swap the stack to use the IRQ stack */
     Stack_Change();
 
-    /* Start the FreeRTOS scheduler, which should never return.
-     *
-     * NOTE: OpenPilot runs an operating system (FreeRTOS), which constantly calls
-     * (schedules) function files (modules). These functions never return from their
-     * while loops, which explains why each module has a while(1){} segment. Thus,
-     * the OpenPilot software actually starts at the vTaskStartScheduler() function,
-     * even though this is somewhat obscure.
-     *
-     */
+    /* Start the FreeRTOS scheduler */
     vTaskStartScheduler();
 
     /* If all is well we will never reach here as the scheduler will now be running. */

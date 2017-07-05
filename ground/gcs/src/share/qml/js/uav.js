@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The LibrePilot Project
+ * Copyright (C) 2016-2017 The LibrePilot Project
  * Contact: http://www.librepilot.org
  *
  * This file is part of LibrePilot GCS.
@@ -117,6 +117,7 @@ function position() {
     switch(gpsPositionSensor.status) {
     case GPSPositionSensor.Status.Fix2D:
     case GPSPositionSensor.Status.Fix3D:
+    case GPSPositionSensor.Status.Fix3DDGNSS:
         return gpsPosition();
     case GPSPositionSensor.Status.NoFix:
     case GPSPositionSensor.Status.NoGPS:
@@ -222,7 +223,7 @@ function isGpsNotInitialised() {
 }
 
 function isGpsStatusFix3D() {
-    return (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D);
+    return ((gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D) || (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3DDGNSS));
 }
 
 function isOplmConnected() {
@@ -276,7 +277,7 @@ function gpsAltitude() {
 }
 
 function gpsStatus() {
-    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D"];
+    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D", "3D"];
 
     if (gpsStatusText.length != GPSPositionSensor.GPSPositionSensorConstants.StatusCount) {
         console.log("uav.js: gpsStatus() do not match gpsPositionSensor.status uavo");

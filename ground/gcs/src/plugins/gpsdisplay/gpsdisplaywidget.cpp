@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       gpsdisplaywidget.cpp
- * @author     Edouard Lafargue Copyright (C) 2010.
+ * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
+ *             Edouard Lafargue Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup GPSGadgetPlugin GPS Gadget Plugin
@@ -45,19 +46,6 @@
 GpsDisplayWidget::GpsDisplayWidget(QWidget *parent) : QWidget(parent)
 {
     setupUi(this);
-
-    // Not elegant, just load the image for now
-    QGraphicsScene *fescene = new QGraphicsScene(this);
-    QPixmap earthpix(":/gpsgadget/images/flatEarth.png");
-    fescene->addPixmap(earthpix);
-    flatEarth->setScene(fescene);
-    marker = new QGraphicsSvgItem();
-    QSvgRenderer *renderer = new QSvgRenderer();
-    renderer->load(QString(":/gpsgadget/images/marker.svg"));
-    marker->setSharedRenderer(renderer);
-    fescene->addItem(marker);
-    double scale = earthpix.width() / (marker->boundingRect().width() * 20);
-    marker->setScale(scale);
 }
 
 GpsDisplayWidget::~GpsDisplayWidget()
@@ -81,7 +69,7 @@ void GpsDisplayWidget::setDateTime(double date, double time)
     dstring2.sprintf("%06.0f", time);
     dstring2.insert(dstring2.length() - 2, ":");
     dstring2.insert(dstring2.length() - 5, ":");
-    time_value->setText(dstring1 + "    " + dstring2 + " GMT");
+    time_value->setText(dstring1 + "    " + dstring2 + " UTC");
 }
 
 void GpsDisplayWidget::setFixType(const QString &fixtype)
@@ -94,6 +82,8 @@ void GpsDisplayWidget::setFixType(const QString &fixtype)
         fix_value->setText("2D");
     } else if (fixtype == "Fix3D") {
         fix_value->setText("3D");
+    } else if (fixtype == "Fix3DDGNSS") {
+        fix_value->setText("3D/DGNSS");
     } else {
         fix_value->setText("Unknown");
     }
@@ -117,7 +107,6 @@ void GpsDisplayWidget::setSVs(int sv)
 
     temp.append(QString::number(sv));
     status_value->setText(temp);
-    status_value->adjustSize();
 }
 
 void GpsDisplayWidget::setDOP(double hdop, double vdop, double pdop)
@@ -157,10 +146,5 @@ void GpsDisplayWidget::setPosition(double lat, double lon, double alt)
     str3.sprintf("%.2f m", alt);
     coord_value_3->setText(str3);
 
-    // Now place the marker:
-    double wscale = flatEarth->sceneRect().width() / 360;
-    double hscale = flatEarth->sceneRect().height() / 180;
-    QPointF opd   = QPointF((lon + 180) * wscale - marker->boundingRect().width() * marker->scale() / 2,
-                            (90 - lat) * hscale - marker->boundingRect().height() * marker->scale() / 2);
-    marker->setTransform(QTransform::fromTranslate(opd.x(), opd.y()), false);
+    flatEarth->setPosition(lat, lon);
 }

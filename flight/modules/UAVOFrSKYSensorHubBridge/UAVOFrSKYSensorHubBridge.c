@@ -382,6 +382,7 @@ static void uavoFrSKYSensorHubBridgeTask(__attribute__((unused)) void *parameter
                 status = 300;
                 break;
             case GPSPOSITIONSENSOR_STATUS_FIX3D:
+            case GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS:
                 if (hl_set == HOMELOCATION_SET_TRUE) {
                     status = 500;
                 } else {
@@ -419,7 +420,8 @@ static void uavoFrSKYSensorHubBridgeTask(__attribute__((unused)) void *parameter
             msg_length += frsky_pack_temperature_02((vdop * 256 + hdop), shub_global->serial_buf + msg_length);
 
             if (gpsPosData.Status == GPSPOSITIONSENSOR_STATUS_FIX2D ||
-                gpsPosData.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) {
+                gpsPosData.Status == GPSPOSITIONSENSOR_STATUS_FIX3D ||
+                gpsPosData.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS) {
                 msg_length += frsky_pack_gps(
                     gpsPosData.Heading,
                     gpsPosData.Latitude,

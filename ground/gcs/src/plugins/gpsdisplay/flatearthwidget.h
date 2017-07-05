@@ -1,14 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       gpssnrwidget.h
+ * @file       flatearthwidget.h
  * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
- * @addtogroup GpsSnrWidget GpsSnr Widget Plugin
+ * @addtogroup FlatEarthWidget FlatEarth Widget Plugin
  * @{
- * @brief A widget for visualizing Signal to Noise Ratio information for known SV
+ * @brief      A widget for visualizing a location on a flat map of the world.
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,37 +24,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GPSSNRWIDGET_H
-#define GPSSNRWIDGET_H
+#ifndef FLATEARTHWIDGET_H_
+#define FLATEARTHWIDGET_H_
 
 #include <QGraphicsView>
-class QGraphicsRectItem;
+class QGraphicsSvgItem;
 
-class GpsSnrWidget : public QGraphicsView {
+class FlatEarthWidget : public QGraphicsView {
     Q_OBJECT
+
 public:
-    explicit GpsSnrWidget(QWidget *parent = 0);
-    ~GpsSnrWidget();
-
-signals:
-
-public slots:
-    void updateSat(int index, int prn, int elevation, int azimuth, int snr);
-
-private:
-    static const int MAX_SATELLITES = 24;
-    int satellites[MAX_SATELLITES][4];
-    QGraphicsScene *scene;
-    QGraphicsRectItem *boxes[MAX_SATELLITES];
-    QGraphicsSimpleTextItem *satTexts[MAX_SATELLITES];
-    QGraphicsSimpleTextItem *satSNRs[MAX_SATELLITES];
-    QRectF prnReferenceTextRect;
-
-    void drawSat(int index);
+    explicit FlatEarthWidget(QWidget *parent = 0);
+    ~FlatEarthWidget();
+    void setPosition(double, double, bool forceUpdate = false);
 
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
-};
+    void mousePressEvent(QMouseEvent *event);
 
-#endif // GPSSNRWIDGET_H
+private:
+    bool zoomedin;
+    double oldLat, oldLon;
+
+    QGraphicsScene *earthScene;
+    QGraphicsPixmapItem *earthPixmapItem;
+    QGraphicsSvgItem *marker;
+
+    void refreshMap(void);
+};
+#endif /* FLATEARTHWIDGET_H_ */

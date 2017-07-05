@@ -450,7 +450,7 @@ static void Run(void)
         // positionData.Status, positionData.Satellites, (uint32_t)positionData.Altitude);
 
         // GPS Status
-        if (positionData.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) {
+        if ((positionData.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) || (positionData.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS)) {
             msg[OSDMSG_GPS_STAT] = OSDMSG_GPS_STAT_FIX;
         } else {
             msg[OSDMSG_GPS_STAT] = OSDMSG_GPS_STAT_NOFIX;

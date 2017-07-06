@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>605</width>
-    <height>208</height>
+    <width>604</width>
+    <height>189</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_10">
@@ -67,28 +67,12 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1" rowspan="5" colspan="2">
+   <item row="2" column="4" rowspan="5" colspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
      <property name="verticalSpacing">
       <number>-1</number>
      </property>
-     <item row="3" column="0">
-      <widget class="QLabel" name="lbGPSSpeed">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>GPS Speed</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
+     <item row="4" column="1">
       <widget class="QComboBox" name="cbTelemetrySpeed">
        <property name="enabled">
         <bool>true</bool>
@@ -98,7 +82,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="lbTelemetrySpeed">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -114,60 +98,14 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="lbGPSProtocol">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>GPS Protocol</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="cbGPSProtocol">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="lbDebugConsoleSpeed">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>DebugConsole Speed</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QComboBox" name="cbDebugConsoleSpeed">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
+     <item row="6" column="1">
       <widget class="QComboBox" name="cbGPSSpeed">
        <property name="enabled">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="5" column="0" colspan="2">
+     <item row="8" column="0" colspan="2">
       <spacer name="verticalSpacer_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -183,9 +121,71 @@
        </property>
       </spacer>
      </item>
+     <item row="5" column="1">
+      <widget class="QComboBox" name="cbDebugConsoleSpeed">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="lbDebugConsoleSpeed">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>DebugConsole Speed</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="lbGPSSpeed">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>GPS Speed</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="lbGPSProtocol">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>GPS Protocol</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QComboBox" name="cbGPSProtocol">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
-   <item row="2" column="4" rowspan="5" colspan="2">
+   <item row="2" column="1" rowspan="5" colspan="2">
     <layout class="QGridLayout" name="gridLayout_3">
      <property name="verticalSpacing">
       <number>-1</number>

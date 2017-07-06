@@ -43,6 +43,7 @@
 #include "configrevonanohwwidget.h"
 #include "configsparky2hwwidget.h"
 #include "configspracingf3evohwwidget.h"
+#include "configtinyfishhwwidget.h"
 #include "defaultconfigwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -252,8 +253,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigSparky2HWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
-        } else if ((board & 0xff00) == 0x1000) {
-            // SPRacingF3
+        } else if ((board & 0xff00) == 0x1000) { // F3 boards
             ConfigTaskWidget *widget;
             widget = new ConfigRevoWidget(this);
             widget->bind();
@@ -261,15 +261,22 @@ void ConfigGadgetWidget::onAutopilotConnect()
 
             widget = 0;
 
-            if (board == 0x1001) {
+            switch (board) {
+            case 0x1001:
                 // widget = new ConfigSPRacingF3HWWidget(this);
-            } else if (board == 0x1002 || board == 0x1003) { // SpracingF3 EVO or NucleoF303RE
+                break;
+            case 0x1002:
+            case 0x1003:
                 widget = new ConfigSPRacingF3EVOHWWidget(this);
-            } else if (board == 0x1005) {
+                break;
+            case 0x1005:
                 // widget = new ConfigPikoBLXHWWidget(this);
-            } else if (board == 0x1006) {
-                // widget = new ConfigTinyFISHHWWidget(this);
+                break;
+            case 0x1006:
+                widget = new ConfigTinyFISHHWWidget(this);
+                break;
             }
+
             if (widget) {
                 widget->bind();
                 stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);

@@ -50,6 +50,7 @@ HEADERS += \
     dblspindelegate.h \
     configrevohwwidget.h \
     configspracingf3evohwwidget.h \
+    configtinyfishhwwidget.h \
     commonhwsettingswidget.h \
     calibration/calibrationutils.h \
     calibration/wizardstate.h \
@@ -99,6 +100,7 @@ SOURCES += \
     dblspindelegate.cpp \
     configrevohwwidget.cpp \
     configspracingf3evohwwidget.cpp \
+    configtinyfishhwwidget.cpp \
     commonhwsettingswidget.cpp \
     calibration/calibrationutils.cpp \
     calibration/wizardstate.cpp \
@@ -138,6 +140,7 @@ FORMS += \
     configrevohwwidget.ui \
     autotune.ui \
     configspracingf3evohwwidget.ui \
+    configtinyfishhwwidget.ui \
     commonhwsettingswidget.ui \
     oplink.ui \
     configrevonanohwwidget.ui \

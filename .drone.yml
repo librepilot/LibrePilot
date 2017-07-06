@@ -1,3 +1,6 @@
+# If you change this file, you have to regenerate the .drone.sec file!
+# Please refer to LP-394 for details, or ask on slack.
+
 build:
   image: teaci/msys$$arch
   pull: true
@@ -34,7 +37,7 @@ publish:
         type: executable
         repository: LibrePilot
         package: next
-        version: Windows
+        version: Windows20172
         publish: true
         override: true
         target: $$BRANCH-$${COMMIT:0:6}-$$arch-tea-ci-package.exe
@@ -45,4 +48,4 @@ notify:
       - https://hooks.slack.com/services/$$SLACK_HOOK
     content_type: application/json
     template: >
-      {"text": "Tea-CI Build #{{ build.number }} finished with a {{ build.status }} status. If successful, the packages for {{ build.branch }} $${COMMIT:0:8} can be downloaded <https://bintray.com/librepilot/LibrePilot/next/Windows/view/#files|here>"}
+      {"text": "Tea-CI Build #{{ build.number }} finished with a {{ build.status }} status. If successful, the packages for {{ build.branch }} $${COMMIT:0:8} can be downloaded <https://bintray.com/librepilot/LibrePilot/next/Windows20172/view/#files|here>"}

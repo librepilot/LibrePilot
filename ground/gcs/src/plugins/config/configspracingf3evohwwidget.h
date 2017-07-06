@@ -1,14 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       configspracingf3hwwidget.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @file       configspracingf3evohwwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief SPRacingF3 hardware configuration panel
+ * @brief SPRacingF3EVO hardware configuration panel
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,36 +25,40 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef CONFIGSPRACINGF3HWWIDGET_H
-#define CONFIGSPRACINGF3HWWIDGET_H
+#ifndef CONFIGSPRACINGF3EVOHWWIDGET_H
+#define CONFIGSPRACINGF3EVOHWWIDGET_H
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 
-class Ui_SPRacingF3HWWidget;
+class Ui_SPRacingF3EVOHWWidget;
 
 class UAVObject;
 
 class QWidget;
 
-class ConfigSPRacingF3HWWidget : public ConfigTaskWidget {
+class ConfigSPRacingF3EVOHWWidget : public ConfigTaskWidget {
     Q_OBJECT
 
 public:
-    ConfigSPRacingF3HWWidget(QWidget *parent = 0);
-    ~ConfigSPRacingF3HWWidget();
+    ConfigSPRacingF3EVOHWWidget(QWidget *parent = 0);
+    ~ConfigSPRacingF3EVOHWWidget();
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
 private:
-    Ui_SPRacingF3HWWidget *m_ui;
+    Ui_SPRacingF3EVOHWWidget *m_ui;
+    void UARTxChanged(QComboBox *cbUARTx);
+    void updateFeatures();
 
-    void setupCustomCombos();
+    bool optionConflict(int uartOption, int vcpOption);
 
 private slots:
-    void usbVCPPortChanged(int index);
-    void usbHIDPortChanged(int index);
+    void UART1Changed(int index);
+    void UART2Changed(int index);
+    void UART3Changed(int index);
+    void USBVCPFunctionChanged(int index);
 };
 
-#endif // CONFIGSPRACINGF3HWWIDGET_H
+#endif // CONFIGSPRACINGF3EVOHWWIDGET_H

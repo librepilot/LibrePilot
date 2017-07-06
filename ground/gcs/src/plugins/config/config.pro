@@ -49,7 +49,8 @@ HEADERS += \
     mixercurve.h \
     dblspindelegate.h \
     configrevohwwidget.h \
-    configspracingf3hwwidget.h \
+    configspracingf3evohwwidget.h \
+    commonhwsettingswidget.h \
     calibration/calibrationutils.h \
     calibration/wizardstate.h \
     calibration/wizardmodel.h \
@@ -97,7 +98,8 @@ SOURCES += \
     mixercurve.cpp \
     dblspindelegate.cpp \
     configrevohwwidget.cpp \
-    configspracingf3hwwidget.cpp \
+    configspracingf3evohwwidget.cpp \
+    commonhwsettingswidget.cpp \
     calibration/calibrationutils.cpp \
     calibration/wizardstate.cpp \
     calibration/wizardmodel.cpp \
@@ -134,8 +136,9 @@ FORMS += \
     txpid.ui \
     mixercurve.ui \
     configrevohwwidget.ui \
-    configspracingf3hwwidget.ui \
     autotune.ui \
+    configspracingf3evohwwidget.ui \
+    commonhwsettingswidget.ui \
     oplink.ui \
     configrevonanohwwidget.ui \
     configsparky2hwwidget.ui \

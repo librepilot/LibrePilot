@@ -42,7 +42,7 @@
 #include "configrevowidget.h"
 #include "configrevonanohwwidget.h"
 #include "configsparky2hwwidget.h"
-#include "configspracingf3hwwidget.h"
+#include "configspracingf3evohwwidget.h"
 #include "defaultconfigwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -262,9 +262,9 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = 0;
 
             if (board == 0x1001) {
-                widget = new ConfigSPRacingF3HWWidget(this);
+                // widget = new ConfigSPRacingF3HWWidget(this);
             } else if (board == 0x1002 || board == 0x1003) { // SpracingF3 EVO or NucleoF303RE
-                // widget = new ConfigSPRacingF3EVOHWWidget(this);
+                widget = new ConfigSPRacingF3EVOHWWidget(this);
             } else if (board == 0x1005) {
                 // widget = new ConfigPikoBLXHWWidget(this);
             } else if (board == 0x1006) {

@@ -84,8 +84,6 @@ void ConfigAutoTuneWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     bool moduleRunning     = (taskInfo->runningAutoTune() == TaskInfo_Running::True);
 
     if (obj == systemIdentStateObj) {
-        m_autotune->stateComplete->setText((systemIdentStateObj->getComplete() == SystemIdentState::COMPLETE_TRUE) ? tr("True") : tr("False"));
-
         QString message;
         QString tooltip_message;
         QString color;

@@ -534,7 +534,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Throttle level to hover (%)</string>
+                 <string>Throttle level needed to hover, in percent. How the multirotor is under/over powered.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -915,50 +915,35 @@
                 </property>
                </widget>
               </item>
+              <item row="0" column="4">
+               <widget class="QCheckBox" name="stateComplete">
+                <property name="toolTip">
+                 <string>Automatically checked for a good complete tune or unchecked for incomplete or bad tune.</string>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="objrelation" stdset="0">
+                 <stringlist>
+                  <string>objname:SystemIdentState</string>
+                  <string>fieldname:Complete</string>
+                 </stringlist>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="3">
-               <widget class="QLabel" name="label_19">
+               <widget class="QLabel" name="label_2">
                 <property name="text">
                  <string>Complete</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="4">
-               <widget class="QLineEdit" name="stateComplete">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="acceptDrops">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Automatically set True for a good complete tune or False for incomplete or bad</string>
-                </property>
-                <property name="text">
-                 <string>False</string>
-                </property>
-                <property name="frame">
-                 <bool>true</bool>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-                <property name="readOnly">
-                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -1077,7 +1062,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Smooth - Quick value for PID calc based on AutoTune measurements.</string>
+                   <string>Smooth - Normal - Quick PID response desired for PID calc based on AutoTune measurements.</string>
                   </property>
                   <property name="decimals">
                    <number>1</number>
@@ -1124,6 +1109,9 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Smooth PID response, preferred for photography</string>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -1159,6 +1147,9 @@ font:bold;</string>
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Quick PID response, preferred for racing</string>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
 color: rgb(255, 255, 255);
@@ -1183,7 +1174,7 @@ font:bold;</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Smooth - Quick value for PID calc based on AutoTune measurements.</string>
+                   <string>Smooth - Normal - Quick PID response desired for PID calc based on AutoTune measurements.</string>
                   </property>
                   <property name="minimum">
                    <number>-10</number>
@@ -1238,6 +1229,9 @@ font:bold;</string>
                     <width>120</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Normal PID response</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
@@ -1317,7 +1311,7 @@ font:bold;</string>
               <item row="3" column="1">
                <widget class="QComboBox" name="SmoothQuickSource">
                 <property name="toolTip">
-                 <string>Choose Accessory or FMS 3x toggle method with 3, 5, 7 positions.</string>
+                 <string>How the SmoothQuick slider is controlled, using Accessory or FMS 3x toggle method with 3, 5, 7 positions. Allow testing smooth/quick PID sets after a AutoTune flight.</string>
                 </property>
                 <property name="objrelation" stdset="0">
                  <stringlist>
@@ -1680,7 +1674,7 @@ font:bold;</string>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>0</width>
+                  <width>110</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -1885,22 +1879,6 @@ font:bold;</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="3">
-               <widget class="QLabel" name="label">
-                <property name="minimumSize">
-                 <size>
-                  <width>110</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Complete</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="7" colspan="5">
                <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <item>
@@ -1965,22 +1943,34 @@ font:bold;</string>
                </layout>
               </item>
               <item row="1" column="4">
-               <widget class="QComboBox" name="settingsComplete">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
+               <widget class="QCheckBox" name="settingsComplete">
                 <property name="toolTip">
-                 <string>Automatically set True for a good complete tune or False for incomplete or bad</string>
+                 <string>Automatically checked for a good complete tune or unchecked for incomplete or bad tune.</string>
+                </property>
+                <property name="layoutDirection">
+                 <enum>Qt::LeftToRight</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist notr="true">
+                 <stringlist>
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:Complete</string>
-                  <string>buttongroup:30</string>
                  </stringlist>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Complete</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -2072,7 +2062,7 @@ font:bold;</string>
                    <bool>true</bool>
                   </property>
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>

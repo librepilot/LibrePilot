@@ -77,7 +77,6 @@ void gst::init(int *argc, char * *argv[])
     // qputenv("GST_DEBUG_FILE", "gst.log");
     // qputenv("GST_DEBUG_DUMP_DOT_DIR", ".");
 
-
 #ifdef Q_OS_WIN
     qputenv("GST_PLUGIN_PATH_1_0", (Utils::GetLibraryPath() + "gstreamer-1.0").toLatin1());
 #endif
@@ -96,6 +95,18 @@ void gst::init(int *argc, char * *argv[])
     qDebug() << "gstreamer - registering plugins";
     // GST_PLUGIN_STATIC_REGISTER(librepilot);
     gst_plugin_librepilot_register();
+
+#ifdef Q_OS_MAC
+    GstRegistry *reg = gst_registry_get();
+
+    GstPluginFeature *feature = gst_registry_lookup_feature(reg, "osxvideosink");
+    if (feature) {
+        // raise rank of osxvideosink so it gets selected by autovideosink
+        // if not doing that then autovideosink selects the glimagesink which fails in Qt
+        gst_plugin_feature_set_rank(feature, GST_RANK_PRIMARY);
+        gst_object_unref(feature);
+    }
+#endif
 
 #ifdef USE_OPENCV
     // see http://stackoverflow.com/questions/32477403/how-to-know-if-sse2-is-activated-in-opencv

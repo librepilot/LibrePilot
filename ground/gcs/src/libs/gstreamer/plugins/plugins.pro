@@ -3,16 +3,6 @@ DEFINES += GST_PLUGIN_BUILD_STATIC
 #CONFIG += link_pkgconfig
 PKGCONFIG += gstreamer-base-1.0
 
-do_not_compile {
-    HEADERS += \
-        plugins/cameracalibration/gstopencvutils.h \
-        plugins/cameracalibration/gstopencvvideofilter.hpp
-
-    SOURCES += \
-        plugins/cameracalibration/gstopencvutils.cpp \
-        plugins/cameracalibration/gstopencvvideofilter.cpp \
-}
-
 opencv {
     # there is no package for gst opencv yet...
     GSTREAMER_SDK_DIR = $$system(pkg-config --variable=exec_prefix gstreamer-1.0)

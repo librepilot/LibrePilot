@@ -9,7 +9,7 @@ include(../utils/utils.pri)
 
 include(gstreamer_dependencies.pri)
 
-gstreamer_plugins:include(plugins/plugins.pro)
+include(plugins/plugins.pro)
 
 HEADERS += \
     gst_global.h \

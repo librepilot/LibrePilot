@@ -1,10 +1,6 @@
 /*
  * GStreamer
- * Copyright (C) 2005 Thomas Vander Stichele <thomas@apestaart.org>
- * Copyright (C) 2005 Ronald S. Bultje <rbultje@ronald.bitfreak.net>
- * Copyright (C) 2008 Michael Sheldon <mike@mikeasoft.com>
- * Copyright (C) 2011 Stefan Sauer <ensonic@users.sf.net>
- * Copyright (C) 2014 Robert Jobbagy <jobbagy.robert@gmail.com>
+ * Copyright (C) <2017> Philippe Renon <philippe_renon@yahoo.fr>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -48,28 +44,8 @@
 /**
  * SECTION:element-cameraundistort
  *
- * Performs face detection on videos and images.
- * If you have high cpu load you need to use videoscale with capsfilter and reduce the video resolution.
+ * Performs camera distortion correction.
  *
- * The image is scaled down multiple times using the GstCameraCalibration::scale-factor
- * until the size is &lt;= GstCameraCalibration::min-size-width or
- * GstCameraCalibration::min-size-height.
- *
- * <refsect2>
- * <title>Example launch line</title>
- * |[
- * gst-launch-1.0 autovideosrc ! decodebin ! colorspace ! cameraundistort ! videoconvert ! xvimagesink
- * ]| Detect and show faces
- * |[
- * gst-launch-1.0 autovideosrc ! video/x-raw,width=320,height=240 ! videoconvert ! cameraundistort min-size-width=60 min-size-height=60 ! colorspace ! xvimagesink
- * ]| Detect large faces on a smaller image
- *
- * </refsect2>
- */
-
-/* FIXME: development version of OpenCV has CV_HAAR_FIND_BIGGEST_OBJECT which
- * we might want to use if available
- * see https://code.ros.org/svn/opencv/trunk/opencv/modules/objdetect/src/haar.cpp
  */
 
 #ifdef HAVE_CONFIG_H
@@ -174,7 +150,7 @@ gst_camera_undistort_class_init (GstCameraUndistortClass * klass)
 
   g_object_class_install_property (gobject_class, PROP_ALPHA,
       g_param_spec_float ("alpha", "Pixels",
-          "Pixels bla bla...",
+          "Show all pixels (1), only valid ones (0) or something in between",
           0.0, 1.0, DEFAULT_ALPHA,
           (GParamFlags) (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)));
 

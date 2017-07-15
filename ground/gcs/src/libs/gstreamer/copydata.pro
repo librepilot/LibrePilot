@@ -56,6 +56,7 @@ win32:gstreamer {
         libgstd3dvideosink.dll \
         libgstdebugutilsbad.dll \
         libgstdirectsoundsrc.dll \
+        libgstopengl.dll \
         libgstinter.dll \
         libgstmpegpsdemux.dll \
         libgstmpegpsmux.dll \

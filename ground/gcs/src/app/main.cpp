@@ -416,6 +416,7 @@ int runApplication(int argc, char * *argv)
         qDebug() << "main - resetting user settings";
         Utils::resetToFactoryDefaults(settings);
     }
+    Utils::mergeFactoryDefaults(settings);
 
     // override settings with command line provided values
     // take notice that the overridden values will be saved in the user settings and will continue to be effective

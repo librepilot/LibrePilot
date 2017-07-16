@@ -43,24 +43,31 @@ const QLatin1String CONFIG_OPTION("-D");
 // list of read only QSettings objects containing factory defaults
 QList<QSettings const *> factorySettingsList;
 
-// helper class to manage a simple registry
+/*
+ * Helper class to manage a simple registry
+ * Each entry in the registry is a configuration path
+ * For example : UAVGadgetConfigurations/DialGadget/Attitude
+ * Note that entries are base64 encoded so QSettings does not mess with them
+ */
 class QTCREATOR_UTILS_EXPORT Registry {
 public:
-    Registry(QSettings &settings) : settings(settings)
+    Registry()
     {
-        settings.beginGroup("registry");
+        QSettings settings;
+
+        settings.beginGroup("Registry");
         registry = settings.childKeys();
         settings.endGroup();
-        // qDebug() << "read registry: " << settings.group() << registry;
     }
 
     void save() const
     {
-        // qDebug() << "saving registry: " << settings.group() << registry;
-        settings.beginGroup("registry");
+        QSettings settings;
+
+        settings.beginGroup("Registry");
         settings.remove("");
         foreach(QString entry, registry) {
-            settings.setValue(key(entry), 1);
+            settings.setValue(entry, 1);
         }
         settings.endGroup();
     }
@@ -76,12 +83,11 @@ public:
     }
 
 private:
-    QSettings &settings;
     QStringList registry;
 
     QString key(QString &entry) const
     {
-        return entry;
+        return entry.toUtf8().toBase64();
     }
 };
 
@@ -114,32 +120,34 @@ void copySettings(const QSettings &from, QSettings &to)
 {
     foreach(QString key, from.allKeys()) {
         if (!to.contains(key)) {
-            // qDebug() << "+++" << key <<  from.value(key);
+            // qDebug() << "++" << key <<  from.value(key);
             to.setValue(key, from.value(key));
         } else if (from.value(key) != to.value(key)) {
-            // qDebug() << ">>>" << key <<  from.value(key) << to.value(key);
+            // qDebug() << ">>" << key <<  from.value(key) << to.value(key);
             to.setValue(key, from.value(key));
         }
     }
 }
 
-void mergeSettings(const QSettings &from, QSettings &to)
+void mergeSettings(Registry &registry, const QSettings &from, QSettings &to)
 {
-    const_cast<QSettings &>(from).beginGroup(to.group());
-
-    // registry of all groups ever seen
-    // used to avoid re-adding a group that was deleted by the user
-    Registry registry(to);
+    to.beginGroup(from.group());
 
     // iterate over factory defaults groups
+    // note that merging could be done in smarter way
+    // currently we do a "all or nothing" merge but we could do something more granular
+    // this, would allow, new configuration options to be added to existing configurations
     foreach(QString group, from.childGroups()) {
         const_cast<QSettings &>(from).beginGroup(group);
         to.beginGroup(group);
-        if (!registry.contains(group)) {
+        QString id = from.group();
+        if (!registry.contains(id)) {
             // registry keeps growing...
-            registry.add(group);
-            if (to.allKeys().count() <= 0) {
+            registry.add(id);
+            // copy settings only if destination group is totally empty (see comment above)
+            if (to.allKeys().count() <= 0 && to.childGroups().count() <= 0) {
                 // found new group, copy it to the destination
+                qDebug() << "settings - adding new configuration" << id;
                 copySettings(from, to);
             }
         }
@@ -147,8 +155,21 @@ void mergeSettings(const QSettings &from, QSettings &to)
         const_cast<QSettings &>(from).endGroup();
     }
 
-    registry.save();
+    to.endGroup();
+}
 
+void mergeFactorySettings(Registry &registry, const QSettings &from, QSettings &to)
+{
+    const_cast<QSettings &>(from).beginGroup("Plugins");
+    mergeSettings(registry, from, to);
+    const_cast<QSettings &>(from).endGroup();
+
+    const_cast<QSettings &>(from).beginGroup("UAVGadgetConfigurations");
+    foreach(QString childGroup, from.childGroups()) {
+        const_cast<QSettings &>(from).beginGroup(childGroup);
+        mergeSettings(registry, from, to);
+        const_cast<QSettings &>(from).endGroup();
+    }
     const_cast<QSettings &>(from).endGroup();
 }
 
@@ -163,7 +184,7 @@ void initSettings(const QString &factoryDefaultsFileName)
 
     if (fileName.isEmpty()) {
         // check default file
-        qDebug() << "Looking for factory defaults configuration files in" << directory.absolutePath();
+        qDebug() << "settings - looking for factory defaults configuration files in" << directory.absolutePath();
         fileName = checkFile(directory.absoluteFilePath(DEFAULT_CONFIG_FILENAME));
     }
 
@@ -182,7 +203,7 @@ void initSettings(const QString &factoryDefaultsFileName)
         file = checkFile(file);
 
         QSettings const *settings = new QSettings(file, XmlConfig::XmlFormat);
-        qDebug() << "Loaded factory defaults" << file;
+        qDebug() << "settings - loaded factory defaults" << file;
 
         factorySettingsList.append(settings);
     }
@@ -198,7 +219,7 @@ void overrideSettings(QSettings &settings, int argc, char * *argv)
             if (rx.indexIn(argv[++i]) > -1) {
                 QString key   = rx.cap(1);
                 QString value = rx.cap(2);
-                qDebug() << "User setting" << key << "set to value" << value;
+                qDebug() << "settings - user setting" << key << "set to value" << value;
                 settings.setValue(key, value);
             }
         }
@@ -213,10 +234,21 @@ void resetToFactoryDefaults(QSettings &toSettings)
         );
 }
 
+/**
+ * Merge factory defaults into user settings.
+ * Currently only Plugins and UAVGadgetConfigurations are merged
+ */
 void mergeFactoryDefaults(QSettings &toSettings)
 {
+    // registry of all configuration groups ever seen
+    // used to avoid re-adding a group that was deleted by the user
+    Registry registry;
+
+    // merge all loaded factory defaults
     applyToFactorySettings(
-        [&](const QSettings &fromSettings) { mergeSettings(fromSettings, toSettings); }
+        [&](const QSettings &fromSettings) { mergeFactorySettings(registry, fromSettings, toSettings); }
         );
+
+    registry.save();
 }
 }

@@ -36,6 +36,7 @@
 
 namespace Utils {
 static const QString DEFAULT_CONFIG_DIRNAME  = "configurations";
+
 static const QString DEFAULT_CONFIG_FILENAME = "default.xml";
 
 const QLatin1String CONFIG_OPTION("-D");
@@ -196,16 +197,25 @@ void initSettings(const QString &factoryDefaultsFileName)
 
     QStringList files;
 
-    // defaults
+    // common default
     files << fileName;
+
+    // OS specific default
+#ifdef Q_OS_MAC
+    files << directory.absoluteFilePath("default_macos.xml");
+#elif defined(Q_OS_LINUX)
+    files << directory.absoluteFilePath("default_linux.xml");
+#else
+    files << directory.absoluteFilePath("default_windows.xml");
+#endif
 
     foreach(QString file, files) {
         file = checkFile(file);
-
-        QSettings const *settings = new QSettings(file, XmlConfig::XmlFormat);
-        qDebug() << "settings - loaded factory defaults" << file;
-
-        factorySettingsList.append(settings);
+        if (!file.isEmpty()) {
+            QSettings const *settings = new QSettings(file, XmlConfig::XmlFormat);
+            qDebug() << "settings - loaded factory defaults" << file;
+            factorySettingsList.append(settings);
+        }
     }
 }
 

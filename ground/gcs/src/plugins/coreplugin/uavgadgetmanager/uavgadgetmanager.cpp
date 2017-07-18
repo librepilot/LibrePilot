@@ -43,7 +43,6 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

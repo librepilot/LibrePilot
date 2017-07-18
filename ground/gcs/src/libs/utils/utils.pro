@@ -18,7 +18,6 @@ SOURCES += \
     linecolumnlabel.cpp \
     qtcolorbutton.cpp \
     synchronousprocess.cpp \
-    consoleprocess.cpp \
     treewidgetcolumnstretcher.cpp \
     checkablemessagebox.cpp \
     styledbar.cpp \
@@ -40,18 +39,8 @@ SOURCES += \
     logfile.cpp \
     crc.cpp \
     mustache.cpp \
-    textbubbleslider.cpp
-
-SOURCES += xmlconfig.cpp
-
-win32 {
-    SOURCES += \
-        abstractprocess_win.cpp \
-        consoleprocess_win.cpp \
-        winutils.cpp
-    HEADERS += winutils.h
-}
-else:SOURCES += consoleprocess_unix.cpp
+    textbubbleslider.cpp \
+    xmlconfig.cpp
 
 HEADERS += \
     utils_global.h \
@@ -87,9 +76,8 @@ HEADERS += \
     crc.h \
     mustache.h \
     textbubbleslider.h \
-    filelogger.h
-
-HEADERS += xmlconfig.h
+    filelogger.h \
+    xmlconfig.h
 
 FORMS += \
     checkablemessagebox.ui

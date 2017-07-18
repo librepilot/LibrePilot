@@ -33,7 +33,6 @@
 
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
-#include <utils/consoleprocess.h>
 #include <coreplugin/icore.h>
 
 #include <QMessageBox>

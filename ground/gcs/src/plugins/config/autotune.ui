@@ -131,7 +131,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>Measured amount and direction of control stick that stabilization automatically adds for motionless hover.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -169,7 +169,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Measured delay between inner loop and detected gyro response ln(sec)</string>
+                 <string>Measured delay between inner loop and detected gyro response ln(sec).</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -212,7 +212,7 @@
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Number of Gyro samples that were dropped (should be zero)</string>
+                 <string>Number of Gyro samples that were dropped (should be zero).</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -252,7 +252,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Number of Gyro samples that were counted</string>
+                 <string>Number of Gyro samples that were counted.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -292,7 +292,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Measured delay from Gyro read to inner loop in milliseconds</string>
+                 <string>Measured delay from Gyro read to inner loop in milliseconds.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -362,7 +362,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>(Natural log of) Measured control gain.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -400,7 +400,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>Measured vibration: Usually 10's to 1000's.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -448,7 +448,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>(Natural log of) Measured control gain.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -486,7 +486,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>Measured amount and direction of control stick that stabilization automatically adds for motionless hover.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -624,7 +624,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>Measured amount and direction of control stick that stabilization automatically adds for motionless hover.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -662,7 +662,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>Measured vibration: Usually 10's to 1000's.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -752,7 +752,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>Measured vibration: Usually 10's to 1000's.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -816,7 +816,7 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Measured control gain</string>
+                 <string>(Natural log of) Measured control gain.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -1110,7 +1110,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Smooth PID response, preferred for photography</string>
+                   <string>Smooth PID response, preferred for photography.</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
@@ -1148,7 +1148,7 @@ font:bold;</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Quick PID response, preferred for racing</string>
+                   <string>Quick PID response, preferred for racing.</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
@@ -1231,7 +1231,7 @@ font:bold;</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Normal PID response</string>
+                   <string>Normal PID response.</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(spread:reflect, x1:0.507, y1:0, x2:0.507, y2:0.772, stop:0.208955 rgba(74, 74, 74, 255), stop:0.78607 rgba(36, 36, 36, 255));
@@ -1595,7 +1595,7 @@ font:bold;</string>
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Stored control gain</string>
+                 <string>(Natural log of) Stored control gain.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -1634,7 +1634,7 @@ font:bold;</string>
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Stored delay between inner loop and detected gyro response ln(sec)</string>
+                 <string>Stored delay between inner loop and detected gyro response ln(sec).</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -1717,7 +1717,7 @@ font:bold;</string>
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Stored control gain</string>
+                 <string>(Natural log of) Stored control gain.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -1772,7 +1772,7 @@ font:bold;</string>
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>(Natural log of) Stored control gain</string>
+                 <string>(Natural log of) Stored control gain.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>
@@ -1827,7 +1827,7 @@ font:bold;</string>
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>Measured delay from Gyro read to inner loop in milliseconds</string>
+                 <string>Measured delay from Gyro read to inner loop in milliseconds.</string>
                 </property>
                 <property name="frame">
                  <bool>true</bool>

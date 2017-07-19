@@ -1425,16 +1425,18 @@ const struct pios_hmc5x83_cfg *PIOS_BOARD_HW_DEFS_GetExternalHMC5x83Cfg(__attrib
 /**
  * Configuration for the MS5611 chip
  */
-#if defined(PIOS_INCLUDE_MS5611)
-#include "pios_ms5611.h"
-static const struct pios_ms5611_cfg pios_ms5611_cfg = {
-    .oversampling = MS5611_OSR_512,
+#if defined(PIOS_INCLUDE_MS56XX)
+#include "pios_ms56xx.h"
+static const struct pios_ms56xx_cfg pios_ms56xx_cfg = {
+    .address = 0x77,
+    .version = MS56XX_VERSION_5611,
+    .oversampling = MS56XX_OSR_512,
 };
-const struct pios_ms5611_cfg *PIOS_BOARD_HW_DEFS_GetMS5611Cfg(__attribute__((unused)) uint32_t board_revision)
+const struct pios_ms56xx_cfg *PIOS_BOARD_HW_DEFS_GetMS56xxCfg(__attribute__((unused)) uint32_t board_revision)
 {
-    return &pios_ms5611_cfg;
+    return &pios_ms56xx_cfg;
 }
-#endif /* PIOS_INCLUDE_MS5611 */
+#endif /* PIOS_INCLUDE_MS56XX */
 
 
 /**

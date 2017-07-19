@@ -44,8 +44,8 @@ const struct pios_hmc5x83_cfg *PIOS_BOARD_HW_DEFS_GetInternalHMC5x83Cfg(uint32_t
 #ifdef PIOS_INCLUDE_HMC5X83
 const struct pios_hmc5x83_cfg *PIOS_BOARD_HW_DEFS_GetExternalHMC5x83Cfg(uint32_t board_revision);
 #endif
-#ifdef PIOS_INCLUDE_MS5611
-const struct pios_ms5611_cfg *PIOS_BOARD_HW_DEFS_GetMS5611Cfg(uint32_t board_revision);
+#ifdef PIOS_INCLUDE_MS56XX
+const struct pios_ms56xx_cfg *PIOS_BOARD_HW_DEFS_GetMS56xxCfg(uint32_t board_revision);
 #endif
 #ifdef PIOS_INCLUDE_BMP280
 const struct pios_bmp280_cfg *PIOS_BOARD_HW_DEFS_GetBMP280Cfg(uint32_t board_revision);

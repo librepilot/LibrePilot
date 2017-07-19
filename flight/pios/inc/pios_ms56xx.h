@@ -2,13 +2,13 @@
  ******************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
- * @addtogroup PIOS_MS5611 MS5611 Functions
+ * @addtogroup PIOS_MS5611 MS56XX Functions
  * @brief Hardware functions to deal with the altitude pressure sensor
  * @{
  *
- * @file       pios_ms5611.h
+ * @file       pios_ms56xx.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
- * @brief      MS5611 functions header.
+ * @brief      MS56XX functions header.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -28,37 +28,43 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PIOS_MS5611_H
-#define PIOS_MS5611_H
-#include <pios_sensors.h>
-/* BMP085 Addresses */
-#define MS5611_I2C_ADDR   0x77
-#define MS5611_RESET      0x1E
-#define MS5611_CALIB_ADDR 0xA2 /* First sample is factory stuff */
-#define MS5611_CALIB_LEN  16
-#define MS5611_ADC_READ   0x00
-#define MS5611_PRES_ADDR  0x40
-#define MS5611_TEMP_ADDR  0x50
-#define MS5611_ADC_MSB    0xF6
+#ifndef PIOS_MS56XX_H
+#define PIOS_MS56XX_H
 
-struct pios_ms5611_cfg {
-    uint32_t oversampling;
+#ifdef PIOS_INCLUDE_MS56XX
+
+#include <pios_sensors.h>
+
+enum pios_ms56xx_version {
+    MS56XX_VERSION_5607 = 0,
+    MS56XX_VERSION_5611 = 1,
+    MS56XX_VERSION_5637 = 2,
 };
 
-enum pios_ms5611_osr {
-    MS5611_OSR_256  = 0,
-    MS5611_OSR_512  = 2,
-    MS5611_OSR_1024 = 4,
-    MS5611_OSR_2048 = 6,
-    MS5611_OSR_4096 = 8,
+enum pios_ms56xx_osr {
+    MS56XX_OSR_256  = 0,
+    MS56XX_OSR_512  = 2,
+    MS56XX_OSR_1024 = 4,
+    MS56XX_OSR_2048 = 6,
+    MS56XX_OSR_4096 = 8,
+    // Only supported by the ms5637
+    MS56XX_OSR_8192 = 10
+};
+
+struct pios_ms56xx_cfg {
+    uint8_t address;
+    enum pios_ms56xx_version version;
+    enum pios_ms56xx_osr oversampling;
 };
 
 /* Public Functions */
-extern void PIOS_MS5611_Init(const struct pios_ms5611_cfg *cfg, int32_t i2c_device);
-extern const PIOS_SENSORS_Driver PIOS_MS5611_Driver;
-void PIOS_MS5611_Register();
+extern void PIOS_MS56xx_Init(const struct pios_ms56xx_cfg *cfg, int32_t i2c_device);
+extern void PIOS_MS56xx_Register();
+extern bool PIOS_MS56xx_Read(float *temperature, float *pressure);
 
-#endif /* PIOS_MS5611_H */
+#endif /* PIOS_INCLUDE_MS56XX */
+
+#endif /* PIOS_MS56XX_H */
 
 /**
  * @}

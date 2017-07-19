@@ -67,7 +67,7 @@
 // #define PIOS_INCLUDE_MPU6000
 // #define PIOS_MPU6000_ACCEL
 // #define PIOS_INCLUDE_L3GD20
-// #define PIOS_INCLUDE_MS5611
+// #define PIOS_INCLUDE_MS56XX
 // #define PIOS_INCLUDE_HCSR04
 #define PIOS_FLASH_ON_ACCEL /* true for second revo */
 

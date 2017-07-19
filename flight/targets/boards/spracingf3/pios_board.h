@@ -106,7 +106,7 @@
 extern uint32_t pios_i2c_id;
 #define PIOS_I2C_MAIN_ADAPTER             (pios_i2c_id)
 #define PIOS_I2C_ESC_ADAPTER              (pios_i2c_id)
-#define PIOS_I2C_MS5611_INTERNAL_ADAPTER  (pios_i2c_id)
+#define PIOS_I2C_MS56XX_INTERNAL_ADAPTER  (pios_i2c_id)
 #define PIOS_I2C_HMC5X83_INTERNAL_ADAPTER (pios_i2c_id)
 #define PIOS_I2C_MPU6000_ADAPTER          (pios_i2c_id)
 #define PIOS_I2C_EXTERNAL_ADAPTER         (pios_i2c_id)

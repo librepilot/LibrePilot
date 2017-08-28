@@ -29,7 +29,9 @@
 
 MonitorGadgetConfiguration::MonitorGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent)
-{}
+{
+    Q_UNUSED(settings);
+}
 
 MonitorGadgetConfiguration::MonitorGadgetConfiguration(const MonitorGadgetConfiguration &obj) :
     IUAVGadgetConfiguration(obj.classId(), obj.parent())
@@ -47,7 +49,4 @@ IUAVGadgetConfiguration *MonitorGadgetConfiguration::clone() const
 void MonitorGadgetConfiguration::saveConfig(QSettings &settings) const
 {
     Q_UNUSED(settings);
-// settings->setValue("acFilename", Utils::RemoveDataPath(m_acFilename));
-// settings->setValue("bgFilename", Utils::RemoveDataPath(m_bgFilename));
-// settings->setValue("enableVbo", m_enableVbo);
 }

@@ -46,7 +46,7 @@ public:
     QWidget *widget();
 
     void loadConfiguration(IUAVGadgetConfiguration *config);
-    void saveState(QSettings &);
+    void saveState(QSettings &) const;
     void restoreState(QSettings &);
 
 private:

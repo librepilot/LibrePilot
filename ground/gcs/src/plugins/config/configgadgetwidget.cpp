@@ -173,7 +173,7 @@ void ConfigGadgetWidget::startInputWizard()
     inputWidget->startInputWizard();
 }
 
-void ConfigGadgetWidget::saveState(QSettings &settings)
+void ConfigGadgetWidget::saveState(QSettings &settings) const
 {
     settings.setValue("currentIndex", stackWidget->currentIndex());
 }

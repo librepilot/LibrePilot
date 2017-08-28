@@ -46,7 +46,7 @@ public:
     virtual ~PfdQmlGadgetWidget();
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
-    void saveState(QSettings &);
+    void saveState(QSettings &) const;
     void restoreState(QSettings &);
 
 private:

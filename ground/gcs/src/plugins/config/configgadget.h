@@ -49,7 +49,7 @@ public:
 
     void loadConfiguration(IUAVGadgetConfiguration *config);
 
-    void saveState(QSettings &settings);
+    void saveState(QSettings &settings) const;
     void restoreState(QSettings &settings);
 
 private:

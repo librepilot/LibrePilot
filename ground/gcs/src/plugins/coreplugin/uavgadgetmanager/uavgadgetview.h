@@ -65,7 +65,7 @@ public:
 
     void showToolbar(bool show);
 
-    void saveState(QSettings &settings);
+    void saveState(QSettings &settings) const;
     void restoreState(QSettings &settings);
 
 public slots:

@@ -99,7 +99,7 @@ ScopeGadget::~ScopeGadget()
     delete m_widget;
 }
 
-void ScopeGadget::saveState(QSettings &settings)
+void ScopeGadget::saveState(QSettings &settings) const
 {
     m_widget->saveState(settings);
 }

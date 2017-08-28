@@ -457,7 +457,7 @@ void ScopeGadgetWidget::clearCurvePlots()
     m_curvesData.clear();
 }
 
-void ScopeGadgetWidget::saveState(QSettings &settings)
+void ScopeGadgetWidget::saveState(QSettings &settings) const
 {
     // plot state
     int i = 1;

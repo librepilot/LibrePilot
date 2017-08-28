@@ -63,7 +63,7 @@ public:
         return QString();
     }
 
-    void saveState(QSettings &settings);
+    void saveState(QSettings &settings) const;
     void restoreState(QSettings &settings);
 
 private:

@@ -310,7 +310,7 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 }
 
 
-void PfdQmlContext::saveState(QSettings &settings)
+void PfdQmlContext::saveState(QSettings &settings) const
 {
     settings.setValue("modelFile", modelFile());
 }

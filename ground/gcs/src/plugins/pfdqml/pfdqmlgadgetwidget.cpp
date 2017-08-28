@@ -93,7 +93,7 @@ void PfdQmlGadgetWidget::loadConfiguration(PfdQmlGadgetConfiguration *config)
     setQmlFile(config->qmlFile());
 }
 
-void PfdQmlGadgetWidget::saveState(QSettings &settings)
+void PfdQmlGadgetWidget::saveState(QSettings &settings) const
 {
     m_pfdQmlContext->saveState(settings);
 }

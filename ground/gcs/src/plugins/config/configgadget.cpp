@@ -45,7 +45,7 @@ void ConfigGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     Q_UNUSED(config);
 }
 
-void ConfigGadget::saveState(QSettings &settings)
+void ConfigGadget::saveState(QSettings &settings) const
 {
     m_widget->saveState(settings);
 }

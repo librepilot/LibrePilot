@@ -261,7 +261,7 @@ void UAVGadgetView::currentGadgetChanged(IUAVGadget *gadget)
     m_activeLabel->setVisible(m_uavGadget == gadget);
 }
 
-void UAVGadgetView::saveState(QSettings &settings)
+void UAVGadgetView::saveState(QSettings &settings) const
 {
     settings.setValue("type", "uavGadget");
     settings.setValue("classId", gadget()->classId());

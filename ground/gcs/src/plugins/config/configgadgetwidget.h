@@ -45,7 +45,7 @@ public:
 
     void startInputWizard();
 
-    void saveState(QSettings &settings);
+    void saveState(QSettings &settings) const;
     void restoreState(QSettings &settings);
 
 protected:

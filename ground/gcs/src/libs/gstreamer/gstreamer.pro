@@ -26,4 +26,4 @@ SOURCES += \
     pipeline.cpp \
     videowidget.cpp
 
-equals(copydata, 1):include(copydata.pro)
+copy_gstreamer:include(copydata.pro)

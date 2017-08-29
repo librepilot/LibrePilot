@@ -3,9 +3,7 @@
 ###############################################################################
 
 Add the following line to your build config file:
-    GCS_EXTRA_CONF += gstreamer
- or run this command
-    make config_append GCS_EXTRA_CONF+=gstreamer
+    make config_append GCS_WITH_GSTREAMER=1
 
 The build config file is at the root of your source directory.
 

@@ -91,10 +91,10 @@ extern uint32_t pios_com_telem_usb_id;
 extern uint32_t pios_com_telem_rf_id;
 #define PIOS_COM_TELEM_RF              (pios_com_telem_rf_id)
 #ifndef PIOS_COM_TELEM_RF_RX_BUF_LEN
-# define PIOS_COM_TELEM_RF_RX_BUF_LEN  128
+# define PIOS_COM_TELEM_RF_RX_BUF_LEN  256
 #endif
 #ifndef PIOS_COM_TELEM_RF_TX_BUF_LEN
-# define PIOS_COM_TELEM_RF_TX_BUF_LEN  128
+# define PIOS_COM_TELEM_RF_TX_BUF_LEN  256
 #endif
 
 /* RFM22B telemetry */
@@ -106,16 +106,16 @@ extern uint32_t pios_com_aux_radio_id; /* oplink aux com stream */
 # define PIOS_COM_PRI_RADIO             (pios_com_pri_radio_id)
 # define PIOS_COM_AUX_RADIO             (pios_com_aux_radio_id)
 # ifndef PIOS_COM_PRI_RADIO_RX_BUF_LEN
-#  define PIOS_COM_PRI_RADIO_RX_BUF_LEN 128
+#  define PIOS_COM_PRI_RADIO_RX_BUF_LEN 256
 # endif
 # ifndef PIOS_COM_PRI_RADIO_TX_BUF_LEN
-#  define PIOS_COM_PRI_RADIO_TX_BUF_LEN 128
+#  define PIOS_COM_PRI_RADIO_TX_BUF_LEN 256
 # endif
 # ifndef PIOS_COM_AUX_RADIO_RX_BUF_LEN
-#  define PIOS_COM_AUX_RADIO_RX_BUF_LEN 128
+#  define PIOS_COM_AUX_RADIO_RX_BUF_LEN 256
 # endif
 # ifndef PIOS_COM_AUX_RADIO_TX_BUF_LEN
-#  define PIOS_COM_AUX_RADIO_TX_BUF_LEN 128
+#  define PIOS_COM_AUX_RADIO_TX_BUF_LEN 256
 # endif
 #endif
 

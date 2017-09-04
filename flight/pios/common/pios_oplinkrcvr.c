@@ -86,10 +86,10 @@ static void PIOS_oplinkrcvr_ppm_callback(uint32_t oplinkrcvr_id, const int16_t *
 
     // Update the RSSI and quality fields.
     int8_t rssi;
-    OPLinkReceiverRSSIGet(&rssi);
+    OPLinkStatusRSSIGet(&rssi);
     oplinkrcvr_dev->oplinkreceiverdata.RSSI = rssi;
-    uint8_t quality;
-    OPLinkReceiverLinkQualityGet(&quality);
+    uint16_t quality;
+    OPLinkStatusLinkQualityGet(&quality);
     // Link quality is 0-128, so scale it down to 0-100
     oplinkrcvr_dev->oplinkreceiverdata.LinkQuality = quality * 100 / 128;
 

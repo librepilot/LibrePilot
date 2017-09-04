@@ -51,7 +51,7 @@
 static int32_t objectTransaction(UAVTalkConnectionData *connection, uint8_t type, UAVObjHandle obj, uint16_t instId, int32_t timeout);
 static int32_t sendObject(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId, UAVObjHandle obj);
 static int32_t sendSingleObject(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId, UAVObjHandle obj);
-static int32_t receiveObject(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId, uint8_t *data);
+static int32_t receiveObject(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId, uint8_t *data, bool create);
 static void updateAck(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId);
 // UavTalk Process FSM functions
 static bool UAVTalkProcess_SYNC(UAVTalkConnectionData *connection, UAVTalkInputProcessor *iproc, uint8_t *rxbuffer, uint8_t length, uint8_t *position);
@@ -444,7 +444,7 @@ UAVTalkRxState UAVTalkProcessInputStream(UAVTalkConnection connectionHandle, uin
     while (position < length) {
         state = UAVTalkProcessInputStreamQuiet(connectionHandle, rxbuffer, length, &position);
         if (state == UAVTALK_STATE_COMPLETE) {
-            UAVTalkReceiveObject(connectionHandle);
+            UAVTalkReceiveObject(connectionHandle, true);
         }
     }
     return state;
@@ -546,7 +546,7 @@ int32_t UAVTalkRelayPacket(UAVTalkConnection inConnectionHandle, UAVTalkConnecti
  * \return 0 Success
  * \return -1 Failure
  */
-int32_t UAVTalkReceiveObject(UAVTalkConnection connectionHandle)
+int32_t UAVTalkReceiveObject(UAVTalkConnection connectionHandle, bool create)
 {
     UAVTalkConnectionData *connection;
 
@@ -557,7 +557,7 @@ int32_t UAVTalkReceiveObject(UAVTalkConnection connectionHandle)
         return -1;
     }
 
-    return receiveObject(connection, iproc->type, iproc->objId, iproc->instId, connection->rxBuffer);
+    return receiveObject(connection, iproc->type, iproc->objId, iproc->instId, connection->rxBuffer, create);
 }
 
 /**
@@ -592,7 +592,7 @@ uint32_t UAVTalkGetPacketObjId(UAVTalkConnection connectionHandle)
  * \return 0 Success
  * \return -1 Failure
  */
-static int32_t receiveObject(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId, uint8_t *data)
+static int32_t receiveObject(UAVTalkConnectionData *connection, uint8_t type, uint32_t objId, uint16_t instId, uint8_t *data, bool create)
 {
     UAVObjHandle obj;
     int32_t ret = 0;
@@ -613,8 +613,8 @@ static int32_t receiveObject(UAVTalkConnectionData *connection, uint8_t type, ui
     case UAVTALK_TYPE_OBJ_TS:
         // All instances not allowed for OBJ messages
         if (obj && (instId != UAVOBJ_ALL_INSTANCES)) {
-            // Unpack object, if the instance does not exist it will be created!
-            if (UAVObjUnpack(obj, instId, data) == 0) {
+            // Unpack object, if create is true and the instance does not exist it will be created!
+            if (UAVObjUnpack(obj, instId, data, create) == 0) {
                 // Check if this object acks a pending OBJ_REQ message
                 // any OBJ message can ack a pending OBJ_REQ message
                 // even one that was not sent in response to the OBJ_REQ message
@@ -632,8 +632,8 @@ static int32_t receiveObject(UAVTalkConnectionData *connection, uint8_t type, ui
         UAVT_DEBUGLOG_CPRINTF(objId, "OBJ_ACK %X %d", objId, instId);
         // All instances not allowed for OBJ_ACK messages
         if (obj && (instId != UAVOBJ_ALL_INSTANCES)) {
-            // Unpack object, if the instance does not exist it will be created!
-            if (UAVObjUnpack(obj, instId, data) == 0) {
+            // Unpack object, if create is true and the instance does not exist it will be created!
+            if (UAVObjUnpack(obj, instId, data, create) == 0) {
                 UAVT_DEBUGLOG_CPRINTF(objId, "OBJ ACK %X %d", objId, instId);
                 // Object updated or created, transmit ACK
                 sendObject(connection, UAVTALK_TYPE_ACK, objId, instId, NULL);

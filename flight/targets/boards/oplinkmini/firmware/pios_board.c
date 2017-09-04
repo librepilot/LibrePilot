@@ -32,6 +32,7 @@
 #include <pios_board_info.h>
 #include <pios_ppm_out.h>
 #include <oplinksettings.h>
+#include <oplinkreceiver.h>
 #include <pios_openlrs.h>
 #include <taskinfo.h>
 #ifdef PIOS_INCLUDE_SERVO
@@ -133,6 +134,7 @@ void PIOS_Board_Init(void)
     }
 
     OPLinkSettingsInitialize();
+    OPLinkReceiverInitialize();
 
     /* Retrieve the settings object. */
     OPLinkSettingsData oplinkSettings;
@@ -450,6 +452,25 @@ static void PIOS_Board_PPM_callback(__attribute__((unused)) uint32_t context, co
             ppm_value = 1000 + ((rssi + 127) * 9);
             PIOS_PPM_OUT_Set(PIOS_PPM_OUTPUT, RFM22B_PPM_NUM_CHANNELS, ppm_value);
         }
+    } else {
+        // If there is no PPM output defined, try sending the control outputs as a UAVObject.
+        OPLinkReceiverData recv_data;
+        for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+            if (i < RFM22B_PPM_NUM_CHANNELS) {
+                recv_data.Channel[i] = channels[i];
+            } else {
+                recv_data.Channel[i] = PIOS_RCVR_TIMEOUT;
+            }
+        }
+        // Update the RSSI and quality fields.
+        int8_t rssi;
+        OPLinkStatusRSSIGet(&rssi);
+        recv_data.RSSI = rssi;
+        uint16_t quality;
+        OPLinkStatusLinkQualityGet(&quality);
+        // Link quality is 0-128, so scale it down to 0-100
+        recv_data.LinkQuality = quality * 100 / 128;
+        OPLinkReceiverSet(&recv_data);
     }
 #if defined(PIOS_INCLUDE_SERVO)
     for (uint8_t i = 0; i < servo_count; ++i) {

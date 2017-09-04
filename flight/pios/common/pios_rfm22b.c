@@ -1798,6 +1798,7 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
     }
 
     // Should we append PPM data to the packet?
+    bool ppm_valid = false;
     if (radio_dev->ppm_send_mode) {
         len = RFM22B_PPM_NUM_CHANNELS + (radio_dev->ppm_only_mode ? 2 : 1);
 
@@ -1817,10 +1818,13 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
             if ((val == PIOS_RCVR_INVALID) || (val == PIOS_RCVR_TIMEOUT)) {
                 val = RFM22B_PPM_INVALID;
             } else if (val > RFM22B_PPM_MAX_US) {
+                ppm_valid = true;
                 val = RFM22B_PPM_MAX;
             } else if (val < RFM22B_PPM_MIN_US) {
+                ppm_valid = true;
                 val = RFM22B_PPM_MIN;
             } else {
+                ppm_valid = true;
                 val = (val - RFM22B_PPM_MIN_US) / RFM22B_PPM_SCALE + RFM22B_PPM_MIN;
             }
 
@@ -1844,6 +1848,7 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
     }
 
     // Append data from the com interface if applicable.
+    bool packet_data = false;
     if (!radio_dev->ppm_only_mode) {
         uint8_t newlen  = 0;
         bool need_yield = false;
@@ -1863,6 +1868,7 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
             i++;
         }
         if (newlen) {
+            packet_data = true;
             *(p + len) = radio_dev->last_stream_sent;
             len += newlen + 1;
         }
@@ -1885,7 +1891,7 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
     }
 
     // Only count the packet if it contains valid data.
-    if (radio_dev->ppm_only_mode || (len > RS_ECC_NPARITY)) {
+    if (ppm_valid || packet_data) {
         TX_LED_ON;
         radio_dev->stats.tx_byte_count += len;
     }

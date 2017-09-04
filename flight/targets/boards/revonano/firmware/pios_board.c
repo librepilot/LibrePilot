@@ -258,6 +258,10 @@ void PIOS_Board_Init(void)
     PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+    PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
 #ifdef PIOS_INCLUDE_WS2811
 #include <pios_ws2811.h>
     HwSettingsWS2811LED_OutOptions ws2811_pin_settings;

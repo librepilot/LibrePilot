@@ -226,6 +226,14 @@ void PIOS_Board_Init(void)
     PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
 #endif
 
+#ifdef PIOS_INCLUDE_GCSRCVR
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
+#endif
+
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+    PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
 #ifndef PIOS_ENABLE_DEBUG_PINS
     PIOS_Servo_Init(&pios_servo_cfg);
 #else

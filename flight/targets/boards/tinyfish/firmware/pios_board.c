@@ -254,6 +254,14 @@ void PIOS_Board_Init(void)
         PIOS_BOARD_IO_Configure_UART(&pios_usart_cfg[0], PIOS_BOARD_IO_UART_COMBRIDGE);
     }
 
+#ifdef PIOS_INCLUDE_GCSRCVR
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
+#endif
+
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+    PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
 #ifdef PIOS_ENABLE_DEBUG_PINS
     PIOS_DEBUG_Init(&pios_servo_cfg.channels, pios_servo_cfg.num_channels);
 #else

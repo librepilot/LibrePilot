@@ -281,6 +281,10 @@ void PIOS_Board_Init(void)
     PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+    PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
     /* Remap AFIO pin for PB4 (Servo 5 Out)*/
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);
 

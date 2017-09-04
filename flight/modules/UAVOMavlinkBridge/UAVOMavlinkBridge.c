@@ -52,7 +52,7 @@
 #include "taskinfo.h"
 #include "mavlink.h"
 #include "hwsettings.h"
-#include "oplinkstatus.h"
+#include "oplinkreceiver.h"
 #include "receiverstatus.h"
 #include "manualcontrolsettings.h"
 
@@ -250,7 +250,7 @@ static void mavlink_send_rc_channels()
 #ifdef PIOS_INCLUDE_OPLINKRCVR
     if (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) {
         int8_t rssi;
-        OPLinkStatusRSSIGet(&rssi);
+        OPLinkReceiverRSSIGet(&rssi);
 
         if (rssi < OPLINK_LOW_RSSI) {
             rssi = OPLINK_LOW_RSSI;

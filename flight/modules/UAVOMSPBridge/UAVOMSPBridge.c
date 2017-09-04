@@ -43,7 +43,7 @@
 #include "gpspositionsensor.h"
 #include "manualcontrolcommand.h"
 #include "manualcontrolsettings.h"
-#include "oplinkstatus.h"
+#include "oplinkreceiver.h"
 #include "accessorydesired.h"
 #include "attitudestate.h"
 #include "airspeedstate.h"
@@ -481,7 +481,7 @@ static void msp_send_analog(struct msp_bridge *m)
 #ifdef PIOS_INCLUDE_OPLINKRCVR
     if (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) {
         int8_t rssi;
-        OPLinkStatusRSSIGet(&rssi);
+        OPLinkReceiverRSSIGet(&rssi);
 
         // MSP values have no units, and OSD rssi display requires calibration anyway, so we will translate OPLINK_LOW_RSSI to OPLINK_HIGH_RSSI -> 0-1023
         if (rssi < OPLINK_LOW_RSSI) {

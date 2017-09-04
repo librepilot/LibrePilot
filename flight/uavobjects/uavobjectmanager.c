@@ -513,7 +513,7 @@ unlock_exit:
  * \param[in] dataIn The byte array
  * \return 0 if success or -1 if failure
  */
-int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn)
+int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn, bool create)
 {
     PIOS_Assert(obj_handle);
 
@@ -538,12 +538,13 @@ int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *da
         instEntry = getInstance(obj, instId);
 
         // If the instance does not exist create it and any other instances before it
-        if (instEntry == NULL) {
+        if ((instEntry == NULL) && create) {
             instEntry = createInstance(obj, instId);
-            if (instEntry == NULL) {
-                goto unlock_exit;
-            }
         }
+        if (instEntry == NULL) {
+            goto unlock_exit;
+        }
+
         // Set the data
         memcpy(InstanceData(instEntry), dataIn, obj->type->instance_size);
     }

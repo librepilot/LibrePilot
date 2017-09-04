@@ -268,4 +268,8 @@ void PIOS_BOARD_IO_Configure_RadioAuxStream(HwSettingsRadioAuxStreamOptions radi
 void PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+void PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
 #endif /* PIOS_BOARD_IO_H */

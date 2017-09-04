@@ -551,11 +551,9 @@ static void ProcessTelemetryStream(UAVTalkConnection inConnectionHandle, UAVTalk
             switch (objId) {
             case OPLINKSTATUS_OBJID:
             case OPLINKSETTINGS_OBJID:
-            case OPLINKRECEIVER_OBJID:
             case MetaObjectId(OPLINKSTATUS_OBJID):
             case MetaObjectId(OPLINKSETTINGS_OBJID):
-            case MetaObjectId(OPLINKRECEIVER_OBJID):
-                UAVTalkReceiveObject(inConnectionHandle);
+                UAVTalkReceiveObject(inConnectionHandle, true);
                 break;
             case OBJECTPERSISTENCE_OBJID:
             case MetaObjectId(OBJECTPERSISTENCE_OBJID):
@@ -568,7 +566,7 @@ static void ProcessTelemetryStream(UAVTalkConnection inConnectionHandle, UAVTalk
                 // Second ack/nack will not match an open transaction or will apply to wrong transaction
                 // Question : how does GCS handle receiving the same object twice
                 // The OBJECTPERSISTENCE logic can be broken too if for example OPLM nacks and then REVO acks...
-                UAVTalkReceiveObject(inConnectionHandle);
+                UAVTalkReceiveObject(inConnectionHandle, true);
                 // relay packet to remote modem
                 UAVTalkRelayPacket(inConnectionHandle, outConnectionHandle);
                 break;
@@ -616,7 +614,9 @@ static void ProcessRadioStream(UAVTalkConnection inConnectionHandle, UAVTalkConn
                 // These objects are received by the modem and are not transmitted to the telemetry port
                 // - OPLINKRECEIVER_OBJID : not sure why
                 // some objects will send back a response to the remote modem
-                UAVTalkReceiveObject(inConnectionHandle);
+                UAVTalkReceiveObject(inConnectionHandle, true);
+                // all other packets are relayed to the telemetry port
+                UAVTalkRelayPacket(inConnectionHandle, outConnectionHandle);
                 break;
             default:
                 // all other packets are relayed to the telemetry port

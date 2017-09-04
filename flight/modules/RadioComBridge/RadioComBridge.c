@@ -611,11 +611,8 @@ static void ProcessRadioStream(UAVTalkConnection inConnectionHandle, UAVTalkConn
             case OPLINKRECEIVER_OBJID:
             case MetaObjectId(OPLINKRECEIVER_OBJID):
                 // Receive object locally
-                // These objects are received by the modem and are not transmitted to the telemetry port
-                // - OPLINKRECEIVER_OBJID : not sure why
-                // some objects will send back a response to the remote modem
                 UAVTalkReceiveObject(inConnectionHandle, true);
-                // all other packets are relayed to the telemetry port
+                // Also send the packet to the telemetry point.
                 UAVTalkRelayPacket(inConnectionHandle, outConnectionHandle);
                 break;
             default:

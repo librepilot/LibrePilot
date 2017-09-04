@@ -1869,7 +1869,7 @@ static enum pios_radio_event radio_txStart(struct pios_rfm22b_dev *radio_dev)
         }
         if (newlen) {
             packet_data = true;
-            *(p + len) = radio_dev->last_stream_sent;
+            *(p + len)  = radio_dev->last_stream_sent;
             len += newlen + 1;
         }
     }

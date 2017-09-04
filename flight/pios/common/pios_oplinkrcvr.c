@@ -81,7 +81,7 @@ static void PIOS_oplinkrcvr_ppm_callback(uint32_t oplinkrcvr_id, const int16_t *
     for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
         oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? channels[i] : PIOS_RCVR_TIMEOUT;
     }
-    
+
     // Update the RSSI and quality fields.
     int8_t rssi;
     OPLinkReceiverRSSIGet(&rssi);
@@ -91,7 +91,7 @@ static void PIOS_oplinkrcvr_ppm_callback(uint32_t oplinkrcvr_id, const int16_t *
     // Link quality is 0-128, so scale it down to 0-100
     oplinkrcvr_dev->oplinkreceiverdata.LinkQuality = quality * 100 / 128;
 
-    //OPLinkReceiverSet(&oplinkrcvr_dev->oplinkreceiverdata);
+    OPLinkReceiverSet(&oplinkrcvr_dev->oplinkreceiverdata);
 
     oplinkrcvr_dev->Fresh = true;
 }
@@ -110,7 +110,7 @@ static struct pios_oplinkrcvr_dev *PIOS_oplinkrcvr_alloc(void)
     oplinkrcvr_dev->magic = PIOS_OPLINKRCVR_DEV_MAGIC;
     oplinkrcvr_dev->Fresh = false;
     oplinkrcvr_dev->supv_timer = 0;
-    
+
     /* The update callback cannot receive the device pointer, so set it in a global */
     global_oplinkrcvr_dev = oplinkrcvr_dev;
 

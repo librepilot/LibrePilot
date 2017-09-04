@@ -56,7 +56,7 @@ class UavtalkDemo():
             _port = int(port[3:]) - 1
         else:
             _port = port
-        serPort = serial.Serial(port, 57600, timeout=.5)
+        serPort = serial.Serial(_port, 57600, timeout=.5)
         if not serPort.isOpen():
             raise IOError("Failed to open serial port")
 

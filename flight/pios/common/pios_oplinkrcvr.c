@@ -37,6 +37,8 @@
 #include <oplinkstatus.h>
 #include <pios_oplinkrcvr_priv.h>
 
+// Put receiver in failsafe if not updated within timeout
+#define PIOS_OPLINK_RCVR_TIMEOUT_MS  100
 
 /* Provide a RCVR driver */
 static int32_t PIOS_OPLinkRCVR_Get(uint32_t rcvr_id, uint8_t channel);

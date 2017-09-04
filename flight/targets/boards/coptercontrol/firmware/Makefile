@@ -133,6 +133,8 @@ ifndef TESTAPP
     SRC += $(FLIGHT_UAVOBJ_DIR)/txpidsettings.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/txpidstatus.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/mpugyroaccelsettings.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/gcsreceiver.c
+    SRC += $(FLIGHT_UAVOBJ_DIR)/oplinkreceiver.c
     # Command line option for Gcsreceiver module
     ifeq ($(GCSRECEIVER), YES)
         SRC += $(FLIGHT_UAVOBJ_DIR)/gcsreceiver.c

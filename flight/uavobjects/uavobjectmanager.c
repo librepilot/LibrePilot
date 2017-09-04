@@ -511,6 +511,7 @@ unlock_exit:
  * \param[in] obj The object handle
  * \param[in] instId The instance ID
  * \param[in] dataIn The byte array
+ * \param[in] create Create the object if it does not already exist.
  * \return 0 if success or -1 if failure
  */
 int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn, bool create)

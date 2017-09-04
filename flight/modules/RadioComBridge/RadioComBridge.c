@@ -553,7 +553,7 @@ static void ProcessTelemetryStream(UAVTalkConnection inConnectionHandle, UAVTalk
             case OPLINKSETTINGS_OBJID:
             case MetaObjectId(OPLINKSTATUS_OBJID):
             case MetaObjectId(OPLINKSETTINGS_OBJID):
-                UAVTalkReceiveObject(inConnectionHandle, true);
+                UAVTalkReceiveObject(inConnectionHandle);
                 break;
             case OBJECTPERSISTENCE_OBJID:
             case MetaObjectId(OBJECTPERSISTENCE_OBJID):
@@ -566,7 +566,7 @@ static void ProcessTelemetryStream(UAVTalkConnection inConnectionHandle, UAVTalk
                 // Second ack/nack will not match an open transaction or will apply to wrong transaction
                 // Question : how does GCS handle receiving the same object twice
                 // The OBJECTPERSISTENCE logic can be broken too if for example OPLM nacks and then REVO acks...
-                UAVTalkReceiveObject(inConnectionHandle, true);
+                UAVTalkReceiveObject(inConnectionHandle);
                 // relay packet to remote modem
                 UAVTalkRelayPacket(inConnectionHandle, outConnectionHandle);
                 break;
@@ -611,7 +611,7 @@ static void ProcessRadioStream(UAVTalkConnection inConnectionHandle, UAVTalkConn
             case OPLINKRECEIVER_OBJID:
             case MetaObjectId(OPLINKRECEIVER_OBJID):
                 // Receive object locally
-                UAVTalkReceiveObject(inConnectionHandle, true);
+                UAVTalkReceiveObject(inConnectionHandle);
                 // Also send the packet to the telemetry point.
                 UAVTalkRelayPacket(inConnectionHandle, outConnectionHandle);
                 break;

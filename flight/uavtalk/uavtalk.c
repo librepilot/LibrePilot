@@ -444,7 +444,7 @@ UAVTalkRxState UAVTalkProcessInputStream(UAVTalkConnection connectionHandle, uin
     while (position < length) {
         state = UAVTalkProcessInputStreamQuiet(connectionHandle, rxbuffer, length, &position);
         if (state == UAVTALK_STATE_COMPLETE) {
-            UAVTalkReceiveObject(connectionHandle, true);
+            UAVTalkReceiveObject(connectionHandle);
         }
     }
     return state;
@@ -546,7 +546,7 @@ int32_t UAVTalkRelayPacket(UAVTalkConnection inConnectionHandle, UAVTalkConnecti
  * \return 0 Success
  * \return -1 Failure
  */
-int32_t UAVTalkReceiveObject(UAVTalkConnection connectionHandle, bool create)
+int32_t UAVTalkReceiveObject(UAVTalkConnection connectionHandle)
 {
     UAVTalkConnectionData *connection;
 
@@ -557,7 +557,28 @@ int32_t UAVTalkReceiveObject(UAVTalkConnection connectionHandle, bool create)
         return -1;
     }
 
-    return receiveObject(connection, iproc->type, iproc->objId, iproc->instId, connection->rxBuffer, create);
+    return receiveObject(connection, iproc->type, iproc->objId, iproc->instId, connection->rxBuffer, true);
+}
+
+/**
+ * Complete receiving a UAVTalk packet.  This will cause the packet to be unpacked, acked, etc.
+ * This version will not create/unpack an object if it does not already exist.
+ * \param[in] connectionHandle UAVTalkConnection to be used
+ * \return 0 Success
+ * \return -1 Failure
+ */
+int32_t UAVTalkReceiveObjectNoCreate(UAVTalkConnection connectionHandle)
+{
+    UAVTalkConnectionData *connection;
+
+    CHECKCONHANDLE(connectionHandle, connection, return -1);
+
+    UAVTalkInputProcessor *iproc = &connection->iproc;
+    if (iproc->state != UAVTALK_STATE_COMPLETE) {
+        return -1;
+    }
+
+    return receiveObject(connection, iproc->type, iproc->objId, iproc->instId, connection->rxBuffer, false);
 }
 
 /**

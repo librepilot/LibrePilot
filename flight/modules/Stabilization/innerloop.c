@@ -449,10 +449,15 @@ static void stabilizationInnerloopTask()
     {
         FlightStatusArmedOptions armed;
         FlightStatusArmedGet(&armed);
+        FlightStatusAlwaysStabilizeWhenArmedOptions alwaysStabilizeWhenArmed;
+        FlightStatusAlwaysStabilizeWhenArmedGet(&alwaysStabilizeWhenArmed);
+
         float throttleDesired;
         ManualControlCommandThrottleGet(&throttleDesired);
         if (armed != FLIGHTSTATUS_ARMED_ARMED ||
-            ((stabSettings.settings.LowThrottleZeroIntegral == STABILIZATIONSETTINGS_LOWTHROTTLEZEROINTEGRAL_TRUE) && throttleDesired < 0)) {
+            ((stabSettings.settings.LowThrottleZeroIntegral == STABILIZATIONSETTINGS_LOWTHROTTLEZEROINTEGRAL_TRUE) &&
+             (throttleDesired < 0) &&
+             (alwaysStabilizeWhenArmed != FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE))) {
             // Force all axes to reinitialize when engaged
             for (t = 0; t < AXES; t++) {
                 previous_mode[t] = 255;

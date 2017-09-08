@@ -66,7 +66,6 @@
 #define ASSISTEDCONTROL_BRAKETHRUST_DEADBAND_FACTOR_HI 1.04f
 
 #define ALWAYSTABILIZEACCESSORY_THRESHOLD              0.05f
-#define ALWAYSTABILIZETHROTTLE_THRESHOLD               0.2f
 
 // defined handlers
 
@@ -500,7 +499,8 @@ static void manualControlTask(void)
     if (alwaysStabilizedSwitch) {
         if (acc.AccessoryVal <= -ALWAYSTABILIZEACCESSORY_THRESHOLD) {
             newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_FALSE;
-        } else if ((acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) && (cmd.Thrust >= ALWAYSTABILIZETHROTTLE_THRESHOLD)) { // && Thrust (or Throttle?) above threshold
+        } else if ((acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) &&
+                   (cmd.Throttle >= modeSettings.AlwaysStabilizeWhenArmedThrottleThreshold)) {
             newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE;
         }
     } else {

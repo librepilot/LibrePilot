@@ -2,12 +2,13 @@
  ******************************************************************************
  *
  * @file       configautotunewidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief The Configuration Gadget used to adjust or recalculate autotuning
+ * @brief The Configuration Gadget used to configure autotune module
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -27,36 +28,29 @@
 #ifndef CONFIGAUTOTUNE_H
 #define CONFIGAUTOTUNE_H
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
+#include "configtaskwidget.h"
 
-#include "stabilizationsettings.h"
-#include "relaytuningsettings.h"
-#include "relaytuning.h"
+class SystemIdentState;
+class SystemIdentSettings;
 
-#include <QWidget>
-#include <QTimer>
+class Ui_AutoTuneWidget;
 
-class Ui_AutotuneWidget;
-
-class ConfigAutotuneWidget : public ConfigTaskWidget {
+class ConfigAutoTuneWidget : public ConfigTaskWidget {
     Q_OBJECT
-public:
-    explicit ConfigAutotuneWidget(QWidget *parent = 0);
 
-private:
-    Ui_AutotuneWidget *m_autotune;
-    StabilizationSettings::DataFields stabSettings;
+public:
+    ConfigAutoTuneWidget(QWidget *parent = 0);
+    ~ConfigAutoTuneWidget();
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
-private slots:
-    void recomputeStabilization();
-    void saveStabilization();
+private:
+    Ui_AutoTuneWidget *m_autotune;
+
+    SystemIdentState *systemIdentStateObj;
+    SystemIdentSettings *systemIdentSettingsObj;
 };
 
 #endif // CONFIGAUTOTUNE_H

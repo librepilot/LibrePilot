@@ -9,7 +9,7 @@
  * @{
  *
  * @file       AutoTune/autotune.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2017.
  *             dRonin, http://dRonin.org/, Copyright (C) 2015-2016
  *             Tau Labs, http://taulabs.org, Copyright (C) 2013-2014
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
@@ -69,43 +69,39 @@
 #undef  STACK_SIZE_BYTES
 // Pull Request version tested on Sparky2. 292 bytes of stack left when configured with 1340
 // Beware that Nano needs 156 bytes more stack than Sparky2
-#define STACK_SIZE_BYTES            1340
-#define TASK_PRIORITY               (tskIDLE_PRIORITY + 1)
+#define STACK_SIZE_BYTES          1340
+#define TASK_PRIORITY             (tskIDLE_PRIORITY + 1)
 
-#define AF_NUMX                     13
-#define AF_NUMP                     43
+#define AF_NUMX                   13
+#define AF_NUMP                   43
 
 #if !defined(AT_QUEUE_NUMELEM)
-#define AT_QUEUE_NUMELEM            18
+#define AT_QUEUE_NUMELEM          18
 #endif
 
-#define TASK_STARTUP_DELAY_MS       250                                           /* delay task startup this much, waiting on accessory valid */
-#define NOT_AT_MODE_DELAY_MS        50                                            /* delay this many ms if not in autotune mode */
-#define NOT_AT_MODE_RATE            (1000.0f / NOT_AT_MODE_DELAY_MS)              /* this many loops per second if not in autotune mode */
-#define SMOOTH_QUICK_FLUSH_DELAY    0.5f                                          /* wait this long after last change to flush to permanent storage */
-#define SMOOTH_QUICK_FLUSH_TICKS    (SMOOTH_QUICK_FLUSH_DELAY * NOT_AT_MODE_RATE) /* this many ticks after last change to flush to permanent storage */
+#define TASK_STARTUP_DELAY_MS     250                                           /* delay task startup this much, waiting on accessory valid */
+#define NOT_AT_MODE_DELAY_MS      50                                            /* delay this many ms if not in autotune mode */
+#define NOT_AT_MODE_RATE          (1000.0f / NOT_AT_MODE_DELAY_MS)              /* this many loops per second if not in autotune mode */
+#define SMOOTH_QUICK_FLUSH_DELAY  0.5f                                          /* wait this long after last change to flush to permanent storage */
+#define SMOOTH_QUICK_FLUSH_TICKS  (SMOOTH_QUICK_FLUSH_DELAY * NOT_AT_MODE_RATE) /* this many ticks after last change to flush to permanent storage */
 
-#define MAX_PTS_PER_CYCLE           4    /* max gyro updates to process per loop see YIELD_MS and consider gyro rate */
-#define INIT_TIME_DELAY_MS          100  /* delay to allow stab bank, etc. to be populated after flight mode switch change detection */
-#define SYSTEMIDENT_TIME_DELAY_MS   2000 /* delay before starting systemident (shaking) flight mode */
-#define INIT_TIME_DELAY2_MS         2500 /* delay before starting to capture data */
-#define YIELD_MS                    2    /* delay this long between processing sessions see MAX_PTS_PER_CYCLE and consider gyro rate */
+#define MAX_PTS_PER_CYCLE         4    /* max gyro updates to process per loop see YIELD_MS and consider gyro rate */
+#define INIT_TIME_DELAY_MS        100  /* delay to allow stab bank, etc. to be populated after flight mode switch change detection */
+#define SYSTEMIDENT_TIME_DELAY_MS 2000 /* delay before starting systemident (shaking) flight mode */
+#define INIT_TIME_DELAY2_MS       2500 /* delay before starting to capture data */
+#define YIELD_MS                  2    /* delay this long between processing sessions see MAX_PTS_PER_CYCLE and consider gyro rate */
 
 // CheckSettings() returned error bits
-#define TAU_NAN                     1
-#define BETA_NAN                    2
-#define ROLL_BETA_LOW               4
-#define PITCH_BETA_LOW              8
-#define YAW_BETA_LOW                16
-#define TAU_TOO_LONG                32
-#define TAU_TOO_SHORT               64
-#define CPU_TOO_SLOW                128
+#define TAU_NAN                   1
+#define BETA_NAN                  2
+#define ROLL_BETA_LOW             4
+#define PITCH_BETA_LOW            8
+#define YAW_BETA_LOW              16
+#define TAU_TOO_LONG              32
+#define TAU_TOO_SHORT             64
+#define CPU_TOO_SLOW              128
 
-// smooth-quick modes
-#define SMOOTH_QUICK_DISABLED       0
-#define SMOOTH_QUICK_ACCESSORY_BASE 10
-#define SMOOTH_QUICK_TOGGLE_BASE    20
-
+#define FMS_TOGGLE_STEP_DISABLED  0.0f
 
 // Private types
 enum AUTOTUNE_STATE { AT_INIT, AT_INIT_DELAY, AT_INIT_DELAY2, AT_START, AT_RUN, AT_FINISHED, AT_WAITING };
@@ -136,11 +132,11 @@ static float gyroReadTimeAverageAlpha;
 static float gyroReadTimeAverageAlphaAlpha;
 static float alpha;
 static float smoothQuickValue;
+static float flightModeSwitchToggleStepValue;
 static volatile uint32_t atPointsSpilled;
 static uint32_t throttleAccumulator;
 static uint8_t rollMax, pitchMax;
 static int8_t accessoryToUse;
-static int8_t flightModeSwitchTogglePosition;
 static bool moduleEnabled;
 
 
@@ -288,13 +284,13 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
                 savePidNeeded = false;
                 // Save PIDs to permanent settings
                 switch (systemIdentSettings.DestinationPidBank) {
-                case 1:
+                case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK1:
                     UAVObjSave(StabilizationSettingsBank1Handle(), 0);
                     break;
-                case 2:
+                case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK2:
                     UAVObjSave(StabilizationSettingsBank2Handle(), 0);
                     break;
-                case 3:
+                case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK3:
                     UAVObjSave(StabilizationSettingsBank3Handle(), 0);
                     break;
                 }
@@ -306,13 +302,13 @@ static void AutoTuneTask(__attribute__((unused)) void *parameters)
         // and the autotune data gathering is complete
         // and the autotune data gathered is good
         // note: CheckFlightModeSwitchForPidRequest(mode) only returns true if current mode is not autotune
-        if (flightModeSwitchTogglePosition != -1 && CheckFlightModeSwitchForPidRequest(flightStatus.FlightMode)
+        if (flightModeSwitchToggleStepValue > FMS_TOGGLE_STEP_DISABLED && CheckFlightModeSwitchForPidRequest(flightStatus.FlightMode)
             && systemIdentSettings.Complete && !CheckSettings()) {
             if (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
                 // if user toggled while armed set PID's to next in sequence
                 // if you assume that smoothest is -1 and quickest is +1
                 // this corresponds to 0,+.50,+1.00,-1.00,-.50 (for 5 position toggle)
-                smoothQuickValue += 1.0f / (float)flightModeSwitchTogglePosition;
+                smoothQuickValue += flightModeSwitchToggleStepValue;
                 if (smoothQuickValue > 1.001f) {
                     smoothQuickValue = -1.0f;
                 }
@@ -746,38 +742,44 @@ static void InitSystemIdent(bool loadDefaults)
 // Update SmoothQuickSource to be used
 static void UpdateSmoothQuickSource(uint8_t smoothQuickSource, bool loadDefaults)
 {
+    // disable PID changing with accessory0-3 and flight mode switch toggle
+    accessoryToUse = -1;
+    flightModeSwitchToggleStepValue = FMS_TOGGLE_STEP_DISABLED;
+
     switch (smoothQuickSource) {
-    case SMOOTH_QUICK_ACCESSORY_BASE + 0: // use accessory0
-    case SMOOTH_QUICK_ACCESSORY_BASE + 1: // use accessory1
-    case SMOOTH_QUICK_ACCESSORY_BASE + 2: // use accessory2
-    case SMOOTH_QUICK_ACCESSORY_BASE + 3: // use accessory3
-        // leave smoothQuickValue alone since it is always controlled by knob
-        // disable PID changing with flight mode switch
-        flightModeSwitchTogglePosition = -1;
-        // enable PID changing with accessory0-3
-        accessoryToUse = smoothQuickSource - SMOOTH_QUICK_ACCESSORY_BASE;
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_ACCESSORY0:
+        accessoryToUse = 0;
         break;
-    case SMOOTH_QUICK_TOGGLE_BASE + 3: // use flight mode switch toggle with 3 points
-    case SMOOTH_QUICK_TOGGLE_BASE + 5: // use flight mode switch toggle with 5 points
-    case SMOOTH_QUICK_TOGGLE_BASE + 7: // use flight mode switch toggle with 7 points
-        // don't allow init of current toggle position in the middle of 3x fms toggle
-        if (loadDefaults) {
-            // set toggle to middle of range
-            smoothQuickValue = 0.0f;
-        }
-        // enable PID changing with flight mode switch
-        flightModeSwitchTogglePosition = (smoothQuickSource - 1 - SMOOTH_QUICK_TOGGLE_BASE) / 2;
-        // disable PID changing with accessory0-3
-        accessoryToUse = -1;
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_ACCESSORY1:
+        accessoryToUse = 1;
         break;
-    case SMOOTH_QUICK_DISABLED:
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_ACCESSORY2:
+        accessoryToUse = 2;
+        break;
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_ACCESSORY3:
+        accessoryToUse = 3;
+        break;
+    // enable PID changing with flight mode switch
+    // -1 to +1 give a range = 2, define step value for desired positions: 3, 5, 7
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_FMSTOGGLE3POS:
+        flightModeSwitchToggleStepValue = 1.0f;
+        break;
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_FMSTOGGLE5POS:
+        flightModeSwitchToggleStepValue = 0.5f;
+        break;
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_FMSTOGGLE7POS:
+        flightModeSwitchToggleStepValue = 0.33f;
+        break;
+    case SYSTEMIDENTSETTINGS_SMOOTHQUICKSOURCE_DISABLED:
     default:
-        // leave smoothQuickValue alone so user can set it to a different value and have it stay that value
-        // disable PID changing with flight mode switch
-        flightModeSwitchTogglePosition = -1;
-        // disable PID changing with accessory0-3
         accessoryToUse = -1;
+        flightModeSwitchToggleStepValue = FMS_TOGGLE_STEP_DISABLED;
         break;
+    }
+    // don't allow init of current toggle position in the middle of 3x fms toggle
+    if (loadDefaults && (flightModeSwitchToggleStepValue > FMS_TOGGLE_STEP_DISABLED)) {
+        // set toggle to middle of range
+        smoothQuickValue = 0.0f;
     }
 }
 
@@ -928,13 +930,13 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
     _Static_assert(sizeof(StabilizationSettingsBank1Data) == sizeof(StabilizationBankData), "sizeof(StabilizationSettingsBank1Data) != sizeof(StabilizationBankData)");
     StabilizationBankData volatile stabSettingsBank;
     switch (systemIdentSettings.DestinationPidBank) {
-    case 1:
+    case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK1:
         StabilizationSettingsBank1Get((void *)&stabSettingsBank);
         break;
-    case 2:
+    case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK2:
         StabilizationSettingsBank2Get((void *)&stabSettingsBank);
         break;
-    case 3:
+    case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK3:
         StabilizationSettingsBank3Get((void *)&stabSettingsBank);
         break;
     }
@@ -1161,13 +1163,13 @@ static void ComputeStabilizationAndSetPidsFromDampAndNoise(float dampRate, float
 
     // Save PIDs to UAVO RAM (not permanently yet)
     switch (systemIdentSettings.DestinationPidBank) {
-    case 1:
+    case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK1:
         StabilizationSettingsBank1Set((void *)&stabSettingsBank);
         break;
-    case 2:
+    case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK2:
         StabilizationSettingsBank2Set((void *)&stabSettingsBank);
         break;
-    case 3:
+    case SYSTEMIDENTSETTINGS_DESTINATIONPIDBANK_BANK3:
         StabilizationSettingsBank3Set((void *)&stabSettingsBank);
         break;
     }

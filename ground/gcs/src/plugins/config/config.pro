@@ -64,6 +64,7 @@ HEADERS += \
     calibration/levelcalibrationmodel.h \
     calibration/gyrobiascalibrationmodel.h \
     calibration/calibrationuiutils.h \
+    configautotunewidget.h \
     configoplinkwidget.h \
     configrevonanohwwidget.h \
     configsparky2hwwidget.h \
@@ -106,6 +107,7 @@ SOURCES += \
     calibration/sixpointcalibrationmodel.cpp \
     calibration/levelcalibrationmodel.cpp \
     calibration/gyrobiascalibrationmodel.cpp \
+    configautotunewidget.cpp \
     configoplinkwidget.cpp \
     configrevonanohwwidget.cpp \
     configsparky2hwwidget.cpp \
@@ -133,6 +135,7 @@ FORMS += \
     mixercurve.ui \
     configrevohwwidget.ui \
     configspracingf3hwwidget.ui \
+    autotune.ui \
     oplink.ui \
     configrevonanohwwidget.ui \
     configsparky2hwwidget.ui \

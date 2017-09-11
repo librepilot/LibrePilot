@@ -56,23 +56,19 @@
         <field name="YawToRollPitchPIDRatioMax" units="" type="float" elements="1" defaultvalue="2.5" description="Setting: Yaw PID will be at most this times Pitch PID (if enabled)"/>
         <field name="DerivativeFactor" units="" type="float" elements="1" defaultvalue="1.0" limits="%BE:0:1" description="Setting: Multiplicative factor. If you have D term oscillations, reduce it toward zero and it will reduce PID D terms."/>
         <field name="OuterLoopKpSoftClamp" units="" type="float" elements="1" defaultvalue="6.5" limits="%BE:0:100" description="Setting: Change this to change the outer loop Kp and Ki limiting"/>
-        <field name="DestinationPidBank" units="bank#" type="uint8" elements="1" defaultvalue="3" limits="%BE:1:3" description="Setting: Which bank the calculated PIDs will be stored in after tuning"/>
+        <field name="DestinationPidBank" units="bank#" type="enum" elements="1" options="Bank1,Bank2,Bank3" defaultvalue="Bank3" description="Setting: Which bank the calculated PIDs will be stored in after tuning"/>
         <field name="TuningDuration" units="s" type="uint8" elements="1" defaultvalue="60" limits="%BI:0" description="Setting: Duration of the tuning motions (expert)"/>
         <field name="ThrustControl" units="" type="enum" elements="1" options="Manual,AltitudeVario" defaultvalue="Manual" description="Setting: Manual is direct control, AltitudeVario helps to maintain altitude"/>
         <!-- SmoothQuickSource: the smooth vs. quick PID selector -->
-        <!-- 0 = disabled -->
-        <!-- 10 thru 13 correspond to accessory0 -> accessory3 transmitter knobs -->
-        <!-- an accessory knob works as expected, with full left being smoothest and full right being quickest -->
-        <!-- 23, 25, and 27 are discrete 3, 5, and 7 position rount robin selectors -->
+        <!-- accessory0 -> accessory3 transmitter knobs works as expected, with full left being smoothest (-1) and full right being quickest (+1) -->
+        <!-- FMSToggle 3, 5, and 7 positions rount robin selectors -->
         <!-- incremented by quickly double toggling the fms 3 times (starting outside autotune mode -->
         <!-- with each double toggle going into and back out of autotune) to go to the next position -->
-        <!-- think of the positions on a scale from 0 to 100, with smoothest being 0 and quickest being 100, and you start out at 50 -->
-        <!-- 23 (3 stops) means stops at 50, then 100, then 0 then back to 50 -->
-        <!-- 25 (5 stops) means stops at 50, 75, 100, 0, 25 (repeat as you toggle) -->
-        <!-- 27 (7 stops) means stops at 50, 67, 83, 100, 0, 17, 33 (repeat as you toggle) -->
-        <!-- 25 is special in that the 3 middle values (25, 50, 75) are exactly those that are recommended for smooth, normal, and quick responses -->
-        <field name="SmoothQuickSource" units="" type="uint8" elements="1" defaultvalue="25" description="Setting: 10-13 to use one of accessory0-3, 23 25 27 for FMS 3x toggle method with 3 5 7 positions"/>
-        <field name="SmoothQuickValue" units="" type="float" elements="1" defaultvalue="0.0" description="Remembers the value of the FMS 3x toggle"/>
+        <!-- 3 stops means stops at 0, then +1, then -1 then back to 0 -->
+        <!-- 5 stops means stops at 0, +0.5, +1, -1, -0.5 the 3 middle values (-0.5, 0, +0.5) are exactly those that are recommended for smooth, normal, and quick responses-->
+        <!-- 7 stops means stops at 0, +0.33, +0.66, +1, -1, -0.66, -0.33 -->
+        <field name="SmoothQuickSource" units="" type="enum" elements="1" options="Disabled,Accessory0,Accessory1,Accessory2,Accessory3,FMSToggle3pos,FMSToggle5pos,FMSToggle7pos" defaultvalue="FMSToggle5pos" description="Setting: Choose Accessory or FMS 3x toggle method with 3, 5, 7 positions"/>
+        <field name="SmoothQuickValue" units="" type="float" elements="1" defaultvalue="0.0" description="Remembers the value of the FMS 3x toggle (-1 to +1 range)"/>
         <field name="DisableSanityChecks" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False" description="Setting: Debugging tool (expert)"/>
         <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.001" description="Measured delay from gyro read to inner loop"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False" description="Automatically set True for a good complete tune or False for incomplete or bad"/>

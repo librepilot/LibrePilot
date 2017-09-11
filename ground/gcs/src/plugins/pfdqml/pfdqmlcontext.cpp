@@ -310,14 +310,14 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 }
 
 
-void PfdQmlContext::saveState(QSettings *settings)
+void PfdQmlContext::saveState(QSettings &settings) const
 {
-    settings->setValue("modelFile", modelFile());
+    settings.setValue("modelFile", modelFile());
 }
 
-void PfdQmlContext::restoreState(QSettings *settings)
+void PfdQmlContext::restoreState(QSettings &settings)
 {
-    QString file = settings->value("modelFile").toString();
+    QString file = settings.value("modelFile").toString();
 
     if (!file.isEmpty()) {
         setModelFile(file);

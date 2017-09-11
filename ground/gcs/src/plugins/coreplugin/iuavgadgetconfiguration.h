@@ -40,52 +40,60 @@ class CORE_EXPORT IUAVGadgetConfiguration : public QObject {
     Q_OBJECT
 public:
     explicit IUAVGadgetConfiguration(QString classId, QObject *parent = 0);
-    QString classId()
+
+    QString classId() const
     {
         return m_classId;
     }
-    QString name()
+
+    QString name() const
     {
         return m_name;
     }
+
     void setName(QString name)
     {
         m_name = name;
     }
-    QString provisionalName()
+
+    QString provisionalName() const
     {
         return m_provisionalName;
     }
+
     void setProvisionalName(QString name)
     {
         m_provisionalName = name;
     }
+
     bool locked() const
     {
         return m_locked;
     }
+
     void setLocked(bool locked)
     {
         m_locked = locked;
     }
 
-    virtual void saveConfig(QSettings * /*settings*/) const {}
-    virtual void saveConfig(QSettings *settings, UAVConfigInfo * /*configInfo*/) const
+    virtual void saveConfig(QSettings &) const {}
+
+    virtual void saveConfig(QSettings &settings, UAVConfigInfo *) const
     {
         saveConfig(settings);
     }
 
-    virtual IUAVGadgetConfiguration *clone() = 0;
+    virtual IUAVGadgetConfiguration *clone() const = 0;
 
 signals:
 
 public slots:
 
 private:
-    bool m_locked;
     QString m_classId;
     QString m_name;
     QString m_provisionalName;
+    bool m_locked;
 };
 } // namespace Core
 

@@ -38,7 +38,11 @@ using namespace Core;
 class LineardialGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit LineardialGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit LineardialGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit LineardialGadgetConfiguration(const LineardialGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     // set dial configuration functions
     void setDialFile(QString filename)
@@ -61,12 +65,10 @@ public:
     {
         redMin = min; redMax = max;
     }
-
     void setFont(QString text)
     {
         font = text;
     }
-
     void setFactor(double val)
     {
         factor = val;
@@ -75,7 +77,6 @@ public:
     {
         decimalPlaces = val;
     }
-
     void setSourceDataObject(QString text)
     {
         sourceDataObject = text;
@@ -84,7 +85,6 @@ public:
     {
         sourceObjectField = text;
     }
-
     void setUseOpenGL(bool flag)
     {
         useOpenGLFlag = flag;
@@ -151,9 +151,6 @@ public:
     {
         return useOpenGLFlag;
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     // A linear or "bargraph" dial contains:

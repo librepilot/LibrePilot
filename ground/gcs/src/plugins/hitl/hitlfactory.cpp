@@ -45,9 +45,9 @@ Core::IUAVGadget *HITLFactory::createGadget(QWidget *parent)
     return new HITLGadget(QString("HITL"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *HITLFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *HITLFactory::createConfiguration(QSettings &settings)
 {
-    return new HITLConfiguration(QString("HITL"), qSettings);
+    return new HITLConfiguration(QString("HITL"), settings);
 }
 
 IOptionsPage *HITLFactory::createOptionsPage(IUAVGadgetConfiguration *config)

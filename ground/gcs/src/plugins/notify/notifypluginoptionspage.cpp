@@ -35,7 +35,6 @@
 #include <QFileDialog>
 #include <QtAlgorithms>
 #include <QStringList>
-#include <QtCore/QSettings>
 #include <QTableWidget>
 #include <QPalette>
 #include <QBuffer>

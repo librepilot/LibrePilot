@@ -261,18 +261,18 @@ void UAVGadgetView::currentGadgetChanged(IUAVGadget *gadget)
     m_activeLabel->setVisible(m_uavGadget == gadget);
 }
 
-void UAVGadgetView::saveState(QSettings *qSettings)
+void UAVGadgetView::saveState(QSettings &settings) const
 {
-    qSettings->setValue("type", "uavGadget");
-    qSettings->setValue("classId", gadget()->classId());
-    qSettings->beginGroup("gadget");
-    gadget()->saveState(qSettings);
-    qSettings->endGroup();
+    settings.setValue("type", "uavGadget");
+    settings.setValue("classId", gadget()->classId());
+    settings.beginGroup("gadget");
+    gadget()->saveState(settings);
+    settings.endGroup();
 }
 
-void UAVGadgetView::restoreState(QSettings *qSettings)
+void UAVGadgetView::restoreState(QSettings &settings)
 {
-    QString classId = qSettings->value("classId").toString();
+    QString classId = settings.value("classId").toString();
     int index = indexOfClassId(classId);
 
     if (index < 0) {
@@ -282,11 +282,11 @@ void UAVGadgetView::restoreState(QSettings *qSettings)
 
     IUAVGadget *newGadget;
     UAVGadgetInstanceManager *im = ICore::instance()->uavGadgetInstanceManager();
-    if (qSettings->childGroups().contains("gadget")) {
+    if (settings.childGroups().contains("gadget")) {
         newGadget = im->createGadget(classId, this, false);
-        qSettings->beginGroup("gadget");
-        newGadget->restoreState(qSettings);
-        qSettings->endGroup();
+        settings.beginGroup("gadget");
+        newGadget->restoreState(settings);
+        settings.endGroup();
     } else {
         newGadget = im->createGadget(classId, this);
     }

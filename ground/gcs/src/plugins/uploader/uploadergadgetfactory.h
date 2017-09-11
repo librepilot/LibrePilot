@@ -45,7 +45,7 @@ public:
     ~UploaderGadgetFactory();
 
     Core::IUAVGadget *createGadget(QWidget *parent);
-    IUAVGadgetConfiguration *createConfiguration(QSettings *qSettings);
+    IUAVGadgetConfiguration *createConfiguration(QSettings &settings);
     bool isAutoUpdateCapable();
 private:
     bool isautocapable;

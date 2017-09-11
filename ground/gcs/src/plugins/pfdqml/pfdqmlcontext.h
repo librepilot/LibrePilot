@@ -105,8 +105,8 @@ public:
     Q_INVOKABLE void resetConsumedEnergy();
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
-    void saveState(QSettings *);
-    void restoreState(QSettings *);
+    void saveState(QSettings &) const;
+    void restoreState(QSettings &);
 
     void apply(QQmlContext *context);
 

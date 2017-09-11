@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionplugin.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionplugin.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,15 +26,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef IPconnectionPLUGIN_H
-#define IPconnectionPLUGIN_H
+#ifndef IPCONNECTIONPLUGIN_H
+#define IPCONNECTIONPLUGIN_H
 
 #include "ipconnection_global.h"
 #include "ipconnectionoptionspage.h"
 #include "ipconnectionconfiguration.h"
-#include "coreplugin/iconnection.h"
+
 #include <extensionsystem/iplugin.h>
-// #include <QtCore/QSettings>
+#include <coreplugin/iconfigurableplugin.h>
+#include <coreplugin/iconnection.h>
 
 class QAbstractSocket;
 class QTcpSocket;
@@ -46,12 +48,12 @@ class IConnection;
  *   Plugin will add a instance of this class to the pool,
  *   so the connection manager can use it.
  */
-class IPconnection_EXPORT IPconnectionConnection : public Core::IConnection {
+class IPCONNECTION_EXPORT IPConnectionConnection : public Core::IConnection {
     Q_OBJECT
 
 public:
-    IPconnectionConnection();
-    virtual ~IPconnectionConnection();
+    IPConnectionConnection(IPConnectionConfiguration *config);
+    virtual ~IPConnectionConnection();
 
     virtual QList <Core::IConnection::device> availableDevices();
     virtual QIODevice *openDevice(const QString &deviceName);
@@ -60,42 +62,44 @@ public:
     virtual QString connectionName();
     virtual QString shortName();
 
-    IPconnectionConfiguration *Config() const
+    IPConnectionOptionsPage *optionsPage() const
     {
-        return m_config;
-    }
-    IPconnectionOptionsPage *Optionspage() const
-    {
-        return m_optionspage;
+        return m_optionsPage;
     }
 
 protected slots:
     void onEnumerationChanged();
 
-signals: // For the benefit of IPConnection
+signals:
+    // For the benefit of IPConnection
+    // FIXME change to camel case
     void CreateSocket(QString HostName, int Port, bool UseTCP);
     void CloseSocket(QAbstractSocket *socket);
 
 private:
-    QAbstractSocket *ipSocket;
-    IPconnectionConfiguration *m_config;
-    IPconnectionOptionsPage *m_optionspage;
-    // QSettings* settings;
+    QAbstractSocket *m_ipSocket;
+    // FIXME m_config and m_optionsPage belong in IPConnectionPlugin
+    IPConnectionConfiguration *m_config;
+    IPConnectionOptionsPage *m_optionsPage;
 };
 
-class IPconnection_EXPORT IPconnectionPlugin : public ExtensionSystem::IPlugin {
+class IPCONNECTION_EXPORT IPConnectionPlugin : public Core::IConfigurablePlugin {
     Q_OBJECT
-                          Q_PLUGIN_METADATA(IID "OpenPilot.IPconnection")
+                          Q_PLUGIN_METADATA(IID "OpenPilot.IPConnection")
 
 public:
-    IPconnectionPlugin();
-    ~IPconnectionPlugin();
+    IPConnectionPlugin();
+    ~IPConnectionPlugin();
 
     virtual bool initialize(const QStringList &arguments, QString *error_message);
     virtual void extensionsInitialized();
 
+    void readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo);
+    void saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const;
+
 private:
-    IPconnectionConnection *m_connection;
+    IPConnectionConnection *m_connection;
+    IPConnectionConfiguration *m_config;
 };
 
-#endif // IPconnectionPLUGIN_H
+#endif // IPCONNECTIONPLUGIN_H

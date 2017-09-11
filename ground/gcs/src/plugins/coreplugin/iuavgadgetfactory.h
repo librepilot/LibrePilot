@@ -28,15 +28,17 @@
 
 #ifndef IUAVGADGETFACTORY_H
 #define IUAVGADGETFACTORY_H
+
 #include "core_global.h"
 
-#include <QtCore/QObject>
-#include <QIcon>
-#include <QSettings>
 #include "uavconfiginfo.h"
+
+#include <QObject>
+#include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -56,15 +58,15 @@ public:
     virtual ~IUAVGadgetFactory() {}
 
     virtual IUAVGadget *createGadget(QWidget *parent) = 0;
-    virtual IUAVGadgetConfiguration *createConfiguration(QSettings * /*qSettings*/)
+    virtual IUAVGadgetConfiguration *createConfiguration(QSettings &)
     {
         return 0;
     }
-    virtual IUAVGadgetConfiguration *createConfiguration(QSettings *qs, UAVConfigInfo * /*configInfo*/)
+    virtual IUAVGadgetConfiguration *createConfiguration(QSettings &settings, UAVConfigInfo *)
     {
-        return createConfiguration(qs);
+        return createConfiguration(settings);
     }
-    virtual IOptionsPage *createOptionsPage(IUAVGadgetConfiguration * /*config*/)
+    virtual IOptionsPage *createOptionsPage(IUAVGadgetConfiguration *)
     {
         return 0;
     }

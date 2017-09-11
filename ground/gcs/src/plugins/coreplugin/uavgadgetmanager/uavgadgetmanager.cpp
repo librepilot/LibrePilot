@@ -27,6 +27,7 @@
  */
 
 #include "uavgadgetmanager.h"
+
 #include "uavgadgetview.h"
 #include "splitterorview.h"
 #include "uavgadgetinstancemanager.h"
@@ -37,31 +38,16 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/baseview.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/settingsdatabase.h>
-#include <coreplugin/variablemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QMap>
-#include <QtCore/QProcess>
-#include <QtCore/QSet>
-
-#include <QAction>
-#include <QtWidgets/QApplication>
-#include <QLayout>
-#include <QMainWindow>
-#include <QMenu>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QSplitter>
-#include <QStackedLayout>
+#include <QDebug>
+#include <QApplication>
+#include <QHBoxLayout>
 
 Q_DECLARE_METATYPE(Core::IUAVGadget *)
 
@@ -291,16 +277,16 @@ void UAVGadgetManager::updateUavGadgetMenus()
     emit showUavGadgetMenus(m_showToolbars, hasSplitter);
 }
 
-void UAVGadgetManager::saveState(QSettings *qSettings) const
+void UAVGadgetManager::saveState(QSettings &settings) const
 {
-    qSettings->setValue("version", "UAVGadgetManagerV1");
-    qSettings->setValue("showToolbars", m_showToolbars);
-    qSettings->beginGroup("splitter");
-    m_splitterOrView->saveState(qSettings);
-    qSettings->endGroup();
+    settings.setValue("version", "UAVGadgetManagerV1");
+    settings.setValue("showToolbars", m_showToolbars);
+    settings.beginGroup("splitter");
+    m_splitterOrView->saveState(settings);
+    settings.endGroup();
 }
 
-bool UAVGadgetManager::restoreState(QSettings *qSettings)
+bool UAVGadgetManager::restoreState(QSettings &settings)
 {
     removeAllSplits();
 
@@ -309,59 +295,59 @@ bool UAVGadgetManager::restoreState(QSettings *qSettings)
     emptyView(m_splitterOrView->view());
     im->removeGadget(gadget);
 
-    QString version = qSettings->value("version").toString();
+    QString version = settings.value("version").toString();
     if (version != "UAVGadgetManagerV1") {
         return false;
     }
 
-    m_showToolbars = qSettings->value("showToolbars").toBool();
+    m_showToolbars = settings.value("showToolbars").toBool();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    qSettings->beginGroup("splitter");
-    m_splitterOrView->restoreState(qSettings);
-    qSettings->endGroup();
+    settings.beginGroup("splitter");
+    m_splitterOrView->restoreState(settings);
+    settings.endGroup();
 
     QApplication::restoreOverrideCursor();
     return true;
 }
 
-void UAVGadgetManager::saveSettings(QSettings *qs)
+void UAVGadgetManager::saveSettings(QSettings &settings) const
 {
-    qs->beginGroup("UAVGadgetManager");
-    qs->beginGroup(this->uniqueModeName());
+    settings.beginGroup("UAVGadgetManager");
+    settings.beginGroup(this->uniqueModeName());
 
     // Make sure the old tree is wiped.
-    qs->remove("");
+    settings.remove("");
 
     // Do actual saving
-    saveState(qs);
+    saveState(settings);
 
-    qs->endGroup();
-    qs->endGroup();
+    settings.endGroup();
+    settings.endGroup();
 }
 
-void UAVGadgetManager::readSettings(QSettings *qs)
+void UAVGadgetManager::readSettings(QSettings &settings)
 {
     QString uavGadgetManagerRootKey = "UAVGadgetManager";
 
-    if (!qs->childGroups().contains(uavGadgetManagerRootKey)) {
+    if (!settings.childGroups().contains(uavGadgetManagerRootKey)) {
         return;
     }
-    qs->beginGroup(uavGadgetManagerRootKey);
+    settings.beginGroup(uavGadgetManagerRootKey);
 
-    if (!qs->childGroups().contains(uniqueModeName())) {
-        qs->endGroup();
+    if (!settings.childGroups().contains(uniqueModeName())) {
+        settings.endGroup();
         return;
     }
-    qs->beginGroup(uniqueModeName());
+    settings.beginGroup(uniqueModeName());
 
-    restoreState(qs);
+    restoreState(settings);
 
     showToolbars(m_showToolbars);
 
-    qs->endGroup();
-    qs->endGroup();
+    settings.endGroup();
+    settings.endGroup();
 }
 
 void UAVGadgetManager::split(Qt::Orientation orientation)

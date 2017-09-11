@@ -35,10 +35,11 @@ using namespace Core;
 class MonitorGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit MonitorGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit MonitorGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit MonitorGadgetConfiguration(const MonitorGadgetConfiguration &obj);
 
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 };
 
 #endif // MONITORGADGETCONFIGURATION_H

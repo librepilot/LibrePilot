@@ -45,9 +45,9 @@ Core::IUAVGadget *PfdQmlGadgetFactory::createGadget(QWidget *parent)
     return new PfdQmlGadget(QString("PfdQmlGadget"), parent);
 }
 
-IUAVGadgetConfiguration *PfdQmlGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *PfdQmlGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new PfdQmlGadgetConfiguration(QString("PfdQmlGadget"), qSettings);
+    return new PfdQmlGadgetConfiguration(QString("PfdQmlGadget"), settings);
 }
 
 IOptionsPage *PfdQmlGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

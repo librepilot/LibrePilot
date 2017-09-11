@@ -44,7 +44,7 @@ public:
     ~SystemHealthGadgetFactory();
 
     Core::IUAVGadget *createGadget(QWidget *parent);
-    IUAVGadgetConfiguration *createConfiguration(QSettings *qSettings);
+    IUAVGadgetConfiguration *createConfiguration(QSettings &settings);
     IOptionsPage *createOptionsPage(IUAVGadgetConfiguration *config);
 };
 

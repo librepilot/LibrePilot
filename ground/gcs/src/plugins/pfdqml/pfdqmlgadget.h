@@ -46,8 +46,8 @@ public:
     QWidget *widget();
 
     void loadConfiguration(IUAVGadgetConfiguration *config);
-    void saveState(QSettings *);
-    void restoreState(QSettings *);
+    void saveState(QSettings &) const;
+    void restoreState(QSettings &);
 
 private:
     PfdQmlGadgetWidget *m_qmlGadgetWidget;

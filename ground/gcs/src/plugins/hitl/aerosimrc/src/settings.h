@@ -77,8 +77,9 @@ public:
     }
 
 private:
+    QSettings settings;
+
     QHash<QString, quint8> channels;
-    QSettings *settings;
     QString sendToHost;
     quint16 sendToPort;
     QString listenOnHost;

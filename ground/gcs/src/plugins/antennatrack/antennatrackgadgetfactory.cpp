@@ -47,9 +47,9 @@ Core::IUAVGadget *AntennaTrackGadgetFactory::createGadget(QWidget *parent)
     return new AntennaTrackGadget(QString("AntennaTrackGadget"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *AntennaTrackGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *AntennaTrackGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new AntennaTrackGadgetConfiguration(QString("AntennaTrackGadget"), qSettings);
+    return new AntennaTrackGadgetConfiguration(QString("AntennaTrackGadget"), settings);
 }
 
 IOptionsPage *AntennaTrackGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

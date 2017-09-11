@@ -50,9 +50,9 @@ Core::IUAVGadget *UploaderGadgetFactory::createGadget(QWidget *parent)
     return new UploaderGadget(QString("Uploader"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *UploaderGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *UploaderGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new UploaderGadgetConfiguration(QString("Uploader"), qSettings);
+    return new UploaderGadgetConfiguration(QString("Uploader"), settings);
 }
 bool UploaderGadgetFactory::isAutoUpdateCapable()
 {

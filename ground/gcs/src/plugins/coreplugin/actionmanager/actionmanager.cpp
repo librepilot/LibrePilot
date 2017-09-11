@@ -481,14 +481,14 @@ static const char *settingsGroup = "KeyBindings";
 static const char *idKey = "ID";
 static const char *sequenceKey   = "Keysequence";
 
-void ActionManagerPrivate::readSettings(QSettings *settings)
+void ActionManagerPrivate::readSettings(QSettings &settings)
 {
-    const int shortcuts = settings->beginReadArray(QLatin1String(settingsGroup));
+    const int shortcuts = settings.beginReadArray(QLatin1String(settingsGroup));
 
     for (int i = 0; i < shortcuts; ++i) {
-        settings->setArrayIndex(i);
-        const QString sid = settings->value(QLatin1String(idKey)).toString();
-        const QKeySequence key(settings->value(QLatin1String(sequenceKey)).toString());
+        settings.setArrayIndex(i);
+        const QString sid = settings.value(QLatin1String(idKey)).toString();
+        const QKeySequence key(settings.value(QLatin1String(sequenceKey)).toString());
         const int id = UniqueIDManager::instance()->uniqueIdentifier(sid);
 
         Command *cmd = command(id);
@@ -496,12 +496,12 @@ void ActionManagerPrivate::readSettings(QSettings *settings)
             cmd->setKeySequence(key);
         }
     }
-    settings->endArray();
+    settings.endArray();
 }
 
-void ActionManagerPrivate::saveSettings(QSettings *settings)
+void ActionManagerPrivate::saveSettings(QSettings &settings) const
 {
-    settings->beginWriteArray(QLatin1String(settingsGroup));
+    settings.beginWriteArray(QLatin1String(settingsGroup));
     int count = 0;
 
     const IdCmdMap::const_iterator cmdcend = m_idCmdMap.constEnd();
@@ -511,12 +511,12 @@ void ActionManagerPrivate::saveSettings(QSettings *settings)
         QKeySequence key    = cmd->keySequence();
         if (key != cmd->defaultKeySequence()) {
             const QString sid = UniqueIDManager::instance()->stringForUniqueIdentifier(id);
-            settings->setArrayIndex(count);
-            settings->setValue(QLatin1String(idKey), sid);
-            settings->setValue(QLatin1String(sequenceKey), key.toString());
+            settings.setArrayIndex(count);
+            settings.setValue(QLatin1String(idKey), sid);
+            settings.setValue(QLatin1String(sequenceKey), key.toString());
             count++;
         }
     }
 
-    settings->endArray();
+    settings.endArray();
 }

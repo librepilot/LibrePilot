@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
  *
- * @file       winutils.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       settingsutils.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @brief
  * @see        The GNU Public License (GPL) Version 3
@@ -26,27 +26,19 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "winutils.h"
-#include <windows.h>
+#ifndef SETTINGS_UTILS_H
+#define SETTINGS_UTILS_H
 
-#include <QtCore/QString>
+#include "utils_global.h"
+
+#include <QString>
+#include <QSettings>
 
 namespace Utils {
-QTCREATOR_UTILS_EXPORT QString winErrorMessage(unsigned long error)
-{
-    QString rc    = QString::fromLatin1("#%1: ").arg(error);
-    ushort *lpMsgBuf;
-
-    const int len = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, error, 0, (LPTSTR)&lpMsgBuf, 0, NULL);
-
-    if (len) {
-        rc = QString::fromUtf16(lpMsgBuf, len);
-        LocalFree(lpMsgBuf);
-    } else {
-        rc += QString::fromLatin1("<unknown error>");
-    }
-    return rc;
+QTCREATOR_UTILS_EXPORT void initSettings(const QString &factoryDefaultsFileName);
+QTCREATOR_UTILS_EXPORT void overrideSettings(QSettings &settings, int argc, char * *argv);
+QTCREATOR_UTILS_EXPORT void resetToFactoryDefaults(QSettings &settings);
+QTCREATOR_UTILS_EXPORT void mergeFactoryDefaults(QSettings &settings);
 }
-} // namespace Utils
+
+#endif /* SETTINGS_UTILS_H */

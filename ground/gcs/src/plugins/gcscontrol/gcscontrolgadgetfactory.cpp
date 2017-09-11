@@ -45,9 +45,9 @@ IUAVGadget *GCSControlGadgetFactory::createGadget(QWidget *parent)
     return new GCSControlGadget(QString("GCSControlGadget"), gadgetWidget, parent, this->parent());
 }
 
-IUAVGadgetConfiguration *GCSControlGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *GCSControlGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new GCSControlGadgetConfiguration(QString("GCSControlGadget"), qSettings);
+    return new GCSControlGadgetConfiguration(QString("GCSControlGadget"), settings);
 }
 
 IOptionsPage *GCSControlGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

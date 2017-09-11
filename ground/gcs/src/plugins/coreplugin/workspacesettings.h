@@ -29,8 +29,9 @@
 #define WORKSPACESETTINGS_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+
+#include <QObject>
+#include <QStringList>
 #include <QTabWidget>
 
 class QSettings;
@@ -59,8 +60,8 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
-    void readSettings(QSettings *qs);
-    void saveSettings(QSettings *qs);
+    void readSettings(QSettings &settings);
+    void saveSettings(QSettings &settings) const;
     int numberOfWorkspaces() const
     {
         return m_numberOfWorkspaces;

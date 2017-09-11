@@ -32,92 +32,78 @@
  * Loads a saved configuration or defaults if non exist.
  *
  */
-LineardialGadgetConfiguration::LineardialGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    dialFile("Unknown"),
-    sourceDataObject("Unknown"),
-    sourceObjectField("Unknown"),
-    minValue(0),
-    maxValue(100),
-    redMin(0),
-    redMax(33),
-    yellowMin(33),
-    yellowMax(66),
-    greenMin(66),
-    greenMax(100),
-    factor(1.00),
-    decimalPlaces(0),
-    useOpenGLFlag(false)
+LineardialGadgetConfiguration::LineardialGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        QString dFile = qSettings->value("dFile").toString();
-        dialFile          = Utils::InsertDataPath(dFile);
-        sourceDataObject  = qSettings->value("sourceDataObject").toString();
-        sourceObjectField = qSettings->value("sourceObjectField").toString();
-        minValue          = qSettings->value("minValue").toDouble();
-        maxValue          = qSettings->value("maxValue").toDouble();
-        redMin            = qSettings->value("redMin").toDouble();
-        redMax            = qSettings->value("redMax").toDouble();
-        yellowMin         = qSettings->value("yellowMin").toDouble();
-        yellowMax         = qSettings->value("yellowMax").toDouble();
-        greenMin          = qSettings->value("greenMin").toDouble();
-        greenMax          = qSettings->value("greenMax").toDouble();
-        font = qSettings->value("font").toString();
-        decimalPlaces     = qSettings->value("decimalPlaces").toInt();
-        factor            = qSettings->value("factor").toDouble();
-        useOpenGLFlag     = qSettings->value("useOpenGLFlag").toBool();
-    }
+    QString dFile = settings.value("dFile").toString();
+
+    dialFile          = Utils::InsertDataPath(dFile);
+    sourceDataObject  = settings.value("sourceDataObject", "Unknown").toString();
+    sourceObjectField = settings.value("sourceObjectField", "Unknown").toString();
+    minValue          = settings.value("minValue", 0).toDouble();
+    maxValue          = settings.value("maxValue", 100).toDouble();
+    redMin            = settings.value("redMin", 0).toDouble();
+    redMax            = settings.value("redMax", 33).toDouble();
+    yellowMin         = settings.value("yellowMin", 33).toDouble();
+    yellowMax         = settings.value("yellowMax", 66).toDouble();
+    greenMin          = settings.value("greenMin", 66).toDouble();
+    greenMax          = settings.value("greenMax", 100).toDouble();
+    font = settings.value("font").toString();
+    decimalPlaces     = settings.value("decimalPlaces", 0).toInt();
+    factor            = settings.value("factor", 1.0).toDouble();
+    useOpenGLFlag     = settings.value("useOpenGLFlag").toBool();
+}
+
+LineardialGadgetConfiguration::LineardialGadgetConfiguration(const LineardialGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{
+    dialFile          = obj.dialFile;
+    sourceDataObject  = obj.sourceDataObject;
+    sourceObjectField = obj.sourceObjectField;
+    minValue          = obj.minValue;
+    maxValue          = obj.maxValue;
+    redMin            = obj.redMin;
+    redMax            = obj.redMax;
+    yellowMin         = obj.yellowMin;
+    yellowMax         = obj.yellowMax;
+    greenMin          = obj.greenMin;
+    greenMax          = obj.greenMax;
+    font = obj.font;
+    decimalPlaces     = obj.decimalPlaces;
+    factor            = obj.factor;
+    useOpenGLFlag     = obj.useOpenGLFlag;
 }
 
 /**
  * Clones a configuration.
  *
  */
-IUAVGadgetConfiguration *LineardialGadgetConfiguration::clone()
+IUAVGadgetConfiguration *LineardialGadgetConfiguration::clone() const
 {
-    LineardialGadgetConfiguration *m = new LineardialGadgetConfiguration(this->classId());
-
-    m->dialFile          = dialFile;
-    m->sourceDataObject  = sourceDataObject;
-    m->sourceObjectField = sourceObjectField;
-    m->minValue          = minValue;
-    m->maxValue          = maxValue;
-    m->redMin            = redMin;
-    m->redMax            = redMax;
-    m->yellowMin         = yellowMin;
-    m->yellowMax         = yellowMax;
-    m->greenMin          = greenMin;
-    m->greenMax          = greenMax;
-    m->font = font;
-    m->decimalPlaces     = decimalPlaces;
-    m->factor            = factor;
-    m->useOpenGLFlag     = useOpenGLFlag;
-
-    return m;
+    return new LineardialGadgetConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void LineardialGadgetConfiguration::saveConfig(QSettings *qSettings) const
+void LineardialGadgetConfiguration::saveConfig(QSettings &settings) const
 {
     QString dFile = Utils::RemoveDataPath(dialFile);
 
-    qSettings->setValue("dFile", dFile);
-    qSettings->setValue("sourceDataObject", sourceDataObject);
-    qSettings->setValue("sourceObjectField", sourceObjectField);
-    qSettings->setValue("minValue", minValue);
-    qSettings->setValue("maxValue", maxValue);
-    qSettings->setValue("redMin", redMin);
-    qSettings->setValue("redMax", redMax);
-    qSettings->setValue("yellowMin", yellowMin);
-    qSettings->setValue("yellowMax", yellowMax);
-    qSettings->setValue("greenMin", greenMin);
-    qSettings->setValue("greenMax", greenMax);
-    qSettings->setValue("font", font);
-    qSettings->setValue("decimalPlaces", decimalPlaces);
-    qSettings->setValue("factor", factor);
-    qSettings->setValue("useOpenGLFlag", useOpenGLFlag);
+    settings.setValue("dFile", dFile);
+    settings.setValue("sourceDataObject", sourceDataObject);
+    settings.setValue("sourceObjectField", sourceObjectField);
+    settings.setValue("minValue", minValue);
+    settings.setValue("maxValue", maxValue);
+    settings.setValue("redMin", redMin);
+    settings.setValue("redMax", redMax);
+    settings.setValue("yellowMin", yellowMin);
+    settings.setValue("yellowMax", yellowMax);
+    settings.setValue("greenMin", greenMin);
+    settings.setValue("greenMax", greenMax);
+    settings.setValue("font", font);
+    settings.setValue("decimalPlaces", decimalPlaces);
+    settings.setValue("factor", factor);
+    settings.setValue("useOpenGLFlag", useOpenGLFlag);
 }

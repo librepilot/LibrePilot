@@ -31,7 +31,6 @@
 #include "monitorwidget.h"
 #include <coreplugin/iuavgadgetfactory.h>
 
-
 namespace Core {
 class IUAVGadget;
 class IUAVGadgetFactory;
@@ -46,7 +45,7 @@ public:
     ~MonitorGadgetFactory();
 
     Core::IUAVGadget *createGadget(QWidget *parent);
-    IUAVGadgetConfiguration *createConfiguration(QSettings *qSettings);
+    IUAVGadgetConfiguration *createConfiguration(QSettings &settings);
     IOptionsPage *createOptionsPage(IUAVGadgetConfiguration *config);
 
     MonitorWidget *createMonitorWidget(QWidget *parent);

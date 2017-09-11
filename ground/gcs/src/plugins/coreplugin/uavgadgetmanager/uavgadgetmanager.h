@@ -35,13 +35,12 @@
 #include <coreplugin/imode.h>
 
 #include <QWidget>
-#include <QtCore/QList>
-#include <QtCore/QPointer>
-#include <QtCore/QSettings>
+#include <QList>
 #include <QIcon>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -95,11 +94,12 @@ public:
 
     IUAVGadget *currentGadget() const;
 
-    void saveState(QSettings *) const;
-    bool restoreState(QSettings *qSettings);
+    void saveState(QSettings &) const;
+    bool restoreState(QSettings &);
 
-    void saveSettings(QSettings *qs);
-    void readSettings(QSettings *qs);
+    void readSettings(QSettings &settings);
+    void saveSettings(QSettings &settings) const;
+
     bool toolbarsShown()
     {
         return m_showToolbars;

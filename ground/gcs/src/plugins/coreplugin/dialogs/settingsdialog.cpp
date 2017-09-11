@@ -33,8 +33,8 @@
 #include "coreplugin/uavgadgetinstancemanager.h"
 #include "coreplugin/uavgadgetoptionspagedecorator.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
+#include <QDebug>
+#include <QSettings>
 #include <QHeaderView>
 #include <QLabel>
 #include <QPushButton>
@@ -96,10 +96,10 @@ Q_DECLARE_METATYPE(::PageData) SettingsDialog::SettingsDialog(QWidget *parent, c
     setWindowTitle(tr("Options"));
 #endif
 
-    QSettings *settings = ICore::instance()->settings();
+    QSettings settings;
 
-    settings->beginGroup("General");
-    settings->beginGroup("Settings");
+    settings.beginGroup("General");
+    settings.beginGroup("Settings");
 
     // restore last displayed category and page
     // this is done only if no category or page was provided through the constructor
@@ -107,28 +107,28 @@ Q_DECLARE_METATYPE(::PageData) SettingsDialog::SettingsDialog(QWidget *parent, c
     QString initialPage     = pageId;
     qDebug() << "SettingsDialog constructor initial category:" << initialCategory << ", initial page:" << initialPage;
     if (initialCategory.isEmpty() && initialPage.isEmpty()) {
-        initialCategory = settings->value("LastPreferenceCategory", QVariant(QString())).toString();
-        initialPage     = settings->value("LastPreferencePage", QVariant(QString())).toString();
+        initialCategory = settings.value("LastPreferenceCategory", QVariant(QString())).toString();
+        initialPage     = settings.value("LastPreferencePage", QVariant(QString())).toString();
         qDebug() << "SettingsDialog settings initial category:" << initialCategory << ", initial page: " << initialPage;
     }
 
     // restore window size
-    int windowWidth  = settings->value("WindowWidth", 0).toInt();
-    int windowHeight = settings->value("WindowHeight", 0).toInt();
+    int windowWidth  = settings.value("WindowWidth", 0).toInt();
+    int windowHeight = settings.value("WindowHeight", 0).toInt();
     qDebug() << "SettingsDialog window width :" << windowWidth << ", height:" << windowHeight;
     if (windowWidth > 0 && windowHeight > 0) {
         resize(windowWidth, windowHeight);
     }
 
     // restore splitter size
-    int splitterPosition = settings->value("SplitterPosition", 350).toInt();
+    int splitterPosition = settings.value("SplitterPosition", 350).toInt();
     qDebug() << "SettingsDialog splitter position:" << splitterPosition;
     QList<int> sizes;
     sizes << splitterPosition << 400;
     splitter->setSizes(sizes);
 
-    settings->endGroup();
-    settings->endGroup();
+    settings.endGroup();
+    settings.endGroup();
 
     // all extra space must go to the option page and none to the tree
     splitter->setStretchFactor(0, 0);
@@ -464,22 +464,22 @@ bool SettingsDialog::execDialog()
 
 void SettingsDialog::done(int val)
 {
-    QSettings *settings = ICore::instance()->settings();
+    QSettings settings;
 
-    settings->beginGroup("General");
-    settings->beginGroup("Settings");
+    settings.beginGroup("General");
+    settings.beginGroup("Settings");
 
-    settings->setValue("LastPreferenceCategory", m_currentCategory);
-    settings->setValue("LastPreferencePage", m_currentPage);
+    settings.setValue("LastPreferenceCategory", m_currentCategory);
+    settings.setValue("LastPreferencePage", m_currentPage);
 
-    settings->setValue("WindowWidth", this->width());
-    settings->setValue("WindowHeight", this->height());
+    settings.setValue("WindowWidth", this->width());
+    settings.setValue("WindowHeight", this->height());
 
     QList<int> sizes = splitter->sizes();
-    settings->setValue("SplitterPosition", sizes[0]);
+    settings.setValue("SplitterPosition", sizes[0]);
 
-    settings->endGroup();
-    settings->endGroup();
+    settings.endGroup();
+    settings.endGroup();
 
     QDialog::done(val);
 }

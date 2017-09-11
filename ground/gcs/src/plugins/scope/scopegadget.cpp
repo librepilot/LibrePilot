@@ -30,7 +30,8 @@
 #include "scopegadgetwidget.h"
 
 #include <QVBoxLayout>
-#include <qcolor.h>
+#include <QSettings>
+#include <QColor>
 
 ScopeGadget::ScopeGadget(QString classId, ScopeGadgetWidget *widget, QWidget *parent) :
     IUAVGadget(classId, parent), m_widget(widget)
@@ -98,12 +99,12 @@ ScopeGadget::~ScopeGadget()
     delete m_widget;
 }
 
-void ScopeGadget::saveState(QSettings *qSettings)
+void ScopeGadget::saveState(QSettings &settings) const
 {
-    m_widget->saveState(qSettings);
+    m_widget->saveState(settings);
 }
 
-void ScopeGadget::restoreState(QSettings *qSettings)
+void ScopeGadget::restoreState(QSettings &settings)
 {
-    m_widget->restoreState(qSettings);
+    m_widget->restoreState(settings);
 }

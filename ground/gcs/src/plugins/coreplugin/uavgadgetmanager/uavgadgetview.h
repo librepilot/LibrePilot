@@ -29,22 +29,17 @@
 #ifndef UAVGADGETVIEW_H
 #define UAVGADGETVIEW_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QSettings>
+#include <QList>
+#include <QString>
 #include <QWidget>
-#include <QAction>
-#include <QSplitter>
-#include <QVBoxLayout>
-#include <QStackedLayout>
-#include <QtCore/QPointer>
-
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QToolButton;
 class QLabel;
 class QVBoxLayout;
+class QSettings;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -70,8 +65,8 @@ public:
 
     void showToolbar(bool show);
 
-    void saveState(QSettings *qSettings);
-    void restoreState(QSettings *qSettings);
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
 
 public slots:
     void closeView();

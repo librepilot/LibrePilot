@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionconfiguration.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionconfiguration.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,64 +26,60 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef IPconnectionCONFIGURATION_H
-#define IPconnectionCONFIGURATION_H
+#ifndef IPCONFIGURATIONCONFIGURATION_H
+#define IPCONFIGURATIONCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
-#include <QtCore/QString>
-#include <QtCore/QSettings>
+
+#include <QString>
 
 using namespace Core;
 
-class IPconnectionConfiguration : public IUAVGadgetConfiguration {
-    Q_OBJECT Q_PROPERTY(QString HostName READ HostName WRITE setHostName)
-    Q_PROPERTY(int Port READ Port WRITE setPort)
-    Q_PROPERTY(int UseTCP READ UseTCP WRITE setUseTCP)
+class IPConnectionConfiguration : public IUAVGadgetConfiguration {
+    Q_OBJECT Q_PROPERTY(QString HostName READ hostName WRITE setHostName)
+    Q_PROPERTY(int Port READ port WRITE setPort)
+    Q_PROPERTY(int UseTCP READ useTCP WRITE setUseTCP)
 
 public:
-    explicit IPconnectionConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit IPConnectionConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit IPConnectionConfiguration(const IPConnectionConfiguration &obj);
 
-    virtual ~IPconnectionConfiguration();
-    void saveConfig(QSettings *settings) const;
-    // void savesettings(QSettings* settings) const;
-    // void restoresettings(QSettings* settings);
-    void savesettings() const;
-    void restoresettings();
-    IUAVGadgetConfiguration *clone();
+    virtual ~IPConnectionConfiguration();
 
-    QString HostName() const
-    {
-        return m_HostName;
-    }
-    int Port() const
-    {
-        return m_Port;
-    }
-    int UseTCP() const
-    {
-        return m_UseTCP;
-    }
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
+    QString hostName() const
+    {
+        return m_hostName;
+    }
+    int port() const
+    {
+        return m_port;
+    }
+    int useTCP() const
+    {
+        return m_useTCP;
+    }
 
 public slots:
-    void setHostName(QString HostName)
+    void setHostName(QString hostName)
     {
-        m_HostName = HostName;
+        m_hostName = hostName;
     }
-    void setPort(int Port)
+    void setPort(int port)
     {
-        m_Port = Port;
+        m_port = port;
     }
-    void setUseTCP(int UseTCP)
+    void setUseTCP(int useTCP)
     {
-        m_UseTCP = UseTCP;
+        m_useTCP = useTCP;
     }
 
 private:
-    QString m_HostName;
-    int m_Port;
-    int m_UseTCP;
-    QSettings *settings;
+    QString m_hostName;
+    int m_port;
+    int m_useTCP;
 };
 
-#endif // IPconnectionCONFIGURATION_H
+#endif // IPCONFIGURATIONCONFIGURATION_H

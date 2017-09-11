@@ -9,12 +9,9 @@ class IPConnection : public QObject {
     Q_OBJECT
 
 public:
-
-    IPConnection(IPconnectionConnection *connection);
-    // virtual ~IPConnection();
+    IPConnection(IPConnectionConnection *connection);
 
 public slots:
-
     void onOpenDevice(QString HostName, int Port, bool UseTCP);
     void onCloseDevice(QAbstractSocket *ipSocket);
 };

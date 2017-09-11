@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionconfiguration.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionconfiguration.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -26,66 +27,40 @@
  */
 
 #include "ipconnectionconfiguration.h"
+
 #include <coreplugin/icore.h>
 
-IPconnectionConfiguration::IPconnectionConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    m_HostName("127.0.0.1"),
-    m_Port(1000),
-    m_UseTCP(1)
+IPConnectionConfiguration::IPConnectionConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    Q_UNUSED(qSettings);
-
-    settings = Core::ICore::instance()->settings();
+    m_hostName = settings.value("HostName", "").toString();
+    m_port     = settings.value("Port", 9000).toInt();
+    m_useTCP   = settings.value("UseTCP", true).toInt();
 }
 
-IPconnectionConfiguration::~IPconnectionConfiguration()
+IPConnectionConfiguration::IPConnectionConfiguration(const IPConnectionConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{
+    m_hostName = obj.m_hostName;
+    m_port     = obj.m_port;
+    m_useTCP   = obj.m_useTCP;
+}
+
+IPConnectionConfiguration::~IPConnectionConfiguration()
 {}
 
-IUAVGadgetConfiguration *IPconnectionConfiguration::clone()
+IUAVGadgetConfiguration *IPConnectionConfiguration::clone() const
 {
-    IPconnectionConfiguration *m = new IPconnectionConfiguration(this->classId());
-
-    m->m_Port     = m_Port;
-    m->m_HostName = m_HostName;
-    m->m_UseTCP   = m_UseTCP;
-    return m;
+    return new IPConnectionConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void IPconnectionConfiguration::saveConfig(QSettings *qSettings) const
+void IPConnectionConfiguration::saveConfig(QSettings &settings) const
 {
-    qSettings->setValue("port", m_Port);
-    qSettings->setValue("hostName", m_HostName);
-    qSettings->setValue("useTCP", m_UseTCP);
-}
-
-void IPconnectionConfiguration::savesettings() const
-{
-    settings->beginGroup(QLatin1String("IPconnection"));
-
-    settings->beginWriteArray("Current");
-    settings->setArrayIndex(0);
-    settings->setValue(QLatin1String("HostName"), m_HostName);
-    settings->setValue(QLatin1String("Port"), m_Port);
-    settings->setValue(QLatin1String("UseTCP"), m_UseTCP);
-    settings->endArray();
-    settings->endGroup();
-}
-
-
-void IPconnectionConfiguration::restoresettings()
-{
-    settings->beginGroup(QLatin1String("IPconnection"));
-
-    settings->beginReadArray("Current");
-    settings->setArrayIndex(0);
-    m_HostName = (settings->value(QLatin1String("HostName"), tr("")).toString());
-    m_Port     = (settings->value(QLatin1String("Port"), tr("")).toInt());
-    m_UseTCP   = (settings->value(QLatin1String("UseTCP"), tr("")).toInt());
-    settings->endArray();
-    settings->endGroup();
+    settings.setValue("HostName", m_hostName);
+    settings.setValue("Port", m_port);
+    settings.setValue("UseTCP", m_useTCP);
 }

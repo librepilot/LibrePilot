@@ -52,6 +52,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QClipboard>
+#include <QSettings>
 #include <QApplication>
 
 #include <qwt/src/qwt_legend_label.h>
@@ -456,7 +457,7 @@ void ScopeGadgetWidget::clearCurvePlots()
     m_curvesData.clear();
 }
 
-void ScopeGadgetWidget::saveState(QSettings *qSettings)
+void ScopeGadgetWidget::saveState(QSettings &settings) const
 {
     // plot state
     int i = 1;
@@ -465,25 +466,25 @@ void ScopeGadgetWidget::saveState(QSettings *qSettings)
         bool plotVisible = plotData->isVisible();
 
         if (!plotVisible) {
-            qSettings->setValue(QString("plot%1").arg(i), plotVisible);
+            settings.setValue(QString("plot%1").arg(i), plotVisible);
         }
         i++;
     }
     // legend state
-    qSettings->setValue("legendVisible", legend() != NULL);
+    settings.setValue("legendVisible", legend() != NULL);
 }
 
-void ScopeGadgetWidget::restoreState(QSettings *qSettings)
+void ScopeGadgetWidget::restoreState(QSettings &settings)
 {
     // plot state
     int i = 1;
 
     foreach(PlotData * plotData, m_curvesData.values()) {
-        plotData->setVisible(qSettings->value(QString("plot%1").arg(i), true).toBool());
+        plotData->setVisible(settings.value(QString("plot%1").arg(i), true).toBool());
         i++;
     }
     // legend state
-    bool legendVisible = qSettings->value("legendVisible", true).toBool();
+    bool legendVisible = settings.value("legendVisible", true).toBool();
     if (legendVisible) {
         addLegend();
     } else {

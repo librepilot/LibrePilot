@@ -27,11 +27,12 @@
 #ifndef UAVCONFIGINFO_H
 #define UAVCONFIGINFO_H
 
+#include "core_global.h"
+#include "iuavgadgetconfiguration.h"
+
 #include <QObject>
 #include <QString>
 #include <QSettings>
-#include "iuavgadgetconfiguration.h"
-#include "core_global.h"
 
 namespace Core {
 class IUAVGadgetConfiguration;
@@ -54,18 +55,19 @@ class CORE_EXPORT UAVConfigInfo : public QObject {
 public:
 
     explicit UAVConfigInfo(QObject *parent = 0);
-    explicit UAVConfigInfo(QSettings *qs, QObject *parent = 0);
+    explicit UAVConfigInfo(QSettings &, QObject *parent = 0);
     explicit UAVConfigInfo(IUAVGadgetConfiguration *config, QObject *parent = 0);
     UAVConfigInfo(UAVConfigVersion version, QString nameOfConfigurable, QObject *parent = 0);
 
     enum Compatibility { FullyCompatible, MinorLossOfConfiguration, MissingConfiguration, MajorLossOfConfiguration, NotCompatible };
+
     void setNameOfConfigurable(const QString nameOfConfigurable)
     {
         m_nameOfConfigurable = nameOfConfigurable;
     }
 
-    void save(QSettings *qs);
-    void read(QSettings *qs);
+    void save(QSettings &) const;
+    void read(QSettings &);
 
     void setVersion(int major, int minor, int patch)
     {

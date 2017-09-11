@@ -47,9 +47,9 @@ Core::IUAVGadget *GpsDisplayGadgetFactory::createGadget(QWidget *parent)
     return new GpsDisplayGadget(QString("GpsDisplayGadget"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *GpsDisplayGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *GpsDisplayGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new GpsDisplayGadgetConfiguration(QString("GpsDisplayGadget"), qSettings);
+    return new GpsDisplayGadgetConfiguration(QString("GpsDisplayGadget"), settings);
 }
 
 IOptionsPage *GpsDisplayGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

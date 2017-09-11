@@ -55,7 +55,6 @@
 #define RETRY_TIMEOUT_MS       20
 #define EVENT_QUEUE_SIZE       10
 #define MAX_PORT_DELAY         200
-#define SERIAL_RX_BUF_LEN      100
 #define PPM_INPUT_TIMEOUT      100
 
 #define PIOS_PPM_RECEIVER      pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_PPM]

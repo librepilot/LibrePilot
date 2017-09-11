@@ -251,10 +251,13 @@ void PIOS_Board_Init(void)
         break;
     }
 
+#ifdef PIOS_INCLUDE_GCSRCVR
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
+#endif
 
-#if defined(PIOS_INCLUDE_GCSRCVR)
-    PIOS_BOARD_IO_Configure_GCSRCVR();
-#endif /* PIOS_INCLUDE_GCSRCVR */
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+    PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
 
 #ifndef PIOS_ENABLE_DEBUG_PINS
     switch ((HwSettingsCC_RcvrPortOptions)hwsettings_rcvrport) {

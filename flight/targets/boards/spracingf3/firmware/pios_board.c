@@ -239,6 +239,14 @@ void PIOS_Board_Init(void)
 #endif /* if defined(PIOS_INCLUDE_PWM) */
     }
 
+#ifdef PIOS_INCLUDE_GCSRCVR
+    PIOS_BOARD_IO_Configure_GCS_RCVR();
+#endif
+
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+    PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
 #ifndef PIOS_ENABLE_DEBUG_PINS
     // TODO: make use of HWSPRACINGF3SETTINGS_IOPORTS_[PPM]OUTPUTS
     PIOS_Servo_Init(&pios_servo_cfg);

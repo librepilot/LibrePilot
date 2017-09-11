@@ -113,7 +113,7 @@
 #define PIOS_INCLUDE_EXBUS
 #define PIOS_INCLUDE_IBUS
 #define PIOS_INCLUDE_GCSRCVR
-// #define PIOS_INCLUDE_OPLINKRCVR
+#define PIOS_INCLUDE_OPLINKRCVR
 
 /* PIOS abstract receiver interface */
 #define PIOS_INCLUDE_RCVR

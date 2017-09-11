@@ -54,14 +54,16 @@
 # ifdef PIOS_INCLUDE_GCSRCVR
 #  include <pios_gcsrcvr_priv.h>
 # endif
+# ifdef PIOS_INCLUDE_OPLINKRCVR
+#  include <oplinkreceiver.h>
+#  include <pios_oplinkrcvr_priv.h>
+# endif
 #endif /* PIOS_INCLUDE_RCVR */
 
 #ifdef PIOS_INCLUDE_RFM22B
 # include <oplinksettings.h>
 # include <oplinkstatus.h>
 # ifdef PIOS_INCLUDE_RCVR
-#  include <oplinkreceiver.h>
-#  include <pios_oplinkrcvr_priv.h>
 #  include <pios_openlrs.h>
 #  include <pios_openlrs_rcvr_priv.h>
 # endif /* PIOS_INCLUDE_RCVR */
@@ -525,7 +527,7 @@ void PIOS_BOARD_IO_Configure_PPM_RCVR(const struct pios_ppm_cfg *ppm_cfg)
 }
 #endif /* PIOS_INCLUDE_PPM */
 
-#ifdef PIOS_INCLUDE_GCSRCVR
+#if defined(PIOS_INCLUDE_GCSRCVR)
 void PIOS_BOARD_IO_Configure_GCS_RCVR()
 {
     GCSReceiverInitialize();
@@ -538,6 +540,24 @@ void PIOS_BOARD_IO_Configure_GCS_RCVR()
     pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_GCS] = pios_gcsrcvr_rcvr_id;
 }
 #endif /* PIOS_INCLUDE_GCSRCVR */
+
+#if defined(PIOS_INCLUDE_OPLINKRCVR) && defined(PIOS_INCLUDE_RCVR)
+void PIOS_BOARD_IO_Configure_OPLink_RCVR()
+{
+    uint32_t pios_oplinkrcvr_id;
+    OPLinkReceiverInitialize();
+#if defined(PIOS_INCLUDE_RFM22B)
+    PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id, pios_rfm22b_id);
+#else /* PIOS_INCLUDE_RFM22B */
+    PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id);
+#endif /* PIOS_INCLUDE_RFM22B */
+    uint32_t pios_oplinkrcvr_rcvr_id;
+    if (PIOS_RCVR_Init(&pios_oplinkrcvr_rcvr_id, &pios_oplinkrcvr_rcvr_driver, pios_oplinkrcvr_id)) {
+        PIOS_Assert(0);
+    }
+    pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK] = pios_oplinkrcvr_rcvr_id;
+}
+#endif /* PIOS_INCLUDE_OPLINKRCVR && PIOS_INCLUDE_RCVR */
 
 #ifdef PIOS_INCLUDE_RFM22B
 
@@ -596,15 +616,6 @@ void PIOS_BOARD_IO_Configure_RFM22B()
             if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_SPI_RFM22B_ADAPTER, rfm22b_cfg->slave_num, rfm22b_cfg, oplinkSettings.RFBand)) {
                 PIOS_Assert(0);
             }
-#if defined(PIOS_INCLUDE_OPLINKRCVR) && defined(PIOS_INCLUDE_RCVR)
-            uint32_t pios_oplinkrcvr_id;
-            PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id, pios_rfm22b_id);
-            uint32_t pios_oplinkrcvr_rcvr_id;
-            if (PIOS_RCVR_Init(&pios_oplinkrcvr_rcvr_id, &pios_oplinkrcvr_rcvr_driver, pios_oplinkrcvr_id)) {
-                PIOS_Assert(0);
-            }
-            pios_rcvr_group_map[MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK] = pios_oplinkrcvr_rcvr_id;
-#endif /* PIOS_INCLUDE_OPLINKRCVR && PIOS_INCLUDE_RCVR */
 
             /* Configure the radio com interface */
             if (PIOS_COM_Init(&pios_com_pri_radio_id, &pios_rfm22b_com_driver, pios_rfm22b_id,

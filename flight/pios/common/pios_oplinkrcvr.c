@@ -37,6 +37,8 @@
 #include <oplinkstatus.h>
 #include <pios_oplinkrcvr_priv.h>
 
+// Put receiver in failsafe if not updated within timeout
+#define PIOS_OPLINK_RCVR_TIMEOUT_MS  100
 
 /* Provide a RCVR driver */
 static int32_t PIOS_OPLinkRCVR_Get(uint32_t rcvr_id, uint8_t channel);
@@ -60,11 +62,14 @@ struct pios_oplinkrcvr_dev {
     bool    Fresh;
 };
 
+static struct pios_oplinkrcvr_dev *global_oplinkrcvr_dev;
+
 static bool PIOS_oplinkrcvr_validate(struct pios_oplinkrcvr_dev *oplinkrcvr_dev)
 {
     return oplinkrcvr_dev->magic == PIOS_OPLINKRCVR_DEV_MAGIC;
 }
 
+#if defined(PIOS_INCLUDE_RFM22B)
 static void PIOS_oplinkrcvr_ppm_callback(uint32_t oplinkrcvr_id, const int16_t *channels)
 {
     /* Recover our device context */
@@ -78,10 +83,21 @@ static void PIOS_oplinkrcvr_ppm_callback(uint32_t oplinkrcvr_id, const int16_t *
     for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
         oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = (i < RFM22B_PPM_NUM_CHANNELS) ? channels[i] : PIOS_RCVR_TIMEOUT;
     }
+
+    // Update the RSSI and quality fields.
+    int8_t rssi;
+    OPLinkStatusRSSIGet(&rssi);
+    oplinkrcvr_dev->oplinkreceiverdata.RSSI = rssi;
+    uint16_t quality;
+    OPLinkStatusLinkQualityGet(&quality);
+    // Link quality is 0-128, so scale it down to 0-100
+    oplinkrcvr_dev->oplinkreceiverdata.LinkQuality = quality * 100 / 128;
+
     OPLinkReceiverSet(&oplinkrcvr_dev->oplinkreceiverdata);
 
     oplinkrcvr_dev->Fresh = true;
 }
+#endif /* PIOS_INCLUDE_RFM22B */
 
 #if defined(PIOS_INCLUDE_FREERTOS)
 static struct pios_oplinkrcvr_dev *PIOS_oplinkrcvr_alloc(void)
@@ -96,6 +112,9 @@ static struct pios_oplinkrcvr_dev *PIOS_oplinkrcvr_alloc(void)
     oplinkrcvr_dev->magic = PIOS_OPLINKRCVR_DEV_MAGIC;
     oplinkrcvr_dev->Fresh = false;
     oplinkrcvr_dev->supv_timer = 0;
+
+    /* The update callback cannot receive the device pointer, so set it in a global */
+    global_oplinkrcvr_dev = oplinkrcvr_dev;
 
     return oplinkrcvr_dev;
 }
@@ -119,7 +138,21 @@ static struct pios_oplinkrcvr_dev *PIOS_oplinkrcvr_alloc(void)
 }
 #endif /* if defined(PIOS_INCLUDE_FREERTOS) */
 
+static void oplinkreceiver_updated(UAVObjEvent *ev)
+{
+    struct pios_oplinkrcvr_dev *oplinkrcvr_dev = global_oplinkrcvr_dev;
+
+    if (ev->obj == OPLinkReceiverHandle()) {
+        OPLinkReceiverGet(&oplinkrcvr_dev->oplinkreceiverdata);
+        oplinkrcvr_dev->Fresh = true;
+    }
+}
+
+#if defined(PIOS_INCLUDE_RFM22B)
 extern int32_t PIOS_OPLinkRCVR_Init(uint32_t *oplinkrcvr_id, uint32_t rfm22b_id)
+#else
+extern int32_t PIOS_OPLinkRCVR_Init(uint32_t *oplinkrcvr_id)
+#endif
 {
     struct pios_oplinkrcvr_dev *oplinkrcvr_dev;
 
@@ -134,8 +167,13 @@ extern int32_t PIOS_OPLinkRCVR_Init(uint32_t *oplinkrcvr_id, uint32_t rfm22b_id)
         oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = PIOS_RCVR_TIMEOUT;
     }
 
+#if defined(PIOS_INCLUDE_RFM22B)
     /* Register ppm callback */
     PIOS_RFM22B_SetPPMCallback(rfm22b_id, PIOS_oplinkrcvr_ppm_callback, (uint32_t)oplinkrcvr_dev);
+#endif
+
+    /* Updates could come over the telemetry channel, so register uavobj callback */
+    OPLinkReceiverConnectCallback(oplinkreceiver_updated);
 
     /* Register the failsafe timer callback. */
     if (!PIOS_RTC_RegisterTickCallback(PIOS_oplinkrcvr_Supervisor, (uint32_t)oplinkrcvr_dev)) {
@@ -199,14 +237,17 @@ static void PIOS_oplinkrcvr_Supervisor(uint32_t oplinkrcvr_id)
     oplinkrcvr_dev->Fresh = false;
 }
 
-static uint8_t PIOS_OPLinkRCVR_Quality_Get(__attribute__((unused)) uint32_t oplinkrcvr_id)
+static uint8_t PIOS_OPLinkRCVR_Quality_Get(uint32_t oplinkrcvr_id)
 {
-    uint16_t oplink_quality;
+    /* Recover our device context */
+    struct pios_oplinkrcvr_dev *oplinkrcvr_dev = (struct pios_oplinkrcvr_dev *)oplinkrcvr_id;
 
-    OPLinkStatusLinkQualityGet(&oplink_quality);
+    if (!PIOS_oplinkrcvr_validate(oplinkrcvr_dev)) {
+        /* Invalid device specified */
+        return 0;
+    }
 
-    /* link_status is in the range 0-128, so scale to a % */
-    return oplink_quality * 100 / 128;
+    return oplinkrcvr_dev->oplinkreceiverdata.LinkQuality;
 }
 
 #endif /* PIOS_INCLUDE_OPLINKRCVR */

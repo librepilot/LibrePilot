@@ -34,12 +34,12 @@
 #define POW2(x) (1 << x)
 
 // Command addresses
-#define MS56XX_RESET      0x1E
-#define MS56XX_CALIB_ADDR 0xA2 /* First sample is factory stuff */
-#define MS56XX_CALIB_LEN  16
-#define MS56XX_ADC_READ   0x00
-#define MS56XX_PRES_ADDR  0x40
-#define MS56XX_TEMP_ADDR  0x50
+#define MS56XX_RESET               0x1E
+#define MS56XX_CALIB_ADDR          0xA2 /* First sample is factory stuff */
+#define MS56XX_CALIB_LEN           16
+#define MS56XX_ADC_READ            0x00
+#define MS56XX_PRES_ADDR           0x40
+#define MS56XX_TEMP_ADDR           0x50
 
 // Option to change the interleave between Temp and Pressure conversions
 // Undef for normal operation
@@ -128,7 +128,7 @@ const PIOS_SENSORS_Driver PIOS_MS56xx_Driver = {
  */
 void PIOS_MS56xx_Init(const struct pios_ms56xx_cfg *cfg, int32_t i2c_device)
 {
-    i2c_id = i2c_device;
+    i2c_id  = i2c_device;
 
     ms56xx_address = cfg->address;
     version = cfg->version;
@@ -262,14 +262,14 @@ int32_t PIOS_MS56xx_ReadADC(void)
         // Offset and sensitivity at actual temperature
         if (version == MS56XX_VERSION_5611) {
             // OFF = OFFT1 + TCO * dT = C2 * 2^16 + (C4 * dT) / 2^7
-            Offset   = ((int64_t)CalibData.C[1]) * POW2(16) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(7) - Offset2;
+            Offset = ((int64_t)CalibData.C[1]) * POW2(16) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(7) - Offset2;
             // SENS = SENST1 + TCS * dT = C1 * 2^15 + (C3 * dT) / 2^8
-            Sens     = ((int64_t)CalibData.C[0]) * POW2(15) + (((int64_t)CalibData.C[2]) * deltaTemp) / POW2(8) - Sens2;
+            Sens   = ((int64_t)CalibData.C[0]) * POW2(15) + (((int64_t)CalibData.C[2]) * deltaTemp) / POW2(8) - Sens2;
         } else {
             // OFF = OFFT1 + TCO * dT = C2 * 2^17 + (C4 * dT) / 2^6
-            Offset   = ((int64_t)CalibData.C[1]) * POW2(17) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(6) - Offset2;
+            Offset = ((int64_t)CalibData.C[1]) * POW2(17) + (((int64_t)CalibData.C[3]) * deltaTemp) / POW2(6) - Offset2;
             // SENS = SENST1 + TCS * dT = C1 * 2^16 + (C3 * dT) / 2^7
-            Sens     = ((int64_t)CalibData.C[0]) * POW2(16) + (((int64_t)CalibData.C[2]) * deltaTemp) / POW2(7) - Sens2;
+            Sens   = ((int64_t)CalibData.C[0]) * POW2(16) + (((int64_t)CalibData.C[2]) * deltaTemp) / POW2(7) - Sens2;
         }
 
         // Temperature compensated pressure (10…1200mbar with 0.01mbar resolution)
@@ -516,10 +516,11 @@ bool PIOS_MS56xx_driver_poll(__attribute__((unused)) uintptr_t context)
 }
 
 /* Poll the pressure sensor and return the temperature and pressure. */
-bool PIOS_MS56xx_Read(float *temperature, float *pressure) {
+bool PIOS_MS56xx_Read(float *temperature, float *pressure)
+{
     if (PIOS_MS56xx_driver_poll(0)) {
         *temperature = results.temperature;
-        *pressure = results.sample;
+        *pressure    = results.sample;
         return true;
     }
     return false;

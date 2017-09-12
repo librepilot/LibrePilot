@@ -166,13 +166,10 @@ int32_t AutoTuneInitialize(void)
 {
     // do this here since module can become disabled for several reasons
     // even for MODULE_AutoTune_BUILTIN
-    FlightModeSettingsInitialize();
-
 #if defined(MODULE_AutoTune_BUILTIN)
     moduleEnabled = true;
 #else
     // HwSettings is only used right here, so init here
-    HwSettingsInitialize();
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
     if (optionalModules.AutoTune == HWSETTINGS_OPTIONALMODULES_ENABLED) {
@@ -195,10 +192,6 @@ int32_t AutoTuneInitialize(void)
         GyroStateInitialize();
         ManualControlCommandInitialize();
         StabilizationBankInitialize();
-        StabilizationSettingsBank1Initialize();
-        StabilizationSettingsBank2Initialize();
-        StabilizationSettingsBank3Initialize();
-        SystemIdentSettingsInitialize();
         SystemIdentStateInitialize();
 
         atQueue = xQueueCreate(AT_QUEUE_NUMELEM, sizeof(struct at_queued_data));

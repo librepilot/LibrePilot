@@ -97,7 +97,6 @@ int32_t CameraStabInitialize(void)
 #else
     HwSettingsOptionalModulesData optionalModules;
 
-    HwSettingsInitialize();
     HwSettingsOptionalModulesGet(&optionalModules);
 
     if (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED) {
@@ -119,7 +118,6 @@ int32_t CameraStabInitialize(void)
         csd->lastSysTime = xTaskGetTickCount();
 
         AttitudeStateInitialize();
-        CameraStabSettingsInitialize();
         CameraDesiredInitialize();
 
         UAVObjEvent ev = {

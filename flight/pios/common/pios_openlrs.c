@@ -1156,7 +1156,6 @@ int32_t PIOS_OpenLRS_Init(uint32_t *openlrs_id, uint32_t spi_id,
     openlrs_dev->ppm_callback = 0;
 
 
-    OPLinkSettingsInitialize();
     OPLinkStatusInitialize();
     DEBUG_PRINTF(2, "OpenLRS UAVOs Initialized\r\n");
     OPLinkSettingsData binding;

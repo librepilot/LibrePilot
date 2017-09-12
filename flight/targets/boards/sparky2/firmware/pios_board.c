@@ -173,7 +173,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
-    HwSettingsInitialize();
+    SETTINGS_INITIALISE_ALL;
 
     /* Initialize the alarms library */
     AlarmsInitialize();

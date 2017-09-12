@@ -61,8 +61,8 @@
  */
 int32_t PIOS_MPU6000_CONFIG_Configure()
 {
-    MPUGyroAccelSettingsInitialize();
     MPUGyroAccelSettingsData mpuSettings;
+
     MPUGyroAccelSettingsGet(&mpuSettings);
     return PIOS_MPU6000_ConfigureRanges(
         PIOS_MPU6000_CONFIG_MAP_GYROSCALE(mpuSettings.GyroScale),

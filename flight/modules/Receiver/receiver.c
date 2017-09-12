@@ -151,13 +151,9 @@ int32_t ReceiverInitialize()
     ManualControlCommandInitialize();
     ReceiverActivityInitialize();
     ReceiverStatusInitialize();
-    ManualControlSettingsInitialize();
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
-    StabilizationSettingsInitialize();
-    VtolPathFollowerSettingsInitialize();
     VtolPathFollowerSettingsConnectCallback(&SettingsUpdatedCb);
 #endif
-    SystemSettingsInitialize();
     SystemSettingsConnectCallback(&SettingsUpdatedCb);
 
 

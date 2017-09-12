@@ -79,7 +79,6 @@ int32_t FlightPlanInitialize()
 
     FlightPlanStatusInitialize();
     FlightPlanControlInitialize();
-    FlightPlanSettingsInitialize();
 
     // Listen for object updates
     FlightPlanControlConnectCallback(&objectUpdatedCb);

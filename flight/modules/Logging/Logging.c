@@ -52,7 +52,6 @@ static void FlightStatusUpdatedCb(UAVObjEvent *ev);
 
 int32_t LoggingInitialize(void)
 {
-    DebugLogSettingsInitialize();
     DebugLogControlInitialize();
     DebugLogStatusInitialize();
     DebugLogEntryInitialize();

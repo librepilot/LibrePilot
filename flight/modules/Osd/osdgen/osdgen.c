@@ -2430,7 +2430,6 @@ int32_t osdgenInitialize(void)
     HomeLocationInitialize();
 #endif
 #endif
-    OsdSettingsInitialize();
     BaroSensorInitialize();
     FlightStatusInitialize();
 

@@ -159,7 +159,6 @@ int32_t SystemModStart(void)
 int32_t SystemModInitialize(void)
 {
     // Must registers objects here for system thread because ObjectManager started in OpenPilotInit
-    SystemSettingsInitialize();
     SystemStatsInitialize();
     FlightStatusInitialize();
     ObjectPersistenceInitialize();

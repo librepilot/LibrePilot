@@ -171,7 +171,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
-    HwSettingsInitialize();
+    SETTINGS_INITIALISE_ALL;
 
     /* Initialize the alarms library */
     AlarmsInitialize();
@@ -289,7 +289,6 @@ void PIOS_Board_Init(void)
     // Attach the board config check hook
     SANITYCHECK_AttachHook(&RevoNanoConfigHook);
     // trigger a config check if actuatorsettings are updated
-    ActuatorSettingsInitialize();
     ActuatorSettingsConnectCallback(ActuatorSettingsUpdatedCb);
 }
 

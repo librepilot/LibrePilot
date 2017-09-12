@@ -83,12 +83,10 @@ void plan_initialize()
     TakeOffLocationInitialize();
     PositionStateInitialize();
     PathDesiredInitialize();
-    FlightModeSettingsInitialize();
     FlightStatusInitialize();
     AttitudeStateInitialize();
     ManualControlCommandInitialize();
     VelocityStateInitialize();
-    VtolPathFollowerSettingsInitialize();
     StabilizationBankInitialize();
     StabilizationDesiredInitialize();
 }

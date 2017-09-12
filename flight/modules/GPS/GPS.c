@@ -196,7 +196,6 @@ int32_t GPSStart(void)
 
 int32_t GPSInitialize(void)
 {
-    HwSettingsInitialize();
 #ifdef MODULE_GPS_BUILTIN
     gpsEnabled = true;
 #else
@@ -222,14 +221,12 @@ int32_t GPSInitialize(void)
     HomeLocationInitialize();
 #if defined(ANY_FULL_MAG_PARSER)
     AuxMagSensorInitialize();
-    AuxMagSettingsInitialize();
     GPSExtendedStatusInitialize();
 
     // Initialize mag parameters
     AuxMagSettingsUpdatedCb(NULL);
     AuxMagSettingsConnectCallback(AuxMagSettingsUpdatedCb);
 #endif
-    GPSSettingsInitialize();
     // updateHwSettings() uses gpsSettings
     GPSSettingsGet(&gpsSettings);
     // must updateHwSettings() before updateGpsSettings() so baud rate is set before GPS serial code starts running
@@ -245,7 +242,6 @@ int32_t GPSInitialize(void)
 #if defined(PIOS_GPS_SETS_HOMELOCATION)
         HomeLocationInitialize();
 #endif
-        GPSSettingsInitialize();
         // updateHwSettings() uses gpsSettings
         GPSSettingsGet(&gpsSettings);
         // must updateHwSettings() before updateGpsSettings() so baud rate is set before GPS serial code starts running

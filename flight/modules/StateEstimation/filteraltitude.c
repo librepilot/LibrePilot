@@ -85,7 +85,6 @@ int32_t filterAltitudeInitialize(stateFilter *handle)
     handle->localdata = pios_malloc(sizeof(struct data));
     HomeLocationInitialize();
     AttitudeStateInitialize();
-    AltitudeFilterSettingsInitialize();
     AltitudeFilterSettingsConnectCallback(&settingsUpdatedCb);
     reloadSettings = true;
     return STACK_REQUIRED;

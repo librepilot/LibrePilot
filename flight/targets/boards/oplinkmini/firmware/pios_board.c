@@ -101,6 +101,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
+    SETTINGS_INITIALISE_ALL;
 
     /* Set up the SPI interface to the rfm22b */
     if (PIOS_SPI_Init(&pios_spi_rfm22b_id, &pios_spi_rfm22b_cfg)) {
@@ -133,7 +134,6 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(2, 0);
     }
 
-    OPLinkSettingsInitialize();
     OPLinkReceiverInitialize();
 
     /* Retrieve the settings object. */

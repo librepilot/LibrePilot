@@ -73,7 +73,6 @@ int32_t configuration_check()
 
     // Classify navigation capability
 #ifdef REVOLUTION
-    RevoSettingsInitialize();
     RevoSettingsFusionAlgorithmOptions revoFusion;
     RevoSettingsFusionAlgorithmGet(&revoFusion);
     bool navCapableFusion;

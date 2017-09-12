@@ -107,6 +107,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
+    SETTINGS_INITIALISE_ALL;
 
 #if defined(PIOS_INCLUDE_RTC)
     /* Initialize the real-time clock and its associated tick */
@@ -122,8 +123,6 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);
     }
-
-    HwSettingsInitialize();
 
 #ifndef ERASE_FLASH
 #ifdef PIOS_INCLUDE_WDG
@@ -285,7 +284,6 @@ void PIOS_Board_Init(void)
     // Attach the board config check hook
     SANITYCHECK_AttachHook(&CopterControlConfigHook);
     // trigger a config check if actuatorsettings are updated
-    ActuatorSettingsInitialize();
     ActuatorSettingsConnectCallback(ActuatorSettingsUpdatedCb);
 }
 

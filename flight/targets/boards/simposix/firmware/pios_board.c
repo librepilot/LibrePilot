@@ -142,7 +142,7 @@ void PIOS_Board_Init(void)
     EventDispatcherInitialize();
     UAVObjInitialize();
 
-    HwSettingsInitialize();
+    SETTINGS_INITIALISE_ALL;
 
     UAVObjectsInitializeAll();
 

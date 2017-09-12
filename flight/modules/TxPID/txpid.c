@@ -100,8 +100,11 @@ static float scale(float val, float inMin, float inMax, float outMin, float outM
 int32_t TxPIDInitialize(void)
 {
     bool txPIDEnabled;
-    HwSettingsOptionalModulesData optionalModules;
 
+#ifdef MODULE_TXPID_BUILTIN
+    txPIDEnabled = true;
+#else
+    HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
 
     if (optionalModules.TxPID == HWSETTINGS_OPTIONALMODULES_ENABLED) {
@@ -109,6 +112,7 @@ int32_t TxPIDInitialize(void)
     } else {
         txPIDEnabled = false;
     }
+#endif
 
     if (txPIDEnabled) {
         TxPIDStatusInitialize();

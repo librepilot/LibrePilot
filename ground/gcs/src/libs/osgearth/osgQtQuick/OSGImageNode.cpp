@@ -84,7 +84,7 @@ public:
                 imageSource = new ImageSource();
             }
         }
-        return imageSource->createImage(imageUrl);
+        return imageSource ? imageSource->createImage(imageUrl) : 0;
     }
 
     void updateImageFile()
@@ -96,8 +96,12 @@ public:
     {
         osg::Image *image = loadImage();
 
+        if (!image) {
+            return;
+        }
+
         // qDebug() << "OSGImageNode::update" << image;
-        osg::Node *geode  = createGeodeForImage(image);
+        osg::Node *geode = createGeodeForImage(image);
 
         self->setNode(geode);
     }

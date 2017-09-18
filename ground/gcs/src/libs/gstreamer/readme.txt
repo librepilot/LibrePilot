@@ -2,10 +2,10 @@
 # General
 ###############################################################################
 
-Add the following line to your build config file:
+To enable the compilation of this library, use the following command:
     make config_append GCS_WITH_GSTREAMER=1
 
-The build config file is at the root of your source directory.
+This will add the required options in the project config.
 
 ###############################################################################
 # Windows (msys2)

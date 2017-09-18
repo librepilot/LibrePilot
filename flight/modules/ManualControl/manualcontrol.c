@@ -499,7 +499,8 @@ static void manualControlTask(void)
     if (alwaysStabilizedSwitch) {
         if (acc.AccessoryVal <= -ALWAYSTABILIZEACCESSORY_THRESHOLD) {
             newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_FALSE;
-        } else if (acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) {
+        } else if ((acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) &&
+                   (cmd.Throttle >= modeSettings.AlwaysStabilizeWhenArmedThrottleThreshold)) {
             newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE;
         }
     } else {

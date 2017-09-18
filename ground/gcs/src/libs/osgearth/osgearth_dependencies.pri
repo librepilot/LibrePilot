@@ -14,6 +14,11 @@ contains(QT_ARCH, x86_64)  {
     LIB_DIR_NAME = lib
 }
 
+gstreamer {
+    include(../gstreamer/gstreamer.pri)
+    include(../gstreamer/gstreamer_dependencies.pri)
+}
+
 osg {
     OSG_SDK_DIR = $$clean_path($$(OSG_SDK_DIR))
     message(Using osg from here: $$OSG_SDK_DIR)

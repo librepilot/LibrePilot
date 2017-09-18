@@ -9,7 +9,9 @@ build:
     - if [ $$arch = 32 ]; then target=i686; fi
     - if [ $$arch = 64 ]; then target=x86_64; fi
     - echo -e "[librepilot-mingw]\nSigLevel = Optional TrustAll\nServer = http://download.librepilot.org/repo/mingw" >> /etc/pacman.conf
-    - pacman -Syu --noconfirm --noprogressbar --needed git unzip tar mingw-w64-${target}-toolchain mingw-w64-${target}-ccache mingw-w64-${target}-ntldd mingw-w64-${target}-qt5 mingw-w64-${target}-SDL mingw-w64-${target}-mesa mingw-w64-${target}-openssl mingw-w64-${target}-gdal-minimal mingw-w64-${target}-OpenSceneGraph mingw-w64-${target}-osgearth
+    - pacman -Syu --noconfirm --noprogressbar --needed git unzip tar mingw-w64-${target}-toolchain mingw-w64-${target}-ccache mingw-w64-${target}-ntldd mingw-w64-${target}-qt5 mingw-w64-${target}-SDL mingw-w64-${target}-mesa mingw-w64-${target}-openssl
+    - pacman -Syu --noconfirm --noprogressbar --needed mingw-w64-${target}-gdal-minimal mingw-w64-${target}-OpenSceneGraph mingw-w64-${target}-osgearth
+    - pacman -Syu --noconfirm --noprogressbar --needed mingw-w64-${target}-gstreamer mingw-w64-${target}-gst-plugins-base mingw-w64-${target}-gst-plugins-good mingw-w64-${target}-gst-plugins-bad
     - mingw32-make all_sdk_install
     - git config core.filemode false
     - mingw32-make build-info && cat build/build-info.txt

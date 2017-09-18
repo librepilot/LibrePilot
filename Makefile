@@ -131,16 +131,22 @@ ifeq ($(UNAME), Linux)
     GCS_WITH_OSG      := 1
     GCS_WITH_OSGEARTH := 1
     GCS_COPY_OSG      := 0
+    GCS_WITH_GSTREAMER := 0
+    GCS_COPY_GSTREAMER := 0
 else ifeq ($(UNAME), Darwin)
     UAVOBJGENERATOR   := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
     GCS_WITH_OSG      := 1
     GCS_WITH_OSGEARTH := 0
     GCS_COPY_OSG      := 1
+    GCS_WITH_GSTREAMER := 0
+    GCS_COPY_GSTREAMER := 0
 else ifeq ($(UNAME), Windows)
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
     GCS_WITH_OSG      := 1
     GCS_WITH_OSGEARTH := 1
     GCS_COPY_OSG      := 1
+    GCS_WITH_GSTREAMER := 1
+    GCS_COPY_GSTREAMER := 1
 endif
 
 export UAVOBJGENERATOR
@@ -156,6 +162,13 @@ ifeq ($(GCS_WITH_OSG), 1)
     endif
     ifeq ($(GCS_WITH_OSGEARTH), 1)
         GCS_EXTRA_CONF += osgearth
+    endif
+endif
+
+ifeq ($(GCS_WITH_GSTREAMER), 1)
+    GCS_EXTRA_CONF += gstreamer
+    ifeq ($(GCS_COPY_GSTREAMER), 1)
+        GCS_EXTRA_CONF += copy_gstreamer
     endif
 endif
 
@@ -588,6 +601,10 @@ config_help:
 	@$(ECHO) "   GCS_COPY_OSG=$(GCS_COPY_OSG)"
 	@$(ECHO) "       Copy OpenSceneGraph/osgEarth libraries into the build"
 	@$(ECHO) "       (Needed unless using system versions)"
+	@$(ECHO) "       Options: 0 or 1"
+	@$(ECHO)
+	@$(ECHO) "   GCS_WITH_GSTREAMER=$(GCS_WITH_GSTREAMER)"
+	@$(ECHO) "       Build the GCS with GStreamer support, this enables the video gadget and extra PFD video views"
 	@$(ECHO) "       Options: 0 or 1"
 	@$(ECHO)
 	@$(ECHO) "   CCACHE=$(CCACHE)"

@@ -231,6 +231,13 @@ plugin_flightlog.depends += plugin_uavobjects
 plugin_flightlog.depends += plugin_uavtalk
 SUBDIRS += plugin_flightlog
 
+# Video plugin
+gstreamer {
+    plugin_video.subdir = video
+    plugin_video.depends = plugin_coreplugin
+    SUBDIRS += plugin_video
+}
+
 # Usage Tracker plugin
 plugin_usagetracker.subdir = usagetracker
 plugin_usagetracker.depends = plugin_coreplugin

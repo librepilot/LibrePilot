@@ -1,0 +1,155 @@
+
+Tips:
+- Measuring video latency : display time on video + film video output -> the time between two frames is the latency
+
+Limitations:
+- It is not possible to view a web cam in two different gadgets (same is *not* true for DirectSound sources)
+  but it is not really an issue, as it possible to tee a video source in the pipeline itself
+
+ Issues:
+ - bad: libgstchromaprint - libchromaprint needs avcodec-56 (vs 57) and avutil-54 (vs 55)
+ - bad: libgstfragmented - needs libnettle-6-1 (vs 6-2) - was renamed to hls
+ - bad: libgstx265  - needs rebuild
+ - need to rebuild libgstpluginsbad and libchromaprint
+
+ Todo:
+ - should use openglvideosink for PFD
+ - save config as QR code and ...
+ - split cameraconfiguration -> cameraundistort
+ - exclude gst plugins from uncrustify
+ - fix crash on unsupported formats:
+ - undistort should be passthrough when not enabled
+
+
+
+gst-launch-1.0.exe -v -m autovideosrc ! video/x-raw,format=BGRA,width=800,height=600 ! videoconvert ! queue ! x264enc pass=qual quantizer=20 tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+gst-launch-1.0.exe -v -m udpsrc port=5000 ! "application/x-rtp, payload=127" ! rtph264depay ! decodebin ! videoconvert ! timeoverlay ! autovideosink
+
+
+autovideosrc ! videoconvert ! queue ! x264enc pass=qual quantizer=20 tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+autovideosrc ! queue ! videoscale ! video/x-raw,width=320,height=200 ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+autovideosrc ! queue ! videoscale ! videorate ! video/x-raw,width=320,height=240,frame-rate=30/1 ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+
+udpsrc port=5000 ! application/x-rtp,payload=96,clock-rate=90000 ! rtpjitterbuffer latency=30 ! rtph264depay ! decodebin ! videoconvert ! timeoverlay ! fpsdisplaysink
+
+RTSP
+server : ./test-launch.exe "( videotestsrc ! x264enc tune=zerolatency ! rtph264pay name=pay0 pt=96 )"
+client : gst-launch-1.0.exe -v -m rtspsrc location=rtsp://127.0.0.1:8554/test latency=30 ! decodebin ! timeoverlay ! autovideosink
+
+Qt:
+	Line 250058: 0:02:34.185436460  5988    d5a0480 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:02:34.081238026, base 0:00:00.050268441, recv_diff 0:02:34.030969585, slope 8
+	Line 250059: 0:02:34.185499451  5988    d5a0480 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:642:calculate_skew: delta -2352638, new min: -2417925
+	Line 250060: 0:02:34.185552513  5988    d5a0480 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -2398275, out 0:02:34.081192389
+
+RTP
+server : gst-launch-1.0.exe -v -m videotestsrc ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+client : gst-launch-1.0.exe -v -m udpsrc port=5000 ! application/x-rtp,payload=96,clock-rate=90000 ! rtpjitterbuffer ! rtph264depay ! decodebin ! videoconvert ! timeoverlay ! autovideosink 
+
+WIFI CAM RTSP
+client : gst-launch-1.0.exe -v -m rtspsrc location=rtsp://192.168.42.1/AmbaStreamTest latency=30 ! decodebin ! timeoverlay ! autovideosink
+Qt:
+	Line 14594: 0:00:28.489562097  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:19.812089201, base 0:00:04.161093352, recv_diff 0:00:15.650995849, slope 7
+	Line 14595: 0:00:28.489625088  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:642:calculate_skew: delta 2029182, new min: -2061750
+	Line 14596: 0:00:28.489677219  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -2246751, out 0:00:19.807813268
+	Line 14612: 0:00:28.527222391  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:19.849735841, base 0:00:04.161093352, recv_diff 0:00:15.688642489, slope 7
+	Line 14613: 0:00:28.527285692  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:642:calculate_skew: delta 6309156, new min: -2061750
+	Line 14614: 0:00:28.527339685  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -2245270, out 0:00:19.841181415
+	Line 14630: 0:00:28.564027806  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:19.886522948, base 0:00:04.161093352, recv_diff 0:00:15.725429596, slope 7
+	Line 14631: 0:00:28.564091728  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:642:calculate_skew: delta 9729596, new min: -2061750
+	Line 14632: 0:00:28.564145410  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -2243801, out 0:00:19.874549551
+	Line 14654: 0:00:31.712747597  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.035042595, base 0:00:04.161093352, recv_diff 0:00:18.873949243, slope 6
+	Line 14655: 0:00:31.712811519  9388    d5b9518 WARN         rtpjitterbuffer rtpjitterbuffer.c:570:calculate_skew: delta - skew: 0:00:03.127126377 too big, reset skew
+	Line 14656: 0:00:31.712867063  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 0, delta 0
+	Line 14657: 0:00:31.712919194  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew 0, out 0:00:23.035042595
+	Line 14759: 0:00:31.720619622  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.043193270, base 0:00:23.035042595, recv_diff 0:00:00.008150675, slope 32
+	Line 14760: 0:00:31.720681061  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 1, delta -25215991
+	Line 14761: 0:00:31.720734123  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -2521, out 0:00:23.068406740
+	Line 14774: 0:00:31.721641753  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.044219745, base 0:00:23.035042595, recv_diff 0:00:00.009177150, slope 58
+	Line 14775: 0:00:31.721703813  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 2, delta -57556183
+	Line 14776: 0:00:31.721755633  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -54319, out 0:00:23.101721609
+	Line 14789: 0:00:31.722667608  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.045249324, base 0:00:23.035042595, recv_diff 0:00:00.010206729, slope 78
+	Line 14790: 0:00:31.722730288  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 3, delta -89893271
+	Line 14791: 0:00:31.722782729  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -278916, out 0:00:23.134863679
+	Line 14804: 0:00:31.723697497  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.046273007, base 0:00:23.035042595, recv_diff 0:00:00.011230412, slope 95
+	Line 14805: 0:00:31.723759557  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 4, delta -122236254
+	Line 14806: 0:00:31.723811687  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -717962, out 0:00:23.167791299
+	[...]
+	Line 14864: 0:00:31.727785401  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.050366186, base 0:00:23.035042595, recv_diff 0:00:00.015323591, slope 139
+	Line 14865: 0:00:31.727851185  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 8, delta -251609742
+	Line 14866: 0:00:31.727903626  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -10312755, out 0:00:23.291663173
+	Line 14964: 0:00:31.732567449  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.055371651, base 0:00:23.035042595, recv_diff 0:00:00.020329056, slope 118
+	Line 14965: 0:00:31.732595996  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 9, delta -279970944
+	Line 14966: 0:00:31.732620200  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -16380064, out 0:00:23.318962531
+	[...]
+	Line 15293: 0:00:31.746166387  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.068966555, base 0:00:23.035042595, recv_diff 0:00:00.033923960, slope 180
+	Line 15294: 0:00:31.746194935  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 23, delta -733509373
+	Line 15295: 0:00:31.746218828  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -430859680, out 0:00:23.371616248
+	Line 15310: 0:00:31.746791023  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:563:calculate_skew: time 0:00:23.069478242, base 0:00:23.035042595, recv_diff 0:00:00.034435647, slope 186
+	Line 15311: 0:00:31.746820812  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:580:calculate_skew: filling 24, delta -766364353
+	Line 15312: 0:00:31.746845636  9388    d5b9518 DEBUG        rtpjitterbuffer rtpjitterbuffer.c:664:calculate_skew: skew -484540427, out 0:00:23.351302168
+	[...]
+
+
+The high skew values can also be seen when using gst-launch but no pauses...
+
+The pause duration is variable (~4s) but the pause is always on the beat every 10s (If the first pause is at 9s, then the next will be at 19s, then 29s, etc...).
+
+Is it possible to disable the rtpjitterbuffer ?
+
+Qos: element autovideosink1-actual-sink-d3dvideo sent qos event: live: 1; running time: 30719164049; stream time: 26558070697; timestamp: 30719164049; duration: 33366666 jitter: 3029708354; proportion: 0.15581; quality: 1000000; format: ; processed: 609; dropped: 2;
+
+
+Wifi stall
+
+0:04:39.600000124  8296    ee56ba0 LOG                   udpsrc gstudpsrc.c:882:gst_udpsrc_create:<udpsrc0> doing select, timeout -1
+0:04:39.628925951  8296    ee56b10 DEBUG                rtspsrc gstrtspsrc.c:2260:gst_rtspsrc_handle_src_event:<rtspsrc0> pad rtspsrc0:recv_rtp_src_0_275680090_96 received event qos
+0:04:39.661793203  8296    ee56b10 DEBUG                rtspsrc gstrtspsrc.c:2260:gst_rtspsrc_handle_src_event:<rtspsrc0> pad rtspsrc0:recv_rtp_src_0_275680090_96 received event qos
+0:04:42.688912775  8296    ee56ba0 LOG                   udpsrc gstudpsrc.c:1014:gst_udpsrc_create:<udpsrc0> read packet of 26 bytes
+0:04:42.689055513  8296    ee56ba0 WARN         rtpjitterbuffer rtpjitterbuffer.c:570:calculate_skew: delta - skew: 0:00:03.058485393 too big, reset skew
+
+
+
+Simply instantiating a QNetworkAccessManager will cause the active wifi network connection to stall for 3 seconds every 10s.
+
+This affects, not just the Qt app, but also all other processes using the wifi connection.
+
+From what I have gathered this is due to bearer management polling all interfaces every 10s (can be changed with the QT_BEARER_POLL_TIMEOUT environment variable).
+On windows polling the wifi interface will trigger an ssid scan. That scan will stall the active connection. This might not happen with all wifi devices but does with mine.
+In my case, setting QT_BEARER_POLL_TIMEOUT to less than 4 seconds results in a DoS ;)
+
+https://msdn.microsoft.com/fr-fr/library/windows/desktop/ms706783(v=vs.85).aspx
+quote: "Since it becomes more difficult for a wireless interface to send and receive data packets while a scan is occurring, the WlanScan function may increase latency until the network scan is complete."
+
+
+# transmit gstreamer buffers over network
+tcpserversrc host=0.0.0.0 port=50002 ! gdpdepay ! autovideoconvert ! autovideosink
+v4l2src num-buffers=1 ! gdppay ! tcpclientsink host=0.0.0.0 port=50002
+
+# play a rtsp stream
+rtspsrc location=rtsp://192.168.42.1/AmbaStreamTest latency=30 ! decodebin ! timeoverlay ! autovideosink
+
+# play video and sound 
+ksvideosrc ! queue ! mix.
+directsoundsrc ! tee name=split ! queue ! directsoundsink
+split. ! queue ! wavescope ! queue ! mix.
+videomixer name=mix ! queue ! timeoverlay ! autovideosink
+
+ksvideosrc ! queue ! timeoverlay ! autovideosink
+directsoundsrc ! queue ! directsoundsink
+
+directsoundsrc ! tee name=split ! queue ! directsoundsink
+split. ! queue ! wavescope ! autovideosink
+
+filesrc location=C:/Users/Utilisateur/Desktop/hst_2.mpg ! decodebin ! autovideosink
+
+dx9screencapsrc  ! queue ! videoconvert ! x264enc bitrate=498 ! avimux ! filesink location=capture.avi
+
+
+compositor name=mixer background=black sink_0::offset=0 sink_1::offset=0 ! videoconvert ! autovideosink
+ksvideosrc device_index=0 ! decodebin ! identity drop-probability=0 ! queue max-size-buffers=0 max-size-bytes=0 max-size-time=10000000000 ! mixer.
+udpsrc port=9000 ! identity drop-probability=0 dump=false ! <something> ! video/x-raw, width=640, height=480 ! videorate drop-only=true ! video/x-raw, framerate=10/1 ! queue max-size-buffers=0 max-size-bytes=0 max-size-time=10000000000 ! mixer.
+
+
+compositor name=mixer sink_1::ypos=50 ! videoconvert ! timeoverlay shaded-background=true auto-resize=false ! autovideosink sync=true
+ksvideosrc ! video/x-raw ! decodebin ! queue ! mixer.
+udpsrc port=9000 ! identity dump=false ! textrender halignment=left line-alignment=left ! video/x-raw, width=320, height=120 ! videorate drop-only=true ! video/x-raw, framerate=10/1 ! queue ! mixer.

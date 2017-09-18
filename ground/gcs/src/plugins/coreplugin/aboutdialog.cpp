@@ -82,8 +82,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
                             + creditRow.arg("dRonin", "", "http://www.dronin.org")
                             + creditRow.arg("OpenSceneGraph", "<br/>Open source high performance 3D graphics toolkit", "http://www.openscenegraph.org")
                             + creditRow.arg("osgEarth", "<br/>Geospatial SDK for OpenSceneGraph", "http://osgearth.org")
-                            + creditRow.arg("MSYS2", "<br/>An independent rewrite of MSYS", "https://sourceforge.net/p/msys2/wiki/Home")
-                            + creditRow.arg("The Qt Company", "", "http://www.qt.io")
+                            + creditRow.arg("gstreamer", "<br/>Open source multimedia framework", "https://gstreamer.freedesktop.org/")
+                            + creditRow.arg("MSYS2", "<br/>An independent rewrite of MSYS", "https://github.com/msys2/msys2/wiki")
+                            + creditRow.arg("The Qt Company", "", "https://www.qt.io")
                             + "</table>";
 
     // uses Text.StyledText (see http://doc.qt.io/qt-5/qml-qtquick-text.html#textFormat-prop)

@@ -111,6 +111,9 @@ QWidget *PfdQmlGadgetOptionsPage::createPage(QWidget *parent)
     options_page->backgroundImageFile->setPromptDialogTitle(tr("Choose Background Image File"));
     options_page->backgroundImageFile->setPath(m_config->backgroundImageFile());
 
+    // gstreamer pipeline
+    options_page->pipelineTextEdit->setPlainText(m_config->gstPipeline());
+
 #ifndef USE_OSG
     options_page->showTerrain->setChecked(false);
     options_page->showTerrain->setVisible(false);
@@ -170,6 +173,8 @@ void PfdQmlGadgetOptionsPage::apply()
 #else
     m_config->setModelEnabled(false);
 #endif
+
+    m_config->setGstPipeline(options_page->pipelineTextEdit->toPlainText());
 }
 
 void PfdQmlGadgetOptionsPage::finish()

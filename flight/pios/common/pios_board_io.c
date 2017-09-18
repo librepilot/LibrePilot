@@ -545,6 +545,7 @@ void PIOS_BOARD_IO_Configure_GCS_RCVR()
 void PIOS_BOARD_IO_Configure_OPLink_RCVR()
 {
     uint32_t pios_oplinkrcvr_id;
+
     OPLinkReceiverInitialize();
 #if defined(PIOS_INCLUDE_RFM22B)
     PIOS_OPLinkRCVR_Init(&pios_oplinkrcvr_id, pios_rfm22b_id);

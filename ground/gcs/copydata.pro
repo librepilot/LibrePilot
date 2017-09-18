@@ -91,7 +91,7 @@ win32 {
 
     for(dll, QT_DLLS) {
         addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
-        win32:addCopyDependenciesTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
+        addCopyDependenciesTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
     }
 
     # copy OpenSSL DLLs

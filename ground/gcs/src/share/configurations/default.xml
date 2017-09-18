@@ -2785,6 +2785,22 @@
         </data>
       </default>
     </UAVObjectBrowser>
+    <VideoGadget>
+      <Default>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>true</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>videotestsrc ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </Default>
+    </VideoGadget>
     <configInfo>
       <locked>false</locked>
       <version>1.2.0</version>

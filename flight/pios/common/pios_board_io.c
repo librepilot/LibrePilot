@@ -703,6 +703,11 @@ void PIOS_BOARD_IO_Configure_RFM22B()
                 break;
             }
 
+            /* Initialize the OPLink Receiver */
+#ifdef PIOS_INCLUDE_OPLINKRCVR
+            PIOS_BOARD_IO_Configure_OPLink_RCVR();
+#endif
+
             /* Reinitialize the modem. */
             PIOS_RFM22B_Reinit(pios_rfm22b_id);
         }

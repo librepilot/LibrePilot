@@ -777,6 +777,7 @@ static int32_t setLoggingPeriod(
     UAVObjHandle obj,
     int32_t updatePeriodMs)
 {
+#ifdef HAS_LOGGING_MODULE
     UAVObjEvent ev;
     int32_t ret;
 
@@ -798,6 +799,14 @@ static int32_t setLoggingPeriod(
         ret = EventPeriodicQueueCreate(&ev, targetQueue, updatePeriodMs);
     }
     return ret;
+
+#else /* HAS_LOGGING_MODULE */
+    (void)channel;
+    (void)obj;
+    (void)updatePeriodMs;
+    return 0;
+
+#endif /* ifdef HAS_LOGGING_MODULE */
 }
 
 /**

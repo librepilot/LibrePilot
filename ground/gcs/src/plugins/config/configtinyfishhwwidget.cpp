@@ -49,7 +49,7 @@ ConfigTinyFISHHWWidget::ConfigTinyFISHHWWidget(QWidget *parent) : ConfigTaskWidg
     addWidgetBinding("HwTinyFISHSettings", "UART3Port", m_ui->cbUART3, 0, 1, true);
     addWidgetBinding("HwTinyFISHSettings", "LEDPort", m_ui->cbLEDPort);
 
-    connect(m_ui->cbUART3, static_cast<void(QComboBox::*) (int)>(&QComboBox::currentIndexChanged), this, &ConfigTinyFISHHWWidget::UART3Changed);
+    connect(m_ui->cbUART3, static_cast<void(QComboBox::*) (int)>(&QComboBox::currentIndexChanged), this, &ConfigTinyFISHHWWidget::UARTxChanged);
 
     m_ui->commonHWSettings->registerWidgets(*this);
 
@@ -60,14 +60,14 @@ ConfigTinyFISHHWWidget::ConfigTinyFISHHWWidget(QWidget *parent) : ConfigTaskWidg
 
 ConfigTinyFISHHWWidget::~ConfigTinyFISHHWWidget()
 {
-    // Do nothing
+    delete m_ui;
 }
 
 void ConfigTinyFISHHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_UNUSED(obj);
-
-    UART3Changed(0);
+//    UART3Changed(0);
+    
+    m_ui->commonHWSettings->refreshWidgetsValues(obj);
 }
 
 void ConfigTinyFISHHWWidget::updateObjectsFromWidgetsImpl()
@@ -115,12 +115,15 @@ bool ConfigTinyFISHHWWidget::optionConflict(int uartOption, int vcpOption)
                && uartOption == HwTinyFISHSettings::UART3PORT_MAVLINK);
 }
 
-void ConfigTinyFISHHWWidget::UARTxChanged(QComboBox *cbUARTx)
+void ConfigTinyFISHHWWidget::UARTxChanged(int index)
 {
-    /* Everything except HwTinyFISHSettings::UARTPORT_DISABLED and  HwTinyFISHSettings::UARTPORT_DSM
-     * is allowed on single port only.
-     * HoTT SUMD & SUMH belong to the same receiver group, therefore cannot be configure at the same time
-     */
+    Q_UNUSED(index);
+    
+    QComboBox *cbUARTx = qobject_cast<QComboBox *>(sender());
+    
+    if(!cbUARTx) {
+        return;
+    }
 
     int option = getComboboxSelectedOption(cbUARTx);
 
@@ -148,10 +151,4 @@ void ConfigTinyFISHHWWidget::USBVCPFunctionChanged(int index)
     }
 
     updateFeatures();
-}
-
-void ConfigTinyFISHHWWidget::UART3Changed(int index)
-{
-    Q_UNUSED(index);
-    UARTxChanged(m_ui->cbUART3);
 }

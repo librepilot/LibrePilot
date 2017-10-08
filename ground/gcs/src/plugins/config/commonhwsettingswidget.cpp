@@ -25,19 +25,32 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "commonhwsettingswidget.h"
-
 #include "ui_commonhwsettingswidget.h"
+#include "hwsettings.h"
 
 #include <QDebug>
+#include <extensionsystem/pluginmanager.h>
+#include "uavobjectmanager.h"
+
 
 CommonHWSettingsWidget::CommonHWSettingsWidget(QWidget *parent) : QWidget(parent)
 {
     m_ui = new Ui_CommonHWSettingsWidget();
     m_ui->setupUi(this);
 
+    m_ui->cbDSMxBind->addItem(tr("Disabled"), 0);
+
+    m_ui->cbDSMxBind->addItem(tr("DSM2 1024bit/22ms"), 3);
+    m_ui->cbDSMxBind->addItem(tr("DSM2 2048bit/11ms"), 5);
+    m_ui->cbDSMxBind->addItem(tr("DSMX 1024bit/22ms"), 7);
+    m_ui->cbDSMxBind->addItem(tr("DSMX 2048bit/22ms"), 8);
+    m_ui->cbDSMxBind->addItem(tr("DSMX 2048bit/11ms"), 9);
+
+    m_ui->cbDSMxBind->setCurrentIndex(0);
+    
     setFeatures(0);
 
-    /* Relay signals from private members */
+    // Relay signals from private members
     connect(m_ui->cbUSBHID, SIGNAL(currentIndexChanged(int)), this, SIGNAL(USBHIDFunctionChanged(int)));
     connect(m_ui->cbUSBVCP, SIGNAL(currentIndexChanged(int)), this, SIGNAL(USBVCPFunctionChanged(int)));
 }
@@ -49,10 +62,6 @@ CommonHWSettingsWidget::~CommonHWSettingsWidget()
 
 void CommonHWSettingsWidget::registerWidgets(ConfigTaskWidget &ct)
 {
-// addAutoBindings();
-
-// ct.addUAVObject("HwSettings");
-
     ct.addWidgetBinding("HwSettings", "USB_HIDPort", m_ui->cbUSBHID);
     ct.addWidgetBinding("HwSettings", "USB_VCPPort", m_ui->cbUSBVCP);
 
@@ -60,11 +69,25 @@ void CommonHWSettingsWidget::registerWidgets(ConfigTaskWidget &ct)
     ct.addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbGPSSpeed);
     ct.addWidgetBinding("HwSettings", "DebugConsoleSpeed", m_ui->cbDebugConsoleSpeed);
     ct.addWidgetBinding("HwSettings", "SBusMode", m_ui->cbSBUSMode);
+    
     ct.addWidgetBinding("HwSettings", "DSMxBind", m_ui->cbDSMxBind, 0, 1, true);
 
     ct.addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbGPSProtocol);
 }
 
+void CommonHWSettingsWidget::refreshWidgetsValues(UAVObject *obj)
+{
+    Q_UNUSED(obj);
+    
+    UAVObjectManager *objMngr = ExtensionSystem::PluginManager::instance()->getObject<UAVObjectManager>();
+    
+    int option = HwSettings::GetInstance(objMngr)->getDSMxBind();
+    
+    if(m_ui->cbDSMxBind->findData(option) == -1) {
+        m_ui->cbDSMxBind->addItem(tr("%1 Pulses").arg(option), option);
+        m_ui->cbDSMxBind->setCurrentIndex(-1);
+    }
+}
 
 void CommonHWSettingsWidget::setFeatures(quint32 features)
 {

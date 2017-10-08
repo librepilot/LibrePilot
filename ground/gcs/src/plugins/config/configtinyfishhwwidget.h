@@ -48,13 +48,12 @@ protected:
 
 private:
     Ui_TinyFISHHWWidget *m_ui;
-    void UARTxChanged(QComboBox *cbUARTx);
     void updateFeatures();
 
     bool optionConflict(int uartOption, int vcpOption);
 
 private slots:
-    void UART3Changed(int index);
+    void UARTxChanged(int index);
     void USBVCPFunctionChanged(int index);
 };
 

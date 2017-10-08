@@ -1,14 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       configspracingf3evohwwidget.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2017.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configpikoblxhwwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief SPRacingF3EVO hardware configuration panel
+ * @brief PikoBLX hardware configuration panel
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,34 +24,34 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef CONFIGSPRACINGF3EVOHWWIDGET_H
-#define CONFIGSPRACINGF3EVOHWWIDGET_H
+#ifndef CONFIGPIKOBLXHWWIDGET_H
+#define CONFIGPIKOBLXHWWIDGET_H
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 
-#include "hwspracingf3evosettings.h"
+#include "hwpikoblxsettings.h"
 
-class Ui_SPRacingF3EVOHWWidget;
+class Ui_PikoBLXHWWidget;
 
 class UAVObject;
 
 class QWidget;
 
-class ConfigSPRacingF3EVOHWWidget : public ConfigTaskWidget {
+class ConfigPikoBLXHWWidget : public ConfigTaskWidget {
     Q_OBJECT
 
 public:
-    ConfigSPRacingF3EVOHWWidget(QWidget *parent = 0);
-    ~ConfigSPRacingF3EVOHWWidget();
+    ConfigPikoBLXHWWidget(QWidget *parent = 0);
+    ~ConfigPikoBLXHWWidget();
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
 private:
-    Ui_SPRacingF3EVOHWWidget *m_ui;
+    Ui_PikoBLXHWWidget *m_ui;
 
-    QComboBox *m_cbUART[HwSPRacingF3EVOSettings::UARTPORT_NUMELEM];
+    QComboBox *m_cbUART[HwPikoBLXSettings::UARTPORT_NUMELEM];
     
     void updateFeatures();
 
@@ -63,4 +62,4 @@ private slots:
     void USBVCPFunctionChanged(int index);
 };
 
-#endif // CONFIGSPRACINGF3EVOHWWIDGET_H
+#endif // CONFIGPIKOBLXHWWIDGET_H

@@ -46,7 +46,8 @@ public:
     virtual ~CommonHWSettingsWidget();
 
     void registerWidgets(ConfigTaskWidget &ct);
-
+    void refreshWidgetsValues(UAVObject *obj);
+    
     void setFeatures(quint32 features);
 
     QComboBox *USBVCPComboBox();

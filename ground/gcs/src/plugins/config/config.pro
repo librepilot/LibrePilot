@@ -51,6 +51,7 @@ HEADERS += \
     configrevohwwidget.h \
     configspracingf3evohwwidget.h \
     configtinyfishhwwidget.h \
+    configpikoblxhwwidget.h \
     commonhwsettingswidget.h \
     calibration/calibrationutils.h \
     calibration/wizardstate.h \
@@ -101,6 +102,7 @@ SOURCES += \
     configrevohwwidget.cpp \
     configspracingf3evohwwidget.cpp \
     configtinyfishhwwidget.cpp \
+    configpikoblxhwwidget.cpp \
     commonhwsettingswidget.cpp \
     calibration/calibrationutils.cpp \
     calibration/wizardstate.cpp \
@@ -141,6 +143,7 @@ FORMS += \
     autotune.ui \
     configspracingf3evohwwidget.ui \
     configtinyfishhwwidget.ui \
+    configpikoblxhwwidget.ui \
     commonhwsettingswidget.ui \
     oplink.ui \
     configrevonanohwwidget.ui \

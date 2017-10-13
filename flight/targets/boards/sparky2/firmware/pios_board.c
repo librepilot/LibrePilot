@@ -274,10 +274,6 @@ void PIOS_Board_Init(void)
     PIOS_BOARD_IO_Configure_GCS_RCVR();
 #endif
 
-#ifdef PIOS_INCLUDE_OPLINKRCVR
-    PIOS_BOARD_IO_Configure_OPLink_RCVR();
-#endif
-
 #ifndef PIOS_ENABLE_DEBUG_PINS
     PIOS_Servo_Init(&pios_servo_cfg_out);
 #else

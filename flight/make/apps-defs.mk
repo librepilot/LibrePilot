@@ -169,6 +169,10 @@ MODNAMES := $(notdir $(subst /revolution,,$(MODULES)))
 MODULES_BUILTIN := $(foreach mod, $(MODNAMES), -DMODULE_$(shell echo $(mod) | tr '[:lower:]' '[:upper:]')_BUILTIN)
 CDEFS += $(MODULES_BUILTIN)
 
+MODNAMES_ALL := $(notdir $(subst /revolution,,$(OPTMODULES) $(MODULES)))
+MODULES_ALL := $(foreach mod, $(MODNAMES_ALL), -DHAS_$(shell echo $(mod) | tr '[:lower:]' '[:upper:]')_MODULE)
+CDEFS += $(MODULES_ALL)
+
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
 # Use file-extension c for "c-only"-files
 SRCARM +=

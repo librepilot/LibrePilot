@@ -8,6 +8,8 @@
  *
  * @file       pios_bmp280.c
  * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             dRonin, http://dRonin.org/, Copyright (C) 2015-2016
+ *             Tau Labs, http://taulabs.org, Copyright (C) 2012-2014
  * @brief      BMP280 Pressure Sensor Routines
  * @see        The GNU Public License (GPL) Version 3
  *

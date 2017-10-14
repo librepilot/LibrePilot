@@ -930,7 +930,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentState</string>
                   <string>fieldname:Complete</string>
                  </stringlist>
@@ -1291,7 +1291,7 @@ font:bold;</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Whether to calculate yaw and whether to use Yaw to Roll/Pitch PID Ratios limits bellow.</string>
+                 <string>Whether to calculate yaw and whether to use Yaw to Roll/Pitch PID Ratios limits.</string>
                 </property>
                 <property name="layoutDirection">
                  <enum>Qt::LeftToRight</enum>
@@ -1300,7 +1300,7 @@ font:bold;</string>
                  <number>0</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:CalculateYaw</string>
                   <string>buttongroup:20</string>
@@ -1314,7 +1314,7 @@ font:bold;</string>
                  <string>How the SmoothQuick slider is controlled, using Accessory or FMS 3x toggle method with 3, 5, 7 positions. Allow testing smooth/quick PID sets after a AutoTune flight.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:SmoothQuickSource</string>
                   <string>buttongroup:20</string>
@@ -1366,7 +1366,7 @@ font:bold;</string>
                  <string>Which bank the calculated PIDs will be stored in after tuning.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:DestinationPidBank</string>
                   <string>buttongroup:20</string>
@@ -1390,7 +1390,7 @@ font:bold;</string>
                  <string>Manual is direct control, AltitudeVario helps to maintain altitude.</string>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:ThrustControl</string>
                   <string>buttongroup:20</string>
@@ -1469,7 +1469,7 @@ font:bold;</string>
                    <double>0.100000000000000</double>
                   </property>
                   <property name="objrelation" stdset="0">
-                   <stringlist>
+                   <stringlist notr="true">
                     <string>objname:SystemIdentSettings</string>
                     <string>fieldname:YawToRollPitchPIDRatioMin</string>
                     <string>buttongroup:20</string>
@@ -1504,7 +1504,7 @@ font:bold;</string>
                    <double>0.100000000000000</double>
                   </property>
                   <property name="objrelation" stdset="0">
-                   <stringlist>
+                   <stringlist notr="true">
                     <string>objname:SystemIdentSettings</string>
                     <string>fieldname:YawToRollPitchPIDRatioMax</string>
                     <string>buttongroup:20</string>
@@ -1529,7 +1529,7 @@ font:bold;</string>
                  <number>1</number>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:OuterLoopKpSoftClamp</string>
                   <string>buttongroup:20</string>
@@ -1957,7 +1957,7 @@ font:bold;</string>
                  <bool>true</bool>
                 </property>
                 <property name="objrelation" stdset="0">
-                 <stringlist>
+                 <stringlist notr="true">
                   <string>objname:SystemIdentSettings</string>
                   <string>fieldname:Complete</string>
                  </stringlist>

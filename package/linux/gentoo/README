@@ -57,12 +57,14 @@ I have marked the ebuilds as unstable ("~"), as they haven't been extensively
 tested on different computers. Therefore, you will be presented with
 the option to add some changes to use flags:
 
-The following keyword changes are necessary to proceed:
- (see "package.accept_keywords" in the portage(5) man page for more details)
-# required by librepilot (argument)
-=app-misc/librepilot-16.09 ~amd64
+-------------8<---------------
+    The following keyword changes are necessary to proceed:
+     (see "package.accept_keywords" in the portage(5) man page for more details)
+    # required by librepilot (argument)
+    =app-misc/librepilot-16.09 ~amd64
 
-Would you like to add these changes to your config files? [Yes/No]
+    Would you like to add these changes to your config files? [Yes/No]
+-------------8<---------------
 
 Accept the changes, then run dispatch-conf to incorporate them, before
 running the emerge command again.
@@ -75,18 +77,18 @@ Installing the latest development branch
 For the latest "next" branch from the repository, you need to install
 using the following command:
 
-> emerge -av =app-misc/librepilot
+> emerge -av =app-misc/librepilot-9999
 
 Again, you will be offered some changes to the use flags:
 
 -------------8<---------------
-The following keyword changes are necessary to proceed:
- (see "package.accept_keywords" in the portage(5) man page for more details)
-# required by =app-misc/librepilot-9999 (argument)
-=app-misc/librepilot-9999 **
+    The following keyword changes are necessary to proceed:
+     (see "package.accept_keywords" in the portage(5) man page for more details)
+    # required by =app-misc/librepilot-9999 (argument)
+    =app-misc/librepilot-9999 **
 
-NOTE: The --autounmask-keep-masks option will prevent emerge
-      from creating package.unmask or ** keyword changes.
+    NOTE: The --autounmask-keep-masks option will prevent emerge
+          from creating package.unmask or ** keyword changes.
 -----------8<------------------
 
 Depending on your settings, you may have to add the changes manually

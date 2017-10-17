@@ -72,7 +72,8 @@ static uint32_t pios_dshot_t0h_raw;
 static uint32_t pios_dshot_t1h_raw;
 static uint32_t pios_dshot_t_raw;
 
-static bool pios_servo_enabled = true;
+static bool pios_servo_enabled    = true;
+static uint32_t pios_servo_active = 0; // No active outputs by default
 
 #define PIOS_SERVO_TIMER_CLOCK 1000000
 #define PIOS_SERVO_SAFE_MARGIN 50
@@ -83,6 +84,20 @@ static bool pios_servo_enabled = true;
 #define DSHOT_T1H_DIV          1333
 #define DSHOT_NUM_BITS         16
 
+extern void PIOS_Servo_SetActive(uint32_t active)
+{
+    bool enabled = pios_servo_enabled;
+
+    if (enabled) {
+        PIOS_Servo_Disable();
+    }
+
+    pios_servo_active = active;
+
+    if (enabled) {
+        PIOS_Servo_Enable();
+    }
+}
 
 extern void PIOS_Servo_Disable()
 {
@@ -139,6 +154,10 @@ static void PIOS_Servo_SetupBank(uint8_t bank_nr)
         const struct pios_tim_channel *chan = &servo_cfg->channels[i];
 
         if (chan->timer != bank->timer) { // Not interested in this bank
+            continue;
+        }
+
+        if (!(pios_servo_active & (1L << i))) { // This output is not active
             continue;
         }
 
@@ -345,6 +364,10 @@ static void PIOS_Servo_DShot_Update()
             continue;
         }
 
+        if (!(pios_servo_active & (1L << i))) { // This output is not active
+            continue;
+        }
+
         has_dshot = true;
 
         uint16_t payload = pin->value;
@@ -451,7 +474,8 @@ void PIOS_Servo_Update()
     }
 
     for (uint8_t i = 0; (i < servo_cfg->num_channels); i++) {
-        if (pios_servo_pins[i].bank->mode == PIOS_SERVO_BANK_MODE_SINGLE_PULSE) {
+        if ((pios_servo_active & (1L << i))
+            && (pios_servo_pins[i].bank->mode == PIOS_SERVO_BANK_MODE_SINGLE_PULSE)) {
             /* Update the position */
             const struct pios_tim_channel *chan = &servo_cfg->channels[i];
 

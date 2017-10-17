@@ -218,7 +218,6 @@ int32_t GPSInitialize(void)
     GPSVelocitySensorInitialize();
     GPSTimeInitialize();
     GPSSatellitesInitialize();
-    HomeLocationInitialize();
 #if defined(ANY_FULL_MAG_PARSER)
     AuxMagSensorInitialize();
     GPSExtendedStatusInitialize();
@@ -238,9 +237,6 @@ int32_t GPSInitialize(void)
 #if !defined(PIOS_GPS_MINIMAL)
         GPSTimeInitialize();
         GPSSatellitesInitialize();
-#endif
-#if defined(PIOS_GPS_SETS_HOMELOCATION)
-        HomeLocationInitialize();
 #endif
         // updateHwSettings() uses gpsSettings
         GPSSettingsGet(&gpsSettings);

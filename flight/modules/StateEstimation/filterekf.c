@@ -93,9 +93,7 @@ static int32_t globalInit(stateFilter *handle, bool usePos, bool navOnly)
     struct data *this = (struct data *)handle->localdata;
     this->usePos      = usePos;
     this->navOnly     = navOnly;
-    EKFConfigurationInitialize();
     EKFStateVarianceInitialize();
-    HomeLocationInitialize();
     return STACK_REQUIRED;
 }
 

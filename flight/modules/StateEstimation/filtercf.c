@@ -104,8 +104,6 @@ static void globalInit(void)
     if (!initialized) {
         initialized = 1;
         FlightStatusInitialize();
-        HomeLocationInitialize();
-        RevoCalibrationInitialize();
         FlightStatusConnectCallback(&flightStatusUpdatedCb);
         flightStatusUpdatedCb(NULL);
     }

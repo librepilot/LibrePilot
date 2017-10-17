@@ -99,7 +99,6 @@ int32_t CameraControlInitialize(void)
         CameraControlActivityInitialize();
         CameraDesiredInitialize();
         CameraControlSettingsConnectCallback(SettingsUpdateCb);
-        HomeLocationInitialize();
         HomeLocationConnectCallback(HomeLocationUpdateCb);
         GPSTimeInitialize();
         PositionStateInitialize();

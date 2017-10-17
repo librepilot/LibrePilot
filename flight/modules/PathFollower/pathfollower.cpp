@@ -165,7 +165,6 @@ extern "C" int32_t PathFollowerInitialize()
     StabilizationDesiredInitialize();
     AirspeedStateInitialize();
     AttitudeStateInitialize();
-    TakeOffLocationInitialize();
     PoiLocationInitialize();
     ManualControlCommandInitialize();
     StabilizationBankInitialize();
@@ -176,7 +175,6 @@ extern "C" int32_t PathFollowerInitialize()
     StatusVtolAutoTakeoffInitialize();
 
     // VtolLandFSM additional objects
-    HomeLocationInitialize();
     AccelStateInitialize();
 
     // Init references to controllers

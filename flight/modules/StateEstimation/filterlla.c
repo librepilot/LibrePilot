@@ -62,7 +62,6 @@ int32_t filterLLAInitialize(stateFilter *handle)
     handle->filter    = &filter;
     handle->localdata = pios_malloc(sizeof(struct data));
     GPSPositionSensorInitialize();
-    HomeLocationInitialize();
     return STACK_REQUIRED;
 }
 

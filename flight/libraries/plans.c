@@ -80,7 +80,6 @@ static float applyExpo(float value, float expo)
  */
 void plan_initialize()
 {
-    TakeOffLocationInitialize();
     PositionStateInitialize();
     PathDesiredInitialize();
     FlightStatusInitialize();

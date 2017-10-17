@@ -334,8 +334,6 @@ int32_t StateEstimationInitialize(void)
     GPSVelocitySensorInitialize();
     GPSPositionSensorInitialize();
 
-    HomeLocationInitialize();
-
     GyroStateInitialize();
     AccelStateInitialize();
     MagStateInitialize();

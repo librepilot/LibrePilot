@@ -164,12 +164,9 @@ static void UpdateStabilizationDesired(bool doingIdent);
  */
 int32_t AutoTuneInitialize(void)
 {
-    // do this here since module can become disabled for several reasons
-    // even for MODULE_AutoTune_BUILTIN
 #if defined(MODULE_AutoTune_BUILTIN)
     moduleEnabled = true;
 #else
-    // HwSettings is only used right here, so init here
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
     if (optionalModules.AutoTune == HWSETTINGS_OPTIONALMODULES_ENABLED) {

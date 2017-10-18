@@ -64,6 +64,8 @@ extern int32_t SystemModInitialize(void);
 
 #define MODULE_INITCALL(ifn, sfn)
 
+#define SETTINGS_INITCALL(fn)
+
 #define MODULE_TASKCREATE_ALL \
     { \
         /* Start all module threads */ \

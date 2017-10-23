@@ -40,14 +40,8 @@ CommonHWSettingsWidget::CommonHWSettingsWidget(QWidget *parent) : QWidget(parent
 
     m_ui->cbDSMxBind->addItem(tr("Disabled"), 0);
 
-    m_ui->cbDSMxBind->addItem(tr("DSM2 1024bit/22ms"), 3);
-    m_ui->cbDSMxBind->addItem(tr("DSM2 2048bit/11ms"), 5);
-    m_ui->cbDSMxBind->addItem(tr("DSMX 1024bit/22ms"), 7);
-    m_ui->cbDSMxBind->addItem(tr("DSMX 2048bit/22ms"), 8);
-    m_ui->cbDSMxBind->addItem(tr("DSMX 2048bit/11ms"), 9);
+// combo->addItem(options.at(optionIndex), QVariant(optionIndex));
 
-    m_ui->cbDSMxBind->setCurrentIndex(0);
-    
     setFeatures(0);
 
     // Relay signals from private members
@@ -69,7 +63,7 @@ void CommonHWSettingsWidget::registerWidgets(ConfigTaskWidget &ct)
     ct.addWidgetBinding("HwSettings", "GPSSpeed", m_ui->cbGPSSpeed);
     ct.addWidgetBinding("HwSettings", "DebugConsoleSpeed", m_ui->cbDebugConsoleSpeed);
     ct.addWidgetBinding("HwSettings", "SBusMode", m_ui->cbSBUSMode);
-    
+
     ct.addWidgetBinding("HwSettings", "DSMxBind", m_ui->cbDSMxBind, 0, 1, true);
 
     ct.addWidgetBinding("GPSSettings", "DataProtocol", m_ui->cbGPSProtocol);
@@ -78,14 +72,27 @@ void CommonHWSettingsWidget::registerWidgets(ConfigTaskWidget &ct)
 void CommonHWSettingsWidget::refreshWidgetsValues(UAVObject *obj)
 {
     Q_UNUSED(obj);
-    
+
     UAVObjectManager *objMngr = ExtensionSystem::PluginManager::instance()->getObject<UAVObjectManager>();
-    
+
     int option = HwSettings::GetInstance(objMngr)->getDSMxBind();
-    
-    if(m_ui->cbDSMxBind->findData(option) == -1) {
+
+    if (m_ui->cbDSMxBind->count() == 0) {
+        m_ui->cbDSMxBind->addItem(tr("None"), 0);
+        m_ui->cbDSMxBind->addItem(tr("DSM2 1024bit/22ms"), 3);
+        m_ui->cbDSMxBind->addItem(tr("DSM2 2048bit/11ms"), 5);
+        m_ui->cbDSMxBind->addItem(tr("DSMX 1024bit/22ms"), 7);
+        m_ui->cbDSMxBind->addItem(tr("DSMX 2048bit/22ms"), 8);
+        m_ui->cbDSMxBind->addItem(tr("DSMX 2048bit/11ms"), 9);
+    }
+
+    int index = m_ui->cbDSMxBind->findData(option);
+
+    if (index == -1) {
         m_ui->cbDSMxBind->addItem(tr("%1 Pulses").arg(option), option);
-        m_ui->cbDSMxBind->setCurrentIndex(-1);
+        m_ui->cbDSMxBind->setCurrentIndex(m_ui->cbDSMxBind->count() - 1);
+    } else {
+        m_ui->cbDSMxBind->setCurrentIndex(index);
     }
 }
 

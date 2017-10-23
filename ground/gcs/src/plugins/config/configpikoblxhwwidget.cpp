@@ -50,15 +50,16 @@ ConfigPikoBLXHWWidget::ConfigPikoBLXHWWidget(QWidget *parent) : ConfigTaskWidget
     addWidgetBinding("HwPikoBLXSettings", "UARTPort", m_ui->cbUART2, 1, 1, true);
     addWidgetBinding("HwPikoBLXSettings", "UARTPort", m_ui->cbUART3, 2, 1, true);
     addWidgetBinding("HwPikoBLXSettings", "LEDPort", m_ui->cbLEDPort);
-    
+    addWidgetBinding("HwPikoBLXSettings", "PPMPort", m_ui->cbPPMPort);
+
     m_cbUART[0] = m_ui->cbUART1;
     m_cbUART[1] = m_ui->cbUART2;
     m_cbUART[2] = m_ui->cbUART3;
-    
-    for(quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
+
+    for (quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
         connect(m_cbUART[i], static_cast<void(QComboBox::*) (int)>(&QComboBox::currentIndexChanged), this, &ConfigPikoBLXHWWidget::UARTxChanged);
     }
-    
+
     m_ui->commonHWSettings->registerWidgets(*this);
 
     connect(m_ui->commonHWSettings, &CommonHWSettingsWidget::USBVCPFunctionChanged, this, &ConfigPikoBLXHWWidget::USBVCPFunctionChanged);
@@ -74,10 +75,10 @@ ConfigPikoBLXHWWidget::~ConfigPikoBLXHWWidget()
 void ConfigPikoBLXHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
 // is this needed? This is to force sane state
-//    UART1Changed(0);
-//    UART2Changed(0);
-//    UART3Changed(0);
-    
+// UART1Changed(0);
+// UART2Changed(0);
+// UART3Changed(0);
+
     m_ui->commonHWSettings->refreshWidgetsValues(obj);
 }
 
@@ -88,9 +89,9 @@ void ConfigPikoBLXHWWidget::updateObjectsFromWidgetsImpl()
 
 void ConfigPikoBLXHWWidget::updateFeatures()
 {
-    quint32 features    = CommonHWSettingsWidget::F_USB;
+    quint32 features = CommonHWSettingsWidget::F_USB;
 
-    for(quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
+    for (quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
         switch (getComboboxSelectedOption(m_cbUART[i])) {
         case HwPikoBLXSettings::UARTPORT_TELEMETRY:
             features |= CommonHWSettingsWidget::F_TELEMETRY;
@@ -131,13 +132,13 @@ bool ConfigPikoBLXHWWidget::optionConflict(int uartOption, int vcpOption)
 void ConfigPikoBLXHWWidget::UARTxChanged(int index)
 {
     Q_UNUSED(index);
-    
+
     QComboBox *cbUARTx = qobject_cast<QComboBox *>(sender());
-    
-    if(!cbUARTx) {
+
+    if (!cbUARTx) {
         return;
     }
-    
+
     // Everything except HwPikoBLXSettings::UARTPORT_DISABLED and  HwPikoBLXSettings::UARTPORT_DSM
     // is allowed on single port only.
     // HoTT SUMD & SUMH belong to the same receiver group, therefore cannot be configure at the same time
@@ -150,8 +151,7 @@ void ConfigPikoBLXHWWidget::UARTxChanged(int index)
     }
 
     if (option != HwPikoBLXSettings::UARTPORT_DISABLED && option != HwPikoBLXSettings::UARTPORT_DSM) {
-
-        for(quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
+        for (quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
             if (m_cbUART[i] == cbUARTx) {
                 continue;
             }
@@ -180,7 +180,7 @@ void ConfigPikoBLXHWWidget::USBVCPFunctionChanged(int index)
 
     int vcpOption = getComboboxSelectedOption(m_ui->commonHWSettings->USBVCPComboBox());
 
-    for(quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
+    for (quint32 i = 0; i < HwPikoBLXSettings::UARTPORT_NUMELEM; ++i) {
         if (optionConflict(getComboboxSelectedOption(m_cbUART[i]), vcpOption)) {
             setComboboxSelectedOption(m_cbUART[i], HwPikoBLXSettings::UARTPORT_DISABLED);
         }
@@ -188,4 +188,3 @@ void ConfigPikoBLXHWWidget::USBVCPFunctionChanged(int index)
 
     updateFeatures();
 }
-

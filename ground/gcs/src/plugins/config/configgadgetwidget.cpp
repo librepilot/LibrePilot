@@ -44,6 +44,7 @@
 #include "configsparky2hwwidget.h"
 #include "configspracingf3evohwwidget.h"
 #include "configtinyfishhwwidget.h"
+#include "configpikoblxhwwidget.h"
 #include "defaultconfigwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -270,7 +271,7 @@ void ConfigGadgetWidget::onAutopilotConnect()
                 widget = new ConfigSPRacingF3EVOHWWidget(this);
                 break;
             case 0x1005:
-                // widget = new ConfigPikoBLXHWWidget(this);
+                widget = new ConfigPikoBLXHWWidget(this);
                 break;
             case 0x1006:
                 widget = new ConfigTinyFISHHWWidget(this);

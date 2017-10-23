@@ -52,7 +52,7 @@ private:
     Ui_PikoBLXHWWidget *m_ui;
 
     QComboBox *m_cbUART[HwPikoBLXSettings::UARTPORT_NUMELEM];
-    
+
     void updateFeatures();
 
     bool optionConflict(int uartOption, int vcpOption);

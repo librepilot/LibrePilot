@@ -47,7 +47,7 @@ public:
 
     void registerWidgets(ConfigTaskWidget &ct);
     void refreshWidgetsValues(UAVObject *obj);
-    
+
     void setFeatures(quint32 features);
 
     QComboBox *USBVCPComboBox();

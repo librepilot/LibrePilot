@@ -65,8 +65,8 @@ ConfigTinyFISHHWWidget::~ConfigTinyFISHHWWidget()
 
 void ConfigTinyFISHHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-//    UART3Changed(0);
-    
+// UART3Changed(0);
+
     m_ui->commonHWSettings->refreshWidgetsValues(obj);
 }
 
@@ -118,10 +118,10 @@ bool ConfigTinyFISHHWWidget::optionConflict(int uartOption, int vcpOption)
 void ConfigTinyFISHHWWidget::UARTxChanged(int index)
 {
     Q_UNUSED(index);
-    
+
     QComboBox *cbUARTx = qobject_cast<QComboBox *>(sender());
-    
-    if(!cbUARTx) {
+
+    if (!cbUARTx) {
         return;
     }
 

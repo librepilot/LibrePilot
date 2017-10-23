@@ -53,7 +53,7 @@ private:
     Ui_SPRacingF3EVOHWWidget *m_ui;
 
     QComboBox *m_cbUART[HwSPRacingF3EVOSettings::UARTPORT_NUMELEM];
-    
+
     void updateFeatures();
 
     bool optionConflict(int uartOption, int vcpOption);

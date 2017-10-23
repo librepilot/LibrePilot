@@ -96,10 +96,12 @@ int32_t FirmwareIAPInitialize()
     FirmwareIAPObjData data;
     FirmwareIAPObjGet(&data);
 
-    data.BoardType     = bdinfo->board_type;
     PIOS_BL_HELPER_FLASH_Read_Description(data.Description, FIRMWAREIAPOBJ_DESCRIPTION_NUMELEM);
     PIOS_SYS_SerialNumberGetBinary(data.CPUSerial);
-    data.BoardRevision = bdinfo->board_rev;
+    if (data.BoardRevision == 0 && data.BoardType == 0) {
+        data.BoardRevision = bdinfo->board_rev;
+        data.BoardType     = bdinfo->board_type;
+    }
     data.BootloaderRevision = bdinfo->bl_rev;
     data.ArmReset = 0;
     data.crc = 0;

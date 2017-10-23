@@ -32,6 +32,13 @@
 #include <hwsettings.h>
 #include <taskinfo.h>
 #include <pios_ws2811.h>
+#include "hwdiscoveryf4baresettings.h"
+#include "firmwareiapobj.h"
+
+#include "hwpikoblxsettings.h"
+#include "hwspracingf3evosettings.h"
+#include "hwspracingf3settings.h"
+#include "hwtinyfishsettings.h"
 
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
@@ -188,6 +195,26 @@ void PIOS_Board_Init(void)
     EventDispatcherInitialize();
     UAVObjInitialize();
     SETTINGS_INITIALISE_ALL;
+
+    HwPikoBLXSettingsInitialize();
+    HwSPRacingF3EVOSettingsInitialize();
+    HwSPRacingF3SettingsInitialize();
+    HwTinyFISHSettingsInitialize();
+
+    HwDiscoveryF4BareSettingsInitialize();
+
+    uint16_t boardId;
+    HwDiscoveryF4BareSettingsBoardIdGet(&boardId);
+
+    FirmwareIAPObjInitialize();
+
+    FirmwareIAPObjData iap;
+    FirmwareIAPObjGet(&iap);
+
+    iap.BoardType     = boardId >> 8;
+    iap.BoardRevision = boardId & 0xff;
+
+    FirmwareIAPObjSet(&iap);
 
     /* Initialize the alarms library */
     AlarmsInitialize();

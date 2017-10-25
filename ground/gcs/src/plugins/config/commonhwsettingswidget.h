@@ -31,7 +31,7 @@
 
 class Ui_CommonHWSettingsWidget;
 
-class CommonHWSettingsWidget : public QWidget {
+class CommonHWSettingsWidget : public ConfigTaskWidget {
     Q_OBJECT
 
 public:
@@ -56,8 +56,14 @@ signals:
     void USBHIDFunctionChanged(int index);
     void USBVCPFunctionChanged(int index);
 
+private slots:
+    void USBHIDComboChanged(int index);
+    void USBVCPComboChanged(int index);
+
 private:
     Ui_CommonHWSettingsWidget *m_ui;
+
+    bool USBFunctionConflict();
 };
 
 #endif // COMMONHWSETTINGSWIDGET_H

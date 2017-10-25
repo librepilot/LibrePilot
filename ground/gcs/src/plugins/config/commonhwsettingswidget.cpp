@@ -33,20 +33,22 @@
 #include "uavobjectmanager.h"
 
 
-CommonHWSettingsWidget::CommonHWSettingsWidget(QWidget *parent) : QWidget(parent)
+CommonHWSettingsWidget::CommonHWSettingsWidget(QWidget *parent) : ConfigTaskWidget(parent, Child)
 {
     m_ui = new Ui_CommonHWSettingsWidget();
     m_ui->setupUi(this);
 
     m_ui->cbDSMxBind->addItem(tr("Disabled"), 0);
 
-// combo->addItem(options.at(optionIndex), QVariant(optionIndex));
-
     setFeatures(0);
 
     // Relay signals from private members
     connect(m_ui->cbUSBHID, SIGNAL(currentIndexChanged(int)), this, SIGNAL(USBHIDFunctionChanged(int)));
     connect(m_ui->cbUSBVCP, SIGNAL(currentIndexChanged(int)), this, SIGNAL(USBVCPFunctionChanged(int)));
+
+    // And these are here to handle conflicting VCP & HID options (such as USBTelemetry).
+    connect(m_ui->cbUSBHID, SIGNAL(currentIndexChanged(int)), this, SLOT(USBHIDComboChanged(int)));
+    connect(m_ui->cbUSBVCP, SIGNAL(currentIndexChanged(int)), this, SLOT(USBVCPComboChanged(int)));
 }
 
 CommonHWSettingsWidget::~CommonHWSettingsWidget()
@@ -73,9 +75,7 @@ void CommonHWSettingsWidget::refreshWidgetsValues(UAVObject *obj)
 {
     Q_UNUSED(obj);
 
-    UAVObjectManager *objMngr = ExtensionSystem::PluginManager::instance()->getObject<UAVObjectManager>();
-
-    int option = HwSettings::GetInstance(objMngr)->getDSMxBind();
+    int option = HwSettings::GetInstance(getObjectManager())->getDSMxBind();
 
     if (m_ui->cbDSMxBind->count() == 0) {
         m_ui->cbDSMxBind->addItem(tr("None"), 0);
@@ -140,4 +140,32 @@ void CommonHWSettingsWidget::setFeatures(quint32 features)
 QComboBox *CommonHWSettingsWidget::USBVCPComboBox()
 {
     return m_ui->cbUSBVCP;
+}
+
+bool CommonHWSettingsWidget::USBFunctionConflict()
+{
+    return (getComboboxSelectedOption(m_ui->cbUSBHID) == HwSettings::USB_HIDPORT_USBTELEMETRY)
+           && (getComboboxSelectedOption(m_ui->cbUSBVCP) == HwSettings::USB_VCPPORT_USBTELEMETRY);
+}
+
+void CommonHWSettingsWidget::USBHIDComboChanged(int index)
+{
+    Q_UNUSED(index);
+
+    if (USBFunctionConflict()) {
+        setComboboxSelectedOption(m_ui->cbUSBVCP, HwSettings::USB_VCPPORT_DISABLED);
+    } else if (getComboboxSelectedOption(m_ui->cbUSBHID) != HwSettings::USB_HIDPORT_USBTELEMETRY) {
+        setComboboxSelectedOption(m_ui->cbUSBVCP, HwSettings::USB_VCPPORT_USBTELEMETRY);
+    }
+}
+
+void CommonHWSettingsWidget::USBVCPComboChanged(int index)
+{
+    Q_UNUSED(index);
+
+    if (USBFunctionConflict()) {
+        setComboboxSelectedOption(m_ui->cbUSBHID, HwSettings::USB_HIDPORT_DISABLED);
+    } else if (getComboboxSelectedOption(m_ui->cbUSBVCP) != HwSettings::USB_VCPPORT_USBTELEMETRY) {
+        setComboboxSelectedOption(m_ui->cbUSBHID, HwSettings::USB_HIDPORT_USBTELEMETRY);
+    }
 }

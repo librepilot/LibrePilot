@@ -98,7 +98,7 @@ int32_t FirmwareIAPInitialize()
 
     PIOS_BL_HELPER_FLASH_Read_Description(data.Description, FIRMWAREIAPOBJ_DESCRIPTION_NUMELEM);
     PIOS_SYS_SerialNumberGetBinary(data.CPUSerial);
-    if (data.BoardRevision == 0 && data.BoardType == 0) {
+    if (data.BoardType == 0) {
         data.BoardRevision = bdinfo->board_rev;
         data.BoardType     = bdinfo->board_type;
     }

@@ -57,14 +57,10 @@
 //
 // Configuration
 //
-#define SAMPLE_PERIOD_MS    500
+#define SAMPLE_PERIOD_MS     500
 
 // Time since power on the cells detection is active
-#define DETECTION_TIMEFRAME 60000
-// Private types
-
-// Private variables
-static bool batteryEnabled = false;
+#define DETECTION_TIMEFRAME  60000
 
 #ifndef PIOS_ADC_VOLTAGE_PIN
 #define PIOS_ADC_VOLTAGE_PIN -1
@@ -92,6 +88,8 @@ static void GetNbCells(const FlightBatterySettingsData *batterySettings, FlightB
  */
 int32_t BatteryInitialize(void)
 {
+    bool batteryEnabled;
+
 #ifdef MODULE_BATTERY_BUILTIN
     batteryEnabled = true;
 #else

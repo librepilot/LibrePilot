@@ -1,0 +1,116 @@
+Installing Librepilot under Gentoo Linux
+========================================
+
+Introduction
+------------
+The codebase for LibrePilot compiles under linux, windows and
+iOS. There are a number of libraries and tools which install to enable
+the compilation environment to be consistent for the different
+developers working on different platforms. The ebuilds created for
+Gentoo installation use the system installed libraries, and do not
+install the packages, except for the arm compiler. Getting a
+system wide arm compiler working was considered to be more difficult
+than just downloading the arm package and installing it in the build
+environment. The implication of this decision is that the arm compiler
+will download and install every time you install LibrePilot.
+
+The installation has been checked on one system. It is possible a
+dependency has been missed from the ebuild - if you find any issues
+with building or running, please let me know.
+
+Preparation for Installation
+----------------------------
+You need to install and set up layman
+(https://wiki.gentoo.org/wiki/Layman), then add the librepilot overlay:
+
+> layman -a librepilot
+
+You can now proceed with installing the latest stable release or the
+"next" development branch.
+
+Installation
+------------
+
+If you have previously installed LibrePilot by running "make install"
+as root, you will need to run "make uninstall" first to remove all the
+files which have been installed. Check everything has been removed by
+removing the following directories
+   /usr/local/share/librepilot-gcs
+   /usr/local/lib64/librepilot-gcs
+
+Also confirm that /usr/local/lib is a symbolic pointer to
+/usr/local/lib64. This changed recently with the baselayout update to
+2.4.1-r2, and in fact if you have librepilot installed when making
+this update it will fail. If you have issues with baselayout updates,
+unmerge librepilot while updating baselayout.
+
+You can choose to install the latest release, or the next branch from
+the git repository. Instructions for both follow.
+
+Installing the latest Release
+-----------------------------
+Now you can install Librepilot:
+
+> emerge -av librepilot
+
+I have marked the ebuilds as unstable ("~"), as they haven't been extensively
+tested on different computers. Therefore, you will be presented with
+the option to add some changes to use flags:
+
+-------------8<---------------
+    The following keyword changes are necessary to proceed:
+     (see "package.accept_keywords" in the portage(5) man page for more details)
+    # required by librepilot (argument)
+    =app-misc/librepilot-16.09 ~amd64
+
+    Would you like to add these changes to your config files? [Yes/No]
+-------------8<---------------
+
+Accept the changes, then run dispatch-conf to incorporate them, before
+running the emerge command again.
+
+The package should now proceed to build and install.
+
+Installing the latest development branch
+----------------------------------------
+
+For the latest "next" branch from the repository, you need to install
+using the following command:
+
+> emerge -av =app-misc/librepilot-9999
+
+Again, you will be offered some changes to the use flags:
+
+-------------8<---------------
+    The following keyword changes are necessary to proceed:
+     (see "package.accept_keywords" in the portage(5) man page for more details)
+    # required by =app-misc/librepilot-9999 (argument)
+    =app-misc/librepilot-9999 **
+
+    NOTE: The --autounmask-keep-masks option will prevent emerge
+          from creating package.unmask or ** keyword changes.
+-----------8<------------------
+
+Depending on your settings, you may have to add the changes manually
+to your configuration files.
+
+Then run the emerge command again, and it should install.
+
+
+Running GCS
+-----------
+Part of the build process includes adding an environment variable for
+the google maps version. If you run the librepilot-gcs before logging
+out and back in, you will have issues with the maps in the flight
+tab. Alternatively, run the following command from a user shell:
+
+> . /etc/profile
+
+
+Problems?
+---------
+Please contact paulj@librepilot.org, and I will try my best to sort
+you out!
+
+13/10/2017
+

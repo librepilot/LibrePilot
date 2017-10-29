@@ -125,7 +125,6 @@ static int32_t uavoHoTTBridgeInitialize(void)
         PIOS_COM_ChangeBaud(PIOS_COM_HOTT, 19200);
         bool param = true;
         PIOS_COM_Ioctl(PIOS_COM_HOTT, PIOS_IOCTL_USART_SET_HALFDUPLEX, &param);
-        HoTTBridgeSettingsInitialize();
         HoTTBridgeStatusInitialize();
 
         // allocate memory for telemetry data

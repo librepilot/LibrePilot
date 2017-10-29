@@ -103,7 +103,6 @@ int32_t AltitudeInitialize()
 #ifdef MODULE_ALTITUDE_BUILTIN
     altitudeEnabled = 1;
 #else
-    HwSettingsInitialize();
     uint8_t optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
     HwSettingsOptionalModulesGet(optionalModules);
     if (optionalModules[HWSETTINGS_OPTIONALMODULES_ALTITUDE] == HWSETTINGS_OPTIONALMODULES_ENABLED) {

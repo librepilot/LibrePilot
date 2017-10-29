@@ -52,6 +52,10 @@ typedef struct {
 /* Init module section */
 extern initmodule_t __module_initcall_start[], __module_initcall_end[];
 extern volatile int initTaskDone;
+
+/* Init settings section */
+extern initcall_t __settings_initcall_start[], __settings_initcall_end[];
+
 #ifdef USE_SIM_POSIX
 
 extern void InitModules();
@@ -59,6 +63,8 @@ extern void StartModules();
 extern int32_t SystemModInitialize(void);
 
 #define MODULE_INITCALL(ifn, sfn)
+
+#define SETTINGS_INITCALL(fn)
 
 #define MODULE_TASKCREATE_ALL \
     { \
@@ -92,7 +98,14 @@ extern int32_t SystemModInitialize(void);
     static initmodule_t __initcall_##ifn __attribute__((__used__)) \
     __attribute__((__section__(".initcall" level ".init"))) = { .fn_minit = ifn, .fn_tinit = sfn }
 
+#define __define_settings_initcall(level, fn) \
+    static initcall_t __initcall_##fn __attribute__((__used__)) \
+    __attribute__((__section__(".initcall" level ".init"))) = fn
+
+
 #define MODULE_INITCALL(ifn, sfn) __define_module_initcall("module", ifn, sfn)
+
+#define SETTINGS_INITCALL(fn)     __define_settings_initcall("settings", fn)
 
 #define MODULE_INITIALISE_ALL \
     { for (initmodule_t *fn = __module_initcall_start; fn < __module_initcall_end; fn++) { \
@@ -107,6 +120,14 @@ extern int32_t SystemModInitialize(void);
           if (fn->fn_tinit) {    \
               (fn->fn_tinit)();  \
               PIOS_WDG_Clear();  \
+          } \
+      } \
+    }
+
+#define SETTINGS_INITIALISE_ALL \
+    { for (const initcall_t *fn = __settings_initcall_start; fn < __settings_initcall_end; fn++) { \
+          if (*fn) { \
+              (*fn)(); \
           } \
       } \
     }

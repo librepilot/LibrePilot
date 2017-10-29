@@ -267,10 +267,7 @@ void TelemetryInitializeChannel(channelContext *channel)
  */
 int32_t TelemetryInitialize(void)
 {
-    HwSettingsInitialize();
-
 #ifdef PIOS_INCLUDE_RFM22B
-    OPLinkSettingsInitialize();
     OPLinkSettingsData data;
 
     OPLinkSettingsGet(&data);

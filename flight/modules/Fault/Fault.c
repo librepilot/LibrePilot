@@ -43,7 +43,6 @@ static int32_t fault_initialize(void)
 #ifdef MODULE_FAULT_BUILTIN
     module_enabled = true;
 #else
-    HwSettingsInitialize();
     uint8_t optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
 
     HwSettingsOptionalModulesGet(optionalModules);
@@ -61,7 +60,6 @@ static int32_t fault_initialize(void)
      * we've booted in BootFault recovery mode with all optional
      * modules disabled.
      */
-    FaultSettingsInitialize();
 
     if (module_enabled) {
         FaultSettingsActivateFaultGet(&active_fault);

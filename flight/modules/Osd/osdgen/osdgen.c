@@ -2426,11 +2426,7 @@ int32_t osdgenInitialize(void)
     GPSTimeInitialize();
     GPSSatellitesInitialize();
 #endif
-#ifdef PIOS_GPS_SETS_HOMELOCATION
-    HomeLocationInitialize();
 #endif
-#endif
-    OsdSettingsInitialize();
     BaroSensorInitialize();
     FlightStatusInitialize();
 

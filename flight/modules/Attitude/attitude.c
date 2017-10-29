@@ -197,8 +197,6 @@ int32_t AttitudeStart(void)
 int32_t AttitudeInitialize(void)
 {
     AttitudeStateInitialize();
-    AttitudeSettingsInitialize();
-    AccelGyroSettingsInitialize();
     AccelStateInitialize();
     GyroStateInitialize();
 

@@ -46,6 +46,10 @@ static UAVObjHandle handle __attribute__((section("__DATA,_uavo_handles")));
 static UAVObjHandle handle __attribute__((section("_uavo_handles")));
 #endif
 
+#if $(NAMEUC)_ISSETTINGS
+SETTINGS_INITCALL($(NAME)Initialize);
+#endif
+
 /**
  * Initialize object.
  * \return 0 Success

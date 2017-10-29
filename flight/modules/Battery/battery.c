@@ -95,7 +95,6 @@ int32_t BatteryInitialize(void)
 #ifdef MODULE_BATTERY_BUILTIN
     batteryEnabled = true;
 #else
-    HwSettingsInitialize();
     HwSettingsOptionalModulesData optionalModules;
     HwSettingsOptionalModulesGet(&optionalModules);
 
@@ -127,7 +126,6 @@ int32_t BatteryInitialize(void)
     // Start module
     if (batteryEnabled) {
         FlightBatteryStateInitialize();
-        FlightBatterySettingsInitialize();
         SystemStatsInitialize();
 
         static UAVObjEvent ev;

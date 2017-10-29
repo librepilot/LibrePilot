@@ -136,6 +136,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
+    SETTINGS_INITIALISE_ALL;
 
 #if defined(PIOS_INCLUDE_RTC)
     /* Initialize the real-time clock and its associated tick */
@@ -151,9 +152,6 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(1, 0);
         PIOS_IAP_WriteBootCmd(2, 0);
     }
-
-    HwSettingsInitialize();
-    HwPikoBLXSettingsInitialize();
 
 #ifndef ERASE_FLASH
 #ifdef PIOS_INCLUDE_WDG

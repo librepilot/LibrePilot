@@ -95,12 +95,8 @@ int32_t StabilizationInitialize()
 {
     // Initialize variables
     StabilizationDesiredInitialize();
-    StabilizationSettingsInitialize();
     StabilizationStatusInitialize();
     StabilizationBankInitialize();
-    StabilizationSettingsBank1Initialize();
-    StabilizationSettingsBank2Initialize();
-    StabilizationSettingsBank3Initialize();
     RateDesiredInitialize();
     ManualControlCommandInitialize(); // only used for PID bank selection based on flight mode switch
     sin_lookup_initalize();

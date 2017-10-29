@@ -72,7 +72,6 @@ int32_t filterMagInitialize(stateFilter *handle)
     handle->init      = &init;
     handle->filter    = &filter;
     handle->localdata = pios_malloc(sizeof(struct data));
-    HomeLocationInitialize();
     return STACK_REQUIRED;
 }
 

@@ -326,8 +326,6 @@ static inline int32_t maxint32_t(int32_t a, int32_t b)
  */
 int32_t StateEstimationInitialize(void)
 {
-    RevoSettingsInitialize();
-
     GyroSensorInitialize();
     MagSensorInitialize();
     AuxMagSensorInitialize();
@@ -336,15 +334,12 @@ int32_t StateEstimationInitialize(void)
     GPSVelocitySensorInitialize();
     GPSPositionSensorInitialize();
 
-    HomeLocationInitialize();
-
     GyroStateInitialize();
     AccelStateInitialize();
     MagStateInitialize();
     AirspeedStateInitialize();
     PositionStateInitialize();
     VelocityStateInitialize();
-    AuxMagSettingsInitialize();
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
 

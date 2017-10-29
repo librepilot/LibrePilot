@@ -99,7 +99,6 @@ static int32_t maininit(stateFilter *self)
     this->gpsAlt     = 0.0f;
     this->first_run  = INIT_CYCLES;
 
-    RevoSettingsInitialize();
     RevoSettingsBaroGPSOffsetCorrectionAlphaGet(&this->baroGPSOffsetCorrectionAlpha);
 
     return 0;

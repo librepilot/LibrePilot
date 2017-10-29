@@ -191,7 +191,6 @@ static void VelocityStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
  */
 void stabilizationAltitudeloopInit()
 {
-    AltitudeHoldSettingsInitialize();
     AltitudeHoldStatusInitialize();
     PositionStateInitialize();
     VelocityStateInitialize();

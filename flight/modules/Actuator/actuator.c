@@ -147,11 +147,9 @@ int32_t ActuatorStart()
 int32_t ActuatorInitialize()
 {
     // Register for notification of changes to ActuatorSettings
-    ActuatorSettingsInitialize();
     ActuatorSettingsConnectCallback(ActuatorSettingsUpdatedCb);
 
     // Register for notification of changes to MixerSettings
-    MixerSettingsInitialize();
     MixerSettingsConnectCallback(MixerSettingsUpdatedCb);
 
     // Listen for ActuatorDesired updates (Primary input to this module)
@@ -164,7 +162,6 @@ int32_t ActuatorInitialize()
 
     // Check if CameraStab module is enabled
     HwSettingsOptionalModulesData optionalModules;
-    HwSettingsInitialize();
     HwSettingsOptionalModulesGet(&optionalModules);
     camStabEnabled    = (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED);
     camControlEnabled = (optionalModules.CameraControl == HWSETTINGS_OPTIONALMODULES_ENABLED);
@@ -177,10 +174,8 @@ int32_t ActuatorInitialize()
 #endif
 
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
-    VtolPathFollowerSettingsInitialize();
     VtolPathFollowerSettingsConnectCallback(&SettingsUpdatedCb);
 #endif
-    SystemSettingsInitialize();
     SystemSettingsConnectCallback(&SettingsUpdatedCb);
 
     return 0;

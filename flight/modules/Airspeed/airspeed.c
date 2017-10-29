@@ -97,7 +97,6 @@ int32_t AirspeedInitialize()
     airspeedEnabled = true;
 #else
 
-    HwSettingsInitialize();
     HwSettingsOptionalModulesOptions optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
     HwSettingsOptionalModulesArrayGet(optionalModules);
 
@@ -121,7 +120,6 @@ int32_t AirspeedInitialize()
     }
 
     AirspeedSensorInitialize();
-    AirspeedSettingsInitialize();
 
     AirspeedSettingsConnectCallback(AirspeedSettingsUpdatedCb);
 

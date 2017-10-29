@@ -147,7 +147,6 @@ void PIOS_BOARD_Sensors_Configure()
 # endif /* PIOS_INCLUDE_HMC5X83_INTERNAL */
 
 # ifdef PIOS_INCLUDE_HMC5X83
-    AuxMagSettingsInitialize();
 
     AuxMagSettingsTypeOptions option;
     AuxMagSettingsTypeGet(&option);

@@ -210,14 +210,9 @@ int32_t SensorsInitialize(void)
     AccelSensorInitialize();
     MagSensorInitialize();
     BaroSensorInitialize();
-    RevoCalibrationInitialize();
-    RevoSettingsInitialize();
-    AttitudeSettingsInitialize();
-    AccelGyroSettingsInitialize();
 
 #if defined(PIOS_INCLUDE_HMC5X83)
     // for auxmagsupport.c helpers
-    AuxMagSettingsInitialize();
     AuxMagSensorInitialize();
 #endif
 

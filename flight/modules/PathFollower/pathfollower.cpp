@@ -154,12 +154,8 @@ extern "C" int32_t PathFollowerStart()
 extern "C" int32_t PathFollowerInitialize()
 {
     // initialize objects
-    GroundPathFollowerSettingsInitialize();
-    FixedWingPathFollowerSettingsInitialize();
     FixedWingPathFollowerStatusInitialize();
-    VtolPathFollowerSettingsInitialize();
     FlightStatusInitialize();
-    FlightModeSettingsInitialize();
     PathStatusInitialize();
     PathSummaryInitialize();
     PathDesiredInitialize();
@@ -169,10 +165,8 @@ extern "C" int32_t PathFollowerInitialize()
     StabilizationDesiredInitialize();
     AirspeedStateInitialize();
     AttitudeStateInitialize();
-    TakeOffLocationInitialize();
     PoiLocationInitialize();
     ManualControlCommandInitialize();
-    SystemSettingsInitialize();
     StabilizationBankInitialize();
     VtolSelfTuningStatsInitialize();
     PIDStatusInitialize();
@@ -181,7 +175,6 @@ extern "C" int32_t PathFollowerInitialize()
     StatusVtolAutoTakeoffInitialize();
 
     // VtolLandFSM additional objects
-    HomeLocationInitialize();
     AccelStateInitialize();
 
     // Init references to controllers

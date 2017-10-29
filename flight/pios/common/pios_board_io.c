@@ -565,7 +565,6 @@ void PIOS_BOARD_IO_Configure_OPLink_RCVR()
 void PIOS_BOARD_IO_Configure_RFM22B()
 {
 #if defined(PIOS_INCLUDE_RFM22B)
-    OPLinkSettingsInitialize();
     OPLinkStatusInitialize();
 #endif /* PIOS_INCLUDE_RFM22B */
 #if defined(PIOS_INCLUDE_OPLINKRCVR) && defined(PIOS_INCLUDE_RCVR)

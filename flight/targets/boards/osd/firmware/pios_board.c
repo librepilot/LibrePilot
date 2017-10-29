@@ -170,8 +170,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
-
-    HwSettingsInitialize();
+    SETTINGS_INITIALISE_ALL;
 
 #ifdef PIOS_INCLUDE_WDG
     /* Initialize watchdog as early as possible to catch faults during init */

@@ -90,7 +90,6 @@ static void FillActivityInfo();
 int32_t CameraControlInitialize(void)
 {
     ccd = 0;
-    HwSettingsInitialize();
     HwSettingsOptionalModulesData modules;
     HwSettingsOptionalModulesGet(&modules);
     if (modules.CameraControl == HWSETTINGS_OPTIONALMODULES_ENABLED) {
@@ -99,9 +98,7 @@ int32_t CameraControlInitialize(void)
         ccd->callbackHandle = PIOS_CALLBACKSCHEDULER_Create(&CameraControlTask, CALLBACK_PRIORITY, CBTASK_PRIORITY, CALLBACKINFO_RUNNING_CAMERACONTROL, STACK_SIZE_BYTES);
         CameraControlActivityInitialize();
         CameraDesiredInitialize();
-        CameraControlSettingsInitialize();
         CameraControlSettingsConnectCallback(SettingsUpdateCb);
-        HomeLocationInitialize();
         HomeLocationConnectCallback(HomeLocationUpdateCb);
         GPSTimeInitialize();
         PositionStateInitialize();

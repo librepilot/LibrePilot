@@ -40,10 +40,10 @@ static void SetTakeOffLocation();
 
 void takeOffLocationHandlerInit()
 {
-    TakeOffLocationInitialize();
     // check whether there is a preset/valid takeoff location
     TakeOffLocationModeOptions mode;
     TakeOffLocationStatusOptions status;
+
     TakeOffLocationModeGet(&mode);
     TakeOffLocationStatusGet(&status);
     // preset with invalid location will actually behave like FirstTakeoff

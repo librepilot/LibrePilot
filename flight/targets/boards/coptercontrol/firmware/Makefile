@@ -94,7 +94,6 @@ ifndef TESTAPP
     SRC += $(FLIGHT_UAVOBJ_DIR)/objectpersistence.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/gcstelemetrystats.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/flighttelemetrystats.c
-    SRC += $(FLIGHT_UAVOBJ_DIR)/faultsettings.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/flightstatus.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/systemstats.c
     SRC += $(FLIGHT_UAVOBJ_DIR)/systemalarms.c

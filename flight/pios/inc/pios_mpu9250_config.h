@@ -61,8 +61,8 @@
  */
 int32_t PIOS_MPU9250_CONFIG_Configure()
 {
-    MPUGyroAccelSettingsInitialize();
     MPUGyroAccelSettingsData mpuSettings;
+
     MPUGyroAccelSettingsGet(&mpuSettings);
     return PIOS_MPU9250_ConfigureRanges(
         PIOS_MPU9250_CONFIG_MAP_GYROSCALE(mpuSettings.GyroScale),

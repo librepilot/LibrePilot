@@ -1057,6 +1057,25 @@ static void actuator_update_rate_if_changed(bool force_update)
     }
 }
 
+static void update_servo_active()
+{
+    /* For each mixer output that is not disabled,
+     * figure out servo address and send allocation map to pios_servo driver.
+     * We need to execute this when either ActuatorSettings or MixerSettings change.
+     */
+    uint32_t servo_active = 0;
+
+    Mixer_t *mixers = (Mixer_t *)&mixerSettings.Mixer1Type;
+
+    for (int ct = 0; ct < MAX_MIX_ACTUATORS; ct++) {
+        if (mixers[ct].type != MIXERSETTINGS_MIXER1TYPE_DISABLED) {
+            servo_active |= 1 << actuatorSettings.ChannelAddr[ct];
+        }
+    }
+
+    PIOS_Servo_SetActive(servo_active);
+}
+
 static void ActuatorSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {
     ActuatorSettingsGet(&actuatorSettings);
@@ -1065,6 +1084,8 @@ static void ActuatorSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
         spinWhileArmed = false;
     }
     actuator_update_rate_if_changed(false);
+
+    update_servo_active();
 }
 
 static void MixerSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
@@ -1077,6 +1098,8 @@ static void MixerSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
             mixer_settings_count++;
         }
     }
+
+    update_servo_active();
 }
 static void SettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 {

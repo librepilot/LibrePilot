@@ -336,9 +336,10 @@ void PIOS_Board_Init(void)
         PIOS_Servo_Init(&pios_servo_flexi_cfg);
     }
 
-    // Set bank modes
+    // Set bank modes and activate output. We need to do this here because oplm does not run Actuator module.
     PIOS_Servo_SetBankMode(0, PIOS_SERVO_BANK_MODE_PWM);
     PIOS_Servo_SetBankMode(1, PIOS_SERVO_BANK_MODE_PWM);
+    PIOS_Servo_SetActive(0b11);
 #endif
 
     PIOS_BOARD_IO_Configure_RFM22B();

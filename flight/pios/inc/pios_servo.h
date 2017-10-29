@@ -41,6 +41,7 @@ enum pios_servo_bank_mode {
 /* Public Functions */
 extern void PIOS_Servo_SetHz(const uint16_t *speeds, const uint32_t *clock, uint8_t banks);
 extern void PIOS_Servo_Set(uint8_t Servo, uint16_t Position);
+extern void PIOS_Servo_SetActive(uint32_t Active);
 extern void PIOS_Servo_Update();
 extern void PIOS_Servo_SetBankMode(uint8_t bank, uint8_t mode);
 extern void PIOS_Servo_DSHot_Rate(uint32_t rate_in_khz);

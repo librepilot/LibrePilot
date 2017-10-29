@@ -650,7 +650,7 @@ void MainWindow::registerDefaultActions()
     connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
     // Window separator
-    cmd = createSeparator(am, this, "QtCreator.Window.Sep.Size"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Window.Sep.Size", m_globalContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 #endif
 

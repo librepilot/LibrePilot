@@ -90,12 +90,15 @@ int32_t BatteryInitialize(void)
 {
     bool batteryEnabled;
 
-#ifdef MODULE_BATTERY_BUILTIN
-    batteryEnabled = true;
-#else
     HwSettingsOptionalModulesData optionalModules;
+
     HwSettingsOptionalModulesGet(&optionalModules);
 
+#ifdef MODULE_BATTERY_BUILTIN
+    batteryEnabled = true;
+    optionalModules.Battery = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.Battery == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         batteryEnabled = true;
     } else {

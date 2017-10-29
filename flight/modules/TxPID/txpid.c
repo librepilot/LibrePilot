@@ -101,12 +101,15 @@ int32_t TxPIDInitialize(void)
 {
     bool txPIDEnabled;
 
-#ifdef MODULE_TXPID_BUILTIN
-    txPIDEnabled = true;
-#else
     HwSettingsOptionalModulesData optionalModules;
+
     HwSettingsOptionalModulesGet(&optionalModules);
 
+#ifdef MODULE_TXPID_BUILTIN
+    txPIDEnabled = true;
+    optionalModules.TxPID = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.TxPID == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         txPIDEnabled = true;
     } else {

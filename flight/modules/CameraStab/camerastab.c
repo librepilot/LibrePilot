@@ -92,13 +92,15 @@ int32_t CameraStabInitialize(void)
 {
     bool cameraStabEnabled;
 
-#ifdef MODULE_CAMERASTAB_BUILTIN
-    cameraStabEnabled = true;
-#else
     HwSettingsOptionalModulesData optionalModules;
 
     HwSettingsOptionalModulesGet(&optionalModules);
 
+#ifdef MODULE_CAMERASTAB_BUILTIN
+    cameraStabEnabled = true;
+    optionalModules.CameraStab = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         cameraStabEnabled = true;
     } else {

@@ -38,6 +38,11 @@ ConfigSparky2HWWidget::ConfigSparky2HWWidget(QWidget *parent) : ConfigTaskWidget
     m_ui = new Ui_Sparky2HWWidget();
     m_ui->setupUi(this);
 
+    m_ui->boardImg->load(QString(":/configgadget/images/sparky2.svg"));
+    QSize picSize = m_ui->boardImg->sizeHint();
+    picSize.scale(360, 360, Qt::KeepAspectRatio);
+    m_ui->boardImg->setFixedSize(picSize);
+
     // must be done before auto binding !
     setWikiURL("Sparky2+Configuration");
 

@@ -1,14 +1,13 @@
 /**
  ******************************************************************************
  *
- * @file       configspracingf3hwwidget.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
- *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       configpikoblxhwwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
  * @{
- * @brief SPRacingF3 hardware configuration panel
+ * @brief PikoBLX hardware configuration panel
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,36 +24,42 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#ifndef CONFIGSPRACINGF3HWWIDGET_H
-#define CONFIGSPRACINGF3HWWIDGET_H
+#ifndef CONFIGPIKOBLXHWWIDGET_H
+#define CONFIGPIKOBLXHWWIDGET_H
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
 
-class Ui_SPRacingF3HWWidget;
+#include "hwpikoblxsettings.h"
+
+class Ui_PikoBLXHWWidget;
 
 class UAVObject;
 
 class QWidget;
 
-class ConfigSPRacingF3HWWidget : public ConfigTaskWidget {
+class ConfigPikoBLXHWWidget : public ConfigTaskWidget {
     Q_OBJECT
 
 public:
-    ConfigSPRacingF3HWWidget(QWidget *parent = 0);
-    ~ConfigSPRacingF3HWWidget();
+    ConfigPikoBLXHWWidget(QWidget *parent = 0);
+    ~ConfigPikoBLXHWWidget();
 
 protected:
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
 private:
-    Ui_SPRacingF3HWWidget *m_ui;
+    Ui_PikoBLXHWWidget *m_ui;
 
-    void setupCustomCombos();
+    QComboBox *m_cbUART[HwPikoBLXSettings::UARTPORT_NUMELEM];
+
+    void updateFeatures();
+
+    bool optionConflict(int uartOption, int vcpOption);
 
 private slots:
-    void usbVCPPortChanged(int index);
-    void usbHIDPortChanged(int index);
+    void UARTxChanged(int index);
+    void USBVCPFunctionChanged(int index);
 };
 
-#endif // CONFIGSPRACINGF3HWWIDGET_H
+#endif // CONFIGPIKOBLXHWWIDGET_H

@@ -221,7 +221,9 @@ void PIOS_Board_Init(void)
     }
 
 #ifdef PIOS_INCLUDE_PPM
-    PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
+    if (boardHwSettings.PPMPort == HWPIKOBLXSETTINGS_PPMPORT_ENABLED) {
+        PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_cfg);
+    }
 #endif
 
 #ifdef PIOS_INCLUDE_GCSRCVR

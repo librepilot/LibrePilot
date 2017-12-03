@@ -14,7 +14,7 @@
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False" description="Automatically set True for a good complete tune or False for incomplete or bad"/>
         <access gcs="readonly" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
-        <telemetryflight acked="false" updatemode="periodic" period="1000"/>
+        <telemetryflight acked="false" updatemode="throttled" period="1000"/>
         <logging updatemode="manual" period="0"/>
     </object>
 </xml>

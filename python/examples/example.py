@@ -167,6 +167,7 @@ class UavtalkDemo():
         self.objMan.ManualControlCommand.updated()
 
         print "Arming board using Yaw right"
+        # FIXME: Seems there is a issue with ArmedField.ARMED, 2 equals to the ARMED state
         while (self.objMan.FlightStatus.Armed.value != 2):
             self.objMan.ManualControlCommand.Yaw.value = 1
             self.objMan.ManualControlCommand.updated()
@@ -230,6 +231,7 @@ class UavtalkDemo():
         time.sleep(1)
 
         print "Disarming board using Yaw left"
+        # FIXME: Seems there is a issue with ArmedField.DISARMED, 0 equals to the DISARMED state
         while (self.objMan.FlightStatus.Armed.value != 0):
              self.objMan.ManualControlCommand.Yaw.value = -1
              self.objMan.ManualControlCommand.updated()

@@ -163,6 +163,8 @@ class UavtalkDemo():
         print "Taking control of self.ManualControl"
         self.objMan.ManualControlCommand.metadata.access = UAVMetaDataObject.Access.READONLY
         self.objMan.ManualControlCommand.metadata.updated()
+        self.objMan.ManualControlCommand.Connected.value = True
+        self.objMan.ManualControlCommand.updated()
 
         print "Arming board using Yaw right"
         while (self.objMan.FlightStatus.Armed.value != 2):
@@ -179,6 +181,11 @@ class UavtalkDemo():
 
         print "Applying Throttle"
         self.objMan.ManualControlCommand.Throttle.value = 0.01 # very small value for safety
+        # Assuming board do not control a helicopter, Thrust value will be equal to Throttle value.
+        # Because a 'high' value can be read from latest real RC input value, 
+        # initial value is set now to zero for safety reasons.
+        self.objMan.ManualControlCommand.Thrust.value = 0
+        # self.objMan.ManualControlCommand.Throttle.value = self.objMan.ManualControlCommand.Thrust.value
         self.objMan.ManualControlCommand.updated()
         time.sleep(0.3)
 
@@ -235,6 +242,8 @@ class UavtalkDemo():
         print "Back to self.ManualControl, controlled by RC radio"
         self.objMan.ManualControlCommand.metadata.access = UAVMetaDataObject.Access.READWRITE
         self.objMan.ManualControlCommand.metadata.updated()    
+        self.objMan.ManualControlCommand.Connected.value = False
+        self.objMan.ManualControlCommand.updated()
 
 
 def printUsage():

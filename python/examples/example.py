@@ -159,15 +159,94 @@ class UavtalkDemo():
             time.sleep(1)
 
 
+    def driveInput(self):
+        print "Taking control of self.ManualControl"
+        self.objMan.ManualControlCommand.metadata.access = UAVMetaDataObject.Access.READONLY
+        self.objMan.ManualControlCommand.metadata.updated()
+
+        print "Arming board using Yaw right"
+        while (self.objMan.FlightStatus.Armed.value != 2):
+            self.objMan.ManualControlCommand.Yaw.value = 1
+            self.objMan.ManualControlCommand.updated()
+            self.objMan.ManualControlCommand.Throttle.value = -1
+            self.objMan.ManualControlCommand.updated()
+            time.sleep(1)
+
+        if (self.objMan.FlightStatus.Armed.value == 2):
+            print "Board is armed !"
+            self.objMan.ManualControlCommand.Yaw.value = 0
+            self.objMan.ManualControlCommand.updated()        
+
+        print "Applying Throttle"
+        self.objMan.ManualControlCommand.Throttle.value = 0.01 # very small value for safety
+        self.objMan.ManualControlCommand.updated()
+        time.sleep(0.3)
+
+        count = 60
+        print "Moving Pitch input"
+        while (count > 0):
+            count-=1
+            if self.objMan.ManualControlCommand.Pitch.value < 1:
+                 self.objMan.ManualControlCommand.Pitch.value += 0.05
+                 self.objMan.ManualControlCommand.updated()
+                 time.sleep(0.1)
+            if self.objMan.ManualControlCommand.Pitch.value > 1:
+                self.objMan.ManualControlCommand.Pitch.value = 0
+                self.objMan.ManualControlCommand.updated()
+                time.sleep(0.1)
+
+        self.objMan.ManualControlCommand.Pitch.value = 0
+        self.objMan.ManualControlCommand.updated()
+        time.sleep(0.5)
+
+        count = 60
+        print "Moving Roll input"
+        while (count > 0):
+            count-=1
+            if self.objMan.ManualControlCommand.Roll.value < 1:
+                 self.objMan.ManualControlCommand.Roll.value += 0.05
+                 self.objMan.ManualControlCommand.updated()
+                 time.sleep(0.1)
+
+            if self.objMan.ManualControlCommand.Roll.value > 1:
+                self.objMan.ManualControlCommand.Roll.value = 0
+                self.objMan.ManualControlCommand.updated()
+                time.sleep(0.1)
+
+        self.objMan.ManualControlCommand.Roll.value = 0
+        self.objMan.ManualControlCommand.updated()
+        time.sleep(0.5)
+
+        print "Setting Throttle to minimum"
+        self.objMan.ManualControlCommand.Throttle.value = -1
+        self.objMan.ManualControlCommand.updated()
+        time.sleep(1)
+
+        print "Disarming board using Yaw left"
+        while (self.objMan.FlightStatus.Armed.value != 0):
+             self.objMan.ManualControlCommand.Yaw.value = -1
+             self.objMan.ManualControlCommand.updated()
+             time.sleep(0.3)
+
+        self.objMan.ManualControlCommand.Yaw.value = 0
+        self.objMan.ManualControlCommand.updated()
+        time.sleep(1)
+
+        print "Back to self.ManualControl, controlled by RC radio"
+        self.objMan.ManualControlCommand.metadata.access = UAVMetaDataObject.Access.READWRITE
+        self.objMan.ManualControlCommand.metadata.updated()    
+
+
 def printUsage():
     appName = os.path.basename(sys.argv[0])
     print
     print "usage:"
-    print "  %s port o|w|g|s" % appName
+    print "  %s port o|w|g|s|i" % appName
     print "  o: Show Attitude using an \"observer\""
     print "  w: Show Attitude waiting for updates from flight"
     print "  g: Show Attitude performing get operations"
     print "  s: Drive Servo"
+    print "  i: Take control over RC input"
     print
     print "  for example: %s COM30 o" % appName
     print
@@ -182,7 +261,7 @@ if __name__ == '__main__':
 
     port, option = sys.argv[1:]
 
-    if option not in ["o", "w", "g", "s"]:
+    if option not in ["o", "w", "g", "s", "i"]:
         print "ERROR: Invalid option"
         printUsage()
         sys.exit(2)
@@ -202,6 +281,8 @@ if __name__ == '__main__':
             demo.showAttitudeViaGet()  # will not return
         if option == "s":
             demo.driveServo()  # will not return
+        if option == "i":
+            demo.driveInput()  # will not return
 
     except KeyboardInterrupt:
         pass

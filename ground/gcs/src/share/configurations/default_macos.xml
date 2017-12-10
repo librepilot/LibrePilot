@@ -55,7 +55,7 @@
           <displayVideo>true</displayVideo>
           <pipelineDesc>avfvideosrc capture-screen=true capture-screen-cursor=true ! tee name=t
     t. ! queue ! timeoverlay ! autovideosink
-    t. ! queue ! videoconvert ! x264enc tune=zerolatency tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
           <pipelineInfo></pipelineInfo>
           <respectAspectRatio>true</respectAspectRatio>
         </data>
@@ -101,7 +101,7 @@
           <displayVideo>true</displayVideo>
           <pipelineDesc>avfvideosrc ! tee name=t
     t. ! queue ! timeoverlay ! autovideosink
-    t. ! queue ! videoconvert ! x264enc tune=zerolatency tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
           <pipelineInfo></pipelineInfo>
           <respectAspectRatio>true</respectAspectRatio>
         </data>

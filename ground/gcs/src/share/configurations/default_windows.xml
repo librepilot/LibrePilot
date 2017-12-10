@@ -55,7 +55,7 @@
           <displayVideo>true</displayVideo>
           <pipelineDesc>dx9screencapsrc monitor=0 cursor=true ! tee name=t
     t. ! queue ! timeoverlay ! autovideosink
-    t. ! queue ! videoconvert ! x264enc tune=zerolatency tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
           <pipelineInfo></pipelineInfo>
           <respectAspectRatio>true</respectAspectRatio>
         </data>
@@ -115,7 +115,7 @@
           <displayVideo>true</displayVideo>
           <pipelineDesc>ksvideosrc device-index=0 ! tee name=t
     t. ! queue ! timeoverlay ! autovideosink
-    t. ! queue ! videoconvert ! x264enc tune=zerolatency tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
           <pipelineInfo></pipelineInfo>
           <respectAspectRatio>true</respectAspectRatio>
         </data>

@@ -75,7 +75,7 @@ ScopeGadgetConfiguration::ScopeGadgetConfiguration(const ScopeGadgetConfiguratio
     m_mathFunctionType = obj.m_mathFunctionType;
     m_refreshInterval  = obj.m_refreshInterval;
 
-    int plotCurveCount = m_plotCurveConfigs.size();
+    int plotCurveCount = obj.m_plotCurveConfigs.size();
     for (int i = 0; i < plotCurveCount; i++) {
         PlotCurveConfiguration *currentPlotCurveConf = obj.m_plotCurveConfigs.at(i);
 

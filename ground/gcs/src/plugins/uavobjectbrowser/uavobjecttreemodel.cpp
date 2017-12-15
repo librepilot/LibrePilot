@@ -52,8 +52,7 @@ UAVObjectTreeModel::UAVObjectTreeModel(QObject *parent, bool categorize, bool sh
 
     Q_ASSERT(objManager);
 
-    // Create highlight manager, let it run every 300 ms.
-    m_highlightManager = new HighLightManager(300);
+    m_highlightManager = new HighLightManager();
     connect(objManager, SIGNAL(newObject(UAVObject *)), this, SLOT(newObject(UAVObject *)));
     connect(objManager, SIGNAL(newInstance(UAVObject *)), this, SLOT(newObject(UAVObject *)));
 

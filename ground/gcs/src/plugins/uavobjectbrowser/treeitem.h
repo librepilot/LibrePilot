@@ -49,7 +49,7 @@ class TreeItem;
  * non highlighted state in a linked list.
  * A timer traverses this list periodically to find out
  * if any of the items should be restored. All items are
- * updated withan expiration timestamp when they expires.
+ * updated with an expiration timestamp when they expires.
  * An item that is beeing restored is removed from the
  * list and its removeHighlight() method is called. Items
  * that are not expired are left in the list til next time.
@@ -60,8 +60,7 @@ class TreeItem;
 class HighLightManager : public QObject {
     Q_OBJECT
 public:
-    // Constructor taking the checking interval in ms.
-    HighLightManager(long checkingInterval);
+    HighLightManager();
 
     // This is called when an item has been set to
     // highlighted = true.
@@ -69,6 +68,8 @@ public:
 
     // This is called when an item is set to highlighted = false;
     bool remove(TreeItem *itemToRemove);
+
+    bool startTimer(QTime time);
 
 private slots:
     // Timer callback method.

@@ -28,11 +28,12 @@
 #include "treeitem.h"
 
 /* Constructor */
-HighLightManager::HighLightManager(long checkingInterval)
+HighLightManager::HighLightManager()
 {
-    // Start the timer and connect it to the callback
-    m_expirationTimer.start(checkingInterval);
-    connect(&m_expirationTimer, SIGNAL(timeout()), this, SLOT(checkItemsExpired()));
+    // Initialize the timer and connect it to the callback
+    m_expirationTimer.setTimerType(Qt::PreciseTimer);
+    m_expirationTimer.setSingleShot(true);
+    connect(&m_expirationTimer, &QTimer::timeout, this, &HighLightManager::checkItemsExpired);
 }
 
 /*
@@ -47,6 +48,20 @@ bool HighLightManager::add(TreeItem *itemToAdd)
     // Check so that the item isn't already in the list
     if (!m_items.contains(itemToAdd)) {
         m_items.insert(itemToAdd);
+        return true;
+    }
+    return false;
+}
+
+bool HighLightManager::startTimer(QTime expirationTime)
+{
+    // Lock to ensure thread safety
+    QMutexLocker locker(&m_mutex);
+
+    if (!m_expirationTimer.isActive()) {
+        int msec = QTime::currentTime().msecsTo(expirationTime);
+        // qDebug() << "start" << msec;
+        m_expirationTimer.start((msec < 10) ? 10 : msec);
         return true;
     }
     return false;
@@ -81,35 +96,48 @@ void HighLightManager::checkItemsExpired()
 
     // This is the timestamp to compare with
     QTime now = QTime::currentTime();
+    QTime next;
 
     // Loop over all items, check if they expired.
     while (iter.hasNext()) {
         TreeItem *item = iter.next();
-        if (item->getHiglightExpires() < now) {
-            // If expired, call removeHighlight
+        if (item->getHiglightExpires() <= now) {
+            // expired, call removeHighlight
             item->removeHighlight();
 
             // Remove from list since it is restored.
             iter.remove();
+        } else {
+            // not expired, check if next to expire
+            if (!next.isValid() || (next > item->getHiglightExpires())) {
+                next = item->getHiglightExpires();
+            }
         }
+    }
+    if (next.isValid()) {
+        int msec = QTime::currentTime().msecsTo(next);
+        // qDebug() << "restart" << msec;
+        m_expirationTimer.start((msec < 10) ? 10 : msec);
     }
 }
 
-int TreeItem::m_highlightTimeMs = 500;
+int TreeItem::m_highlightTimeMs = 300;
 
 TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parent) :
     QObject(0),
     m_data(data),
     m_parent(parent),
     m_highlight(false),
-    m_changed(false)
+    m_changed(false),
+    m_highlightManager(0)
 {}
 
 TreeItem::TreeItem(const QVariant &data, TreeItem *parent) :
     QObject(0),
     m_parent(parent),
     m_highlight(false),
-    m_changed(false)
+    m_changed(false),
+    m_highlightManager(0)
 {
     m_data << data << "" << "";
 }
@@ -180,24 +208,27 @@ void TreeItem::apply()
 }
 
 /*
- * Called after a value has changed to trigger highlightning of tree item.
+ * Called after a value has changed to trigger highlighting of tree item.
  */
 void TreeItem::setHighlight(bool highlight)
 {
-    m_highlight = highlight;
     m_changed   = false;
-    if (highlight) {
-        // Update the expires timestamp
-        m_highlightExpires = QTime::currentTime().addMSecs(m_highlightTimeMs);
-
-        // Add to highlightmanager
-        if (m_highlightManager->add(this)) {
-            // Only emit signal if it was added
+    if (m_highlight != highlight) {
+        m_highlight = highlight;
+        if (highlight) {
+            // Add to highlight manager
+            if (m_highlightManager->add(this)) {
+                // Only emit signal if it was added
+                emit updateHighlight(this);
+            }
+            // Update expiration timeout
+            m_highlightExpires = QTime::currentTime().addMSecs(m_highlightTimeMs);
+            // start expiration timer if necessary
+            m_highlightManager->startTimer(m_highlightExpires);
+        } else if (m_highlightManager->remove(this)) {
+            // Only emit signal if it was removed
             emit updateHighlight(this);
         }
-    } else if (m_highlightManager->remove(this)) {
-        // Only emit signal if it was removed
-        emit updateHighlight(this);
     }
 
     // If we have a parent, call recursively to update highlight status of parents.

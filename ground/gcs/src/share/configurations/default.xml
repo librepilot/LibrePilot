@@ -2780,7 +2780,7 @@
           <manuallyChangedColor>#5baa56</manuallyChangedColor>
           <onlyHilightChangedValues>false</onlyHilightChangedValues>
           <recentlyUpdatedColor>#ff7957</recentlyUpdatedColor>
-          <recentlyUpdatedTimeout>500</recentlyUpdatedTimeout>
+          <recentlyUpdatedTimeout>300</recentlyUpdatedTimeout>
           <showMetaData>false</showMetaData>
         </data>
       </default>

@@ -274,7 +274,9 @@ int8_t VtolFlyController::UpdateStabilizationDesired(bool yaw_attitude, float ya
     }
 #endif // if 0
 
-    if (yaw_attitude) {
+    // Yaw Attitude will be disabled without velocity requested.
+    // PositionHold, AutoTakeoff or AutoCruise still using manual Yaw.
+    if (yaw_attitude && ((fabsf(pathDesired->StartingVelocity) > 0.0f) && (fabsf(pathDesired->EndingVelocity) > 0.0f))) {
         stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
         stabDesired.Yaw = yaw_direction;
     } else {

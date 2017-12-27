@@ -29,6 +29,8 @@
 #include "homeitem.h"
 #include <QGraphicsSceneMouseEvent>
 
+#define COORDINATES_THRESHOLD 0.000002 // ~21cm
+
 namespace mapcontrol {
 WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & altitude, MapGraphicItem *map, wptype type) : coord(coord), reached(false), description(""), shownumber(true), isDragging(false), altitude(altitude), map(map), myType(type)
 {
@@ -259,7 +261,9 @@ void WayPointItem::setRelativeCoord(distBearingAltitude value)
 
 void WayPointItem::SetCoord(const internals::PointLatLng &value)
 {
-    if (qAbs(Coord().Lat() - value.Lat()) < 0.0001 && qAbs(Coord().Lng() - value.Lng()) < 0.0001) {
+    // If no changes from previous coordinates, return.
+    if ((qAbs(Coord().Lat() - value.Lat()) < COORDINATES_THRESHOLD) &&
+        (qAbs(Coord().Lng() - value.Lng()) < COORDINATES_THRESHOLD)) {
         return;
     }
     coord = value;

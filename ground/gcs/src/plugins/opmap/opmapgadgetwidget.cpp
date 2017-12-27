@@ -209,7 +209,7 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     m_widget->progressBarMap->setMaximum(1);
 
     connect(m_map, SIGNAL(zoomChanged(double, double, double)), this, SLOT(zoomChanged(double, double, double))); // map zoom change signals
-    connect(m_map, SIGNAL(OnCurrentPositionChanged(internals::PointLatLng)), this, SLOT(OnCurrentPositionChanged(internals::PointLatLng))); // map poisition change signals
+    connect(m_map, SIGNAL(OnCurrentPositionChanged(internals::PointLatLng)), this, SLOT(OnCurrentPositionChanged(internals::PointLatLng))); // map position change signals
     connect(m_map, SIGNAL(OnTileLoadComplete()), this, SLOT(OnTileLoadComplete())); // tile loading stop signals
     connect(m_map, SIGNAL(OnTileLoadStart()), this, SLOT(OnTileLoadStart())); // tile loading start signals
     connect(m_map, SIGNAL(OnTilesStillToLoad(int)), this, SLOT(OnTilesStillToLoad(int))); // tile loading signals
@@ -1031,7 +1031,7 @@ void OPMapGadgetWidget::setHome(internals::PointLatLng pos_lat_lon, double altit
     m_map->Home->RefreshPos();
 
     // move the magic waypoint to keep it within the safe area boundry
-    keepMagicWaypointWithInSafeArea();
+    keepMagicWaypointWithinSafeArea();
 }
 
 
@@ -2065,7 +2065,7 @@ void OPMapGadgetWidget::onSafeAreaActGroup_triggered(QAction *action)
     m_map->Home->RefreshPos();
 
     // move the magic waypoint if need be to keep it within the safe area around the home position
-    keepMagicWaypointWithInSafeArea();
+    keepMagicWaypointWithinSafeArea();
 }
 
 /**
@@ -2096,6 +2096,9 @@ void OPMapGadgetWidget::moveToMagicWaypointPosition()
     if (m_map_mode != MagicWaypoint_MapMode) {
         return;
     }
+
+    magicWayPoint->SetCoord(magicWayPoint->Coord());
+    keepMagicWaypointWithinSafeArea();
 }
 
 // *************************************************************************************
@@ -2123,8 +2126,9 @@ void OPMapGadgetWidget::showMagicWaypointControls()
 // *************************************************************************************
 // move the magic waypoint to keep it within the safe area boundry
 
-void OPMapGadgetWidget::keepMagicWaypointWithInSafeArea()
+void OPMapGadgetWidget::keepMagicWaypointWithinSafeArea()
 {
+    bool moveMagicWP = false;
     // calcute the bearing and distance from the home position to the magic waypoint
     double dist = distance(m_home_position.coord, magicWayPoint->Coord());
     double bear = bearing(m_home_position.coord, magicWayPoint->Coord());
@@ -2134,11 +2138,11 @@ void OPMapGadgetWidget::keepMagicWaypointWithInSafeArea()
 
     if (dist > boundry_dist) {
         dist = boundry_dist;
+        moveMagicWP = true;
     }
 
     // move the magic waypoint;
-
-    if (m_map_mode == MagicWaypoint_MapMode) { // move the on-screen waypoint
+    if ((m_map_mode == MagicWaypoint_MapMode) && moveMagicWP) { // if needed, move the on-screen waypoint to the safe area
         if (magicWayPoint) {
             magicWayPoint->SetCoord(destPoint(m_home_position.coord, bear, dist));
         }

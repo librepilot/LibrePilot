@@ -304,7 +304,7 @@ private:
     void moveToMagicWaypointPosition();
     void hideMagicWaypointControls();
     void showMagicWaypointControls();
-    void keepMagicWaypointWithInSafeArea();
+    void keepMagicWaypointWithinSafeArea();
 
     double distance(internals::PointLatLng from, internals::PointLatLng to);
     double bearing(internals::PointLatLng from, internals::PointLatLng to);

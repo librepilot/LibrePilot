@@ -122,7 +122,7 @@ void MapDataDelegate::loadComboBox(QComboBox *combo, flightDataModel::pathPlanDa
     case flightDataModel::CONDITION:
         combo->addItem("None", ENDCONDITION_NONE);
         combo->addItem("Timeout", ENDCONDITION_TIMEOUT);
-        combo->addItem("Distance to tgt", ENDCONDITION_DISTANCETOTARGET);
+        combo->addItem("Distance to target", ENDCONDITION_DISTANCETOTARGET);
         combo->addItem("Leg remaining", ENDCONDITION_LEGREMAINING);
         combo->addItem("Below Error", ENDCONDITION_BELOWERROR);
         combo->addItem("Above Altitude", ENDCONDITION_ABOVEALTITUDE);
@@ -132,11 +132,11 @@ void MapDataDelegate::loadComboBox(QComboBox *combo, flightDataModel::pathPlanDa
         combo->addItem("Immediate", ENDCONDITION_IMMEDIATE);
         break;
     case flightDataModel::COMMAND:
-        combo->addItem("On conditon next wp", COMMAND_ONCONDITIONNEXTWAYPOINT);
-        combo->addItem("On NOT conditon next wp", COMMAND_ONNOTCONDITIONNEXTWAYPOINT);
-        combo->addItem("On conditon jump wp", COMMAND_ONCONDITIONJUMPWAYPOINT);
-        combo->addItem("On NOT conditon jump wp", COMMAND_ONNOTCONDITIONJUMPWAYPOINT);
-        combo->addItem("On conditon jump wp else next wp", COMMAND_IFCONDITIONJUMPWAYPOINTELSENEXTWAYPOINT);
+        combo->addItem("On condition next wp", COMMAND_ONCONDITIONNEXTWAYPOINT);
+        combo->addItem("On NOT condition next wp", COMMAND_ONNOTCONDITIONNEXTWAYPOINT);
+        combo->addItem("On condition jump wp", COMMAND_ONCONDITIONJUMPWAYPOINT);
+        combo->addItem("On NOT condition jump wp", COMMAND_ONNOTCONDITIONJUMPWAYPOINT);
+        combo->addItem("On condition jump wp else next wp", COMMAND_IFCONDITIONJUMPWAYPOINTELSENEXTWAYPOINT);
         break;
     default:
         break;

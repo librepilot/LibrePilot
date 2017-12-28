@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmap_edit_waypoint_dialog.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup OPMapPlugin OpenPilot Map Plugin
@@ -91,12 +92,6 @@ void opmap_edit_waypoint_dialog::currentIndexChanged(int index)
 opmap_edit_waypoint_dialog::~opmap_edit_waypoint_dialog()
 {
     delete ui;
-}
-
-void opmap_edit_waypoint_dialog::on_pushButtonOK_clicked()
-{
-    mapper->submit();
-    close();
 }
 
 void opmap_edit_waypoint_dialog::setupModeWidgets()
@@ -263,11 +258,6 @@ void opmap_edit_waypoint_dialog::setupConditionWidgets()
     }
 }
 
-void opmap_edit_waypoint_dialog::pushButtonCancel_clicked()
-{
-    mapper->revert();
-    close();
-}
 void opmap_edit_waypoint_dialog::editWaypoint(mapcontrol::WayPointItem *waypoint_item)
 {
     if (!waypoint_item) {
@@ -287,15 +277,33 @@ void opmap_edit_waypoint_dialog::editWaypoint(mapcontrol::WayPointItem *waypoint
     mapper->setCurrentIndex(waypoint_item->Number());
 }
 
-void opmap_edit_waypoint_dialog::on_pushButton_clicked()
+void opmap_edit_waypoint_dialog::on_pushButtonOK_clicked()
+{
+    mapper->submit();
+    close();
+}
+
+void opmap_edit_waypoint_dialog::pushButtonCancel_clicked()
+{
+    mapper->revert();
+    close();
+}
+
+void opmap_edit_waypoint_dialog::on_pushButtonPrevious_clicked()
 {
     mapper->toPrevious();
 }
 
-void opmap_edit_waypoint_dialog::on_pushButton_2_clicked()
+void opmap_edit_waypoint_dialog::on_pushButtonNext_clicked()
 {
     mapper->toNext();
 }
+
+void opmap_edit_waypoint_dialog::on_pushButtonApply_clicked()
+{
+    mapper->submit();
+}
+
 
 void opmap_edit_waypoint_dialog::enableEditWidgets(bool value)
 {

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmap_edit_waypoint_dialog.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup OPMapPlugin OpenPilot Map Plugin
@@ -63,8 +64,9 @@ private slots:
     void setupConditionWidgets();
     void pushButtonCancel_clicked();
     void on_pushButtonOK_clicked();
-    void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
+    void on_pushButtonApply_clicked();
+    void on_pushButtonPrevious_clicked();
+    void on_pushButtonNext_clicked();
     void enableEditWidgets(bool);
     void currentRowChanged(QModelIndex, QModelIndex);
 };

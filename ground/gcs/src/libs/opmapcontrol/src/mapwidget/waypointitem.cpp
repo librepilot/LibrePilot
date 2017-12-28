@@ -35,7 +35,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     text    = 0;
     numberI = 0;
     isMagic = false;
-    picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+    picture.load(":/markers/images/wp_marker_red.png");
     number  = WayPointItem::snumber;
     ++WayPointItem::snumber;
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -64,7 +64,7 @@ WayPointItem::WayPointItem(MapGraphicItem *map, bool magicwaypoint) : reached(fa
     myType = relative;
     if (magicwaypoint) {
         isMagic = true;
-        picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker3.png"));
+        picture.load(":/markers/images/wp_marker_green.png");
         number  = -1;
     } else {
         isMagic = false;
@@ -95,7 +95,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     text    = 0;
     numberI = 0;
     isMagic = false;
-    picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+    picture.load(":/markers/images/wp_marker_red.png");
     number  = WayPointItem::snumber;
     ++WayPointItem::snumber;
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -128,7 +128,7 @@ WayPointItem::WayPointItem(const distBearingAltitude &relativeCoordenate, const 
     text    = 0;
     numberI = 0;
     isMagic = false;
-    picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+    picture.load(":/markers/images/wp_marker_red.png");
     number  = WayPointItem::snumber;
     ++WayPointItem::snumber;
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -301,16 +301,16 @@ void WayPointItem::SetReached(const bool &value)
     reached = value;
     emit WPValuesChanged(this);
     if (value) {
-        picture.load(QString::fromUtf8(":/markers/images/bigMarkerGreen.png"));
+        picture.load(":/markers/images/bigMarkerGreen.png");
     } else {
         if (!isMagic) {
             if ((this->flags() & QGraphicsItem::ItemIsMovable) == QGraphicsItem::ItemIsMovable) {
-                picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+                picture.load(":/markers/images/wp_marker_red.png");
             } else {
-                picture.load(QString::fromUtf8(":/markers/images/waypoint_marker2.png"));
+                picture.load(":/markers/images/wp_marker_orange.png");
             }
         } else {
-            picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker3.png"));
+            picture.load(":/markers/images/wp_marker_green.png");
         }
     }
     this->update();
@@ -436,9 +436,9 @@ void WayPointItem::setFlag(QGraphicsItem::GraphicsItemFlag flag, bool enabled)
         return;
     } else if (flag == QGraphicsItem::ItemIsMovable) {
         if (enabled) {
-            picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+            picture.load(":/markers/images/wp_marker_red.png");
         } else {
-            picture.load(QString::fromUtf8(":/markers/images/waypoint_marker2.png"));
+            picture.load(":/markers/images/wp_marker_orange.png");
         }
     }
     QGraphicsItem::setFlag(flag, enabled);

@@ -1984,9 +1984,9 @@ void OPMapGadgetWidget::onLockWayPointAct_triggered()
     m_mouse_waypoint->setFlag(QGraphicsItem::ItemIsMovable, locked);
 
     if (!locked) {
-        m_mouse_waypoint->picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker2.png"));
+        m_mouse_waypoint->picture.load(":/markers/images/wp_marker_orange.png");
     } else {
-        m_mouse_waypoint->picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker1.png"));
+        m_mouse_waypoint->picture.load(":/markers/images/wp_marker_red.png");
     }
     m_mouse_waypoint->update();
 

@@ -57,7 +57,7 @@ opmap_edit_waypoint_dialog::opmap_edit_waypoint_dialog(QWidget *parent, QAbstrac
     mapper->addMapping(ui->doubleSpinBoxLatitude, flightDataModel::LATPOSITION);
     mapper->addMapping(ui->doubleSpinBoxLongitude, flightDataModel::LNGPOSITION);
     mapper->addMapping(ui->doubleSpinBoxAltitude, flightDataModel::ALTITUDE);
-    mapper->addMapping(ui->lineEditDescription, flightDataModel::WPDESCRITPTION);
+    mapper->addMapping(ui->lineEditDescription, flightDataModel::WPDESCRIPTION);
     mapper->addMapping(ui->checkBoxRelative, flightDataModel::ISRELATIVE);
     mapper->addMapping(ui->doubleSpinBoxBearing, flightDataModel::BEARELATIVE);
     mapper->addMapping(ui->doubleSpinBoxVelocity, flightDataModel::VELOCITY);

@@ -223,7 +223,7 @@ void opmap_edit_waypoint_dialog::setupModeWidgets()
         // "This would allow one to control arbitrary auxilliary components from the PathPlanner like flaps and landing gear.</p>"));
         break;
     default:
-        ui->descriptionModeLabel->setText(tr(""));
+        ui->descriptionModeLabel->setText("");
         break;
     }
 }
@@ -315,7 +315,7 @@ void opmap_edit_waypoint_dialog::setupConditionWidgets()
                                                   "returns true if within a certain angular margin in degrees.</p>"));
         break;
     default:
-        ui->descriptionConditionLabel->setText(tr(""));
+        ui->descriptionConditionLabel->setText("");
         break;
     }
 }

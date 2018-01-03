@@ -916,24 +916,7 @@ void OPMapGadgetWidget::onTelemetryConnect()
     if (!obum) {
         return;
     }
-
-    bool set;
-    double LLA[3];
-
-    // ***********************
-    // fetch the home location
-
-    if (obum->getHomeLocation(set, LLA) < 0) {
-        return; // error
-    }
-    setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
-
-    if (m_map) {
-        if (m_map->UAV->GetMapFollowType() != UAVMapFollowType::None) {
-            m_map->SetCurrentPosition(m_home_position.coord); // set the map position
-        }
-    }
-    // ***********************
+    applyHomeLocationOnMap();
 }
 
 void OPMapGadgetWidget::onTelemetryDisconnect()
@@ -1164,6 +1147,10 @@ void OPMapGadgetWidget::setHomePosition(QPointF pos)
     }
 
     m_map->Home->SetCoord(internals::PointLatLng(latitude, longitude));
+
+    if (!m_telemetry_connected) {
+        m_home_position.coord = internals::PointLatLng(latitude, longitude);
+    }
 }
 
 void OPMapGadgetWidget::setPosition(QPointF pos)
@@ -2364,6 +2351,32 @@ bool OPMapGadgetWidget::getGPSPositionSensor(double &latitude, double &longitude
     altitude  = LLA[2];
 
     return true;
+}
+
+bool OPMapGadgetWidget::applyHomeLocationOnMap()
+{
+    bool set;
+    double LLA[3];
+
+    if (!obum) {
+        return false;
+    }
+
+    // fetch the home location
+    if (obum->getHomeLocation(set, LLA) < 0) {
+        return false; // error
+    }
+
+    if (m_telemetry_connected) {
+        setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
+        if (m_map) {
+            if (m_map->UAV->GetMapFollowType() != UAVMapFollowType::None) {
+                m_map->SetCurrentPosition(m_home_position.coord); // set the map position
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 // *************************************************************************************

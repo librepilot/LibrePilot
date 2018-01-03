@@ -117,6 +117,7 @@ public:
     void setDefaultWaypointAltitude(qreal default_altitude);
     void setDefaultWaypointVelocity(qreal default_velocity);
     bool getGPSPositionSensor(double &latitude, double &longitude, double &altitude);
+    bool applyHomeLocationOnMap();
 signals:
     void defaultLocationAndZoomChanged(double lng, double lat, double zoom);
     void overlayOpacityChanged(qreal);

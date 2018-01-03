@@ -67,8 +67,12 @@ void OPMapGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->SetUavPic(m_config->uavSymbol());
     m_widget->setZoom(m_config->zoom());
     m_widget->setPosition(QPointF(m_config->longitude(), m_config->latitude()));
-    m_widget->setHomePosition(QPointF(m_config->longitude(), m_config->latitude()));
     m_widget->setOverlayOpacity(m_config->opacity());
     m_widget->setDefaultWaypointAltitude(m_config->defaultWaypointAltitude());
     m_widget->setDefaultWaypointVelocity(m_config->defaultWaypointVelocity());
+
+    if (!m_widget->applyHomeLocationOnMap()) {
+        // Set default HomeLocation in center of map
+        m_widget->setHomePosition(QPointF(m_config->longitude(), m_config->latitude()));
+    }
 }

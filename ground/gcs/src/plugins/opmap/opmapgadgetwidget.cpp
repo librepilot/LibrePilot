@@ -1790,9 +1790,10 @@ void OPMapGadgetWidget::onSetHomeAct_triggered()
     altitude = QInputDialog::getDouble(this, tr("Set home altitude"),
                                        tr("In [m], referenced to WGS84:"), altitude, -100, 100000, 2, &ok);
 
-    setHome(m_context_menu_lat_lon, altitude);
-
-    setHomeLocationObject(); // update the HomeLocation UAVObject
+    if (ok) {
+        setHome(m_context_menu_lat_lon, altitude);
+        setHomeLocationObject(); // update the HomeLocation UAVObject
+    }
 }
 
 void OPMapGadgetWidget::onGoHomeAct_triggered()

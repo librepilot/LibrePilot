@@ -521,6 +521,7 @@ public:
     }
     void SetShowDiagnostics(bool const & value);
     void SetUavPic(QString UAVPic);
+    void SetHomePic(QString HomePic);
     WayPointLine *WPLineCreate(WayPointItem *from, WayPointItem *to, QColor color, bool dashed = false, int width = -1);
     WayPointLine *WPLineCreate(HomeItem *from, WayPointItem *to, QColor color, bool dashed = false, int width = -1);
     WayPointCircle *WPCircleCreate(WayPointItem *center, WayPointItem *radius, bool clockwise, QColor color, bool dashed = false, int width = -1);

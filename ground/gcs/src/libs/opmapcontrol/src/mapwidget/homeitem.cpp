@@ -98,6 +98,12 @@ void HomeItem::RefreshPos()
     toggleRefresh = false;
 }
 
+void HomeItem::SetHomePic(QString HomePic)
+{
+    pic.load(":/markers/images/" + HomePic);
+    pic = pic.scaled(30, 30, Qt::IgnoreAspectRatio);
+}
+
 void HomeItem::setOpacitySlot(qreal opacity)
 {
     setOpacity(opacity);

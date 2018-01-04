@@ -936,6 +936,16 @@ void OPMapGadgetWidget::homePositionUpdated(UAVObject *hp)
     if (obum->getHomeLocation(set, LLA) < 0) {
         return; // error
     }
+
+    QString HomePic;
+
+    if (set) {
+        HomePic = "home2_set.svg";
+    } else {
+        HomePic = "home2_not_set.svg";
+    }
+
+    SetHomePic(HomePic);
     setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
 }
 
@@ -2412,7 +2422,7 @@ bool OPMapGadgetWidget::setHomeLocationObject()
     }
 
     double LLA[3] = { m_home_position.coord.Lat(), m_home_position.coord.Lng(), m_home_position.altitude };
-    return obum->setHomeLocation(LLA, true) >= 0;
+    return obum->setHomeLocation(LLA, m_telemetry_connected) >= 0;
 }
 
 // *************************************************************************************
@@ -2420,6 +2430,11 @@ bool OPMapGadgetWidget::setHomeLocationObject()
 void OPMapGadgetWidget::SetUavPic(QString UAVPic)
 {
     m_map->SetUavPic(UAVPic);
+}
+
+void OPMapGadgetWidget::SetHomePic(QString HomePic)
+{
+    m_map->SetHomePic(HomePic);
 }
 
 void OPMapGadgetWidget::on_tbFind_clicked()

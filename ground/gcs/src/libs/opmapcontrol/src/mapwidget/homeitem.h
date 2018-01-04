@@ -102,6 +102,7 @@ protected:
     QPainterPath shape() const;
 public slots:
     void RefreshPos();
+    void SetHomePic(QString HomePic);
     void setOpacitySlot(qreal opacity);
 signals:
     void homePositionChanged(internals::PointLatLng coord, float);

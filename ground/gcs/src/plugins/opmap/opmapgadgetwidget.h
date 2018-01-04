@@ -111,6 +111,7 @@ public:
     void setCacheLocation(QString cacheLocation);
     void setMapMode(opMapModeType mode);
     void SetUavPic(QString UAVPic);
+    void SetHomePic(QString HomePic);
     void setMaxUpdateRate(int update_rate);
     void setHomePosition(QPointF pos);
     void setOverlayOpacity(qreal value);

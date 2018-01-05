@@ -113,6 +113,8 @@ public:
     void SetUavPic(QString UAVPic);
     void SetHomePic(QString HomePic);
     void setMaxUpdateRate(int update_rate);
+    void setSafeAreaRadius(int safe_area_radius);
+    void setShowSafeArea(bool showSafeArea);
     void setHomePosition(QPointF pos);
     void setOverlayOpacity(qreal value);
     void setDefaultWaypointAltitude(qreal default_altitude);

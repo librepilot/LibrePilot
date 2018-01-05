@@ -79,6 +79,25 @@ QWidget *OPMapGadgetOptionsPage::createPage(QWidget *parent)
     index = (index >= 0) ? index : 4;
     m_page->maxUpdateRateComboBox->setCurrentIndex(index);
 
+    // populate the safety area radius combobox
+    m_page->safeAreaRadiusComboBox->clear();
+    m_page->safeAreaRadiusComboBox->addItem("5m", 5);
+    m_page->safeAreaRadiusComboBox->addItem("10m", 10);
+    m_page->safeAreaRadiusComboBox->addItem("20m", 20);
+    m_page->safeAreaRadiusComboBox->addItem("50m", 50);
+    m_page->safeAreaRadiusComboBox->addItem("100m", 100);
+    m_page->safeAreaRadiusComboBox->addItem("200m", 200);
+    m_page->safeAreaRadiusComboBox->addItem("500m", 500);
+    m_page->safeAreaRadiusComboBox->addItem("1000m", 1000);
+    m_page->safeAreaRadiusComboBox->addItem("2000m", 2000);
+    m_page->safeAreaRadiusComboBox->addItem("5000m", 5000);
+
+    index = m_page->safeAreaRadiusComboBox->findData(m_config->safeAreaRadius());
+    index = (index >= 0) ? index : 0;
+    m_page->safeAreaRadiusComboBox->setCurrentIndex(index);
+
+    m_page->checkBoxShowSafeArea->setChecked(m_config->showSafeArea());
+
     m_page->zoomSpinBox->setValue(m_config->zoom());
     m_page->latitudeSpinBox->setValue(m_config->latitude());
     m_page->longitudeSpinBox->setValue(m_config->longitude());
@@ -140,6 +159,8 @@ void OPMapGadgetOptionsPage::apply()
     m_config->setCacheLocation(m_page->lineEditCacheLocation->path());
     m_config->setUavSymbol(m_page->uavSymbolComboBox->itemData(m_page->uavSymbolComboBox->currentIndex()).toString());
     m_config->setMaxUpdateRate(m_page->maxUpdateRateComboBox->itemData(m_page->maxUpdateRateComboBox->currentIndex()).toInt());
+    m_config->setSafeAreaRadius(m_page->safeAreaRadiusComboBox->itemData(m_page->safeAreaRadiusComboBox->currentIndex()).toInt());
+    m_config->setShowSafeArea(m_page->checkBoxShowSafeArea->isChecked());
     m_config->setDefaultWaypointAltitude(m_page->defaultWaypointAltitude->value());
     m_config->setDefaultWaypointVelocity(m_page->defaultWaypointVelocity->value());
 }

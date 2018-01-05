@@ -164,14 +164,14 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     m_max_zoom = m_widget->horizontalSliderZoom->maximum(); // maximum zoom we can accept
 
     m_map->SetMouseWheelZoomType(internals::MouseWheelZoomType::MousePositionWithoutCenter); // set how the mouse wheel zoom functions
-    m_map->SetFollowMouse(true); // we want a contiuous mouse position reading
+    m_map->SetFollowMouse(true); // we want a continuous mouse position reading
 
     m_map->SetShowHome(true); // display the HOME position on the map
     m_map->SetShowUAV(true); // display the UAV position on the map
     m_map->SetShowNav(false); // initially don't display the NAV position on the map
 
-    m_map->Home->SetSafeArea(safe_area_radius_list[0]); // set radius (meters) //SHOULDN'T THE DEFAULT BE USER DEFINED?
-    m_map->Home->SetShowSafeArea(true); // show the safe area  //SHOULDN'T THE DEFAULT BE USER DEFINED?
+    m_map->Home->SetSafeArea(safe_area_radius_list[0]); // set radius (meters)
+    m_map->Home->SetShowSafeArea(true); // show the safe area
     m_map->Home->SetToggleRefresh(true);
 
     if (m_map->Home) {
@@ -1102,6 +1102,26 @@ void OPMapGadgetWidget::setMaxUpdateRate(int update_rate)
 
 // if (m_statusUpdateTimer)
 // m_statusUpdateTimer->setInterval(m_maxUpdateRate);
+}
+
+void OPMapGadgetWidget::setSafeAreaRadius(int safe_area_radius)
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->Home->SetSafeArea(safe_area_radius);
+    m_map->Home->SetToggleRefresh(true);
+}
+
+void OPMapGadgetWidget::setShowSafeArea(bool showSafeArea)
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->Home->SetShowSafeArea(showSafeArea);
+    m_map->Home->SetToggleRefresh(true);
 }
 
 void OPMapGadgetWidget::setZoom(int zoom)

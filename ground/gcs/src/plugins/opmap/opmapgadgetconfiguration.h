@@ -46,6 +46,8 @@ class OPMapGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_PROPERTY(QString cacheLocation READ cacheLocation WRITE setCacheLocation)
     Q_PROPERTY(QString uavSymbol READ uavSymbol WRITE setUavSymbol)
     Q_PROPERTY(int maxUpdateRate READ maxUpdateRate WRITE setMaxUpdateRate)
+    Q_PROPERTY(int safeAreaRadius READ safeAreaRadius WRITE setSafeAreaRadius)
+    Q_PROPERTY(bool showSafeArea READ showSafeArea WRITE setShowSafeArea)
     Q_PROPERTY(qreal overlayOpacity READ opacity WRITE setOpacity)
     Q_PROPERTY(qreal defaultWaypointAltitude READ defaultWaypointAltitude WRITE setDefaultWaypointAltitude)
     Q_PROPERTY(qreal defaultWaypointVelocity READ defaultWaypointVelocity WRITE setDefaultWaypointVelocity)
@@ -102,6 +104,14 @@ public:
     int maxUpdateRate() const
     {
         return m_maxUpdateRate;
+    }
+    int safeAreaRadius() const
+    {
+        return m_safeAreaRadius;
+    }
+    bool showSafeArea() const
+    {
+        return m_showSafeArea;
     }
     qreal opacity() const
     {
@@ -164,6 +174,14 @@ public slots:
     {
         m_maxUpdateRate = update_rate;
     }
+    void setSafeAreaRadius(int safe_area_radius)
+    {
+        m_safeAreaRadius = safe_area_radius;
+    }
+    void setShowSafeArea(bool showSafeArea)
+    {
+        m_showSafeArea = showSafeArea;
+    }
 
     void setDefaultWaypointAltitude(qreal default_altitude)
     {
@@ -187,6 +205,8 @@ private:
     QString m_cacheLocation;
     QString m_uavSymbol;
     int m_maxUpdateRate;
+    int m_safeAreaRadius;
+    bool m_showSafeArea;
     qreal m_opacity;
     qreal m_defaultWaypointAltitude;
     qreal m_defaultWaypointVelocity;

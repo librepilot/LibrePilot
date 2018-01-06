@@ -214,7 +214,7 @@ QString UrlFactory::MakeImageUrl(const MapType::Types &type, const Point &pos, c
     break;
     case MapType::GoogleSatellite:
     {
-        QString server  = "khm";
+        QString server  = "khms";
         QString request = "kh";
         QString sec1    = ""; // after &x=...
         QString sec2    = ""; // after &zoom=...

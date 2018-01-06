@@ -1100,6 +1100,15 @@ void OPMapGadgetWidget::setMaxUpdateRate(int update_rate)
         m_updateTimer->setInterval(m_maxUpdateRate);
     }
 
+    // Update context menu selection
+    int max_rate_list_size = sizeof(max_update_rate_list) / sizeof(max_update_rate_list[0]);
+    for (int i = 0; i < max_rate_list_size; i++) {
+        int maxUpdateRate = max_update_rate_list[i];
+        if (maxUpdateRate == update_rate) {
+            maxUpdateRateAct.at(i)->setChecked(true);
+        }
+    }
+
 // if (m_statusUpdateTimer)
 // m_statusUpdateTimer->setInterval(m_maxUpdateRate);
 }
@@ -1112,6 +1121,15 @@ void OPMapGadgetWidget::setSafeAreaRadius(int safe_area_radius)
 
     m_map->Home->SetSafeArea(safe_area_radius);
     m_map->Home->SetToggleRefresh(true);
+
+    // Update context menu selection
+    int safe_area_list_size = sizeof(safe_area_radius_list) / sizeof(safe_area_radius_list[0]);
+    for (int i = 0; i < safe_area_list_size; i++) {
+        int safeArea = safe_area_radius_list[i];
+        if (safeArea == safe_area_radius) {
+            safeAreaAct.at(i)->setChecked(true);
+        }
+    }
 }
 
 void OPMapGadgetWidget::setShowSafeArea(bool showSafeArea)
@@ -1122,6 +1140,8 @@ void OPMapGadgetWidget::setShowSafeArea(bool showSafeArea)
 
     m_map->Home->SetShowSafeArea(showSafeArea);
     m_map->Home->SetToggleRefresh(true);
+
+    showSafeAreaAct->setChecked(showSafeArea);
 }
 
 void OPMapGadgetWidget::setZoom(int zoom)

@@ -51,8 +51,21 @@
 #include <QTextEdit>
 #include <QMessageBox>
 
-#define MAXOUTPUT_VALUE 2500
-#define MINOUTPUT_VALUE 500
+// Motor settings
+#define DSHOT_MAXOUTPUT_RANGE   2000
+#define DSHOT_MINTOUTPUT_RANGE  0
+#define PWMSYNC_MAXOUTPUT_RANGE 1900
+#define DEFAULT_MAXOUTPUT_RANGE 2000
+#define DEFAULT_MINOUTPUT_RANGE 900
+
+#define DEFAULT_MINOUTPUT_VALUE 1000
+
+// Servo settings
+#define SERVO_MAXOUTPUT_RANGE   2500
+#define SERVO_MINOUTPUT_RANGE   500
+#define SERVO_MAXOUTPUT_VALUE   2000
+#define SERVO_MINOUTPUT_VALUE   1000
+#define SERVO_NEUTRAL_VALUE     1500
 
 ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -506,15 +519,62 @@ void ConfigOutputWidget::updateAlwaysStabilizeStatus()
 
 void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls)
 {
+    // Set UI limits according to the bankmode and destination
     switch (bankControls->modeCombo()->currentIndex()) {
     case ActuatorSettings::BANKMODE_DSHOT:
-        channelForm->setLimits(0, 0, 0, 2000);
+        // 0 - 2000 UI limits, DShot min value is fixed to zero
+        if (channelForm->isServoOutput()) {
+            bank_mode_servo_warning = "DShot";
+            break;
+        }
+        channelForm->setLimits(DSHOT_MINTOUTPUT_RANGE, DSHOT_MINTOUTPUT_RANGE, DSHOT_MINTOUTPUT_RANGE, DSHOT_MAXOUTPUT_RANGE);
+        channelForm->setRange(DSHOT_MINTOUTPUT_RANGE, DSHOT_MAXOUTPUT_RANGE);
+        channelForm->setNeutral(DSHOT_MINTOUTPUT_RANGE);
         break;
-    // case ActuatorSettings::BANKMODE_BRUSHED:
-    // channelForm->setLimits(0, 0, 0, 100); // 0 to 100%
-    // break;
+    case ActuatorSettings::BANKMODE_PWMSYNC:
+        // 900 - 1900 UI limits
+        // Default values 1000 - 1900
+        channelForm->setLimits(DEFAULT_MINOUTPUT_RANGE, PWMSYNC_MAXOUTPUT_RANGE, DEFAULT_MINOUTPUT_RANGE, PWMSYNC_MAXOUTPUT_RANGE);
+        channelForm->setRange(DEFAULT_MINOUTPUT_VALUE, PWMSYNC_MAXOUTPUT_RANGE);
+        channelForm->setNeutral(DEFAULT_MINOUTPUT_VALUE);
+        if (channelForm->isServoOutput()) {
+            // Servo: Some of them can handle PWMSync, 500 - 1900 UI limits
+            // Default values 1000 - 1900 + neutral 1500
+            channelForm->setRange(SERVO_MINOUTPUT_VALUE, PWMSYNC_MAXOUTPUT_RANGE);
+            channelForm->setNeutral(SERVO_NEUTRAL_VALUE);
+        }
+        break;
+    case ActuatorSettings::BANKMODE_PWM:
+        // PWM motor outputs fall to default
+        if (channelForm->isServoOutput()) {
+            // Servo: 500 - 2500 UI limits
+            // Default values 1000 - 2000 + neutral 1500
+            channelForm->setLimits(SERVO_MINOUTPUT_RANGE, SERVO_MAXOUTPUT_RANGE, SERVO_MINOUTPUT_RANGE, SERVO_MAXOUTPUT_RANGE);
+            channelForm->setRange(SERVO_MINOUTPUT_VALUE, SERVO_MAXOUTPUT_VALUE);
+            channelForm->setNeutral(SERVO_NEUTRAL_VALUE);
+            break;
+        }
+    case ActuatorSettings::BANKMODE_ONESHOT125:
+        if (channelForm->isServoOutput()) {
+            bank_mode_servo_warning = "OneShot125";
+            break;
+        }
+    case ActuatorSettings::BANKMODE_ONESHOT42:
+        if (channelForm->isServoOutput()) {
+            bank_mode_servo_warning = "OneShot42";
+            break;
+        }
+    case ActuatorSettings::BANKMODE_MULTISHOT:
+        if (channelForm->isServoOutput()) {
+            bank_mode_servo_warning = "MultiShot";
+            break;
+        }
     default:
-        channelForm->setLimits(MINOUTPUT_VALUE, MAXOUTPUT_VALUE, MINOUTPUT_VALUE, MAXOUTPUT_VALUE);
+        // Motors 900 - 2000 UI limits
+        // Default values 1000 - 2000, neutral set to min
+        channelForm->setLimits(DEFAULT_MINOUTPUT_RANGE, DEFAULT_MAXOUTPUT_RANGE, DEFAULT_MINOUTPUT_RANGE, DEFAULT_MAXOUTPUT_RANGE);
+        channelForm->setRange(DEFAULT_MINOUTPUT_VALUE, DEFAULT_MAXOUTPUT_RANGE);
+        channelForm->setNeutral(DEFAULT_MINOUTPUT_VALUE);
         break;
     }
 }
@@ -522,6 +582,8 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
 void ConfigOutputWidget::onBankTypeChange()
 {
     QComboBox *bankModeCombo = qobject_cast<QComboBox *>(sender());
+
+    bank_mode_servo_warning = "";
 
     if (bankModeCombo != NULL) {
         int bankNumber = 1;
@@ -563,6 +625,12 @@ void ConfigOutputWidget::updateWarnings(UAVObject *)
                        .arg(m_banks.at(3).color().name()).arg(m_banks.at(3).label()->text()));
             return;
         }
+    }
+    if (bank_mode_servo_warning != "") {
+        QString servo_warning_str = QString("Bank using <b>%1</b> cannot drive a <b>servo output!</b>"
+                                    "<p>You must use PWM for this Bank or move the servo output to another compatible Bank.</p>").arg(bank_mode_servo_warning);
+        setWarning(servo_warning_str);
+        return;
     }
     setWarning(NULL);
 }

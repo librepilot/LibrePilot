@@ -98,6 +98,7 @@ private:
     int m_mccDataRate;
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
+    QString bank_mode_servo_warning;
 
     OutputChannelForm *getOutputChannelForm(const int index) const;
     void updateChannelInSlider(QSlider *slider, QLabel *min, QLabel *max, QCheckBox *rev, int value);

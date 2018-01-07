@@ -63,6 +63,10 @@ public slots:
     void enableChannelTest(bool state);
     QString outputMixerType();
     void setLimits(int actuatorMinMinimum, int actuatorMinMaximum, int actuatorMaxMinimum, int actuatorMaxMaximum);
+    bool isServoOutput();
+    bool isNormalMotor();
+    bool isReversableMotor();
+    bool isDisabledOutput();
 
 signals:
     void channelChanged(int index, int value);

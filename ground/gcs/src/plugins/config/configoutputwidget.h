@@ -99,6 +99,8 @@ private:
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
     QString bank_mode_servo_warning;
+    QString reversable_motor_warning;
+    int currentNeutralValue;
 
     OutputChannelForm *getOutputChannelForm(const int index) const;
     void updateChannelInSlider(QSlider *slider, QLabel *min, QLabel *max, QCheckBox *rev, int value);

@@ -378,6 +378,15 @@ void OutputChannelForm::sendChannelTest(int value)
 
 /**
  *
+ * Returns current neutral value
+ */
+int OutputChannelForm::getNeutralValue()
+{
+    return ui->actuatorNeutral->value();
+}
+
+/**
+ *
  * Returns MixerType
  */
 QString OutputChannelForm::outputMixerType()

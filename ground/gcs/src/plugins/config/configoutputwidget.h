@@ -98,8 +98,8 @@ private:
     int m_mccDataRate;
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
-    QString bank_mode_servo_warning;
-    QString reversable_motor_warning;
+    int bank_mode_servo_warning;
+    int reversable_motor_warning;
     int currentNeutralValue;
 
     OutputChannelForm *getOutputChannelForm(const int index) const;
@@ -108,6 +108,7 @@ private:
     void setColor(QWidget *widget, const QColor color);
     void sendAllChannelTests();
     void setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls);
+    QString bankModeName(int index);
 
 private slots:
     void updateWarnings(UAVObject *);

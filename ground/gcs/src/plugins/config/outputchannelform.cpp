@@ -380,7 +380,7 @@ void OutputChannelForm::sendChannelTest(int value)
  *
  * Returns current neutral value
  */
-int OutputChannelForm::getNeutralValue()
+int OutputChannelForm::neutralValue()
 {
     return ui->actuatorNeutral->value();
 }

@@ -579,7 +579,7 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
 ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(OutputChannelForm *channelForm, OutputBankControls *bankControls)
 {
     ChannelConfigWarning warning = None;
-    int currentNeutralValue = channelForm->getNeutralValue();
+    int currentNeutralValue = channelForm->neutralValue();
 
     // Check if RevMotor has neutral value around center
     if (channelForm->isReversableMotor()) {

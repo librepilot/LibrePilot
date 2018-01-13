@@ -60,6 +60,7 @@
 #define DEFAULT_MINOUTPUT_VALUE       1000
 #define REVMOTOR_NEUTRAL_TARGET_VALUE 1500
 #define REVMOTOR_NEUTRAL_DIFF_VALUE   150
+#define MOTOR_NEUTRAL_DIFF_VALUE      200
 
 // Servo settings
 #define SERVO_MAXOUTPUT_RANGE         2500
@@ -67,8 +68,6 @@
 #define SERVO_MAXOUTPUT_VALUE         2000
 #define SERVO_MINOUTPUT_VALUE         1000
 #define SERVO_NEUTRAL_VALUE           1500
-
-#define OUTPUT_WARNING_DISABLED       -1
 
 ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(parent)
 {
@@ -80,7 +79,8 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
 
     addAutoBindings();
 
-    m_ui->gvFrame->setVisible(false);
+    m_ui->boardWarningFrame->setVisible(false);
+    m_ui->configWarningFrame->setVisible(false);
 
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVSettingsImportExportFactory *importexportplugin = pm->getObject<UAVSettingsImportExportFactory>();
@@ -144,7 +144,7 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     }
 
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
-    connect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateWarnings(UAVObject *)));
+    connect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateBoardWarnings(UAVObject *)));
 
     // TODO why do we do that ?
     disconnect(this, SLOT(refreshWidgetsValues(UAVObject *)));
@@ -154,7 +154,7 @@ ConfigOutputWidget::~ConfigOutputWidget()
 {
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
 
-    disconnect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateWarnings(UAVObject *)));
+    disconnect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateBoardWarnings(UAVObject *)));
     foreach(OutputBankControls controls, m_banks) {
         disconnect(controls.modeCombo(), SIGNAL(currentIndexChanged(int)), this, SLOT(onBankTypeChange()));
     }
@@ -446,6 +446,7 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
     }
 
     updateSpinStabilizeCheckComboBoxes();
+    checkOutputConfig();
 }
 
 /**
@@ -527,14 +528,8 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
     case ActuatorSettings::BANKMODE_DSHOT:
         // 0 - 2000 UI limits, DShot min value is fixed to zero
         if (channelForm->isServoOutput()) {
-            // Driving a servo using DShot do not make sense: break
-            bank_mode_servo_warning = ActuatorSettings::BANKMODE_DSHOT;
+            // Driving a servo using DShot doest not make sense so break
             break;
-        }
-        if (channelForm->isReversableMotor()) {
-            // Bi-directional DShot not yet supported: apply normal settings
-            reversable_motor_warning = ActuatorSettings::BANKMODE_DSHOT;
-            
         }
         channelForm->setLimits(DSHOT_MINTOUTPUT_RANGE, DSHOT_MINTOUTPUT_RANGE, DSHOT_MINTOUTPUT_RANGE, DSHOT_MAXOUTPUT_RANGE);
         channelForm->setRange(DSHOT_MINTOUTPUT_RANGE, DSHOT_MAXOUTPUT_RANGE);
@@ -543,13 +538,9 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
     case ActuatorSettings::BANKMODE_PWMSYNC:
         // 900 - 1900 UI limits
         // Default values 1000 - 1900
-        currentNeutralValue = channelForm->getNeutralValue();
         channelForm->setLimits(DEFAULT_MINOUTPUT_RANGE, PWMSYNC_MAXOUTPUT_RANGE, DEFAULT_MINOUTPUT_RANGE, PWMSYNC_MAXOUTPUT_RANGE);
         channelForm->setRange(DEFAULT_MINOUTPUT_VALUE, PWMSYNC_MAXOUTPUT_RANGE);
         channelForm->setNeutral(DEFAULT_MINOUTPUT_VALUE);
-        if (channelForm->isReversableMotor() && (reversable_motor_warning == OUTPUT_WARNING_DISABLED)) {
-            reversable_motor_warning = ActuatorSettings::BANKMODE_PWMSYNC;
-        }
         if (channelForm->isServoOutput()) {
             // Servo: Some of them can handle PWMSync, 500 - 1900 UI limits
             // Default values 1000 - 1900 + neutral 1500
@@ -558,10 +549,6 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
         }
         break;
     case ActuatorSettings::BANKMODE_PWM:
-        // PWM motor outputs fall to default
-        if (channelForm->isReversableMotor() && (reversable_motor_warning == OUTPUT_WARNING_DISABLED)) {
-            reversable_motor_warning = ActuatorSettings::BANKMODE_PWM;
-        }
         if (channelForm->isServoOutput()) {
             // Servo: 500 - 2500 UI limits
             // Default values 1000 - 2000 + neutral 1500
@@ -570,57 +557,88 @@ void ConfigOutputWidget::setChannelLimits(OutputChannelForm *channelForm, Output
             channelForm->setNeutral(SERVO_NEUTRAL_VALUE);
             break;
         }
+    // PWM motor outputs fall to default
     case ActuatorSettings::BANKMODE_ONESHOT125:
-        if (channelForm->isServoOutput()) {
-            bank_mode_servo_warning = ActuatorSettings::BANKMODE_ONESHOT125;
-            break;
-        }
-        if (channelForm->isReversableMotor() && (reversable_motor_warning == OUTPUT_WARNING_DISABLED)) {
-            reversable_motor_warning = ActuatorSettings::BANKMODE_ONESHOT125;
-        }
     case ActuatorSettings::BANKMODE_ONESHOT42:
-        if (channelForm->isServoOutput()) {
-            bank_mode_servo_warning = ActuatorSettings::BANKMODE_ONESHOT42;
-            break;
-        }
-        if (channelForm->isReversableMotor() && (reversable_motor_warning == OUTPUT_WARNING_DISABLED)) {
-            reversable_motor_warning = ActuatorSettings::BANKMODE_ONESHOT42;
-        }
     case ActuatorSettings::BANKMODE_MULTISHOT:
         if (channelForm->isServoOutput()) {
-            bank_mode_servo_warning = ActuatorSettings::BANKMODE_MULTISHOT;
+            // Driving a servo using this mode does not make sense so break
             break;
-        }
-        if (channelForm->isReversableMotor() && (reversable_motor_warning == OUTPUT_WARNING_DISABLED)) {
-            reversable_motor_warning = ActuatorSettings::BANKMODE_MULTISHOT;
         }
     default:
         // Motors 900 - 2000 UI limits
         // Default values 1000 - 2000, neutral set to min
         // This settings are used for PWM, OneShot125, OneShot42 and MultiShot
-        currentNeutralValue = channelForm->getNeutralValue();
         channelForm->setLimits(DEFAULT_MINOUTPUT_RANGE, DEFAULT_MAXOUTPUT_RANGE, DEFAULT_MINOUTPUT_RANGE, DEFAULT_MAXOUTPUT_RANGE);
         channelForm->setRange(DEFAULT_MINOUTPUT_VALUE, DEFAULT_MAXOUTPUT_RANGE);
         channelForm->setNeutral(DEFAULT_MINOUTPUT_VALUE);
         break;
     }
+}
 
-    // TODO: Implement bi-directional DShot
-    if (channelForm->isReversableMotor() && (bankControls->modeCombo()->currentIndex() != ActuatorSettings::BANKMODE_DSHOT)) {
+ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(OutputChannelForm *channelForm, OutputBankControls *bankControls)
+{
+    ChannelConfigWarning warning = None;
+    int currentNeutralValue = channelForm->getNeutralValue();
+
+    // Check if RevMotor has neutral value around center
+    if (channelForm->isReversableMotor()) {
+        warning = IsReversibleMotorCheckNeutral;
         int neutralDiff = qAbs(REVMOTOR_NEUTRAL_TARGET_VALUE - currentNeutralValue);
         if (neutralDiff < REVMOTOR_NEUTRAL_DIFF_VALUE) {
             // Reset warning
-            reversable_motor_warning = OUTPUT_WARNING_DISABLED;
+            warning = None;
         }
     }
+
+    // Check if NormalMotor neutral is not too high
+    if (channelForm->isNormalMotor()) {
+        warning = IsNormalMotorCheckNeutral;
+        int neutralDiff = currentNeutralValue - DEFAULT_MINOUTPUT_VALUE;
+        if (neutralDiff < MOTOR_NEUTRAL_DIFF_VALUE) {
+            // Reset warning
+            warning = None;
+        }
+    }
+
+    switch (bankControls->modeCombo()->currentIndex()) {
+    case ActuatorSettings::BANKMODE_DSHOT:
+        if (channelForm->isServoOutput()) {
+            warning = CannotDriveServo;
+            // Driving a servo using DShot doest not make sense so break
+            break;
+        }
+        if (channelForm->isReversableMotor()) {
+            // Bi-directional DShot not yet supported
+            warning = BiDirectionalDShotNotSupported;
+        }
+        break;
+    case ActuatorSettings::BANKMODE_PWMSYNC:
+        break;
+    case ActuatorSettings::BANKMODE_PWM:
+        break;
+    case ActuatorSettings::BANKMODE_ONESHOT125:
+    case ActuatorSettings::BANKMODE_ONESHOT42:
+    case ActuatorSettings::BANKMODE_MULTISHOT:
+        if (channelForm->isServoOutput()) {
+            warning = CannotDriveServo;
+            // Driving a servo using this mode does not make sense so break
+            break;
+        }
+    default:
+        break;
+    }
+
+    return warning;
 }
+
 
 void ConfigOutputWidget::onBankTypeChange()
 {
     QComboBox *bankModeCombo = qobject_cast<QComboBox *>(sender());
 
-    bank_mode_servo_warning  = OUTPUT_WARNING_DISABLED;
-    reversable_motor_warning = OUTPUT_WARNING_DISABLED;
+    ChannelConfigWarning current_warning = None;
+    ChannelConfigWarning warning_found   = None;
 
     if (bankModeCombo != NULL) {
         int bankNumber = 1;
@@ -633,6 +651,10 @@ void ConfigOutputWidget::onBankTypeChange()
                 foreach(OutputChannelForm * outputChannelForm, outputChannelForms) {
                     if (outputChannelForm->bank().toInt() == bankNumber) {
                         setChannelLimits(outputChannelForm, &controls);
+                        current_warning = checkChannelConfig(outputChannelForm, &controls);
+                        if (current_warning > None) {
+                            warning_found = current_warning;
+                        }
                     }
                 }
                 break;
@@ -641,6 +663,39 @@ void ConfigOutputWidget::onBankTypeChange()
             bankNumber++;
         }
     }
+
+    updateChannelConfigWarning(warning_found);
+}
+
+bool ConfigOutputWidget::checkOutputConfig()
+{
+    ChannelConfigWarning current_warning = None;
+    ChannelConfigWarning warning_found   = None;
+
+    int bankNumber = 1;
+
+    QList<OutputChannelForm *> outputChannelForms = findChildren<OutputChannelForm *>();
+
+    foreach(OutputBankControls controls, m_banks) {
+        foreach(OutputChannelForm * outputChannelForm, outputChannelForms) {
+            if (!outputChannelForm->isDisabledOutput() && (outputChannelForm->bank().toInt() == bankNumber)) {
+                current_warning = checkChannelConfig(outputChannelForm, &controls);
+                if (current_warning > None) {
+                    warning_found = current_warning;
+                }
+            }
+        }
+
+        bankNumber++;
+    }
+
+    updateChannelConfigWarning(warning_found);
+
+    if (warning_found > None) {
+        return false;
+    }
+
+    return true;
 }
 
 void ConfigOutputWidget::stopTests()
@@ -648,7 +703,7 @@ void ConfigOutputWidget::stopTests()
     m_ui->channelOutTest->setChecked(false);
 }
 
-void ConfigOutputWidget::updateWarnings(UAVObject *)
+void ConfigOutputWidget::updateBoardWarnings(UAVObject *)
 {
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     SystemAlarms::DataFields systemAlarms = systemAlarmsObj->getData();
@@ -656,45 +711,56 @@ void ConfigOutputWidget::updateWarnings(UAVObject *)
     if (systemAlarms.Alarm[SystemAlarms::ALARM_SYSTEMCONFIGURATION] > SystemAlarms::ALARM_WARNING) {
         switch (systemAlarms.ExtendedAlarmStatus[SystemAlarms::EXTENDEDALARMSTATUS_SYSTEMCONFIGURATION]) {
         case SystemAlarms::EXTENDEDALARMSTATUS_UNSUPPORTEDCONFIG_ONESHOT:
-            setWarning(tr("OneShot and PWMSync output only works with Receiver Port settings marked with '+OneShot'<br>"
-                          "When using Receiver Port setting 'PPM_PIN8+OneShot' "
-                          "<b><font color='%1'>Bank %2</font></b> must be set to PWM")
-                       .arg(m_banks.at(3).color().name()).arg(m_banks.at(3).label()->text()));
+            setBoardWarning(tr("OneShot and PWMSync output only works with Receiver Port settings marked with '+OneShot'<br>"
+                               "When using Receiver Port setting 'PPM_PIN8+OneShot' "
+                               "<b><font color='%1'>Bank %2</font></b> must be set to PWM")
+                            .arg(m_banks.at(3).color().name()).arg(m_banks.at(3).label()->text()));
             return;
         }
     }
-
-    if (reversable_motor_warning > OUTPUT_WARNING_DISABLED) {
-        QString revmotor_warning_str;
-        if (reversable_motor_warning == ActuatorSettings::BANKMODE_DSHOT) {
-            // TODO: Implement bi-directional DShot
-            revmotor_warning_str = "There is at least one reversable motor using <b>DShot</b> in your configuration."
-                                   "<p>Bi-directional DShot is not currently supported, you should use PWM, OneShotXXX or MultiShot.</p>";
-        } else {
-            revmotor_warning_str = QString("There is at least one reversable motor using <b>%1</b> in your configuration.</b>"
-                                           "<p>Be sure you set the appropriate neutral value before saving and applying power to the vehicule.</p>").arg(bankModeName(reversable_motor_warning));
-        }
-        setWarning(revmotor_warning_str);
-
-        return;
-    }
-
-    if (bank_mode_servo_warning > OUTPUT_WARNING_DISABLED) {
-        QString servo_warning_str = QString("Bank using <b>%1</b> cannot drive a <b>servo output!</b>"
-                                            "<p>You must use PWM for this bank or move the servo output to another compatible bank.</p>").arg(bankModeName(bank_mode_servo_warning));
-        setWarning(servo_warning_str);
-
-        return;
-    }
-
-    setWarning(NULL);
+    setBoardWarning(NULL);
 }
 
-void ConfigOutputWidget::setWarning(QString message)
+void ConfigOutputWidget::updateChannelConfigWarning(ChannelConfigWarning warning)
 {
-    m_ui->gvFrame->setVisible(!message.isNull());
-    m_ui->picWarning->setPixmap(message.isNull() ? QPixmap() : QPixmap(":/configgadget/images/error.svg"));
-    m_ui->txtWarning->setText(message);
+    QString warning_str;
+
+    if (warning == BiDirectionalDShotNotSupported) {
+        // TODO: Implement bi-directional DShot
+        warning_str = "There is at least <b>one reversable motor using DShot</b> in your configuration.<br>"
+                      "Bi-directional DShot is not currently supported, you should use PWM, OneShotXXX or MultiShot.";
+    }
+
+    if (warning == IsNormalMotorCheckNeutral) {
+        warning_str = "Seems there is at least one pretty <b>high neutral value</b> set in your configuration.<br>"
+                      "Be sure all Esc are calibrated and no mechanical stress in all motors.";
+    }
+
+    if (warning == IsReversibleMotorCheckNeutral) {
+        warning_str = "There is at least one <b>reversable motor</b> in your configuration.<br>"
+                      "Be sure you set a appropriate neutral value before saving and applying power to the vehicule.";
+    }
+
+    if (warning == CannotDriveServo) {
+        warning_str = "One Bank cannot drive a <b>servo output!</b><br>"
+                      "You must use PWM for this bank or move the servo output to another compatible bank.";
+    }
+
+    setConfigWarning(warning_str);
+}
+
+void ConfigOutputWidget::setBoardWarning(QString message)
+{
+    m_ui->boardWarningFrame->setVisible(!message.isNull());
+    m_ui->boardWarningPic->setPixmap(message.isNull() ? QPixmap() : QPixmap(":/configgadget/images/error.svg"));
+    m_ui->boardWarningTxt->setText(message);
+}
+
+void ConfigOutputWidget::setConfigWarning(QString message)
+{
+    m_ui->configWarningFrame->setVisible(!message.isNull());
+    m_ui->configWarningPic->setPixmap(message.isNull() ? QPixmap() : QPixmap(":/configgadget/images/error.svg"));
+    m_ui->configWarningTxt->setText(message);
 }
 
 QString ConfigOutputWidget::bankModeName(int index)

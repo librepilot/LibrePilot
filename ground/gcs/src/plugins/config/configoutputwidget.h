@@ -85,9 +85,12 @@ public:
     ConfigOutputWidget(QWidget *parent = 0);
     ~ConfigOutputWidget();
 
+    bool checkOutputConfig();
+
 protected:
     void enableControls(bool enable);
-    void setWarning(QString message);
+    void setBoardWarning(QString message);
+    void setConfigWarning(QString message);
 
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
@@ -98,20 +101,20 @@ private:
     int m_mccDataRate;
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
-    int bank_mode_servo_warning;
-    int reversable_motor_warning;
-    int currentNeutralValue;
 
     OutputChannelForm *getOutputChannelForm(const int index) const;
     void updateChannelInSlider(QSlider *slider, QLabel *min, QLabel *max, QCheckBox *rev, int value);
     void assignOutputChannel(UAVDataObject *obj, QString &str);
     void setColor(QWidget *widget, const QColor color);
     void sendAllChannelTests();
+    enum ChannelConfigWarning { None, CannotDriveServo, IsNormalMotorCheckNeutral, IsReversibleMotorCheckNeutral, BiDirectionalDShotNotSupported };
     void setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls);
+    ChannelConfigWarning checkChannelConfig(OutputChannelForm *channelForm, OutputBankControls *bankControls);
+    void updateChannelConfigWarning(ChannelConfigWarning warning);
     QString bankModeName(int index);
 
 private slots:
-    void updateWarnings(UAVObject *);
+    void updateBoardWarnings(UAVObject *);
     void updateSpinStabilizeCheckComboBoxes();
     void updateAlwaysStabilizeStatus();
     void stopTests();

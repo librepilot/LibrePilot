@@ -275,7 +275,7 @@ void OutputChannelForm::setChannelRange()
 
     // Normal motor will be *** never *** reversed : without arming a "Min" value (like 1900) can be applied !
     if (isNormalMotor()) {
-        if (minValue >= maxValue) {
+        if (minValue > maxValue) {
             // Keep old values
             ui->actuatorMin->setValue(oldMini);
             ui->actuatorMax->setValue(oldMaxi);

@@ -146,6 +146,9 @@ ConfigOutputWidget::ConfigOutputWidget(QWidget *parent) : ConfigTaskWidget(paren
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     connect(systemAlarmsObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateBoardWarnings(UAVObject *)));
 
+    inputCalibrationStarted = false;
+    channelTestsStarted     = false;
+
     // TODO why do we do that ?
     disconnect(this, SLOT(refreshWidgetsValues(UAVObject *)));
 }
@@ -216,6 +219,17 @@ void ConfigOutputWidget::runChannelTests(bool state)
             qDebug() << "Cancelled";
             m_ui->channelOutTest->setChecked(false);
             return;
+        }
+    }
+
+    channelTestsStarted = state;
+
+    // Disable/Enable banks
+    for (int i = 0; i < m_banks.count(); i++) {
+        OutputBankControls controls = m_banks.at(i);
+        bool isUsed = !(controls.rateCombo()->currentText() == "-" && controls.modeCombo()->currentText() == "PWM");
+        if (isUsed) {
+            controls.modeCombo()->setEnabled(!state);
         }
     }
 
@@ -418,8 +432,8 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
         controls.rateCombo()->setCurrentIndex(index);
         controls.rateCombo()->setEnabled(controls.modeCombo()->currentIndex() == ActuatorSettings::BANKMODE_PWM);
         setColor(controls.rateCombo(), controls.color());
-        controls.modeCombo()->setEnabled(true);
         setColor(controls.modeCombo(), controls.color());
+        controls.modeCombo()->setEnabled((inputCalibrationStarted || channelTestsStarted) ? false : true);
         i++;
     }
 
@@ -698,6 +712,7 @@ void ConfigOutputWidget::checkOutputConfig()
 void ConfigOutputWidget::stopTests()
 {
     m_ui->channelOutTest->setChecked(false);
+    channelTestsStarted = false;
 }
 
 void ConfigOutputWidget::updateBoardWarnings(UAVObject *)
@@ -778,11 +793,13 @@ QString ConfigOutputWidget::bankModeName(int index)
 
 void ConfigOutputWidget::inputCalibrationStatus(bool started)
 {
+    inputCalibrationStarted = started;
+
     // Disable UI when a input calibration is started
     // so user cannot manipulate settings.
     enableControls(!started);
 
-    // Disable every channel form
+    // Disable every channel form when needed
     for (unsigned int i = 0; i < ActuatorCommand::CHANNEL_NUMELEM; i++) {
         OutputChannelForm *form = getOutputChannelForm(i);
         form->ui->actuatorRev->setChecked(false);

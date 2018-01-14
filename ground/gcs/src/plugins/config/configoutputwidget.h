@@ -107,6 +107,7 @@ private:
     QList<OutputBankControls> m_banks;
 
     bool inputCalibrationStarted;
+    bool channelTestsStarted;
 
     OutputChannelForm *getOutputChannelForm(const int index) const;
     void updateChannelInSlider(QSlider *slider, QLabel *min, QLabel *max, QCheckBox *rev, int value);

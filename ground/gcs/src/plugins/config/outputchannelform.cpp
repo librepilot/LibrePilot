@@ -111,7 +111,7 @@ void OutputChannelForm::enableChannelTest(bool state)
         ui->actuatorMin->setEnabled(false);
         ui->actuatorMax->setEnabled(false);
         ui->actuatorRev->setEnabled(false);
-    } else if (m_mixerType != "Disabled") {
+    } else if (!isDisabledOutput()) {
         ui->actuatorMin->setEnabled(true);
         ui->actuatorMax->setEnabled(true);
         if (!isNormalMotor()) {
@@ -332,10 +332,13 @@ void OutputChannelForm::reverseChannel(bool state)
 }
 
 /**
- * Enable/Disable all UI controls
+ * Enable/Disable UI controls
  */
 void OutputChannelForm::enableControls(bool state)
 {
+    if (isDisabledOutput()) {
+        state = false;
+    }
     ui->actuatorMin->setEnabled(state);
     ui->actuatorMax->setEnabled(state);
     ui->actuatorValue->setEnabled(state);

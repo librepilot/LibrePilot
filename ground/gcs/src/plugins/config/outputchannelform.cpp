@@ -31,7 +31,7 @@
 #include <QDebug>
 
 OutputChannelForm::OutputChannelForm(const int index, QWidget *parent) :
-    ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false)
+    ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false), m_isCalibratingInput(false)
 {
     ui->setupUi(this);
 
@@ -118,6 +118,17 @@ void OutputChannelForm::enableChannelTest(bool state)
             ui->actuatorRev->setEnabled(true);
         }
     }
+}
+
+/**
+ * Update the input calibration status
+ */
+void OutputChannelForm::inputCalibrationStatus(bool state)
+{
+    if (m_isCalibratingInput == state) {
+        return;
+    }
+    m_isCalibratingInput = state;
 }
 
 /**
@@ -242,21 +253,18 @@ void OutputChannelForm::setChannelRange()
         setLimits(1000, 1000, 1000, 1000);
         ui->actuatorMin->setValue(1000);
         ui->actuatorMax->setValue(1000);
-        ui->actuatorMin->setEnabled(false);
-        ui->actuatorMax->setEnabled(false);
-        ui->actuatorRev->setEnabled(false);
-        ui->actuatorLink->setEnabled(false);
-        ui->actuatorValue->setEnabled(false);
         ui->actuatorRev->setChecked(false);
         ui->actuatorLink->setChecked(false);
+        enableControls(false);
         return;
     }
 
-    ui->actuatorMin->setEnabled(true);
-    ui->actuatorMax->setEnabled(true);
-    ui->actuatorNeutral->setEnabled(true);
-    ui->actuatorValue->setEnabled(true);
-    ui->actuatorLink->setEnabled(true);
+    if (m_isCalibratingInput) {
+        // Nothing to do here
+        return;
+    }
+
+    enableControls(true);
 
     int minValue = ui->actuatorMin->value();
     int maxValue = ui->actuatorMax->value();
@@ -320,6 +328,25 @@ void OutputChannelForm::reverseChannel(bool state)
 
         setChannelRange();
         return;
+    }
+}
+
+/**
+ * Enable/Disable all UI controls
+ */
+void OutputChannelForm::enableControls(bool state)
+{
+    ui->actuatorMin->setEnabled(state);
+    ui->actuatorMax->setEnabled(state);
+    ui->actuatorValue->setEnabled(state);
+    ui->actuatorLink->setEnabled(state);
+    // Reverse checkbox will be never checked
+    // or enabled for normal motor
+    if (isNormalMotor()) {
+        ui->actuatorRev->setChecked(false);
+        ui->actuatorRev->setEnabled(false);
+    } else {
+        ui->actuatorRev->setEnabled(state);
     }
 }
 

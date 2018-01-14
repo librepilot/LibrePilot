@@ -61,6 +61,8 @@ public slots:
     void setNeutral(int value);
     void setRange(int minimum, int maximum);
     void enableChannelTest(bool state);
+    void inputCalibrationStatus(bool state);
+    void enableControls(bool state);
     QString outputMixerType();
     void setLimits(int actuatorMinMinimum, int actuatorMinMaximum, int actuatorMaxMinimum, int actuatorMaxMaximum);
     int neutralValue();
@@ -75,6 +77,7 @@ signals:
 private:
     Ui::outputChannelForm *ui;
     bool m_inChannelTest;
+    bool m_isCalibratingInput;
     QString m_mixerType;
 
 private slots:

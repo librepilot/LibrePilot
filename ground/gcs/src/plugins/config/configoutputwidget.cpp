@@ -778,8 +778,18 @@ QString ConfigOutputWidget::bankModeName(int index)
 
 void ConfigOutputWidget::inputCalibrationStatus(bool started)
 {
-    // Disable controls if a input calibration is started
+    // Disable UI when a input calibration is started
+    // so user cannot manipulate settings.
     enableControls(!started);
+
+    // Disable every channel form
+    for (unsigned int i = 0; i < ActuatorCommand::CHANNEL_NUMELEM; i++) {
+        OutputChannelForm *form = getOutputChannelForm(i);
+        form->ui->actuatorRev->setChecked(false);
+        form->ui->actuatorLink->setChecked(false);
+        form->inputCalibrationStatus(started);
+        form->enableControls(!started);
+    }
 }
 
 OutputBankControls::OutputBankControls(MixerSettings *mixer, QLabel *label, QColor color, QComboBox *rateCombo, QComboBox *modeCombo) :

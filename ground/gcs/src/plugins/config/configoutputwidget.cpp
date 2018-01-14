@@ -667,7 +667,7 @@ void ConfigOutputWidget::onBankTypeChange()
     updateChannelConfigWarning(warning_found);
 }
 
-bool ConfigOutputWidget::checkOutputConfig()
+void ConfigOutputWidget::checkOutputConfig()
 {
     ChannelConfigWarning current_warning = None;
     ChannelConfigWarning warning_found   = None;
@@ -691,11 +691,8 @@ bool ConfigOutputWidget::checkOutputConfig()
 
     updateChannelConfigWarning(warning_found);
 
-    if (warning_found > None) {
-        return false;
-    }
-
-    return true;
+    // Emit signal to be received by Input tab
+    emit outputConfigSafe(warning_found == None);
 }
 
 void ConfigOutputWidget::stopTests()
@@ -777,6 +774,12 @@ QString ConfigOutputWidget::bankModeName(int index)
     }
 
     return bankModeOptions.at(index);
+}
+
+void ConfigOutputWidget::inputCalibrationStatus(bool started)
+{
+    // Disable controls if a input calibration is started
+    enableControls(!started);
 }
 
 OutputBankControls::OutputBankControls(MixerSettings *mixer, QLabel *label, QColor color, QComboBox *rateCombo, QComboBox *modeCombo) :

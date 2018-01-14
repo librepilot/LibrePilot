@@ -509,6 +509,12 @@ void ConfigInputWidget::resizeEvent(QResizeEvent *event)
 
 void ConfigInputWidget::goToWizard()
 {
+    if (!safeOutputConfig) {
+        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output tab</b>."
+                                                     "<p>Please fix the issue before starting the Transmitter wizard</p>"), QMessageBox::Ok);
+        return;
+    }
+
     QMessageBox msgBox;
 
     msgBox.setText(tr("Arming Settings are now set to 'Always Disarmed' for your safety."));
@@ -518,6 +524,9 @@ void ConfigInputWidget::goToWizard()
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
+
+    // Tell Output tab we freeze actuators soon
+    emit inputCalibrationStatus(true);
 
     // Set correct tab visible before starting wizard.
     if (ui->tabWidget->currentIndex() != 0) {
@@ -587,6 +596,9 @@ void ConfigInputWidget::wzCancel()
     flightModeSettingsObj->setData(memento.flightModeSettingsData);
     actuatorSettingsObj->setData(memento.actuatorSettingsData);
     systemSettingsObj->setData(memento.systemSettingsData);
+
+    // Tell Output tab the calibration is ended
+    emit inputCalibrationStatus(false);
 }
 
 void ConfigInputWidget::registerControlActivity()
@@ -682,6 +694,9 @@ void ConfigInputWidget::wzNext()
         // move to Arming Settings tab
         ui->stackedWidget->setCurrentIndex(0);
         ui->tabWidget->setCurrentIndex(3);
+
+        // Tell Output tab the calibration is ended
+        emit inputCalibrationStatus(false);
         break;
     default:
         Q_ASSERT(0);
@@ -1916,6 +1931,15 @@ void ConfigInputWidget::updateCalibration()
 
 void ConfigInputWidget::simpleCalibration(bool enable)
 {
+    if (!safeOutputConfig) {
+        if (enable) {
+            QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output tab</b>."
+                                                         "<p>Please fix the issue before starting the Manual Calibration</p>"), QMessageBox::Ok);
+            ui->runCalibration->setChecked(false);
+        }
+        return;
+    }
+
     if (enable) {
         ui->configurationWizard->setEnabled(false);
         ui->applyButton->setEnabled(false);
@@ -1931,6 +1955,9 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.setDefaultButton(QMessageBox::Ok);
         msgBox.exec();
+
+        // Tell Output tab we freeze actuators soon
+        emit inputCalibrationStatus(true);
 
         manualCommandData      = manualCommandObj->getData();
 
@@ -1998,6 +2025,9 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         ui->applyButton->setEnabled(true);
         ui->saveButton->setEnabled(true);
         ui->runCalibration->setText(tr("Start Manual Calibration"));
+
+        // Tell Output tab the calibration is ended
+        emit inputCalibrationStatus(false);
 
         disconnect(manualCommandObj, SIGNAL(objectUnpacked(UAVObject *)), this, SLOT(updateCalibration()));
     }
@@ -2082,7 +2112,7 @@ void ConfigInputWidget::resetActuatorSettings()
     QString mixerType;
 
     // Clear all output data : Min, max, neutral at same value
-    // 1000 for motors and 1500 for all others (Reversable motor included)
+    // min value for motors and neutral for all others (Reversable motor, servo)
     for (unsigned int output = 0; output < ActuatorSettings::CHANNELMAX_NUMELEM; output++) {
         QString mixerNumType  = QString("Mixer%1Type").arg(output + 1);
         UAVObjectField *field = mixer->getField(mixerNumType);
@@ -2092,13 +2122,13 @@ void ConfigInputWidget::resetActuatorSettings()
             mixerType = field->getValue().toString();
         }
         if ((mixerType == "Motor") || (mixerType == "Disabled")) {
-            actuatorSettingsData.ChannelMax[output]     = 1000;
-            actuatorSettingsData.ChannelMin[output]     = 1000;
-            actuatorSettingsData.ChannelNeutral[output] = 1000;
+            // Apply current min setting to neutral/max values
+            actuatorSettingsData.ChannelMax[output]     = actuatorSettingsData.ChannelMin[output];
+            actuatorSettingsData.ChannelNeutral[output] = actuatorSettingsData.ChannelMin[output];
         } else {
-            actuatorSettingsData.ChannelMax[output]     = 1500;
-            actuatorSettingsData.ChannelMin[output]     = 1500;
-            actuatorSettingsData.ChannelNeutral[output] = 1500;
+            // Apply current neutral setting to min/max values
+            actuatorSettingsData.ChannelMax[output] = actuatorSettingsData.ChannelNeutral[output];
+            actuatorSettingsData.ChannelMin[output] = actuatorSettingsData.ChannelNeutral[output];
         }
         UAVObjectUpdaterHelper updateHelper;
         actuatorSettingsObj->setData(actuatorSettingsData, false);
@@ -2188,4 +2218,9 @@ void ConfigInputWidget::enableControlsChanged(bool enabled)
     ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryCriticalFlightMode->currentIndex() != -1);
     ui->failsafeBatteryWarningFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
     ui->failsafeBatteryCriticalFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
+}
+
+void ConfigInputWidget::outputConfigSafe(bool status)
+{
+    safeOutputConfig = status;
 }

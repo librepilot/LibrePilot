@@ -72,10 +72,17 @@ public:
     void enableControls(bool enable);
     bool shouldObjectBeSaved(UAVObject *object);
 
+public slots:
+    void outputConfigSafe(bool status);
+
+signals:
+    void inputCalibrationStatus(bool started);
+
 private:
     bool throttleError;
     bool growing;
     bool reverse[ManualControlSettings::CHANNELNEUTRAL_NUMELEM];
+    bool safeOutputConfig;
     txMovements currentMovement;
     int movePos;
     void setTxMovement(txMovements movement);

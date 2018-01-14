@@ -85,7 +85,11 @@ public:
     ConfigOutputWidget(QWidget *parent = 0);
     ~ConfigOutputWidget();
 
-    bool checkOutputConfig();
+public slots:
+    void inputCalibrationStatus(bool started);
+
+signals:
+    void outputConfigSafe(bool status);
 
 protected:
     void enableControls(bool enable);
@@ -102,6 +106,8 @@ private:
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
 
+    bool inputCalibrationStarted;
+
     OutputChannelForm *getOutputChannelForm(const int index) const;
     void updateChannelInSlider(QSlider *slider, QLabel *min, QLabel *max, QCheckBox *rev, int value);
     void assignOutputChannel(UAVDataObject *obj, QString &str);
@@ -110,6 +116,7 @@ private:
     enum ChannelConfigWarning { None, CannotDriveServo, IsNormalMotorCheckNeutral, IsReversibleMotorCheckNeutral, BiDirectionalDShotNotSupported };
     void setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls);
     ChannelConfigWarning checkChannelConfig(OutputChannelForm *channelForm, OutputBankControls *bankControls);
+    void checkOutputConfig();
     void updateChannelConfigWarning(ChannelConfigWarning warning);
     QString bankModeName(int index);
 

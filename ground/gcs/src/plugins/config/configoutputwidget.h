@@ -105,6 +105,8 @@ private:
     int m_mccDataRate;
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
+    int activeBanksCount;
+    void enableBanks(bool state);
 
     bool inputCalibrationStarted;
     bool channelTestsStarted;
@@ -119,7 +121,6 @@ private:
     ChannelConfigWarning checkChannelConfig(OutputChannelForm *channelForm, OutputBankControls *bankControls);
     void checkOutputConfig();
     void updateChannelConfigWarning(ChannelConfigWarning warning);
-    QString bankModeName(int index);
 
 private slots:
     void updateBoardWarnings(UAVObject *);

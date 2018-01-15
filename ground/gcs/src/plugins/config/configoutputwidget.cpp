@@ -224,14 +224,7 @@ void ConfigOutputWidget::runChannelTests(bool state)
 
     channelTestsStarted = state;
 
-    // Disable/Enable banks
-    for (int i = 0; i < m_banks.count(); i++) {
-        OutputBankControls controls = m_banks.at(i);
-        bool isUsed = !(controls.rateCombo()->currentText() == "-" && controls.modeCombo()->currentText() == "PWM");
-        if (isUsed) {
-            controls.modeCombo()->setEnabled(!state);
-        }
-    }
+    enableBanks(!state);
 
     ActuatorCommand *obj = ActuatorCommand::GetInstance(getObjectManager());
     UAVObject::Metadata mdata = obj->getMetadata();
@@ -420,6 +413,9 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
         }
     }
 
+    // Store how many banks are active according to the board
+    activeBanksCount = bankLabels.count();
+
     int i = 0;
     foreach(QString banklabel, bankLabels) {
         OutputBankControls controls = m_banks.at(i);
@@ -429,11 +425,12 @@ void ConfigOutputWidget::refreshWidgetsValuesImpl(UAVObject *obj)
         if (index == -1) {
             controls.rateCombo()->addItem(tr("%1 Hz").arg(actuatorSettingsData.BankUpdateFreq[i]), actuatorSettingsData.BankUpdateFreq[i]);
         }
+        bool isPWM = (controls.modeCombo()->currentIndex() == ActuatorSettings::BANKMODE_PWM);
         controls.rateCombo()->setCurrentIndex(index);
-        controls.rateCombo()->setEnabled(controls.modeCombo()->currentIndex() == ActuatorSettings::BANKMODE_PWM);
+        controls.rateCombo()->setEnabled(!inputCalibrationStarted && !channelTestsStarted && isPWM);
         setColor(controls.rateCombo(), controls.color());
+        controls.modeCombo()->setEnabled(!inputCalibrationStarted && !channelTestsStarted);
         setColor(controls.modeCombo(), controls.color());
-        controls.modeCombo()->setEnabled((inputCalibrationStarted || channelTestsStarted) ? false : true);
         i++;
     }
 
@@ -761,6 +758,21 @@ void ConfigOutputWidget::updateChannelConfigWarning(ChannelConfigWarning warning
     setConfigWarning(warning_str);
 }
 
+void ConfigOutputWidget::enableBanks(bool state)
+{
+    // Disable/Enable banks
+    for (int i = 0; i < m_banks.count(); i++) {
+        OutputBankControls controls = m_banks.at(i);
+        if (i < activeBanksCount) {
+            controls.modeCombo()->setEnabled(state);
+            controls.rateCombo()->setEnabled(state);
+        } else {
+            controls.modeCombo()->setEnabled(false);
+            controls.rateCombo()->setEnabled(false);
+        }
+    }
+}
+
 void ConfigOutputWidget::setBoardWarning(QString message)
 {
     m_ui->boardWarningFrame->setVisible(!message.isNull());
@@ -775,22 +787,6 @@ void ConfigOutputWidget::setConfigWarning(QString message)
     m_ui->configWarningTxt->setText(message);
 }
 
-QString ConfigOutputWidget::bankModeName(int index)
-{
-    UAVDataObject *actuator = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("ActuatorSettings")));
-
-    Q_ASSERT(actuator);
-    UAVObjectField *field   = actuator->getField("BankMode");
-    Q_ASSERT(field);
-    QStringList bankModeOptions;
-
-    if (field) {
-        bankModeOptions = field->getOptions();
-    }
-
-    return bankModeOptions.at(index);
-}
-
 void ConfigOutputWidget::inputCalibrationStatus(bool started)
 {
     inputCalibrationStarted = started;
@@ -798,6 +794,7 @@ void ConfigOutputWidget::inputCalibrationStatus(bool started)
     // Disable UI when a input calibration is started
     // so user cannot manipulate settings.
     enableControls(!started);
+    enableBanks(!started);
 
     // Disable every channel form when needed
     for (unsigned int i = 0; i < ActuatorCommand::CHANNEL_NUMELEM; i++) {

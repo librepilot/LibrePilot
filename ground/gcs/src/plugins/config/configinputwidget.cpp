@@ -497,6 +497,16 @@ void ConfigInputWidget::enableControls(bool enable)
     } else {
         // Hide configAlarmStatus when disconnected
         ui->configAlarmStatus->setVisible(false);
+        if (wizardStep != wizardNone) {
+            // Close input wizard
+            wzCancel();
+        }
+        if (ui->runCalibration->isChecked()) {
+            // Close manual calibration
+            ui->runCalibration->setChecked(false);
+            ui->runCalibration->setText(tr("Start Manual Calibration"));
+            emit inputCalibrationStatus(false);
+        }
     }
 }
 
@@ -1931,6 +1941,10 @@ void ConfigInputWidget::updateCalibration()
 
 void ConfigInputWidget::simpleCalibration(bool enable)
 {
+    if (!isConnected()) {
+        return;
+    }
+
     if (!safeOutputConfig) {
         if (enable) {
             QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output tab</b>."

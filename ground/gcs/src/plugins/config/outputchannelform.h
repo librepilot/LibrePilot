@@ -61,14 +61,16 @@ public slots:
     void setNeutral(int value);
     void setRange(int minimum, int maximum);
     void enableChannelTest(bool state);
-    void inputCalibrationStatus(bool state);
-    void enableControls(bool state);
+    void setChannelRangeEnabled(bool state);
+    void setControlsEnabled(bool state);
     QString outputMixerType();
     void setLimits(int actuatorMinMinimum, int actuatorMinMaximum, int actuatorMaxMinimum, int actuatorMaxMaximum);
     int neutralValue();
+
+    // output type helper methods
     bool isServoOutput();
-    bool isNormalMotor();
-    bool isReversableMotor();
+    bool isNormalMotorOutput();
+    bool isReversibleMotorOutput();
     bool isDisabledOutput();
 
 signals:
@@ -77,7 +79,7 @@ signals:
 private:
     Ui::outputChannelForm *ui;
     bool m_inChannelTest;
-    bool m_isCalibratingInput;
+    bool m_updateChannelRangeEnabled;
     QString m_mixerType;
 
 private slots:

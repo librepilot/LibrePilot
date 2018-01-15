@@ -505,7 +505,7 @@ void ConfigInputWidget::enableControls(bool enable)
             // Close manual calibration
             ui->runCalibration->setChecked(false);
             ui->runCalibration->setText(tr("Start Manual Calibration"));
-            emit inputCalibrationStatus(false);
+            emit inputCalibrationStateChanged(false);
         }
     }
 }
@@ -519,9 +519,9 @@ void ConfigInputWidget::resizeEvent(QResizeEvent *event)
 
 void ConfigInputWidget::goToWizard()
 {
-    if (!safeOutputConfig) {
-        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output tab</b>."
-                                                     "<p>Please fix the issue before starting the Transmitter wizard</p>"), QMessageBox::Ok);
+    if (!outputConfigIsSafe) {
+        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output</b> tab."
+                                                     "<p>Please fix the issue before starting the Transmitter wizard.</p>"), QMessageBox::Ok);
         return;
     }
 
@@ -536,7 +536,7 @@ void ConfigInputWidget::goToWizard()
     msgBox.exec();
 
     // Tell Output tab we freeze actuators soon
-    emit inputCalibrationStatus(true);
+    emit inputCalibrationStateChanged(true);
 
     // Set correct tab visible before starting wizard.
     if (ui->tabWidget->currentIndex() != 0) {
@@ -608,7 +608,7 @@ void ConfigInputWidget::wzCancel()
     systemSettingsObj->setData(memento.systemSettingsData);
 
     // Tell Output tab the calibration is ended
-    emit inputCalibrationStatus(false);
+    emit inputCalibrationStateChanged(false);
 }
 
 void ConfigInputWidget::registerControlActivity()
@@ -706,7 +706,7 @@ void ConfigInputWidget::wzNext()
         ui->tabWidget->setCurrentIndex(3);
 
         // Tell Output tab the calibration is ended
-        emit inputCalibrationStatus(false);
+        emit inputCalibrationStateChanged(false);
         break;
     default:
         Q_ASSERT(0);
@@ -1897,7 +1897,7 @@ void ConfigInputWidget::updateConfigAlarmStatus()
         switch (systemAlarms.ExtendedAlarmStatus[SystemAlarms::EXTENDEDALARMSTATUS_SYSTEMCONFIGURATION]) {
         case SystemAlarms::EXTENDEDALARMSTATUS_FLIGHTMODE:
             message = tr("Config error");
-            tooltipMessage = tr("There is something wrong with your config,\nusually a Thrust mode or Assisted mode not supported.\n\n"
+            tooltipMessage = tr("There is something wrong in the current config,\nusually a Thrust mode or Assisted mode not supported.\n\n"
                                 "Tip: Reduce the Flight Mode Count to find the culprit.");
             bgColor = "red";
         }
@@ -1945,10 +1945,10 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         return;
     }
 
-    if (!safeOutputConfig) {
+    if (!outputConfigIsSafe) {
         if (enable) {
-            QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output tab</b>."
-                                                         "<p>Please fix the issue before starting the Manual Calibration</p>"), QMessageBox::Ok);
+            QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output</b> tab."
+                                                         "<p>Please fix the issue before starting the Manual Calibration.</p>"), QMessageBox::Ok);
             ui->runCalibration->setChecked(false);
         }
         return;
@@ -1971,7 +1971,7 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         msgBox.exec();
 
         // Tell Output tab we freeze actuators soon
-        emit inputCalibrationStatus(true);
+        emit inputCalibrationStateChanged(true);
 
         manualCommandData      = manualCommandObj->getData();
 
@@ -2041,7 +2041,7 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         ui->runCalibration->setText(tr("Start Manual Calibration"));
 
         // Tell Output tab the calibration is ended
-        emit inputCalibrationStatus(false);
+        emit inputCalibrationStateChanged(false);
 
         disconnect(manualCommandObj, SIGNAL(objectUnpacked(UAVObject *)), this, SLOT(updateCalibration()));
     }
@@ -2234,7 +2234,7 @@ void ConfigInputWidget::enableControlsChanged(bool enabled)
     ui->failsafeBatteryCriticalFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
 }
 
-void ConfigInputWidget::outputConfigSafe(bool status)
+void ConfigInputWidget::setOutputConfigSafe(bool status)
 {
-    safeOutputConfig = status;
+    outputConfigIsSafe = status;
 }

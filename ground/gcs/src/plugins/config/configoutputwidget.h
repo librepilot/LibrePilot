@@ -86,10 +86,10 @@ public:
     ~ConfigOutputWidget();
 
 public slots:
-    void inputCalibrationStatus(bool started);
+    void setInputCalibrationState(bool state);
 
 signals:
-    void outputConfigSafe(bool status);
+    void outputConfigSafeChanged(bool newStatus);
 
 protected:
     void enableControls(bool enable);
@@ -106,7 +106,7 @@ private:
     UAVObject::Metadata m_accInitialData;
     QList<OutputBankControls> m_banks;
     int activeBanksCount;
-    void enableBanks(bool state);
+    void setBanksEnabled(bool state);
 
     bool inputCalibrationStarted;
     bool channelTestsStarted;

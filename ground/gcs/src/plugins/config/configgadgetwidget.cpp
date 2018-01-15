@@ -77,8 +77,6 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
 
     QWidget *widget;
-    QWidget *inputWidget;
-    QWidget *outputWidget;
     QIcon *icon;
 
     icon   = new QIcon();
@@ -100,7 +98,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     widget = new ConfigInputWidget(this);
     static_cast<ConfigTaskWidget *>(widget)->bind();
     stackWidget->insertTab(ConfigGadgetWidget::Input, widget, *icon, QString("Input"));
-    inputWidget = widget;
+    QWidget *inputWidget = widget;
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/output_normal.png", QSize(), QIcon::Normal, QIcon::Off);
@@ -108,7 +106,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     widget = new ConfigOutputWidget(this);
     static_cast<ConfigTaskWidget *>(widget)->bind();
     stackWidget->insertTab(ConfigGadgetWidget::Output, widget, *icon, QString("Output"));
-    outputWidget = widget;
+    QWidget *outputWidget = widget;
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/ins_normal.png", QSize(), QIcon::Normal, QIcon::Off);
@@ -169,10 +167,11 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
         onOPLinkConnect();
     }
 
-    // Connect output tab and input tab for safe
-    // output config and input calibration
-    connect(outputWidget, SIGNAL(outputConfigSafe(bool)), inputWidget, SLOT(outputConfigSafe(bool)));
-    connect(inputWidget, SIGNAL(inputCalibrationStatus(bool)), outputWidget, SLOT(inputCalibrationStatus(bool)));
+    // Connect output tab and input tab
+    // Input tab do not start calibration if Output tab is not safe
+    // Output tab uses the signal from Input tab and freeze all output UI while calibrating inputs
+    connect(outputWidget, SIGNAL(outputConfigSafeChanged(bool)), inputWidget, SLOT(setOutputConfigSafe(bool)));
+    connect(inputWidget, SIGNAL(inputCalibrationStateChanged(bool)), outputWidget, SLOT(setInputCalibrationState(bool)));
 
     help = 0;
     connect(stackWidget, SIGNAL(currentAboutToShow(int, bool *)), this, SLOT(tabAboutToChange(int, bool *)));

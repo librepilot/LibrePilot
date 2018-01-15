@@ -31,7 +31,7 @@
 #include <QDebug>
 
 OutputChannelForm::OutputChannelForm(const int index, QWidget *parent) :
-    ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false), m_isCalibratingInput(false)
+    ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false), m_updateChannelRangeEnabled(true)
 {
     ui->setupUi(this);
 
@@ -114,21 +114,21 @@ void OutputChannelForm::enableChannelTest(bool state)
     } else if (!isDisabledOutput()) {
         ui->actuatorMin->setEnabled(true);
         ui->actuatorMax->setEnabled(true);
-        if (!isNormalMotor()) {
+        if (!isNormalMotorOutput()) {
             ui->actuatorRev->setEnabled(true);
         }
     }
 }
 
 /**
- * Update the input calibration status
+ * Enable/Disable setChannelRange
  */
-void OutputChannelForm::inputCalibrationStatus(bool state)
+void OutputChannelForm::setChannelRangeEnabled(bool state)
 {
-    if (m_isCalibratingInput == state) {
+    if (m_updateChannelRangeEnabled == state) {
         return;
     }
-    m_isCalibratingInput = state;
+    m_updateChannelRangeEnabled = state;
 }
 
 /**
@@ -255,16 +255,16 @@ void OutputChannelForm::setChannelRange()
         ui->actuatorMax->setValue(1000);
         ui->actuatorRev->setChecked(false);
         ui->actuatorLink->setChecked(false);
-        enableControls(false);
+        setControlsEnabled(false);
         return;
     }
 
-    if (m_isCalibratingInput) {
+    if (!m_updateChannelRangeEnabled) {
         // Nothing to do here
         return;
     }
 
-    enableControls(true);
+    setControlsEnabled(true);
 
     int minValue = ui->actuatorMin->value();
     int maxValue = ui->actuatorMax->value();
@@ -273,7 +273,7 @@ void OutputChannelForm::setChannelRange()
     int oldMaxi  = ui->actuatorNeutral->maximum();
 
     // Red handle for Motors
-    if (isNormalMotor() || isReversableMotor()) {
+    if (isNormalMotorOutput() || isReversibleMotorOutput()) {
         ui->actuatorNeutral->setStyleSheet("QSlider::handle:horizontal { background: rgb(255, 100, 100); width: 18px; height: 28px;"
                                            "margin: -3px 0; border-radius: 3px; border: 1px solid #777; }");
     } else {
@@ -282,7 +282,7 @@ void OutputChannelForm::setChannelRange()
     }
 
     // Normal motor will be *** never *** reversed : without arming a "Min" value (like 1900) can be applied !
-    if (isNormalMotor()) {
+    if (isNormalMotorOutput()) {
         if (minValue > maxValue) {
             // Keep old values
             ui->actuatorMin->setValue(oldMini);
@@ -334,7 +334,7 @@ void OutputChannelForm::reverseChannel(bool state)
 /**
  * Enable/Disable UI controls
  */
-void OutputChannelForm::enableControls(bool state)
+void OutputChannelForm::setControlsEnabled(bool state)
 {
     if (isDisabledOutput()) {
         state = false;
@@ -345,7 +345,7 @@ void OutputChannelForm::enableControls(bool state)
     ui->actuatorLink->setEnabled(state);
     // Reverse checkbox will be never checked
     // or enabled for normal motor
-    if (isNormalMotor()) {
+    if (isNormalMotorOutput()) {
         ui->actuatorRev->setChecked(false);
         ui->actuatorRev->setEnabled(false);
     } else {
@@ -439,23 +439,23 @@ QString OutputChannelForm::outputMixerType()
  */
 bool OutputChannelForm::isServoOutput()
 {
-    return !isNormalMotor() && !isReversableMotor() && !isDisabledOutput();
+    return !isNormalMotorOutput() && !isReversibleMotorOutput() && !isDisabledOutput();
 }
 
 /**
  *
  * Returns true if output is a normal Motor
  */
-bool OutputChannelForm::isNormalMotor()
+bool OutputChannelForm::isNormalMotorOutput()
 {
     return outputMixerType() == "Motor";
 }
 
 /**
  *
- * Returns true if output is a reversable Motor
+ * Returns true if output is a reversible Motor
  */
-bool OutputChannelForm::isReversableMotor()
+bool OutputChannelForm::isReversibleMotorOutput()
 {
     return outputMixerType() == "ReversableMotor";
 }

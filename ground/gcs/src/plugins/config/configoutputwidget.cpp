@@ -193,7 +193,7 @@ void ConfigOutputWidget::runChannelTests(bool state)
 {
     if (!checkOutputConfig()) {
         m_ui->channelOutTest->setChecked(false);
-        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in current config."
+        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in the current config."
                                                      "<p>Please fix the issue before starting testing outputs.</p>"), QMessageBox::Ok);
         return;
     }
@@ -233,13 +233,13 @@ void ConfigOutputWidget::runChannelTests(bool state)
     channelTestsStarted = state;
 
     // Emit signal to be received by Input tab
-    emit outputConfigSafe(!state);
+    emit outputConfigSafeChanged(!state);
 
     m_ui->spinningArmed->setEnabled(!state);
     m_ui->alwaysStabilizedSwitch->setEnabled((m_ui->spinningArmed->isChecked()) && !state);
     m_ui->alwayStabilizedLabel1->setEnabled((m_ui->spinningArmed->isChecked()) && !state);
     m_ui->alwayStabilizedLabel2->setEnabled((m_ui->spinningArmed->isChecked()) && !state);
-    enableBanks(!state);
+    setBanksEnabled(!state);
 
     ActuatorCommand *obj = ActuatorCommand::GetInstance(getObjectManager());
     UAVObject::Metadata mdata = obj->getMetadata();
@@ -526,9 +526,9 @@ void ConfigOutputWidget::updateObjectsFromWidgetsImpl()
 
 void ConfigOutputWidget::updateSpinStabilizeCheckComboBoxes()
 {
-    m_ui->alwayStabilizedLabel1->setEnabled(m_ui->spinningArmed->isChecked());
-    m_ui->alwayStabilizedLabel2->setEnabled(m_ui->spinningArmed->isChecked());
-    m_ui->alwaysStabilizedSwitch->setEnabled(m_ui->spinningArmed->isChecked());
+    m_ui->alwayStabilizedLabel1->setEnabled((m_ui->spinningArmed->isChecked()) && (m_ui->spinningArmed->isEnabled()));
+    m_ui->alwayStabilizedLabel2->setEnabled((m_ui->spinningArmed->isChecked()) && (m_ui->spinningArmed->isEnabled()));
+    m_ui->alwaysStabilizedSwitch->setEnabled((m_ui->spinningArmed->isChecked()) && (m_ui->spinningArmed->isEnabled()));
 
     if (!m_ui->spinningArmed->isChecked()) {
         m_ui->alwaysStabilizedSwitch->setCurrentIndex(FlightModeSettings::ALWAYSSTABILIZEWHENARMEDSWITCH_DISABLED);
@@ -608,7 +608,7 @@ ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(
     int currentNeutralValue = channelForm->neutralValue();
 
     // Check if RevMotor has neutral value around center
-    if (channelForm->isReversableMotor()) {
+    if (channelForm->isReversibleMotorOutput()) {
         warning = IsReversibleMotorCheckNeutral;
         int neutralDiff = qAbs(REVMOTOR_NEUTRAL_TARGET_VALUE - currentNeutralValue);
         if (neutralDiff < REVMOTOR_NEUTRAL_DIFF_VALUE) {
@@ -618,7 +618,7 @@ ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(
     }
 
     // Check if NormalMotor neutral is not too high
-    if (channelForm->isNormalMotor()) {
+    if (channelForm->isNormalMotorOutput()) {
         warning = IsNormalMotorCheckNeutral;
         int neutralDiff = currentNeutralValue - DEFAULT_MINOUTPUT_VALUE;
         if (neutralDiff < MOTOR_NEUTRAL_DIFF_VALUE) {
@@ -632,7 +632,7 @@ ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(
         if (channelForm->isServoOutput()) {
             // Driving a servo using DShot doest not make sense
             warning = CannotDriveServo;
-        } else if (channelForm->isReversableMotor()) {
+        } else if (channelForm->isReversibleMotorOutput()) {
             // Bi-directional DShot not yet supported
             warning = BiDirectionalDShotNotSupported;
         }
@@ -659,8 +659,7 @@ void ConfigOutputWidget::onBankTypeChange()
 {
     QComboBox *bankModeCombo = qobject_cast<QComboBox *>(sender());
 
-    ChannelConfigWarning current_warning = None;
-    ChannelConfigWarning warning_found   = None;
+    ChannelConfigWarning new_warning = None;
 
     if (bankModeCombo != NULL) {
         int bankNumber = 1;
@@ -673,9 +672,9 @@ void ConfigOutputWidget::onBankTypeChange()
                 foreach(OutputChannelForm * outputChannelForm, outputChannelForms) {
                     if (outputChannelForm->bank().toInt() == bankNumber) {
                         setChannelLimits(outputChannelForm, &controls);
-                        current_warning = checkChannelConfig(outputChannelForm, &controls);
-                        if (current_warning > None) {
-                            warning_found = current_warning;
+                        ChannelConfigWarning warning = checkChannelConfig(outputChannelForm, &controls);
+                        if (warning > None) {
+                            new_warning = warning;
                         }
                     }
                 }
@@ -686,13 +685,12 @@ void ConfigOutputWidget::onBankTypeChange()
         }
     }
 
-    updateChannelConfigWarning(warning_found);
+    updateChannelConfigWarning(new_warning);
 }
 
 bool ConfigOutputWidget::checkOutputConfig()
 {
-    ChannelConfigWarning current_warning = None;
-    ChannelConfigWarning warning_found   = None;
+    ChannelConfigWarning new_warning = None;
 
     int bankNumber = 1;
 
@@ -701,9 +699,9 @@ bool ConfigOutputWidget::checkOutputConfig()
     foreach(OutputBankControls controls, m_banks) {
         foreach(OutputChannelForm * outputChannelForm, outputChannelForms) {
             if (!outputChannelForm->isDisabledOutput() && (outputChannelForm->bank().toInt() == bankNumber)) {
-                current_warning = checkChannelConfig(outputChannelForm, &controls);
-                if (current_warning > None) {
-                    warning_found = current_warning;
+                ChannelConfigWarning warning = checkChannelConfig(outputChannelForm, &controls);
+                if (warning > None) {
+                    new_warning = warning;
                 }
             }
         }
@@ -711,12 +709,12 @@ bool ConfigOutputWidget::checkOutputConfig()
         bankNumber++;
     }
 
-    updateChannelConfigWarning(warning_found);
+    updateChannelConfigWarning(new_warning);
 
     // Emit signal to be received by Input tab
-    emit outputConfigSafe(warning_found == None);
+    emit outputConfigSafeChanged(new_warning == None);
 
-    return warning_found == None;
+    return new_warning == None;
 }
 
 void ConfigOutputWidget::stopTests()
@@ -749,29 +747,29 @@ void ConfigOutputWidget::updateChannelConfigWarning(ChannelConfigWarning warning
 
     if (warning == BiDirectionalDShotNotSupported) {
         // TODO: Implement bi-directional DShot
-        warning_str = "There is at least <b>one reversable motor using DShot</b> in your configuration.<br>"
-                      "Bi-directional DShot is not currently supported, you should use PWM, OneShotXXX or MultiShot.";
+        warning_str = "There is <b>one reversible motor</b> using DShot is configured.<br>"
+                      "Bi-directional DShot is currently not supported. Please use PWM, OneShotXXX or MultiShot.";
     }
 
     if (warning == IsNormalMotorCheckNeutral) {
-        warning_str = "Seems there is at least one pretty <b>high neutral value</b> set in your configuration.<br>"
-                      "Be sure all Esc are calibrated and no mechanical stress in all motors.";
+        warning_str = "There is at least one pretty <b>high neutral value</b> set in your configuration.<br>"
+                      "Make sure all ESCs are calibrated and no mechanical stress in all motors.";
     }
 
     if (warning == IsReversibleMotorCheckNeutral) {
-        warning_str = "There is at least one <b>reversable motor</b> in your configuration.<br>"
-                      "Be sure you set a appropriate neutral value before saving and applying power to the vehicule.";
+        warning_str = "A least one <b>reversible motor</b> is configured.<br>"
+                      "Make sure a appropriate neutral value is set before saving and applying power to the vehicule.";
     }
 
     if (warning == CannotDriveServo) {
-        warning_str = "One Bank cannot drive a <b>servo output!</b><br>"
+        warning_str = "One bank cannot drive a <b>servo output</b>!<br>"
                       "You must use PWM for this bank or move the servo output to another compatible bank.";
     }
 
     setConfigWarning(warning_str);
 }
 
-void ConfigOutputWidget::enableBanks(bool state)
+void ConfigOutputWidget::setBanksEnabled(bool state)
 {
     // Disable/Enable banks
     for (int i = 0; i < m_banks.count(); i++) {
@@ -800,22 +798,27 @@ void ConfigOutputWidget::setConfigWarning(QString message)
     m_ui->configWarningTxt->setText(message);
 }
 
-void ConfigOutputWidget::inputCalibrationStatus(bool started)
+void ConfigOutputWidget::setInputCalibrationState(bool started)
 {
     inputCalibrationStarted = started;
 
     // Disable UI when a input calibration is started
     // so user cannot manipulate settings.
     enableControls(!started);
-    enableBanks(!started);
+    setBanksEnabled(!started);
+    // Disable ASWA
+    m_ui->spinningArmed->setEnabled(!started);
+    m_ui->alwaysStabilizedSwitch->setEnabled((m_ui->spinningArmed->isChecked()) && !started);
+    m_ui->alwayStabilizedLabel1->setEnabled((m_ui->spinningArmed->isChecked()) && !started);
+    m_ui->alwayStabilizedLabel2->setEnabled((m_ui->spinningArmed->isChecked()) && !started);
 
     // Disable every channel form when needed
     for (unsigned int i = 0; i < ActuatorCommand::CHANNEL_NUMELEM; i++) {
         OutputChannelForm *form = getOutputChannelForm(i);
         form->ui->actuatorRev->setChecked(false);
         form->ui->actuatorLink->setChecked(false);
-        form->inputCalibrationStatus(started);
-        form->enableControls(!started);
+        form->setChannelRangeEnabled(!started);
+        form->setControlsEnabled(!started);
     }
 }
 

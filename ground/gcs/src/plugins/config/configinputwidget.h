@@ -73,16 +73,16 @@ public:
     bool shouldObjectBeSaved(UAVObject *object);
 
 public slots:
-    void outputConfigSafe(bool status);
+    void setOutputConfigSafe(bool status);
 
 signals:
-    void inputCalibrationStatus(bool started);
+    void inputCalibrationStateChanged(bool newState);
 
 private:
     bool throttleError;
     bool growing;
     bool reverse[ManualControlSettings::CHANNELNEUTRAL_NUMELEM];
-    bool safeOutputConfig;
+    bool outputConfigIsSafe;
     txMovements currentMovement;
     int movePos;
     void setTxMovement(txMovements movement);

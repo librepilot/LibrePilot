@@ -630,17 +630,14 @@ ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(
     switch (bankControls->modeCombo()->currentIndex()) {
     case ActuatorSettings::BANKMODE_DSHOT:
         if (channelForm->isServoOutput()) {
+            // Driving a servo using DShot doest not make sense
             warning = CannotDriveServo;
-            // Driving a servo using DShot doest not make sense so break
-            break;
-        }
-        if (channelForm->isReversableMotor()) {
+        } else if (channelForm->isReversableMotor()) {
             // Bi-directional DShot not yet supported
             warning = BiDirectionalDShotNotSupported;
         }
         break;
     case ActuatorSettings::BANKMODE_PWMSYNC:
-        break;
     case ActuatorSettings::BANKMODE_PWM:
         break;
     case ActuatorSettings::BANKMODE_ONESHOT125:
@@ -649,7 +646,6 @@ ConfigOutputWidget::ChannelConfigWarning ConfigOutputWidget::checkChannelConfig(
         if (channelForm->isServoOutput()) {
             warning = CannotDriveServo;
             // Driving a servo using this mode does not make sense so break
-            break;
         }
     default:
         break;

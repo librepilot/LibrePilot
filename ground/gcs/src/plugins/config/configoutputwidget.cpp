@@ -190,6 +190,13 @@ void ConfigOutputWidget::sendAllChannelTests()
  */
 void ConfigOutputWidget::runChannelTests(bool state)
 {
+    if (!checkOutputConfig()) {
+        m_ui->channelOutTest->setChecked(false);
+        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in current config."
+                                                     "<p>Please fix the issue before starting testing outputs.</p>"), QMessageBox::Ok);
+        return;
+    }
+
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     SystemAlarms::DataFields systemAlarms = systemAlarmsObj->getData();
 
@@ -224,6 +231,13 @@ void ConfigOutputWidget::runChannelTests(bool state)
 
     channelTestsStarted = state;
 
+    // Emit signal to be received by Input tab
+    emit outputConfigSafe(!state);
+
+    m_ui->spinningArmed->setEnabled(!state);
+    m_ui->alwaysStabilizedSwitch->setEnabled((m_ui->spinningArmed->isChecked()) && !state);
+    m_ui->alwayStabilizedLabel1->setEnabled((m_ui->spinningArmed->isChecked()) && !state);
+    m_ui->alwayStabilizedLabel2->setEnabled((m_ui->spinningArmed->isChecked()) && !state);
     enableBanks(!state);
 
     ActuatorCommand *obj = ActuatorCommand::GetInstance(getObjectManager());
@@ -678,7 +692,7 @@ void ConfigOutputWidget::onBankTypeChange()
     updateChannelConfigWarning(warning_found);
 }
 
-void ConfigOutputWidget::checkOutputConfig()
+bool ConfigOutputWidget::checkOutputConfig()
 {
     ChannelConfigWarning current_warning = None;
     ChannelConfigWarning warning_found   = None;
@@ -704,6 +718,8 @@ void ConfigOutputWidget::checkOutputConfig()
 
     // Emit signal to be received by Input tab
     emit outputConfigSafe(warning_found == None);
+
+    return warning_found == None;
 }
 
 void ConfigOutputWidget::stopTests()

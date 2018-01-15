@@ -119,7 +119,7 @@ private:
     enum ChannelConfigWarning { None, CannotDriveServo, IsNormalMotorCheckNeutral, IsReversibleMotorCheckNeutral, BiDirectionalDShotNotSupported };
     void setChannelLimits(OutputChannelForm *channelForm, OutputBankControls *bankControls);
     ChannelConfigWarning checkChannelConfig(OutputChannelForm *channelForm, OutputBankControls *bankControls);
-    void checkOutputConfig();
+    bool checkOutputConfig();
     void updateChannelConfigWarning(ChannelConfigWarning warning);
 
 private slots:

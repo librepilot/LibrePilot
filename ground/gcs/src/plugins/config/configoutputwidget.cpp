@@ -169,6 +169,7 @@ void ConfigOutputWidget::enableControls(bool enable)
 
     if (!enable) {
         m_ui->channelOutTest->setChecked(false);
+        channelTestsStarted = false;
     }
     m_ui->channelOutTest->setEnabled(enable);
 }

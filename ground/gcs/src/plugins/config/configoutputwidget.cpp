@@ -59,8 +59,8 @@
 #define DEFAULT_MINOUTPUT_RANGE       900
 #define DEFAULT_MINOUTPUT_VALUE       1000
 #define REVMOTOR_NEUTRAL_TARGET_VALUE 1500
-#define REVMOTOR_NEUTRAL_DIFF_VALUE   150
-#define MOTOR_NEUTRAL_DIFF_VALUE      200
+#define REVMOTOR_NEUTRAL_DIFF_VALUE   200
+#define MOTOR_NEUTRAL_DIFF_VALUE      300
 
 // Servo settings
 #define SERVO_MAXOUTPUT_RANGE         2500
@@ -191,13 +191,6 @@ void ConfigOutputWidget::sendAllChannelTests()
  */
 void ConfigOutputWidget::runChannelTests(bool state)
 {
-    if (!checkOutputConfig()) {
-        m_ui->channelOutTest->setChecked(false);
-        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in the current config."
-                                                     "<p>Please fix the issue before starting testing outputs.</p>"), QMessageBox::Ok);
-        return;
-    }
-
     SystemAlarms *systemAlarmsObj = SystemAlarms::GetInstance(getObjectManager());
     SystemAlarms::DataFields systemAlarms = systemAlarmsObj->getData();
 

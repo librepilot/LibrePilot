@@ -1,5 +1,16 @@
 <RCC>
     <qresource prefix="/opmap">
+        <file>images/button_home.png</file>
+        <file>images/button_home_not_set.png</file>
+        <file>images/button_home_set.png</file>
+        <file>images/button_home_wp.png</file>
+        <file>images/button_move_to_wp.png</file>
+        <file>images/button_uav.png</file>
+        <file>images/button_uav_heading.png</file>
+        <file>images/button_edit_plan.png</file>
+        <file>images/button_edit_wp.png</file>
+        <file>images/button_save.png</file>
+        <file>images/button_clear_uavtrail.png</file>
         <file>images/ok.png</file>
         <file>images/uav.png</file>
         <file>images/gcs.png</file>

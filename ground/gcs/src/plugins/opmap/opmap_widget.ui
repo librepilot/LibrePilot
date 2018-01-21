@@ -434,7 +434,7 @@ border-radius: 2px;
           </property>
           <property name="icon">
            <iconset resource="opmap.qrc">
-            <normaloff>:/opmap/images/move_to_wp.png</normaloff>:/opmap/images/move_to_wp.png</iconset>
+            <normaloff>:/opmap/images/button_move_to_wp.png</normaloff>:/opmap/images/button_move_to_wp.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -460,7 +460,7 @@ border-radius: 2px;
           </property>
           <property name="icon">
            <iconset resource="opmap.qrc">
-            <normaloff>:/opmap/images/home_wp.png</normaloff>:/opmap/images/home_wp.png</iconset>
+            <normaloff>:/opmap/images/button_home_wp.png</normaloff>:/opmap/images/button_home_wp.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -496,7 +496,7 @@ border-radius: 2px;
           </property>
           <property name="icon">
            <iconset resource="opmap.qrc">
-            <normaloff>:/opmap/images/gcs.png</normaloff>:/opmap/images/gcs.png</iconset>
+            <normaloff>:/opmap/images/button_home.png</normaloff>:/opmap/images/button_home.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -531,7 +531,7 @@ border-radius: 2px;
           </property>
           <property name="icon">
            <iconset resource="opmap.qrc">
-            <normaloff>:/opmap/images/uav.png</normaloff>:/opmap/images/uav.png</iconset>
+            <normaloff>:/opmap/images/uav.png</normaloff>:/opmap/images/button_uav.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -569,7 +569,7 @@ border-radius: 2px;
           </property>
           <property name="icon">
            <iconset resource="opmap.qrc">
-            <normaloff>:/opmap/images/uav_heading.png</normaloff>:/opmap/images/uav_heading.png</iconset>
+            <normaloff>:/opmap/images/uav_heading.png</normaloff>:/opmap/images/button_uav_heading.png</iconset>
           </property>
           <property name="iconSize">
            <size>

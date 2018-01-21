@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/opmap">
+        <file>images/button_search.png</file>
         <file>images/button_home.png</file>
         <file>images/button_home_not_set.png</file>
         <file>images/button_home_set.png</file>

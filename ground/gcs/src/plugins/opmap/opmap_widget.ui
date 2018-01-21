@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>671</width>
-    <height>488</height>
+    <width>746</width>
+    <height>572</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -397,7 +397,13 @@ border-radius: 2px;
           </property>
           <property name="icon">
            <iconset resource="opmap.qrc">
-            <normaloff>:/opmap/images/waypoint.png</normaloff>:/opmap/images/waypoint.png</iconset>
+            <normaloff>:/opmap/images/button_search.png</normaloff>:/opmap/images/button_search.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>22</width>
+            <height>22</height>
+           </size>
           </property>
          </widget>
         </item>

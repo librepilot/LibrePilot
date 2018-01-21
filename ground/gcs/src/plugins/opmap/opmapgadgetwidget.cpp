@@ -216,6 +216,7 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     connect(m_map, SIGNAL(OnWayPointDoubleClicked(WayPointItem *)), this, SLOT(wpDoubleClickEvent(WayPointItem *)));
     m_map->SetCurrentPosition(m_home_position.coord); // set the map position
     m_map->Home->SetCoord(m_home_position.coord); // set the HOME position
+    m_map->Home->RefreshPos();
     m_map->Nav->SetCoord(m_home_position.coord); // set the NAV position
     m_map->UAV->SetUAVPos(m_home_position.coord, 0.0); // set the UAV position
     m_map->UAV->update();
@@ -885,6 +886,65 @@ void OPMapGadgetWidget::on_horizontalSliderZoom_sliderMoved(int position)
     setZoom(position);
 }
 
+void OPMapGadgetWidget::on_toolButtonHomeSet_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    double LLA[3];
+
+    bool checked = m_widget->toolButtonHomeSet->isChecked();
+
+    if (!m_telemetry_connected) {
+        m_widget->toolButtonHomeSet->setChecked(false);
+        checked = false;
+        // Default map center from default settings
+        LLA[0]  = m_home_position.coord.Lat();
+        LLA[1]  = m_home_position.coord.Lng();
+        LLA[2]  = m_home_position.altitude;
+    } else {
+        bool set;
+        if (obum->getHomeLocation(set, LLA) < 0) {
+            return; // error
+        }
+    }
+
+    obum->setHomeLocation(LLA, checked);
+}
+
+void OPMapGadgetWidget::on_toolButtonClearUAVTrail_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->UAV->DeleteTrail();
+    if (m_map->GPS) {
+        m_map->GPS->DeleteTrail();
+    }
+}
+
+void OPMapGadgetWidget::on_toolButtonPlanEditor_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+    // open dialog
+    table->show();
+    // bring dialog to the front in case it was already open and hidden away
+    table->raise();
+}
+
+void OPMapGadgetWidget::on_toolButtonSaveSettings_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    emit defaultLocationAndZoomChanged(m_map->CurrentPosition().Lng(), m_map->CurrentPosition().Lat(), m_map->ZoomTotal());
+    emit defaultSafeAreaChanged(m_map->Home->SafeArea(), m_map->Home->ShowSafeArea());
+}
 
 void OPMapGadgetWidget::on_toolButtonNormalMapMode_clicked()
 {
@@ -944,6 +1004,7 @@ void OPMapGadgetWidget::homePositionUpdated(UAVObject *hp)
     } else {
         HomePic = "home2_not_set.svg";
     }
+    m_widget->toolButtonHomeSet->setChecked(set);
 
     SetHomePic(HomePic);
     setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
@@ -1021,6 +1082,7 @@ void OPMapGadgetWidget::setHome(internals::PointLatLng pos_lat_lon, double altit
 
     m_map->Home->SetCoord(m_home_position.coord);
     m_map->Home->SetAltitude(altitude);
+    m_map->Home->SetToggleRefresh(true);
     m_map->Home->RefreshPos();
 
     // move the magic waypoint to keep it within the safe area boundry

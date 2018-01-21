@@ -32,6 +32,7 @@ OPMapGadget::OPMapGadget(QString classId, OPMapGadgetWidget *widget, QWidget *pa
     m_widget(widget), m_config(NULL)
 {
     connect(m_widget, SIGNAL(defaultLocationAndZoomChanged(double, double, double)), this, SLOT(saveDefaultLocation(double, double, double)));
+    connect(m_widget, SIGNAL(defaultSafeAreaChanged(int, bool)), this, SLOT(saveDefaultSafeArea(int, bool)));
     connect(m_widget, SIGNAL(overlayOpacityChanged(qreal)), this, SLOT(saveOpacity(qreal)));
 }
 
@@ -45,6 +46,14 @@ void OPMapGadget::saveDefaultLocation(double lng, double lat, double zoom)
         m_config->setLatitude(lat);
         m_config->setLongitude(lng);
         m_config->setZoom(zoom);
+        m_config->save();
+    }
+}
+void OPMapGadget::saveDefaultSafeArea(int safe_area_radius, bool showSafeArea)
+{
+    if (m_config) {
+        m_config->setSafeAreaRadius(safe_area_radius);
+        m_config->setShowSafeArea(showSafeArea);
         m_config->save();
     }
 }

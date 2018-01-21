@@ -56,6 +56,7 @@ private:
 private slots:
     void saveOpacity(qreal value);
     void saveDefaultLocation(double lng, double lat, double zoom);
+    void saveDefaultSafeArea(int safe_area_radius, bool showSafeArea);
 };
 
 

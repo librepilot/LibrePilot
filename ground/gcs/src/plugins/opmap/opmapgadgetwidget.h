@@ -123,6 +123,7 @@ public:
     bool applyHomeLocationOnMap();
 signals:
     void defaultLocationAndZoomChanged(double lng, double lat, double zoom);
+    void defaultSafeAreaChanged(int safe_area_radius, bool showSafeArea);
     void overlayOpacityChanged(qreal);
 
 public slots:
@@ -159,6 +160,10 @@ private slots:
     void on_toolButtonNormalMapMode_clicked();
     void on_toolButtonHomeWaypoint_clicked();
     void on_toolButtonMoveToWP_clicked();
+    void on_toolButtonHomeSet_clicked();
+    void on_toolButtonClearUAVTrail_clicked();
+    void on_toolButtonPlanEditor_clicked();
+    void on_toolButtonSaveSettings_clicked();
 
     /**
      * @brief signals received from the map object

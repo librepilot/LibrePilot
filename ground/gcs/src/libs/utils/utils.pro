@@ -50,8 +50,6 @@ HEADERS += \
     basevalidatinglineedit.h \
     linecolumnlabel.h \
     qtcolorbutton.h \
-    abstractprocess.h \
-    consoleprocess.h \
     synchronousprocess.h \
     treewidgetcolumnstretcher.h \
     checkablemessagebox.h \

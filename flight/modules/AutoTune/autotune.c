@@ -164,11 +164,15 @@ static void UpdateStabilizationDesired(bool doingIdent);
  */
 int32_t AutoTuneInitialize(void)
 {
-#if defined(MODULE_AutoTune_BUILTIN)
-    moduleEnabled = true;
-#else
     HwSettingsOptionalModulesData optionalModules;
+
     HwSettingsOptionalModulesGet(&optionalModules);
+
+#if defined(MODULE_AUTOTUNE_BUILTIN)
+    moduleEnabled = true;
+    optionalModules.AutoTune = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.AutoTune == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         // even though the AutoTune module is automatically enabled
         // (below, when the flight mode switch is configured to use autotune)
@@ -180,7 +184,7 @@ int32_t AutoTuneInitialize(void)
         // do it for them if they have autotune on their flight mode switch
         moduleEnabled = AutoTuneFoundInFMS();
     }
-#endif /* defined(MODULE_AutoTune_BUILTIN) */
+#endif /* defined(MODULE_AUTOTUNE_BUILTIN) */
 
     if (moduleEnabled) {
         AccessoryDesiredInitialize();

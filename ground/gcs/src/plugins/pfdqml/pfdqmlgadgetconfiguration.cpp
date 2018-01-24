@@ -82,6 +82,9 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
 PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(const PfdQmlGadgetConfiguration &obj) :
     IUAVGadgetConfiguration(obj.classId(), obj.parent())
 {
+    m_speedMap            = obj.m_speedMap;
+    m_altitudeMap         = obj.m_altitudeMap;
+
     m_qmlFile             = obj.m_qmlFile;
 
     m_speedFactor         = obj.m_speedFactor;

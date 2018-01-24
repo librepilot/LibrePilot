@@ -17,7 +17,7 @@
         <field name="BaudRate" units="" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200,230400,Unknown" defaultvalue="Unknown" />
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
-        <telemetryflight acked="false" updatemode="periodic" period="1000"/>
+        <telemetryflight acked="false" updatemode="throttled" period="1000"/>
         <logging updatemode="manual" period="0"/>
 	</object>
 </xml>

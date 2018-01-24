@@ -68,12 +68,10 @@ PfdQmlGadgetConfiguration::PfdQmlGadgetConfiguration(QString classId, QSettings 
     // model
     m_modelEnabled        = settings.value("modelEnabled").toBool();
     m_modelSelectionMode  = static_cast<ModelSelectionMode::Enum>(settings.value("modelSelectionMode", ModelSelectionMode::Auto).toUInt());
-    m_modelFile           = settings.value("modelFile", "Unknown").toString();
-    m_modelFile           = Utils::InsertDataPath(m_modelFile);
+    m_modelFile           = Utils::InsertDataPath(settings.value("modelFile", "Unknown").toString());
 
     // background image
-    m_backgroundImageFile = settings.value("backgroundImageFile", "Unknown").toString();
-    m_backgroundImageFile = Utils::InsertDataPath(m_backgroundImageFile);
+    m_backgroundImageFile = Utils::InsertDataPath(settings.value("backgroundImageFile", "Unknown").toString());
 
     // gstreamer pipeline
     m_gstPipeline         = settings.value("gstPipeline").toString();
@@ -156,12 +154,10 @@ void PfdQmlGadgetConfiguration::saveConfig(QSettings &settings) const
     // model
     settings.setValue("modelEnabled", m_modelEnabled);
     settings.setValue("modelSelectionMode", static_cast<uint>(m_modelSelectionMode));
-    QString modelFile = Utils::RemoveDataPath(m_modelFile);
-    settings.setValue("modelFile", modelFile);
+    settings.setValue("modelFile", Utils::RemoveDataPath(m_modelFile));
 
     // background image
-    QString backgroundImageFile = Utils::RemoveDataPath(m_backgroundImageFile);
-    settings.setValue("backgroundImageFile", backgroundImageFile);
+    settings.setValue("backgroundImageFile", Utils::RemoveDataPath(m_backgroundImageFile));
 
     // gstreamer pipeline
     settings.setValue("gstPipeline", m_gstPipeline);

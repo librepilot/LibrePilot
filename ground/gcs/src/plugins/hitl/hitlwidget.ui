@@ -352,7 +352,7 @@ color: rgba(0, 0, 0, 128);
            <string notr="true">color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
-           <string> Simulator disconnected </string>
+           <string>Simulator disconnected</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

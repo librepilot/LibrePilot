@@ -83,7 +83,7 @@ p, li { white-space: pre-wrap; }
       <number>6</number>
      </property>
      <item>
-      <widget class="QLabel" name="boardImg">
+      <widget class="QSvgWidget" name="boardImg" native="true">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -95,12 +95,6 @@ p, li { white-space: pre-wrap; }
          <width>250</width>
          <height>250</height>
         </size>
-       </property>
-       <property name="text">
-        <string notr="true"/>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -203,6 +197,13 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QSvgWidget</class>
+   <extends>QWidget</extends>
+   <header>qsvgwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

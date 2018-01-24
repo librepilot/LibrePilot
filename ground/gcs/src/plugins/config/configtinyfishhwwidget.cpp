@@ -38,6 +38,11 @@ ConfigTinyFISHHWWidget::ConfigTinyFISHHWWidget(QWidget *parent) : ConfigTaskWidg
     m_ui = new Ui_TinyFISHHWWidget();
     m_ui->setupUi(this);
 
+    m_ui->boardImg->load(QString(":/configgadget/images/tinyfish.svg"));
+    QSize picSize = m_ui->boardImg->sizeHint();
+    picSize.scale(360, 360, Qt::KeepAspectRatio);
+    m_ui->boardImg->setFixedSize(picSize);
+
     // must be done before auto binding !
     setWikiURL("TinyFISH+Configuration");
 

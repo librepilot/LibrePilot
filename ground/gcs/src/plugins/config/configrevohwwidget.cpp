@@ -38,6 +38,11 @@ ConfigRevoHWWidget::ConfigRevoHWWidget(QWidget *parent) : ConfigTaskWidget(paren
     m_ui = new Ui_RevoHWWidget();
     m_ui->setupUi(this);
 
+    m_ui->boardImg->load(QString(":/configgadget/images/revolution.svg"));
+    QSize picSize = m_ui->boardImg->sizeHint();
+    picSize.scale(360, 360, Qt::KeepAspectRatio);
+    m_ui->boardImg->setFixedSize(picSize);
+
     // must be done before auto binding !
     setWikiURL("Revolution+Configuration");
 

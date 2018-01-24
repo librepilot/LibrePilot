@@ -38,6 +38,11 @@ ConfigRevoNanoHWWidget::ConfigRevoNanoHWWidget(QWidget *parent) : ConfigTaskWidg
     m_ui = new Ui_RevoNanoHWWidget();
     m_ui->setupUi(this);
 
+    m_ui->boardImg->load(QString(":/configgadget/images/revo_nano.svg"));
+    QSize picSize = m_ui->boardImg->sizeHint();
+    picSize.scale(450, 450, Qt::KeepAspectRatio);
+    m_ui->boardImg->setFixedSize(picSize);
+
     // must be done before auto binding !
     setWikiURL("Revo+Nano+Configuration");
 

@@ -12,8 +12,8 @@
         <file>resources/bttn-plane-down.png</file>
         <file>resources/bttn-plane-over.png</file>
         <file>resources/bttn-plane-up.png</file>
-        <file>resources/bttn-ESC-down.png</file>
-        <file>resources/bttn-ESC-up.png</file>
+        <file>resources/bttn-esc-down.png</file>
+        <file>resources/bttn-esc-up.png</file>
         <file>resources/bttn-ppm-down.png</file>
         <file>resources/bttn-ppm-up.png</file>
         <file>resources/bttn-pwm-down.png</file>
@@ -52,8 +52,22 @@
         <file>resources/bttn-upgrade-up.png</file>
         <file>resources/not-connected.png</file>
         <file>resources/connected.png</file>
+        <file>resources/bttn-esc300-dwn.png</file>
+        <file>resources/bttn-esc300-up.png</file>
         <file>resources/bttn-oneshot-dwn.png</file>
         <file>resources/bttn-oneshot-up.png</file>
+        <file>resources/bttn-oneshot125-dwn.png</file>
+        <file>resources/bttn-oneshot125-up.png</file>
+        <file>resources/bttn-oneshot42-dwn.png</file>
+        <file>resources/bttn-oneshot42-up.png</file>
+        <file>resources/bttn-multishot-dwn.png</file>
+        <file>resources/bttn-multishot-up.png</file>
+        <file>resources/bttn-dshot150-dwn.png</file>
+        <file>resources/bttn-dshot150-up.png</file>
+        <file>resources/bttn-dshot600-dwn.png</file>
+        <file>resources/bttn-dshot600-up.png</file>
+        <file>resources/bttn-dshot1200-dwn.png</file>
+        <file>resources/bttn-dshot1200-up.png</file>
         <file>resources/bttn-srxl-down.png</file>
         <file>resources/bttn-srxl-up.png</file>
         <file>resources/bttn-hott-down.png</file>

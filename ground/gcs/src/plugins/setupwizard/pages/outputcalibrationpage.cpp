@@ -82,8 +82,8 @@ void OutputCalibrationPage::setupActuatorMinMaxAndNeutral(int motorChannelStart,
     for (int servoid = 0; servoid < 12; servoid++) {
         if (servoid >= motorChannelStart && servoid <= motorChannelEnd) {
             // Set to motor safe values
-            m_actuatorSettings[servoid].channelMin        = LOW_OUTPUT_RATE_MILLISECONDS;
-            m_actuatorSettings[servoid].channelNeutral    = LOW_OUTPUT_RATE_MILLISECONDS;
+            m_actuatorSettings[servoid].channelMin        = getLowOutputRate();
+            m_actuatorSettings[servoid].channelNeutral    = getLowOutputRate();
             m_actuatorSettings[servoid].channelMax        = getHighOutputRate();
             m_actuatorSettings[servoid].isReversableMotor = false;
             // Car, Tank, Boat and Boat differential should use reversable Esc/motors
@@ -93,10 +93,10 @@ void OutputCalibrationPage::setupActuatorMinMaxAndNeutral(int motorChannelStart,
                 || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_DIFFERENTIAL_BOAT)) {
                 m_actuatorSettings[servoid].channelNeutral    = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
                 m_actuatorSettings[servoid].isReversableMotor = true;
-                // Set initial output value
-                m_calibrationUtil->startChannelOutput(servoid, NEUTRAL_OUTPUT_RATE_MILLISECONDS);
-                m_calibrationUtil->stopChannelOutput();
             }
+            // Set initial output value
+            m_calibrationUtil->startChannelOutput(servoid, m_actuatorSettings[servoid].channelNeutral);
+            m_calibrationUtil->stopChannelOutput();
         } else if (servoid < totalUsedChannels) {
             // Set to servo safe values
             m_actuatorSettings[servoid].channelMin     = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
@@ -466,11 +466,18 @@ void OutputCalibrationPage::setWizardPage()
     qDebug() << "Current channel: " << currentChannel + 1;
     if (currentChannel >= 0) {
         if (currentPageIndex == 1) {
+            // Set Min, Neutral and Max for slider in all cases, needed for DShot.
+            ui->motorNeutralSlider->setMinimum(m_actuatorSettings[currentChannel].channelMin);
             ui->motorNeutralSlider->setValue(m_actuatorSettings[currentChannel].channelNeutral);
-            ui->motorPWMValue->setText(QString(tr("Output value : <b>%1</b> µs")).arg(m_actuatorSettings[currentChannel].channelNeutral));
+            ui->motorNeutralSlider->setMaximum(m_actuatorSettings[currentChannel].channelMin + NEUTRAL_OUTPUT_RATE_RANGE);
+            if (ui->motorNeutralSlider->minimum() == LOW_OUTPUT_RATE_DSHOT) {
+                // DShot output
+                ui->motorPWMValue->setText(QString(tr("Digital output value : <b>%1</b>")).arg(m_actuatorSettings[currentChannel].channelNeutral));
+            } else {
+                ui->motorPWMValue->setText(QString(tr("Output value : <b>%1</b> µs")).arg(m_actuatorSettings[currentChannel].channelNeutral));
+            }
             // Reversable motor found
             if (m_actuatorSettings[currentChannel].isReversableMotor) {
-                ui->motorNeutralSlider->setMinimum(m_actuatorSettings[currentChannel].channelMin);
                 ui->motorNeutralSlider->setMaximum(m_actuatorSettings[currentChannel].channelMax);
                 ui->motorInfo->setText(tr("<html><head/><body><p><span style=\" font-size:10pt;\">To find </span><span style=\" font-size:10pt; font-weight:600;\">the neutral rate for this reversable motor</span><span style=\" font-size:10pt;\">, press the Start button below and slide the slider to the right or left until you find the value where the motor doesn't start. <br/><br/>When done press button again to stop.</span></p></body></html>"));
             }
@@ -816,10 +823,27 @@ void OutputCalibrationPage::debugLogChannelValues(bool showFirst)
     qDebug() << "ChannelMax    : " << m_actuatorSettings[currentChannel].channelMax;
 }
 
+int OutputCalibrationPage::getLowOutputRate()
+{
+    if (getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT150 ||
+        getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT600 ||
+        getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT1200) {
+        return LOW_OUTPUT_RATE_DSHOT;
+    } else {
+        return LOW_OUTPUT_RATE_MILLISECONDS_PWM;
+    }
+}
+
 int OutputCalibrationPage::getHighOutputRate()
 {
-    if (getWizard()->getEscType() == SetupWizard::ESC_ONESHOT) {
-        return HIGH_OUTPUT_RATE_MILLISECONDS_ONESHOT125;
+    if (getWizard()->getEscType() == VehicleConfigurationSource::ESC_ONESHOT125 ||
+        getWizard()->getEscType() == VehicleConfigurationSource::ESC_ONESHOT42 ||
+        getWizard()->getEscType() == VehicleConfigurationSource::ESC_MULTISHOT) {
+        return HIGH_OUTPUT_RATE_MILLISECONDS_ONESHOT_MULTISHOT;
+    } else if (getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT150 ||
+               getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT600 ||
+               getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT1200) {
+        return HIGH_OUTPUT_RATE_DSHOT;
     } else {
         return HIGH_OUTPUT_RATE_MILLISECONDS_PWM;
     }
@@ -828,8 +852,13 @@ int OutputCalibrationPage::getHighOutputRate()
 void OutputCalibrationPage::on_motorNeutralSlider_valueChanged(int value)
 {
     Q_UNUSED(value);
-    ui->motorPWMValue->setText(tr("Output value : <b>%1</b> µs").arg(value));
 
+    if (ui->motorNeutralSlider->minimum() == LOW_OUTPUT_RATE_DSHOT) {
+        // DShot output
+        ui->motorPWMValue->setText(QString(tr("Digital output value : <b>%1</b>")).arg(value));
+    } else {
+        ui->motorPWMValue->setText(QString(tr("Output value : <b>%1</b> µs")).arg(value));
+    }
     if (ui->motorNeutralButton->isChecked()) {
         quint16 value = ui->motorNeutralSlider->value();
         m_calibrationUtil->setChannelOutputValue(value);

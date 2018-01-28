@@ -181,7 +181,10 @@ int SetupWizard::nextId() const
     }
 
     case PAGE_BIAS_CALIBRATION:
-        if (getVehicleType() == VEHICLE_MULTI) {
+        if ((getVehicleType() == VEHICLE_MULTI) &&
+            (getEscType() != ESC_DSHOT150) &&
+            (getEscType() != ESC_DSHOT600) &&
+            (getEscType() != ESC_DSHOT1200)) {
             return PAGE_ESC_CALIBRATION;
         } else {
             return PAGE_OUTPUT_CALIBRATION;
@@ -414,14 +417,32 @@ QString SetupWizard::getSummaryText()
     case ESC_STANDARD:
         summary.append(tr("Standard ESC (%1 Hz)").arg(VehicleConfigurationHelper::LEGACY_ESC_FREQUENCY));
         break;
+    case ESC_STANDARD300:
+        summary.append(tr("Standard ESC (%1 Hz)").arg(VehicleConfigurationHelper::LEGACY_MULTI_ESC_FREQUENCY));
+        break;
     case ESC_RAPID:
         summary.append(tr("Rapid ESC (%1 Hz)").arg(VehicleConfigurationHelper::RAPID_ESC_FREQUENCY));
         break;
     case ESC_SYNCHED:
         summary.append(tr("Synched ESC"));
         break;
-    case ESC_ONESHOT:
-        summary.append(tr("Oneshot ESC"));
+    case ESC_ONESHOT125:
+        summary.append(tr("Oneshot125 ESC"));
+        break;
+    case ESC_ONESHOT42:
+        summary.append(tr("Oneshot42 ESC"));
+        break;
+    case ESC_MULTISHOT:
+        summary.append(tr("Multishot ESC"));
+        break;
+    case ESC_DSHOT150:
+        summary.append(tr("Dshot150 ESC"));
+        break;
+    case ESC_DSHOT600:
+        summary.append(tr("Dshot600 ESC"));
+        break;
+    case ESC_DSHOT1200:
+        summary.append(tr("Dshot1200 ESC"));
         break;
     default:
         summary.append(tr("Unknown"));

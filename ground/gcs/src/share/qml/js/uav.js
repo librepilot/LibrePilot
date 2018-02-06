@@ -319,23 +319,13 @@ function batteryModuleEnabled() {
 }
 
 function batteryModuleADCConfigured() {
-    if ((hwSettings.adcRoutingadc0 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc0 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc1 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc1 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc2 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc2 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc3 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc3 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc4 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc4 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc5 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc5 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc6 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc6 == HwSettings.ADCRouting.BatteryCurrent) ||
-        (hwSettings.adcRoutingadc7 == HwSettings.ADCRouting.BatteryVoltage) || 
-        (hwSettings.adcRoutingadc7 == HwSettings.ADCRouting.BatteryCurrent)) {
-        return true;    
+    for (var adc = 0; adc < 8; adc++) {
+        var adc_set = hwSettings.getADCRouting(adc);
+        if (adc_set == HwSettings.ADCRouting.BatteryVoltage) {
+            return true;
+        } else if (adc_set == HwSettings.ADCRouting.BatteryCurrent) {
+            return true;
+        }
     }
     return false;
 }

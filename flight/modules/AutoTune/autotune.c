@@ -835,7 +835,7 @@ static void UpdateStabilizationDesired(bool doingIdent)
     } else {
         stabDesired.StabilizationMode.Roll  = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
         stabDesired.StabilizationMode.Pitch = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
-        stabDesired.StabilizationMode.Yaw   = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
+        stabDesired.StabilizationMode.Yaw   = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
     }
 
     if (systemIdentSettings.ThrustControl == SYSTEMIDENTSETTINGS_THRUSTCONTROL_ALTITUDEVARIO) {

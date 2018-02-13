@@ -32,14 +32,9 @@
 #include <hwsettings.h>
 #include <taskinfo.h>
 #include <pios_ws2811.h>
+
 #include "hwdiscoveryf4baresettings.h"
 #include "firmwareiapobj.h"
-
-#include "hwpikoblxsettings.h"
-#include "hwspracingf3evosettings.h"
-#include "hwspracingf3settings.h"
-#include "hwtinyfishsettings.h"
-
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>

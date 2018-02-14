@@ -91,7 +91,7 @@ void OutputCalibrationPage::setupActuatorMinMaxAndNeutral(int motorChannelStart,
                 || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_DIFFERENTIAL)
                 || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_BOAT)
                 || (getWizard()->getVehicleSubType() == SetupWizard::GROUNDVEHICLE_DIFFERENTIAL_BOAT)) {
-                m_actuatorSettings[servoid].channelNeutral    = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
+                m_actuatorSettings[servoid].channelNeutral    = NEUTRAL_OUTPUT_RATE_MS;
                 m_actuatorSettings[servoid].isReversableMotor = true;
             }
             // Set initial output value
@@ -99,17 +99,17 @@ void OutputCalibrationPage::setupActuatorMinMaxAndNeutral(int motorChannelStart,
             m_calibrationUtil->stopChannelOutput();
         } else if (servoid < totalUsedChannels) {
             // Set to servo safe values
-            m_actuatorSettings[servoid].channelMin     = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
-            m_actuatorSettings[servoid].channelNeutral = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
-            m_actuatorSettings[servoid].channelMax     = NEUTRAL_OUTPUT_RATE_MILLISECONDS;
+            m_actuatorSettings[servoid].channelMin     = NEUTRAL_OUTPUT_RATE_MS;
+            m_actuatorSettings[servoid].channelNeutral = NEUTRAL_OUTPUT_RATE_MS;
+            m_actuatorSettings[servoid].channelMax     = NEUTRAL_OUTPUT_RATE_MS;
             // Set initial servo output value
-            m_calibrationUtil->startChannelOutput(servoid, NEUTRAL_OUTPUT_RATE_MILLISECONDS);
+            m_calibrationUtil->startChannelOutput(servoid, NEUTRAL_OUTPUT_RATE_MS);
             m_calibrationUtil->stopChannelOutput();
         } else {
             // "Disable" these channels
-            m_actuatorSettings[servoid].channelMin     = LOW_OUTPUT_RATE_MILLISECONDS;
-            m_actuatorSettings[servoid].channelNeutral = LOW_OUTPUT_RATE_MILLISECONDS;
-            m_actuatorSettings[servoid].channelMax     = LOW_OUTPUT_RATE_MILLISECONDS;
+            m_actuatorSettings[servoid].channelMin     = LOW_OUTPUT_RATE_MS;
+            m_actuatorSettings[servoid].channelNeutral = LOW_OUTPUT_RATE_MS;
+            m_actuatorSettings[servoid].channelMax     = LOW_OUTPUT_RATE_MS;
         }
     }
 }
@@ -472,9 +472,9 @@ void OutputCalibrationPage::setWizardPage()
             ui->motorNeutralSlider->setMaximum(m_actuatorSettings[currentChannel].channelMin + NEUTRAL_OUTPUT_RATE_RANGE);
             if (ui->motorNeutralSlider->minimum() == LOW_OUTPUT_RATE_DSHOT) {
                 // DShot output
-                ui->motorPWMValue->setText(QString(tr("Digital output value : <b>%1</b>")).arg(m_actuatorSettings[currentChannel].channelNeutral));
+                ui->motorPWMValue->setText(tr("Digital output value : <b>%1</b>").arg(m_actuatorSettings[currentChannel].channelNeutral));
             } else {
-                ui->motorPWMValue->setText(QString(tr("Output value : <b>%1</b> µs")).arg(m_actuatorSettings[currentChannel].channelNeutral));
+                ui->motorPWMValue->setText(tr("Output value : <b>%1</b> µs").arg(m_actuatorSettings[currentChannel].channelNeutral));
             }
             // Reversable motor found
             if (m_actuatorSettings[currentChannel].isReversableMotor) {
@@ -788,10 +788,10 @@ bool OutputCalibrationPage::checkAlarms()
 
     if (data.Alarm[SystemAlarms::ALARM_ACTUATOR] != SystemAlarms::ALARM_OK) {
         QMessageBox mbox(this);
-        mbox.setText(QString(tr("The actuator module is in an error state.\n\n"
-                                "Please make sure the correct firmware version is used then "
-                                "restart the wizard and try again. If the problem persists please "
-                                "consult the librepilot.org support forum.")));
+        mbox.setText(tr("The actuator module is in an error state.\n\n"
+                        "Please make sure the correct firmware version is used then "
+                        "restart the wizard and try again. If the problem persists please "
+                        "consult the librepilot.org support forum."));
         mbox.setStandardButtons(QMessageBox::Ok);
         mbox.setIcon(QMessageBox::Critical);
 
@@ -829,9 +829,8 @@ int OutputCalibrationPage::getLowOutputRate()
         getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT600 ||
         getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT1200) {
         return LOW_OUTPUT_RATE_DSHOT;
-    } else {
-        return LOW_OUTPUT_RATE_MILLISECONDS_PWM;
     }
+    return LOW_OUTPUT_RATE_PWM_MS;
 }
 
 int OutputCalibrationPage::getHighOutputRate()
@@ -839,14 +838,13 @@ int OutputCalibrationPage::getHighOutputRate()
     if (getWizard()->getEscType() == VehicleConfigurationSource::ESC_ONESHOT125 ||
         getWizard()->getEscType() == VehicleConfigurationSource::ESC_ONESHOT42 ||
         getWizard()->getEscType() == VehicleConfigurationSource::ESC_MULTISHOT) {
-        return HIGH_OUTPUT_RATE_MILLISECONDS_ONESHOT_MULTISHOT;
+        return HIGH_OUTPUT_RATE_ONESHOT_MULTISHOT_MS;
     } else if (getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT150 ||
                getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT600 ||
                getWizard()->getEscType() == VehicleConfigurationSource::ESC_DSHOT1200) {
         return HIGH_OUTPUT_RATE_DSHOT;
-    } else {
-        return HIGH_OUTPUT_RATE_MILLISECONDS_PWM;
     }
+    return HIGH_OUTPUT_RATE_PWM_MS;
 }
 
 void OutputCalibrationPage::on_motorNeutralSlider_valueChanged(int value)
@@ -855,9 +853,9 @@ void OutputCalibrationPage::on_motorNeutralSlider_valueChanged(int value)
 
     if (ui->motorNeutralSlider->minimum() == LOW_OUTPUT_RATE_DSHOT) {
         // DShot output
-        ui->motorPWMValue->setText(QString(tr("Digital output value : <b>%1</b>")).arg(value));
+        ui->motorPWMValue->setText(tr("Digital output value : <b>%1</b>").arg(value));
     } else {
-        ui->motorPWMValue->setText(QString(tr("Output value : <b>%1</b> µs")).arg(value));
+        ui->motorPWMValue->setText(tr("Output value : <b>%1</b> µs").arg(value));
     }
     if (ui->motorNeutralButton->isChecked()) {
         quint16 value = ui->motorNeutralSlider->value();

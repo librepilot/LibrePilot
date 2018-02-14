@@ -281,7 +281,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryModuleADCConfigured())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryADCConfigured())
 
         Rectangle {
             anchors.fill: parent
@@ -296,7 +296,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: Math.floor(scaledBounds.y * sceneItem.height)
-        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryModuleADCConfigured())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryADCConfigured())
     }
 
     SvgElementPositionItem {
@@ -307,7 +307,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryModuleADCConfigured())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryADCConfigured())
 
         Rectangle {
             anchors.fill: parent
@@ -334,7 +334,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryModuleADCConfigured())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryADCConfigured())
 
         Rectangle {
             anchors.fill: parent
@@ -361,7 +361,7 @@ Item {
         width: scaledBounds.width * sceneItem.width
         height: scaledBounds.height * sceneItem.height
         y: scaledBounds.y * sceneItem.height
-        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryModuleADCConfigured())
+        visible: (!UAV.isPathPlanEnabled() && UAV.batteryModuleEnabled() && UAV.batteryADCConfigured())
 
         Rectangle {
             anchors.fill: parent

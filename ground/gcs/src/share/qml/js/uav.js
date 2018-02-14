@@ -318,12 +318,12 @@ function batteryModuleEnabled() {
     return (hwSettings.optionalModulesBattery == HwSettings.OptionalModules.Enabled);
 }
 
-function batteryModuleADCConfigured() {
-    for (var adc = 0; adc < 8; adc++) {
-        var adc_set = hwSettings.getADCRouting(adc);
-        if (adc_set == HwSettings.ADCRouting.BatteryVoltage) {
+function batteryADCConfigured() {
+    for (var i = 0; i < 8; i++) {
+        var adcRouting = hwSettings.getADCRouting(i);
+        if (adcRouting == HwSettings.ADCRouting.BatteryVoltage) {
             return true;
-        } else if (adc_set == HwSettings.ADCRouting.BatteryCurrent) {
+        } else if (adcRouting == HwSettings.ADCRouting.BatteryCurrent) {
             return true;
         }
     }

@@ -40,6 +40,7 @@
 #ifndef $(NAMEUC)_H
 #define $(NAMEUC)_H
 #include <stdbool.h>
+$(INCLUDE)
 /* Object constants */
 #define $(NAMEUC)_OBJID $(OBJIDHEX)
 #define $(NAMEUC)_ISSINGLEINST $(ISSINGLEINST)

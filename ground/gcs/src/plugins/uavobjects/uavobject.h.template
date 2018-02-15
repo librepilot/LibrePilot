@@ -35,6 +35,7 @@
 #define $(NAMEUC)_H
 
 #include "uavdataobject.h"
+$(INCLUDE)
 
 class UAVObjectManager;
 

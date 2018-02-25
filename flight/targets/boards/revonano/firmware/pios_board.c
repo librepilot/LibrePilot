@@ -207,6 +207,15 @@ void PIOS_Board_Init(void)
         PIOS_BOARD_IO_Configure_UART(&pios_usart_flexi_cfg, flexi_function_map[hwsettings_flexiport]);
     }
 
+#if defined(PIOS_INCLUDE_I2C)
+    if (hwsettings_flexiport == HWSETTINGS_RM_FLEXIPORT_I2C) {
+        if (PIOS_I2C_Init(&pios_i2c_flexiport_adapter_id, &pios_i2c_flexiport_adapter_cfg)) {
+            PIOS_Assert(0);
+        }
+    }
+#endif
+
+    /* Configure MainPort */
     uint8_t hwsettings_mainport;
     HwSettingsRM_MainPortGet(&hwsettings_mainport);
 

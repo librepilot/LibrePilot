@@ -155,27 +155,21 @@ public:
 
         if (sceneNode && sceneNode->node()) {
             mapNode = osgEarth::MapNode::findMapNode(sceneNode->node());
-            if (!mapNode) {
-                qWarning() << "OSGGeoTransformManipulator::updatePosition - manipulator node does not contain a map node";
-            }
         } else {
             qWarning() << "OSGGeoTransformManipulator::updatePosition - scene node is null";
         }
-
-        osgEarth::GeoPoint geoPoint;
         if (mapNode) {
-            geoPoint = osgQtQuick::toGeoPoint(mapNode->getTerrain()->getSRS(), position);
+            osgEarth::GeoPoint geoPoint = osgQtQuick::createGeoPoint(position, mapNode);
+            if (clampToTerrain) {
+                // clamp model to terrain if needed
+                intoTerrain = osgQtQuick::clampGeoPoint(geoPoint, 0, mapNode);
+            } else if (clampToTerrain) {
+                qWarning() << "OSGGeoTransformManipulator::updatePosition - cannot clamp without map node";
+            }
+            geoPoint.createLocalToWorld(cameraPosition);
         } else {
-            geoPoint = osgQtQuick::toGeoPoint(position);
+            qWarning() << "OSGGeoTransformManipulator::updatePosition - scene node does not contain a map node";
         }
-        if (clampToTerrain && mapNode) {
-            // clamp model to terrain if needed
-            intoTerrain = osgQtQuick::clampGeoPoint(geoPoint, 0, mapNode);
-        } else if (clampToTerrain) {
-            qWarning() << "OSGGeoTransformManipulator::updatePosition - cannot clamp without map node";
-        }
-
-        geoPoint.createLocalToWorld(cameraPosition);
     }
 
     void updateAttitude()

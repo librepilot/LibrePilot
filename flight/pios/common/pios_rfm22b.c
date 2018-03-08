@@ -349,6 +349,18 @@ static const uint8_t channel_spacing[] = {
     4, /* 256kps */
 };
 
+static const uint8_t channel_limits[] = {
+    1, /* 9.6kbps */
+    1, /* 19.2kps */
+    1, /* 32kps */
+    1, /* 57.6kps */
+    1, /* 64kps */
+    1, /* 100kps */
+    2, /* 128kps */
+    2, /* 192kps */
+    2, /* 256kps */
+};
+
 static const uint8_t reg_1C[] = { 0x01, 0x05, 0x06, 0x95, 0x95, 0x81, 0x88, 0x8B, 0x8D }; // rfm22_if_filter_bandwidth
 
 static const uint8_t reg_1D[] = { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 }; // rfm22_afc_loop_gearshift_override
@@ -2671,7 +2683,9 @@ static bool rfm22_gen_channels(uint32_t coordid, enum rfm22b_datarate rate, uint
 {
     uint32_t data = 0;
     uint8_t cpos  = 0;
-    uint8_t chan_range = (max / channel_spacing[rate] - min / channel_spacing[rate]) + 1;
+    uint8_t chan_min_limit = min + channel_limits[rate];
+    uint8_t chan_max_limit = max - channel_limits[rate];
+    uint8_t chan_count     = ((chan_max_limit - chan_min_limit) / channel_spacing[rate]) + 1;
     uint8_t key[SHA1_DIGEST_LENGTH] = { 0 };
     uint8_t digest[SHA1_DIGEST_LENGTH];
     uint8_t *all_channels;
@@ -2680,12 +2694,15 @@ static bool rfm22_gen_channels(uint32_t coordid, enum rfm22b_datarate rate, uint
 
     memcpy(key, &coordid, sizeof(coordid));
 
-    for (int i = 0; i < chan_range; i++) {
-        all_channels[i] = min / channel_spacing[rate] + i;
+    for (int i = 0; i < chan_count; i++) {
+        all_channels[i] = chan_min_limit + (i * channel_spacing[rate]);
     }
 
+    // DEBUG_PRINTF(3, "\r\nChannel Min: %d Max:%d - Spacing: %d Limits: %d\r\n", min, max, channel_spacing[rate], channel_limits[rate]);
+    // DEBUG_PRINTF(3, "Result: Channel count: %d - Usable channels from ch%d to ch%d\r\n", chan_count, all_channels[0], all_channels[chan_count - 1]);
+
     int j = SHA1_DIGEST_LENGTH;
-    for (int i = 0; i < chan_range && i < MAX_CHANNELS; i++) {
+    for (int i = 0; i < chan_count && i < MAX_CHANNELS; i++) {
         uint8_t rnd;
         uint8_t r;
         uint8_t tmp;
@@ -2697,14 +2714,16 @@ static bool rfm22_gen_channels(uint32_t coordid, enum rfm22b_datarate rate, uint
         }
         rnd = digest[j];
         j++;
-        r   = rnd % (chan_range - i) + i;
+        r   = rnd % (chan_count - i) + i;
         tmp = all_channels[i];
         all_channels[i] = all_channels[r];
         all_channels[r] = tmp;
     }
 
-    for (int i = 0; i < chan_range && cpos < MAX_CHANNELS; i++, cpos++) {
-        channels[cpos] = all_channels[i] * channel_spacing[rate];
+    // DEBUG_PRINTF(3, "Final channel list:");
+    for (int i = 0; i < chan_count && cpos < MAX_CHANNELS; i++, cpos++) {
+        channels[cpos] = all_channels[i];
+        // DEBUG_PRINTF(3, " %d ", all_channels[i]);
     }
 
     *clen = cpos & 0xfe;

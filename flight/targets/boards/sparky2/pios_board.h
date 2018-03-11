@@ -306,7 +306,7 @@ extern uint32_t pios_packet_handler;
         { GPIOA, GPIO_Pin_3, ADC_Channel_3, false }, /* Servo pin 3        */  \
         { GPIOA, GPIO_Pin_2, ADC_Channel_2, false }, /* Servo pin 4        */  \
         { GPIOA, GPIO_Pin_1, ADC_Channel_1, false }, /* Servo pin 5        */  \
-        { GPIOA, GPIO_Pin_0, ADC_Channel_9, false }, /* Servo pin 6        */  \
+        { GPIOA, GPIO_Pin_0, ADC_Channel_0, false }, /* Servo pin 6        */  \
         { NULL, 0, ADC_Channel_Vrefint, false }, /* Voltage reference  */  \
         { NULL, 0, ADC_Channel_TempSensor, false }, /* Temperature sensor */  \
     }

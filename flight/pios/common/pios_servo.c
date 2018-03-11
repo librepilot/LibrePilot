@@ -72,7 +72,7 @@ static uint32_t pios_dshot_t0h_raw;
 static uint32_t pios_dshot_t1h_raw;
 static uint32_t pios_dshot_t_raw;
 
-static bool pios_servo_enabled    = true;
+static bool pios_servo_enabled    = false;
 static uint32_t pios_servo_active = 0; // No active outputs by default
 
 #define PIOS_SERVO_TIMER_CLOCK 1000000
@@ -111,6 +111,10 @@ extern void PIOS_Servo_Disable()
      * if using inverted setup */
 
     for (uint8_t i = 0; (i < servo_cfg->num_channels); i++) {
+        if (!(pios_servo_active & (1L << i))) { // This output is not active
+            continue;
+        }
+
         const struct pios_tim_channel *chan = &servo_cfg->channels[i];
 
         GPIO_InitTypeDef init = chan->pin.init;

@@ -33,6 +33,8 @@
 #include <taskinfo.h>
 #include <pios_ws2811.h>
 
+#include "hwdiscoveryf4baresettings.h"
+#include "firmwareiapobj.h"
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <pios_instrumentation.h>
@@ -57,6 +59,19 @@ uintptr_t pios_user_fs_id;
 #ifdef PIOS_INCLUDE_WS2811
 uint32_t pios_ws2811_id;
 #endif
+
+static HwDiscoveryF4BareSettingsData boardHwSettings;
+
+static void hwDiscoveryF4BareSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    HwDiscoveryF4BareSettingsData currentBoardHwSettings;
+
+    HwDiscoveryF4BareSettingsGet(&currentBoardHwSettings);
+
+    if (memcmp(&currentBoardHwSettings, &boardHwSettings, sizeof(HwDiscoveryF4BareSettingsData)) != 0) {
+        ExtendedAlarmsSet(SYSTEMALARMS_ALARM_BOOTFAULT, SYSTEMALARMS_ALARM_CRITICAL, SYSTEMALARMS_EXTENDEDALARMSTATUS_REBOOTREQUIRED, 0);
+    }
+}
 
 static const PIOS_BOARD_IO_UART_Function flexiio_function_map[] = {
     [HWSETTINGS_RM_RCVRPORT_PPMTELEMETRY]    = PIOS_BOARD_IO_UART_TELEMETRY,
@@ -188,6 +203,21 @@ void PIOS_Board_Init(void)
     EventDispatcherInitialize();
     UAVObjInitialize();
     SETTINGS_INITIALISE_ALL;
+
+    HwDiscoveryF4BareSettingsConnectCallback(hwDiscoveryF4BareSettingsUpdatedCb);
+    HwDiscoveryF4BareSettingsGet(&boardHwSettings);
+
+    if (boardHwSettings.BoardType != 0) {
+        FirmwareIAPObjInitialize();
+
+        FirmwareIAPObjData iap;
+        FirmwareIAPObjGet(&iap);
+
+        iap.BoardType     = boardHwSettings.BoardType;
+        iap.BoardRevision = boardHwSettings.BoardRevision;
+
+        FirmwareIAPObjSet(&iap);
+    }
 
     /* Initialize the alarms library */
     AlarmsInitialize();

@@ -1,0 +1,11 @@
+<xml>
+    <object name="HwDiscoveryF4BareSettings" singleinstance="true" settings="true" category="System">
+        <description>DiscoveryF4 Bare hardware configuration</description>
+        <field name="BoardRevision" units="" type="uint16" elements="1" defaultvalue="0"/>
+        <field name="BoardType" units="" type="uint8" elements="1" defaultvalue="0"/>
+        <access gcs="readwrite" flight="readwrite"/>
+        <telemetrygcs acked="true" updatemode="onchange" period="0"/>
+        <telemetryflight acked="true" updatemode="onchange" period="0"/>
+        <logging updatemode="manual" period="0"/>
+    </object>
+</xml>

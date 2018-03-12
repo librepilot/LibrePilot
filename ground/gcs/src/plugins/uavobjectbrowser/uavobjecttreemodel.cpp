@@ -280,28 +280,13 @@ QModelIndex UAVObjectTreeModel::index(int row, int column, const QModelIndex &pa
     TreeItem *childItem = parentItem->getChild(row);
     if (childItem) {
         return createIndex(row, column, childItem);
-    } else {
-        return QModelIndex();
     }
+    return QModelIndex();
 }
 
-QModelIndex UAVObjectTreeModel::index(TreeItem *item)
+QModelIndex UAVObjectTreeModel::index(TreeItem *item, int column)
 {
-    if (item->parent() == 0) {
-        return QModelIndex();
-    }
-
-    QModelIndex root = index(item->parent());
-
-    for (int i = 0; i < rowCount(root); ++i) {
-        QModelIndex childIndex = index(i, 0, root);
-        TreeItem *child = static_cast<TreeItem *>(childIndex.internalPointer());
-        if (child == item) {
-            return childIndex;
-        }
-    }
-    Q_ASSERT(false);
-    return QModelIndex();
+    return createIndex(item->row(), column, item);
 }
 
 QModelIndex UAVObjectTreeModel::parent(const QModelIndex &index) const
@@ -464,11 +449,6 @@ void UAVObjectTreeModel::highlightUpdatedObject(UAVObject *obj)
         item->setHighlight(true);
     }
     item->update();
-    if (!m_onlyHilightChangedValues) {
-        QModelIndex itemIndex = index(item);
-        Q_ASSERT(itemIndex != QModelIndex());
-        emit dataChanged(itemIndex, itemIndex);
-    }
 }
 
 ObjectTreeItem *UAVObjectTreeModel::findObjectTreeItem(UAVObject *object)
@@ -503,18 +483,29 @@ MetaObjectTreeItem *UAVObjectTreeModel::findMetaObjectTreeItem(UAVMetaObject *ob
 
 void UAVObjectTreeModel::updateHighlight(TreeItem *item)
 {
-    QModelIndex itemIndex = index(item);
+    // performance note: here we emit data changes column by column
+    // emitting a dataChanged that spans multiple columns kills performance (CPU shoots up)
+    // this is probably because we configure the sort/filter proxy to be dynamic
+    // this happens when calling setDynamicSortFilter(true) on it which we do
 
+    QModelIndex itemIndex;
+
+    itemIndex = index(item, TreeItem::TITLE_COLUMN);
     Q_ASSERT(itemIndex != QModelIndex());
-    emit dataChanged(itemIndex, itemIndex.sibling(itemIndex.row(), TreeItem::DATA_COLUMN));
+    emit dataChanged(itemIndex, itemIndex);
+
+    itemIndex = index(item, TreeItem::DATA_COLUMN);
+    Q_ASSERT(itemIndex != QModelIndex());
+    emit dataChanged(itemIndex, itemIndex);
 }
 
 void UAVObjectTreeModel::updateIsKnown(TreeItem *item)
 {
-    QModelIndex itemIndex = index(item);
+    QModelIndex itemIndex;
 
+    itemIndex = index(item, TreeItem::TITLE_COLUMN);
     Q_ASSERT(itemIndex != QModelIndex());
-    emit dataChanged(itemIndex, itemIndex.sibling(itemIndex.row(), TreeItem::TITLE_COLUMN));
+    emit dataChanged(itemIndex, itemIndex);
 }
 
 void UAVObjectTreeModel::isKnownChanged(UAVObject *object, bool isKnown)

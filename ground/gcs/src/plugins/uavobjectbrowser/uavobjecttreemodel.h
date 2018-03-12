@@ -100,7 +100,7 @@ private slots:
 
 private:
     void setupModelData(UAVObjectManager *objManager);
-    QModelIndex index(TreeItem *item);
+    QModelIndex index(TreeItem *item, int column = 0);
     void addDataObject(UAVDataObject *obj);
     MetaObjectTreeItem *addMetaObject(UAVMetaObject *obj, TreeItem *parent);
     void addArrayField(UAVObjectField *field, TreeItem *parent);

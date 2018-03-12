@@ -73,8 +73,40 @@ public:
         return parent()->isKnown();
     }
 
+    void setData(QVariant value, int column)
+    {
+        QVariant currentValue = fieldToData();
+
+        setChanged(currentValue != value);
+        TreeItem::setData(value, column);
+    }
+
+    void update()
+    {
+        bool updated = false;
+
+        if (!changed()) {
+            QVariant currentValue = fieldToData();
+            if (data() != currentValue) {
+                updated = true;
+                TreeItem::setData(currentValue);
+            }
+        }
+        if (changed() || updated) {
+            setHighlight(true);
+        }
+    }
+
+    void apply()
+    {
+        m_field->setValue(dataToField(), m_index);
+        setChanged(false);
+    }
 
 protected:
+    virtual QVariant fieldToData() const = 0;
+    virtual QVariant dataToField() const = 0;
+
     int m_index;
     UAVObjectField *m_field;
 };
@@ -90,16 +122,6 @@ public:
         FieldTreeItem(index, data, field, parent), m_enumOptions(field->getOptions())
     {}
 
-    void setData(QVariant value, int column)
-    {
-        QStringList options = m_field->getOptions();
-        QVariant tmpValue   = m_field->getValue(m_index);
-        int tmpValIndex     = options.indexOf(tmpValue.toString());
-
-        setChanged(tmpValIndex != value);
-        TreeItem::setData(value, column);
-    }
-
     QString enumOptions(int index)
     {
         if ((index < 0) || (index >= m_enumOptions.length())) {
@@ -108,25 +130,21 @@ public:
         return m_enumOptions.at(index);
     }
 
-    void apply()
-    {
-        int value = data().toInt();
-        QStringList options = m_field->getOptions();
-
-        m_field->setValue(options[value], m_index);
-        setChanged(false);
-    }
-
-    void update()
+    QVariant fieldToData() const
     {
         QStringList options = m_field->getOptions();
         QVariant value = m_field->getValue(m_index);
         int valIndex   = options.indexOf(value.toString());
 
-        if (data() != valIndex || changed()) {
-            TreeItem::setData(valIndex);
-            setHighlight(true);
-        }
+        return valIndex;
+    }
+
+    QVariant dataToField() const
+    {
+        int value = data().toInt();
+        QStringList options = m_field->getOptions();
+
+        return options[value];
     }
 
     QWidget *createEditor(QWidget *parent) const
@@ -207,6 +225,16 @@ public:
         }
     }
 
+    QVariant fieldToData() const
+    {
+        return m_field->getValue(m_index).toInt();
+    }
+
+    QVariant dataToField() const
+    {
+        return data().toInt();
+    }
+
     QWidget *createEditor(QWidget *parent) const
     {
         QSpinBox *editor = new QSpinBox(parent);
@@ -231,28 +259,6 @@ public:
         spinBox->setValue(value.toInt());
     }
 
-    void setData(QVariant value, int column)
-    {
-        setChanged(m_field->getValue(m_index) != value);
-        TreeItem::setData(value, column);
-    }
-
-    void apply()
-    {
-        m_field->setValue(data().toInt(), m_index);
-        setChanged(false);
-    }
-
-    void update()
-    {
-        int value = m_field->getValue(m_index).toInt();
-
-        if (data() != value || changed()) {
-            TreeItem::setData(value);
-            setHighlight(true);
-        }
-    }
-
 private:
     int m_minValue;
     int m_maxValue;
@@ -267,26 +273,14 @@ public:
     FloatFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, bool scientific = false, TreeItem *parent = 0) :
         FieldTreeItem(index, data, field, parent), m_useScientificNotation(scientific) {}
 
-    void setData(QVariant value, int column)
+    QVariant fieldToData() const
     {
-        setChanged(m_field->getValue(m_index) != value);
-        TreeItem::setData(value, column);
+        return m_field->getValue(m_index).toDouble();
     }
 
-    void apply()
+    QVariant dataToField() const
     {
-        m_field->setValue(data().toDouble(), m_index);
-        setChanged(false);
-    }
-
-    void update()
-    {
-        double value = m_field->getValue(m_index).toDouble();
-
-        if (data() != value || changed()) {
-            TreeItem::setData(value);
-            setHighlight(true);
-        }
+        return data().toDouble();
     }
 
     QWidget *createEditor(QWidget *parent) const
@@ -345,6 +339,16 @@ public:
         FieldTreeItem(index, data, field, parent)
     {}
 
+    QVariant fieldToData() const
+    {
+        return toHexString(m_field->getValue(m_index));
+    }
+
+    QVariant dataToField() const
+    {
+        return toUInt(data());
+    }
+
     QWidget *createEditor(QWidget *parent) const
     {
         QLineEdit *lineEdit = new QLineEdit(parent);
@@ -366,28 +370,6 @@ public:
         QLineEdit *lineEdit = static_cast<QLineEdit *>(editor);
 
         lineEdit->setText(value.toString());
-    }
-
-    void setData(QVariant value, int column)
-    {
-        setChanged(m_field->getValue(m_index) != toUInt(value));
-        TreeItem::setData(value, column);
-    }
-
-    void apply()
-    {
-        m_field->setValue(toUInt(data()), m_index);
-        setChanged(false);
-    }
-
-    void update()
-    {
-        QVariant value = toHexString(m_field->getValue(m_index));
-
-        if (data() != value || changed()) {
-            TreeItem::setData(value);
-            setHighlight(true);
-        }
     }
 
 private:
@@ -418,6 +400,16 @@ public:
         FieldTreeItem(index, data, field, parent)
     {}
 
+    QVariant fieldToData() const
+    {
+        return toChar(m_field->getValue(m_index));
+    }
+
+    QVariant dataToField() const
+    {
+        return toUInt(data());
+    }
+
     QWidget *createEditor(QWidget *parent) const
     {
         QLineEdit *lineEdit = new QLineEdit(parent);
@@ -441,27 +433,6 @@ public:
         lineEdit->setText(value.toString());
     }
 
-    void setData(QVariant value, int column)
-    {
-        setChanged(m_field->getValue(m_index) != toUInt(value));
-        TreeItem::setData(value, column);
-    }
-
-    void apply()
-    {
-        m_field->setValue(toUInt(data()), m_index);
-        setChanged(false);
-    }
-
-    void update()
-    {
-        QVariant value = toChar(m_field->getValue(m_index));
-
-        if (data() != value || changed()) {
-            TreeItem::setData(value);
-            setHighlight(true);
-        }
-    }
 private:
     QVariant toChar(QVariant value) const
     {

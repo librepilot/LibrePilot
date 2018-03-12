@@ -60,16 +60,15 @@ public:
         TreeItem(data, parent), m_index(index), m_field(field)
     {}
 
-    bool isEditable()
+    bool isEditable() const
     {
         return true;
     }
 
-    virtual QWidget *createEditor(QWidget *parent)   = 0;
-    virtual QVariant getEditorValue(QWidget *editor) = 0;
-    virtual void setEditorValue(QWidget *editor, QVariant value) = 0;
-    virtual void apply() {}
-    virtual bool isKnown()
+    virtual QWidget *createEditor(QWidget *parent) const   = 0;
+    virtual QVariant getEditorValue(QWidget *editor) const = 0;
+    virtual void setEditorValue(QWidget *editor, QVariant value) const = 0;
+    virtual bool isKnown() const
     {
         return parent()->isKnown();
     }
@@ -130,7 +129,7 @@ public:
         }
     }
 
-    QWidget *createEditor(QWidget *parent)
+    QWidget *createEditor(QWidget *parent) const
     {
         QComboBox *editor = new QComboBox(parent);
 
@@ -142,14 +141,14 @@ public:
         return editor;
     }
 
-    QVariant getEditorValue(QWidget *editor)
+    QVariant getEditorValue(QWidget *editor) const
     {
         QComboBox *comboBox = static_cast<QComboBox *>(editor);
 
         return comboBox->currentIndex();
     }
 
-    void setEditorValue(QWidget *editor, QVariant value)
+    void setEditorValue(QWidget *editor, QVariant value) const
     {
         QComboBox *comboBox = static_cast<QComboBox *>(editor);
 
@@ -208,7 +207,7 @@ public:
         }
     }
 
-    QWidget *createEditor(QWidget *parent)
+    QWidget *createEditor(QWidget *parent) const
     {
         QSpinBox *editor = new QSpinBox(parent);
 
@@ -217,7 +216,7 @@ public:
         return editor;
     }
 
-    QVariant getEditorValue(QWidget *editor)
+    QVariant getEditorValue(QWidget *editor) const
     {
         QSpinBox *spinBox = static_cast<QSpinBox *>(editor);
 
@@ -225,7 +224,7 @@ public:
         return spinBox->value();
     }
 
-    void setEditorValue(QWidget *editor, QVariant value)
+    void setEditorValue(QWidget *editor, QVariant value) const
     {
         QSpinBox *spinBox = static_cast<QSpinBox *>(editor);
 
@@ -290,7 +289,7 @@ public:
         }
     }
 
-    QWidget *createEditor(QWidget *parent)
+    QWidget *createEditor(QWidget *parent) const
     {
         if (m_useScientificNotation) {
             QScienceSpinBox *editor = new QScienceSpinBox(parent);
@@ -307,7 +306,7 @@ public:
         }
     }
 
-    QVariant getEditorValue(QWidget *editor)
+    QVariant getEditorValue(QWidget *editor) const
     {
         if (m_useScientificNotation) {
             QScienceSpinBox *spinBox = static_cast<QScienceSpinBox *>(editor);
@@ -320,7 +319,7 @@ public:
         }
     }
 
-    void setEditorValue(QWidget *editor, QVariant value)
+    void setEditorValue(QWidget *editor, QVariant value) const
     {
         if (m_useScientificNotation) {
             QScienceSpinBox *spinBox = static_cast<QScienceSpinBox *>(editor);
@@ -346,7 +345,7 @@ public:
         FieldTreeItem(index, data, field, parent)
     {}
 
-    QWidget *createEditor(QWidget *parent)
+    QWidget *createEditor(QWidget *parent) const
     {
         QLineEdit *lineEdit = new QLineEdit(parent);
 
@@ -355,14 +354,14 @@ public:
         return lineEdit;
     }
 
-    QVariant getEditorValue(QWidget *editor)
+    QVariant getEditorValue(QWidget *editor) const
     {
         QLineEdit *lineEdit = static_cast<QLineEdit *>(editor);
 
         return lineEdit->text();
     }
 
-    void setEditorValue(QWidget *editor, QVariant value)
+    void setEditorValue(QWidget *editor, QVariant value) const
     {
         QLineEdit *lineEdit = static_cast<QLineEdit *>(editor);
 
@@ -392,7 +391,7 @@ public:
     }
 
 private:
-    QVariant toHexString(QVariant value)
+    QVariant toHexString(QVariant value) const
     {
         QString str;
         bool ok;
@@ -400,7 +399,7 @@ private:
         return str.setNum(value.toUInt(&ok), 16).toUpper();
     }
 
-    QVariant toUInt(QVariant str)
+    QVariant toUInt(QVariant str) const
     {
         bool ok;
 
@@ -419,7 +418,7 @@ public:
         FieldTreeItem(index, data, field, parent)
     {}
 
-    QWidget *createEditor(QWidget *parent)
+    QWidget *createEditor(QWidget *parent) const
     {
         QLineEdit *lineEdit = new QLineEdit(parent);
 
@@ -428,14 +427,14 @@ public:
         return lineEdit;
     }
 
-    QVariant getEditorValue(QWidget *editor)
+    QVariant getEditorValue(QWidget *editor) const
     {
         QLineEdit *lineEdit = static_cast<QLineEdit *>(editor);
 
         return lineEdit->text();
     }
 
-    void setEditorValue(QWidget *editor, QVariant value)
+    void setEditorValue(QWidget *editor, QVariant value) const
     {
         QLineEdit *lineEdit = static_cast<QLineEdit *>(editor);
 
@@ -463,14 +462,13 @@ public:
             setHighlight(true);
         }
     }
-
 private:
-    QVariant toChar(QVariant value)
+    QVariant toChar(QVariant value) const
     {
         return value.toChar();
     }
 
-    QVariant toUInt(QVariant str)
+    QVariant toUInt(QVariant str) const
     {
         return QVariant(str.toString().at(0).toLatin1());
     }

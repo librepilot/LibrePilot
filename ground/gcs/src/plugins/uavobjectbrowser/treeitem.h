@@ -99,7 +99,7 @@ public:
     void appendChild(TreeItem *child);
     void insertChild(TreeItem *child);
 
-    TreeItem *getChild(int index);
+    TreeItem *getChild(int index) const;
     inline QList<TreeItem *> treeChildren() const
     {
         return m_children;
@@ -107,12 +107,13 @@ public:
     int childCount() const;
     int columnCount() const;
     virtual QVariant data(int column = 1) const;
-    QString description()
+    QString description() const
     {
         return m_description;
     }
-    void setDescription(QString d) // Split around 40 characters
+    void setDescription(QString d)
     {
+        // Split around 40 characters
         int idx = d.indexOf(" ", 40);
 
         d.insert(idx, QString("<br>"));
@@ -123,7 +124,7 @@ public:
     // other columns are initialized in constructor
     virtual void setData(QVariant value, int column = 1);
     int row() const;
-    TreeItem *parent()
+    TreeItem *parent() const
     {
         return m_parent;
     }
@@ -131,14 +132,14 @@ public:
     {
         m_parent = parent;
     }
-    inline virtual bool isEditable()
+    inline virtual bool isEditable() const
     {
         return false;
     }
     virtual void update();
     virtual void apply();
 
-    inline bool highlighted()
+    inline bool highlighted() const
     {
         return m_highlight;
     }
@@ -148,7 +149,7 @@ public:
         m_highlightTimeMs = time;
     }
 
-    inline bool changed()
+    inline bool changed() const
     {
         return m_changed;
     }
@@ -159,11 +160,11 @@ public:
 
     virtual void setHighlightManager(HighLightManager *mgr);
 
-    QTime getHiglightExpires();
+    QTime getHiglightExpires() const;
 
     virtual void removeHighlight();
 
-    int nameIndex(QString name)
+    int nameIndex(QString name) const
     {
         for (int i = 0; i < childCount(); ++i) {
             if (name < getChild(i)->data(0).toString()) {
@@ -173,7 +174,7 @@ public:
         return childCount();
     }
 
-    TreeItem *findChildByName(QString name)
+    TreeItem *findChildByName(QString name) const
     {
         foreach(TreeItem * child, m_children) {
             if (name == child->data(0).toString()) {
@@ -219,7 +220,7 @@ public:
             emit updateIsKnown(this);
         }
     }
-    virtual bool isKnown()
+    virtual bool isKnown() const
     {
         return true;
     }

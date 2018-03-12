@@ -161,7 +161,7 @@ void TreeItem::insertChild(TreeItem *child)
     child->setParentTree(this);
 }
 
-TreeItem *TreeItem::getChild(int index)
+TreeItem *TreeItem::getChild(int index) const
 {
     return m_children.value(index);
 }
@@ -250,7 +250,7 @@ void TreeItem::setHighlightManager(HighLightManager *mgr)
     m_highlightManager = mgr;
 }
 
-QTime TreeItem::getHiglightExpires()
+QTime TreeItem::getHiglightExpires() const
 {
     return m_highlightExpires;
 }

@@ -1276,13 +1276,13 @@ static void pios_openlrs_task(void *parameters)
                 }
             } else {
                 // We timed out because packet was missed
-                DEBUG_PRINTF(3, "ISR Timeout. Missed packet: %d %d %d\r\n", delay, getInterval(&openlrs_dev->bind_data), time_since_packet_us);
+                // DEBUG_PRINTF(3, "ISR Timeout. Missed packet: %d %d %d\r\n", delay_ms, getInterval(&openlrs_dev->bind_data), time_since_packet_us);
                 pios_openlrs_rx_loop(openlrs_dev);
             }
 
             rssi_sampled = true;
         } else {
-            // DEBUG_PRINTF(3, "ISR %d %d %d\r\n", delay, getInterval(&openlrs_dev->bind_data), time_since_packet_us);
+            // DEBUG_PRINTF(3, "ISR %d %d %d\r\n", delay_ms, getInterval(&openlrs_dev->bind_data), time_since_packet_us);
 
             // Process incoming data
             pios_openlrs_rx_loop(openlrs_dev);

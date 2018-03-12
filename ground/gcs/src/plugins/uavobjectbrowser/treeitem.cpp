@@ -212,7 +212,7 @@ void TreeItem::apply()
  */
 void TreeItem::setHighlight(bool highlight)
 {
-    m_changed   = false;
+    m_changed = false;
     if (m_highlight != highlight) {
         m_highlight = highlight;
         if (highlight) {
@@ -265,28 +265,32 @@ QVariant ArrayFieldTreeItem::data(int column) const
     if (column == 1) {
         if (m_field->getType() == UAVObjectField::UINT8 && m_field->getUnits().toLower() == "char") {
             QString dataString;
+            dataString.reserve(2 + m_field->getNumElements());
+            dataString.append("'");
             for (uint i = 0; i < m_field->getNumElements(); ++i) {
                 dataString.append(m_field->getValue(i).toChar());
             }
-            QString data = QString("'%1'").arg(dataString);
-            return data;
+            dataString.append("'");
+            return dataString;
         } else if (m_field->getUnits().toLower() == "hex") {
             QString dataString;
+            int len = TreeItem::maxHexStringLength(m_field->getType());
+            QChar fillChar('0');
+            dataString.reserve(2 + (len + 1) * m_field->getNumElements());
+            dataString.append("{");
             for (uint i = 0; i < m_field->getNumElements(); ++i) {
                 if (i > 0) {
                     dataString.append(' ');
                 }
                 bool ok;
-                dataString.append(QString("%1")
-                                  .arg(m_field->getValue(i).toUInt(&ok), TreeItem::maxHexStringLength(m_field->getType()),
-                                       16, QChar('0')).toUpper());
+                uint value  = m_field->getValue(i).toUInt(&ok);
+                QString str = QString("%1").arg(value, len, 16, fillChar);
+                str = str.toUpper();
+                dataString.append(str);
             }
-            QString data = QString("{%1}").arg(dataString);
-            return data;
-        } else {
-            return QVariant();
+            dataString.append("}");
+            return dataString;
         }
-    } else {
-        return TreeItem::data(column);
     }
+    return TreeItem::data(column);
 }

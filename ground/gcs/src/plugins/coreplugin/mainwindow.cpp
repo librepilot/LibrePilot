@@ -88,6 +88,10 @@
 #include <QDir>
 #include <QMimeData>
 
+#ifdef Q_OS_WIN
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
+
 using namespace Core;
 using namespace Core::Internal;
 
@@ -1337,6 +1341,9 @@ void MainWindow::setFullScreen(bool on)
     }
 
     if (on) {
+#ifdef Q_OS_WIN
+        QWindowsWindowFunctions::setHasBorderInFullScreen(windowHandle(), true);
+#endif
         setWindowState(windowState() | Qt::WindowFullScreen);
     } else {
         setWindowState(windowState() & ~Qt::WindowFullScreen);

@@ -346,7 +346,7 @@ static const uint8_t channel_spacing[] = {
     3, /* 100kbps */
     4, /* 128kbps */
     4, /* 192kbps */
-    4, /* 256kbps */
+    5, /* 256kbps */
 };
 
 static const uint8_t channel_limits[] = {

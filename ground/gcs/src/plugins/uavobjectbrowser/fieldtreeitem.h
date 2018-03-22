@@ -29,12 +29,14 @@
 #define FIELDTREEITEM_H
 
 #include "treeitem.h"
-#include <QtCore/QStringList>
+
+#include <QStringList>
 #include <QWidget>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <qscispinbox/QScienceSpinBox.h>
 #include <QComboBox>
+
 #include <limits>
 
 #define QINT8MIN   std::numeric_limits<qint8>::min()
@@ -49,15 +51,13 @@
 #define QUINT32MAX std::numeric_limits<qint32>::max()
 
 class FieldTreeItem : public TreeItem {
-    Q_OBJECT
 public:
 
-    FieldTreeItem(int index, const QList<QVariant> &data, UAVObjectField *field, TreeItem *parent = 0) :
-        TreeItem(data, parent), m_index(index), m_field(field)
+    FieldTreeItem(int index, const QList<QVariant> &data, UAVObjectField *field, TreeItem *parentItem) :
+        TreeItem(data, parentItem), m_index(index), m_field(field)
     {}
-
-    FieldTreeItem(int index, const QVariant &data, UAVObjectField *field, TreeItem *parent = 0) :
-        TreeItem(data, parent), m_index(index), m_field(field)
+    FieldTreeItem(int index, const QVariant &data, UAVObjectField *field, TreeItem *parentItem) :
+        TreeItem(data, parentItem), m_index(index), m_field(field)
     {}
 
     bool isEditable() const
@@ -68,10 +68,6 @@ public:
     virtual QWidget *createEditor(QWidget *parent) const   = 0;
     virtual QVariant getEditorValue(QWidget *editor) const = 0;
     virtual void setEditorValue(QWidget *editor, QVariant value) const = 0;
-    virtual bool isKnown() const
-    {
-        return parent()->isKnown();
-    }
 
     void setData(QVariant value, int column)
     {
@@ -93,7 +89,7 @@ public:
             }
         }
         if (changed() || updated) {
-            setHighlight(true);
+            setHighlighted(true);
         }
     }
 
@@ -112,14 +108,13 @@ protected:
 };
 
 class EnumFieldTreeItem : public FieldTreeItem {
-    Q_OBJECT
 public:
-    EnumFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent), m_enumOptions(field->getOptions())
+    EnumFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem), m_enumOptions(field->getOptions())
     {}
 
-    EnumFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent), m_enumOptions(field->getOptions())
+    EnumFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem), m_enumOptions(field->getOptions())
     {}
 
     QString enumOptions(int index)
@@ -178,16 +173,14 @@ private:
 };
 
 class IntFieldTreeItem : public FieldTreeItem {
-    Q_OBJECT
 public:
-    IntFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent)
+    IntFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem)
     {
         setMinMaxValues();
     }
-
-    IntFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent)
+    IntFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem)
     {
         setMinMaxValues();
     }
@@ -265,13 +258,12 @@ private:
 };
 
 class FloatFieldTreeItem : public FieldTreeItem {
-    Q_OBJECT
 public:
-    FloatFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, bool scientific = false, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent), m_useScientificNotation(scientific) {}
+    FloatFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, bool scientific, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem), m_useScientificNotation(scientific) {}
 
-    FloatFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, bool scientific = false, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent), m_useScientificNotation(scientific) {}
+    FloatFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, bool scientific, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem), m_useScientificNotation(scientific) {}
 
     QVariant fieldToData() const
     {
@@ -329,14 +321,13 @@ private:
 };
 
 class HexFieldTreeItem : public FieldTreeItem {
-    Q_OBJECT
 public:
-    HexFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent)
+    HexFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem)
     {}
 
-    HexFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent)
+    HexFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem)
     {}
 
     QVariant fieldToData() const
@@ -390,14 +381,13 @@ private:
 };
 
 class CharFieldTreeItem : public FieldTreeItem {
-    Q_OBJECT
 public:
-    CharFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent)
+    CharFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem)
     {}
 
-    CharFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parent = 0) :
-        FieldTreeItem(index, data, field, parent)
+    CharFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
+        FieldTreeItem(index, data, field, parentItem)
     {}
 
     QVariant fieldToData() const

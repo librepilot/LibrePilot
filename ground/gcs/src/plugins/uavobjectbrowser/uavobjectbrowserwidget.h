@@ -79,10 +79,10 @@ public:
         m_recentlyUpdatedTimeout = timeout;
         m_model->setRecentlyUpdatedTimeout(timeout);
     }
-    void setOnlyHilightChangedValues(bool hilight)
+    void setOnlyHighlightChangedValues(bool hilight)
     {
-        m_onlyHilightChangedValues = hilight;
-        m_model->setOnlyHilightChangedValues(hilight);
+        m_onlyHighlightChangedValues = hilight;
+        m_model->setOnlyHighlightChangedValues(hilight);
     }
     void setViewOptions(bool categorized, bool scientific, bool metadata, bool description);
     void setSplitterState(QByteArray state);
@@ -119,10 +119,12 @@ private:
     QColor m_unknownObjectColor;
     QColor m_recentlyUpdatedColor;
     QColor m_manuallyChangedColor;
-    bool m_onlyHilightChangedValues;
+    bool m_onlyHighlightChangedValues;
     QString m_mustacheTemplate;
 
-    void updateObjectPersistance(ObjectPersistence::OperationOptions op, UAVObject *obj);
+    UAVObjectTreeModel *createTreeModel();
+
+    void updateObjectPersistence(ObjectPersistence::OperationOptions op, UAVObject *obj);
     void enableSendRequest(bool enable);
     void updateDescription();
     ObjectTreeItem *findCurrentObjectTreeItem();

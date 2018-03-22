@@ -31,14 +31,13 @@
 #include "uavobject.h"
 #include "uavmetaobject.h"
 #include "uavobjectfield.h"
-#include <QtCore/QList>
-#include <QtCore/QLinkedList>
-#include <QtCore/QMap>
-#include <QtCore/QVariant>
-#include <QtCore/QTime>
-#include <QtCore/QTimer>
-#include <QtCore/QObject>
-#include <QtCore/QDebug>
+
+#include <QList>
+#include <QMap>
+#include <QVariant>
+#include <QTime>
+#include <QTimer>
+#include <QObject>
 
 class TreeItem;
 
@@ -57,10 +56,10 @@ class TreeItem;
  * left untouched in the list. This reduces unwanted emits
  * of signals to the repaint/update function.
  */
-class HighLightManager : public QObject {
+class HighlightManager : public QObject {
     Q_OBJECT
 public:
-    HighLightManager();
+    HighlightManager();
 
     // This is called when an item has been set to
     // highlighted = true.
@@ -70,6 +69,11 @@ public:
     bool remove(TreeItem *itemToRemove);
 
     bool startTimer(QTime time);
+
+    void reset();
+
+signals:
+    void updateHighlight(TreeItem *item);
 
 private slots:
     // Timer callback method.
@@ -86,23 +90,22 @@ private:
     QMutex m_mutex;
 };
 
-class TreeItem : public QObject {
-    Q_OBJECT
+class TreeItem {
 public:
     static const int TITLE_COLUMN = 0;
-    static const int DATA_COLUMN = 1;
+    static const int DATA_COLUMN  = 1;
 
-    TreeItem(const QList<QVariant> &data, TreeItem *parent = 0);
-    TreeItem(const QVariant &data, TreeItem *parent = 0);
+    TreeItem(const QList<QVariant> &data, TreeItem *parentItem = 0);
+    TreeItem(const QVariant &data, TreeItem *parentItem = 0);
     virtual ~TreeItem();
 
     void appendChild(TreeItem *child);
     void insertChild(TreeItem *child);
 
-    TreeItem *getChild(int index) const;
-    inline QList<TreeItem *> treeChildren() const
+    TreeItem *child(int index) const;
+    QList<TreeItem *> children() const
     {
-        return m_children;
+        return m_childItems;
     }
     int childCount() const;
     int columnCount() const;
@@ -124,50 +127,57 @@ public:
     // other columns are initialized in constructor
     virtual void setData(QVariant value, int column = 1);
     int row() const;
-    TreeItem *parent() const
+    TreeItem *parentItem() const
     {
-        return m_parent;
+        return m_parentItem;
     }
-    void setParentTree(TreeItem *parent)
-    {
-        m_parent = parent;
-    }
-    inline virtual bool isEditable() const
+    virtual bool isEditable() const
     {
         return false;
     }
     virtual void update();
     virtual void apply();
 
-    inline bool highlighted() const
+    bool changed() const
     {
-        return m_highlight;
+        return m_changed;
     }
-    void setHighlight(bool highlight);
+
+    void setChanged(bool changed)
+    {
+        m_changed = changed;
+    }
+
+    bool isHighlighted() const
+    {
+        return m_highlighted;
+    }
+
+    void setHighlighted(bool highlighted);
+
     static void setHighlightTime(int time)
     {
         m_highlightTimeMs = time;
     }
 
-    inline bool changed() const
+    QTime getHighlightExpires() const;
+
+    void resetHighlight();
+
+    void setHighlightManager(HighlightManager *mgr);
+
+    virtual bool isKnown() const
     {
-        return m_changed;
+        if (m_parentItem) {
+            return m_parentItem->isKnown();
+        }
+        return true;
     }
-    inline void setChanged(bool changed)
-    {
-        m_changed = changed;
-    }
-
-    virtual void setHighlightManager(HighLightManager *mgr);
-
-    QTime getHiglightExpires() const;
-
-    virtual void removeHighlight();
 
     int nameIndex(QString name) const
     {
         for (int i = 0; i < childCount(); ++i) {
-            if (name < getChild(i)->data(0).toString()) {
+            if (name < child(i)->data(0).toString()) {
                 return i;
             }
         }
@@ -176,7 +186,7 @@ public:
 
     TreeItem *findChildByName(QString name) const
     {
-        foreach(TreeItem * child, m_children) {
+        foreach(TreeItem * child, m_childItems) {
             if (name == child->data(0).toString()) {
                 return child;
             }
@@ -210,49 +220,35 @@ public:
         }
         return 0;
     }
-    void updateIsKnown(bool isKnown)
-    {
-        if (isKnown != this->isKnown()) {
-            m_changed = false;
-            foreach(TreeItem * child, m_children) {
-                child->updateIsKnown(isKnown);
-            }
-            emit updateIsKnown(this);
-        }
-    }
-    virtual bool isKnown() const
-    {
-        return true;
-    }
-
-signals:
-    void updateHighlight(TreeItem *item);
-    void updateIsKnown(TreeItem *item);
-
-private slots:
 
 private:
     static int m_highlightTimeMs;
-    QList<TreeItem *> m_children;
 
+    QList<TreeItem *> m_childItems;
     // m_data contains: [0] property name, [1] value, [2] unit
-    QList<QVariant> m_data;
+    QList<QVariant> m_itemData;
+    TreeItem *m_parentItem;
+
     QString m_description;
-    TreeItem *m_parent;
-    bool m_highlight;
+
     bool m_changed;
+
+    bool m_highlighted;
     QTime m_highlightExpires;
-    HighLightManager *m_highlightManager;
+    HighlightManager *m_highlightManager;
 };
 
 class DataObjectTreeItem;
 class MetaObjectTreeItem;
 
 class TopTreeItem : public TreeItem {
-    Q_OBJECT
 public:
-    TopTreeItem(const QList<QVariant> &data, TreeItem *parent = 0) : TreeItem(data, parent) {}
-    TopTreeItem(const QVariant &data, TreeItem *parent = 0) : TreeItem(data, parent) {}
+    TopTreeItem(const QList<QVariant> &data, TreeItem *parentItem) :
+        TreeItem(data, parentItem)
+    {}
+    TopTreeItem(const QVariant &data, TreeItem *parentItem) :
+        TreeItem(data, parentItem)
+    {}
 
     void addObjectTreeItem(quint32 objectId, DataObjectTreeItem *oti)
     {
@@ -274,33 +270,27 @@ public:
         return m_metaObjectTreeItemsPerObjectIds.value(objectId, 0);
     }
 
-    QList<MetaObjectTreeItem *> getMetaObjectItems();
-
 private:
     QHash<quint32, DataObjectTreeItem *> m_objectTreeItemsPerObjectIds;
     QHash<quint32, MetaObjectTreeItem *> m_metaObjectTreeItemsPerObjectIds;
 };
 
 class ObjectTreeItem : public TreeItem {
-    Q_OBJECT
 public:
-    ObjectTreeItem(const QList<QVariant> &data, UAVObject *object, TreeItem *parent = 0) :
-        TreeItem(data, parent), m_obj(object)
+    ObjectTreeItem(const QList<QVariant> &data, UAVObject *object, TreeItem *parentItem) :
+        TreeItem(data, parentItem), m_obj(object)
     {
         setDescription(m_obj->getDescription());
     }
-    ObjectTreeItem(const QVariant &data, UAVObject *object, TreeItem *parent = 0) :
-        TreeItem(data, parent), m_obj(object)
+    ObjectTreeItem(const QVariant &data, UAVObject *object, TreeItem *parentItem) :
+        TreeItem(data, parentItem), m_obj(object)
     {
         setDescription(m_obj->getDescription());
     }
-    inline UAVObject *object()
+
+    UAVObject *object() const
     {
         return m_obj;
-    }
-    bool isKnown()
-    {
-        return !m_obj->isSettingsObject() || m_obj->isKnown();
     }
 
 private:
@@ -308,31 +298,27 @@ private:
 };
 
 class MetaObjectTreeItem : public ObjectTreeItem {
-    Q_OBJECT
 public:
-    MetaObjectTreeItem(UAVObject *object, const QList<QVariant> &data, TreeItem *parent = 0) :
-        ObjectTreeItem(data, object, parent)
+    MetaObjectTreeItem(UAVObject *object, const QList<QVariant> &data, TreeItem *parentItem) :
+        ObjectTreeItem(data, object, parentItem)
     {}
-    MetaObjectTreeItem(UAVObject *object, const QVariant &data, TreeItem *parent = 0) :
-        ObjectTreeItem(data, object, parent)
+    MetaObjectTreeItem(UAVObject *object, const QVariant &data, TreeItem *parentItem) :
+        ObjectTreeItem(data, object, parentItem)
     {}
-
-    bool isKnown()
-    {
-        return parent()->isKnown();
-    }
 };
 
 class DataObjectTreeItem : public ObjectTreeItem {
-    Q_OBJECT
 public:
-    DataObjectTreeItem(const QList<QVariant> &data, UAVObject *object, TreeItem *parent = 0) :
-        ObjectTreeItem(data, object, parent) {}
-    DataObjectTreeItem(const QVariant &data, UAVObject *object, TreeItem *parent = 0) :
-        ObjectTreeItem(data, object, parent) {}
+    DataObjectTreeItem(const QList<QVariant> &data, UAVObject *object, TreeItem *parentItem) :
+        ObjectTreeItem(data, object, parentItem)
+    {}
+    DataObjectTreeItem(const QVariant &data, UAVObject *object, TreeItem *parentItem) :
+        ObjectTreeItem(data, object, parentItem)
+    {}
+
     virtual void apply()
     {
-        foreach(TreeItem * child, treeChildren()) {
+        foreach(TreeItem * child, children()) {
             MetaObjectTreeItem *metaChild = dynamic_cast<MetaObjectTreeItem *>(child);
 
             if (!metaChild) {
@@ -340,9 +326,10 @@ public:
             }
         }
     }
+
     virtual void update()
     {
-        foreach(TreeItem * child, treeChildren()) {
+        foreach(TreeItem * child, children()) {
             MetaObjectTreeItem *metaChild = dynamic_cast<MetaObjectTreeItem *>(child);
 
             if (!metaChild) {
@@ -350,21 +337,27 @@ public:
             }
         }
     }
+
+    virtual bool isKnown() const
+    {
+        return !object()->isSettingsObject() || object()->isKnown();
+    }
 };
 
 class InstanceTreeItem : public DataObjectTreeItem {
-    Q_OBJECT
 public:
-    InstanceTreeItem(UAVObject *object, const QList<QVariant> &data, TreeItem *parent = 0) :
-        DataObjectTreeItem(data, object, parent)
+    InstanceTreeItem(UAVObject *object, const QList<QVariant> &data, TreeItem *parentItem) :
+        DataObjectTreeItem(data, object, parentItem)
     {}
-    InstanceTreeItem(UAVObject *object, const QVariant &data, TreeItem *parent = 0) :
-        DataObjectTreeItem(data, object, parent)
+    InstanceTreeItem(UAVObject *object, const QVariant &data, TreeItem *parentItem) :
+        DataObjectTreeItem(data, object, parentItem)
     {}
+
     virtual void apply()
     {
         TreeItem::apply();
     }
+
     virtual void update()
     {
         TreeItem::update();
@@ -372,17 +365,15 @@ public:
 };
 
 class ArrayFieldTreeItem : public TreeItem {
-    Q_OBJECT
 public:
-    ArrayFieldTreeItem(UAVObjectField *field, const QList<QVariant> &data, TreeItem *parent = 0) : TreeItem(data, parent), m_field(field)
+    ArrayFieldTreeItem(UAVObjectField *field, const QList<QVariant> &data, TreeItem *parentItem) :
+        TreeItem(data, parentItem), m_field(field)
     {}
-    ArrayFieldTreeItem(UAVObjectField *field, const QVariant &data, TreeItem *parent = 0) : TreeItem(data, parent), m_field(field)
+    ArrayFieldTreeItem(UAVObjectField *field, const QVariant &data, TreeItem *parentItem) :
+        TreeItem(data, parentItem), m_field(field)
     {}
+
     QVariant data(int column) const;
-    bool isKnown()
-    {
-        return parent()->isKnown();
-    }
 
 private:
     UAVObjectField *m_field;

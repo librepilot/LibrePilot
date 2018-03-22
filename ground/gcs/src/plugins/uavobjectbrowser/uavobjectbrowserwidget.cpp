@@ -38,6 +38,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include "utils/mustache.h"
 
+#include <QTextStream>
 #include <QDebug>
 
 UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent)
@@ -47,10 +48,7 @@ UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent
     m_viewoptions = new Ui_viewoptions();
     m_viewoptions->setupUi(m_viewoptionsDialog);
 
-    m_model = new UAVObjectTreeModel(this,
-                                     m_viewoptions->cbCategorized->isChecked(),
-                                     m_viewoptions->cbMetaData->isChecked(),
-                                     m_viewoptions->cbScientific->isChecked());
+    m_model = createTreeModel();
 
     m_modelProxy = new TreeSortFilterProxyModel(this);
     m_modelProxy->setSourceModel(m_model);
@@ -156,7 +154,7 @@ ObjectTreeItem *UAVObjectBrowserWidget::findCurrentObjectTreeItem()
         if (objItem) {
             break;
         }
-        item = item->parent();
+        item = item->parentItem();
     }
     return objItem;
 }
@@ -186,7 +184,7 @@ void UAVObjectBrowserWidget::saveObject()
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
-        updateObjectPersistance(ObjectPersistence::OPERATION_SAVE, obj);
+        updateObjectPersistence(ObjectPersistence::OPERATION_SAVE, obj);
     }
 }
 
@@ -198,7 +196,7 @@ void UAVObjectBrowserWidget::loadObject()
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
-        updateObjectPersistance(ObjectPersistence::OPERATION_LOAD, obj);
+        updateObjectPersistence(ObjectPersistence::OPERATION_LOAD, obj);
         // Retrieve object so that latest value is displayed
         requestUpdate();
     }
@@ -211,13 +209,13 @@ void UAVObjectBrowserWidget::eraseObject()
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
-        updateObjectPersistance(ObjectPersistence::OPERATION_DELETE, obj);
+        updateObjectPersistence(ObjectPersistence::OPERATION_DELETE, obj);
         // Retrieve object so that correct default value is displayed
         requestUpdate();
     }
 }
 
-void UAVObjectBrowserWidget::updateObjectPersistance(ObjectPersistence::OperationOptions op, UAVObject *obj)
+void UAVObjectBrowserWidget::updateObjectPersistence(ObjectPersistence::OperationOptions op, UAVObject *obj)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
@@ -238,11 +236,11 @@ void UAVObjectBrowserWidget::currentChanged(const QModelIndex &current, const QM
 {
     Q_UNUSED(previous);
 
-    TreeItem *item = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
-    bool enable    = true;
+    bool enable = true;
     if (!current.isValid()) {
         enable = false;
     }
+    TreeItem *item       = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
     TopTreeItem *top     = dynamic_cast<TopTreeItem *>(item);
     ObjectTreeItem *data = dynamic_cast<ObjectTreeItem *>(item);
     if (top || (data && !data->object())) {
@@ -264,25 +262,33 @@ void UAVObjectBrowserWidget::viewSlot()
     }
 }
 
-void UAVObjectBrowserWidget::updateViewOptions()
+UAVObjectTreeModel *UAVObjectBrowserWidget::createTreeModel()
 {
-    // TODO we should update the model instead of rebuilding it
-    // a side effect of rebuilding is that some state is lost (expand state, ...)
     UAVObjectTreeModel *model = new UAVObjectTreeModel(this,
                                                        m_viewoptions->cbCategorized->isChecked(),
                                                        m_viewoptions->cbMetaData->isChecked(),
                                                        m_viewoptions->cbScientific->isChecked());
 
-    model->setUnknowObjectColor(m_unknownObjectColor);
     model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
     model->setManuallyChangedColor(m_manuallyChangedColor);
     model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
+    model->setUnknowObjectColor(m_unknownObjectColor);
+    model->setOnlyHighlightChangedValues(m_onlyHighlightChangedValues);
 
-    UAVObjectTreeModel *tmpModel = m_model;
-    m_model = model;
-    m_modelProxy->setSourceModel(m_model);
-    delete tmpModel;
+    return model;
+}
+
+void UAVObjectBrowserWidget::updateViewOptions()
+{
+    bool categorize   = m_viewoptions->cbCategorized->isChecked();
+    bool useScientificNotation = m_viewoptions->cbScientific->isChecked();
+    bool showMetadata = m_viewoptions->cbMetaData->isChecked();
+    bool showDesc     = m_viewoptions->cbDescription->isChecked();
+
+    m_model->setShowCategories(categorize);
+    m_model->setShowMetadata(showMetadata);
+    m_model->setShowScientificNotation(useScientificNotation);
+    m_model->resetModelData();
 
     // force an expand all if search text is not empty
     if (!m_browser->searchLine->text().isEmpty()) {
@@ -290,8 +296,7 @@ void UAVObjectBrowserWidget::updateViewOptions()
     }
 
     // persist options
-    emit viewOptionsChanged(m_viewoptions->cbCategorized->isChecked(), m_viewoptions->cbScientific->isChecked(),
-                            m_viewoptions->cbMetaData->isChecked(), m_viewoptions->cbDescription->isChecked());
+    emit viewOptionsChanged(categorize, useScientificNotation, showMetadata, showDesc);
 }
 
 void UAVObjectBrowserWidget::splitterMoved()

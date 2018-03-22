@@ -29,9 +29,10 @@
 #define UAVOBJECTTREEMODEL_H
 
 #include "treeitem.h"
+
 #include <QAbstractItemModel>
-#include <QtCore/QMap>
-#include <QtCore/QList>
+#include <QMap>
+#include <QList>
 #include <QColor>
 
 class TopTreeItem;
@@ -49,7 +50,6 @@ class UAVObjectTreeModel : public QAbstractItemModel {
     Q_OBJECT
 public:
     explicit UAVObjectTreeModel(QObject *parent, bool categorize, bool showMetadata, bool useScientificNotation);
-    explicit UAVObjectTreeModel(bool categorize, bool showMetadata, bool useScientificNotation);
     ~UAVObjectTreeModel();
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -62,6 +62,29 @@ public:
     QModelIndex parent(const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    void resetModelData();
+
+    bool showCategories()
+    {
+        return m_categorize;
+    }
+
+    void setShowCategories(bool showCategories);
+
+    bool showMetadata()
+    {
+        return m_showMetadata;
+    }
+
+    void setShowMetadata(bool showMetadata);
+
+    bool showScientificNotation()
+    {
+        return m_useScientificFloatNotation;
+    }
+
+    void setShowScientificNotation(bool showScientificNotation);
 
     void setUnknowObjectColor(QColor color)
     {
@@ -80,27 +103,23 @@ public:
         m_recentlyUpdatedTimeout = timeout;
         TreeItem::setHighlightTime(timeout);
     }
-    void setOnlyHilightChangedValues(bool hilight)
+    void setOnlyHighlightChangedValues(bool hilight)
     {
-        m_onlyHilightChangedValues = hilight;
+        m_onlyHighlightChangedValues = hilight;
     }
-
-    QList<QModelIndex> getMetaDataIndexes();
-
-signals:
 
 public slots:
     void newObject(UAVObject *obj);
 
 private slots:
+    void updateObject(UAVObject *obj);
+    void updateIsKnown(UAVObject *obj);
     void updateHighlight(TreeItem *item);
     void updateIsKnown(TreeItem *item);
-    void highlightUpdatedObject(UAVObject *obj);
-    void isKnownChanged(UAVObject *object, bool isKnown);
 
 private:
-    void setupModelData(UAVObjectManager *objManager);
     QModelIndex index(TreeItem *item, int column = 0);
+    void setupModelData(UAVObjectManager *objManager);
     void addDataObject(UAVDataObject *obj);
     MetaObjectTreeItem *addMetaObject(UAVMetaObject *obj, TreeItem *parent);
     void addArrayField(UAVObjectField *field, TreeItem *parent);
@@ -124,10 +143,10 @@ private:
     QColor m_recentlyUpdatedColor;
     QColor m_manuallyChangedColor;
     QColor m_unknownObjectColor;
-    bool m_onlyHilightChangedValues;
+    bool m_onlyHighlightChangedValues;
 
     // Highlight manager to handle highlighting of tree items.
-    HighLightManager *m_highlightManager;
+    HighlightManager *m_highlightManager;
 };
 
 #endif // UAVOBJECTTREEMODEL_H

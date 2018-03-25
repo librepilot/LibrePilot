@@ -39,7 +39,7 @@
 UAVObjectTreeModel::UAVObjectTreeModel(QObject *parent) : QAbstractItemModel(parent)
 {
     m_highlightManager = new HighlightManager();
-    connect(m_highlightManager, &HighlightManager::updateHighlight, this, &refreshHighlight);
+    connect(m_highlightManager, &HighlightManager::updateHighlight, this, &UAVObjectTreeModel::refreshHighlight);
 
     TreeItem::setHighlightTime(recentlyUpdatedTimeout());
 
@@ -162,8 +162,8 @@ void UAVObjectTreeModel::setupModelData()
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
     Q_ASSERT(objManager);
 
-    connect(objManager, &UAVObjectManager::newObject, this, &newObject, Qt::UniqueConnection);
-    connect(objManager, &UAVObjectManager::newInstance, this, &newObject, Qt::UniqueConnection);
+    connect(objManager, &UAVObjectManager::newObject, this, &UAVObjectTreeModel::newObject, Qt::UniqueConnection);
+    connect(objManager, &UAVObjectManager::newInstance, this, &UAVObjectTreeModel::newObject, Qt::UniqueConnection);
 
     QList< QList<UAVDataObject *> > objList = objManager->getDataObjects();
     foreach(QList<UAVDataObject *> list, objList) {
@@ -197,11 +197,11 @@ void UAVObjectTreeModel::newObject(UAVObject *obj)
 
 void UAVObjectTreeModel::addObject(UAVDataObject *obj)
 {
-    connect(obj, &UAVDataObject::objectUpdated, this, &updateObject, Qt::UniqueConnection);
-    connect(obj, &UAVDataObject::isKnownChanged, this, &updateIsKnown, Qt::UniqueConnection);
+    connect(obj, &UAVDataObject::objectUpdated, this, &UAVObjectTreeModel::updateObject, Qt::UniqueConnection);
+    connect(obj, &UAVDataObject::isKnownChanged, this, &UAVObjectTreeModel::updateIsKnown, Qt::UniqueConnection);
     if (obj->getInstID() == 0) {
         UAVMetaObject *metaObj = obj->getMetaObject();
-        connect(metaObj, &UAVDataObject::objectUpdated, this, &updateObject, Qt::UniqueConnection);
+        connect(metaObj, &UAVDataObject::objectUpdated, this, &UAVObjectTreeModel::updateObject, Qt::UniqueConnection);
     }
     if (obj->isSingleInstance()) {
         DataObjectTreeItem *dataObjectItem = createDataObject(obj);

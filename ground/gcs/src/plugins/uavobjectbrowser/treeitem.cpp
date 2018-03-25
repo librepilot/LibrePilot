@@ -238,10 +238,10 @@ void TreeItem::setData(QVariant value, int column)
     m_itemData.replace(column, value);
 }
 
-void TreeItem::update()
+void TreeItem::update(const QTime &ts)
 {
     foreach(TreeItem * child, children()) {
-        child->update();
+        child->update(ts);
     }
 }
 
@@ -255,7 +255,7 @@ void TreeItem::apply()
 /*
  * Called after a value has changed to trigger highlighting of tree item.
  */
-void TreeItem::setHighlighted(bool highlighted)
+void TreeItem::setHighlighted(bool highlighted, const QTime &ts)
 {
     m_changed = false;
     if (m_highlighted != highlighted) {
@@ -264,7 +264,7 @@ void TreeItem::setHighlighted(bool highlighted)
             // Add to highlight manager
             m_highlightManager->add(this);
             // Update expiration timeout
-            m_highlightExpires = QTime::currentTime().addMSecs(m_highlightTimeMs);
+            m_highlightExpires = ts.addMSecs(m_highlightTimeMs);
             // start expiration timer if necessary
             m_highlightManager->startTimer(m_highlightExpires);
         } else {
@@ -276,8 +276,7 @@ void TreeItem::setHighlighted(bool highlighted)
     // This will ensure that the root of a leaf that is changed also is highlighted.
     // Only updates that really changes values will trigger highlight of parents.
     if (m_parentItem) {
-        // FIXME: need to pass m_highlightExpires
-        m_parentItem->setHighlighted(highlighted);
+        m_parentItem->setHighlighted(highlighted, ts);
     }
 }
 

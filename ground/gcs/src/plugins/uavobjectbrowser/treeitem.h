@@ -139,7 +139,7 @@ public:
         return false;
     }
 
-    virtual void update();
+    virtual void update(const QTime &ts);
     virtual void apply();
 
     bool changed() const
@@ -157,7 +157,7 @@ public:
         return m_highlighted;
     }
 
-    void setHighlighted(bool highlighted);
+    void setHighlighted(bool highlighted, const QTime &ts);
 
     static void setHighlightTime(int time)
     {
@@ -275,13 +275,13 @@ public:
         }
     }
 
-    virtual void update()
+    virtual void update(const QTime &ts)
     {
         foreach(TreeItem * child, children()) {
             MetaObjectTreeItem *metaChild = dynamic_cast<MetaObjectTreeItem *>(child);
 
             if (!metaChild) {
-                child->update();
+                child->update(ts);
             }
         }
     }
@@ -301,14 +301,14 @@ public:
         DataObjectTreeItem(object, data)
     {}
 
+    virtual void update(const QTime &ts)
+    {
+        TreeItem::update(ts);
+    }
+
     virtual void apply()
     {
         TreeItem::apply();
-    }
-
-    virtual void update()
-    {
-        TreeItem::update();
     }
 };
 

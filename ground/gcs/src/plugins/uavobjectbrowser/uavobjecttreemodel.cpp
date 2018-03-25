@@ -634,9 +634,10 @@ void UAVObjectTreeModel::updateObject(UAVObject *obj)
     ObjectTreeItem *item = findObjectTreeItem(obj->getObjID());
     Q_ASSERT(item);
     // TODO don't update meta object if they are not shown
-    item->update();
+    QTime ts = QTime::currentTime();
+    item->update(ts);
     if (!onlyHighlightChangedValues()) {
-        item->setHighlighted(true);
+        item->setHighlighted(true, ts);
     }
 }
 

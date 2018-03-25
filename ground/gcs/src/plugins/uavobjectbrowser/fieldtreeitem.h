@@ -78,7 +78,7 @@ public:
         TreeItem::setData(value, column);
     }
 
-    void update()
+    void update(const QTime &ts)
     {
         bool updated = false;
 
@@ -90,7 +90,7 @@ public:
             }
         }
         if (changed() || updated) {
-            setHighlighted(true);
+            setHighlighted(true, ts);
         }
     }
 

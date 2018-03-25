@@ -79,10 +79,10 @@ public:
         m_recentlyUpdatedTimeout = timeout;
         m_model->setRecentlyUpdatedTimeout(timeout);
     }
-    void setOnlyHighlightChangedValues(bool hilight)
+    void setOnlyHighlightChangedValues(bool highlight)
     {
-        m_onlyHighlightChangedValues = hilight;
-        m_model->setOnlyHighlightChangedValues(hilight);
+        m_onlyHighlightChangedValues = highlight;
+        m_model->setOnlyHighlightChangedValues(highlight);
     }
     void setViewOptions(bool showCategories, bool showMetadata, bool useScientificNotation, bool showDescription);
     void setSplitterState(QByteArray state);

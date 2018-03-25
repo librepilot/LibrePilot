@@ -95,12 +95,12 @@ UAVObjectBrowserWidget::~UAVObjectBrowserWidget()
     delete m_browser;
 }
 
-void UAVObjectBrowserWidget::setViewOptions(bool categorized, bool scientific, bool metadata, bool description)
+void UAVObjectBrowserWidget::setViewOptions(bool showCategories, bool showMetadata, bool useScientificNotation, bool showDescription)
 {
-    m_viewoptions->cbCategorized->setChecked(categorized);
-    m_viewoptions->cbMetaData->setChecked(metadata);
-    m_viewoptions->cbScientific->setChecked(scientific);
-    m_viewoptions->cbDescription->setChecked(description);
+    m_viewoptions->cbCategorized->setChecked(showCategories);
+    m_viewoptions->cbMetaData->setChecked(showMetadata);
+    m_viewoptions->cbScientific->setChecked(useScientificNotation);
+    m_viewoptions->cbDescription->setChecked(showDescription);
 }
 
 void UAVObjectBrowserWidget::setSplitterState(QByteArray state)
@@ -264,15 +264,16 @@ void UAVObjectBrowserWidget::viewSlot()
 
 UAVObjectTreeModel *UAVObjectBrowserWidget::createTreeModel()
 {
-    UAVObjectTreeModel *model = new UAVObjectTreeModel(this,
-                                                       m_viewoptions->cbCategorized->isChecked(),
-                                                       m_viewoptions->cbMetaData->isChecked(),
-                                                       m_viewoptions->cbScientific->isChecked());
+    UAVObjectTreeModel *model = new UAVObjectTreeModel(this);
+
+    model->setShowCategories(m_viewoptions->cbCategorized->isChecked());
+    model->setShowMetadata(m_viewoptions->cbMetaData->isChecked());
+    model->setUseScientificNotation(m_viewoptions->cbScientific->isChecked());
 
     model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
     model->setManuallyChangedColor(m_manuallyChangedColor);
     model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    model->setUnknowObjectColor(m_unknownObjectColor);
+    model->setUnknownObjectColor(m_unknownObjectColor);
     model->setOnlyHighlightChangedValues(m_onlyHighlightChangedValues);
 
     return model;
@@ -280,15 +281,14 @@ UAVObjectTreeModel *UAVObjectBrowserWidget::createTreeModel()
 
 void UAVObjectBrowserWidget::updateViewOptions()
 {
-    bool categorize   = m_viewoptions->cbCategorized->isChecked();
+    bool showCategories = m_viewoptions->cbCategorized->isChecked();
     bool useScientificNotation = m_viewoptions->cbScientific->isChecked();
-    bool showMetadata = m_viewoptions->cbMetaData->isChecked();
-    bool showDesc     = m_viewoptions->cbDescription->isChecked();
+    bool showMetadata   = m_viewoptions->cbMetaData->isChecked();
+    bool showDesc = m_viewoptions->cbDescription->isChecked();
 
-    m_model->setShowCategories(categorize);
+    m_model->setShowCategories(showCategories);
     m_model->setShowMetadata(showMetadata);
-    m_model->setShowScientificNotation(useScientificNotation);
-    m_model->resetModelData();
+    m_model->setUseScientificNotation(useScientificNotation);
 
     // force an expand all if search text is not empty
     if (!m_browser->searchLine->text().isEmpty()) {
@@ -296,7 +296,7 @@ void UAVObjectBrowserWidget::updateViewOptions()
     }
 
     // persist options
-    emit viewOptionsChanged(categorize, useScientificNotation, showMetadata, showDesc);
+    emit viewOptionsChanged(showCategories, useScientificNotation, showMetadata, showDesc);
 }
 
 void UAVObjectBrowserWidget::splitterMoved()

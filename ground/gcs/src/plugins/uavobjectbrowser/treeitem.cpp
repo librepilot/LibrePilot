@@ -144,16 +144,16 @@ void HighlightManager::checkItemsExpired()
 
 int TreeItem::m_highlightTimeMs = 300;
 
-TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parentItem) :
+TreeItem::TreeItem(const QList<QVariant> &data) :
     m_itemData(data),
-    m_parentItem(parentItem),
+    m_parentItem(0),
     m_changed(false),
     m_highlighted(false),
     m_highlightManager(0)
 {}
 
-TreeItem::TreeItem(const QVariant &data, TreeItem *parentItem) :
-    m_parentItem(parentItem),
+TreeItem::TreeItem(const QVariant &data) :
+    m_parentItem(0),
     m_changed(false),
     m_highlighted(false),
     m_highlightManager(0)
@@ -166,16 +166,32 @@ TreeItem::~TreeItem()
     qDeleteAll(m_childItems);
 }
 
-void TreeItem::appendChild(TreeItem *child)
+void TreeItem::setParentItem(TreeItem *parentItem)
 {
-    m_childItems.append(child);
+    if (m_parentItem) {
+        m_parentItem->removeChild(this, false);
+    }
+    m_parentItem = parentItem;
 }
 
-void TreeItem::insertChild(TreeItem *child)
+void TreeItem::appendChild(TreeItem *childItem)
 {
-    int index = nameIndex(child->data(0).toString());
+    m_childItems.append(childItem);
+    childItem->setParentItem(this);
+}
 
-    m_childItems.insert(index, child);
+void TreeItem::insertChild(TreeItem *childItem, int index)
+{
+    m_childItems.insert(index, childItem);
+    childItem->setParentItem(this);
+}
+
+void TreeItem::removeChild(TreeItem *childItem, bool reparent)
+{
+    m_childItems.removeOne(childItem);
+    if (reparent) {
+        childItem->setParentItem(0);
+    }
 }
 
 TreeItem *TreeItem::child(int index) const
@@ -200,6 +216,16 @@ int TreeItem::row() const
 int TreeItem::columnCount() const
 {
     return m_itemData.count();
+}
+
+void TreeItem::setDescription(QString desc)
+{
+    // Split around 40 characters
+    int idx = desc.indexOf(" ", 40);
+
+    desc.insert(idx, QString("<br>"));
+    desc.remove("@Ref", Qt::CaseInsensitive);
+    m_description = desc;
 }
 
 QVariant TreeItem::data(int column) const
@@ -268,6 +294,62 @@ void TreeItem::setHighlightManager(HighlightManager *mgr)
 QTime TreeItem::getHighlightExpires() const
 {
     return m_highlightExpires;
+}
+
+int TreeItem::childIndex(QString name) const
+{
+    for (int i = 0; i < childCount(); ++i) {
+        if (name == child(i)->data(0).toString()) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+TreeItem *TreeItem::childByName(QString name) const
+{
+    int index = childIndex(name);
+
+    return (index >= 0) ? m_childItems[index] : 0;
+}
+
+int TreeItem::insertionIndex(TreeItem *item) const
+{
+    QString name = item->data(0).toString();
+
+    for (int i = 0; i < childCount(); ++i) {
+        if (name < child(i)->data(0).toString()) {
+            return i;
+        }
+    }
+    return childCount();
+}
+
+int TreeItem::maxHexStringLength(UAVObjectField::FieldType type)
+{
+    switch (type) {
+    case UAVObjectField::INT8:
+        return 2;
+
+    case UAVObjectField::INT16:
+        return 4;
+
+    case UAVObjectField::INT32:
+        return 8;
+
+    case UAVObjectField::UINT8:
+        return 2;
+
+    case UAVObjectField::UINT16:
+        return 4;
+
+    case UAVObjectField::UINT32:
+        return 8;
+
+    default:
+        Q_ASSERT(false);
+    }
+    return 0;
 }
 
 QVariant ArrayFieldTreeItem::data(int column) const

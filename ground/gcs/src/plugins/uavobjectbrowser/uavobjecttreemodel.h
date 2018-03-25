@@ -34,6 +34,7 @@
 #include <QMap>
 #include <QList>
 #include <QColor>
+#include <QSettings>
 
 class TopTreeItem;
 class ObjectTreeItem;
@@ -49,7 +50,7 @@ class QTimer;
 class UAVObjectTreeModel : public QAbstractItemModel {
     Q_OBJECT
 public:
-    explicit UAVObjectTreeModel(QObject *parent, bool categorize, bool showMetadata, bool useScientificNotation);
+    explicit UAVObjectTreeModel(QObject *parent);
     ~UAVObjectTreeModel();
 
     QVariant data(const QModelIndex &index, int role) const;
@@ -63,90 +64,74 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-    void resetModelData();
+    bool showCategories() const;
+    void setShowCategories(bool show);
 
-    bool showCategories()
-    {
-        return m_categorize;
-    }
+    bool showMetadata() const;
+    void setShowMetadata(bool show);
 
-    void setShowCategories(bool showCategories);
+    bool useScientificNotation();
+    void setUseScientificNotation(bool useScientificNotation);
 
-    bool showMetadata()
-    {
-        return m_showMetadata;
-    }
+    QColor unknownObjectColor() const;
+    void setUnknownObjectColor(QColor color);
 
-    void setShowMetadata(bool showMetadata);
+    QColor recentlyUpdatedColor() const;
+    void setRecentlyUpdatedColor(QColor color);
 
-    bool showScientificNotation()
-    {
-        return m_useScientificFloatNotation;
-    }
+    QColor manuallyChangedColor() const;
+    void setManuallyChangedColor(QColor color);
 
-    void setShowScientificNotation(bool showScientificNotation);
+    int recentlyUpdatedTimeout() const;
+    void setRecentlyUpdatedTimeout(int timeout);
 
-    void setUnknowObjectColor(QColor color)
-    {
-        m_unknownObjectColor = color;
-    }
-    void setRecentlyUpdatedColor(QColor color)
-    {
-        m_recentlyUpdatedColor = color;
-    }
-    void setManuallyChangedColor(QColor color)
-    {
-        m_manuallyChangedColor = color;
-    }
-    void setRecentlyUpdatedTimeout(int timeout)
-    {
-        m_recentlyUpdatedTimeout = timeout;
-        TreeItem::setHighlightTime(timeout);
-    }
-    void setOnlyHighlightChangedValues(bool hilight)
-    {
-        m_onlyHighlightChangedValues = hilight;
-    }
-
-public slots:
-    void newObject(UAVObject *obj);
+    bool onlyHighlightChangedValues() const;
+    void setOnlyHighlightChangedValues(bool highlight);
 
 private slots:
+    void newObject(UAVObject *obj);
     void updateObject(UAVObject *obj);
     void updateIsKnown(UAVObject *obj);
-    void updateHighlight(TreeItem *item);
-    void updateIsKnown(TreeItem *item);
+    void refreshHighlight(TreeItem *item);
+    void refreshIsKnown(TreeItem *item);
 
 private:
-    QModelIndex index(TreeItem *item, int column = 0);
-    void setupModelData(UAVObjectManager *objManager);
-    void addDataObject(UAVDataObject *obj);
-    MetaObjectTreeItem *addMetaObject(UAVMetaObject *obj, TreeItem *parent);
-    void addArrayField(UAVObjectField *field, TreeItem *parent);
-    void addSingleField(int index, UAVObjectField *field, TreeItem *parent);
-    void addInstance(UAVObject *obj, TreeItem *parent);
+    QSettings m_settings;
 
-    TreeItem *createCategoryItems(QStringList categoryPath, TreeItem *root);
-
-    QString updateMode(quint8 updateMode);
-    ObjectTreeItem *findObjectTreeItem(UAVObject *obj);
-    DataObjectTreeItem *findDataObjectTreeItem(UAVDataObject *obj);
-    MetaObjectTreeItem *findMetaObjectTreeItem(UAVMetaObject *obj);
+    HighlightManager *m_highlightManager;
 
     TreeItem *m_rootItem;
     TopTreeItem *m_settingsTree;
     TopTreeItem *m_nonSettingsTree;
-    bool m_categorize;
-    bool m_showMetadata;
-    bool m_useScientificFloatNotation;
-    int m_recentlyUpdatedTimeout;
-    QColor m_recentlyUpdatedColor;
-    QColor m_manuallyChangedColor;
-    QColor m_unknownObjectColor;
-    bool m_onlyHighlightChangedValues;
 
-    // Highlight manager to handle highlighting of tree items.
-    HighlightManager *m_highlightManager;
+    QHash<quint32, ObjectTreeItem *> m_objectTreeItems;
+
+    QModelIndex index(TreeItem *item, int column = 0);
+
+    void setupModelData();
+    void resetModelData();
+
+    void addObject(UAVDataObject *obj);
+    void addArrayField(UAVObjectField *field, TreeItem *parent);
+    void addSingleField(int index, UAVObjectField *field, TreeItem *parent);
+
+    DataObjectTreeItem *createDataObject(UAVDataObject *obj);
+    InstanceTreeItem *createDataObjectInstance(UAVDataObject *obj);
+    MetaObjectTreeItem *createMetaObject(UAVMetaObject *obj);
+    TreeItem *getParentItem(UAVDataObject *obj, bool categorize);
+
+    void appendItem(TreeItem *parentItem, TreeItem *childItem);
+    void insertItem(TreeItem *parentItem, TreeItem *childItem, int row = -1);
+    void removeItem(TreeItem *parentItem, TreeItem *childItem);
+    void moveItem(TreeItem *newParentItem, TreeItem *oldParentItem, TreeItem *childItem);
+
+    void toggleCategoryItems();
+    void toggleMetaItems();
+
+    void addObjectTreeItem(quint32 objectId, ObjectTreeItem *oti);
+    ObjectTreeItem *findObjectTreeItem(quint32 objectId);
+
+    DataObjectTreeItem *findDataObjectTreeItem(UAVObject *obj);
 };
 
 #endif // UAVOBJECTTREEMODEL_H

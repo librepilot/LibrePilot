@@ -31,6 +31,7 @@
 #include "treeitem.h"
 
 #include <QStringList>
+#include <QSettings>
 #include <QWidget>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
@@ -53,11 +54,11 @@
 class FieldTreeItem : public TreeItem {
 public:
 
-    FieldTreeItem(int index, const QList<QVariant> &data, UAVObjectField *field, TreeItem *parentItem) :
-        TreeItem(data, parentItem), m_index(index), m_field(field)
+    FieldTreeItem(int index, const QList<QVariant> &data, UAVObjectField *field) :
+        TreeItem(data), m_index(index), m_field(field)
     {}
-    FieldTreeItem(int index, const QVariant &data, UAVObjectField *field, TreeItem *parentItem) :
-        TreeItem(data, parentItem), m_index(index), m_field(field)
+    FieldTreeItem(int index, const QVariant &data, UAVObjectField *field) :
+        TreeItem(data), m_index(index), m_field(field)
     {}
 
     bool isEditable() const
@@ -109,12 +110,12 @@ protected:
 
 class EnumFieldTreeItem : public FieldTreeItem {
 public:
-    EnumFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem), m_enumOptions(field->getOptions())
+    EnumFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data) :
+        FieldTreeItem(index, data, field), m_enumOptions(field->getOptions())
     {}
 
-    EnumFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem), m_enumOptions(field->getOptions())
+    EnumFieldTreeItem(UAVObjectField *field, int index, const QVariant &data) :
+        FieldTreeItem(index, data, field), m_enumOptions(field->getOptions())
     {}
 
     QString enumOptions(int index)
@@ -174,13 +175,13 @@ private:
 
 class IntFieldTreeItem : public FieldTreeItem {
 public:
-    IntFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem)
+    IntFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data) :
+        FieldTreeItem(index, data, field)
     {
         setMinMaxValues();
     }
-    IntFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem)
+    IntFieldTreeItem(UAVObjectField *field, int index, const QVariant &data) :
+        FieldTreeItem(index, data, field)
     {
         setMinMaxValues();
     }
@@ -259,11 +260,11 @@ private:
 
 class FloatFieldTreeItem : public FieldTreeItem {
 public:
-    FloatFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, bool scientific, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem), m_useScientificNotation(scientific) {}
+    FloatFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, const QSettings &settings) :
+        FieldTreeItem(index, data, field), m_settings(settings) {}
 
-    FloatFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, bool scientific, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem), m_useScientificNotation(scientific) {}
+    FloatFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, const QSettings &settings) :
+        FieldTreeItem(index, data, field), m_settings(settings) {}
 
     QVariant fieldToData() const
     {
@@ -277,7 +278,9 @@ public:
 
     QWidget *createEditor(QWidget *parent) const
     {
-        if (m_useScientificNotation) {
+        bool useScientificNotation = m_settings.value("useScientificNotation", false).toBool();
+
+        if (useScientificNotation) {
             QScienceSpinBox *editor = new QScienceSpinBox(parent);
             editor->setDecimals(6);
             editor->setMinimum(-std::numeric_limits<float>::max());
@@ -294,7 +297,9 @@ public:
 
     QVariant getEditorValue(QWidget *editor) const
     {
-        if (m_useScientificNotation) {
+        bool useScientificNotation = m_settings.value("useScientificNotation", false).toBool();
+
+        if (useScientificNotation) {
             QScienceSpinBox *spinBox = static_cast<QScienceSpinBox *>(editor);
             spinBox->interpretText();
             return spinBox->value();
@@ -307,7 +312,9 @@ public:
 
     void setEditorValue(QWidget *editor, QVariant value) const
     {
-        if (m_useScientificNotation) {
+        bool useScientificNotation = m_settings.value("useScientificNotation", false).toBool();
+
+        if (useScientificNotation) {
             QScienceSpinBox *spinBox = static_cast<QScienceSpinBox *>(editor);
             spinBox->setValue(value.toDouble());
         } else {
@@ -317,17 +324,17 @@ public:
     }
 
 private:
-    bool m_useScientificNotation;
+    const QSettings &m_settings;
 };
 
 class HexFieldTreeItem : public FieldTreeItem {
 public:
-    HexFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem)
+    HexFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data) :
+        FieldTreeItem(index, data, field)
     {}
 
-    HexFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem)
+    HexFieldTreeItem(UAVObjectField *field, int index, const QVariant &data) :
+        FieldTreeItem(index, data, field)
     {}
 
     QVariant fieldToData() const
@@ -382,12 +389,12 @@ private:
 
 class CharFieldTreeItem : public FieldTreeItem {
 public:
-    CharFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem)
+    CharFieldTreeItem(UAVObjectField *field, int index, const QList<QVariant> &data) :
+        FieldTreeItem(index, data, field)
     {}
 
-    CharFieldTreeItem(UAVObjectField *field, int index, const QVariant &data, TreeItem *parentItem) :
-        FieldTreeItem(index, data, field, parentItem)
+    CharFieldTreeItem(UAVObjectField *field, int index, const QVariant &data) :
+        FieldTreeItem(index, data, field)
     {}
 
     QVariant fieldToData() const

@@ -51,7 +51,7 @@ void UAVObjectBrowser::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setManuallyChangedColor(m->manuallyChangedColor());
     m_widget->setRecentlyUpdatedTimeout(m->recentlyUpdatedTimeout());
     m_widget->setOnlyHighlightChangedValues(m->onlyHighlightChangedValues());
-    m_widget->setViewOptions(m->categorizedView(), m->scientificView(), m->showMetaData(), m->showDescription());
+    m_widget->setViewOptions(m->categorizedView(), m->showMetaData(), m->scientificView(), m->showDescription());
     m_widget->setSplitterState(m->splitterState());
 }
 

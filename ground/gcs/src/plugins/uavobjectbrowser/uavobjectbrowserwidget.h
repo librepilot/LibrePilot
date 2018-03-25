@@ -62,7 +62,7 @@ public:
     void setUnknownObjectColor(QColor color)
     {
         m_unknownObjectColor = color;
-        m_model->setUnknowObjectColor(color);
+        m_model->setUnknownObjectColor(color);
     }
     void setRecentlyUpdatedColor(QColor color)
     {
@@ -84,7 +84,7 @@ public:
         m_onlyHighlightChangedValues = hilight;
         m_model->setOnlyHighlightChangedValues(hilight);
     }
-    void setViewOptions(bool categorized, bool scientific, bool metadata, bool description);
+    void setViewOptions(bool showCategories, bool showMetadata, bool useScientificNotation, bool showDescription);
     void setSplitterState(QByteArray state);
 
 public slots:

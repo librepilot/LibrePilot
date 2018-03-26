@@ -122,7 +122,7 @@ void UAVObjectTreeModel::setManuallyChangedColor(QColor color)
 
 int UAVObjectTreeModel::recentlyUpdatedTimeout() const
 {
-    return m_settings.value("recentlyUpdatedTimeout", 500).toInt();
+    return m_settings.value("recentlyUpdatedTimeout", 300).toInt();
 }
 
 void UAVObjectTreeModel::setRecentlyUpdatedTimeout(int timeout)

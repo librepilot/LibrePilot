@@ -141,6 +141,16 @@ void UAVObjectTreeModel::setOnlyHighlightChangedValues(bool highlight)
     m_settings.setValue("onlyHighlightChangedValues", highlight);
 }
 
+bool UAVObjectTreeModel::highlightTopTreeItems() const
+{
+    return m_settings.value("highlightTopTreeItems", false).toBool();
+}
+
+void UAVObjectTreeModel::setHighlightTopTreeItems(bool highlight)
+{
+    m_settings.setValue("highlightTopTreeItems", highlight);
+}
+
 void UAVObjectTreeModel::setupModelData()
 {
     QList<QVariant> rootData;
@@ -571,7 +581,11 @@ QVariant UAVObjectTreeModel::data(const QModelIndex &index, int role) const
 
     case Qt::BackgroundRole:
         if (index.column() == TreeItem::TITLE_COLUMN) {
-            if (!dynamic_cast<TopTreeItem *>(item) && item->isHighlighted()) {
+            // TODO filtering here on highlightTopTreeItems() should not be necessary
+            // top tree items should not be highlighted at all in the first place
+            // when highlightTopTreeItems() is false
+            bool highlight = (highlightTopTreeItems() || !dynamic_cast<TopTreeItem *>(item));
+            if (highlight && item->isHighlighted()) {
                 return recentlyUpdatedColor();
             }
         } else if (index.column() == TreeItem::DATA_COLUMN) {

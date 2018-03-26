@@ -88,6 +88,9 @@ public:
     bool onlyHighlightChangedValues() const;
     void setOnlyHighlightChangedValues(bool highlight);
 
+    bool highlightTopTreeItems() const;
+    void setHighlightTopTreeItems(bool highlight);
+
 private slots:
     void newObject(UAVObject *obj);
     void updateObject(UAVObject *obj);

@@ -248,7 +248,7 @@ DataObjectTreeItem *UAVObjectTreeModel::createDataObject(UAVDataObject *obj)
 
 InstanceTreeItem *UAVObjectTreeModel::createDataObjectInstance(UAVDataObject *obj)
 {
-    QString name = tr("Instance") + " " + QString::number((int)obj->getInstID());
+    QString name = obj->getName() + " " + QString::number((int)obj->getInstID());
     InstanceTreeItem *item = new InstanceTreeItem(obj, name);
 
     item->setHighlightManager(m_highlightManager);

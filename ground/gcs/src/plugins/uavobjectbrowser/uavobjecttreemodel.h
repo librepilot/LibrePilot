@@ -109,7 +109,7 @@ private:
 
     QHash<quint32, ObjectTreeItem *> m_objectTreeItems;
 
-    QModelIndex index(TreeItem *item, int column = 0);
+    QModelIndex index(TreeItem *item, int column = 0) const;
 
     void setupModelData();
     void resetModelData();

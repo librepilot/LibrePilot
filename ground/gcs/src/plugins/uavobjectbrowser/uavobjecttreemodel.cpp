@@ -238,6 +238,8 @@ DataObjectTreeItem *UAVObjectTreeModel::createDataObject(UAVDataObject *obj)
     addObjectTreeItem(obj->getObjID(), item);
     item->setHighlightManager(m_highlightManager);
 
+    // metadata items are created up front and are added/removed as needed
+    // see toggleMetaItems()
     MetaObjectTreeItem *metaItem = createMetaObject(obj->getMetaObject());
     if (showMetadata()) {
         appendItem(item, metaItem);
@@ -303,6 +305,8 @@ TreeItem *UAVObjectTreeModel::getParentItem(UAVDataObject *obj, bool categorize)
         QStringList categoryPath = category.split('/');
 
         foreach(QString category, categoryPath) {
+            // metadata items are created and destroyed as needed
+            // see toggleCategoryItems()
             TreeItem *categoryItem = parentItem->childByName(category);
 
             if (!categoryItem) {
@@ -486,7 +490,7 @@ QModelIndex UAVObjectTreeModel::index(int row, int column, const QModelIndex &pa
     return QModelIndex();
 }
 
-QModelIndex UAVObjectTreeModel::index(TreeItem *item, int column)
+QModelIndex UAVObjectTreeModel::index(TreeItem *item, int column) const
 {
     if (item == m_rootItem) {
         return QModelIndex();

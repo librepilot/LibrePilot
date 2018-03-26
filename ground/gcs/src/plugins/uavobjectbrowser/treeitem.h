@@ -62,12 +62,14 @@ class HighlightManager : public QObject {
 public:
     HighlightManager();
 
-    // This is called when an item has been set to
-    // highlighted = true.
-    bool add(TreeItem *itemToAdd);
+    // This is called when an item is set to highlighted = true.
+    bool add(TreeItem *item);
 
     // This is called when an item is set to highlighted = false;
-    bool remove(TreeItem *itemToRemove);
+    bool remove(TreeItem *item);
+
+    // This is called when an item is destroyed
+    bool reset(TreeItem *item);
 
     bool startTimer(QTime time);
 

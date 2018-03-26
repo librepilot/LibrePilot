@@ -42,15 +42,15 @@ HighlightManager::HighlightManager()
  * Called to add item to list. Item is only added if absent.
  * Returns true if item was added, otherwise false.
  */
-bool HighlightManager::add(TreeItem *itemToAdd)
+bool HighlightManager::add(TreeItem *item)
 {
     // Lock to ensure thread safety
     QMutexLocker locker(&m_mutex);
 
     // Check so that the item isn't already in the list
-    if (!m_items.contains(itemToAdd)) {
-        m_items.insert(itemToAdd);
-        emit updateHighlight(itemToAdd);
+    if (!m_items.contains(item)) {
+        m_items.insert(item);
+        emit updateHighlight(item);
         return true;
     }
     return false;
@@ -60,18 +60,32 @@ bool HighlightManager::add(TreeItem *itemToAdd)
  * Called to remove item from list.
  * Returns true if item was removed, otherwise false.
  */
-bool HighlightManager::remove(TreeItem *itemToRemove)
+bool HighlightManager::remove(TreeItem *item)
 {
     // Lock to ensure thread safety
     QMutexLocker locker(&m_mutex);
 
     // Remove item and return result
-    const bool removed = m_items.remove(itemToRemove);
+    const bool removed = m_items.remove(item);
 
     if (removed) {
-        emit updateHighlight(itemToRemove);
+        emit updateHighlight(item);
     }
     return removed;
+}
+
+/*
+ * Called to remove item from list.
+ * Will not emit a signal. Called when destroying an item
+ * Returns true if item was removed, otherwise false.
+ */
+bool HighlightManager::reset(TreeItem *item)
+{
+    // Lock to ensure thread safety
+    QMutexLocker locker(&m_mutex);
+
+    // Remove item and return result
+    return m_items.remove(item);
 }
 
 bool HighlightManager::startTimer(QTime expirationTime)
@@ -163,6 +177,9 @@ TreeItem::TreeItem(const QVariant &data) :
 
 TreeItem::~TreeItem()
 {
+    if (m_highlightManager) {
+        m_highlightManager->reset(this);
+    }
     qDeleteAll(m_childItems);
 }
 
@@ -273,7 +290,7 @@ void TreeItem::setHighlighted(bool highlighted, const QTime &ts)
     }
 
     // If we have a parent, call recursively to update highlight status of parents.
-    // This will ensure that the root of a leaf that is changed also is highlighted.
+    // This will ensure that the root of a leaf that is changed is also highlighted.
     // Only updates that really changes values will trigger highlight of parents.
     if (m_parentItem) {
         m_parentItem->setHighlighted(highlighted, ts);

@@ -69,9 +69,13 @@ void GyroBiasCalibrationModel::start()
     // Disable gyro bias correction while calibrating
     attitudeSettingsData.BiasCorrectGyro = AttitudeSettings::BIASCORRECTGYRO_FALSE;
     // Zero board rotation
-    attitudeSettingsData.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]   = 0;
-    attitudeSettingsData.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]  = 0;
-    attitudeSettingsData.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = 0;
+    attitudeSettingsData.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]     = 0;
+    attitudeSettingsData.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]    = 0;
+    attitudeSettingsData.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]   = 0;
+    // Zero board level trim
+    attitudeSettingsData.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_ROLL]  = 0;
+    attitudeSettingsData.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_PITCH] = 0;
+
     attitudeSettings->setData(attitudeSettingsData);
 
     UAVObject::Metadata gyroStateMetadata = gyroState->getMetadata();

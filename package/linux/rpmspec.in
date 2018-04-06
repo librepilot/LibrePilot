@@ -18,7 +18,6 @@ BuildRequires:  mesa-libGL-devel
 BuildRequires:  qt5-qtbase-devel
 BuildRequires:  qt5-qtdeclarative-devel
 BuildRequires:  qt5-qtmultimedia-devel
-BuildRequires:  qt5-qtquick1-devel
 BuildRequires:  qt5-qtscript-devel
 BuildRequires:  qt5-qtserialport-devel
 BuildRequires:  qt5-qtsvg-devel
@@ -46,6 +45,8 @@ Requires:       osgearth
 
 %description
 <DESCRIPTION>
+
+%global debug_package %{nil}
 
 %prep
 %setup -q -T -a 1 -c -n <ARCHIVE_PREFIX>/build

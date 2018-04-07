@@ -55,6 +55,17 @@ void UAVObjectBrowser::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setSplitterState(m->splitterState());
 }
 
+void UAVObjectBrowser::saveState(QSettings &settings) const
+{
+    m_widget->saveState(settings);
+}
+
+
+void UAVObjectBrowser::restoreState(QSettings &settings)
+{
+    m_widget->restoreState(settings);
+}
+
 void UAVObjectBrowser::viewOptionsChangedSlot(bool categorized, bool scientific, bool metadata, bool description)
 {
     if (m_config) {

@@ -46,6 +46,12 @@ class TreeSortFilterProxyModel : public QSortFilterProxyModel {
 public:
     TreeSortFilterProxyModel(QObject *parent);
 
+public:
+    QModelIndexList getPersistentIndexList() const
+    {
+        return persistentIndexList();
+    }
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
     bool filterAcceptsRowItself(int source_row, const QModelIndex &source_parent) const;
@@ -86,6 +92,12 @@ public:
     }
     void setViewOptions(bool showCategories, bool showMetadata, bool useScientificNotation, bool showDescription);
     void setSplitterState(QByteArray state);
+
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
+
+    QString indexToPath(const QModelIndex &index) const;
+    QModelIndex indexFromPath(const QString &path) const;
 
 public slots:
     void showDescription(bool show);

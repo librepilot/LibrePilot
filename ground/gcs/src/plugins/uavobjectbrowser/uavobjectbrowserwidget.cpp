@@ -422,6 +422,68 @@ void UAVObjectBrowserWidget::searchLineChanged(QString searchText)
     }
 }
 
+QString UAVObjectBrowserWidget::indexToPath(const QModelIndex &index) const
+{
+    QString path = index.data(Qt::DisplayRole).toString();
+
+    QModelIndex parent = index.parent();
+
+    while (parent.isValid()) {
+        path   = parent.data(Qt::DisplayRole).toString() + "/" + path;
+        parent = parent.parent();
+    }
+    return path;
+}
+
+QModelIndex UAVObjectBrowserWidget::indexFromPath(const QString &path) const
+{
+    QStringList list  = path.split("/");
+
+    QModelIndex index = m_modelProxy->index(0, 0);
+
+    foreach(QString name, list) {
+        QModelIndexList items = m_modelProxy->match(index, Qt::DisplayRole, name, 1, Qt::MatchFlags(Qt::MatchExactly | Qt::MatchRecursive));
+
+        if (!items.isEmpty()) {
+            index = items.first();
+        } else {
+            // bail out
+            return QModelIndex();
+        }
+    }
+    return index;
+}
+
+void UAVObjectBrowserWidget::saveState(QSettings &settings) const
+{
+    QStringList list;
+
+    // prepare list
+    foreach(QModelIndex index, m_modelProxy->getPersistentIndexList()) {
+        if (m_browser->treeView->isExpanded(index)) {
+            QString path = indexToPath(index);
+            list << path;
+        }
+    }
+
+    // save list
+    settings.setValue("expandedItems", QVariant::fromValue(list));
+}
+
+void UAVObjectBrowserWidget::restoreState(QSettings &settings)
+{
+    // get list
+    QStringList list = settings.value("expandedItems").toStringList();
+
+    foreach(QString path, list) {
+        QModelIndex index = indexFromPath(path);
+
+        if (index.isValid()) {
+            m_browser->treeView->setExpanded(index, true);
+        }
+    }
+}
+
 void UAVObjectBrowserWidget::searchTextCleared()
 {
     m_browser->searchLine->clear();

@@ -104,7 +104,7 @@ int32_t FirmwareIAPInitialize()
     }
     data.BootloaderRevision = bdinfo->bl_rev;
     data.ArmReset = 0;
-    data.crc = 0;
+    data.crc = PIOS_BL_HELPER_CRC_Memory_Calc();
     FirmwareIAPObjSet(&data);
     if (bdinfo->magic == PIOS_BOARD_INFO_BLOB_MAGIC) {
         FirmwareIAPObjConnectCallback(&FirmwareIAPCallback);

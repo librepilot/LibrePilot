@@ -1,9 +1,10 @@
 /**
  ******************************************************************************
  *
- * @file       firmwareiap.c
+ * @file       firmwareiap.h
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      Example module to be used as a template for actual modules.
+ * @brief      In Application Programming module to support firmware upgrades by
+ *                              providing a means to enter the bootloader.
  *
  * @see        The GNU Public License (GPL) Version 3
  *

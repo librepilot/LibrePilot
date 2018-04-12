@@ -38,7 +38,7 @@ win32:gstreamer {
         libgstautodetect.dll \
         libgstavi.dll \
         libgstdeinterlace.dll \
-        libgstdirectsoundsink.dll \
+        libgstdirectsound.dll \
         libgstimagefreeze.dll \
         libgstjpeg.dll \
         libgstrawparse.dll \
@@ -53,7 +53,7 @@ win32:gstreamer {
         libgstaudiovisualizers.dll \
         libgstautoconvert.dll \
         libgstcompositor.dll \
-        libgstd3dvideosink.dll \
+        libgstd3d.dll \
         libgstdebugutilsbad.dll \
         libgstdirectsoundsrc.dll \
         libgstopengl.dll \

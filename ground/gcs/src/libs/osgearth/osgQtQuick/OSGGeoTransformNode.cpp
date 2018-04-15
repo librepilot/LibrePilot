@@ -117,32 +117,30 @@ public:
         } else {
             qWarning() << "OSGGeoTransformNode::updatePosition - scene node is not valid";
         }
-
-        // TODO factorize this logic to utility (same logic is found elsewhere)
-        osgEarth::GeoPoint geoPoint;
         if (mapNode) {
-            geoPoint = osgQtQuick::toGeoPoint(mapNode->getTerrain()->getSRS(), position);
-        } else {
-            qWarning() << "OSGGeoTransformNode::onChildNodeChanged - no map node";
-            geoPoint = osgQtQuick::toGeoPoint(position);
+            osgEarth::GeoPoint geoPoint = createGeoPoint(position, mapNode);
+            if (clampToTerrain) {
+                // get "size" of model
+                // TODO this should be done once only...
+ #if 0
+                osg::ComputeBoundsVisitor cbv;
+                transform->accept(cbv);
+                const osg::BoundingBox & bbox = cbv.getBoundingBox();
+                offset = bbox.radius();
+ #else
+                const osg::BoundingSphere & boundingSphere = transform->getBound();
+                offset = boundingSphere.radius();
+ #endif
+                // clamp model to terrain if needed
+                intoTerrain = clampGeoPoint(geoPoint, offset, mapNode);
+                if (intoTerrain) {
+                    qDebug() << "OSGGeoTransformNode::updateNode - into terrain" << offset;
+                }
+            } else if (clampToTerrain) {
+                qWarning() << "OSGGeoTransformNode::onChildNodeChanged - cannot clamp without map node";
+            }
+            transform->setPosition(geoPoint);
         }
-        if (clampToTerrain && mapNode) {
-            // get "size" of model
-            // TODO this should be done once only...
-            osg::ComputeBoundsVisitor cbv;
-            transform->accept(cbv);
-            const osg::BoundingBox & bbox = cbv.getBoundingBox();
-            offset = bbox.radius();
-
-            // qDebug() << "OSGGeoTransformNode::updateNode - offset" << offset;
-
-            // clamp model to terrain if needed
-            intoTerrain = clampGeoPoint(geoPoint, offset, mapNode);
-        } else if (clampToTerrain) {
-            qWarning() << "OSGGeoTransformNode::onChildNodeChanged - cannot clamp without map node";
-        }
-
-        transform->setPosition(geoPoint);
     }
 
 private slots:

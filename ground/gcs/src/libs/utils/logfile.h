@@ -81,14 +81,17 @@ public:
     ReplayState getReplayStatus();
 
 public slots:
-    void setReplaySpeed(double val);
+    void setReplaySpeed(double val)
+    {
+        m_playbackSpeed = val;
+        qDebug() << "Playback speed is now" << m_playbackSpeed;
+    };
     bool startReplay();
     bool stopReplay();
+
+    bool resumeReplay(quint32);
     bool pauseReplay();
-    bool resumeReplay();
-    void resumeReplayFrom(quint32);
-    void restartReplay();
-    void haltReplay();
+    bool pauseAndResetPosition();
 
 protected slots:
     void timerFired();
@@ -96,7 +99,7 @@ protected slots:
 signals:
     void replayStarted();
     void replayFinished();
-    void replayPosition(quint32);
+    void playbackPosition(quint32);
     void updateBeginAndEndtimes(quint32, quint32);
 
 protected:

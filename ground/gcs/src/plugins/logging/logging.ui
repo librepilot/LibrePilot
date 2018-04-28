@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>439</width>
-    <height>150</height>
+    <height>118</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,22 +19,22 @@
   <property name="minimumSize">
    <size>
     <width>100</width>
-    <height>150</height>
+    <height>118</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout" stretch="2,2,2,0,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,2,0,0,2,0,0">
        <property name="sizeConstraint">
         <enum>QLayout::SetNoConstraint</enum>
        </property>
        <item>
-        <widget class="QPushButton" name="playButton">
+        <widget class="QPushButton" name="playPauseButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -48,34 +48,17 @@
           </size>
          </property>
          <property name="text">
-          <string>Play</string>
+          <string>  Play</string>
          </property>
          <property name="icon">
-          <iconset resource="../notify/res.qrc">
-           <normaloff>:/notify/images/play.png</normaloff>:/notify/images/play.png</iconset>
+          <iconset resource="../logging/res.qrc">
+           <normaloff>:/logging/images/play.png</normaloff>:/logging/images/play.png</iconset>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pauseButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
+         <property name="iconSize">
           <size>
-           <width>30</width>
-           <height>0</height>
+           <width>16</width>
+           <height>16</height>
           </size>
-         </property>
-         <property name="text">
-          <string>Pause</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../notify/res.qrc">
-           <normaloff>:/notify/images/stop.png</normaloff>:/notify/images/stop.png</iconset>
          </property>
         </widget>
        </item>
@@ -94,16 +77,61 @@
           </size>
          </property>
          <property name="text">
-          <string>Stop</string>
+          <string>  Stop</string>
          </property>
          <property name="icon">
-          <iconset resource="../notify/res.qrc">
-           <normaloff>:/notify/images/delete.png</normaloff>:/notify/images/delete.png</iconset>
+          <iconset resource="../logging/res.qrc">
+           <normaloff>:/logging/images/stop.png</normaloff>:/logging/images/stop.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
          </property>
         </widget>
        </item>
        <item>
         <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Playback speed:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="playbackSpeed">
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="minimum">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>10.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="value">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -134,49 +162,6 @@
           <string notr="true">&lt;Status&gt;</string>
          </property>
         </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Playback speed:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="playbackSpeed">
-         <property name="decimals">
-          <number>1</number>
-         </property>
-         <property name="minimum">
-          <double>0.10000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>10.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.10000000000000</double>
-         </property>
-         <property name="value">
-          <double>1.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </item>
@@ -290,7 +275,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>5</height>
       </size>
      </property>
     </spacer>
@@ -298,7 +283,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../notify/res.qrc"/>
+  <include location="../logging/res.qrc"/>
  </resources>
  <connections/>
 </ui>

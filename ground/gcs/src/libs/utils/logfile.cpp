@@ -154,46 +154,29 @@ void LogFile::timerFired()
     if (m_replayStatus != PLAYING) {
         return;
     }
-
     m_timer_tick++;
-    if ( m_timer_tick % 100 == 0 ) {
-      qDebug() << "----------------------------------------------------------";
-      qDebug() << "LogFile::timerFired() -> Tick = " << m_timer_tick;
-    }
 
     if (m_file.bytesAvailable() > 4) {
         int time;
         time = m_myTime.elapsed();
 
         /*
-            This code generates an advancing window. All samples that fit in the window
+            This code generates an advancing playback window. All samples that fit the window
             are replayed. The window is about the size of the timer interval: 10 ms.
   
             Description of used variables:
 
-            time              : time passed since start of playback (in ms) - current
-            m_timeOffset      : time passed since start of playback (in ms) - when timerFired() was previously run
-            m_lastPlayed      : next log timestamp to advance to (in ms)
-            m_nextTimeStamp   : timestamp of most recently read log entry (in ms)
-            m_playbackSpeed   : 1 .. 10 replay speedup factor
+            time              : real-time interval since start of playback (in ms) - now()
+            m_timeOffset      : real-time interval since start of playback (in ms) - when timerFired() was previously run
+            m_nextTimeStamp   : read log until this log timestamp has been reached (in ms)
+            m_lastPlayed      : log referenced timestamp advanced to during previous cycle (in ms)
+            m_playbackSpeed   : 0.1 .. 1.0 .. 10 replay speedup factor
 
          */
 
         while ( m_nextTimeStamp < (m_lastPlayed + (double)(time - m_timeOffset) * m_playbackSpeed) ) {
-//            if ( m_timer_tick % 100 == 0 ) {
-//            if ( true ) {
-//              qDebug() << "LogFile::timerFired() -> m_lastPlayed    = " << m_lastPlayed;
-//              qDebug() << "LogFile::timerFired() -> m_nextTimeStamp = " << m_nextTimeStamp;
-//              qDebug() << "LogFile::timerFired() -> time            = " << time;
-//              qDebug() << "LogFile::timerFired() -> m_timeOffset    = " << m_timeOffset;
-//              qDebug() << "---";
-//              qDebug() << "LogFile::timerFired() -> m_nextTimeStamp = " << m_nextTimeStamp;
-//              qDebug() << "LogFile::timerFired() -> (m_lastPlayed + (double)(time - m_timeOffset) * m_playbackSpeed) = " << (m_lastPlayed + (double)(time - m_timeOffset) * m_playbackSpeed);
-//              qDebug() << "---";
-//            }
 
             // advance the replay window for the next time period
-
             m_lastPlayed += ((double)(time - m_timeOffset) * m_playbackSpeed);
 
             // read data size
@@ -229,7 +212,7 @@ void LogFile::timerFired()
 
             // rate-limit slider bar position updates to 10 updates per second
             if (m_timer_tick % 10 == 0) {
-                emit replayPosition(m_nextTimeStamp);
+                emit playbackPosition(m_nextTimeStamp);
             }
             // read next timestamp
             if (m_file.bytesAvailable() < (qint64)sizeof(m_nextTimeStamp)) {
@@ -269,13 +252,11 @@ bool LogFile::isPlaying() const
  * Starts a timer: m_timer
  *
  * This function and the stopReplay() function should only ever be called from the same thread.
- * This is required for correctly controlling the timer.
+ * This is required for correct control of the timer.
  *
  */
 bool LogFile::startReplay()
 {
-    qDebug() << "startReplay(): start of function, current Thread ID is: " << QThread::currentThreadId();
-
     // Walk through logfile and create timestamp index
     // Don't start replay if there was a problem indexing the logfile.
     if (!buildIndex()) {
@@ -325,8 +306,6 @@ bool LogFile::startReplay()
  */
 bool LogFile::stopReplay()
 {
-    qDebug() << "stopReplay(): start of function, current Thread ID is: " << QThread::currentThreadId();
-
     if (!m_file.isOpen() || !m_timer.isActive()) {
         return false;
     }
@@ -338,41 +317,59 @@ bool LogFile::stopReplay()
     return true;
 }
 
-
 /**
- * SLOT: restartReplay()
+ * SLOT: resumeReplay()
  *
- * This function starts replay from the begining of the currently opened logfile.
+ * Resumes replay from the given position.
+ * If no position is given, resumes from the last position
  *
  */
-void LogFile::restartReplay()
+
+bool LogFile::resumeReplay(quint32 desiredPosition)
 {
-    qDebug() << "restartReplay(): start of function, current Thread ID is: " << QThread::currentThreadId();
+    if (m_timer.isActive()) {
+        return false;
+    }
 
-    resumeReplayFrom(0);
+    // Clear the playout buffer:
+    m_mutex.lock();
+    m_dataBuffer.clear();
+    m_mutex.unlock();
 
-    qDebug() << "restartReplay(): end of function, current Thread ID is: " << QThread::currentThreadId();
+    m_file.seek(0);
+
+    /* Skip through the logfile until we reach the desired position.
+       Looking for the next log timestamp after the desired position
+       has the advantage that it skips over parts of the log
+       where data might be missing.
+    */
+    for (int i = 0; i < m_timeStamps.size(); i++) {
+        if (m_timeStamps.at(i) >= desiredPosition) {
+
+            m_file.seek(m_timeStampPositions.at(i));
+            m_lastPlayed = m_timeStamps.at(i);
+            break;
+        }
+    }
+    m_file.read((char *)&m_nextTimeStamp, sizeof(m_nextTimeStamp));
+
+    // Real-time timestamps don't not need to match the log timestamps.
+    // However the delta between real-time variables "m_timeOffset" and "m_myTime" is important.
+    // This delta determines the number of log entries replayed per cycle.
+
+    // Set the real-time interval to 0 to start with:
+    m_myTime.restart();
+    m_timeOffset = 0;
+
+    m_replayStatus = PLAYING;
+
+    m_timer.start();
+
+    // Notify UI that playback has resumed
+    emit replayStarted();
+    return true;
 }
 
-/**
- * SLOT: haltReplay()
- *
- * Stops replay without storing the current playback position
- *
- */
-void LogFile::haltReplay()
-{
-    qDebug() << "haltReplay(): start of function, current Thread ID is: " << QThread::currentThreadId();
-
-    qDebug() << "haltReplay() time = m_myTime.elapsed() = " << m_myTime.elapsed();
-    qDebug() << "haltReplay() m_timeOffset = " << m_timeOffset;
-    qDebug() << "haltReplay() m_nextTimeStamp = " << m_nextTimeStamp;
-    qDebug() << "haltReplay() m_lastPlayed = " << m_lastPlayed;
-
-    m_replayStatus = STOPPED;
-
-    qDebug() << "haltReplay(): end of function, current Thread ID is: " << QThread::currentThreadId();
-}
 /**
  * SLOT: pauseReplay()
  *
@@ -381,13 +378,6 @@ void LogFile::haltReplay()
  */
 bool LogFile::pauseReplay()
 {
-    qDebug() << "pauseReplay(): start of function, current Thread ID is: " << QThread::currentThreadId();
-
-    qDebug() << "pauseReplay() time = m_myTime.elapsed() = " << m_myTime.elapsed();
-    qDebug() << "pauseReplay() m_timeOffset = " << m_timeOffset;
-    qDebug() << "pauseReplay() m_nextTimeStamp = " << m_nextTimeStamp;
-    qDebug() << "pauseReplay() m_lastPlayed = " << m_lastPlayed;
-
     if (!m_timer.isActive()) {
         return false;
     }
@@ -401,97 +391,25 @@ bool LogFile::pauseReplay()
 }
 
 /**
- * SLOT: resumeReplay()
+ * SLOT: pauseAndResetPosition()
  *
- * Resumes replay from the stored playback position
+ * Pauses replay and resets the playback position to the start of the logfile
  *
  */
-bool LogFile::resumeReplay()
+bool LogFile::pauseAndResetPosition()
 {
-    qDebug() << "resumeReplay(): start of function, current Thread ID is: " << QThread::currentThreadId();
-
-    m_mutex.lock();
-    m_dataBuffer.clear();
-    m_mutex.unlock();
-
-    m_file.seek(0);
-
-    for (int i = 0; i < m_timeStamps.size(); ++i) {
-        if (m_timeStamps.at(i) >= m_lastPlayed) {
-            m_file.seek(m_timeStampPositions.at(i));
-            break;
-        }
-    }
-    m_file.read((char *)&m_nextTimeStamp, sizeof(m_nextTimeStamp));
-
-    m_myTime.restart();
-    m_myTime = m_myTime.addMSecs(-m_timeOffset); // Set startpoint this far back in time.
-
-    qDebug() << "resumeReplay() time = m_myTime.elapsed() = " << m_myTime.elapsed();
-    qDebug() << "resumeReplay() m_timeOffset = " << m_timeOffset;
-    qDebug() << "resumeReplay() m_nextTimeStamp = " << m_nextTimeStamp;
-    qDebug() << "resumeReplay() m_lastPlayed = " << m_lastPlayed;
-
-    qDebug() << "resumeReplay(): end of function, current Thread ID is: " << QThread::currentThreadId();
-    if (m_timer.isActive()) {
+    if (!m_file.isOpen() || !m_timer.isActive()) {
         return false;
     }
-    qDebug() << "LogFile - resumeReplay";
-    m_timeOffset = m_myTime.elapsed();
-    m_timer.start();
-    m_replayStatus = PLAYING;
+    m_timer.stop();
+    m_replayStatus = STOPPED;
 
-    // Notify UI that replay has been resumed
-    emit replayStarted();
+    m_timeOffset        = 0;
+    m_lastPlayed        = m_timeStamps.at(0);
+    m_previousTimeStamp = 0;
+    m_nextTimeStamp     = 0;
+
     return true;
-}
-
-/**
- * SLOT: resumeReplayFrom()
- *
- * Resumes replay from the given position
- *
- */
-void LogFile::resumeReplayFrom(quint32 desiredPosition)
-{
-    qDebug() << "resumeReplayFrom(): start of function, current Thread ID is: " << QThread::currentThreadId();
-
-    m_mutex.lock();
-    m_dataBuffer.clear();
-    m_mutex.unlock();
-
-    m_file.seek(0);
-
-    qint32 i;
-    for (i = 0; i < m_timeStamps.size(); ++i) {
-        if (m_timeStamps.at(i) >= desiredPosition) {
-            m_file.seek(m_timeStampPositions.at(i));
-            m_lastPlayed = m_timeStamps.at(i);
-            break;
-        }
-    }
-    m_file.read((char *)&m_nextTimeStamp, sizeof(m_nextTimeStamp));
-
-    if (m_nextTimeStamp != m_timeStamps.at(i)) {
-        qDebug() << "resumeReplayFrom() m_nextTimeStamp != m_timeStamps.at(i) -> " << m_nextTimeStamp << " != " << m_timeStamps.at(i);
-    }
-
-//    m_timeOffset = (m_lastPlayed - m_nextTimeStamp) / m_playbackSpeed;
-    m_timeOffset = 0;
-
-    m_myTime.restart();
-//    m_myTime = m_myTime.addMSecs(-m_timeOffset); // Set startpoint this far back in time.
-    // TODO: The above line is a possible memory leak. I'm not sure how to handle this correctly.
-
-    qDebug() << "resumeReplayFrom() time = m_myTime.elapsed() = " << m_myTime.elapsed();
-    qDebug() << "resumeReplayFrom() m_timeOffset = " << m_timeOffset;
-    qDebug() << "resumeReplayFrom() m_nextTimeStamp = " << m_nextTimeStamp;
-    qDebug() << "resumeReplayFrom() m_lastPlayed = " << m_lastPlayed;
-
-    m_replayStatus = PLAYING;
-    emit replayStarted();
-
-    qDebug() << "resumeReplayFrom(): end of function, current Thread ID is: " << QThread::currentThreadId();
 }
 
 /**
@@ -532,7 +450,6 @@ bool LogFile::buildIndex()
         dataStream.readRawData((char *)&timeStamp, 4);
         m_timeStamps.append(timeStamp);
         m_timeStampPositions.append(readPointer);
-        qDebug() << "LogFile::buildIndex() element index = " << index << " \t-> timestamp = " << timeStamp << " \t-> bytes in file = " << readPointer;
         readPointer += 4;
         index++;
         m_beginTimeStamp = timeStamp;
@@ -569,13 +486,11 @@ bool LogFile::buildIndex()
         // read the next timestamp
         if (totalSize - readPointer >= 4) {
             dataStream.readRawData((char *)&timeStamp, 4);
-            qDebug() << "LogFile::buildIndex() element index = " << index << " \t-> timestamp = " << timeStamp << " \t-> bytes in file = " << readPointer;
 
             // some validity checks
             if (timeStamp < m_endTimeStamp // logfile goes back in time
                 || (timeStamp - m_endTimeStamp) > (60 * 60 * 1000)) { // gap of more than 60 minutes)
                 qDebug() << "Error: Logfile corrupted! Unlikely timestamp " << timeStamp << " after " << m_endTimeStamp;
-//                return false;
             }
 
             m_timeStamps.append(timeStamp);
@@ -589,9 +504,6 @@ bool LogFile::buildIndex()
         }
     }
 
-    qDebug() << "buildIndex() -> first timestamp in log = " << m_beginTimeStamp;
-    qDebug() << "buildIndex() -> last timestamp in log = " << m_endTimeStamp;
-
     emit updateBeginAndEndtimes(m_beginTimeStamp, m_endTimeStamp);
 
     // reset the read pointer to the start of the file
@@ -599,20 +511,3 @@ bool LogFile::buildIndex()
 
     return true;
 }
-
-/**
- * FUNCTION: setReplaySpeed()
- *
- * Update the replay speed.
- *
- * FIXME: currently, changing the replay speed, while skipping through the logfile
- * with the position bar causes position alignment to be lost.
- * 
- */
-void LogFile::setReplaySpeed(double val)
-{
-    m_playbackSpeed = val;
-    qDebug() << "Playback speed is now " << QString("%1").arg(m_playbackSpeed, 4, 'f', 2, QChar('0'));
-}
-
-

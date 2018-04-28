@@ -50,31 +50,28 @@ public:
 protected slots:
     void stateChanged(LoggingPlugin::State state);
     void updateBeginAndEndtimes(quint32 startTimeStamp, quint32 endTimeStamp);
-    void replayPosition(quint32 positionTimeStamp);
-    void playButton();
-    void pauseButton();
-    void stopButton();
+    void playbackPosition(quint32 positionTimeStamp);
+    void playPauseButtonAction();
+    void stopButtonAction();
     void enableButtons();
     void disableButtons();
     void sliderMoved(int);
-    void sendResumeReplayFrom();
+    void sliderAction();
 
 signals:
-    void startReplay();
-    void stopReplay();
+    void resumeReplay(quint32 positionTimeStamp);
     void pauseReplay();
-    void resumeReplay();
-    void resumeReplayFrom(quint32 positionTimeStamp);
+    void pauseAndResetPosition();
 
 private:
     Ui_Logging *m_logging;
     LoggingPlugin *loggingPlugin;
     ScopeGadgetFactory *scpPlugin;
     QTimer sliderActionDelay;
-    quint32 m_storedPosition;
 
     void updatePositionLabel(quint32 positionTimeStamp);
-
+    void setPlayPauseButtonToPlay();
+    void setPlayPauseButtonToPause();
 };
 
 #endif /* LoggingGADGETWIDGET_H_ */

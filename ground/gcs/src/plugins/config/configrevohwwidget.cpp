@@ -108,16 +108,14 @@ void ConfigRevoHWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 void ConfigRevoHWWidget::updateObjectsFromWidgetsImpl()
 {
     // If any port is configured to be GPS port, enable GPS module if it is not enabled.
-    // Otherwise disable GPS module.
-    quint8 enableModule = HwSettings::OPTIONALMODULES_DISABLED;
-
-    if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS)
-        || isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS)) {
-        enableModule = HwSettings::OPTIONALMODULES_ENABLED;
-    }
-
+    // GPS module will be already built in for Revo board, keep this check just in case.
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_GPS, enableModule);
+
+    if ((hwSettings->optionalModulesGPS() == HwSettings_OptionalModules::Disabled) &&
+        (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS) ||
+         isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS))) {
+        hwSettings->setOptionalModulesGPS(HwSettings_OptionalModules::Enabled);
+    }
 }
 
 void ConfigRevoHWWidget::usbVCPPortChanged(int index)

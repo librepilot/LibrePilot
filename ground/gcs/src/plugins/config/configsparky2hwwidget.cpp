@@ -103,16 +103,14 @@ void ConfigSparky2HWWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 void ConfigSparky2HWWidget::updateObjectsFromWidgetsImpl()
 {
     // If any port is configured to be GPS port, enable GPS module if it is not enabled.
-    // Otherwise disable GPS module.
-    quint8 enableModule = HwSettings::OPTIONALMODULES_DISABLED;
-
-    if (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::SPK2_FLEXIPORT_GPS)
-        || isComboboxOptionSelected(m_ui->cbMain, HwSettings::SPK2_MAINPORT_GPS)) {
-        enableModule = HwSettings::OPTIONALMODULES_ENABLED;
-    }
-
+    // GPS will be already built in for Sparky2 board, keep this check just in case.
     HwSettings *hwSettings = HwSettings::GetInstance(getObjectManager());
-    hwSettings->setOptionalModules(HwSettings::OPTIONALMODULES_GPS, enableModule);
+
+    if ((hwSettings->optionalModulesGPS() == HwSettings_OptionalModules::Disabled) &&
+        (isComboboxOptionSelected(m_ui->cbFlexi, HwSettings::RM_FLEXIPORT_GPS) ||
+         isComboboxOptionSelected(m_ui->cbMain, HwSettings::RM_MAINPORT_GPS))) {
+        hwSettings->setOptionalModulesGPS(HwSettings_OptionalModules::Enabled);
+    }
 }
 
 void ConfigSparky2HWWidget::usbVCPPortChanged(int index)

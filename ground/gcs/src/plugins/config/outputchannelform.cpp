@@ -28,9 +28,10 @@
 #include "outputchannelform.h"
 
 #include "ui_outputchannelform.h"
+#include <QDebug>
 
 OutputChannelForm::OutputChannelForm(const int index, QWidget *parent) :
-    ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false)
+    ChannelForm(index, parent), ui(new Ui::outputChannelForm), m_inChannelTest(false), m_updateChannelRangeEnabled(true)
 {
     ui->setupUi(this);
 
@@ -110,13 +111,24 @@ void OutputChannelForm::enableChannelTest(bool state)
         ui->actuatorMin->setEnabled(false);
         ui->actuatorMax->setEnabled(false);
         ui->actuatorRev->setEnabled(false);
-    } else if (m_mixerType != "Disabled") {
+    } else if (!isDisabledOutput()) {
         ui->actuatorMin->setEnabled(true);
         ui->actuatorMax->setEnabled(true);
-        if (m_mixerType != "Motor") {
+        if (!isNormalMotorOutput()) {
             ui->actuatorRev->setEnabled(true);
         }
     }
+}
+
+/**
+ * Enable/Disable setChannelRange
+ */
+void OutputChannelForm::setChannelRangeEnabled(bool state)
+{
+    if (m_updateChannelRangeEnabled == state) {
+        return;
+    }
+    m_updateChannelRangeEnabled = state;
 }
 
 /**
@@ -212,6 +224,9 @@ void OutputChannelForm::setLimits(int actuatorMinMinimum, int actuatorMinMaximum
     ui->actuatorMax->setMaximum(actuatorMaxMaximum);
     ui->actuatorMin->setMinimum(actuatorMinMinimum);
     ui->actuatorMax->setMinimum(actuatorMaxMinimum);
+    // Neutral slider limits
+    ui->actuatorNeutral->setMinimum(actuatorMinMinimum);
+    ui->actuatorNeutral->setMaximum(actuatorMaxMaximum);
 }
 
 /**
@@ -233,16 +248,32 @@ void OutputChannelForm::setRange(int minimum, int maximum)
  */
 void OutputChannelForm::setChannelRange()
 {
+    // Disable outputs not already set in MixerSettings
+    if (isDisabledOutput()) {
+        setLimits(1000, 1000, 1000, 1000);
+        ui->actuatorMin->setValue(1000);
+        ui->actuatorMax->setValue(1000);
+        ui->actuatorRev->setChecked(false);
+        ui->actuatorLink->setChecked(false);
+        setControlsEnabled(false);
+        return;
+    }
+
+    if (!m_updateChannelRangeEnabled) {
+        // Nothing to do here
+        return;
+    }
+
+    setControlsEnabled(true);
+
     int minValue = ui->actuatorMin->value();
     int maxValue = ui->actuatorMax->value();
 
     int oldMini  = ui->actuatorNeutral->minimum();
     int oldMaxi  = ui->actuatorNeutral->maximum();
 
-    m_mixerType = outputMixerType();
-
     // Red handle for Motors
-    if ((m_mixerType == "Motor") || (m_mixerType == "ReversableMotor")) {
+    if (isNormalMotorOutput() || isReversibleMotorOutput()) {
         ui->actuatorNeutral->setStyleSheet("QSlider::handle:horizontal { background: rgb(255, 100, 100); width: 18px; height: 28px;"
                                            "margin: -3px 0; border-radius: 3px; border: 1px solid #777; }");
     } else {
@@ -251,8 +282,8 @@ void OutputChannelForm::setChannelRange()
     }
 
     // Normal motor will be *** never *** reversed : without arming a "Min" value (like 1900) can be applied !
-    if (m_mixerType == "Motor") {
-        if (minValue >= maxValue) {
+    if (isNormalMotorOutput()) {
+        if (minValue > maxValue) {
             // Keep old values
             ui->actuatorMin->setValue(oldMini);
             ui->actuatorMax->setValue(oldMaxi);
@@ -279,25 +310,6 @@ void OutputChannelForm::setChannelRange()
     if (ui->actuatorNeutral->value() == oldMini) {
         ui->actuatorNeutral->setValue(ui->actuatorNeutral->minimum());
     }
-
-    // Enable only outputs already set in mixer
-    if (m_mixerType != "Disabled") {
-        ui->actuatorMin->setEnabled(true);
-        ui->actuatorMax->setEnabled(true);
-        ui->actuatorNeutral->setEnabled(true);
-        ui->actuatorValue->setEnabled(true);
-        ui->actuatorLink->setEnabled(true);
-    } else {
-        ui->actuatorMin->setEnabled(false);
-        ui->actuatorMax->setEnabled(false);
-        ui->actuatorRev->setEnabled(false);
-        ui->actuatorLink->setEnabled(false);
-        ui->actuatorMin->setValue(1000);
-        ui->actuatorMax->setValue(1000);
-        ui->actuatorNeutral->setRange(minValue, maxValue);
-        ui->actuatorNeutral->setValue(minValue);
-        ui->actuatorValue->setEnabled(false);
-    }
 }
 
 /**
@@ -316,6 +328,28 @@ void OutputChannelForm::reverseChannel(bool state)
 
         setChannelRange();
         return;
+    }
+}
+
+/**
+ * Enable/Disable UI controls
+ */
+void OutputChannelForm::setControlsEnabled(bool state)
+{
+    if (isDisabledOutput()) {
+        state = false;
+    }
+    ui->actuatorMin->setEnabled(state);
+    ui->actuatorMax->setEnabled(state);
+    ui->actuatorValue->setEnabled(state);
+    ui->actuatorLink->setEnabled(state);
+    // Reverse checkbox will be never checked
+    // or enabled for normal motor
+    if (isNormalMotorOutput()) {
+        ui->actuatorRev->setChecked(false);
+        ui->actuatorRev->setEnabled(false);
+    } else {
+        ui->actuatorRev->setEnabled(state);
     }
 }
 
@@ -374,6 +408,15 @@ void OutputChannelForm::sendChannelTest(int value)
 
 /**
  *
+ * Returns current neutral value
+ */
+int OutputChannelForm::neutralValue()
+{
+    return ui->actuatorNeutral->value();
+}
+
+/**
+ *
  * Returns MixerType
  */
 QString OutputChannelForm::outputMixerType()
@@ -388,4 +431,40 @@ QString OutputChannelForm::outputMixerType()
     QString mixerType     = field->getValue().toString();
 
     return mixerType;
+}
+
+/**
+ *
+ * Returns true if a servo output
+ */
+bool OutputChannelForm::isServoOutput()
+{
+    return !isNormalMotorOutput() && !isReversibleMotorOutput() && !isDisabledOutput();
+}
+
+/**
+ *
+ * Returns true if output is a normal Motor
+ */
+bool OutputChannelForm::isNormalMotorOutput()
+{
+    return outputMixerType() == "Motor";
+}
+
+/**
+ *
+ * Returns true if output is a reversible Motor
+ */
+bool OutputChannelForm::isReversibleMotorOutput()
+{
+    return outputMixerType() == "ReversableMotor";
+}
+
+/**
+ *
+ * Returns true if output is disabled
+ */
+bool OutputChannelForm::isDisabledOutput()
+{
+    return outputMixerType() == "Disabled";
 }

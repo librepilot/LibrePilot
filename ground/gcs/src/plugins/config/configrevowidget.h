@@ -62,7 +62,8 @@ private:
     Ui_RevoSensorsWidget *m_ui;
 
     // Board rotation store/recall for FC and for aux mag
-    qint16 storedBoardRotation[3];
+    float storedBoardRotation[3];
+    float storedBoardLevelTrim[2];
     qint16 auxMagStoredBoardRotation[3];
     bool isBoardRotationStored;
 

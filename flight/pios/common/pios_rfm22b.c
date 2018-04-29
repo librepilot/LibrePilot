@@ -339,14 +339,26 @@ static const uint32_t data_rate[] = {
 
 static const uint8_t channel_spacing[] = {
     1, /* 9.6kbps */
-    2, /* 19.2kps */
-    2, /* 32kps */
-    2, /* 57.6kps */
-    2, /* 64kps */
-    3, /* 100kps */
-    4, /* 128kps */
-    4, /* 192kps */
-    4, /* 256kps */
+    2, /* 19.2kbps */
+    2, /* 32kbps */
+    2, /* 57.6kbps */
+    2, /* 64kbps */
+    3, /* 100kbps */
+    4, /* 128kbps */
+    4, /* 192kbps */
+    5, /* 256kbps */
+};
+
+static const uint8_t channel_limits[] = {
+    1, /* 9.6kbps */
+    1, /* 19.2kbps */
+    1, /* 32kbps */
+    1, /* 57.6kbps */
+    1, /* 64kbps */
+    1, /* 100kbps */
+    2, /* 128kbps */
+    2, /* 192kbps */
+    2, /* 256kbps */
 };
 
 static const uint8_t reg_1C[] = { 0x01, 0x05, 0x06, 0x95, 0x95, 0x81, 0x88, 0x8B, 0x8D }; // rfm22_if_filter_bandwidth
@@ -2669,9 +2681,16 @@ static void rfm22_hmac_sha1(const uint8_t *data, size_t len,
 static bool rfm22_gen_channels(uint32_t coordid, enum rfm22b_datarate rate, uint8_t min,
                                uint8_t max, uint8_t channels[MAX_CHANNELS], uint8_t *clen)
 {
+    // Define first and last channel to be used within min/max values
+    // according to the frequency deviation, without up/down overflow.
+    uint8_t chan_min_limit = min + channel_limits[rate];
+    uint8_t chan_max_limit = max - channel_limits[rate];
+
+    // Define how many channels we can use according to the spacing.
+    uint8_t chan_count     = ((chan_max_limit - chan_min_limit) / channel_spacing[rate]) + 1;
+
     uint32_t data = 0;
     uint8_t cpos  = 0;
-    uint8_t chan_range = (max / channel_spacing[rate] - min / channel_spacing[rate]) + 1;
     uint8_t key[SHA1_DIGEST_LENGTH] = { 0 };
     uint8_t digest[SHA1_DIGEST_LENGTH];
     uint8_t *all_channels;
@@ -2680,12 +2699,16 @@ static bool rfm22_gen_channels(uint32_t coordid, enum rfm22b_datarate rate, uint
 
     memcpy(key, &coordid, sizeof(coordid));
 
-    for (int i = 0; i < chan_range; i++) {
-        all_channels[i] = min / channel_spacing[rate] + i;
+    // Fill all_channels[] with usable channels
+    for (int i = 0; i < chan_count; i++) {
+        all_channels[i] = chan_min_limit + (i * channel_spacing[rate]);
     }
 
+    // DEBUG_PRINTF(3, "\r\nChannel Min: %d Max:%d - Spacing: %d Limits: %d\r\n", min, max, channel_spacing[rate], channel_limits[rate]);
+    // DEBUG_PRINTF(3, "Result: Channel count: %d - Usable channels from ch%d to ch%d\r\n", chan_count, all_channels[0], all_channels[chan_count - 1]);
+
     int j = SHA1_DIGEST_LENGTH;
-    for (int i = 0; i < chan_range && i < MAX_CHANNELS; i++) {
+    for (int i = 0; i < chan_count && i < MAX_CHANNELS; i++) {
         uint8_t rnd;
         uint8_t r;
         uint8_t tmp;
@@ -2697,14 +2720,16 @@ static bool rfm22_gen_channels(uint32_t coordid, enum rfm22b_datarate rate, uint
         }
         rnd = digest[j];
         j++;
-        r   = rnd % (chan_range - i) + i;
+        r   = rnd % (chan_count - i) + i;
         tmp = all_channels[i];
         all_channels[i] = all_channels[r];
         all_channels[r] = tmp;
     }
 
-    for (int i = 0; i < chan_range && cpos < MAX_CHANNELS; i++, cpos++) {
-        channels[cpos] = all_channels[i] * channel_spacing[rate];
+    // DEBUG_PRINTF(3, "Final channel list:");
+    for (int i = 0; i < chan_count && cpos < MAX_CHANNELS; i++, cpos++) {
+        channels[cpos] = all_channels[i];
+        // DEBUG_PRINTF(3, " %d ", all_channels[i]);
     }
 
     *clen = cpos & 0xfe;

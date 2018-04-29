@@ -236,7 +236,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "FALSE"
+                            "value": "False"
                         }
                     ]
                 },
@@ -346,27 +346,27 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "FALSE"
+                            "value": "False"
                         },
                         {
                             "name": "1",
-                            "value": "FALSE"
+                            "value": "False"
                         },
                         {
                             "name": "2",
-                            "value": "FALSE"
+                            "value": "False"
                         },
                         {
                             "name": "3",
-                            "value": "FALSE"
+                            "value": "False"
                         },
                         {
                             "name": "4",
-                            "value": "FALSE"
+                            "value": "False"
                         },
                         {
                             "name": "5",
-                            "value": "FALSE"
+                            "value": "False"
                         }
                     ]
                 },
@@ -399,7 +399,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "TRUE"
+                            "value": "True"
                         }
                     ]
                 }
@@ -680,7 +680,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "FALSE"
+                            "value": "False"
                         }
                     ]
                 },
@@ -691,7 +691,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "TRUE"
+                            "value": "True"
                         }
                     ]
                 },
@@ -1005,7 +1005,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "FALSE"
+                            "value": "False"
                         }
                     ]
                 },
@@ -1016,7 +1016,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "FALSE"
+                            "value": "False"
                         }
                     ]
                 },
@@ -1330,7 +1330,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "TRUE"
+                            "value": "True"
                         }
                     ]
                 },
@@ -1341,7 +1341,7 @@
                     "values": [
                         {
                             "name": "0",
-                            "value": "FALSE"
+                            "value": "False"
                         }
                     ]
                 },

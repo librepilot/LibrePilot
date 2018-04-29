@@ -1152,9 +1152,18 @@ void UAVObjectField::setValue(const QVariant & value, quint32 index)
         case ENUM:
         {
             qint8 tmpenum = options.indexOf(value.toString());
+            // try case insensitive
+            if (tmpenum < 0) {
+                QRegExp regexp(value.toString(), Qt::CaseInsensitive);
+                tmpenum = options.indexOf(regexp);
+                if (tmpenum >= 0) {
+                    qWarning() << "Enum value" << value.toString() << "should be" << options.at(tmpenum);
+                }
+            }
             // Default to 0 on invalid values.
             if (tmpenum < 0) {
                 tmpenum = 0;
+                qWarning() << "Enum value" << value.toString() << "not found";
             }
             memcpy(&data[offset + numBytesPerElement * index], &tmpenum, numBytesPerElement);
             break;

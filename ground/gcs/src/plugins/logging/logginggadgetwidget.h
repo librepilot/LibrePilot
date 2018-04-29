@@ -68,10 +68,14 @@ private:
     LoggingPlugin *loggingPlugin;
     ScopeGadgetFactory *scpPlugin;
     QTimer sliderActionDelay;
+    bool m_iconOnlyButtons;
+    int m_preferredButtonWidth;
 
     void updatePositionLabel(quint32 positionTimeStamp);
     void setPlayPauseButtonToPlay();
     void setPlayPauseButtonToPause();
+    void updateButtonAppearance();
+    void resizeEvent(QResizeEvent *event);
 };
 
 #endif /* LoggingGADGETWIDGET_H_ */

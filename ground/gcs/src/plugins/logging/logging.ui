@@ -36,8 +36,8 @@
        <item>
         <widget class="QPushButton" name="playPauseButton">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>80</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -47,11 +47,17 @@
            <height>0</height>
           </size>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="text">
           <string>  Play</string>
          </property>
          <property name="icon">
-          <iconset resource="../logging/res.qrc">
+          <iconset resource="res.qrc">
            <normaloff>:/logging/images/play.png</normaloff>:/logging/images/play.png</iconset>
          </property>
          <property name="iconSize">
@@ -65,8 +71,8 @@
        <item>
         <widget class="QPushButton" name="stopButton">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>80</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
@@ -76,11 +82,17 @@
            <height>0</height>
           </size>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="text">
           <string>  Stop</string>
          </property>
          <property name="icon">
-          <iconset resource="../logging/res.qrc">
+          <iconset resource="res.qrc">
            <normaloff>:/logging/images/stop.png</normaloff>:/logging/images/stop.png</iconset>
          </property>
          <property name="iconSize">
@@ -113,6 +125,12 @@
        </item>
        <item>
         <widget class="QDoubleSpinBox" name="playbackSpeed">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="decimals">
           <number>1</number>
          </property>
@@ -203,6 +221,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -229,6 +253,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -254,6 +284,12 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
          </property>
          <property name="text">
           <string/>
@@ -283,7 +319,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../logging/res.qrc"/>
+  <include location="res.qrc"/>
  </resources>
  <connections/>
 </ui>

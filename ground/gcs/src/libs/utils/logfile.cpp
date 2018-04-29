@@ -165,7 +165,7 @@ void LogFile::timerFired()
         /*
             This code generates an advancing playback window. All samples that fit the window
             are replayed. The window is about the size of the timer interval: 10 ms.
-  
+
             Description of used variables:
 
             time              : real-time interval since start of playback (in ms) - now()
@@ -176,8 +176,7 @@ void LogFile::timerFired()
 
          */
 
-        while ( m_nextTimeStamp < (m_lastPlayed + (double)(time - m_timeOffset) * m_playbackSpeed) ) {
-
+        while (m_nextTimeStamp < (m_lastPlayed + (double)(time - m_timeOffset) * m_playbackSpeed)) {
             // advance the replay window for the next time period
             m_lastPlayed += ((double)(time - m_timeOffset) * m_playbackSpeed);
 
@@ -344,12 +343,11 @@ bool LogFile::resumeReplay(quint32 desiredPosition)
        Looking for the next log timestamp after the desired position
        has the advantage that it skips over parts of the log
        where data might be missing.
-    */
+     */
     for (int i = 0; i < m_timeStamps.size(); i++) {
         if (m_timeStamps.at(i) >= desiredPosition) {
-
             int bytesToSkip = m_timeStampPositions.at(i);
-            bool seek_ok = m_file.seek(bytesToSkip);
+            bool seek_ok    = m_file.seek(bytesToSkip);
             if (!seek_ok) {
                 qWarning() << "LogFile resumeReplay - an error occurred while seeking through the logfile.";
             }
@@ -365,7 +363,7 @@ bool LogFile::resumeReplay(quint32 desiredPosition)
 
     // Set the real-time interval to 0 to start with:
     m_myTime.restart();
-    m_timeOffset = 0;
+    m_timeOffset   = 0;
 
     m_replayStatus = PLAYING;
 
@@ -409,7 +407,7 @@ bool LogFile::pauseAndResetPosition()
     }
     qDebug() << "LogFile - pauseAndResetPosition";
     m_timer.stop();
-    m_replayStatus = STOPPED;
+    m_replayStatus      = STOPPED;
 
     m_timeOffset        = 0;
     m_lastPlayed        = m_timeStamps.at(0);
@@ -467,10 +465,10 @@ bool LogFile::buildIndex()
         }
         m_timeStamps.append(timeStamp);
         m_timeStampPositions.append(readPointer);
-        readPointer += TIMESTAMP_SIZE_BYTES;
+        readPointer     += TIMESTAMP_SIZE_BYTES;
         index++;
         m_beginTimeStamp = timeStamp;
-        m_endTimeStamp = timeStamp;
+        m_endTimeStamp   = timeStamp;
     }
 
     while (true) {
@@ -511,7 +509,7 @@ bool LogFile::buildIndex()
             if (bytesRead != TIMESTAMP_SIZE_BYTES) {
                 qWarning() << "LogFile buildIndex - read timeStamp, readRawData returned unexpected number of bytes:" << bytesRead << "at position" << readPointer << "\n";
                 return false;
-           }
+            }
 
             // some validity checks
             if (timeStamp < m_endTimeStamp // logfile goes back in time
@@ -522,7 +520,7 @@ bool LogFile::buildIndex()
 
             m_timeStamps.append(timeStamp);
             m_timeStampPositions.append(readPointer);
-            readPointer += TIMESTAMP_SIZE_BYTES;
+            readPointer   += TIMESTAMP_SIZE_BYTES;
             index++;
             m_endTimeStamp = timeStamp;
         } else {

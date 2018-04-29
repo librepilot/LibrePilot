@@ -38,6 +38,7 @@
 #include "extensionsystem/pluginmanager.h"
 #include "utils/mustache.h"
 
+#include <QTextStream>
 #include <QDebug>
 
 UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent)
@@ -47,10 +48,7 @@ UAVObjectBrowserWidget::UAVObjectBrowserWidget(QWidget *parent) : QWidget(parent
     m_viewoptions = new Ui_viewoptions();
     m_viewoptions->setupUi(m_viewoptionsDialog);
 
-    m_model = new UAVObjectTreeModel(this,
-                                     m_viewoptions->cbCategorized->isChecked(),
-                                     m_viewoptions->cbMetaData->isChecked(),
-                                     m_viewoptions->cbScientific->isChecked());
+    m_model = createTreeModel();
 
     m_modelProxy = new TreeSortFilterProxyModel(this);
     m_modelProxy->setSourceModel(m_model);
@@ -97,12 +95,12 @@ UAVObjectBrowserWidget::~UAVObjectBrowserWidget()
     delete m_browser;
 }
 
-void UAVObjectBrowserWidget::setViewOptions(bool categorized, bool scientific, bool metadata, bool description)
+void UAVObjectBrowserWidget::setViewOptions(bool showCategories, bool showMetadata, bool useScientificNotation, bool showDescription)
 {
-    m_viewoptions->cbCategorized->setChecked(categorized);
-    m_viewoptions->cbMetaData->setChecked(metadata);
-    m_viewoptions->cbScientific->setChecked(scientific);
-    m_viewoptions->cbDescription->setChecked(description);
+    m_viewoptions->cbCategorized->setChecked(showCategories);
+    m_viewoptions->cbMetaData->setChecked(showMetadata);
+    m_viewoptions->cbScientific->setChecked(useScientificNotation);
+    m_viewoptions->cbDescription->setChecked(showDescription);
 }
 
 void UAVObjectBrowserWidget::setSplitterState(QByteArray state)
@@ -156,7 +154,7 @@ ObjectTreeItem *UAVObjectBrowserWidget::findCurrentObjectTreeItem()
         if (objItem) {
             break;
         }
-        item = item->parent();
+        item = item->parentItem();
     }
     return objItem;
 }
@@ -186,7 +184,7 @@ void UAVObjectBrowserWidget::saveObject()
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
-        updateObjectPersistance(ObjectPersistence::OPERATION_SAVE, obj);
+        updateObjectPersistence(ObjectPersistence::OPERATION_SAVE, obj);
     }
 }
 
@@ -198,7 +196,7 @@ void UAVObjectBrowserWidget::loadObject()
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
-        updateObjectPersistance(ObjectPersistence::OPERATION_LOAD, obj);
+        updateObjectPersistence(ObjectPersistence::OPERATION_LOAD, obj);
         // Retrieve object so that latest value is displayed
         requestUpdate();
     }
@@ -211,13 +209,13 @@ void UAVObjectBrowserWidget::eraseObject()
     if (objItem != NULL) {
         UAVObject *obj = objItem->object();
         Q_ASSERT(obj);
-        updateObjectPersistance(ObjectPersistence::OPERATION_DELETE, obj);
+        updateObjectPersistence(ObjectPersistence::OPERATION_DELETE, obj);
         // Retrieve object so that correct default value is displayed
         requestUpdate();
     }
 }
 
-void UAVObjectBrowserWidget::updateObjectPersistance(ObjectPersistence::OperationOptions op, UAVObject *obj)
+void UAVObjectBrowserWidget::updateObjectPersistence(ObjectPersistence::OperationOptions op, UAVObject *obj)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
@@ -238,11 +236,11 @@ void UAVObjectBrowserWidget::currentChanged(const QModelIndex &current, const QM
 {
     Q_UNUSED(previous);
 
-    TreeItem *item = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
-    bool enable    = true;
+    bool enable = true;
     if (!current.isValid()) {
         enable = false;
     }
+    TreeItem *item       = static_cast<TreeItem *>(current.data(Qt::UserRole).value<void *>());
     TopTreeItem *top     = dynamic_cast<TopTreeItem *>(item);
     ObjectTreeItem *data = dynamic_cast<ObjectTreeItem *>(item);
     if (top || (data && !data->object())) {
@@ -264,25 +262,33 @@ void UAVObjectBrowserWidget::viewSlot()
     }
 }
 
-void UAVObjectBrowserWidget::updateViewOptions()
+UAVObjectTreeModel *UAVObjectBrowserWidget::createTreeModel()
 {
-    // TODO we should update the model instead of rebuilding it
-    // a side effect of rebuilding is that some state is lost (expand state, ...)
-    UAVObjectTreeModel *model = new UAVObjectTreeModel(this,
-                                                       m_viewoptions->cbCategorized->isChecked(),
-                                                       m_viewoptions->cbMetaData->isChecked(),
-                                                       m_viewoptions->cbScientific->isChecked());
+    UAVObjectTreeModel *model = new UAVObjectTreeModel(this);
 
-    model->setUnknowObjectColor(m_unknownObjectColor);
+    model->setShowCategories(m_viewoptions->cbCategorized->isChecked());
+    model->setShowMetadata(m_viewoptions->cbMetaData->isChecked());
+    model->setUseScientificNotation(m_viewoptions->cbScientific->isChecked());
+
     model->setRecentlyUpdatedColor(m_recentlyUpdatedColor);
     model->setManuallyChangedColor(m_manuallyChangedColor);
     model->setRecentlyUpdatedTimeout(m_recentlyUpdatedTimeout);
-    model->setOnlyHilightChangedValues(m_onlyHilightChangedValues);
+    model->setUnknownObjectColor(m_unknownObjectColor);
+    model->setOnlyHighlightChangedValues(m_onlyHighlightChangedValues);
 
-    UAVObjectTreeModel *tmpModel = m_model;
-    m_model = model;
-    m_modelProxy->setSourceModel(m_model);
-    delete tmpModel;
+    return model;
+}
+
+void UAVObjectBrowserWidget::updateViewOptions()
+{
+    bool showCategories = m_viewoptions->cbCategorized->isChecked();
+    bool useScientificNotation = m_viewoptions->cbScientific->isChecked();
+    bool showMetadata   = m_viewoptions->cbMetaData->isChecked();
+    bool showDesc = m_viewoptions->cbDescription->isChecked();
+
+    m_model->setShowCategories(showCategories);
+    m_model->setShowMetadata(showMetadata);
+    m_model->setUseScientificNotation(useScientificNotation);
 
     // force an expand all if search text is not empty
     if (!m_browser->searchLine->text().isEmpty()) {
@@ -290,8 +296,7 @@ void UAVObjectBrowserWidget::updateViewOptions()
     }
 
     // persist options
-    emit viewOptionsChanged(m_viewoptions->cbCategorized->isChecked(), m_viewoptions->cbScientific->isChecked(),
-                            m_viewoptions->cbMetaData->isChecked(), m_viewoptions->cbDescription->isChecked());
+    emit viewOptionsChanged(showCategories, useScientificNotation, showMetadata, showDesc);
 }
 
 void UAVObjectBrowserWidget::splitterMoved()
@@ -414,6 +419,68 @@ void UAVObjectBrowserWidget::searchLineChanged(QString searchText)
         m_browser->treeView->expandToDepth(depth);
     } else {
         m_browser->treeView->collapseAll();
+    }
+}
+
+QString UAVObjectBrowserWidget::indexToPath(const QModelIndex &index) const
+{
+    QString path = index.data(Qt::DisplayRole).toString();
+
+    QModelIndex parent = index.parent();
+
+    while (parent.isValid()) {
+        path   = parent.data(Qt::DisplayRole).toString() + "/" + path;
+        parent = parent.parent();
+    }
+    return path;
+}
+
+QModelIndex UAVObjectBrowserWidget::indexFromPath(const QString &path) const
+{
+    QStringList list  = path.split("/");
+
+    QModelIndex index = m_modelProxy->index(0, 0);
+
+    foreach(QString name, list) {
+        QModelIndexList items = m_modelProxy->match(index, Qt::DisplayRole, name, 1, Qt::MatchFlags(Qt::MatchExactly | Qt::MatchRecursive));
+
+        if (!items.isEmpty()) {
+            index = items.first();
+        } else {
+            // bail out
+            return QModelIndex();
+        }
+    }
+    return index;
+}
+
+void UAVObjectBrowserWidget::saveState(QSettings &settings) const
+{
+    QStringList list;
+
+    // prepare list
+    foreach(QModelIndex index, m_modelProxy->getPersistentIndexList()) {
+        if (m_browser->treeView->isExpanded(index)) {
+            QString path = indexToPath(index);
+            list << path;
+        }
+    }
+
+    // save list
+    settings.setValue("expandedItems", QVariant::fromValue(list));
+}
+
+void UAVObjectBrowserWidget::restoreState(QSettings &settings)
+{
+    // get list
+    QStringList list = settings.value("expandedItems").toStringList();
+
+    foreach(QString path, list) {
+        QModelIndex index = indexFromPath(path);
+
+        if (index.isValid()) {
+            m_browser->treeView->setExpanded(index, true);
+        }
     }
 }
 

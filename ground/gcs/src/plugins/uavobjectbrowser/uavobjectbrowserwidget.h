@@ -46,6 +46,12 @@ class TreeSortFilterProxyModel : public QSortFilterProxyModel {
 public:
     TreeSortFilterProxyModel(QObject *parent);
 
+public:
+    QModelIndexList getPersistentIndexList() const
+    {
+        return persistentIndexList();
+    }
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
     bool filterAcceptsRowItself(int source_row, const QModelIndex &source_parent) const;
@@ -62,7 +68,7 @@ public:
     void setUnknownObjectColor(QColor color)
     {
         m_unknownObjectColor = color;
-        m_model->setUnknowObjectColor(color);
+        m_model->setUnknownObjectColor(color);
     }
     void setRecentlyUpdatedColor(QColor color)
     {
@@ -79,13 +85,19 @@ public:
         m_recentlyUpdatedTimeout = timeout;
         m_model->setRecentlyUpdatedTimeout(timeout);
     }
-    void setOnlyHilightChangedValues(bool hilight)
+    void setOnlyHighlightChangedValues(bool highlight)
     {
-        m_onlyHilightChangedValues = hilight;
-        m_model->setOnlyHilightChangedValues(hilight);
+        m_onlyHighlightChangedValues = highlight;
+        m_model->setOnlyHighlightChangedValues(highlight);
     }
-    void setViewOptions(bool categorized, bool scientific, bool metadata, bool description);
+    void setViewOptions(bool showCategories, bool showMetadata, bool useScientificNotation, bool showDescription);
     void setSplitterState(QByteArray state);
+
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
+
+    QString indexToPath(const QModelIndex &index) const;
+    QModelIndex indexFromPath(const QString &path) const;
 
 public slots:
     void showDescription(bool show);
@@ -119,10 +131,12 @@ private:
     QColor m_unknownObjectColor;
     QColor m_recentlyUpdatedColor;
     QColor m_manuallyChangedColor;
-    bool m_onlyHilightChangedValues;
+    bool m_onlyHighlightChangedValues;
     QString m_mustacheTemplate;
 
-    void updateObjectPersistance(ObjectPersistence::OperationOptions op, UAVObject *obj);
+    UAVObjectTreeModel *createTreeModel();
+
+    void updateObjectPersistence(ObjectPersistence::OperationOptions op, UAVObject *obj);
     void enableSendRequest(bool enable);
     void updateDescription();
     ObjectTreeItem *findCurrentObjectTreeItem();

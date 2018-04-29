@@ -79,7 +79,7 @@ Telemetry::~Telemetry()
     closeAllTransactions();
     foreach(QList<UAVObject *> instances, objMngr->getObjects()) {
         foreach(UAVObject * object, instances) {
-            // make sure we 'forget' all objects before we request it from the flight side
+            // 'forget' all objects
             object->setIsKnown(false);
         }
     }
@@ -244,9 +244,8 @@ void Telemetry::transactionCompleted(UAVObject *obj, bool success)
 
     if (transInfo) {
         if (success) {
-            // We now know tat the flight side knows of this object.
+            // We now know that the flight side knows of this object.
             obj->setIsKnown(true);
-
 #ifdef VERBOSE_TELEMETRY
             qDebug() << "Telemetry - transaction successful for object" << obj->toStringBrief();
 #endif

@@ -622,7 +622,7 @@ void UAVObject::setIsKnown(bool isKnown)
     unlock();
 
     if (changed) {
-        emit isKnownChanged(this, isKnown);
+        emit isKnownChanged(this);
     }
 }
 

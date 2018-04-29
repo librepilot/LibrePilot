@@ -27,26 +27,30 @@
 
 #include "treeitem.h"
 
+#include <QDebug>
+
 /* Constructor */
-HighLightManager::HighLightManager(long checkingInterval)
+HighlightManager::HighlightManager()
 {
-    // Start the timer and connect it to the callback
-    m_expirationTimer.start(checkingInterval);
-    connect(&m_expirationTimer, SIGNAL(timeout()), this, SLOT(checkItemsExpired()));
+    // Initialize the timer and connect it to the callback
+    m_expirationTimer.setTimerType(Qt::PreciseTimer);
+    m_expirationTimer.setSingleShot(true);
+    connect(&m_expirationTimer, &QTimer::timeout, this, &HighlightManager::checkItemsExpired);
 }
 
 /*
  * Called to add item to list. Item is only added if absent.
  * Returns true if item was added, otherwise false.
  */
-bool HighLightManager::add(TreeItem *itemToAdd)
+bool HighlightManager::add(TreeItem *item)
 {
     // Lock to ensure thread safety
     QMutexLocker locker(&m_mutex);
 
     // Check so that the item isn't already in the list
-    if (!m_items.contains(itemToAdd)) {
-        m_items.insert(itemToAdd);
+    if (!m_items.contains(item)) {
+        m_items.insert(item);
+        emit updateHighlight(item);
         return true;
     }
     return false;
@@ -56,13 +60,57 @@ bool HighLightManager::add(TreeItem *itemToAdd)
  * Called to remove item from list.
  * Returns true if item was removed, otherwise false.
  */
-bool HighLightManager::remove(TreeItem *itemToRemove)
+bool HighlightManager::remove(TreeItem *item)
 {
     // Lock to ensure thread safety
     QMutexLocker locker(&m_mutex);
 
     // Remove item and return result
-    return m_items.remove(itemToRemove);
+    const bool removed = m_items.remove(item);
+
+    if (removed) {
+        emit updateHighlight(item);
+    }
+    return removed;
+}
+
+/*
+ * Called to remove item from list.
+ * Will not emit a signal. Called when destroying an item
+ * Returns true if item was removed, otherwise false.
+ */
+bool HighlightManager::reset(TreeItem *item)
+{
+    // Lock to ensure thread safety
+    QMutexLocker locker(&m_mutex);
+
+    // Remove item and return result
+    return m_items.remove(item);
+}
+
+bool HighlightManager::startTimer(QTime expirationTime)
+{
+    // Lock to ensure thread safety
+    QMutexLocker locker(&m_mutex);
+
+    if (!m_expirationTimer.isActive()) {
+        int msec = QTime::currentTime().msecsTo(expirationTime);
+        // qDebug() << "start" << msec;
+        m_expirationTimer.start((msec < 10) ? 10 : msec);
+        return true;
+    }
+    return false;
+}
+
+
+void HighlightManager::reset()
+{
+    // Lock to ensure thread safety
+    QMutexLocker locker(&m_mutex);
+
+    m_expirationTimer.stop();
+
+    m_items.clear();
 }
 
 /*
@@ -71,7 +119,7 @@ bool HighLightManager::remove(TreeItem *itemToRemove)
  * removes them if they are expired.
  * Expired highlights are restored.
  */
-void HighLightManager::checkItemsExpired()
+void HighlightManager::checkItemsExpired()
 {
     // Lock to ensure thread safety
     QMutexLocker locker(&m_mutex);
@@ -81,72 +129,102 @@ void HighLightManager::checkItemsExpired()
 
     // This is the timestamp to compare with
     QTime now = QTime::currentTime();
+    QTime next;
 
     // Loop over all items, check if they expired.
     while (iter.hasNext()) {
         TreeItem *item = iter.next();
-        if (item->getHiglightExpires() < now) {
-            // If expired, call removeHighlight
-            item->removeHighlight();
+        if (item->getHighlightExpires() <= now) {
+            // expired, call removeHighlight
+            item->resetHighlight();
 
             // Remove from list since it is restored.
             iter.remove();
+
+            emit updateHighlight(item);
+        } else {
+            // not expired, check if next to expire
+            if (!next.isValid() || (next > item->getHighlightExpires())) {
+                next = item->getHighlightExpires();
+            }
         }
+    }
+    if (next.isValid()) {
+        int msec = QTime::currentTime().msecsTo(next);
+        // qDebug() << "restart" << msec;
+        m_expirationTimer.start((msec < 10) ? 10 : msec);
     }
 }
 
-int TreeItem::m_highlightTimeMs = 500;
+int TreeItem::m_highlightTimeMs = 300;
 
-TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parent) :
-    QObject(0),
-    m_data(data),
-    m_parent(parent),
-    m_highlight(false),
-    m_changed(false)
+TreeItem::TreeItem(const QList<QVariant> &data) :
+    m_itemData(data),
+    m_parentItem(0),
+    m_changed(false),
+    m_highlighted(false),
+    m_highlightManager(0)
 {}
 
-TreeItem::TreeItem(const QVariant &data, TreeItem *parent) :
-    QObject(0),
-    m_parent(parent),
-    m_highlight(false),
-    m_changed(false)
+TreeItem::TreeItem(const QVariant &data) :
+    m_parentItem(0),
+    m_changed(false),
+    m_highlighted(false),
+    m_highlightManager(0)
 {
-    m_data << data << "" << "";
+    m_itemData << data << "" << "";
 }
 
 TreeItem::~TreeItem()
 {
-    qDeleteAll(m_children);
+    if (m_highlightManager) {
+        m_highlightManager->reset(this);
+    }
+    qDeleteAll(m_childItems);
 }
 
-void TreeItem::appendChild(TreeItem *child)
+void TreeItem::setParentItem(TreeItem *parentItem)
 {
-    m_children.append(child);
-    child->setParentTree(this);
+    if (m_parentItem) {
+        m_parentItem->removeChild(this, false);
+    }
+    m_parentItem = parentItem;
 }
 
-void TreeItem::insertChild(TreeItem *child)
+void TreeItem::appendChild(TreeItem *childItem)
 {
-    int index = nameIndex(child->data(0).toString());
-
-    m_children.insert(index, child);
-    child->setParentTree(this);
+    m_childItems.append(childItem);
+    childItem->setParentItem(this);
 }
 
-TreeItem *TreeItem::getChild(int index)
+void TreeItem::insertChild(TreeItem *childItem, int index)
 {
-    return m_children.value(index);
+    m_childItems.insert(index, childItem);
+    childItem->setParentItem(this);
+}
+
+void TreeItem::removeChild(TreeItem *childItem, bool reparent)
+{
+    m_childItems.removeOne(childItem);
+    if (reparent) {
+        childItem->setParentItem(0);
+    }
+}
+
+TreeItem *TreeItem::child(int index) const
+{
+    return m_childItems.value(index);
 }
 
 int TreeItem::childCount() const
 {
-    return m_children.count();
+    return m_childItems.count();
 }
 
 int TreeItem::row() const
 {
-    if (m_parent) {
-        return m_parent->m_children.indexOf(const_cast<TreeItem *>(this));
+    if (m_parentItem) {
+        return m_parentItem->m_childItems.indexOf(const_cast<TreeItem *>(this));
     }
 
     return 0;
@@ -154,79 +232,140 @@ int TreeItem::row() const
 
 int TreeItem::columnCount() const
 {
-    return m_data.count();
+    return m_itemData.count();
+}
+
+void TreeItem::setDescription(QString desc)
+{
+    // Split around 40 characters
+    int idx = desc.indexOf(" ", 40);
+
+    desc.insert(idx, QString("<br>"));
+    desc.remove("@Ref", Qt::CaseInsensitive);
+    m_description = desc;
 }
 
 QVariant TreeItem::data(int column) const
 {
-    return m_data.value(column);
+    return m_itemData.value(column);
 }
 
 void TreeItem::setData(QVariant value, int column)
 {
-    m_data.replace(column, value);
+    m_itemData.replace(column, value);
 }
 
-void TreeItem::update()
+void TreeItem::update(const QTime &ts)
 {
-    foreach(TreeItem * child, treeChildren())
-    child->update();
+    foreach(TreeItem * child, children()) {
+        child->update(ts);
+    }
 }
 
 void TreeItem::apply()
 {
-    foreach(TreeItem * child, treeChildren())
-    child->apply();
+    foreach(TreeItem * child, children()) {
+        child->apply();
+    }
 }
 
 /*
- * Called after a value has changed to trigger highlightning of tree item.
+ * Called after a value has changed to trigger highlighting of tree item.
  */
-void TreeItem::setHighlight(bool highlight)
+void TreeItem::setHighlighted(bool highlighted, const QTime &ts)
 {
-    m_highlight = highlight;
-    m_changed   = false;
-    if (highlight) {
-        // Update the expires timestamp
-        m_highlightExpires = QTime::currentTime().addMSecs(m_highlightTimeMs);
-
-        // Add to highlightmanager
-        if (m_highlightManager->add(this)) {
-            // Only emit signal if it was added
-            emit updateHighlight(this);
+    m_changed = false;
+    if (m_highlighted != highlighted) {
+        m_highlighted = highlighted;
+        if (highlighted) {
+            // Add to highlight manager
+            m_highlightManager->add(this);
+            // Update expiration timeout
+            m_highlightExpires = ts.addMSecs(m_highlightTimeMs);
+            // start expiration timer if necessary
+            m_highlightManager->startTimer(m_highlightExpires);
+        } else {
+            m_highlightManager->remove(this);
         }
-    } else if (m_highlightManager->remove(this)) {
-        // Only emit signal if it was removed
-        emit updateHighlight(this);
     }
 
     // If we have a parent, call recursively to update highlight status of parents.
-    // This will ensure that the root of a leaf that is changed also is highlighted.
+    // This will ensure that the root of a leaf that is changed is also highlighted.
     // Only updates that really changes values will trigger highlight of parents.
-    if (m_parent) {
-        m_parent->setHighlight(highlight);
+    if (m_parentItem) {
+        m_parentItem->setHighlighted(highlighted, ts);
     }
 }
 
-void TreeItem::removeHighlight()
+void TreeItem::resetHighlight()
 {
-    m_highlight = false;
-    emit updateHighlight(this);
+    m_highlighted = false;
 }
 
-void TreeItem::setHighlightManager(HighLightManager *mgr)
+void TreeItem::setHighlightManager(HighlightManager *mgr)
 {
     m_highlightManager = mgr;
 }
 
-QTime TreeItem::getHiglightExpires()
+QTime TreeItem::getHighlightExpires() const
 {
     return m_highlightExpires;
 }
 
-QList<MetaObjectTreeItem *> TopTreeItem::getMetaObjectItems()
+int TreeItem::childIndex(QString name) const
 {
-    return m_metaObjectTreeItemsPerObjectIds.values();
+    for (int i = 0; i < childCount(); ++i) {
+        if (name == child(i)->data(0).toString()) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+TreeItem *TreeItem::childByName(QString name) const
+{
+    int index = childIndex(name);
+
+    return (index >= 0) ? m_childItems[index] : 0;
+}
+
+int TreeItem::insertionIndex(TreeItem *item) const
+{
+    QString name = item->data(0).toString();
+
+    for (int i = 0; i < childCount(); ++i) {
+        if (name < child(i)->data(0).toString()) {
+            return i;
+        }
+    }
+    return childCount();
+}
+
+int TreeItem::maxHexStringLength(UAVObjectField::FieldType type)
+{
+    switch (type) {
+    case UAVObjectField::INT8:
+        return 2;
+
+    case UAVObjectField::INT16:
+        return 4;
+
+    case UAVObjectField::INT32:
+        return 8;
+
+    case UAVObjectField::UINT8:
+        return 2;
+
+    case UAVObjectField::UINT16:
+        return 4;
+
+    case UAVObjectField::UINT32:
+        return 8;
+
+    default:
+        Q_ASSERT(false);
+    }
+    return 0;
 }
 
 QVariant ArrayFieldTreeItem::data(int column) const
@@ -234,28 +373,32 @@ QVariant ArrayFieldTreeItem::data(int column) const
     if (column == 1) {
         if (m_field->getType() == UAVObjectField::UINT8 && m_field->getUnits().toLower() == "char") {
             QString dataString;
+            dataString.reserve(2 + m_field->getNumElements());
+            dataString.append("'");
             for (uint i = 0; i < m_field->getNumElements(); ++i) {
                 dataString.append(m_field->getValue(i).toChar());
             }
-            QString data = QString("'%1'").arg(dataString);
-            return data;
+            dataString.append("'");
+            return dataString;
         } else if (m_field->getUnits().toLower() == "hex") {
             QString dataString;
+            int len = TreeItem::maxHexStringLength(m_field->getType());
+            QChar fillChar('0');
+            dataString.reserve(2 + (len + 1) * m_field->getNumElements());
+            dataString.append("{");
             for (uint i = 0; i < m_field->getNumElements(); ++i) {
                 if (i > 0) {
                     dataString.append(' ');
                 }
                 bool ok;
-                dataString.append(QString("%1")
-                                  .arg(m_field->getValue(i).toUInt(&ok), TreeItem::maxHexStringLength(m_field->getType()),
-                                       16, QChar('0')).toUpper());
+                uint value  = m_field->getValue(i).toUInt(&ok);
+                QString str = QString("%1").arg(value, len, 16, fillChar);
+                str = str.toUpper();
+                dataString.append(str);
             }
-            QString data = QString("{%1}").arg(dataString);
-            return data;
-        } else {
-            return QVariant();
+            dataString.append("}");
+            return dataString;
         }
-    } else {
-        return TreeItem::data(column);
     }
+    return TreeItem::data(column);
 }

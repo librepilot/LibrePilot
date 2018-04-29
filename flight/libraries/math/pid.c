@@ -219,7 +219,17 @@ float pid2_apply(
         // pid->I = (pid->u0 - pid->va) / pid->vb - pid->kp * (pid->beta * r - y);
         // this is dangerous, if pid->I starts nonzero with very low or zero kI, then
         // it will never settle!
-        pid->I = 0.0f;
+        // pid->I = 0.0f;
+        // whether ki is zero or non-zero, when doing 'reconfigure' we start with setpoint==actual
+        pid->I = (pid->u0 - pid->va) / pid->vb;
+        // if ki is non-zero
+        if (pid->bi > 5e-7f) {
+            // then the output can wind up/down to get rid of a difference between setpoint and actual
+            // so we can generate the full bumpless transfer here
+            // else leave off the part that can vary due to difference between setpoint and actual
+            // so that it is repeatable (for tuning purposes at least)
+            pid->I -= pid->kp * (pid->beta * r - y);
+        }
     }
 
     // compute proportional part

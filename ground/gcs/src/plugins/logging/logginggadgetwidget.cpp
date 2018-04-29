@@ -79,7 +79,7 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
 
 	// Feedback from logfile to GUI
     connect(loggingPlugin, &LoggingPlugin::stateChanged, this, &LoggingGadgetWidget::stateChanged);
-    connect(logFile, &LogFile::updateBeginAndEndtimes, this, &LoggingGadgetWidget::updateBeginAndEndtimes);
+    connect(logFile, &LogFile::updateBeginAndEndTimes, this, &LoggingGadgetWidget::updateBeginAndEndTimes);
     connect(logFile, &LogFile::playbackPosition, this, &LoggingGadgetWidget::playbackPosition);
     connect(logFile, &LogFile::replayStarted, this, &LoggingGadgetWidget::enableButtons);
     connect(logFile, &LogFile::replayFinished, this, &LoggingGadgetWidget::disableButtons);
@@ -174,7 +174,7 @@ void LoggingGadgetWidget::stateChanged(LoggingPlugin::State state)
     }
 }
 
-void LoggingGadgetWidget::updateBeginAndEndtimes(quint32 startTimeStamp, quint32 endTimeStamp)
+void LoggingGadgetWidget::updateBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp)
 {
     int startSec, startMin, endSec, endMin;
 

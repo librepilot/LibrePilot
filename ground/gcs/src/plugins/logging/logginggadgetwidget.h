@@ -49,7 +49,7 @@ public:
 
 protected slots:
     void stateChanged(LoggingPlugin::State state);
-    void updateBeginAndEndtimes(quint32 startTimeStamp, quint32 endTimeStamp);
+    void updateBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp);
     void playbackPosition(quint32 positionTimeStamp);
     void playPauseButtonAction();
     void stopButtonAction();

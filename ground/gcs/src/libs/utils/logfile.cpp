@@ -29,6 +29,8 @@
 #include <QDataStream>
 #include <QThread> // DEBUG: to display the thread ID
 
+#define TIMESTAMP_SIZE_BYTES 4
+
 LogFile::LogFile(QObject *parent) : QIODevice(parent),
     m_timer(this),
     m_previousTimeStamp(0),
@@ -156,7 +158,7 @@ void LogFile::timerFired()
     }
     m_timer_tick++;
 
-    if (m_file.bytesAvailable() > 4) {
+    if (m_file.bytesAvailable() > TIMESTAMP_SIZE_BYTES) {
         int time;
         time = m_myTime.elapsed();
 
@@ -182,7 +184,7 @@ void LogFile::timerFired()
             // read data size
             qint64 dataSize;
             if (m_file.bytesAvailable() < (qint64)sizeof(dataSize)) {
-                qDebug() << "LogFile - end of log file reached";
+                qDebug() << "LogFile replay - end of log file reached";
                 stopReplay();
                 return;
             }
@@ -190,14 +192,14 @@ void LogFile::timerFired()
 
             // check size consistency
             if (dataSize < 1 || dataSize > (1024 * 1024)) {
-                qWarning() << "LogFile - corrupted log file! Unlikely packet size:" << dataSize;
+                qWarning() << "LogFile replay - corrupted log file! Unlikely packet size:" << dataSize;
                 stopReplay();
                 return;
             }
 
             // read data
             if (m_file.bytesAvailable() < dataSize) {
-                qDebug() << "LogFile - end of log file reached";
+                qDebug() << "LogFile replay - end of log file reached";
                 stopReplay();
                 return;
             }
@@ -216,7 +218,7 @@ void LogFile::timerFired()
             }
             // read next timestamp
             if (m_file.bytesAvailable() < (qint64)sizeof(m_nextTimeStamp)) {
-                qDebug() << "LogFile - end of log file reached";
+                qDebug() << "LogFile replay - end of log file reached";
                 stopReplay();
                 return;
             }
@@ -226,7 +228,7 @@ void LogFile::timerFired()
             // some validity checks
             if ((m_nextTimeStamp < m_previousTimeStamp) // logfile goes back in time
                 || ((m_nextTimeStamp - m_previousTimeStamp) > 60 * 60 * 1000)) { // gap of more than 60 minutes
-                qWarning() << "LogFile - corrupted log file! Unlikely timestamp:" << m_nextTimeStamp << "after" << m_previousTimeStamp;
+                qWarning() << "LogFile replay - corrupted log file! Unlikely timestamp:" << m_nextTimeStamp << "after" << m_previousTimeStamp;
                 stopReplay();
                 return;
             }
@@ -235,7 +237,7 @@ void LogFile::timerFired()
             time = m_myTime.elapsed(); // number of milliseconds since start of playback
         }
     } else {
-        qDebug() << "LogFile - end of log file reached";
+        qDebug() << "LogFile replay - end of log file reached";
         stopReplay();
     }
 }
@@ -324,12 +326,12 @@ bool LogFile::stopReplay()
  * If no position is given, resumes from the last position
  *
  */
-
 bool LogFile::resumeReplay(quint32 desiredPosition)
 {
     if (m_timer.isActive()) {
         return false;
     }
+    qDebug() << "LogFile - resumeReplay";
 
     // Clear the playout buffer:
     m_mutex.lock();
@@ -346,7 +348,11 @@ bool LogFile::resumeReplay(quint32 desiredPosition)
     for (int i = 0; i < m_timeStamps.size(); i++) {
         if (m_timeStamps.at(i) >= desiredPosition) {
 
-            m_file.seek(m_timeStampPositions.at(i));
+            int bytesToSkip = m_timeStampPositions.at(i);
+            bool seek_ok = m_file.seek(bytesToSkip);
+            if (!seek_ok) {
+                qWarning() << "LogFile resumeReplay - an error occurred while seeking through the logfile.";
+            }
             m_lastPlayed = m_timeStamps.at(i);
             break;
         }
@@ -401,6 +407,7 @@ bool LogFile::pauseAndResetPosition()
     if (!m_file.isOpen() || !m_timer.isActive()) {
         return false;
     }
+    qDebug() << "LogFile - pauseAndResetPosition";
     m_timer.stop();
     m_replayStatus = STOPPED;
 
@@ -426,11 +433,11 @@ ReplayState LogFile::getReplayStatus()
 /**
  * FUNCTION: buildIndex()
  *
- * Walk through the opened logfile and sets the start and end position timestamps
+ * Walk through the opened logfile and stores the first and last position timestamps.
  * Also builds an index for quickly skipping to a specific position in the logfile.
  *
- * returns true when indexing has completed successfully
- * returns false when a problem was encountered
+ * Returns true when indexing has completed successfully.
+ * Returns false when a problem was encountered.
  *
  */
 bool LogFile::buildIndex()
@@ -439,18 +446,28 @@ bool LogFile::buildIndex()
     qint64 totalSize;
     qint64 readPointer = 0;
     quint64 index = 0;
+    int bytesRead = 0;
 
-    QByteArray arr     = m_file.readAll();
+    qDebug() << "LogFile - buildIndex";
 
+    // Ensure empty vectors:
+    m_timeStampPositions.clear();
+    m_timeStamps.clear();
+
+    QByteArray arr = m_file.readAll();
     totalSize = arr.size();
     QDataStream dataStream(&arr, QIODevice::ReadOnly);
 
-    // set the start timestamp
-    if (totalSize - readPointer >= 4) {
-        dataStream.readRawData((char *)&timeStamp, 4);
+    // set the first timestamp
+    if (totalSize - readPointer >= TIMESTAMP_SIZE_BYTES) {
+        bytesRead = dataStream.readRawData((char *)&timeStamp, TIMESTAMP_SIZE_BYTES);
+        if (bytesRead != TIMESTAMP_SIZE_BYTES) {
+            qWarning() << "LogFile buildIndex - read first timeStamp: readRawData returned unexpected number of bytes:" << bytesRead << "at position" << readPointer << "\n";
+            return false;
+        }
         m_timeStamps.append(timeStamp);
         m_timeStampPositions.append(readPointer);
-        readPointer += 4;
+        readPointer += TIMESTAMP_SIZE_BYTES;
         index++;
         m_beginTimeStamp = timeStamp;
         m_endTimeStamp = timeStamp;
@@ -461,22 +478,27 @@ bool LogFile::buildIndex()
 
         // Check if there are enough bytes remaining for a correct "dataSize" field
         if (totalSize - readPointer < (qint64)sizeof(dataSize)) {
-            qDebug() << "Error: Logfile corrupted! Unexpected end of file";
+            qWarning() << "LogFile buildIndex - logfile corrupted! Unexpected end of file";
             return false;
         }
 
-        // Read the dataSize field
-        dataStream.readRawData((char *)&dataSize, sizeof(dataSize));
+        // Read the dataSize field and check for I/O errors
+        bytesRead = dataStream.readRawData((char *)&dataSize, sizeof(dataSize));
+        if (bytesRead != sizeof(dataSize)) {
+            qWarning() << "LogFile buildIndex - read dataSize: readRawData returned unexpected number of bytes:" << bytesRead << "at position" << readPointer << "\n";
+            return false;
+        }
+
         readPointer += sizeof(dataSize);
 
         if (dataSize < 1 || dataSize > (1024 * 1024)) {
-            qDebug() << "Error: Logfile corrupted! Unlikely packet size: " << dataSize << "\n";
+            qWarning() << "LogFile buildIndex - logfile corrupted! Unlikely packet size: " << dataSize << "\n";
             return false;
         }
 
         // Check if there are enough bytes remaining
         if (totalSize - readPointer < dataSize) {
-            qDebug() << "Error: Logfile corrupted! Unexpected end of file";
+            qWarning() << "LogFile buildIndex - logfile corrupted! Unexpected end of file";
             return false;
         }
 
@@ -484,18 +506,23 @@ bool LogFile::buildIndex()
         readPointer += dataStream.skipRawData(dataSize);
 
         // read the next timestamp
-        if (totalSize - readPointer >= 4) {
-            dataStream.readRawData((char *)&timeStamp, 4);
+        if (totalSize - readPointer >= TIMESTAMP_SIZE_BYTES) {
+            bytesRead = dataStream.readRawData((char *)&timeStamp, TIMESTAMP_SIZE_BYTES);
+            if (bytesRead != TIMESTAMP_SIZE_BYTES) {
+                qWarning() << "LogFile buildIndex - read timeStamp, readRawData returned unexpected number of bytes:" << bytesRead << "at position" << readPointer << "\n";
+                return false;
+           }
 
             // some validity checks
             if (timeStamp < m_endTimeStamp // logfile goes back in time
                 || (timeStamp - m_endTimeStamp) > (60 * 60 * 1000)) { // gap of more than 60 minutes)
-                qDebug() << "Error: Logfile corrupted! Unlikely timestamp " << timeStamp << " after " << m_endTimeStamp;
+                qWarning() << "LogFile buildIndex - logfile corrupted! Unlikely timestamp " << timeStamp << " after " << m_endTimeStamp;
+                return false;
             }
 
             m_timeStamps.append(timeStamp);
             m_timeStampPositions.append(readPointer);
-            readPointer += 4;
+            readPointer += TIMESTAMP_SIZE_BYTES;
             index++;
             m_endTimeStamp = timeStamp;
         } else {
@@ -504,7 +531,7 @@ bool LogFile::buildIndex()
         }
     }
 
-    emit updateBeginAndEndtimes(m_beginTimeStamp, m_endTimeStamp);
+    emit updateBeginAndEndTimes(m_beginTimeStamp, m_endTimeStamp);
 
     // reset the read pointer to the start of the file
     m_file.seek(0);

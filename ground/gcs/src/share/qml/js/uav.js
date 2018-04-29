@@ -318,6 +318,18 @@ function batteryModuleEnabled() {
     return (hwSettings.optionalModulesBattery == HwSettings.OptionalModules.Enabled);
 }
 
+function batteryADCConfigured() {
+    for (var i = 0; i < 8; i++) {
+        var adcRouting = hwSettings.getADCRouting(i);
+        if (adcRouting == HwSettings.ADCRouting.BatteryVoltage) {
+            return true;
+        } else if (adcRouting == HwSettings.ADCRouting.BatteryCurrent) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function batteryNbCells() {
     return flightBatterySettings.nbCells;
 }

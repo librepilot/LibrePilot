@@ -34,7 +34,7 @@
 #include "uavobjectfield.h"
 
 #include <QList>
-#include <QMap>
+#include <QSet>
 #include <QVariant>
 #include <QTime>
 #include <QTimer>

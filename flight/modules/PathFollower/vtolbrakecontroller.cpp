@@ -289,7 +289,7 @@ int8_t VtolBrakeController::UpdateStabilizationDesired(void)
     ManualControlCommandData manualControl;
     ManualControlCommandGet(&manualControl);
 
-    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
+    stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
     stabDesired.Yaw = stabSettings.MaximumRate.Yaw * manualControl.Yaw;
 
     // default thrust mode to cruise control

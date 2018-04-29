@@ -54,7 +54,30 @@ void pathPlanner::setModel(flightDataModel *model, QItemSelectionModel *selectio
     ui->tableView->setItemDelegate(new MapDataDelegate(this));
     connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(rowsInserted(const QModelIndex &, int, int)));
     wid = new opmap_edit_waypoint_dialog(NULL, model, selection);
-    ui->tableView->resizeColumnsToContents();
+
+    ui->tableView->setColumnWidth(flightDataModel::WPDESCRIPTION, 120);
+    ui->tableView->setColumnWidth(flightDataModel::LATPOSITION, 100);
+    ui->tableView->setColumnWidth(flightDataModel::LNGPOSITION, 100);
+    ui->tableView->setColumnWidth(flightDataModel::DISRELATIVE, 80);
+    ui->tableView->setColumnWidth(flightDataModel::BEARELATIVE, 80);
+    ui->tableView->setColumnWidth(flightDataModel::ALTITUDERELATIVE, 70);
+    ui->tableView->setColumnWidth(flightDataModel::ISRELATIVE, 70);
+    ui->tableView->setColumnWidth(flightDataModel::ALTITUDE, 80);
+    ui->tableView->setColumnWidth(flightDataModel::VELOCITY, 60);
+    ui->tableView->setColumnWidth(flightDataModel::MODE, 120);
+    ui->tableView->setColumnWidth(flightDataModel::MODE_PARAMS0, 60);
+    ui->tableView->setColumnWidth(flightDataModel::MODE_PARAMS1, 60);
+    ui->tableView->setColumnWidth(flightDataModel::MODE_PARAMS2, 60);
+    ui->tableView->setColumnWidth(flightDataModel::MODE_PARAMS3, 60);
+    ui->tableView->setColumnWidth(flightDataModel::CONDITION, 150);
+    ui->tableView->setColumnWidth(flightDataModel::CONDITION_PARAMS0, 60);
+    ui->tableView->setColumnWidth(flightDataModel::CONDITION_PARAMS1, 60);
+    ui->tableView->setColumnWidth(flightDataModel::CONDITION_PARAMS2, 60);
+    ui->tableView->setColumnWidth(flightDataModel::CONDITION_PARAMS3, 60);
+    ui->tableView->setColumnWidth(flightDataModel::COMMAND, 150);
+    ui->tableView->setColumnWidth(flightDataModel::JUMPDESTINATION, 60);
+    ui->tableView->setColumnWidth(flightDataModel::ERRORDESTINATION, 60);
+    ui->tableView->setColumnWidth(flightDataModel::LOCKED, 60);
 }
 
 void pathPlanner::rowsInserted(const QModelIndex & parent, int start, int end)

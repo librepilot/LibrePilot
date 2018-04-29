@@ -1,25 +1,23 @@
 <RCC>
     <qresource prefix="/markers">
         <file>images/bigMarkerGreen.png</file>
-        <file>images/marker.png</file>
+        <file>images/wp_marker_green.png</file>
+        <file>images/wp_marker_orange.png</file>
+        <file>images/wp_marker_red.png</file>
         <file>images/compas.svg</file>
-        <file>images/airplane.svg</file>
+        <file>images/home2.svg</file>
+        <file>images/home2_not_set.svg</file>
+        <file>images/home2_set.svg</file>
+        <file>images/nav.svg</file>
         <file>images/home.png</file>
         <file>images/home.svg</file>
-        <file>images/nav.svg</file>
-        <file>images/home2.svg</file>
-        <file>images/airplanepip.png</file>
-        <file>images/EasystarBlue.png</file>
-        <file>images/mapquad.png</file>
         <file>images/dragons1.jpg</file>
         <file>images/dragons2.jpeg</file>
-        <file>images/waypoint_marker1.png</file>
-        <file>images/waypoint_marker2.png</file>
-        <file>images/waypoint_marker3.png</file>
     </qresource>
     <qresource prefix="/uavs">
-        <file>images/airplanepip.png</file>
-        <file>images/EasystarBlue.png</file>
         <file>images/mapquad.png</file>
+        <file>images/airplanepip.png</file>
+        <file>images/airplane.png</file>
+        <file>images/EasystarBlue.png</file>
     </qresource>
 </RCC>

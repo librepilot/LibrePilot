@@ -111,14 +111,19 @@ public:
     void setCacheLocation(QString cacheLocation);
     void setMapMode(opMapModeType mode);
     void SetUavPic(QString UAVPic);
+    void SetHomePic(QString HomePic);
     void setMaxUpdateRate(int update_rate);
+    void setSafeAreaRadius(int safe_area_radius);
+    void setShowSafeArea(bool showSafeArea);
     void setHomePosition(QPointF pos);
     void setOverlayOpacity(qreal value);
     void setDefaultWaypointAltitude(qreal default_altitude);
     void setDefaultWaypointVelocity(qreal default_velocity);
     bool getGPSPositionSensor(double &latitude, double &longitude, double &altitude);
+    bool applyHomeLocationOnMap();
 signals:
     void defaultLocationAndZoomChanged(double lng, double lat, double zoom);
+    void defaultSafeAreaChanged(int safe_area_radius, bool showSafeArea);
     void overlayOpacityChanged(qreal);
 
 public slots:
@@ -155,6 +160,10 @@ private slots:
     void on_toolButtonNormalMapMode_clicked();
     void on_toolButtonHomeWaypoint_clicked();
     void on_toolButtonMoveToWP_clicked();
+    void on_toolButtonHomeSet_clicked();
+    void on_toolButtonClearUAVTrail_clicked();
+    void on_toolButtonPlanEditor_clicked();
+    void on_toolButtonSaveSettings_clicked();
 
     /**
      * @brief signals received from the map object
@@ -304,7 +313,7 @@ private:
     void moveToMagicWaypointPosition();
     void hideMagicWaypointControls();
     void showMagicWaypointControls();
-    void keepMagicWaypointWithInSafeArea();
+    void keepMagicWaypointWithinSafeArea();
 
     double distance(internals::PointLatLng from, internals::PointLatLng to);
     double bearing(internals::PointLatLng from, internals::PointLatLng to);

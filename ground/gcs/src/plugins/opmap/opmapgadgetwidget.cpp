@@ -164,14 +164,14 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     m_max_zoom = m_widget->horizontalSliderZoom->maximum(); // maximum zoom we can accept
 
     m_map->SetMouseWheelZoomType(internals::MouseWheelZoomType::MousePositionWithoutCenter); // set how the mouse wheel zoom functions
-    m_map->SetFollowMouse(true); // we want a contiuous mouse position reading
+    m_map->SetFollowMouse(true); // we want a continuous mouse position reading
 
     m_map->SetShowHome(true); // display the HOME position on the map
     m_map->SetShowUAV(true); // display the UAV position on the map
     m_map->SetShowNav(false); // initially don't display the NAV position on the map
 
-    m_map->Home->SetSafeArea(safe_area_radius_list[0]); // set radius (meters) //SHOULDN'T THE DEFAULT BE USER DEFINED?
-    m_map->Home->SetShowSafeArea(true); // show the safe area  //SHOULDN'T THE DEFAULT BE USER DEFINED?
+    m_map->Home->SetSafeArea(safe_area_radius_list[0]); // set radius (meters)
+    m_map->Home->SetShowSafeArea(true); // show the safe area
     m_map->Home->SetToggleRefresh(true);
 
     if (m_map->Home) {
@@ -209,13 +209,14 @@ OPMapGadgetWidget::OPMapGadgetWidget(QWidget *parent) : QWidget(parent)
     m_widget->progressBarMap->setMaximum(1);
 
     connect(m_map, SIGNAL(zoomChanged(double, double, double)), this, SLOT(zoomChanged(double, double, double))); // map zoom change signals
-    connect(m_map, SIGNAL(OnCurrentPositionChanged(internals::PointLatLng)), this, SLOT(OnCurrentPositionChanged(internals::PointLatLng))); // map poisition change signals
+    connect(m_map, SIGNAL(OnCurrentPositionChanged(internals::PointLatLng)), this, SLOT(OnCurrentPositionChanged(internals::PointLatLng))); // map position change signals
     connect(m_map, SIGNAL(OnTileLoadComplete()), this, SLOT(OnTileLoadComplete())); // tile loading stop signals
     connect(m_map, SIGNAL(OnTileLoadStart()), this, SLOT(OnTileLoadStart())); // tile loading start signals
     connect(m_map, SIGNAL(OnTilesStillToLoad(int)), this, SLOT(OnTilesStillToLoad(int))); // tile loading signals
     connect(m_map, SIGNAL(OnWayPointDoubleClicked(WayPointItem *)), this, SLOT(wpDoubleClickEvent(WayPointItem *)));
     m_map->SetCurrentPosition(m_home_position.coord); // set the map position
     m_map->Home->SetCoord(m_home_position.coord); // set the HOME position
+    m_map->Home->RefreshPos();
     m_map->Nav->SetCoord(m_home_position.coord); // set the NAV position
     m_map->UAV->SetUAVPos(m_home_position.coord, 0.0); // set the UAV position
     m_map->UAV->update();
@@ -885,6 +886,65 @@ void OPMapGadgetWidget::on_horizontalSliderZoom_sliderMoved(int position)
     setZoom(position);
 }
 
+void OPMapGadgetWidget::on_toolButtonHomeSet_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    double LLA[3];
+
+    bool checked = m_widget->toolButtonHomeSet->isChecked();
+
+    if (!m_telemetry_connected) {
+        m_widget->toolButtonHomeSet->setChecked(false);
+        checked = false;
+        // Default map center from default settings
+        LLA[0]  = m_home_position.coord.Lat();
+        LLA[1]  = m_home_position.coord.Lng();
+        LLA[2]  = m_home_position.altitude;
+    } else {
+        bool set;
+        if (obum->getHomeLocation(set, LLA) < 0) {
+            return; // error
+        }
+    }
+
+    obum->setHomeLocation(LLA, checked);
+}
+
+void OPMapGadgetWidget::on_toolButtonClearUAVTrail_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->UAV->DeleteTrail();
+    if (m_map->GPS) {
+        m_map->GPS->DeleteTrail();
+    }
+}
+
+void OPMapGadgetWidget::on_toolButtonPlanEditor_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+    // open dialog
+    table->show();
+    // bring dialog to the front in case it was already open and hidden away
+    table->raise();
+}
+
+void OPMapGadgetWidget::on_toolButtonSaveSettings_clicked()
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    emit defaultLocationAndZoomChanged(m_map->CurrentPosition().Lng(), m_map->CurrentPosition().Lat(), m_map->ZoomTotal());
+    emit defaultSafeAreaChanged(m_map->Home->SafeArea(), m_map->Home->ShowSafeArea());
+}
 
 void OPMapGadgetWidget::on_toolButtonNormalMapMode_clicked()
 {
@@ -916,24 +976,7 @@ void OPMapGadgetWidget::onTelemetryConnect()
     if (!obum) {
         return;
     }
-
-    bool set;
-    double LLA[3];
-
-    // ***********************
-    // fetch the home location
-
-    if (obum->getHomeLocation(set, LLA) < 0) {
-        return; // error
-    }
-    setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
-
-    if (m_map) {
-        if (m_map->UAV->GetMapFollowType() != UAVMapFollowType::None) {
-            m_map->SetCurrentPosition(m_home_position.coord); // set the map position
-        }
-    }
-    // ***********************
+    applyHomeLocationOnMap();
 }
 
 void OPMapGadgetWidget::onTelemetryDisconnect()
@@ -953,6 +996,17 @@ void OPMapGadgetWidget::homePositionUpdated(UAVObject *hp)
     if (obum->getHomeLocation(set, LLA) < 0) {
         return; // error
     }
+
+    QString HomePic;
+
+    if (set) {
+        HomePic = "home2_set.svg";
+    } else {
+        HomePic = "home2_not_set.svg";
+    }
+    m_widget->toolButtonHomeSet->setChecked(set);
+
+    SetHomePic(HomePic);
     setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
 }
 
@@ -1028,10 +1082,11 @@ void OPMapGadgetWidget::setHome(internals::PointLatLng pos_lat_lon, double altit
 
     m_map->Home->SetCoord(m_home_position.coord);
     m_map->Home->SetAltitude(altitude);
+    m_map->Home->SetToggleRefresh(true);
     m_map->Home->RefreshPos();
 
     // move the magic waypoint to keep it within the safe area boundry
-    keepMagicWaypointWithInSafeArea();
+    keepMagicWaypointWithinSafeArea();
 }
 
 
@@ -1107,8 +1162,48 @@ void OPMapGadgetWidget::setMaxUpdateRate(int update_rate)
         m_updateTimer->setInterval(m_maxUpdateRate);
     }
 
+    // Update context menu selection
+    int max_rate_list_size = sizeof(max_update_rate_list) / sizeof(max_update_rate_list[0]);
+    for (int i = 0; i < max_rate_list_size; i++) {
+        int maxUpdateRate = max_update_rate_list[i];
+        if (maxUpdateRate == update_rate) {
+            maxUpdateRateAct.at(i)->setChecked(true);
+        }
+    }
+
 // if (m_statusUpdateTimer)
 // m_statusUpdateTimer->setInterval(m_maxUpdateRate);
+}
+
+void OPMapGadgetWidget::setSafeAreaRadius(int safe_area_radius)
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->Home->SetSafeArea(safe_area_radius);
+    m_map->Home->SetToggleRefresh(true);
+
+    // Update context menu selection
+    int safe_area_list_size = sizeof(safe_area_radius_list) / sizeof(safe_area_radius_list[0]);
+    for (int i = 0; i < safe_area_list_size; i++) {
+        int safeArea = safe_area_radius_list[i];
+        if (safeArea == safe_area_radius) {
+            safeAreaAct.at(i)->setChecked(true);
+        }
+    }
+}
+
+void OPMapGadgetWidget::setShowSafeArea(bool showSafeArea)
+{
+    if (!m_widget || !m_map) {
+        return;
+    }
+
+    m_map->Home->SetShowSafeArea(showSafeArea);
+    m_map->Home->SetToggleRefresh(true);
+
+    showSafeAreaAct->setChecked(showSafeArea);
 }
 
 void OPMapGadgetWidget::setZoom(int zoom)
@@ -1164,6 +1259,10 @@ void OPMapGadgetWidget::setHomePosition(QPointF pos)
     }
 
     m_map->Home->SetCoord(internals::PointLatLng(latitude, longitude));
+
+    if (!m_telemetry_connected) {
+        m_home_position.coord = internals::PointLatLng(latitude, longitude);
+    }
 }
 
 void OPMapGadgetWidget::setPosition(QPointF pos)
@@ -1803,9 +1902,10 @@ void OPMapGadgetWidget::onSetHomeAct_triggered()
     altitude = QInputDialog::getDouble(this, tr("Set home altitude"),
                                        tr("In [m], referenced to WGS84:"), altitude, -100, 100000, 2, &ok);
 
-    setHome(m_context_menu_lat_lon, altitude);
-
-    setHomeLocationObject(); // update the HomeLocation UAVObject
+    if (ok) {
+        setHome(m_context_menu_lat_lon, altitude);
+        setHomeLocationObject(); // update the HomeLocation UAVObject
+    }
 }
 
 void OPMapGadgetWidget::onGoHomeAct_triggered()
@@ -1984,9 +2084,9 @@ void OPMapGadgetWidget::onLockWayPointAct_triggered()
     m_mouse_waypoint->setFlag(QGraphicsItem::ItemIsMovable, locked);
 
     if (!locked) {
-        m_mouse_waypoint->picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker2.png"));
+        m_mouse_waypoint->picture.load(":/markers/images/wp_marker_orange.png");
     } else {
-        m_mouse_waypoint->picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker1.png"));
+        m_mouse_waypoint->picture.load(":/markers/images/wp_marker_red.png");
     }
     m_mouse_waypoint->update();
 
@@ -2065,7 +2165,7 @@ void OPMapGadgetWidget::onSafeAreaActGroup_triggered(QAction *action)
     m_map->Home->RefreshPos();
 
     // move the magic waypoint if need be to keep it within the safe area around the home position
-    keepMagicWaypointWithInSafeArea();
+    keepMagicWaypointWithinSafeArea();
 }
 
 /**
@@ -2096,6 +2196,9 @@ void OPMapGadgetWidget::moveToMagicWaypointPosition()
     if (m_map_mode != MagicWaypoint_MapMode) {
         return;
     }
+
+    magicWayPoint->SetCoord(magicWayPoint->Coord());
+    keepMagicWaypointWithinSafeArea();
 }
 
 // *************************************************************************************
@@ -2123,8 +2226,9 @@ void OPMapGadgetWidget::showMagicWaypointControls()
 // *************************************************************************************
 // move the magic waypoint to keep it within the safe area boundry
 
-void OPMapGadgetWidget::keepMagicWaypointWithInSafeArea()
+void OPMapGadgetWidget::keepMagicWaypointWithinSafeArea()
 {
+    bool moveMagicWP = false;
     // calcute the bearing and distance from the home position to the magic waypoint
     double dist = distance(m_home_position.coord, magicWayPoint->Coord());
     double bear = bearing(m_home_position.coord, magicWayPoint->Coord());
@@ -2134,11 +2238,11 @@ void OPMapGadgetWidget::keepMagicWaypointWithInSafeArea()
 
     if (dist > boundry_dist) {
         dist = boundry_dist;
+        moveMagicWP = true;
     }
 
     // move the magic waypoint;
-
-    if (m_map_mode == MagicWaypoint_MapMode) { // move the on-screen waypoint
+    if ((m_map_mode == MagicWaypoint_MapMode) && moveMagicWP) { // if needed, move the on-screen waypoint to the safe area
         if (magicWayPoint) {
             magicWayPoint->SetCoord(destPoint(m_home_position.coord, bear, dist));
         }
@@ -2362,6 +2466,32 @@ bool OPMapGadgetWidget::getGPSPositionSensor(double &latitude, double &longitude
     return true;
 }
 
+bool OPMapGadgetWidget::applyHomeLocationOnMap()
+{
+    bool set;
+    double LLA[3];
+
+    if (!obum) {
+        return false;
+    }
+
+    // fetch the home location
+    if (obum->getHomeLocation(set, LLA) < 0) {
+        return false; // error
+    }
+
+    if (m_telemetry_connected) {
+        setHome(internals::PointLatLng(LLA[0], LLA[1]), LLA[2]);
+        if (m_map) {
+            if (m_map->UAV->GetMapFollowType() != UAVMapFollowType::None) {
+                m_map->SetCurrentPosition(m_home_position.coord); // set the map position
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
 // *************************************************************************************
 
 void OPMapGadgetWidget::setMapFollowingMode()
@@ -2394,7 +2524,7 @@ bool OPMapGadgetWidget::setHomeLocationObject()
     }
 
     double LLA[3] = { m_home_position.coord.Lat(), m_home_position.coord.Lng(), m_home_position.altitude };
-    return obum->setHomeLocation(LLA, true) >= 0;
+    return obum->setHomeLocation(LLA, m_telemetry_connected) >= 0;
 }
 
 // *************************************************************************************
@@ -2402,6 +2532,11 @@ bool OPMapGadgetWidget::setHomeLocationObject()
 void OPMapGadgetWidget::SetUavPic(QString UAVPic)
 {
     m_map->SetUavPic(UAVPic);
+}
+
+void OPMapGadgetWidget::SetHomePic(QString HomePic)
+{
+    m_map->SetHomePic(HomePic);
 }
 
 void OPMapGadgetWidget::on_tbFind_clicked()

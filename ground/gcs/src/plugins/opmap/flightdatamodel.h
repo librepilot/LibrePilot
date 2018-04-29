@@ -30,7 +30,7 @@
 #include "opmapcontrol/opmapcontrol.h"
 
 struct pathPlanData {
-    QString wpDescritption;
+    QString wpDescription;
     double  latPosition;
     double  lngPosition;
     double  disRelative;
@@ -53,7 +53,7 @@ class flightDataModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     enum pathPlanDataEnum {
-        WPDESCRITPTION, LATPOSITION, LNGPOSITION, DISRELATIVE, BEARELATIVE, ALTITUDERELATIVE, ISRELATIVE, ALTITUDE,
+        WPDESCRIPTION, LATPOSITION, LNGPOSITION, DISRELATIVE, BEARELATIVE, ALTITUDERELATIVE, ISRELATIVE, ALTITUDE,
         VELOCITY, MODE, MODE_PARAMS0, MODE_PARAMS1, MODE_PARAMS2, MODE_PARAMS3,
         CONDITION, CONDITION_PARAMS0, CONDITION_PARAMS1, CONDITION_PARAMS2, CONDITION_PARAMS3,
         COMMAND, JUMPDESTINATION, ERRORDESTINATION, LOCKED

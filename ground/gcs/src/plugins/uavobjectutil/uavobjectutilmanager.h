@@ -53,7 +53,7 @@ public:
     UAVObjectUtilManager();
     ~UAVObjectUtilManager();
 
-    int setHomeLocation(double LLA[3], bool save_to_sdcard);
+    int setHomeLocation(double LLA[3], bool set);
     int getHomeLocation(bool &set, double LLA[3]);
 
     int getGPSPositionSensor(double LLA[3]);

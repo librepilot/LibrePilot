@@ -43,6 +43,8 @@ OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings &s
     m_useOpenGL         = settings.value("useOpenGL").toBool();
     m_showTileGridLines = settings.value("showTileGridLines").toBool();
     m_uavSymbol         = settings.value("uavSymbol", QString::fromUtf8(":/uavs/images/mapquad.png")).toString();
+    m_safeAreaRadius    = settings.value("safeAreaRadius", 5).toInt();
+    m_showSafeArea      = settings.value("showSafeArea").toBool();
 
     m_maxUpdateRate     = settings.value("maxUpdateRate", 2000).toInt();
     if (m_maxUpdateRate < 100 || m_maxUpdateRate > 5000) {
@@ -69,6 +71,8 @@ OPMapGadgetConfiguration::OPMapGadgetConfiguration(const OPMapGadgetConfiguratio
     m_cacheLocation     = obj.m_cacheLocation;
     m_uavSymbol = obj.m_uavSymbol;
     m_maxUpdateRate     = obj.m_maxUpdateRate;
+    m_safeAreaRadius    = obj.m_safeAreaRadius;
+    m_showSafeArea      = obj.m_showSafeArea;
     m_opacity = obj.m_opacity;
     m_defaultWaypointAltitude = obj.m_defaultWaypointAltitude;
     m_defaultWaypointVelocity = obj.m_defaultWaypointVelocity;
@@ -99,6 +103,8 @@ void OPMapGadgetConfiguration::saveConfig(QSettings &settings) const
     settings.setValue("uavSymbol", m_uavSymbol);
     settings.setValue("cacheLocation", Utils::RemoveStoragePath(m_cacheLocation));
     settings.setValue("maxUpdateRate", m_maxUpdateRate);
+    settings.setValue("safeAreaRadius", m_safeAreaRadius);
+    settings.setValue("showSafeArea", m_showSafeArea);
     settings.setValue("overlayOpacity", m_opacity);
 
     settings.setValue("defaultWaypointAltitude", m_defaultWaypointAltitude);

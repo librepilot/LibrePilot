@@ -394,7 +394,10 @@ void ConfigRevoWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
     Q_UNUSED(obj);
 
-    m_ui->isSetCheckBox->setEnabled(false);
+    m_ui->isSetCheckBox->setEnabled(true);
+    m_ui->isSetCheckBox->setToolTip(tr("When checked, the current Home Location is saved to the board.\n"
+                                       "When unchecked, the Home Location will be updated and set using\n"
+                                       "the first GPS position received after power up."));
 
     HomeLocation *homeLocation = HomeLocation::GetInstance(getObjectManager());
     Q_ASSERT(homeLocation);

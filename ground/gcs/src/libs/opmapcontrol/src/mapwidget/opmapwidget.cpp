@@ -107,6 +107,12 @@ void OPMapWidget::SetUavPic(QString UAVPic)
         GPS->SetUavPic(UAVPic);
     }
 }
+void OPMapWidget::SetHomePic(QString HomePic)
+{
+    if (Home != 0) {
+        Home->SetHomePic(HomePic);
+    }
+}
 
 WayPointLine *OPMapWidget::WPLineCreate(WayPointItem *from, WayPointItem *to, QColor color, bool dashed, int width)
 {

@@ -93,8 +93,10 @@ void EscCalibrationPage::resetAllSecurityCheckboxes()
 
 int EscCalibrationPage::getHighOutputRate()
 {
-    if (getWizard()->getEscType() == SetupWizard::ESC_ONESHOT) {
-        return HIGH_ONESHOT125_OUTPUT_PULSE_LENGTH_MICROSECONDS;
+    if (getWizard()->getEscType() == SetupWizard::ESC_ONESHOT125 ||
+        getWizard()->getEscType() == SetupWizard::ESC_ONESHOT42 ||
+        getWizard()->getEscType() == SetupWizard::ESC_MULTISHOT) {
+        return HIGH_ONESHOT_MULTISHOT_OUTPUT_PULSE_LENGTH_MICROSECONDS;
     } else {
         return HIGH_PWM_OUTPUT_PULSE_LENGTH_MICROSECONDS;
     }

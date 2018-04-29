@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
-    <height>400</height>
+    <width>699</width>
+    <height>549</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,7 +59,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="toolTip">
-        <string>Standard ESC: Slow refresh rate (50Hz), not recommended for Multirotors.</string>
+        <string>Standard ESC: Minimal refresh rate (300Hz), for Multirotors.</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QToolButton { border: none }</string>
@@ -69,8 +69,8 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="icon">
         <iconset resource="../wizardResources.qrc">
-         <normaloff>:/setupwizard/resources/bttn-ESC-up.png</normaloff>
-         <normalon>:/setupwizard/resources/bttn-ESC-down.png</normalon>:/setupwizard/resources/bttn-ESC-up.png</iconset>
+         <normaloff>:/setupwizard/resources/bttn-esc300-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-esc300-dwn.png</normalon>:/setupwizard/resources/bttn-esc300-up.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -139,10 +139,17 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
      <item>
-      <widget class="QToolButton" name="oneshotESCButton">
+      <widget class="QToolButton" name="oneshot125ESCButton">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="font">
         <font>
@@ -150,18 +157,260 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="toolTip">
-        <string>OneShot ESC: BLHeli, Kiss...</string>
+        <string>OneShot125 ESC: BLHeli, Kiss...</string>
        </property>
        <property name="styleSheet">
         <string notr="true">QToolButton { border: none }</string>
        </property>
        <property name="text">
-        <string>OneShot ESC</string>
+        <string>OneShot125 ESC</string>
        </property>
        <property name="icon">
         <iconset resource="../wizardResources.qrc">
-         <normaloff>:/setupwizard/resources/bttn-oneshot-up.png</normaloff>
-         <normalon>:/setupwizard/resources/bttn-oneshot-dwn.png</normalon>:/setupwizard/resources/bttn-oneshot-up.png</iconset>
+         <normaloff>:/setupwizard/resources/bttn-oneshot125-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-oneshot125-dwn.png</normalon>:/setupwizard/resources/bttn-oneshot125-up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>200</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="oneshot42ESCButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>OneShot42 ESC: BLHeli, Kiss...</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton { border: none }</string>
+       </property>
+       <property name="text">
+        <string>OneShot42 ESC</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../wizardResources.qrc">
+         <normaloff>:/setupwizard/resources/bttn-oneshot42-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-oneshot42-dwn.png</normalon>:/setupwizard/resources/bttn-oneshot42-up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>200</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="multishotESCButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>MultiShot ESC: BLHeli, Kiss...</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton { border: none }</string>
+       </property>
+       <property name="text">
+        <string>MultiShot ESC</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../wizardResources.qrc">
+         <normaloff>:/setupwizard/resources/bttn-multishot-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-multishot-dwn.png</normalon>:/setupwizard/resources/bttn-multishot-up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>200</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QToolButton" name="dshot150ESCButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>DShot150 ESC: BLHeli_S...</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton { border: none }</string>
+       </property>
+       <property name="text">
+        <string>DShot150 ESC</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../wizardResources.qrc">
+         <normaloff>:/setupwizard/resources/bttn-dshot150-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-dshot150-dwn.png</normalon>:/setupwizard/resources/bttn-dshot150-up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>200</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="dshot600ESCButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>DShot600 ESC: BLHeli_S...</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton { border: none }</string>
+       </property>
+       <property name="text">
+        <string>DShot600 ESC</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../wizardResources.qrc">
+         <normaloff>:/setupwizard/resources/bttn-dshot600-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-dshot600-dwn.png</normalon>:/setupwizard/resources/bttn-dshot600-up.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>200</width>
+         <height>100</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonTextUnderIcon</enum>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="dshot1200ESCButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>DShot1200 ESC: BLHeli_S...</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QToolButton { border: none }</string>
+       </property>
+       <property name="text">
+        <string>DShot1200 ESC</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../wizardResources.qrc">
+         <normaloff>:/setupwizard/resources/bttn-dshot1200-up.png</normaloff>
+         <normalon>:/setupwizard/resources/bttn-dshot1200-dwn.png</normalon>:/setupwizard/resources/bttn-dshot1200-up.png</iconset>
        </property>
        <property name="iconSize">
         <size>

@@ -46,6 +46,7 @@ public:
 private:
     Ui::EscPage *ui;
     bool isSynchOrOneShotAvailable();
+    bool isFastDShotAvailable();
 };
 
 #endif // ESCPAGE_H

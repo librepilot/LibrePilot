@@ -179,7 +179,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::CONTROLLER_CC:
         case VehicleConfigurationSource::CONTROLLER_CC3D:
             prefix = "cc-";
-            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT ||
+            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT125 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT42 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_MULTISHOT ||
                 m_configSource->getEscType() == VehicleConfigurationSource::ESC_SYNCHED) {
                 suffix = "-oneshot";
             }

@@ -157,7 +157,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PWMNOONESHOT;
             break;
         case VehicleConfigurationSource::INPUT_PPM:
-            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT ||
+            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT125 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT42 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_MULTISHOT ||
                 m_configSource->getEscType() == VehicleConfigurationSource::ESC_SYNCHED) {
                 data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PPM_PIN8ONESHOT;
             } else {
@@ -515,11 +517,16 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
     ActuatorSettings *actSettings = ActuatorSettings::GetInstance(m_uavoManager);
 
     qint16 escFrequence = LEGACY_ESC_FREQUENCY;
+    qint16 escDShotMode = LEGACY_DSHOT_MODE;
     ActuatorSettings::BankModeOptions bankMode = ActuatorSettings::BANKMODE_PWM;
 
     switch (m_configSource->getEscType()) {
     case VehicleConfigurationSource::ESC_STANDARD:
         escFrequence = LEGACY_ESC_FREQUENCY;
+        bankMode     = ActuatorSettings::BANKMODE_PWM;
+        break;
+    case VehicleConfigurationSource::ESC_STANDARD300:
+        escFrequence = LEGACY_MULTI_ESC_FREQUENCY;
         bankMode     = ActuatorSettings::BANKMODE_PWM;
         break;
     case VehicleConfigurationSource::ESC_RAPID:
@@ -530,9 +537,32 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         bankMode     = ActuatorSettings::BANKMODE_PWMSYNC;
         escFrequence = PWMSYNC_ESC_FREQUENCY;
         break;
-    case VehicleConfigurationSource::ESC_ONESHOT:
+    case VehicleConfigurationSource::ESC_ONESHOT125:
         bankMode     = ActuatorSettings::BANKMODE_ONESHOT125;
-        escFrequence = ONESHOT_ESC_FREQUENCY;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        break;
+    case VehicleConfigurationSource::ESC_ONESHOT42:
+        bankMode     = ActuatorSettings::BANKMODE_ONESHOT42;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        break;
+    case VehicleConfigurationSource::ESC_MULTISHOT:
+        bankMode     = ActuatorSettings::BANKMODE_MULTISHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        break;
+    case VehicleConfigurationSource::ESC_DSHOT150:
+        bankMode     = ActuatorSettings::BANKMODE_DSHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        escDShotMode = DSHOT_MODE_150;
+        break;
+    case VehicleConfigurationSource::ESC_DSHOT600:
+        bankMode     = ActuatorSettings::BANKMODE_DSHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        // escDShotFrequence = LEGACY_DSHOT_ESC_FREQUENCY;
+        break;
+    case VehicleConfigurationSource::ESC_DSHOT1200:
+        bankMode     = ActuatorSettings::BANKMODE_DSHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        escDShotMode = DSHOT_MODE_1200;
         break;
     default:
         break;
@@ -574,6 +604,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         switch (m_configSource->getVehicleSubType()) {
         case VehicleConfigurationSource::MULTI_ROTOR_TRI_Y:
             // Servo always on channel 4
+            data.DShotMode   = escDShotMode;
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
@@ -591,6 +622,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
+            data.DShotMode   = escDShotMode;
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;
@@ -617,6 +649,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_X:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_PLUS:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_V:
+            data.DShotMode   = escDShotMode;
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;

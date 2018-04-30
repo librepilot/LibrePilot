@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       logfile.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017-2018.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -27,7 +27,6 @@
 #include <QDebug>
 #include <QtGlobal>
 #include <QDataStream>
-#include <QThread> // DEBUG: to display the thread ID
 
 #define TIMESTAMP_SIZE_BYTES 4
 
@@ -38,7 +37,7 @@ LogFile::LogFile(QObject *parent) : QIODevice(parent),
     m_lastPlayed(0),
     m_timeOffset(0),
     m_playbackSpeed(1.0),
-    m_replayStatus(STOPPED),
+    m_replayState(STOPPED),
     m_useProvidedTimeStamp(false),
     m_providedTimeStamp(0),
     m_beginTimeStamp(0),
@@ -150,10 +149,9 @@ qint64 LogFile::bytesAvailable() const
     This function is called at a 10 ms interval to fill the replay buffers.
 
  */
-
 void LogFile::timerFired()
 {
-    if (m_replayStatus != PLAYING) {
+    if (m_replayState != PLAYING) {
         return;
     }
     m_timer_tick++;
@@ -213,7 +211,7 @@ void LogFile::timerFired()
 
             // rate-limit slider bar position updates to 10 updates per second
             if (m_timer_tick % 10 == 0) {
-                emit playbackPosition(m_nextTimeStamp);
+                emit setPlaybackPosition(m_nextTimeStamp);
             }
             // read next timestamp
             if (m_file.bytesAvailable() < (qint64)sizeof(m_nextTimeStamp)) {
@@ -289,7 +287,7 @@ bool LogFile::startReplay()
 
     m_timer.setInterval(10);
     m_timer.start();
-    m_replayStatus = PLAYING;
+    m_replayState = PLAYING;
 
     emit replayStarted();
     return true;
@@ -312,7 +310,7 @@ bool LogFile::stopReplay()
     }
     qDebug() << "LogFile - stopReplay";
     m_timer.stop();
-    m_replayStatus = STOPPED;
+    m_replayState = STOPPED;
 
     emit replayFinished();
     return true;
@@ -363,9 +361,9 @@ bool LogFile::resumeReplay(quint32 desiredPosition)
 
     // Set the real-time interval to 0 to start with:
     m_myTime.restart();
-    m_timeOffset   = 0;
+    m_timeOffset  = 0;
 
-    m_replayStatus = PLAYING;
+    m_replayState = PLAYING;
 
     m_timer.start();
 
@@ -387,7 +385,7 @@ bool LogFile::pauseReplay()
     }
     qDebug() << "LogFile - pauseReplay";
     m_timer.stop();
-    m_replayStatus = PAUSED;
+    m_replayState = PAUSED;
 
     // hack to notify UI that replay paused
     emit replayStarted();
@@ -395,19 +393,19 @@ bool LogFile::pauseReplay()
 }
 
 /**
- * SLOT: pauseAndResetPosition()
+ * SLOT: pauseReplayAndResetPosition()
  *
  * Pauses replay and resets the playback position to the start of the logfile
  *
  */
-bool LogFile::pauseAndResetPosition()
+bool LogFile::pauseReplayAndResetPosition()
 {
     if (!m_file.isOpen() || !m_timer.isActive()) {
         return false;
     }
-    qDebug() << "LogFile - pauseAndResetPosition";
+    qDebug() << "LogFile - pauseReplayAndResetPosition";
     m_timer.stop();
-    m_replayStatus      = STOPPED;
+    m_replayState       = STOPPED;
 
     m_timeOffset        = 0;
     m_lastPlayed        = m_timeStamps.at(0);
@@ -418,14 +416,14 @@ bool LogFile::pauseAndResetPosition()
 }
 
 /**
- * FUNCTION: getReplayStatus()
+ * FUNCTION: getReplayState()
  *
  * Returns the current replay status.
  *
  */
-ReplayState LogFile::getReplayStatus()
+ReplayState LogFile::getReplayState()
 {
-    return m_replayStatus;
+    return m_replayState;
 }
 
 /**

@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       logfile.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017-2018.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -32,7 +32,6 @@
 #include <QTimer>
 #include <QMutexLocker>
 #include <QDebug>
-#include <QBuffer>
 #include <QFile>
 #include <QVector>
 
@@ -78,7 +77,7 @@ public:
         m_providedTimeStamp = providedTimestamp;
     }
 
-    ReplayState getReplayStatus();
+    ReplayState getReplayState();
 
 public slots:
     void setReplaySpeed(double val)
@@ -91,7 +90,7 @@ public slots:
 
     bool resumeReplay(quint32);
     bool pauseReplay();
-    bool pauseAndResetPosition();
+    bool pauseReplayAndResetPosition();
 
 protected slots:
     void timerFired();
@@ -99,7 +98,7 @@ protected slots:
 signals:
     void replayStarted();
     void replayFinished();
-    void playbackPosition(quint32);
+    void setPlaybackPosition(quint32);
     void updateBeginAndEndTimes(quint32, quint32);
 
 protected:
@@ -116,7 +115,7 @@ protected:
 
     int m_timeOffset;
     double m_playbackSpeed;
-    ReplayState m_replayStatus;
+    ReplayState m_replayState;
 
 private:
     bool m_useProvidedTimeStamp;

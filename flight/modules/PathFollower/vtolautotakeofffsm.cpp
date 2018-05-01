@@ -248,11 +248,11 @@ void VtolAutoTakeoffFSM::setState(StatusVtolAutoTakeoffStateOptions newState, St
     if (newState != STATUSVTOLAUTOTAKEOFF_STATE_INACTIVE) {
         PositionStateData positionState;
         PositionStateGet(&positionState);
-        float takeOffDown = 0.0f;
+        float altitudeAboveGround = 0.0f;
         if (mAutoTakeoffData->takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID) {
-            takeOffDown = mAutoTakeoffData->takeOffLocation.Down;
+            altitudeAboveGround = mAutoTakeoffData->takeOffLocation.Down - positionState.Down;
         }
-        mAutoTakeoffData->fsmAutoTakeoffStatus.AltitudeAtState[newState] = positionState.Down - takeOffDown;
+        mAutoTakeoffData->fsmAutoTakeoffStatus.AltitudeAtState[newState] = altitudeAboveGround;
         assessAltitude();
     }
 
@@ -266,6 +266,7 @@ void VtolAutoTakeoffFSM::setState(StatusVtolAutoTakeoffStateOptions newState, St
         (this->*sAutoTakeoffStateTable[mAutoTakeoffData->currentState].setup)();
     }
 
+    // Update StatusVtolAutoTakeoff UAVObject with new status
     updateVtolAutoTakeoffFSMStatus();
 }
 
@@ -276,6 +277,7 @@ void VtolAutoTakeoffFSM::setStateTimeout(int32_t count)
     mAutoTakeoffData->stateTimeoutCount = count;
 }
 
+// Update StatusVtolAutoTakeoff UAVObject
 void VtolAutoTakeoffFSM::updateVtolAutoTakeoffFSMStatus()
 {
     mAutoTakeoffData->fsmAutoTakeoffStatus.State = mAutoTakeoffData->currentState;
@@ -347,10 +349,10 @@ void VtolAutoTakeoffFSM::setup_checkstate(void)
     // Assumptions that do not need to be checked if flight mode is AUTOTAKEOFF
     // 1. Already armed
     // 2. Not in flight. This was checked in plans.c
-    // 3. User has placed throttle position to more than 50% to allow autotakeoff
+    // 3. User has placed throttle position to more than 30% to allow autotakeoff
 
     // If pathplanner, we need additional checks
-    // E.g. if inflight, this mode is just positon hol
+    // E.g. if inflight, this mode is just position hold
     StabilizationDesiredData stabDesired;
 
     StabilizationDesiredGet(&stabDesired);
@@ -407,15 +409,13 @@ void VtolAutoTakeoffFSM::run_slowstart(__attribute__((unused)) uint8_t flTimeout
     }
 }
 
-// STATE: THRUSTUP spools up motors to vtol min over 5 seconds for effect.
+// STATE: THRUSTUP spools up motors to vtol min over 1 second for effect.
 // PID loops may be cumulating I terms but that problem needs to be solved
 #define THRUSTUP_FINAL_THRUST_AS_RATIO_OF_VTOLMAX 0.8f
 void VtolAutoTakeoffFSM::setup_thrustup(void)
 {
     setStateTimeout(TIMEOUT_THRUSTUP);
     mAutoTakeoffData->flZeroStabiHorizontal = false;
-    StabilizationDesiredData stabDesired;
-    StabilizationDesiredGet(&stabDesired);
     mAutoTakeoffData->sum2 = THRUSTUP_FINAL_THRUST_AS_RATIO_OF_VTOLMAX * vtolPathFollowerSettings->ThrustLimits.Max;
     mAutoTakeoffData->sum1 = (mAutoTakeoffData->sum2 - mAutoTakeoffData->boundThrustMax) / (float)TIMEOUT_THRUSTUP;
     mAutoTakeoffData->boundThrustMin = vtolPathFollowerSettings->ThrustLimits.Min;

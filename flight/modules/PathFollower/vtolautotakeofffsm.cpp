@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vtolautotakeofffsm.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2018
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      This autotakeoff state machine is a helper state machine to the
  *             VtolAutoTakeoffController.
  * @see        The GNU Public License (GPL) Version 3
@@ -60,11 +61,11 @@ extern "C" {
 
 
 // Private constants
-#define TIMER_COUNT_PER_SECOND         (1000 / vtolPathFollowerSettings->UpdatePeriod)
-#define TIMEOUT_SLOWSTART              (2 * TIMER_COUNT_PER_SECOND)
-#define TIMEOUT_THRUSTUP               (1 * TIMER_COUNT_PER_SECOND)
-#define TIMEOUT_THRUSTDOWN             (5 * TIMER_COUNT_PER_SECOND)
-#define AUTOTAKEOFFING_SLOWDOWN_HEIGHT -5.0f
+#define TIMER_COUNT_PER_SECOND      (1000 / vtolPathFollowerSettings->UpdatePeriod)
+#define TIMEOUT_SLOWSTART           (2 * TIMER_COUNT_PER_SECOND)
+#define TIMEOUT_THRUSTUP            (1 * TIMER_COUNT_PER_SECOND)
+#define TIMEOUT_THRUSTDOWN          (5 * TIMER_COUNT_PER_SECOND)
+#define AUTOTAKEOFF_SLOWDOWN_HEIGHT -5.0f
 
 VtolAutoTakeoffFSM::PathFollowerFSM_AutoTakeoffStateHandler_T VtolAutoTakeoffFSM::sAutoTakeoffStateTable[AUTOTAKEOFF_STATE_SIZE] = {
     [AUTOTAKEOFF_STATE_INACTIVE]   = { .setup = &VtolAutoTakeoffFSM::setup_inactive,   .run = 0                                   },
@@ -246,14 +247,8 @@ void VtolAutoTakeoffFSM::setState(StatusVtolAutoTakeoffStateOptions newState, St
     mAutoTakeoffData->currentState = newState;
 
     if (newState != STATUSVTOLAUTOTAKEOFF_STATE_INACTIVE) {
-        PositionStateData positionState;
-        PositionStateGet(&positionState);
-        float altitudeAboveGround = 0.0f;
-        if (mAutoTakeoffData->takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID) {
-            altitudeAboveGround = mAutoTakeoffData->takeOffLocation.Down - positionState.Down;
-        }
-        mAutoTakeoffData->fsmAutoTakeoffStatus.AltitudeAtState[newState] = altitudeAboveGround;
-        assessAltitude();
+        float altitudeAboveTakeoff = assessAltitude();
+        mAutoTakeoffData->fsmAutoTakeoffStatus.AltitudeAtState[newState] = altitudeAboveTakeoff;
     }
 
     // Restart state timer counter
@@ -290,7 +285,7 @@ void VtolAutoTakeoffFSM::updateVtolAutoTakeoffFSMStatus()
 }
 
 
-void VtolAutoTakeoffFSM::assessAltitude(void)
+float VtolAutoTakeoffFSM::assessAltitude(void)
 {
     float positionDown;
 
@@ -300,11 +295,13 @@ void VtolAutoTakeoffFSM::assessAltitude(void)
         takeOffDown = mAutoTakeoffData->takeOffLocation.Down;
     }
     float positionDownRelativeToTakeoff = positionDown - takeOffDown;
-    if (positionDownRelativeToTakeoff < AUTOTAKEOFFING_SLOWDOWN_HEIGHT) {
+    if (positionDownRelativeToTakeoff < AUTOTAKEOFF_SLOWDOWN_HEIGHT) {
         mAutoTakeoffData->flLowAltitude = false;
     } else {
         mAutoTakeoffData->flLowAltitude = true;
     }
+    // Return the altitude above takeoff, which is the negation of positionDownRelativeToTakeoff
+    return -positionDownRelativeToTakeoff;
 }
 
 // Action the required state from plans.c

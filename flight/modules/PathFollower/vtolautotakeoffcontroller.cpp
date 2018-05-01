@@ -1,10 +1,10 @@
 /*
  ******************************************************************************
  *
- * @file       vtollandcontroller.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @file       vtolautotakeoffcontroller.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2018
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
- * @brief      Vtol landing controller loop
+ * @brief      Vtol auto takeoff controller loop
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup LibrePilot LibrePilotModules Modules PathFollower Navigation
  *

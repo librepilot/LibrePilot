@@ -97,7 +97,8 @@ protected slots:
 
 signals:
     void replayStarted();
-    void replayFinished();
+    void replayFinished();	// Emitted on error during replay or when logfile disconnected
+    void replayCompleted();	// Emitted at the end of normal logfile playback
     void setPlaybackPosition(quint32);
     void setBeginAndEndTimes(quint32, quint32);
 
@@ -127,6 +128,7 @@ private:
     QVector<qint64> m_timeStampPositions;
 
     bool buildIndex();
+    bool resetReplay();
 };
 
 #endif // LOGFILE_H

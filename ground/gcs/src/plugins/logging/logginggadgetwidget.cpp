@@ -85,6 +85,7 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
     connect(logFile, &LogFile::setPlaybackPosition, this, &LoggingGadgetWidget::setPlaybackPosition);
     connect(logFile, &LogFile::replayStarted, this, &LoggingGadgetWidget::enableWidgets);
     connect(logFile, &LogFile::replayFinished, this, &LoggingGadgetWidget::disableWidgets);
+    connect(logFile, &LogFile::replayCompleted, this, &LoggingGadgetWidget::stopButtonAction);
 
     // Feedback from logfile to scope
     connect(logFile, &LogFile::replayFinished, scpPlugin, &ScopeGadgetFactory::stopPlotting);
@@ -123,22 +124,15 @@ void LoggingGadgetWidget::pauseButtonAction()
 
 void LoggingGadgetWidget::stopButtonAction()
 {
-    ReplayState replayState = (loggingPlugin->getLogfile())->getReplayState();
-
-    if (replayState != STOPPED) {
-        emit pauseReplayAndResetPosition();
-    }
+    emit pauseReplayAndResetPosition();
 
     m_logging->playButton->setVisible(true);
     m_logging->pauseButton->setVisible(false);
     m_logging->stopButton->setEnabled(false);
 
-    // Block signals while setting the slider to the start position
-    m_logging->playbackPosition->blockSignals(true);
-    m_logging->playbackPosition->setValue(m_logging->playbackPosition->minimum());
-    m_logging->playbackPosition->blockSignals(false);
+    setPlaybackPosition(0);
 
-    m_logging->statusLabel->setText(tr("Paused"));
+    m_logging->statusLabel->setText(tr("Stopped"));
 }
 
 void LoggingGadgetWidget::stateChanged(LoggingPlugin::State state)

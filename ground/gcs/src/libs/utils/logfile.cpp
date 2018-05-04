@@ -182,7 +182,7 @@ void LogFile::timerFired()
             qint64 dataSize;
             if (m_file.bytesAvailable() < (qint64)sizeof(dataSize)) {
                 qDebug() << "LogFile replay - end of log file reached";
-                stopReplay();
+                resetReplay();
                 return;
             }
             m_file.read((char *)&dataSize, sizeof(dataSize));
@@ -197,7 +197,7 @@ void LogFile::timerFired()
             // read data
             if (m_file.bytesAvailable() < dataSize) {
                 qDebug() << "LogFile replay - end of log file reached";
-                stopReplay();
+                resetReplay();
                 return;
             }
             QByteArray data = m_file.read(dataSize);
@@ -216,7 +216,7 @@ void LogFile::timerFired()
             // read next timestamp
             if (m_file.bytesAvailable() < (qint64)sizeof(m_nextTimeStamp)) {
                 qDebug() << "LogFile replay - end of log file reached";
-                stopReplay();
+                resetReplay();
                 return;
             }
             m_previousTimeStamp = m_nextTimeStamp;
@@ -235,7 +235,7 @@ void LogFile::timerFired()
         }
     } else {
         qDebug() << "LogFile replay - end of log file reached";
-        stopReplay();
+        resetReplay();
     }
 }
 
@@ -316,6 +316,31 @@ bool LogFile::stopReplay()
     m_replayState = STOPPED;
 
     emit replayFinished();
+    return true;
+}
+
+/**
+ * FUNCTION: resetReplay()
+ *
+ * Stops replaying the logfile.
+ * Stops the timer: m_timer
+ * Resets playback position to the start of the logfile
+ * through the emission of a replayCompleted signal.
+ *
+ */
+bool LogFile::resetReplay()
+{
+    if (!m_file.isOpen()) {
+        return false;
+    }
+    if (m_timer.isActive()) {
+        m_timer.stop();
+    }
+
+    qDebug() << "LogFile - resetReplay";
+    m_replayState = STOPPED;
+
+    emit replayCompleted();
     return true;
 }
 

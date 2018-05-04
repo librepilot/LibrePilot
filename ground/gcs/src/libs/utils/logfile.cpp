@@ -305,11 +305,14 @@ bool LogFile::startReplay()
  */
 bool LogFile::stopReplay()
 {
-    if (!m_file.isOpen() || !m_timer.isActive()) {
+    if (!m_file.isOpen()) {
         return false;
     }
+    if (m_timer.isActive()) {
+        m_timer.stop();
+    }
+
     qDebug() << "LogFile - stopReplay";
-    m_timer.stop();
     m_replayState = STOPPED;
 
     emit replayFinished();
@@ -386,9 +389,6 @@ bool LogFile::pauseReplay()
     qDebug() << "LogFile - pauseReplay";
     m_timer.stop();
     m_replayState = PAUSED;
-
-    // hack to notify UI that replay paused
-    emit replayStarted();
     return true;
 }
 
@@ -527,7 +527,7 @@ bool LogFile::buildIndex()
         }
     }
 
-    emit updateBeginAndEndTimes(m_beginTimeStamp, m_endTimeStamp);
+    emit setBeginAndEndTimes(m_beginTimeStamp, m_endTimeStamp);
 
     // reset the read pointer to the start of the file
     m_file.seek(0);

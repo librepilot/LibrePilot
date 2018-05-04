@@ -99,7 +99,7 @@ signals:
     void replayStarted();
     void replayFinished();
     void setPlaybackPosition(quint32);
-    void updateBeginAndEndTimes(quint32, quint32);
+    void setBeginAndEndTimes(quint32, quint32);
 
 protected:
     QByteArray m_dataBuffer;

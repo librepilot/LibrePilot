@@ -50,12 +50,13 @@ public:
 
 protected slots:
     void stateChanged(LoggingPlugin::State state);
-    void updateBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp);
+    void setBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp);
     void setPlaybackPosition(quint32 positionTimeStamp);
-    void playPauseButtonAction();
+    void playButtonAction();
+    void pauseButtonAction();
     void stopButtonAction();
-    void enableButtons();
-    void disableButtons();
+    void enableWidgets();
+    void disableWidgets();
     void sliderMoved(int);
     void sliderAction();
 
@@ -69,14 +70,8 @@ private:
     LoggingPlugin *loggingPlugin;
     ScopeGadgetFactory *scpPlugin;
     QTimer sliderActionDelay;
-    bool m_iconOnlyButtons;
-    int m_preferredButtonWidth;
 
     void updatePositionLabel(quint32 positionTimeStamp);
-    void setPlayPauseButtonToPlay();
-    void setPlayPauseButtonToPause();
-    void updateButtonAppearance();
-    void resizeEvent(QResizeEvent *event);
 };
 
 #endif /* LoggingGADGETWIDGET_H_ */

@@ -42,10 +42,7 @@ LoggingGadgetWidget::LoggingGadgetWidget(QWidget *parent) : QWidget(parent), log
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     scpPlugin = pm->getObject<ScopeGadgetFactory>();
 
-    // Store preferred button width before manipulating the button appearance
-    m_preferredButtonWidth = m_logging->playPauseButton->sizeHint().width();
-
-    disableButtons();
+    disableWidgets();
 
     // Configure timer to delay application of slider position action for 200ms
     sliderActionDelay.setSingleShot(true);
@@ -65,7 +62,8 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
     LogFile *logFile = loggingPlugin->getLogfile();
 
     // GUI elements to gadgetwidget functions
-    connect(m_logging->playPauseButton, &QPushButton::clicked, this, &LoggingGadgetWidget::playPauseButtonAction);
+    connect(m_logging->playButton, &QPushButton::clicked, this, &LoggingGadgetWidget::playButtonAction);
+    connect(m_logging->pauseButton, &QPushButton::clicked, this, &LoggingGadgetWidget::pauseButtonAction);
     connect(m_logging->stopButton, &QPushButton::clicked, this, &LoggingGadgetWidget::stopButtonAction);
     connect(m_logging->playbackPosition, &QSlider::valueChanged, this, &LoggingGadgetWidget::sliderMoved);
 
@@ -83,10 +81,10 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
 
     // Feedback from logfile to GUI
     connect(loggingPlugin, &LoggingPlugin::stateChanged, this, &LoggingGadgetWidget::stateChanged);
-    connect(logFile, &LogFile::updateBeginAndEndTimes, this, &LoggingGadgetWidget::updateBeginAndEndTimes);
+    connect(logFile, &LogFile::setBeginAndEndTimes, this, &LoggingGadgetWidget::setBeginAndEndTimes);
     connect(logFile, &LogFile::setPlaybackPosition, this, &LoggingGadgetWidget::setPlaybackPosition);
-    connect(logFile, &LogFile::replayStarted, this, &LoggingGadgetWidget::enableButtons);
-    connect(logFile, &LogFile::replayFinished, this, &LoggingGadgetWidget::disableButtons);
+    connect(logFile, &LogFile::replayStarted, this, &LoggingGadgetWidget::enableWidgets);
+    connect(logFile, &LogFile::replayFinished, this, &LoggingGadgetWidget::disableWidgets);
 
     // Feedback from logfile to scope
     connect(logFile, &LogFile::replayFinished, scpPlugin, &ScopeGadgetFactory::stopPlotting);
@@ -95,84 +93,52 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
     stateChanged(loggingPlugin->getState());
 }
 
-/*
-    resizeEvent()
-
-    Determine button content policy based on button size.
-
- */
-void LoggingGadgetWidget::resizeEvent(QResizeEvent *event)
+void LoggingGadgetWidget::playButtonAction()
 {
-    int width = m_logging->playPauseButton->size().width();
+    ReplayState replayState = (loggingPlugin->getLogfile())->getReplayState();
 
-    if (width < m_preferredButtonWidth) {
-        m_iconOnlyButtons = true;
-    } else {
-        m_iconOnlyButtons = false;
+    if (replayState != PLAYING) {
+        emit resumeReplay(m_logging->playbackPosition->value());
     }
-    updateButtonAppearance();
 
-    QWidget::resizeEvent(event);
+    m_logging->playButton->setVisible(false);
+    m_logging->pauseButton->setVisible(true);
+    m_logging->stopButton->setEnabled(true);
 }
 
-/*
-    setPlayPauseButtonToPlay()
-
-    Changes the appearance of the playPause button to the PLAY appearance.
- */
-void LoggingGadgetWidget::setPlayPauseButtonToPlay()
+void LoggingGadgetWidget::pauseButtonAction()
 {
-    m_logging->playPauseButton->setIcon(QIcon(":/logging/images/play.png"));
-    if (m_iconOnlyButtons) {
-        m_logging->playPauseButton->setText(QString());
-    } else {
-        m_logging->playPauseButton->setText(tr("  Play"));
-    }
-}
-
-/*
-    setPlayPauseButtonToPause()
-
-    Changes the appearance of the playPause button to the PAUSE appearance.
- */
-void LoggingGadgetWidget::setPlayPauseButtonToPause()
-{
-    m_logging->playPauseButton->setIcon(QIcon(":/logging/images/pause.png"));
-    if (m_iconOnlyButtons) {
-        m_logging->playPauseButton->setText(QString());
-    } else {
-        m_logging->playPauseButton->setText(tr("  Pause"));
-    }
-}
-
-void LoggingGadgetWidget::playPauseButtonAction()
-{
-    ReplayState replayState = loggingPlugin->getLogfile()->getReplayState();
+    ReplayState replayState = (loggingPlugin->getLogfile())->getReplayState();
 
     if (replayState == PLAYING) {
         emit pauseReplay();
-        setPlayPauseButtonToPlay();
-    } else {
-        emit resumeReplay(m_logging->playbackPosition->value());
-        setPlayPauseButtonToPause();
     }
+
+    m_logging->playButton->setVisible(true);
+    m_logging->pauseButton->setVisible(false);
     m_logging->stopButton->setEnabled(true);
+
+    m_logging->statusLabel->setText(tr("Paused"));
 }
 
 void LoggingGadgetWidget::stopButtonAction()
 {
-    ReplayState replayState = loggingPlugin->getLogfile()->getReplayState();
+    ReplayState replayState = (loggingPlugin->getLogfile())->getReplayState();
 
     if (replayState != STOPPED) {
         emit pauseReplayAndResetPosition();
     }
+
+    m_logging->playButton->setVisible(true);
+    m_logging->pauseButton->setVisible(false);
     m_logging->stopButton->setEnabled(false);
-    setPlayPauseButtonToPlay();
 
     // Block signals while setting the slider to the start position
     m_logging->playbackPosition->blockSignals(true);
     m_logging->playbackPosition->setValue(m_logging->playbackPosition->minimum());
     m_logging->playbackPosition->blockSignals(false);
+
+    m_logging->statusLabel->setText(tr("Paused"));
 }
 
 void LoggingGadgetWidget::stateChanged(LoggingPlugin::State state)
@@ -196,16 +162,20 @@ void LoggingGadgetWidget::stateChanged(LoggingPlugin::State state)
     m_logging->statusLabel->setText(status);
 
     bool playing = loggingPlugin->getLogfile()->isPlaying();
+    m_logging->playButton->setEnabled(enabled);
+    m_logging->pauseButton->setEnabled(enabled);
     m_logging->stopButton->setEnabled(enabled && playing);
-    m_logging->playPauseButton->setEnabled(enabled);
+
     if (playing) {
-        setPlayPauseButtonToPause();
+        m_logging->playButton->setVisible(false);
+        m_logging->pauseButton->setVisible(true);
     } else {
-        setPlayPauseButtonToPlay();
+        m_logging->playButton->setVisible(true);
+        m_logging->pauseButton->setVisible(false);
     }
 }
 
-void LoggingGadgetWidget::updateBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp)
+void LoggingGadgetWidget::setBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp)
 {
     int startSec, startMin, endSec, endMin;
 
@@ -225,8 +195,6 @@ void LoggingGadgetWidget::updateBeginAndEndTimes(quint32 startTimeStamp, quint32
 
     m_logging->playbackPosition->setSingleStep((endTimeStamp - startTimeStamp) / 100);
     m_logging->playbackPosition->setPageStep((endTimeStamp - startTimeStamp) / 10);
-    m_logging->playbackPosition->setTickInterval((endTimeStamp - startTimeStamp) / 10);
-    m_logging->playbackPosition->setTickPosition(QSlider::TicksBothSides);
 }
 
 void LoggingGadgetWidget::setPlaybackPosition(quint32 positionTimeStamp)
@@ -243,65 +211,49 @@ void LoggingGadgetWidget::setPlaybackPosition(quint32 positionTimeStamp)
     }
 }
 
-void LoggingGadgetWidget::enableButtons()
+void LoggingGadgetWidget::enableWidgets()
 {
     ReplayState replayState = loggingPlugin->getLogfile()->getReplayState();
+
+    m_logging->playButton->setEnabled(true);
+    m_logging->pauseButton->setEnabled(true);
 
     switch (replayState) {
     case STOPPED:
         m_logging->stopButton->setEnabled(false);
-        setPlayPauseButtonToPlay();
+        m_logging->playButton->setVisible(true);
+        m_logging->pauseButton->setVisible(false);
         break;
 
     case PLAYING:
         m_logging->stopButton->setEnabled(true);
-        setPlayPauseButtonToPause();
+        m_logging->playButton->setVisible(false);
+        m_logging->pauseButton->setVisible(true);
         break;
 
     case PAUSED:
         m_logging->stopButton->setEnabled(true);
-        setPlayPauseButtonToPlay();
+        m_logging->playButton->setVisible(true);
+        m_logging->pauseButton->setVisible(false);
         break;
     }
-    m_logging->playPauseButton->setEnabled(true);
     m_logging->playbackPosition->setEnabled(true);
 }
 
-void LoggingGadgetWidget::disableButtons()
+void LoggingGadgetWidget::disableWidgets()
 {
-    m_logging->playPauseButton->setEnabled(false);
-    setPlayPauseButtonToPlay();
+    m_logging->playButton->setVisible(true);
+    m_logging->pauseButton->setVisible(false);
+
+    m_logging->playButton->setEnabled(false);
+    m_logging->pauseButton->setEnabled(false);
     m_logging->stopButton->setEnabled(false);
 
     m_logging->playbackPosition->setEnabled(false);
-}
 
-void LoggingGadgetWidget::updateButtonAppearance()
-{
-    ReplayState replayState;
-
-    if (!loggingPlugin || !loggingPlugin->getLogfile()) {
-        // loggingPlugin has not been completely initialized: set to STOPPED state
-        replayState = STOPPED;
-    } else {
-        replayState = loggingPlugin->getLogfile()->getReplayState();
-    }
-
-    // Update playPause button appearance
-    if (replayState == PLAYING) {
-        // Playing: playPause button must appear as a pause button
-        setPlayPauseButtonToPause();
-    } else {
-        // Stopped or Paused: playPause button must appear as a play button
-        setPlayPauseButtonToPlay();
-    }
-
-    // Update stop button appearance
-    if (m_iconOnlyButtons) {
-        m_logging->stopButton->setText(QString());
-    } else {
-        m_logging->stopButton->setText(tr("  Stop"));
-    }
+    // reset start and end labels
+    m_logging->startTimeLabel->setText("");
+    m_logging->endTimeLabel->setText("");
 }
 
 void LoggingGadgetWidget::updatePositionLabel(quint32 positionTimeStamp)

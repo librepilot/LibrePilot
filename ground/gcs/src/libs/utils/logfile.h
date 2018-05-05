@@ -97,10 +97,10 @@ protected slots:
 
 signals:
     void replayStarted();
-    void replayFinished();	// Emitted on error during replay or when logfile disconnected
-    void replayCompleted();	// Emitted at the end of normal logfile playback
-    void setPlaybackPosition(quint32);
-    void setBeginAndEndTimes(quint32, quint32);
+    void replayFinished(); // Emitted on error during replay or when logfile disconnected
+    void replayCompleted(); // Emitted at the end of normal logfile playback
+    void playbackPositionChanged(quint32);
+    void timesChanged(quint32, quint32);
 
 protected:
     QByteArray m_dataBuffer;
@@ -123,7 +123,7 @@ private:
     qint32 m_providedTimeStamp;
     quint32 m_beginTimeStamp;
     quint32 m_endTimeStamp;
-    quint32 m_timer_tick;
+    quint32 m_timerTick;
     QVector<quint32> m_timeStamps;
     QVector<qint64> m_timeStampPositions;
 

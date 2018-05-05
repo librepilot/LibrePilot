@@ -81,8 +81,8 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
 
     // Feedback from logfile to GUI
     connect(loggingPlugin, &LoggingPlugin::stateChanged, this, &LoggingGadgetWidget::stateChanged);
-    connect(logFile, &LogFile::setBeginAndEndTimes, this, &LoggingGadgetWidget::setBeginAndEndTimes);
-    connect(logFile, &LogFile::setPlaybackPosition, this, &LoggingGadgetWidget::setPlaybackPosition);
+    connect(logFile, &LogFile::timesChanged, this, &LoggingGadgetWidget::setBeginAndEndTimes);
+    connect(logFile, &LogFile::playbackPositionChanged, this, &LoggingGadgetWidget::setPlaybackPosition);
     connect(logFile, &LogFile::replayStarted, this, &LoggingGadgetWidget::enableWidgets);
     connect(logFile, &LogFile::replayFinished, this, &LoggingGadgetWidget::disableWidgets);
     connect(logFile, &LogFile::replayCompleted, this, &LoggingGadgetWidget::stopButtonAction);
@@ -96,7 +96,7 @@ void LoggingGadgetWidget::setPlugin(LoggingPlugin *p)
 
 void LoggingGadgetWidget::playButtonAction()
 {
-    ReplayState replayState = (loggingPlugin->getLogfile())->getReplayState();
+    ReplayState replayState = loggingPlugin->getLogfile()->getReplayState();
 
     if (replayState != PLAYING) {
         emit resumeReplay(m_logging->playbackPosition->value());
@@ -109,7 +109,7 @@ void LoggingGadgetWidget::playButtonAction()
 
 void LoggingGadgetWidget::pauseButtonAction()
 {
-    ReplayState replayState = (loggingPlugin->getLogfile())->getReplayState();
+    ReplayState replayState = loggingPlugin->getLogfile()->getReplayState();
 
     if (replayState == PLAYING) {
         emit pauseReplay();

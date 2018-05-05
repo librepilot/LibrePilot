@@ -42,7 +42,7 @@ LogFile::LogFile(QObject *parent) : QIODevice(parent),
     m_providedTimeStamp(0),
     m_beginTimeStamp(0),
     m_endTimeStamp(0),
-    m_timer_tick(0)
+    m_timerTick(0)
 {
     connect(&m_timer, &QTimer::timeout, this, &LogFile::timerFired);
 }
@@ -154,7 +154,7 @@ void LogFile::timerFired()
     if (m_replayState != PLAYING) {
         return;
     }
-    m_timer_tick++;
+    m_timerTick++;
 
     if (m_file.bytesAvailable() > TIMESTAMP_SIZE_BYTES) {
         int time;
@@ -210,8 +210,8 @@ void LogFile::timerFired()
             emit readyRead();
 
             // rate-limit slider bar position updates to 10 updates per second
-            if (m_timer_tick % 10 == 0) {
-                emit setPlaybackPosition(m_nextTimeStamp);
+            if (m_timerTick % 10 == 0) {
+                emit playbackPositionChanged(m_nextTimeStamp);
             }
             // read next timestamp
             if (m_file.bytesAvailable() < (qint64)sizeof(m_nextTimeStamp)) {
@@ -262,7 +262,7 @@ bool LogFile::startReplay()
         return false;
     }
 
-    m_timer_tick = 0;
+    m_timerTick = 0;
 
     if (!m_file.isOpen() || m_timer.isActive()) {
         return false;
@@ -552,7 +552,7 @@ bool LogFile::buildIndex()
         }
     }
 
-    emit setBeginAndEndTimes(m_beginTimeStamp, m_endTimeStamp);
+    emit timesChanged(m_beginTimeStamp, m_endTimeStamp);
 
     // reset the read pointer to the start of the file
     m_file.seek(0);

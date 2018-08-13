@@ -465,6 +465,57 @@ static void tx_packet(struct pios_openlrs_dev *openlrs_dev, uint8_t *pkt, uint8_
     }
 }
 
+#ifdef OPENLRS_SIMPLE_BEACON_TONE
+// Basic tone
+static void beacon_simpletone(struct pios_openlrs_dev *openlrs_dev, uint8_t tone, int16_t len __attribute__((unused)))
+{
+    DEBUG_PRINTF(2, "beacon_morse: %d\r\n", len);
+
+#if defined(PIOS_LED_LINK)
+    PIOS_LED_On(PIOS_LED_LINK);
+#endif /* PIOS_LED_LINK */
+
+    rfm22_claimBus(openlrs_dev);
+
+    GPIO_TypeDef *gpio    = openlrs_dev->cfg.spi_cfg->mosi.gpio;
+    uint16_t pin_source   = openlrs_dev->cfg.spi_cfg->mosi.init.GPIO_Pin;
+    uint8_t remap = openlrs_dev->cfg.spi_cfg->remap;
+
+    GPIO_InitTypeDef init = {
+        .GPIO_Speed = GPIO_Speed_50MHz,
+        .GPIO_Mode  = GPIO_Mode_OUT,
+        .GPIO_OType = GPIO_OType_PP,
+        .GPIO_PuPd  = GPIO_PuPd_UP
+    };
+    init.GPIO_Pin = pin_source;
+
+    // Set MOSI to digital out for bit banging
+    GPIO_PinAFConfig(gpio, pin_source, 0);
+    GPIO_Init(gpio, &init);
+
+    int16_t cycles = (len * 50) / tone;
+    for (int16_t i = 0; i < cycles; i++) {
+        GPIO_SetBits(gpio, pin_source);
+        PIOS_Thread_Sleep(tone);
+        GPIO_ResetBits(gpio, pin_source);
+        PIOS_Thread_Sleep(tone);
+    }
+    GPIO_Init(gpio, (GPIO_InitTypeDef *)&openlrs_dev->cfg.spi_cfg->mosi.init);
+    GPIO_PinAFConfig(gpio, pin_source, remap);
+    rfm22_releaseBus(openlrs_dev);
+
+#if defined(PIOS_LED_LINK)
+    PIOS_LED_Off(PIOS_LED_LINK);
+#endif /* PIOS_LED_LINK */
+
+#if defined(PIOS_INCLUDE_WDG) && defined(PIOS_WDG_RFM22B)
+    // Update the watchdog timer
+    PIOS_WDG_UpdateFlag(PIOS_WDG_RFM22B);
+#endif /* PIOS_WDG_RFM22B */
+}
+
+#else /* OPENLRS_SIMPLE_BEACON_TONE */
+
 static void beacon_tone(struct pios_openlrs_dev *openlrs_dev, int16_t hz, int16_t len __attribute__((unused))) // duration is now in half seconds.
 {
     DEBUG_PRINTF(2, "beacon_tone: %d %d\r\n", hz, len * 2);
@@ -481,7 +532,7 @@ static void beacon_tone(struct pios_openlrs_dev *openlrs_dev, int16_t hz, int16_
     rfm22_claimBus(openlrs_dev);
 
     // This need fixed for F1
-#ifdef GPIO_Mode_OUT
+#ifdef GPIO_MODE_OUT
     GPIO_TypeDef *gpio    = openlrs_dev->cfg.spi_cfg->mosi.gpio;
     uint16_t pin_source   = openlrs_dev->cfg.spi_cfg->mosi.init.GPIO_Pin;
     uint8_t remap = openlrs_dev->cfg.spi_cfg->remap;
@@ -515,7 +566,7 @@ static void beacon_tone(struct pios_openlrs_dev *openlrs_dev, int16_t hz, int16_
 
     GPIO_Init(gpio, (GPIO_InitTypeDef *)&openlrs_dev->cfg.spi_cfg->mosi.init);
     GPIO_PinAFConfig(gpio, pin_source, remap);
-#endif /* ifdef GPIO_Mode_OUT */
+#endif /* ifdef GPIO_MODE_OUT */
     rfm22_releaseBus(openlrs_dev);
 
 #if defined(PIOS_LED_LINK)
@@ -528,6 +579,7 @@ static void beacon_tone(struct pios_openlrs_dev *openlrs_dev, int16_t hz, int16_
 #endif /* PIOS_WDG_RFM22B */
 }
 
+#endif /* OPENLRS_SIMPLE_BEACON_TONE */
 
 static uint8_t beaconGetRSSI(struct pios_openlrs_dev *openlrs_dev)
 {
@@ -588,9 +640,40 @@ static void beacon_send(struct pios_openlrs_dev *openlrs_dev, bool static_tone)
     if (static_tone) {
         uint8_t i = 0;
         while (i++ < 20) {
+#ifdef OPENLRS_SIMPLE_BEACON_TONE
+            beacon_simpletone(openlrs_dev, 2, 3);
+#else
             beacon_tone(openlrs_dev, 440, 1);
+#endif
         }
     } else {
+#ifdef OPENLRS_SIMPLE_BEACON_TONE
+        for (uint32_t tone = 1; tone < 4; tone++) {
+            if (tone == 1) {
+                rfm22_write(openlrs_dev, 0x6d, 0x05); // 5 set min power 25mW
+            } else {
+                rfm22_write(openlrs_dev, 0x6d, 0x00); // 0 set min power 1.3mW
+            }
+            // L - --- - -
+            beacon_simpletone(openlrs_dev, tone, 1);
+            PIOS_Thread_Sleep(100);
+            beacon_simpletone(openlrs_dev, tone, 3);
+            PIOS_Thread_Sleep(100);
+            beacon_simpletone(openlrs_dev, tone, 1);
+            PIOS_Thread_Sleep(100);
+            beacon_simpletone(openlrs_dev, tone, 1);
+            PIOS_Thread_Sleep(600);
+            // P - --- --- -
+            beacon_simpletone(openlrs_dev, tone, 1);
+            PIOS_Thread_Sleep(100);
+            beacon_simpletone(openlrs_dev, tone, 3);
+            PIOS_Thread_Sleep(100);
+            beacon_simpletone(openlrs_dev, tone, 3);
+            PIOS_Thread_Sleep(100);
+            beacon_simpletone(openlrs_dev, tone, 1);
+            PIOS_Thread_Sleep(2000);
+        }
+#else /* ifdef OPENLRS_SIMPLE_BEACON_TONE */
         // close encounters tune
         // G, A, F, F(lower octave), C
         // octave 3:  392  440  349  175   261
@@ -612,6 +695,7 @@ static void beacon_send(struct pios_openlrs_dev *openlrs_dev, bool static_tone)
         rfm22_write(openlrs_dev, 0x6d, 0x00); // 0 set min power 1.3mW
         PIOS_Thread_Sleep(10);
         beacon_tone(openlrs_dev, 261, 2);
+#endif /* #ifdef OPENLRS_SIMPLE_BEACON_TONE */
     }
     rfm22_write_claim(openlrs_dev, 0x07, RF22B_PWRSTATE_READY);
 }
@@ -974,7 +1058,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
                 DEBUG_PRINTF(2, "Failsafe activated: %d %d\r\n", timeMs, openlrs_dev->linkLossTimeMs);
                 oplink_status.LinkState = OPLINKSTATUS_LINKSTATE_DISCONNECTED;
                 // failsafeApply();
-                openlrs_dev->nextBeaconTimeMs = (timeMs + 1000UL * openlrs_dev->beacon_period) | 1; // beacon activating...
+                openlrs_dev->nextBeaconTimeMs = (timeMs + (1000UL * openlrs_dev->beacon_delay)) | 1; // beacon activating...
             }
 
             if ((openlrs_dev->beacon_frequency) && (openlrs_dev->nextBeaconTimeMs) &&
@@ -990,7 +1074,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
                     beacon_send(openlrs_dev, false); // play cool tune
                     init_rfm(openlrs_dev, 0); // go back to normal RX
                     rx_reset(openlrs_dev);
-                    openlrs_dev->nextBeaconTimeMs = (timeMs + 1000UL * openlrs_dev->beacon_period) | 1; // avoid 0 in time
+                    openlrs_dev->nextBeaconTimeMs = (timeMs + (1000UL * openlrs_dev->beacon_period)) | 1; // avoid 0 in time
                 }
             }
         }

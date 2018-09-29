@@ -24,7 +24,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
+#include <QSet>
 #include "uavobjectgeneratorgcs.h"
 
 #define VERBOSE             false
@@ -52,27 +52,32 @@ void info(ObjectInfo *object, QString msg)
 }
 
 struct Context {
-    ObjectInfo *object;
+    ObjectInfo    *object;
+    // parent objects
+    QSet<QString> parentObjects;
     // enums
-    QString    enums;
-    QString    enumsCount;
-    QString    registerImpl;
+    QString enums;
+    QString enumsCount;
+    QString registerImpl;
     // interface
-    QString    fields;
-    QString    fieldsInfo;
-    QString    properties;
-    QString    deprecatedProperties;
-    QString    getters;
-    QString    setters;
-    QString    notifications;
+    QString fields;
+    QString fieldsInfo;
+    QString properties;
+    QString deprecatedProperties;
+    QString getters;
+    QString setters;
+    QString notifications;
     // implementation
-    QString    fieldsInit;
-    QString    fieldsDefault;
-    QString    propertiesImpl;
-    QString    notificationsImpl;
+    QString fieldsInit;
+    QString fieldsDefault;
+    QString propertiesImpl;
+    QString notificationsImpl;
 };
 
 struct FieldContext {
+    FieldContext(FieldInfo *fieldInfo, ObjectInfo *object);
+    FieldContext(const FieldContext &fieldContext);
+
     FieldInfo *field;
     // field
     QString   fieldName;
@@ -82,6 +87,10 @@ struct FieldContext {
     QString   ucPropName;
     QString   propType;
     QString   propRefType;
+    //
+    QString   parentClassName;
+    QString   parentFieldName;
+    QString   ucParentPropName;
     // deprecation
     bool hasDeprecatedProperty;
     bool hasDeprecatedGetter;
@@ -226,6 +235,10 @@ QString generate(Context &ctxt, FieldContext &fieldCtxt, const QString &fragment
     str.replace(":elementCount", QString::number(fieldCtxt.field->numElements));
     str.replace(":enumCount", QString::number(fieldCtxt.field->numOptions));
 
+    str.replace(":parentFieldName", fieldCtxt.parentFieldName);
+    str.replace(":parentClassName", fieldCtxt.parentClassName);
+    str.replace(":ParentPropName", fieldCtxt.ucParentPropName);
+
     return str;
 }
 
@@ -234,34 +247,42 @@ void generateFieldInfo(Context &ctxt, FieldContext &fieldCtxt)
     ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "    // :fieldName\n");
 
     if (fieldCtxt.field->type == FIELDTYPE_ENUM) {
-        QStringList options = fieldCtxt.field->options;
-        ctxt.fieldsInfo += "    typedef enum { ";
-        for (int m = 0; m < options.length(); ++m) {
-            if (m > 0) {
-                ctxt.fieldsInfo.append(", ");
+        if (fieldCtxt.field->parentObjectName.length() > 0) {
+            ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "    typedef :parentClassName:::parentFieldNameOptions :fieldNameOptions;\n");
+        } else {
+            QStringList options = fieldCtxt.field->options;
+            ctxt.fieldsInfo += "    typedef enum { ";
+            for (int m = 0; m < options.length(); ++m) {
+                if (m > 0) {
+                    ctxt.fieldsInfo.append(", ");
+                }
+                ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "%1_%2=%3")
+                                   .arg(fieldCtxt.field->name.toUpper())
+                                   .arg(options[m].toUpper().replace(QRegExp(ENUM_SPECIAL_CHARS), ""))
+                                   .arg(m);
             }
-            ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "%1_%2=%3")
-                               .arg(fieldCtxt.field->name.toUpper())
-                               .arg(options[m].toUpper().replace(QRegExp(ENUM_SPECIAL_CHARS), ""))
-                               .arg(m);
+            ctxt.fieldsInfo += generate(ctxt, fieldCtxt, " } :fieldNameOptions;\n");
         }
-        ctxt.fieldsInfo += generate(ctxt, fieldCtxt, " } :fieldNameOptions;\n");
     }
 
     // Generate element names (only if field has more than one element)
     if (fieldCtxt.field->numElements > 1 && !fieldCtxt.field->defaultElementNames) {
-        QStringList elemNames = fieldCtxt.field->elementNames;
-        ctxt.fieldsInfo += "    typedef enum { ";
-        for (int m = 0; m < elemNames.length(); ++m) {
-            if (m > 0) {
-                ctxt.fieldsInfo.append(", ");
+        if (fieldCtxt.field->parentObjectName.length() > 0) {
+            ctxt.fieldsInfo += generate(ctxt, fieldCtxt, "    typedef :parentClassName:::parentFieldNameElem :fieldNameElem;\n");
+        } else {
+            QStringList elemNames = fieldCtxt.field->elementNames;
+            ctxt.fieldsInfo += "    typedef enum { ";
+            for (int m = 0; m < elemNames.length(); ++m) {
+                if (m > 0) {
+                    ctxt.fieldsInfo.append(", ");
+                }
+                ctxt.fieldsInfo += QString("%1_%2=%3")
+                                   .arg(fieldCtxt.field->name.toUpper())
+                                   .arg(elemNames[m].toUpper())
+                                   .arg(m);
             }
-            ctxt.fieldsInfo += QString("%1_%2=%3")
-                               .arg(fieldCtxt.field->name.toUpper())
-                               .arg(elemNames[m].toUpper())
-                               .arg(m);
+            ctxt.fieldsInfo += generate(ctxt, fieldCtxt, " } :fieldNameElem;\n");
         }
-        ctxt.fieldsInfo += generate(ctxt, fieldCtxt, " } :fieldNameElem;\n");
     }
 
     // Generate array information
@@ -341,6 +362,9 @@ void generateFieldDefault(Context &ctxt, FieldContext &fieldCtxt)
 
 void generateField(Context &ctxt, FieldContext &fieldCtxt)
 {
+    if (fieldCtxt.parentClassName.length() > 0) {
+        ctxt.parentObjects.insert(fieldCtxt.parentClassName);
+    }
     if (fieldCtxt.field->numElements > 1) {
         ctxt.fields += generate(ctxt, fieldCtxt, "        :fieldType :fieldName[:elementCount];\n");
     } else {
@@ -355,20 +379,24 @@ void generateEnum(Context &ctxt, FieldContext &fieldCtxt)
 {
     Q_ASSERT(fieldCtxt.field->type == FIELDTYPE_ENUM);
 
-    QString enumStringList = toEnumStringList(ctxt.object, fieldCtxt.field);
+    if (fieldCtxt.field->parentObjectName.length() > 0) {
+        ctxt.enums += generate(ctxt, fieldCtxt, "typedef :parentClassName_:ParentPropName :ClassName_:PropName;\n\n");
+    } else {
+        QString enumStringList = toEnumStringList(ctxt.object, fieldCtxt.field);
 
-    ctxt.enums += generate(ctxt, fieldCtxt,
-                           "class :ClassName_:PropName : public QObject {\n"
-                           "    Q_OBJECT\n"
-                           "public:\n"
-                           "    enum Enum { %1 };\n"
-                           "    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5\n"
-                           "};\n\n").arg(enumStringList);
+        ctxt.enums += generate(ctxt, fieldCtxt,
+                               "class :ClassName_:PropName : public QObject {\n"
+                               "    Q_OBJECT\n"
+                               "public:\n"
+                               "    enum Enum { %1 };\n"
+                               "    Q_ENUMS(Enum) // TODO switch to Q_ENUM once on Qt 5.5\n"
+                               "};\n\n").arg(enumStringList);
 
-    ctxt.enumsCount   += generate(ctxt, fieldCtxt, ":PropNameCount = :enumCount, ");
+        ctxt.enumsCount   += generate(ctxt, fieldCtxt, ":PropNameCount = :enumCount, ");
 
-    ctxt.registerImpl += generate(ctxt, fieldCtxt,
-                                  "    qmlRegisterType<:ClassName_:PropName>(\"%1.:ClassName\", 1, 0, \":PropName\");\n").arg("UAVTalk");
+        ctxt.registerImpl += generate(ctxt, fieldCtxt,
+                                      "    qmlRegisterType<:ClassName_:PropName>(\"%1.:ClassName\", 1, 0, \":PropName\");\n").arg("UAVTalk");
+    }
 }
 
 void generateBaseProperty(Context &ctxt, FieldContext &fieldCtxt)
@@ -507,14 +535,10 @@ void generateIndexedProperty(Context &ctxt, FieldContext &fieldCtxt)
             sep = "_";
         }
 
-        FieldContext elementCtxt;
-        elementCtxt.field       = fieldCtxt.field;
-        elementCtxt.fieldName   = fieldCtxt.fieldName + "_" + elementName;
-        elementCtxt.fieldType   = fieldCtxt.fieldType;
-        elementCtxt.propName    = fieldCtxt.propName + sep + elementName;
-        elementCtxt.ucPropName  = fieldCtxt.ucPropName + sep + elementName;
-        elementCtxt.propType    = fieldCtxt.propType;
-        elementCtxt.propRefType = fieldCtxt.propRefType;
+        FieldContext elementCtxt(fieldCtxt);
+        elementCtxt.fieldName  = fieldCtxt.fieldName + "_" + elementName;
+        elementCtxt.propName   = fieldCtxt.propName + sep + elementName;
+        elementCtxt.ucPropName = fieldCtxt.ucPropName + sep + elementName;
         // deprecation
         elementCtxt.hasDeprecatedProperty     = (elementCtxt.fieldName != elementCtxt.propName) && DEPRECATED;
         elementCtxt.hasDeprecatedGetter       = DEPRECATED;
@@ -593,6 +617,44 @@ bool UAVObjectGeneratorGCS::generate(UAVObjectParser *parser, QString templatepa
     return true;
 }
 
+FieldContext::FieldContext(const FieldContext &fieldContext)
+{
+    *this = fieldContext;
+}
+
+FieldContext::FieldContext(FieldInfo *fieldInfo, ObjectInfo *object)
+{
+    field     = fieldInfo;
+
+    // field properties
+    fieldName = field->name;
+    fieldType = fieldTypeStrCPP(field->type);
+
+    parentClassName  = field->parentObjectName;
+    parentFieldName  = field->parentFieldName;
+    ucParentPropName = toPropertyName(field->parentFieldName);
+
+    ucPropName = toPropertyName(field->name);
+    propName   = toLowerCamelCase(ucPropName);
+    propType   = fieldType;
+    if (field->type == FIELDTYPE_INT8) {
+        propType = fieldTypeStrCPP(FIELDTYPE_INT16);
+    } else if (field->type == FIELDTYPE_UINT8) {
+        propType = fieldTypeStrCPP(FIELDTYPE_UINT16);
+    } else if (field->type == FIELDTYPE_ENUM) {
+        QString enumClassName = object->name + "_" + ucPropName;
+        propType = enumClassName + "::Enum";
+    }
+    // reference type
+    propRefType = propType;
+
+    // deprecation
+    hasDeprecatedProperty     = (fieldName != propName) && DEPRECATED;
+    hasDeprecatedGetter       = DEPRECATED;
+    hasDeprecatedSetter       = ((fieldName != ucPropName) || (fieldType != propType)) && DEPRECATED;
+    hasDeprecatedNotification = ((fieldName != propName) || (fieldType != propType)) && DEPRECATED;
+}
+
 /**
  * Generate the GCS object files
  *
@@ -634,32 +696,7 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
         FieldInfo *field = object->fields[n];
 
         // field context
-        FieldContext fieldCtxt;
-        fieldCtxt.field      = field;
-
-        // field properties
-        fieldCtxt.fieldName  = field->name;
-        fieldCtxt.fieldType  = fieldTypeStrCPP(field->type);
-
-        fieldCtxt.ucPropName = toPropertyName(field->name);
-        fieldCtxt.propName   = toLowerCamelCase(fieldCtxt.ucPropName);
-        fieldCtxt.propType   = fieldCtxt.fieldType;
-        if (field->type == FIELDTYPE_INT8) {
-            fieldCtxt.propType = fieldTypeStrCPP(FIELDTYPE_INT16);
-        } else if (field->type == FIELDTYPE_UINT8) {
-            fieldCtxt.propType = fieldTypeStrCPP(FIELDTYPE_UINT16);
-        } else if (field->type == FIELDTYPE_ENUM) {
-            QString enumClassName = object->name + "_" + fieldCtxt.ucPropName;
-            fieldCtxt.propType = enumClassName + "::Enum";
-        }
-        // reference type
-        fieldCtxt.propRefType = fieldCtxt.propType;
-
-        // deprecation
-        fieldCtxt.hasDeprecatedProperty     = (fieldCtxt.fieldName != fieldCtxt.propName) && DEPRECATED;
-        fieldCtxt.hasDeprecatedGetter       = DEPRECATED;
-        fieldCtxt.hasDeprecatedSetter       = ((fieldCtxt.fieldName != fieldCtxt.ucPropName) || (fieldCtxt.fieldType != fieldCtxt.propType)) && DEPRECATED;
-        fieldCtxt.hasDeprecatedNotification = ((fieldCtxt.fieldName != fieldCtxt.propName) || (fieldCtxt.fieldType != fieldCtxt.propType)) && DEPRECATED;
+        FieldContext fieldCtxt(field, object);
 
         generateField(ctxt, fieldCtxt);
 
@@ -671,6 +708,12 @@ bool UAVObjectGeneratorGCS::process_object(ObjectInfo *object)
         generateProperty(ctxt, fieldCtxt);
     }
 
+    QString includes;
+    foreach(const QString &objectName, ctxt.parentObjects) {
+        includes.append("#include \"" + objectName.toLower() + ".h\"\n");
+    }
+
+    outInclude.replace("$(INCLUDE)", includes);
     outInclude.replace("$(ENUMS)", ctxt.enums);
     outInclude.replace("$(ENUMS_COUNT)", ctxt.enumsCount);
     outInclude.replace("$(DATAFIELDS)", ctxt.fields);

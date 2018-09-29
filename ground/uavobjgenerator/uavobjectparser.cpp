@@ -69,6 +69,15 @@ ObjectInfo *UAVObjectParser::getObjectByIndex(int objIndex)
     return objInfo[objIndex];
 }
 
+ObjectInfo *UAVObjectParser::getObjectByName(const QString & objName)
+{
+    foreach(ObjectInfo * info, objInfo) {
+        if (objName == info->name) {
+            return info;
+        }
+    }
+    return 0;
+}
 /**
  * Get the name of the object
  */
@@ -404,6 +413,7 @@ QString UAVObjectParser::processObjectAccess(QDomNode & childNode, ObjectInfo *i
  */
 QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *info)
 {
+    bool isClone      = false;
     // Create field
     FieldInfo *field  = new FieldInfo;
     // Get name attribute
@@ -419,20 +429,39 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
     // field that has already been declared
     elemAttr = elemAttributes.namedItem("cloneof");
     if (!elemAttr.isNull()) {
-        QString parentName = elemAttr.nodeValue();
+        QString parentName = elemAttr.nodeValue().section('.', 1);
+
+        ObjectInfo *parentObject;
+
+        if (parentName.isEmpty()) {
+            parentName   = elemAttr.nodeValue();
+            parentObject = info;
+        } else {
+            QString objName = elemAttr.nodeValue().section('.', 0, 0);
+            parentObject = getObjectByName(objName);
+            if (!parentObject) {
+                return QString("Object:field:cloneof parent object unknown");
+            }
+        }
+
         if (!parentName.isEmpty()) {
-            foreach(FieldInfo * parent, info->fields) {
+            foreach(FieldInfo * parent, parentObject->fields) {
                 if (parent->name == parentName) {
                     // clone from this parent
                     *field = *parent; // safe shallow copy, no ptrs in struct
                     field->name = name; // set our name
-                    // Add field to object
-                    info->fields.append(field);
-                    // Done
-                    return QString();
+                    // Done, but allow certain overrides
+                    field->parentObjectName = parentObject->name;
+                    field->parentFieldName  = parent->name;
+                    isClone = true;
+
+                    break;
                 }
             }
-            return QString("Object:field::cloneof parent unknown");
+
+            if (!isClone) {
+                return QString("Object:field:cloneof parent unknown");
+            }
         } else {
             return QString("Object:field:cloneof attribute is empty");
         }
@@ -459,31 +488,45 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
     // Get units attribute
     elemAttr = elemAttributes.namedItem("units");
     if (elemAttr.isNull()) {
-        return QString("Object:field:units attribute is missing");
+        if (!isClone) {
+            return QString("Object:field:units attribute is missing");
+        }
+    } else {
+        if (isClone) {
+            return QString("Object:field:units attribute is not allowed for cloned fields");
+        }
+        field->units = elemAttr.nodeValue();
+        all_units << field->units;
     }
-
-    field->units = elemAttr.nodeValue();
-    all_units << field->units;
-
     // Get type attribute
     elemAttr = elemAttributes.namedItem("type");
     if (elemAttr.isNull()) {
-        return QString("Object:field:type attribute is missing");
-    }
-
-    int index = fieldTypeStrXML.indexOf(elemAttr.nodeValue());
-    if (index >= 0) {
-        field->type     = (FieldType)index;
-        field->numBytes = fieldTypeNumBytes[index];
+        if (!isClone) {
+            return QString("Object:field:type attribute is missing");
+        }
     } else {
-        return QString("Object:field:type attribute value is invalid");
+        if (isClone) {
+            return QString("Object:field:type attribute is not allowed for cloned fields");
+        }
+        int index = fieldTypeStrXML.indexOf(elemAttr.nodeValue());
+        if (index >= 0) {
+            field->type     = (FieldType)index;
+            field->numBytes = fieldTypeNumBytes[index];
+        } else {
+            return QString("Object:field:type attribute value is invalid");
+        }
     }
 
     // Get numelements or elementnames attribute
-    field->numElements = 0;
+    if (!isClone) {
+        field->numElements = 0;
+    }
     // Look for element names as an attribute first
     elemAttr = elemAttributes.namedItem("elementnames");
     if (!elemAttr.isNull()) {
+        if (isClone) {
+            return QString("Object:field:elementnames attribute is not allowed for cloned fields");
+        }
         // Get element names
         QStringList names = elemAttr.nodeValue().split(",", QString::SkipEmptyParts);
         for (int n = 0; n < names.length(); ++n) {
@@ -497,6 +540,9 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
         // Look for a list of child elementname nodes
         QDomNode listNode = childNode.firstChildElement("elementnames");
         if (!listNode.isNull()) {
+            if (isClone) {
+                return QString("Object:field:elementnames element is not allowed for cloned fields");
+            }
             for (QDomElement node = listNode.firstChildElement("elementname");
                  !node.isNull(); node = node.nextSiblingElement("elementname")) {
                 QDomNode name = node.firstChild();
@@ -515,6 +561,9 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
         if (elemAttr.isNull()) {
             return QString("Object:field:elements and Object:field:elementnames attribute/element is missing");
         } else {
+            if (isClone) {
+                return QString("Object:field:elements attribute is not allowed for cloned fields");
+            }
             field->numElements = elemAttr.nodeValue().toInt();
             for (int n = 0; n < field->numElements; ++n) {
                 field->elementNames.append(QString("%1").arg(n));
@@ -524,15 +573,18 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
         }
     }
     // Get options attribute or child elements (only if an enum type)
+    // We allow "options" attribute/element for cloned fields also, but they work slightly different here -
+    // they set limits on parent options.
+
     if (field->type == FIELDTYPE_ENUM) {
         // Look for options attribute
+        QStringList options;
         elemAttr = elemAttributes.namedItem("options");
         if (!elemAttr.isNull()) {
-            QStringList options = elemAttr.nodeValue().split(",", QString::SkipEmptyParts);
+            options = elemAttr.nodeValue().split(",", QString::SkipEmptyParts);
             for (int n = 0; n < options.length(); ++n) {
                 options[n] = options[n].trimmed();
             }
-            field->options = options;
         } else {
             // Look for a list of child 'option' nodes
             QDomNode listNode = childNode.firstChildElement("options");
@@ -541,12 +593,28 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
                      !node.isNull(); node = node.nextSiblingElement("option")) {
                     QDomNode name = node.firstChild();
                     if (!name.isNull() && name.isText() && !name.nodeValue().isEmpty()) {
-                        field->options.append(name.nodeValue());
+                        options.append(name.nodeValue());
                     }
                 }
             }
         }
-        field->numOptions = field->options.size();
+
+        if (isClone) {
+            if (!options.isEmpty()) {
+                // Verify options subset and build limits value from it.
+                foreach(const QString &option, options) {
+                    if (!field->options.contains(option)) {
+                        return QString("Object:field:options is not a subset of parent options");
+                    }
+                }
+                field->limitValues = QString("%EQ:") + options.join(':');
+                qDebug() << "Created field->limitValues: " << field->limitValues;
+            }
+        } else {
+            field->numOptions = options.size();
+            field->options    = options;
+        }
+
         if (field->numOptions == 0) {
             return QString("Object:field:options attribute/element is missing");
         }
@@ -554,12 +622,7 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
 
     // Get the default value attribute (required for settings objects, optional for the rest)
     elemAttr = elemAttributes.namedItem("defaultvalue");
-    if (elemAttr.isNull()) {
-        if (info->isSettings) {
-            return QString("Object:field:defaultvalue attribute is missing (required for settings objects)");
-        }
-        field->defaultValues = QStringList();
-    } else {
+    if (!elemAttr.isNull()) {
         QStringList defaults = elemAttr.nodeValue().split(",", QString::SkipEmptyParts);
         for (int n = 0; n < defaults.length(); ++n) {
             defaults[n] = defaults[n].trimmed();
@@ -577,6 +640,9 @@ QString UAVObjectParser::processObjectFields(QDomNode & childNode, ObjectInfo *i
             }
         }
         field->defaultValues = defaults;
+    }
+    if (field->defaultValues.isEmpty() && info->isSettings) {
+        return QString("Object:field:defaultvalue attribute is missing (required for settings objects)");
     }
 
     // Limits attribute

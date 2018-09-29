@@ -161,7 +161,6 @@
 #define IDLE_COUNTS_PER_SEC_AT_NO_LOAD  1995998
 
 /* Alarm Thresholds */
-#define HEAP_LIMIT_WARNING              220
 #define HEAP_LIMIT_CRITICAL             40
 #define IRQSTACK_LIMIT_WARNING          100
 #define IRQSTACK_LIMIT_CRITICAL         60
@@ -175,10 +174,13 @@
 #define PIOS_STABILIZATION_STACK_SIZE   400
 
 #ifdef DIAG_TASKS
-#define PIOS_SYSTEM_STACK_SIZE          760
+#define PIOS_SYSTEM_STACK_SIZE          880
+#define HEAP_LIMIT_WARNING              150
 #else
-#define PIOS_SYSTEM_STACK_SIZE          660
+#define PIOS_SYSTEM_STACK_SIZE          700
+#define HEAP_LIMIT_WARNING              220
 #endif
+
 #define PIOS_TELEM_RX_STACK_SIZE        410
 #define PIOS_TELEM_TX_STACK_SIZE        560
 #define PIOS_EVENTDISPATCHER_STACK_SIZE 95

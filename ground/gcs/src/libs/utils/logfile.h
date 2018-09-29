@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       logfile.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017-2018.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -32,8 +32,10 @@
 #include <QTimer>
 #include <QMutexLocker>
 #include <QDebug>
-#include <QBuffer>
 #include <QFile>
+#include <QVector>
+
+typedef enum { PLAYING, PAUSED, STOPPED } ReplayState;
 
 class QTCREATOR_UTILS_EXPORT LogFile : public QIODevice {
     Q_OBJECT
@@ -75,6 +77,8 @@ public:
         m_providedTimeStamp = providedTimestamp;
     }
 
+    ReplayState getReplayState();
+
 public slots:
     void setReplaySpeed(double val)
     {
@@ -83,24 +87,28 @@ public slots:
     };
     bool startReplay();
     bool stopReplay();
+
+    bool resumeReplay(quint32);
     bool pauseReplay();
-    bool resumeReplay();
+    bool pauseReplayAndResetPosition();
 
 protected slots:
     void timerFired();
 
 signals:
-    void readReady();
     void replayStarted();
-    void replayFinished();
+    void replayFinished(); // Emitted on error during replay or when logfile disconnected
+    void replayCompleted(); // Emitted at the end of normal logfile playback
+    void playbackPositionChanged(quint32);
+    void timesChanged(quint32, quint32);
 
 protected:
     QByteArray m_dataBuffer;
     QTimer m_timer;
     QTime m_myTime;
     QFile m_file;
-    qint32 m_previousTimeStamp;
-    qint32 m_nextTimeStamp;
+    quint32 m_previousTimeStamp;
+    quint32 m_nextTimeStamp;
     double m_lastPlayed;
     // QMutex wants to be mutable
     // http://stackoverflow.com/questions/25521570/can-mutex-locking-function-be-marked-as-const
@@ -108,11 +116,19 @@ protected:
 
     int m_timeOffset;
     double m_playbackSpeed;
-    bool paused;
+    ReplayState m_replayState;
 
 private:
     bool m_useProvidedTimeStamp;
     qint32 m_providedTimeStamp;
+    quint32 m_beginTimeStamp;
+    quint32 m_endTimeStamp;
+    quint32 m_timerTick;
+    QVector<quint32> m_timeStamps;
+    QVector<qint64> m_timeStampPositions;
+
+    bool buildIndex();
+    bool resetReplay();
 };
 
 #endif // LOGFILE_H

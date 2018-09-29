@@ -24,3 +24,5 @@ OTHER_FILES += LoggingGadget.pluginspec
 
 FORMS += logging.ui
 
+RESOURCES += \
+    res.qrc

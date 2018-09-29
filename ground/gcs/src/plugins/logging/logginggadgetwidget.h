@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       GCSControlgadgetwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       logginggadgetwidget.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2018.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
- * @addtogroup GCSControlGadgetPlugin GCSControl Gadget Plugin
+ * @addtogroup LoggingGadgetPlugin Logging Gadget Plugin
  * @{
- * @brief A place holder gadget plugin
+ * @brief      A gadget to control playback of a GCS log.
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -37,6 +38,7 @@
 #include <QWidget>
 
 class Ui_Logging;
+class QTimer;
 
 class LoggingGadgetWidget : public QWidget {
     Q_OBJECT
@@ -48,15 +50,28 @@ public:
 
 protected slots:
     void stateChanged(LoggingPlugin::State state);
+    void setBeginAndEndTimes(quint32 startTimeStamp, quint32 endTimeStamp);
+    void setPlaybackPosition(quint32 positionTimeStamp);
+    void playButtonAction();
+    void pauseButtonAction();
+    void stopButtonAction();
+    void enableWidgets();
+    void disableWidgets();
+    void sliderMoved(int);
+    void sliderAction();
 
 signals:
-    void pause();
-    void play();
+    void resumeReplay(quint32 positionTimeStamp);
+    void pauseReplay();
+    void pauseReplayAndResetPosition();
 
 private:
     Ui_Logging *m_logging;
     LoggingPlugin *loggingPlugin;
     ScopeGadgetFactory *scpPlugin;
+    QTimer sliderActionDelay;
+
+    void updatePositionLabel(quint32 positionTimeStamp);
 };
 
 #endif /* LoggingGADGETWIDGET_H_ */

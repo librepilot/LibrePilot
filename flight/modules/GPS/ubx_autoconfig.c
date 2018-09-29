@@ -243,7 +243,9 @@ void gps_ubx_reset_sensor_type()
         ubxSensorType      = GPSPOSITIONSENSOR_SENSORTYPE_UNKNOWN;
         GPSPositionSensorSensorTypeSet(&ubxSensorType);
         // make the sensor type / autobaud code time out immediately to send the request immediately
-        status->lastStepTimestampRaw += 0x8000000UL;
+        if (status) {
+            status->lastStepTimestampRaw += 0x8000000UL;
+        }
     }
     --mutex;
 }

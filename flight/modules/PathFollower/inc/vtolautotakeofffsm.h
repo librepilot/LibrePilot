@@ -3,13 +3,13 @@
  * @addtogroup LibrePilotModules LibrePilot Modules
  * @{
  * @addtogroup PathFollower FSM
- * @brief Executes landing sequence via an FSM
+ * @brief Executes auto takeoff sequence via an FSM
  * @{
  *
- * @file       vtollandfsm.h
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @file       vtolautotakeofffsm.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2018
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
- * @brief      Executes FSM for landing sequence
+ * @brief      Executes FSM for auto takeoff sequence
  *
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -144,7 +144,7 @@ protected:
     int32_t runAlways();
 
     void updateVtolAutoTakeoffFSMStatus();
-    void assessAltitude(void);
+    float assessAltitude(void);
 
     void setStateTimeout(int32_t count);
 

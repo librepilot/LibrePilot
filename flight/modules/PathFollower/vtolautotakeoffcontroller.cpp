@@ -1,10 +1,10 @@
 /*
  ******************************************************************************
  *
- * @file       vtollandcontroller.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @file       vtolautotakeoffcontroller.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2018
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
- * @brief      Vtol landing controller loop
+ * @brief      Vtol auto takeoff controller loop
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup LibrePilot LibrePilotModules Modules PathFollower Navigation
  *
@@ -132,11 +132,11 @@ void VtolAutoTakeoffController::ObjectiveUpdated(void)
     if (mOverride) {
         // override pathDesired from PathPlanner with current position,
         // as we deliberately don't care about the location of the waypoints on the map
-        float velocity_down;
+        float autotakeoff_velocity;
         float autotakeoff_height;
         PositionStateData positionState;
         PositionStateGet(&positionState);
-        FlightModeSettingsAutoTakeOffVelocityGet(&velocity_down);
+        FlightModeSettingsAutoTakeOffVelocityGet(&autotakeoff_velocity);
         FlightModeSettingsAutoTakeOffHeightGet(&autotakeoff_height);
         autotakeoff_height = fabsf(autotakeoff_height);
         if (autotakeoff_height < AUTOTAKEOFF_TO_INCREMENTAL_HEIGHT_MIN) {
@@ -144,7 +144,7 @@ void VtolAutoTakeoffController::ObjectiveUpdated(void)
         } else if (autotakeoff_height > AUTOTAKEOFF_TO_INCREMENTAL_HEIGHT_MAX) {
             autotakeoff_height = AUTOTAKEOFF_TO_INCREMENTAL_HEIGHT_MAX;
         }
-        controlDown.UpdateVelocitySetpoint(velocity_down);
+        controlDown.UpdateVelocitySetpoint(-autotakeoff_velocity);
         controlNE.UpdateVelocitySetpoint(0.0f, 0.0f);
         controlNE.UpdatePositionSetpoint(positionState.North, positionState.East);
 
@@ -320,9 +320,9 @@ void VtolAutoTakeoffController::UpdateAutoPilot()
     // 1. Arming must be done whilst in the AutoTakeOff flight mode
     // 2. If the AutoTakeoff flight mode is selected and already armed, requires disarming first
     // 3. Wait for armed state
-    // 4. Once the user increases the throttle position to above 50%, then and only then initiate auto-takeoff.
-    // 5. Whilst the throttle is < 50% before takeoff, all stick inputs are being ignored.
-    // 6. If during the autotakeoff sequence, at any stage, if the throttle stick position reduces to less than 10%, landing is initiated.
+    // 4. Once the user increases the throttle position to above 30%, then and only then initiate auto-takeoff.
+    // 5. Whilst the throttle is < 30% before takeoff, all stick inputs are being ignored.
+    // 6. If during the autotakeoff sequence, at any stage, the throttle stick position reduces to less than 10%, landing is initiated.
 
     switch (autotakeoffState) {
     case STATUSVTOLAUTOTAKEOFF_CONTROLSTATE_REQUIREUNARMEDFIRST:

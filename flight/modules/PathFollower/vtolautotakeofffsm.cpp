@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vtolautotakeofffsm.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2018
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      This autotakeoff state machine is a helper state machine to the
  *             VtolAutoTakeoffController.
  * @see        The GNU Public License (GPL) Version 3
@@ -60,11 +61,11 @@ extern "C" {
 
 
 // Private constants
-#define TIMER_COUNT_PER_SECOND         (1000 / vtolPathFollowerSettings->UpdatePeriod)
-#define TIMEOUT_SLOWSTART              (2 * TIMER_COUNT_PER_SECOND)
-#define TIMEOUT_THRUSTUP               (1 * TIMER_COUNT_PER_SECOND)
-#define TIMEOUT_THRUSTDOWN             (5 * TIMER_COUNT_PER_SECOND)
-#define AUTOTAKEOFFING_SLOWDOWN_HEIGHT -5.0f
+#define TIMER_COUNT_PER_SECOND      (1000 / vtolPathFollowerSettings->UpdatePeriod)
+#define TIMEOUT_SLOWSTART           (2 * TIMER_COUNT_PER_SECOND)
+#define TIMEOUT_THRUSTUP            (1 * TIMER_COUNT_PER_SECOND)
+#define TIMEOUT_THRUSTDOWN          (5 * TIMER_COUNT_PER_SECOND)
+#define AUTOTAKEOFF_SLOWDOWN_HEIGHT -5.0f
 
 VtolAutoTakeoffFSM::PathFollowerFSM_AutoTakeoffStateHandler_T VtolAutoTakeoffFSM::sAutoTakeoffStateTable[AUTOTAKEOFF_STATE_SIZE] = {
     [AUTOTAKEOFF_STATE_INACTIVE]   = { .setup = &VtolAutoTakeoffFSM::setup_inactive,   .run = 0                                   },
@@ -246,14 +247,8 @@ void VtolAutoTakeoffFSM::setState(StatusVtolAutoTakeoffStateOptions newState, St
     mAutoTakeoffData->currentState = newState;
 
     if (newState != STATUSVTOLAUTOTAKEOFF_STATE_INACTIVE) {
-        PositionStateData positionState;
-        PositionStateGet(&positionState);
-        float takeOffDown = 0.0f;
-        if (mAutoTakeoffData->takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID) {
-            takeOffDown = mAutoTakeoffData->takeOffLocation.Down;
-        }
-        mAutoTakeoffData->fsmAutoTakeoffStatus.AltitudeAtState[newState] = positionState.Down - takeOffDown;
-        assessAltitude();
+        float altitudeAboveTakeoff = assessAltitude();
+        mAutoTakeoffData->fsmAutoTakeoffStatus.AltitudeAtState[newState] = altitudeAboveTakeoff;
     }
 
     // Restart state timer counter
@@ -266,6 +261,7 @@ void VtolAutoTakeoffFSM::setState(StatusVtolAutoTakeoffStateOptions newState, St
         (this->*sAutoTakeoffStateTable[mAutoTakeoffData->currentState].setup)();
     }
 
+    // Update StatusVtolAutoTakeoff UAVObject with new status
     updateVtolAutoTakeoffFSMStatus();
 }
 
@@ -276,6 +272,7 @@ void VtolAutoTakeoffFSM::setStateTimeout(int32_t count)
     mAutoTakeoffData->stateTimeoutCount = count;
 }
 
+// Update StatusVtolAutoTakeoff UAVObject
 void VtolAutoTakeoffFSM::updateVtolAutoTakeoffFSMStatus()
 {
     mAutoTakeoffData->fsmAutoTakeoffStatus.State = mAutoTakeoffData->currentState;
@@ -288,7 +285,7 @@ void VtolAutoTakeoffFSM::updateVtolAutoTakeoffFSMStatus()
 }
 
 
-void VtolAutoTakeoffFSM::assessAltitude(void)
+float VtolAutoTakeoffFSM::assessAltitude(void)
 {
     float positionDown;
 
@@ -298,11 +295,13 @@ void VtolAutoTakeoffFSM::assessAltitude(void)
         takeOffDown = mAutoTakeoffData->takeOffLocation.Down;
     }
     float positionDownRelativeToTakeoff = positionDown - takeOffDown;
-    if (positionDownRelativeToTakeoff < AUTOTAKEOFFING_SLOWDOWN_HEIGHT) {
+    if (positionDownRelativeToTakeoff < AUTOTAKEOFF_SLOWDOWN_HEIGHT) {
         mAutoTakeoffData->flLowAltitude = false;
     } else {
         mAutoTakeoffData->flLowAltitude = true;
     }
+    // Return the altitude above takeoff, which is the negation of positionDownRelativeToTakeoff
+    return -positionDownRelativeToTakeoff;
 }
 
 // Action the required state from plans.c
@@ -347,10 +346,10 @@ void VtolAutoTakeoffFSM::setup_checkstate(void)
     // Assumptions that do not need to be checked if flight mode is AUTOTAKEOFF
     // 1. Already armed
     // 2. Not in flight. This was checked in plans.c
-    // 3. User has placed throttle position to more than 50% to allow autotakeoff
+    // 3. User has placed throttle position to more than 30% to allow autotakeoff
 
     // If pathplanner, we need additional checks
-    // E.g. if inflight, this mode is just positon hol
+    // E.g. if inflight, this mode is just position hold
     StabilizationDesiredData stabDesired;
 
     StabilizationDesiredGet(&stabDesired);
@@ -407,15 +406,13 @@ void VtolAutoTakeoffFSM::run_slowstart(__attribute__((unused)) uint8_t flTimeout
     }
 }
 
-// STATE: THRUSTUP spools up motors to vtol min over 5 seconds for effect.
+// STATE: THRUSTUP spools up motors to vtol min over 1 second for effect.
 // PID loops may be cumulating I terms but that problem needs to be solved
 #define THRUSTUP_FINAL_THRUST_AS_RATIO_OF_VTOLMAX 0.8f
 void VtolAutoTakeoffFSM::setup_thrustup(void)
 {
     setStateTimeout(TIMEOUT_THRUSTUP);
     mAutoTakeoffData->flZeroStabiHorizontal = false;
-    StabilizationDesiredData stabDesired;
-    StabilizationDesiredGet(&stabDesired);
     mAutoTakeoffData->sum2 = THRUSTUP_FINAL_THRUST_AS_RATIO_OF_VTOLMAX * vtolPathFollowerSettings->ThrustLimits.Max;
     mAutoTakeoffData->sum1 = (mAutoTakeoffData->sum2 - mAutoTakeoffData->boundThrustMax) / (float)TIMEOUT_THRUSTUP;
     mAutoTakeoffData->boundThrustMin = vtolPathFollowerSettings->ThrustLimits.Min;

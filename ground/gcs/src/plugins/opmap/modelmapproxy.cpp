@@ -89,6 +89,7 @@ modelMapProxy::overlayType modelMapProxy::overlayTranslate(int type)
     case MapDataDelegate::MODE_GOTOENDPOINT:
     case MapDataDelegate::MODE_FOLLOWVECTOR:
     case MapDataDelegate::MODE_VELOCITY:
+    case MapDataDelegate::MODE_FIXEDATTITUDE:
     case MapDataDelegate::MODE_LAND:
     case MapDataDelegate::MODE_AUTOTAKEOFF:
     case MapDataDelegate::MODE_BRAKE:
@@ -98,8 +99,12 @@ modelMapProxy::overlayType modelMapProxy::overlayTranslate(int type)
         return OVERLAY_CIRCLE_RIGHT;
 
     case MapDataDelegate::MODE_CIRCLELEFT:
-    default:
         return OVERLAY_CIRCLE_LEFT;
+
+    case MapDataDelegate::MODE_SETACCESSORY:
+    case MapDataDelegate::MODE_DISARMALARM:
+    default:
+        return OVERLAY_NOLINE;
     }
 }
 

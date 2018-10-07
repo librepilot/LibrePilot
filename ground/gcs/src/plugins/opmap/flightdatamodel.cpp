@@ -453,27 +453,27 @@ bool flightDataModel::writeToFile(QString fileName)
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->latPosition);
+        field.setAttribute("value", QString::number(obj->latPosition, 'f', 16));
         field.setAttribute("name", "latitude");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->lngPosition);
+        field.setAttribute("value", QString::number(obj->lngPosition, 'f', 16));
         field.setAttribute("name", "longitude");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->disRelative);
+        field.setAttribute("value", QString::number(obj->disRelative, 'f', 16));
         field.setAttribute("name", "distance_to_home");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->beaRelative);
+        field.setAttribute("value", QString::number(obj->beaRelative, 'f', 16));
         field.setAttribute("name", "bearing_from_home");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->altitudeRelative);
+        field.setAttribute("value", QString::number(obj->altitudeRelative, 'f', 16));
         field.setAttribute("name", "altitude_above_home");
         waypoint.appendChild(field);
 

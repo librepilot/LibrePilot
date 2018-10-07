@@ -73,7 +73,7 @@ opmap_edit_waypoint_dialog::opmap_edit_waypoint_dialog(QWidget *parent, QAbstrac
     mapper->addMapping(ui->dsb_condParam1, flightDataModel::CONDITION_PARAMS0);
     mapper->addMapping(ui->dsb_condParam2, flightDataModel::CONDITION_PARAMS1);
     mapper->addMapping(ui->dsb_condParam3, flightDataModel::CONDITION_PARAMS2);
-    mapper->addMapping(ui->dsb_condParam4, flightDataModel::CONDITION_PARAMS0);
+    mapper->addMapping(ui->dsb_condParam4, flightDataModel::CONDITION_PARAMS3);
 
     mapper->addMapping(ui->cbCommand, flightDataModel::COMMAND);
     mapper->addMapping(ui->sbJump, flightDataModel::JUMPDESTINATION);

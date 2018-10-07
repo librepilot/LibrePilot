@@ -290,8 +290,7 @@ void opmap_edit_waypoint_dialog::setupConditionWidgets()
         ui->condParam1->setEnabled(true);
         ui->dsb_condParam1->setEnabled(true);
         ui->condParam1->setText("Altitude (m):");
-        ui->descriptionConditionLabel->setText(tr("<p>The AboveAltitude condition measures the flight altitude relative to home position, returns true if "
-                                                  "above critical altitude.</p><p><b>WARNING!</b> altitudes set here are always <b>negative</b> if above Home. (down coordinate)</p>"));
+        ui->descriptionConditionLabel->setText(tr("<p>The AboveAltitude condition measures the flight altitude relative to home position, returns true if above critical altitude.</p>"));
         break;
     case MapDataDelegate::ENDCONDITION_ABOVESPEED:
         ui->condParam1->setEnabled(true);

@@ -829,9 +829,6 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
     OPLinkStatusData oplink_status;
     OPLinkStatusGet(&oplink_status);
 
-    // Update the RSSI
-    oplink_status.RSSI = openlrs_dev->rssi;
-
     timeUs = PIOS_DELAY_GetuS();
     timeMs = PIOS_Thread_Systime();
 
@@ -860,8 +857,8 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
 
         openlrs_dev->lastPacketTimeUs    = timeUs;
         openlrs_dev->numberOfLostPackets = 0;
-        oplink_status.LinkQuality <<= 1;
-        oplink_status.LinkQuality  |= 1;
+        openlrs_dev->link_quality <<= 1;
+        openlrs_dev->link_quality  |= 1;
 
         if ((openlrs_dev->rx_buf[0] & 0x3e) == 0x00) {
             // This flag indicates receiving PPM data
@@ -928,7 +925,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
                     }
                     tx_buf[4] = (openlrs_dev->lastAFCCvalue >> 8);
                     tx_buf[5] = openlrs_dev->lastAFCCvalue & 0xff;
-                    tx_buf[6] = countSetBits(oplink_status.LinkQuality & 0x7fff);
+                    tx_buf[6] = countSetBits(openlrs_dev->link_quality & 0x7fff);
                 }
             }
 
@@ -949,7 +946,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
         if ((openlrs_dev->numberOfLostPackets < openlrs_dev->hopcount) && (PIOS_DELAY_GetuSSince(openlrs_dev->lastPacketTimeUs) > (getInterval(&openlrs_dev->bind_data) + packet_timeout_us))) {
             DEBUG_PRINTF(2, "OLRS WARN: Lost packet: %d\r\n", openlrs_dev->numberOfLostPackets);
             // we lost packet, hop to next channel
-            oplink_status.LinkQuality <<= 1;
+            openlrs_dev->link_quality <<= 1;
             openlrs_dev->willhop = 1;
             if (openlrs_dev->numberOfLostPackets == 0) {
                 openlrs_dev->linkLossTimeMs   = timeMs;
@@ -961,7 +958,7 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
         } else if ((openlrs_dev->numberOfLostPackets >= openlrs_dev->hopcount) && (PIOS_DELAY_GetuSSince(openlrs_dev->lastPacketTimeUs) > (getInterval(&openlrs_dev->bind_data) * openlrs_dev->hopcount))) {
             DEBUG_PRINTF(2, "ORLS WARN: Trying to resync\r\n");
             // hop slowly to allow resync with TX
-            oplink_status.LinkQuality     = 0;
+            openlrs_dev->link_quality     = 0;
             openlrs_dev->willhop = 1;
             openlrs_dev->lastPacketTimeUs = timeUs;
         }
@@ -1027,6 +1024,19 @@ static void pios_openlrs_rx_loop(struct pios_openlrs_dev *openlrs_dev)
         rfmSetChannel(openlrs_dev, openlrs_dev->rf_channel);
         rx_reset(openlrs_dev);
         openlrs_dev->willhop = 0;
+    }
+
+    if (oplink_status.LinkState > OPLINKSTATUS_LINKSTATE_DISCONNECTED) {
+        // Convert raw Rssi to dBm
+        oplink_status.RSSI = (int8_t)(openlrs_dev->rssi >> 1) - 122;
+
+        // Count number of bits set in link_quality
+        uint8_t linkquality_bits = countSetBits(openlrs_dev->link_quality & 0x7fff);
+        // Translate link quality to 0 - 128 range
+        oplink_status.LinkQuality = (linkquality_bits + 1) * 8;
+    } else {
+        oplink_status.LinkQuality = 0;
+        oplink_status.RSSI = -127;
     }
 
     // Update UAVO

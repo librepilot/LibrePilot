@@ -607,6 +607,7 @@ static void PIOS_USB_CDC_DATA_IF_Init(uint32_t usb_cdc_id)
                                        PIOS_USB_CDC_DATA_EP_OUT_Callback,
                                        (uint32_t)usb_cdc_dev);
     usb_cdc_dev->usb_data_if_enabled = true;
+    usb_cdc_dev->tx_active = false;
 }
 
 static void PIOS_USB_CDC_DATA_IF_DeInit(uint32_t usb_cdc_id)

@@ -199,6 +199,18 @@ bool PIOS_USB_CheckAvailable(__attribute__((unused)) uint32_t id)
     return transfer_possible;
 }
 
+/**
+ * This function returns wether a USB cable (5V pin) has been detected
+ * \return true: cable connected
+ * \return false: cable not detected (no cable or cable with no power)
+ */
+bool PIOS_USB_CableConnected(__attribute__((unused)) uint8_t id)
+{
+    struct pios_usb_dev *usb_dev = (struct pios_usb_dev *)pios_usb_id;
+
+    return ((usb_dev->cfg->vsense.gpio->IDR & usb_dev->cfg->vsense.init.GPIO_Pin) != 0) ^ usb_dev->cfg->vsense_active_low;
+}
+
 /*
  *
  * Register a physical disconnection callback

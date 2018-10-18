@@ -38,6 +38,7 @@
 #include <ratedesired.h>
 #include <stabilizationdesired.h>
 #include <attitudestate.h>
+#include <gyrostate.h>
 #include <stabilizationstatus.h>
 #include <flightstatus.h>
 #include <manualcontrolcommand.h>
@@ -78,6 +79,7 @@ void stabilizationOuterloopInit()
     RateDesiredInitialize();
     StabilizationDesiredInitialize();
     AttitudeStateInitialize();
+    GyroStateInitialize();
     StabilizationStatusInitialize();
     FlightStatusInitialize();
     ManualControlCommandInitialize();
@@ -97,11 +99,13 @@ void stabilizationOuterloopInit()
 static void stabilizationOuterloopTask()
 {
     AttitudeStateData attitudeState;
+    GyroStateData gyroState;
     RateDesiredData rateDesired;
     StabilizationDesiredData stabilizationDesired;
     StabilizationStatusOuterLoopData enabled;
 
     AttitudeStateGet(&attitudeState);
+    GyroStateGet(&gyroState);
     StabilizationDesiredGet(&stabilizationDesired);
     RateDesiredGet(&rateDesired);
     StabilizationStatusOuterLoopGet(&enabled);
@@ -190,6 +194,10 @@ static void stabilizationOuterloopTask()
 #endif /* if defined(PIOS_QUATERNION_STABILIZATION) */
     }
 
+    // Feed forward: Assume things always get worse before they get better
+    local_error[0] = local_error[0] - (gyroState.x * stabSettings.stabBank.AttitudeFeedForward.Roll);
+    local_error[1] = local_error[1] - (gyroState.y * stabSettings.stabBank.AttitudeFeedForward.Pitch);
+    local_error[2] = local_error[2] - (gyroState.z * stabSettings.stabBank.AttitudeFeedForward.Yaw);
 
     for (t = STABILIZATIONSTATUS_OUTERLOOP_ROLL; t < STABILIZATIONSTATUS_OUTERLOOP_THRUST; t++) {
         reinit = (StabilizationStatusOuterLoopToArray(enabled)[t] != previous_mode[t]);

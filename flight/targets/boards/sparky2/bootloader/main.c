@@ -83,7 +83,7 @@ int main()
     // is 2.7 volts
     check_bor();
 
-    USB_connected = PIOS_USB_CheckAvailable(0);
+    USB_connected = PIOS_USB_CableConnected(0);
 
     if (PIOS_IAP_CheckRequest() == true) {
         PIOS_DELAY_WaitmS(1000);

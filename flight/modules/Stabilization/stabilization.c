@@ -372,7 +372,7 @@ static void BankUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
     // calculation
     const float fakeDt = 0.0025f;
     for (int t = 0; t < STABILIZATIONBANK_ATTITUDEFEEDFORWARD_NUMELEM; t++) {
-        float tau = StabilizationBankAttitudeFeedForwardToArray(stabSettings.stabBank.AttitudeFeedForward)[t];
+        float tau = StabilizationBankAttitudeFeedForwardToArray(stabSettings.stabBank.AttitudeFeedForward)[t] * 0.1f;
         if (tau < 0.0001f) {
             stabSettings.feedForward_alpha[t] = 0.0f; // not trusting this to resolve to 0
         } else {

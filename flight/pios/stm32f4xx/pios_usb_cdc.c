@@ -91,9 +91,8 @@ struct pios_usb_cdc_dev {
      * that are strictly < maxPacketSize for this interface which means we never have
      * to bother with zero length packets (ZLP).
      */
-    uint8_t tx_packet_buffer[PIOS_USB_BOARD_CDC_DATA_LENGTH - 1] __attribute__((aligned(4)));
+    uint8_t  tx_packet_buffer[PIOS_USB_BOARD_CDC_DATA_LENGTH - 1] __attribute__((aligned(4)));
     volatile bool tx_active;
-    volatile bool rx_active;
 
     uint8_t  ctrl_tx_packet_buffer[PIOS_USB_BOARD_CDC_MGMT_LENGTH] __attribute__((aligned(4)));
 
@@ -194,7 +193,6 @@ int32_t PIOS_USB_CDC_Init(uint32_t *usbcdc_id, const struct pios_usb_cdc_cfg *cf
 
     /* Tx and Rx are not active yet */
     usb_cdc_dev->tx_active           = false;
-    usb_cdc_dev->rx_active           = false;
 
     /* Clear stats */
     usb_cdc_dev->rx_dropped          = 0;
@@ -281,7 +279,6 @@ static void PIOS_USB_CDC_RxStart(uint32_t usbcdc_id, uint16_t rx_bytes_avail)
         PIOS_USBHOOK_EndpointRx(usb_cdc_dev->cfg->data_rx_ep,
                                 usb_cdc_dev->rx_packet_buffer,
                                 sizeof(usb_cdc_dev->rx_packet_buffer));
-        usb_cdc_dev->rx_active = true;
     }
 }
 
@@ -611,12 +608,10 @@ static void PIOS_USB_CDC_DATA_IF_Init(uint32_t usb_cdc_id)
                                        (uint32_t)usb_cdc_dev);
     usb_cdc_dev->usb_data_if_enabled = true;
     usb_cdc_dev->tx_active = false;
-    /* Check if rx was previously active, if so we need to reactivate */
-    if (usb_cdc_dev->rx_active) {
-        PIOS_USBHOOK_EndpointRx(usb_cdc_dev->cfg->data_rx_ep,
-                                usb_cdc_dev->rx_packet_buffer,
-                                sizeof(usb_cdc_dev->rx_packet_buffer));
-    }
+    /* Activate rx prophylactically */
+    PIOS_USBHOOK_EndpointRx(usb_cdc_dev->cfg->data_rx_ep,
+                            usb_cdc_dev->rx_packet_buffer,
+                            sizeof(usb_cdc_dev->rx_packet_buffer));
 }
 
 static void PIOS_USB_CDC_DATA_IF_DeInit(uint32_t usb_cdc_id)
@@ -720,11 +715,9 @@ static bool PIOS_USB_CDC_DATA_EP_OUT_Callback(
                                 usb_cdc_dev->rx_packet_buffer,
                                 sizeof(usb_cdc_dev->rx_packet_buffer));
         rc = true;
-        usb_cdc_dev->rx_active = true;
     } else {
         /* Not enough room left for a message, apply backpressure */
         rc = false;
-        usb_cdc_dev->rx_active = false;
     }
 
 #if defined(PIOS_INCLUDE_FREERTOS)

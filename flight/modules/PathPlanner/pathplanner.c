@@ -231,10 +231,9 @@ static void pathPlannerTask()
         FlightModeSettingsFlightModeChangeRestartsPathPlanGet(&restart);
         if (restart == FLIGHTMODESETTINGS_FLIGHTMODECHANGERESTARTSPATHPLAN_TRUE) {
             setWaypoint(0);
+        } else {
+            setWaypoint(waypointActive.Index);
         }
-        else {                                                    
-            setWaypoint(waypointActive.Index);                    
-        }                                                        
         return;
     }
 

@@ -150,6 +150,7 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
     initMixerCurves(frameType);
 
     if (frameType == "GroundVehicleBoat" || frameType == "Boat (Turnable)") {
+        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Boat (Turnable)"));
         // Boat
         m_vehicleImg->setElementId("boat");
 
@@ -185,11 +186,13 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
         bool isBoat = frameType.contains("Boat");
 
         if (isBoat) {
+            setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Boat (Differential)"));
             // Boat differential
             m_vehicleImg->setElementId("boat_diff");
             m_aircraft->gvSteering1Label->setText("First rudder");
             m_aircraft->gvSteering2Label->setText("Second rudder");
         } else {
+            setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Tank (Differential)"));
             // Tank
             m_vehicleImg->setElementId("tank");
             m_aircraft->gvSteering1Label->setText("Front steering");
@@ -227,6 +230,7 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
             m_aircraft->groundVehicleThrottle2->initLinearCurve(5, 0.8, 0.0);
         }
     } else if (frameType == "GroundVehicleMotorcycle" || frameType == "Motorcycle") {
+        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Motorcycle"));
         // Motorcycle
         m_vehicleImg->setElementId("motorbike");
 
@@ -257,7 +261,8 @@ void ConfigGroundVehicleWidget::setupUI(QString frameType)
             m_aircraft->groundVehicleThrottle2->initLinearCurve(5, 1.0, 0.0);
             m_aircraft->groundVehicleThrottle1->initLinearCurve(5, 1.0, 0.0);
         }
-    } else {
+    } else if (frameType == "GroundVehicleCar" || frameType == "Car (Turnable)") {
+        setComboCurrentIndex(m_aircraft->groundVehicleType, m_aircraft->groundVehicleType->findText("Car (Turnable)"));
         // Car
         m_vehicleImg->setElementId("car");
 

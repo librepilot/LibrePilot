@@ -45,6 +45,7 @@
 #include "gyrosensor.h"
 #include "gpspositionsensor.h"
 #include "gpstime.h"
+#include "airspeedstate.h"
 #include "homelocation.h"
 #include "positionstate.h"
 #include "systemalarms.h"
@@ -451,6 +452,10 @@ uint16_t build_GAM_message(struct hott_gam_message *msg)
     msg->current  = scale_float2uword(current, 10, 0);
     msg->capacity = scale_float2uword(energy, 0.1f, 0);
 
+    // AirSpeed
+    float airspeed = (telestate->Airspeed.TrueAirspeed > 0) ? telestate->Airspeed.TrueAirspeed : 0;
+    msg->speed    = scale_float2uword(airspeed, MS_TO_KMH, 0);
+
     // pressure kPa to 0.1Bar
     msg->pressure = scale_float2uint8(telestate->Baro.Pressure, 0.1f, 0);
 
@@ -495,6 +500,10 @@ uint16_t build_EAM_message(struct hott_eam_message *msg)
     msg->voltage      = scale_float2uword(voltage, 10, 0);
     msg->current      = scale_float2uword(current, 10, 0);
     msg->capacity     = scale_float2uword(energy, 0.1f, 0);
+
+    // AirSpeed
+    float airspeed = (telestate->Airspeed.TrueAirspeed > 0) ? telestate->Airspeed.TrueAirspeed : 0;
+    msg->speed    = scale_float2uword(airspeed, MS_TO_KMH, 0);
 
     // temperatures
     msg->temperature1 = scale_float2uint8(telestate->Gyro.temperature, 1, OFFSET_TEMPERATURE);
@@ -596,6 +605,9 @@ void update_telemetrydata()
     }
     if (GPSPositionSensorHandle() != NULL) {
         GPSPositionSensorGet(&telestate->GPS);
+    }
+    if (AirspeedStateHandle() != NULL) {
+        AirspeedStateGet(&telestate->Airspeed);
     }
     if (GPSTimeHandle() != NULL) {
         GPSTimeGet(&telestate->GPStime);

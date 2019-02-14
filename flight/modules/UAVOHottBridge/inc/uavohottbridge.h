@@ -176,7 +176,8 @@ struct telemetrydata {
     FlightBatteryStateData Battery;
     FlightStatusData FlightStatus;
     GPSPositionSensorData  GPS;
-    GPSTimeData       GPStime;
+    AirspeedStateData Airspeed;
+    GPSTimeData GPStime;
     GyroSensorData    Gyro;
     HomeLocationData  Home;
     PositionStateData Position;

@@ -658,8 +658,9 @@ void update_telemetrydata()
     // calculate altitude relative to start position
     telestate->altitude   = -telestate->Position.Down;
 
-    // check and set min/max values when armed.
-    if (telestate->FlightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) {
+    // check and set min/max values when armed
+    // and without receiver input for standalone board used as sensor
+    if ((telestate->FlightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) || ((telestate->SysAlarms.Alarm.Attitude == SYSTEMALARMS_ALARM_OK) && (telestate->SysAlarms.Alarm.Receiver != SYSTEMALARMS_ALARM_OK))) {
         if (telestate->min_altitude > telestate->altitude) {
             telestate->min_altitude = telestate->altitude;
         }

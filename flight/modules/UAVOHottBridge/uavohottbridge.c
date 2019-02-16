@@ -497,13 +497,13 @@ uint16_t build_EAM_message(struct hott_eam_message *msg)
     float voltage = (telestate->Battery.Voltage > 0) ? telestate->Battery.Voltage : 0;
     float current = (telestate->Battery.Current > 0) ? telestate->Battery.Current : 0;
     float energy  = (telestate->Battery.ConsumedEnergy > 0) ? telestate->Battery.ConsumedEnergy : 0;
-    msg->voltage      = scale_float2uword(voltage, 10, 0);
-    msg->current      = scale_float2uword(current, 10, 0);
-    msg->capacity     = scale_float2uword(energy, 0.1f, 0);
+    msg->voltage  = scale_float2uword(voltage, 10, 0);
+    msg->current  = scale_float2uword(current, 10, 0);
+    msg->capacity = scale_float2uword(energy, 0.1f, 0);
 
     // AirSpeed
     float airspeed = (telestate->Airspeed.TrueAirspeed > 0) ? telestate->Airspeed.TrueAirspeed : 0;
-    msg->speed    = scale_float2uword(airspeed, MS_TO_KMH, 0);
+    msg->speed = scale_float2uword(airspeed, MS_TO_KMH, 0);
 
     // temperatures
     msg->temperature1 = scale_float2uint8(telestate->Gyro.temperature, 1, OFFSET_TEMPERATURE);
@@ -786,10 +786,12 @@ void update_telemetrydata()
  */
 uint8_t generate_warning()
 {
+    bool gps_ok = (telestate->SysAlarms.Alarm.GPS == SYSTEMALARMS_ALARM_OK);
+
     // set warning tone with hardcoded priority
     if ((telestate->Settings.Warning.MinSpeed == HOTTBRIDGESETTINGS_WARNING_ENABLED) &&
-        (telestate->Settings.Limit.MinSpeed > telestate->GPS.Groundspeed * MS_TO_KMH)) {
-        return HOTT_TONE_A; // maximum speed
+        (telestate->Settings.Limit.MinSpeed > telestate->GPS.Groundspeed * MS_TO_KMH) && gps_ok) {
+        return HOTT_TONE_A; // minimum speed
     }
     if ((telestate->Settings.Warning.NegDifference2 == HOTTBRIDGESETTINGS_WARNING_ENABLED) &&
         (telestate->Settings.Limit.NegDifference2 > telestate->climbrate3s)) {
@@ -800,7 +802,7 @@ uint8_t generate_warning()
         return HOTT_TONE_C; // sink rate 1s
     }
     if ((telestate->Settings.Warning.MaxDistance == HOTTBRIDGESETTINGS_WARNING_ENABLED) &&
-        (telestate->Settings.Limit.MaxDistance < telestate->homedistance)) {
+        (telestate->Settings.Limit.MaxDistance < telestate->homedistance) && gps_ok) {
         return HOTT_TONE_D; // maximum distance
     }
     if ((telestate->Settings.Warning.MinSensor1Temp == HOTTBRIDGESETTINGS_WARNING_ENABLED) &&
@@ -820,7 +822,7 @@ uint8_t generate_warning()
         return HOTT_TONE_I; // maximum temperature sensor 2
     }
     if ((telestate->Settings.Warning.MaxSpeed == HOTTBRIDGESETTINGS_WARNING_ENABLED) &&
-        (telestate->Settings.Limit.MaxSpeed < telestate->GPS.Groundspeed * MS_TO_KMH)) {
+        (telestate->Settings.Limit.MaxSpeed < telestate->GPS.Groundspeed * MS_TO_KMH) && gps_ok) {
         return HOTT_TONE_L; // maximum speed
     }
     if ((telestate->Settings.Warning.PosDifference2 == HOTTBRIDGESETTINGS_WARNING_ENABLED) &&

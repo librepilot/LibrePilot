@@ -452,6 +452,21 @@ uint16_t build_GAM_message(struct hott_gam_message *msg)
     msg->current  = scale_float2uword(current, 10, 0);
     msg->capacity = scale_float2uword(energy, 0.1f, 0);
 
+    // simulate individual cell voltage
+    uint8_t cell_voltage = (telestate->Battery.Voltage > 0) ? scale_float2uint8(telestate->Battery.Voltage / telestate->Battery.NbCells, 50, 0) : 0;
+    msg->cell1 = (telestate->Battery.NbCells >= 1) ? cell_voltage : 0;
+    msg->cell2 = (telestate->Battery.NbCells >= 2) ? cell_voltage : 0;
+    msg->cell3 = (telestate->Battery.NbCells >= 3) ? cell_voltage : 0;
+    msg->cell4 = (telestate->Battery.NbCells >= 4) ? cell_voltage : 0;
+    msg->cell5 = (telestate->Battery.NbCells >= 5) ? cell_voltage : 0;
+    msg->cell6 = (telestate->Battery.NbCells >= 6) ? cell_voltage : 0;
+
+    msg->min_cell_volt     = cell_voltage;
+    msg->min_cell_volt_num = telestate->Battery.NbCells;
+
+    // apply main voltage to batt1 voltage
+    msg->batt1_voltage     = msg->voltage;
+
     // AirSpeed
     float airspeed = (telestate->Airspeed.TrueAirspeed > 0) ? telestate->Airspeed.TrueAirspeed : 0;
     msg->speed    = scale_float2uword(airspeed, MS_TO_KMH, 0);
@@ -500,6 +515,19 @@ uint16_t build_EAM_message(struct hott_eam_message *msg)
     msg->voltage  = scale_float2uword(voltage, 10, 0);
     msg->current  = scale_float2uword(current, 10, 0);
     msg->capacity = scale_float2uword(energy, 0.1f, 0);
+
+    // simulate individual cell voltage
+    uint8_t cell_voltage = (telestate->Battery.Voltage > 0) ? scale_float2uint8(telestate->Battery.Voltage / telestate->Battery.NbCells, 50, 0) : 0;
+    msg->cell1_H = (telestate->Battery.NbCells >= 1) ? cell_voltage : 0;
+    msg->cell2_H = (telestate->Battery.NbCells >= 2) ? cell_voltage : 0;
+    msg->cell3_H = (telestate->Battery.NbCells >= 3) ? cell_voltage : 0;
+    msg->cell4_H = (telestate->Battery.NbCells >= 4) ? cell_voltage : 0;
+    msg->cell5_H = (telestate->Battery.NbCells >= 5) ? cell_voltage : 0;
+    msg->cell6_H = (telestate->Battery.NbCells >= 6) ? cell_voltage : 0;
+    msg->cell7_H = (telestate->Battery.NbCells >= 7) ? cell_voltage : 0;
+
+    // apply main voltage to batt1 voltage
+    msg->batt1_voltage = msg->voltage;
 
     // AirSpeed
     float airspeed = (telestate->Airspeed.TrueAirspeed > 0) ? telestate->Airspeed.TrueAirspeed : 0;

@@ -191,7 +191,7 @@ int32_t PIOS_USB_CDC_Init(uint32_t *usbcdc_id, const struct pios_usb_cdc_cfg *cf
 
     pios_usb_cdc_id  = (uint32_t)usb_cdc_dev;
 
-    /* Tx is not active yet */
+    /* Tx and Rx are not active yet */
     usb_cdc_dev->tx_active           = false;
 
     /* Clear stats */
@@ -607,6 +607,11 @@ static void PIOS_USB_CDC_DATA_IF_Init(uint32_t usb_cdc_id)
                                        PIOS_USB_CDC_DATA_EP_OUT_Callback,
                                        (uint32_t)usb_cdc_dev);
     usb_cdc_dev->usb_data_if_enabled = true;
+    usb_cdc_dev->tx_active = false;
+    /* Activate rx prophylactically */
+    PIOS_USBHOOK_EndpointRx(usb_cdc_dev->cfg->data_rx_ep,
+                            usb_cdc_dev->rx_packet_buffer,
+                            sizeof(usb_cdc_dev->rx_packet_buffer));
 }
 
 static void PIOS_USB_CDC_DATA_IF_DeInit(uint32_t usb_cdc_id)

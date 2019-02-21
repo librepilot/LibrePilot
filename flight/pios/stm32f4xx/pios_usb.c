@@ -38,7 +38,7 @@
 #include <pios_helpers.h>
 
 /* Rx/Tx status */
-static uint8_t transfer_possible = 0;
+static volatile uint8_t transfer_possible = 0;
 
 #ifdef PIOS_INCLUDE_FREERTOS
 static void(*disconnection_cb_list[3]) (void);
@@ -148,6 +148,9 @@ out_fail:
  */
 int32_t PIOS_USB_ChangeConnectionState(bool connected)
 {
+#ifdef PIOS_INCLUDE_FREERTOS
+    static volatile uint8_t lastStatus = 2; // 2 is "no last status"
+#endif
     // In all cases: re-initialise USB HID driver
     if (connected) {
         transfer_possible = 1;
@@ -168,6 +171,12 @@ int32_t PIOS_USB_ChangeConnectionState(bool connected)
 
 #ifdef PIOS_INCLUDE_FREERTOS
     raiseConnectionStateCallback(connected);
+    if (lastStatus != transfer_possible) {
+        if (lastStatus == 1) {
+            raiseDisconnectionCallbacks();
+        }
+        lastStatus = transfer_possible;
+    }
 #endif
 
     return 0;
@@ -187,28 +196,19 @@ bool PIOS_USB_CheckAvailable(__attribute__((unused)) uint32_t id)
         return false;
     }
 
-    usb_found = ((usb_dev->cfg->vsense.gpio->IDR & usb_dev->cfg->vsense.init.GPIO_Pin) != 0) ^ usb_dev->cfg->vsense_active_low;
-// Please note that checks of transfer_possible and the reconnection handling is
-// suppressed for non freertos mode (aka bootloader) as this is causing problems detecting connection and
-// broken communications.
-#ifdef PIOS_INCLUDE_FREERTOS
-    static bool lastStatus = false;
-    bool status    = usb_found != 0 && transfer_possible ? 1 : 0;
-    bool reconnect = false;
-    if (xSemaphoreTakeFromISR(usb_dev->statusCheckSemaphore, NULL) == pdTRUE) {
-        reconnect  = (lastStatus && !status);
-        lastStatus = status;
-        xSemaphoreGiveFromISR(usb_dev->statusCheckSemaphore, NULL);
-    }
-    if (reconnect) {
-        raiseDisconnectionCallbacks();
-    }
-    return status;
+    return transfer_possible;
+}
 
-#else
-    return usb_found;
+/**
+ * This function returns wether a USB cable (5V pin) has been detected
+ * \return true: cable connected
+ * \return false: cable not detected (no cable or cable with no power)
+ */
+bool PIOS_USB_CableConnected(__attribute__((unused)) uint8_t id)
+{
+    struct pios_usb_dev *usb_dev = (struct pios_usb_dev *)pios_usb_id;
 
-#endif
+    return ((usb_dev->cfg->vsense.gpio->IDR & usb_dev->cfg->vsense.init.GPIO_Pin) != 0) ^ usb_dev->cfg->vsense_active_low;
 }
 
 /*

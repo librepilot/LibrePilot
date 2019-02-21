@@ -604,8 +604,7 @@ static uint8_t conditionBelowError()
 /**
  * the AboveAltitude measures the flight altitude relative to home position
  * returns true if above critical altitude
- * WARNING! Altitudes are always negative (down coordinate)
- * Parameter 0:  altitude in meters (negative!)
+ * Parameter 0:  altitude in meters
  */
 static uint8_t conditionAboveAltitude()
 {
@@ -613,7 +612,7 @@ static uint8_t conditionAboveAltitude()
 
     PositionStateGet(&positionState);
 
-    if (positionState.Down <= pathAction.ConditionParameters[0]) {
+    if (-positionState.Down >= pathAction.ConditionParameters[0]) {
         return true;
     }
     return false;

@@ -41,7 +41,7 @@ ProviderStrings::ProviderStrings()
 {
     // Google version strings
     VersionGoogleMap = "m@301";
-    QString version    = "810";
+    QString version    = "823";
     QString envVersion = qgetenv("GCS_GOOGLE_SAT_VERSION").constData();
     VersionGoogleSatellite = (envVersion.toInt() > version.toInt()) ? envVersion : version;
     VersionGoogleLabels    = "h@301";

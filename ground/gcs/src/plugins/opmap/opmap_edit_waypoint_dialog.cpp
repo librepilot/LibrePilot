@@ -73,7 +73,7 @@ opmap_edit_waypoint_dialog::opmap_edit_waypoint_dialog(QWidget *parent, QAbstrac
     mapper->addMapping(ui->dsb_condParam1, flightDataModel::CONDITION_PARAMS0);
     mapper->addMapping(ui->dsb_condParam2, flightDataModel::CONDITION_PARAMS1);
     mapper->addMapping(ui->dsb_condParam3, flightDataModel::CONDITION_PARAMS2);
-    mapper->addMapping(ui->dsb_condParam4, flightDataModel::CONDITION_PARAMS0);
+    mapper->addMapping(ui->dsb_condParam4, flightDataModel::CONDITION_PARAMS3);
 
     mapper->addMapping(ui->cbCommand, flightDataModel::COMMAND);
     mapper->addMapping(ui->sbJump, flightDataModel::JUMPDESTINATION);
@@ -290,8 +290,7 @@ void opmap_edit_waypoint_dialog::setupConditionWidgets()
         ui->condParam1->setEnabled(true);
         ui->dsb_condParam1->setEnabled(true);
         ui->condParam1->setText("Altitude (m):");
-        ui->descriptionConditionLabel->setText(tr("<p>The AboveAltitude condition measures the flight altitude relative to home position, returns true if "
-                                                  "above critical altitude.</p><p><b>WARNING!</b> altitudes set here are always <b>negative</b> if above Home. (down coordinate)</p>"));
+        ui->descriptionConditionLabel->setText(tr("<p>The AboveAltitude condition measures the flight altitude relative to home position, returns true if above critical altitude.</p>"));
         break;
     case MapDataDelegate::ENDCONDITION_ABOVESPEED:
         ui->condParam1->setEnabled(true);

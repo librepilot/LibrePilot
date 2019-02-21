@@ -222,7 +222,8 @@ static void pathPlannerTask()
     }
 
     // the transition from pathplanner to another flightmode back to pathplanner
-    // triggers a reset back to 0 index in the waypoint list
+    // triggers a reset back either to 0 index in the waypoint list,
+    // or to current index in the waypoint list, depending on FlightModeChangeRestartsPathPlan setting
     if (pathplanner_active == false) {
         pathplanner_active = true;
 
@@ -230,8 +231,10 @@ static void pathPlannerTask()
         FlightModeSettingsFlightModeChangeRestartsPathPlanGet(&restart);
         if (restart == FLIGHTMODESETTINGS_FLIGHTMODECHANGERESTARTSPATHPLAN_TRUE) {
             setWaypoint(0);
-            return;
+        } else {
+            setWaypoint(waypointActive.Index);
         }
+        return;
     }
 
     WaypointInstGet(waypointActive.Index, &waypoint);

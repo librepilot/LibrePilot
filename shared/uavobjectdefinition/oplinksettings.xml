@@ -39,7 +39,7 @@
 		<!-- beacon options -->
 		<field name="BeaconFrequency" units="Hz" type="uint32" elements="1" defaultvalue="462712500"/>
 		<field name="BeaconDelay" units="s" type="uint8" elements="1" defaultvalue="30"/>
-		<field name="BeaconPeriod" units="s" type="uint8" elements="1" defaultvalue="15"/>
+		<field name="BeaconPeriod" units="s" type="uint8" elements="1" defaultvalue="30"/>
 
 		<access gcs="readwrite" flight="readwrite"/>
 		<telemetrygcs acked="true" updatemode="onchange" period="0"/>

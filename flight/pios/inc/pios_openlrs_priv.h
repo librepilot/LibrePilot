@@ -183,7 +183,8 @@ struct pios_openlrs_dev {
     uint8_t      rx_buf[64];
     uint8_t      tx_buf[9];
 
-    int8_t       rssi;
+    uint8_t      rssi;
+    uint16_t     link_quality;
 
     // Variables from OpenLRS for radio control
     uint8_t      hopcount;

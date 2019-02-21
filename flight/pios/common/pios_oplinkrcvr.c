@@ -232,6 +232,8 @@ static void PIOS_oplinkrcvr_Supervisor(uint32_t oplinkrcvr_id)
         for (int32_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; i++) {
             oplinkrcvr_dev->oplinkreceiverdata.Channel[i] = PIOS_RCVR_TIMEOUT;
         }
+        oplinkrcvr_dev->oplinkreceiverdata.RSSI = -127;
+        oplinkrcvr_dev->oplinkreceiverdata.LinkQuality = 0;
     }
 
     oplinkrcvr_dev->Fresh = false;

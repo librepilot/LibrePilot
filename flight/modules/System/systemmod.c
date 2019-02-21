@@ -131,6 +131,7 @@ static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 
 #ifdef PIOS_INCLUDE_RFM22B
 static uint8_t previousRFXtalCap;
+static uint8_t protocol;
 static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
 #endif
 
@@ -239,6 +240,8 @@ static void systemTask(__attribute__((unused)) void *parameters)
     // Initialize previousRFXtalCap used by callback
     OPLinkSettingsRFXtalCapGet(&previousRFXtalCap);
     OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
+    // Get protocol
+    OPLinkSettingsProtocolGet(&protocol);
 #endif
 
 #ifdef DIAG_TASKS
@@ -332,7 +335,7 @@ static void systemTask(__attribute__((unused)) void *parameters)
             oplinkStatus.RXSeq     = radio_stats.rx_seq;
 
             oplinkStatus.LinkState = radio_stats.link_state;
-        } else {
+        } else if (protocol != OPLINKSETTINGS_PROTOCOL_OPENLRS) {
             oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
         }
         OPLinkStatusSet(&oplinkStatus);

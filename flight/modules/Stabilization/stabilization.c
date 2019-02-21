@@ -364,6 +364,21 @@ static void BankUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
     stabSettings.acroInsanityFactors[0] = (float)(stabSettings.stabBank.AcroInsanityFactor.Roll) * 0.01f;
     stabSettings.acroInsanityFactors[1] = (float)(stabSettings.stabBank.AcroInsanityFactor.Pitch) * 0.01f;
     stabSettings.acroInsanityFactors[2] = (float)(stabSettings.stabBank.AcroInsanityFactor.Yaw) * 0.01f;
+
+    // The dT has some jitter iteration to iteration that we don't want to
+    // make thie result unpredictable.  Still, it's nicer to specify the constant
+    // based on a time (in ms) rather than a fixed multiplier.  The error between
+    // update rates on OP (~300 Hz) and CC (~475 Hz) is negligible for this
+    // calculation
+    const float fakeDt = 0.0025f;
+    for (int t = 0; t < STABILIZATIONBANK_ATTITUDEFEEDFORWARD_NUMELEM; t++) {
+        float tau = StabilizationBankAttitudeFeedForwardToArray(stabSettings.stabBank.AttitudeFeedForward)[t] * 0.1f;
+        if (tau < 0.0001f) {
+            stabSettings.feedForward_alpha[t] = 0.0f; // not trusting this to resolve to 0
+        } else {
+            stabSettings.feedForward_alpha[t] = expf(-fakeDt / tau);
+        }
+    }
 }
 
 

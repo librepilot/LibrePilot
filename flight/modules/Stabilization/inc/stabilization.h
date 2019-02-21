@@ -63,6 +63,7 @@ typedef struct {
     struct pid innerPids[3], outerPids[3];
     // TPS [Roll,Pitch,Yaw][P,I,D]
     bool  thrust_pid_scaling_enabled[3][3];
+    float feedForward_alpha[3];
 } StabilizationData;
 
 

@@ -49,6 +49,7 @@
 	<field name="FlightModeAssistMap" units="" type="enum" options="None,GPSAssist" elements="6" defaultvalue="None,None,None,None,None,None" />
 
 	<field name="MeasureBasedDTerm" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
+	<field name="ForceRollPitchDuringYawTransition" units="" type="enum" elements="1" options="False,True" defaultvalue="True"/>
 
 	<access gcs="readwrite" flight="readwrite"/>
 	<telemetrygcs acked="true" updatemode="onchange" period="0"/>

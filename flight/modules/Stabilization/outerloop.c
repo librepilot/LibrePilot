@@ -151,8 +151,8 @@ static void stabilizationOuterloopTask()
 
 
     float local_error[3];
-    {
 #if defined(PIOS_QUATERNION_STABILIZATION)
+    if (stabSettings.settings.ForceRollPitchDuringYawTransition == STABILIZATIONSETTINGS_FORCEROLLPITCHDURINGYAWTRANSITION_FALSE) {
         // Quaternion calculation of error in each axis.  Uses more memory.
         float rpy_desired[3];
         float q_desired[4];
@@ -178,8 +178,10 @@ static void stabilizationOuterloopTask()
         quat_mult(q_desired, &attitudeState.q1, q_error);
         quat_inverse(q_error);
         Quaternion2RPY(q_error, local_error);
-
+    } else {
 #else /* if defined(PIOS_QUATERNION_STABILIZATION) */
+    {
+#endif /* if defined(PIOS_QUATERNION_STABILIZATION) */
         // Simpler algorithm for CC, less memory
         local_error[0] = stabilizationDesiredAxis[0] - attitudeState.Roll;
         local_error[1] = stabilizationDesiredAxis[1] - attitudeState.Pitch;
@@ -192,7 +194,6 @@ static void stabilizationOuterloopTask()
         } else {
             local_error[2] = modulo - 180.0f;
         }
-#endif /* if defined(PIOS_QUATERNION_STABILIZATION) */
     }
 
     // Feed forward: Assume things always get worse before they get better

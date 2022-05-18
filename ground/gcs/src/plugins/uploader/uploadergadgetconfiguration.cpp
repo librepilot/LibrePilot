@@ -26,79 +26,56 @@
  */
 
 #include "uploadergadgetconfiguration.h"
+
 #include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
 
 /**
  * Loads a saved configuration or defaults if non exist.
  *
  */
-UploaderGadgetConfiguration::UploaderGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    m_defaultPort("Unknown"),
-    m_defaultSpeed(QSerialPort::UnknownBaud),
-    m_defaultDataBits(QSerialPort::UnknownDataBits),
-    m_defaultFlow(QSerialPort::UnknownFlowControl),
-    m_defaultParity(QSerialPort::UnknownParity),
-    m_defaultStopBits(QSerialPort::UnknownStopBits),
-    m_defaultTimeOut(5000)
+UploaderGadgetConfiguration::UploaderGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        QSerialPort::BaudRate speed;
-        QSerialPort::DataBits databits;
-        QSerialPort::FlowControl flow;
-        QSerialPort::Parity parity;
-        QSerialPort::StopBits stopbits;
+    m_defaultPort     = settings.value("defaultPort", "Unknown").toString();
+    m_defaultSpeed    = (QSerialPort::BaudRate)settings.value("defaultSpeed", QSerialPort::UnknownBaud).toInt();
+    m_defaultDataBits = (QSerialPort::DataBits)settings.value("defaultDataBits", QSerialPort::UnknownDataBits).toInt();
+    m_defaultFlow     = (QSerialPort::FlowControl)settings.value("defaultFlow", QSerialPort::UnknownFlowControl).toInt();
+    m_defaultParity   = (QSerialPort::Parity)settings.value("defaultParity", QSerialPort::UnknownParity).toInt();
+    m_defaultStopBits = (QSerialPort::StopBits)settings.value("defaultStopBits", QSerialPort::UnknownStopBits).toInt();
+    m_defaultTimeOut  = 5000;
+}
 
-        int ispeed    = qSettings->value("defaultSpeed").toInt();
-        int idatabits = qSettings->value("defaultDataBits").toInt();
-        int iflow     = qSettings->value("defaultFlow").toInt();
-        int iparity   = qSettings->value("defaultParity").toInt();
-        int istopbits = qSettings->value("defaultStopBits").toInt();
-        QString port  = qSettings->value("defaultPort").toString();
-
-        databits = (QSerialPort::DataBits)idatabits;
-        flow     = (QSerialPort::FlowControl)iflow;
-        parity   = (QSerialPort::Parity)iparity;
-        stopbits = (QSerialPort::StopBits)istopbits;
-        speed    = (QSerialPort::BaudRate)ispeed;
-        m_defaultPort     = port;
-        m_defaultSpeed    = speed;
-        m_defaultDataBits = databits;
-        m_defaultFlow     = flow;
-        m_defaultParity   = parity;
-        m_defaultStopBits = stopbits;
-    }
+UploaderGadgetConfiguration::UploaderGadgetConfiguration(const UploaderGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{
+    m_defaultSpeed    = obj.m_defaultSpeed;
+    m_defaultDataBits = obj.m_defaultDataBits;
+    m_defaultFlow     = obj.m_defaultFlow;
+    m_defaultParity   = obj.m_defaultParity;
+    m_defaultStopBits = obj.m_defaultStopBits;
+    m_defaultPort     = obj.m_defaultPort;
+    m_defaultTimeOut  = obj.m_defaultTimeOut;
 }
 
 /**
  * Clones a configuration.
  *
  */
-IUAVGadgetConfiguration *UploaderGadgetConfiguration::clone()
+IUAVGadgetConfiguration *UploaderGadgetConfiguration::clone() const
 {
-    UploaderGadgetConfiguration *m = new UploaderGadgetConfiguration(this->classId());
-
-    m->m_defaultSpeed    = m_defaultSpeed;
-    m->m_defaultDataBits = m_defaultDataBits;
-    m->m_defaultFlow     = m_defaultFlow;
-    m->m_defaultParity   = m_defaultParity;
-    m->m_defaultStopBits = m_defaultStopBits;
-    m->m_defaultPort     = m_defaultPort;
-    return m;
+    return new UploaderGadgetConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void UploaderGadgetConfiguration::saveConfig(QSettings *qSettings) const
+void UploaderGadgetConfiguration::saveConfig(QSettings &settings) const
 {
-    qSettings->setValue("defaultSpeed", m_defaultSpeed);
-    qSettings->setValue("defaultDataBits", m_defaultDataBits);
-    qSettings->setValue("defaultFlow", m_defaultFlow);
-    qSettings->setValue("defaultParity", m_defaultParity);
-    qSettings->setValue("defaultStopBits", m_defaultStopBits);
-    qSettings->setValue("defaultPort", m_defaultPort);
+    settings.setValue("defaultSpeed", m_defaultSpeed);
+    settings.setValue("defaultDataBits", m_defaultDataBits);
+    settings.setValue("defaultFlow", m_defaultFlow);
+    settings.setValue("defaultParity", m_defaultParity);
+    settings.setValue("defaultStopBits", m_defaultStopBits);
+    settings.setValue("defaultPort", m_defaultPort);
 }

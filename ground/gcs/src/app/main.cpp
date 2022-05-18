@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       main.cpp
- * @author     The LibrePilot Team http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Team http://www.librepilot.org Copyright (C) 2017.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @brief
@@ -82,17 +82,16 @@
  */
 
 #include "qtsingleapplication.h"
-#include "utils/xmlconfig.h"
-#include "utils/pathutils.h"
-#include "utils/filelogger.h"
 #include "gcssplashscreen.h"
+#include "utils/pathutils.h"
+#include "utils/settingsutils.h"
+#include "utils/filelogger.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QDir>
-#include <QtCore/QFile>
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
@@ -101,12 +100,9 @@
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
 #include <QtCore/QSettings>
-#include <QtCore/QVariant>
 
 #include <QMessageBox>
-#include <QtWidgets/QApplication>
-#include <QMainWindow>
-#include <QSplashScreen>
+#include <QApplication>
 #include <QSurfaceFormat>
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
@@ -284,9 +280,13 @@ void systemInit()
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     format.setSwapInterval(0);
     QSurfaceFormat::setDefaultFormat(format);
+
+    // see https://bugreports.qt.io/browse/QTBUG-40332
+    int timeout = std::numeric_limits<int>::max();
+    qputenv("QT_BEARER_POLL_TIMEOUT", QString::number(timeout).toLatin1());
 }
 
-static FileLogger *logger;
+static FileLogger *logger = NULL;
 
 void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
@@ -295,14 +295,27 @@ void mainMessageOutput(QtMsgType type, const QMessageLogContext &context, const 
 
 Q_DECLARE_METATYPE(QtMsgType)
 
-void logInit(QString fileName)
+void logInit(QString &fileName)
 {
     qRegisterMetaType<QtMsgType>();
-    qInstallMessageHandler(mainMessageOutput);
-    logger = new FileLogger();
-    if (!logger->start(fileName)) {
+    logger = new FileLogger(fileName);
+    if (!logger->start()) {
+        delete logger;
+        logger = NULL;
         displayError(msgLogfileOpenFailed(fileName));
+        return;
     }
+    qInstallMessageHandler(mainMessageOutput);
+}
+
+void logDeinit()
+{
+    if (!logger) {
+        return;
+    }
+    qInstallMessageHandler(0);
+    delete logger;
+    logger = NULL;
 }
 
 AppOptions options()
@@ -337,78 +350,6 @@ AppOptionValues parseCommandLine(SharedTools::QtSingleApplication &app,
     return appOptionValues;
 }
 
-void loadFactoryDefaults(QSettings &settings, AppOptionValues &appOptionValues)
-{
-    QDir directory(Utils::GetDataPath() + QString("configurations"));
-
-    qDebug() << "Looking for factory defaults configuration files in:" << directory.absolutePath();
-
-    QString fileName;
-
-    // check if command line option -config-file contains a file name
-    QString commandLine = appOptionValues.value(CONFIG_FILE_OPTION);
-    if (!commandLine.isEmpty()) {
-        QFileInfo fi(commandLine);
-        if (fi.isRelative()) {
-            // file name specified on command line has a relative path
-            commandLine = directory.absolutePath() + QDir::separator() + commandLine;
-        }
-        if (QFile::exists(commandLine)) {
-            fileName = commandLine;
-            qDebug() << "Configuration file" << fileName << "specified on command line will be loaded.";
-        } else {
-            qWarning() << "Configuration file" << commandLine << "specified on command line does not exist.";
-        }
-    }
-
-    if (fileName.isEmpty()) {
-        // check default file
-        if (QFile::exists(directory.absolutePath() + QDir::separator() + DEFAULT_CONFIG_FILENAME)) {
-            // use default file name
-            fileName = directory.absolutePath() + QDir::separator() + DEFAULT_CONFIG_FILENAME;
-            qDebug() << "Default configuration file" << fileName << "will be loaded.";
-        } else {
-            qWarning() << "No default configuration file found in" << directory.absolutePath();
-        }
-    }
-
-    if (fileName.isEmpty()) {
-        // TODO should we exit violently?
-        qCritical() << "No default configuration file found!";
-        return;
-    }
-
-    // create settings from file
-    QSettings qs(fileName, XmlConfig::XmlSettingsFormat);
-
-    // transfer loaded settings to application settings
-    QStringList keys = qs.allKeys();
-    foreach(QString key, keys) {
-        settings.setValue(key, qs.value(key));
-    }
-
-    qDebug() << "Configuration file" << fileName << "was loaded.";
-}
-
-void overrideSettings(QSettings &settings, int argc, char * *argv)
-{
-    // Options like -D My/setting=test
-    QRegExp rx("([^=]+)=(.*)");
-
-    for (int i = 0; i < argc; ++i) {
-        if (CONFIG_OPTION == QString(argv[i])) {
-            if (rx.indexIn(argv[++i]) > -1) {
-                QString key   = rx.cap(1);
-                QString value = rx.cap(2);
-                qDebug() << "User setting" << key << "set to value" << value;
-                settings.setValue(key, value);
-            }
-        }
-    }
-
-    settings.sync();
-}
-
 void loadTranslators(QString language, QTranslator &translator, QTranslator &qtTranslator)
 {
     const QString &creatorTrPath = Utils::GetDataPath() + QLatin1String("translations");
@@ -430,21 +371,17 @@ void loadTranslators(QString language, QTranslator &translator, QTranslator &qtT
     }
 }
 
-int main(int argc, char * *argv)
+int runApplication(int argc, char * *argv)
 {
     QElapsedTimer timer;
 
     timer.start();
-
-    // low level init
-    systemInit();
 
     // create application
     SharedTools::QtSingleApplication app(APP_NAME, argc, argv);
 
     QCoreApplication::setApplicationName(APP_NAME);
     QCoreApplication::setOrganizationName(ORG_NAME);
-    QSettings::setDefaultFormat(XmlConfig::XmlSettingsFormat);
 
     // initialize the plugin manager
     ExtensionSystem::PluginManager pluginManager;
@@ -452,7 +389,7 @@ int main(int argc, char * *argv)
     pluginManager.setPluginPaths(Utils::GetPluginPaths());
 
     // parse command line
-    qDebug() << "Command line" << app.arguments();
+    qDebug() << "main - command line" << app.arguments();
     QString errorMessage;
     AppOptionValues appOptionValues = parseCommandLine(app, pluginManager, errorMessage);
     if (!errorMessage.isEmpty()) {
@@ -463,39 +400,32 @@ int main(int argc, char * *argv)
         return -1;
     }
 
+    // start logging to file if requested
     if (appOptionValues.contains(LOG_FILE_OPTION)) {
         QString logFileName = appOptionValues.value(LOG_FILE_OPTION);
         logInit(logFileName);
         // relog command line arguments for the benefit of the file logger...
-        qDebug() << "Command line" << app.arguments();
+        qDebug() << "main - command line" << app.arguments();
     }
+
+    // init settings
+    Utils::initSettings(appOptionValues.value(CONFIG_FILE_OPTION));
 
     // load user settings
-    // Must be done before any QSettings class is created
-    // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
-    QString settingsPath = Utils::GetDataPath();
-    qDebug() << "Loading system settings from" << settingsPath;
-    QSettings::setPath(XmlConfig::XmlSettingsFormat, QSettings::SystemScope, settingsPath);
     QSettings settings;
-    qDebug() << "Loading user settings from" << settings.fileName();
+    qDebug() << "main - loading user settings from" << settings.fileName();
 
-    // need to reset all user settings?
-    if (appOptionValues.contains(RESET_OPTION)) {
-        qDebug() << "Resetting user settings!";
-        settings.clear();
+    // need to reset user settings?
+    if (settings.allKeys().isEmpty() || appOptionValues.contains(RESET_OPTION)) {
+        qDebug() << "main - resetting user settings";
+        Utils::resetToFactoryDefaults(settings);
     }
-
-    // check if we have user settings
-    if (!settings.allKeys().count()) {
-        // no user settings, load the factory defaults
-        qDebug() << "No user settings found, loading factory defaults...";
-        loadFactoryDefaults(settings, appOptionValues);
-    }
+    Utils::mergeFactoryDefaults(settings);
 
     // override settings with command line provided values
     // take notice that the overridden values will be saved in the user settings and will continue to be effective
     // in subsequent GCS runs
-    overrideSettings(settings, argc, argv);
+    Utils::overrideSettings(settings, argc, argv);
 
     // initialize GCS locale
     // use the value defined by the General/Locale setting or default to system Locale.
@@ -549,8 +479,8 @@ int main(int argc, char * *argv)
     }
     if (!coreplugin) {
         QString nativePaths  = QDir::toNativeSeparators(Utils::GetPluginPaths().join(QLatin1String(",")));
-        const QString reason = QCoreApplication::translate("Application", "Could not find 'Core.pluginspec' in %1").arg(
-            nativePaths);
+        const QString reason = QCoreApplication::translate("Application", "Could not find '%1.pluginspec' in %2")
+                               .arg(CORE_PLUGIN_NAME).arg(nativePaths);
         displayError(msgCoreLoadFailure(reason));
         return 1;
     }
@@ -581,18 +511,16 @@ int main(int argc, char * *argv)
         return 1;
     }
 
-    {
-        QStringList errors;
-        foreach(ExtensionSystem::PluginSpec * p, pluginManager.plugins()) {
-            if (p->hasError()) {
-                errors.append(p->errorString());
-            }
+    QStringList errors;
+    foreach(ExtensionSystem::PluginSpec * p, pluginManager.plugins()) {
+        if (p->hasError()) {
+            errors.append(p->errorString());
         }
-        if (!errors.isEmpty()) {
-            QMessageBox::warning(0,
-                                 QCoreApplication::translate("Application", "%1 - Plugin loader messages").arg(GCS_BIG_NAME),
-                                 errors.join(QString::fromLatin1("\n\n")));
-        }
+    }
+    if (!errors.isEmpty()) {
+        QMessageBox::warning(0,
+                             QCoreApplication::translate("Application", "%1 - Plugin loader messages").arg(GCS_BIG_NAME),
+                             errors.join(QString::fromLatin1("\n\n")));
     }
 
     if (isFirstInstance) {
@@ -612,15 +540,22 @@ int main(int argc, char * *argv)
         delete splash;
     }
 
-    qDebug() << "main - main took" << timer.elapsed() << "ms";
-
+    qDebug() << "main - starting GCS took" << timer.elapsed() << "ms";
     int ret = app.exec();
-
     qDebug() << "main - GCS ran for" << timer.elapsed() << "ms";
 
-    if (logger) {
-        delete logger;
-    }
+    return ret;
+}
+
+int main(int argc, char * *argv)
+{
+    // low level init
+    systemInit();
+
+    int ret = runApplication(argc, argv);
+
+    // close log file if needed
+    logDeinit();
 
     return ret;
 }

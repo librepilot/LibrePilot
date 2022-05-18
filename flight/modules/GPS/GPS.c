@@ -45,6 +45,7 @@
 #include "WorldMagModel.h"
 #include "CoordinateConversions.h"
 #include <pios_com.h>
+#include <pios_board_io.h>
 
 #include "GPS.h"
 #include "NMEA.h"
@@ -104,30 +105,52 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev);
 // the new location with Set = true.
 #define GPS_HOMELOCATION_SET_DELAY 5000
 
-#define GPS_LOOP_DELAY_MS          6
+// PIOS serial port receive buffer for GPS is set to 32 bytes for the minimal and 128 bytes for the full version.
+// GPS_READ_BUFFER is defined a few lines below in this file.
+//
+// 57600 bps = 5760 bytes per second
+//
+// For 32 bytes buffer: this is a maximum of 5760/32 = 180 buffers per second
+// that is 1/180 = 0.0056 seconds per packet
+// We must never wait more than 5ms since packet was last drained or it may overflow
+//
+// For 128 bytes buffer: this is a maximum of 5760/128 = 45 buffers per second
+// that is 1/45 = 0.022 seconds per packet
+// We must never wait more than 22ms since packet was last drained or it may overflow
+
+// There are two delays in play for the GPS task:
+// - GPS_BLOCK_ON_NO_DATA_MS is the time to block while waiting to receive serial data from the GPS
+// - GPS_LOOP_DELAY_MS is used for a context switch initiated by calling vTaskDelayUntil() to let other tasks run
+//
+// The delayMs time is not that critical. It should not be too high so that maintenance actions within this task
+// are run often enough.
+// GPS_LOOP_DELAY_MS on the other hand, should be less then 5.55 ms. A value set too high will cause data to be dropped.
+
+#define GPS_LOOP_DELAY_MS        5
+#define GPS_BLOCK_ON_NO_DATA_MS  20
 
 #ifdef PIOS_GPS_SETS_HOMELOCATION
 // Unfortunately need a good size stack for the WMM calculation
-        #define STACK_SIZE_BYTES   1024
+        #define STACK_SIZE_BYTES 1024
 #else
 #if defined(PIOS_GPS_MINIMAL)
-        #define GPS_READ_BUFFER    32
+        #define GPS_READ_BUFFER  32
 
 #ifdef PIOS_INCLUDE_GPS_NMEA_PARSER
-        #define STACK_SIZE_BYTES   580 // NMEA
-#else
-        #define STACK_SIZE_BYTES   440 // UBX
+        #define STACK_SIZE_BYTES 580 // NMEA
+#else // PIOS_INCLUDE_GPS_NMEA_PARSER
+        #define STACK_SIZE_BYTES 440 // UBX
 #endif // PIOS_INCLUDE_GPS_NMEA_PARSER
-#else
-        #define STACK_SIZE_BYTES   650
+#else // PIOS_GPS_MINIMAL
+        #define STACK_SIZE_BYTES 650
 #endif // PIOS_GPS_MINIMAL
 #endif // PIOS_GPS_SETS_HOMELOCATION
 
 #ifndef GPS_READ_BUFFER
-#define GPS_READ_BUFFER            128
+#define GPS_READ_BUFFER          128
 #endif
 
-#define TASK_PRIORITY              (tskIDLE_PRIORITY + 1)
+#define TASK_PRIORITY            (tskIDLE_PRIORITY + 1)
 
 // ****************
 // Private variables
@@ -173,14 +196,15 @@ int32_t GPSStart(void)
 
 int32_t GPSInitialize(void)
 {
-    HwSettingsInitialize();
-#ifdef MODULE_GPS_BUILTIN
-    gpsEnabled = true;
-#else
     HwSettingsOptionalModulesData optionalModules;
 
     HwSettingsOptionalModulesGet(&optionalModules);
 
+#ifdef MODULE_GPS_BUILTIN
+    gpsEnabled = true;
+    optionalModules.GPS = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.GPS == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         gpsEnabled = true;
     } else {
@@ -196,17 +220,14 @@ int32_t GPSInitialize(void)
     GPSVelocitySensorInitialize();
     GPSTimeInitialize();
     GPSSatellitesInitialize();
-    HomeLocationInitialize();
 #if defined(ANY_FULL_MAG_PARSER)
     AuxMagSensorInitialize();
-    AuxMagSettingsInitialize();
     GPSExtendedStatusInitialize();
 
     // Initialize mag parameters
     AuxMagSettingsUpdatedCb(NULL);
     AuxMagSettingsConnectCallback(AuxMagSettingsUpdatedCb);
 #endif
-    GPSSettingsInitialize();
     // updateHwSettings() uses gpsSettings
     GPSSettingsGet(&gpsSettings);
     // must updateHwSettings() before updateGpsSettings() so baud rate is set before GPS serial code starts running
@@ -219,10 +240,6 @@ int32_t GPSInitialize(void)
         GPSTimeInitialize();
         GPSSatellitesInitialize();
 #endif
-#if defined(PIOS_GPS_SETS_HOMELOCATION)
-        HomeLocationInitialize();
-#endif
-        GPSSettingsInitialize();
         // updateHwSettings() uses gpsSettings
         GPSSettingsGet(&gpsSettings);
         // must updateHwSettings() before updateGpsSettings() so baud rate is set before GPS serial code starts running
@@ -283,14 +300,7 @@ MODULE_INITCALL(GPSInitialize, GPSStart);
 
 static void gpsTask(__attribute__((unused)) void *parameters)
 {
-    // 57600 baud = 5760 bytes per second
-    // PIOS serial buffers appear to be 32 bytes long
-    // that is a maximum of 5760/32 = 180 buffers per second
-    // that is 1/180 = 0.005555556 seconds per packet
-    // we must never wait more than 5ms since packet was last drained or it may overflow
-    // 100ms is way slow too, considering we do everything possible to make the sensor data as contemporary as possible
-    portTickType xDelay = 5 / portTICK_RATE_MS;
-    uint32_t timeNowMs  = xTaskGetTickCount() * portTICK_RATE_MS;
+    uint32_t timeNowMs = xTaskGetTickCount() * portTICK_RATE_MS;
 
 #ifdef PIOS_GPS_SETS_HOMELOCATION
     portTickType homelocationSetDelay = 0;
@@ -352,8 +362,8 @@ static void gpsTask(__attribute__((unused)) void *parameters)
 
             uint16_t cnt;
             int res;
-            // This blocks the task until there is something on the buffer (or 100ms? passes)
-            cnt = PIOS_COM_ReceiveBuffer(gpsPort, c, GPS_READ_BUFFER, xDelay);
+            // This blocks the task until there is something in the buffer (or GPS_BLOCK_ON_NO_DATA_MS passes)
+            cnt = PIOS_COM_ReceiveBuffer(gpsPort, c, GPS_READ_BUFFER, GPS_BLOCK_ON_NO_DATA_MS);
             res = PARSER_INCOMPLETE;
             if (cnt > 0) {
                 PERF_TIMED_SECTION_START(counterParse);
@@ -415,7 +425,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                 //
                 // if (the fix is good) {
                 if ((gpspositionsensor.PDOP < gpsSettings.MaxPDOP) && (gpspositionsensor.Satellites >= gpsSettings.MinSatellites) &&
-                    (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
+                    ((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) || (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS)) &&
                     (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
                     AlarmsClear(SYSTEMALARMS_ALARM_GPS);
 #ifdef PIOS_GPS_SETS_HOMELOCATION
@@ -435,7 +445,7 @@ static void gpsTask(__attribute__((unused)) void *parameters)
                     }
 #endif
                     // else if (we are at least getting what might be usable GPS data to finish a flight with) {
-                } else if ((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
+                } else if (((gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) || (gpspositionsensor.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS)) &&
                            (gpspositionsensor.Latitude != 0 || gpspositionsensor.Longitude != 0)) {
                     AlarmsSet(SYSTEMALARMS_ALARM_GPS, SYSTEMALARMS_ALARM_WARNING);
                     // else data is probably not good enough to fly
@@ -727,31 +737,49 @@ void updateGpsSettings(__attribute__((unused)) UAVObjEvent *ev)
         newconfig.enableGPS     = true;
         newconfig.enableGLONASS = true;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GLONASS:
         newconfig.enableGPS     = false;
         newconfig.enableGLONASS = true;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GPS:
         newconfig.enableGPS     = true;
         newconfig.enableGLONASS = false;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GPSBEIDOU:
         newconfig.enableGPS     = true;
         newconfig.enableGLONASS = false;
         newconfig.enableBeiDou  = true;
+        newconfig.enableGalileo = false;
         break;
     case GPSSETTINGS_UBXGNSSMODE_GLONASSBEIDOU:
         newconfig.enableGPS     = false;
         newconfig.enableGLONASS = true;
         newconfig.enableBeiDou  = true;
+        newconfig.enableGalileo = false;
+        break;
+    case GPSSETTINGS_UBXGNSSMODE_GPSGALILEO:
+        newconfig.enableGPS     = true;
+        newconfig.enableGLONASS = false;
+        newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = true;
+        break;
+    case GPSSETTINGS_UBXGNSSMODE_GPSGLONASSGALILEO:
+        newconfig.enableGPS     = true;
+        newconfig.enableGLONASS = true;
+        newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = true;
         break;
     default:
         newconfig.enableGPS     = false;
         newconfig.enableGLONASS = false;
         newconfig.enableBeiDou  = false;
+        newconfig.enableGalileo = false;
         break;
     }
 

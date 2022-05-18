@@ -161,10 +161,10 @@ int main()
         }
         led_pwm_step(period1, sweep_steps1, stopwatch, false);
         led_pwm_step(period2, sweep_steps2, stopwatch, true);
-        JumpToApp |= (stopwatch > BL_WAIT_TIME) && ((DeviceState == BLidle) || (DeviceState == DFUidle));
+        JumpToApp |= !ssp_dfu && (stopwatch > BL_WAIT_TIME) && ((DeviceState == BLidle) || (DeviceState == DFUidle));
         DataDownload(start);
 
-        if (JumpToApp == true && !ssp_dfu) {
+        if (JumpToApp == true) {
             jump_to_app();
         }
     }

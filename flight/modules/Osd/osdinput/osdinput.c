@@ -35,7 +35,6 @@
 #include "osdinput.h"
 
 #include "attitudestate.h"
-#include "taskinfo.h"
 #include "flightstatus.h"
 
 #include "fifo_buffer.h"

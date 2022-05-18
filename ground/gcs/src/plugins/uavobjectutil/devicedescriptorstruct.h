@@ -63,6 +63,21 @@ public:
             // Sparky 2.0
             return QString("Sparky2");
 
+        case 0x1001:
+            return QString("SPRacingF3");
+
+        case 0x1002:
+            return QString("SPRacingF3EVO");
+
+        case 0x1003:
+            return QString("NucleoF303RE");
+
+        case 0x1005:
+            return QString("PikoBLX");
+
+        case 0x1006:
+            return QString("tinyFISH");
+
         default:
             return QString("");
 

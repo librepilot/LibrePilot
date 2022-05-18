@@ -24,6 +24,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <QSet>
 #include "uavobjectgeneratorflight.h"
 
 using namespace std;
@@ -169,52 +170,91 @@ bool UAVObjectGeneratorFlight::process_object(ObjectInfo *info)
         enums.append(QString("/* Field %1 information */\n").arg(info->fields[n]->name));
         // Only for enum types
         if (info->fields[n]->type == FIELDTYPE_ENUM) {
-            enums.append(QString("\n// Enumeration options for field %1\n").arg(info->fields[n]->name));
-            enums.append("typedef enum __attribute__ ((__packed__)) {\n");
-            // Go through each option
-            QStringList options = info->fields[n]->options;
-            for (int m = 0; m < options.length(); ++m) {
-                QString s = (m == (options.length() - 1)) ? "    %1_%2_%3=%4\n" : "    %1_%2_%3=%4,\n";
-                enums.append(s
-                             .arg(info->name.toUpper())
-                             .arg(info->fields[n]->name.toUpper())
-                             .arg(options[m].toUpper().replace(QRegExp(ENUM_SPECIAL_CHARS), ""))
-                             .arg(m));
+            if (info->fields[n]->parentObjectName.length() > 0) {
+                enums.append(QString("typedef %1%2Options %3%4Options;\n")
+                             .arg(info->fields[n]->parentObjectName)
+                             .arg(info->fields[n]->parentFieldName)
+                             .arg(info->name)
+                             .arg(info->fields[n]->name));
+            } else {
+                enums.append(QString("\n// Enumeration options for field %1\n").arg(info->fields[n]->name));
+                enums.append("typedef enum __attribute__ ((__packed__)) {\n");
+                // Go through each option
+                QStringList options = info->fields[n]->options;
+                for (int m = 0; m < options.length(); ++m) {
+                    QString s = (m == (options.length() - 1)) ? "    %1_%2_%3=%4\n" : "    %1_%2_%3=%4,\n";
+                    enums.append(s
+                                 .arg(info->name.toUpper())
+                                 .arg(info->fields[n]->name.toUpper())
+                                 .arg(options[m].toUpper().replace(QRegExp(ENUM_SPECIAL_CHARS), ""))
+                                 .arg(m));
+                }
+                enums.append(QString("} %1%2Options;\n")
+                             .arg(info->name)
+                             .arg(info->fields[n]->name));
             }
-            enums.append(QString("} %1%2Options;\n")
-                         .arg(info->name)
-                         .arg(info->fields[n]->name));
         }
         // Generate element names (only if field has more than one element)
         if (info->fields[n]->numElements > 1 && !info->fields[n]->defaultElementNames) {
-            enums.append(QString("\n// Array element names for field %1\n").arg(info->fields[n]->name));
-            enums.append("typedef enum {\n");
-            // Go through the element names
-            QStringList elemNames = info->fields[n]->elementNames;
-            for (int m = 0; m < elemNames.length(); ++m) {
-                QString s = (m != (elemNames.length() - 1)) ? "    %1_%2_%3=%4,\n" : "    %1_%2_%3=%4\n";
-                enums.append(s
-                             .arg(info->name.toUpper())
-                             .arg(info->fields[n]->name.toUpper())
-                             .arg(elemNames[m].toUpper())
-                             .arg(m));
+            if (info->fields[n]->parentObjectName.length() > 0) {
+                enums.append(QString("typedef %1%2Elem %3%4Elem;\n")
+                             .arg(info->fields[n]->parentObjectName)
+                             .arg(info->fields[n]->parentFieldName)
+                             .arg(info->name)
+                             .arg(info->fields[n]->name));
+            } else {
+                enums.append(QString("\n// Array element names for field %1\n").arg(info->fields[n]->name));
+                enums.append("typedef enum {\n");
+                // Go through the element names
+                QStringList elemNames = info->fields[n]->elementNames;
+                for (int m = 0; m < elemNames.length(); ++m) {
+                    QString s = (m != (elemNames.length() - 1)) ? "    %1_%2_%3=%4,\n" : "    %1_%2_%3=%4\n";
+                    enums.append(s
+                                 .arg(info->name.toUpper())
+                                 .arg(info->fields[n]->name.toUpper())
+                                 .arg(elemNames[m].toUpper())
+                                 .arg(m));
+                }
+                enums.append(QString("} %1%2Elem;\n")
+                             .arg(info->name)
+                             .arg(info->fields[n]->name));
             }
-            enums.append(QString("} %1%2Elem;\n")
-                         .arg(info->name)
-                         .arg(info->fields[n]->name));
         }
         // Generate array information
         if (info->fields[n]->numElements > 1) {
             enums.append(QString("\n// Number of elements for field %1\n").arg(info->fields[n]->name));
-            enums.append(QString("#define %1_%2_NUMELEM %3\n")
-                         .arg(info->name.toUpper())
-                         .arg(info->fields[n]->name.toUpper())
-                         .arg(info->fields[n]->numElements));
+            if (info->fields[n]->parentObjectName.length() > 0) {
+                enums.append(QString("#define %1_%2_NUMELEM %3_%4_NUMELEM\n")
+                             .arg(info->name.toUpper())
+                             .arg(info->fields[n]->name.toUpper())
+                             .arg(info->fields[n]->parentObjectName.toUpper())
+                             .arg(info->fields[n]->parentFieldName.toUpper()));
+            } else {
+                enums.append(QString("#define %1_%2_NUMELEM %3\n")
+                             .arg(info->name.toUpper())
+                             .arg(info->fields[n]->name.toUpper())
+                             .arg(info->fields[n]->numElements));
+            }
         }
 
         enums.append(QString("\n"));
     }
+
+    QString includes;
+    QSet<QString> parentObjects;
+
+    for (int n = 0; n < info->fields.length(); ++n) {
+        if (info->fields[n]->parentObjectName.length() > 0) {
+            parentObjects.insert(info->fields[n]->parentObjectName);
+        }
+    }
+
+    foreach(const QString &objectName, parentObjects) {
+        includes.append("#include \"" + objectName.toLower() + ".h\"\n");
+    }
+
     outInclude.replace(QString("$(DATAFIELDINFO)"), enums);
+    outInclude.replace(QString("$(INCLUDE)"), includes);
 
     // Replace the $(INITFIELDS) tag
     QString initfields;

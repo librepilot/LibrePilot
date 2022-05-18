@@ -63,8 +63,8 @@ public:
         return QString();
     }
 
-    void saveState(QSettings *qSettings);
-    void restoreState(QSettings *qSettings);
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
 
 private:
     ScopeGadgetWidget *m_widget;

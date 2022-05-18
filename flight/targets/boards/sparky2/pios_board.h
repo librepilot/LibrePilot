@@ -105,74 +105,61 @@
 // PIOS_SPI
 // See also pios_board.c
 // ------------------------
-#define PIOS_SPI_MAX_DEVS      3
+#define PIOS_SPI_MAX_DEVS        3
+extern uint32_t pios_spi_telem_flash_adapter_id;
+#define PIOS_SPI_RFM22B_ADAPTER  (pios_spi_telem_flash_adapter_id)
+extern uint32_t pios_spi_gyro_adapter_id;
+#define PIOS_SPI_MPU9250_ADAPTER (pios_spi_gyro_adapter_id)
 
 // ------------------------
 // PIOS_WDG
 // ------------------------
-#define PIOS_WATCHDOG_TIMEOUT  250
-#define PIOS_WDG_REGISTER      RTC_BKP_DR4
-#define PIOS_WDG_ACTUATOR      0x0001
-#define PIOS_WDG_STABILIZATION 0x0002
-#define PIOS_WDG_ATTITUDE      0x0004
-#define PIOS_WDG_MANUAL        0x0008
-#define PIOS_WDG_SENSORS       0x0010
+#define PIOS_WATCHDOG_TIMEOUT    250
+#define PIOS_WDG_REGISTER        RTC_BKP_DR4
+#define PIOS_WDG_ACTUATOR        0x0001
+#define PIOS_WDG_STABILIZATION   0x0002
+#define PIOS_WDG_ATTITUDE        0x0004
+#define PIOS_WDG_MANUAL          0x0008
+#define PIOS_WDG_SENSORS         0x0010
 
 // ------------------------
 // PIOS_I2C
 // See also pios_board.c
 // ------------------------
-#define PIOS_I2C_MAX_DEVS         3
-extern uint32_t pios_i2c_mag_pressure_adapter_id;
-#define PIOS_I2C_MAIN_ADAPTER     (pios_i2c_mag_pressure_adapter_id)
+#define PIOS_I2C_MAX_DEVS                3
+extern uint32_t pios_i2c_pressure_adapter_id;
+#define PIOS_I2C_MS56XX_INTERNAL_ADAPTER (pios_i2c_pressure_adapter_id)
+#define PIOS_I2C_EXTERNAL_ADAPTER        (pios_i2c_pressure_adapter_id)
 extern uint32_t pios_i2c_flexiport_adapter_id;
-#define PIOS_I2C_FLEXI_ADAPTER    (pios_i2c_flexiport_adapter_id)
-#define PIOS_I2C_ETASV3_ADAPTER   (PIOS_I2C_FLEXI_ADAPTER)
-#define PIOS_I2C_MS4525DO_ADAPTER (PIOS_I2C_FLEXI_ADAPTER)
+#define PIOS_I2C_FLEXI_ADAPTER           (pios_i2c_flexiport_adapter_id)
+#define PIOS_I2C_ETASV3_ADAPTER          (PIOS_I2C_FLEXI_ADAPTER)
+#define PIOS_I2C_MS4525DO_ADAPTER        (PIOS_I2C_FLEXI_ADAPTER)
 
 // -------------------------
 // PIOS_USART
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_USART_MAX_DEVS 5
+#define PIOS_USART_MAX_DEVS         5
+
+// Inverter for SBUS handling
+#define PIOS_USART_INVERTER_PORT    USART6
+#define PIOS_USART_INVERTER_GPIO    GPIOC
+#define PIOS_USART_INVERTER_PIN     GPIO_Pin_6
+#define PIOS_USART_INVERTER_ENABLE  Bit_SET
+#define PIOS_USART_INVERTER_DISABLE Bit_RESET
 
 // -------------------------
 // PIOS_COM
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS 4
-extern uint32_t pios_com_telem_rf_id;
-extern uint32_t pios_com_rf_id;
-extern uint32_t pios_com_gps_id;
-extern uint32_t pios_com_telem_usb_id;
-extern uint32_t pios_com_bridge_id;
-extern uint32_t pios_com_vcp_id;
-extern uint32_t pios_com_hkosd_id;
-extern uint32_t pios_com_msp_id;
-extern uint32_t pios_com_mavlink_id;
+#define PIOS_COM_MAX_DEVS  4
 
-#define PIOS_COM_GPS       (pios_com_gps_id)
-#define PIOS_COM_TELEM_USB (pios_com_telem_usb_id)
-#define PIOS_COM_TELEM_RF  (pios_com_telem_rf_id)
-#define PIOS_COM_RF        (pios_com_rf_id)
-#define PIOS_COM_BRIDGE    (pios_com_bridge_id)
-#define PIOS_COM_VCP       (pios_com_vcp_id)
-#define PIOS_COM_OSDHK     (pios_com_hkosd_id)
-#define PIOS_COM_MSP       (pios_com_msp_id)
-#define PIOS_COM_MAVLINK   (pios_com_mavlink_id)
-
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-extern uint32_t pios_com_debug_id;
-#define PIOS_COM_DEBUG     (pios_com_debug_id)
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
-
-#if defined(PIOS_INCLUDE_RFM22B)
-extern uint32_t pios_rfm22b_id;
-extern uint32_t pios_spi_telem_flash_id;
-#define PIOS_RFM22_SPI_PORT (pios_spi_telem_flash_id)
-#endif /* PIOS_INCLUDE_RFM22B */
+#ifdef PIOS_INCLUDE_WS2811
+extern uint32_t pios_ws2811_id;
+#define PIOS_WS2811_DEVICE (pios_ws2811_id)
+#endif
 
 // -------------------------
 // Packet Handler
@@ -238,8 +225,6 @@ extern uint32_t pios_packet_handler;
 #define PIOS_RCVR_MAX_DEVS           3
 #define PIOS_RCVR_MAX_CHANNELS       12
 #define PIOS_GCSRCVR_TIMEOUT_MS      100
-#define PIOS_RFM22B_RCVR_TIMEOUT_MS  200
-#define PIOS_OPLINK_RCVR_TIMEOUT_MS  100
 
 // -------------------------
 // Receiver PPM input
@@ -321,7 +306,7 @@ extern uint32_t pios_packet_handler;
         { GPIOA, GPIO_Pin_3, ADC_Channel_3, false }, /* Servo pin 3        */  \
         { GPIOA, GPIO_Pin_2, ADC_Channel_2, false }, /* Servo pin 4        */  \
         { GPIOA, GPIO_Pin_1, ADC_Channel_1, false }, /* Servo pin 5        */  \
-        { GPIOA, GPIO_Pin_0, ADC_Channel_9, false }, /* Servo pin 6        */  \
+        { GPIOA, GPIO_Pin_0, ADC_Channel_0, false }, /* Servo pin 6        */  \
         { NULL, 0, ADC_Channel_Vrefint, false }, /* Voltage reference  */  \
         { NULL, 0, ADC_Channel_TempSensor, false }, /* Temperature sensor */  \
     }

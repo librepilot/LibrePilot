@@ -26,8 +26,6 @@
 extern "C" {
 #include <openpilot.h>
 
-#include <callbackinfo.h>
-
 #include <math.h>
 #include <pid.h>
 #include <CoordinateConversions.h>
@@ -276,7 +274,9 @@ int8_t VtolFlyController::UpdateStabilizationDesired(bool yaw_attitude, float ya
     }
 #endif // if 0
 
-    if (yaw_attitude) {
+    // Yaw Attitude will be disabled without velocity requested.
+    // PositionHold, AutoTakeoff or AutoCruise still using manual Yaw.
+    if (yaw_attitude && ((fabsf(pathDesired->StartingVelocity) > 0.0f) && (fabsf(pathDesired->EndingVelocity) > 0.0f))) {
         stabDesired.StabilizationMode.Yaw = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
         stabDesired.Yaw = yaw_direction;
     } else {
@@ -343,7 +343,7 @@ void VtolFlyController::UpdateDesiredAttitudeEmergencyFallback()
 
     stabDesired.StabilizationMode.Roll   = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
     stabDesired.StabilizationMode.Pitch  = STABILIZATIONDESIRED_STABILIZATIONMODE_ATTITUDE;
-    stabDesired.StabilizationMode.Yaw    = STABILIZATIONDESIRED_STABILIZATIONMODE_RATE;
+    stabDesired.StabilizationMode.Yaw    = STABILIZATIONDESIRED_STABILIZATIONMODE_AXISLOCK;
     stabDesired.StabilizationMode.Thrust = STABILIZATIONDESIRED_STABILIZATIONMODE_CRUISECONTROL;
     StabilizationDesiredSet(&stabDesired);
 }

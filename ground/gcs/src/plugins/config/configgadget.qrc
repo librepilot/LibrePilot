@@ -58,5 +58,21 @@
         <file>images/nano_top.png</file>
         <file>images/cc3d_top.png</file>
         <file>images/sparky2_top.png</file>
+        <file>images/spracingf3_top.png</file>
+        <file>images/spracingf3evo_top.png</file>
+        <file>images/tinyfish_top.png</file>
+        <file>images/pikoblx_top.png</file>
+        <file>images/cc3d.svg</file>
+        <file>images/revolution.svg</file>
+        <file>images/revo_nano.svg</file>
+        <file>images/sparky2.svg</file>
+        <file>images/spracingf3.svg</file>
+        <file>images/spracingf3evo.svg</file>
+        <file>images/pikoblx.svg</file>
+        <file>images/tinyfish.svg</file>
+        <file>images/omnibusf3.svg</file>
+        <file>images/omnibusf3pro.svg</file>
+        <file>images/omnibusf4.svg</file>
+        <file>images/omnibusf4pro.svg</file>
     </qresource>
 </RCC>

@@ -38,10 +38,15 @@
 
 #include "pios_usb_priv.h"
 
-#ifdef PIOS_INCLUDE_USB_HID
-
 /* Rx/Tx status */
 static bool transfer_possible = false;
+
+#ifdef PIOS_INCLUDE_FREERTOS
+struct {
+    void     (*callback)(bool connected, uint32_t context);
+    uint32_t context;
+} connectionState_cb_list[3];
+#endif
 
 enum pios_usb_dev_magic {
     PIOS_USB_DEV_MAGIC = 0x17365904,
@@ -51,6 +56,9 @@ struct pios_usb_dev {
     enum pios_usb_dev_magic   magic;
     const struct pios_usb_cfg *cfg;
 };
+#ifdef PIOS_INCLUDE_FREERTOS
+static void raiseConnectionStateCallback(bool connected);
+#endif
 
 /**
  * @brief Validate the usb device structure
@@ -175,6 +183,10 @@ int32_t PIOS_USB_ChangeConnectionState(bool Connected)
 #endif
     }
 
+#ifdef PIOS_INCLUDE_FREERTOS
+    raiseConnectionStateCallback(Connected);
+#endif
+
     return 0;
 }
 
@@ -242,7 +254,36 @@ bool PIOS_USB_CheckAvailable(uint32_t id)
     return PIOS_USB_CableConnected(id) && transfer_possible;
 }
 
-#endif /* PIOS_INCLUDE_USB_HID */
+#ifdef PIOS_INCLUDE_FREERTOS
+void PIOS_USB_RegisterConnectionStateCallback(void (*connectionStateCallback)(bool connected, uint32_t context), uint32_t context)
+{
+    PIOS_Assert(connectionStateCallback);
+
+    for (uint32_t i = 0; i < NELEMENTS(connectionState_cb_list); i++) {
+        if (connectionState_cb_list[i].callback == NULL) {
+            connectionState_cb_list[i].callback = connectionStateCallback;
+            connectionState_cb_list[i].context  = context;
+            return;
+        }
+    }
+
+    PIOS_Assert(0);
+}
+
+static void raiseConnectionStateCallback(bool connected)
+{
+    uint32_t i = 0;
+
+    while (i < NELEMENTS(connectionState_cb_list) && connectionState_cb_list[i].callback != NULL) {
+        connectionState_cb_list[i].callback(connected, connectionState_cb_list[i].context);
+        i++;
+    }
+}
+#else /* PIOS_INCLUDE_FREERTOS */
+void PIOS_USB_RegisterConnectionStateCallback(__attribute__((unused)) void (*connectionStateCallback)(bool connected, uint32_t context), __attribute__((unused)) uint32_t context)
+{}
+#endif /* PIOS_INCLUDE_FREERTOS */
+
 
 #endif /* PIOS_INCLUDE_USB */
 

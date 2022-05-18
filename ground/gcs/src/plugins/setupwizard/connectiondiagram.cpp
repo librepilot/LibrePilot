@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       connectiondiagram.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
@@ -159,6 +159,12 @@ void ConnectionDiagram::setupGraphicsScene()
             case VehicleConfigurationSource::GROUNDVEHICLE_MOTORCYCLE:
                 elementsToShow << "motorbike";
                 break;
+            case VehicleConfigurationSource::GROUNDVEHICLE_BOAT:
+                elementsToShow << "boat";
+                break;
+            case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
+                elementsToShow << "boat_diff";
+                break;
             default:
                 break;
             }
@@ -173,7 +179,9 @@ void ConnectionDiagram::setupGraphicsScene()
         case VehicleConfigurationSource::CONTROLLER_CC:
         case VehicleConfigurationSource::CONTROLLER_CC3D:
             prefix = "cc-";
-            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT ||
+            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT125 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT42 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_MULTISHOT ||
                 m_configSource->getEscType() == VehicleConfigurationSource::ESC_SYNCHED) {
                 suffix = "-oneshot";
             }

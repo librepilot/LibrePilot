@@ -173,8 +173,35 @@ int parse_ubx_stream(uint8_t *rx, uint16_t len, char *gps_rx_buffer, GPSPosition
 #if defined(PIOS_GPS_MINIMAL)
                 restart_state = RESTART_NO_ERROR;
 #else
-                restart_state = RESTART_WITH_ERROR;
+                /*  UBX-NAV-SVINFO (id 30) and UBX-NAV-SAT (id 35) packets are NOT critical to the navigation.
+                    Their only use is to update the nice GPS constellation widget in the GCS.
+                    These packets become very large when a lot of SV (Space Vehicles) are tracked. (8 + 12 * <number of SV>) bytes
+
+                    In the case of 3 simultaneously enabled GNSS, it is easy to reach the currently defined tracking limit of 32 SV.
+                    The memory taken up by this is 8 + 12 * 32 = 392 bytes
+
+                    The NEO-M8N has been seen to send out information for more than 32 SV. This causes overflow errors.
+                    We will ignore these informational packets if they become too large.
+                    The downside of this is no more constellation updates in the GCS when we reach the limit.
+
+                    An alternative fix could be to increment the maximum number of satellites: MAX_SVS and UBX_CFG_GNSS_NUMCH_VER8 in UBX.h
+                    This would use extra memory for little gain. Both fixes can be combined.
+
+                    Tests indicate that, once we reach this amount of tracked SV, the NEO-M8N module positioning output
+                    becomes jittery (in time) and therefore less accurate.
+
+                    The recommendation is to limit the maximum number of simultaneously used GNSS to a value of 2.
+                    This will help keep the number of tracked satellites in line.
+                 */
+                if ((ubx->header.class == 0x01) && ((ubx->header.id == 0x30) || (ubx->header.id == 0x35))) {
+                    restart_state = RESTART_NO_ERROR;
+                } else {
+                    restart_state = RESTART_WITH_ERROR;
+                }
 #endif
+                // We won't see the end of the packet. Which means it is useless to do any further processing.
+                // Therefore scan for the start of the next packet.
+                proto_state = START;
                 break;
             } else {
                 if (ubx->header.len == 0) {
@@ -337,7 +364,7 @@ static void parse_ubx_nav_sol(struct UBXPacket *ubx, GPSPositionSensorData *GpsP
                 GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_FIX2D;
                 break;
             case STATUS_GPSFIX_3DFIX:
-                GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_FIX3D;
+                GpsPosition->Status = (sol->flags & STATUS_FLAGS_DIFFSOLN) ? GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS : GPSPOSITIONSENSOR_STATUS_FIX3D;
                 break;
             default: GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
             }
@@ -399,10 +426,18 @@ static void parse_ubx_nav_pvt(struct UBXPacket *ubx, GPSPositionSensorData *GpsP
     GpsPosition->Longitude       = pvt->lon;
     GpsPosition->Satellites      = pvt->numSV;
     GpsPosition->PDOP = pvt->pDOP * 0.01f;
+
     if (pvt->flags & PVT_FLAGS_GNSSFIX_OK) {
-        GpsPosition->Status = pvt->fixType == PVT_FIX_TYPE_3D ?
-                              GPSPOSITIONSENSOR_STATUS_FIX3D : GPSPOSITIONSENSOR_STATUS_FIX2D;
-    } else {
+        switch (pvt->fixType) {
+        case PVT_FIX_TYPE_2D:
+            GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_FIX2D;
+            break;
+        case PVT_FIX_TYPE_3D:
+            GpsPosition->Status = (pvt->flags & PVT_FLAGS_DIFFSOLN) ? GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS : GPSPOSITIONSENSOR_STATUS_FIX3D;
+            break;
+        default: GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
+        }
+    } else { // fix is not valid so we make sure to treat is as NOFIX
         GpsPosition->Status = GPSPOSITIONSENSOR_STATUS_NOFIX;
     }
 
@@ -439,7 +474,7 @@ static void parse_ubx_nav_timeutc(struct UBXPacket *ubx, __attribute__((unused))
         GpsTime.Hour   = timeutc->hour;
         GpsTime.Minute = timeutc->min;
         GpsTime.Second = timeutc->sec;
-
+        GpsTime.Millisecond = (int16_t)(timeutc->nano / 1000000);
         GPSTimeSet(&GpsTime);
     } else {
         // Time is not valid, nothing to do

@@ -39,6 +39,16 @@ SECTIONS
         __module_initcall_end   = .;
     } >FLASH
 
+    /* settings init sections */
+    .initcallsettings.init :
+    {
+        . = ALIGN(4);
+	__settings_initcall_start = .;
+        KEEP(*(.initcallsettings.init))
+	. = ALIGN(4);
+	__settings_initcall_end   = .;
+    } >FLASH
+    
     /*
      * C++ exception handling.
      */

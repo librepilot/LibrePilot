@@ -7,7 +7,8 @@
  * @{
  *
  * @file       filtercf.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Complementary filter to calculate Attitude from Accels and Gyros
  *             and optionally magnetometers:
  *             WARNING: Will drift if the mean acceleration force doesn't point
@@ -49,7 +50,14 @@
 
 #define CALIBRATION_DELAY_MS    4000
 #define CALIBRATION_DURATION_MS 6000
+#define RELOADSETTINGS_DELAY_MS 1000
+#define CONVERGENCE_MAGKP       20.0f
 #define VARIANCE_WINDOW_SIZE    40
+
+#define UNDONE                  0
+#define DONE                    1
+#define RUN                     2
+
 // Private types
 struct data {
     AttitudeSettingsData attitudeSettings;
@@ -68,6 +76,7 @@ struct data {
     float   rollPitchBiasRate;
     int32_t timeval;
     int32_t starttime;
+    int32_t inittime;
     uint8_t init;
     bool    magCalibrated;
     pw_variance_t gyro_var[3];
@@ -95,8 +104,6 @@ static void globalInit(void)
     if (!initialized) {
         initialized = 1;
         FlightStatusInitialize();
-        HomeLocationInitialize();
-        RevoCalibrationInitialize();
         FlightStatusConnectCallback(&flightStatusUpdatedCb);
         flightStatusUpdatedCb(NULL);
     }
@@ -248,7 +255,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
 
         AttitudeStateData attitudeState; // base on previous state
         AttitudeStateGet(&attitudeState);
-        this->init = 0;
+        this->init = UNDONE;
 
         // Set initial attitude. Use accels to determine roll and pitch, rotate magnetic measurement accordingly,
         // so pseudo "north" vector can be estimated even if the board is not level
@@ -288,7 +295,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         return FILTERRESULT_OK; // must return OK on initial initialization, so attitude will init with a valid quaternion
     }
     // check whether copter is steady
-    if (this->init == 0 && this->attitudeSettings.InitialZeroWhenBoardSteady == ATTITUDESETTINGS_INITIALZEROWHENBOARDSTEADY_TRUE) {
+    if (this->init == UNDONE && this->attitudeSettings.InitialZeroWhenBoardSteady == ATTITUDESETTINGS_INITIALZEROWHENBOARDSTEADY_TRUE) {
         pseudo_windowed_variance_push_sample(&this->gyro_var[0], gyro[0]);
         pseudo_windowed_variance_push_sample(&this->gyro_var[1], gyro[1]);
         pseudo_windowed_variance_push_sample(&this->gyro_var[2], gyro[2]);
@@ -304,18 +311,18 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
     }
 
 
-    if (this->init == 0 && xTaskGetTickCount() - this->starttime < CALIBRATION_DELAY_MS / portTICK_RATE_MS) {
+    if (this->init == UNDONE && xTaskGetTickCount() - this->starttime < CALIBRATION_DELAY_MS / portTICK_RATE_MS) {
         // wait 4 seconds for the user to get his hands off in case the board was just powered
         this->timeval = PIOS_DELAY_GetRaw();
         return FILTERRESULT_ERROR;
-    } else if (this->init == 0 && xTaskGetTickCount() - this->starttime < (CALIBRATION_DELAY_MS + CALIBRATION_DURATION_MS) / portTICK_RATE_MS) {
+    } else if (this->init == UNDONE && xTaskGetTickCount() - this->starttime < (CALIBRATION_DELAY_MS + CALIBRATION_DURATION_MS) / portTICK_RATE_MS) {
         // For first 6 seconds use accels to get gyro bias
         this->attitudeSettings.AccelKp     = 1.0f;
         this->attitudeSettings.AccelKi     = 0.0f;
         this->attitudeSettings.YawBiasRate = 0.23f;
         this->accel_filter_enabled   = false;
         this->rollPitchBiasRate      = 0.01f;
-        this->attitudeSettings.MagKp = this->magCalibrated ? 1.0f : 0.0f;
+        this->attitudeSettings.MagKp = this->magCalibrated ? CONVERGENCE_MAGKP : 0.0f;
         PIOS_NOTIFY_StartNotification(NOTIFY_DRAW_ATTENTION, NOTIFY_PRIORITY_REGULAR);
     } else if ((this->attitudeSettings.ZeroDuringArming == ATTITUDESETTINGS_ZERODURINGARMING_TRUE) && (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMING)) {
         this->attitudeSettings.AccelKp     = 1.0f;
@@ -323,17 +330,21 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         this->attitudeSettings.YawBiasRate = 0.23f;
         this->accel_filter_enabled   = false;
         this->rollPitchBiasRate      = 0.01f;
-        this->attitudeSettings.MagKp = this->magCalibrated ? 1.0f : 0.0f;
-        this->init = 0;
+        this->attitudeSettings.MagKp = this->magCalibrated ? CONVERGENCE_MAGKP : 0.0f;
+        this->init = UNDONE;
         PIOS_NOTIFY_StartNotification(NOTIFY_DRAW_ATTENTION, NOTIFY_PRIORITY_REGULAR);
-    } else if (this->init == 0) {
-        // Reload settings (all the rates)
-        AttitudeSettingsGet(&this->attitudeSettings);
+    } else if (this->init == UNDONE) {
         this->rollPitchBiasRate = 0.0f;
         if (this->accel_alpha > 0.0f) {
             this->accel_filter_enabled = true;
         }
-        this->init = 1;
+        this->inittime = xTaskGetTickCount();
+        this->init     = DONE;
+        // Allow running filter with custom MagKp for some time before reload settings
+    } else if (this->init == DONE && (!this->magCalibrated || (xTaskGetTickCount() - this->inittime > RELOADSETTINGS_DELAY_MS / portTICK_RATE_MS))) {
+        // Reload settings (all the rates)
+        AttitudeSettingsGet(&this->attitudeSettings);
+        this->init = RUN;
     }
 
     // Compute the dT using the cpu clock
@@ -423,7 +434,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
     this->gyroBias[0] -= accel_err[0] * this->attitudeSettings.AccelKi - gyro[0] * this->rollPitchBiasRate;
     this->gyroBias[1] -= accel_err[1] * this->attitudeSettings.AccelKi - gyro[1] * this->rollPitchBiasRate;
     if (this->useMag) {
-        this->gyroBias[2] -= -mag_err[2] * this->attitudeSettings.MagKi - gyro[2] * this->rollPitchBiasRate;
+        this->gyroBias[2] -= mag_err[2] * this->attitudeSettings.MagKi - gyro[2] * this->rollPitchBiasRate;
     } else {
         this->gyroBias[2] -= -gyro[2] * this->rollPitchBiasRate;
     }
@@ -473,7 +484,7 @@ static filterResult complementaryFilter(struct data *this, float gyro[3], float 
         return FILTERRESULT_WARNING;
     }
 
-    if (this->init) {
+    if (this->init != UNDONE) {
         return FILTERRESULT_OK;
     } else {
         return FILTERRESULT_CRITICAL; // return "critical" for now, so users can see the zeroing period, switch to more graceful notification later

@@ -59,9 +59,9 @@ Core::IUAVGadget *ScopeGadgetFactory::createGadget(QWidget *parent)
     return new ScopeGadget(QString("ScopeGadget"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *ScopeGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *ScopeGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new ScopeGadgetConfiguration(QString("ScopeGadget"), qSettings);
+    return new ScopeGadgetConfiguration(QString("ScopeGadget"), settings);
 }
 
 IOptionsPage *ScopeGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

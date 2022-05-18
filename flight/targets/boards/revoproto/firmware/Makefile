@@ -42,6 +42,7 @@ MODULES += Actuator
 MODULES += GPS
 MODULES += TxPID
 MODULES += CameraStab
+MODULES += CameraControl
 MODULES += Battery
 MODULES += FirmwareIAP
 MODULES += PathPlanner
@@ -81,11 +82,6 @@ ifndef TESTAPP
     SRC += $(OPUAVOBJ)/eventdispatcher.c
     SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
     SRC += $(PIOSCOMMON)/pios_flash_jedec.c
-
-    #ifeq ($(DEBUG), YES)
-    SRC += $(OPSYSTEM)/dcc_stdio.c
-    SRC += $(OPSYSTEM)/cm3_fault_handlers.c
-    #endif
 
     ## Misc library functions
     SRC += $(FLIGHTLIB)/paths.c

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       pios_board.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Defines PiOS board hardware for the OpenPilot OPLink Mini board.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -72,11 +73,10 @@
 #define PIOS_WDG_REGISTER     BKP_DR4
 #define PIOS_WDG_TELEMETRYTX  0x0001
 #define PIOS_WDG_TELEMETRYRX  0x0002
-#define PIOS_WDG_RADIOTX      0x0004
-#define PIOS_WDG_RADIORX      0x0008
+#define PIOS_WDG_TELEMRADIOTX 0x0004
+#define PIOS_WDG_TELEMRADIORX 0x0008
 #define PIOS_WDG_RFM22B       0x000f
 #define PIOS_WDG_PPMINPUT     0x0010
-#define PIOS_WDG_SERIALRX     0x0020
 
 // ------------------------
 // TELEMETRY
@@ -138,7 +138,6 @@
 // System Settings
 // -------------------------
 #define PIOS_MASTER_CLOCK     72000000
-#define PIOS_PERIPHERAL_CLOCK (PIOS_MASTER_CLOCK / 2)
 
 // -------------------------
 // Interrupt Priorities
@@ -160,44 +159,61 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 // PIOS_SPI
 // See also pios_board.c
 // ------------------------
-#define PIOS_SPI_MAX_DEVS   1
+#define PIOS_SPI_MAX_DEVS       1
+#define PIOS_SPI_RFM22B_ADAPTER (pios_spi_rfm22b_id)
 
 // -------------------------
 // PIOS_USART
 // -------------------------
-#define PIOS_USART_MAX_DEVS 3
+#define PIOS_USART_MAX_DEVS     3
 
 // -------------------------
 // PIOS_COM
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS 5
+#define PIOS_COM_MAX_DEVS             5
 
-extern uint32_t pios_com_telem_usb_id;
-extern uint32_t pios_com_telem_vcp_id;
-extern uint32_t pios_com_telem_uart_main_id;
-extern uint32_t pios_com_telem_uart_flexi_id;
-extern uint32_t pios_com_telemetry_id;
-extern uint32_t pios_com_rfm22b_id;
-extern uint32_t pios_com_radio_id;
-extern uint32_t pios_com_bridge_id;
+/* USB telemetry */
+#define PIOS_COM_TELEM_USB_RX_BUF_LEN 256
+#define PIOS_COM_TELEM_USB_TX_BUF_LEN 256
+
+/* VCP Bridge */
+#define PIOS_COM_TELEM_VCP_RX_BUF_LEN 128
+#define PIOS_COM_TELEM_VCP_TX_BUF_LEN 128
+
+// The direct com ports
+extern uint32_t pios_com_hid_id;
 extern uint32_t pios_com_vcp_id;
-extern uint32_t pios_ppm_rcvr_id;
+extern uint32_t pios_com_main_id;
+extern uint32_t pios_com_flexi_id;
+extern uint32_t pios_com_pri_radio_id;
+extern uint32_t pios_com_aux_radio_id;
+// The port that the GCS is connected to
+extern uint32_t pios_com_gcs_id;
+// The destination port from the GCS port
+extern uint32_t pios_com_gcs_out_id;
+// The destination port from the VCP com bridge
+extern uint32_t pios_com_bridge_id;
+// The destination port for the primary radio port
+extern uint32_t pios_com_pri_radio_out_id;
+// The destination port for the auxiliary radio port.
+extern uint32_t pios_com_aux_radio_out_id;
+// The PPM IDs
 extern uint32_t pios_ppm_out_id;
-#define PIOS_COM_TELEM_USB_HID    (pios_com_telem_usb_id)
-#define PIOS_COM_TELEM_USB        PIOS_COM_TELEM_USB_HID
-#define PIOS_COM_TELEM_USB_VCP    (pios_com_telem_vcp_id)
-#define PIOS_COM_VCP              (pios_com_vcp_id)
-#define PIOS_COM_TELEM_UART_MAIN  (pios_com_telem_uart_main_id)
-#define PIOS_COM_TELEM_UART_FLEXI (pios_com_telem_uart_flexi_id)
-#define PIOS_COM_TELEMETRY        (pios_com_telemetry_id)
-#define PIOS_COM_RFM22B           (pios_com_rfm22b_id)
-#define PIOS_COM_RADIO            (pios_com_radio_id)
-#define PIOS_COM_BRIDGE           (pios_com_bridge_id)
-#define PIOS_PPM_RECEIVER         (pios_ppm_rcvr_id)
-#define PIOS_PPM_OUTPUT           (pios_ppm_out_id)
-#define RFM22_DEBUG               1
+#define PIOS_COM_HID           (pios_com_hid_id)
+#define PIOS_COM_VCP           (pios_com_vcp_id)
+#define PIOS_COM_MAIN          (pios_com_main_id)
+#define PIOS_COM_FLEXI         (pios_com_flexi_id)
+#define PIOS_COM_PRI_RADIO     (pios_com_pri_radio_id)
+#define PIOS_COM_AUX_RADIO     (pios_com_aux_radio_id)
+#define PIOS_COM_PRI_RADIO_OUT (pios_com_pri_radio_out_id)
+#define PIOS_COM_AUX_RADIO_OUT (pios_com_aux_radio_out_id)
+#define PIOS_COM_GCS           (pios_com_gcs_id)
+#define PIOS_COM_GCS_OUT       (pios_com_gcs_out_id)
+#define PIOS_COM_BRIDGE        (pios_com_bridge_id)
+#define PIOS_PPM_OUTPUT        (pios_ppm_out_id)
+#define RFM22_DEBUG            1
 
 // -------------------------
 // ADC

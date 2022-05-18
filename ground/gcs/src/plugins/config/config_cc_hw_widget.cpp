@@ -55,24 +55,28 @@ ConfigCCHWWidget::ConfigCCHWWidget(QWidget *parent) : ConfigTaskWidget(parent)
     int id = utilMngr->getBoardModel();
     switch (id) {
     case 0x0101:
-        m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0101.svg"));
-        break;
-    case 0x0301:
-        m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0301.svg"));
-        break;
-    case 0x0401:
-        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
-        break;
-    case 0x0402:
-        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/cc3d_top.png"));
+        m_telemetry->boardImg->load(QString(":/uploader/images/deviceID-0101.svg"));
         break;
     case 0x0201:
-        m_telemetry->label_2->setPixmap(QPixmap(":/uploader/images/deviceID-0201.svg"));
+        m_telemetry->boardImg->load(QString(":/uploader/images/deviceID-0201.svg"));
+        break;
+    case 0x0301:
+        m_telemetry->boardImg->load(QString(":/uploader/images/deviceID-0301.svg"));
+        break;
+    case 0x0401:
+        m_telemetry->boardImg->load(QString(":/configgadget/images/coptercontrol.svg"));
+        break;
+    case 0x0402:
+        m_telemetry->boardImg->load(QString(":/configgadget/images/cc3d.svg"));
         break;
     default:
-        m_telemetry->label_2->setPixmap(QPixmap(":/configgadget/images/coptercontrol.svg"));
+        m_telemetry->boardImg->load(QString(":/configgadget/images/cc3d.svg"));
         break;
     }
+
+    QSize picSize = m_telemetry->boardImg->sizeHint();
+    picSize.scale(350, 350, Qt::KeepAspectRatio);
+    m_telemetry->boardImg->setFixedSize(picSize);
 
     addWidgetBinding("HwSettings", "CC_FlexiPort", m_telemetry->cbFlexi);
     addWidgetBinding("HwSettings", "CC_MainPort", m_telemetry->cbTele);

@@ -163,7 +163,9 @@ static void genericTIM_OCxPreloadConfig(TIM_TypeDef *TIMx, uint16_t TIM_OCPreloa
  *
  */
 
-void PIOS_WS2811_Init(const struct pios_ws2811_cfg *ws2811_cfg, const struct pios_ws2811_pin_cfg *ws2811_pin_cfg)
+#define PIOS_WS2811_MAGIC 0x00281100
+
+void PIOS_WS2811_Init(uint32_t *dev_id, const struct pios_ws2811_cfg *ws2811_cfg, const struct pios_ws2811_pin_cfg *ws2811_pin_cfg)
 {
     assert_param(ws2811_cfg);
     assert_param(ws2811_pin_cfg);
@@ -184,6 +186,10 @@ void PIOS_WS2811_Init(const struct pios_ws2811_cfg *ws2811_cfg, const struct pio
     // Setup timers
     setupTimer();
     setupDMA();
+
+    // This is required so client (for example Notify module)
+    // can test for != 0 to know if device is configured or not.
+    *dev_id = PIOS_WS2811_MAGIC;
 }
 
 void setupTimer()

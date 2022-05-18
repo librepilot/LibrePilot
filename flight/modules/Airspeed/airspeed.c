@@ -93,16 +93,16 @@ int32_t AirspeedStart()
  */
 int32_t AirspeedInitialize()
 {
+    HwSettingsOptionalModulesData optionalModules;
+
+    HwSettingsOptionalModulesGet(&optionalModules);
+
 #ifdef MODULE_AIRSPEED_BUILTIN
     airspeedEnabled = true;
+    optionalModules.Airspeed = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
 #else
-
-    HwSettingsInitialize();
-    HwSettingsOptionalModulesOptions optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
-    HwSettingsOptionalModulesArrayGet(optionalModules);
-
-
-    if (optionalModules[HWSETTINGS_OPTIONALMODULES_AIRSPEED] == HWSETTINGS_OPTIONALMODULES_ENABLED) {
+    if (optionalModules.Airspeed == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         airspeedEnabled = true;
     } else {
         airspeedEnabled = false;
@@ -121,7 +121,6 @@ int32_t AirspeedInitialize()
     }
 
     AirspeedSensorInitialize();
-    AirspeedSettingsInitialize();
 
     AirspeedSettingsConnectCallback(AirspeedSettingsUpdatedCb);
 

@@ -12,10 +12,9 @@ namespace Core {
 class CORE_EXPORT IConfigurablePlugin : public ExtensionSystem::IPlugin {
     Q_OBJECT
 public:
-    // IConfigurablePlugin(QObject *parent = 0){}
     virtual ~IConfigurablePlugin() {}
-    virtual void readConfig(QSettings *qSettings, UAVConfigInfo *configInfo) = 0;
-    virtual void saveConfig(QSettings *qSettings, Core::UAVConfigInfo *configInfo) = 0;
+    virtual void readConfig(QSettings &settings, UAVConfigInfo *configInfo) = 0;
+    virtual void saveConfig(QSettings &settings, UAVConfigInfo *configInfo) const = 0;
 };
 } // namespace Core
 

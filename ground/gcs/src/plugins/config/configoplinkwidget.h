@@ -51,6 +51,11 @@ private:
     OPLinkStatus *oplinkStatusObj;
     OPLinkSettings *oplinkSettingsObj;
 
+    // Frequency display settings
+    float frequency_base;
+    float frequency_step;
+    QString channel_tooltip;
+
     // Is the status current?
     bool statusUpdated;
 
@@ -58,23 +63,30 @@ private:
     void updateInfo();
     void updateSettings();
 
-    void setPortsVisible(bool visible);
+    void setOPLMOptionsVisible(bool visible);
 
 private slots:
     void connected();
 
     void protocolChanged();
     void linkTypeChanged();
+    void customIDChanged();
+    void coordIDChanged();
 
     void minChannelChanged();
     void maxChannelChanged();
+    void rfBandChanged();
     void channelChanged(bool isMax);
+    void updateFrequencyDisplay();
 
     void mainPortChanged();
     void flexiPortChanged();
-    void vcpPortChanged();
+    void radioPriStreamChanged();
+    void radioAuxStreamChanged();
+    void vcpBridgeChanged();
 
     void unbind();
+    void clearDeviceID();
 };
 
 #endif // CONFIGOPLINKWIDGET_H

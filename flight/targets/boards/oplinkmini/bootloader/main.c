@@ -34,6 +34,7 @@
 #include <fifo_buffer.h>
 #include <pios_com_msg.h>
 #include <pios_board_init.h>
+#include <pios_board_io.h>
 
 extern void FLASH_Download();
 #define BSL_HOLD_STATE ((PIOS_USB_DETECT_GPIO_PORT->IDR & PIOS_USB_DETECT_GPIO_PIN) ? 0 : 1)
@@ -55,6 +56,8 @@ uint32_t sweep_steps2 = 100; // * 5 mS -> 500 mS
 
 ////////////////////////////////////////
 uint8_t tempcount = 0;
+
+extern uint32_t pios_com_telem_usb_id;
 
 /* Extern variables ----------------------------------------------------------*/
 DFUStates DeviceState;
@@ -211,7 +214,7 @@ uint32_t LedPWM(uint32_t pwm_period, uint32_t pwm_sweep_steps, uint32_t count)
 
 uint8_t processRX()
 {
-    if (PIOS_COM_MSG_Receive(PIOS_COM_TELEM_USB, mReceive_Buffer, sizeof(mReceive_Buffer))) {
+    if (PIOS_COM_MSG_Receive(pios_com_telem_usb_id, mReceive_Buffer, sizeof(mReceive_Buffer))) {
         processComand(mReceive_Buffer);
     }
     return TRUE;
@@ -219,5 +222,5 @@ uint8_t processRX()
 
 int32_t platform_senddata(const uint8_t *msg, uint16_t msg_len)
 {
-    return PIOS_COM_MSG_Send(PIOS_COM_TELEM_USB, msg, msg_len);
+    return PIOS_COM_MSG_Send(pios_com_telem_usb_id, msg, msg_len);
 }

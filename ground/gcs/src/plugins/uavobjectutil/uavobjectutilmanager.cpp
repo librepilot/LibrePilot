@@ -313,7 +313,7 @@ QString UAVObjectUtilManager::getBoardDescriptionString()
 {
     QByteArray arr = getBoardDescription();
 
-    int index = arr.indexOf(255);
+    int index = arr.indexOf((char)255);
 
     return QString((index == -1) ? arr : arr.left(index));
 }
@@ -321,7 +321,7 @@ QString UAVObjectUtilManager::getBoardDescriptionString()
 // ******************************
 // HomeLocation
 
-int UAVObjectUtilManager::setHomeLocation(double LLA[3], bool save_to_sdcard)
+int UAVObjectUtilManager::setHomeLocation(double LLA[3], bool set)
 {
     double Be[3];
 
@@ -341,13 +341,11 @@ int UAVObjectUtilManager::setHomeLocation(double LLA[3], bool save_to_sdcard)
     homeLocationData.Be[1]     = Be[1];
     homeLocationData.Be[2]     = Be[2];
 
-    homeLocationData.Set = HomeLocation::SET_TRUE;
+    homeLocationData.Set = set;
 
     homeLocation->setData(homeLocationData);
 
-    if (save_to_sdcard) {
-        saveObjectToSD(homeLocation);
-    }
+    saveObjectToSD(homeLocation);
 
     return 0;
 }

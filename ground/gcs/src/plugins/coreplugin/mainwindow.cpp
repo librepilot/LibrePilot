@@ -54,7 +54,6 @@
 
 #include <qstylefactory.h>
 
-#include "rightpane.h"
 #include "settingsdialog.h"
 #include "threadmanager.h"
 #include "uniqueidmanager.h"
@@ -66,7 +65,6 @@
 #include <utils/pathchooser.h>
 #include <utils/pathutils.h>
 #include <utils/stylehelper.h>
-#include <utils/xmlconfig.h>
 #include "version_info/version_info.h"
 
 #include <QtCore/QDebug>
@@ -90,6 +88,10 @@
 #include <QDir>
 #include <QMimeData>
 
+#ifdef Q_OS_WIN
+#include <QtPlatformHeaders/QWindowsWindowFunctions>
+#endif
+
 using namespace Core;
 using namespace Core::Internal;
 
@@ -103,13 +105,6 @@ MainWindow::MainWindow() :
     m_uniqueIDManager(new UniqueIDManager()),
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
-    // keep this in sync with main() in app/main.cpp
-    m_settings(new QSettings(this)),
-    m_globalSettings(new QSettings(XmlConfig::XmlSettingsFormat, QSettings::SystemScope,
-                                   m_settings->organizationName(), m_settings->applicationName(), this)),
-    m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
-                                            QFileInfo(m_settings->fileName()).baseName(),
-                                            this)),
     m_dontSaveSettings(false),
     m_actionManager(new ActionManagerPrivate(this)),
     m_variableManager(new VariableManager(this)),
@@ -140,6 +135,11 @@ MainWindow::MainWindow() :
     qApp->setWindowIcon(QIcon(":/core/images/librepilot_logo_128.png"));
 #endif
     qApp->setStyle(QStyleFactory::create("Fusion"));
+
+    QSettings settings;
+    m_settingsDatabase = new SettingsDatabase(QFileInfo(settings.fileName()).path(),
+                                              QFileInfo(settings.fileName()).baseName(),
+                                              this);
 
     setDockNestingEnabled(true);
 
@@ -201,10 +201,8 @@ MainWindow::~MainWindow()
     m_generalSettings   = 0;
     delete m_workspaceSettings;
     m_workspaceSettings = 0;
-    delete m_settings;
-    m_settings = 0;
     delete m_uniqueIDManager;
-    m_uniqueIDManager = 0;
+    m_uniqueIDManager   = 0;
 
     pm->removeObject(m_coreImpl);
     delete m_coreImpl;
@@ -237,13 +235,13 @@ void MainWindow::modeChanged(Core::IMode * /*mode*/)
 
 void MainWindow::extensionsInitialized()
 {
-    QSettings *qs = m_settings;
+    QSettings settings;
 
-    qs->beginGroup("General");
+    settings.beginGroup("General");
 
-    m_config_description = qs->value("Description", "none").toString();
-    m_config_details     = qs->value("Details", "none").toString();
-    m_config_stylesheet  = qs->value("StyleSheet", "none").toString();
+    m_config_description = settings.value("Description", "none").toString();
+    m_config_details     = settings.value("Details", "none").toString();
+    m_config_stylesheet  = settings.value("StyleSheet", "none").toString();
 
     qDebug() << "Configured style sheet:" << m_config_stylesheet;
     if (m_config_stylesheet == "wide") {
@@ -270,13 +268,14 @@ void MainWindow::extensionsInitialized()
     // qDebug() << "Setting application style sheet to:" << style;
     qApp->setStyleSheet(style);
 
-    qs->endGroup();
+    settings.endGroup();
 
     m_uavGadgetInstanceManager = new UAVGadgetInstanceManager(this);
-    m_uavGadgetInstanceManager->readSettings(qs);
+
+    m_uavGadgetInstanceManager->readSettings(settings);
 
     m_messageManager->init();
-    readSettings(qs);
+    readSettings(settings);
 
     updateContext();
 
@@ -324,8 +323,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit m_coreImpl->coreAboutToClose();
 
     if (!m_dontSaveSettings) {
-        saveSettings(m_settings);
-        m_uavGadgetInstanceManager->saveSettings(m_settings);
+        QSettings settings;
+        saveSettings(settings);
+        m_uavGadgetInstanceManager->saveSettings(settings);
     }
 
     qApp->closeAllWindows();
@@ -478,31 +478,31 @@ void MainWindow::registerDefaultActions()
     ActionContainer *mhelp   = am->actionContainer(Constants::M_HELP);
 
     // File menu separators
-    Command *cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Save"), m_globalContext);
+    Command *cmd = createSeparator(am, this, "QtCreator.File.Sep.Save", m_globalContext);
 
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Close"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.File.Sep.Close", m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Other"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.File.Sep.Other", m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_OTHER);
 
     // Edit menu separators
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.CopyPaste"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Edit.Sep.CopyPaste", m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.SelectAll"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Edit.Sep.SelectAll", m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_SELECTALL);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Find"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Edit.Sep.Find", m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_FIND);
 
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Edit.Sep.Advanced"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Edit.Sep.Advanced", m_globalContext);
     medit->addAction(cmd, Constants::G_EDIT_ADVANCED);
 
     // Tools menu separators
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Tools.Sep.Options"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Tools.Sep.Options", m_globalContext);
     mtools->addAction(cmd, Constants::G_DEFAULT_THREE);
 
     // Help menu separators
@@ -654,7 +654,7 @@ void MainWindow::registerDefaultActions()
     connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
     // Window separator
-    cmd = createSeparator(am, this, QLatin1String("QtCreator.Window.Sep.Size"), m_globalContext);
+    cmd = createSeparator(am, this, "QtCreator.Window.Sep.Size", m_globalContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
 #endif
 
@@ -676,7 +676,7 @@ void MainWindow::registerDefaultActions()
     // Window menu separators
     QAction *tmpaction1 = new QAction(this);
     tmpaction1->setSeparator(true);
-    cmd = am->registerAction(tmpaction1, QLatin1String("OpenPilot.Window.Sep.Split"), uavGadgetManagerContext);
+    cmd = am->registerAction(tmpaction1, "OpenPilot.Window.Sep.Split", uavGadgetManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_HIDE_TOOLBAR);
 
     m_showToolbarsAction = new QAction(tr("Edit Gadgets Mode"), this);
@@ -688,7 +688,7 @@ void MainWindow::registerDefaultActions()
     // Window menu separators
     QAction *tmpaction2 = new QAction(this);
     tmpaction2->setSeparator(true);
-    cmd = am->registerAction(tmpaction2, QLatin1String("OpenPilot.Window.Sep.Split2"), uavGadgetManagerContext);
+    cmd = am->registerAction(tmpaction2, "OpenPilot.Window.Sep.Split2", uavGadgetManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
 
 #ifdef Q_WS_MAC
@@ -734,7 +734,7 @@ void MainWindow::registerDefaultActions()
 #ifndef Q_WS_MAC
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, QLatin1String("QtCreator.Help.Sep.About"), m_globalContext);
+    cmd = am->registerAction(tmpaction, "QtCreator.Help.Sep.About", m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
 #endif
 
@@ -786,7 +786,8 @@ void MainWindow::saveAll()
     }
 
     emit m_coreImpl->saveSettingsRequested();
-    saveSettings(); // OpenPilot-specific.
+    QSettings settings;
+    saveSettings(settings);
 }
 
 void MainWindow::exit()
@@ -828,15 +829,6 @@ UniqueIDManager *MainWindow::uniqueIDManager() const
 MessageManager *MainWindow::messageManager() const
 {
     return m_messageManager;
-}
-
-QSettings *MainWindow::settings(QSettings::Scope scope) const
-{
-    if (scope == QSettings::UserScope) {
-        return m_settings;
-    } else {
-        return m_globalSettings;
-    }
 }
 
 VariableManager *MainWindow::variableManager() const
@@ -1026,7 +1018,7 @@ inline int takeLeastPriorityUavGadgetManager(const QList<Core::UAVGadgetManager 
     return index;
 }
 
-void MainWindow::createWorkspaces(QSettings *qs, bool diffOnly)
+void MainWindow::createWorkspaces(QSettings &settings, bool diffOnly)
 {
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
 
@@ -1085,175 +1077,161 @@ void MainWindow::createWorkspaces(QSettings *qs, bool diffOnly)
 
         pm->addObject(uavGadgetManager);
         m_uavGadgetManagers.append(uavGadgetManager);
-        uavGadgetManager->readSettings(qs);
+        uavGadgetManager->readSettings(settings);
         qDebug() << "MainWindow::createWorkspaces - creating workspace" << name << "took" << timer.elapsed() << "ms";
     }
     qDebug() << "MainWindow::createWorkspaces - creating workspaces took" << totalTimer.elapsed() << "ms";
 }
 
-static const char *settingsGroup  = "MainWindow";
-static const char *geometryKey    = "Geometry";
-static const char *colorKey = "Color";
-static const char *maxKey = "Maximized";
-static const char *fullScreenKey  = "FullScreen";
-static const char *modePriorities = "ModePriorities";
+static const QString settingsGroup  = "MainWindow";
+static const QString geometryKey    = "Geometry";
+static const QString colorKey = "Color";
+static const QString maxKey = "Maximized";
+static const QString fullScreenKey  = "FullScreen";
+static const QString modePriorities = "ModePriorities";
 
-void MainWindow::readSettings(QSettings *qs, bool workspaceDiffOnly)
+void MainWindow::readSettings(QSettings &settings, bool workspaceDiffOnly)
 {
-    if (!qs) {
-        qs = m_settings;
-    }
-
     if (workspaceDiffOnly) {
-        createWorkspaces(qs, workspaceDiffOnly);
+        createWorkspaces(settings, workspaceDiffOnly);
         return;
     }
 
-    m_generalSettings->readSettings(qs);
-    m_actionManager->readSettings(qs);
+    m_generalSettings->readSettings(settings);
+    m_actionManager->readSettings(settings);
 
-    qs->beginGroup(QLatin1String(settingsGroup));
+    settings.beginGroup(settingsGroup);
 
-    Utils::StyleHelper::setBaseColor(qs->value(QLatin1String(colorKey)).value<QColor>());
+    Utils::StyleHelper::setBaseColor(settings.value(colorKey).value<QColor>());
 
-    const QVariant geom = qs->value(QLatin1String(geometryKey));
+    const QVariant geom = settings.value(geometryKey);
     if (geom.isValid()) {
         setGeometry(geom.toRect());
     } else {
         resize(750, 400);
     }
-    if (qs->value(QLatin1String(maxKey), false).toBool()) {
+    if (settings.value(maxKey, false).toBool()) {
         setWindowState(Qt::WindowMaximized);
     }
-    setFullScreen(qs->value(QLatin1String(fullScreenKey), false).toBool());
+    setFullScreen(settings.value(fullScreenKey, false).toBool());
 
-    qs->endGroup();
+    settings.endGroup();
 
-    m_workspaceSettings->readSettings(qs);
+    m_workspaceSettings->readSettings(settings);
 
-    createWorkspaces(qs);
+    createWorkspaces(settings);
 
     // Restore tab ordering
-    qs->beginGroup(QLatin1String(modePriorities));
+    settings.beginGroup(modePriorities);
 
-    QStringList modeNames = qs->childKeys();
+    QStringList modeNames = settings.childKeys();
     QMap<QString, int> map;
     foreach(QString modeName, modeNames) {
-        map.insert(modeName, qs->value(modeName).toInt());
+        map.insert(modeName, settings.value(modeName).toInt());
     }
     m_modeManager->reorderModes(map);
 
-    qs->endGroup();
+    settings.endGroup();
 
     // Restore selected tab
     if (m_workspaceSettings->restoreSelectedOnStartup()) {
-        int index = qs->value(QLatin1String("SelectedWorkspace")).toInt();
+        int index = settings.value("SelectedWorkspace").toInt();
         m_modeStack->setCurrentIndex(index);
     }
 }
 
 
-void MainWindow::saveSettings(QSettings *qs)
+void MainWindow::saveSettings(QSettings &settings) const
 {
     if (m_dontSaveSettings) {
         return;
     }
 
-    if (!qs) {
-        qs = m_settings;
-    }
+    m_workspaceSettings->saveSettings(settings);
 
-    m_workspaceSettings->saveSettings(qs);
+    settings.beginGroup(settingsGroup);
 
-    qs->beginGroup(QLatin1String(settingsGroup));
-
-    qs->setValue(QLatin1String(colorKey), Utils::StyleHelper::baseColor());
+    settings.setValue(colorKey, Utils::StyleHelper::baseColor());
 
     if (windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen)) {
-        qs->setValue(QLatin1String(maxKey), (bool)(windowState() & Qt::WindowMaximized));
-        qs->setValue(QLatin1String(fullScreenKey), (bool)(windowState() & Qt::WindowFullScreen));
+        settings.setValue(maxKey, (bool)(windowState() & Qt::WindowMaximized));
+        settings.setValue(fullScreenKey, (bool)(windowState() & Qt::WindowFullScreen));
     } else {
-        qs->setValue(QLatin1String(maxKey), false);
-        qs->setValue(QLatin1String(fullScreenKey), false);
-        qs->setValue(QLatin1String(geometryKey), geometry());
+        settings.setValue(maxKey, false);
+        settings.setValue(fullScreenKey, false);
+        settings.setValue(geometryKey, geometry());
     }
 
-    qs->endGroup();
+    settings.endGroup();
 
     // Write tab ordering
-    qs->beginGroup(QLatin1String(modePriorities));
+    settings.beginGroup(modePriorities);
     QVector<IMode *> modes = m_modeManager->modes();
     foreach(IMode * mode, modes) {
-        qs->setValue(QLatin1String(mode->uniqueModeName()), mode->priority());
+        settings.setValue(mode->uniqueModeName(), mode->priority());
     }
-    qs->endGroup();
+    settings.endGroup();
 
     // Write selected tab
-    qs->setValue(QLatin1String("SelectedWorkspace"), m_modeStack->currentIndex());
+    settings.setValue("SelectedWorkspace", m_modeStack->currentIndex());
 
     foreach(UAVGadgetManager * manager, m_uavGadgetManagers) {
-        manager->saveSettings(qs);
+        manager->saveSettings(settings);
     }
 
-    m_actionManager->saveSettings(qs);
-    m_generalSettings->saveSettings(qs);
+    m_actionManager->saveSettings(settings);
+    m_generalSettings->saveSettings(settings);
 
-    qs->beginGroup("General");
-    qs->setValue("Description", m_config_description);
-    qs->setValue("Details", m_config_details);
-    qs->setValue("StyleSheet", m_config_stylesheet);
-    qs->endGroup();
+    settings.beginGroup("General");
+    settings.setValue("Description", m_config_description);
+    settings.setValue("Details", m_config_details);
+    settings.setValue("StyleSheet", m_config_stylesheet);
+    settings.endGroup();
 }
 
-void MainWindow::readSettings(IConfigurablePlugin *plugin, QSettings *qs)
+void MainWindow::readSettings(IConfigurablePlugin *plugin, QSettings &settings)
 {
-    if (!qs) {
-        qs = m_settings;
-    }
-
     UAVConfigInfo configInfo;
     QObject *qo = reinterpret_cast<QObject *>(plugin);
     QString configName = qo->metaObject()->className();
 
-    qs->beginGroup("Plugins");
-    qs->beginGroup(configName);
-    configInfo.read(qs);
+    settings.beginGroup("Plugins");
+    settings.beginGroup(configName);
+    configInfo.read(settings);
     configInfo.setNameOfConfigurable("Plugin-" + configName);
-    qs->beginGroup("data");
-    plugin->readConfig(qs, &configInfo);
+    settings.beginGroup("data");
+    plugin->readConfig(settings, &configInfo);
 
-    qs->endGroup();
-    qs->endGroup();
-    qs->endGroup();
+    settings.endGroup();
+    settings.endGroup();
+    settings.endGroup();
 }
 
-void MainWindow::saveSettings(IConfigurablePlugin *plugin, QSettings *qs)
+void MainWindow::saveSettings(IConfigurablePlugin *plugin, QSettings &settings) const
 {
     if (m_dontSaveSettings) {
         return;
-    }
-
-    if (!qs) {
-        qs = m_settings;
     }
 
     UAVConfigInfo configInfo;
     QString configName = plugin->metaObject()->className();
 
-    qs->beginGroup("Plugins");
-    qs->beginGroup(configName);
-    qs->beginGroup("data");
-    plugin->saveConfig(qs, &configInfo);
-    qs->endGroup();
-    configInfo.save(qs);
-    qs->endGroup();
-    qs->endGroup();
+    settings.beginGroup("Plugins");
+    settings.beginGroup(configName);
+    settings.beginGroup("data");
+    plugin->saveConfig(settings, &configInfo);
+    settings.endGroup();
+    configInfo.save(settings);
+    settings.endGroup();
+    settings.endGroup();
 }
 
 void MainWindow::deleteSettings()
 {
-    m_settings->clear();
-    m_settings->sync();
+    QSettings settings;
+
+    settings.clear();
+    settings.sync();
     m_dontSaveSettings = true;
 }
 
@@ -1363,6 +1341,9 @@ void MainWindow::setFullScreen(bool on)
     }
 
     if (on) {
+#ifdef Q_OS_WIN
+        QWindowsWindowFunctions::setHasBorderInFullScreen(windowHandle(), true);
+#endif
         setWindowState(windowState() | Qt::WindowFullScreen);
     } else {
         setWindowState(windowState() & ~Qt::WindowFullScreen);

@@ -1,0 +1,125 @@
+<gcs>
+  <UAVGadgetConfigurations>
+    <PfdQmlGadget>
+      <PFD__PCT__20__PCT__28Video__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <qmlFile>%%DATAPATH%%qml/PfdVideo.qml</qmlFile>
+          <altitudeFactor>1</altitudeFactor>
+          <speedFactor>1</speedFactor>
+          <terrainEnabled>true</terrainEnabled>
+          <earthFile>%%DATAPATH%%osgearth/arcgis.earth</earthFile>
+          <cacheOnly>false</cacheOnly>
+          <latitude>39.6576</latitude>
+          <longitude>19.8046</longitude>
+          <altitude>90</altitude>
+          <timeMode>0</timeMode>
+          <dateTime>@Variant(AAAAEAAlfhEClAez/w==)</dateTime>
+          <minAmbientLight>0.50</minAmbientLight>
+          <modelEnabled>false</modelEnabled>
+          <modelSelectionMode>1</modelSelectionMode>
+          <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+          <backgroundImageFile>%%DATAPATH%%backgrounds/default_background.png</backgroundImageFile>
+          <gstPipeline>avfvideosrc ! videoconvert ! video/x-raw,format=RGB ! appsink name=sink emit-signals=true</gstPipeline>
+        </data>
+      </PFD__PCT__20__PCT__28Video__PCT__29>
+    </PfdQmlGadget>
+    <VideoGadget>
+      <Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>avfvideosrc capture-screen=true capture-screen-cursor=true ! tee name=t
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! timeoverlay ! autovideosink
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! videoconvert ! x264enc interlaced=true pass=quant quantizer=0 speed-preset=ultrafast byte-stream=true ! mpegpsmux ! filesink location=capture_fast.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+      <Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>avfvideosrc capture-screen=true capture-screen-cursor=true ! tee name=t
+    t. ! queue ! timeoverlay ! autovideosink
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+      <Screen__PCT__20-__PCT__20Play>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>true</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>avfvideosrc capture-screen=true capture-screen-cursor=true ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </Screen__PCT__20-__PCT__20Play>
+      <USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>avfvideosrc ! tee name=t
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! timeoverlay ! autovideosink
+  t. ! queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 ! videoconvert ! x264enc interlaced=true pass=quant quantizer=0 speed-preset=ultrafast byte-stream=true ! mpegpsmux ! filesink location=capture_fast.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file__PCT__20__PCT__28fast__PCT__20__PCT__26__PCT__20big__PCT__29>
+      <USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>false</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>avfvideosrc ! tee name=t
+    t. ! queue ! timeoverlay ! autovideosink
+    t. ! queue ! videoconvert ! x264enc tune=zerolatency bitrate=498 ! mpegpsmux ! filesink location=capture.mpg</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>true</respectAspectRatio>
+        </data>
+      </USB__PCT__20Camera__PCT__20-__PCT__20Capture__PCT__20to__PCT__20file>
+      <USB__PCT__20Camera__PCT__20-__PCT__20Play>
+        <configInfo>
+          <locked>false</locked>
+          <version>0.0.0</version>
+        </configInfo>
+        <data>
+          <autoStart>true</autoStart>
+          <displayControls>false</displayControls>
+          <displayVideo>true</displayVideo>
+          <pipelineDesc>avfvideosrc ! autovideosink</pipelineDesc>
+          <pipelineInfo></pipelineInfo>
+          <respectAspectRatio>false</respectAspectRatio>
+        </data>
+      </USB__PCT__20Camera__PCT__20-__PCT__20Play>
+    </VideoGadget>
+  </UAVGadgetConfigurations>
+</gcs>

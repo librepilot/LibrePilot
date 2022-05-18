@@ -32,7 +32,9 @@
 #include "iuavgadget.h"
 #include "minisplitter.h"
 
-#include <QtCore/QDebug>
+#include <QStackedLayout>
+#include <QSettings>
+#include <QDebug>
 
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
@@ -382,47 +384,47 @@ void SplitterOrView::unsplitAll_helper(UAVGadgetManager *uavGadgetManager, QSpli
     }
 }
 
-void SplitterOrView::saveState(QSettings *qSettings) const
+void SplitterOrView::saveState(QSettings &settings) const
 {
     if (m_splitter) {
-        qSettings->setValue("type", "splitter");
-        qSettings->setValue("splitterOrientation", (qint32)m_splitter->orientation());
+        settings.setValue("type", "splitter");
+        settings.setValue("splitterOrientation", (qint32)m_splitter->orientation());
         QList<QVariant> sizesQVariant;
         foreach(int value, m_sizes) {
             sizesQVariant.append(value);
         }
-        qSettings->setValue("splitterSizes", sizesQVariant);
-        qSettings->beginGroup("side0");
-        static_cast<SplitterOrView *>(m_splitter->widget(0))->saveState(qSettings);
-        qSettings->endGroup();
-        qSettings->beginGroup("side1");
-        static_cast<SplitterOrView *>(m_splitter->widget(1))->saveState(qSettings);
-        qSettings->endGroup();
+        settings.setValue("splitterSizes", sizesQVariant);
+        settings.beginGroup("side0");
+        static_cast<SplitterOrView *>(m_splitter->widget(0))->saveState(settings);
+        settings.endGroup();
+        settings.beginGroup("side1");
+        static_cast<SplitterOrView *>(m_splitter->widget(1))->saveState(settings);
+        settings.endGroup();
     } else if (gadget()) {
-        m_view->saveState(qSettings);
+        m_view->saveState(settings);
     }
 }
 
-void SplitterOrView::restoreState(QSettings *qSettings)
+void SplitterOrView::restoreState(QSettings &settings)
 {
-    QString mode = qSettings->value("type").toString();
+    QString mode = settings.value("type").toString();
 
     if (mode == "splitter") {
-        qint32 orientation = qSettings->value("splitterOrientation").toInt();
-        QList<QVariant> sizesQVariant = qSettings->value("splitterSizes").toList();
+        qint32 orientation = settings.value("splitterOrientation").toInt();
+        QList<QVariant> sizesQVariant = settings.value("splitterSizes").toList();
         m_sizes.clear();
         foreach(QVariant value, sizesQVariant) {
             m_sizes.append(value.toInt());
         }
         split((Qt::Orientation)orientation);
         m_splitter->setSizes(m_sizes);
-        qSettings->beginGroup("side0");
-        static_cast<SplitterOrView *>(m_splitter->widget(0))->restoreState(qSettings);
-        qSettings->endGroup();
-        qSettings->beginGroup("side1");
-        static_cast<SplitterOrView *>(m_splitter->widget(1))->restoreState(qSettings);
-        qSettings->endGroup();
+        settings.beginGroup("side0");
+        static_cast<SplitterOrView *>(m_splitter->widget(0))->restoreState(settings);
+        settings.endGroup();
+        settings.beginGroup("side1");
+        static_cast<SplitterOrView *>(m_splitter->widget(1))->restoreState(settings);
+        settings.endGroup();
     } else if (mode == "uavGadget") {
-        m_view->restoreState(qSettings);
+        m_view->restoreState(settings);
     }
 }

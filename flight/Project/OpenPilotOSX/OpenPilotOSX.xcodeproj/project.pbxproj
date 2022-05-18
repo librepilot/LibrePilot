@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		4354B66314FED9FE004BA3B4 /* flight */ = {isa = PBXFileReference; lastKnownFileType = folder; name = flight; path = ../..; sourceTree = SOURCE_ROOT; };
+		5985F6EF1ED7911600B90A89 /* ground */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ground; path = ../../../ground; sourceTree = "<group>"; };
 		65173C9F12EBFD1700D6A7CB /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../../../Makefile; sourceTree = SOURCE_ROOT; };
 		65904F1814632C1700FD9482 /* firmware-defs.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "firmware-defs.mk"; sourceTree = "<group>"; };
 		65904F2214632C1700FD9482 /* board-info.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "board-info.mk"; sourceTree = "<group>"; };
@@ -34,6 +35,7 @@
 			isa = PBXGroup;
 			children = (
 				4354B66314FED9FE004BA3B4 /* flight */,
+				5985F6EF1ED7911600B90A89 /* ground */,
 				65904F1614632C1700FD9482 /* make */,
 				65C35E4E12EFB2F3004811C2 /* shared */,
 				65173C9F12EBFD1700D6A7CB /* Makefile */,

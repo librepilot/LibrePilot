@@ -181,6 +181,8 @@ Section "-Libs" InSecLibs
   SectionIn RO
   SetOutPath "$INSTDIR\lib\${GCS_SMALL_NAME}\osg"
   File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\osg\*.dll"
+  SetOutPath "$INSTDIR\lib\${GCS_SMALL_NAME}\gstreamer-1.0"
+  File /r "${GCS_BUILD_TREE}\lib\${GCS_SMALL_NAME}\gstreamer-1.0\*.dll"
 SectionEnd
 
 ; Copy GCS resources

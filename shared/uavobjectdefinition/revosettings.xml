@@ -2,7 +2,7 @@
     <object name="RevoSettings" singleinstance="true" settings="true" category="State">
         <description>Settings for the revo to control the algorithm and what is updated</description>
         <field name="FusionAlgorithm" units="" type="enum" elements="1" 
-        options="None,Basic (Complementary),Complementary+Mag,Complementary+Mag+GPSOutdoor,INS13Indoor,GPS Navigation (INS13)" 
+        options="None,Basic (Complementary),Complementary+Mag,Complementary+Mag+GPSOutdoor,INS13Indoor,GPS Navigation (INS13),GPS Navigation (INS13+CF),Testing (INS Indoor+CF),Acro (No Sensors)" 
         defaultvalue="Basic (Complementary)"/>
 
         <!-- Low pass filter configuration to calculate offset of barometric altitude sensor.

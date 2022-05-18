@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-ANDROID_ENV=true
+echo "
+Setup a build environment
+"
+
+ANDROID_ENV=false
 ANDROID_STUDIO_VERSION=1.1.0
 ANDROID_STUDIO_BUILD=135.1740770
 ANDROID_STUDIO_FILE=android-studio-ide-$ANDROID_STUDIO_BUILD-linux.zip
@@ -11,10 +15,14 @@ ANDROID_SDK_URL=http://dl.google.com/android/${ANDROID_SDK_FILE}
 ANDROID_API_LEVELS=android-20,android-21,android-22
 ANDROID_BUILD_TOOLS_VERSION=21.1.2
 
-sudo apt-get -y install curl build-essential gdb wget \
-debhelper p7zip-full unzip flex bison libsdl1.2-dev libudev-dev libusb-1.0-0-dev libc6-i386
+# Setup a build environment
+sudo add-apt-repository --yes ppa:librepilot/tools
+sudo apt-get --yes --force-yes update
+sudo apt-get --yes --force-yes install build-essential ccache debhelper git-core git-doc flex graphviz bison libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools qt56quickcontrols libosgearth-dev openscenegraph-plugin-osgearth
+sudo apt-get --yes --force-yes install libc6-i386
 
 
+# Do Android stuff
 if [ "$ANDROID_ENV" = "true" ]; then
 
 	# install java7
@@ -25,7 +33,7 @@ if [ "$ANDROID_ENV" = "true" ]; then
 	# accept the license agreement
 	echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
 
-	sudo apt-get -y install oracle-java7-installer
+	sudo apt-get --yes --force-yes install oracle-java7-installer
 
 	# make a place to install development tools
 	mkdir -p ~/workspace/tools
@@ -63,12 +71,12 @@ if [ "$ANDROID_ENV" = "true" ]; then
 
 fi
 
+# Checkout code
+mkdir -p ~/workspace/
+cd ~/workspace/
+git clone https://bitbucket.org/librepilot/librepilot.git
+cd librepilot
+git checkout next
 
-mkdir -p ~/workspace/openpilot
-cd ~/workspace/openpilot
-git clone git://git.openpilot.org/OpenPilot.git
-cd OpenPilot
-git checkout -b next origin/next
-git pull
-
-
+# Dev Tools Installation
+make build_sdk_install

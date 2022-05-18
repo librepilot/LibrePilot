@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionoptionspage.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionoptionspage.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -25,16 +26,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef IPconnectionOPTIONSPAGE_H
-#define IPconnectionOPTIONSPAGE_H
+#ifndef IPCONNECTIONOPTIONSPAGE_H
+#define IPCONNECTIONOPTIONSPAGE_H
 
 #include "coreplugin/dialogs/ioptionspage.h"
 
-class IPconnectionConfiguration;
-
-namespace Core {
-class IUAVGadgetConfiguration;
-}
+class IPConnectionConfiguration;
 
 namespace Ui {
 class IPconnectionOptionsPage;
@@ -42,11 +39,11 @@ class IPconnectionOptionsPage;
 
 using namespace Core;
 
-class IPconnectionOptionsPage : public IOptionsPage {
+class IPConnectionOptionsPage : public IOptionsPage {
     Q_OBJECT
 public:
-    explicit IPconnectionOptionsPage(IPconnectionConfiguration *config, QObject *parent = 0);
-    virtual ~IPconnectionOptionsPage();
+    explicit IPConnectionOptionsPage(IPConnectionConfiguration *config, QObject *parent = 0);
+    virtual ~IPConnectionOptionsPage();
 
     QString id() const
     {
@@ -72,10 +69,9 @@ public:
 signals:
     void availableDevChanged();
 
-public slots:
 private:
-    IPconnectionConfiguration *m_config;
     Ui::IPconnectionOptionsPage *m_page;
+    IPConnectionConfiguration *m_config;
 };
 
-#endif // IPconnectionOPTIONSPAGE_H
+#endif // IPCONNECTIONOPTIONSPAGE_H

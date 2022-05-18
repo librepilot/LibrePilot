@@ -282,6 +282,19 @@ void PfdQmlContext::resetConsumedEnergy()
     batterySettings->setData(batterySettings->getData());
 }
 
+QString PfdQmlContext::gstPipeline() const
+{
+    return m_gstPipeline;
+}
+
+void PfdQmlContext::setGstPipeline(const QString &arg)
+{
+    if (m_gstPipeline != arg) {
+        m_gstPipeline = arg;
+        emit gstPipelineChanged(gstPipeline());
+    }
+}
+
 void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 {
     setSpeedFactor(config->speedFactor());
@@ -307,17 +320,20 @@ void PfdQmlContext::loadConfiguration(PfdQmlGadgetConfiguration *config)
 
     // background image
     setBackgroundImageFile(config->backgroundImageFile());
+
+    // gstreamer pipeline
+    setGstPipeline(config->gstPipeline());
 }
 
 
-void PfdQmlContext::saveState(QSettings *settings)
+void PfdQmlContext::saveState(QSettings &settings) const
 {
-    settings->setValue("modelFile", modelFile());
+    settings.setValue("modelFile", Utils::RemoveDataPath(modelFile()));
 }
 
-void PfdQmlContext::restoreState(QSettings *settings)
+void PfdQmlContext::restoreState(QSettings &settings)
 {
-    QString file = settings->value("modelFile").toString();
+    QString file = Utils::InsertDataPath(settings.value("modelFile").toString());
 
     if (!file.isEmpty()) {
         setModelFile(file);

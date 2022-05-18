@@ -29,6 +29,7 @@
 #define ANTENNATRACKGADGETCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
+
 #include <QtSerialPort/QSerialPort>
 
 using namespace Core;
@@ -45,11 +46,14 @@ struct PortSettings {
     long Timeout_Millisec;
 };
 
-
 class AntennaTrackGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit AntennaTrackGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit AntennaTrackGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit AntennaTrackGadgetConfiguration(const AntennaTrackGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     void setConnectionMode(QString mode)
     {
@@ -59,7 +63,6 @@ public:
     {
         return m_connectionMode;
     }
-
     // set port configuration functions
     void setSpeed(QSerialPort::BaudRate speed)
     {
@@ -119,9 +122,6 @@ public:
     {
         return m_defaultTimeOut;
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     QString m_connectionMode;

@@ -1,36 +1,45 @@
 <xml>
 	<object name="OPLinkSettings" singleinstance="true" settings="true" category="System">
 		<description>OPLink configurations options.</description>
-                <field name="Protocol" units="" type="enum" elements="1" options="Disabled,OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="Disabled"/>
-                <field name="LinkType" units="" type="enum" elements="1" options="Data,Control,DataAndControl" defaultvalue="Data"/>
+		<field name="Protocol" units="" type="enum" elements="1" options="Disabled,OPLinkReceiver,OPLinkCoordinator,OpenLRS" defaultvalue="Disabled"/>
+		<field name="LinkType" units="" type="enum" elements="1" options="Data,Control,DataAndControl" defaultvalue="Data"/>
 		<field name="CoordID" units="hex" type="uint32" elements="1" defaultvalue="0"/>
-		<field name="MainPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,ComBridge,PPM,PWM" defaultvalue="Disabled"/>
-		<field name="FlexiPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,ComBridge,PPM,PWM" defaultvalue="Disabled"/>
-		<field name="VCPPort" units="" type="enum" elements="1" options="Disabled,Serial,ComBridge" defaultvalue="Disabled"/>
-		<field name="ComSpeed" units="bps" type="enum" elements="1" options="4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
-		<field name="MaxRFPower" units="mW" type="enum" elements="1" options="0,1.25,1.6,3.16,6.3,12.6,25,50,100" defaultvalue="0"/>
-		<field name="MinChannel" units="" type="uint8" elements="1" defaultvalue="0"/>
-		<field name="MaxChannel" units="" type="uint8" elements="1" defaultvalue="250"/>
 		<field name="CustomDeviceID" units="hex" type="uint32" elements="1" defaultvalue="0"/>
+
+		<!-- port options -->
+		<field name="MainPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
+		<field name="FlexiPort" units="" type="enum" elements="1" options="Disabled,Telemetry,Serial,PPM,PWM" defaultvalue="Disabled"/>
+		<field name="PPMOutRSSI" units="" type="enum" elements="1" options="False,True" defaultvalue="False" description="Add RSSI to the PPM output stream (Ch9)"/>
+		<field name="RadioPriStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="HID"/>
+		<field name="RadioAuxStream" units="connection" type="enum" elements="1" options="Disabled,HID,Main,Flexi,VCP" defaultvalue="Disabled"/>
+		<field name="VCPBridge" units="connection" type="enum" elements="1" options="Disabled,Main,Flexi" defaultvalue="Disabled"/>
+		<field name="MainComSpeed" units="bps" type="enum" elements="1" options="Disabled,4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
+		<field name="FlexiComSpeed" units="bps" type="enum" elements="1" options="Disabled,4800,9600,19200,38400,57600,115200" defaultvalue="38400"/>
+		<field name="AirDataRate" units="bps" type="enum" elements="1" options="9600,19200,32000,57600,64000,100000,128000,192000,256000" defaultvalue="64000"/>
 
 		<!-- OpenLRS options -->
 		<field name="Version" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="SerialBaudrate" units="bps" type="uint32" elements="1" defaultvalue="0"/>
-		<field name="RFFrequency" units="hz" type="uint32" elements="1" defaultvalue="0"/>
+		<field name="RFFrequency" units="Hz" type="uint32" elements="1" defaultvalue="0"/>
 		<field name="FailsafeDelay" units="ms" type="uint32" elements="1" defaultvalue="1000"/>
 		<field name="RSSIType" units="function" type="enum" elements="1" options="Combined,RSSI,LinkQuality" defaultvalue="Combined"/> 
-
-                <!-- rf_magic === CoordID -->
 		<field name="RFPower" units="" type="uint8" elements="1" defaultvalue="0"/>
-		<field name="RFChannelSpacing" units="hz" type="uint8" elements="1" defaultvalue="0"/>
+
+		<!-- RF options -->
+		<field name="RFXtalCap" units="" type="uint8" elements="1" defaultvalue="127" limits="%BE:0:171" description="0 to 171 range, default 127"/>
+		<field name="MinChannel" units="" type="uint8" elements="1" defaultvalue="0"/>
+		<field name="MaxChannel" units="" type="uint8" elements="1" defaultvalue="250"/>
+		<field name="RFBand" units="" type="enum" elements="1" options="433MHz,868MHz,915MHz" defaultvalue="433MHz"/>    
+		<field name="MaxRFPower" units="mW" type="enum" elements="1" options="0,1.25,1.6,3.16,6.3,12.6,25,50,100" defaultvalue="0"/>
+		<field name="RFChannelSpacing" units="Hz" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="HopChannel" units="" type="uint8" elements="24" defaultvalue="0"/>
 		<field name="ModemParams" units="" type="uint8" elements="1" defaultvalue="0"/>
 		<field name="Flags" units="" type="uint8" elements="1" defaultvalue="0"/>
 
 		<!-- beacon options -->
-		<field name="BeaconFrequency" units="hz" type="uint32" elements="1" defaultvalue="462712500"/>
+		<field name="BeaconFrequency" units="Hz" type="uint32" elements="1" defaultvalue="462712500"/>
 		<field name="BeaconDelay" units="s" type="uint8" elements="1" defaultvalue="30"/>
-		<field name="BeaconPeriod" units="s" type="uint8" elements="1" defaultvalue="15"/>
+		<field name="BeaconPeriod" units="s" type="uint8" elements="1" defaultvalue="30"/>
 
 		<access gcs="readwrite" flight="readwrite"/>
 		<telemetrygcs acked="true" updatemode="onchange" period="0"/>

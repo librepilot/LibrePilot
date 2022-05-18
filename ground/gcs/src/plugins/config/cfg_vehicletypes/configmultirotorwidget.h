@@ -29,11 +29,6 @@
 
 #include "cfg_vehicletypes/vehicleconfig.h"
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
 #include <QList>
 
 class Ui_MultiRotorConfigWidget;
@@ -51,22 +46,26 @@ public:
     ConfigMultiRotorWidget(QWidget *parent = 0);
     ~ConfigMultiRotorWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual QString getFrameType();
 
 protected:
     void showEvent(QShowEvent *event);
     void resizeEvent(QResizeEvent *event);
-    void enableControls(bool enable);
+
+    virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
 
 private:
     Ui_MultiRotorConfigWidget *m_aircraft;
     QGraphicsSvgItem *quad;
     bool invertMotors;
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
-    virtual void resetRcOutputs(GUIConfigDataUnion *configData);
+    void resetActuators(GUIConfigDataUnion *configData);
+    void resetRcOutputs(GUIConfigDataUnion *configData);
 
     bool setupQuad(bool pLayout);
     bool setupHexa(bool pLayout);
@@ -82,10 +81,9 @@ private:
     void updateMotorsPositionLabels(QStringList motorLabels);
     void setupEnabledControls(QString multiRotorType);
 
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(int numMotors);
+    bool throwConfigError(int numMotors);
 
+private slots:
     void reverseMultirotorMotor();
 };
 

@@ -2,7 +2,7 @@
  ***********************************************************************************
  *
  * @file       vehicleconfigurationhelper.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
@@ -157,7 +157,9 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PWMNOONESHOT;
             break;
         case VehicleConfigurationSource::INPUT_PPM:
-            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT ||
+            if (m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT125 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_ONESHOT42 ||
+                m_configSource->getEscType() == VehicleConfigurationSource::ESC_MULTISHOT ||
                 m_configSource->getEscType() == VehicleConfigurationSource::ESC_SYNCHED) {
                 data.CC_RcvrPort = HwSettings::CC_RCVRPORT_PPM_PIN8ONESHOT;
             } else {
@@ -304,11 +306,21 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
             case VehicleConfigurationSource::GPS_UBX:
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_SURFACE) {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AUTOMOTIVE;
+                } else {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AIRBORNE1G;
+                }
                 break;
             case VehicleConfigurationSource::GPS_PLATINUM:
             {
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_SURFACE) {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AUTOMOTIVE;
+                } else {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AIRBORNE1G;
+                }
                 AuxMagSettings *magSettings = AuxMagSettings::GetInstance(m_uavoManager);
                 Q_ASSERT(magSettings);
                 AuxMagSettings::DataFields magsData = magSettings->getData();
@@ -339,6 +351,11 @@ void VehicleConfigurationHelper::applyHardwareConfiguration()
 
                 gpsData.DataProtocol  = GPSSettings::DATAPROTOCOL_UBX;
                 gpsData.UbxAutoConfig = GPSSettings::UBXAUTOCONFIG_AUTOBAUDANDCONFIGURE;
+                if (m_configSource->getVehicleType() == VehicleConfigurationSource::VEHICLE_SURFACE) {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AUTOMOTIVE;
+                } else {
+                    gpsData.UbxDynamicModel = GPSSettings::UBXDYNAMICMODEL_AIRBORNE1G;
+                }
                 if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_SPARKY2) {
                     data.SPK2_FlexiPort = HwSettings::SPK2_FLEXIPORT_I2C;
                 } else {
@@ -478,6 +495,12 @@ void VehicleConfigurationHelper::applyVehicleConfiguration()
         case VehicleConfigurationSource::GROUNDVEHICLE_MOTORCYCLE:
             setupMotorcycle();
             break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_BOAT:
+            setupBoat();
+            break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
+            setupBoatDiff();
+            break;
         default:
             break;
         }
@@ -494,11 +517,16 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
     ActuatorSettings *actSettings = ActuatorSettings::GetInstance(m_uavoManager);
 
     qint16 escFrequence = LEGACY_ESC_FREQUENCY;
+    qint16 escDShotMode = LEGACY_DSHOT_MODE;
     ActuatorSettings::BankModeOptions bankMode = ActuatorSettings::BANKMODE_PWM;
 
     switch (m_configSource->getEscType()) {
     case VehicleConfigurationSource::ESC_STANDARD:
         escFrequence = LEGACY_ESC_FREQUENCY;
+        bankMode     = ActuatorSettings::BANKMODE_PWM;
+        break;
+    case VehicleConfigurationSource::ESC_STANDARD300:
+        escFrequence = LEGACY_MULTI_ESC_FREQUENCY;
         bankMode     = ActuatorSettings::BANKMODE_PWM;
         break;
     case VehicleConfigurationSource::ESC_RAPID:
@@ -509,9 +537,32 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         bankMode     = ActuatorSettings::BANKMODE_PWMSYNC;
         escFrequence = PWMSYNC_ESC_FREQUENCY;
         break;
-    case VehicleConfigurationSource::ESC_ONESHOT:
+    case VehicleConfigurationSource::ESC_ONESHOT125:
         bankMode     = ActuatorSettings::BANKMODE_ONESHOT125;
-        escFrequence = ONESHOT_ESC_FREQUENCY;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        break;
+    case VehicleConfigurationSource::ESC_ONESHOT42:
+        bankMode     = ActuatorSettings::BANKMODE_ONESHOT42;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        break;
+    case VehicleConfigurationSource::ESC_MULTISHOT:
+        bankMode     = ActuatorSettings::BANKMODE_MULTISHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        break;
+    case VehicleConfigurationSource::ESC_DSHOT150:
+        bankMode     = ActuatorSettings::BANKMODE_DSHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        escDShotMode = DSHOT_MODE_150;
+        break;
+    case VehicleConfigurationSource::ESC_DSHOT600:
+        bankMode     = ActuatorSettings::BANKMODE_DSHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        // escDShotFrequence = LEGACY_DSHOT_ESC_FREQUENCY;
+        break;
+    case VehicleConfigurationSource::ESC_DSHOT1200:
+        bankMode     = ActuatorSettings::BANKMODE_DSHOT;
+        escFrequence = ESC_FREQUENCY_ZERO;
+        escDShotMode = DSHOT_MODE_1200;
         break;
     default:
         break;
@@ -553,6 +604,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         switch (m_configSource->getVehicleSubType()) {
         case VehicleConfigurationSource::MULTI_ROTOR_TRI_Y:
             // Servo always on channel 4
+            data.DShotMode   = escDShotMode;
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
             if (m_configSource->getControllerType() == VehicleConfigurationSource::CONTROLLER_REVO
@@ -570,6 +622,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
             break;
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_X:
         case VehicleConfigurationSource::MULTI_ROTOR_QUAD_PLUS:
+            data.DShotMode   = escDShotMode;
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;
@@ -596,6 +649,7 @@ void VehicleConfigurationHelper::applyActuatorConfiguration()
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_X:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_COAX_PLUS:
         case VehicleConfigurationSource::MULTI_ROTOR_OCTO_V:
+            data.DShotMode   = escDShotMode;
             data.BankUpdateFreq[0] = escFrequence;
             data.BankMode[0] = bankMode;
             data.BankUpdateFreq[1] = escFrequence;
@@ -923,7 +977,6 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         mSettings->setMixerValueRoll((qint8)100);
         mSettings->setMixerValuePitch((qint8)100);
         mSettings->setMixerValueYaw((qint8)100);
-        maxThrottle = 1;
         break;
     case VehicleConfigurationSource::VEHICLE_HELI:
         break;
@@ -934,16 +987,25 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
-            maxThrottle = 1;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_CAR:
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
-            maxThrottle = 1;
-            minThrottle = 0;
             break;
         case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL:
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
+            maxThrottle = 0.8;
+            minThrottle = 0;
+            break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_BOAT:
+            mSettings->setMixerValueRoll((qint8)100);
+            mSettings->setMixerValuePitch((qint8)100);
+            mSettings->setMixerValueYaw((qint8)100);
+            break;
+        case VehicleConfigurationSource::GROUNDVEHICLE_DIFFERENTIAL_BOAT:
             mSettings->setMixerValueRoll((qint8)100);
             mSettings->setMixerValuePitch((qint8)100);
             mSettings->setMixerValueYaw((qint8)100);
@@ -960,7 +1022,7 @@ void VehicleConfigurationHelper::applyMixerConfiguration(mixerChannelSettings ch
         break;
     }
 
-    // Apply Throttle curve max 90% for Multis, 100% for FixedWing/car/Motorbike, 80% for Tank
+    // Apply Throttle curve 0-100% for all vehicles except differential vehicles at 0-80%
     QString throttlePattern = "ThrottleCurve%1";
     for (int i = 1; i <= 2; i++) {
         UAVObjectField *field = mSettings->getField(throttlePattern.arg(i));
@@ -1181,7 +1243,7 @@ void VehicleConfigurationHelper::resetVehicleConfig()
     for (int i = 1; i <= 2; i++) {
         UAVObjectField *field = mSettings->getField(throttlePattern.arg(i));
         Q_ASSERT(field);
-        // Set default curve at 90% max for Multirotors
+        // Set default 0 -100% Throttle curve
         for (quint32 i = 0; i < field->getNumElements(); i++) {
             field->setValue(i * (1.0f / (field->getNumElements() - 1)), i);
         }
@@ -2325,4 +2387,70 @@ void VehicleConfigurationHelper::setupMotorcycle()
 
     applyMixerConfiguration(channels);
     applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE, guiSettings);
+}
+
+void VehicleConfigurationHelper::setupBoat()
+{
+    // Typical vehicle setup
+    // 1. Setup mixer data
+    // 2. Setup GUI data
+    // 3. Apply changes
+
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
+    GUIConfigDataUnion guiSettings = getGUIConfigData();
+
+    // Rudder Servo (Chan 1)
+    channels[0].type      = MIXER_TYPE_SERVO;
+    channels[0].throttle1 = 0;
+    channels[0].throttle2 = 0;
+    channels[0].roll      = 0;
+    channels[0].pitch     = 0;
+    channels[0].yaw       = 100;
+
+    // Motor (Chan 4)
+    channels[3].type      = MIXER_TYPE_REVERSABLEMOTOR;
+    channels[3].throttle1 = 100;
+    channels[3].throttle2 = 0;
+    channels[3].roll      = 0;
+    channels[3].pitch     = 0;
+    channels[3].yaw       = 0;
+
+    guiSettings.ground.GroundVehicleSteering1 = 1;
+    guiSettings.ground.GroundVehicleThrottle2 = 4;
+
+    applyMixerConfiguration(channels);
+    applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT, guiSettings);
+}
+
+void VehicleConfigurationHelper::setupBoatDiff()
+{
+    // Typical vehicle setup
+    // 1. Setup mixer data
+    // 2. Setup GUI data
+    // 3. Apply changes
+
+    mixerChannelSettings channels[ActuatorSettings::CHANNELADDR_NUMELEM];
+    GUIConfigDataUnion guiSettings = getGUIConfigData();
+
+    // Left Motor (Chan 1)
+    channels[0].type      = MIXER_TYPE_REVERSABLEMOTOR;
+    channels[0].throttle1 = 100;
+    channels[0].throttle2 = 0;
+    channels[0].roll      = 0;
+    channels[0].pitch     = 0;
+    channels[0].yaw       = 100;
+
+    // Right Motor (Chan 2)
+    channels[1].type      = MIXER_TYPE_REVERSABLEMOTOR;
+    channels[1].throttle1 = 100;
+    channels[1].throttle2 = 0;
+    channels[1].roll      = 0;
+    channels[1].pitch     = 0;
+    channels[1].yaw       = -100;
+
+    guiSettings.ground.GroundVehicleThrottle1 = 1;
+    guiSettings.ground.GroundVehicleThrottle2 = 2;
+
+    applyMixerConfiguration(channels);
+    applyMultiGUISettings(SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT, guiSettings);
 }

@@ -35,6 +35,10 @@
 // Define to report number of frames since last dropped instead of weighted ave
 #undef SBUS_GOOD_FRAME_COUNT
 
+#ifndef PIOS_SBUS_BAUD_RATE
+#define PIOS_SBUS_BAUD_RATE 100000
+#endif
+
 #include <uavobjectmanager.h>
 #include "pios_sbus_priv.h"
 
@@ -77,9 +81,8 @@ struct pios_sbus_state {
 #define SBUS_FL_WEIGHTED_AVE 26
 
 struct pios_sbus_dev {
-    enum pios_sbus_dev_magic   magic;
-    const struct pios_sbus_cfg *cfg;
-    struct pios_sbus_state     state;
+    enum pios_sbus_dev_magic magic;
+    struct pios_sbus_state   state;
 };
 
 /* Allocate S.Bus device descriptor */
@@ -125,6 +128,7 @@ static void PIOS_SBus_ResetChannels(struct pios_sbus_state *state)
 {
     for (int i = 0; i < PIOS_SBUS_NUM_INPUTS; i++) {
         state->channel_data[i] = PIOS_RCVR_TIMEOUT;
+        state->quality = 0.0f;
     }
 }
 
@@ -148,7 +152,6 @@ int32_t PIOS_SBus_Init(uint32_t *sbus_id,
                        uint32_t lower_id)
 {
     PIOS_DEBUG_Assert(sbus_id);
-    PIOS_DEBUG_Assert(cfg);
     PIOS_DEBUG_Assert(driver);
 
     struct pios_sbus_dev *sbus_dev;
@@ -158,20 +161,26 @@ int32_t PIOS_SBus_Init(uint32_t *sbus_id,
         goto out_fail;
     }
 
-    /* Bind the configuration to the device instance */
-    sbus_dev->cfg = cfg;
-
     PIOS_SBus_ResetState(&(sbus_dev->state));
 
     *sbus_id = (uint32_t)sbus_dev;
 
-    /* Enable inverter clock and enable the inverter */
-    (*cfg->gpio_clk_func)(cfg->gpio_clk_periph, ENABLE);
-    GPIO_Init(cfg->inv.gpio, &cfg->inv.init);
-    GPIO_WriteBit(cfg->inv.gpio, cfg->inv.init.GPIO_Pin, cfg->gpio_inv_enable);
+    /* Set rest of the parameters */
+    if (driver->set_config) {
+        driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_Even, PIOS_COM_StopBits_2, PIOS_SBUS_BAUD_RATE);
+    }
+
+    /* Set inverted UART and IRQ priority */
+    if (driver->ioctl) {
+        enum PIOS_USART_Inverted param = cfg->non_inverted ? 0 : PIOS_USART_Inverted_Rx;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_INVERTED, &param);
+
+        uint8_t irq_prio = PIOS_IRQ_PRIO_HIGH;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_IRQ_PRIO, &irq_prio);
+    }
 
     /* Set comm driver callback */
-    (driver->bind_rx_cb)(lower_id, PIOS_SBus_RxInCallback, *sbus_id);
+    driver->bind_rx_cb(lower_id, PIOS_SBus_RxInCallback, *sbus_id);
 
     if (!PIOS_RTC_RegisterTickCallback(PIOS_SBus_Supervisor, *sbus_id)) {
         PIOS_DEBUG_Assert(0);
@@ -302,6 +311,7 @@ static void PIOS_SBus_UpdateState(struct pios_sbus_state *state, uint8_t b)
             }
 #ifndef SBUS_GOOD_FRAME_COUNT
             /* Present quality as a weighted average of good frames */
+            // TODO: Refactor quality computation, give 4% (quality_trend / SBUS_FL_WEIGHTED_AVE) at minimum
             state->quality = ((state->quality * (SBUS_FL_WEIGHTED_AVE - 1)) +
                               quality_trend) / SBUS_FL_WEIGHTED_AVE;
 #endif /* SBUS_GOOD_FRAME_COUNT */

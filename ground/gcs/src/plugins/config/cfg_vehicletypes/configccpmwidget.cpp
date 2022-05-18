@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configccpmwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -31,6 +31,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <uavobjectutilmanager.h>
+#include <uavobjecthelper.h>
 
 #include "mixersettings.h"
 #include "systemsettings.h"
@@ -56,7 +57,7 @@ QStringList ConfigCcpmWidget::getChannelDescriptions()
     QStringList channelDesc;
 
     for (int i = 0; i < (int)ConfigCcpmWidget::CHANNEL_NUMELEM; i++) {
-        channelDesc.append(QString("-"));
+        channelDesc.append("-");
     }
 
     // get the gui config data
@@ -64,64 +65,64 @@ QStringList ConfigCcpmWidget::getChannelDescriptions()
     heliGUISettingsStruct heli    = configData.heli;
 
     if (heli.Throttle > 0) {
-        channelDesc[heli.Throttle - 1] = QString("Throttle");
+        channelDesc[heli.Throttle - 1] = "Throttle";
     }
     if (heli.Tail > 0) {
-        channelDesc[heli.Tail - 1] = QString("Tail");
+        channelDesc[heli.Tail - 1] = "Tail";
     }
 
     switch (heli.FirstServoIndex) {
     case 0:
         // front
         if (heli.ServoIndexW > 0) {
-            channelDesc[heli.ServoIndexW - 1] = QString("Elevator");
+            channelDesc[heli.ServoIndexW - 1] = "Elevator";
         }
         if (heli.ServoIndexX > 0) {
-            channelDesc[heli.ServoIndexX - 1] = QString("Roll1");
+            channelDesc[heli.ServoIndexX - 1] = "Roll1";
         }
         if (heli.ServoIndexY > 0) {
-            channelDesc[heli.ServoIndexY - 1] = QString("Roll2");
+            channelDesc[heli.ServoIndexY - 1] = "Roll2";
         }
         break;
     case 1:
         // right
         if (heli.ServoIndexW > 0) {
-            channelDesc[heli.ServoIndexW - 1] = QString("ServoW");
+            channelDesc[heli.ServoIndexW - 1] = "ServoW";
         }
         if (heli.ServoIndexX > 0) {
-            channelDesc[heli.ServoIndexX - 1] = QString("ServoX");
+            channelDesc[heli.ServoIndexX - 1] = "ServoX";
         }
         if (heli.ServoIndexY > 0) {
-            channelDesc[heli.ServoIndexY - 1] = QString("ServoY");
+            channelDesc[heli.ServoIndexY - 1] = "ServoY";
         }
         break;
     case 2:
         // rear
         if (heli.ServoIndexW > 0) {
-            channelDesc[heli.ServoIndexW - 1] = QString("Elevator");
+            channelDesc[heli.ServoIndexW - 1] = "Elevator";
         }
         if (heli.ServoIndexX > 0) {
-            channelDesc[heli.ServoIndexX - 1] = QString("Roll1");
+            channelDesc[heli.ServoIndexX - 1] = "Roll1";
         }
         if (heli.ServoIndexY > 0) {
-            channelDesc[heli.ServoIndexY - 1] = QString("Roll2");
+            channelDesc[heli.ServoIndexY - 1] = "Roll2";
         }
         break;
     case 3:
         // left
         if (heli.ServoIndexW > 0) {
-            channelDesc[heli.ServoIndexW - 1] = QString("ServoW");
+            channelDesc[heli.ServoIndexW - 1] = "ServoW";
         }
         if (heli.ServoIndexX > 0) {
-            channelDesc[heli.ServoIndexX - 1] = QString("ServoX");
+            channelDesc[heli.ServoIndexX - 1] = "ServoX";
         }
         if (heli.ServoIndexY > 0) {
-            channelDesc[heli.ServoIndexY - 1] = QString("ServoY");
+            channelDesc[heli.ServoIndexY - 1] = "ServoY";
         }
         break;
     }
     if (heli.ServoIndexZ > 0) {
-        channelDesc[heli.ServoIndexZ - 1] = QString("ServoZ");
+        channelDesc[heli.ServoIndexZ - 1] = "ServoZ";
     }
     return channelDesc;
 }
@@ -169,13 +170,13 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     pen.setCapStyle(Qt::RoundCap);
     pen.setJoinStyle(Qt::RoundJoin);
 
-    QBrush brush(Qt::darkBlue);
+    QBrush brush(Qt::darkYellow);
     // creates a default pen
     QPen pen2;
 
     // pen2.setStyle(Qt::DotLine);
     pen2.setWidth(1);
-    pen2.setBrush(Qt::blue);
+    pen2.setBrush(Qt::yellow);
     // pen2.setCapStyle(Qt::RoundCap);
     // pen2.setJoinStyle(Qt::RoundJoin);
 
@@ -195,7 +196,7 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
 
         ServosText[i] = new QGraphicsTextItem();
         ServosText[i]->setDefaultTextColor(Qt::yellow);
-        ServosText[i]->setPlainText(QString("-"));
+        ServosText[i]->setPlainText("-");
         ServosText[i]->setFont(serifFont);
         ServosText[i]->setZValue(31);
 
@@ -236,17 +237,13 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
 
     QStringList Types;
-    Types << QString::fromUtf8("CCPM 2 Servo 90º") << QString::fromUtf8("CCPM 3 Servo 90º")
-          << QString::fromUtf8("CCPM 4 Servo 90º") << QString::fromUtf8("CCPM 3 Servo 120º")
-          << QString::fromUtf8("CCPM 3 Servo 140º") << QString::fromUtf8("FP 2 Servo 90º")
-          << QString::fromUtf8("Coax 2 Servo 90º") << QString::fromUtf8("Custom - User Angles")
-          << QString::fromUtf8("Custom - Advanced Settings");
+    Types << "CCPM 2 Servo 90º" << "CCPM 3 Servo 90º"
+          << "CCPM 4 Servo 90º" << "CCPM 3 Servo 120º"
+          << "CCPM 3 Servo 140º" << "FP 2 Servo 90º"
+          << "Coax 2 Servo 90º" << "Custom - User Angles"
+          << "Custom - Advanced Settings";
     m_aircraft->ccpmType->addItems(Types);
     m_aircraft->ccpmType->setCurrentIndex(m_aircraft->ccpmType->count() - 1);
-
-    // refreshWidgetsValues(QString("HeliCP"));
-
-    UpdateType();
 
     connect(m_aircraft->ccpmAngleW, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
     connect(m_aircraft->ccpmAngleX, SIGNAL(valueChanged(double)), this, SLOT(ccpmSwashplateUpdate()));
@@ -277,12 +274,17 @@ ConfigCcpmWidget::ConfigCcpmWidget(QWidget *parent) :
     connect(m_aircraft->ccpmLinkCyclic, SIGNAL(clicked()), this, SLOT(SetUIComponentVisibilities()));
     connect(m_aircraft->ccpmLinkRoll, SIGNAL(clicked()), this, SLOT(SetUIComponentVisibilities()));
 
-    ccpmSwashplateRedraw();
+    UpdateType();
 }
 
 ConfigCcpmWidget::~ConfigCcpmWidget()
 {
     delete m_aircraft;
+}
+
+QString ConfigCcpmWidget::getFrameType()
+{
+    return "HeliCP";
 }
 
 void ConfigCcpmWidget::setupUI(QString frameType)
@@ -321,10 +323,10 @@ void ConfigCcpmWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->ccpmRollScaleBox);
     parent.addWidget(m_aircraft->SwashLvlPositionSlider);
     parent.addWidget(m_aircraft->SwashLvlPositionSpinBox);
-    parent.addWidget(m_aircraft->ThrottleCurve->getCurveWidget());
+    parent.addWidget(m_aircraft->PitchCurve->getCurveWidget());
     parent.addWidget(m_aircraft->PitchCurve);
     parent.addWidget(m_aircraft->ThrottleCurve->getCurveWidget());
-    parent.addWidget(m_aircraft->PitchCurve);
+    parent.addWidget(m_aircraft->ThrottleCurve);
     parent.addWidget(m_aircraft->ccpmAdvancedSettingsTable);
 }
 
@@ -338,11 +340,16 @@ void ConfigCcpmWidget::resetActuators(GUIConfigDataUnion *configData)
     configData->heli.ServoIndexZ = 0;
 }
 
-void ConfigCcpmWidget::refreshWidgetsValues(QString frameType)
+void ConfigCcpmWidget::enableControls(bool enable)
 {
-    Q_UNUSED(frameType);
+    if (enable) {
+        SetUIComponentVisibilities();
+    }
+}
 
-    setupUI(frameType);
+void ConfigCcpmWidget::refreshWidgetsValuesImpl(UAVObject *obj)
+{
+    Q_UNUSED(obj);
 
     GUIConfigDataUnion config = getConfigData();
 
@@ -384,21 +391,16 @@ void ConfigCcpmWidget::refreshWidgetsValues(QString frameType)
     getMixer();
 }
 
-QString ConfigCcpmWidget::updateConfigObjectsFromWidgets()
+void ConfigCcpmWidget::updateObjectsFromWidgetsImpl()
 {
-    QString airframeType = updateConfigObjects();
-
+    updateConfigObjects();
     setMixer();
-
-    return airframeType;
 }
 
 void ConfigCcpmWidget::UpdateType()
 {
     int SingleServoIndex, NumServosDefined;
     double AdjustmentAngle = 0;
-
-    SetUIComponentVisibilities();
 
     typeText = m_aircraft->ccpmType->currentText();
     SingleServoIndex = m_aircraft->ccpmSingleServo->currentIndex();
@@ -409,85 +411,85 @@ void ConfigCcpmWidget::UpdateType()
 
     NumServosDefined = 4;
     // set values for pre defined heli types
-    if (typeText.compare(QString::fromUtf8("CCPM 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    if (typeText.compare("CCPM 2 Servo 90º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleY->setEnabled(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleY->setEnabled(false);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoYChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoYChannel->setEnabled(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoYChannel->setEnabled(false);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 2;
-    } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare("CCPM 3 Servo 90º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 180, 360));
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 3;
-    } else if (typeText.compare(QString::fromUtf8("CCPM 4 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare("CCPM 4 Servo 90º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 180, 360));
         m_aircraft->ccpmAngleZ->setValue(fmod(AdjustmentAngle + 270, 360));
-        m_aircraft->ccpmSingleServo->setEnabled(0);
+        m_aircraft->ccpmSingleServo->setEnabled(false);
         m_aircraft->ccpmSingleServo->setCurrentIndex(0);
         NumServosDefined = 4;
-    } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 120º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare("CCPM 3 Servo 120º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 120, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 240, 360));
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 3;
-    } else if (typeText.compare(QString::fromUtf8("CCPM 3 Servo 140º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare("CCPM 3 Servo 140º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 140, 360));
         m_aircraft->ccpmAngleY->setValue(fmod(AdjustmentAngle + 220, 360));
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
         NumServosDefined = 3;
-    } else if (typeText.compare(QString::fromUtf8("FP 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare("FP 2 Servo 90º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleY->setEnabled(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleY->setEnabled(false);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoYChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoYChannel->setEnabled(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoYChannel->setEnabled(false);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
 
-        m_aircraft->ccpmCollectivespinBox->setEnabled(0);
-        m_aircraft->ccpmCollectiveSlider->setEnabled(0);
+        m_aircraft->ccpmCollectivespinBox->setEnabled(false);
+        m_aircraft->ccpmCollectiveSlider->setEnabled(false);
         m_aircraft->ccpmCollectivespinBox->setValue(0);
         m_aircraft->ccpmCollectiveSlider->setValue(0);
         m_aircraft->PitchCurve->setVisible(0);
         NumServosDefined = 2;
-    } else if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    } else if (typeText.compare("Coax 2 Servo 90º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmAngleW->setValue(AdjustmentAngle + 0);
         m_aircraft->ccpmAngleX->setValue(fmod(AdjustmentAngle + 90, 360));
         m_aircraft->ccpmAngleY->setValue(0);
         m_aircraft->ccpmAngleZ->setValue(0);
-        m_aircraft->ccpmAngleY->setEnabled(0);
-        m_aircraft->ccpmAngleZ->setEnabled(0);
+        m_aircraft->ccpmAngleY->setEnabled(false);
+        m_aircraft->ccpmAngleZ->setEnabled(false);
         m_aircraft->ccpmServoYChannel->setCurrentIndex(0);
         m_aircraft->ccpmServoZChannel->setCurrentIndex(0);
-        m_aircraft->ccpmServoYChannel->setEnabled(0);
-        m_aircraft->ccpmServoZChannel->setEnabled(0);
+        m_aircraft->ccpmServoYChannel->setEnabled(false);
+        m_aircraft->ccpmServoZChannel->setEnabled(false);
 
-        m_aircraft->ccpmCollectivespinBox->setEnabled(0);
-        m_aircraft->ccpmCollectiveSlider->setEnabled(0);
+        m_aircraft->ccpmCollectivespinBox->setEnabled(false);
+        m_aircraft->ccpmCollectiveSlider->setEnabled(false);
         m_aircraft->ccpmCollectivespinBox->setValue(0);
         m_aircraft->ccpmCollectiveSlider->setValue(0);
         m_aircraft->PitchCurve->setVisible(0);
@@ -495,7 +497,7 @@ void ConfigCcpmWidget::UpdateType()
     }
 
     // Set the text of the motor boxes
-    if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+    if (typeText.compare("Coax 2 Servo 90º", Qt::CaseInsensitive) == 0) {
         m_aircraft->ccpmEngineLabel->setText("CW motor");
         m_aircraft->ccpmTailLabel->setText("CCW motor");
     } else {
@@ -722,7 +724,7 @@ void ConfigCcpmWidget::UpdateMixer()
                     table->item(i, 3)->setText(QString("%1").arg(0)); // Roll
                     table->item(i, 4)->setText(QString("%1").arg(0)); // Pitch
 
-                    if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+                    if (typeText.compare("Coax 2 Servo 90º", Qt::CaseInsensitive) == 0) {
                         // Yaw
                         table->item(i, 5)->setText(QString("%1").arg(-127));
                     } else {
@@ -732,7 +734,7 @@ void ConfigCcpmWidget::UpdateMixer()
                 }
                 if (i == 1) {
                     // tailrotor --or-- counter-clockwise motor
-                    if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+                    if (typeText.compare("Coax 2 Servo 90º", Qt::CaseInsensitive) == 0) {
                         // ThrottleCurve1
                         table->item(i, 1)->setText(QString("%1").arg(127));
                         // Yaw
@@ -769,13 +771,13 @@ void ConfigCcpmWidget::UpdateMixer()
                 }
             } else {
                 for (int j = 0; j < 6; j++) {
-                    table->item(i, j)->setText(QString("-"));
+                    table->item(i, j)->setText("-");
                 }
             }
         }
     } else {
         // advanced settings
-        UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+        UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
         Q_ASSERT(mixer);
 
         // Populate custom mixer table from board values
@@ -800,24 +802,18 @@ void ConfigCcpmWidget::UpdateMixer()
                                                                                  VehicleConfig::MIXERVECTOR_YAW)));
             } else {
                 for (int j = 0; j < 6; j++) {
-                    table->item(i, j)->setText(QString("-"));
+                    table->item(i, j)->setText("-");
                 }
             }
         }
     }
 }
 
-QString ConfigCcpmWidget::updateConfigObjects()
+void ConfigCcpmWidget::updateConfigObjects()
 {
-    QString airframeType = "HeliCP";
-
-    bool useCCPM;
-    bool useCyclic;
-
     if (updatingFromHardware == true) {
-        return airframeType;
+        return;
     }
-
     updatingFromHardware = true;
 
     // get the user options
@@ -831,8 +827,8 @@ QString ConfigCcpmWidget::updateConfigObjects()
     config.heli.ccpmCollectivePassthroughState = m_aircraft->ccpmCollectivePassthrough->isChecked();
     config.heli.ccpmLinkCyclicState = m_aircraft->ccpmLinkCyclic->isChecked();
     config.heli.ccpmLinkRollState   = m_aircraft->ccpmLinkRoll->isChecked();
-    useCCPM   = !(config.heli.ccpmCollectivePassthroughState || !config.heli.ccpmLinkCyclicState);
-    useCyclic = config.heli.ccpmLinkRollState;
+    bool useCCPM   = !(config.heli.ccpmCollectivePassthroughState || !config.heli.ccpmLinkCyclicState);
+    bool useCyclic = config.heli.ccpmLinkRollState;
 
     // correction angle
     config.heli.CorrectionAngle = m_aircraft->ccpmCorrectionAngle->value();
@@ -864,7 +860,6 @@ QString ConfigCcpmWidget::updateConfigObjects()
     setConfigData(config);
 
     updatingFromHardware = false;
-    return airframeType;
 }
 
 void ConfigCcpmWidget::SetUIComponentVisibilities()
@@ -942,7 +937,7 @@ void ConfigCcpmWidget::getMixer()
 
     updatingFromHardware = true;
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     QList<double> curveValues;
@@ -977,26 +972,18 @@ void ConfigCcpmWidget::setMixer()
 
     int typeInt = m_aircraft->ccpmType->count() - m_aircraft->ccpmType->currentIndex() - 1;
 
-    // Exit if currently updatingToHardware or ConfigError
+    // Exit if currently updatingToHardware, ConfigError or LevelConfigInProgress
     // Avoid mixer changes if something wrong in config
-    if (throwConfigError(typeInt) || updatingToHardware) {
+    if (throwConfigError(typeInt) || updatingToHardware || SwashLvlConfigurationInProgress) {
         return;
     }
 
-    if (SwashLvlConfigurationInProgress) {
-        return;
-    }
-    if (updatingToHardware == true) {
-        return;
-    }
-
+    UpdateMixer();
     updatingToHardware = true;
 
     MixerSettings *mixerSettings = MixerSettings::GetInstance(getObjectManager());
     Q_ASSERT(mixerSettings);
     MixerSettings::DataFields mixerSettingsData = mixerSettings->getData();
-
-    UpdateMixer();
 
     // Set up some helper pointers
     qint8 *mixers[12] = { mixerSettingsData.Mixer1Vector,
@@ -1036,7 +1023,7 @@ void ConfigCcpmWidget::setMixer()
     for (i = 0; i < 6; i++) {
         if ((MixerChannelData[i] > 0) && (MixerChannelData[i] < (int)ConfigCcpmWidget::CHANNEL_NUMELEM + 1)) {
             // Set the mixer type. If Coax, then first two are motors. Otherwise, only first is motor
-            if (typeText.compare(QString::fromUtf8("Coax 2 Servo 90º"), Qt::CaseInsensitive) == 0) {
+            if (typeText.compare("Coax 2 Servo 90º", Qt::CaseInsensitive) == 0) {
                 *(mixerTypes[MixerChannelData[i] - 1]) = i > 1 ?
                                                          MixerSettings::MIXER1TYPE_SERVO :
                                                          MixerSettings::MIXER1TYPE_MOTOR;
@@ -1069,8 +1056,11 @@ void ConfigCcpmWidget::setMixer()
         mixerSettingsData.Curve2Source = MixerSettings::CURVE2SOURCE_THROTTLE;
     }
 
-    mixerSettings->setData(mixerSettingsData);
-    mixerSettings->updated();
+    UAVObjectUpdaterHelper updateHelper;
+
+    mixerSettings->setData(mixerSettingsData, false);
+    updateHelper.doObjectAndWait(mixerSettings);
+
     updatingToHardware = false;
 }
 
@@ -1149,12 +1139,12 @@ void ConfigCcpmWidget::SwashLvlStartButtonPressed()
 
 
         // Get the channel assignements:
-        obj = dynamic_cast<UAVDataObject *>(objManager->getObject(QString("ActuatorSettings")));
+        obj = dynamic_cast<UAVDataObject *>(objManager->getObject("ActuatorSettings"));
         Q_ASSERT(obj);
         // obj->requestUpdate();
-        MinField     = obj->getField(QString("ChannelMin"));
-        NeutralField = obj->getField(QString("ChannelNeutral"));
-        MaxField     = obj->getField(QString("ChannelMax"));
+        MinField     = obj->getField("ChannelMin");
+        NeutralField = obj->getField("ChannelNeutral");
+        MaxField     = obj->getField("ChannelMax");
 
         // channel assignments
         oldSwashLvlConfiguration.ServoChannels[0] = m_aircraft->ccpmServoWChannel->currentIndex() - 1;
@@ -1299,7 +1289,7 @@ void ConfigCcpmWidget::SwashLvlPrevNextButtonPressed()
         m_aircraft->SwashLvlPrevButton->setEnabled(true);
         m_aircraft->SwashLvlCancelButton->setEnabled(true);
         m_aircraft->SwashLvlFinishButton->setEnabled(true);
-
+        break;
     default:
         // restore collective/cyclic setting
         // restore pitch curve
@@ -1332,12 +1322,12 @@ void ConfigCcpmWidget::SwashLvlCancelButtonPressed()
     // restore old Actuator Settings
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
-    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(objManager->getObject(QString("ActuatorSettings")));
+    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(objManager->getObject("ActuatorSettings"));
     Q_ASSERT(obj);
     // update settings to match our changes.
-    MinField     = obj->getField(QString("ChannelMin"));
-    NeutralField = obj->getField(QString("ChannelNeutral"));
-    MaxField     = obj->getField(QString("ChannelMax"));
+    MinField     = obj->getField("ChannelMin");
+    NeutralField = obj->getField("ChannelNeutral");
+    MaxField     = obj->getField("ChannelMax");
 
     // min,neutral,max values for the servos
     for (int i = 0; i < CCPM_MAX_SWASH_SERVOS; i++) {
@@ -1373,13 +1363,13 @@ void ConfigCcpmWidget::SwashLvlFinishButtonPressed()
     // save new Actuator Settings to memory and SD card
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
-    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(objManager->getObject(QString("ActuatorSettings")));
+    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(objManager->getObject("ActuatorSettings"));
     Q_ASSERT(obj);
 
     // update settings to match our changes.
-    MinField     = obj->getField(QString("ChannelMin"));
-    NeutralField = obj->getField(QString("ChannelNeutral"));
-    MaxField     = obj->getField(QString("ChannelMax"));
+    MinField     = obj->getField("ChannelMin");
+    NeutralField = obj->getField("ChannelNeutral");
+    MaxField     = obj->getField("ChannelMax");
 
     // min,neutral,max values for the servos
     for (int i = 0; i < CCPM_MAX_SWASH_SERVOS; i++) {
@@ -1475,7 +1465,7 @@ void ConfigCcpmWidget::enableSwashplateLevellingControl(bool state)
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
 
-    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(objManager->getObject(QString("ActuatorCommand")));
+    UAVDataObject *obj = dynamic_cast<UAVDataObject *>(objManager->getObject("ActuatorCommand"));
     UAVObject::Metadata mdata    = obj->getMetadata();
 
     if (state) {
@@ -1489,7 +1479,7 @@ void ConfigCcpmWidget::enableSwashplateLevellingControl(bool state)
         m_aircraft->TabObject->setTabEnabled(0, 0);
         m_aircraft->TabObject->setTabEnabled(2, 0);
         m_aircraft->TabObject->setTabEnabled(3, 0);
-        m_aircraft->ccpmType->setEnabled(0);
+        m_aircraft->ccpmType->setEnabled(false);
     } else {
         // Restore metadata
         mdata = SwashLvlaccInitialData;
@@ -1498,7 +1488,7 @@ void ConfigCcpmWidget::enableSwashplateLevellingControl(bool state)
         m_aircraft->TabObject->setTabEnabled(0, 1);
         m_aircraft->TabObject->setTabEnabled(2, 1);
         m_aircraft->TabObject->setTabEnabled(3, 1);
-        m_aircraft->ccpmType->setEnabled(1);
+        m_aircraft->ccpmType->setEnabled(true);
     }
     obj->setMetadata(mdata);
 }
@@ -1541,8 +1531,10 @@ void ConfigCcpmWidget::setSwashplateLevel(int percent)
         SwashLvlSpinBoxes[i]->setValue(value);
     }
 
-    actuatorCommand->setData(actuatorCommandData);
-    actuatorCommand->updated();
+    UAVObjectUpdaterHelper updateHelper;
+
+    actuatorCommand->setData(actuatorCommandData, false);
+    updateHelper.doObjectAndWait(actuatorCommand);
 
     SwashLvlServoInterlock = 0;
 }
@@ -1588,8 +1580,10 @@ void ConfigCcpmWidget::SwashLvlSpinBoxChanged(int value)
         actuatorCommandData.Channel[newSwashLvlConfiguration.ServoChannels[i]] = value;
     }
 
-    actuatorCommand->setData(actuatorCommandData);
-    actuatorCommand->updated();
+    UAVObjectUpdaterHelper updateHelper;
+
+    actuatorCommand->setData(actuatorCommandData, false);
+    updateHelper.doObjectAndWait(actuatorCommand);
 }
 
 /**

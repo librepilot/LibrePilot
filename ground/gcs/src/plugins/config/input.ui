@@ -2337,6 +2337,106 @@ font:bold;</string>
             <number>12</number>
            </property>
            <item>
+            <widget class="QGroupBox" name="groupBox_b8">
+             <property name="title">
+              <string>Battery Failsafe Settings</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_b12">
+              <property name="leftMargin">
+               <number>9</number>
+              </property>
+              <property name="topMargin">
+               <number>9</number>
+              </property>
+              <property name="rightMargin">
+               <number>9</number>
+              </property>
+              <property name="bottomMargin">
+               <number>9</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>6</number>
+              </property>
+              <item row="1" column="0">
+               <layout class="QGridLayout" name="horizontalLayout_b2">
+                <item row="1" column="0">
+                 <widget class="QCheckBox" name="failsafeBatteryWarningFlightModeCb">
+                  <property name="text">
+                   <string>On battery warning alarm change flight mode to:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="failsafeBatteryWarningFlightMode">
+                  <property name="minimumSize">
+                   <size>
+                    <width>200</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::StrongFocus</enum>
+                  </property>
+                  <property name="toolTip">
+                   <string>When triggering battery Warning alarm switch to this flight mode.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <spacer name="horizontalSpacer_B28">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="failsafeBatteryCriticalFlightModeCb">
+                  <property name="text">
+                   <string>On battery critical alarm change flight mode to:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QComboBox" name="failsafeBatteryCriticalFlightMode">
+                  <property name="minimumSize">
+                   <size>
+                    <width>200</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::StrongFocus</enum>
+                  </property>
+                  <property name="toolTip">
+                   <string>When triggering battery Critical alarm switch to this flight mode.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <spacer name="horizontalSpacer_B18">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupBox_8">
              <property name="title">
               <string>Failsafe Settings</string>
@@ -2468,7 +2568,9 @@ font:bold;</string>
                 </property>
                 <property name="plainText">
                  <string>Failsafe is a function that is triggered when the connection between the transmitter and receiver is lost. Failsafe gives the user a chance to configure some basic behaviour and specify what input the flight controller should get even if no control signals from the transmitter is present.
-The failsafe is triggered differently for different receivers. Failsafe should always be tested before every flight.</string>
+The failsafe is triggered differently for different receivers. Failsafe should always be tested before every flight.
+
+Battery Failsafe triggers the selected flight modes as soon as the related alarm is raised. It needs Battery module enabled and configured. It is not available on CC3D.</string>
                 </property>
                 <property name="backgroundVisible">
                  <bool>false</bool>

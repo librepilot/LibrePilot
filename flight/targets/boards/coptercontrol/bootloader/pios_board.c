@@ -36,6 +36,10 @@
  */
 #include "../board_hw_defs.c"
 
+#include "pios_usb_board_data_priv.h"
+#include "pios_usb_desc_hid_only_priv.h"
+#include <pios_com_msg_priv.h>
+
 uint32_t pios_com_telem_usb_id;
 
 /**
@@ -44,6 +48,7 @@ uint32_t pios_com_telem_usb_id;
  * called from System/openpilot.c
  */
 static bool board_init_complete = false;
+
 void PIOS_Board_Init(void)
 {
     if (board_init_complete) {
@@ -84,7 +89,7 @@ void PIOS_Board_Init(void)
     }
 #if defined(PIOS_INCLUDE_USB_HID) && defined(PIOS_INCLUDE_COM_MSG)
     uint32_t pios_usb_hid_id;
-    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_cfg, pios_usb_id)) {
+    if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_only_cfg, pios_usb_id)) {
         PIOS_Assert(0);
     }
     if (PIOS_COM_MSG_Init(&pios_com_telem_usb_id, &pios_usb_hid_com_driver, pios_usb_hid_id)) {

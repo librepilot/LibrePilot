@@ -53,6 +53,11 @@ void PIOS_SYS_Init(void)
     /* Init the delay system */
     PIOS_DELAY_Init();
 
+    /* Enable DMA */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 |
+                          RCC_AHBPeriph_DMA2,
+                          ENABLE);
+
     /* Enable GPIOA, GPIOB, GPIOC, GPIOD, GPIOE and AFIO clocks */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE |
                            RCC_APB2Periph_AFIO, ENABLE);
@@ -92,12 +97,17 @@ int32_t PIOS_SYS_Reset(void)
     PIOS_IRQ_Disable();
 
     // turn off all board LEDs
-#if defined(PIOS_LED_HEARTBEAT)
+#ifdef PIOS_INCLUDE_LED
+# ifdef PIOS_LED_HEARTBEAT
     PIOS_LED_Off(PIOS_LED_HEARTBEAT);
-#endif /* PIOS_LED_HEARTBEAT */
-#if defined(PIOS_LED_ALARM)
+# endif /* PIOS_LED_HEARTBEAT */
+# ifdef PIOS_LED_ALARM
     PIOS_LED_Off(PIOS_LED_ALARM);
-#endif /* PIOS_LED_ALARM */
+# endif /* PIOS_LED_ALARM */
+# ifdef PIOS_BUZZER_ALARM
+    PIOS_LED_Off(PIOS_BUZZER_ALARM);
+# endif /* PIOS_BUZZER_ALARM */
+#endif /* PIOS_INCLUDE_LED */
 
     RCC_APB2PeriphResetCmd(0xffffffff, DISABLE);
     RCC_APB1PeriphResetCmd(0xffffffff, DISABLE);

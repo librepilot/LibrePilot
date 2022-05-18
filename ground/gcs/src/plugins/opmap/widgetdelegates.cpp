@@ -122,21 +122,21 @@ void MapDataDelegate::loadComboBox(QComboBox *combo, flightDataModel::pathPlanDa
     case flightDataModel::CONDITION:
         combo->addItem("None", ENDCONDITION_NONE);
         combo->addItem("Timeout", ENDCONDITION_TIMEOUT);
-        combo->addItem("Distance to tgt", ENDCONDITION_DISTANCETOTARGET);
-        combo->addItem("Leg remaining", ENDCONDITION_LEGREMAINING);
+        combo->addItem("Distance to Target", ENDCONDITION_DISTANCETOTARGET);
+        combo->addItem("Leg Remaining", ENDCONDITION_LEGREMAINING);
         combo->addItem("Below Error", ENDCONDITION_BELOWERROR);
         combo->addItem("Above Altitude", ENDCONDITION_ABOVEALTITUDE);
         combo->addItem("Above Speed", ENDCONDITION_ABOVESPEED);
-        combo->addItem("Pointing towards next", ENDCONDITION_POINTINGTOWARDSNEXT);
-        combo->addItem("Python script", ENDCONDITION_PYTHONSCRIPT);
+        combo->addItem("Pointing Towards Next", ENDCONDITION_POINTINGTOWARDSNEXT);
+        combo->addItem("Python Script", ENDCONDITION_PYTHONSCRIPT);
         combo->addItem("Immediate", ENDCONDITION_IMMEDIATE);
         break;
     case flightDataModel::COMMAND:
-        combo->addItem("On conditon next wp", COMMAND_ONCONDITIONNEXTWAYPOINT);
-        combo->addItem("On NOT conditon next wp", COMMAND_ONNOTCONDITIONNEXTWAYPOINT);
-        combo->addItem("On conditon jump wp", COMMAND_ONCONDITIONJUMPWAYPOINT);
-        combo->addItem("On NOT conditon jump wp", COMMAND_ONNOTCONDITIONJUMPWAYPOINT);
-        combo->addItem("On conditon jump wp else next wp", COMMAND_IFCONDITIONJUMPWAYPOINTELSENEXTWAYPOINT);
+        combo->addItem("On Condition next Wp", COMMAND_ONCONDITIONNEXTWAYPOINT);
+        combo->addItem("On NOT Condition next Wp", COMMAND_ONNOTCONDITIONNEXTWAYPOINT);
+        combo->addItem("On Condition jump Wp", COMMAND_ONCONDITIONJUMPWAYPOINT);
+        combo->addItem("On NOT Condition jump Wp", COMMAND_ONNOTCONDITIONJUMPWAYPOINT);
+        combo->addItem("On Condition jump Wp else next Wp", COMMAND_IFCONDITIONJUMPWAYPOINTELSENEXTWAYPOINT);
         break;
     default:
         break;

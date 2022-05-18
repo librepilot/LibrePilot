@@ -41,8 +41,9 @@
 #endif
 
 // Private constants
-#define ARMED_THRESHOLD     0.20f
-#define GROUND_LOW_THROTTLE 0.01f
+#define ARMED_THRESHOLD_SWITCH 0.20f
+#define ARMED_THRESHOLD_STICK  0.80f
+#define GROUND_LOW_THROTTLE    0.01f
 
 // Private types
 typedef enum {
@@ -116,7 +117,7 @@ void armHandler(bool newinit, FrameType_t frameType)
     }
 
     // immediate disarm on switch
-    if (armSwitch && acc.AccessoryVal <= -ARMED_THRESHOLD) {
+    if (armSwitch && acc.AccessoryVal <= -ARMED_THRESHOLD_SWITCH) {
         lowThrottle = true;
     }
 
@@ -209,9 +210,11 @@ void armHandler(bool newinit, FrameType_t frameType)
         previousArmingInputLevel = 0.0f;
     }
 
-    if ((armingInputLevel <= -ARMED_THRESHOLD) && (previousArmingInputLevel > -ARMED_THRESHOLD)) {
+    float armedThreshold = armSwitch ? ARMED_THRESHOLD_SWITCH : ARMED_THRESHOLD_STICK;
+
+    if ((armingInputLevel <= -armedThreshold) && (previousArmingInputLevel > -armedThreshold)) {
         manualArm = true;
-    } else if ((armingInputLevel >= +ARMED_THRESHOLD) && (previousArmingInputLevel < +ARMED_THRESHOLD)) {
+    } else if ((armingInputLevel >= +armedThreshold) && (previousArmingInputLevel < +armedThreshold)) {
         manualDisarm = true;
     }
 

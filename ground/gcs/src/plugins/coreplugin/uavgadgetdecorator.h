@@ -27,7 +27,10 @@
 
 #ifndef UAVGADGETDECORATOR_H
 #define UAVGADGETDECORATOR_H
+
 #include <coreplugin/iuavgadget.h>
+
+class QSettings;
 
 namespace Core {
 class IUAVGadgetConfiguration;
@@ -51,8 +54,8 @@ public:
         return m_activeConfiguration;
     }
     void loadConfiguration(IUAVGadgetConfiguration *config);
-    void saveState(QSettings *qSettings);
-    void restoreState(QSettings *qSettings);
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
 public slots:
     void configurationChanged(IUAVGadgetConfiguration *config);
     void configurationAdded(IUAVGadgetConfiguration *config);

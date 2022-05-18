@@ -2,7 +2,7 @@
 	<object name="HwSettings" singleinstance="true" settings="true" category="System">
 		<description>Selection of optional hardware configurations.</description>
 		<field name="CC_RcvrPort" units="function" type="enum" elements="1" options="Disabled+OneShot,PWM+NoOneShot,PPM+NoOneShot,PPM+PWM+NoOneShot,PPM+Outputs+NoOneShot,PPM_PIN8+OneShot, Outputs+OneShot" defaultvalue="PWM+NoOneShot"/>
-		<field name="CC_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Telemetry"/>
+		<field name="CC_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink,FrskySensorHub" defaultvalue="Telemetry"/>
 		<field name="CC_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,PPM,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
 		<field name="RV_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+Outputs,Outputs" defaultvalue="PWM"/>
 		<field name="RV_AuxPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,DSM,ComAux,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
@@ -11,15 +11,15 @@
 		<field name="RV_TelemetryPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,ComAux,ComBridge,MSP,MAVLink" defaultvalue="Telemetry"/>
 		<field name="RV_GPSPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,ComAux,ComBridge,MSP,MAVLink" defaultvalue="GPS"/>
 
-		<field name="RM_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+PWM,PPM+Outputs,PPM+Telemetry,PPM+DebugConsole,PPM+ComBridge,PPM+MSP,PPM+MAVLink,PPM+GPS,Outputs,Telemetry,DebugConsole,ComBridge,MSP,MAVLink,GPS"
+		<field name="RM_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PWM,PPM,PPM+PWM,PPM+Outputs,PPM+Telemetry,PPM+DebugConsole,PPM+ComBridge,PPM+MSP,PPM+MAVLink,PPM+GPS,PPM+HoTT Telemetry,Outputs,Telemetry,DebugConsole,ComBridge,MSP,MAVLink,GPS,HoTT Telemetry,IBus,FrskySensorHub"
 			defaultvalue="PWM"
-                        limits="%0905NE:PPM+PWM:PPM+Telemetry:PPM+DebugConsole:PPM+ComBridge:PPM+MSP:PPM+MAVLink:PPM+GPS:Telemetry:DebugConsole:ComBridge:MSP:MAVLink:GPS;"/>
-		<field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
-		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+			limits="%0905NE:PPM+PWM:PPM+Telemetry:PPM+DebugConsole:PPM+ComBridge:PPM+MSP:PPM+MAVLink:PPM+GPS:PPM+HoTT Telemetry:Telemetry:DebugConsole:ComBridge:MSP:MAVLink:GPS:HoTT Telemetry:IBus;"/>
+		<field name="RM_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,S.Bus,DSM,HoTT Telemetry,DebugConsole,ComBridge,OsdHk,MSP,MAVLink,FrskySensorHub" defaultvalue="Disabled"/>
+		<field name="RM_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,HoTT Telemetry,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink,FrskySensorHub" defaultvalue="Disabled"/>
 
 		<field name="SPK2_RcvrPort" units="function" type="enum" elements="1" options="Disabled,PPM,S.Bus,DSM,SRXL,IBus,EX.Bus,HoTT SUMD,HoTT SUMH" defaultvalue="PPM"/>
-		<field name="SPK2_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
-		<field name="SPK2_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink" defaultvalue="Disabled"/>
+		<field name="SPK2_MainPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,DSM,DebugConsole,ComBridge,OsdHk,MSP,MAVLink,FrskySensorHub" defaultvalue="Disabled"/>
+		<field name="SPK2_FlexiPort" units="function" type="enum" elements="1" options="Disabled,Telemetry,GPS,I2C,DSM,EX.Bus,HoTT SUMD,HoTT SUMH,SRXL,IBus,DebugConsole,ComBridge,OsdHk,MSP,MAVLink,FrskySensorHub" defaultvalue="Disabled"/>
 		<field name="SPK2_I2CPort" units="function" type="enum" elements="1" options="Disabled,I2C" defaultvalue="Disabled"/>
 
 		<field name="TelemetrySpeed" units="bps" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200" defaultvalue="57600"/>
@@ -28,11 +28,13 @@
 		<field name="MSPSpeed" units="bps" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200" defaultvalue="115200"/>
 		<field name="MAVLinkSpeed" units="bps" type="enum" elements="1" options="2400,4800,9600,19200,38400,57600,115200" defaultvalue="57600"/>
 		<field name="USB_HIDPort" units="function" type="enum" elements="1" options="USBTelemetry,RCTransmitter,Disabled" defaultvalue="USBTelemetry"/>
-		<field name="USB_VCPPort" units="function" type="enum" elements="1" options="USBTelemetry,ComBridge,DebugConsole,Disabled" defaultvalue="Disabled"/>
+		<field name="USB_VCPPort" units="function" type="enum" elements="1" options="USBTelemetry,ComBridge,DebugConsole,Disabled,MAVLink" defaultvalue="Disabled"/>
+		<field name="RadioAuxStream" units="function" type="enum" elements="1" options="DebugConsole,Disabled,MAVLink,ComBridge" defaultvalue="Disabled"/>
 
-		<field name="OptionalModules" units="" type="enum" elementnames="CameraStab,GPS,Fault,Altitude,Airspeed,TxPID,Battery,Overo,MagBaro,OsdHk,AutoTune" options="Disabled,Enabled" defaultvalue="Disabled"/>
+		<field name="OptionalModules" units="" type="enum" elementnames="CameraStab,CameraControl,GPS,Fault,Altitude,Airspeed,TxPID,Battery,Overo,MagBaro,OsdHk,AutoTune" options="Disabled,Enabled" defaultvalue="Disabled"/>
 		<field name="ADCRouting" units="" type="enum" elementnames="adc0,adc1,adc2,adc3,adc4,adc5,adc6,adc7" options="Disabled,BatteryVoltage,BatteryCurrent,AnalogAirspeed,Generic" defaultvalue="Disabled"/>
-		<field name="DSMxBind" units=""  type="uint8"  elements="1" defaultvalue="0"/>
+		<field name="DSMxBind" units=""	 type="uint8"  elements="1" defaultvalue="0"/>
+		<field name="SBusMode" units="" type="enum" elements="1" options="Normal,Non Inverted" defaultvalue="Normal"/>
 		<field name="WS2811LED_Out" units="" type="enum" elements="1" options="ServoOut1,ServoOut2,ServoOut3,ServoOut4,ServoOut5,ServoOut6,FlexiIOPin3,FlexiIOPin4,Disabled" defaultvalue="Disabled"
 		limits="%0905NE:ServoOut2:ServoOut3:ServoOut4:ServoOut5:ServoOut6:FlexiIOPin3:FlexiIOPin4;"
 		/>

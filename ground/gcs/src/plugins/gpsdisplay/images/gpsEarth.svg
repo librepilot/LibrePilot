@@ -14,10 +14,21 @@
    height="691.54303"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="gpsEarth.svg">
   <defs
      id="defs4">
+    <linearGradient
+       id="linearGradient4512">
+      <stop
+         id="stop4514"
+         offset="0"
+         style="stop-color:#ee2eff;stop-opacity:1" />
+      <stop
+         id="stop4516"
+         offset="1"
+         style="stop-color:#fff954;stop-opacity:0;" />
+    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4431">
@@ -1003,6 +1014,46 @@
        fx="559.92383"
        fy="182.67093"
        r="21.496641" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3825"
+       id="radialGradient3907-5-5"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.11243486,0.51064271,-0.68854473,-0.15160586,748.65596,-75.556107)"
+       cx="559.92383"
+       cy="182.67093"
+       fx="559.92383"
+       fy="182.67093"
+       r="21.496641" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4512"
+       id="linearGradient3859-7-2"
+       x1="572.75409"
+       y1="197.75398"
+       x2="599.88422"
+       y2="231.04071"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       r="21.496641"
+       fy="182.67093"
+       fx="559.92383"
+       cy="182.67093"
+       cx="559.92383"
+       gradientTransform="matrix(-0.11243486,0.51064271,-0.68854473,-0.15160586,748.65596,-75.556107)"
+       gradientUnits="userSpaceOnUse"
+       id="radialGradient4859-3"
+       xlink:href="#linearGradient3825"
+       inkscape:collect="always" />
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:collect="always"
+       id="filter3997-7-6">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.62142855"
+         id="feGaussianBlur3999-1-6" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -1532,6 +1583,46 @@
            sodipodi:ry="20.714285"
            d="m 589.99999,195.93361 c 0,11.44018 -9.2741,20.71428 -20.71428,20.71428 -11.44019,0 -20.71429,-9.2741 -20.71429,-20.71428 0,-11.44018 9.2741,-20.71429 20.71429,-20.71429 11.44018,0 20.71428,9.27411 20.71428,20.71429 z"
            transform="translate(0.08444218,-2.2540576e-8)" />
+      </g>
+      <g
+         style="display:inline"
+         id="satellite-galileo"
+         transform="matrix(0.93879118,0,0,0.93879118,55.180064,91.285495)"
+         inkscape:label="#g3722">
+        <circle
+           r="20.714285"
+           cy="195.93361"
+           cx="569.28571"
+           transform="translate(0.08444214,2.2540576e-8)"
+           id="path3712-3"
+           style="fill:url(#linearGradient3859-7-2);fill-opacity:1;stroke:#b503c6;stroke-width:1.56471384;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+        <circle
+           r="20.714285"
+           cy="195.93361"
+           cx="569.28571"
+           style="fill:url(#radialGradient4859-3);fill-opacity:1;stroke:none;filter:url(#filter3997-7-6)"
+           id="path3833-3"
+           transform="translate(0.08444218,2.2540576e-8)" />
+      </g>
+      <g
+         inkscape:label="#g3722"
+         transform="matrix(0.93879118,0,0,0.93879118,123.18007,91.285495)"
+         id="sat-galileo-notSeen"
+         style="display:inline;opacity:0.4">
+        <circle
+           r="20.714285"
+           cy="195.93361"
+           cx="569.28571"
+           style="fill:#ee2eff;fill-opacity:1;stroke:#b503c6;stroke-width:1.56471384;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           id="path3891-0"
+           transform="translate(0.08444214,2.2540576e-8)" />
+        <circle
+           r="20.714285"
+           cy="195.93361"
+           cx="569.28571"
+           transform="translate(0.08444218,2.2540576e-8)"
+           id="path3897-8"
+           style="fill:url(#radialGradient3907-5-5);fill-opacity:1;stroke:none" />
       </g>
     </g>
   </g>

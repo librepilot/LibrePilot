@@ -9,6 +9,7 @@ include(gpsdisplay_dependencies.pri)
 include(../../libs/qwt/qwt.pri)
 
 HEADERS += \
+    flatearthwidget.h \
     gpsdisplayplugin.h \
     gpsconstellationwidget.h \
     gpsparser.h \
@@ -23,6 +24,7 @@ HEADERS += \
     gpsdisplaygadgetoptionspage.h
 
 SOURCES += \
+    flatearthwidget.cpp \
     gpsdisplayplugin.cpp \
     gpsconstellationwidget.cpp \
     gpsparser.cpp \

@@ -32,7 +32,8 @@
 #ifndef INSGPS_H_
 #define INSGPS_H_
 
-#include "stdint.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /**
  * @addtogroup Constants
@@ -54,22 +55,24 @@
 
 // Exposed Function Prototypes
 void INSGPSInit();
-void INSStatePrediction(float gyro_data[3], float accel_data[3], float dT);
+void INSStatePrediction(const float gyro_data[3], const float accel_data[3], float dT);
 void INSCovariancePrediction(float dT);
-void INSCorrection(float mag_data[3], float Pos[3], float Vel[3], float BaroAlt, uint16_t SensorsUsed);
+void INSCorrection(const float mag_data[3], const float Pos[3], const float Vel[3],
+                   const float BaroAlt, uint16_t SensorsUsed);
+void INSResetP(const float PDiag[13]);
+void INSGetVariance(float PDiag[13]);
+void INSSetState(const float pos[3], const float vel[3], const float q[4], const float gyro_bias[3], const float accel_bias[3]);
+void INSSetPosVelVar(const float PosVar[3], const float VelVar[3]);
+void INSSetGyroBias(const float gyro_bias[3]);
+void INSSetAccelVar(const float accel_var[3]);
+void INSSetGyroVar(const float gyro_var[3]);
+void INSSetGyroBiasVar(const float gyro_bias_var[3]);
+void INSSetMagNorth(const float B[3]);
+void INSSetMagVar(const float scaled_mag_var[3]);
+void INSSetBaroVar(const float baro_var);
+void INSSetArmed(bool armed);
+void INSPosVelReset(const float pos[3], const float vel[3]);
 
-void INSResetP(float PDiag[13]);
-void INSGetP(float PDiag[13]);
-void INSSetState(float pos[3], float vel[3], float q[4], float gyro_bias[3], float accel_bias[3]);
-void INSSetPosVelVar(float PosVar[3], float VelVar[3]);
-void INSSetGyroBias(float gyro_bias[3]);
-void INSSetAccelVar(float accel_var[3]);
-void INSSetGyroVar(float gyro_var[3]);
-void INSSetGyroBiasVar(float gyro_bias_var[3]);
-void INSSetMagNorth(float B[3]);
-void INSSetMagVar(float scaled_mag_var[3]);
-void INSSetBaroVar(float baro_var);
-void INSPosVelReset(float pos[3], float vel[3]);
 
 void MagCorrection(float mag_data[3]);
 void MagVelBaroCorrection(float mag_data[3], float Vel[3], float BaroAlt);

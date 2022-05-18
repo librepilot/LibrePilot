@@ -61,9 +61,6 @@ void PIOS_SYS_Init(void)
     /* do this early to ensure that we take exceptions in the right place */
     NVIC_Configuration();
 
-    /* Init the delay system */
-    PIOS_DELAY_Init();
-
     /*
      * Turn on all the peripheral clocks.
      * Micromanaging clocks makes no sense given the power situation in the system, so
@@ -72,14 +69,34 @@ void PIOS_SYS_Init(void)
     RCC_AHBPeriphClockCmd(
         RCC_AHBPeriph_GPIOA |
         RCC_AHBPeriph_GPIOB |
+        RCC_AHBPeriph_GPIOC |
         RCC_AHBPeriph_FLITF |
         RCC_AHBPeriph_SRAM |
-        RCC_AHBPeriph_DMA1
+        RCC_AHBPeriph_DMA1 |
+        RCC_AHBPeriph_CRC
+        , ENABLE);
+
+    RCC_APB1PeriphClockCmd(
+        RCC_APB1Periph_USART2 |
+        RCC_APB1Periph_USART3 |
+        RCC_APB1Periph_WWDG |
+        RCC_APB1Periph_PWR |
+        RCC_APB1Periph_TIM2 |
+        RCC_APB1Periph_TIM3 |
+        RCC_APB1Periph_I2C1 |
+        RCC_APB1Periph_I2C2 |
+        RCC_APB1Periph_SPI2
         , ENABLE);
 
     RCC_APB2PeriphClockCmd(
         RCC_APB2Periph_SYSCFG |
+        RCC_APB2Periph_USART1 |
+        RCC_APB2Periph_SPI1 |
+        RCC_APB2Periph_TIM1 |
         0, ENABLE);
+
+    /* Init the delay system */
+    PIOS_DELAY_Init();
 
     /*
      * Configure all pins as input / pullup to avoid issues with
@@ -124,12 +141,17 @@ int32_t PIOS_SYS_Reset(void)
     PIOS_IRQ_Disable();
 
     // turn off all board LEDs
-#if defined(PIOS_LED_HEARTBEAT)
+#ifdef PIOS_INCLUDE_LED
+# ifdef PIOS_LED_HEARTBEAT
     PIOS_LED_Off(PIOS_LED_HEARTBEAT);
-#endif /* PIOS_LED_HEARTBEAT */
-#if defined(PIOS_LED_ALARM)
+# endif /* PIOS_LED_HEARTBEAT */
+# ifdef PIOS_LED_ALARM
     PIOS_LED_Off(PIOS_LED_ALARM);
-#endif /* PIOS_LED_ALARM */
+# endif /* PIOS_LED_ALARM */
+# ifdef PIOS_BUZZER_ALARM
+    PIOS_LED_Off(PIOS_BUZZER_ALARM);
+# endif /* PIOS_BUZZER_ALARM */
+#endif /* PIOS_INCLUDE_LED */
 
     /* Reset STM32 */
     NVIC_SystemReset();

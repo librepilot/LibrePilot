@@ -156,6 +156,12 @@ const struct usb_config_hid_only config_hid_only = {
     },
 };
 
+const struct pios_usb_hid_cfg pios_usb_hid_only_cfg = {
+    .data_if    = 0,
+    .data_rx_ep = 1,
+    .data_tx_ep = 1,
+};
+
 int32_t PIOS_USB_DESC_HID_ONLY_Init(void)
 {
     PIOS_USBHOOK_RegisterConfig(1, (uint8_t *)&config_hid_only, sizeof(config_hid_only));

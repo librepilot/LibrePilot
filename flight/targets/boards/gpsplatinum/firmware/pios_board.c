@@ -31,7 +31,6 @@
 #include <hwsettings.h>
 #include <manualcontrolsettings.h>
 #include <gcsreceiver.h>
-#include <taskinfo.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -115,6 +114,8 @@ void PIOS_Board_Init(void)
                           tx_buffer, PIOS_COM_MAIN_TX_BUF_LEN)) {
             PIOS_Assert(0);
         }
+
+        PIOS_COM_ChangeBaud(pios_com_main_id, 57600);
     }
 #endif
 

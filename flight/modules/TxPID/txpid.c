@@ -100,23 +100,24 @@ static float scale(float val, float inMin, float inMax, float outMin, float outM
 int32_t TxPIDInitialize(void)
 {
     bool txPIDEnabled;
+
     HwSettingsOptionalModulesData optionalModules;
 
-#ifdef REVOLUTION
-    AltitudeHoldSettingsInitialize();
-#endif
-
-    HwSettingsInitialize();
     HwSettingsOptionalModulesGet(&optionalModules);
 
+#ifdef MODULE_TXPID_BUILTIN
+    txPIDEnabled = true;
+    optionalModules.TxPID = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.TxPID == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         txPIDEnabled = true;
     } else {
         txPIDEnabled = false;
     }
+#endif
 
     if (txPIDEnabled) {
-        TxPIDSettingsInitialize();
         TxPIDStatusInitialize();
         AccessoryDesiredInitialize();
 
@@ -136,14 +137,12 @@ int32_t TxPIDInitialize(void)
         // StabilizationSettings update rate permanently. Use Metadata via
         // browser to reset to defaults (telemetryAcked=true, OnChange).
         UAVObjMetadata metadata;
-        StabilizationSettingsInitialize();
         StabilizationSettingsGetMetadata(&metadata);
         metadata.telemetryAcked = 0;
         metadata.telemetryUpdateMode   = UPDATEMODE_PERIODIC;
         metadata.telemetryUpdatePeriod = TELEMETRY_UPDATE_PERIOD_MS;
         StabilizationSettingsSetMetadata(&metadata);
 
-        AttitudeSettingsInitialize();
         AttitudeSettingsGetMetadata(&metadata);
         metadata.telemetryAcked = 0;
         metadata.telemetryUpdateMode   = UPDATEMODE_PERIODIC;

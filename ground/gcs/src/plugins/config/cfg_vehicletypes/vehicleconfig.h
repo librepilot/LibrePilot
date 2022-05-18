@@ -29,10 +29,10 @@
 #define VEHICLECONFIG_H
 
 #include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
+
 #include "actuatorcommand.h"
+
+class UAVDataObject;
 
 typedef struct {
     uint    VTOLMotorN : 4;
@@ -157,21 +157,21 @@ typedef union {
     customGUISettingsStruct custom;
 } GUIConfigDataUnion;
 
-class ConfigTaskWidget;
+class ConfigVehicleTypeWidget;
 
 /*
  * This class handles vehicle specific configuration UI and associated logic.
  *
  * VehicleConfig derives from ConfigTaskWidget but is not a top level ConfigTaskWidget.
- * VehicleConfig objects are nested within the ConfigVehicleConfigWidget and have particularities:
+ * VehicleConfig objects are nested within the ConfigVehicleTypeWidget and have particularities:
  * - bindings are added to the parent (i.e. ConfigVehicleConfigWidget)
  * - auto bindings are not supported
  * - as a consequence things like dirty state management are bypassed and delegated to the parent class.
- *
- * It does not use the "dirty" state management directly and registers its relevant widgets with ConfigTaskWidget to do so.
  */
 class VehicleConfig : public ConfigTaskWidget {
     Q_OBJECT
+
+    friend ConfigVehicleTypeWidget;
 
 public:
 
@@ -220,10 +220,7 @@ public:
     VehicleConfig(QWidget *parent = 0);
     ~VehicleConfig();
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual QString getFrameType();
 
     double getMixerValue(UAVDataObject *mixer, QString elementName);
     void setMixerValue(UAVDataObject *mixer, QString elementName, double value);
@@ -249,16 +246,18 @@ protected:
     double  getCurveMin(QList<double> *curve);
     double  getCurveMax(QList<double> *curve);
 
+    virtual void enableControls(bool enable);
     virtual void refreshWidgetsValuesImpl(UAVObject *obj);
     virtual void updateObjectsFromWidgetsImpl();
 
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
+
+protected slots:
+    void frameTypeChanged(QString frameType);
+
 private:
     static UAVObjectManager *getUAVObjectManager();
-
-    virtual void resetActuators(GUIConfigDataUnion *configData);
-
-private slots:
-    virtual void setupUI(QString airframeType);
 };
 
 #endif // VEHICLECONFIG_H

@@ -80,6 +80,8 @@ public:
     bool isText();
     QString toString();
 
+    void clear();
+
     void toXML(QXmlStreamWriter *xmlWriter);
     void fromXML(QXmlStreamReader *xmlReader);
 
@@ -106,7 +108,6 @@ protected:
     quint8 *data;
     UAVObject *obj;
     QMap<quint32, QList<LimitStruct> > elementLimits;
-    void clear();
     void constructorInitialize(const QString & name, const QString & description, const QString & units, FieldType type, const QStringList & elementNames, const QStringList & options, const QString &limits);
     void limitsInitialize(const QString &limits);
 };

@@ -27,9 +27,16 @@
 
 #include "OSGImageNode.hpp"
 
-#include <osg/Texture2D>
+#include "utils/imagesource.hpp"
 
-#include <osgDB/ReadFile>
+#ifdef USE_GSTREAMER
+#include "utils/gstreamer/gstimagesource.hpp"
+#endif
+
+#include <osg/Image>
+#include <osg/Geometry>
+#include <osg/Geode>
+#include <osg/Texture2D>
 
 #include <QUrl>
 #include <QDebug>
@@ -45,44 +52,111 @@ private:
 
     osg::ref_ptr<osg::Texture2D> texture;
 
-public:
-    QUrl url;
+    ImageSource *imageSource;
 
-    Hidden(OSGImageNode *self) : QObject(self), self(self), url()
-    {}
+public:
+    QUrl imageUrl;
+
+    Hidden(OSGImageNode *self) : QObject(self), self(self), imageSource(NULL), imageUrl()
+    {
+        if (imageSource) {
+            delete imageSource;
+        }
+    }
 
     osg::Node *createNode()
     {
-        osg::Drawable *quad = osg::createTexturedQuadGeometry(osg::Vec3(0, 0, 0), osg::Vec3(1, 0, 0), osg::Vec3(0, 1, 0));
-
-        osg::Geode *geode   = new osg::Geode;
-
-        geode->addDrawable(quad);
-
-        geode->setStateSet(createState());
+        osg::Geode *geode = new osg::Geode;
 
         return geode;
     }
 
-    osg::StateSet *createState()
+    osg::Image *loadImage()
     {
-        texture = new osg::Texture2D;
-
-        // create the StateSet to store the texture data
-        osg::StateSet *stateset = new osg::StateSet;
-
-        stateset->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
-
-        return stateset;
+        if (!imageSource) {
+            if (imageUrl.scheme() == "gst") {
+#ifdef USE_GSTREAMER
+                imageSource = new GstImageSource();
+#else
+                qWarning() << "gstreamer image source is not supported";
+#endif
+            } else {
+                imageSource = new ImageSource();
+            }
+        }
+        return imageSource ? imageSource->createImage(imageUrl) : 0;
     }
 
     void updateImageFile()
     {
-        qDebug() << "OSGImageNode::updateImageFile - reading image file" << url.path();
-        osg::Image *image = osgDB::readImageFile(url.path().toStdString());
-        if (texture.valid()) {
-            texture->setImage(image);
+        update();
+    }
+
+    void update()
+    {
+        osg::Image *image = loadImage();
+
+        if (!image) {
+            return;
         }
+
+        // qDebug() << "OSGImageNode::update" << image;
+        osg::Node *geode = createGeodeForImage(image);
+
+        self->setNode(geode);
+    }
+
+    osg::Geode *createGeodeForImage(osg::Image *image)
+    {
+        // vertex
+        osg::Vec3Array *coords = new osg::Vec3Array(4);
+
+        (*coords)[0].set(0, 1, 0);
+        (*coords)[1].set(0, 0, 0);
+        (*coords)[2].set(1, 0, 0);
+        (*coords)[3].set(1, 1, 0);
+
+        // texture coords
+        osg::Vec2Array *texcoords = new osg::Vec2Array(4);
+        float x_b = 0.0f;
+        float x_t = 1.0f;
+        float y_b = (image->getOrigin() == osg::Image::BOTTOM_LEFT) ? 0.0f : 1.0f;
+        float y_t = (image->getOrigin() == osg::Image::BOTTOM_LEFT) ? 1.0f : 0.0f;
+        (*texcoords)[0].set(x_b, y_t);
+        (*texcoords)[1].set(x_b, y_b);
+        (*texcoords)[2].set(x_t, y_b);
+        (*texcoords)[3].set(x_t, y_t);
+
+        // color
+        osg::Vec4Array *color = new osg::Vec4Array(1);
+        (*color)[0].set(1.0f, 1.0f, 1.0f, 1.0f);
+
+        // setup the geometry
+        osg::Geometry *geom = new osg::Geometry;
+        geom->setVertexArray(coords);
+        geom->setTexCoordArray(0, texcoords);
+        geom->setColorArray(color, osg::Array::BIND_OVERALL);
+        geom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::QUADS, 0, 4));
+
+        // set up the texture.
+        osg::Texture2D *texture = new osg::Texture2D;
+        texture->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
+        texture->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+        texture->setResizeNonPowerOfTwoHint(false);
+        texture->setImage(image);
+
+        // set up the state.
+        osg::StateSet *state = new osg::StateSet;
+        state->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+        state->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
+        state->setTextureAttributeAndModes(0, texture, osg::StateAttribute::ON);
+        geom->setStateSet(state);
+
+        // set up the geode.
+        osg::Geode *geode = new osg::Geode;
+        geode->addDrawable(geom);
+
+        return geode;
     }
 };
 
@@ -96,17 +170,17 @@ OSGImageNode::~OSGImageNode()
     delete h;
 }
 
-const QUrl OSGImageNode::imageFile() const
+const QUrl OSGImageNode::imageUrl() const
 {
-    return h->url;
+    return h->imageUrl;
 }
 
-void OSGImageNode::setImageFile(const QUrl &url)
+void OSGImageNode::setImageUrl(QUrl &url)
 {
-    if (h->url != url) {
-        h->url = url;
+    if (h->imageUrl != url) {
+        h->imageUrl = url;
         setDirty(ImageFile);
-        emit imageFileChanged(url);
+        emit imageUrlChanged(url);
     }
 }
 

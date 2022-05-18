@@ -45,9 +45,9 @@ Core::IUAVGadget *OPMapGadgetFactory::createGadget(QWidget *parent)
     return new OPMapGadget(QString("OPMapGadget"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *OPMapGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *OPMapGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new OPMapGadgetConfiguration(QString("OPMapGadget"), qSettings);
+    return new OPMapGadgetConfiguration(QString("OPMapGadget"), settings);
 }
 
 IOptionsPage *OPMapGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

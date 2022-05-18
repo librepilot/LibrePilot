@@ -25,7 +25,7 @@ endif
 include ../board-info.mk
 include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 
-# REVO C++ support 
+# REVO C++ support
 USE_CXX = YES
 
 # ARM DSP library
@@ -59,6 +59,7 @@ OPTMODULES += AutoTune
 OPTMODULES += ComUsbBridge
 OPTMODULES += UAVOMSPBridge
 OPTMODULES += UAVOMavlinkBridge
+OPTMODULES += UAVOFrSKYSensorHubBridge
 
 SRC += $(FLIGHTLIB)/notification.c
 
@@ -87,11 +88,6 @@ ifndef TESTAPP
     SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
     SRC += $(PIOSCOMMON)/pios_flash_jedec.c
     
-    #ifeq ($(DEBUG), YES)
-    SRC += $(OPSYSTEM)/dcc_stdio.c
-    SRC += $(OPSYSTEM)/cm3_fault_handlers.c
-    #endif
-
     ## Misc library functions
     SRC += $(FLIGHTLIB)/instrumentation.c
     SRC += $(FLIGHTLIB)/paths.c

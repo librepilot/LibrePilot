@@ -29,7 +29,8 @@
 #define GCSCONTROLGADGETCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
-#include <QtNetwork/QHostAddress>
+
+#include <QHostAddress>
 
 typedef struct {
     int    ActionID;
@@ -42,14 +43,16 @@ typedef struct {
     QHostAddress address;
 } portSettingsStruct;
 
-
 using namespace Core;
-
 
 class GCSControlGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit GCSControlGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit GCSControlGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit GCSControlGadgetConfiguration(const GCSControlGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     void setControlsMode(int mode)
     {
@@ -63,8 +66,8 @@ public:
     {
         return controlsMode;
     }
-    QList<int>  getChannelsMapping();
-    QList<bool>  getChannelsReverse();
+    QList<int> getChannelsMapping();
+    QList<bool> getChannelsReverse();
 
     buttonSettingsStruct getbuttonSettings(int i)
     {
@@ -86,10 +89,6 @@ public:
     {
         channelReverse[i] = Reverse;
     }
-
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     int controlsMode; // Mode1 to Mode4

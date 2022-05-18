@@ -50,9 +50,20 @@ void UAVObjectBrowser::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->setRecentlyUpdatedColor(m->recentlyUpdatedColor());
     m_widget->setManuallyChangedColor(m->manuallyChangedColor());
     m_widget->setRecentlyUpdatedTimeout(m->recentlyUpdatedTimeout());
-    m_widget->setOnlyHilightChangedValues(m->onlyHighlightChangedValues());
-    m_widget->setViewOptions(m->categorizedView(), m->scientificView(), m->showMetaData(), m->showDescription());
+    m_widget->setOnlyHighlightChangedValues(m->onlyHighlightChangedValues());
+    m_widget->setViewOptions(m->categorizedView(), m->showMetaData(), m->scientificView(), m->showDescription());
     m_widget->setSplitterState(m->splitterState());
+}
+
+void UAVObjectBrowser::saveState(QSettings &settings) const
+{
+    m_widget->saveState(settings);
+}
+
+
+void UAVObjectBrowser::restoreState(QSettings &settings)
+{
+    m_widget->restoreState(settings);
 }
 
 void UAVObjectBrowser::viewOptionsChangedSlot(bool categorized, bool scientific, bool metadata, bool description)

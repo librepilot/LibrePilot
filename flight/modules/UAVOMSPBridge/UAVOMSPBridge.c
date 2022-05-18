@@ -49,6 +49,7 @@
 #include "airspeedstate.h"
 #include "actuatorsettings.h"
 #include "actuatordesired.h"
+#include "actuatorcommand.h"
 #include "flightstatus.h"
 #include "systemstats.h"
 #include "systemalarms.h"
@@ -67,6 +68,8 @@
 #include "objectpersistence.h"
 
 #include "pios_sensors.h"
+
+#include <pios_board_io.h>
 
 
 #define PIOS_INCLUDE_MSP_BRIDGE
@@ -476,7 +479,8 @@ static void msp_send_analog(struct msp_bridge *m)
     ManualControlSettingsChannelGroupsGet(&channelGroups);
 
 #ifdef PIOS_INCLUDE_OPLINKRCVR
-    if (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) {
+    if ((channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) ||
+        (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPENLRS)) {
         int8_t rssi;
         OPLinkStatusRSSIGet(&rssi);
 
@@ -531,7 +535,7 @@ static void msp_send_raw_gps(struct msp_bridge *m)
         data.raw_gps.lat     = gps_data.Latitude;
         data.raw_gps.lon     = gps_data.Longitude;
         data.raw_gps.alt     = (uint16_t)gps_data.Altitude;
-        data.raw_gps.speed   = (uint16_t)gps_data.Groundspeed;
+        data.raw_gps.speed   = (uint16_t)(gps_data.Groundspeed * 100.0f);
         data.raw_gps.ground_course = (int16_t)(gps_data.Heading * 10.0f);
 
         msp_send(m, MSP_RAW_GPS, data.buf, sizeof(data));
@@ -663,6 +667,20 @@ static void msp_send_channels(struct msp_bridge *m)
     msp_send(m, MSP_RC, data.buf, sizeof(data));
 }
 
+static void msp_send_servo(struct msp_bridge *m)
+{
+    ActuatorCommandData ac;
+
+    ActuatorCommandGet(&ac);
+
+    // Only the first 8 channels are supported.
+    // Channels are 16 bits (2 bytes).
+    uint8_t channels[16];
+    memcpy(channels, (uint8_t *)ac.Channel, 16);
+
+    msp_send(m, MSP_SERVO, channels, sizeof(channels));
+}
+
 static void msp_send_boxids(struct msp_bridge *m) // This is actually sending a map of MSP_STATUS.flag bits to BOX ids.
 {
     msp_send(m, MSP_BOXIDS, msp_boxes, sizeof(msp_boxes));
@@ -676,14 +694,18 @@ static void msp_send_pidnames(struct msp_bridge *m)
 static void pid_native2msp(const float *native, msp_pid_t *piditem, float scale, unsigned numelem)
 {
     for (unsigned i = 0; i < numelem; ++i) {
-        piditem->values[i] = lroundf(native[i] * scale);
+        // Handle Dterm scale
+        float s = (i == 2) ? scale * 100 : scale;
+        piditem->values[i] = lroundf(native[i] * s);
     }
 }
 
 static void pid_msp2native(const msp_pid_t *piditem, float *native, float scale, unsigned numelem)
 {
     for (unsigned i = 0; i < numelem; ++i) {
-        native[i] = (float)piditem->values[i] / scale;
+        // Handle Dterm scale
+        float s = (i == 2) ? scale * 100 : scale;
+        native[i] = (float)piditem->values[i] / s;
     }
 }
 
@@ -864,6 +886,9 @@ static msp_state msp_state_checksum(struct msp_bridge *m, uint8_t b)
         break;
     case MSP_RC:
         msp_send_channels(m);
+        break;
+    case MSP_SERVO:
+        msp_send_servo(m);
         break;
     case MSP_BOXIDS:
         msp_send_boxids(m);

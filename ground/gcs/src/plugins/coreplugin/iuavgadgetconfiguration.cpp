@@ -31,8 +31,8 @@ using namespace Core;
 
 IUAVGadgetConfiguration::IUAVGadgetConfiguration(QString classId, QObject *parent) :
     QObject(parent),
-    m_locked(false),
     m_classId(classId),
     m_name(tr("default")),
-    m_provisionalName(tr("default"))
+    m_provisionalName(tr("default")),
+    m_locked(false)
 {}

@@ -125,15 +125,27 @@ enum pios_mpu6000_accel_range {
     PIOS_MPU6000_ACCEL_16G = 0x18
 };
 
-enum pios_mpu6000_orientation { // clockwise rotation from board forward
-    PIOS_MPU6000_TOP_0DEG   = 0x00,
-    PIOS_MPU6000_TOP_90DEG  = 0x01,
-    PIOS_MPU6000_TOP_180DEG = 0x02,
-    PIOS_MPU6000_TOP_270DEG = 0x03
+
+#define PIOS_MPU6000_LOCATION_TOP    0x00
+#define PIOS_MPU6000_LOCATION_BOTTOM 0x10
+
+#define PIOS_MPU6000_LOCATION_MASK   0xf0
+
+enum pios_mpu6000_orientation { // clockwise rotation from board forward, when looking at sensor itself, which can be also on the bottom side
+    PIOS_MPU6000_TOP_0DEG      = 0 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_TOP_90DEG     = 1 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_TOP_180DEG    = 2 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_TOP_270DEG    = 3 | PIOS_MPU6000_LOCATION_TOP,
+    PIOS_MPU6000_BOTTOM_0DEG   = 4 | PIOS_MPU6000_LOCATION_BOTTOM,
+    PIOS_MPU6000_BOTTOM_90DEG  = 5 | PIOS_MPU6000_LOCATION_BOTTOM,
+    PIOS_MPU6000_BOTTOM_180DEG = 6 | PIOS_MPU6000_LOCATION_BOTTOM,
+    PIOS_MPU6000_BOTTOM_270DEG = 7 | PIOS_MPU6000_LOCATION_BOTTOM,
 };
+
 
 struct pios_mpu6000_cfg {
     const struct pios_exti_cfg *exti_cfg; /* Pointer to the EXTI configuration */
+    uint8_t i2c_addr;
 
     uint8_t Fifo_store; /* FIFO storage of different readings (See datasheet page 31 for more details) */
 
@@ -148,13 +160,15 @@ struct pios_mpu6000_cfg {
     enum pios_mpu6000_range gyro_range;
     enum pios_mpu6000_filter filter;
     enum pios_mpu6000_orientation orientation;
+#ifdef PIOS_INCLUDE_SPI
     SPIPrescalerTypeDef fast_prescaler;
     SPIPrescalerTypeDef std_prescaler;
+#endif /* PIOS_INCLUDE_SPI */
     uint8_t max_downsample;
 };
 
 /* Public Functions */
-extern int32_t PIOS_MPU6000_Init(uint32_t spi_id, uint32_t slave_num, const struct pios_mpu6000_cfg *new_cfg);
+extern int32_t PIOS_MPU6000_Init(uint32_t port_id, uint32_t slave_num, const struct pios_mpu6000_cfg *new_cfg);
 extern int32_t PIOS_MPU6000_ConfigureRanges(enum pios_mpu6000_range gyroRange, enum pios_mpu6000_accel_range accelRange, enum pios_mpu6000_filter filterSetting);
 extern int32_t PIOS_MPU6000_ReadID();
 extern void PIOS_MPU6000_Register();

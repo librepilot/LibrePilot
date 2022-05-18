@@ -49,6 +49,8 @@
 
 #include "accessorydesired.h"
 #include "attitudestate.h"
+#include "mixersettings.h"
+#include "actuatorcommand.h"
 #include "camerastabsettings.h"
 #include "cameradesired.h"
 #include "hwsettings.h"
@@ -61,6 +63,8 @@
 // Private types
 
 // Private variables
+static bool gimbalOutputEnabled = false;
+
 static struct CameraStab_data {
     portTickType lastSysTime;
     float inputs[CAMERASTABSETTINGS_INPUT_NUMELEM];
@@ -83,6 +87,12 @@ static void attitudeUpdated(UAVObjEvent *ev);
 static void applyFeedForward(uint8_t index, float dT, float *attitude, CameraStabSettingsData *cameraStab);
 #endif
 
+// this structure is equivalent to the UAVObjects for one mixer.
+typedef struct {
+    uint8_t type;
+    int8_t  matrix[5];
+} __attribute__((packed)) Mixer_t;
+
 
 /**
  * Initialise the module, called on startup
@@ -92,14 +102,15 @@ int32_t CameraStabInitialize(void)
 {
     bool cameraStabEnabled;
 
-#ifdef MODULE_CAMERASTAB_BUILTIN
-    cameraStabEnabled = true;
-#else
     HwSettingsOptionalModulesData optionalModules;
 
-    HwSettingsInitialize();
     HwSettingsOptionalModulesGet(&optionalModules);
 
+#ifdef MODULE_CAMERASTAB_BUILTIN
+    cameraStabEnabled = true;
+    optionalModules.CameraStab = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
+#else
     if (optionalModules.CameraStab == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         cameraStabEnabled = true;
     } else {
@@ -119,7 +130,6 @@ int32_t CameraStabInitialize(void)
         csd->lastSysTime = xTaskGetTickCount();
 
         AttitudeStateInitialize();
-        CameraStabSettingsInitialize();
         CameraDesiredInitialize();
 
         UAVObjEvent ev = {
@@ -147,6 +157,20 @@ MODULE_INITCALL(CameraStabInitialize, CameraStabStart);
 static void attitudeUpdated(UAVObjEvent *ev)
 {
     if (ev->obj != AttitudeStateHandle()) {
+        return;
+    }
+
+    if (!gimbalOutputEnabled) {
+        MixerSettingsData mixerSettings;
+        MixerSettingsGet(&mixerSettings);
+        Mixer_t *mixers = (Mixer_t *)&mixerSettings.Mixer1Type;
+        for (int ct = 0; ct < ACTUATORCOMMAND_CHANNEL_NUMELEM; ct++) {
+            uint8_t mixer_type = mixers[ct].type;
+            if ((mixer_type >= MIXERSETTINGS_MIXER1TYPE_CAMERAROLLORSERVO1) &&
+                (mixer_type <= MIXERSETTINGS_MIXER1TYPE_CAMERAYAW)) {
+                gimbalOutputEnabled = true;
+            }
+        }
         return;
     }
 

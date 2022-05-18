@@ -38,15 +38,15 @@ class ConfigGadgetWidget : public QWidget {
     Q_OBJECT
 
 public:
-    enum WidgetTabs { Hardware = 0, Aircraft, Input, Output, Sensors, Stabilization, CameraStabilization, TxPid, OPLink };
+    enum WidgetTabs { Hardware = 0, Aircraft, Input, Output, Sensors, Stabilization, AutoTune, CameraStabilization, TxPid, OPLink };
 
     ConfigGadgetWidget(QWidget *parent = 0);
     ~ConfigGadgetWidget();
 
     void startInputWizard();
 
-    void saveState(QSettings *settings);
-    void restoreState(QSettings *settings);
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
 
 protected:
     void resizeEvent(QResizeEvent *event);

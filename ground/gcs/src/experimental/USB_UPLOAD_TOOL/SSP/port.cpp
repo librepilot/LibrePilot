@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       port.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -25,15 +26,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "port.h"
-#include "delay.h"
+
+#include <QSerialPort>
 #include <QDebug>
-port::port(QString name, bool debug) : debug(debug), mstatus(port::closed)
+
+port::port(QString name, bool debug) : mstatus(port::closed), debug(debug)
 {
     timer.start();
-    sport = new QSerialPort();
-    sport->setPortName(name);
+    sport = new QSerialPort(name, this);
     if (sport->open(QIODevice::ReadWrite)) {
-        sport->setReadBufferSize(0);
         if (sport->setBaudRate(QSerialPort::Baud57600)
             && sport->setDataBits(QSerialPort::Data8)
             && sport->setParity(QSerialPort::NoParity)
@@ -41,7 +42,6 @@ port::port(QString name, bool debug) : debug(debug), mstatus(port::closed)
             && sport->setFlowControl(QSerialPort::NoFlowControl)) {
             mstatus = port::open;
         }
-        // sport->setDtr();
     } else {
         qDebug() << sport->error();
         mstatus = port::error;
@@ -62,6 +62,7 @@ int16_t port::pfSerialRead(void)
 {
     char c[1];
 
+    // TODO why the wait ? (gcs uploader dfu does not have it)
     sport->waitForBytesWritten(1);
     if (sport->bytesAvailable() || sport->waitForReadyRead(0)) {
         sport->read(c, 1);
@@ -72,7 +73,9 @@ int16_t port::pfSerialRead(void)
             }
             rxDebugBuff.append(c[0]);
         }
-    } else { return -1; }
+    } else {
+        return -1;
+    }
     return (uint8_t)c[0];
 }
 
@@ -89,6 +92,7 @@ void port::pfSerialWrite(uint8_t c)
         }
         txDebugBuff.append(cc[0]);
     }
+    // TODO why the wait ? (gcs uploader dfu does not have it)
     sport->waitForBytesWritten(1);
 }
 

@@ -33,19 +33,46 @@ defineTest(addCopyFileTarget) {
     src  = $$2/$$1
     dest = $$3/$$1
 
-    $${file}.target    = $$dest
-    $${file}.depends   = $$src
+    target = $${file}
+    $${target}.target    = $$dest
+    $${target}.depends   = $$src
 
     # create directory. Better would be an order only dependency
-    $${file}.commands  = -@$(MKDIR) \"$$dirname(dest)\" $$addNewline()
-    $${file}.commands += $(COPY_FILE) \"$$src\" \"$$dest\"
+    $${target}.commands  = -@$(MKDIR) \"$$dirname(dest)\" $$addNewline()
+    $${target}.commands += $(COPY_FILE) \"$$src\" \"$$dest\"
 
-    QMAKE_EXTRA_TARGETS += $$file
-    POST_TARGETDEPS += $$eval($${file}.target)
+    QMAKE_EXTRA_TARGETS += $$target
+    POST_TARGETDEPS += $$eval($${target}.target)
 
-    export($${file}.target)
-    export($${file}.depends)
-    export($${file}.commands)
+    export($${target}.target)
+    export($${target}.depends)
+    export($${target}.commands)
+    export(QMAKE_EXTRA_TARGETS)
+    export(POST_TARGETDEPS)
+
+    return(true)
+}
+
+defineTest(addCopyDependenciesTarget) {
+    file = $$1
+    src  = $$2/$$1
+    dest = $$3
+
+    target_file = $${OUT_PWD}/deps/$${file}.deps
+
+    target = $${file}_deps
+    $${target}.target    = $$target_file
+    $${target}.depends   = $$src
+
+    $${target}.commands  = -@$(MKDIR) \"$$dirname(target_file)\" $$addNewline()
+    $${target}.commands  += $$(PYTHON) $$(ROOT_DIR)/make/copy_dependencies.py --dest \"$$dest\" --files \"$$src\" --excludes OPENGL32.DLL > \"$$target_file\"
+
+    QMAKE_EXTRA_TARGETS += $$target
+    POST_TARGETDEPS += $$eval($${target}.target)
+
+    export($${target}.target)
+    export($${target}.depends)
+    export($${target}.commands)
     export(QMAKE_EXTRA_TARGETS)
     export(POST_TARGETDEPS)
 
@@ -57,22 +84,23 @@ defineTest(addCopyDirTarget) {
     src  = $$2/$$1
     dest = $$3/$$1
 
-    $${dir}.target    = $$dest
-    $${dir}.depends   = $$src
+    target = $${dir}
+    $${target}.target    = $$dest
+    $${target}.depends   = $$src
     # Windows does not update directory timestamp if files are modified
-    win32: $${dir}.depends += FORCE
+    win32:$${target}depends += FORCE
 
-    $${dir}.commands  = @rm -rf \"$$dest\" $$addNewline()
+    $${target}.commands  = @rm -rf \"$$dest\" $$addNewline()
     # create directory. Better would be an order only dependency
-    $${dir}.commands += -@$(MKDIR) \"$$dirname(dest)\" $$addNewline()
-    $${dir}.commands += $(COPY_DIR) \"$$src\" \"$$dest\"
+    $${target}.commands += -@$(MKDIR) \"$$dirname(dest)\" $$addNewline()
+    $${target}.commands += $(COPY_DIR) \"$$src\" \"$$dest\"
 
-    QMAKE_EXTRA_TARGETS += $$dir
-    POST_TARGETDEPS += $$eval($${dir}.target)
+    QMAKE_EXTRA_TARGETS += $$target
+    POST_TARGETDEPS += $$eval($${target}.target)
 
-    export($${dir}.target)
-    export($${dir}.depends)
-    export($${dir}.commands)
+    export($${target}.target)
+    export($${target}.depends)
+    export($${target}.commands)
     export(QMAKE_EXTRA_TARGETS)
     export(POST_TARGETDEPS)
 

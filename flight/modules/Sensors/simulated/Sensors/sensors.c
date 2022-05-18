@@ -115,7 +115,6 @@ int32_t SensorsInitialize(void)
     GPSPositionSensorInitialize();
     GPSVelocitySensorInitialize();
     MagSensorInitialize();
-    RevoCalibrationInitialize();
 
     return 0;
 }

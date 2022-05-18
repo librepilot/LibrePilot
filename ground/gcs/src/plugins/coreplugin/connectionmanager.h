@@ -49,26 +49,23 @@ namespace Internal {
 class MainWindow;
 } // namespace Internal
 
-class DevListItem {
+class CORE_EXPORT DevListItem {
 public:
     DevListItem(IConnection *c, IConnection::device d) :
         connection(c), device(d) {}
 
     DevListItem() : connection(NULL) {}
 
-    QString getConName()
-    {
-        if (connection == NULL) {
-            return "";
-        }
-        return connection->shortName() + ": " + device.displayName;
-    }
+    QString getConName() const;
+
+    QString getConDescription() const;
 
     bool operator==(const DevListItem &rhs)
     {
         return connection == rhs.connection && device == rhs.device;
     }
 
+    int displayNumber = -1;
     IConnection *connection;
     IConnection::device device;
 };
@@ -87,7 +84,7 @@ public:
     {
         return m_connectionDevice;
     }
-    DevListItem findDevice(const QString &devName);
+    DevListItem findDevice(int devNumber);
 
     QLinkedList<DevListItem> getAvailableDevices()
     {

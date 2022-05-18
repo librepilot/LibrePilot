@@ -3,7 +3,7 @@ TARGET = IPconnection
 
 QT += network widgets
 
-DEFINES += IPconnection_LIBRARY
+DEFINES += IPCONNECTION_LIBRARY
 
 include(../../plugin.pri)
 include(ipconnection_dependencies.pri)

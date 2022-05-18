@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-apt-get update
-apt-get -y upgrade
+sudo apt-get update
+sudo apt-get --yes --force-yes upgrade
 
 # get ourselves some basic toys
-apt-get -y install git-core build-essential openssl libssl-dev 
+sudo apt-get --yes --force-yes install git-core build-essential openssl libssl-dev 
 
 # install some tools for the vagrant user only by executing
 # a script AS the vagrant user

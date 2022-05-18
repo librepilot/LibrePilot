@@ -32,11 +32,13 @@
 #include <pios_board_info.h>
 #include <pios_ppm_out.h>
 #include <oplinksettings.h>
+#include <oplinkreceiver.h>
 #include <pios_openlrs.h>
 #include <taskinfo.h>
 #ifdef PIOS_INCLUDE_SERVO
 #include <pios_servo.h>
 #endif
+#include <pios_board_io.h>
 
 /*
  * Pull in the board-specific static HW definitions.
@@ -48,79 +50,29 @@
  */
 #include "../board_hw_defs.c"
 
-#define PIOS_COM_TELEM_USB_RX_BUF_LEN 256
-#define PIOS_COM_TELEM_USB_TX_BUF_LEN 256
-
-#define PIOS_COM_TELEM_VCP_RX_BUF_LEN 256
-#define PIOS_COM_TELEM_VCP_TX_BUF_LEN 256
-
-#define PIOS_COM_RFM22B_RF_RX_BUF_LEN 256
-#define PIOS_COM_RFM22B_RF_TX_BUF_LEN 256
-
-#define PIOS_COM_TELEM_RX_BUF_LEN     256
-#define PIOS_COM_TELEM_TX_BUF_LEN     256
-
-uint32_t pios_com_telem_usb_id = 0;
-uint32_t pios_com_telem_vcp_id = 0;
-uint32_t pios_com_telem_uart_main_id = 0;
-uint32_t pios_com_telem_uart_flexi_id = 0;
-uint32_t pios_com_telemetry_id = 0;
-uint32_t pios_com_bridge_id    = 0;
-uint32_t pios_com_vcp_id    = 0;
-#if defined(PIOS_INCLUDE_PPM)
-uint32_t pios_ppm_rcvr_id   = 0;
-#endif
+uint32_t pios_com_hid_id     = 0;
+// uint32_t pios_com_vcp_id     = 0; /* this is provided by pios_board_io.c */
+uint32_t pios_com_main_id    = 0;
+uint32_t pios_com_flexi_id   = 0;
+uint32_t pios_com_gcs_id     = 0;
+uint32_t pios_com_gcs_out_id = 0;
 #if defined(PIOS_INCLUDE_PPM_OUT)
-uint32_t pios_ppm_out_id    = 0;
+uint32_t pios_ppm_out_id     = 0;
+bool ppm_rssi = false;
 #endif
 #if defined(PIOS_INCLUDE_RFM22B)
-uint32_t pios_rfm22b_id     = 0;
-uint32_t pios_com_rfm22b_id = 0;
-uint32_t pios_com_radio_id  = 0;
+#include <pios_rfm22b_com.h>
+uint32_t pios_com_pri_radio_out_id = 0;
+uint32_t pios_com_aux_radio_out_id = 0;
 #endif
 
 uintptr_t pios_uavo_settings_fs_id;
-uintptr_t pios_user_fs_id = 0;
+uintptr_t pios_user_fs_id  = 0;
 
-uint8_t servo_count = 0;
-
-/*
- * Setup a com port based on the passed cfg, driver and buffer sizes.
- * tx size of 0 make the port rx only
- * rx size of 0 make the port tx only
- * having both tx and rx size of 0 is not valid and will fail further down in PIOS_COM_Init()
- */
-static void PIOS_Board_configure_com(const struct pios_usart_cfg *usart_port_cfg, uint16_t rx_buf_len, uint16_t tx_buf_len,
-                                     const struct pios_com_driver *com_driver, uint32_t *pios_com_id)
-{
-    uint32_t pios_usart_id;
-
-    if (PIOS_USART_Init(&pios_usart_id, usart_port_cfg)) {
-        PIOS_Assert(0);
-    }
-
-    uint8_t *rx_buffer = 0, *tx_buffer = 0;
-
-    if (rx_buf_len > 0) {
-        rx_buffer = (uint8_t *)pios_malloc(rx_buf_len);
-        PIOS_Assert(rx_buffer);
-    }
-
-    if (tx_buf_len > 0) {
-        tx_buffer = (uint8_t *)pios_malloc(tx_buf_len);
-        PIOS_Assert(tx_buffer);
-    }
-
-    if (PIOS_COM_Init(pios_com_id, com_driver, pios_usart_id,
-                      rx_buffer, rx_buf_len,
-                      tx_buffer, tx_buf_len)) {
-        PIOS_Assert(0);
-    }
-}
-
+static uint8_t servo_count = 0;
 
 // Forward definitions
-static void PIOS_Board_PPM_callback(const int16_t *channels);
+static void PIOS_Board_PPM_callback(uint32_t context, const int16_t *channels);
 
 /**
  * PIOS_Board_Init()
@@ -149,6 +101,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
+    SETTINGS_INITIALISE_ALL;
 
     /* Set up the SPI interface to the rfm22b */
     if (PIOS_SPI_Init(&pios_spi_rfm22b_id, &pios_spi_rfm22b_cfg)) {
@@ -181,11 +134,20 @@ void PIOS_Board_Init(void)
         PIOS_IAP_WriteBootCmd(2, 0);
     }
 
-#if defined(PIOS_INCLUDE_RFM22B)
-    OPLinkSettingsInitialize();
-    OPLinkStatusInitialize();
-#endif /* PIOS_INCLUDE_RFM22B */
+    OPLinkReceiverInitialize();
 
+    /* Retrieve the settings object. */
+    OPLinkSettingsData oplinkSettings;
+    OPLinkSettingsGet(&oplinkSettings);
+
+    /* Determine the modem protocols */
+    bool is_coordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
+    bool ppm_only    = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
+    bool ppm_mode    = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
+                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
+    ppm_rssi = (oplinkSettings.PPMOutRSSI == OPLINKSETTINGS_PPMOUTRSSI_TRUE);
+    bool servo_main  = false;
+    bool servo_flexi = false;
 
 #if defined(PIOS_INCLUDE_TIM)
     /* Set up pulse timers */
@@ -227,7 +189,7 @@ void PIOS_Board_Init(void)
         uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_TX_BUF_LEN);
         PIOS_Assert(rx_buffer);
         PIOS_Assert(tx_buffer);
-        if (PIOS_COM_Init(&pios_com_telem_usb_id, &pios_usb_hid_com_driver, pios_usb_hid_id,
+        if (PIOS_COM_Init(&pios_com_hid_id, &pios_usb_hid_com_driver, pios_usb_hid_id,
                           rx_buffer, PIOS_COM_TELEM_USB_RX_BUF_LEN,
                           tx_buffer, PIOS_COM_TELEM_USB_TX_BUF_LEN)) {
             PIOS_Assert(0);
@@ -245,7 +207,7 @@ void PIOS_Board_Init(void)
         uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_VCP_TX_BUF_LEN);
         PIOS_Assert(rx_buffer);
         PIOS_Assert(tx_buffer);
-        if (PIOS_COM_Init(&pios_com_telem_vcp_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
+        if (PIOS_COM_Init(&pios_com_vcp_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
                           rx_buffer, PIOS_COM_TELEM_VCP_RX_BUF_LEN,
                           tx_buffer, PIOS_COM_TELEM_VCP_TX_BUF_LEN)) {
             PIOS_Assert(0);
@@ -254,51 +216,45 @@ void PIOS_Board_Init(void)
 #endif
 
     // Configure the main port
-    OPLinkSettingsData oplinkSettings;
-    OPLinkSettingsGet(&oplinkSettings);
-    bool is_coordinator = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPLINKCOORDINATOR);
-    bool openlrs     = (oplinkSettings.Protocol == OPLINKSETTINGS_PROTOCOL_OPENLRS);
-    bool ppm_only    = (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL);
-    bool data_mode   = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATA) ||
-                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool is_enabled  = ((oplinkSettings.Protocol != OPLINKSETTINGS_PROTOCOL_DISABLED) &&
-                        ((oplinkSettings.MaxRFPower != OPLINKSETTINGS_MAXRFPOWER_0) || openlrs));
-    bool ppm_mode    = ((oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_CONTROL) ||
-                        (oplinkSettings.LinkType == OPLINKSETTINGS_LINKTYPE_DATAANDCONTROL));
-    bool servo_main  = false;
-    bool servo_flexi = false;
+    uint32_t mainComSpeed = 0;
+    switch (oplinkSettings.MainComSpeed) {
+    case OPLINKSETTINGS_MAINCOMSPEED_4800:
+        mainComSpeed = 4800;
+        break;
+    case OPLINKSETTINGS_MAINCOMSPEED_9600:
+        mainComSpeed = 9600;
+        break;
+    case OPLINKSETTINGS_MAINCOMSPEED_19200:
+        mainComSpeed = 19200;
+        break;
+    case OPLINKSETTINGS_MAINCOMSPEED_38400:
+        mainComSpeed = 38400;
+        break;
+    case OPLINKSETTINGS_MAINCOMSPEED_57600:
+        mainComSpeed = 57600;
+        break;
+    case OPLINKSETTINGS_MAINCOMSPEED_115200:
+        mainComSpeed = 115200;
+        break;
+    case OPLINKSETTINGS_MAINCOMSPEED_DISABLED:
+        break;
+    }
     switch (oplinkSettings.MainPort) {
     case OPLINKSETTINGS_MAINPORT_TELEMETRY:
     case OPLINKSETTINGS_MAINPORT_SERIAL:
-    {
-        /* Configure the main port for uart serial */
 #ifndef PIOS_RFM22B_DEBUG_ON_TELEM
-        PIOS_Board_configure_com(&pios_usart_serial_cfg,
-                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
-                                 &pios_usart_com_driver, &pios_com_telem_uart_main_id);
-
-        PIOS_COM_TELEMETRY = PIOS_COM_TELEM_UART_MAIN;
-#endif
-        break;
-    }
-    case OPLINKSETTINGS_MAINPORT_COMBRIDGE:
-        PIOS_Board_configure_com(&pios_usart_serial_cfg,
-                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
-                                 &pios_usart_com_driver, &pios_com_bridge_id);
+        PIOS_BOARD_IO_Configure_UART_COM(&pios_usart_main_cfg,
+                                         PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN,
+                                         &pios_com_main_id);
+        PIOS_COM_ChangeBaud(pios_com_main_id, mainComSpeed);
+#endif /* !PIOS_RFM22B_DEBUG_ON_TELEM */
         break;
     case OPLINKSETTINGS_MAINPORT_PPM:
-    {
 #if defined(PIOS_INCLUDE_PPM)
         /* PPM input is configured on the coordinator modem and output on the remote modem. */
         if (is_coordinator) {
-            uint32_t pios_ppm_id;
-            PIOS_PPM_Init(&pios_ppm_id, &pios_ppm_main_cfg);
-
-            if (PIOS_RCVR_Init(&pios_ppm_rcvr_id, &pios_ppm_rcvr_driver, pios_ppm_id)) {
-                PIOS_Assert(0);
-            }
+            PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_main_cfg);
         }
-        // For some reason, PPM output on the main port doesn't work.
 #if defined(PIOS_INCLUDE_PPM_OUT)
         else {
             PIOS_PPM_Out_Init(&pios_ppm_out_id, &pios_main_ppm_out_cfg);
@@ -306,69 +262,66 @@ void PIOS_Board_Init(void)
 #endif /* PIOS_INCLUDE_PPM_OUT */
 #endif /* PIOS_INCLUDE_PPM */
         break;
-    }
     case OPLINKSETTINGS_MAINPORT_PWM:
         servo_main = true;
-        break;
-    case OPLINKSETTINGS_MAINPORT_DISABLED:
+    default:
         break;
     }
 
     // Configure the flexi port
+    uint32_t flexiComSpeed = 0;
+    switch (oplinkSettings.FlexiComSpeed) {
+    case OPLINKSETTINGS_FLEXICOMSPEED_4800:
+        flexiComSpeed = 4800;
+        break;
+    case OPLINKSETTINGS_FLEXICOMSPEED_9600:
+        flexiComSpeed = 9600;
+        break;
+    case OPLINKSETTINGS_FLEXICOMSPEED_19200:
+        flexiComSpeed = 19200;
+        break;
+    case OPLINKSETTINGS_FLEXICOMSPEED_38400:
+        flexiComSpeed = 38400;
+        break;
+    case OPLINKSETTINGS_FLEXICOMSPEED_57600:
+        flexiComSpeed = 57600;
+        break;
+    case OPLINKSETTINGS_FLEXICOMSPEED_115200:
+        flexiComSpeed = 115200;
+        break;
+    case OPLINKSETTINGS_FLEXICOMSPEED_DISABLED:
+        break;
+    }
     switch (oplinkSettings.FlexiPort) {
     case OPLINKSETTINGS_FLEXIPORT_TELEMETRY:
     case OPLINKSETTINGS_FLEXIPORT_SERIAL:
-    {
-        /* Configure the flexi port as uart serial */
-        PIOS_Board_configure_com(&pios_usart_telem_flexi_cfg,
-                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
-                                 &pios_usart_com_driver,
-                                 &pios_com_telem_uart_flexi_id);
-        PIOS_COM_TELEMETRY = PIOS_COM_TELEM_UART_FLEXI;
-        break;
-    }
-    case OPLINKSETTINGS_FLEXIPORT_COMBRIDGE:
-        PIOS_Board_configure_com(&pios_usart_telem_flexi_cfg,
-                                 PIOS_COM_TELEM_RX_BUF_LEN, PIOS_COM_TELEM_TX_BUF_LEN,
-                                 &pios_usart_com_driver,
-                                 &pios_com_bridge_id);
+#ifndef PIOS_RFM22B_DEBUG_ON_TELEM
+        PIOS_BOARD_IO_Configure_UART_COM(&pios_usart_flexi_cfg,
+                                         PIOS_COM_TELEM_RF_RX_BUF_LEN, PIOS_COM_TELEM_RF_TX_BUF_LEN,
+                                         &pios_com_flexi_id);
+        PIOS_COM_ChangeBaud(pios_com_flexi_id, flexiComSpeed);
+#endif /* !PIOS_RFM22B_DEBUG_ON_TELEM */
         break;
     case OPLINKSETTINGS_FLEXIPORT_PPM:
-    {
 #if defined(PIOS_INCLUDE_PPM)
         /* PPM input is configured on the coordinator modem and output on the remote modem. */
         if (is_coordinator) {
-            uint32_t pios_ppm_id;
-            PIOS_PPM_Init(&pios_ppm_id, &pios_ppm_flexi_cfg);
-
-            if (PIOS_RCVR_Init(&pios_ppm_rcvr_id, &pios_ppm_rcvr_driver, pios_ppm_id)) {
-                PIOS_Assert(0);
-            }
-        } else {
+            PIOS_BOARD_IO_Configure_PPM_RCVR(&pios_ppm_flexi_cfg);
+        }
+#if defined(PIOS_INCLUDE_PPM_OUT)
+        else {
             PIOS_PPM_Out_Init(&pios_ppm_out_id, &pios_flexi_ppm_out_cfg);
         }
+#endif /* PIOS_INCLUDE_PPM_OUT */
 #endif /* PIOS_INCLUDE_PPM */
         break;
-    }
     case OPLINKSETTINGS_FLEXIPORT_PWM:
         servo_flexi = true;
-        break;
-    case OPLINKSETTINGS_FLEXIPORT_DISABLED:
-        break;
-    }
-
-    // Configure the USB VCP port
-    switch (oplinkSettings.VCPPort) {
-    case OPLINKSETTINGS_VCPPORT_SERIAL:
-        PIOS_COM_TELEMETRY = PIOS_COM_TELEM_USB_VCP;
-        break;
-    case OPLINKSETTINGS_VCPPORT_COMBRIDGE:
-        PIOS_COM_VCP = PIOS_COM_TELEM_USB_VCP;
-        break;
-    case OPLINKSETTINGS_VCPPORT_DISABLED:
+    default:
         break;
     }
 
+    /* Configure the PWM servo outputs. */
 #if defined(PIOS_INCLUDE_SERVO)
     if (servo_main) {
         if (servo_flexi) {
@@ -382,150 +335,96 @@ void PIOS_Board_Init(void)
         servo_count = 2;
         PIOS_Servo_Init(&pios_servo_flexi_cfg);
     }
+
+    // Set bank modes and activate output. We need to do this here because oplm does not run Actuator module.
+    PIOS_Servo_SetBankMode(0, PIOS_SERVO_BANK_MODE_PWM);
+    PIOS_Servo_SetBankMode(1, PIOS_SERVO_BANK_MODE_PWM);
+    PIOS_Servo_SetActive(0b11);
 #endif
 
-    // Initialize out status object.
-    OPLinkStatusData oplinkStatus;
-    OPLinkStatusGet(&oplinkStatus);
+    PIOS_BOARD_IO_Configure_RFM22B();
 
-    // Get our hardware information.
-    const struct pios_board_info *bdinfo = &pios_board_info_blob;
+    /* Set the PPM callback if we should be receiving PPM. */
+    if (ppm_mode || (ppm_only && !is_coordinator)) {
+        PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback, 0);
+    }
 
-    oplinkStatus.BoardType     = bdinfo->board_type;
-    PIOS_BL_HELPER_FLASH_Read_Description(oplinkStatus.Description, OPLINKSTATUS_DESCRIPTION_NUMELEM);
-    PIOS_SYS_SerialNumberGetBinary(oplinkStatus.CPUSerial);
-    oplinkStatus.BoardRevision = bdinfo->board_rev;
-
-    /* Initalize the RFM22B radio COM device. */
-    if (is_enabled) {
-        if (openlrs) {
-#if defined(PIOS_INCLUDE_OPENLRS)
-            const struct pios_openlrs_cfg *openlrs_cfg = PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(bdinfo->board_rev);
-            uint32_t openlrs_id;
-
-            oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
-
-            PIOS_OpenLRS_Init(&openlrs_id, PIOS_RFM22_SPI_PORT, 0, openlrs_cfg);
-            PIOS_OpenLRS_RegisterPPMCallback(openlrs_id, PIOS_Board_PPM_callback);
-#endif /* PIOS_INCLUDE_OPENLRS */
+    // Configure the primary radio stream destination.
+    switch (oplinkSettings.RadioPriStream) {
+    case OPLINKSETTINGS_RADIOPRISTREAM_DISABLED:
+        break;
+    case OPLINKSETTINGS_RADIOPRISTREAM_HID:
+        // HID is always connected to GCS
+        pios_com_gcs_id     = pios_com_hid_id;
+        pios_com_gcs_out_id = pios_com_pri_radio_id;
+        break;
+    case OPLINKSETTINGS_RADIOPRISTREAM_MAIN:
+        // Is the main port configured for telemetry (GCS)?
+        if (oplinkSettings.MainPort == OPLINKSETTINGS_MAINPORT_TELEMETRY) {
+            pios_com_gcs_id     = pios_com_main_id;
+            pios_com_gcs_out_id = pios_com_pri_radio_id;
         } else {
-            oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_ENABLED;
-
-            // Configure the RFM22B device
-            const struct pios_rfm22b_cfg *rfm22b_cfg = PIOS_BOARD_HW_DEFS_GetRfm22Cfg(bdinfo->board_rev);
-            if (PIOS_RFM22B_Init(&pios_rfm22b_id, PIOS_RFM22_SPI_PORT, rfm22b_cfg->slave_num, rfm22b_cfg)) {
-                PIOS_Assert(0);
-            }
-
-            // Configure the radio com interface
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_RFM22B_RF_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_rfm22b_id, &pios_rfm22b_com_driver, pios_rfm22b_id,
-                              rx_buffer, PIOS_COM_RFM22B_RF_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_RFM22B_RF_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-
-            // Set the RF data rate on the modem to ~2X the selected buad rate because the modem is half duplex.
-            enum rfm22b_datarate datarate = RFM22_datarate_64000;
-            switch (oplinkSettings.ComSpeed) {
-            case OPLINKSETTINGS_COMSPEED_4800:
-                datarate = RFM22_datarate_9600;
-                break;
-            case OPLINKSETTINGS_COMSPEED_9600:
-                datarate = RFM22_datarate_19200;
-                break;
-            case OPLINKSETTINGS_COMSPEED_19200:
-                datarate = RFM22_datarate_32000;
-                break;
-            case OPLINKSETTINGS_COMSPEED_38400:
-                datarate = RFM22_datarate_64000;
-                break;
-            case OPLINKSETTINGS_COMSPEED_57600:
-                datarate = RFM22_datarate_100000;
-                break;
-            case OPLINKSETTINGS_COMSPEED_115200:
-                datarate = RFM22_datarate_192000;
-                break;
-            }
-
-            /* Set the modem Tx power level */
-            switch (oplinkSettings.MaxRFPower) {
-            case OPLINKSETTINGS_MAXRFPOWER_125:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_0);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_16:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_1);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_316:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_2);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_63:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_3);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_126:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_4);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_25:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_5);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_50:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_6);
-                break;
-            case OPLINKSETTINGS_MAXRFPOWER_100:
-                PIOS_RFM22B_SetTxPower(pios_rfm22b_id, RFM22_tx_pwr_txpow_7);
-                break;
-            default:
-                // do nothing
-                break;
-            }
-
-            // Set the radio configuration parameters.
-            PIOS_RFM22B_SetDeviceID(pios_rfm22b_id, oplinkSettings.CustomDeviceID);
-            PIOS_RFM22B_SetCoordinatorID(pios_rfm22b_id, oplinkSettings.CoordID);
-            PIOS_RFM22B_SetChannelConfig(pios_rfm22b_id, datarate, oplinkSettings.MinChannel, oplinkSettings.MaxChannel, is_coordinator, data_mode, ppm_mode);
-
-            /* Set the PPM callback if we should be receiving PPM. */
-            if (ppm_mode || (ppm_only && !is_coordinator)) {
-                PIOS_RFM22B_SetPPMCallback(pios_rfm22b_id, PIOS_Board_PPM_callback);
-            }
-
-            // Reinitialize the modem to affect the changes.
-            PIOS_RFM22B_Reinit(pios_rfm22b_id);
-        } // openlrs
-    } else {
-        oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
-    }
-
-    // Update the object
-    OPLinkStatusSet(&oplinkStatus);
-
-    // Update the com baud rate.
-    uint32_t comBaud = 9600;
-    switch (oplinkSettings.ComSpeed) {
-    case OPLINKSETTINGS_COMSPEED_4800:
-        comBaud = 4800;
+            PIOS_COM_LinkComPair(pios_com_pri_radio_id, pios_com_main_id, false, false);
+        }
         break;
-    case OPLINKSETTINGS_COMSPEED_9600:
-        comBaud = 9600;
+    case OPLINKSETTINGS_RADIOPRISTREAM_FLEXI:
+        // Is the flexi port configured for telemetry (GCS)?
+        if (oplinkSettings.FlexiPort == OPLINKSETTINGS_FLEXIPORT_TELEMETRY) {
+            pios_com_gcs_id     = pios_com_flexi_id;
+            pios_com_gcs_out_id = pios_com_pri_radio_id;
+        } else {
+            PIOS_COM_LinkComPair(pios_com_pri_radio_id, pios_com_flexi_id, false, false);
+        }
         break;
-    case OPLINKSETTINGS_COMSPEED_19200:
-        comBaud = 19200;
-        break;
-    case OPLINKSETTINGS_COMSPEED_38400:
-        comBaud = 38400;
-        break;
-    case OPLINKSETTINGS_COMSPEED_57600:
-        comBaud = 57600;
-        break;
-    case OPLINKSETTINGS_COMSPEED_115200:
-        comBaud = 115200;
+    case OPLINKSETTINGS_RADIOPRISTREAM_VCP:
+        // VCP is never connected to GCS
+        PIOS_COM_LinkComPair(pios_com_pri_radio_id, pios_com_vcp_id, false, false);
         break;
     }
-    if (PIOS_COM_TELEMETRY) {
-        PIOS_COM_ChangeBaud(PIOS_COM_TELEMETRY, comBaud);
+
+    // Configure the Auxiliary radio stream destination.
+    switch (oplinkSettings.RadioAuxStream) {
+    case OPLINKSETTINGS_RADIOAUXSTREAM_DISABLED:
+        break;
+    case OPLINKSETTINGS_RADIOAUXSTREAM_HID:
+        // HID is always connected to GCS
+        pios_com_gcs_id     = pios_com_hid_id;
+        pios_com_gcs_out_id = pios_com_aux_radio_id;
+        break;
+    case OPLINKSETTINGS_RADIOAUXSTREAM_MAIN:
+        // Is the main port configured for telemetry (GCS)?
+        if (oplinkSettings.MainPort == OPLINKSETTINGS_MAINPORT_TELEMETRY) {
+            pios_com_gcs_id     = pios_com_main_id;
+            pios_com_gcs_out_id = pios_com_aux_radio_id;
+        } else {
+            PIOS_COM_LinkComPair(pios_com_aux_radio_id, pios_com_main_id, false, false);
+        }
+        break;
+    case OPLINKSETTINGS_RADIOAUXSTREAM_FLEXI:
+        // Is the flexi port configured for telemetry (GCS)?
+        if (oplinkSettings.FlexiPort == OPLINKSETTINGS_FLEXIPORT_TELEMETRY) {
+            pios_com_gcs_id     = pios_com_flexi_id;
+            pios_com_gcs_out_id = pios_com_aux_radio_id;
+        } else {
+            PIOS_COM_LinkComPair(pios_com_aux_radio_id, pios_com_flexi_id, false, false);
+        }
+        break;
+    case OPLINKSETTINGS_RADIOAUXSTREAM_VCP:
+        // VCP is never connected to GCS
+        PIOS_COM_LinkComPair(pios_com_aux_radio_id, pios_com_vcp_id, false, false);
+        break;
+    }
+
+    // Configure the VCP COM bridge
+    switch (oplinkSettings.VCPBridge) {
+    case OPLINKSETTINGS_VCPBRIDGE_MAIN:
+        PIOS_COM_LinkComPair(pios_com_vcp_id, pios_com_main_id, true, true);
+        break;
+    case OPLINKSETTINGS_VCPBRIDGE_FLEXI:
+        PIOS_COM_LinkComPair(pios_com_vcp_id, pios_com_flexi_id, true, true);
+        break;
+    case OPLINKSETTINGS_VCPBRIDGE_DISABLED:
+        break;
     }
 
     /* Remap AFIO pin */
@@ -536,19 +435,47 @@ void PIOS_Board_Init(void)
 #endif
 }
 
-static void PIOS_Board_PPM_callback(const int16_t *channels)
+static void PIOS_Board_PPM_callback(__attribute__((unused)) uint32_t context, const int16_t *channels)
 {
 #if defined(PIOS_INCLUDE_PPM) && defined(PIOS_INCLUDE_PPM_OUT)
     if (pios_ppm_out_id) {
         for (uint8_t i = 0; i < RFM22B_PPM_NUM_CHANNELS; ++i) {
-            if (channels[i] != PIOS_RCVR_INVALID) {
+            if ((channels[i] != PIOS_RCVR_INVALID) && (channels[i] != PIOS_RCVR_TIMEOUT)) {
                 PIOS_PPM_OUT_Set(PIOS_PPM_OUTPUT, i, channels[i]);
             }
         }
+        // Rssi channel output is added after RC channels
+        // Output Rssi from 1000µs to 2000µs (-127dBm to -16dBm range)
+        if (ppm_rssi) {
+            int8_t rssi;
+            int16_t ppm_value;
+            OPLinkStatusRSSIGet(&rssi);
+            ppm_value = 1000 + ((rssi + 127) * 9);
+            PIOS_PPM_OUT_Set(PIOS_PPM_OUTPUT, RFM22B_PPM_NUM_CHANNELS, ppm_value);
+        }
+    } else {
+        // If there is no PPM output defined, try sending the control outputs as a UAVObject.
+        OPLinkReceiverData recv_data;
+        for (uint8_t i = 0; i < OPLINKRECEIVER_CHANNEL_NUMELEM; ++i) {
+            if (i < RFM22B_PPM_NUM_CHANNELS) {
+                recv_data.Channel[i] = channels[i];
+            } else {
+                recv_data.Channel[i] = PIOS_RCVR_TIMEOUT;
+            }
+        }
+        // Update the RSSI and quality fields.
+        int8_t rssi;
+        OPLinkStatusRSSIGet(&rssi);
+        recv_data.RSSI = rssi;
+        uint16_t quality;
+        OPLinkStatusLinkQualityGet(&quality);
+        // Link quality is 0-128, so scale it down to 0-100
+        recv_data.LinkQuality = quality * 100 / 128;
+        OPLinkReceiverSet(&recv_data);
     }
 #if defined(PIOS_INCLUDE_SERVO)
     for (uint8_t i = 0; i < servo_count; ++i) {
-        uint16_t val = (channels[i] == PIOS_RCVR_INVALID) ? 0 : channels[i];
+        uint16_t val = ((channels[i] == PIOS_RCVR_INVALID) || (channels[i] == PIOS_RCVR_TIMEOUT)) ? 0 : channels[i];
         PIOS_Servo_Set(i, val);
     }
 #endif /* PIOS_INCLUDE_SERVO */

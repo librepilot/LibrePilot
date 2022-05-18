@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vehicleconfigurationhelper.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup
  * @{
  * @addtogroup VehicleConfigurationHelper
@@ -60,15 +61,19 @@ public:
     VehicleConfigurationHelper(VehicleConfigurationSource *configSource);
     bool setupVehicle(bool save = true);
     bool setupHardwareSettings(bool save = true);
-    static const qint16 LEGACY_ESC_FREQUENCY    = 50;
-    static const qint16 RAPID_ESC_FREQUENCY     = 490;
-    static const qint16 PWMSYNC_ESC_FREQUENCY   = 0;
-    static const qint16 ONESHOT_ESC_FREQUENCY   = 0;
-    static const qint16 ANALOG_SERVO_FREQUENCY  = 50;
-    static const qint16 DIGITAL_SERVO_FREQUENCY = 333;
+    static const qint16 LEGACY_ESC_FREQUENCY       = 50;
+    static const qint16 LEGACY_MULTI_ESC_FREQUENCY = 300;
+    static const qint16 RAPID_ESC_FREQUENCY        = 490;
+    static const qint16 PWMSYNC_ESC_FREQUENCY      = 0;
+    static const qint16 ESC_FREQUENCY_ZERO         = 0;
+    static const qint16 DSHOT_MODE_150 = 150;
+    static const qint16 LEGACY_DSHOT_MODE          = 600;
+    static const qint16 DSHOT_MODE_1200 = 1200;
+    static const qint16 ANALOG_SERVO_FREQUENCY     = 50;
+    static const qint16 DIGITAL_SERVO_FREQUENCY    = 333;
     static const int MIXER_TYPE_NONE = 0;
     static const int MIXER_TYPE_MOTOR = 1;
-    static const int MIXER_TYPE_REVERSABLEMOTOR = 2;
+    static const int MIXER_TYPE_REVERSABLEMOTOR    = 2;
     static const int MIXER_TYPE_SERVO = 3;
 
 
@@ -121,6 +126,8 @@ private:
     void setupCar();
     void setupTank();
     void setupMotorcycle();
+    void setupBoat();
+    void setupBoatDiff();
 
 private slots:
     void uAVOTransactionCompleted(UAVObject *object, bool success);

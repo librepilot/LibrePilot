@@ -59,6 +59,9 @@ class PfdQmlContext : public QObject {
     // background
     Q_PROPERTY(QString backgroundImageFile READ backgroundImageFile WRITE setBackgroundImageFile NOTIFY backgroundImageFileChanged)
 
+    // gstreamer pipeline
+    Q_PROPERTY(QString gstPipeline READ gstPipeline WRITE setGstPipeline NOTIFY gstPipelineChanged)
+
 public:
     PfdQmlContext(QObject *parent = 0);
     virtual ~PfdQmlContext();
@@ -102,11 +105,15 @@ public:
     QString backgroundImageFile() const;
     void setBackgroundImageFile(const QString &arg);
 
+    // gstreamer pipeline
+    QString gstPipeline() const;
+    void setGstPipeline(const QString &arg);
+
     Q_INVOKABLE void resetConsumedEnergy();
 
     void loadConfiguration(PfdQmlGadgetConfiguration *config);
-    void saveState(QSettings *);
-    void restoreState(QSettings *);
+    void saveState(QSettings &) const;
+    void restoreState(QSettings &);
 
     void apply(QQmlContext *context);
 
@@ -129,6 +136,8 @@ signals:
 
     void modelFileChanged(QString arg);
     void backgroundImageFileChanged(QString arg);
+
+    void gstPipelineChanged(QString arg);
 
 private:
     // constants
@@ -155,6 +164,8 @@ private:
     QStringList m_modelFileList;
 
     QString m_backgroundImageFile;
+
+    QString m_gstPipeline;
 
     void addModelDir(QString dir);
 };

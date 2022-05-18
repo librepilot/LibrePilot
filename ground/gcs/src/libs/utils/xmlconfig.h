@@ -1,11 +1,13 @@
 /**
  ******************************************************************************
- * @file
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ *
+ * @file       xmlconfig.h
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
- * @addtogroup importexportplugin
+ * @addtogroup utils
  * @{
  *****************************************************************************/
 /*
@@ -34,29 +36,29 @@
 
 #include <QtCore/qglobal.h>
 #include <QSettings>
-#include <QDomElement>
 #include <QObject>
-#include <QDataStream>
+
+class QDomElement;
 
 class XMLCONFIG_EXPORT XmlConfig : QObject {
     Q_OBJECT
 public:
-    static const QSettings::Format XmlSettingsFormat;
+    static const QSettings::Format XmlFormat;
 
     static bool readXmlFile(QIODevice &device, QSettings::SettingsMap &map);
     static bool writeXmlFile(QIODevice &device, const QSettings::SettingsMap &map);
 
 private:
-    static QString rootName;
+    static const QString RootName;
 
     static void handleNode(QDomElement *node, QSettings::SettingsMap &map, QString path = "");
-    static QSettings::SettingsMap settingsToMap(QSettings & qs);
     static QString variantToString(const QVariant &v);
     static QVariant stringToVariant(const QString &s);
     static QStringList splitArgs(const QString &s, int idx);
 };
 
 #endif // XMLCONFIG_H
+
 /**
  * @}
  * @}

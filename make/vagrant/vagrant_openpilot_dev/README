@@ -1,35 +1,40 @@
-vagrant_openpilot_dev - provides a Vagrant box with everything needed to compile OpenPilot code base. 
+vagrant_openpilot_dev - provides a Vagrant box with everything needed to compile LibrePilot code base. 
 
 username: vagrant
 password: vagrant
 
-For details of an OpenPilot development environment please refer to the Development Manual https://wiki.openpilot.org/display/WIKI/OpenPilot+Developer+Manual.
+For details of an LibrePilot development environment please refer to the Development Manual https://librepilot.atlassian.net/wiki/display/LPDOC/Linux+-+Building+and+Packaging.
 
 To enable Android Studio and Java, edit file install-tools.sh and set ANDROID_ENV=true. You might also want to adjust for the versions it downloads.
 
-If you would like for VirtualBox window to open, this can be useful for running apps, set 'vb.gui = true' in Vagrantfile. 
+If you would like for VirtualBox window to open, this can be useful for running apps, set 'vb.gui = true' in Vagrant file. For now the vagrant shell (ssh) will not work when starting in GUI mode.
 
-Starting
+Setting up
 
+1) Install vagrant on your host (https://www.vagrantup.com/docs/installation/)
+2) Download the files in this folder to a working folder on your host. There is no need to retrieve the full repository.
+3) in a command line select the working folder
+4) Run the command 
 $ vagrant up
 
 Once your machine has started up you can ssh into it or log into Xfce (assuming you set vb.gui = true). Any changes you make persist in the Vagrant VM, when you are done run 'vagrant halt', this will turn off the vm and persist your changes.
 
 $ vagrant ssh
 
-To begin with Openpilot base source is checked out into ~/workspace/openpilot/OpenPilot. Run the following command to get the rest of the tools in place (this will take a bit of time):
 
-  make all_sdk_install
 
-You are now ready to browse the code.
+To begin with LibrePilot base source is checked out into ~/workspace/librepilot. All necessary modules are initialized and SDK's installed.
+
+You are now ready to browse the code. To build the code run the commands:
+$ cd ~/workspace/librepilot
+$ make all
 
 If you wish to start all over:
 $ vagrant halt 
 $ vagrant destroy
 
-For more information about OpenPilot please visit the forums at http://forums.openpilot.org.
+For more information about LibrePilot please visit the forums at https://forum.librepilot.org/.
 
-For more informatin about Vagrant please visit http://docs.vagrantup.com/.
+For more information about Vagrant please visit https://www.vagrantup.com/.
 
 Based off https://github.com/steveliles/vagrant-boxes/blob/master/debian-android-studio/install-tools.sh
-

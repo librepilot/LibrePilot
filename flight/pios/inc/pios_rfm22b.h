@@ -47,7 +47,7 @@ struct pios_rfm22b_cfg {
     uint8_t slave_num;
     enum gpio_direction gpio_direction;
 };
-typedef void (*PPMReceivedCallback)(const int16_t *channels);
+typedef void (*PPMReceivedCallback)(uint32_t context, const int16_t *channels);
 
 enum rfm22b_tx_power {
     RFM22_tx_pwr_txpow_0 = 0x00, // +1dBm .. 1.25mW
@@ -96,27 +96,27 @@ struct rfm22b_stats {
     uint8_t  timeouts;
     uint8_t  link_quality;
     int8_t   rssi;
-    int8_t   afc_correction;
+    int32_t  afc_correction;
     uint8_t  link_state;
 };
 
 /* Public Functions */
-extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg);
+extern int32_t PIOS_RFM22B_Init(uint32_t *rfb22b_id, uint32_t spi_id, uint32_t slave_num, const struct pios_rfm22b_cfg *cfg, OPLinkSettingsRFBandOptions band);
 extern void PIOS_RFM22B_Reinit(uint32_t rfb22b_id);
 extern void PIOS_RFM22B_SetTxPower(uint32_t rfm22b_id, enum rfm22b_tx_power tx_pwr);
 extern void PIOS_RFM22B_SetChannelConfig(uint32_t rfm22b_id, enum rfm22b_datarate datarate, uint8_t min_chan, uint8_t max_chan, bool coordinator, bool ppm_mode, bool ppm_only);
+extern void PIOS_RFM22B_SetXtalCap(uint32_t rfm22b_id, uint8_t xtal_cap);
 extern void PIOS_RFM22B_SetCoordinatorID(uint32_t rfm22b_id, uint32_t coord_id);
 extern void PIOS_RFM22B_SetDeviceID(uint32_t rfm22b_id, uint32_t device_id);
 extern uint32_t PIOS_RFM22B_DeviceID(uint32_t rfb22b_id);
 extern void PIOS_RFM22B_GetStats(uint32_t rfm22b_id, struct rfm22b_stats *stats);
-extern uint8_t PIOS_RFM22B_GetPairStats(uint32_t rfm22b_id, uint32_t *device_ids, int8_t *RSSIs, uint8_t max_pairs);
 extern bool PIOS_RFM22B_InRxWait(uint32_t rfb22b_id);
 extern bool PIOS_RFM22B_LinkStatus(uint32_t rfm22b_id);
 extern bool PIOS_RFM22B_ReceivePacket(uint32_t rfm22b_id, uint8_t *p);
 extern bool PIOS_RFM22B_TransmitPacket(uint32_t rfm22b_id, uint8_t *p, uint8_t len);
 extern pios_rfm22b_int_result PIOS_RFM22B_ProcessTx(uint32_t rfm22b_id);
 extern pios_rfm22b_int_result PIOS_RFM22B_ProcessRx(uint32_t rfm22b_id);
-extern void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb);
+extern void PIOS_RFM22B_SetPPMCallback(uint32_t rfm22b_id, PPMReceivedCallback cb, uint32_t cb_context);
 extern void PIOS_RFM22B_PPMSet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan);
 extern void PIOS_RFM22B_PPMGet(uint32_t rfm22b_id, int16_t *channels, uint8_t nchan);
 

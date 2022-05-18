@@ -76,8 +76,8 @@ bool flightDataModel::setColumnByIndex(pathPlanData *row, const int index, const
     bool b;
 
     switch (index) {
-    case WPDESCRITPTION:
-        row->wpDescritption = value.toString();
+    case WPDESCRIPTION:
+        row->wpDescription = value.toString();
         b = true;
         break;
     case LATPOSITION:
@@ -180,8 +180,8 @@ QVariant flightDataModel::getColumnByIndex(const pathPlanData *row, const int in
     QVariant value;
 
     switch (index) {
-    case WPDESCRITPTION:
-        value = row->wpDescritption;
+    case WPDESCRIPTION:
+        value = row->wpDescription;
         break;
     case LATPOSITION:
         value = row->latPosition;
@@ -262,77 +262,77 @@ QVariant flightDataModel::headerData(int section, Qt::Orientation orientation, i
             value = QString::number(section + 1);
         } else if (orientation == Qt::Horizontal) {
             switch (section) {
-            case WPDESCRITPTION:
-                value = QString("Description");
+            case WPDESCRIPTION:
+                value = "Description";
                 break;
             case LATPOSITION:
-                value = QString("Latitude");
+                value = "Latitude";
                 break;
             case LNGPOSITION:
-                value = QString("Longitude");
+                value = "Longitude";
                 break;
             case DISRELATIVE:
-                value = QString("Distance to home");
+                value = "Distance\nto home";
                 break;
             case BEARELATIVE:
-                value = QString("Bearing from home");
+                value = "Bearing\nfrom home";
                 break;
             case ALTITUDERELATIVE:
-                value = QString("Altitude above home");
+                value = "Altitude\nabove\nhome";
                 break;
             case ISRELATIVE:
-                value = QString("Relative to home");
+                value = "Relative\nto home";
                 break;
             case ALTITUDE:
-                value = QString("Altitude");
+                value = "Altitude";
                 break;
             case VELOCITY:
-                value = QString("Velocity");
+                value = "Velocity";
                 break;
             case MODE:
-                value = QString("Mode");
+                value = "Mode";
                 break;
             case MODE_PARAMS0:
-                value = QString("Mode parameter 0");
+                value = "Mode\nparam0";
                 break;
             case MODE_PARAMS1:
-                value = QString("Mode parameter 1");
+                value = "Mode\nparam1";
                 break;
             case MODE_PARAMS2:
-                value = QString("Mode parameter 2");
+                value = "Mode\nparam2";
                 break;
             case MODE_PARAMS3:
-                value = QString("Mode parameter 3");
+                value = "Mode\nparam3";
                 break;
             case CONDITION:
-                value = QString("Condition");
+                value = "Condition";
                 break;
             case CONDITION_PARAMS0:
-                value = QString("Condition parameter 0");
+                value = "Cond.\nparam0";
                 break;
             case CONDITION_PARAMS1:
-                value = QString("Condition parameter 1");
+                value = "Cond.\nparam1";
                 break;
             case CONDITION_PARAMS2:
-                value = QString("Condition parameter 2");
+                value = "Cond.\nparam2";
                 break;
             case CONDITION_PARAMS3:
-                value = QString("Condition parameter 3");
+                value = "Cond.\nparam3";
                 break;
             case COMMAND:
-                value = QString("Command");
+                value = "Command";
                 break;
             case JUMPDESTINATION:
-                value = QString("Jump Destination");
+                value = "Jump\nDest.";
                 break;
             case ERRORDESTINATION:
-                value = QString("Error Destination");
+                value = "Error\nDest.";
                 break;
             case LOCKED:
-                value = QString("Locked");
+                value = "Locked";
                 break;
             default:
-                value = QString();
+                value = "";
                 break;
             }
         }
@@ -448,32 +448,32 @@ bool flightDataModel::writeToFile(QString fileName)
         waypoint.setAttribute("number", dataStorage.indexOf(obj));
         root.appendChild(waypoint);
         QDomElement field = doc.createElement("field");
-        field.setAttribute("value", obj->wpDescritption);
+        field.setAttribute("value", obj->wpDescription);
         field.setAttribute("name", "description");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->latPosition);
+        field.setAttribute("value", QString::number(obj->latPosition, 'f', 16));
         field.setAttribute("name", "latitude");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->lngPosition);
+        field.setAttribute("value", QString::number(obj->lngPosition, 'f', 16));
         field.setAttribute("name", "longitude");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->disRelative);
+        field.setAttribute("value", QString::number(obj->disRelative, 'f', 16));
         field.setAttribute("name", "distance_to_home");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->beaRelative);
+        field.setAttribute("value", QString::number(obj->beaRelative, 'f', 16));
         field.setAttribute("name", "bearing_from_home");
         waypoint.appendChild(field);
 
         field = doc.createElement("field");
-        field.setAttribute("value", obj->altitudeRelative);
+        field.setAttribute("value", QString::number(obj->altitudeRelative, 'f', 16));
         field.setAttribute("name", "altitude_above_home");
         waypoint.appendChild(field);
 
@@ -612,7 +612,7 @@ void flightDataModel::readFromFile(QString fileName)
                     if (name == "altitude") {
                         data->altitude = value.toDouble();
                     } else if (name == "description") {
-                        data->wpDescritption = value;
+                        data->wpDescription = value;
                     } else if (name == "latitude") {
                         data->latPosition = value.toDouble();
                     } else if (name == "longitude") {

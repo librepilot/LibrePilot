@@ -63,7 +63,6 @@
 #include <auxmagsupport.h>
 #include <accelgyrosettings.h>
 #include <revosettings.h>
-#include <UBX.h>
 
 #include <mathmisc.h>
 #include <taskinfo.h>
@@ -211,14 +210,9 @@ int32_t SensorsInitialize(void)
     AccelSensorInitialize();
     MagSensorInitialize();
     BaroSensorInitialize();
-    RevoCalibrationInitialize();
-    RevoSettingsInitialize();
-    AttitudeSettingsInitialize();
-    AccelGyroSettingsInitialize();
 
 #if defined(PIOS_INCLUDE_HMC5X83)
     // for auxmagsupport.c helpers
-    AuxMagSettingsInitialize();
     AuxMagSensorInitialize();
 #endif
 
@@ -284,7 +278,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         count++;
     }
 
-    PIOS_Assert(count);
+// PIOS_Assert(count);
     RELOAD_WDG();
     if (!sensors_test) {
         AlarmsSet(SYSTEMALARMS_ALARM_SENSORS, SYSTEMALARMS_ALARM_CRITICAL);

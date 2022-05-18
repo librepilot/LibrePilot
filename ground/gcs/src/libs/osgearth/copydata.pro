@@ -13,24 +13,24 @@ contains(QT_ARCH, x86_64)  {
 # set debug suffix if needed
 win32:CONFIG(debug, debug|release):DS = "d"
 
-osg:linux {
+linux:osg {
     # copy osg libraries
     data_copy.commands += $(MKDIR) $$GCS_LIBRARY_PATH/osg $$addNewline()
     data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/$$LIB_DIR_NAME/)* $$shell_quote($$GCS_LIBRARY_PATH/osg/) $$addNewline()
 }
 
-osgearth:linux {
+linux:osgearth {
     # copy osgearth libraries
     data_copy.commands += $(MKDIR) $$GCS_LIBRARY_PATH/osg $$addNewline()
     data_copy.commands += $(COPY_DIR) $$shell_quote($$OSGEARTH_SDK_DIR/$$LIB_DIR_NAME/)* $$shell_quote($$GCS_LIBRARY_PATH/osg/) $$addNewline()
 }
 
-osg:macx {
+macx:osg {
     # copy osg libraries
     data_copy.commands += $(COPY_DIR) $$shell_quote($$OSG_SDK_DIR/lib/)* $$shell_quote($$GCS_LIBRARY_PATH/) $$addNewline()
 }
 
-osgearth:macx {
+macx:osgearth {
     # copy osgearth libraries
     data_copy.commands += $(COPY_DIR) $$shell_quote($$OSGEARTH_SDK_DIR/lib/)* $$shell_quote($$GCS_LIBRARY_PATH/) $$addNewline()
 }
@@ -43,31 +43,8 @@ linux|macx {
     QMAKE_EXTRA_TARGETS += data_copy
 }
 
-osg:win32 {
-    # osg & osgearth dependencies
-
-    # curl
-    OSG_LIBS = \
-        libcurl-4.dll \
-        libidn-11.dll \
-        librtmp-1.dll \
-        libgmp-10.dll \
-        libgnutls-30.dll \
-        libp11-kit-0.dll \
-        libffi-6.dll \
-        libtasn1-6.dll \
-        libhogweed-4-2.dll \
-        libnettle-6-2.dll \
-        libssh2-1.dll \
-        libnghttp2-14.dll
-
-    # other
-    OSG_LIBS += \
-        libjpeg-8.dll \
-        libfreetype-6.dll \
-        libpng16-16.dll \
-        libiconv-2.dll \
-        zlib1.dll
+win32:osg {
+    OSG_PLUGINS_DIR = $${OSG_SDK_DIR}/bin/osgPlugins-$${OSG_VERSION}
 
     # osg libraries
     OSG_LIBS += \
@@ -94,6 +71,7 @@ osg:win32 {
 
     for(lib, OSG_LIBS) {
         addCopyFileTarget($${lib},$${OSG_SDK_DIR}/bin,$${GCS_APP_PATH})
+        addCopyDependenciesTarget($${lib},$${OSG_SDK_DIR}/bin,$${GCS_APP_PATH})
     }
 
     # osg plugins
@@ -107,7 +85,8 @@ osg:win32 {
         mingw_osgdb_zip$${DS}.dll \
         mingw_osgdb_serializers_osg$${DS}.dll
 
-    osg_extra:OSG_PLUGINS = \
+    # more osg plugins
+    osg_more_plugins:OSG_PLUGINS = \
         mingw_osgdb_3dc$${DS}.dll \
         mingw_osgdb_ac$${DS}.dll \
         mingw_osgdb_bmp$${DS}.dll \
@@ -173,11 +152,12 @@ osg:win32 {
         mingw_osgdb_serializers_osgvolume$${DS}.dll
 
     for(lib, OSG_PLUGINS) {
-        addCopyFileTarget($${lib},$${OSG_SDK_DIR}/bin/osgPlugins-$${OSG_VERSION},$${GCS_LIBRARY_PATH}/osg/osgPlugins-$${OSG_VERSION})
+        addCopyFileTarget($${lib},$${OSG_PLUGINS_DIR},$${GCS_LIBRARY_PATH}/osg/osgPlugins-$${OSG_VERSION})
+        addCopyDependenciesTarget($${lib},$${OSG_PLUGINS_DIR},$${GCS_APP_PATH})
     }
 }
 
-osgearth:win32 {
+win32:osgearth {
     # osgearth libraries
     OSGEARTH_LIBS = \
         libosgEarth$${DS}.dll \
@@ -186,20 +166,16 @@ osgearth:win32 {
         libosgEarthSymbology$${DS}.dll \
         libosgEarthUtil$${DS}.dll
 
-    # gdal
+    # loaded dynamically (probably by an osg plugin, need to find by which)
     OSGEARTH_LIBS += \
-        libgdal-20.dll \
-        libgeos_c.dll \
-        libgeos.dll \
-        libopenjp2-7.dll \
-        libtiff-5.dll \
-        liblzma-5.dll
+        libopenjp2-7.dll
 
     osgearthQt:OSGEARTH_LIBS += \
         libosgEarthQt$${DS}.dll
 
     for(lib, OSGEARTH_LIBS) {
         addCopyFileTarget($${lib},$${OSGEARTH_SDK_DIR}/bin,$${GCS_APP_PATH})
+        addCopyDependenciesTarget($${lib},$${OSGEARTH_SDK_DIR}/bin,$${GCS_APP_PATH})
     }
 
     # osgearth plugins
@@ -212,7 +188,8 @@ osgearth:win32 {
         mingw_osgdb_osgearth_xyz$${DS}.dll \
         mingw_osgdb_osgearth_cache_filesystem$${DS}.dll
 
-    osgearth_extra:OSGEARTH_PLUGINS += \
+    # more osgearth plugins
+    more_osgearth_plugins:OSGEARTH_PLUGINS += \
         mingw_osgdb_kml$${DS}.dll \
         mingw_osgdb_osgearth_agglite$${DS}.dll \
         mingw_osgdb_osgearth_arcgis_map_cache$${DS}.dll \
@@ -250,6 +227,7 @@ osgearth:win32 {
         mingw_osgdb_osgearth_yahoo$${DS}.dll
 
     for(lib, OSGEARTH_PLUGINS) {
-        addCopyFileTarget($${lib},$${OSGEARTH_SDK_DIR}/bin/osgPlugins-$${OSG_VERSION},$${GCS_LIBRARY_PATH}/osg/osgPlugins-$${OSG_VERSION})
+        addCopyFileTarget($${lib},$${OSG_PLUGINS_DIR},$${GCS_LIBRARY_PATH}/osg/osgPlugins-$${OSG_VERSION})
+        addCopyDependenciesTarget($${lib},$${OSG_PLUGINS_DIR},$${GCS_APP_PATH})
     }
 }

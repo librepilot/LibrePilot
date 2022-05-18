@@ -145,8 +145,7 @@ QString getUsageString(osgViewer::Viewer *viewer);
 QString getUsageString(osgViewer::CompositeViewer *viewer);
 
 #ifdef USE_OSGEARTH
-osgEarth::GeoPoint toGeoPoint(const QVector3D &position);
-osgEarth::GeoPoint toGeoPoint(const osgEarth::SpatialReference *srs, const QVector3D &position);
+osgEarth::GeoPoint createGeoPoint(const QVector3D &position, osgEarth::MapNode *mapNode);
 bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode);
 void capabilitiesInfo(const osgEarth::Capabilities & caps);
 #endif

@@ -7,7 +7,8 @@
  * @{
  *
  * @file       PIDControlNE.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      Executes PID control loops for NE directions
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -30,8 +31,6 @@
  */
 extern "C" {
 #include <openpilot.h>
-
-#include <callbackinfo.h>
 
 #include <math.h>
 #include <pid.h>
@@ -81,26 +80,37 @@ void PIDControlNE::Activate()
 
 void PIDControlNE::UpdateParameters(float kp, float ki, float kd, float beta, float dT, float velocityMax)
 {
-    // pid_configure(&PID, kp, ki, kd, ilimit);
-    float Ti = kp / ki;
-    float Td = kd / kp;
-    float Tt = (Ti + Td) / 2.0f;
-    float kt = 1.0f / Tt;
-    float u0 = 0.0f;
-    float N  = 10.0f;
-    float Tf = Td / N;
+    float Td; // Derivative time constant
+    float Ti; // Integral time constant
+    float kt; // Feedback gain for integral windup avoidance
+    float N = 10.0f; // N is the factor used to determine the
+                     // time constant for derivative filtering
+                     // Why 10? Maybe should be configurable?
+    float Tf; // Low pass filter time constant for derivative filtering
 
-    if (ki < 1e-6f) {
-        // Avoid Ti being infinite
-        Ti = 1e6f;
-        // Tt antiwindup time constant - we don't need antiwindup with no I term
-        Tt = 1e6f;
-        kt = 0.0f;
+    float u0 = 0.0f;
+
+    // Define Td, handling zero kp term (for I or ID controller)
+    if (kp < 1e-6f) {
+        Td = 1e6f;
+    } else {
+        Td = kd / kp;
     }
 
+    // Define Ti, Tt and kt, handling zero ki term (for P or PD controller)
+    if (ki < 1e-6f) { // Avoid Ti being infinite
+        kt = 0.0f;
+    } else {
+        Ti = kp / ki;
+        kt = 1.0f / Ti;
+    }
+
+    // Define Tf, according to controller type
     if (kd < 1e-6f) {
-        // PI Controller
-        Tf = Ti / N;
+        // PI Controller or P Controller
+        Tf = 0;
+    } else {
+        Tf = Td / N;
     }
 
     if (beta > 1.0f) {

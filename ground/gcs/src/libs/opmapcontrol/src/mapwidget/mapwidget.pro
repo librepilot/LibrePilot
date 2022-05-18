@@ -12,6 +12,7 @@ SOURCES += mapgraphicitem.cpp \
     gpsitem.cpp \
     trailitem.cpp \
     homeitem.cpp \
+    navitem.cpp \
     mapripform.cpp \
     mapripper.cpp \
     traillineitem.cpp \
@@ -39,6 +40,7 @@ HEADERS += mapgraphicitem.h \
     uavtrailtype.h \
     trailitem.h \
     homeitem.h \
+    navitem.h \
     mapripform.h \
     mapripper.h \
     traillineitem.h \

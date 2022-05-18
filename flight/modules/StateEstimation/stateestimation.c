@@ -157,12 +157,20 @@ static stateFilter cfFilter;
 static stateFilter cfmFilter;
 static stateFilter ekf13iFilter;
 static stateFilter ekf13Filter;
+static stateFilter ekf13iNavFilter;
+static stateFilter ekf13NavFilter;
 
 // this is a hack to provide a computational shortcut for faster gyro state progression
 static float gyroRaw[3];
 static float gyroDelta[3];
 
 // preconfigured filter chains selectable via revoSettings.FusionAlgorithm
+
+static const filterPipeline *acroQueue = &(filterPipeline) {
+    .filter = &cfFilter,
+    .next   = NULL,
+};
+
 static const filterPipeline *cfQueue = &(filterPipeline) {
     .filter = &airFilter,
     .next   = &(filterPipeline) {
@@ -251,6 +259,52 @@ static const filterPipeline *ekf13Queue = &(filterPipeline) {
     }
 };
 
+static const filterPipeline *ekf13NavCFAttQueue = &(filterPipeline) {
+    .filter = &magFilter,
+    .next   = &(filterPipeline) {
+        .filter = &airFilter,
+        .next   = &(filterPipeline) {
+            .filter = &llaFilter,
+            .next   = &(filterPipeline) {
+                .filter = &baroFilter,
+                .next   = &(filterPipeline) {
+                    .filter = &ekf13NavFilter,
+                    .next   = &(filterPipeline) {
+                        .filter = &velocityFilter,
+                        .next   = &(filterPipeline) {
+                            .filter = &cfmFilter,
+                            .next   = NULL,
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
+static const filterPipeline *ekf13iNavCFAttQueue = &(filterPipeline) {
+    .filter = &magFilter,
+    .next   = &(filterPipeline) {
+        .filter = &airFilter,
+        .next   = &(filterPipeline) {
+            .filter = &baroiFilter,
+            .next   = &(filterPipeline) {
+                .filter = &stationaryFilter,
+                .next   = &(filterPipeline) {
+                    .filter = &ekf13iNavFilter,
+                    .next   = &(filterPipeline) {
+                        .filter = &velocityFilter,
+                        .next   = &(filterPipeline) {
+                            .filter = &cfmFilter,
+                            .next   = NULL,
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+
 // Private functions
 
 static void settingsUpdatedCb(UAVObjEvent *objEv);
@@ -272,8 +326,6 @@ static inline int32_t maxint32_t(int32_t a, int32_t b)
  */
 int32_t StateEstimationInitialize(void)
 {
-    RevoSettingsInitialize();
-
     GyroSensorInitialize();
     MagSensorInitialize();
     AuxMagSensorInitialize();
@@ -282,15 +334,12 @@ int32_t StateEstimationInitialize(void)
     GPSVelocitySensorInitialize();
     GPSPositionSensorInitialize();
 
-    HomeLocationInitialize();
-
     GyroStateInitialize();
     AccelStateInitialize();
     MagStateInitialize();
     AirspeedStateInitialize();
     PositionStateInitialize();
     VelocityStateInitialize();
-    AuxMagSettingsInitialize();
 
     RevoSettingsConnectCallback(&settingsUpdatedCb);
 
@@ -320,6 +369,8 @@ int32_t StateEstimationInitialize(void)
     stack_required = maxint32_t(stack_required, filterCFMInitialize(&cfmFilter));
     stack_required = maxint32_t(stack_required, filterEKF13iInitialize(&ekf13iFilter));
     stack_required = maxint32_t(stack_required, filterEKF13Initialize(&ekf13Filter));
+    stack_required = maxint32_t(stack_required, filterEKF13NavOnlyInitialize(&ekf13NavFilter));
+    stack_required = maxint32_t(stack_required, filterEKF13iNavOnlyInitialize(&ekf13iNavFilter));
 
     stateEstimationCallback = PIOS_CALLBACKSCHEDULER_Create(&StateEstimationCb, CALLBACK_PRIORITY, TASK_PRIORITY, CALLBACKINFO_RUNNING_STATEESTIMATION, stack_required);
 
@@ -348,9 +399,11 @@ MODULE_INITCALL(StateEstimationInitialize, StateEstimationStart);
  */
 static void StateEstimationCb(void)
 {
-    static filterResult alarm     = FILTERRESULT_OK;
-    static filterResult lastAlarm = FILTERRESULT_UNINITIALISED;
-    static uint16_t alarmcounter  = 0;
+    static filterResult alarm        = FILTERRESULT_OK;
+    static filterResult lastAlarm    = FILTERRESULT_UNINITIALISED;
+    static bool lastNavStatus        = false;
+    static uint16_t alarmcounter     = 0;
+    static uint16_t navstatuscounter = 0;
     static const filterPipeline *current;
     static stateEstimation states;
     static uint32_t last_time;
@@ -373,14 +426,18 @@ static void StateEstimationCb(void)
     } else {
         last_time = PIOS_DELAY_GetRaw();
     }
+    FlightStatusArmedOptions fsarmed;
+    FlightStatusArmedGet(&fsarmed);
+    states.armed = fsarmed != FLIGHTSTATUS_ARMED_DISARMED;
 
     // check if a new filter chain should be initialized
     if (fusionAlgorithm != revoSettings.FusionAlgorithm) {
-        FlightStatusData fs;
-        FlightStatusGet(&fs);
-        if (fs.Armed == FLIGHTSTATUS_ARMED_DISARMED || fusionAlgorithm == FILTER_INIT_FORCE) {
+        if (fsarmed == FLIGHTSTATUS_ARMED_DISARMED || fusionAlgorithm == FILTER_INIT_FORCE) {
             const filterPipeline *newFilterChain;
             switch ((RevoSettingsFusionAlgorithmOptions)revoSettings.FusionAlgorithm) {
+            case REVOSETTINGS_FUSIONALGORITHM_ACRONOSENSORS:
+                newFilterChain = acroQueue;
+                break;
             case REVOSETTINGS_FUSIONALGORITHM_BASICCOMPLEMENTARY:
                 newFilterChain = cfQueue;
                 // reinit Mag alarm
@@ -398,12 +455,21 @@ static void StateEstimationCb(void)
             case REVOSETTINGS_FUSIONALGORITHM_GPSNAVIGATIONINS13:
                 newFilterChain = ekf13Queue;
                 break;
+            case REVOSETTINGS_FUSIONALGORITHM_GPSNAVIGATIONINS13CF:
+                newFilterChain = ekf13NavCFAttQueue;
+                break;
+            case REVOSETTINGS_FUSIONALGORITHM_TESTINGINSINDOORCF:
+                newFilterChain = ekf13iNavCFAttQueue;
+                break;
             default:
                 newFilterChain = NULL;
             }
             // initialize filters in chain
             current = newFilterChain;
             bool error = 0;
+            states.debugNavYaw = 0;
+            states.navOk = false;
+            states.navUsed     = false;
             while (current != NULL) {
                 int32_t result = current->filter->init((stateFilter *)current->filter);
                 if (result != 0) {
@@ -493,11 +559,12 @@ static void StateEstimationCb(void)
     if (IS_SET(states.updated, SENSORUPDATES_attitude)) { \
         AttitudeStateData s;
         AttitudeStateGet(&s);
-        s.q1 = states.attitude[0];
-        s.q2 = states.attitude[1];
-        s.q3 = states.attitude[2];
-        s.q4 = states.attitude[3];
+        s.q1     = states.attitude[0];
+        s.q2     = states.attitude[1];
+        s.q3     = states.attitude[2];
+        s.q4     = states.attitude[3];
         Quaternion2RPY(&s.q1, &s.Roll);
+        s.NavYaw = states.debugNavYaw;
         AttitudeStateSet(&s);
     }
     // throttle alarms, raise alarm flags immediately
@@ -515,6 +582,18 @@ static void StateEstimationCb(void)
         }
     }
 
+    if (lastNavStatus < states.navOk) {
+        lastNavStatus    = states.navOk;
+        navstatuscounter = 0;
+    } else {
+        if (navstatuscounter < 100) {
+            navstatuscounter++;
+        } else {
+            lastNavStatus    = states.navOk;
+            navstatuscounter = 0;
+        }
+    }
+
     // clear alarms if everything is alright, then schedule callback execution after timeout
     if (lastAlarm == FILTERRESULT_WARNING) {
         AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_WARNING);
@@ -524,6 +603,16 @@ static void StateEstimationCb(void)
         AlarmsSet(SYSTEMALARMS_ALARM_ATTITUDE, SYSTEMALARMS_ALARM_ERROR);
     } else {
         AlarmsClear(SYSTEMALARMS_ALARM_ATTITUDE);
+    }
+
+    if (!states.navUsed) {
+        AlarmsSet(SYSTEMALARMS_ALARM_NAV, SYSTEMALARMS_ALARM_UNINITIALISED);
+    } else {
+        if (states.navOk) {
+            AlarmsClear(SYSTEMALARMS_ALARM_NAV);
+        } else {
+            AlarmsSet(SYSTEMALARMS_ALARM_NAV, SYSTEMALARMS_ALARM_CRITICAL);
+        }
     }
 
     if (updatedSensors) {

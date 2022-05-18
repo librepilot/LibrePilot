@@ -29,6 +29,8 @@
 
 #include "ui_airframe_custom.h"
 
+#include "uavobjectmanager.h"
+
 #include "mixersettings.h"
 
 #include <QDebug>
@@ -47,103 +49,103 @@ QStringList ConfigCustomWidget::getChannelDescriptions()
     QStringList channelDesc;
 
     for (int i = 0; i < (int)VehicleConfig::CHANNEL_NUMELEM; i++) {
-        channelDesc.append(QString("-"));
+        channelDesc.append("-");
     }
     // get the gui config data
     GUIConfigDataUnion configData  = getConfigData();
     customGUISettingsStruct custom = configData.custom;
 
     if (custom.Motor1 > 0 && custom.Motor1 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor1 - 1] = QString("Motor1");
+        channelDesc[custom.Motor1 - 1] = "Motor1";
     }
     if (custom.Motor2 > 0 && custom.Motor2 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor2 - 1] = QString("Motor2");
+        channelDesc[custom.Motor2 - 1] = "Motor2";
     }
     if (custom.Motor3 > 0 && custom.Motor3 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor3 - 1] = QString("Motor3");
+        channelDesc[custom.Motor3 - 1] = "Motor3";
     }
     if (custom.Motor4 > 0 && custom.Motor4 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor4 - 1] = QString("Motor4");
+        channelDesc[custom.Motor4 - 1] = "Motor4";
     }
     if (custom.Motor5 > 0 && custom.Motor5 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor5 - 1] = QString("Motor5");
+        channelDesc[custom.Motor5 - 1] = "Motor5";
     }
     if (custom.Motor6 > 0 && custom.Motor6 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor6 - 1] = QString("Motor6");
+        channelDesc[custom.Motor6 - 1] = "Motor6";
     }
     if (custom.Motor7 > 0 && custom.Motor7 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor7 - 1] = QString("Motor7");
+        channelDesc[custom.Motor7 - 1] = "Motor7";
     }
     if (custom.Motor8 > 0 && custom.Motor8 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Motor8 - 1] = QString("Motor8");
+        channelDesc[custom.Motor8 - 1] = "Motor8";
     }
 
     if (custom.RevMotor1 > 0 && custom.RevMotor1 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor1 - 1] = QString("RevMotor1");
+        channelDesc[custom.RevMotor1 - 1] = "RevMotor1";
     }
     if (custom.RevMotor2 > 0 && custom.RevMotor2 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor2 - 1] = QString("RevMotor2");
+        channelDesc[custom.RevMotor2 - 1] = "RevMotor2";
     }
     if (custom.RevMotor3 > 0 && custom.RevMotor3 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor3 - 1] = QString("RevMotor3");
+        channelDesc[custom.RevMotor3 - 1] = "RevMotor3";
     }
     if (custom.RevMotor4 > 0 && custom.RevMotor4 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor4 - 1] = QString("RevMotor4");
+        channelDesc[custom.RevMotor4 - 1] = "RevMotor4";
     }
     if (custom.RevMotor5 > 0 && custom.RevMotor5 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor5 - 1] = QString("RevMotor5");
+        channelDesc[custom.RevMotor5 - 1] = "RevMotor5";
     }
     if (custom.RevMotor6 > 0 && custom.RevMotor6 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor6 - 1] = QString("RevMotor6");
+        channelDesc[custom.RevMotor6 - 1] = "RevMotor6";
     }
     if (custom.RevMotor7 > 0 && custom.RevMotor7 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor7 - 1] = QString("RevMotor7");
+        channelDesc[custom.RevMotor7 - 1] = "RevMotor7";
     }
     if (custom.RevMotor8 > 0 && custom.RevMotor8 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.RevMotor8 - 1] = QString("RevMotor8");
+        channelDesc[custom.RevMotor8 - 1] = "RevMotor8";
     }
 
     if (custom.Servo1 > 0 && custom.Servo1 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo1 - 1] = QString("Servo1");
+        channelDesc[custom.Servo1 - 1] = "Servo1";
     }
     if (custom.Servo2 > 0 && custom.Servo2 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo2 - 1] = QString("Servo2");
+        channelDesc[custom.Servo2 - 1] = "Servo2";
     }
     if (custom.Servo3 > 0 && custom.Servo3 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo3 - 1] = QString("Servo3");
+        channelDesc[custom.Servo3 - 1] = "Servo3";
     }
     if (custom.Servo4 > 0 && custom.Servo4 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo4 - 1] = QString("Servo4");
+        channelDesc[custom.Servo4 - 1] = "Servo4";
     }
     if (custom.Servo5 > 0 && custom.Servo5 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo5 - 1] = QString("Servo5");
+        channelDesc[custom.Servo5 - 1] = "Servo5";
     }
     if (custom.Servo6 > 0 && custom.Servo6 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo6 - 1] = QString("Servo6");
+        channelDesc[custom.Servo6 - 1] = "Servo6";
     }
     if (custom.Servo7 > 0 && custom.Servo7 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo7 - 1] = QString("Servo7");
+        channelDesc[custom.Servo7 - 1] = "Servo7";
     }
     if (custom.Servo8 > 0 && custom.Servo8 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Servo8 - 1] = QString("Servo8");
+        channelDesc[custom.Servo8 - 1] = "Servo8";
     }
     if (custom.Accessory0 > 0 && custom.Accessory0 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Accessory0 - 1] = QString("Accessory0");
+        channelDesc[custom.Accessory0 - 1] = "Accessory0";
     }
     if (custom.Accessory1 > 0 && custom.Accessory1 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Accessory1 - 1] = QString("Accessory1");
+        channelDesc[custom.Accessory1 - 1] = "Accessory1";
     }
     if (custom.Accessory2 > 0 && custom.Accessory2 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Accessory2 - 1] = QString("Accessory2");
+        channelDesc[custom.Accessory2 - 1] = "Accessory2";
     }
     if (custom.Accessory3 > 0 && custom.Accessory3 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Accessory3 - 1] = QString("Accessory3");
+        channelDesc[custom.Accessory3 - 1] = "Accessory3";
     }
     if (custom.Accessory4 > 0 && custom.Accessory4 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Accessory4 - 1] = QString("Accessory4");
+        channelDesc[custom.Accessory4 - 1] = "Accessory4";
     }
     if (custom.Accessory5 > 0 && custom.Accessory5 <= VehicleConfig::CHANNEL_NUMELEM) {
-        channelDesc[custom.Accessory5 - 1] = QString("Accessory5");
+        channelDesc[custom.Accessory5 - 1] = "Accessory5";
     }
     return channelDesc;
 }
@@ -157,10 +159,10 @@ ConfigCustomWidget::ConfigCustomWidget(QWidget *parent) :
     m_aircraft->customMixerTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     // Put combo boxes in line one of the custom mixer table:
-    UAVDataObject *mixer  = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer  = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
-    UAVObjectField *field = mixer->getField(QString("Mixer1Type"));
+    UAVObjectField *field = mixer->getField("Mixer1Type");
     QStringList list = field->getOptions();
     for (int i = 0; i < (int)VehicleConfig::CHANNEL_NUMELEM; i++) {
         QComboBox *qb = new QComboBox(m_aircraft->customMixerTable);
@@ -179,6 +181,11 @@ ConfigCustomWidget::~ConfigCustomWidget()
     delete m_aircraft;
 }
 
+QString ConfigCustomWidget::getFrameType()
+{
+    return "Custom";
+}
+
 void ConfigCustomWidget::setupUI(QString frameType)
 {
     Q_UNUSED(frameType);
@@ -190,11 +197,11 @@ void ConfigCustomWidget::registerWidgets(ConfigTaskWidget &parent)
     parent.addWidget(m_aircraft->customMixerTable);
     parent.addWidget(m_aircraft->customThrottle1Curve->getCurveWidget());
     parent.addWidget(m_aircraft->customThrottle1Curve);
+    // There is no MixerSettings.Curve1Source (i.e. it is always Throttle)
+    // parent.addWidgetBinding("MixerSettings", "Curve1Source", m_aircraft->curve1SourceCombo);
     parent.addWidget(m_aircraft->customThrottle2Curve->getCurveWidget());
     parent.addWidget(m_aircraft->customThrottle2Curve);
-    // TODO why is curve2SourceCombo registered twice ?
     parent.addWidgetBinding("MixerSettings", "Curve2Source", m_aircraft->curve2SourceCombo);
-    parent.addWidget(m_aircraft->curve2SourceCombo);
 }
 
 void ConfigCustomWidget::resetActuators(GUIConfigDataUnion *configData)
@@ -234,15 +241,14 @@ void ConfigCustomWidget::resetActuators(GUIConfigDataUnion *configData)
 /**
    Helper function to refresh the UI widget values
  */
-void ConfigCustomWidget::refreshWidgetsValues(QString frameType)
+void ConfigCustomWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
-    Q_ASSERT(m_aircraft);
+    Q_UNUSED(obj);
 
-    setupUI(frameType);
-
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
     Q_ASSERT(system);
-    QPointer<UAVObjectField> field = system->getField(QString("AirframeType"));
+
+    QPointer<UAVObjectField> field = system->getField("AirframeType");
 
     // Do not allow table edit until AirframeType == Custom
     // First save set AirframeType to 'Custom' and next modify.
@@ -252,7 +258,7 @@ void ConfigCustomWidget::refreshWidgetsValues(QString frameType)
         m_aircraft->customMixerTable->setEditTriggers(QAbstractItemView::AllEditTriggers);
     }
 
-    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+    UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
     Q_ASSERT(mixer);
 
     getChannelDescriptions();
@@ -314,21 +320,18 @@ void ConfigCustomWidget::refreshWidgetsValues(QString frameType)
 }
 
 
-/**
-   Helper function to
- */
-QString ConfigCustomWidget::updateConfigObjectsFromWidgets()
+void ConfigCustomWidget::updateObjectsFromWidgetsImpl()
 {
-    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("SystemSettings")));
+    UAVDataObject *system = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("SystemSettings"));
 
     Q_ASSERT(system);
 
-    QPointer<UAVObjectField> field = system->getField(QString("AirframeType"));
+    QPointer<UAVObjectField> field = system->getField("AirframeType");
 
     // Do not allow changes until AirframeType == Custom
     // If user want to save custom mixer : first set AirframeType to 'Custom' without changes and next modify.
     if (field->getValue().toString() == "Custom") {
-        UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject(QString("MixerSettings")));
+        UAVDataObject *mixer = dynamic_cast<UAVDataObject *>(getObjectManager()->getObject("MixerSettings"));
 
         Q_ASSERT(mixer);
 
@@ -438,7 +441,6 @@ QString ConfigCustomWidget::updateConfigObjectsFromWidgets()
         }
         setConfigData(configData);
     }
-    return "Custom";
 }
 
 /**

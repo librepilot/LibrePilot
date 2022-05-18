@@ -12,6 +12,7 @@
 			<elementname>PathPlanner0</elementname>
 			<elementname>PathPlanner1</elementname>
 			<elementname>ManualControl</elementname>
+			<elementname>CameraControl</elementname>
 			<elementname>DebugLog</elementname>
 		</elementnames>
 	</field> 
@@ -26,6 +27,7 @@
 			<elementname>PathPlanner0</elementname>
 			<elementname>PathPlanner1</elementname>
 			<elementname>ManualControl</elementname>
+			<elementname>CameraControl</elementname>
 			<elementname>DebugLog</elementname>
 		</elementnames>
 		<options>
@@ -44,6 +46,7 @@
 			<elementname>PathPlanner0</elementname>
 			<elementname>PathPlanner1</elementname>
 			<elementname>ManualControl</elementname>
+			<elementname>CameraControl</elementname>
 			<elementname>DebugLog</elementname>
 		</elementnames>
 	</field> 

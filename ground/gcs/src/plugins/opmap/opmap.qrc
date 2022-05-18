@@ -1,5 +1,17 @@
 <RCC>
     <qresource prefix="/opmap">
+        <file>images/button_search.png</file>
+        <file>images/button_home.png</file>
+        <file>images/button_home_not_set.png</file>
+        <file>images/button_home_set.png</file>
+        <file>images/button_home_wp.png</file>
+        <file>images/button_move_to_wp.png</file>
+        <file>images/button_uav.png</file>
+        <file>images/button_uav_heading.png</file>
+        <file>images/button_edit_plan.png</file>
+        <file>images/button_edit_wp.png</file>
+        <file>images/button_save.png</file>
+        <file>images/button_clear_uavtrail.png</file>
         <file>images/ok.png</file>
         <file>images/uav.png</file>
         <file>images/gcs.png</file>
@@ -14,14 +26,11 @@
         <file>images/hold.png</file>
         <file>images/go.png</file>
         <file>images/combobox_down_arrow.png</file>
-        <file>images/waypoint_marker2.png</file>
-        <file>images/waypoint_marker1.png</file>
         <file>images/uav_heading.png</file>
         <file>images/uav_trail.png</file>
         <file>images/uav_trail_clear.png</file>
         <file>images/minus.png</file>
         <file>images/plus.png</file>
-        <file>images/waypoint_marker3.png</file>
         <file>images/home_wp.png</file>
         <file>images/move_to_wp.png</file>
         <file>images/center_wp.png</file>

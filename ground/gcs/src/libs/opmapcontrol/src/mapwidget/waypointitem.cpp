@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       waypointitem.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      A graphicsItem representing a WayPoint
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget
@@ -28,13 +29,15 @@
 #include "homeitem.h"
 #include <QGraphicsSceneMouseEvent>
 
+#define COORDINATES_THRESHOLD 0.000002 // ~21cm
+
 namespace mapcontrol {
 WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & altitude, MapGraphicItem *map, wptype type) : coord(coord), reached(false), description(""), shownumber(true), isDragging(false), altitude(altitude), map(map), myType(type)
 {
     text    = 0;
     numberI = 0;
     isMagic = false;
-    picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+    picture.load(":/markers/images/wp_marker_red.png");
     number  = WayPointItem::snumber;
     ++WayPointItem::snumber;
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -43,16 +46,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     SetShowNumber(shownumber);
     RefreshToolTip();
     RefreshPos();
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
-
+    myHome = map->Home;
     if (myHome) {
         map->Projection()->offSetFromLatLngs(myHome->Coord(), coord, relativeCoord.distance, relativeCoord.bearing);
         relativeCoord.altitudeRelative = Altitude() - myHome->Altitude();
@@ -72,7 +66,7 @@ WayPointItem::WayPointItem(MapGraphicItem *map, bool magicwaypoint) : reached(fa
     myType = relative;
     if (magicwaypoint) {
         isMagic = true;
-        picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker3.png"));
+        picture.load(":/markers/images/wp_marker_green.png");
         number  = -1;
     } else {
         isMagic = false;
@@ -87,16 +81,7 @@ WayPointItem::WayPointItem(MapGraphicItem *map, bool magicwaypoint) : reached(fa
     SetShowNumber(shownumber);
     RefreshToolTip();
     RefreshPos();
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
-
+    myHome = map->Home;
     if (myHome) {
         coord = map->Projection()->translate(myHome->Coord(), relativeCoord.distance, relativeCoord.bearing);
         SetAltitude(myHome->Altitude() + relativeCoord.altitudeRelative);
@@ -112,7 +97,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     text    = 0;
     numberI = 0;
     isMagic = false;
-    picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+    picture.load(":/markers/images/wp_marker_red.png");
     number  = WayPointItem::snumber;
     ++WayPointItem::snumber;
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -121,15 +106,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
     SetShowNumber(shownumber);
     RefreshToolTip();
     RefreshPos();
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
+    myHome = map->Home;
     if (myHome) {
         map->Projection()->offSetFromLatLngs(myHome->Coord(), coord, relativeCoord.distance, relativeCoord.bearing);
         relativeCoord.altitudeRelative = Altitude() - myHome->Altitude();
@@ -143,15 +120,7 @@ WayPointItem::WayPointItem(const internals::PointLatLng &coord, int const & alti
 
 WayPointItem::WayPointItem(const distBearingAltitude &relativeCoordenate, const QString &description, MapGraphicItem *map) : relativeCoord(relativeCoordenate), reached(false), description(description), shownumber(true), isDragging(false), map(map)
 {
-    myHome = NULL;
-    QList<QGraphicsItem *> list = map->childItems();
-    foreach(QGraphicsItem * obj, list) {
-        HomeItem *h = qgraphicsitem_cast <HomeItem *>(obj);
-
-        if (h) {
-            myHome = h;
-        }
-    }
+    myHome = map->Home;
     if (myHome) {
         connect(myHome, SIGNAL(homePositionChanged(internals::PointLatLng, float)), this, SLOT(onHomePositionChanged(internals::PointLatLng, float)));
         coord = map->Projection()->translate(myHome->Coord(), relativeCoord.distance, relativeCoord.bearing);
@@ -161,7 +130,7 @@ WayPointItem::WayPointItem(const distBearingAltitude &relativeCoordenate, const 
     text    = 0;
     numberI = 0;
     isMagic = false;
-    picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+    picture.load(":/markers/images/wp_marker_red.png");
     number  = WayPointItem::snumber;
     ++WayPointItem::snumber;
     this->setFlag(QGraphicsItem::ItemIsMovable, true);
@@ -292,7 +261,9 @@ void WayPointItem::setRelativeCoord(distBearingAltitude value)
 
 void WayPointItem::SetCoord(const internals::PointLatLng &value)
 {
-    if (qAbs(Coord().Lat() - value.Lat()) < 0.0001 && qAbs(Coord().Lng() - value.Lng()) < 0.0001) {
+    // If no changes from previous coordinates, return.
+    if ((qAbs(Coord().Lat() - value.Lat()) < COORDINATES_THRESHOLD) &&
+        (qAbs(Coord().Lng() - value.Lng()) < COORDINATES_THRESHOLD)) {
         return;
     }
     coord = value;
@@ -334,16 +305,16 @@ void WayPointItem::SetReached(const bool &value)
     reached = value;
     emit WPValuesChanged(this);
     if (value) {
-        picture.load(QString::fromUtf8(":/markers/images/bigMarkerGreen.png"));
+        picture.load(":/markers/images/bigMarkerGreen.png");
     } else {
         if (!isMagic) {
             if ((this->flags() & QGraphicsItem::ItemIsMovable) == QGraphicsItem::ItemIsMovable) {
-                picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+                picture.load(":/markers/images/wp_marker_red.png");
             } else {
-                picture.load(QString::fromUtf8(":/markers/images/waypoint_marker2.png"));
+                picture.load(":/markers/images/wp_marker_orange.png");
             }
         } else {
-            picture.load(QString::fromUtf8(":/opmap/images/waypoint_marker3.png"));
+            picture.load(":/markers/images/wp_marker_green.png");
         }
     }
     this->update();
@@ -469,9 +440,9 @@ void WayPointItem::setFlag(QGraphicsItem::GraphicsItemFlag flag, bool enabled)
         return;
     } else if (flag == QGraphicsItem::ItemIsMovable) {
         if (enabled) {
-            picture.load(QString::fromUtf8(":/markers/images/marker.png"));
+            picture.load(":/markers/images/wp_marker_red.png");
         } else {
-            picture.load(QString::fromUtf8(":/markers/images/waypoint_marker2.png"));
+            picture.load(":/markers/images/wp_marker_orange.png");
         }
     }
     QGraphicsItem::setFlag(flag, enabled);

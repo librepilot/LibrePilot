@@ -46,6 +46,7 @@
 #include <stabilizationdesired.h>
 #include <callbackinfo.h>
 #include <stabilizationsettings.h>
+#include <systemalarms.h>
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
 #include <vtolpathfollowersettings.h>
 #endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
@@ -119,9 +120,9 @@ static void commandUpdatedCb(UAVObjEvent *ev);
 static void manualControlTask(void);
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
 static uint8_t isAssistedFlightMode(uint8_t position, uint8_t flightMode, FlightModeSettingsData *modeSettings);
+static void HandleBatteryFailsafe(uint8_t *position, FlightModeSettingsData *modeSettings);
 #endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
 static void SettingsUpdatedCb(UAVObjEvent *ev);
-
 #define assumptions (assumptions1 && assumptions2 && assumptions3 && assumptions4 && assumptions5 && assumptions6 && assumptions7 && assumptions_flightmode)
 
 /**
@@ -166,14 +167,10 @@ int32_t ManualControlInitialize()
 
     ManualControlCommandInitialize();
     FlightStatusInitialize();
-    ManualControlSettingsInitialize();
-    FlightModeSettingsInitialize();
-    SystemSettingsInitialize();
-    StabilizationSettingsInitialize();
     AccessoryDesiredInitialize();
 #ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
+    SystemAlarmsInitialize();
     VtolSelfTuningStatsInitialize();
-    VtolPathFollowerSettingsInitialize();
     VtolPathFollowerSettingsConnectCallback(&SettingsUpdatedCb);
     SystemSettingsConnectCallback(&SettingsUpdatedCb);
 #endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
@@ -239,6 +236,11 @@ static void manualControlTask(void)
     uint8_t newFlightModeAssist      = flightStatus.FlightModeAssist;
     uint8_t newAssistedControlState  = flightStatus.AssistedControlState;
     uint8_t newAssistedThrottleState = flightStatus.AssistedThrottleState;
+
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
+    HandleBatteryFailsafe(&position, &modeSettings);
+#endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
+
     if (position < FLIGHTMODESETTINGS_FLIGHTMODEPOSITION_NUMELEM) {
         newMode = modeSettings.FlightModePosition[position];
     }
@@ -249,7 +251,6 @@ static void manualControlTask(void)
         newMode  = flightStatus.FlightMode;
         position = lastPosition;
     }
-
     // if a mode change occurs we default the assist mode and states here
     // to avoid having to add it to all of the below modes that are
     // otherwise unrelated
@@ -493,7 +494,8 @@ static void manualControlTask(void)
     if (alwaysStabilizedSwitch) {
         if (acc.AccessoryVal <= -ALWAYSTABILIZEACCESSORY_THRESHOLD) {
             newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_FALSE;
-        } else if (acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) {
+        } else if ((acc.AccessoryVal >= ALWAYSTABILIZEACCESSORY_THRESHOLD) &&
+                   (cmd.Throttle >= modeSettings.AlwaysStabilizeWhenArmedThrottleThreshold)) {
             newAlwaysStabilized = FLIGHTSTATUS_ALWAYSSTABILIZEWHENARMED_TRUE;
         }
     } else {
@@ -525,6 +527,87 @@ static void manualControlTask(void)
         handler->handler(newinit);
     }
 }
+
+#ifndef PIOS_EXCLUDE_ADVANCED_FEATURES
+void HandleBatteryFailsafe(uint8_t *position, FlightModeSettingsData *modeSettings)
+{
+    // static uint8_t lastInputPosition = -1;
+    typedef enum { BATTERYFAILSAFE_NONE = 0, BATTERYFAILSAFE_WARNING = 1, BATTERYFAILSAFE_CRITICAL = 2 } batteryfailsafemode_t;
+    static batteryfailsafemode_t lastFailsafeStatus = BATTERYFAILSAFE_NONE;
+    static bool failsafeOverridden;
+    static uint8_t lastFlightPosition;
+    static uint32_t changeTimestamp;
+    SystemAlarmsAlarmData alarms;
+    batteryfailsafemode_t failsafeStatus;
+    FlightStatusArmedOptions armed;
+    FlightStatusArmedGet(&armed);
+
+    // reset the status and do not change anything when not armed
+    if (armed != FLIGHTSTATUS_ARMED_ARMED) {
+        lastFailsafeStatus = BATTERYFAILSAFE_NONE;
+        failsafeOverridden = false;
+        changeTimestamp    = PIOS_DELAY_GetRaw();
+        lastFlightPosition = *position;
+        return;
+    }
+
+    SystemAlarmsAlarmGet(&alarms);
+
+    switch (alarms.Battery) {
+    case SYSTEMALARMS_ALARM_WARNING:
+        failsafeStatus = BATTERYFAILSAFE_WARNING;
+        break;
+    case SYSTEMALARMS_ALARM_CRITICAL:
+        failsafeStatus = BATTERYFAILSAFE_CRITICAL;
+        break;
+    default:
+        failsafeStatus = BATTERYFAILSAFE_NONE;
+        break;
+    }
+    uint32_t debounceTimerms = PIOS_DELAY_DiffuS(changeTimestamp) / 1000;
+
+    if (failsafeStatus == lastFailsafeStatus) {
+        changeTimestamp = PIOS_DELAY_GetRaw();
+    } else if ((debounceTimerms < modeSettings->BatteryFailsafeDebounceTimer) || failsafeStatus < lastFailsafeStatus) {
+        // do not change within the "grace" period and do not "downgrade" the failsafe mode
+        failsafeStatus = lastFailsafeStatus;
+    } else {
+        // a higher failsafe status was met and grace period elapsed. Trigger the new state
+        lastFailsafeStatus = failsafeStatus;
+        lastFlightPosition = *position;
+        failsafeOverridden = false;
+    }
+
+    if ((failsafeStatus == BATTERYFAILSAFE_NONE) || failsafeOverridden) {
+        return;
+    }
+
+    // failsafe has been triggered. Check for override
+    if (lastFlightPosition != *position) {
+        // flag the override and reset the grace period
+        failsafeOverridden = true;
+        changeTimestamp    = PIOS_DELAY_GetRaw();
+        return;
+    }
+
+    switch (failsafeStatus) {
+    case BATTERYFAILSAFE_CRITICAL:
+        // if critical is not set, jump to the other case to use the warning setting.
+        if (modeSettings->BatteryFailsafeSwitchPositions.Critical != -1) {
+            *position = modeSettings->BatteryFailsafeSwitchPositions.Critical;
+            break;
+        }
+    case BATTERYFAILSAFE_WARNING:
+        if (modeSettings->BatteryFailsafeSwitchPositions.Warning != -1) {
+            *position = modeSettings->BatteryFailsafeSwitchPositions.Warning;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+#endif /* ifndef PIOS_EXCLUDE_ADVANCED_FEATURES */
 
 /**
  * Called whenever a critical configuration component changes

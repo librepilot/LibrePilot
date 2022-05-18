@@ -73,7 +73,12 @@ QRectF HomeItem::boundingRect() const
     if (pic.width() > localsafearea * 2 && !toggleRefresh) {
         return QRectF(-pic.width() / 2, -pic.height() / 2, pic.width(), pic.height());
     } else {
-        return QRectF(-localsafearea, -localsafearea, localsafearea * 2, localsafearea * 2);
+        // FIXME: LP-573 For some reason when boundingRect is defined normally,
+        // return QRectF(-localsafearea, -localsafearea, localsafearea * 2, localsafearea * 2);
+        // the previous safearea circle and Home (both at previous/smaller size) still drawed
+        // into the corner of boudingRect area when zoom in.
+        // Current workaround is done expanding x100 the boundingRect returned.
+        return QRectF(-localsafearea * 100, -localsafearea * 100, localsafearea * 200, localsafearea * 200);
     }
 }
 
@@ -96,6 +101,12 @@ void HomeItem::RefreshPos()
 
     this->update();
     toggleRefresh = false;
+}
+
+void HomeItem::SetHomePic(QString HomePic)
+{
+    pic.load(":/markers/images/" + HomePic);
+    pic = pic.scaled(30, 30, Qt::IgnoreAspectRatio);
 }
 
 void HomeItem::setOpacitySlot(qreal opacity)

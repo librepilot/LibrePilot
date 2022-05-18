@@ -16,7 +16,7 @@
  * @{
  *
  * @file       systemmod.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
  *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010-2015.
  * @brief      System module
  *
@@ -62,7 +62,7 @@
 #include <pios_notify.h>
 #include <pios_task_monitor.h>
 #include <pios_board_init.h>
-
+#include <pios_board_io.h>
 
 #ifdef PIOS_INCLUDE_INSTRUMENTATION
 #include <instrumentation.h>
@@ -129,6 +129,12 @@ static void updateWDGstats();
 static uint8_t i2c_error_activity[PIOS_I2C_ERROR_COUNT_NUMELEM];
 #endif
 
+#ifdef PIOS_INCLUDE_RFM22B
+static uint8_t previousRFXtalCap;
+static uint8_t protocol;
+static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
+#endif
+
 extern uintptr_t pios_uavo_settings_fs_id;
 extern uintptr_t pios_user_fs_id;
 
@@ -154,7 +160,6 @@ int32_t SystemModStart(void)
 int32_t SystemModInitialize(void)
 {
     // Must registers objects here for system thread because ObjectManager started in OpenPilotInit
-    SystemSettingsInitialize();
     SystemStatsInitialize();
     FlightStatusInitialize();
     ObjectPersistenceInitialize();
@@ -231,9 +236,19 @@ static void systemTask(__attribute__((unused)) void *parameters)
     HwSettingsConnectCallback(checkSettingsUpdatedCb);
     SystemSettingsConnectCallback(checkSettingsUpdatedCb);
 
+#ifdef PIOS_INCLUDE_RFM22B
+    // Initialize previousRFXtalCap used by callback
+    OPLinkSettingsRFXtalCapGet(&previousRFXtalCap);
+    OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
+    // Get protocol
+    OPLinkSettingsProtocolGet(&protocol);
+#endif
+
 #ifdef DIAG_TASKS
     TaskInfoData taskInfoData;
+    memset(&taskInfoData, 0, sizeof(TaskInfoData));
     CallbackInfoData callbackInfoData;
+    memset(&callbackInfoData, 0, sizeof(CallbackInfoData));
 #endif
     // Main system loop
     while (1) {
@@ -259,13 +274,9 @@ static void systemTask(__attribute__((unused)) void *parameters)
         PIOS_TASK_MONITOR_ForEachTask(taskMonitorForEachCallback, &taskInfoData);
         TaskInfoSet(&taskInfoData);
         // Update the callback status object
-// if(FALSE){
         PIOS_CALLBACKSCHEDULER_ForEachCallback(callbackSchedulerForEachCallback, &callbackInfoData);
         CallbackInfoSet(&callbackInfoData);
-// }
 #endif
-// }
-
 
         UAVObjEvent ev;
         int delayTime = SYSTEM_UPDATE_PERIOD_MS;
@@ -278,9 +289,6 @@ static void systemTask(__attribute__((unused)) void *parameters)
         oplinkStatus.HeapRemaining = xPortGetFreeHeapSize();
 
         if (pios_rfm22b_id) {
-            // Get the other device stats.
-            PIOS_RFM22B_GetPairStats(pios_rfm22b_id, oplinkStatus.PairIDs, oplinkStatus.PairSignalStrengths, OPLINKSTATUS_PAIRIDS_NUMELEM);
-
             // Get the stats from the radio device
             struct rfm22b_stats radio_stats;
             PIOS_RFM22B_GetStats(pios_rfm22b_id, &radio_stats);
@@ -292,18 +300,19 @@ static void systemTask(__attribute__((unused)) void *parameters)
             static uint16_t prev_tx_seq   = 0;
             static uint16_t prev_rx_seq   = 0;
 
-            oplinkStatus.DeviceID    = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
-            oplinkStatus.RxGood      = radio_stats.rx_good;
-            oplinkStatus.RxCorrected = radio_stats.rx_corrected;
-            oplinkStatus.RxErrors    = radio_stats.rx_error;
-            oplinkStatus.RxMissed    = radio_stats.rx_missed;
-            oplinkStatus.RxFailure   = radio_stats.rx_failure;
-            oplinkStatus.TxDropped   = radio_stats.tx_dropped;
-            oplinkStatus.TxFailure   = radio_stats.tx_failure;
-            oplinkStatus.Resets      = radio_stats.resets;
-            oplinkStatus.Timeouts    = radio_stats.timeouts;
+            oplinkStatus.DeviceID      = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
+            oplinkStatus.RxGood        = radio_stats.rx_good;
+            oplinkStatus.RxCorrected   = radio_stats.rx_corrected;
+            oplinkStatus.RxErrors      = radio_stats.rx_error;
+            oplinkStatus.RxMissed      = radio_stats.rx_missed;
+            oplinkStatus.RxFailure     = radio_stats.rx_failure;
+            oplinkStatus.TxDropped     = radio_stats.tx_dropped;
+            oplinkStatus.TxFailure     = radio_stats.tx_failure;
+            oplinkStatus.Resets        = radio_stats.resets;
+            oplinkStatus.Timeouts      = radio_stats.timeouts;
             oplinkStatus.RSSI = radio_stats.rssi;
-            oplinkStatus.LinkQuality = radio_stats.link_quality;
+            oplinkStatus.LinkQuality   = radio_stats.link_quality;
+            oplinkStatus.AFCCorrection = radio_stats.afc_correction;
             if (first_time) {
                 first_time = false;
             } else {
@@ -326,7 +335,7 @@ static void systemTask(__attribute__((unused)) void *parameters)
             oplinkStatus.RXSeq     = radio_stats.rx_seq;
 
             oplinkStatus.LinkState = radio_stats.link_state;
-        } else {
+        } else if (protocol != OPLINKSETTINGS_PROTOCOL_OPENLRS) {
             oplinkStatus.LinkState = OPLINKSTATUS_LINKSTATE_DISABLED;
         }
         OPLinkStatusSet(&oplinkStatus);
@@ -453,6 +462,25 @@ static void checkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
     }
 }
 
+#ifdef PIOS_INCLUDE_RFM22B
+/**
+ * Called whenever OPLink settings changed
+ */
+static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    uint8_t currentRFXtalCap;
+
+    OPLinkSettingsRFXtalCapGet(&currentRFXtalCap);
+
+    // Check if RFXtalCap value changed
+    if (currentRFXtalCap != previousRFXtalCap) {
+        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentRFXtalCap);
+        PIOS_RFM22B_Reinit(pios_rfm22b_id);
+        previousRFXtalCap = currentRFXtalCap;
+    }
+}
+#endif /* ifdef PIOS_INCLUDE_RFM22B */
+
 #ifdef DIAG_TASKS
 static void taskMonitorForEachCallback(uint16_t task_id, const struct pios_task_info *task_info, void *context)
 {
@@ -553,7 +581,11 @@ static uint16_t GetFreeIrqStackSize(void)
 #if !defined(ARCH_POSIX) && !defined(ARCH_WIN32) && defined(CHECK_IRQ_STACK)
     extern uint32_t _irq_stack_top;
     extern uint32_t _irq_stack_end;
-    uint32_t pattern    = 0x0000A5A5;
+#ifdef STM32F3
+    uint32_t pattern    = 0xA5A5A5A5;
+#else
+    uint32_t pattern    = 0xA5A5;
+#endif
     uint32_t *ptr       = &_irq_stack_end;
 
 #if 1 /* the ugly way accurate but takes more time, useful for debugging */

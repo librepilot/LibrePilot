@@ -70,11 +70,6 @@ ifndef TESTAPP
     SRC += $(OPSYSTEM)/font_outlined8x14.c
     SRC += $(OPSYSTEM)/font_outlined8x8.c
 
-    #ifeq ($(DEBUG), YES)
-    SRC += $(OPSYSTEM)/dcc_stdio.c
-    SRC += $(OPSYSTEM)/cm3_fault_handlers.c
-    #endif
-
     ## Misc library functions
     SRC += $(FLIGHTLIB)/WorldMagModel.c
     SRC += $(FLIGHTLIB)/auxmagsupport.c

@@ -1,4 +1,5 @@
 Connor Abbott
+Karl Alberts
 Sergiy Anikeyev
 David Ankers
 Fredrik Arvidsson
@@ -34,7 +35,7 @@ Andrew Finegan
 Kevin Finisterre
 Richard Flay
 Darren Furniss
-Oliver Gaste
+Olivier Gasté
 Cliff Geerdes
 Frederic Goddeeris
 Daniel Godin
@@ -69,9 +70,11 @@ Fredrik Larsson
 Xavier Lecluse
 Richard Von Lehe
 Pablo Lema
+Julian Lilov
 Matt Lipski
 David Llama
 Jasper Van Loenen
+Fernando Lopez Jr.
 Ákos Máté
 Ben Matthews
 Greg Matthews
@@ -80,9 +83,12 @@ Alessio Morale
 Gary Mortimer
 Cathy Moss
 Les Newell
+Karsten Telling Nielsen
+Jan Nijs
 Ken Northup
 Craig Nuttall
 Bertrand Oresve
+Pashalis Padeleris
 Angus Peart
 Pablo Francisco Pérez Hidalgo
 John Pike
@@ -130,4 +136,3 @@ Kendal Wells
 David Willis
 Dmitriy Zaitsev
 Vladimir Zidar
-

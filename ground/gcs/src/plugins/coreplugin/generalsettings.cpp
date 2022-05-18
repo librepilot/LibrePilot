@@ -33,7 +33,6 @@
 
 #include <utils/stylehelper.h>
 #include <utils/qtcolorbutton.h>
-#include <utils/consoleprocess.h>
 #include <coreplugin/icore.h>
 
 #include <QMessageBox>
@@ -157,40 +156,40 @@ void GeneralSettings::finish()
     delete m_page;
 }
 
-void GeneralSettings::readSettings(QSettings *qs)
+void GeneralSettings::readSettings(QSettings &settings)
 {
-    qs->beginGroup(QLatin1String("General"));
-    m_language           = qs->value(QLatin1String("OverrideLanguage"), QLocale::system().name()).toString();
-    m_saveSettingsOnExit = qs->value(QLatin1String("SaveSettingsOnExit"), m_saveSettingsOnExit).toBool();
-    m_autoConnect        = qs->value(QLatin1String("AutoConnect"), m_autoConnect).toBool();
-    m_autoSelect         = qs->value(QLatin1String("AutoSelect"), m_autoSelect).toBool();
-    m_useUDPMirror       = qs->value(QLatin1String("UDPMirror"), m_useUDPMirror).toBool();
-    m_useExpertMode      = qs->value(QLatin1String("ExpertMode"), m_useExpertMode).toBool();
-    m_collectUsageData   = qs->value(QLatin1String("CollectUsageData"), m_collectUsageData).toBool();
-    m_showUsageDataDisclaimer = qs->value(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer).toBool();
-    m_lastUsageHash      = qs->value(QLatin1String("LastUsageHash"), m_lastUsageHash).toString();
-    qs->endGroup();
+    settings.beginGroup(QLatin1String("General"));
+    m_language           = settings.value(QLatin1String("OverrideLanguage"), QLocale::system().name()).toString();
+    m_saveSettingsOnExit = settings.value(QLatin1String("SaveSettingsOnExit"), m_saveSettingsOnExit).toBool();
+    m_autoConnect        = settings.value(QLatin1String("AutoConnect"), m_autoConnect).toBool();
+    m_autoSelect         = settings.value(QLatin1String("AutoSelect"), m_autoSelect).toBool();
+    m_useUDPMirror       = settings.value(QLatin1String("UDPMirror"), m_useUDPMirror).toBool();
+    m_useExpertMode      = settings.value(QLatin1String("ExpertMode"), m_useExpertMode).toBool();
+    m_collectUsageData   = settings.value(QLatin1String("CollectUsageData"), m_collectUsageData).toBool();
+    m_showUsageDataDisclaimer = settings.value(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer).toBool();
+    m_lastUsageHash      = settings.value(QLatin1String("LastUsageHash"), m_lastUsageHash).toString();
+    settings.endGroup();
 }
 
-void GeneralSettings::saveSettings(QSettings *qs)
+void GeneralSettings::saveSettings(QSettings &settings) const
 {
-    qs->beginGroup(QLatin1String("General"));
+    settings.beginGroup(QLatin1String("General"));
 
     if (m_language.isEmpty()) {
-        qs->remove(QLatin1String("OverrideLanguage"));
+        settings.remove(QLatin1String("OverrideLanguage"));
     } else {
-        qs->setValue(QLatin1String("OverrideLanguage"), m_language);
+        settings.setValue(QLatin1String("OverrideLanguage"), m_language);
     }
 
-    qs->setValue(QLatin1String("SaveSettingsOnExit"), m_saveSettingsOnExit);
-    qs->setValue(QLatin1String("AutoConnect"), m_autoConnect);
-    qs->setValue(QLatin1String("AutoSelect"), m_autoSelect);
-    qs->setValue(QLatin1String("UDPMirror"), m_useUDPMirror);
-    qs->setValue(QLatin1String("ExpertMode"), m_useExpertMode);
-    qs->setValue(QLatin1String("CollectUsageData"), m_collectUsageData);
-    qs->setValue(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer);
-    qs->setValue(QLatin1String("LastUsageHash"), m_lastUsageHash);
-    qs->endGroup();
+    settings.setValue(QLatin1String("SaveSettingsOnExit"), m_saveSettingsOnExit);
+    settings.setValue(QLatin1String("AutoConnect"), m_autoConnect);
+    settings.setValue(QLatin1String("AutoSelect"), m_autoSelect);
+    settings.setValue(QLatin1String("UDPMirror"), m_useUDPMirror);
+    settings.setValue(QLatin1String("ExpertMode"), m_useExpertMode);
+    settings.setValue(QLatin1String("CollectUsageData"), m_collectUsageData);
+    settings.setValue(QLatin1String("ShowUsageDataDisclaimer"), m_showUsageDataDisclaimer);
+    settings.setValue(QLatin1String("LastUsageHash"), m_lastUsageHash);
+    settings.endGroup();
 }
 
 void GeneralSettings::resetInterfaceColor()

@@ -87,35 +87,11 @@ win32 {
         Qt5MultimediaWidgets$${DS}.dll \
         Qt5Quick$${DS}.dll \
         Qt5QuickWidgets$${DS}.dll \
-        Qt5Qml$${DS}.dll \
-        libicuin57.dll \
-        libicudt57.dll \
-        libicuuc57.dll \
-        libstdc++-6.dll \
-        libwinpthread-1.dll \
-        libpcre-1.dll \
-        libpcre16-0.dll \
-        zlib1.dll \
-        libharfbuzz-0.dll \
-        libgraphite2.dll \
-        libfreetype-6.dll \
-        libbz2-1.dll \
-        libpng16-16.dll \
-        libjpeg-8.dll \
-        libglib-2.0-0.dll \
-        libintl-8.dll \
-        libiconv-2.dll
-
-    contains(QT_ARCH, i386) {
-        QT_DLLS += \
-            libgcc_s_dw2-1.dll
-    } else {
-        QT_DLLS += \
-            libgcc_s_seh-1.dll
-    }
+        Qt5Qml$${DS}.dll
 
     for(dll, QT_DLLS) {
         addCopyFileTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
+        addCopyDependenciesTarget($${dll},$$[QT_INSTALL_BINS],$${GCS_APP_PATH})
     }
 
     # copy OpenSSL DLLs
@@ -141,6 +117,7 @@ win32 {
 
 for(plugin, QT_PLUGINS) {
     addCopyFileTarget($${plugin},$$[QT_INSTALL_PLUGINS],$${GCS_QT_PLUGINS_PATH})
+    win32:addCopyDependenciesTarget($${plugin},$$[QT_INSTALL_PLUGINS],$${GCS_APP_PATH})
 }
 
 # Copy QtQuick2 complete directories

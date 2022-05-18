@@ -15,6 +15,7 @@ GRTAGS
 GSYMS
 GTAGS
 core
+!core/
 *~
 
 # flight
@@ -40,6 +41,7 @@ ground/gcs/.settings
 *.exe
 *.log
 *.opl
+*.autosave
 /ground/gcs/share/translations/extract-mimetypes.xq
 /ground/gcs/src/experimental/tools/DocumentationHelper/ui_mainwindow.h
 /ground/gcs/src/libs/qextserialport/.hg
@@ -64,7 +66,14 @@ ground/gcs/.settings
 /.metadata
 /.settings
 /.pydevproject
+
+# python artifacts
+/**/*.py*
+
 /workspace
+
+#pycharm project files
+/python/.idea
 
 # Ignore Eclipse temp folder, git plugin based?
 RemoteSystemsTempFiles

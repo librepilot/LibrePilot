@@ -28,13 +28,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include "importexportgadgetwidget.h"
+
 #include "ui_importexportgadgetwidget.h"
 #include "utils/xmlconfig.h"
 #include "coreplugin/uavgadgetinstancemanager.h"
 #include "coreplugin/icore.h"
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-#include <QtDebug>
+
+#include <QDebug>
 #include <QSettings>
 #include <QMessageBox>
 #include <QFileInfo>
@@ -125,18 +127,17 @@ void ImportExportGadgetWidget::exportConfiguration(const QString & fileName)
     bool doAllGadgets = ui->checkBoxAllGadgets->isChecked();
     bool doPlugins    = ui->checkBoxPlugins->isChecked();
 
-    QSettings::Format format = XmlConfig::XmlSettingsFormat;
-    QSettings qs(fileName, format);
+    QSettings settings(fileName, XmlConfig::XmlFormat);
 
     if (doGeneral) {
-        Core::ICore::instance()->saveMainSettings(&qs);
+        Core::ICore::instance()->saveMainSettings(settings);
     }
     if (doAllGadgets) {
-        Core::ICore::instance()->uavGadgetInstanceManager()->saveSettings(&qs);
+        Core::ICore::instance()->uavGadgetInstanceManager()->saveSettings(settings);
     }
     if (doPlugins) {
         foreach(Core::IConfigurablePlugin * plugin, getConfigurables()) {
-            Core::ICore::instance()->saveSettings(plugin, &qs);
+            Core::ICore::instance()->saveSettings(plugin, settings);
         }
     }
 
@@ -184,17 +185,17 @@ void ImportExportGadgetWidget::importConfiguration(const QString & fileName)
     bool doAllGadgets = ui->checkBoxAllGadgets->isChecked();
     bool doPlugins    = ui->checkBoxPlugins->isChecked();
 
-    QSettings qs(fileName, XmlConfig::XmlSettingsFormat);
+    QSettings settings(fileName, XmlConfig::XmlFormat);
 
     if (doAllGadgets) {
-        Core::ICore::instance()->uavGadgetInstanceManager()->readSettings(&qs);
+        Core::ICore::instance()->uavGadgetInstanceManager()->readSettings(settings);
     }
     if (doGeneral) {
-        Core::ICore::instance()->readMainSettings(&qs);
+        Core::ICore::instance()->readMainSettings(settings);
     }
     if (doPlugins) {
         foreach(Core::IConfigurablePlugin * plugin, getConfigurables()) {
-            Core::ICore::instance()->readSettings(plugin, &qs);
+            Core::ICore::instance()->readSettings(plugin, settings);
         }
     }
 

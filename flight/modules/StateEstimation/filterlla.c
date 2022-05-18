@@ -44,7 +44,7 @@
 struct data {
     GPSSettingsData  settings;
     HomeLocationData home;
-    double HomeECEF[3];
+    float HomeECEF[3];
     float HomeRne[3][3];
 };
 
@@ -61,9 +61,7 @@ int32_t filterLLAInitialize(stateFilter *handle)
     handle->init      = &init;
     handle->filter    = &filter;
     handle->localdata = pios_malloc(sizeof(struct data));
-    GPSSettingsInitialize();
     GPSPositionSensorInitialize();
-    HomeLocationInitialize();
     return STACK_REQUIRED;
 }
 
@@ -104,7 +102,7 @@ static filterResult filter(__attribute__((unused)) stateFilter *self, stateEstim
 
         // check if we have a valid GPS signal (not checked by StateEstimation istelf)
         if ((gpsdata.PDOP < this->settings.MaxPDOP) && (gpsdata.Satellites >= this->settings.MinSatellites) &&
-            (gpsdata.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) &&
+            ((gpsdata.Status == GPSPOSITIONSENSOR_STATUS_FIX3D) || (gpsdata.Status == GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS)) &&
             (gpsdata.Latitude != 0 || gpsdata.Longitude != 0)) {
             int32_t LLAi[3] = {
                 gpsdata.Latitude,

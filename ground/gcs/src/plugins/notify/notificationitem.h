@@ -177,9 +177,8 @@ public:
         _mute = value;
     }
 
-    void saveState(QSettings *settings) const;
-    void restoreState(QSettings *settings);
-
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
 
     UAVDataObject *getUAVObject(void);
     UAVObjectField *getUAVObjectField(void);
@@ -208,7 +207,7 @@ public:
      * Returns sound caption name, needed to create string representation of notification.
      *
      * @return success - string  == <sound filename>, if sound file exists
-     *         error   - string  == [missind]<sound filename>, if sound file doesn't exist
+     *         error   - string  == [missing]<sound filename>, if sound file doesn't exist
      */
     QString getSoundCaption(QString fileName);
 

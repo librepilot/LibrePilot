@@ -200,17 +200,23 @@ struct pios_rfm22b_dev {
     // The task handle
     xTaskHandle taskHandle;
 
-    // The potential paired statistics
-    rfm22b_pair_stats pair_stats[OPLINKSTATUS_PAIRIDS_NUMELEM];
-
     // ISR pending semaphore
     xSemaphoreHandle  isrPending;
 
-    // The COM callback functions.
+    // The main COM callback functions.
     pios_com_callback rx_in_cb;
     uint32_t rx_in_context;
     pios_com_callback tx_out_cb;
     uint32_t tx_out_context;
+
+    // The Aux COM callback functions.
+    pios_com_callback aux_rx_in_cb;
+    uint32_t aux_rx_in_context;
+    pios_com_callback aux_tx_out_cb;
+    uint32_t aux_tx_out_context;
+
+    // Send next packet on primary or aux channel?
+    bool     last_stream_sent;
 
     // the transmit power to use for data transmissions
     uint8_t  tx_power;
@@ -267,6 +273,8 @@ struct pios_rfm22b_dev {
     int16_t  ppm[RFM22B_PPM_NUM_CHANNELS];
     // The PPM packet received callback.
     PPMReceivedCallback ppm_callback;
+    // The PPM callback context
+    uint32_t     ppm_context;
 
     // The id that the packet was received from
     uint32_t     rx_destination_id;
@@ -283,6 +291,9 @@ struct pios_rfm22b_dev {
     // Are we sending / receiving only PPM data?
     bool         ppm_only_mode;
 
+    // The base freq in Hertz
+    uint32_t     base_freq;
+
     // The channel list
     uint8_t      channels[RFM22B_NUM_CHANNELS];
     // The number of frequency hopping channels.
@@ -294,11 +305,10 @@ struct pios_rfm22b_dev {
     // current frequency hop channel index
     uint8_t      channel_index;
     // afc correction reading (in Hz)
-    int8_t       afc_correction_Hz;
+    int32_t      afc_correction_Hz;
 
     // The packet timers.
-    portTickType packet_start_ticks;
-    portTickType tx_complete_ticks;
+    portTickType packet_start_time;
     portTickType time_delta;
     portTickType last_contact;
 };

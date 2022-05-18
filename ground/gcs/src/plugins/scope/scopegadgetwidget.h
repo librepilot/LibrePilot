@@ -100,8 +100,8 @@ public:
                       QString mathFunction = "None", QPen pen = QPen(Qt::black), bool antialiased = true);
     void clearCurvePlots();
 
-    void saveState(QSettings *qSettings);
-    void restoreState(QSettings *qSettings);
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
 
     int csvLoggingStart();
     int csvLoggingStop();

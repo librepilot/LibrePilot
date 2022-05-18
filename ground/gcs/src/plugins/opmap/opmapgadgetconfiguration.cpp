@@ -29,112 +29,86 @@
 #include "utils/pathutils.h"
 #include <QDir>
 
-OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
-    IUAVGadgetConfiguration(classId, parent),
-    m_mapProvider("GoogleHybrid"),
-    m_defaultZoom(2),
-    m_defaultLatitude(0),
-    m_defaultLongitude(0),
-    m_useOpenGL(false),
-    m_showTileGridLines(false),
-    m_accessMode("ServerAndCache"),
-    m_useMemoryCache(true),
-    m_cacheLocation(Utils::GetStoragePath() + "mapscache" + QDir::separator()),
-    m_uavSymbol(QString::fromUtf8(":/uavs/images/mapquad.png")),
-    m_maxUpdateRate(2000), // ms
-    m_settings(qSettings),
-    m_opacity(1),
-    m_defaultWaypointAltitude(15),
-    m_defaultWaypointVelocity(2)
+OPMapGadgetConfiguration::OPMapGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
+    IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {
-        QString mapProvider    = qSettings->value("mapProvider").toString();
-        int zoom = qSettings->value("defaultZoom").toInt();
-        double latitude        = qSettings->value("defaultLatitude").toDouble();
-        double longitude       = qSettings->value("defaultLongitude").toDouble();
-        bool useOpenGL = qSettings->value("useOpenGL").toBool();
-        bool showTileGridLines = qSettings->value("showTileGridLines").toBool();
-        QString accessMode     = qSettings->value("accessMode").toString();
-        bool useMemoryCache    = qSettings->value("useMemoryCache").toBool();
-        QString cacheLocation  = qSettings->value("cacheLocation").toString();
-        QString uavSymbol      = qSettings->value("uavSymbol").toString();
-        int max_update_rate    = qSettings->value("maxUpdateRate").toInt();
-        m_defaultWaypointAltitude = qSettings->value("defaultWaypointAltitude", 15).toReal();
-        m_defaultWaypointVelocity = qSettings->value("defaultWaypointVelocity", 2).toReal();
-        m_opacity = qSettings->value("overlayOpacity", 1).toReal();
+    m_defaultWaypointAltitude = settings.value("defaultWaypointAltitude", 15).toReal();
+    m_defaultWaypointVelocity = settings.value("defaultWaypointVelocity", 2).toReal();
+    m_opacity           = settings.value("overlayOpacity", 1).toReal();
 
-        if (!mapProvider.isEmpty()) {
-            m_mapProvider = mapProvider;
-        }
-        m_defaultZoom       = zoom;
-        m_defaultLatitude   = latitude;
-        m_defaultLongitude  = longitude;
-        m_useOpenGL = useOpenGL;
-        m_showTileGridLines = showTileGridLines;
-        m_uavSymbol = uavSymbol;
+    m_mapProvider       = settings.value("mapProvider", "GoogleHybrid").toString();
+    m_defaultZoom       = settings.value("defaultZoom", 2).toInt();
+    m_defaultLatitude   = settings.value("defaultLatitude").toDouble();
+    m_defaultLongitude  = settings.value("defaultLongitude").toDouble();
+    m_useOpenGL         = settings.value("useOpenGL").toBool();
+    m_showTileGridLines = settings.value("showTileGridLines").toBool();
+    m_uavSymbol         = settings.value("uavSymbol", QString::fromUtf8(":/uavs/images/mapquad.png")).toString();
+    m_safeAreaRadius    = settings.value("safeAreaRadius", 5).toInt();
+    m_showSafeArea      = settings.value("showSafeArea").toBool();
 
-        m_maxUpdateRate     = max_update_rate;
-        if (m_maxUpdateRate < 100 || m_maxUpdateRate > 5000) {
-            m_maxUpdateRate = 2000;
-        }
-
-        if (!accessMode.isEmpty()) {
-            m_accessMode = accessMode;
-        }
-        m_useMemoryCache = useMemoryCache;
-        if (!cacheLocation.isEmpty()) {
-            m_cacheLocation = Utils::InsertStoragePath(cacheLocation);
-        }
+    m_maxUpdateRate     = settings.value("maxUpdateRate", 2000).toInt();
+    if (m_maxUpdateRate < 100 || m_maxUpdateRate > 5000) {
+        m_maxUpdateRate = 2000;
     }
+
+    m_accessMode     = settings.value("accessMode", "ServerAndCache").toString();
+    m_useMemoryCache = settings.value("useMemoryCache").toBool();
+    m_cacheLocation  = settings.value("cacheLocation", Utils::GetStoragePath() + "mapscache" + QDir::separator()).toString();
+    m_cacheLocation  = Utils::InsertStoragePath(m_cacheLocation);
 }
 
-IUAVGadgetConfiguration *OPMapGadgetConfiguration::clone()
+OPMapGadgetConfiguration::OPMapGadgetConfiguration(const OPMapGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
 {
-    OPMapGadgetConfiguration *m = new OPMapGadgetConfiguration(this->classId());
-
-    m->m_mapProvider       = m_mapProvider;
-    m->m_defaultZoom       = m_defaultZoom;
-    m->m_defaultLatitude   = m_defaultLatitude;
-    m->m_defaultLongitude  = m_defaultLongitude;
-    m->m_useOpenGL = m_useOpenGL;
-    m->m_showTileGridLines = m_showTileGridLines;
-    m->m_accessMode = m_accessMode;
-    m->m_useMemoryCache    = m_useMemoryCache;
-    m->m_cacheLocation     = m_cacheLocation;
-    m->m_uavSymbol = m_uavSymbol;
-    m->m_maxUpdateRate     = m_maxUpdateRate;
-    m->m_opacity = m_opacity;
-    m->m_defaultWaypointAltitude = m_defaultWaypointAltitude;
-    m->m_defaultWaypointVelocity = m_defaultWaypointVelocity;
-
-    return m;
+    m_mapProvider       = obj.m_mapProvider;
+    m_defaultZoom       = obj.m_defaultZoom;
+    m_defaultLatitude   = obj.m_defaultLatitude;
+    m_defaultLongitude  = obj.m_defaultLongitude;
+    m_useOpenGL = obj.m_useOpenGL;
+    m_showTileGridLines = obj.m_showTileGridLines;
+    m_accessMode = obj.m_accessMode;
+    m_useMemoryCache    = obj.m_useMemoryCache;
+    m_cacheLocation     = obj.m_cacheLocation;
+    m_uavSymbol = obj.m_uavSymbol;
+    m_maxUpdateRate     = obj.m_maxUpdateRate;
+    m_safeAreaRadius    = obj.m_safeAreaRadius;
+    m_showSafeArea      = obj.m_showSafeArea;
+    m_opacity = obj.m_opacity;
+    m_defaultWaypointAltitude = obj.m_defaultWaypointAltitude;
+    m_defaultWaypointVelocity = obj.m_defaultWaypointVelocity;
 }
+
+IUAVGadgetConfiguration *OPMapGadgetConfiguration::clone() const
+{
+    return new OPMapGadgetConfiguration(*this);
+}
+
 void OPMapGadgetConfiguration::save() const
 {
-    if (!m_settings) {
-        return;
-    }
+    QSettings settings;
 
-    saveConfig(m_settings);
+    saveConfig(settings);
 }
-void OPMapGadgetConfiguration::saveConfig(QSettings *qSettings) const
-{
-    qSettings->setValue("mapProvider", m_mapProvider);
-    qSettings->setValue("defaultZoom", m_defaultZoom);
-    qSettings->setValue("defaultLatitude", m_defaultLatitude);
-    qSettings->setValue("defaultLongitude", m_defaultLongitude);
-    qSettings->setValue("useOpenGL", m_useOpenGL);
-    qSettings->setValue("showTileGridLines", m_showTileGridLines);
-    qSettings->setValue("accessMode", m_accessMode);
-    qSettings->setValue("useMemoryCache", m_useMemoryCache);
-    qSettings->setValue("uavSymbol", m_uavSymbol);
-    qSettings->setValue("cacheLocation", Utils::RemoveStoragePath(m_cacheLocation));
-    qSettings->setValue("maxUpdateRate", m_maxUpdateRate);
-    qSettings->setValue("overlayOpacity", m_opacity);
 
-    qSettings->setValue("defaultWaypointAltitude", m_defaultWaypointAltitude);
-    qSettings->setValue("defaultWaypointVelocity", m_defaultWaypointVelocity);
+void OPMapGadgetConfiguration::saveConfig(QSettings &settings) const
+{
+    settings.setValue("mapProvider", m_mapProvider);
+    settings.setValue("defaultZoom", m_defaultZoom);
+    settings.setValue("defaultLatitude", m_defaultLatitude);
+    settings.setValue("defaultLongitude", m_defaultLongitude);
+    settings.setValue("useOpenGL", m_useOpenGL);
+    settings.setValue("showTileGridLines", m_showTileGridLines);
+    settings.setValue("accessMode", m_accessMode);
+    settings.setValue("useMemoryCache", m_useMemoryCache);
+    settings.setValue("uavSymbol", m_uavSymbol);
+    settings.setValue("cacheLocation", Utils::RemoveStoragePath(m_cacheLocation));
+    settings.setValue("maxUpdateRate", m_maxUpdateRate);
+    settings.setValue("safeAreaRadius", m_safeAreaRadius);
+    settings.setValue("showSafeArea", m_showSafeArea);
+    settings.setValue("overlayOpacity", m_opacity);
+
+    settings.setValue("defaultWaypointAltitude", m_defaultWaypointAltitude);
+    settings.setValue("defaultWaypointVelocity", m_defaultWaypointVelocity);
 }
 void OPMapGadgetConfiguration::setCacheLocation(QString cacheLocation)
 {

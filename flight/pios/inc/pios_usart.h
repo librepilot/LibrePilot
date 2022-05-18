@@ -34,6 +34,29 @@
 /* Global Types */
 /* Public Functions */
 
+/* USART Ioctls */
+
+enum PIOS_USART_Inverted {
+    PIOS_USART_Inverted_None = 0,
+    PIOS_USART_Inverted_Rx   = (1 << 0),
+    PIOS_USART_Inverted_Tx   = (1 << 1),
+    PIOS_USART_Inverted_RxTx = (PIOS_USART_Inverted_Rx | PIOS_USART_Inverted_Tx)
+};
+
+#define PIOS_IOCTL_USART_SET_INVERTED   COM_IOCTL(COM_IOCTL_TYPE_USART, 1, enum PIOS_USART_Inverted)
+#define PIOS_IOCTL_USART_SET_SWAPPIN    COM_IOCTL(COM_IOCTL_TYPE_USART, 2, bool)
+#define PIOS_IOCTL_USART_SET_HALFDUPLEX COM_IOCTL(COM_IOCTL_TYPE_USART, 3, bool)
+
+#define PIOS_IOCTL_USART_GET_RXGPIO     COM_IOCTL(COM_IOCTL_TYPE_USART, 4, struct stm32_gpio)
+#define PIOS_IOCTL_USART_GET_TXGPIO     COM_IOCTL(COM_IOCTL_TYPE_USART, 5, struct stm32_gpio)
+
+/* PIOS_IRQ_PRIO_ values */
+#define PIOS_IOCTL_USART_SET_IRQ_PRIO   COM_IOCTL(COM_IOCTL_TYPE_USART, 6, uint8_t)
+
+#define PIOS_IOCTL_USART_GET_DSMBIND    COM_IOCTL(COM_IOCTL_TYPE_USART, 7, struct stm32_gpio)
+
+#define PIOS_IOCTL_USART_LOCK_CONFIG    COM_IOCTL(COM_IOCTL_TYPE_USART, 8, bool)
+
 #endif /* PIOS_USART_H */
 
 /**

@@ -182,21 +182,27 @@ typedef struct {
     uint32_t lastQueueErrorID;
 } UAVObjStats;
 
+typedef struct {
+    uint32_t id;
+    UAVObjInitializeCallback init_callback;
+    uint16_t instance_size;
+} __attribute__((packed, aligned(4))) UAVObjType;
+
 int32_t UAVObjInitialize();
 void UAVObjGetStats(UAVObjStats *statsOut);
 void UAVObjClearStats();
-UAVObjHandle UAVObjRegister(uint32_t id, bool isSingleInstance, bool isSettings, bool isPriority, uint32_t num_bytes, UAVObjInitializeCallback initCb);
+UAVObjHandle UAVObjRegister(const UAVObjType *type, bool isSingleInstance, bool isSettings, bool isPriority);
 UAVObjHandle UAVObjGetByID(uint32_t id);
 uint32_t UAVObjGetID(UAVObjHandle obj);
 uint32_t UAVObjGetNumBytes(UAVObjHandle obj);
 uint16_t UAVObjGetNumInstances(UAVObjHandle obj);
 UAVObjHandle UAVObjGetLinkedObj(UAVObjHandle obj);
-uint16_t UAVObjCreateInstance(UAVObjHandle obj_handle, UAVObjInitializeCallback initCb);
+uint16_t UAVObjCreateInstance(UAVObjHandle obj_handle);
 bool UAVObjIsSingleInstance(UAVObjHandle obj);
 bool UAVObjIsMetaobject(UAVObjHandle obj);
 bool UAVObjIsSettings(UAVObjHandle obj);
 bool UAVObjIsPriority(UAVObjHandle obj);
-int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn);
+int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn, bool create);
 int32_t UAVObjPack(UAVObjHandle obj_handle, uint16_t instId, uint8_t *dataOut);
 uint8_t UAVObjUpdateCRC(UAVObjHandle obj_handle, uint16_t instId, uint8_t crc);
 int32_t UAVObjSave(UAVObjHandle obj_handle, uint16_t instId);
@@ -208,10 +214,12 @@ int32_t UAVObjDeleteSettings();
 int32_t UAVObjSaveMetaobjects();
 int32_t UAVObjLoadMetaobjects();
 int32_t UAVObjDeleteMetaobjects();
+int32_t UAVObjSetDefaults(UAVObjHandle obj_handle);
 int32_t UAVObjSetData(UAVObjHandle obj_handle, const void *dataIn);
 int32_t UAVObjSetDataField(UAVObjHandle obj_handle, const void *dataIn, uint32_t offset, uint32_t size);
 int32_t UAVObjGetData(UAVObjHandle obj_handle, void *dataOut);
 int32_t UAVObjGetDataField(UAVObjHandle obj_handle, void *dataOut, uint32_t offset, uint32_t size);
+int32_t UAVObjSetInstanceDefaults(UAVObjHandle obj_handle, uint16_t instId);
 int32_t UAVObjSetInstanceData(UAVObjHandle obj_handle, uint16_t instId, const void *dataIn);
 int32_t UAVObjSetInstanceDataField(UAVObjHandle obj_handle, uint16_t instId, const void *dataIn, uint32_t offset, uint32_t size);
 int32_t UAVObjGetInstanceData(UAVObjHandle obj_handle, uint16_t instId, void *dataOut);

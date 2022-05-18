@@ -1,9 +1,12 @@
 /*
-silent installer script
+Silent installer script
 
-known to work with Qt 5.6.0 and QtIFW 2.1.0
+Known to work with Qt 5.9.0 and QtIFW 2.0.5
 
-known issues:
+Test with:
+$ ./qt-opensource-windows-x86-mingw530-5.9.0.exe --verbose --script ../librepilot/make/tool_install/qt-install.qs
+
+Known issues:
 - silent but not headless (QtIFW 2.1.0 should support gui.setSilent(true))
 - cannot disable forced components (QtCreator, ...)
  - cannot disable virtual components (doc, examples, ...)
@@ -17,7 +20,7 @@ function Controller()
 
     var qtInstallTargetDir = installer.environmentVariable("QT_INSTALL_TARGET_DIR");
     if (qtInstallTargetDir == "") {
-        qtInstallTargetDir = installer.environmentVariable("PWD") + "/tools/qt-5.6.0";
+        qtInstallTargetDir = installer.environmentVariable("PWD") + "/tools/qt-5.9.0";
         console.log("Environment variable QT_INSTALL_TARGET_DIR not set, using default " + qtInstallTargetDir);
     }
     installer.setValue("TargetDir", qtInstallTargetDir);
@@ -65,6 +68,14 @@ onFinishedCalculateComponentsToInstall = function()
     //dumpComponents();
 }
 
+function disableComponent(componentName)
+{
+    component = installer.componentByName(componentName)
+    component.enabled = false
+    component.forcedInstallation = false
+    //component.setValue("ForcedInstallation", "false");
+}
+
 // page callbacks
 // used to setup wizard pages and move the wizard forward
 
@@ -96,24 +107,21 @@ Controller.prototype.ComponentSelectionPageCallback = function()
     var page = gui.currentPageWidget();
     page.deselectAll()
     if (installer.value("os") == "win") {
-        selectComponent(page, "qt.56.win32_mingw492");
-        selectComponent(page, "qt.tools.win32_mingw492");
+        selectComponent(page, "qt.59.win32_mingw53");
+        selectComponent(page, "qt.tools.win32_mingw530");
     }
     else if (installer.value("os") == "x11") {
-        selectComponent(page, "qt.56.gcc");
-        selectComponent(page, "qt.56.gcc_64");
+        selectComponent(page, "qt.59.gcc");
+        selectComponent(page, "qt.59.gcc_64");
     }
     else if (installer.value("os") == "mac") {
-        selectComponent(page, "qt.56.clang_64");
+        selectComponent(page, "qt.59.clang_64");
     }
-    selectComponent(page, "qt.56.qtquickcontrols");
-    selectComponent(page, "qt.56.qtscript");
-
-    //installer.componentByName("qt.tools.qtcreator").setValue("ForcedInstallation", "false");
+    //selectComponent(page, "qt.59.qtquickcontrols");
+    selectComponent(page, "qt.59.qtscript");
 
     gui.clickButton(buttons.NextButton);
 }
-
 
 function selectComponent(page, name)
 {

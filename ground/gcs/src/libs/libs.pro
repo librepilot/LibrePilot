@@ -4,7 +4,6 @@ CONFIG += ordered
 SUBDIRS = \
     version_info \
     qscispinbox\
-    qtconcurrent \
     aggregation \
     extensionsystem \
     utils \
@@ -12,6 +11,6 @@ SUBDIRS = \
     qwt \
     sdlgamepad
 
-osg {
-    SUBDIRS += osgearth
-}
+gstreamer:SUBDIRS += gstreamer
+
+osg:SUBDIRS += osgearth

@@ -39,7 +39,11 @@ using namespace Core;
 class PfdQmlGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit PfdQmlGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit PfdQmlGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit PfdQmlGadgetConfiguration(const PfdQmlGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     QString qmlFile() const
     {
@@ -196,6 +200,15 @@ public:
         m_backgroundImageFile = fileName;
     }
 
+    QString gstPipeline() const
+    {
+        return m_gstPipeline;
+    }
+    void setGstPipeline(const QString &pipeline)
+    {
+        m_gstPipeline = pipeline;
+    }
+
     QMapIterator<double, QString> speedMapIterator()
     {
         return QMapIterator<double, QString>(m_speedMap);
@@ -205,9 +218,6 @@ public:
     {
         return QMapIterator<double, QString>(m_altitudeMap);
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     QString m_qmlFile; // The name of the dial's SVG source file
@@ -232,6 +242,8 @@ private:
     ModelSelectionMode::Enum m_modelSelectionMode;
 
     QString m_backgroundImageFile;
+
+    QString m_gstPipeline;
 
     QMap<double, QString> m_speedMap;
     QMap<double, QString> m_altitudeMap;

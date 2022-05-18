@@ -51,6 +51,9 @@ public:
     }
     void loadConfiguration(IUAVGadgetConfiguration *config);
 
+    void saveState(QSettings &settings) const;
+    void restoreState(QSettings &settings);
+
 private slots:
     void viewOptionsChangedSlot(bool categorized, bool scientific, bool metadata, bool description);
     void splitterChanged(QByteArray state);

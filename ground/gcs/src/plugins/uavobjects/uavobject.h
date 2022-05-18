@@ -181,7 +181,7 @@ signals:
     void updateRequested(UAVObject *obj, bool all = false);
     void transactionCompleted(UAVObject *obj, bool success);
     void newInstance(UAVObject *obj);
-    void isKnownChanged(UAVObject *obj, bool isKnown);
+    void isKnownChanged(UAVObject *obj);
 
 protected:
     quint32 objID;

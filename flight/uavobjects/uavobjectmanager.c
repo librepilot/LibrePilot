@@ -278,33 +278,30 @@ static struct UAVOData *UAVObjAllocMulti(uint32_t num_bytes)
 
 /**
  * Register and new object in the object manager.
- * \param[in] id Unique object ID
+ * \param[in] pointer to UAVObjType structure that holds Unique object ID, instance size, initialization function
  * \param[in] isSingleInstance Is this a single instance or multi-instance object
  * \param[in] isSettings Is this a settings object
- * \param[in] numBytes Number of bytes of object data (for one instance)
- * \param[in] initCb Default field and metadata initialization function
+ * \param[in] isPriority
  * \return Object handle, or NULL if failure.
  * \return
  */
-UAVObjHandle UAVObjRegister(uint32_t id,
-                            bool isSingleInstance, bool isSettings, bool isPriority,
-                            uint32_t num_bytes,
-                            UAVObjInitializeCallback initCb)
+UAVObjHandle UAVObjRegister(const UAVObjType *type,
+                            bool isSingleInstance, bool isSettings, bool isPriority)
 {
     struct UAVOData *uavo_data = NULL;
 
     xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
 
     /* Don't allow duplicate registrations */
-    if (UAVObjGetByID(id)) {
+    if (UAVObjGetByID(type->id)) {
         goto unlock_exit;
     }
 
     /* Map the various flags to one of the UAVO types we understand */
     if (isSingleInstance) {
-        uavo_data = UAVObjAllocSingle(num_bytes);
+        uavo_data = UAVObjAllocSingle(type->instance_size);
     } else {
-        uavo_data = UAVObjAllocMulti(num_bytes);
+        uavo_data = UAVObjAllocMulti(type->instance_size);
     }
 
     if (!uavo_data) {
@@ -312,8 +309,7 @@ UAVObjHandle UAVObjRegister(uint32_t id,
     }
 
     /* Fill in the details about this UAVO */
-    uavo_data->id = id;
-    uavo_data->instance_size = num_bytes;
+    uavo_data->type = type;
     if (isSettings) {
         uavo_data->base.flags.isSettings = true;
         // settings defaults to being sent with priority
@@ -325,8 +321,8 @@ UAVObjHandle UAVObjRegister(uint32_t id,
     UAVObjInitMetaData(&uavo_data->metaObj);
 
     /* Initialize object fields and metadata to default values */
-    if (initCb) {
-        initCb((UAVObjHandle)uavo_data, 0);
+    if (type->init_callback) {
+        type->init_callback((UAVObjHandle)uavo_data, 0);
     }
 
     /* Always try to load the meta object from flash */
@@ -360,11 +356,11 @@ UAVObjHandle UAVObjGetByID(uint32_t id)
 
     // Look for object
     UAVO_LIST_ITERATE(tmp_obj)
-    if (tmp_obj->id == id) {
+    if (tmp_obj->type->id == id) {
         found_obj = (UAVObjHandle *)tmp_obj;
         goto unlock_exit;
     }
-    if (MetaObjectId(tmp_obj->id) == id) {
+    if (MetaObjectId(tmp_obj->type->id) == id) {
         found_obj = (UAVObjHandle *)&(tmp_obj->metaObj);
         goto unlock_exit;
     }
@@ -391,12 +387,12 @@ uint32_t UAVObjGetID(UAVObjHandle obj_handle)
         /* We have a meta object, find our containing UAVO */
         struct UAVOData *uavo_data = container_of((struct UAVOMeta *)uavo_base, struct UAVOData, metaObj);
 
-        return MetaObjectId(uavo_data->id);
+        return MetaObjectId(uavo_data->type->id);
     } else {
         /* We have a data object, augment our pointer */
         struct UAVOData *uavo_data = (struct UAVOData *)uavo_base;
 
-        return uavo_data->id;
+        return uavo_data->type->id;
     }
 }
 
@@ -420,7 +416,7 @@ uint32_t UAVObjGetNumBytes(UAVObjHandle obj)
         /* We have a data object, augment our pointer */
         struct UAVOData *uavo = (struct UAVOData *)uavo_base;
 
-        instance_size = uavo->instance_size;
+        instance_size = uavo->type->instance_size;
     }
 
     return instance_size;
@@ -478,8 +474,7 @@ uint16_t UAVObjGetNumInstances(UAVObjHandle obj_handle)
  * \param[in] obj The object handle
  * \return The instance ID or 0 if an error
  */
-uint16_t UAVObjCreateInstance(UAVObjHandle obj_handle,
-                              UAVObjInitializeCallback initCb)
+uint16_t UAVObjCreateInstance(UAVObjHandle obj_handle)
 {
     PIOS_Assert(obj_handle);
 
@@ -501,8 +496,8 @@ uint16_t UAVObjCreateInstance(UAVObjHandle obj_handle,
     }
 
     // Initialize instance data
-    if (initCb) {
-        initCb(obj_handle, instId);
+    if (((struct UAVOData *)obj_handle)->type->init_callback) {
+        ((struct UAVOData *)obj_handle)->type->init_callback(obj_handle, instId);
     }
 
 unlock_exit:
@@ -516,9 +511,10 @@ unlock_exit:
  * \param[in] obj The object handle
  * \param[in] instId The instance ID
  * \param[in] dataIn The byte array
+ * \param[in] create Create the object if it does not already exist.
  * \return 0 if success or -1 if failure
  */
-int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn)
+int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *dataIn, bool create)
 {
     PIOS_Assert(obj_handle);
 
@@ -543,14 +539,15 @@ int32_t UAVObjUnpack(UAVObjHandle obj_handle, uint16_t instId, const uint8_t *da
         instEntry = getInstance(obj, instId);
 
         // If the instance does not exist create it and any other instances before it
-        if (instEntry == NULL) {
+        if ((instEntry == NULL) && create) {
             instEntry = createInstance(obj, instId);
-            if (instEntry == NULL) {
-                goto unlock_exit;
-            }
         }
+        if (instEntry == NULL) {
+            goto unlock_exit;
+        }
+
         // Set the data
-        memcpy(InstanceData(instEntry), dataIn, obj->instance_size);
+        memcpy(InstanceData(instEntry), dataIn, obj->type->instance_size);
     }
 
     // Fire event
@@ -596,7 +593,7 @@ int32_t UAVObjPack(UAVObjHandle obj_handle, uint16_t instId, uint8_t *dataOut)
             goto unlock_exit;
         }
         // Pack data
-        memcpy(dataOut, InstanceData(instEntry), obj->instance_size);
+        memcpy(dataOut, InstanceData(instEntry), obj->type->instance_size);
     }
 
     rc = 0;
@@ -638,7 +635,7 @@ uint8_t UAVObjUpdateCRC(UAVObjHandle obj_handle, uint16_t instId, uint8_t crc)
             goto unlock_exit;
         }
         // Update crc
-        crc = PIOS_CRC_updateCRC(crc, (uint8_t *)InstanceData(instEntry), (int32_t)obj->instance_size);
+        crc = PIOS_CRC_updateCRC(crc, (uint8_t *)InstanceData(instEntry), (int32_t)obj->type->instance_size);
     }
 
 unlock_exit:
@@ -677,7 +674,7 @@ void UAVObjInstanceWriteToLog(UAVObjHandle obj_handle, uint16_t instId)
             goto unlock_exit;
         }
         // Pack data
-        PIOS_DEBUGLOG_UAVObject(UAVObjGetID(obj_handle), instId, obj->instance_size, (uint8_t *)InstanceData(instEntry));
+        PIOS_DEBUGLOG_UAVObject(UAVObjGetID(obj_handle), instId, obj->type->instance_size, (uint8_t *)InstanceData(instEntry));
     }
 
 unlock_exit:
@@ -857,6 +854,11 @@ xSemaphoreGiveRecursive(mutex);
 return rc;
 }
 
+int32_t UAVObjSetDefaults(UAVObjHandle obj_handle)
+{
+    return UAVObjSetInstanceDefaults(obj_handle, 0);
+}
+
 /**
  * Set the object data
  * \param[in] obj The object handle
@@ -901,6 +903,42 @@ int32_t UAVObjGetDataField(UAVObjHandle obj_handle, void *dataOut, uint32_t offs
     return UAVObjGetInstanceDataField(obj_handle, 0, dataOut, offset, size);
 }
 
+int32_t UAVObjSetInstanceDefaults(UAVObjHandle obj_handle, uint16_t instId)
+{
+    PIOS_Assert(obj_handle);
+
+    // Lock
+    xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
+
+    int32_t rc = -1;
+
+    if (IsMetaobject(obj_handle)) {
+        if (instId != 0) {
+            goto unlock_exit;
+        }
+// How do we set meta data defaults?
+// MetaDataPtr((struct UAVOMeta *)obj_handle), MetaNumBytes;
+    } else {
+        // Check access level
+        if (UAVObjReadOnly(obj_handle)) {
+            goto unlock_exit;
+        }
+
+        // Set default data
+        if (((struct UAVOData *)obj_handle)->type->init_callback) {
+            ((struct UAVOData *)obj_handle)->type->init_callback(obj_handle, instId);
+        }
+    }
+
+    // Fire event
+    sendEvent((struct UAVOBase *)obj_handle, instId, EV_UPDATED);
+    rc = 0;
+
+unlock_exit:
+    xSemaphoreGiveRecursive(mutex);
+    return rc;
+}
+
 /**
  * Set the data of a specific object instance
  * \param[in] obj The object handle
@@ -940,7 +978,7 @@ int32_t UAVObjSetInstanceData(UAVObjHandle obj_handle, uint16_t instId,
             goto unlock_exit;
         }
         // Set data
-        memcpy(InstanceData(instEntry), dataIn, obj->instance_size);
+        memcpy(InstanceData(instEntry), dataIn, obj->type->instance_size);
     }
 
     // Fire event
@@ -1000,7 +1038,7 @@ int32_t UAVObjSetInstanceDataField(UAVObjHandle obj_handle, uint16_t instId, con
         }
 
         // Check for overrun
-        if ((size + offset) > obj->instance_size) {
+        if ((size + offset) > obj->type->instance_size) {
             goto unlock_exit;
         }
 
@@ -1055,7 +1093,7 @@ int32_t UAVObjGetInstanceData(UAVObjHandle obj_handle, uint16_t instId,
             goto unlock_exit;
         }
         // Set data
-        memcpy(dataOut, InstanceData(instEntry), obj->instance_size);
+        memcpy(dataOut, InstanceData(instEntry), obj->type->instance_size);
     }
 
     rc = 0;
@@ -1108,7 +1146,7 @@ int32_t UAVObjGetInstanceDataField(UAVObjHandle obj_handle, uint16_t instId, voi
         }
 
         // Check for overrun
-        if ((size + offset) > obj->instance_size) {
+        if ((size + offset) > obj->type->instance_size) {
             goto unlock_exit;
         }
 
@@ -1597,7 +1635,7 @@ static InstanceHandle createInstance(struct UAVOData *obj, uint16_t instId)
     }
 
     /* Create the actual instance */
-    uint32_t size = sizeof(struct UAVOMultiInst) + obj->instance_size;
+    uint32_t size = sizeof(struct UAVOMultiInst) + obj->type->instance_size;
     instEntry = (struct UAVOMultiInst *)pios_malloc(size);
     if (!instEntry) {
         return NULL;
@@ -1687,7 +1725,7 @@ static int32_t connectObj(UAVObjHandle obj_handle, xQueueHandle queue,
     }
 
     // Add queue to list
-    event = (struct ObjectEventEntry *)pios_malloc(sizeof(struct ObjectEventEntry));
+    event = (struct ObjectEventEntry *)pios_fastheapmalloc(sizeof(struct ObjectEventEntry));
     if (event == NULL) {
         return -1;
     }

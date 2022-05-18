@@ -45,22 +45,6 @@ int32_t PIOS_GPIO_Init(uint32_t *gpios_dev_id, const struct pios_gpio_cfg *cfg)
     for (uint8_t i = 0; i < cfg->num_gpios; i++) {
         const struct pios_gpio *gpio = &(cfg->gpios[i]);
 
-        /* Enable the peripheral clock for the GPIO */
-        switch ((uint32_t)gpio->pin.gpio) {
-        case (uint32_t)GPIOA:
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-            break;
-        case (uint32_t)GPIOB:
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-            break;
-        case (uint32_t)GPIOC:
-            RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
-            break;
-        default:
-            PIOS_Assert(0);
-            break;
-        }
-
         if (gpio->remap) {
             GPIO_PinAFConfig(gpio->pin.gpio, gpio->pin.init.GPIO_Pin, gpio->remap);
         }

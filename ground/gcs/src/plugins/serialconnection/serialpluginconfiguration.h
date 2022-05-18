@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       serialpluginconfiguration.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -39,27 +40,27 @@ using namespace Core;
 class SerialPluginConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit SerialPluginConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit SerialPluginConfiguration(QString classId, QSettings &setting, QObject *parent = 0);
+    explicit SerialPluginConfiguration(const SerialPluginConfiguration &obj);
+
     virtual ~SerialPluginConfiguration();
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     QString speed()
     {
         return m_speed;
     }
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
-    void savesettings() const;
-    void restoresettings();
-
-private:
-    QString m_speed;
-    QSettings *settings;
 
 public slots:
     void setSpeed(QString speed)
     {
         m_speed = speed;
     }
+
+private:
+    QString m_speed;
 };
 
 #endif // SERIALPLUGINCONFIGURATION_H

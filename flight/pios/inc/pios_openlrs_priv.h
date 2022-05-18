@@ -155,16 +155,15 @@ struct pios_openlrs_dev {
     struct pios_semaphore *sema_isr;
 
     // The PPM buffer
-    int16_t   ppm[OPENLRS_PPM_NUM_CHANNELS];
-
-    // RFM22B RCVR interface
-    uintptr_t openlrs_rcvr_id;
+    int16_t ppm[OPENLRS_PPM_NUM_CHANNELS];
 
     // PPM callback.
     PIOS_OpenLRS_PPMReceivedCallback ppm_callback;
+    // PPM context
+    uint32_t ppm_context;
 
     // Flag to indicate if link every acquired
-    bool link_acquired;
+    bool     link_acquired;
 
     // Active bound information data
     struct bind_data bind_data;
@@ -184,7 +183,8 @@ struct pios_openlrs_dev {
     uint8_t      rx_buf[64];
     uint8_t      tx_buf[9];
 
-    int8_t       rssi;
+    uint8_t      rssi;
+    uint16_t     link_quality;
 
     // Variables from OpenLRS for radio control
     uint8_t      hopcount;

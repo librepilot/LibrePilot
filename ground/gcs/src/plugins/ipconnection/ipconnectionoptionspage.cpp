@@ -1,13 +1,14 @@
 /**
  ******************************************************************************
  *
- * @file       IPconnectionoptionspage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @file       ipconnectionoptionspage.cpp
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup IPConnPlugin IP Telemetry Plugin
  * @{
- * @brief IP Connection Plugin impliment telemetry over TCP/IP and UDP/IP
+ * @brief IP Connection Plugin implements telemetry over TCP/IP and UDP/IP
  *****************************************************************************/
 /*
  * This program is free software; you can redistribute it and/or modify
@@ -26,49 +27,44 @@
  */
 
 #include "ipconnectionoptionspage.h"
-#include "ipconnectionconfiguration.h"
-#include <QLabel>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QDoubleSpinBox>
-#include <QRadioButton>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 
 #include "ui_ipconnectionoptionspage.h"
 
+#include "ipconnectionconfiguration.h"
 
-IPconnectionOptionsPage::IPconnectionOptionsPage(IPconnectionConfiguration *config, QObject *parent) :
-    IOptionsPage(parent),
-    m_config(config)
+IPConnectionOptionsPage::IPConnectionOptionsPage(IPConnectionConfiguration *config, QObject *parent) :
+    IOptionsPage(parent), m_page(0), m_config(config)
 {}
-IPconnectionOptionsPage::~IPconnectionOptionsPage()
+
+IPConnectionOptionsPage::~IPConnectionOptionsPage()
 {}
-QWidget *IPconnectionOptionsPage::createPage(QWidget *parent)
+
+QWidget *IPConnectionOptionsPage::createPage(QWidget *parent)
 {
     m_page = new Ui::IPconnectionOptionsPage();
     QWidget *w = new QWidget(parent);
     m_page->setupUi(w);
 
-    m_page->Port->setValue(m_config->Port());
-    m_page->HostName->setText(m_config->HostName());
-    m_page->UseTCP->setChecked(m_config->UseTCP() ? true : false);
-    m_page->UseUDP->setChecked(m_config->UseTCP() ? false : true);
+    m_page->Port->setValue(m_config->port());
+    m_page->HostName->setText(m_config->hostName());
+    m_page->UseTCP->setChecked(m_config->useTCP() ? true : false);
+    m_page->UseUDP->setChecked(m_config->useTCP() ? false : true);
 
     return w;
 }
 
-void IPconnectionOptionsPage::apply()
+void IPConnectionOptionsPage::apply()
 {
     m_config->setPort(m_page->Port->value());
     m_config->setHostName(m_page->HostName->text());
     m_config->setUseTCP(m_page->UseTCP->isChecked() ? 1 : 0);
-    m_config->savesettings();
 
+    // FIXME this signal is too low level (and duplicated all over the place)
+    // FIXME this signal will trigger (amongst other things) the saving of the configuration !
     emit availableDevChanged();
 }
 
-void IPconnectionOptionsPage::finish()
+void IPConnectionOptionsPage::finish()
 {
     delete m_page;
 }

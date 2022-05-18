@@ -1,6 +1,6 @@
 #
 # Top level Makefile for the LibrePilot Project build system.
-# Copyright (c) 2015, The LibrePilot Project, http://www.librepilot.org
+# Copyright (c) 2015-2017, The LibrePilot Project, http://www.librepilot.org
 # Copyright (c) 2010-2013, The OpenPilot Team, http://www.openpilot.org
 # Use 'make help' for instructions.
 #
@@ -50,9 +50,9 @@ export TOOLS_DIR
 export BUILD_DIR     := $(CURDIR)/build
 export PACKAGE_DIR   := $(BUILD_DIR)/package
 export DIST_DIR      := $(BUILD_DIR)/dist
-export OPGCSSYNTHDIR := $(BUILD_DIR)/gcs-synthetics
+export GCS_SYNTH_DIR := $(BUILD_DIR)/gcs-synthetics
 
-DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(OPGCSSYNTHDIR)
+DIRS := $(DL_DIR) $(TOOLS_DIR) $(BUILD_DIR) $(PACKAGE_DIR) $(DIST_DIR) $(GCS_SYNTH_DIR)
 
 # Naming for binaries and packaging etc,.
 export ORG_BIG_NAME := LibrePilot
@@ -131,16 +131,22 @@ ifeq ($(UNAME), Linux)
     GCS_WITH_OSG      := 1
     GCS_WITH_OSGEARTH := 1
     GCS_COPY_OSG      := 0
+    GCS_WITH_GSTREAMER := 0
+    GCS_COPY_GSTREAMER := 0
 else ifeq ($(UNAME), Darwin)
     UAVOBJGENERATOR   := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator
     GCS_WITH_OSG      := 1
     GCS_WITH_OSGEARTH := 0
     GCS_COPY_OSG      := 1
+    GCS_WITH_GSTREAMER := 0
+    GCS_COPY_GSTREAMER := 0
 else ifeq ($(UNAME), Windows)
     UAVOBJGENERATOR := $(BUILD_DIR)/uavobjgenerator/uavobjgenerator.exe
     GCS_WITH_OSG      := 1
     GCS_WITH_OSGEARTH := 1
     GCS_COPY_OSG      := 1
+    GCS_WITH_GSTREAMER := 1
+    GCS_COPY_GSTREAMER := 1
 endif
 
 export UAVOBJGENERATOR
@@ -156,6 +162,13 @@ ifeq ($(GCS_WITH_OSG), 1)
     endif
     ifeq ($(GCS_WITH_OSGEARTH), 1)
         GCS_EXTRA_CONF += osgearth
+    endif
+endif
+
+ifeq ($(GCS_WITH_GSTREAMER), 1)
+    GCS_EXTRA_CONF += gstreamer
+    ifeq ($(GCS_COPY_GSTREAMER), 1)
+        GCS_EXTRA_CONF += copy_gstreamer
     endif
 endif
 
@@ -195,7 +208,7 @@ $(UAVOBJGENERATOR): | $(UAVOBJGENERATOR_DIR)
 	    CONFIG+='$(GCS_BUILD_CONF) $(GCS_EXTRA_CONF)' ) && \
 	    $(MAKE) --no-print-directory -w
 
-UAVOBJ_TARGETS := gcs flight python matlab java wireshark
+UAVOBJ_TARGETS := gcs flight arduino python matlab java wireshark
 
 .PHONY: uavobjects
 uavobjects:  $(addprefix uavobjects_, $(UAVOBJ_TARGETS))
@@ -208,6 +221,23 @@ uavobjects_%: $(UAVOBJGENERATOR)
 	$(V1) ( cd $(UAVOBJ_OUT_DIR)/$* && \
 	    $(UAVOBJGENERATOR) -$* $(UAVOBJ_XML_DIR) $(ROOT_DIR) ; \
 	)
+
+OBJECTCOUNT := $(shell find $(ROOT_DIR)/python/librepilot/uavobjects/ -name '*.py' | wc -l)
+uavobjects_python_install: 
+	$(V1) if [ $(OBJECTCOUNT) -gt 2 ]; then echo "UAVObjects already exist"; else make uavobjects_python; fi
+	$(V1) mkdir -p $(ROOT_DIR)/python/librepilot/uavobjects/
+	$(V1) ( touch $(ROOT_DIR)/python/librepilot/uavobjects/__init__.py )
+	$(V1) ( cp $(UAVOBJ_OUT_DIR)/python/* $(ROOT_DIR)/python/librepilot/uavobjects/ )
+	$(V1) ( cd $(ROOT_DIR)/python/ && sudo python setup.py build && sudo python setup.py install)
+
+uavobjects_python_clean: 
+	@$(ECHO) " CLEAN      $(call toprel, $(ROOT_DIR)/python/librepilot/uavobjects/)"
+	$(V1) [ ! -d "$(ROOT_DIR)/python/librepilot/uavobjects/" ] || $(RM) -r "$(ROOT_DIR)/python/librepilot/uavobjects/"
+	@$(ECHO) " CLEAN      $(call toprel, $(ROOT_DIR)/python/librepilot/build/)"
+	$(V1) [ ! -d "$(ROOT_DIR)/python/librepilot/build/" ] || sudo $(RM) -r "$(ROOT_DIR)/python/librepilot/build/"
+	@$(ECHO) " CLEAN      $(call toprel, $(UAVOBJ_OUT_DIR)/python/)"
+	$(V1) [ ! -d "$(UAVOBJ_OUT_DIR)/python/" ] || $(RM) -r "$(UAVOBJ_OUT_DIR)/python/"
+
 
 uavobjects_test: $(UAVOBJGENERATOR)
 	$(V1) $(UAVOBJGENERATOR) -v $(UAVOBJ_XML_DIR) $(ROOT_DIR)
@@ -225,9 +255,9 @@ uavobjects_clean:
 
 # When building any of the "all_*" targets, tell all sub makefiles to display
 # additional details on each line of output to describe which build and target
-# that each line applies to. The same applies also to all, opfw_resource,
+# that each line applies to. The same applies also to all, fw_resource,
 # package targets
-ifneq ($(strip $(filter all_% all opfw_resource package,$(MAKECMDGOALS))),)
+ifneq ($(strip $(filter all_% all fw_resource package,$(MAKECMDGOALS))),)
     export ENABLE_MSG_EXTRA := yes
 endif
 
@@ -318,43 +348,49 @@ uploader_clean:
 #
 ##############################
 # Firmware files to package
-PACKAGE_FW_TARGETS := fw_coptercontrol fw_oplinkmini fw_revolution fw_osd fw_revoproto fw_gpsplatinum fw_revonano fw_sparky2
+PACKAGE_FW_TARGETS := fw_coptercontrol fw_revolution fw_revonano fw_sparky2
+PACKAGE_FW_TARGETS += fw_oplinkmini
+PACKAGE_FW_TARGETS += fw_gpsplatinum
+PACKAGE_FW_TARGETS += fw_osd
+PACKAGE_FW_TARGETS += fw_revoproto
+PACKAGE_FW_TARGETS += fw_spracingf3evo fw_spracingf3 fw_nucleof303re fw_pikoblx fw_tinyfish
 
 # Rules to generate GCS resources used to embed firmware binaries into the GCS.
 # They are used later by the vehicle setup wizard to update board firmware.
 # To open a firmware image use ":/firmware/fw_coptercontrol.opfw"
-OPFW_RESOURCE := $(OPGCSSYNTHDIR)/opfw_resource.qrc
+FW_RESOURCE := $(GCS_SYNTH_DIR)/fw_resource.qrc
 
 ifeq ($(WITH_PREBUILT_FW),)
 FIRMWARE_DIR := $(FLIGHT_OUT_DIR)
 # We need to build the FW targets
-$(OPFW_RESOURCE): $(PACKAGE_FW_TARGETS)
+$(FW_RESOURCE): $(PACKAGE_FW_TARGETS)
 else
 FIRMWARE_DIR := $(WITH_PREBUILT_FW)
 endif
 
-OPFW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(FIRMWARE_DIR)/$(fw_targ)/$(fw_targ).opfw)
-OPFW_CONTENTS := \
+FW_FILES := $(foreach fw_targ, $(PACKAGE_FW_TARGETS), $(FIRMWARE_DIR)/$(fw_targ)/$(fw_targ).opfw)
+FW_CONTENTS := \
 <!DOCTYPE RCC><RCC version="1.0"> \
     <qresource prefix="/firmware"> \
-        $(foreach fw_file, $(OPFW_FILES), <file alias="$(notdir $(fw_file))">$(call system_path,$(fw_file))</file>) \
+        $(foreach fw_file, $(FW_FILES), <file alias="$(notdir $(fw_file))">$(call system_path,$(fw_file))</file>) \
     </qresource> \
 </RCC>
 
-.PHONY: opfw_resource
-opfw_resource: $(OPFW_RESOURCE)
+.PHONY: fw_resource
+fw_resource: $(FW_RESOURCE)
+fw_resource: $(FW_RESOURCE)
 
-$(OPFW_RESOURCE): | $(OPGCSSYNTHDIR)
-	@$(ECHO) Generating OPFW resource file $(call toprel, $@)
-	$(V1) $(ECHO) $(QUOTE)$(OPFW_CONTENTS)$(QUOTE) > $@
+$(FW_RESOURCE): | $(GCS_SYNTH_DIR)
+	@$(ECHO) Generating FW resource file $(call toprel, $@)
+	$(V1) $(ECHO) $(QUOTE)$(FW_CONTENTS)$(QUOTE) > $@
 
-# If opfw_resource or all firmware are requested, GCS should depend on the resource
-ifneq ($(strip $(filter opfw_resource all all_fw all_flight package,$(MAKECMDGOALS))),)
-$(GCS_MAKEFILE): $(OPFW_RESOURCE)
+# If fw_resource or all firmware are requested, GCS should depend on the resource
+ifneq ($(strip $(filter fw_resource all all_fw all_flight package,$(MAKECMDGOALS))),)
+$(GCS_MAKEFILE): $(FW_RESOURCE)
 endif
 
 # Packaging targets: package
-#  - builds all firmware, opfw_resource, gcs
+#  - builds all firmware, fw_resource, gcs
 #  - copies firmware into a package directory
 #  - calls paltform-specific packaging script
 
@@ -567,6 +603,10 @@ config_help:
 	@$(ECHO) "       (Needed unless using system versions)"
 	@$(ECHO) "       Options: 0 or 1"
 	@$(ECHO)
+	@$(ECHO) "   GCS_WITH_GSTREAMER=$(GCS_WITH_GSTREAMER)"
+	@$(ECHO) "       Build the GCS with GStreamer support, this enables the video gadget and extra PFD video views"
+	@$(ECHO) "       Options: 0 or 1"
+	@$(ECHO)
 	@$(ECHO) "   CCACHE=$(CCACHE)"
 	@$(ECHO) "       A prefix to compiler invocations, usually 'ccache' or 'path/to/ccache'"
 	@$(ECHO)
@@ -602,7 +642,7 @@ help:
 	@$(ECHO)
 	@$(ECHO) "   This Makefile is known to work on Linux and Mac in a standard shell environment."
 	@$(ECHO) "   It also works on Windows by following the instructions given on this wiki page:"
-	@$(ECHO) "       $(WIKI_ROOT_URL)Windows+Building+and+Packaging"
+	@$(ECHO) "       $(WIKI_URL_ROOT)Windows+Building+and+Packaging"
 	@$(ECHO)
 	@$(ECHO) "   Here is a summary of the available targets:"
 	@$(ECHO)
@@ -710,10 +750,14 @@ help:
 	@$(ECHO) "     uavobjects_test      - Parse xml-files - check for valid, duplicate ObjId's, ..."
 	@$(ECHO) "     uavobjects_<group>   - Generate source files from a subset of the UAVObject definition XML files"
 	@$(ECHO) "                            Supported groups are ($(UAVOBJ_TARGETS))"
+	@$(ECHO) "     uavobjects_python_install"
+	@$(ECHO) "     			    - Install generated python files as eggs for use with example Python scripts"
+	@$(ECHO) "     uavobjects_python_clean"
+	@$(ECHO) "     			    - Remove generated python UAVOs from build directory & pyuavtalk folder"
 	@$(ECHO)
 	@$(ECHO) "   [Packaging]"
 	@$(ECHO) "     package              - Build and package the platform-dependent package (no clean)"
-	@$(ECHO) "     opfw_resource        - Generate resources to embed firmware binaries into the GCS"
+	@$(ECHO) "     fw_resource          - Generate resources to embed firmware binaries into the GCS"
 	@$(ECHO) "     dist                 - Generate source archive for distribution"
 	@$(ECHO) "     fw_dist              - Generate archive of firmware"
 	@$(ECHO) "     install              - Install GCS to \"DESTDIR\" with prefix \"prefix\" (Linux only)"

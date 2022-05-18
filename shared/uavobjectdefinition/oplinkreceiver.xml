@@ -2,9 +2,11 @@
     <object name="OPLinkReceiver" singleinstance="true" settings="false" category="System">
         <description>A receiver channel group carried over the OPLink radio.</description>
         <field name="Channel" units="us" type="int16" elements="16"/>
+        <field name="RSSI" units="dBm" type="int8" elements="1" defaultvalue="0"/>
+        <field name="LinkQuality" units="%" type="uint8" elements="1" defaultvalue="0"/>
         <access gcs="readonly" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
-        <telemetryflight acked="false" updatemode="periodic" period="1000"/>
+        <telemetryflight acked="false" updatemode="throttled" period="1000"/>
         <logging updatemode="manual" period="0"/>
     </object>
 </xml>

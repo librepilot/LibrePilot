@@ -33,8 +33,7 @@
 
 #include "eventfilteringmainwindow.h"
 
-#include <QtCore/QMap>
-#include <QSettings>
+#include <QMap>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -57,7 +56,6 @@ class ConnectionManager;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
-class RightPaneWidget;
 class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
@@ -70,7 +68,6 @@ class UAVGadgetInstanceManager;
 namespace Internal {
 class ActionManagerPrivate;
 class CoreImpl;
-class FancyTabWidget;
 class GeneralSettings;
 class ShortcutSettings;
 class WorkspaceSettings;
@@ -90,10 +87,10 @@ public:
     void addContextObject(IContext *contex);
     void removeContextObject(IContext *contex);
     void resetContext();
-    void readSettings(QSettings *qs = 0, bool workspaceDiffOnly = false);
-    void saveSettings(QSettings *qs = 0);
-    void readSettings(IConfigurablePlugin *plugin, QSettings *qs = 0);
-    void saveSettings(IConfigurablePlugin *plugin, QSettings *qs = 0);
+    void readSettings(QSettings &settings, bool workspaceDiffOnly = false);
+    void saveSettings(QSettings &settings) const;
+    void readSettings(IConfigurablePlugin *plugin, QSettings &settings);
+    void saveSettings(IConfigurablePlugin *plugin, QSettings &settings) const;
     void deleteSettings();
     void openFiles(const QStringList &fileNames);
 
@@ -108,7 +105,6 @@ public:
     Core::ModeManager *modeManager() const;
     Core::MimeDatabase *mimeDatabase() const;
     Internal::GeneralSettings *generalSettings() const;
-    QSettings *settings(QSettings::Scope scope) const;
     inline SettingsDatabase *settingsDatabase() const
     {
         return m_settingsDatabase;
@@ -167,15 +163,13 @@ private:
     void updateContextObject(IContext *context);
     void registerDefaultContainers();
     void registerDefaultActions();
-    void createWorkspaces(QSettings *qs, bool diffOnly = false);
+    void createWorkspaces(QSettings &settings, bool diffOnly = false);
     QString loadStyleSheet(QString name);
 
     CoreImpl *m_coreImpl;
     UniqueIDManager *m_uniqueIDManager;
     QList<int> m_globalContext;
     QList<int> m_additionalContexts;
-    QSettings *m_settings;
-    QSettings *m_globalSettings;
     SettingsDatabase *m_settingsDatabase;
     bool m_dontSaveSettings; // In case of an Error or if we reset the settings, never save them.
     ActionManagerPrivate *m_actionManager;

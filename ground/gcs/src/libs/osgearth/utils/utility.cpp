@@ -69,9 +69,11 @@
 #include "osgQtQuick/ga/OSGEarthManipulator.hpp"
 #include "osgQtQuick/ga/OSGGeoTransformManipulator.hpp"
 
+#include <osgEarth/Version>
 #include <osgEarth/Capabilities>
 #include <osgEarth/MapNode>
 #include <osgEarth/SpatialReference>
+#include <osgEarth/Terrain>
 #include <osgEarth/ElevationQuery>
 #endif // USE_OSGEARTH
 
@@ -454,16 +456,18 @@ QString getUsageString(osgViewer::CompositeViewer *viewer)
 }
 
 #ifdef USE_OSGEARTH
-osgEarth::GeoPoint toGeoPoint(const osgEarth::SpatialReference *srs, const QVector3D &position)
+osgEarth::GeoPoint createGeoPoint(const QVector3D &position, osgEarth::MapNode *mapNode)
 {
+    const osgEarth::SpatialReference *srs = NULL;
+
+    if (mapNode) {
+        srs = mapNode->getTerrain()->getSRS();
+    } else {
+        qWarning() << "Utility::createGeoPoint - null map node";
+        srs = osgEarth::SpatialReference::get("wgs84");
+    }
     osgEarth::GeoPoint geoPoint(srs, position.x(), position.y(), position.z(), osgEarth::ALTMODE_ABSOLUTE);
-
     return geoPoint;
-}
-
-osgEarth::GeoPoint toGeoPoint(const QVector3D &position)
-{
-    return toGeoPoint(osgEarth::SpatialReference::get("wgs84"), position);
 }
 
 bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode *mapNode)
@@ -477,9 +481,18 @@ bool clampGeoPoint(osgEarth::GeoPoint &geoPoint, float offset, osgEarth::MapNode
     osgEarth::ElevationQuery eq(mapNode->getMap());
     // qDebug() << "Utility::clampGeoPoint - SRS :" << QString::fromStdString(mapNode->getMap()->getSRS()->getName());
 
-    bool clamped = false;
     double elevation;
-    if (eq.getElevation(geoPoint, elevation, 0.0)) {
+    bool gotElevation;
+#if OSGEARTH_VERSION_LESS_THAN(2, 9, 0)
+    gotElevation = eq.getElevation(geoPoint, elevation, 0.0);
+#else
+    const double resolution = 0.0;
+    double actualResolution;
+    elevation    = eq.getElevation(geoPoint, resolution, &actualResolution);
+    gotElevation = (elevation != NO_DATA_VALUE);
+#endif
+    bool clamped = false;
+    if (gotElevation) {
         clamped = ((geoPoint.z() - offset) < elevation);
         if (clamped) {
             // qDebug() << "Utility::clampGeoPoint - clamping" << geoPoint.z() - offset << "/" << elevation;

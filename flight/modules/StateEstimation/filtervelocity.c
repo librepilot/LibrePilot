@@ -83,7 +83,6 @@ static int32_t init(stateFilter *self)
     this->oldPos[2] = 0.0f;
     this->inited    = 0;
 
-    RevoSettingsInitialize();
     RevoSettingsVelocityPostProcessingLowPassAlphaGet(&this->alpha);
 
     PIOS_DELTATIME_Init(&this->dtconfig, DT_INIT, DT_MIN, DT_MAX, DT_ALPHA);

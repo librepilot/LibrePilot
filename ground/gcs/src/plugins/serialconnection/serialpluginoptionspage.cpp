@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       serialpluginoptionspage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @see        The GNU Public License (GPL) Version 3
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -27,24 +28,23 @@
  */
 
 #include "serialpluginoptionspage.h"
-#include "serialpluginconfiguration.h"
+
 #include "ui_serialpluginoptions.h"
+
+#include "serialpluginconfiguration.h"
 #include "extensionsystem/pluginmanager.h"
 
 SerialPluginOptionsPage::SerialPluginOptionsPage(SerialPluginConfiguration *config, QObject *parent) :
-    IOptionsPage(parent),
-    m_config(config)
+    IOptionsPage(parent), m_page(0), m_config(config)
 {}
 
 // creates options page widget (uses the UI file)
 QWidget *SerialPluginOptionsPage::createPage(QWidget *parent)
 {
-    Q_UNUSED(parent);
-    options_page = new Ui::SerialPluginOptionsPage();
-    // main widget
-    QWidget *optionsPageWidget = new QWidget;
-    // main layout
-    options_page->setupUi(optionsPageWidget);
+    m_page = new Ui::SerialPluginOptionsPage();
+    QWidget *w = new QWidget(parent);
+    m_page->setupUi(w);
+
     QStringList allowedSpeeds;
     allowedSpeeds << "1200"
         #ifdef Q_OS_UNIX
@@ -75,10 +75,9 @@ QWidget *SerialPluginOptionsPage::createPage(QWidget *parent)
         #endif
     ;
 
-
-    options_page->cb_speed->addItems(allowedSpeeds);
-    options_page->cb_speed->setCurrentIndex(options_page->cb_speed->findText(m_config->speed()));
-    return optionsPageWidget;
+    m_page->cb_speed->addItems(allowedSpeeds);
+    m_page->cb_speed->setCurrentIndex(m_page->cb_speed->findText(m_config->speed()));
+    return w;
 }
 
 /**
@@ -89,12 +88,15 @@ QWidget *SerialPluginOptionsPage::createPage(QWidget *parent)
  */
 void SerialPluginOptionsPage::apply()
 {
-    m_config->setSpeed(options_page->cb_speed->currentText());
-    m_config->savesettings();
+    m_config->setSpeed(m_page->cb_speed->currentText());
+
+    // FIXME this signal is too low level (and duplicated all over the place)
+    // FIXME this signal will trigger (amongst other things) the saving of the configuration !
+    emit availableDevChanged();
 }
 
 
 void SerialPluginOptionsPage::finish()
 {
-    delete options_page;
+    delete m_page;
 }

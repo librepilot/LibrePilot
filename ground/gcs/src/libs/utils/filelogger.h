@@ -39,40 +39,34 @@
 class QTCREATOR_UTILS_EXPORT FileLogger : public QObject {
     Q_OBJECT
 
-private:
-    QTextStream * logStream;
-    QThread *loggerThread;
-    bool started;
-
 public:
-    FileLogger() : QObject(), logStream(NULL), loggerThread(NULL), started(false)
+    FileLogger(QString &fileName) : QObject(), file(fileName), logStream(NULL), loggerThread(NULL), started(false)
     {}
 
     virtual ~FileLogger()
     {
+        qDebug() << "~FileLogger";
         stop();
-        if (logStream) {
-            delete logStream;
-        }
+        delete logStream;
+        logStream = NULL;
     }
 
-public:
-    bool start(const QString &fileName)
+    bool start()
     {
         if (started) {
             return false;
         }
 
-        QFile *file = new QFile(fileName);
-        if (!file->open(QIODevice::WriteOnly | QIODevice::Text)) {
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             return false;
         }
 
-        logStream    = new QTextStream(file);
+        logStream = new QTextStream(&file);
 
-        loggerThread = new QThread(this);
-        moveToThread(loggerThread);
-        loggerThread->start();
+        // loggerThread = new QThread(this);
+        moveToThread(&loggerThread);
+        // connect(&loggerThread, &QThread::finished, this, &QObject::deleteLater);
+        loggerThread.start();
 
         started = true;
 
@@ -92,6 +86,9 @@ public:
         const QString msg = "stopping file logger";
         QMetaObject::invokeMethod(this, "doLog", Qt::BlockingQueuedConnection,
                                   Q_ARG(QtMsgType, type), Q_ARG(const QString &, msg));
+
+        loggerThread.quit();
+        loggerThread.wait();
 
         return true;
     }
@@ -138,4 +135,10 @@ private slots:
         out << msg << '\n';
         out.flush();
     }
+
+private:
+    QFile file;
+    QTextStream *logStream;
+    QThread loggerThread;
+    bool started;
 };

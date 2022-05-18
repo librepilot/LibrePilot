@@ -7,7 +7,8 @@
  * @{
  *
  * @file       pios_servo_priv.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Servo private structures.
  * @see        The GNU Public License (GPL) Version 3
  *
@@ -45,6 +46,7 @@ struct pios_servo_cfg {
 };
 
 extern int32_t PIOS_Servo_Init(const struct pios_servo_cfg *cfg);
+const struct pios_servo_cfg *PIOS_Servo_GetConfig();
 
 #endif /* PIOS_SERVO_PRIV_H */
 

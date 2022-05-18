@@ -81,7 +81,6 @@ int32_t OveroSyncInitialize(void)
     overoEnabled = true;
 #else
 
-    HwSettingsInitialize();
     uint8_t optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
     HwSettingsOptionalModulesGet(optionalModules);
 

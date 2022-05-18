@@ -62,7 +62,7 @@ static const struct pios_gpio pios_leds_gpsp[] = {
                 .GPIO_Speed = GPIO_Speed_Level_1,
             },
         },
-        .active_low         = false
+        .active_low         = true
     },
 };
 
@@ -268,22 +268,7 @@ static const struct pios_hmc5x83_cfg pios_mag_cfg = {
 static const struct pios_usart_cfg pios_usart_generic_main_cfg = {
     .regs  = USART1,
     .remap = GPIO_AF_1,
-    .init  = {
-        .USART_BaudRate   = 57600,
-        .USART_WordLength = USART_WordLength_8b,
-        .USART_Parity     = USART_Parity_No,
-        .USART_StopBits   = USART_StopBits_1,
-        .USART_HardwareFlowControl   = USART_HardwareFlowControl_None,
-        .USART_Mode                  = USART_Mode_Rx | USART_Mode_Tx,
-    },
-    .irq                             = {
-        .init                        = {
-            .NVIC_IRQChannel    = USART1_IRQn,
-            .NVIC_IRQChannelPriority = PIOS_IRQ_PRIO_MID,
-            .NVIC_IRQChannelCmd = ENABLE,
-        },
-    },
-    .rx                              = {
+    .rx    = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
@@ -292,7 +277,7 @@ static const struct pios_usart_cfg pios_usart_generic_main_cfg = {
             .GPIO_Mode  = GPIO_Mode_AF,
         },
     },
-    .tx                              = {
+    .tx                 = {
         .gpio = GPIOA,
         .init = {
             .GPIO_Pin   = GPIO_Pin_9,

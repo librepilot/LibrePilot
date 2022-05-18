@@ -49,34 +49,48 @@
 #include <QUrl>
 #include <QWidget>
 
-ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, bool autopilot) : QWidget(parent),
+ConfigTaskWidget::ConfigTaskWidget(QWidget *parent, ConfigTaskType configType) : QWidget(parent),
     m_currentBoardId(-1), m_isConnected(false), m_isWidgetUpdatesAllowed(true), m_isDirty(false), m_refreshing(false),
     m_wikiURL("Welcome"), m_saveButton(NULL), m_outOfLimitsStyle("background-color: rgb(255, 0, 0);"), m_realtimeUpdateTimer(NULL)
 {
-    m_autopilot         = autopilot;
+    m_configType        = configType;
 
     m_pluginManager     = ExtensionSystem::PluginManager::instance();
 
     m_objectUtilManager = m_pluginManager->getObject<UAVObjectUtilManager>();
-    UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
-    connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
 
-    m_saveButton = new SmartSaveButton(this);
-    connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
-    connect(m_saveButton, SIGNAL(saveSuccessfull()), this, SLOT(clearDirty()));
-    connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
-    connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+    if (m_configType != Child) {
+        UAVSettingsImportExportFactory *importexportplugin = m_pluginManager->getObject<UAVSettingsImportExportFactory>();
+        connect(importexportplugin, SIGNAL(importAboutToBegin()), this, SLOT(invalidateObjects()));
 
-    if (m_autopilot) {
+        m_saveButton = new SmartSaveButton(this);
+        connect(m_saveButton, SIGNAL(beginOp()), this, SLOT(disableObjectUpdates()));
+        connect(m_saveButton, SIGNAL(preProcessOperations()), this, SLOT(updateObjectsFromWidgets()));
+        connect(m_saveButton, SIGNAL(endOp()), this, SLOT(enableObjectUpdates()));
+        connect(m_saveButton, SIGNAL(saveSuccessful()), this, SLOT(saveSuccessful()));
+    }
+
+    switch (m_configType) {
+    case AutoPilot:
+    {
         // connect to telemetry manager
         TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
         connect(tm, SIGNAL(connected()), this, SLOT(onConnect()));
         connect(tm, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
-    } else {
+        break;
+    }
+    case OPLink:
+    {
         // connect to oplink manager
         OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
         connect(om, SIGNAL(connected()), this, SLOT(onConnect()));
         connect(om, SIGNAL(disconnected()), this, SLOT(onDisconnect()));
+        break;
+    }
+    case Child:
+    default:
+        // do nothing
+        break;
     }
 }
 
@@ -239,6 +253,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
 
     Q_ASSERT(object);
 
+    bool isRefreshing = m_refreshing;
     m_refreshing = true;
 
     foreach(WidgetBinding * binding, m_widgetBindingsPerObject.values(object)) {
@@ -252,7 +267,7 @@ void ConfigTaskWidget::setWidgetBindingObjectEnabled(QString objectName, bool en
         }
     }
 
-    m_refreshing = true;
+    m_refreshing = isRefreshing;
 }
 
 bool ConfigTaskWidget::isComboboxOptionSelected(QComboBox *combo, int optionValue)
@@ -305,13 +320,25 @@ bool ConfigTaskWidget::isConnected() const
 {
     bool connected = false;
 
-    if (m_autopilot) {
+    switch (m_configType) {
+    case AutoPilot:
+    {
         TelemetryManager *tm = m_pluginManager->getObject<TelemetryManager>();
         connected = tm->isConnected();
-    } else {
+        break;
+    }
+    case OPLink:
+    {
         OPLinkManager *om = m_pluginManager->getObject<OPLinkManager>();
         connected = om->isConnected();
+        break;
     }
+    case Child:
+    default:
+        // do nothing
+        break;
+    }
+
     return connected;
 }
 
@@ -328,7 +355,7 @@ void ConfigTaskWidget::bind()
 
 void ConfigTaskWidget::onConnect()
 {
-    if (m_autopilot) {
+    if (m_configType == AutoPilot) {
         m_currentBoardId = m_objectUtilManager->getBoardModel();
     }
 
@@ -343,7 +370,7 @@ void ConfigTaskWidget::onConnect()
 
     refreshWidgetsValues();
 
-    setDirty(false);
+    clearDirty();
 }
 
 void ConfigTaskWidget::onDisconnect()
@@ -365,6 +392,7 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
         return;
     }
 
+    bool isRefreshing = m_refreshing;
     m_refreshing = true;
 
     QList<WidgetBinding *> bindings = obj == NULL ? m_widgetBindingsPerObject.values() : m_widgetBindingsPerObject.values(obj);
@@ -381,7 +409,7 @@ void ConfigTaskWidget::refreshWidgetsValues(UAVObject *obj)
     // call specific implementation
     refreshWidgetsValuesImpl(obj);
 
-    m_refreshing = false;
+    m_refreshing = isRefreshing;
 }
 
 void ConfigTaskWidget::updateObjectsFromWidgets()
@@ -396,6 +424,14 @@ void ConfigTaskWidget::updateObjectsFromWidgets()
     updateObjectsFromWidgetsImpl();
 }
 
+void ConfigTaskWidget::saveSuccessful()
+{
+    // refresh values to reflect saved values
+    refreshWidgetsValues(NULL);
+    clearDirty();
+    // in case of failure to save we do nothing, config stays "dirty" (unsaved changes are kept)
+}
+
 void ConfigTaskWidget::helpButtonPressed()
 {
     QString url = m_helpButtons.value((QPushButton *)sender(), QString());
@@ -407,8 +443,8 @@ void ConfigTaskWidget::helpButtonPressed()
 
 void ConfigTaskWidget::addApplyButton(QPushButton *button)
 {
-    m_saveButton->addApplyButton(button);
     button->setVisible(expertMode());
+    m_saveButton->addApplyButton(button);
 }
 
 void ConfigTaskWidget::addSaveButton(QPushButton *button)
@@ -443,7 +479,6 @@ bool ConfigTaskWidget::shouldObjectBeSaved(UAVObject *object)
     Q_UNUSED(object);
     return true;
 }
-
 
 void ConfigTaskWidget::widgetsContentsChanged()
 {
@@ -499,9 +534,9 @@ void ConfigTaskWidget::widgetsContentsChanged()
     setDirty(true);
 }
 
-void ConfigTaskWidget::clearDirty()
+bool ConfigTaskWidget::isDirty()
 {
-    setDirty(false);
+    return m_isConnected ? m_isDirty : false;
 }
 
 void ConfigTaskWidget::setDirty(bool value)
@@ -512,13 +547,9 @@ void ConfigTaskWidget::setDirty(bool value)
     m_isDirty = value;
 }
 
-bool ConfigTaskWidget::isDirty()
+void ConfigTaskWidget::clearDirty()
 {
-    if (m_isConnected) {
-        return m_isDirty;
-    } else {
-        return false;
-    }
+    m_isDirty = false;
 }
 
 void ConfigTaskWidget::disableObjectUpdates()
@@ -624,8 +655,8 @@ void ConfigTaskWidget::addAutoBindings()
         QVariant info = widget->property("objrelation");
 
         if (info.isValid()) {
-            bindingStruct uiRelation;
-            uiRelation.buttonType  = none;
+            BindingStruct uiRelation;
+            uiRelation.buttonType  = None;
             uiRelation.scale = 1;
             uiRelation.index = -1;
             uiRelation.elementName = QString();
@@ -656,15 +687,15 @@ void ConfigTaskWidget::addAutoBindings()
                     }
                 } else if (prop == "button") {
                     if (value == "save") {
-                        uiRelation.buttonType = save_button;
+                        uiRelation.buttonType = SaveButton;
                     } else if (value == "apply") {
-                        uiRelation.buttonType = apply_button;
+                        uiRelation.buttonType = ApplyButton;
                     } else if (value == "reload") {
-                        uiRelation.buttonType = reload_button;
+                        uiRelation.buttonType = ReloadButton;
                     } else if (value == "default") {
-                        uiRelation.buttonType = default_button;
+                        uiRelation.buttonType = DefaultButton;
                     } else if (value == "help") {
-                        uiRelation.buttonType = help_button;
+                        uiRelation.buttonType = HelpButton;
                     }
                 } else if (prop == "buttongroup") {
                     foreach(QString s, value.split(",")) {
@@ -674,34 +705,34 @@ void ConfigTaskWidget::addAutoBindings()
                     uiRelation.url = str.mid(str.indexOf(":") + 1);
                 }
             }
-            if (uiRelation.buttonType != none) {
+            if (uiRelation.buttonType != None) {
                 QPushButton *button = NULL;
                 switch (uiRelation.buttonType) {
-                case save_button:
+                case SaveButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addSaveButton(button);
                     }
                     break;
-                case apply_button:
+                case ApplyButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addApplyButton(button);
                     }
                     break;
-                case default_button:
+                case DefaultButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addDefaultButton(button, uiRelation.buttonGroup.at(0));
                     }
                     break;
-                case reload_button:
+                case ReloadButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addReloadButton(button, uiRelation.buttonGroup.at(0));
                     }
                     break;
-                case help_button:
+                case HelpButton:
                     button = qobject_cast<QPushButton *>(widget);
                     if (button) {
                         addHelpButton(button, WIKI_URL_ROOT + m_wikiURL);
@@ -816,10 +847,10 @@ void ConfigTaskWidget::reloadButtonClicked()
     connect(m_realtimeUpdateTimer, SIGNAL(timeout()), eventLoop, SLOT(quit()));
     connect(objper, SIGNAL(objectUpdated(UAVObject *)), eventLoop, SLOT(quit()));
 
-    QList<objectComparator> temp;
+    QList<ObjectComparator> temp;
     foreach(WidgetBinding * binding, bindings) {
         if (binding->isEnabled() && binding->object()) {
-            objectComparator value;
+            ObjectComparator value;
             value.objid     = binding->object()->getObjID();
             value.objinstid = binding->object()->getInstID();
             if (temp.contains(value)) {

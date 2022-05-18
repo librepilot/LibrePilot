@@ -54,14 +54,16 @@ include $(FREERTOS_DIR)/library.mk
 OPTESTS		= $(TOPDIR)/Tests
 
 ## PIOS Hardware
-ifeq ($(MCU),cortex-m3)
+ifneq (,$(findstring STM32F10,$(CHIP)))
     include $(PIOS)/stm32f10x/library.mk
-else ifeq ($(MCU),cortex-m4)
+else ifneq (,$(findstring STM32F4,$(CHIP)))
     include $(PIOS)/stm32f4xx/library.mk
-else ifeq ($(MCU),cortex-m0)
+else ifneq (,$(findstring STM32F30,$(CHIP)))
+    include $(PIOS)/stm32f30x/library.mk
+else ifneq (,$(findstring STM32F0,$(CHIP)))
     include $(PIOS)/stm32f0x/library.mk
 else
-    $(error Unsupported MCU: $(MCU))
+    $(error Unsupported CHIP: $(CHIP))
 endif
 
 # List C source files here (C dependencies are automatically generated).
@@ -82,13 +84,15 @@ SRC += $(PIOSCOMMON)/pios_mpu6000.c
 SRC += $(PIOSCOMMON)/pios_mpu9250.c
 SRC += $(PIOSCOMMON)/pios_mpxv.c
 SRC += $(PIOSCOMMON)/pios_ms4525do.c
-SRC += $(PIOSCOMMON)/pios_ms5611.c
+SRC += $(PIOSCOMMON)/pios_ms56xx.c
+SRC += $(PIOSCOMMON)/pios_bmp280.c
 SRC += $(PIOSCOMMON)/pios_oplinkrcvr.c
 SRC += $(PIOSCOMMON)/pios_video.c
 SRC += $(PIOSCOMMON)/pios_wavplay.c
 SRC += $(PIOSCOMMON)/pios_rfm22b.c
 SRC += $(PIOSCOMMON)/pios_rfm22b_com.c
 SRC += $(PIOSCOMMON)/pios_rcvr.c
+SRC += $(PIOSCOMMON)/pios_dsm.c
 SRC += $(PIOSCOMMON)/pios_sbus.c
 SRC += $(PIOSCOMMON)/pios_hott.c
 SRC += $(PIOSCOMMON)/pios_srxl.c
@@ -96,8 +100,11 @@ SRC += $(PIOSCOMMON)/pios_exbus.c
 SRC += $(PIOSCOMMON)/pios_ibus.c
 SRC += $(PIOSCOMMON)/pios_sdcard.c
 SRC += $(PIOSCOMMON)/pios_sensors.c
+SRC += $(PIOSCOMMON)/pios_servo.c
 SRC += $(PIOSCOMMON)/pios_openlrs.c
 SRC += $(PIOSCOMMON)/pios_openlrs_rcvr.c
+SRC += $(PIOSCOMMON)/pios_board_io.c
+SRC += $(PIOSCOMMON)/pios_board_sensors.c
 
 ## Misc library functions
 SRC += $(FLIGHTLIB)/sanitycheck.c
@@ -146,6 +153,11 @@ ifeq ($(USE_CXX),YES)
 CPPSRC += $(FLIGHTLIB)/mini_cpp.cpp
 endif
 
+ifeq ($(DEBUG), YES)
+SRC += $(FLIGHTLIB)/dcc_stdio.c
+SRC += $(FLIGHTLIB)/cm3_fault_handlers.c
+endif
+
 ## Modules
 SRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c)))
 CPPSRC += $(foreach mod, $(MODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.cpp)))
@@ -156,6 +168,10 @@ SRC += $(foreach mod, $(OPTMODULES), $(sort $(wildcard $(OPMODULEDIR)/$(mod)/*.c
 MODNAMES := $(notdir $(subst /revolution,,$(MODULES)))
 MODULES_BUILTIN := $(foreach mod, $(MODNAMES), -DMODULE_$(shell echo $(mod) | tr '[:lower:]' '[:upper:]')_BUILTIN)
 CDEFS += $(MODULES_BUILTIN)
+
+MODNAMES_ALL := $(notdir $(subst /revolution,,$(OPTMODULES) $(MODULES)))
+MODULES_ALL := $(foreach mod, $(MODNAMES_ALL), -DHAS_$(shell echo $(mod) | tr '[:lower:]' '[:upper:]')_MODULE)
+CDEFS += $(MODULES_ALL)
 
 # List C source files here which must be compiled in ARM-Mode (no -mthumb).
 # Use file-extension c for "c-only"-files

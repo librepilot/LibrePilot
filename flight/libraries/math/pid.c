@@ -1,12 +1,8 @@
 /**
  ******************************************************************************
- * @addtogroup OpenPilot Math Utilities
- * @{
- * @addtogroup Sine and cosine methods that use a cached lookup table
- * @{
- *
  * @file       pid.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      Methods to work with PID structure
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -159,7 +155,7 @@ void pid_configure(struct pid *pid, float p, float i, float d, float iLim)
  * @param[in] kp proportional gain
  * @param[in] ki integral gain.  Time constant Ti = kp/ki
  * @param[in] kd derivative gain. Time constant Td = kd/kp
- * @param[in] Tf filtering time = (kd/k)/N, N is in the range of 2 to 20
+ * @param[in] Tf filtering time = (kd/kp)/N, N is in the range of 2 to 20
  * @param[in] kt tracking gain for anti-windup. Tt = √TiTd and Tt = (Ti + Td)/2
  * @param[in] dt delta time increment
  * @param[in] beta setpoint weight on setpoint in P component.  beta=1 error feedback. beta=0 smoothes out response to changes in setpoint
@@ -220,7 +216,20 @@ float pid2_apply(
         pid->D    = 0.0f;
 
         // t=0, u=u0, y=y0, v=u
-        pid->I    = (pid->u0 - pid->va) / pid->vb - pid->kp * (pid->beta * r - y);
+        // pid->I = (pid->u0 - pid->va) / pid->vb - pid->kp * (pid->beta * r - y);
+        // this is dangerous, if pid->I starts nonzero with very low or zero kI, then
+        // it will never settle!
+        // pid->I = 0.0f;
+        // whether ki is zero or non-zero, when doing 'reconfigure' we start with setpoint==actual
+        pid->I = (pid->u0 - pid->va) / pid->vb;
+        // if ki is non-zero
+        if (pid->bi > 5e-7f) {
+            // then the output can wind up/down to get rid of a difference between setpoint and actual
+            // so we can generate the full bumpless transfer here
+            // else leave off the part that can vary due to difference between setpoint and actual
+            // so that it is repeatable (for tuning purposes at least)
+            pid->I -= pid->kp * (pid->beta * r - y);
+        }
     }
 
     // compute proportional part

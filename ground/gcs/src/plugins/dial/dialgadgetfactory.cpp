@@ -48,9 +48,9 @@ Core::IUAVGadget *DialGadgetFactory::createGadget(QWidget *parent)
     return new DialGadget(QString("DialGadget"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *DialGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *DialGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new DialGadgetConfiguration(QString("DialGadget"), qSettings);
+    return new DialGadgetConfiguration(QString("DialGadget"), settings);
 }
 
 IOptionsPage *DialGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

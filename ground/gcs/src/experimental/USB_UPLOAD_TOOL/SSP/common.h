@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       common.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -23,10 +24,11 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */#ifndef COMMON_H
+ */
+#ifndef COMMON_H
 #define COMMON_H
 
-enum decodeState_ {
+enum DecodeState {
     decode_len1_e = 0,
     decode_seqNo_e,
     decode_data_e,
@@ -34,10 +36,10 @@ enum decodeState_ {
     decode_crc2_e,
     decode_idle_e
 };
+
 enum ReceiveState {
     state_escaped_e = 0,
     state_unescaped_e
 };
-
 
 #endif // COMMON_H

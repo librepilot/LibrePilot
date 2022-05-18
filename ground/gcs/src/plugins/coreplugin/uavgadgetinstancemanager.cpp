@@ -26,6 +26,7 @@
  */
 
 #include "uavgadgetinstancemanager.h"
+
 #include "iuavgadget.h"
 #include "uavgadgetdecorator.h"
 #include "iuavgadgetfactory.h"
@@ -36,17 +37,16 @@
 #include "icore.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <QtCore/QStringList>
-#include <QtCore/QSettings>
-#include <QtCore/QDebug>
+#include <QStringList>
+#include <QSettings>
+#include <QDebug>
 #include <QMessageBox>
 
 using namespace Core;
 
 static const UAVConfigVersion m_versionUAVGadgetConfigurations = UAVConfigVersion("1.2.0");
 
-UAVGadgetInstanceManager::UAVGadgetInstanceManager(QObject *parent) :
-    QObject(parent)
+UAVGadgetInstanceManager::UAVGadgetInstanceManager(QObject *parent) : QObject(parent), m_settingsDialog(NULL)
 {
     m_pm = ExtensionSystem::PluginManager::instance();
     QList<IUAVGadgetFactory *> factories = m_pm->getObjects<IUAVGadgetFactory>();
@@ -70,14 +70,17 @@ UAVGadgetInstanceManager::~UAVGadgetInstanceManager()
     }
 }
 
-void UAVGadgetInstanceManager::readSettings(QSettings *qs)
+void UAVGadgetInstanceManager::readSettings(QSettings &settings)
 {
     while (!m_configurations.isEmpty()) {
         emit configurationToBeDeleted(m_configurations.takeLast());
     }
-    qs->beginGroup("UAVGadgetConfigurations");
-    UAVConfigInfo configInfo(qs);
+
+    settings.beginGroup("UAVGadgetConfigurations");
+
+    UAVConfigInfo configInfo(settings);
     configInfo.setNameOfConfigurable("UAVGadgetConfigurations");
+
     if (configInfo.version() == UAVConfigVersion()) {
         // If version is not set, assume its a old version before readable config (1.0.0).
         // however compatibility to 1.0.0 is broken.
@@ -87,7 +90,7 @@ void UAVGadgetInstanceManager::readSettings(QSettings *qs)
     if (configInfo.version() == UAVConfigVersion("1.1.0")) {
         configInfo.notify(tr("Migrating UAVGadgetConfigurations from version 1.1.0 to ")
                           + m_versionUAVGadgetConfigurations.toString());
-        readConfigs_1_1_0(qs); // this is fully compatible with 1.2.0
+        readConfigs_1_1_0(settings); // this is fully compatible with 1.2.0
     } else if (!configInfo.standardVersionHandlingOK(m_versionUAVGadgetConfigurations)) {
         // We are in trouble now. User wants us to quit the import, but when he saves
         // the GCS, his old config will be lost.
@@ -95,32 +98,32 @@ void UAVGadgetInstanceManager::readSettings(QSettings *qs)
             tr("You might want to save your old config NOW since it might be replaced by broken one when you exit the GCS!")
             );
     } else {
-        readConfigs_1_2_0(qs);
+        readConfigs_1_2_0(settings);
     }
 
-    qs->endGroup();
+    settings.endGroup();
     createOptionsPages();
 }
 
-void UAVGadgetInstanceManager::readConfigs_1_2_0(QSettings *qs)
+void UAVGadgetInstanceManager::readConfigs_1_2_0(QSettings &settings)
 {
     UAVConfigInfo configInfo;
 
     foreach(QString classId, m_classIdNameMap.keys()) {
         IUAVGadgetFactory *f = factory(classId);
 
-        qs->beginGroup(classId);
+        settings.beginGroup(classId);
 
         QStringList configs = QStringList();
 
-        configs = qs->childGroups();
+        configs = settings.childGroups();
         foreach(QString configName, configs) {
             // qDebug() << "Loading config: " << classId << "," << configName;
-            qs->beginGroup(configName);
-            configInfo.read(qs);
+            settings.beginGroup(configName);
+            configInfo.read(settings);
             configInfo.setNameOfConfigurable(classId + "-" + configName);
-            qs->beginGroup("data");
-            IUAVGadgetConfiguration *config = f->createConfiguration(qs, &configInfo);
+            settings.beginGroup("data");
+            IUAVGadgetConfiguration *config = f->createConfiguration(settings, &configInfo);
             if (config) {
                 config->setName(configName);
                 config->setProvisionalName(configName);
@@ -134,42 +137,42 @@ void UAVGadgetInstanceManager::readConfigs_1_2_0(QSettings *qs)
                     m_configurations.append(config);
                 }
             }
-            qs->endGroup();
-            qs->endGroup();
+            settings.endGroup();
+            settings.endGroup();
         }
 
-        if (configs.count() == 0) {
-            IUAVGadgetConfiguration *config = f->createConfiguration(0, 0);
-            // it is not mandatory for uavgadgets to have any configurations (settings)
-            // and therefore we have to check for that
-            if (config) {
-                config->setName(tr("default"));
-                config->setProvisionalName(tr("default"));
-                m_configurations.append(config);
-            }
-        }
-        qs->endGroup();
+// if (configs.count() == 0) {
+// IUAVGadgetConfiguration *config = f->createConfiguration(0, 0);
+//// it is not mandatory for uavgadgets to have any configurations (settings)
+//// and therefore we have to check for that
+// if (config) {
+// config->setName(tr("default"));
+// config->setProvisionalName(tr("default"));
+// m_configurations.append(config);
+// }
+// }
+        settings.endGroup();
     }
 }
 
-void UAVGadgetInstanceManager::readConfigs_1_1_0(QSettings *qs)
+void UAVGadgetInstanceManager::readConfigs_1_1_0(QSettings &settings)
 {
     UAVConfigInfo configInfo;
 
     foreach(QString classId, m_classIdNameMap.keys()) {
         IUAVGadgetFactory *f = factory(classId);
 
-        qs->beginGroup(classId);
+        settings.beginGroup(classId);
 
         QStringList configs = QStringList();
 
-        configs = qs->childGroups();
+        configs = settings.childGroups();
         foreach(QString configName, configs) {
             // qDebug().nospace() << "Loading config: " << classId << ", " << configName;
-            qs->beginGroup(configName);
-            bool locked = qs->value("config.locked").toBool();
+            settings.beginGroup(configName);
+            bool locked = settings.value("config.locked").toBool();
             configInfo.setNameOfConfigurable(classId + "-" + configName);
-            IUAVGadgetConfiguration *config = f->createConfiguration(qs, &configInfo);
+            IUAVGadgetConfiguration *config = f->createConfiguration(settings, &configInfo);
             if (config) {
                 config->setName(configName);
                 config->setProvisionalName(configName);
@@ -183,45 +186,45 @@ void UAVGadgetInstanceManager::readConfigs_1_1_0(QSettings *qs)
                     m_configurations.append(config);
                 }
             }
-            qs->endGroup();
+            settings.endGroup();
         }
 
-        if (configs.count() == 0) {
-            IUAVGadgetConfiguration *config = f->createConfiguration(0, 0);
-            // it is not mandatory for uavgadgets to have any configurations (settings)
-            // and therefore we have to check for that
-            if (config) {
-                config->setName(tr("default"));
-                config->setProvisionalName(tr("default"));
-                m_configurations.append(config);
-            }
-        }
-        qs->endGroup();
+// if (configs.count() == 0) {
+// IUAVGadgetConfiguration *config = f->createConfiguration(0, 0);
+//// it is not mandatory for uavgadgets to have any configurations (settings)
+//// and therefore we have to check for that
+// if (config) {
+// config->setName(tr("default"));
+// config->setProvisionalName(tr("default"));
+// m_configurations.append(config);
+// }
+// }
+        settings.endGroup();
     }
 }
 
-void UAVGadgetInstanceManager::saveSettings(QSettings *qs)
+void UAVGadgetInstanceManager::saveSettings(QSettings &settings) const
 {
     UAVConfigInfo *configInfo;
 
-    qs->beginGroup("UAVGadgetConfigurations");
-    qs->remove(""); // Remove existing configurations
+    settings.beginGroup("UAVGadgetConfigurations");
+    settings.remove(""); // Remove existing configurations
     configInfo = new UAVConfigInfo(m_versionUAVGadgetConfigurations, "UAVGadgetConfigurations");
-    configInfo->save(qs);
+    configInfo->save(settings);
     delete configInfo;
     foreach(IUAVGadgetConfiguration * config, m_configurations) {
         configInfo = new UAVConfigInfo(config);
-        qs->beginGroup(config->classId());
-        qs->beginGroup(config->name());
-        qs->beginGroup("data");
-        config->saveConfig(qs, configInfo);
-        qs->endGroup();
-        configInfo->save(qs);
-        qs->endGroup();
-        qs->endGroup();
+        settings.beginGroup(config->classId());
+        settings.beginGroup(config->name());
+        settings.beginGroup("data");
+        config->saveConfig(settings, configInfo);
+        settings.endGroup();
+        configInfo->save(settings);
+        settings.endGroup();
+        settings.endGroup();
         delete configInfo;
     }
-    qs->endGroup();
+    settings.endGroup();
 }
 
 void UAVGadgetInstanceManager::createOptionsPages()

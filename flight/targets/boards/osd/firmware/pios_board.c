@@ -31,6 +31,8 @@
 #include <gcsreceiver.h>
 #include <taskinfo.h>
 
+#include <pios_board_io.h>
+
 /*
  * Pull in the board-specific static HW definitions.
  * Including .c files is a bit ugly but this allows all of
@@ -84,25 +86,10 @@ void PIOS_ADC_DMC_irq_handler(void)
 
 static void Clock(uint32_t spektrum_id);
 
-
-#define PIOS_COM_TELEM_RF_RX_BUF_LEN  128
-#define PIOS_COM_TELEM_RF_TX_BUF_LEN  128
-
-#define PIOS_COM_AUX_RX_BUF_LEN       512
-#define PIOS_COM_AUX_TX_BUF_LEN       512
-
-#define PIOS_COM_GPS_RX_BUF_LEN       32
-
-#define PIOS_COM_TELEM_USB_RX_BUF_LEN 65
-#define PIOS_COM_TELEM_USB_TX_BUF_LEN 65
-
-#define PIOS_COM_BRIDGE_RX_BUF_LEN    65
-#define PIOS_COM_BRIDGE_TX_BUF_LEN    12
+#define PIOS_COM_AUX_RX_BUF_LEN 512
+#define PIOS_COM_AUX_TX_BUF_LEN 512
 
 uint32_t pios_com_aux_id;
-uint32_t pios_com_gps_id;
-uint32_t pios_com_telem_usb_id;
-uint32_t pios_com_telem_rf_id;
 
 uintptr_t pios_uavo_settings_fs_id;
 uintptr_t pios_user_fs_id = 0;
@@ -183,8 +170,7 @@ void PIOS_Board_Init(void)
     /* Initialize UAVObject libraries */
     EventDispatcherInitialize();
     UAVObjInitialize();
-
-    HwSettingsInitialize();
+    SETTINGS_INITIALISE_ALL;
 
 #ifdef PIOS_INCLUDE_WDG
     /* Initialize watchdog as early as possible to catch faults during init */
@@ -216,124 +202,8 @@ void PIOS_Board_Init(void)
 #endif
 
 #if defined(PIOS_INCLUDE_USB)
-    /* Initialize board specific USB data */
-    PIOS_USB_BOARD_DATA_Init();
-
-    /* Flags to determine if various USB interfaces are advertised */
-    bool usb_hid_present = false;
-    bool usb_cdc_present = false;
-
-#if defined(PIOS_INCLUDE_USB_CDC)
-    if (PIOS_USB_DESC_HID_CDC_Init()) {
-        PIOS_Assert(0);
-    }
-    usb_hid_present = true;
-    usb_cdc_present = true;
-#else
-    if (PIOS_USB_DESC_HID_ONLY_Init()) {
-        PIOS_Assert(0);
-    }
-    usb_hid_present = true;
+    PIOS_BOARD_IO_Configure_USB();
 #endif
-
-    uint32_t pios_usb_id;
-    PIOS_USB_Init(&pios_usb_id, &pios_usb_main_cfg);
-
-#if defined(PIOS_INCLUDE_USB_CDC)
-
-    uint8_t hwsettings_usb_vcpport;
-    /* Configure the USB VCP port */
-    HwSettingsUSB_VCPPortGet(&hwsettings_usb_vcpport);
-
-    if (!usb_cdc_present) {
-        /* Force VCP port function to disabled if we haven't advertised VCP in our USB descriptor */
-        hwsettings_usb_vcpport = HWSETTINGS_USB_VCPPORT_DISABLED;
-    }
-
-    switch (hwsettings_usb_vcpport) {
-    case HWSETTINGS_USB_VCPPORT_DISABLED:
-        break;
-    case HWSETTINGS_USB_VCPPORT_USBTELEMETRY:
-#if defined(PIOS_INCLUDE_COM)
-        {
-            uint32_t pios_usb_cdc_id;
-            if (PIOS_USB_CDC_Init(&pios_usb_cdc_id, &pios_usb_cdc_cfg, pios_usb_id)) {
-                PIOS_Assert(0);
-            }
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_telem_usb_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
-                              rx_buffer, PIOS_COM_TELEM_USB_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_TELEM_USB_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_COM */
-        break;
-    case HWSETTINGS_USB_VCPPORT_COMBRIDGE:
-#if defined(PIOS_INCLUDE_COM)
-        {
-            uint32_t pios_usb_cdc_id;
-            if (PIOS_USB_CDC_Init(&pios_usb_cdc_id, &pios_usb_cdc_cfg, pios_usb_id)) {
-                PIOS_Assert(0);
-            }
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_BRIDGE_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_BRIDGE_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_vcp_id, &pios_usb_cdc_com_driver, pios_usb_cdc_id,
-                              rx_buffer, PIOS_COM_BRIDGE_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_BRIDGE_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_COM */
-        break;
-    }
-#endif /* PIOS_INCLUDE_USB_CDC */
-
-#if defined(PIOS_INCLUDE_USB_HID)
-    /* Configure the usb HID port */
-    uint8_t hwsettings_usb_hidport;
-    HwSettingsUSB_HIDPortGet(&hwsettings_usb_hidport);
-
-    if (!usb_hid_present) {
-        /* Force HID port function to disabled if we haven't advertised HID in our USB descriptor */
-        hwsettings_usb_hidport = HWSETTINGS_USB_HIDPORT_DISABLED;
-    }
-
-    switch (hwsettings_usb_hidport) {
-    case HWSETTINGS_USB_HIDPORT_DISABLED:
-        break;
-    case HWSETTINGS_USB_HIDPORT_USBTELEMETRY:
-#if defined(PIOS_INCLUDE_COM)
-        {
-            uint32_t pios_usb_hid_id;
-            if (PIOS_USB_HID_Init(&pios_usb_hid_id, &pios_usb_hid_cfg, pios_usb_id)) {
-                PIOS_Assert(0);
-            }
-            uint8_t *rx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_RX_BUF_LEN);
-            uint8_t *tx_buffer = (uint8_t *)pios_malloc(PIOS_COM_TELEM_USB_TX_BUF_LEN);
-            PIOS_Assert(rx_buffer);
-            PIOS_Assert(tx_buffer);
-            if (PIOS_COM_Init(&pios_com_telem_usb_id, &pios_usb_hid_com_driver, pios_usb_hid_id,
-                              rx_buffer, PIOS_COM_TELEM_USB_RX_BUF_LEN,
-                              tx_buffer, PIOS_COM_TELEM_USB_TX_BUF_LEN)) {
-                PIOS_Assert(0);
-            }
-        }
-#endif /* PIOS_INCLUDE_COM */
-        break;
-    }
-
-#endif /* PIOS_INCLUDE_USB_HID */
-
-    if (usb_hid_present || usb_cdc_present) {
-        PIOS_USBHOOK_Activate();
-    }
-#endif /* PIOS_INCLUDE_USB */
 
 #if defined(PIOS_INCLUDE_COM)
 #if defined(PIOS_INCLUDE_GPS)

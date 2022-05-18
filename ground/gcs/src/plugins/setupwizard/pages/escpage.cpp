@@ -47,17 +47,41 @@ void EscPage::initializePage()
 {
     bool enabled = isSynchOrOneShotAvailable();
 
-    ui->oneshotESCButton->setEnabled(enabled);
-    if (ui->oneshotESCButton->isChecked() && !enabled) {
-        ui->oneshotESCButton->setChecked(false);
+    ui->oneshot125ESCButton->setEnabled(enabled);
+    ui->oneshot42ESCButton->setEnabled(enabled);
+    ui->multishotESCButton->setEnabled(enabled);
+
+    if ((ui->oneshot125ESCButton->isChecked() ||
+         ui->oneshot42ESCButton->isChecked() ||
+         ui->multishotESCButton->isChecked()) && !enabled) {
+        ui->oneshot125ESCButton->setChecked(false);
+        ui->oneshot42ESCButton->setChecked(false);
+        ui->multishotESCButton->setChecked(false);
         ui->rapidESCButton->setChecked(true);
+    }
+
+    enabled = isFastDShotAvailable();
+    ui->dshot1200ESCButton->setEnabled(enabled);
+    if (ui->dshot1200ESCButton->isChecked() && !enabled) {
+        ui->dshot1200ESCButton->setChecked(false);
+        ui->dshot600ESCButton->setChecked(true);
     }
 }
 
 bool EscPage::validatePage()
 {
-    if (ui->oneshotESCButton->isChecked()) {
-        getWizard()->setEscType(SetupWizard::ESC_ONESHOT);
+    if (ui->dshot1200ESCButton->isChecked()) {
+        getWizard()->setEscType(SetupWizard::ESC_DSHOT1200);
+    } else if (ui->dshot600ESCButton->isChecked()) {
+        getWizard()->setEscType(SetupWizard::ESC_DSHOT600);
+    } else if (ui->dshot150ESCButton->isChecked()) {
+        getWizard()->setEscType(SetupWizard::ESC_DSHOT150);
+    } else if (ui->multishotESCButton->isChecked()) {
+        getWizard()->setEscType(SetupWizard::ESC_MULTISHOT);
+    } else if (ui->oneshot42ESCButton->isChecked()) {
+        getWizard()->setEscType(SetupWizard::ESC_ONESHOT42);
+    } else if (ui->oneshot125ESCButton->isChecked()) {
+        getWizard()->setEscType(SetupWizard::ESC_ONESHOT125);
     } else if (ui->rapidESCButton->isChecked()) {
         if (isSynchOrOneShotAvailable()) {
             getWizard()->setEscType(SetupWizard::ESC_SYNCHED);
@@ -65,7 +89,7 @@ bool EscPage::validatePage()
             getWizard()->setEscType(SetupWizard::ESC_RAPID);
         }
     } else if (ui->defaultESCButton->isChecked()) {
-        getWizard()->setEscType(SetupWizard::ESC_STANDARD);
+        getWizard()->setEscType(SetupWizard::ESC_STANDARD300);
     }
 
     return true;
@@ -100,6 +124,25 @@ bool EscPage::isSynchOrOneShotAvailable()
     case SetupWizard::CONTROLLER_REVO:
     case SetupWizard::CONTROLLER_SPARKY2:
         available = true;
+        break;
+    default:
+        break;
+    }
+
+    return available;
+}
+
+bool EscPage::isFastDShotAvailable()
+{
+    bool available = true;
+
+    switch (getWizard()->getControllerType()) {
+    case SetupWizard::CONTROLLER_CC3D:
+    case SetupWizard::CONTROLLER_SPRACINGF3:
+    case SetupWizard::CONTROLLER_SPRACINGF3EVO:
+    case SetupWizard::CONTROLLER_PIKOBLX:
+    case SetupWizard::CONTROLLER_TINYFISH:
+        available = false;
         break;
     default:
         break;

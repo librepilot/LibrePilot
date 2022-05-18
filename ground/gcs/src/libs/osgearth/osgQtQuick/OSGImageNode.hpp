@@ -25,8 +25,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef _H_OSGQTQUICK_IMAGENODE_H_
-#define _H_OSGQTQUICK_IMAGENODE_H_
+#pragma once
 
 #include "Export.hpp"
 #include "OSGNode.hpp"
@@ -35,7 +34,7 @@
 
 namespace osgQtQuick {
 class OSGQTQUICK_EXPORT OSGImageNode : public OSGNode {
-    Q_OBJECT Q_PROPERTY(QUrl imageFile READ imageFile WRITE setImageFile NOTIFY imageFileChanged)
+    Q_OBJECT Q_PROPERTY(QUrl imageUrl READ imageUrl WRITE setImageUrl NOTIFY imageUrlChanged)
 
     typedef OSGNode Inherited;
 
@@ -43,11 +42,11 @@ public:
     OSGImageNode(QObject *parent = 0);
     virtual ~OSGImageNode();
 
-    const QUrl imageFile() const;
-    void setImageFile(const QUrl &url);
+    const QUrl imageUrl() const;
+    void setImageUrl(QUrl &url);
 
 signals:
-    void imageFileChanged(const QUrl &url);
+    void imageUrlChanged(const QUrl &url);
 
 protected:
     virtual osg::Node *createNode();
@@ -58,5 +57,3 @@ private:
     Hidden *const h;
 };
 } // namespace osgQtQuick
-
-#endif // _H_OSGQTQUICK_IMAGENODE_H_

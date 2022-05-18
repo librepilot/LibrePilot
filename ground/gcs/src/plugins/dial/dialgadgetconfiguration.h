@@ -39,8 +39,11 @@ using namespace Core;
 class DialGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit DialGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit DialGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit DialGadgetConfiguration(const DialGadgetConfiguration &obj);
 
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     // set dial configuration functions
     void setDialFile(QString dialFile)
@@ -152,7 +155,6 @@ public:
         beSmooth = flag;
     }
 
-
     // get dial configuration functions
     QString dialFile()
     {
@@ -262,9 +264,6 @@ public:
     {
         return beSmooth;
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     QString m_defaultDial; // The name of the dial's SVG source file

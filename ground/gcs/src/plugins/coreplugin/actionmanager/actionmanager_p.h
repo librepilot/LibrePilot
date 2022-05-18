@@ -31,9 +31,9 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 
-#include <QtCore/QMap>
-#include <QtCore/QHash>
-#include <QtCore/QMultiHash>
+#include <QMap>
+#include <QHash>
+#include <QMultiHash>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -62,7 +62,9 @@ public:
     void setContext(const QList<int> &context);
     static ActionManagerPrivate *instance();
 
-    void saveSettings(QSettings *settings);
+    void saveSettings(QSettings &settings) const;
+    void readSettings(QSettings &settings);
+
     QList<int> defaultGroups() const;
 
     QList<CommandPrivate *> commands() const;
@@ -72,8 +74,6 @@ public:
 
     Command *command(int uid) const;
     ActionContainer *actionContainer(int uid) const;
-
-    void readSettings(QSettings *settings);
 
     // ActionManager Interface
     ActionContainer *createMenu(const QString &id);

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       vtollandfsm.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2018
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2015.
  * @brief      This landing state machine is a helper state machine to the
  *             VtolLandController.
  * @see        The GNU Public License (GPL) Version 3
@@ -26,8 +27,6 @@
 
 extern "C" {
 #include <openpilot.h>
-
-#include <callbackinfo.h>
 
 #include <math.h>
 #include <pid.h>
@@ -277,14 +276,8 @@ void VtolLandFSM::setState(StatusVtolLandStateOptions newState, StatusVtolLandSt
     mLandData->currentState = newState;
 
     if (newState != STATUSVTOLLAND_STATE_INACTIVE) {
-        PositionStateData positionState;
-        PositionStateGet(&positionState);
-        float takeOffDown = 0.0f;
-        if (mLandData->takeOffLocation.Status == TAKEOFFLOCATION_STATUS_VALID) {
-            takeOffDown = mLandData->takeOffLocation.Down;
-        }
-        mLandData->fsmLandStatus.AltitudeAtState[newState] = positionState.Down - takeOffDown;
-        assessAltitude();
+        float altitudeAboveTakeoff = assessAltitude();
+        mLandData->fsmLandStatus.AltitudeAtState[newState] = altitudeAboveTakeoff;
     }
 
     // Restart state timer counter
@@ -334,7 +327,7 @@ float VtolLandFSM::BoundVelocityDown(float velocity_down)
     }
 }
 
-void VtolLandFSM::assessAltitude(void)
+float VtolLandFSM::assessAltitude(void)
 {
     float positionDown;
 
@@ -349,6 +342,8 @@ void VtolLandFSM::assessAltitude(void)
     } else {
         mLandData->flLowAltitude = true;
     }
+    // Return the altitude above takeoff, which is the negation of positionDownRelativeToTakeoff
+    return -positionDownRelativeToTakeoff;
 }
 
 

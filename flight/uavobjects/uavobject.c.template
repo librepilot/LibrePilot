@@ -46,6 +46,10 @@ static UAVObjHandle handle __attribute__((section("__DATA,_uavo_handles")));
 static UAVObjHandle handle __attribute__((section("_uavo_handles")));
 #endif
 
+#if $(NAMEUC)_ISSETTINGS
+SETTINGS_INITCALL($(NAME)Initialize);
+#endif
+
 /**
  * Initialize object.
  * \return 0 Success
@@ -63,13 +67,23 @@ int32_t $(NAME)Initialize(void)
         return -2;
     }
 
+    static const UAVObjType objType = {
+       .id = $(NAMEUC)_OBJID,
+       .instance_size = $(NAMEUC)_NUMBYTES,
+       .init_callback = &$(NAME)SetDefaults,
+    };
+
     // Register object with the object manager
-    handle = UAVObjRegister($(NAMEUC)_OBJID,
-        $(NAMEUC)_ISSINGLEINST, $(NAMEUC)_ISSETTINGS, $(NAMEUC)_ISPRIORITY, $(NAMEUC)_NUMBYTES, &$(NAME)SetDefaults);
+    handle = UAVObjRegister(&objType,
+        $(NAMEUC)_ISSINGLEINST, $(NAMEUC)_ISSETTINGS, $(NAMEUC)_ISPRIORITY);
 
     // Done
     return handle ? 0 : -1;
 }
+
+static inline void DataOverrideDefaults(__attribute__((unused)) $(NAME)Data * data) {}
+
+void $(NAME)DataOverrideDefaults($(NAME)Data * data) __attribute__((weak, alias("DataOverrideDefaults")));
 
 /**
  * Initialize object fields and metadata with the default values.
@@ -84,6 +98,7 @@ void $(NAME)SetDefaults(UAVObjHandle obj, uint16_t instId)
     UAVObjGetInstanceData(obj, instId, &data);
     memset(&data, 0, sizeof($(NAME)Data));
 $(INITFIELDS)
+    $(NAME)DataOverrideDefaults(&data);
     UAVObjSetInstanceData(obj, instId, &data);
 
     // Initialize object metadata to their default values

@@ -82,6 +82,7 @@
                options="Disabled,Accessory 0,Accessory 1,Accessory 2,Accessory 3"
                defaultvalue="Disabled"
                description="For Multirotors. Always stabilize no matter the throttle setting when vehicle is armed. Does not work when vehicle is set to Always Armed."/>
+        <field name="AlwaysStabilizeWhenArmedThrottleThreshold" units="%" type="float" elements="1" defaultvalue="0.2"/>
 
         <field name="ArmedTimeout" units="ms" type="uint16" elements="1" defaultvalue="30000"/>
         <field name="ArmingSequenceTime" units="ms" type="uint16" elements="1" defaultvalue="1000"/>
@@ -95,6 +96,8 @@
         <field name="AutoTakeOffHeight" units="m" type="float" elements="1" defaultvalue="2.5" description="height in meters above arming altitude to climb to during autotakeoff"/>
         <field name="PositionHoldOffset" units="m" type="float" elementnames="Horizontal,Vertical" defaultvalue="30,15" description="stick sensitivity for position roam modes"/>
 	<field name="VarioControlLowPassAlpha" units="" type="float" elements="1" defaultvalue="0.98" description="stick low pass filter for position roam modes"/>
+    <field name="BatteryFailsafeSwitchPositions" units="" type="int8" elementnames="Warning,Critical" defaultvalue="-1" />
+    <field name="BatteryFailsafeDebounceTimer" units="ms" type="uint16" elements="1" defaultvalue="5000" />
 	<field name="FlightModeChangeRestartsPathPlan" units="bool" type="enum" elements="1" options="False,True" defaultvalue="True" description="wether a path plan should continue when interrupted by flight mode change (False), or restart from waypoint 0 (True)"/>
         <access gcs="readwrite" flight="readwrite"/>
         <telemetrygcs acked="true" updatemode="onchange" period="0"/>

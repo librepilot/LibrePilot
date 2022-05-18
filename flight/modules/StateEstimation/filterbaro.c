@@ -7,7 +7,8 @@
  * @{
  *
  * @file       filterbaro.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2013.
  * @brief      Barometric altitude filter, calculates altitude offset based on
  *             GPS altitude offset if available
  *
@@ -36,8 +37,9 @@
 
 // Private constants
 
-#define STACK_REQUIRED 128
-#define INIT_CYCLES    100
+#define STACK_REQUIRED    128
+#define INIT_CYCLES       500
+#define BARO_OFFSET_ALPHA 0.02f
 
 // Private types
 struct data {
@@ -99,7 +101,6 @@ static int32_t maininit(stateFilter *self)
     this->gpsAlt     = 0.0f;
     this->first_run  = INIT_CYCLES;
 
-    RevoSettingsInitialize();
     RevoSettingsBaroGPSOffsetCorrectionAlphaGet(&this->baroGPSOffsetCorrectionAlpha);
 
     return 0;
@@ -120,7 +121,11 @@ static filterResult filter(stateFilter *self, stateEstimation *state)
         // Initialize to current altitude reading at initial location
         if (IS_SET(state->updated, SENSORUPDATES_baro)) {
             if (this->first_run < INIT_CYCLES || !this->useGPS) {
-                this->baroOffset = (((float)(INIT_CYCLES)-this->first_run) / (float)(INIT_CYCLES)) * this->baroOffset + (this->first_run / (float)(INIT_CYCLES)) * (state->baro[0] + this->gpsAlt);
+                if (this->first_run > INIT_CYCLES - 2) {
+                    this->baroOffset = (state->baro[0] + this->gpsAlt);
+                }
+                // Set baroOffset using filtering, this allow better altitude zeroing
+                this->baroOffset = ((1.0f - BARO_OFFSET_ALPHA) * this->baroOffset) + (BARO_OFFSET_ALPHA * (state->baro[0] + this->gpsAlt));
                 this->baroAlt    = state->baro[0];
                 this->first_run--;
             }

@@ -8,7 +8,8 @@
  * @{
  *
  * @file       battery.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @brief      Module to read the battery Voltage and Current periodically and set alarms appropriately.
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -51,26 +52,35 @@
 #include "flightbatterystate.h"
 #include "flightbatterysettings.h"
 #include "hwsettings.h"
+#include "systemstats.h"
 
 //
 // Configuration
 //
-#define SAMPLE_PERIOD_MS 500
-// Private types
+#define SAMPLE_PERIOD_MS     500
 
-// Private variables
-static bool batteryEnabled = false;
+// Time since power on the cells detection is active
+#define DETECTION_TIMEFRAME  60000
+
+#ifndef PIOS_ADC_VOLTAGE_PIN
+#define PIOS_ADC_VOLTAGE_PIN -1
+#endif
+
+#ifndef PIOS_ADC_CURRENT_PIN
+#define PIOS_ADC_CURRENT_PIN -1
+#endif
+
 
 // THESE COULD BE BETTER AS SOME KIND OF UNION OR STRUCT, BY WHICH 4 BITS ARE USED FOR EACH
 // PIN VARIABLE, ONE OF WHICH INDICATES SIGN, AND THE OTHER 3 BITS INDICATE POSITION. THIS WILL
 // WORK FOR QUITE SOMETIME, UNTIL MORE THAN 8 ADC ARE AVAILABLE. EVEN AT THIS POINT, THE STRUCTURE
 // CAN SIMPLY BE MODIFIED TO SUPPORT 15 ADC PINS, BY USING ALL AVAILABLE BITS.
-static int8_t voltageADCPin = -1; // ADC pin for voltage
-static int8_t currentADCPin = -1; // ADC pin for current
+static int8_t voltageADCPin = PIOS_ADC_VOLTAGE_PIN; // ADC pin for voltage
+static int8_t currentADCPin = PIOS_ADC_CURRENT_PIN; // ADC pin for current
 
 // Private functions
 static void onTimer(UAVObjEvent *ev);
-static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData);
+static void GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData);
 
 /**
  * Initialise the module, called on startup
@@ -78,14 +88,18 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
  */
 int32_t BatteryInitialize(void)
 {
+    bool batteryEnabled;
+
+    HwSettingsOptionalModulesData optionalModules;
+
+    HwSettingsOptionalModulesGet(&optionalModules);
+
 #ifdef MODULE_BATTERY_BUILTIN
     batteryEnabled = true;
+    optionalModules.Battery = HWSETTINGS_OPTIONALMODULES_ENABLED;
+    HwSettingsOptionalModulesSet(&optionalModules);
 #else
-    uint8_t optionalModules[HWSETTINGS_OPTIONALMODULES_NUMELEM];
-
-    HwSettingsOptionalModulesGet(optionalModules);
-
-    if ((optionalModules[HWSETTINGS_OPTIONALMODULES_BATTERY] == HWSETTINGS_OPTIONALMODULES_ENABLED)) {
+    if (optionalModules.Battery == HWSETTINGS_OPTIONALMODULES_ENABLED) {
         batteryEnabled = true;
     } else {
         batteryEnabled = false;
@@ -113,9 +127,7 @@ int32_t BatteryInitialize(void)
     // Start module
     if (batteryEnabled) {
         FlightBatteryStateInitialize();
-        FlightBatterySettingsInitialize();
-
-        // FlightBatterySettingsConnectCallback(FlightBatterySettingsUpdatedCb);
+        SystemStatsInitialize();
 
         static UAVObjEvent ev;
 
@@ -144,17 +156,19 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
         batterySettings.ResetConsumedEnergy = false;
         FlightBatterySettingsSet(&batterySettings);
     }
-
+#ifdef PIOS_INCLUDE_ADC
     // calculate the battery parameters
     if (voltageADCPin >= 0) {
         flightBatteryData.Voltage = (PIOS_ADC_PinGetVolt(voltageADCPin) - batterySettings.SensorCalibrations.VoltageZero) * batterySettings.SensorCalibrations.VoltageFactor; // in Volts
     } else {
         flightBatteryData.Voltage = 0; // Dummy placeholder value. This is in case we get another source of battery current which is not from the ADC
     }
-
+#else
+    flightBatteryData.Voltage = 0;
+#endif /* PIOS_INCLUDE_ADC */
     // voltage available: get the number of cells if possible, desired and not armed
     GetNbCells(&batterySettings, &flightBatteryData);
-
+#ifdef PIOS_INCLUDE_ADC
     // ad a plausibility check: zero voltage => zero current
     if (currentADCPin >= 0 && flightBatteryData.Voltage > 0.f) {
         flightBatteryData.Current = (PIOS_ADC_PinGetVolt(currentADCPin) - batterySettings.SensorCalibrations.CurrentZero) * batterySettings.SensorCalibrations.CurrentFactor; // in Amps
@@ -164,6 +178,9 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
     } else { // If there's no current measurement, we still need to assign one. Make it negative, so it can never trigger an alarm
         flightBatteryData.Current = -0; // Dummy placeholder value. This is in case we get another source of battery current which is not from the ADC
     }
+#else
+    flightBatteryData.Current = -0;
+#endif /* PIOS_INCLUDE_ADC */
 
     // For safety reasons consider only positive currents in energy comsumption, i.e. no charging up.
     // necesary when sensor are not perfectly calibrated
@@ -204,7 +221,7 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
 
         // FIXME: should make the battery voltage detection dependent on battery type.
         /*Not so sure. Some users will want to run their batteries harder than others, so it should be the user's choice. [KDS]*/
-        if (flightBatteryData.Voltage < batterySettings.CellVoltageThresholds.Alarm * flightBatteryData.NbCells) {
+        if (flightBatteryData.Voltage < batterySettings.CellVoltageThresholds.Critical * flightBatteryData.NbCells) {
             AlarmsSet(SYSTEMALARMS_ALARM_BATTERY, SYSTEMALARMS_ALARM_CRITICAL);
         } else if (flightBatteryData.Voltage < batterySettings.CellVoltageThresholds.Warning * flightBatteryData.NbCells) {
             AlarmsSet(SYSTEMALARMS_ALARM_BATTERY, SYSTEMALARMS_ALARM_WARNING);
@@ -217,31 +234,37 @@ static void onTimer(__attribute__((unused)) UAVObjEvent *ev)
 }
 
 
-static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData)
+static void GetNbCells(const FlightBatterySettingsData *batterySettings, FlightBatteryStateData *flightBatteryData)
 {
     // get flight status to check for armed
     uint8_t armed = 0;
+    static bool detected = false;
+
+    // prevent the cell number to change once the board is armed at least once
+    if (detected) {
+        return;
+    }
 
     FlightStatusArmedGet(&armed);
 
-
     // check only if not armed
     if (armed == FLIGHTSTATUS_ARMED_ARMED) {
-        return -2;
+        detected = true;
+        return;
     }
 
     // prescribed number of cells?
     if (batterySettings->NbCells != 0) {
         flightBatteryData->NbCells = batterySettings->NbCells;
         flightBatteryData->NbCellsAutodetected = 0;
-        return -3;
+        return;
     }
 
     // plausibility check
     if (flightBatteryData->Voltage <= 0.5f) {
         // cannot detect number of cells
         flightBatteryData->NbCellsAutodetected = 0;
-        return -1;
+        return;
     }
 
     float voltageMin = 0.f, voltageMax = 0.f;
@@ -255,6 +278,10 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
         voltageMin = 3.6f;
         voltageMax = 4.2f;
         break;
+    case FLIGHTBATTERYSETTINGS_TYPE_LIHV:
+        voltageMin = 3.6f;
+        voltageMax = 4.35f;
+        break;
     case FLIGHTBATTERYSETTINGS_TYPE_A123:
         voltageMin = 2.01f;
         voltageMax = 3.59f;
@@ -262,7 +289,7 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
     case FLIGHTBATTERYSETTINGS_TYPE_LIFESO4:
     default:
         flightBatteryData->NbCellsAutodetected = 0;
-        return -1;
+        return;
     }
 
     // uniquely measurable under any condition iff n * voltageMax < (n+1) * voltageMin
@@ -271,14 +298,19 @@ static int8_t GetNbCells(const FlightBatterySettingsData *batterySettings, Fligh
     // checking for v <= voltageMin * voltageMax / (voltageMax-voltageMin)
     if (flightBatteryData->Voltage > voltageMin * voltageMax / (voltageMax - voltageMin)) {
         flightBatteryData->NbCellsAutodetected = 0;
-        return -1;
+        return;
     }
 
+    // Prevent the battery discharging on the ground to change the detected number of cells:
+    // Detection is enabled in the first 60 seconds from powerup
+    uint32_t flightTime;
+    SystemStatsFlightTimeGet(&flightTime);
+    if (flightTime > DETECTION_TIMEFRAME) {
+        detected = true;
+    }
 
     flightBatteryData->NbCells = (int8_t)(flightBatteryData->Voltage / voltageMin);
     flightBatteryData->NbCellsAutodetected = 1;
-
-    return flightBatteryData->NbCells;
 }
 
 /**

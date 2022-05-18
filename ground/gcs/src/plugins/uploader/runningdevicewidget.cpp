@@ -28,6 +28,7 @@
 #include "runningdevicewidget.h"
 #include "devicedescriptorstruct.h"
 #include "uploadergadgetwidget.h"
+#include "version_info/version_info.h"
 
 RunningDeviceWidget::RunningDeviceWidget(QWidget *parent) :
     QWidget(parent)
@@ -101,6 +102,24 @@ void RunningDeviceWidget::populate()
         // Sparky2
         devicePic.load(":/uploader/images/gcs-board-sparky2.png");
         break;
+    case 0x1001:
+        // SPRacingF3
+        devicePic.load(":/uploader/images/gcs-board-spracingf3.png");
+        break;
+    case 0x1003:
+    // Nucleo F303RE
+    case 0x1002:
+        // SPRacingF3 EVO
+        devicePic.load(":/uploader/images/gcs-board-spracingf3evo.png");
+        break;
+    case 0x1005:
+        // pikoBLX
+        devicePic.load(":/uploader/images/gcs-board-pikoblx.png");
+        break;
+    case 0x1006:
+        // tinyFISH
+        devicePic.load(":/uploader/images/gcs-board-tinyfish.png");
+        break;
     default:
         // Clear
         devicePic.load("");
@@ -117,15 +136,41 @@ void RunningDeviceWidget::populate()
 
     deviceDescriptorStruct devDesc;
     if (UAVObjectUtilManager::descriptionToStructure(description, devDesc)) {
-        if (devDesc.gitTag.startsWith("RELEASE", Qt::CaseSensitive)) {
-            myDevice->lblFWTag->setText(tr("Firmware tag: ") + devDesc.gitTag);
+        // Convert current QString uavoHashArray stored in GCS to QByteArray
+        QString uavoHash = VersionInfo::uavoHashArray();
+
+        uavoHash.chop(2);
+        uavoHash.remove(0, 2);
+        uavoHash = uavoHash.trimmed();
+
+        QByteArray uavoHashArray;
+        bool ok;
+        foreach(QString str, uavoHash.split(",")) {
+            uavoHashArray.append(str.toInt(&ok, 16));
+        }
+
+        bool isCompatibleUavo = (uavoHashArray == devDesc.uavoHash);
+        bool isTaggedGcs = (VersionInfo::tag() != "");
+        bool isSameCommit     = (devDesc.gitHash == VersionInfo::hash8());
+        bool isSameTag = (devDesc.gitTag == VersionInfo::fwTag());
+
+        if (isTaggedGcs && isSameCommit && isSameTag && isCompatibleUavo) {
+            // GCS tagged and firmware from same commit
             myDevice->lblCertified->setPixmap(QPixmap(":uploader/images/application-certificate.svg"));
-            myDevice->lblCertified->setToolTip(tr("Tagged officially released firmware build"));
-        } else {
-            myDevice->lblFWTag->setText(tr("Firmware tag: ") + devDesc.gitTag);
+            myDevice->lblCertified->setToolTip(tr("Matched firmware build with official tagged release"));
+        } else if (!isTaggedGcs && isSameCommit && isSameTag && isCompatibleUavo) {
+            // GCS untagged and firmware from same commit
+            myDevice->lblCertified->setPixmap(QPixmap(":uploader/images/dialog-apply.svg"));
+            myDevice->lblCertified->setToolTip(tr("Matched firmware build"));
+        } else if ((!isSameCommit || !isSameTag) && isCompatibleUavo) {
+            // firmware not matching current GCS but compatible UAVO
             myDevice->lblCertified->setPixmap(QPixmap(":uploader/images/warning.svg"));
             myDevice->lblCertified->setToolTip(tr("Untagged or custom firmware build"));
+        } else {
+            myDevice->lblCertified->setPixmap(QPixmap(":uploader/images/error.svg"));
+            myDevice->lblCertified->setToolTip(tr("Uncompatible firmware build"));
         }
+        myDevice->lblFWTag->setText(tr("Firmware tag: ") + devDesc.gitTag);
         myDevice->lblGitCommitTag->setText(tr("Git commit hash: ") + devDesc.gitHash);
         myDevice->lblFWDate->setText(tr("Firmware date: ") + devDesc.gitDate.insert(4, "-").insert(7, "-"));
     } else {

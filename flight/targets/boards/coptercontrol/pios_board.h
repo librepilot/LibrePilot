@@ -88,7 +88,6 @@
 // System Settings
 // -------------------------
 #define PIOS_MASTER_CLOCK        72000000
-#define PIOS_PERIPHERAL_CLOCK    (PIOS_MASTER_CLOCK / 2)
 
 // -------------------------
 // Interrupt Priorities
@@ -117,50 +116,50 @@ extern uint32_t pios_i2c_flexi_adapter_id;
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_SPI_MAX_DEVS   2
+#define PIOS_SPI_MAX_DEVS           2
+extern uint32_t pios_spi_gyro_adapter_id;
+#define PIOS_SPI_MPU6000_ADAPTER    (pios_spi_gyro_adapter_id)
+extern uint32_t pios_spi_flash_accel_adapter_id;
+#define PIOS_SPI_ADXL345_ADAPTER    (pios_spi_flash_accel_adapter_id)
 
 // -------------------------
 // PIOS_USART
 // -------------------------
-#define PIOS_USART_MAX_DEVS 2
+#define PIOS_USART_MAX_DEVS         2
+
+// Inverter for SBUS handling
+#define PIOS_USART_INVERTER_PORT    USART1
+#define PIOS_USART_INVERTER_GPIO    GPIOB
+#define PIOS_USART_INVERTER_PIN     GPIO_Pin_2
+#define PIOS_USART_INVERTER_ENABLE  Bit_SET
+#define PIOS_USART_INVERTER_DISABLE Bit_RESET
 
 // -------------------------
 // PIOS_COM
 //
 // See also pios_board.c
 // -------------------------
-#define PIOS_COM_MAX_DEVS  3
+#define PIOS_COM_MAX_DEVS                3
 
-extern uint32_t pios_com_telem_rf_id;
-#define PIOS_COM_TELEM_RF  (pios_com_telem_rf_id)
+#define PIOS_COM_TELEM_RF_RX_BUF_LEN     32
+#define PIOS_COM_TELEM_RF_TX_BUF_LEN     12
 
-#if defined(PIOS_INCLUDE_GPS)
-extern uint32_t pios_com_gps_id;
-#define PIOS_COM_GPS       (pios_com_gps_id)
-#endif /* PIOS_INCLUDE_GPS */
+#define PIOS_COM_GPS_RX_BUF_LEN          32
 
-extern uint32_t pios_com_bridge_id;
-#define PIOS_COM_BRIDGE    (pios_com_bridge_id)
+#define PIOS_COM_TELEM_USB_RX_BUF_LEN    65
+#define PIOS_COM_TELEM_USB_TX_BUF_LEN    65
 
-extern uint32_t pios_com_vcp_id;
-#define PIOS_COM_VCP       (pios_com_vcp_id)
+#define PIOS_COM_BRIDGE_RX_BUF_LEN       65
+#define PIOS_COM_BRIDGE_TX_BUF_LEN       12
 
-extern uint32_t pios_com_telem_usb_id;
-#define PIOS_COM_TELEM_USB (pios_com_telem_usb_id)
+#define PIOS_COM_HKOSD_TX_BUF_LEN        22
 
-#if defined(PIOS_INCLUDE_DEBUG_CONSOLE)
-extern uint32_t pios_com_debug_id;
-#define PIOS_COM_DEBUG     (pios_com_debug_id)
-#endif /* PIOS_INCLUDE_DEBUG_CONSOLE */
+#define PIOS_COM_MSP_TX_BUF_LEN          128
+#define PIOS_COM_MSP_RX_BUF_LEN          64
 
-extern uint32_t pios_com_hkosd_id;
-#define PIOS_COM_OSDHK     (pios_com_hkosd_id)
+#define PIOS_COM_MAVLINK_TX_BUF_LEN      128
 
-extern uint32_t pios_com_msp_id;
-#define PIOS_COM_MSP       (pios_com_msp_id)
-
-extern uint32_t pios_com_mavlink_id;
-#define PIOS_COM_MAVLINK   (pios_com_mavlink_id)
+#define PIOS_COM_DEBUGCONSOLE_TX_BUF_LEN 40
 
 // -------------------------
 // ADC

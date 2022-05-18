@@ -100,13 +100,16 @@ class UAVOBJECTWIDGETUTILS_EXPORT ConfigTaskWidget : public QWidget {
     Q_OBJECT
 
 public:
-    ConfigTaskWidget(QWidget *parent = 0, bool autopilot = true);
+    enum ConfigTaskType { AutoPilot, OPLink, Child };
+
+    ConfigTaskWidget(QWidget *parent = 0, ConfigTaskType configType = AutoPilot);
     virtual ~ConfigTaskWidget();
 
     void bind();
 
     bool isDirty();
     void setDirty(bool value);
+    void clearDirty();
 
     virtual bool shouldObjectBeSaved(UAVObject *object);
 
@@ -176,23 +179,21 @@ protected:
         return m_currentBoardId;
     }
     bool expertMode() const;
-    virtual void enableControls(bool enable);
     virtual QString mapObjectName(const QString objectName);
     virtual UAVObject *getObject(const QString name, quint32 instId = 0);
     virtual void buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits);
-    void updateEnableControls();
 
-    bool isConnected() const;
-
+    virtual void enableControls(bool enable);
     virtual void refreshWidgetsValuesImpl(UAVObject *) {};
     virtual void updateObjectsFromWidgetsImpl() {};
+
+    bool isConnected() const;
+    void updateEnableControls();
 
 protected slots:
     void setWidgetBindingObjectEnabled(QString objectName, bool enabled);
 
-    void clearDirty();
     virtual void widgetsContentsChanged();
-    // void populateWidgets();
     void refreshWidgetsValues(UAVObject *obj = NULL);
     void updateObjectsFromWidgets();
 
@@ -205,36 +206,38 @@ private slots:
     void objectUpdated(UAVObject *object);
     void invalidateObjects();
 
+    void saveSuccessful();
+
     void defaultButtonClicked();
     void reloadButtonClicked();
     void helpButtonPressed();
 
 private:
-    struct objectComparator {
+    struct ObjectComparator {
         quint32 objid;
         quint32 objinstid;
-        bool operator==(const objectComparator & lhs)
+        bool operator==(const ObjectComparator & lhs)
         {
             return lhs.objid == this->objid && lhs.objinstid == this->objinstid;
         }
     };
 
-    enum buttonTypeEnum { none, save_button, apply_button, reload_button, default_button, help_button };
-    struct bindingStruct {
+    enum ButtonTypeEnum { None, SaveButton, ApplyButton, ReloadButton, DefaultButton, HelpButton };
+    struct BindingStruct {
         QString objectName;
         QString fieldName;
         QString elementName;
         int     index;
         QString url;
-        buttonTypeEnum buttonType;
+        ButtonTypeEnum buttonType;
         QList<int>     buttonGroup;
         double  scale;
         bool    haslimits;
     };
 
-    // indicates if this is an "autopilot" widget (CC3D, Revolution, ...) or an OPLink widget
+    // indicates if this is an "autopilot" widget (CC3D, Revolution, ...), an OPLink widget or a Child widget (for vehicle config)
     // TODO the logic that this flag controls should be moved to derived classes
-    bool m_autopilot;
+    ConfigTaskType m_configType;
 
     // only valid for "autopilot" widgets
     int m_currentBoardId;

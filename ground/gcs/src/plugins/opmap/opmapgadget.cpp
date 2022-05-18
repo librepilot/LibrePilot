@@ -32,6 +32,7 @@ OPMapGadget::OPMapGadget(QString classId, OPMapGadgetWidget *widget, QWidget *pa
     m_widget(widget), m_config(NULL)
 {
     connect(m_widget, SIGNAL(defaultLocationAndZoomChanged(double, double, double)), this, SLOT(saveDefaultLocation(double, double, double)));
+    connect(m_widget, SIGNAL(defaultSafeAreaChanged(int, bool)), this, SLOT(saveDefaultSafeArea(int, bool)));
     connect(m_widget, SIGNAL(overlayOpacityChanged(qreal)), this, SLOT(saveOpacity(qreal)));
 }
 
@@ -48,6 +49,14 @@ void OPMapGadget::saveDefaultLocation(double lng, double lat, double zoom)
         m_config->save();
     }
 }
+void OPMapGadget::saveDefaultSafeArea(int safe_area_radius, bool showSafeArea)
+{
+    if (m_config) {
+        m_config->setSafeAreaRadius(safe_area_radius);
+        m_config->setShowSafeArea(showSafeArea);
+        m_config->save();
+    }
+}
 
 void OPMapGadget::saveOpacity(qreal value)
 {
@@ -59,6 +68,7 @@ void OPMapGadget::loadConfiguration(IUAVGadgetConfiguration *config)
 {
     m_config = qobject_cast<OPMapGadgetConfiguration *>(config);
     m_widget->setMapProvider(m_config->mapProvider());
+    m_widget->setMaxUpdateRate(m_config->maxUpdateRate());
     m_widget->setUseOpenGL(m_config->useOpenGL());
     m_widget->setShowTileGridLines(m_config->showTileGridLines());
     m_widget->setAccessMode(m_config->accessMode());
@@ -67,8 +77,14 @@ void OPMapGadget::loadConfiguration(IUAVGadgetConfiguration *config)
     m_widget->SetUavPic(m_config->uavSymbol());
     m_widget->setZoom(m_config->zoom());
     m_widget->setPosition(QPointF(m_config->longitude(), m_config->latitude()));
-    m_widget->setHomePosition(QPointF(m_config->longitude(), m_config->latitude()));
+    m_widget->setSafeAreaRadius(m_config->safeAreaRadius());
+    m_widget->setShowSafeArea(m_config->showSafeArea());
     m_widget->setOverlayOpacity(m_config->opacity());
     m_widget->setDefaultWaypointAltitude(m_config->defaultWaypointAltitude());
     m_widget->setDefaultWaypointVelocity(m_config->defaultWaypointVelocity());
+
+    if (!m_widget->applyHomeLocationOnMap()) {
+        // Set default HomeLocation in center of map
+        m_widget->setHomePosition(QPointF(m_config->longitude(), m_config->latitude()));
+    }
 }

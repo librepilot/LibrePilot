@@ -38,6 +38,7 @@
 #include <ratedesired.h>
 #include <stabilizationdesired.h>
 #include <attitudestate.h>
+#include <gyrostate.h>
 #include <stabilizationstatus.h>
 #include <flightstatus.h>
 #include <manualcontrolcommand.h>
@@ -63,6 +64,7 @@ static DelayedCallbackInfo *callbackHandle;
 static AttitudeStateData attitude;
 
 static uint8_t previous_mode[AXES] = { 255, 255, 255, 255 };
+static float gyro_filtered[3] = { 0, 0, 0 };
 static PiOSDeltatimeConfig timeval;
 static bool pitchMin = false;
 static bool pitchMax = false;
@@ -71,6 +73,7 @@ static bool rollMax  = false;
 
 // Private functions
 static void stabilizationOuterloopTask();
+static void GyroStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev);
 static void AttitudeStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev);
 
 void stabilizationOuterloopInit()
@@ -78,6 +81,7 @@ void stabilizationOuterloopInit()
     RateDesiredInitialize();
     StabilizationDesiredInitialize();
     AttitudeStateInitialize();
+    GyroStateInitialize();
     StabilizationStatusInitialize();
     FlightStatusInitialize();
     ManualControlCommandInitialize();
@@ -85,6 +89,7 @@ void stabilizationOuterloopInit()
     PIOS_DELTATIME_Init(&timeval, UPDATE_EXPECTED, UPDATE_MIN, UPDATE_MAX, UPDATE_ALPHA);
 
     callbackHandle = PIOS_CALLBACKSCHEDULER_Create(&stabilizationOuterloopTask, CALLBACK_PRIORITY, CBTASK_PRIORITY, CALLBACKINFO_RUNNING_STABILIZATION0, STACK_SIZE_BYTES);
+    GyroStateConnectCallback(GyroStateUpdatedCb);
     AttitudeStateConnectCallback(AttitudeStateUpdatedCb);
 }
 
@@ -146,8 +151,8 @@ static void stabilizationOuterloopTask()
 
 
     float local_error[3];
-    {
 #if defined(PIOS_QUATERNION_STABILIZATION)
+    if (stabSettings.settings.ForceRollPitchDuringYawTransition == STABILIZATIONSETTINGS_FORCEROLLPITCHDURINGYAWTRANSITION_FALSE) {
         // Quaternion calculation of error in each axis.  Uses more memory.
         float rpy_desired[3];
         float q_desired[4];
@@ -173,8 +178,10 @@ static void stabilizationOuterloopTask()
         quat_mult(q_desired, &attitudeState.q1, q_error);
         quat_inverse(q_error);
         Quaternion2RPY(q_error, local_error);
-
+    } else {
 #else /* if defined(PIOS_QUATERNION_STABILIZATION) */
+    {
+#endif /* if defined(PIOS_QUATERNION_STABILIZATION) */
         // Simpler algorithm for CC, less memory
         local_error[0] = stabilizationDesiredAxis[0] - attitudeState.Roll;
         local_error[1] = stabilizationDesiredAxis[1] - attitudeState.Pitch;
@@ -187,9 +194,12 @@ static void stabilizationOuterloopTask()
         } else {
             local_error[2] = modulo - 180.0f;
         }
-#endif /* if defined(PIOS_QUATERNION_STABILIZATION) */
     }
 
+    // Feed forward: Assume things always get worse before they get better
+    local_error[0] = local_error[0] - (gyro_filtered[0] * stabSettings.stabBank.AttitudeFeedForward.Roll);
+    local_error[1] = local_error[1] - (gyro_filtered[1] * stabSettings.stabBank.AttitudeFeedForward.Pitch);
+    local_error[2] = local_error[2] - (gyro_filtered[2] * stabSettings.stabBank.AttitudeFeedForward.Yaw);
 
     for (t = STABILIZATIONSTATUS_OUTERLOOP_ROLL; t < STABILIZATIONSTATUS_OUTERLOOP_THRUST; t++) {
         reinit = (StabilizationStatusOuterLoopToArray(enabled)[t] != previous_mode[t]);
@@ -379,6 +389,18 @@ static void AttitudeStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
 }
 #endif
 }
+
+static void GyroStateUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    GyroStateData gyroState;
+
+    GyroStateGet(&gyroState);
+
+    gyro_filtered[0] = gyro_filtered[0] * stabSettings.feedForward_alpha[0] + gyroState.x * (1 - stabSettings.feedForward_alpha[0]);
+    gyro_filtered[1] = gyro_filtered[1] * stabSettings.feedForward_alpha[1] + gyroState.y * (1 - stabSettings.feedForward_alpha[1]);
+    gyro_filtered[2] = gyro_filtered[2] * stabSettings.feedForward_alpha[2] + gyroState.z * (1 - stabSettings.feedForward_alpha[2]);
+}
+
 
 /**
  * @}

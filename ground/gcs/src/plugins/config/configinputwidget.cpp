@@ -58,7 +58,7 @@
 #define MAX_INPUT_US               2500
 
 #define CHANNEL_NUMBER_NONE        0
-#define DEFAULT_FLIGHT_MODE_NUMBER 0
+#define DEFAULT_FLIGHT_MODE_NUMBER 1
 
 ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     ConfigTaskWidget(parent),
@@ -75,7 +75,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     accessoryDesiredObj0(NULL),
     accessoryDesiredObj1(NULL),
     accessoryDesiredObj2(NULL),
-    accessoryDesiredObj3(NULL)
+    accessoryDesiredObj3(NULL),
+    rssiDesiredObj4(NULL)
 {
     ui = new Ui_InputWidget();
     ui->setupUi(this);
@@ -96,9 +97,10 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     accessoryDesiredObj1  = AccessoryDesired::GetInstance(getObjectManager(), 1);
     accessoryDesiredObj2  = AccessoryDesired::GetInstance(getObjectManager(), 2);
     accessoryDesiredObj3  = AccessoryDesired::GetInstance(getObjectManager(), 3);
+    rssiDesiredObj4 = AccessoryDesired::GetInstance(getObjectManager(), 4);
     actuatorSettingsObj   = ActuatorSettings::GetInstance(getObjectManager());
     systemSettingsObj     = SystemSettings::GetInstance(getObjectManager());
-
+    hwSettingsObj = HwSettings::GetInstance(getObjectManager());
     // Only instance 0 is present if the board is not connected.
     // The other instances are populated lazily.
     Q_ASSERT(accessoryDesiredObj0);
@@ -124,7 +126,12 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         // Slider position based on real time Rcinput (allow monitoring)
         addWidgetBinding("ManualControlCommand", "Channel", inputChannelForm->ui->channelNeutral, index);
         // Neutral value stored on board (SpinBox)
-        addWidgetBinding("ManualControlSettings", "ChannelNeutral", inputChannelForm->ui->neutralValue, index);
+        // Rssi neutral is always set to min
+        if (index == ManualControlSettings::CHANNELGROUPS_RSSI) {
+            addWidgetBinding("ManualControlSettings", "ChannelMin", inputChannelForm->ui->neutralValue, index);
+        } else {
+            addWidgetBinding("ManualControlSettings", "ChannelNeutral", inputChannelForm->ui->neutralValue, index);
+        }
         addWidgetBinding("ManualControlSettings", "ChannelMax", inputChannelForm->ui->channelMax, index);
         addWidgetBinding("ManualControlSettings", "ChannelMin", inputChannelForm->ui->channelMin, index);
         addWidgetBinding("ManualControlSettings", "ChannelMax", inputChannelForm->ui->channelMax, index);
@@ -139,7 +146,10 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
         inputChannelForm->ui->channelRev->setVisible(reversable);
 
         // Input filter response time fields supported for some channels only
+        // Set Neutral field to readonly for Rssi
         switch (index) {
+        case ManualControlSettings::CHANNELGROUPS_RSSI:
+            inputChannelForm->ui->neutralValue->setReadOnly(true);
         case ManualControlSettings::CHANNELGROUPS_ROLL:
         case ManualControlSettings::CHANNELGROUPS_PITCH:
         case ManualControlSettings::CHANNELGROUPS_YAW:
@@ -167,6 +177,9 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     addWidgetBinding("ManualControlSettings", "FailsafeFlightModeSwitchPosition", ui->failsafeFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
 
+    addWidgetBinding("FlightModeSettings", "BatteryFailsafeSwitchPositions", ui->failsafeBatteryWarningFlightMode, 0, 1, true, new QList<int>(failsafeReloadGroup));
+    addWidgetBinding("FlightModeSettings", "BatteryFailsafeSwitchPositions", ui->failsafeBatteryCriticalFlightMode, 1, 1, true, new QList<int>(failsafeReloadGroup));
+
     // Generate the rows for the failsafe channel form GUI
     index = 0;
     foreach(QString name, manualSettingsObj->getField("FailsafeChannel")->getElementNames()) {
@@ -190,6 +203,8 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(ui->runCalibration, SIGNAL(toggled(bool)), this, SLOT(simpleCalibration(bool)));
 
     connect(ReceiverActivity::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+    connect(FlightStatus::GetInstance(getObjectManager()), SIGNAL(objectUpdated(UAVObject *)), this, SLOT(updateReceiverActivityStatus()));
+
     ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
 
@@ -240,9 +255,18 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
     connect(ui->failsafeFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeFlightModeChanged(int)));
     connect(ui->failsafeFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeFlightModeCbToggled(bool)));
 
+    connect(ui->failsafeBatteryWarningFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeBatteryWarningFlightModeChanged(int)));
+    connect(ui->failsafeBatteryWarningFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeBatteryWarningFlightModeCbToggled(bool)));
+
+    connect(ui->failsafeBatteryCriticalFlightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(failsafeBatteryCriticalFlightModeChanged(int)));
+    connect(ui->failsafeBatteryCriticalFlightModeCb, SIGNAL(toggled(bool)), this, SLOT(failsafeBatteryCriticalFlightModeCbToggled(bool)));
+
+
     addWidget(ui->configurationWizard);
     addWidget(ui->runCalibration);
     addWidget(ui->failsafeFlightModeCb);
+    addWidget(ui->failsafeBatteryWarningFlightModeCb);
+    addWidget(ui->failsafeBatteryCriticalFlightModeCb);
 
     // Wizard
     wizardUi = new Ui_InputWizardWidget();
@@ -430,14 +454,15 @@ ConfigInputWidget::ConfigInputWidget(QWidget *parent) :
 
     groundChannelOrder << ManualControlSettings::CHANNELGROUPS_THROTTLE <<
         ManualControlSettings::CHANNELGROUPS_YAW <<
+        ManualControlSettings::CHANNELGROUPS_FLIGHTMODE <<
         ManualControlSettings::CHANNELGROUPS_ACCESSORY0;
 }
 
 void ConfigInputWidget::buildOptionComboBox(QComboBox *combo, UAVObjectField *field, int index, bool applyLimits)
 {
-    if (combo == ui->failsafeFlightMode) {
+    if (combo == ui->failsafeFlightMode || combo == ui->failsafeBatteryCriticalFlightMode || combo == ui->failsafeBatteryWarningFlightMode) {
         for (quint32 i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
-            ui->failsafeFlightMode->addItem(QString("Position %1").arg(i + 1), QVariant(i));
+            combo->addItem(QString("Position %1").arg(i + 1), QVariant(i));
         }
     } else {
         ConfigTaskWidget::buildOptionComboBox(combo, field, index, applyLimits);
@@ -472,6 +497,16 @@ void ConfigInputWidget::enableControls(bool enable)
     } else {
         // Hide configAlarmStatus when disconnected
         ui->configAlarmStatus->setVisible(false);
+        if (wizardStep != wizardNone) {
+            // Close input wizard
+            wzCancel();
+        }
+        if (ui->runCalibration->isChecked()) {
+            // Close manual calibration
+            ui->runCalibration->setChecked(false);
+            ui->runCalibration->setText(tr("Start Manual Calibration"));
+            emit inputCalibrationStateChanged(false);
+        }
     }
 }
 
@@ -484,6 +519,12 @@ void ConfigInputWidget::resizeEvent(QResizeEvent *event)
 
 void ConfigInputWidget::goToWizard()
 {
+    if (!outputConfigIsSafe) {
+        QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output</b> tab."
+                                                     "<p>Please fix the issue before starting the Transmitter wizard.</p>"), QMessageBox::Ok);
+        return;
+    }
+
     QMessageBox msgBox;
 
     msgBox.setText(tr("Arming Settings are now set to 'Always Disarmed' for your safety."));
@@ -493,6 +534,9 @@ void ConfigInputWidget::goToWizard()
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
+
+    // Tell Output tab we freeze actuators soon
+    emit inputCalibrationStateChanged(true);
 
     // Set correct tab visible before starting wizard.
     if (ui->tabWidget->currentIndex() != 0) {
@@ -562,6 +606,9 @@ void ConfigInputWidget::wzCancel()
     flightModeSettingsObj->setData(memento.flightModeSettingsData);
     actuatorSettingsObj->setData(memento.actuatorSettingsData);
     systemSettingsObj->setData(memento.systemSettingsData);
+
+    // Tell Output tab the calibration is ended
+    emit inputCalibrationStateChanged(false);
 }
 
 void ConfigInputWidget::registerControlActivity()
@@ -652,15 +699,14 @@ void ConfigInputWidget::wzNext()
         throttleError = false;
         checkThrottleRange();
 
-        // Force flight mode number to be 1 if 2 CH ground vehicle was selected
-        if (transmitterType == ground) {
-            forceOneFlightMode();
-        }
-
         manualSettingsObj->setData(manualSettingsData);
+
         // move to Arming Settings tab
         ui->stackedWidget->setCurrentIndex(0);
         ui->tabWidget->setCurrentIndex(3);
+
+        // Tell Output tab the calibration is ended
+        emit inputCalibrationStateChanged(false);
         break;
     default:
         Q_ASSERT(0);
@@ -804,7 +850,7 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
     {
         setTxMovement(nothing);
         manualSettingsData = manualSettingsObj->getData();
-        for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+        for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
             // Preserve the inverted status
             if (manualSettingsData.ChannelMin[i] <= manualSettingsData.ChannelMax[i]) {
                 manualSettingsData.ChannelMin[i] = manualSettingsData.ChannelNeutral[i];
@@ -833,12 +879,12 @@ void ConfigInputWidget::wizardSetUpStep(enum wizardSteps step)
         extraWidgets.clear();
         for (int index = 0; index < manualSettingsObj->getField("ChannelMax")->getElementNames().length(); index++) {
             QString name = manualSettingsObj->getField("ChannelMax")->getElementNames().at(index);
-            if (!name.contains("Access") && !name.contains("Flight") &&
+            if (!name.contains("Access") && !name.contains("Flight") && !name.contains("Rssi") &&
                 (!name.contains("Collective") || transmitterType == heli)) {
                 QCheckBox *cb = new QCheckBox(name, this);
                 // Make sure checked status matches current one
                 cb->setChecked(manualSettingsData.ChannelMax[index] < manualSettingsData.ChannelMin[index]);
-                wizardUi->checkBoxesLayout->addWidget(cb, extraWidgets.size() / 4, extraWidgets.size() % 4);
+                wizardUi->checkBoxesLayout->addWidget(cb, extraWidgets.size() / 5, extraWidgets.size() % 5);
                 extraWidgets.append(cb);
                 connect(cb, SIGNAL(toggled(bool)), this, SLOT(invertControls()));
             }
@@ -872,10 +918,18 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
             transmitterType = acro;
         } else if (wizardUi->typeGround->isChecked()) {
             transmitterType    = ground;
-            /* Make sure to tell controller, this is really a ground vehicle. */
+
             systemSettingsData = systemSettingsObj->getData();
-            systemSettingsData.AirframeType = SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR;
-            systemSettingsObj->setData(systemSettingsData);
+            /* Make sure to tell controller, this is really a ground vehicle. */
+            if ((systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIAL) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT) ||
+                (systemSettingsData.AirframeType != SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT)) {
+                // Apply default ground vehicle airframe
+                systemSettingsData.AirframeType = SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR;
+                systemSettingsObj->setData(systemSettingsData);
+            }
         } else {
             transmitterType = heli;
         }
@@ -899,17 +953,12 @@ void ConfigInputWidget::wizardTearDownStep(enum wizardSteps step)
         disconnect(receiverActivityObj, SIGNAL(objectUpdated(UAVObject *)), this, SLOT(identifyControls()));
         wizardUi->wzNext->setEnabled(true);
         setTxMovement(nothing);
-        /* If flight mode stick isn't identified, force flight mode number to be 1 */
-        manualSettingsData = manualSettingsObj->getData();
-        if (manualSettingsData.ChannelGroups[ManualControlSettings::CHANNELNUMBER_FLIGHTMODE] ==
-            ManualControlSettings::CHANNELGROUPS_NONE) {
-            forceOneFlightMode();
-        }
         break;
     case wizardIdentifyCenter:
         manualCommandData  = manualCommandObj->getData();
         manualSettingsData = manualSettingsObj->getData();
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; ++i) {
+        // Ignore last Rssi channel
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
             // Set Accessory neutral to middle range
             if (i >= ManualControlSettings::CHANNELNUMBER_ACCESSORY0) {
                 manualSettingsData.ChannelNeutral[i] = manualSettingsData.ChannelMin[i] + ((manualSettingsData.ChannelMax[i] - manualSettingsData.ChannelMin[i]) / 2);
@@ -1163,11 +1212,12 @@ void ConfigInputWidget::identifyControls()
 void ConfigInputWidget::identifyLimits()
 {
     uint16_t inputValue;
+    static uint16_t previousInputFMValue;
     bool newLimitValue = false;
     bool newFlightModeValue = false;
 
     manualCommandData = manualCommandObj->getData();
-    for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+    for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
         inputValue = manualCommandData.Channel[i];
         // Check if channel is already detected and prevent glitches
         if ((manualSettingsData.ChannelNumber[i] != CHANNEL_NUMBER_NONE) &&
@@ -1195,32 +1245,37 @@ void ConfigInputWidget::identifyLimits()
             }
             // Flightmode channel
             if (i == ManualControlSettings::CHANNELGROUPS_FLIGHTMODE) {
-                // Avoid duplicate values too close and error due to RcTx drift
-                int minSpacing = 100; // 100µs
-                for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
-                    if (flightModeSignalValue[pos] == 0) {
-                        newFlightModeValue = true;
-                        // A new flightmode value can be set now
-                        for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
-                            // Check if value is already used, MinSpacing needed between values.
-                            if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
-                                (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
-                                newFlightModeValue = false;
+                int deltaInput = abs(previousInputFMValue - inputValue);
+                previousInputFMValue = inputValue;
+                // Expecting two consecutive readings within a close value
+                if (deltaInput < 5) {
+                    // Avoid duplicate values too close and error due to RcTx drift
+                    int minSpacing = 100; // 100µs
+                    for (int pos = 0; pos < manualSettingsData.FlightModeNumber + 1; ++pos) {
+                        if (flightModeSignalValue[pos] == 0) {
+                            newFlightModeValue = true;
+                            // A new flightmode value can be set now
+                            for (int checkpos = 0; checkpos < manualSettingsData.FlightModeNumber + 1; ++checkpos) {
+                                // Check if value is already used, MinSpacing needed between values.
+                                if ((flightModeSignalValue[checkpos] < inputValue + minSpacing) &&
+                                    (flightModeSignalValue[checkpos] > inputValue - minSpacing)) {
+                                    newFlightModeValue = false;
+                                }
                             }
-                        }
-                        // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
-                        if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
-                            // Start from 0, erase previous count
-                            if (pos == 0) {
-                                manualSettingsData.FlightModeNumber = 0;
+                            // Be sure FlightModeNumber is < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM (6)
+                            if ((manualSettingsData.FlightModeNumber < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM) && newFlightModeValue) {
+                                // Start from 0, erase previous count
+                                if (pos == 0) {
+                                    manualSettingsData.FlightModeNumber = 0;
+                                }
+                                // Store new value and increase FlightModeNumber
+                                flightModeSignalValue[pos] = inputValue;
+                                manualSettingsData.FlightModeNumber++;
+                                // Show flight mode number
+                                m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
+                                m_txFlightModeCountText->setVisible(true);
+                                m_txFlightModeCountBG->setVisible(true);
                             }
-                            // Store new value and increase FlightModeNumber
-                            flightModeSignalValue[pos] = inputValue;
-                            manualSettingsData.FlightModeNumber++;
-                            // Show flight mode number
-                            m_txFlightModeCountText->setText(QString().number(manualSettingsData.FlightModeNumber));
-                            m_txFlightModeCountText->setVisible(true);
-                            m_txFlightModeCountBG->setVisible(true);
                         }
                     }
                 }
@@ -1769,88 +1824,40 @@ void ConfigInputWidget::updatePositionSlider()
 {
     ManualControlSettings::DataFields manualSettingsDataPriv = manualSettingsObj->getData();
 
-    switch (manualSettingsDataPriv.FlightModeNumber) {
-    default:
-    case 6:
-        ui->fmsModePos6->setEnabled(true);
-        ui->pidBankSs1_5->setEnabled(true);
-        ui->assistControlPos6->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 5);
-    // pass through
-    case 5:
-        ui->fmsModePos5->setEnabled(true);
-        ui->pidBankSs1_4->setEnabled(true);
-        ui->assistControlPos5->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 4);
-    // pass through
-    case 4:
-        ui->fmsModePos4->setEnabled(true);
-        ui->pidBankSs1_3->setEnabled(true);
-        ui->assistControlPos4->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 3);
-    // pass through
-    case 3:
-        ui->fmsModePos3->setEnabled(true);
-        ui->pidBankSs1_2->setEnabled(true);
-        ui->assistControlPos3->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 2);
-    // pass through
-    case 2:
-        ui->fmsModePos2->setEnabled(true);
-        ui->pidBankSs1_1->setEnabled(true);
-        ui->assistControlPos2->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 1);
-    // pass through
-    case 1:
-        ui->fmsModePos1->setEnabled(true);
-        ui->pidBankSs1_0->setEnabled(true);
-        ui->assistControlPos1->setEnabled(true);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 0);
-    // pass through
-    case 0:
-        break;
-    }
+    QWidget *fmsModes[] = {
+        ui->fmsModePos1,
+        ui->fmsModePos2,
+        ui->fmsModePos3,
+        ui->fmsModePos4,
+        ui->fmsModePos5,
+        ui->fmsModePos6
+    };
+    QWidget *pidBanks[] = {
+        ui->pidBankSs1_0,
+        ui->pidBankSs1_1,
+        ui->pidBankSs1_2,
+        ui->pidBankSs1_3,
+        ui->pidBankSs1_4,
+        ui->pidBankSs1_5
+    };
+    QWidget *assistControls[] = {
+        ui->assistControlPos1,
+        ui->assistControlPos2,
+        ui->assistControlPos3,
+        ui->assistControlPos4,
+        ui->assistControlPos5,
+        ui->assistControlPos6
+    };
 
-    switch (manualSettingsDataPriv.FlightModeNumber) {
-    case 0:
-        ui->fmsModePos1->setEnabled(false);
-        ui->pidBankSs1_0->setEnabled(false);
-        ui->assistControlPos1->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 0, false);
-    // pass through
-    case 1:
-        ui->fmsModePos2->setEnabled(false);
-        ui->pidBankSs1_1->setEnabled(false);
-        ui->assistControlPos2->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 1, false);
-    // pass through
-    case 2:
-        ui->fmsModePos3->setEnabled(false);
-        ui->pidBankSs1_2->setEnabled(false);
-        ui->assistControlPos3->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 2, false);
-    // pass through
-    case 3:
-        ui->fmsModePos4->setEnabled(false);
-        ui->pidBankSs1_3->setEnabled(false);
-        ui->assistControlPos4->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 3, false);
-    // pass through
-    case 4:
-        ui->fmsModePos5->setEnabled(false);
-        ui->pidBankSs1_4->setEnabled(false);
-        ui->assistControlPos5->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 4, false);
-    // pass through
-    case 5:
-        ui->fmsModePos6->setEnabled(false);
-        ui->pidBankSs1_5->setEnabled(false);
-        ui->assistControlPos6->setEnabled(false);
-        setComboBoxItemEnabled(ui->failsafeFlightMode, 5, false);
-    // pass through
-    case 6:
-    default:
-        break;
+    for (quint32 i = 0; i < FlightModeSettings::FLIGHTMODEPOSITION_NUMELEM; i++) {
+        bool enabled = i < manualSettingsDataPriv.FlightModeNumber;
+
+        fmsModes[i]->setEnabled(enabled);
+        pidBanks[i]->setEnabled(enabled);
+        assistControls[i]->setEnabled(enabled);
+        setComboBoxItemEnabled(ui->failsafeFlightMode, i, enabled);
+        setComboBoxItemEnabled(ui->failsafeBatteryCriticalFlightMode, i, enabled);
+        setComboBoxItemEnabled(ui->failsafeBatteryWarningFlightMode, i, enabled);
     }
 
     QString fmNumber = QString().setNum(manualSettingsDataPriv.FlightModeNumber);
@@ -1890,7 +1897,7 @@ void ConfigInputWidget::updateConfigAlarmStatus()
         switch (systemAlarms.ExtendedAlarmStatus[SystemAlarms::EXTENDEDALARMSTATUS_SYSTEMCONFIGURATION]) {
         case SystemAlarms::EXTENDEDALARMSTATUS_FLIGHTMODE:
             message = tr("Config error");
-            tooltipMessage = tr("There is something wrong with your config,\nusually a Thrust mode or Assisted mode not supported.\n\n"
+            tooltipMessage = tr("There is something wrong in the current config,\nusually a Thrust mode or Assisted mode not supported.\n\n"
                                 "Tip: Reduce the Flight Mode Count to find the culprit.");
             bgColor = "red";
         }
@@ -1906,7 +1913,7 @@ void ConfigInputWidget::updateConfigAlarmStatus()
 void ConfigInputWidget::updateCalibration()
 {
     manualCommandData = manualCommandObj->getData();
-    for (uint i = 0; i < ManualControlSettings::CHANNELMAX_NUMELEM; ++i) {
+    for (uint i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; ++i) {
         if ((!reverse[i] && manualSettingsData.ChannelMin[i] > manualCommandData.Channel[i]) ||
             (reverse[i] && manualSettingsData.ChannelMin[i] < manualCommandData.Channel[i])) {
             manualSettingsData.ChannelMin[i] = manualCommandData.Channel[i];
@@ -1934,6 +1941,19 @@ void ConfigInputWidget::updateCalibration()
 
 void ConfigInputWidget::simpleCalibration(bool enable)
 {
+    if (!isConnected()) {
+        return;
+    }
+
+    if (!outputConfigIsSafe) {
+        if (enable) {
+            QMessageBox::warning(this, tr("Warning"), tr("There is something wrong in <b>Output</b> tab."
+                                                         "<p>Please fix the issue before starting the Manual Calibration.</p>"), QMessageBox::Ok);
+            ui->runCalibration->setChecked(false);
+        }
+        return;
+    }
+
     if (enable) {
         ui->configurationWizard->setEnabled(false);
         ui->applyButton->setEnabled(false);
@@ -1950,14 +1970,17 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         msgBox.setDefaultButton(QMessageBox::Ok);
         msgBox.exec();
 
+        // Tell Output tab we freeze actuators soon
+        emit inputCalibrationStateChanged(true);
+
         manualCommandData      = manualCommandObj->getData();
 
         manualSettingsData     = manualSettingsObj->getData();
         flightModeSettingsData = flightModeSettingsObj->getData();
         flightModeSettingsData.Arming = FlightModeSettings::ARMING_ALWAYSDISARMED;
         flightModeSettingsObj->setData(flightModeSettingsData);
-
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; i++) {
+        // Ignore last Rssi channel
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             reverse[i] = manualSettingsData.ChannelMax[i] < manualSettingsData.ChannelMin[i];
             manualSettingsData.ChannelMin[i]     = manualCommandData.Channel[i];
             manualSettingsData.ChannelNeutral[i] = manualCommandData.Channel[i];
@@ -1979,7 +2002,11 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         manualSettingsData = manualSettingsObj->getData();
         systemSettingsData = systemSettingsObj->getData();
 
-        if (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR) {
+        if ((systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLECAR) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIAL) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEMOTORCYCLE) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEBOAT) ||
+            (systemSettingsData.AirframeType == SystemSettings::AIRFRAMETYPE_GROUNDVEHICLEDIFFERENTIALBOAT)) {
             QMessageBox::warning(this, tr("Ground Vehicle"),
                                  tr("<p>Please <b>center</b> throttle control and press OK when ready.</p>"));
 
@@ -1990,12 +2017,7 @@ void ConfigInputWidget::simpleCalibration(bool enable)
 
         restoreMdataSingle(manualCommandObj, &manualControlMdata);
 
-        // Force flight mode number to be 1 if 2 channel ground vehicle was confirmed
-        if (transmitterType == ground) {
-            forceOneFlightMode();
-        }
-
-        for (unsigned int i = 0; i < ManualControlCommand::CHANNEL_NUMELEM; i++) {
+        for (unsigned int i = 0; i < ManualControlSettings::CHANNELNUMBER_RSSI; i++) {
             if ((i == ManualControlSettings::CHANNELNUMBER_FLIGHTMODE) || (i == ManualControlSettings::CHANNELNUMBER_THROTTLE)) {
                 adjustSpecialNeutrals();
                 checkThrottleRange();
@@ -2017,6 +2039,9 @@ void ConfigInputWidget::simpleCalibration(bool enable)
         ui->applyButton->setEnabled(true);
         ui->saveButton->setEnabled(true);
         ui->runCalibration->setText(tr("Start Manual Calibration"));
+
+        // Tell Output tab the calibration is ended
+        emit inputCalibrationStateChanged(false);
 
         disconnect(manualCommandObj, SIGNAL(objectUnpacked(UAVObject *)), this, SLOT(updateCalibration()));
     }
@@ -2068,8 +2093,8 @@ bool ConfigInputWidget::shouldObjectBeSaved(UAVObject *object)
 void ConfigInputWidget::resetChannelSettings()
 {
     manualSettingsData = manualSettingsObj->getData();
-    // Clear all channel data : Channel Type (PPM,PWM..) and Number
-    for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_NUMELEM; channel++) {
+    // Clear all channel data : Channel Type (PPM,PWM..) and Number, except for Rssi
+    for (unsigned int channel = 0; channel < ManualControlSettings::CHANNELNUMBER_RSSI; channel++) {
         manualSettingsData.ChannelGroups[channel] = ManualControlSettings::CHANNELGROUPS_NONE;
         manualSettingsData.ChannelNumber[channel] = CHANNEL_NUMBER_NONE;
         UAVObjectUpdaterHelper updateHelper;
@@ -2101,7 +2126,7 @@ void ConfigInputWidget::resetActuatorSettings()
     QString mixerType;
 
     // Clear all output data : Min, max, neutral at same value
-    // 1000 for motors and 1500 for all others (Reversable motor included)
+    // min value for motors and neutral for all others (Reversable motor, servo)
     for (unsigned int output = 0; output < ActuatorSettings::CHANNELMAX_NUMELEM; output++) {
         QString mixerNumType  = QString("Mixer%1Type").arg(output + 1);
         UAVObjectField *field = mixer->getField(mixerNumType);
@@ -2111,13 +2136,13 @@ void ConfigInputWidget::resetActuatorSettings()
             mixerType = field->getValue().toString();
         }
         if ((mixerType == "Motor") || (mixerType == "Disabled")) {
-            actuatorSettingsData.ChannelMax[output]     = 1000;
-            actuatorSettingsData.ChannelMin[output]     = 1000;
-            actuatorSettingsData.ChannelNeutral[output] = 1000;
+            // Apply current min setting to neutral/max values
+            actuatorSettingsData.ChannelMax[output]     = actuatorSettingsData.ChannelMin[output];
+            actuatorSettingsData.ChannelNeutral[output] = actuatorSettingsData.ChannelMin[output];
         } else {
-            actuatorSettingsData.ChannelMax[output]     = 1500;
-            actuatorSettingsData.ChannelMin[output]     = 1500;
-            actuatorSettingsData.ChannelNeutral[output] = 1500;
+            // Apply current neutral setting to min/max values
+            actuatorSettingsData.ChannelMax[output] = actuatorSettingsData.ChannelNeutral[output];
+            actuatorSettingsData.ChannelMin[output] = actuatorSettingsData.ChannelNeutral[output];
         }
         UAVObjectUpdaterHelper updateHelper;
         actuatorSettingsObj->setData(actuatorSettingsData, false);
@@ -2125,18 +2150,15 @@ void ConfigInputWidget::resetActuatorSettings()
     }
 }
 
-void ConfigInputWidget::forceOneFlightMode()
-{
-    manualSettingsData = manualSettingsObj->getData();
-    manualSettingsData.FlightModeNumber = 1;
-    manualSettingsObj->setData(manualSettingsData);
-}
-
 void ConfigInputWidget::updateReceiverActivityStatus()
 {
     ReceiverActivity *receiverActivity = ReceiverActivity::GetInstance(getObjectManager());
 
     Q_ASSERT(receiverActivity);
+
+    FlightStatus *flightStatus = FlightStatus::GetInstance(getObjectManager());
+
+    Q_ASSERT(flightStatus);
 
     UAVObjectField *activeGroup   = receiverActivity->getField(QString("ActiveGroup"));
     Q_ASSERT(activeGroup);
@@ -2147,15 +2169,36 @@ void ConfigInputWidget::updateReceiverActivityStatus()
     QString activeGroupText   = activeGroup->getValue().toString();
     QString activeChannelText = activeChannel->getValue().toString();
 
+
     if (activeGroupText != "None") {
         ui->receiverActivityStatus->setText(tr("%1 input - Channel %2").arg(activeGroupText).arg(activeChannelText));
         ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: green; color: rgb(255, 255, 255); \
                                                    border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
     } else {
-        ui->receiverActivityStatus->setText(tr("No activity"));
+        bool armed = (flightStatus->getArmed() == FlightStatus::ARMED_ARMED);
+        QString receiverActivityText = armed ? tr("Disabled (Armed)") : tr("No activity");
+        ui->receiverActivityStatus->setText(receiverActivityText);
         ui->receiverActivityStatus->setStyleSheet("QLabel { background-color: darkGreen; color: rgb(255, 255, 255); \
                                                    border: 1px solid grey; border-radius: 5; margin:1px; font:bold;}");
     }
+}
+
+void ConfigInputWidget::failsafeBatteryWarningFlightModeChanged(int index)
+{
+    HwSettings::DataFields hwSettingsData = hwSettingsObj->getData();
+    bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
+
+    ui->failsafeBatteryWarningFlightMode->setEnabled(batteryModuleEnabled && index != -1);
+    ui->failsafeBatteryWarningFlightModeCb->setChecked(index != -1);
+}
+
+void ConfigInputWidget::failsafeBatteryCriticalFlightModeChanged(int index)
+{
+    HwSettings::DataFields hwSettingsData = hwSettingsObj->getData();
+    bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
+
+    ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && index != -1);
+    ui->failsafeBatteryCriticalFlightModeCb->setChecked(index != -1);
 }
 
 void ConfigInputWidget::failsafeFlightModeChanged(int index)
@@ -2169,7 +2212,29 @@ void ConfigInputWidget::failsafeFlightModeCbToggled(bool checked)
     ui->failsafeFlightMode->setCurrentIndex(checked ? 0 : -1);
 }
 
+void ConfigInputWidget::failsafeBatteryWarningFlightModeCbToggled(bool checked)
+{
+    ui->failsafeBatteryWarningFlightMode->setCurrentIndex(checked ? 0 : -1);
+}
+
+void ConfigInputWidget::failsafeBatteryCriticalFlightModeCbToggled(bool checked)
+{
+    ui->failsafeBatteryCriticalFlightMode->setCurrentIndex(checked ? 0 : -1);
+}
+
 void ConfigInputWidget::enableControlsChanged(bool enabled)
 {
-    ui->failsafeFlightMode->setEnabled(enabled && (ui->failsafeFlightMode->currentIndex() != -1));
+    ui->failsafeFlightMode->setEnabled(enabled && ui->failsafeFlightMode->currentIndex() != -1);
+
+    HwSettings::DataFields hwSettingsData = hwSettingsObj->getData();
+    bool batteryModuleEnabled = (hwSettingsData.OptionalModules[HwSettings::OPTIONALMODULES_BATTERY] == HwSettings::OPTIONALMODULES_ENABLED);
+    ui->failsafeBatteryWarningFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryWarningFlightMode->currentIndex() != -1);
+    ui->failsafeBatteryCriticalFlightMode->setEnabled(batteryModuleEnabled && enabled && ui->failsafeBatteryCriticalFlightMode->currentIndex() != -1);
+    ui->failsafeBatteryWarningFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
+    ui->failsafeBatteryCriticalFlightModeCb->setEnabled(enabled && batteryModuleEnabled);
+}
+
+void ConfigInputWidget::setOutputConfigSafe(bool status)
+{
+    outputConfigIsSafe = status;
 }

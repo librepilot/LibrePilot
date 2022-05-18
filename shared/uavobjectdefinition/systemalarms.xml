@@ -14,6 +14,7 @@
 			<elementname>ManualControl</elementname>
 			<elementname>Actuator</elementname>
 			<elementname>Attitude</elementname>
+			<elementname>Nav</elementname>
 			<elementname>Sensors</elementname>
 			<elementname>Magnetometer</elementname>
 			<elementname>Airspeed</elementname>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The LibrePilot Project
+ * Copyright (C) 2016-2017 The LibrePilot Project
  * Contact: http://www.librepilot.org
  *
  * This file is part of LibrePilot GCS.
@@ -117,6 +117,7 @@ function position() {
     switch(gpsPositionSensor.status) {
     case GPSPositionSensor.Status.Fix2D:
     case GPSPositionSensor.Status.Fix3D:
+    case GPSPositionSensor.Status.Fix3DDGNSS:
         return gpsPosition();
     case GPSPositionSensor.Status.NoFix:
     case GPSPositionSensor.Status.NoGPS:
@@ -155,7 +156,7 @@ function isCC3D() {
 function frameType() {
     var frameTypeText = ["FixedWing", "FixedWingElevon", "FixedWingVtail", "VTOL", "HeliCP", "QuadX", "QuadP",
             "Hexa+", "Octo+", "Custom", "HexaX", "HexaH", "OctoV", "OctoCoaxP", "OctoCoaxX", "OctoX", "HexaCoax",
-            "Tricopter", "GroundVehicleCar", "GroundVehicleDiff", "GroundVehicleMoto"];
+            "Tricopter", "GroundCar", "GroundDiff", "GroundMoto", "GroundBoat", "GroundDiffBoat"];
 
     if (frameTypeText.length != SystemSettings.SystemSettingsConstants.AirframeTypeCount) {
         console.log("uav.js: frameType() do not match systemSettings.airframeType uavo");
@@ -222,11 +223,19 @@ function isGpsNotInitialised() {
 }
 
 function isGpsStatusFix3D() {
-    return (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D);
+    return ((gpsPositionSensor.status == GPSPositionSensor.Status.Fix3D) || (gpsPositionSensor.status == GPSPositionSensor.Status.Fix3DDGNSS));
 }
 
 function isOplmConnected() {
     return (opLinkStatus.linkState == OPLinkStatus.LinkState.Connected);
+}
+
+function oplmRSSI() {
+    return (opLinkStatus.rssi > -13) ? -13 : opLinkStatus.rssi;
+}
+
+function oplmDeviceID() {
+    return opLinkStatus.deviceID;
 }
 
 function magSourceName() {
@@ -268,7 +277,7 @@ function gpsAltitude() {
 }
 
 function gpsStatus() {
-    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D"];
+    var gpsStatusText = ["NO GPS", "NO FIX", "2D", "3D", "3D"];
 
     if (gpsStatusText.length != GPSPositionSensor.GPSPositionSensorConstants.StatusCount) {
         console.log("uav.js: gpsStatus() do not match gpsPositionSensor.status uavo");
@@ -278,7 +287,7 @@ function gpsStatus() {
 }
 
 function fusionAlgorithm() {
-    var fusionAlgorithmText = ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS13)"];
+    var fusionAlgorithmText = ["None", "Basic (No Nav)", "CompMag", "Comp+Mag+GPS", "EKFIndoor", "GPSNav (INS)", "GPSNav (INS+CF)", "Testing (INS Indoor+CF)"];
 
     if (fusionAlgorithmText.length != RevoSettings.RevoSettingsConstants.FusionAlgorithmCount) {
         console.log("uav.js: fusionAlgorithm() do not match revoSettings.fusionAlgorithm uavo");
@@ -307,6 +316,18 @@ function oplmLinkState() {
 */
 function batteryModuleEnabled() {
     return (hwSettings.optionalModulesBattery == HwSettings.OptionalModules.Enabled);
+}
+
+function batteryADCConfigured() {
+    for (var i = 0; i < 8; i++) {
+        var adcRouting = hwSettings.getADCRouting(i);
+        if (adcRouting == HwSettings.ADCRouting.BatteryVoltage) {
+            return true;
+        } else if (adcRouting == HwSettings.ADCRouting.BatteryCurrent) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function batteryNbCells() {

@@ -87,10 +87,14 @@ private slots:
 
 private:
     enum ElementType { FULL, FRAME, MOTOR, SERVO };
-    static const int LOW_OUTPUT_RATE_MILLISECONDS      = 1000;
-    static const int NEUTRAL_OUTPUT_RATE_MILLISECONDS  = 1500;
-    static const int HIGH_OUTPUT_RATE_MILLISECONDS_PWM = 1900;
-    static const int HIGH_OUTPUT_RATE_MILLISECONDS_ONESHOT125 = 2000;
+    static const int LOW_OUTPUT_RATE_DSHOT     = 0;
+    static const int HIGH_OUTPUT_RATE_DSHOT    = 2000;
+    static const int LOW_OUTPUT_RATE_MS        = 1000;
+    static const int LOW_OUTPUT_RATE_PWM_MS    = 1000;
+    static const int HIGH_OUTPUT_RATE_PWM_MS   = 1900;
+    static const int NEUTRAL_OUTPUT_RATE_RANGE = 500;
+    static const int NEUTRAL_OUTPUT_RATE_MS    = 1500;
+    static const int HIGH_OUTPUT_RATE_ONESHOT_MULTISHOT_MS = 2000;
 
     void setupVehicle();
     void startWizard();
@@ -112,6 +116,7 @@ private:
 
     void getCurrentChannels(QList<quint16> &channels);
     void enableAllMotorsCheckBox(bool enable);
+    int getLowOutputRate();
     int getHighOutputRate();
     quint16 getCurrentChannel();
 

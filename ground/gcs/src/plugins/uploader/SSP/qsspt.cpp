@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       qsspt.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup Uploader Serial and USB Uploader Plugin
@@ -26,18 +27,27 @@
  */
 #include "qsspt.h"
 
+#include <QDebug>
+
 qsspt::qsspt(port *info, bool debug) : qssp(info, debug), endthread(false), datapending(false), debug(debug)
 {}
 
+qsspt::~qsspt()
+{
+    endthread = true;
+    // TODO bad...
+    wait(1000);
+}
+
 void qsspt::run()
 {
+    // TODO the loop is non blocking and will spin as fast as the CPU allows
     while (!endthread) {
-        receivestatus = this->ssp_ReceiveProcess();
-        sendstatus    = this->ssp_SendProcess();
-        msleep(1);
+        receivestatus = ssp_ReceiveProcess();
+        sendstatus    = ssp_SendProcess();
         sendbufmutex.lock();
         if (datapending && receivestatus == SSP_TX_IDLE) {
-            this->ssp_SendData(mbuf, msize);
+            ssp_SendData(mbuf, msize);
             datapending = false;
         }
         sendbufmutex.unlock();
@@ -46,8 +56,13 @@ void qsspt::run()
         }
     }
 }
+
 bool qsspt::sendData(uint8_t *buf, uint16_t size)
 {
+    if (debug) {
+        QByteArray data((const char *)buf, size);
+        qDebug() << "SSP TX " << data.toHex();
+    }
     if (datapending) {
         return false;
     }
@@ -56,6 +71,8 @@ bool qsspt::sendData(uint8_t *buf, uint16_t size)
     mbuf  = buf;
     msize = size;
     sendbufmutex.unlock();
+    // TODO why do we wait 10 seconds ? why do we then ignore the timeout ?
+    // There is a ssp_SendDataBlock method...
     msendwait.lock();
     sendwait.wait(&msendwait, 10000);
     msendwait.unlock();
@@ -65,21 +82,19 @@ bool qsspt::sendData(uint8_t *buf, uint16_t size)
 void qsspt::pfCallBack(uint8_t *buf, uint16_t size)
 {
     if (debug) {
-        qDebug() << "receive callback" << buf[0] << buf[1] << buf[2] << buf[3] << buf[4] << "array size=" << queue.count();
+        qDebug() << "receive callback" << buf[0] << buf[1] << buf[2] << buf[3] << buf[4] << "queue size=" << queue.count();
     }
-    QByteArray array;
-    for (int x = 0; x < size; x++) {
-        array.append(buf[x]);
-    }
+    QByteArray data((const char *)buf, size);
     mutex.lock();
-    queue.enqueue(array);
-    // queue.enqueue((const char *)&buf);
+    queue.enqueue(data);
     mutex.unlock();
 }
+
 int qsspt::packets_Available()
 {
     return queue.count();
 }
+
 int qsspt::read_Packet(void *data)
 {
     mutex.lock();
@@ -89,11 +104,9 @@ int qsspt::read_Packet(void *data)
     }
     QByteArray arr = queue.dequeue();
     memcpy(data, (uint8_t *)arr.data(), arr.length());
+    if (debug) {
+        qDebug() << "SSP RX " << arr.toHex();
+    }
     mutex.unlock();
     return arr.length();
-}
-qsspt::~qsspt()
-{
-    endthread = true;
-    wait(1000);
 }

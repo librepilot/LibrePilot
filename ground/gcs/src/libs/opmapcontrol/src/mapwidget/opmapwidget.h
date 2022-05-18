@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmapwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      The Map Widget, this is the part exposed to the user
  * @see        The GNU Public License (GPL) Version 3
  * @defgroup   OPMapWidget
@@ -37,6 +38,7 @@
 #include "uavitem.h"
 #include "gpsitem.h"
 #include "homeitem.h"
+#include "navitem.h"
 #include "mapripper.h"
 #include "waypointline.h"
 #include "waypointcircle.h"
@@ -50,6 +52,7 @@ namespace mapcontrol {
 class UAVItem;
 class GPSItem;
 class HomeItem;
+class NavItem;
 /**
  * @brief Collection of static functions to help dealing with various enums used
  *       Contains functions for enumToString conversio, StringToEnum, QStringList of enum values...
@@ -500,6 +503,7 @@ public:
     UAVItem *UAV;
     GPSItem *GPS;
     HomeItem *Home;
+    NavItem *Nav;
     void SetShowUAV(bool const & value);
     bool ShowUAV() const
     {
@@ -510,8 +514,14 @@ public:
     {
         return showhome;
     }
+    void SetShowNav(bool const & value);
+    bool ShowNav() const
+    {
+        return showNav;
+    }
     void SetShowDiagnostics(bool const & value);
     void SetUavPic(QString UAVPic);
+    void SetHomePic(QString HomePic);
     WayPointLine *WPLineCreate(WayPointItem *from, WayPointItem *to, QColor color, bool dashed = false, int width = -1);
     WayPointLine *WPLineCreate(HomeItem *from, WayPointItem *to, QColor color, bool dashed = false, int width = -1);
     WayPointCircle *WPCircleCreate(WayPointItem *center, WayPointItem *radius, bool clockwise, QColor color, bool dashed = false, int width = -1);
@@ -540,6 +550,7 @@ private:
     QTimer *diagTimer;
     QGraphicsTextItem *diagGraphItem;
     bool showDiag;
+    bool showNav;
     qreal overlayOpacity;
 private slots:
     void diagRefresh();

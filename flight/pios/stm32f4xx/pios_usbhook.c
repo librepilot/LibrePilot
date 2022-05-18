@@ -218,6 +218,11 @@ void PIOS_USBHOOK_EndpointRx(uint8_t epnum, uint8_t *buf, uint16_t len)
     DCD_EP_PrepareRx(&pios_usb_otg_core_handle, epnum, buf, len);
 }
 
+uint32_t PIOS_USBHOOK_EndpointGetStatus(uint8_t epnum)
+{
+    return DCD_GetEPStatus(&pios_usb_otg_core_handle, epnum);
+}
+
 /*
  * Device level hooks into STM USB library
  */
@@ -275,7 +280,9 @@ static USBD_DEVICE device_callbacks = {
 static void PIOS_USBHOOK_USR_Init(void)
 {
     PIOS_USB_ChangeConnectionState(false);
-    reconnect();
+    // reconnect dev logically on init (previously a call to reconnect())
+    DCD_DevDisconnect(&pios_usb_otg_core_handle);
+    DCD_DevConnect(&pios_usb_otg_core_handle);
 }
 
 static void PIOS_USBHOOK_USR_DeviceReset(__attribute__((unused)) uint8_t speed)
@@ -486,9 +493,24 @@ static USBD_Class_cb_TypeDef class_callbacks = {
 
 static void reconnect(void)
 {
-    /* Force a physical disconnect/reconnect */
-    DCD_DevDisconnect(&pios_usb_otg_core_handle);
-    DCD_DevConnect(&pios_usb_otg_core_handle);
+    static volatile bool in_reconnect = false;
+
+    /* Force a complete device reset. This can trigger a call to reconnect() so prevent recursion */
+    if (!in_reconnect) {
+        in_reconnect = true; // save since volatile and STM32F4 is single core
+        // disable USB device
+        DCD_DevDisconnect(&pios_usb_otg_core_handle);
+        USBD_DeInit(&pios_usb_otg_core_handle);
+        USB_OTG_StopDevice(&pios_usb_otg_core_handle);
+        // enable USB device
+        USBD_Init(&pios_usb_otg_core_handle,
+                  USB_OTG_FS_CORE_ID,
+                  &device_callbacks,
+                  &class_callbacks,
+                  &user_callbacks);
+
+        in_reconnect = false;
+    }
 }
 
 #endif /* PIOS_INCLUDE_USB */

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       opmapgadgetwidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup OPMapPlugin OpenPilot Map Plugin
@@ -110,14 +111,19 @@ public:
     void setCacheLocation(QString cacheLocation);
     void setMapMode(opMapModeType mode);
     void SetUavPic(QString UAVPic);
+    void SetHomePic(QString HomePic);
     void setMaxUpdateRate(int update_rate);
+    void setSafeAreaRadius(int safe_area_radius);
+    void setShowSafeArea(bool showSafeArea);
     void setHomePosition(QPointF pos);
     void setOverlayOpacity(qreal value);
     void setDefaultWaypointAltitude(qreal default_altitude);
     void setDefaultWaypointVelocity(qreal default_velocity);
     bool getGPSPositionSensor(double &latitude, double &longitude, double &altitude);
+    bool applyHomeLocationOnMap();
 signals:
     void defaultLocationAndZoomChanged(double lng, double lat, double zoom);
+    void defaultSafeAreaChanged(int safe_area_radius, bool showSafeArea);
     void overlayOpacityChanged(qreal);
 
 public slots:
@@ -154,6 +160,10 @@ private slots:
     void on_toolButtonNormalMapMode_clicked();
     void on_toolButtonHomeWaypoint_clicked();
     void on_toolButtonMoveToWP_clicked();
+    void on_toolButtonHomeSet_clicked();
+    void on_toolButtonClearUAVTrail_clicked();
+    void on_toolButtonPlanEditor_clicked();
+    void on_toolButtonSaveSettings_clicked();
 
     /**
      * @brief signals received from the map object
@@ -174,6 +184,7 @@ private slots:
     void onCopyMouseLonToClipAct_triggered();
     void onShowCompassAct_toggled(bool show);
     void onShowDiagnostics_toggled(bool show);
+    void onShowNav_toggled(bool show);
     void onShowUAVInfo_toggled(bool show);
     void onShowUAVAct_toggled(bool show);
     void onShowHomeAct_toggled(bool show);
@@ -248,6 +259,7 @@ private:
     QAction *copyMouseLonToClipAct;
     QAction *showCompassAct;
     QAction *showDiagnostics;
+    QAction *showNav;
     QAction *showUAVInfo;
     QAction *showHomeAct;
     QAction *showUAVAct;
@@ -301,13 +313,14 @@ private:
     void moveToMagicWaypointPosition();
     void hideMagicWaypointControls();
     void showMagicWaypointControls();
-    void keepMagicWaypointWithInSafeArea();
+    void keepMagicWaypointWithinSafeArea();
 
     double distance(internals::PointLatLng from, internals::PointLatLng to);
     double bearing(internals::PointLatLng from, internals::PointLatLng to);
     internals::PointLatLng destPoint(internals::PointLatLng source, double bear, double dist);
 
     bool getUAVPosition(double &latitude, double &longitude, double &altitude);
+    bool getNavPosition(double &latitude, double &longitude, double &altitude);
     double getUAV_Yaw();
 
     void setMapFollowingMode();

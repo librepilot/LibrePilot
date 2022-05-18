@@ -31,7 +31,9 @@
 
 BrowserItemDelegate::BrowserItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
-{}
+{
+    _sizeHint = QSpinBox().sizeHint();
+}
 
 QWidget *BrowserItemDelegate::createEditor(QWidget *parent,
                                            const QStyleOptionViewItem & option,
@@ -75,5 +77,5 @@ QSize BrowserItemDelegate::sizeHint(const QStyleOptionViewItem & option, const Q
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    return QSpinBox().sizeHint();
+    return _sizeHint;
 }

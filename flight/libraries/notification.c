@@ -42,6 +42,18 @@
 #define ALARM_LED_OFF()
 #endif
 
+#ifdef PIOS_BUZZER_ALARM
+#define ALARM_BUZZER_ON() \
+    { if (buzzer_enabled) { PIOS_LED_On(PIOS_BUZZER_ALARM); } \
+    }
+#define ALARM_BUZZER_OFF() \
+    { if (buzzer_enabled) { PIOS_LED_Off(PIOS_BUZZER_ALARM); } \
+    }
+#else
+#define ALARM_BUZZER_ON()
+#define ALARM_BUZZER_OFF()
+#endif
+
 #ifdef PIOS_LED_HEARTBEAT
 #define HEARTBEAT_LED_ON()  PIOS_LED_On(PIOS_LED_HEARTBEAT)
 #define HEARTBEAT_LED_OFF() PIOS_LED_Off(PIOS_LED_HEARTBEAT)
@@ -135,9 +147,10 @@ static volatile FlightStatusData currentFlightStatus;
 static volatile bool started = false;
 static volatile pios_notify_notification nextNotification = NOTIFY_NONE;
 
-#ifdef PIOS_LED_ALARM
+
+#if defined(PIOS_LED_ALARM) || defined(PIOS_BUZZER_ALARM)
 static bool handleAlarms(uint16_t *r_pattern, uint16_t *b_pattern);
-#endif // PIOS_LED_ALARM
+#endif // PIOS_LED_ALARM || PIOS_BUZZER_ALARM
 static bool handleNotifications(pios_notify_notification runningNotification, uint16_t *r_pattern, uint16_t *b_pattern);
 static void handleFlightMode(uint16_t *r_pattern, uint16_t *b_pattern);
 static void handleHeartbeat(uint16_t *r_pattern, uint16_t *b_pattern);
@@ -163,6 +176,10 @@ void NotificationOnboardLedsRun()
     static uint8_t lastFlightMode   = -1;
     static bool forceShowFlightMode = false;
     static pios_notify_notification runningNotification = NOTIFY_NONE;
+
+#ifdef PIOS_BUZZER_ALARM
+    static bool buzzer_enabled = false;
+#endif
     static enum {
         STATUS_NOTIFY,
         STATUS_ALARM,
@@ -206,6 +223,7 @@ void NotificationOnboardLedsRun()
     if (cycleCount & 0x10) {
         HEARTBEAT_LED_OFF();
         ALARM_LED_OFF();
+        ALARM_BUZZER_OFF();
         cycleCount = 0x0;
         forceShowFlightMode = false;
         // Notification has been just shown, cleanup
@@ -213,6 +231,9 @@ void NotificationOnboardLedsRun()
             runningNotification = NOTIFY_NONE;
         }
         status = (status + 1) % STATUS_LENGHT;
+#ifdef PIOS_BUZZER_ALARM
+        buzzer_enabled = true; /* This is the place where we update buzzer_enabled status based on (not yet implemented) NotificationSettings.Buzzer config */
+#endif
     }
 
     if (status == STATUS_NOTIFY) {
@@ -224,7 +245,7 @@ void NotificationOnboardLedsRun()
 
     // Handles Alarm display
     if (status == STATUS_ALARM) {
-#ifdef PIOS_LED_ALARM
+#if defined(PIOS_LED_ALARM) || defined(PIOS_BUZZER_ALARM)
         if (!cycleCount && !handleAlarms(&r_pattern, &b_pattern)) {
             // no alarms, advance
             status++;
@@ -252,14 +273,16 @@ void NotificationOnboardLedsRun()
     }
     if (r_pattern & 0x1) {
         ALARM_LED_ON();
+        ALARM_BUZZER_ON();
     } else {
         ALARM_LED_OFF();
+        ALARM_BUZZER_OFF();
     }
     r_pattern >>= 1;
     b_pattern >>= 1;
 }
 
-#if defined(PIOS_LED_ALARM)
+#if defined(PIOS_LED_ALARM) || defined(PIOS_BUZZER_ALARM)
 static bool handleAlarms(uint16_t *r_pattern, uint16_t *b_pattern)
 {
     if (currentAlarmLevel == SYSTEMALARMS_ALARM_OK) {
@@ -269,7 +292,7 @@ static bool handleAlarms(uint16_t *r_pattern, uint16_t *b_pattern)
     *r_pattern = BLINK_R_ALARM_PATTERN(currentAlarmLevel);
     return true;
 }
-#endif /* PIOS_LED_ALARM */
+#endif /* PIOS_LED_ALARM || PIOS_BUZZER_ALARM */
 
 
 static bool handleNotifications(pios_notify_notification runningNotification, uint16_t *r_pattern, uint16_t *b_pattern)

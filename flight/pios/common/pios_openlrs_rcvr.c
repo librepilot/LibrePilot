@@ -36,6 +36,7 @@
 
 #include <uavobjectmanager.h>
 #include <oplinkreceiver.h>
+#include <oplinkstatus.h>
 #include <pios_openlrs_priv.h>
 #include <pios_openlrs_rcvr_priv.h>
 
@@ -44,9 +45,12 @@
 /* Provide a RCVR driver */
 static int32_t PIOS_OpenLRS_Rcvr_Get(uint32_t rcvr_id, uint8_t channel);
 static void PIOS_OpenLRS_Rcvr_Supervisor(uint32_t ppm_id);
+static void PIOS_OpenLRS_Rcvr_ppm_callback(uint32_t openlrs_rcvr_id, const int16_t *channels);
+static uint8_t PIOS_OpenLRSRCVR_Quality_Get(uint32_t openlrs_rcvr_id);
 
 const struct pios_rcvr_driver pios_openlrs_rcvr_driver = {
-    .read = PIOS_OpenLRS_Rcvr_Get,
+    .read        = PIOS_OpenLRS_Rcvr_Get,
+    .get_quality = PIOS_OpenLRSRCVR_Quality_Get
 };
 
 /* Local Variables */
@@ -57,6 +61,8 @@ enum pios_openlrs_rcvr_dev_magic {
 struct pios_openlrs_rcvr_dev {
     enum pios_openlrs_rcvr_dev_magic magic;
     int16_t channels[OPENLRS_PPM_NUM_CHANNELS];
+    int8_t  RSSI;
+    uint8_t LinkQuality;
     uint8_t supv_timer;
     bool    fresh;
 };
@@ -102,7 +108,7 @@ extern int32_t PIOS_OpenLRS_Rcvr_Init(uint32_t *openlrs_rcvr_id, uintptr_t openl
     OPLinkReceiverInitialize();
 
     *openlrs_rcvr_id = (uintptr_t)openlrs_rcvr_dev;
-    PIOS_OpenLRS_RegisterRcvr(openlrs_id, *openlrs_rcvr_id);
+    PIOS_OpenLRS_RegisterPPMCallback(openlrs_id, PIOS_OpenLRS_Rcvr_ppm_callback, *openlrs_rcvr_id);
 
     /* Register the failsafe timer callback. */
     if (!PIOS_RTC_RegisterTickCallback
@@ -118,7 +124,7 @@ extern int32_t PIOS_OpenLRS_Rcvr_Init(uint32_t *openlrs_rcvr_id, uintptr_t openl
  * PPM packet is received. This method stores the data locally as well
  * as sets the data into the OPLinkReceiver UAVO for visibility
  */
-int32_t PIOS_OpenLRS_Rcvr_UpdateChannels(uint32_t openlrs_rcvr_id, int16_t *channels)
+static void PIOS_OpenLRS_Rcvr_ppm_callback(uint32_t openlrs_rcvr_id, const int16_t *channels)
 {
     /* Recover our device context */
     struct pios_openlrs_rcvr_dev *openlrs_rcvr_dev =
@@ -126,19 +132,26 @@ int32_t PIOS_OpenLRS_Rcvr_UpdateChannels(uint32_t openlrs_rcvr_id, int16_t *chan
 
     if (!PIOS_OpenLRS_Rcvr_Validate(openlrs_rcvr_dev)) {
         /* Invalid device specified */
-        return -1;
+        return;
     }
 
     for (uint32_t i = 0; i < OPENLRS_PPM_NUM_CHANNELS; i++) {
         openlrs_rcvr_dev->channels[i] = channels[i];
     }
 
+    // Update the RSSI and quality fields.
+    int8_t rssi;
+    OPLinkStatusRSSIGet(&rssi);
+    openlrs_rcvr_dev->RSSI = rssi;
+    uint16_t quality;
+    OPLinkStatusLinkQualityGet(&quality);
+    // Link quality is 0-128, so scale it down to 0-100
+    openlrs_rcvr_dev->LinkQuality = quality * 100 / 128;
+
     openlrs_rcvr_update_uavo(openlrs_rcvr_dev);
 
     // let supervisor know we have new data
     openlrs_rcvr_dev->fresh = true;
-
-    return 0;
 }
 
 /**
@@ -192,6 +205,8 @@ static void PIOS_OpenLRS_Rcvr_Supervisor(uint32_t openlrs_rcvr_id)
              i++) {
             openlrs_rcvr_dev->channels[i] = PIOS_RCVR_TIMEOUT;
         }
+        openlrs_rcvr_dev->RSSI = -127;
+        openlrs_rcvr_dev->LinkQuality = 0;
     }
 
     openlrs_rcvr_dev->fresh = false;
@@ -212,7 +227,25 @@ static void openlrs_rcvr_update_uavo(struct pios_openlrs_rcvr_dev *rcvr_dev)
     for (int i = OPENLRS_PPM_NUM_CHANNELS - 1; i < OPLINKRECEIVER_CHANNEL_NUMELEM; i++) {
         rcvr.Channel[i] = PIOS_RCVR_INVALID;
     }
+
+    rcvr.RSSI = rcvr_dev->RSSI;
+    rcvr.LinkQuality = rcvr_dev->LinkQuality;
+
     OPLinkReceiverSet(&rcvr);
+}
+
+
+static uint8_t PIOS_OpenLRSRCVR_Quality_Get(uint32_t openlrs_rcvr_id)
+{
+    /* Recover our device context */
+    struct pios_openlrs_rcvr_dev *openlrs_rcvr_dev = (struct pios_openlrs_rcvr_dev *)openlrs_rcvr_id;
+
+    if (!PIOS_OpenLRS_Rcvr_Validate(openlrs_rcvr_dev)) {
+        /* Invalid device specified */
+        return 0;
+    }
+
+    return openlrs_rcvr_dev->LinkQuality;
 }
 
 #endif /* PIOS_INCLUDE_OPENLRS */

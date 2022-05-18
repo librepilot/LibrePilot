@@ -163,7 +163,22 @@ void INSGPSInit() // pretty much just a place holder for now
     ekf.R[9]  = .25f;                    // High freq altimeter noise variance (m^2)
 }
 
-void INSResetP(float PDiag[NUMX])
+// ! Set the current flight state
+void INSSetArmed(bool armed)
+{
+    return;
+
+    // Speed up convergence of accel and gyro bias when not armed
+    if (armed) {
+        ekf.Q[9] = 1e-4f;
+        ekf.Q[8] = 2e-9f;
+    } else {
+        ekf.Q[9] = 1e-2f;
+        ekf.Q[8] = 2e-8f;
+    }
+}
+
+void INSResetP(const float PDiag[NUMX])
 {
     uint8_t i, j;
 
@@ -178,7 +193,7 @@ void INSResetP(float PDiag[NUMX])
     }
 }
 
-void INSGetP(float PDiag[NUMX])
+void INSGetVariance(float PDiag[NUMX])
 {
     uint8_t i;
 
@@ -189,8 +204,7 @@ void INSGetP(float PDiag[NUMX])
         }
     }
 }
-
-void INSSetState(float pos[3], float vel[3], float q[4], float gyro_bias[3], __attribute__((unused)) float accel_bias[3])
+void INSSetState(const float pos[3], const float vel[3], const float q[4], const float gyro_bias[3], __attribute__((unused)) const float accel_bias[3])
 {
     /* Note: accel_bias not used in 13 state INS */
     ekf.X[0]  = pos[0];
@@ -208,7 +222,7 @@ void INSSetState(float pos[3], float vel[3], float q[4], float gyro_bias[3], __a
     ekf.X[12] = gyro_bias[2];
 }
 
-void INSPosVelReset(float pos[3], float vel[3])
+void INSPosVelReset(const float pos[3], const float vel[3])
 {
     for (int i = 0; i < 6; i++) {
         for (int j = i; j < NUMX; j++) {
@@ -228,7 +242,7 @@ void INSPosVelReset(float pos[3], float vel[3])
     ekf.X[5]    = vel[2];
 }
 
-void INSSetPosVelVar(float PosVar[3], float VelVar[3])
+void INSSetPosVelVar(const float PosVar[3], const float VelVar[3])
 {
     ekf.R[0] = PosVar[0];
     ekf.R[1] = PosVar[1];
@@ -238,47 +252,47 @@ void INSSetPosVelVar(float PosVar[3], float VelVar[3])
     ekf.R[5] = VelVar[2];
 }
 
-void INSSetGyroBias(float gyro_bias[3])
+void INSSetGyroBias(const float gyro_bias[3])
 {
     ekf.X[10] = gyro_bias[0];
     ekf.X[11] = gyro_bias[1];
     ekf.X[12] = gyro_bias[2];
 }
 
-void INSSetAccelVar(float accel_var[3])
+void INSSetAccelVar(const float accel_var[3])
 {
     ekf.Q[3] = accel_var[0];
     ekf.Q[4] = accel_var[1];
     ekf.Q[5] = accel_var[2];
 }
 
-void INSSetGyroVar(float gyro_var[3])
+void INSSetGyroVar(const float gyro_var[3])
 {
     ekf.Q[0] = gyro_var[0];
     ekf.Q[1] = gyro_var[1];
     ekf.Q[2] = gyro_var[2];
 }
 
-void INSSetGyroBiasVar(float gyro_bias_var[3])
+void INSSetGyroBiasVar(const float gyro_bias_var[3])
 {
     ekf.Q[6] = gyro_bias_var[0];
     ekf.Q[7] = gyro_bias_var[1];
     ekf.Q[8] = gyro_bias_var[2];
 }
 
-void INSSetMagVar(float scaled_mag_var[3])
+void INSSetMagVar(const float scaled_mag_var[3])
 {
     ekf.R[6] = scaled_mag_var[0];
     ekf.R[7] = scaled_mag_var[1];
     ekf.R[8] = scaled_mag_var[2];
 }
 
-void INSSetBaroVar(float baro_var)
+void INSSetBaroVar(const float baro_var)
 {
     ekf.R[9] = baro_var;
 }
 
-void INSSetMagNorth(float B[3])
+void INSSetMagNorth(const float B[3])
 {
     float invmag = invsqrtf(B[0] * B[0] + B[1] * B[1] + B[2] * B[2]);
 
@@ -287,7 +301,7 @@ void INSSetMagNorth(float B[3])
     ekf.Be[2] = B[2] * invmag;
 }
 
-void INSStatePrediction(float gyro_data[3], float accel_data[3], float dT)
+void INSStatePrediction(const float gyro_data[3], const float accel_data[3], float dT)
 {
     float U[6];
     float invqmag;
@@ -371,8 +385,8 @@ void VelBaroCorrection(float Vel[3], float BaroAlt)
                   HORIZ_SENSORS | VERT_SENSORS | BARO_SENSOR);
 }
 
-void INSCorrection(float mag_data[3], float Pos[3], float Vel[3],
-                   float BaroAlt, uint16_t SensorsUsed)
+void INSCorrection(const float mag_data[3], const float Pos[3], const float Vel[3],
+                   const float BaroAlt, uint16_t SensorsUsed)
 {
     float Z[10] = { 0 };
     float Y[10] = { 0 };
@@ -386,10 +400,9 @@ void INSCorrection(float mag_data[3], float Pos[3], float Vel[3],
     Z[3] = Vel[0];
     Z[4] = Vel[1];
     Z[5] = Vel[2];
-    // magnetometer data in any units (use unit vector) and in body frame
-
 
     if (SensorsUsed & MAG_SENSORS) {
+        // magnetometer data in any units (use unit vector) and in body frame
         float invBmag = invsqrtf(mag_data[0] * mag_data[0] + mag_data[1] * mag_data[1] + mag_data[2] * mag_data[2]);
         Z[6] = mag_data[0] * invBmag;
         Z[7] = mag_data[1] * invBmag;

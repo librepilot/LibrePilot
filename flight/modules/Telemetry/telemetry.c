@@ -69,6 +69,8 @@
 #include "hwsettings.h"
 #include "taskinfo.h"
 
+#include <pios_board_io.h>
+
 // Private constants
 #define MAX_QUEUE_SIZE            TELEM_QUEUE_SIZE
 // Three different stack size parameter are accepted for Telemetry(RX PIOS_TELEM_RX_STACK_SIZE)
@@ -265,10 +267,7 @@ void TelemetryInitializeChannel(channelContext *channel)
  */
 int32_t TelemetryInitialize(void)
 {
-    HwSettingsInitialize();
-
 #ifdef PIOS_INCLUDE_RFM22B
-    OPLinkSettingsInitialize();
     OPLinkSettingsData data;
 
     OPLinkSettingsGet(&data);
@@ -775,6 +774,7 @@ static int32_t setLoggingPeriod(
     UAVObjHandle obj,
     int32_t updatePeriodMs)
 {
+#ifdef HAS_LOGGING_MODULE
     UAVObjEvent ev;
     int32_t ret;
 
@@ -796,6 +796,14 @@ static int32_t setLoggingPeriod(
         ret = EventPeriodicQueueCreate(&ev, targetQueue, updatePeriodMs);
     }
     return ret;
+
+#else /* HAS_LOGGING_MODULE */
+    (void)channel;
+    (void)obj;
+    (void)updatePeriodMs;
+    return 0;
+
+#endif /* ifdef HAS_LOGGING_MODULE */
 }
 
 /**

@@ -159,7 +159,7 @@ static bool i2c_adapter_wait_for_stopped(struct pios_i2c_adapter *i2c_adapter);
 static void i2c_adapter_reset_bus(struct pios_i2c_adapter *i2c_adapter);
 
 static void i2c_adapter_log_fault(enum pios_i2c_error_type type);
-static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter);
+static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter, signed portBASE_TYPE *pxHigherPriorityTaskWoken);
 
 static const struct i2c_adapter_transition i2c_adapter_transitions[I2C_STATE_NUM_STATES] = {
     [I2C_STATE_FSM_FAULT] =             {
@@ -420,18 +420,19 @@ static void go_stopping(struct pios_i2c_adapter *i2c_adapter)
 
     I2C_ITConfig(i2c_adapter->cfg->regs, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
 
-#ifdef USE_FREERTOS
-    if (xSemaphoreGiveFromISR(i2c_adapter->sem_ready, &pxHigherPriorityTaskWoken) != pdTRUE) {
-#if defined(I2C_HALT_ON_ERRORS)
-        PIOS_DEBUG_Assert(0);
-#endif
-    }
-    portEND_SWITCHING_ISR(pxHigherPriorityTaskWoken); /* FIXME: is this the right place for this? */
-#endif /* USE_FREERTOS */
-
     if (i2c_adapter->callback) {
-        i2c_adapter_callback_handler(i2c_adapter);
+        i2c_adapter_callback_handler(i2c_adapter, &pxHigherPriorityTaskWoken);
+    } else {
+#ifdef USE_FREERTOS
+        if (xSemaphoreGiveFromISR(i2c_adapter->sem_ready, &pxHigherPriorityTaskWoken) != pdTRUE) {
+#if defined(I2C_HALT_ON_ERRORS)
+            PIOS_DEBUG_Assert(0);
+#endif
+        }
+#endif /* USE_FREERTOS */
     }
+
+    portEND_SWITCHING_ISR(pxHigherPriorityTaskWoken); /* FIXME: is this the right place for this? */
 }
 
 
@@ -853,18 +854,8 @@ static bool i2c_adapter_fsm_terminated(struct pios_i2c_adapter *i2c_adapter)
 
 
 uint32_t i2c_cb_count = 0;
-static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter)
+static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter, signed portBASE_TYPE *pxHigherPriorityTaskWoken)
 {
-    bool semaphore_success = true;
-
-    /* Wait for the transfer to complete */
-#ifdef USE_FREERTOS
-    portTickType timeout;
-    timeout = i2c_adapter->cfg->transfer_timeout_ms / portTICK_RATE_MS;
-    semaphore_success &= (xSemaphoreTake(i2c_adapter->sem_ready, timeout) == pdTRUE);
-    xSemaphoreGive(i2c_adapter->sem_ready);
-#endif /* USE_FREERTOS */
-
     /* transfer_timeout_ticks is set by PIOS_I2C_Transfer_Callback */
     /* Spin waiting for the transfer to finish */
     while (!i2c_adapter_fsm_terminated(i2c_adapter)) {
@@ -885,17 +876,10 @@ static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter)
         i2c_adapter_fsm_init(i2c_adapter);
     }
 
-    // Execute user supplied function
-    i2c_adapter->callback();
-
-    i2c_cb_count++;
-
 #ifdef USE_FREERTOS
     /* Unlock the bus */
-    xSemaphoreGive(i2c_adapter->sem_busy);
-    if (!semaphore_success) {
-        i2c_timeout_counter++;
-    }
+    xSemaphoreGiveFromISR(i2c_adapter->sem_busy, pxHigherPriorityTaskWoken);
+
 #else
     PIOS_IRQ_Disable();
     i2c_adapter->busy = 0;
@@ -903,7 +887,14 @@ static bool i2c_adapter_callback_handler(struct pios_i2c_adapter *i2c_adapter)
 #endif /* USE_FREERTOS */
 
 
-    return (!i2c_adapter->bus_error) && semaphore_success;
+    // Execute user supplied function
+    if (i2c_adapter->callback(PIOS_I2C_TRANSFER_OK)) {
+        *pxHigherPriorityTaskWoken = pdTRUE;
+    }
+
+    i2c_cb_count++;
+
+    return !i2c_adapter->bus_error;
 }
 
 
@@ -1057,7 +1048,7 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
     struct pios_i2c_adapter *i2c_adapter = (struct pios_i2c_adapter *)i2c_id;
 
     if (!PIOS_I2C_validate(i2c_adapter)) {
-        return -1;
+        return PIOS_I2C_TRANSFER_DEVICE_ERROR;
     }
 
     PIOS_DEBUG_Assert(txn_list);
@@ -1070,13 +1061,13 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
     portTickType timeout;
     timeout = i2c_adapter->cfg->transfer_timeout_ms / portTICK_RATE_MS;
     if (xSemaphoreTake(i2c_adapter->sem_busy, timeout) == pdFALSE) {
-        return -2;
+        return PIOS_I2C_TRANSFER_BUSY;
     }
 #else
     PIOS_IRQ_Disable();
     if (i2c_adapter->busy) {
         PIOS_IRQ_Enable();
-        return -2;
+        return PIOS_I2C_TRANSFER_BUSY;
     }
     i2c_adapter->busy = 1;
     PIOS_IRQ_Enable();
@@ -1143,13 +1134,37 @@ int32_t PIOS_I2C_Transfer(uint32_t i2c_id, const struct pios_i2c_txn txn_list[],
     PIOS_IRQ_Enable();
 #endif /* USE_FREERTOS */
 
-    return !semaphore_success ? -2 :
-           i2c_adapter->bus_error ? -1 :
-           i2c_adapter->nack ? -3 :
-           0;
+    return !semaphore_success ? PIOS_I2C_TRANSFER_TIMEOUT :
+           i2c_adapter->bus_error ? PIOS_I2C_TRANSFER_BUS_ERROR :
+           i2c_adapter->nack ? PIOS_I2C_TRANSFER_NACK :
+           PIOS_I2C_TRANSFER_OK;
 }
 
-int32_t PIOS_I2C_Transfer_Callback(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns, void *callback)
+static int32_t PIOS_I2C_Transfer_Callback_Internal(struct pios_i2c_adapter *i2c_adapter, const struct pios_i2c_txn txn_list[], uint32_t num_txns, pios_i2c_callback callback)
+{
+    PIOS_DEBUG_Assert(i2c_adapter->curr_state == I2C_STATE_STOPPED);
+
+    i2c_adapter->first_txn  = &txn_list[0];
+    i2c_adapter->last_txn   = &txn_list[num_txns - 1];
+    i2c_adapter->active_txn = i2c_adapter->first_txn;
+    i2c_adapter->bus_error  = false;
+    i2c_adapter->nack = false;
+    i2c_adapter->callback   = callback;
+
+    // Estimate bytes of transmission. Per txns: 1 adress byte + length
+    i2c_adapter->transfer_timeout_ticks = num_txns;
+    for (uint32_t i = 0; i < num_txns; i++) {
+        i2c_adapter->transfer_timeout_ticks += txn_list[i].len;
+    }
+    // timeout if it takes eight times the expected time
+    i2c_adapter->transfer_timeout_ticks <<= 3;
+
+    i2c_adapter_inject_event(i2c_adapter, I2C_EVENT_START);
+
+    return 0;
+}
+
+int32_t PIOS_I2C_Transfer_Callback(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns, pios_i2c_callback callback)
 {
     struct pios_i2c_adapter *i2c_adapter = (struct pios_i2c_adapter *)i2c_id;
 
@@ -1162,47 +1177,62 @@ int32_t PIOS_I2C_Transfer_Callback(uint32_t i2c_id, const struct pios_i2c_txn tx
     PIOS_DEBUG_Assert(txn_list);
     PIOS_DEBUG_Assert(num_txns);
 
-    bool semaphore_success = true;
-
 #ifdef USE_FREERTOS
     /* Lock the bus */
     portTickType timeout;
     timeout = i2c_adapter->cfg->transfer_timeout_ms / portTICK_RATE_MS;
     if (xSemaphoreTake(i2c_adapter->sem_busy, timeout) == pdFALSE) {
-        return -2;
+        return PIOS_I2C_TRANSFER_BUSY;
     }
 #else
+    PIOS_IRQ_Disable();
     if (i2c_adapter->busy) {
         PIOS_IRQ_Enable();
-        return -2;
+        return PIOS_I2C_TRANSFER_BUSY;
     }
+    i2c_adapter->busy = 1;
+    PIOS_IRQ_Enable();
 #endif /* USE_FREERTOS */
 
-    PIOS_DEBUG_Assert(i2c_adapter->curr_state == I2C_STATE_STOPPED);
+    return PIOS_I2C_Transfer_Callback_Internal(i2c_adapter, txn_list, num_txns, callback);
+}
 
-    i2c_adapter->first_txn  = &txn_list[0];
-    i2c_adapter->last_txn   = &txn_list[num_txns - 1];
-    i2c_adapter->active_txn = i2c_adapter->first_txn;
+int32_t PIOS_I2C_Transfer_CallbackFromISR(uint32_t i2c_id, const struct pios_i2c_txn txn_list[], uint32_t num_txns, pios_i2c_callback callback, bool *woken)
+{
+    // FIXME: only supports transfer sizes up to 255 bytes
+    struct pios_i2c_adapter *i2c_adapter = (struct pios_i2c_adapter *)i2c_id;
+
+    bool valid = PIOS_I2C_validate(i2c_adapter);
+
+    PIOS_Assert(valid)
+
+    PIOS_DEBUG_Assert(txn_list);
+    PIOS_DEBUG_Assert(num_txns);
 
 #ifdef USE_FREERTOS
-    /* Make sure the done/ready semaphore is consumed before we start */
-    semaphore_success &= (xSemaphoreTake(i2c_adapter->sem_ready, timeout) == pdTRUE);
-#endif
+    signed portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
-    // used in the i2c_adapter_callback_handler function
-    // Estimate bytes of transmission. Per txns: 1 adress byte + length
-    i2c_adapter->transfer_timeout_ticks = num_txns;
-    for (uint32_t i = 0; i < num_txns; i++) {
-        i2c_adapter->transfer_timeout_ticks += txn_list[i].len;
+    /* Lock the bus */
+    bool locked = xSemaphoreTakeFromISR(i2c_adapter->sem_busy, &xHigherPriorityTaskWoken) == pdTRUE;
+
+    if (xHigherPriorityTaskWoken == pdTRUE) {
+        *woken = true;
     }
-    // timeout if it takes eight times the expected time
-    i2c_adapter->transfer_timeout_ticks <<= 3;
 
-    i2c_adapter->callback  = callback;
-    i2c_adapter->bus_error = false;
-    i2c_adapter_inject_event(i2c_adapter, I2C_EVENT_START);
+    if (!locked) {
+        return PIOS_I2C_TRANSFER_BUSY;
+    }
+#else
+    PIOS_IRQ_Disable();
+    if (i2c_adapter->busy) {
+        PIOS_IRQ_Enable();
+        return PIOS_I2C_TRANSFER_BUSY;
+    }
+    i2c_adapter->busy = 1;
+    PIOS_IRQ_Enable();
+#endif /* USE_FREERTOS */
 
-    return !semaphore_success ? -2 : 0;
+    return PIOS_I2C_Transfer_Callback_Internal(i2c_adapter, txn_list, num_txns, callback);
 }
 
 void PIOS_I2C_EV_IRQ_Handler(uint32_t i2c_id)

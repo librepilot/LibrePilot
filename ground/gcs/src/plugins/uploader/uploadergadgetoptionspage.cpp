@@ -40,7 +40,6 @@
 #include <QtAlgorithms>
 #include <QStringList>
 
-
 UploaderGadgetOptionsPage::UploaderGadgetOptionsPage(UploaderGadgetConfiguration *config, QObject *parent) :
     IOptionsPage(parent),
     m_config(config)

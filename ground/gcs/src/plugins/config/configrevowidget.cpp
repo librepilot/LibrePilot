@@ -238,19 +238,25 @@ void ConfigRevoWidget::storeAndClearBoardRotation()
     if (!isBoardRotationStored) {
         UAVObjectUpdaterHelper updateHelper;
 
-        // Store current board rotation
+        // Store current board rotation and board level trim
         isBoardRotationStored = true;
         AttitudeSettings *attitudeSettings = AttitudeSettings::GetInstance(getObjectManager());
         Q_ASSERT(attitudeSettings);
         AttitudeSettings::DataFields data  = attitudeSettings->getData();
-        storedBoardRotation[AttitudeSettings::BOARDROTATION_YAW]   = data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW];
-        storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL]  = data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
-        storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
+        storedBoardRotation[AttitudeSettings::BOARDROTATION_YAW]     = data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW];
+        storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL]    = data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
+        storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH]   = data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
+        storedBoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_ROLL]  = data.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_ROLL];
+        storedBoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_PITCH] = data.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_PITCH];
 
-        // Set board rotation to no rotation
-        data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]    = 0;
-        data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]   = 0;
-        data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]  = 0;
+        // Set board rotation to zero
+        data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]     = 0;
+        data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]    = 0;
+        data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]   = 0;
+
+        // Set board level trim to zero
+        data.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_ROLL]  = 0;
+        data.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_PITCH] = 0;
 
         attitudeSettings->setData(data, false);
         updateHelper.doObjectAndWait(attitudeSettings);
@@ -281,13 +287,15 @@ void ConfigRevoWidget::recallBoardRotation()
         // Recall current board rotation
         isBoardRotationStored = false;
 
-        // Restore the flight controller board rotation
+        // Restore the flight controller board rotation and board level trim
         AttitudeSettings *attitudeSettings = AttitudeSettings::GetInstance(getObjectManager());
         Q_ASSERT(attitudeSettings);
         AttitudeSettings::DataFields data  = attitudeSettings->getData();
-        data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]   = storedBoardRotation[AttitudeSettings::BOARDROTATION_YAW];
-        data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]  = storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
-        data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH] = storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
+        data.BoardRotation[AttitudeSettings::BOARDROTATION_YAW]     = storedBoardRotation[AttitudeSettings::BOARDROTATION_YAW];
+        data.BoardRotation[AttitudeSettings::BOARDROTATION_ROLL]    = storedBoardRotation[AttitudeSettings::BOARDROTATION_ROLL];
+        data.BoardRotation[AttitudeSettings::BOARDROTATION_PITCH]   = storedBoardRotation[AttitudeSettings::BOARDROTATION_PITCH];
+        data.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_ROLL]  = storedBoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_ROLL];
+        data.BoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_PITCH] = storedBoardLevelTrim[AttitudeSettings::BOARDLEVELTRIM_PITCH];
 
         attitudeSettings->setData(data, false);
         updateHelper.doObjectAndWait(attitudeSettings);
@@ -394,7 +402,10 @@ void ConfigRevoWidget::refreshWidgetsValuesImpl(UAVObject *obj)
 {
     Q_UNUSED(obj);
 
-    m_ui->isSetCheckBox->setEnabled(false);
+    m_ui->isSetCheckBox->setEnabled(true);
+    m_ui->isSetCheckBox->setToolTip(tr("When checked, the current Home Location is saved to the board.\n"
+                                       "When unchecked, the Home Location will be updated and set using\n"
+                                       "the first GPS position received after power up."));
 
     HomeLocation *homeLocation = HomeLocation::GetInstance(getObjectManager());
     Q_ASSERT(homeLocation);

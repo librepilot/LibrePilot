@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       gpsdisplaywidget.h
- * @author     Edouard Lafargue Copyright (C) 2010.
+ * @author     The LibrePilot Team, http://www.librepilot.org Copyright (C) 2017.
+ *             Edouard Lafargue Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup GPSGadgetPlugin GPS Gadget Plugin
@@ -32,9 +33,6 @@
 #include "gpsdisplaygadgetconfiguration.h"
 #include "gpsconstellationwidget.h"
 #include "uavobject.h"
-#include <QGraphicsView>
-#include <QtSvg/QSvgRenderer>
-#include <QtSvg/QGraphicsSvgItem>
 
 class Ui_GpsDisplayWidget;
 
@@ -56,6 +54,5 @@ private slots:
 
 private:
     GpsConstellationWidget *gpsConstellation;
-    QGraphicsSvgItem *marker;
 };
 #endif /* GPSDISPLAYWIDGET_H_ */

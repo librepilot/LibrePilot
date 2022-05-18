@@ -40,6 +40,7 @@
 #ifndef $(NAMEUC)_H
 #define $(NAMEUC)_H
 #include <stdbool.h>
+$(INCLUDE)
 /* Object constants */
 #define $(NAMEUC)_OBJID $(OBJIDHEX)
 #define $(NAMEUC)_ISSINGLEINST $(ISSINGLEINST)
@@ -71,6 +72,8 @@ typedef struct {
  */
 typedef $(NAME)DataPacked __attribute__((aligned(4))) $(NAME)Data;
 
+void $(NAME)DataOverrideDefaults($(NAME)Data * data);
+
 /* Typesafe Object access functions */
 static inline int32_t $(NAME)Get($(NAME)Data * dataOut) {
     return UAVObjGetData($(NAME)Handle(), dataOut);
@@ -94,7 +97,7 @@ static inline int32_t $(NAME)ConnectFastCallback(UAVObjEventCallback cb) {
     return UAVObjConnectCallback($(NAME)Handle(), cb, EV_MASK_ALL_UPDATES, true);
 }
 static inline uint16_t $(NAME)CreateInstance() {
-    return UAVObjCreateInstance($(NAME)Handle(), &$(NAME)SetDefaults);
+    return UAVObjCreateInstance($(NAME)Handle());
 }
 static inline void $(NAME)RequestUpdate() {
     UAVObjRequestUpdate($(NAME)Handle());

@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       serialplugin.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup SerialPlugin Serial Connection Plugin
@@ -65,16 +66,14 @@ void SerialEnumerationThread::stop()
     }
 }
 
-SerialConnection::SerialConnection() :
+SerialConnection::SerialConnection(SerialPluginConfiguration *config) :
     serialHandle(NULL),
     enablePolling(true),
     m_enumerateThread(this),
-    m_deviceOpened(false)
+    m_deviceOpened(false),
+    m_config(config)
 {
-    m_config = new SerialPluginConfiguration("Serial Telemetry", NULL, this);
-    m_config->restoresettings();
-
-    m_optionspage = new SerialPluginOptionsPage(m_config, this);
+    m_optionsPage = new SerialPluginOptionsPage(m_config, this);
 
 
     // Experimental: enable polling on all OS'es since there
@@ -90,8 +89,8 @@ SerialConnection::SerialConnection() :
 // this, SLOT(onEnumerationChanged()));
 // #else
     // Other OSes do not send such signals:
-    QObject::connect(&m_enumerateThread, SIGNAL(enumerationChanged()),
-                     this, SLOT(onEnumerationChanged()));
+    QObject::connect(&m_enumerateThread, SIGNAL(enumerationChanged()), this, SLOT(onEnumerationChanged()));
+    QObject::connect(m_optionsPage, SIGNAL(availableDevChanged()), this, SLOT(onEnumerationChanged()));
     m_enumerateThread.start();
 // #endif
 }
@@ -139,11 +138,14 @@ QList <Core::IConnection::device> SerialConnection::availableDevices()
 
         // sort the list by port number (nice idea from PT_Dreamer :))
         qSort(ports.begin(), ports.end(), sortPorts);
+
         foreach(QSerialPortInfo port, ports) {
             device d;
 
-            d.displayName = port.portName();
             d.name = port.portName();
+            d.displayName = port.portName();
+            d.description = port.description();
+
             list.append(d);
         }
     }
@@ -221,12 +223,35 @@ void SerialConnection::resumePolling()
     enablePolling = true;
 }
 
-SerialPlugin::SerialPlugin() : m_connection(0)
+SerialPlugin::SerialPlugin() : m_connection(0), m_config(0)
 {}
 
 SerialPlugin::~SerialPlugin()
 {
-    removeObject(m_connection->Optionspage());
+    removeObject(m_connection->optionsPage());
+}
+
+bool SerialPlugin::initialize(const QStringList &arguments, QString *errorString)
+{
+    Q_UNUSED(arguments);
+    Q_UNUSED(errorString);
+
+    Core::ICore::instance()->readSettings(this);
+
+    m_connection = new SerialConnection(m_config);
+
+    // must manage this registration of child object ourselves
+    // if we use an autorelease here it causes the GCS to crash
+    // as it is deleting objects as the app closes...
+    addObject(m_connection->optionsPage());
+
+    // FIXME this is really a contrived way to save the settings...
+    // needs to be done centrally from
+    QObject::connect(m_connection, &SerialConnection::availableDevChanged,
+                     [this]() { Core::ICore::instance()->saveSettings(this); }
+                     );
+
+    return true;
 }
 
 void SerialPlugin::extensionsInitialized()
@@ -234,14 +259,18 @@ void SerialPlugin::extensionsInitialized()
     addAutoReleasedObject(m_connection);
 }
 
-bool SerialPlugin::initialize(const QStringList &arguments, QString *errorString)
+void SerialPlugin::readConfig(QSettings &settings, Core::UAVConfigInfo *configInfo)
 {
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorString);
-    m_connection = new SerialConnection();
-    // must manage this registration of child object ourselves
-    // if we use an autorelease here it causes the GCS to crash
-    // as it is deleting objects as the app closes...
-    addObject(m_connection->Optionspage());
-    return true;
+    Q_UNUSED(configInfo);
+
+    m_config = new SerialPluginConfiguration("SerialConnection", settings, this);
+}
+
+void SerialPlugin::saveConfig(QSettings &settings, Core::UAVConfigInfo *configInfo) const
+{
+    Q_UNUSED(configInfo);
+
+    if (m_config) {
+        m_config->saveConfig(settings);
+    }
 }

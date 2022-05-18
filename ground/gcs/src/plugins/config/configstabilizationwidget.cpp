@@ -156,19 +156,8 @@ void ConfigStabilizationWidget::setupStabBanksGUI()
     m_stabTabBars.append(ui->advancedPIDBankTabBar);
 
     QAction *defaultStabMenuAction = new QAction(QIcon(":configgadget/images/gear.png"), QString(), this);
-    QAction *restoreAllAction     = new QAction(tr("all to saved"), this);
-    connect(restoreAllAction, SIGNAL(triggered()), this, SLOT(restoreAllStabBanks()));
-    QAction *resetAllAction       = new QAction(tr("all to default"), this);
-    connect(resetAllAction, SIGNAL(triggered()), this, SLOT(resetAllStabBanks()));
-    QAction *restoreCurrentAction = new QAction(tr("to saved"), this);
-    connect(restoreCurrentAction, SIGNAL(triggered()), this, SLOT(restoreCurrentAction()));
-    QAction *resetCurrentAction   = new QAction(tr("to default"), this);
-    connect(resetCurrentAction, SIGNAL(triggered()), this, SLOT(resetCurrentStabBank()));
-    QAction *copyCurrentAction    = new QAction(tr("to others"), this);
-    connect(copyCurrentAction, SIGNAL(triggered()), this, SLOT(copyCurrentStabBank()));
-    connect(&m_stabSettingsCopyFromSignalMapper, SIGNAL(mapped(int)), this, SLOT(copyFromBankToCurrent(int)));
-    connect(&m_stabSettingsCopyToSignalMapper, SIGNAL(mapped(int)), this, SLOT(copyToBankFromCurrent(int)));
-    connect(&m_stabSettingsSwapSignalMapper, SIGNAL(mapped(int)), this, SLOT(swapBankAndCurrent(int)));
+
+    connect(&m_bankActionSignalMapper, SIGNAL(mapped(QString)), this, SLOT(bankAction(QString)));
 
     foreach(QTabBar * tabBar, m_stabTabBars) {
         for (int i = 0; i < m_stabSettingsBankCount; i++) {
@@ -179,7 +168,7 @@ void ConfigStabilizationWidget::setupStabBanksGUI()
             tabButton->setDefaultAction(defaultStabMenuAction);
             tabButton->setAutoRaise(true);
             tabButton->setPopupMode(QToolButton::InstantPopup);
-            tabButton->setToolTip(tr("The functions in this menu effect all fields in the settings banks,\n"
+            tabButton->setToolTip(tr("The functions in this menu affect all fields in the settings banks,\n"
                                      "not only the ones visible on screen."));
             QMenu *tabMenu     = new QMenu();
             QMenu *restoreMenu = new QMenu(tr("Restore"));
@@ -188,29 +177,49 @@ void ConfigStabilizationWidget::setupStabBanksGUI()
             QMenu *swapMenu    = new QMenu(tr("Swap"));
             QAction *menuAction;
             for (int j = 0; j < m_stabSettingsBankCount; j++) {
-                if (j == i) {
-                    restoreMenu->addAction(restoreCurrentAction);
-                    resetMenu->addAction(resetCurrentAction);
-                    copyMenu->addAction(copyCurrentAction);
-                } else {
+                if (j != i) {
                     menuAction = new QAction(tr("from %1").arg(j + 1), this);
-                    connect(menuAction, SIGNAL(triggered()), &m_stabSettingsCopyFromSignalMapper, SLOT(map()));
-                    m_stabSettingsCopyFromSignalMapper.setMapping(menuAction, j);
+                    connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+                    m_bankActionSignalMapper.setMapping(menuAction, QString("copy:%1:%2").arg(j).arg(i));
                     copyMenu->addAction(menuAction);
 
                     menuAction = new QAction(tr("to %1").arg(j + 1), this);
-                    connect(menuAction, SIGNAL(triggered()), &m_stabSettingsCopyToSignalMapper, SLOT(map()));
-                    m_stabSettingsCopyToSignalMapper.setMapping(menuAction, j);
+                    connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+                    m_bankActionSignalMapper.setMapping(menuAction, QString("copy:%1:%2").arg(i).arg(j));
                     copyMenu->addAction(menuAction);
 
                     menuAction = new QAction(tr("with %1").arg(j + 1), this);
-                    connect(menuAction, SIGNAL(triggered()), &m_stabSettingsSwapSignalMapper, SLOT(map()));
-                    m_stabSettingsSwapSignalMapper.setMapping(menuAction, j);
+                    connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+                    m_bankActionSignalMapper.setMapping(menuAction, QString("swap:%1:%2").arg(i).arg(j));
                     swapMenu->addAction(menuAction);
                 }
             }
-            restoreMenu->addAction(restoreAllAction);
-            resetMenu->addAction(resetAllAction);
+            // copy bank to all others
+            menuAction = new QAction(tr("to others"), this);
+            connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+            m_bankActionSignalMapper.setMapping(menuAction, QString("copyAll:%1").arg(i));
+            copyMenu->addAction(menuAction);
+            // restore
+            menuAction = new QAction(tr("to saved"), this);
+            connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+            m_bankActionSignalMapper.setMapping(menuAction, QString("restore:%1").arg(i));
+            restoreMenu->addAction(menuAction);
+            // restore all
+            menuAction = new QAction(tr("all to saved"), this);
+            connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+            m_bankActionSignalMapper.setMapping(menuAction, "restoreAll");
+            restoreMenu->addAction(menuAction);
+            // reset
+            menuAction = new QAction(tr("to default"), this);
+            connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+            m_bankActionSignalMapper.setMapping(menuAction, QString("reset:%1").arg(i));
+            resetMenu->addAction(menuAction);
+            // reset all
+            menuAction = new QAction(tr("all to default"), this);
+            connect(menuAction, SIGNAL(triggered()), &m_bankActionSignalMapper, SLOT(map()));
+            m_bankActionSignalMapper.setMapping(menuAction, "resetAll");
+            resetMenu->addAction(menuAction);
+            // menu
             tabMenu->addMenu(copyMenu);
             tabMenu->addMenu(swapMenu);
             tabMenu->addMenu(resetMenu);
@@ -421,34 +430,14 @@ void ConfigStabilizationWidget::replotExpoYaw(int value)
     replotExpo(value, m_expoPlotCurveYaw);
 }
 
-void ConfigStabilizationWidget::restoreAllStabBanks()
-{
-    for (int i = 0; i < m_stabSettingsBankCount; i++) {
-        restoreStabBank(i);
-    }
-}
-
-void ConfigStabilizationWidget::resetAllStabBanks()
-{
-    for (int i = 0; i < m_stabSettingsBankCount; i++) {
-        resetStabBank(i);
-    }
-}
-
-void ConfigStabilizationWidget::restoreCurrentAction()
-{
-    restoreStabBank(m_currentStabSettingsBank);
-}
-
 UAVObject *ConfigStabilizationWidget::getStabBankObject(int bank)
 {
     return getObject(QString("StabilizationSettingsBank%1").arg(bank + 1));
 }
 
-void ConfigStabilizationWidget::resetStabBank(int bank)
+void ConfigStabilizationWidget::resetBank(int bank)
 {
-    UAVDataObject *stabBankObject =
-        dynamic_cast<UAVDataObject *>(getStabBankObject(bank));
+    UAVDataObject *stabBankObject = dynamic_cast<UAVDataObject *>(getStabBankObject(bank));
 
     if (stabBankObject) {
         UAVDataObject *defaultStabBankObject = stabBankObject->dirtyClone();
@@ -458,7 +447,7 @@ void ConfigStabilizationWidget::resetStabBank(int bank)
     }
 }
 
-void ConfigStabilizationWidget::restoreStabBank(int bank)
+void ConfigStabilizationWidget::restoreBank(int bank)
 {
     UAVObject *stabBankObject = getStabBankObject(bank);
 
@@ -485,30 +474,7 @@ void ConfigStabilizationWidget::restoreStabBank(int bank)
     }
 }
 
-void ConfigStabilizationWidget::resetCurrentStabBank()
-{
-    resetStabBank(m_currentStabSettingsBank);
-}
-
-void ConfigStabilizationWidget::copyCurrentStabBank()
-{
-    UAVObject *fromStabBankObject = getStabBankObject(m_currentStabSettingsBank);
-
-    if (fromStabBankObject) {
-        quint8 fromStabBankObjectData[fromStabBankObject->getNumBytes()];
-        fromStabBankObject->pack(fromStabBankObjectData);
-        for (int i = 0; i < m_stabSettingsBankCount; i++) {
-            if (i != m_currentStabSettingsBank) {
-                UAVObject *toStabBankObject = getStabBankObject(i);
-                if (toStabBankObject) {
-                    toStabBankObject->unpack(fromStabBankObjectData);
-                }
-            }
-        }
-    }
-}
-
-void ConfigStabilizationWidget::copyFromBankToBank(int fromBank, int toBank)
+void ConfigStabilizationWidget::copyBank(int fromBank, int toBank)
 {
     UAVObject *fromStabBankObject = getStabBankObject(fromBank);
     UAVObject *toStabBankObject   = getStabBankObject(toBank);
@@ -520,20 +486,10 @@ void ConfigStabilizationWidget::copyFromBankToBank(int fromBank, int toBank)
     }
 }
 
-void ConfigStabilizationWidget::copyFromBankToCurrent(int bank)
+void ConfigStabilizationWidget::swapBank(int fromBank, int toBank)
 {
-    copyFromBankToBank(bank, m_currentStabSettingsBank);
-}
-
-void ConfigStabilizationWidget::copyToBankFromCurrent(int bank)
-{
-    copyFromBankToBank(m_currentStabSettingsBank, bank);
-}
-
-void ConfigStabilizationWidget::swapBankAndCurrent(int bank)
-{
-    UAVObject *fromStabBankObject = getStabBankObject(m_currentStabSettingsBank);
-    UAVObject *toStabBankObject   = getStabBankObject(bank);
+    UAVObject *fromStabBankObject = getStabBankObject(fromBank);
+    UAVObject *toStabBankObject   = getStabBankObject(toBank);
 
     if (fromStabBankObject && toStabBankObject) {
         quint8 fromStabBankObjectData[fromStabBankObject->getNumBytes()];
@@ -542,6 +498,50 @@ void ConfigStabilizationWidget::swapBankAndCurrent(int bank)
         toStabBankObject->pack(toStabBankObjectData);
         toStabBankObject->unpack(fromStabBankObjectData);
         fromStabBankObject->unpack(toStabBankObjectData);
+    }
+}
+
+void ConfigStabilizationWidget::bankAction(const QString &mapping)
+{
+    QStringList list = mapping.split(":");
+    QString action   = list[0];
+
+    if (action == "copy") {
+        int fromBank = list[1].toInt();
+        Q_ASSERT((fromBank >= 0) && (fromBank < m_stabSettingsBankCount));
+        int toBank   = list[2].toInt();
+        Q_ASSERT((toBank >= 0) && (toBank < m_stabSettingsBankCount));
+        copyBank(fromBank, toBank);
+    } else if (action == "copyAll") {
+        int fromBank = list[1].toInt();
+        Q_ASSERT((fromBank >= 0) && (fromBank < m_stabSettingsBankCount));
+        for (int toBank = 0; toBank < m_stabSettingsBankCount; toBank++) {
+            if (fromBank != toBank) {
+                copyBank(fromBank, toBank);
+            }
+        }
+    } else if (action == "swap") {
+        int fromBank = list[1].toInt();
+        Q_ASSERT((fromBank >= 0) && (fromBank < m_stabSettingsBankCount));
+        int toBank   = list[2].toInt();
+        Q_ASSERT((toBank >= 0) && (toBank < m_stabSettingsBankCount));
+        swapBank(fromBank, toBank);
+    } else if (action == "restore") {
+        int bank = list[1].toInt();
+        Q_ASSERT((bank >= 0) && (bank < m_stabSettingsBankCount));
+        restoreBank(bank);
+    } else if (action == "restoreAll") {
+        for (int bank = 0; bank < m_stabSettingsBankCount; bank++) {
+            restoreBank(bank);
+        }
+    } else if (action == "reset") {
+        int bank = list[1].toInt();
+        Q_ASSERT((bank >= 0) && (bank < m_stabSettingsBankCount));
+        resetBank(bank);
+    } else if (action == "resetAll") {
+        for (int bank = 0; bank < m_stabSettingsBankCount; bank++) {
+            resetBank(bank);
+        }
     }
 }
 

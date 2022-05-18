@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       configgadgetwidget.cpp
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2017.
  *             E. Lafargue & The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
@@ -37,10 +37,14 @@
 #include "configtxpidwidget.h"
 #include "configrevohwwidget.h"
 #include "config_cc_hw_widget.h"
+#include "configautotunewidget.h"
 #include "configoplinkwidget.h"
 #include "configrevowidget.h"
 #include "configrevonanohwwidget.h"
 #include "configsparky2hwwidget.h"
+#include "configspracingf3evohwwidget.h"
+#include "configtinyfishhwwidget.h"
+#include "configpikoblxhwwidget.h"
 #include "defaultconfigwidget.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -94,6 +98,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     widget = new ConfigInputWidget(this);
     static_cast<ConfigTaskWidget *>(widget)->bind();
     stackWidget->insertTab(ConfigGadgetWidget::Input, widget, *icon, QString("Input"));
+    QWidget *inputWidget = widget;
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/output_normal.png", QSize(), QIcon::Normal, QIcon::Off);
@@ -101,6 +106,7 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     widget = new ConfigOutputWidget(this);
     static_cast<ConfigTaskWidget *>(widget)->bind();
     stackWidget->insertTab(ConfigGadgetWidget::Output, widget, *icon, QString("Output"));
+    QWidget *outputWidget = widget;
 
     icon   = new QIcon();
     icon->addFile(":/configgadget/images/ins_normal.png", QSize(), QIcon::Normal, QIcon::Off);
@@ -130,6 +136,12 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
     stackWidget->insertTab(ConfigGadgetWidget::TxPid, widget, *icon, QString("TxPID"));
 
     icon   = new QIcon();
+    icon->addFile(":/configgadget/images/autotune_normal.png", QSize(), QIcon::Normal, QIcon::Off);
+    icon->addFile(":/configgadget/images/autotune_selected.png", QSize(), QIcon::Selected, QIcon::Off);
+    widget = new DefaultConfigWidget(this, tr("AutoTune Configuration"));
+    stackWidget->insertTab(ConfigGadgetWidget::AutoTune, widget, *icon, QString("AutoTune"));
+
+    icon   = new QIcon();
     icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
     icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
     widget = new DefaultConfigWidget(this, tr("OPLink Configuration"));
@@ -155,6 +167,12 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
         onOPLinkConnect();
     }
 
+    // Connect output tab and input tab
+    // Input tab do not start calibration if Output tab is not safe
+    // Output tab uses the signal from Input tab and freeze all output UI while calibrating inputs
+    connect(outputWidget, SIGNAL(outputConfigSafeChanged(bool)), inputWidget, SLOT(setOutputConfigSafe(bool)));
+    connect(inputWidget, SIGNAL(inputCalibrationStateChanged(bool)), outputWidget, SLOT(setInputCalibrationState(bool)));
+
     help = 0;
     connect(stackWidget, SIGNAL(currentAboutToShow(int, bool *)), this, SLOT(tabAboutToChange(int, bool *)));
 }
@@ -172,14 +190,14 @@ void ConfigGadgetWidget::startInputWizard()
     inputWidget->startInputWizard();
 }
 
-void ConfigGadgetWidget::saveState(QSettings *settings)
+void ConfigGadgetWidget::saveState(QSettings &settings) const
 {
-    settings->setValue("currentIndex", stackWidget->currentIndex());
+    settings.setValue("currentIndex", stackWidget->currentIndex());
 }
 
-void ConfigGadgetWidget::restoreState(QSettings *settings)
+void ConfigGadgetWidget::restoreState(QSettings &settings)
 {
-    int index = settings->value("currentIndex", 0).toInt();
+    int index = settings.value("currentIndex", 0).toInt();
 
     stackWidget->setCurrentIndex(index);
 }
@@ -201,10 +219,18 @@ void ConfigGadgetWidget::onAutopilotConnect()
         int board = utilMngr->getBoardModel();
         if ((board & 0xff00) == 0x0400) {
             // CopterControl family
+
             ConfigTaskWidget *widget;
-            widget = new ConfigCCAttitudeWidget(this);
+
+            if ((board & 0x00ff) == 0x03) {
+                widget = new ConfigRevoWidget(this);
+            } else {
+                widget = new ConfigCCAttitudeWidget(this);
+            }
+
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+
             widget = new ConfigCCHWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
@@ -214,6 +240,9 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigRevoWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+            widget = new ConfigAutoTuneWidget(this);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::AutoTune, widget);
             if (board == 0x0903 || board == 0x0904) {
                 widget = new ConfigRevoHWWidget(this);
             } else if (board == 0x0905) {
@@ -227,9 +256,40 @@ void ConfigGadgetWidget::onAutopilotConnect()
             widget = new ConfigRevoWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+            widget = new ConfigAutoTuneWidget(this);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::AutoTune, widget);
             widget = new ConfigSparky2HWWidget(this);
             widget->bind();
             stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
+        } else if ((board & 0xff00) == 0x1000) { // F3 boards
+            ConfigTaskWidget *widget;
+            widget = new ConfigRevoWidget(this);
+            widget->bind();
+            stackWidget->replaceTab(ConfigGadgetWidget::Sensors, widget);
+
+            widget = 0;
+
+            switch (board) {
+            case 0x1001:
+                // widget = new ConfigSPRacingF3HWWidget(this);
+                break;
+            case 0x1002:
+            case 0x1003:
+                widget = new ConfigSPRacingF3EVOHWWidget(this);
+                break;
+            case 0x1005:
+                widget = new ConfigPikoBLXHWWidget(this);
+                break;
+            case 0x1006:
+                widget = new ConfigTinyFISHHWWidget(this);
+                break;
+            }
+
+            if (widget) {
+                widget->bind();
+                stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
+            }
         } else {
             // Unknown board
             qWarning() << "Unknown board " << board;
@@ -247,6 +307,9 @@ void ConfigGadgetWidget::onAutopilotDisconnect()
 
     widget = new DefaultConfigWidget(this, tr("Hardware"));
     stackWidget->replaceTab(ConfigGadgetWidget::Hardware, widget);
+
+    widget = new DefaultConfigWidget(this, tr("AutoTune"));
+    stackWidget->replaceTab(ConfigGadgetWidget::AutoTune, widget);
 }
 
 void ConfigGadgetWidget::onOPLinkConnect()
@@ -283,7 +346,7 @@ void ConfigGadgetWidget::tabAboutToChange(int index, bool *proceed)
         if (ans == QMessageBox::No) {
             *proceed = false;
         } else {
-            wid->setDirty(false);
+            wid->clearDirty();
         }
     }
 }

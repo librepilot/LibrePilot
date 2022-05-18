@@ -12,9 +12,9 @@
         <field name="HoverThrottle" units="%/100" type="float" elements="1" defaultvalue="0" description="Measured throttle stick position"/>
         <field name="GyroReadTimeAverage" units="s" type="float" elements="1" defaultvalue="0.001" description="Measured delay from gyro read to inner loop"/>
         <field name="Complete" units="bool" type="enum" elements="1" options="False,True" defaultvalue="False" description="Automatically set True for a good complete tune or False for incomplete or bad"/>
-        <access gcs="readwrite" flight="readwrite"/>
+        <access gcs="readonly" flight="readwrite"/>
         <telemetrygcs acked="false" updatemode="manual" period="0"/>
-        <telemetryflight acked="false" updatemode="periodic" period="1000"/>
+        <telemetryflight acked="false" updatemode="throttled" period="1000"/>
         <logging updatemode="manual" period="0"/>
     </object>
 </xml>

@@ -28,10 +28,11 @@
 #ifndef UPLOADERGADGETCONFIGURATION_H
 #define UPLOADERGADGETCONFIGURATION_H
 
-#include <coreplugin/iuavgadgetconfiguration.h>
-#include <QtSerialPort/QSerialPort>
-#include <QtSerialPort/QSerialPortInfo>
 #include "uploader_global.h"
+
+#include <coreplugin/iuavgadgetconfiguration.h>
+
+#include <QtSerialPort/QSerialPort>
 
 using namespace Core;
 
@@ -50,7 +51,11 @@ struct PortSettings {
 class UPLOADER_EXPORT UploaderGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit UploaderGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit UploaderGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit UploaderGadgetConfiguration(const UploaderGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     // set port configuration functions
     void setSpeed(QSerialPort::BaudRate speed)
@@ -111,8 +116,6 @@ public:
     {
         return m_defaultTimeOut;
     }
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     QString m_defaultPort;

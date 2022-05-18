@@ -8,9 +8,22 @@ export OPUAVTALK       := $(FLIGHT_ROOT_DIR)/uavtalk
 export FLIGHT_OUT_DIR  ?= $(CURDIR)
 
 # Define supported board lists
-ALL_BOARDS    := coptercontrol oplinkmini revolution osd revoproto simposix discoveryf4bare gpsplatinum revonano sparky2
+ALL_BOARDS := coptercontrol revolution revonano sparky2
+ALL_BOARDS += revoproto
+ALL_BOARDS += oplinkmini
+ALL_BOARDS += gpsplatinum
+ALL_BOARDS += osd
+ALL_BOARDS += discoveryf4bare
+ALL_BOARDS += ccf3d spracingf3 spracingf3evo nucleof303re pikoblx tinyfish
+# SimPosix only builds on Linux
+ifeq ($(UNAME), Linux)
+    ALL_BOARDS += simposix
+endif
 
 # Short names of each board (used to display board name in parallel builds)
+spracingf3_short       := 'srf3'
+spracingf3evo_short    := 'spev'
+ccf3d_short            := 'cf3d'
 coptercontrol_short    := 'cc  '
 oplinkmini_short       := 'oplm'
 revolution_short       := 'revo'
@@ -21,12 +34,9 @@ sparky2_short          := 'spk2'
 simposix_short         := 'posx'
 discoveryf4bare_short  := 'df4b'
 gpsplatinum_short      := 'gps9'
-
-# SimPosix only builds on Linux so drop it from the list for
-# all other platforms.
-ifneq ($(UNAME), Linux)
-    ALL_BOARDS := $(filter-out simposix, $(ALL_BOARDS))
-endif
+nucleof303re_short     := 'nf3r'
+pikoblx_short          := 'piko'
+tinyfish_short         := 'tfsh'
 
 # Start out assuming that we'll build fw, bl and bu for all boards
 FW_BOARDS  := $(ALL_BOARDS)

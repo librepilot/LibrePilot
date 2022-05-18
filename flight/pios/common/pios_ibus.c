@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file       pios_ibus.c
- * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016-2017.
  *             dRonin, http://dRonin.org/, Copyright (C) 2016
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
@@ -33,10 +33,38 @@
 
 #ifdef PIOS_INCLUDE_IBUS
 
-// 1 sync byte, 1 unknown byte, 10x channels (uint16_t), 8 unknown bytes, 2 crc bytes
-#define PIOS_IBUS_BUFLEN   (1 + 1 + PIOS_IBUS_NUM_INPUTS * 2 + 8 + 2)
-#define PIOS_IBUS_SYNCBYTE 0x20
+/*
+    iBus packet format learned from: https://bitbucket.org/daveborthwick/ibus_pic12f1572
+
+    An iBus packet consists of:
+    - the total packet length (1 byte)
+    - command / type field (1 byte)
+    - sequence of 16-bit (little endian) variables (2 bytes each)
+    - checksum (2 bytes)
+
+    The most common packet length is 0x20 = 32 bytes
+    A packet of this type has enough room to transport data for 14 channels.
+
+    The command / type field tells you the meaning of the next variables.
+    This field is set to 0x40 for RC command channels.
+    We must verify this field to be 0x40 so we can be sure that the next fields
+    can be interpreted as RC command channels.
+
+    The checksum equals 0xFFFF minus the sum of all previous bytes in the packet.
+
+ */
+
+// 1 length byte, 1 type byte, 10x channels (uint16_t), 4 extra channels (unint16_t), 2 crc bytes
+// We only decode the first 10 channels at this time.
+#define PIOS_IBUS_BUFLEN   (1 + 1 + PIOS_IBUS_NUM_INPUTS * 2 + (14 - PIOS_IBUS_NUM_INPUTS) * 2 + 2)
+#define PIOS_IBUS_SYNCBYTE 0x20 // sync on the packet length byte
+#define PIOS_IBUS_TYPEBYTE 0x40
 #define PIOS_IBUS_MAGIC    0x84fd9a39
+
+// make sure to always allocate sufficient bufferspace:
+#if (PIOS_IBUS_SYNCBYTE != PIOS_IBUS_BUFLEN)
+#error PIOS_IBUS_BUFLEN must be updated to match the expected packet length
+#endif
 
 /**
  * @brief IBus receiver driver internal state data
@@ -146,7 +174,17 @@ int32_t PIOS_IBUS_Init(uint32_t *ibus_id, const struct pios_com_driver *driver,
         PIOS_Assert(0);
     }
 
-    (driver->bind_rx_cb)(lower_id, PIOS_IBUS_Receive, *ibus_id);
+    /* Set comm driver parameters */
+    PIOS_DEBUG_Assert(driver->set_config);
+    driver->set_config(lower_id, PIOS_COM_Word_length_8b, PIOS_COM_Parity_No, PIOS_COM_StopBits_1, 115200);
+
+    /* Set irq priority */
+    if (driver->ioctl) {
+        uint8_t irq_prio = PIOS_IRQ_PRIO_HIGH;
+        driver->ioctl(lower_id, PIOS_IOCTL_USART_SET_IRQ_PRIO, &irq_prio);
+    }
+
+    driver->bind_rx_cb(lower_id, PIOS_IBUS_Receive, *ibus_id);
 
     return 0;
 }
@@ -182,7 +220,14 @@ static uint16_t PIOS_IBUS_Receive(uint32_t context, uint8_t *buf, uint16_t buf_l
     }
 
     for (int i = 0; i < buf_len; i++) {
+        // byte 0: sync byte (packet length) should match:
         if (ibus_dev->buf_pos == 0 && buf[i] != PIOS_IBUS_SYNCBYTE) {
+            continue;
+        }
+        // byte 1: type field should match:
+        if (ibus_dev->buf_pos == 1 && buf[i] != PIOS_IBUS_TYPEBYTE) {
+            // not the correct type of data, restart from byte 0
+            ibus_dev->buf_pos = 0;
             continue;
         }
 
@@ -238,10 +283,12 @@ static void PIOS_IBUS_Supervisor(uint32_t context)
 
     PIOS_Assert(PIOS_IBUS_Validate(ibus_dev));
 
+    // clear rx buffer after 4.8 ms without input
     if (++ibus_dev->rx_timer > 3) {
         PIOS_IBUS_ResetBuffer(ibus_dev);
     }
 
+    // mark all channels invalid after 51.2 ms without valid data
     if (++ibus_dev->failsafe_timer > 32) {
         PIOS_IBUS_SetAllChannels(ibus_dev, PIOS_RCVR_TIMEOUT);
     }

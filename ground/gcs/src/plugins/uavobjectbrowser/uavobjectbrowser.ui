@@ -307,7 +307,6 @@
           <string>This space shows a description of the selected UAVObject.</string>
          </property>
         </widget>
-        <widget class="QLineEdit" name="lineEdit"/>
        </widget>
       </item>
      </layout>

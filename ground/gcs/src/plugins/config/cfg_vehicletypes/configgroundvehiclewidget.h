@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       configgroundvehiclewidget.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2015-2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @addtogroup GCSPlugins GCS Plugins
  * @{
  * @addtogroup ConfigPlugin Config Plugin
@@ -29,11 +30,6 @@
 
 #include "cfg_vehicletypes/vehicleconfig.h"
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
 class Ui_GroundConfigWidget;
 
 class QWidget;
@@ -48,29 +44,32 @@ public:
     ConfigGroundVehicleWidget(QWidget *parent = 0);
     ~ConfigGroundVehicleWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
+    virtual QString getFrameType();
+
     virtual void initMixerCurves(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
 
 protected:
-    void enableControls(bool enable);
     void resizeEvent(QResizeEvent *);
     void showEvent(QShowEvent *);
+
+    virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
 
 private:
     Ui_GroundConfigWidget *m_aircraft;
     QGraphicsSvgItem *m_vehicleImg;
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
+    void resetActuators(GUIConfigDataUnion *configData);
 
-    bool setupGroundVehicleCar(QString airframeType);
-    bool setupGroundVehicleDifferential(QString airframeType);
-    bool setupGroundVehicleMotorcycle(QString airframeType);
+    bool setupGroundVehicleTurnable(QString frameType);
+    bool setupGroundVehicleDifferential(QString frameType);
+    bool setupGroundVehicleMotorcycle(QString frameType);
 
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(QString airframeType);
+    bool throwConfigError(QString frameType);
 };
 
 #endif // CONFIGGROUNDVEHICLEWIDGET_H

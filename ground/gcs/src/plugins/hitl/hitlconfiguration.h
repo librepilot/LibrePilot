@@ -29,7 +29,6 @@
 #define HITLCONFIGURATION_H
 
 #include <coreplugin/iuavgadgetconfiguration.h>
-#include <QColor>
 #include <QString>
 
 #include <simulator.h>
@@ -40,25 +39,26 @@ class HITLConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT Q_PROPERTY(SimulatorSettings settings READ Settings WRITE setSimulatorSettings)
 
 public:
-    explicit HITLConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit HITLConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit HITLConfiguration(const HITLConfiguration &obj);
 
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     SimulatorSettings Settings() const
     {
-        return settings;
+        return simSettings;
     }
 
 public slots:
     void setSimulatorSettings(const SimulatorSettings & params)
     {
-        settings = params;
+        simSettings = params;
     }
 
 
 private:
-    SimulatorSettings settings;
+    SimulatorSettings simSettings;
 };
 
 #endif // HITLCONFIGURATION_H

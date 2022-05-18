@@ -59,6 +59,8 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/auxmagsettings.xml \
     $${UAVOBJ_XML_DIR}/barosensor.xml \
     $${UAVOBJ_XML_DIR}/callbackinfo.xml \
+    $${UAVOBJ_XML_DIR}/cameracontrolactivity.xml \
+    $${UAVOBJ_XML_DIR}/cameracontrolsettings.xml \
     $${UAVOBJ_XML_DIR}/cameradesired.xml \
     $${UAVOBJ_XML_DIR}/camerastabsettings.xml \
     $${UAVOBJ_XML_DIR}/debuglogcontrol.xml \
@@ -92,7 +94,14 @@ UAVOBJS = \
     $${UAVOBJ_XML_DIR}/gyrosensor.xml \
     $${UAVOBJ_XML_DIR}/gyrostate.xml \
     $${UAVOBJ_XML_DIR}/homelocation.xml \
+    $${UAVOBJ_XML_DIR}/hottbridgesettings.xml \
+    $${UAVOBJ_XML_DIR}/hottbridgestatus.xml \
     $${UAVOBJ_XML_DIR}/hwsettings.xml \
+    $${UAVOBJ_XML_DIR}/hwspracingf3settings.xml \
+    $${UAVOBJ_XML_DIR}/hwspracingf3evosettings.xml \
+    $${UAVOBJ_XML_DIR}/hwpikoblxsettings.xml \
+    $${UAVOBJ_XML_DIR}/hwtinyfishsettings.xml \
+    $${UAVOBJ_XML_DIR}/hwdiscoveryf4baresettings.xml \
     $${UAVOBJ_XML_DIR}/i2cstats.xml \
     $${UAVOBJ_XML_DIR}/magsensor.xml \
     $${UAVOBJ_XML_DIR}/magstate.xml \

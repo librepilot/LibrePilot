@@ -77,9 +77,8 @@ private:
     QwtPlotCurve m_expoPlotCurvePitch;
     QwtPlotCurve m_expoPlotCurveYaw;
     QwtPlotGrid m_plotGrid;
-    QSignalMapper m_stabSettingsCopyFromSignalMapper;
-    QSignalMapper m_stabSettingsCopyToSignalMapper;
-    QSignalMapper m_stabSettingsSwapSignalMapper;
+
+    QSignalMapper m_bankActionSignalMapper;
 
     UAVObject *getStabBankObject(int bank);
 
@@ -87,8 +86,10 @@ private:
     void updateObjectFromThrottleCurve();
     void setupExpoPlot();
     void setupStabBanksGUI();
-    void resetStabBank(int bank);
-    void restoreStabBank(int bank);
+    void resetBank(int bank);
+    void restoreBank(int bank);
+    void copyBank(int fromBank, int toBank);
+    void swapBank(int fromBank, int toBank);
 
 private slots:
     void enableControlsChanged(bool enable);
@@ -104,15 +105,6 @@ private slots:
     void replotExpoPitch(int value);
     void replotExpoYaw(int value);
 
-    void restoreAllStabBanks();
-    void resetAllStabBanks();
-    void restoreCurrentAction();
-    void resetCurrentStabBank();
-    void copyCurrentStabBank();
-
-    void copyFromBankToBank(int fromBank, int toBank);
-    void copyFromBankToCurrent(int bank);
-    void copyToBankFromCurrent(int bank);
-    void swapBankAndCurrent(int bank);
+    void bankAction(const QString &mapping);
 };
 #endif // ConfigStabilizationWidget_H

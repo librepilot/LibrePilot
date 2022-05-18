@@ -112,14 +112,13 @@ struct UAVOMeta {
 
 /* Shared data structure for all data-carrying UAVObjects (UAVOSingle and UAVOMulti) */
 struct UAVOData {
-    struct UAVOBase base;
-    uint32_t id;
+    struct UAVOBase  base;
+    const UAVObjType *type; /* this contains id, instance_size and data initializer */
     /*
      * Embed the Meta object as another complete UAVO
      * inside the payload for this UAVO.
      */
     struct UAVOMeta metaObj;
-    uint16_t instance_size;
 } __attribute__((packed, aligned(4)));
 
 /* Augmented type for Single Instance Data UAVO */

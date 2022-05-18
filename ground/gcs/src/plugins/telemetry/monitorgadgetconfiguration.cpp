@@ -27,28 +27,26 @@
 
 #include "monitorgadgetconfiguration.h"
 
-MonitorGadgetConfiguration::MonitorGadgetConfiguration(QString classId, QSettings *qSettings, QObject *parent) :
+MonitorGadgetConfiguration::MonitorGadgetConfiguration(QString classId, QSettings &settings, QObject *parent) :
     IUAVGadgetConfiguration(classId, parent)
 {
-    // if a saved configuration exists load it
-    if (qSettings != 0) {}
+    Q_UNUSED(settings);
 }
 
-IUAVGadgetConfiguration *MonitorGadgetConfiguration::clone()
-{
-    MonitorGadgetConfiguration *mv = new MonitorGadgetConfiguration(this->classId());
+MonitorGadgetConfiguration::MonitorGadgetConfiguration(const MonitorGadgetConfiguration &obj) :
+    IUAVGadgetConfiguration(obj.classId(), obj.parent())
+{}
 
-    return mv;
+IUAVGadgetConfiguration *MonitorGadgetConfiguration::clone() const
+{
+    return new MonitorGadgetConfiguration(*this);
 }
 
 /**
  * Saves a configuration.
  *
  */
-void MonitorGadgetConfiguration::saveConfig(QSettings *qSettings) const
+void MonitorGadgetConfiguration::saveConfig(QSettings &settings) const
 {
-    Q_UNUSED(qSettings);
-// qSettings->setValue("acFilename", Utils::RemoveDataPath(m_acFilename));
-// qSettings->setValue("bgFilename", Utils::RemoveDataPath(m_bgFilename));
-// qSettings->setValue("enableVbo", m_enableVbo);
+    Q_UNUSED(settings);
 }

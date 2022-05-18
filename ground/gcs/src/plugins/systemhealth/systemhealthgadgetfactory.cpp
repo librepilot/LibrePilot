@@ -47,9 +47,9 @@ Core::IUAVGadget *SystemHealthGadgetFactory::createGadget(QWidget *parent)
     return new SystemHealthGadget(QString("SystemHealthGadget"), gadgetWidget, parent);
 }
 
-IUAVGadgetConfiguration *SystemHealthGadgetFactory::createConfiguration(QSettings *qSettings)
+IUAVGadgetConfiguration *SystemHealthGadgetFactory::createConfiguration(QSettings &settings)
 {
-    return new SystemHealthGadgetConfiguration(QString("SystemHealthGadget"), qSettings);
+    return new SystemHealthGadgetConfiguration(QString("SystemHealthGadget"), settings);
 }
 
 IOptionsPage *SystemHealthGadgetFactory::createOptionsPage(IUAVGadgetConfiguration *config)

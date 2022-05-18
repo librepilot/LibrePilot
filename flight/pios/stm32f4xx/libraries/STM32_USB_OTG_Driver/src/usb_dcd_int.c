@@ -681,7 +681,7 @@ static uint32_t DCD_WriteEmptyTxFifo(USB_OTG_CORE_HANDLE *pdev, uint32_t epnum)
   }
   // --- start fix
     uint32_t fifoemptymsk;
-    if (len < ep->maxpacket)
+    if (len < ep->maxpacket || ep->xfer_count==0)
     {
       // FIFO empty
       fifoemptymsk = 0x1 << epnum;

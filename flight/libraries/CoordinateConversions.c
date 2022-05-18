@@ -27,25 +27,29 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include <math.h>
 #include <stdint.h>
 #include <pios_math.h>
-#include "CoordinateConversions.h"
+#include "inc/CoordinateConversions.h"
 
 #define MIN_ALLOWABLE_MAGNITUDE 1e-30f
 
+// Equatorial Radius
+#define equatorial_radius       6378137.0d
+
+// Eccentricity
+#define eccentricity            8.1819190842622e-2d
+#define equatorial_radius_sq    (equatorial_radius * equatorial_radius)
+#define eccentricity_sq         (eccentricity * eccentricity)
+
 // ****** convert Lat,Lon,Alt to ECEF  ************
-void LLA2ECEF(int32_t LLAi[3], double ECEF[3])
+void LLA2ECEF(const int32_t LLAi[3], float ECEF[3])
 {
-    const double a  = 6378137.0d; // Equatorial Radius
-    const double e  = 8.1819190842622e-2d; // Eccentricity
-    const double e2 = e * e; // Eccentricity squared
     double sinLat, sinLon, cosLat, cosLon;
     double N;
-    double LLA[3]   = {
-        (double)LLAi[0] * 1e-7d,
-        (double)LLAi[1] * 1e-7d,
-        (double)LLAi[2] * 1e-4d
+    double LLA[3] = {
+        ((double)LLAi[0]) * 1e-7d,
+        ((double)LLAi[1]) * 1e-7d,
+        ((double)LLAi[2]) * 1e-4d
     };
 
     sinLat = sin(DEG2RAD_D(LLA[0]));
@@ -53,60 +57,53 @@ void LLA2ECEF(int32_t LLAi[3], double ECEF[3])
     cosLat = cos(DEG2RAD_D(LLA[0]));
     cosLon = cos(DEG2RAD_D(LLA[1]));
 
-    N = a / sqrt(1.0d - e2 * sinLat * sinLat); // prime vertical radius of curvature
+    N = equatorial_radius / sqrt(1.0d - eccentricity_sq * sinLat * sinLat); // prime vertical radius of curvature
 
-    ECEF[0] = (N + LLA[2]) * cosLat * cosLon;
-    ECEF[1] = (N + LLA[2]) * cosLat * sinLon;
-    ECEF[2] = ((1.0d - e2) * N + LLA[2]) * sinLat;
+    ECEF[0] = (float)((N + LLA[2]) * cosLat * cosLon);
+    ECEF[1] = (float)((N + LLA[2]) * cosLat * sinLon);
+    ECEF[2] = (float)(((1.0d - eccentricity_sq) * N + LLA[2]) * sinLat);
 }
 
 // ****** convert ECEF to Lat,Lon,Alt (ITERATIVE!) *********
-uint16_t ECEF2LLA(double ECEF[3], float LLA[3])
+void ECEF2LLA(const float ECEF[3], int32_t LLA[3])
 {
-    /**
-     * LLA parameter is used to prime the iteration.
-     * A position within 1 meter of the specified LLA
-     * will be calculated within at most 3 iterations.
-     * If unknown: Call with any valid LLA coordinate
-     * will compute within at most 5 iterations.
-     * Suggestion: [0,0,0]
-     **/
+/*    b = math.sqrt( asq * (1-esq) )
+       bsq = b*b
 
-    const double a = 6378137.0f; // Equatorial Radius
-    const double e = 8.1819190842622e-2f; // Eccentricity
-    double x = ECEF[0], y = ECEF[1], z = ECEF[2];
-    double Lat, N, NplusH, delta, esLat;
-    uint16_t iter;
+       ep = math.sqrt((asq - bsq)/bsq)
+       p = math.sqrt( math.pow(x,2) + math.pow(y,2) )
+       th = math.atan2(a*z, b*p)
 
-#define MAX_ITER 10 // should not take more than 5 for valid coordinates
-#define ACCURACY 1.0e-11d // used to be e-14, but we don't need sub micrometer exact calculations
+       lon = math.atan2(y,x)
+       lat = math.atan2( (z + ep*ep *b * math.pow(math.sin(th),3) ), (p - esq*a*math.pow(math.cos(th),3)) )
+       N = a/( math.sqrt(1-esq*math.pow(math.sin(lat),2)) )
+       alt = p / math.cos(lat) - N*/
 
-    LLA[1] = (float)RAD2DEG_D(atan2(y, x));
-    Lat    = DEG2RAD_D((double)LLA[0]);
-    esLat  = e * sin(Lat);
-    N = a / sqrt(1 - esLat * esLat);
-    NplusH = N + (double)LLA[2];
-    delta  = 1;
-    iter   = 0;
+    const double x   = ECEF[0], y = ECEF[1], z = ECEF[2];
 
-    while (((delta > ACCURACY) || (delta < -ACCURACY))
-           && (iter < MAX_ITER)) {
-        delta  = Lat - atan(z / (sqrt(x * x + y * y) * (1 - (N * e * e / NplusH))));
-        Lat    = Lat - delta;
-        esLat  = e * sin(Lat);
-        N      = a / sqrt(1 - esLat * esLat);
-        NplusH = sqrt(x * x + y * y) / cos(Lat);
-        iter  += 1;
-    }
+    const double b   = sqrt(equatorial_radius_sq * (1 - eccentricity_sq));
+    const double bsq = b * b;
+    const double ep  = sqrt((equatorial_radius_sq - bsq) / bsq);
 
-    LLA[0] = RAD2DEG_D(Lat);
-    LLA[2] = NplusH - N;
+    const double p   = sqrt(x * x + y * y);
+    const double th  = atan2(equatorial_radius * z, b * p);
 
-    return iter < MAX_ITER;
+    double lon = atan2(y, x);
+
+    const double lat = atan2(
+        (z + ep * ep * b * pow(sin(th), 3)),
+        (p - eccentricity_sq * equatorial_radius * pow(cos(th), 3))
+        );
+    const double N   = equatorial_radius / (sqrt(1 - eccentricity_sq * pow(sin(lat), 2)));
+    const double alt = p / cos(lat) - N;
+
+    LLA[0] = (int32_t)(RAD2DEG_D(lat) * 1e7d);
+    LLA[1] = (int32_t)(RAD2DEG_D(lon) * 1e7d) % ((int32_t)(180 * 1e7d));
+    LLA[2] = (int32_t)(alt * 1e4d);
 }
 
 // ****** find ECEF to NED rotation matrix ********
-void RneFromLLA(int32_t LLAi[3], float Rne[3][3])
+void RneFromLLA(const int32_t LLAi[3], float Rne[3][3])
 {
     float sinLat, sinLon, cosLat, cosLon;
 
@@ -249,16 +246,30 @@ void Quaternion2zB(const float q[4], float z[3])
 
 
 // ****** Express LLA in a local NED Base Frame ********
-void LLA2Base(int32_t LLAi[3], double BaseECEF[3], float Rne[3][3], float NED[3])
+void LLA2Base(const int32_t LLAi[3], const float BaseECEF[3], float Rne[3][3], float NED[3])
 {
-    double ECEF[3];
-    float diff[3];
+    float ECEF[3];
 
     LLA2ECEF(LLAi, ECEF);
+    ECEF2Base(ECEF, BaseECEF, Rne, NED);
+}
 
-    diff[0] = (float)(ECEF[0] - BaseECEF[0]);
-    diff[1] = (float)(ECEF[1] - BaseECEF[1]);
-    diff[2] = (float)(ECEF[2] - BaseECEF[2]);
+// ****** Express LLA in a local NED Base Frame ********
+void Base2LLA(const float NED[3], const float BaseECEF[3], float Rne[3][3], int32_t LLAi[3])
+{
+    float ECEF[3];
+
+    Base2ECEF(NED, BaseECEF, Rne, ECEF);
+    ECEF2LLA(ECEF, LLAi);
+}
+// ****** Express ECEF in a local NED Base Frame ********
+void ECEF2Base(const float ECEF[3], const float BaseECEF[3], float Rne[3][3], float NED[3])
+{
+    float diff[3];
+
+    diff[0] = (ECEF[0] - BaseECEF[0]);
+    diff[1] = (ECEF[1] - BaseECEF[1]);
+    diff[2] = (ECEF[2] - BaseECEF[2]);
 
     NED[0]  = Rne[0][0] * diff[0] + Rne[0][1] * diff[1] + Rne[0][2] * diff[2];
     NED[1]  = Rne[1][0] * diff[0] + Rne[1][1] * diff[1] + Rne[1][2] * diff[2];
@@ -266,18 +277,20 @@ void LLA2Base(int32_t LLAi[3], double BaseECEF[3], float Rne[3][3], float NED[3]
 }
 
 // ****** Express ECEF in a local NED Base Frame ********
-void ECEF2Base(double ECEF[3], double BaseECEF[3], float Rne[3][3], float NED[3])
+void Base2ECEF(const float NED[3], const float BaseECEF[3], float Rne[3][3], float ECEF[3])
 {
     float diff[3];
 
-    diff[0] = (float)(ECEF[0] - BaseECEF[0]);
-    diff[1] = (float)(ECEF[1] - BaseECEF[1]);
-    diff[2] = (float)(ECEF[2] - BaseECEF[2]);
+    diff[0] = Rne[0][0] * NED[0] + Rne[1][0] * NED[1] + Rne[2][0] * NED[2];
+    diff[1] = Rne[0][1] * NED[0] + Rne[1][1] * NED[1] + Rne[2][1] * NED[2];
+    diff[2] = Rne[0][2] * NED[0] + Rne[1][2] * NED[1] + Rne[2][2] * NED[2];
 
-    NED[0]  = Rne[0][0] * diff[0] + Rne[0][1] * diff[1] + Rne[0][2] * diff[2];
-    NED[1]  = Rne[1][0] * diff[0] + Rne[1][1] * diff[1] + Rne[1][2] * diff[2];
-    NED[2]  = Rne[2][0] * diff[0] + Rne[2][1] * diff[1] + Rne[2][2] * diff[2];
+
+    ECEF[0] = diff[0] + BaseECEF[0];
+    ECEF[1] = diff[1] + BaseECEF[1];
+    ECEF[2] = diff[2] + BaseECEF[2];
 }
+
 
 // ****** convert Rotation Matrix to Quaternion ********
 // ****** if R converts from e to b, q is rotation from e to b ****

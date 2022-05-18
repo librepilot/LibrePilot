@@ -29,11 +29,6 @@
 
 #include "cfg_vehicletypes/vehicleconfig.h"
 
-#include "../uavobjectwidgetutils/configtaskwidget.h"
-#include "extensionsystem/pluginmanager.h"
-#include "uavobjectmanager.h"
-#include "uavobject.h"
-
 #include <QList>
 
 class Ui_FixedWingConfigWidget;
@@ -50,31 +45,33 @@ public:
     ConfigFixedWingWidget(QWidget *parent = 0);
     ~ConfigFixedWingWidget();
 
-    virtual void refreshWidgetsValues(QString frameType);
-    virtual QString updateConfigObjectsFromWidgets();
+    virtual QString getFrameType();
+
+protected:
+    void resizeEvent(QResizeEvent *);
+    void showEvent(QShowEvent *);
+
+    virtual void enableControls(bool enable);
+    virtual void refreshWidgetsValuesImpl(UAVObject *obj);
+    virtual void updateObjectsFromWidgetsImpl();
+
+    virtual void registerWidgets(ConfigTaskWidget &parent);
+    virtual void setupUI(QString frameType);
 
 private:
     Ui_FixedWingConfigWidget *m_aircraft;
     QGraphicsSvgItem *planeimg;
 
-    virtual void registerWidgets(ConfigTaskWidget &parent);
-    virtual void resetActuators(GUIConfigDataUnion *configData);
-    virtual void resetRcOutputs(GUIConfigDataUnion *configData);
+    void resetActuators(GUIConfigDataUnion *configData);
+    void resetRcOutputs(GUIConfigDataUnion *configData);
 
-    bool setupFrameFixedWing(QString airframeType);
-    bool setupFrameElevon(QString airframeType);
-    bool setupFrameVtail(QString airframeType);
+    bool setupFrameFixedWing(QString frameType);
+    bool setupFrameElevon(QString frameType);
+    bool setupFrameVtail(QString frameType);
     void setupRcOutputs(QList<QString> rcOutputList);
     void updateRcCurvesUsed();
 
-protected:
-    void enableControls(bool enable);
-    void resizeEvent(QResizeEvent *);
-    void showEvent(QShowEvent *);
-
-private slots:
-    virtual void setupUI(QString airframeType);
-    virtual bool throwConfigError(QString airframeType);
+    bool throwConfigError(QString frameType);
 };
 
 #endif // CONFIGFIXEDWINGWIDGET_H

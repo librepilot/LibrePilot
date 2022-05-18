@@ -33,7 +33,8 @@
 
 #include <QPointer>
 #include <QWidget>
-#include <QSettings>
+
+class QSettings;
 
 namespace Core {
 namespace Internal {
@@ -61,8 +62,8 @@ public:
     bool collectUsageData() const;
     bool showUsageDataDisclaimer() const;
     QString lastUsageHash() const;
-    void readSettings(QSettings *qs);
-    void saveSettings(QSettings *qs);
+    void readSettings(QSettings &settings);
+    void saveSettings(QSettings &settings) const;
     bool useExpertMode() const;
     void setCollectUsageData(bool collect);
     void setShowUsageDataDisclaimer(bool show);

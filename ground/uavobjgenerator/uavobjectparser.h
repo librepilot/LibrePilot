@@ -59,6 +59,8 @@ typedef struct {
     bool        defaultElementNames;
     QStringList defaultValues;
     QString     limitValues;
+    QString     parentObjectName;
+    QString     parentFieldName;
 } FieldInfo;
 
 /**
@@ -113,6 +115,7 @@ public:
     quint32 getObjectID(int objIndex);
 
     ObjectInfo *getObjectByIndex(int objIndex);
+    ObjectInfo *getObjectByName(const QString & objName);
     int getNumBytes(int objIndex);
     QStringList all_units;
 

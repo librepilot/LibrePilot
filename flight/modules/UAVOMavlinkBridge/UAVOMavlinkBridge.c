@@ -58,6 +58,9 @@
 
 #include "custom_types.h"
 
+#include <pios_board_io.h>
+
+
 #define OPLINK_LOW_RSSI  -110
 #define OPLINK_HIGH_RSSI -10
 
@@ -245,7 +248,8 @@ static void mavlink_send_rc_channels()
     ManualControlSettingsChannelGroupsGet(&channelGroups);
 
 #ifdef PIOS_INCLUDE_OPLINKRCVR
-    if (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) {
+    if ((channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPLINK) ||
+        (channelGroups.Throttle == MANUALCONTROLSETTINGS_CHANNELGROUPS_OPENLRS)) {
         int8_t rssi;
         OPLinkStatusRSSIGet(&rssi);
 
@@ -317,6 +321,7 @@ static void mavlink_send_position()
             gps_fix_type = 2;
             break;
         case GPSPOSITIONSENSOR_STATUS_FIX3D:
+        case GPSPOSITIONSENSOR_STATUS_FIX3DDGNSS:
             gps_fix_type = 3;
             break;
         }

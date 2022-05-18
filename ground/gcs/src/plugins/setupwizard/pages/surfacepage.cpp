@@ -2,7 +2,8 @@
  ******************************************************************************
  *
  * @file       surfacepage.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2014.
  * @addtogroup
  * @{
  * @addtogroup SurfacePage
@@ -56,12 +57,12 @@ void SurfacePage::setupSelection(Selection *selection)
                           "Please select the type of ground vehicle you want to create a configuration for below:"));
 
     selection->addItem(tr("Car"),
-                       tr("This setup expects a traditional car with a rear motor and a front streering servo"),
+                       tr("This setup expects a traditional car with a rear motor and a front steering servo."),
                        "car",
                        SetupWizard::GROUNDVEHICLE_CAR);
 
     selection->addItem(tr("Tank"),
-                       tr("This setup expects a traditional vehicle using only two motors and differential steering"),
+                       tr("This setup expects a traditional vehicle using only two motors and differential steering."),
                        "tank",
                        SetupWizard::GROUNDVEHICLE_DIFFERENTIAL);
 
@@ -69,4 +70,14 @@ void SurfacePage::setupSelection(Selection *selection)
                        tr("This setup currently expects a motorcyle setup, using one motor and one servo for steering."),
                        "motorbike",
                        SetupWizard::GROUNDVEHICLE_MOTORCYCLE);
+
+    selection->addItem(tr("Boat"),
+                       tr("This setup currently expects a boat setup, using one motor and one servo for rudder/helm."),
+                       "boat",
+                       SetupWizard::GROUNDVEHICLE_BOAT);
+
+    selection->addItem(tr("Boat differential"),
+                       tr("This setup expects a boat using only two motors and differential steering."),
+                       "boat_diff",
+                       SetupWizard::GROUNDVEHICLE_DIFFERENTIAL_BOAT);
 }

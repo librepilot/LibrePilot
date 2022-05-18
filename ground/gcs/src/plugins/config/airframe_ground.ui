@@ -84,7 +84,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_7">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -102,7 +102,7 @@
           </size>
          </property>
          <property name="title">
-          <string>Output channel assignments</string>
+          <string>Output Channel Assignments</string>
          </property>
          <layout class="QFormLayout" name="formLayout_5">
           <property name="fieldGrowthPolicy">
@@ -206,7 +206,7 @@
           <bool>true</bool>
          </property>
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -365,7 +365,7 @@ margin:1px;</string>
         </size>
        </property>
        <property name="title">
-        <string>Vehicle frame</string>
+        <string>Vehicle Frame</string>
        </property>
        <layout class="QVBoxLayout" name="vehicleframeBox">
         <property name="leftMargin">

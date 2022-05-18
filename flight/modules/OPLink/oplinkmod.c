@@ -16,7 +16,8 @@
  * @{
  *
  * @file       oplinkmod.c
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2016.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
  * @brief      System module
  *
  * @see        The GNU Public License (GPL) Version 3
@@ -67,9 +68,11 @@ static xTaskHandle systemTaskHandle;
 static bool stackOverflow;
 static bool mallocFailed;
 volatile int initTaskDone = 0;
+static uint8_t previousRFXtalCap;
 
 // Private functions
 static void systemTask(void *parameters);
+static void oplinkSettingsUpdatedCb(UAVObjEvent *ev);
 
 /**
  * Create the module task.
@@ -119,6 +122,11 @@ static void systemTask(__attribute__((unused)) void *parameters)
     while (!initTaskDone) {
         vTaskDelay(10);
     }
+
+#ifndef PIOS_INCLUDE_WDG
+// if no watchdog is enabled, don't reset watchdog in MODULE_TASKCREATE_ALL loop
+#define PIOS_WDG_Clear()
+#endif
     /* create all modules thread */
     MODULE_TASKCREATE_ALL;
 
@@ -133,6 +141,10 @@ static void systemTask(__attribute__((unused)) void *parameters)
         PIOS_SYS_Reset();
     }
 
+    // Initialize previousRFXtalCap used by callback
+    OPLinkSettingsRFXtalCapGet(&previousRFXtalCap);
+    OPLinkSettingsConnectCallback(oplinkSettingsUpdatedCb);
+
     // Initialize vars
     lastSysTime = xTaskGetTickCount();
 
@@ -142,9 +154,6 @@ static void systemTask(__attribute__((unused)) void *parameters)
         OPLinkStatusData oplinkStatus;
         OPLinkStatusGet(&oplinkStatus);
 
-        // Get the other device stats.
-        PIOS_RFM22B_GetPairStats(pios_rfm22b_id, oplinkStatus.PairIDs, oplinkStatus.PairSignalStrengths, OPLINKSTATUS_PAIRIDS_NUMELEM);
-
         // Get the stats from the radio device
         struct rfm22b_stats radio_stats;
         PIOS_RFM22B_GetStats(pios_rfm22b_id, &radio_stats);
@@ -152,18 +161,19 @@ static void systemTask(__attribute__((unused)) void *parameters)
 
         if (pios_rfm22b_id) {
             // Update the status
-            oplinkStatus.DeviceID    = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
-            oplinkStatus.RxGood      = radio_stats.rx_good;
-            oplinkStatus.RxCorrected = radio_stats.rx_corrected;
-            oplinkStatus.RxErrors    = radio_stats.rx_error;
-            oplinkStatus.RxMissed    = radio_stats.rx_missed;
-            oplinkStatus.RxFailure   = radio_stats.rx_failure;
-            oplinkStatus.TxDropped   = radio_stats.tx_dropped;
-            oplinkStatus.TxFailure   = radio_stats.tx_failure;
-            oplinkStatus.Resets      = radio_stats.resets;
-            oplinkStatus.Timeouts    = radio_stats.timeouts;
+            oplinkStatus.DeviceID      = PIOS_RFM22B_DeviceID(pios_rfm22b_id);
+            oplinkStatus.RxGood        = radio_stats.rx_good;
+            oplinkStatus.RxCorrected   = radio_stats.rx_corrected;
+            oplinkStatus.RxErrors      = radio_stats.rx_error;
+            oplinkStatus.RxMissed      = radio_stats.rx_missed;
+            oplinkStatus.RxFailure     = radio_stats.rx_failure;
+            oplinkStatus.TxDropped     = radio_stats.tx_dropped;
+            oplinkStatus.TxFailure     = radio_stats.tx_failure;
+            oplinkStatus.Resets        = radio_stats.resets;
+            oplinkStatus.Timeouts      = radio_stats.timeouts;
             oplinkStatus.RSSI = radio_stats.rssi;
-            oplinkStatus.LinkQuality = radio_stats.link_quality;
+            oplinkStatus.LinkQuality   = radio_stats.link_quality;
+            oplinkStatus.AFCCorrection = radio_stats.afc_correction;
             if (first_time) {
                 first_time = false;
             } else {
@@ -239,6 +249,23 @@ void vApplicationMallocFailedHook(void)
     }
     wait_here = true;
 #endif
+}
+
+/**
+ * Called whenever OPLink settings changed
+ */
+static void oplinkSettingsUpdatedCb(__attribute__((unused)) UAVObjEvent *ev)
+{
+    uint8_t currentRFXtalCap;
+
+    OPLinkSettingsRFXtalCapGet(&currentRFXtalCap);
+
+    // Check if RFXtalCap value changed
+    if (currentRFXtalCap != previousRFXtalCap) {
+        PIOS_RFM22B_SetXtalCap(pios_rfm22b_id, currentRFXtalCap);
+        PIOS_RFM22B_Reinit(pios_rfm22b_id);
+        previousRFXtalCap = currentRFXtalCap;
+    }
 }
 
 /**

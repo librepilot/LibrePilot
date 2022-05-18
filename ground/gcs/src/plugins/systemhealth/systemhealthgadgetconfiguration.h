@@ -38,7 +38,11 @@ using namespace Core;
 class SystemHealthGadgetConfiguration : public IUAVGadgetConfiguration {
     Q_OBJECT
 public:
-    explicit SystemHealthGadgetConfiguration(QString classId, QSettings *qSettings = 0, QObject *parent = 0);
+    explicit SystemHealthGadgetConfiguration(QString classId, QSettings &settings, QObject *parent = 0);
+    explicit SystemHealthGadgetConfiguration(const SystemHealthGadgetConfiguration &obj);
+
+    IUAVGadgetConfiguration *clone() const;
+    void saveConfig(QSettings &settings) const;
 
     // set system health configuration functions
     void setSystemFile(QString filename)
@@ -51,9 +55,6 @@ public:
     {
         return systemFile;
     }
-
-    void saveConfig(QSettings *settings) const;
-    IUAVGadgetConfiguration *clone();
 
 private:
     // systemFile contains the source SVG:

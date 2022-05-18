@@ -2,21 +2,50 @@ language: cpp
 
 sudo: required
 
-dist: trusty
+matrix:
+  include:
+  # Linux builds
+  - os: linux
+    compiler: gcc
+    dist: trusty
+    before_install:
+      - sudo add-apt-repository ppa:librepilot/tools -y
+      - sudo apt-get update -q
+      - sudo apt-get install -y libc6-i386 libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev libosgearth-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools
+      - make build_sdk_install
 
-before_install:
-        - sudo add-apt-repository ppa:librepilot/tools -y
-        - sudo apt-get update -q
-        - sudo apt-get install -y libc6-i386 libudev-dev libusb-1.0-0-dev libsdl1.2-dev python libopenscenegraph-dev libosgearth-dev qt56-meta-minimal qt56svg qt56script qt56serialport qt56multimedia qt56translations qt56tools
-        - make build_sdk_install
+  # OSX build
+  - os: osx
+    compiler: clang
+    before_install:
+      - brew update
+      - brew install curl
+      - brew install p7zip
+      - brew install gnu-tar
+      # - brew install cmake
+      - brew outdated gdal || brew upgrade gdal
+      - brew outdated geos || brew upgrade geos
+      - brew install ccache
+      - export PATH="/usr/local/opt/ccache/libexec:$PATH"
+      - ccache -V
+      - brew install qt5
+      - brew link --force qt5
+      - make arm_sdk_install
+      - make osg_install
+      - make osgearth_install
+      - wget https://www.libsdl.org/release/SDL-1.2.15.dmg
+      - hdiutil attach SDL-1.2.15.dmg
+      - sudo cp -r /Volumes/SDL/SDL.framework /Library/Frameworks/
+      - hdiutil detach /Volumes/SDL
 
 script:
-        - make config_new CCACHE=ccache
-        - make all_flight
-        - make opfw_resource
-        - make gcs
-
+      - make config_new CCACHE=ccache
+      - make -j2 all_flight
+      - make -j2 fw_resource
+      - make -j2 gcs
+      
 git:
         depth: 500
 
 cache: ccache
+

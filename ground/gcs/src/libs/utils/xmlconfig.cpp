@@ -2,13 +2,14 @@
  ******************************************************************************
  *
  * @file       xmlconfig.cpp
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @author     The LibrePilot Project, http://www.librepilot.org Copyright (C) 2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @see        The GNU Public License (GPL) Version 3
  * @brief      Widget for Import/Export Plugin
  * @addtogroup GCSPlugins GCS Plugins
  * @{
- * @addtogroup   importexportplugin
+ * @addtogroup   utils
  * @{
  *
  *****************************************************************************/
@@ -30,23 +31,23 @@
 /* Nokia Corporation */
 #include "xmlconfig.h"
 
-#include <QtDebug>
+#include <QDebug>
 #include <QStringList>
 #include <QRegExp>
-
+#include <QDataStream>
 #include <QVariant>
 #include <QRect>
 #include <QSize>
 #include <QPoint>
-#include <QtCore/QUrl>
+#include <QUrl>
+#include <QDomElement>
 
 #define NUM_PREFIX "arr_"
 
-QString XmlConfig::rootName = "gcs";
+const QString XmlConfig::RootName = "gcs";
 
-const QSettings::Format XmlConfig::XmlSettingsFormat =
+const QSettings::Format XmlConfig::XmlFormat =
     QSettings::registerFormat("xml", XmlConfig::readXmlFile, XmlConfig::writeXmlFile);
-
 
 bool XmlConfig::readXmlFile(QIODevice &device, QSettings::SettingsMap &map)
 {
@@ -90,7 +91,7 @@ void XmlConfig::handleNode(QDomElement *node, QSettings::SettingsMap &map, QStri
     nodeName = nodeName.replace("__PCT__", "%");
     nodeName = QUrl::fromPercentEncoding(nodeName.toLatin1());
 
-    if (nodeName == XmlConfig::rootName) {
+    if (nodeName == XmlConfig::RootName) {
         ;
     } else if (path == "") {
         path = nodeName;
@@ -98,31 +99,31 @@ void XmlConfig::handleNode(QDomElement *node, QSettings::SettingsMap &map, QStri
         path += "/" + nodeName;
     }
 
-// qDebug() << "Node: " << ": " << path << " Children: " << node->childNodes().length();
+    // qDebug() << "Node: " << ": " << path << " Children: " << node->childNodes().length();
     for (int i = 0; i < node->childNodes().length(); ++i) {
         QDomNode child = node->childNodes().item(i);
         if (child.isElement()) {
             handleNode(static_cast<QDomElement *>(&child), map, path);
         } else if (child.isText()) {
-// qDebug() << "Key: " << path << " Value:" << node->text();
+            // qDebug() << "Key: " << path << " Value:" << node->text();
             map.insert(path, stringToVariant(node->text()));
         } else {
             qDebug() << "Child not Element or text!" << child.nodeType();
         }
     }
-// qDebug() << "XmlConfig::handleNode end";
+    // qDebug() << "XmlConfig::handleNode end";
 }
 
 bool XmlConfig::writeXmlFile(QIODevice &device, const QSettings::SettingsMap &map)
 {
     QDomDocument outDocument;
 
-// qDebug() << "writeXmlFile start";
-    outDocument.appendChild(outDocument.createElement(XmlConfig::rootName));
+    // qDebug() << "writeXmlFile start";
+    outDocument.appendChild(outDocument.createElement(XmlConfig::RootName));
     QMapIterator<QString, QVariant> iter(map);
     while (iter.hasNext()) {
         iter.next();
-// qDebug() << "Entry: " << iter.key() << ": " << iter.value().toString() << endl;
+        // qDebug() << "Entry: " << iter.key() << ": " << iter.value().toString() << endl;
         QDomNode node = outDocument.firstChild();
         foreach(QString elem, iter.key().split('/')) {
             if (elem == "") {
@@ -149,25 +150,9 @@ bool XmlConfig::writeXmlFile(QIODevice &device, const QSettings::SettingsMap &ma
         node.appendChild(outDocument.createTextNode(variantToString(iter.value())));
     }
     device.write(outDocument.toByteArray(2).constData());
-// qDebug() << "Dokument:\n" << outDocument.toByteArray(2).constData();
-// qDebug() << "writeXmlFile end";
+    // qDebug() << "Document:\n" << outDocument.toByteArray(2).constData();
+    // qDebug() << "writeXmlFile end";
     return true;
-}
-
-
-QSettings::SettingsMap XmlConfig::settingsToMap(QSettings & qs)
-{
-    qDebug() << "settingsToMap:---------------";
-    QSettings::SettingsMap map;
-    QStringList keys = qs.allKeys();
-    foreach(QString key, keys) {
-        QVariant val = qs.value(key);
-
-        qDebug() << key << val.toString();
-        map.insert(key, val);
-    }
-    qDebug() << "settingsToMap End --------";
-    return map;
 }
 
 QString XmlConfig::variantToString(const QVariant &v)

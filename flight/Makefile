@@ -12,7 +12,7 @@ ALL_BOARDS := coptercontrol revolution revonano sparky2
 ALL_BOARDS += revoproto
 ALL_BOARDS += oplinkmini
 ALL_BOARDS += gpsplatinum
-ALL_BOARDS += osd
+#ALL_BOARDS += osd
 ALL_BOARDS += discoveryf4bare
 ALL_BOARDS += ccf3d spracingf3 spracingf3evo nucleof303re pikoblx tinyfish
 # SimPosix only builds on Linux

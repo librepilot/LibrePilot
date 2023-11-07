@@ -351,7 +351,7 @@ uploader_clean:
 PACKAGE_FW_TARGETS := fw_coptercontrol fw_revolution fw_revonano fw_sparky2
 PACKAGE_FW_TARGETS += fw_oplinkmini
 PACKAGE_FW_TARGETS += fw_gpsplatinum
-PACKAGE_FW_TARGETS += fw_osd
+# PACKAGE_FW_TARGETS += fw_osd
 PACKAGE_FW_TARGETS += fw_revoproto
 PACKAGE_FW_TARGETS += fw_spracingf3evo fw_spracingf3 fw_nucleof303re fw_pikoblx fw_tinyfish
 

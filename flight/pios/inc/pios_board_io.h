@@ -190,6 +190,11 @@ extern uint32_t pios_com_debug_id;
 extern uint32_t pios_usb_rctx_id;
 #endif /* PIOS_INCLUDE_USB_RCTX */
 
+#if defined(PIOS_INCLUDE_QMC5883) && defined(PIOS_QMC5883_HAS_GPIOS)
+#include <pios_qmc5883.h>
+extern pios_qmc5883_dev_t pios_qmc5883_internal_id;
+#endif
+
 #if defined(PIOS_INCLUDE_HMC5X83) && defined(PIOS_HMC5X83_HAS_GPIOS)
 #include <pios_hmc5x83.h>
 extern pios_hmc5x83_dev_t pios_hmc5x83_internal_id;

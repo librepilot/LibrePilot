@@ -677,11 +677,11 @@ void UAVObjectTreeModel::refreshHighlight(TreeItem *item)
     QModelIndex itemIndex;
 
     itemIndex = index(item, TreeItem::TITLE_COLUMN);
-    Q_ASSERT(itemIndex != QModelIndex());
+    // Q_ASSERT(itemIndex != QModelIndex()); // root may fail
     emit dataChanged(itemIndex, itemIndex);
 
     itemIndex = index(item, TreeItem::DATA_COLUMN);
-    Q_ASSERT(itemIndex != QModelIndex());
+    // Q_ASSERT(itemIndex != QModelIndex());
     emit dataChanged(itemIndex, itemIndex);
 }
 

@@ -126,6 +126,7 @@ extern uint32_t pios_spi_telem_flash_adapter_id;
 // ------------------------
 #define PIOS_I2C_MAX_DEVS                 3
 extern uint32_t pios_i2c_mag_pressure_adapter_id;
+#define PIOS_I2C_QMC5883_INTERNAL_ADAPTER (pios_i2c_mag_pressure_adapter_id)
 #define PIOS_I2C_HMC5X83_INTERNAL_ADAPTER (pios_i2c_mag_pressure_adapter_id)
 #define PIOS_I2C_MS56XX_INTERNAL_ADAPTER  (pios_i2c_mag_pressure_adapter_id)
 extern uint32_t pios_i2c_flexiport_adapter_id;

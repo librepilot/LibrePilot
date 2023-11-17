@@ -87,6 +87,8 @@
 
 static const TickType_t sensor_period_ticks = ((uint32_t)(1000.0f / PIOS_SENSOR_RATE / (float)portTICK_RATE_MS));
 
+// PIOS_SENSOR_RATE 500 HZ
+
 // Interval in number of sample to recalculate temp bias
 #define TEMP_CALIB_INTERVAL      30
 
@@ -310,7 +312,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             // we will wait on the sensor that's marked as primary( that means the sensor with higher sample rate)
             bool is_primary = (sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL);
 
-            if (!sensor->driver->is_polled) {
+            if (!sensor->driver->is_polled) { // is_polled false mpu6k, qmc5883
                 const QueueHandle_t queue = PIOS_SENSORS_GetQueue(sensor);
                 while (xQueueReceive(queue,
                                      (void *)source_data,
@@ -326,7 +328,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
                     PERF_TRACK_VALUE(counterSensorResets, reset_counter);
                     error = true;
                 }
-            } else {
+            } else { // poll manually
                 if (PIOS_SENSORS_Poll(sensor)) {
                     PIOS_SENSOR_Fetch(sensor, (void *)source_data, MAX_SENSORS_PER_INSTANCE);
                     if (sensor->type & PIOS_SENSORS_TYPE_3D) {
@@ -493,6 +495,18 @@ static void handleMag(float *samples, float temperature)
                       (float)samples[2] - mag_bias[2] };
 
     rot_mult(mag_transform, mags, samples);
+
+	/*
+	// Debug
+	static uint32_t debug_ticks_pre = 0;
+	static uint32_t debug_ticks_now = 0;
+	debug_ticks_now++;
+	if (debug_ticks_now >= debug_ticks_pre + 2500) {
+	    debug_ticks_pre = 0;
+		debug_ticks_now = 0;
+        DEBUG_PRINTF(0, "handle mag: %f,%f,%f\r\n", mags[0],mags[1],mags[2]);
+	}
+	*/
 
     mag.x = samples[0];
     mag.y = samples[1];

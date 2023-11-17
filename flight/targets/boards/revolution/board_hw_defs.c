@@ -1621,6 +1621,88 @@ const struct pios_adc_cfg *PIOS_BOARD_HW_DEFS_GetAdcCfg(__attribute__((unused)) 
 }
 #endif /* if defined(PIOS_INCLUDE_ADC) */
 
+#if defined(PIOS_INCLUDE_QMC5883)
+#include "pios_qmc5883.h"
+
+#ifdef PIOS_QMC5883_HAS_GPIOS
+bool pios_board_internal_mag_handler()
+{
+    return PIOS_QMC5883_IRQHandler(pios_qmc5883_internal_id);
+}
+
+static const struct pios_exti_cfg pios_exti_qmc5883_cfg __exti_config = {
+    .vector = pios_board_internal_mag_handler,
+    .line   = EXTI_Line7,
+    .pin    = {
+        .gpio = GPIOB,
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_7,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_Mode  = GPIO_Mode_IN,
+            .GPIO_OType = GPIO_OType_OD,
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL,
+        },
+    },
+    .irq                                       = {
+        .init                                  = {
+            .NVIC_IRQChannel    = EXTI9_5_IRQn,
+            .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_LOW,
+            .NVIC_IRQChannelSubPriority        = 0,
+            .NVIC_IRQChannelCmd = ENABLE,
+        },
+    },
+    .exti                                      = {
+        .init                                  = {
+            .EXTI_Line    = EXTI_Line7, // matches above GPIO pin
+            .EXTI_Mode    = EXTI_Mode_Interrupt,
+            .EXTI_Trigger = EXTI_Trigger_Rising,
+            .EXTI_LineCmd = ENABLE,
+        },
+    },
+};
+#endif /* PIOS_QMC5883_HAS_GPIOS */
+
+static const struct pios_qmc5883_cfg pios_qmc5883_internal_cfg = {
+#ifdef PIOS_QMC5883_HAS_GPIOS
+    .exti_cfg  = &pios_exti_qmc5883_cfg,
+#endif
+	.CTL_ODR = PIOS_QMC5883_ODR_200,
+	.CTL_MOD = PIOS_QMC5883_MODE_CONTINUOUS,
+	.CTL_RNG = PIOS_QMC5883_RANGE_2G,
+	.CTL_OSR = PIOS_QMC5883_OSR_512,
+	.soft_rst = PIOS_QMC5883_SOFT_SET,
+	.ptr_en = PIOS_QMC5883_ROL_PNT_EN,
+	.irt_en = PIOS_QMC5883_IRQ_PIN_EN,
+    .Orientation      = PIOS_QMC5883_ORIENTATION_EAST_NORTH_UP,
+    .Driver = &PIOS_QMC5883_I2C_DRIVER,
+};
+
+const struct pios_qmc5883_cfg *PIOS_BOARD_HW_DEFS_GetInternalQMC5883Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_qmc5883_internal_cfg;
+}
+
+static const struct pios_qmc5883_cfg pios_qmc5883_external_cfg = {
+#ifdef PIOS_QMC5883_HAS_GPIOS
+    .exti_cfg  = NULL,
+#endif
+	.CTL_ODR = PIOS_QMC5883_ODR_200,
+	.CTL_MOD = PIOS_QMC5883_MODE_CONTINUOUS,
+	.CTL_RNG = PIOS_QMC5883_RANGE_2G,
+	.CTL_OSR = PIOS_QMC5883_OSR_512,
+	.soft_rst = PIOS_QMC5883_SOFT_SET,
+	.ptr_en = PIOS_QMC5883_ROL_PNT_EN,
+	.irt_en = PIOS_QMC5883_IRQ_PIN_EN,
+    .Driver = &PIOS_QMC5883_I2C_DRIVER,
+    .Orientation      = PIOS_QMC5883_ORIENTATION_EAST_NORTH_UP, // ENU for GPSV9, WND for typical I2C mag
+};
+
+const struct pios_qmc5883_cfg *PIOS_BOARD_HW_DEFS_GetExternalQMC5883Cfg(__attribute__((unused)) uint32_t board_revision)
+{
+    return &pios_qmc5883_external_cfg;
+}
+#endif /* PIOS_INCLUDE_QMC5883 */
+
 #if defined(PIOS_INCLUDE_HMC5X83)
 #include "pios_hmc5x83.h"
 

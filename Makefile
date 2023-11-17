@@ -152,7 +152,8 @@ endif
 export UAVOBJGENERATOR
 
 # Set up default build configurations (debug | release)
-GCS_BUILD_CONF := release
+# GCS_BUILD_CONF := release
+GCS_BUILD_CONF := debug
 
 # Set extra configuration
 ifeq ($(GCS_WITH_OSG), 1)

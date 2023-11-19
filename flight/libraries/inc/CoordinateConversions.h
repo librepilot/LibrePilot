@@ -30,6 +30,7 @@
 #ifndef COORDINATECONVERSIONS_H_
 #define COORDINATECONVERSIONS_H_
 #include <math.h>
+#include <stdint.h>
 
 // ****** convert Lat,Lon,Alt to ECEF  ************
 void LLA2ECEF(const int32_t LLAi[3], float ECEF[3]);

@@ -38,13 +38,13 @@ DEBUG ?= YES
 MODULES = ManualControl Stabilization GPS
 MODULES += PathPlanner
 MODULES += PathFollower
-MODULES += CameraStab
+# MODULES += CameraStab
 MODULES += Telemetry
 MODULES += Logging
 MODULES += FirmwareIAP
 MODULES += StateEstimation
-#MODULES += Sensors/simulated/Sensors
-MODULES += Airspeed
+MODULES += Sensors/simulated/Sensors
+#MODULES += Airspeed
 #MODULES += AltitudeHold # now integrated in Stabilization
 #MODULES += OveroSync
 

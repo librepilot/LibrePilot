@@ -353,7 +353,7 @@ static void simulateModelQuadcopter()
     ActuatorDesiredData actuatorDesired;
     ActuatorDesiredGet(&actuatorDesired);
 
-    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Throttle * MAX_THRUST : 0;
+    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Thrust * MAX_THRUST : 0;
     if (thrust < 0) {
         thrust = 0;
     }
@@ -543,12 +543,12 @@ static void simulateModelQuadcopter()
     attitudeSimulated.q3 = q[2];
     attitudeSimulated.q4 = q[3];
     Quaternion2RPY(q, &attitudeSimulated.Roll);
-    attitudeSimulated.Position[0] = pos[0];
-    attitudeSimulated.Position[1] = pos[1];
-    attitudeSimulated.Position[2] = pos[2];
-    attitudeSimulated.Velocity[0] = vel[0];
-    attitudeSimulated.Velocity[1] = vel[1];
-    attitudeSimulated.Velocity[2] = vel[2];
+    attitudeSimulated.Position.North = pos[0];
+    attitudeSimulated.Position.East  = pos[1];
+    attitudeSimulated.Position.Down  = pos[2];
+    attitudeSimulated.Velocity.North = vel[0];
+    attitudeSimulated.Velocity.East  = vel[1];
+    attitudeSimulated.Velocity.Down  = vel[2];
     AttitudeSimulatedSet(&attitudeSimulated);
 }
 
@@ -596,7 +596,7 @@ static void simulateModelAirplane()
     ActuatorDesiredData actuatorDesired;
     ActuatorDesiredGet(&actuatorDesired);
 
-    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Throttle * MAX_THRUST : 0;
+    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Thrust * MAX_THRUST : 0;
     if (thrust < 0) {
         thrust = 0;
     }
@@ -825,12 +825,12 @@ static void simulateModelAirplane()
     attitudeSimulated.q3 = q[2];
     attitudeSimulated.q4 = q[3];
     Quaternion2RPY(q, &attitudeSimulated.Roll);
-    attitudeSimulated.Position[0] = pos[0];
-    attitudeSimulated.Position[1] = pos[1];
-    attitudeSimulated.Position[2] = pos[2];
-    attitudeSimulated.Velocity[0] = vel[0];
-    attitudeSimulated.Velocity[1] = vel[1];
-    attitudeSimulated.Velocity[2] = vel[2];
+    attitudeSimulated.Position.North = pos[0];
+    attitudeSimulated.Position.East  = pos[1];
+    attitudeSimulated.Position.Down  = pos[2];
+    attitudeSimulated.Velocity.North = vel[0];
+    attitudeSimulated.Velocity.East  = vel[1];
+    attitudeSimulated.Velocity.Down  = vel[2];
     AttitudeSimulatedSet(&attitudeSimulated);
 }
 

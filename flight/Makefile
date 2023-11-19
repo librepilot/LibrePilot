@@ -272,7 +272,7 @@ flight_uavobjects: $(UAVOBJGENERATOR)
 #
 ##############################
 
-ALL_UNITTESTS := logfs math lednotification
+ALL_UNITTESTS := logfs math lednotification modules
 
 # Build the directory for the unit tests
 UT_OUT_DIR := $(BUILD_DIR)/unit_tests

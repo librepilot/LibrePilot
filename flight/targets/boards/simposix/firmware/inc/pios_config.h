@@ -101,6 +101,8 @@
 
 #define PIOS_INCLUDE_DEBUGLOG
 
+#define HAS_LOGGING_MODULE /* used in telemetry module */
+
 /* Other Interfaces */
 // #define PIOS_INCLUDE_I2C_ESC
 

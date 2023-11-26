@@ -375,6 +375,7 @@ void PIOS_CALLBACKSCHEDULER_ForEachCallback(CallbackSchedulerCallbackInfoCallbac
 
         for (prio = 0; prio < (CALLBACK_PRIORITY_LOW + 1); prio++) {
             struct DelayedCallbackInfoStruct *cbinfo;
+            /* use volatile to avoid opt*/
             LL_FOREACH(task->callbackQueue[prio], cbinfo) {
                 xSemaphoreTakeRecursive(mutex, portMAX_DELAY);
                 info.is_running = true;

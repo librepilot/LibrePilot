@@ -130,7 +130,7 @@ void armHandler(bool newinit, FrameType_t frameType)
 
     if (settings.Arming == FLIGHTMODESETTINGS_ARMING_ALWAYSDISARMED) {
         // In this configuration we always disarm
-        setArmedIfChanged(FLIGHTSTATUS_ARMED_DISARMED);
+        setArmedIfChanged(FLIGHTSTATUS_ARMED_DISARMED); // update flight status msg
         return;
     }
 

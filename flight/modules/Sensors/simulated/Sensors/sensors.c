@@ -96,6 +96,11 @@ static float rand_gauss();
 enum sensor_sim_type { CONSTANT, MODEL_AGNOSTIC, MODEL_QUADCOPTER, MODEL_AIRPLANE } sensor_sim_type;
 
 #define GRAV 9.81
+
+#define PIOS_INSTRUMENT_MODULE
+#include <pios_instrumentation_helper.h>
+PERF_DEFINE_COUNTER(counterSimSensorPeriod);
+
 /**
  * Initialise the module.  Called before the start function
  * \returns 0 on success or -1 if initialisation failed
@@ -159,8 +164,10 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 
     // Main task loop
     lastSysTime = xTaskGetTickCount();
-    uint32_t last_time = PIOS_DELAY_GetRaw();
+    // uint32_t last_time = PIOS_DELAY_GetRaw();
+	PERF_INIT_COUNTER(counterSimSensorPeriod, 0x53000101);
     while (1) {
+		PERF_MEASURE_BETWEEN(counterSimSensorPeriod, true);
         PIOS_WDG_UpdateFlag(PIOS_WDG_SENSORS);
 
         SystemSettingsData systemSettings;
@@ -183,13 +190,6 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             sensor_sim_type = MODEL_AGNOSTIC;
         }
 
-        static int i;
-        i++;
-        if (i % 5000 == 0) {
-            // float dT = PIOS_DELAY_DiffuS(last_time) / 10.0e6;
-            // fprintf(stderr, "Sensor relative timing: %f\n", dT);
-            last_time = PIOS_DELAY_GetRaw();
-        }
 
         sensors_count++;
 
@@ -207,6 +207,18 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             simulateModelAirplane();
         }
 
+		PERF_MEASURE_BETWEEN(counterSimSensorPeriod, false); // id = 1392509185 cycle 130us
+        static int i;
+        i++;
+        // if (i % 5000 == 0) {
+            // float dT = PIOS_DELAY_DiffuS(last_time) / 10.0e6;
+            // fprintf(stderr, "Sensor relative timing: %f\n", dT);
+            //last_time = PIOS_DELAY_GetRaw();
+        //}
+		// if (i % 5000 == 0) {
+			// pios_perf_counter_t *counter = (pios_perf_counter_t *)counterSimSensorPeriod;
+			// fprintf(stderr, "simulation sensors perf counter: %d\n", counter->value);
+		// } 
         vTaskDelay(2 / portTICK_RATE_MS);
     }
 }

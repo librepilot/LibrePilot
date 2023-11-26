@@ -104,6 +104,7 @@
 #define PERF_TIMED_SECTION_START(x)   PIOS_Instrumentation_TimeStart(x)
 #define PERF_TIMED_SECTION_END(x)     PIOS_Instrumentation_TimeEnd(x)
 #define PERF_MEASURE_PERIOD(x)        PIOS_Instrumentation_TrackPeriod(x)
+#define PERF_MEASURE_BETWEEN(x, y)    PIOS_Instrumentation_TrackBetween(x, y)
 #define PERF_TRACK_VALUE(x, y)        PIOS_Instrumentation_updateCounter(x, y)
 #define PERF_INCREMENT_VALUE(x)       PIOS_Instrumentation_incrementCounter(x, 1)
 #define PERF_DECREMENT_VALUE(x)       PIOS_Instrumentation_incrementCounter(x, -1)
@@ -115,6 +116,7 @@
 #define PERF_TIMED_SECTION_START(x)
 #define PERF_TIMED_SECTION_END(x)
 #define PERF_MEASURE_PERIOD(x)
+#define PERF_MEASURE_BETWEEN(x, y) (void)y
 #define PERF_TRACK_VALUE(x, y) (void)y
 #define PERF_INCREMENT_VALUE(x)
 #define PERF_DECREMENT_VALUE(x)

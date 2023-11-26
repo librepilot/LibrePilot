@@ -1562,7 +1562,7 @@
           <defaultLatitude>0</defaultLatitude>
           <defaultLongitude>0</defaultLongitude>
           <defaultZoom>2</defaultZoom>
-          <mapProvider>GoogleMap</mapProvider>
+          <mapProvider>BingMap</mapProvider>
           <maxUpdateRate>2000</maxUpdateRate>
           <overlayOpacity>1</overlayOpacity>
           <showTileGridLines>false</showTileGridLines>
@@ -1582,7 +1582,7 @@
           <defaultLatitude>0</defaultLatitude>
           <defaultLongitude>0</defaultLongitude>
           <defaultZoom>2</defaultZoom>
-          <mapProvider>GoogleMap</mapProvider>
+          <mapProvider>BingMap</mapProvider>
           <maxUpdateRate>2000</maxUpdateRate>
           <overlayOpacity>1</overlayOpacity>
           <showTileGridLines>false</showTileGridLines>

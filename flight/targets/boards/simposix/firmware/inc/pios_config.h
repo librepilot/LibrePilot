@@ -39,6 +39,10 @@
 #define PIOS_INCLUDE_CALLBACKSCHEDULER
 #define PIOS_INCLUDE_BL_HELPER
 
+//
+#define PIOS_INCLUDE_INSTRUMENTATION
+#define PIOS_INSTRUMENTATION_MAX_COUNTERS 10
+
 /* Enable/Disable PiOS Modules */
 // #define PIOS_INCLUDE_ADC
 #define PIOS_INCLUDE_DELAY
@@ -82,6 +86,8 @@
 #define PIOS_INCLUDE_COM_FLEXI
 
 #define PIOS_INCLUDE_GPS
+// #define MODULE_GPS_BUILTIN // used in GPS.c
+
 #define PIOS_OVERO_SPI
 /* Supported receiver interfaces */
 #define PIOS_INCLUDE_RCVR

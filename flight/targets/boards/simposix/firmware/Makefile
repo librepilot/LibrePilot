@@ -35,13 +35,15 @@ include $(FLIGHT_ROOT_DIR)/make/firmware-defs.mk
 DEBUG ?= YES
 
 # List of modules to include
-MODULES = ManualControl Stabilization GPS
+MODULES = ManualControl 
+MODULES += Stabilization 
+# MODULES += GPS # ENABLE when realflight!
 MODULES += PathPlanner
 MODULES += PathFollower
 # MODULES += CameraStab
 MODULES += Telemetry
 MODULES += Logging
-MODULES += FirmwareIAP
+MODULES += FirmwareIAP # Board Identification
 MODULES += StateEstimation
 MODULES += Sensors/simulated/Sensors
 #MODULES += Airspeed
@@ -110,6 +112,7 @@ SRC += $(FLIGHTLIB)/insgps13state.c
 SRC += $(FLIGHTLIB)/paths.c
 SRC += $(FLIGHTLIB)/plans.c
 SRC += $(FLIGHTLIB)/sanitycheck.c
+SRC += $(FLIGHTLIB)/instrumentation.c
 
 SRC += $(MATHLIB)/sin_lookup.c
 SRC += $(MATHLIB)/pid.c
@@ -129,6 +132,7 @@ SRC += $(PIOSCORECOMMON)/pios_callbackscheduler.c
 SRC += $(PIOSCORECOMMON)/pios_deltatime.c
 SRC += $(PIOSCORECOMMON)/pios_notify.c
 SRC += $(PIOSCORECOMMON)/pios_mem.c
+SRC += $(PIOSCORECOMMON)/pios_instrumentation.c
 
 ## PIOS Hardware
 include $(PIOS)/posix/library.mk

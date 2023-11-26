@@ -119,7 +119,7 @@ UAVOBJSRCFILENAMES += altitudeholdstatus
 UAVOBJSRCFILENAMES += ekfconfiguration
 UAVOBJSRCFILENAMES += ekfstatevariance
 UAVOBJSRCFILENAMES += takeofflocation
-# UAVOBJSRCFILENAMES += perfcounter
+UAVOBJSRCFILENAMES += perfcounter
 UAVOBJSRCFILENAMES += systemidentsettings
 UAVOBJSRCFILENAMES += systemidentstate
 

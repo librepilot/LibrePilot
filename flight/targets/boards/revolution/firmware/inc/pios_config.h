@@ -127,12 +127,17 @@
 /* #define PIOS_INCLUDE_I2C_ESC */
 /* #define PIOS_INCLUDE_OVERO */
 /* #define PIOS_OVERO_SPI */
-/* #define PIOS_INCLUDE_SDCARD */
-/* #define LOG_FILENAME "startup.log" */
 #define PIOS_INCLUDE_FLASH
-#define PIOS_INCLUDE_FLASH_INTERNAL
-#define PIOS_INCLUDE_FLASH_LOGFS_SETTINGS
-#define FLASH_FREERTOS
+// TODO: put fs API into pios_dosfs_logfs.h
+
+// #define PIOS_INCLUDE_FLASH_INTERNAL
+// #define PIOS_INCLUDE_FLASH_LOGFS_SETTINGS
+//#define FLASH_FREERTOS
+
+#define PIOS_INCLUDE_SDCARD
+#define LOG_FILENAME "startup.log"
+ #define PIOS_USE_SETTINGS_ON_SDCARD
+
 /* #define PIOS_INCLUDE_FLASH_EEPROM */
 
 #define PIOS_INCLUDE_DEBUGLOG

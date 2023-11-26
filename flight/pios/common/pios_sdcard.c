@@ -142,7 +142,7 @@ int32_t PIOS_SDCARD_PowerOn(void)
     PIOS_DELAY_WaituS(1000);
 
     /* Send CMD0 to reset the media */
-    if ((status = PIOS_SDCARD_SendSDCCmd(SDCMD_GO_IDLE_STATE, 0, SDCMD_GO_IDLE_STATE_CRC)) < 0) {
+    if ((status = PIOS_SDCARD_SendSDCCmd(SDCMD_GO_IDLE_STATE, 0/*Addr*/, SDCMD_GO_IDLE_STATE_CRC)) < 0) {
         goto error;
     }
 

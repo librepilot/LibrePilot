@@ -38,6 +38,8 @@ struct flashfs_logfs_cfg;
 /**
  * glue macros for file IO
  **/
+#ifdef SIMPOSIX // use posix api
+
 #define FILEINFO FILE *
 #define PIOS_FOPEN_READ(filename, file)                 (file = fopen((char *)filename, "r")) == NULL
 #define PIOS_FOPEN_WRITE(filename, file)                (file = fopen((char *)filename, "w")) == NULL
@@ -46,6 +48,25 @@ struct flashfs_logfs_cfg;
 #define PIOS_FCLOSE(file)                               fclose(file)
 #define PIOS_FUNLINK(file)                              unlink((char *)filename)
 
+#else // use dosfs libs
+
+/**
+ * glue macros for file IO
+ * STM32 uses DOSFS for file IO
+ */
+#define PIOS_FOPEN_READ(filename, file)                 DFS_OpenFile(&PIOS_SDCARD_VolInfo, (uint8_t *)filename, DFS_READ, PIOS_SDCARD_Sector, &file) != DFS_OK
+
+#define PIOS_FOPEN_WRITE(filename, file)                DFS_OpenFile(&PIOS_SDCARD_VolInfo, (uint8_t *)filename, DFS_WRITE, PIOS_SDCARD_Sector, &file) != DFS_OK
+
+#define PIOS_FREAD(file, bufferadr, length, resultadr)  DFS_ReadFile(file, PIOS_SDCARD_Sector, (uint8_t *)bufferadr, resultadr, length) != DFS_OK
+
+#define PIOS_FWRITE(file, bufferadr, length, resultadr) DFS_WriteFile(file, PIOS_SDCARD_Sector, (uint8_t *)bufferadr, resultadr, length)
+
+#define PIOS_FCLOSE(file)                               DFS_Close(&file)
+
+#define PIOS_FUNLINK(filename)                          DFS_UnlinkFile(&PIOS_SDCARD_VolInfo, (uint8_t *)filename, PIOS_SDCARD_Sector)
+
+#endif // SIMPOSIX
 
 /**
  * Get an 8 character (plus extension) filename for the object.

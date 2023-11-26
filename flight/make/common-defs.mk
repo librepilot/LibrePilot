@@ -204,6 +204,7 @@ LDFLAGS += -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
 LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 LDFLAGS += -lc -lgcc
+LDFLAGS += -specs=nosys.specs
 
 ifneq ($(DEBUG), YES)
     LDFLAGS += -Wl,-static

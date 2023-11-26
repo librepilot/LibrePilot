@@ -34,31 +34,31 @@ USE_DSP_LIB ?= NO
 # List of mandatory modules to include
 MODULES += Sensors
 MODULES += StateEstimation
-MODULES += Airspeed
+#MODULES += Airspeed
 MODULES += Stabilization
 MODULES += ManualControl
 MODULES += Receiver
 MODULES += Actuator
 MODULES += GPS
-MODULES += TxPID
-MODULES += CameraStab
-MODULES += CameraControl
-MODULES += Battery
+#MODULES += TxPID
+#MODULES += CameraStab
+#MODULES += CameraControl
+#MODULES += Battery
 MODULES += FirmwareIAP
 MODULES += Radio
 MODULES += PathPlanner
 MODULES += PathFollower
-MODULES += Osd/osdoutout
+#MODULES += Osd/osdoutout
 MODULES += Logging
 MODULES += Telemetry
 MODULES += Notify
 
-OPTMODULES += AutoTune
-OPTMODULES += ComUsbBridge
-OPTMODULES += UAVOHottBridge
-OPTMODULES += UAVOMSPBridge
-OPTMODULES += UAVOMavlinkBridge
-OPTMODULES += UAVOFrSKYSensorHubBridge
+#OPTMODULES += AutoTune
+#OPTMODULES += ComUsbBridge
+#OPTMODULES += UAVOHottBridge
+#OPTMODULES += UAVOMSPBridge
+#OPTMODULES += UAVOMavlinkBridge
+#OPTMODULES += UAVOFrSKYSensorHubBridge
 
 SRC += $(FLIGHTLIB)/notification.c
 
@@ -85,8 +85,11 @@ ifndef TESTAPP
     SRC += $(OPUAVOBJ)/uavobjectmanager.c
     SRC += $(OPUAVOBJ)/uavobjectpersistence.c
     SRC += $(OPUAVOBJ)/eventdispatcher.c
-    SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
-    SRC += $(PIOSCOMMON)/pios_flash_jedec.c
+   SRC += $(PIOSCOMMON)/pios_dosfs_logfs.c
+#   SRC += $(PIOSCOMMON)/pios_sdcard.c
+	
+#SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
+#   SRC += $(PIOSCOMMON)/pios_flash_jedec.c
 
     ## Misc library functions
     SRC += $(FLIGHTLIB)/paths.c
@@ -108,6 +111,8 @@ endif
 
 # Optional component libraries
 include $(FLIGHTLIB)/rscode/library.mk
+
+include $(PIOS)/common/libraries/dosfs/library.mk
 
 #include $(FLIGHTLIB)/PyMite/pymite.mk
 

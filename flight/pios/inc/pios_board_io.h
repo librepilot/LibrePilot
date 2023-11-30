@@ -212,6 +212,7 @@ typedef enum {
     PIOS_BOARD_IO_UART_SBUS, /* rcvr, normal vs not-inverted from HwSettings.SBusMode */
     PIOS_BOARD_IO_UART_SBUS_NORMAL, /* helper only */
     PIOS_BOARD_IO_UART_SBUS_NOT_INVERTED, /* helper only */
+	PIOS_BOARD_IO_UART_DBUS,
     PIOS_BOARD_IO_UART_DSM_MAIN, /* rcvr  */
     PIOS_BOARD_IO_UART_DSM_FLEXI, /* rcvr  */
     PIOS_BOARD_IO_UART_DSM_RCVR, /* rcvr  */

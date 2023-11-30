@@ -2,13 +2,13 @@
  ******************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
- * @addtogroup   PIOS_USART USART Functions
- * @brief PIOS interface for USART port
+ * @addtogroup PIOS_DBus DJI DBus receiver functions
+ * @brief PIOS interface to read and write from DBus port
  * @{
  *
- * @file       pios_usart_priv.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      USART private definitions.
+ * @file       pios_dbus_priv.h
+ * @author     The SantyPilot Team, Copyright (C) 2023.
+ * @brief      DJI DBus Private structures.
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -28,37 +28,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PIOS_USART_PRIV_H
-#define PIOS_USART_PRIV_H
+#ifndef PIOS_DBUS_PRIV_H
+#define PIOS_DBUS_PRIV_H
 
 #include <pios.h>
 #include <pios_stm32.h>
-#include "fifo_buffer.h"
-#include "pios_usart.h"
+#include <pios_usart_priv.h>
 
-extern const struct pios_com_driver pios_usart_com_driver;
+extern const struct pios_rcvr_driver pios_dbus_rcvr_driver;
 
-struct pios_usart_cfg {
-    USART_TypeDef     *regs;
-    uint32_t remap; /* GPIO_Remap_* */
-    struct stm32_gpio rx;
-    struct stm32_gpio tx;
-    struct stm32_gpio dtr;
+extern int32_t PIOS_DBus_Init(uint32_t *dbus_id,
+                              const struct pios_com_driver *driver,
+                              uint32_t lower_id);
 
-	bool use_dma;
-#ifdef PIOS_USART_USE_DMA
-	struct stm32_dma dma;
-#endif // PIOS_USART_USE_DMA
-
-    /* provide hook for board specific ioctls */
-    int32_t (*ioctl)(uint32_t id, uint32_t ctl, void *param);
-};
-
-extern int32_t PIOS_USART_Init(uint32_t *usart_id, struct pios_usart_cfg *cfg);
-
-const struct pios_usart_cfg *PIOS_USART_GetConfig(uint32_t usart_id);
-
-#endif /* PIOS_USART_PRIV_H */
+#endif /* PIOS_DBUS_PRIV_H */
 
 /**
  * @}

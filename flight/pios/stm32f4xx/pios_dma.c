@@ -2,13 +2,15 @@
  ******************************************************************************
  * @addtogroup PIOS PIOS Core hardware abstraction layer
  * @{
- * @addtogroup   PIOS_USART USART Functions
- * @brief PIOS interface for USART port
+ * @addtogroup   PIOS_DMA DMA Functions
+ * @brief PIOS interface for DMA peripheral 
  * @{
  *
- * @file       pios_usart_priv.h
- * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
- * @brief      USART private definitions.
+ * @file       pios_dma.c
+ * @author     The SantyPilot Team Copyright (c) 2023.
+               The LibrePilot Project, http://www.librepilot.org, Copyright (c) 2016-2017.
+ *             The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
+ * @brief      DMA easy apis
  * @see        The GNU Public License (GPL) Version 3
  *
  *****************************************************************************/
@@ -28,39 +30,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef PIOS_USART_PRIV_H
-#define PIOS_USART_PRIV_H
-
-#include <pios.h>
+#include "pios.h"
+#include <pios_dma.h>
 #include <pios_stm32.h>
-#include "fifo_buffer.h"
-#include "pios_usart.h"
 
-extern const struct pios_com_driver pios_usart_com_driver;
-
-struct pios_usart_cfg {
-    USART_TypeDef     *regs;
-    uint32_t remap; /* GPIO_Remap_* */
-    struct stm32_gpio rx;
-    struct stm32_gpio tx;
-    struct stm32_gpio dtr;
-
-	bool use_dma;
-#ifdef PIOS_USART_USE_DMA
-	struct stm32_dma dma;
-#endif // PIOS_USART_USE_DMA
-
-    /* provide hook for board specific ioctls */
-    int32_t (*ioctl)(uint32_t id, uint32_t ctl, void *param);
-};
-
-extern int32_t PIOS_USART_Init(uint32_t *usart_id, struct pios_usart_cfg *cfg);
-
-const struct pios_usart_cfg *PIOS_USART_GetConfig(uint32_t usart_id);
-
-#endif /* PIOS_USART_PRIV_H */
-
-/**
- * @}
- * @}
- */
+void PIOS_DMA_SetRxBuffer(struct stm32_dma* dma, char* buffer, uint8_t len) {
+	dma->rx.init.DMA_Memory0BaseAddr = (uint32_t)buffer;
+	dma->rx.init.DMA_BufferSize = len;
+	return;
+}

@@ -799,6 +799,15 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
     .remap = GPIO_AF_USART1,
     .rx    = {
         .gpio = GPIOA,
+#ifdef PIOS_USART_USE_DBUS_CFG
+        .init = {
+            .GPIO_Pin   = GPIO_Pin_10,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_Mode  = GPIO_Mode_AF,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd  = GPIO_PuPd_NOPULL
+        },
+#else // PIOS_USART_USE_DBUS_CFG
         .init = {
             .GPIO_Pin   = GPIO_Pin_10,
             .GPIO_Speed = GPIO_Speed_2MHz,
@@ -806,6 +815,7 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
+#endif // PIOS_USART_USE_DBUS_CFG
     },
     .tx                 = {
         .gpio = GPIOA,
@@ -817,6 +827,44 @@ static const struct pios_usart_cfg pios_usart_main_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
+	.use_dma = 
+#ifdef PIOS_USART_USE_DMA
+		true,
+    .dma     = {
+        .irq                                       = {
+            // Note this is the stream ID that triggers interrupts (in this case TX)
+            .flags = (DMA_IT_TCIF2),
+            .init  = {
+                .NVIC_IRQChannel    = USART1_IRQn,// DMA2_Stream2_IRQn,
+                .NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID,
+                .NVIC_IRQChannelSubPriority        = 0,
+                .NVIC_IRQChannelCmd = ENABLE,
+            },
+        },
+
+	    // DMA2 stream2 ch4 or stream5 ch4
+        .rx                                        = {
+            .channel = DMA2_Stream2,
+            .init    = {
+				.DMA_Channel = DMA_Channel_4,
+				.DMA_PeripheralBaseAddr = (uint32_t) & (USART1->DR),
+				.DMA_DIR = DMA_DIR_PeripheralToMemory,
+				.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
+				.DMA_MemoryInc = DMA_MemoryInc_Enable,
+				.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+				.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
+				.DMA_Mode = DMA_Mode_Circular,
+				.DMA_Priority = DMA_Priority_VeryHigh,
+				.DMA_FIFOMode = DMA_FIFOMode_Disable,
+				.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull,
+				.DMA_MemoryBurst = DMA_MemoryBurst_Single,
+				.DMA_PeripheralBurst = DMA_PeripheralBurst_Single
+            },
+        },
+	}
+#else
+	    false,
+#endif
 };
 
 /*
@@ -845,6 +893,7 @@ static const struct pios_usart_cfg pios_usart_flexi_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
     },
+	.use_dma = false,
 };
 
 /* FLEXI-IO (Receiver) port */
@@ -886,7 +935,8 @@ static const struct pios_usart_cfg pios_usart_flexiio_cfg = {
             .GPIO_PuPd  = GPIO_PuPd_UP
         },
         .pin_source     = GPIO_PinSource7,
-    }
+    },
+	.use_dma = false,
 };
 #endif /* PIOS_INCLUDE_USART */
 

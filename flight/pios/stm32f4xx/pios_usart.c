@@ -39,6 +39,8 @@
 
 #include <pios_usart_priv.h>
 
+#include <pios_dma.h>
+
 /* Provide a COM driver */
 static void PIOS_USART_ChangeBaud(uint32_t usart_id, uint32_t baud);
 static void PIOS_USART_ChangeConfig(uint32_t usart_id, enum PIOS_COM_Word_Length word_len, enum PIOS_COM_Parity parity, enum PIOS_COM_StopBits stop_bits, uint32_t baud_rate);
@@ -48,6 +50,9 @@ static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback t
 static void PIOS_USART_TxStart(uint32_t usart_id, uint16_t tx_bytes_avail);
 static void PIOS_USART_RxStart(uint32_t usart_id, uint16_t rx_bytes_avail);
 static int32_t PIOS_USART_Ioctl(uint32_t usart_id, uint32_t ctl, void *param);
+/* DMA RX double Buffer */
+#define DMA_RX_BUFFER_LEN 36u // avoid overflow
+uint8_t rx_buf[2][DMA_RX_BUFFER_LEN]; 
 
 const struct pios_com_driver pios_usart_com_driver = {
     .set_baud      = PIOS_USART_ChangeBaud,
@@ -146,12 +151,14 @@ static struct pios_usart_dev *PIOS_USART_alloc(void)
  * each physical IRQ to a specific registered device instance.
  */
 static void PIOS_USART_generic_irq_handler(uint32_t usart_id);
+void DBUS_IRQHandler();
 
 static uint32_t PIOS_USART_1_id;
 void USART1_IRQHandler(void) __attribute__((alias("PIOS_USART_1_irq_handler")));
 static void PIOS_USART_1_irq_handler(void)
 {
-    PIOS_USART_generic_irq_handler(PIOS_USART_1_id);
+	DBUS_IRQHandler();
+    // PIOS_USART_generic_irq_handler(PIOS_USART_1_id);
 }
 
 static uint32_t PIOS_USART_2_id;
@@ -192,8 +199,7 @@ static void PIOS_USART_6_irq_handler(void)
 /**
  * Initialise a single USART device
  */
-int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
-{
+int32_t PIOS_USART_Init(uint32_t *usart_id, struct pios_usart_cfg *cfg) {
     PIOS_DEBUG_Assert(usart_id);
     PIOS_DEBUG_Assert(cfg);
 
@@ -228,7 +234,7 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
         irq_channel = USART6_IRQn;
         break;
     default:
-        goto out_fail;
+		return -1;
     }
 
     if (*local_id) {
@@ -237,56 +243,188 @@ int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg)
         return 0;
     }
 
-    struct pios_usart_dev *usart_dev;
-
-    usart_dev = (struct pios_usart_dev *)PIOS_USART_alloc();
-    if (!usart_dev) {
-        goto out_fail;
+    struct pios_usart_dev *usart_dev = 
+		(struct pios_usart_dev *)PIOS_USART_alloc();
+    if (!usart_dev) { // malloc failed
+		return -1;
     }
-
     /* Bind the configuration to the device instance */
-    usart_dev->cfg = cfg;
-    usart_dev->irq_channel = irq_channel;
+    usart_dev->irq_channel = irq_channel; // never used here, conf in board_hw_defs.c
+	if (cfg->use_dma) {
+		USART_TypeDef* USARTx = cfg->regs;
+		DMA_Stream_TypeDef* r_chan = cfg->dma.rx.channel;
 
-    /* Initialize the comm parameter structure */
-    USART_StructInit(&usart_dev->init); // 9600 8n1
+		if (cfg->remap) {
+			GPIO_PinAFConfig(cfg->rx.gpio,
+							 __builtin_ctz(cfg->rx.init.GPIO_Pin),
+							 cfg->remap);
+		}
+		GPIO_Init(cfg->rx.gpio, (GPIO_InitTypeDef *)&(cfg->rx.init));
 
-    /* We will set modes later, depending on installed callbacks */
-    usart_dev->init.USART_Mode = 0;
+		// Enable Module Clock Source in PIOS_SYS_Init()
+		//{ // fix parity stuff
+			//USART_InitTypeDef init = usart_dev->init; // nothing meaningful here
+			//if ((init.USART_Parity != USART_Parity_No) && 
+			//		(init.USART_WordLength == USART_WordLength_8b)) {
+			//    init.USART_WordLength = USART_WordLength_9b;
+			//}
+			//USART_Init(USARTx, &init);
+			//USART_DMACmd(USARTx, USART_DMAReq_Rx, ENABLE);
+			//USART_ClearFlag(USARTx, USART_FLAG_RXNE);
+			//USART_ClearFlag(USARTx, USART_FLAG_IDLE);
+            //USART_ITConfig(USARTx, USART_IT_RXNE, ENABLE);
+			//USART_ITConfig(USARTx, USART_IT_IDLE, ENABLE);
+			//USART_Cmd(USARTx, ENABLE);
+		//}
+
+		// Configure NVIC
+		NVIC_Init(&cfg->dma.irq.init);
+
+		// Configure DMA double buffer mode 
+		{
+			// cfg->rx_buf = (char**)rx_buf;
+			// cfg->buf_len = DMA_RX_BUFFER_LEN;
+
+			DMA_InitTypeDef dma_init = cfg->dma.rx.init;
+			DMA_DeInit(r_chan);
+			PIOS_DMA_SetRxBuffer(&cfg->dma, rx_buf[0], DMA_RX_BUFFER_LEN);
+			DMA_Init(r_chan, &dma_init);
+			DMA_DoubleBufferModeConfig(r_chan, (uint32_t)rx_buf[1], DMA_Memory_0);
+			DMA_DoubleBufferModeCmd(r_chan, ENABLE);
+			DMA_Cmd(r_chan, DISABLE); // Add a disable
+			DMA_Cmd(r_chan, ENABLE);
+		}
+		/*
+        RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA2, ENABLE);
+        RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, ENABLE);
+        RCC_APB2PeriphResetCmd(RCC_APB2Periph_USART1, DISABLE);
+
+        //GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_USART1); //PB7  usart1 rx
+         //
+			GPIO_PinAFConfig(GPIOA,
+							 __builtin_ctz(GPIO_Pin_10),
+							 GPIO_AF_USART1);
+        {
+                GPIO_InitTypeDef GPIO_InitStructure;
+                USART_InitTypeDef USART_InitStructure;
+                GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+                GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+                GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+                GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+                GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+                GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+                USART_DeInit(USART1);
+
+                USART_InitStructure.USART_BaudRate = 100000;
+                USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+                USART_InitStructure.USART_StopBits = USART_StopBits_1;
+                USART_InitStructure.USART_Parity = USART_Parity_Even;
+                USART_InitStructure.USART_Mode = USART_Mode_Rx;
+                USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+                USART_Init(USART1, &USART_InitStructure);
+
+                USART_DMACmd(USART1, USART_DMAReq_Rx, ENABLE);
+
+                USART_ClearFlag(USART1, USART_FLAG_IDLE);
+                USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+
+                USART_Cmd(USART1, ENABLE);
+        }
+
+        {
+                NVIC_InitTypeDef NVIC_InitStructure;
+                NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+                NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = PIOS_IRQ_PRIO_MID;
+                NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+                NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+                NVIC_Init(&NVIC_InitStructure);
+        }
+
+        //DMA2 stream5 ch4  or (DMA2 stream2 ch4)    !!!!!!! P206 of the datasheet
+        {
+                DMA_InitTypeDef DMA_InitStructure;
+                DMA_DeInit(DMA2_Stream2);
+
+                DMA_InitStructure.DMA_Channel = DMA_Channel_4;
+                DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & (USART1->DR);
+                DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)(rx_buf[0]);
+                DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+                DMA_InitStructure.DMA_BufferSize = DMA_RX_BUFFER_LEN;
+                DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+                DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+                DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+                DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+                DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+                DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+                DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+                DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
+                DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+                DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+                DMA_Init(DMA2_Stream2, &DMA_InitStructure);
+                DMA_DoubleBufferModeConfig(DMA2_Stream2, (uint32_t)(rx_buf[1]), DMA_Memory_0);
+                DMA_DoubleBufferModeCmd(DMA2_Stream2, ENABLE);
+                DMA_Cmd(DMA2_Stream2, DISABLE); //Add a disable
+                DMA_Cmd(DMA2_Stream2, ENABLE);
+        }
+		*/
+	} else { // no use dma
+		/* Initialize the comm parameter structure */
+		USART_StructInit(&usart_dev->init); // 9600 8n1
+
+		/* We will set modes later, depending on installed callbacks */
+		usart_dev->init.USART_Mode = 0;
 
 
-    /* If a DTR line is specified, initialize it */
-    if (usart_dev->cfg->dtr.gpio) {
-        GPIO_Init(usart_dev->cfg->dtr.gpio, (GPIO_InitTypeDef *)&usart_dev->cfg->dtr.init);
-        PIOS_USART_SetCtrlLine((uint32_t)usart_dev, COM_CTRL_LINE_DTR_MASK, 0);
-    }
+		/* If a DTR line is specified, initialize it */
+		if (cfg->dtr.gpio) {
+			GPIO_Init(cfg->dtr.gpio, (GPIO_InitTypeDef *)&cfg->dtr.init);
+			PIOS_USART_SetCtrlLine((uint32_t)usart_dev, COM_CTRL_LINE_DTR_MASK, 0);
+		}
 #ifdef PIOS_USART_INVERTER_PORT
-    /* Initialize inverter gpio and set it to off */
-    if (usart_dev->cfg->regs == PIOS_USART_INVERTER_PORT) {
-        GPIO_InitTypeDef inverterGPIOInit = {
-            .GPIO_Pin   = PIOS_USART_INVERTER_PIN,
-            .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_Mode  = GPIO_Mode_OUT,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd  = GPIO_PuPd_UP
-        };
-        GPIO_Init(PIOS_USART_INVERTER_GPIO, &inverterGPIOInit);
+		/* Initialize inverter gpio and set it to off */
+		if (cfg->regs == PIOS_USART_INVERTER_PORT) {
+			GPIO_InitTypeDef inverterGPIOInit = {
+				.GPIO_Pin   = PIOS_USART_INVERTER_PIN,
+				.GPIO_Speed = GPIO_Speed_2MHz,
+				.GPIO_Mode  = GPIO_Mode_OUT,
+				.GPIO_OType = GPIO_OType_PP,
+				.GPIO_PuPd  = GPIO_PuPd_UP
+			};
+			GPIO_Init(PIOS_USART_INVERTER_GPIO, &inverterGPIOInit);
 
-        GPIO_WriteBit(PIOS_USART_INVERTER_GPIO,
-                      PIOS_USART_INVERTER_PIN,
-                      PIOS_USART_INVERTER_DISABLE);
-    }
+			GPIO_WriteBit(PIOS_USART_INVERTER_GPIO,
+						  PIOS_USART_INVERTER_PIN,
+						  PIOS_USART_INVERTER_DISABLE);
+		}
 #endif
+		PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
 
+	}
+
+	usart_dev->cfg = cfg;
     *usart_id = (uint32_t)usart_dev;
     *local_id = (uint32_t)usart_dev;
-
-    PIOS_USART_SetIrqPrio(usart_dev, PIOS_IRQ_PRIO_MID);
-
     return 0;
+}
 
-out_fail:
-    return -1;
+void PIOS_USART_DMA_Reinit(uint32_t usart_id) {
+    PIOS_DEBUG_Assert(usart_id);
+
+	struct pios_usart_dev* usart_dev = (struct pios_usart_dev *)usart_id;
+	USART_TypeDef* USARTx = usart_dev->cfg->regs;
+	DMA_Stream_TypeDef* r_chan = usart_dev->cfg->dma.rx.channel;
+	USART_Cmd(USARTx, DISABLE);
+	DMA_Cmd(r_chan, DISABLE);
+	DMA_SetCurrDataCounter(r_chan, DMA_RX_BUFFER_LEN);
+	USART_ClearFlag(usart_dev->cfg->regs, USART_FLAG_IDLE);
+
+	DMA_ClearFlag(r_chan, DMA_FLAG_TCIF2);
+	DMA_ClearITPendingBit(r_chan, DMA_IT_TCIF2);
+	DMA_Cmd(r_chan, ENABLE);
+	USART_Cmd(USARTx, ENABLE);
 }
 
 static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
@@ -303,6 +441,7 @@ static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
 
         /* just enable RX right away, cause rcvr modules do not call rx_start method */
         USART_ITConfig(usart_dev->cfg->regs, USART_IT_RXNE, ENABLE);
+	    USART_ITConfig(usart_dev->cfg->regs, USART_IT_IDLE, ENABLE);
     }
 
     /* Configure TX GPIO */
@@ -317,7 +456,7 @@ static void PIOS_USART_Setup(struct pios_usart_dev *usart_dev)
     }
 
     /* Write new configuration */
-    { // fix parity stuff
+    { // fix parity stuff, why
         USART_InitTypeDef init = usart_dev->init;
 
         if ((init.USART_Parity != USART_Parity_No) && (init.USART_WordLength == USART_WordLength_8b)) {
@@ -449,6 +588,8 @@ static void PIOS_USART_ChangeConfig(uint32_t usart_id,
         usart_dev->init.USART_BaudRate = baud_rate;
     }
 
+	usart_dev->init.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+
     PIOS_USART_Setup(usart_dev);
 }
 
@@ -508,6 +649,53 @@ static void PIOS_USART_RegisterTxCallback(uint32_t usart_id, pios_com_callback t
     PIOS_USART_Setup(usart_dev);
 }
 
+void DBUS_IRQHandler(void)
+{
+    if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
+    {
+        USART_ReceiveData(USART1);
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+    }
+    if (USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)
+    {
+        static uint16_t this_time_rx_len = 0;
+        USART_ReceiveData(USART1);
+
+        if(DMA_GetCurrentMemoryTarget(DMA2_Stream2) == 0)
+        {
+            DMA_Cmd(DMA2_Stream2, DISABLE);
+            this_time_rx_len = DMA_RX_BUFFER_LEN - DMA_GetCurrDataCounter(DMA2_Stream2);
+            DMA_SetCurrDataCounter(DMA2_Stream2, DMA_RX_BUFFER_LEN);
+            DMA2_Stream2->CR |= DMA_SxCR_CT;
+            DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+            DMA_Cmd(DMA2_Stream2, ENABLE);
+            if(this_time_rx_len == 18)
+            {
+                volatile char* rx_buf_0 = rx_buf[0];
+            }
+        }
+        else
+        {
+            //ÖØÐÂÉèÖÃDMA
+            DMA_Cmd(DMA2_Stream2, DISABLE);
+            this_time_rx_len = DMA_RX_BUFFER_LEN - DMA_GetCurrDataCounter(DMA2_Stream2);
+            DMA_SetCurrDataCounter(DMA2_Stream2, DMA_RX_BUFFER_LEN);
+            DMA2_Stream2->CR &= ~(DMA_SxCR_CT);
+            //ÇåDMAÖÐ¶Ï±êÖ¾
+            DMA_ClearFlag(DMA2_Stream2, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+            DMA_Cmd(DMA2_Stream2, ENABLE);
+            if(this_time_rx_len == 18)
+            {
+                //´¦ÀíÒ£¿ØÆ÷Êý¾Ý
+                //¼ÇÂ¼Êý¾Ý½ÓÊÕÊ±¼ä
+                volatile char* rx_buf_0 = rx_buf[1];
+            }
+
+        }
+    }
+}
+
+
 static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
 {
     struct pios_usart_dev *usart_dev = (struct pios_usart_dev *)usart_id;
@@ -548,6 +736,39 @@ static void PIOS_USART_generic_irq_handler(uint32_t usart_id)
         } else {
             /* No bytes to send, disable TXE interrupt */
             USART_ITConfig(usart_dev->cfg->regs, USART_IT_TXE, DISABLE);
+        }
+    }
+
+    if (sr & USART_IT_IDLE) {
+		const struct pios_usart_cfg* cfg = usart_dev->cfg;
+		USART_TypeDef* USARTx = cfg->regs;
+		DMA_Stream_TypeDef* r_chan = cfg->dma.rx.channel;
+        static uint16_t this_time_rx_len = 0;
+        USART_ReceiveData(USARTx); // use dr
+        if (DMA_GetCurrentMemoryTarget(r_chan) == 0) {
+            DMA_Cmd(r_chan, DISABLE);
+            this_time_rx_len = DMA_RX_BUFFER_LEN 
+				- DMA_GetCurrDataCounter(r_chan); //?
+            DMA_SetCurrDataCounter(r_chan, DMA_RX_BUFFER_LEN);
+            r_chan->CR |= DMA_SxCR_CT;
+            DMA_ClearFlag(r_chan, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+            DMA_Cmd(r_chan, ENABLE);
+			if (usart_dev->rx_in_cb) {
+				(void)(usart_dev->rx_in_cb)(usart_dev->rx_in_context, 
+					rx_buf[0], this_time_rx_len, NULL, &rx_need_yield);
+			}
+        } else {
+            DMA_Cmd(r_chan, DISABLE);
+            this_time_rx_len = DMA_RX_BUFFER_LEN 
+				- DMA_GetCurrDataCounter(r_chan); //?
+            DMA_SetCurrDataCounter(r_chan, DMA_RX_BUFFER_LEN);
+            r_chan->CR |= DMA_SxCR_CT;
+            DMA_ClearFlag(r_chan, DMA_FLAG_TCIF2 | DMA_FLAG_HTIF2);
+            DMA_Cmd(r_chan, ENABLE);
+			if (usart_dev->rx_in_cb) {
+				(void)(usart_dev->rx_in_cb)(usart_dev->rx_in_context, 
+					rx_buf[1], this_time_rx_len, NULL, &rx_need_yield);
+			}
         }
     }
 

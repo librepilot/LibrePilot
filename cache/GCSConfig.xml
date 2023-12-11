@@ -19,7 +19,7 @@
   <MainWindow>
     <Color>#606060</Color>
     <FullScreen>false</FullScreen>
-    <Geometry>@Rect(751 526 750 372)</Geometry>
+    <Geometry>@Rect(635 354 724 471)</Geometry>
     <Maximized>false</Maximized>
   </MainWindow>
   <ModePriorities>
@@ -1612,11 +1612,11 @@
         <data>
           <accessMode>ServerAndCache</accessMode>
           <cacheLocation>%%STOREPATH%%mapscache/</cacheLocation>
-          <defaultLatitude>0</defaultLatitude>
-          <defaultLongitude>0</defaultLongitude>
+          <defaultLatitude>31.214744418455858</defaultLatitude>
+          <defaultLongitude>121.40739485621452</defaultLongitude>
           <defaultWaypointAltitude>15</defaultWaypointAltitude>
           <defaultWaypointVelocity>2</defaultWaypointVelocity>
-          <defaultZoom>2</defaultZoom>
+          <defaultZoom>20</defaultZoom>
           <mapProvider>BingMap</mapProvider>
           <maxUpdateRate>2000</maxUpdateRate>
           <overlayOpacity>1</overlayOpacity>
@@ -3117,23 +3117,14 @@
         </side0>
         <side1>
           <side0>
-            <side0>
-              <classId>PfdQmlGadget</classId>
-              <gadget>
-                <activeConfiguration>PFD</activeConfiguration>
-                <state>
-                  <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
-                </state>
-              </gadget>
-              <type>uavGadget</type>
-            </side0>
-            <side1>
-              <classId>MagicWaypointGadget</classId>
-              <type>uavGadget</type>
-            </side1>
-            <splitterOrientation>1</splitterOrientation>
-            <splitterSizes>@Variant(AAAACQAAAAIAAAACAAAB7wAAAAIAAAGU)</splitterSizes>
-            <type>splitter</type>
+            <classId>PfdQmlGadget</classId>
+            <gadget>
+              <activeConfiguration>PFD</activeConfiguration>
+              <state>
+                <modelFile>%%DATAPATH%%models/multi/test_quad/test_quad_x.3ds</modelFile>
+              </state>
+            </gadget>
+            <type>uavGadget</type>
           </side0>
           <side1>
             <classId>GCSControlGadget</classId>

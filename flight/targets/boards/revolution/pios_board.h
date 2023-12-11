@@ -250,6 +250,12 @@ extern uint32_t pios_packet_handler;
 #define PIOS_SBUS_NUM_INPUTS         (16 + 2)
 
 // -------------------------
+// Receiver DBus input
+// -------------------------
+#define PIOS_DBUS_MAX_DEVS           1
+#define PIOS_DBUS_NUM_INPUTS         13
+
+// -------------------------
 // Receiver HOTT input
 // -------------------------
 #define PIOS_HOTT_MAX_DEVS           1

@@ -41,6 +41,9 @@
 # ifdef PIOS_INCLUDE_SBUS
 #  include <pios_sbus_priv.h>
 # endif
+# ifdef PIOS_INCLUDE_DBUS
+#  include <pios_dbus_priv.h>
+# endif
 # ifdef PIOS_INCLUDE_IBUS
 #  include <pios_ibus_priv.h>
 # endif
@@ -295,6 +298,13 @@ static int32_t PIOS_SBus_Not_Inverted_Init_Helper(uint32_t *id, const struct pio
     return PIOS_SBus_Init(id, &sbus_cfg, driver, lower_id);
 }
 # endif /* ifdef PIOS_INCLUDE_SBUS */
+# ifdef PIOS_INCLUDE_DBUS
+
+static int32_t PIOS_DBus_Init_Helper(uint32_t *id, const struct pios_com_driver *driver, uint32_t lower_id) {
+	// only support usart dma double buffer mode
+	return PIOS_DBus_Init(id, driver, lower_id);
+}
+# endif // PIOS_INCLUDE_DBUS
 #endif /* ifdef PIOS_INCLUDE_RCVR */
 
 struct uart_function {
@@ -433,6 +443,14 @@ static const struct uart_function uart_function_map[] = {
         .rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_SBUS,
     },
 # endif /* PIOS_INCLUDE_SBUS */
+
+# ifdef PIOS_INCLUDE_DBUS
+	[PIOS_BOARD_IO_UART_DBUS] =              {
+		.rcvr_init   = &PIOS_DBus_Init_Helper,
+		.rcvr_driver = &pios_dbus_rcvr_driver,
+		.rcvr_group  = MANUALCONTROLSETTINGS_CHANNELGROUPS_DBUS,
+	}
+# endif /* PIOS_INCLUDE_DBUS */
 #endif /* PIOS_INCLUDE_RCVR */
 };
 

@@ -79,6 +79,7 @@ static const PIOS_BOARD_IO_UART_Function main_function_map[] = {
     [HWSETTINGS_RM_MAINPORT_TELEMETRY] = PIOS_BOARD_IO_UART_TELEMETRY,
     [HWSETTINGS_RM_MAINPORT_GPS]            = PIOS_BOARD_IO_UART_GPS,
     [HWSETTINGS_RM_MAINPORT_SBUS]           = PIOS_BOARD_IO_UART_SBUS,
+	[HWSETTINGS_RM_MAINPORT_DBUS]           = PIOS_BOARD_IO_UART_DBUS,
     [HWSETTINGS_RM_MAINPORT_DSM]            = PIOS_BOARD_IO_UART_DSM_MAIN,
     [HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE]   = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
     [HWSETTINGS_RM_MAINPORT_COMBRIDGE]      = PIOS_BOARD_IO_UART_COMBRIDGE,
@@ -156,7 +157,7 @@ void PIOS_Board_Init(void)
 #if defined(PIOS_INCLUDE_SDCARD)
     /* Enable and mount the SDCard */
 	// SPI is initialized above
-    PIOS_SDCARD_Init(pios_spi_telem_flash_adapter_id/*TODO: use flash is stupid!*/);
+    PIOS_SDCARD_Init(pios_spi_telem_flash_adapter_id/*TODO: should rename to remove flash!*/);
     PIOS_SDCARD_MountFS(0);
     PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, NULL, NULL, 0);
 #endif

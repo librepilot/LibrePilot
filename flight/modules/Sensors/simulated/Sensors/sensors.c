@@ -101,6 +101,11 @@ enum sensor_sim_type { CONSTANT, MODEL_AGNOSTIC, MODEL_QUADCOPTER, MODEL_AIRPLAN
 #include <pios_instrumentation_helper.h>
 PERF_DEFINE_COUNTER(counterSimSensorPeriod);
 
+// init pos *10.0e6 Shanghai YunwuShan Rd No.19
+#define INIT_LAT 312147400
+#define INIT_LNG 1214073700
+#define INIT_ALT 0
+
 /**
  * Initialise the module.  Called before the start function
  * \returns 0 on success or -1 if initialisation failed
@@ -150,16 +155,16 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 
     AlarmsClear(SYSTEMALARMS_ALARM_SENSORS);
 
-// HomeLocationData homeLocation;
-// HomeLocationGet(&homeLocation);
-// homeLocation.Latitude = 0;
-// homeLocation.Longitude = 0;
-// homeLocation.Altitude = 0;
-// homeLocation.Be[0] = 26000;
-// homeLocation.Be[1] = 400;
-// homeLocation.Be[2] = 40000;
-// homeLocation.Set = HOMELOCATION_SET_TRUE;
-// HomeLocationSet(&homeLocation);
+	HomeLocationData homeLocation;
+	HomeLocationGet(&homeLocation);
+	homeLocation.Latitude = INIT_LAT;
+	homeLocation.Longitude = INIT_LNG;
+	homeLocation.Altitude = INIT_ALT;
+	homeLocation.Be[0] = 26000;
+	homeLocation.Be[1] = 400;
+	homeLocation.Be[2] = 40000;
+	homeLocation.Set = HOMELOCATION_SET_TRUE;
+	HomeLocationSet(&homeLocation);
 
 
     // Main task loop
@@ -520,6 +525,7 @@ static void simulateModelQuadcopter()
         gpsPosition.Heading     = 180 / M_PI * atan2(vel[1] + gps_vel_drift[1], vel[0] + gps_vel_drift[0]);
         gpsPosition.Satellites  = 7;
         gpsPosition.PDOP = 1;
+		gpsPosition.Status = GPSPOSITIONSENSOR_STATUS_FIX3D; 
         GPSPositionSensorSet(&gpsPosition);
         last_gps_time    = PIOS_DELAY_GetRaw();
     }

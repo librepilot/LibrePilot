@@ -364,6 +364,9 @@ static void simulateModelQuadcopter()
         dT = 2e-3;
     }
     last_time = PIOS_DELAY_GetRaw();
+	if (dT > 5) { // if interval exceed 5s, something is wrong
+	    return;
+	}
 
     FlightStatusData flightStatus;
     FlightStatusGet(&flightStatus);
@@ -507,7 +510,7 @@ static void simulateModelQuadcopter()
     if (PIOS_DELAY_DiffuS(last_gps_time) / 1.0e6 > GPS_PERIOD) {
         // Use double precision here as simulating what GPS produces
         double T[3];
-        T[0] = homeLocation.Altitude + 6.378137E6f * M_PI / 180.0;
+        T[0] = (homeLocation.Altitude + 6.378137E6f) * M_PI / 180.0;
         T[1] = cos(homeLocation.Latitude / 10e6 * M_PI / 180.0f) * (homeLocation.Altitude + 6.378137E6) * M_PI / 180.0;
         T[2] = -1.0;
 

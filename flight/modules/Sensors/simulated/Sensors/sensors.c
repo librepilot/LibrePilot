@@ -356,6 +356,7 @@ static void simulateModelQuadcopter()
     const float MAG_PERIOD     = 1.0 / 75.0;
     const float BARO_PERIOD    = 1.0 / 20.0;
 
+	static bool in_flight = false;
     static uint32_t last_time;
 
     float dT = (PIOS_DELAY_DiffuS(last_time) / 1e6);
@@ -373,6 +374,7 @@ static void simulateModelQuadcopter()
     ActuatorDesiredData actuatorDesired;
     ActuatorDesiredGet(&actuatorDesired);
 
+	in_flight = flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED;
     float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Thrust * MAX_THRUST : 0;
     if (thrust < 0) {
         thrust = 0;
@@ -435,11 +437,6 @@ static void simulateModelQuadcopter()
         AttitudeStateSet(&attitudeState);
     }
 
-    static float wind[3] = { 0, 0, 0 };
-    wind[0] = wind[0] * 0.95 + rand_gauss() / 10.0;
-    wind[1] = wind[1] * 0.95 + rand_gauss() / 10.0;
-    wind[2] = wind[2] * 0.95 + rand_gauss() / 10.0;
-
     Quaternion2R(q, Rbe);
     // Make thrust negative as down is positive
     ned_accel[0]  = -thrust * Rbe[2][0];
@@ -447,10 +444,17 @@ static void simulateModelQuadcopter()
     // Gravity causes acceleration of 9.81 in the down direction
     ned_accel[2]  = -thrust * Rbe[2][2] + GRAV;
 
-    // Apply acceleration based on velocity
-    ned_accel[0] -= K_FRICTION * (vel[0] - wind[0]);
-    ned_accel[1] -= K_FRICTION * (vel[1] - wind[1]);
-    ned_accel[2] -= K_FRICTION * (vel[2] - wind[2]);
+	if (in_flight) {
+		static float wind[3] = { 0, 0, 0 };
+		wind[0] = wind[0] * 0.95 + rand_gauss() / 10.0;
+		wind[1] = wind[1] * 0.95 + rand_gauss() / 10.0;
+		wind[2] = wind[2] * 0.95 + rand_gauss() / 10.0;
+
+		// Apply acceleration based on velocity
+		ned_accel[0] -= K_FRICTION * (vel[0] - wind[0]);
+		ned_accel[1] -= K_FRICTION * (vel[1] - wind[1]);
+		ned_accel[2] -= K_FRICTION * (vel[2] - wind[2]);
+	}
 
     // Predict the velocity forward in time
     vel[0] = vel[0] + ned_accel[0] * dT;

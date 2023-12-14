@@ -252,6 +252,18 @@ static void systemTask(__attribute__((unused)) void *parameters)
 #endif
     // Main system loop
     while (1) {
+		// debug only
+		//static uint16_t i = 0;
+		//const size_t BUFFER_SIZE = 100;
+		//if (i != 0 && i % 20 == 0) {
+		//	char* buffer = (char*)pios_malloc(BUFFER_SIZE);
+		//	PIOS_TASK_MONITOR_GetRunTimeStats(buffer);
+		//	fprintf(stderr, "%s\n", buffer);
+		//	i = 0;
+		//} else {
+		//    i++;
+		//}
+
         NotificationUpdateStatus();
         // Update the system statistics
         updateStats();
@@ -648,7 +660,11 @@ static void updateStats()
 #endif
     stats.CPUIdleTicks     = PIOS_TASK_MONITOR_GetIdleTicksCount();
     stats.CPUZeroLoadTicks = PIOS_TASK_MONITOR_GetZeroLoadTicksCount();
+#ifdef SIMPOSIX 
+	stats.CPULoad = 0; // workaround invalid cpu load in simulation
+#else
     stats.CPULoad = 100 - (uint8_t)((100 * stats.CPUIdleTicks) / stats.CPUZeroLoadTicks);
+#endif
 
 #if defined(PIOS_INCLUDE_ADC) && defined(PIOS_ADC_USE_TEMP_SENSOR)
     float temp_voltage = PIOS_ADC_PinGetVolt(PIOS_ADC_TEMPERATURE_PIN);
@@ -754,6 +770,15 @@ static void updateSystemAlarms()
  */
 void vApplicationIdleHook(void)
 {
+/*
+	static uint16_t c = 0;
+	if (c > 0 && c % 5000 == 0) {
+		fprintf(stderr, "idle hook is running:%d\n", c);
+		c = 0;
+	} else {
+	    c++;
+	}
+*/
     PIOS_TASK_MONITOR_IdleHook();
     NotificationOnboardLedsRun();
 #ifdef PIOS_INCLUDE_WS2811

@@ -33,6 +33,7 @@
 #include <QMutex>
 #include <QList>
 #include <QVariant>
+#include <stdint.h>
 
 #define MAX_PACKET_DATA_LEN 255
 #define MAX_PACKET_BUF_SIZE (1 + 1 + MAX_PACKET_DATA_LEN + 2)

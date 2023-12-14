@@ -45,11 +45,16 @@ struct pios_usart_cfg {
     struct stm32_gpio tx;
     struct stm32_gpio dtr;
 
+	bool use_dma;
+#ifdef PIOS_USART_USE_DMA
+	struct stm32_dma dma;
+#endif // PIOS_USART_USE_DMA
+
     /* provide hook for board specific ioctls */
     int32_t (*ioctl)(uint32_t id, uint32_t ctl, void *param);
 };
 
-extern int32_t PIOS_USART_Init(uint32_t *usart_id, const struct pios_usart_cfg *cfg);
+extern int32_t PIOS_USART_Init(uint32_t *usart_id, struct pios_usart_cfg *cfg);
 
 const struct pios_usart_cfg *PIOS_USART_GetConfig(uint32_t usart_id);
 

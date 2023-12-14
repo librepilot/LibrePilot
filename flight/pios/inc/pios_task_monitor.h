@@ -134,4 +134,6 @@ extern uint32_t PIOS_TASK_MONITOR_GetIdleTicksCount();
 
 extern uint32_t PIOS_TASK_MONITOR_GetZeroLoadTicksCount();
 
+extern void PIOS_TASK_MONITOR_GetRunTimeStats(/*signed*/ char*);
+
 #endif // PIOS_TASK_MONITOR_H

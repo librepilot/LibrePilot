@@ -37,7 +37,7 @@ TEST_F(CoordinateConversionsTestRaw, LLA2ECEF) {
     int32_t LLAi[3] = {
         419291818,
         125571688,
-        50 * 1e4
+        500000
     };
     int32_t LLAfromECEF[3];
 
@@ -56,14 +56,14 @@ TEST_F(CoordinateConversionsTestRaw, LLA2NED) {
     int32_t LLAi[3] = {
         419291818,
         125571688,
-        50 * 1e4
+        500000
     };
     int32_t LLAfromNED[3];
 
     int32_t HomeLLAi[3] = {
         419291600,
         125571300,
-        24 * 1e4
+        240000
     };
 
     float Rne[3][3];

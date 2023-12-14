@@ -87,6 +87,8 @@
 
 static const TickType_t sensor_period_ticks = ((uint32_t)(1000.0f / PIOS_SENSOR_RATE / (float)portTICK_RATE_MS));
 
+// PIOS_SENSOR_RATE 500 HZ
+
 // Interval in number of sample to recalculate temp bias
 #define TEMP_CALIB_INTERVAL      30
 
@@ -130,6 +132,7 @@ PERF_DEFINE_COUNTER(counterMagPeriod);
 PERF_DEFINE_COUNTER(counterBaroPeriod);
 PERF_DEFINE_COUNTER(counterSensorPeriod);
 PERF_DEFINE_COUNTER(counterSensorResets);
+PERF_DEFINE_COUNTER(counterSensorBetween);
 
 #if defined(PIOS_INCLUDE_HMC5X83)
 void aux_hmc5x83_load_settings();
@@ -268,6 +271,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
     PERF_INIT_COUNTER(counterBaroPeriod, 0x53000004);
     PERF_INIT_COUNTER(counterSensorPeriod, 0x53000005);
     PERF_INIT_COUNTER(counterSensorResets, 0x53000006);
+	PERF_INIT_COUNTER(counterSensorBetween, 0x53000007);
 
     // Test sensors
     bool sensors_test = true;
@@ -293,6 +297,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 
     while (1) {
         // TODO: add timeouts to the sensor reads and set an error if the fail
+		PERF_MEASURE_BETWEEN(counterSensorBetween, true);
         if (error) {
             RELOAD_WDG();
             lastSysTime = xTaskGetTickCount();
@@ -310,7 +315,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             // we will wait on the sensor that's marked as primary( that means the sensor with higher sample rate)
             bool is_primary = (sensor->type & PIOS_SENSORS_TYPE_3AXIS_ACCEL);
 
-            if (!sensor->driver->is_polled) {
+            if (!sensor->driver->is_polled) { // is_polled false mpu6k, qmc5883
                 const QueueHandle_t queue = PIOS_SENSORS_GetQueue(sensor);
                 while (xQueueReceive(queue,
                                      (void *)source_data,
@@ -326,7 +331,7 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
                     PERF_TRACK_VALUE(counterSensorResets, reset_counter);
                     error = true;
                 }
-            } else {
+            } else { // poll manually
                 if (PIOS_SENSORS_Poll(sensor)) {
                     PIOS_SENSOR_Fetch(sensor, (void *)source_data, MAX_SENSORS_PER_INSTANCE);
                     if (sensor->type & PIOS_SENSORS_TYPE_3D) {
@@ -341,6 +346,13 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
         }
         PERF_MEASURE_PERIOD(counterSensorPeriod);
         RELOAD_WDG();
+
+		PERF_MEASURE_BETWEEN(counterSensorBetween, false);
+		// char* buffer = ((char*)pios_malloc(500));
+		
+        // PIOS_TASK_MONITOR_GetRunTimeStats(buffer);
+		// free(buffer);
+		// volatile int32_t debug_value = PIOS_Instrumentation_GetCounterValue(counterSensorBetween); // about 500us
         vTaskDelayUntil(&lastSysTime, sensor_period_ticks);
     }
 }
@@ -493,6 +505,16 @@ static void handleMag(float *samples, float temperature)
                       (float)samples[2] - mag_bias[2] };
 
     rot_mult(mag_transform, mags, samples);
+
+	// Debug
+	static uint32_t debug_ticks_pre = 0;
+	static uint32_t debug_ticks_now = 0;
+	debug_ticks_now++;
+	if (debug_ticks_now >= debug_ticks_pre + 2500) {
+	    debug_ticks_pre = 0;
+		debug_ticks_now = 0;
+        DEBUG_PRINTF(0, "handle mag: %f,%f,%f\r\n", mags[0],mags[1],mags[2]);
+	}
 
     mag.x = samples[0];
     mag.y = samples[1];

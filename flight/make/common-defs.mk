@@ -128,7 +128,7 @@ CFLAGS += -fomit-frame-pointer
 CFLAGS += -Wall -Wextra
 CFLAGS += -Wfloat-equal -Wdouble-promotion
 CFLAGS += -Wshadow
-CFLAGS += -Werror
+# CFLAGS += -Werror
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS)) -I.
 CFLAGS += -Wa,-adhlns=$(addprefix $(OUTDIR)/, $(notdir $(addsuffix .lst, $(basename $<))))
 
@@ -204,6 +204,7 @@ LDFLAGS += -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref
 LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
 LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 LDFLAGS += -lc -lgcc
+LDFLAGS += -specs=nosys.specs
 
 ifneq ($(DEBUG), YES)
     LDFLAGS += -Wl,-static

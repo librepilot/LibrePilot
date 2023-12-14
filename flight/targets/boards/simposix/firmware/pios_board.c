@@ -120,6 +120,10 @@ void PIOS_Board_Init(void)
     /* Delay system */
     PIOS_DELAY_Init();
 
+#ifdef PIOS_INCLUDE_INSTRUMENTATION
+    PIOS_Instrumentation_Init(PIOS_INSTRUMENTATION_MAX_COUNTERS);
+#endif
+
     // Initialize logfs for settings.
     // If linking in yaffs for testing, this will be /dev0 with settings stored
     // via the logfs object api in /dev0/logfs/

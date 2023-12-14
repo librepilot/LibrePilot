@@ -96,6 +96,16 @@ static float rand_gauss();
 enum sensor_sim_type { CONSTANT, MODEL_AGNOSTIC, MODEL_QUADCOPTER, MODEL_AIRPLANE } sensor_sim_type;
 
 #define GRAV 9.81
+
+#define PIOS_INSTRUMENT_MODULE
+#include <pios_instrumentation_helper.h>
+PERF_DEFINE_COUNTER(counterSimSensorPeriod);
+
+// init pos *10.0e6 Shanghai YunwuShan Rd No.19
+#define INIT_LAT 312147396
+#define INIT_LNG 1214073671
+#define INIT_ALT 0
+
 /**
  * Initialise the module.  Called before the start function
  * \returns 0 on success or -1 if initialisation failed
@@ -145,22 +155,24 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
 
     AlarmsClear(SYSTEMALARMS_ALARM_SENSORS);
 
-// HomeLocationData homeLocation;
-// HomeLocationGet(&homeLocation);
-// homeLocation.Latitude = 0;
-// homeLocation.Longitude = 0;
-// homeLocation.Altitude = 0;
-// homeLocation.Be[0] = 26000;
-// homeLocation.Be[1] = 400;
-// homeLocation.Be[2] = 40000;
-// homeLocation.Set = HOMELOCATION_SET_TRUE;
-// HomeLocationSet(&homeLocation);
+	HomeLocationData homeLocation;
+	HomeLocationGet(&homeLocation);
+	homeLocation.Latitude = INIT_LAT;
+	homeLocation.Longitude = INIT_LNG;
+	homeLocation.Altitude = INIT_ALT;
+	homeLocation.Be[0] = 26000;
+	homeLocation.Be[1] = 400;
+	homeLocation.Be[2] = 40000;
+	homeLocation.Set = HOMELOCATION_SET_TRUE;
+	HomeLocationSet(&homeLocation);
 
 
     // Main task loop
     lastSysTime = xTaskGetTickCount();
-    uint32_t last_time = PIOS_DELAY_GetRaw();
+    // uint32_t last_time = PIOS_DELAY_GetRaw();
+	PERF_INIT_COUNTER(counterSimSensorPeriod, 0x53000101);
     while (1) {
+		PERF_MEASURE_BETWEEN(counterSimSensorPeriod, true);
         PIOS_WDG_UpdateFlag(PIOS_WDG_SENSORS);
 
         SystemSettingsData systemSettings;
@@ -183,13 +195,6 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             sensor_sim_type = MODEL_AGNOSTIC;
         }
 
-        static int i;
-        i++;
-        if (i % 5000 == 0) {
-            // float dT = PIOS_DELAY_DiffuS(last_time) / 10.0e6;
-            // fprintf(stderr, "Sensor relative timing: %f\n", dT);
-            last_time = PIOS_DELAY_GetRaw();
-        }
 
         sensors_count++;
 
@@ -207,6 +212,18 @@ static void SensorsTask(__attribute__((unused)) void *parameters)
             simulateModelAirplane();
         }
 
+		PERF_MEASURE_BETWEEN(counterSimSensorPeriod, false); // id = 1392509185 cycle 130us
+        static int i;
+        i++;
+        // if (i % 5000 == 0) {
+            // float dT = PIOS_DELAY_DiffuS(last_time) / 10.0e6;
+            // fprintf(stderr, "Sensor relative timing: %f\n", dT);
+            //last_time = PIOS_DELAY_GetRaw();
+        //}
+		// if (i % 5000 == 0) {
+			// pios_perf_counter_t *counter = (pios_perf_counter_t *)counterSimSensorPeriod;
+			// fprintf(stderr, "simulation sensors perf counter: %d\n", counter->value);
+		// } 
         vTaskDelay(2 / portTICK_RATE_MS);
     }
 }
@@ -339,6 +356,7 @@ static void simulateModelQuadcopter()
     const float MAG_PERIOD     = 1.0 / 75.0;
     const float BARO_PERIOD    = 1.0 / 20.0;
 
+	static bool in_flight = false;
     static uint32_t last_time;
 
     float dT = (PIOS_DELAY_DiffuS(last_time) / 1e6);
@@ -347,13 +365,17 @@ static void simulateModelQuadcopter()
         dT = 2e-3;
     }
     last_time = PIOS_DELAY_GetRaw();
+	if (dT > 5) { // if interval exceed 5s, something is wrong
+	    return;
+	}
 
     FlightStatusData flightStatus;
     FlightStatusGet(&flightStatus);
     ActuatorDesiredData actuatorDesired;
     ActuatorDesiredGet(&actuatorDesired);
 
-    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Throttle * MAX_THRUST : 0;
+	in_flight = flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED;
+    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Thrust * MAX_THRUST : 0;
     if (thrust < 0) {
         thrust = 0;
     }
@@ -415,11 +437,6 @@ static void simulateModelQuadcopter()
         AttitudeStateSet(&attitudeState);
     }
 
-    static float wind[3] = { 0, 0, 0 };
-    wind[0] = wind[0] * 0.95 + rand_gauss() / 10.0;
-    wind[1] = wind[1] * 0.95 + rand_gauss() / 10.0;
-    wind[2] = wind[2] * 0.95 + rand_gauss() / 10.0;
-
     Quaternion2R(q, Rbe);
     // Make thrust negative as down is positive
     ned_accel[0]  = -thrust * Rbe[2][0];
@@ -427,10 +444,17 @@ static void simulateModelQuadcopter()
     // Gravity causes acceleration of 9.81 in the down direction
     ned_accel[2]  = -thrust * Rbe[2][2] + GRAV;
 
-    // Apply acceleration based on velocity
-    ned_accel[0] -= K_FRICTION * (vel[0] - wind[0]);
-    ned_accel[1] -= K_FRICTION * (vel[1] - wind[1]);
-    ned_accel[2] -= K_FRICTION * (vel[2] - wind[2]);
+	if (in_flight) {
+		static float wind[3] = { 0, 0, 0 };
+		wind[0] = wind[0] * 0.95 + rand_gauss() / 10.0;
+		wind[1] = wind[1] * 0.95 + rand_gauss() / 10.0;
+		wind[2] = wind[2] * 0.95 + rand_gauss() / 10.0;
+
+		// Apply acceleration based on velocity
+		ned_accel[0] -= K_FRICTION * (vel[0] - wind[0]);
+		ned_accel[1] -= K_FRICTION * (vel[1] - wind[1]);
+		ned_accel[2] -= K_FRICTION * (vel[2] - wind[2]);
+	}
 
     // Predict the velocity forward in time
     vel[0] = vel[0] + ned_accel[0] * dT;
@@ -490,7 +514,7 @@ static void simulateModelQuadcopter()
     if (PIOS_DELAY_DiffuS(last_gps_time) / 1.0e6 > GPS_PERIOD) {
         // Use double precision here as simulating what GPS produces
         double T[3];
-        T[0] = homeLocation.Altitude + 6.378137E6f * M_PI / 180.0;
+        T[0] = (homeLocation.Altitude + 6.378137E6f) * M_PI / 180.0;
         T[1] = cos(homeLocation.Latitude / 10e6 * M_PI / 180.0f) * (homeLocation.Altitude + 6.378137E6) * M_PI / 180.0;
         T[2] = -1.0;
 
@@ -508,6 +532,7 @@ static void simulateModelQuadcopter()
         gpsPosition.Heading     = 180 / M_PI * atan2(vel[1] + gps_vel_drift[1], vel[0] + gps_vel_drift[0]);
         gpsPosition.Satellites  = 7;
         gpsPosition.PDOP = 1;
+		gpsPosition.Status = GPSPOSITIONSENSOR_STATUS_FIX3D; 
         GPSPositionSensorSet(&gpsPosition);
         last_gps_time    = PIOS_DELAY_GetRaw();
     }
@@ -543,12 +568,12 @@ static void simulateModelQuadcopter()
     attitudeSimulated.q3 = q[2];
     attitudeSimulated.q4 = q[3];
     Quaternion2RPY(q, &attitudeSimulated.Roll);
-    attitudeSimulated.Position[0] = pos[0];
-    attitudeSimulated.Position[1] = pos[1];
-    attitudeSimulated.Position[2] = pos[2];
-    attitudeSimulated.Velocity[0] = vel[0];
-    attitudeSimulated.Velocity[1] = vel[1];
-    attitudeSimulated.Velocity[2] = vel[2];
+    attitudeSimulated.Position.North = pos[0];
+    attitudeSimulated.Position.East  = pos[1];
+    attitudeSimulated.Position.Down  = pos[2];
+    attitudeSimulated.Velocity.North = vel[0];
+    attitudeSimulated.Velocity.East  = vel[1];
+    attitudeSimulated.Velocity.Down  = vel[2];
     AttitudeSimulatedSet(&attitudeSimulated);
 }
 
@@ -596,7 +621,7 @@ static void simulateModelAirplane()
     ActuatorDesiredData actuatorDesired;
     ActuatorDesiredGet(&actuatorDesired);
 
-    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Throttle * MAX_THRUST : 0;
+    float thrust = (flightStatus.Armed == FLIGHTSTATUS_ARMED_ARMED) ? actuatorDesired.Thrust * MAX_THRUST : 0;
     if (thrust < 0) {
         thrust = 0;
     }
@@ -825,12 +850,12 @@ static void simulateModelAirplane()
     attitudeSimulated.q3 = q[2];
     attitudeSimulated.q4 = q[3];
     Quaternion2RPY(q, &attitudeSimulated.Roll);
-    attitudeSimulated.Position[0] = pos[0];
-    attitudeSimulated.Position[1] = pos[1];
-    attitudeSimulated.Position[2] = pos[2];
-    attitudeSimulated.Velocity[0] = vel[0];
-    attitudeSimulated.Velocity[1] = vel[1];
-    attitudeSimulated.Velocity[2] = vel[2];
+    attitudeSimulated.Position.North = pos[0];
+    attitudeSimulated.Position.East  = pos[1];
+    attitudeSimulated.Position.Down  = pos[2];
+    attitudeSimulated.Velocity.North = vel[0];
+    attitudeSimulated.Velocity.East  = vel[1];
+    attitudeSimulated.Velocity.Down  = vel[2];
     AttitudeSimulatedSet(&attitudeSimulated);
 }
 

@@ -38,6 +38,12 @@ const struct pios_rfm22b_cfg *PIOS_BOARD_HW_DEFS_GetRfm22bCfg(uint32_t board_rev
 #ifdef PIOS_INCLUDE_OPENLRS
 const struct pios_openlrs_cfg *PIOS_BOARD_HW_DEFS_GetOpenLRSCfg(uint32_t board_revision);
 #endif
+# ifdef PIOS_INCLUDE_QMC5883_INTERNAL
+const struct pios_qmc5883_cfg *PIOS_BOARD_HW_DEFS_GetInternalQMC5883Cfg(uint32_t board_revision);
+# endif
+#ifdef PIOS_INCLUDE_QMC5883
+const struct pios_qmc5883_cfg *PIOS_BOARD_HW_DEFS_GetExternalQMC5883Cfg(uint32_t board_revision);
+#endif
 # ifdef PIOS_INCLUDE_HMC5X83_INTERNAL
 const struct pios_hmc5x83_cfg *PIOS_BOARD_HW_DEFS_GetInternalHMC5x83Cfg(uint32_t board_revision);
 # endif

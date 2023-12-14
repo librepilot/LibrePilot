@@ -149,7 +149,7 @@ pios_hmc5x83_dev_t PIOS_HMC5x83_Init(const struct pios_hmc5x83_cfg *cfg, uint32_
             break;
         }
         // if the application sensor rate is fast enough to warrant skipping some slow hardware sensor reads
-        if ((PIOS_SENSOR_RATE * 100.0f / 3.0f) > rate100) {
+        if ((PIOS_SENSOR_RATE * 100.0f / 3.0f/*3-AXIS*/) > rate100) {
             // count the number of "return false" up to this number
             dev->magCountMax = ((uint16_t)PIOS_SENSOR_RATE * 100 / rate100) + 1;
         } else {

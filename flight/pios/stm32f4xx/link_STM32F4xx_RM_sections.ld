@@ -138,6 +138,7 @@ SECTIONS
         /* extend the heap up to the top of SRAM */
         . = ORIGIN(SRAM) + LENGTH(SRAM) - ABSOLUTE(_sheap);
         _eheap = .;
+		end = .; /* dosfs link error */
     } > SRAM
 
 	/*

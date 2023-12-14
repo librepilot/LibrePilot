@@ -52,10 +52,12 @@ extern "C" {
  * If something goes wrong, blink LED1 and LED2 every 100ms
  *
  */
+static volatile int uxTopUsedPriority;
 int main()
 {
     /* NOTE: Do NOT modify the following start-up sequence */
     /* Any new initialization functions should be added in OpenPilotInit() */
+	uxTopUsedPriority = configMAX_PRIORITIES - 1;
     vPortInitialiseBlocks();
 
     /* Brings up System using CMSIS functions, enables the LEDs. */

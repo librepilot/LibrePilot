@@ -12,7 +12,7 @@ ALL_BOARDS := coptercontrol revolution revonano sparky2
 ALL_BOARDS += revoproto
 ALL_BOARDS += oplinkmini
 ALL_BOARDS += gpsplatinum
-ALL_BOARDS += osd
+#ALL_BOARDS += osd
 ALL_BOARDS += discoveryf4bare
 ALL_BOARDS += ccf3d spracingf3 spracingf3evo nucleof303re pikoblx tinyfish
 # SimPosix only builds on Linux
@@ -272,7 +272,7 @@ flight_uavobjects: $(UAVOBJGENERATOR)
 #
 ##############################
 
-ALL_UNITTESTS := logfs math lednotification
+ALL_UNITTESTS := logfs math lednotification modules
 
 # Build the directory for the unit tests
 UT_OUT_DIR := $(BUILD_DIR)/unit_tests

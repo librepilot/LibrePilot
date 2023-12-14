@@ -80,6 +80,7 @@ static const PIOS_BOARD_IO_UART_Function main_function_map[] = {
     [HWSETTINGS_RM_MAINPORT_TELEMETRY] = PIOS_BOARD_IO_UART_TELEMETRY,
     [HWSETTINGS_RM_MAINPORT_GPS]            = PIOS_BOARD_IO_UART_GPS,
     [HWSETTINGS_RM_MAINPORT_SBUS]           = PIOS_BOARD_IO_UART_SBUS,
+	[HWSETTINGS_RM_MAINPORT_DBUS]           = PIOS_BOARD_IO_UART_DBUS,
     [HWSETTINGS_RM_MAINPORT_DSM]            = PIOS_BOARD_IO_UART_DSM_MAIN,
     [HWSETTINGS_RM_MAINPORT_DEBUGCONSOLE]   = PIOS_BOARD_IO_UART_DEBUGCONSOLE,
     [HWSETTINGS_RM_MAINPORT_COMBRIDGE]      = PIOS_BOARD_IO_UART_COMBRIDGE,
@@ -133,23 +134,36 @@ void PIOS_Board_Init(void)
     }
 
     /* Set up the SPI interface to the flash and rfm22b */
+    //if (PIOS_SPI_Init(&pios_spi_telem_flash_adapter_id, &pios_spi_telem_flash_cfg)) {
+    //    PIOS_DEBUG_Assert(0);
+    //}
+    /* Set up the SPI interface to the tfcard and rfm22b */
     if (PIOS_SPI_Init(&pios_spi_telem_flash_adapter_id, &pios_spi_telem_flash_cfg)) {
         PIOS_DEBUG_Assert(0);
     }
 
 #if defined(PIOS_INCLUDE_FLASH)
     /* Connect flash to the appropriate interface and configure it */
-    uintptr_t flash_id;
+//    uintptr_t flash_id;
 
     // Initialize the external USER flash
-    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_adapter_id, 1)) {
-        PIOS_DEBUG_Assert(0);
-    }
+//    if (PIOS_Flash_Jedec_Init(&flash_id, pios_spi_telem_flash_adapter_id, 1)) {
+//        PIOS_DEBUG_Assert(0);
+//    }
 
-    if (PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, &flashfs_external_system_cfg, &pios_jedec_flash_driver, flash_id)) {
-        PIOS_DEBUG_Assert(0);
-    }
+//    if (PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, &flashfs_external_system_cfg, &pios_jedec_flash_driver, flash_id)) {
+//        PIOS_DEBUG_Assert(0);
+//    }
+
 #endif /* if defined(PIOS_INCLUDE_FLASH) */
+
+#if defined(PIOS_INCLUDE_SDCARD)
+    /* Enable and mount the SDCard */
+	// SPI is initialized above
+    PIOS_SDCARD_Init(pios_spi_telem_flash_adapter_id/*TODO: should rename to remove flash!*/);
+    PIOS_SDCARD_MountFS(0);
+    PIOS_FLASHFS_Logfs_Init(&pios_uavo_settings_fs_id, NULL, NULL, 0);
+#endif
 
 #if defined(PIOS_INCLUDE_RTC)
     PIOS_RTC_Init(&pios_rtc_main_cfg);
@@ -158,14 +172,14 @@ void PIOS_Board_Init(void)
     /* IAP System Setup */
     PIOS_IAP_Init();
     // check for safe mode commands from gcs
-    if (PIOS_IAP_ReadBootCmd(0) == PIOS_IAP_CLEAR_FLASH_CMD_0 &&
-        PIOS_IAP_ReadBootCmd(1) == PIOS_IAP_CLEAR_FLASH_CMD_1 &&
-        PIOS_IAP_ReadBootCmd(2) == PIOS_IAP_CLEAR_FLASH_CMD_2) {
-        PIOS_FLASHFS_Format(pios_uavo_settings_fs_id);
-        PIOS_IAP_WriteBootCmd(0, 0);
-        PIOS_IAP_WriteBootCmd(1, 0);
-        PIOS_IAP_WriteBootCmd(2, 0);
-    }
+    //if (PIOS_IAP_ReadBootCmd(0) == PIOS_IAP_CLEAR_FLASH_CMD_0 &&
+    //    PIOS_IAP_ReadBootCmd(1) == PIOS_IAP_CLEAR_FLASH_CMD_1 &&
+    //    PIOS_IAP_ReadBootCmd(2) == PIOS_IAP_CLEAR_FLASH_CMD_2) {
+    //    PIOS_FLASHFS_Format(pios_uavo_settings_fs_id);
+    //    PIOS_IAP_WriteBootCmd(0, 0);
+    //    PIOS_IAP_WriteBootCmd(1, 0);
+    //    PIOS_IAP_WriteBootCmd(2, 0);
+    //}
 
 #ifdef PIOS_INCLUDE_WDG
     PIOS_WDG_Init();
@@ -235,9 +249,12 @@ void PIOS_Board_Init(void)
 
     /* Moved this here to allow DSM binding on flexiport */
 #if defined(PIOS_INCLUDE_FLASH)
-    if (PIOS_FLASHFS_Logfs_Init(&pios_user_fs_id, &flashfs_external_user_cfg, &pios_jedec_flash_driver, flash_id)) {
-        PIOS_DEBUG_Assert(0);
-    }
+    //if (PIOS_FLASHFS_Logfs_Init(&pios_user_fs_id, &flashfs_external_user_cfg, &pios_jedec_flash_driver, flash_id)) {
+    //    PIOS_DEBUG_Assert(0);
+    //}
+    //if (PIOS_FLASHFS_Logfs_Init(&pios_user_fs_id, &flashfs_external_user_cfg, &pios_jedec_flash_driver, 0)) {
+    //    PIOS_DEBUG_Assert(0);
+    //}
 #endif /* if defined(PIOS_INCLUDE_FLASH) */
 
 

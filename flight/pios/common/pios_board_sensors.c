@@ -53,6 +53,13 @@
 # include <pios_mpu9250_config.h>
 #endif
 
+#ifdef PIOS_INCLUDE_QMC5883
+#include "pios_qmc5883.h"
+# ifdef PIOS_QMC5883_HAS_GPIOS
+pios_qmc5883_dev_t pios_qmc5883_internal_id;
+# endif
+#endif
+
 #ifdef PIOS_INCLUDE_HMC5X83
 # include "pios_hmc5x83.h"
 # ifdef PIOS_HMC5X83_HAS_GPIOS
@@ -122,6 +129,69 @@ void PIOS_BOARD_Sensors_Configure()
         PIOS_Assert(PIOS_BMA180_Test() == 0);
     }
 #endif
+
+// internal QMC5883 mag
+# ifdef PIOS_INCLUDE_QMC5883_INTERNAL
+    const struct pios_qmc5883_cfg *qmc5883_internal_cfg = PIOS_BOARD_HW_DEFS_GetInternalQMC5883Cfg(pios_board_info_blob.board_rev);
+
+    if (qmc5883_internal_cfg) {
+        // attach the 5883 mag to internal i2c bus
+
+        pios_qmc5883_dev_t internal_mag = PIOS_QMC5883_Init(qmc5883_internal_cfg, PIOS_I2C_QMC5883_INTERNAL_ADAPTER, 0);
+#  ifdef PIOS_INCLUDE_WDG
+        // give QMC5883 on I2C some extra time to allow for reset, etc. if needed
+        // this is not in a loop, so it is safe
+        PIOS_WDG_Clear();
+#  endif /* PIOS_INCLUDE_WDG */
+
+#ifdef PIOS_QMC5883_HAS_GPIOS
+        pios_qmc5883_internal_id = internal_mag;
+#endif
+        // add this sensor to the sensor task's list
+        PIOS_QMC5883_Register(internal_mag, PIOS_SENSORS_TYPE_3AXIS_MAG);
+    }
+
+# endif /* PIOS_INCLUDE_QMC5883_INTERNAL */
+
+# ifdef PIOS_INCLUDE_QMC5883
+
+    AuxMagSettingsTypeOptions option;
+    AuxMagSettingsTypeGet(&option);
+
+    const struct pios_qmc5883_cfg *qmc5883_external_cfg = PIOS_BOARD_HW_DEFS_GetExternalQMC5883Cfg(pios_board_info_blob.board_rev);
+
+    if (qmc5883_external_cfg) {
+        uint32_t i2c_id = 0;
+
+        if (option == AUXMAGSETTINGS_TYPE_FLEXI) {
+            // i2c_external
+#ifdef PIOS_I2C_FLEXI_ADAPTER
+            i2c_id = PIOS_I2C_FLEXI_ADAPTER;
+#endif
+        } else if (option == AUXMAGSETTINGS_TYPE_I2C) {
+            // i2c_internal (or Sparky2/F3 dedicated I2C port)
+#ifdef PIOS_I2C_EXTERNAL_ADAPTER
+            i2c_id = PIOS_I2C_EXTERNAL_ADAPTER;
+#endif
+        }
+
+        if (i2c_id) {
+            uint32_t external_mag = PIOS_QMC5883_Init(qmc5883_external_cfg, i2c_id, 0);
+#  ifdef PIOS_INCLUDE_WDG
+            // give QMC5883 on I2C some extra time to allow for reset, etc. if needed
+            // this is not in a loop, so it is safe
+            PIOS_WDG_Clear();
+#  endif /* PIOS_INCLUDE_WDG */
+            // add this sensor to the sensor task's list
+            // be careful that you don't register a slow, unimportant sensor after registering the fastest sensor
+            // and before registering some other fast and important sensor
+            // as that would cause delay and time jitter for the second fast sensor
+            PIOS_QMC5883_Register(external_mag, PIOS_SENSORS_TYPE_3AXIS_AUXMAG);
+            // mag alarm is cleared later, so use I2C
+            AlarmsSet(SYSTEMALARMS_ALARM_I2C, (external_mag) ? SYSTEMALARMS_ALARM_OK : SYSTEMALARMS_ALARM_WARNING);
+        }
+    }
+# endif /* PIOS_INCLUDE_QMC5883 */
 
     // internal HMC5x83 mag
 # ifdef PIOS_INCLUDE_HMC5X83_INTERNAL

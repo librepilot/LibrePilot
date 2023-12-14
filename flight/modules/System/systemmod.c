@@ -657,7 +657,11 @@ static void updateStats()
 #endif
     stats.CPUIdleTicks     = PIOS_TASK_MONITOR_GetIdleTicksCount();
     stats.CPUZeroLoadTicks = PIOS_TASK_MONITOR_GetZeroLoadTicksCount();
+#ifdef SIMPOSIX 
+	stats.CPULoad = 0; // workaround invalid cpu load in simulation
+#else
     stats.CPULoad = 100 - (uint8_t)((100 * stats.CPUIdleTicks) / stats.CPUZeroLoadTicks);
+#endif
 
 #if defined(PIOS_INCLUDE_ADC) && defined(PIOS_ADC_USE_TEMP_SENSOR)
     float temp_voltage = PIOS_ADC_PinGetVolt(PIOS_ADC_TEMPERATURE_PIN);

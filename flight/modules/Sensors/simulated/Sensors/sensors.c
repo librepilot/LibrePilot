@@ -102,8 +102,8 @@ enum sensor_sim_type { CONSTANT, MODEL_AGNOSTIC, MODEL_QUADCOPTER, MODEL_AIRPLAN
 PERF_DEFINE_COUNTER(counterSimSensorPeriod);
 
 // init pos *10.0e6 Shanghai YunwuShan Rd No.19
-#define INIT_LAT 312147400
-#define INIT_LNG 1214073700
+#define INIT_LAT 312147396
+#define INIT_LNG 1214073671
 #define INIT_ALT 0
 
 /**

@@ -48,7 +48,7 @@
 // ****************
 // Private constants
 
-#define TELEM_STACK_SIZE_WORDS 150
+#define TELEM_STACK_SIZE_WORDS 800
 #define PPM_STACK_SIZE_WORDS   150
 #define TASK_PRIORITY          (tskIDLE_PRIORITY + 1)
 #define MAX_RETRIES            2
